@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkScan.h"
 #include "SkBlitter.h"
@@ -192,6 +190,10 @@ void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip,
 
 #include "SkPath.h"
 #include "SkGeometry.h"
+#include "SkNx.h"
+
+#define kMaxCubicSubdivideLevel 6
+#define kMaxQuadSubdivideLevel  5
 
 static int compute_int_quad_dist(const SkPoint pts[3]) {
     // compute the vector between the control point ([1]) and the middle of the
@@ -214,6 +216,9 @@ static int compute_int_quad_dist(const SkPoint pts[3]) {
 
 static void hairquad(const SkPoint pts[3], const SkRegion* clip,
                      SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
+    SkASSERT(level <= kMaxQuadSubdivideLevel);
+
+#ifdef SK_SUPPORT_LEGACY_BLITANTIH2V2
     if (level > 0) {
         SkPoint tmp[5];
 
@@ -224,10 +229,113 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
         SkPoint tmp[] = { pts[0], pts[2] };
         lineproc(tmp, 2, clip, blitter);
     }
+#else
+    SkPoint coeff[3];
+    SkQuadToCoeff(pts, coeff);
+
+    const int lines = 1 << level;
+    Sk2s t(0);
+    Sk2s dt(SK_Scalar1 / lines);
+
+    SkPoint tmp[(1 << kMaxQuadSubdivideLevel) + 1];
+    SkASSERT((unsigned)lines < SK_ARRAY_COUNT(tmp));
+
+    tmp[0] = pts[0];
+    Sk2s A = Sk2s::Load(&coeff[0].fX);
+    Sk2s B = Sk2s::Load(&coeff[1].fX);
+    Sk2s C = Sk2s::Load(&coeff[2].fX);
+    for (int i = 1; i < lines; ++i) {
+        t += dt;
+        ((A * t + B) * t + C).store(&tmp[i].fX);
+    }
+    tmp[lines] = pts[2];
+    lineproc(tmp, lines + 1, clip, blitter);
+#endif
 }
 
-static void haircubic(const SkPoint pts[4], const SkRegion* clip,
+#ifndef SK_SUPPORT_LEGACY_BLITANTIH2V2
+static inline Sk2s abs(const Sk2s& value) {
+    return Sk2s::Max(value, -value);
+}
+
+static inline SkScalar max_component(const Sk2s& value) {
+    SkScalar components[2];
+    value.store(components);
+    return SkTMax(components[0], components[1]);
+}
+
+static inline int compute_cubic_segs(const SkPoint pts[4]) {
+    Sk2s p0 = from_point(pts[0]);
+    Sk2s p1 = from_point(pts[1]);
+    Sk2s p2 = from_point(pts[2]);
+    Sk2s p3 = from_point(pts[3]);
+
+    const Sk2s oneThird(1.0f / 3.0f);
+    const Sk2s twoThird(2.0f / 3.0f);
+
+    Sk2s p13 = oneThird * p3 + twoThird * p0;
+    Sk2s p23 = oneThird * p0 + twoThird * p3;
+
+    SkScalar diff = max_component(Sk2s::Max(abs(p1 - p13), abs(p2 - p23)));
+    SkScalar tol = SK_Scalar1 / 8;
+
+    for (int i = 0; i < kMaxCubicSubdivideLevel; ++i) {
+        if (diff < tol) {
+            return 1 << i;
+        }
+        tol *= 4;
+    }
+    return 1 << kMaxCubicSubdivideLevel;
+}
+
+static bool lt_90(SkPoint p0, SkPoint pivot, SkPoint p2) {
+    return SkVector::DotProduct(p0 - pivot, p2 - pivot) >= 0;
+}
+
+// The off-curve points are "inside" the limits of the on-curve pts
+static bool quick_cubic_niceness_check(const SkPoint pts[4]) {
+    return lt_90(pts[1], pts[0], pts[3]) &&
+           lt_90(pts[2], pts[0], pts[3]) &&
+           lt_90(pts[1], pts[3], pts[0]) &&
+           lt_90(pts[2], pts[3], pts[0]);
+}
+
+static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* blitter,
+                       SkScan::HairRgnProc lineproc) {
+    const int lines = compute_cubic_segs(pts);
+    SkASSERT(lines > 0);
+    if (1 == lines) {
+        SkPoint tmp[2] = { pts[0], pts[3] };
+        lineproc(tmp, 2, clip, blitter);
+        return;
+    }
+
+    SkPoint coeff[4];
+    SkCubicToCoeff(pts, coeff);
+    
+    const Sk2s dt(SK_Scalar1 / lines);
+    Sk2s t(0);
+
+    SkPoint tmp[(1 << kMaxCubicSubdivideLevel) + 1];
+    SkASSERT((unsigned)lines < SK_ARRAY_COUNT(tmp));
+
+    tmp[0] = pts[0];
+    Sk2s A = Sk2s::Load(&coeff[0].fX);
+    Sk2s B = Sk2s::Load(&coeff[1].fX);
+    Sk2s C = Sk2s::Load(&coeff[2].fX);
+    Sk2s D = Sk2s::Load(&coeff[3].fX);
+    for (int i = 1; i < lines; ++i) {
+        t += dt;
+        (((A * t + B) * t + C) * t + D).store(&tmp[i].fX);
+    }
+    tmp[lines] = pts[3];
+    lineproc(tmp, lines + 1, clip, blitter);
+}
+#endif
+
+static inline void haircubic(const SkPoint pts[4], const SkRegion* clip,
                       SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
+#ifdef SK_SUPPORT_LEGACY_BLITANTIH2V2
     if (level > 0) {
         SkPoint tmp[7];
 
@@ -238,10 +346,20 @@ static void haircubic(const SkPoint pts[4], const SkRegion* clip,
         SkPoint tmp[] = { pts[0], pts[3] };
         lineproc(tmp, 2, clip, blitter);
     }
-}
+#else
+    if (quick_cubic_niceness_check(pts)) {
+        hair_cubic(pts, clip, blitter, lineproc);
+    } else {
+        SkPoint  tmp[13];
+        SkScalar tValues[3];
 
-#define kMaxCubicSubdivideLevel 6
-#define kMaxQuadSubdivideLevel  5
+        int count = SkChopCubicAtMaxCurvature(pts, tmp, tValues);
+        for (int i = 0; i < count; i++) {
+            hair_cubic(&tmp[i * 3], clip, blitter, lineproc);
+        }
+    }
+#endif
+}
 
 static int compute_quad_level(const SkPoint pts[3]) {
     int d = compute_int_quad_dist(pts);
@@ -311,9 +429,9 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
                 }
                 break;
             }
-            case SkPath::kCubic_Verb:
+            case SkPath::kCubic_Verb: {
                 haircubic(pts, clip, blitter, kMaxCubicSubdivideLevel, lineproc);
-                break;
+            } break;
             case SkPath::kClose_Verb:
                 break;
             case SkPath::kDone_Verb:
