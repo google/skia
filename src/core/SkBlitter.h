@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkBlitter_DEFINED
 #define SkBlitter_DEFINED
@@ -55,6 +53,35 @@ public:
     */
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value);
 
+    // (x, y), (x + 1, y)
+    void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
+        int16_t runs[3];
+        uint8_t aa[2];
+        
+        runs[0] = 1;
+        runs[1] = 1;
+        runs[2] = 0;
+        aa[0] = SkToU8(a0);
+        aa[1] = SkToU8(a1);
+        this->blitAntiH(x, y, aa, runs);
+    }
+
+    // (x, y), (x, y + 1)
+    void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
+        int16_t runs[2];
+        uint8_t aa[1];
+        
+        runs[0] = 1;
+        runs[1] = 0;
+        aa[0] = SkToU8(a0);
+        this->blitAntiH(x, y, aa, runs);
+        // reset in case the clipping blitter modified runs
+        runs[0] = 1;
+        runs[1] = 0;
+        aa[0] = SkToU8(a1);
+        this->blitAntiH(x, y + 1, aa, runs);
+    }
+    
     /**
      *  Special method just to identify the null blitter, which is returned
      *  from Choose() if the request cannot be fulfilled. Default impl
