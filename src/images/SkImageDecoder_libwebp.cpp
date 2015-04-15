@@ -395,8 +395,8 @@ bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
     }
 
     if (!directDecode) {
-        cropBitmap(decodedBitmap, bitmap, sampleSize, region.x(), region.y(),
-                   region.width(), region.height(), rect.x(), rect.y());
+        return cropBitmap(decodedBitmap, bitmap, sampleSize, region.x(), region.y(),
+                          region.width(), region.height(), rect.x(), rect.y());
     }
     return true;
 }

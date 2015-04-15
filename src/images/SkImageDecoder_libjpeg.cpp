@@ -1125,11 +1125,11 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
 
         if (swapOnly) {
             bm->swap(bitmap);
-        } else {
-            cropBitmap(bm, &bitmap, actualSampleSize, region.x(), region.y(),
-                       region.width(), region.height(), startX, startY);
+            return true;
         }
-        return true;
+
+        return cropBitmap(bm, &bitmap, actualSampleSize, region.x(), region.y(),
+                          region.width(), region.height(), startX, startY);
     }
 #endif
 
@@ -1184,11 +1184,10 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
     }
     if (swapOnly) {
         bm->swap(bitmap);
-    } else {
-        cropBitmap(bm, &bitmap, actualSampleSize, region.x(), region.y(),
-                   region.width(), region.height(), startX, startY);
+        return true;
     }
-    return true;
+    return cropBitmap(bm, &bitmap, actualSampleSize, region.x(), region.y(),
+                      region.width(), region.height(), startX, startY);
 }
 #endif
 
