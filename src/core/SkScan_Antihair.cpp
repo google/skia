@@ -154,29 +154,70 @@ public:
 class Horish_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
     SkFixed drawCap(int x, SkFixed fy, SkFixed dy, int mod64) override {
+        int16_t runs[2];
+        uint8_t  aa[1];
+
+        runs[0] = 1;
+        runs[1] = 0;
+
         fy += SK_Fixed1/2;
-        
+        SkBlitter* blitter = this->getBlitter();
+
         int lower_y = fy >> 16;
         uint8_t  a = (uint8_t)(fy >> 8);
-        unsigned a0 = SmallDot6Scale(255 - a, mod64);
-        unsigned a1 = SmallDot6Scale(a, mod64);
-        this->getBlitter()->blitAntiV2(x, lower_y - 1, a0, a1);
-        
-        return fy + dy - SK_Fixed1/2;
+        unsigned ma = SmallDot6Scale(a, mod64);
+        if (ma) {
+            aa[0] = ApplyGamma(gamma, ma);
+            blitter->blitAntiH(x, lower_y, aa, runs);
+            // the clipping blitters might edit runs, but should not affect us
+            SkASSERT(runs[0] == 1);
+            SkASSERT(runs[1] == 0);
+        }
+        ma = SmallDot6Scale(255 - a, mod64);
+        if (ma) {
+            aa[0] = ApplyGamma(gamma, ma);
+            blitter->blitAntiH(x, lower_y - 1, aa, runs);
+            // the clipping blitters might edit runs, but should not affect us
+            SkASSERT(runs[0] == 1);
+            SkASSERT(runs[1] == 0);
+        }
+        fy += dy;
+
+        return fy - SK_Fixed1/2;
     }
-    
+
     SkFixed drawLine(int x, int stopx, SkFixed fy, SkFixed dy) override {
         SkASSERT(x < stopx);
-        
+
+        int16_t runs[2];
+        uint8_t  aa[1];
+
+        runs[0] = 1;
+        runs[1] = 0;
+
         fy += SK_Fixed1/2;
         SkBlitter* blitter = this->getBlitter();
         do {
             int lower_y = fy >> 16;
             uint8_t  a = (uint8_t)(fy >> 8);
-            blitter->blitAntiV2(x, lower_y - 1, 255 - a, a);
+            if (a) {
+                aa[0] = a;
+                blitter->blitAntiH(x, lower_y, aa, runs);
+                // the clipping blitters might edit runs, but should not affect us
+                SkASSERT(runs[0] == 1);
+                SkASSERT(runs[1] == 0);
+            }
+            a = 255 - a;
+            if (a) {
+                aa[0] = a;
+                blitter->blitAntiH(x, lower_y - 1, aa, runs);
+                // the clipping blitters might edit runs, but should not affect us
+                SkASSERT(runs[0] == 1);
+                SkASSERT(runs[1] == 0);
+            }
             fy += dy;
         } while (++x < stopx);
-        
+
         return fy - SK_Fixed1/2;
     }
 };
@@ -225,26 +266,53 @@ public:
 class Vertish_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
     SkFixed drawCap(int y, SkFixed fx, SkFixed dx, int mod64) override {
+        int16_t runs[3];
+        uint8_t  aa[2];
+
+        runs[0] = 1;
+        runs[2] = 0;
+
         fx += SK_Fixed1/2;
-        
         int x = fx >> 16;
-        uint8_t a = (uint8_t)(fx >> 8);
-        this->getBlitter()->blitAntiH2(x - 1, y,
-                                       SmallDot6Scale(255 - a, mod64), SmallDot6Scale(a, mod64));
-        
-        return fx + dx - SK_Fixed1/2;
+        uint8_t  a = (uint8_t)(fx >> 8);
+
+        aa[0] = SmallDot6Scale(255 - a, mod64);
+        aa[1] = SmallDot6Scale(a, mod64);
+        // the clippng blitters might overwrite this guy, so we have to reset it each time
+        runs[1] = 1;
+        this->getBlitter()->blitAntiH(x - 1, y, aa, runs);
+        // the clipping blitters might edit runs, but should not affect us
+        SkASSERT(runs[0] == 1);
+        SkASSERT(runs[2] == 0);
+        fx += dx;
+
+        return fx - SK_Fixed1/2;
     }
-    
+
     SkFixed drawLine(int y, int stopy, SkFixed fx, SkFixed dx) override {
         SkASSERT(y < stopy);
+        int16_t runs[3];
+        uint8_t  aa[2];
+
+        runs[0] = 1;
+        runs[2] = 0;
+
         fx += SK_Fixed1/2;
         do {
             int x = fx >> 16;
-            uint8_t a = (uint8_t)(fx >> 8);
-            this->getBlitter()->blitAntiH2(x - 1, y, 255 - a, a);
+            uint8_t  a = (uint8_t)(fx >> 8);
+
+            aa[0] = 255 - a;
+            aa[1] = a;
+            // the clippng blitters might overwrite this guy, so we have to reset it each time
+            runs[1] = 1;
+            this->getBlitter()->blitAntiH(x - 1, y, aa, runs);
+            // the clipping blitters might edit runs, but should not affect us
+            SkASSERT(runs[0] == 1);
+            SkASSERT(runs[2] == 0);
             fx += dx;
         } while (++y < stopy);
-        
+
         return fx - SK_Fixed1/2;
     }
 };
