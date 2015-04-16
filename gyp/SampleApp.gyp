@@ -91,6 +91,7 @@
         '../samplecode/SamplePath.cpp',
         '../samplecode/SamplePathClip.cpp',
         '../samplecode/SamplePathFuzz.cpp',
+        '../samplecode/SamplePathUtils.cpp',
         '../samplecode/SamplePathEffects.cpp',
         '../samplecode/SamplePicture.cpp',
         '../samplecode/SamplePictFile.cpp',

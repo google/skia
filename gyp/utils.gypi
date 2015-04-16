@@ -84,6 +84,7 @@
         '<(skia_src_path)/utils/SkPatchGrid.h',
         '<(skia_src_path)/utils/SkPatchUtils.cpp',
         '<(skia_src_path)/utils/SkPatchUtils.h',
+        '<(skia_src_path)/utils/SkPathUtils.cpp',
         '<(skia_src_path)/utils/SkSHA1.cpp',
         '<(skia_src_path)/utils/SkSHA1.h',
         '<(skia_src_path)/utils/SkRTConf.cpp',

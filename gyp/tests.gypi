@@ -169,6 +169,7 @@
     '../tests/PathCoverageTest.cpp',
     '../tests/PathMeasureTest.cpp',
     '../tests/PathTest.cpp',
+    '../tests/PathUtilsTest.cpp',
     '../tests/PictureBBHTest.cpp',
     '../tests/PictureShaderTest.cpp',
     '../tests/PictureTest.cpp',
