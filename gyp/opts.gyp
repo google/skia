@@ -66,13 +66,6 @@
             [ 'arm_neon == 1 or arm_neon_optional == 1', {
               'dependencies': [ 'opts_neon' ]
             }],
-            [ 'skia_os == "ios"', {
-              'sources!': [
-                # these fail to compile under xcode for ios
-                '../src/opts/SkBitmapProcState_opts_arm.cpp',
-                '../src/opts/SkBlitRow_opts_arm.cpp',
-              ],
-            }],
           ],
         }],
 
