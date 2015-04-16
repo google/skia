@@ -188,6 +188,7 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
 
     // Set up a fake decompress struct in order to use libjpeg to calculate output dimensions
     jpeg_decompress_struct dinfo;
+    sk_bzero(&dinfo, sizeof(dinfo));
     dinfo.image_width = this->getInfo().width();
     dinfo.image_height = this->getInfo().height();
     dinfo.global_state = DSTATE_READY;
