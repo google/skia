@@ -1681,6 +1681,7 @@ bool SkTypeface_FreeType::Scanner::scanFont(
             int const weight;
         } commonWeights [] = {
             // There are probably more common names, but these are known to exist.
+            { "all", SkFontStyle::kNormal_Weight }, // Multiple Masters usually default to normal.
             { "black", SkFontStyle::kBlack_Weight },
             { "bold", SkFontStyle::kBold_Weight },
             { "book", (SkFontStyle::kNormal_Weight + SkFontStyle::kLight_Weight)/2 },
