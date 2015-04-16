@@ -193,6 +193,7 @@ void GrContext::abandonContext() {
     fBatchFontCache->freeAll();
     fFontCache->freeAll();
     fLayerCache->freeAll();
+    fTextBlobCache->freeAll();
 }
 
 void GrContext::resetContext(uint32_t state) {

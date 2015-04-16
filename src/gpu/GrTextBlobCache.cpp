@@ -10,11 +10,7 @@
 static const int kVerticesPerGlyph = 4;
 
 GrTextBlobCache::~GrTextBlobCache() {
-    SkTDynamicHash<BitmapTextBlob, BitmapTextBlob::Key>::Iter iter(&fCache);
-    while (!iter.done()) {
-        (&(*iter))->unref();
-        ++iter;
-    }
+    this->freeAll();
 }
 
 GrAtlasTextContext::BitmapTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount,
@@ -47,4 +43,13 @@ GrAtlasTextContext::BitmapTextBlob* GrTextBlobCache::createBlob(int glyphCount, 
     cacheBlob->fTotalYError = 0;
 #endif
     return cacheBlob;
+}
+
+void GrTextBlobCache::freeAll() {
+    SkTDynamicHash<BitmapTextBlob, BitmapTextBlob::Key>::Iter iter(&fCache);
+    while (!iter.done()) {
+        (&(*iter))->unref();
+        ++iter;
+    }
+    fCache.rewind();
 }

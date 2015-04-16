@@ -115,6 +115,8 @@ public:
         fBlobList.addToHead(blob);
     }
 
+    void freeAll();
+
 private:
     // TODO move to SkTextBlob
     void BlobGlyphCount(int* glyphCount, int* runCount, const SkTextBlob* blob) {
