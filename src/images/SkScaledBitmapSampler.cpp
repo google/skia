@@ -762,7 +762,9 @@ bool SkScaledBitmapSampler::sampleInterlaced(const uint8_t* SK_RESTRICT src, int
     // of the destination bitmap's pixels, which is used to calculate the destination row
     // each time this function is called.
     const int dstY = srcYMinusY0 / fDY;
-    SkASSERT(dstY < fScaledHeight);
+    if (dstY >= fScaledHeight) {
+        return false;
+    }
     char* dstRow = fDstRow + dstY * fDstRowBytes;
     return fRowProc(dstRow, src + fX0 * fSrcPixelSize, fScaledWidth,
                     fDX * fSrcPixelSize, dstY, fCTable);
