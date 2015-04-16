@@ -175,9 +175,7 @@ static inline SkScalar SkScalarClampMax(SkScalar x, SkScalar max) {
 }
 
 static inline SkScalar SkScalarPin(SkScalar x, SkScalar min, SkScalar max) {
-    x = SkTMin(x, max);
-    x = SkTMax(x, min);
-    return x;
+    return SkTPin(x, min, max);
 }
 
 SkScalar SkScalarSinCos(SkScalar radians, SkScalar* cosValue);

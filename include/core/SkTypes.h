@@ -400,16 +400,13 @@ static inline int32_t SkFastMin32(int32_t value, int32_t max) {
     return value;
 }
 
-/** Returns signed 32 bit value pinned between min and max, inclusively
-*/
+template <typename T> static inline const T& SkTPin(const T& x, const T& min, const T& max) {
+    return SkTMax(SkTMin(x, max), min);
+}
+
+/** Returns signed 32 bit value pinned between min and max, inclusively. */
 static inline int32_t SkPin32(int32_t value, int32_t min, int32_t max) {
-    if (value < min) {
-        value = min;
-    }
-    if (value > max) {
-        value = max;
-    }
-    return value;
+    return SkTPin(value, min, max);
 }
 
 static inline uint32_t SkSetClearShift(uint32_t bits, bool cond,
