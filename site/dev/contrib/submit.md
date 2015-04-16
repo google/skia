@@ -8,7 +8,7 @@ Making changes
 First create a branch for your changes:
 
 ~~~~
-$ git checkout --track origin/master -b my_feature master
+$ git checkout -b my_feature origin/master
 ~~~~
 
 After making your changes, create a commit
