@@ -34,6 +34,12 @@ protected:
         return NULL;
     }
 
+    void flatten(SkWriteBuffer& buffer) const override {
+        // Do nothing.
+        // We just don't want to fall through to SkShader::flatten(),
+        // which will write data we don't care to serialize or decode.
+    }
+
 private:
     typedef SkShader INHERITED;
 };

@@ -30,12 +30,10 @@ protected:
         SkMatrix badMatrix;
         badMatrix.setAll(0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-#if 0 // This crashes pipe!
         // Empty bitmap.
         fPaints.push_back().setColor(SK_ColorGREEN);
         fPaints.back().setShader(SkShader::CreateBitmapShader(emptyBmp, SkShader::kClamp_TileMode,
                                                               SkShader::kClamp_TileMode))->unref();
-#endif
 
         // Non-invertible local matrix.
         fPaints.push_back().setColor(SK_ColorGREEN);
