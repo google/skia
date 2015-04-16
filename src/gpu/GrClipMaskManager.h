@@ -74,7 +74,7 @@ public:
 
     void setClipTarget(GrClipTarget*);
 
-    void adjustPathStencilParams(const GrStencilBuffer*, GrStencilSettings*);
+    void adjustPathStencilParams(const GrStencilAttachment*, GrStencilSettings*);
 
 private:
     /**

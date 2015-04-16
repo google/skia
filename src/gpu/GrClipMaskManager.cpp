@@ -14,7 +14,7 @@
 #include "GrPathRenderer.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
-#include "GrStencilBuffer.h"
+#include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
 #include "SkRasterClip.h"
 #include "SkStrokeRec.h"
@@ -706,13 +706,13 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
     SkASSERT(rt);
 
-    GrStencilBuffer* stencilBuffer = rt->renderTargetPriv().attachStencilBuffer();
-    if (NULL == stencilBuffer) {
+    GrStencilAttachment* stencilAttachment = rt->renderTargetPriv().attachStencilAttachment();
+    if (NULL == stencilAttachment) {
         return false;
     }
 
-    if (stencilBuffer->mustRenderClip(elementsGenID, clipSpaceIBounds, clipSpaceToStencilOffset)) {
-        stencilBuffer->setLastClip(elementsGenID, clipSpaceIBounds, clipSpaceToStencilOffset);
+    if (stencilAttachment->mustRenderClip(elementsGenID, clipSpaceIBounds, clipSpaceToStencilOffset)) {
+        stencilAttachment->setLastClip(elementsGenID, clipSpaceIBounds, clipSpaceToStencilOffset);
         // Set the matrix so that rendered clip elements are transformed from clip to stencil space.
         SkVector translate = {
             SkIntToScalar(clipSpaceToStencilOffset.fX),
@@ -726,7 +726,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
         stencilSpaceIBounds.offset(clipSpaceToStencilOffset);
         GrClip clip(stencilSpaceIBounds);
 
-        int clipBit = stencilBuffer->bits();
+        int clipBit = stencilAttachment->bits();
         SkASSERT((clipBit <= 16) && "Ganesh only handles 16b or smaller stencil buffers");
         clipBit = (1 << (clipBit-1));
 
@@ -952,9 +952,9 @@ void GrClipMaskManager::setPipelineBuilderStencil(GrPipelineBuilder* pipelineBui
 
     int stencilBits = 0;
     GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
-    GrStencilBuffer* stencilBuffer = rt->renderTargetPriv().attachStencilBuffer();
-    if (stencilBuffer) {
-        stencilBits = stencilBuffer->bits();
+    GrStencilAttachment* stencilAttachment = rt->renderTargetPriv().attachStencilAttachment();
+    if (stencilAttachment) {
+        stencilBits = stencilAttachment->bits();
     }
 
     SkASSERT(fClipTarget->caps()->stencilWrapOpsSupport() || !settings.usesWrapOp());
@@ -1127,10 +1127,10 @@ void GrClipMaskManager::setClipTarget(GrClipTarget* clipTarget) {
     fAACache.setContext(clipTarget->getContext());
 }
 
-void GrClipMaskManager::adjustPathStencilParams(const GrStencilBuffer* stencilBuffer,
+void GrClipMaskManager::adjustPathStencilParams(const GrStencilAttachment* stencilAttachment,
                                                 GrStencilSettings* settings) {
-    if (stencilBuffer) {
-        int stencilBits = stencilBuffer->bits();
+    if (stencilAttachment) {
+        int stencilBits = stencilAttachment->bits();
         this->adjustStencilParams(settings, fClipMode, stencilBits);
     }
 }

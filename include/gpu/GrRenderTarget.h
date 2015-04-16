@@ -11,7 +11,7 @@
 #include "GrSurface.h"
 #include "SkRect.h"
 
-class GrStencilBuffer;
+class GrStencilAttachment;
 class GrRenderTargetPriv;
 
 /**
@@ -96,7 +96,7 @@ public:
 protected:
     GrRenderTarget(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
         : INHERITED(gpu, lifeCycle, desc)
-        , fStencilBuffer(NULL) {
+        , fStencilAttachment(NULL) {
         fResolveRect.setLargestInverted();
     }
 
@@ -110,9 +110,9 @@ private:
 
     friend class GrRenderTargetPriv;
 
-    GrStencilBuffer*  fStencilBuffer;
+    GrStencilAttachment*  fStencilAttachment;
 
-    SkIRect           fResolveRect;
+    SkIRect               fResolveRect;
 
     typedef GrSurface INHERITED;
 };

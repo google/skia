@@ -7,8 +7,8 @@
  */
 
 
-#ifndef GrStencilBuffer_DEFINED
-#define GrStencilBuffer_DEFINED
+#ifndef GrStencilAttachment_DEFINED
+#define GrStencilAttachment_DEFINED
 
 #include "GrClip.h"
 #include "GrGpuResource.h"
@@ -16,11 +16,11 @@
 class GrRenderTarget;
 class GrResourceKey;
 
-class GrStencilBuffer : public GrGpuResource {
+class GrStencilAttachment : public GrGpuResource {
 public:
-    SK_DECLARE_INST_COUNT(GrStencilBuffer);
+    SK_DECLARE_INST_COUNT(GrStencilAttachment);
 
-    virtual ~GrStencilBuffer() {
+    virtual ~GrStencilAttachment() {
         // TODO: allow SB to be purged and detach itself from rts
     }
 
@@ -49,11 +49,12 @@ public:
 
     // We create a unique stencil buffer at each width, height and sampleCnt and share it for
     // all render targets that require a stencil with those params.
-    static void ComputeSharedStencilBufferKey(int width, int height, int sampleCnt,
-                                              GrUniqueKey* key);
+    static void ComputeSharedStencilAttachmentKey(int width, int height, int sampleCnt,
+                                                  GrUniqueKey* key);
 
 protected:
-    GrStencilBuffer(GrGpu* gpu, LifeCycle lifeCycle, int width, int height, int bits, int sampleCnt)
+    GrStencilAttachment(GrGpu* gpu, LifeCycle lifeCycle, int width, int height, int bits,
+                        int sampleCnt)
         : GrGpuResource(gpu, lifeCycle)
         , fWidth(width)
         , fHeight(height)

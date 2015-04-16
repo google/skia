@@ -7,7 +7,7 @@
 
 
 #include "GrGLGpu.h"
-#include "GrGLStencilBuffer.h"
+#include "GrGLStencilAttachment.h"
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourcePriv.h"
 #include "GrPipeline.h"
@@ -447,20 +447,20 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 
     GrRenderTarget* tgt = SkNEW_ARGS(GrGLRenderTarget, (this, desc, idDesc));
     if (wrapDesc.fStencilBits) {
-        GrGLStencilBuffer::IDDesc sbDesc;
-        GrGLStencilBuffer::Format format;
-        format.fInternalFormat = GrGLStencilBuffer::kUnknownInternalFormat;
+        GrGLStencilAttachment::IDDesc sbDesc;
+        GrGLStencilAttachment::Format format;
+        format.fInternalFormat = GrGLStencilAttachment::kUnknownInternalFormat;
         format.fPacked = false;
         format.fStencilBits = wrapDesc.fStencilBits;
         format.fTotalBits = wrapDesc.fStencilBits;
-        GrGLStencilBuffer* sb = SkNEW_ARGS(GrGLStencilBuffer,
+        GrGLStencilAttachment* sb = SkNEW_ARGS(GrGLStencilAttachment,
                                            (this,
                                             sbDesc,
                                             desc.fWidth,
                                             desc.fHeight,
                                             desc.fSampleCnt,
                                             format));
-        tgt->renderTargetPriv().didAttachStencilBuffer(sb);
+        tgt->renderTargetPriv().didAttachStencilAttachment(sb);
         sb->unref();
     }
     return tgt;
@@ -1108,10 +1108,10 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& origDesc, boo
 
 namespace {
 
-const GrGLuint kUnknownBitCount = GrGLStencilBuffer::kUnknownBitCount;
+const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
 
 void inline get_stencil_rb_sizes(const GrGLInterface* gl,
-                                 GrGLStencilBuffer::Format* format) {
+                                 GrGLStencilAttachment::Format* format) {
 
     // we shouldn't ever know one size and not the other
     SkASSERT((kUnknownBitCount == format->fStencilBits) ==
@@ -1132,7 +1132,7 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 }
 }
 
-bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, int height) {
+bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int width, int height) {
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is a RT that isn't also a texture).
     SkASSERT(rt->asTexture());
@@ -1140,7 +1140,7 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
     SkASSERT(height >= rt->height());
 
     int samples = rt->numSamples();
-    GrGLStencilBuffer::IDDesc sbDesc;
+    GrGLStencilAttachment::IDDesc sbDesc;
 
     int stencilFmtCnt = this->glCaps().stencilFormats().count();
     for (int i = 0; i < stencilFmtCnt; ++i) {
@@ -1172,16 +1172,16 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
             created = (GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface()));
         }
         if (created) {
-            fStats.incStencilBufferCreates();
+            fStats.incStencilAttachmentCreates();
             // After sized formats we attempt an unsized format and take
             // whatever sizes GL gives us. In that case we query for the size.
-            GrGLStencilBuffer::Format format = sFmt;
+            GrGLStencilAttachment::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), &format);
-            SkAutoTUnref<GrGLStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
+            SkAutoTUnref<GrGLStencilAttachment> sb(SkNEW_ARGS(GrGLStencilAttachment,
                                                   (this, sbDesc, width, height, samples, format)));
-            if (this->attachStencilBufferToRenderTarget(sb, rt)) {
+            if (this->attachStencilAttachmentToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
-                rt->renderTargetPriv().didAttachStencilBuffer(sb);
+                rt->renderTargetPriv().didAttachStencilAttachment(sb);
 // This work around is currently breaking on windows 7 hd2000 bot when we bind a color buffer
 #if 0
                 // Clear the stencil buffer. We use a special purpose FBO for this so that the
@@ -1248,13 +1248,13 @@ bool GrGLGpu::createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, 
     return false;
 }
 
-bool GrGLGpu::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTarget* rt) {
+bool GrGLGpu::attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb, GrRenderTarget* rt) {
     GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
 
     GrGLuint fbo = glrt->renderFBOID();
 
     if (NULL == sb) {
-        if (rt->renderTargetPriv().getStencilBuffer()) {
+        if (rt->renderTargetPriv().getStencilAttachment()) {
             GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                             GR_GL_STENCIL_ATTACHMENT,
                                             GR_GL_RENDERBUFFER, 0));
@@ -1269,7 +1269,7 @@ bool GrGLGpu::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
         }
         return true;
     } else {
-        GrGLStencilBuffer* glsb = static_cast<GrGLStencilBuffer*>(sb);
+        GrGLStencilAttachment* glsb = static_cast<GrGLStencilAttachment*>(sb);
         GrGLuint rb = glsb->renderbufferID();
 
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
@@ -1629,7 +1629,7 @@ void GrGLGpu::clearStencil(GrRenderTarget* target) {
 void GrGLGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bool insideClip) {
     SkASSERT(target);
 
-    GrStencilBuffer* sb = target->renderTargetPriv().getStencilBuffer();
+    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);

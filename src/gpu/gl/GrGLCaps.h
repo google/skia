@@ -10,7 +10,7 @@
 #define GrGLCaps_DEFINED
 
 #include "GrDrawTargetCaps.h"
-#include "GrGLStencilBuffer.h"
+#include "GrGLStencilAttachment.h"
 #include "SkChecksum.h"
 #include "SkTHash.h"
 #include "SkTArray.h"
@@ -26,7 +26,7 @@ class GrGLCaps : public GrDrawTargetCaps {
 public:
     SK_DECLARE_INST_COUNT(GrGLCaps)
 
-    typedef GrGLStencilBuffer::Format StencilFormat;
+    typedef GrGLStencilAttachment::Format StencilFormat;
 
     /**
      * The type of MSAA for FBOs supported. Different extensions have different
@@ -132,7 +132,7 @@ public:
      */
     void markColorConfigAndStencilFormatAsVerified(
                     GrPixelConfig config,
-                    const GrGLStencilBuffer::Format& format);
+                    const GrGLStencilAttachment::Format& format);
 
     /**
      * Call to check whether color config / stencil format pair has already
@@ -140,7 +140,7 @@ public:
      */
     bool isColorConfigAndStencilFormatVerified(
                     GrPixelConfig config,
-                    const GrGLStencilBuffer::Format& format) const;
+                    const GrGLStencilAttachment::Format& format) const;
 
     /**
      * Reports the type of MSAA FBO support.

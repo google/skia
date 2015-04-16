@@ -6,10 +6,10 @@
  */
 
 
-#include "GrGLStencilBuffer.h"
+#include "GrGLStencilAttachment.h"
 #include "GrGLGpu.h"
 
-size_t GrGLStencilBuffer::onGpuMemorySize() const {
+size_t GrGLStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= fFormat.fTotalBits;
@@ -17,7 +17,7 @@ size_t GrGLStencilBuffer::onGpuMemorySize() const {
     return static_cast<size_t>(size / 8);
 }
 
-void GrGLStencilBuffer::onRelease() {
+void GrGLStencilAttachment::onRelease() {
     if (0 != fRenderbufferID && !this->isWrapped()) {
         GrGLGpu* gpuGL = (GrGLGpu*) this->getGpu();
         const GrGLInterface* gl = gpuGL->glInterface();
@@ -28,7 +28,7 @@ void GrGLStencilBuffer::onRelease() {
     INHERITED::onRelease();
 }
 
-void GrGLStencilBuffer::onAbandon() {
+void GrGLStencilAttachment::onAbandon() {
     fRenderbufferID = 0;
 
     INHERITED::onAbandon();

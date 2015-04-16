@@ -12,7 +12,7 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrRenderTargetPriv.h"
-#include "GrStencilBuffer.h"
+#include "GrStencilAttachment.h"
 
 void GrRenderTarget::discard() {
     // go through context so that all necessary flushing occurs
@@ -48,29 +48,29 @@ void GrRenderTarget::overrideResolveRect(const SkIRect rect) {
 }
 
 void GrRenderTarget::onRelease() {
-    this->renderTargetPriv().didAttachStencilBuffer(NULL);
+    this->renderTargetPriv().didAttachStencilAttachment(NULL);
 
     INHERITED::onRelease();
 }
 
 void GrRenderTarget::onAbandon() {
-    this->renderTargetPriv().didAttachStencilBuffer(NULL);
+    this->renderTargetPriv().didAttachStencilAttachment(NULL);
 
     INHERITED::onAbandon();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrRenderTargetPriv::didAttachStencilBuffer(GrStencilBuffer* stencilBuffer) {
-    SkRefCnt_SafeAssign(fRenderTarget->fStencilBuffer, stencilBuffer);
+void GrRenderTargetPriv::didAttachStencilAttachment(GrStencilAttachment* stencilAttachment) {
+    SkRefCnt_SafeAssign(fRenderTarget->fStencilAttachment, stencilAttachment);
 }
 
-GrStencilBuffer* GrRenderTargetPriv::attachStencilBuffer() const {
-    if (fRenderTarget->fStencilBuffer) {
-        return fRenderTarget->fStencilBuffer;
+GrStencilAttachment* GrRenderTargetPriv::attachStencilAttachment() const {
+    if (fRenderTarget->fStencilAttachment) {
+        return fRenderTarget->fStencilAttachment;
     }
     if (!fRenderTarget->wasDestroyed() && fRenderTarget->canAttemptStencilAttachment()) {
-        fRenderTarget->getGpu()->attachStencilBufferToRenderTarget(fRenderTarget);
+        fRenderTarget->getGpu()->attachStencilAttachmentToRenderTarget(fRenderTarget);
     }
-    return fRenderTarget->fStencilBuffer;
+    return fRenderTarget->fStencilAttachment;
 }

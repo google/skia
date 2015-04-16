@@ -21,7 +21,7 @@ class GrPathRenderer;
 class GrPathRendererChain;
 class GrPipeline;
 class GrPrimitiveProcessor;
-class GrStencilBuffer;
+class GrStencilAttachment;
 class GrVertexBufferAllocPool;
 
 class GrGpu : public SkRefCnt {
@@ -358,7 +358,7 @@ public:
             fShaderCompilations = 0;
             fTextureCreates = 0;
             fTextureUploads = 0;
-            fStencilBufferCreates = 0;
+            fStencilAttachmentCreates = 0;
         }
 
         int renderTargetBinds() const { return fRenderTargetBinds; }
@@ -369,7 +369,7 @@ public:
         void incTextureCreates() { fTextureCreates++; }
         int textureUploads() const { return fTextureUploads; }
         void incTextureUploads() { fTextureUploads++; }
-        void incStencilBufferCreates() { fStencilBufferCreates++; }
+        void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
         void dump(SkString*);
 
     private:
@@ -377,14 +377,14 @@ public:
         int fShaderCompilations;
         int fTextureCreates;
         int fTextureUploads;
-        int fStencilBufferCreates;
+        int fStencilAttachmentCreates;
 #else
         void dump(SkString*) {};
         void incRenderTargetBinds() {}
         void incShaderCompilations() {}
         void incTextureCreates() {}
         void incTextureUploads() {}
-        void incStencilBufferCreates() {}
+        void incStencilAttachmentCreates() {}
 #endif
     };
 
@@ -410,7 +410,7 @@ public:
     void restoreActiveTraceMarkers();
 
     // Given a rt, find or create a stencil buffer and attach it
-    bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
+    bool attachStencilAttachmentToRenderTarget(GrRenderTarget* target);
 
 protected:
     // Functions used to map clip-respecting stencil tests into normal
@@ -488,10 +488,10 @@ private:
     // width and height may be larger than rt (if underlying API allows it).
     // Should attach the SB to the RT. Returns false if compatible sb could
     // not be created.
-    virtual bool createStencilBufferForRenderTarget(GrRenderTarget*, int width, int height) = 0;
+    virtual bool createStencilAttachmentForRenderTarget(GrRenderTarget*, int width, int height) = 0;
 
     // attaches an existing SB to an existing RT.
-    virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer*, GrRenderTarget*) = 0;
+    virtual bool attachStencilAttachmentToRenderTarget(GrStencilAttachment*, GrRenderTarget*) = 0;
 
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;

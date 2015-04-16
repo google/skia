@@ -16,17 +16,17 @@
 class GrRenderTargetPriv {
 public:
     /**
-     * GrStencilBuffer is not part of the public API.
+     * GrStencilAttachment is not part of the public API.
      */
-    GrStencilBuffer* getStencilBuffer() const { return fRenderTarget->fStencilBuffer; }
+    GrStencilAttachment* getStencilAttachment() const { return fRenderTarget->fStencilAttachment; }
 
     /**
      * If this render target already has a stencil buffer, return it. Otherwise attempt to attach
      * one.
      */
-    GrStencilBuffer* attachStencilBuffer() const;
+    GrStencilAttachment* attachStencilAttachment() const;
 
-    void didAttachStencilBuffer(GrStencilBuffer*);
+    void didAttachStencilAttachment(GrStencilAttachment*);
 
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}

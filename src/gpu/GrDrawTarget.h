@@ -788,7 +788,7 @@ private:
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
     void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
-                                           const GrStencilBuffer*,
+                                           const GrStencilAttachment*,
                                            GrStencilSettings*);
     virtual GrClipMaskManager* clipMaskManager() = 0;
     virtual bool setupClip(GrPipelineBuilder*,

@@ -16,7 +16,7 @@
 #include "GrIndexBuffer.h"
 #include "GrResourceCache.h"
 #include "GrRenderTargetPriv.h"
-#include "GrStencilBuffer.h"
+#include "GrStencilAttachment.h"
 #include "GrVertexBuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,8 +76,8 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
     return tex;
 }
 
-bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
-    SkASSERT(NULL == rt->renderTargetPriv().getStencilBuffer());
+bool GrGpu::attachStencilAttachmentToRenderTarget(GrRenderTarget* rt) {
+    SkASSERT(NULL == rt->renderTargetPriv().getStencilAttachment());
     GrUniqueKey sbKey;
 
     int width = rt->width();
@@ -89,17 +89,17 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     }
 #endif
 
-    GrStencilBuffer::ComputeSharedStencilBufferKey(width, height, rt->numSamples(), &sbKey);
-    SkAutoTUnref<GrStencilBuffer> sb(static_cast<GrStencilBuffer*>(
+    GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height, rt->numSamples(), &sbKey);
+    SkAutoTUnref<GrStencilAttachment> sb(static_cast<GrStencilAttachment*>(
         this->getContext()->getResourceCache()->findAndRefUniqueResource(sbKey)));
     if (sb) {
-        if (this->attachStencilBufferToRenderTarget(sb, rt)) {
-            rt->renderTargetPriv().didAttachStencilBuffer(sb);
+        if (this->attachStencilAttachmentToRenderTarget(sb, rt)) {
+            rt->renderTargetPriv().didAttachStencilAttachment(sb);
             return true;
         }
         return false;
     }
-    if (this->createStencilBufferForRenderTarget(rt, width, height)) {
+    if (this->createStencilAttachmentForRenderTarget(rt, width, height)) {
         // Right now we're clearing the stencil buffer here after it is
         // attached to an RT for the first time. When we start matching
         // stencil buffers with smaller color targets this will no longer
@@ -109,7 +109,7 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         // FBO. But iOS doesn't allow a stencil-only FBO. It reports unsupported
         // FBO status.
         this->clearStencil(rt);
-        GrStencilBuffer* sb = rt->renderTargetPriv().getStencilBuffer();
+        GrStencilAttachment* sb = rt->renderTargetPriv().getStencilAttachment();
         sb->resourcePriv().setUniqueKey(sbKey);
         return true;
     } else {
@@ -125,7 +125,7 @@ GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc) {
     }
     // TODO: defer this and attach dynamically
     GrRenderTarget* tgt = tex->asRenderTarget();
-    if (tgt && !this->attachStencilBufferToRenderTarget(tgt)) {
+    if (tgt && !this->attachStencilAttachmentToRenderTarget(tgt)) {
         tex->unref();
         return NULL;
     } else {

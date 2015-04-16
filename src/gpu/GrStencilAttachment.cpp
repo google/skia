@@ -6,11 +6,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrStencilBuffer.h"
+#include "GrStencilAttachment.h"
 #include "GrResourceKey.h"
 
-void GrStencilBuffer::ComputeSharedStencilBufferKey(int width, int height, int sampleCnt,
-                                                    GrUniqueKey* key) {
+void GrStencilAttachment::ComputeSharedStencilAttachmentKey(int width, int height, int sampleCnt,
+                                                            GrUniqueKey* key) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(key, kDomain, 3);
     builder[0] = width;

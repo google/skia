@@ -564,7 +564,7 @@ static const GrStencilSettings& even_odd_path_stencil_settings() {
 }
 
 void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType fill,
-                                                     const GrStencilBuffer* sb,
+                                                     const GrStencilAttachment* sb,
                                                      GrStencilSettings* outStencilSettings) {
 
     switch (fill) {
@@ -600,7 +600,7 @@ void GrDrawTarget::stencilPath(GrPipelineBuilder* pipelineBuilder,
     // set stencil settings for path
     GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
-    GrStencilBuffer* sb = rt->renderTargetPriv().attachStencilBuffer();
+    GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
     this->onStencilPath(*pipelineBuilder, pathProc, path, scissorState, stencilSettings);
@@ -629,7 +629,7 @@ void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
     // set stencil settings for path
     GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
-    GrStencilBuffer* sb = rt->renderTargetPriv().attachStencilBuffer();
+    GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
     GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, pathProc, &devBounds,
@@ -669,7 +669,7 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
     // set stencil settings for path
     GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
-    GrStencilBuffer* sb = rt->renderTargetPriv().attachStencilBuffer();
+    GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
     // Don't compute a bounding box for dst copy texture, we'll opt

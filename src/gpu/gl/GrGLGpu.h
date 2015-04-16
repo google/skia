@@ -14,7 +14,7 @@
 #include "GrGLPathRendering.h"
 #include "GrGLProgram.h"
 #include "GrGLRenderTarget.h"
-#include "GrGLStencilBuffer.h"
+#include "GrGLStencilAttachment.h"
 #include "GrGLTexture.h"
 #include "GrGLVertexArray.h"
 #include "GrGLVertexBuffer.h"
@@ -122,8 +122,9 @@ private:
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override;
     GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) override;
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override;
-    bool createStencilBufferForRenderTarget(GrRenderTarget* rt, int width, int height) override;
-    bool attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTarget* rt) override;
+    bool createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int width, int height) override;
+    bool attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb,
+                                               GrRenderTarget* rt) override;
 
     void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
                  bool canIgnoreRect) override;

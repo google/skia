@@ -791,7 +791,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 }
 
 namespace {
-const GrGLuint kUnknownBitCount = GrGLStencilBuffer::kUnknownBitCount;
+const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
 }
 
 void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
@@ -929,7 +929,7 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo, const Gr
 
 void GrGLCaps::markColorConfigAndStencilFormatAsVerified(
                                     GrPixelConfig config,
-                                    const GrGLStencilBuffer::Format& format) {
+                                    const GrGLStencilAttachment::Format& format) {
 #if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
     return;
 #endif
@@ -952,7 +952,7 @@ void GrGLCaps::markColorConfigAndStencilFormatAsVerified(
 
 bool GrGLCaps::isColorConfigAndStencilFormatVerified(
                                 GrPixelConfig config,
-                                const GrGLStencilBuffer::Format& format) const {
+                                const GrGLStencilAttachment::Format& format) const {
 #if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
     return false;
 #endif

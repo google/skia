@@ -6,13 +6,13 @@
  */
 
 
-#ifndef GrGLStencilBuffer_DEFINED
-#define GrGLStencilBuffer_DEFINED
+#ifndef GrGLStencilAttachment_DEFINED
+#define GrGLStencilAttachment_DEFINED
 
 #include "gl/GrGLInterface.h"
-#include "GrStencilBuffer.h"
+#include "GrStencilAttachment.h"
 
-class GrGLStencilBuffer : public GrStencilBuffer {
+class GrGLStencilAttachment : public GrStencilAttachment {
 public:
     static const GrGLenum kUnknownInternalFormat = ~0U;
     static const GrGLuint kUnknownBitCount = ~0U;
@@ -29,12 +29,12 @@ public:
         GrGpuResource::LifeCycle fLifeCycle;
     };
 
-    GrGLStencilBuffer(GrGpu* gpu,
+    GrGLStencilAttachment(GrGpu* gpu,
                       const IDDesc& idDesc,
                       int width, int height,
                       int sampleCnt,
                       const Format& format)
-        : GrStencilBuffer(gpu, idDesc.fLifeCycle, width, height, format.fStencilBits, sampleCnt)
+        : GrStencilAttachment(gpu, idDesc.fLifeCycle, width, height, format.fStencilBits, sampleCnt)
         , fFormat(format)
         , fRenderbufferID(idDesc.fRenderbufferID) {
         this->registerWithCache();
@@ -60,7 +60,7 @@ private:
     // us how many bits of stencil there are).
     GrGLuint fRenderbufferID;
 
-    typedef GrStencilBuffer INHERITED;
+    typedef GrStencilAttachment INHERITED;
 };
 
 #endif

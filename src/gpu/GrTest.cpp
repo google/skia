@@ -71,7 +71,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Shader Compilations: %d\n", fShaderCompilations);
     out->appendf("Textures Created: %d\n", fTextureCreates);
     out->appendf("Texture Uploads: %d\n", fTextureUploads);
-    out->appendf("Stencil Buffer Creates: %d\n", fStencilBufferCreates);
+    out->appendf("Stencil Buffer Creates: %d\n", fStencilAttachmentCreates);
 }
 #endif
 
@@ -232,11 +232,11 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
-    bool createStencilBufferForRenderTarget(GrRenderTarget*, int width, int height) override {
+    bool createStencilAttachmentForRenderTarget(GrRenderTarget*, int width, int height) override {
         return false;
     }
 
-    bool attachStencilBufferToRenderTarget(GrStencilBuffer*, GrRenderTarget*) override {
+    bool attachStencilAttachmentToRenderTarget(GrStencilAttachment*, GrRenderTarget*) override {
         return false;
     }
 
