@@ -83,7 +83,6 @@
     '../bench/PatchGridBench.cpp',
     '../bench/PathBench.cpp',
     '../bench/PathIterBench.cpp',
-    '../bench/PathUtilsBench.cpp',
     '../bench/PerlinNoiseBench.cpp',
     '../bench/PictureNestingBench.cpp',
     '../bench/PictureOverheadBench.cpp',
