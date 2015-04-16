@@ -104,11 +104,6 @@ SK_API void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Convert from parametric from (pts) to polynomial coefficients
-    coeff[0]*T^3 + coeff[1]*T^2 + coeff[2]*T + coeff[3]
-*/
-void SkGetCubicCoeff(const SkPoint pts[4], SkScalar cx[4], SkScalar cy[4]);
-
 /** Set pt to the point on the src cubic specified by t. t must be
     0 <= t <= 1.0
 */

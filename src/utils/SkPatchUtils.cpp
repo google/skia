@@ -48,12 +48,7 @@ public:
         fPoints[2] = c;
         fPoints[3] = d;
         
-        SkScalar cx[4], cy[4];
-        SkGetCubicCoeff(fPoints, cx, cy);
-        fCoefs[0].set(cx[0], cy[0]);
-        fCoefs[1].set(cx[1], cy[1]);
-        fCoefs[2].set(cx[2], cy[2]);
-        fCoefs[3].set(cx[3], cy[3]);
+        SkCubicToCoeff(fPoints, fCoefs);
         
         this->restart(1);
     }
@@ -61,12 +56,7 @@ public:
     explicit FwDCubicEvaluator(const SkPoint points[4])  {
         memcpy(fPoints, points, 4 * sizeof(SkPoint));
         
-        SkScalar cx[4], cy[4];
-        SkGetCubicCoeff(fPoints, cx, cy);
-        fCoefs[0].set(cx[0], cy[0]);
-        fCoefs[1].set(cx[1], cy[1]);
-        fCoefs[2].set(cx[2], cy[2]);
-        fCoefs[3].set(cx[3], cy[3]);
+        SkCubicToCoeff(fPoints, fCoefs);
         
         this->restart(1);
     }

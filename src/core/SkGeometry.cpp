@@ -341,24 +341,6 @@ void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]) {
 ///// CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS /////
 //////////////////////////////////////////////////////////////////////////////
 
-static void get_cubic_coeff(const SkScalar pt[], SkScalar coeff[4]) {
-    coeff[0] = pt[6] + 3*(pt[2] - pt[4]) - pt[0];
-    coeff[1] = 3*(pt[4] - pt[2] - pt[2] + pt[0]);
-    coeff[2] = 3*(pt[2] - pt[0]);
-    coeff[3] = pt[0];
-}
-
-void SkGetCubicCoeff(const SkPoint pts[4], SkScalar cx[4], SkScalar cy[4]) {
-    SkASSERT(pts);
-
-    if (cx) {
-        get_cubic_coeff(&pts[0].fX, cx);
-    }
-    if (cy) {
-        get_cubic_coeff(&pts[0].fY, cy);
-    }
-}
-
 static SkScalar eval_cubic(const SkScalar src[], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
