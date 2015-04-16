@@ -205,6 +205,12 @@ void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, void* data) {
     return data;
 }
 
+struct EdgeList {
+    EdgeList() : fHead(NULL), fTail(NULL) {}
+    Edge* fHead;
+    Edge* fTail;
+};
+
 /**
  * An Edge joins a top Vertex to a bottom Vertex. Edge ordering for the list of "edges above" and
  * "edge below" a vertex as well as for the active edge list is handled by isLeftOf()/isRightOf().
@@ -294,8 +300,8 @@ struct Edge {
         p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fDY);
         return true;
     }
-    bool isActive(Edge** activeEdges) const {
-        return activeEdges && (fLeft || fRight || *activeEdges == this);
+    bool isActive(EdgeList* activeEdges) const {
+        return activeEdges && (fLeft || fRight || activeEdges->fHead == this);
     }
 };
 
@@ -634,42 +640,42 @@ Edge* new_edge(Vertex* prev, Vertex* next, SkChunkAlloc& alloc, Comparator& c) {
     return ALLOC_NEW(Edge, (top, bottom, winding), alloc);
 }
 
-void remove_edge(Edge* edge, Edge** head) {
+void remove_edge(Edge* edge, EdgeList* edges) {
     LOG("removing edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
-    SkASSERT(edge->isActive(head));
-    remove<Edge, &Edge::fLeft, &Edge::fRight>(edge, head, NULL);
+    SkASSERT(edge->isActive(edges));
+    remove<Edge, &Edge::fLeft, &Edge::fRight>(edge, &edges->fHead, &edges->fTail);
 }
 
-void insert_edge(Edge* edge, Edge* prev, Edge** head) {
+void insert_edge(Edge* edge, Edge* prev, EdgeList* edges) {
     LOG("inserting edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
-    SkASSERT(!edge->isActive(head));
-    Edge* next = prev ? prev->fRight : *head;
-    insert<Edge, &Edge::fLeft, &Edge::fRight>(edge, prev, next, head, NULL);
+    SkASSERT(!edge->isActive(edges));
+    Edge* next = prev ? prev->fRight : edges->fHead;
+    insert<Edge, &Edge::fLeft, &Edge::fRight>(edge, prev, next, &edges->fHead, &edges->fTail);
 }
 
-void find_enclosing_edges(Vertex* v, Edge* head, Edge** left, Edge** right) {
+void find_enclosing_edges(Vertex* v, EdgeList* edges, Edge** left, Edge** right) {
     if (v->fFirstEdgeAbove) {
         *left = v->fFirstEdgeAbove->fLeft;
         *right = v->fLastEdgeAbove->fRight;
         return;
     }
-    Edge* prev = NULL;
-    Edge* next;
-    for (next = head; next != NULL; next = next->fRight) {
-        if (next->isRightOf(v)) {
+    Edge* next = NULL;
+    Edge* prev;
+    for (prev = edges->fTail; prev != NULL; prev = prev->fLeft) {
+        if (prev->isLeftOf(v)) {
             break;
         }
-        prev = next;
+        next = prev;
     }
     *left = prev;
     *right = next;
     return;
 }
 
-void find_enclosing_edges(Edge* edge, Edge* head, Comparator& c, Edge** left, Edge** right) {
+void find_enclosing_edges(Edge* edge, EdgeList* edges, Comparator& c, Edge** left, Edge** right) {
     Edge* prev = NULL;
     Edge* next;
-    for (next = head; next != NULL; next = next->fRight) {
+    for (next = edges->fHead; next != NULL; next = next->fRight) {
         if ((c.sweep_gt(edge->fTop->fPoint, next->fTop->fPoint) && next->isRightOf(edge->fTop)) ||
             (c.sweep_gt(next->fTop->fPoint, edge->fTop->fPoint) && edge->isLeftOf(next->fTop)) ||
             (c.sweep_lt(edge->fBottom->fPoint, next->fBottom->fPoint) &&
@@ -685,7 +691,7 @@ void find_enclosing_edges(Edge* edge, Edge* head, Comparator& c, Edge** left, Ed
     return;
 }
 
-void fix_active_state(Edge* edge, Edge** activeEdges, Comparator& c) {
+void fix_active_state(Edge* edge, EdgeList* activeEdges, Comparator& c) {
     if (edge->isActive(activeEdges)) {
         if (edge->fBottom->fProcessed || !edge->fTop->fProcessed) {
             remove_edge(edge, activeEdges);
@@ -693,7 +699,7 @@ void fix_active_state(Edge* edge, Edge** activeEdges, Comparator& c) {
     } else if (edge->fTop->fProcessed && !edge->fBottom->fProcessed) {
         Edge* left;
         Edge* right;
-        find_enclosing_edges(edge, *activeEdges, c, &left, &right);
+        find_enclosing_edges(edge, activeEdges, c, &left, &right);
         insert_edge(edge, left, activeEdges);
     }
 }
@@ -748,21 +754,21 @@ void remove_edge_below(Edge* edge) {
         edge, &edge->fTop->fFirstEdgeBelow, &edge->fTop->fLastEdgeBelow);
 }
 
-void erase_edge_if_zero_winding(Edge* edge, Edge** head) {
+void erase_edge_if_zero_winding(Edge* edge, EdgeList* edges) {
     if (edge->fWinding != 0) {
         return;
     }
     LOG("erasing edge (%g -> %g)\n", edge->fTop->fID, edge->fBottom->fID);
     remove_edge_above(edge);
     remove_edge_below(edge);
-    if (edge->isActive(head)) {
-        remove_edge(edge, head);
+    if (edge->isActive(edges)) {
+        remove_edge(edge, edges);
     }
 }
 
-void merge_collinear_edges(Edge* edge, Edge** activeEdges, Comparator& c);
+void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Comparator& c);
 
-void set_top(Edge* edge, Vertex* v, Edge** activeEdges, Comparator& c) {
+void set_top(Edge* edge, Vertex* v, EdgeList* activeEdges, Comparator& c) {
     remove_edge_below(edge);
     edge->fTop = v;
     edge->recompute();
@@ -771,7 +777,7 @@ void set_top(Edge* edge, Vertex* v, Edge** activeEdges, Comparator& c) {
     merge_collinear_edges(edge, activeEdges, c);
 }
 
-void set_bottom(Edge* edge, Vertex* v, Edge** activeEdges, Comparator& c) {
+void set_bottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Comparator& c) {
     remove_edge_above(edge);
     edge->fBottom = v;
     edge->recompute();
@@ -780,7 +786,7 @@ void set_bottom(Edge* edge, Vertex* v, Edge** activeEdges, Comparator& c) {
     merge_collinear_edges(edge, activeEdges, c);
 }
 
-void merge_edges_above(Edge* edge, Edge* other, Edge** activeEdges, Comparator& c) {
+void merge_edges_above(Edge* edge, Edge* other, EdgeList* activeEdges, Comparator& c) {
     if (coincident(edge->fTop->fPoint, other->fTop->fPoint)) {
         LOG("merging coincident above edges (%g, %g) -> (%g, %g)\n",
             edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
@@ -800,7 +806,7 @@ void merge_edges_above(Edge* edge, Edge* other, Edge** activeEdges, Comparator& 
     }
 }
 
-void merge_edges_below(Edge* edge, Edge* other, Edge** activeEdges, Comparator& c) {
+void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Comparator& c) {
     if (coincident(edge->fBottom->fPoint, other->fBottom->fPoint)) {
         LOG("merging coincident below edges (%g, %g) -> (%g, %g)\n",
             edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
@@ -820,7 +826,7 @@ void merge_edges_below(Edge* edge, Edge* other, Edge** activeEdges, Comparator& 
     }
 }
 
-void merge_collinear_edges(Edge* edge, Edge** activeEdges, Comparator& c) {
+void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Comparator& c) {
     if (edge->fPrevEdgeAbove && (edge->fTop == edge->fPrevEdgeAbove->fTop ||
                                  !edge->fPrevEdgeAbove->isLeftOf(edge->fTop))) {
         merge_edges_above(edge, edge->fPrevEdgeAbove, activeEdges, c);
@@ -837,9 +843,9 @@ void merge_collinear_edges(Edge* edge, Edge** activeEdges, Comparator& c) {
     }
 }
 
-void split_edge(Edge* edge, Vertex* v, Edge** activeEdges, Comparator& c, SkChunkAlloc& alloc);
+void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Comparator& c, SkChunkAlloc& alloc);
 
-void cleanup_active_edges(Edge* edge, Edge** activeEdges, Comparator& c, SkChunkAlloc& alloc) {
+void cleanup_active_edges(Edge* edge, EdgeList* activeEdges, Comparator& c, SkChunkAlloc& alloc) {
     Vertex* top = edge->fTop;
     Vertex* bottom = edge->fBottom;
     if (edge->fLeft) {
@@ -873,7 +879,7 @@ void cleanup_active_edges(Edge* edge, Edge** activeEdges, Comparator& c, SkChunk
     }
 }
 
-void split_edge(Edge* edge, Vertex* v, Edge** activeEdges, Comparator& c, SkChunkAlloc& alloc) {
+void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Comparator& c, SkChunkAlloc& alloc) {
     LOG("splitting edge (%g -> %g) at vertex %g (%g, %g)\n",
         edge->fTop->fID, edge->fBottom->fID,
         v->fID, v->fPoint.fX, v->fPoint.fY);
@@ -908,7 +914,7 @@ void merge_vertices(Vertex* src, Vertex* dst, Vertex** head, Comparator& c, SkCh
     remove<Vertex, &Vertex::fPrev, &Vertex::fNext>(src, head, NULL);
 }
 
-Vertex* check_for_intersection(Edge* edge, Edge* other, Edge** activeEdges, Comparator& c,
+Vertex* check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Comparator& c,
                                SkChunkAlloc& alloc) {
     SkPoint p;
     if (!edge || !other) {
@@ -1112,7 +1118,7 @@ Vertex* sorted_merge(Vertex* a, Vertex* b, Comparator& c) {
 
 void simplify(Vertex* vertices, Comparator& c, SkChunkAlloc& alloc) {
     LOG("simplifying complex polygons\n");
-    Edge* activeEdges = NULL;
+    EdgeList activeEdges;
     for (Vertex* v = vertices; v != NULL; v = v->fNext) {
         if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
             continue;
@@ -1125,7 +1131,7 @@ void simplify(Vertex* vertices, Comparator& c, SkChunkAlloc& alloc) {
         bool restartChecks;
         do {
             restartChecks = false;
-            find_enclosing_edges(v, activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+            find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
             if (v->fFirstEdgeBelow) {
                 for (Edge* edge = v->fFirstEdgeBelow; edge != NULL; edge = edge->fNextEdgeBelow) {
                     if (check_for_intersection(edge, leftEnclosingEdge, &activeEdges, c, alloc)) {
@@ -1164,7 +1170,7 @@ void simplify(Vertex* vertices, Comparator& c, SkChunkAlloc& alloc) {
 
 Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
     LOG("tessellating simple polygons\n");
-    Edge* activeEdges = NULL;
+    EdgeList activeEdges;
     Poly* polys = NULL;
     for (Vertex* v = vertices; v != NULL; v = v->fNext) {
         if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
@@ -1175,7 +1181,7 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
 #endif
         Edge* leftEnclosingEdge = NULL;
         Edge* rightEnclosingEdge = NULL;
-        find_enclosing_edges(v, activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+        find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
         Poly* leftPoly = NULL;
         Poly* rightPoly = NULL;
         if (v->fFirstEdgeAbove) {
@@ -1269,7 +1275,7 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
         }
 #if LOGGING_ENABLED
         LOG("\nactive edges:\n");
-        for (Edge* e = activeEdges; e != NULL; e = e->fRight) {
+        for (Edge* e = activeEdges->fHead; e != NULL; e = e->fRight) {
             LOG("%g -> %g, lpoly %d, rpoly %d\n", e->fTop->fID, e->fBottom->fID,
                 e->fLeftPoly ? e->fLeftPoly->fID : -1, e->fRightPoly ? e->fRightPoly->fID : -1);
         }
