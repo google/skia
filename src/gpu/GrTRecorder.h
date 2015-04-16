@@ -46,6 +46,7 @@ template<typename TItem> struct GrTRecorderAllocWrapper;
 template<typename TBase, typename TAlign> class GrTRecorder : SkNoncopyable {
 public:
     class Iter;
+    class ReverseIter;
 
     /**
      * Create a recorder.
@@ -162,6 +163,7 @@ private:
                               const GrTRecorderAllocWrapper<UItem>&);
 
     friend class Iter;
+    friend class ReverseIter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +184,7 @@ void GrTRecorder<TBase, TAlign>::pop_back() {
         fLastItem = NULL;
         return;
     }
-    if (!fTailBlock->fBack) {
+    while (!fTailBlock->fBack) {
         // We popped the last entry in a block that isn't the head block. Move back a block but
         // don't free it since we'll probably grow into it shortly.
         fTailBlock = fTailBlock->fPrev;
@@ -239,6 +241,15 @@ TItem* GrTRecorder<TBase, TAlign>::alloc_back(int dataLength) {
     return rawPtr;
 }
 
+/**
+ * Iterates through a recorder from front to back. The initial state of the iterator is
+ * to not have the front item loaded yet; next() must be called first. Usage model:
+ *
+ *    GrTRecorder<TBase, TAlign>::Iter iter(recorder);
+ *    while (iter.next()) {
+ *        iter->doSomething();
+ *    }
+ */
 template<typename TBase, typename TAlign>
 class GrTRecorder<TBase, TAlign>::Iter {
 public:
@@ -265,6 +276,55 @@ public:
         return fItem;
     }
 
+    TBase* operator->() const { return this->get(); }
+
+private:
+    MemBlock* fBlock;
+    int       fPosition;
+    TBase*    fItem;
+};
+
+/**
+ * Iterates through a recorder in reverse, from back to front. This version mirrors "Iter",
+ * so the initial state is to have recorder.back() loaded already. (Note that this will
+ * assert if the recorder is empty.) Usage model:
+ *
+ *    GrTRecorder<TBase, TAlign>::ReverseIter reverseIter(recorder);
+ *    do {
+ *        reverseIter->doSomething();
+ *    } while (reverseIter.previous());
+ */
+template<typename TBase, typename TAlign>
+class GrTRecorder<TBase, TAlign>::ReverseIter {
+public:
+    ReverseIter(GrTRecorder& recorder)
+        : fBlock(recorder.fTailBlock),
+          fItem(&recorder.back()) {
+        Header* lastHeader = reinterpret_cast<Header*>(
+            reinterpret_cast<TAlign*>(fItem) - length_of<Header>::kValue);
+        fPosition = fBlock->fBack - lastHeader->fTotalLength;
+    }
+
+    bool previous() {
+        Header* header = reinterpret_cast<Header*>(&(*fBlock)[fPosition]);
+
+        while (0 == fPosition) {
+            if (!fBlock->fPrev) {
+                // We've reached the front of the recorder.
+                return false;
+            }
+            fBlock = fBlock->fPrev;
+            fPosition = fBlock->fBack;
+        }
+
+        fPosition -= header->fPrevLength;
+        SkASSERT(fPosition >= 0);
+
+        fItem = reinterpret_cast<TBase*>(&(*fBlock)[fPosition + length_of<Header>::kValue]);
+        return true;
+    }
+
+    TBase* get() const { return fItem; }
     TBase* operator->() const { return this->get(); }
 
 private:

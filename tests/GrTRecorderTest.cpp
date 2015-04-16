@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
-
-#include "GrTRecorder.h"
 #include "SkMatrix.h"
 #include "SkRandom.h"
 #include "SkString.h"
 #include "Test.h"
+
+#if SK_SUPPORT_GPU
+
+#include "GrTRecorder.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -100,6 +101,15 @@ static void test_extra_data(skiatest::Reporter* reporter) {
         }
     }
     REPORTER_ASSERT(reporter, !iter.next());
+
+    ExtraData::Recorder::ReverseIter reverseIter(recorder);
+    for (int i = 99; i >= 0; --i) {
+        REPORTER_ASSERT(reporter, i == reverseIter->fData);
+        for (int j = 0; j < i; j++) {
+            REPORTER_ASSERT(reporter, i == reverseIter->extraData()[j]);
+        }
+        REPORTER_ASSERT(reporter, reverseIter.previous() == !!i);
+    }
 
     recorder.reset();
     REPORTER_ASSERT(reporter, 0 == activeRecorderItems);
@@ -197,19 +207,20 @@ public:
     virtual ClassType getType() { return kSubclassEmpty_ClassType; }
 };
 
+class Order {
+public:
+    Order() { this->reset(); }
+    void reset() { fCurrent = 0; }
+    ClassType next() {
+        fCurrent = 1664525 * fCurrent + 1013904223;
+        return static_cast<ClassType>(fCurrent % kNumClassTypes);
+    }
+private:
+    uint32_t fCurrent;
+};
+static void test_subclasses_iters(skiatest::Reporter*, Order&, Base::Recorder::Iter&,
+                                  Base::Recorder::ReverseIter&, int = 0);
 static void test_subclasses(skiatest::Reporter* reporter) {
-    class Order {
-    public:
-        Order() { this->reset(); }
-        void reset() { fCurrent = 0; }
-        ClassType next() {
-            fCurrent = 1664525 * fCurrent + 1013904223;
-            return static_cast<ClassType>(fCurrent % kNumClassTypes);
-        }
-    private:
-        uint32_t fCurrent;
-    };
-
     Base::Recorder recorder(1024);
 
     Order order;
@@ -244,14 +255,32 @@ static void test_subclasses(skiatest::Reporter* reporter) {
 
     order.reset();
     Base::Recorder::Iter iter(recorder);
-    for (int i = 0; i < 1000; ++i) {
-        REPORTER_ASSERT(reporter, iter.next());
-        REPORTER_ASSERT(reporter, order.next() == iter->getType());
-        iter->validate(reporter);
-    }
+    Base::Recorder::ReverseIter reverseIter(recorder);
+
+    test_subclasses_iters(reporter, order, iter, reverseIter);
+
     REPORTER_ASSERT(reporter, !iter.next());
 
     // Don't reset the recorder. It should automatically destruct all its items.
+}
+static void test_subclasses_iters(skiatest::Reporter* reporter, Order& order,
+                                  Base::Recorder::Iter& iter,
+                                  Base::Recorder::ReverseIter& reverseIter, int i) {
+    if (i >= 1000) {
+        return;
+    }
+
+    ClassType classType = order.next();
+
+    REPORTER_ASSERT(reporter, iter.next());
+    REPORTER_ASSERT(reporter, classType == iter->getType());
+    iter->validate(reporter);
+
+    test_subclasses_iters(reporter, order, iter, reverseIter, i + 1);
+
+    REPORTER_ASSERT(reporter, classType == reverseIter->getType());
+    reverseIter->validate(reporter);
+    REPORTER_ASSERT(reporter, reverseIter.previous() == !!i);
 }
 
 DEF_GPUTEST(GrTRecorder, reporter, factory) {
