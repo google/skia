@@ -62,11 +62,12 @@ typedef uint32_t FontVariant;
 
 // Must remain trivially movable (can be memmoved).
 struct FontFileInfo {
-    FontFileInfo() : fIndex(0), fWeight(0) { }
+    FontFileInfo() : fIndex(0), fWeight(0), fStyle(Style::kAuto) { }
 
     SkString fFileName;
     int fIndex;
     int fWeight;
+    enum class Style { kAuto, kNormal, kItalic } fStyle;
 };
 
 /**
