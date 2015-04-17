@@ -216,6 +216,7 @@
         '../gm/textbloblooper.cpp',
         '../gm/textblobcolortrans.cpp',
         '../gm/textblobshader.cpp',
+        '../gm/textblobtransforms.cpp',
         '../gm/texturedomaineffect.cpp',
         '../gm/thinrects.cpp',
         '../gm/thinstrokedrects.cpp',
