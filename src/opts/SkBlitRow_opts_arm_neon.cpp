@@ -1679,104 +1679,66 @@ void S32_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
     }
 }
 
-void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
-                      SkPMColor color) {
-    if (count <= 0) {
-        return;
+#define SK_SUPPORT_LEGACY_COLOR32_MATHx
+
+// Color32 and its SIMD specializations use the blend_256_round_alt algorithm
+// from tests/BlendTest.cpp.  It's not quite perfect, but it's never wrong in the
+// interesting edge cases, and it's quite a bit faster than blend_perfect.
+//
+// blend_256_round_alt is our currently blessed algorithm.  Please use it or an analogous one.
+void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
+    switch (SkGetPackedA32(color)) {
+        case   0: memmove(dst, src, count * sizeof(SkPMColor)); return;
+        case 255: sk_memset32(dst, color, count);               return;
     }
 
-    if (0 == color) {
-        if (src != dst) {
-            memcpy(dst, src, count * sizeof(SkPMColor));
-        }
-        return;
-    }
-
-    unsigned colorA = SkGetPackedA32(color);
-    if (255 == colorA) {
-        sk_memset32(dst, color, count);
-        return;
-    }
-
-    unsigned scale = 256 - SkAlpha255To256(colorA);
-
-    if (count >= 8) {
-        uint32x4_t vcolor;
-        uint8x8_t vscale;
-
-        vcolor = vdupq_n_u32(color);
-
-        // scale numerical interval [0-255], so load as 8 bits
-        vscale = vdup_n_u8(scale);
-
-        do {
-            // load src color, 8 pixels, 4 64 bit registers
-            // (and increment src).
-            uint32x2x4_t vsrc;
-#if defined(SK_CPU_ARM32) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
-            asm (
-                "vld1.32    %h[vsrc], [%[src]]!"
-                : [vsrc] "=w" (vsrc), [src] "+r" (src)
-                : :
-            );
-#else // 64bit targets and Clang
-            vsrc.val[0] = vld1_u32(src);
-            vsrc.val[1] = vld1_u32(src+2);
-            vsrc.val[2] = vld1_u32(src+4);
-            vsrc.val[3] = vld1_u32(src+6);
-            src += 8;
+    uint16x8_t colorHigh = vshll_n_u8((uint8x8_t)vdup_n_u32(color), 8);
+#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
+    uint16x8_t colorAndRound = colorHigh;
+#else                          // blend_256_round_alt, good
+    uint16x8_t colorAndRound = vaddq_u16(colorHigh, vdupq_n_u16(128));
 #endif
 
-            // multiply long by scale, 64 bits at a time,
-            // destination into a 128 bit register.
-            uint16x8x4_t vtmp;
-            vtmp.val[0] = vmull_u8(vreinterpret_u8_u32(vsrc.val[0]), vscale);
-            vtmp.val[1] = vmull_u8(vreinterpret_u8_u32(vsrc.val[1]), vscale);
-            vtmp.val[2] = vmull_u8(vreinterpret_u8_u32(vsrc.val[2]), vscale);
-            vtmp.val[3] = vmull_u8(vreinterpret_u8_u32(vsrc.val[3]), vscale);
-
-            // shift the 128 bit registers, containing the 16
-            // bit scaled values back to 8 bits, narrowing the
-            // results to 64 bit registers.
-            uint8x16x2_t vres;
-            vres.val[0] = vcombine_u8(
-                            vshrn_n_u16(vtmp.val[0], 8),
-                            vshrn_n_u16(vtmp.val[1], 8));
-            vres.val[1] = vcombine_u8(
-                            vshrn_n_u16(vtmp.val[2], 8),
-                            vshrn_n_u16(vtmp.val[3], 8));
-
-            // adding back the color, using 128 bit registers.
-            uint32x4x2_t vdst;
-            vdst.val[0] = vreinterpretq_u32_u8(vres.val[0] +
-                                               vreinterpretq_u8_u32(vcolor));
-            vdst.val[1] = vreinterpretq_u32_u8(vres.val[1] +
-                                               vreinterpretq_u8_u32(vcolor));
-
-            // store back the 8 calculated pixels (2 128 bit
-            // registers), and increment dst.
-#if defined(SK_CPU_ARM32) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6)))
-            asm (
-                "vst1.32    %h[vdst], [%[dst]]!"
-                : [dst] "+r" (dst)
-                : [vdst] "w" (vdst)
-                : "memory"
-            );
-#else // 64bit targets and Clang
-            vst1q_u32(dst, vdst.val[0]);
-            vst1q_u32(dst+4, vdst.val[1]);
-            dst += 8;
+    unsigned invA = 255 - SkGetPackedA32(color);
+#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
+    uint8x8_t invA8 = vdup_n_u8(invA);
+#else                          // blend_256_round_alt, good
+    SkASSERT(invA + (invA >> 7) < 256);  // This next part only works if alpha is not 0.
+    uint8x8_t invA8 = vdup_n_u8(invA + (invA >> 7));
 #endif
-            count -= 8;
 
-        } while (count >= 8);
+    // Does the core work of blending color onto 4 pixels, returning the resulting 4 pixels.
+    auto kernel = [&](const uint32x4_t& src4) -> uint32x4_t {
+        uint16x8_t lo = vmull_u8(vget_low_u8( (uint8x16_t)src4), invA8),
+                   hi = vmull_u8(vget_high_u8((uint8x16_t)src4), invA8);
+        return (uint32x4_t)
+            vcombine_u8(vaddhn_u16(colorAndRound, lo), vaddhn_u16(colorAndRound, hi));
+    };
+
+    while (count >= 8) {
+        uint32x4_t dst0 = kernel(vld1q_u32(src+0)),
+                   dst4 = kernel(vld1q_u32(src+4));
+        vst1q_u32(dst+0, dst0);
+        vst1q_u32(dst+4, dst4);
+        src   += 8;
+        dst   += 8;
+        count -= 8;
     }
-
-    while (count > 0) {
-        *dst = color + SkAlphaMulQ(*src, scale);
-        src += 1;
-        dst += 1;
-        count--;
+    if (count >= 4) {
+        vst1q_u32(dst, kernel(vld1q_u32(src)));
+        src   += 4;
+        dst   += 4;
+        count -= 4;
+    }
+    if (count >= 2) {
+        uint32x2_t src2 = vld1_u32(src);
+        vst1_u32(dst, vget_low_u32(kernel(vcombine_u32(src2, src2))));
+        src   += 2;
+        dst   += 2;
+        count -= 2;
+    }
+    if (count >= 1) {
+        vst1q_lane_u32(dst, kernel(vdupq_n_u32(*src)), 0);
     }
 }
 

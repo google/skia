@@ -232,60 +232,68 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
     }
 }
 
+#define SK_SUPPORT_LEGACY_COLOR32_MATHx
+
 /* SSE2 version of Color32()
  * portable version is in core/SkBlitRow_D32.cpp
  */
-void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
-                  SkPMColor color) {
-    if (count <= 0) {
-        return;
+// Color32 and its SIMD specializations use the blend_256_round_alt algorithm
+// from tests/BlendTest.cpp.  It's not quite perfect, but it's never wrong in the
+// interesting edge cases, and it's quite a bit faster than blend_perfect.
+//
+// blend_256_round_alt is our currently blessed algorithm.  Please use it or an analogous one.
+void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count, SkPMColor color) {
+    switch (SkGetPackedA32(color)) {
+        case   0: memmove(dst, src, count * sizeof(SkPMColor)); return;
+        case 255: sk_memset32(dst, color, count);               return;
     }
 
-    if (0 == color) {
-        if (src != dst) {
-            memcpy(dst, src, count * sizeof(SkPMColor));
-        }
-        return;
+    __m128i colorHigh = _mm_unpacklo_epi8(_mm_setzero_si128(), _mm_set1_epi32(color));
+#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
+    __m128i colorAndRound = colorHigh;
+#else                          // blend_256_round_alt, good
+    __m128i colorAndRound = _mm_add_epi16(colorHigh, _mm_set1_epi16(128));
+#endif
+
+    unsigned invA = 255 - SkGetPackedA32(color);
+#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
+    __m128i invA16 = _mm_set1_epi16(invA);
+#else                          // blend_256_round_alt, good
+    SkASSERT(invA + (invA >> 7) < 256);  // We should still fit in the low byte here.
+    __m128i invA16 = _mm_set1_epi16(invA + (invA >> 7));
+#endif
+
+    // Does the core work of blending color onto 4 pixels, returning the resulting 4 pixels.
+    auto kernel = [&](const __m128i& src4) -> __m128i {
+        __m128i lo = _mm_mullo_epi16(invA16, _mm_unpacklo_epi8(src4, _mm_setzero_si128())),
+                hi = _mm_mullo_epi16(invA16, _mm_unpackhi_epi8(src4, _mm_setzero_si128()));
+        return _mm_packus_epi16(_mm_srli_epi16(_mm_add_epi16(colorAndRound, lo), 8),
+                                _mm_srli_epi16(_mm_add_epi16(colorAndRound, hi), 8));
+    };
+
+    while (count >= 8) {
+        __m128i dst0 = kernel(_mm_loadu_si128((const __m128i*)(src+0))),
+                dst4 = kernel(_mm_loadu_si128((const __m128i*)(src+4)));
+        _mm_storeu_si128((__m128i*)(dst+0), dst0);
+        _mm_storeu_si128((__m128i*)(dst+4), dst4);
+        src   += 8;
+        dst   += 8;
+        count -= 8;
     }
-
-    unsigned colorA = SkGetPackedA32(color);
-    if (255 == colorA) {
-        sk_memset32(dst, color, count);
-    } else {
-        unsigned scale = 256 - SkAlpha255To256(colorA);
-
-        if (count >= 4) {
-            SkASSERT(((size_t)dst & 0x03) == 0);
-            while (((size_t)dst & 0x0F) != 0) {
-                *dst = color + SkAlphaMulQ(*src, scale);
-                src++;
-                dst++;
-                count--;
-            }
-
-            const __m128i *s = reinterpret_cast<const __m128i*>(src);
-            __m128i *d = reinterpret_cast<__m128i*>(dst);
-            __m128i color_wide = _mm_set1_epi32(color);
-            while (count >= 4) {
-                __m128i src_pixel = _mm_loadu_si128(s);
-                src_pixel = SkAlphaMulQ_SSE2(src_pixel, scale);
-
-                __m128i result = _mm_add_epi8(color_wide, src_pixel);
-                _mm_store_si128(d, result);
-                s++;
-                d++;
-                count -= 4;
-            }
-            src = reinterpret_cast<const SkPMColor*>(s);
-            dst = reinterpret_cast<SkPMColor*>(d);
-        }
-
-        while (count > 0) {
-            *dst = color + SkAlphaMulQ(*src, scale);
-            src += 1;
-            dst += 1;
-            count--;
-        }
+    if (count >= 4) {
+        _mm_storeu_si128((__m128i*)dst, kernel(_mm_loadu_si128((const __m128i*)src)));
+        src   += 4;
+        dst   += 4;
+        count -= 4;
+    }
+    if (count >= 2) {
+        _mm_storel_epi64((__m128i*)dst, kernel(_mm_loadl_epi64((const __m128i*)src)));
+        src   += 2;
+        dst   += 2;
+        count -= 2;
+    }
+    if (count >= 1) {
+        *dst = _mm_cvtsi128_si32(kernel(_mm_cvtsi32_si128(*src)));
     }
 }
 
