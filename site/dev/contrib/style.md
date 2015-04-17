@@ -78,19 +78,10 @@ int herdCats(const Array& cats) {
 }
 ~~~~
 
-Enum values are prefixed with k. Unscoped enum values are post fixed with
-an underscore and singular name of the enum name. The enum itself should be
-singular for exclusive values or plural for a bitfield. If a count is needed it
-is  k&lt;singular enum name&gt;Count and not be a member of the enum (see example):
-
-<!--?prettify?-->
-~~~~
-enum class SkPancakeType {
-     kBlueberry,
-     kPlain,
-     kChocolateChip,
-};
-~~~~
+Enum values are prefixed with k and have post fix that consists of an underscore
+and singular name of the enum name. The enum itself should be singular for
+exclusive values or plural for a bitfield. If a count is needed it is 
+k<singular enum name>Count and not be a member of the enum (see example):
 
 <!--?prettify?-->
 ~~~~

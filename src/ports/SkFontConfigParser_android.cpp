@@ -159,13 +159,6 @@ static void font_element_handler(FamilyData* self, FontFileInfo* file, const cha
             if (!parse_non_negative_integer(value, &file->fWeight)) {
                 SkDebugf("---- Font weight %s (INVALID)", value);
             }
-        } else if (MEMEQ("style", name, nameLen)) {
-            size_t valueLen = strlen(value);
-            if (MEMEQ("normal", value, valueLen)) {
-                file->fStyle = FontFileInfo::Style::kNormal;
-            } else if (MEMEQ("italic", value, valueLen)) {
-                file->fStyle = FontFileInfo::Style::kItalic;
-            }
         } else if (MEMEQ("index", name, nameLen)) {
             if (!parse_non_negative_integer(value, &file->fIndex)) {
                 SkDebugf("---- Font index %s (INVALID)", value);
