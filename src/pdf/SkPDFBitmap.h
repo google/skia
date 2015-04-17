@@ -26,22 +26,15 @@ class SkPDFBitmap : public SkPDFObject {
 public:
     // Returns NULL on unsupported bitmap;
     static SkPDFBitmap* Create(SkPDFCanon*, const SkBitmap&);
-    ~SkPDFBitmap();
-    void emitObject(SkWStream*,
-                    const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& substitutes) override;
-    void addResources(SkPDFObjNumMap*,
-                      const SkPDFSubstituteMap&) const override;
     bool equals(const SkBitmap& other) const {
         return fBitmap.getGenerationID() == other.getGenerationID() &&
                fBitmap.pixelRefOrigin() == other.pixelRefOrigin() &&
                fBitmap.dimensions() == other.dimensions();
     }
 
-private:
+protected:
     const SkBitmap fBitmap;
-    const SkAutoTUnref<SkPDFObject> fSMask;
-    SkPDFBitmap(const SkBitmap&, SkPDFObject*);
+    SkPDFBitmap(const SkBitmap& bm) : fBitmap(bm) {}
 };
 
 #endif  // SkPDFBitmap_DEFINED

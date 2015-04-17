@@ -81,19 +81,9 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     SkASSERT(pdfData);
     pdf.reset();
 
-    // Test disabled, waiting on resolution to http://skbug.com/3180
-    // REPORTER_ASSERT(r, is_subset_of(mandrillData, pdfData));
+    REPORTER_ASSERT(r, is_subset_of(mandrillData, pdfData));
 
     // This JPEG uses a nonstandard colorspace - it can not be
     // embedded into the PDF directly.
     REPORTER_ASSERT(r, !is_subset_of(cmykData, pdfData));
-
-    // The following is for debugging purposes only.
-    const char* outputPath = getenv("SKIA_TESTS_PDF_JPEG_EMBED_OUTPUT_PATH");
-    if (outputPath) {
-        SkFILEWStream output(outputPath);
-        if (output.isValid()) {
-            output.write(pdfData->data(), pdfData->size());
-        }
-    }
 }

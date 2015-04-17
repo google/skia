@@ -29,3 +29,23 @@ DEF_SIMPLE_GM(repeated_bitmap, canvas, 576, 576) {
         }
     }
 }
+
+DEF_SIMPLE_GM(repeated_bitmap_jpg, canvas, 576, 576) {
+    sk_tool_utils::draw_checkerboard(canvas, 0xFF999999, SK_ColorWHITE, 12);
+    SkRect rect = SkRect::MakeLTRB(-68.0f, -68.0f, 68.0f, 68.0f);
+    SkPaint paint;
+    paint.setColor(0xFF333333);
+    SkBitmap bm;
+    if (GetResourceAsBitmap("color_wheel.jpg", &bm)) {
+        for (int j = 0; j < 4; ++j) {
+            for (int i = 0; i < 4; ++i) {
+                SkAutoCanvasRestore autoCanvasRestore(canvas, true);
+                canvas->translate(96.0f + 192.0f * SkIntToScalar(i),
+                                  96.0f + 192.0f * SkIntToScalar(j));
+                canvas->rotate(18.0f * (i + 4 * j));
+                canvas->drawRect(rect, paint);
+                canvas->drawBitmap(bm, -64.0f, -64.0f);
+            }
+        }
+    }
+}
