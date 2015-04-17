@@ -82,7 +82,8 @@ GrDistanceFieldTextContext* GrDistanceFieldTextContext::Create(GrContext* contex
                                                          (context, gpuDevice, props, enable));
     textContext->buildDistanceAdjustTable();
 #ifdef USE_BITMAP_TEXTBLOBS
-    textContext->fFallbackTextContext = GrAtlasTextContext::Create(context, gpuDevice, props);
+    textContext->fFallbackTextContext = GrAtlasTextContext::Create(context, gpuDevice, props,
+                                                                   enable);
 #else
     textContext->fFallbackTextContext = GrBitmapTextContext::Create(context, gpuDevice, props);
 #endif

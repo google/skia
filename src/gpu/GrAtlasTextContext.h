@@ -28,10 +28,13 @@ class GrTextBlobCache;
  */
 class GrAtlasTextContext : public GrTextContext {
 public:
-    static GrAtlasTextContext* Create(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
+    static GrAtlasTextContext* Create(GrContext*, SkGpuDevice*, const SkDeviceProperties&,
+                                      bool enableDistanceFields);
 
 private:
-    GrAtlasTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
+    GrAtlasTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&,
+                       bool enableDistanceFields);
+    ~GrAtlasTextContext() override {}
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                  const SkPaint&, const SkMatrix& viewMatrix) override;
@@ -98,7 +101,8 @@ private:
                     , fGlyphStartIndex(0)
                     , fGlyphEndIndex(0)
                     , fVertexStartIndex(0)
-                    , fVertexEndIndex(0) {}
+                    , fVertexEndIndex(0)
+                    , fDrawAsDistanceFields(false) {}
                 GrMaskFormat fMaskFormat;
                 uint64_t fAtlasGeneration;
                 uint32_t fGlyphStartIndex;
@@ -106,6 +110,10 @@ private:
                 size_t fVertexStartIndex;
                 size_t fVertexEndIndex;
                 GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
+
+                // distance field properties
+                bool fDrawAsDistanceFields;
+                bool fUseLCDText;
             };
 
             class SubRunInfoArray {
@@ -227,14 +235,27 @@ private:
     typedef BitmapTextBlob::Run Run;
     typedef Run::SubRunInfo PerSubRunInfo;
 
-    void appendGlyph(BitmapTextBlob*, int runIndex, GrGlyph::PackedID, int left, int top,
-                     GrColor color, GrFontScaler*, const SkIRect& clipRect);
+    inline bool canDrawAsDistanceFields(const SkPaint&, const SkMatrix& viewMatrix);
+    BitmapTextBlob* setupDFBlob(int glyphCount, const SkPaint& origPaint,
+                                const SkMatrix& viewMatrix, SkGlyphCache** cache,
+                                SkPaint* dfPaint, SkScalar* textRatio);
+    void bmpAppendGlyph(BitmapTextBlob*, int runIndex, GrGlyph::PackedID, int left, int top,
+                        GrColor color, GrFontScaler*, const SkIRect& clipRect);
+    bool dfAppendGlyph(BitmapTextBlob*, int runIndex, GrGlyph::PackedID, SkScalar sx, SkScalar sy,
+                       GrColor color, GrFontScaler*, const SkIRect& clipRect, SkScalar textRatio,
+                       const SkMatrix& viewMatrix);
+    inline void appendGlyphPath(BitmapTextBlob* blob, GrGlyph* glyph,
+                                GrFontScaler* scaler, int x, int y);
+    inline void appendGlyphCommon(BitmapTextBlob*, Run*, Run::SubRunInfo*,
+                                  const SkRect& positions, GrColor color,
+                                  size_t vertexStride, bool useVertexColor,
+                                  GrGlyph::PackedID);
 
     inline void flushRunAsPaths(const SkTextBlob::RunIterator&, const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                                 SkScalar y);
     inline void flushRun(GrDrawTarget*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
-                         uint8_t paintAlpha, SkScalar transX, SkScalar transY);
+                         SkScalar transX, SkScalar transY, const SkPaint&);
     inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
                                const GrPaint& grPaint, const GrClip& clip,
                                SkScalar transX, SkScalar transY);
@@ -244,21 +265,48 @@ private:
                const GrPaint&, SkDrawFilter*, const GrClip&, const SkMatrix& viewMatrix,
                const SkIRect& clipBounds, SkScalar x, SkScalar y, SkScalar transX, SkScalar transY);
     void flush(GrDrawTarget*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
-               const GrPaint&, const GrClip&, const SkMatrix& viewMatrix);
+               const GrPaint&, const GrClip&);
 
-    void internalDrawText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
-                          GrColor color, const SkMatrix& viewMatrix,
-                          const char text[], size_t byteLength,
-                          SkScalar x, SkScalar y, const SkIRect& clipRect);
-    void internalDrawPosText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
+    // A helper for drawing BitmapText in a run of distance fields
+    inline void fallbackDrawPosText(GrRenderTarget*, const GrClip&,
+                                    const GrPaint&,
+                                    const SkPaint&, const SkMatrix& viewMatrix,
+                                    const SkTDArray<char>& fallbackTxt,
+                                    const SkTDArray<SkScalar>& fallbackPos,
+                                    int scalarsPerPosition,
+                                    const SkPoint& offset,
+                                    const SkIRect& clipRect);
+
+    void internalDrawBMPText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
                              GrColor color, const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
-                             const SkScalar pos[], int scalarsPerPosition,
-                             const SkPoint& offset, const SkIRect& clipRect);
+                             SkScalar x, SkScalar y, const SkIRect& clipRect);
+    void internalDrawBMPPosText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
+                                GrColor color, const SkMatrix& viewMatrix,
+                                const char text[], size_t byteLength,
+                                const SkScalar pos[], int scalarsPerPosition,
+                                const SkPoint& offset, const SkIRect& clipRect);
+
+    void internalDrawDFText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
+                            GrColor color, const SkMatrix& viewMatrix,
+                            const char text[], size_t byteLength,
+                            SkScalar x, SkScalar y, const SkIRect& clipRect,
+                            SkScalar textRatio,
+                            SkTDArray<char>* fallbackTxt,
+                            SkTDArray<SkScalar>* fallbackPos,
+                            SkPoint* offset, const SkPaint& origPaint);
+    void internalDrawDFPosText(BitmapTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
+                               GrColor color, const SkMatrix& viewMatrix,
+                               const char text[], size_t byteLength,
+                               const SkScalar pos[], int scalarsPerPosition,
+                               const SkPoint& offset, const SkIRect& clipRect,
+                               SkScalar textRatio,
+                               SkTDArray<char>* fallbackTxt,
+                               SkTDArray<SkScalar>* fallbackPos);
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
-    inline SkGlyphCache* setupCache(Run*, const SkPaint&, const SkMatrix& viewMatrix);
+    inline SkGlyphCache* setupCache(Run*, const SkPaint&, const SkMatrix* viewMatrix, bool noGamma);
     static inline bool MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
                                           const BitmapTextBlob&, const SkPaint&,
                                           const SkMaskFilter::BlurRec&,
@@ -268,9 +316,32 @@ private:
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                             SkDrawFilter* drawFilter, const SkIRect& clipRect);
     inline static bool HasLCD(const SkTextBlob*);
+    inline void initDistanceFieldPaint(SkPaint*, SkScalar* textRatio, const SkMatrix&);
+
+    // Distance field text needs this table to compute a value for use in the fragment shader.
+    // Because the GrAtlasTextContext can go out of scope before the final flush, this needs to be
+    // refcnted and malloced
+    struct DistanceAdjustTable : public SkNVRefCnt<DistanceAdjustTable> {
+        DistanceAdjustTable(float gamma) { this->buildDistanceAdjustTable(gamma); }
+        ~DistanceAdjustTable() { SkDELETE_ARRAY(fTable); }
+
+        void buildDistanceAdjustTable(float gamma);
+
+        SkScalar& operator[] (int i) {
+            return fTable[i];
+        }
+
+        const SkScalar& operator[] (int i) const {
+            return fTable[i];
+        }
+
+        SkScalar* fTable;
+    };
 
     GrBatchTextStrike* fCurrStrike;
     GrTextBlobCache* fCache;
+    bool fEnableDFRendering;
+    SkAutoTUnref<DistanceAdjustTable> fDistanceAdjustTable;
 
     friend class GrTextBlobCache;
     friend class BitmapTextBatch;
