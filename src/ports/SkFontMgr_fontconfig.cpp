@@ -420,7 +420,6 @@ public:
         desc->setFamilyName(get_string(fPattern, FC_FAMILY));
         desc->setFullName(get_string(fPattern, FC_FULLNAME));
         desc->setPostscriptName(get_string(fPattern, FC_POSTSCRIPT_NAME));
-        desc->setFontFileName(get_string(fPattern, FC_FILE));
         desc->setFontIndex(get_int(fPattern, FC_INDEX, 0));
         *serialize = false;
     }

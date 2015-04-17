@@ -18,7 +18,7 @@ enum {
     // These count backwards from 0xFF, so as not to collide with the SFNT
     // defines for names in its 'name' table.
     kFontIndex      = 0xFD,
-    kFontFileName   = 0xFE,
+    kFontFileName   = 0xFE,  // Remove when MIN_PICTURE_VERSION > 41
     kSentinel       = 0xFF,
 };
 
@@ -29,6 +29,14 @@ static void read_string(SkStream* stream, SkString* string) {
     if (length > 0) {
         string->resize(length);
         stream->read(string->writable_str(), length);
+    }
+}
+
+// Remove when MIN_PICTURE_VERSION > 41
+static void skip_string(SkStream* stream) {
+    const uint32_t length = SkToU32(stream->readPackedUInt());
+    if (length > 0) {
+        stream->skip(length);
     }
 }
 
@@ -67,8 +75,8 @@ SkFontDescriptor::SkFontDescriptor(SkStream* stream) : fFontIndex(0) {
             case kFontIndex:
                 fFontIndex = read_uint(stream);
                 break;
-            case kFontFileName:
-                read_string(stream, &fFontFileName);
+            case kFontFileName:  // Remove when MIN_PICTURE_VERSION > 41
+                skip_string(stream);
                 break;
             default:
                 SkDEBUGFAIL("Unknown id used by a font descriptor");
@@ -91,7 +99,6 @@ void SkFontDescriptor::serialize(SkWStream* stream) {
     write_string(stream, fFamilyName, kFontFamilyName);
     write_string(stream, fFullName, kFullName);
     write_string(stream, fPostscriptName, kPostscriptName);
-    write_string(stream, fFontFileName, kFontFileName);
     if (fFontIndex) {
         write_uint(stream, fFontIndex, kFontIndex);
     }

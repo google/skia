@@ -66,7 +66,6 @@ public:
         SkASSERT(desc);
         SkASSERT(serialize);
         desc->setFamilyName(fFamilyName.c_str());
-        desc->setFontFileName(fPathName.c_str());
         desc->setFontIndex(fIndex);
         *serialize = false;
     }
@@ -97,7 +96,6 @@ public:
         SkASSERT(desc);
         SkASSERT(serialize);
         desc->setFamilyName(fFamilyName.c_str());
-        desc->setFontFileName(NULL);
         *serialize = true;
     }
 

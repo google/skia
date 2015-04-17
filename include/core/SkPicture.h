@@ -253,6 +253,9 @@ private:
     static const uint32_t MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
     static const uint32_t CURRENT_PICTURE_VERSION = 41;
 
+    static_assert(MIN_PICTURE_VERSION <= 41,
+                  "Remove kFontFileName and related code from SkFontDescriptor.cpp.");
+
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 

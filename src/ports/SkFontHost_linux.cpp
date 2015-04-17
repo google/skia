@@ -32,8 +32,6 @@ public:
 
     bool isSysFont() const { return fIsSysFont; }
 
-    virtual const char* getUniqueString() const = 0;
-
 protected:
     void onGetFamilyName(SkString* familyName) const override {
         *familyName = fFamilyName;
@@ -41,7 +39,6 @@ protected:
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override {
         desc->setFamilyName(fFamilyName.c_str());
-        desc->setFontFileName(this->getUniqueString());
         desc->setFontIndex(fIndex);
         *isLocal = !this->isSysFont();
     }
@@ -63,8 +60,6 @@ class SkTypeface_Empty : public SkTypeface_Custom {
 public:
     SkTypeface_Empty() : INHERITED(SkFontStyle(), false, true, SkString(), 0) {}
 
-    const char* getUniqueString() const override { return NULL; }
-
 protected:
     SkStreamAsset* onOpenStream(int*) const override { return NULL; }
 
@@ -80,8 +75,6 @@ public:
         : INHERITED(style, isFixedPitch, sysFont, familyName, index)
         , fStream(stream)
     { }
-
-    const char* getUniqueString() const override { return NULL; }
 
 protected:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
@@ -111,14 +104,6 @@ public:
         , fPath(path)
         , fStream(c_CustomTypefaceRetain ? SkStream::NewFromFile(fPath.c_str()) : NULL)
     { }
-
-    const char* getUniqueString() const override {
-        const char* str = strrchr(fPath.c_str(), '/');
-        if (str) {
-            str += 1;   // skip the '/'
-        }
-        return str;
-    }
 
 protected:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {

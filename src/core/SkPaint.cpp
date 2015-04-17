@@ -2139,8 +2139,6 @@ void SkPaint::toString(SkString* str) const {
         str->append(descriptor.getFullName());
         str->append("</dd><dt>Font PS Name:</dt><dd>");
         str->append(descriptor.getPostscriptName());
-        str->append("</dd><dt>Font File Name:</dt><dd>");
-        str->append(descriptor.getFontFileName());
         str->append("</dd>");
     }
 

@@ -161,7 +161,6 @@ SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
 
 void SkTestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const {
     desc->setFamilyName(fTestFont->fName);
-    desc->setFontFileName(fTestFont->fName);
     *isLocal = false;
 }
 
