@@ -114,6 +114,14 @@ private:
                 // distance field properties
                 bool fDrawAsDistanceFields;
                 bool fUseLCDText;
+                // Distance field text cannot draw coloremoji, and so has to fall back.  However,
+                // though the distance field text and the coloremoji may share the same run, they
+                // will have different descriptors.  If fOverrideDescriptor is non-NULL, then it
+                // will be used in place of the run's descriptor to regen texture coords
+                // TODO we could have a descriptor cache, it would reduce the size of these blobs
+                // significantly, and then the subrun could just have a refed pointer to the
+                // correct descriptor.
+                SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor;
             };
 
             class SubRunInfoArray {
@@ -121,8 +129,16 @@ private:
                 SubRunInfoArray()
                     : fSubRunCount(0)
                     , fSubRunAllocation(kMinSubRuns) {
+                    SK_COMPILE_ASSERT(kMinSubRuns > 0, insufficient_subrun_allocation);
+                    // We always seed with one here, so we can assume a valid subrun during
+                    // push_back
                     fPtr = reinterpret_cast<SubRunInfo*>(fSubRunStorage.get());
-                    this->push_back();
+                    SkNEW_PLACEMENT(&fPtr[fSubRunCount++], SubRunInfo);
+                }
+                ~SubRunInfoArray() {
+                    for (int i = 0; i < fSubRunCount; i++) {
+                        fPtr[i].~SubRunInfo();
+                    }
                 }
 
                 int count() const { return fSubRunCount; }
@@ -134,6 +150,15 @@ private:
                         fPtr = reinterpret_cast<SubRunInfo*>(fSubRunStorage.get());
                     }
                     SkNEW_PLACEMENT(&fPtr[fSubRunCount], SubRunInfo);
+
+                    // Forward glyph / vertex information to seed the new sub run
+                    SubRunInfo& newSubRun = fPtr[fSubRunCount];
+                    SubRunInfo& prevSubRun = fPtr[fSubRunCount - 1];
+                    newSubRun.fGlyphStartIndex = prevSubRun.fGlyphEndIndex;
+                    newSubRun.fGlyphEndIndex = prevSubRun.fGlyphEndIndex;
+
+                    newSubRun.fVertexStartIndex = prevSubRun.fVertexEndIndex;
+                    newSubRun.fVertexEndIndex = prevSubRun.fVertexEndIndex;
                     return fPtr[fSubRunCount++];
                 }
                 SubRunInfo& operator[](int index) {
@@ -268,7 +293,7 @@ private:
                const GrPaint&, const GrClip&);
 
     // A helper for drawing BitmapText in a run of distance fields
-    inline void fallbackDrawPosText(GrRenderTarget*, const GrClip&,
+    inline void fallbackDrawPosText(BitmapTextBlob*, GrRenderTarget*, const GrClip&,
                                     const GrPaint&,
                                     const SkPaint&, const SkMatrix& viewMatrix,
                                     const SkTDArray<char>& fallbackTxt,

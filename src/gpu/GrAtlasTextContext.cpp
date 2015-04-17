@@ -545,7 +545,8 @@ inline void GrAtlasTextContext::initDistanceFieldPaint(SkPaint* skPaint, SkScala
     skPaint->setSubpixelText(true);
 }
 
-inline void GrAtlasTextContext::fallbackDrawPosText(GrRenderTarget* rt, const GrClip& clip,
+inline void GrAtlasTextContext::fallbackDrawPosText(BitmapTextBlob* blob,
+                                                    GrRenderTarget* rt, const GrClip& clip,
                                                     const GrPaint& paint,
                                                     const SkPaint& skPaint,
                                                     const SkMatrix& viewMatrix,
@@ -554,20 +555,18 @@ inline void GrAtlasTextContext::fallbackDrawPosText(GrRenderTarget* rt, const Gr
                                                     int scalarsPerPosition,
                                                     const SkPoint& offset,
                                                     const SkIRect& clipRect) {
-    int glyphCount = fallbackTxt.count();
-    SkASSERT(glyphCount);
-    // TODO currently we have to create a whole new blob for fallback text.  This is because
-    // they have a different descriptor and we currently only have one descriptor per run.
-    // We should fix this and allow an override descriptor on each subrun
-    SkAutoTUnref<BitmapTextBlob> blob(fCache->createBlob(glyphCount, 1, kGrayTextVASize));
-    blob->fViewMatrix = viewMatrix;
-
-    SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, &viewMatrix, false);
+    SkASSERT(fallbackTxt.count());
+    Run& run = blob->fRuns[0];
+    PerSubRunInfo& subRun = run.fSubRunInfo.push_back();
+    subRun.fOverrideDescriptor.reset(SkNEW(SkAutoDescriptor));
+    skPaint.getScalerContextDescriptor(subRun.fOverrideDescriptor,
+                                       &fDeviceProperties, &viewMatrix, false);
+    SkGlyphCache* cache = SkGlyphCache::DetachCache(run.fTypeface,
+                                                    subRun.fOverrideDescriptor->getDesc());
     this->internalDrawBMPPosText(blob, 0, cache, skPaint, paint.getColor(), viewMatrix,
                                  fallbackTxt.begin(), fallbackTxt.count(),
                                  fallbackPos.begin(), scalarsPerPosition, offset, clipRect);
     SkGlyphCache::AttachCache(cache);
-    this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip);
 }
 
 inline GrAtlasTextContext::BitmapTextBlob*
@@ -610,11 +609,11 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
                                  byteLength, x, y, clipRect, textRatio, &fallbackTxt, &fallbackPos,
                                  &offset, skPaint);
         SkGlyphCache::AttachCache(cache);
-        this->flush(fContext->getTextTarget(), blob, rt, dfPaint, paint, clip);
         if (fallbackTxt.count()) {
-            this->fallbackDrawPosText(rt, clip, paint, skPaint, viewMatrix, fallbackTxt,
+            this->fallbackDrawPosText(blob, rt, clip, paint, skPaint, viewMatrix, fallbackTxt,
                                       fallbackPos, 2, offset, clipRect);
         }
+        this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip);
     } else {
         SkAutoTUnref<BitmapTextBlob> blob(fCache->createBlob(glyphCount, 1, kGrayTextVASize));
         blob->fViewMatrix = viewMatrix;
@@ -651,11 +650,11 @@ void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                                     byteLength, pos, scalarsPerPosition, offset, clipRect,
                                     textRatio, &fallbackTxt, &fallbackPos);
         SkGlyphCache::AttachCache(cache);
-        this->flush(fContext->getTextTarget(), blob, rt, dfPaint, paint, clip);
         if (fallbackTxt.count()) {
-            this->fallbackDrawPosText(rt, clip, paint, skPaint, viewMatrix, fallbackTxt,
+            this->fallbackDrawPosText(blob, rt, clip, paint, skPaint, viewMatrix, fallbackTxt,
                                       fallbackPos, scalarsPerPosition, offset, clipRect);
         }
+        this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip);
     } else {
         SkAutoTUnref<BitmapTextBlob> blob(fCache->createBlob(glyphCount, 1, kGrayTextVASize));
         blob->fViewMatrix = viewMatrix;
@@ -1134,14 +1133,7 @@ void GrAtlasTextContext::bmpAppendGlyph(BitmapTextBlob* blob, int runIndex,
 
     PerSubRunInfo* subRun = &run.fSubRunInfo.back();
     if (run.fInitialized && subRun->fMaskFormat != format) {
-        PerSubRunInfo* newSubRun = &run.fSubRunInfo.push_back();
-        newSubRun->fGlyphStartIndex = subRun->fGlyphEndIndex;
-        newSubRun->fGlyphEndIndex = subRun->fGlyphEndIndex;
-
-        newSubRun->fVertexStartIndex = subRun->fVertexEndIndex;
-        newSubRun->fVertexEndIndex = subRun->fVertexEndIndex;
-
-        subRun = newSubRun;
+        subRun = &run.fSubRunInfo.push_back();
     }
 
     run.fInitialized = true;
@@ -1475,7 +1467,8 @@ public:
                 bool brokenRun = false;
                 if (regenerateTextureCoords) {
                     info.fBulkUseToken.reset();
-                    desc = run.fDescriptor.getDesc();
+                    desc = info.fOverrideDescriptor ? info.fOverrideDescriptor->getDesc() :
+                                                      run.fDescriptor.getDesc();
                     cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
                     scaler = GrTextContext::GetGrFontScaler(cache);
                     strike = fFontCache->getStrike(scaler);
