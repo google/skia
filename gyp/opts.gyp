@@ -48,8 +48,10 @@
         }],
 
         [ '(skia_arch_type == "arm" and arm_version < 7) \
+            or (skia_os == "ios") \
             or (skia_os == "android" \
-                and skia_arch_type not in ["x86", "x86_64", "arm", "mips", "arm64"])', {
+                and skia_arch_type not in ["x86", "x86_64", "arm", "mips", \
+                                           "arm64"])', {
           'sources': [ '<@(none_sources)' ],
         }],
 
