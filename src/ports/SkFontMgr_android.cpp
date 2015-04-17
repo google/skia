@@ -143,9 +143,15 @@ public:
                 continue;
             }
 
-            if (fontFile.fWeight != 0) {
-                style = SkFontStyle(fontFile.fWeight, style.width(), style.slant());
+            int weight = fontFile.fWeight != 0 ? fontFile.fWeight : style.weight();
+            SkFontStyle::Slant slant = style.slant();
+            switch (fontFile.fStyle) {
+                case FontFileInfo::Style::kAuto: slant = style.slant(); break;
+                case FontFileInfo::Style::kNormal: slant = SkFontStyle::kUpright_Slant; break;
+                case FontFileInfo::Style::kItalic: slant = SkFontStyle::kItalic_Slant; break;
+                default: SkASSERT(false); break;
             }
+            style = SkFontStyle(weight, style.width(), slant);
 
             const SkLanguage& lang = family.fLanguage;
             uint32_t variant = family.fVariant;
