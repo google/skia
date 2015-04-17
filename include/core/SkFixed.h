@@ -28,7 +28,7 @@ typedef int32_t             SkFixed;
 #define SK_FixedTanPIOver8  (0x6A0A)
 #define SK_FixedRoot2Over2  (0xB505)
 
-#define SkFixedToFloat(x)   ((x) * 1.5258789e-5f)
+#define SkFixedToFloat(x)   ((x) * 1.52587890625e-5f)
 #if 1
     #define SkFloatToFixed(x)   ((SkFixed)((x) * SK_Fixed1))
 #else
@@ -50,7 +50,7 @@ typedef int32_t             SkFixed;
     #define SkFloatToFixed_Check(x) SkFloatToFixed(x)
 #endif
 
-#define SkFixedToDouble(x)  ((x) * 1.5258789e-5)
+#define SkFixedToDouble(x)  ((x) * 1.52587890625e-5)
 #define SkDoubleToFixed(x)  ((SkFixed)((x) * SK_Fixed1))
 
 /** Converts an integer to a SkFixed, asserting that the result does not overflow
