@@ -120,10 +120,8 @@ public:
     virtual void blitRect(int x, int y, int width, int height);
     virtual void blitMask(const SkMask&, const SkIRect&);
     virtual const SkBitmap* justAnOpaqueColor(uint32_t*);
-#ifndef SK_SUPPORT_LEGACY_BLITANTIH2V2
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
-#endif
 
 protected:
     SkColor                fColor;
@@ -144,10 +142,8 @@ public:
     SkARGB32_Opaque_Blitter(const SkBitmap& device, const SkPaint& paint)
         : INHERITED(device, paint) { SkASSERT(paint.getAlpha() == 0xFF); }
     virtual void blitMask(const SkMask&, const SkIRect&);
-#ifndef SK_SUPPORT_LEGACY_BLITANTIH2V2
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
-#endif
 
 private:
     typedef SkARGB32_Blitter INHERITED;
@@ -158,10 +154,8 @@ public:
     SkARGB32_Black_Blitter(const SkBitmap& device, const SkPaint& paint)
         : INHERITED(device, paint) {}
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-#ifndef SK_SUPPORT_LEGACY_BLITANTIH2V2
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
-#endif
 
 private:
     typedef SkARGB32_Opaque_Blitter INHERITED;

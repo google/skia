@@ -218,18 +218,6 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
                      SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
     SkASSERT(level <= kMaxQuadSubdivideLevel);
 
-#ifdef SK_SUPPORT_LEGACY_BLITANTIH2V2
-    if (level > 0) {
-        SkPoint tmp[5];
-
-        SkChopQuadAtHalf(pts, tmp);
-        hairquad(tmp, clip, blitter, level - 1, lineproc);
-        hairquad(&tmp[2], clip, blitter, level - 1, lineproc);
-    } else {
-        SkPoint tmp[] = { pts[0], pts[2] };
-        lineproc(tmp, 2, clip, blitter);
-    }
-#else
     SkPoint coeff[3];
     SkQuadToCoeff(pts, coeff);
 
@@ -250,10 +238,8 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
     }
     tmp[lines] = pts[2];
     lineproc(tmp, lines + 1, clip, blitter);
-#endif
 }
 
-#ifndef SK_SUPPORT_LEGACY_BLITANTIH2V2
 static inline Sk2s abs(const Sk2s& value) {
     return Sk2s::Max(value, -value);
 }
@@ -331,22 +317,9 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     tmp[lines] = pts[3];
     lineproc(tmp, lines + 1, clip, blitter);
 }
-#endif
 
 static inline void haircubic(const SkPoint pts[4], const SkRegion* clip,
                       SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
-#ifdef SK_SUPPORT_LEGACY_BLITANTIH2V2
-    if (level > 0) {
-        SkPoint tmp[7];
-
-        SkChopCubicAt(pts, tmp, SK_Scalar1/2);
-        haircubic(tmp, clip, blitter, level - 1, lineproc);
-        haircubic(&tmp[3], clip, blitter, level - 1, lineproc);
-    } else {
-        SkPoint tmp[] = { pts[0], pts[3] };
-        lineproc(tmp, 2, clip, blitter);
-    }
-#else
     if (quick_cubic_niceness_check(pts)) {
         hair_cubic(pts, clip, blitter, lineproc);
     } else {
@@ -358,7 +331,6 @@ static inline void haircubic(const SkPoint pts[4], const SkRegion* clip,
             hair_cubic(&tmp[i * 3], clip, blitter, lineproc);
         }
     }
-#endif
 }
 
 static int compute_quad_level(const SkPoint pts[3]) {
