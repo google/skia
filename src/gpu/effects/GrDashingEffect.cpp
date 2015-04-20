@@ -31,10 +31,6 @@
 static bool can_fast_path_dash(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
                                const GrDrawTarget& target, const GrPipelineBuilder& pipelineBuilder,
                                const SkMatrix& viewMatrix) {
-    if (pipelineBuilder.getRenderTarget()->isMultisampled()) {
-        return false;
-    }
-
     // Pts must be either horizontal or vertical in src space
     if (pts[0].fX != pts[1].fX && pts[0].fY != pts[1].fY) {
         return false;
@@ -77,6 +73,14 @@ struct DashCircleVertex {
     SkScalar fIntervalLength;
     SkScalar fRadius;
     SkScalar fCenterX;
+};
+
+enum DashAAMode {
+    kBW_DashAAMode,
+    kEdgeAA_DashAAMode,
+    kMSAA_DashAAMode,
+
+    kDashAAModeCount,
 };
 };
 
@@ -157,11 +161,12 @@ static int kDashVertices = 4;
 
 template <typename T>
 void setup_dashed_rect_common(const SkRect& rect, const SkMatrix& matrix, T* vertices, int idx,
-                              SkScalar offset, SkScalar bloat, SkScalar len, SkScalar stroke) {
-    SkScalar startDashX = offset - bloat;
-    SkScalar endDashX = offset + len + bloat;
-    SkScalar startDashY = -stroke - bloat;
-    SkScalar endDashY = stroke + bloat;
+                              SkScalar offset, SkScalar bloatX, SkScalar bloatY, SkScalar len,
+                              SkScalar stroke) {
+    SkScalar startDashX = offset - bloatX;
+    SkScalar endDashX = offset + len + bloatX;
+    SkScalar startDashY = -stroke - bloatY;
+    SkScalar endDashY = stroke + bloatY;
     vertices[idx].fDashPos = SkPoint::Make(startDashX , startDashY);
     vertices[idx + 1].fDashPos = SkPoint::Make(startDashX, endDashY);
     vertices[idx + 2].fDashPos = SkPoint::Make(endDashX, endDashY);
@@ -176,18 +181,18 @@ void setup_dashed_rect_common(const SkRect& rect, const SkMatrix& matrix, T* ver
 }
 
 static void setup_dashed_rect(const SkRect& rect, void* vertices, int idx,
-                              const SkMatrix& matrix, SkScalar offset, SkScalar bloat,
-                              SkScalar len, SkScalar stroke, SkScalar startInterval,
-                              SkScalar endInterval, SkScalar strokeWidth, DashCap cap,
-                              const size_t vertexStride) {
+                              const SkMatrix& matrix, SkScalar offset, SkScalar bloatX,
+                              SkScalar bloatY, SkScalar len, SkScalar stroke,
+                              SkScalar startInterval, SkScalar endInterval, SkScalar strokeWidth,
+                              DashCap cap, const size_t vertexStride) {
     SkScalar intervalLength = startInterval + endInterval;
 
     if (kRound_DashCap == cap) {
         SkASSERT(vertexStride == sizeof(DashCircleVertex));
         DashCircleVertex* verts = reinterpret_cast<DashCircleVertex*>(vertices);
 
-        setup_dashed_rect_common<DashCircleVertex>(rect, matrix, verts, idx, offset, bloat, len,
-                                                   stroke);
+        setup_dashed_rect_common<DashCircleVertex>(rect, matrix, verts, idx, offset, bloatX,
+                                                   bloatY, len, stroke);
 
         SkScalar radius = SkScalarHalf(strokeWidth) - 0.5f;
         SkScalar centerX = SkScalarHalf(endInterval);
@@ -202,8 +207,8 @@ static void setup_dashed_rect(const SkRect& rect, void* vertices, int idx,
         SkASSERT(kNonRound_DashCap == cap && vertexStride == sizeof(DashLineVertex));
         DashLineVertex* verts = reinterpret_cast<DashLineVertex*>(vertices);
 
-        setup_dashed_rect_common<DashLineVertex>(rect, matrix, verts, idx, offset, bloat, len,
-                                                 stroke);
+        setup_dashed_rect_common<DashLineVertex>(rect, matrix, verts, idx, offset, bloatX,
+                                                 bloatY, len, stroke);
 
         SkScalar halfOffLen = SkScalarHalf(endInterval);
         SkScalar halfStroke = SkScalarHalf(strokeWidth);
@@ -234,7 +239,7 @@ static void setup_dashed_rect_pos(const SkRect& rect, int idx, const SkMatrix& m
  * position relative to the dashed line.
  */
 static GrGeometryProcessor* create_dash_gp(GrColor,
-                                           GrPrimitiveEdgeType edgeType,
+                                           DashAAMode aaMode,
                                            DashCap cap,
                                            const SkMatrix& localMatrix);
 
@@ -253,8 +258,8 @@ public:
         SkDEBUGCODE(SkRect fDevBounds;)
     };
 
-    static GrBatch* Create(const Geometry& geometry, SkPaint::Cap cap, bool useAA, bool fullDash) {
-        return SkNEW_ARGS(DashBatch, (geometry, cap, useAA, fullDash));
+    static GrBatch* Create(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode, bool fullDash) {
+        return SkNEW_ARGS(DashBatch, (geometry, cap, aaMode, fullDash));
     }
 
     const char* name() const override { return "DashBatch"; }
@@ -287,7 +292,8 @@ public:
         SkScalar fStrokeWidth;
         SkScalar fLineLength;
         SkScalar fHalfDevStroke;
-        SkScalar fDevBloat;
+        SkScalar fDevBloatX;
+        SkScalar fDevBloatY;
         bool fLineDone;
         bool fHasStartRect;
         bool fHasEndRect;
@@ -309,9 +315,7 @@ public:
         bool isRoundCap = SkPaint::kRound_Cap == cap;
         DashCap capType = isRoundCap ? kRound_DashCap : kNonRound_DashCap;
         if (this->fullDash()) {
-            GrPrimitiveEdgeType edgeType = this->useAA() ? kFillAA_GrProcessorEdgeType :
-                                                           kFillBW_GrProcessorEdgeType;
-            gp.reset(create_dash_gp(this->color(), edgeType, capType, invert));
+            gp.reset(create_dash_gp(this->color(), this->aaMode(), capType, invert));
         } else {
             // Set up the vertex data for the line and start/end dashes
             gp.reset(GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
@@ -330,7 +334,8 @@ public:
         init.fUsesLocalCoords = this->usesLocalCoords();
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
-        bool useAA = this->useAA();
+        // useAA here means Edge AA or MSAA
+        bool useAA = this->aaMode() != kBW_DashAAMode;
         bool fullDash = this->fullDash();
 
         // We do two passes over all of the dashes.  First we setup the start, end, and bounds,
@@ -444,7 +449,7 @@ public:
             SkScalar devPhase = args.fPhase * args.fParallelScale;
             SkScalar strokeWidth = args.fSrcStrokeWidth * args.fPerpendicularScale;
 
-            if ((strokeWidth < 1.f && !useAA) || 0.f == strokeWidth) {
+            if ((strokeWidth < 1.f && useAA) || 0.f == strokeWidth) {
                 strokeWidth = 1.f;
             }
 
@@ -457,10 +462,14 @@ public:
             }
             SkScalar startOffset = devIntervals[1] * 0.5f + devPhase;
 
-            SkScalar bloatX = useAA ? 0.5f / args.fParallelScale : 0.f;
-            SkScalar bloatY = useAA ? 0.5f / args.fPerpendicularScale : 0.f;
+            // For EdgeAA, we bloat in X & Y for both square and round caps.
+            // For MSAA, we don't bloat at all for square caps, and bloat in Y only for round caps.
+            SkScalar devBloatX = this->aaMode() == kEdgeAA_DashAAMode ? 0.5f : 0.0f;
+            SkScalar devBloatY = (SkPaint::kRound_Cap == cap && this->aaMode() == kMSAA_DashAAMode)
+                                 ? 0.5f : devBloatX;
 
-            SkScalar devBloat = useAA ? 0.5f : 0.f;
+            SkScalar bloatX = devBloatX / args.fParallelScale;
+            SkScalar bloatY = devBloatY / args.fPerpendicularScale;
 
             if (devIntervals[1] <= 0.f && useAA) {
                 // Case when we end up drawing a solid AA rect
@@ -519,7 +528,8 @@ public:
             }
 
             draw.fStartOffset = startOffset;
-            draw.fDevBloat = devBloat;
+            draw.fDevBloatX = devBloatX;
+            draw.fDevBloatY = devBloatY;
             draw.fHalfDevStroke = halfDevStroke;
             draw.fStrokeWidth = strokeWidth;
             draw.fHasStartRect = hasStartRect;
@@ -549,9 +559,10 @@ public:
             if (!draws[i].fLineDone) {
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, args.fSrcRotInv,
-                                      draws[i].fStartOffset, draws[i].fDevBloat,
-                                      draws[i].fLineLength, draws[i].fHalfDevStroke,
-                                      args.fIntervals[0], args.fIntervals[1], draws[i].fStrokeWidth,
+                                      draws[i].fStartOffset, draws[i].fDevBloatX,
+                                      draws[i].fDevBloatY, draws[i].fLineLength,
+                                      draws[i].fHalfDevStroke, args.fIntervals[0],
+                                      args.fIntervals[1], draws[i].fStrokeWidth,
                                       capType, gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
@@ -565,7 +576,8 @@ public:
             if (draws[i].fHasStartRect) {
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, args.fSrcRotInv,
-                                      draws[i].fStartOffset, draws[i].fDevBloat, args.fIntervals[0],
+                                      draws[i].fStartOffset, draws[i].fDevBloatX,
+                                      draws[i].fDevBloatY, args.fIntervals[0],
                                       draws[i].fHalfDevStroke, args.fIntervals[0],
                                       args.fIntervals[1], draws[i].fStrokeWidth, capType,
                                       gp->getVertexStride());
@@ -582,7 +594,8 @@ public:
             if (draws[i].fHasEndRect) {
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, args.fSrcRotInv,
-                                      draws[i].fStartOffset, draws[i].fDevBloat, args.fIntervals[0],
+                                      draws[i].fStartOffset, draws[i].fDevBloatX,
+                                      draws[i].fDevBloatY, args.fIntervals[0],
                                       draws[i].fHalfDevStroke, args.fIntervals[0],
                                       args.fIntervals[1], draws[i].fStrokeWidth, capType,
                                       gp->getVertexStride());
@@ -624,11 +637,11 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    DashBatch(const Geometry& geometry, SkPaint::Cap cap, bool useAA, bool fullDash) {
+    DashBatch(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode, bool fullDash) {
         this->initClassID<DashBatch>();
         fGeoData.push_back(geometry);
 
-        fBatch.fUseAA = useAA;
+        fBatch.fAAMode = aaMode;
         fBatch.fCap = cap;
         fBatch.fFullDash = fullDash;
     }
@@ -636,7 +649,7 @@ private:
     bool onCombineIfPossible(GrBatch* t) override {
         DashBatch* that = t->cast<DashBatch>();
 
-        if (this->useAA() != that->useAA()) {
+        if (this->aaMode() != that->aaMode()) {
             return false;
         }
 
@@ -665,7 +678,7 @@ private:
     GrColor color() const { return fBatch.fColor; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool useAA() const { return fBatch.fUseAA; }
+    DashAAMode aaMode() const { return fBatch.fAAMode; }
     bool fullDash() const { return fBatch.fFullDash; }
     SkPaint::Cap cap() const { return fBatch.fCap; }
 
@@ -675,7 +688,7 @@ private:
         bool fColorIgnored;
         bool fCoverageIgnored;
         SkPaint::Cap fCap;
-        bool fUseAA;
+        DashAAMode fAAMode;
         bool fFullDash;
     };
 
@@ -730,9 +743,12 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
         offInterval -= strokeWidth;
     }
 
-    bool useAA = paint.isAntiAlias();
+    DashAAMode aaMode = pipelineBuilder->getRenderTarget()->isMultisampled() ? kMSAA_DashAAMode :
+                        paint.isAntiAlias() ? kEdgeAA_DashAAMode :
+                                              kBW_DashAAMode;
+
     // TODO we can do a real rect call if not using fulldash(ie no off interval, not using AA)
-    bool fullDash = offInterval > 0.f || useAA;
+    bool fullDash = offInterval > 0.f || aaMode != kBW_DashAAMode;
 
     geometry.fColor = color;
     geometry.fViewMatrix = viewMatrix;
@@ -740,7 +756,7 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
     geometry.fIntervals[0] = info.fIntervals[0];
     geometry.fIntervals[1] = info.fIntervals[1];
 
-    SkAutoTUnref<GrBatch> batch(DashBatch::Create(geometry, cap, useAA, fullDash));
+    SkAutoTUnref<GrBatch> batch(DashBatch::Create(geometry, cap, aaMode, fullDash));
     target->drawBatch(pipelineBuilder, batch);
 
     return true;
@@ -770,7 +786,7 @@ public:
     typedef SkPathEffect::DashInfo DashInfo;
 
     static GrGeometryProcessor* Create(GrColor,
-                                       GrPrimitiveEdgeType edgeType,
+                                       DashAAMode aaMode,
                                        const SkMatrix& localMatrix);
 
     virtual ~DashingCircleEffect();
@@ -783,7 +799,7 @@ public:
 
     const Attribute* inCircleParams() const { return fInCircleParams; }
 
-    GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
+    DashAAMode aaMode() const { return fAAMode; }
 
     virtual void getGLProcessorKey(const GrBatchTracker&,
                                    const GrGLCaps&,
@@ -799,13 +815,13 @@ public:
                         const GrBatchTracker&) const override;
 
 private:
-    DashingCircleEffect(GrColor, GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix);
+    DashingCircleEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix);
 
     bool onIsEqual(const GrGeometryProcessor& other) const override;
 
     void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
-    GrPrimitiveEdgeType fEdgeType;
+    DashAAMode          fAAMode;
     const Attribute*    fInPosition;
     const Attribute*    fInDashParams;
     const Attribute*    fInCircleParams;
@@ -864,7 +880,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     args.fPB->addVarying("DashParam", &dashParams);
     vsBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
 
-    // xy, refer to circle radius - 0.5, z refers to cicles center x coord
+    // x refers to circle radius - 0.5, y refers to cicle's center x coord
     GrGLVertToFrag circleParams(kVec2f_GrSLType);
     args.fPB->addVarying("CircleParams", &circleParams);
     vsBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
@@ -887,7 +903,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fsBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", dashParams.fsIn());
     fsBuilder->codeAppendf("vec2 center = vec2(%s.y, 0.0);", circleParams.fsIn());
     fsBuilder->codeAppend("float dist = length(center - fragPosShifted);");
-    if (GrProcessorEdgeTypeIsAA(dce.getEdgeType())) {
+    if (dce.aaMode() != kBW_DashAAMode) {
         fsBuilder->codeAppendf("float diff = dist - %s.x;", circleParams.fsIn());
         fsBuilder->codeAppend("diff = 1.0 - diff;");
         fsBuilder->codeAppend("float alpha = clamp(diff, 0.0, 1.0);");
@@ -921,16 +937,16 @@ void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
     uint32_t key = 0;
     key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
     key |= ComputePosKey(gp.viewMatrix()) << 1;
-    key |= dce.getEdgeType() << 8;
+    key |= dce.aaMode() << 8;
     b->add32(key << 16 | local.fInputColorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 GrGeometryProcessor* DashingCircleEffect::Create(GrColor color,
-                                                 GrPrimitiveEdgeType edgeType,
+                                                 DashAAMode aaMode,
                                                  const SkMatrix& localMatrix) {
-    return SkNEW_ARGS(DashingCircleEffect, (color, edgeType, localMatrix));
+    return SkNEW_ARGS(DashingCircleEffect, (color, aaMode, localMatrix));
 }
 
 DashingCircleEffect::~DashingCircleEffect() {}
@@ -951,9 +967,9 @@ GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrBatchTrack
 }
 
 DashingCircleEffect::DashingCircleEffect(GrColor color,
-                                         GrPrimitiveEdgeType edgeType,
+                                         DashAAMode aaMode,
                                          const SkMatrix& localMatrix)
-    : INHERITED(color, SkMatrix::I(), localMatrix), fEdgeType(edgeType) {
+    : INHERITED(color, SkMatrix::I(), localMatrix), fAAMode(aaMode) {
     this->initClassID<DashingCircleEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     fInDashParams = &this->addVertexAttrib(Attribute("inDashParams", kVec3f_GrVertexAttribType));
@@ -963,7 +979,7 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
 
 bool DashingCircleEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const DashingCircleEffect& dce = other.cast<DashingCircleEffect>();
-    return fEdgeType == dce.fEdgeType;
+    return fAAMode == dce.fAAMode;
 }
 
 void DashingCircleEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
@@ -989,10 +1005,9 @@ GrGeometryProcessor* DashingCircleEffect::TestCreate(SkRandom* random,
                                                      GrContext*,
                                                      const GrDrawTargetCaps& caps,
                                                      GrTexture*[]) {
-    GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(random->nextULessThan(
-            kGrProcessorEdgeTypeCnt));
+    DashAAMode aaMode = static_cast<DashAAMode>(random->nextULessThan(kDashAAModeCount));
     return DashingCircleEffect::Create(GrRandomColor(random),
-                                       edgeType, GrProcessorUnitTest::TestMatrix(random));
+                                      aaMode, GrProcessorUnitTest::TestMatrix(random));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1019,7 +1034,7 @@ public:
     typedef SkPathEffect::DashInfo DashInfo;
 
     static GrGeometryProcessor* Create(GrColor,
-                                       GrPrimitiveEdgeType edgeType,
+                                       DashAAMode aaMode,
                                        const SkMatrix& localMatrix);
 
     virtual ~DashingLineEffect();
@@ -1032,7 +1047,7 @@ public:
 
     const Attribute* inRectParams() const { return fInRectParams; }
 
-    GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
+    DashAAMode aaMode() const { return fAAMode; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLCaps& caps,
@@ -1048,13 +1063,13 @@ public:
                         const GrBatchTracker&) const override;
 
 private:
-    DashingLineEffect(GrColor, GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix);
+    DashingLineEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix);
 
     bool onIsEqual(const GrGeometryProcessor& other) const override;
 
     void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
-    GrPrimitiveEdgeType fEdgeType;
+    DashAAMode          fAAMode;
     const Attribute*    fInPosition;
     const Attribute*    fInDashParams;
     const Attribute*    fInRectParams;
@@ -1129,7 +1144,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                            inDashParams.fsIn(), inDashParams.fsIn(), inDashParams.fsIn(),
                            inDashParams.fsIn());
     fsBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", inDashParams.fsIn());
-    if (GrProcessorEdgeTypeIsAA(de.getEdgeType())) {
+    if (de.aaMode() == kEdgeAA_DashAAMode) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
         fsBuilder->codeAppend("float xSub, ySub;");
@@ -1140,6 +1155,14 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
         fsBuilder->codeAppendf("float alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));");
+    } else if (de.aaMode() == kMSAA_DashAAMode) {
+        // For MSAA, we don't modulate the alpha by the Y distance, since MSAA coverage will handle
+        // AA on the the top and bottom edges. The shader is only responsible for intra-dash alpha.
+        fsBuilder->codeAppend("float xSub;");
+        fsBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
+        fsBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
+        // Now compute coverage in x to get the fraction of the pixel covered.
+        fsBuilder->codeAppendf("float alpha = (1.0 + max(xSub, -1.0));");
     } else {
         // Assuming the bounding geometry is tight so no need to check y values
         fsBuilder->codeAppendf("float alpha = 1.0;");
@@ -1174,16 +1197,16 @@ void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
     uint32_t key = 0;
     key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
     key |= ComputePosKey(gp.viewMatrix()) << 1;
-    key |= de.getEdgeType() << 8;
+    key |= de.aaMode() << 8;
     b->add32(key << 16 | local.fInputColorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 GrGeometryProcessor* DashingLineEffect::Create(GrColor color,
-                                               GrPrimitiveEdgeType edgeType,
+                                               DashAAMode aaMode,
                                                const SkMatrix& localMatrix) {
-    return SkNEW_ARGS(DashingLineEffect, (color, edgeType, localMatrix));
+    return SkNEW_ARGS(DashingLineEffect, (color, aaMode, localMatrix));
 }
 
 DashingLineEffect::~DashingLineEffect() {}
@@ -1204,9 +1227,9 @@ GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker
 }
 
 DashingLineEffect::DashingLineEffect(GrColor color,
-                                     GrPrimitiveEdgeType edgeType,
+                                     DashAAMode aaMode,
                                      const SkMatrix& localMatrix)
-    : INHERITED(color, SkMatrix::I(), localMatrix), fEdgeType(edgeType) {
+    : INHERITED(color, SkMatrix::I(), localMatrix), fAAMode(aaMode) {
     this->initClassID<DashingLineEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     fInDashParams = &this->addVertexAttrib(Attribute("inDashParams", kVec3f_GrVertexAttribType));
@@ -1215,7 +1238,7 @@ DashingLineEffect::DashingLineEffect(GrColor color,
 
 bool DashingLineEffect::onIsEqual(const GrGeometryProcessor& other) const {
     const DashingLineEffect& de = other.cast<DashingLineEffect>();
-    return fEdgeType == de.fEdgeType;
+    return fAAMode == de.fAAMode;
 }
 
 void DashingLineEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
@@ -1241,24 +1264,22 @@ GrGeometryProcessor* DashingLineEffect::TestCreate(SkRandom* random,
                                                    GrContext*,
                                                    const GrDrawTargetCaps& caps,
                                                    GrTexture*[]) {
-    GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(random->nextULessThan(
-            kGrProcessorEdgeTypeCnt));
-
+    DashAAMode aaMode = static_cast<DashAAMode>(random->nextULessThan(kDashAAModeCount));
     return DashingLineEffect::Create(GrRandomColor(random),
-                                     edgeType, GrProcessorUnitTest::TestMatrix(random));
+                                     aaMode, GrProcessorUnitTest::TestMatrix(random));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 static GrGeometryProcessor* create_dash_gp(GrColor color,
-                                           GrPrimitiveEdgeType edgeType,
+                                           DashAAMode dashAAMode,
                                            DashCap cap,
                                            const SkMatrix& localMatrix) {
     switch (cap) {
         case kRound_DashCap:
-            return DashingCircleEffect::Create(color, edgeType, localMatrix);
+            return DashingCircleEffect::Create(color, dashAAMode, localMatrix);
         case kNonRound_DashCap:
-            return DashingLineEffect::Create(color, edgeType, localMatrix);
+            return DashingLineEffect::Create(color, dashAAMode, localMatrix);
         default:
             SkFAIL("Unexpected dashed cap.");
     }
