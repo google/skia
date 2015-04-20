@@ -1681,38 +1681,30 @@ void S32_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
 
 #define SK_SUPPORT_LEGACY_COLOR32_MATHx
 
-// Color32 and its SIMD specializations use the blend_256_round_alt algorithm
-// from tests/BlendTest.cpp.  It's not quite perfect, but it's never wrong in the
-// interesting edge cases, and it's quite a bit faster than blend_perfect.
-//
-// blend_256_round_alt is our currently blessed algorithm.  Please use it or an analogous one.
+/* NEON version of Color32(), portable version is in core/SkBlitRow_D32.cpp */
+// Color32 and its SIMD specializations use the blend_perfect algorithm from tests/BlendTest.cpp.
+// An acceptable alternative is blend_256_round_alt, which is faster but not quite perfect.
 void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
     switch (SkGetPackedA32(color)) {
         case   0: memmove(dst, src, count * sizeof(SkPMColor)); return;
         case 255: sk_memset32(dst, color, count);               return;
     }
 
-    uint16x8_t colorHigh = vshll_n_u8((uint8x8_t)vdup_n_u32(color), 8);
-#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
-    uint16x8_t colorAndRound = colorHigh;
-#else                          // blend_256_round_alt, good
-    uint16x8_t colorAndRound = vaddq_u16(colorHigh, vdupq_n_u16(128));
-#endif
-
-    unsigned invA = 255 - SkGetPackedA32(color);
-#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
-    uint8x8_t invA8 = vdup_n_u8(invA);
-#else                          // blend_256_round_alt, good
-    SkASSERT(invA + (invA >> 7) < 256);  // This next part only works if alpha is not 0.
-    uint8x8_t invA8 = vdup_n_u8(invA + (invA >> 7));
-#endif
+    uint16x8_t color_2x_high = vshll_n_u8((uint8x8_t)vdup_n_u32(color), 8);
+    uint8x8_t   invA_8x = vdup_n_u8(255 - SkGetPackedA32(color));
 
     // Does the core work of blending color onto 4 pixels, returning the resulting 4 pixels.
     auto kernel = [&](const uint32x4_t& src4) -> uint32x4_t {
-        uint16x8_t lo = vmull_u8(vget_low_u8( (uint8x16_t)src4), invA8),
-                   hi = vmull_u8(vget_high_u8((uint8x16_t)src4), invA8);
+        uint16x8_t lo = vmull_u8(vget_low_u8( (uint8x16_t)src4), invA_8x),
+                   hi = vmull_u8(vget_high_u8((uint8x16_t)src4), invA_8x);
+    #ifndef SK_SUPPORT_LEGACY_COLOR32_MATH
+        lo = vaddq_u16(lo, vdupq_n_u16(128));
+        hi = vaddq_u16(hi, vdupq_n_u16(128));
+        lo = vaddq_u16(lo, vshrq_n_u16(lo, 8));
+        hi = vaddq_u16(hi, vshrq_n_u16(hi, 8));
+    #endif
         return (uint32x4_t)
-            vcombine_u8(vaddhn_u16(colorAndRound, lo), vaddhn_u16(colorAndRound, hi));
+            vcombine_u8(vaddhn_u16(color_2x_high, lo), vaddhn_u16(color_2x_high, hi));
     };
 
     while (count >= 8) {
