@@ -25,6 +25,15 @@ protected:
     SkISize onISize() override { return SkISize::Make(480, 480); }
 
     void doDraw(SkCanvas* canvas, SkXfermode::Mode mode, SkImageFilter* imf) {
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->clipRect(SkRect::MakeWH(220, 220));
+        
+        // want to force a layer, so modes like DstIn can combine meaningfully, but the final
+        // image can still be shown against our default (opaque) background. non-opaque GMs
+        // are a lot more trouble to compare/triage.
+        canvas->saveLayer(NULL, NULL);
+        canvas->drawColor(SK_ColorGREEN);
+
         SkPaint paint;
         paint.setAntiAlias(true);
         
@@ -34,13 +43,15 @@ protected:
         paint.setColor(SK_ColorRED);
         canvas->drawOval(r0, paint);
 
-        paint.setColor(0x800000FF);
+        paint.setColor(0x660000FF);
         paint.setImageFilter(imf);
         paint.setXfermodeMode(mode);
         canvas->drawOval(r1, paint);
     }
 
     void onDraw(SkCanvas* canvas) override {
+        canvas->translate(10, 10);
+
         // just need an imagefilter to trigger the code-path (which creates a tmp layer)
         SkAutoTUnref<SkImageFilter> imf(SkImageFilter::CreateMatrixFilter(SkMatrix::I(),
                                                                           kNone_SkFilterQuality));
@@ -52,11 +63,11 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
             canvas->save();
             this->doDraw(canvas, modes[i], NULL);
-            canvas->translate(250, 0);
+            canvas->translate(240, 0);
             this->doDraw(canvas, modes[i], imf);
             canvas->restore();
             
-            canvas->translate(0, 250);
+            canvas->translate(0, 240);
         }
     }
 
