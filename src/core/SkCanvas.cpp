@@ -308,17 +308,32 @@ public:
         fFilter = canvas->getDrawFilter();
         fPaint = &fOrigPaint;
         fSaveCount = canvas->getSaveCount();
-        fDoClearImageFilter = false;
+        fTempLayerForImageFilter = false;
         fDone = false;
 
         if (!skipLayerForImageFilter && fOrigPaint.getImageFilter()) {
+            /**
+             *  We implement ImageFilters for a given draw by creating a layer, then applying the
+             *  imagefilter to the pixels of that layer (its backing surface/image), and then
+             *  we call restore() to xfer that layer to the main canvas.
+             *
+             *  1. SaveLayer (with a paint containing the current imagefilter and xfermode)
+             *  2. Generate the src pixels:
+             *      Remove the imagefilter and the xfermode from the paint that we (AutoDrawLooper)
+             *      return (fPaint). We then draw the primitive (using srcover) into a cleared
+             *      buffer/surface.
+             *  3. Restore the layer created in #1
+             *      The imagefilter is passed the buffer/surface from the layer (now filled with the
+             *      src pixels of the primitive). It returns a new "filtered" buffer, which we
+             *      draw onto the previous layer using the xfermode from the original paint.
+             */
             SkPaint tmp;
             tmp.setImageFilter(fOrigPaint.getImageFilter());
+            tmp.setXfermode(fOrigPaint.getXfermode());
             (void)canvas->internalSaveLayer(bounds, &tmp, SkCanvas::kARGB_ClipLayer_SaveFlag,
                                             SkCanvas::kFullLayer_SaveLayerStrategy);
-            // we'll clear the imageFilter for the actual draws in next(), so
-            // it will only be applied during the restore().
-            fDoClearImageFilter = true;
+            fTempLayerForImageFilter = true;
+            // we remove the imagefilter/xfermode inside doNext()
         }
 
         if (SkDrawLooper* looper = paint.getLooper()) {
@@ -329,7 +344,7 @@ public:
         } else {
             fLooperContext = NULL;
             // can we be marked as simple?
-            fIsSimple = !fFilter && !fDoClearImageFilter;
+            fIsSimple = !fFilter && !fTempLayerForImageFilter;
         }
 
         uint32_t oldFlags = paint.getFlags();
@@ -343,7 +358,7 @@ public:
     }
 
     ~AutoDrawLooper() {
-        if (fDoClearImageFilter) {
+        if (fTempLayerForImageFilter) {
             fCanvas->internalRestore();
         }
         SkASSERT(fCanvas->getSaveCount() == fSaveCount);
@@ -373,7 +388,7 @@ private:
     const SkPaint*  fPaint;
     int             fSaveCount;
     uint32_t        fNewPaintFlags;
-    bool            fDoClearImageFilter;
+    bool            fTempLayerForImageFilter;
     bool            fDone;
     bool            fIsSimple;
     SkDrawLooper::Context* fLooperContext;
@@ -385,13 +400,14 @@ private:
 bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     fPaint = NULL;
     SkASSERT(!fIsSimple);
-    SkASSERT(fLooperContext || fFilter || fDoClearImageFilter);
+    SkASSERT(fLooperContext || fFilter || fTempLayerForImageFilter);
 
     SkPaint* paint = fLazyPaint.set(fOrigPaint);
     paint->setFlags(fNewPaintFlags);
 
-    if (fDoClearImageFilter) {
+    if (fTempLayerForImageFilter) {
         paint->setImageFilter(NULL);
+        paint->setXfermode(NULL);
     }
 
     if (fLooperContext && !fLooperContext->next(fCanvas, paint)) {
