@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkPath.h"
+
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
 #include "GrTessellatingPathRenderer.h"
@@ -240,6 +242,9 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, const SkPath& path) 
 
 DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
+    if (!context) {
+        return;
+    }
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 800;
