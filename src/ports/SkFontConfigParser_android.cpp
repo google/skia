@@ -59,7 +59,7 @@ enum CurrentTag {
  */
 struct FamilyData {
     FamilyData(XML_Parser parser, SkTDArray<FontFamily*>& families,
-               const SkString& basePath, bool isFallback)
+               const SkString& basePath, bool isFallback, const char* filename)
         : fParser(parser)
         , fFamilies(families)
         , fCurrentFamily(NULL)
@@ -68,6 +68,7 @@ struct FamilyData {
         , fVersion(0)
         , fBasePath(basePath)
         , fIsFallback(isFallback)
+        , fFilename(filename)
     { };
 
     XML_Parser fParser;                       // The expat parser doing the work, owned by caller
@@ -78,6 +79,7 @@ struct FamilyData {
     int fVersion;                             // The version of the file parsed.
     const SkString& fBasePath;                // The current base path.
     const bool fIsFallback;                   // Indicates the file being parsed is a fallback file
+    const char* fFilename;                    // The name of the file currently being parsed.
 };
 
 /** Parses a null terminated string into an integer type, checking for overflow.
@@ -113,12 +115,21 @@ static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
 
 #define ATTS_NON_NULL(a, i) (a[i] != NULL && a[i+1] != NULL)
 
+#define SK_FONTCONFIGPARSER_PREFIX "[SkFontConfigParser] "
+
+#define SK_FONTCONFIGPARSER_WARNING(message, ...) SkDebugf( \
+    SK_FONTCONFIGPARSER_PREFIX "%s:%d:%d: warning: " message "\n", \
+    self->fFilename, \
+    XML_GetCurrentLineNumber(self->fParser), \
+    XML_GetCurrentColumnNumber(self->fParser), \
+    ##__VA_ARGS__);
+
 namespace lmpParser {
 
 static void family_element_handler(FontFamily* family, const char** attributes) {
-    // A non-fallback <family> tag must have a canonical name attribute.
-    // A fallback <family> tag has no name, and may have lang and variant
-    // attributes.
+    // A <family> element without a 'name' (string) attribute is a fallback font.
+    // The element may have 'lang' (string) and 'variant' ("elegant", "compact") attributes.
+    // The element should contain <font> elements.
     family->fIsFallbackFont = true;
     for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
         const char* name = attributes[i];
@@ -132,7 +143,6 @@ static void family_element_handler(FontFamily* family, const char** attributes) 
         } else if (MEMEQ("lang", name, nameLen)) {
             family->fLanguage = SkLanguage(value, valueLen);
         } else if (MEMEQ("variant", name, nameLen)) {
-            // Value should be either elegant or compact.
             if (MEMEQ("elegant", value, valueLen)) {
                 family->fVariant = kElegant_FontVariant;
             } else if (MEMEQ("compact", value, valueLen)) {
@@ -148,8 +158,9 @@ static void XMLCALL font_file_name_handler(void* data, const char* s, int len) {
 }
 
 static void font_element_handler(FamilyData* self, FontFileInfo* file, const char** attributes) {
-    // A <font> should have weight (integer) and style (normal, italic) attributes.
-    // NOTE: we ignore the style.
+    // A <font> element should be contained in a <family> element.
+    // The element may have 'weight' (non-negative integer), 'style' ("normal", "italic"),
+    // and 'index' (non-negative integer) attributes.
     // The element should contain a filename.
     for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
         const char* name = attributes[i];
@@ -157,7 +168,7 @@ static void font_element_handler(FamilyData* self, FontFileInfo* file, const cha
         size_t nameLen = strlen(name);
         if (MEMEQ("weight", name, nameLen)) {
             if (!parse_non_negative_integer(value, &file->fWeight)) {
-                SkDebugf("---- Font weight %s (INVALID)", value);
+                SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid weight", value);
             }
         } else if (MEMEQ("style", name, nameLen)) {
             size_t valueLen = strlen(value);
@@ -168,7 +179,7 @@ static void font_element_handler(FamilyData* self, FontFileInfo* file, const cha
             }
         } else if (MEMEQ("index", name, nameLen)) {
             if (!parse_non_negative_integer(value, &file->fIndex)) {
-                SkDebugf("---- Font index %s (INVALID)", value);
+                SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid index", value);
             }
         }
     }
@@ -188,11 +199,13 @@ static FontFamily* find_family(FamilyData* self, const SkString& familyName) {
 }
 
 static void alias_element_handler(FamilyData* self, const char** attributes) {
-    // An <alias> must have name and to attributes.
-    //   It may have weight (integer).
-    // If it *does not* have a weight, it is a variant name for a <family>.
-    // If it *does* have a weight, it names the <font>(s) of a specific weight
-    //   from a <family>.
+    // A <alias> element must have 'name' (string) and 'to' (string) attributes.
+    // The element may also have a 'weight' (non-negative integer) attribute.
+    // The 'name' introduces a new family name.
+    // The 'to' specifies which (previous) <family> to alias.
+    // If it *does not* have a weight, 'name' is an alias for the entire 'to' <family>.
+    // If it *does* have a weight, 'name' is a new family consisting of the <font>(s) with 'weight'
+    // from the 'to' <family>.
 
     SkString aliasName;
     SkString to;
@@ -208,7 +221,7 @@ static void alias_element_handler(FamilyData* self, const char** attributes) {
             to.set(value);
         } else if (MEMEQ("weight", name, nameLen)) {
             if (!parse_non_negative_integer(value, &weight)) {
-                SkDebugf("---- Font weight %s (INVALID)", value);
+                SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid weight", value);
             }
         }
     }
@@ -216,7 +229,7 @@ static void alias_element_handler(FamilyData* self, const char** attributes) {
     // Assumes that the named family is already declared
     FontFamily* targetFamily = find_family(self, to);
     if (!targetFamily) {
-        SkDebugf("---- Font alias target %s (NOT FOUND)", to.c_str());
+        SK_FONTCONFIGPARSER_WARNING("'%s' alias target not found", to.c_str());
         return;
     }
 
@@ -299,31 +312,35 @@ static void font_file_element_handler(FamilyData* self, const char** attributes)
     FontFileInfo& newFileInfo = currentFamily.fFonts.push_back();
     if (attributes) {
         for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
-            const char* attributeName = attributes[i];
-            const char* attributeValue = attributes[i+1];
-            size_t nameLength = strlen(attributeName);
-            size_t valueLength = strlen(attributeValue);
-            if (MEMEQ("variant", attributeName, nameLength)) {
+            const char* name = attributes[i];
+            const char* value = attributes[i+1];
+            size_t nameLen = strlen(name);
+            size_t valueLen = strlen(value);
+            if (MEMEQ("variant", name, nameLen)) {
                 const FontVariant prevVariant = currentFamily.fVariant;
-                if (MEMEQ("elegant", attributeValue, valueLength)) {
+                if (MEMEQ("elegant", value, valueLen)) {
                     currentFamily.fVariant = kElegant_FontVariant;
-                } else if (MEMEQ("compact", attributeValue, valueLength)) {
+                } else if (MEMEQ("compact", value, valueLen)) {
                     currentFamily.fVariant = kCompact_FontVariant;
                 }
                 if (currentFamily.fFonts.count() > 1 && currentFamily.fVariant != prevVariant) {
-                    SkDebugf("Every font file within a family must have identical variants");
+                    SK_FONTCONFIGPARSER_WARNING("'%s' unexpected variant found\n"
+                        "Note: Every font file within a family must have identical variants.",
+                        value);
                 }
 
-            } else if (MEMEQ("lang", attributeName, nameLength)) {
+            } else if (MEMEQ("lang", name, nameLen)) {
                 SkLanguage prevLang = currentFamily.fLanguage;
-                currentFamily.fLanguage = SkLanguage(attributeValue, valueLength);
+                currentFamily.fLanguage = SkLanguage(value, valueLen);
                 if (currentFamily.fFonts.count() > 1 && currentFamily.fLanguage != prevLang) {
-                    SkDebugf("Every font file within a family must have identical languages");
+                    SK_FONTCONFIGPARSER_WARNING("'%s' unexpected language found\n"
+                        "Note: Every font file within a family must have identical languages.",
+                        value);
                 }
 
-            } else if (MEMEQ("index", attributeName, nameLength)) {
-                if (!parse_non_negative_integer(attributeValue, &newFileInfo.fIndex)) {
-                    SkDebugf("---- SystemFonts index=%s (INVALID)", attributeValue);
+            } else if (MEMEQ("index", name, nameLen)) {
+                if (!parse_non_negative_integer(value, &newFileInfo.fIndex)) {
+                    SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid index", value);
                 }
             }
         }
@@ -340,7 +357,7 @@ static void XMLCALL start_element_handler(void* data, const char* tag, const cha
     FamilyData* self = static_cast<FamilyData*>(data);
     size_t len = strlen(tag);
     if (MEMEQ("familyset", tag, len)) {
-        // The familyset tag has an optional "version" attribute with an integer value >= 0
+        // The <familyset> element has an optional 'version' (non-negative integer) attribute.
         for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
             size_t nameLen = strlen(attributes[i]);
             if (!MEMEQ("version", attributes[i], nameLen)) continue;
@@ -355,8 +372,8 @@ static void XMLCALL start_element_handler(void* data, const char* tag, const cha
         }
     } else if (MEMEQ("family", tag, len)) {
         self->fCurrentFamily.reset(new FontFamily(self->fBasePath, self->fIsFallback));
-        // The Family tag has an optional "order" attribute with an integer value >= 0
-        // If this attribute does not exist, the default value is -1
+        // The <family> element has an optional 'order' (non-negative integer) attribute.
+        // If this attribute does not exist, the default value is -1.
         for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
             const char* valueString = attributes[i+1];
             int value;
@@ -412,7 +429,7 @@ static void XMLCALL xml_entity_decl_handler(void *data,
                                             const XML_Char *notationName)
 {
     FamilyData* self = static_cast<FamilyData*>(data);
-    SkDebugf("Entity declaration %s found, stopping processing.", entityName);
+    SK_FONTCONFIGPARSER_WARNING("'%s' entity declaration found, stopping processing", entityName);
     XML_StopParser(self->fParser, XML_FALSE);
 }
 
@@ -437,18 +454,18 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
     // Some of the files we attempt to parse (in particular, /vendor/etc/fallback_fonts.xml)
     // are optional - failure here is okay because one of these optional files may not exist.
     if (!file.isValid()) {
-        SkDebugf("File %s could not be opened.\n", filename);
+        SkDebugf(SK_FONTCONFIGPARSER_PREFIX "'%s' could not be opened\n", filename);
         return -1;
     }
 
     SkAutoTCallVProc<remove_ptr<XML_Parser>::type, XML_ParserFree> parser(
         XML_ParserCreate_MM(NULL, &sk_XML_alloc, NULL));
     if (!parser) {
-        SkDebugf("Could not create XML parser.\n");
+        SkDebugf(SK_FONTCONFIGPARSER_PREFIX "could not create XML parser\n");
         return -1;
     }
 
-    FamilyData self(parser, families, basePath, isFallback);
+    FamilyData self(parser, families, basePath, isFallback, filename);
     XML_SetUserData(parser, &self);
 
     // Disable entity processing, to inhibit internal entity expansion. See expat CVE-2013-0340
@@ -466,7 +483,7 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
     while (!done) {
         void* buffer = XML_GetBuffer(parser, bufferSize);
         if (!buffer) {
-            SkDebugf("Could not buffer enough to continue.\n");
+            SkDebugf(SK_FONTCONFIGPARSER_PREFIX "could not buffer enough to continue\n");
             return -1;
         }
         size_t len = file.read(buffer, bufferSize);
@@ -476,10 +493,9 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
             XML_Error error = XML_GetErrorCode(parser);
             int line = XML_GetCurrentLineNumber(parser);
             int column = XML_GetCurrentColumnNumber(parser);
-            int index = XML_GetCurrentByteIndex(parser);
             const XML_LChar* errorString = XML_ErrorString(error);
-            SkDebugf("Line: %d Column: %d (Offset: %d) Error %d: %s.\n",
-                          line,    column,      index,    error, errorString);
+            SkDebugf(SK_FONTCONFIGPARSER_PREFIX "%s:%d:%d error %d: %s.\n",
+                     filename, line, column, error, errorString);
             return -1;
         }
     }
