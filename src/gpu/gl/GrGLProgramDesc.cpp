@@ -96,16 +96,18 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
+    GrGLProgramDesc* glDesc = (GrGLProgramDesc*) desc;
+
     GR_STATIC_ASSERT(0 == kProcessorKeysOffset % sizeof(uint32_t));
     // Make room for everything up to the effect keys.
-    desc->fKey.reset();
-    desc->fKey.push_back_n(kProcessorKeysOffset);
+    glDesc->key().reset();
+    glDesc->key().push_back_n(kProcessorKeysOffset);
 
-    GrProcessorKeyBuilder b(&desc->fKey);
+    GrProcessorKeyBuilder b(&glDesc->key());
 
     primProc.getGLProcessorKey(batchTracker, gpu->glCaps(), &b);
     if (!get_meta_key(primProc, gpu->glCaps(), 0, &b)) {
-        desc->fKey.reset();
+        glDesc->key().reset();
         return false;
     }
 
@@ -114,7 +116,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
         const GrFragmentProcessor& fp = *fps.processor();
         fp.getGLProcessorKey(gpu->glCaps(), &b);
         if (!get_meta_key(fp, gpu->glCaps(), primProc.getTransformKey(fp.coordTransforms()), &b)) {
-            desc->fKey.reset();
+            glDesc->key().reset();
             return false;
         }
     }
@@ -122,14 +124,14 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     const GrXferProcessor& xp = *pipeline.getXferProcessor();
     xp.getGLProcessorKey(gpu->glCaps(), &b);
     if (!get_meta_key(xp, gpu->glCaps(), 0, &b)) {
-        desc->fKey.reset();
+        glDesc->key().reset();
         return false;
     }
 
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
     // below here.
-    KeyHeader* header = desc->atOffset<KeyHeader, kHeaderOffset>();
+    KeyHeader* header = glDesc->atOffset<KeyHeader, kHeaderOffset>();
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
@@ -144,6 +146,6 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
 
     header->fColorEffectCnt = pipeline.numColorFragmentStages();
     header->fCoverageEffectCnt = pipeline.numCoverageFragmentStages();
-    desc->finalize();
+    glDesc->finalize();
     return true;
 }

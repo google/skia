@@ -12,8 +12,6 @@
 #include "GrTypesPriv.h"
 #include "SkChecksum.h"
 
-class GrGLGpu;
-
 /** This class describes a program to generate. It also serves as a program cache key. Very little
     of this is GL-specific. The GL-specific parts could be factored out into a subclass. */
 class GrProgramDesc {
@@ -76,7 +74,7 @@ public:
     // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
-private:
+protected:
     template<typename T, size_t OFFSET> T* atOffset() {
         return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }
@@ -117,9 +115,11 @@ private:
                         kMaxPreallocProcessors * sizeof(uint32_t) * kIntsPerProcessor,
     };
 
-    SkSTArray<kPreAllocSize, uint8_t, true> fKey;
+    SkSTArray<kPreAllocSize, uint8_t, true>& key() { return fKey; }
+    const SkSTArray<kPreAllocSize, uint8_t, true>& key() const { return fKey; }
 
-    friend class GrGLProgramDescBuilder;
+private:
+    SkSTArray<kPreAllocSize, uint8_t, true> fKey;
 };
 
 #endif

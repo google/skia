@@ -13,6 +13,7 @@
 #include "GrTexture.h"
 #include "GrGLUtil.h"
 
+class GrGLGpu;
 
 class GrGLTexture : public GrTexture {
 

@@ -14,6 +14,11 @@
 #include "GrTypesPriv.h"
 
 class GrGLGpu;
+class GrGLProgramDescBuilder;
+
+class GrGLProgramDesc : public GrProgramDesc {
+    friend class GrGLProgramDescBuilder;
+};
 
 /**
  * This class can be used to build a GrProgramDesc.  It also provides helpers for accessing
@@ -30,7 +35,7 @@ public:
     //    Each processor's key is a variable length array of uint32_t.
     enum {
         // Part 3.
-        kHeaderOffset = GrProgramDesc::kHeaderOffset,
+        kHeaderOffset = GrGLProgramDesc::kHeaderOffset,
         kHeaderSize = SkAlign4(sizeof(KeyHeader)),
         // Part 4.
         // This is the offset into the backenend specific part of the key, which includes
