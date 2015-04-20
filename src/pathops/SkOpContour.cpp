@@ -22,6 +22,9 @@ void SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4], SkChunkAlloc
             memcpy(ptStorage, pts, sizeof(SkPoint) * 3);
             appendSegment(allocator).addQuad(ptStorage, this);
         } break;
+        case SkPath::kConic_Verb: {
+            SkASSERT(0);  // the original curve is a cubic, which will never reduce to a conic
+        } break;
         case SkPath::kCubic_Verb: {
             SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 4);
             memcpy(ptStorage, pts, sizeof(SkPoint) * 4);

@@ -49,8 +49,11 @@ static void testSimplifyQuadsMain(PathOpsThreadState* data)
                             SkIntToScalar(hx), SkIntToScalar(hy));
                     path.close();
                     if (progress) {
-                        // gdb: set print elements 400
+                        static int quadTest = 65;
                         char* str = pathStr;
+                        str += sprintf(str, "static void testQuads%d(skiatest::Reporter* reporter,"
+                                "const char* filename) {\n", quadTest);
+                        str += sprintf(str, "    SkPath path;\n");
                         str += sprintf(str, "    path.moveTo(%d, %d);\n", ax, ay);
                         str += sprintf(str, "    path.quadTo(%d, %d, %d, %d);\n", bx, by, cx, cy);
                         str += sprintf(str, "    path.lineTo(%d, %d);\n", dx, dy);
@@ -59,6 +62,8 @@ static void testSimplifyQuadsMain(PathOpsThreadState* data)
                         str += sprintf(str, "    path.lineTo(%d, %d);\n", fx, fy);
                         str += sprintf(str, "    path.quadTo(%d, %d, %d, %d);\n", gx, gy, hx, hy);
                         str += sprintf(str, "    path.close();\n");
+                        str += sprintf(str, "    testSimplify(reporter, path, filename);\n");
+                        str += sprintf(str, "}\n");
                         outputProgress(state.fPathStr, pathStr, SkPath::kWinding_FillType);
                     }
                     testSimplify(path, false, out, state, pathStr);
@@ -90,5 +95,5 @@ DEF_TEST(PathOpsSimplifyQuadsThreaded, reporter) {
     }
 finish:
     testRunner.render();
-    ShowTestArray();
+    ShowTestArray("testQuads");
 }

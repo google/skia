@@ -271,6 +271,14 @@ SkPath::Verb SkReduceOrder::Quad(const SkPoint a[3], SkPoint* reducePts) {
     return SkPathOpsPointsToVerb(order - 1);
 }
 
+SkPath::Verb SkReduceOrder::Conic(const SkPoint a[3], SkScalar weight, SkPoint* reducePts) {
+    SkPath::Verb verb = SkReduceOrder::Quad(a, reducePts);
+    if (verb > SkPath::kLine_Verb && weight == 1) {
+        return SkPath::kQuad_Verb;
+    }
+    return verb == SkPath::kQuad_Verb ? SkPath::kConic_Verb : verb;
+}
+
 SkPath::Verb SkReduceOrder::Cubic(const SkPoint a[4], SkPoint* reducePts) {
     if (SkDPoint::ApproximatelyEqual(a[0], a[1]) && SkDPoint::ApproximatelyEqual(a[0], a[2])
             && SkDPoint::ApproximatelyEqual(a[0], a[3])) {

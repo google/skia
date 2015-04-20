@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkPathOpsConic.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
@@ -22,6 +23,22 @@ void SkDRect::setBounds(const SkDQuad& quad) {
     }
     for (int x = 0; x < roots; ++x) {
         add(quad.ptAtT(tValues[x]));
+    }
+}
+
+void SkDRect::setBounds(const SkDConic& conic) {
+    set(conic[0]);
+    add(conic[2]);
+    double tValues[2];
+    int roots = 0;
+    if (!between(conic[0].fX, conic[1].fX, conic[2].fX)) {
+        roots = SkDConic::FindExtrema(&conic[0].fX, conic.fWeight, tValues);
+    }
+    if (!between(conic[0].fY, conic[1].fY, conic[2].fY)) {
+        roots += SkDConic::FindExtrema(&conic[0].fY, conic.fWeight, &tValues[roots]);
+    }
+    for (int x = 0; x < roots; ++x) {
+        add(conic.ptAtT(tValues[x]));
     }
 }
 

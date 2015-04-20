@@ -4677,11 +4677,64 @@ static void testRect3(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
+static void testRect4(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 30, 60, SkPath::kCCW_Direction);
+    path.addRect(10, 0, 40, 30, SkPath::kCCW_Direction);
+    path.addRect(20, 0, 30, 40, SkPath::kCCW_Direction);
+    path.addRect(32, 0, 36, 41, SkPath::kCCW_Direction);
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads62(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.moveTo(3, 2);
+    path.quadTo(1, 3, 3, 3);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.quadTo(1, 3, 3, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads63(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(3, 0);
+    path.quadTo(0, 1, 1, 2);
+    path.lineTo(3, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.quadTo(0, 2, 3, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testQuads64(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(3, 0);
+    path.quadTo(0, 1, 1, 2);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 1);
+    path.quadTo(0, 2, 3, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = testCubic2;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuads64),
+    TEST(testQuads63),
+    TEST(testQuads62),
+    TEST(testRect4),
     TEST(testRect3),
     TEST(testQuadralateral10),
     TEST(testQuads61),

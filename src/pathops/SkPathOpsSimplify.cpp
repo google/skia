@@ -191,7 +191,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
     // turn path into list of segments
     SkOpCoincidence coincidence;
     SkOpContour contour;
-    SkOpGlobalState globalState(&coincidence  PATH_OPS_DEBUG_PARAMS(&contour));
+    SkOpGlobalState globalState(&coincidence  SkDEBUGPARAMS(&contour));
 #if DEBUG_SORT || DEBUG_SWAP_TOP
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
@@ -202,16 +202,18 @@ bool Simplify(const SkPath& path, SkPath* result) {
 #if !FORCE_RELEASE
     contour.dumpSegments((SkPathOp) -1);
 #endif
-    result->reset();
-    result->setFillType(fillType);
     SkTDArray<SkOpContour* > contourList;
     MakeContourList(&contour, contourList, false, false);
     SkOpContour** currentPtr = contourList.begin();
     if (!currentPtr) {
+        result->reset();
+        result->setFillType(fillType);
         return true;
     }
     if ((*currentPtr)->count() == 0) {
         SkASSERT((*currentPtr)->next() == NULL);
+        result->reset();
+        result->setFillType(fillType);
         return true;
     }
     SkOpContour** listEnd2 = contourList.end();
@@ -231,6 +233,8 @@ bool Simplify(const SkPath& path, SkPath* result) {
         return false;
     }
     // construct closed contours
+    result->reset();
+    result->setFillType(fillType);
     SkPathWriter wrapper(*result);
     if (builder.xorMask() == kWinding_PathOpsMask ? bridgeWinding(contourList, &wrapper, &allocator)
                 : !bridgeXor(contourList, &wrapper, &allocator))

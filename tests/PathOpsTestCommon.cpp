@@ -6,6 +6,7 @@
  */
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsBounds.h"
+#include "SkPathOpsConic.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
@@ -250,6 +251,18 @@ bool ValidBounds(const SkPathOpsBounds& bounds) {
         return false;
     }
     return !SkScalarIsNaN(bounds.fBottom);
+}
+
+bool ValidConic(const SkDConic& conic) {
+    for (int index = 0; index < SkDConic::kPointCount; ++index) {
+        if (!ValidPoint(conic[index])) {
+            return false;
+        }
+    }
+    if (SkDoubleIsNaN(conic.fWeight)) {
+        return false;
+    }
+    return true;
 }
 
 bool ValidCubic(const SkDCubic& cubic) {

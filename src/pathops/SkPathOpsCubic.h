@@ -54,6 +54,11 @@ struct SkDCubic {
     static void Coefficients(const double* cubic, double* A, double* B, double* C, double* D);
     static bool ComplexBreak(const SkPoint pts[4], SkScalar* t);
     int convexHull(char order[kPointCount]) const;
+
+    void debugInit() {
+        sk_bzero(fPts, sizeof(fPts));
+    }
+
     void dump() const;  // callable from the debugger when the implementation code is linked in
     void dumpID(int id) const;
     void dumpInner() const;
@@ -70,6 +75,9 @@ struct SkDCubic {
 
     int findMaxCurvature(double tValues[]) const;
     bool hullIntersects(const SkDCubic& c2, bool* isLinear) const;
+    bool hullIntersects(const SkDConic& c, bool* isLinear) const;
+    bool hullIntersects(const SkDQuad& c2, bool* isLinear) const;
+    bool hullIntersects(const SkDPoint* pts, int ptCount, bool* isLinear) const;
     bool isLinear(int startIndex, int endIndex) const;
     bool monotonicInY() const;
     void otherPts(int index, const SkDPoint* o1Pts[kPointCount - 1]) const;
@@ -80,11 +88,12 @@ struct SkDCubic {
     int searchRoots(double extremes[6], int extrema, double axisIntercept,
                     SearchAxis xAxis, double* validRoots) const;
 
-    void set(const SkPoint pts[kPointCount]) {
+    const SkDCubic& set(const SkPoint pts[kPointCount]) {
         fPts[0] = pts[0];
         fPts[1] = pts[1];
         fPts[2] = pts[2];
         fPts[3] = pts[3];
+        return *this;
     }
 
     SkDCubic subDivide(double t1, double t2) const;

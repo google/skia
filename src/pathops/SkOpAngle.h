@@ -8,6 +8,7 @@
 #define SkOpAngle_DEFINED
 
 #include "SkLineParameters.h"
+#include "SkPathOpsCurve.h"
 #if DEBUG_ANGLE
 #include "SkString.h"
 #endif
@@ -38,7 +39,7 @@ struct SkOpAngle {
     SkOpContour* debugContour(int id);
 
     int debugID() const {
-        return PATH_OPS_DEBUG_RELEASE(fID, -1);
+        return SkDEBUGRELEASE(fID, -1);
     }
 
 #if DEBUG_SORT
@@ -75,7 +76,7 @@ struct SkOpAngle {
     SkOpSpanBase* lastMarked() const;
     bool loopContains(const SkOpAngle* ) const;
     int loopCount() const;
-    void markStops();
+    bool markStops();
     bool merge(SkOpAngle* );
     double midT() const;
     bool midToSide(const SkOpAngle* rh, bool* inside) const;
@@ -102,7 +103,7 @@ struct SkOpAngle {
     void setCurveHullSweep();
 
     void setID(int id) {
-        PATH_OPS_DEBUG_CODE(fID = id);
+        SkDEBUGCODE(fID = id);
     }
 
     void setLastMarked(SkOpSpanBase* marked) {
@@ -124,7 +125,7 @@ struct SkOpAngle {
         return fUnorderable;
     }
 
-    SkDCubic fCurvePart;  // the curve from start to end
+    SkDCurve fCurvePart;  // the curve from start to end
     double fSide;
     SkLineParameters fTangentHalf;  // used only to sort a pair of lines or line-like sections
     SkOpAngle* fNext;
@@ -143,7 +144,7 @@ struct SkOpAngle {
     bool fComputeSector;
     bool fComputedSector;
     bool fCheckCoincidence;
-    PATH_OPS_DEBUG_CODE(int fID);
+    SkDEBUGCODE(int fID);
 
 };
 

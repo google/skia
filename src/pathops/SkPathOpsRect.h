@@ -48,6 +48,7 @@ struct SkDRect {
         return fBottom - fTop;
     }
 
+    void setBounds(const SkDConic&);
     void setBounds(const SkDCubic&);
     void setBounds(const SkDQuad&);
 };

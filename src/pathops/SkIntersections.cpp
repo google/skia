@@ -47,10 +47,12 @@ int SkIntersections::coincidentUsed() const {
     return count;
 }
 
-int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar, SkScalar, SkScalar, bool) = {
+int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar,
+                                               SkScalar, SkScalar, SkScalar, bool) = {
     NULL,
     &SkIntersections::verticalLine,
     &SkIntersections::verticalQuad,
+    &SkIntersections::verticalConic,
     &SkIntersections::verticalCubic
 };
 
@@ -193,23 +195,30 @@ void SkIntersections::removeOne(int index) {
     fIsCoincident[1] -= ((fIsCoincident[1] >> 1) & ~((1 << index) - 1)) + coBit;
 }
 
-int SkIntersections::verticalLine(const SkPoint a[2], SkScalar top, SkScalar bottom,
-        SkScalar x, bool flipped) {
+int SkIntersections::verticalConic(const SkPoint a[3], SkScalar weight,
+        SkScalar top, SkScalar bottom, SkScalar x, bool flipped) {
+    SkDConic conic;
+    conic.set(a, weight);
+    return vertical(conic, top, bottom, x, flipped);
+}
+
+int SkIntersections::verticalCubic(const SkPoint a[4], SkScalar weight,
+        SkScalar top, SkScalar bottom, SkScalar x, bool flipped) {
+    SkDCubic cubic;
+    cubic.set(a);
+    return vertical(cubic, top, bottom, x, flipped);
+}
+
+int SkIntersections::verticalLine(const SkPoint a[2], SkScalar weight, 
+        SkScalar top, SkScalar bottom, SkScalar x, bool flipped) {
     SkDLine line;
     line.set(a);
     return vertical(line, top, bottom, x, flipped);
 }
 
-int SkIntersections::verticalQuad(const SkPoint a[3], SkScalar top, SkScalar bottom,
-        SkScalar x, bool flipped) {
+int SkIntersections::verticalQuad(const SkPoint a[3], SkScalar weight,
+        SkScalar top, SkScalar bottom, SkScalar x, bool flipped) {
     SkDQuad quad;
     quad.set(a);
     return vertical(quad, top, bottom, x, flipped);
-}
-
-int SkIntersections::verticalCubic(const SkPoint a[4], SkScalar top, SkScalar bottom,
-        SkScalar x, bool flipped) {
-    SkDCubic cubic;
-    cubic.set(a);
-    return vertical(cubic, top, bottom, x, flipped);
 }

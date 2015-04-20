@@ -35,6 +35,24 @@ void SkPathWriter::close() {
     init();
 }
 
+void SkPathWriter::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar weight) {
+    lineTo();
+    if (fEmpty && AlmostEqualUlps(fDefer[0], pt1) && AlmostEqualUlps(pt1, pt2)) {
+        deferredLine(pt2);
+        return;
+    }
+    moveTo();
+    fDefer[1] = pt2;
+    nudge();
+    fDefer[0] = fDefer[1];
+#if DEBUG_PATH_CONSTRUCTION
+    SkDebugf("path.conicTo(%1.9g,%1.9g, %1.9g,%1.9g, %1.9g);\n",
+            pt1.fX, pt1.fY, fDefer[1].fX, fDefer[1].fY, weight);
+#endif
+    fPathPtr->conicTo(pt1.fX, pt1.fY, fDefer[1].fX, fDefer[1].fY, weight);
+    fEmpty = false;
+}
+
 void SkPathWriter::cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkPoint& pt3) {
     lineTo();
     if (fEmpty && AlmostEqualUlps(fDefer[0], pt1) && AlmostEqualUlps(pt1, pt2)

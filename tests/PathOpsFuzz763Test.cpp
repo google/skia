@@ -210,7 +210,7 @@ path.quadTo(SkBits2Float(0xc21f39d4), SkBits2Float(0x41979b1c), SkBits2Float(0xc
 path.quadTo(SkBits2Float(0xc238d4f6), SkBits2Float(0x41a554c0), SkBits2Float(0xc2444fb0), SkBits2Float(0x419813d4));
 path.close();
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_378b(skiatest::Reporter* reporter, const char* filename) {
@@ -2391,7 +2391,7 @@ path.quadTo(SkBits2Float(0x42240000), SkBits2Float(0x41ed7d86), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;

@@ -53,6 +53,12 @@ static void standardTestCases(skiatest::Reporter* reporter) {
 }
 
 static const SkDQuad testSet[] = {
+{{{1, 1}, {0, 2}, {3, 3}}},
+{{{3, 0}, {0, 1}, {1, 2}}},
+
+{{{0.33333333333333326, 0.81481481481481488}, {0.63395173631977997, 0.68744136726313931}, {1.205684411948591, 0.81344322326274499}}},
+{{{0.33333333333333326, 0.81481481481481488}, {0.63396444791444551, 0.68743368362444768}, {1.205732763658403, 0.81345617746834109}}},
+
 {{{4981.9990234375, 1590}, {4981.9990234375, 1617.7523193359375}, {4962.375, 1637.3760986328125}}},
 {{{4962.3759765625, 1637.3760986328125}, {4982, 1617.7523193359375}, {4982, 1590}}},
 
@@ -321,12 +327,12 @@ static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner
     SkASSERT(ValidQuad(quad1));
     const SkDQuad& quad2 = testSet[inner];
     SkASSERT(ValidQuad(quad2));
-    SkIntersections intersections2;
-    intersections2.intersect(quad1, quad2);
-    for (int pt = 0; pt < intersections2.used(); ++pt) {
-        double tt1 = intersections2[0][pt];
+    SkIntersections intersections;
+    intersections.intersect(quad1, quad2);
+    for (int pt = 0; pt < intersections.used(); ++pt) {
+        double tt1 = intersections[0][pt];
         SkDPoint xy1 = quad1.ptAtT(tt1);
-        double tt2 = intersections2[1][pt];
+        double tt2 = intersections[1][pt];
         SkDPoint xy2 = quad2.ptAtT(tt2);
         if (!xy1.approximatelyEqual(xy2)) {
             SkDebugf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
@@ -551,7 +557,7 @@ static void QuadraticIntersection_IntersectionFinder() {
 }
 
 DEF_TEST(PathOpsQuadIntersectionOneOff, reporter) {
-    oneOffTest1(reporter, 10, 11);
+    oneOffTest1(reporter, 0, 1);
 }
 
 DEF_TEST(PathOpsQuadIntersectionCoincidenceOneOff, reporter) {

@@ -1966,11 +1966,13 @@ void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
                 verb = kDone_Verb;  // stop the loop
                 break;
         }
+        if (!wStream && builder.size()) {
+            SkDebugf("%s", builder.c_str());
+            builder.reset();
+        }
     }
     if (wStream) {
         wStream->writeText(builder.c_str());
-    } else {
-        SkDebugf("%s", builder.c_str());
     }
 }
 

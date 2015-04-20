@@ -13,6 +13,7 @@
 #include "SkPathOpsBounds.h"
 #include "SkPathOpsCurve.h"
 
+struct SkDCurve;
 class SkOpCoincidence;
 class SkOpContour;
 class SkPathWriter;
@@ -44,9 +45,14 @@ public:
     bool activeWinding(SkOpSpanBase* start, SkOpSpanBase* end);
     bool activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sumWinding);
 
+    void addConic(SkPoint pts[3], SkScalar weight, SkOpContour* parent) {
+        init(pts, weight, parent, SkPath::kConic_Verb);
+        fBounds.setConicBounds(pts, weight);
+    }
+
     void addCubic(SkPoint pts[4], SkOpContour* parent) {
-        init(pts, parent, SkPath::kCubic_Verb);
-        fBounds.setCubicBounds(pts);
+        init(pts, 1, parent, SkPath::kCubic_Verb);
+        fBounds.setCubicBounds(pts, 1);
     }
 
     void addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end, SkPathWriter* path,
@@ -60,7 +66,7 @@ public:
     }
 
     void addLine(SkPoint pts[2], SkOpContour* parent) {
-        init(pts, parent, SkPath::kLine_Verb);
+        init(pts, 1, parent, SkPath::kLine_Verb);
         fBounds.set(pts, 2);
     }
 
@@ -77,8 +83,8 @@ public:
     }
 
     void addQuad(SkPoint pts[3], SkOpContour* parent) {
-        init(pts, parent, SkPath::kQuad_Verb);
-        fBounds.setQuadBounds(pts);
+        init(pts, 1, parent, SkPath::kQuad_Verb);
+        fBounds.setQuadBounds(pts, 1);
     }
 
     SkOpPtT* addT(double t, AllowAlias , SkChunkAlloc* );
@@ -120,7 +126,7 @@ public:
     SkOpContour* debugContour(int id);
 
     int debugID() const {
-        return PATH_OPS_DEBUG_RELEASE(fID, -1);
+        return SkDEBUGRELEASE(fID, -1);
     }
 
 #if DEBUG_SWAP_TOP
@@ -155,11 +161,11 @@ public:
     }
 
     SkDPoint dPtAtT(double mid) const {
-        return (*CurveDPointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, mid);
+        return (*CurveDPointAtT[fVerb])(fPts, fWeight, mid);
     }
 
     SkDVector dSlopeAtT(double mid) const {
-        return (*CurveDSlopeAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, mid);
+        return (*CurveDSlopeAtT[fVerb])(fPts, fWeight, mid);
     }
 
     void dump() const;
@@ -186,7 +192,7 @@ public:
         return &fHead;
     }
 
-    void init(SkPoint pts[], SkOpContour* parent, SkPath::Verb verb);
+    void init(SkPoint pts[], SkScalar weight, SkOpContour* parent, SkPath::Verb verb);
     void initWinding(SkOpSpanBase* start, SkOpSpanBase* end,
                      SkOpAngle::IncludeType angleIncludeType);
     bool initWinding(SkOpSpanBase* start, SkOpSpanBase* end, double tHit, int winding,
@@ -220,7 +226,7 @@ public:
     }
 
     bool isVertical(SkOpSpanBase* start, SkOpSpanBase* end) const {
-        return (*CurveIsVertical[SkPathOpsVerbToPoints(fVerb)])(fPts, start->t(), end->t());
+        return (*CurveIsVertical[fVerb])(fPts, fWeight, start->t(), end->t());
     }
 
     bool isXor() const;
@@ -266,7 +272,7 @@ public:
     }
 
     SkPoint ptAtT(double mid) const {
-        return (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, mid);
+        return (*CurvePointAtT[fVerb])(fPts, fWeight, mid);
     }
 
     const SkPoint* pts() const {
@@ -329,8 +335,8 @@ public:
         return start->t() < end->t() ? start->upCast()->toAngle() : start->fromAngle();
     }
 
-    bool subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end, SkPoint edge[4]) const;
-    bool subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end, SkDCubic* result) const;
+    bool subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end, SkDCurve* result) const;
+    bool subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end, SkOpCurve* result) const;
     void subDivideBounds(const SkOpSpanBase* start, const SkOpSpanBase* end,
                          SkPathOpsBounds* bounds) const;
 
@@ -360,6 +366,10 @@ public:
         return fVerb;
     }
 
+    SkScalar weight() const {
+        return fWeight;
+    }
+
     int windingAtT(double tHit, const SkOpSpan* span, bool crossOpp, SkScalar* dx) const;
     int windSum(const SkOpAngle* angle) const;
 
@@ -375,11 +385,12 @@ private:
     const SkOpSegment* fPrev;
     SkPoint* fPts;  // pointer into array of points owned by edge builder that may be tweaked
     SkPathOpsBounds fBounds;  // tight bounds
+    SkScalar fWeight;
     int fCount;  // number of spans (one for a non-intersecting segment)
     int fDoneCount;  // number of processed spans (zero initially)
     SkPath::Verb fVerb;
     bool fVisited;  // used by missing coincidence check
-    PATH_OPS_DEBUG_CODE(int fID);
+    SkDEBUGCODE(int fID);
 };
 
 #endif

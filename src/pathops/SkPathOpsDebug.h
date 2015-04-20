@@ -84,13 +84,13 @@
 #endif
 
 #ifdef SK_RELEASE
-    #define PATH_OPS_DEBUG_RELEASE(a, b) b
-    #define PATH_OPS_DEBUG_CODE(...)
-    #define PATH_OPS_DEBUG_PARAMS(...)
+    #define SkDEBUGRELEASE(a, b) b
+    #define SkDEBUGPARAMS(...)
+    #define SkDEBUGCODE_(...)
 #else
-    #define PATH_OPS_DEBUG_RELEASE(a, b) a
-    #define PATH_OPS_DEBUG_CODE(...) __VA_ARGS__
-    #define PATH_OPS_DEBUG_PARAMS(...) , __VA_ARGS__
+    #define SkDEBUGRELEASE(a, b) a
+    #define SkDEBUGPARAMS(...) , __VA_ARGS__
+    #define SkDEBUGCODE_(...) __VA_ARGS__  // temporary until SkDEBUGCODE is fixed
 #endif
 
 #if DEBUG_T_SECT == 0
@@ -107,14 +107,16 @@
     extern int gDumpTSectNum;
 #endif
 
-#define CUBIC_DEBUG_STR "{{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
-#define QUAD_DEBUG_STR  "{{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
-#define LINE_DEBUG_STR  "{{{%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
+#define CUBIC_DEBUG_STR  "{{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
+#define CONIC_DEBUG_STR "{{{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}, %1.9g}"
+#define QUAD_DEBUG_STR   "{{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
+#define LINE_DEBUG_STR   "{{{%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
 #define PT_DEBUG_STR "{{%1.9g,%1.9g}}"
 
 #define T_DEBUG_STR(t, n) #t "[" #n "]=%1.9g"
 #define TX_DEBUG_STR(t) #t "[%d]=%1.9g"
 #define CUBIC_DEBUG_DATA(c) c[0].fX, c[0].fY, c[1].fX, c[1].fY, c[2].fX, c[2].fY, c[3].fX, c[3].fY
+#define CONIC_DEBUG_DATA(c, w) c[0].fX, c[0].fY, c[1].fX, c[1].fY, c[2].fX, c[2].fY, w
 #define QUAD_DEBUG_DATA(q)  q[0].fX, q[0].fY, q[1].fX, q[1].fY, q[2].fX, q[2].fY
 #define LINE_DEBUG_DATA(l)  l[0].fX, l[0].fY, l[1].fX, l[1].fY
 #define PT_DEBUG_DATA(i, n) i.pt(n).asSkPoint().fX, i.pt(n).asSkPoint().fY
@@ -204,35 +206,7 @@ public:
     static void DumpContoursSpans(const SkTDArray<class SkOpContour* >* contours);
 };
 
-// shorthand for calling from debugger
-template<typename TCurve> class SkTSect;
-template<typename TCurve> class SkTSpan;
-
 struct SkDQuad;
-struct SkDCubic;
-
-const SkTSpan<SkDCubic>* DebugSpan(const SkTSect<SkDCubic>* , int id);
-const SkTSpan<SkDQuad>* DebugSpan(const SkTSect<SkDQuad>* , int id);
-const SkTSpan<SkDCubic>* DebugT(const SkTSect<SkDCubic>* , double t);
-const SkTSpan<SkDQuad>* DebugT(const SkTSect<SkDQuad>* , double t);
-
-const SkTSpan<SkDCubic>* DebugSpan(const SkTSpan<SkDCubic>* , int id);
-const SkTSpan<SkDQuad>* DebugSpan(const SkTSpan<SkDQuad>* , int id);
-const SkTSpan<SkDCubic>* DebugT(const SkTSpan<SkDCubic>* , double t);
-const SkTSpan<SkDQuad>* DebugT(const SkTSpan<SkDQuad>* , double t);
-
-void Dump(const SkTSect<SkDCubic>* );
-void Dump(const SkTSect<SkDQuad>* );
-void Dump(const SkTSpan<SkDCubic>* , const SkTSect<SkDCubic>* = NULL);
-void Dump(const SkTSpan<SkDQuad>* , const SkTSect<SkDQuad>* = NULL);
-void DumpBoth(SkTSect<SkDCubic>* sect1, SkTSect<SkDCubic>* sect2);
-void DumpBoth(SkTSect<SkDQuad>* sect1, SkTSect<SkDQuad>* sect2);
-void DumpCoin(SkTSect<SkDCubic>* sect1);
-void DumpCoin(SkTSect<SkDQuad>* sect1);
-void DumpCoinCurves(SkTSect<SkDCubic>* sect1);
-void DumpCoinCurves(SkTSect<SkDQuad>* sect1);
-void DumpCurves(const SkTSpan<SkDCubic>* );
-void DumpCurves(const SkTSpan<SkDQuad>* );
 
 // generates tools/path_sorter.htm and path_visualizer.htm compatible data
 void DumpQ(const SkDQuad& quad1, const SkDQuad& quad2, int testNo);

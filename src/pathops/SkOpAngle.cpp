@@ -189,7 +189,7 @@ int SkOpAngle::allOnOneSide(const SkOpAngle* test) {
     SkPath::Verb testVerb = test->segment()->verb();
     int iMax = SkPathOpsVerbToPoints(testVerb);
 //    SkASSERT(origin == test.fCurveHalf[0]);
-    const SkDCubic& testCurve = test->fCurvePart;
+    const SkDCurve& testCurve = test->fCurvePart;
     for (int index = 1; index <= iMax; ++index) {
         float xy1 = (float) (line.fX * (testCurve[index].fY - origin.fY));
         float xy2 = (float) (line.fY * (testCurve[index].fX - origin.fX));
@@ -292,11 +292,14 @@ bool SkOpAngle::checkParallel(SkOpAngle* rh) {
     // compute the perpendicular to the endpoints and see where it intersects the opposite curve
     // if the intersections within the t range, do a cross check on those
     bool inside;
-    if (this->endToSide(rh, &inside)) {
-        return inside;
-    }
-    if (rh->endToSide(this, &inside)) {
-        return !inside;
+    if (!fCurvePart[SkPathOpsVerbToPoints(this->segment()->verb())].approximatelyEqual(
+            rh->fCurvePart[SkPathOpsVerbToPoints(rh->segment()->verb())])) {
+        if (this->endToSide(rh, &inside)) {
+            return inside;
+        }
+        if (rh->endToSide(this, &inside)) {
+            return !inside;
+        }
     }
     if (this->midToSide(rh, &inside)) {
         return inside;
@@ -445,14 +448,14 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
     double smallTs[2] = {-1, -1};
     bool limited[2] = {false, false};
     for (int index = 0; index < 2; ++index) {
-        int cPts = index ? rPts : lPts;
+        SkPath::Verb cVerb = index ? rVerb : lVerb;
         // if the curve is a line, then the line and the ray intersect only at their crossing
-        if (cPts == 1) { // line
+        if (cVerb == SkPath::kLine_Verb) {
             continue;
         }
         const SkOpSegment& segment = index ? *rh->segment() : *this->segment();
         SkIntersections i;
-        (*CurveIntersectRay[cPts])(segment.pts(), rays[index], &i);
+        (*CurveIntersectRay[cVerb])(segment.pts(), segment.weight(), rays[index], &i);
         double tStart = index ? rh->fStart->t() : this->fStart->t();
         double tEnd = index ? rh->fComputedEnd->t() : this->fComputedEnd->t();
         bool testAscends = tStart < (index ? rh->fComputedEnd->t() : this->fComputedEnd->t());
@@ -509,7 +512,7 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
         double minX, minY, maxX, maxY;
         minX = minY = SK_ScalarInfinity;
         maxX = maxY = -SK_ScalarInfinity;
-        const SkDCubic& curve = index ? rh->fCurvePart : this->fCurvePart;
+        const SkDCurve& curve = index ? rh->fCurvePart : this->fCurvePart;
         int ptCount = index ? rPts : lPts;
         for (int idx2 = 0; idx2 <= ptCount; ++idx2) {
             minX = SkTMin(minX, curve[idx2].fX);
@@ -527,7 +530,7 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
         }
     }
     if (useIntersect) {
-        const SkDCubic& curve = sIndex ? rh->fCurvePart : this->fCurvePart;
+        const SkDCurve& curve = sIndex ? rh->fCurvePart : this->fCurvePart;
         const SkOpSegment& segment = sIndex ? *rh->segment() : *this->segment();
         double tStart = sIndex ? rh->fStart->t() : fStart->t();
         SkDVector mid = segment.dPtAtT(tStart + (sCeptT - tStart) / 2) - curve[0];
@@ -544,18 +547,17 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
 bool SkOpAngle::endToSide(const SkOpAngle* rh, bool* inside) const {
     const SkOpSegment* segment = this->segment();
     SkPath::Verb verb = segment->verb();
-    int pts = SkPathOpsVerbToPoints(verb);
     SkDLine rayEnd;
     rayEnd[0].set(this->fEnd->pt());
     rayEnd[1] = rayEnd[0];
-    SkDVector slopeAtEnd = (*CurveDSlopeAtT[pts])(segment->pts(), this->fEnd->t());
+    SkDVector slopeAtEnd = (*CurveDSlopeAtT[verb])(segment->pts(), segment->weight(),
+            this->fEnd->t());
     rayEnd[1].fX += slopeAtEnd.fY;
     rayEnd[1].fY -= slopeAtEnd.fX;
     SkIntersections iEnd;
     const SkOpSegment* oppSegment = rh->segment();
     SkPath::Verb oppVerb = oppSegment->verb();
-    int oppPts = SkPathOpsVerbToPoints(oppVerb);
-    (*CurveIntersectRay[oppPts])(oppSegment->pts(), rayEnd, &iEnd);
+    (*CurveIntersectRay[oppVerb])(oppSegment->pts(), oppSegment->weight(), rayEnd, &iEnd);
     double endDist;
     int closestEnd = iEnd.closestTo(rh->fStart->t(), rh->fEnd->t(), rayEnd[0], &endDist);
     if (closestEnd < 0) {
@@ -570,7 +572,8 @@ bool SkOpAngle::endToSide(const SkOpAngle* rh, bool* inside) const {
     double minX, minY, maxX, maxY;
     minX = minY = SK_ScalarInfinity;
     maxX = maxY = -SK_ScalarInfinity;
-    const SkDCubic& curve = rh->fCurvePart;
+    const SkDCurve& curve = rh->fCurvePart;
+    int oppPts = SkPathOpsVerbToPoints(oppVerb);
     for (int idx2 = 0; idx2 <= oppPts; ++idx2) {
         minX = SkTMin(minX, curve[idx2].fX);
         minY = SkTMin(minY, curve[idx2].fY);
@@ -814,11 +817,14 @@ int SkOpAngle::loopCount() const {
 }
 
 // OPTIMIZATION: can this be done better in after when angles are sorted?
-void SkOpAngle::markStops() {
+bool SkOpAngle::markStops() {
     SkOpAngle* angle = this;
     int lastEnd = SkTMax(fSectorStart, fSectorEnd);
     do {
         angle = angle->fNext;
+        if (!angle) {
+            return false;
+        }
         int angleStart = SkTMin(angle->fSectorStart, angle->fSectorEnd);
         // angles that are smaller by one aren't necessary better, since the larger may be a line
         // and the smaller may be a curve that curls to the other side of the line.
@@ -827,6 +833,7 @@ void SkOpAngle::markStops() {
         }
         lastEnd = SkTMax(angle->fSectorStart, angle->fSectorEnd);
     } while (angle != this);
+    return true;
 }
 
 bool SkOpAngle::merge(SkOpAngle* angle) {
@@ -857,7 +864,6 @@ double SkOpAngle::midT() const {
 bool SkOpAngle::midToSide(const SkOpAngle* rh, bool* inside) const {
     const SkOpSegment* segment = this->segment();
     SkPath::Verb verb = segment->verb();
-    int pts = SkPathOpsVerbToPoints(verb);
     const SkPoint& startPt = this->fStart->pt();
     const SkPoint& endPt = this->fEnd->pt();
     SkDPoint dStartPt;
@@ -868,16 +874,15 @@ bool SkOpAngle::midToSide(const SkOpAngle* rh, bool* inside) const {
     rayMid[1].fX = rayMid[0].fX + (endPt.fY - startPt.fY);
     rayMid[1].fY = rayMid[0].fY - (endPt.fX - startPt.fX);
     SkIntersections iMid;
-    (*CurveIntersectRay[pts])(segment->pts(), rayMid, &iMid);
+    (*CurveIntersectRay[verb])(segment->pts(), segment->weight(), rayMid, &iMid);
     int iOutside = iMid.mostOutside(this->fStart->t(), this->fEnd->t(), dStartPt);
     if (iOutside < 0) {
         return false;
     }
     const SkOpSegment* oppSegment = rh->segment();
     SkPath::Verb oppVerb = oppSegment->verb();
-    int oppPts = SkPathOpsVerbToPoints(oppVerb);
     SkIntersections oppMid;
-    (*CurveIntersectRay[oppPts])(oppSegment->pts(), rayMid, &oppMid);
+    (*CurveIntersectRay[oppVerb])(oppSegment->pts(), oppSegment->weight(), rayMid, &oppMid);
     int oppOutside = oppMid.mostOutside(rh->fStart->t(), rh->fEnd->t(), dStartPt);
     if (oppOutside < 0) {
         return false;
@@ -966,7 +971,7 @@ void SkOpAngle::set(SkOpSpanBase* start, SkOpSpanBase* end) {
     fStop = false;
     setSpans();
     setSector();
-    PATH_OPS_DEBUG_CODE(fID = start->globalState()->nextAngleID());
+    SkDEBUGCODE(fID = start ? start->globalState()->nextAngleID() : -1);
 }
 
 void SkOpAngle::setCurveHullSweep() {
@@ -1015,10 +1020,16 @@ void SkOpAngle::setCurveHullSweep() {
 void SkOpAngle::setSpans() {
     fUnorderable = false;
     fLastMarked = NULL;
+    if (!fStart) {
+        fUnorderable = true;
+        return;
+    }
     const SkOpSegment* segment = fStart->segment();
     const SkPoint* pts = segment->pts();
+    SkDEBUGCODE(fCurvePart.fVerb = SkPath::kCubic_Verb);
     SkDEBUGCODE(fCurvePart[2].fX = fCurvePart[2].fY = fCurvePart[3].fX = fCurvePart[3].fY
             = SK_ScalarNaN);
+    SkDEBUGCODE(fCurvePart.fVerb = segment->verb());
     segment->subDivide(fStart, fEnd, &fCurvePart);
     setCurveHullSweep();
     const SkPath::Verb verb = segment->verb();
@@ -1041,15 +1052,15 @@ void SkOpAngle::setSpans() {
         fSide = 0;
         fIsCurve = false;
         } return;
-    case SkPath::kQuad_Verb: {
+    case SkPath::kQuad_Verb:
+    case SkPath::kConic_Verb: {
         SkLineParameters tangentPart;
-        SkDQuad& quad2 = *SkTCast<SkDQuad*>(&fCurvePart);
-        (void) tangentPart.quadEndPoints(quad2);
+        (void) tangentPart.quadEndPoints(fCurvePart.fQuad);
         fSide = -tangentPart.pointDistance(fCurvePart[2]);  // not normalized -- compare sign only
         } break;
     case SkPath::kCubic_Verb: {
         SkLineParameters tangentPart;
-        (void) tangentPart.cubicPart(fCurvePart);
+        (void) tangentPart.cubicPart(fCurvePart.fCubic);
         fSide = -tangentPart.pointDistance(fCurvePart[3]);
         double testTs[4];
         // OPTIMIZATION: keep inflections precomputed with cubic segment?
@@ -1080,9 +1091,9 @@ void SkOpAngle::setSpans() {
                 testT = (testT + testTs[testIndex + 1]) / 2;
             }
             // OPTIMIZE: could avoid call for t == startT, endT
-            SkDPoint pt = dcubic_xy_at_t(pts, testT);
+            SkDPoint pt = dcubic_xy_at_t(pts, segment->weight(), testT);
             SkLineParameters tangentPart;
-            tangentPart.cubicEndPoints(fCurvePart);
+            tangentPart.cubicEndPoints(fCurvePart.fCubic);
             double testSide = tangentPart.pointDistance(pt);
             if (fabs(bestSide) < fabs(testSide)) {
                 bestSide = testSide;
@@ -1096,6 +1107,10 @@ void SkOpAngle::setSpans() {
 }
 
 void SkOpAngle::setSector() {
+    if (!fStart) {
+        fUnorderable = true;
+        return;
+    }
     const SkOpSegment* segment = fStart->segment();
     SkPath::Verb verb = segment->verb();
     fSectorStart = this->findSector(verb, fSweep[0].fX, fSweep[0].fY);
@@ -1176,5 +1191,5 @@ bool SkOpAngle::tangentsDiverge(const SkOpAngle* rh, double s0xt0) const {
     double tDist = tweep[0].length() * m;
     bool useS = fabs(sDist) < fabs(tDist);
     double mFactor = fabs(useS ? this->distEndRatio(sDist) : rh->distEndRatio(tDist));
-    return mFactor < 5000;  // empirically found limit
+    return mFactor < 2400;  // empirically found limit
 }

@@ -19,6 +19,7 @@ public:
         kVerticalLine_Segment = 0,
         kLine_Segment = SkPath::kLine_Verb,
         kQuad_Segment = SkPath::kQuad_Verb,
+        kConic_Segment = SkPath::kConic_Verb,
         kCubic_Segment = SkPath::kCubic_Verb,
     };
 
@@ -80,6 +81,10 @@ public:
 
     SkScalar top() const {
         return bounds().fTop;
+    }
+
+    SkScalar weight() const {
+        return fSegment->weight();
     }
 
     SkScalar x() const {

@@ -297,27 +297,27 @@ static void showPathOpPath(const char* testName, const SkPath& one, const SkPath
         const SkPath& a, const SkPath& b, const SkPath& scaledOne, const SkPath& scaledTwo,
         const SkPathOp shapeOp, const SkMatrix& scale) {
     SkASSERT((unsigned) shapeOp < SK_ARRAY_COUNT(opStrs));
-    SkString defaultTestName;
     if (!testName) {
-        defaultTestName.printf("xOp%d%s", gTestNo, opSuffixes[shapeOp]);
-        testName = defaultTestName.c_str();
+        testName = "xOp";
     }
-    SkDebugf("static void %s(skiatest::Reporter* reporter, const char* filename) {\n", testName);
+    SkDebugf("static void %s%d%s(skiatest::Reporter* reporter, const char* filename) {\n",
+        testName, gTestNo, opSuffixes[shapeOp]);
     *gTestOp.append() = shapeOp;
     ++gTestNo;
     SkDebugf("    SkPath path, pathB;\n");
-#if 0 && DEBUG_SHOW_TEST_NAME
     SkPathOpsDebug::ShowOnePath(a, "path", false);
     SkPathOpsDebug::ShowOnePath(b, "pathB", false);
-#endif
     SkDebugf("    testPathOp(reporter, path, pathB, %s, filename);\n", opStrs[shapeOp]);
     SkDebugf("}\n");
     drawAsciiPaths(scaledOne, scaledTwo, true);
 }
 
-void ShowTestArray() {
+void ShowTestArray(const char* testName) {
+    if (!testName) {
+        testName = "xOp";
+    }
     for (int x = gTestFirst; x < gTestNo; ++x) {
-        SkDebugf("    TEST(xOp%d%s),\n", x, opSuffixes[gTestOp[x - gTestFirst]]);
+        SkDebugf("    TEST(%s%d%s),\n", testName, x, opSuffixes[gTestOp[x - gTestFirst]]);
     }
 }
 
@@ -548,17 +548,25 @@ bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath
     return innerPathOp(reporter, a, b, shapeOp, testName, false, checkFail);
 }
 
+bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+        const SkPathOp shapeOp, const char* testName) {
+    return innerPathOp(reporter, a, b, shapeOp, testName, false, false);
+}
+
 bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                  const SkPathOp shapeOp, const char* testName) {
 #if DEBUG_SHOW_TEST_NAME
     showName(a, b, shapeOp);
 #endif
-    SkPath out;
+    SkPath orig;
+    orig.lineTo(54, 43);
+    SkPath out = orig;
     if (Op(a, b, shapeOp, &out) ) {
         SkDebugf("%s test is expected to fail\n", __FUNCTION__);
         REPORTER_ASSERT(reporter, 0);
         return false;
     }
+    SkASSERT(out == orig);
     return true;
 }
 

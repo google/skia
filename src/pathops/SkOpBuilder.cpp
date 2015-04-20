@@ -27,6 +27,7 @@ void SkOpBuilder::reset() {
    paths with union ops could be locally resolved and still improve over doing the
    ops one at a time. */
 bool SkOpBuilder::resolve(SkPath* result) {
+    SkPath original = *result;
     int count = fOps.count();
     bool allUnion = true;
     SkPath::Direction firstDir;
@@ -67,6 +68,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
         for (int index = 1; index < count; ++index) {
             if (!Op(*result, fPathRefs[index], fOps[index], result)) {
                 reset();
+                *result = original;
                 return false;
             }
         }
@@ -77,10 +79,15 @@ bool SkOpBuilder::resolve(SkPath* result) {
     for (int index = 0; index < count; ++index) {
         if (!Simplify(fPathRefs[index], &fPathRefs[index])) {
             reset();
+            *result = original;
             return false;
         }
         sum.addPath(fPathRefs[index]);
     }
     reset();
-    return Simplify(sum, result);
+    bool success = Simplify(sum, result);
+    if (!success) {
+        *result = original;
+    }
+    return success;
 }

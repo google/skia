@@ -22,7 +22,7 @@ void SkOpCoincidence::add(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* o
     this->fHead = coinRec;
 }
 
-static void tRange(const SkOpPtT* overS, const SkOpPtT* overE, double tStart, double tEnd,
+static void t_range(const SkOpPtT* overS, const SkOpPtT* overE, double tStart, double tEnd,
         const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd, double* coinTs, double* coinTe) {
     double denom = overE->fT - overS->fT;
     double start = 0 < denom ? tStart : tEnd;
@@ -38,8 +38,8 @@ bool SkOpCoincidence::addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over1e,
         SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
         SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd, SkChunkAlloc* allocator) {
     double coinTs, coinTe, oppTs, oppTe;
-    tRange(over1s, over1e, tStart, tEnd, coinPtTStart, coinPtTEnd, &coinTs, &coinTe);
-    tRange(over2s, over2e, tStart, tEnd, oppPtTStart, oppPtTEnd, &oppTs, &oppTe);
+    t_range(over1s, over1e, tStart, tEnd, coinPtTStart, coinPtTEnd, &coinTs, &coinTe);
+    t_range(over2s, over2e, tStart, tEnd, oppPtTStart, oppPtTEnd, &oppTs, &oppTe);
     SkOpSegment* coinSeg = coinPtTStart->segment();
     SkOpSegment* oppSeg = oppPtTStart->segment();
     SkASSERT(coinSeg != oppSeg);
@@ -103,7 +103,7 @@ bool SkOpCoincidence::addMissing(SkChunkAlloc* allocator) {
             double overS, overE;
             if (this->overlap(outer->fCoinPtTStart, outer->fCoinPtTEnd,
                     inner->fCoinPtTStart, inner->fCoinPtTEnd, &overS, &overE)) {
-                if (!addIfMissing(outer->fCoinPtTStart, outer->fCoinPtTEnd,
+                if (!this->addIfMissing(outer->fCoinPtTStart, outer->fCoinPtTEnd,
                         inner->fCoinPtTStart, inner->fCoinPtTEnd, overS, overE,
                         outer->fOppPtTStart, outer->fOppPtTEnd,
                         inner->fOppPtTStart, inner->fOppPtTEnd, allocator)) {
@@ -111,7 +111,7 @@ bool SkOpCoincidence::addMissing(SkChunkAlloc* allocator) {
                 }
             } else if (this->overlap(outer->fCoinPtTStart, outer->fCoinPtTEnd,
                     inner->fOppPtTStart, inner->fOppPtTEnd, &overS, &overE)) {
-                if (!addIfMissing(outer->fCoinPtTStart, outer->fCoinPtTEnd,
+                if (!this->addIfMissing(outer->fCoinPtTStart, outer->fCoinPtTEnd,
                         inner->fOppPtTStart, inner->fOppPtTEnd, overS, overE,
                         outer->fOppPtTStart, outer->fOppPtTEnd,
                         inner->fCoinPtTStart, inner->fCoinPtTEnd, allocator)) {
@@ -119,7 +119,7 @@ bool SkOpCoincidence::addMissing(SkChunkAlloc* allocator) {
                 }
             } else if (this->overlap(outer->fOppPtTStart, outer->fOppPtTEnd,
                     inner->fCoinPtTStart, inner->fCoinPtTEnd, &overS, &overE)) {
-                if (!addIfMissing(outer->fOppPtTStart, outer->fOppPtTEnd,
+                if (!this->addIfMissing(outer->fOppPtTStart, outer->fOppPtTEnd,
                         inner->fCoinPtTStart, inner->fCoinPtTEnd, overS, overE,
                         outer->fCoinPtTStart, outer->fCoinPtTEnd,
                         inner->fOppPtTStart, inner->fOppPtTEnd, allocator)) {
@@ -127,7 +127,7 @@ bool SkOpCoincidence::addMissing(SkChunkAlloc* allocator) {
                 }
             } else if (this->overlap(outer->fOppPtTStart, outer->fOppPtTEnd,
                     inner->fOppPtTStart, inner->fOppPtTEnd, &overS, &overE)) {
-                if (!addIfMissing(outer->fOppPtTStart, outer->fOppPtTEnd,
+                if (!this->addIfMissing(outer->fOppPtTStart, outer->fOppPtTEnd,
                         inner->fOppPtTStart, inner->fOppPtTEnd, overS, overE,
                         outer->fCoinPtTStart, outer->fCoinPtTEnd,
                         inner->fCoinPtTStart, inner->fCoinPtTEnd, allocator)) {
@@ -139,7 +139,6 @@ bool SkOpCoincidence::addMissing(SkChunkAlloc* allocator) {
     } while ((outer = outer->fNext));
     return true;
 }
-
 
 bool SkOpCoincidence::contains(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,
         SkOpPtT* oppPtTEnd, bool flipped) {
@@ -183,16 +182,21 @@ bool SkOpCoincidence::apply() {
                 oStart = oNext->upCast();
             } while (true);
         }
-        bool isXor = segment->isXor();
-        bool oppXor = oSegment->isXor();
         do {
             int windValue = start->windValue();
-            int oWindValue = oStart->windValue();
             int oppValue = start->oppValue();
+            int oWindValue = oStart->windValue();
             int oOppValue = oStart->oppValue();
             // winding values are added or subtracted depending on direction and wind type
             // same or opposite values are summed depending on the operand value
-            if (windValue >= oWindValue) {
+            int windDiff = operandSwap ? oOppValue : oWindValue;
+            int oWindDiff = operandSwap ? oppValue : windValue;
+            if (!flipped) {
+                windDiff = -windDiff;
+                oWindDiff = -oWindDiff;
+            }
+            if (windValue && (windValue > windDiff || (windValue == windDiff
+                    && oWindValue <= oWindDiff))) {
                 if (operandSwap) {
                     SkTSwap(oWindValue, oOppValue);
                 }
@@ -203,10 +207,10 @@ bool SkOpCoincidence::apply() {
                     windValue += oWindValue;
                     oppValue += oOppValue;
                 }
-                if (isXor) {
+                if (segment->isXor()) {
                     windValue &= 1;
                 }
-                if (oppXor) {
+                if (segment->oppXor()) {
                     oppValue &= 1;
                 }
                 oWindValue = oOppValue = 0;
@@ -221,11 +225,11 @@ bool SkOpCoincidence::apply() {
                     oWindValue += windValue;
                     oOppValue += oppValue;
                 }
-                if (isXor) {
-                    oOppValue &= 1;
-                }
-                if (oppXor) {
+                if (oSegment->isXor()) {
                     oWindValue &= 1;
+                }
+                if (oSegment->oppXor()) {
+                    oOppValue &= 1;
                 }
                 windValue = oppValue = 0;
             }
@@ -245,11 +249,9 @@ bool SkOpCoincidence::apply() {
                 break;
             }
             start = next->upCast();
-            if (!oNext) {
-                return false;
-            }
-            if (!oNext->upCastable()) {
-                return false;
+            // if the opposite ran out too soon, just reuse the last span
+            if (!oNext || !oNext->upCastable()) {
+               oNext = oStart;
             }
             oStart = oNext->upCast();
         } while (true);

@@ -55,9 +55,10 @@ struct SkPathOpsBounds : public SkRect {
                 || (fLeft == fRight && fTop == fBottom);
     }
 
-    void setCubicBounds(const SkPoint a[4]);
-    void setLineBounds(const SkPoint a[2]);
-    void setQuadBounds(const SkPoint a[3]);
+    void setConicBounds(const SkPoint a[3], SkScalar weight);
+    void setCubicBounds(const SkPoint a[4], SkScalar );
+    void setLineBounds(const SkPoint a[2], SkScalar );
+    void setQuadBounds(const SkPoint a[3], SkScalar );
 
     void setPointBounds(const SkPoint& pt) {
         fLeft = fRight = pt.fX;
@@ -67,6 +68,6 @@ struct SkPathOpsBounds : public SkRect {
     typedef SkRect INHERITED;
 };
 
-extern void (SkPathOpsBounds::* const SetCurveBounds[])(const SkPoint[]);
+extern void (SkPathOpsBounds::* const SetCurveBounds[])(const SkPoint[], SkScalar weight);
 
 #endif

@@ -122,8 +122,7 @@ SkPoint SkOpSegment::activeLeftTop(SkOpSpanBase** firstSpan) {
                 }
             }
             if (fVerb != SkPath::kLine_Verb && !lastDone) {
-                SkPoint curveTop = (*CurveTop[SkPathOpsVerbToPoints(fVerb)])(fPts, lastT,
-                        span->t());
+                SkPoint curveTop = (*CurveTop[fVerb])(fPts, fWeight, lastT, span->t());
                 if (topPt.fY > curveTop.fY || (topPt.fY == curveTop.fY
                         && topPt.fX > curveTop.fX)) {
                     topPt = curveTop;
@@ -202,14 +201,17 @@ bool SkOpSegment::activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
 
 void SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
         SkPathWriter* path, bool active) const {
-    SkPoint edge[4];
+    SkOpCurve edge;
     const SkPoint* ePtr;
+    SkScalar eWeight;
     if ((start == &fHead && end == &fTail) || (start == &fTail && end == &fHead)) {
         ePtr = fPts;
+        eWeight = fWeight;
     } else {
     // OPTIMIZE? if not active, skip remainder and return xyAtT(end)
-        subDivide(start, end, edge);
-        ePtr = edge;
+        subDivide(start, end, &edge);
+        ePtr = edge.fPts;
+        eWeight = edge.fWeight;
     }
     if (active) {
         bool reverse = ePtr == fPts && start != &fHead;
@@ -221,6 +223,9 @@ void SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
                     break;
                 case SkPath::kQuad_Verb:
                     path->quadTo(ePtr[1], ePtr[0]);
+                    break;
+                case SkPath::kConic_Verb:
+                    path->conicTo(ePtr[1], ePtr[0], eWeight);
                     break;
                 case SkPath::kCubic_Verb:
                     path->cubicTo(ePtr[2], ePtr[1], ePtr[0]);
@@ -236,6 +241,9 @@ void SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
                     break;
                 case SkPath::kQuad_Verb:
                     path->quadTo(ePtr[1], ePtr[2]);
+                    break;
+                case SkPath::kConic_Verb:
+                    path->conicTo(ePtr[1], ePtr[2], eWeight);
                     break;
                 case SkPath::kCubic_Verb:
                     path->cubicTo(ePtr[1], ePtr[2], ePtr[3]);
@@ -294,6 +302,9 @@ SkOpAngle* SkOpSegment::addSingletonAngleDown(SkOpSegment** otherPtr, SkOpAngle*
             break;
         }
     }
+    if (!oStartSpan) {
+        return NULL;
+    }
     SkOpAngle* oAngle = SkOpTAllocator<SkOpAngle>::Allocate(allocator);
     oAngle->set(oStartSpan, oEndSpan);
     oStartSpan->setToAngle(oAngle);
@@ -308,6 +319,9 @@ SkOpAngle* SkOpSegment::addSingletonAngles(int step, SkChunkAlloc* allocator) {
         otherAngle = addSingletonAngleUp(&other, &angle, allocator);
     } else {
         otherAngle = addSingletonAngleDown(&other, &angle, allocator);
+    }
+    if (!otherAngle) {
+        return NULL;
     }
     angle->insert(otherAngle);
     return angle;
@@ -476,7 +490,7 @@ void SkOpSegment::checkAngleCoin(SkOpCoincidence* coincidences, SkChunkAlloc* al
 // from http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
 bool SkOpSegment::clockwise(const SkOpSpanBase* start, const SkOpSpanBase* end, bool* swap) const {
     SkASSERT(fVerb != SkPath::kLine_Verb);
-    SkPoint edge[4];
+    SkOpCurve edge;
     if (fVerb == SkPath::kCubic_Verb) {
         double startT = start->t();
         double endT = end->t();
@@ -489,22 +503,20 @@ bool SkOpSegment::clockwise(const SkOpSpanBase* start, const SkOpSpanBase* end, 
             double inflectionT = inflectionTs[index];
             if (between(startT, inflectionT, endT)) {
                 if (flip) {
-                    if (inflectionT != endT) {
-                        startT = inflectionT;
+                    if (!roughly_equal(inflectionT, endT)) {
+                    startT = inflectionT;
                     }
                 } else {
-                    if (inflectionT != startT) {
+                    if (!roughly_equal(inflectionT, startT)) {
                         endT = inflectionT;
                     }
                 }
             }
         }
         SkDCubic part = cubic.subDivide(startT, endT);
-        for (int index = 0; index < 4; ++index) {
-            edge[index] = part[index].asSkPoint();
-        }
+        edge.set(part);
     } else {
-    subDivide(start, end, edge);
+        subDivide(start, end, &edge);
     }
     bool sumSet = false;
     int points = SkPathOpsVerbToPoints(fVerb);
@@ -516,11 +528,11 @@ bool SkOpSegment::clockwise(const SkOpSpanBase* start, const SkOpSpanBase* end, 
     }
     if (fVerb == SkPath::kCubic_Verb) {
         SkDCubic cubic;
-        cubic.set(edge);
+        cubic.set(edge.fPts);
         *swap = sum > 0 && !cubic.monotonicInY();
     } else {
         SkDQuad quad;
-        quad.set(edge);
+        quad.set(edge.fPts);
         *swap = sum > 0 && !quad.monotonicInY();
     }
     return sum <= 0;
@@ -682,8 +694,7 @@ SkOpSpan* SkOpSegment::crossedSpanY(const SkPoint& basePt, double mid, bool opp,
     // OPTIMIZE: use specialty function that intersects ray with curve,
     // returning t values only for curve (we don't care about t on ray)
     intersections.allowNear(false);
-    int pts = (intersections.*CurveVertical[SkPathOpsVerbToPoints(fVerb)])
-            (fPts, top, bottom, basePt.fX, false);
+    int pts = (intersections.*CurveVertical[fVerb])(fPts, fWeight, top, bottom, basePt.fX, false);
     if (pts == 0 || (current && pts == 1)) {
         return NULL;
     }
@@ -707,7 +718,7 @@ SkOpSpan* SkOpSegment::crossedSpanY(const SkPoint& basePt, double mid, bool opp,
                     || approximately_greater_than_one(foundT)) {
             continue;
         }
-        SkScalar testY = (*CurvePointAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, foundT).fY;
+        SkScalar testY = (*CurvePointAtT[fVerb])(fPts, fWeight, foundT).fY;
         if (approximately_negative(testY - *bestY)
                 || approximately_negative(basePt.fY - testY)) {
             continue;
@@ -717,7 +728,7 @@ SkOpSpan* SkOpSegment::crossedSpanY(const SkPoint& basePt, double mid, bool opp,
             return NULL;  // if the intersection is edge on, wait for another one
         }
         if (fVerb > SkPath::kLine_Verb) {
-            SkScalar dx = (*CurveSlopeAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, foundT).fX;
+            SkScalar dx = (*CurveSlopeAtT[fVerb])(fPts, fWeight, foundT).fX;
             if (approximately_zero(dx)) {
                 *vertical = true;
                 return NULL;  // hit vertical, wait for another one
@@ -767,8 +778,7 @@ double SkOpSegment::distSq(double t, SkOpAngle* oppAngle) {
     testPerp[1].fY -= slope.fX;
     SkIntersections i;
     SkOpSegment* oppSegment = oppAngle->segment();
-    int oppPtCount = SkPathOpsVerbToPoints(oppSegment->verb());
-    (*CurveIntersectRay[oppPtCount])(oppSegment->pts(), testPerp, &i);
+    (*CurveIntersectRay[oppSegment->verb()])(oppSegment->pts(), oppSegment->weight(), testPerp, &i);
     double closestDistSq = SK_ScalarInfinity;
     for (int index = 0; index < i.used(); ++index) {
         if (!between(oppAngle->start()->t(), i[0][index], oppAngle->end()->t())) {
@@ -1092,7 +1102,12 @@ SkOpSegment* SkOpSegment::findTop(bool firstPass, SkOpSpanBase** startPtr, SkOpS
     if (!markAngle) {
         markAngle = addSingletonAngles(step, allocator);
     }
-    markAngle->markStops();
+    if (!markAngle) {
+        return NULL;
+    }
+    if (!markAngle->markStops()) {
+        return NULL;
+    }
     const SkOpAngle* baseAngle = markAngle->next() == markAngle && !isVertical() ? markAngle
             : markAngle->findFirst();
     if (!baseAngle) {
@@ -1161,6 +1176,7 @@ SkOpSegment* SkOpSegment::findTop(bool firstPass, SkOpSpanBase** startPtr, SkOpS
                 SkTSwap(*startPtr, *endPtr);
             }
         }
+        // FIXME: clockwise isn't reliable -- try computing swap from tangent ?
     }
     return leftSegment;
 }
@@ -1169,10 +1185,11 @@ SkOpGlobalState* SkOpSegment::globalState() const {
     return contour()->globalState(); 
 }
 
-void SkOpSegment::init(SkPoint pts[], SkOpContour* contour, SkPath::Verb verb) {
+void SkOpSegment::init(SkPoint pts[], SkScalar weight, SkOpContour* contour, SkPath::Verb verb) {
     fContour = contour;
     fNext = NULL;
     fPts = pts;
+    fWeight = weight;
     fVerb = verb;
     fCount = 0;
     fDoneCount = 0;
@@ -1182,7 +1199,7 @@ void SkOpSegment::init(SkPoint pts[], SkOpContour* contour, SkPath::Verb verb) {
     SkOpSpanBase* oneSpan = &fTail;
     zeroSpan->setNext(oneSpan);
     oneSpan->initBase(this, zeroSpan, 1, fPts[SkPathOpsVerbToPoints(fVerb)]);
-    PATH_OPS_DEBUG_CODE(fID = globalState()->nextSegmentID());
+    SkDEBUGCODE(fID = globalState()->nextSegmentID());
 }
 
 void SkOpSegment::initWinding(SkOpSpanBase* start, SkOpSpanBase* end,
@@ -1215,7 +1232,7 @@ bool SkOpSegment::initWinding(SkOpSpanBase* start, SkOpSpanBase* end, double tHi
         int winding, SkScalar hitDx, int oppWind, SkScalar hitOppDx) {
     SkASSERT(this == start->segment());
     SkASSERT(hitDx || !winding);
-    SkScalar dx = (*CurveSlopeAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, tHit).fX;
+    SkScalar dx = (*CurveSlopeAtT[fVerb])(fPts, fWeight, tHit).fX;
 //    SkASSERT(dx);
     int windVal = start->starter(end)->windValue();
 #if DEBUG_WINDING_AT_T
@@ -1249,12 +1266,10 @@ bool SkOpSegment::initWinding(SkOpSpanBase* start, SkOpSpanBase* end, double tHi
 
 bool SkOpSegment::isClose(double t, const SkOpSegment* opp) const {
     SkDPoint cPt = this->dPtAtT(t);
-    int pts = SkPathOpsVerbToPoints(this->verb());
-    SkDVector dxdy = (*CurveDSlopeAtT[pts])(this->pts(), t);
+    SkDVector dxdy = (*CurveDSlopeAtT[this->verb()])(this->pts(), this->weight(), t);
     SkDLine perp = {{ cPt, {cPt.fX + dxdy.fY, cPt.fY - dxdy.fX} }};
     SkIntersections i;
-    int oppPts = SkPathOpsVerbToPoints(opp->verb());
-    (*CurveIntersectRay[oppPts])(opp->pts(), perp, &i);
+    (*CurveIntersectRay[opp->verb()])(opp->pts(), opp->weight(), perp, &i);
     int used = i.used();
     for (int index = 0; index < used; ++index) {
         if (cPt.roughlyEqual(i.pt(index))) {
@@ -1453,6 +1468,10 @@ bool SkOpSegment::monotonicInY(const SkOpSpanBase* start, const SkOpSpanBase* en
         SkDQuad dst = SkDQuad::SubDivide(fPts, start->t(), end->t());
         return dst.monotonicInY();
     }
+    if (fVerb == SkPath::kConic_Verb) {
+        SkDConic dst = SkDConic::SubDivide(fPts, fWeight, start->t(), end->t());
+        return dst.monotonicInY();
+    }
     SkASSERT(fVerb == SkPath::kCubic_Verb);
     SkDCubic dst = SkDCubic::SubDivide(fPts, start->t(), end->t());
     return dst.monotonicInY();
@@ -1615,18 +1634,16 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
                         && !SkDPoint::ApproximatelyEqual(ptT->fPt, midPt)) {
                     coincident = false;
                     SkIntersections i;
-                    int ptCount = SkPathOpsVerbToPoints(this->verb());
-                    SkVector dxdy = (*CurveSlopeAtT[ptCount])(pts(), midT);
+                    SkVector dxdy = (*CurveSlopeAtT[fVerb])(this->pts(), this->weight(), midT);
                     SkDLine ray = {{{midPt.fX, midPt.fY},
                             {midPt.fX + dxdy.fY, midPt.fY - dxdy.fX}}};
-                    int oppPtCount = SkPathOpsVerbToPoints(opp->verb());
-                    (*CurveIntersectRay[oppPtCount])(opp->pts(), ray, &i);
+                    (*CurveIntersectRay[opp->verb()])(opp->pts(), opp->weight(), ray, &i);
                     // measure distance and see if it's small enough to denote coincidence
                     for (int index = 0; index < i.used(); ++index) {
                         SkDPoint oppPt = i.pt(index);
                         if (oppPt.approximatelyEqual(midPt)) {
-                            SkVector oppDxdy = (*CurveSlopeAtT[oppPtCount])(opp->pts(),
-                                    i[index][0]);
+                            SkVector oppDxdy = (*CurveSlopeAtT[opp->verb()])(opp->pts(),
+                                    opp->weight(), i[index][0]);
                             oppDxdy.normalize();
                             dxdy.normalize();
                             SkScalar flatness = SkScalarAbs(dxdy.cross(oppDxdy) / FLT_EPSILON);
@@ -1829,13 +1846,15 @@ void SkOpSegment::sortAngles() {
 
 // return true if midpoints were computed
 bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,
-        SkPoint edge[4]) const {
+        SkOpCurve* edge) const {
     SkASSERT(start != end);
     const SkOpPtT& startPtT = *start->ptT();
     const SkOpPtT& endPtT = *end->ptT();
-    edge[0] = startPtT.fPt;
+    SkDEBUGCODE(edge->fVerb = fVerb);
+    edge->fPts[0] = startPtT.fPt;
     int points = SkPathOpsVerbToPoints(fVerb);
-    edge[points] = endPtT.fPt;
+    edge->fPts[points] = endPtT.fPt;
+    edge->fWeight = 1;
     if (fVerb == SkPath::kLine_Verb) {
         return false;
     }
@@ -1844,40 +1863,50 @@ bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,
     if ((startT == 0 || endT == 0) && (startT == 1 || endT == 1)) {
         // don't compute midpoints if we already have them
         if (fVerb == SkPath::kQuad_Verb) {
-            edge[1] = fPts[1];
+            edge->fPts[1] = fPts[1];
+            return false;
+        }
+        if (fVerb == SkPath::kConic_Verb) {
+            edge->fPts[1] = fPts[1];
+            edge->fWeight = fWeight;
             return false;
         }
         SkASSERT(fVerb == SkPath::kCubic_Verb);
         if (start < end) {
-            edge[1] = fPts[1];
-            edge[2] = fPts[2];
+            edge->fPts[1] = fPts[1];
+            edge->fPts[2] = fPts[2];
             return false;
         }
-        edge[1] = fPts[2];
-        edge[2] = fPts[1];
+        edge->fPts[1] = fPts[2];
+        edge->fPts[2] = fPts[1];
         return false;
     }
-    const SkDPoint sub[2] = {{ edge[0].fX, edge[0].fY}, {edge[points].fX, edge[points].fY }};
+    const SkDPoint sub[2] = {{ edge->fPts[0].fX, edge->fPts[0].fY},
+            {edge->fPts[points].fX, edge->fPts[points].fY }};
     if (fVerb == SkPath::kQuad_Verb) {
-        edge[1] = SkDQuad::SubDivide(fPts, sub[0], sub[1], startT, endT).asSkPoint();
+        edge->fPts[1] = SkDQuad::SubDivide(fPts, sub[0], sub[1], startT, endT).asSkPoint();
+    } else if (fVerb == SkPath::kConic_Verb) {
+        edge->fPts[1] = SkDConic::SubDivide(fPts, fWeight, sub[0], sub[1],
+                startT, endT, &edge->fWeight).asSkPoint();
     } else {
         SkASSERT(fVerb == SkPath::kCubic_Verb);
         SkDPoint ctrl[2];
         SkDCubic::SubDivide(fPts, sub[0], sub[1], startT, endT, ctrl);
-        edge[1] = ctrl[0].asSkPoint();
-        edge[2] = ctrl[1].asSkPoint();
+        edge->fPts[1] = ctrl[0].asSkPoint();
+        edge->fPts[2] = ctrl[1].asSkPoint();
     }
     return true;
 }
 
 bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,
-        SkDCubic* result) const {
+        SkDCurve* edge) const {
     SkASSERT(start != end);
     const SkOpPtT& startPtT = *start->ptT();
     const SkOpPtT& endPtT = *end->ptT();
-    (*result)[0].set(startPtT.fPt);
+    SkDEBUGCODE(edge->fVerb = fVerb);
+    edge->fCubic[0].set(startPtT.fPt);
     int points = SkPathOpsVerbToPoints(fVerb);
-    (*result)[points].set(endPtT.fPt);
+    edge->fCubic[points].set(endPtT.fPt);
     if (fVerb == SkPath::kLine_Verb) {
         return false;
     }
@@ -1886,33 +1915,41 @@ bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,
     if ((startT == 0 || endT == 0) && (startT == 1 || endT == 1)) {
         // don't compute midpoints if we already have them
         if (fVerb == SkPath::kQuad_Verb) {
-            (*result)[1].set(fPts[1]);
+            edge->fLine[1].set(fPts[1]);
+            return false;
+        }
+        if (fVerb == SkPath::kConic_Verb) {
+            edge->fConic[1].set(fPts[1]);
+            edge->fConic.fWeight = fWeight;
             return false;
         }
         SkASSERT(fVerb == SkPath::kCubic_Verb);
         if (startT == 0) {
-            (*result)[1].set(fPts[1]);
-            (*result)[2].set(fPts[2]);
+            edge->fCubic[1].set(fPts[1]);
+            edge->fCubic[2].set(fPts[2]);
             return false;
         }
-        (*result)[1].set(fPts[2]);
-        (*result)[2].set(fPts[1]);
+        edge->fCubic[1].set(fPts[2]);
+        edge->fCubic[2].set(fPts[1]);
         return false;
     }
     if (fVerb == SkPath::kQuad_Verb) {
-        (*result)[1] = SkDQuad::SubDivide(fPts, (*result)[0], (*result)[2], startT, endT);
+        edge->fQuad[1] = SkDQuad::SubDivide(fPts, edge->fQuad[0], edge->fQuad[2], startT, endT);
+    } else if (fVerb == SkPath::kConic_Verb) {
+        edge->fConic[1] = SkDConic::SubDivide(fPts, fWeight, edge->fQuad[0], edge->fQuad[2],
+            startT, endT, &edge->fConic.fWeight);
     } else {
         SkASSERT(fVerb == SkPath::kCubic_Verb);
-        SkDCubic::SubDivide(fPts, (*result)[0], (*result)[3], startT, endT, &(*result)[1]);
+        SkDCubic::SubDivide(fPts, edge->fCubic[0], edge->fCubic[3], startT, endT, &edge->fCubic[1]);
     }
     return true;
 }
 
 void SkOpSegment::subDivideBounds(const SkOpSpanBase* start, const SkOpSpanBase* end,
         SkPathOpsBounds* bounds) const {
-    SkPoint edge[4];
-    subDivide(start, end, edge);
-    (bounds->*SetCurveBounds[SkPathOpsVerbToPoints(fVerb)])(edge);
+    SkOpCurve edge;
+    subDivide(start, end, &edge);
+    (bounds->*SetCurveBounds[fVerb])(edge.fPts, edge.fWeight);
 }
 
 void SkOpSegment::undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end) {
@@ -2001,7 +2038,7 @@ int SkOpSegment::windingAtT(double tHit, const SkOpSpan* span, bool crossOpp,
             debugID(), crossOpp, tHit, span->t(), winding, windVal);
 #endif
     // see if a + change in T results in a +/- change in X (compute x'(T))
-    *dx = (*CurveSlopeAtT[SkPathOpsVerbToPoints(fVerb)])(fPts, tHit).fX;
+    *dx = (*CurveSlopeAtT[fVerb])(fPts, fWeight, tHit).fX;
     if (fVerb > SkPath::kLine_Verb && approximately_zero(*dx)) {
         *dx = fPts[2].fX - fPts[1].fX - *dx;
     }

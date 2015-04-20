@@ -73,8 +73,6 @@ int SkOpEdgeBuilder::preFetch() {
         fUnparseable = true;
         return 0;
     }
-    SkAutoConicToQuads quadder;
-    const SkScalar quadderTol = SK_Scalar1 / 16;
     SkPath::RawIter iter(*fPath);
     SkPoint curveStart;
     SkPoint curve[4];
@@ -114,18 +112,16 @@ int SkOpEdgeBuilder::preFetch() {
                     continue;  // skip degenerate points
                 }
                 break;
-            case SkPath::kConic_Verb: {
-                    const SkPoint* quadPts = quadder.computeQuads(pts, iter.conicWeight(),
-                            quadderTol);
-                    const int nQuads = quadder.countQuads();
-                    for (int i = 0; i < nQuads; ++i) {
-                       *fPathVerbs.append() = SkPath::kQuad_Verb;
-                    }
-                    fPathPts.append(nQuads * 2, &quadPts[1]);
-                    curve[0] = pts[2];
-                    lastCurve = true;
+            case SkPath::kConic_Verb:
+                force_small_to_zero(&pts[1]);
+                force_small_to_zero(&pts[2]);
+                curve[1] = pts[1];
+                curve[2] = pts[2];
+                verb = SkReduceOrder::Conic(curve, iter.conicWeight(), pts);
+                if (verb == SkPath::kMove_Verb) {
+                    continue;  // skip degenerate points
                 }
-                continue;
+                break;
             case SkPath::kCubic_Verb:
                 force_small_to_zero(&pts[1]);
                 force_small_to_zero(&pts[2]);
@@ -148,6 +144,9 @@ int SkOpEdgeBuilder::preFetch() {
         *fPathVerbs.append() = verb;
         int ptCount = SkPathOpsVerbToPoints(verb);
         fPathPts.append(ptCount, &pts[1]);
+        if (verb == SkPath::kConic_Verb) {
+            *fWeights.append() = iter.conicWeight();
+        }
         curve[0] = pts[ptCount];
         lastCurve = true;
     } while (verb != SkPath::kDone_Verb);
@@ -167,6 +166,7 @@ bool SkOpEdgeBuilder::walk(SkChunkAlloc* allocator) {
     uint8_t* verbPtr = fPathVerbs.begin();
     uint8_t* endOfFirstHalf = &verbPtr[fSecondHalf];
     SkPoint* pointsPtr = fPathPts.begin() - 1;
+    SkScalar* weightPtr = fWeights.begin();
     SkPath::Verb verb;
     while ((verb = (SkPath::Verb) *verbPtr) != SkPath::kDone_Verb) {
         if (verbPtr == endOfFirstHalf) {
@@ -195,6 +195,9 @@ bool SkOpEdgeBuilder::walk(SkChunkAlloc* allocator) {
             case SkPath::kQuad_Verb:
                 fCurrentContour->addQuad(pointsPtr, fAllocator);
                 break;
+            case SkPath::kConic_Verb:
+                fCurrentContour->addConic(pointsPtr, *weightPtr++, fAllocator);
+                break;
             case SkPath::kCubic_Verb: {
                 // split self-intersecting cubics in two before proceeding
                 // if the cubic is convex, it doesn't self intersect.
@@ -202,6 +205,9 @@ bool SkOpEdgeBuilder::walk(SkChunkAlloc* allocator) {
                 if (SkDCubic::ComplexBreak(pointsPtr, &loopT)) {
                     SkPoint cubicPair[7]; 
                     SkChopCubicAt(pointsPtr, cubicPair, loopT);
+                    if (!SkScalarsAreFinite(&cubicPair[0].fX, SK_ARRAY_COUNT(cubicPair) * 2)) {
+                        return false;
+                    }
                     SkPoint cStorage[2][4];
                     SkPath::Verb v1 = SkReduceOrder::Cubic(&cubicPair[0], cStorage[0]);
                     SkPath::Verb v2 = SkReduceOrder::Cubic(&cubicPair[3], cStorage[1]);

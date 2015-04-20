@@ -14,6 +14,18 @@ static bool rotate(const SkDCubic& cubic, int zero, int index, SkDCubic& rotPath
             return false;
         }
         rotPath = cubic;
+        if (dy) {
+            rotPath[index].fY = cubic[zero].fY;
+            int mask = other_two(index, zero);
+            int side1 = index ^ mask;
+            int side2 = zero ^ mask;
+            if (approximately_equal(cubic[side1].fY, cubic[zero].fY)) {
+                rotPath[side1].fY = cubic[zero].fY;
+            }
+            if (approximately_equal(cubic[side2].fY, cubic[zero].fY)) {
+                rotPath[side2].fY = cubic[zero].fY;
+            }
+        }
         return true;
     }
     for (int index = 0; index < 4; ++index) {
@@ -81,8 +93,19 @@ int SkDCubic::convexHull(char order[4]) const {
                         order[2] = 2;
                         return 3;
                     }
-                    SkASSERT(fPts[2] == fPts[0] || fPts[2] == fPts[3]);
-                    order[2] = 1;
+                    if (fPts[2] == fPts[0] || fPts[2] == fPts[3]) {
+                        order[2] = 1;
+                        return 3;
+                    }
+                    // one of the control points may be very nearly but not exactly equal -- 
+                    double dist1_0 = fPts[1].distanceSquared(fPts[0]);
+                    double dist1_3 = fPts[1].distanceSquared(fPts[3]);
+                    double dist2_0 = fPts[2].distanceSquared(fPts[0]);
+                    double dist2_3 = fPts[2].distanceSquared(fPts[3]);
+                    double smallest1distSq = SkTMin(dist1_0, dist1_3);
+                    double smallest2distSq = SkTMin(dist2_0, dist2_3);
+                    SkASSERT(approximately_zero(SkTMin(smallest1distSq, smallest2distSq)));
+                    order[2] = smallest1distSq < smallest2distSq ? 2 : 1;
                     return 3;
                 }
                 midX = index;

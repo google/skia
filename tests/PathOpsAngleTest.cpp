@@ -235,7 +235,7 @@ static const int circleDataSetSize = (int) SK_ARRAY_COUNT(circleDataSet);
 DEF_TEST(PathOpsAngleCircle, reporter) {
     SkChunkAlloc allocator(4096);
     SkOpContour contour;
-    SkOpGlobalState state(NULL  PATH_OPS_DEBUG_PARAMS(&contour));
+    SkOpGlobalState state(NULL  SkDEBUGPARAMS(&contour));
     contour.init(&state, false, false);
     for (int index = 0; index < circleDataSetSize; ++index) {
         CircleData& data = circleDataSet[index];
@@ -427,7 +427,7 @@ struct FourPoints {
 DEF_TEST(PathOpsAngleAfter, reporter) {
     SkChunkAlloc allocator(4096);
     SkOpContour contour;
-    SkOpGlobalState state(NULL  PATH_OPS_DEBUG_PARAMS(&contour));
+    SkOpGlobalState state(NULL  SkDEBUGPARAMS(&contour));
     contour.init(&state, false, false);
     for (int index = intersectDataSetsSize - 1; index >= 0; --index) {
         IntersectData* dataArray = intersectDataSets[index];

@@ -29,8 +29,13 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
                 for (int d = c + 1 ; d < 7; ++d) {
                     for (int e = SkPath::kWinding_FillType ; e <= SkPath::kEvenOdd_FillType; ++e) {
     for (int f = SkPath::kWinding_FillType ; f <= SkPath::kEvenOdd_FillType; ++f)   {
+        static int testNum = 6;
         if (progress) {
             char* str = pathStr;
+            str += sprintf(str,
+                    "static void rects%d(skiatest::Reporter* reporter, const char* filename) {\n",
+                    testNum);
+            str += sprintf(str, "    SkPath path, pathB;");
             str += sprintf(str, "    path.setFillType(SkPath::k%s_FillType);\n",
                     e == SkPath::kWinding_FillType ? "Winding" : e == SkPath::kEvenOdd_FillType
                     ? "EvenOdd" : "?UNDEFINED");
@@ -45,6 +50,9 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
                     " SkPath::kCW_Direction);\n", a, a, b, b);
             str += sprintf(str, "    pathB.addRect(%d, %d, %d, %d,"
                     " SkPath::kCW_Direction);\n", c, c, d, d);
+            str += sprintf(str,
+                    "    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);\n");
+            str += sprintf(str, "}\n\n");
         }
         SkPath pathA, pathB;
         pathA.setFillType((SkPath::FillType) e);

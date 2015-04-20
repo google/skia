@@ -34,6 +34,8 @@ struct SkDLine {
     SkDPoint ptAtT(double t) const;
 
     void dump() const;
+    void dumpID(int ) const;
+    void dumpInner() const;
 };
 
 #endif

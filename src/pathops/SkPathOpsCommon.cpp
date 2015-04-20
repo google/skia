@@ -323,7 +323,10 @@ SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour* >& contourList, bool f
         do {
             bool checkFrom = oSpan->t() < iSpan->t();
             if ((checkFrom ? iSpan->fromAngle() : iSpan->upCast()->toAngle()) == NULL) {
-                iSpan->addSimpleAngle(checkFrom, allocator);
+                if (!iSpan->addSimpleAngle(checkFrom, allocator)) {
+                    *unsortable = true;
+                    return NULL;
+                }
             }
             sumWinding = current->computeSum(oSpan, iSpan, angleIncludeType);
             SkTSwap(iSpan, oSpan);
@@ -442,7 +445,7 @@ public:
 void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
     SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpContour contour;
-    SkOpGlobalState globalState(NULL  PATH_OPS_DEBUG_PARAMS(&contour));
+    SkOpGlobalState globalState(NULL  SkDEBUGPARAMS(&contour));
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("%s\n", __FUNCTION__);
 #endif

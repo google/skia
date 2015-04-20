@@ -62,6 +62,7 @@ private:
     SkOpGlobalState* fGlobalState;
     const SkPath* fPath;
     SkTDArray<SkPoint> fPathPts;
+    SkTDArray<SkScalar> fWeights;
     SkTDArray<uint8_t> fPathVerbs;
     SkOpContour* fCurrentContour;
     SkOpContour* fContoursHead;

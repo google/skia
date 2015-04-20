@@ -264,7 +264,7 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     SkChunkAlloc allocator(4096);  // FIXME: add a constant expression here, tune
     SkOpContour contour;
     SkOpCoincidence coincidence;
-    SkOpGlobalState globalState(&coincidence  PATH_OPS_DEBUG_PARAMS(&contour));
+    SkOpGlobalState globalState(&coincidence  SkDEBUGPARAMS(&contour));
 #if DEBUGGING_PATHOPS_FROM_HOST
     dump_op(one, two, op);
 #endif    
@@ -302,18 +302,20 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     contour.dumpSegments(op);
 #endif
 
-    result->reset();
-    result->setFillType(fillType);
     const int xorOpMask = builder.xorMask();
     SkTDArray<SkOpContour* > contourList;
     MakeContourList(&contour, contourList, xorMask == kEvenOdd_PathOpsMask,
             xorOpMask == kEvenOdd_PathOpsMask);
     SkOpContour** currentPtr = contourList.begin();
     if (!currentPtr) {
+        result->reset();
+        result->setFillType(fillType);
         return true;
     }
     if ((*currentPtr)->count() == 0) {
         SkASSERT((*currentPtr)->next() == NULL);
+        result->reset();
+        result->setFillType(fillType);
         return true;
     }
     SkOpContour** listEnd = contourList.end();
@@ -334,6 +336,8 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
         return false;
     }
     // construct closed contours
+    result->reset();
+    result->setFillType(fillType);
     SkPathWriter wrapper(*result);
     bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper, &allocator);
     {  // if some edges could not be resolved, assemble remaining fragments

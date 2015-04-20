@@ -193,6 +193,20 @@ struct SkDPoint {
         return RoughlyEqualUlps(largest, largest + dist); // is the dist within ULPS tolerance?
     }
 
+    static bool RoughlyEqual(const SkPoint& a, const SkPoint& b) {
+        if (!RoughlyEqualUlps(a.fX, b.fX) || !RoughlyEqualUlps(a.fY, b.fY)) {
+            return false;
+        }
+        SkDPoint dA, dB;
+        dA.set(a);
+        dB.set(b);
+        double dist = dA.distance(dB);  // OPTIMIZATION: can we compare against distSq instead ?
+        float tiniest = SkTMin(SkTMin(SkTMin(a.fX, b.fX), a.fY), b.fY);
+        float largest = SkTMax(SkTMax(SkTMax(a.fX, b.fX), a.fY), b.fY);
+        largest = SkTMax(largest, -tiniest);
+        return RoughlyEqualUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
+    }
+
     // utilities callable by the user from the debugger when the implementation code is linked in
     void dump() const;
     static void Dump(const SkPoint& pt);

@@ -92,19 +92,19 @@ DEF_TEST(PathOpsBounds, reporter) {
         REPORTER_ASSERT(reporter, !empty);
     }
     const SkPoint curvePts[] = {{0, 0}, {1, 2}, {3, 4}, {5, 6}};
-    bounds.setLineBounds(curvePts);
+    bounds.setLineBounds(curvePts, 1);
     expected.set(0, 0, 1, 2);
     REPORTER_ASSERT(reporter, bounds == expected);
-    (bounds.*SetCurveBounds[1])(curvePts);
+    (bounds.*SetCurveBounds[SkPath::kLine_Verb])(curvePts, 1);
     REPORTER_ASSERT(reporter, bounds == expected);
-    bounds.setQuadBounds(curvePts);
+    bounds.setQuadBounds(curvePts, 1);
     expected.set(0, 0, 3, 4);
     REPORTER_ASSERT(reporter, bounds == expected);
-    (bounds.*SetCurveBounds[2])(curvePts);
+    (bounds.*SetCurveBounds[SkPath::kQuad_Verb])(curvePts, 1);
     REPORTER_ASSERT(reporter, bounds == expected);
-    bounds.setCubicBounds(curvePts);
+    bounds.setCubicBounds(curvePts, 1);
     expected.set(0, 0, 5, 6);
     REPORTER_ASSERT(reporter, bounds == expected);
-    (bounds.*SetCurveBounds[3])(curvePts);
+    (bounds.*SetCurveBounds[SkPath::kCubic_Verb])(curvePts, 1);
     REPORTER_ASSERT(reporter, bounds == expected);
 }

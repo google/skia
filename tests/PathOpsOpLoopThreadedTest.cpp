@@ -53,7 +53,7 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
         SkPath pathA, pathB;
         if (progress) {
             char* str = pathStr;
-            const int loopNo = 7;
+            const int loopNo = 12;
             str += sprintf(str, "static void loop%d(skiatest::Reporter* reporter,"
                     " const char* filename) {\n", loopNo);
             str += sprintf(str, "    SkPath path, pathB;\n");
@@ -93,7 +93,7 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
 }
 
 DEF_TEST(PathOpsOpLoopsThreaded, reporter) {
-    initializeTests(reporter, "cubicOp");
+    initializeTests(reporter, "loopOp");
     PathOpsThreadedTestRunner testRunner(reporter);
     for (int a = 0; a < 6; ++a) {  // outermost
         for (int b = a + 1; b < 7; ++b) {
@@ -108,27 +108,5 @@ DEF_TEST(PathOpsOpLoopsThreaded, reporter) {
     }
 finish:
     testRunner.render();
-    ShowTestArray();
-}
-
-DEF_TEST(PathOpsOpLoops, reporter) {
-    initializeTests(reporter, "cubicOp");
-    PathOpsThreadState state;
-    state.fReporter = reporter;
-    SkBitmap bitmap;
-    state.fBitmap = &bitmap;
-    char pathStr[PATH_STR_SIZE];
-    state.fPathStr = pathStr;
-    for (state.fA = 0; state.fA < 6; ++state.fA) {  // outermost
-        for (state.fB = state.fA + 1; state.fB < 7; ++state.fB) {
-            for (state.fC = 0 ; state.fC < 6; ++state.fC) {
-                for (state.fD = state.fC + 1; state.fD < 7; ++state.fD) {
-                    testOpLoopsMain(&state);
-                }
-            }
-            if (!reporter->allowExtendedTest()) goto finish;
-        }
-    }
-finish:
-    ShowTestArray();
+    ShowTestArray("loopOp");
 }

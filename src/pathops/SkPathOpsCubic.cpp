@@ -6,6 +6,7 @@
  */
 #include "SkGeometry.h"
 #include "SkLineParameters.h"
+#include "SkPathOpsConic.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
@@ -105,7 +106,7 @@ bool SkDCubic::endsAreExtremaInXOrY() const {
 /* if returning true, check contains true if cubic's hull collapsed, making the cubic linear
    if returning false, check contains true if the the cubic pair have only the end point in common
 */
-bool SkDCubic::hullIntersects(const SkDCubic& c2, bool* isLinear) const {
+bool SkDCubic::hullIntersects(const SkDPoint* pts, int ptCount, bool* isLinear) const {
     bool linear = true;
     char hullOrder[4];
     int hullCount = convexHull(hullOrder);
@@ -137,8 +138,8 @@ bool SkDCubic::hullIntersects(const SkDCubic& c2, bool* isLinear) const {
         }
         linear = false;
         bool foundOutlier = false;
-        for (int n = 0; n < kPointCount; ++n) {
-            double test = (c2[n].fY - origY) * adj - (c2[n].fX - origX) * opp;
+        for (int n = 0; n < ptCount; ++n) {
+            double test = (pts[n].fY - origY) * adj - (pts[n].fX - origX) * opp;
             if (test * sign > 0 && !precisely_zero(test)) {
                 foundOutlier = true;
                 break;
@@ -152,6 +153,19 @@ bool SkDCubic::hullIntersects(const SkDCubic& c2, bool* isLinear) const {
     } while (hullIndex);
     *isLinear = linear;
     return true;
+}
+
+bool SkDCubic::hullIntersects(const SkDCubic& c2, bool* isLinear) const {
+    return hullIntersects(c2.fPts, c2.kPointCount, isLinear);
+}
+
+bool SkDCubic::hullIntersects(const SkDQuad& quad, bool* isLinear) const {
+    return hullIntersects(quad.fPts, quad.kPointCount, isLinear);
+}
+
+bool SkDCubic::hullIntersects(const SkDConic& conic, bool* isLinear) const {
+
+    return hullIntersects(conic.fPts, isLinear);
 }
 
 bool SkDCubic::isLinear(int startIndex, int endIndex) const {
@@ -191,7 +205,7 @@ bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
             *t = (smaller + larger) / 2;
             return *t > 0 && *t < 1;
         }
-    } else if (cubicType == kSerpentine_SkCubicType) {
+    } else if (kSerpentine_SkCubicType == cubicType || kCusp_SkCubicType == cubicType) {
         SkDCubic cubic;
         cubic.set(pointsPtr);
         double inflectionTs[2];

@@ -50,7 +50,7 @@ public:
     SkOpContour* contour() const;
 
     int debugID() const {
-        return PATH_OPS_DEBUG_RELEASE(fID, -1);
+        return SkDEBUGRELEASE(fID, -1);
     }
 
     const SkOpAngle* debugAngle(int id) const;
@@ -119,12 +119,12 @@ protected:
     SkOpPtT* fNext;  // intersection on opposite curve or alias on this curve
     bool fDeleted;  // set if removed from span list 
     bool fDuplicatePt;  // set if identical pt is somewhere in the next loop
-    PATH_OPS_DEBUG_CODE(int fID);
+    SkDEBUGCODE(int fID);
 };
 
 class SkOpSpanBase {
 public:
-    void addSimpleAngle(bool checkFrom , SkChunkAlloc* );
+    bool addSimpleAngle(bool checkFrom , SkChunkAlloc* );
     void align();
 
     bool aligned() const {
@@ -164,11 +164,11 @@ public:
     SkOpContour* contour() const;
 
     int debugBumpCount() {
-        return PATH_OPS_DEBUG_RELEASE(++fCount, -1);
+        return SkDEBUGRELEASE(++fCount, -1);
     }
 
     int debugID() const {
-        return PATH_OPS_DEBUG_RELEASE(fID, -1);
+        return SkDEBUGRELEASE(fID, -1);
     }
 
     const SkOpAngle* debugAngle(int id) const;
@@ -318,8 +318,8 @@ protected:  // no direct access to internals to avoid treating a span base as a 
     SkOpSpan* fPrev;  // previous intersection point
     bool fAligned;
     bool fChased;  // set after span has been added to chase array
-    PATH_OPS_DEBUG_CODE(int fCount);  // number of pt/t pairs added
-    PATH_OPS_DEBUG_CODE(int fID);
+    SkDEBUGCODE(int fCount);  // number of pt/t pairs added
+    SkDEBUGCODE(int fID);
 };
 
 class SkOpSpan : public SkOpSpanBase {

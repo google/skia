@@ -16,6 +16,12 @@ static struct quadCubic {
     SkDCubic cubic;
     SkDQuad quad;
 } quadCubicTests[] = {
+    {{{{945.08099365234375, 747.1619873046875}, {982.5679931640625, 747.1619873046875}, {1013.6290283203125, 719.656005859375}, {1019.1910400390625, 683.72601318359375}}},
+     {{{945, 747}, {976.0660400390625, 747}, {998.03302001953125, 725.03302001953125}}}},
+
+    {{{{778, 14089}, {778, 14091.208984375}, {776.20916748046875, 14093}, {774, 14093}}},
+     {{{778, 14089}, {777.99957275390625, 14090.65625}, {776.82843017578125, 14091.828125}}}},
+
     {{{{1020.08099,672.161987}, {1020.08002,630.73999}, {986.502014,597.161987}, {945.080994,597.161987}}},
      {{{1020,672}, {1020,640.93396}, {998.03302,618.96698}}}},
 
@@ -63,9 +69,8 @@ static void cubicQuadIntersection(skiatest::Reporter* reporter, int index) {
         SkDebugf("[%d] quad order=%d\n", iIndex, order2);
         REPORTER_ASSERT(reporter, 0);
     }
-    SkDCubic quadToCubic = quad.toCubic();
     SkIntersections i;
-    int roots = i.intersect(cubic, quadToCubic);
+    int roots = i.intersect(cubic, quad);
     for (int pt = 0; pt < roots; ++pt) {
         double tt1 = i[0][pt];
         SkDPoint xy1 = cubic.ptAtT(tt1);

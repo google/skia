@@ -28,7 +28,7 @@ void SkOpPtT::init(SkOpSpanBase* span, double t, const SkPoint& pt, bool duplica
     fNext = this;
     fDuplicatePt = duplicate;
     fDeleted = false;
-    PATH_OPS_DEBUG_CODE(fID = span->globalState()->nextPtTID());
+    SkDEBUGCODE(fID = span->globalState()->nextPtTID());
 }
 
 bool SkOpPtT::onEnd() const {
@@ -89,13 +89,15 @@ SkOpSegment* SkOpPtT::segment() {
 // find the starting or ending span with an existing loop of angles
 // OPTIMIZE? remove the spans pointing to windValue==0 here or earlier?
 // FIXME? assert that only one other span has a valid windValue or oppValue
-void SkOpSpanBase::addSimpleAngle(bool checkFrom, SkChunkAlloc* allocator) {
+bool SkOpSpanBase::addSimpleAngle(bool checkFrom, SkChunkAlloc* allocator) {
     SkOpAngle* angle;
     if (checkFrom) {
-        SkASSERT(this->final());
+        if (!this->final()) {
+            return false;
+        }
         if (this->fromAngle()) {
             SkASSERT(this->fromAngle()->loopCount() == 2);
-            return;
+            return true;
         }
         angle = this->segment()->addEndSpan(allocator);
     } else {
@@ -105,7 +107,7 @@ void SkOpSpanBase::addSimpleAngle(bool checkFrom, SkChunkAlloc* allocator) {
             SkASSERT(span->toAngle()->loopCount() == 2);
             SkASSERT(!span->fromAngle());
             span->setFromAngle(span->toAngle()->next());
-            return;
+            return true;
         }
         angle = this->segment()->addStartSpan(allocator);
     }
@@ -140,6 +142,7 @@ void SkOpSpanBase::addSimpleAngle(bool checkFrom, SkChunkAlloc* allocator) {
         SkASSERT(oAngle == oSpanBase->fromAngle());
     }
     angle->insert(oAngle);
+    return true;
 }
 
 void SkOpSpanBase::align() {
@@ -274,8 +277,8 @@ void SkOpSpanBase::initBase(SkOpSegment* segment, SkOpSpan* prev, double t, cons
     fPrev = prev;
     fAligned = true;
     fChased = false;
-    PATH_OPS_DEBUG_CODE(fCount = 1);
-    PATH_OPS_DEBUG_CODE(fID = globalState()->nextSpanID());
+    SkDEBUGCODE(fCount = 1);
+    SkDEBUGCODE(fID = globalState()->nextSpanID());
 }
 
 // this pair of spans share a common t value or point; merge them and eliminate duplicates

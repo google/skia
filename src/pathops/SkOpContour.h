@@ -32,6 +32,10 @@ public:
                 : fBounds.fTop < rh.fBounds.fTop;
     }
 
+    void addConic(SkPoint pts[3], SkScalar weight, SkChunkAlloc* allocator) {
+        appendSegment(allocator).addConic(pts, weight, this);
+    }
+
     void addCubic(SkPoint pts[4], SkChunkAlloc* allocator) {
         appendSegment(allocator).addCubic(pts, this);
     }
@@ -98,11 +102,11 @@ public:
     }
 
     int debugID() const {
-        return PATH_OPS_DEBUG_RELEASE(fID, -1);
+        return SkDEBUGRELEASE(fID, -1);
     }
 
     int debugIndent() const {
-        return PATH_OPS_DEBUG_RELEASE(fIndent, 0);
+        return SkDEBUGRELEASE(fIndent, 0);
     }
 
 #if DEBUG_ACTIVE_SPANS
@@ -115,23 +119,23 @@ public:
 #endif
 
     const SkOpAngle* debugAngle(int id) const {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugAngle(id), NULL);
+        return SkDEBUGRELEASE(globalState()->debugAngle(id), NULL);
     }
 
     SkOpContour* debugContour(int id) {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugContour(id), NULL);
+        return SkDEBUGRELEASE(globalState()->debugContour(id), NULL);
     }
 
     const SkOpPtT* debugPtT(int id) const {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugPtT(id), NULL);
+        return SkDEBUGRELEASE(globalState()->debugPtT(id), NULL);
     }
 
     const SkOpSegment* debugSegment(int id) const {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugSegment(id), NULL);
+        return SkDEBUGRELEASE(globalState()->debugSegment(id), NULL);
     }
 
     const SkOpSpanBase* debugSpan(int id) const {
-        return PATH_OPS_DEBUG_RELEASE(globalState()->debugSpan(id), NULL);
+        return SkDEBUGRELEASE(globalState()->debugSpan(id), NULL);
     }
 
     SkOpGlobalState* globalState() const {
@@ -181,13 +185,14 @@ public:
     }
 
     void indentDump() {
-        PATH_OPS_DEBUG_CODE(fIndent += 2);
+        SkDEBUGCODE(fIndent += 2);
     }
 
     void init(SkOpGlobalState* globalState, bool operand, bool isXor) {
         fState = globalState;
         fOperand = operand;
         fXor = isXor;
+        SkDEBUGCODE(fID = globalState->nextContourID());
     }
 
     bool isXor() const {
@@ -236,7 +241,7 @@ public:
     }
 
     void outdentDump() {
-        PATH_OPS_DEBUG_CODE(fIndent -= 2);
+        SkDEBUGCODE(fIndent -= 2);
     }
 
     void remove(SkOpContour* contour) {
@@ -262,7 +267,7 @@ public:
         fDone = false;
         SkDEBUGCODE(fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin));
         SkDEBUGCODE(fFirstSorted = -1);
-        PATH_OPS_DEBUG_CODE(fIndent = 0);
+        SkDEBUGCODE(fIndent = 0);
     }
 
     void setBounds() {
@@ -349,8 +354,8 @@ private:
     bool fOperand;  // true for the second argument to a binary operator
     bool fXor;  // set if original path had even-odd fill
     bool fOppXor;  // set if opposite path had even-odd fill
-    PATH_OPS_DEBUG_CODE(int fID);
-    PATH_OPS_DEBUG_CODE(int fIndent);
+    SkDEBUGCODE(int fID);
+    SkDEBUGCODE(int fIndent);
 };
 
 #endif

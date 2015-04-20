@@ -47,6 +47,14 @@ bool SkDQuad::hullIntersects(const SkDQuad& q2, bool* isLinear) const {
     return true;
 }
 
+bool SkDQuad::hullIntersects(const SkDConic& conic, bool* isLinear) const {
+    return conic.hullIntersects(*this, isLinear);
+}
+
+bool SkDQuad::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
+    return cubic.hullIntersects(*this, isLinear);
+}
+
 /* bit twiddling for finding the off curve index (x&~m is the pair in [0,1,2] excluding oddMan)
 oddMan    opp   x=oddMan^opp  x=x-oddMan  m=x>>2   x&~m
     0       1         1            1         0       1
@@ -198,6 +206,13 @@ bool SkDQuad::isLinear(int startIndex, int endIndex) const {
     return approximately_zero_when_compared_to(distance, largest);
 }
 
+SkDConic SkDQuad::toConic() const {
+    SkDConic conic;
+    memcpy(conic.fPts.fPts, fPts, sizeof(fPts));
+    conic.fWeight = 1;
+    return conic;
+}
+
 SkDCubic SkDQuad::toCubic() const {
     SkDCubic cubic;
     cubic[0] = fPts[0];
@@ -236,6 +251,17 @@ SkDPoint SkDQuad::ptAtT(double t) const {
     return result;
 }
 
+static double interp_quad_coords(const double* src, double t) {
+    double ab = SkDInterp(src[0], src[2], t);
+    double bc = SkDInterp(src[2], src[4], t);
+    double abc = SkDInterp(ab, bc, t);
+    return abc;
+}
+
+bool SkDQuad::monotonicInY() const {
+    return between(fPts[0].fY, fPts[1].fY, fPts[2].fY);
+}
+
 /*
 Given a quadratic q, t1, and t2, find a small quadratic segment.
 
@@ -259,17 +285,7 @@ Group the known values on one side:
 B   = D*2 - A/2 - C/2
 */
 
-static double interp_quad_coords(const double* src, double t) {
-    double ab = SkDInterp(src[0], src[2], t);
-    double bc = SkDInterp(src[2], src[4], t);
-    double abc = SkDInterp(ab, bc, t);
-    return abc;
-}
-
-bool SkDQuad::monotonicInY() const {
-    return between(fPts[0].fY, fPts[1].fY, fPts[2].fY);
-}
-
+// OPTIMIZE : special case either or both of t1 = 0, t2 = 1 
 SkDQuad SkDQuad::subDivide(double t1, double t2) const {
     SkDQuad dst;
     double ax = dst[0].fX = interp_quad_coords(&fPts[0].fX, t1);
@@ -278,8 +294,8 @@ SkDQuad SkDQuad::subDivide(double t1, double t2) const {
     double dy = interp_quad_coords(&fPts[0].fY, (t1 + t2) / 2);
     double cx = dst[2].fX = interp_quad_coords(&fPts[0].fX, t2);
     double cy = dst[2].fY = interp_quad_coords(&fPts[0].fY, t2);
-    /* bx = */ dst[1].fX = 2*dx - (ax + cx)/2;
-    /* by = */ dst[1].fY = 2*dy - (ay + cy)/2;
+    /* bx = */ dst[1].fX = 2 * dx - (ax + cx) / 2;
+    /* by = */ dst[1].fY = 2 * dy - (ay + cy) / 2;
     return dst;
 }
 
