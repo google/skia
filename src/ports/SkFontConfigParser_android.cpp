@@ -126,11 +126,12 @@ static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
 
 namespace lmpParser {
 
-static void family_element_handler(FontFamily* family, const char** attributes) {
+static void family_element_handler(FamilyData* self, const char** attributes) {
     // A <family> element without a 'name' (string) attribute is a fallback font.
     // The element may have 'lang' (string) and 'variant' ("elegant", "compact") attributes.
     // The element should contain <font> elements.
-    family->fIsFallbackFont = true;
+    FontFamily* family = new FontFamily(self->fBasePath, true);
+    self->fCurrentFamily.reset(family);
     for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
         const char* name = attributes[i];
         const char* value = attributes[i+1];
@@ -157,28 +158,30 @@ static void XMLCALL font_file_name_handler(void* data, const char* s, int len) {
     self->fCurrentFontInfo->fFileName.append(s, len);
 }
 
-static void font_element_handler(FamilyData* self, FontFileInfo* file, const char** attributes) {
+static void font_element_handler(FamilyData* self, const char** attributes) {
     // A <font> element should be contained in a <family> element.
     // The element may have 'weight' (non-negative integer), 'style' ("normal", "italic"),
     // and 'index' (non-negative integer) attributes.
     // The element should contain a filename.
+    FontFileInfo& file = self->fCurrentFamily->fFonts.push_back();
+    self->fCurrentFontInfo = &file;
     for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
         const char* name = attributes[i];
         const char* value = attributes[i+1];
         size_t nameLen = strlen(name);
         if (MEMEQ("weight", name, nameLen)) {
-            if (!parse_non_negative_integer(value, &file->fWeight)) {
+            if (!parse_non_negative_integer(value, &file.fWeight)) {
                 SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid weight", value);
             }
         } else if (MEMEQ("style", name, nameLen)) {
             size_t valueLen = strlen(value);
             if (MEMEQ("normal", value, valueLen)) {
-                file->fStyle = FontFileInfo::Style::kNormal;
+                file.fStyle = FontFileInfo::Style::kNormal;
             } else if (MEMEQ("italic", value, valueLen)) {
-                file->fStyle = FontFileInfo::Style::kItalic;
+                file.fStyle = FontFileInfo::Style::kItalic;
             }
         } else if (MEMEQ("index", name, nameLen)) {
-            if (!parse_non_negative_integer(value, &file->fIndex)) {
+            if (!parse_non_negative_integer(value, &file.fIndex)) {
                 SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid index", value);
             }
         }
@@ -252,12 +255,9 @@ static void XMLCALL start_element_handler(void* data, const char* tag, const cha
     FamilyData* self = static_cast<FamilyData*>(data);
     size_t len = strlen(tag);
     if (MEMEQ("family", tag, len)) {
-        self->fCurrentFamily.reset(new FontFamily(self->fBasePath, self->fIsFallback));
-        family_element_handler(self->fCurrentFamily, attributes);
+        family_element_handler(self, attributes);
     } else if (MEMEQ("font", tag, len)) {
-        FontFileInfo* file = &self->fCurrentFamily->fFonts.push_back();
-        self->fCurrentFontInfo = file;
-        font_element_handler(self, file, attributes);
+        font_element_handler(self, attributes);
     } else if (MEMEQ("alias", tag, len)) {
         alias_element_handler(self, attributes);
     }
