@@ -565,7 +565,7 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                 SkScalar weight = iter.conicWeight();
                 const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
                 for (int i = 0; i < converter.countQuads(); ++i) {
-                    int pointsLeft = GrPathUtils::quadraticPointCount(quadPts, toleranceSqd);
+                    int pointsLeft = GrPathUtils::quadraticPointCount(quadPts, tolerance);
                     prev = generate_quadratic_points(quadPts[0], quadPts[1], quadPts[2],
                                                      toleranceSqd, prev, &head, pointsLeft, alloc);
                     quadPts += 2;
@@ -586,13 +586,13 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                 break;
             }
             case SkPath::kQuad_Verb: {
-                int pointsLeft = GrPathUtils::quadraticPointCount(pts, toleranceSqd);
+                int pointsLeft = GrPathUtils::quadraticPointCount(pts, tolerance);
                 prev = generate_quadratic_points(pts[0], pts[1], pts[2], toleranceSqd, prev,
                                                  &head, pointsLeft, alloc);
                 break;
             }
             case SkPath::kCubic_Verb: {
-                int pointsLeft = GrPathUtils::cubicPointCount(pts, toleranceSqd);
+                int pointsLeft = GrPathUtils::cubicPointCount(pts, tolerance);
                 prev = generate_cubic_points(pts[0], pts[1], pts[2], pts[3],
                                 toleranceSqd, prev, &head, pointsLeft, alloc);
                 break;
