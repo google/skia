@@ -11,6 +11,7 @@
 #include "GrTextContext.h"
 
 #include "GrBatchAtlas.h"
+#include "GrBatchFontCache.h"
 #include "GrGeometryProcessor.h"
 #include "SkDescriptor.h"
 #include "GrMemoryPool.h"
@@ -18,7 +19,6 @@
 #include "SkTextBlob.h"
 #include "SkTInternalLList.h"
 
-class GrBatchTextStrike;
 class GrPipelineBuilder;
 class GrTextBlobCache;
 
@@ -175,6 +175,7 @@ private:
                 int fSubRunCount;
                 int fSubRunAllocation;
             };
+            SkAutoTUnref<GrBatchTextStrike> fStrike;
             SkAutoTUnref<SkTypeface> fTypeface;
             SkRect fVertexBounds;
             SubRunInfoArray fSubRunInfo;
@@ -222,7 +223,7 @@ private:
 
         // all glyph / vertex offsets are into these pools.
         unsigned char* fVertices;
-        GrGlyph::PackedID* fGlyphIDs;
+        GrGlyph** fGlyphs;
         Run* fRuns;
         GrMemoryPool* fPool;
         SkMaskFilter::BlurRec fBlurRec;
@@ -287,7 +288,7 @@ private:
     inline void appendGlyphCommon(BitmapTextBlob*, Run*, Run::SubRunInfo*,
                                   const SkRect& positions, GrColor color,
                                   size_t vertexStride, bool useVertexColor,
-                                  GrGlyph::PackedID);
+                                  GrGlyph*);
 
     inline void flushRunAsPaths(const SkTextBlob::RunIterator&, const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,

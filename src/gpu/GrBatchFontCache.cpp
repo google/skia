@@ -74,7 +74,7 @@ GrBatchFontCache::GrBatchFontCache(GrContext* context)
 GrBatchFontCache::~GrBatchFontCache() {
     SkTDynamicHash<GrBatchTextStrike, GrFontDescKey>::Iter iter(&fCache);
     while (!iter.done()) {
-        SkDELETE(&(*iter));
+        (*iter).unref();
         ++iter;
     }
     for (int i = 0; i < kMaskFormatCount; ++i) {
@@ -85,7 +85,7 @@ GrBatchFontCache::~GrBatchFontCache() {
 void GrBatchFontCache::freeAll() {
     SkTDynamicHash<GrBatchTextStrike, GrFontDescKey>::Iter iter(&fCache);
     while (!iter.done()) {
-        SkDELETE(&(*iter));
+        (*iter).unref();
         ++iter;
     }
     fCache.rewind();
@@ -118,7 +118,8 @@ void GrBatchFontCache::HandleEviction(GrBatchAtlas::AtlasID id, void* ptr) {
         // triggered the eviction
         if (strike != fontCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
             fontCache->fCache.remove(*(strike->fFontScalerKey));
-            SkDELETE(strike);
+            strike->fIsAbandoned = true;
+            strike->unref();
         }
     }
 }
@@ -155,7 +156,8 @@ void GrBatchFontCache::dump() const {
 GrBatchTextStrike::GrBatchTextStrike(GrBatchFontCache* cache, const GrFontDescKey* key)
     : fFontScalerKey(SkRef(key))
     , fPool(9/*start allocations at 512 bytes*/)
-    , fAtlasedGlyphs(0) {
+    , fAtlasedGlyphs(0)
+    , fIsAbandoned(false) {
 
     fBatchFontCache = cache;     // no need to ref, it won't go away before we do
 }

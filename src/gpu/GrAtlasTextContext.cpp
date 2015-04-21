@@ -1164,8 +1164,10 @@ void GrAtlasTextContext::bmpAppendGlyph(BitmapTextBlob* blob, int runIndex,
                                         GrGlyph::PackedID packed,
                                         int vx, int vy, GrColor color, GrFontScaler* scaler,
                                         const SkIRect& clipRect) {
+    Run& run = blob->fRuns[runIndex];
     if (!fCurrStrike) {
         fCurrStrike = fContext->getBatchFontCache()->getStrike(scaler);
+        run.fStrike.reset(SkRef(fCurrStrike));
     }
 
     GrGlyph* glyph = fCurrStrike->getGlyph(packed, scaler);
@@ -1198,8 +1200,6 @@ void GrAtlasTextContext::bmpAppendGlyph(BitmapTextBlob* blob, int runIndex,
         return;
     }
 
-    Run& run = blob->fRuns[runIndex];
-
     GrMaskFormat format = glyph->fMaskFormat;
 
     PerSubRunInfo* subRun = &run.fSubRunInfo.back();
@@ -1218,7 +1218,7 @@ void GrAtlasTextContext::bmpAppendGlyph(BitmapTextBlob* blob, int runIndex,
     r.fBottom = r.fTop + SkIntToScalar(height);
     subRun->fMaskFormat = format;
     this->appendGlyphCommon(blob, &run, subRun, r, color, vertexStride, kA8_GrMaskFormat == format,
-                            packed);
+                            glyph);
 }
 
 bool GrAtlasTextContext::dfAppendGlyph(BitmapTextBlob* blob, int runIndex,
@@ -1227,8 +1227,10 @@ bool GrAtlasTextContext::dfAppendGlyph(BitmapTextBlob* blob, int runIndex,
                                        GrFontScaler* scaler,
                                        const SkIRect& clipRect,
                                        SkScalar textRatio, const SkMatrix& viewMatrix) {
+    Run& run = blob->fRuns[runIndex];
     if (!fCurrStrike) {
         fCurrStrike = fContext->getBatchFontCache()->getStrike(scaler);
+        run.fStrike.reset(SkRef(fCurrStrike));
     }
 
     GrGlyph* glyph = fCurrStrike->getGlyph(packed, scaler);
@@ -1275,8 +1277,6 @@ bool GrAtlasTextContext::dfAppendGlyph(BitmapTextBlob* blob, int runIndex,
         return true;
     }
 
-    Run& run = blob->fRuns[runIndex];
-
     PerSubRunInfo* subRun = &run.fSubRunInfo.back();
     SkASSERT(glyph->fMaskFormat == kA8_GrMaskFormat);
     subRun->fMaskFormat = kA8_GrMaskFormat;
@@ -1285,7 +1285,7 @@ bool GrAtlasTextContext::dfAppendGlyph(BitmapTextBlob* blob, int runIndex,
 
     bool useColorVerts = !subRun->fUseLCDText;
     this->appendGlyphCommon(blob, &run, subRun, glyphRect, color, vertexStride, useColorVerts,
-                            packed);
+                            glyph);
     return true;
 }
 
@@ -1308,8 +1308,8 @@ inline void GrAtlasTextContext::appendGlyphCommon(BitmapTextBlob* blob, Run* run
                                                   Run::SubRunInfo* subRun,
                                                   const SkRect& positions, GrColor color,
                                                   size_t vertexStride, bool useVertexColor,
-                                                  GrGlyph::PackedID packed) {
-    blob->fGlyphIDs[subRun->fGlyphEndIndex] = packed;
+                                                  GrGlyph* glyph) {
+    blob->fGlyphs[subRun->fGlyphEndIndex] = glyph;
     run->fVertexBounds.joinNonEmptyArg(positions);
     run->fColor = color;
 
@@ -1508,7 +1508,6 @@ public:
         const SkDescriptor* desc = NULL;
         SkGlyphCache* cache = NULL;
         GrFontScaler* scaler = NULL;
-        GrBatchTextStrike* strike = NULL;
         SkTypeface* typeface = NULL;
 
         int instancesToFlush = 0;
@@ -1540,6 +1539,17 @@ public:
             if (regenerateTextureCoords || regenerateColors || regeneratePositions) {
                 // first regenerate texture coordinates / colors if need be
                 bool brokenRun = false;
+
+                // Because the GrBatchFontCache may evict the strike a blob depends on using for
+                // generating its texture coords, we have to track whether or not the strike has
+                // been abandoned.  If it hasn't been abandoned, then we can use the GrGlyph*s as is
+                // otherwise we have to get the new strike, and use that to get the correct glyphs.
+                // Because we do not have the packed ids, and thus can't look up our glyphs in the
+                // new strike, we instead keep our ref to the old strike and use the packed ids from
+                // it.  These ids will still be valid as long as we hold the ref.  When we are done
+                // updating our cache of the GrGlyph*s, we drop our ref on the old strike
+                bool regenerateGlyphs = false;
+                GrBatchTextStrike* strike = NULL;
                 if (regenerateTextureCoords) {
                     info.fBulkUseToken.reset();
 
@@ -1556,16 +1566,30 @@ public:
                         desc = newDesc;
                         cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
                         scaler = GrTextContext::GetGrFontScaler(cache);
-                        strike = fFontCache->getStrike(scaler);
+                        strike = run.fStrike;
                         typeface = run.fTypeface;
                     }
-                }
-                for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
-                    GrGlyph::PackedID glyphID = blob->fGlyphIDs[glyphIdx + info.fGlyphStartIndex];
 
+                    if (run.fStrike->isAbandoned()) {
+                        regenerateGlyphs = true;
+                        strike = fFontCache->getStrike(scaler);
+                    } else {
+                        strike = run.fStrike;
+                    }
+                }
+
+                for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
                     if (regenerateTextureCoords) {
-                        // Upload the glyph only if needed
-                        GrGlyph* glyph = strike->getGlyph(glyphID, scaler);
+                        size_t glyphOffset = glyphIdx + info.fGlyphStartIndex;
+                        GrGlyph* glyph;
+                        if (regenerateGlyphs) {
+                            // Get the id from the old glyph, and use the new strike to lookup
+                            // the glyph.
+                            glyph = blob->fGlyphs[glyphOffset];
+                            blob->fGlyphs[glyphOffset] = strike->getGlyph(glyph->fPackedID,
+                                                                          scaler);
+                        }
+                        glyph = blob->fGlyphs[glyphOffset];
                         SkASSERT(glyph);
 
                         if (!fFontCache->hasGlyph(glyph) &&
@@ -1576,7 +1600,8 @@ public:
                             instancesToFlush = 0;
                             brokenRun = glyphIdx > 0;
 
-                            SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(batchTarget, glyph,
+                            SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(batchTarget,
+                                                                                glyph,
                                                                                 scaler);
                             SkASSERT(success);
                         }
@@ -1614,6 +1639,9 @@ public:
                 // We my have changed the color so update it here
                 run.fColor = args.fColor;
                 if (regenerateTextureCoords) {
+                    if (regenerateGlyphs) {
+                        run.fStrike.reset(SkRef(strike));
+                    }
                     info.fAtlasGeneration = brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
                                                         fFontCache->atlasGeneration(fMaskFormat);
                 }

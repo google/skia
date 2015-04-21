@@ -24,7 +24,7 @@ class GrGpu;
  *  is abstracted by GrGlyph, and indexed by a PackedID and GrFontScaler.  The GrFontScaler is what
  *  actually creates the mask.
  */
-class GrBatchTextStrike {
+class GrBatchTextStrike : public SkNVRefCnt<GrBatchTextStrike> {
 public:
     GrBatchTextStrike(GrBatchFontCache*, const GrFontDescKey* fontScalerKey);
     ~GrBatchTextStrike();
@@ -52,6 +52,9 @@ public:
     // remove any references to this plot
     void removeID(GrBatchAtlas::AtlasID);
 
+    // If a TextStrike is abandoned by the cache, then the caller must get a new strike
+    bool isAbandoned() const { return fIsAbandoned; }
+
     static const GrFontDescKey& GetKey(const GrBatchTextStrike& ts) {
         return *(ts.fFontScalerKey);
     }
@@ -66,6 +69,7 @@ private:
 
     GrBatchFontCache* fBatchFontCache;
     int fAtlasedGlyphs;
+    bool fIsAbandoned;
 
     GrGlyph* generateGlyph(GrGlyph::PackedID packed, GrFontScaler* scaler);
 
@@ -84,7 +88,10 @@ class GrBatchFontCache {
 public:
     GrBatchFontCache(GrContext*);
     ~GrBatchFontCache();
-
+    // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
+    // another client of the cache may cause the strike to be purged while it is still reffed.
+    // Therefore, the caller must check GrBatchTextStrike::isAbandoned() if there are other
+    // interactions with the cache since the strike was received.
     inline GrBatchTextStrike* getStrike(GrFontScaler* scaler) {
         GrBatchTextStrike* strike = fCache.find(*(scaler->getKey()));
         if (NULL == strike) {

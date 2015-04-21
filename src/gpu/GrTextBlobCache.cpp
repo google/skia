@@ -20,16 +20,15 @@ GrAtlasTextContext::BitmapTextBlob* GrTextBlobCache::createBlob(int glyphCount, 
     size_t verticesCount = glyphCount * kVerticesPerGlyph * maxVASize;
     size_t size = sizeof(BitmapTextBlob) +
                   verticesCount +
-                  glyphCount * sizeof(GrGlyph::PackedID) +
+                  glyphCount * sizeof(GrGlyph**) +
                   sizeof(BitmapTextBlob::Run) * runCount;
 
     BitmapTextBlob* cacheBlob = SkNEW_PLACEMENT(fPool.allocate(size), BitmapTextBlob);
 
     // setup offsets for vertices / glyphs
     cacheBlob->fVertices = sizeof(BitmapTextBlob) + reinterpret_cast<unsigned char*>(cacheBlob);
-    cacheBlob->fGlyphIDs =
-            reinterpret_cast<GrGlyph::PackedID*>(cacheBlob->fVertices + verticesCount);
-    cacheBlob->fRuns = reinterpret_cast<BitmapTextBlob::Run*>(cacheBlob->fGlyphIDs + glyphCount);
+    cacheBlob->fGlyphs = reinterpret_cast<GrGlyph**>(cacheBlob->fVertices + verticesCount);
+    cacheBlob->fRuns = reinterpret_cast<BitmapTextBlob::Run*>(cacheBlob->fGlyphs + glyphCount);
 
     // Initialize runs
     for (int i = 0; i < runCount; i++) {
