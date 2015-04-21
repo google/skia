@@ -28,7 +28,6 @@ DEF_GPUTEST(GLInterfaceValidation, reporter, factory) {
             continue;
         }
 
-        REPORTER_ASSERT(reporter, glCtx);
         if (glCtx) {
             const GrGLInterface* interface = glCtx->gl();
             REPORTER_ASSERT(reporter, interface->validate());
