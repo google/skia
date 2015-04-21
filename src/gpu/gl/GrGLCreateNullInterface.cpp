@@ -357,6 +357,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fBindTexture = nullGLBindTexture;
     functions->fBindVertexArray = nullGLBindVertexArray;
     functions->fBlendColor = noOpGLBlendColor;
+    functions->fBlendEquation = noOpGLBlendEquation;
     functions->fBlendFunc = noOpGLBlendFunc;
     functions->fBufferData = nullGLBufferData;
     functions->fBufferSubData = noOpGLBufferSubData;
