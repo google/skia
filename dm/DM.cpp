@@ -300,8 +300,8 @@ static void push_sink(const char* tag, Sink* s) {
     SkString log;
     Error err = sink->draw(noop, &bitmap, &stream, &log);
     if (err.isFatal()) {
-        SkDebugf("Skipping %s: %s\n", tag, err.c_str());
-        return;
+        SkDebugf("Could not run %s: %s\n", tag, err.c_str());
+        exit(1);
     }
 
     Tagged<Sink>& ts = gSinks.push_back();
