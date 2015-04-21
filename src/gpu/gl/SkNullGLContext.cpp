@@ -360,7 +360,6 @@ static GrGLInterface* create_null_interface(State* state) {
     functions->fBindTexture = nullGLBindTexture;
     functions->fBindVertexArray = nullGLBindVertexArray;
     functions->fBlendColor = noOpGLBlendColor;
-    functions->fBlendEquation = noOpGLBlendEquation;
     functions->fBlendFunc = noOpGLBlendFunc;
     functions->fBufferData = nullGLBufferData;
     functions->fBufferSubData = noOpGLBufferSubData;

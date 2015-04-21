@@ -13,16 +13,14 @@
 
 // These are constants/functions that are common to the Null and Debug GL interface implementations.
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLBindFragDataLocation(GrGLuint program,
-                                                        GrGLuint colorNumber,
-                                                        const GrGLchar* name);
-
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLBlendColor(GrGLclampf red,
                                               GrGLclampf green,
                                               GrGLclampf blue,
                                               GrGLclampf alpha);
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLBlendEquation(GrGLenum mode);
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLBindFragDataLocation(GrGLuint program,
+                                                        GrGLuint colorNumber,
+                                                        const GrGLchar* name);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLBlendFunc(GrGLenum sfactor,
                                              GrGLenum dfactor);

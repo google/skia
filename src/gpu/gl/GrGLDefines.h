@@ -45,28 +45,6 @@
 /*      GL_GEQUAL */
 /*      GL_ALWAYS */
 
-/* Basic OpenGL blend equations */
-#define GR_GL_FUNC_ADD                       0x8006
-#define GR_GL_FUNC_SUBTRACT                  0x800A
-#define GR_GL_FUNC_REVERSE_SUBTRACT          0x800B
-
-/* GL_KHR_blend_equation_advanced */
-#define GR_GL_SCREEN                         0x9295
-#define GR_GL_OVERLAY                        0x9296
-#define GR_GL_DARKEN                         0x9297
-#define GR_GL_LIGHTEN                        0x9298
-#define GR_GL_COLORDODGE                     0x9299
-#define GR_GL_COLORBURN                      0x929A
-#define GR_GL_HARDLIGHT                      0x929B
-#define GR_GL_SOFTLIGHT                      0x929C
-#define GR_GL_DIFFERENCE                     0x929E
-#define GR_GL_EXCLUSION                      0x92A0
-#define GR_GL_MULTIPLY                       0x9294
-#define GR_GL_HSL_HUE                        0x92AD
-#define GR_GL_HSL_SATURATION                 0x92AE
-#define GR_GL_HSL_COLOR                      0x92AF
-#define GR_GL_HSL_LUMINOSITY                 0x92B0
-
 /* BlendingFactorDest */
 #define GR_GL_ZERO                           0
 #define GR_GL_ONE                            1

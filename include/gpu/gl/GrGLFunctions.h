@@ -72,12 +72,10 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFramebufferProc)(GrGLenum target, GrGLuint framebuffer);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindRenderbufferProc)(GrGLenum target, GrGLuint renderbuffer);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindTextureProc)(GrGLenum target, GrGLuint texture);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFragDataLocationProc)(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindVertexArrayProc)(GrGLuint array);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendBarrierProc)();
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendEquationProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendFuncProc)(GrGLenum sfactor, GrGLenum dfactor);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlitFramebufferProc)(GrGLint srcX0, GrGLint srcY0, GrGLint srcX1, GrGLint srcY1, GrGLint dstX0, GrGLint dstY0, GrGLint dstX1, GrGLint dstY1, GrGLbitfield mask, GrGLenum filter);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBufferDataProc)(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage);

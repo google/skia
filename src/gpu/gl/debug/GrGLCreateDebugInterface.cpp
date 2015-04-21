@@ -850,7 +850,6 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     functions->fBindTexture = debugGLBindTexture;
     functions->fBindVertexArray = debugGLBindVertexArray;
     functions->fBlendColor = noOpGLBlendColor;
-    functions->fBlendEquation = noOpGLBlendEquation;
     functions->fBlendFunc = noOpGLBlendFunc;
     functions->fBufferData = debugGLBufferData;
     functions->fBufferSubData = noOpGLBufferSubData;

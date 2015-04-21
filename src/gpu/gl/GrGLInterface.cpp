@@ -114,9 +114,8 @@ bool GrGLInterface::validate() const {
         NULL == fFunctions.fBindAttribLocation ||
         NULL == fFunctions.fBindBuffer ||
         NULL == fFunctions.fBindTexture ||
-        NULL == fFunctions.fBlendColor ||      // -> GL >= 1.4 or extension, ES >= 2.0
-        NULL == fFunctions.fBlendEquation ||   // -> GL >= 1.4 or extension, ES >= 2.0
         NULL == fFunctions.fBlendFunc ||
+        NULL == fFunctions.fBlendColor ||      // -> GL >= 1.4, ES >= 2.0 or extension
         NULL == fFunctions.fBufferData ||
         NULL == fFunctions.fBufferSubData ||
         NULL == fFunctions.fClear ||
@@ -318,13 +317,6 @@ bool GrGLInterface::validate() const {
         }
     } else if (fExtensions.has("GL_NV_texture_barrier")) {
         if (NULL == fFunctions.fTextureBarrier) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
-    if (fExtensions.has("GL_KHR_blend_equation_advanced") ||
-        fExtensions.has("GL_NV_blend_equation_advanced")) {
-        if (NULL == fFunctions.fBlendBarrier) {
             RETURN_FALSE_INTERFACE
         }
     }
