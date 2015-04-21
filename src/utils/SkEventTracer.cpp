@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
 #include "SkEventTracer.h"
-#include "SkOnce.h"
+#include "SkLazyPtr.h"
 
-class SkDefaultEventTracer: public SkEventTracer {
+class SkDefaultEventTracer : public SkEventTracer {
     virtual SkEventTracer::Handle
         addTraceEvent(char phase,
                       const uint8_t* categoryEnabledFlag,
@@ -36,24 +37,23 @@ class SkDefaultEventTracer: public SkEventTracer {
     };
 };
 
-SkEventTracer* SkEventTracer::gInstance;
+// We prefer gUserTracer if it's been set, otherwise we fall back on gDefaultTracer.
+static SkEventTracer* gUserTracer = nullptr;
+SK_DECLARE_STATIC_LAZY_PTR(SkDefaultEventTracer, gDefaultTracer);
 
-static void cleanup_tracer() {
-    // calling SetInstance will delete the existing instance.
-    SkEventTracer::SetInstance(NULL);
+// We can use relaxed memory order for gUserTracer loads and stores.
+// It's not guarding anything but itself.
+
+void SkEventTracer::SetInstance(SkEventTracer* tracer) {
+    SkASSERT(nullptr == sk_atomic_load(&gUserTracer, sk_memory_order_relaxed));
+    sk_atomic_store(&gUserTracer, tracer, sk_memory_order_relaxed);
+    // An atomic load during process shutdown is probably overkill, but safe overkill.
+    atexit([](){ SkDELETE(sk_atomic_load(&gUserTracer, sk_memory_order_relaxed)); });
 }
 
-static void intialize_default_tracer(SkEventTracer* current_instance) {
-    if (NULL == current_instance) {
-        SkEventTracer::SetInstance(SkNEW(SkDefaultEventTracer));
-    }
-    atexit(cleanup_tracer);
-}
-
-
-SK_DECLARE_STATIC_ONCE(once);
 SkEventTracer* SkEventTracer::GetInstance() {
-    SkOnce(&once, intialize_default_tracer, SkEventTracer::gInstance);
-    SkASSERT(SkEventTracer::gInstance);
-    return SkEventTracer::gInstance;
+    if (SkEventTracer* tracer = sk_atomic_load(&gUserTracer, sk_memory_order_relaxed)) {
+        return tracer;
+    }
+    return gDefaultTracer.get();
 }

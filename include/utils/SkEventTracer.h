@@ -29,10 +29,7 @@ public:
 
     static SkEventTracer* GetInstance();
 
-    static void SetInstance(SkEventTracer* tracer) {
-        SkDELETE(SkEventTracer::gInstance);
-        SkEventTracer::gInstance = tracer;
-    }
+    static void SetInstance(SkEventTracer*);
 
     virtual ~SkEventTracer() { }
 
@@ -68,8 +65,6 @@ public:
         updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
                                  const char* name,
                                  SkEventTracer::Handle handle) = 0;
-private:
-    static SkEventTracer *gInstance;
 };
 
 #endif // SkEventTracer_DEFINED
