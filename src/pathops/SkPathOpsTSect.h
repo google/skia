@@ -16,17 +16,7 @@ template<typename TCurve, typename OppCurve>
 class SkTCoincident {
 public:
     SkTCoincident() {
-        this->clear();
-    }
-
-    void clear() {
-        fPerpT = -1;
-        fCoincident = false;
-    }
-
-    void debugInit() {
-        this->clear();
-        fPerpPt.fX = fPerpPt.fY = SK_ScalarNaN;
+        this->init();
     }
 
     void dump() const;
@@ -36,8 +26,9 @@ public:
     }
 
     void init() {
-        this->clear();
-        SkDEBUGCODE(fPerpPt.fX = fPerpPt.fY = SK_ScalarNaN);
+        fPerpT = -1;
+        fCoincident = false;
+        fPerpPt.fX = fPerpPt.fY = SK_ScalarNaN;
     }
 
     void markCoincident() {
@@ -85,8 +76,8 @@ public:
         dummy.debugInit();
         init(dummy);
         initBounds(dummy);
-        fCoinStart.debugInit();
-        fCoinEnd.debugInit();
+        fCoinStart.init();
+        fCoinEnd.init();
     }
 
     const SkTSect<OppCurve, TCurve>* debugOpp() const;
@@ -329,7 +320,7 @@ void SkTCoincident<TCurve, OppCurve>::setPerp(const TCurve& c1, double t,
     int used = i.intersectRay(c2, perp);
     // only keep closest
     if (used == 0 || used == 3) {
-        this->clear();
+        this->init();
         return;
     } 
     fPerpT = i[0][0];
@@ -993,7 +984,7 @@ void SkTSect<TCurve, OppCurve>::computePerpendiculars(SkTSect<OppCurve, TCurve>*
             if (work->fCoinStart.isCoincident()) {
                 double perpT = work->fCoinStart.perpT();
                 if (sect2->coincidentHasT(perpT)) {
-                    work->fCoinStart.clear();
+                    work->fCoinStart.init();
                 } else {
                     sect2->addForPerp(work, perpT);
                 }
@@ -1002,7 +993,7 @@ void SkTSect<TCurve, OppCurve>::computePerpendiculars(SkTSect<OppCurve, TCurve>*
             if (work->fCoinEnd.isCoincident()) {
                 double perpT = work->fCoinEnd.perpT();
                 if (sect2->coincidentHasT(perpT)) {
-                    work->fCoinEnd.clear();
+                    work->fCoinEnd.init();
                 } else {
                     sect2->addForPerp(work, perpT);
                 }
