@@ -1503,6 +1503,14 @@ public:
         drawInfo.setVertexBuffer(vertexBuffer);
         drawInfo.setIndexBuffer(quadIndexBuffer);
 
+        // We cache some values to avoid going to the glyphcache for the same fontScaler twice
+        // in a row
+        const SkDescriptor* desc = NULL;
+        SkGlyphCache* cache = NULL;
+        GrFontScaler* scaler = NULL;
+        GrBatchTextStrike* strike = NULL;
+        SkTypeface* typeface = NULL;
+
         int instancesToFlush = 0;
         for (int i = 0; i < instanceCount; i++) {
             Geometry& args = fGeoData[i];
@@ -1531,18 +1539,26 @@ public:
             // should be pretty rare, so we just always regenerate in those cases
             if (regenerateTextureCoords || regenerateColors || regeneratePositions) {
                 // first regenerate texture coordinates / colors if need be
-                const SkDescriptor* desc = NULL;
-                SkGlyphCache* cache = NULL;
-                GrFontScaler* scaler = NULL;
-                GrBatchTextStrike* strike = NULL;
                 bool brokenRun = false;
                 if (regenerateTextureCoords) {
                     info.fBulkUseToken.reset();
-                    desc = info.fOverrideDescriptor ? info.fOverrideDescriptor->getDesc() :
-                                                      run.fDescriptor.getDesc();
-                    cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
-                    scaler = GrTextContext::GetGrFontScaler(cache);
-                    strike = fFontCache->getStrike(scaler);
+
+                    // We can reuse if we have a valid strike and our descriptors / typeface are the
+                    // same
+                    const SkDescriptor* newDesc = info.fOverrideDescriptor ?
+                                                  info.fOverrideDescriptor->getDesc() :
+                                                  run.fDescriptor.getDesc();
+                    if (!cache || !SkTypeface::Equal(typeface, run.fTypeface) ||
+                                  !(desc->equals(*newDesc))) {
+                        if (cache) {
+                            SkGlyphCache::AttachCache(cache);
+                        }
+                        desc = newDesc;
+                        cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
+                        scaler = GrTextContext::GetGrFontScaler(cache);
+                        strike = fFontCache->getStrike(scaler);
+                        typeface = run.fTypeface;
+                    }
                 }
                 for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
                     GrGlyph::PackedID glyphID = blob->fGlyphIDs[glyphIdx + info.fGlyphStartIndex];
@@ -1598,7 +1614,6 @@ public:
                 // We my have changed the color so update it here
                 run.fColor = args.fColor;
                 if (regenerateTextureCoords) {
-                    SkGlyphCache::AttachCache(cache);
                     info.fAtlasGeneration = brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
                                                         fFontCache->atlasGeneration(fMaskFormat);
                 }
@@ -1618,7 +1633,10 @@ public:
 
             currVertex += byteCount;
         }
-
+        // Make sure to attach the last cache if applicable
+        if (cache) {
+            SkGlyphCache::AttachCache(cache);
+        }
         this->flush(batchTarget, &drawInfo, instancesToFlush, maxInstancesPerDraw);
     }
 
