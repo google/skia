@@ -39,6 +39,7 @@ struct GrGlyph {
     GrMaskFormat          fMaskFormat;
     GrIRect16             fBounds;
     SkIPoint16            fAtlasLocation;
+    bool                  fTooLargeForAtlas;
 
     void init(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format) {
         fID = GrBatchAtlas::kInvalidAtlasID;
@@ -48,6 +49,7 @@ struct GrGlyph {
         fBounds.set(bounds);
         fMaskFormat = format;
         fAtlasLocation.set(0, 0);
+        fTooLargeForAtlas = GrBatchAtlas::GlyphTooLargeForAtlas(bounds.width(), bounds.height());
     }
 
     void free() {
@@ -97,7 +99,7 @@ struct GrGlyph {
     }
 
     static inline uint32_t Hash(GrGlyph::PackedID key) {
-        return SkChecksum::Murmur3(&key, sizeof(key));
+        return SkChecksum::Mix(key);
     }
 };
 

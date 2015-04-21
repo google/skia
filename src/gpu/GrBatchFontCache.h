@@ -40,9 +40,6 @@ public:
         return glyph;
     }
 
-    // returns true if glyph (or glyph+padding for distance field)
-    // is too large to ever fit in texture atlas subregions (GrPlots)
-    bool glyphTooLargeForAtlas(GrGlyph*);
     // returns true if glyph successfully added to texture atlas, false otherwise
     bool addGlyphToAtlas(GrBatchTarget*, GrGlyph*, GrFontScaler*);
 

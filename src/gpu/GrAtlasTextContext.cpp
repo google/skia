@@ -1201,7 +1201,7 @@ void GrAtlasTextContext::bmpAppendGlyph(BitmapTextBlob* blob, int runIndex,
     }
 
     GrGlyph* glyph = fCurrStrike->getGlyph(packed, scaler);
-    if (!glyph || glyph->fBounds.isEmpty()) {
+    if (!glyph) {
         return;
     }
 
@@ -1225,7 +1225,7 @@ void GrAtlasTextContext::bmpAppendGlyph(BitmapTextBlob* blob, int runIndex,
 #endif
 
     // If the glyph is too large we fall back to paths
-    if (fCurrStrike->glyphTooLargeForAtlas(glyph)) {
+    if (glyph->fTooLargeForAtlas) {
         this->appendGlyphPath(blob, glyph, scaler, vx, vy);
         return;
     }
@@ -1264,7 +1264,7 @@ bool GrAtlasTextContext::dfAppendGlyph(BitmapTextBlob* blob, int runIndex,
     }
 
     GrGlyph* glyph = fCurrStrike->getGlyph(packed, scaler);
-    if (!glyph || glyph->fBounds.isEmpty()) {
+    if (!glyph) {
         return true;
     }
 
@@ -1301,7 +1301,7 @@ bool GrAtlasTextContext::dfAppendGlyph(BitmapTextBlob* blob, int runIndex,
 
     // TODO combine with the above
     // If the glyph is too large we fall back to paths
-    if (fCurrStrike->glyphTooLargeForAtlas(glyph)) {
+    if (glyph->fTooLargeForAtlas) {
         this->appendGlyphPath(blob, glyph, scaler, SkScalarRoundToInt(sx - dx),
                                                    SkScalarRoundToInt(sy - dy));
         return true;
@@ -1345,39 +1345,52 @@ inline void GrAtlasTextContext::appendGlyphCommon(BitmapTextBlob* blob, Run* run
 
     intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + subRun->fVertexEndIndex);
 
-    // V0
-    SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
-    position->set(positions.fLeft, positions.fTop);
     if (useVertexColor) {
+        // V0
+        SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fLeft, positions.fTop);
         SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
         *colorPtr = color;
-    }
-    vertex += vertexStride;
+        vertex += vertexStride;
 
-    // V1
-    position = reinterpret_cast<SkPoint*>(vertex);
-    position->set(positions.fLeft, positions.fBottom);
-    if (useVertexColor) {
-        SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        // V1
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fLeft, positions.fBottom);
+        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
         *colorPtr = color;
-    }
-    vertex += vertexStride;
+        vertex += vertexStride;
 
-    // V2
-    position = reinterpret_cast<SkPoint*>(vertex);
-    position->set(positions.fRight, positions.fBottom);
-    if (useVertexColor) {
-        SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        // V2
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fRight, positions.fBottom);
+        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
         *colorPtr = color;
-    }
-    vertex += vertexStride;
+        vertex += vertexStride;
 
-    // V3
-    position = reinterpret_cast<SkPoint*>(vertex);
-    position->set(positions.fRight, positions.fTop);
-    if (useVertexColor) {
-        SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        // V3
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fRight, positions.fTop);
+        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
         *colorPtr = color;
+    } else {
+        // V0
+        SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fLeft, positions.fTop);
+        vertex += vertexStride;
+
+        // V1
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fLeft, positions.fBottom);
+        vertex += vertexStride;
+
+        // V2
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fRight, positions.fBottom);
+        vertex += vertexStride;
+
+        // V3
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fRight, positions.fTop);
     }
 
     subRun->fGlyphEndIndex++;

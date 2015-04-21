@@ -202,24 +202,6 @@ void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
     }
 }
 
-bool GrBatchTextStrike::glyphTooLargeForAtlas(GrGlyph* glyph) {
-    int width = glyph->fBounds.width();
-    int height = glyph->fBounds.height();
-    bool useDistanceField =
-            (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID));
-    int pad = useDistanceField ? 2 * SK_DistanceFieldPad : 0;
-    int plotWidth = (kA8_GrMaskFormat == glyph->fMaskFormat) ? GR_FONT_ATLAS_A8_PLOT_WIDTH
-                                                             : GR_FONT_ATLAS_PLOT_WIDTH;
-    if (width + pad > plotWidth) {
-        return true;
-    }
-    if (height + pad > GR_FONT_ATLAS_PLOT_HEIGHT) {
-        return true;
-    }
-
-    return false;
-}
-
 bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* glyph,
                                         GrFontScaler* scaler) {
     SkASSERT(glyph);

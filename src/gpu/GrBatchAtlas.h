@@ -112,6 +112,11 @@ public:
 
     void setLastUseTokenBulk(const BulkUseTokenUpdater& reffer, BatchToken);
 
+    static const int kGlyphMaxDim = 256;
+    static bool GlyphTooLargeForAtlas(int width, int height) {
+        return width > kGlyphMaxDim || height > kGlyphMaxDim;
+    }
+
 private:
     static int GetIndexFromID(AtlasID id) {
         return id & 0xffff;
