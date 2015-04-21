@@ -51,6 +51,7 @@ static const int kSmallDFFontLimit = 32;
 static const int kMediumDFFontSize = 72;
 static const int kMediumDFFontLimit = 72;
 static const int kLargeDFFontSize = 162;
+static const int kLargeDFFontLimit = 2 * kLargeDFFontSize;
 
 SkDEBUGCODE(static const int kExpectedDistanceAdjustTableSize = 8;)
 static const int kDistanceAdjustLumShift = 5;
@@ -326,8 +327,7 @@ bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTr
 #endif
         (*outTransX) = transX;
         (*outTransY) = transY;
-    } else {
-        SkASSERT(blob.hasDistanceField());
+    } else if (blob.hasDistanceField()) {
         // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
         // distance field being generated, so we have to regenerate in those cases
         SkScalar newMaxScale = viewMatrix.getMaxScale();
@@ -340,6 +340,9 @@ bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTr
         (*outTransX) = x - blob.fX;
         (*outTransY) = y - blob.fY;
     }
+    // It is possible that a blob has neither distanceField nor bitmaptext.  This is in the case
+    // when all of the runs inside the blob are drawn as paths.  In this case, we always regenerate
+    // the blob anyways at flush time, so no need to regenerate explicitly
 
     return false;
 }
@@ -441,7 +444,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
     SkScalar scaledTextSize = maxScale*skPaint.getTextSize();
     // Hinted text looks far better at small resolutions
     // Scaling up beyond 2x yields undesireable artifacts
-    if (scaledTextSize < kMinDFFontSize || scaledTextSize > 2 * kLargeDFFontSize) {
+    if (scaledTextSize < kMinDFFontSize || scaledTextSize > kLargeDFFontLimit) {
         return false;
     }
 
@@ -611,17 +614,17 @@ inline void GrAtlasTextContext::initDistanceFieldPaint(BitmapTextBlob* blob,
     SkScalar dfMaskScaleCeil;
     if (scaledTextSize <= kSmallDFFontLimit) {
         dfMaskScaleFloor = kMinDFFontSize;
-        dfMaskScaleCeil = kMediumDFFontLimit;
+        dfMaskScaleCeil = kSmallDFFontLimit;
         *textRatio = textSize / kSmallDFFontSize;
         skPaint->setTextSize(SkIntToScalar(kSmallDFFontSize));
     } else if (scaledTextSize <= kMediumDFFontLimit) {
-        dfMaskScaleFloor = kMediumDFFontLimit;
-        dfMaskScaleCeil = kLargeDFFontSize;
+        dfMaskScaleFloor = kSmallDFFontLimit;
+        dfMaskScaleCeil = kMediumDFFontLimit;
         *textRatio = textSize / kMediumDFFontSize;
         skPaint->setTextSize(SkIntToScalar(kMediumDFFontSize));
     } else {
-        dfMaskScaleFloor = kLargeDFFontSize;
-        dfMaskScaleCeil = 2 * kLargeDFFontSize;
+        dfMaskScaleFloor = kMediumDFFontLimit;
+        dfMaskScaleCeil = kLargeDFFontLimit;
         *textRatio = textSize / kLargeDFFontSize;
         skPaint->setTextSize(SkIntToScalar(kLargeDFFontSize));
     }
@@ -633,6 +636,7 @@ inline void GrAtlasTextContext::initDistanceFieldPaint(BitmapTextBlob* blob,
     // we look at the delta in scale between the new viewmatrix and the old viewmatrix, and test
     // against these values to decide if we can reuse or not(ie, will a given scale change our mip
     // level)
+    SkASSERT(dfMaskScaleFloor <= scaledTextSize && scaledTextSize <= dfMaskScaleCeil);
     blob->fMaxMinScale = SkMaxScalar(dfMaskScaleFloor / scaledTextSize, blob->fMaxMinScale);
     blob->fMinMaxScale = SkMinScalar(dfMaskScaleCeil / scaledTextSize, blob->fMinMaxScale);
 

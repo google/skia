@@ -248,7 +248,7 @@ private:
         uint8_t fTextType;
 
         BitmapTextBlob()
-            : fMaxMinScale(SK_ScalarMax)
+            : fMaxMinScale(-SK_ScalarMax)
             , fMinMaxScale(SK_ScalarMax)
             , fTextType(0) {}
 
