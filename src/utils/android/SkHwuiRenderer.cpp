@@ -56,20 +56,20 @@ void SkHwuiRenderer::initialize(SkISize size) {
     android::uirenderer::Vector3 lightVector { lightX, -200.0f, 800.0f };
     this->proxy->setup(size.width(), size.height(), lightVector, 800.0f,
                          255 * 0.075f, 255 * 0.15f);
-    this->renderer.reset(new android::uirenderer::DisplayListRenderer());
-    this->renderer->setViewport(size.width(), size.height());
+    this->canvas.reset(new android::uirenderer::DisplayListCanvas());
+    this->canvas->setViewport(size.width(), size.height());
 }
 
 SkCanvas* SkHwuiRenderer::prepareToDraw() {
-    this->renderer->prepare();
-    this->renderer->clipRect(0, 0, this->size.width(), this->size.height(),
-                               SkRegion::Op::kReplace_Op);
-    return this->renderer->asSkCanvas();
+    this->canvas->prepare();
+    this->canvas->clipRect(0, 0, this->size.width(), this->size.height(),
+                           SkRegion::Op::kReplace_Op);
+    return this->canvas->asSkCanvas();
 }
 
 void SkHwuiRenderer::finishDrawing() {
-    this->renderer->finish();
-    this->rootNode->setStagingDisplayList(this->renderer->finishRecording());
+    this->canvas->finish();
+    this->rootNode->setStagingDisplayList(this->canvas->finishRecording());
     this->proxy->syncAndDrawFrame();
     // Surprisingly, calling this->proxy->fence() here appears to make no difference to
     // the timings we record.

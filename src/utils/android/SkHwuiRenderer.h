@@ -8,7 +8,7 @@
 #ifndef SkHwuiRenderer_DEFINED
 #define SkHwuiRenderer_DEFINED
 
-#include "DisplayListRenderer.h"
+#include "DisplayListCanvas.h"
 #include "RenderNode.h"
 #include "SkTypes.h"
 #include "gui/CpuConsumer.h"
@@ -22,7 +22,7 @@ class SkBitmap;
 struct SkHwuiRenderer {
     SkAutoTDelete<android::uirenderer::RenderNode> rootNode;
     SkAutoTDelete<android::uirenderer::renderthread::RenderProxy> proxy;
-    SkAutoTDelete<android::uirenderer::DisplayListRenderer> renderer;
+    SkAutoTDelete<android::uirenderer::DisplayListCanvas> canvas;
     android::sp<android::IGraphicBufferProducer> producer;
     android::sp<android::IGraphicBufferConsumer> consumer;
     android::sp<android::CpuConsumer> cpuConsumer;
