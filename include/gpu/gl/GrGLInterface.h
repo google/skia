@@ -288,6 +288,7 @@ public:
         GLPtr<GrGLTexParameterivProc> fTexParameteriv;
         GLPtr<GrGLTexSubImage2DProc> fTexSubImage2D;
         GLPtr<GrGLTexStorage2DProc> fTexStorage2D;
+        GLPtr<GrGLTextureBarrierProc> fTextureBarrier;
         GLPtr<GrGLDiscardFramebufferProc> fDiscardFramebuffer;
         GLPtr<GrGLUniform1fProc> fUniform1f;
         GLPtr<GrGLUniform1iProc> fUniform1i;

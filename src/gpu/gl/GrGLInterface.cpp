@@ -306,6 +306,21 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    // glTextureBarrier is part of desktop 4.5. There are also ARB and NV extensions.
+    if (kGL_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(4,5) ||
+            fExtensions.has("GL_ARB_texture_barrier") ||
+            fExtensions.has("GL_NV_texture_barrier")) {
+            if (NULL == fFunctions.fTextureBarrier) {
+                RETURN_FALSE_INTERFACE
+            }
+        }
+    } else if (fExtensions.has("GL_NV_texture_barrier")) {
+        if (NULL == fFunctions.fTextureBarrier) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
     if (fExtensions.has("GL_EXT_discard_framebuffer")) {
 // FIXME: Remove this once Chromium is updated to provide this function
 #if 0

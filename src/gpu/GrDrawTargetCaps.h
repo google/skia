@@ -86,6 +86,7 @@ public:
 #endif
     bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
+    bool textureBarrierSupport() const { return fTextureBarrierSupport; }
 
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
 
@@ -157,6 +158,7 @@ protected:
     bool fGpuTracingSupport             : 1;
     bool fCompressedTexSubImageSupport  : 1;
     bool fOversizedStencilSupport       : 1;
+    bool fTextureBarrierSupport         : 1;
     // Driver workaround
     bool fUseDrawInsteadOfClear         : 1;
 

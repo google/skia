@@ -163,6 +163,11 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(TexStorage2D, EXT);
     }
     GET_PROC(TexSubImage2D);
+    if (glVer >= GR_GL_VER(4,5) || extensions.has("GL_ARB_texture_barrier")) {
+        GET_PROC(TextureBarrier);
+    } else if (extensions.has("GL_NV_texture_barrier")) {
+        GET_PROC_SUFFIX(TextureBarrier, NV);
+    }
     GET_PROC(Uniform1f);
     GET_PROC(Uniform1i);
     GET_PROC(Uniform1fv);
@@ -402,6 +407,10 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(TexStorage2D);
     } else {
         GET_PROC_SUFFIX(TexStorage2D, EXT);
+    }
+
+    if (extensions.has("GL_NV_texture_barrier")) {
+        GET_PROC_SUFFIX(TextureBarrier, NV);
     }
 
     GET_PROC_SUFFIX(DiscardFramebuffer, EXT);

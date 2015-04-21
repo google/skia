@@ -186,6 +186,14 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                              ctxInfo.hasExtension("GL_EXT_texture_storage");
     }
 
+    if (kGL_GrGLStandard == standard) {
+        fTextureBarrierSupport = version >= GR_GL_VER(4,5) ||
+                                 ctxInfo.hasExtension("GL_ARB_texture_barrier") ||
+                                 ctxInfo.hasExtension("GL_NV_texture_barrier");
+    } else {
+        fTextureBarrierSupport = ctxInfo.hasExtension("GL_NV_texture_barrier");
+    }
+
     // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support GL_RED 
     // and GL_RG on FBO textures.
     if (!ctxInfo.isMesa()) {
