@@ -1,0 +1,20 @@
+#!/bin/bash
+
+###############################################################################
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+###############################################################################
+#
+# Build the skia for ios. This assumes that GYP_DEFINES has been set. 
+#
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SCRIPT_DIR/ios_setup.sh
+
+pushd 
+cd ${SKIA_SRC_DIR} 	
+"${SKIA_SRC_DIR}/gyp_skia"
+xcodebuild -project "$SKIA_SRC_DIR/out/gyp/iOSShell.xcodeproj"\
+       -configuration "$BUILDTYPE"
+popd

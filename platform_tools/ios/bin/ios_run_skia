@@ -1,0 +1,26 @@
+#!/bin/bash
+###############################################################################
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+###############################################################################
+#
+# ios_run_skia: starts the correct skia program on the device, prints the
+# output, and kills the app if interrupted.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SCRIPT_DIR/ios_setup.sh
+
+# (Re-)Install the app to create the necessary directories. 
+ios_uninstall_app
+ios_install_app 
+
+# Move the resources to the Documents forlder of the iOS device. 
+# Note: The iOSShell app expects 'resources' in the Documents folder. 
+ios_push "${SKIA_SRC_DIR}/resources" ""
+
+# Run the application.  
+ios-deploy -I -m -b "$SKIA_SRC_DIR/xcodebuild/${BUILDTYPE}-iphoneos/iOSShell.app --args '""$ARGS""'"
+
+#ios-deploy -I -m -b "$SKIA_SRC_DIR/xcodebuild/${BUILDTYPE}-iphoneos/iOSShell.app --args '""$ARGS""'-v  --writePath results --dm  --nogpu --threads 0 --src gm tests --config 8888 --match ~Threaded ~Math ~VarAlloc'

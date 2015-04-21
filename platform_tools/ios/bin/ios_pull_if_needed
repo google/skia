@@ -1,0 +1,18 @@
+#!/bin/bash
+
+###############################################################################
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+###############################################################################
+#
+# Pull the given file/directory off the device. 
+#
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SCRIPT_DIR/ios_setup.sh
+
+HOST_PATH=$1
+DEVICE_PATH=$2
+
+ios_pull $HOST_PATH $DEVICE_PATH
