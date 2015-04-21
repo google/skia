@@ -30,14 +30,21 @@ def get_args(bot):
   args = []
 
   configs = ['565', '8888', 'gpu']
+
+  if 'TegraK1' in bot or 'GTX550Ti' in bot or 'GTX660' in bot or 'GT610' in bot:
+    if 'Android' in bot:
+      configs.append('nvprmsaa4')
+    else:
+      configs.append('nvprmsaa16')
+
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.
   if ('GalaxyS4'    not in bot and
       'NexusPlayer' not in bot):
     if 'Android' in bot:
-      configs.extend(['msaa4', 'nvprmsaa4'])
+      configs.append('msaa4')
     else:
-      configs.extend(['msaa16', 'nvprmsaa16'])
+      configs.append('msaa16')
   # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
   if 'Android' not in bot and 'Daisy' not in bot:
     configs.append('pdf')
@@ -150,6 +157,7 @@ def self_test():
   import coverage  # This way the bots don't need coverage.py to be installed.
   args = {}
   cases = [
+    'Test-Android-GCC-Nexus9-GPU-TegraK1-Arm64-Debug',
     'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
     'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
     'Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release',
