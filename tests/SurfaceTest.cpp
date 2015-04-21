@@ -251,6 +251,9 @@ static void test_imagepeek(skiatest::Reporter* reporter, GrContextFactory* facto
     GrContext* ctx = NULL;
 #if SK_SUPPORT_GPU
     ctx = factory->get(GrContextFactory::kNative_GLContextType);
+    if (!ctx) {
+        return;
+    }
 #endif
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
