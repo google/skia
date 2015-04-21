@@ -151,7 +151,7 @@
         '../third_party/externals/jpeg/jutils.c',
       ],
       'conditions': [
-        [ 'arm_neon == 1',
+        [ 'arm_neon == 1 and skia_clang_build == 0',
           {
             'sources' : [
               '../third_party/externals/jpeg/armv6_idct.S',
