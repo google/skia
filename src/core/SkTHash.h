@@ -24,7 +24,7 @@
 template <typename T, typename K, typename Traits = T>
 class SkTHashTable : SkNoncopyable {
 public:
-    SkTHashTable() : fCount(0), fCapacity(0) {}
+    SkTHashTable() : fCount(0), fRemoved(0), fCapacity(0) {}
 
     // Clear the table.
     void reset() {
@@ -48,7 +48,7 @@ public:
     // Copy val into the hash table, returning a pointer to the copy now in the table.
     // If there already is an entry in the table with the same key, we overwrite it.
     T* set(const T& val) {
-        if (4 * fCount >= 3 * fCapacity) {
+        if (4 * (fCount+fRemoved) >= 3 * fCapacity) {
             this->resize(fCapacity > 0 ? fCapacity * 2 : 4);
         }
         return this->uncheckedSet(val);
@@ -63,7 +63,7 @@ public:
             if (s.empty()) {
                 return NULL;
             }
-            if (hash == s.hash && key == Traits::GetKey(s.val)) {
+            if (!s.removed() && hash == s.hash && key == Traits::GetKey(s.val)) {
                 return &s.val;
             }
             index = this->next(index, n);
@@ -72,11 +72,31 @@ public:
         return NULL;
     }
 
+    // Remove the value with this key from the hash table.
+    void remove(const K& key) {
+        SkASSERT(this->find(key));
+
+        uint32_t hash = Hash(key);
+        int index = hash & (fCapacity-1);
+        for (int n = 0; n < fCapacity; n++) {
+            Slot& s = fSlots[index];
+            SkASSERT(!s.empty());
+            if (!s.removed() && hash == s.hash && key == Traits::GetKey(s.val)) {
+                fRemoved++;
+                fCount--;
+                s.markRemoved();
+                return;
+            }
+            index = this->next(index, n);
+        }
+        SkASSERT(fCapacity == 0);
+    }
+
     // Call fn on every entry in the table.  You may mutate the entries, but be very careful.
     template <typename Fn>  // f(T*)
     void foreach(Fn&& fn) {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty()) {
+            if (!fSlots[i].empty() && !fSlots[i].removed()) {
                 fn(&fSlots[i].val);
             }
         }
@@ -86,7 +106,7 @@ public:
     template <typename Fn>  // f(T) or f(const T&)
     void foreach(Fn&& fn) const {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty()) {
+            if (!fSlots[i].empty() && !fSlots[i].removed()) {
                 fn(fSlots[i].val);
             }
         }
@@ -99,8 +119,11 @@ private:
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
-            if (s.empty()) {
+            if (s.empty() || s.removed()) {
                 // New entry.
+                if (s.removed()) {
+                    fRemoved--;
+                }
                 s.val  = val;
                 s.hash = hash;
                 fCount++;
@@ -122,14 +145,14 @@ private:
         int oldCapacity = fCapacity;
         SkDEBUGCODE(int oldCount = fCount);
 
-        fCount = 0;
+        fCount = fRemoved = 0;
         fCapacity = capacity;
         SkAutoTArray<Slot> oldSlots(capacity);
         oldSlots.swap(fSlots);
 
         for (int i = 0; i < oldCapacity; i++) {
             const Slot& s = oldSlots[i];
-            if (!s.empty()) {
+            if (!s.empty() && !s.removed()) {
                 this->uncheckedSet(s.val);
             }
         }
@@ -145,18 +168,21 @@ private:
 
     static uint32_t Hash(const K& key) {
         uint32_t hash = Traits::Hash(key);
-        return hash == 0 ? 1 : hash;  // We reserve hash == 0 to mark empty slots.
+        return hash < 2 ? hash+2 : hash;  // We reserve hash 0 and 1 to mark empty or removed slots.
     }
 
     struct Slot {
         Slot() : hash(0) {}
-        bool empty() const { return hash == 0; }
+        bool   empty() const { return this->hash == 0; }
+        bool removed() const { return this->hash == 1; }
+
+        void markRemoved() { this->hash = 1; }
 
         T val;
         uint32_t hash;
     };
 
-    int fCount, fCapacity;
+    int fCount, fRemoved, fCapacity;
     SkAutoTArray<Slot> fSlots;
 };
 
@@ -190,6 +216,12 @@ public:
             return &p->val;
         }
         return NULL;
+    }
+
+    // Remove the key/value entry in the table with this key.
+    void remove(const K& key) {
+        SkASSERT(this->find(key));
+        fTable.remove(key);
     }
 
     // Call fn on every key/value pair in the table.  You may mutate the value but not the key.
@@ -237,10 +269,16 @@ public:
     // This pointer remains valid until the next call to add().
     const T* find(const T& item) const { return fTable.find(item); }
 
+    // Remove the item in the set equal to this.
+    void remove(const T& item) {
+        SkASSERT(this->contains(item));
+        fTable.remove(item);
+    }
+
     // Call fn on every item in the set.  You may not mutate anything.
     template <typename Fn>  // f(T), f(const T&)
     void foreach (Fn&& fn) const {
-        fTable.foreach (fn);
+        fTable.foreach(fn);
     }
 
 private:

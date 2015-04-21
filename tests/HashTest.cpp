@@ -52,6 +52,15 @@ DEF_TEST(HashMap, r) {
 
     REPORTER_ASSERT(r, map.count() == N);
 
+    for (int i = 0; i < N/2; i++) {
+        map.remove(i);
+    }
+    for (int i = 0; i < N; i++) {
+        double* found = map.find(i);
+        REPORTER_ASSERT(r, (found == nullptr) ==  (i < N/2));
+    }
+    REPORTER_ASSERT(r, map.count() == N/2);
+
     map.reset();
     REPORTER_ASSERT(r, map.count() == 0);
 }
@@ -70,6 +79,10 @@ DEF_TEST(HashSet, r) {
 
     REPORTER_ASSERT(r, set.find(SkString("Hello")));
     REPORTER_ASSERT(r, *set.find(SkString("Hello")) == SkString("Hello"));
+
+    set.remove(SkString("Hello"));
+    REPORTER_ASSERT(r, !set.contains(SkString("Hello")));
+    REPORTER_ASSERT(r, set.count() == 1);
 
     set.reset();
     REPORTER_ASSERT(r, set.count() == 0);
