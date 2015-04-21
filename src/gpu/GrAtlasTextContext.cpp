@@ -260,13 +260,6 @@ bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTr
         return true;
     }
 
-    if (blob.fViewMatrix.getScaleX() != viewMatrix.getScaleX() ||
-        blob.fViewMatrix.getScaleY() != viewMatrix.getScaleY() ||
-        blob.fViewMatrix.getSkewX() != viewMatrix.getSkewX() ||
-        blob.fViewMatrix.getSkewY() != viewMatrix.getSkewY()) {
-        return true;
-    }
-
     // We only cache one masked version
     if (blob.fKey.fHasBlur &&
         (blob.fBlurRec.fSigma != blurRec.fSigma ||
@@ -283,37 +276,63 @@ bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTr
         return true;
     }
 
-    // We can update the positions in the cachedtextblobs without regenerating the whole blob, but
-    // only for integer translations.
-    // This cool bit of math will determine the necessary translation to apply to the already
-    // generated vertex coordinates to move them to the correct position
-    SkScalar transX = viewMatrix.getTranslateX() +
-                      viewMatrix.getScaleX() * (x - blob.fX) +
-                      viewMatrix.getSkewX() * (y - blob.fY) -
-                      blob.fViewMatrix.getTranslateX();
-    SkScalar transY = viewMatrix.getTranslateY() +
-                      viewMatrix.getSkewY() * (x - blob.fX) +
-                      viewMatrix.getScaleY() * (y - blob.fY) -
-                      blob.fViewMatrix.getTranslateY();
-    if (SkScalarFraction(transX) > SK_ScalarNearlyZero ||
-        SkScalarFraction(transY) > SK_ScalarNearlyZero) {
+    // Identical viewmatrices and we can reuse in all cases
+    if (blob.fViewMatrix.cheapEqualTo(viewMatrix) && x == blob.fX && y == blob.fY) {
+        return false;
+    }
+
+    // Mixed blobs must be regenerated.  We could probably figure out a way to do integer scrolls
+    // for mixed blobs if this becomes an issue.
+    if (blob.hasBitmap() && blob.hasDistanceField()) {
         return true;
     }
 
-#ifdef SK_DEBUG
-    static const SkScalar kMinDiscernableTranslation = 0.0625;
-    // As a safeguard when debugging, we store the total error across all translations and print if
-    // the error becomes discernable.  This is pretty unlikely to occur given the tight bounds above
-    // on translation
-    blob.fTotalXError += SkScalarAbs(SkScalarFraction(transX));
-    blob.fTotalYError += SkScalarAbs(SkScalarFraction(transY));
-    if (blob.fTotalXError > kMinDiscernableTranslation ||
-        blob.fTotalYError > kMinDiscernableTranslation) {
-        SkDebugf("Exceeding error threshold for bitmap text translation");
+    // TODO distance fields can handle many of these conditions
+    if (blob.fViewMatrix.getScaleX() != viewMatrix.getScaleX() ||
+        blob.fViewMatrix.getScaleY() != viewMatrix.getScaleY() ||
+        blob.fViewMatrix.getSkewX() != viewMatrix.getSkewX() ||
+        blob.fViewMatrix.getSkewY() != viewMatrix.getSkewY()) {
+        return true;
     }
+
+    if (blob.hasBitmap()) {
+        // We can update the positions in the cachedtextblobs without regenerating the whole blob,
+        // but only for integer translations.
+        // This cool bit of math will determine the necessary translation to apply to the already
+        // generated vertex coordinates to move them to the correct position
+        SkScalar transX = viewMatrix.getTranslateX() +
+                          viewMatrix.getScaleX() * (x - blob.fX) +
+                          viewMatrix.getSkewX() * (y - blob.fY) -
+                          blob.fViewMatrix.getTranslateX();
+        SkScalar transY = viewMatrix.getTranslateY() +
+                          viewMatrix.getSkewY() * (x - blob.fX) +
+                          viewMatrix.getScaleY() * (y - blob.fY) -
+                          blob.fViewMatrix.getTranslateY();
+        if (SkScalarFraction(transX) > SK_ScalarNearlyZero ||
+            SkScalarFraction(transY) > SK_ScalarNearlyZero) {
+            return true;
+        }
+
+#ifdef SK_DEBUG
+        static const SkScalar kMinDiscernableTranslation = 0.0625;
+        // As a safeguard when debugging, we store the total error across all translations and print
+        // if the error becomes discernable.  This is pretty unlikely to occur given the tight
+        // bounds above on translation
+        blob.fTotalXError += SkScalarAbs(SkScalarFraction(transX));
+        blob.fTotalYError += SkScalarAbs(SkScalarFraction(transY));
+        if (blob.fTotalXError > kMinDiscernableTranslation ||
+            blob.fTotalYError > kMinDiscernableTranslation) {
+            SkDebugf("Exceeding error threshold for bitmap text translation");
+        }
 #endif
-    (*outTransX) = transX;
-    (*outTransY) = transY;
+        (*outTransX) = transX;
+        (*outTransY) = transY;
+    } else {
+        // blob.hasDistanceField()
+        // TODO figure out the regen formula
+        return true;
+    }
+
     return false;
 }
 
@@ -378,7 +397,7 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
             cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
                                                            kGrayTextVASize)));
             this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix, blob, x, y,
-                                     drawFilter, clipRect);
+                                     drawFilter, clipRect, rt, clip, grPaint);
         } else {
             // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
             // offsets
@@ -395,7 +414,7 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
             cacheBlob.reset(fCache->createBlob(blob, kGrayTextVASize));
         }
         this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix, blob, x, y,
-                                 drawFilter, clipRect);
+                                 drawFilter, clipRect, rt, clip, grPaint);
     }
 
     cacheBlob->fPaintColor = skPaint.getColor();
@@ -442,7 +461,9 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
                                             const SkPaint& skPaint, GrColor color,
                                             const SkMatrix& viewMatrix,
                                             const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                            SkDrawFilter* drawFilter, const SkIRect& clipRect) {
+                                            SkDrawFilter* drawFilter, const SkIRect& clipRect,
+                                            GrRenderTarget* rt, const GrClip& clip,
+                                            const GrPaint& paint) {
     cacheBlob->fViewMatrix = viewMatrix;
     cacheBlob->fX = x;
     cacheBlob->fY = y;
@@ -466,9 +487,6 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
 
         runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
 
-        SkGlyphCache* cache = this->setupCache(&cacheBlob->fRuns[run], runPaint, &viewMatrix,
-                                               false);
-
         // setup vertex / glyphIndex for the new run
         if (run > 0) {
             PerSubRunInfo& newRun = cacheBlob->fRuns[run].fSubRunInfo.back();
@@ -481,36 +499,85 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
             newRun.fGlyphEndIndex = lastRun.fGlyphEndIndex;
         }
 
-        if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
-            cacheBlob->fRuns[run].fDrawAsPaths = true;
-            continue;
-        }
-        cacheBlob->fRuns[run].fDrawAsPaths = false;
+        if (this->canDrawAsDistanceFields(runPaint, viewMatrix)) {
+            cacheBlob->setHasDistanceField();
+            SkPaint dfPaint = runPaint;
+            SkScalar textRatio;
+            this->initDistanceFieldPaint(&dfPaint, &textRatio, viewMatrix);
+            Run& runIdx = cacheBlob->fRuns[run];
+            PerSubRunInfo& subRun = runIdx.fSubRunInfo.back();
+            subRun.fUseLCDText = runPaint.isLCDRenderText();
+            subRun.fDrawAsDistanceFields = true;
 
-        switch (it.positioning()) {
-            case SkTextBlob::kDefault_Positioning:
-                this->internalDrawBMPText(cacheBlob, run, cache, runPaint, color, viewMatrix,
-                                          (const char *)it.glyphs(), textLen,
-                                          x + offset.x(), y + offset.y(), clipRect);
-                break;
-            case SkTextBlob::kHorizontal_Positioning:
-                this->internalDrawBMPPosText(cacheBlob, run, cache, runPaint, color, viewMatrix,
-                                             (const char*)it.glyphs(), textLen, it.pos(), 1,
-                                             SkPoint::Make(x, y + offset.y()), clipRect);
-                break;
-            case SkTextBlob::kFull_Positioning:
-                this->internalDrawBMPPosText(cacheBlob, run, cache, runPaint, color, viewMatrix,
-                                             (const char*)it.glyphs(), textLen, it.pos(), 2,
-                                             SkPoint::Make(x, y), clipRect);
-                break;
+            SkGlyphCache* cache = this->setupCache(&cacheBlob->fRuns[run], dfPaint, NULL, true);
+
+            SkTDArray<char> fallbackTxt;
+            SkTDArray<SkScalar> fallbackPos;
+            SkPoint dfOffset;
+            int scalarsPerPosition = 2;
+            switch (it.positioning()) {
+                case SkTextBlob::kDefault_Positioning: {
+                    this->internalDrawDFText(cacheBlob, run, cache, dfPaint, color, viewMatrix,
+                                             (const char *)it.glyphs(), textLen,
+                                             x + offset.x(), y + offset.y(), clipRect, textRatio,
+                                             &fallbackTxt, &fallbackPos, &dfOffset, runPaint);
+                    break;
+                }
+                case SkTextBlob::kHorizontal_Positioning: {
+                    scalarsPerPosition = 1;
+                    dfOffset = SkPoint::Make(x, y + offset.y());
+                    this->internalDrawDFPosText(cacheBlob, run, cache, dfPaint, color, viewMatrix,
+                                                (const char*)it.glyphs(), textLen, it.pos(),
+                                                scalarsPerPosition, dfOffset, clipRect, textRatio,
+                                                &fallbackTxt, &fallbackPos);
+                    break;
+                }
+                case SkTextBlob::kFull_Positioning: {
+                    dfOffset = SkPoint::Make(x, y);
+                    this->internalDrawDFPosText(cacheBlob, run, cache, dfPaint, color, viewMatrix,
+                                                (const char*)it.glyphs(), textLen, it.pos(),
+                                                scalarsPerPosition, dfOffset, clipRect, textRatio,
+                                                &fallbackTxt, &fallbackPos);
+                    break;
+                }
+            }
+            if (fallbackTxt.count()) {
+                this->fallbackDrawPosText(cacheBlob, run, rt, clip, paint, runPaint, viewMatrix,
+                                          fallbackTxt, fallbackPos, scalarsPerPosition, dfOffset,
+                                          clipRect);
+            }
+
+            SkGlyphCache::AttachCache(cache);
+        } else if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
+            cacheBlob->fRuns[run].fDrawAsPaths = true;
+        } else {
+            cacheBlob->setHasBitmap();
+            SkGlyphCache* cache = this->setupCache(&cacheBlob->fRuns[run], runPaint, &viewMatrix,
+                                                   false);
+            switch (it.positioning()) {
+                case SkTextBlob::kDefault_Positioning:
+                    this->internalDrawBMPText(cacheBlob, run, cache, runPaint, color, viewMatrix,
+                                              (const char *)it.glyphs(), textLen,
+                                              x + offset.x(), y + offset.y(), clipRect);
+                    break;
+                case SkTextBlob::kHorizontal_Positioning:
+                    this->internalDrawBMPPosText(cacheBlob, run, cache, runPaint, color, viewMatrix,
+                                                 (const char*)it.glyphs(), textLen, it.pos(), 1,
+                                                 SkPoint::Make(x, y + offset.y()), clipRect);
+                    break;
+                case SkTextBlob::kFull_Positioning:
+                    this->internalDrawBMPPosText(cacheBlob, run, cache, runPaint, color, viewMatrix,
+                                                 (const char*)it.glyphs(), textLen, it.pos(), 2,
+                                                 SkPoint::Make(x, y), clipRect);
+                    break;
+            }
+            SkGlyphCache::AttachCache(cache);
         }
 
         if (drawFilter) {
             // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
             runPaint = skPaint;
         }
-
-        SkGlyphCache::AttachCache(cache);
     }
 }
 
@@ -546,6 +613,7 @@ inline void GrAtlasTextContext::initDistanceFieldPaint(SkPaint* skPaint, SkScala
 }
 
 inline void GrAtlasTextContext::fallbackDrawPosText(BitmapTextBlob* blob,
+                                                    int runIndex,
                                                     GrRenderTarget* rt, const GrClip& clip,
                                                     const GrPaint& paint,
                                                     const SkPaint& skPaint,
@@ -556,14 +624,15 @@ inline void GrAtlasTextContext::fallbackDrawPosText(BitmapTextBlob* blob,
                                                     const SkPoint& offset,
                                                     const SkIRect& clipRect) {
     SkASSERT(fallbackTxt.count());
-    Run& run = blob->fRuns[0];
+    blob->setHasBitmap();
+    Run& run = blob->fRuns[runIndex];
     PerSubRunInfo& subRun = run.fSubRunInfo.push_back();
     subRun.fOverrideDescriptor.reset(SkNEW(SkAutoDescriptor));
     skPaint.getScalerContextDescriptor(subRun.fOverrideDescriptor,
                                        &fDeviceProperties, &viewMatrix, false);
     SkGlyphCache* cache = SkGlyphCache::DetachCache(run.fTypeface,
                                                     subRun.fOverrideDescriptor->getDesc());
-    this->internalDrawBMPPosText(blob, 0, cache, skPaint, paint.getColor(), viewMatrix,
+    this->internalDrawBMPPosText(blob, runIndex, cache, skPaint, paint.getColor(), viewMatrix,
                                  fallbackTxt.begin(), fallbackTxt.count(),
                                  fallbackPos.begin(), scalarsPerPosition, offset, clipRect);
     SkGlyphCache::AttachCache(cache);
@@ -578,8 +647,10 @@ GrAtlasTextContext::setupDFBlob(int glyphCount, const SkPaint& origPaint,
     *dfPaint = origPaint;
     this->initDistanceFieldPaint(dfPaint, textRatio, viewMatrix);
     blob->fViewMatrix = viewMatrix;
-    blob->fRuns[0].fSubRunInfo.back().fUseLCDText = origPaint.isLCDRenderText();
-    blob->fRuns[0].fSubRunInfo.back().fDrawAsDistanceFields = true;
+    Run& run = blob->fRuns[0];
+    PerSubRunInfo& subRun = run.fSubRunInfo.back();
+    subRun.fUseLCDText = origPaint.isLCDRenderText();
+    subRun.fDrawAsDistanceFields = true;
 
     *cache = this->setupCache(&blob->fRuns[0], *dfPaint, NULL, true);
     return blob;
@@ -610,7 +681,7 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
                                  &offset, skPaint);
         SkGlyphCache::AttachCache(cache);
         if (fallbackTxt.count()) {
-            this->fallbackDrawPosText(blob, rt, clip, paint, skPaint, viewMatrix, fallbackTxt,
+            this->fallbackDrawPosText(blob, 0, rt, clip, paint, skPaint, viewMatrix, fallbackTxt,
                                       fallbackPos, 2, offset, clipRect);
         }
         this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip);
@@ -651,7 +722,7 @@ void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                                     textRatio, &fallbackTxt, &fallbackPos);
         SkGlyphCache::AttachCache(cache);
         if (fallbackTxt.count()) {
-            this->fallbackDrawPosText(blob, rt, clip, paint, skPaint, viewMatrix, fallbackTxt,
+            this->fallbackDrawPosText(blob, 0, rt, clip, paint, skPaint, viewMatrix, fallbackTxt,
                                       fallbackPos, scalarsPerPosition, offset, clipRect);
         }
         this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip);
@@ -1443,7 +1514,7 @@ public:
             bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen;
             bool regenerateColors;
             if (fUseDistanceFields) {
-                regenerateColors = fUseLCDText && run.fColor != args.fColor;
+                regenerateColors = !fUseLCDText && run.fColor != args.fColor;
             } else {
                 regenerateColors = kA8_GrMaskFormat == fMaskFormat && run.fColor != args.fColor;
             }

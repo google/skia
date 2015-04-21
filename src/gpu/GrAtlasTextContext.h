@@ -210,6 +210,14 @@ private:
         StrokeInfo fStrokeInfo;
         GrMemoryPool* fPool;
 
+        enum TextType {
+            kHasDistanceField_TextType = 0x1,
+            kHasBitmap_TextType = 0x2,
+        };
+        uint8_t fTextType;
+
+        BitmapTextBlob() : fTextType(0) {}
+
         // all glyph / vertex offsets are into these pools.
         unsigned char* fVertices;
         GrGlyph::PackedID* fGlyphIDs;
@@ -255,6 +263,11 @@ private:
         void operator delete(void* target, void* placement) {
             ::operator delete(target, placement);
         }
+
+        bool hasDistanceField() const { return SkToBool(fTextType & kHasDistanceField_TextType); }
+        bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
+        void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
+        void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
     };
 
     typedef BitmapTextBlob::Run Run;
@@ -293,7 +306,8 @@ private:
                const GrPaint&, const GrClip&);
 
     // A helper for drawing BitmapText in a run of distance fields
-    inline void fallbackDrawPosText(BitmapTextBlob*, GrRenderTarget*, const GrClip&,
+    inline void fallbackDrawPosText(BitmapTextBlob*, int runIndex,
+                                    GrRenderTarget*, const GrClip&,
                                     const GrPaint&,
                                     const SkPaint&, const SkMatrix& viewMatrix,
                                     const SkTDArray<char>& fallbackTxt,
@@ -339,7 +353,8 @@ private:
     void regenerateTextBlob(BitmapTextBlob* bmp, const SkPaint& skPaint, GrColor,
                             const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
-                            SkDrawFilter* drawFilter, const SkIRect& clipRect);
+                            SkDrawFilter* drawFilter, const SkIRect& clipRect, GrRenderTarget*,
+                            const GrClip&, const GrPaint&);
     inline static bool HasLCD(const SkTextBlob*);
     inline void initDistanceFieldPaint(SkPaint*, SkScalar* textRatio, const SkMatrix&);
 
