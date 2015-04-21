@@ -33,7 +33,7 @@ Below is a brief summary of what the sheriff does for each task:
 * Start watching the [status page](https://status.skia.org) for bot breakages.
 * Track down people responsible for breakages and revert broken changes if there is no easy fix.
 * Close and open the [tree](http://skia-tree-status.appspot.com).
-* Keep the builder comments on the [status page](https://status.skia.org) upto date.
+* Keep the builder comments on the [status page](https://status.skia.org) up to date.
 * File or follow up with [BreakingTheBuildbots bugs](https://code.google.com/p/skia/issues/list?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
 
 <a name="deps_rolls"></a>
