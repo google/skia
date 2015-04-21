@@ -142,8 +142,11 @@ SkBlitRow::Proc32 SkBlitRow::ColorProcFactory() {
 
 #define SK_SUPPORT_LEGACY_COLOR32_MATHx
 
-// Color32 and its SIMD specializations use the blend_perfect algorithm from tests/BlendTest.cpp.
-// An acceptable alternative is blend_256_round_alt, which is faster but not quite perfect.
+// Color32 and its SIMD specializations use the blend_256_round_alt algorithm
+// from tests/BlendTest.cpp.  It's not quite perfect, but it's never wrong in the
+// interesting edge cases, and it's quite a bit faster than blend_perfect.
+//
+// blend_256_round_alt is our currently blessed algorithm.  Please use it or an analogous one.
 void SkBlitRow::Color32(SkPMColor* SK_RESTRICT dst,
                         const SkPMColor* SK_RESTRICT src,
                         int count, SkPMColor color) {
@@ -153,19 +156,19 @@ void SkBlitRow::Color32(SkPMColor* SK_RESTRICT dst,
     }
 
     unsigned invA = 255 - SkGetPackedA32(color);
+#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
+    unsigned round = 0;
+#else                          // blend_256_round_alt, good
+    invA += invA >> 7;
+    unsigned round = (128 << 16) + (128 << 0);
+#endif
+
     while (count --> 0) {
         // Our math is 16-bit, so we can do a little bit of SIMD in 32-bit registers.
         const uint32_t mask = 0x00FF00FF;
-        uint32_t rb = (((*src >> 0) & mask) * invA),  // r_b_
-                 ag = (((*src >> 8) & mask) * invA);  // a_g_
-    #ifndef SK_SUPPORT_LEGACY_COLOR32_MATH
-        uint32_t round = (128 << 16) + (128 << 0);
-        rb += round;
-        ag += round;
-        rb += (rb & ~mask) >> 8;
-        ag += (ag & ~mask) >> 8;
-    #endif
-        *dst = color + (((rb>>8) & mask) | ((ag>>0) & ~mask));
+        uint32_t rb = (((*src >> 0) & mask) * invA + round) >> 8,  // _r_b
+                 ag = (((*src >> 8) & mask) * invA + round) >> 0;  // a_g_
+        *dst = color + ((rb & mask) | (ag & ~mask));
         src++;
         dst++;
     }

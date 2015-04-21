@@ -234,30 +234,41 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
 
 #define SK_SUPPORT_LEGACY_COLOR32_MATHx
 
-/* SSE2 version of Color32(), portable version is in core/SkBlitRow_D32.cpp */
-// Color32 and its SIMD specializations use the blend_perfect algorithm from tests/BlendTest.cpp.
-// An acceptable alternative is blend_256_round_alt, which is faster but not quite perfect.
+/* SSE2 version of Color32()
+ * portable version is in core/SkBlitRow_D32.cpp
+ */
+// Color32 and its SIMD specializations use the blend_256_round_alt algorithm
+// from tests/BlendTest.cpp.  It's not quite perfect, but it's never wrong in the
+// interesting edge cases, and it's quite a bit faster than blend_perfect.
+//
+// blend_256_round_alt is our currently blessed algorithm.  Please use it or an analogous one.
 void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count, SkPMColor color) {
     switch (SkGetPackedA32(color)) {
         case   0: memmove(dst, src, count * sizeof(SkPMColor)); return;
         case 255: sk_memset32(dst, color, count);               return;
     }
 
-    __m128i color_2x_high = _mm_unpacklo_epi8(_mm_setzero_si128(), _mm_set1_epi32(color)),
-             invA_8x      = _mm_set1_epi16(255 - SkGetPackedA32(color));
+    __m128i colorHigh = _mm_unpacklo_epi8(_mm_setzero_si128(), _mm_set1_epi32(color));
+#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
+    __m128i colorAndRound = colorHigh;
+#else                          // blend_256_round_alt, good
+    __m128i colorAndRound = _mm_add_epi16(colorHigh, _mm_set1_epi16(128));
+#endif
+
+    unsigned invA = 255 - SkGetPackedA32(color);
+#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
+    __m128i invA16 = _mm_set1_epi16(invA);
+#else                          // blend_256_round_alt, good
+    SkASSERT(invA + (invA >> 7) < 256);  // We should still fit in the low byte here.
+    __m128i invA16 = _mm_set1_epi16(invA + (invA >> 7));
+#endif
 
     // Does the core work of blending color onto 4 pixels, returning the resulting 4 pixels.
-    auto kernel = [&](const __m128i& src_4x) -> __m128i {
-        __m128i lo = _mm_mullo_epi16(invA_8x, _mm_unpacklo_epi8(src_4x, _mm_setzero_si128())),
-                hi = _mm_mullo_epi16(invA_8x, _mm_unpackhi_epi8(src_4x, _mm_setzero_si128()));
-    #ifndef SK_SUPPORT_LEGACY_COLOR32_MATH
-        lo = _mm_add_epi16(lo, _mm_set1_epi16(128));
-        hi = _mm_add_epi16(hi, _mm_set1_epi16(128));
-        lo = _mm_add_epi16(lo, _mm_srli_epi16(lo, 8));
-        hi = _mm_add_epi16(hi, _mm_srli_epi16(hi, 8));
-    #endif
-        return _mm_packus_epi16(_mm_srli_epi16(_mm_add_epi16(color_2x_high, lo), 8),
-                                _mm_srli_epi16(_mm_add_epi16(color_2x_high, hi), 8));
+    auto kernel = [&](const __m128i& src4) -> __m128i {
+        __m128i lo = _mm_mullo_epi16(invA16, _mm_unpacklo_epi8(src4, _mm_setzero_si128())),
+                hi = _mm_mullo_epi16(invA16, _mm_unpackhi_epi8(src4, _mm_setzero_si128()));
+        return _mm_packus_epi16(_mm_srli_epi16(_mm_add_epi16(colorAndRound, lo), 8),
+                                _mm_srli_epi16(_mm_add_epi16(colorAndRound, hi), 8));
     };
 
     while (count >= 8) {
