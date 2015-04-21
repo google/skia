@@ -38,9 +38,11 @@ def get_args(bot):
       configs.append('nvprmsaa16')
 
   # The S4 crashes and the NP produces a long error stream when we run with
-  # MSAA.
+  # MSAA.  The Tegra2 and Tegra3 just don't support it.
   if ('GalaxyS4'    not in bot and
-      'NexusPlayer' not in bot):
+      'NexusPlayer' not in bot and
+      'Tegra2'      not in bot and
+      'Tegra3'      not in bot):
     if 'Android' in bot:
       configs.append('msaa4')
     else:
