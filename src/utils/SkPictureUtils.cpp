@@ -12,13 +12,6 @@
 #include "SkRecord.h"
 #include "SkShader.h"
 
-struct MeasureRecords {
-    template <typename T> size_t operator()(const T& op) { return 0; }
-    size_t operator()(const SkRecords::DrawPicture& op) {
-        return SkPictureUtils::ApproximateBytesUsed(op.picture);
-    }
-};
-
 size_t SkPictureUtils::ApproximateBytesUsed(const SkPicture* pict) {
     size_t byteCount = sizeof(*pict);
 
@@ -26,10 +19,7 @@ size_t SkPictureUtils::ApproximateBytesUsed(const SkPicture* pict) {
     if (pict->fBBH.get()) {
         byteCount += pict->fBBH->bytesUsed();
     }
-    MeasureRecords visitor;
-    for (unsigned curOp = 0; curOp < pict->fRecord->count(); curOp++) {
-        byteCount += pict->fRecord->visit<size_t>(curOp, visitor);
-    }
+    byteCount += pict->fApproxBytesUsedBySubPictures;
 
     return byteCount;
 }

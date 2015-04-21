@@ -260,7 +260,11 @@ private:
     static bool IsValidPictInfo(const SkPictInfo& info);
 
     // Takes ownership of the SkRecord and (optional) SnapshotArray, refs the (optional) BBH.
-    SkPicture(const SkRect& cullRect, SkRecord*, SnapshotArray*, SkBBoxHierarchy*);
+    SkPicture(const SkRect& cullRect,
+             SkRecord*,
+             SnapshotArray*,
+             SkBBoxHierarchy*,
+             size_t approxBytesUsedBySubPictures);
 
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
     static SkPictureData* Backport(const SkRecord&, const SkPictInfo&,
@@ -273,6 +277,7 @@ private:
     SkAutoTUnref<const SkRecord>          fRecord;
     SkAutoTUnref<const SkBBoxHierarchy>   fBBH;
     SkAutoTDelete<const SnapshotArray>    fDrawablePicts;
+    const size_t                          fApproxBytesUsedBySubPictures;
 
     // helpers for fDrawablePicts
     int drawableCount() const;
@@ -302,6 +307,6 @@ private:
     friend class SkPictureUtils;
     friend class SkRecordedDrawable;
 };
-SK_COMPILE_ASSERT(sizeof(SkPicture) <= 96, SkPictureSize);
+SK_COMPILE_ASSERT(sizeof(SkPicture) <= 104, SkPictureSize);
 
 #endif

@@ -480,12 +480,13 @@ bool SkPicture::willPlayBackBitmaps() const { return fAnalysis.fWillPlaybackBitm
 int  SkPicture::approximateOpCount()  const { return fRecord->count(); }
 
 SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SnapshotArray* drawablePicts,
-                     SkBBoxHierarchy* bbh)
+                     SkBBoxHierarchy* bbh, size_t approxBytesUsedBySubPictures)
     : fUniqueID(0)
     , fCullRect(cullRect)
     , fRecord(SkRef(record))
     , fBBH(SkSafeRef(bbh))
     , fDrawablePicts(drawablePicts)     // take ownership
+    , fApproxBytesUsedBySubPictures(approxBytesUsedBySubPictures)
     , fAnalysis(*fRecord)
 {}
 

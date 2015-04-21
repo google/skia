@@ -27,13 +27,15 @@ struct SkVarAlloc::Block {
 };
 
 SkVarAlloc::SkVarAlloc(size_t minLgSize)
-    : fByte(NULL)
+    : fBytesAllocated(0)
+    , fByte(NULL)
     , fRemaining(0)
     , fLgSize(minLgSize)
     , fBlock(NULL) {}
 
 SkVarAlloc::SkVarAlloc(size_t minLgSize, char* storage, size_t len)
-    : fByte(storage)
+    : fBytesAllocated(0)
+    , fByte(storage)
     , fRemaining(len)
     , fLgSize(minLgSize)
     , fBlock(NULL) {}
@@ -54,6 +56,7 @@ void SkVarAlloc::makeSpace(size_t bytes, unsigned flags) {
     while (alloc < bytes + sizeof(Block)) {
         alloc *= 2;
     }
+    fBytesAllocated += alloc;
     fBlock = Block::Alloc(fBlock, alloc, flags);
     fByte = fBlock->data();
     fRemaining = alloc - sizeof(Block);
@@ -64,24 +67,4 @@ void SkVarAlloc::makeSpace(size_t bytes, unsigned flags) {
     // TODO(mtklein): tune so we can assert something like this
     //SkASSERT(alloc == malloc_usable_size(fBlock));
 #endif
-}
-
-static size_t heap_size(void* p) {
-#if defined(SK_BUILD_FOR_MAC)
-    return malloc_size(p);
-#elif defined(SK_BUILD_FOR_UNIX) && !defined(__UCLIBC__)
-    return malloc_usable_size(p);
-#elif defined(SK_BUILD_FOR_WIN32)
-    return _msize(p);
-#else
-    return 0;  // Tough luck.
-#endif
-}
-
-size_t SkVarAlloc::approxBytesAllocated() const {
-    size_t sum = 0;
-    for (Block* b = fBlock; b; b = b->prev) {
-        sum += heap_size(b);
-    }
-    return sum;
 }

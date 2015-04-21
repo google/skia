@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkRecorder.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
+#include "SkPictureUtils.h"
+#include "SkRecorder.h"
 
 SkDrawableList::~SkDrawableList() {
     fArray.unrefAll();
@@ -33,10 +34,12 @@ void SkDrawableList::append(SkDrawable* drawable) {
 
 SkRecorder::SkRecorder(SkRecord* record, int width, int height)
     : SkCanvas(SkIRect::MakeWH(width, height), SkCanvas::kConservativeRasterClip_InitFlag)
+    , fApproxBytesUsedBySubPictures(0)
     , fRecord(record) {}
 
 SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds)
     : SkCanvas(bounds.roundOut(), SkCanvas::kConservativeRasterClip_InitFlag)
+    , fApproxBytesUsedBySubPictures(0)
     , fRecord(record) {}
 
 void SkRecorder::reset(SkRecord* record, const SkRect& bounds) {
@@ -47,6 +50,7 @@ void SkRecorder::reset(SkRecord* record, const SkRect& bounds) {
 
 void SkRecorder::forgetRecord() {
     fDrawableList.reset(NULL);
+    fApproxBytesUsedBySubPictures = 0;
     fRecord = NULL;
 }
 
@@ -248,6 +252,7 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 }
 
 void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, const SkPaint* paint) {
+    fApproxBytesUsedBySubPictures += SkPictureUtils::ApproximateBytesUsed(pic);
     APPEND(DrawPicture, this->copy(paint), pic, matrix ? *matrix : SkMatrix::I());
 }
 

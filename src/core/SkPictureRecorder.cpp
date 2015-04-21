@@ -9,10 +9,11 @@
 #include "SkDrawable.h"
 #include "SkLayerInfo.h"
 #include "SkPictureRecorder.h"
+#include "SkPictureUtils.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
-#include "SkRecorder.h"
 #include "SkRecordOpts.h"
+#include "SkRecorder.h"
 #include "SkTypes.h"
 
 SkPictureRecorder::SkPictureRecorder() {
@@ -72,7 +73,12 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
         fCullRect = bbhBound;
     }
 
-    SkPicture* pict = SkNEW_ARGS(SkPicture, (fCullRect, fRecord, pictList, fBBH));
+    size_t subPictureBytes = fRecorder->approxBytesUsedBySubPictures();
+    for (int i = 0; pictList && i < pictList->count(); i++) {
+        subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
+    }
+    SkPicture* pict =
+        SkNEW_ARGS(SkPicture, (fCullRect, fRecord, pictList, fBBH, subPictureBytes));
 
     if (saveLayerData) {
         pict->EXPERIMENTAL_addAccelData(saveLayerData);
@@ -153,7 +159,12 @@ protected:
             SkRecordComputeLayers(fBounds, *fRecord, pictList, bbh, saveLayerData);
         }
 
-        SkPicture* pict = SkNEW_ARGS(SkPicture, (fBounds, fRecord, pictList, fBBH));
+        size_t subPictureBytes = 0;
+        for (int i = 0; pictList && i < pictList->count(); i++) {
+            subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
+        }
+        SkPicture* pict =
+            SkNEW_ARGS(SkPicture, (fBounds, fRecord, pictList, fBBH, subPictureBytes));
 
         if (saveLayerData) {
             pict->EXPERIMENTAL_addAccelData(saveLayerData);
