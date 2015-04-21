@@ -102,8 +102,8 @@ public:
 
         static const int kMinItems = 4;
         static const int kMaxPlots = 32;
-        uint32_t fPlotAlreadyUpdated;
         SkAutoSTMalloc<kMinItems, int> fPlotsToUpdate;
+        uint32_t fPlotAlreadyUpdated;
         int fCount;
         int fAllocated;
 

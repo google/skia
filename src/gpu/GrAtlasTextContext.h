@@ -98,22 +98,11 @@ private:
             struct SubRunInfo {
                 SubRunInfo()
                     : fAtlasGeneration(GrBatchAtlas::kInvalidAtlasGeneration)
-                    , fGlyphStartIndex(0)
-                    , fGlyphEndIndex(0)
                     , fVertexStartIndex(0)
                     , fVertexEndIndex(0)
+                    , fGlyphStartIndex(0)
+                    , fGlyphEndIndex(0)
                     , fDrawAsDistanceFields(false) {}
-                GrMaskFormat fMaskFormat;
-                uint64_t fAtlasGeneration;
-                uint32_t fGlyphStartIndex;
-                uint32_t fGlyphEndIndex;
-                size_t fVertexStartIndex;
-                size_t fVertexEndIndex;
-                GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
-
-                // distance field properties
-                bool fDrawAsDistanceFields;
-                bool fUseLCDText;
                 // Distance field text cannot draw coloremoji, and so has to fall back.  However,
                 // though the distance field text and the coloremoji may share the same run, they
                 // will have different descriptors.  If fOverrideDescriptor is non-NULL, then it
@@ -121,7 +110,17 @@ private:
                 // TODO we could have a descriptor cache, it would reduce the size of these blobs
                 // significantly, and then the subrun could just have a refed pointer to the
                 // correct descriptor.
-                SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor;
+                SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor; // df properties
+                GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
+                uint64_t fAtlasGeneration;
+                size_t fVertexStartIndex;
+                size_t fVertexEndIndex;
+                uint32_t fGlyphStartIndex;
+                uint32_t fGlyphEndIndex;
+                SkScalar fTextRatio; // df property
+                GrMaskFormat fMaskFormat;
+                bool fDrawAsDistanceFields; // df property
+                bool fUseLCDText; // df property
             };
 
             class SubRunInfoArray {
@@ -171,15 +170,15 @@ private:
             private:
                 static const int kMinSubRuns = 1;
                 static const int kMinSubRunStorage = kMinSubRuns * sizeof(SubRunInfo);
+                SubRunInfo* fPtr;
                 SkAutoSTMalloc<kMinSubRunStorage, unsigned char> fSubRunStorage;
                 int fSubRunCount;
                 int fSubRunAllocation;
-                SubRunInfo* fPtr;
             };
-            SubRunInfoArray fSubRunInfo;
-            SkAutoDescriptor fDescriptor;
             SkAutoTUnref<SkTypeface> fTypeface;
             SkRect fVertexBounds;
+            SubRunInfoArray fSubRunInfo;
+            SkAutoDescriptor fDescriptor;
             GrColor fColor;
             bool fInitialized;
             bool fDrawAsPaths;
@@ -191,37 +190,6 @@ private:
             int fVx;
             int fVy;
         };
-#ifdef SK_DEBUG
-        mutable SkScalar fTotalXError;
-        mutable SkScalar fTotalYError;
-#endif
-        SkColor fPaintColor;
-        SkTArray<BigGlyph> fBigGlyphs;
-        SkMatrix fViewMatrix;
-        SkScalar fX;
-        SkScalar fY;
-        int fRunCount;
-        SkMaskFilter::BlurRec fBlurRec;
-        struct StrokeInfo {
-            SkScalar fFrameWidth;
-            SkScalar fMiterLimit;
-            SkPaint::Join fJoin;
-        };
-        StrokeInfo fStrokeInfo;
-        GrMemoryPool* fPool;
-
-        enum TextType {
-            kHasDistanceField_TextType = 0x1,
-            kHasBitmap_TextType = 0x2,
-        };
-        uint8_t fTextType;
-
-        BitmapTextBlob() : fTextType(0) {}
-
-        // all glyph / vertex offsets are into these pools.
-        unsigned char* fVertices;
-        GrGlyph::PackedID* fGlyphIDs;
-        Run* fRuns;
 
         struct Key {
             Key() {
@@ -240,7 +208,39 @@ private:
                 return 0 == memcmp(this, &other, sizeof(Key));
             }
         };
+
+        struct StrokeInfo {
+            SkScalar fFrameWidth;
+            SkScalar fMiterLimit;
+            SkPaint::Join fJoin;
+        };
+
+        enum TextType {
+            kHasDistanceField_TextType = 0x1,
+            kHasBitmap_TextType = 0x2,
+        };
+
+        // all glyph / vertex offsets are into these pools.
+        unsigned char* fVertices;
+        GrGlyph::PackedID* fGlyphIDs;
+        Run* fRuns;
+        GrMemoryPool* fPool;
+        SkMaskFilter::BlurRec fBlurRec;
+        StrokeInfo fStrokeInfo;
+        SkTArray<BigGlyph> fBigGlyphs;
         Key fKey;
+        SkMatrix fViewMatrix;
+#ifdef SK_DEBUG
+        mutable SkScalar fTotalXError;
+        mutable SkScalar fTotalYError;
+#endif
+        SkScalar fX;
+        SkScalar fY;
+        SkColor fPaintColor;
+        int fRunCount;
+        uint8_t fTextType;
+
+        BitmapTextBlob() : fTextType(0) {}
 
         static const Key& GetKey(const BitmapTextBlob& blob) {
             return blob.fKey;
