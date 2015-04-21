@@ -692,7 +692,7 @@ public:
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
         bool fStroke;
-        SkRect fBounds;
+        SkRect fDevBounds;
     };
 
     static GrBatch* Create(const Geometry& geometry) {
@@ -775,7 +775,7 @@ public:
             SkScalar innerRadius = args.fInnerRadius;
             SkScalar outerRadius = args.fOuterRadius;
 
-            const SkRect& bounds = args.fBounds;
+            const SkRect& bounds = args.fDevBounds;
 
             // The inner radius in the vertex data must be specified in normalized space.
             innerRadius = innerRadius / outerRadius;
@@ -930,9 +930,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     geometry.fInnerRadius = innerRadius;
     geometry.fOuterRadius = outerRadius;
     geometry.fStroke = isStrokeOnly && innerRadius > 0;
-    geometry.fBounds = bounds;
-
-    viewMatrix.mapRect(&bounds);
+    geometry.fDevBounds = bounds;
 
     SkAutoTUnref<GrBatch> batch(CircleBatch::Create(geometry));
     target->drawBatch(pipelineBuilder, batch, &bounds);
@@ -950,7 +948,7 @@ public:
         SkScalar fInnerXRadius;
         SkScalar fInnerYRadius;
         bool fStroke;
-        SkRect fBounds;
+        SkRect fDevBounds;
     };
 
     static GrBatch* Create(const Geometry& geometry) {
@@ -1038,7 +1036,7 @@ public:
             SkScalar xInnerRadRecip = SkScalarInvert(args.fInnerXRadius);
             SkScalar yInnerRadRecip = SkScalarInvert(args.fInnerYRadius);
 
-            const SkRect& bounds = args.fBounds;
+            const SkRect& bounds = args.fDevBounds;
 
             // The inner radius in the vertex data must be specified in normalized space.
             verts[0].fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
@@ -1229,9 +1227,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     geometry.fInnerXRadius = innerXRadius;
     geometry.fInnerYRadius = innerYRadius;
     geometry.fStroke = isStrokeOnly && innerXRadius > 0 && innerYRadius > 0;
-    geometry.fBounds = bounds;
-
-    viewMatrix.mapRect(&bounds);
+    geometry.fDevBounds = bounds;
 
     SkAutoTUnref<GrBatch> batch(EllipseBatch::Create(geometry));
     target->drawBatch(pipelineBuilder, batch, &bounds);
@@ -1642,7 +1638,7 @@ public:
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
         bool fStroke;
-        SkRect fBounds;
+        SkRect fDevBounds;
     };
 
     static GrBatch* Create(const Geometry& geometry, const GrIndexBuffer* indexBuffer) {
@@ -1725,7 +1721,7 @@ public:
 
             SkScalar outerRadius = args.fOuterRadius;
 
-            const SkRect& bounds = args.fBounds;
+            const SkRect& bounds = args.fDevBounds;
 
             SkScalar yCoords[4] = {
                 bounds.fTop,
@@ -1851,7 +1847,7 @@ public:
         SkScalar fInnerXRadius;
         SkScalar fInnerYRadius;
         bool fStroke;
-        SkRect fBounds;
+        SkRect fDevBounds;
     };
 
     static GrBatch* Create(const Geometry& geometry, const GrIndexBuffer* indexBuffer) {
@@ -1942,7 +1938,7 @@ public:
             SkScalar xOuterRadius = args.fXRadius + SK_ScalarHalf;
             SkScalar yOuterRadius = args.fYRadius + SK_ScalarHalf;
 
-            const SkRect& bounds = args.fBounds;
+            const SkRect& bounds = args.fDevBounds;
 
             SkScalar yCoords[4] = {
                 bounds.fTop,
@@ -2174,9 +2170,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         geometry.fInnerRadius = innerRadius;
         geometry.fOuterRadius = outerRadius;
         geometry.fStroke = isStrokeOnly;
-        geometry.fBounds = bounds;
-
-        viewMatrix.mapRect(&bounds);   
+        geometry.fDevBounds = bounds;
 
         SkAutoTUnref<GrBatch> batch(RRectCircleRendererBatch::Create(geometry, indexBuffer));
         target->drawBatch(pipelineBuilder, batch, &bounds);
@@ -2228,9 +2222,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         geometry.fInnerXRadius = innerXRadius;
         geometry.fInnerYRadius = innerYRadius;
         geometry.fStroke = isStrokeOnly;
-        geometry.fBounds = bounds;
-
-        viewMatrix.mapRect(&bounds);   
+        geometry.fDevBounds = bounds;
 
         SkAutoTUnref<GrBatch> batch(RRectEllipseRendererBatch::Create(geometry, indexBuffer));
         target->drawBatch(pipelineBuilder, batch, &bounds);
