@@ -235,13 +235,22 @@ private:
         mutable SkScalar fTotalXError;
         mutable SkScalar fTotalYError;
 #endif
+        SkColor fPaintColor;
         SkScalar fX;
         SkScalar fY;
-        SkColor fPaintColor;
+
+        // We can reuse distance field text, but only if the new viewmatrix would not result in
+        // a mip change.  Because there can be multiple runs in a blob, we track the overall
+        // maximum minimum scale, and minimum maximum scale, we can support before we need to regen
+        SkScalar fMaxMinScale;
+        SkScalar fMinMaxScale;
         int fRunCount;
         uint8_t fTextType;
 
-        BitmapTextBlob() : fTextType(0) {}
+        BitmapTextBlob()
+            : fMaxMinScale(SK_ScalarMax)
+            , fMinMaxScale(SK_ScalarMax)
+            , fTextType(0) {}
 
         static const Key& GetKey(const BitmapTextBlob& blob) {
             return blob.fKey;
@@ -357,7 +366,8 @@ private:
                             SkDrawFilter* drawFilter, const SkIRect& clipRect, GrRenderTarget*,
                             const GrClip&, const GrPaint&);
     inline static bool HasLCD(const SkTextBlob*);
-    inline void initDistanceFieldPaint(SkPaint*, SkScalar* textRatio, const SkMatrix&);
+    inline void initDistanceFieldPaint(BitmapTextBlob*, SkPaint*, SkScalar* textRatio,
+                                       const SkMatrix&);
 
     // Distance field text needs this table to compute a value for use in the fragment shader.
     // Because the GrAtlasTextContext can go out of scope before the final flush, this needs to be
