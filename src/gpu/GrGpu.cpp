@@ -37,9 +37,7 @@ void GrGpu::contextAbandoned() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-
-GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget) {
+static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget) {
     // By default, GrRenderTargets are GL's normal orientation so that they
     // can be drawn to by the outside world without the client having
     // to render upside down.
@@ -48,8 +46,6 @@ GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget) {
     } else {
         return origin;
     }
-}
-
 }
 
 GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
