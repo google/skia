@@ -94,6 +94,8 @@ private:
                 , fInitialized(false)
                 , fDrawAsPaths(false) {
                 fVertexBounds.setLargestInverted();
+                // To ensure we always have one subrun, we push back a fresh run here
+                fSubRunInfo.push_back();
             }
             struct SubRunInfo {
                 SubRunInfo()
@@ -110,7 +112,6 @@ private:
                 // TODO we could have a descriptor cache, it would reduce the size of these blobs
                 // significantly, and then the subrun could just have a refed pointer to the
                 // correct descriptor.
-                SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor; // df properties
                 GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
                 uint64_t fAtlasGeneration;
                 size_t fVertexStartIndex;
@@ -123,63 +124,24 @@ private:
                 bool fUseLCDText; // df property
             };
 
-            class SubRunInfoArray {
-            public:
-                SubRunInfoArray()
-                    : fSubRunCount(0)
-                    , fSubRunAllocation(kMinSubRuns) {
-                    SK_COMPILE_ASSERT(kMinSubRuns > 0, insufficient_subrun_allocation);
-                    // We always seed with one here, so we can assume a valid subrun during
-                    // push_back
-                    fPtr = reinterpret_cast<SubRunInfo*>(fSubRunStorage.get());
-                    SkNEW_PLACEMENT(&fPtr[fSubRunCount++], SubRunInfo);
-                }
-                ~SubRunInfoArray() {
-                    for (int i = 0; i < fSubRunCount; i++) {
-                        fPtr[i].~SubRunInfo();
-                    }
-                }
+            SubRunInfo& push_back() {
+                // Forward glyph / vertex information to seed the new sub run
+                SubRunInfo& prevSubRun = fSubRunInfo.back();
+                SubRunInfo& newSubRun = fSubRunInfo.push_back();
+                newSubRun.fGlyphStartIndex = prevSubRun.fGlyphEndIndex;
+                newSubRun.fGlyphEndIndex = prevSubRun.fGlyphEndIndex;
 
-                int count() const { return fSubRunCount; }
-                SubRunInfo& back() { return fPtr[fSubRunCount - 1]; }
-                SubRunInfo& push_back() {
-                    if (fSubRunCount >= fSubRunAllocation) {
-                        fSubRunAllocation = fSubRunAllocation << 1;
-                        fSubRunStorage.realloc(fSubRunAllocation * sizeof(SubRunInfo));
-                        fPtr = reinterpret_cast<SubRunInfo*>(fSubRunStorage.get());
-                    }
-                    SkNEW_PLACEMENT(&fPtr[fSubRunCount], SubRunInfo);
-
-                    // Forward glyph / vertex information to seed the new sub run
-                    SubRunInfo& newSubRun = fPtr[fSubRunCount];
-                    SubRunInfo& prevSubRun = fPtr[fSubRunCount - 1];
-                    newSubRun.fGlyphStartIndex = prevSubRun.fGlyphEndIndex;
-                    newSubRun.fGlyphEndIndex = prevSubRun.fGlyphEndIndex;
-
-                    newSubRun.fVertexStartIndex = prevSubRun.fVertexEndIndex;
-                    newSubRun.fVertexEndIndex = prevSubRun.fVertexEndIndex;
-                    return fPtr[fSubRunCount++];
-                }
-                SubRunInfo& operator[](int index) {
-                    return fPtr[index];
-                }
-                const SubRunInfo& operator[](int index) const {
-                    return fPtr[index];
-                }
-
-            private:
-                static const int kMinSubRuns = 1;
-                static const int kMinSubRunStorage = kMinSubRuns * sizeof(SubRunInfo);
-                SubRunInfo* fPtr;
-                SkAutoSTMalloc<kMinSubRunStorage, unsigned char> fSubRunStorage;
-                int fSubRunCount;
-                int fSubRunAllocation;
-            };
+                newSubRun.fVertexStartIndex = prevSubRun.fVertexEndIndex;
+                newSubRun.fVertexEndIndex = prevSubRun.fVertexEndIndex;
+                return newSubRun;
+            }
+            static const int kMinSubRuns = 1;
             SkAutoTUnref<GrBatchTextStrike> fStrike;
             SkAutoTUnref<SkTypeface> fTypeface;
             SkRect fVertexBounds;
-            SubRunInfoArray fSubRunInfo;
+            SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;
             SkAutoDescriptor fDescriptor;
+            SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor; // df properties
             GrColor fColor;
             bool fInitialized;
             bool fDrawAsPaths;

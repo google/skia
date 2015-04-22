@@ -660,12 +660,13 @@ inline void GrAtlasTextContext::fallbackDrawPosText(BitmapTextBlob* blob,
     SkASSERT(fallbackTxt.count());
     blob->setHasBitmap();
     Run& run = blob->fRuns[runIndex];
-    PerSubRunInfo& subRun = run.fSubRunInfo.push_back();
-    subRun.fOverrideDescriptor.reset(SkNEW(SkAutoDescriptor));
-    skPaint.getScalerContextDescriptor(subRun.fOverrideDescriptor,
+    // Push back a new subrun to fill and set the override descriptor
+    run.push_back();
+    run.fOverrideDescriptor.reset(SkNEW(SkAutoDescriptor));
+    skPaint.getScalerContextDescriptor(run.fOverrideDescriptor,
                                        &fDeviceProperties, &viewMatrix, false);
     SkGlyphCache* cache = SkGlyphCache::DetachCache(run.fTypeface,
-                                                    subRun.fOverrideDescriptor->getDesc());
+                                                    run.fOverrideDescriptor->getDesc());
     this->internalDrawBMPPosText(blob, runIndex, cache, skPaint, paint.getColor(), viewMatrix,
                                  fallbackTxt.begin(), fallbackTxt.count(),
                                  fallbackPos.begin(), scalarsPerPosition, offset, clipRect);
@@ -1602,8 +1603,8 @@ public:
 
                     // We can reuse if we have a valid strike and our descriptors / typeface are the
                     // same
-                    const SkDescriptor* newDesc = info.fOverrideDescriptor ?
-                                                  info.fOverrideDescriptor->getDesc() :
+                    const SkDescriptor* newDesc = run.fOverrideDescriptor ?
+                                                  run.fOverrideDescriptor->getDesc() :
                                                   run.fDescriptor.getDesc();
                     if (!cache || !SkTypeface::Equal(typeface, run.fTypeface) ||
                                   !(desc->equals(*newDesc))) {

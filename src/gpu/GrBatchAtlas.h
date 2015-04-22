@@ -90,19 +90,12 @@ public:
         void set(int index) {
             SkASSERT(!this->find(index));
             fPlotAlreadyUpdated = fPlotAlreadyUpdated | (1 << index);
-            if (fCount < fAllocated) {
-                fPlotsToUpdate[fCount++] = index;
-            } else {
-                // This case will almost never happen
-                fAllocated = fCount << 1;
-                fPlotsToUpdate.realloc(fAllocated);
-                fPlotsToUpdate[fCount++] = index;
-            }
+            fPlotsToUpdate.push_back(index);
         }
 
         static const int kMinItems = 4;
         static const int kMaxPlots = 32;
-        SkAutoSTMalloc<kMinItems, int> fPlotsToUpdate;
+        SkSTArray<kMinItems, int, true> fPlotsToUpdate;
         uint32_t fPlotAlreadyUpdated;
         int fCount;
         int fAllocated;
