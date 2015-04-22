@@ -173,6 +173,7 @@
         '../gm/pictureimagefilter.cpp',
         '../gm/pictureshader.cpp',
         '../gm/pictureshadertile.cpp',
+        '../gm/pixelsnap.cpp',
         '../gm/points.cpp',
         '../gm/poly2poly.cpp',
         '../gm/polygons.cpp',
