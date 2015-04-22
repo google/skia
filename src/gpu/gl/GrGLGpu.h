@@ -114,9 +114,10 @@ private:
     // GrGpu overrides
     void onResetContext(uint32_t resetBits) override;
 
-    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
-                               size_t rowBytes) override;
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, bool budgeted,
+    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
+                               const void* srcData, size_t rowBytes) override;
+    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
+                                         GrGpuResource::LifeCycle lifeCycle,
                                          const void* srcData) override;
     GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override;
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override;
@@ -277,8 +278,8 @@ private:
                                  int left = 0, int top = 0,
                                  int width = -1, int height = -1);
 
-    bool createRenderTargetObjects(const GrSurfaceDesc&, bool budgeted, GrGLuint texID, 
-                                   GrGLRenderTarget::IDDesc*);
+    bool createRenderTargetObjects(const GrSurfaceDesc&, GrGpuResource::LifeCycle lifeCycle,
+                                   GrGLuint texID, GrGLRenderTarget::IDDesc*);
 
     enum TempFBOTarget {
         kSrc_TempFBOTarget,

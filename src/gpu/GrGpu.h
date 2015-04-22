@@ -437,9 +437,13 @@ private:
     virtual void onResetContext(uint32_t resetBits) = 0;
 
     // overridden by backend-specific derived class to create objects.
-    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc, bool budgeted,
+    // Texture size and sample size will have already been validated in base class before
+    // onCreateTexture/CompressedTexture are called.
+    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
+                                       GrGpuResource::LifeCycle lifeCycle,
                                        const void* srcData, size_t rowBytes) = 0;
-    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, bool budgeted,
+    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
+                                                 GrGpuResource::LifeCycle lifeCycle,
                                                  const void* srcData) = 0;
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;

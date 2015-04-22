@@ -416,7 +416,8 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     GrGLTexture* texture = NULL;
     if (renderTarget) {
         GrGLRenderTarget::IDDesc rtIDDesc;
-        if (!this->createRenderTargetObjects(surfDesc, false, idDesc.fTextureID, &rtIDDesc)) {
+        if (!this->createRenderTargetObjects(surfDesc, GrGpuResource::kUncached_LifeCycle,
+                                             idDesc.fTextureID, &rtIDDesc)) {
             return NULL;
         }
         texture = SkNEW_ARGS(GrGLTextureRenderTarget, (this, surfDesc, idDesc, rtIDDesc));
@@ -811,13 +812,14 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
     return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));
 }
 
-bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc, bool budgeted, GrGLuint texID,
+bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
+                                        GrGpuResource::LifeCycle lifeCycle,
+                                        GrGLuint texID,
                                         GrGLRenderTarget::IDDesc* idDesc) {
     idDesc->fMSColorRenderbufferID = 0;
     idDesc->fRTFBOID = 0;
     idDesc->fTexFBOID = 0;
-    idDesc->fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
-                                    GrGpuResource::kUncached_LifeCycle;
+    idDesc->fLifeCycle = lifeCycle;
 
     GrGLenum status;
 
@@ -930,13 +932,9 @@ static size_t as_size_t(int x) {
 }
 #endif
 
-GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc, bool budgeted,
+GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                    GrGpuResource::LifeCycle lifeCycle,
                                     const void* srcData, size_t rowBytes) {
-
-    GrSurfaceDesc desc = origDesc;
-
-    // Attempt to catch un- or wrongly initialized sample counts;
-    SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
     // We fail if the MSAA was requested and is not available.
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
         //SkDebugf("MSAA RT requested but not supported on this platform.");
@@ -945,31 +943,9 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc, bool budgeted
 
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
-    // If the sample count exceeds the max then we clamp it.
-    desc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
-    desc.fOrigin = resolve_origin(desc.fOrigin, renderTarget);
-
-    if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
-        //SkDebugf("MSAA RT requested but not supported on this platform.");
-        return return_null_texture();
-    }
-
-    if (renderTarget) {
-        int maxRTSize = this->caps()->maxRenderTargetSize();
-        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
-            return return_null_texture();
-        }
-    } else {
-        int maxSize = this->caps()->maxTextureSize();
-        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
-            return return_null_texture();
-        }
-    }
-
     GrGLTexture::IDDesc idDesc;
     GL_CALL(GenTextures(1, &idDesc.fTextureID));
-    idDesc.fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
-                                   GrGpuResource::kUncached_LifeCycle;
+    idDesc.fLifeCycle = lifeCycle;
 
     if (!idDesc.fTextureID) {
         return return_null_texture();
@@ -1020,7 +996,7 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc, bool budgeted
         GL_CALL(BindTexture(GR_GL_TEXTURE_2D, 0));
         GrGLRenderTarget::IDDesc rtIDDesc;
 
-        if (!this->createRenderTargetObjects(desc, budgeted, idDesc.fTextureID, &rtIDDesc)) {
+        if (!this->createRenderTargetObjects(desc, lifeCycle, idDesc.fTextureID, &rtIDDesc)) {
             GL_CALL(DeleteTextures(1, &idDesc.fTextureID));
             return return_null_texture();
         }
@@ -1036,30 +1012,17 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& origDesc, bool budgeted
     return tex;
 }
 
-GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& origDesc, bool budgeted,
+GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
+                                              GrGpuResource::LifeCycle lifeCycle,
                                               const void* srcData) {
-
-    if(SkToBool(origDesc.fFlags & kRenderTarget_GrSurfaceFlag) || origDesc.fSampleCnt > 0) {
-        return return_null_texture();
-    }
-
     // Make sure that we're not flipping Y.
-    GrSurfaceOrigin texOrigin = resolve_origin(origDesc.fOrigin, false);
-    if (kBottomLeft_GrSurfaceOrigin == texOrigin) {
-        return return_null_texture();
-    }
-    GrSurfaceDesc desc = origDesc;
-    desc.fOrigin = texOrigin;
-
-    int maxSize = this->caps()->maxTextureSize();
-    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+    if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
         return return_null_texture();
     }
 
     GrGLTexture::IDDesc idDesc;
     GL_CALL(GenTextures(1, &idDesc.fTextureID));
-    idDesc.fLifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
-                                   GrGpuResource::kUncached_LifeCycle;
+    idDesc.fLifeCycle = lifeCycle;
 
     if (!idDesc.fTextureID) {
         return return_null_texture();

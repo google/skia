@@ -37,8 +37,25 @@ void GrGpu::contextAbandoned() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
+namespace {
+
+GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget) {
+    // By default, GrRenderTargets are GL's normal orientation so that they
+    // can be drawn to by the outside world without the client having
+    // to render upside down.
+    if (kDefault_GrSurfaceOrigin == origin) {
+        return renderTarget ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
+    } else {
+        return origin;
+    }
+}
+
+}
+
+GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
                                 const void* srcData, size_t rowBytes) {
+    GrSurfaceDesc desc = origDesc;
+
     if (!this->caps()->isConfigTexturable(desc.fConfig)) {
         return NULL;
     }
@@ -49,9 +66,32 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
     }
 
     GrTexture *tex = NULL;
+
+    if (isRT) {
+        int maxRTSize = this->caps()->maxRenderTargetSize();
+        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
+            return NULL;
+        }
+    } else {
+        int maxSize = this->caps()->maxTextureSize();
+        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+            return NULL;
+        }
+    }
+
+    GrGpuResource::LifeCycle lifeCycle = budgeted ? GrGpuResource::kCached_LifeCycle :
+                                                    GrGpuResource::kUncached_LifeCycle;
+
+    desc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
+    // Attempt to catch un- or wrongly initialized sample counts;
+    SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
+
+    desc.fOrigin = resolve_origin(desc.fOrigin, isRT);
+
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         // We shouldn't be rendering into this
-        SkASSERT((desc.fFlags & kRenderTarget_GrSurfaceFlag) == 0);
+        SkASSERT(!isRT);
+        SkASSERT(0 == desc.fSampleCnt);
 
         if (!this->caps()->npotTextureTileSupport() &&
             (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
@@ -59,10 +99,10 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& desc, bool budgeted,
         }
 
         this->handleDirtyContext();
-        tex = this->onCreateCompressedTexture(desc, budgeted, srcData);
+        tex = this->onCreateCompressedTexture(desc, lifeCycle, srcData);
     } else {
         this->handleDirtyContext();
-        tex = this->onCreateTexture(desc, budgeted, srcData, rowBytes);
+        tex = this->onCreateTexture(desc, lifeCycle, srcData, rowBytes);
     }
     if (!this->caps()->reuseScratchTextures() && !isRT) {
         tex->resourcePriv().removeScratchKey();

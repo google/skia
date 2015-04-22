@@ -175,12 +175,12 @@ public:
 private:
     void onResetContext(uint32_t resetBits) override {}
 
-    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
-                               size_t rowBytes) override {
+    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
+                               const void* srcData, size_t rowBytes) override {
         return NULL;
     }
 
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, bool budgeted,
+    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
                                          const void* srcData) override {
         return NULL;
     }
