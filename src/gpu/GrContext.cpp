@@ -134,8 +134,10 @@ void GrContext::initCommon() {
     this->setupDrawBuffer();
 
     // GrBatchFontCache will eventually replace GrFontCache
+#if 0
     fBatchFontCache = SkNEW(GrBatchFontCache);
     fBatchFontCache->init(this);
+#endif
 }
 
 GrContext::~GrContext() {
@@ -150,7 +152,9 @@ GrContext::~GrContext() {
     }
 
     SkDELETE(fResourceCache);
+#if 0
     SkDELETE(fBatchFontCache);
+#endif
     SkDELETE(fFontCache);
     SkDELETE(fDrawBuffer);
     SkDELETE(fDrawBufferVBAllocPool);
@@ -188,7 +192,9 @@ void GrContext::abandonContext() {
     fAARectRenderer->reset();
     fOvalRenderer->reset();
 
+#if 0
     fBatchFontCache->freeAll();
+#endif
     fFontCache->freeAll();
     fLayerCache->freeAll();
 }
@@ -207,7 +213,9 @@ void GrContext::freeGpuResources() {
     fAARectRenderer->reset();
     fOvalRenderer->reset();
 
+#if 0
     fBatchFontCache->freeAll();
+#endif
     fFontCache->freeAll();
     fLayerCache->freeAll();
     // a path renderer may be holding onto resources
