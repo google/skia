@@ -252,6 +252,12 @@ private:
             , fMinMaxScale(SK_ScalarMax)
             , fTextType(0) {}
 
+        ~BitmapTextBlob() override {
+            for (int i = 0; i < fRunCount; i++) {
+                fRuns[i].~Run();
+            }
+        }
+
         static const Key& GetKey(const BitmapTextBlob& blob) {
             return blob.fKey;
         }
