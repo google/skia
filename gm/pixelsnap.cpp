@@ -23,18 +23,13 @@ protected:
     static const int kSubPixelSteps = 8;
     static const int kLabelTextSize = 9;
 
+    SK_COMPILE_ASSERT(kSubPixelSteps < 99, label_offset_too_small);
+    static const int kLabelOffsetX = 2 * kLabelTextSize + kLabelPad;
+    static const int kLabelOffsetY = kLabelTextSize + kLabelPad;
+
     SkISize onISize() override {
-        SkPaint labelPaint;
-        labelPaint.setAntiAlias(true);
-        labelPaint.setColor(SK_ColorWHITE);
-        labelPaint.setTextSize(SkIntToScalar(kLabelTextSize));
-        // Assert that we only render double digit labels
-        SkASSERT(kSubPixelSteps < 99);
-        // Pick 88 as widest possible label rendered (?)
-        int xoffset = SkScalarCeilToInt(labelPaint.measureText("88", 2));
-        int yoffset = SkScalarCeilToInt(labelPaint.getTextSize());
-        return SkISize::Make(kLabelPad + (kSubPixelSteps + 1) * kTrans + xoffset,
-                             kLabelPad + (kSubPixelSteps + 1) * kTrans + yoffset);
+        return SkISize::Make((kSubPixelSteps + 1) * kTrans + kLabelOffsetX + kLabelPad,
+                             (kSubPixelSteps + 1) * kTrans + kLabelOffsetY + kLabelPad);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -51,37 +46,32 @@ protected:
         SkPaint linePaint;
         linePaint.setColor(SK_ColorWHITE);
 
-        // Draw row labels
-        static const SkScalar labelOffsetY = labelPaint.getTextSize() + kLabelPad;
-        SkScalar labelOffsetX = 0;
-        canvas->save();
-            canvas->translate(0, labelOffsetY);
-            for (int i = 0; i <= kSubPixelSteps; ++i) {
-                offset.printf("%d", i);
-                canvas->drawText(offset.c_str(), offset.size(),
-                                 0, i * kTrans + labelPaint.getTextSize(),
-                                 labelPaint);
-                labelOffsetX = SkTMax(labelPaint.measureText(offset.c_str(), offset.size()),
-                                      labelOffsetX);
-            }
-        canvas->restore();
-        labelOffsetX += kLabelPad;
-        labelOffsetX = SkScalarCeilToScalar(labelOffsetX);
+        // Drawing labels is useful for debugging, but bad for baselining (x-platform txt diffs).
+        if (false) {
+            // Draw row labels
+            canvas->save();
+                canvas->translate(0, SkIntToScalar(kLabelOffsetY));
+                for (int i = 0; i <= kSubPixelSteps; ++i) {
+                    offset.printf("%d", i);
+                    canvas->drawText(offset.c_str(), offset.size(),
+                                     0, i * kTrans + labelPaint.getTextSize(),
+                                     labelPaint);
+                }
+            canvas->restore();
 
-        // Draw col labels
-        canvas->save();
-            canvas->translate(labelOffsetX, 0);
-            for (int i = 0; i <= kSubPixelSteps; ++i) {
-                offset.printf("%d", i);
-                canvas->drawText(offset.c_str(), offset.size(),
-                                 i * SkIntToScalar(kTrans), labelPaint.getTextSize(),
-                                 labelPaint);
-            }
-        canvas->restore();
+            // Draw col labels
+            canvas->save();
+                canvas->translate(SkIntToScalar(kLabelOffsetX), 0);
+                for (int i = 0; i <= kSubPixelSteps; ++i) {
+                    offset.printf("%d", i);
+                    canvas->drawText(offset.c_str(), offset.size(),
+                                     i * SkIntToScalar(kTrans), labelPaint.getTextSize(),
+                                     labelPaint);
+                }
+            canvas->restore();
+        }
 
-        canvas->translate(labelOffsetX, labelOffsetY);
-        SkASSERT((SkScalar)(int)labelOffsetX == labelOffsetX);
-        SkASSERT((SkScalar)(int)labelOffsetY == labelOffsetY);
+        canvas->translate(SkIntToScalar(kLabelOffsetX), SkIntToScalar(kLabelOffsetY));
 
         // Draw test case grid lines (Draw them all at pixel centers to hopefully avoid any
         // snapping issues).
