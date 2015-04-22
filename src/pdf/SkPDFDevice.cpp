@@ -328,7 +328,6 @@ static void emit_clip(SkPath* clipPath, SkRect* clipRect,
     }
 }
 
-#ifdef SK_PDF_USE_PATHOPS
 /* Calculate an inverted path's equivalent non-inverted path, given the
  * canvas bounds.
  * outPath may alias with invPath (since this is supported by PathOps).
@@ -343,6 +342,7 @@ static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
     return Op(clipPath, invPath, kIntersect_PathOp, outPath);
 }
 
+#ifdef SK_PDF_USE_PATHOPS_CLIPPING
 // Sanity check the numerical values of the SkRegion ops and PathOps ops
 // enums so region_op_to_pathops_op can do a straight passthrough cast.
 // If these are failing, it may be necessary to make region_op_to_pathops_op
@@ -440,7 +440,7 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     SkMatrix transform;
     transform.setTranslate(translation.fX, translation.fY);
 
-#ifdef SK_PDF_USE_PATHOPS
+#ifdef SK_PDF_USE_PATHOPS_CLIPPING
     SkPath clipPath;
     if (get_clip_stack_path(transform, clipStack, clipRegion, &clipPath)) {
         emit_clip(&clipPath, NULL, fContentStream);
@@ -951,11 +951,9 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
         return;
     }
 
-#ifdef SK_PDF_USE_PATHOPS
     if (handleInversePath(d, origPath, paint, pathIsMutable, prePathMatrix)) {
         return;
     }
-#endif
 
     if (handleRectAnnotation(pathPtr->getBounds(), matrix, paint)) {
         return;
@@ -1363,7 +1361,6 @@ void SkPDFDevice::writeContent(SkWStream* out) const {
     SkPDFDevice::copyContentEntriesToData(fContentEntries.get(), out);
 }
 
-#ifdef SK_PDF_USE_PATHOPS
 /* Draws an inverse filled path by using Path Ops to compute the positive
  * inverse using the current clip as the inverse bounds.
  * Return true if this was an inverse path and was properly handled,
@@ -1429,7 +1426,6 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
     drawPath(d, modifiedPath, noInversePaint, prePathMatrix, true);
     return true;
 }
-#endif
 
 bool SkPDFDevice::handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
                                        const SkPaint& p) {
