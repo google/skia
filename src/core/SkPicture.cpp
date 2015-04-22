@@ -230,11 +230,7 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
     // TODO: the heuristic used here needs to be refined
     static const int kNumSlowPathsTol = 6;
 
-    int numSlowPathDashedPaths = fNumPaintWithPathEffectUses;
-    if (0 == sampleCount) {
-        // The fast dashing path only works when MSAA is disabled
-        numSlowPathDashedPaths -= fNumFastPathDashEffects;
-    }
+    int numSlowPathDashedPaths = fNumPaintWithPathEffectUses - fNumFastPathDashEffects;
 
     int numSlowPaths = fNumAAConcavePaths -
                        fNumAAHairlineConcavePaths -
