@@ -1392,7 +1392,8 @@ public:
             c.sweep_lt = sweep_lt_vert;
             c.sweep_gt = sweep_gt_vert;
         }
-        SkScalar tol = GrPathUtils::scaleToleranceToSrc(SK_Scalar1, fViewMatrix, pathBounds);
+        SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(screenSpaceTol, fViewMatrix, pathBounds);
         int contourCnt;
         int maxPts = GrPathUtils::worstCasePointCount(fPath, &contourCnt, tol);
         if (maxPts <= 0) {

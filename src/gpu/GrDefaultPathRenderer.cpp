@@ -658,7 +658,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
         }
     }
 
-    SkScalar tol = SK_Scalar1;
+    SkScalar tol = GrPathUtils::kDefaultTolerance;
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, path.getBounds());
 
     SkRect devBounds;
