@@ -30,6 +30,8 @@ static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
         return (GrGLFuncPtr) glBindTexture;
     } else if (0 == strcmp("glBlendColor", name)) {
         return (GrGLFuncPtr) glBlendColor;
+    } else if (0 == strcmp("glBlendEquation", name)) {
+        return (GrGLFuncPtr) glBlendEquation;
     } else if (0 == strcmp("glBlendFunc", name)) {
         return (GrGLFuncPtr) glBlendFunc;
     } else if (0 == strcmp("glBufferData", name)) {

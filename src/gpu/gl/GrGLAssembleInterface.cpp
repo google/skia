@@ -70,14 +70,28 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     }
     GET_PROC(BeginQuery);
     GET_PROC(BindTexture);
-    GET_PROC(BlendFunc);
 
-    if (glVer >= GR_GL_VER(1,4) ||
-        extensions.has("GL_ARB_imaging") ||
-        extensions.has("GL_EXT_blend_color")) {
-        GET_PROC(BlendColor);
+    if (extensions.has("GL_KHR_blend_equation_advanced")) {
+        GET_PROC_SUFFIX(BlendBarrier, KHR);
+    } else if (extensions.has("GL_NV_blend_equation_advanced")) {
+        GET_PROC_SUFFIX(BlendBarrier, NV);
     }
 
+    if (glVer >= GR_GL_VER(1,4) ||
+        extensions.has("GL_ARB_imaging")) {
+        GET_PROC(BlendColor);
+    } else if (extensions.has("GL_EXT_blend_color")) {
+        GET_PROC_SUFFIX(BlendColor, EXT);
+    }
+
+    if (glVer >= GR_GL_VER(1,4) ||
+        extensions.has("GL_ARB_imaging")) {
+        GET_PROC(BlendEquation);
+    } else if (extensions.has("GL_EXT_blend_subtract")) {
+        GET_PROC_SUFFIX(BlendEquation, EXT);
+    }
+
+    GET_PROC(BlendFunc);
     GET_PROC(BufferData);
     GET_PROC(BufferSubData);
     GET_PROC(Clear);
@@ -341,7 +355,15 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(BindBuffer);
     GET_PROC(BindTexture);
     GET_PROC_SUFFIX(BindVertexArray, OES);
+
+    if (extensions.has("GL_KHR_blend_equation_advanced")) {
+        GET_PROC_SUFFIX(BlendBarrier, KHR);
+    } else if (extensions.has("GL_NV_blend_equation_advanced")) {
+        GET_PROC_SUFFIX(BlendBarrier, NV);
+    }
+
     GET_PROC(BlendColor);
+    GET_PROC(BlendEquation);
     GET_PROC(BlendFunc);
     GET_PROC(BufferData);
     GET_PROC(BufferSubData);

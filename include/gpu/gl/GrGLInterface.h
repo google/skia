@@ -156,7 +156,9 @@ public:
         GLPtr<GrGLBindRenderbufferProc> fBindRenderbuffer;
         GLPtr<GrGLBindTextureProc> fBindTexture;
         GLPtr<GrGLBindVertexArrayProc> fBindVertexArray;
+        GLPtr<GrGLBlendBarrierProc> fBlendBarrier;
         GLPtr<GrGLBlendColorProc> fBlendColor;
+        GLPtr<GrGLBlendEquationProc> fBlendEquation;
         GLPtr<GrGLBlendFuncProc> fBlendFunc;
         GLPtr<GrGLBlitFramebufferProc> fBlitFramebuffer;
         GLPtr<GrGLBufferDataProc> fBufferData;
