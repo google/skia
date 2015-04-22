@@ -24,7 +24,7 @@ class SkGpuDevice;
 class SkTextBlob;
 
 // For testing textblobs on GPU.
-//#define USE_BITMAP_TEXTBLOBS
+#define USE_BITMAP_TEXTBLOBS
 
 /*
  * This class wraps the state for a single text render
