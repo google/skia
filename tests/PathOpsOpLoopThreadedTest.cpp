@@ -53,7 +53,7 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
         SkPath pathA, pathB;
         if (progress) {
             char* str = pathStr;
-            const int loopNo = 12;
+            const int loopNo = 17;
             str += sprintf(str, "static void loop%d(skiatest::Reporter* reporter,"
                     " const char* filename) {\n", loopNo);
             str += sprintf(str, "    SkPath path, pathB;\n");

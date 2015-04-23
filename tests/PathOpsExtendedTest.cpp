@@ -289,7 +289,7 @@ int comparePaths(skiatest::Reporter* reporter, const char* filename, const SkPat
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
 }
 
-const int gTestFirst = 4;
+const int gTestFirst = 6;
 static int gTestNo = gTestFirst;
 static SkTDArray<SkPathOp> gTestOp;
 
@@ -654,13 +654,34 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
     #endif
             (*tests[index].fun)(reporter, tests[index].str);
         }
-        if (tests[index].fun == stopTest) {
-            SkDebugf("lastTest\n");
-            break;
-        }
-        if (index == last) {
+        if (tests[index].fun == stopTest || index == last) {
             break;
         }
         index += reverse ? -1 : 1;
     } while (true);
+#if DEBUG_SHOW_TEST_NAME
+    SkDebugf(
+            "\n"
+            "</div>\n"
+            "\n"
+            "<script type=\"text/javascript\">\n"
+            "\n"
+            "var testDivs = [\n"
+    );
+    index = reverse ? count - 1 : 0;
+    last = reverse ? 0 : count - 1;
+    foundSkip = !skipTest;
+    do {
+        if (tests[index].fun == skipTest) {
+            foundSkip = true;
+        }
+        if (foundSkip && tests[index].fun != firstTest) {
+            SkDebugf("    %s,\n", tests[index].str);
+        }
+        if (tests[index].fun == stopTest || index == last) {
+            break;
+        }
+        index += reverse ? -1 : 1;
+    } while (true);
+#endif
 }

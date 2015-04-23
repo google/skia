@@ -42,7 +42,7 @@ struct SkOpAngle {
         return SkDEBUGRELEASE(fID, -1);
     }
 
-#if DEBUG_SORT
+#if DEBUG_SORT || DEBUG_SWAP_TOP
     void debugLoop() const;
 #endif
 

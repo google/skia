@@ -27,6 +27,13 @@ struct SkDCubic {
         kYAxis
     };
 
+    enum CubicType {
+        kUnsplit_SkDCubicType,
+        kSplitAtLoop_SkDCubicType,
+        kSplitAtInflection_SkDCubicType,
+        kSplitAtMaxCurvature_SkDCubicType,
+    };
+
     bool collapsed() const {
         return fPts[0].approximatelyEqual(fPts[1]) && fPts[0].approximatelyEqual(fPts[2])
                 && fPts[0].approximatelyEqual(fPts[3]);
@@ -50,9 +57,10 @@ struct SkDCubic {
     double binarySearch(double min, double max, double axisIntercept, SearchAxis xAxis) const;
     double calcPrecision() const;
     SkDCubicPair chopAt(double t) const;
-    bool clockwise() const;
+    bool clockwise(bool* swap) const;
+    static bool Clockwise(const SkPoint* pts, double startT, double endT, bool* swap);
     static void Coefficients(const double* cubic, double* A, double* B, double* C, double* D);
-    static bool ComplexBreak(const SkPoint pts[4], SkScalar* t);
+    static bool ComplexBreak(const SkPoint pts[4], SkScalar* t, CubicType* cubicType);
     int convexHull(char order[kPointCount]) const;
 
     void debugInit() {
@@ -113,7 +121,7 @@ struct SkDCubic {
         cubic.subDivide(a, d, t1, t2, p);
     }
 
-    SkDPoint top(double startT, double endT) const;
+    SkDPoint top(double startT, double endT, double* topT) const;
     SkDQuad toQuad() const;
 
     static const int gPrecisionUnit;

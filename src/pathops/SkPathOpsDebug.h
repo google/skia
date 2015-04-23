@@ -37,6 +37,8 @@
 
 #if FORCE_RELEASE
 
+#define DEBUG_CUBIC_SWAP_TOP 0
+
 #define DEBUG_ACTIVE_OP 0
 #define DEBUG_ACTIVE_SPANS 0
 #define DEBUG_ADD_INTERSECTING_TS 0
@@ -44,19 +46,23 @@
 #define DEBUG_ANGLE 0
 #define DEBUG_ASSEMBLE 0
 #define DEBUG_CUBIC_BINARY_SEARCH 0
+#define DEBUG_CUBIC_SPLIT 0
+#define DEBUG_DUMP_SEGMENTS DEBUG_CUBIC_SWAP_TOP
 #define DEBUG_FLOW 0
 #define DEBUG_LIMIT_WIND_SUM 0
 #define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 0
 #define DEBUG_PERP 0
-#define DEBUG_SHOW_TEST_NAME 0
+#define DEBUG_SHOW_TEST_NAME DEBUG_CUBIC_SWAP_TOP
 #define DEBUG_SORT 0
-#define DEBUG_SWAP_TOP 0
+#define DEBUG_SWAP_TOP DEBUG_CUBIC_SWAP_TOP
 #define DEBUG_T_SECT 0
 #define DEBUG_T_SECT_DUMP 0
 #define DEBUG_VALIDATE 0
 #define DEBUG_WINDING 0
 #define DEBUG_WINDING_AT_T 0
+
+#undef DEBUG_CUBIC_SWAP_TOP
 
 #else
 
@@ -67,16 +73,18 @@
 #define DEBUG_ANGLE 1
 #define DEBUG_ASSEMBLE 1
 #define DEBUG_CUBIC_BINARY_SEARCH 0
+#define DEBUG_CUBIC_SPLIT 1
+#define DEBUG_DUMP_SEGMENTS 1
 #define DEBUG_FLOW 1
 #define DEBUG_LIMIT_WIND_SUM 5
 #define DEBUG_MARK_DONE 1
 #define DEBUG_PATH_CONSTRUCTION 1
-#define DEBUG_PERP 0
+#define DEBUG_PERP 1
 #define DEBUG_SHOW_TEST_NAME 1
 #define DEBUG_SORT 1
 #define DEBUG_SWAP_TOP 1
-#define DEBUG_T_SECT 1
-#define DEBUG_T_SECT_DUMP 02
+#define DEBUG_T_SECT 0
+#define DEBUG_T_SECT_DUMP 0
 #define DEBUG_VALIDATE 1
 #define DEBUG_WINDING 1
 #define DEBUG_WINDING_AT_T 1
@@ -161,6 +169,7 @@ public:
         SkPathOpsDebug::DeleteNameStr)))
     static void BumpTestName(char* );
 #endif
+    static const char* OpStr(SkPathOp );
     static void ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration);
     static void ShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
 

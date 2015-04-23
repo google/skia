@@ -107,13 +107,10 @@ SkPoint SkOpSegment::activeLeftTop(SkOpSpanBase** firstSpan) {
     SkPoint topPt = {SK_ScalarMax, SK_ScalarMax};
     // see if either end is not done since we want smaller Y of the pair
     bool lastDone = true;
-    double lastT = -1;
     SkOpSpanBase* span = &fHead;
+    SkOpSpanBase* lastSpan = NULL;
     do {
-        if (lastDone && (span->final() || span->upCast()->done())) {
-            goto next;
-        }
-        {
+        if (!lastDone || (!span->final() && !span->upCast()->done())) {
             const SkPoint& xy = span->pt();
             if (topPt.fY > xy.fY || (topPt.fY == xy.fY && topPt.fX > xy.fX)) {
                 topPt = xy;
@@ -121,19 +118,22 @@ SkPoint SkOpSegment::activeLeftTop(SkOpSpanBase** firstSpan) {
                     *firstSpan = span;
                 }
             }
-            if (fVerb != SkPath::kLine_Verb && !lastDone) {
-                SkPoint curveTop = (*CurveTop[fVerb])(fPts, fWeight, lastT, span->t());
-                if (topPt.fY > curveTop.fY || (topPt.fY == curveTop.fY
-                        && topPt.fX > curveTop.fX)) {
+            if (fVerb != SkPath::kLine_Verb && !lastDone
+                    && fCubicType != SkDCubic::kSplitAtMaxCurvature_SkDCubicType) {
+                double curveTopT;
+                SkPoint curveTop = (*CurveTop[fVerb])(fPts, fWeight, lastSpan->t(), span->t(),
+                        &curveTopT);
+                if (topPt.fY > curveTop.fY || (topPt.fY == curveTop.fY && topPt.fX > curveTop.fX)) {
                     topPt = curveTop;
                     if (firstSpan) {
-                        *firstSpan = span;
+                        const SkPoint& lastXY = lastSpan->pt();
+                        *firstSpan = lastXY.fY > xy.fY || (lastXY.fY == xy.fY && lastXY.fX > xy.fX)
+                                ? span : lastSpan;
                     }
                 }
             }
-            lastT = span->t();
+            lastSpan = span;
         }
-next:
         if (span->final()) {
             break;
         }
@@ -490,52 +490,12 @@ void SkOpSegment::checkAngleCoin(SkOpCoincidence* coincidences, SkChunkAlloc* al
 // from http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
 bool SkOpSegment::clockwise(const SkOpSpanBase* start, const SkOpSpanBase* end, bool* swap) const {
     SkASSERT(fVerb != SkPath::kLine_Verb);
-    SkOpCurve edge;
-    if (fVerb == SkPath::kCubic_Verb) {
-        double startT = start->t();
-        double endT = end->t();
-        bool flip = startT > endT;
-        SkDCubic cubic;
-        cubic.set(fPts);
-        double inflectionTs[2];
-        int inflections = cubic.findInflections(inflectionTs);
-        for (int index = 0; index < inflections; ++index) {
-            double inflectionT = inflectionTs[index];
-            if (between(startT, inflectionT, endT)) {
-                if (flip) {
-                    if (!roughly_equal(inflectionT, endT)) {
-                    startT = inflectionT;
-                    }
-                } else {
-                    if (!roughly_equal(inflectionT, startT)) {
-                        endT = inflectionT;
-                    }
-                }
-            }
-        }
-        SkDCubic part = cubic.subDivide(startT, endT);
-        edge.set(part);
-    } else {
-        subDivide(start, end, &edge);
+    if (fVerb != SkPath::kCubic_Verb) {
+        SkOpCurve edge;
+        this->subDivide(start, end, &edge);
+        return SkDQuad::Clockwise(edge, swap);
     }
-    bool sumSet = false;
-    int points = SkPathOpsVerbToPoints(fVerb);
-    double sum = (edge[0].fX - edge[points].fX) * (edge[0].fY + edge[points].fY);
-    if (!sumSet) {
-        for (int idx = 0; idx < points; ++idx){
-            sum += (edge[idx + 1].fX - edge[idx].fX) * (edge[idx + 1].fY + edge[idx].fY);
-        }
-    }
-    if (fVerb == SkPath::kCubic_Verb) {
-        SkDCubic cubic;
-        cubic.set(edge.fPts);
-        *swap = sum > 0 && !cubic.monotonicInY();
-    } else {
-        SkDQuad quad;
-        quad.set(edge.fPts);
-        *swap = sum > 0 && !quad.monotonicInY();
-    }
-    return sum <= 0;
+    return SkDCubic::Clockwise(fPts, start->t(), end->t(), swap);
 }
 
 void SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
@@ -1116,6 +1076,10 @@ SkOpSegment* SkOpSegment::findTop(bool firstPass, SkOpSpanBase** startPtr, SkOpS
     SkScalar top = SK_ScalarMax;
     const SkOpAngle* firstAngle = NULL;
     const SkOpAngle* angle = baseAngle;
+#if DEBUG_SWAP_TOP
+    SkDebugf("-%s- baseAngle\n", __FUNCTION__);
+    baseAngle->debugLoop();
+#endif
     do {
         if (!angle->unorderable()) {
             const SkOpSegment* next = angle->segment();
@@ -1134,8 +1098,8 @@ SkOpSegment* SkOpSegment::findTop(bool firstPass, SkOpSpanBase** startPtr, SkOpS
     if (!firstAngle) {
         return NULL;  // if all are unorderable, give up
     }
-#if DEBUG_SORT
-    SkDebugf("%s\n", __FUNCTION__);
+#if DEBUG_SWAP_TOP
+    SkDebugf("-%s- firstAngle\n", __FUNCTION__);
     firstAngle->debugLoop();
 #endif
     // skip edges that have already been processed
@@ -1163,20 +1127,26 @@ SkOpSegment* SkOpSegment::findTop(bool firstPass, SkOpSpanBase** startPtr, SkOpS
         SkOpSpanBase* start = *startPtr;
         SkOpSpanBase* end = *endPtr;
         bool swap;
-        if (!leftSegment->clockwise(start, end, &swap)) {
-    #if DEBUG_SWAP_TOP
-            SkDebugf("%s swap=%d inflections=%d monotonic=%d\n",
-                    __FUNCTION__,
-                    swap, leftSegment->debugInflections(start, end),
-                    leftSegment->monotonicInY(start, end));
-    #endif
-            if (swap) {
+        bool cw = leftSegment->clockwise(start, end, &swap);
+#if DEBUG_SWAP_TOP
+        SkDebugf("%s id=%d s=%1.9g e=%1.9g (%c) cw=%d swap=%d inflections=%d monotonic=%d\n",
+                __FUNCTION__, leftSegment->debugID(), start->t(), end->t(),
+                start->t() < end->t() ? '-' : '+', cw,
+                swap, leftSegment->debugInflections(start, end),
+                leftSegment->monotonicInY(start, end));
+#endif
+        if (!cw && swap) {
     // FIXME: I doubt it makes sense to (necessarily) swap if the edge was not the first
     // sorted but merely the first not already processed (i.e., not done)
-                SkTSwap(*startPtr, *endPtr);
-            }
+            SkTSwap(*startPtr, *endPtr);
         }
         // FIXME: clockwise isn't reliable -- try computing swap from tangent ?
+    } else {
+#if DEBUG_SWAP_TOP
+        SkDebugf("%s id=%d s=%1.9g e=%1.9g (%c) cw=%d swap=%d inflections=%d monotonic=%d\n",
+                __FUNCTION__, leftSegment->debugID(), (*startPtr)->t(), (*endPtr)->t(),
+                (*startPtr)->t() < (*endPtr)->t() ? '-' : '+', -1, -1, -1, 1);
+#endif
     }
     return leftSegment;
 }
@@ -1191,6 +1161,7 @@ void SkOpSegment::init(SkPoint pts[], SkScalar weight, SkOpContour* contour, SkP
     fPts = pts;
     fWeight = weight;
     fVerb = verb;
+    fCubicType = SkDCubic::kUnsplit_SkDCubicType;
     fCount = 0;
     fDoneCount = 0;
     fVisited = false;

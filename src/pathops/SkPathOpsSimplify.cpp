@@ -199,7 +199,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
     if (!builder.finish(&allocator)) {
         return false;
     }
-#if !FORCE_RELEASE
+#if DEBUG_DUMP_SEGMENTS
     contour.dumpSegments((SkPathOp) -1);
 #endif
     SkTDArray<SkOpContour* > contourList;

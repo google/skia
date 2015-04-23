@@ -202,7 +202,8 @@ bool SkOpEdgeBuilder::walk(SkChunkAlloc* allocator) {
                 // split self-intersecting cubics in two before proceeding
                 // if the cubic is convex, it doesn't self intersect.
                 SkScalar loopT;
-                if (SkDCubic::ComplexBreak(pointsPtr, &loopT)) {
+                SkDCubic::CubicType cubicType;
+                if (SkDCubic::ComplexBreak(pointsPtr, &loopT, &cubicType)) {
                     SkPoint cubicPair[7]; 
                     SkChopCubicAt(pointsPtr, cubicPair, loopT);
                     if (!SkScalarsAreFinite(&cubicPair[0].fX, SK_ARRAY_COUNT(cubicPair) * 2)) {
@@ -220,8 +221,8 @@ bool SkOpEdgeBuilder::walk(SkChunkAlloc* allocator) {
                         for (int index = 0; index < SkPathOpsVerbToPoints(v2); ++index) {
                             force_small_to_zero(&curve2[index]);
                         }
-                        fCurrentContour->addCurve(v1, curve1, fAllocator);
-                        fCurrentContour->addCurve(v2, curve2, fAllocator);
+                        fCurrentContour->addCurve(v1, curve1, fAllocator)->setCubicType(cubicType);
+                        fCurrentContour->addCurve(v2, curve2, fAllocator)->setCubicType(cubicType);
                     } else {
                         fCurrentContour->addCubic(pointsPtr, fAllocator);
                     }

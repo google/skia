@@ -8,6 +8,7 @@
 #include "SkLineParameters.h"
 #include "SkPathOpsConic.h"
 #include "SkPathOpsCubic.h"
+#include "SkPathOpsCurve.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
 #include "SkPathOpsRect.h"
@@ -74,12 +75,64 @@ double SkDCubic::calcPrecision() const {
     return (width > height ? width : height) / gPrecisionUnit;
 }
 
-bool SkDCubic::clockwise() const {
-    double sum = (fPts[0].fX - fPts[3].fX) * (fPts[0].fY + fPts[3].fY);
-    for (int idx = 0; idx < 3; ++idx) {
-        sum += (fPts[idx + 1].fX - fPts[idx].fX) * (fPts[idx + 1].fY + fPts[idx].fY);
+bool SkDCubic::clockwise(bool* swap) const {
+    SkDPoint lastPt = fPts[kPointLast];
+    SkDPoint firstPt = fPts[0];
+    double sum = 0;
+    // pick the control point furthest from the line connecting the end points
+    SkLineParameters lineParameters;
+    lineParameters.cubicEndPoints(*this, 0, 3);
+    lineParameters.normalize();
+    double tiniest = SkTMin(SkTMin(SkTMin(SkTMin(SkTMin(SkTMin(SkTMin(fPts[0].fX, fPts[0].fY),
+            fPts[1].fX), fPts[1].fY), fPts[2].fX), fPts[2].fY), fPts[3].fX), fPts[3].fY);
+    double largest = SkTMax(SkTMax(SkTMax(SkTMax(SkTMax(SkTMax(SkTMax(fPts[0].fX, fPts[0].fY),
+            fPts[1].fX), fPts[1].fY), fPts[2].fX), fPts[2].fY), fPts[3].fX), fPts[3].fY);
+    largest = SkTMax(largest, -tiniest);
+    double pt1dist = lineParameters.controlPtDistance(*this, 1);
+    double pt2dist = lineParameters.controlPtDistance(*this, 2);
+#if DEBUG_SWAP_TOP
+    SkDebugf("%s pt1dist=%1.9g pt2dist=%1.9g\n", __FUNCTION__, pt1dist, pt2dist);
+#endif
+    int furthest;
+    if (!approximately_zero_when_compared_to(pt1dist, largest)
+            && !approximately_zero_when_compared_to(pt2dist, largest) && pt1dist * pt2dist < 0) {
+        furthest = 2;
+    } else {
+        furthest = fabs(pt1dist) < fabs(pt2dist) ? 2 : 1;
     }
+    for (int idx = 1; idx <= 3; ++idx) {
+        sum += (firstPt.fX - lastPt.fX) * (firstPt.fY + lastPt.fY);
+        lastPt = firstPt;
+        firstPt = idx == 1 ? fPts[furthest] : fPts[kPointLast];
+    }
+    *swap = sum > 0 && !this->monotonicInY();
     return sum <= 0;
+}
+
+bool SkDCubic::Clockwise(const SkPoint* pts, double startT, double endT, bool* swap) {
+    SkDCubic cubic;
+    cubic.set(pts);
+#if 0
+    bool flip = startT > endT;
+    double inflectionTs[2];
+    int inflections = cubic.findInflections(inflectionTs);
+    for (int index = 0; index < inflections; ++index) {
+        double inflectionT = inflectionTs[index];
+        if (between(startT, inflectionT, endT)) {
+            if (flip) {
+                if (!roughly_equal(inflectionT, endT)) {
+                startT = inflectionT;
+                }
+            } else {
+                if (!roughly_equal(inflectionT, startT)) {
+                    endT = inflectionT;
+                }
+            }
+        }
+    }
+#endif
+    SkDCubic part = cubic.subDivide(startT, endT);
+    return part.clockwise(swap);
 }
 
 void SkDCubic::Coefficients(const double* src, double* A, double* B, double* C, double* D) {
@@ -186,7 +239,7 @@ bool SkDCubic::isLinear(int startIndex, int endIndex) const {
     return approximately_zero_when_compared_to(distance, largest);
 }
 
-bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
+bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t, CubicType* resultType) {
     SkScalar d[3];
     SkCubicType cubicType = SkClassifyCubic(pointsPtr, d);
     if (cubicType == kLoop_SkCubicType) {
@@ -203,6 +256,7 @@ bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
             SkScalar smaller = SkTMax(0.f, SkTMin(ls, ms));
             SkScalar larger = SkTMin(1.f, SkTMax(ls, ms));
             *t = (smaller + larger) / 2;
+            *resultType = kSplitAtLoop_SkDCubicType;
             return *t > 0 && *t < 1;
         }
     } else if (kSerpentine_SkCubicType == cubicType || kCusp_SkCubicType == cubicType) {
@@ -213,17 +267,36 @@ bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
         if (infTCount == 2) {
             double maxCurvature[3];
             int roots = cubic.findMaxCurvature(maxCurvature);
+#if DEBUG_CUBIC_SPLIT
+            SkDebugf("%s\n", __FUNCTION__);
+            cubic.dump();
+            for (int index = 0; index < infTCount; ++index) {
+                SkDebugf("inflectionsTs[%d]=%1.9g ", index, inflectionTs[index]);
+                SkDPoint pt = cubic.ptAtT(inflectionTs[index]);
+                SkDVector dPt = cubic.dxdyAtT(inflectionTs[index]);
+                SkDLine perp = {{pt - dPt, pt + dPt}};
+                perp.dump();
+            }
+            for (int index = 0; index < roots; ++index) {
+                SkDebugf("maxCurvature[%d]=%1.9g ", index, maxCurvature[index]);
+                SkDPoint pt = cubic.ptAtT(maxCurvature[index]);
+                SkDVector dPt = cubic.dxdyAtT(maxCurvature[index]);
+                SkDLine perp = {{pt - dPt, pt + dPt}};
+                perp.dump();
+            }
+#endif
             for (int index = 0; index < roots; ++index) {
                 if (between(inflectionTs[0], maxCurvature[index], inflectionTs[1])) {
                     *t = maxCurvature[index];
+                    *resultType = kSplitAtMaxCurvature_SkDCubicType;
                     return true;
                 }
             }
         } else if (infTCount == 1) {
             *t = inflectionTs[0];
+            *resultType = kSplitAtInflection_SkDCubicType;
             return *t > 0 && *t < 1;
         }
-        return false;
     }
     return false;
 }
@@ -446,10 +519,12 @@ int SkDCubic::findMaxCurvature(double tValues[]) const {
     return RootsValidT(coeffX[0], coeffX[1], coeffX[2], coeffX[3], tValues);
 }
 
-SkDPoint SkDCubic::top(double startT, double endT) const {
+SkDPoint SkDCubic::top(double startT, double endT, double* topT) const {
     SkDCubic sub = subDivide(startT, endT);
     SkDPoint topPt = sub[0];
+    *topT = startT;
     if (topPt.fY > sub[3].fY || (topPt.fY == sub[3].fY && topPt.fX > sub[3].fX)) {
+        *topT = endT;
         topPt = sub[3];
     }
     double extremeTs[2];
@@ -459,6 +534,7 @@ SkDPoint SkDCubic::top(double startT, double endT) const {
             double t = startT + (endT - startT) * extremeTs[index];
             SkDPoint mid = ptAtT(t);
             if (topPt.fY > mid.fY || (topPt.fY == mid.fY && topPt.fX > mid.fX)) {
+                *topT = t;
                 topPt = mid;
             }
         }

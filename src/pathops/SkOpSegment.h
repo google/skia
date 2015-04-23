@@ -11,6 +11,7 @@
 #include "SkOpSpan.h"
 #include "SkOpTAllocator.h"
 #include "SkPathOpsBounds.h"
+#include "SkPathOpsCubic.h"
 #include "SkPathOpsCurve.h"
 
 struct SkDCurve;
@@ -45,14 +46,16 @@ public:
     bool activeWinding(SkOpSpanBase* start, SkOpSpanBase* end);
     bool activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sumWinding);
 
-    void addConic(SkPoint pts[3], SkScalar weight, SkOpContour* parent) {
+    SkOpSegment* addConic(SkPoint pts[3], SkScalar weight, SkOpContour* parent) {
         init(pts, weight, parent, SkPath::kConic_Verb);
         fBounds.setConicBounds(pts, weight);
+        return this;
     }
 
-    void addCubic(SkPoint pts[4], SkOpContour* parent) {
+    SkOpSegment* addCubic(SkPoint pts[4], SkOpContour* parent) {
         init(pts, 1, parent, SkPath::kCubic_Verb);
         fBounds.setCubicBounds(pts, 1);
+        return this;
     }
 
     void addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end, SkPathWriter* path,
@@ -65,9 +68,10 @@ public:
         return angle;
     }
 
-    void addLine(SkPoint pts[2], SkOpContour* parent) {
+    SkOpSegment* addLine(SkPoint pts[2], SkOpContour* parent) {
         init(pts, 1, parent, SkPath::kLine_Verb);
         fBounds.set(pts, 2);
+        return this;
     }
 
     SkOpPtT* addMissing(double t, SkOpSegment* opp, SkChunkAlloc* );
@@ -82,9 +86,10 @@ public:
         return angle;
     }
 
-    void addQuad(SkPoint pts[3], SkOpContour* parent) {
+    SkOpSegment* addQuad(SkPoint pts[3], SkOpContour* parent) {
         init(pts, 1, parent, SkPath::kQuad_Verb);
         fBounds.setQuadBounds(pts, 1);
+        return this;
     }
 
     SkOpPtT* addT(double t, AllowAlias , SkChunkAlloc* );
@@ -297,6 +302,10 @@ public:
         fContour = contour;
     }
 
+    void setCubicType(SkDCubic::CubicType cubicType) {
+        fCubicType = cubicType;
+    }
+
     void setNext(SkOpSegment* next) {
         fNext = next;
     }
@@ -389,6 +398,7 @@ private:
     int fCount;  // number of spans (one for a non-intersecting segment)
     int fDoneCount;  // number of processed spans (zero initially)
     SkPath::Verb fVerb;
+    SkDCubic::CubicType fCubicType;
     bool fVisited;  // used by missing coincidence check
     SkDEBUGCODE(int fID);
 };

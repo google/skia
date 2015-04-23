@@ -7,6 +7,7 @@
 #include "SkIntersections.h"
 #include "SkLineParameters.h"
 #include "SkPathOpsCubic.h"
+#include "SkPathOpsCurve.h"
 #include "SkPathOpsQuad.h"
 
 /* started with at_most_end_pts_in_common from SkDQuadIntersection.cpp */
@@ -103,25 +104,6 @@ double SkDQuad::nearestT(const SkDPoint& pt) const {
         return ts[bestIndex];
     }
     return d0 < d2 ? 0 : 1;
-}
-
-SkDPoint SkDQuad::top(double startT, double endT) const {
-    SkDQuad sub = subDivide(startT, endT);
-    SkDPoint topPt = sub[0];
-    if (topPt.fY > sub[2].fY || (topPt.fY == sub[2].fY && topPt.fX > sub[2].fX)) {
-        topPt = sub[2];
-    }
-    if (!between(sub[0].fY, sub[1].fY, sub[2].fY)) {
-        double extremeT;
-        if (FindExtrema(sub[0].fY, sub[1].fY, sub[2].fY, &extremeT)) {
-            extremeT = startT + (endT - startT) * extremeT;
-            SkDPoint test = ptAtT(extremeT);
-            if (topPt.fY > test.fY || (topPt.fY == test.fY && topPt.fX > test.fX)) {
-                topPt = test;
-            }
-        }
-    }
-    return topPt;
 }
 
 int SkDQuad::AddValidTs(double s[], int realRoots, double* t) {
@@ -341,6 +323,28 @@ SkDPoint SkDQuad::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, dou
     return b;
 }
 
+SkDPoint SkDQuad::top(double startT, double endT, double* topT) const {
+    SkDQuad sub = subDivide(startT, endT);
+    SkDPoint topPt = sub[0];
+    *topT = startT;
+    if (topPt.fY > sub[2].fY || (topPt.fY == sub[2].fY && topPt.fX > sub[2].fX)) {
+        *topT = endT;
+        topPt = sub[2];
+    }
+    if (!between(sub[0].fY, sub[1].fY, sub[2].fY)) {
+        double extremeT;
+        if (FindExtrema(sub[0].fY, sub[1].fY, sub[2].fY, &extremeT)) {
+            extremeT = startT + (endT - startT) * extremeT;
+            SkDPoint test = ptAtT(extremeT);
+            if (topPt.fY > test.fY || (topPt.fY == test.fY && topPt.fX > test.fX)) {
+                *topT = extremeT;
+                topPt = test;
+            }
+        }
+    }
+    return topPt;
+}
+
 /* classic one t subdivision */
 static void interp_quad_coords(const double* src, double* dst, double t) {
     double ab = SkDInterp(src[0], src[2], t);
@@ -358,6 +362,17 @@ SkDQuadPair SkDQuad::chopAt(double t) const
     interp_quad_coords(&fPts[0].fX, &dst.pts[0].fX, t);
     interp_quad_coords(&fPts[0].fY, &dst.pts[0].fY, t);
     return dst;
+}
+
+bool SkDQuad::Clockwise(const SkOpCurve& edge, bool* swap) {
+    SkDQuad temp;
+    double sum = (edge[0].fX - edge[kPointLast].fX) * (edge[0].fY + edge[kPointLast].fY);
+    for (int idx = 0; idx < kPointLast; ++idx){
+        sum += (edge[idx + 1].fX - edge[idx].fX) * (edge[idx + 1].fY + edge[idx].fY);
+    }
+    temp.set(edge.fPts);
+    *swap = sum > 0 && !temp.monotonicInY();
+    return sum <= 0;
 }
 
 static int valid_unit_divide(double numer, double denom, double* ratio)

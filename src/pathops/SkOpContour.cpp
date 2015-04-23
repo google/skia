@@ -10,17 +10,18 @@
 #include "SkReduceOrder.h"
 #include "SkTSort.h"
 
-void SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4], SkChunkAlloc* allocator) {
+SkOpSegment* SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4],
+        SkChunkAlloc* allocator) {
     switch (verb) {
         case SkPath::kLine_Verb: {
             SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 2);
             memcpy(ptStorage, pts, sizeof(SkPoint) * 2);
-            appendSegment(allocator).addLine(ptStorage, this);
+            return appendSegment(allocator).addLine(ptStorage, this);
         } break;
         case SkPath::kQuad_Verb: {
             SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 3);
             memcpy(ptStorage, pts, sizeof(SkPoint) * 3);
-            appendSegment(allocator).addQuad(ptStorage, this);
+            return appendSegment(allocator).addQuad(ptStorage, this);
         } break;
         case SkPath::kConic_Verb: {
             SkASSERT(0);  // the original curve is a cubic, which will never reduce to a conic
@@ -28,11 +29,12 @@ void SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4], SkChunkAlloc
         case SkPath::kCubic_Verb: {
             SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 4);
             memcpy(ptStorage, pts, sizeof(SkPoint) * 4);
-            appendSegment(allocator).addCubic(ptStorage, this);
+            return appendSegment(allocator).addCubic(ptStorage, this);
         } break;
         default:
             SkASSERT(0);
     }
+    return NULL;
 }
 
 SkOpSegment* SkOpContour::nonVerticalSegment(SkOpSpanBase** start, SkOpSpanBase** end) {

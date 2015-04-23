@@ -10,6 +10,8 @@
 
 #include "SkPathOpsPoint.h"
 
+struct SkOpCurve;
+
 struct SkDQuadPair {
     const SkDQuad& first() const { return (const SkDQuad&) pts[0]; }
     const SkDQuad& second() const { return (const SkDQuad&) pts[2]; }
@@ -58,6 +60,7 @@ struct SkDQuad {
     static int AddValidTs(double s[], int realRoots, double* t);
     void align(int endIndex, SkDPoint* dstPt) const;
     SkDQuadPair chopAt(double t) const;
+    static bool Clockwise(const SkOpCurve& edge, bool* swap);
     SkDVector dxdyAtT(double t) const;
     static int FindExtrema(double a, double b, double c, double tValue[1]);
     bool hullIntersects(const SkDQuad& , bool* isLinear) const;
@@ -86,7 +89,7 @@ struct SkDQuad {
     }
     SkDConic toConic() const;
     SkDCubic toCubic() const;
-    SkDPoint top(double startT, double endT) const;
+    SkDPoint top(double startT, double endT, double* topT) const;
 
     // utilities callable by the user from the debugger when the implementation code is linked in
     void dump() const;

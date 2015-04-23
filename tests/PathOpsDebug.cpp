@@ -1212,6 +1212,16 @@ void SkOpContour::dumpSpans() const {
     } while ((segment = segment->next()));
 }
 
+void SkOpCurve::dump() const {
+    int count = SkPathOpsVerbToPoints(SkDEBUGRELEASE(fVerb, SkPath::kCubic_Verb));
+    SkDebugf("{{");
+    int index;
+    for (index = 0; index <= count - 1; ++index) {
+        SkDebugf("{%1.9gf,%1.9gf}, ", fPts[index].fX, fPts[index].fY);
+    }
+    SkDebugf("{%1.9gf,%1.9gf}}}\n", fPts[index].fX, fPts[index].fY);
+}
+
 #ifdef SK_DEBUG
 const SkOpAngle* SkOpGlobalState::debugAngle(int id) const {
     const SkOpContour* contour = fHead;

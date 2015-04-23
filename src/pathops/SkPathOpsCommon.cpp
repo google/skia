@@ -446,6 +446,9 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
     SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpContour contour;
     SkOpGlobalState globalState(NULL  SkDEBUGPARAMS(&contour));
+#if DEBUG_SHOW_TEST_NAME
+    SkDebugf("</div>\n");
+#endif
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("%s\n", __FUNCTION__);
 #endif

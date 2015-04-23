@@ -26,6 +26,16 @@ struct SkOpCurve {
         return fPts[n];
     }
 
+    void dump() const;
+
+    void set(const SkDQuad& quad) {
+        for (int index = 0; index < SkDQuad::kPointCount; ++index) {
+            fPts[index] = quad[index].asSkPoint();
+        }
+        SkDEBUGCODE(fWeight = 1);
+        SkDEBUGCODE(fVerb = SkPath::kQuad_Verb);
+    }
+
     void set(const SkDCubic& cubic) {
         for (int index = 0; index < SkDCubic::kPointCount; ++index) {
             fPts[index] = cubic[index].asSkPoint();
@@ -169,28 +179,29 @@ static SkVector (* const CurveSlopeAtT[])(const SkPoint[], SkScalar , double ) =
     fcubic_dxdy_at_t
 };
 
-static SkPoint quad_top(const SkPoint a[3], SkScalar , double startT, double endT) {
+static SkPoint quad_top(const SkPoint a[3], SkScalar , double startT, double endT, double* topT) {
     SkDQuad quad;
     quad.set(a);
-    SkDPoint topPt = quad.top(startT, endT);
+    SkDPoint topPt = quad.top(startT, endT, topT);
     return topPt.asSkPoint();
 }
 
-static SkPoint conic_top(const SkPoint a[3], SkScalar weight, double startT, double endT) {
+static SkPoint conic_top(const SkPoint a[3], SkScalar weight, double startT, double endT,
+        double* topT) {
     SkDConic conic;
     conic.set(a, weight);
-    SkDPoint topPt = conic.top(startT, endT);
+    SkDPoint topPt = conic.top(startT, endT, topT);
     return topPt.asSkPoint();
 }
 
-static SkPoint cubic_top(const SkPoint a[4], SkScalar , double startT, double endT) {
+static SkPoint cubic_top(const SkPoint a[4], SkScalar , double startT, double endT, double* topT) {
     SkDCubic cubic;
     cubic.set(a);
-    SkDPoint topPt = cubic.top(startT, endT);
+    SkDPoint topPt = cubic.top(startT, endT, topT);
     return topPt.asSkPoint();
 }
 
-static SkPoint (* const CurveTop[])(const SkPoint[], SkScalar , double , double ) = {
+static SkPoint (* const CurveTop[])(const SkPoint[], SkScalar , double , double , double* ) = {
     NULL,
     NULL,
     quad_top,

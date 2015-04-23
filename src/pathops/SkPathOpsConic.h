@@ -109,7 +109,7 @@ struct SkDConic {
         return conic.subDivide(a, c, t1, t2, newWeight);
     }
 
-    SkDPoint top(double startT, double endT) const;
+    SkDPoint top(double startT, double endT, double* topT) const;
 
     // utilities callable by the user from the debugger when the implementation code is linked in
     void dump() const;

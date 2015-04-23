@@ -115,6 +115,20 @@ struct SkDPoint {
         fY -= v.fY;
     }
 
+    // only used by testing
+    SkDPoint operator+(const SkDVector& v) {
+        SkDPoint result = *this;
+        result += v;
+        return result;
+    }
+
+    // only used by testing
+    SkDPoint operator-(const SkDVector& v) {
+        SkDPoint result = *this;
+        result -= v;
+        return result;
+    }
+
     // note: this can not be implemented with
     // return approximately_equal(a.fY, fY) && approximately_equal(a.fX, fX);
     // because that will not take the magnitude of the values into account

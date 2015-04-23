@@ -82,25 +82,6 @@ SkDPoint SkDConic::ptAtT(double t) const {
     return result;
 }
 
-SkDPoint SkDConic::top(double startT, double endT) const {
-    SkDConic sub = subDivide(startT, endT);
-    SkDPoint topPt = sub[0];
-    if (topPt.fY > sub[2].fY || (topPt.fY == sub[2].fY && topPt.fX > sub[2].fX)) {
-        topPt = sub[2];
-    }
-    if (!between(sub[0].fY, sub[1].fY, sub[2].fY)) {
-        double extremeT;
-        if (FindExtrema(&sub[0].fY, sub.fWeight, &extremeT)) {
-            extremeT = startT + (endT - startT) * extremeT;
-            SkDPoint test = ptAtT(extremeT);
-            if (topPt.fY > test.fY || (topPt.fY == test.fY && topPt.fX > test.fX)) {
-                topPt = test;
-            }
-        }
-    }
-    return topPt;
-}
-
 /* see quad subdivide for rationale */
 SkDConic SkDConic::subDivide(double t1, double t2) const {
     double ax = conic_eval_numerator(&fPts[0].fX, fWeight, t1);
@@ -129,4 +110,26 @@ SkDPoint SkDConic::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, do
     SkDConic chopped = this->subDivide(t1, t2);
     *weight = chopped.fWeight;
     return chopped[1];
+}
+
+SkDPoint SkDConic::top(double startT, double endT, double* topT) const {
+    SkDConic sub = subDivide(startT, endT);
+    SkDPoint topPt = sub[0];
+    *topT = startT;
+    if (topPt.fY > sub[2].fY || (topPt.fY == sub[2].fY && topPt.fX > sub[2].fX)) {
+        *topT = endT;
+        topPt = sub[2];
+    }
+    if (!between(sub[0].fY, sub[1].fY, sub[2].fY)) {
+        double extremeT;
+        if (FindExtrema(&sub[0].fY, sub.fWeight, &extremeT)) {
+            extremeT = startT + (endT - startT) * extremeT;
+            SkDPoint test = ptAtT(extremeT);
+            if (topPt.fY > test.fY || (topPt.fY == test.fY && topPt.fX > test.fX)) {
+                *topT = extremeT;
+                topPt = test;
+            }
+        }
+    }
+    return topPt;
 }

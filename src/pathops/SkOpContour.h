@@ -40,7 +40,7 @@ public:
         appendSegment(allocator).addCubic(pts, this);
     }
 
-    void addCurve(SkPath::Verb verb, const SkPoint pts[4], SkChunkAlloc* allocator);
+    SkOpSegment* addCurve(SkPath::Verb verb, const SkPoint pts[4], SkChunkAlloc* allocator);
 
     void addLine(SkPoint pts[2], SkChunkAlloc* allocator) {
         appendSegment(allocator).addLine(pts, this);

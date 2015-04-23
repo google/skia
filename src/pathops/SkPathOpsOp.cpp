@@ -298,7 +298,7 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     if (!builder.finish(&allocator)) {
         return false;
     }
-#if !FORCE_RELEASE
+#if DEBUG_DUMP_SEGMENTS
     contour.dumpSegments(op);
 #endif
 

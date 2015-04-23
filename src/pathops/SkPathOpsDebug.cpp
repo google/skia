@@ -115,6 +115,10 @@ static const char* gOpStrs[] = {
     "kReverseDifference_SkPathOp",
 };
 
+const char* SkPathOpsDebug::OpStr(SkPathOp op) {
+    return gOpStrs[op];
+}
+
 static void show_op(SkPathOp op, const char* pathOne, const char* pathTwo) {
     SkDebugf("    testPathOp(reporter, %s, %s, %s, filename);\n", pathOne, pathTwo, gOpStrs[op]);
     SkDebugf("}\n");
@@ -293,7 +297,7 @@ SkString SkOpAngle::debugPart() const {
 }
 #endif
 
-#if DEBUG_SORT
+#if DEBUG_SORT || DEBUG_SWAP_TOP
 void SkOpAngle::debugLoop() const {
     const SkOpAngle* first = this;
     const SkOpAngle* next = this;

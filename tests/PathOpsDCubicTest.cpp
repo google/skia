@@ -20,7 +20,8 @@ DEF_TEST(PathOpsDCubic, reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         const SkDCubic& cubic = tests[index];
         SkASSERT(ValidCubic(cubic));
-        bool result = cubic.clockwise();
+        bool skip;
+        bool result = cubic.clockwise(&skip);
         if (!result) {
             SkDebugf("%s [%d] expected clockwise\n", __FUNCTION__, index);
             REPORTER_ASSERT(reporter, 0);
