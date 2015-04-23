@@ -37,12 +37,12 @@ public:
         return GrXferProcessor::kIgnoreColor_OptFlag | GrXferProcessor::kIgnoreCoverage_OptFlag;
     }
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
-
 private:
     DisableColorXP();
 
     void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+
+    void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         return true;
@@ -89,7 +89,7 @@ GrGLXferProcessor* DisableColorXP::createGLInstance() const {
     return SkNEW_ARGS(GLDisableColorXP, (*this));
 }
 
-void DisableColorXP::getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
+void DisableColorXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
     blendInfo->fWriteColor = false;
 }
 

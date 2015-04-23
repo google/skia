@@ -35,14 +35,14 @@ public:
                                                GrColor* color,
                                                const GrDrawTargetCaps& caps) override;
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
-
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
     CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
     void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+
+    void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const CoverageSetOpXP& xp = xpBase.cast<CoverageSetOpXP>();
@@ -117,7 +117,7 @@ CoverageSetOpXP::getOptimizations(const GrProcOptInfo& colorPOI,
     return GrXferProcessor::kIgnoreColor_OptFlag; 
 }
 
-void CoverageSetOpXP::getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
+void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
     switch (fRegionOp) {
         case SkRegion::kReplace_Op:
             blendInfo->fSrcBlend = kOne_GrBlendCoeff;

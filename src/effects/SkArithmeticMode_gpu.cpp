@@ -181,12 +181,6 @@ public:
                                                GrColor* overrideColor,
                                                const GrDrawTargetCaps& caps) override;
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
-        blendInfo->fSrcBlend = kOne_GrBlendCoeff;
-        blendInfo->fDstBlend = kZero_GrBlendCoeff;
-        blendInfo->fBlendConstant = 0;
-    }
-
     float k1() const { return fK1; }
     float k2() const { return fK2; }
     float k3() const { return fK3; }

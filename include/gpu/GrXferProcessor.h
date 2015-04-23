@@ -125,7 +125,12 @@ public:
                                       const GrDrawTargetCaps& caps) = 0;
 
     struct BlendInfo {
-        BlendInfo() : fWriteColor(true) {}
+        void reset() {
+            fSrcBlend = kOne_GrBlendCoeff;
+            fDstBlend = kZero_GrBlendCoeff;
+            fBlendConstant = 0;
+            fWriteColor = true;
+        }
 
         GrBlendCoeff fSrcBlend;
         GrBlendCoeff fDstBlend;
@@ -133,7 +138,10 @@ public:
         bool         fWriteColor;
     };
 
-    virtual void getBlendInfo(BlendInfo* blendInfo) const = 0;
+    void getBlendInfo(BlendInfo* blendInfo) const {
+        blendInfo->reset();
+        this->onGetBlendInfo(blendInfo);
+    }
 
     bool willReadDstColor() const { return fWillReadDstColor; }
 
@@ -193,6 +201,13 @@ private:
      */
     virtual void onGetGLProcessorKey(const GrGLCaps& caps,
                                      GrProcessorKeyBuilder* b) const = 0;
+
+    /**
+     * Retrieves the hardware blend state required by this Xfer processor. The BlendInfo struct
+     * comes initialized to default values, so the Xfer processor only needs to set the state it
+     * needs. It may not even need to override this method at all.
+     */
+    virtual void onGetBlendInfo(BlendInfo*) const {}
 
     virtual bool onIsEqual(const GrXferProcessor&) const = 0;
 

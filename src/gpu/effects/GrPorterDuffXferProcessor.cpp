@@ -90,7 +90,16 @@ public:
                                                GrColor* overrideColor,
                                                const GrDrawTargetCaps& caps) override;
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
+    GrBlendCoeff getSrcBlend() const { return fSrcBlend; }
+    GrBlendCoeff getDstBlend() const { return fDstBlend; }
+
+private:
+    PorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant,
+                            const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+
+    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+
+    void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         if (!this->willReadDstColor()) {
             blendInfo->fSrcBlend = fSrcBlend;
             blendInfo->fDstBlend = fDstBlend;
@@ -100,15 +109,6 @@ public:
         }
         blendInfo->fBlendConstant = fBlendConstant;
     }
-
-    GrBlendCoeff getSrcBlend() const { return fSrcBlend; }
-    GrBlendCoeff getDstBlend() const { return fDstBlend; }
-
-private:
-    PorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant,
-                            const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
-
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const PorterDuffXferProcessor& xp = xpBase.cast<PorterDuffXferProcessor>();

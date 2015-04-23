@@ -509,12 +509,6 @@ public:
                                                GrColor* overrideColor,
                                                const GrDrawTargetCaps& caps) override;
 
-    void getBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
-        blendInfo->fSrcBlend = kOne_GrBlendCoeff;
-        blendInfo->fDstBlend = kZero_GrBlendCoeff;
-        blendInfo->fBlendConstant = 0;
-    }
-
     SkXfermode::Mode mode() const { return fMode; }
 
 private:

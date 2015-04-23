@@ -71,9 +71,6 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
     // GrPipelineBuilder's coverageProcInfo (like color above) to set this initial information.
     int firstCoverageStageIdx = 0;
 
-    GrXferProcessor::BlendInfo blendInfo;
-    fXferProcessor->getBlendInfo(&blendInfo);
-
     this->adjustProgramFromOptimizations(pipelineBuilder, optFlags, colorPOI, coveragePOI,
                                          &firstColorStageIdx, &firstCoverageStageIdx);
 
