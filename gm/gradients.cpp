@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
 #include "SkGradientShader.h"
 
@@ -149,6 +149,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
+DEF_GM( return new GradientsGM; )
 
 // Based on the original gradient slide, but with perspective applied to the
 // gradient shaders' local matrices
@@ -204,6 +205,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
+DEF_GM( return new GradientsLocalPerspectiveGM; )
 
 // Based on the original gradient slide, but with perspective applied to
 // the view matrix
@@ -227,6 +229,7 @@ protected:
 private:
     typedef GradientsGM INHERITED;
 };
+DEF_GM( return new GradientsViewPerspectiveGM; )
 
 /*
  Inspired by this <canvas> javascript, where we need to detect that we are not
@@ -281,6 +284,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
+DEF_GM( return new GradientsDegenrate2PointGM; )
 
 /// Tests correctness of *optimized* codepaths in gradients.
 
@@ -319,6 +323,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
+DEF_GM( return new ClampedGradientsGM; )
 
 /// Checks quality of large radial gradients, which may display
 /// some banding.
@@ -361,7 +366,7 @@ protected:
 private:
     typedef GM INHERITED;
 };
-
+DEF_GM( return new RadialGradientGM; )
 
 class RadialGradient2GM : public GM {
 public:
@@ -425,27 +430,36 @@ protected:
 private:
     typedef GM INHERITED;
 };
+DEF_GM( return new RadialGradient2GM; )
 
-///////////////////////////////////////////////////////////////////////////////
+// Shallow radial (shows banding on raster)
+class RadialGradient3GM : public GM {
+    SkAutoTUnref<SkShader> fShader;
 
-static GM* MyFactory(void*) { return new GradientsGM; }
-static GMRegistry reg(MyFactory);
+protected:
+    SkString onShortName() override { return SkString("radial_gradient3"); }
 
-static GM* MyFactory2(void*) { return new GradientsDegenrate2PointGM; }
-static GMRegistry reg2(MyFactory2);
+    SkISize onISize() override { return SkISize::Make(500, 500); }
 
-static GM* MyFactory3(void*) { return new ClampedGradientsGM; }
-static GMRegistry reg3(MyFactory3);
+    bool runAsBench() const override { return true; }
 
-static GM* MyFactory4(void*) { return new RadialGradientGM; }
-static GMRegistry reg4(MyFactory4);
+    void onOnceBeforeDraw() override {
+        const SkPoint center = { 0, 0 };
+        const SkScalar kRadius = 3000;
+        const SkColor gColors[] = { 0xFFFFFFFF, 0xFF000000 };
+        fShader.reset(SkGradientShader::CreateRadial(center, kRadius, gColors, NULL, 2,
+                                                    SkShader::kClamp_TileMode));
+    }
 
-static GM* MyFactory5(void*) { return new GradientsLocalPerspectiveGM; }
-static GMRegistry reg5(MyFactory5);
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setShader(fShader);
+        canvas->drawRect(SkRect::MakeWH(500, 500), paint);
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+DEF_GM( return new RadialGradient3GM; )
 
-static GM* MyFactory6(void*) { return new GradientsViewPerspectiveGM; }
-static GMRegistry reg6(MyFactory6);
-
-static GM* MyFactory7(void*) { return new RadialGradient2GM; }
-static GMRegistry reg7(MyFactory7);
 }
