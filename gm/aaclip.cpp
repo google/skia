@@ -193,3 +193,72 @@ private:
 DEF_GM( return SkNEW(CGImageGM); )
 #endif
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// skbug.com/3716
+class ClipCubicGM : public skiagm::GM {
+    const SkScalar W = 100;
+    const SkScalar H = 240;
+
+    SkPath fVPath, fHPath;
+public:
+    ClipCubicGM() {
+        fVPath.moveTo(W, 0);
+        fVPath.cubicTo(W, H-10, 0, 10, 0, H);
+    
+        SkMatrix pivot;
+        pivot.setRotate(90, W/2, H/2);
+        fVPath.transform(pivot, &fHPath);
+    }
+
+protected:
+    SkString onShortName() override {
+        return SkString("clipcubic");
+    }
+    
+    SkISize onISize() override {
+        return SkISize::Make(400, 410);
+    }
+
+    void doDraw(SkCanvas* canvas, const SkPath& path) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        
+        paint.setColor(0xFFCCCCCC);
+        canvas->drawPath(path, paint);
+        
+        paint.setColor(SK_ColorRED);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawPath(path, paint);
+    }
+
+    void drawAndClip(SkCanvas* canvas, const SkPath& path, SkScalar dx, SkScalar dy) {
+        SkAutoCanvasRestore acr(canvas, true);
+
+        SkRect r = SkRect::MakeXYWH(0, H/4, W, H/2);
+        SkPaint paint;
+        paint.setColor(0xFF8888FF);
+
+        canvas->drawRect(r, paint);
+        this->doDraw(canvas, path);
+        
+        canvas->translate(dx, dy);
+
+        canvas->drawRect(r, paint);
+        canvas->clipRect(r);
+        this->doDraw(canvas, path);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->translate(80, 10);
+        this->drawAndClip(canvas, fVPath, 200, 0);
+        canvas->translate(0, 200);
+        this->drawAndClip(canvas, fHPath, 200, 0);
+    }
+    
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return SkNEW(ClipCubicGM); )
+
