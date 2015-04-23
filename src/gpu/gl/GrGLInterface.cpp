@@ -325,12 +325,15 @@ bool GrGLInterface::validate() const {
         }
     }
 
+// FIXME: Remove this once Chromium is updated to provide this function
+#if 0
     if (fExtensions.has("GL_KHR_blend_equation_advanced") ||
         fExtensions.has("GL_NV_blend_equation_advanced")) {
         if (NULL == fFunctions.fBlendBarrier) {
             RETURN_FALSE_INTERFACE
         }
     }
+#endif
 
     if (fExtensions.has("GL_EXT_discard_framebuffer")) {
 // FIXME: Remove this once Chromium is updated to provide this function
