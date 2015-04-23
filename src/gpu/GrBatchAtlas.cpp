@@ -366,7 +366,8 @@ void GrBatchAtlas::setLastUseToken(AtlasID id, BatchToken batchToken) {
 }
 
 void GrBatchAtlas::setLastUseTokenBulk(const BulkUseTokenUpdater& updater, BatchToken batchToken) {
-    for (int i = 0; i < updater.fCount; i++) {
+    int count = updater.fPlotsToUpdate.count();
+    for (int i = 0; i < count; i++) {
         BatchPlot* plot = fPlotArray[updater.fPlotsToUpdate[i]];
         this->makeMRU(plot);
         plot->setLastUseToken(batchToken);

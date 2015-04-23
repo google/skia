@@ -66,7 +66,7 @@ public:
      */
     class BulkUseTokenUpdater {
     public:
-        BulkUseTokenUpdater() : fPlotAlreadyUpdated(0), fCount(0), fAllocated(kMinItems) {}
+        BulkUseTokenUpdater() : fPlotAlreadyUpdated(0) {}
         void add(AtlasID id) {
             int index = GrBatchAtlas::GetIndexFromID(id);
             if (!this->find(index)) {
@@ -75,9 +75,7 @@ public:
         }
 
         void reset() {
-            fPlotsToUpdate.reset(kMinItems);
-            fAllocated = kMinItems;
-            fCount = 0;
+            fPlotsToUpdate.reset();
             fPlotAlreadyUpdated = 0;
         }
 
@@ -97,8 +95,6 @@ public:
         static const int kMaxPlots = 32;
         SkSTArray<kMinItems, int, true> fPlotsToUpdate;
         uint32_t fPlotAlreadyUpdated;
-        int fCount;
-        int fAllocated;
 
         friend class GrBatchAtlas;
     };
