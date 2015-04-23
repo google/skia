@@ -319,9 +319,9 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool isIco, SkCodec** codecOut) {
     if (isIco) {
         height /= 2;
     }
-    static const int kBmpMaxDim = 1 << 16;
-    if (width < 0 || width >= kBmpMaxDim || height >= kBmpMaxDim) {
-        // TODO: Decide if we want to support really large bmps.
+    if (width <= 0 || height <= 0) {
+        // TODO: Decide if we want to disable really large bmps as well.
+        // https://code.google.com/p/skia/issues/detail?id=3617
         SkCodecPrintf("Error: invalid bitmap dimensions.\n");
         return false;
     }

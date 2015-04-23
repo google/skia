@@ -196,5 +196,26 @@ DEF_TEST(Codec_Dimensions, r) {
     test_dimensions(r, "randPixels.jpg");
 }
 
+static void test_empty(skiatest::Reporter* r, const char path[]) {
+    SkAutoTDelete<SkStream> stream(resource(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    REPORTER_ASSERT(r, NULL == codec);
+}
 
-
+DEF_TEST(Codec_Empty, r) {
+    // Test images that should not be able to create a codec
+    test_empty(r, "empty_images/zero-dims.gif");
+    test_empty(r, "empty_images/zero-embedded.ico");
+    test_empty(r, "empty_images/zero-width.bmp");
+    test_empty(r, "empty_images/zero-height.bmp");
+    test_empty(r, "empty_images/zero-width.jpg");
+    test_empty(r, "empty_images/zero-height.jpg");
+    test_empty(r, "empty_images/zero-width.png");
+    test_empty(r, "empty_images/zero-height.png");
+    test_empty(r, "empty_images/zero-width.wbmp");
+    test_empty(r, "empty_images/zero-height.wbmp");
+}
