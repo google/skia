@@ -138,6 +138,10 @@ class SkPicturePlayback(object):
     """Constructs a SkPicturePlayback BuildStep instance."""
     assert parse_options.browser_executable, 'Must specify --browser_executable'
     self._browser_executable = parse_options.browser_executable
+    self._browser_args = '--disable-setuid-sandbox'
+    if parse_options.browser_extra_args:
+      self._browser_args = '%s %s' % (
+          self._browser_args, parse_options.browser_extra_args)
 
     self._chrome_page_sets_path = os.path.join(parse_options.chrome_src_path,
                                                CHROMIUM_PAGE_SETS_PATH)
@@ -148,6 +152,7 @@ class SkPicturePlayback(object):
     self._skia_tools = parse_options.skia_tools
     self._non_interactive = parse_options.non_interactive
     self._upload = parse_options.upload
+    self._skp_prefix = parse_options.skp_prefix
     data_store_location = parse_options.data_store
     if data_store_location.startswith(gs_utils.GS_PREFIX):
       self.gs = GoogleStorageDataStore(data_store_location)
@@ -247,7 +252,7 @@ class SkPicturePlayback(object):
           'PYTHONPATH=%s:$PYTHONPATH' % page_set_dir,
           'DISPLAY=%s' % X11_DISPLAY,
           os.path.join(self._telemetry_binaries_dir, 'record_wpr'),
-          '--extra-browser-args=--disable-setuid-sandbox',
+          '--extra-browser-args="%s"' % self._browser_args,
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
           '%s_page_set' % page_set_basename,
@@ -286,7 +291,7 @@ class SkPicturePlayback(object):
           'DISPLAY=%s' % X11_DISPLAY,
           'timeout', '300',
           os.path.join(self._telemetry_binaries_dir, 'run_benchmark'),
-          '--extra-browser-args=--disable-setuid-sandbox',
+          '--extra-browser-args="%s"' % self._browser_args,
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
           SKP_BENCHMARK,
@@ -408,6 +413,9 @@ class SkPicturePlayback(object):
       else:
         filename = self._GetSkiaSkpFileName(page_set)
       filename = filename.lower()
+
+      if self._skp_prefix:
+        filename = '%s%s' % (self._skp_prefix, filename)
 
       # We choose the largest .skp as the most likely to be interesting.
       largest_skp = max(glob.glob(os.path.join(site, '*.skp')),
@@ -546,6 +554,10 @@ if '__main__' == __name__:
       help='The exact browser executable to run.',
       default=None)
   option_parser.add_option(
+      '', '--browser_extra_args',
+      help='Additional arguments to pass to the browser.',
+      default=None)
+  option_parser.add_option(
       '', '--chrome_src_path',
       help='Path to the chromium src directory.',
       default=None)
@@ -554,6 +566,10 @@ if '__main__' == __name__:
       help='Runs the script without any prompts. If this flag is specified and '
            '--skia_tools is specified then the debugger is not run.',
       default=False)
+  option_parser.add_option(
+      '', '--skp_prefix',
+      help='Prefix to add to the names of generated SKPs.',
+      default=None)
   options, unused_args = option_parser.parse_args()
 
   playback = SkPicturePlayback(options)
