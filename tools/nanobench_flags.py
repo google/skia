@@ -62,6 +62,9 @@ def get_args(bot):
     match.extend(['~gradient', '~etc1bitmap'])  # skia:2895
   if 'Nexus7' in bot:
     match = ['skp']  # skia:2774
+  if 'NexusPlayer' in bot:
+    match.append('~desk_unicodetable')
+
   if match:
     args.append('--match')
     args.extend(match)
@@ -75,6 +78,7 @@ def self_test():
   args = {}
   cases = [
     'Perf-Android-Nexus7-Tegra3-Arm7-Release',
+    'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
   ]
