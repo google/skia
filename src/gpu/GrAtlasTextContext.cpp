@@ -277,14 +277,13 @@ bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTr
         return true;
     }
 
-    // Identical viewmatrices and we can reuse in all cases
-    if (blob.fViewMatrix.cheapEqualTo(viewMatrix) && x == blob.fX && y == blob.fY) {
-        return false;
-    }
-
     // Mixed blobs must be regenerated.  We could probably figure out a way to do integer scrolls
     // for mixed blobs if this becomes an issue.
     if (blob.hasBitmap() && blob.hasDistanceField()) {
+        // Identical viewmatrices and we can reuse in all cases
+        if (blob.fViewMatrix.cheapEqualTo(viewMatrix) && x == blob.fX && y == blob.fY) {
+            return false;
+        }
         return true;
     }
 
