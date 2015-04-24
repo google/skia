@@ -115,10 +115,7 @@ bool GrGLInterface::validate() const {
         NULL == fFunctions.fBindBuffer ||
         NULL == fFunctions.fBindTexture ||
         NULL == fFunctions.fBlendColor ||      // -> GL >= 1.4 or extension, ES >= 2.0
-#if 0
-        // TODO: Re-enable validation for fBlendEquation when Chrome has it hooked up.
         NULL == fFunctions.fBlendEquation ||   // -> GL >= 1.4 or extension, ES >= 2.0
-#endif
         NULL == fFunctions.fBlendFunc ||
         NULL == fFunctions.fBufferData ||
         NULL == fFunctions.fBufferSubData ||
@@ -278,9 +275,7 @@ bool GrGLInterface::validate() const {
         (glVer >= GR_GL_VER(1,3)) ||
         fExtensions.has("GL_ARB_texture_compression")) {
         if (NULL == fFunctions.fCompressedTexImage2D
-#if 0
             || NULL == fFunctions.fCompressedTexSubImage2D
-#endif
             ) {
             RETURN_FALSE_INTERFACE
         }
@@ -325,23 +320,17 @@ bool GrGLInterface::validate() const {
         }
     }
 
-// FIXME: Remove this once Chromium is updated to provide this function
-#if 0
     if (fExtensions.has("GL_KHR_blend_equation_advanced") ||
         fExtensions.has("GL_NV_blend_equation_advanced")) {
         if (NULL == fFunctions.fBlendBarrier) {
             RETURN_FALSE_INTERFACE
         }
     }
-#endif
 
     if (fExtensions.has("GL_EXT_discard_framebuffer")) {
-// FIXME: Remove this once Chromium is updated to provide this function
-#if 0
         if (NULL == fFunctions.fDiscardFramebuffer) {
             RETURN_FALSE_INTERFACE
         }
-#endif
     }
 
     // FBO MSAA
@@ -490,11 +479,9 @@ bool GrGLInterface::validate() const {
 
     if (kGLES_GrGLStandard == fStandard || glVer >= GR_GL_VER(4,1) ||
         fExtensions.has("GL_ARB_ES2_compatibility")) {
-#if 0 // Enable this once Chrome gives us the function ptr
         if (NULL == fFunctions.fGetShaderPrecisionFormat) {
             RETURN_FALSE_INTERFACE
         }
-#endif
     }
 
     if (fExtensions.has("GL_NV_path_rendering")) {
