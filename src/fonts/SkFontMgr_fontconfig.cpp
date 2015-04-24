@@ -283,15 +283,15 @@ protected:
         return sset;
     }
 
-    virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle&) const override { return NULL; }
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                                    const char* bcp47[], int bcp47Count,
-                                                    SkUnichar character) const override {
+    SkTypeface* onMatchFamilyStyle(const char familyName[],
+                                   const SkFontStyle&) const override { return NULL; }
+    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                            const char* bcp47[], int bcp47Count,
+                                            SkUnichar character) const override {
         return NULL;
     }
-    virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
-                                         const SkFontStyle&) const override { return NULL; }
+    SkTypeface* onMatchFaceStyle(const SkTypeface*,
+                                 const SkFontStyle&) const override { return NULL; }
 
     SkTypeface* onCreateFromData(SkData*, int ttcIndex) const override { return NULL; }
 
@@ -321,8 +321,8 @@ protected:
         return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : NULL;
     }
 
-    virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) const override {
+    SkTypeface* onLegacyCreateTypeface(const char familyName[],
+                                       unsigned styleBits) const override {
         FCLocker lock;
         return FontConfigTypeface::LegacyCreateTypeface(familyName, (SkTypeface::Style)styleBits);
     }

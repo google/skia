@@ -68,10 +68,10 @@ public:
 protected:
     SkScalerContext* onCreateScalerContext(const SkDescriptor* desc) const override;
     void onFilterRec(SkScalerContextRec* rec) const override;
-    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-                                    SkAdvancedTypefaceMetrics::PerGlyphInfo ,
-                                    const uint32_t* glyphIDs,
-                                    uint32_t glyphIDsCount) const override;
+    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+        SkAdvancedTypefaceMetrics::PerGlyphInfo,
+        const uint32_t* glyphIDs,
+        uint32_t glyphIDsCount) const override;
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         SkASSERT(0);  // don't expect to get here
@@ -80,8 +80,8 @@ protected:
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;
 
-    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
-                                uint16_t glyphs[], int glyphCount) const override;
+    int onCharsToGlyphs(const void* chars, Encoding encoding,
+                        uint16_t glyphs[], int glyphCount) const override;
 
     int onCountGlyphs() const override {
         return (int) fTestFont->fCharCodesCount;
@@ -99,8 +99,8 @@ protected:
         return 0;
     }
 
-    virtual size_t onGetTableData(SkFontTableTag tag, size_t offset,
-                                  size_t length, void* data) const override {
+    size_t onGetTableData(SkFontTableTag tag, size_t offset,
+                          size_t length, void* data) const override {
         return 0;
     }
 private:
