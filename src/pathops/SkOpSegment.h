@@ -254,7 +254,8 @@ public:
     bool match(const SkOpPtT* span, const SkOpSegment* parent, double t, const SkPoint& pt) const;
     void missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator);
     bool monotonicInY(const SkOpSpanBase* start, const SkOpSpanBase* end) const;
-    bool moveNearby();
+    void moveMultiples();
+    void moveNearby();
 
     SkOpSegment* next() const {
         return fNext;

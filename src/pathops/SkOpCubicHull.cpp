@@ -104,9 +104,10 @@ int SkDCubic::convexHull(char order[4]) const {
                     double dist2_3 = fPts[2].distanceSquared(fPts[3]);
                     double smallest1distSq = SkTMin(dist1_0, dist1_3);
                     double smallest2distSq = SkTMin(dist2_0, dist2_3);
-                    SkASSERT(approximately_zero(SkTMin(smallest1distSq, smallest2distSq)));
-                    order[2] = smallest1distSq < smallest2distSq ? 2 : 1;
-                    return 3;
+                    if (approximately_zero(SkTMin(smallest1distSq, smallest2distSq))) {
+                        order[2] = smallest1distSq < smallest2distSq ? 2 : 1;
+                        return 3;
+                    }
                 }
                 midX = index;
             } else if (sides == 0) { // '0' means both to one side or the other

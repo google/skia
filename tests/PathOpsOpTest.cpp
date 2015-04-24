@@ -4155,7 +4155,7 @@ static void cubicOp139(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1,3);
     pathB.cubicTo(1,5, 2,0, 4,0);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kDifference_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
 }
 
 static void cubicOp140(skiatest::Reporter* reporter, const char* filename) {
@@ -4270,11 +4270,235 @@ static void loops5i(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
+static void cubicOp142(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(5,6);
+    path.cubicTo(2,5, 2,1, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,2);
+    pathB.cubicTo(0,1, 6,5, 5,2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics6d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(3, 5);
+    path.cubicTo(1, 5, 4, 2, 4, 0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2, 4);
+    pathB.cubicTo(0, 4, 5, 3, 5, 1);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics7d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 6);
+    path.cubicTo(2, 4, 5, 1, 3, 1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 5);
+    pathB.cubicTo(1, 3, 6, 2, 4, 2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics8d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 5);
+    path.cubicTo(2, 4, 5, 1, 3, 2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 5);
+    pathB.cubicTo(2, 3, 5, 2, 4, 2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics9d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 4);
+    path.cubicTo(2, 6, 3, 1, 5, 1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 3);
+    pathB.cubicTo(1, 5, 4, 2, 6, 2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics10u(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 4);
+    path.cubicTo(1, 6, 4, 1, 5, 1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 4);
+    pathB.cubicTo(1, 5, 4, 2, 6, 1);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
+}
+
+static void cubics11i(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 4);
+    path.cubicTo(2, 5, 3, 2, 5, 1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2, 3);
+    pathB.cubicTo(1, 5, 4, 2, 5, 2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
+}
+
+static void cubics12d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 4);
+    path.cubicTo(0, 4, 5, 3, 5, 1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(3, 5);
+    pathB.cubicTo(1, 5, 4, 2, 4, 0);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics13d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 3);
+    path.cubicTo(1, 5, 4, 2, 5, 2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2, 4);
+    pathB.cubicTo(2, 5, 3, 2, 5, 1);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics14d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 3);
+    path.cubicTo(0, 4, 3, 1, 3, 0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 3);
+    pathB.cubicTo(0, 3, 3, 2, 4, 0);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics15d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1, 5);
+    path.cubicTo(3, 5, 4, 0, 4, 2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0, 4);
+    pathB.cubicTo(2, 4, 5, 1, 5, 3);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics16i(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1, 5);
+    path.cubicTo(2, 5, 5, 0, 4, 2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0, 5);
+    pathB.cubicTo(2, 4, 5, 1, 5, 2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
+}
+
+static void cubics17d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1, 5);
+    path.cubicTo(3, 4, 4, 1, 4, 2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 4);
+    pathB.cubicTo(2, 4, 5, 1, 4, 3);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics18d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1, 5);
+    path.cubicTo(1, 3, 4, 0, 2, 0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0, 4);
+    pathB.cubicTo(0, 2, 5, 1, 3, 1);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubics19d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1, 5);
+    path.cubicTo(2, 3, 5, 2, 4, 2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2, 5);
+    pathB.cubicTo(2, 4, 5, 1, 3, 2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
+static void cubicOp157(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1,5);
+    path.cubicTo(1,3, 6,2, 4,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,6);
+    pathB.cubicTo(2,4, 5,1, 3,1);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = cubicOp90u;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(cubics6d),
+    TEST(cubics7d),
+    TEST(cubics8d),
+    TEST(cubics9d),
+    TEST(cubics10u),
+    TEST(cubics11i),
+    TEST(cubics12d),
+    TEST(cubics13d),
+    TEST(cubics14d),
+    TEST(cubics15d),
+    TEST(cubics16i),
+    TEST(cubics17d),
+    TEST(cubics18d),
+    TEST(cubics19d),
+    TEST(cubicOp157),
+    TEST(cubicOp142),
     TEST(loops4i),
     TEST(quadRect1),
     TEST(quadRect2),
@@ -4799,8 +5023,8 @@ static void fuzz714(skiatest::Reporter* reporter, const char* filename) {
 path.moveTo(SkBits2Float(0x430c0000), SkBits2Float(0x42200000));
 path.lineTo(SkBits2Float(0x43480000), SkBits2Float(0x43520000));
 path.lineTo(SkBits2Float(0x42200000), SkBits2Float(0x42c80000));
-path.lineTo(SkBits2Float(0x64969569), SkBits2Float(0x42c80000));
-path.lineTo(SkBits2Float(0x64969569), SkBits2Float(0x43520000));
+path.lineTo(SkBits2Float(0x64969569), SkBits2Float(0x42c80000));  // 2.22222e+022f
+path.lineTo(SkBits2Float(0x64969569), SkBits2Float(0x43520000));  // 2.22222e+022f
 path.lineTo(SkBits2Float(0x430c0000), SkBits2Float(0x42200000));
 path.close();
 
@@ -4810,8 +5034,8 @@ path.close();
 path.moveTo(SkBits2Float(0x43200000), SkBits2Float(0x42700000));
 path.lineTo(SkBits2Float(0x435c0000), SkBits2Float(0x43660000));
 path.lineTo(SkBits2Float(0x42700000), SkBits2Float(0x42f00000));
-path.lineTo(SkBits2Float(0x64969569), SkBits2Float(0x42f00000));
-path.lineTo(SkBits2Float(0x64969569), SkBits2Float(0x43660000));
+path.lineTo(SkBits2Float(0x64969569), SkBits2Float(0x42f00000));  // 2.22222e+022f
+path.lineTo(SkBits2Float(0x64969569), SkBits2Float(0x43660000));  // 2.22222e+022f
 path.lineTo(SkBits2Float(0x43200000), SkBits2Float(0x42700000));
 path.close();
 
@@ -4842,12 +5066,12 @@ path.close();
 }
 
 static struct TestDesc failTests[] = {
+    TEST(fuzz433),
     TEST(fuzz1),
     TEST(fuzz714),
     TEST(fuzz487a),
     TEST(fuzz487b),
     TEST(fuzz433b),
-    TEST(fuzz433),
     TEST(bufferOverflow),
 };
 

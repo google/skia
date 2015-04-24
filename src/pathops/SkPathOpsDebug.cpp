@@ -400,6 +400,7 @@ void SkOpSegment::debugValidate() const {
     } while (!span->final() && (span = span->upCast()->next()));
     SkASSERT(count == fCount);
     SkASSERT(done == fDoneCount);
+    SkASSERT(count >= fDoneCount);
     SkASSERT(span->final());
     span->debugValidate();
 #endif

@@ -211,15 +211,21 @@ public:
         } while ((segment = segment->next()));
     }
 
-    bool moveNearby() {
+    bool moveMultiples() {
         SkASSERT(fCount > 0);
         SkOpSegment* segment = &fHead;
         do {
-            if (!segment->moveNearby()) {
-                return false;
-            }
+            segment->moveMultiples();
         } while ((segment = segment->next()));
         return true;
+    }
+
+    void moveNearby() {
+        SkASSERT(fCount > 0);
+        SkOpSegment* segment = &fHead;
+        do {
+            segment->moveNearby();
+        } while ((segment = segment->next()));
     }
 
     SkOpContour* next() {

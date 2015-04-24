@@ -945,6 +945,7 @@ void SkOpSpanBase::dumpBase() const {
         const SkOpPtT* oPt = this->ptT()->next();
         SkDebugf(" seg/span=%d/%d", oPt->segment()->debugID(), oPt->span()->debugID());
     }
+    SkDebugf(" adds=%d", fSpanAdds);
 }
 
 void SkOpSpanBase::dumpCoin() const {
@@ -1319,23 +1320,23 @@ const SkOpSpanBase* SkOpGlobalState::debugSpan(int id) const {
 }
 #endif
 
-const SkOpAngle* DebugAngle(const SkTArray<SkOpContour*, true>* contours, int id) {
+const SkOpAngle* DebugAngle(const SkTDArray<SkOpContour* >* contours, int id) {
     return (*contours)[0]->debugAngle(id);
 }
 
-SkOpContour* DumpContour(const SkTArray<SkOpContour*, true>* contours, int id) {
+SkOpContour* DumpContour(const SkTDArray<SkOpContour* >* contours, int id) {
     return (*contours)[0]->debugContour(id);
 }
 
-const SkOpPtT* DebugPtT(const SkTArray<SkOpContour*, true>* contours, int id) {
+const SkOpPtT* DebugPtT(const SkTDArray<SkOpContour* >* contours, int id) {
     return (*contours)[0]->debugPtT(id);
 }
 
-const SkOpSegment* DebugSegment(const SkTArray<SkOpContour*, true>* contours, int id) {
+const SkOpSegment* DebugSegment(const SkTDArray<SkOpContour* >* contours, int id) {
     return (*contours)[0]->debugSegment(id);
 }
 
-const SkOpSpanBase* DebugSpan(const SkTArray<SkOpContour*, true>* contours, int id) {
+const SkOpSpanBase* DebugSpan(const SkTDArray<SkOpContour* >* contours, int id) {
     return (*contours)[0]->debugSpan(id);
 }
 

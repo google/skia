@@ -659,15 +659,20 @@ static void missingCoincidence(SkTDArray<SkOpContour* >* contourList,
     }
 }
 
-static bool moveNearby(SkTDArray<SkOpContour* >* contourList) {
+static void moveMultiples(SkTDArray<SkOpContour* >* contourList) {
     int contourCount = (*contourList).count();
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         SkOpContour* contour = (*contourList)[cTest];
-        if (!contour->moveNearby()) {
-            return false;
-        }
+        contour->moveMultiples();
     }
-    return true;
+}
+
+static void moveNearby(SkTDArray<SkOpContour* >* contourList) {
+    int contourCount = (*contourList).count();
+    for (int cTest = 0; cTest < contourCount; ++cTest) {
+        SkOpContour* contour = (*contourList)[cTest];
+        contour->moveNearby();
+    }
 }
 
 static void sortAngles(SkTDArray<SkOpContour* >* contourList) {
@@ -688,10 +693,10 @@ static void sortSegments(SkTDArray<SkOpContour* >* contourList) {
 
 bool HandleCoincidence(SkTDArray<SkOpContour* >* contourList, SkOpCoincidence* coincidence,
         SkChunkAlloc* allocator, SkOpGlobalState* globalState) {
+    // combine t values when multiple intersections occur on some segments but not others
+    moveMultiples(contourList);
     // move t values and points together to eliminate small/tiny gaps
-    if (!moveNearby(contourList)) {
-        return false;
-    }
+    moveNearby(contourList);
     align(contourList);  // give all span members common values
 #if DEBUG_VALIDATE
     globalState->setPhase(SkOpGlobalState::kIntersecting);

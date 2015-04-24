@@ -133,6 +133,10 @@ public:
 
     void alignEnd(double t, const SkPoint& pt);
 
+    void bumpSpanAdds() {
+        ++fSpanAdds;
+    }
+
     bool chased() const {
         return fChased;
     }
@@ -253,6 +257,10 @@ public:
         return fPtT.next()->next() == &fPtT; 
     }
 
+    int spanAddsCount() const {
+        return fSpanAdds;
+    }
+
     const SkOpSpan* starter(const SkOpSpanBase* end) const {
         const SkOpSpanBase* result = t() < end->t() ? this : end;
         return result->upCast();
@@ -316,6 +324,7 @@ protected:  // no direct access to internals to avoid treating a span base as a 
     SkOpSpanBase* fCoinEnd;  // linked list of coincident spans that end here (may point to itself)
     SkOpAngle* fFromAngle;  // points to next angle from span start to end
     SkOpSpan* fPrev;  // previous intersection point
+    int fSpanAdds;  // number of times intersections have been added to span
     bool fAligned;
     bool fChased;  // set after span has been added to chase array
     SkDEBUGCODE(int fCount);  // number of pt/t pairs added

@@ -289,7 +289,7 @@ int comparePaths(skiatest::Reporter* reporter, const char* filename, const SkPat
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
 }
 
-const int gTestFirst = 6;
+const int gTestFirst = 20;
 static int gTestNo = gTestFirst;
 static SkTDArray<SkPathOp> gTestOp;
 

@@ -7,7 +7,7 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 
-static int loopNo = 132;
+static int loopNo = 158;
 
 static void testOpCubicsMain(PathOpsThreadState* data) {
 #if DEBUG_SHOW_TEST_NAME
@@ -15,7 +15,7 @@ static void testOpCubicsMain(PathOpsThreadState* data) {
 #endif
     SkASSERT(data);
     PathOpsThreadState& state = *data;
-    char pathStr[1024];  // gdb: set print elements 400
+    char pathStr[1024];
     bool progress = state.fReporter->verbose(); // FIXME: break out into its own parameter?
     if (progress) {
         sk_bzero(pathStr, sizeof(pathStr));

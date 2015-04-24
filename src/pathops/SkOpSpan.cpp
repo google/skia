@@ -275,6 +275,7 @@ void SkOpSpanBase::initBase(SkOpSegment* segment, SkOpSpan* prev, double t, cons
     fCoinEnd = this;
     fFromAngle = NULL;
     fPrev = prev;
+    fSpanAdds = 0;
     fAligned = true;
     fChased = false;
     SkDEBUGCODE(fCount = 1);
@@ -304,6 +305,7 @@ void SkOpSpanBase::merge(SkOpSpan* span) {
 tryNextRemainder:
         remainder = next;
     }
+    fSpanAdds += span->fSpanAdds;
 }
 
 void SkOpSpan::applyCoincidence(SkOpSpan* opp) {
