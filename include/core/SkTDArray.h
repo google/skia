@@ -136,7 +136,7 @@ public:
      *  Sets the number of elements in the array.
      *  If the array does not have space for count elements, it will increase
      *  the storage allocated to some amount greater than that required.
-     *  It will never shrink the shrink the storage.
+     *  It will never shrink the storage.
      */
     void setCount(int count) {
         SkASSERT(count >= 0);

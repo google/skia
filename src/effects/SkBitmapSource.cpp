@@ -33,7 +33,7 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap,
 
 SkFlattenable* SkBitmapSource::CreateProc(SkReadBuffer& buffer) {
     SkFilterQuality filterQuality;
-    if (buffer.isVersionLT(SkReadBuffer::kBitmapourceFilterQuality_Version)) {
+    if (buffer.isVersionLT(SkReadBuffer::kBitmapSourceFilterQuality_Version)) {
         filterQuality = kHigh_SkFilterQuality;
     } else {
         filterQuality = (SkFilterQuality)buffer.readInt();

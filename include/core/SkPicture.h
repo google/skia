@@ -261,10 +261,10 @@ private:
 
     // Takes ownership of the SkRecord and (optional) SnapshotArray, refs the (optional) BBH.
     SkPicture(const SkRect& cullRect,
-             SkRecord*,
-             SnapshotArray*,
-             SkBBoxHierarchy*,
-             size_t approxBytesUsedBySubPictures);
+              SkRecord*,
+              SnapshotArray*,
+              SkBBoxHierarchy*,
+              size_t approxBytesUsedBySubPictures);
 
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
     static SkPictureData* Backport(const SkRecord&, const SkPictInfo&,
