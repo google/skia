@@ -360,6 +360,11 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
                                       const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                       const SkTextBlob* blob, SkScalar x, SkScalar y,
                                       SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
+    // If we have been abandoned, then don't draw
+    if (!fContext->getTextTarget()) {
+        return;
+    }
+
     SkAutoTUnref<BitmapTextBlob> cacheBlob;
     SkMaskFilter::BlurRec blurRec;
     BitmapTextBlob::Key key;
