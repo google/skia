@@ -639,9 +639,9 @@ public:
             const SkString& path = fImages[fCurrentCodec];
             SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
             SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
-            SkASSERT(codec);
             if (!codec) {
                 // Nothing to time.
+                SkDebugf("Cannot find codec for %s\n", path.c_str());
                 continue;
             }
 
