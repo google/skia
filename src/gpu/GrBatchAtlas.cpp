@@ -50,7 +50,10 @@ public:
             return false;
         }
 
-        SkASSERT(fData);
+        if (!fData) {
+            fData = reinterpret_cast<unsigned char*>(sk_calloc_throw(fBytesPerPixel * fWidth *
+                                                                     fHeight));
+        }
         const unsigned char* imagePtr = (const unsigned char*)image;
         // point ourselves at the right starting spot
         unsigned char* dataPtr = fData;
@@ -88,9 +91,8 @@ public:
 
     void uploadToTexture(GrBatchTarget::TextureUploader uploader)  {
         // We should only be issuing uploads if we are in fact dirty
-        SkASSERT(fDirty);
+        SkASSERT(fDirty && fData && fTexture);
         TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrBatchPlot::uploadToTexture");
-        SkASSERT(fTexture);
         size_t rowBytes = fBytesPerPixel * fRects->width();
         const unsigned char* dataPtr = fData;
         dataPtr += rowBytes * fDirtyRect.fTop;
@@ -110,8 +112,9 @@ public:
         fID = create_id(fIndex, fGenID);
 
         // zero out the plot
-        SkASSERT(fData);
-        memset(fData, 0, fBytesPerPixel * fWidth * fHeight);
+        if (fData) {
+            sk_bzero(fData, fBytesPerPixel * fWidth * fHeight);
+        }
 
         fDirtyRect.setEmpty();
         SkDEBUGCODE(fDirty = false;)
@@ -166,10 +169,6 @@ private:
         fDirtyRect.setEmpty();
         SkDEBUGCODE(fDirty = false;)
         fTexture = texture;
-
-        // allocate backing store
-        fData = SkNEW_ARRAY(unsigned char, fBytesPerPixel * width * height);
-        memset(fData, 0, fBytesPerPixel * width * height);
     }
 
     BatchToken fLastUpload;
