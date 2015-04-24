@@ -51,6 +51,6 @@ function gyp_hasher() {
 GYP_HASH=$(gyp_hasher)
 HASH_PATH="${SKIA_OUT}/gyp_hash"
 if [ "$GYP_HASH" != "$(catifexists "$HASH_PATH")" ]; then
-    ./gyp_skia || exit
+    python ./gyp_skia || exit
     echo "$GYP_HASH" > "$HASH_PATH"
 fi
