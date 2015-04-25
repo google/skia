@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 The Android Open Source Project
  *
@@ -10,7 +9,6 @@
 #ifndef SkPDFTypes_DEFINED
 #define SkPDFTypes_DEFINED
 
-#include "SkPDFTypes.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkString.h"
@@ -28,10 +26,11 @@ class SkWStream;
     A PDF Object is the base class for primitive elements in a PDF file.  A
     common subtype is used to ease the use of indirect object references,
     which are common in the PDF format.
+
 */
 class SkPDFObject : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFObject)
+    SK_DECLARE_INST_COUNT(SkPDFObject);
 
     /** Subclasses must implement this method to print the object to the
      *  PDF file.
@@ -55,170 +54,191 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-/** \class SkPDFObjRef
+////////////////////////////////////////////////////////////////////////////////
 
-    An indirect reference to a PDF object.
-*/
-class SkPDFObjRef : public SkPDFObject {
+/**
+   A SkPDFUnion is a non-virtualized implementation of the
+   non-compound, non-specialized PDF Object types: Name, String,
+   Number, Boolean.
+ */
+class SkPDFUnion {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFObjRef)
+    // u.move() is analogous to std::move(u). It returns an rvalue.
+    SkPDFUnion move() { return static_cast<SkPDFUnion&&>(*this); }
+    // Move contstructor and assignemnt operator destroy the argument
+    // and steal their references (if needed).
+    SkPDFUnion(SkPDFUnion&& other);
+    SkPDFUnion& operator=(SkPDFUnion&& other);
 
-    /** Create a reference to an existing SkPDFObject.
-     *  @param obj The object to reference.
-     */
-    explicit SkPDFObjRef(SkPDFObject* obj);
-    virtual ~SkPDFObjRef();
+    ~SkPDFUnion();
 
-    // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
-    virtual void addResources(SkPDFObjNumMap*,
-                              const SkPDFSubstituteMap&) const override;
+    /** The following nine functions are the standard way of creating
+        SkPDFUnion objects. */
+
+    static SkPDFUnion Int(int32_t);
+
+    static SkPDFUnion Bool(bool);
+
+    static SkPDFUnion Scalar(SkScalar);
+
+    /** These two functions do NOT take ownership of ptr, and do NOT
+        copy the string.  Suitable for passing in static const
+        strings. For example:
+          SkPDFUnion n = SkPDFUnion::Name("Length");
+          SkPDFUnion u = SkPDFUnion::String("Identity"); */
+
+    /** SkPDFUnion::Name(const char*) assumes that the passed string
+        is already a valid name (that is: it has no control or
+        whitespace characters).  This will not copy the name. */
+    static SkPDFUnion Name(const char*);
+
+    /** SkPDFUnion::String will encode the passed string.  This will
+        not copy the name. */
+    static SkPDFUnion String(const char*);
+
+    /** SkPDFUnion::Name(const SkString&) does not assume that the
+        passed string is already a valid name and it will escape the
+        string. */
+    static SkPDFUnion Name(const SkString&);
+
+    /** SkPDFUnion::String will encode the passed string. */
+    static SkPDFUnion String(const SkString&);
+
+    /** This function DOES take ownership of the object. E.g.
+          SkAutoTUnref<SkPDFDict> dict(new SkPDFDict);
+          dict->insert(.....);
+          SkPDFUnion u = SkPDFUnion::Object(dict.detach()) */
+    static SkPDFUnion Object(SkPDFObject*);
+
+    /** This function DOES take ownership of the object. E.g.
+          SkAutoTUnref<SkPDFBitmap> image(
+                 SkPDFBitmap::Create(fCanon, bitmap));
+          SkPDFUnion u = SkPDFUnion::ObjRef(image.detach()) */
+    static SkPDFUnion ObjRef(SkPDFObject*);
+
+    /** These two non-virtual methods mirror SkPDFObject's
+        corresponding virtuals. */
+    void emitObject(SkWStream*,
+                    const SkPDFObjNumMap&,
+                    const SkPDFSubstituteMap&) const;
+    void addResources(SkPDFObjNumMap*, const SkPDFSubstituteMap&) const;
+
+    bool isName() const;
 
 private:
-    SkAutoTUnref<SkPDFObject> fObj;
+    union {
+        int32_t fIntValue;
+        bool fBoolValue;
+        SkScalar fScalarValue;
+        const char* fStaticString;
+        char fSkString[sizeof(SkString)];
+        SkPDFObject* fObject;
+    };
+    enum class Type : char {
+        /** It is an error to call emitObject() or addResources() on an
+            kDestroyed object. */
+        kDestroyed = 0,
+        kInt,
+        kBool,
+        kScalar,
+        kName,
+        kString,
+        kNameSkS,
+        kStringSkS,
+        kObjRef,
+        kObject,
+    };
+    Type fType;
 
+    SkPDFUnion(Type);
+    // We do not now need copy constructor and copy assignment, so we
+    // will disable this functionality.
+    SkPDFUnion& operator=(const SkPDFUnion&) = delete;
+    SkPDFUnion(const SkPDFUnion&) = delete;
+};
+SK_COMPILE_ASSERT(sizeof(SkString) == sizeof(void*), SkString_size);
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**  This class is a SkPDFUnion with SkPDFObject virtuals attached. */
+// TODO(halcanary): 99% of the uses of this class should be
+// transitioned to using a bare SkPDFUnion inside an array or dict.
+class SkPDFAtom : public SkPDFObject {
+public:
+    void emitObject(SkWStream* stream,
+                    const SkPDFObjNumMap& objNumMap,
+                    const SkPDFSubstituteMap& substitutes) final;
+    void addResources(SkPDFObjNumMap*, const SkPDFSubstituteMap&) const final;
+
+protected:
+    SkPDFAtom(SkPDFUnion&& v) : fValue(v.move()) {}
+
+private:
+    const SkPDFUnion fValue;
     typedef SkPDFObject INHERITED;
 };
 
-/** \class SkPDFInt
-
-    An integer object in a PDF.
-*/
-class SkPDFInt : public SkPDFObject {
+/** The following six classes exist only to ease transition to SkPDFUnion. */
+class SkPDFObjRef : public SkPDFAtom {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFInt)
-
-    /** Create a PDF integer (usually for indirect reference purposes).
-     *  @param value An integer value between 2^31 - 1 and -2^31.
-     */
-    explicit SkPDFInt(int32_t value);
-    virtual ~SkPDFInt();
-
-    // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
-
-private:
-    int32_t fValue;
-
-    typedef SkPDFObject INHERITED;
+    SK_DECLARE_INST_COUNT(SkPDFObjRef);
+    explicit SkPDFObjRef(SkPDFObject* obj)
+        : INHERITED(SkPDFUnion::ObjRef(SkRef(obj))) {}
+    typedef SkPDFAtom INHERITED;
 };
 
-/** \class SkPDFBool
-
-    An boolean value in a PDF.
-*/
-class SkPDFBool : public SkPDFObject {
+class SkPDFInt : public SkPDFAtom {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFBool)
-
-    /** Create a PDF boolean.
-     *  @param value true or false.
-     */
-    explicit SkPDFBool(bool value);
-    virtual ~SkPDFBool();
-
-    // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
-
-private:
-    bool fValue;
-
-    typedef SkPDFObject INHERITED;
+    SK_DECLARE_INST_COUNT(SkPDFInt);
+    explicit SkPDFInt(int32_t value) : INHERITED(SkPDFUnion::Int(value)) {}
+    typedef SkPDFAtom INHERITED;
 };
 
-/** \class SkPDFScalar
-
-    A real number object in a PDF.
-*/
-class SkPDFScalar : public SkPDFObject {
+class SkPDFBool : public SkPDFAtom {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFScalar)
+    SK_DECLARE_INST_COUNT(SkPDFBool);
+    explicit SkPDFBool(bool value) : INHERITED(SkPDFUnion::Bool(value)) {}
+    typedef SkPDFAtom INHERITED;
+};
 
-    /** Create a PDF real number.
-     *  @param value A real value.
-     */
-    explicit SkPDFScalar(SkScalar value);
-    virtual ~SkPDFScalar();
-
+class SkPDFScalar : public SkPDFAtom {
+public:
+    SK_DECLARE_INST_COUNT(SkPDFScalar);
+    explicit SkPDFScalar(SkScalar value)
+        : INHERITED(SkPDFUnion::Scalar(value)) {}
     static void Append(SkScalar value, SkWStream* stream);
-
-    // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
-
-private:
-    SkScalar fValue;
-
-    typedef SkPDFObject INHERITED;
+    typedef SkPDFAtom INHERITED;
 };
 
-/** \class SkPDFString
-
-    A string object in a PDF.
-*/
-class SkPDFString : public SkPDFObject {
+class SkPDFString : public SkPDFAtom {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFString)
-
-    /** Create a PDF string. Maximum length (in bytes) is 65,535.
-     *  @param value A string value.
-     */
-    explicit SkPDFString(const char value[]);
-    explicit SkPDFString(const SkString& value);
-
-    virtual ~SkPDFString();
-
-    // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
+    SK_DECLARE_INST_COUNT(SkPDFString);
+    explicit SkPDFString(const char value[])
+        : INHERITED(SkPDFUnion::String(value)) {}
+    explicit SkPDFString(const SkString& value)
+        : INHERITED(SkPDFUnion::String(value)) {}
 
     static SkString FormatString(const char* input, size_t len);
-private:
+
     static const size_t kMaxLen = 65535;
 
-    const SkString fValue;
-
-    typedef SkPDFObject INHERITED;
+private:
+    typedef SkPDFAtom INHERITED;
 };
 
-/** \class SkPDFName
-
-    A name object in a PDF.
-*/
-class SkPDFName : public SkPDFObject {
+class SkPDFName : public SkPDFAtom {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFName)
+    SK_DECLARE_INST_COUNT(SkPDFName);
+    /** Create a PDF name object. Maximum length is 127 bytes. */
+    explicit SkPDFName(const char name[])
+        : INHERITED(SkPDFUnion::Name(SkString(name))) {}
+    explicit SkPDFName(const SkString& name)
+        : INHERITED(SkPDFUnion::Name(name)) {}
 
-    /** Create a PDF name object. Maximum length is 127 bytes.
-     *  @param value The name.
-     */
-    explicit SkPDFName(const char name[]);
-    explicit SkPDFName(const SkString& name);
-    virtual ~SkPDFName();
-
-    bool operator==(const SkPDFName& b) const;
-
-    // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
-
-private:
     static const size_t kMaxLen = 127;
 
-    const SkString fValue;
-
-    static SkString FormatName(const SkString& input);
-
-    typedef SkPDFObject INHERITED;
+private:
+    typedef SkPDFAtom INHERITED;
 };
 
 /** \class SkPDFArray
@@ -228,6 +248,8 @@ private:
 class SkPDFArray : public SkPDFObject {
 public:
     SK_DECLARE_INST_COUNT(SkPDFArray)
+
+    static const int kMaxLen = 8191;
 
     /** Create a PDF array. Maximum length is 8191.
      */
@@ -243,7 +265,7 @@ public:
 
     /** The size of the array.
      */
-    int size() { return fValue.count(); }
+    int size() const;
 
     /** Preallocate space for the given number of entries.
      *  @param length The number of array slots to preallocate.
@@ -254,27 +276,26 @@ public:
      *  @param value The value to add to the array.
      *  @return The value argument is returned.
      */
+    // DEPRECATED
     SkPDFObject* append(SkPDFObject* value);
 
-    /** Creates a SkPDFInt object and appends it to the array.
+    /** Appends a value to the end of the array.
      *  @param value The value to add to the array.
      */
-    void appendInt(int32_t value);
-
-    /** Creates a SkPDFScalar object and appends it to the array.
-     *  @param value The value to add to the array.
-     */
-    void appendScalar(SkScalar value);
-
-    /** Creates a SkPDFName object and appends it to the array.
-     *  @param value The value to add to the array.
-     */
-    void appendName(const char name[]);
+    void appendInt(int32_t);
+    void appendBool(bool);
+    void appendScalar(SkScalar);
+    void appendName(const char[]);
+    void appendName(const SkString&);
+    void appendString(const char[]);
+    void appendString(const SkString&);
+    /** appendObject and appendObjRef take ownership of the passed object */
+    void appendObject(SkPDFObject*);
+    void appendObjRef(SkPDFObject*);
 
 private:
-    static const int kMaxLen = 8191;
-    SkTDArray<SkPDFObject*> fValue;
-
+    SkTDArray<SkPDFUnion> fValues;
+    void append(SkPDFUnion&& value);
     typedef SkPDFObject INHERITED;
 };
 
@@ -313,103 +334,52 @@ public:
      *  @param value The value for this dictionary entry.
      *  @return The value argument is returned.
      */
+    // DEPRECATED
     SkPDFObject* insert(SkPDFName* key, SkPDFObject* value);
-
-    /** Add the value to the dictionary with the given key.  Refs value.  The
-     *  method will create the SkPDFName object.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     *  @return The value argument is returned.
-     */
+    // DEPRECATED
     SkPDFObject* insert(const char key[], SkPDFObject* value);
 
-    /** Add the int to the dictionary with the given key.
+    /** Add the value to the dictionary with the given key.  Takes
+     *  ownership of the object.
      *  @param key   The text of the key for this dictionary entry.
-     *  @param value The int value for this dictionary entry.
+     *  @param value The value for this dictionary entry.
+     */
+    void insertObject(const char key[], SkPDFObject* value);
+    void insertObject(const SkString& key, SkPDFObject* value);
+    void insertObjRef(const char key[], SkPDFObject* value);
+    void insertObjRef(const SkString& key, SkPDFObject* value);
+
+    /** Add the value to the dictionary with the given key.
+     *  @param key   The text of the key for this dictionary entry.
+     *  @param value The value for this dictionary entry.
      */
     void insertInt(const char key[], int32_t value);
-
-    /**
-     *  Calls insertInt() but asserts in debug builds that the value can be represented
-     *  by an int32_t.
-     */
-    void insertInt(const char key[], size_t value) {
-        this->insertInt(key, SkToS32(value));
-    }
-
-    /** Add the scalar to the dictionary with the given key.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param value The scalar value for this dictionary entry.
-     */
+    void insertInt(const char key[], size_t value);
     void insertScalar(const char key[], SkScalar value);
-
-    /** Add the name to the dictionary with the given key.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param name  The name for this dictionary entry.
-     */
-    void insertName(const char key[], const char name[]);
-
-    /** Add the name to the dictionary with the given key.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param name  The name for this dictionary entry.
-     */
-    void insertName(const char key[], const SkString& name) {
-        this->insertName(key, name.c_str());
-    }
+    void insertName(const char key[], const char nameValue[]);
+    void insertName(const char key[], const SkString& nameValue);
+    void insertString(const char key[], const char value[]);
+    void insertString(const char key[], const SkString& value);
 
     /** Remove all entries from the dictionary.
      */
     void clear();
 
-protected:
-    /** Use to remove a single key from the dictionary.
-     */
-    void remove(const char key[]);
-
-    /** Insert references to all of the key-value pairs from the other
-     *  dictionary into this one.
-     */
-    void mergeFrom(const SkPDFDict& other);
-
 private:
-    struct Rec {
-        SkPDFName* key;
-        SkPDFObject* value;
-        Rec(SkPDFName* k, SkPDFObject* v) : key(k), value(v) {}
+    struct Record {
+        SkPDFUnion fKey;
+        SkPDFUnion fValue;
     };
-
+    SkTDArray<Record> fRecords;
     static const int kMaxLen = 4095;
 
-    SkTDArray<struct Rec> fValue;
-
-    SkPDFObject* append(SkPDFName* key, SkPDFObject* value);
+    void set(const SkPDFUnion& name, const SkPDFUnion& value);
+    void set(SkPDFUnion&& name, SkPDFUnion&& value);
 
     typedef SkPDFObject INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
-/** \class SkPDFSubstituteMap
-
-    The PDF Substitute Map manages substitute objects and owns the
-    substitutes.
-*/
-class SkPDFSubstituteMap : SkNoncopyable {
-public:
-    ~SkPDFSubstituteMap();
-    /** Set substitute object for the passed object.
-        Refs substitute.
-     */
-    void setSubstitute(SkPDFObject* original, SkPDFObject* substitute);
-
-    /** Find and return any substitute object set for the passed object. If
-     *  there is none, return the passed object.
-     */
-    SkPDFObject* getSubstitute(SkPDFObject* object) const;
-
-private:
-    SkTHashMap<SkPDFObject*, SkPDFObject*> fSubstituteMap;
-};
 
 /** \class SkPDFObjNumMap
 
@@ -434,6 +404,34 @@ public:
 private:
     SkTDArray<SkPDFObject*> fObjects;
     SkTHashMap<SkPDFObject*, int32_t> fObjectNumbers;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+/** \class SkPDFSubstituteMap
+
+    The PDF Substitute Map manages substitute objects and owns the
+    substitutes.
+*/
+class SkPDFSubstituteMap : SkNoncopyable {
+public:
+    ~SkPDFSubstituteMap();
+    /** Set substitute object for the passed object.
+        Refs substitute.
+     */
+    void setSubstitute(SkPDFObject* original, SkPDFObject* substitute);
+
+    /** Find and return any substitute object set for the passed object. If
+     *  there is none, return the passed object.
+     */
+    SkPDFObject* getSubstitute(SkPDFObject* object) const;
+
+    SkPDFObject* operator()(SkPDFObject* o) const {
+        return this->getSubstitute(o);
+    }
+
+private:
+    SkTHashMap<SkPDFObject*, SkPDFObject*> fSubstituteMap;
 };
 
 #endif

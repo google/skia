@@ -94,10 +94,6 @@ static void generate_page_tree(const SkTDArray<SkPDFDict*>& pages,
     // one child.
     static const int kNodeSize = 8;
 
-    SkAutoTUnref<SkPDFName> kidsName(new SkPDFName("Kids"));
-    SkAutoTUnref<SkPDFName> countName(new SkPDFName("Count"));
-    SkAutoTUnref<SkPDFName> parentName(new SkPDFName("Parent"));
-
     // curNodes takes a reference to its items, which it passes to pageTree.
     SkTDArray<SkPDFDict*> curNodes;
     curNodes.setReserve(pages.count());
@@ -126,7 +122,7 @@ static void generate_page_tree(const SkTDArray<SkPDFDict*>& pages,
 
             int count = 0;
             for (; i < curNodes.count() && count < kNodeSize; i++, count++) {
-                curNodes[i]->insert(parentName.get(), newNodeRef.get());
+                curNodes[i]->insert("Parent", newNodeRef.get());
                 kids->append(new SkPDFObjRef(curNodes[i]))->unref();
 
                 // TODO(vandebo): put the objects in strict access order.
@@ -149,8 +145,8 @@ static void generate_page_tree(const SkTDArray<SkPDFDict*>& pages,
             if (i == curNodes.count()) {
                 pageCount = ((pages.count() - 1) % treeCapacity) + 1;
             }
-            newNode->insert(countName.get(), new SkPDFInt(pageCount))->unref();
-            newNode->insert(kidsName.get(), kids.get());
+            newNode->insert("Count", new SkPDFInt(pageCount))->unref();
+            newNode->insert("Kids", kids.get());
             nextRoundNodes.push(newNode);  // Transfer reference.
         }
 

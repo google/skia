@@ -69,8 +69,12 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
     SkDynamicMemoryWStream buffer;
     emit_object(obj, &buffer, catalog, substituteMap, false);
     REPORTER_ASSERT(reporter, directSize == buffer.getOffset());
-    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedData,
-                                            directSize));
+    if (!stream_equals(buffer, 0, expectedData, directSize)) {
+        SkAutoTDelete<SkStreamAsset> asset(buffer.detachAsStream());
+        SkString s(asset->getLength());
+        asset->read(s.writable_str(), s.size());
+        ERRORF(reporter, "!stream_equals() '%s' '%s'", expectedData, s.c_str());
+    }
 
     if (indirect) {
         // Indirect output.
@@ -272,13 +276,11 @@ DEF_TEST(PDFPrimitives, reporter) {
 
     SkAutoTUnref<SkPDFDict> dict(new SkPDFDict);
     SimpleCheckObjectOutput(reporter, dict.get(), "<<>>");
-    SkAutoTUnref<SkPDFName> n1(new SkPDFName("n1"));
-    dict->insert(n1.get(), int42.get());
+    dict->insert("n1", int42.get());
     SimpleCheckObjectOutput(reporter, dict.get(), "<</n1 42>>");
-    SkAutoTUnref<SkPDFName> n2(new SkPDFName("n2"));
-    SkAutoTUnref<SkPDFName> n3(new SkPDFName("n3"));
-    dict->insert(n2.get(), realHalf.get());
-    dict->insert(n3.get(), array.get());
+    SkString n3("n3");
+    dict->insert("n2", realHalf.get());
+    dict->insertObject(n3, array.detach());
     SimpleCheckObjectOutput(reporter, dict.get(),
                             "<</n1 42\n/n2 0.5\n/n3 [42 0.5 0]>>");
 

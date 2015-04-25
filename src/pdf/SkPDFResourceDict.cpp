@@ -46,7 +46,7 @@ static char get_resource_type_prefix(
 static const char* get_resource_type_name(
         SkPDFResourceDict::SkPDFResourceType type) {
     SkASSERT(type >= 0);
-    SkASSERT(type < SkPDFResourceDict::kResourceTypeCount);
+    SkASSERT(type < SK_ARRAY_COUNT(resource_type_names));
 
     return resource_type_names[type];
 }
@@ -67,13 +67,10 @@ static void add_subdict(
     }
     SkAutoTUnref<SkPDFDict> resources(SkNEW(SkPDFDict));
     for (int i = 0; i < resourceList.count(); i++) {
-        SkString keyString = SkPDFResourceDict::getResourceName(type, i);
-        SkAutoTUnref<SkPDFName> keyName(SkNEW_ARGS(SkPDFName, (keyString)));
-        SkAutoTUnref<SkPDFObjRef> ref(
-                SkNEW_ARGS(SkPDFObjRef, (resourceList[i])));
-        resources->insert(keyName, ref);
+        resources->insertObjRef(SkPDFResourceDict::getResourceName(type, i),
+                                SkRef(resourceList[i]));
     }
-    dst->insert(get_resource_type_name(type), resources);
+    dst->insertObject(get_resource_type_name(type), resources.detach());
 }
 
 SkPDFDict* SkPDFResourceDict::Create(
@@ -90,7 +87,7 @@ SkPDFDict* SkPDFResourceDict::Create(
     for (size_t i = 0; i < SK_ARRAY_COUNT(kProcs); i++) {
         procSets->appendName(kProcs[i]);
     }
-    dict->insert("ProcSets", procSets);
+    dict->insertObject("ProcSets", procSets.detach());
 
     if (gStateResources) {
         add_subdict(*gStateResources, kExtGState_ResourceType, dict);

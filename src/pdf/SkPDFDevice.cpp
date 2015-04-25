@@ -1299,15 +1299,14 @@ const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
 
 SkPDFArray* SkPDFDevice::copyMediaBox() const {
     // should this be a singleton?
-    SkAutoTUnref<SkPDFInt> zero(SkNEW_ARGS(SkPDFInt, (0)));
 
-    SkPDFArray* mediaBox = SkNEW(SkPDFArray);
+    SkAutoTUnref<SkPDFArray> mediaBox(SkNEW(SkPDFArray));
     mediaBox->reserve(4);
-    mediaBox->append(zero.get());
-    mediaBox->append(zero.get());
+    mediaBox->appendInt(0);
+    mediaBox->appendInt(0);
     mediaBox->appendInt(fPageSize.fWidth);
     mediaBox->appendInt(fPageSize.fHeight);
-    return mediaBox;
+    return mediaBox.detach();
 }
 
 SkStreamAsset* SkPDFDevice::content() const {
@@ -1505,7 +1504,7 @@ void SkPDFDevice::handleLinkToURL(SkData* urlData, const SkRect& r,
                  urlData->size() - 1);
     SkAutoTUnref<SkPDFDict> action(SkNEW_ARGS(SkPDFDict, ("Action")));
     action->insertName("S", "URI");
-    action->insert("URI", SkNEW_ARGS(SkPDFString, (url)))->unref();
+    action->insertString("URI", url);
     annotation->insert("A", action.get());
 }
 
@@ -1514,7 +1513,7 @@ void SkPDFDevice::handleLinkToNamedDest(SkData* nameData, const SkRect& r,
     SkAutoTUnref<SkPDFDict> annotation(createLinkAnnotation(r, matrix));
     SkString name(static_cast<const char *>(nameData->data()),
                   nameData->size() - 1);
-    annotation->insert("Dest", SkNEW_ARGS(SkPDFName, (name)))->unref();
+    annotation->insertName("Dest", name);
 }
 
 struct NamedDestination {
@@ -1522,9 +1521,7 @@ struct NamedDestination {
     SkPoint point;
 
     NamedDestination(const SkData* nameData, const SkPoint& point)
-        : nameData(nameData), point(point) {
-        nameData->ref();
-    }
+        : nameData(SkRef(nameData)), point(point) {}
 
     ~NamedDestination() {
         nameData->unref();
@@ -1547,13 +1544,13 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
         NamedDestination* dest = fNamedDestinations[i];
         SkAutoTUnref<SkPDFArray> pdfDest(SkNEW(SkPDFArray));
         pdfDest->reserve(5);
-        pdfDest->append(SkNEW_ARGS(SkPDFObjRef, (page)))->unref();
+        pdfDest->appendObjRef(SkRef(page));
         pdfDest->appendName("XYZ");
         pdfDest->appendScalar(dest->point.x());
         pdfDest->appendScalar(dest->point.y());
         pdfDest->appendInt(0);  // Leave zoom unchanged
-        dict->insert(static_cast<const char *>(dest->nameData->data()),
-                     pdfDest);
+        SkString name(static_cast<const char*>(dest->nameData->data()));
+        dict->insertObject(name, pdfDest.detach());
     }
 }
 

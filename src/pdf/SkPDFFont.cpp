@@ -1390,10 +1390,8 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
         SkAutoTDelete<SkMemoryStream> glyphStream(new SkMemoryStream());
         glyphStream->setData(content.copyToData())->unref();
 
-        SkAutoTUnref<SkPDFStream> glyphDescription(
-            new SkPDFStream(glyphStream.get()));
-        charProcs->insert(characterName.c_str(),
-                          new SkPDFObjRef(glyphDescription.get()))->unref();
+        charProcs->insertObjRef(characterName,
+                                new SkPDFStream(glyphStream.get()));
     }
 
     insert("FontBBox", makeFontBBox(bbox, 1000))->unref();
