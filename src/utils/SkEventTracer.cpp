@@ -10,7 +10,7 @@
 #include "SkLazyPtr.h"
 
 class SkDefaultEventTracer : public SkEventTracer {
-    virtual SkEventTracer::Handle
+    SkEventTracer::Handle
         addTraceEvent(char phase,
                       const uint8_t* categoryEnabledFlag,
                       const char* name,
@@ -21,20 +21,20 @@ class SkDefaultEventTracer : public SkEventTracer {
                       const uint64_t* argValues,
                       uint8_t flags) override { return 0; }
 
-    virtual void
+    void
         updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
                                  const char* name,
-                                 SkEventTracer::Handle handle) override {};
+                                 SkEventTracer::Handle handle) override {}
 
     const uint8_t* getCategoryGroupEnabled(const char* name) override {
         static uint8_t no = 0;
         return &no;
-    };
-    virtual const char* getCategoryGroupName(
+    }
+    const char* getCategoryGroupName(
       const uint8_t* categoryEnabledFlag) override {
         static const char* dummy = "dummy";
         return dummy;
-    };
+    }
 };
 
 // We prefer gUserTracer if it's been set, otherwise we fall back on gDefaultTracer.

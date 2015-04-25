@@ -91,12 +91,12 @@ public:
         // path does end up here, then this needs to be investigated.
         SkFAIL("Not implemented!");
     }
-    
+
     // Blit a horizontal run of antialiased pixels; runs[] is a *sparse*
     // zero-terminated run-length encoding of spans of constant alpha values.
-    virtual void blitAntiH(int x, int y,
-                           const SkAlpha antialias[],
-                           const int16_t runs[]) override {
+    void blitAntiH(int x, int y,
+                   const SkAlpha antialias[],
+                   const int16_t runs[]) override {
         SkASSERT(0 == x);
 
         // Make sure that the new row to blit is either the first
@@ -278,8 +278,8 @@ public:
     // Blit a rectangle with one alpha-blended column on the left,
     // width (zero or more) opaque pixels, and one alpha-blended column
     // on the right. The result will always be at least two pixels wide.
-    virtual void blitAntiRect(int x, int y, int width, int height,
-                              SkAlpha leftAlpha, SkAlpha rightAlpha) override {
+    void blitAntiRect(int x, int y, int width, int height,
+                      SkAlpha leftAlpha, SkAlpha rightAlpha) override {
         // This function is currently not implemented. It is not explicitly
         // required by the contract, but if at some time a code path runs into
         // this function (which is entirely possible), it needs to be implemented.

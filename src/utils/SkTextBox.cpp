@@ -244,9 +244,9 @@ class CanvasVisitor : public SkTextBox::Visitor {
     SkCanvas* fCanvas;
 public:
     CanvasVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
-    
-    virtual void operator()(const char text[], size_t length, SkScalar x, SkScalar y,
-                            const SkPaint& paint) override {
+
+    void operator()(const char text[], size_t length, SkScalar x, SkScalar y,
+                    const SkPaint& paint) override {
         fCanvas->drawText(text, length, x, y, paint);
     }
 };
@@ -282,9 +282,9 @@ SkScalar SkTextBox::getTextHeight() const {
 class TextBlobVisitor : public SkTextBox::Visitor {
 public:
     SkTextBlobBuilder fBuilder;
-    
-    virtual void operator()(const char text[], size_t length, SkScalar x, SkScalar y,
-                            const SkPaint& paint) override {
+
+    void operator()(const char text[], size_t length, SkScalar x, SkScalar y,
+                    const SkPaint& paint) override {
         SkPaint p(paint);
         p.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
         const int count = paint.countText(text, length);

@@ -53,7 +53,7 @@ public:
 
     Factory getFactory() const override { return NULL; }
 #ifndef SK_IGNORE_TO_STRING
-    virtual void toString(SkString* str) const override { str->set("OverdrawXfermode"); }
+    void toString(SkString* str) const override { str->set("OverdrawXfermode"); }
 #endif
 };
 
