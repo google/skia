@@ -147,7 +147,7 @@ private:
     }
 
     ~BatchPlot() {
-        SkDELETE_ARRAY(fData);
+        sk_free(fData);
         fData = NULL;
         delete fRects;
     }
