@@ -77,6 +77,10 @@ private:
 template <int N, typename T>
 class SkNf {
     typedef SkNb<N, sizeof(T)> Nb;
+
+    static int32_t MyNi(float);
+    static int64_t MyNi(double);
+    typedef SkNi<N, decltype(MyNi(T()))> Ni;
 public:
     SkNf() {}
     explicit SkNf(T val) : fLo(val),  fHi(val) {}
@@ -92,6 +96,8 @@ public:
         fLo.store(vals);
         fHi.store(vals+N/2);
     }
+
+    Ni castTrunc() const { return Ni(fLo.castTrunc(), fHi.castTrunc()); }
 
     SkNf operator + (const SkNf& o) const { return SkNf(fLo + o.fLo, fHi + o.fHi); }
     SkNf operator - (const SkNf& o) const { return SkNf(fLo - o.fLo, fHi - o.fHi); }
@@ -172,12 +178,18 @@ private:
 template <typename T>
 class SkNf<1,T> {
     typedef SkNb<1, sizeof(T)> Nb;
+
+    static int32_t MyNi(float);
+    static int64_t MyNi(double);
+    typedef SkNi<1, decltype(MyNi(T()))> Ni;
 public:
     SkNf() {}
     explicit SkNf(T val) : fVal(val) {}
     static SkNf Load(const T vals[1]) { return SkNf(vals[0]); }
 
     void store(T vals[1]) const { vals[0] = fVal; }
+
+    Ni castTrunc() const { return Ni(fVal); }
 
     SkNf operator + (const SkNf& o) const { return SkNf(fVal + o.fVal); }
     SkNf operator - (const SkNf& o) const { return SkNf(fVal - o.fVal); }
@@ -247,5 +259,7 @@ typedef SkNf<4, SkScalar> Sk4s;
 
 typedef SkNi<4, uint16_t> Sk4h;
 typedef SkNi<8, uint16_t> Sk8h;
+
+typedef SkNi<4, int> Sk4i;
 
 #endif//SkNx_DEFINED

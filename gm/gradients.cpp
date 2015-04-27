@@ -448,7 +448,7 @@ protected:
         const SkScalar kRadius = 3000;
         const SkColor gColors[] = { 0xFFFFFFFF, 0xFF000000 };
         fShader.reset(SkGradientShader::CreateRadial(center, kRadius, gColors, NULL, 2,
-                                                    SkShader::kClamp_TileMode));
+                                                     SkShader::kClamp_TileMode));
     }
 
     void onDraw(SkCanvas* canvas) override {

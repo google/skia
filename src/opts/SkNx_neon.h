@@ -181,6 +181,48 @@ private:
 #endif//defined(SK_CPU_ARM64)
 
 template <>
+class SkNi<4, int> {
+public:
+    SkNi(const int32x4_t& vec) : fVec(vec) {}
+
+    SkNi() {}
+    explicit SkNi(int val) : fVec(vdupq_n_s32(val)) {}
+    static SkNi Load(const int vals[4]) { return vld1q_s32(vals); }
+    SkNi(int a, int b, int c, int d) { fVec = (int32x4_t) { a, b, c, d }; }
+
+    void store(int vals[4]) const { vst1q_s32(vals, fVec); }
+
+    SkNi operator + (const SkNi& o) const { return vaddq_s32(fVec, o.fVec); }
+    SkNi operator - (const SkNi& o) const { return vsubq_s32(fVec, o.fVec); }
+    SkNi operator * (const SkNi& o) const { return vmulq_s32(fVec, o.fVec); }
+
+    // Well, this is absurd.  The shifts require compile-time constant arguments.
+#define SHIFT(op, v, bits) switch(bits) { \
+    case  1: return op(v,  1);  case  2: return op(v,  2);  case  3: return op(v,  3); \
+    case  4: return op(v,  4);  case  5: return op(v,  5);  case  6: return op(v,  6); \
+    case  7: return op(v,  7);  case  8: return op(v,  8);  case  9: return op(v,  9); \
+    case 10: return op(v, 10);  case 11: return op(v, 11);  case 12: return op(v, 12); \
+    case 13: return op(v, 13);  case 14: return op(v, 14);  case 15: return op(v, 15); \
+    case 16: return op(v, 16);  case 17: return op(v, 17);  case 18: return op(v, 18); \
+    case 19: return op(v, 19);  case 20: return op(v, 20);  case 21: return op(v, 21); \
+    case 22: return op(v, 22);  case 23: return op(v, 23);  case 24: return op(v, 24); \
+    case 25: return op(v, 25);  case 26: return op(v, 26);  case 27: return op(v, 27); \
+    case 28: return op(v, 28);  case 29: return op(v, 29);  case 30: return op(v, 30); \
+    case 31: return op(v, 31); } return fVec
+
+    SkNi operator << (int bits) const { SHIFT(vshlq_n_s32, fVec, bits); }
+    SkNi operator >> (int bits) const { SHIFT(vshrq_n_s32, fVec, bits); }
+#undef SHIFT
+
+    template <int k> int kth() const {
+        SkASSERT(0 <= k && k < 4);
+        return vgetq_lane_s32(fVec, k);
+    }
+protected:
+    int32x4_t fVec;
+};
+
+template <>
 class SkNf<4, float> {
     typedef SkNb<4, 4> Nb;
 public:
@@ -192,6 +234,8 @@ public:
     SkNf(float a, float b, float c, float d) { fVec = (float32x4_t) { a, b, c, d }; }
 
     void store(float vals[4]) const { vst1q_f32(vals, fVec); }
+
+    SkNi<4, int> castTrunc() const { return vcvtq_s32_f32(fVec); }
 
     SkNf approxInvert() const {
         float32x4_t est0 = vrecpeq_f32(fVec),
