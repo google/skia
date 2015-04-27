@@ -1679,69 +1679,6 @@ void S32_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
     }
 }
 
-#define SK_SUPPORT_LEGACY_COLOR32_MATHx
-
-// Color32 and its SIMD specializations use the blend_256_round_alt algorithm
-// from tests/BlendTest.cpp.  It's not quite perfect, but it's never wrong in the
-// interesting edge cases, and it's quite a bit faster than blend_perfect.
-//
-// blend_256_round_alt is our currently blessed algorithm.  Please use it or an analogous one.
-void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
-    switch (SkGetPackedA32(color)) {
-        case   0: memmove(dst, src, count * sizeof(SkPMColor)); return;
-        case 255: sk_memset32(dst, color, count);               return;
-    }
-
-    uint16x8_t colorHigh = vshll_n_u8((uint8x8_t)vdup_n_u32(color), 8);
-#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
-    uint16x8_t colorAndRound = colorHigh;
-#else                          // blend_256_round_alt, good
-    uint16x8_t colorAndRound = vaddq_u16(colorHigh, vdupq_n_u16(128));
-#endif
-
-    unsigned invA = 255 - SkGetPackedA32(color);
-#ifdef SK_SUPPORT_LEGACY_COLOR32_MATH  // blend_256_plus1_trunc, busted
-    uint8x8_t invA8 = vdup_n_u8(invA);
-#else                          // blend_256_round_alt, good
-    SkASSERT(invA + (invA >> 7) < 256);  // This next part only works if alpha is not 0.
-    uint8x8_t invA8 = vdup_n_u8(invA + (invA >> 7));
-#endif
-
-    // Does the core work of blending color onto 4 pixels, returning the resulting 4 pixels.
-    auto kernel = [&](const uint32x4_t& src4) -> uint32x4_t {
-        uint16x8_t lo = vmull_u8(vget_low_u8( (uint8x16_t)src4), invA8),
-                   hi = vmull_u8(vget_high_u8((uint8x16_t)src4), invA8);
-        return (uint32x4_t)
-            vcombine_u8(vaddhn_u16(colorAndRound, lo), vaddhn_u16(colorAndRound, hi));
-    };
-
-    while (count >= 8) {
-        uint32x4_t dst0 = kernel(vld1q_u32(src+0)),
-                   dst4 = kernel(vld1q_u32(src+4));
-        vst1q_u32(dst+0, dst0);
-        vst1q_u32(dst+4, dst4);
-        src   += 8;
-        dst   += 8;
-        count -= 8;
-    }
-    if (count >= 4) {
-        vst1q_u32(dst, kernel(vld1q_u32(src)));
-        src   += 4;
-        dst   += 4;
-        count -= 4;
-    }
-    if (count >= 2) {
-        uint32x2_t src2 = vld1_u32(src);
-        vst1_u32(dst, vget_low_u32(kernel(vcombine_u32(src2, src2))));
-        src   += 2;
-        dst   += 2;
-        count -= 2;
-    }
-    if (count >= 1) {
-        vst1q_lane_u32(dst, kernel(vdupq_n_u32(*src)), 0);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm_neon[] = {
