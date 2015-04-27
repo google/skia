@@ -322,7 +322,7 @@ static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
         result->appendInt(0);
         char shortTableArray[3] = {0, 0, 0};
         SkString tableString(shortTableArray, SK_ARRAY_COUNT(shortTableArray));
-        result->append(new SkPDFString(tableString))->unref();
+        result->appendString(tableString);
         return result;
     }
     result->appendInt(table->count() - 1);  // maximum color index.
@@ -338,7 +338,7 @@ static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
         tablePtr += 3;
     }
     SkString tableString(tableArray, 3 * table->count());
-    result->append(new SkPDFString(tableString))->unref();
+    result->appendString(tableString);
     return result;
 }
 
@@ -362,8 +362,8 @@ void PDFDefaultBitmap::emitObject(SkWStream* stream,
     pdfDict.insertInt("Height", fBitmap.height());
     if (fBitmap.colorType() == kIndex_8_SkColorType) {
         SkASSERT(1 == pdf_color_component_count(fBitmap.colorType()));
-        pdfDict.insert("ColorSpace", make_indexed_color_space(
-                                             fBitmap.getColorTable()))->unref();
+        pdfDict.insertObject("ColorSpace",
+                             make_indexed_color_space(fBitmap.getColorTable()));
     } else if (1 == pdf_color_component_count(fBitmap.colorType())) {
         pdfDict.insertName("ColorSpace", "DeviceGray");
     } else {
@@ -371,7 +371,7 @@ void PDFDefaultBitmap::emitObject(SkWStream* stream,
     }
     pdfDict.insertInt("BitsPerComponent", 8);
     if (fSMask) {
-        pdfDict.insert("SMask", new SkPDFObjRef(fSMask))->unref();
+        pdfDict.insertObjRef("SMask", SkRef(fSMask.get()));
     }
     pdfDict.insertName("Filter", "FlateDecode");
     pdfDict.insertInt("Length", asset->getLength());

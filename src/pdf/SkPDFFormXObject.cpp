@@ -37,7 +37,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
             SkASSERT(false);
             inverse.reset();
         }
-        insert("Matrix", SkPDFUtils::MatrixToArray(inverse))->unref();
+        this->insertObject("Matrix", SkPDFUtils::MatrixToArray(inverse));
     }
 }
 
@@ -58,10 +58,10 @@ SkPDFFormXObject::SkPDFFormXObject(SkStream* content, SkRect bbox,
  */
 void SkPDFFormXObject::init(const char* colorSpace,
                             SkPDFDict* resourceDict, SkPDFArray* bbox) {
-    insertName("Type", "XObject");
-    insertName("Subtype", "Form");
-    insert("Resources", resourceDict);
-    insert("BBox", bbox);
+    this->insertName("Type", "XObject");
+    this->insertName("Subtype", "Form");
+    this->insertObject("Resources", SkRef(resourceDict));
+    this->insertObject("BBox", SkRef(bbox));
 
     // Right now SkPDFFormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
@@ -71,8 +71,8 @@ void SkPDFFormXObject::init(const char* colorSpace,
     if (colorSpace != NULL) {
         group->insertName("CS", colorSpace);
     }
-    group->insert("I", new SkPDFBool(true))->unref();  // Isolated.
-    insert("Group", group.get());
+    group->insertBool("I", true);  // Isolated.
+    this->insertObject("Group", group.detach());
 }
 
 SkPDFFormXObject::~SkPDFFormXObject() {}

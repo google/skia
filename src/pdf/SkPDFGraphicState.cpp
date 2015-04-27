@@ -143,8 +143,8 @@ SkPDFObject* create_invert_function() {
     SkPDFStream* invertFunction = SkNEW_ARGS(
             SkPDFStream, (psInvertStream.get()));
     invertFunction->insertInt("FunctionType", 4);
-    invertFunction->insert("Domain", domainAndRange.get());
-    invertFunction->insert("Range", domainAndRange.get());
+    invertFunction->insertObject("Domain", SkRef(domainAndRange.get()));
+    invertFunction->insertObject("Range", domainAndRange.detach());
     return invertFunction;
 }
 
@@ -168,13 +168,13 @@ SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
     } else if (sMaskMode == kLuminosity_SMaskMode) {
         sMaskDict->insertName("S", "Luminosity");
     }
-    sMaskDict->insert("G", new SkPDFObjRef(sMask))->unref();
+    sMaskDict->insertObjRef("G", SkRef(sMask));
     if (invert) {
-        sMaskDict->insert("TR", new SkPDFObjRef(invertFunction.get()))->unref();
+        sMaskDict->insertObjRef("TR", SkRef(invertFunction.get()));
     }
 
     SkPDFDict* result = new SkPDFDict("ExtGState");
-    result->insert("SMask", sMaskDict.get());
+    result->insertObject("SMask", sMaskDict.detach());
     return result;
 }
 
@@ -201,9 +201,9 @@ void SkPDFGraphicState::emitObject(SkWStream* stream,
     SkAutoTUnref<SkPDFDict> dict(SkNEW_ARGS(SkPDFDict, ("ExtGState")));
     dict->insertName("Type", "ExtGState");
 
-    SkAutoTUnref<SkPDFScalar> alpha(new SkPDFScalar(SkScalarDiv(fAlpha, 0xFF)));
-    dict->insert("CA", alpha.get());
-    dict->insert("ca", alpha.get());
+    SkScalar alpha = SkScalarDiv(fAlpha, 0xFF);
+    dict->insertScalar("CA", alpha);
+    dict->insertScalar("ca", alpha);
 
     SkPaint::Cap strokeCap = (SkPaint::Cap)fStrokeCap;
     SkPaint::Join strokeJoin = (SkPaint::Join)fStrokeJoin;
@@ -225,8 +225,7 @@ void SkPDFGraphicState::emitObject(SkWStream* stream,
 
     dict->insertScalar("LW", fStrokeWidth);
     dict->insertScalar("ML", fStrokeMiter);
-    // SA = Auto stroke adjustment.
-    dict->insert("SA", new SkPDFBool(true))->unref();
+    dict->insertBool("SA", true);  // SA = Auto stroke adjustment.
     dict->insertName("BM", as_blend_mode(xferMode));
     dict->emitObject(stream, objNumMap, substitutes);
 }

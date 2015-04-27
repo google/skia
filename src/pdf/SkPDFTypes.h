@@ -353,6 +353,7 @@ public:
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The value for this dictionary entry.
      */
+    void insertBool(const char key[], bool value);
     void insertInt(const char key[], int32_t value);
     void insertInt(const char key[], size_t value);
     void insertScalar(const char key[], SkScalar value);

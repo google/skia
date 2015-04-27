@@ -518,6 +518,10 @@ SkPDFObject* SkPDFDict::insert(const char key[], SkPDFObject* value) {
     return value;
 }
 
+void SkPDFDict::insertBool(const char key[], bool value) {
+    this->set(SkPDFUnion::Name(key), SkPDFUnion::Bool(value));
+}
+
 void SkPDFDict::insertInt(const char key[], int32_t value) {
     this->set(SkPDFUnion::Name(key), SkPDFUnion::Int(value));
 }

@@ -601,12 +601,12 @@ static void populate_tiling_pattern_dict(SkPDFDict* pattern,
     pattern->insertInt("PatternType", kTiling_PatternType);
     pattern->insertInt("PaintType", kColoredTilingPattern_PaintType);
     pattern->insertInt("TilingType", kConstantSpacing_TilingType);
-    pattern->insert("BBox", SkPDFUtils::RectToArray(bbox))->unref();
+    pattern->insertObject("BBox", SkPDFUtils::RectToArray(bbox));
     pattern->insertScalar("XStep", bbox.width());
     pattern->insertScalar("YStep", bbox.height());
-    pattern->insert("Resources", resources);
+    pattern->insertObject("Resources", SkRef(resources));
     if (!matrix.isIdentity()) {
-        pattern->insert("Matrix", SkPDFUtils::MatrixToArray(matrix))->unref();
+        pattern->insertObject("Matrix", SkPDFUtils::MatrixToArray(matrix));
     }
 }
 
@@ -755,8 +755,8 @@ static SkPDFStream* make_ps_function(const SkString& psCode,
             SkData::NewWithCopy(psCode.c_str(), psCode.size()));
     SkPDFStream* result = SkNEW_ARGS(SkPDFStream, (funcData.get()));
     result->insertInt("FunctionType", 4);
-    result->insert("Domain", domain);
-    result->insert("Range", rangeObject.get());
+    result->insertObject("Domain", SkRef(domain));
+    result->insertObject("Range", SkRef(rangeObject.get()));
     return result;
 }
 
@@ -871,21 +871,19 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     SkAutoTUnref<SkPDFDict> pdfShader(new SkPDFDict);
     pdfShader->insertInt("ShadingType", 1);
     pdfShader->insertName("ColorSpace", "DeviceRGB");
-    pdfShader->insert("Domain", domain.get());
+    pdfShader->insertObject("Domain", SkRef(domain.get()));
 
     SkAutoTUnref<SkPDFStream> function(
             make_ps_function(functionCode, domain.get()));
-    pdfShader->insert("Function", new SkPDFObjRef(function))->unref();
-
-    SkAutoTUnref<SkPDFArray> matrixArray(
-            SkPDFUtils::MatrixToArray(finalMatrix));
+    pdfShader->insertObjRef("Function", function.detach());
 
     SkPDFFunctionShader* pdfFunctionShader =
             SkNEW_ARGS(SkPDFFunctionShader, (autoState->detach()));
 
     pdfFunctionShader->insertInt("PatternType", 2);
-    pdfFunctionShader->insert("Matrix", matrixArray.get());
-    pdfFunctionShader->insert("Shading", pdfShader.get());
+    pdfFunctionShader->insertObject("Matrix",
+                                    SkPDFUtils::MatrixToArray(finalMatrix));
+    pdfFunctionShader->insertObject("Shading", pdfShader.detach());
 
     canon->addFunctionShader(pdfFunctionShader);
     return pdfFunctionShader;
