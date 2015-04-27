@@ -50,7 +50,9 @@ static void test_Nf(skiatest::Reporter* r) {
     SkNf<N,T> fours(4);
 
     assert_eq(fours.sqrt(), 2,2,2,2);
-    assert_nearly_eq(0.001, fours.rsqrt(), 0.5, 0.5, 0.5, 0.5);
+    assert_nearly_eq(0.001, fours.rsqrt0(), 0.5, 0.5, 0.5, 0.5);
+    assert_nearly_eq(0.001, fours.rsqrt1(), 0.5, 0.5, 0.5, 0.5);
+    assert_nearly_eq(0.001, fours.rsqrt2(), 0.5, 0.5, 0.5, 0.5);
 
     assert_eq(              fours.      invert(), 0.25, 0.25, 0.25, 0.25);
     assert_nearly_eq(0.001, fours.approxInvert(), 0.25, 0.25, 0.25, 0.25);
