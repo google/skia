@@ -36,11 +36,6 @@ GrAtlasTextContext::BitmapTextBlob* GrTextBlobCache::createBlob(int glyphCount, 
     }
     cacheBlob->fRunCount = runCount;
     cacheBlob->fPool = &fPool;
-
-#ifdef SK_DEBUG
-    cacheBlob->fTotalXError = 0;
-    cacheBlob->fTotalYError = 0;
-#endif
     return cacheBlob;
 }
 

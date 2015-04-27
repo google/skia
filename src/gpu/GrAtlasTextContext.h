@@ -193,10 +193,6 @@ private:
         SkTArray<BigGlyph> fBigGlyphs;
         Key fKey;
         SkMatrix fViewMatrix;
-#ifdef SK_DEBUG
-        mutable SkScalar fTotalXError;
-        mutable SkScalar fTotalYError;
-#endif
         SkColor fPaintColor;
         SkScalar fX;
         SkScalar fY;

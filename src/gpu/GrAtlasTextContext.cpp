@@ -307,23 +307,10 @@ bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTr
                           viewMatrix.getSkewY() * (x - blob.fX) +
                           viewMatrix.getScaleY() * (y - blob.fY) -
                           blob.fViewMatrix.getTranslateY();
-        if (SkScalarFraction(transX) > SK_ScalarNearlyZero ||
-            SkScalarFraction(transY) > SK_ScalarNearlyZero) {
+        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY) ) {
             return true;
         }
 
-#ifdef SK_DEBUG
-        static const SkScalar kMinDiscernableTranslation = 0.0625;
-        // As a safeguard when debugging, we store the total error across all translations and print
-        // if the error becomes discernable.  This is pretty unlikely to occur given the tight
-        // bounds above on translation
-        blob.fTotalXError += SkScalarAbs(SkScalarFraction(transX));
-        blob.fTotalYError += SkScalarAbs(SkScalarFraction(transY));
-        if (blob.fTotalXError > kMinDiscernableTranslation ||
-            blob.fTotalYError > kMinDiscernableTranslation) {
-            SkDebugf("Exceeding error threshold for bitmap text translation");
-        }
-#endif
         (*outTransX) = transX;
         (*outTransY) = transY;
     } else if (blob.hasDistanceField()) {
