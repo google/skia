@@ -798,6 +798,11 @@ void GrContext::drawRect(GrRenderTarget* rt,
         SkScalar rad = SkScalarHalf(width);
         bounds.outset(rad, rad);
         viewMatrix.mapRect(&bounds);
+        // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
+        // hairline rects. We jam all the vertices to pixel centers to avoid this, but not when MSAA
+        // is enabled because it can cause ugly artifacts.
+        pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
+                                 0 == width && !rt->isMultisampled());
         target->drawBatch(&pipelineBuilder, batch, &bounds);
     } else {
         // filled BW rect

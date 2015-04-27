@@ -42,11 +42,18 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posV
                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                                         fProgramBuilder->rtAdjustment(),
                                         &fRtAdjustName);
-
-    // Transform from Skia's device coords to GL's normalized device coords. Note that
-    // because we want to "nudge" the device space positions we are converting to 
-    // non-homogeneous NDC.
-    if (kVec3f_GrSLType == posVar.getType()) {
+    if (this->getProgramBuilder()->desc().header().fSnapVerticesToPixelCenters) {
+        if (kVec3f_GrSLType == posVar.getType()) {
+            const char* p = posVar.c_str();
+            this->codeAppendf("{vec2 _posTmp = vec2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
+        } else {
+            SkASSERT(kVec2f_GrSLType == posVar.getType());
+            this->codeAppendf("{vec2 _posTmp = %s;", posVar.c_str());
+        }
+        this->codeAppendf("_posTmp = floor(_posTmp) + vec2(0.5, 0.5);"
+                          "gl_Position = vec4(_posTmp.x * %s.x + %s.y, _posTmp.y * %s.z + %s.w, 0, 1);}",
+                          fRtAdjustName, fRtAdjustName, fRtAdjustName, fRtAdjustName);
+    } else if (kVec3f_GrSLType == posVar.getType()) {
         this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy)/%s.z, dot(%s.yz, %s.zw)/%s.z, 0, 1);",
                           posVar.c_str(), fRtAdjustName, posVar.c_str(),
                           posVar.c_str(), fRtAdjustName, posVar.c_str());
@@ -56,9 +63,8 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posV
                           posVar.c_str(), fRtAdjustName, fRtAdjustName,
                           posVar.c_str(), fRtAdjustName, fRtAdjustName);
     }
-
-    // We could have the GrGeometryProcessor do this, but its just easier to have it performed here.
-    // If we ever need to set variable pointsize, then we can reinvestigate
+    // We could have the GrGeometryProcessor do this, but its just easier to have it performed
+    // here. If we ever need to set variable pointsize, then we can reinvestigate
     this->codeAppend("gl_PointSize = 1.0;");
 }
 

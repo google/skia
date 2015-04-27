@@ -143,7 +143,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     } else {
         header->fFragPosKey = 0;
     }
-
+    header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     header->fColorEffectCnt = pipeline.numColorFragmentStages();
     header->fCoverageEffectCnt = pipeline.numCoverageFragmentStages();
     glDesc->finalize();

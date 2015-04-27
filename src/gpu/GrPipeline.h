@@ -80,6 +80,7 @@ public:
 
     bool isDitherState() const { return SkToBool(fFlags & kDither_Flag); }
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
+    bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
     // Skip any draws that refer to this pipeline (they should be a no-op).
     bool mustSkip() const { return NULL == this->getRenderTarget(); }
 
@@ -119,6 +120,7 @@ private:
     enum Flags {
         kDither_Flag            = 0x1,
         kHWAA_Flag              = 0x2,
+        kSnapVertices_Flag      = 0x4,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;

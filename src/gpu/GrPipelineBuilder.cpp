@@ -16,7 +16,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 GrPipelineBuilder::GrPipelineBuilder()
-    : fFlagBits(0x0)
+    : fFlags(0x0)
     , fDrawFace(kBoth_DrawFace)
     , fColorProcInfoValid(false)
     , fCoverageProcInfoValid(false)
@@ -27,7 +27,7 @@ GrPipelineBuilder::GrPipelineBuilder()
 
 GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
     fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));
-    fFlagBits = that.fFlagBits;
+    fFlags = that.fFlags;
     fStencilSettings = that.fStencilSettings;
     fDrawFace = that.fDrawFace;
     fXPFactory.reset(SkRef(that.getXPFactory()));
@@ -69,12 +69,12 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, c
     // These have no equivalent in GrPaint, set them to defaults
     fDrawFace = kBoth_DrawFace;
     fStencilSettings.setDisabled();
-    fFlagBits = 0;
+    fFlags = 0;
 
     fClip = clip;
 
-    this->setState(GrPipelineBuilder::kDither_StateBit, paint.isDither());
-    this->setState(GrPipelineBuilder::kHWAntialias_StateBit,
+    this->setState(GrPipelineBuilder::kDither_Flag, paint.isDither());
+    this->setState(GrPipelineBuilder::kHWAntialias_Flag,
                    rt->isMultisampled() && paint.isAntiAlias());
 
     fColorProcInfoValid = false;

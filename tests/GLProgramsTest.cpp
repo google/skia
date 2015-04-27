@@ -186,7 +186,7 @@ static void set_random_color_coverage_stages(GrGLGpu* gpu,
 
 static void set_random_state(GrPipelineBuilder* pipelineBuilder, SkRandom* random) {
     int state = 0;
-    for (int i = 1; i <= GrPipelineBuilder::kLast_StateBit; i <<= 1) {
+    for (int i = 1; i <= GrPipelineBuilder::kLast_Flag; i <<= 1) {
         state |= random->nextBool() * i;
     }
     pipelineBuilder->enableState(state);

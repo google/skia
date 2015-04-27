@@ -56,10 +56,11 @@ public:
         uint8_t                     fFragPosKey;   // set by GrGLShaderBuilder if there are
                                                    // effects that read the fragment position.
                                                    // Otherwise, 0.
-
+        uint8_t                     fSnapVerticesToPixelCenters;
         int8_t                      fColorEffectCnt;
         int8_t                      fCoverageEffectCnt;
     };
+    GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
 
     int numColorEffects() const {
         return this->header().fColorEffectCnt;

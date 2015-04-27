@@ -746,7 +746,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 
             // if the target is MSAA then we want MSAA enabled when the clip is soft
             if (rt->isMultisampled()) {
-                pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_StateBit, element->isAA());
+                pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, element->isAA());
             }
 
             bool fillInverted = false;

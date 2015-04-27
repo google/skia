@@ -64,6 +64,9 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
     if (pipelineBuilder.isDither()) {
         fFlags |= kDither_Flag;
     }
+    if (pipelineBuilder.snapVerticesToPixelCenters()) {
+        fFlags |= kSnapVertices_Flag;
+    }
 
     int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
 
