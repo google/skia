@@ -119,11 +119,7 @@ public:
     }
 
     SkNf  sqrt() const { return SkNf(fLo. sqrt(), fHi. sqrt()); }
-
-    // Generally, increasing precision, increasing cost.
-    SkNf rsqrt0() const { return SkNf(fLo.rsqrt0(), fHi.rsqrt0()); }
-    SkNf rsqrt1() const { return SkNf(fLo.rsqrt1(), fHi.rsqrt1()); }
-    SkNf rsqrt2() const { return SkNf(fLo.rsqrt2(), fHi.rsqrt2()); }
+    SkNf rsqrt() const { return SkNf(fLo.rsqrt(), fHi.rsqrt()); }
 
     SkNf       invert() const { return SkNf(fLo.      invert(), fHi.      invert()); }
     SkNf approxInvert() const { return SkNf(fLo.approxInvert(), fHi.approxInvert()); }
@@ -211,9 +207,7 @@ public:
     static SkNf Max(const SkNf& l, const SkNf& r) { return SkNf(SkTMax(l.fVal, r.fVal)); }
 
     SkNf  sqrt() const { return SkNf(Sqrt(fVal));        }
-    SkNf rsqrt0() const { return SkNf((T)1 / Sqrt(fVal)); }
-    SkNf rsqrt1() const { return this->rsqrt0(); }
-    SkNf rsqrt2() const { return this->rsqrt1(); }
+    SkNf rsqrt() const { return SkNf((T)1 / Sqrt(fVal)); }
 
     SkNf       invert() const { return SkNf((T)1 / fVal); }
     SkNf approxInvert() const { return this->invert();    }

@@ -82,9 +82,7 @@ public:
     static SkNf Max(const SkNf& l, const SkNf& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
     SkNf  sqrt() const { return _mm_sqrt_ps (fVec);  }
-    SkNf rsqrt0() const { return _mm_rsqrt_ps(fVec); }
-    SkNf rsqrt1() const { return this->rsqrt0(); }
-    SkNf rsqrt2() const { return this->rsqrt1(); }
+    SkNf rsqrt() const { return _mm_rsqrt_ps(fVec); }
 
     SkNf       invert() const { return SkNf(1) / *this; }
     SkNf approxInvert() const { return _mm_rcp_ps(fVec); }
@@ -128,9 +126,7 @@ public:
     static SkNf Max(const SkNf& l, const SkNf& r) { return _mm_max_pd(l.fVec, r.fVec); }
 
     SkNf  sqrt() const { return _mm_sqrt_pd(fVec);  }
-    SkNf rsqrt0() const { return _mm_cvtps_pd(_mm_rsqrt_ps(_mm_cvtpd_ps(fVec))); }
-    SkNf rsqrt1() const { return this->rsqrt0(); }
-    SkNf rsqrt2() const { return this->rsqrt1(); }
+    SkNf rsqrt() const { return _mm_cvtps_pd(_mm_rsqrt_ps(_mm_cvtpd_ps(fVec))); }
 
     SkNf       invert() const { return SkNf(1) / *this; }
     SkNf approxInvert() const { return _mm_cvtps_pd(_mm_rcp_ps(_mm_cvtpd_ps(fVec))); }
@@ -214,9 +210,7 @@ public:
     static SkNf Max(const SkNf& l, const SkNf& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
     SkNf  sqrt() const { return _mm_sqrt_ps (fVec);  }
-    SkNf rsqrt0() const { return _mm_rsqrt_ps(fVec); }
-    SkNf rsqrt1() const { return this->rsqrt0(); }
-    SkNf rsqrt2() const { return this->rsqrt1(); }
+    SkNf rsqrt() const { return _mm_rsqrt_ps(fVec); }
 
     SkNf       invert() const { return SkNf(1) / *this; }
     SkNf approxInvert() const { return _mm_rcp_ps(fVec); }

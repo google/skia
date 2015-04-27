@@ -81,21 +81,20 @@ public:
     static SkNf Min(const SkNf& l, const SkNf& r) { return vmin_f32(l.fVec, r.fVec); }
     static SkNf Max(const SkNf& l, const SkNf& r) { return vmax_f32(l.fVec, r.fVec); }
 
-    SkNf rsqrt0() const { return vrsqrte_f32(fVec); }
-    SkNf rsqrt1() const {
-        float32x2_t est0 = this->rsqrt0().fVec;
-        return vmul_f32(vrsqrts_f32(fVec, vmul_f32(est0, est0)), est0);
-    }
-    SkNf rsqrt2() const {
-        float32x2_t est1 = this->rsqrt1().fVec;
-        return vmul_f32(vrsqrts_f32(fVec, vmul_f32(est1, est1)), est1);
+    SkNf rsqrt() const {
+        float32x2_t est0 = vrsqrte_f32(fVec),
+                    est1 = vmul_f32(vrsqrts_f32(fVec, vmul_f32(est0, est0)), est0);
+        return est1;
     }
 
     SkNf sqrt() const {
     #if defined(SK_CPU_ARM64)
         return vsqrt_f32(fVec);
     #else
-        return *this * this->rsqrt2();
+        float32x2_t est1 = this->rsqrt().fVec,
+        // An extra step of Newton's method to refine the estimate of 1/sqrt(this).
+                    est2 = vmul_f32(vrsqrts_f32(fVec, vmul_f32(est1, est1)), est1);
+        return vmul_f32(fVec, est2);
     #endif
     }
 
@@ -152,15 +151,10 @@ public:
     static SkNf Max(const SkNf& l, const SkNf& r) { return vmaxq_f64(l.fVec, r.fVec); }
 
     SkNf  sqrt() const { return vsqrtq_f64(fVec);  }
-
-    SkNf rsqrt0() const { return vrsqrteq_f64(fVec); }
-    SkNf rsqrt1() const {
-        float32x4_t est0 = this->rsqrt0().fVec;
-        return vmulq_f64(vrsqrtsq_f64(fVec, vmulq_f64(est0, est0)), est0);
-    }
-    SkNf rsqrt2() const {
-        float32x4_t est1 = this->rsqrt1().fVec;
-        return vmulq_f64(vrsqrtsq_f64(fVec, vmulq_f64(est1, est1)), est1);
+    SkNf rsqrt() const {
+        float64x2_t est0 = vrsqrteq_f64(fVec),
+                    est1 = vmulq_f64(vrsqrtsq_f64(fVec, vmulq_f64(est0, est0)), est0);
+        return est1;
     }
 
     SkNf approxInvert() const {
@@ -275,21 +269,20 @@ public:
     static SkNf Min(const SkNf& l, const SkNf& r) { return vminq_f32(l.fVec, r.fVec); }
     static SkNf Max(const SkNf& l, const SkNf& r) { return vmaxq_f32(l.fVec, r.fVec); }
 
-    SkNf rsqrt0() const { return vrsqrteq_f32(fVec); }
-    SkNf rsqrt1() const {
-        float32x4_t est0 = this->rsqrt0().fVec;
-        return vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est0, est0)), est0);
-    }
-    SkNf rsqrt2() const {
-        float32x4_t est1 = this->rsqrt1().fVec;
-        return vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est1, est1)), est1);
+    SkNf rsqrt() const {
+        float32x4_t est0 = vrsqrteq_f32(fVec),
+                    est1 = vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est0, est0)), est0);
+        return est1;
     }
 
     SkNf sqrt() const {
     #if defined(SK_CPU_ARM64)
         return vsqrtq_f32(fVec);
     #else
-        return *this * this->rsqrt2();
+        float32x4_t est1 = this->rsqrt().fVec,
+        // An extra step of Newton's method to refine the estimate of 1/sqrt(this).
+                    est2 = vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est1, est1)), est1);
+        return vmulq_f32(fVec, est2);
     #endif
     }
 
