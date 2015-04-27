@@ -19,6 +19,7 @@
         '../bench/DecodingSubsetBench.cpp',
         '../bench/GMBench.cpp',
         '../bench/RecordingBench.cpp',
+        '../bench/SKPAnimationBench.cpp',
         '../bench/SKPBench.cpp',
         '../bench/nanobench.cpp',
       ],

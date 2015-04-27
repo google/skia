@@ -98,32 +98,40 @@ SkIPoint SKPBench::onGetSize() {
 void SKPBench::onDraw(const int loops, SkCanvas* canvas) {
     if (fUseMultiPictureDraw) {
         for (int i = 0; i < loops; i++) {
-            SkMultiPictureDraw mpd;
-
-            for (int j = 0; j < fTileRects.count(); ++j) {
-                SkMatrix trans;
-                trans.setTranslate(-fTileRects[j].fLeft/fScale,
-                                   -fTileRects[j].fTop/fScale);
-                mpd.add(fSurfaces[j]->getCanvas(), fPic, &trans);
-            }
-
-            mpd.draw();
-
-            for (int j = 0; j < fTileRects.count(); ++j) {
-                fSurfaces[j]->getCanvas()->flush();
-            }
+            this->drawMPDPicture();
         }
     } else {
         for (int i = 0; i < loops; i++) {
-            for (int j = 0; j < fTileRects.count(); ++j) {
-                const SkMatrix trans = SkMatrix::MakeTrans(-fTileRects[j].fLeft / fScale,
-                                                           -fTileRects[j].fTop / fScale);
-                fSurfaces[j]->getCanvas()->drawPicture(fPic, &trans, NULL);
-            }
-
-            for (int j = 0; j < fTileRects.count(); ++j) {
-                fSurfaces[j]->getCanvas()->flush();
-            }
+            this->drawPicture();
         }
+    }
+}
+
+void SKPBench::drawMPDPicture() {
+    SkMultiPictureDraw mpd;
+
+    for (int j = 0; j < fTileRects.count(); ++j) {
+        SkMatrix trans;
+        trans.setTranslate(-fTileRects[j].fLeft/fScale,
+                           -fTileRects[j].fTop/fScale);
+        mpd.add(fSurfaces[j]->getCanvas(), fPic, &trans);
+    }
+
+    mpd.draw();
+
+    for (int j = 0; j < fTileRects.count(); ++j) {
+        fSurfaces[j]->getCanvas()->flush();
+    }
+}
+
+void SKPBench::drawPicture() {
+    for (int j = 0; j < fTileRects.count(); ++j) {
+        const SkMatrix trans = SkMatrix::MakeTrans(-fTileRects[j].fLeft / fScale,
+                                                   -fTileRects[j].fTop / fScale);
+        fSurfaces[j]->getCanvas()->drawPicture(fPic, &trans, NULL);
+    }
+
+    for (int j = 0; j < fTileRects.count(); ++j) {
+        fSurfaces[j]->getCanvas()->flush();
     }
 }

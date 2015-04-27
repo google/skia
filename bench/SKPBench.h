@@ -30,6 +30,13 @@ protected:
     void onDraw(const int loops, SkCanvas* canvas) override;
     SkIPoint onGetSize() override;
 
+    virtual void drawMPDPicture();
+    virtual void drawPicture();
+
+    const SkPicture* picture() const { return fPic; }
+    const SkTDArray<SkSurface*>& surfaces() const { return fSurfaces; }
+    const SkTDArray<SkIRect>& tileRects() const { return fTileRects; }
+
 private:
     SkAutoTUnref<const SkPicture> fPic;
     const SkIRect fClip;

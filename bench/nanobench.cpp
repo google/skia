@@ -18,6 +18,7 @@
 #include "ProcStats.h"
 #include "ResultsWriter.h"
 #include "RecordingBench.h"
+#include "SKPAnimationBench.h"
 #include "SKPBench.h"
 #include "Stats.h"
 #include "Timer.h"
@@ -82,6 +83,7 @@ DEFINE_int32(maxCalibrationAttempts, 3,
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
+DEFINE_string(zoom, "1.0,1", "Comma-separated scale,step zoom factors for SKPs.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
@@ -491,6 +493,7 @@ public:
                       , fCurrentImage(0)
                       , fCurrentSubsetImage(0)
                       , fCurrentColorType(0)
+                      , fCurrentAnimSKP(0)
                       , fDivisor(2) {
         for (int i = 0; i < FLAGS_skps.count(); i++) {
             if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
@@ -515,6 +518,11 @@ public:
                 SkDebugf("Can't parse %s from --scales as an SkScalar.\n", FLAGS_scales[i]);
                 exit(1);
             }
+        }
+
+        if (2 != sscanf(FLAGS_zoom[0], "%f,%d", &fZoomScale, &fZoomSteps)) {
+            SkDebugf("Can't parse %s from --zoom as a scale,step.\n", FLAGS_zoom[0]);
+            exit(1);
         }
 
         fUseMPDs.push_back() = false;
@@ -625,8 +633,9 @@ public:
                     fSourceType = "skp";
                     fBenchType = "playback";
                     return SkNEW_ARGS(SKPBench,
-                            (name.c_str(), pic.get(), fClip,
-                             fScales[fCurrentScale], fUseMPDs[fCurrentUseMPD++]));
+                                      (name.c_str(), pic.get(), fClip,
+                                       fScales[fCurrentScale], fUseMPDs[fCurrentUseMPD++]));
+
                 }
                 fCurrentUseMPD = 0;
                 fCurrentSKP++;
@@ -634,6 +643,26 @@ public:
             fCurrentSKP = 0;
             fCurrentScale++;
         }
+
+        // Now loop over each skp again if we have an animation
+        if (fZoomScale != 1.0f && fZoomSteps != 1) {
+            while (fCurrentAnimSKP < fSKPs.count()) {
+                const SkString& path = fSKPs[fCurrentAnimSKP];
+                SkAutoTUnref<SkPicture> pic;
+                if (!ReadPicture(path.c_str(), &pic)) {
+                    fCurrentAnimSKP++;
+                    continue;
+                }
+
+                fCurrentAnimSKP++;
+                SkString name = SkOSPath::Basename(path.c_str());
+                SkMatrix anim = SkMatrix::I();
+                anim.setScale(fZoomScale, fZoomScale);
+                return SkNEW_ARGS(SKPAnimationBench, (name.c_str(), pic.get(), fClip, anim,
+                                  fZoomSteps));
+            }
+        }
+
 
         for (; fCurrentCodec < fImages.count(); fCurrentCodec++) {
             const SkString& path = fImages[fCurrentCodec];
@@ -789,6 +818,8 @@ private:
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
     SkTArray<SkColorType> fColorTypes;
+    SkScalar           fZoomScale;
+    int                fZoomSteps;
 
     double fSKPBytes, fSKPOps;
 
@@ -802,6 +833,7 @@ private:
     int fCurrentImage;
     int fCurrentSubsetImage;
     int fCurrentColorType;
+    int fCurrentAnimSKP;
     const int fDivisor;
 };
 
