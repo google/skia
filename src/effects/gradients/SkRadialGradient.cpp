@@ -377,10 +377,9 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
     }
 }
 
-// TODO: can we get away with 0th approximatino of inverse-sqrt (i.e. faster than rsqrt)?
-//       seems like ~10bits is more than enough for our use, since we want a byte-index
 static inline Sk4f fast_sqrt(const Sk4f& R) {
-    return R * R.rsqrt();
+    // R * R.rsqrt0() is much faster, but it's non-monotonic, which isn't so pretty for gradients.
+    return R * R.rsqrt1();
 }
 
 static inline Sk4f sum_squares(const Sk4f& a, const Sk4f& b) {
