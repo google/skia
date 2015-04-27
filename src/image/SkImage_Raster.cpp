@@ -66,9 +66,9 @@ public:
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
-    virtual SkShader* onNewShader(SkShader::TileMode,
-                                  SkShader::TileMode,
-                                  const SkMatrix* localMatrix) const override;
+    SkShader* onNewShader(SkShader::TileMode,
+                          SkShader::TileMode,
+                          const SkMatrix* localMatrix) const override;
 
     bool isOpaque() const override;
 

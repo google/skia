@@ -25,8 +25,7 @@ public:
     SkCanvas* onNewCanvas() override;
     SkSurface* onNewSurface(const SkImageInfo&) override;
     SkImage* onNewImageSnapshot(Budgeted) override;
-    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
-                        const SkPaint*) override;
+    void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
 
 private:

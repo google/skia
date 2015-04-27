@@ -242,9 +242,9 @@ protected:
     bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) override;
 #endif
     Result onDecode(SkStream* stream, SkBitmap* bm, Mode) override;
-    virtual bool onDecodeYUV8Planes(SkStream* stream, SkISize componentSizes[3],
-                                    void* planes[3], size_t rowBytes[3],
-                                    SkYUVColorSpace* colorSpace) override;
+    bool onDecodeYUV8Planes(SkStream* stream, SkISize componentSizes[3],
+                            void* planes[3], size_t rowBytes[3],
+                            SkYUVColorSpace* colorSpace) override;
 
 private:
 #ifdef SK_BUILD_FOR_ANDROID

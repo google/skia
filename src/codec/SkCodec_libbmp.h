@@ -63,9 +63,9 @@ protected:
      * Initiates the bmp decode
      *
      */
-    virtual Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
-                               size_t dstRowBytes, const Options&, SkPMColor*,
-                               int*) override;
+    Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
+                       size_t dstRowBytes, const Options&, SkPMColor*,
+                       int*) override;
 
     SkEncodedFormat onGetEncodedFormat() const override { return kBMP_SkEncodedFormat; }
 

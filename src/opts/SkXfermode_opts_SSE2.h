@@ -17,10 +17,10 @@ public:
                             void* procSIMD)
         : INHERITED(rec, mode), fProcSIMD(procSIMD) {}
 
-    virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]) const override;
-    virtual void xfer16(uint16_t dst[], const SkPMColor src[],
-                        int count, const SkAlpha aa[]) const override;
+    void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
+                const SkAlpha aa[]) const override;
+    void xfer16(uint16_t dst[], const SkPMColor src[],
+                int count, const SkAlpha aa[]) const override;
 
     SK_TO_STRING_OVERRIDE()
 

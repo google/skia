@@ -44,11 +44,11 @@ protected:
         return true;
     }
 #endif
-    virtual Result onGetPixels(const SkImageInfo& info,
-                               void* pixels, size_t rowBytes, const Options&,
-                               SkPMColor ctable[], int* ctableCount) override;
-    virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
-                                 SkYUVColorSpace* colorSpace) override;
+    Result onGetPixels(const SkImageInfo& info,
+                       void* pixels, size_t rowBytes, const Options&,
+                       SkPMColor ctable[], int* ctableCount) override;
+    bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+                         SkYUVColorSpace* colorSpace) override;
 
 private:
     typedef SkImageGenerator INHERITED;
