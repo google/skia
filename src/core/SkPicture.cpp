@@ -133,27 +133,18 @@ struct TextHunter {
 struct SkPicture::PathCounter {
     SK_CREATE_MEMBER_DETECTOR(paint);
 
-    PathCounter()
-        : numPaintWithPathEffectUses (0)
-        , numFastPathDashEffects (0)
-        , numAAConcavePaths (0)
-        , numAAHairlineConcavePaths (0)
-        , numAADFEligibleConcavePaths(0) {
-    }
+    PathCounter() : fNumSlowPathsAndDashEffects(0) {}
 
     // Recurse into nested pictures.
     void operator()(const SkRecords::DrawPicture& op) {
         const SkPicture::Analysis& analysis = op.picture->fAnalysis;
-        numPaintWithPathEffectUses += analysis.fNumPaintWithPathEffectUses;
-        numFastPathDashEffects     += analysis.fNumFastPathDashEffects;
-        numAAConcavePaths          += analysis.fNumAAConcavePaths;
-        numAAHairlineConcavePaths  += analysis.fNumAAHairlineConcavePaths;
-        numAADFEligibleConcavePaths  += analysis.fNumAADFEligibleConcavePaths;
+        fNumSlowPathsAndDashEffects += analysis.fNumSlowPathsAndDashEffects;
     }
 
     void checkPaint(const SkPaint* paint) {
         if (paint && paint->getPathEffect()) {
-            numPaintWithPathEffectUses++;
+            // Initially assume it's slow.
+            fNumSlowPathsAndDashEffects++;
         }
     }
 
@@ -165,7 +156,7 @@ struct SkPicture::PathCounter {
             SkPathEffect::DashType dashType = effect->asADash(&info);
             if (2 == op.count && SkPaint::kRound_Cap != op.paint.getStrokeCap() &&
                 SkPathEffect::kDash_DashType == dashType && 2 == info.fCount) {
-                numFastPathDashEffects++;
+                fNumSlowPathsAndDashEffects--;
             }
         }
     }
@@ -173,16 +164,16 @@ struct SkPicture::PathCounter {
     void operator()(const SkRecords::DrawPath& op) {
         this->checkPaint(&op.paint);
         if (op.paint.isAntiAlias() && !op.path.isConvex()) {
-            numAAConcavePaths++;
-
             SkPaint::Style paintStyle = op.paint.getStyle();
             const SkRect& pathBounds = op.path.getBounds();
             if (SkPaint::kStroke_Style == paintStyle &&
                 0 == op.paint.getStrokeWidth()) {
-                numAAHairlineConcavePaths++;
+                // AA hairline concave path is not slow.
             } else if (SkPaint::kFill_Style == paintStyle && pathBounds.width() < 64.f &&
                        pathBounds.height() < 64.f && !op.path.isVolatile()) {
-                numAADFEligibleConcavePaths++;
+                // AADF eligible concave path is not slow.
+            } else {
+                fNumSlowPathsAndDashEffects++;
             }
         }
     }
@@ -195,11 +186,7 @@ struct SkPicture::PathCounter {
     template <typename T>
     SK_WHEN(!HasMember_paint<T>, void) operator()(const T& op) { /* do nothing */ }
 
-    int numPaintWithPathEffectUses;
-    int numFastPathDashEffects;
-    int numAAConcavePaths;
-    int numAAHairlineConcavePaths;
-    int numAADFEligibleConcavePaths;
+    int fNumSlowPathsAndDashEffects;
 };
 
 SkPicture::Analysis::Analysis(const SkRecord& record) {
@@ -209,11 +196,7 @@ SkPicture::Analysis::Analysis(const SkRecord& record) {
     for (unsigned i = 0; i < record.count(); i++) {
         record.visit<void>(i, counter);
     }
-    fNumPaintWithPathEffectUses = counter.numPaintWithPathEffectUses;
-    fNumFastPathDashEffects     = counter.numFastPathDashEffects;
-    fNumAAConcavePaths          = counter.numAAConcavePaths;
-    fNumAAHairlineConcavePaths  = counter.numAAHairlineConcavePaths;
-    fNumAADFEligibleConcavePaths  = counter.numAADFEligibleConcavePaths;
+    fNumSlowPathsAndDashEffects = SkTMin<int>(counter.fNumSlowPathsAndDashEffects, 255);
 
     fHasText = false;
     TextHunter text;
@@ -230,13 +213,7 @@ bool SkPicture::Analysis::suitableForGpuRasterization(const char** reason,
     // TODO: the heuristic used here needs to be refined
     static const int kNumSlowPathsTol = 6;
 
-    int numSlowPathDashedPaths = fNumPaintWithPathEffectUses - fNumFastPathDashEffects;
-
-    int numSlowPaths = fNumAAConcavePaths -
-                       fNumAAHairlineConcavePaths -
-                       fNumAADFEligibleConcavePaths;
-
-    bool ret = numSlowPathDashedPaths + numSlowPaths < kNumSlowPathsTol;
+    bool ret = fNumSlowPathsAndDashEffects < kNumSlowPathsTol;
 
     if (!ret && reason) {
         *reason = "Too many slow paths (either concave or dashed).";

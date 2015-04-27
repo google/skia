@@ -292,13 +292,9 @@ private:
 
         bool suitableForGpuRasterization(const char** reason, int sampleCount) const;
 
-        bool        fWillPlaybackBitmaps;
-        bool        fHasText;
-        int         fNumPaintWithPathEffectUses;
-        int         fNumFastPathDashEffects;
-        int         fNumAAConcavePaths;
-        int         fNumAAHairlineConcavePaths;
-        int         fNumAADFEligibleConcavePaths;
+        uint8_t     fNumSlowPathsAndDashEffects;
+        bool        fWillPlaybackBitmaps : 1;
+        bool        fHasText             : 1;
     } fAnalysis;
 
     friend class SkPictureRecorder;            // SkRecord-based constructor.
@@ -307,6 +303,6 @@ private:
     friend class SkPictureUtils;
     friend class SkRecordedDrawable;
 };
-SK_COMPILE_ASSERT(sizeof(SkPicture) <= 104, SkPictureSize);
+SK_COMPILE_ASSERT(sizeof(SkPicture) <= 88, SkPictureSize);
 
 #endif
