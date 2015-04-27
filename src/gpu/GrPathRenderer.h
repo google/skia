@@ -12,9 +12,9 @@
 #include "GrDrawTarget.h"
 #include "GrPathRendererChain.h"
 #include "GrStencil.h"
+#include "GrStrokeInfo.h"
 
 #include "SkDrawProcs.h"
-#include "SkStrokeRec.h"
 #include "SkTArray.h"
 
 class SkPath;
@@ -84,7 +84,7 @@ public:
     StencilSupport getStencilSupport(const GrDrawTarget* target,
                                      const GrPipelineBuilder* pipelineBuilder,
                                      const SkPath& path,
-                                     const SkStrokeRec& stroke) const {
+                                     const GrStrokeInfo& stroke) const {
         SkASSERT(!path.isInverseFillType());
         return this->onGetStencilSupport(target, pipelineBuilder, path, stroke);
     }
@@ -107,7 +107,7 @@ public:
                              const GrPipelineBuilder* pipelineBuilder,
                              const SkMatrix& viewMatrix,
                              const SkPath& path,
-                             const SkStrokeRec& rec,
+                             const GrStrokeInfo& rec,
                              bool antiAlias) const = 0;
     /**
      * Draws the path into the draw target. If getStencilSupport() would return kNoRestriction then
@@ -125,7 +125,7 @@ public:
                   GrColor color,
                   const SkMatrix& viewMatrix,
                   const SkPath& path,
-                  const SkStrokeRec& stroke,
+                  const GrStrokeInfo& stroke,
                   bool antiAlias) {
         SkASSERT(!path.isEmpty());
         SkASSERT(this->canDrawPath(target, ds, viewMatrix, path, stroke, antiAlias));
@@ -147,7 +147,7 @@ public:
                      GrPipelineBuilder* ds,
                      const SkMatrix& viewMatrix,
                      const SkPath& path,
-                     const SkStrokeRec& stroke) {
+                     const GrStrokeInfo& stroke) {
         SkASSERT(!path.isEmpty());
         SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(target, ds, path, stroke));
         this->onStencilPath(target, ds, viewMatrix, path, stroke);
@@ -155,16 +155,19 @@ public:
 
     // Helper for determining if we can treat a thin stroke as a hairline w/ coverage.
     // If we can, we draw lots faster (raster device does this same test).
-    static bool IsStrokeHairlineOrEquivalent(const SkStrokeRec& stroke, const SkMatrix& matrix,
+    static bool IsStrokeHairlineOrEquivalent(const GrStrokeInfo& stroke, const SkMatrix& matrix,
                                              SkScalar* outCoverage) {
-        if (stroke.isHairlineStyle()) {
+        if (stroke.isDashed()) {
+            return false;
+        }
+        if (stroke.getStrokeRec().isHairlineStyle()) {
             if (outCoverage) {
                 *outCoverage = SK_Scalar1;
             }
             return true;
         }
-        return stroke.getStyle() == SkStrokeRec::kStroke_Style &&
-            SkDrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
+        return stroke.getStrokeRec().getStyle() == SkStrokeRec::kStroke_Style &&
+            SkDrawTreatAAStrokeAsHairline(stroke.getStrokeRec().getWidth(), matrix, outCoverage);
     }
 
 protected:
@@ -174,7 +177,7 @@ protected:
     virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
                                                const GrPipelineBuilder*,
                                                const SkPath&,
-                                               const SkStrokeRec&) const {
+                                               const GrStrokeInfo&) const {
         return kNoRestriction_StencilSupport;
     }
 
@@ -186,7 +189,7 @@ protected:
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,
-                            const SkStrokeRec&,
+                            const GrStrokeInfo&,
                             bool antiAlias) = 0;
 
     /**
@@ -197,7 +200,7 @@ protected:
                                GrPipelineBuilder* pipelineBuilder,
                                const SkMatrix& viewMatrix,
                                const SkPath& path,
-                               const SkStrokeRec& stroke) {
+                               const GrStrokeInfo& stroke) {
         GR_STATIC_CONST_SAME_STENCIL(kIncrementStencil,
                                      kReplace_StencilOp,
                                      kReplace_StencilOp,

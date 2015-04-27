@@ -23,7 +23,7 @@ public:
                              const GrPipelineBuilder*,
                              const SkMatrix& viewMatrix,
                              const SkPath&,
-                             const SkStrokeRec&,
+                             const GrStrokeInfo&,
                              bool antiAlias) const override;
 
 private:
@@ -31,28 +31,28 @@ private:
     virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
                                                const GrPipelineBuilder*,
                                                const SkPath&,
-                                               const SkStrokeRec&) const override;
+                                               const GrStrokeInfo&) const override;
 
     virtual bool onDrawPath(GrDrawTarget*,
                             GrPipelineBuilder*,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,
-                            const SkStrokeRec&,
+                            const GrStrokeInfo&,
                             bool antiAlias) override;
 
     virtual void onStencilPath(GrDrawTarget*,
                                GrPipelineBuilder*,
                                const SkMatrix& viewMatrix,
                                const SkPath&,
-                               const SkStrokeRec&) override;
+                               const GrStrokeInfo&) override;
 
     bool internalDrawPath(GrDrawTarget*,
                           GrPipelineBuilder*,
                           GrColor,
                           const SkMatrix& viewMatrix,
                           const SkPath&,
-                          const SkStrokeRec&,
+                          const GrStrokeInfo&,
                           bool stencilOnly);
 
     bool    fSeparateStencil;

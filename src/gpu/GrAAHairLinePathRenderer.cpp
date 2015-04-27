@@ -637,7 +637,7 @@ bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
                                            const GrPipelineBuilder* pipelineBuilder,
                                            const SkMatrix& viewMatrix,
                                            const SkPath& path,
-                                           const SkStrokeRec& stroke,
+                                           const GrStrokeInfo& stroke,
                                            bool antiAlias) const {
     if (!antiAlias) {
         return false;
@@ -1029,7 +1029,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                           GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
-                                          const SkStrokeRec& stroke,
+                                          const GrStrokeInfo& stroke,
                                           bool) {
     if (!fLinesIndexBuffer || !fQuadsIndexBuffer) {
         SkDebugf("unable to allocate indices\n");

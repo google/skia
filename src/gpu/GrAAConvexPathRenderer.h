@@ -19,7 +19,7 @@ public:
                              const GrPipelineBuilder*,
                              const SkMatrix& viewMatrix,
                              const SkPath&,
-                             const SkStrokeRec&,
+                             const GrStrokeInfo&,
                              bool antiAlias) const override;
 
 protected:
@@ -28,7 +28,7 @@ protected:
                             GrColor,
                             const SkMatrix& viewMatrix,
                             const SkPath&,
-                            const SkStrokeRec&,
+                            const GrStrokeInfo&,
                             bool antiAlias) override;
 };
 

@@ -15,9 +15,9 @@ class GrContext;
 class GrDrawTarget;
 class GrPathRenderer;
 class GrPipelineBuilder;
+class GrStrokeInfo;
 class SkMatrix;
 class SkPath;
-class SkStrokeRec;
 
 /**
  * Keeps track of an ordered list of path renderers. When a path needs to be
@@ -61,7 +61,7 @@ public:
                                     const GrPipelineBuilder*,
                                     const SkMatrix& viewMatrix,
                                     const SkPath& path,
-                                    const SkStrokeRec& rec,
+                                    const GrStrokeInfo& stroke,
                                     DrawType drawType,
                                     StencilSupport* stencilSupport);
 

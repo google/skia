@@ -86,13 +86,13 @@ bool GrAADistanceFieldPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                 const GrPipelineBuilder* pipelineBuilder,
                                                 const SkMatrix& viewMatrix,
                                                 const SkPath& path,
-                                                const SkStrokeRec& stroke,
+                                                const GrStrokeInfo& stroke,
                                                 bool antiAlias) const {
     
     // TODO: Support inverse fill
     // TODO: Support strokes
     if (!target->caps()->shaderDerivativeSupport() || !antiAlias || path.isInverseFillType()
-        || path.isVolatile() || SkStrokeRec::kFill_Style != stroke.getStyle()) {
+        || path.isVolatile() || !stroke.isFillStyle()) {
         return false;
     }
 
@@ -114,7 +114,7 @@ GrPathRenderer::StencilSupport
 GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
                                                    const GrPipelineBuilder*,
                                                    const SkPath&,
-                                                   const SkStrokeRec&) const {
+                                                   const GrStrokeInfo&) const {
     return GrPathRenderer::kNoSupport_StencilSupport;
 }
 
@@ -570,7 +570,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
                                                GrColor color,
                                                const SkMatrix& viewMatrix,
                                                const SkPath& path,
-                                               const SkStrokeRec& stroke,
+                                               const GrStrokeInfo& stroke,
                                                bool antiAlias) {
     // we've already bailed on inverse filled paths, so this is safe
     if (path.isEmpty()) {
@@ -600,7 +600,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
                                          (void*)this);
     }
 
-    AADistanceFieldPathBatch::Geometry geometry(stroke);
+    AADistanceFieldPathBatch::Geometry geometry(stroke.getStrokeRec());
     geometry.fPath = path;
     geometry.fAntiAlias = antiAlias;
 

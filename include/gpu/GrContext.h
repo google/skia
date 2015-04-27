@@ -44,7 +44,6 @@ class GrVertexBufferAllocPool;
 class GrStrokeInfo;
 class GrSoftwarePathRenderer;
 class SkGpuDevice;
-class SkStrokeRec;
 
 class SK_API GrContext : public SkRefCnt {
 public:
@@ -676,7 +675,7 @@ public:
                     const GrPipelineBuilder*,
                     const SkMatrix& viewMatrix,
                     const SkPath& path,
-                    const SkStrokeRec& stroke,
+                    const GrStrokeInfo& stroke,
                     bool allowSW,
                     GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
                     GrPathRendererChain::StencilSupport* stencilSupport = NULL);

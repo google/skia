@@ -44,6 +44,15 @@ public:
         this->init(paint);
     }
 
+    GrStrokeInfo& operator=(const GrStrokeInfo& other) {
+        fStroke = other.fStroke;
+        fDashInfo = other.fDashInfo;
+        fDashType = other.fDashType;
+        fIntervals.reset(other.dashCount());
+        memcpy(fIntervals.get(), other.fIntervals.get(), other.dashCount() * sizeof(SkScalar));
+        return *this;
+    }
+
     const SkStrokeRec& getStrokeRec() const { return fStroke; }
 
     SkStrokeRec* getStrokeRecPtr() { return &fStroke; }
@@ -73,6 +82,8 @@ public:
         return (!fStroke.isFillStyle() && SkPathEffect::kDash_DashType == fDashType);
     }
 
+    bool isFillStyle() const { return fStroke.isFillStyle(); }
+
     int32_t dashCount() const {
         return fDashInfo.fCount;
     }
@@ -82,6 +93,14 @@ public:
     }
     
     const SkPathEffect::DashInfo& getDashInfo() const { return fDashInfo; }
+
+    /** Applies the dash to a path, if the stroke info has dashing.
+     * @return true if the dash ingwas applied (dst and dstStrokeInfo will be modified).
+     *         false if the stroke info did not have dashing. The dst and dstStrokeInfo
+     *               will be unmodified. The stroking in the SkStrokeRec might still
+     *               be applicable.
+     */
+    bool applyDash(SkPath* dst, GrStrokeInfo* dstStrokeInfo, const SkPath& src) const;
 
 private:
 

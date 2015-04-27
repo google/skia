@@ -18,9 +18,9 @@
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
 #include "GrPipelineBuilder.h"
+#include "GrStrokeInfo.h"
 #include "SkGeometry.h"
 #include "SkString.h"
-#include "SkStrokeRec.h"
 #include "SkTraceEvent.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
@@ -682,7 +682,7 @@ bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
                                          const GrPipelineBuilder*,
                                          const SkMatrix& viewMatrix,
                                          const SkPath& path,
-                                         const SkStrokeRec& stroke,
+                                         const GrStrokeInfo& stroke,
                                          bool antiAlias) const {
     return (target->caps()->shaderDerivativeSupport() && antiAlias &&
             stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
@@ -869,7 +869,7 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
                                         GrColor color,
                                         const SkMatrix& vm,
                                         const SkPath& path,
-                                        const SkStrokeRec&,
+                                        const GrStrokeInfo&,
                                         bool antiAlias) {
     if (path.isEmpty()) {
         return true;

@@ -1343,35 +1343,6 @@ void GrContext::drawPath(GrRenderTarget* rt,
     }
 
     GrColor color = paint.getColor();
-    if (strokeInfo.isDashed()) {
-        SkPoint pts[2];
-        if (path.isLine(pts)) {
-            AutoCheckFlush acf(this);
-            GrPipelineBuilder pipelineBuilder;
-            GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, clip, &paint, &acf);
-            if (NULL == target) {
-                return;
-            }
-
-            if (GrDashingEffect::DrawDashLine(fGpu, target, &pipelineBuilder, color, viewMatrix,
-                                              pts, paint, strokeInfo)) {
-                return;
-            }
-        }
-
-        // Filter dashed path into new path with the dashing applied
-        const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
-        SkTLazy<SkPath> effectPath;
-        GrStrokeInfo newStrokeInfo(strokeInfo, false);
-        SkStrokeRec* stroke = newStrokeInfo.getStrokeRecPtr();
-        if (SkDashPath::FilterDashPath(effectPath.init(), path, stroke, NULL, info)) {
-            this->drawPath(rt, clip, paint, viewMatrix, *effectPath.get(), newStrokeInfo);
-            return;
-        }
-
-        this->drawPath(rt, clip, paint, viewMatrix, path, newStrokeInfo);
-        return;
-    }
 
     // Note that internalDrawPath may sw-rasterize the path into a scratch texture.
     // Scratch textures can be recycled after they are returned to the texture
@@ -1387,35 +1358,39 @@ void GrContext::drawPath(GrRenderTarget* rt,
 
     GR_CREATE_TRACE_MARKER1("GrContext::drawPath", target, "Is Convex", path.isConvex());
 
-    const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
+    if (!strokeInfo.isDashed()) {
+        const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
+        bool useCoverageAA = paint.isAntiAlias() &&
+                !pipelineBuilder.getRenderTarget()->isMultisampled();
 
-    bool useCoverageAA = paint.isAntiAlias() &&
-        !pipelineBuilder.getRenderTarget()->isMultisampled();
+        if (useCoverageAA && strokeRec.getWidth() < 0 && !path.isConvex()) {
+            // Concave AA paths are expensive - try to avoid them for special cases
+            SkRect rects[2];
 
-    if (useCoverageAA && strokeRec.getWidth() < 0 && !path.isConvex()) {
-        // Concave AA paths are expensive - try to avoid them for special cases
-        SkRect rects[2];
+            if (is_nested_rects(target, &pipelineBuilder, color, viewMatrix, path, strokeRec,
+                                rects)) {
+                fAARectRenderer->fillAANestedRects(target, &pipelineBuilder, color, viewMatrix,
+                                                   rects);
+                return;
+            }
+        }
+        SkRect ovalRect;
+        bool isOval = path.isOval(&ovalRect);
 
-        if (is_nested_rects(target, &pipelineBuilder, color, viewMatrix, path, strokeRec, rects)) {
-            fAARectRenderer->fillAANestedRects(target, &pipelineBuilder, color, viewMatrix, rects);
-            return;
+        if (isOval && !path.isInverseFillType()) {
+            if (fOvalRenderer->drawOval(target,
+                                        &pipelineBuilder,
+                                        color,
+                                        viewMatrix,
+                                        paint.isAntiAlias(),
+                                        ovalRect,
+                                        strokeRec)) {
+                return;
+            }
         }
     }
-
-    SkRect ovalRect;
-    bool isOval = path.isOval(&ovalRect);
-
-    if (!isOval || path.isInverseFillType() ||
-        !fOvalRenderer->drawOval(target,
-                                 &pipelineBuilder,
-                                 color,
-                                 viewMatrix,
-                                 paint.isAntiAlias(),
-                                 ovalRect,
-                                 strokeRec)) {
-        this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
-                               path, strokeInfo);
-    }
+    this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
+                           path, strokeInfo);
 }
 
 void GrContext::internalDrawPath(GrDrawTarget* target,
@@ -1445,28 +1420,47 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
 
     const SkPath* pathPtr = &path;
     SkTLazy<SkPath> tmpPath;
-    SkTCopyOnFirstWrite<SkStrokeRec> stroke(strokeInfo.getStrokeRec());
+    const GrStrokeInfo* strokeInfoPtr = &strokeInfo;
 
     // Try a 1st time without stroking the path and without allowing the SW renderer
     GrPathRenderer* pr = this->getPathRenderer(target, pipelineBuilder, viewMatrix, *pathPtr,
-                                               *stroke, false, type);
+                                               *strokeInfoPtr, false, type);
+
+    GrStrokeInfo dashlessStrokeInfo(strokeInfo, false);
+    if (NULL == pr && strokeInfo.isDashed()) {
+        // It didn't work above, so try again with dashed stroke converted to a dashless stroke.
+        if (strokeInfo.applyDash(tmpPath.init(), &dashlessStrokeInfo, *pathPtr)) {
+            pathPtr = tmpPath.get();
+            if (pathPtr->isEmpty()) {
+                return;
+            }
+            strokeInfoPtr = &dashlessStrokeInfo;
+        }
+        pr = this->getPathRenderer(target, pipelineBuilder, viewMatrix, *pathPtr, *strokeInfoPtr,
+                                   false, type);
+    }
 
     if (NULL == pr) {
-        if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*stroke, viewMatrix, NULL)) {
-            // It didn't work the 1st time, so try again with the stroked path
-            stroke.writable()->setResScale(SkScalarAbs(viewMatrix.getMaxScale()));
-            if (stroke->applyToPath(tmpPath.init(), *pathPtr)) {
+        if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*strokeInfoPtr, viewMatrix, NULL)) {
+            // It didn't work above, so try again with stroke converted to a fill.
+            if (!tmpPath.isValid()) {
+                tmpPath.init();
+            }
+            SkStrokeRec* strokeRec = dashlessStrokeInfo.getStrokeRecPtr();
+            strokeRec->setResScale(SkScalarAbs(viewMatrix.getMaxScale()));
+            if (strokeRec->applyToPath(tmpPath.get(), *pathPtr)) {
                 pathPtr = tmpPath.get();
-                stroke.writable()->setFillStyle();
                 if (pathPtr->isEmpty()) {
                     return;
                 }
+                strokeRec->setFillStyle();
+                strokeInfoPtr = &dashlessStrokeInfo;
             }
         }
 
         // This time, allow SW renderer
-        pr = this->getPathRenderer(target, pipelineBuilder, viewMatrix, *pathPtr, *stroke, true,
-                                   type);
+        pr = this->getPathRenderer(target, pipelineBuilder, viewMatrix, *pathPtr, *strokeInfoPtr,
+                                   true, type);
     }
 
     if (NULL == pr) {
@@ -1476,7 +1470,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
         return;
     }
 
-    pr->drawPath(target, pipelineBuilder, color, viewMatrix, *pathPtr, *stroke, useCoverageAA);
+    pr->drawPath(target, pipelineBuilder, color, viewMatrix, *pathPtr, *strokeInfoPtr, useCoverageAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1873,7 +1867,7 @@ GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
                                            const GrPipelineBuilder* pipelineBuilder,
                                            const SkMatrix& viewMatrix,
                                            const SkPath& path,
-                                           const SkStrokeRec& stroke,
+                                           const GrStrokeInfo& stroke,
                                            bool allowSW,
                                            GrPathRendererChain::DrawType drawType,
                                            GrPathRendererChain::StencilSupport* stencilSupport) {

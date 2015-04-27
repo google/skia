@@ -35,7 +35,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
                                                      const GrPipelineBuilder* pipelineBuilder,
                                                      const SkMatrix& viewMatrix,
                                                      const SkPath& path,
-                                                     const SkStrokeRec& stroke,
+                                                     const GrStrokeInfo& stroke,
                                                      DrawType drawType,
                                                      StencilSupport* stencilSupport) {
     if (!fInit) {

@@ -236,7 +236,7 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, const SkPath& path) 
     GrTessellatingPathRenderer tess;
     GrPipelineBuilder pipelineBuilder;
     pipelineBuilder.setRenderTarget(rt);
-    SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
     tess.drawPath(dt, &pipelineBuilder, SK_ColorWHITE, SkMatrix::I(), path, stroke, false);
 }
 

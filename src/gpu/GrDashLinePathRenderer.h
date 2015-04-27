@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2015 Google Inc.
  *
@@ -5,31 +6,30 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTessellatingPathRenderer_DEFINED
-#define GrTessellatingPathRenderer_DEFINED
+#ifndef GrDashLinePathRenderer_DEFINED
+#define GrDashLinePathRenderer_DEFINED
 
 #include "GrPathRenderer.h"
 
-/**
- *  Subclass that renders the path by converting to screen-space trapezoids plus
- *   extra 1-pixel geometry for AA.
- */
-class SK_API GrTessellatingPathRenderer : public GrPathRenderer {
+class GrDashLinePathRenderer : public GrPathRenderer {
 public:
-    GrTessellatingPathRenderer();
+    GrDashLinePathRenderer(GrContext*);
+    ~GrDashLinePathRenderer();
 
     bool canDrawPath(const GrDrawTarget*,
                      const GrPipelineBuilder*,
-                     const SkMatrix&,
+                     const SkMatrix& viewMatrix,
                      const SkPath&,
                      const GrStrokeInfo&,
                      bool antiAlias) const override;
-protected:
 
+protected:
     StencilSupport onGetStencilSupport(const GrDrawTarget*,
                                        const GrPipelineBuilder*,
                                        const SkPath&,
-                                       const GrStrokeInfo&) const override;
+                                       const GrStrokeInfo&) const override {
+      return kNoSupport_StencilSupport;
+    }
 
     bool onDrawPath(GrDrawTarget*,
                     GrPipelineBuilder*,
@@ -38,8 +38,9 @@ protected:
                     const SkPath&,
                     const GrStrokeInfo&,
                     bool antiAlias) override;
-
+    SkAutoTUnref<GrGpu> fGpu;
     typedef GrPathRenderer INHERITED;
 };
+
 
 #endif

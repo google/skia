@@ -170,8 +170,8 @@ GrPathRenderer::StencilSupport
 GrDefaultPathRenderer::onGetStencilSupport(const GrDrawTarget*,
                                            const GrPipelineBuilder*,
                                            const SkPath& path,
-                                           const SkStrokeRec& stroke) const {
-    if (single_pass_path(path, stroke)) {
+                                           const GrStrokeInfo& stroke) const {
+    if (single_pass_path(path, stroke.getStrokeRec())) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         return GrPathRenderer::kStencilOnly_StencilSupport;
@@ -545,21 +545,21 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
                                              GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const SkPath& path,
-                                             const SkStrokeRec& origStroke,
+                                             const GrStrokeInfo& origStroke,
                                              bool stencilOnly) {
-    SkTCopyOnFirstWrite<SkStrokeRec> stroke(origStroke);
+    SkTCopyOnFirstWrite<GrStrokeInfo> stroke(origStroke);
 
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
     if (IsStrokeHairlineOrEquivalent(*stroke, viewMatrix, &hairlineCoverage)) {
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
 
-        if (!stroke->isHairlineStyle()) {
-            stroke.writable()->setHairlineStyle();
+        if (!stroke->getStrokeRec().isHairlineStyle()) {
+            stroke.writable()->getStrokeRecPtr()->setHairlineStyle();
         }
     }
 
-    const bool isHairline = stroke->isHairlineStyle();
+    const bool isHairline = stroke->getStrokeRec().isHairlineStyle();
 
     // Save the current xp on the draw state so we can reset it if needed
     SkAutoTUnref<const GrXPFactory> backupXPFactory(SkRef(pipelineBuilder->getXPFactory()));
@@ -582,7 +582,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
         lastPassIsBounds = false;
         drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
     } else {
-        if (single_pass_path(path, *stroke)) {
+        if (single_pass_path(path, stroke->getStrokeRec())) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -719,7 +719,7 @@ bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget* target,
                                         const GrPipelineBuilder* pipelineBuilder,
                                         const SkMatrix& viewMatrix,
                                         const SkPath& path,
-                                        const SkStrokeRec& stroke,
+                                        const GrStrokeInfo& stroke,
                                         bool antiAlias) const {
     // this class can draw any path with any fill but doesn't do any anti-aliasing.
     return !antiAlias && (stroke.isFillStyle() || IsStrokeHairlineOrEquivalent(stroke,
@@ -732,7 +732,7 @@ bool GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
                                        GrColor color,
                                        const SkMatrix& viewMatrix,
                                        const SkPath& path,
-                                       const SkStrokeRec& stroke,
+                                       const GrStrokeInfo& stroke,
                                        bool antiAlias) {
     return this->internalDrawPath(target,
                                   pipelineBuilder,
@@ -747,7 +747,7 @@ void GrDefaultPathRenderer::onStencilPath(GrDrawTarget* target,
                                           GrPipelineBuilder* pipelineBuilder,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
-                                          const SkStrokeRec& stroke) {
+                                          const GrStrokeInfo& stroke) {
     SkASSERT(SkPath::kInverseEvenOdd_FillType != path.getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != path.getFillType());
     this->internalDrawPath(target, pipelineBuilder, GrColor_WHITE, viewMatrix, path, stroke, true);

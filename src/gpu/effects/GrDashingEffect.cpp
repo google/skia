@@ -28,9 +28,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Returns whether or not the gpu can fast path the dash line effect.
-static bool can_fast_path_dash(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
-                               const GrDrawTarget& target, const GrPipelineBuilder& pipelineBuilder,
-                               const SkMatrix& viewMatrix) {
+bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
+                                      const SkMatrix& viewMatrix) {
     // Pts must be either horizontal or vertical in src space
     if (pts[0].fX != pts[1].fX && pts[0].fY != pts[1].fY) {
         return false;
@@ -703,11 +702,7 @@ private:
 bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
                                    GrPipelineBuilder* pipelineBuilder, GrColor color,
                                    const SkMatrix& viewMatrix, const SkPoint pts[2],
-                                   const GrPaint& paint, const GrStrokeInfo& strokeInfo) {
-    if (!can_fast_path_dash(pts, strokeInfo, *target, *pipelineBuilder, viewMatrix)) {
-        return false;
-    }
-
+                                   bool useAA, const GrStrokeInfo& strokeInfo) {
     const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
 
     SkPaint::Cap cap = strokeInfo.getStrokeRec().getCap();
@@ -744,8 +739,7 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
     }
 
     DashAAMode aaMode = pipelineBuilder->getRenderTarget()->isMultisampled() ? kMSAA_DashAAMode :
-                        paint.isAntiAlias() ? kEdgeAA_DashAAMode :
-                                              kBW_DashAAMode;
+                        useAA ? kEdgeAA_DashAAMode : kBW_DashAAMode;
 
     // TODO we can do a real rect call if not using fulldash(ie no off interval, not using AA)
     bool fullDash = offInterval > 0.f || aaMode != kBW_DashAAMode;

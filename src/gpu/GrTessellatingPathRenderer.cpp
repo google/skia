@@ -1337,7 +1337,7 @@ GrPathRenderer::StencilSupport GrTessellatingPathRenderer::onGetStencilSupport(
                                                             const GrDrawTarget*,
                                                             const GrPipelineBuilder*,
                                                             const SkPath&,
-                                                            const SkStrokeRec&) const {
+                                                            const GrStrokeInfo&) const {
     return GrPathRenderer::kNoSupport_StencilSupport;
 }
 
@@ -1345,7 +1345,7 @@ bool GrTessellatingPathRenderer::canDrawPath(const GrDrawTarget* target,
                                              const GrPipelineBuilder* pipelineBuilder,
                                              const SkMatrix& viewMatrix,
                                              const SkPath& path,
-                                             const SkStrokeRec& stroke,
+                                             const GrStrokeInfo& stroke,
                                              bool antiAlias) const {
     // This path renderer can draw all fill styles, but does not do antialiasing. It can do convex
     // and concave paths, but we'll leave the convex ones to simpler algorithms.
@@ -1498,7 +1498,7 @@ bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
                                             GrColor color,
                                             const SkMatrix& viewM,
                                             const SkPath& path,
-                                            const SkStrokeRec& stroke,
+                                            const GrStrokeInfo&,
                                             bool antiAlias) {
     SkASSERT(!antiAlias);
     const GrRenderTarget* rt = pipelineBuilder->getRenderTarget();

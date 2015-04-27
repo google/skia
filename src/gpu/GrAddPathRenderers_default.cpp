@@ -11,6 +11,7 @@
 #include "GrAAHairLinePathRenderer.h"
 #include "GrAAConvexPathRenderer.h"
 #include "GrAADistanceFieldPathRenderer.h"
+#include "GrDashLinePathRenderer.h"
 #include "GrTessellatingPathRenderer.h"
 #if GR_STROKE_PATH_RENDERING
 #include "../../experimental/StrokePathRenderer/GrStrokePathRenderer.h"
@@ -24,6 +25,8 @@
 #endif
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
+    chain->addPathRenderer(SkNEW_ARGS(GrDashLinePathRenderer, (ctx)))->unref();
+
 #if GR_STROKE_PATH_RENDERING
     chain->addPathRenderer(SkNEW(GrStrokePathRenderer))->unref();
 #endif

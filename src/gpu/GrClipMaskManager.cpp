@@ -17,7 +17,6 @@
 #include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
 #include "SkRasterClip.h"
-#include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "effects/GrConvexPolyEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -60,7 +59,7 @@ bool path_needs_SW_renderer(GrContext* context,
                             const GrPipelineBuilder* pipelineBuilder,
                             const SkMatrix& viewMatrix,
                             const SkPath& origPath,
-                            const SkStrokeRec& stroke,
+                            const GrStrokeInfo& stroke,
                             bool doAA) {
     // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
     SkTCopyOnFirstWrite<SkPath> path(origPath);
@@ -88,7 +87,7 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder* pipelineBuilder,
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
-    SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
@@ -413,7 +412,7 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
             if (path.isInverseFillType()) {
                 path.toggleInverseFillType();
             }
-            SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+            GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
             if (NULL == pr) {
                 GrPathRendererChain::DrawType type;
                 type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
@@ -449,7 +448,7 @@ bool GrClipMaskManager::canStencilAndDrawElement(GrPipelineBuilder* pipelineBuil
         if (path.isInverseFillType()) {
             path.toggleInverseFillType();
         }
-        SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+        GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
         GrPathRendererChain::DrawType type = element->isAA() ?
             GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
             GrPathRendererChain::kStencilAndColor_DrawType;
@@ -758,7 +757,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             // stencil with arbitrary stencil settings.
             GrPathRenderer::StencilSupport stencilSupport;
 
-            SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+            GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
             SkRegion::Op op = element->getOp();
 
             GrPathRenderer* pr = NULL;

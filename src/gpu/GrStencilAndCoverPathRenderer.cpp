@@ -14,7 +14,7 @@
 #include "GrPath.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
-#include "SkStrokeRec.h"
+#include "GrStrokeInfo.h"
 
 /*
  * For now paths only natively support winding and even odd fill types
@@ -56,18 +56,19 @@ bool GrStencilAndCoverPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                 const GrPipelineBuilder* pipelineBuilder,
                                                 const SkMatrix& viewMatrix,
                                                 const SkPath& path,
-                                                const SkStrokeRec& stroke,
+                                                const GrStrokeInfo& stroke,
                                                 bool antiAlias) const {
-    return !stroke.isHairlineStyle() &&
-           !antiAlias && // doesn't do per-path AA, relies on the target having MSAA
-           pipelineBuilder->getStencil().isDisabled();
+    return !stroke.getStrokeRec().isHairlineStyle() &&
+        !stroke.isDashed() &&
+        !antiAlias && // doesn't do per-path AA, relies on the target having MSAA
+        pipelineBuilder->getStencil().isDisabled();
 }
 
 GrPathRenderer::StencilSupport
 GrStencilAndCoverPathRenderer::onGetStencilSupport(const GrDrawTarget*,
                                                    const GrPipelineBuilder*,
                                                    const SkPath&,
-                                                   const SkStrokeRec&) const {
+                                                   const GrStrokeInfo&) const {
     return GrPathRenderer::kStencilOnly_StencilSupport;
 }
 
@@ -87,10 +88,10 @@ void GrStencilAndCoverPathRenderer::onStencilPath(GrDrawTarget* target,
                                                   GrPipelineBuilder* pipelineBuilder,
                                                   const SkMatrix& viewMatrix,
                                                   const SkPath& path,
-                                                  const SkStrokeRec& stroke) {
+                                                  const GrStrokeInfo& stroke) {
     SkASSERT(!path.isInverseFillType());
     SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE, viewMatrix));
-    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));
+    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke.getStrokeRec()));
     target->stencilPath(pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
 }
 
@@ -99,14 +100,14 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
                                                GrColor color,
                                                const SkMatrix& viewMatrix,
                                                const SkPath& path,
-                                               const SkStrokeRec& stroke,
+                                               const GrStrokeInfo& stroke,
                                                bool antiAlias) {
     SkASSERT(!antiAlias);
-    SkASSERT(!stroke.isHairlineStyle());
-
+    SkASSERT(!stroke.getStrokeRec().isHairlineStyle());
+    SkASSERT(!stroke.isDashed());
     SkASSERT(pipelineBuilder->getStencil().isDisabled());
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));
+    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke.getStrokeRec()));
 
     if (path.isInverseFillType()) {
         GR_STATIC_CONST_SAME_STENCIL(kInvertedStencilPass,
