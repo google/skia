@@ -82,8 +82,11 @@ GrTargetCommands::Cmd* GrTargetCommands::recordDraw(
                                                   const GrGeometryProcessor* gp,
                                                   const GrDrawTarget::DrawInfo& info,
                                                   const GrDrawTarget::PipelineInfo& pipelineInfo) {
+#ifdef USE_BITMAP_TEXTBLOBS
+    SkFAIL("Non-batch no longer supported\n");
+#endif
     SkASSERT(info.vertexBuffer() && (!info.isIndexed() || info.indexBuffer()));
-    this->closeBatch();
+    CLOSE_BATCH
 
     if (!this->setupPipelineAndShouldDraw(iodb, gp, pipelineInfo)) {
         return NULL;
@@ -121,7 +124,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordDrawBatch(
 
     SkASSERT(&fCmdBuffer.back() == fDrawBatch);
     if (!fDrawBatch->fBatch->combineIfPossible(batch)) {
-        this->closeBatch();
+        CLOSE_BATCH
         fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
     }
 
@@ -135,7 +138,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordStencilPath(
                                                         const GrPath* path,
                                                         const GrScissorState& scissorState,
                                                         const GrStencilSettings& stencilSettings) {
-    this->closeBatch();
+    CLOSE_BATCH
 
     StencilPath* sp = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, StencilPath,
                                                (path, pipelineBuilder.getRenderTarget()));
@@ -153,7 +156,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordDrawPath(
                                                   const GrPath* path,
                                                   const GrStencilSettings& stencilSettings,
                                                   const GrDrawTarget::PipelineInfo& pipelineInfo) {
-    this->closeBatch();
+    CLOSE_BATCH
 
     // TODO: Only compare the subset of GrPipelineBuilder relevant to path covering?
     if (!this->setupPipelineAndShouldDraw(iodb, pathProc, pipelineInfo)) {
@@ -178,7 +181,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordDrawPaths(
     SkASSERT(pathRange);
     SkASSERT(indexValues);
     SkASSERT(transformValues);
-    this->closeBatch();
+    CLOSE_BATCH
 
     if (!this->setupPipelineAndShouldDraw(iodb, pathProc, pipelineInfo)) {
         return NULL;
@@ -234,7 +237,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordClear(GrInOrderDrawBuffer* iodb,
                                                      bool canIgnoreRect,
                                                      GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
-    this->closeBatch();
+    CLOSE_BATCH
 
     SkIRect r;
     if (NULL == rect) {
@@ -257,7 +260,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordClearStencilClip(GrInOrderDrawBuf
                                                                 bool insideClip,
                                                                 GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
-    this->closeBatch();
+    CLOSE_BATCH
 
     ClearStencilClip* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, ClearStencilClip, (renderTarget));
     clr->fRect = rect;
@@ -268,7 +271,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordClearStencilClip(GrInOrderDrawBuf
 GrTargetCommands::Cmd* GrTargetCommands::recordDiscard(GrInOrderDrawBuffer* iodb,
                                                        GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
-    this->closeBatch();
+    CLOSE_BATCH
 
     Clear* clr = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, Clear, (renderTarget));
     clr->fColor = GrColor_ILLEGAL;
@@ -287,18 +290,37 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
     }
 
     // TODO this is temporary while batch is being rolled out
-    this->closeBatch();
-    iodb->getVertexAllocPool()->unmap();
-    iodb->getIndexAllocPool()->unmap();
-    fBatchTarget.preFlush();
+    CLOSE_BATCH
 
     // Updated every time we find a set state cmd to reflect the current state in the playback
     // stream.
     SetState* currentState = NULL;
 
-    CmdBuffer::Iter iter(fCmdBuffer);
-
     GrGpu* gpu = iodb->getGpu();
+
+#ifdef USE_BITMAP_TEXTBLOBS
+    // Loop over all batches and generate geometry
+    CmdBuffer::Iter genIter(fCmdBuffer);
+    while (genIter.next()) {
+        if (Cmd::kDrawBatch_CmdType == genIter->type()) {
+            DrawBatch* db = reinterpret_cast<DrawBatch*>(genIter.get());
+            fBatchTarget.resetNumberOfDraws();
+            db->execute(NULL, currentState);
+            db->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
+        } else if (Cmd::kSetState_CmdType == genIter->type()) {
+            SetState* ss = reinterpret_cast<SetState*>(genIter.get());
+
+            ss->execute(gpu, currentState);
+            currentState = ss;
+        }
+    }
+#endif
+
+    iodb->getVertexAllocPool()->unmap();
+    iodb->getIndexAllocPool()->unmap();
+    fBatchTarget.preFlush();
+
+    CmdBuffer::Iter iter(fCmdBuffer);
 
     while (iter.next()) {
         GrGpuTraceMarker newMarker("", -1);
@@ -321,10 +343,21 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
         }
 
         if (Cmd::kSetState_CmdType == iter->type()) {
+#ifndef USE_BITMAP_TEXTBLOBS
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
             ss->execute(gpu, currentState);
             currentState = ss;
+#else
+            // TODO this is just until NVPR is in batch
+            SetState* ss = reinterpret_cast<SetState*>(iter.get());
+
+            if (ss->fPrimitiveProcessor) {
+                ss->execute(gpu, currentState);
+            }
+            currentState = ss;
+#endif
+
         } else {
             iter->execute(gpu, currentState);
         }
@@ -408,7 +441,7 @@ GrTargetCommands::Cmd* GrTargetCommands::recordCopySurface(GrInOrderDrawBuffer* 
                                                            const SkIRect& srcRect,
                                                            const SkIPoint& dstPoint) {
     if (iodb->getGpu()->canCopySurface(dst, src, srcRect, dstPoint)) {
-        this->closeBatch();
+        CLOSE_BATCH
         CopySurface* cs = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, CopySurface, (dst, src));
         cs->fSrcRect = srcRect;
         cs->fDstPoint = dstPoint;
@@ -461,7 +494,7 @@ bool GrTargetCommands::setupPipelineAndShouldDraw(GrInOrderDrawBuffer* iodb,
         fPrevState->getPipeline()->isEqual(*ss->getPipeline())) {
         fCmdBuffer.pop_back();
     } else {
-        this->closeBatch();
+        CLOSE_BATCH
         fPrevState = ss;
         iodb->recordTraceMarkersIfNecessary(ss);
     }

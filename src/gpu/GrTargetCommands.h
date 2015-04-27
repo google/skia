@@ -19,6 +19,15 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
+// This is just to get a flag
+// TODO remove this when batch is everywhere
+#include "GrTextContext.h"
+#ifdef USE_BITMAP_TEXTBLOBS
+#define CLOSE_BATCH
+#else
+#define CLOSE_BATCH this->closeBatch();
+#endif
+
 class GrInOrderDrawBuffer;
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
