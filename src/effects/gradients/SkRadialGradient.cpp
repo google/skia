@@ -8,6 +8,7 @@
 
 #include "SkRadialGradient.h"
 #include "SkRadialGradient_Table.h"
+#include "SkNx.h"
 
 #define kSQRT_TABLE_BITS    11
 #define kSQRT_TABLE_SIZE    (1 << kSQRT_TABLE_BITS)
@@ -270,13 +271,16 @@ void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
 namespace {
 
 inline bool radial_completely_pinned(int fx, int dx, int fy, int dy) {
-    // fast, overly-conservative test: checks unit square instead
-    // of unit circle
-    bool xClamped = (fx >= SK_FixedHalf && dx >= 0) ||
-                    (fx <= -SK_FixedHalf && dx <= 0);
-    bool yClamped = (fy >= SK_FixedHalf && dy >= 0) ||
-                    (fy <= -SK_FixedHalf && dy <= 0);
+    // fast, overly-conservative test: checks unit square instead of unit circle
+    bool xClamped = (fx >= SK_FixedHalf && dx >= 0) || (fx <= -SK_FixedHalf && dx <= 0);
+    bool yClamped = (fy >= SK_FixedHalf && dy >= 0) || (fy <= -SK_FixedHalf && dy <= 0);
+    return xClamped || yClamped;
+}
 
+inline bool radial_completely_pinned(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy) {
+    // fast, overly-conservative test: checks unit square instead of unit circle
+    bool xClamped = (fx >= 1 && dx >= 0) || (fx <= -1 && dx <= 0);
+    bool yClamped = (fy >= 1 && dy >= 0) || (fy <= -1 && dy <= 0);
     return xClamped || yClamped;
 }
 
@@ -373,6 +377,70 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
     }
 }
 
+// TODO: can we get away with 0th approximatino of inverse-sqrt (i.e. faster than rsqrt)?
+//       seems like ~10bits is more than enough for our use, since we want a byte-index
+static inline Sk4f fast_sqrt(const Sk4f& R) {
+    return R * R.rsqrt();
+}
+
+static inline Sk4f sum_squares(const Sk4f& a, const Sk4f& b) {
+    return a * a + b * b;
+}
+
+void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar sdy,
+                             SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
+                             int count, int toggle) {
+    if (radial_completely_pinned(sfx, sdx, sfy, sdy)) {
+        unsigned fi = SkGradientShaderBase::kCache32Count - 1;
+        sk_memset32_dither(dstC,
+                           cache[toggle + fi],
+                           cache[next_dither_toggle(toggle) + fi],
+                           count);
+    } else {
+        const Sk4f max(255);
+        const float scale = 255;
+        sfx *= scale;
+        sfy *= scale;
+        sdx *= scale;
+        sdy *= scale;
+        const Sk4f fx4(sfx, sfx + sdx, sfx + 2*sdx, sfx + 3*sdx);
+        const Sk4f fy4(sfy, sfy + sdy, sfy + 2*sdy, sfy + 3*sdy);
+        const Sk4f dx4(sdx * 4);
+        const Sk4f dy4(sdy * 4);
+
+        Sk4f tmpxy = fx4 * dx4 + fy4 * dy4;
+        Sk4f tmpdxdy = sum_squares(dx4, dy4);
+        Sk4f R = sum_squares(fx4, fy4);
+        Sk4f dR = tmpxy + tmpxy + tmpdxdy;
+        const Sk4f ddR = tmpdxdy + tmpdxdy;
+
+        for (int i = 0; i < (count >> 2); ++i) {
+            Sk4f dist = Sk4f::Min(fast_sqrt(R), max);
+            R += dR;
+            dR += ddR;
+
+            int fi[4];
+            dist.castTrunc().store(fi);
+
+            for (int i = 0; i < 4; i++) {
+                *dstC++ = cache[toggle + fi[i]];
+                toggle = next_dither_toggle(toggle);
+            }
+        }
+        count &= 3;
+        if (count) {
+            Sk4f dist = Sk4f::Min(fast_sqrt(R), max);
+
+            int fi[4];
+            dist.castTrunc().store(fi);
+            for (int i = 0; i < count; i++) {
+                *dstC++ = cache[toggle + fi[i]];
+                toggle = next_dither_toggle(toggle);
+            }
+        }
+    }
+}
+
 // Unrolling this loop doesn't seem to help (when float); we're stalling to
 // get the results of the sqrt (?), and don't have enough extra registers to
 // have many in flight.
@@ -407,6 +475,11 @@ void shadeSpan_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
 
 void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
                                                         SkPMColor* SK_RESTRICT dstC, int count) {
+#ifdef SK_SUPPORT_LEGACY_RADIAL_GRADIENT_SQRT
+    const bool use_new_proc = false;
+#else
+    const bool use_new_proc = true;
+#endif
     SkASSERT(count > 0);
 
     const SkRadialGradient& radialGradient = static_cast<const SkRadialGradient&>(fShader);
@@ -435,7 +508,7 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 
         RadialShadeProc shadeProc = shadeSpan_radial_repeat;
         if (SkShader::kClamp_TileMode == radialGradient.fTileMode) {
-            shadeProc = shadeSpan_radial_clamp;
+            shadeProc = use_new_proc ? shadeSpan_radial_clamp2 : shadeSpan_radial_clamp;
         } else if (SkShader::kMirror_TileMode == radialGradient.fTileMode) {
             shadeProc = shadeSpan_radial_mirror;
         } else {

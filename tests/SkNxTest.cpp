@@ -89,6 +89,12 @@ void test_Ni(skiatest::Reporter* r) {
           case 4: REPORTER_ASSERT(r, vals[2] == c && vals[3] == d);
           case 2: REPORTER_ASSERT(r, vals[0] == a && vals[1] == b);
         }
+        switch (N) {
+          case 8: REPORTER_ASSERT(r, v.template kth<4>() == e && v.template kth<5>() == f &&
+                                     v.template kth<6>() == g && v.template kth<7>() == h);
+          case 4: REPORTER_ASSERT(r, v.template kth<2>() == c && v.template kth<3>() == d);
+          case 2: REPORTER_ASSERT(r, v.template kth<0>() == a && v.template kth<1>() == b);
+        }
     };
 
     T vals[] = { 1,2,3,4,5,6,7,8 };
@@ -117,4 +123,8 @@ DEF_TEST(SkNi, r) {
     test_Ni<2, uint16_t>(r);
     test_Ni<4, uint16_t>(r);
     test_Ni<8, uint16_t>(r);
+
+    test_Ni<2, int>(r);
+    test_Ni<4, int>(r);
+    test_Ni<8, int>(r);
 }
