@@ -142,44 +142,6 @@ private:
 };
 
 template <>
-class SkNi<4, int> {
-public:
-    SkNi(const __m128i& vec) : fVec(vec) {}
-
-    SkNi() {}
-    explicit SkNi(int val) : fVec(_mm_set1_epi32(val)) {}
-    static SkNi Load(const int vals[4]) { return _mm_loadu_si128((const __m128i*)vals); }
-    SkNi(int a, int b, int c, int d) : fVec(_mm_setr_epi32(a,b,c,d)) {}
-
-    void store(int vals[4]) const { _mm_storeu_si128((__m128i*)vals, fVec); }
-
-    SkNi operator + (const SkNi& o) const { return _mm_add_epi32(fVec, o.fVec); }
-    SkNi operator - (const SkNi& o) const { return _mm_sub_epi32(fVec, o.fVec); }
-    SkNi operator * (const SkNi& o) const {
-        __m128i mul20 = _mm_mul_epu32(fVec, o.fVec),
-                mul31 = _mm_mul_epu32(_mm_srli_si128(fVec, 4), _mm_srli_si128(o.fVec, 4));
-        return _mm_unpacklo_epi32(_mm_shuffle_epi32(mul20, _MM_SHUFFLE(0,0,2,0)),
-                                  _mm_shuffle_epi32(mul31, _MM_SHUFFLE(0,0,2,0)));
-    }
-
-    SkNi operator << (int bits) const { return _mm_slli_epi32(fVec, bits); }
-    SkNi operator >> (int bits) const { return _mm_srai_epi32(fVec, bits); }
-
-    template <int k> int kth() const {
-        SkASSERT(0 <= k && k < 4);
-        switch (k) {
-            case 0: return _mm_cvtsi128_si32(fVec);
-            case 1: return _mm_cvtsi128_si32(_mm_srli_si128(fVec,  4));
-            case 2: return _mm_cvtsi128_si32(_mm_srli_si128(fVec,  8));
-            case 3: return _mm_cvtsi128_si32(_mm_srli_si128(fVec, 12));
-            default: SkASSERT(false); return 0;
-        }
-    }
-protected:
-    __m128i fVec;
-};
-
-template <>
 class SkNf<4, float> {
     typedef SkNb<4, 4> Nb;
 public:
@@ -191,8 +153,6 @@ public:
     SkNf(float a, float b, float c, float d) : fVec(_mm_setr_ps(a,b,c,d)) {}
 
     void store(float vals[4]) const { _mm_storeu_ps(vals, fVec); }
-
-    SkNi<4, int> castTrunc() const { return _mm_cvttps_epi32(fVec); }
 
     SkNf operator + (const SkNf& o) const { return _mm_add_ps(fVec, o.fVec); }
     SkNf operator - (const SkNf& o) const { return _mm_sub_ps(fVec, o.fVec); }
