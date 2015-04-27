@@ -107,8 +107,8 @@ static bool bridgeOp(SkTDArray<SkOpContour* >& contourList, const SkPathOp op,
     SkPoint lastTopLeft;
     SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
-        SkOpSpanBase* start;
-        SkOpSpanBase* end;
+        SkOpSpanBase* start = NULL;
+        SkOpSpanBase* end = NULL;
         bool topDone;
         bool onlyVertical = false;
         lastTopLeft = topLeft;
