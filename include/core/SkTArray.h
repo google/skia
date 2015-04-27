@@ -300,7 +300,7 @@ public:
         return fItemArray ? fItemArray + fCount : NULL;
     }
     const T* end() const {
-        return fItemArray ? fItemArray + fCount : NULL;;
+        return fItemArray ? fItemArray + fCount : NULL;
     }
 
    /**

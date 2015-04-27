@@ -704,7 +704,7 @@ void SkBitmap::internalErase(const SkIRect& area,
         }
         case kARGB_4444_SkColorType:
         case kRGB_565_SkColorType: {
-            uint16_t* p = this->getAddr16(area.fLeft, area.fTop);;
+            uint16_t* p = this->getAddr16(area.fLeft, area.fTop);
             uint16_t v;
 
             // make rgb premultiplied

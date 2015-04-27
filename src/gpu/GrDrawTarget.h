@@ -570,7 +570,7 @@ public:
     /**
      * Used to populate the vertex and index buffer on the draw info before onDraw is called.
      */
-    virtual void setDrawBuffers(DrawInfo*, size_t vertexStride) = 0;;
+    virtual void setDrawBuffers(DrawInfo*, size_t vertexStride) = 0;
     bool programUnitTest(int maxStages);
 
 protected:

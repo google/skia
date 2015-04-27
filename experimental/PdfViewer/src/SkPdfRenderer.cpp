@@ -1069,7 +1069,7 @@ static SkPdfResult PdfOp_Tm(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTok
                 "Text positioning not implemented for 2+ chars", NULL, pdfContext);
 
     pdfContext->fGraphicsState.fMatrixTm = matrix;
-    pdfContext->fGraphicsState.fMatrixTlm = matrix;;
+    pdfContext->fGraphicsState.fMatrixTlm = matrix;
 
     return kPartial_SkPdfResult;
 }

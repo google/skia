@@ -93,7 +93,7 @@ static void expand_bits_to_bytes(uint8_t dst[], const uint8_t src[], int bits)
     if (bits > 0) {
         unsigned mask = *src;
         do {
-            *dst++ = (mask >> 7) & 1;;
+            *dst++ = (mask >> 7) & 1;
             mask <<= 1;
         } while (--bits != 0);
     }

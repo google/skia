@@ -110,7 +110,7 @@ public:
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ce.inPosition()->fName,
-                                 ce.localMatrix(), args.fTransformsIn, args.fTransformsOut);;
+                                 ce.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());

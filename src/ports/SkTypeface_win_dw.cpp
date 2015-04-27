@@ -366,7 +366,7 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     } else {
         info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
         info->fItalicAngle = 0;
-        info->fAscent = dwfm.ascent;;
+        info->fAscent = dwfm.ascent;
         info->fDescent = dwfm.descent;
         info->fStemV = 0;
         info->fCapHeight = dwfm.capHeight;
@@ -380,7 +380,7 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     AutoTDWriteTable<SkOTTableOS2> os2Table(fDWriteFontFace.get());
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
         info->fItalicAngle = 0;
-        info->fAscent = dwfm.ascent;;
+        info->fAscent = dwfm.ascent;
         info->fDescent = dwfm.descent;
         info->fStemV = 0;
         info->fCapHeight = dwfm.capHeight;

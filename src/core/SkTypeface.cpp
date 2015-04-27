@@ -76,7 +76,7 @@ SkTypeface* sk_create_default_typeface(int style) {
     SkAutoMutexAcquire lock(&gCreateDefaultMutex);
 
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    SkTypeface* t = fm->legacyCreateTypeface(NULL, style);;
+    SkTypeface* t = fm->legacyCreateTypeface(NULL, style);
     return t ? t : SkEmptyTypeface::Create();
 }
 

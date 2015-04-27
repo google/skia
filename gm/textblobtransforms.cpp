@@ -32,7 +32,7 @@ protected:
 
         SkRect bounds;
         paint.measureText(text, strlen(text), &bounds);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);;
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
 
         // Medium
         SkScalar xOffset = bounds.width() + 5;

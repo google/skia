@@ -84,7 +84,7 @@ static SkBitmap make_argb8888_stripes() {
 static SkBitmap make_argb4444_stripes() {
     SkBitmap bitmap;
     init_bitmap(kARGB_4444_SkColorType, &bitmap);
-    uint8_t rowColor = 0;;
+    uint8_t rowColor = 0;
     for (int y = 0; y < SLIDE_SIZE; y++) {
         uint16_t* dst = bitmap.getAddr16(0, y);
         for (int x = 0; x < SLIDE_SIZE; x++) {

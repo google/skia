@@ -154,7 +154,7 @@ static const SkPicture* make_tri_picture() {
 
     SkPaint fill;
     fill.setStyle(SkPaint::kFill_Style);
-    fill.setColor(SK_ColorLTGRAY);;
+    fill.setColor(SK_ColorLTGRAY);
 
     SkPaint stroke;
     stroke.setStyle(SkPaint::kStroke_Style);

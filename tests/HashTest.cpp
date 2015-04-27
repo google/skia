@@ -42,7 +42,7 @@ DEF_TEST(HashMap, r) {
         map.set(i, 2.0*i);
     }
     for (int i = 0; i < N; i++) {
-        double* found = map.find(i);;
+        double* found = map.find(i);
         REPORTER_ASSERT(r, found);
         REPORTER_ASSERT(r, *found == i*2.0);
     }

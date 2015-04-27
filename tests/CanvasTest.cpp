@@ -119,7 +119,7 @@ public:
     { }
 
     SkRect fRect;
-    SkMatrix fMatrix;;
+    SkMatrix fMatrix;
     SkPath fPath;
     SkPath fNearlyZeroLengthPath;
     SkIRect fIRect;
