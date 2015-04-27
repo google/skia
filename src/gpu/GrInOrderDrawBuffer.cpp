@@ -411,9 +411,7 @@ void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* c
 void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(int vertexCount,
                                                          size_t vertexStride,
                                                          int indexCount) {
-#ifndef USE_BITMAP_TEXTBLOBS
     fCommands.closeBatch();
-#endif
 
     this->INHERITED::willReserveVertexAndIndexSpace(vertexCount, vertexStride, indexCount);
 }
