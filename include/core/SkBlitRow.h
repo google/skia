@@ -64,11 +64,19 @@ public:
 
     static Proc32 Factory32(unsigned flags32);
 
+   /** Function pointer that blends a single color with a row of 32-bit colors
+       onto a 32-bit destination
+   */
+   typedef void (*ColorProc)(SkPMColor dst[], const SkPMColor src[], int count, SkPMColor color);
+
     /** Blend a single color onto a row of S32 pixels, writing the result
         into a row of D32 pixels. src and dst may be the same memory, but
         if they are not, they may not overlap.
      */
     static void Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMColor color);
+
+    //! Public entry-point to return a blit function ptr
+    static ColorProc ColorProcFactory();
 
     /** These static functions are called by the Factory and Factory32
         functions, and should return either NULL, or a
@@ -77,6 +85,7 @@ public:
      */
 
     static Proc32 PlatformProcs32(unsigned flags);
+    static ColorProc PlatformColorProc();
 
     static Proc16 PlatformFactory565(unsigned flags);
     static ColorProc16 PlatformColorFactory565(unsigned flags);

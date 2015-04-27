@@ -14,12 +14,6 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#if defined(SK_ARM_HAS_NEON)
-    #include <arm_neon.h>
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #include <immintrin.h>
-#endif
-
 /** \file SkTypes.h
 */
 

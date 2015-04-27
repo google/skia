@@ -40,7 +40,7 @@ uint32_t SkModeColorFilter::getFlags() const {
 void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const {
     SkPMColor       color = fPMColor;
     SkXfermodeProc  proc = fProc;
-
+    
     for (int i = 0; i < count; i++) {
         result[i] = proc(color, shader[i]);
     }
@@ -394,13 +394,19 @@ private:
 
 class SrcOver_SkModeColorFilter : public SkModeColorFilter {
 public:
-    SrcOver_SkModeColorFilter(SkColor color) : INHERITED(color, SkXfermode::kSrcOver_Mode) { }
+    SrcOver_SkModeColorFilter(SkColor color)
+            : INHERITED(color, SkXfermode::kSrcOver_Mode) {
+        fColor32Proc = SkBlitRow::ColorProcFactory();
+    }
 
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
-        SkBlitRow::Color32(result, shader, count, this->getPMColor());
+        fColor32Proc(result, shader, count, this->getPMColor());
     }
 
 private:
+
+    SkBlitRow::ColorProc fColor32Proc;
+
     typedef SkModeColorFilter INHERITED;
 };
 
