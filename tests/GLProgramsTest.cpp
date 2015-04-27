@@ -153,7 +153,6 @@ static void set_random_color_coverage_stages(GrGLGpu* gpu,
     int numProcs = random->nextULessThan(maxStages + 1);
     int numColorProcs = random->nextULessThan(numProcs + 1);
 
-    int currTextureCoordSet = 0;
     for (int s = 0; s < numProcs;) {
         SkAutoTUnref<const GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(random,
@@ -161,18 +160,6 @@ static void set_random_color_coverage_stages(GrGLGpu* gpu,
                                                                          *gpu->caps(),
                                                                          dummyTextures));
         SkASSERT(fp);
-
-        // If adding this effect would exceed the max texture coord set count then generate a
-        // new random effect.
-        if (usePathRendering && gpu->glPathRendering()->texturingMode() ==
-                                GrGLPathRendering::FixedFunction_TexturingMode) {;
-            int numTransforms = fp->numTransforms();
-            if (currTextureCoordSet + numTransforms >
-                gpu->glCaps().maxFixedFunctionTextureCoords()) {
-                continue;
-            }
-            currTextureCoordSet += numTransforms;
-        }
 
         // finally add the stage to the correct pipeline in the drawstate
         if (s < numColorProcs) {

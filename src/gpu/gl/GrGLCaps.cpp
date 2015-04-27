@@ -25,12 +25,10 @@ void GrGLCaps::reset() {
     fMSFBOType = kNone_MSFBOType;
     fInvalidateFBType = kNone_InvalidateFBType;
     fLATCAlias = kLATC_LATCAlias;
-    fNvprSupport = kNone_NvprSupport;
     fMapBufferType = kNone_MapBufferType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
     fMaxFragmentTextureUnits = 0;
-    fMaxFixedFunctionTextureCoords = 0;
     fRGBA8RenderbufferSupport = false;
     fBGRAIsInternalFormat = false;
     fTextureSwizzleSupport = false;
@@ -69,11 +67,9 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fStencilFormats = caps.fStencilFormats;
     fStencilVerifiedColorConfigs = caps.fStencilVerifiedColorConfigs;
     fLATCAlias = caps.fLATCAlias;
-    fNvprSupport = caps.fNvprSupport;
     fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
     fMaxVertexAttributes = caps.fMaxVertexAttributes;
     fMaxFragmentTextureUnits = caps.fMaxFragmentTextureUnits;
-    fMaxFixedFunctionTextureCoords = caps.fMaxFixedFunctionTextureCoords;
     fMSFBOType = caps.fMSFBOType;
     fInvalidateFBType = caps.fInvalidateFBType;
     fMapBufferType = caps.fMapBufferType;
@@ -131,11 +127,6 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
             GrGLint profileMask;
             GR_GL_GetIntegerv(gli, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
             fIsCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
-        }
-        if (!fIsCoreProfile) {
-            GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_COORDS, &fMaxFixedFunctionTextureCoords);
-            // Sanity check
-            SkASSERT(fMaxFixedFunctionTextureCoords > 0 && fMaxFixedFunctionTextureCoords < 128);
         }
     }
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
@@ -357,28 +348,16 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     if (fPathRenderingSupport) {
         if (kGL_GrGLStandard == standard) {
-            // We need one of the two possible texturing methods: using fixed function pipeline
-            // (PathTexGen, texcoords, ...)  or using the newer NVPR API additions that support
-            // setting individual fragment inputs with ProgramPathFragmentInputGen. The API
-            // additions are detected by checking the existence of the function. Eventually we may
-            // choose to remove the fixed function codepath.
-            // Set fMaxFixedFunctionTextureCoords = 0 here if you want to force
-            // ProgramPathFragmentInputGen usage on desktop.
+            // We only support v1.3+ of GL_NV_path_rendering which allows us to
+            // set individual fragment inputs with ProgramPathFragmentInputGen. The API
+            // additions are detected by checking the existence of the function.
             fPathRenderingSupport = ctxInfo.hasExtension("GL_EXT_direct_state_access") &&
-                (fMaxFixedFunctionTextureCoords > 0 ||
-                 ((ctxInfo.version() >= GR_GL_VER(4,3) ||
-                   ctxInfo.hasExtension("GL_ARB_program_interface_query")) &&
-                  gli->fFunctions.fProgramPathFragmentInputGen));
-            if (fPathRenderingSupport) {
-                fNvprSupport = gli->fFunctions.fProgramPathFragmentInputGen ? kNormal_NvprSupport :
-                                                                              kLegacy_NvprSupport;
-            }
+                ((ctxInfo.version() >= GR_GL_VER(4,3) ||
+                  ctxInfo.hasExtension("GL_ARB_program_interface_query")) &&
+                  gli->fFunctions.fProgramPathFragmentInputGen);
         } else {
             fPathRenderingSupport = ctxInfo.version() >= GR_GL_VER(3,1);
-            fNvprSupport = fPathRenderingSupport ? kNormal_NvprSupport : kNone_NvprSupport;
         }
-    } else {
-        fNvprSupport = kNone_NvprSupport;
     }
 
     fFBMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples");
@@ -1039,9 +1018,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Map Buffer Type: %s\n", kMapBufferTypeStr[fMapBufferType]);
     r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     r.appendf("Max FS Texture Units: %d\n", fMaxFragmentTextureUnits);
-    if (!fIsCoreProfile) {
-        r.appendf("Max Fixed Function Texture Coords: %d\n", fMaxFixedFunctionTextureCoords);
-    }
     r.appendf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
     r.appendf("Support RGBA8 Render Buffer: %s\n", (fRGBA8RenderbufferSupport ? "YES": "NO"));
     r.appendf("BGRA is an internal format: %s\n", (fBGRAIsInternalFormat ? "YES": "NO"));

@@ -1,3 +1,10 @@
+/*
+* Copyright 2013 Google Inc.
+*
+* Use of this source code is governed by a BSD-style license that can be
+* found in the LICENSE file.
+*/
+
 #include "GrPathProcessor.h"
 
 #include "gl/GrGLPathProcessor.h"
@@ -63,11 +70,6 @@ void GrPathProcessor::getGLProcessorKey(const GrBatchTracker& bt,
 
 GrGLPrimitiveProcessor* GrPathProcessor::createGLInstance(const GrBatchTracker& bt,
                                                           const GrGLCaps& caps) const {
-    SkASSERT(caps.nvprSupport() != GrGLCaps::kNone_NvprSupport);
-    if (caps.nvprSupport() == GrGLCaps::kLegacy_NvprSupport) {
-        return SkNEW_ARGS(GrGLLegacyPathProcessor, (*this, bt,
-                                                    caps.maxFixedFunctionTextureCoords()));
-    } else {
-        return SkNEW_ARGS(GrGLNormalPathProcessor, (*this, bt));
-    }
+    SkASSERT(caps.pathRenderingSupport());
+    return SkNEW_ARGS(GrGLPathProcessor, (*this, bt));
 }

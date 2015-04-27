@@ -25,78 +25,25 @@ public:
 
     void emitCode(EmitArgs&) override;
 
-    virtual void emitTransforms(GrGLGPBuilder*, const TransformsIn&, TransformsOut*) = 0;
+    void emitTransforms(GrGLGPBuilder*, const TransformsIn&, TransformsOut*);
 
-    virtual void resolveSeparableVaryings(GrGLGpu* gpu, GrGLuint programId) {}
+    void resolveSeparableVaryings(GrGLGpu* gpu, GrGLuint programId);
 
     void setData(const GrGLProgramDataManager&,
                  const GrPrimitiveProcessor&,
                  const GrBatchTracker&) override;
 
-    virtual void setTransformData(const GrPrimitiveProcessor&,
-                                  int index,
-                                  const SkTArray<const GrCoordTransform*, true>& transforms,
-                                  GrGLPathRendering*,
-                                  GrGLuint programID) = 0;
+    void setTransformData(const GrPrimitiveProcessor&,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms,
+                          GrGLPathRendering*,
+                          GrGLuint programID);
 
     virtual void didSetData(GrGLPathRendering*) {}
 
 private:
     UniformHandle fColorUniform;
     GrColor fColor;
-
-    typedef GrGLPrimitiveProcessor INHERITED;
-};
-
-class GrGLLegacyPathProcessor : public GrGLPathProcessor {
-public:
-    GrGLLegacyPathProcessor(const GrPathProcessor& pathProc, const GrBatchTracker& bt,
-                            int maxTexCoords)
-        : INHERITED(pathProc, bt)
-        , fTexCoordSetCnt(0) {
-        SkDEBUGCODE(fMaxTexCoords = maxTexCoords;)
-    }
-
-    int addTexCoordSets(int count) {
-        int firstFreeCoordSet = fTexCoordSetCnt;
-        fTexCoordSetCnt += count;
-        SkASSERT(fMaxTexCoords >= fTexCoordSetCnt);
-        return firstFreeCoordSet;
-    }
-
-    void emitTransforms(GrGLGPBuilder*, const TransformsIn& tin, TransformsOut* tout) override;
-
-    void setTransformData(const GrPrimitiveProcessor& primProc,
-                          int index,
-                          const SkTArray<const GrCoordTransform*, true>& transforms,
-                          GrGLPathRendering* glpr,
-                          GrGLuint) override;
-
-    void didSetData(GrGLPathRendering* glpr) override;
-
-private:
-    SkDEBUGCODE(int fMaxTexCoords;)
-    int fTexCoordSetCnt;
-
-    typedef GrGLPathProcessor INHERITED;
-};
-
-class GrGLNormalPathProcessor : public GrGLPathProcessor {
-public:
-    GrGLNormalPathProcessor(const GrPathProcessor& pathProc, const GrBatchTracker& bt)
-        : INHERITED(pathProc, bt) {}
-
-    void emitTransforms(GrGLGPBuilder* pb, const TransformsIn& tin,TransformsOut* tout) override;
-
-    void resolveSeparableVaryings(GrGLGpu* gpu, GrGLuint programId);
-
-    void setTransformData(const GrPrimitiveProcessor& primProc,
-                          int index,
-                          const SkTArray<const GrCoordTransform*, true>& coordTransforms,
-                          GrGLPathRendering* glpr,
-                          GrGLuint programID) override;
-
-private:
     struct SeparableVaryingInfo {
         GrSLType      fType;
         GrGLShaderVar fVariable;
@@ -107,7 +54,7 @@ private:
 
     SeparableVaryingInfoArray fSeparableVaryingInfos;
 
-    typedef GrGLPathProcessor INHERITED;
+    typedef GrGLPrimitiveProcessor INHERITED;
 };
 
 #endif

@@ -203,9 +203,6 @@ public:
     /// maximum number of texture units accessible in the fragment shader.
     int maxFragmentTextureUnits() const { return fMaxFragmentTextureUnits; }
 
-    /// maximum number of fixed-function texture coords, or zero if no fixed-function.
-    int maxFixedFunctionTextureCoords() const { return fMaxFixedFunctionTextureCoords; }
-
     /// ES requires an extension to support RGBA8 in RenderBufferStorage
     bool rgba8RenderbufferSupport() const { return fRGBA8RenderbufferSupport; }
 
@@ -288,18 +285,6 @@ public:
 
     LATCAlias latcAlias() const { return fLATCAlias; }
 
-    /**
-     * Which type of path rendering is supported, if any
-     * TODO delete this when we only support normal non-legacy nvpr
-     */
-    enum NvprSupport {
-        kNone_NvprSupport,
-        kLegacy_NvprSupport,
-        kNormal_NvprSupport,
-    };
-
-    NvprSupport nvprSupport() const { return fNvprSupport; }
-
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -362,13 +347,11 @@ private:
     int fMaxFragmentUniformVectors;
     int fMaxVertexAttributes;
     int fMaxFragmentTextureUnits;
-    int fMaxFixedFunctionTextureCoords;
 
     MSFBOType           fMSFBOType;
     InvalidateFBType    fInvalidateFBType;
     MapBufferType       fMapBufferType;
     LATCAlias           fLATCAlias;
-    NvprSupport         fNvprSupport;
 
     bool fRGBA8RenderbufferSupport : 1;
     bool fBGRAIsInternalFormat : 1;

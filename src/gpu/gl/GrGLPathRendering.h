@@ -54,34 +54,6 @@ public:
      */
     void abandonGpuResources();
 
-
-    enum TexturingMode {
-        FixedFunction_TexturingMode,
-        SeparableShaders_TexturingMode
-    };
-
-    /** Specifies whether texturing should use fixed fuction pipe or separable shaders
-     * Specifies whether texturing should use fixed fuction pipe or whether
-     * it is ok to use normal vertex and fragment shaders, and for path rendering
-     * populate fragment shaders with setProgramPathFragmentInputTransform.
-     * The fixed function mode will be removed once the other mode is more widely
-     * available.
-     */
-    TexturingMode texturingMode() const  {
-        return caps().fragmentInputGenSupport ?
-            SeparableShaders_TexturingMode : FixedFunction_TexturingMode;
-    }
-
-    // Functions for fixed function texturing support.
-    enum PathTexGenComponents {
-        kS_PathTexGenComponents = 1,
-        kST_PathTexGenComponents = 2,
-        kSTR_PathTexGenComponents = 3
-    };
-    void enablePathTexGen(int unitIdx, PathTexGenComponents, const GrGLfloat* coefficients);
-    void enablePathTexGen(int unitIdx, PathTexGenComponents, const SkMatrix& matrix);
-    void flushPathTexGenSettings(int numUsedTexCoordSets);
-
     // Functions for "separable shader" texturing support.
     void setProgramPathFragmentInputTransform(GrGLuint program, GrGLint location,
                                               GrGLenum genMode, GrGLint components,
@@ -168,8 +140,6 @@ private:
         GrGLint   fNumComponents;
         GrGLfloat fCoefficients[3 * 3];
     };
-    int fHWActivePathTexGenSets;
-    SkTArray<PathTexGenData, true> fHWPathTexGenSettings;
 };
 
 #endif

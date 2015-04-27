@@ -72,9 +72,7 @@ GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
     fCaps.glyphLoadingSupport =
         NULL != glInterface->fFunctions.fPathMemoryGlyphIndexArray;
 
-    if (!fCaps.fragmentInputGenSupport) {
-        fHWPathTexGenSettings.reset(fGpu->glCaps().maxFixedFunctionTextureCoords());
-    }
+    SkASSERT(fCaps.fragmentInputGenSupport);
 }
 
 GrGLPathRendering::~GrGLPathRendering() {
@@ -87,19 +85,9 @@ void GrGLPathRendering::abandonGpuResources() {
 void GrGLPathRendering::resetContext() {
     fHWProjectionMatrixState.invalidate();
     // we don't use the model view matrix.
-    GrGLenum matrixMode =
-            fGpu->glCaps().nvprSupport() == GrGLCaps::kNormal_NvprSupport ? GR_GL_PATH_MODELVIEW :
-                                                                            GR_GL_MODELVIEW;
-    GL_CALL(MatrixLoadIdentity(matrixMode));
+    GL_CALL(MatrixLoadIdentity(GR_GL_PATH_MODELVIEW));
 
-    if (!caps().fragmentInputGenSupport) {
-        for (int i = 0; i < fGpu->glCaps().maxFixedFunctionTextureCoords(); ++i) {
-            GL_CALL(PathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL));
-            fHWPathTexGenSettings[i].fMode = GR_GL_NONE;
-            fHWPathTexGenSettings[i].fNumComponents = 0;
-        }
-        fHWActivePathTexGenSets = 0;
-    }
+    SkASSERT(fCaps.fragmentInputGenSupport);
     fHWPathStencilSettings.invalidate();
 }
 
@@ -242,76 +230,6 @@ void GrGLPathRendering::drawPaths(const GrPathRange* pathRange,
     }
 }
 
-void GrGLPathRendering::enablePathTexGen(int unitIdx, PathTexGenComponents components,
-                                         const GrGLfloat* coefficients) {
-    SkASSERT(components >= kS_PathTexGenComponents &&
-             components <= kSTR_PathTexGenComponents);
-    SkASSERT(fGpu->glCaps().maxFixedFunctionTextureCoords() >= unitIdx);
-
-    if (GR_GL_OBJECT_LINEAR == fHWPathTexGenSettings[unitIdx].fMode &&
-        components == fHWPathTexGenSettings[unitIdx].fNumComponents &&
-        !memcmp(coefficients, fHWPathTexGenSettings[unitIdx].fCoefficients,
-                3 * components * sizeof(GrGLfloat))) {
-        return;
-    }
-
-    fGpu->setTextureUnit(unitIdx);
-
-    fHWPathTexGenSettings[unitIdx].fNumComponents = components;
-    GL_CALL(PathTexGen(GR_GL_TEXTURE0 + unitIdx, GR_GL_OBJECT_LINEAR, components, coefficients));
-
-    memcpy(fHWPathTexGenSettings[unitIdx].fCoefficients, coefficients,
-           3 * components * sizeof(GrGLfloat));
-}
-
-void GrGLPathRendering::enablePathTexGen(int unitIdx, PathTexGenComponents components,
-                                         const SkMatrix& matrix) {
-    GrGLfloat coefficients[3 * 3];
-    SkASSERT(components >= kS_PathTexGenComponents &&
-             components <= kSTR_PathTexGenComponents);
-
-    coefficients[0] = SkScalarToFloat(matrix[SkMatrix::kMScaleX]);
-    coefficients[1] = SkScalarToFloat(matrix[SkMatrix::kMSkewX]);
-    coefficients[2] = SkScalarToFloat(matrix[SkMatrix::kMTransX]);
-
-    if (components >= kST_PathTexGenComponents) {
-        coefficients[3] = SkScalarToFloat(matrix[SkMatrix::kMSkewY]);
-        coefficients[4] = SkScalarToFloat(matrix[SkMatrix::kMScaleY]);
-        coefficients[5] = SkScalarToFloat(matrix[SkMatrix::kMTransY]);
-    }
-
-    if (components >= kSTR_PathTexGenComponents) {
-        coefficients[6] = SkScalarToFloat(matrix[SkMatrix::kMPersp0]);
-        coefficients[7] = SkScalarToFloat(matrix[SkMatrix::kMPersp1]);
-        coefficients[8] = SkScalarToFloat(matrix[SkMatrix::kMPersp2]);
-    }
-
-    this->enablePathTexGen(unitIdx, components, coefficients);
-}
-
-void GrGLPathRendering::flushPathTexGenSettings(int numUsedTexCoordSets) {
-    SkASSERT(fGpu->glCaps().maxFixedFunctionTextureCoords() >= numUsedTexCoordSets);
-
-    // Only write the inactive path tex gens, since active path tex gens were
-    // written when they were enabled.
-
-    SkDEBUGCODE(
-        for (int i = 0; i < numUsedTexCoordSets; i++) {
-            SkASSERT(0 != fHWPathTexGenSettings[i].fNumComponents);
-        }
-    );
-
-    for (int i = numUsedTexCoordSets; i < fHWActivePathTexGenSets; i++) {
-        SkASSERT(0 != fHWPathTexGenSettings[i].fNumComponents);
-
-        fGpu->setTextureUnit(i);
-        GL_CALL(PathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL));
-        fHWPathTexGenSettings[i].fNumComponents = 0;
-    }
-
-    fHWActivePathTexGenSets = numUsedTexCoordSets;
-}
-
 void GrGLPathRendering::setProgramPathFragmentInputTransform(GrGLuint program, GrGLint location,
                                                              GrGLenum genMode, GrGLint components,
                                                              const SkMatrix& matrix) {
@@ -356,10 +274,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
 
     GrGLfloat glMatrix[4 * 4];
     fHWProjectionMatrixState.getRTAdjustedGLMatrix<4>(glMatrix);
-     GrGLenum matrixMode =
-             fGpu->glCaps().nvprSupport() == GrGLCaps::kNormal_NvprSupport ? GR_GL_PATH_PROJECTION :
-                                                                             GR_GL_PROJECTION;
-     GL_CALL(MatrixLoadf(matrixMode, glMatrix));
+    GL_CALL(MatrixLoadf(GR_GL_PATH_PROJECTION, glMatrix));
 }
 
 GrGLuint GrGLPathRendering::genPaths(GrGLsizei range) {

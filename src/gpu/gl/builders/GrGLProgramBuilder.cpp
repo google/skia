@@ -395,19 +395,15 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     // compile shaders and bind attributes / uniforms
     SkTDArray<GrGLuint> shadersToDelete;
 
-    // Legacy nvpr will not compile with a vertex shader, but newer nvpr requires a dummy vertex
-    // shader
-    bool useNvpr = primitiveProcessor().isPathRendering();
-    if (!(useNvpr && fGpu->glCaps().nvprSupport() == GrGLCaps::kLegacy_NvprSupport)) {
-        if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {
-            this->cleanupProgram(programID, shadersToDelete);
-            return NULL;
-        }
+    if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {
+        this->cleanupProgram(programID, shadersToDelete);
+        return NULL;
+    }
 
-        // Non fixed function NVPR actually requires a vertex shader to compile
-        if (!useNvpr) {
-            fVS.bindVertexAttributes(programID);
-        }
+    // NVPR actually requires a vertex shader to compile
+    bool useNvpr = primitiveProcessor().isPathRendering();
+    if (!useNvpr) {
+        fVS.bindVertexAttributes(programID);
     }
 
     if (!fFS.compileAndAttachShaders(programID, &shadersToDelete)) {

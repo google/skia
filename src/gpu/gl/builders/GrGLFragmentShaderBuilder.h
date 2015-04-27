@@ -48,7 +48,7 @@ public:
     virtual const char* fragmentPosition() = 0;
 
 private:
-    friend class GrGLNormalPathProcessor;
+    friend class GrGLPathProcessor;
 
     typedef GrGLShaderBuilder INHERITED;
 };
