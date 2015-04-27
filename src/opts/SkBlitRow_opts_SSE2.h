@@ -22,6 +22,8 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
                                const SkPMColor* SK_RESTRICT src,
                                int count, U8CPU alpha);
 
+void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
+                  SkPMColor color);
 void Color32A_D565_SSE2(uint16_t dst[], SkPMColor src, int count, int x,
                         int y);
 
