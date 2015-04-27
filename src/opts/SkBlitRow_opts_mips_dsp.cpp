@@ -953,7 +953,3 @@ SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
 SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
     return platform_32_procs_mips_dsp[flags];
 }
-
-SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
-    return NULL;
-}
