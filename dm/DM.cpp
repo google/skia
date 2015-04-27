@@ -46,6 +46,9 @@ DEFINE_string(uninterestingHashesFile, "",
         "File containing a list of uninteresting hashes. If a result hashes to something in "
         "this list, no image is written for that result.");
 
+DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
+DEFINE_int32(shard,  0, "Which shard do I run?");
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;
 
@@ -167,9 +170,15 @@ static const bool kMemcpyOK = true;
 static SkTArray<Tagged<Src>,  kMemcpyOK>  gSrcs;
 static SkTArray<Tagged<Sink>, kMemcpyOK> gSinks;
 
+static bool in_shard() {
+    static int N = 0;
+    return N++ % FLAGS_shards == FLAGS_shard;
+}
+
 static void push_src(const char* tag, const char* options, Src* s) {
     SkAutoTDelete<Src> src(s);
-    if (FLAGS_src.contains(tag) &&
+    if (in_shard() &&
+        FLAGS_src.contains(tag) &&
         !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
         Tagged<Src>& s = gSrcs.push_back();
         s.reset(src.detach());
@@ -603,8 +612,10 @@ static void gather_tests() {
     if (!FLAGS_src.contains("tests")) {
         return;
     }
-    for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r;
-         r = r->next()) {
+    for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
+        if (!in_shard()) {
+            continue;
+        }
         // Despite its name, factory() is returning a reference to
         // link-time static const POD data.
         const skiatest::Test& test = r->factory();
