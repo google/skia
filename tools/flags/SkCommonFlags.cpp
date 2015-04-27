@@ -7,9 +7,10 @@
 
 #include "SkCommonFlags.h"
 
-DEFINE_string(config, "565 8888 gpu nonrendering angle hwui ",
-              "Options: 565 8888 pdf gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 "
-              "gpudft gpunull gpudebug angle mesa (and many more)");
+DEFINE_string(config, "565 8888 gpu nonrendering angle hwui ", "Options: "
+              "565 8888 angle debug gpu gpudebug gpudft gpunull hwui mesa "
+              "msaa16 msaa4 nonrendering null nullgpu nvprmsaa16 nvprmsaa4 "
+              "pdf skp svg xps (and maybe more)");
 
 DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
 

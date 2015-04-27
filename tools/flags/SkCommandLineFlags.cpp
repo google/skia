@@ -140,10 +140,10 @@ void SkCommandLineFlags::SetUsage(const char* usage) {
 }
 
 // Maximum line length for the help message.
-#define LINE_LENGTH 80
+#define LINE_LENGTH 72
 
 static void print_help_for_flag(const SkFlagInfo* flag) {
-    SkDebugf("\t--%s", flag->name().c_str());
+    SkDebugf("    --%s", flag->name().c_str());
     const SkString& shortName = flag->shortName();
     if (shortName.size() > 0) {
         SkDebugf(" or -%s", shortName.c_str());
@@ -160,7 +160,7 @@ static void print_help_for_flag(const SkFlagInfo* flag) {
     while (currLine < stop) {
         if (strlen(currLine) < LINE_LENGTH) {
             // Only one line length's worth of text left.
-            SkDebugf("\t\t%s\n", currLine);
+            SkDebugf("        %s\n", currLine);
             break;
         }
         int lineBreak = SkStrFind(currLine, "\n");
@@ -180,12 +180,12 @@ static void print_help_for_flag(const SkFlagInfo* flag) {
                 // Skip the space on the next line
                 gap = 1;
             }
-            SkDebugf("\t\t%.*s\n", spaceIndex, currLine);
+            SkDebugf("        %.*s\n", spaceIndex, currLine);
             currLine += spaceIndex + gap;
         } else {
             // the line break is within the limit. Break there.
             lineBreak++;
-            SkDebugf("\t\t%.*s", lineBreak, currLine);
+            SkDebugf("        %.*s", lineBreak, currLine);
             currLine += lineBreak;
         }
     }
@@ -256,7 +256,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
             if (helpFlags.count() > 0) {
                 SkDebugf("Requested help for unrecognized flags:\n");
                 for (int k = 0; k < helpFlags.count(); k++) {
-                    SkDebugf("\t--%s\n", helpFlags[k]);
+                    SkDebugf("    --%s\n", helpFlags[k]);
                 }
             }
             helpPrinted = true;
