@@ -77,16 +77,12 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
     for (int i = 0; pictList && i < pictList->count(); i++) {
         subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
     }
-    SkPicture* pict =
-        SkNEW_ARGS(SkPicture, (fCullRect, fRecord, pictList, fBBH, subPictureBytes));
+    SkPicture* pict = SkNEW_ARGS(SkPicture,
+            (fCullRect, fRecord.detach(), pictList, fBBH.detach(), subPictureBytes));
 
     if (saveLayerData) {
         pict->EXPERIMENTAL_addAccelData(saveLayerData);
     }
-
-    // release our refs now, so only the picture will be the owner.
-    fRecord.reset(NULL);
-    fBBH.reset(NULL);
 
     return pict;
 }
@@ -163,8 +159,10 @@ protected:
         for (int i = 0; pictList && i < pictList->count(); i++) {
             subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
         }
-        SkPicture* pict =
-            SkNEW_ARGS(SkPicture, (fBounds, fRecord, pictList, fBBH, subPictureBytes));
+        // SkPicture will take ownership of a ref on both fRecord and fBBH.
+        // We're not willing to give up our ownership, so we must ref them for SkPicture.
+        SkPicture* pict = SkNEW_ARGS(SkPicture,
+                (fBounds, SkRef(fRecord.get()), pictList, SkSafeRef(fBBH.get()), subPictureBytes));
 
         if (saveLayerData) {
             pict->EXPERIMENTAL_addAccelData(saveLayerData);

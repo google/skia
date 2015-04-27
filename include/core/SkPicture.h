@@ -259,7 +259,8 @@ private:
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
-    // Takes ownership of the SkRecord and (optional) SnapshotArray, refs the (optional) BBH.
+    // Takes ownership of the (optional) SnapshotArray.
+    // For performance, we take ownership of the caller's refs on the SkRecord and BBH.
     SkPicture(const SkRect& cullRect,
               SkRecord*,
               SnapshotArray*,

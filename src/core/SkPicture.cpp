@@ -456,8 +456,8 @@ SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SnapshotArray* dr
                      SkBBoxHierarchy* bbh, size_t approxBytesUsedBySubPictures)
     : fUniqueID(0)
     , fCullRect(cullRect)
-    , fRecord(SkRef(record))
-    , fBBH(SkSafeRef(bbh))
+    , fRecord(record)   // For performance, we take ownership of the caller's ref.
+    , fBBH(bbh)         // Ditto.
     , fDrawablePicts(drawablePicts)     // take ownership
     , fApproxBytesUsedBySubPictures(approxBytesUsedBySubPictures)
     , fAnalysis(*fRecord)
