@@ -64,6 +64,12 @@ def main(chrome_src_path, browser_executable):
 
   try:
     shell_utils.run(webpages_playback_cmd)
+    # Temporary change to enable Slimming Paint runs. See skia:3763.
+    webpages_playback_cmd.extend([
+        '--skp_prefix', 'sp_',
+        '--browser_extra_args', '--enable-slimming-paint',
+    ])
+    shell_utils.run(webpages_playback_cmd)
   finally:
     # Clean up any leftover browser instances. This can happen if there are
     # telemetry crashes, processes are not always cleaned up appropriately by
