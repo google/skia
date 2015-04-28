@@ -31,9 +31,11 @@
 class GrBatch;
 class GrClip;
 class GrDrawTargetCaps;
+class GrIndexBufferAllocPool;
 class GrPath;
 class GrPathRange;
 class GrPipeline;
+class GrVertexBufferAllocPool;
 
 class GrDrawTarget : public SkRefCnt {
 public:
@@ -46,8 +48,20 @@ public:
 
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
-    GrDrawTarget(GrContext* context);
+    GrDrawTarget(GrContext* context, GrVertexBufferAllocPool*, GrIndexBufferAllocPool*);
+
     virtual ~GrDrawTarget() {}
+
+    /**
+     * Empties the draw buffer of any queued up draws.
+     */
+    void reset();
+
+    /**
+     * This plays any queued up draws to its GrGpu target. It also resets this object (i.e. flushing
+     * is destructive).
+     */
+    void flush();
 
     /**
      * Gets the capabilities of the draw target.
@@ -301,8 +315,17 @@ protected:
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }
 
-    // Subclass must initialize this in its constructor.
-    SkAutoTUnref<const GrDrawTargetCaps> fCaps;
+    GrGpu* getGpu() {
+        SkASSERT(fContext && fContext->getGpu());
+        return fContext->getGpu();
+    }
+    const GrGpu* getGpu() const {
+        SkASSERT(fContext && fContext->getGpu());
+        return fContext->getGpu();
+    }
+
+    GrVertexBufferAllocPool* getVertexAllocPool() { return fVertexPool; }
+    GrIndexBufferAllocPool* getIndexAllocPool() { return fIndexPool; }
 
     const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
 
@@ -342,24 +365,9 @@ protected:
     void setupPipeline(const PipelineInfo& pipelineInfo, GrPipeline* pipeline);
 
 private:
-    /**
-     * This will be called before allocating a texture as a dst for copySurface. This function
-     * populates the dstDesc's config, flags, and origin so as to maximize efficiency and guarantee
-     * success of the copySurface call.
-     */
-    void initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* dstDesc) {
-        if (!this->onInitCopySurfaceDstDesc(src, dstDesc)) {
-            dstDesc->fOrigin = kDefault_GrSurfaceOrigin;
-            dstDesc->fFlags = kRenderTarget_GrSurfaceFlag;
-            dstDesc->fConfig = src->config();
-        }
-    }
+    virtual void onReset() = 0;
 
-    /** Internal implementation of canCopySurface. */
-    bool internalCanCopySurface(const GrSurface* dst,
-                                const GrSurface* src,
-                                const SkIRect& clippedSrcRect,
-                                const SkIPoint& clippedDstRect);
+    virtual void onFlush() = 0;
 
     virtual void onDrawBatch(GrBatch*, const PipelineInfo&) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
@@ -392,29 +400,12 @@ private:
     virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
                          GrRenderTarget* renderTarget) = 0;
 
-    /** The subclass will get a chance to copy the surface for falling back to the default
-        implementation, which simply draws a rectangle (and fails if dst isn't a render target). It
-        should assume that any clipping has already been performed on the rect and point. It won't
-        be called if the copy can be skipped. */
-    virtual bool onCopySurface(GrSurface* dst,
+    /** The subclass's copy surface implementation. It should assume that any clipping has already
+        been performed on the rect and point and that the GrGpu supports the copy. */
+    virtual void onCopySurface(GrSurface* dst,
                                GrSurface* src,
                                const SkIRect& srcRect,
                                const SkIPoint& dstPoint) = 0;
-
-    /** Indicates whether onCopySurface would succeed. It should assume that any clipping has
-        already been performed on the rect and point. It won't be called if the copy can be
-        skipped. */
-    virtual bool onCanCopySurface(const GrSurface* dst,
-                                  const GrSurface* src,
-                                  const SkIRect& srcRect,
-                                  const SkIPoint& dstPoint) = 0;
-    /**
-     * This will be called before allocating a texture to be a dst for onCopySurface. Only the
-     * dstDesc's config, flags, and origin need be set by the function. If the subclass cannot
-     * create a surface that would succeed its implementation of onCopySurface, it should return
-     * false. The base class will fall back to creating a render target to draw into using the src.
-     */
-    virtual bool onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* dstDesc) = 0;
 
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
@@ -430,10 +421,14 @@ private:
 
     // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
     GrContext*                                                      fContext;
+    SkAutoTUnref<const GrDrawTargetCaps>                            fCaps;
     // To keep track that we always have at least as many debug marker adds as removes
     int                                                             fGpuTraceMarkerCount;
     GrTraceMarkerSet                                                fActiveTraceMarkers;
     GrTraceMarkerSet                                                fStoredTraceMarkers;
+    GrVertexBufferAllocPool*                                        fVertexPool;
+    GrIndexBufferAllocPool*                                         fIndexPool;
+    bool                                                            fFlushing;
 
     typedef SkRefCnt INHERITED;
 };
@@ -443,7 +438,10 @@ private:
  */
 class GrClipTarget : public GrDrawTarget {
 public:
-    GrClipTarget(GrContext* context) : INHERITED(context) {
+    GrClipTarget(GrContext* context,
+                 GrVertexBufferAllocPool* vpool,
+                 GrIndexBufferAllocPool* ipool)
+        : INHERITED(context, vpool, ipool) {
         fClipMaskManager.setClipTarget(this);
     }
 

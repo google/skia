@@ -125,8 +125,7 @@ public:
                      GrColor,
                      bool canIgnoreRect,
                      GrRenderTarget*);
-    Cmd* recordCopySurface(GrInOrderDrawBuffer*,
-                           GrSurface* dst,
+    Cmd* recordCopySurface(GrSurface* dst,
                            GrSurface* src,
                            const SkIRect& srcRect,
                            const SkIPoint& dstPoint);

@@ -9,6 +9,7 @@
 #include "GrDrawTarget.h"
 
 #include "GrBatch.h"
+#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrPath.h"
@@ -55,9 +56,15 @@ GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
 #define DEBUG_INVAL_BUFFER 0xdeadcafe
 #define DEBUG_INVAL_START_IDX -1
 
-GrDrawTarget::GrDrawTarget(GrContext* context)
+GrDrawTarget::GrDrawTarget(GrContext* context,
+                           GrVertexBufferAllocPool* vpool,
+                           GrIndexBufferAllocPool* ipool)
     : fContext(context)
-    , fGpuTraceMarkerCount(0) {
+    , fCaps(SkRef(context->getGpu()->caps()))
+    , fGpuTraceMarkerCount(0)
+    , fVertexPool(vpool)
+    , fIndexPool(ipool)
+    , fFlushing(false) {
     SkASSERT(context);
 }
 
@@ -93,7 +100,13 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrSurfaceDesc desc;
-    this->initCopySurfaceDstDesc(rt, &desc);
+    if (!this->getGpu()->initCopySurfaceDstDesc(rt, &desc)) {
+        desc.fOrigin = kDefault_GrSurfaceOrigin;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fConfig = rt->config();
+    }
+
+
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
 
@@ -112,6 +125,29 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     } else {
         return false;
     }
+}
+
+void GrDrawTarget::reset() {
+    fVertexPool->reset();
+    fIndexPool->reset();
+
+    this->onReset();
+}
+
+void GrDrawTarget::flush() {
+    if (fFlushing) {
+        return;
+    }
+    fFlushing = true;
+
+    this->getGpu()->saveActiveTraceMarkers();
+
+    this->onFlush();
+
+    this->getGpu()->restoreActiveTraceMarkers();
+
+    fFlushing = false;
+    this->reset();
 }
 
 void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
@@ -413,7 +449,8 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
         return true;
     }
 
-    if (this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint)) {
+    if (this->getGpu()->canCopySurface(dst, src, clippedSrcRect, clippedDstPoint)) {
+        this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
         return true;
     }
 
@@ -457,23 +494,8 @@ bool GrDrawTarget::canCopySurface(const GrSurface* dst,
                                    &clippedDstPoint)) {
         return true;
     }
-    return this->internalCanCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
-}
-
-bool GrDrawTarget::internalCanCopySurface(const GrSurface* dst,
-                                          const GrSurface* src,
-                                          const SkIRect& clippedSrcRect,
-                                          const SkIPoint& clippedDstPoint) {
-    // Check that the read/write rects are contained within the src/dst bounds.
-    SkASSERT(!clippedSrcRect.isEmpty());
-    SkASSERT(SkIRect::MakeWH(src->width(), src->height()).contains(clippedSrcRect));
-    SkASSERT(clippedDstPoint.fX >= 0 && clippedDstPoint.fY >= 0);
-    SkASSERT(clippedDstPoint.fX + clippedSrcRect.width() <= dst->width() &&
-             clippedDstPoint.fY + clippedSrcRect.height() <= dst->height());
-
-    // The base class can do it as a draw or the subclass may be able to handle it.
     return ((dst != src) && dst->asRenderTarget() && src->asTexture()) ||
-           this->onCanCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
+           this->getGpu()->canCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
 }
 
 void GrDrawTarget::setupPipeline(const PipelineInfo& pipelineInfo,

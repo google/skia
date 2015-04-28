@@ -26,7 +26,6 @@ class GrGpu;
 class GrGpuTraceMarker;
 class GrIndexBuffer;
 class GrIndexBufferAllocPool;
-class GrInOrderDrawBuffer;
 class GrLayerCache;
 class GrOvalRenderer;
 class GrPath;
@@ -701,7 +700,7 @@ private:
 
     GrVertexBufferAllocPool*        fDrawBufferVBAllocPool;
     GrIndexBufferAllocPool*         fDrawBufferIBAllocPool;
-    GrInOrderDrawBuffer*            fDrawBuffer;
+    GrDrawTarget*                   fDrawBuffer;
 
     // Set by OverbudgetCB() to request that GrContext flush before exiting a draw.
     bool                            fFlushToReduceCacheSize;

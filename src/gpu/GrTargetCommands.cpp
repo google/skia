@@ -341,18 +341,14 @@ void GrTargetCommands::CopySurface::execute(GrGpu* gpu, const SetState*) {
     gpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }
 
-GrTargetCommands::Cmd* GrTargetCommands::recordCopySurface(GrInOrderDrawBuffer* iodb,
-                                                           GrSurface* dst,
+GrTargetCommands::Cmd* GrTargetCommands::recordCopySurface(GrSurface* dst,
                                                            GrSurface* src,
                                                            const SkIRect& srcRect,
                                                            const SkIPoint& dstPoint) {
-    if (iodb->getGpu()->canCopySurface(dst, src, srcRect, dstPoint)) {
-        CopySurface* cs = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, CopySurface, (dst, src));
-        cs->fSrcRect = srcRect;
-        cs->fDstPoint = dstPoint;
-        return cs;
-    }
-    return NULL;
+    CopySurface* cs = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, CopySurface, (dst, src));
+    cs->fSrcRect = srcRect;
+    cs->fDstPoint = dstPoint;
+    return cs;
 }
 
 bool GrTargetCommands::setupPipelineAndShouldDraw(GrInOrderDrawBuffer* iodb,

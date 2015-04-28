@@ -1913,7 +1913,7 @@ void GrContext::setupDrawBuffer() {
                                    DRAW_BUFFER_IBPOOL_BUFFER_SIZE,
                                    DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS));
 
-    fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (fGpu,
+    fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (this,
                                                    fDrawBufferVBAllocPool,
                                                    fDrawBufferIBAllocPool));
 }

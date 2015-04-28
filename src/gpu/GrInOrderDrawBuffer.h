@@ -8,7 +8,7 @@
 #ifndef GrInOrderDrawBuffer_DEFINED
 #define GrInOrderDrawBuffer_DEFINED
 
-#include "GrFlushToGpuDrawTarget.h"
+#include "GrDrawTarget.h"
 #include "GrTargetCommands.h"
 #include "SkChunkAlloc.h"
 
@@ -22,19 +22,19 @@
  * in the GrGpu object that the buffer is played back into. The buffer requires VB and IB pools to
  * store geometry.
  */
-class GrInOrderDrawBuffer : public GrFlushToGpuDrawTarget {
+class GrInOrderDrawBuffer : public GrClipTarget {
 public:
 
     /**
      * Creates a GrInOrderDrawBuffer
      *
-     * @param gpu        the gpu object that this draw buffer flushes to.
+     * @param context    the context object that owns this draw buffer.
      * @param vertexPool pool where vertices for queued draws will be saved when
      *                   the vertex source is either reserved or array.
      * @param indexPool  pool where indices for queued draws will be saved when
      *                   the index source is either reserved or array.
      */
-    GrInOrderDrawBuffer(GrGpu* gpu,
+    GrInOrderDrawBuffer(GrContext* context,
                         GrVertexBufferAllocPool* vertexPool,
                         GrIndexBufferAllocPool* indexPool);
 
@@ -107,7 +107,7 @@ private:
                  GrColor color,
                  bool canIgnoreRect,
                  GrRenderTarget* renderTarget) override;
-    bool onCopySurface(GrSurface* dst,
+    void onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
@@ -134,7 +134,7 @@ private:
     SkChunkAlloc                        fPathTransformBuffer;
     uint32_t                            fDrawID;
 
-    typedef GrFlushToGpuDrawTarget INHERITED;
+    typedef GrClipTarget INHERITED;
 };
 
 #endif

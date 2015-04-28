@@ -10,11 +10,11 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrTemplates.h"
 
-GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
+GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context,
                                          GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool)
-    : INHERITED(gpu, vertexPool, indexPool)
-    , fCommands(gpu, vertexPool, indexPool)
+    : INHERITED(context, vertexPool, indexPool)
+    , fCommands(context->getGpu(), vertexPool, indexPool)
     , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
     , fPathTransformBuffer(kPathXformBufferMinReserve * sizeof(float)/4)
     , fDrawID(0) {
@@ -376,14 +376,13 @@ void GrInOrderDrawBuffer::onFlush() {
     ++fDrawID;
 }
 
-bool GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
+void GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
                                         GrSurface* src,
                                         const SkIRect& srcRect,
                                         const SkIPoint& dstPoint) {
-    GrTargetCommands::Cmd* cmd = fCommands.recordCopySurface(this, dst, src,
-                                                             srcRect, dstPoint);
+    SkASSERT(this->getGpu()->canCopySurface(dst, src, srcRect, dstPoint));
+    GrTargetCommands::Cmd* cmd = fCommands.recordCopySurface(dst, src, srcRect, dstPoint);
     this->recordTraceMarkersIfNecessary(cmd);
-    return SkToBool(cmd);
 }
 
 void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* cmd) {
