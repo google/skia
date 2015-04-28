@@ -174,6 +174,17 @@ public:
         local->fUsesLocalCoords = init.fUsesLocalCoords;
     }
 
+    bool onCanMakeEqual(const GrBatchTracker& m,
+                        const GrGeometryProcessor& that,
+                        const GrBatchTracker& t) const override {
+        const BatchTracker& mine = m.cast<BatchTracker>();
+        const BatchTracker& theirs = t.cast<BatchTracker>();
+        return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                       that, theirs.fUsesLocalCoords) &&
+               CanCombineOutput(mine.fInputColorType, mine.fColor,
+                                theirs.fInputColorType, theirs.fColor);
+    }
+
 private:
     CircleEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
         : INHERITED(color, SkMatrix::I(), localMatrix) {
@@ -182,6 +193,15 @@ private:
         fInCircleEdge = &this->addVertexAttrib(Attribute("inCircleEdge",
                                                            kVec4f_GrVertexAttribType));
         fStroke = stroke;
+    }
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override {
+        const CircleEdgeEffect& cee = other.cast<CircleEdgeEffect>();
+        return cee.fStroke == fStroke;
+    }
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        out->setUnknownSingleComponent();
     }
 
     struct BatchTracker {
@@ -349,6 +369,17 @@ public:
         local->fUsesLocalCoords = init.fUsesLocalCoords;
     }
 
+    bool onCanMakeEqual(const GrBatchTracker& m,
+                        const GrGeometryProcessor& that,
+                        const GrBatchTracker& t) const override {
+        const BatchTracker& mine = m.cast<BatchTracker>();
+        const BatchTracker& theirs = t.cast<BatchTracker>();
+        return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                       that, theirs.fUsesLocalCoords) &&
+               CanCombineOutput(mine.fInputColorType, mine.fColor,
+                                theirs.fInputColorType, theirs.fColor);
+    }
+
 private:
     EllipseEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
         : INHERITED(color, SkMatrix::I(), localMatrix) {
@@ -359,6 +390,15 @@ private:
         fInEllipseRadii = &this->addVertexAttrib(Attribute("inEllipseRadii",
                                                              kVec4f_GrVertexAttribType));
         fStroke = stroke;
+    }
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override {
+        const EllipseEdgeEffect& eee = other.cast<EllipseEdgeEffect>();
+        return eee.fStroke == fStroke;
+    }
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        out->setUnknownSingleComponent();
     }
 
     struct BatchTracker {
@@ -544,6 +584,17 @@ public:
         local->fUsesLocalCoords = init.fUsesLocalCoords;
     }
 
+    bool onCanMakeEqual(const GrBatchTracker& m,
+                        const GrGeometryProcessor& that,
+                        const GrBatchTracker& t) const override {
+        const BatchTracker& mine = m.cast<BatchTracker>();
+        const BatchTracker& theirs = t.cast<BatchTracker>();
+        return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                       that, theirs.fUsesLocalCoords) &&
+               CanCombineOutput(mine.fInputColorType, mine.fColor,
+                                theirs.fInputColorType, theirs.fColor);
+    }
+
 private:
     DIEllipseEdgeEffect(GrColor color, const SkMatrix& viewMatrix, Mode mode)
         : INHERITED(color, viewMatrix) {
@@ -554,6 +605,15 @@ private:
         fInEllipseOffsets1 = &this->addVertexAttrib(Attribute("inEllipseOffsets1",
                                                                 kVec2f_GrVertexAttribType));
         fMode = mode;
+    }
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override {
+        const DIEllipseEdgeEffect& eee = other.cast<DIEllipseEdgeEffect>();
+        return eee.fMode == fMode;
+    }
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        out->setUnknownSingleComponent();
     }
 
     struct BatchTracker {

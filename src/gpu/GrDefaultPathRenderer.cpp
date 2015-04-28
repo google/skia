@@ -256,6 +256,7 @@ public:
                                                 this->color(),
                                                 this->viewMatrix(),
                                                 SkMatrix::I(),
+                                                false,
                                                 this->coverage()));
 
         size_t vertexStride = gp->getVertexStride();

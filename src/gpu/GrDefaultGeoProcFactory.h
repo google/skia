@@ -85,6 +85,7 @@ public:
                                              GrColor,
                                              const SkMatrix& viewMatrix = SkMatrix::I(),
                                              const SkMatrix& localMatrix = SkMatrix::I(),
+                                             bool opaqueVertexColors = false,
                                              uint8_t coverage = 0xff);
 
     static size_t DefaultVertexStride() { return sizeof(PositionAttr); }

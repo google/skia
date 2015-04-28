@@ -49,15 +49,16 @@ public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
-                                       float lum, uint32_t flags) {
-        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex, params, lum,
-                                                         flags));
+                                       float lum, uint32_t flags, bool opaqueVertexColors) {
+        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex,
+                                                         params, lum, flags, opaqueVertexColors));
     }
 #else
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
-                                       uint32_t flags) {
-        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex,  params, flags));
+                                       uint32_t flags, bool opaqueVertexColors) {
+        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex,
+                                                         params, flags, opaqueVertexColors));
     }
 #endif
 
@@ -82,13 +83,21 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const override;
+
 private:
     GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix,
                                  GrTexture* texture, const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
 #endif
-                                 uint32_t flags);
+                                 uint32_t flags, bool opaqueVertexColors);
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     GrTextureAccess  fTextureAccess;
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -115,8 +124,9 @@ class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
                                        const GrTextureParams& params,
-                                       uint32_t flags) {
-        return SkNEW_ARGS(GrDistanceFieldPathGeoProc, (color, viewMatrix, tex, params, flags));
+                                       uint32_t flags, bool opaqueVertexColors) {
+        return SkNEW_ARGS(GrDistanceFieldPathGeoProc, (color, viewMatrix, tex, params,
+                                                       flags, opaqueVertexColors));
     }
 
     virtual ~GrDistanceFieldPathGeoProc() {}
@@ -137,9 +147,18 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const override;
+
 private:
     GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
-                               const GrTextureParams& params, uint32_t flags);
+                               const GrTextureParams& params, uint32_t flags,
+                               bool opaqueVertexColors);
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     GrTextureAccess    fTextureAccess;
     uint32_t           fFlags;
@@ -200,10 +219,18 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const override;
+
 private:
     GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix,
                                   GrTexture* texture, const GrTextureParams& params,
                                   DistanceAdjust wa, uint32_t flags);
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     GrTextureAccess  fTextureAccess;
     DistanceAdjust   fDistanceAdjust;

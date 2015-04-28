@@ -200,11 +200,28 @@ GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t 
                                                         kVec4f_GrVertexAttribType));
 }
 
+bool GrConicEffect::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrConicEffect& ce = other.cast<GrConicEffect>();
+    return (ce.fEdgeType == fEdgeType);
+}
+
 void GrConicEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     ConicBatchTracker* local = bt->cast<ConicBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fCoverageScale = fCoverageScale;
     local->fUsesLocalCoords = init.fUsesLocalCoords;
+}
+
+bool GrConicEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                   const GrGeometryProcessor& that,
+                                   const GrBatchTracker& t) const {
+    const ConicBatchTracker& mine = m.cast<ConicBatchTracker>();
+    const ConicBatchTracker& theirs = t.cast<ConicBatchTracker>();
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor) &&
+           mine.fCoverageScale == theirs.fCoverageScale;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -404,11 +421,28 @@ GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t co
                                                         kVec4f_GrVertexAttribType));
 }
 
+bool GrQuadEffect::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrQuadEffect& ce = other.cast<GrQuadEffect>();
+    return (ce.fEdgeType == fEdgeType);
+}
+
 void GrQuadEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     QuadBatchTracker* local = bt->cast<QuadBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fCoverageScale = fCoverageScale;
     local->fUsesLocalCoords = init.fUsesLocalCoords;
+}
+
+bool GrQuadEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                  const GrGeometryProcessor& that,
+                                  const GrBatchTracker& t) const {
+    const QuadBatchTracker& mine = m.cast<QuadBatchTracker>();
+    const QuadBatchTracker& theirs = t.cast<QuadBatchTracker>();
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor) &&
+           mine.fCoverageScale == theirs.fCoverageScale;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -629,10 +663,26 @@ GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,
                                                         kVec4f_GrVertexAttribType));
 }
 
+bool GrCubicEffect::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrCubicEffect& ce = other.cast<GrCubicEffect>();
+    return (ce.fEdgeType == fEdgeType);
+}
+
 void GrCubicEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     CubicBatchTracker* local = bt->cast<CubicBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;
+}
+
+bool GrCubicEffect::onCanMakeEqual(const GrBatchTracker& m,
+                                   const GrGeometryProcessor& that,
+                                   const GrBatchTracker& t) const {
+    const CubicBatchTracker& mine = m.cast<CubicBatchTracker>();
+    const CubicBatchTracker& theirs = t.cast<CubicBatchTracker>();
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////

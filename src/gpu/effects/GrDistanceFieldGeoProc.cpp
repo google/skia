@@ -196,8 +196,8 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                            float distanceAdjust,
 #endif
-                                                           uint32_t flags)
-    : INHERITED(color, viewMatrix, SkMatrix::I())
+                                                           uint32_t flags, bool opaqueVertexColors)
+    : INHERITED(color, viewMatrix, SkMatrix::I(), opaqueVertexColors)
     , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fDistanceAdjust(distanceAdjust)
@@ -209,10 +209,24 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     if (flags & kColorAttr_DistanceFieldEffectFlag) {
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+        this->setHasVertexColor();
     }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
                                                           kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
+}
+
+bool GrDistanceFieldA8TextGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrDistanceFieldA8TextGeoProc& cte = other.cast<GrDistanceFieldA8TextGeoProc>();
+    return
+#ifdef SK_GAMMA_APPLY_TO_A8
+           fDistanceAdjust == cte.fDistanceAdjust &&
+#endif
+           fFlags == cte.fFlags;
+}
+
+void GrDistanceFieldA8TextGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    out->setUnknownSingleComponent();
 }
 
 void GrDistanceFieldA8TextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
@@ -233,6 +247,17 @@ void GrDistanceFieldA8TextGeoProc::initBatchTracker(GrBatchTracker* bt,
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
     local->fUsesLocalCoords = init.fUsesLocalCoords;
+}
+
+bool GrDistanceFieldA8TextGeoProc::onCanMakeEqual(const GrBatchTracker& m,
+                                                  const GrGeometryProcessor& that,
+                                                  const GrBatchTracker& t) const {
+    const DistanceFieldBatchTracker& mine = m.cast<DistanceFieldBatchTracker>();
+    const DistanceFieldBatchTracker& theirs = t.cast<DistanceFieldBatchTracker>();
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -264,7 +289,8 @@ GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(SkRandom* random,
                                                 random->nextF(),
 #endif
                                                 random->nextBool() ?
-                                                    kSimilarity_DistanceFieldEffectFlag : 0);
+                                                    kSimilarity_DistanceFieldEffectFlag : 0,
+                                                random->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -422,8 +448,9 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         const SkMatrix& viewMatrix,
         GrTexture* texture,
         const GrTextureParams& params,
-        uint32_t flags)
-    : INHERITED(color, viewMatrix, SkMatrix::I())
+        uint32_t flags,
+        bool opaqueVertexColors)
+    : INHERITED(color, viewMatrix, SkMatrix::I(), opaqueVertexColors)
     , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
@@ -432,10 +459,20 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     if (flags & kColorAttr_DistanceFieldEffectFlag) {
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+        this->setHasVertexColor();
     }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
                                                           kVec2f_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
+}
+
+bool GrDistanceFieldPathGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrDistanceFieldPathGeoProc& cte = other.cast<GrDistanceFieldPathGeoProc>();
+    return fFlags == cte.fFlags;
+}
+
+void GrDistanceFieldPathGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    out->setUnknownSingleComponent();
 }
 
 void GrDistanceFieldPathGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
@@ -455,6 +492,17 @@ void GrDistanceFieldPathGeoProc::initBatchTracker(GrBatchTracker* bt,
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
                                                SkToBool(fInColor));
     local->fUsesLocalCoords = init.fUsesLocalCoords;
+}
+
+bool GrDistanceFieldPathGeoProc::onCanMakeEqual(const GrBatchTracker& m,
+                                                const GrGeometryProcessor& that,
+                                                const GrBatchTracker& t) const {
+    const DistanceFieldPathBatchTracker& mine = m.cast<DistanceFieldPathBatchTracker>();
+    const DistanceFieldPathBatchTracker& theirs = t.cast<DistanceFieldPathBatchTracker>();
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -483,7 +531,7 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(SkRandom* random,
                                               GrProcessorUnitTest::TestMatrix(random),
                                               textures[texIdx],
                                               params,
-        random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0);
+        random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0, random->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -703,6 +751,17 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
     this->addTextureAccess(&fTextureAccess);
 }
 
+bool GrDistanceFieldLCDTextGeoProc::onIsEqual(const GrGeometryProcessor& other) const {
+    const GrDistanceFieldLCDTextGeoProc& cte = other.cast<GrDistanceFieldLCDTextGeoProc>();
+    return (fDistanceAdjust == cte.fDistanceAdjust &&
+            fFlags == cte.fFlags);
+}
+
+void GrDistanceFieldLCDTextGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    out->setUnknownFourComponents();
+    out->setUsingLCDCoverage();
+}
+
 void GrDistanceFieldLCDTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
                                                       const GrGLSLCaps& caps,
                                                       GrProcessorKeyBuilder* b) const {
@@ -720,6 +779,17 @@ void GrDistanceFieldLCDTextGeoProc::initBatchTracker(GrBatchTracker* bt,
     DistanceFieldLCDBatchTracker* local = bt->cast<DistanceFieldLCDBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;
+}
+
+bool GrDistanceFieldLCDTextGeoProc::onCanMakeEqual(const GrBatchTracker& m,
+                                                   const GrGeometryProcessor& that,
+                                                   const GrBatchTracker& t) const {
+    const DistanceFieldLCDBatchTracker& mine = m.cast<DistanceFieldLCDBatchTracker>();
+    const DistanceFieldLCDBatchTracker& theirs = t.cast<DistanceFieldLCDBatchTracker>();
+    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
+                                   that, theirs.fUsesLocalCoords) &&
+           CanCombineOutput(mine.fInputColorType, mine.fColor,
+                            theirs.fInputColorType, theirs.fColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

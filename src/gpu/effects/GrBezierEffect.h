@@ -106,10 +106,19 @@ public:
                                                      const GrGLSLCaps&) const override;
 
     void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const override;
 
 private:
     GrConicEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrPrimitiveEdgeType,
                   const SkMatrix& localMatrix);
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        out->setUnknownSingleComponent();
+    }
 
     uint8_t               fCoverageScale;
     GrPrimitiveEdgeType   fEdgeType;
@@ -182,10 +191,19 @@ public:
                                                      const GrGLSLCaps&) const override;
 
     void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const override;
 
 private:
     GrQuadEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrPrimitiveEdgeType,
                  const SkMatrix& localMatrix);
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        out->setUnknownSingleComponent();
+    }
 
     uint8_t               fCoverageScale;
     GrPrimitiveEdgeType   fEdgeType;
@@ -254,9 +272,18 @@ public:
                                                      const GrGLSLCaps&) const override;
 
     void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
+    bool onCanMakeEqual(const GrBatchTracker&,
+                        const GrGeometryProcessor&,
+                        const GrBatchTracker&) const override;
 
 private:
     GrCubicEffect(GrColor, const SkMatrix& viewMatrix, GrPrimitiveEdgeType);
+
+    bool onIsEqual(const GrGeometryProcessor& other) const override;
+
+    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        out->setUnknownSingleComponent();
+    }
 
     GrPrimitiveEdgeType   fEdgeType;
     const Attribute*    fInPosition;

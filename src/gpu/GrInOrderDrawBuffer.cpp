@@ -46,9 +46,11 @@ static const GrGeometryProcessor* create_rect_gp(bool hasExplicitLocalCoords,
                      GrDefaultGeoProcFactory::kColor_GPType;
     flags |= hasExplicitLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
     if (localMatrix) {
-        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), *localMatrix);
+        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), *localMatrix,
+                                               GrColorIsOpaque(color));
     } else {
-        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), SkMatrix::I());
+        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), SkMatrix::I(),
+                                               GrColorIsOpaque(color));
     }
 }
 

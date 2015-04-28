@@ -837,6 +837,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
                                             this->color(),
                                             *geometryProcessorViewM,
                                             *geometryProcessorLocalM,
+                                            false,
                                             this->coverage()));
 
     SkAutoTUnref<const GrGeometryProcessor> quadGP(
