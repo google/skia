@@ -161,7 +161,7 @@ private:
     static T* Deleted() { return reinterpret_cast<T*>(1); }  // Also an invalid pointer.
 
     bool validate() const {
-        #define SKTDYNAMICHASH_CHECK(x) SkASSERT((x)); if (!(x)) return false
+        #define SKTDYNAMICHASH_CHECK(x) SkASSERT(x); if (!(x)) return false
         static const int kLarge = 50;  // Arbitrary, tweak to suit your patience.
 
         // O(1) checks, always done.
