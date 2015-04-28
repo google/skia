@@ -41,7 +41,6 @@ def get_args(bot):
   # MSAA.  The Tegra2 and Tegra3 just don't support it.
   if ('GalaxyS4'    not in bot and
       'NexusPlayer' not in bot and
-      'Tegra2'      not in bot and
       'Tegra3'      not in bot):
     if 'Android' in bot:
       configs.append('msaa4')
@@ -51,9 +50,8 @@ def get_args(bot):
   if 'Android' not in bot and 'Daisy' not in bot:
     configs.append('pdf')
 
-  # Xoom and NP are running out of RAM when we run all these modes.  skia:3255
-  if ('Xoom'        not in bot and
-      'NexusPlayer' not in bot):
+  # NP is running out of RAM when we run all these modes.  skia:3255
+  if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
                    ['serialize', 'tiles_rt', 'pipe'])
     configs.append('tiles_rt-gpu')
@@ -61,6 +59,9 @@ def get_args(bot):
     configs.append('angle')
   args.append('--config')
   args.extend(configs)
+
+  if 'GalaxyS' in bot:
+    args.extend(('--threads', '0'))
 
   blacklist = []
   # This image is too large to be a texture for many GPUs.
@@ -136,7 +137,7 @@ def get_args(bot):
   if 'TSAN' in bot: # skia:3562
     match.append('~Math')
 
-  if 'Xoom' in bot or 'GalaxyS3' in bot:  # skia:1699
+  if 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
 
   # skia:3249: these images flakily don't decode on Android.
@@ -163,7 +164,6 @@ def self_test():
     'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
     'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
     'Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release',
-    'Test-Android-GCC-Xoom-GPU-Tegra2-Arm7-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind',
