@@ -86,7 +86,7 @@ public:
         fEnforcePMColor = arith.enforcePMColor();
     }
 
-    static void GenKey(const GrProcessor& proc, const GrGLCaps& caps, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor& proc, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) {
         const GrArithmeticFP& arith = proc.cast<GrArithmeticFP>();
         uint32_t key = arith.enforcePMColor() ? 1 : 0;
         b->add32(key);
@@ -115,7 +115,7 @@ GrArithmeticFP::GrArithmeticFP(float k1, float k2, float k3, float k4,
     this->addTextureAccess(&fBackgroundAccess);
 }
 
-void GrArithmeticFP::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrArithmeticFP::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLArithmeticFP::GenKey(*this, caps, b);
 }
 
@@ -191,7 +191,7 @@ private:
     ArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
                    const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const ArithmeticXP& xp = xpBase.cast<ArithmeticXP>();
@@ -221,7 +221,7 @@ public:
 
     ~GLArithmeticXP() override {}
 
-    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps& caps,
                        GrProcessorKeyBuilder* b) {
         const ArithmeticXP& arith = processor.cast<ArithmeticXP>();
         uint32_t key = arith.enforcePMColor() ? 1 : 0;
@@ -273,7 +273,7 @@ ArithmeticXP::ArithmeticXP(float k1, float k2, float k3, float k4, bool enforceP
     this->initClassID<ArithmeticXP>();
 }
 
-void ArithmeticXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void ArithmeticXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLArithmeticXP::GenKey(*this, caps, b);
 }
 

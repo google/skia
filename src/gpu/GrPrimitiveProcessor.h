@@ -68,6 +68,7 @@ private:
 
 class GrIndexBufferAllocPool;
 class GrGLCaps;
+typedef GrGLCaps GrGLSLCaps;
 class GrGLPrimitiveProcessor;
 class GrVertexBufferAllocPool;
 
@@ -163,7 +164,7 @@ public:
      * processor's GL backend implementation.
      */
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const = 0;
 
 
@@ -171,7 +172,7 @@ public:
         for the given GrProcessor; caller is responsible for deleting
         the object. */
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps& caps) const = 0;
+                                                     const GrGLSLCaps& caps) const = 0;
 
     bool isPathRendering() const { return fIsPathRendering; }
 

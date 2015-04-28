@@ -27,7 +27,7 @@ public:
 
     void setData(const GrGLProgramDataManager& pdman, const GrProcessor&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
@@ -134,7 +134,7 @@ void GrGLConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
     pdman.set1fv(fKernelUni, this->width(), conv.kernel());
 }
 
-void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
                                    GrProcessorKeyBuilder* b) {
     const GrConvolutionEffect& conv = processor.cast<GrConvolutionEffect>();
     uint32_t key = conv.radius();
@@ -196,7 +196,7 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
 GrConvolutionEffect::~GrConvolutionEffect() {
 }
 
-void GrConvolutionEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrConvolutionEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                         GrProcessorKeyBuilder* b) const {
     GrGLConvolutionEffect::GenKey(*this, caps, b);
 }

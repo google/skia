@@ -20,7 +20,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
@@ -112,7 +112,7 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
 }
 
 void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
-                                         const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                         const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     const GrMatrixConvolutionEffect& m = processor.cast<GrMatrixConvolutionEffect>();
     SkASSERT(m.kernelSize().width() <= 0x7FFF && m.kernelSize().height() <= 0xFFFF);
     uint32_t key = m.kernelSize().width() << 16 | m.kernelSize().height();
@@ -165,7 +165,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
 GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {
 }
 
-void GrMatrixConvolutionEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrMatrixConvolutionEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
 }

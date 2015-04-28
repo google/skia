@@ -32,7 +32,7 @@ public:
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static inline void GenKey(const GrProcessor& effect, const GrGLCaps&,
+    static inline void GenKey(const GrProcessor& effect, const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrTextureDomain& domain = effect.cast<GrBicubicEffect>().domain();
         b->add32(GrTextureDomain::GLDomain::DomainKey(domain));
@@ -158,7 +158,7 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
 GrBicubicEffect::~GrBicubicEffect() {
 }
 
-void GrBicubicEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrBicubicEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                         GrProcessorKeyBuilder* b) const {
     GrGLBicubicEffect::GenKey(*this, caps, b);
 }

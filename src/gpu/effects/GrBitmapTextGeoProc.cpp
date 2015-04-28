@@ -92,7 +92,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor& proc,
                               const GrBatchTracker& bt,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const BitmapTextBatchTracker& local = bt.cast<BitmapTextBatchTracker>();
         // We have to put the optional vertex attribute as part of the key.  See the comment
@@ -164,14 +164,14 @@ void GrBitmapTextGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOutput* ou
 }
 
 void GrBitmapTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
-                                            const GrGLCaps& caps,
+                                            const GrGLSLCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GrGLBitmapTextGeoProc::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor*
 GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt,
-                                      const GrGLCaps& caps) const {
+                                      const GrGLSLCaps& caps) const {
     return SkNEW_ARGS(GrGLBitmapTextGeoProc, (*this, bt));
 }
 

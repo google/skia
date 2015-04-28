@@ -609,7 +609,7 @@ public:
 
     const char* name() const override { return "RectBlur"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
@@ -798,7 +798,7 @@ GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma,
 GrRectBlurEffect::~GrRectBlurEffect() {
 }
 
-void GrRectBlurEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrRectBlurEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                          GrProcessorKeyBuilder* b) const {
     GrGLRectBlurEffect::GenKey(*this, caps, b);
 }
@@ -881,7 +881,7 @@ public:
     const SkRRect& getRRect() const { return fRRect; }
     float getSigma() const { return fSigma; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
@@ -1108,7 +1108,7 @@ void GrGLRRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
     pdman.set1f(fCornerRadiusUniform, radius);
 }
 
-void GrRRectBlurEffect::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrRRectBlurEffect::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLRRectBlurEffect::GenKey(*this, caps, b);
 }
 

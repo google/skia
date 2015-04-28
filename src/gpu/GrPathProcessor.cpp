@@ -63,13 +63,13 @@ bool GrPathProcessor::canMakeEqual(const GrBatchTracker& m,
 }
 
 void GrPathProcessor::getGLProcessorKey(const GrBatchTracker& bt,
-                                        const GrGLCaps& caps,
+                                        const GrGLSLCaps& caps,
                                         GrProcessorKeyBuilder* b) const {
     GrGLPathProcessor::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor* GrPathProcessor::createGLInstance(const GrBatchTracker& bt,
-                                                          const GrGLCaps& caps) const {
+                                                          const GrGLSLCaps& caps) const {
     SkASSERT(caps.pathRenderingSupport());
     return SkNEW_ARGS(GrGLPathProcessor, (*this, bt));
 }

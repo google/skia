@@ -70,7 +70,7 @@ public:
         return "Two-Point Conical Gradient Edge Touching";
     }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -149,7 +149,7 @@ public:
                           const TextureSamplerArray&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
+    static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
     UniformHandle fParamUni;
@@ -170,7 +170,7 @@ private:
 
 };
 
-void Edge2PtConicalEffect::getGLProcessorKey(const GrGLCaps& caps,
+void Edge2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
     GLEdge2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -309,7 +309,7 @@ void GLEdge2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
 }
 
 void GLEdge2PtConicalEffect::GenKey(const GrProcessor& processor,
-                                    const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                    const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     b->add32(GenBaseGradientKey(processor));
 }
 
@@ -392,7 +392,7 @@ public:
         return "Two-Point Conical Gradient Focal Outside";
     }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -437,7 +437,7 @@ public:
                           const TextureSamplerArray&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
+    static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
     UniformHandle fParamUni;
@@ -459,7 +459,7 @@ private:
 
 };
 
-void FocalOutside2PtConicalEffect::getGLProcessorKey(const GrGLCaps& caps,
+void FocalOutside2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GLFocalOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -587,7 +587,7 @@ void GLFocalOutside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman
 }
 
 void GLFocalOutside2PtConicalEffect::GenKey(const GrProcessor& processor,
-                                            const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                            const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     uint32_t* key = b->add32n(2);
     key[0] = GenBaseGradientKey(processor);
     key[1] = processor.cast<FocalOutside2PtConicalEffect>().isFlipped();
@@ -614,7 +614,7 @@ public:
         return "Two-Point Conical Gradient Focal Inside";
     }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -658,7 +658,7 @@ public:
                           const TextureSamplerArray&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
+    static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
     UniformHandle fFocalUni;
@@ -678,7 +678,7 @@ private:
 
 };
 
-void FocalInside2PtConicalEffect::getGLProcessorKey(const GrGLCaps& caps,
+void FocalInside2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                GrProcessorKeyBuilder* b) const {
     GLFocalInside2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -776,7 +776,7 @@ void GLFocalInside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
 }
 
 void GLFocalInside2PtConicalEffect::GenKey(const GrProcessor& processor,
-                                           const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                           const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     b->add32(GenBaseGradientKey(processor));
 }
 
@@ -859,7 +859,7 @@ public:
 
     const char* name() const override { return "Two-Point Conical Gradient Inside"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
@@ -909,7 +909,7 @@ public:
                           const TextureSamplerArray&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
+    static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
     UniformHandle fCenterUni;
@@ -934,7 +934,7 @@ private:
 
 };
 
-void CircleInside2PtConicalEffect::getGLProcessorKey(const GrGLCaps& caps,
+void CircleInside2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GLCircleInside2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -1062,7 +1062,7 @@ void GLCircleInside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman
 }
 
 void GLCircleInside2PtConicalEffect::GenKey(const GrProcessor& processor,
-                                            const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                            const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     b->add32(GenBaseGradientKey(processor));
 }
 
@@ -1083,7 +1083,7 @@ public:
 
     const char* name() const override { return "Two-Point Conical Gradient Outside"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -1146,7 +1146,7 @@ public:
                           const TextureSamplerArray&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
+    static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
     UniformHandle fCenterUni;
@@ -1174,7 +1174,7 @@ private:
 
 };
 
-void CircleOutside2PtConicalEffect::getGLProcessorKey(const GrGLCaps& caps,
+void CircleOutside2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                                       GrProcessorKeyBuilder* b) const {
     GLCircleOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -1328,7 +1328,7 @@ void GLCircleOutside2PtConicalEffect::setData(const GrGLProgramDataManager& pdma
 }
 
 void GLCircleOutside2PtConicalEffect::GenKey(const GrProcessor& processor,
-                                             const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                             const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     uint32_t* key = b->add32n(2);
     key[0] = GenBaseGradientKey(processor);
     key[1] = processor.cast<CircleOutside2PtConicalEffect>().isFlipped();

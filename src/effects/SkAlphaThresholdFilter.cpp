@@ -76,7 +76,7 @@ public:
     float innerThreshold() const { return fInnerThreshold; }
     float outerThreshold() const { return fOuterThreshold; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -214,7 +214,7 @@ GrFragmentProcessor* AlphaThresholdEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void AlphaThresholdEffect::getGLProcessorKey(const GrGLCaps& caps,
+void AlphaThresholdEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
     GrGLAlphaThresholdEffect::GenKey(*this, caps, b);
 }

@@ -147,7 +147,7 @@ public:
         return true;
     }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
@@ -191,7 +191,7 @@ public:
                     codeAppendf("\t%s = %s;\n", outputColor, filter.c_str());
         }
 
-        static void GenKey(const GrProcessor& fp, const GrGLCaps&,
+        static void GenKey(const GrProcessor& fp, const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
             const ModeColorFilterEffect& colorModeFilter = fp.cast<ModeColorFilterEffect>();
             // The SL code does not depend on filter color at the moment, so no need to represent it

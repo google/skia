@@ -38,11 +38,11 @@ public:
     GrMaskFormat maskFormat() const { return fMaskFormat; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps& caps) const override;
+                                                     const GrGLSLCaps& caps) const override;
 
     void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
     bool onCanMakeEqual(const GrBatchTracker&,

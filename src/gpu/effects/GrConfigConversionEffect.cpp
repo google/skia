@@ -82,7 +82,7 @@ public:
         fsBuilder->codeAppend(modulate.c_str());
     }
 
-    static inline void GenKey(const GrProcessor& processor, const GrGLCaps&,
+    static inline void GenKey(const GrProcessor& processor, const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrConfigConversionEffect& conv = processor.cast<GrConfigConversionEffect>();
         uint32_t key = (conv.swapsRedAndBlue() ? 0 : 1) | (conv.pmConversion() << 1);
@@ -147,7 +147,7 @@ GrFragmentProcessor* GrConfigConversionEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrConfigConversionEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrConfigConversionEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                                  GrProcessorKeyBuilder* b) const {
     GrGLConfigConversionEffect::GenKey(*this, caps, b);
 }

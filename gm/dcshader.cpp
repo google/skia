@@ -60,7 +60,7 @@ public:
         this->initClassID<DCFP>();
     }
 
-    void getGLProcessorKey(const GrGLCaps& caps,
+    void getGLProcessorKey(const GrGLSLCaps& caps,
                             GrProcessorKeyBuilder* b) const override {}
 
     GrGLFragmentProcessor* createGLInstance() const override {

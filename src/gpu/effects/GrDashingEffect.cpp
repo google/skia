@@ -797,11 +797,11 @@ public:
     DashAAMode aaMode() const { return fAAMode; }
 
     virtual void getGLProcessorKey(const GrBatchTracker&,
-                                   const GrGLCaps&,
+                                   const GrGLSLCaps&,
                                    GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker&,
-                                                     const GrGLCaps&) const override;
+                                                     const GrGLSLCaps&) const override;
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
@@ -836,7 +836,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager&,
@@ -925,7 +925,7 @@ void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
 
 void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
                                    const GrBatchTracker& bt,
-                                   const GrGLCaps&,
+                                   const GrGLSLCaps&,
                                    GrProcessorKeyBuilder* b) {
     const DashingCircleBatchTracker& local = bt.cast<DashingCircleBatchTracker>();
     const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
@@ -951,13 +951,13 @@ void DashingCircleEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* ou
 }
 
 void DashingCircleEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                            const GrGLCaps& caps,
+                                            const GrGLSLCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GLDashingCircleEffect::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrBatchTracker& bt,
-                                                              const GrGLCaps&) const {
+                                                              const GrGLSLCaps&) const {
     return SkNEW_ARGS(GLDashingCircleEffect, (*this, bt));
 }
 
@@ -1045,11 +1045,11 @@ public:
     DashAAMode aaMode() const { return fAAMode; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const override;
+                                                     const GrGLSLCaps&) const override;
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
@@ -1084,7 +1084,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager&,
@@ -1185,7 +1185,7 @@ void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
 
 void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
                                  const GrBatchTracker& bt,
-                                 const GrGLCaps&,
+                                 const GrGLSLCaps&,
                                  GrProcessorKeyBuilder* b) {
     const DashingLineBatchTracker& local = bt.cast<DashingLineBatchTracker>();
     const DashingLineEffect& de = gp.cast<DashingLineEffect>();
@@ -1211,13 +1211,13 @@ void DashingLineEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out)
 }
 
 void DashingLineEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                          const GrGLCaps& caps,
+                                          const GrGLSLCaps& caps,
                                           GrProcessorKeyBuilder* b) const {
     GLDashingLineEffect::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker& bt,
-                                                            const GrGLCaps&) const {
+                                                            const GrGLSLCaps&) const {
     return SkNEW_ARGS(GLDashingLineEffect, (*this, bt));
 }
 

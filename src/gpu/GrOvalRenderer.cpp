@@ -127,7 +127,7 @@ public:
 
         static void GenKey(const GrGeometryProcessor& gp,
                            const GrBatchTracker& bt,
-                           const GrGLCaps&,
+                           const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
             const CircleEdgeEffect& circleEffect = gp.cast<CircleEdgeEffect>();
@@ -158,13 +158,13 @@ public:
     };
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const override {
+                                                     const GrGLSLCaps&) const override {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -321,7 +321,7 @@ public:
 
         static void GenKey(const GrGeometryProcessor& gp,
                            const GrBatchTracker& bt,
-                           const GrGLCaps&,
+                           const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
             const EllipseEdgeEffect& ellipseEffect = gp.cast<EllipseEdgeEffect>();
@@ -353,13 +353,13 @@ public:
     };
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const override {
+                                                     const GrGLSLCaps&) const override {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
@@ -536,7 +536,7 @@ public:
 
         static void GenKey(const GrGeometryProcessor& gp,
                            const GrBatchTracker& bt,
-                           const GrGLCaps&,
+                           const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
             const DIEllipseEdgeEffect& ellipseEffect = gp.cast<DIEllipseEdgeEffect>();
@@ -568,13 +568,13 @@ public:
     };
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const override {
+                                                     const GrGLSLCaps&) const override {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 

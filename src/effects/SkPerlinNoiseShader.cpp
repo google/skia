@@ -498,7 +498,7 @@ public:
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
 private:
 
@@ -532,7 +532,7 @@ public:
 
     const char* name() const override { return "PerlinNoise"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GrGLPerlinNoise::GenKey(*this, caps, b);
     }
@@ -897,7 +897,7 @@ void GrGLPerlinNoise::emitCode(GrGLFPBuilder* builder,
                   outputColor, outputColor, outputColor, outputColor);
 }
 
-void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrPerlinNoiseEffect& turbulence = processor.cast<GrPerlinNoiseEffect>();
 

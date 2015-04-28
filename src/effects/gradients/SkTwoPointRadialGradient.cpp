@@ -408,7 +408,7 @@ public:
                           const TextureSamplerArray&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLCaps& caps, GrProcessorKeyBuilder* b);
+    static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
 
@@ -449,7 +449,7 @@ public:
 
     const char* name() const override { return "Two-Point Radial Gradient"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GrGLRadial2Gradient::GenKey(*this, caps, b);
     }
@@ -669,7 +669,7 @@ void GrGLRadial2Gradient::setData(const GrGLProgramDataManager& pdman,
 }
 
 void GrGLRadial2Gradient::GenKey(const GrProcessor& processor,
-                                 const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                 const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     uint32_t* key = b->add32n(2);
     key[0] = GenBaseGradientKey(processor);
     key[1] = processor.cast<GrRadial2Gradient>().isDegenerate();

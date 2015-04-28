@@ -12,6 +12,7 @@
 
 class GrCoordTransform;
 class GrGLCaps;
+typedef GrGLCaps GrGLSLCaps;
 class GrGLFragmentProcessor;
 class GrProcessorKeyBuilder;
 
@@ -28,7 +29,7 @@ public:
         , fUsesLocalCoords(false) {}
 
     /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const = 0;
 
     /** Returns a new instance of the appropriate *GL* implementation class

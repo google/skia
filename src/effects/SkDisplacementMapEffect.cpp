@@ -312,7 +312,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
     const GrTextureDomain::GLDomain& glDomain() const { return fGLDomain; }
@@ -346,7 +346,7 @@ public:
 
     virtual ~GrDisplacementMapEffect();
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GrGLDisplacementMapEffect::GenKey(*this, caps, b);
     }
@@ -634,7 +634,7 @@ void GrGLDisplacementMapEffect::setData(const GrGLProgramDataManager& pdman,
 }
 
 void GrGLDisplacementMapEffect::GenKey(const GrProcessor& proc,
-                                       const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                       const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
 
     uint32_t xKey = displacementMap.xChannelSelector();

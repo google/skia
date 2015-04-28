@@ -427,7 +427,7 @@ public:
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override {}
 
-    static void GenKey(const GrFragmentProcessor& proc, const GrGLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrFragmentProcessor& proc, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         // The background may come from the dst or from a texture.
         uint32_t key = proc.numTextures();
         SkASSERT(key <= 1);
@@ -453,7 +453,7 @@ GrCustomXferFP::GrCustomXferFP(SkXfermode::Mode mode, GrTexture* background)
     this->addTextureAccess(&fBackgroundAccess);
 }
 
-void GrCustomXferFP::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrCustomXferFP::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXferFP::GenKey(*this, caps, b);
 }
 
@@ -514,7 +514,7 @@ public:
 private:
     CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override;
 
@@ -540,7 +540,7 @@ public:
     GLCustomXP(const GrXferProcessor&) {}
     ~GLCustomXP() override {}
 
-    static void GenKey(const GrXferProcessor& proc, const GrGLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrXferProcessor& proc, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         uint32_t key = proc.numTextures();
         SkASSERT(key <= 1);
         key |= proc.cast<CustomXP>().mode() << 1;
@@ -573,7 +573,7 @@ CustomXP::CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
     this->initClassID<CustomXP>();
 }
 
-void CustomXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void CustomXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXP::GenKey(*this, caps, b);
 }
 

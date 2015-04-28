@@ -26,7 +26,7 @@ public:
 
     const char* name() const override { return "Dither"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -106,7 +106,7 @@ void GLDitherEffect::emitCode(GrGLFPBuilder* builder,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void DitherEffect::getGLProcessorKey(const GrGLCaps& caps,
+void DitherEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const {
     GLDitherEffect::GenKey(*this, caps, b);
 }

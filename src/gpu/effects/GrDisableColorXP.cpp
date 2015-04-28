@@ -40,7 +40,7 @@ public:
 private:
     DisableColorXP();
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
@@ -59,7 +59,7 @@ public:
 
     ~GLDisableColorXP() override {}
 
-    static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
+    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
 private:
     void onEmitCode(const EmitArgs& args) override {
@@ -81,7 +81,7 @@ DisableColorXP::DisableColorXP() {
     this->initClassID<DisableColorXP>();
 }
 
-void DisableColorXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void DisableColorXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLDisableColorXP::GenKey(*this, caps, b);
 }
 

@@ -65,7 +65,7 @@ public:
 
     const char* name() const override { return "Luminance-to-Alpha"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
@@ -78,7 +78,7 @@ public:
     public:
         GLProcessor(const GrProcessor&) {}
 
-        static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b) {}
+        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
 
         virtual void emitCode(GrGLFPBuilder* builder,
                               const GrFragmentProcessor&,

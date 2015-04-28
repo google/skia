@@ -17,7 +17,7 @@
     include/gpu/GrProcessor.h. Objects of type GrGLProcessor are responsible for emitting the
     GLSL code that implements a GrProcessor and for uploading uniforms at draw time. If they don't
     always emit the same GLSL code, they must have a function:
-        static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*)
+        static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*)
     that is used to implement a program cache. When two GrProcessors produce the same key this means
     that their GrGLProcessors would emit the same GLSL code.
 
@@ -111,7 +111,7 @@ public:
     // TODO update this to pass in GrFragmentProcessor
     virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) {}
 
-    static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*) {}
+    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
 private:
     typedef GrGLProcessor INHERITED;

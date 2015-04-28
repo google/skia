@@ -474,7 +474,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) override;
 
-    static void GenKey(const GrProcessor& processor, const GrGLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         b->add32(GenBaseGradientKey(processor));
     }
 
@@ -499,7 +499,7 @@ public:
 
     const char* name() const override { return "Linear Gradient"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GrGLLinearGradient::GenKey(*this, caps, b);
     }

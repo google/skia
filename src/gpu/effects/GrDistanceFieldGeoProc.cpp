@@ -165,7 +165,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor& gp,
                               const GrBatchTracker& bt,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
         const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
@@ -230,14 +230,14 @@ void GrDistanceFieldA8TextGeoProc::onGetInvariantOutputCoverage(GrInitInvariantO
 }
 
 void GrDistanceFieldA8TextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
-                                                     const GrGLCaps& caps,
+                                                     const GrGLSLCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldA8TextGeoProc::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor*
 GrDistanceFieldA8TextGeoProc::createGLInstance(const GrBatchTracker& bt,
-                                               const GrGLCaps&) const {
+                                               const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldA8TextGeoProc, (*this, bt));
 }
 
@@ -420,7 +420,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor& gp,
                               const GrBatchTracker& bt,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
@@ -476,13 +476,13 @@ void GrDistanceFieldPathGeoProc::onGetInvariantOutputCoverage(GrInitInvariantOut
 }
 
 void GrDistanceFieldPathGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
-                                                   const GrGLCaps& caps,
+                                                   const GrGLSLCaps& caps,
                                                    GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldPathGeoProc::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor*
-GrDistanceFieldPathGeoProc::createGLInstance(const GrBatchTracker& bt, const GrGLCaps&) const {
+GrDistanceFieldPathGeoProc::createGLInstance(const GrBatchTracker& bt, const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldPathGeoProc, (*this, bt));
 }
 
@@ -711,7 +711,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor& gp,
                               const GrBatchTracker& bt,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldLCDTextGeoProc>();
 
@@ -763,14 +763,14 @@ void GrDistanceFieldLCDTextGeoProc::onGetInvariantOutputCoverage(GrInitInvariant
 }
 
 void GrDistanceFieldLCDTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
-                                                      const GrGLCaps& caps,
+                                                      const GrGLSLCaps& caps,
                                                       GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldLCDTextGeoProc::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor*
 GrDistanceFieldLCDTextGeoProc::createGLInstance(const GrBatchTracker& bt,
-                                                const GrGLCaps&) const {
+                                                const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldLCDTextGeoProc, (*this, bt));
 }
 

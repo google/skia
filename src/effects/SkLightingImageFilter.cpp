@@ -508,7 +508,7 @@ public:
 
     const char* name() const override { return "DiffuseLighting"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -549,7 +549,7 @@ public:
 
     const char* name() const override { return "SpecularLighting"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -1481,7 +1481,7 @@ public:
                   const TransformedCoordsArray&,
                   const TextureSamplerArray&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::setData();
@@ -1576,7 +1576,7 @@ bool GrDiffuseLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const 
             this->kd() == s.kd();
 }
 
-void GrDiffuseLightingEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrDiffuseLightingEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                                 GrProcessorKeyBuilder* b) const {
     GrGLDiffuseLightingEffect::GenKey(*this, caps, b);
 }
@@ -1709,7 +1709,7 @@ void GrGLLightingEffect::emitCode(GrGLFPBuilder* builder,
 }
 
 void GrGLLightingEffect::GenKey(const GrProcessor& proc,
-                                const GrGLCaps& caps, GrProcessorKeyBuilder* b) {
+                                const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) {
     const GrLightingEffect& lighting = proc.cast<GrLightingEffect>();
     b->add32(lighting.boundaryMode() << 2 | lighting.light()->type());
 }
@@ -1784,7 +1784,7 @@ bool GrSpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const
            this->shininess() == s.shininess();
 }
 
-void GrSpecularLightingEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrSpecularLightingEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                                 GrProcessorKeyBuilder* b) const {
     GrGLSpecularLightingEffect::GenKey(*this, caps, b);
 }

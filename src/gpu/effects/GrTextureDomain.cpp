@@ -178,7 +178,7 @@ public:
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 private:
     GrTextureDomain::GLDomain         fGLDomain;
@@ -209,7 +209,7 @@ void GrGLTextureDomainEffect::setData(const GrGLProgramDataManager& pdman,
     fGLDomain.setData(pdman, domain, processor.texture(0)->origin());
 }
 
-void GrGLTextureDomainEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GrGLTextureDomainEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
                                      GrProcessorKeyBuilder* b) {
     const GrTextureDomain& domain = processor.cast<GrTextureDomainEffect>().textureDomain();
     b->add32(GrTextureDomain::GLDomain::DomainKey(domain));
@@ -256,7 +256,7 @@ GrTextureDomainEffect::~GrTextureDomainEffect() {
 
 }
 
-void GrTextureDomainEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrTextureDomainEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GrGLTextureDomainEffect::GenKey(*this, caps, b);
 }

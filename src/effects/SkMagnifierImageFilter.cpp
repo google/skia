@@ -46,7 +46,7 @@ public:
 
     const char* name() const override { return "Magnifier"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -197,7 +197,7 @@ void GrGLMagnifierEffect::setData(const GrGLProgramDataManager& pdman,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrMagnifierEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrMagnifierEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                           GrProcessorKeyBuilder* b) const {
     GrGLMagnifierEffect::GenKey(*this, caps, b);
 }

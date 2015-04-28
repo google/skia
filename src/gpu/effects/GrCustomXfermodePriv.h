@@ -29,7 +29,7 @@ class GrCustomXferFP : public GrFragmentProcessor {
 public:
     GrCustomXferFP(SkXfermode::Mode mode, GrTexture* background);
 
-    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override; 
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override; 
 
     GrGLFragmentProcessor* createGLInstance() const override;
 

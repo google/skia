@@ -24,7 +24,7 @@ public:
 
     const char* name() const override { return "Circle"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -104,7 +104,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
@@ -156,7 +156,7 @@ void GLCircleEffect::emitCode(GrGLFPBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("d")).c_str());
 }
 
-void GLCircleEffect::GenKey(const GrProcessor& processor, const GrGLCaps&,
+void GLCircleEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
                             GrProcessorKeyBuilder* b) {
     const CircleEffect& ce = processor.cast<CircleEffect>();
     b->add32(ce.getEdgeType());
@@ -179,7 +179,7 @@ void GLCircleEffect::setData(const GrGLProgramDataManager& pdman, const GrProces
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CircleEffect::getGLProcessorKey(const GrGLCaps& caps,
+void CircleEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const {
     GLCircleEffect::GenKey(*this, caps, b);
 }
@@ -199,7 +199,7 @@ public:
 
     const char* name() const override { return "Ellipse"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -282,7 +282,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
@@ -347,7 +347,7 @@ void GLEllipseEffect::emitCode(GrGLFPBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrGLCaps&,
+void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,
                              GrProcessorKeyBuilder* b) {
     const EllipseEffect& ee = effect.cast<EllipseEffect>();
     b->add32(ee.getEdgeType());
@@ -366,7 +366,7 @@ void GLEllipseEffect::setData(const GrGLProgramDataManager& pdman, const GrProce
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EllipseEffect::getGLProcessorKey(const GrGLCaps& caps,
+void EllipseEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const {
     GLEllipseEffect::GenKey(*this, caps, b);
 }

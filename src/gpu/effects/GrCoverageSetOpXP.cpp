@@ -40,7 +40,7 @@ public:
 private:
     CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
@@ -64,7 +64,7 @@ public:
 
     ~GLCoverageSetOpXP() override {}
 
-    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps& caps,
                        GrProcessorKeyBuilder* b) {
         const CoverageSetOpXP& xp = processor.cast<CoverageSetOpXP>();
         uint32_t key = xp.invertCoverage() ?  0x0 : 0x1;
@@ -99,7 +99,7 @@ CoverageSetOpXP::CoverageSetOpXP(SkRegion::Op regionOp, bool invertCoverage)
 CoverageSetOpXP::~CoverageSetOpXP() {
 }
 
-void CoverageSetOpXP::onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void CoverageSetOpXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCoverageSetOpXP::GenKey(*this, caps, b);
 }
 

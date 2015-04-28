@@ -315,7 +315,7 @@ public:
 
     const char* name() const override { return "Morphology"; }
 
-    void getGLProcessorKey(const GrGLCaps&, GrProcessorKeyBuilder*) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 
@@ -351,7 +351,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
@@ -450,7 +450,7 @@ void GrGLMorphologyEffect::emitCode(GrGLFPBuilder* builder,
 }
 
 void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
-                                  const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                  const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
     const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
     uint32_t key = static_cast<uint32_t>(m.radius());
     key |= (m.type() << 8);
@@ -517,7 +517,7 @@ GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
 GrMorphologyEffect::~GrMorphologyEffect() {
 }
 
-void GrMorphologyEffect::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrMorphologyEffect::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLMorphologyEffect::GenKey(*this, caps, b);
 }
 

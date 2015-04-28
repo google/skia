@@ -97,7 +97,7 @@ private:
     PorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant,
                             const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
 
-    void onGetGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         if (!this->willReadDstColor()) {
@@ -190,7 +190,7 @@ public:
 
     virtual ~GLPorterDuffXferProcessor() {}
 
-    static void GenKey(const GrProcessor& processor, const GrGLCaps& caps,
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps& caps,
                        GrProcessorKeyBuilder* b) {
         const PorterDuffXferProcessor& xp = processor.cast<PorterDuffXferProcessor>();
         b->add32(xp.primaryOutputType());
@@ -291,7 +291,7 @@ PorterDuffXferProcessor::PorterDuffXferProcessor(GrBlendCoeff srcBlend,
 PorterDuffXferProcessor::~PorterDuffXferProcessor() {
 }
 
-void PorterDuffXferProcessor::onGetGLProcessorKey(const GrGLCaps& caps,
+void PorterDuffXferProcessor::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     GLPorterDuffXferProcessor::GenKey(*this, caps, b);
 }

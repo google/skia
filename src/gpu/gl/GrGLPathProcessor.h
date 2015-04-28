@@ -20,7 +20,7 @@ public:
 
     static void GenKey(const GrPathProcessor&,
                        const GrBatchTracker& bt,
-                       const GrGLCaps&,
+                       const GrGLSLCaps&,
                        GrProcessorKeyBuilder* b);
 
     void emitCode(EmitArgs&) override;

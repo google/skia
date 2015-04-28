@@ -43,7 +43,7 @@ void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
     this->updateInvariantOutputForModulation(inout);
 }
 
-void GrSimpleTextureEffect::getGLProcessorKey(const GrGLCaps& caps,
+void GrSimpleTextureEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GrGLSimpleTextureEffect::GenKey(*this, caps, b);
 }

@@ -194,7 +194,7 @@ public:
 
     const char* name() const override { return "ColorCube"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
@@ -215,7 +215,7 @@ public:
                               const TransformedCoordsArray&,
                               const TextureSamplerArray&) override;
 
-        static inline void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder*);
+        static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
         void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
@@ -247,7 +247,7 @@ GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
 GrColorCubeEffect::~GrColorCubeEffect() {
 }
 
-void GrColorCubeEffect::getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrColorCubeEffect::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLProcessor::GenKey(*this, caps, b);
 }
 
@@ -334,7 +334,7 @@ void GrColorCubeEffect::GLProcessor::setData(const GrGLProgramDataManager& pdman
 }
 
 void GrColorCubeEffect::GLProcessor::GenKey(const GrProcessor& proc,
-                                            const GrGLCaps&, GrProcessorKeyBuilder* b) {
+                                            const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
 }
 
 bool SkColorCubeFilter::asFragmentProcessors(GrContext* context,

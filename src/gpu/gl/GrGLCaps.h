@@ -395,4 +395,6 @@ private:
     typedef GrDrawTargetCaps INHERITED;
 };
 
+typedef GrGLCaps GrGLSLCaps;
+
 #endif

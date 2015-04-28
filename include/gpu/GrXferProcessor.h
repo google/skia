@@ -16,6 +16,7 @@
 
 class GrDrawTargetCaps;
 class GrGLCaps;
+typedef GrGLCaps GrGLSLCaps;
 class GrGLXferProcessor;
 class GrProcOptInfo;
 
@@ -66,7 +67,7 @@ public:
      * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLProcessorKey(...) to get the
      * specific subclass's key.
      */ 
-    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const;
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
@@ -199,7 +200,7 @@ private:
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
      * processor's GL backend implementation.
      */
-    virtual void onGetGLProcessorKey(const GrGLCaps& caps,
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const = 0;
 
     /**

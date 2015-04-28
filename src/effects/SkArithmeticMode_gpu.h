@@ -40,7 +40,7 @@ public:
 
     const char* name() const override { return "Arithmetic"; }
 
-    void getGLProcessorKey(const GrGLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLFragmentProcessor* createGLInstance() const override;
 

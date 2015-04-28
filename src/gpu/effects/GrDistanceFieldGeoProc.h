@@ -75,11 +75,11 @@ public:
     uint32_t getFlags() const { return fFlags; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const override;
+                                                     const GrGLSLCaps&) const override;
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
@@ -139,11 +139,11 @@ public:
     uint32_t getFlags() const { return fFlags; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const override;
+                                                     const GrGLSLCaps&) const override;
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
@@ -211,11 +211,11 @@ public:
     uint32_t getFlags() const { return fFlags; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const override;
+                                                     const GrGLSLCaps&) const override;
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 

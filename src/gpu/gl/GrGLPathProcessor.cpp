@@ -41,7 +41,7 @@ void GrGLPathProcessor::emitCode(EmitArgs& args) {
 
 void GrGLPathProcessor::GenKey(const GrPathProcessor&,
                                const GrBatchTracker& bt,
-                               const GrGLCaps&,
+                               const GrGLSLCaps&,
                                GrProcessorKeyBuilder* b) {
     const PathBatchTracker& local = bt.cast<PathBatchTracker>();
     b->add32(local.fInputColorType | local.fInputCoverageType << 16);

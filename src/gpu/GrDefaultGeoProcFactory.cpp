@@ -129,7 +129,7 @@ public:
 
         static inline void GenKey(const GrGeometryProcessor& gp,
                                   const GrBatchTracker& bt,
-                                  const GrGLCaps&,
+                                  const GrGLSLCaps&,
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             const BatchTracker& local = bt.cast<BatchTracker>();
@@ -168,13 +168,13 @@ public:
     };
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLCaps& caps,
+                                   const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, bt, caps, b);
     }
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLCaps&) const override {
+                                                     const GrGLSLCaps&) const override {
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 

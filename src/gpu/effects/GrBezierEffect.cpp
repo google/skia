@@ -28,7 +28,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager& pdman,
@@ -162,7 +162,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
 void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
                              const GrBatchTracker& bt,
-                             const GrGLCaps&,
+                             const GrGLSLCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrConicEffect& ce = gp.cast<GrConicEffect>();
     const ConicBatchTracker& local = bt.cast<ConicBatchTracker>();
@@ -179,13 +179,13 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
 GrConicEffect::~GrConicEffect() {}
 
 void GrConicEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                      const GrGLCaps& caps,
+                                      const GrGLSLCaps& caps,
                                       GrProcessorKeyBuilder* b) const {
     GrGLConicEffect::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt,
-                                                        const GrGLCaps&) const {
+                                                        const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLConicEffect, (*this, bt));
 }
 
@@ -263,7 +263,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager& pdman,
@@ -383,7 +383,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
 void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
                             const GrBatchTracker& bt,
-                            const GrGLCaps&,
+                            const GrGLSLCaps&,
                             GrProcessorKeyBuilder* b) {
     const GrQuadEffect& ce = gp.cast<GrQuadEffect>();
     const QuadBatchTracker& local = bt.cast<QuadBatchTracker>();
@@ -400,13 +400,13 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
 GrQuadEffect::~GrQuadEffect() {}
 
 void GrQuadEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                     const GrGLCaps& caps,
+                                     const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const {
     GrGLQuadEffect::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt,
-                                                       const GrGLCaps&) const {
+                                                       const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLQuadEffect, (*this, bt));
 }
 
@@ -484,7 +484,7 @@ public:
 
     static inline void GenKey(const GrGeometryProcessor&,
                               const GrBatchTracker&,
-                              const GrGLCaps&,
+                              const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
     virtual void setData(const GrGLProgramDataManager& pdman,
@@ -628,7 +628,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
 void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
                              const GrBatchTracker& bt,
-                             const GrGLCaps&,
+                             const GrGLSLCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrCubicEffect& ce = gp.cast<GrCubicEffect>();
     const CubicBatchTracker& local = bt.cast<CubicBatchTracker>();
@@ -644,13 +644,13 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
 GrCubicEffect::~GrCubicEffect() {}
 
 void GrCubicEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                      const GrGLCaps& caps,
+                                      const GrGLSLCaps& caps,
                                       GrProcessorKeyBuilder* b) const {
     GrGLCubicEffect::GenKey(*this, bt, caps, b);
 }
 
 GrGLPrimitiveProcessor* GrCubicEffect::createGLInstance(const GrBatchTracker& bt,
-                                                        const GrGLCaps&) const {
+                                                        const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLCubicEffect, (*this, bt));
 }
 

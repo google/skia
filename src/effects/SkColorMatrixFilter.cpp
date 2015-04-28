@@ -408,7 +408,7 @@ public:
 
     const char* name() const override { return "Color Matrix"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
@@ -423,7 +423,7 @@ public:
     class GLProcessor : public GrGLFragmentProcessor {
     public:
         // this class always generates the same code.
-        static void GenKey(const GrProcessor&, const GrGLCaps&, GrProcessorKeyBuilder* b) {}
+        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
 
         GLProcessor(const GrProcessor&) {}
 

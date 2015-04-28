@@ -44,7 +44,7 @@ public:
                           const TransformedCoordsArray&,
                           const TextureSamplerArray&) {}
 
-    static void GenKey(const GrProcessor& processor, const GrGLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         for (uint32_t i = 0; i < kMaxKeySize; i++) {
             b->add32(i);
         }
@@ -63,7 +63,7 @@ public:
 
     const char* name() const override { return "Big Ole Key"; }
 
-    virtual void getGLProcessorKey(const GrGLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLBigKeyProcessor::GenKey(*this, caps, b);
     }
