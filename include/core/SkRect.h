@@ -281,7 +281,6 @@ struct SK_API SkIRect {
         If either rectangle is empty, do nothing and return false.
     */
     bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& r) {
-        SkASSERT(&r);
         return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
 
