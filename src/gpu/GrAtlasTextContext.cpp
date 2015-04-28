@@ -1494,14 +1494,10 @@ public:
                                             texture));
         } else {
             GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
-
-            // This will be ignored in the non A8 case
-            bool opaqueVertexColors = GrColorIsOpaque(this->color());
             gp.reset(GrBitmapTextGeoProc::Create(this->color(),
                                                  texture,
                                                  params,
                                                  fMaskFormat,
-                                                 opaqueVertexColors,
                                                  localMatrix));
         }
 
@@ -1964,7 +1960,6 @@ private:
                                                          flags);
         } else {
             flags |= kColorAttr_DistanceFieldEffectFlag;
-            bool opaque = GrColorIsOpaque(color);
 #ifdef SK_GAMMA_APPLY_TO_A8
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(fGamma, filteredColor);
             float correction = (*fDistanceAdjustTable)[lum >> kDistanceAdjustLumShift];
@@ -1973,15 +1968,13 @@ private:
                                                         texture,
                                                         params,
                                                         correction,
-                                                        flags,
-                                                        opaque);
+                                                        flags);
 #else
             return GrDistanceFieldA8TextGeoProc::Create(color,
                                                         viewMatrix,
                                                         texture,
                                                         params,
-                                                        flags,
-                                                        opaque);
+                                                        flags);
 #endif
         }
 

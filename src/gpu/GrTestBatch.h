@@ -25,7 +25,7 @@ public:
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
-        if (fGeometryProcessor->hasVertexColor()) {
+        if (fHasVertexColor) {
             out->setUnknownFourComponents();
         } else {
             out->setKnownFourComponents(fGeometryProcessor->color());
@@ -68,7 +68,8 @@ public:
     }
 
 protected:
-    GrTestBatch(const GrGeometryProcessor* gp) {
+    GrTestBatch(const GrGeometryProcessor* gp, bool hasVertexColor = false)
+        : fHasVertexColor(hasVertexColor) {
         fGeometryProcessor.reset(SkRef(gp));
     }
 
@@ -90,6 +91,7 @@ private:
         bool fCoverageIgnored;
     };
 
+    bool fHasVertexColor;
     SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
     BatchTracker fBatch;
 };

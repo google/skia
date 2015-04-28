@@ -623,31 +623,12 @@ public:
         local->fUsesLocalCoords = init.fUsesLocalCoords;
     }
 
-    bool onCanMakeEqual(const GrBatchTracker& m,
-                        const GrGeometryProcessor& that,
-                        const GrBatchTracker& t) const override {
-        const BatchTracker& mine = m.cast<BatchTracker>();
-        const BatchTracker& theirs = t.cast<BatchTracker>();
-        return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
-                                       that, theirs.fUsesLocalCoords) &&
-               CanCombineOutput(mine.fInputColorType, mine.fColor,
-                                theirs.fInputColorType, theirs.fColor);
-    }
-
 private:
     QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix)
         : INHERITED(color, SkMatrix::I(), localMatrix) {
         this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInQuadEdge = &this->addVertexAttrib(Attribute("inQuadEdge", kVec4f_GrVertexAttribType));
-    }
-
-    bool onIsEqual(const GrGeometryProcessor& other) const override {
-        return true;
-    }
-
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
     }
 
     struct BatchTracker {

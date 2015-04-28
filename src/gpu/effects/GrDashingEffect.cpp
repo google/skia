@@ -784,8 +784,6 @@ public:
                                        DashAAMode aaMode,
                                        const SkMatrix& localMatrix);
 
-    virtual ~DashingCircleEffect();
-
     const char* name() const override { return "DashingCircleEffect"; }
 
     const Attribute* inPosition() const { return fInPosition; }
@@ -805,16 +803,8 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
-    bool onCanMakeEqual(const GrBatchTracker&,
-                        const GrGeometryProcessor&,
-                        const GrBatchTracker&) const override;
-
 private:
     DashingCircleEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix);
-
-    bool onIsEqual(const GrGeometryProcessor& other) const override;
-
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     DashAAMode          fAAMode;
     const Attribute*    fInPosition;
@@ -944,12 +934,6 @@ GrGeometryProcessor* DashingCircleEffect::Create(GrColor color,
     return SkNEW_ARGS(DashingCircleEffect, (color, aaMode, localMatrix));
 }
 
-DashingCircleEffect::~DashingCircleEffect() {}
-
-void DashingCircleEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
-    out->setUnknownSingleComponent();
-}
-
 void DashingCircleEffect::getGLProcessorKey(const GrBatchTracker& bt,
                                             const GrGLSLCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
@@ -972,26 +956,10 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
                                                        kVec2f_GrVertexAttribType));
 }
 
-bool DashingCircleEffect::onIsEqual(const GrGeometryProcessor& other) const {
-    const DashingCircleEffect& dce = other.cast<DashingCircleEffect>();
-    return fAAMode == dce.fAAMode;
-}
-
 void DashingCircleEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     DashingCircleBatchTracker* local = bt->cast<DashingCircleBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;
-}
-
-bool DashingCircleEffect::onCanMakeEqual(const GrBatchTracker& m,
-                                         const GrGeometryProcessor& that,
-                                         const GrBatchTracker& t) const {
-    const DashingCircleBatchTracker& mine = m.cast<DashingCircleBatchTracker>();
-    const DashingCircleBatchTracker& theirs = t.cast<DashingCircleBatchTracker>();
-    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
-                                   that, theirs.fUsesLocalCoords) &&
-           CanCombineOutput(mine.fInputColorType, mine.fColor,
-                            theirs.fInputColorType, theirs.fColor);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
@@ -1032,8 +1000,6 @@ public:
                                        DashAAMode aaMode,
                                        const SkMatrix& localMatrix);
 
-    virtual ~DashingLineEffect();
-
     const char* name() const override { return "DashingEffect"; }
 
     const Attribute* inPosition() const { return fInPosition; }
@@ -1053,16 +1019,8 @@ public:
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
 
-    bool onCanMakeEqual(const GrBatchTracker&,
-                        const GrGeometryProcessor&,
-                        const GrBatchTracker&) const override;
-
 private:
     DashingLineEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix);
-
-    bool onIsEqual(const GrGeometryProcessor& other) const override;
-
-    void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const override;
 
     DashAAMode          fAAMode;
     const Attribute*    fInPosition;
@@ -1204,12 +1162,6 @@ GrGeometryProcessor* DashingLineEffect::Create(GrColor color,
     return SkNEW_ARGS(DashingLineEffect, (color, aaMode, localMatrix));
 }
 
-DashingLineEffect::~DashingLineEffect() {}
-
-void DashingLineEffect::onGetInvariantOutputCoverage(GrInitInvariantOutput* out) const {
-    out->setUnknownSingleComponent();
-}
-
 void DashingLineEffect::getGLProcessorKey(const GrBatchTracker& bt,
                                           const GrGLSLCaps& caps,
                                           GrProcessorKeyBuilder* b) const {
@@ -1231,26 +1183,10 @@ DashingLineEffect::DashingLineEffect(GrColor color,
     fInRectParams = &this->addVertexAttrib(Attribute("inRect", kVec4f_GrVertexAttribType));
 }
 
-bool DashingLineEffect::onIsEqual(const GrGeometryProcessor& other) const {
-    const DashingLineEffect& de = other.cast<DashingLineEffect>();
-    return fAAMode == de.fAAMode;
-}
-
 void DashingLineEffect::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     DashingLineBatchTracker* local = bt->cast<DashingLineBatchTracker>();
     local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
     local->fUsesLocalCoords = init.fUsesLocalCoords;
-}
-
-bool DashingLineEffect::onCanMakeEqual(const GrBatchTracker& m,
-                                       const GrGeometryProcessor& that,
-                                       const GrBatchTracker& t) const {
-    const DashingLineBatchTracker& mine = m.cast<DashingLineBatchTracker>();
-    const DashingLineBatchTracker& theirs = t.cast<DashingLineBatchTracker>();
-    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
-                                  that, theirs.fUsesLocalCoords) &&
-           CanCombineOutput(mine.fInputColorType, mine.fColor,
-                            theirs.fInputColorType, theirs.fColor);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);

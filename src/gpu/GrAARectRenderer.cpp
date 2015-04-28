@@ -45,11 +45,11 @@ static const GrGeometryProcessor* create_fill_rect_gp(bool tweakAlphaForCoverage
     const GrGeometryProcessor* gp;
     if (tweakAlphaForCoverage) {
         gp = GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, SkMatrix::I(), localMatrix,
-                                             false, 0xff);
+                                             0xff);
     } else {
         flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
         gp = GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, SkMatrix::I(), localMatrix,
-                                             false, 0xff);
+                                             0xff);
     }
     return gp;
 }
