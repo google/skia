@@ -297,7 +297,7 @@ private:
                               const SkPaint& paint);
     bool handlePointAnnotation(const SkPoint* points, size_t count,
                                const SkMatrix& matrix, const SkPaint& paint);
-    SkPDFDict* createLinkAnnotation(const SkRect& r, const SkMatrix& matrix);
+    void addAnnotation(SkPDFDict*);
     void handleLinkToURL(SkData* urlData, const SkRect& r,
                          const SkMatrix& matrix);
     void handleLinkToNamedDest(SkData* nameData, const SkRect& r,

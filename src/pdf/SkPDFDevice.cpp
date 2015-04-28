@@ -1464,26 +1464,30 @@ bool SkPDFDevice::handlePointAnnotation(const SkPoint* points, size_t count,
     return false;
 }
 
-SkPDFDict* SkPDFDevice::createLinkAnnotation(const SkRect& r,
-                                             const SkMatrix& matrix) {
-    SkMatrix transform = matrix;
-    transform.postConcat(fInitialTransform);
-    SkRect translatedRect;
-    transform.mapRect(&translatedRect, r);
-
+void SkPDFDevice::addAnnotation(SkPDFDict* annotation) {
     if (NULL == fAnnotations) {
         fAnnotations = SkNEW(SkPDFArray);
     }
-    SkPDFDict* annotation(SkNEW_ARGS(SkPDFDict, ("Annot")));
+    fAnnotations->appendObject(annotation);
+}
+
+static SkPDFDict* create_link_annotation(const SkRect& r,
+                                         const SkMatrix& initialTransform,
+                                         const SkMatrix& matrix) {
+    SkMatrix transform = matrix;
+    transform.postConcat(initialTransform);
+    SkRect translatedRect;
+    transform.mapRect(&translatedRect, r);
+
+    SkAutoTUnref<SkPDFDict> annotation(SkNEW_ARGS(SkPDFDict, ("Annot")));
     annotation->insertName("Subtype", "Link");
-    fAnnotations->append(annotation);
 
     SkAutoTUnref<SkPDFArray> border(SkNEW(SkPDFArray));
     border->reserve(3);
     border->appendInt(0);  // Horizontal corner radius.
     border->appendInt(0);  // Vertical corner radius.
     border->appendInt(0);  // Width, 0 = no border.
-    annotation->insert("Border", border.get());
+    annotation->insertObject("Border", border.detach());
 
     SkAutoTUnref<SkPDFArray> rect(SkNEW(SkPDFArray));
     rect->reserve(4);
@@ -1491,29 +1495,33 @@ SkPDFDict* SkPDFDevice::createLinkAnnotation(const SkRect& r,
     rect->appendScalar(translatedRect.fTop);
     rect->appendScalar(translatedRect.fRight);
     rect->appendScalar(translatedRect.fBottom);
-    annotation->insert("Rect", rect.get());
+    annotation->insertObject("Rect", rect.detach());
 
-    return annotation;
+    return annotation.detach();
 }
 
 void SkPDFDevice::handleLinkToURL(SkData* urlData, const SkRect& r,
                                   const SkMatrix& matrix) {
-    SkAutoTUnref<SkPDFDict> annotation(createLinkAnnotation(r, matrix));
+    SkAutoTUnref<SkPDFDict> annotation(
+            create_link_annotation(r, fInitialTransform, matrix));
 
     SkString url(static_cast<const char *>(urlData->data()),
                  urlData->size() - 1);
     SkAutoTUnref<SkPDFDict> action(SkNEW_ARGS(SkPDFDict, ("Action")));
     action->insertName("S", "URI");
     action->insertString("URI", url);
-    annotation->insert("A", action.get());
+    annotation->insertObject("A", action.detach());
+    this->addAnnotation(annotation.detach());
 }
 
 void SkPDFDevice::handleLinkToNamedDest(SkData* nameData, const SkRect& r,
                                         const SkMatrix& matrix) {
-    SkAutoTUnref<SkPDFDict> annotation(createLinkAnnotation(r, matrix));
+    SkAutoTUnref<SkPDFDict> annotation(
+            create_link_annotation(r, fInitialTransform, matrix));
     SkString name(static_cast<const char *>(nameData->data()),
                   nameData->size() - 1);
     annotation->insertName("Dest", name);
+    this->addAnnotation(annotation.detach());
 }
 
 struct NamedDestination {
