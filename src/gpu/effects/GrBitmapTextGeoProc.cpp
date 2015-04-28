@@ -232,5 +232,5 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(SkRandom* random,
 
     return GrBitmapTextGeoProc::Create(GrRandomColor(random), textures[texIdx], params,
                                        format, random->nextBool(),
-                                       GrProcessorUnitTest::TestMatrix(random));
+                                       GrTest::TestMatrix(random));
 }

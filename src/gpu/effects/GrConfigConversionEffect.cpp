@@ -142,7 +142,7 @@ GrFragmentProcessor* GrConfigConversionEffect::TestCreate(SkRandom* random,
                                       (textures[GrProcessorUnitTest::kSkiaPMTextureIdx],
                                        swapRB,
                                        pmConv,
-                                       GrProcessorUnitTest::TestMatrix(random)));
+                                       GrTest::TestMatrix(random)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

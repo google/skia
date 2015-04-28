@@ -673,7 +673,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
     // Doesn't work without derivative instructions.
     return caps.shaderDerivativeSupport() ?
            QuadEdgeEffect::Create(GrRandomColor(random),
-                                  GrProcessorUnitTest::TestMatrix(random)) : NULL;
+                                  GrTest::TestMatrix(random)) : NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

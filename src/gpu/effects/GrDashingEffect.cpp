@@ -1002,7 +1002,7 @@ GrGeometryProcessor* DashingCircleEffect::TestCreate(SkRandom* random,
                                                      GrTexture*[]) {
     DashAAMode aaMode = static_cast<DashAAMode>(random->nextULessThan(kDashAAModeCount));
     return DashingCircleEffect::Create(GrRandomColor(random),
-                                      aaMode, GrProcessorUnitTest::TestMatrix(random));
+                                      aaMode, GrTest::TestMatrix(random));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1261,7 +1261,7 @@ GrGeometryProcessor* DashingLineEffect::TestCreate(SkRandom* random,
                                                    GrTexture*[]) {
     DashAAMode aaMode = static_cast<DashAAMode>(random->nextULessThan(kDashAAModeCount));
     return DashingLineEffect::Create(GrRandomColor(random),
-                                     aaMode, GrProcessorUnitTest::TestMatrix(random));
+                                     aaMode, GrTest::TestMatrix(random));
 }
 
 //////////////////////////////////////////////////////////////////////////////

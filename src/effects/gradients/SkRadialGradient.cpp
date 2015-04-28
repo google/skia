@@ -618,7 +618,7 @@ GrFragmentProcessor* GrRadialGradient::TestCreate(SkRandom* random,
     GrColor paintColor;
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
-                                               GrProcessorUnitTest::TestMatrix(random), NULL,
+                                               GrTest::TestMatrix(random), NULL,
                                                &paintColor, &fp));
     return fp;
 }

@@ -217,7 +217,7 @@ GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(SkRandom* random,
     GrFragmentProcessor* fp;
     GrColor paintColor;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
-                                               GrProcessorUnitTest::TestMatrix(random), NULL,
+                                               GrTest::TestMatrix(random), NULL,
                                                &paintColor, &fp));
     return fp;
 }
@@ -504,7 +504,7 @@ GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(SkRandom* random,
     GrColor paintColor;
 
     SkAssertResult(shader->asFragmentProcessor(context, paint,
-                                               GrProcessorUnitTest::TestMatrix(random), NULL,
+                                               GrTest::TestMatrix(random), NULL,
                                                &paintColor, &effect));
     return effect;
 }
@@ -724,7 +724,7 @@ GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(SkRandom* random,
     GrColor paintColor;
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
-                                               GrProcessorUnitTest::TestMatrix(random), NULL,
+                                               GrTest::TestMatrix(random), NULL,
                                                &paintColor, &fp));
     return fp;
 }
@@ -979,7 +979,7 @@ GrFragmentProcessor* CircleInside2PtConicalEffect::TestCreate(SkRandom* random,
     GrColor paintColor;
     GrFragmentProcessor* processor;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
-                                               GrProcessorUnitTest::TestMatrix(random), NULL,
+                                               GrTest::TestMatrix(random), NULL,
                                                &paintColor, &processor));
     return processor;
 }
@@ -1221,7 +1221,7 @@ GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(SkRandom* random,
     GrFragmentProcessor* processor;
 
     SkAssertResult(shader->asFragmentProcessor(context, paint,
-                                               GrProcessorUnitTest::TestMatrix(random), NULL,
+                                               GrTest::TestMatrix(random), NULL,
                                                &paintColor, &processor));
     return processor;
 }

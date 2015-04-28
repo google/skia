@@ -299,7 +299,7 @@ GrFragmentProcessor* GrTextureDomainEffect::TestCreate(SkRandom* random,
     domain.fBottom = random->nextRangeScalar(domain.fTop, SK_Scalar1);
     GrTextureDomain::Mode mode =
         (GrTextureDomain::Mode) random->nextULessThan(GrTextureDomain::kModeCount);
-    const SkMatrix& matrix = GrProcessorUnitTest::TestMatrix(random);
+    const SkMatrix& matrix = GrTest::TestMatrix(random);
     bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? random->nextBool() : false;
     GrCoordSet coords = random->nextBool() ? kLocal_GrCoordSet : kDevice_GrCoordSet;
     return GrTextureDomainEffect::Create(textures[texIdx],

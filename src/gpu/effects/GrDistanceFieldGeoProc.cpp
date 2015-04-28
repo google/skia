@@ -283,7 +283,7 @@ GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(SkRandom* random,
                                                            GrTextureParams::kNone_FilterMode);
 
     return GrDistanceFieldA8TextGeoProc::Create(GrRandomColor(random),
-                                                GrProcessorUnitTest::TestMatrix(random),
+                                                GrTest::TestMatrix(random),
                                                 textures[texIdx], params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                 random->nextF(),
@@ -528,7 +528,7 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(SkRandom* random,
                                                          : GrTextureParams::kNone_FilterMode);
 
     return GrDistanceFieldPathGeoProc::Create(GrRandomColor(random),
-                                              GrProcessorUnitTest::TestMatrix(random),
+                                              GrTest::TestMatrix(random),
                                               textures[texIdx],
                                               params,
         random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0, random->nextBool());
@@ -818,7 +818,7 @@ GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(SkRandom* random,
     flags |= random->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
     flags |= random->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
     return GrDistanceFieldLCDTextGeoProc::Create(GrRandomColor(random),
-                                                 GrProcessorUnitTest::TestMatrix(random),
+                                                 GrTest::TestMatrix(random),
                                                  textures[texIdx], params,
                                                  wa,
                                                  flags);

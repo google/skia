@@ -80,6 +80,6 @@ GrFragmentProcessor* GrSimpleTextureEffect::TestCreate(SkRandom* random,
     };
     GrCoordSet coordSet = kCoordSets[random->nextULessThan(SK_ARRAY_COUNT(kCoordSets))];
 
-    const SkMatrix& matrix = GrProcessorUnitTest::TestMatrix(random);
+    const SkMatrix& matrix = GrTest::TestMatrix(random);
     return GrSimpleTextureEffect::Create(textures[texIdx], matrix, coordSet);
 }

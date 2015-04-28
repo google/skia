@@ -265,8 +265,8 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(SkRandom* random,
 
     return DefaultGeoProc::Create(flags,
                                   GrRandomColor(random),
-                                  GrProcessorUnitTest::TestMatrix(random),
-                                  GrProcessorUnitTest::TestMatrix(random),
+                                  GrTest::TestMatrix(random),
+                                  GrTest::TestMatrix(random),
                                   random->nextBool(),
                                   GrRandomCoverage(random));
 }
