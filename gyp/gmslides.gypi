@@ -71,6 +71,7 @@
         '../gm/composeshader.cpp',
         '../gm/conicpaths.cpp',
         '../gm/constcolorprocessor.cpp',
+        '../gm/convex_all_line_paths.cpp',
         '../gm/convexpaths.cpp',
         '../gm/convexpolyclip.cpp',
         '../gm/convexpolyeffect.cpp',
