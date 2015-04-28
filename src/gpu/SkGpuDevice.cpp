@@ -7,14 +7,13 @@
 
 #include "SkGpuDevice.h"
 
-#include "GrBitmapTextContext.h"
 #include "GrContext.h"
-#include "GrDistanceFieldTextContext.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
 #include "GrStrokeInfo.h"
+#include "GrTextContext.h"
 #include "GrTracing.h"
 #include "SkCanvasPriv.h"
 #include "SkDeviceImageFilterProxy.h"

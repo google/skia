@@ -7,7 +7,6 @@
 
 #include "GrStencilAndCoverTextContext.h"
 #include "GrAtlasTextContext.h"
-#include "GrBitmapTextContext.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
 #include "GrPath.h"
@@ -35,12 +34,8 @@ GrStencilAndCoverTextContext::Create(GrContext* context, SkGpuDevice* gpuDevice,
                                      const SkDeviceProperties& props) {
     GrStencilAndCoverTextContext* textContext = SkNEW_ARGS(GrStencilAndCoverTextContext,
                                                            (context, gpuDevice, props));
-#ifdef USE_BITMAP_TEXTBLOBS
     textContext->fFallbackTextContext = GrAtlasTextContext::Create(context, gpuDevice, props,
                                                                    false);
-#else
-    textContext->fFallbackTextContext = GrBitmapTextContext::Create(context, gpuDevice, props);
-#endif
 
     return textContext;
 }

@@ -6,7 +6,6 @@
  */
 #include "GrAtlasTextContext.h"
 
-#include "GrAtlas.h"
 #include "GrBatch.h"
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"

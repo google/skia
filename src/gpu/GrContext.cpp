@@ -15,10 +15,8 @@
 #include "GrBatchTarget.h"
 #include "GrBufferAllocPool.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrFontCache.h"
 #include "GrGpuResource.h"
 #include "GrGpuResourcePriv.h"
-#include "GrDistanceFieldTextContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
@@ -98,7 +96,6 @@ GrContext::GrContext(const Options& opts) : fOptions(opts) {
     fSoftwarePathRenderer = NULL;
     fResourceCache = NULL;
     fBatchFontCache = NULL;
-    fFontCache = NULL;
     fDrawBuffer = NULL;
     fDrawBufferVBAllocPool = NULL;
     fDrawBufferIBAllocPool = NULL;
@@ -122,8 +119,6 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
 void GrContext::initCommon() {
     fResourceCache = SkNEW(GrResourceCache);
     fResourceCache->setOverBudgetCallback(OverBudgetCB, this);
-
-    fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
     fLayerCache.reset(SkNEW_ARGS(GrLayerCache, (this)));
 
@@ -153,7 +148,6 @@ GrContext::~GrContext() {
 
     SkDELETE(fResourceCache);
     SkDELETE(fBatchFontCache);
-    SkDELETE(fFontCache);
     SkDELETE(fDrawBuffer);
     SkDELETE(fDrawBufferVBAllocPool);
     SkDELETE(fDrawBufferIBAllocPool);
@@ -191,7 +185,6 @@ void GrContext::abandonContext() {
     fOvalRenderer->reset();
 
     fBatchFontCache->freeAll();
-    fFontCache->freeAll();
     fLayerCache->freeAll();
     fTextBlobCache->freeAll();
 }
@@ -211,7 +204,6 @@ void GrContext::freeGpuResources() {
     fOvalRenderer->reset();
 
     fBatchFontCache->freeAll();
-    fFontCache->freeAll();
     fLayerCache->freeAll();
     // a path renderer may be holding onto resources
     SkSafeSetNull(fPathRendererChain);
@@ -241,12 +233,7 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
         }
     } 
 
-#ifdef USE_BITMAP_TEXTBLOBS
     return GrAtlasTextContext::Create(this, gpuDevice, leakyProperties, enableDistanceFieldFonts);
-#else
-    return GrDistanceFieldTextContext::Create(this, gpuDevice, leakyProperties,
-                                              enableDistanceFieldFonts);
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -465,12 +452,6 @@ void GrContext::drawPaint(GrRenderTarget* rt,
                          &localMatrix);
     }
 }
-
-#ifdef SK_DEVELOPER
-void GrContext::dumpFontCache() const {
-    fFontCache->dump();
-}
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

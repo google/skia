@@ -7,7 +7,6 @@
 
 #include "GrFlushToGpuDrawTarget.h"
 #include "GrContext.h"
-#include "GrFontCache.h"
 #include "GrGpu.h"
 #include "GrBufferAllocPool.h"
 
@@ -85,8 +84,6 @@ void GrFlushToGpuDrawTarget::flush() {
         return;
     }
     fFlushing = true;
-
-    fGpu->getContext()->getFontCache()->updateTextures();
 
     fGpu->saveActiveTraceMarkers();
 

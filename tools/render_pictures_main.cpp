@@ -478,9 +478,6 @@ int tool_main(int argc, char** argv) {
     if (renderer->isUsingGpuDevice()) {
         GrContext* ctx = renderer->getGrContext();
         ctx->printCacheStats();
-#ifdef SK_DEVELOPER
-        ctx->dumpFontCache();
-#endif
     }
 #endif
 

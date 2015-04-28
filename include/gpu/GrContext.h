@@ -21,7 +21,6 @@
 class GrAARectRenderer;
 class GrBatchFontCache;
 class GrDrawTarget;
-class GrFontCache;
 class GrFragmentProcessor;
 class GrGpu;
 class GrGpuTraceMarker;
@@ -647,16 +646,11 @@ public:
      */
     void discardRenderTarget(GrRenderTarget*);
 
-#ifdef SK_DEVELOPER
-    void dumpFontCache() const;
-#endif
-
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
     GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
-    GrFontCache* getFontCache() { return fFontCache; }
     GrLayerCache* getLayerCache() { return fLayerCache.get(); }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache; }
     GrDrawTarget* getTextTarget();
@@ -699,7 +693,6 @@ private:
 
     GrResourceCache*                fResourceCache;
     GrBatchFontCache*               fBatchFontCache;
-    GrFontCache*                    fFontCache;
     SkAutoTDelete<GrLayerCache>     fLayerCache;
     SkAutoTDelete<GrTextBlobCache>  fTextBlobCache;
 
