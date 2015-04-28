@@ -801,7 +801,6 @@ void SkCanvas::updateDeviceCMCache() {
 
 void SkCanvas::checkForDeferredSave() {
     if (fMCRec->fDeferredSaveCount > 0) {
-        fMCRec->fDeferredSaveCount -= 1;
         this->doSave();
     }
 }
@@ -830,6 +829,9 @@ int SkCanvas::save() {
 
 void SkCanvas::doSave() {
     this->willSave();
+
+    SkASSERT(fMCRec->fDeferredSaveCount > 0);
+    fMCRec->fDeferredSaveCount -= 1;
     this->internalSave();
 }
 
