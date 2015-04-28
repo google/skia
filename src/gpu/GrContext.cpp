@@ -1111,7 +1111,6 @@ void GrContext::drawVertices(GrRenderTarget* rt,
     RETURN_IF_ABANDONED
     AutoCheckFlush acf(this);
     GrPipelineBuilder pipelineBuilder;
-    GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
 
     GrDrawTarget* target = this->prepareToDraw(&pipelineBuilder, rt, clip, &paint, &acf);
     if (NULL == target) {
@@ -1596,7 +1595,6 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         if (!drawTarget) {
             return false;
         }
-        GrDrawTarget::AutoGeometryPush agp(drawTarget);
 
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.addColorProcessor(fp);
@@ -1719,7 +1717,6 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                 // clear to the caller that a draw operation (i.e., drawSimpleRect)
                 // can be invoked in this method
                 {
-                    GrDrawTarget::AutoGeometryPush agp(fDrawBuffer);
                     GrPipelineBuilder pipelineBuilder;
                     SkASSERT(fp);
                     pipelineBuilder.addColorProcessor(fp);

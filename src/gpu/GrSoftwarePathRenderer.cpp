@@ -9,6 +9,7 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrContext.h"
 #include "GrSWMaskHelper.h"
+#include "GrVertexBuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::canDrawPath(const GrDrawTarget*,

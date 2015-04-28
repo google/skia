@@ -16,6 +16,7 @@
 #include "GrInvariantOutput.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
+#include "GrVertexBuffer.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"

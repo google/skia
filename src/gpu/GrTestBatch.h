@@ -9,6 +9,7 @@
 #define GrTestBatch_DEFINED
 
 #include "GrBatch.h"
+#include "GrVertexBuffer.h"
 
 /*
  * A simple batch only for testing purposes which actually doesn't batch at all, but can fit into

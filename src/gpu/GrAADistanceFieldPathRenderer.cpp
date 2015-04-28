@@ -16,6 +16,7 @@
 #include "GrSurfacePriv.h"
 #include "GrSWMaskHelper.h"
 #include "GrTexturePriv.h"
+#include "GrVertexBuffer.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
 #include "SkDistanceFieldGen.h"

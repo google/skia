@@ -297,13 +297,6 @@ void GrInOrderDrawBuffer::onDrawRect(GrPipelineBuilder* pipelineBuilder,
     this->drawBatch(pipelineBuilder, batch, &bounds);
 }
 
-void GrInOrderDrawBuffer::onDraw(const GrGeometryProcessor* gp,
-                                 const DrawInfo& info,
-                                 const PipelineInfo& pipelineInfo) {
-    GrTargetCommands::Cmd* cmd = fCommands.recordDraw(this, gp, info, pipelineInfo);
-    this->recordTraceMarkersIfNecessary(cmd);
-}
-
 void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
                                       const PipelineInfo& pipelineInfo) {
     GrTargetCommands::Cmd* cmd = fCommands.recordDrawBatch(this, batch, pipelineInfo);
@@ -406,14 +399,4 @@ void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* c
             fGpuCmdMarkers.push_back(activeTraceMarkers);
         }
     }
-}
-
-void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(int vertexCount,
-                                                         size_t vertexStride,
-                                                         int indexCount) {
-#ifndef USE_BITMAP_TEXTBLOBS
-    fCommands.closeBatch();
-#endif
-
-    this->INHERITED::willReserveVertexAndIndexSpace(vertexCount, vertexStride, indexCount);
 }

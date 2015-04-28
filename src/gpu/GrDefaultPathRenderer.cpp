@@ -14,6 +14,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
+#include "GrVertexBuffer.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
@@ -691,7 +692,6 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             } else {
                 bounds = path.getBounds();
             }
-            GrDrawTarget::AutoGeometryPush agp(target);
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
             target->drawRect(pipelineBuilder, color, viewM, bounds, NULL, &localMatrix);

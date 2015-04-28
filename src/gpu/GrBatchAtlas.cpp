@@ -10,6 +10,7 @@
 #include "GrGpu.h"
 #include "GrRectanizer.h"
 #include "GrTracing.h"
+#include "GrVertexBuffer.h"
 
 static inline void adjust_for_offset(SkIPoint16* loc, const SkIPoint16& offset) {
     loc->fX += offset.fX;

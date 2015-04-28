@@ -50,10 +50,6 @@ public:
     void discard(GrRenderTarget*) override;
 
 protected:
-    void willReserveVertexAndIndexSpace(int vertexCount,
-                                        size_t vertexStride,
-                                        int indexCount) override;
-
     void appendIndicesAndTransforms(const void* indexValues, PathIndexType indexType, 
                                     const float* transformValues, PathTransformType transformType,
                                     int count, char** indicesLocation, float** xformsLocation) {
@@ -74,21 +70,6 @@ protected:
         }
     }
 
-    bool canConcatToIndexBuffer(const GrIndexBuffer** ib) {
-        const GrDrawTarget::GeometrySrcState& geomSrc = this->getGeomSrc();
-
-        // we only attempt to concat when reserved verts are used with a client-specified
-        // index buffer. To make this work with client-specified VBs we'd need to know if the VB
-        // was updated between draws.
-        if (kReserved_GeometrySrcType != geomSrc.fVertexSrc ||
-            kBuffer_GeometrySrcType != geomSrc.fIndexSrc) {
-            return false;
-        }
-
-        *ib = geomSrc.fIndexBuffer;
-        return true;
-    }
-
 private:
     friend class GrTargetCommands;
 
@@ -96,7 +77,6 @@ private:
     void onFlush() override;
 
     // overrides from GrDrawTarget
-    void onDraw(const GrGeometryProcessor*, const DrawInfo&, const PipelineInfo&) override;
     void onDrawBatch(GrBatch*, const PipelineInfo&) override;
     void onDrawRect(GrPipelineBuilder*,
                     GrColor,
@@ -131,10 +111,6 @@ private:
                        GrSurface* src,
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
-
-    // Attempts to concat instances from info onto the previous draw. info must represent an
-    // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
-    int concatInstancedDraw(const DrawInfo&);
 
     // We lazily record clip changes in order to skip clips that have no effect.
     void recordClipIfNecessary();

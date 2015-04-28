@@ -31,7 +31,6 @@
 class GrBatch;
 class GrClip;
 class GrDrawTargetCaps;
-class GrGeometryProcessor;
 class GrPath;
 class GrPathRange;
 class GrPipeline;
@@ -48,204 +47,12 @@ public:
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
     GrDrawTarget(GrContext* context);
-    virtual ~GrDrawTarget();
+    virtual ~GrDrawTarget() {}
 
     /**
      * Gets the capabilities of the draw target.
      */
     const GrDrawTargetCaps* caps() const { return fCaps.get(); }
-
-    /**
-     * There are two types of "sources" of geometry (vertices and indices) for
-     * draw calls made on the target. When performing an indexed draw, the
-     * indices and vertices can use different source types. Once a source is
-     * specified it can be used for multiple draws. However, the time at which
-     * the geometry data is no longer editable depends on the source type.
-     *
-     * Sometimes it is necessary to perform a draw while upstack code has
-     * already specified geometry that it isn't finished with. So there are push
-     * and pop methods. This allows the client to push the sources, draw
-     * something using alternate sources, and then pop to restore the original
-     * sources.
-     *
-     * Aside from pushes and pops, a source remains valid until another source
-     * is set or resetVertexSource / resetIndexSource is called. Drawing from
-     * a reset source is an error.
-     *
-     * The two types of sources are:
-     *
-     * 1. Reserve. This is most useful when the caller has data it must
-     *    transform before drawing and is not long-lived. The caller requests
-     *    that the draw target make room for some amount of vertex and/or index
-     *    data. The target provides ptrs to hold the vertex and/or index data.
-     *
-     *    The data is writable up until the next drawIndexed, drawNonIndexed,
-     *    drawIndexedInstances, drawRect, copySurface, or pushGeometrySource. At
-     *    this point the data is frozen and the ptrs are no longer valid.
-     *
-     *    Where the space is allocated and how it is uploaded to the GPU is
-     *    subclass-dependent.
-     *
-     * 2. Vertex and Index Buffers. This is most useful for geometry that will
-     *    is long-lived. When the data in the buffer is consumed depends on the
-     *    GrDrawTarget subclass. For deferred subclasses the caller has to
-     *    guarantee that the data is still available in the buffers at playback.
-     *    (TODO: Make this more automatic as we have done for read/write pixels)
-     */
-
-    /**
-     * Reserves space for vertices and/or indices. Zero can be specifed as
-     * either the vertex or index count if the caller desires to only reserve
-     * space for only indices or only vertices. If zero is specifed for
-     * vertexCount then the vertex source will be unmodified and likewise for
-     * indexCount.
-     *
-     * If the function returns true then the reserve suceeded and the vertices
-     * and indices pointers will point to the space created.
-     *
-     * If the target cannot make space for the request then this function will
-     * return false. If vertexCount was non-zero then upon failure the vertex
-     * source is reset and likewise for indexCount.
-     *
-     * The pointers to the space allocated for vertices and indices remain valid
-     * until a drawIndexed, drawNonIndexed, drawIndexedInstances, drawRect,
-     * copySurface, or push/popGeomtrySource is called. At that point logically a
-     * snapshot of the data is made and the pointers are invalid.
-     *
-     * @param vertexCount  the number of vertices to reserve space for. Can be
-     *                     0. Vertex size is queried from the current GrPipelineBuilder.
-     * @param indexCount   the number of indices to reserve space for. Can be 0.
-     * @param vertices     will point to reserved vertex space if vertexCount is
-     *                     non-zero. Illegal to pass NULL if vertexCount > 0.
-     * @param indices      will point to reserved index space if indexCount is
-     *                     non-zero. Illegal to pass NULL if indexCount > 0.
-     */
-     bool reserveVertexAndIndexSpace(int vertexCount,
-                                     size_t vertexStride,
-                                     int indexCount,
-                                     void** vertices,
-                                     void** indices);
-
-    /**
-     * Provides hints to caller about the number of vertices and indices
-     * that can be allocated cheaply. This can be useful if caller is reserving
-     * space but doesn't know exactly how much geometry is needed.
-     *
-     * Also may hint whether the draw target should be flushed first. This is
-     * useful for deferred targets.
-     *
-     * @param vertexCount  in: hint about how many vertices the caller would
-     *                     like to allocate. Vertex size is queried from the
-     *                     current GrPipelineBuilder.
-     *                     out: a hint about the number of vertices that can be
-     *                     allocated cheaply. Negative means no hint.
-     *                     Ignored if NULL.
-     * @param indexCount   in: hint about how many indices the caller would
-     *                     like to allocate.
-     *                     out: a hint about the number of indices that can be
-     *                     allocated cheaply. Negative means no hint.
-     *                     Ignored if NULL.
-     *
-     * @return  true if target should be flushed based on the input values.
-     */
-    virtual bool geometryHints(size_t vertexStride, int* vertexCount, int* indexCount) const;
-
-    /**
-     * Sets source of vertex data for the next draw. Data does not have to be
-     * in the buffer until drawIndexed, drawNonIndexed, or drawIndexedInstances.
-     *
-     * @param buffer        vertex buffer containing vertex data. Must be
-     *                      unlocked before draw call. Vertex size is queried
-     *                      from current GrPipelineBuilder.
-     */
-    void setVertexSourceToBuffer(const GrVertexBuffer* buffer, size_t vertexStride);
-
-    /**
-     * Sets source of index data for the next indexed draw. Data does not have
-     * to be in the buffer until drawIndexed.
-     *
-     * @param buffer index buffer containing indices. Must be unlocked
-     *               before indexed draw call.
-     */
-    void setIndexSourceToBuffer(const GrIndexBuffer* buffer);
-
-    /**
-     * Resets vertex source. Drawing from reset vertices is illegal. Set vertex
-     * source to reserved, array, or buffer before next draw. May be able to free
-     * up temporary storage allocated by setVertexSourceToArray or
-     * reserveVertexSpace.
-     */
-    void resetVertexSource();
-
-    /**
-     * Resets index source. Indexed Drawing from reset indices is illegal. Set
-     * index source to reserved, array, or buffer before next indexed draw. May
-     * be able to free up temporary storage allocated by setIndexSourceToArray
-     * or reserveIndexSpace.
-     */
-    void resetIndexSource();
-
-    /**
-     * Query to find out if the vertex or index source is reserved.
-     */
-    bool hasReservedVerticesOrIndices() const {
-        return kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc ||
-        kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
-    }
-
-    /**
-     * Pushes and resets the vertex/index sources. Any reserved vertex / index
-     * data is finalized (i.e. cannot be updated after the matching pop but can
-     * be drawn from). Must be balanced by a pop.
-     */
-    void pushGeometrySource();
-
-    /**
-     * Pops the vertex / index sources from the matching push.
-     */
-    void popGeometrySource();
-
-    /**
-     * Draws indexed geometry using the current state and current vertex / index
-     * sources.
-     *
-     * @param type         The type of primitives to draw.
-     * @param startVertex  the vertex in the vertex array/buffer corresponding
-     *                     to index 0
-     * @param startIndex   first index to read from index src.
-     * @param vertexCount  one greater than the max index.
-     * @param indexCount   the number of index elements to read. The index count
-     *                     is effectively trimmed to the last completely
-     *                     specified primitive.
-     * @param devBounds    optional bounds hint. This is a promise from the caller,
-     *                     not a request for clipping.
-     */
-    void drawIndexed(GrPipelineBuilder*,
-                     const GrGeometryProcessor*,
-                     GrPrimitiveType type,
-                     int startVertex,
-                     int startIndex,
-                     int vertexCount,
-                     int indexCount,
-                     const SkRect* devBounds = NULL);
-
-    /**
-     * Draws non-indexed geometry using the current state and current vertex
-     * sources.
-     *
-     * @param type         The type of primitives to draw.
-     * @param startVertex  the vertex in the vertex array/buffer corresponding
-     *                     to index 0
-     * @param vertexCount  one greater than the max index.
-     * @param devBounds    optional bounds hint. This is a promise from the caller,
-     *                     not a request for clipping.
-     */
-    void drawNonIndexed(GrPipelineBuilder*,
-                        const GrGeometryProcessor*,
-                        GrPrimitiveType type,
-                        int startVertex,
-                        int vertexCount,
-                        const SkRect* devBounds = NULL);
 
     // TODO devbounds should live on the batch
     void drawBatch(GrPipelineBuilder*, GrBatch*, const SkRect* devBounds = NULL);
@@ -290,8 +97,7 @@ public:
                    GrPathRendering::FillType fill);
 
     /**
-     * Helper function for drawing rects. It performs a geometry src push and pop
-     * and thus will finalize any reserved geometry.
+     * Helper function for drawing rects.
      *
      * @param rect        the rect to draw
      * @param localRect   optional rect that specifies local coords to map onto
@@ -323,43 +129,6 @@ public:
         this->drawRect(ds, color, viewM, rect, NULL, NULL);
     }
 
-    /**
-     * This call is used to draw multiple instances of some geometry with a
-     * given number of vertices (V) and indices (I) per-instance. The indices in
-     * the index source must have the form i[k+I] == i[k] + V. Also, all indices
-     * i[kI] ... i[(k+1)I-1] must be elements of the range kV ... (k+1)V-1. As a
-     * concrete example, the following index buffer for drawing a series of
-     * quads each as two triangles each satisfies these conditions with V=4 and
-     * I=6:
-     *      (0,1,2,0,2,3, 4,5,6,4,6,7, 8,9,10,8,10,11, ...)
-     *
-     * The call assumes that the pattern of indices fills the entire index
-     * source. The size of the index buffer limits the number of instances that
-     * can be drawn by the GPU in a single draw. However, the caller may specify
-     * any (positive) number for instanceCount and if necessary multiple GPU
-     * draws will be issued. Moreover, when drawIndexedInstances is called
-     * multiple times it may be possible for GrDrawTarget to group them into a
-     * single GPU draw.
-     *
-     * @param type          the type of primitives to draw
-     * @param instanceCount the number of instances to draw. Each instance
-     *                      consists of verticesPerInstance vertices indexed by
-     *                      indicesPerInstance indices drawn as the primitive
-     *                      type specified by type.
-     * @param verticesPerInstance   The number of vertices in each instance (V
-     *                              in the above description).
-     * @param indicesPerInstance    The number of indices in each instance (I
-     *                              in the above description).
-     * @param devBounds    optional bounds hint. This is a promise from the caller,
-     *                     not a request for clipping.
-     */
-    void drawIndexedInstances(GrPipelineBuilder*,
-                              const GrGeometryProcessor*,
-                              GrPrimitiveType type,
-                              int instanceCount,
-                              int verticesPerInstance,
-                              int indicesPerInstance,
-                              const SkRect* devBounds = NULL);
 
     /**
      * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole
@@ -425,55 +194,6 @@ public:
      */
     virtual void purgeResources() {};
 
-    ////////////////////////////////////////////////////////////////////////////
-
-    class AutoReleaseGeometry : public ::SkNoncopyable {
-    public:
-        AutoReleaseGeometry(GrDrawTarget*  target,
-                            int            vertexCount,
-                            size_t         vertexStride,
-                            int            indexCount);
-        AutoReleaseGeometry();
-        ~AutoReleaseGeometry();
-        bool set(GrDrawTarget*  target,
-                 int            vertexCount,
-                 size_t         vertexStride,
-                 int            indexCount);
-        bool succeeded() const { return SkToBool(fTarget); }
-        void* vertices() const { SkASSERT(this->succeeded()); return fVertices; }
-        void* indices() const { SkASSERT(this->succeeded()); return fIndices; }
-        SkPoint* positions() const {
-            return static_cast<SkPoint*>(this->vertices());
-        }
-
-    private:
-        void reset();
-
-        GrDrawTarget* fTarget;
-        void*         fVertices;
-        void*         fIndices;
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Saves the geometry src state at construction and restores in the destructor. It also saves
-     * and then restores the vertex attrib state.
-     */
-    class AutoGeometryPush : public ::SkNoncopyable {
-    public:
-        AutoGeometryPush(GrDrawTarget* target) {
-            SkASSERT(target);
-            fTarget = target;
-            target->pushGeometrySource();
-        }
-
-        ~AutoGeometryPush() { fTarget->popGeometrySource(); }
-
-    private:
-        GrDrawTarget*                           fTarget;
-    };
-
     ///////////////////////////////////////////////////////////////////////////
     // Draw execution tracking (for font atlases and other resources)
     class DrawToken {
@@ -528,10 +248,16 @@ public:
         // adds or remove instances
         void adjustInstanceCount(int instanceOffset);
         // shifts the start vertex
-        void adjustStartVertex(int vertexOffset);
+        void adjustStartVertex(int vertexOffset) {
+            fStartVertex += vertexOffset;
+            SkASSERT(fStartVertex >= 0);
+        }
         // shifts the start index
-        void adjustStartIndex(int indexOffset);
-
+        void adjustStartIndex(int indexOffset) {
+            SkASSERT(this->isIndexed());
+            fStartIndex += indexOffset;
+            SkASSERT(fStartIndex >= 0);
+        }
         void setDevBounds(const SkRect& bounds) {
             fDevBoundsStorage = bounds;
             fDevBounds = &fDevBoundsStorage;
@@ -567,72 +293,13 @@ public:
         GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>  fIndexBuffer;
     };
 
-    /**
-     * Used to populate the vertex and index buffer on the draw info before onDraw is called.
-     */
-    virtual void setDrawBuffers(DrawInfo*, size_t vertexStride) = 0;
     bool programUnitTest(int maxStages);
 
 protected:
     friend class GrTargetCommands; // for PipelineInfo
 
-    enum GeometrySrcType {
-        kNone_GeometrySrcType,     //<! src has not been specified
-        kReserved_GeometrySrcType, //<! src was set using reserve*Space
-        kBuffer_GeometrySrcType    //<! src was set using set*SourceToBuffer
-    };
-
-    struct GeometrySrcState {
-        GeometrySrcType         fVertexSrc;
-        union {
-            // valid if src type is buffer
-            const GrVertexBuffer*   fVertexBuffer;
-            // valid if src type is reserved or array
-            int                     fVertexCount;
-        };
-
-        GeometrySrcType         fIndexSrc;
-        union {
-            // valid if src type is buffer
-            const GrIndexBuffer*    fIndexBuffer;
-            // valid if src type is reserved or array
-            int                     fIndexCount;
-        };
-
-        size_t                  fVertexSize;
-    };
-
-    int indexCountInCurrentSource() const {
-        const GeometrySrcState& src = this->getGeomSrc();
-        switch (src.fIndexSrc) {
-            case kNone_GeometrySrcType:
-                return 0;
-            case kReserved_GeometrySrcType:
-                return src.fIndexCount;
-            case kBuffer_GeometrySrcType:
-                return static_cast<int>(src.fIndexBuffer->gpuMemorySize() / sizeof(uint16_t));
-            default:
-                SkFAIL("Unexpected Index Source.");
-                return 0;
-        }
-    }
-
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }
-
-    // subclasses must call this in their destructors to ensure all vertex
-    // and index sources have been released (including those held by
-    // pushGeometrySource())
-    void releaseGeometry();
-
-    // accessors for derived classes
-    const GeometrySrcState& getGeomSrc() const { return fGeoSrcStateStack.back(); }
-    // it is preferable to call this rather than getGeomSrc()->fVertexSize because of the assert.
-    size_t getVertexSize() const {
-        // the vertex layout is only valid if a vertex source has been specified.
-        SkASSERT(this->getGeomSrc().fVertexSrc != kNone_GeometrySrcType);
-        return this->getGeomSrc().fVertexSize;
-    }
 
     // Subclass must initialize this in its constructor.
     SkAutoTUnref<const GrDrawTargetCaps> fCaps;
@@ -674,12 +341,6 @@ protected:
 
     void setupPipeline(const PipelineInfo& pipelineInfo, GrPipeline* pipeline);
 
-    // A subclass can optionally overload this function to be notified before
-    // vertex and index space is reserved.
-    virtual void willReserveVertexAndIndexSpace(int vertexCount,
-                                                size_t vertexStride,
-                                                int indexCount) {}
-
 private:
     /**
      * This will be called before allocating a texture as a dst for copySurface. This function
@@ -700,17 +361,6 @@ private:
                                 const SkIRect& clippedSrcRect,
                                 const SkIPoint& clippedDstRect);
 
-    // implemented by subclass to allocate space for reserved geom
-    virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) = 0;
-    virtual bool onReserveIndexSpace(int indexCount, void** indices) = 0;
-    // implemented by subclass to handle release of reserved geom space
-    virtual void releaseReservedVertexSpace() = 0;
-    virtual void releaseReservedIndexSpace() = 0;
-    // subclass overrides to be notified just before geo src state is pushed/popped.
-    virtual void geometrySourceWillPush() = 0;
-    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
-    // subclass called to perform drawing
-    virtual void onDraw(const GrGeometryProcessor*, const DrawInfo&, const PipelineInfo&) = 0;
     virtual void onDrawBatch(GrBatch*, const PipelineInfo&) = 0;
     // TODO copy in order drawbuffer onDrawRect to here
     virtual void onDrawRect(GrPipelineBuilder*,
@@ -766,25 +416,6 @@ private:
      */
     virtual bool onInitCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* dstDesc) = 0;
 
-    // helpers for reserving vertex and index space.
-    bool reserveVertexSpace(size_t vertexSize,
-                            int vertexCount,
-                            void** vertices);
-    bool reserveIndexSpace(int indexCount, void** indices);
-
-    // called by drawIndexed and drawNonIndexed. Use a negative indexCount to
-    // indicate non-indexed drawing.
-    bool checkDraw(const GrPipelineBuilder&,
-                   const GrGeometryProcessor*,
-                   GrPrimitiveType type,
-                   int startVertex,
-                   int startIndex,
-                   int vertexCount,
-                   int indexCount) const;
-    // called when setting a new vert/idx source to unref prev vb/ib
-    void releasePreviousVertexSource();
-    void releasePreviousIndexSource();
-
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
     void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
@@ -797,10 +428,6 @@ private:
                            GrScissorState*,
                            const SkRect* devBounds) = 0;
 
-    enum {
-        kPreallocGeoSrcStateStackCnt = 4,
-    };
-    SkSTArray<kPreallocGeoSrcStateStackCnt, GeometrySrcState, true> fGeoSrcStateStack;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
     GrContext*                                                      fContext;
     // To keep track that we always have at least as many debug marker adds as removes

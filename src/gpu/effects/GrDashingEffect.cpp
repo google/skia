@@ -19,6 +19,7 @@
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrStrokeInfo.h"
+#include "GrVertexBuffer.h"
 #include "SkGr.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLProcessor.h"

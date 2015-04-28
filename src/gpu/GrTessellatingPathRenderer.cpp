@@ -11,6 +11,7 @@
 #include "GrBatchTarget.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
+#include "GrVertexBuffer.h"
 #include "SkChunkAlloc.h"
 #include "SkGeometry.h"
 

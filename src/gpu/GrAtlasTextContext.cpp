@@ -16,6 +16,7 @@
 #include "GrStrokeInfo.h"
 #include "GrTextBlobCache.h"
 #include "GrTexturePriv.h"
+#include "GrVertexBuffer.h"
 
 #include "SkAutoKern.h"
 #include "SkColorPriv.h"

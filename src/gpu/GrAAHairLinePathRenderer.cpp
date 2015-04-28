@@ -18,6 +18,7 @@
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
+#include "GrVertexBuffer.h"
 #include "SkGeometry.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
