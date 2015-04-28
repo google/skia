@@ -165,7 +165,7 @@ protected:
         };
         SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gSizes) == SK_ARRAY_COUNT(gPoints), array_mismatch);
 
-        SkAutoTDelete<SkPoint> data;
+        SkAutoTDeleteArray<SkPoint> data(NULL);
         const SkPoint* points;
         int numPts;
         if (index < (int) SK_ARRAY_COUNT(gPoints)) {
