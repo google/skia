@@ -128,10 +128,10 @@ void GLCircleEffect::emitCode(GrGLFPBuilder* builder,
                               const TextureSamplerArray& samplers) {
     const CircleEffect& ce = fp.cast<CircleEffect>();
     const char *circleName;
-    // The circle uniform is (center.x, center.y, radius + 0.5) for regular fills and
-    // (... ,radius - 0.5) for inverse fills.
+    // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
+    // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
     fCircleUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                         kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                                          "circle",
                                          &circleName);
 
@@ -139,12 +139,16 @@ void GLCircleEffect::emitCode(GrGLFPBuilder* builder,
     const char* fragmentPos = fsBuilder->fragmentPosition();
 
     SkASSERT(kHairlineAA_GrProcessorEdgeType != ce.getEdgeType());
+    // TODO: Right now the distance to circle caclulation is performed in a space normalized to the
+    // radius and then denormalized. This is to prevent overflow on devices that have a "real"
+    // mediump. It'd be nice to only to this on mediump devices but we currently don't have the
+    // caps here.
     if (GrProcessorEdgeTypeIsInverseFill(ce.getEdgeType())) {
-        fsBuilder->codeAppendf("\t\tfloat d = length(%s.xy - %s.xy) - %s.z;\n",
-                                circleName, fragmentPos, circleName);
+        fsBuilder->codeAppendf("\t\tfloat d = (length((%s.xy - %s.xy) * %s.w) - 1.0) * %s.z;\n",
+                                circleName, fragmentPos, circleName, circleName);
     } else {
-        fsBuilder->codeAppendf("\t\tfloat d = %s.z - length(%s.xy - %s.xy);\n",
-                               circleName, fragmentPos, circleName);
+        fsBuilder->codeAppendf("\t\tfloat d = (1.0 - length((%s.xy - %s.xy) *  %s.w)) * %s.z;\n",
+                               circleName, fragmentPos, circleName, circleName);
     }
     if (GrProcessorEdgeTypeIsAA(ce.getEdgeType())) {
         fsBuilder->codeAppend("\t\td = clamp(d, 0.0, 1.0);\n");
@@ -171,7 +175,8 @@ void GLCircleEffect::setData(const GrGLProgramDataManager& pdman, const GrProces
         } else {
             radius += 0.5f;
         }
-        pdman.set3f(fCircleUniform, ce.getCenter().fX, ce.getCenter().fY, radius);
+        pdman.set4f(fCircleUniform, ce.getCenter().fX, ce.getCenter().fY, radius,
+                    SkScalarInvert(radius));
         fPrevCenter = ce.getCenter();
         fPrevRadius = ce.getRadius();
     }

@@ -49,6 +49,20 @@ protected:
 
         SkPaint fillPaint;
 
+        // Giant background circular clips (AA, non-inverted, replace/isect)
+        fillPaint.setColor(0x80808080);
+        canvas->save();
+        canvas->scale(10, 10);
+        canvas->translate(-((fX1 + fX2)/2 - fR), -(fY - 2*fR/3));
+        canvas->clipPath(fCircle1, SkRegion::kReplace_Op, true);
+        canvas->clipPath(fCircle2, SkRegion::kIntersect_Op, true);
+
+        canvas->drawRect(rect, fillPaint);
+
+        canvas->restore();
+      
+        fillPaint.setColor(0xFF000000);
+
         for (size_t i = 0; i < 4; i++) {
             fCircle1.toggleInverseFillType();
             if (i % 2 == 0) {
