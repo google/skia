@@ -4,8 +4,10 @@ Commit Queue Keywords
 COMMIT
 ------
 
-If you want to test your CL through the commit queue but are not ready to commit 
-the changes yet, you can add the following line to the CL description:
+If you are working on experimental code and do not want to risk accidentally
+submitting the change via the CQ, then you can mark it with "COMMIT=false".
+The CQ will immediately abandon the change if it contains this option.
+To do a dry run through the CQ please use Rietveld's [dry run](https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/G5-X0_tfmok) feature.
 
     COMMIT=false
 
