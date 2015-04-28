@@ -16,7 +16,7 @@
 
 class SkDisplayMath : public SkDisplayable {
     DECLARE_DISPLAY_MEMBER_INFO(Math);
-    virtual void executeFunction(SkDisplayable* , int index,
+    void executeFunction(SkDisplayable* , int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* ) override;
     const SkFunctionParamType* getFunctionsParameters() override;

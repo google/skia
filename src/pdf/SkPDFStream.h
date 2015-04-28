@@ -40,9 +40,9 @@ public:
     virtual ~SkPDFStream();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
+    void emitObject(SkWStream* stream,
+                    const SkPDFObjNumMap& objNumMap,
+                    const SkPDFSubstituteMap& substitutes) override;
 
 protected:
     enum State {

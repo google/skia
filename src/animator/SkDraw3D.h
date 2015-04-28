@@ -38,7 +38,7 @@ private:
 class Sk3D_Patch : public SkDisplayable {
     DECLARE_MEMBER_INFO(3D_Patch);
 private:
-    virtual void executeFunction(SkDisplayable* , int index,
+    void executeFunction(SkDisplayable* , int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* ) override;
     const SkFunctionParamType* getFunctionsParameters() override;

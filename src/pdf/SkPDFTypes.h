@@ -257,11 +257,11 @@ public:
     virtual ~SkPDFArray();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
-    virtual void addResources(SkPDFObjNumMap*,
-                              const SkPDFSubstituteMap&) const override;
+    void emitObject(SkWStream* stream,
+                    const SkPDFObjNumMap& objNumMap,
+                    const SkPDFSubstituteMap& substitutes) override;
+    void addResources(SkPDFObjNumMap*,
+                      const SkPDFSubstituteMap&) const override;
 
     /** The size of the array.
      */
@@ -319,11 +319,11 @@ public:
     virtual ~SkPDFDict();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) override;
-    virtual void addResources(SkPDFObjNumMap*,
-                              const SkPDFSubstituteMap&) const override;
+    void emitObject(SkWStream* stream,
+                    const SkPDFObjNumMap& objNumMap,
+                    const SkPDFSubstituteMap& substitutes) override;
+    void addResources(SkPDFObjNumMap*,
+                      const SkPDFSubstituteMap&) const override;
 
     /** The size of the dictionary.
      */

@@ -28,9 +28,9 @@ public:
     }
 
 protected:
-    virtual SkCanvas* onBeginPage(SkScalar width,
-                                  SkScalar height,
-                                  const SkRect& trimBox) override {
+    SkCanvas* onBeginPage(SkScalar width,
+                          SkScalar height,
+                          const SkRect& trimBox) override {
         fDevice.beginSheet(fUnitsPerMeter, fPixelsPerMeter,
                            SkSize::Make(width, height));
         fCanvas.reset(SkNEW_ARGS(SkCanvas, (&fDevice)));

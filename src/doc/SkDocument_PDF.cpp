@@ -305,8 +305,8 @@ public:
     }
 
 protected:
-    virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height,
-                                  const SkRect& trimBox) override {
+    SkCanvas* onBeginPage(SkScalar width, SkScalar height,
+                          const SkRect& trimBox) override {
         SkASSERT(!fCanvas.get());
 
         SkISize pageSize = SkISize::Make(
