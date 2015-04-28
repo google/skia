@@ -1,6 +1,42 @@
 Linux
 =====
 
+Quickstart
+----------
+
+1.  Install depot tools.
+
+    <!--?prettify lang=sh?-->
+
+        git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+        export PATH="${PWD}/depot_tools:${PATH}"
+
+2.  Get Skia.
+
+    <!--?prettify lang=sh?-->
+
+        git clone 'https://skia.googlesource.com/skia'
+        cd skia
+
+3.  Install Dependencies (may require sudo).
+
+    <!--?prettify lang=sh?-->
+
+        tools/install_dependencies.sh
+
+4.  Build.
+
+    <!--?prettify lang=sh?-->
+
+        bin/sync-and-gyp && ninja -C out/Debug
+
+5.  Run DM (the Skia test app) and SampleApp.
+
+    <!--?prettify lang=sh?-->
+
+        out/Debug/dm
+        out/Debug/SampleApp
+
 Prerequisites
 -------------
 
