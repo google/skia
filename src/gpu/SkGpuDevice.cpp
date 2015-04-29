@@ -1959,7 +1959,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
             texture->asRenderTarget(), cinfo.fInfo.width(), cinfo.fInfo.height(), &props, flags);
     } else {
         SkErrorInternals::SetError( kInternalError_SkError,
-                                    "---- failed to create compatible device texture [%d %d]\n",
+                                    "---- failed to create gpu device texture [%d %d]\n",
                                     cinfo.fInfo.width(), cinfo.fInfo.height());
         return NULL;
     }

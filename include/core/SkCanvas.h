@@ -1257,7 +1257,7 @@ private:
     MCRec*      fMCRec;
     // the first N recs that can fit here mean we won't call malloc
     enum {
-        kMCRecSize  = 128,   // most recent measurement
+        kMCRecSize  = 136,   // most recent measurement
         kMCRecCount = 8,     // common depth for save/restores
     };
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
@@ -1330,7 +1330,7 @@ private:
                                 const SkRect& dst, const SkPaint* paint);
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SkRect* bounds, const SkPaint*, SaveFlags, SaveLayerStrategy);
-    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*);
+    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, bool isBitmapDevice);
 
     // shared by save() and saveLayer()
     void internalSave();

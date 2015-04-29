@@ -348,6 +348,13 @@ protected:
     /**
      *  Create a new device based on CreateInfo. If the paint is not null, then it represents a
      *  preview of how the new device will be composed with its creator device (this).
+     *
+     *  The subclass may be handed this device in drawDevice(), so it must always return
+     *  a device that it knows how to draw, and that it knows how to identify if it is not of the
+     *  same subclass (since drawDevice is passed a SkBaseDevice*). If the subclass cannot fulfill
+     *  that contract (e.g. PDF cannot support some settings on the paint) it should return NULL,
+     *  and the caller may then decide to explicitly create a bitmapdevice, knowing that later
+     *  it could not call drawDevice with it (but it could call drawSprite or drawBitmap).
      */
     virtual SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) {
         return NULL;

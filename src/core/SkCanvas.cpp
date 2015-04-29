@@ -111,13 +111,16 @@ struct DeviceCM {
     DeviceCM*           fNext;
     SkBaseDevice*       fDevice;
     SkRasterClip        fClip;
-    const SkMatrix*     fMatrix;
     SkPaint*            fPaint; // may be null (in the future)
+    const SkMatrix*     fMatrix;
+    SkMatrix            fMatrixStorage;
+    const bool          fDeviceIsBitmapDevice;
 
     DeviceCM(SkBaseDevice* device, const SkPaint* paint, SkCanvas* canvas,
-             bool conservativeRasterClip)
+             bool conservativeRasterClip, bool deviceIsBitmapDevice)
         : fNext(NULL)
         , fClip(conservativeRasterClip)
+        , fDeviceIsBitmapDevice(deviceIsBitmapDevice)
     {
         if (NULL != device) {
             device->ref();
@@ -180,9 +183,6 @@ struct DeviceCM {
         }
 #endif
     }
-
-private:
-    SkMatrix    fMatrixStorage;
 };
 
 /*  This is the record we keep for each save/restore level in the stack.
@@ -486,7 +486,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fBaseLayerStorage));
     fMCRec->fLayer = (DeviceCM*)fBaseLayerStorage;
-    new (fBaseLayerStorage) DeviceCM(NULL, NULL, NULL, fConservativeRasterClip);
+    new (fBaseLayerStorage) DeviceCM(NULL, NULL, NULL, fConservativeRasterClip, false);
 
     fMCRec->fTopLayer = fMCRec->fLayer;
 
@@ -985,16 +985,27 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
         return;
     }
 
-    SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
-    device = device->onCreateDevice(SkBaseDevice::CreateInfo(info, usage, geo), paint);
-    if (NULL == device) {
-        SkErrorInternals::SetError( kInternalError_SkError,
-                                    "Unable to create device for layer.");
-        return;
+    bool forceSpriteOnRestore = false;
+    {
+        const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
+        const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo);
+        SkBaseDevice* newDev = device->onCreateDevice(createInfo, paint);
+        if (NULL == newDev) {
+            // If onCreateDevice didn't succeed, try raster (e.g. PDF couldn't handle the paint)
+            newDev = SkBitmapDevice::Create(createInfo.fInfo);
+            if (NULL == newDev) {
+                SkErrorInternals::SetError(kInternalError_SkError,
+                                           "Unable to create device for layer.");
+                return;
+            }
+            forceSpriteOnRestore = true;
+        }
+        device = newDev;
     }
 
     device->setOrigin(ir.fLeft, ir.fTop);
-    DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, paint, this, fConservativeRasterClip));
+    DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, paint, this, fConservativeRasterClip,
+                                            forceSpriteOnRestore));
     device->unref();
 
     layer->fNext = fMCRec->fTopLayer;
@@ -1043,7 +1054,7 @@ void SkCanvas::internalRestore() {
         if (layer->fNext) {
             const SkIPoint& origin = layer->fDevice->getOrigin();
             this->internalDrawDevice(layer->fDevice, origin.x(), origin.y(),
-                                     layer->fPaint);
+                                     layer->fPaint, layer->fDeviceIsBitmapDevice);
             // reset this, since internalDrawDevice will have set it to true
             fDeviceCMDirty = true;
             SkDELETE(layer);
@@ -1155,7 +1166,7 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
 }
 
 void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
-                                  const SkPaint* paint) {
+                                  const SkPaint* paint, bool deviceIsBitmapDevice) {
     SkPaint tmp;
     if (NULL == paint) {
         paint = &tmp;
@@ -1183,6 +1194,9 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
                 dstDev->drawSprite(iter, dst, pos.x() + offset.x(), pos.y() + offset.y(),
                                    tmpUnfiltered);
             }
+        } else if (deviceIsBitmapDevice) {
+            const SkBitmap& src = srcDev->accessBitmap(false);
+            dstDev->drawSprite(iter, src, pos.x(), pos.y(), *paint);
         } else {
             dstDev->drawDevice(iter, srcDev, pos.x(), pos.y(), *paint);
         }
