@@ -241,10 +241,6 @@ SkPicture::~SkPicture() {
     }
 }
 
-void SkPicture::EXPERIMENTAL_addAccelData(const SkPicture::AccelData* data) const {
-    fAccelData.reset(SkRef(data));
-}
-
 const SkPicture::AccelData* SkPicture::EXPERIMENTAL_getAccelData(
         SkPicture::AccelData::Key key) const {
     if (fAccelData.get() && fAccelData->getKey() == key) {
@@ -452,13 +448,18 @@ bool SkPicture::hasText()             const { return fAnalysis.fHasText; }
 bool SkPicture::willPlayBackBitmaps() const { return fAnalysis.fWillPlaybackBitmaps; }
 int  SkPicture::approximateOpCount()  const { return fRecord->count(); }
 
-SkPicture::SkPicture(const SkRect& cullRect, SkRecord* record, SnapshotArray* drawablePicts,
-                     SkBBoxHierarchy* bbh, size_t approxBytesUsedBySubPictures)
+SkPicture::SkPicture(const SkRect& cullRect,
+                     SkRecord* record,
+                     SnapshotArray* drawablePicts,
+                     SkBBoxHierarchy* bbh,
+                     AccelData* accelData,
+                     size_t approxBytesUsedBySubPictures)
     : fUniqueID(0)
     , fCullRect(cullRect)
-    , fRecord(record)   // For performance, we take ownership of the caller's ref.
-    , fBBH(bbh)         // Ditto.
-    , fDrawablePicts(drawablePicts)     // take ownership
+    , fRecord(record)               // Take ownership of caller's ref.
+    , fDrawablePicts(drawablePicts) // Take ownership.
+    , fBBH(bbh)                     // Take ownership of caller's ref.
+    , fAccelData(accelData)         // Take ownership of caller's ref.
     , fApproxBytesUsedBySubPictures(approxBytesUsedBySubPictures)
     , fAnalysis(*fRecord)
 {}

@@ -77,14 +77,12 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
     for (int i = 0; pictList && i < pictList->count(); i++) {
         subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
     }
-    SkPicture* pict = SkNEW_ARGS(SkPicture,
-            (fCullRect, fRecord.detach(), pictList, fBBH.detach(), subPictureBytes));
-
-    if (saveLayerData) {
-        pict->EXPERIMENTAL_addAccelData(saveLayerData);
-    }
-
-    return pict;
+    return SkNEW_ARGS(SkPicture, (fCullRect,
+                                  fRecord.detach(),
+                                  pictList,
+                                  fBBH.detach(),
+                                  saveLayerData.detach(),
+                                  subPictureBytes));
 }
 
 void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
@@ -161,13 +159,12 @@ protected:
         }
         // SkPicture will take ownership of a ref on both fRecord and fBBH.
         // We're not willing to give up our ownership, so we must ref them for SkPicture.
-        SkPicture* pict = SkNEW_ARGS(SkPicture,
-                (fBounds, SkRef(fRecord.get()), pictList, SkSafeRef(fBBH.get()), subPictureBytes));
-
-        if (saveLayerData) {
-            pict->EXPERIMENTAL_addAccelData(saveLayerData);
-        }
-        return pict;
+        return SkNEW_ARGS(SkPicture, (fBounds,
+                                      SkRef(fRecord.get()),
+                                      pictList,
+                                      SkSafeRef(fBBH.get()),
+                                      saveLayerData.detach(),
+                                      subPictureBytes));
     }
 };
 

@@ -41,8 +41,7 @@ namespace SkRecords {
 */
 class SK_API SkPicture : public SkNVRefCnt<SkPicture> {
 public:
-    // AccelData provides a base class for device-specific acceleration
-    // data. It is added to the picture via EXPERIMENTAL_addAccelData.
+    // AccelData provides a base class for device-specific acceleration data.
     class AccelData : public SkRefCnt {
     public:
         typedef uint8_t Domain;
@@ -58,9 +57,6 @@ public:
     private:
         Key fKey;
     };
-
-    /**  PRIVATE / EXPERIMENTAL -- do not call */
-    void EXPERIMENTAL_addAccelData(const AccelData*) const;
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     const AccelData* EXPERIMENTAL_getAccelData(AccelData::Key) const;
@@ -260,11 +256,12 @@ private:
     static bool IsValidPictInfo(const SkPictInfo& info);
 
     // Takes ownership of the (optional) SnapshotArray.
-    // For performance, we take ownership of the caller's refs on the SkRecord and BBH.
+    // For performance, we take ownership of the caller's refs on the SkRecord, BBH, and AccelData.
     SkPicture(const SkRect& cullRect,
               SkRecord*,
               SnapshotArray*,
               SkBBoxHierarchy*,
+              AccelData*,
               size_t approxBytesUsedBySubPictures);
 
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
@@ -274,10 +271,10 @@ private:
     // uint32_t fRefCnt; from SkNVRefCnt<SkPicture>
     mutable uint32_t                      fUniqueID;
     const SkRect                          fCullRect;
-    mutable SkAutoTUnref<const AccelData> fAccelData;
     SkAutoTUnref<const SkRecord>          fRecord;
-    SkAutoTUnref<const SkBBoxHierarchy>   fBBH;
     SkAutoTDelete<const SnapshotArray>    fDrawablePicts;
+    SkAutoTUnref<const SkBBoxHierarchy>   fBBH;
+    SkAutoTUnref<const AccelData>         fAccelData;
     const size_t                          fApproxBytesUsedBySubPictures;
 
     // helpers for fDrawablePicts
