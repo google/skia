@@ -425,20 +425,28 @@ static void create_vertices(const SegmentArray&  segments,
             verts[*v + 3].fD0 = verts[*v + 3].fD1 = -SK_Scalar1;
             verts[*v + 4].fD0 = verts[*v + 4].fD1 = -SK_Scalar1;
 
-            idxs[*i + 0] = *v + 0;
-            idxs[*i + 1] = *v + 2;
-            idxs[*i + 2] = *v + 1;
+            idxs[*i + 0] = *v + 3;
+            idxs[*i + 1] = *v + 1;
+            idxs[*i + 2] = *v + 2;
 
-            idxs[*i + 3] = *v + 3;
-            idxs[*i + 4] = *v + 1;
+            idxs[*i + 3] = *v + 4;
+            idxs[*i + 4] = *v + 3;
             idxs[*i + 5] = *v + 2;
 
-            idxs[*i + 6] = *v + 4;
-            idxs[*i + 7] = *v + 3;
-            idxs[*i + 8] = *v + 2;
+            *i += 6;
+
+            // Draw the interior fan if it exists.
+            // TODO: Detect and combine colinear segments. This will ensure we catch every case
+            // with no interior, and that the resulting shared edge uses the same endpoints.
+            if (count >= 3) {
+                idxs[*i + 0] = *v + 0;
+                idxs[*i + 1] = *v + 2;
+                idxs[*i + 2] = *v + 1;
+
+                *i += 3;
+            }
 
             *v += 5;
-            *i += 9;
         } else {
             SkPoint qpts[] = {sega.endPt(), segb.fPts[0], segb.fPts[1]};
 
@@ -482,12 +490,20 @@ static void create_vertices(const SegmentArray&  segments,
             idxs[*i + 7] = *v + 3;
             idxs[*i + 8] = *v + 4;
 
-            idxs[*i +  9] = *v + 0;
-            idxs[*i + 10] = *v + 2;
-            idxs[*i + 11] = *v + 1;
+            *i += 9;
+
+            // Draw the interior fan if it exists.
+            // TODO: Detect and combine colinear segments. This will ensure we catch every case
+            // with no interior, and that the resulting shared edge uses the same endpoints.
+            if (count >= 3) {
+                idxs[*i + 0] = *v + 0;
+                idxs[*i + 1] = *v + 2;
+                idxs[*i + 2] = *v + 1;
+
+                *i += 3;
+            }
 
             *v += 6;
-            *i += 12;
         }
     }
 }
