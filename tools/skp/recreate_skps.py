@@ -64,10 +64,15 @@ def main(chrome_src_path, browser_executable):
 
   try:
     shell_utils.run(webpages_playback_cmd)
+
     # Temporary change to enable Slimming Paint runs. See skia:3763.
+    chromium_page_sets_path = os.path.join(
+        chrome_src_path, 'tools', 'perf', 'page_sets')
     webpages_playback_cmd.extend([
         '--skp_prefix', 'sp_',
         '--browser_extra_args', '--enable-slimming-paint',
+        '--page_sets', '%s' % (
+            os.path.join(chromium_page_sets_path, 'top_25_smooth.py'))
     ])
     shell_utils.run(webpages_playback_cmd)
   finally:
