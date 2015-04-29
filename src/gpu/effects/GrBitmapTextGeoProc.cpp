@@ -60,7 +60,7 @@ public:
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, cte.inPosition()->fName,
                              cte.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-        GrGLGPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         if (cte.maskFormat() == kARGB_GrMaskFormat) {
             fsBuilder->codeAppendf("%s = ", args.fOutputColor);
             fsBuilder->appendTextureLookupAndModulate(args.fOutputColor,

@@ -647,7 +647,7 @@ void GrGLPerlinNoise::emitCode(GrGLFPBuilder* builder,
                                const TextureSamplerArray& samplers) {
     sk_ignore_unused_variable(inputColor);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString vCoords = fsBuilder->ensureFSCoords2D(coords, 0);
 
     fBaseFrequencyUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,

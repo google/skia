@@ -16,7 +16,7 @@ GrGLPathProcessor::GrGLPathProcessor(const GrPathProcessor&, const GrBatchTracke
 
 void GrGLPathProcessor::emitCode(EmitArgs& args) {
     GrGLGPBuilder* pb = args.fPB;
-    GrGLGPFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
     const PathBatchTracker& local = args.fBT.cast<PathBatchTracker>();
 
     // emit transforms

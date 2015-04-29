@@ -69,7 +69,7 @@ void GrGLConvolutionEffect::emitCode(GrGLFPBuilder* builder,
                                           kFloat_GrSLType, kDefault_GrSLPrecision,
                                           "Kernel", this->width());
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
 
     fsBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);

@@ -66,7 +66,7 @@ private:
         // This emit code should be empty. However, on the nexus 6 there is a driver bug where if
         // you do not give gl_FragColor a value, the gl context is lost and we end up drawing
         // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
-        GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("%s = vec4(0);", args.fOutputPrimary);
     }
 

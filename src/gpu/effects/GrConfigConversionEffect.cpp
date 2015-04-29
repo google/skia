@@ -33,7 +33,7 @@ public:
         SkString tmpDecl;
         tmpVar.appendDecl(builder->ctxInfo(), &tmpDecl);
 
-        GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
         fsBuilder->codeAppendf("%s;", tmpDecl.c_str());
 

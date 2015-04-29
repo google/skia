@@ -901,7 +901,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fTransformsIn, args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test circle
-    GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
                            dashParams.fsIn(), dashParams.fsIn(), dashParams.fsIn(),
                            dashParams.fsIn());
@@ -1144,7 +1144,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fTransformsIn, args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test rect
-    GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
                            inDashParams.fsIn(), inDashParams.fsIn(), inDashParams.fsIn(),
                            inDashParams.fsIn());

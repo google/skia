@@ -113,7 +113,7 @@ public:
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ce.inPosition()->fName,
                                  ce.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
             fsBuilder->codeAppendf("float edgeAlpha = clamp(%s.z * (1.0 - d), 0.0, 1.0);", v.fsIn());
             if (ce.isStroked()) {
@@ -293,7 +293,7 @@ public:
                                  ee.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             // for outer curve
-            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("vec2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
                                    ellipseRadii.fsIn());
             fsBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
@@ -493,7 +493,7 @@ public:
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
                                  ee.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             // for outer curve

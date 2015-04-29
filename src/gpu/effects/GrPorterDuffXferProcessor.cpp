@@ -140,7 +140,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool append_porterduff_term(GrGLFPFragmentBuilder* fsBuilder, GrBlendCoeff coeff,
+bool append_porterduff_term(GrGLXPFragmentBuilder* fsBuilder, GrBlendCoeff coeff,
                             const char* colorName, const char* srcColorName,
                             const char* dstColorName, bool hasPrevious) {
     if (kZero_GrBlendCoeff == coeff) {
@@ -204,7 +204,7 @@ public:
 private:
     void onEmitCode(const EmitArgs& args) override {
         const PorterDuffXferProcessor& xp = args.fXP.cast<PorterDuffXferProcessor>();
-        GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         if (PorterDuffXferProcessor::kCustom_PrimaryOutputType != xp.primaryOutputType()) {
             SkASSERT(!xp.willReadDstColor());
             switch(xp.secondaryOutputType()) {

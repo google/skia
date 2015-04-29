@@ -568,7 +568,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLFPBuilder* builder,
                                    // a number smaller than that to approximate 0, but
                                    // leave room for 32-bit float GPU rounding errors.
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
     fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
     fsBuilder->codeAppend(";\n");

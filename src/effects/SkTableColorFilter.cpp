@@ -427,7 +427,7 @@ void GLColorTableEffect::emitCode(GrGLFPBuilder* builder,
                                           "yoffsets", &yoffsets);
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (NULL == inputColor) {
         // the input color is solid white (all ones).
         static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;

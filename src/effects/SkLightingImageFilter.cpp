@@ -1641,7 +1641,7 @@ void GrGLLightingEffect::emitCode(GrGLFPBuilder* builder,
         GrGLShaderVar("scale", kFloat_GrSLType),
     };
     SkString sobelFuncName;
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
 
     fsBuilder->emitFunction(kFloat_GrSLType,
@@ -1906,7 +1906,7 @@ void GrGLPointLight::emitSurfaceToLight(GrGLFPBuilder* builder, const char* z) {
     fLocationUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
                                        "LightLocation", &loc);
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("normalize(%s - vec3(%s.xy, %s))",
             loc, fsBuilder->fragmentPosition(), z);
 }
@@ -1932,7 +1932,7 @@ void GrGLSpotLight::emitSurfaceToLight(GrGLFPBuilder* builder, const char* z) {
                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
                                        "LightLocation", &location);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("normalize(%s - vec3(%s.xy, %s))",
             location, fsBuilder->fragmentPosition(), z);
 }
@@ -1976,7 +1976,7 @@ void GrGLSpotLight::emitLightColor(GrGLFPBuilder* builder,
                            color, cosOuter, coneScale);
     lightColorBody.appendf("\t}\n");
     lightColorBody.appendf("\treturn %s;\n", color);
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->emitFunction(kVec3f_GrSLType,
                             "lightColor",
                             SK_ARRAY_COUNT(gLightColorArgs),

@@ -176,7 +176,7 @@ void GLCircularRRectEffect::emitCode(GrGLFPBuilder* builder,
                                                  "radiusPlusHalf",
                                                  &radiusPlusHalfName);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
     // At each quarter-circle corner we compute a vector that is the offset of the fragment position
     // from the circle center. The vector is pinned in x and y to be in the quarter-plane relevant
@@ -525,7 +525,7 @@ void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
                                             "innerRect",
                                             &rectName);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
     // At each quarter-ellipse corner we compute a vector that is the offset of the fragment pos
     // to the ellipse center. The vector is pinned in x and y to be in the quarter-plane relevant

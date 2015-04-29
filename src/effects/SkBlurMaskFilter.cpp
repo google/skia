@@ -678,7 +678,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-void OutputRectBlurProfileLookup(GrGLFPFragmentBuilder* fsBuilder,
+void OutputRectBlurProfileLookup(GrGLFragmentBuilder* fsBuilder,
                                  const GrGLShaderBuilder::TextureSampler& sampler,
                                  const char *output,
                                  const char *profileSize, const char *loc,
@@ -715,7 +715,7 @@ void GrGLRectBlurEffect::emitCode(GrGLFPBuilder* builder,
                                             "profileSize",
                                             &profileSizeName);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char *fragmentPos = fsBuilder->fragmentPosition();
 
     if (inputColor) {
@@ -1060,7 +1060,7 @@ void GrGLRRectBlurEffect::emitCode(GrGLFPBuilder* builder,
                                               "blurRadius",
                                               &blurRadiusName);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
 
     // warp the fragment position to the appropriate part of the 9patch blur texture

@@ -86,7 +86,7 @@ public:
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
             GrGLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
-            GrGLGPFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
             const BatchTracker& local = args.fBT.cast<BatchTracker>();
 
             // emit attributes

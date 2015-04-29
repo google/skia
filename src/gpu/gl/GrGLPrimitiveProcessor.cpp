@@ -37,7 +37,7 @@ GrGLPrimitiveProcessor::setupColorPassThrough(GrGLGPBuilder* pb,
                                               const char* outputName,
                                               const GrGeometryProcessor::Attribute* colorAttr,
                                               UniformHandle* colorUniform) {
-    GrGLGPFragmentBuilder* fs = pb->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fs = pb->getFragmentShaderBuilder();
     if (kUniform_GrGPInput == inputType) {
         SkASSERT(colorUniform);
         const char* stagedLocalVarName;

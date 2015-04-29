@@ -254,7 +254,7 @@ void GLEdge2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     SkASSERT(coords[0].getType() == coords[1].getType());
     const char* coords2D;
     SkString bVar;
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (kVec3f_GrSLType == coords[0].getType()) {
         fsBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
                                coords[0].c_str(), coords[0].c_str(), coords[1].c_str(),
@@ -536,7 +536,7 @@ void GLFocalOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     builder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -752,7 +752,7 @@ void GLFocalInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     GrGLShaderVar focal = builder->getUniformVariable(fFocalUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -1016,7 +1016,7 @@ void GLCircleInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     GrGLShaderVar params = builder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -1262,7 +1262,7 @@ void GLCircleOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     GrGLShaderVar params = builder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* coords2D = coords2DString.c_str();
 

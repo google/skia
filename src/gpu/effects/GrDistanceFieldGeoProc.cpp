@@ -42,7 +42,7 @@ public:
                 args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
         const DistanceFieldBatchTracker& local = args.fBT.cast<DistanceFieldBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
-        GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
@@ -312,7 +312,7 @@ public:
 
         const DistanceFieldPathBatchTracker& local = args.fBT.cast<DistanceFieldPathBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
-        GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                                      GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
@@ -587,7 +587,7 @@ public:
                                dfTexEffect.inTextureCoords()->fName);
 
         // add frag shader code
-        GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));

@@ -589,7 +589,7 @@ void GrGLRadial2Gradient::emitCode(GrGLFPBuilder* builder,
     builder->getUniformVariable(fParamUni).appendArrayAccess(4, &p4);
     builder->getUniformVariable(fParamUni).appendArrayAccess(5, &p5);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     // We interpolate the linear component in coords[1].
     SkASSERT(coords[0].getType() == coords[1].getType());
     const char* coords2D;

@@ -20,7 +20,7 @@
 
 static const bool gUseUnpremul = false;
 
-static void add_arithmetic_code(GrGLFPFragmentBuilder* fsBuilder,
+static void add_arithmetic_code(GrGLFragmentBuilder* fsBuilder,
                                 const char* inputColor,
                                 const char* dstColor,
                                 const char* outputColor,
@@ -66,7 +66,7 @@ public:
                   const char* inputColor,
                   const TransformedCoordsArray& coords,
                   const TextureSamplerArray& samplers) override {
-        GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         fsBuilder->codeAppend("vec4 bgColor = ");
         fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
         fsBuilder->codeAppendf(";");
@@ -230,7 +230,7 @@ public:
 
 private:
     void onEmitCode(const EmitArgs& args) override {
-        GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         const char* dstColor = fsBuilder->dstColor();
 

@@ -71,7 +71,7 @@ public:
                             const char* inputColor,
                             const TransformedCoordsArray& coords,
                             const TextureSamplerArray& samplers) {
-                GrGLFPFragmentBuilder* fpb = builder->getFragmentShaderBuilder();
+                GrGLFragmentBuilder* fpb = builder->getFragmentShaderBuilder();
                 fpb->codeAppendf("vec2 c = %s;", fpb->ensureFSCoords2D(coords, 0).c_str());
                 fpb->codeAppend("vec2 r = mod(c, vec2(20.0));");
                 fpb->codeAppend("vec4 color = vec4(0.5*sin(c.x / 15.0) + 0.5,"

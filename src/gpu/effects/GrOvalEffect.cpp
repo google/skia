@@ -135,7 +135,7 @@ void GLCircleEffect::emitCode(GrGLFPBuilder* builder,
                                          "circle",
                                          &circleName);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
 
     SkASSERT(kHairlineAA_GrProcessorEdgeType != ce.getEdgeType());
@@ -317,7 +317,7 @@ void GLEllipseEffect::emitCode(GrGLFPBuilder* builder,
                                          "ellipse",
                                          &ellipseName);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
 
     // d is the offset to the ellipse center

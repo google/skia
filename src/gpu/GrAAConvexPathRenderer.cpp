@@ -565,7 +565,7 @@ public:
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, qe.inPosition()->fName,
                                  qe.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-            GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
             SkAssertResult(fsBuilder->enableFeature(
                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));

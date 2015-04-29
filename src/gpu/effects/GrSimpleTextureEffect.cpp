@@ -24,7 +24,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray& coords,
                           const TextureSamplerArray& samplers) override {
-        GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("\t%s = ", outputColor);
         fsBuilder->appendTextureLookupAndModulate(inputColor,
                                                   samplers[0],

@@ -1028,7 +1028,7 @@ void GrGLGradientEffect::emitColor(GrGLFPBuilder* builder,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()){
         fsBuilder->codeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
                                builder->getUniformVariable(fColorStartUni).c_str(),

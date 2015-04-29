@@ -15,10 +15,10 @@ class GrGLVarying;
 /*
  * This base class encapsulates the functionality which the GP uses to build fragment shaders
  */
-class GrGLGPFragmentBuilder : public GrGLShaderBuilder {
+class GrGLFragmentBuilder : public GrGLShaderBuilder {
 public:
-    GrGLGPFragmentBuilder(GrGLProgramBuilder* program) : INHERITED(program) {}
-    virtual ~GrGLGPFragmentBuilder() {}
+    GrGLFragmentBuilder(GrGLProgramBuilder* program) : INHERITED(program) {}
+    virtual ~GrGLFragmentBuilder() {}
     /**
      * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
      * if code is added that uses one of these features without calling enableFeature()
@@ -58,20 +58,20 @@ private:
  * this builder to create their shader.  Because this is the only shader builder the FP sees, we
  * just call it FPShaderBuilder
  */
-class GrGLFPFragmentBuilder : public GrGLGPFragmentBuilder {
+class GrGLXPFragmentBuilder : public GrGLFragmentBuilder {
 public:
-    GrGLFPFragmentBuilder(GrGLProgramBuilder* program) : INHERITED(program) {}
+    GrGLXPFragmentBuilder(GrGLProgramBuilder* program) : INHERITED(program) {}
 
     /** Returns the variable name that holds the color of the destination pixel. This may be NULL if
         no effect advertised that it will read the destination. */
     virtual const char* dstColor() = 0;
 
 private:
-    typedef GrGLGPFragmentBuilder INHERITED;
+    typedef GrGLFragmentBuilder INHERITED;
 };
 
 // TODO rename to Fragment Builder
-class GrGLFragmentShaderBuilder : public GrGLFPFragmentBuilder {
+class GrGLFragmentShaderBuilder : public GrGLXPFragmentBuilder {
 public:
     typedef uint8_t DstReadKey;
     typedef uint8_t FragPosKey;
@@ -156,7 +156,7 @@ private:
 
     friend class GrGLProgramBuilder;
 
-    typedef GrGLFPFragmentBuilder INHERITED;
+    typedef GrGLXPFragmentBuilder INHERITED;
 };
 
 #endif

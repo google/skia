@@ -295,7 +295,7 @@ void GrColorCubeEffect::GLProcessor::emitCode(GrGLFPBuilder* builder,
     // Note: if implemented using texture3D in OpenGL ES older than OpenGL ES 3.0,
     //       the shader might need "#extension GL_OES_texture_3D : enable".
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
     // Unpremultiply color
     fsBuilder->codeAppendf("\tfloat %s = max(%s.a, 0.00001);\n", nonZeroAlpha, inputColor);

@@ -122,7 +122,7 @@ void GLAARectEffect::emitCode(GrGLFPBuilder* builder,
                                        "rect",
                                        &rectName);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
     if (GrProcessorEdgeTypeIsAA(aare.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
@@ -216,7 +216,7 @@ void GrGLConvexPolyEffect::emitCode(GrGLFPBuilder* builder,
                                              "edges",
                                             cpe.getEdgeCount(),
                                             &edgeArrayName);
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->codeAppend("\t\tfloat alpha = 1.0;\n");
     fsBuilder->codeAppend("\t\tfloat edge;\n");
     const char* fragmentPos = fsBuilder->fragmentPosition();

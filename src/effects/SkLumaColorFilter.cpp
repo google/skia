@@ -90,7 +90,7 @@ public:
                 inputColor = "vec4(1)";
             }
 
-            GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
                                    SK_ITU_BT709_LUM_COEFF_R,
                                    SK_ITU_BT709_LUM_COEFF_G,

@@ -20,7 +20,7 @@ public:
                   const char* inputColor,
                   const TransformedCoordsArray& coords,
                   const TextureSamplerArray& samplers) override {
-        GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         const char* colorUni;
         fColorUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType, kMedium_GrSLPrecision, "constantColor",

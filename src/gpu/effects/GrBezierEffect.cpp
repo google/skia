@@ -90,7 +90,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(pb, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),
                          args.fTransformsIn, args.fTransformsOut);
 
-    GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppend("float edgeAlpha;");
 
     switch (fEdgeType) {
@@ -325,7 +325,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(pb, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),
                          args.fTransformsIn, args.fTransformsOut);
 
-    GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("float edgeAlpha;");
 
     switch (fEdgeType) {
@@ -539,7 +539,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(args.fPB, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),
                          args.fTransformsIn, args.fTransformsOut);
 
-    GrGLGPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
     GrGLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
     GrGLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);

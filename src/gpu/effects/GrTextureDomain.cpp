@@ -197,7 +197,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLFPBuilder* builder,
     const GrTextureDomainEffect& textureDomainEffect = fp.cast<GrTextureDomainEffect>();
     const GrTextureDomain& domain = textureDomainEffect.textureDomain();
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     fGLDomain.sampleTexture(fsBuilder, domain, outputColor, coords2D, samplers[0], inputColor);
 }

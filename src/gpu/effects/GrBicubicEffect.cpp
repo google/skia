@@ -79,7 +79,7 @@ void GrGLBicubicEffect::emitCode(GrGLFPBuilder* builder,
         GrGLShaderVar("c2",            kVec4f_GrSLType),
         GrGLShaderVar("c3",            kVec4f_GrSLType),
     };
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     fsBuilder->emitFunction(kVec4f_GrSLType,
                             "cubicBlend",

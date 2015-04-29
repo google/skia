@@ -391,7 +391,7 @@ void GrGLMorphologyEffect::emitCode(GrGLFPBuilder* builder,
                                             "Range");
     const char* range = builder->getUniformCStr(fRangeUni);
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     const char* func;
     switch (fType) {

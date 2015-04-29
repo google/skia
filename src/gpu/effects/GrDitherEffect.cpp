@@ -87,7 +87,7 @@ void GLDitherEffect::emitCode(GrGLFPBuilder* builder,
                               const char* inputColor,
                               const TransformedCoordsArray&,
                               const TextureSamplerArray& samplers) {
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     // Generate a random number based on the fragment position. For this
     // random number generator, we use the "GLSL rand" function
     // that seems to be floating around on the internet. It works under

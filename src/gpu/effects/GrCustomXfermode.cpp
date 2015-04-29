@@ -29,7 +29,7 @@ bool GrCustomXfermode::IsSupportedMode(SkXfermode::Mode mode) {
 // Static helpers
 ///////////////////////////////////////////////////////////////////////////////
 
-static void hard_light(GrGLFPFragmentBuilder* fsBuilder,
+static void hard_light(GrGLFragmentBuilder* fsBuilder,
                        const char* final,
                        const char* src,
                        const char* dst) {
@@ -50,7 +50,7 @@ static void hard_light(GrGLFPFragmentBuilder* fsBuilder,
 }
 
 // Does one component of color-dodge
-static void color_dodge_component(GrGLFPFragmentBuilder* fsBuilder,
+static void color_dodge_component(GrGLFragmentBuilder* fsBuilder,
                                   const char* final,
                                   const char* src,
                                   const char* dst,
@@ -74,7 +74,7 @@ static void color_dodge_component(GrGLFPFragmentBuilder* fsBuilder,
 }
 
 // Does one component of color-burn
-static void color_burn_component(GrGLFPFragmentBuilder* fsBuilder,
+static void color_burn_component(GrGLFragmentBuilder* fsBuilder,
                                  const char* final,
                                  const char* src,
                                  const char* dst,
@@ -95,7 +95,7 @@ static void color_burn_component(GrGLFPFragmentBuilder* fsBuilder,
 }
 
 // Does one component of soft-light. Caller should have already checked that dst alpha > 0.
-static void soft_light_component_pos_dst_alpha(GrGLFPFragmentBuilder* fsBuilder,
+static void soft_light_component_pos_dst_alpha(GrGLFragmentBuilder* fsBuilder,
                                                const char* final,
                                                const char* src,
                                                const char* dst,
@@ -138,7 +138,7 @@ static void soft_light_component_pos_dst_alpha(GrGLFPFragmentBuilder* fsBuilder,
 // hue and saturation of the first color, the luminosity of the second color, and the input
 // alpha. It has this signature:
 //      vec3 set_luminance(vec3 hueSatColor, float alpha, vec3 lumColor).
-static void add_lum_function(GrGLFPFragmentBuilder* fsBuilder, SkString* setLumFunction) {
+static void add_lum_function(GrGLFragmentBuilder* fsBuilder, SkString* setLumFunction) {
     // Emit a helper that gets the luminance of a color.
     SkString getFunction;
     GrGLShaderVar getLumArgs[] = {
@@ -183,7 +183,7 @@ static void add_lum_function(GrGLFPFragmentBuilder* fsBuilder, SkString* setLumF
 // Adds a function that creates a color with the hue and luminosity of one input color and
 // the saturation of another color. It will have this signature:
 //      float set_saturation(vec3 hueLumColor, vec3 satColor)
-static void add_sat_function(GrGLFPFragmentBuilder* fsBuilder, SkString* setSatFunction) {
+static void add_sat_function(GrGLFragmentBuilder* fsBuilder, SkString* setSatFunction) {
     // Emit a helper that gets the saturation of a color
     SkString getFunction;
     GrGLShaderVar getSatArgs[] = { GrGLShaderVar("color", kVec3f_GrSLType) };
@@ -256,7 +256,7 @@ static void add_sat_function(GrGLFPFragmentBuilder* fsBuilder, SkString* setSatF
 }
 
 static void emit_custom_xfermode_code(SkXfermode::Mode mode,
-                                      GrGLFPFragmentBuilder* fsBuilder,
+                                      GrGLFragmentBuilder* fsBuilder,
                                       const char* outputColor,
                                       const char* inputColor,
                                       const char* dstColor) {
@@ -416,7 +416,7 @@ public:
                   const TransformedCoordsArray& coords,
                   const TextureSamplerArray& samplers) override {
         SkXfermode::Mode mode = fp.cast<GrCustomXferFP>().mode();
-        GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
         const char* dstColor = "bgColor";
         fsBuilder->codeAppendf("vec4 %s = ", dstColor);
         fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
@@ -550,7 +550,7 @@ public:
 private:
     void onEmitCode(const EmitArgs& args) override {
         SkXfermode::Mode mode = args.fXP.cast<CustomXP>().mode();
-        GrGLFPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         const char* dstColor = fsBuilder->dstColor();
 
         emit_custom_xfermode_code(mode, fsBuilder, args.fOutputPrimary, args.fInputColor, dstColor);

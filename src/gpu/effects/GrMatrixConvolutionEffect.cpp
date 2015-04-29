@@ -74,7 +74,7 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
     int kWidth = fKernelSize.width();
     int kHeight = fKernelSize.height();
 
-    GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
     fsBuilder->codeAppend("vec4 sum = vec4(0, 0, 0, 0);");
     fsBuilder->codeAppendf("vec2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset,

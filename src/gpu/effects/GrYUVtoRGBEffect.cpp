@@ -66,7 +66,7 @@ public:
                               const char* inputColor,
                               const TransformedCoordsArray& coords,
                               const TextureSamplerArray& samplers) override {
-            GrGLFPFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
 
             const char* yuvMatrix   = NULL;
             fMatrixUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
