@@ -76,10 +76,6 @@ protected:
      *
      * @param gpu                   The GrGpu used to create the buffers.
      * @param bufferType            The type of buffers to create.
-     * @param frequentResetHint     A hint that indicates that the pool
-     *                              should expect frequent unmap() calls
-     *                              (as opposed to many makeSpace / acquires
-     *                              between resets).
      * @param bufferSize            The minimum size of created buffers.
      *                              This value will be clamped to some
      *                              reasonable minimum.
@@ -89,7 +85,6 @@ protected:
      */
      GrBufferAllocPool(GrGpu* gpu,
                        BufferType bufferType,
-                       bool frequentResetHint,
                        size_t   bufferSize = 0,
                        int preallocBufferCnt = 0);
 
@@ -146,7 +141,6 @@ private:
 
     // The GrGpu must be able to clear the ref of pools it creates as members
     friend class GrGpu;
-    void releaseGpuRef();
 
     struct BufferBlock {
         size_t              fBytesFree;
@@ -163,8 +157,6 @@ private:
     size_t                          fBytesInUse;
 
     GrGpu*                          fGpu;
-    bool                            fGpuIsReffed;
-    bool                            fFrequentResetHint;
     SkTDArray<GrGeometryBuffer*>    fPreallocBuffers;
     size_t                          fMinBlockSize;
     BufferType                      fBufferType;
@@ -189,20 +181,13 @@ public:
      * Constructor
      *
      * @param gpu                   The GrGpu used to create the vertex buffers.
-     * @param frequentResetHint     A hint that indicates that the pool
-     *                              should expect frequent unmap() calls
-     *                              (as opposed to many makeSpace / acquires
-     *                              between resets).
      * @param bufferSize            The minimum size of created VBs This value
      *                              will be clamped to some reasonable minimum.
      * @param preallocBufferCnt     The pool will allocate this number of VBs at
      *                              bufferSize and keep them until it is
      *                              destroyed.
      */
-    GrVertexBufferAllocPool(GrGpu* gpu,
-                            bool frequentResetHint,
-                            size_t bufferSize = 0,
-                            int preallocBufferCnt = 0);
+    GrVertexBufferAllocPool(GrGpu* gpu, size_t bufferSize = 0, int preallocBufferCnt = 0);
 
     /**
      * Returns a block of memory to hold vertices. A buffer designated to hold
@@ -268,10 +253,6 @@ public:
      * Constructor
      *
      * @param gpu                   The GrGpu used to create the index buffers.
-     * @param frequentResetHint     A hint that indicates that the pool
-     *                              should expect frequent unmap() calls
-     *                              (as opposed to many makeSpace / acquires
-     *                              between resets).
      * @param bufferSize            The minimum size of created IBs This value
      *                              will be clamped to some reasonable minimum.
      * @param preallocBufferCnt     The pool will allocate this number of VBs at
@@ -279,7 +260,6 @@ public:
      *                              destroyed.
      */
     GrIndexBufferAllocPool(GrGpu* gpu,
-                           bool frequentResetHint,
                            size_t bufferSize = 0,
                            int preallocBufferCnt = 0);
 

@@ -1905,13 +1905,13 @@ void GrContext::setupDrawBuffer() {
     SkASSERT(NULL == fDrawBufferIBAllocPool);
 
     fDrawBufferVBAllocPool =
-        SkNEW_ARGS(GrVertexBufferAllocPool, (fGpu, false,
-                                    DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
-                                    DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS));
+        SkNEW_ARGS(GrVertexBufferAllocPool, (fGpu,
+                                             DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
+                                             DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS));
     fDrawBufferIBAllocPool =
-        SkNEW_ARGS(GrIndexBufferAllocPool, (fGpu, false,
-                                   DRAW_BUFFER_IBPOOL_BUFFER_SIZE,
-                                   DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS));
+        SkNEW_ARGS(GrIndexBufferAllocPool, (fGpu,
+                                            DRAW_BUFFER_IBPOOL_BUFFER_SIZE,
+                                            DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS));
 
     fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (this,
                                                    fDrawBufferVBAllocPool,

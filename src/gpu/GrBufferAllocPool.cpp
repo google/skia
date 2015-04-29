@@ -37,18 +37,13 @@ do {                                                                            
 
 GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
                                      BufferType bufferType,
-                                     bool frequentResetHint,
                                      size_t blockSize,
                                      int preallocBufferCnt) :
         fBlocks(SkTMax(8, 2*preallocBufferCnt)) {
 
-    SkASSERT(gpu);
-    fGpu = gpu;
-    fGpu->ref();
-    fGpuIsReffed = true;
+    fGpu = SkRef(gpu);
 
     fBufferType = bufferType;
-    fFrequentResetHint = frequentResetHint;
     fBufferPtr = NULL;
     fMinBlockSize = SkTMax(GrBufferAllocPool_MIN_BLOCK_SIZE, blockSize);
 
@@ -76,14 +71,7 @@ GrBufferAllocPool::~GrBufferAllocPool() {
         destroyBlock();
     }
     fPreallocBuffers.unrefAll();
-    releaseGpuRef();
-}
-
-void GrBufferAllocPool::releaseGpuRef() {
-    if (fGpuIsReffed) {
-        fGpu->unref();
-        fGpuIsReffed = false;
-    }
+    fGpu->unref();
 }
 
 void GrBufferAllocPool::reset() {
@@ -317,17 +305,11 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     SkASSERT(NULL == fBufferPtr);
 
     // If the buffer is CPU-backed we map it because it is free to do so and saves a copy.
-    // Otherwise when buffer mapping is supported:
-    //      a) If the frequently reset hint is set we only map when the requested size meets a
-    //      threshold (since we don't expect it is likely that we will see more vertex data)
-    //      b) If the hint is not set we map if the buffer size is greater than the threshold.
+    // Otherwise when buffer mapping is supported we map if the buffer size is greater than the
+    // threshold.
     bool attemptMap = block.fBuffer->isCPUBacked();
     if (!attemptMap && GrDrawTargetCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
-        if (fFrequentResetHint) {
-            attemptMap = requestSize > GR_GEOM_BUFFER_MAP_THRESHOLD;
-        } else {
-            attemptMap = size > GR_GEOM_BUFFER_MAP_THRESHOLD;
-        }
+        attemptMap = size > GR_GEOM_BUFFER_MAP_THRESHOLD;
     }
 
     if (attemptMap) {
@@ -395,12 +377,10 @@ GrGeometryBuffer* GrBufferAllocPool::createBuffer(size_t size) {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVertexBufferAllocPool::GrVertexBufferAllocPool(GrGpu* gpu,
-                                                 bool frequentResetHint,
                                                  size_t bufferSize,
                                                  int preallocBufferCnt)
 : GrBufferAllocPool(gpu,
                     kVertex_BufferType,
-                    frequentResetHint,
                     bufferSize,
                     preallocBufferCnt) {
 }
@@ -438,12 +418,10 @@ int GrVertexBufferAllocPool::currentBufferVertices(size_t vertexSize) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu,
-                                               bool frequentResetHint,
                                                size_t bufferSize,
                                                int preallocBufferCnt)
 : GrBufferAllocPool(gpu,
                     kIndex_BufferType,
-                    frequentResetHint,
                     bufferSize,
                     preallocBufferCnt) {
 }
