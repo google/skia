@@ -111,25 +111,3 @@ SkDPoint SkDConic::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, do
     *weight = chopped.fWeight;
     return chopped[1];
 }
-
-SkDPoint SkDConic::top(double startT, double endT, double* topT) const {
-    SkDConic sub = subDivide(startT, endT);
-    SkDPoint topPt = sub[0];
-    *topT = startT;
-    if (topPt.fY > sub[2].fY || (topPt.fY == sub[2].fY && topPt.fX > sub[2].fX)) {
-        *topT = endT;
-        topPt = sub[2];
-    }
-    if (!between(sub[0].fY, sub[1].fY, sub[2].fY)) {
-        double extremeT;
-        if (FindExtrema(&sub[0].fY, sub.fWeight, &extremeT)) {
-            extremeT = startT + (endT - startT) * extremeT;
-            SkDPoint test = ptAtT(extremeT);
-            if (topPt.fY > test.fY || (topPt.fY == test.fY && topPt.fX > test.fX)) {
-                *topT = extremeT;
-                topPt = test;
-            }
-        }
-    }
-    return topPt;
-}

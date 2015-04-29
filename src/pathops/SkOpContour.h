@@ -344,7 +344,7 @@ public:
     }
 
     void toPath(SkPathWriter* path) const;
-    void topSortableSegment(const SkPoint& topLeft, SkPoint* bestXY, SkOpSegment** topStart);
+    void topSortableSegment(const SkDPoint& topLeft, SkDPoint* bestXY, SkOpSegment** topStart);
     SkOpSegment* undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr);
 
 private:

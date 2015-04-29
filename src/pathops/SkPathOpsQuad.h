@@ -62,11 +62,12 @@ struct SkDQuad {
     SkDQuadPair chopAt(double t) const;
     static bool Clockwise(const SkOpCurve& edge, bool* swap);
     SkDVector dxdyAtT(double t) const;
-    static int FindExtrema(double a, double b, double c, double tValue[1]);
+    static int FindExtrema(const double src[], double tValue[1]);
     bool hullIntersects(const SkDQuad& , bool* isLinear) const;
     bool hullIntersects(const SkDConic& , bool* isLinear) const;
     bool hullIntersects(const SkDCubic& , bool* isLinear) const;
     bool isLinear(int startIndex, int endIndex) const;
+    bool monotonicInX() const;
     bool monotonicInY() const;
     double nearestT(const SkDPoint&) const;
     void otherPts(int oddMan, const SkDPoint* endPt[2]) const;
@@ -89,7 +90,6 @@ struct SkDQuad {
     }
     SkDConic toConic() const;
     SkDCubic toCubic() const;
-    SkDPoint top(double startT, double endT, double* topT) const;
 
     // utilities callable by the user from the debugger when the implementation code is linked in
     void dump() const;

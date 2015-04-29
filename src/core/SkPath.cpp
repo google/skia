@@ -631,6 +631,18 @@ bool SkPath::getLastPt(SkPoint* lastPt) const {
     return false;
 }
 
+void SkPath::setPt(int index, SkScalar x, SkScalar y) {
+    SkDEBUGCODE(this->validate();)
+
+    int count = fPathRef->countPoints();
+    if (count <= index) {
+        return;
+    } else {
+        SkPathRef::Editor ed(&fPathRef);
+        ed.atPoint(index)->set(x, y);
+    }
+}
+
 void SkPath::setLastPt(SkScalar x, SkScalar y) {
     SkDEBUGCODE(this->validate();)
 

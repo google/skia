@@ -205,13 +205,13 @@ void DebugShowActiveSpans(SkTDArray<SkOpContour* >& contourList) {
 #endif
 
 static SkOpSegment* findTopSegment(const SkTDArray<SkOpContour* >& contourList,
-        bool firstPass, SkOpSpanBase** start, SkOpSpanBase** end, SkPoint* topLeft,
+        bool firstPass, SkOpSpanBase** start, SkOpSpanBase** end, SkDPoint* topLeft,
         bool* unsortable, bool* done, SkChunkAlloc* allocator) {
     SkOpSegment* result;
     const SkOpSegment* lastTopStart = NULL;
     SkOpSpanBase* lastStart = NULL, * lastEnd = NULL;
     do {
-        SkPoint bestXY = {SK_ScalarMax, SK_ScalarMax};
+        SkDPoint bestXY = {SK_ScalarMax, SK_ScalarMax};
         int contourCount = contourList.count();
         SkOpSegment* topStart = NULL;
         *done = true;
@@ -300,7 +300,7 @@ struct SortableTop2 {  // error if local in pre-C++11
 
 SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour* >& contourList, bool firstPass,
         SkOpAngle::IncludeType angleIncludeType, bool* firstContour, SkOpSpanBase** startPtr,
-        SkOpSpanBase** endPtr, SkPoint* topLeft, bool* unsortable, bool* done, bool* onlyVertical,
+        SkOpSpanBase** endPtr, SkDPoint* topLeft, bool* unsortable, bool* done, bool* onlyVertical,
         SkChunkAlloc* allocator) {
     SkOpSegment* current = findTopSegment(contourList, firstPass, startPtr, endPtr, topLeft,
             unsortable, done, allocator);

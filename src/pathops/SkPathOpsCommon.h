@@ -19,7 +19,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
                        SkOpSpanBase** endPtr);
 SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour*>& , bool firstPass,
                               SkOpAngle::IncludeType , bool* firstContour, SkOpSpanBase** index,
-                              SkOpSpanBase** endIndex, SkPoint* topLeft, bool* unsortable,
+                              SkOpSpanBase** endIndex, SkDPoint* topLeft, bool* unsortable,
                               bool* done, bool* onlyVertical, SkChunkAlloc* );
 SkOpSegment* FindUndone(SkTDArray<SkOpContour*>& contourList, SkOpSpanBase** startPtr,
                          SkOpSpanBase** endPtr);

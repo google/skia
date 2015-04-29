@@ -75,7 +75,7 @@ double SkDCubic::calcPrecision() const {
     return (width > height ? width : height) / gPrecisionUnit;
 }
 
-bool SkDCubic::clockwise(bool* swap) const {
+bool SkDCubic::clockwise(const SkDCubic& whole, bool* swap) const {
     SkDPoint lastPt = fPts[kPointLast];
     SkDPoint firstPt = fPts[0];
     double sum = 0;
@@ -105,34 +105,15 @@ bool SkDCubic::clockwise(bool* swap) const {
         lastPt = firstPt;
         firstPt = idx == 1 ? fPts[furthest] : fPts[kPointLast];
     }
-    *swap = sum > 0 && !this->monotonicInY();
+    *swap = sum > 0 && !this->monotonicInY() && !whole.monotonicInY();
     return sum <= 0;
 }
 
 bool SkDCubic::Clockwise(const SkPoint* pts, double startT, double endT, bool* swap) {
     SkDCubic cubic;
     cubic.set(pts);
-#if 0
-    bool flip = startT > endT;
-    double inflectionTs[2];
-    int inflections = cubic.findInflections(inflectionTs);
-    for (int index = 0; index < inflections; ++index) {
-        double inflectionT = inflectionTs[index];
-        if (between(startT, inflectionT, endT)) {
-            if (flip) {
-                if (!roughly_equal(inflectionT, endT)) {
-                startT = inflectionT;
-                }
-            } else {
-                if (!roughly_equal(inflectionT, startT)) {
-                    endT = inflectionT;
-                }
-            }
-        }
-    }
-#endif
     SkDCubic part = cubic.subDivide(startT, endT);
-    return part.clockwise(swap);
+    return part.clockwise(cubic, swap);
 }
 
 void SkDCubic::Coefficients(const double* src, double* A, double* B, double* C, double* D) {
@@ -301,9 +282,14 @@ bool SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t, CubicType* 
     return false;
 }
 
+bool SkDCubic::monotonicInX() const {
+    return precisely_between(fPts[0].fX, fPts[1].fX, fPts[3].fX)
+            && precisely_between(fPts[0].fX, fPts[2].fX, fPts[3].fX);
+}
+
 bool SkDCubic::monotonicInY() const {
-    return between(fPts[0].fY, fPts[1].fY, fPts[3].fY)
-            && between(fPts[0].fY, fPts[2].fY, fPts[3].fY);
+    return precisely_between(fPts[0].fY, fPts[1].fY, fPts[3].fY)
+            && precisely_between(fPts[0].fY, fPts[2].fY, fPts[3].fY);
 }
 
 void SkDCubic::otherPts(int index, const SkDPoint* o1Pts[kPointCount - 1]) const {
@@ -343,6 +329,28 @@ int SkDCubic::RootsValidT(double A, double B, double C, double D, double t[3]) {
     double s[3];
     int realRoots = RootsReal(A, B, C, D, s);
     int foundRoots = SkDQuad::AddValidTs(s, realRoots, t);
+    for (int index = 0; index < realRoots; ++index) {
+        double tValue = s[index];
+        if (!approximately_one_or_less(tValue) && between(1, tValue, 1.00005)) {
+            for (int idx2 = 0; idx2 < foundRoots; ++idx2) {
+                if (approximately_equal(t[idx2], 1)) {
+                    goto nextRoot;
+                }
+            }
+            SkASSERT(foundRoots < 3);
+            t[foundRoots++] = 1;
+        } else if (!approximately_zero_or_more(tValue) && between(-0.00005, tValue, 0)) {
+            for (int idx2 = 0; idx2 < foundRoots; ++idx2) {
+                if (approximately_equal(t[idx2], 0)) {
+                    goto nextRoot;
+                }
+            }
+            SkASSERT(foundRoots < 3);
+            t[foundRoots++] = 0;
+        }
+nextRoot:
+        ;
+    }
     return foundRoots;
 }
 
@@ -487,10 +495,14 @@ static void formulate_F1DotF2(const double src[], double coeff[4]) {
     C = 3(b - a)
     Solve for t, keeping only those that fit between 0 < t < 1
 */
-int SkDCubic::FindExtrema(double a, double b, double c, double d, double tValues[2]) {
+int SkDCubic::FindExtrema(const double src[], double tValues[2]) {
     // we divide A,B,C by 3 to simplify
-    double A = d - a + 3*(b - c);
-    double B = 2*(a - b - b + c);
+    double a = src[0];
+    double b = src[2];
+    double c = src[4];
+    double d = src[6];
+    double A = d - a + 3 * (b - c);
+    double B = 2 * (a - b - b + c);
     double C = b - a;
 
     return SkDQuad::RootsValidT(A, B, C, tValues);
@@ -517,29 +529,6 @@ int SkDCubic::findMaxCurvature(double tValues[]) const {
         coeffX[i] = coeffX[i] + coeffY[i];
     }
     return RootsValidT(coeffX[0], coeffX[1], coeffX[2], coeffX[3], tValues);
-}
-
-SkDPoint SkDCubic::top(double startT, double endT, double* topT) const {
-    SkDCubic sub = subDivide(startT, endT);
-    SkDPoint topPt = sub[0];
-    *topT = startT;
-    if (topPt.fY > sub[3].fY || (topPt.fY == sub[3].fY && topPt.fX > sub[3].fX)) {
-        *topT = endT;
-        topPt = sub[3];
-    }
-    double extremeTs[2];
-    if (!sub.monotonicInY()) {
-        int roots = FindExtrema(sub[0].fY, sub[1].fY, sub[2].fY, sub[3].fY, extremeTs);
-        for (int index = 0; index < roots; ++index) {
-            double t = startT + (endT - startT) * extremeTs[index];
-            SkDPoint mid = ptAtT(t);
-            if (topPt.fY > mid.fY || (topPt.fY == mid.fY && topPt.fX > mid.fX)) {
-                *topT = t;
-                topPt = mid;
-            }
-        }
-    }
-    return topPt;
 }
 
 SkDPoint SkDCubic::ptAtT(double t) const {

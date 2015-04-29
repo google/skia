@@ -57,7 +57,7 @@ struct SkDCubic {
     double binarySearch(double min, double max, double axisIntercept, SearchAxis xAxis) const;
     double calcPrecision() const;
     SkDCubicPair chopAt(double t) const;
-    bool clockwise(bool* swap) const;
+    bool clockwise(const SkDCubic& whole, bool* swap) const;
     static bool Clockwise(const SkPoint* pts, double startT, double endT, bool* swap);
     static void Coefficients(const double* cubic, double* A, double* B, double* C, double* D);
     static bool ComplexBreak(const SkPoint pts[4], SkScalar* t, CubicType* cubicType);
@@ -72,7 +72,7 @@ struct SkDCubic {
     void dumpInner() const;
     SkDVector dxdyAtT(double t) const;
     bool endsAreExtremaInXOrY() const;
-    static int FindExtrema(double a, double b, double c, double d, double tValue[2]);
+    static int FindExtrema(const double src[], double tValue[2]);
     int findInflections(double tValues[2]) const;
 
     static int FindInflections(const SkPoint a[kPointCount], double tValues[2]) {
@@ -87,6 +87,7 @@ struct SkDCubic {
     bool hullIntersects(const SkDQuad& c2, bool* isLinear) const;
     bool hullIntersects(const SkDPoint* pts, int ptCount, bool* isLinear) const;
     bool isLinear(int startIndex, int endIndex) const;
+    bool monotonicInX() const;
     bool monotonicInY() const;
     void otherPts(int index, const SkDPoint* o1Pts[kPointCount - 1]) const;
     SkDPoint ptAtT(double t) const;
@@ -121,7 +122,6 @@ struct SkDCubic {
         cubic.subDivide(a, d, t1, t2, p);
     }
 
-    SkDPoint top(double startT, double endT, double* topT) const;
     SkDQuad toQuad() const;
 
     static const int gPrecisionUnit;

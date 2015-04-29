@@ -41,20 +41,24 @@ public:
     bool activeOp(int xorMiMask, int xorSuMask, SkOpSpanBase* start, SkOpSpanBase* end, SkPathOp op,
                   int* sumMiWinding, int* sumSuWinding);
 
-    SkPoint activeLeftTop(SkOpSpanBase** firstT);
+    SkDPoint activeLeftTop(SkOpSpanBase** firstT);
 
     bool activeWinding(SkOpSpanBase* start, SkOpSpanBase* end);
     bool activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sumWinding);
 
     SkOpSegment* addConic(SkPoint pts[3], SkScalar weight, SkOpContour* parent) {
         init(pts, weight, parent, SkPath::kConic_Verb);
-        fBounds.setConicBounds(pts, weight);
+        SkDCurve curve;
+        curve.fConic.set(pts, weight);
+        curve.setConicBounds(pts, weight, 0, 1, &fBounds);
         return this;
     }
 
     SkOpSegment* addCubic(SkPoint pts[4], SkOpContour* parent) {
         init(pts, 1, parent, SkPath::kCubic_Verb);
-        fBounds.setCubicBounds(pts, 1);
+        SkDCurve curve;
+        curve.fCubic.set(pts);
+        curve.setCubicBounds(pts, 1, 0, 1, &fBounds);
         return this;
     }
 
@@ -88,7 +92,9 @@ public:
 
     SkOpSegment* addQuad(SkPoint pts[3], SkOpContour* parent) {
         init(pts, 1, parent, SkPath::kQuad_Verb);
-        fBounds.setQuadBounds(pts, 1);
+        SkDCurve curve;
+        curve.fQuad.set(pts);
+        curve.setQuadBounds(pts, 1, 0, 1, &fBounds);
         return this;
     }
 
@@ -361,6 +367,8 @@ public:
     static double TAtMid(const SkOpSpanBase* start, const SkOpSpanBase* end, double mid) {
         return start->t() * (1 - mid) + end->t() * mid;
     }
+
+    SkDPoint top(const SkOpSpanBase* start, const SkOpSpanBase* end, double* topT) const;
 
     void undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end);
     int updateOppWinding(const SkOpSpanBase* start, const SkOpSpanBase* end) const;

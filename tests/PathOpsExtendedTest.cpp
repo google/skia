@@ -289,7 +289,7 @@ int comparePaths(skiatest::Reporter* reporter, const char* filename, const SkPat
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
 }
 
-const int gTestFirst = 20;
+const int gTestFirst = 41;
 static int gTestNo = gTestFirst;
 static SkTDArray<SkPathOp> gTestOp;
 
@@ -309,7 +309,7 @@ static void showPathOpPath(const char* testName, const SkPath& one, const SkPath
     SkPathOpsDebug::ShowOnePath(b, "pathB", false);
     SkDebugf("    testPathOp(reporter, path, pathB, %s, filename);\n", opStrs[shapeOp]);
     SkDebugf("}\n");
-    drawAsciiPaths(scaledOne, scaledTwo, true);
+    drawAsciiPaths(scaledOne, scaledTwo, false);
 }
 
 void ShowTestArray(const char* testName) {
@@ -341,9 +341,10 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
     }
     if (errors2x2 > MAX_ERRORS) {
         SkAutoMutexAcquire autoM(compareDebugOut3);
-        SkDebugf("\n*** this test fails ***\n");
         showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
+        SkDebugf("\n/*");
         REPORTER_ASSERT(reporter, 0);
+        SkDebugf(" */\n");
     } else if (errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {
         SkAutoMutexAcquire autoM(compareDebugOut4);
         showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
@@ -531,9 +532,6 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     scaledOut.setFillType(out.getFillType());
     int result = comparePaths(reporter, testName, pathOut, scaledPathOut, out, scaledOut, bitmap,
             a, b, shapeOp, scale, expectSuccess);
-    if (result) {
-        REPORTER_ASSERT(reporter, 0);
-    }
     reporter->bumpTestCount();
     return result == 0;
 }

@@ -240,6 +240,10 @@ static double interp_quad_coords(const double* src, double t) {
     return abc;
 }
 
+bool SkDQuad::monotonicInX() const {
+    return between(fPts[0].fX, fPts[1].fX, fPts[2].fX);
+}
+
 bool SkDQuad::monotonicInY() const {
     return between(fPts[0].fY, fPts[1].fY, fPts[2].fY);
 }
@@ -323,28 +327,6 @@ SkDPoint SkDQuad::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, dou
     return b;
 }
 
-SkDPoint SkDQuad::top(double startT, double endT, double* topT) const {
-    SkDQuad sub = subDivide(startT, endT);
-    SkDPoint topPt = sub[0];
-    *topT = startT;
-    if (topPt.fY > sub[2].fY || (topPt.fY == sub[2].fY && topPt.fX > sub[2].fX)) {
-        *topT = endT;
-        topPt = sub[2];
-    }
-    if (!between(sub[0].fY, sub[1].fY, sub[2].fY)) {
-        double extremeT;
-        if (FindExtrema(sub[0].fY, sub[1].fY, sub[2].fY, &extremeT)) {
-            extremeT = startT + (endT - startT) * extremeT;
-            SkDPoint test = ptAtT(extremeT);
-            if (topPt.fY > test.fY || (topPt.fY == test.fY && topPt.fX > test.fX)) {
-                *topT = extremeT;
-                topPt = test;
-            }
-        }
-    }
-    return topPt;
-}
-
 /* classic one t subdivision */
 static void interp_quad_coords(const double* src, double* dst, double t) {
     double ab = SkDInterp(src[0], src[2], t);
@@ -397,10 +379,13 @@ static int valid_unit_divide(double numer, double denom, double* ratio)
     B = 2(b - a)
     Solve for t, only if it fits between 0 < t < 1
 */
-int SkDQuad::FindExtrema(double a, double b, double c, double tValue[1]) {
+int SkDQuad::FindExtrema(const double src[], double tValue[1]) {
     /*  At + B == 0
         t = -B / A
     */
+    double a = src[0];
+    double b = src[2];
+    double c = src[4];
     return valid_unit_divide(a - b, a - b - b + c, tValue);
 }
 

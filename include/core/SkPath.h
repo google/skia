@@ -1034,6 +1034,8 @@ private:
         ed.setBounds(rect);
     }
 
+    void setPt(int index, SkScalar x, SkScalar y);
+
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
     friend class SkAutoDisableDirectionCheck;

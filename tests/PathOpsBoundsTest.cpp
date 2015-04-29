@@ -6,6 +6,7 @@
  */
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsBounds.h"
+#include "SkPathOpsCurve.h"
 #include "Test.h"
 
 static const SkRect sectTests[][2] = {
@@ -74,9 +75,9 @@ DEF_TEST(PathOpsBounds, reporter) {
     ordinal.set(1, 2, 3, 4);
     bounds.add(ordinal);
     REPORTER_ASSERT(reporter, bounds == expected);
-    SkPoint topLeft = {0, 0};
+    SkDPoint topLeft = {0, 0};
     bounds.setPointBounds(topLeft);
-    SkPoint botRight = {3, 4};
+    SkDPoint botRight = {3, 4};
     bounds.add(botRight);
     REPORTER_ASSERT(reporter, bounds == expected);
     for (size_t index = 0; index < emptyTestsCount; ++index) {
@@ -92,19 +93,23 @@ DEF_TEST(PathOpsBounds, reporter) {
         REPORTER_ASSERT(reporter, !empty);
     }
     const SkPoint curvePts[] = {{0, 0}, {1, 2}, {3, 4}, {5, 6}};
-    bounds.setLineBounds(curvePts, 1);
+    SkDCurve curve;
+    curve.fLine.set(curvePts);
+    curve.setLineBounds(curvePts, 1, 0, 1, &bounds);
     expected.set(0, 0, 1, 2);
     REPORTER_ASSERT(reporter, bounds == expected);
-    (bounds.*SetCurveBounds[SkPath::kLine_Verb])(curvePts, 1);
+    (curve.*SetBounds[SkPath::kLine_Verb])(curvePts, 1, 0, 1, &bounds);
     REPORTER_ASSERT(reporter, bounds == expected);
-    bounds.setQuadBounds(curvePts, 1);
+    curve.fQuad.set(curvePts);
+    curve.setQuadBounds(curvePts, 1, 0, 1, &bounds);
     expected.set(0, 0, 3, 4);
     REPORTER_ASSERT(reporter, bounds == expected);
-    (bounds.*SetCurveBounds[SkPath::kQuad_Verb])(curvePts, 1);
+    (curve.*SetBounds[SkPath::kQuad_Verb])(curvePts, 1, 0, 1, &bounds);
     REPORTER_ASSERT(reporter, bounds == expected);
-    bounds.setCubicBounds(curvePts, 1);
+    curve.fCubic.set(curvePts);
+    curve.setCubicBounds(curvePts, 1, 0, 1, &bounds);
     expected.set(0, 0, 5, 6);
     REPORTER_ASSERT(reporter, bounds == expected);
-    (bounds.*SetCurveBounds[SkPath::kCubic_Verb])(curvePts, 1);
+    (curve.*SetBounds[SkPath::kCubic_Verb])(curvePts, 1, 0, 1, &bounds);
     REPORTER_ASSERT(reporter, bounds == expected);
 }

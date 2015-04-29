@@ -72,6 +72,10 @@ struct SkDConic {
         return fPts.isLinear(startIndex, endIndex);
     }
 
+    bool monotonicInX() const {
+        return fPts.monotonicInX();
+    }
+
     bool monotonicInY() const {
         return fPts.monotonicInY();
     }
@@ -108,8 +112,6 @@ struct SkDConic {
         conic.set(pts, weight);
         return conic.subDivide(a, c, t1, t2, newWeight);
     }
-
-    SkDPoint top(double startT, double endT, double* topT) const;
 
     // utilities callable by the user from the debugger when the implementation code is linked in
     void dump() const;

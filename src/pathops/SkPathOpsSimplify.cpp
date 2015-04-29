@@ -16,8 +16,8 @@ static bool bridgeWinding(SkTDArray<SkOpContour* >& contourList, SkPathWriter* s
     bool unsortable = false;
     bool topUnsortable = false;
     bool firstPass = true;
-    SkPoint lastTopLeft;
-    SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
+    SkDPoint lastTopLeft;
+    SkDPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
         SkOpSpanBase* start = NULL;
         SkOpSpanBase* end = NULL;

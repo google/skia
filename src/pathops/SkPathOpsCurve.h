@@ -16,6 +16,8 @@
 #include "SkPath.h"
 #endif
 
+struct SkPathOpsBounds;
+
 struct SkOpCurve {
     SkPoint fPts[4];
     SkScalar fWeight;
@@ -43,6 +45,7 @@ struct SkOpCurve {
         SkDEBUGCODE(fWeight = 1);
         SkDEBUGCODE(fVerb = SkPath::kCubic_Verb);
     }
+
 };
 
 struct SkDCurve {
@@ -64,8 +67,28 @@ struct SkDCurve {
         return fCubic[n];
     }
 
+    SkDPoint conicTop(const SkPoint curve[3], SkScalar curveWeight, 
+                      double s, double e, double* topT);
+    SkDPoint cubicTop(const SkPoint curve[4], SkScalar , double s, double e, double* topT);
     void dumpID(int ) const;
+    SkDPoint lineTop(const SkPoint[2], SkScalar , double , double , double* topT);
+    SkDPoint quadTop(const SkPoint curve[3], SkScalar , double s, double e, double* topT);
+
+    void setConicBounds(const SkPoint curve[3], SkScalar curveWeight, 
+                        double s, double e, SkPathOpsBounds* );
+    void setCubicBounds(const SkPoint curve[4], SkScalar ,
+                        double s, double e, SkPathOpsBounds* );
+    void setLineBounds(const SkPoint[2], SkScalar , double , double , SkPathOpsBounds* );
+    void setQuadBounds(const SkPoint curve[3], SkScalar ,
+                       double s, double e, SkPathOpsBounds*);
 };
+
+
+extern void (SkDCurve::* const SetBounds[])(const SkPoint curve[], SkScalar cWeight,
+        double tStart, double tEnd, SkPathOpsBounds* );
+
+extern SkDPoint (SkDCurve::* const Top[])(const SkPoint curve[], SkScalar cWeight,
+    double tStart, double tEnd, double* topT);
 
 static SkDPoint dline_xy_at_t(const SkPoint a[2], SkScalar , double t) {
     SkDLine line;
@@ -177,36 +200,6 @@ static SkVector (* const CurveSlopeAtT[])(const SkPoint[], SkScalar , double ) =
     fquad_dxdy_at_t,
     fconic_dxdy_at_t,
     fcubic_dxdy_at_t
-};
-
-static SkPoint quad_top(const SkPoint a[3], SkScalar , double startT, double endT, double* topT) {
-    SkDQuad quad;
-    quad.set(a);
-    SkDPoint topPt = quad.top(startT, endT, topT);
-    return topPt.asSkPoint();
-}
-
-static SkPoint conic_top(const SkPoint a[3], SkScalar weight, double startT, double endT,
-        double* topT) {
-    SkDConic conic;
-    conic.set(a, weight);
-    SkDPoint topPt = conic.top(startT, endT, topT);
-    return topPt.asSkPoint();
-}
-
-static SkPoint cubic_top(const SkPoint a[4], SkScalar , double startT, double endT, double* topT) {
-    SkDCubic cubic;
-    cubic.set(a);
-    SkDPoint topPt = cubic.top(startT, endT, topT);
-    return topPt.asSkPoint();
-}
-
-static SkPoint (* const CurveTop[])(const SkPoint[], SkScalar , double , double , double* ) = {
-    NULL,
-    NULL,
-    quad_top,
-    conic_top,
-    cubic_top
 };
 
 static bool line_is_vertical(const SkPoint a[2], SkScalar , double startT, double endT) {

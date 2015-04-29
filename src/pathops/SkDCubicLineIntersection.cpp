@@ -135,7 +135,7 @@ public:
                             + (fCubic[n].fX - fLine[0].fX) * adj;
                 }
                 double extremeTs[6];
-                int extrema = SkDCubic::FindExtrema(c[0].fX, c[1].fX, c[2].fX, c[3].fX, extremeTs);
+                int extrema = SkDCubic::FindExtrema(&c[0].fX, extremeTs);
                 count = c.searchRoots(extremeTs, extrema, 0, SkDCubic::kXAxis, roots);
                 break;
             }
@@ -171,7 +171,7 @@ public:
             SkDPoint calcPt = c.ptAtT(roots[index]);
             if (!approximately_equal(calcPt.fY, axisIntercept)) {
                 double extremeTs[6];
-                int extrema = SkDCubic::FindExtrema(c[0].fY, c[1].fY, c[2].fY, c[3].fY, extremeTs);
+                int extrema = SkDCubic::FindExtrema(&c[0].fY, extremeTs);
                 count = c.searchRoots(extremeTs, extrema, axisIntercept, SkDCubic::kYAxis, roots);
                 break;
             }
@@ -234,7 +234,7 @@ public:
             SkDPoint calcPt = c.ptAtT(roots[index]);
             if (!approximately_equal(calcPt.fX, axisIntercept)) {
                 double extremeTs[6];
-                int extrema = SkDCubic::FindExtrema(c[0].fX, c[1].fX, c[2].fX, c[3].fX, extremeTs);
+                int extrema = SkDCubic::FindExtrema(&c[0].fX, extremeTs);
                 count = c.searchRoots(extremeTs, extrema, axisIntercept, SkDCubic::kXAxis, roots);
                 break;
             }

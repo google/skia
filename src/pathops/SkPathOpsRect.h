@@ -48,9 +48,23 @@ struct SkDRect {
         return fBottom - fTop;
     }
 
-    void setBounds(const SkDConic&);
-    void setBounds(const SkDCubic&);
-    void setBounds(const SkDQuad&);
+    void setBounds(const SkDConic& curve) {
+        setBounds(curve, curve, 0, 1);
+    }
+
+    void setBounds(const SkDConic& curve, const SkDConic& sub, double tStart, double tEnd);
+
+    void setBounds(const SkDCubic& curve) {
+        setBounds(curve, curve, 0, 1);
+    }
+
+    void setBounds(const SkDCubic& curve, const SkDCubic& sub, double tStart, double tEnd);
+
+    void setBounds(const SkDQuad& curve) {
+        setBounds(curve, curve, 0, 1);
+    }
+
+    void setBounds(const SkDQuad& curve, const SkDQuad& sub, double tStart, double tEnd);
 };
 
 #endif

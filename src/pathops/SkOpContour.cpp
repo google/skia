@@ -69,7 +69,7 @@ void SkOpContour::toPath(SkPathWriter* path) const {
     path->close();
 }
 
-void SkOpContour::topSortableSegment(const SkPoint& topLeft, SkPoint* bestXY,
+void SkOpContour::topSortableSegment(const SkDPoint& topLeft, SkDPoint* bestXY,
         SkOpSegment** topStart) {
     int segmentCount = fSortedSegments.count();
     SkASSERT(segmentCount > 0);
@@ -84,7 +84,7 @@ void SkOpContour::topSortableSegment(const SkPoint& topLeft, SkPoint* bestXY,
             continue;
         }
         fDone = false;
-        SkPoint testXY = testSegment->activeLeftTop(NULL);
+        SkDPoint testXY = testSegment->activeLeftTop(NULL);
         if (*topStart) {
             if (testXY.fY < topLeft.fY) {
                 continue;

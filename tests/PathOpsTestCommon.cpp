@@ -141,8 +141,20 @@ void CubicToQuads(const SkDCubic& cubic, double precision, SkTArray<SkDQuad, tru
     double tStart = 0;
     for (int i1 = 0; i1 <= ts.count(); ++i1) {
         const double tEnd = i1 < ts.count() ? ts[i1] : 1;
+        SkDRect bounds;
+        bounds.setBounds(cubic);
         SkDCubic part = cubic.subDivide(tStart, tEnd);
         SkDQuad quad = part.toQuad();
+        if (quad[1].fX < bounds.fLeft) {
+            quad[1].fX = bounds.fLeft;
+        } else if (quad[1].fX > bounds.fRight) {
+            quad[1].fX = bounds.fRight;
+        }
+        if (quad[1].fY < bounds.fTop) {
+            quad[1].fY = bounds.fTop;
+        } else if (quad[1].fY > bounds.fBottom) {
+            quad[1].fY = bounds.fBottom;
+        }
         quads.push_back(quad);
         tStart = tEnd;
     }

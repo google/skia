@@ -102,9 +102,9 @@ SkOpAngle* SkOpSegment::activeAngleOther(SkOpSpanBase* start, SkOpSpanBase** sta
     return other->activeAngleInner(oSpan, startPtr, endPtr, done, sortable);
 }
 
-SkPoint SkOpSegment::activeLeftTop(SkOpSpanBase** firstSpan) {
+SkDPoint SkOpSegment::activeLeftTop(SkOpSpanBase** firstSpan) {
     SkASSERT(!done());
-    SkPoint topPt = {SK_ScalarMax, SK_ScalarMax};
+    SkDPoint topPt = {SK_ScalarMax, SK_ScalarMax};
     // see if either end is not done since we want smaller Y of the pair
     bool lastDone = true;
     SkOpSpanBase* span = &fHead;
@@ -118,10 +118,11 @@ SkPoint SkOpSegment::activeLeftTop(SkOpSpanBase** firstSpan) {
                     *firstSpan = span;
                 }
             }
-            if (fVerb != SkPath::kLine_Verb && !lastDone
-                    && fCubicType != SkDCubic::kSplitAtMaxCurvature_SkDCubicType) {
+            if (fVerb != SkPath::kLine_Verb && !lastDone) {
                 double curveTopT;
-                SkPoint curveTop = (*CurveTop[fVerb])(fPts, fWeight, lastSpan->t(), span->t(),
+                SkDCurve curve;
+                this->subDivide(lastSpan, span, &curve);
+                SkDPoint curveTop = (curve.*Top[fVerb])(fPts, fWeight, lastSpan->t(), span->t(),
                         &curveTopT);
                 if (topPt.fY > curveTop.fY || (topPt.fY == curveTop.fY && topPt.fX > curveTop.fX)) {
                     topPt = curveTop;
@@ -1092,10 +1093,7 @@ SkOpSegment* SkOpSegment::findTop(bool firstPass, SkOpSpanBase** startPtr, SkOpS
             const SkOpSegment* next = angle->segment();
             SkPathOpsBounds bounds;
             next->subDivideBounds(angle->end(), angle->start(), &bounds);
-            bool nearSame = AlmostEqualUlps(top, bounds.top());
-            bool lowerSector = !firstAngle || angle->sectorEnd() < firstAngle->sectorStart();
-            bool lesserSector = top > bounds.fTop;
-            if (lesserSector && (!nearSame || lowerSector)) {
+            if (top > bounds.fTop) {
                 top = bounds.fTop;
                 firstAngle = angle;
             }
@@ -1452,7 +1450,12 @@ bool SkOpSegment::monotonicInY(const SkOpSpanBase* start, const SkOpSpanBase* en
     }
     SkASSERT(fVerb == SkPath::kCubic_Verb);
     SkDCubic dst = SkDCubic::SubDivide(fPts, start->t(), end->t());
-    return dst.monotonicInY();
+    if (dst.monotonicInY()) {
+        return true;
+    }
+    SkDCubic whole;
+    whole.set(fPts);
+    return whole.monotonicInY();
 }
 
 bool SkOpSegment::NextCandidate(SkOpSpanBase* span, SkOpSpanBase** start,
@@ -2023,9 +2026,15 @@ bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,
 
 void SkOpSegment::subDivideBounds(const SkOpSpanBase* start, const SkOpSpanBase* end,
         SkPathOpsBounds* bounds) const {
-    SkOpCurve edge;
+    SkDCurve edge;
     subDivide(start, end, &edge);
-    (bounds->*SetCurveBounds[fVerb])(edge.fPts, edge.fWeight);
+    (edge.*SetBounds[fVerb])(fPts, fWeight, start->t(), end->t(), bounds);
+}
+
+SkDPoint SkOpSegment::top(const SkOpSpanBase* start, const SkOpSpanBase* end, double* topT) const {
+    SkDCurve edge;
+    subDivide(start, end, &edge);
+    return (edge.*Top[fVerb])(fPts, fWeight, start->t(), end->t(), topT);
 }
 
 void SkOpSegment::undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end) {
