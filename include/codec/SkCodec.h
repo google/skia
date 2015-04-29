@@ -70,6 +70,15 @@ public:
      *
      *  @param dstInfo Info of the destination. If the dimensions do not match
      *      those of getInfo, this implies a scale.
+     *  @param options Contains decoding options, including if memory is zero
+     *      initialized.
+     *  @param ctable A pointer to a color table.  When dstInfo.colorType() is
+     *      kIndex8, this should be non-NULL and have enough storage for 256
+     *      colors.  The color table will be populated after decoding the palette.
+     *  @param ctableCount A pointer to the size of the color table.  When
+     *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
+     *      be modified to the true size of the color table (<= 256) after
+     *      decoding the palette.
      *  @return New SkScanlineDecoder, or NULL on failure.
      *
      *  NOTE: If any rows were previously decoded, this requires rewinding the
@@ -77,6 +86,13 @@ public:
      *
      *  NOTE: The scanline decoder is owned by the SkCodec and will delete it
      *  when the SkCodec is deleted.
+     */
+    SkScanlineDecoder* getScanlineDecoder(const SkImageInfo& dstInfo, const Options* options,
+                                          SkPMColor ctable[], int* ctableCount);
+
+    /**
+     *  Simplified version of getScanlineDecoder() that asserts that info is NOT
+     *  kIndex8_SkColorType and uses the default Options.
      */
     SkScanlineDecoder* getScanlineDecoder(const SkImageInfo& dstInfo);
 
@@ -126,10 +142,22 @@ protected:
      *
      *  @param dstInfo Info of the destination. If the dimensions do not match
      *      those of getInfo, this implies a scale.
+     *  @param options Contains decoding options, including if memory is zero
+     *      initialized.
+     *  @param ctable A pointer to a color table.  When dstInfo.colorType() is
+     *      kIndex8, this should be non-NULL and have enough storage for 256
+     *      colors.  The color table will be populated after decoding the palette.
+     *  @param ctableCount A pointer to the size of the color table.  When
+     *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
+     *      be modified to the true size of the color table (<= 256) after
+     *      decoding the palette.
      *  @return New SkScanlineDecoder on success, NULL otherwise. The SkCodec
      *      will take ownership of the returned scanline decoder.
      */
-    virtual SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo) {
+    virtual SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo,
+                                                    const Options& options,
+                                                    SkPMColor ctable[],
+                                                    int* ctableCount) {
         return NULL;
     }
 

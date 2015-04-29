@@ -343,7 +343,6 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 if (kIndex_8_SkColorType == dstColorType) {
                     SkASSERT(NULL != inputColorPtr);
                     SkASSERT(NULL != inputColorCount);
-                    SkASSERT(256 == *inputColorCount);
                     colorTable = inputColorPtr;
                 } else {
                     colorTable = alternateColorPtr;

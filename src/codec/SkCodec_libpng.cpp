@@ -15,7 +15,6 @@
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
-#include "SkUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helper macros
@@ -185,7 +184,6 @@ bool SkPngCodec::decodePalette(bool premultiply, int bitDepth, int* ctableCount)
 
     // Set the new color count
     if (ctableCount != NULL) {
-        SkASSERT(256 == *ctableCount);
         *ctableCount = colorCount;
     }
 
@@ -429,6 +427,7 @@ static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
 SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
                                                void* dst, size_t rowBytes,
                                                const Options& options,
+                                               SkPMColor ctable[],
                                                int* ctableCount) {
     // FIXME: Could we use the return value of setjmp to specify the type of
     // error?
@@ -464,6 +463,11 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     } else {
         fSrcConfig = SkSwizzler::kRGBA;
     }
+
+    // Copy the color table to the client if they request kIndex8 mode
+    copy_color_table(requestedInfo, fColorTable, ctable, ctableCount);
+
+    // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = fColorTable ? fColorTable->readColors() : NULL;
     fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo,
             dst, rowBytes, options.fZeroInitialized));
@@ -520,17 +524,9 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         return kInvalidConversion;
     }
 
-    // Note that ctableCount will be modified if there is a color table
+    // Note that ctable and ctableCount may be modified if there is a color table
     const Result result = this->initializeSwizzler(requestedInfo, dst, rowBytes,
-                                                   options, ctableCount);
-
-    // Copy the color table to the client if necessary
-    if (kIndex_8_SkColorType == requestedInfo.colorType()) {
-        SkASSERT(NULL != ctable);
-        SkASSERT(NULL != ctableCount);
-        SkASSERT(NULL != fColorTable.get());
-        sk_memcpy32(ctable, fColorTable->readColors(), *ctableCount);
-    }
+                                                   options, ctable, ctableCount);
 
     if (result != kSuccess) {
         return result;
@@ -648,7 +644,8 @@ private:
     typedef SkScanlineDecoder INHERITED;
 };
 
-SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo) {
+SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
+        const Options& options, SkPMColor ctable[], int* ctableCount) {
     if (!this->handleRewind()) {
         return NULL;
     }
@@ -666,12 +663,8 @@ SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo) 
     // Note: We set dst to NULL since we do not know it yet. rowBytes is not needed,
     // since we'll be manually updating the dstRow, but the SkSwizzler requires it to
     // be at least dstInfo.minRowBytes.
-    Options opts;
-    // FIXME: Pass this in to getScanlineDecoder?
-    opts.fZeroInitialized = kNo_ZeroInitialized;
-    // FIXME: onGetScanlineDecoder does not currently have a way to get color table information
-    // for a kIndex8 decoder.
-    if (this->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), opts, NULL) != kSuccess) {
+    if (this->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), options, ctable,
+            ctableCount) != kSuccess) {
         SkCodecPrintf("failed to initialize the swizzler.\n");
         return NULL;
     }

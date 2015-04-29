@@ -90,7 +90,23 @@ SkCodec::RewindState SkCodec::rewindIfNeeded() {
                              : kCouldNotRewind_RewindState;
 }
 
-SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo) {
-    fScanlineDecoder.reset(this->onGetScanlineDecoder(dstInfo));
+SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo, const Options* options,
+        SkPMColor ctable[], int* ctableCount) {
+
+    // Set options.
+    Options optsStorage;
+    if (NULL == options) {
+        options = &optsStorage;
+    }
+
+    fScanlineDecoder.reset(this->onGetScanlineDecoder(dstInfo, *options, ctable, ctableCount));
     return fScanlineDecoder.get();
+}
+
+SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo) {
+    SkASSERT(kIndex_8_SkColorType != dstInfo.colorType());
+    if (kIndex_8_SkColorType == dstInfo.colorType()) {
+        return NULL;
+    }
+    return this->getScanlineDecoder(dstInfo, NULL, NULL, NULL);
 }

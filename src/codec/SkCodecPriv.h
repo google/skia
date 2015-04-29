@@ -8,9 +8,11 @@
 #ifndef SkCodecPriv_DEFINED
 #define SkCodecPriv_DEFINED
 
+#include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
 #include "SkTypes.h"
+#include "SkUtils.h"
 
 /*
  *
@@ -27,6 +29,21 @@
 
 #define COMPUTE_RESULT_ALPHA                    \
     SkSwizzler::GetResult(zeroAlpha, maxAlpha);
+
+/*
+ *
+ * Copy the codec color table back to the client when kIndex8 color type is requested
+ *
+ */
+static inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* colorTable,
+        SkPMColor* inputColorPtr, int* inputColorCount) {
+    if (kIndex_8_SkColorType == dstInfo.colorType()) {
+        SkASSERT(NULL != inputColorPtr);
+        SkASSERT(NULL != inputColorCount);
+        SkASSERT(NULL != colorTable);
+        sk_memcpy32(inputColorPtr, colorTable->readColors(), *inputColorCount);
+    }
+}
 
 /*
  *

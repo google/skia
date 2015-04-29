@@ -139,7 +139,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
             break;
         case kScanline_Mode: {
-            SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(decodeInfo);
+            SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(decodeInfo, NULL,
+                    colorPtr, colorCountPtr);
             if (NULL == scanlineDecoder) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }

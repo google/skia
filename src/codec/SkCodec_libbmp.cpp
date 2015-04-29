@@ -9,7 +9,6 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkStream.h"
-#include "SkUtils.h"
 
 /*
  *
@@ -603,12 +602,7 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     // Copy the color table to the client if necessary
-    if (kIndex_8_SkColorType == dstInfo.colorType()) {
-        SkASSERT(NULL != inputColorPtr);
-        SkASSERT(NULL != inputColorCount);
-        SkASSERT(NULL != fColorTable.get());
-        sk_memcpy32(inputColorPtr, fColorTable->readColors(), *inputColorCount);
-    }
+    copy_color_table(dstInfo, fColorTable, inputColorPtr, inputColorCount);
 
     // Perform the decode
     switch (fInputFormat) {
@@ -644,7 +638,6 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
 
         // Inform the caller of the number of colors
         if (NULL != numColors) {
-            SkASSERT(256 == *numColors);
             // We set the number of colors to maxColors in order to ensure
             // safe memory accesses.  Otherwise, an invalid pixel could
             // access memory outside of our color table array.
