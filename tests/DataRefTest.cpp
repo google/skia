@@ -232,3 +232,84 @@ DEF_TEST(Data, reporter) {
     test_cstring(reporter);
     test_files(reporter);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkRWBuffer.h"
+
+const char gABC[] = "abcdefghijklmnopqrstuvwxyz";
+
+static void check_abcs(skiatest::Reporter* reporter, const char buffer[], size_t size) {
+    REPORTER_ASSERT(reporter, size % 26 == 0);
+    for (size_t offset = 0; offset < size; offset += 26) {
+        REPORTER_ASSERT(reporter, !memcmp(&buffer[offset], gABC, 26));
+    }
+}
+
+// stream should contains an integral number of copies of gABC.
+static void check_alphabet_stream(skiatest::Reporter* reporter, SkStream* stream) {
+    REPORTER_ASSERT(reporter, stream->hasLength());
+    size_t size = stream->getLength();
+    REPORTER_ASSERT(reporter, size % 26 == 0);
+
+    SkAutoTMalloc<char> storage(size);
+    char* array = storage.get();
+    size_t bytesRead = stream->read(array, size);
+    REPORTER_ASSERT(reporter, bytesRead == size);
+    check_abcs(reporter, array, size);
+
+    // try checking backwards
+    for (size_t offset = size; offset > 0; offset -= 26) {
+        REPORTER_ASSERT(reporter, stream->seek(offset - 26));
+        REPORTER_ASSERT(reporter, stream->getPosition() == offset - 26);
+        REPORTER_ASSERT(reporter, stream->read(array, 26) == 26);
+        check_abcs(reporter, array, 26);
+        REPORTER_ASSERT(reporter, stream->getPosition() == offset);
+    }
+}
+
+// reader should contains an integral number of copies of gABC.
+static void check_alphabet_buffer(skiatest::Reporter* reporter, const SkROBuffer* reader) {
+    size_t size = reader->size();
+    REPORTER_ASSERT(reporter, size % 26 == 0);
+    
+    SkAutoTMalloc<char> storage(size);
+    SkROBuffer::Iter iter(reader);
+    size_t offset = 0;
+    do {
+        SkASSERT(offset + iter.size() <= size);
+        memcpy(storage.get() + offset, iter.data(), iter.size());
+        offset += iter.size();
+    } while (iter.next());
+    REPORTER_ASSERT(reporter, offset == size);
+    check_abcs(reporter, storage.get(), size);
+}
+
+DEF_TEST(RWBuffer, reporter) {
+    // Knowing that the default capacity is 4096, choose N large enough so we force it to use
+    // multiple buffers internally.
+    const int N = 1000;
+    SkROBuffer* readers[N];
+    SkStream* streams[N];
+
+    {
+        SkRWBuffer buffer;
+        for (int i = 0; i < N; ++i) {
+            if (0 == (i & 1)) {
+                buffer.append(gABC, 26);
+            } else {
+                memcpy(buffer.append(26), gABC, 26);
+            }
+            readers[i] = buffer.newRBufferSnapshot();
+            streams[i] = buffer.newStreamSnapshot();
+        }
+        REPORTER_ASSERT(reporter, N*26 == buffer.size());
+    }
+
+    for (int i = 0; i < N; ++i) {
+        REPORTER_ASSERT(reporter, (i + 1) * 26U == readers[i]->size());
+        check_alphabet_buffer(reporter, readers[i]);
+        check_alphabet_stream(reporter, streams[i]);
+        readers[i]->unref();
+        SkDELETE(streams[i]);
+    }
+}
