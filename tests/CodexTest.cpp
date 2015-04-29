@@ -105,11 +105,11 @@ DEF_TEST(Codec, r) {
     check(r, "randPixels.gif", SkISize::Make(8, 8), false);
 
     // JPG
-    check(r, "CMYK.jpg", SkISize::Make(642, 516), false);
-    check(r, "color_wheel.jpg", SkISize::Make(128, 128), false);
-    check(r, "grayscale.jpg", SkISize::Make(128, 128), false);
-    check(r, "mandrill_512_q075.jpg", SkISize::Make(512, 512), false);
-    check(r, "randPixels.jpg", SkISize::Make(8, 8), false);
+    check(r, "CMYK.jpg", SkISize::Make(642, 516), true);
+    check(r, "color_wheel.jpg", SkISize::Make(128, 128), true);
+    check(r, "grayscale.jpg", SkISize::Make(128, 128), true);
+    check(r, "mandrill_512_q075.jpg", SkISize::Make(512, 512), true);
+    check(r, "randPixels.jpg", SkISize::Make(8, 8), true);
 
     // PNG
     check(r, "arrow.png", SkISize::Make(187, 312), true);

@@ -77,6 +77,8 @@ protected:
 
     virtual bool onReallyHasAlpha() const { return false; }
 
+    const SkImageInfo& dstInfo() const { return fDstInfo; }
+
 private:
     const SkImageInfo   fDstInfo;
     int                 fCurrScanline;

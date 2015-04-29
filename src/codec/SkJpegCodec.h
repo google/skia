@@ -56,6 +56,9 @@ protected:
         return kJPEG_SkEncodedFormat;
     }
 
+    SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo, const Options& options,
+            SkPMColor ctable[], int* ctableCount) override;
+
 private:
 
     /*
@@ -91,7 +94,28 @@ private:
      */
     SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr);
 
+    /*
+     * Handles rewinding the input stream if it is necessary
+     */
+    bool handleRewind();
+
+    /*
+     * Checks if we can scale to the requested dimensions and scales the dimensions
+     * if possible
+     */
+    bool scaleToDimensions(uint32_t width, uint32_t height);
+
+    /*
+     * Create the swizzler based on the encoded format
+     */
+    void initializeSwizzler(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+            const Options& options);
+
     SkAutoTDelete<JpegDecoderMgr> fDecoderMgr;
+    SkAutoTDelete<SkSwizzler>     fSwizzler;
+    size_t                        fSrcRowBytes;
+
+    friend class SkJpegScanlineDecoder;
 
     typedef SkCodec INHERITED;
 };
