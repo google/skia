@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkCanvasPriv.h"
 #include "SkBitmapDevice.h"
+#include "SkColorFilter.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDraw.h"
 #include "SkDrawable.h"
@@ -299,6 +300,41 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
+static SkPaint* set_if_needed(SkLazyPaint* lazy, const SkPaint& orig) {
+    return lazy->isValid() ? lazy->get() : lazy->set(orig);
+}
+
+/**
+ *  If the paint has an imagefilter, but it can be simplified to just a colorfilter, return that
+ *  colorfilter, else return NULL.
+ */
+static SkColorFilter* image_to_color_filter(const SkPaint& paint) {
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_TO_COLORFILTER
+    return NULL;
+#else
+    SkImageFilter* imgf = paint.getImageFilter();
+    if (!imgf) {
+        return NULL;
+    }
+
+    SkColorFilter* imgCF;
+    if (!imgf->asAColorFilter(&imgCF)) {
+        return NULL;
+    }
+
+    SkColorFilter* paintCF = paint.getColorFilter();
+    if (NULL == paintCF) {
+        // there is no existing paint colorfilter, so we can just return the imagefilter's
+        return imgCF;
+    }
+
+    // The paint has both a colorfilter(paintCF) and an imagefilter-which-is-a-colorfilter(imgCF)
+    // and we need to combine them into a single colorfilter.
+    SkAutoTUnref<SkColorFilter> autoImgCF(imgCF);
+    return SkColorFilter::CreateComposeFilter(imgCF, paintCF);
+#endif
+}
+
 class AutoDrawLooper {
 public:
     AutoDrawLooper(SkCanvas* canvas, const SkSurfaceProps& props, const SkPaint& paint,
@@ -311,7 +347,15 @@ public:
         fTempLayerForImageFilter = false;
         fDone = false;
 
-        if (!skipLayerForImageFilter && fOrigPaint.getImageFilter()) {
+        SkColorFilter* simplifiedCF = image_to_color_filter(fOrigPaint);
+        if (simplifiedCF) {
+            SkPaint* paint = set_if_needed(&fLazyPaintInit, fOrigPaint);
+            paint->setColorFilter(simplifiedCF)->unref();
+            paint->setImageFilter(NULL);
+            fPaint = paint;
+        }
+
+        if (!skipLayerForImageFilter && fPaint->getImageFilter()) {
             /**
              *  We implement ImageFilters for a given draw by creating a layer, then applying the
              *  imagefilter to the pixels of that layer (its backing surface/image), and then
@@ -328,8 +372,8 @@ public:
              *      draw onto the previous layer using the xfermode from the original paint.
              */
             SkPaint tmp;
-            tmp.setImageFilter(fOrigPaint.getImageFilter());
-            tmp.setXfermode(fOrigPaint.getXfermode());
+            tmp.setImageFilter(fPaint->getImageFilter());
+            tmp.setXfermode(fPaint->getXfermode());
             (void)canvas->internalSaveLayer(bounds, &tmp, SkCanvas::kARGB_ClipLayer_SaveFlag,
                                             SkCanvas::kFullLayer_SaveLayerStrategy);
             fTempLayerForImageFilter = true;
@@ -350,7 +394,7 @@ public:
         uint32_t oldFlags = paint.getFlags();
         fNewPaintFlags = filter_paint_flags(props, oldFlags);
         if (fIsSimple && (fNewPaintFlags != oldFlags)) {
-            SkPaint* paint = fLazyPaint.set(fOrigPaint);
+            SkPaint* paint = set_if_needed(&fLazyPaintInit, fOrigPaint);
             paint->setFlags(fNewPaintFlags);
             fPaint = paint;
             // if we're not simple, doNext() will take care of calling setFlags()
@@ -381,7 +425,8 @@ public:
     }
 
 private:
-    SkLazyPaint     fLazyPaint;
+    SkLazyPaint     fLazyPaintInit; // base paint storage in case we need to modify it
+    SkLazyPaint     fLazyPaintPerLooper;  // per-draw-looper storage, so the looper can modify it
     SkCanvas*       fCanvas;
     const SkPaint&  fOrigPaint;
     SkDrawFilter*   fFilter;
@@ -402,7 +447,8 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     SkASSERT(!fIsSimple);
     SkASSERT(fLooperContext || fFilter || fTempLayerForImageFilter);
 
-    SkPaint* paint = fLazyPaint.set(fOrigPaint);
+    SkPaint* paint = fLazyPaintPerLooper.set(fLazyPaintInit.isValid() ?
+                                             *fLazyPaintInit.get() : fOrigPaint);
     paint->setFlags(fNewPaintFlags);
 
     if (fTempLayerForImageFilter) {
