@@ -771,7 +771,10 @@ protected:
         FCLocker lock;
 
         SkAutoFcPattern pattern;
-        FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
+        FcValue familyNameValue;
+        familyNameValue.type = FcTypeString;
+        familyNameValue.u.s = reinterpret_cast<const FcChar8*>(familyName);
+        FcPatternAddWeak(pattern, FC_FAMILY, familyNameValue, FcFalse);
         fcpattern_from_skfontstyle(style, pattern);
 
         SkAutoFcCharSet charSet;
