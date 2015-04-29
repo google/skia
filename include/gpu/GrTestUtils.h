@@ -23,6 +23,7 @@ namespace GrTest {
  * A helper for use in Test functions.
  */
 const SkMatrix& TestMatrix(SkRandom*);
+const SkMatrix& TestMatrixPreservesRightAngles(SkRandom*);
 const SkRect& TestRect(SkRandom*);
 
 }

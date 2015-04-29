@@ -38,7 +38,6 @@ public:
         this->init(paint);
     }
 
-
     explicit GrStrokeInfo(const SkPaint& paint) :
         fStroke(paint), fDashType(SkPathEffect::kNone_DashType) {
         this->init(paint);
@@ -74,6 +73,24 @@ public:
                 pe->asADash(&fDashInfo);
                 return true;
             }
+        }
+        return false;
+    }
+
+    /*
+     * Like the above, but sets with an explicit SkPathEffect::DashInfo
+     */
+    bool setDashInfo(const SkPathEffect::DashInfo& info) {
+        if (!fStroke.isFillStyle()) {
+            SkASSERT(!fStroke.isFillStyle());
+            fDashInfo.fCount = info.fCount;
+            fDashInfo.fPhase = info.fPhase;
+            fIntervals.reset(info.fCount);
+            for (int i = 0; i < info.fCount; i++) {
+                fIntervals[i] = info.fIntervals[i];
+            }
+            fDashInfo.fIntervals = fIntervals.get();
+            return true;
         }
         return false;
     }

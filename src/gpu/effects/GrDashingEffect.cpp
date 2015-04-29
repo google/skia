@@ -9,6 +9,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrBufferAllocPool.h"
 #include "GrGeometryProcessor.h"
 #include "GrContext.h"
@@ -258,7 +259,8 @@ public:
         SkDEBUGCODE(SkRect fDevBounds;)
     };
 
-    static GrBatch* Create(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode, bool fullDash) {
+    static GrBatch* Create(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode,
+                           bool fullDash) {
         return SkNEW_ARGS(DashBatch, (geometry, cap, aaMode, fullDash));
     }
 
@@ -699,11 +701,8 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-
-bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
-                                   GrPipelineBuilder* pipelineBuilder, GrColor color,
-                                   const SkMatrix& viewMatrix, const SkPoint pts[2],
-                                   bool useAA, const GrStrokeInfo& strokeInfo) {
+static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const SkPoint pts[2],
+                             bool useAA, const GrStrokeInfo& strokeInfo, bool msaaRT) {
     const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
 
     SkPaint::Cap cap = strokeInfo.getStrokeRec().getCap();
@@ -720,7 +719,7 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
         align_to_x_axis(pts, &rotMatrix, geometry.fPtsRot);
         if(!rotMatrix.invert(&geometry.fSrcRotInv)) {
             SkDebugf("Failed to create invertible rotation matrix!\n");
-            return false;
+            return NULL;
         }
     } else {
         geometry.fSrcRotInv.reset();
@@ -739,8 +738,8 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
         offInterval -= strokeWidth;
     }
 
-    DashAAMode aaMode = pipelineBuilder->getRenderTarget()->isMultisampled() ? kMSAA_DashAAMode :
-                        useAA ? kEdgeAA_DashAAMode : kBW_DashAAMode;
+    DashAAMode aaMode = msaaRT ? kMSAA_DashAAMode :
+                                 useAA ? kEdgeAA_DashAAMode : kBW_DashAAMode;
 
     // TODO we can do a real rect call if not using fulldash(ie no off interval, not using AA)
     bool fullDash = offInterval > 0.f || aaMode != kBW_DashAAMode;
@@ -751,9 +750,20 @@ bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
     geometry.fIntervals[0] = info.fIntervals[0];
     geometry.fIntervals[1] = info.fIntervals[1];
 
-    SkAutoTUnref<GrBatch> batch(DashBatch::Create(geometry, cap, aaMode, fullDash));
-    target->drawBatch(pipelineBuilder, batch);
+    return DashBatch::Create(geometry, cap, aaMode, fullDash);
+}
 
+bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
+                                   GrPipelineBuilder* pipelineBuilder, GrColor color,
+                                   const SkMatrix& viewMatrix, const SkPoint pts[2],
+                                   bool useAA, const GrStrokeInfo& strokeInfo) {
+    SkAutoTUnref<GrBatch> batch(create_batch(color, viewMatrix, pts, useAA, strokeInfo,
+                                             pipelineBuilder->getRenderTarget()->isMultisampled()));
+    if (!batch) {
+        return false;
+    }
+
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 
@@ -1280,3 +1290,84 @@ static GrGeometryProcessor* create_dash_gp(GrColor color,
     }
     return NULL;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+BATCH_TEST_DEFINE(DashBatch) {
+    GrColor color = GrRandomColor(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
+    bool useAA = random->nextBool();
+    bool msaaRT = random->nextBool();
+
+    // We can only dash either horizontal or vertical lines
+    SkPoint pts[2];
+    if (random->nextBool()) {
+        // vertical
+        pts[0].fX = 1.f;
+        pts[0].fY = random->nextF() * 10.f;
+        pts[1].fX = 1.f;
+        pts[1].fY = random->nextF() * 10.f;
+    } else {
+        // horizontal
+        pts[0].fX = random->nextF() * 10.f;
+        pts[0].fY = 1.f;
+        pts[1].fX = random->nextF() * 10.f;
+        pts[1].fY = 1.f;
+    }
+
+    // pick random cap
+    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::Cap::kCapCount));
+
+    SkScalar intervals[2];
+
+    // We can only dash with the following intervals
+    enum Intervals {
+        kOpenOpen_Intervals ,
+        kOpenClose_Intervals,
+        kCloseOpen_Intervals,
+    };
+
+    Intervals intervalType = SkPaint::kRound_Cap ?
+                             kOpenClose_Intervals :
+                             Intervals(random->nextULessThan(kCloseOpen_Intervals + 1));
+    static const SkScalar kIntervalMin = 0.1f;
+    static const SkScalar kIntervalMax = 10.f;
+    switch (intervalType) {
+        case kOpenOpen_Intervals:
+            intervals[0] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
+            intervals[1] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
+            break;
+        case kOpenClose_Intervals:
+            intervals[0] = 0.f;
+            intervals[1] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
+            break;
+        case kCloseOpen_Intervals:
+            intervals[0] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
+            intervals[1] = 0.f;
+            break;
+
+    }
+
+    // phase is 0 < sum (i0, i1)
+    SkScalar phase = random->nextRangeScalar(0, intervals[0] + intervals[1]);
+
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(SkIntToScalar(1));
+    p.setStrokeCap(cap);
+
+    GrStrokeInfo strokeInfo(p);
+
+    SkPathEffect::DashInfo info;
+    info.fIntervals = intervals;
+    info.fCount = 2;
+    info.fPhase = phase;
+    SkDEBUGCODE(bool success = ) strokeInfo.setDashInfo(info);
+    SkASSERT(success);
+
+    return create_batch(color, viewMatrix, pts, useAA, strokeInfo, msaaRT);
+}
+
+#endif

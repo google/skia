@@ -29,6 +29,32 @@ const SkMatrix& TestMatrix(SkRandom* random) {
     return gMatrices[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices)))];
 }
 
+const SkMatrix& TestMatrixPreservesRightAngles(SkRandom* random) {
+    static SkMatrix gMatrices[4];
+    static bool gOnce;
+    if (!gOnce) {
+        // identity
+        gMatrices[0].reset();
+        // translation
+        gMatrices[1].setTranslate(SkIntToScalar(-100), SkIntToScalar(100));
+        // scale
+        gMatrices[2].setScale(SkIntToScalar(17), SkIntToScalar(17));
+        // scale + translation
+        gMatrices[3].setScale(SkIntToScalar(-17), SkIntToScalar(-17));
+        gMatrices[3].postTranslate(SkIntToScalar(66), SkIntToScalar(-33));
+        // orthogonal basis vectors
+        gMatrices[4].reset();
+        gMatrices[4].setScale(SkIntToScalar(-1), SkIntToScalar(-1));
+        gMatrices[4].setRotate(47);
+        gOnce = true;
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gMatrices); i++) {
+            SkASSERT(gMatrices[i].preservesRightAngles());
+        }
+    }
+    return gMatrices[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices)))];
+}
+
 const SkRect& TestRect(SkRandom* random) {
     static SkRect gRects[1];
     static bool gOnce;
