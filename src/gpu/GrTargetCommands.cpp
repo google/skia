@@ -341,6 +341,10 @@ void GrTargetCommands::CopySurface::execute(GrGpu* gpu, const SetState*) {
     gpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }
 
+void GrTargetCommands::XferBarrier::execute(GrGpu* gpu, const SetState* state) {
+    gpu->xferBarrier(fBarrierType);
+}
+
 GrTargetCommands::Cmd* GrTargetCommands::recordCopySurface(GrSurface* dst,
                                                            GrSurface* src,
                                                            const SkIRect& srcRect,
@@ -375,6 +379,8 @@ bool GrTargetCommands::setupPipelineAndShouldDraw(GrInOrderDrawBuffer* iodb,
         fPrevState = ss;
         iodb->recordTraceMarkersIfNecessary(ss);
     }
+
+    this->recordXferBarrierIfNecessary(iodb, pipelineInfo);
     return true;
 }
 
@@ -398,6 +404,25 @@ bool GrTargetCommands::setupPipelineAndShouldDraw(GrInOrderDrawBuffer* iodb,
         fPrevState = ss;
         iodb->recordTraceMarkersIfNecessary(ss);
     }
+
+    this->recordXferBarrierIfNecessary(iodb, pipelineInfo);
     return true;
+}
+
+void GrTargetCommands::recordXferBarrierIfNecessary(GrInOrderDrawBuffer* iodb,
+                                                    const GrDrawTarget::PipelineInfo& info) {
+    SkASSERT(fPrevState);
+    const GrXferProcessor& xp = *fPrevState->getXferProcessor();
+    GrRenderTarget* rt = fPrevState->getRenderTarget();
+
+    GrXferBarrierType barrierType;
+    if (!xp.willNeedXferBarrier(rt, *iodb->caps(), &barrierType)) {
+        return;
+    }
+
+    XferBarrier* xb = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, XferBarrier, ());
+    xb->fBarrierType = barrierType;
+
+    iodb->recordTraceMarkersIfNecessary(xb);
 }
 

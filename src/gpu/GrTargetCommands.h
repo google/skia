@@ -56,6 +56,7 @@ public:
             kDrawPath_CmdType          = 6,
             kDrawPaths_CmdType         = 7,
             kDrawBatch_CmdType         = 8,
+            kXferBarrier_CmdType       = 9,
         };
 
         Cmd(CmdType type) : fMarkerID(-1), fType(type) {}
@@ -150,6 +151,8 @@ private:
     bool SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(GrInOrderDrawBuffer*,
                                                           GrBatch*,
                                                           const GrDrawTarget::PipelineInfo&);
+
+    void recordXferBarrierIfNecessary(GrInOrderDrawBuffer*, const GrDrawTarget::PipelineInfo&);
 
     struct Draw : public Cmd {
         Draw(const GrDrawTarget::DrawInfo& info) : Cmd(kDraw_CmdType), fInfo(info) {}
@@ -276,6 +279,12 @@ private:
         const GrPipeline* getPipeline() const {
             return reinterpret_cast<const GrPipeline*>(fPipeline.get());
         }
+        GrRenderTarget* getRenderTarget() const {
+            return this->getPipeline()->getRenderTarget();
+        }
+        const GrXferProcessor* getXferProcessor() const {
+            return this->getPipeline()->getXferProcessor();
+        }
 
         void execute(GrGpu*, const SetState*) override;
 
@@ -301,6 +310,14 @@ private:
 
     private:
         GrBatchTarget*         fBatchTarget;
+    };
+
+    struct XferBarrier : public Cmd {
+        XferBarrier() : Cmd(kXferBarrier_CmdType) {}
+
+        void execute(GrGpu*, const SetState*) override;
+
+        GrXferBarrierType   fBarrierType;
     };
 
      static const int kCmdBufferInitialSizeInBytes = 8 * 1024;

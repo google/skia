@@ -2727,6 +2727,15 @@ bool GrGLGpu::canCopySurface(const GrSurface* dst,
     return false;
 }
 
+void GrGLGpu::xferBarrier(GrXferBarrierType type) {
+    switch (type) {
+        case kTexture_GrXferBarrierType:
+            SkASSERT(this->caps()->textureBarrierSupport());
+            GL_CALL(TextureBarrier());
+            return;
+    }
+}
+
 void GrGLGpu::didAddGpuTraceMarker() {
     if (this->caps()->gpuTracingSupport()) {
         const GrTraceMarkerSet& markerArray = this->getActiveTraceMarkers();

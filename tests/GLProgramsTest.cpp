@@ -304,6 +304,12 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         if (pipeline.mustSkip()) {
             continue;
         }
+
+        GrXferBarrierType barrierType;
+        if (pipeline.getXferProcessor()->willNeedXferBarrier(rt, *gpu->caps(), &barrierType)) {
+            gpu->xferBarrier(barrierType);
+        }
+
         GrBatchTracker bt;
         primProc->initBatchTracker(&bt, pipeline.getInitBatchTracker());
 

@@ -78,8 +78,20 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     if (!pipelineBuilder.willXPNeedDstCopy(*this->caps(), colorPOI, coveragePOI)) {
         return true;
     }
-    SkIRect copyRect;
+
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
+
+    if (this->caps()->textureBarrierSupport()) {
+        if (GrTexture* rtTex = rt->asTexture()) {
+            // The render target is a texture, se we can read from it directly in the shader. The XP
+            // will be responsible to detect this situation and request a texture barrier.
+            dstCopy->setTexture(rtTex);
+            dstCopy->setOffset(0, 0);
+            return true;
+        }
+    }
+
+    SkIRect copyRect;
     pipelineBuilder.clip().getConservativeBounds(rt, &copyRect);
 
     if (drawBounds) {

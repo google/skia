@@ -48,6 +48,14 @@ enum GrBlendCoeff {
 };
 
 /**
+ * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
+ * required after a pixel has been written, before it can be safely read again.
+ */
+enum GrXferBarrierType {
+    kTexture_GrXferBarrierType, //<! Required when a shader reads and renders to the same texture.
+};
+
+/**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
  * color. It does this by emitting fragment shader code and controlling the fixed-function blend
  * state. The inputs to its shader code are the final computed src color and fractional pixel
@@ -123,6 +131,14 @@ public:
                                       bool doesStencilWrite,
                                       GrColor* overrideColor,
                                       const GrDrawTargetCaps& caps) = 0;
+
+    /**
+     * Returns whether this XP will require an Xfer barrier on the given rt. If true, outBarrierType
+     * is updated to contain the type of barrier needed.
+     */
+    bool willNeedXferBarrier(const GrRenderTarget* rt,
+                             const GrDrawTargetCaps& caps,
+                             GrXferBarrierType* outBarrierType) const;
 
     struct BlendInfo {
         void reset() {

@@ -170,6 +170,8 @@ public:
         return false;
     }
 
+    void xferBarrier(GrXferBarrierType) override {}
+
 private:
     void onResetContext(uint32_t resetBits) override {}
 
