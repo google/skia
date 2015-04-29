@@ -825,17 +825,23 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
 
     const SkRect* cullRect = NULL;  // TODO: what is our bounds?
     SkStrokeRec* strokePtr = strokeInfo.getStrokeRecPtr();
-    if (pathEffect && pathEffect->filterPath(effectPath.init(), *pathPtr, strokePtr,
-                                             cullRect)) {
+    if (!strokeInfo.isDashed() && pathEffect && pathEffect->filterPath(effectPath.init(), *pathPtr,
+                                                                       strokePtr, cullRect)) {
         pathPtr = effectPath.get();
         pathIsMutable = true;
-        strokeInfo.removeDash();
     }
 
     const SkStrokeRec& stroke = strokeInfo.getStrokeRec();
     if (paint.getMaskFilter()) {
         if (!stroke.isHairlineStyle()) {
             SkPath* strokedPath = pathIsMutable ? pathPtr : tmpPath.init();
+            if (strokeInfo.isDashed()) {
+                if (pathEffect->filterPath(strokedPath, *pathPtr, strokePtr, cullRect)) {
+                    pathPtr = strokedPath;
+                    pathIsMutable = true;
+                }
+                strokeInfo.removeDash();
+            }
             if (stroke.applyToPath(strokedPath, *pathPtr)) {
                 pathPtr = strokedPath;
                 pathIsMutable = true;
