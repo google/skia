@@ -105,7 +105,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
 
     GrProcessorKeyBuilder b(&glDesc->key());
 
-    primProc.getGLProcessorKey(batchTracker, gpu->glCaps(), &b);
+    primProc.getGLProcessorKey(batchTracker, *gpu->glCaps().glslCaps(), &b);
     //**** use glslCaps here?
     if (!get_meta_key(primProc, gpu->glCaps(), 0, &b)) {
         glDesc->key().reset();
@@ -115,7 +115,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     for (int s = 0; s < pipeline.numFragmentStages(); ++s) {
         const GrPendingFragmentStage& fps = pipeline.getFragmentStage(s);
         const GrFragmentProcessor& fp = *fps.processor();
-        fp.getGLProcessorKey(gpu->glCaps(), &b);
+        fp.getGLProcessorKey(*gpu->glCaps().glslCaps(), &b);
         //**** use glslCaps here?
         if (!get_meta_key(fp, gpu->glCaps(), primProc.getTransformKey(fp.coordTransforms()), &b)) {
             glDesc->key().reset();
@@ -124,7 +124,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     }
 
     const GrXferProcessor& xp = *pipeline.getXferProcessor();
-    xp.getGLProcessorKey(gpu->glCaps(), &b);
+    xp.getGLProcessorKey(*gpu->glCaps().glslCaps(), &b);
     //**** use glslCaps here?
     if (!get_meta_key(xp, gpu->glCaps(), 0, &b)) {
         glDesc->key().reset();

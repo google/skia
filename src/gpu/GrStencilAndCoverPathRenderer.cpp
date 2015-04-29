@@ -35,7 +35,7 @@ static GrPathRendering::FillType convert_skpath_filltype(SkPath::FillType fill) 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
     SkASSERT(context);
     SkASSERT(context->getGpu());
-    if (context->getGpu()->caps()->pathRenderingSupport()) {
+    if (context->getGpu()->caps()->shaderCaps()->pathRenderingSupport()) {
         return SkNEW_ARGS(GrStencilAndCoverPathRenderer, (context->getGpu()));
     } else {
         return NULL;
@@ -43,7 +43,7 @@ GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
 }
 
 GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrGpu* gpu) {
-    SkASSERT(gpu->caps()->pathRenderingSupport());
+    SkASSERT(gpu->caps()->shaderCaps()->pathRenderingSupport());
     fGpu = gpu;
     gpu->ref();
 }

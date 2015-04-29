@@ -669,7 +669,7 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
     if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
         this->drawCircle(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
-    } else if (target->caps()->shaderDerivativeSupport()) {
+    } else if (target->caps()->shaderCaps()->shaderDerivativeSupport()) {
         return this->drawDIEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
                                    stroke);
     // otherwise axis-aligned ellipses only

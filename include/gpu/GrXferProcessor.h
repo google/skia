@@ -14,9 +14,8 @@
 #include "GrTypes.h"
 #include "SkXfermode.h"
 
-class GrDrawTargetCaps;
-class GrGLCaps;
-typedef GrGLCaps GrGLSLCaps;
+class GrShaderCaps;
+class GrGLSLCaps;
 class GrGLXferProcessor;
 class GrProcOptInfo;
 

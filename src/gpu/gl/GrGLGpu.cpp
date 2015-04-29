@@ -155,7 +155,7 @@ GrGLGpu::GrGLGpu(const GrGLContext& ctx, GrContext* context)
     fTempDstFBOID = 0;
     fStencilClearFBOID = 0;
 
-    if (this->glCaps().pathRenderingSupport()) {
+    if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         fPathRendering.reset(new GrGLPathRendering(this));
     }
 }
@@ -188,7 +188,7 @@ void GrGLGpu::contextAbandoned() {
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
     fStencilClearFBOID = 0;
-    if (this->glCaps().pathRenderingSupport()) {
+    if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->abandonGpuResources();
     }
 }
@@ -335,7 +335,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     }
 
     if (resetBits & kPathRendering_GrGLBackendState) {
-        if (this->caps()->pathRenderingSupport()) {
+        if (this->caps()->shaderCaps()->pathRenderingSupport()) {
             this->glPathRendering()->resetContext();
         }
     }

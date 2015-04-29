@@ -11,8 +11,7 @@
 #include "GrProcessor.h"
 
 class GrCoordTransform;
-class GrGLCaps;
-typedef GrGLCaps GrGLSLCaps;
+class GrGLSLCaps;
 class GrGLFragmentProcessor;
 class GrProcessorKeyBuilder;
 

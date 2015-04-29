@@ -66,14 +66,14 @@ public:
                                        uint8_t coverage = 0xff) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
-                if (!caps.shaderDerivativeSupport()) {
+                if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrConicEffect, (color, viewMatrix, coverage,
                                                   kFillAA_GrProcessorEdgeType,
                                                   localMatrix));
             case kHairlineAA_GrProcessorEdgeType:
-                if (!caps.shaderDerivativeSupport()) {
+                if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrConicEffect, (color, viewMatrix, coverage,
@@ -151,14 +151,14 @@ public:
                                        uint8_t coverage = 0xff) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
-                if (!caps.shaderDerivativeSupport()) {
+                if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrQuadEffect, (color, viewMatrix, coverage,
                                                  kFillAA_GrProcessorEdgeType,
                                                  localMatrix));
             case kHairlineAA_GrProcessorEdgeType:
-                if (!caps.shaderDerivativeSupport()) {
+                if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrQuadEffect, (color, viewMatrix, coverage,
@@ -236,12 +236,12 @@ public:
                                        const GrDrawTargetCaps& caps) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
-                if (!caps.shaderDerivativeSupport()) {
+                if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrCubicEffect, (color, viewMatrix, kFillAA_GrProcessorEdgeType));
             case kHairlineAA_GrProcessorEdgeType:
-                if (!caps.shaderDerivativeSupport()) {
+                if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrCubicEffect, (color, viewMatrix,

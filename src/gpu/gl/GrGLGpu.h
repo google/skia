@@ -46,7 +46,7 @@ public:
     const GrGLCaps& glCaps() const { return *fGLContext.caps(); }
 
     GrGLPathRendering* glPathRendering() {
-        SkASSERT(glCaps().pathRenderingSupport());
+        SkASSERT(glCaps().shaderCaps()->pathRenderingSupport());
         return static_cast<GrGLPathRendering*>(pathRendering());
     }
 

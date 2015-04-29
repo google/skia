@@ -213,7 +213,7 @@ void GrDrawTarget::stencilPath(GrPipelineBuilder* pipelineBuilder,
                                GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
-    SkASSERT(this->caps()->pathRenderingSupport());
+    SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
     SkASSERT(pipelineBuilder);
 
     // Setup clip
@@ -239,7 +239,7 @@ void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
                             GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path rendering.
     SkASSERT(path);
-    SkASSERT(this->caps()->pathRenderingSupport());
+    SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
     SkASSERT(pipelineBuilder);
 
     SkRect devBounds = path->getBounds();
@@ -277,7 +277,7 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
                              PathTransformType transformType,
                              int count,
                              GrPathRendering::FillType fill) {
-    SkASSERT(this->caps()->pathRenderingSupport());
+    SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
     SkASSERT(pathRange);
     SkASSERT(indices);
     SkASSERT(0 == reinterpret_cast<long>(indices) % GrPathRange::PathIndexSizeInBytes(indexType));
@@ -541,16 +541,92 @@ GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void GrShaderCaps::reset() {
+    fShaderDerivativeSupport = false;
+    fGeometryShaderSupport = false;
+    fPathRenderingSupport = false;
+    fDstReadInShaderSupport = false;
+    fDualSourceBlendingSupport = false;
+
+    fShaderPrecisionVaries = false;
+}
+
+GrShaderCaps& GrShaderCaps::operator=(const GrShaderCaps& other) {
+    fShaderDerivativeSupport = other.fShaderDerivativeSupport;
+    fGeometryShaderSupport = other.fGeometryShaderSupport;
+    fPathRenderingSupport = other.fPathRenderingSupport;
+    fDstReadInShaderSupport = other.fDstReadInShaderSupport;
+    fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
+
+    fShaderPrecisionVaries = other.fShaderPrecisionVaries;
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
+            fFloatPrecisions[s][p] = other.fFloatPrecisions[s][p];
+        }
+    }
+    return *this;
+}
+
+static const char* shader_type_to_string(GrShaderType type) {
+    switch (type) {
+    case kVertex_GrShaderType:
+        return "vertex";
+    case kGeometry_GrShaderType:
+        return "geometry";
+    case kFragment_GrShaderType:
+        return "fragment";
+    }
+    return "";
+}
+
+static const char* precision_to_string(GrSLPrecision p) {
+    switch (p) {
+    case kLow_GrSLPrecision:
+        return "low";
+    case kMedium_GrSLPrecision:
+        return "medium";
+    case kHigh_GrSLPrecision:
+        return "high";
+    }
+    return "";
+}
+
+SkString GrShaderCaps::dump() const {
+    SkString r;
+    static const char* gNY[] = { "NO", "YES" };
+    r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
+    r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
+    r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
+    r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
+    r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
+
+    r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
+
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        GrShaderType shaderType = static_cast<GrShaderType>(s);
+        r.appendf("\t%s:\n", shader_type_to_string(shaderType));
+        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
+            if (fFloatPrecisions[s][p].supported()) {
+                GrSLPrecision precision = static_cast<GrSLPrecision>(p);
+                r.appendf("\t\t%s: log_low: %d log_high: %d bits: %d\n",
+                    precision_to_string(precision),
+                    fFloatPrecisions[s][p].fLogRangeLow,
+                    fFloatPrecisions[s][p].fLogRangeHigh,
+                    fFloatPrecisions[s][p].fBits);
+            }
+        }
+    }
+
+    return r;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void GrDrawTargetCaps::reset() {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
     fTwoSidedStencilSupport = false;
     fStencilWrapOpsSupport = false;
-    fShaderDerivativeSupport = false;
-    fGeometryShaderSupport = false;
-    fDualSourceBlendingSupport = false;
-    fPathRenderingSupport = false;
-    fDstReadInShaderSupport = false;
     fDiscardRenderTargetSupport = false;
     fReuseScratchTextures = true;
     fGpuTracingSupport = false;
@@ -566,8 +642,6 @@ void GrDrawTargetCaps::reset() {
     fMaxTextureSize = 0;
     fMaxSampleCount = 0;
 
-    fShaderPrecisionVaries = false;
-
     memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
     memset(fConfigTextureSupport, 0, sizeof(fConfigTextureSupport));
 }
@@ -577,11 +651,6 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fNPOTTextureTileSupport = other.fNPOTTextureTileSupport;
     fTwoSidedStencilSupport = other.fTwoSidedStencilSupport;
     fStencilWrapOpsSupport = other.fStencilWrapOpsSupport;
-    fShaderDerivativeSupport = other.fShaderDerivativeSupport;
-    fGeometryShaderSupport = other.fGeometryShaderSupport;
-    fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
-    fPathRenderingSupport = other.fPathRenderingSupport;
-    fDstReadInShaderSupport = other.fDstReadInShaderSupport;
     fDiscardRenderTargetSupport = other.fDiscardRenderTargetSupport;
     fReuseScratchTextures = other.fReuseScratchTextures;
     fGpuTracingSupport = other.fGpuTracingSupport;
@@ -600,12 +669,6 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     memcpy(fConfigRenderSupport, other.fConfigRenderSupport, sizeof(fConfigRenderSupport));
     memcpy(fConfigTextureSupport, other.fConfigTextureSupport, sizeof(fConfigTextureSupport));
 
-    fShaderPrecisionVaries = other.fShaderPrecisionVaries;
-    for (int s = 0; s < kGrShaderTypeCount; ++s) {
-        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-            fFloatPrecisions[s][p] = other.fFloatPrecisions[s][p];
-        }
-    }
     return *this;
 }
 
@@ -629,30 +692,6 @@ static SkString map_flags_to_string(uint32_t flags) {
     return str;
 }
 
-static const char* shader_type_to_string(GrShaderType type) {
-    switch (type) {
-        case kVertex_GrShaderType:
-            return "vertex";
-        case kGeometry_GrShaderType:
-            return "geometry";
-        case kFragment_GrShaderType:
-            return "fragment";
-    }
-    return "";
-}
-
-static const char* precision_to_string(GrSLPrecision p) {
-    switch (p) {
-        case kLow_GrSLPrecision:
-            return "low";
-        case kMedium_GrSLPrecision:
-            return "medium";
-        case kHigh_GrSLPrecision:
-            return "high";
-    }
-    return "";
-}
-
 SkString GrDrawTargetCaps::dump() const {
     SkString r;
     static const char* gNY[] = {"NO", "YES"};
@@ -660,11 +699,6 @@ SkString GrDrawTargetCaps::dump() const {
     r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
     r.appendf("Two Sided Stencil Support          : %s\n", gNY[fTwoSidedStencilSupport]);
     r.appendf("Stencil Wrap Ops  Support          : %s\n", gNY[fStencilWrapOpsSupport]);
-    r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
-    r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
-    r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
-    r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
-    r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
     r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);
     r.appendf("Reuse Scratch Textures             : %s\n", gNY[fReuseScratchTextures]);
     r.appendf("Gpu Tracing Support                : %s\n", gNY[fGpuTracingSupport]);
@@ -728,23 +762,6 @@ SkString GrDrawTargetCaps::dump() const {
         r.appendf("%s is uploadable to a texture: %s\n",
                   kConfigNames[i],
                   gNY[fConfigTextureSupport[i]]);
-    }
-
-    r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
-
-    for (int s = 0; s < kGrShaderTypeCount; ++s) {
-        GrShaderType shaderType = static_cast<GrShaderType>(s);
-        r.appendf("\t%s:\n", shader_type_to_string(shaderType));
-        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-            if (fFloatPrecisions[s][p].supported()) {
-                GrSLPrecision precision = static_cast<GrSLPrecision>(p);
-                r.appendf("\t\t%s: log_low: %d log_high: %d bits: %d\n",
-                          precision_to_string(precision),
-                          fFloatPrecisions[s][p].fLogRangeLow,
-                          fFloatPrecisions[s][p].fLogRangeHigh,
-                          fFloatPrecisions[s][p].fBits);
-            }
-        }
     }
 
     return r;

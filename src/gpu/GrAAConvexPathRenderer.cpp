@@ -687,7 +687,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
                                                 const GrDrawTargetCaps& caps,
                                                 GrTexture*[]) {
     // Doesn't work without derivative instructions.
-    return caps.shaderDerivativeSupport() ?
+    return caps.shaderCaps()->shaderDerivativeSupport() ?
            QuadEdgeEffect::Create(GrRandomColor(random),
                                   GrTest::TestMatrix(random)) : NULL;
 }
@@ -700,7 +700,7 @@ bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
                                          const SkPath& path,
                                          const GrStrokeInfo& stroke,
                                          bool antiAlias) const {
-    return (target->caps()->shaderDerivativeSupport() && antiAlias &&
+    return (target->caps()->shaderCaps()->shaderDerivativeSupport() && antiAlias &&
             stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
 

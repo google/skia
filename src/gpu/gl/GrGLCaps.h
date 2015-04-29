@@ -16,6 +16,7 @@
 #include "SkTArray.h"
 
 class GrGLContextInfo;
+class GrGLSLCaps;
 
 /**
  * Stores some capabilities of a GL context. Most are determined by the GL
@@ -165,19 +166,6 @@ public:
                kES_EXT_MsToTexture_MSFBOType == fMSFBOType;
     }
 
-    /**
-     * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
-     *
-     * TODO(joshualitt) On desktop opengl 4.2+ we can achieve something similar to this effect
-     */
-    bool fbFetchSupport() const { return fFBFetchSupport; }
-
-    bool fbFetchNeedsCustomOutput() const { return fFBFetchNeedsCustomOutput; }
-
-    const char* fbFetchColorName() const { return fFBFetchColorName; }
-
-    const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
-
     bool fbMixedSamplesSupport() const { return fFBMixedSamplesSupport; }
 
     InvalidateFBType invalidateFBType() const { return fInvalidateFBType; }
@@ -265,8 +253,6 @@ public:
 
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
-    bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
-
     /**
      * Returns a string containing the caps info.
      */
@@ -284,6 +270,8 @@ public:
     };
 
     LATCAlias latcAlias() const { return fLATCAlias; }
+
+    GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
 private:
     /**
@@ -329,9 +317,6 @@ private:
     void initConfigRenderableTable(const GrGLContextInfo&);
     void initConfigTexturableTable(const GrGLContextInfo&, const GrGLInterface*);
 
-    // Must be called after fGeometryShaderSupport is initialized.
-    void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*);
-
     bool doReadPixelsSupported(const GrGLInterface* intf, GrGLenum format, GrGLenum type) const;
 
     // tracks configs that have been verified to pass the FBO completeness when
@@ -371,13 +356,7 @@ private:
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
-    bool fDropsTileOnZeroDivide : 1;
-    bool fFBFetchSupport : 1;
-    bool fFBFetchNeedsCustomOutput : 1;
     bool fFBMixedSamplesSupport : 1;
-
-    const char* fFBFetchColorName;
-    const char* fFBFetchExtensionString;
 
     struct ReadPixelsSupportedFormat {
         GrGLenum fFormat;
@@ -395,6 +374,66 @@ private:
     typedef GrDrawTargetCaps INHERITED;
 };
 
-typedef GrGLCaps GrGLSLCaps;
+
+class GrGLSLCaps : public GrShaderCaps {
+public:
+    SK_DECLARE_INST_COUNT(GrGLSLCaps)
+
+    /**
+     * Creates a GrGLSLCaps that advertises no support for any extensions,
+     * formats, etc. Call init to initialize from a GrGLContextInfo.
+     */
+    GrGLSLCaps();
+    ~GrGLSLCaps() override {}
+
+    GrGLSLCaps(const GrGLSLCaps& caps);
+
+    GrGLSLCaps& operator = (const GrGLSLCaps& caps);
+
+    /**
+     * Resets the caps such that nothing is supported.
+     */
+    void reset() override;
+
+    /**
+     * Initializes the GrGLSLCaps to the set of features supported in the current
+     * OpenGL context accessible via ctxInfo.
+     */
+    bool init(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface);
+
+    /**
+     * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
+     *
+     * TODO(joshualitt) On desktop opengl 4.2+ we can achieve something similar to this effect
+     */
+    bool fbFetchSupport() const { return fFBFetchSupport; }
+
+    bool fbFetchNeedsCustomOutput() const { return fFBFetchNeedsCustomOutput; }
+
+    const char* fbFetchColorName() const { return fFBFetchColorName; }
+
+    const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
+
+    bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
+
+    /**
+    * Returns a string containing the caps info.
+    */
+    SkString dump() const override;
+
+private:
+    // Must be called after fGeometryShaderSupport is initialized.
+    void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*);
+
+    bool fDropsTileOnZeroDivide : 1;
+    bool fFBFetchSupport : 1;
+    bool fFBFetchNeedsCustomOutput : 1;
+
+    const char* fFBFetchColorName;
+    const char* fFBFetchExtensionString;
+
+    typedef GrShaderCaps INHERITED;
+};
+
 
 #endif

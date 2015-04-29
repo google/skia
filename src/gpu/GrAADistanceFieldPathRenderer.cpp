@@ -92,8 +92,8 @@ bool GrAADistanceFieldPathRenderer::canDrawPath(const GrDrawTarget* target,
     
     // TODO: Support inverse fill
     // TODO: Support strokes
-    if (!target->caps()->shaderDerivativeSupport() || !antiAlias || path.isInverseFillType()
-        || path.isVolatile() || !stroke.isFillStyle()) {
+    if (!target->caps()->shaderCaps()->shaderDerivativeSupport() || !antiAlias 
+        || path.isInverseFillType() || path.isVolatile() || !stroke.isFillStyle()) {
         return false;
     }
 

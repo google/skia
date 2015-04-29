@@ -649,7 +649,7 @@ bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
     }
 
     if (SkPath::kLine_SegmentMask == path.getSegmentMasks() ||
-        target->caps()->shaderDerivativeSupport()) {
+        target->caps()->shaderCaps()->shaderDerivativeSupport()) {
         return true;
     }
     return false;

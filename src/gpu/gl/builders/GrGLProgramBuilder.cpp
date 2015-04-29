@@ -75,7 +75,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
 GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const DrawArgs& args,
                                                              GrGLGpu* gpu) {
     if (args.fPrimitiveProcessor->isPathRendering()) {
-        SkASSERT(gpu->glCaps().pathRenderingSupport() &&
+        SkASSERT(gpu->glCaps().shaderCaps()->pathRenderingSupport() &&
                  !args.fPrimitiveProcessor->willUseGeoShader() &&
                  args.fPrimitiveProcessor->numAttribs() == 0);
         return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, args));
@@ -302,7 +302,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
     fGeometryProcessor = SkNEW(GrGLInstalledGeoProc);
 
     const GrBatchTracker& bt = this->batchTracker();
-    fGeometryProcessor->fGLProc.reset(gp.createGLInstance(bt, fGpu->glCaps()));
+    fGeometryProcessor->fGLProc.reset(gp.createGLInstance(bt, *fGpu->glCaps().glslCaps()));
 
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);

@@ -351,7 +351,7 @@ void PorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFlags
     // blending if we have any effective coverage stages OR the geometry processor doesn't emits
     // solid coverage.
     if (!(optFlags & kSetCoverageDrawing_OptFlag) && !hasSolidCoverage) {
-        if (caps.dualSourceBlendingSupport()) {
+        if (caps.shaderCaps()->dualSourceBlendingSupport()) {
             if (kZero_GrBlendCoeff == fDstBlend) {
                 // write the coverage value to second color
                 fSecondaryOutputType = kCoverage_SecondaryOutputType;
@@ -668,7 +668,7 @@ bool GrPorterDuffXPFactory::willReadDstColor(const GrDrawTargetCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI) const {
     // We can always blend correctly if we have dual source blending.
-    if (caps.dualSourceBlendingSupport()) {
+    if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
 

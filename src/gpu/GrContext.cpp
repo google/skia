@@ -226,7 +226,7 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
                                             const SkDeviceProperties&
                                             leakyProperties,
                                             bool enableDistanceFieldFonts) {
-    if (fGpu->caps()->pathRenderingSupport() && renderTarget->isMultisampled()) {
+    if (fGpu->caps()->shaderCaps()->pathRenderingSupport() && renderTarget->isMultisampled()) {
         GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
         if (sb) {
             return GrStencilAndCoverTextContext::Create(this, gpuDevice, leakyProperties);
@@ -1888,7 +1888,7 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
         return 0;
     }
     int chosenSampleCount = 0;
-    if (fGpu->caps()->pathRenderingSupport()) {
+    if (fGpu->caps()->shaderCaps()->pathRenderingSupport()) {
         if (dpi >= 250.0f) {
             chosenSampleCount = 4;
         } else {

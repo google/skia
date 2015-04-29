@@ -67,8 +67,7 @@ private:
 };
 
 class GrIndexBufferAllocPool;
-class GrGLCaps;
-typedef GrGLCaps GrGLSLCaps;
+class GrGLSLCaps;
 class GrGLPrimitiveProcessor;
 class GrVertexBufferAllocPool;
 

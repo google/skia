@@ -254,7 +254,8 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         pipelineBuilder.setClip(clip);
 
         // if path rendering we have to setup a couple of things like the draw type
-        bool usePathRendering = gpu->glCaps().pathRenderingSupport() && random.nextBool();
+        bool usePathRendering = gpu->glCaps().shaderCaps()->pathRenderingSupport() &&
+                                random.nextBool();
 
         // twiddle drawstate knobs randomly
         bool hasGeometryProcessor = !usePathRendering;

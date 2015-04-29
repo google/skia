@@ -197,7 +197,7 @@ void GrGLPathRendering::drawPaths(const GrPathRange* pathRange,
                                   const void* indices, PathIndexType indexType,
                                   const float transformValues[], PathTransformType transformType,
                                   int count, const GrStencilSettings& stencilSettings) {
-    SkASSERT(fGpu->caps()->pathRenderingSupport());
+    SkASSERT(fGpu->caps()->shaderCaps()->pathRenderingSupport());
 
     GrGLuint baseID = static_cast<const GrGLPathRange*>(pathRange)->basePathID();
 
@@ -260,7 +260,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
                                             const SkISize& renderTargetSize,
                                             GrSurfaceOrigin renderTargetOrigin) {
 
-    SkASSERT(fGpu->glCaps().pathRenderingSupport());
+    SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
 
     if (renderTargetOrigin == fHWProjectionMatrixState.fRenderTargetOrigin &&
         renderTargetSize == fHWProjectionMatrixState.fRenderTargetSize &&

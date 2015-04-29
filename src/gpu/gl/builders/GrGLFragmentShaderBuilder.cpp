@@ -39,7 +39,7 @@ static void append_default_precision_qualifier(GrSLPrecision p,
 GrGLFragmentShaderBuilder::DstReadKey
 GrGLFragmentShaderBuilder::KeyForDstRead(const GrTexture* dstCopy, const GrGLCaps& caps) {
     uint32_t key = kYesDstRead_DstReadKeyBit;
-    if (caps.fbFetchSupport()) {
+    if (caps.glslCaps()->fbFetchSupport()) {
         return key;
     }
     SkASSERT(dstCopy);
@@ -79,7 +79,7 @@ bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     switch (feature) {
         case kStandardDerivatives_GLSLFeature: {
             GrGLGpu* gpu = fProgramBuilder->gpu();
-            if (!gpu->glCaps().shaderDerivativeSupport()) {
+            if (!gpu->glCaps().shaderCaps()->shaderDerivativeSupport()) {
                 return false;
             }
             if (kGLES_GrGLStandard == gpu->glStandard() &&
@@ -166,13 +166,13 @@ const char* GrGLFragmentShaderBuilder::dstColor() {
     fHasReadDstColor = true;
 
     GrGLGpu* gpu = fProgramBuilder->gpu();
-    if (gpu->glCaps().fbFetchSupport()) {
+    if (gpu->glCaps().glslCaps()->fbFetchSupport()) {
         this->addFeature(1 << (GrGLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
-                         gpu->glCaps().fbFetchExtensionString());
+                         gpu->glCaps().glslCaps()->fbFetchExtensionString());
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+
-        const char* fbFetchColorName = gpu->glCaps().fbFetchColorName();
-        if (gpu->glCaps().fbFetchNeedsCustomOutput()) {
+        const char* fbFetchColorName = gpu->glCaps().glslCaps()->fbFetchColorName();
+        if (gpu->glCaps().glslCaps()->fbFetchNeedsCustomOutput()) {
             this->enableCustomOutput();
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = declared_color_output_name();
