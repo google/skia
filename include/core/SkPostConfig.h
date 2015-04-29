@@ -371,4 +371,10 @@
 #  define SK_GAMMA_EXPONENT (2.2f)
 #endif
 
+//////////////////////////////////////////////////////////////////////
+
+#ifndef GR_TEST_UTILS
+#  define GR_TEST_UTILS 1
+#endif
+
 #endif // SkPostConfig_DEFINED

@@ -8,12 +8,15 @@
 #include "GrAARectRenderer.h"
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrBufferAllocPool.h"
+#include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
 #include "GrInvariantOutput.h"
 #include "GrVertexBuffer.h"
+#include "GrTestUtils.h"
 #include "SkColorPriv.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
@@ -423,25 +426,28 @@ static int aa_stroke_rect_index_count(bool miterStroke) {
                          SK_ARRAY_COUNT(gBevelStrokeAARectIdx);
 }
 
-GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(bool miterStroke) {
+static GrIndexBuffer* setup_aa_stroke_rect_indexbuffer(GrIndexBuffer** aaMiterStrokeRectIndexBuffer,
+                                                       GrIndexBuffer** aaBevelStrokeRectIndexBuffer,
+                                                       GrGpu* gpu,
+                                                       bool miterStroke) {
     if (miterStroke) {
-        if (NULL == fAAMiterStrokeRectIndexBuffer) {
-            fAAMiterStrokeRectIndexBuffer =
-                    fGpu->createInstancedIndexBuffer(gMiterStrokeAARectIdx,
-                                                     kIndicesPerMiterStrokeRect,
-                                                     kNumMiterStrokeRectsInIndexBuffer,
-                                                     kVertsPerMiterStrokeRect);
+        if (!*aaMiterStrokeRectIndexBuffer) {
+            *aaMiterStrokeRectIndexBuffer =
+                    gpu->createInstancedIndexBuffer(gMiterStrokeAARectIdx,
+                                                    kIndicesPerMiterStrokeRect,
+                                                    kNumMiterStrokeRectsInIndexBuffer,
+                                                    kVertsPerMiterStrokeRect);
         }
-        return fAAMiterStrokeRectIndexBuffer;
+        return *aaMiterStrokeRectIndexBuffer;
     } else {
-        if (NULL == fAABevelStrokeRectIndexBuffer) {
-            fAABevelStrokeRectIndexBuffer =
-                    fGpu->createInstancedIndexBuffer(gBevelStrokeAARectIdx,
-                                                     kIndicesPerBevelStrokeRect,
-                                                     kNumBevelStrokeRectsInIndexBuffer,
-                                                     kVertsPerBevelStrokeRect);
+        if (!*aaBevelStrokeRectIndexBuffer) {
+            *aaBevelStrokeRectIndexBuffer =
+                    gpu->createInstancedIndexBuffer(gBevelStrokeAARectIdx,
+                                                    kIndicesPerBevelStrokeRect,
+                                                    kNumBevelStrokeRectsInIndexBuffer,
+                                                    kVertsPerBevelStrokeRect);
         }
-        return fAABevelStrokeRectIndexBuffer;
+        return *aaBevelStrokeRectIndexBuffer;
     }
 }
 
@@ -852,7 +858,6 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-
 void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             GrPipelineBuilder* pipelineBuilder,
                                             GrColor color,
@@ -861,7 +866,10 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
                                             const SkRect& devOutsideAssist,
                                             const SkRect& devInside,
                                             bool miterStroke) {
-    GrIndexBuffer* indexBuffer = this->aaStrokeRectIndexBuffer(miterStroke);
+    GrIndexBuffer* indexBuffer = setup_aa_stroke_rect_indexbuffer(&fAAMiterStrokeRectIndexBuffer,
+                                                                  &fAABevelStrokeRectIndexBuffer,
+                                                                  fGpu,
+                                                                  miterStroke);
     if (!indexBuffer) {
         SkDebugf("Failed to create index buffer!\n");
         return;
@@ -899,3 +907,58 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     this->geometryStrokeAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
                                devOutsideAssist, devInside, true);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+BATCH_TEST_DEFINE(AAFillRectBatch) {
+    AAFillRectBatch::Geometry geo;
+    geo.fColor = GrRandomColor(random);
+    geo.fViewMatrix = GrTest::TestMatrix(random);
+    geo.fRect = GrTest::TestRect(random);
+    geo.fDevRect = GrTest::TestRect(random);
+
+    static GrIndexBuffer* aaFillRectIndexBuffer = NULL;
+    if (!aaFillRectIndexBuffer) {
+        aaFillRectIndexBuffer =
+                context->getGpu()->createInstancedIndexBuffer(gFillAARectIdx,
+                                                              kIndicesPerAAFillRect,
+                                                              kNumAAFillRectsInIndexBuffer,
+                                                              kVertsPerAAFillRect);
+    }
+
+    return AAFillRectBatch::Create(geo, aaFillRectIndexBuffer);
+}
+
+BATCH_TEST_DEFINE(AAStrokeRectBatch) {
+    static GrIndexBuffer* aaMiterStrokeRectIndexBuffer = NULL;
+    static GrIndexBuffer* aaBevelStrokeRectIndexBuffer = NULL;
+
+    bool miterStroke = random->nextBool();
+
+    GrIndexBuffer* indexBuffer = setup_aa_stroke_rect_indexbuffer(&aaMiterStrokeRectIndexBuffer,
+                                                                  &aaBevelStrokeRectIndexBuffer,
+                                                                  context->getGpu(),
+                                                                  miterStroke);
+
+    // Create mock stroke rect
+    SkRect outside = GrTest::TestRect(random);
+    SkScalar minDim = SkMinScalar(outside.width(), outside.height());
+    SkScalar strokeWidth = minDim * 0.1f;
+    SkRect outsideAssist = outside;
+    outsideAssist.outset(strokeWidth, strokeWidth);
+    SkRect inside = outside;
+    inside.inset(strokeWidth, strokeWidth);
+
+    AAStrokeRectBatch::Geometry geo;
+    geo.fColor = GrRandomColor(random);
+    geo.fDevOutside = outside;
+    geo.fDevOutsideAssist = outsideAssist;
+    geo.fDevInside = inside;
+    geo.fMiterStroke = miterStroke;
+
+    return AAStrokeRectBatch::Create(geo, GrTest::TestMatrix(random), indexBuffer);
+}
+
+#endif

@@ -68,8 +68,6 @@ public:
                            const SkRect rects[2]);
 
 private:
-    GrIndexBuffer* aaStrokeRectIndexBuffer(bool miterStroke);
-
     void geometryFillAARect(GrDrawTarget*,
                             GrPipelineBuilder*,
                             GrColor,

@@ -8,16 +8,22 @@
 #ifndef GrTestUtils_DEFINED
 #define GrTestUtils_DEFINED
 
+#include "SkTypes.h"
+
+#ifdef GR_TEST_UTILS
+
 #include "GrColor.h"
 #include "SkRandom.h"
 
 class SkMatrix;
+struct SkRect;
 
 namespace GrTest {
 /**
  * A helper for use in Test functions.
  */
 const SkMatrix& TestMatrix(SkRandom*);
+const SkRect& TestRect(SkRandom*);
 
 }
 
@@ -46,13 +52,14 @@ static inline GrColor GrRandomColor(SkRandom* random) {
                                     random->nextULessThan(256),
                                     0xFF);
             break;
-        case kRandom_ColorMode:
-            uint8_t alpha = random->nextULessThan(256);
-            color = GrColorPackRGBA(random->nextRangeU(0, alpha),
-                                    random->nextRangeU(0, alpha),
-                                    random->nextRangeU(0, alpha),
-                                    alpha);
+        case kRandom_ColorMode: {
+                uint8_t alpha = random->nextULessThan(256);
+                color = GrColorPackRGBA(random->nextRangeU(0, alpha),
+                                        random->nextRangeU(0, alpha),
+                                        random->nextRangeU(0, alpha),
+                                        alpha);
             break;
+        }
     }
     GrColorIsPMAssert(color);
     return color;
@@ -81,4 +88,5 @@ static inline uint8_t GrRandomCoverage(SkRandom* random) {
     return coverage;
 }
 
+#endif
 #endif
