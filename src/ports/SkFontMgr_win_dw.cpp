@@ -629,21 +629,6 @@ protected:
     SkTypeface* fResolvedTypeface;
 };
 
-static HRESULT getDefaultFontFamilyName(SkSMallocWCHAR* name) {
-    NONCLIENTMETRICSW metrics;
-    metrics.cbSize = sizeof(metrics);
-    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0)) {
-        return E_UNEXPECTED;
-    }
-
-    size_t len = wcsnlen_s(metrics.lfMessageFont.lfFaceName, LF_FACESIZE) + 1;
-    if (0 != wcsncpy_s(name->reset(len), len, metrics.lfMessageFont.lfFaceName, _TRUNCATE)) {
-        return E_UNEXPECTED;
-    }
-
-    return S_OK;
-}
-
 class FontFallbackSource : public IDWriteTextAnalysisSource {
 public:
     FontFallbackSource(const WCHAR* string, UINT32 length, const WCHAR* locale,
@@ -750,11 +735,11 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
 {
     const DWriteStyle dwStyle(style);
 
-    SkSMallocWCHAR dwFamilyName;
-    if (NULL == familyName) {
-        HRN(getDefaultFontFamilyName(&dwFamilyName));
-    } else {
-        HRN(sk_cstring_to_wchar(familyName, &dwFamilyName));
+    const WCHAR* dwFamilyName = NULL;
+    SkSMallocWCHAR dwFamilyNameLocal;
+    if (familyName) {
+        HRN(sk_cstring_to_wchar(familyName, &dwFamilyNameLocal));
+        dwFamilyName = dwFamilyNameLocal;
     }
 
     WCHAR str[16];
@@ -816,7 +801,7 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
 #endif
 
     SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
-    HRNM(fFactory->CreateTextFormat(dwFamilyName,
+    HRNM(fFactory->CreateTextFormat(dwFamilyName ? dwFamilyName : L"",
                                     fFontCollection.get(),
                                     dwStyle.fWeight,
                                     dwStyle.fSlant,

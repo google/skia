@@ -88,10 +88,10 @@ protected:
         int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
 
         for (int i = 0; i < count; ++i) {
-            SkString fname;
-            fm->getFamilyName(i, &fname);
+            SkString familyName;
+            fm->getFamilyName(i, &familyName);
             paint.setTypeface(NULL);
-            (void)drawString(canvas, fname, 20, y, paint);
+            (void)drawString(canvas, familyName, 20, y, paint);
 
             SkScalar x = 220;
 
@@ -106,10 +106,10 @@ protected:
                 x = drawString(canvas, sname, x, y, paint) + 20;
 
                 // check to see that we get different glyphs in japanese and chinese
-                x = drawCharacter(canvas, 0x5203, x, y, paint, fm, fName.c_str(), &zh, 1, fs);
-                x = drawCharacter(canvas, 0x5203, x, y, paint, fm, fName.c_str(), &ja, 1, fs);
+                x = drawCharacter(canvas, 0x5203, x, y, paint, fm, familyName.c_str(), &zh, 1, fs);
+                x = drawCharacter(canvas, 0x5203, x, y, paint, fm, familyName.c_str(), &ja, 1, fs);
                 // check that emoji characters are found
-                x = drawCharacter(canvas, 0x1f601, x, y, paint, fm, fName.c_str(), NULL, 0, fs);
+                x = drawCharacter(canvas, 0x1f601, x, y, paint, fm, familyName.c_str(), NULL,0, fs);
             }
             y += 24;
         }
