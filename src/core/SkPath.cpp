@@ -1996,7 +1996,6 @@ void SkPath::dumpHex() const {
 
 #ifdef SK_DEBUG
 void SkPath::validate() const {
-    SkASSERT(this != NULL);
     SkASSERT((fFillType & ~3) == 0);
 
 #ifdef SK_DEBUG_PATH
