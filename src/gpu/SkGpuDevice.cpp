@@ -1733,6 +1733,9 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
     // We assume here that the filter will not attempt to tile the src. Otherwise, this cache lookup
     // must be pushed upstack.
     AutoBitmapTexture abt(fContext, src, NULL, &texture);
+    if (!texture) {
+        return false;
+    }
 
     return this->filterTexture(fContext, texture, src.width(), src.height(),
                                filter, ctx, result, offset);
