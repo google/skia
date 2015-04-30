@@ -951,7 +951,9 @@ public:
         @param picture The recorded drawing commands to playback into this
                        canvas.
     */
-    void drawPicture(const SkPicture* picture);
+    void drawPicture(const SkPicture* picture) {
+        this->drawPicture(picture, NULL, NULL);
+    }
 
     /**
      *  Draw the picture into this canvas.

@@ -89,28 +89,6 @@ DEF_TEST(Recorder_RefLeaking, r) {
     REPORTER_ASSERT(r, paint.getShader()->unique());
 }
 
-DEF_TEST(Recorder_RefPictures, r) {
-    SkAutoTUnref<SkPicture> pic;
-
-    {
-        SkPictureRecorder pr;
-        SkCanvas* canvas = pr.beginRecording(100, 100);
-        canvas->drawColor(SK_ColorRED);
-        pic.reset(pr.endRecording());
-    }
-    REPORTER_ASSERT(r, pic->unique());
-
-    {
-        SkRecord record;
-        SkRecorder recorder(&record, 100, 100);
-        recorder.drawPicture(pic);
-        // the recorder should now also be an owner
-        REPORTER_ASSERT(r, !pic->unique());
-    }
-    // the recorder destructor should have released us (back to unique)
-    REPORTER_ASSERT(r, pic->unique());
-}
-
 DEF_TEST(Recorder_drawImage_takeReference, reporter) {
 
     SkAutoTUnref<SkImage> image;

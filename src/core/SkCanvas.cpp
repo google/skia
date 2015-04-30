@@ -2508,20 +2508,28 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void SkCanvas::drawPicture(const SkPicture* picture) {
-    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPicture()");
-    if (picture) {
-        this->onDrawPicture(picture, NULL, NULL);
-    }
-}
+
+/**
+ *  This constant is trying to balance the speed of ref'ing a subpicture into a parent picture,
+ *  against the playback cost of recursing into the subpicture to get at its actual ops.
+ *
+ *  For now we pick a conservatively small value, though measurement (and other heuristics like
+ *  the type of ops contained) may justify changing this value.
+ */
+#define kMaxPictureOpsToUnrollInsteadOfRef  1
 
 void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
-    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPicture(SkMatrix, SkPaint)");
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPicture()");
     if (picture) {
         if (matrix && matrix->isIdentity()) {
             matrix = NULL;
         }
-        this->onDrawPicture(picture, matrix, paint);
+        if (picture->approximateOpCount() <= kMaxPictureOpsToUnrollInsteadOfRef) {
+            SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
+            picture->playback(this);
+        } else {
+            this->onDrawPicture(picture, matrix, paint);
+        }
     }
 }
 
@@ -2537,7 +2545,6 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
     }
 
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
-
     picture->playback(this);
 }
 

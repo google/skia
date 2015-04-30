@@ -1127,7 +1127,7 @@ static void test_bytes_used(skiatest::Reporter* reporter) {
     r2.getRecordingCanvas()->drawPicture(empty.get());
     SkAutoTUnref<SkPicture> nested(r2.endRecording());
 
-    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(nested.get()) >
+    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(nested.get()) >=
                               SkPictureUtils::ApproximateBytesUsed(empty.get()));
 }
 
