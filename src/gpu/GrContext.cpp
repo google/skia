@@ -1119,6 +1119,13 @@ void GrContext::drawVertices(GrRenderTarget* rt,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawVertices", target);
 
+    // TODO clients should give us bounds
+    SkRect bounds;
+    if (!bounds.setBoundsCheck(positions, vertexCount)) {
+        SkDebugf("drawVertices call empty bounds\n");
+        return;
+    }
+
     DrawVerticesBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
 
@@ -1127,7 +1134,7 @@ void GrContext::drawVertices(GrRenderTarget* rt,
                                                           indexCount,colors, texCoords));
 
     // TODO figure out bounds
-    target->drawBatch(&pipelineBuilder, batch, NULL);
+    target->drawBatch(&pipelineBuilder, batch, &bounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
