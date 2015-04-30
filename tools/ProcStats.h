@@ -26,16 +26,6 @@ int getMaxResidentSetSizeMB();
  */
 int getCurrResidentSetSizeMB();
 
-/**
- *  If implemented, returns getCurrResidentSetSizeMB().
- *  If not, if implemented, returns getMaxResidentSetSizeMB().
- *  If not, returns -1.
- */
-inline int getBestResidentSetSizeMB() {
-    int mb = getCurrResidentSetSizeMB();
-    return mb >= 0 ? mb : getMaxResidentSetSizeMB();
-}
-
 }  // namespace sk_tools
 
 #endif  // ProcStats_DEFINED

@@ -137,7 +137,7 @@ struct GPUTarget : public Target {
     void fence() override {
         SK_GL(*this->gl, Finish());
     }
- 
+
     bool needsFrameTiming() const override { return true; }
     bool init(SkImageInfo info, Benchmark* bench) override {
         uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
@@ -166,7 +166,7 @@ struct GPUTarget : public Target {
         log->configOption("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
     }
 };
-        
+
 #endif
 
 static double time(int loops, Benchmark* bench, Target* target) {
@@ -899,7 +899,7 @@ int nanobench_main() {
     } else if (FLAGS_quiet) {
         SkDebugf("median\tbench\tconfig\n");
     } else {
-        SkDebugf("maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tconfig\tbench\n",
+        SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tconfig\tbench\n",
                  FLAGS_samples, "samples");
     }
 
@@ -963,8 +963,9 @@ int nanobench_main() {
                 if (targets.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
-                SkDebugf("%4dM\t%s\t%s\n"
-                         , sk_tools::getBestResidentSetSizeMB()
+                SkDebugf("%4d/%-4dMB\t%s\t%s\n"
+                         , sk_tools::getCurrResidentSetSizeMB()
+                         , sk_tools::getMaxResidentSetSizeMB()
                          , bench->getUniqueName()
                          , config);
             } else if (FLAGS_verbose) {
@@ -979,8 +980,9 @@ int nanobench_main() {
                 SkDebugf("%s\t%s\t%s\n", HUMANIZE(stats.median), bench->getUniqueName(), config);
             } else {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
-                SkDebugf("%4dM\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
-                        , sk_tools::getBestResidentSetSizeMB()
+                SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
+                        , sk_tools::getCurrResidentSetSizeMB()
+                        , sk_tools::getMaxResidentSetSizeMB()
                         , loops
                         , HUMANIZE(stats.min)
                         , HUMANIZE(stats.median)

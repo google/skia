@@ -89,8 +89,9 @@ static void done(double ms,
         log.prepend("\n");
     }
     auto pending = sk_atomic_dec(&gPending)-1;
-    SkDebugf("%s(%4dMB %5d) %s\t%s%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
-                                       , sk_tools::getBestResidentSetSizeMB()
+    SkDebugf("%s(%4d/%-4dMB %5d) %s\t%s%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
+                                       , sk_tools::getCurrResidentSetSizeMB()
+                                       , sk_tools::getMaxResidentSetSizeMB()
                                        , pending
                                        , HumanizeMs(ms).c_str()
                                        , id.c_str()
