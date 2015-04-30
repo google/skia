@@ -1554,7 +1554,7 @@ private:
 };
 
 void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
-    SkASSERT(&src != NULL && dst != NULL);
+    SkASSERT(dst);
 
     SkScalar radius = SkScalarHalf(fWidth);
 

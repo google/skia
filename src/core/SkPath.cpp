@@ -179,8 +179,6 @@ bool operator==(const SkPath& a, const SkPath& b) {
 }
 
 void SkPath::swap(SkPath& that) {
-    SkASSERT(&that != NULL);
-
     if (this != &that) {
         fPathRef.swap(&that.fPathRef);
         SkTSwap<int>(fLastMoveToIndex, that.fLastMoveToIndex);

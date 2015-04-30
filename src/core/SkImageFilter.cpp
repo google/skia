@@ -197,7 +197,6 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
                                  SkIRect* dst) const {
-    SkASSERT(&src);
     SkASSERT(dst);
     return this->onFilterBounds(src, ctm, dst);
 }
