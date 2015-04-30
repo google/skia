@@ -46,10 +46,10 @@
     #include <stdio.h>
     int sk_tools::getCurrResidentSetSizeMB() {
         const long pageSize = sysconf(_SC_PAGESIZE);
-        long rssPages = 0;
+        long long rssPages = 0;
         if (FILE* statm = fopen("/proc/self/statm", "r")) {
             // statm contains: program-size rss shared text lib data dirty, all in page counts.
-            int rc = fscanf(statm, "%*d %ld", &rssPages);
+            int rc = fscanf(statm, "%*d %lld", &rssPages);
             fclose(statm);
             if (rc != 1) {
                 return -1;
