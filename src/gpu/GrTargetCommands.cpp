@@ -35,17 +35,14 @@ GrTargetCommands::Cmd* GrTargetCommands::recordDrawBatch(
     }
 
     // Check if there is a Batch Draw we can batch with
-    if (Cmd::kDrawBatch_CmdType != fCmdBuffer.back().type() || !fDrawBatch) {
-        fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
-        return fDrawBatch;
+    if (Cmd::kDrawBatch_CmdType == fCmdBuffer.back().type()) {
+        DrawBatch* previous = static_cast<DrawBatch*>(&fCmdBuffer.back());
+        if (previous->fBatch->combineIfPossible(batch)) {
+            return NULL;
+        }
     }
 
-    SkASSERT(&fCmdBuffer.back() == fDrawBatch);
-    if (!fDrawBatch->fBatch->combineIfPossible(batch)) {
-        fDrawBatch = GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
-    }
-
-    return fDrawBatch;
+    return GrNEW_APPEND_TO_RECORDER(fCmdBuffer, DrawBatch, (batch, &fBatchTarget));
 }
 
 GrTargetCommands::Cmd* GrTargetCommands::recordStencilPath(
@@ -190,7 +187,6 @@ GrTargetCommands::Cmd* GrTargetCommands::recordDiscard(GrInOrderDrawBuffer* iodb
 void GrTargetCommands::reset() {
     fCmdBuffer.reset();
     fPrevState = NULL;
-    fDrawBatch = NULL;
 }
 
 void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
@@ -204,7 +200,6 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
 
     GrGpu* gpu = iodb->getGpu();
 
-#ifdef USE_BITMAP_TEXTBLOBS
     // Loop over all batches and generate geometry
     CmdBuffer::Iter genIter(fCmdBuffer);
     while (genIter.next()) {
@@ -220,7 +215,6 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
             currentState = ss;
         }
     }
-#endif
 
     iodb->getVertexAllocPool()->unmap();
     iodb->getIndexAllocPool()->unmap();
@@ -237,7 +231,6 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
             gpu->addGpuTraceMarker(&newMarker);
         }
 
-        // TODO temporary hack
         if (Cmd::kDrawBatch_CmdType == iter->type()) {
             DrawBatch* db = reinterpret_cast<DrawBatch*>(iter.get());
             fBatchTarget.flushNext(db->fBatch->numberOfDraws());
@@ -249,12 +242,6 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
         }
 
         if (Cmd::kSetState_CmdType == iter->type()) {
-#ifndef USE_BITMAP_TEXTBLOBS
-            SetState* ss = reinterpret_cast<SetState*>(iter.get());
-
-            ss->execute(gpu, currentState);
-            currentState = ss;
-#else
             // TODO this is just until NVPR is in batch
             SetState* ss = reinterpret_cast<SetState*>(iter.get());
 
@@ -262,7 +249,6 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
                 ss->execute(gpu, currentState);
             }
             currentState = ss;
-#endif
 
         } else {
             iter->execute(gpu, currentState);
@@ -273,15 +259,7 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
         }
     }
 
-    // TODO see copious notes about hack
     fBatchTarget.postFlush();
-}
-
-void GrTargetCommands::Draw::execute(GrGpu* gpu, const SetState* state) {
-    SkASSERT(state);
-    DrawArgs args(state->fPrimitiveProcessor.get(), state->getPipeline(), &state->fDesc,
-                  &state->fBatchTracker);
-    gpu->draw(args, fInfo);
 }
 
 void GrTargetCommands::StencilPath::execute(GrGpu* gpu, const SetState*) {

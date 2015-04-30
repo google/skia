@@ -19,15 +19,6 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
-// This is just to get a flag
-// TODO remove this when batch is everywhere
-#include "GrTextContext.h"
-#ifdef USE_BITMAP_TEXTBLOBS
-#define CLOSE_BATCH
-#else
-#define CLOSE_BATCH this->closeBatch();
-#endif
-
 class GrInOrderDrawBuffer;
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
@@ -41,22 +32,20 @@ public:
                      GrIndexBufferAllocPool* indexPool)
         : fCmdBuffer(kCmdBufferInitialSizeInBytes)
         , fPrevState(NULL)
-        , fBatchTarget(gpu, vertexPool, indexPool)
-        , fDrawBatch(NULL) {
+        , fBatchTarget(gpu, vertexPool, indexPool) {
     }
 
     class Cmd : ::SkNoncopyable {
     public:
         enum CmdType {
-            kDraw_CmdType              = 1,
-            kStencilPath_CmdType       = 2,
-            kSetState_CmdType          = 3,
-            kClear_CmdType             = 4,
-            kCopySurface_CmdType       = 5,
-            kDrawPath_CmdType          = 6,
-            kDrawPaths_CmdType         = 7,
-            kDrawBatch_CmdType         = 8,
-            kXferBarrier_CmdType       = 9,
+            kStencilPath_CmdType       = 1,
+            kSetState_CmdType          = 2,
+            kClear_CmdType             = 3,
+            kCopySurface_CmdType       = 4,
+            kDrawPath_CmdType          = 5,
+            kDrawPaths_CmdType         = 6,
+            kDrawBatch_CmdType         = 7,
+            kXferBarrier_CmdType       = 8,
         };
 
         Cmd(CmdType type) : fMarkerID(-1), fType(type) {}
@@ -153,14 +142,6 @@ private:
                                                           const GrDrawTarget::PipelineInfo&);
 
     void recordXferBarrierIfNecessary(GrInOrderDrawBuffer*, const GrDrawTarget::PipelineInfo&);
-
-    struct Draw : public Cmd {
-        Draw(const GrDrawTarget::DrawInfo& info) : Cmd(kDraw_CmdType), fInfo(info) {}
-
-        void execute(GrGpu*, const SetState*) override;
-
-        GrDrawTarget::DrawInfo     fInfo;
-    };
 
     struct StencilPath : public Cmd {
         StencilPath(const GrPath* path, GrRenderTarget* rt)
@@ -328,12 +309,6 @@ private:
      CmdBuffer                           fCmdBuffer;
      SetState*                           fPrevState;
      GrBatchTarget                       fBatchTarget;
-     // TODO hack until batch is everywhere
-     GrTargetCommands::DrawBatch*        fDrawBatch;
-
-     // This will go away when everything uses batch.  However, in the short term anything which
-     // might be put into the GrInOrderDrawBuffer needs to make sure it closes the last batch
-     void closeBatch();
 };
 
 #endif
