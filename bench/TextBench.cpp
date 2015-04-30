@@ -66,13 +66,7 @@ public:
 
         if (doColorEmoji) {
             SkASSERT(kBW == fFQ);
-            SkString filename = GetResourcePath("/Funkster.ttf");
-            SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
-            if (stream->isValid()) {
-                fColorEmojiTypeface.reset(SkTypeface::CreateFromStream(stream.detach()));
-            } else {
-                SkDebugf("Could not find Funkster.ttf, please set --resourcePath correctly.\n");
-            }
+            fColorEmojiTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
         }
 
         if (doPos) {

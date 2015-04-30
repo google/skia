@@ -78,7 +78,7 @@
               'variables': {
                 'embedded_font_data_identifier': 'sk_fonts',
                 'fonts_to_include': [
-                  '../resources/Funkster.ttf',
+                  '../resources/fonts/Funkster.ttf',
                 ],
               },
               'sources': [

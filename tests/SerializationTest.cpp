@@ -317,14 +317,8 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
 }
 
 static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
-    // Load typeface form file.
-    // This test cannot run if there is no resource path.
-    SkString resourcePath = GetResourcePath();
-    if (resourcePath.isEmpty()) {
-        SkDebugf("Could not run fontstream test because resourcePath not specified.");
-        return;
-    }
-    SkString filename = SkOSPath::Join(resourcePath.c_str(), "test.ttc");
+    // Load typeface form file to test CreateFromFile with index.
+    SkString filename = GetResourcePath("/fonts/test.ttc");
     SkTypeface* typeface = SkTypeface::CreateFromFile(filename.c_str(), 1);
     if (!typeface) {
         SkDebugf("Could not run fontstream test because test.ttc not found.");

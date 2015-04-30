@@ -39,29 +39,15 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        SkAutoTDelete<SkFILEStream> stream;
-        SkString filename;
 #ifndef SK_BUILD_FOR_MAC
-        filename = GetResourcePath("/Funkster.ttf");
-        stream.reset(new SkFILEStream(filename.c_str()));
-        if (stream->isValid()) {
-            fEmojiTypeface.reset(SkTypeface::CreateFromStream(stream.detach()));
-        } else {
-            SkDebugf("Could not find Funkster.ttf, please set --resourcePath correctly.\n");
-        }
+        fEmojiTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
         fEmojiText = "Emoji!!!";
 #else
         fEmojiTypeface.reset(SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal));
         fEmojiText = "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85" // 💰🏡🎅
                      "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"; // 🍪🍕🚀
 #endif
-
-        filename = GetResourcePath("/ReallyBigA.ttf");
-
-        stream.reset(new SkFILEStream(filename.c_str()));
-        if (stream->isValid()) {
-            fReallyBigATypeface.reset(SkTypeface::CreateFromStream(stream.detach()));
-        }
+        fReallyBigATypeface.reset(GetResourceAsTypeface("/fonts/ReallyBigA.ttf"));
 
         SkTextBlobBuilder builder;
 

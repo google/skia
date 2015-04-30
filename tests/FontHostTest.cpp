@@ -111,8 +111,7 @@ static void test_charsToGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
     }
 }
 
-static void test_fontstream(skiatest::Reporter* reporter,
-                            SkStream* stream, int ttcIndex) {
+static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int ttcIndex) {
     int n = SkFontStream::GetTableTags(stream, ttcIndex, NULL);
     SkAutoTArray<SkFontTableTag> array(n);
 
@@ -138,30 +137,19 @@ static void test_fontstream(skiatest::Reporter* reporter,
     }
 }
 
-static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream) {
+static void test_fontstream(skiatest::Reporter* reporter) {
+    SkAutoTDelete<SkStreamAsset> stream(GetResourceAsStream("/fonts/test.ttc"));
+    if (!stream) {
+        SkDebugf("Skipping FontHostTest::test_fontstream\n");
+        return;
+    }
+
     int count = SkFontStream::CountTTCEntries(stream);
 #ifdef DUMP_TTC_TABLES
     SkDebugf("CountTTCEntries %d\n", count);
 #endif
     for (int i = 0; i < count; ++i) {
         test_fontstream(reporter, stream, i);
-    }
-}
-
-static void test_fontstream(skiatest::Reporter* reporter) {
-    // This test cannot run if there is no resource path.
-    SkString resourcePath = GetResourcePath();
-    if (resourcePath.isEmpty()) {
-        SkDebugf("Could not run fontstream test because resourcePath not specified.");
-        return;
-    }
-    SkString filename = SkOSPath::Join(resourcePath.c_str(), "test.ttc");
-
-    SkFILEStream stream(filename.c_str());
-    if (stream.isValid()) {
-        test_fontstream(reporter, &stream);
-    } else {
-        SkDebugf("Could not run fontstream test because test.ttc not found.");
     }
 }
 

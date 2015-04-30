@@ -219,14 +219,7 @@ protected:
         struct BmpText : public Text {
            void setFont(SkPaint* paint) override {
                if (!fTypeface) {
-                    SkString filename = GetResourcePath("/Funkster.ttf");
-                    SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
-                    if (!stream->isValid()) {
-                        SkDebugf("Could not find Funkster.ttf, please set --resourcePath "
-                                 "correctly.\n");
-                        return;
-                    }
-                    fTypeface.reset(SkTypeface::CreateFromStream(stream.detach()));
+                    fTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
                }
                paint->setTypeface(fTypeface);
             }

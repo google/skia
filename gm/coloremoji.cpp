@@ -54,15 +54,8 @@ protected:
         const char* text;
     } emojiFonts[2];
     virtual void onOnceBeforeDraw() override {
-        SkString filename = GetResourcePath("/Funkster.ttf");
-        SkAutoTDelete<SkFILEStream> stream(new SkFILEStream(filename.c_str()));
-        if (stream->isValid()) {
-            fCBDT_CBLC_Typeface.reset(SkTypeface::CreateFromStream(stream.detach()));
-            emojiFonts[0].typeface = fCBDT_CBLC_Typeface;
-        } else {
-            SkDebugf("Could not find Funkster.ttf, please set --resourcePath correctly.\n");
-            emojiFonts[0].typeface = NULL;
-        }
+        fCBDT_CBLC_Typeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
+        emojiFonts[0].typeface = fCBDT_CBLC_Typeface;
         emojiFonts[0].text = "hamburgerfons";
 
         fSBIX_Typeface.reset(SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal));
