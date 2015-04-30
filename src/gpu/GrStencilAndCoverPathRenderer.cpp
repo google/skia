@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
+#include "GrResourceProvider.h"
 #include "GrStrokeInfo.h"
 
 /*
@@ -76,10 +77,11 @@ static GrPath* get_gr_path(GrGpu* gpu, const SkPath& skPath, const SkStrokeRec& 
     GrContext* ctx = gpu->getContext();
     GrUniqueKey key;
     GrPath::ComputeKey(skPath, stroke, &key);
-    SkAutoTUnref<GrPath> path(static_cast<GrPath*>(ctx->findAndRefCachedResource(key)));
+    SkAutoTUnref<GrPath> path(
+        static_cast<GrPath*>(ctx->resourceProvider()->findAndRefResourceByUniqueKey(key)));
     if (NULL == path || !path->isEqualTo(skPath, stroke)) {
         path.reset(gpu->pathRendering()->createPath(skPath, stroke));
-        ctx->addResourceToCache(key, path);
+        ctx->resourceProvider()->assignUniqueKeyToResource(key, path);
     }
     return path.detach();
 }

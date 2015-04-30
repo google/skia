@@ -667,7 +667,8 @@ bool apply_morphology(const SkBitmap& input,
     SkIRect srcRect = rect;
 
     if (radius.fWidth > 0) {
-        GrTexture* texture = context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
+        GrTexture* texture = context->textureProvider()->refScratchTexture(
+            desc, GrTextureProvider::kApprox_ScratchTexMatch);
         if (NULL == texture) {
             return false;
         }
@@ -684,7 +685,8 @@ bool apply_morphology(const SkBitmap& input,
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        GrTexture* texture = context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
+        GrTexture* texture = context->textureProvider()->refScratchTexture(desc,
+            GrTextureProvider::kApprox_ScratchTexMatch);
         if (NULL == texture) {
             return false;
         }

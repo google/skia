@@ -115,11 +115,11 @@ static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random
     builder[0] = texDesc.fOrigin;
     builder.finish();
 
-    GrTexture* texture = context->findAndRefCachedTexture(key);
+    GrTexture* texture = context->textureProvider()->findAndRefTextureByUniqueKey(key);
     if (!texture) {
-        texture = context->createTexture(texDesc, true);
+        texture = context->textureProvider()->createTexture(texDesc, true);
         if (texture) {
-            context->addResourceToCache(key, texture);
+            context->textureProvider()->assignUniqueKeyToTexture(key, texture);
         }
     }
     return texture ? texture->asRenderTarget() : NULL;

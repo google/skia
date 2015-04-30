@@ -156,7 +156,7 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
                 desc.fWidth = width;
                 desc.fHeight = height;
                 desc.fSampleCnt = fSampleCount;
-                target.reset(fGrContext->createTexture(desc, false, NULL, 0));
+                target.reset(fGrContext->textureProvider()->createTexture(desc, false, NULL, 0));
             }
 
             uint32_t flags = fUseDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;

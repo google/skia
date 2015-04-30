@@ -360,7 +360,7 @@ GrRenderTarget* SkWindow::renderTarget(const AttachmentInfo& attachmentInfo,
     GrGLint buffer;
     GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
     desc.fRenderTargetHandle = buffer;
-    return grContext->wrapBackendRenderTarget(desc);
+    return grContext->textureProvider()->wrapBackendRenderTarget(desc);
 }
 
 #endif

@@ -206,8 +206,8 @@ private:
 
             // HACK: set the last param to true to indicate that this request is at
             // flush time and therefore we require a scratch texture with no pending IO operations.
-            fLastMask.reset(context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch,
-                                                       /*flushing=*/true));
+            fLastMask.reset(context->textureProvider()->refScratchTexture(
+                desc, GrTextureProvider::kApprox_ScratchTexMatch, /*flushing=*/true));
 
             fLastBound = bound;
         }

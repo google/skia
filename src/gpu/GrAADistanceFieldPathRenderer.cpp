@@ -590,8 +590,8 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
 
         // We don't want to flush the context so we claim we're in the middle of flushing so as to
         // guarantee we do not recieve a texture with pending IO
-        GrTexture* texture = fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch,
-                                                         true);
+        GrTexture* texture = fContext->textureProvider()->refScratchTexture(
+            desc, GrTextureProvider::kApprox_ScratchTexMatch, true);
         if (texture) {
             fAtlas = SkNEW_ARGS(GrBatchAtlas, (texture, NUM_PLOTS_X, NUM_PLOTS_Y));
         } else {

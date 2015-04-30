@@ -180,12 +180,14 @@ GrTexture* GaussianBlur(GrContext* context,
     GrTexture* tempTexture;
     SkAutoTUnref<GrTexture> temp1, temp2;
 
-    temp1.reset(context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+    temp1.reset(context->textureProvider()->refScratchTexture(
+        desc, GrTextureProvider::kApprox_ScratchTexMatch));
     dstTexture = temp1.get();
     if (canClobberSrc) {
         tempTexture = srcTexture;
     } else {
-        temp2.reset(context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+        temp2.reset(context->textureProvider()->refScratchTexture(
+            desc, GrTextureProvider::kApprox_ScratchTexMatch));
         tempTexture = temp2.get();
     }
 

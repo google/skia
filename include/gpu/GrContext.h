@@ -13,7 +13,7 @@
 #include "GrPaint.h"
 #include "GrPathRendererChain.h"
 #include "GrRenderTarget.h"
-#include "GrTexture.h"
+#include "GrTextureProvider.h"
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
@@ -33,6 +33,7 @@ class GrPathRenderer;
 class GrPipelineBuilder;
 class GrResourceEntry;
 class GrResourceCache;
+class GrResourceProvider;
 class GrTestTarget;
 class GrTextBlobCache;
 class GrTextContext;
@@ -111,7 +112,6 @@ public:
      * GrGpuResources it created is to destroy them.
      */
     void abandonContext();
-    void contextDestroyed() { this->abandonContext(); }  //  legacy alias
 
     ///////////////////////////////////////////////////////////////////////////
     // Resource Cache
@@ -147,20 +147,14 @@ public:
      */
     void setResourceCacheLimits(int maxResources, size_t maxResourceBytes);
 
+    GrTextureProvider* textureProvider() { return fTextureProvider; }
+    const GrTextureProvider* textureProvider() const { return fTextureProvider; }
+
     /**
      * Frees GPU created by the context. Can be called to reduce GPU memory
      * pressure.
      */
     void freeGpuResources();
-
-    /**
-     * This method should be called whenever a GrResource is unreffed or
-     * switched from exclusive to non-exclusive. This
-     * gives the resource cache a chance to discard unneeded resources.
-     * Note: this entry point will be removed once totally ref-driven
-     * cache maintenance is implemented.
-     */
-    void purgeCache();
 
     /**
      * Purge all the unlocked resources from the cache.
@@ -169,106 +163,8 @@ public:
      */
     void purgeAllUnlockedResources();
 
-    /**
-     * Sets a unique key on the resource. Upon key collision this resource takes the place of the
-     * previous resource that had the key.
-     */
-    void addResourceToCache(const GrUniqueKey&, GrGpuResource*);
-
-    /**
-     * Finds a resource in the cache, based on the specified key. This is intended for use in
-     * conjunction with addResourceToCache(). The return value will be NULL if not found. The
-     * caller must balance with a call to unref().
-     */
-    GrGpuResource* findAndRefCachedResource(const GrUniqueKey&);
-
-    /** Helper for casting resource to a texture. Caller must be sure that the resource cached
-        with the key is either NULL or a texture and not another resource type. */
-    GrTexture* findAndRefCachedTexture(const GrUniqueKey& key) {
-        GrGpuResource* resource = this->findAndRefCachedResource(key);
-        if (resource) {
-            GrTexture* texture = static_cast<GrSurface*>(resource)->asTexture();
-            SkASSERT(texture);
-            return texture;
-        }
-        return NULL;
-    }
-
-    /**
-     * Determines whether a resource is in the cache. If the resource is found it
-     * will not be locked or returned. This call does not affect the priority of
-     * the resource for deletion.
-     */
-    bool isResourceInCache(const GrUniqueKey& key) const;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Textures
-
-    /**
-     * Creates a new texture in the resource cache and returns it. The caller owns a
-     * ref on the returned texture which must be balanced by a call to unref.
-     *
-     * @param desc      Description of the texture properties.
-     * @param budgeted  Does the texture count against the resource cache budget?
-     * @param srcData   Pointer to the pixel values (optional).
-     * @param rowBytes  The number of bytes between rows of the texture. Zero
-     *                  implies tightly packed rows. For compressed pixel configs, this
-     *                  field is ignored.
-     */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted, const void* srcData,
-                             size_t rowBytes);
-
-    GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted) {
-        return this->createTexture(desc, budgeted, NULL, 0);
-    }
-
-    /**
-     * DEPRECATED: use createTexture().
-     */
-    GrTexture* createUncachedTexture(const GrSurfaceDesc& desc, void* srcData, size_t rowBytes) {
-        return this->createTexture(desc, false, srcData, rowBytes);
-    }
-
-    /**
-     * Enum that determines how closely a returned scratch texture must match
-     * a provided GrSurfaceDesc. TODO: Remove this. createTexture() should be used
-     * for exact match and refScratchTexture() should be replaced with createApproxTexture().
-     */
-    enum ScratchTexMatch {
-        /**
-         * Finds a texture that exactly matches the descriptor.
-         */
-        kExact_ScratchTexMatch,
-        /**
-         * Finds a texture that approximately matches the descriptor. Will be
-         * at least as large in width and height as desc specifies. If desc
-         * specifies that texture is a render target then result will be a
-         * render target. If desc specifies a render target and doesn't set the
-         * no stencil flag then result will have a stencil. Format and aa level
-         * will always match.
-         */
-        kApprox_ScratchTexMatch
-    };
-
-    /**
-     * Returns a texture matching the desc. It's contents are unknown. The caller
-     * owns a ref on the returned texture and must balance with a call to unref.
-     * It is guaranteed that the same texture will not be returned in subsequent
-     * calls until all refs to the texture are dropped.
-     *
-     * Textures created by createTexture() hide the complications of
-     * tiling non-power-of-two textures on APIs that don't support this (e.g.
-     * unextended GLES2). NPOT scratch textures are not tilable on such APIs.
-     *
-     * internalFlag is a temporary workaround until changes in the internal
-     * architecture are complete. Use the default value.
-     *
-     * TODO: Once internal flag can be removed, this should be replaced with
-     * createApproxTexture() and exact textures should be created with
-     * createTexture().
-     */
-    GrTexture* refScratchTexture(const GrSurfaceDesc&, ScratchTexMatch match,
-                                 bool internalFlag = false);
+    //////////////////////////////////////////////////////////////////////////
+    /// Texture and Render Target Queries
 
     /**
      * Can the provided configuration act as a texture?
@@ -323,33 +219,6 @@ public:
      *         MSAA is not supported or recommended to be used by default.
      */
     int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Backend Surfaces
-
-    /**
-     * Wraps an existing texture with a GrTexture object.
-     *
-     * OpenGL: if the object is a texture Gr may change its GL texture params
-     *         when it is drawn.
-     *
-     * @param  desc     description of the object to create.
-     *
-     * @return GrTexture object or NULL on failure.
-     */
-    GrTexture* wrapBackendTexture(const GrBackendTextureDesc& desc);
-
-    /**
-     * Wraps an existing render target with a GrRenderTarget object. It is
-     * similar to wrapBackendTexture but can be used to draw into surfaces
-     * that are not also textures (e.g. FBO 0 in OpenGL, or an MSAA buffer that
-     * the client will resolve to a texture).
-     *
-     * @param  desc     description of the object to create.
-     *
-     * @return GrTexture object or NULL on failure.
-     */
-     GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
 
     ///////////////////////////////////////////////////////////////////////////
     // Draws
@@ -646,6 +515,23 @@ public:
     void discardRenderTarget(GrRenderTarget*);
 
     ///////////////////////////////////////////////////////////////////////////
+    // Legacy functions, to be removed once Chromium stops using them.
+
+    enum ScratchTexMatch {
+        kExact_ScratchTexMatch = GrTextureProvider::kExact_ScratchTexMatch,
+        kApprox_ScratchTexMatch = GrTextureProvider::kApprox_ScratchTexMatch
+    };
+
+    GrTexture* refScratchTexture(const GrSurfaceDesc& desc, ScratchTexMatch match) {
+        return this->textureProvider()->refScratchTexture(
+            desc, (GrTextureProvider::ScratchTexMatch) match);
+    }
+
+    GrTexture* wrapBackendTexture(const GrBackendTextureDesc& desc) {
+        return this->textureProvider()->wrapBackendTexture(desc);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
@@ -655,6 +541,8 @@ public:
     GrDrawTarget* getTextTarget();
     const GrIndexBuffer* getQuadIndexBuffer() const;
     GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
+    GrResourceProvider* resourceProvider() { return fResourceProvider; }
+    const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
@@ -689,8 +577,14 @@ public:
 
 private:
     GrGpu*                          fGpu;
-
     GrResourceCache*                fResourceCache;
+    // this union exists because the inheritance of GrTextureProvider->GrResourceProvider
+    // is in a private header.
+    union { 
+        GrResourceProvider*         fResourceProvider;
+        GrTextureProvider*          fTextureProvider;
+    };
+
     GrBatchFontCache*               fBatchFontCache;
     SkAutoTDelete<GrLayerCache>     fLayerCache;
     SkAutoTDelete<GrTextBlobCache>  fTextBlobCache;
@@ -747,8 +641,6 @@ private:
                           bool useAA,
                           const SkPath&,
                           const GrStrokeInfo&);
-
-    GrTexture* internalRefScratchTexture(const GrSurfaceDesc&, uint32_t flags);
 
     /**
      * Creates a new text rendering context that is optimal for the

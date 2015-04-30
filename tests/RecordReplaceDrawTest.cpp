@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
-
 #include "Test.h"
+
+#if SK_SUPPORT_GPU
 
 #include "GrContextFactory.h"
 #include "GrLayerCache.h"
@@ -124,7 +124,8 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
     desc.fHeight = kHeight;
     desc.fSampleCnt = 0;
 
-    SkAutoTUnref<GrTexture> texture(context->createTexture(desc, false, NULL, 0));
+    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
+        false, NULL, 0));
     layer->setTexture(texture, SkIRect::MakeWH(kWidth, kHeight));
 
     SkAutoTUnref<SkBBoxHierarchy> bbh;

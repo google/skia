@@ -204,13 +204,13 @@ void GrTextureStripAtlas::lockTexture() {
     builder[0] = static_cast<uint32_t>(fCacheKey);
     builder.finish();
 
-    fTexture = fDesc.fContext->findAndRefCachedTexture(key);
+    fTexture = fDesc.fContext->textureProvider()->findAndRefTextureByUniqueKey(key);
     if (NULL == fTexture) {
-        fTexture = fDesc.fContext->createTexture(texDesc, true, NULL, 0);
+        fTexture = fDesc.fContext->textureProvider()->createTexture(texDesc, true, NULL, 0);
         if (!fTexture) {
             return;
         }
-        fDesc.fContext->addResourceToCache(key, fTexture);
+        fDesc.fContext->textureProvider()->assignUniqueKeyToTexture(key, fTexture);
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();

@@ -177,11 +177,11 @@ static GrTexture* create_texture_for_bmp(GrContext* ctx,
                                          SkPixelRef* pixelRefForInvalidationNotification,
                                          const void* pixels,
                                          size_t rowBytes) {
-    GrTexture* result = ctx->createTexture(desc, true, pixels, rowBytes);
+    GrTexture* result = ctx->textureProvider()->createTexture(desc, true, pixels, rowBytes);
     if (result && optionalKey.isValid()) {
         BitmapInvalidator* listener = SkNEW_ARGS(BitmapInvalidator, (optionalKey));
         pixelRefForInvalidationNotification->addGenIDChangeListener(listener);
-        ctx->addResourceToCache(optionalKey, result);
+        ctx->textureProvider()->assignUniqueKeyToTexture(optionalKey, result);
     }
     return result;
 }
@@ -368,9 +368,9 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
         bool needsExactTexture =
             (yuvDesc.fWidth  != yuvInfo.fSize[0].fWidth) ||
             (yuvDesc.fHeight != yuvInfo.fSize[0].fHeight);
-        yuvTextures[i].reset(ctx->refScratchTexture(yuvDesc,
-            needsExactTexture ? GrContext::kExact_ScratchTexMatch :
-                                GrContext::kApprox_ScratchTexMatch));
+        yuvTextures[i].reset(ctx->textureProvider()->refScratchTexture(yuvDesc,
+            needsExactTexture ? GrTextureProvider::kExact_ScratchTexMatch :
+                                GrTextureProvider::kApprox_ScratchTexMatch));
         if (!yuvTextures[i] ||
             !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
                                          yuvDesc.fConfig, planes[i], yuvInfo.fRowBytes[i])) {
@@ -471,7 +471,7 @@ static GrTexture* create_bitmap_texture(GrContext* ctx,
         SkAutoTUnref<GrTexture> unstretched;
         // Check if we have the unstretched version in the cache, if not create it.
         if (unstretchedKey.isValid()) {
-            unstretched.reset(ctx->findAndRefCachedTexture(unstretchedKey));
+            unstretched.reset(ctx->textureProvider()->findAndRefTextureByUniqueKey(unstretchedKey));
         }
         if (!unstretched) {
             unstretched.reset(create_unstretched_bitmap_texture(ctx, bmp, unstretchedKey));
@@ -509,7 +509,7 @@ bool GrIsBitmapInCache(const GrContext* ctx,
         }
         GrUniqueKey stretchedKey;
         make_stretched_key(key, stretch, &stretchedKey);
-        return ctx->isResourceInCache(stretchedKey);
+        return ctx->textureProvider()->existsTextureWithUniqueKey(stretchedKey);
     }
 
     // We don't cache volatile bitmaps
@@ -519,7 +519,8 @@ bool GrIsBitmapInCache(const GrContext* ctx,
 
     GrUniqueKey key, stretchedKey;
     make_bitmap_keys(bitmap, stretch, &key, &stretchedKey);
-    return ctx->isResourceInCache((kNo_Stretch == stretch) ? key : stretchedKey);
+    return ctx->textureProvider()->existsTextureWithUniqueKey(
+        (kNo_Stretch == stretch) ? key : stretchedKey);
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
@@ -539,7 +540,8 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
             const GrUniqueKey& key = result->getUniqueKey();
             if (key.isValid()) {
                 make_stretched_key(key, stretch, &stretchedKey);
-                GrTexture* stretched = ctx->findAndRefCachedTexture(stretchedKey);
+                GrTexture* stretched =
+                    ctx->textureProvider()->findAndRefTextureByUniqueKey(stretchedKey);
                 if (stretched) {
                     return stretched;
                 }
@@ -554,7 +556,8 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
         // If the bitmap isn't changing try to find a cached copy first.
         make_bitmap_keys(bitmap, stretch, &key, &resizedKey);
 
-        result = ctx->findAndRefCachedTexture(resizedKey.isValid() ? resizedKey : key);
+        result = ctx->textureProvider()->findAndRefTextureByUniqueKey(
+            resizedKey.isValid() ? resizedKey : key);
         if (result) {
             return result;
         }

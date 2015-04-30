@@ -199,7 +199,8 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::B
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
-    GrTexture* texture = context->createTexture(desc, SkToBool(budgeted), NULL, 0);
+    GrTexture* texture = context->textureProvider()->createTexture(
+        desc, SkToBool(budgeted), NULL, 0);
     if (NULL == texture) {
         return NULL;
     }
@@ -699,8 +700,8 @@ bool draw_with_mask_filter(GrContext* context,
     desc.fHeight = dstM.fBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> texture(
-        context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+    SkAutoTUnref<GrTexture> texture(context->textureProvider()->refScratchTexture(
+        desc, GrTextureProvider::kApprox_ScratchTexMatch));
     if (!texture) {
         return false;
     }
@@ -734,7 +735,8 @@ GrTexture* create_mask_GPU(GrContext* context,
         desc.fConfig = kAlpha_8_GrPixelConfig;
     }
 
-    GrTexture* mask = context->refScratchTexture(desc,GrContext::kApprox_ScratchTexMatch);
+    GrTexture* mask = context->textureProvider()->refScratchTexture(
+        desc, GrTextureProvider::kApprox_ScratchTexMatch);
     if (NULL == mask) {
         return NULL;
     }
@@ -1951,10 +1953,10 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     // layers are never draw in repeat modes, so we can request an approx
     // match and ignore any padding.
-    const GrContext::ScratchTexMatch match = (kNever_TileUsage == cinfo.fTileUsage) ?
-                                                GrContext::kApprox_ScratchTexMatch :
-                                                GrContext::kExact_ScratchTexMatch;
-    texture.reset(fContext->refScratchTexture(desc, match));
+    const GrTextureProvider::ScratchTexMatch match = (kNever_TileUsage == cinfo.fTileUsage) ?
+                                                  GrTextureProvider::kApprox_ScratchTexMatch :
+                                                  GrTextureProvider::kExact_ScratchTexMatch;
+    texture.reset(fContext->textureProvider()->refScratchTexture(desc, match));
 
     if (texture) {
         SkSurfaceProps props(fSurfaceProps.flags(), cinfo.fPixelGeometry);

@@ -31,7 +31,7 @@ static GrTexture* createTexture(GrContext* context) {
     desc.fHeight    = Y_SIZE;
 
     // We are initializing the texture with zeros here
-    GrTexture* texture = context->createTexture(desc, false, textureData, 0);
+    GrTexture* texture = context->textureProvider()->createTexture(desc, false, textureData, 0);
     if (!texture) {
         return NULL;
     }
@@ -52,7 +52,7 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     desc.fWidth     = kXSize;
     desc.fHeight    = kYSize;
 
-    GrTexture* texture = context->createTexture(desc, false, NULL, 0);
+    GrTexture* texture = context->textureProvider()->createTexture(desc, false, NULL, 0);
     if (!texture) {
         return;
     }

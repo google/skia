@@ -104,7 +104,7 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
     texDesc.fWidth = texDesc.fHeight = 100;
     texDesc.fSampleCnt = 0;
     texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    SkAutoTUnref<GrSurface> dummySurface(ctx->createTexture(texDesc, false));
+    SkAutoTUnref<GrSurface> dummySurface(ctx->textureProvider()->createTexture(texDesc, false));
 
     REPORTER_ASSERT(reporter, dummySurface && dummySurface->asTexture() &&
                               dummySurface->asRenderTarget());

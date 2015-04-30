@@ -248,7 +248,8 @@ GrTexture* GrSWMaskHelper::createTexture() {
         SkASSERT(fContext->getGpu()->caps()->isConfigTexturable(desc.fConfig));
     }
 
-    return fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch);
+    return fContext->textureProvider()->refScratchTexture(
+        desc, GrTextureProvider::kApprox_ScratchTexMatch);
 }
 
 void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrSurfaceDesc& desc,

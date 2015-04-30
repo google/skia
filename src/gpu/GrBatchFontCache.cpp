@@ -27,7 +27,8 @@ static GrBatchAtlas* make_atlas(GrContext* context, GrPixelConfig config,
 
     // We don't want to flush the context so we claim we're in the middle of flushing so as to
     // guarantee we do not recieve a texture with pending IO
-    GrTexture* texture = context->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch, true);
+    GrTexture* texture = context->textureProvider()->refScratchTexture(
+        desc, GrTextureProvider::kApprox_ScratchTexMatch, true);
     if (!texture) {
         return NULL;
     }

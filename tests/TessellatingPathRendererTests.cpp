@@ -251,9 +251,8 @@ DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
     desc.fHeight = 800;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    SkAutoTUnref<GrTexture> texture(
-        context->refScratchTexture(desc, GrContext::kExact_ScratchTexMatch)
-    );
+    SkAutoTUnref<GrTexture> texture(context->textureProvider()->refScratchTexture(desc,
+        GrTextureProvider::kExact_ScratchTexMatch));
     GrTestTarget tt;
     context->getTestTarget(&tt);
     GrRenderTarget* rt = texture->asRenderTarget();

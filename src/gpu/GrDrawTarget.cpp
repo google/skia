@@ -122,8 +122,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
 
-    SkAutoTUnref<GrTexture> copy(
-        fContext->refScratchTexture(desc, GrContext::kApprox_ScratchTexMatch));
+    SkAutoTUnref<GrTexture> copy(fContext->textureProvider()->refScratchTexture(desc,
+        GrTextureProvider::kApprox_ScratchTexMatch));
 
     if (!copy) {
         SkDebugf("Failed to create temporary copy of destination texture.\n");

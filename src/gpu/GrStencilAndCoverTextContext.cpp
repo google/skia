@@ -11,6 +11,7 @@
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
+#include "GrResourceProvider.h"
 #include "SkAutoKern.h"
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
@@ -235,10 +236,10 @@ static GrPathRange* get_gr_glyphs(GrContext* ctx,
     builder.finish();
 
     SkAutoTUnref<GrPathRange> glyphs(
-        static_cast<GrPathRange*>(ctx->findAndRefCachedResource(key)));
+        static_cast<GrPathRange*>(ctx->resourceProvider()->findAndRefResourceByUniqueKey(key)));
     if (NULL == glyphs || (NULL != desc && !glyphs->isEqualTo(*desc))) {
         glyphs.reset(ctx->getGpu()->pathRendering()->createGlyphs(typeface, desc, stroke));
-        ctx->addResourceToCache(key, glyphs);
+        ctx->resourceProvider()->assignUniqueKeyToResource(key, glyphs);
     }
 
     return glyphs.detach();

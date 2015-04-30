@@ -248,12 +248,12 @@ bool GrLayerCache::lock(GrCachedLayer* layer, const GrSurfaceDesc& desc, bool* n
     }
 
     // TODO: make the test for exact match depend on the image filters themselves
-    GrContext::ScratchTexMatch usage = GrContext::kApprox_ScratchTexMatch;
+    GrTextureProvider::ScratchTexMatch usage = GrTextureProvider::kApprox_ScratchTexMatch;
     if (layer->fFilter) {
-        usage = GrContext::kExact_ScratchTexMatch;
+        usage = GrTextureProvider::kExact_ScratchTexMatch;
     }
 
-    SkAutoTUnref<GrTexture> tex(fContext->refScratchTexture(desc, usage));
+    SkAutoTUnref<GrTexture> tex(fContext->textureProvider()->refScratchTexture(desc, usage));
     if (!tex) {
         return false;
     }

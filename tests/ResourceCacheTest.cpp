@@ -76,13 +76,14 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
     smallDesc.fHeight = 4;
     smallDesc.fSampleCnt = 0;
 
+    GrTextureProvider* cache = context->textureProvider();
     // Test that two budgeted RTs with the same desc share a stencil buffer.
-    SkAutoTUnref<GrTexture> smallRT0(context->createTexture(smallDesc, true));
+    SkAutoTUnref<GrTexture> smallRT0(cache->createTexture(smallDesc, true));
     if (smallRT0 && smallRT0->asRenderTarget()) {
         smallRT0->asRenderTarget()->renderTargetPriv().attachStencilAttachment();
     }
 
-    SkAutoTUnref<GrTexture> smallRT1(context->createTexture(smallDesc, true));
+    SkAutoTUnref<GrTexture> smallRT1(cache->createTexture(smallDesc, true));
     if (smallRT1 && smallRT1->asRenderTarget()) {
         smallRT1->asRenderTarget()->renderTargetPriv().attachStencilAttachment();
     }
@@ -94,7 +95,7 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
                     smallRT1->asRenderTarget()->renderTargetPriv().getStencilAttachment());
 
     // An unbudgeted RT with the same desc should also share.
-    SkAutoTUnref<GrTexture> smallRT2(context->createTexture(smallDesc, false));
+    SkAutoTUnref<GrTexture> smallRT2(cache->createTexture(smallDesc, false));
     if (smallRT2 && smallRT2->asRenderTarget()) {
         smallRT2->asRenderTarget()->renderTargetPriv().attachStencilAttachment();
     }
@@ -111,7 +112,7 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
     bigDesc.fSampleCnt = 0;
-    SkAutoTUnref<GrTexture> bigRT(context->createTexture(bigDesc, false));
+    SkAutoTUnref<GrTexture> bigRT(cache->createTexture(bigDesc, false));
     if (bigRT && bigRT->asRenderTarget()) {
         bigRT->asRenderTarget()->renderTargetPriv().attachStencilAttachment();
     }
@@ -125,7 +126,7 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
         // An RT with a different sample count should not share. 
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = 4;
-        SkAutoTUnref<GrTexture> smallMSAART0(context->createTexture(smallMSAADesc, false));
+        SkAutoTUnref<GrTexture> smallMSAART0(cache->createTexture(smallMSAADesc, false));
         if (smallMSAART0 && smallMSAART0->asRenderTarget()) {
             smallMSAART0->asRenderTarget()->renderTargetPriv().attachStencilAttachment();
         }
@@ -141,7 +142,7 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
                         smallRT0->asRenderTarget()->renderTargetPriv().getStencilAttachment() !=
                         smallMSAART0->asRenderTarget()->renderTargetPriv().getStencilAttachment());
         // A second MSAA RT should share with the first MSAA RT.
-        SkAutoTUnref<GrTexture> smallMSAART1(context->createTexture(smallMSAADesc, false));
+        SkAutoTUnref<GrTexture> smallMSAART1(cache->createTexture(smallMSAADesc, false));
         if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
             smallMSAART1->asRenderTarget()->renderTargetPriv().attachStencilAttachment();
         }
@@ -156,8 +157,8 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
         if (context->getMaxSampleCount() >= 8 && smallMSAART0 && smallMSAART0->asRenderTarget() &&
             smallMSAART0->asRenderTarget()->numSamples() < 8) {
             smallMSAADesc.fSampleCnt = 8;
-            smallMSAART1.reset(context->createTexture(smallMSAADesc, false));
-            SkAutoTUnref<GrTexture> smallMSAART1(context->createTexture(smallMSAADesc, false));
+            smallMSAART1.reset(cache->createTexture(smallMSAADesc, false));
+            SkAutoTUnref<GrTexture> smallMSAART1(cache->createTexture(smallMSAADesc, false));
             if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
                 smallMSAART1->asRenderTarget()->renderTargetPriv().attachStencilAttachment();
             }

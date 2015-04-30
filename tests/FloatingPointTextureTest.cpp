@@ -11,9 +11,10 @@
  * 32 bit floating point textures, and indeed floating point test values
  * have been selected to require 32 bits of precision and full IEEE conformance
  */
-#if SK_SUPPORT_GPU
+
 #include <float.h>
 #include "Test.h"
+#if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
 #include "GrContextFactory.h"
@@ -59,8 +60,8 @@ DEF_GPUTEST(FloatingPointTextureTest, reporter, factory) {
                 continue;
             }
 
-            SkAutoTUnref<GrTexture> fpTexture(context->createTexture(desc, false,
-                                                                     controlPixelData.begin(), 0));
+            SkAutoTUnref<GrTexture> fpTexture(context->textureProvider()->createTexture(
+                desc, false, controlPixelData.begin(), 0));
             // Floating point textures are NOT supported everywhere
             if (NULL == fpTexture) {
                 continue;
@@ -106,8 +107,8 @@ DEF_GPUTEST(HalfFloatTextureTest, reporter, factory) {
                 continue;
             }
 
-            SkAutoTUnref<GrTexture> fpTexture(context->createTexture(desc, false,
-                                                                     controlPixelData.begin(), 0));
+            SkAutoTUnref<GrTexture> fpTexture(context->textureProvider()->createTexture(
+                desc, false, controlPixelData.begin(), 0));
             // 16-bit floating point textures are NOT supported everywhere
             if (NULL == fpTexture) {
                 continue;
