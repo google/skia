@@ -9,6 +9,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrBufferAllocPool.h"
 #include "GrDrawTarget.h"
 #include "GrGeometryProcessor.h"
@@ -878,13 +879,12 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-void GrOvalRenderer::drawCircle(GrDrawTarget* target,
-                                GrPipelineBuilder* pipelineBuilder,
-                                GrColor color,
-                                const SkMatrix& viewMatrix,
-                                bool useCoverageAA,
-                                const SkRect& circle,
-                                const SkStrokeRec& stroke) {
+static GrBatch* create_circle_batch(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    bool useCoverageAA,
+                                    const SkRect& circle,
+                                    const SkStrokeRec& stroke,
+                                    SkRect* bounds) {
     SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
     viewMatrix.mapPoints(&center, 1);
     SkScalar radius = viewMatrix.mapRadius(SkScalarHalf(circle.width()));
@@ -918,12 +918,8 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     outerRadius += SK_ScalarHalf;
     innerRadius -= SK_ScalarHalf;
 
-    SkRect bounds = SkRect::MakeLTRB(
-        center.fX - outerRadius,
-        center.fY - outerRadius,
-        center.fX + outerRadius,
-        center.fY + outerRadius
-    );
+    bounds->setLTRB(center.fX - outerRadius, center.fY - outerRadius,
+                    center.fX + outerRadius, center.fY + outerRadius);
 
     CircleBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;
@@ -931,9 +927,21 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     geometry.fInnerRadius = innerRadius;
     geometry.fOuterRadius = outerRadius;
     geometry.fStroke = isStrokeOnly && innerRadius > 0;
-    geometry.fDevBounds = bounds;
+    geometry.fDevBounds = *bounds;
 
-    SkAutoTUnref<GrBatch> batch(CircleBatch::Create(geometry));
+    return CircleBatch::Create(geometry);
+}
+
+void GrOvalRenderer::drawCircle(GrDrawTarget* target,
+                                GrPipelineBuilder* pipelineBuilder,
+                                GrColor color,
+                                const SkMatrix& viewMatrix,
+                                bool useCoverageAA,
+                                const SkRect& circle,
+                                const SkStrokeRec& stroke) {
+    SkRect bounds;
+    SkAutoTUnref<GrBatch> batch(create_circle_batch(color, viewMatrix, useCoverageAA, circle,
+                                                    stroke, &bounds));
     target->drawBatch(pipelineBuilder, batch, &bounds);
 }
 
@@ -1138,13 +1146,12 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
-                                 GrPipelineBuilder* pipelineBuilder,
-                                 GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 bool useCoverageAA,
-                                 const SkRect& ellipse,
-                                 const SkStrokeRec& stroke) {
+static GrBatch* create_ellipse_batch(GrColor color,
+                                     const SkMatrix& viewMatrix,
+                                     bool useCoverageAA,
+                                     const SkRect& ellipse,
+                                     const SkStrokeRec& stroke,
+                                     SkRect* bounds) {
 #ifdef SK_DEBUG
     {
         // we should have checked for this previously
@@ -1188,13 +1195,13 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         // we only handle thick strokes for near-circular ellipses
         if (scaledStroke.length() > SK_ScalarHalf &&
             (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
-            return false;
+            return NULL;
         }
 
         // we don't handle it if curvature of the stroke is less than curvature of the ellipse
         if (scaledStroke.fX*(yRadius*yRadius) < (scaledStroke.fY*scaledStroke.fY)*xRadius ||
             scaledStroke.fY*(xRadius*xRadius) < (scaledStroke.fX*scaledStroke.fX)*yRadius) {
-            return false;
+            return NULL;
         }
 
         // this is legit only if scale & translation (which should be the case at the moment)
@@ -1213,12 +1220,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     xRadius += SK_ScalarHalf;
     yRadius += SK_ScalarHalf;
 
-    SkRect bounds = SkRect::MakeLTRB(
-        center.fX - xRadius,
-        center.fY - yRadius,
-        center.fX + xRadius,
-        center.fY + yRadius
-    );
+    bounds->setLTRB(center.fX - xRadius, center.fY - yRadius,
+                    center.fX + xRadius, center.fY + yRadius);
 
     EllipseBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;
@@ -1228,11 +1231,26 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     geometry.fInnerXRadius = innerXRadius;
     geometry.fInnerYRadius = innerYRadius;
     geometry.fStroke = isStrokeOnly && innerXRadius > 0 && innerYRadius > 0;
-    geometry.fDevBounds = bounds;
+    geometry.fDevBounds = *bounds;
 
-    SkAutoTUnref<GrBatch> batch(EllipseBatch::Create(geometry));
+    return EllipseBatch::Create(geometry);
+}
+
+bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
+                                 GrPipelineBuilder* pipelineBuilder,
+                                 GrColor color,
+                                 const SkMatrix& viewMatrix,
+                                 bool useCoverageAA,
+                                 const SkRect& ellipse,
+                                 const SkStrokeRec& stroke) {
+    SkRect bounds;
+    SkAutoTUnref<GrBatch> batch(create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
+                                                     stroke, &bounds));
+    if (!batch) {
+        return false;
+    }
+
     target->drawBatch(pipelineBuilder, batch, &bounds);
-
     return true;
 }
 
@@ -1430,13 +1448,12 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
-                                   GrPipelineBuilder* pipelineBuilder,
-                                   GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   bool useCoverageAA,
-                                   const SkRect& ellipse,
-                                   const SkStrokeRec& stroke) {
+static GrBatch* create_diellipse_batch(GrColor color,
+                                       const SkMatrix& viewMatrix,
+                                       bool useCoverageAA,
+                                       const SkRect& ellipse,
+                                       const SkStrokeRec& stroke,
+                                       SkRect* bounds) {
     SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
     SkScalar xRadius = SkScalarHalf(ellipse.width());
     SkScalar yRadius = SkScalarHalf(ellipse.height());
@@ -1461,13 +1478,13 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
         // we only handle thick strokes for near-circular ellipses
         if (strokeWidth > SK_ScalarHalf &&
             (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
-            return false;
+            return NULL;
         }
 
         // we don't handle it if curvature of the stroke is less than curvature of the ellipse
         if (strokeWidth*(yRadius*yRadius) < (strokeWidth*strokeWidth)*xRadius ||
             strokeWidth*(xRadius*xRadius) < (strokeWidth*strokeWidth)*yRadius) {
-            return false;
+            return NULL;
         }
 
         // set inner radius (if needed)
@@ -1492,12 +1509,8 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     SkScalar geoDx = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(a*a + c*c));
     SkScalar geoDy = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(b*b + d*d));
 
-    SkRect bounds = SkRect::MakeLTRB(
-        center.fX - xRadius - geoDx,
-        center.fY - yRadius - geoDy,
-        center.fX + xRadius + geoDx,
-        center.fY + yRadius + geoDy
-    );
+    bounds->setLTRB(center.fX - xRadius - geoDx, center.fY - yRadius - geoDy,
+                    center.fX + xRadius + geoDx, center.fY + yRadius + geoDy);
 
     DIEllipseBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;
@@ -1509,13 +1522,26 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     geometry.fGeoDx = geoDx;
     geometry.fGeoDy = geoDy;
     geometry.fMode = mode;
-    geometry.fBounds = bounds;
+    geometry.fBounds = *bounds;
 
-    viewMatrix.mapRect(&bounds);
+    viewMatrix.mapRect(bounds);
+    return DIEllipseBatch::Create(geometry);
+}
 
-    SkAutoTUnref<GrBatch> batch(DIEllipseBatch::Create(geometry));
+bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
+                                   GrPipelineBuilder* pipelineBuilder,
+                                   GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   bool useCoverageAA,
+                                   const SkRect& ellipse,
+                                   const SkStrokeRec& stroke) {
+    SkRect bounds;
+    SkAutoTUnref<GrBatch> batch(create_diellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
+                                                       stroke, &bounds));
+    if (!batch) {
+        return false;
+    }
     target->drawBatch(pipelineBuilder, batch, &bounds);
-
     return true;
 }
 
@@ -1543,26 +1569,6 @@ static const int kIndicesPerStrokeRRect = SK_ARRAY_COUNT(gRRectIndices) - 6;
 static const int kIndicesPerRRect = SK_ARRAY_COUNT(gRRectIndices);
 static const int kVertsPerRRect = 16;
 static const int kNumRRectsInIndexBuffer = 256;
-
-GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(bool isStrokeOnly) {
-    if (isStrokeOnly) {
-        if (NULL == fStrokeRRectIndexBuffer) {
-            fStrokeRRectIndexBuffer = fGpu->createInstancedIndexBuffer(gRRectIndices,
-                                                                       kIndicesPerStrokeRRect,
-                                                                       kNumRRectsInIndexBuffer,
-                                                                       kVertsPerRRect);
-        }
-        return fStrokeRRectIndexBuffer;
-    } else {
-        if (NULL == fRRectIndexBuffer) {
-            fRRectIndexBuffer = fGpu->createInstancedIndexBuffer(gRRectIndices,
-                                                                 kIndicesPerRRect,
-                                                                 kNumRRectsInIndexBuffer,
-                                                                 kVertsPerRRect);
-        }
-        return fRRectIndexBuffer;
-    }
-}
 
 bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
                                 GrPipelineBuilder* pipelineBuilder,
@@ -2057,34 +2063,45 @@ private:
     const GrIndexBuffer* fIndexBuffer;
 };
 
-bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
-                               GrPipelineBuilder* pipelineBuilder,
-                               GrColor color,
-                               const SkMatrix& viewMatrix,
-                               bool useAA,
-                               const SkRRect& rrect,
-                               const SkStrokeRec& stroke) {
-    if (rrect.isOval()) {
-        return this->drawOval(target, pipelineBuilder, color, viewMatrix, useAA, rrect.getBounds(),
-                              stroke);
+static GrIndexBuffer* create_rrect_indexbuffer(GrIndexBuffer** strokeRRectIndexBuffer,
+                                               GrIndexBuffer** rrectIndexBuffer,
+                                               bool isStrokeOnly,
+                                               GrGpu* gpu) {
+    if (isStrokeOnly) {
+        if (NULL == *strokeRRectIndexBuffer) {
+            *strokeRRectIndexBuffer = gpu->createInstancedIndexBuffer(gRRectIndices,
+                                                                      kIndicesPerStrokeRRect,
+                                                                      kNumRRectsInIndexBuffer,
+                                                                      kVertsPerRRect);
+        }
+        return *strokeRRectIndexBuffer;
+    } else {
+        if (NULL == *rrectIndexBuffer) {
+            *rrectIndexBuffer = gpu->createInstancedIndexBuffer(gRRectIndices,
+                                                                kIndicesPerRRect,
+                                                                kNumRRectsInIndexBuffer,
+                                                                kVertsPerRRect);
+        }
+        return *rrectIndexBuffer;
     }
+}
 
-    bool useCoverageAA = useAA &&
-        !pipelineBuilder->getRenderTarget()->isMultisampled();
+static GrBatch* create_rrect_batch(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRRect& rrect,
+                                   const SkStrokeRec& stroke,
+                                   SkRect* bounds,
+                                   GrIndexBuffer** strokeRRectIndexBuffer,
+                                   GrIndexBuffer** rrectIndexBuffer,
+                                   GrGpu* gpu) {
+    SkASSERT(viewMatrix.rectStaysRect());
+    SkASSERT(rrect.isSimple());
+    SkASSERT(!rrect.isOval());
 
-    // only anti-aliased rrects for now
-    if (!useCoverageAA) {
-        return false;
-    }
-
-    if (!viewMatrix.rectStaysRect() || !rrect.isSimple()) {
-        return false;
-    }
-
+    // RRect batchs only handle simple, but not too simple, rrects
     // do any matrix crunching before we reset the draw state for device coords
     const SkRect& rrectBounds = rrect.getBounds();
-    SkRect bounds;
-    viewMatrix.mapRect(&bounds, rrectBounds);
+    viewMatrix.mapRect(bounds, rrectBounds);
 
     SkVector radii = rrect.getSimpleRadii();
     SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX]*radii.fX +
@@ -2114,7 +2131,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
         // if half of strokewidth is greater than radius, we don't handle that right now
         if (SK_ScalarHalf*scaledStroke.fX > xRadius || SK_ScalarHalf*scaledStroke.fY > yRadius) {
-            return false;
+            return NULL;
         }
     }
 
@@ -2124,13 +2141,16 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
     // We could consider falling back to rect rendering here, since a tiny radius is
     // indistinguishable from a square corner.
     if (!isStrokeOnly && (SK_ScalarHalf > xRadius || SK_ScalarHalf > yRadius)) {
-        return false;
+        return NULL;
     }
 
-    GrIndexBuffer* indexBuffer = this->rRectIndexBuffer(isStrokeOnly);
+    GrIndexBuffer* indexBuffer = create_rrect_indexbuffer(strokeRRectIndexBuffer,
+                                                          rrectIndexBuffer,
+                                                          isStrokeOnly,
+                                                          gpu);
     if (NULL == indexBuffer) {
         SkDebugf("Failed to create index buffer!\n");
-        return false;
+        return NULL;
     }
 
     // if the corners are circles, use the circle renderer
@@ -2149,7 +2169,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
                 innerRadius = xRadius - halfWidth;
             }
             outerRadius += halfWidth;
-            bounds.outset(halfWidth, halfWidth);
+            bounds->outset(halfWidth, halfWidth);
         }
 
         isStrokeOnly = (isStrokeOnly && innerRadius >= 0);
@@ -2163,7 +2183,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         innerRadius -= SK_ScalarHalf;
 
         // Expand the rect so all the pixels will be captured.
-        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+        bounds->outset(SK_ScalarHalf, SK_ScalarHalf);
 
         RRectCircleRendererBatch::Geometry geometry;
         geometry.fViewMatrix = viewMatrix;
@@ -2171,10 +2191,9 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         geometry.fInnerRadius = innerRadius;
         geometry.fOuterRadius = outerRadius;
         geometry.fStroke = isStrokeOnly;
-        geometry.fDevBounds = bounds;
+        geometry.fDevBounds = *bounds;
 
-        SkAutoTUnref<GrBatch> batch(RRectCircleRendererBatch::Create(geometry, indexBuffer));
-        target->drawBatch(pipelineBuilder, batch, &bounds);
+        return RRectCircleRendererBatch::Create(geometry, indexBuffer);
 
     // otherwise we use the ellipse renderer
     } else {
@@ -2190,13 +2209,13 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
             // we only handle thick strokes for near-circular ellipses
             if (scaledStroke.length() > SK_ScalarHalf &&
                 (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
-                return false;
+                return NULL;
             }
 
             // we don't handle it if curvature of the stroke is less than curvature of the ellipse
             if (scaledStroke.fX*(yRadius*yRadius) < (scaledStroke.fY*scaledStroke.fY)*xRadius ||
                 scaledStroke.fY*(xRadius*xRadius) < (scaledStroke.fX*scaledStroke.fX)*yRadius) {
-                return false;
+                return NULL;
             }
 
             // this is legit only if scale & translation (which should be the case at the moment)
@@ -2207,13 +2226,13 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
             xRadius += scaledStroke.fX;
             yRadius += scaledStroke.fY;
-            bounds.outset(scaledStroke.fX, scaledStroke.fY);
+            bounds->outset(scaledStroke.fX, scaledStroke.fY);
         }
 
         isStrokeOnly = (isStrokeOnly && innerXRadius >= 0 && innerYRadius >= 0);
 
         // Expand the rect so all the pixels will be captured.
-        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+        bounds->outset(SK_ScalarHalf, SK_ScalarHalf);
 
         RRectEllipseRendererBatch::Geometry geometry;
         geometry.fViewMatrix = viewMatrix;
@@ -2223,10 +2242,101 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         geometry.fInnerXRadius = innerXRadius;
         geometry.fInnerYRadius = innerYRadius;
         geometry.fStroke = isStrokeOnly;
-        geometry.fDevBounds = bounds;
+        geometry.fDevBounds = *bounds;
 
-        SkAutoTUnref<GrBatch> batch(RRectEllipseRendererBatch::Create(geometry, indexBuffer));
-        target->drawBatch(pipelineBuilder, batch, &bounds);
+        return RRectEllipseRendererBatch::Create(geometry, indexBuffer);
     }
+}
+
+bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
+                               GrPipelineBuilder* pipelineBuilder,
+                               GrColor color,
+                               const SkMatrix& viewMatrix,
+                               bool useAA,
+                               const SkRRect& rrect,
+                               const SkStrokeRec& stroke) {
+    if (rrect.isOval()) {
+        return this->drawOval(target, pipelineBuilder, color, viewMatrix, useAA, rrect.getBounds(),
+                              stroke);
+    }
+
+    bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isMultisampled();
+
+    // only anti-aliased rrects for now
+    if (!useCoverageAA) {
+        return false;
+    }
+
+    if (!viewMatrix.rectStaysRect() || !rrect.isSimple()) {
+        return false;
+    }
+
+    SkRect bounds;
+    SkAutoTUnref<GrBatch> batch(create_rrect_batch(color, viewMatrix, rrect, stroke, &bounds,
+                                                   &fStrokeRRectIndexBuffer, &fRRectIndexBuffer,
+                                                   fGpu));
+    if (!batch) {
+        return false;
+    }
+
+    target->drawBatch(pipelineBuilder, batch, &bounds);
     return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+static SkStrokeRec random_strokerec(SkRandom* random) {
+    SkStrokeRec::InitStyle style =
+            SkStrokeRec::InitStyle(random->nextULessThan(SkStrokeRec::kFill_InitStyle + 1));
+    SkStrokeRec rec(style);
+    bool strokeAndFill = random->nextBool();
+    SkScalar strokeWidth = random->nextBool() ? 0.f : 1.f;
+    rec.setStrokeStyle(strokeWidth, strokeAndFill);
+    return rec;
+}
+
+BATCH_TEST_DEFINE(CircleBatch) {
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    GrColor color = GrRandomColor(random);
+    bool useCoverageAA = random->nextBool();
+    SkRect circle = GrTest::TestRect(random);
+    SkRect bounds; // unused
+    return create_circle_batch(color, viewMatrix, useCoverageAA, circle, random_strokerec(random),
+                               &bounds);
+}
+
+BATCH_TEST_DEFINE(EllipseBatch) {
+    SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
+    GrColor color = GrRandomColor(random);
+    bool useCoverageAA = random->nextBool();
+    SkRect ellipse = GrTest::TestRect(random);
+    SkRect bounds; // unused
+    return create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
+                                random_strokerec(random), &bounds);
+}
+
+BATCH_TEST_DEFINE(DIEllipseBatch) {
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    GrColor color = GrRandomColor(random);
+    bool useCoverageAA = random->nextBool();
+    SkRect ellipse = GrTest::TestRect(random);
+    SkRect bounds; // unused
+    return create_diellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
+                                  random_strokerec(random), &bounds);
+}
+
+BATCH_TEST_DEFINE(RRectBatch) {
+    SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
+    GrColor color = GrRandomColor(random);
+    const SkRRect& rrect = GrTest::TestRRectSimple(random);
+
+    static GrIndexBuffer* gStrokeRRectIndexBuffer;
+    static GrIndexBuffer* gRRectIndexBuffer;
+    SkRect bounds;
+    return create_rrect_batch(color, viewMatrix, rrect, random_strokerec(random), &bounds,
+                              &gStrokeRRectIndexBuffer, &gRRectIndexBuffer, context->getGpu());
+}
+
+#endif

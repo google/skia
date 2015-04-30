@@ -38,6 +38,7 @@ struct GrInitInvariantOutput;
  * If there are any possible optimizations which might require knowing more about the full state of
  * the draw, ie whether or not the GrBatch is allowed to tweak alpha for coverage, then this
  * information will be communicated to the GrBatch prior to geometry generation.
+ * TODO Batch should own the draw bounds
  */
 
 class GrBatch : public SkRefCnt {

@@ -79,8 +79,6 @@ private:
                     const SkRect& circle,
                     const SkStrokeRec& stroke);
 
-    GrIndexBuffer* rRectIndexBuffer(bool isStrokeOnly);
-
     GrGpu*         fGpu;
     GrIndexBuffer* fRRectIndexBuffer;
     GrIndexBuffer* fStrokeRRectIndexBuffer;

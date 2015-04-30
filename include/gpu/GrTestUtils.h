@@ -16,6 +16,7 @@
 #include "SkRandom.h"
 
 class SkMatrix;
+class SkRRect;
 struct SkRect;
 
 namespace GrTest {
@@ -24,7 +25,9 @@ namespace GrTest {
  */
 const SkMatrix& TestMatrix(SkRandom*);
 const SkMatrix& TestMatrixPreservesRightAngles(SkRandom*);
+const SkMatrix& TestMatrixRectStaysRect(SkRandom*);
 const SkRect& TestRect(SkRandom*);
+const SkRRect& TestRRectSimple(SkRandom*);
 
 }
 
