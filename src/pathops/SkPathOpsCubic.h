@@ -97,6 +97,17 @@ struct SkDCubic {
     int searchRoots(double extremes[6], int extrema, double axisIntercept,
                     SearchAxis xAxis, double* validRoots) const;
 
+    /**
+     *  Return the number of valid roots (0 < root < 1) for this cubic intersecting the
+     *  specified horizontal line.
+     */
+    int horizontalIntersect(double yIntercept, double roots[3]) const;
+    /**
+     *  Return the number of valid roots (0 < root < 1) for this cubic intersecting the
+     *  specified vertical line.
+     */
+    int verticalIntersect(double xIntercept, double roots[3]) const;
+
     const SkDCubic& set(const SkPoint pts[kPointCount]) {
         fPts[0] = pts[0];
         fPts[1] = pts[1];

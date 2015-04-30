@@ -225,6 +225,7 @@ bool SkEdgeClipper::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_CUBIC_CHOPPER
 static SkScalar eval_cubic_coeff(SkScalar A, SkScalar B, SkScalar C,
                                  SkScalar D, SkScalar t) {
     return SkScalarMulAdd(SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C), t, D);
@@ -274,23 +275,29 @@ static bool chopMonoCubicAtY(SkPoint pts[4], SkScalar y, SkScalar* t) {
 static bool chopMonoCubicAtX(SkPoint pts[4], SkScalar x, SkScalar* t) {
     return chopMonoCubicAt(pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX, x, t);
 }
+#endif
 
 // Modify pts[] in place so that it is clipped in Y to the clip rect
 static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
 
     // are we partially above
     if (pts[0].fY < clip.fTop) {
+        SkPoint tmp[7];
+#ifdef SK_SUPPORT_LEGACY_CUBIC_CHOPPER
         SkScalar t;
         if (chopMonoCubicAtY(pts, clip.fTop, &t)) {
-            SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
-
-            // tmp[3, 4, 5].fY should all be to the below clip.fTop.
+#else
+        if (SkChopMonoCubicAtY(pts, clip.fTop, tmp)) {
+#endif
+            // tmp[3, 4].fY should all be to the below clip.fTop.
             // Since we can't trust the numerics of
             // the chopper, we force those conditions now
             tmp[3].fY = clip.fTop;
             clamp_ge(tmp[4].fY, clip.fTop);
+#ifdef SK_SUPPORT_LEGACY_CUBIC_CHOPPER
             clamp_ge(tmp[5].fY, clip.fTop);
+#endif
 
             pts[0] = tmp[3];
             pts[1] = tmp[4];
@@ -306,10 +313,14 @@ static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
 
     // are we partially below
     if (pts[3].fY > clip.fBottom) {
+        SkPoint tmp[7];
+#ifdef SK_SUPPORT_LEGACY_CUBIC_CHOPPER
         SkScalar t;
         if (chopMonoCubicAtY(pts, clip.fBottom, &t)) {
-            SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
+#else
+        if (SkChopMonoCubicAtY(pts, clip.fBottom, tmp)) {
+#endif
             tmp[3].fY = clip.fBottom;
             clamp_le(tmp[2].fY, clip.fBottom);
 
@@ -360,18 +371,24 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
 
     // are we partially to the left
     if (pts[0].fX < clip.fLeft) {
+        SkPoint tmp[7];
+#ifdef SK_SUPPORT_LEGACY_CUBIC_CHOPPER
         SkScalar t;
         if (chopMonoCubicAtX(pts, clip.fLeft, &t)) {
-            SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
+#else
+        if (SkChopMonoCubicAtX(pts, clip.fLeft, tmp)) {
+#endif
             this->appendVLine(clip.fLeft, tmp[0].fY, tmp[3].fY, reverse);
 
-            // tmp[3, 4, 5].fX should all be to the right of clip.fLeft.
+            // tmp[3, 4].fX should all be to the right of clip.fLeft.
             // Since we can't trust the numerics of
             // the chopper, we force those conditions now
             tmp[3].fX = clip.fLeft;
             clamp_ge(tmp[4].fX, clip.fLeft);
+#ifdef SK_SUPPORT_LEGACY_CUBIC_CHOPPER
             clamp_ge(tmp[5].fX, clip.fLeft);
+#endif
 
             pts[0] = tmp[3];
             pts[1] = tmp[4];
@@ -386,13 +403,19 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
 
     // are we partially to the right
     if (pts[3].fX > clip.fRight) {
+        SkPoint tmp[7];
+#ifdef SK_SUPPORT_LEGACY_CUBIC_CHOPPER
         SkScalar t;
         if (chopMonoCubicAtX(pts, clip.fRight, &t)) {
-            SkPoint tmp[7];
             SkChopCubicAt(pts, tmp, t);
+#else
+        if (SkChopMonoCubicAtX(pts, clip.fRight, tmp)) {
+#endif
             tmp[3].fX = clip.fRight;
             clamp_le(tmp[2].fX, clip.fRight);
+#ifdef SK_SUPPORT_LEGACY_CUBIC_CHOPPER
             clamp_le(tmp[1].fX, clip.fRight);
+#endif
 
             this->appendCubic(tmp, reverse);
             this->appendVLine(clip.fRight, tmp[3].fY, tmp[6].fY, reverse);

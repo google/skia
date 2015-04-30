@@ -425,3 +425,13 @@ int SkIntersections::intersectRay(const SkDCubic& cubic, const SkDLine& line) {
     }
     return fUsed;
 }
+
+// SkDCubic accessors to Intersection utilities
+
+int SkDCubic::horizontalIntersect(double yIntercept, double roots[3]) const {
+    return LineCubicIntersections::HorizontalIntersect(*this, yIntercept, roots);
+}
+
+int SkDCubic::verticalIntersect(double xIntercept, double roots[3]) const {
+    return LineCubicIntersections::VerticalIntersect(*this, xIntercept, roots);
+}

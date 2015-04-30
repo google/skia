@@ -916,6 +916,33 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
     return count + 1;
 }
 
+#include "../pathops/SkPathOpsCubic.h"
+
+typedef int (SkDCubic::*InterceptProc)(double intercept, double roots[3]) const;
+
+static bool cubic_dchop_at_intercept(const SkPoint src[4], SkScalar intercept, SkPoint dst[7],
+                                     InterceptProc method) {
+    SkDCubic cubic;
+    double roots[3];
+    int count = (cubic.set(src).*method)(intercept, roots);
+    if (count > 0) {
+        SkDCubicPair pair = cubic.chopAt(roots[0]);
+        for (int i = 0; i < 7; ++i) {
+            dst[i] = pair.pts[i].asSkPoint();
+        }
+        return true;
+    }
+    return false;
+}
+
+bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar y, SkPoint dst[7]) {
+    return cubic_dchop_at_intercept(src, y, dst, &SkDCubic::horizontalIntersect);
+}
+
+bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar x, SkPoint dst[7]) {
+    return cubic_dchop_at_intercept(src, x, dst, &SkDCubic::verticalIntersect);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /*  Find t value for quadratic [a, b, c] = d.
