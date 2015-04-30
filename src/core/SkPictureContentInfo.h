@@ -8,6 +8,8 @@
 #ifndef SkPictureContentInfo_DEFINED
 #define SkPictureContentInfo_DEFINED
 
+#include "SkTDArray.h"
+
 class GrContext;
 
 class SkPictureContentInfo {
