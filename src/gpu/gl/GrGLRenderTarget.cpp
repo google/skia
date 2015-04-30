@@ -39,19 +39,23 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fViewport.fHeight = desc.fHeight;
 
     // We own one color value for each MSAA sample.
-    fColorValuesPerPixel = SkTMax(1, fDesc.fSampleCnt);
+    int colorValuesPerPixel = SkTMax(1, fDesc.fSampleCnt);
     if (fTexFBOID != fRTFBOID) {
         // If we own the resolve buffer then that is one more sample per pixel.
-        fColorValuesPerPixel += 1;
-    } 
-}
-
-size_t GrGLRenderTarget::onGpuMemorySize() const {
+        colorValuesPerPixel += 1;
+    } else if (fTexFBOID != 0) {
+        // For auto-resolving FBOs, the MSAA buffer is free.
+        colorValuesPerPixel = 1;
+    }
     SkASSERT(kUnknown_GrPixelConfig != fDesc.fConfig);
     SkASSERT(!GrPixelConfigIsCompressed(fDesc.fConfig));
     size_t colorBytes = GrBytesPerPixel(fDesc.fConfig);
     SkASSERT(colorBytes > 0);
-    return fColorValuesPerPixel * fDesc.fWidth * fDesc.fHeight * colorBytes;
+    fGpuMemorySize = colorValuesPerPixel * fDesc.fWidth * fDesc.fHeight * colorBytes;
+}
+
+size_t GrGLRenderTarget::onGpuMemorySize() const {
+    return fGpuMemorySize;
 }
 
 void GrGLRenderTarget::onRelease() {

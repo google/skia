@@ -86,10 +86,9 @@ private:
     // we want the rendering to be at top left (GL has origin in bottom left)
     GrGLIRect fViewport;
 
-    // onGpuMemorySize() needs to know what how many color values are owned per pixel. However,
-    // abandon and release zero out the IDs and the cache needs to know the size even after those
-    // actions.
-    uint8_t fColorValuesPerPixel;
+    // onGpuMemorySize() needs to know the VRAM footprint of the FBO(s). However, abandon and
+    // release zero out the IDs and the cache needs to know the size even after those actions.
+    size_t fGpuMemorySize;
 
     typedef GrRenderTarget INHERITED;
 };
