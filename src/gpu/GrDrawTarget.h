@@ -68,8 +68,7 @@ public:
      */
     const GrDrawTargetCaps* caps() const { return fCaps.get(); }
 
-    // TODO devbounds should live on the batch
-    void drawBatch(GrPipelineBuilder*, GrBatch*, const SkRect* devBounds = NULL);
+    void drawBatch(GrPipelineBuilder*, GrBatch*);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or

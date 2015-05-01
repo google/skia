@@ -529,6 +529,12 @@ private:
         fBatch.fHairline = geometry.fStrokeWidth == 0;
 
         fGeoData.push_back(geometry);
+
+        // setup bounds
+        fBounds = geometry.fRect;
+        SkScalar rad = SkScalarHalf(geometry.fStrokeWidth);
+        fBounds.outset(rad, rad);
+        geometry.fViewMatrix.mapRect(&fBounds);
     }
 
     /*  create a triangle strip that strokes the specified rect. There are 8
@@ -679,16 +685,12 @@ void GrContext::drawRect(GrRenderTarget* rt,
 
         SkAutoTUnref<GrBatch> batch(StrokeRectBatch::Create(geometry));
 
-        SkRect bounds = rect;
-        SkScalar rad = SkScalarHalf(width);
-        bounds.outset(rad, rad);
-        viewMatrix.mapRect(&bounds);
         // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
         // hairline rects. We jam all the vertices to pixel centers to avoid this, but not when MSAA
         // is enabled because it can cause ugly artifacts.
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
                                  0 == width && !rt->isMultisampled());
-        target->drawBatch(&pipelineBuilder, batch, &bounds);
+        target->drawBatch(&pipelineBuilder, batch);
     } else {
         // filled BW rect
         target->drawSimpleRect(&pipelineBuilder, color, viewMatrix, rect);
@@ -758,10 +760,11 @@ public:
                            const SkMatrix& viewMatrix,
                            const SkPoint* positions, int vertexCount,
                            const uint16_t* indices, int indexCount,
-                           const GrColor* colors, const SkPoint* localCoords) {
+                           const GrColor* colors, const SkPoint* localCoords,
+                           const SkRect& bounds) {
         return SkNEW_ARGS(DrawVerticesBatch, (geometry, primitiveType, viewMatrix, positions,
                                               vertexCount, indices, indexCount, colors,
-                                              localCoords));
+                                              localCoords, bounds));
     }
 
     const char* name() const override { return "DrawVerticesBatch"; }
@@ -895,7 +898,7 @@ private:
                       const SkMatrix& viewMatrix,
                       const SkPoint* positions, int vertexCount,
                       const uint16_t* indices, int indexCount,
-                      const GrColor* colors, const SkPoint* localCoords) {
+                      const GrColor* colors, const SkPoint* localCoords, const SkRect& bounds) {
         this->initClassID<DrawVerticesBatch>();
         SkASSERT(positions);
 
@@ -926,6 +929,8 @@ private:
         fBatch.fVertexCount = vertexCount;
         fBatch.fIndexCount = indexCount;
         fBatch.fPrimitiveType = primitiveType;
+
+        this->setBounds(bounds);
     }
 
     GrPrimitiveType primitiveType() const { return fBatch.fPrimitiveType; }
@@ -980,6 +985,8 @@ private:
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
         fBatch.fVertexCount += that->vertexCount();
         fBatch.fIndexCount += that->indexCount();
+
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -1032,13 +1039,12 @@ void GrContext::drawVertices(GrRenderTarget* rt,
 
     DrawVerticesBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
-
     SkAutoTUnref<GrBatch> batch(DrawVerticesBatch::Create(geometry, primitiveType, viewMatrix,
                                                           positions, vertexCount, indices,
-                                                          indexCount,colors, texCoords));
+                                                          indexCount, colors, texCoords,
+                                                          bounds));
 
-    // TODO figure out bounds
-    target->drawBatch(&pipelineBuilder, batch, &bounds);
+    target->drawBatch(&pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

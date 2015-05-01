@@ -163,8 +163,7 @@ void GrDrawTarget::flush() {
 }
 
 void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
-                             GrBatch* batch,
-                             const SkRect* devBounds) {
+                             GrBatch* batch) {
     SkASSERT(pipelineBuilder);
     // TODO some kind of checkdraw, but not at this level
 
@@ -172,11 +171,17 @@ void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
     GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, devBounds)) {
+    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &scissorState, &batch->bounds())) {
         return;
     }
 
-    GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, batch, devBounds, this);
+    // Batch bounds are tight, so for dev copies
+    // TODO move this into setupDstReadIfNecessary when paths are in batch
+    SkRect bounds = batch->bounds();
+    bounds.outset(0.5f, 0.5f);
+
+    GrDrawTarget::PipelineInfo pipelineInfo(pipelineBuilder, &scissorState, batch, &bounds,
+                                            this);
     if (pipelineInfo.mustSkipDraw()) {
         return;
     }

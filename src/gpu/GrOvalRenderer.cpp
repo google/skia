@@ -836,6 +836,8 @@ private:
     CircleBatch(const Geometry& geometry) {
         this->initClassID<CircleBatch>();
         fGeoData.push_back(geometry);
+
+        this->setBounds(geometry.fDevBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -856,6 +858,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -942,7 +945,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     SkRect bounds;
     SkAutoTUnref<GrBatch> batch(create_circle_batch(color, viewMatrix, useCoverageAA, circle,
                                                     stroke, &bounds));
-    target->drawBatch(pipelineBuilder, batch, &bounds);
+    target->drawBatch(pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1103,6 +1106,8 @@ private:
     EllipseBatch(const Geometry& geometry) {
         this->initClassID<EllipseBatch>();
         fGeoData.push_back(geometry);
+
+        this->setBounds(geometry.fDevBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -1123,6 +1128,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -1250,7 +1256,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         return false;
     }
 
-    target->drawBatch(pipelineBuilder, batch, &bounds);
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 
@@ -1271,8 +1277,8 @@ public:
         SkRect fBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(DIEllipseBatch, (geometry));
+    static GrBatch* Create(const Geometry& geometry, const SkRect& bounds) {
+        return SkNEW_ARGS(DIEllipseBatch, (geometry, bounds));
     }
 
     const char* name() const override { return "DIEllipseBatch"; }
@@ -1402,9 +1408,11 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    DIEllipseBatch(const Geometry& geometry) {
+    DIEllipseBatch(const Geometry& geometry, const SkRect& bounds) {
         this->initClassID<DIEllipseBatch>();
         fGeoData.push_back(geometry);
+
+        this->setBounds(bounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -1425,6 +1433,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -1525,7 +1534,7 @@ static GrBatch* create_diellipse_batch(GrColor color,
     geometry.fBounds = *bounds;
 
     viewMatrix.mapRect(bounds);
-    return DIEllipseBatch::Create(geometry);
+    return DIEllipseBatch::Create(geometry, *bounds);
 }
 
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
@@ -1541,7 +1550,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     if (!batch) {
         return false;
     }
-    target->drawBatch(pipelineBuilder, batch, &bounds);
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 
@@ -1803,6 +1812,8 @@ private:
         : fIndexBuffer(indexBuffer) {
         this->initClassID<RRectCircleRendererBatch>();
         fGeoData.push_back(geometry);
+
+        this->setBounds(geometry.fDevBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -1823,6 +1834,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -2022,6 +2034,8 @@ private:
         : fIndexBuffer(indexBuffer) {
         this->initClassID<RRectEllipseRendererBatch>();
         fGeoData.push_back(geometry);
+
+        this->setBounds(geometry.fDevBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -2042,6 +2056,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -2279,7 +2294,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         return false;
     }
 
-    target->drawBatch(pipelineBuilder, batch, &bounds);
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 

@@ -847,6 +847,10 @@ private:
     AAConvexPathBatch(const Geometry& geometry) {
         this->initClassID<AAConvexPathBatch>();
         fGeoData.push_back(geometry);
+
+        // compute bounds
+        fBounds = geometry.fPath.getBounds();
+        geometry.fViewMatrix.mapRect(&fBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -862,6 +866,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -891,19 +896,13 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
         return true;
     }
 
-    // We outset our vertices one pixel and add one more pixel for precision.
-    // TODO create tighter bounds when we start reordering.
-    SkRect devRect = path.getBounds();
-    vm.mapRect(&devRect);
-    devRect.outset(2, 2);
-
     AAConvexPathBatch::Geometry geometry;
     geometry.fColor = color;
     geometry.fViewMatrix = vm;
     geometry.fPath = path;
 
     SkAutoTUnref<GrBatch> batch(AAConvexPathBatch::Create(geometry));
-    target->drawBatch(pipelineBuilder, batch, &devRect);
+    target->drawBatch(pipelineBuilder, batch);
 
     return true;
 

@@ -1485,6 +1485,9 @@ private:
       , fViewMatrix(viewMatrix)
       , fClipBounds(clipBounds) {
         this->initClassID<TessellatingPathBatch>();
+
+        fBounds = path.getBounds();
+        viewMatrix.mapRect(&fBounds);
     }
 
     GrColor        fColor;

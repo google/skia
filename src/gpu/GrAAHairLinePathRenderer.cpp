@@ -699,7 +699,6 @@ public:
         uint8_t fCoverage;
         SkMatrix fViewMatrix;
         SkPath fPath;
-        SkDEBUGCODE(SkRect fDevBounds;)
         SkIRect fDevClipBounds;
     };
 
@@ -734,7 +733,6 @@ public:
         fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
         fBatch.fCoverage = fGeoData[0].fCoverage;
-        SkDEBUGCODE(fBatch.fDevBounds = fGeoData[0].fDevBounds;)
     }
 
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override;
@@ -753,6 +751,10 @@ private:
         SkASSERT(linesIndexBuffer && quadsIndexBuffer);
         this->initClassID<AAHairlineBatch>();
         fGeoData.push_back(geometry);
+
+        // compute bounds
+        fBounds = geometry.fPath.getBounds();
+        geometry.fViewMatrix.mapRect(&fBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -785,6 +787,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -1047,23 +1050,16 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
     pipelineBuilder->clip().getConservativeBounds(pipelineBuilder->getRenderTarget(),
                                                   &devClipBounds);
 
-    // This outset was determined experimentally by running skps and gms.  It probably could be a
-    // bit tighter
-    SkRect devRect = path.getBounds();
-    viewMatrix.mapRect(&devRect);
-    devRect.outset(2, 2);
-
     AAHairlineBatch::Geometry geometry;
     geometry.fColor = color;
     geometry.fCoverage = newCoverage;
     geometry.fViewMatrix = viewMatrix;
     geometry.fPath = path;
-    SkDEBUGCODE(geometry.fDevBounds = devRect;)
     geometry.fDevClipBounds = devClipBounds;
 
     SkAutoTUnref<GrBatch> batch(AAHairlineBatch::Create(geometry, fLinesIndexBuffer,
                                                         fQuadsIndexBuffer));
-    target->drawBatch(pipelineBuilder, batch, &devRect);
+    target->drawBatch(pipelineBuilder, batch);
 
     return true;
 }

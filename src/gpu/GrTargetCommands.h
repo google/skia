@@ -82,13 +82,6 @@ public:
     Cmd* recordDrawBatch(GrInOrderDrawBuffer*,
                          GrBatch*,
                          const GrDrawTarget::PipelineInfo&);
-    void recordDrawRect(GrInOrderDrawBuffer*,
-                        GrPipelineBuilder*,
-                        GrColor,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& rect,
-                        const SkRect* localRect,
-                        const SkMatrix* localMatrix);
     Cmd* recordStencilPath(GrInOrderDrawBuffer*,
                            const GrPipelineBuilder&,
                            const GrPathProcessor*,
@@ -119,11 +112,6 @@ public:
                            GrSurface* src,
                            const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
-
-protected:
-    void willReserveVertexAndIndexSpace(int vertexCount,
-                                        size_t vertexStride,
-                                        int indexCount);
 
 private:
     friend class GrInOrderDrawBuffer;

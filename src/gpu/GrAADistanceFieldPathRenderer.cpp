@@ -312,6 +312,10 @@ private:
         fAtlas = atlas;
         fPathCache = pathCache;
         fPathList = pathList;
+
+        // Compute bounds
+        fBounds = geometry.fPath.getBounds();
+        viewMatrix.mapRect(&fBounds);
     }
 
     bool addPathToAtlas(GrBatchTarget* batchTarget,
@@ -548,6 +552,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -607,10 +612,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
 
     SkAutoTUnref<GrBatch> batch(AADistanceFieldPathBatch::Create(geometry, color, viewMatrix,
                                                                  fAtlas, &fPathCache, &fPathList));
-
-    SkRect bounds = path.getBounds();
-    viewMatrix.mapRect(&bounds);
-    target->drawBatch(pipelineBuilder, batch, &bounds);
+    target->drawBatch(pipelineBuilder, batch);
 
     return true;
 }

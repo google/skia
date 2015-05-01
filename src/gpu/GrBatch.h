@@ -38,7 +38,6 @@ struct GrInitInvariantOutput;
  * If there are any possible optimizations which might require knowing more about the full state of
  * the draw, ie whether or not the GrBatch is allowed to tweak alpha for coverage, then this
  * information will be communicated to the GrBatch prior to geometry generation.
- * TODO Batch should own the draw bounds
  */
 
 class GrBatch : public SkRefCnt {
@@ -62,12 +61,14 @@ public:
             return false;
         }
 
-        return onCombineIfPossible(that);
+        return this->onCombineIfPossible(that);
     }
 
     virtual bool onCombineIfPossible(GrBatch*) = 0;
 
     virtual void generateGeometry(GrBatchTarget*, const GrPipeline*) = 0;
+
+    const SkRect& bounds() const { return fBounds; }
 
     // TODO this goes away when batches are everywhere
     void setNumberOfDraws(int numberOfDraws) { fNumberOfDraws = numberOfDraws; }
@@ -103,6 +104,16 @@ protected:
     }
 
     uint32_t fClassID;
+
+    // NOTE, compute some bounds, even if extremely conservative.  Do *NOT* setLargest on the bounds
+    // rect because we outset it for dst copy textures
+    void setBounds(const SkRect& newBounds) { fBounds = newBounds; }
+
+    void joinBounds(const SkRect& otherBounds) {
+        return fBounds.joinPossiblyEmptyRect(otherBounds);
+    }
+
+    SkRect fBounds;
 
 private:
     static uint32_t GenClassID() {

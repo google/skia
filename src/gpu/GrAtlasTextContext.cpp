@@ -1721,6 +1721,7 @@ public:
     void init() {
         fBatch.fColor = fGeoData[0].fColor;
         fBatch.fViewMatrix = fGeoData[0].fBlob->fViewMatrix;
+        this->setBounds(fGeoData[0].fBlob->fRuns[fGeoData[0].fRun].fVertexBounds);
     }
 
 private:
@@ -1924,6 +1925,8 @@ private:
             fGeoData[i].fBlob->ref();
         }
         fInstanceCount = total;
+
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -2092,7 +2095,7 @@ inline void GrAtlasTextContext::flushRun(GrDrawTarget* target, GrPipelineBuilder
         geometry.fTransY = transY;
         batch->init();
 
-        target->drawBatch(pipelineBuilder, batch, &cacheBlob->fRuns[run].fVertexBounds);
+        target->drawBatch(pipelineBuilder, batch);
     }
 }
 

@@ -212,6 +212,9 @@ private:
     RectBatch(const Geometry& geometry) {
         this->initClassID<RectBatch>();
         fGeoData.push_back(geometry);
+
+        fBounds = geometry.fRect;
+        geometry.fViewMatrix.mapRect(&fBounds);
     }
 
     GrColor color() const { return fBatch.fColor; }
@@ -248,6 +251,7 @@ private:
             fBatch.fColor = GrColor_ILLEGAL;
         }
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -291,10 +295,7 @@ void GrInOrderDrawBuffer::onDrawRect(GrPipelineBuilder* pipelineBuilder,
     }
 
     SkAutoTUnref<GrBatch> batch(RectBatch::Create(geometry));
-
-    SkRect bounds = rect;
-    viewMatrix.mapRect(&bounds);
-    this->drawBatch(pipelineBuilder, batch, &bounds);
+    this->drawBatch(pipelineBuilder, batch);
 }
 
 void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,

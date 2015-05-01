@@ -217,12 +217,12 @@ public:
         GrColor fColor;
         SkPath fPath;
         SkScalar fTolerance;
-        SkDEBUGCODE(SkRect fDevBounds;)
     };
 
     static GrBatch* Create(const Geometry& geometry, uint8_t coverage, const SkMatrix& viewMatrix,
-                           bool isHairline) {
-        return SkNEW_ARGS(DefaultPathBatch, (geometry, coverage, viewMatrix, isHairline));
+                           bool isHairline, const SkRect& devBounds) {
+        return SkNEW_ARGS(DefaultPathBatch, (geometry, coverage, viewMatrix, isHairline,
+                                             devBounds));
     }
 
     const char* name() const override { return "DefaultPathBatch"; }
@@ -393,12 +393,14 @@ public:
 
 private:
     DefaultPathBatch(const Geometry& geometry, uint8_t coverage, const SkMatrix& viewMatrix,
-                     bool isHairline) {
+                     bool isHairline, const SkRect& devBounds) {
         this->initClassID<DefaultPathBatch>();
         fBatch.fCoverage = coverage;
         fBatch.fIsHairline = isHairline;
         fBatch.fViewMatrix = viewMatrix;
         fGeoData.push_back(geometry);
+
+        this->setBounds(devBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -421,6 +423,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -704,12 +707,11 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             geometry.fColor = color;
             geometry.fPath = path;
             geometry.fTolerance = srcSpaceTol;
-            SkDEBUGCODE(geometry.fDevBounds = devBounds;)
 
             SkAutoTUnref<GrBatch> batch(DefaultPathBatch::Create(geometry, newCoverage, viewMatrix,
-                                                                 isHairline));
+                                                                 isHairline, devBounds));
 
-            target->drawBatch(pipelineBuilder, batch, &devBounds);
+            target->drawBatch(pipelineBuilder, batch);
         }
     }
     return true;

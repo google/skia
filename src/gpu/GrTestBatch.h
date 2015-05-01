@@ -68,8 +68,10 @@ public:
     }
 
 protected:
-    GrTestBatch(const GrGeometryProcessor* gp) {
+    GrTestBatch(const GrGeometryProcessor* gp, const SkRect& bounds) {
         fGeometryProcessor.reset(SkRef(gp));
+
+        this->setBounds(bounds);
     }
 
     const GrGeometryProcessor* geometryProcessor() const { return fGeometryProcessor; }

@@ -46,7 +46,7 @@ public:
 private:
     BezierCubicOrConicTestBatch(const GrGeometryProcessor* gp, const Geometry& geo,
                                 const SkScalar klmEqs[9], SkScalar sign)
-        : INHERITED(gp) {
+        : INHERITED(gp, geo.fBounds) {
         for (int i = 0; i < 9; i++) {
             fKlmEqs[i] = klmEqs[i];
         }
@@ -243,7 +243,7 @@ protected:
                     SkAutoTUnref<GrBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, klmSigns[c]));
 
-                    tt.target()->drawBatch(&pipelineBuilder, batch, NULL);
+                    tt.target()->drawBatch(&pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -387,7 +387,7 @@ protected:
                     SkAutoTUnref<GrBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, 1.f));
 
-                    tt.target()->drawBatch(&pipelineBuilder, batch, NULL);
+                    tt.target()->drawBatch(&pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -457,7 +457,7 @@ public:
 private:
     BezierQuadTestBatch(const GrGeometryProcessor* gp, const Geometry& geo,
                         const GrPathUtils::QuadUVMatrix& devToUV)
-        : INHERITED(gp)
+        : INHERITED(gp, geo.fBounds)
         , fGeometry(geo)
         , fDevToUV(devToUV) {
     }
@@ -641,7 +641,7 @@ protected:
 
                     SkAutoTUnref<GrBatch> batch(BezierQuadTestBatch::Create(gp, geometry, DevToUV));
 
-                    tt.target()->drawBatch(&pipelineBuilder, batch, NULL);
+                    tt.target()->drawBatch(&pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {

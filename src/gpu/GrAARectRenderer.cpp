@@ -186,6 +186,8 @@ private:
         : fIndexBuffer(indexBuffer) {
         this->initClassID<AAFillRectBatch>();
         fGeoData.push_back(geometry);
+
+        this->setBounds(geometry.fDevRect);
     }
 
     GrColor color() const { return fBatch.fColor; }
@@ -216,6 +218,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
@@ -476,7 +479,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     geometry.fColor = color;
 
     SkAutoTUnref<GrBatch> batch(AAFillRectBatch::Create(geometry, fAAFillRectIndexBuffer));
-    target->drawBatch(pipelineBuilder, batch, &devRect);
+    target->drawBatch(pipelineBuilder, batch);
 }
 
 void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
@@ -500,14 +503,6 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
     const SkScalar dy = devStrokeSize.fY;
     const SkScalar rx = SkScalarMul(dx, SK_ScalarHalf);
     const SkScalar ry = SkScalarMul(dy, SK_ScalarHalf);
-
-    // Temporarily #if'ed out. We don't want to pass in the devRect but
-    // right now it is computed in GrContext::apply_aa_to_rect and we don't
-    // want to throw away the work
-#if 0
-    SkRect devRect;
-    combinedMatrix.mapRect(&devRect, rect);
-#endif
 
     SkScalar spare;
     {
@@ -693,6 +688,11 @@ private:
         this->initClassID<AAStrokeRectBatch>();
         fBatch.fViewMatrix = viewMatrix;
         fGeoData.push_back(geometry);
+
+        // If we have miterstroke then we inset devOutside and outset devOutsideAssist, so we need
+        // the join for proper bounds
+        fBounds = geometry.fDevOutside;
+        fBounds.join(geometry.fDevOutsideAssist);
     }
 
     GrColor color() const { return fBatch.fColor; }
@@ -727,6 +727,7 @@ private:
             fBatch.fColor = GrColor_ILLEGAL;
         }
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 

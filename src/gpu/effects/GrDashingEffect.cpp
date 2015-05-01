@@ -256,7 +256,6 @@ public:
         SkScalar fIntervals[2];
         SkScalar fParallelScale;
         SkScalar fPerpendicularScale;
-        SkDEBUGCODE(SkRect fDevBounds;)
     };
 
     static GrBatch* Create(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode,
@@ -366,9 +365,6 @@ public:
             }
 
             SkScalar startAdj = 0;
-
-            SkMatrix& combinedMatrix = args.fSrcRotInv;
-            combinedMatrix.postConcat(args.fViewMatrix);
 
             bool lineDone = false;
 
@@ -646,6 +642,17 @@ private:
         fBatch.fAAMode = aaMode;
         fBatch.fCap = cap;
         fBatch.fFullDash = fullDash;
+
+        // compute bounds
+        SkScalar halfStrokeWidth = 0.5f * geometry.fSrcStrokeWidth;
+        SkScalar xBloat = SkPaint::kButt_Cap == cap ? 0 : halfStrokeWidth;
+        fBounds.set(geometry.fPtsRot[0], geometry.fPtsRot[1]);
+        fBounds.outset(xBloat, halfStrokeWidth);
+
+        // Note, we actually create the combined matrix here, and save the work
+        SkMatrix& combinedMatrix = fGeoData[0].fSrcRotInv;
+        combinedMatrix.postConcat(geometry.fViewMatrix);
+        combinedMatrix.mapRect(&fBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
@@ -674,6 +681,7 @@ private:
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        this->joinBounds(that->bounds());
         return true;
     }
 
