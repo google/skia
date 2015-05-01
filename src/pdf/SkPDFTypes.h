@@ -77,6 +77,8 @@ public:
 
     static SkPDFUnion Int(int32_t);
 
+    static SkPDFUnion Int(size_t);
+
     static SkPDFUnion Bool(bool);
 
     static SkPDFUnion Scalar(SkScalar);
