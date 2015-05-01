@@ -747,11 +747,19 @@ public:
         if (fLeft >= fRight || fTop >= fBottom) {
             *this = r;
         } else {
-            fLeft   = SkMinScalar(fLeft, r.left());
-            fTop    = SkMinScalar(fTop, r.top());
-            fRight  = SkMaxScalar(fRight, r.right());
-            fBottom = SkMaxScalar(fBottom, r.bottom());
+            this->joinPossiblyEmptyRect(r);
         }
+    }
+
+    /**
+     * Joins the rectangle with another without checking if either are empty (may produce unexpected
+     * results if either rect is inverted).
+     */
+    void joinPossiblyEmptyRect(const SkRect& r) {
+        fLeft   = SkMinScalar(fLeft, r.left());
+        fTop    = SkMinScalar(fTop, r.top());
+        fRight  = SkMaxScalar(fRight, r.right());
+        fBottom = SkMaxScalar(fBottom, r.bottom());
     }
 
     /**
