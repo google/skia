@@ -530,9 +530,9 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
 
-    SkASSERT(sizeof(DeviceCM) <= sizeof(fBaseLayerStorage));
-    fMCRec->fLayer = (DeviceCM*)fBaseLayerStorage;
-    new (fBaseLayerStorage) DeviceCM(NULL, NULL, NULL, fConservativeRasterClip, false);
+    SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
+    fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
+    new (fDeviceCMStorage) DeviceCM(NULL, NULL, NULL, fConservativeRasterClip, false);
 
     fMCRec->fTopLayer = fMCRec->fLayer;
 
@@ -1106,7 +1106,7 @@ void SkCanvas::internalRestore() {
             SkDELETE(layer);
         } else {
             // we're at the root
-            SkASSERT(layer == (void*)fBaseLayerStorage);
+            SkASSERT(layer == (void*)fDeviceCMStorage);
             layer->~DeviceCM();
         }
     }

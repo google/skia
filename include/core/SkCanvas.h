@@ -1259,12 +1259,12 @@ private:
     MCRec*      fMCRec;
     // the first N recs that can fit here mean we won't call malloc
     enum {
-        kMCRecSize  = 136,   // most recent measurement
-        kMCRecCount = 8,     // common depth for save/restores
+        kMCRecSize      = 128,  // most recent measurement
+        kMCRecCount     = 8,    // common depth for save/restores
+        kDeviceCMSize   = 136,  // most recent measurement
     };
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
-    // for our base DeviceCM
-    intptr_t fBaseLayerStorage[kMCRecSize / sizeof(intptr_t)];
+    intptr_t fDeviceCMStorage[kDeviceCMSize / sizeof(intptr_t)];
 
     const SkSurfaceProps fProps;
 
