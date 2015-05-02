@@ -309,9 +309,6 @@ static SkPaint* set_if_needed(SkLazyPaint* lazy, const SkPaint& orig) {
  *  colorfilter, else return NULL.
  */
 static SkColorFilter* image_to_color_filter(const SkPaint& paint) {
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_TO_COLORFILTER
-    return NULL;
-#else
     SkImageFilter* imgf = paint.getImageFilter();
     if (!imgf) {
         return NULL;
@@ -332,7 +329,6 @@ static SkColorFilter* image_to_color_filter(const SkPaint& paint) {
     // and we need to combine them into a single colorfilter.
     SkAutoTUnref<SkColorFilter> autoImgCF(imgCF);
     return SkColorFilter::CreateComposeFilter(imgCF, paintCF);
-#endif
 }
 
 class AutoDrawLooper {
