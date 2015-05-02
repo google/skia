@@ -9,6 +9,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -1028,6 +1029,29 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
     }
 }
 
+static GrBatch* create_hairline_batch(GrColor color,
+                                      const SkMatrix& viewMatrix,
+                                      const SkPath& path,
+                                      const GrStrokeInfo& stroke,
+                                      const SkIRect& devClipBounds,
+                                      const GrIndexBuffer* linesIndexBuffer,
+                                      const GrIndexBuffer* quadsIndexBuffer) {
+    SkScalar hairlineCoverage;
+    uint8_t newCoverage = 0xff;
+    if (GrPathRenderer::IsStrokeHairlineOrEquivalent(stroke, viewMatrix, &hairlineCoverage)) {
+        newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
+    }
+
+    AAHairlineBatch::Geometry geometry;
+    geometry.fColor = color;
+    geometry.fCoverage = newCoverage;
+    geometry.fViewMatrix = viewMatrix;
+    geometry.fPath = path;
+    geometry.fDevClipBounds = devClipBounds;
+
+    return AAHairlineBatch::Create(geometry, linesIndexBuffer, quadsIndexBuffer);
+}
+
 bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                           GrPipelineBuilder* pipelineBuilder,
                                           GrColor color,
@@ -1040,26 +1064,45 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
         return false;
     }
 
-    SkScalar hairlineCoverage;
-    uint8_t newCoverage = 0xff;
-    if (IsStrokeHairlineOrEquivalent(stroke, viewMatrix, &hairlineCoverage)) {
-        newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
-    }
-
     SkIRect devClipBounds;
     pipelineBuilder->clip().getConservativeBounds(pipelineBuilder->getRenderTarget(),
                                                   &devClipBounds);
 
-    AAHairlineBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fCoverage = newCoverage;
-    geometry.fViewMatrix = viewMatrix;
-    geometry.fPath = path;
-    geometry.fDevClipBounds = devClipBounds;
-
-    SkAutoTUnref<GrBatch> batch(AAHairlineBatch::Create(geometry, fLinesIndexBuffer,
-                                                        fQuadsIndexBuffer));
+    SkAutoTUnref<GrBatch> batch(create_hairline_batch(color, viewMatrix, path, stroke,
+                                                      devClipBounds, fLinesIndexBuffer,
+                                                      fQuadsIndexBuffer));
     target->drawBatch(pipelineBuilder, batch);
 
     return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+BATCH_TEST_DEFINE(AAHairlineBatch) {
+    // TODO put these in the cache
+    static GrIndexBuffer* gQuadIndexBuffer;
+    static GrIndexBuffer* gLineIndexBuffer;
+    if (!gQuadIndexBuffer) {
+        gQuadIndexBuffer = context->getGpu()->createInstancedIndexBuffer(kQuadIdxBufPattern,
+                                                                         kIdxsPerQuad,
+                                                                         kQuadsNumInIdxBuffer,
+                                                                         kQuadNumVertices);
+        gLineIndexBuffer = context->getGpu()->createInstancedIndexBuffer(kLineSegIdxBufPattern,
+                                                                         kIdxsPerLineSeg,
+                                                                         kLineSegsNumInIdxBuffer,
+                                                                         kLineSegNumVertices);
+    }
+
+    GrColor color = GrRandomColor(random);
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    GrStrokeInfo stroke(SkStrokeRec::kHairline_InitStyle);
+    SkPath path = GrTest::TestPath(random);
+    SkIRect devClipBounds;
+    devClipBounds.setEmpty();
+    return create_hairline_batch(color, viewMatrix, path, stroke, devClipBounds, gLineIndexBuffer,
+                                 gQuadIndexBuffer);
+}
+
+#endif

@@ -7,6 +7,7 @@
 
 #include "GrTestUtils.h"
 #include "SkMatrix.h"
+#include "SkPath.h"
 #include "SkRRect.h"
 
 #ifdef GR_TEST_UTILS
@@ -118,6 +119,47 @@ const SkRRect& TestRRectSimple(SkRandom* random) {
         }
     }
     return gRRect[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gRRect)))];
+}
+
+const SkPath& TestPath(SkRandom* random) {
+    static SkPath gPath[7];
+    static bool gOnce;
+    if (!gOnce) {
+        gOnce = true;
+        // line
+        gPath[0].moveTo(0.f, 0.f);
+        gPath[0].lineTo(10.f, 10.f);
+        // quad
+        gPath[1].moveTo(0.f, 0.f);
+        gPath[1].quadTo(10.f, 10.f, 20.f, 20.f);
+        // conic
+        gPath[2].moveTo(0.f, 0.f);
+        gPath[2].conicTo(10.f, 10.f, 20.f, 20.f, 1.f);
+        // cubic
+        gPath[3].moveTo(0.f, 0.f);
+        gPath[3].cubicTo(10.f, 10.f, 20.f, 20.f, 30.f, 30.f);
+        // all three
+        gPath[4].moveTo(0.f, 0.f);
+        gPath[4].lineTo(10.f, 10.f);
+        gPath[4].quadTo(10.f, 10.f, 20.f, 20.f);
+        gPath[4].conicTo(10.f, 10.f, 20.f, 20.f, 1.f);
+        gPath[4].cubicTo(10.f, 10.f, 20.f, 20.f, 30.f, 30.f);
+        // convex
+        gPath[5].moveTo(0.0f, 0.0f);
+        gPath[5].lineTo(10.0f, 0.0f);
+        gPath[5].lineTo(10.0f, 10.0f);
+        gPath[5].lineTo(0.0f, 10.0f);
+        gPath[5].close();
+        // concave
+        gPath[6].moveTo(0.0f, 0.0f);
+        gPath[6].lineTo(5.0f, 5.0f);
+        gPath[6].lineTo(10.0f, 0.0f);
+        gPath[6].lineTo(10.0f, 10.0f);
+        gPath[6].lineTo(0.0f, 10.0f);
+        gPath[6].close();
+    }
+
+    return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
 }
 
 };

@@ -16,6 +16,7 @@
 #include "SkRandom.h"
 
 class SkMatrix;
+class SkPath;
 class SkRRect;
 struct SkRect;
 
@@ -28,6 +29,7 @@ const SkMatrix& TestMatrixPreservesRightAngles(SkRandom*);
 const SkMatrix& TestMatrixRectStaysRect(SkRandom*);
 const SkRect& TestRect(SkRandom*);
 const SkRRect& TestRRectSimple(SkRandom*);
+const SkPath& TestPath(SkRandom*);
 
 }
 
