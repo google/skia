@@ -895,7 +895,7 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[1].isEmpty());
 
-    SkRect devOutside, devOutsideAssist, devInside;
+    SkRect devOutside, devInside;
     viewMatrix.mapRect(&devOutside, rects[0]);
     // can't call mapRect for devInside since it calls sort
     viewMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
@@ -906,7 +906,7 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     }
 
     this->geometryStrokeAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
-                               devOutsideAssist, devInside, true);
+                               devOutside, devInside, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
