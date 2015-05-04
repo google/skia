@@ -21,9 +21,6 @@ public:
 
     SkImage_Gpu(const SkBitmap&, int sampleCountForNewSurfaces, SkSurface::Budgeted);
 
-    void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const override;
-    void onDrawRect(SkCanvas*, const SkRect* src, const SkRect& dst,
-                    const SkPaint*) const override;
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
     GrTexture* onGetTexture() const override;
     bool getROPixels(SkBitmap*) const override;

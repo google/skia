@@ -172,19 +172,6 @@ private:
     static uint32_t NextUniqueID();
 
     typedef SkRefCnt INHERITED;
-
-    friend class SkCanvas;
-
-    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
-
-    /**
-     *  Draw the image, cropped to the src rect, to the dst rect of a canvas.
-     *  If src is larger than the bounds of the image, the rest of the image is
-     *  filled with transparent black pixels.
-     *
-     *  See SkCanvas::drawBitmapRectToRect for similar behavior.
-     */
-    void drawRect(SkCanvas*, const SkRect* src, const SkRect& dst, const SkPaint*) const;
 };
 
 #endif
