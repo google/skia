@@ -107,22 +107,6 @@ static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
     REPORTER_ASSERT(reporter, info.fRadius[0] == rec.fRadius[0]);
 }
 
-static void radial2_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
-    SkAutoTUnref<SkShader> s(SkGradientShader::CreateTwoPointRadial(rec.fPoint[0],
-                                                            rec.fRadius[0],
-                                                            rec.fPoint[1],
-                                                            rec.fRadius[1],
-                                                            rec.fColors,
-                                                            rec.fPos,
-                                                            rec.fColorCount,
-                                                            rec.fTileMode));
-
-    SkShader::GradientInfo info;
-    rec.gradCheck(reporter, s, &info, SkShader::kRadial2_GradientType);
-    REPORTER_ASSERT(reporter, !memcmp(info.fPoint, rec.fPoint, 2 * sizeof(SkPoint)));
-    REPORTER_ASSERT(reporter, !memcmp(info.fRadius, rec.fRadius, 2 * sizeof(SkScalar)));
-}
-
 static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
     SkAutoTUnref<SkShader> s(SkGradientShader::CreateSweep(rec.fPoint[0].fX,
                                                            rec.fPoint[0].fY,
@@ -203,7 +187,6 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
         color_gradproc,
         linear_gradproc,
         radial_gradproc,
-        radial2_gradproc,
         sweep_gradproc,
         conical_gradproc,
     };

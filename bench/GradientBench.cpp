@@ -72,20 +72,6 @@ static SkShader* MakeSweep(const SkPoint pts[2], const GradData& data,
 }
 
 /// Ignores scale
-static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
-                             SkShader::TileMode tm, float scale) {
-    SkPoint center0, center1;
-    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
-                SkScalarAve(pts[0].fY, pts[1].fY));
-    center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
-                SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::CreateTwoPointRadial(
-                                                  center1, (pts[1].fX - pts[0].fX) / 7,
-                                                  center0, (pts[1].fX - pts[0].fX) / 2,
-                                                  data.fColors, data.fPos, data.fCount, tm);
-}
-
-/// Ignores scale
 static SkShader* MakeConical(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, float scale) {
     SkPoint center0, center1;
@@ -149,7 +135,6 @@ static const struct {
     { MakeLinear,                 "linear"  },
     { MakeRadial,                 "radial1" },
     { MakeSweep,                  "sweep"   },
-    { Make2Radial,                "radial2" },
     { MakeConical,                "conical" },
     { MakeConicalZeroRad,         "conicalZero" },
     { MakeConicalOutside,         "conicalOut" },
@@ -160,7 +145,6 @@ enum GradType { // these must match the order in gGrads
     kLinear_GradType,
     kRadial_GradType,
     kSweep_GradType,
-    kRadial2_GradType,
     kConical_GradType,
     kConicalZero_GradType,
     kConicalOut_GradType,
@@ -313,9 +297,6 @@ DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kR
 DEF_BENCH( return new GradientBench(kSweep_GradType); )
 DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[2]); )
-DEF_BENCH( return new GradientBench(kRadial2_GradType); )
-DEF_BENCH( return new GradientBench(kRadial2_GradType, gGradData[1]); )
-DEF_BENCH( return new GradientBench(kRadial2_GradType, gGradData[0], SkShader::kMirror_TileMode); )
 DEF_BENCH( return new GradientBench(kConical_GradType); )
 DEF_BENCH( return new GradientBench(kConical_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kConical_GradType, gGradData[2]); )

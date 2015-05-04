@@ -70,11 +70,11 @@ static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::CreateTwoPointRadial(
-                                                  center1, (pts[1].fX - pts[0].fX) / 7,
-                                                  center0, (pts[1].fX - pts[0].fX) / 2,
-                                                  data.fColors, data.fPos, data.fCount, tm,
-                                                  0, &localMatrix);
+    return SkGradientShader::CreateTwoPointConical(
+                                                   center1, (pts[1].fX - pts[0].fX) / 7,
+                                                   center0, (pts[1].fX - pts[0].fX) / 2,
+                                                   data.fColors, data.fPos, data.fCount, tm,
+                                                   0, &localMatrix);
 }
 
 static SkShader* Make2Conical(const SkPoint pts[2], const GradData& data,
@@ -273,9 +273,9 @@ protected:
         SkPoint c1;
         c1.iset(0, 25);
         SkScalar r1 = SkIntToScalar(150);
-        SkShader* s = SkGradientShader::CreateTwoPointRadial(c0, r0, c1, r1, colors,
-                                                             pos, SK_ARRAY_COUNT(pos),
-                                                             SkShader::kClamp_TileMode);
+        SkShader* s = SkGradientShader::CreateTwoPointConical(c0, r0, c1, r1, colors,
+                                                              pos, SK_ARRAY_COUNT(pos),
+                                                              SkShader::kClamp_TileMode);
         SkPaint paint;
         paint.setShader(s)->unref();
         canvas->drawPaint(paint);

@@ -1044,8 +1044,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        if (SkShader::kRadial2_GradientType == gradientType ||
-            SkShader::kConical_GradientType == gradientType) {
+        if (SkShader::kConical_GradientType == gradientType) {
             //simple if affine and one is 0, otherwise will have to fake
         }
 
@@ -1061,8 +1060,6 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
                                                         &outMatrix,
                                                         xy);
     switch (bitmapType) {
-        case SkShader::kNone_BitmapType:
-            break;
         case SkShader::kDefault_BitmapType: {
             //TODO: outMatrix??
             SkMatrix localMatrix = shader->getLocalMatrix();
@@ -1081,9 +1078,6 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
 
             return S_OK;
         }
-        case SkShader::kRadial_BitmapType:
-        case SkShader::kSweep_BitmapType:
-        case SkShader::kTwoPointRadial_BitmapType:
         default:
             break;
     }
