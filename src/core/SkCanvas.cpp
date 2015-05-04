@@ -1734,15 +1734,12 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     this->onDrawPath(path, paint);
 }
 
-void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-    this->onDrawImage(image, x, y, paint);
+void SkCanvas::drawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint) {
+    this->onDrawImage(image, dx, dy, paint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                              const SkPaint* paint) {
-    if (dst.isEmpty()) {
-        return;
-    }
     this->onDrawImageRect(image, src, dst, paint);
 }
 
@@ -1962,58 +1959,15 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     LOOPER_END
 }
 
-void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
+void SkCanvas::onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImage()");
-    SkRect bounds = SkRect::MakeXYWH(x, y,
-                                     SkIntToScalar(image->width()), SkIntToScalar(image->height()));
-    if (NULL == paint || paint->canComputeFastBounds()) {
-        if (paint) {
-            paint->computeFastBounds(bounds, &bounds);
-        }
-        if (this->quickReject(bounds)) {
-            return;
-        }
-    }
-    
-    SkLazyPaint lazy;
-    if (NULL == paint) {
-        paint = lazy.init();
-    }
-    
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &bounds)
-    
-    while (iter.next()) {
-        iter.fDevice->drawImage(iter, image, x, y, looper.paint());
-    }
-    
-    LOOPER_END
+    image->draw(this, dx, dy, paint);
 }
 
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageRect()");
-    SkRect storage;
-    const SkRect* bounds = &dst;
-    if (NULL == paint || paint->canComputeFastBounds()) {
-        if (paint) {
-            bounds = &paint->computeFastBounds(dst, &storage);
-        }
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-    }
-    SkLazyPaint lazy;
-    if (NULL == paint) {
-        paint = lazy.init();
-    }
-    
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
-    
-    while (iter.next()) {
-        iter.fDevice->drawImageRect(iter, image, src, dst, looper.paint());
-    }
-    
-    LOOPER_END
+    image->drawRect(this, src, dst, paint);
 }
 
 void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint* paint) {

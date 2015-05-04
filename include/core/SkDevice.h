@@ -209,10 +209,6 @@ protected:
                                 const SkPaint& paint,
                                 SkCanvas::DrawBitmapRectFlags flags) = 0;
 
-    virtual void drawImage(const SkDraw&, const SkImage*, SkScalar x, SkScalar y, const SkPaint&);
-    virtual void drawImageRect(const SkDraw&, const SkImage*, const SkRect* src, const SkRect& dst,
-                               const SkPaint&);
-
     /**
      *  Does not handle text decoration.
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.
