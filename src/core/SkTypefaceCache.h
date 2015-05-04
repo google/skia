@@ -42,14 +42,6 @@ public:
     void add(SkTypeface*, const SkFontStyle& requested);
 
     /**
-     *  Search the cache for a typeface with the specified fontID (uniqueID).
-     *  If one is found, return it (its reference count is unmodified). If none
-     *  is found, return NULL. The reference count is unmodified as it is
-     *  assumed that the stack will contain a ref to the typeface.
-     */
-    SkTypeface* findByID(SkFontID findID) const;
-
-    /**
      *  Iterate through the cache, calling proc(typeface, ctx) with each
      *  typeface. If proc returns true, then we return that typeface (this
      *  ref()s the typeface). If it never returns true, we return NULL.
@@ -73,7 +65,6 @@ public:
     // These are static wrappers around a global instance of a cache.
 
     static void Add(SkTypeface*, const SkFontStyle& requested);
-    static SkTypeface* FindByID(SkFontID fontID);
     static SkTypeface* FindByProcAndRef(FindProc proc, void* ctx);
     static void PurgeAll();
 

@@ -92,6 +92,12 @@ public:
         }
     }
 
+    CFRef detach() {
+        CFRef self = fCFRef;
+        fCFRef = NULL;
+        return self;
+    }
+
     operator CFRef() const { return fCFRef; }
     CFRef get() const { return fCFRef; }
 
@@ -408,34 +414,6 @@ static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isFixedPitch) {
     return (SkTypeface::Style)style;
 }
 
-static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
-    SkFontID id = 0;
-// CTFontGetPlatformFont and ATSFontRef are not supported on iOS, so we have to
-// bracket this to be Mac only.
-#ifdef SK_BUILD_FOR_MAC
-    ATSFontRef ats = CTFontGetPlatformFont(fontRef, NULL);
-    id = (SkFontID)ats;
-    if (id != 0) {
-        id &= 0x3FFFFFFF; // make top two bits 00
-        return id;
-    }
-#endif
-    // CTFontGetPlatformFont returns NULL if the font is local
-    // (e.g., was created by a CSS3 @font-face rule).
-    AutoCFRelease<CGFontRef> cgFont(CTFontCopyGraphicsFont(fontRef, NULL));
-    AutoCGTable<SkOTTableHead> headTable(cgFont);
-    if (headTable.fData) {
-        id = (SkFontID) headTable->checksumAdjustment;
-        id = (id & 0x3FFFFFFF) | 0x40000000; // make top two bits 01
-    }
-    // well-formed fonts have checksums, but as a last resort, use the pointer.
-    if (id == 0) {
-        id = (SkFontID) (uintptr_t) fontRef;
-        id = (id & 0x3FFFFFFF) | 0x80000000; // make top two bits 10
-    }
-    return id;
-}
-
 #define WEIGHT_THRESHOLD    ((SkFontStyle::kNormal_Weight + SkFontStyle::kBold_Weight)/2)
 
 // kCTFontColorGlyphsTrait was added in the Mac 10.7 and iPhone 4.3 SDKs.
@@ -448,9 +426,9 @@ static const uint32_t SkCTFontColorGlyphsTrait = (1 << 13);
 
 class SkTypeface_Mac : public SkTypeface {
 public:
-    SkTypeface_Mac(const SkFontStyle& fs, SkFontID fontID, bool isFixedPitch,
+    SkTypeface_Mac(const SkFontStyle& fs, bool isFixedPitch,
                    CTFontRef fontRef, const char requestedName[], bool isLocalStream)
-        : SkTypeface(fs, fontID, isFixedPitch)
+        : SkTypeface(fs, SkTypefaceCache::NewFontID(), isFixedPitch)
         , fRequestedName(requestedName)
         , fFontRef(fontRef) // caller has already called CFRetain for us
         , fHasColorGlyphs(SkToBool(CTFontGetSymbolicTraits(fFontRef) & SkCTFontColorGlyphsTrait))
@@ -487,18 +465,24 @@ private:
     typedef SkTypeface INHERITED;
 };
 
+/** Creates a typeface without searching the cache. Takes ownership of the CTFontRef. */
 static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[], bool isLocalStream) {
     SkASSERT(fontRef);
     bool isFixedPitch;
     SkFontStyle style = SkFontStyle(computeStyleBits(fontRef, &isFixedPitch));
-    SkFontID fontID = CTFontRef_to_SkFontID(fontRef);
 
-    return new SkTypeface_Mac(style, fontID, isFixedPitch, fontRef, name, isLocalStream);
+    return new SkTypeface_Mac(style, isFixedPitch, fontRef, name, isLocalStream);
 }
 
-static SkTypeface* NewFromName(const char familyName[], const SkFontStyle& theStyle) {
-    CTFontRef ctFont = NULL;
+static bool find_by_CTFontRef(SkTypeface* cached, const SkFontStyle&, void* context) {
+    CTFontRef self = (CTFontRef)context;
+    CTFontRef other = ((SkTypeface_Mac*)cached)->fFontRef;
 
+    return CFEqual(self, other);
+}
+
+/** Creates a typeface from a name, searching the cache. */
+static SkTypeface* NewFromName(const char familyName[], const SkFontStyle& theStyle) {
     CTFontSymbolicTraits ctFontTraits = 0;
     if (theStyle.weight() >= SkFontStyle::kBold_Weight) {
         ctFontTraits |= kCTFontBoldTrait;
@@ -525,22 +509,32 @@ static SkTypeface* NewFromName(const char familyName[], const SkFontStyle& theSt
                                       &kCFTypeDictionaryKeyCallBacks,
                                       &kCFTypeDictionaryValueCallBacks));
 
-    // Create the font
-    if (cfFontName != NULL && cfFontTraits != NULL && cfAttributes != NULL && cfTraits != NULL) {
-        CFDictionaryAddValue(cfTraits, kCTFontSymbolicTrait, cfFontTraits);
-
-        CFDictionaryAddValue(cfAttributes, kCTFontFamilyNameAttribute, cfFontName);
-        CFDictionaryAddValue(cfAttributes, kCTFontTraitsAttribute, cfTraits);
-
-        AutoCFRelease<CTFontDescriptorRef> ctFontDesc(
-                CTFontDescriptorCreateWithAttributes(cfAttributes));
-
-        if (ctFontDesc != NULL) {
-            ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, 0, NULL);
-        }
+    if (!cfFontName || !cfFontTraits || !cfAttributes || !cfTraits) {
+        return NULL;
     }
 
-    return ctFont ? NewFromFontRef(ctFont, familyName, false) : NULL;
+    CFDictionaryAddValue(cfTraits, kCTFontSymbolicTrait, cfFontTraits);
+
+    CFDictionaryAddValue(cfAttributes, kCTFontFamilyNameAttribute, cfFontName);
+    CFDictionaryAddValue(cfAttributes, kCTFontTraitsAttribute, cfTraits);
+
+    AutoCFRelease<CTFontDescriptorRef> ctFontDesc(
+            CTFontDescriptorCreateWithAttributes(cfAttributes));
+    if (!ctFontDesc) {
+        return NULL;
+    }
+
+    AutoCFRelease<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(ctFontDesc, 0, NULL));
+    if (!ctFont) {
+        return NULL;
+    }
+
+    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef, (void*)ctFont.get());
+    if (!face) {
+        face = NewFromFontRef(ctFont.detach(), NULL, false);
+        SkTypefaceCache::Add(face, face->fontStyle());
+    }
+    return face;
 }
 
 SK_DECLARE_STATIC_MUTEX(gGetDefaultFaceMutex);
@@ -568,19 +562,12 @@ CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
  *  not found, returns a new entry (after adding it to the cache).
  */
 SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef) {
-    SkFontID fontID = CTFontRef_to_SkFontID(fontRef);
-    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
-    if (face) {
-        face->ref();
-    } else {
+    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef, (void*)fontRef);
+    if (!face) {
+        CFRetain(fontRef);
         face = NewFromFontRef(fontRef, NULL, false);
         SkTypefaceCache::Add(face, face->fontStyle());
-        // NewFromFontRef doesn't retain the parameter, but the typeface it
-        // creates does release it in its destructor, so we balance that with
-        // a retain call here.
-        CFRetain(fontRef);
     }
-    SkASSERT(face->getRefCnt() > 1);
     return face;
 }
 
@@ -2083,24 +2070,16 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName, CTFontDescriptorRef 
         return face;
     }
 
-    AutoCFRelease<CFDictionaryRef> fontFamilyNameDictionary(
-        CFDictionaryCreate(kCFAllocatorDefault,
-                           (const void**)&kCTFontFamilyNameAttribute, (const void**)&cfFamilyName,
-                           1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
-    AutoCFRelease<CTFontDescriptorRef> fontDescriptor(
-        CTFontDescriptorCreateWithAttributes(fontFamilyNameDictionary));
-    AutoCFRelease<CTFontRef> ctNamed(CTFontCreateWithFontDescriptor(fontDescriptor, 0, NULL));
-    CTFontRef ctFont = CTFontCreateCopyWithAttributes(ctNamed, 1, NULL, desc);
-    if (NULL == ctFont) {
+    AutoCFRelease<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc, 0, NULL));
+    if (!ctFont) {
         return NULL;
     }
 
     bool isFixedPitch;
     (void)computeStyleBits(ctFont, &isFixedPitch);
-    SkFontID fontID = CTFontRef_to_SkFontID(ctFont);
 
-    face = SkNEW_ARGS(SkTypeface_Mac, (cacheRequest.fStyle, fontID, isFixedPitch,
-                                       ctFont, skFamilyName.c_str(), false));
+    face = SkNEW_ARGS(SkTypeface_Mac, (cacheRequest.fStyle, isFixedPitch,
+                                       ctFont.detach(), skFamilyName.c_str(), false));
     SkTypefaceCache::Add(face, face->fontStyle());
     return face;
 }
