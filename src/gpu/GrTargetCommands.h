@@ -24,6 +24,7 @@ class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
 
 class GrTargetCommands : ::SkNoncopyable {
+    struct State;
     struct SetState;
 
 public:
@@ -31,7 +32,6 @@ public:
                      GrVertexBufferAllocPool* vertexPool,
                      GrIndexBufferAllocPool* indexPool)
         : fCmdBuffer(kCmdBufferInitialSizeInBytes)
-        , fPrevState(NULL)
         , fBatchTarget(gpu, vertexPool, indexPool) {
     }
 
@@ -51,7 +51,7 @@ public:
         Cmd(CmdType type) : fMarkerID(-1), fType(type) {}
         virtual ~Cmd() {}
 
-        virtual void execute(GrGpu*, const SetState*) = 0;
+        virtual void execute(GrGpu*) = 0;
 
         CmdType type() const { return fType; }
 
@@ -68,32 +68,23 @@ public:
     void reset();
     void flush(GrInOrderDrawBuffer*);
 
-    Cmd* recordClearStencilClip(GrInOrderDrawBuffer*,
-                                const SkIRect& rect,
+    Cmd* recordClearStencilClip(const SkIRect& rect,
                                 bool insideClip,
                                 GrRenderTarget* renderTarget);
 
-    Cmd* recordDiscard(GrInOrderDrawBuffer*, GrRenderTarget*);
-
-    Cmd* recordDraw(GrInOrderDrawBuffer*,
-                    const GrGeometryProcessor*,
-                    const GrDrawTarget::DrawInfo&,
-                    const GrDrawTarget::PipelineInfo&);
-    Cmd* recordDrawBatch(GrInOrderDrawBuffer*,
-                         GrBatch*,
-                         const GrDrawTarget::PipelineInfo&);
-    Cmd* recordStencilPath(GrInOrderDrawBuffer*,
-                           const GrPipelineBuilder&,
+    Cmd* recordDiscard(GrRenderTarget*);
+    Cmd* recordDrawBatch(State*, GrBatch*);
+    Cmd* recordStencilPath(const GrPipelineBuilder&,
                            const GrPathProcessor*,
                            const GrPath*,
                            const GrScissorState&,
                            const GrStencilSettings&);
-    Cmd* recordDrawPath(GrInOrderDrawBuffer*,
+    Cmd* recordDrawPath(State*,
                         const GrPathProcessor*,
                         const GrPath*,
-                        const GrStencilSettings&,
-                        const GrDrawTarget::PipelineInfo&);
-    Cmd* recordDrawPaths(GrInOrderDrawBuffer*,
+                        const GrStencilSettings&);
+    Cmd* recordDrawPaths(State*,
+                         GrInOrderDrawBuffer*,
                          const GrPathProcessor*,
                          const GrPathRange*,
                          const void*,
@@ -103,8 +94,7 @@ public:
                          int,
                          const GrStencilSettings&,
                          const GrDrawTarget::PipelineInfo&);
-    Cmd* recordClear(GrInOrderDrawBuffer*,
-                     const SkIRect* rect,
+    Cmd* recordClear(const SkIRect* rect,
                      GrColor,
                      bool canIgnoreRect,
                      GrRenderTarget*);
@@ -118,18 +108,51 @@ private:
 
     typedef GrGpu::DrawArgs DrawArgs;
 
-    // Attempts to concat instances from info onto the previous draw. info must represent an
-    // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
-    int concatInstancedDraw(GrInOrderDrawBuffer*, const GrDrawTarget::DrawInfo&);
+    void recordXferBarrierIfNecessary(const GrPipeline&, GrInOrderDrawBuffer*);
 
-    bool SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(GrInOrderDrawBuffer*,
-                                                          const GrPrimitiveProcessor*,
-                                                          const GrDrawTarget::PipelineInfo&);
-    bool SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(GrInOrderDrawBuffer*,
-                                                          GrBatch*,
-                                                          const GrDrawTarget::PipelineInfo&);
+    // TODO: This can be just a pipeline once paths are in batch, and it should live elsewhere
+    struct State : public SkNVRefCnt<State> {
+        // TODO get rid of the prim proc parameter when we use batch everywhere
+        State(const GrPrimitiveProcessor* primProc = NULL)
+            : fPrimitiveProcessor(primProc)
+            , fCompiled(false) {}
 
-    void recordXferBarrierIfNecessary(GrInOrderDrawBuffer*, const GrDrawTarget::PipelineInfo&);
+        ~State() { reinterpret_cast<GrPipeline*>(fPipeline.get())->~GrPipeline(); }
+
+        // This function is only for getting the location in memory where we will create our
+        // pipeline object.
+        GrPipeline* pipelineLocation() { return reinterpret_cast<GrPipeline*>(fPipeline.get()); }
+
+        const GrPipeline* getPipeline() const {
+            return reinterpret_cast<const GrPipeline*>(fPipeline.get());
+        }
+        GrRenderTarget* getRenderTarget() const {
+            return this->getPipeline()->getRenderTarget();
+        }
+        const GrXferProcessor* getXferProcessor() const {
+            return this->getPipeline()->getXferProcessor();
+        }
+
+        void operator delete(void* p) {}
+        void* operator new(size_t) {
+            SkFAIL("All States are created by placement new.");
+            return sk_malloc_throw(0);
+        }
+
+        void* operator new(size_t, void* p) { return p; }
+        void operator delete(void* target, void* placement) {
+            ::operator delete(target, placement);
+        }
+
+        typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
+        ProgramPrimitiveProcessor               fPrimitiveProcessor;
+        SkAlignedSStorage<sizeof(GrPipeline)>   fPipeline;
+        GrProgramDesc                           fDesc;
+        GrBatchTracker                          fBatchTracker;
+        bool                                    fCompiled;
+    };
+    // TODO remove this when State is just a pipeline
+    friend SkNVRefCnt<State>;
 
     struct StencilPath : public Cmd {
         StencilPath(const GrPath* path, GrRenderTarget* rt)
@@ -139,7 +162,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrGpu*, const SetState*) override;
+        void execute(GrGpu*) override;
 
         SkMatrix                                                fViewMatrix;
         bool                                                    fUseHWAA;
@@ -151,25 +174,32 @@ private:
     };
 
     struct DrawPath : public Cmd {
-        DrawPath(const GrPath* path) : Cmd(kDrawPath_CmdType), fPath(path) {}
+        DrawPath(State* state, const GrPath* path)
+            : Cmd(kDrawPath_CmdType)
+            , fState(SkRef(state))
+            , fPath(path) {}
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrGpu*, const SetState*) override;
+        void execute(GrGpu*) override;
 
+        SkAutoTUnref<State>     fState;
         GrStencilSettings       fStencilSettings;
-
     private:
         GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
     };
 
     struct DrawPaths : public Cmd {
-        DrawPaths(const GrPathRange* pathRange) : Cmd(kDrawPaths_CmdType), fPathRange(pathRange) {}
+        DrawPaths(State* state, const GrPathRange* pathRange)
+            : Cmd(kDrawPaths_CmdType)
+            , fState(SkRef(state))
+            , fPathRange(pathRange) {}
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
 
-        void execute(GrGpu*, const SetState*) override;
+        void execute(GrGpu*) override;
 
+        SkAutoTUnref<State>             fState;
         char*                           fIndices;
         GrDrawTarget::PathIndexType     fIndexType;
         float*                          fTransforms;
@@ -187,7 +217,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrGpu*, const SetState*) override;
+        void execute(GrGpu*) override;
 
         SkIRect fRect;
         GrColor fColor;
@@ -203,7 +233,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrGpu*, const SetState*) override;
+        void execute(GrGpu*) override;
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -222,7 +252,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        void execute(GrGpu*, const SetState*) override;
+        void execute(GrGpu*) override;
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -232,49 +262,18 @@ private:
         GrPendingIOResource<GrSurface, kRead_GrIOType> fSrc;
     };
 
-    // TODO: rename to SetPipeline once pp, batch tracker, and desc are removed
-    struct SetState : public Cmd {
-        // TODO get rid of the prim proc parameter when we use batch everywhere
-        SetState(const GrPrimitiveProcessor* primProc = NULL)
-        : Cmd(kSetState_CmdType)
-        , fPrimitiveProcessor(primProc) {}
-
-        ~SetState() { reinterpret_cast<GrPipeline*>(fPipeline.get())->~GrPipeline(); }
-
-        // This function is only for getting the location in memory where we will create our
-        // pipeline object.
-        GrPipeline* pipelineLocation() { return reinterpret_cast<GrPipeline*>(fPipeline.get()); }
-
-        const GrPipeline* getPipeline() const {
-            return reinterpret_cast<const GrPipeline*>(fPipeline.get());
-        }
-        GrRenderTarget* getRenderTarget() const {
-            return this->getPipeline()->getRenderTarget();
-        }
-        const GrXferProcessor* getXferProcessor() const {
-            return this->getPipeline()->getXferProcessor();
-        }
-
-        void execute(GrGpu*, const SetState*) override;
-
-        typedef GrPendingProgramElement<const GrPrimitiveProcessor> ProgramPrimitiveProcessor;
-        ProgramPrimitiveProcessor               fPrimitiveProcessor;
-        SkAlignedSStorage<sizeof(GrPipeline)>   fPipeline;
-        GrProgramDesc                           fDesc;
-        GrBatchTracker                          fBatchTracker;
-    };
-
     struct DrawBatch : public Cmd {
-        DrawBatch(GrBatch* batch, GrBatchTarget* batchTarget) 
+        DrawBatch(State* state, GrBatch* batch, GrBatchTarget* batchTarget)
             : Cmd(kDrawBatch_CmdType)
+            , fState(SkRef(state))
             , fBatch(SkRef(batch))
             , fBatchTarget(batchTarget) {
             SkASSERT(!batch->isUsed());
         }
 
-        void execute(GrGpu*, const SetState*) override;
+        void execute(GrGpu*) override;
 
-        // TODO it wouldn't be too hard to let batches allocate in the cmd buffer
+        SkAutoTUnref<State>    fState;
         SkAutoTUnref<GrBatch>  fBatch;
 
     private:
@@ -284,19 +283,18 @@ private:
     struct XferBarrier : public Cmd {
         XferBarrier() : Cmd(kXferBarrier_CmdType) {}
 
-        void execute(GrGpu*, const SetState*) override;
+        void execute(GrGpu*) override;
 
         GrXferBarrierType   fBarrierType;
     };
 
-     static const int kCmdBufferInitialSizeInBytes = 8 * 1024;
+    static const int kCmdBufferInitialSizeInBytes = 8 * 1024;
 
-     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
-     typedef GrTRecorder<Cmd, TCmdAlign> CmdBuffer;
+    typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
+    typedef GrTRecorder<Cmd, TCmdAlign> CmdBuffer;
 
-     CmdBuffer                           fCmdBuffer;
-     SetState*                           fPrevState;
-     GrBatchTarget                       fBatchTarget;
+    CmdBuffer                           fCmdBuffer;
+    GrBatchTarget                       fBatchTarget;
 };
 
 #endif
