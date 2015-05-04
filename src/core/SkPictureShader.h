@@ -41,7 +41,7 @@ protected:
 private:
     SkPictureShader(const SkPicture*, TileMode, TileMode, const SkMatrix*, const SkRect*);
 
-    SkShader* refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix) const;
+    SkShader* refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix, const int maxTextureSize = 0) const;
 
     const SkPicture* fPicture;
     SkRect           fTile;
