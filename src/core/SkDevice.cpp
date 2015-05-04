@@ -165,6 +165,26 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
     }
 }
 
+#include "SkImage_Base.h"
+
+void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
+                               const SkPaint& paint) {
+    // Default impl : turns everything into raster bitmap
+    SkBitmap bm;
+    if (as_IB(image)->getROPixels(&bm)) {
+        this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
+    }
+}
+
+void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const SkRect* src,
+                                   const SkRect& dst, const SkPaint& paint) {
+    // Default impl : turns everything into raster bitmap
+    SkBitmap bm;
+    if (as_IB(image)->getROPixels(&bm)) {
+        this->drawBitmapRect(draw, bm, src, dst, paint, SkCanvas::DrawBitmapRectFlags(0));
+    }
+}
+
 bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {
 #ifdef SK_DEBUG
     SkASSERT(info.width() > 0 && info.height() > 0);
