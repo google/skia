@@ -117,14 +117,6 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(GrPipelineBuilder* pi
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Some blend modes allow folding a fractional coverage value into the color's alpha channel, while
-// others will blend incorrectly.
-bool GrPipelineBuilder::canTweakAlphaForCoverage() const {
-    return this->getXPFactory()->canTweakAlphaForCoverage();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 GrPipelineBuilder::~GrPipelineBuilder() {
     SkASSERT(0 == fBlockEffectRemovalCnt);
 }

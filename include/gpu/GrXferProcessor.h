@@ -277,13 +277,6 @@ public:
     virtual void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                                     InvariantOutput*) const = 0;
 
-    /**
-     * Determines whether multiplying the computed per-pixel color by the pixel's fractional
-     * coverage before the blend will give the correct final destination color. In general it
-     * will not as coverage is applied after blending.
-     */
-    virtual bool canTweakAlphaForCoverage() const = 0;
-
     bool willNeedDstCopy(const GrDrawTargetCaps& caps, const GrProcOptInfo& colorPOI,
                          const GrProcOptInfo& coveragePOI) const;
 

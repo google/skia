@@ -139,13 +139,6 @@ public:
     ////
 
     /**
-     * Determines whether multiplying the computed per-pixel color by the pixel's fractional
-     * coverage before the blend will give the correct final destination color. In general it
-     * will not as coverage is applied after blending.
-     */
-    bool canTweakAlphaForCoverage() const;
-
-    /**
      * This function returns true if the render target destination pixel values will be read for
      * blending during draw.
      */

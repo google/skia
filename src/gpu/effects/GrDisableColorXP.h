@@ -23,8 +23,6 @@ public:
         return true;
     }
 
-    bool canTweakAlphaForCoverage() const override { return true; }
-
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                             GrXPFactory::InvariantOutput* output) const override {
         output->fBlendedColorFlags = 0;

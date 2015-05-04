@@ -81,10 +81,6 @@ public:
         return true;
     }
 
-    bool canTweakAlphaForCoverage() const override {
-        return false;
-    }
-
     void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                             GrXPFactory::InvariantOutput*) const override;
 

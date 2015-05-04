@@ -591,10 +591,6 @@ bool GrPorterDuffXPFactory::supportsRGBCoverage(GrColor /*knownColor*/,
     return false;
 }
 
-bool GrPorterDuffXPFactory::canTweakAlphaForCoverage() const {
-    return can_tweak_alpha_for_coverage(fDstCoeff);
-}
-
 void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
                                                GrXPFactory::InvariantOutput* output) const {
@@ -672,7 +668,7 @@ bool GrPorterDuffXPFactory::willReadDstColor(const GrDrawTargetCaps& caps,
         return false;
     }
 
-    if (this->canTweakAlphaForCoverage()) {
+    if (can_tweak_alpha_for_coverage(fDstCoeff)) {
         return false;
     }
 
