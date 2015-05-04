@@ -1325,13 +1325,14 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
     GrStrokeInfo dashlessStrokeInfo(strokeInfo, false);
     if (NULL == pr && strokeInfo.isDashed()) {
         // It didn't work above, so try again with dashed stroke converted to a dashless stroke.
-        if (strokeInfo.applyDash(tmpPath.init(), &dashlessStrokeInfo, *pathPtr)) {
-            pathPtr = tmpPath.get();
-            if (pathPtr->isEmpty()) {
-                return;
-            }
-            strokeInfoPtr = &dashlessStrokeInfo;
+        if (!strokeInfo.applyDash(tmpPath.init(), &dashlessStrokeInfo, *pathPtr)) {
+            return;
         }
+        pathPtr = tmpPath.get();
+        if (pathPtr->isEmpty()) {
+            return;
+        }
+        strokeInfoPtr = &dashlessStrokeInfo;
         pr = this->getPathRenderer(target, pipelineBuilder, viewMatrix, *pathPtr, *strokeInfoPtr,
                                    false, type);
     }
@@ -1344,14 +1345,15 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
             }
             SkStrokeRec* strokeRec = dashlessStrokeInfo.getStrokeRecPtr();
             strokeRec->setResScale(SkScalarAbs(viewMatrix.getMaxScale()));
-            if (strokeRec->applyToPath(tmpPath.get(), *pathPtr)) {
-                pathPtr = tmpPath.get();
-                if (pathPtr->isEmpty()) {
-                    return;
-                }
-                strokeRec->setFillStyle();
-                strokeInfoPtr = &dashlessStrokeInfo;
+            if (!strokeRec->applyToPath(tmpPath.get(), *pathPtr)) {
+                return;
             }
+            pathPtr = tmpPath.get();
+            if (pathPtr->isEmpty()) {
+                return;
+            }
+            strokeRec->setFillStyle();
+            strokeInfoPtr = &dashlessStrokeInfo;
         }
 
         // This time, allow SW renderer
