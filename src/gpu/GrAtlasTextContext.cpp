@@ -1474,13 +1474,6 @@ public:
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
-    struct FlushInfo {
-        SkAutoTUnref<const GrVertexBuffer> fVertexBuffer;
-        SkAutoTUnref<const GrIndexBuffer> fIndexBuffer;
-        int fGlyphsToFlush;
-        int fVertexOffset;
-    };
-
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
         // TODO actually only invert if we don't have RGBA
@@ -1513,8 +1506,6 @@ public:
                                                  localMatrix));
         }
 
-        FlushInfo flushInfo;
-        flushInfo.fGlyphsToFlush = 0;
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == (fUseDistanceFields ?
                                   get_vertex_stride_df(fMaskFormat, fUseLCDText) :
@@ -1524,20 +1515,34 @@ public:
 
         int glyphCount = this->numGlyphs();
         int instanceCount = fInstanceCount;
-        const GrVertexBuffer* vertexBuffer;
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
 
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
         void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
                                                               glyphCount * kVerticesPerGlyph,
                                                               &vertexBuffer,
-                                                              &flushInfo.fVertexOffset);
-        flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
-        flushInfo.fIndexBuffer.reset(batchTarget->resourceProvider()->refQuadIndexBuffer());
-        if (!vertices || !flushInfo.fVertexBuffer) {
+                                                              &firstVertex);
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
         unsigned char* currVertex = reinterpret_cast<unsigned char*>(vertices);
+
+        // setup drawinfo
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
+        drawInfo.setStartVertex(0);
+        drawInfo.setStartIndex(0);
+        drawInfo.setVerticesPerInstance(kVerticesPerGlyph);
+        drawInfo.setIndicesPerInstance(kIndicesPerGlyph);
+        drawInfo.adjustStartVertex(firstVertex);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
         // We cache some values to avoid going to the glyphcache for the same fontScaler twice
         // in a row
@@ -1546,6 +1551,7 @@ public:
         GrFontScaler* scaler = NULL;
         SkTypeface* typeface = NULL;
 
+        int instancesToFlush = 0;
         for (int i = 0; i < instanceCount; i++) {
             Geometry& args = fGeoData[i];
             Blob* blob = args.fBlob;
@@ -1629,8 +1635,10 @@ public:
 
                         if (!fFontCache->hasGlyph(glyph) &&
                             !strike->addGlyphToAtlas(batchTarget, glyph, scaler)) {
-                            this->flush(batchTarget, &flushInfo);
+                            this->flush(batchTarget, &drawInfo, instancesToFlush,
+                                        maxInstancesPerDraw);
                             this->initDraw(batchTarget, gp, pipeline);
+                            instancesToFlush = 0;
                             brokenRun = glyphIdx > 0;
 
                             SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(batchTarget,
@@ -1666,7 +1674,7 @@ public:
                         SkScalar transY = args.fTransY;
                         this->regeneratePositions(vertex, vertexStride, transX, transY);
                     }
-                    flushInfo.fGlyphsToFlush++;
+                    instancesToFlush++;
                 }
 
                 // We my have changed the color so update it here
@@ -1679,7 +1687,7 @@ public:
                                                         fFontCache->atlasGeneration(fMaskFormat);
                 }
             } else {
-                flushInfo.fGlyphsToFlush += glyphCount;
+                instancesToFlush += glyphCount;
 
                 // set use tokens for all of the glyphs in our subrun.  This is only valid if we
                 // have a valid atlas generation
@@ -1698,7 +1706,7 @@ public:
         if (cache) {
             SkGlyphCache::AttachCache(cache);
         }
-        this->flush(batchTarget, &flushInfo);
+        this->flush(batchTarget, &drawInfo, instancesToFlush, maxInstancesPerDraw);
     }
 
     // The minimum number of Geometry we will try to allocate.
@@ -1825,19 +1833,20 @@ private:
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
     }
 
-    void flush(GrBatchTarget* batchTarget, FlushInfo* flushInfo) {
-        GrDrawTarget::DrawInfo drawInfo;
-        int glyphsToFlush = flushInfo->fGlyphsToFlush;
-        int maxGlyphsPerDraw = flushInfo->fIndexBuffer->maxQuads();
-        drawInfo.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
-                               flushInfo->fIndexBuffer, flushInfo->fVertexOffset,
-                               kVerticesPerGlyph, kIndicesPerGlyph, &glyphsToFlush,
-                               maxGlyphsPerDraw);
-        do {
-            batchTarget->draw(drawInfo);
-        } while (drawInfo.nextInstances(&glyphsToFlush, maxGlyphsPerDraw));
-        flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
-        flushInfo->fGlyphsToFlush = 0;
+    void flush(GrBatchTarget* batchTarget,
+               GrDrawTarget::DrawInfo* drawInfo,
+               int instanceCount,
+               int maxInstancesPerDraw) {
+        while (instanceCount) {
+            drawInfo->setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
+            drawInfo->setVertexCount(drawInfo->instanceCount() * drawInfo->verticesPerInstance());
+            drawInfo->setIndexCount(drawInfo->instanceCount() * drawInfo->indicesPerInstance());
+
+            batchTarget->draw(*drawInfo);
+
+            drawInfo->setStartVertex(drawInfo->startVertex() + drawInfo->vertexCount());
+            instanceCount -= drawInfo->instanceCount();
+       }
     }
 
     GrColor color() const { return fBatch.fColor; }

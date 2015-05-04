@@ -37,8 +37,16 @@ GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
     fVerticesPerInstance    = di.fVerticesPerInstance;
     fIndicesPerInstance     = di.fIndicesPerInstance;
 
-    fVertexBuffer.reset(di.vertexBuffer());
-    fIndexBuffer.reset(di.indexBuffer());
+    if (di.fDevBounds) {
+        SkASSERT(di.fDevBounds == &di.fDevBoundsStorage);
+        fDevBoundsStorage = di.fDevBoundsStorage;
+        fDevBounds = &fDevBoundsStorage;
+    } else {
+        fDevBounds = NULL;
+    }
+
+    this->setVertexBuffer(di.vertexBuffer());
+    this->setIndexBuffer(di.indexBuffer());
 
     return *this;
 }

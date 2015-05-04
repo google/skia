@@ -6,8 +6,6 @@
  */
 
 #include "GrBatch.h"
-#include "GrBatchTarget.h"
-#include "GrResourceProvider.h"
 
 #include "GrMemoryPool.h"
 #include "SkSpinlock.h"
@@ -44,44 +42,4 @@ void* GrBatch::operator new(size_t size) {
 
 void GrBatch::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
-}
-
-void* GrBatch::InstancedHelper::init(GrBatchTarget* batchTarget, size_t vertexStride,
-                                     const GrIndexBuffer* indexBuffer, int verticesPerInstance,
-                                     int indicesPerInstance, int instancesToDraw) {
-    SkASSERT(!fInstancesRemaining);
-    SkASSERT(batchTarget);
-    if (!indexBuffer) {
-        return NULL;
-    }
-    const GrVertexBuffer* vertexBuffer;
-    int firstVertex;
-    int vertexCount = verticesPerInstance * instancesToDraw;
-    void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride, vertexCount, &vertexBuffer,
-                                                          &firstVertex);
-    if (!vertices) {
-        SkDebugf("Vertices could not be allocated for instanced rendering.");
-        return NULL;
-    }
-    SkASSERT(vertexBuffer);
-    fInstancesRemaining = instancesToDraw;
-
-    fDrawInfo.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
-        firstVertex, verticesPerInstance, indicesPerInstance, &fInstancesRemaining,
-        indexBuffer->maxQuads());
-    size_t ibSize = fDrawInfo.indexBuffer()->gpuMemorySize();
-    fMaxInstancesPerDraw = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerInstance));
-    SkASSERT(fMaxInstancesPerDraw > 0);
-    return vertices;
-}
-
-void* GrBatch::QuadHelper::init(GrBatchTarget* batchTarget, size_t vertexStride, int quadsToDraw) {
-    SkAutoTUnref<const GrIndexBuffer> quadIndexBuffer(
-        batchTarget->resourceProvider()->refQuadIndexBuffer());
-    if (!quadIndexBuffer) {
-        SkDebugf("Could not get quad index buffer.");
-        return NULL;
-    }
-    return this->INHERITED::init(batchTarget, vertexStride, quadIndexBuffer, kVerticesPerQuad,
-                                 kIndicesPerQuad, quadsToDraw);
 }

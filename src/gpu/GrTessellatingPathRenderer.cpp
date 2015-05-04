@@ -1459,7 +1459,12 @@ public:
         GrPrimitiveType primitiveType = WIREFRAME ? kLines_GrPrimitiveType
                                                   : kTriangles_GrPrimitiveType;
         GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.init(primitiveType, vertexBuffer, firstVertex, actualCount);
+        drawInfo.setPrimitiveType(primitiveType);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setStartVertex(firstVertex);
+        drawInfo.setVertexCount(actualCount);
+        drawInfo.setStartIndex(0);
+        drawInfo.setIndexCount(0);
         batchTarget->draw(drawInfo);
 
         batchTarget->putBackVertices((size_t)(count - actualCount), stride);

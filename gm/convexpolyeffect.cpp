@@ -17,6 +17,7 @@
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
+#include "GrResourceProvider.h"
 #include "GrTest.h"
 #include "GrTestBatch.h"
 #include "SkColorPriv.h"
@@ -52,23 +53,46 @@ private:
     }
 
     void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
+
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
-        SkASSERT(vertexStride == sizeof(SkPoint));
-        QuadHelper helper;
-        SkPoint* verts = reinterpret_cast<SkPoint*>(helper.init(batchTarget, vertexStride, 1));
-        if (!verts) {
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
+
+        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              kVertsPerCubic,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        if (!vertices || !indexBuffer) {
+            SkDebugf("Could not allocate buffers\n");
             return;
         }
+
+        SkASSERT(vertexStride == sizeof(SkPoint));
+        SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
 
         // Make sure any artifacts around the exterior of path are visible by using overly
         // conservative bounding geometry.
         fGeometry.fBounds.outset(5.f, 5.f);
         fGeometry.fBounds.toQuad(verts);
 
-        helper.issueDraws(batchTarget);
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangleFan_GrPrimitiveType);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setStartVertex(firstVertex);
+        drawInfo.setVertexCount(kVertsPerCubic);
+        drawInfo.setStartIndex(0);
+        drawInfo.setIndexCount(kIndicesPerCubic);
+        drawInfo.setIndexBuffer(indexBuffer);
+        batchTarget->draw(drawInfo);
     }
 
     Geometry fGeometry;
+
+    static const int kVertsPerCubic = 4;
+    static const int kIndicesPerCubic = 6;
 
     typedef GrTestBatch INHERITED;
 };

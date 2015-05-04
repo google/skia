@@ -744,22 +744,34 @@ public:
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         int instanceCount = fGeoData.count();
+        int vertexCount = kVertsPerCircle * instanceCount;
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(CircleVertex));
-        QuadHelper helper;
-        CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(batchTarget, vertexStride,
-                                                                          instanceCount));
-        if (!verts) {
+
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
+
+        void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              vertexCount,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        if (!vertices || !indexBuffer) {
+            SkDebugf("Could not allocate buffers\n");
             return;
         }
 
+        CircleVertex* verts = reinterpret_cast<CircleVertex*>(vertices);
+
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            Geometry& args = fGeoData[i];
 
-            SkScalar innerRadius = geom.fInnerRadius;
-            SkScalar outerRadius = geom.fOuterRadius;
+            SkScalar innerRadius = args.fInnerRadius;
+            SkScalar outerRadius = args.fOuterRadius;
 
-            const SkRect& bounds = geom.fDevBounds;
+            const SkRect& bounds = args.fDevBounds;
 
             // The inner radius in the vertex data must be specified in normalized space.
             innerRadius = innerRadius / outerRadius;
@@ -783,9 +795,31 @@ public:
             verts[3].fOuterRadius = outerRadius;
             verts[3].fInnerRadius = innerRadius;
 
-            verts += kVerticesPerQuad;
+            verts += kVertsPerCircle;
         }
-        helper.issueDraws(batchTarget);
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
+        drawInfo.setStartVertex(0);
+        drawInfo.setStartIndex(0);
+        drawInfo.setVerticesPerInstance(kVertsPerCircle);
+        drawInfo.setIndicesPerInstance(kIndicesPerCircle);
+        drawInfo.adjustStartVertex(firstVertex);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
+
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
+
+        while (instanceCount) {
+            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
+            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
+            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
+
+            batchTarget->draw(drawInfo);
+
+            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
+            instanceCount -= drawInfo.instanceCount();
+        }
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -832,6 +866,9 @@ private:
         bool fColorIgnored;
         bool fCoverageIgnored;
     };
+
+    static const int kVertsPerCircle = 4;
+    static const int kIndicesPerCircle = 6;
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
@@ -972,28 +1009,40 @@ public:
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         int instanceCount = fGeoData.count();
-        QuadHelper helper;
+        int vertexCount = kVertsPerEllipse * instanceCount;
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(EllipseVertex));
-        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-            helper.init(batchTarget, vertexStride, instanceCount));
-        if (!verts) {
+
+        const GrVertexBuffer* vertexBuffer;
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
+        int firstVertex;
+
+        void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              vertexCount,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        if (!vertices || !indexBuffer) {
+            SkDebugf("Could not allocate buffers\n");
             return;
         }
 
-        for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(vertices);
 
-            SkScalar xRadius = geom.fXRadius;
-            SkScalar yRadius = geom.fYRadius;
+        for (int i = 0; i < instanceCount; i++) {
+            Geometry& args = fGeoData[i];
+
+            SkScalar xRadius = args.fXRadius;
+            SkScalar yRadius = args.fYRadius;
 
             // Compute the reciprocals of the radii here to save time in the shader
             SkScalar xRadRecip = SkScalarInvert(xRadius);
             SkScalar yRadRecip = SkScalarInvert(yRadius);
-            SkScalar xInnerRadRecip = SkScalarInvert(geom.fInnerXRadius);
-            SkScalar yInnerRadRecip = SkScalarInvert(geom.fInnerYRadius);
+            SkScalar xInnerRadRecip = SkScalarInvert(args.fInnerXRadius);
+            SkScalar yInnerRadRecip = SkScalarInvert(args.fInnerYRadius);
 
-            const SkRect& bounds = geom.fDevBounds;
+            const SkRect& bounds = args.fDevBounds;
 
             // The inner radius in the vertex data must be specified in normalized space.
             verts[0].fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
@@ -1016,9 +1065,31 @@ public:
             verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-            verts += kVerticesPerQuad;
+            verts += kVertsPerEllipse;
         }
-        helper.issueDraws(batchTarget);
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
+        drawInfo.setStartVertex(0);
+        drawInfo.setStartIndex(0);
+        drawInfo.setVerticesPerInstance(kVertsPerEllipse);
+        drawInfo.setIndicesPerInstance(kIndicesPerEllipse);
+        drawInfo.adjustStartVertex(firstVertex);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
+
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
+
+        while (instanceCount) {
+            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
+            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
+            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
+
+            batchTarget->draw(drawInfo);
+
+            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
+            instanceCount -= drawInfo.instanceCount();
+        }
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1065,6 +1136,9 @@ private:
         bool fColorIgnored;
         bool fCoverageIgnored;
     };
+
+    static const int kVertsPerEllipse = 4;
+    static const int kIndicesPerEllipse = 6;
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
@@ -1243,30 +1317,41 @@ public:
         init.fUsesLocalCoords = this->usesLocalCoords();
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
+
         int instanceCount = fGeoData.count();
+        int vertexCount = kVertsPerEllipse * instanceCount;
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(DIEllipseVertex));
-        QuadHelper helper;
-        DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(
-            helper.init(batchTarget, vertexStride, instanceCount));
-        if (!verts) {
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
+        void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              vertexCount,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        if (!vertices || !indexBuffer) {
+            SkDebugf("Could not allocate buffers\n");
             return;
         }
 
+        DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(vertices);
+
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            Geometry& args = fGeoData[i];
 
-            SkScalar xRadius = geom.fXRadius;
-            SkScalar yRadius = geom.fYRadius;
+            SkScalar xRadius = args.fXRadius;
+            SkScalar yRadius = args.fYRadius;
 
-            const SkRect& bounds = geom.fBounds;
+            const SkRect& bounds = args.fBounds;
 
             // This adjusts the "radius" to include the half-pixel border
-            SkScalar offsetDx = SkScalarDiv(geom.fGeoDx, xRadius);
-            SkScalar offsetDy = SkScalarDiv(geom.fGeoDy, yRadius);
+            SkScalar offsetDx = SkScalarDiv(args.fGeoDx, xRadius);
+            SkScalar offsetDy = SkScalarDiv(args.fGeoDy, yRadius);
 
-            SkScalar innerRatioX = SkScalarDiv(xRadius, geom.fInnerXRadius);
-            SkScalar innerRatioY = SkScalarDiv(yRadius, geom.fInnerYRadius);
+            SkScalar innerRatioX = SkScalarDiv(xRadius, args.fInnerXRadius);
+            SkScalar innerRatioY = SkScalarDiv(yRadius, args.fInnerYRadius);
 
             verts[0].fPos = SkPoint::Make(bounds.fLeft, bounds.fTop);
             verts[0].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy);
@@ -1284,9 +1369,31 @@ public:
             verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
             verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
-            verts += kVerticesPerQuad;
+            verts += kVertsPerEllipse;
         }
-        helper.issueDraws(batchTarget);
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
+        drawInfo.setStartVertex(0);
+        drawInfo.setStartIndex(0);
+        drawInfo.setVerticesPerInstance(kVertsPerEllipse);
+        drawInfo.setIndicesPerInstance(kIndicesPerEllipse);
+        drawInfo.adjustStartVertex(firstVertex);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
+
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
+
+        while (instanceCount) {
+            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
+            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
+            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
+
+            batchTarget->draw(drawInfo);
+
+            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
+            instanceCount -= drawInfo.instanceCount();
+        }
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1333,6 +1440,9 @@ private:
         bool fColorIgnored;
         bool fCoverageIgnored;
     };
+
+    static const int kVertsPerEllipse = 4;
+    static const int kIndicesPerEllipse = 6;
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
@@ -1612,21 +1722,26 @@ public:
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         int instanceCount = fGeoData.count();
+        int vertexCount = kVertsPerRRect * instanceCount;
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(CircleVertex));
 
-        // drop out the middle quad if we're stroked
-        int indicesPerInstance = this->stroke() ? kIndicesPerStrokeRRect : kIndicesPerRRect;
+        const GrVertexBuffer* vertexBuffer;
         SkAutoTUnref<const GrIndexBuffer> indexBuffer(
             ref_rrect_index_buffer(this->stroke(), batchTarget->resourceProvider()));
+        int firstVertex;
 
-        InstancedHelper helper;
-        CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(batchTarget,
-            vertexStride, indexBuffer, kVertsPerRRect, indicesPerInstance, instanceCount));
-        if (!verts || !indexBuffer) {
+        void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              vertexCount,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
+
+        CircleVertex* verts = reinterpret_cast<CircleVertex*>(vertices);
 
         for (int i = 0; i < instanceCount; i++) {
             Geometry& args = fGeoData[i];
@@ -1672,7 +1787,32 @@ public:
             }
         }
 
-        helper.issueDraws(batchTarget);
+        // drop out the middle quad if we're stroked
+        int indexCnt = this->stroke() ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
+                                        SK_ARRAY_COUNT(gRRectIndices);
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
+        drawInfo.setStartVertex(0);
+        drawInfo.setStartIndex(0);
+        drawInfo.setVerticesPerInstance(kVertsPerRRect);
+        drawInfo.setIndicesPerInstance(indexCnt);
+        drawInfo.adjustStartVertex(firstVertex);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
+
+        int maxInstancesPerDraw = kNumRRectsInIndexBuffer;
+
+        while (instanceCount) {
+            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
+            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
+            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
+
+            batchTarget->draw(drawInfo);
+
+            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
+            instanceCount -= drawInfo.instanceCount();
+        }
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1793,22 +1933,26 @@ public:
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         int instanceCount = fGeoData.count();
+        int vertexCount = kVertsPerRRect * instanceCount;
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(EllipseVertex));
 
-        // drop out the middle quad if we're stroked
-        int indicesPerInstance = this->stroke() ? kIndicesPerStrokeRRect : kIndicesPerRRect;
+        const GrVertexBuffer* vertexBuffer;
         SkAutoTUnref<const GrIndexBuffer> indexBuffer(
             ref_rrect_index_buffer(this->stroke(), batchTarget->resourceProvider()));
+        int firstVertex;
 
-        InstancedHelper helper;
-        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-            helper.init(batchTarget, vertexStride, indexBuffer, kVertsPerRRect, indicesPerInstance,
-            instanceCount));
-        if (!verts || !indexBuffer) {
+        void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              vertexCount,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
+
+        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(vertices);
 
         for (int i = 0; i < instanceCount; i++) {
             Geometry& args = fGeoData[i];
@@ -1864,7 +2008,33 @@ public:
                 verts++;
             }
         }
-        helper.issueDraws(batchTarget);
+
+        // drop out the middle quad if we're stroked
+        int indexCnt = this->stroke() ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
+                                        SK_ARRAY_COUNT(gRRectIndices);
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
+        drawInfo.setStartVertex(0);
+        drawInfo.setStartIndex(0);
+        drawInfo.setVerticesPerInstance(kVertsPerRRect);
+        drawInfo.setIndicesPerInstance(indexCnt);
+        drawInfo.adjustStartVertex(firstVertex);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
+
+        int maxInstancesPerDraw = kNumRRectsInIndexBuffer;
+
+        while (instanceCount) {
+            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
+            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
+            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
+
+            batchTarget->draw(drawInfo);
+
+            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
+            instanceCount -= drawInfo.instanceCount();
+        }
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

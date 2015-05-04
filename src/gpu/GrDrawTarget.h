@@ -225,132 +225,65 @@ public:
     virtual DrawToken getCurrentDrawToken() { return DrawToken(this, 0); }
 
     /**
-     * Used to communicate draw index vertex offsets and counts toto GPUs / subclasses
+     * Used to communicate draws to GPUs / subclasses
      */
     class DrawInfo {
     public:
-        DrawInfo() {}
+        DrawInfo() { fDevBounds = NULL; }
         DrawInfo(const DrawInfo& di) { (*this) = di; }
         DrawInfo& operator =(const DrawInfo& di);
-
-        void init(GrPrimitiveType primType, const GrVertexBuffer* vertexBuffer, int startVertex,
-                  int vertexCount) {
-            SkASSERT(vertexBuffer);
-            SkASSERT(vertexCount);
-            SkASSERT(startVertex >= 0);
-            fPrimitiveType = primType;
-            fVertexBuffer.reset(SkRef(vertexBuffer));
-            fIndexBuffer.reset(NULL);
-            fStartVertex = startVertex;
-            fStartIndex = 0;
-            fVertexCount = vertexCount;
-            fIndexCount = 0;
-            fInstanceCount = 0;
-            fVerticesPerInstance = 0;
-            fIndicesPerInstance = 0;
-        }
-
-        void initIndexed(GrPrimitiveType primType,
-                         const GrVertexBuffer* vertexBuffer,
-                         const GrIndexBuffer* indexBuffer,
-                         int startVertex,
-                         int startIndex,
-                         int vertexCount,
-                         int indexCount) {
-            SkASSERT(indexBuffer);
-            SkASSERT(vertexBuffer);
-            SkASSERT(indexCount);
-            SkASSERT(vertexCount);
-            SkASSERT(startIndex >= 0);
-            SkASSERT(startVertex >= 0);
-            fPrimitiveType = primType;
-            fVertexBuffer.reset(SkRef(vertexBuffer));
-            fIndexBuffer.reset(SkRef(indexBuffer));
-            fStartVertex = startVertex;
-            fStartIndex = startIndex;
-            fVertexCount = vertexCount;
-            fIndexCount = indexCount;
-            fInstanceCount = 0;
-            fVerticesPerInstance = 0;
-            fIndicesPerInstance = 0;
-        }
-
-        void initInstanced(GrPrimitiveType primType,
-                           const GrVertexBuffer* vertexBuffer,
-                           const GrIndexBuffer* indexBuffer,
-                           int startVertex,
-                           int verticesPerInstance,
-                           int indicesPerInstance,
-                           int instanceCount) {
-            SkASSERT(vertexBuffer);
-            SkASSERT(indexBuffer);
-            SkASSERT(instanceCount);
-            SkASSERT(verticesPerInstance);
-            SkASSERT(indicesPerInstance);
-            SkASSERT(startVertex >= 0);
-            fPrimitiveType = primType;
-            fVertexBuffer.reset(SkRef(vertexBuffer));
-            fIndexBuffer.reset(SkRef(indexBuffer));
-            fStartVertex = startVertex;
-            fStartIndex = 0;
-            fVerticesPerInstance = verticesPerInstance;
-            fIndicesPerInstance = indicesPerInstance;
-            fInstanceCount = instanceCount;
-            fVertexCount = instanceCount * fVerticesPerInstance;
-            fIndexCount = instanceCount * fIndicesPerInstance;
-        }
-
-        /** Variation of the above that may be used when the total number of instances may exceed
-            the number of instances supported by the index buffer. To be used with
-            nextInstances() to draw in max-sized batches.*/
-        void initInstanced(GrPrimitiveType primType,
-                           const GrVertexBuffer* vertexBuffer,
-                           const GrIndexBuffer* indexBuffer,
-                           int startVertex,
-                           int verticesPerInstance,
-                           int indicesPerInstance,
-                           int* instancesRemaining,
-                           int maxInstancesPerDraw) {
-            int instanceCount = SkTMin(*instancesRemaining, maxInstancesPerDraw);
-            *instancesRemaining -= instanceCount;
-            this->initInstanced(primType, vertexBuffer, indexBuffer, startVertex,
-                                verticesPerInstance, indicesPerInstance, instanceCount);
-        }
 
         GrPrimitiveType primitiveType() const { return fPrimitiveType; }
         int startVertex() const { return fStartVertex; }
         int startIndex() const { return fStartIndex; }
         int vertexCount() const { return fVertexCount; }
         int indexCount() const { return fIndexCount; }
-
-        /** These return 0 if initInstanced was not used to initialize the DrawInfo. */
         int verticesPerInstance() const { return fVerticesPerInstance; }
         int indicesPerInstance() const { return fIndicesPerInstance; }
         int instanceCount() const { return fInstanceCount; }
 
+        void setPrimitiveType(GrPrimitiveType type) { fPrimitiveType = type; }
+        void setStartVertex(int startVertex) { fStartVertex = startVertex; }
+        void setStartIndex(int startIndex) { fStartIndex = startIndex; }
+        void setVertexCount(int vertexCount) { fVertexCount = vertexCount; }
+        void setIndexCount(int indexCount) { fIndexCount = indexCount; }
+        void setVerticesPerInstance(int verticesPerI) { fVerticesPerInstance = verticesPerI; }
+        void setIndicesPerInstance(int indicesPerI) { fIndicesPerInstance = indicesPerI; }
+        void setInstanceCount(int instanceCount) { fInstanceCount = instanceCount; }
+
         bool isIndexed() const { return fIndexCount > 0; }
+#ifdef SK_DEBUG
+        bool isInstanced() const; // this version is longer because of asserts
+#else
         bool isInstanced() const { return fInstanceCount > 0; }
+#endif
 
-        /** Called after using this draw info to draw the next set of instances.
-            The vertex offset is advanced while the index buffer is reused at the same
-            position. instancesRemaining is number of instances that remain, maxInstances is
-            the most number of instances that can be used with the index buffer. If there
-            are no instances remaining, the DrawInfo is unmodified and false is returned.*/
-        bool nextInstances(int* instancesRemaining, int maxInstances) {
-            SkASSERT(this->isInstanced());
-            if (!*instancesRemaining) {
-                return false;
-            }
-            fStartVertex += fVertexCount;
-            fInstanceCount = SkTMin(*instancesRemaining, maxInstances);
-            fVertexCount = fInstanceCount * fVerticesPerInstance;
-            fIndexCount = fInstanceCount * fIndicesPerInstance;
-            *instancesRemaining -= fInstanceCount;
-            return true;
+        // adds or remove instances
+        void adjustInstanceCount(int instanceOffset);
+        // shifts the start vertex
+        void adjustStartVertex(int vertexOffset) {
+            fStartVertex += vertexOffset;
+            SkASSERT(fStartVertex >= 0);
         }
-
+        // shifts the start index
+        void adjustStartIndex(int indexOffset) {
+            SkASSERT(this->isIndexed());
+            fStartIndex += indexOffset;
+            SkASSERT(fStartIndex >= 0);
+        }
+        void setDevBounds(const SkRect& bounds) {
+            fDevBoundsStorage = bounds;
+            fDevBounds = &fDevBoundsStorage;
+        }
         const GrVertexBuffer* vertexBuffer() const { return fVertexBuffer.get(); }
         const GrIndexBuffer* indexBuffer() const { return fIndexBuffer.get(); }
+        void setVertexBuffer(const GrVertexBuffer* vb) {
+            fVertexBuffer.reset(vb);
+        }
+        void setIndexBuffer(const GrIndexBuffer* ib) {
+            fIndexBuffer.reset(ib);
+        }
+        const SkRect* getDevBounds() const { return fDevBounds; }
 
     private:
         friend class GrDrawTarget;
@@ -365,6 +298,9 @@ public:
         int                     fInstanceCount;
         int                     fVerticesPerInstance;
         int                     fIndicesPerInstance;
+
+        SkRect                  fDevBoundsStorage;
+        SkRect*                 fDevBounds;
 
         GrPendingIOResource<const GrVertexBuffer, kRead_GrIOType> fVertexBuffer;
         GrPendingIOResource<const GrIndexBuffer, kRead_GrIOType>  fIndexBuffer;

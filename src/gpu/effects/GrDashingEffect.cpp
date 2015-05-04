@@ -19,6 +19,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
+#include "GrResourceProvider.h"
 #include "GrStrokeInfo.h"
 #include "GrVertexBuffer.h"
 #include "SkGr.h"
@@ -535,29 +536,38 @@ public:
             draw.fHasEndRect = hasEndRect;
         }
 
-        QuadHelper helper;
-        void* vertices = helper.init(batchTarget, gp->getVertexStride(), instanceCount);
-        if (!vertices) {
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
+
+        const GrVertexBuffer* vertexBuffer;
+        int firstVertex;
+        size_t vertexStride = gp->getVertexStride();
+        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                              totalRectCount * kVertsPerDash,
+                                                              &vertexBuffer,
+                                                              &firstVertex);
+        if (!vertices || !indexBuffer) {
+            SkDebugf("Could not allocate buffers\n");
             return;
         }
 
         int curVIdx = 0;
         int rectIndex = 0;
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            Geometry& args = fGeoData[i];
 
             if (!draws[i].fLineDone) {
                 if (fullDash) {
-                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, args.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
                                       draws[i].fDevBloatY, draws[i].fLineLength,
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth,
+                                      draws[i].fHalfDevStroke, args.fIntervals[0],
+                                      args.fIntervals[1], draws[i].fStrokeWidth,
                                       capType, gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
                     SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
-                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
+                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, args.fSrcRotInv, verts);
                 }
                 curVIdx += 4;
             }
@@ -565,16 +575,16 @@ public:
 
             if (draws[i].fHasStartRect) {
                 if (fullDash) {
-                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, args.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, geom.fIntervals[0],
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth, capType,
+                                      draws[i].fDevBloatY, args.fIntervals[0],
+                                      draws[i].fHalfDevStroke, args.fIntervals[0],
+                                      args.fIntervals[1], draws[i].fStrokeWidth, capType,
                                       gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
                     SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
-                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
+                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, args.fSrcRotInv, verts);
                 }
 
                 curVIdx += 4;
@@ -583,22 +593,43 @@ public:
 
             if (draws[i].fHasEndRect) {
                 if (fullDash) {
-                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                    setup_dashed_rect(rects[rectIndex], vertices, curVIdx, args.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, geom.fIntervals[0],
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth, capType,
+                                      draws[i].fDevBloatY, args.fIntervals[0],
+                                      draws[i].fHalfDevStroke, args.fIntervals[0],
+                                      args.fIntervals[1], draws[i].fStrokeWidth, capType,
                                       gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
                     SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
-                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
+                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, args.fSrcRotInv, verts);
                 }
                 curVIdx += 4;
             }
             rectIndex++;
         }
-        helper.issueDraws(batchTarget);
+
+        GrDrawTarget::DrawInfo drawInfo;
+        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
+        drawInfo.setStartVertex(0);
+        drawInfo.setStartIndex(0);
+        drawInfo.setVerticesPerInstance(kVertsPerDash);
+        drawInfo.setIndicesPerInstance(kIndicesPerDash);
+        drawInfo.adjustStartVertex(firstVertex);
+        drawInfo.setVertexBuffer(vertexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
+
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
+        while (totalRectCount) {
+            drawInfo.setInstanceCount(SkTMin(totalRectCount, maxInstancesPerDraw));
+            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
+            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
+
+            batchTarget->draw(drawInfo);
+
+            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
+            totalRectCount -= drawInfo.instanceCount();
+       }
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
