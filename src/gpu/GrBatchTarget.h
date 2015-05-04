@@ -121,9 +121,7 @@ public:
     GrVertexBufferAllocPool* vertexPool() { return fVertexPool; }
     GrIndexBufferAllocPool* indexPool() { return fIndexPool; }
 
-    const static int kVertsPerRect = 4;
-    const static int kIndicesPerRect = 6;
-    const GrIndexBuffer* quadIndexBuffer() const { return fGpu->getQuadIndexBuffer(); }
+    GrResourceProvider* resourceProvider() const { return fGpu->getContext()->resourceProvider(); }
 
     // A helper for draws which overallocate and then return data to the pool
     void putBackIndices(size_t indices) { fIndexPool->putBack(indices * sizeof(uint16_t)); }

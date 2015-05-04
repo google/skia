@@ -24,16 +24,6 @@ class GrOvalRenderer : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrOvalRenderer)
 
-    GrOvalRenderer(GrGpu* gpu)
-        : fGpu(gpu)
-        , fRRectIndexBuffer(NULL)
-        , fStrokeRRectIndexBuffer(NULL) {}
-    ~GrOvalRenderer() {
-        this->reset();
-    }
-
-    void reset();
-
     bool drawOval(GrDrawTarget*,
                   GrPipelineBuilder*,
                   GrColor,
@@ -78,10 +68,6 @@ private:
                     bool useCoverageAA,
                     const SkRect& circle,
                     const SkStrokeRec& stroke);
-
-    GrGpu*         fGpu;
-    GrIndexBuffer* fRRectIndexBuffer;
-    GrIndexBuffer* fStrokeRRectIndexBuffer;
 
     typedef SkRefCnt INHERITED;
 };

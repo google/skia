@@ -13,6 +13,7 @@
 #include "GrDrawTarget.h"
 #include "GrFontScaler.h"
 #include "GrIndexBuffer.h"
+#include "GrResourceProvider.h"
 #include "GrStrokeInfo.h"
 #include "GrTextBlobCache.h"
 #include "GrTexturePriv.h"
@@ -1514,14 +1515,16 @@ public:
 
         int glyphCount = this->numGlyphs();
         int instanceCount = fInstanceCount;
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
+
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
-
         void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
                                                               glyphCount * kVerticesPerGlyph,
                                                               &vertexBuffer,
                                                               &firstVertex);
-        if (!vertices) {
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -1529,8 +1532,7 @@ public:
         unsigned char* currVertex = reinterpret_cast<unsigned char*>(vertices);
 
         // setup drawinfo
-        const GrIndexBuffer* quadIndexBuffer = batchTarget->quadIndexBuffer();
-        int maxInstancesPerDraw = quadIndexBuffer->maxQuads();
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
 
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
@@ -1540,7 +1542,7 @@ public:
         drawInfo.setIndicesPerInstance(kIndicesPerGlyph);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(quadIndexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
         // We cache some values to avoid going to the glyphcache for the same fontScaler twice
         // in a row

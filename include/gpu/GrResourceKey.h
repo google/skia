@@ -10,6 +10,7 @@
 #define GrResourceKey_DEFINED
 
 #include "GrTypes.h"
+#include "SkOnce.h"
 #include "SkTemplates.h"
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
@@ -265,6 +266,24 @@ public:
         }
     };
 };
+
+/**
+ * It is common to need a frequently reused GrUniqueKey where the only requirement is that the key
+ * is unique. These macros create such a key in a thread safe manner so the key can be truly global
+ * and only constructed once.
+ */
+
+/** Place outside of function/class definitions. */
+#define GR_DECLARE_STATIC_UNIQUE_KEY(name) SK_DECLARE_STATIC_ONCE(name##_once)
+
+/** Place inside function where the key is used. */
+#define GR_DEFINE_STATIC_UNIQUE_KEY(name)                           \
+    static GrUniqueKey name;                                        \
+    SkOnce(&name##_once, gr_init_static_unique_key_once, &name)
+
+static inline void gr_init_static_unique_key_once(GrUniqueKey* key) {
+    GrUniqueKey::Builder builder(key, GrUniqueKey::GenerateDomain(), 0);
+}
 
 // The cache listens for these messages to purge junk resources proactively.
 class GrUniqueKeyInvalidatedMessage {
