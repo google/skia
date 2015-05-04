@@ -39,6 +39,6 @@ bool GrDashLinePathRenderer::onDrawPath(GrDrawTarget* target,
                                         bool useAA) {
     SkPoint pts[2];
     SkAssertResult(path.isLine(pts));
-    return GrDashingEffect::DrawDashLine(target, pipelineBuilder, color,
+    return GrDashingEffect::DrawDashLine(fGpu, target, pipelineBuilder, color,
                                          viewMatrix, pts, useAA, stroke);
 }

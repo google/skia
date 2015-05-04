@@ -17,7 +17,6 @@
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
-#include "GrResourceProvider.h"
 #include "GrTest.h"
 #include "GrTestBatch.h"
 #include "SkColorPriv.h"
@@ -53,10 +52,8 @@ private:
     }
 
     void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            batchTarget->resourceProvider()->refQuadIndexBuffer());
-
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
+
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
@@ -65,7 +62,7 @@ private:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices || !indexBuffer) {
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
             SkDebugf("Could not allocate buffers\n");
             return;
         }
@@ -85,7 +82,7 @@ private:
         drawInfo.setVertexCount(kVertsPerCubic);
         drawInfo.setStartIndex(0);
         drawInfo.setIndexCount(kIndicesPerCubic);
-        drawInfo.setIndexBuffer(indexBuffer);
+        drawInfo.setIndexBuffer(batchTarget->quadIndexBuffer());
         batchTarget->draw(drawInfo);
     }
 

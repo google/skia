@@ -8,7 +8,6 @@
 #include "GrInOrderDrawBuffer.h"
 
 #include "GrDefaultGeoProcFactory.h"
-#include "GrResourceProvider.h"
 #include "GrTemplates.h"
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context,
@@ -138,18 +137,17 @@ public:
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
 
         int instanceCount = fGeoData.count();
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            batchTarget->resourceProvider()->refQuadIndexBuffer());
-
         int vertexCount = kVertsPerRect * instanceCount;
+
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
+
         void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
                                                               vertexCount,
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices || !indexBuffer) {
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
             SkDebugf("Could not allocate buffers\n");
             return;
         }
@@ -183,6 +181,8 @@ public:
             }
         }
 
+        const GrIndexBuffer* quadIndexBuffer = batchTarget->quadIndexBuffer();
+
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
         drawInfo.setStartVertex(0);
@@ -191,9 +191,9 @@ public:
         drawInfo.setIndicesPerInstance(kIndicesPerRect);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(indexBuffer);
+        drawInfo.setIndexBuffer(quadIndexBuffer);
 
-        int maxInstancesPerDraw = indexBuffer->maxQuads();
+        int maxInstancesPerDraw = quadIndexBuffer->maxQuads();
         while (instanceCount) {
             drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
             drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());

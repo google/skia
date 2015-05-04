@@ -19,7 +19,6 @@
 #include "GrDrawTargetCaps.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
-#include "GrResourceProvider.h"
 #include "GrStrokeInfo.h"
 #include "GrVertexBuffer.h"
 #include "SkGr.h"
@@ -536,17 +535,16 @@ public:
             draw.fHasEndRect = hasEndRect;
         }
 
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            batchTarget->resourceProvider()->refQuadIndexBuffer());
-
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
+
         size_t vertexStride = gp->getVertexStride();
         void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
                                                               totalRectCount * kVertsPerDash,
                                                               &vertexBuffer,
                                                               &firstVertex);
-        if (!vertices || !indexBuffer) {
+
+        if (!vertices || !batchTarget->quadIndexBuffer()) {
             SkDebugf("Could not allocate buffers\n");
             return;
         }
@@ -609,6 +607,8 @@ public:
             rectIndex++;
         }
 
+        const GrIndexBuffer* dashIndexBuffer = batchTarget->quadIndexBuffer();
+
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
         drawInfo.setStartVertex(0);
@@ -617,9 +617,9 @@ public:
         drawInfo.setIndicesPerInstance(kIndicesPerDash);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(indexBuffer);
+        drawInfo.setIndexBuffer(dashIndexBuffer);
 
-        int maxInstancesPerDraw = indexBuffer->maxQuads();
+        int maxInstancesPerDraw = dashIndexBuffer->maxQuads();
         while (totalRectCount) {
             drawInfo.setInstanceCount(SkTMin(totalRectCount, maxInstancesPerDraw));
             drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
@@ -761,7 +761,7 @@ static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const Sk
     return DashBatch::Create(geometry, cap, aaMode, fullDash);
 }
 
-bool GrDashingEffect::DrawDashLine(GrDrawTarget* target,
+bool GrDashingEffect::DrawDashLine(GrGpu* gpu, GrDrawTarget* target,
                                    GrPipelineBuilder* pipelineBuilder, GrColor color,
                                    const SkMatrix& viewMatrix, const SkPoint pts[2],
                                    bool useAA, const GrStrokeInfo& strokeInfo) {

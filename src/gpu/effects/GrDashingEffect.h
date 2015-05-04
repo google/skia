@@ -15,12 +15,13 @@
 
 class GrClip;
 class GrDrawTarget;
+class GrGpu;
 class GrPaint;
 class GrPipelineBuilder;
 class GrStrokeInfo;
 
 namespace GrDashingEffect {
-    bool DrawDashLine(GrDrawTarget*, GrPipelineBuilder*, GrColor,
+    bool DrawDashLine(GrGpu*, GrDrawTarget*, GrPipelineBuilder*, GrColor,
                       const SkMatrix& viewMatrix, const SkPoint pts[2], bool useAA,
                       const GrStrokeInfo& strokeInfo);
     bool CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,
