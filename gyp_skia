@@ -68,12 +68,6 @@ def get_output_dir():
   if not output_dir:
     return os.path.join(os.path.abspath(script_dir), 'out')
 
-  if (sys.platform.startswith('darwin') and
-      (not os.getenv(ENVVAR_GYP_GENERATORS) or
-       'xcode' in os.getenv(ENVVAR_GYP_GENERATORS))):
-    print 'ERROR: variable SKIA_OUT is not valid on Mac (using xcodebuild)'
-    sys.exit(-1);
-
   if os.path.isabs(output_dir):
     return output_dir
   else:

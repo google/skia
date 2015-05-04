@@ -53,6 +53,7 @@ setup_device() {
   exportVar GYP_DEFINES "$DEFINES"
   exportVar GYP_GENERATORS "ninja"
   exportVar GYP_GENERATOR_FLAGS ""
-  exportVar SKIA_OUT "out/config/chromeos-${TARGET_DEVICE}"
+  SKIA_OUT=${SKIA_OUT:-out}
+  exportVar SKIA_OUT "${SKIA_OUT}/config/chromeos-${TARGET_DEVICE}"
   exportVar builddir_name "."
 }
