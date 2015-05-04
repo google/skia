@@ -61,6 +61,7 @@ private:
      * The only thing(aside from a memcopy) required to flush a BitmapTextBlob is to ensure that
      * the GrAtlas will not evict anything the Blob needs.
      */
+    // TODO Pack these bytes
     struct BitmapTextBlob : public SkRefCnt {
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(BitmapTextBlob);
 

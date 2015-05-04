@@ -72,17 +72,6 @@ protected:
 
 private:
     friend class GrTargetCommands;
-    typedef GrTargetCommands::State State;
-
-    State* allocState(const GrPrimitiveProcessor* primProc = NULL) {
-        void* allocation = fPipelineBuffer.alloc(sizeof(State), SkChunkAlloc::kThrow_AllocFailType);
-        return SkNEW_PLACEMENT_ARGS(allocation, State, (primProc));
-    }
-
-    void unallocState(State* state) {
-        state->unref();
-        fPipelineBuffer.unalloc(state);
-    }
 
     void onReset() override;
     void onFlush() override;
@@ -95,6 +84,7 @@ private:
                     const SkRect& rect,
                     const SkRect* localRect,
                     const SkMatrix* localMatrix) override;
+
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,
@@ -132,29 +122,17 @@ private:
     }
     bool isIssued(uint32_t drawID) override { return drawID != fDrawID; }
 
-    State* SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(const GrPrimitiveProcessor*,
-                                                            const GrDrawTarget::PipelineInfo&);
-    State* SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(GrBatch*,
-                                                            const GrDrawTarget::PipelineInfo&);
-
     // TODO: Use a single allocator for commands and records
     enum {
         kPathIdxBufferMinReserve     = 2 * 64,  // 64 uint16_t's
         kPathXformBufferMinReserve   = 2 * 64,  // 64 two-float transforms
-        kPipelineBufferMinReserve    = 32 * sizeof(State),
     };
-
-    // every 100 flushes we should reset our fPipelineBuffer to prevent us from holding at a
-    // highwater mark
-    static const int kPipelineBufferHighWaterMark = 100;
 
     GrTargetCommands                    fCommands;
     SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
     SkChunkAlloc                        fPathIndexBuffer;
     SkChunkAlloc                        fPathTransformBuffer;
-    SkChunkAlloc                        fPipelineBuffer;
     uint32_t                            fDrawID;
-    SkAutoTUnref<State>                 fPrevState;
 
     typedef GrClipTarget INHERITED;
 };
