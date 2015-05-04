@@ -824,19 +824,14 @@ public:
             create_vertices(segments, fanPt, &draws, verts, idxs);
 
             GrDrawTarget::DrawInfo info;
-            info.setVertexBuffer(vertexBuffer);
-            info.setIndexBuffer(indexBuffer);
-            info.setPrimitiveType(kTriangles_GrPrimitiveType);
-            info.setStartIndex(firstIndex);
 
-            int vOffset = 0;
             for (int i = 0; i < draws.count(); ++i) {
                 const Draw& draw = draws[i];
-                info.setStartVertex(vOffset + firstVertex);
-                info.setVertexCount(draw.fVertexCnt);
-                info.setIndexCount(draw.fIndexCnt);
+                info.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
+                                 firstIndex, draw.fVertexCnt, draw.fIndexCnt);
                 batchTarget->draw(info);
-                vOffset += draw.fVertexCnt;
+                firstVertex += draw.fVertexCnt;
+                firstIndex += draw.fIndexCnt;
             }
         }
     }

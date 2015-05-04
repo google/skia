@@ -16,7 +16,6 @@
 #include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrPathUtils.h"
-#include "GrResourceProvider.h"
 #include "GrTest.h"
 #include "GrTestBatch.h"
 #include "SkColorPriv.h"
@@ -67,24 +66,13 @@ private:
     }
 
     void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            batchTarget->resourceProvider()->refQuadIndexBuffer());
-
+        QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
-        const GrVertexBuffer* vertexBuffer;
-        int firstVertex;
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              kVertsPerCubic,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
-
-        if (!vertices || !indexBuffer) {
-            SkDebugf("Could not allocate buffers\n");
+        SkASSERT(vertexStride == sizeof(Vertex));
+        Vertex* verts = reinterpret_cast<Vertex*>(helper.init(batchTarget, vertexStride, 1));
+        if (!verts) {
             return;
         }
-
-        SkASSERT(vertexStride == sizeof(Vertex));
-        Vertex* verts = reinterpret_cast<Vertex*>(vertices);
 
         verts[0].fPosition.setRectFan(fGeometry.fBounds.fLeft, fGeometry.fBounds.fTop,
                                       fGeometry.fBounds.fRight, fGeometry.fBounds.fBottom,
@@ -94,16 +82,7 @@ private:
             verts[v].fKLM[1] = eval_line(verts[v].fPosition, fKlmEqs + 3, fSign);
             verts[v].fKLM[2] = eval_line(verts[v].fPosition, fKlmEqs + 6, 1.f);
         }
-
-        GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.setPrimitiveType(kTriangleFan_GrPrimitiveType);
-        drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setStartVertex(firstVertex);
-        drawInfo.setVertexCount(kVertsPerCubic);
-        drawInfo.setStartIndex(0);
-        drawInfo.setIndexCount(kIndicesPerCubic);
-        drawInfo.setIndexBuffer(indexBuffer);
-        batchTarget->draw(drawInfo);
+        helper.issueDraws(batchTarget);
     }
 
     Geometry fGeometry;
@@ -475,42 +454,19 @@ private:
     }
 
     void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            batchTarget->resourceProvider()->refQuadIndexBuffer());
-
+        QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
-        const GrVertexBuffer* vertexBuffer;
-        int firstVertex;
-
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              kVertsPerCubic,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
-
-        if (!vertices || !indexBuffer) {
-            SkDebugf("Could not allocate buffers\n");
+        SkASSERT(vertexStride == sizeof(Vertex));
+        GrDrawTarget::DrawInfo drawInfo;
+        Vertex* verts = reinterpret_cast<Vertex*>(helper.init(batchTarget, vertexStride, 1));
+        if (!verts) {
             return;
         }
-
-        SkASSERT(vertexStride == sizeof(Vertex));
-        Vertex* verts = reinterpret_cast<Vertex*>(vertices);
-
         verts[0].fPosition.setRectFan(fGeometry.fBounds.fLeft, fGeometry.fBounds.fTop,
                                       fGeometry.fBounds.fRight, fGeometry.fBounds.fBottom,
                                       sizeof(Vertex));
-
         fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
-
-
-        GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
-        drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setStartVertex(firstVertex);
-        drawInfo.setVertexCount(kVertsPerCubic);
-        drawInfo.setStartIndex(0);
-        drawInfo.setIndexCount(kIndicesPerCubic);
-        drawInfo.setIndexBuffer(indexBuffer);
-        batchTarget->draw(drawInfo);
+        helper.issueDraws(batchTarget);
     }
 
     Geometry fGeometry;

@@ -502,15 +502,7 @@ public:
         }
 
         GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.setPrimitiveType(primType);
-        drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setStartVertex(firstVertex);
-        drawInfo.setVertexCount(vertexCount);
-        drawInfo.setStartIndex(0);
-        drawInfo.setIndexCount(0);
-        drawInfo.setInstanceCount(0);
-        drawInfo.setVerticesPerInstance(0);
-        drawInfo.setIndicesPerInstance(0);
+        drawInfo.init(primType, vertexBuffer, firstVertex, vertexCount);
         batchTarget->draw(drawInfo);
     }
 
@@ -829,8 +821,8 @@ public:
             return;
         }
 
-        const GrIndexBuffer* indexBuffer;
-        int firstIndex;
+        const GrIndexBuffer* indexBuffer = NULL;
+        int firstIndex = 0;
 
         void* indices = NULL;
         if (this->hasIndices()) {
@@ -870,17 +862,12 @@ public:
         }
 
         GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.setPrimitiveType(this->primitiveType());
-        drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setStartVertex(firstVertex);
-        drawInfo.setVertexCount(this->vertexCount());
         if (this->hasIndices()) {
-            drawInfo.setIndexBuffer(indexBuffer);
-            drawInfo.setStartIndex(firstIndex);
-            drawInfo.setIndexCount(this->indexCount());
+            drawInfo.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
+                                 firstIndex, this->vertexCount(), this->indexCount());
+
         } else {
-            drawInfo.setStartIndex(0);
-            drawInfo.setIndexCount(0);
+            drawInfo.init(this->primitiveType(), vertexBuffer, firstVertex, this->vertexCount());
         }
         batchTarget->draw(drawInfo);
     }
