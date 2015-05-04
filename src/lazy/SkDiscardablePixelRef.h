@@ -49,10 +49,10 @@ private:
                           size_t rowBytes,
                           SkDiscardableMemory::Factory* factory);
 
-    virtual bool onGetYUV8Planes(SkISize sizes[3],
-                                 void* planes[3],
-                                 size_t rowBytes[3],
-                                 SkYUVColorSpace* colorSpace) override {
+    bool onGetYUV8Planes(SkISize sizes[3],
+                         void* planes[3],
+                         size_t rowBytes[3],
+                         SkYUVColorSpace* colorSpace) override {
         // If the image was already decoded with lockPixels(), favor not
         // re-decoding to YUV8 planes.
         if (fDiscardableMemory) {
