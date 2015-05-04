@@ -125,8 +125,8 @@ void GrContext::initCommon() {
 
     fLayerCache.reset(SkNEW_ARGS(GrLayerCache, (this)));
 
-    fAARectRenderer = SkNEW_ARGS(GrAARectRenderer, (fGpu));
-    fOvalRenderer = SkNEW_ARGS(GrOvalRenderer, (fGpu));
+    fAARectRenderer = SkNEW(GrAARectRenderer);
+    fOvalRenderer = SkNEW(GrOvalRenderer);
 
     fDidTestPMConversions = false;
 
@@ -186,9 +186,6 @@ void GrContext::abandonContext() {
     delete fDrawBufferIBAllocPool;
     fDrawBufferIBAllocPool = NULL;
 
-    fAARectRenderer->reset();
-    fOvalRenderer->reset();
-
     fBatchFontCache->freeAll();
     fLayerCache->freeAll();
     fTextBlobCache->freeAll();
@@ -204,9 +201,6 @@ void GrContext::freeGpuResources() {
     if (fDrawBuffer) {
         fDrawBuffer->purgeResources();
     }
-
-    fAARectRenderer->reset();
-    fOvalRenderer->reset();
 
     fBatchFontCache->freeAll();
     fLayerCache->freeAll();
@@ -1838,10 +1832,6 @@ void GrContext::setupDrawBuffer() {
 
 GrDrawTarget* GrContext::getTextTarget() {
     return this->prepareToDraw();
-}
-
-const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
-    return fGpu->getQuadIndexBuffer();
 }
 
 namespace {

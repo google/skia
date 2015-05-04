@@ -154,6 +154,12 @@ protected:
         fGpu = NULL;
     }
 
+    GrResourceCache* cache() { return fCache; }
+    const GrResourceCache* cache() const { return fCache; }
+
+    GrGpu* gpu() { return fGpu; }
+    const GrGpu* gpu() const { return fGpu; }
+
 private:
     bool isAbandoned() const {
         SkASSERT(SkToBool(fGpu) == SkToBool(fCache));

@@ -16,7 +16,6 @@
 
 class GrClip;
 class GrDrawTarget;
-class GrGpu;
 class GrIndexBuffer;
 class GrPipelineBuilder;
 
@@ -26,19 +25,6 @@ class GrPipelineBuilder;
 class GrAARectRenderer : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrAARectRenderer)
-
-    GrAARectRenderer(GrGpu* gpu)
-    : fGpu(gpu)
-    , fAAFillRectIndexBuffer(NULL)
-    , fAAMiterStrokeRectIndexBuffer(NULL)
-    , fAABevelStrokeRectIndexBuffer(NULL) {
-    }
-
-    void reset();
-
-    ~GrAARectRenderer() {
-        this->reset();
-    }
 
     // TODO: potentialy fuse the fill & stroke methods and differentiate
     // between them by passing in stroke (==NULL means fill).
@@ -83,11 +69,6 @@ private:
                               const SkRect& devOutsideAssist,
                               const SkRect& devInside,
                               bool miterStroke);
-
-    GrGpu*                      fGpu;
-    GrIndexBuffer*              fAAFillRectIndexBuffer;
-    GrIndexBuffer*              fAAMiterStrokeRectIndexBuffer;
-    GrIndexBuffer*              fAABevelStrokeRectIndexBuffer;
 
     typedef SkRefCnt INHERITED;
 };

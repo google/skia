@@ -24,14 +24,11 @@
 GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
-    , fQuadIndexBuffer(NULL)
     , fGpuTraceMarkerCount(0)
     , fContext(context) {
 }
 
-GrGpu::~GrGpu() {
-    SkSafeSetNull(fQuadIndexBuffer);
-}
+GrGpu::~GrGpu() {}
 
 void GrGpu::contextAbandoned() {}
 
@@ -184,39 +181,6 @@ GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
     return this->onCreateIndexBuffer(size, dynamic);
 }
 
-GrIndexBuffer* GrGpu::createInstancedIndexBuffer(const uint16_t* pattern,
-                                                 int patternSize,
-                                                 int reps,
-                                                 int vertCount,
-                                                 bool isDynamic) {
-    size_t bufferSize = patternSize * reps * sizeof(uint16_t);
-    GrGpu* me = const_cast<GrGpu*>(this);
-    GrIndexBuffer* buffer = me->createIndexBuffer(bufferSize, isDynamic);
-    if (buffer) {
-        uint16_t* data = (uint16_t*) buffer->map();
-        bool useTempData = (NULL == data);
-        if (useTempData) {
-            data = SkNEW_ARRAY(uint16_t, reps * patternSize);
-        }
-        for (int i = 0; i < reps; ++i) {
-            int baseIdx = i * patternSize;
-            uint16_t baseVert = (uint16_t)(i * vertCount);
-            for (int j = 0; j < patternSize; ++j) {
-                data[baseIdx+j] = baseVert + pattern[j];
-            }
-        }
-        if (useTempData) {
-            if (!buffer->updateData(data, bufferSize)) {
-                SkFAIL("Can't get indices into buffer!");
-            }
-            SkDELETE_ARRAY(data);
-        } else {
-            buffer->unmap();
-        }
-    }
-    return buffer;
-}
-
 void GrGpu::clear(const SkIRect* rect,
                   GrColor color,
                   bool canIgnoreRect,
@@ -301,29 +265,6 @@ void GrGpu::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
         this->didRemoveGpuTraceMarker();
         --fGpuTraceMarkerCount;
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-static const int MAX_QUADS = 1 << 12; // max possible: (1 << 14) - 1;
-
-GR_STATIC_ASSERT(4 * MAX_QUADS <= 65535);
-
-static const uint16_t gQuadIndexPattern[] = {
-  0, 1, 2, 0, 2, 3
-};
-
-const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
-    if (NULL == fQuadIndexBuffer || fQuadIndexBuffer->wasDestroyed()) {
-        SkSafeUnref(fQuadIndexBuffer);
-        GrGpu* me = const_cast<GrGpu*>(this);
-        fQuadIndexBuffer = me->createInstancedIndexBuffer(gQuadIndexPattern,
-                                                          6,
-                                                          MAX_QUADS,
-                                                          4);
-    }
-
-    return fQuadIndexBuffer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

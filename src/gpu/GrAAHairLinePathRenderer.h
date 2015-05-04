@@ -13,37 +13,30 @@
 
 class GrAAHairLinePathRenderer : public GrPathRenderer {
 public:
-    virtual ~GrAAHairLinePathRenderer();
+    static GrPathRenderer* Create()  { return SkNEW(GrAAHairLinePathRenderer); }
 
-    static GrPathRenderer* Create(GrContext* context);
-
-    virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrPipelineBuilder*,
-                             const SkMatrix& viewMatrix,
-                             const SkPath&,
-                             const GrStrokeInfo&,
-                             bool antiAlias) const override;
+    bool canDrawPath(const GrDrawTarget*,
+                     const GrPipelineBuilder*,
+                     const SkMatrix& viewMatrix,
+                     const SkPath&,
+                     const GrStrokeInfo&,
+                     bool antiAlias) const override;
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
 
 protected:
-    virtual bool onDrawPath(GrDrawTarget*,
-                            GrPipelineBuilder*,
-                            GrColor,
-                            const SkMatrix& viewMatrix,
-                            const SkPath&,
-                            const GrStrokeInfo&,
-                            bool antiAlias) override;
+    bool onDrawPath(GrDrawTarget*,
+                    GrPipelineBuilder*,
+                    GrColor,
+                    const SkMatrix& viewMatrix,
+                    const SkPath&,
+                    const GrStrokeInfo&,
+                    bool antiAlias) override;
 
 private:
-    GrAAHairLinePathRenderer(const GrContext* context,
-                             const GrIndexBuffer* fLinesIndexBuffer,
-                             const GrIndexBuffer* fQuadsIndexBuffer);
-
-    const GrIndexBuffer*        fLinesIndexBuffer;
-    const GrIndexBuffer*        fQuadsIndexBuffer;
+    GrAAHairLinePathRenderer() {}
 
     typedef GrPathRenderer INHERITED;
 };

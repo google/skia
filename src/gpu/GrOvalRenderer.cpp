@@ -13,10 +13,10 @@
 #include "GrBufferAllocPool.h"
 #include "GrDrawTarget.h"
 #include "GrGeometryProcessor.h"
-#include "GrGpu.h"
 #include "GrInvariantOutput.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
+#include "GrResourceProvider.h"
 #include "GrVertexBuffer.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
@@ -646,11 +646,6 @@ GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrOvalRenderer::reset() {
-    SkSafeSetNull(fRRectIndexBuffer);
-    SkSafeSetNull(fStrokeRRectIndexBuffer);
-}
-
 bool GrOvalRenderer::drawOval(GrDrawTarget* target,
                               GrPipelineBuilder* pipelineBuilder,
                               GrColor color,
@@ -659,8 +654,7 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
                               const SkRect& oval,
                               const SkStrokeRec& stroke)
 {
-    bool useCoverageAA = useAA &&
-        !pipelineBuilder->getRenderTarget()->isMultisampled();
+    bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isMultisampled();
 
     if (!useCoverageAA) {
         return false;
@@ -697,9 +691,7 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(CircleBatch, (geometry));
-    }
+    static GrBatch* Create(const Geometry& geometry) { return SkNEW_ARGS(CircleBatch, (geometry)); }
 
     const char* name() const override { return "CircleBatch"; }
 
@@ -756,6 +748,8 @@ public:
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(CircleVertex));
 
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
@@ -764,7 +758,7 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices || !batchTarget->quadIndexBuffer()) {
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate buffers\n");
             return;
         }
@@ -804,8 +798,6 @@ public:
             verts += kVertsPerCircle;
         }
 
-        const GrIndexBuffer* quadIndexBuffer = batchTarget->quadIndexBuffer();
-
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
         drawInfo.setStartVertex(0);
@@ -814,9 +806,9 @@ public:
         drawInfo.setIndicesPerInstance(kIndicesPerCircle);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(quadIndexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
-        int maxInstancesPerDraw = quadIndexBuffer->maxQuads();
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
 
         while (instanceCount) {
             drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
@@ -1022,6 +1014,8 @@ public:
         SkASSERT(vertexStride == sizeof(EllipseVertex));
 
         const GrVertexBuffer* vertexBuffer;
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
         int firstVertex;
 
         void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
@@ -1029,7 +1023,7 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices || !batchTarget->quadIndexBuffer()) {
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate buffers\n");
             return;
         }
@@ -1074,8 +1068,6 @@ public:
             verts += kVertsPerEllipse;
         }
 
-        const GrIndexBuffer* quadIndexBuffer = batchTarget->quadIndexBuffer();
-
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
         drawInfo.setStartVertex(0);
@@ -1084,9 +1076,9 @@ public:
         drawInfo.setIndicesPerInstance(kIndicesPerEllipse);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(quadIndexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
-        int maxInstancesPerDraw = quadIndexBuffer->maxQuads();
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
 
         while (instanceCount) {
             drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
@@ -1325,20 +1317,21 @@ public:
         init.fUsesLocalCoords = this->usesLocalCoords();
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
+
         int instanceCount = fGeoData.count();
         int vertexCount = kVertsPerEllipse * instanceCount;
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(DIEllipseVertex));
-
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
-
         void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
                                                               vertexCount,
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices || !batchTarget->quadIndexBuffer()) {
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate buffers\n");
             return;
         }
@@ -1379,8 +1372,6 @@ public:
             verts += kVertsPerEllipse;
         }
 
-        const GrIndexBuffer* quadIndexBuffer = batchTarget->quadIndexBuffer();
-
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
         drawInfo.setStartVertex(0);
@@ -1389,9 +1380,9 @@ public:
         drawInfo.setIndicesPerInstance(kIndicesPerEllipse);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(quadIndexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
-        int maxInstancesPerDraw = quadIndexBuffer->maxQuads();
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
 
         while (instanceCount) {
             drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
@@ -1579,6 +1570,24 @@ static const int kIndicesPerRRect = SK_ARRAY_COUNT(gRRectIndices);
 static const int kVertsPerRRect = 16;
 static const int kNumRRectsInIndexBuffer = 256;
 
+GR_DECLARE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
+GR_DECLARE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
+static const GrIndexBuffer* ref_rrect_index_buffer(bool strokeOnly,
+                                                   GrResourceProvider* resourceProvider) {
+    GR_DEFINE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
+    GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
+    if (strokeOnly) {
+        return resourceProvider->refOrCreateInstancedIndexBuffer(
+            gRRectIndices, kIndicesPerStrokeRRect, kNumRRectsInIndexBuffer, kVertsPerRRect,
+            gStrokeRRectOnlyIndexBufferKey);
+    } else {
+        return resourceProvider->refOrCreateInstancedIndexBuffer(
+            gRRectIndices, kIndicesPerRRect, kNumRRectsInIndexBuffer, kVertsPerRRect,
+            gRRectOnlyIndexBufferKey);
+
+    }
+}
+
 bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
                                 GrPipelineBuilder* pipelineBuilder,
                                 GrColor color,
@@ -1657,8 +1666,8 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry, const GrIndexBuffer* indexBuffer) {
-        return SkNEW_ARGS(RRectCircleRendererBatch, (geometry, indexBuffer));
+    static GrBatch* Create(const Geometry& geometry) {
+        return SkNEW_ARGS(RRectCircleRendererBatch, (geometry));
     }
 
     const char* name() const override { return "RRectCircleBatch"; }
@@ -1718,6 +1727,8 @@ public:
         SkASSERT(vertexStride == sizeof(CircleVertex));
 
         const GrVertexBuffer* vertexBuffer;
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            ref_rrect_index_buffer(this->stroke(), batchTarget->resourceProvider()));
         int firstVertex;
 
         void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
@@ -1725,7 +1736,7 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices) {
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -1780,7 +1791,6 @@ public:
         int indexCnt = this->stroke() ? SK_ARRAY_COUNT(gRRectIndices) - 6 :
                                         SK_ARRAY_COUNT(gRRectIndices);
 
-
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
         drawInfo.setStartVertex(0);
@@ -1789,7 +1799,7 @@ public:
         drawInfo.setIndicesPerInstance(indexCnt);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(fIndexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
         int maxInstancesPerDraw = kNumRRectsInIndexBuffer;
 
@@ -1808,8 +1818,7 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    RRectCircleRendererBatch(const Geometry& geometry, const GrIndexBuffer* indexBuffer)
-        : fIndexBuffer(indexBuffer) {
+    RRectCircleRendererBatch(const Geometry& geometry) {
         this->initClassID<RRectCircleRendererBatch>();
         fGeoData.push_back(geometry);
 
@@ -1853,7 +1862,6 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
-    const GrIndexBuffer* fIndexBuffer;
 };
 
 class RRectEllipseRendererBatch : public GrBatch {
@@ -1869,8 +1877,8 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry, const GrIndexBuffer* indexBuffer) {
-        return SkNEW_ARGS(RRectEllipseRendererBatch, (geometry, indexBuffer));
+    static GrBatch* Create(const Geometry& geometry) {
+        return SkNEW_ARGS(RRectEllipseRendererBatch, (geometry));
     }
 
     const char* name() const override { return "RRectEllipseRendererBatch"; }
@@ -1930,6 +1938,8 @@ public:
         SkASSERT(vertexStride == sizeof(EllipseVertex));
 
         const GrVertexBuffer* vertexBuffer;
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            ref_rrect_index_buffer(this->stroke(), batchTarget->resourceProvider()));
         int firstVertex;
 
         void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
@@ -1937,7 +1947,7 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices) {
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -2011,7 +2021,7 @@ public:
         drawInfo.setIndicesPerInstance(indexCnt);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(fIndexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
         int maxInstancesPerDraw = kNumRRectsInIndexBuffer;
 
@@ -2030,8 +2040,7 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    RRectEllipseRendererBatch(const Geometry& geometry, const GrIndexBuffer* indexBuffer)
-        : fIndexBuffer(indexBuffer) {
+    RRectEllipseRendererBatch(const Geometry& geometry) {
         this->initClassID<RRectEllipseRendererBatch>();
         fGeoData.push_back(geometry);
 
@@ -2075,40 +2084,13 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
-    const GrIndexBuffer* fIndexBuffer;
 };
-
-static GrIndexBuffer* create_rrect_indexbuffer(GrIndexBuffer** strokeRRectIndexBuffer,
-                                               GrIndexBuffer** rrectIndexBuffer,
-                                               bool isStrokeOnly,
-                                               GrGpu* gpu) {
-    if (isStrokeOnly) {
-        if (NULL == *strokeRRectIndexBuffer) {
-            *strokeRRectIndexBuffer = gpu->createInstancedIndexBuffer(gRRectIndices,
-                                                                      kIndicesPerStrokeRRect,
-                                                                      kNumRRectsInIndexBuffer,
-                                                                      kVertsPerRRect);
-        }
-        return *strokeRRectIndexBuffer;
-    } else {
-        if (NULL == *rrectIndexBuffer) {
-            *rrectIndexBuffer = gpu->createInstancedIndexBuffer(gRRectIndices,
-                                                                kIndicesPerRRect,
-                                                                kNumRRectsInIndexBuffer,
-                                                                kVertsPerRRect);
-        }
-        return *rrectIndexBuffer;
-    }
-}
 
 static GrBatch* create_rrect_batch(GrColor color,
                                    const SkMatrix& viewMatrix,
                                    const SkRRect& rrect,
                                    const SkStrokeRec& stroke,
-                                   SkRect* bounds,
-                                   GrIndexBuffer** strokeRRectIndexBuffer,
-                                   GrIndexBuffer** rrectIndexBuffer,
-                                   GrGpu* gpu) {
+                                   SkRect* bounds) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
@@ -2159,15 +2141,6 @@ static GrBatch* create_rrect_batch(GrColor color,
         return NULL;
     }
 
-    GrIndexBuffer* indexBuffer = create_rrect_indexbuffer(strokeRRectIndexBuffer,
-                                                          rrectIndexBuffer,
-                                                          isStrokeOnly,
-                                                          gpu);
-    if (NULL == indexBuffer) {
-        SkDebugf("Failed to create index buffer!\n");
-        return NULL;
-    }
-
     // if the corners are circles, use the circle renderer
     if ((!hasStroke || scaledStroke.fX == scaledStroke.fY) && xRadius == yRadius) {
         SkScalar innerRadius = 0.0f;
@@ -2208,8 +2181,7 @@ static GrBatch* create_rrect_batch(GrColor color,
         geometry.fStroke = isStrokeOnly;
         geometry.fDevBounds = *bounds;
 
-        return RRectCircleRendererBatch::Create(geometry, indexBuffer);
-
+        return RRectCircleRendererBatch::Create(geometry);
     // otherwise we use the ellipse renderer
     } else {
         SkScalar innerXRadius = 0.0f;
@@ -2259,7 +2231,7 @@ static GrBatch* create_rrect_batch(GrColor color,
         geometry.fStroke = isStrokeOnly;
         geometry.fDevBounds = *bounds;
 
-        return RRectEllipseRendererBatch::Create(geometry, indexBuffer);
+        return RRectEllipseRendererBatch::Create(geometry);
     }
 }
 
@@ -2287,9 +2259,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
     }
 
     SkRect bounds;
-    SkAutoTUnref<GrBatch> batch(create_rrect_batch(color, viewMatrix, rrect, stroke, &bounds,
-                                                   &fStrokeRRectIndexBuffer, &fRRectIndexBuffer,
-                                                   fGpu));
+    SkAutoTUnref<GrBatch> batch(create_rrect_batch(color, viewMatrix, rrect, stroke, &bounds));
     if (!batch) {
         return false;
     }
@@ -2347,11 +2317,8 @@ BATCH_TEST_DEFINE(RRectBatch) {
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
 
-    static GrIndexBuffer* gStrokeRRectIndexBuffer;
-    static GrIndexBuffer* gRRectIndexBuffer;
     SkRect bounds;
-    return create_rrect_batch(color, viewMatrix, rrect, random_strokerec(random), &bounds,
-                              &gStrokeRRectIndexBuffer, &gRRectIndexBuffer, context->getGpu());
+    return create_rrect_batch(color, viewMatrix, rrect, random_strokerec(random), &bounds);
 }
 
 #endif

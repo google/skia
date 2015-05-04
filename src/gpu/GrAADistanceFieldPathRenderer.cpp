@@ -15,6 +15,7 @@
 #include "GrPipelineBuilder.h"
 #include "GrSurfacePriv.h"
 #include "GrSWMaskHelper.h"
+#include "GrResourceProvider.h"
 #include "GrTexturePriv.h"
 #include "GrVertexBuffer.h"
 #include "effects/GrDistanceFieldGeoProc.h"
@@ -194,13 +195,17 @@ public:
 
         this->initDraw(batchTarget, dfProcessor, pipeline);
 
+        static const int kVertsPerQuad = 4;
+        static const int kIndicesPerQuad = 6;
+
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
+
         // allocate vertices
         size_t vertexStride = dfProcessor->getVertexStride();
         SkASSERT(vertexStride == 2 * sizeof(SkPoint));
-
-        int vertexCount = GrBatchTarget::kVertsPerRect * instanceCount;
-
         const GrVertexBuffer* vertexBuffer;
+        int vertexCount = kVertsPerQuad * instanceCount;
         int firstVertex;
 
         void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
@@ -208,24 +213,23 @@ public:
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices) {
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
         // We may have to flush while uploading path data to the atlas, so we set up the draw here
-        const GrIndexBuffer* quadIndexBuffer = batchTarget->quadIndexBuffer();
-        int maxInstancesPerDraw = quadIndexBuffer->maxQuads();
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
 
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
         drawInfo.setStartVertex(0);
         drawInfo.setStartIndex(0);
-        drawInfo.setVerticesPerInstance(GrBatchTarget::kVertsPerRect);
-        drawInfo.setIndicesPerInstance(GrBatchTarget::kIndicesPerRect);
+        drawInfo.setVerticesPerInstance(kVertsPerQuad);
+        drawInfo.setIndicesPerInstance(kIndicesPerQuad);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(quadIndexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
         int instancesToFlush = 0;
         for (int i = 0; i < instanceCount; i++) {
@@ -280,7 +284,7 @@ public:
 
             // Now set vertices
             intptr_t offset = reinterpret_cast<intptr_t>(vertices);
-            offset += i * GrBatchTarget::kVertsPerRect * vertexStride;
+            offset += i * kVertsPerQuad * vertexStride;
             SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
             this->drawPath(batchTarget,
                            atlas,

@@ -8,6 +8,7 @@
 #include "GrInOrderDrawBuffer.h"
 
 #include "GrDefaultGeoProcFactory.h"
+#include "GrResourceProvider.h"
 #include "GrTemplates.h"
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context,
@@ -137,17 +138,18 @@ public:
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
 
         int instanceCount = fGeoData.count();
-        int vertexCount = kVertsPerRect * instanceCount;
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            batchTarget->resourceProvider()->refQuadIndexBuffer());
 
+        int vertexCount = kVertsPerRect * instanceCount;
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
-
         void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
                                                               vertexCount,
                                                               &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices || !batchTarget->quadIndexBuffer()) {
+        if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate buffers\n");
             return;
         }
@@ -181,8 +183,6 @@ public:
             }
         }
 
-        const GrIndexBuffer* quadIndexBuffer = batchTarget->quadIndexBuffer();
-
         GrDrawTarget::DrawInfo drawInfo;
         drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
         drawInfo.setStartVertex(0);
@@ -191,9 +191,9 @@ public:
         drawInfo.setIndicesPerInstance(kIndicesPerRect);
         drawInfo.adjustStartVertex(firstVertex);
         drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(quadIndexBuffer);
+        drawInfo.setIndexBuffer(indexBuffer);
 
-        int maxInstancesPerDraw = quadIndexBuffer->maxQuads();
+        int maxInstancesPerDraw = indexBuffer->maxQuads();
         while (instanceCount) {
             drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
             drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());

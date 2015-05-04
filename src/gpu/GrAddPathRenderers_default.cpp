@@ -39,7 +39,7 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain
     if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx)) {
         chain->addPathRenderer(pr)->unref();
     }
-    if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create(ctx)) {
+    if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create()) {
         chain->addPathRenderer(pr)->unref();
     }
     chain->addPathRenderer(SkNEW(GrAAConvexPathRenderer))->unref();

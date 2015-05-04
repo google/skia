@@ -539,7 +539,6 @@ public:
     GrLayerCache* getLayerCache() { return fLayerCache.get(); }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache; }
     GrDrawTarget* getTextTarget();
-    const GrIndexBuffer* getQuadIndexBuffer() const;
     GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
