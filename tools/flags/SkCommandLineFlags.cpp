@@ -11,6 +11,8 @@
 
 DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
 
+template <typename T> static void ignore_result(const T&) {}
+
 bool SkFlagInfo::CreateStringFlag(const char* name, const char* shortName,
                                   SkCommandLineFlags::StringArray* pStrings,
                                   const char* defaultValue, const char* helpString) {
@@ -284,7 +286,8 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                             // Add all arguments until another flag is reached.
                             while (i+1 < argc) {
                                 char* end = NULL;
-                                (void)strtod(argv[i+1], &end); // Negative numbers aren't flags.
+                                // Negative numbers aren't flags.
+                                ignore_result(strtod(argv[i+1], &end));
                                 if (end == argv[i+1] && SkStrStartsWith(argv[i+1], '-')) {
                                     break;
                                 }
