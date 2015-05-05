@@ -7,8 +7,8 @@
 
 #include "DMSrcSink.h"
 #include "SamplePipeControllers.h"
-#include "SkCommonFlags.h"
 #include "SkCodec.h"
+#include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkDeferredCanvas.h"
 #include "SkDocument.h"
@@ -20,8 +20,8 @@
 #include "SkPictureData.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
-#include "SkScanlineDecoder.h"
 #include "SkSVGCanvas.h"
+#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 #include "SkXMLWriter.h"
 
@@ -502,6 +502,28 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+// Handy for front-patching a Src.  Do whatever up-front work you need, then call draw_to_canvas(),
+// passing the Sink draw() arguments, a size, and a lambda that takes SkCanvas* and returns Error.
+// Several examples below.
+
+template <typename DrawFn>
+static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkString* log,
+                            SkISize size, DrawFn draw) {
+    class ProxySrc : public Src {
+    public:
+        ProxySrc(SkISize size, DrawFn draw) : fSize(size), fDraw(draw) {}
+        Error   draw(SkCanvas* canvas) const override { return fDraw(canvas); }
+        Name                    name() const override { sk_throw(); return ""; } // Won't be called.
+        SkISize                 size() const override { return fSize; }
+    private:
+        SkISize fSize;
+        DrawFn  fDraw;
+    };
+    return sink->draw(ProxySrc(size, draw), bitmap, stream, log);
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 static SkISize auto_compute_translate(SkMatrix* matrix, int srcW, int srcH) {
     SkRect bounds = SkRect::MakeIWH(srcW, srcH);
     matrix->mapRect(&bounds);
@@ -512,24 +534,12 @@ static SkISize auto_compute_translate(SkMatrix* matrix, int srcW, int srcH) {
 ViaMatrix::ViaMatrix(SkMatrix matrix, Sink* sink) : fMatrix(matrix), fSink(sink) {}
 
 Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    // We turn our arguments into a Src, then draw that Src into our Sink to fill bitmap or stream.
-    struct ProxySrc : public Src {
-        const Src&  fSrc;
-        SkMatrix    fMatrix;
-        SkISize     fSize;
-
-        ProxySrc(const Src& src, SkMatrix matrix) : fSrc(src), fMatrix(matrix) {
-            fSize = auto_compute_translate(&fMatrix, src.size().width(), src.size().height());
-        }
-
-        Error draw(SkCanvas* canvas) const override {
-            canvas->concat(fMatrix);
-            return fSrc.draw(canvas);
-        }
-        SkISize size() const override { return fSize; }
-        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
-    } proxy(src, fMatrix);
-    return fSink->draw(proxy, bitmap, stream, log);
+    SkMatrix matrix = fMatrix;
+    SkISize size = auto_compute_translate(&matrix, src.size().width(), src.size().height());
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
+        canvas->concat(matrix);
+        return src.draw(canvas);
+    });
 }
 
 // Undoes any flip or 90 degree rotate without changing the scale of the bitmap.
@@ -572,70 +582,52 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
 ViaPipe::ViaPipe(Sink* sink) : fSink(sink) {}
 
 Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    // We turn ourselves into another Src that draws our argument into bitmap/stream via pipe.
-    struct ProxySrc : public Src {
-        const Src& fSrc;
-        ProxySrc(const Src& src) : fSrc(src) {}
-
-        Error draw(SkCanvas* canvas) const override {
-            SkISize size = this->size();
-            PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
-            SkGPipeWriter pipe;
-            const uint32_t kFlags = 0; // We mirror SkDeferredCanvas, which doesn't use any flags.
-            return fSrc.draw(pipe.startRecording(&controller, kFlags, size.width(), size.height()));
-        }
-        SkISize size() const override { return fSrc.size(); }
-        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
-    } proxy(src);
-    return fSink->draw(proxy, bitmap, stream, log);
+    auto size = src.size();
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
+        PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
+        SkGPipeWriter pipe;
+        const uint32_t kFlags = 0; // We mirror SkDeferredCanvas, which doesn't use any flags.
+        return src.draw(pipe.startRecording(&controller, kFlags, size.width(), size.height()));
+    });
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-    
+
 ViaDeferred::ViaDeferred(Sink* sink) : fSink(sink) {}
 
 Error ViaDeferred::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    // We turn ourselves into another Src that draws our argument into a deferred canvas,
-    // via a surface created by the original canvas. We then draw a snapped image from that
-    // surface back into the original canvas.
-    struct ProxySrc : public Src {
-        const Src& fSrc;
-        ProxySrc(const Src& src) : fSrc(src) {}
-
-        Error draw(SkCanvas* canvas) const override {
-            SkAutoTUnref<SkSurface> surface(canvas->newSurface(canvas->imageInfo()));
-            if (!surface.get()) {
-                return "can't make surface for deferred canvas";
-            }
-            SkAutoTDelete<SkDeferredCanvas> defcan(SkDeferredCanvas::Create(surface));
-            Error err = fSrc.draw(defcan);
-            if (!err.isEmpty()) {
-                return err;
-            }
-            SkAutoTUnref<SkImage> image(defcan->newImageSnapshot());
-            if (!image) {
-                return "failed to create deferred image snapshot";
-            }
-            canvas->drawImage(image, 0, 0, NULL);
-            return "";
+    // We draw via a deferred canvas into a surface that's compatible with the original canvas,
+    // then snap that surface as an image and draw it into the original canvas.
+    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) -> Error {
+        SkAutoTUnref<SkSurface> surface(canvas->newSurface(canvas->imageInfo()));
+        if (!surface.get()) {
+            return "can't make surface for deferred canvas";
         }
-        SkISize size() const override { return fSrc.size(); }
-        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
-    } proxy(src);
-    return fSink->draw(proxy, bitmap, stream, log);
+        SkAutoTDelete<SkDeferredCanvas> defcan(SkDeferredCanvas::Create(surface));
+        Error err = src.draw(defcan);
+        if (!err.isEmpty()) {
+            return err;
+        }
+        SkAutoTUnref<SkImage> image(defcan->newImageSnapshot());
+        if (!image) {
+            return "failed to create deferred image snapshot";
+        }
+        canvas->drawImage(image, 0, 0, NULL);
+        return "";
+    });
 }
-    
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ViaSerialization::ViaSerialization(Sink* sink) : fSink(sink) {}
 
-Error ViaSerialization::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log)
-    const {
+Error ViaSerialization::draw(
+        const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     // Record our Src into a picture.
-    SkSize size;
-    size = src.size();
+    auto size = src.size();
     SkPictureRecorder recorder;
-    Error err = src.draw(recorder.beginRecording(size.width(), size.height()));
+    Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
+                                                 SkIntToScalar(size.height())));
     if (!err.isEmpty()) {
         return err;
     }
@@ -647,20 +639,10 @@ Error ViaSerialization::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream
     SkAutoTDelete<SkStream> rStream(wStream.detachAsStream());
     SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rStream, &lazy_decode_bitmap));
 
-    // Turn that deserialized picture into a Src, draw it into our Sink to fill bitmap or stream.
-    struct ProxySrc : public Src {
-        const SkPicture* fPic;
-        const SkISize fSize;
-        ProxySrc(const SkPicture* pic, SkISize size) : fPic(pic), fSize(size) {}
-
-        Error draw(SkCanvas* canvas) const override {
-            canvas->drawPicture(fPic);
-            return "";
-        }
-        SkISize size() const override { return fSize; }
-        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
-    } proxy(deserialized, src.size());
-    return fSink->draw(proxy, bitmap, stream, log);
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
+        canvas->drawPicture(deserialized);
+        return "";
+    });
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -672,61 +654,49 @@ ViaTiles::ViaTiles(int w, int h, SkBBHFactory* factory, Sink* sink)
     , fSink(sink) {}
 
 Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    // Record our Src into a picture.
-    SkSize size;
-    size = src.size();
+    auto size = src.size();
     SkPictureRecorder recorder;
-    Error err = src.draw(recorder.beginRecording(size.width(), size.height(), fFactory.get()));
+    Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
+                                                 SkIntToScalar(size.height()),
+                                                 fFactory.get()));
     if (!err.isEmpty()) {
         return err;
     }
     SkAutoTUnref<SkPicture> pic(recorder.endRecordingAsPicture());
 
-    // Turn that picture into a Src that draws into our Sink via tiles + MPD.
-    struct ProxySrc : public Src {
-        const int fW, fH;
-        const SkPicture* fPic;
-        const SkISize fSize;
-        ProxySrc(int w, int h, const SkPicture* pic, SkISize size)
-            : fW(w), fH(h), fPic(pic), fSize(size) {}
+    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
+        const int xTiles = (size.width()  + fW - 1) / fW,
+                  yTiles = (size.height() + fH - 1) / fH;
+        SkMultiPictureDraw mpd(xTiles*yTiles);
+        SkTDArray<SkSurface*> surfaces;
+        surfaces.setReserve(xTiles*yTiles);
 
-        Error draw(SkCanvas* canvas) const override {
-            const int xTiles = (fSize.width()  + fW - 1) / fW,
-                      yTiles = (fSize.height() + fH - 1) / fH;
-            SkMultiPictureDraw mpd(xTiles*yTiles);
-            SkTDArray<SkSurface*> surfaces;
-            surfaces.setReserve(xTiles*yTiles);
-
-            SkImageInfo info = canvas->imageInfo().makeWH(fW, fH);
-            for (int j = 0; j < yTiles; j++) {
-                for (int i = 0; i < xTiles; i++) {
-                    // This lets our ultimate Sink determine the best kind of surface.
-                    // E.g., if it's a GpuSink, the surfaces and images are textures.
-                    SkSurface* s = canvas->newSurface(info);
-                    if (!s) {
-                        s = SkSurface::NewRaster(info);  // Some canvases can't create surfaces.
-                    }
-                    surfaces.push(s);
-                    SkCanvas* c = s->getCanvas();
-                    c->translate(SkIntToScalar(-i * fW),
-                                 SkIntToScalar(-j * fH));  // Line up the canvas with this tile.
-                    mpd.add(c, fPic);
+        SkImageInfo info = canvas->imageInfo().makeWH(fW, fH);
+        for (int j = 0; j < yTiles; j++) {
+            for (int i = 0; i < xTiles; i++) {
+                // This lets our ultimate Sink determine the best kind of surface.
+                // E.g., if it's a GpuSink, the surfaces and images are textures.
+                SkSurface* s = canvas->newSurface(info);
+                if (!s) {
+                    s = SkSurface::NewRaster(info);  // Some canvases can't create surfaces.
                 }
+                surfaces.push(s);
+                SkCanvas* c = s->getCanvas();
+                c->translate(SkIntToScalar(-i * fW),
+                             SkIntToScalar(-j * fH));  // Line up the canvas with this tile.
+                mpd.add(c, pic);
             }
-            mpd.draw();
-            for (int j = 0; j < yTiles; j++) {
-                for (int i = 0; i < xTiles; i++) {
-                    SkAutoTUnref<SkImage> image(surfaces[i+xTiles*j]->newImageSnapshot());
-                    canvas->drawImage(image, SkIntToScalar(i*fW), SkIntToScalar(j*fH));
-                }
-            }
-            surfaces.unrefAll();
-            return "";
         }
-        SkISize size() const override { return fSize; }
-        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
-    } proxy(fW, fH, pic, src.size());
-    return fSink->draw(proxy, bitmap, stream, log);
+        mpd.draw();
+        for (int j = 0; j < yTiles; j++) {
+            for (int i = 0; i < xTiles; i++) {
+                SkAutoTUnref<SkImage> image(surfaces[i+xTiles*j]->newImageSnapshot());
+                canvas->drawImage(image, SkIntToScalar(i*fW), SkIntToScalar(j*fH));
+            }
+        }
+        surfaces.unrefAll();
+        return "";
+    });
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -737,29 +707,21 @@ ViaSecondPicture::ViaSecondPicture(Sink* sink) : fSink(sink) {}
 // This tests that any shortcuts we may take while recording that second picture are legal.
 Error ViaSecondPicture::draw(
         const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    struct ProxySrc : public Src {
-        const Src& fSrc;
-        ProxySrc(const Src& src) : fSrc(src) {}
-
-        Error draw(SkCanvas* canvas) const override {
-            SkSize size;
-            size = fSrc.size();
-            SkPictureRecorder recorder;
-            SkAutoTUnref<SkPicture> pic;
-            for (int i = 0; i < 2; i++) {
-                Error err = fSrc.draw(recorder.beginRecording(size.width(), size.height()));
-                if (!err.isEmpty()) {
-                    return err;
-                }
-                pic.reset(recorder.endRecordingAsPicture());
+    auto size = src.size();
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+        SkPictureRecorder recorder;
+        SkAutoTUnref<SkPicture> pic;
+        for (int i = 0; i < 2; i++) {
+            Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
+                                                         SkIntToScalar(size.height())));
+            if (!err.isEmpty()) {
+                return err;
             }
-            canvas->drawPicture(pic);
-            return "";
+            pic.reset(recorder.endRecordingAsPicture());
         }
-        SkISize size() const override { return fSrc.size(); }
-        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
-    } proxy(src);
-    return fSink->draw(proxy, bitmap, stream, log);
+        canvas->drawPicture(pic);
+        return "";
+    });
 }
 
 }  // namespace DM
