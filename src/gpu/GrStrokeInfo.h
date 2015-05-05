@@ -12,10 +12,9 @@
 #include "SkPathEffect.h"
 
 /*
- * GrStrokeInfo encapsulates the data objects that hold all the pertinent infomation
- * regarding the stroke. The two objects are SkStrokeRec which holds information on fill style,
- * width, miter, cap, and join. The second object is DashInfo. This holds information about the
- * dash like intervals, count, and phase.
+ * GrStrokeInfo encapsulates all the pertinent infomation regarding the stroke. The SkStrokeRec
+ * which holds information on fill style, width, miter, cap, and join. It also holds information
+ * about the dash like intervals, count, and phase.
  */
 class GrStrokeInfo {
 public: 
@@ -23,11 +22,11 @@ public:
         fStroke(style), fDashType(SkPathEffect::kNone_DashType) {}
 
     GrStrokeInfo(const GrStrokeInfo& src, bool includeDash = true) : fStroke(src.fStroke) {
-        if (includeDash) {
-            fDashInfo = src.fDashInfo;
+        if (includeDash && src.isDashed()) {
             fDashType = src.fDashType;
-            fIntervals.reset(src.dashCount());
-            memcpy(fIntervals.get(), src.fIntervals.get(), src.dashCount() * sizeof(SkScalar));
+            fDashPhase = src.fDashPhase;
+            fIntervals.reset(src.getDashCount());
+            memcpy(fIntervals.get(), src.fIntervals.get(), fIntervals.count() * sizeof(SkScalar));
         } else {
             fDashType = SkPathEffect::kNone_DashType;
         }
@@ -44,11 +43,15 @@ public:
     }
 
     GrStrokeInfo& operator=(const GrStrokeInfo& other) {
+        if (other.isDashed()) {
+            fDashType = other.fDashType;
+            fDashPhase = other.fDashPhase;
+            fIntervals.reset(other.getDashCount());
+            memcpy(fIntervals.get(), other.fIntervals.get(), fIntervals.count() * sizeof(SkScalar));
+        } else {
+            this->removeDash();
+        }
         fStroke = other.fStroke;
-        fDashInfo = other.fDashInfo;
-        fDashType = other.fDashType;
-        fIntervals.reset(other.dashCount());
-        memcpy(fIntervals.get(), other.fIntervals.get(), other.dashCount() * sizeof(SkScalar));
         return *this;
     }
 
@@ -59,18 +62,19 @@ public:
     void setFillStyle() { fStroke.setFillStyle(); }
 
     /*
-     * This functions takes in a patheffect and fills in fDashInfo with the various dashing
-     * information if the path effect is a Dash type. Returns true if the path effect is a
-     * dashed effect and we are stroking, otherwise it retruns false.
+     * This functions takes in a patheffect and updates the dashing information if the path effect
+     * is a Dash type. Returns true if the path effect is a dashed effect and we are stroking,
+     * otherwise it returns false.
      */
     bool setDashInfo(const SkPathEffect* pe) {
         if (pe && !fStroke.isFillStyle()) {
-            fDashInfo.fIntervals = NULL;
-            fDashType = pe->asADash(&fDashInfo);
+            SkPathEffect::DashInfo dashInfo;
+            fDashType = pe->asADash(&dashInfo);
             if (SkPathEffect::kDash_DashType == fDashType) {
-                fIntervals.reset(fDashInfo.fCount);
-                fDashInfo.fIntervals = fIntervals.get();
-                pe->asADash(&fDashInfo);
+                fIntervals.reset(dashInfo.fCount);
+                dashInfo.fIntervals = fIntervals.get();
+                pe->asADash(&dashInfo);
+                fDashPhase = dashInfo.fPhase;
                 return true;
             }
         }
@@ -83,13 +87,12 @@ public:
     bool setDashInfo(const SkPathEffect::DashInfo& info) {
         if (!fStroke.isFillStyle()) {
             SkASSERT(!fStroke.isFillStyle());
-            fDashInfo.fCount = info.fCount;
-            fDashInfo.fPhase = info.fPhase;
+            fDashType = SkPathEffect::kDash_DashType;
+            fDashPhase = info.fPhase;
             fIntervals.reset(info.fCount);
-            for (int i = 0; i < info.fCount; i++) {
+            for (int i = 0; i < fIntervals.count(); i++) {
                 fIntervals[i] = info.fIntervals[i];
             }
-            fDashInfo.fIntervals = fIntervals.get();
             return true;
         }
         return false;
@@ -101,18 +104,27 @@ public:
 
     bool isFillStyle() const { return fStroke.isFillStyle(); }
 
-    int32_t dashCount() const {
-        return fDashInfo.fCount;
+    int32_t getDashCount() const {
+        SkASSERT(this->isDashed());
+        return fIntervals.count();
+    }
+
+    SkScalar getDashPhase() const {
+        SkASSERT(this->isDashed());
+        return fDashPhase;
+    }
+
+    const SkScalar* getDashIntervals() const {
+        SkASSERT(this->isDashed());
+        return fIntervals.get();
     }
 
     void removeDash() {
         fDashType = SkPathEffect::kNone_DashType;
     }
-    
-    const SkPathEffect::DashInfo& getDashInfo() const { return fDashInfo; }
 
     /** Applies the dash to a path, if the stroke info has dashing.
-     * @return true if the dash ingwas applied (dst and dstStrokeInfo will be modified).
+     * @return true if the dashing was applied (dst and dstStrokeInfo will be modified).
      *         false if the stroke info did not have dashing. The dst and dstStrokeInfo
      *               will be unmodified. The stroking in the SkStrokeRec might still
      *               be applicable.
@@ -128,7 +140,7 @@ private:
 
     SkStrokeRec            fStroke;
     SkPathEffect::DashType fDashType;
-    SkPathEffect::DashInfo fDashInfo;
+    SkScalar               fDashPhase;
     SkAutoSTArray<2, SkScalar> fIntervals;
 };
 

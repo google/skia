@@ -43,18 +43,18 @@ bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& 
         return false;
     }
 
-    if (!strokeInfo.isDashed() || 2 != strokeInfo.dashCount()) {
+    if (!strokeInfo.isDashed() || 2 != strokeInfo.getDashCount()) {
         return false;
     }
 
-    const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
-    if (0 == info.fIntervals[0] && 0 == info.fIntervals[1]) {
+    const SkScalar* intervals = strokeInfo.getDashIntervals();
+    if (0 == intervals[0] && 0 == intervals[1]) {
         return false;
     }
 
     SkPaint::Cap cap = strokeInfo.getStrokeRec().getCap();
     // Current we do don't handle Round or Square cap dashes
-    if (SkPaint::kRound_Cap == cap && info.fIntervals[0] != 0.f) {
+    if (SkPaint::kRound_Cap == cap && intervals[0] != 0.f) {
         return false;
     }
 
@@ -682,7 +682,8 @@ private:
 
 static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const SkPoint pts[2],
                              bool useAA, const GrStrokeInfo& strokeInfo, bool msaaRT) {
-    const SkPathEffect::DashInfo& info = strokeInfo.getDashInfo();
+    const SkScalar* intervals = strokeInfo.getDashIntervals();
+    SkScalar phase = strokeInfo.getDashPhase();
 
     SkPaint::Cap cap = strokeInfo.getStrokeRec().getCap();
 
@@ -690,7 +691,7 @@ static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const Sk
     geometry.fSrcStrokeWidth = strokeInfo.getStrokeRec().getWidth();
 
     // the phase should be normalized to be [0, sum of all intervals)
-    SkASSERT(info.fPhase >= 0 && info.fPhase < info.fIntervals[0] + info.fIntervals[1]);
+    SkASSERT(phase >= 0 && phase < intervals[0] + intervals[1]);
 
     // Rotate the src pts so they are aligned horizontally with pts[0].fX < pts[1].fX
     if (pts[0].fY != pts[1].fY || pts[0].fX > pts[1].fX) {
@@ -709,7 +710,7 @@ static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const Sk
     calc_dash_scaling(&geometry.fParallelScale, &geometry.fPerpendicularScale, viewMatrix,
                       geometry.fPtsRot);
 
-    SkScalar offInterval = info.fIntervals[1] * geometry.fParallelScale;
+    SkScalar offInterval = intervals[1] * geometry.fParallelScale;
     SkScalar strokeWidth = geometry.fSrcStrokeWidth * geometry.fPerpendicularScale;
 
     if (SkPaint::kSquare_Cap == cap && 0 != geometry.fSrcStrokeWidth) {
@@ -725,9 +726,9 @@ static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const Sk
 
     geometry.fColor = color;
     geometry.fViewMatrix = viewMatrix;
-    geometry.fPhase = info.fPhase;
-    geometry.fIntervals[0] = info.fIntervals[0];
-    geometry.fIntervals[1] = info.fIntervals[1];
+    geometry.fPhase = phase;
+    geometry.fIntervals[0] = intervals[0];
+    geometry.fIntervals[1] = intervals[1];
 
     return DashBatch::Create(geometry, cap, aaMode, fullDash);
 }
