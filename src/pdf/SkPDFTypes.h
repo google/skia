@@ -162,86 +162,35 @@ SK_COMPILE_ASSERT(sizeof(SkString) == sizeof(void*), SkString_size);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/**  This class is a SkPDFUnion with SkPDFObject virtuals attached. */
-// TODO(halcanary): 99% of the uses of this class should be
-// transitioned to using a bare SkPDFUnion inside an array or dict.
+#if 0  // Enable if needed.
+/** This class is a SkPDFUnion with SkPDFObject virtuals attached.
+    The only use case of this is when a non-compound PDF object is
+    referenced indirectly. */
 class SkPDFAtom : public SkPDFObject {
 public:
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
                     const SkPDFSubstituteMap& substitutes) final;
     void addResources(SkPDFObjNumMap*, const SkPDFSubstituteMap&) const final;
-
-protected:
     SkPDFAtom(SkPDFUnion&& v) : fValue(v.move()) {}
 
 private:
     const SkPDFUnion fValue;
     typedef SkPDFObject INHERITED;
 };
+#endif  // 0
 
-/** The following six classes exist only to ease transition to SkPDFUnion. */
-class SkPDFObjRef : public SkPDFAtom {
+class SkPDFScalar {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFObjRef);
-    explicit SkPDFObjRef(SkPDFObject* obj)
-        : INHERITED(SkPDFUnion::ObjRef(SkRef(obj))) {}
-    typedef SkPDFAtom INHERITED;
-};
-
-class SkPDFInt : public SkPDFAtom {
-public:
-    SK_DECLARE_INST_COUNT(SkPDFInt);
-    explicit SkPDFInt(int32_t value) : INHERITED(SkPDFUnion::Int(value)) {}
-    typedef SkPDFAtom INHERITED;
-};
-
-class SkPDFBool : public SkPDFAtom {
-public:
-    SK_DECLARE_INST_COUNT(SkPDFBool);
-    explicit SkPDFBool(bool value) : INHERITED(SkPDFUnion::Bool(value)) {}
-    typedef SkPDFAtom INHERITED;
-};
-
-class SkPDFScalar : public SkPDFAtom {
-public:
-    SK_DECLARE_INST_COUNT(SkPDFScalar);
-    explicit SkPDFScalar(SkScalar value)
-        : INHERITED(SkPDFUnion::Scalar(value)) {}
     static void Append(SkScalar value, SkWStream* stream);
-    typedef SkPDFAtom INHERITED;
 };
 
-class SkPDFString : public SkPDFAtom {
+class SkPDFString {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFString);
-    explicit SkPDFString(const char value[])
-        : INHERITED(SkPDFUnion::String(value)) {}
-    explicit SkPDFString(const SkString& value)
-        : INHERITED(SkPDFUnion::String(value)) {}
-
     static SkString FormatString(const char* input, size_t len);
-
     static const size_t kMaxLen = 65535;
-
-private:
-    typedef SkPDFAtom INHERITED;
 };
 
-class SkPDFName : public SkPDFAtom {
-public:
-    SK_DECLARE_INST_COUNT(SkPDFName);
-    /** Create a PDF name object. Maximum length is 127 bytes. */
-    explicit SkPDFName(const char name[])
-        : INHERITED(SkPDFUnion::Name(SkString(name))) {}
-    explicit SkPDFName(const SkString& name)
-        : INHERITED(SkPDFUnion::Name(name)) {}
-
-    static const size_t kMaxLen = 127;
-
-private:
-    typedef SkPDFAtom INHERITED;
-};
 
 /** \class SkPDFArray
 
@@ -273,13 +222,6 @@ public:
      *  @param length The number of array slots to preallocate.
      */
     void reserve(int length);
-
-    /** Append the object to the end of the array and increments its ref count.
-     *  @param value The value to add to the array.
-     *  @return The value argument is returned.
-     */
-    // DEPRECATED
-    SkPDFObject* append(SkPDFObject* value);
 
     /** Appends a value to the end of the array.
      *  @param value The value to add to the array.
@@ -331,16 +273,6 @@ public:
      */
     int size() const;
 
-    /** Add the value to the dictionary with the given key.  Refs value.
-     *  @param key   The key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     *  @return The value argument is returned.
-     */
-    // DEPRECATED
-    SkPDFObject* insert(SkPDFName* key, SkPDFObject* value);
-    // DEPRECATED
-    SkPDFObject* insert(const char key[], SkPDFObject* value);
-
     /** Add the value to the dictionary with the given key.  Takes
      *  ownership of the object.
      *  @param key   The text of the key for this dictionary entry.
@@ -376,7 +308,6 @@ private:
     SkTDArray<Record> fRecords;
     static const int kMaxLen = 4095;
 
-    void set(const SkPDFUnion& name, const SkPDFUnion& value);
     void set(SkPDFUnion&& name, SkPDFUnion&& value);
 
     typedef SkPDFObject INHERITED;

@@ -270,6 +270,7 @@ SkPDFUnion SkPDFUnion::Object(SkPDFObject* ptr) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#if 0  // Enable if needed.
 void SkPDFAtom::emitObject(SkWStream* stream,
                            const SkPDFObjNumMap& objNumMap,
                            const SkPDFSubstituteMap& substitutes) {
@@ -279,7 +280,7 @@ void SkPDFAtom::addResources(SkPDFObjNumMap* map,
                              const SkPDFSubstituteMap& substitutes) const {
     fValue.addResources(map, substitutes);
 }
-
+#endif  // 0
 ////////////////////////////////////////////////////////////////////////////////
 
 // static
@@ -416,12 +417,6 @@ void SkPDFArray::append(SkPDFUnion&& value) {
     SkNEW_PLACEMENT_ARGS(fValues.append(), SkPDFUnion, (value.move()));
 }
 
-SkPDFObject* SkPDFArray::append(SkPDFObject* value) {
-    // DEPRECATED
-    this->append(SkPDFUnion::Object(SkRef(value)));
-    return value;
-}
-
 void SkPDFArray::appendInt(int32_t value) {
     this->append(SkPDFUnion::Int(value));
 }
@@ -510,12 +505,6 @@ void SkPDFDict::insertObject(const char key[], SkPDFObject* value) {
 }
 void SkPDFDict::insertObject(const SkString& key, SkPDFObject* value) {
     this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(value));
-}
-
-// DEPRECATED
-SkPDFObject* SkPDFDict::insert(const char key[], SkPDFObject* value) {
-    this->set(SkPDFUnion::Name(key), SkPDFUnion::Object(SkRef(value)));
-    return value;
 }
 
 void SkPDFDict::insertBool(const char key[], bool value) {
