@@ -9,7 +9,7 @@
 #define GrInOrderDrawBuffer_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrCommandBuilder.h"
+#include "GrInOrderCommandBuilder.h"
 #include "SkChunkAlloc.h"
 
 /**
@@ -71,8 +71,9 @@ protected:
     }
 
 private:
-    friend class GrCommandBuilder;
+    friend class GrInOrderCommandBuilder;
     friend class GrTargetCommands;
+
     typedef GrTargetCommands::State State;
 
     State* allocState(const GrPrimitiveProcessor* primProc = NULL) {

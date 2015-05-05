@@ -114,6 +114,8 @@
       '<(skia_src_path)/gpu/GrGpuFactory.h',
       '<(skia_src_path)/gpu/GrIndexBuffer.h',
       '<(skia_src_path)/gpu/GrInvariantOutput.cpp',
+      '<(skia_src_path)/gpu/GrInOrderCommandBuilder.cpp',
+      '<(skia_src_path)/gpu/GrInOrderCommandBuilder.h',
       '<(skia_src_path)/gpu/GrInOrderDrawBuffer.cpp',
       '<(skia_src_path)/gpu/GrInOrderDrawBuffer.h',
       '<(skia_src_path)/gpu/GrLayerCache.cpp',

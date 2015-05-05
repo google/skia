@@ -225,6 +225,7 @@ public:
 
 protected:
     friend class GrCommandBuilder; // for PipelineInfo
+    friend class GrInOrderCommandBuilder; // for PipelineInfo
     friend class GrTargetCommands; // for PipelineInfo
 
     GrContext* getContext() { return fContext; }

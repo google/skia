@@ -34,16 +34,16 @@ public:
                                         bool insideClip,
                                         GrRenderTarget* renderTarget);
     virtual Cmd* recordDiscard(GrRenderTarget*);
-    virtual Cmd* recordDrawBatch(State*, GrBatch*);
+    virtual Cmd* recordDrawBatch(State*, GrBatch*) = 0;
     virtual Cmd* recordStencilPath(const GrPipelineBuilder&,
                                    const GrPathProcessor*,
                                    const GrPath*,
                                    const GrScissorState&,
-                                   const GrStencilSettings&);
+                                   const GrStencilSettings&) = 0;
     virtual Cmd* recordDrawPath(State*,
                                 const GrPathProcessor*,
                                 const GrPath*,
-                                const GrStencilSettings&);
+                                const GrStencilSettings&) = 0;
     virtual Cmd* recordDrawPaths(State*,
                                  GrInOrderDrawBuffer*,
                                  const GrPathProcessor*,
@@ -54,7 +54,7 @@ public:
                                  GrDrawTarget::PathTransformType ,
                                  int,
                                  const GrStencilSettings&,
-                                 const GrDrawTarget::PipelineInfo&);
+                                 const GrDrawTarget::PipelineInfo&) = 0;
     virtual Cmd* recordClear(const SkIRect* rect,
                              GrColor,
                              bool canIgnoreRect,
@@ -65,7 +65,7 @@ public:
                                    const SkIPoint& dstPoint);
     virtual Cmd* recordXferBarrierIfNecessary(const GrPipeline&, const GrDrawTargetCaps&);
 
-private:
+protected:
     typedef GrTargetCommands::DrawBatch DrawBatch;
     typedef GrTargetCommands::StencilPath StencilPath;
     typedef GrTargetCommands::DrawPath DrawPath;
@@ -78,6 +78,7 @@ private:
     GrTargetCommands::CmdBuffer* cmdBuffer() { return fCommands.cmdBuffer(); }
     GrBatchTarget* batchTarget() { return fCommands.batchTarget(); }
 
+private:
     GrTargetCommands fCommands;
 
 };

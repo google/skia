@@ -11,7 +11,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context,
                                          GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool)
     : INHERITED(context, vertexPool, indexPool)
-    , fCommands(SkNEW_ARGS(GrCommandBuilder, (context->getGpu(), vertexPool, indexPool)))
+    , fCommands(SkNEW_ARGS(GrInOrderCommandBuilder, (context->getGpu(), vertexPool, indexPool)))
     , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
     , fPathTransformBuffer(kPathXformBufferMinReserve * sizeof(float)/4)
     , fPipelineBuffer(kPipelineBufferMinReserve)
