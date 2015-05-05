@@ -36,9 +36,6 @@ public:
 
     const SkSurfaceProps& props() const { return fProps; }
 
-    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const = 0;
-    virtual void onDrawRect(SkCanvas*, const SkRect* src,
-                                  const SkRect& dst, const SkPaint*) const = 0;
     virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const = 0;
 
     virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const {
