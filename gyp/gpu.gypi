@@ -162,6 +162,8 @@
       '<(skia_src_path)/gpu/GrRectanizer_pow2.h',
       '<(skia_src_path)/gpu/GrRectanizer_skyline.cpp',
       '<(skia_src_path)/gpu/GrRectanizer_skyline.h',
+      '<(skia_src_path)/gpu/GrRectBatch.h',
+      '<(skia_src_path)/gpu/GrRectBatch.cpp',
       '<(skia_src_path)/gpu/GrRedBlackTree.h',
       '<(skia_src_path)/gpu/GrRenderTarget.cpp',
       '<(skia_src_path)/gpu/GrRenderTargetPriv.h',

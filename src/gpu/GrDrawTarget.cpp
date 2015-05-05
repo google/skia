@@ -15,6 +15,7 @@
 #include "GrPath.h"
 #include "GrPipeline.h"
 #include "GrMemoryPool.h"
+#include "GrRectBatch.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
@@ -300,6 +301,17 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
 
     this->onDrawPaths(pathProc, pathRange, indices, indexType, transformValues,
                       transformType, count, stencilSettings, pipelineInfo);
+}
+
+void GrDrawTarget::drawRect(GrPipelineBuilder* pipelineBuilder,
+                            GrColor color,
+                            const SkMatrix& viewMatrix,
+                            const SkRect& rect,
+                            const SkRect* localRect,
+                            const SkMatrix* localMatrix) {
+   SkAutoTUnref<GrBatch> batch(GrRectBatch::Create(color, viewMatrix, rect, localRect,
+                                                   localMatrix));
+   this->drawBatch(pipelineBuilder, batch);
 }
 
 void GrDrawTarget::clear(const SkIRect* rect,

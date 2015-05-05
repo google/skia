@@ -28,7 +28,6 @@
 #include "SkTypes.h"
 #include "SkXfermode.h"
 
-class GrBatch;
 class GrClip;
 class GrDrawTargetCaps;
 class GrIndexBufferAllocPool;
@@ -125,9 +124,7 @@ public:
                   const SkMatrix& viewMatrix,
                   const SkRect& rect,
                   const SkRect* localRect,
-                  const SkMatrix* localMatrix) {
-        this->onDrawRect(pipelineBuilder, color, viewMatrix, rect, localRect, localMatrix);
-    }
+                  const SkMatrix* localMatrix);
 
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
@@ -288,14 +285,6 @@ private:
     virtual void onFlush() = 0;
 
     virtual void onDrawBatch(GrBatch*, const PipelineInfo&) = 0;
-    // TODO copy in order drawbuffer onDrawRect to here
-    virtual void onDrawRect(GrPipelineBuilder*,
-                            GrColor color,
-                            const SkMatrix& viewMatrix,
-                            const SkRect& rect,
-                            const SkRect* localRect,
-                            const SkMatrix* localMatrix) = 0;
-
     virtual void onStencilPath(const GrPipelineBuilder&,
                                const GrPathProcessor*,
                                const GrPath*,

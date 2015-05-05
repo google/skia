@@ -90,12 +90,6 @@ private:
 
     // overrides from GrDrawTarget
     void onDrawBatch(GrBatch*, const PipelineInfo&) override;
-    void onDrawRect(GrPipelineBuilder*,
-                    GrColor,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect* localRect,
-                    const SkMatrix* localMatrix) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,
