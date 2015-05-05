@@ -249,6 +249,17 @@ private:
     SkAutoTDelete<Sink>  fSink;
 };
 
+class ViaDeferred : public Sink {
+public:
+    explicit ViaDeferred(Sink*);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return fSink->enclave(); }
+    const char* fileExtension() const override { return fSink->fileExtension(); }
+private:
+    SkAutoTDelete<Sink>  fSink;
+};
+
 class ViaSerialization : public Sink {
 public:
     explicit ViaSerialization(Sink*);

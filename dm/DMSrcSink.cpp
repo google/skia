@@ -10,6 +10,7 @@
 #include "SkCommonFlags.h"
 #include "SkCodec.h"
 #include "SkData.h"
+#include "SkDeferredCanvas.h"
 #include "SkDocument.h"
 #include "SkError.h"
 #include "SkImageGenerator.h"
@@ -589,6 +590,41 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
     return fSink->draw(proxy, bitmap, stream, log);
 }
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    
+ViaDeferred::ViaDeferred(Sink* sink) : fSink(sink) {}
+
+Error ViaDeferred::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    // We turn ourselves into another Src that draws our argument into a deferred canvas,
+    // via a surface created by the original canvas. We then draw a snapped image from that
+    // surface back into the original canvas.
+    struct ProxySrc : public Src {
+        const Src& fSrc;
+        ProxySrc(const Src& src) : fSrc(src) {}
+
+        Error draw(SkCanvas* canvas) const override {
+            SkAutoTUnref<SkSurface> surface(canvas->newSurface(canvas->imageInfo()));
+            if (!surface.get()) {
+                return "can't make surface for deferred canvas";
+            }
+            SkAutoTDelete<SkDeferredCanvas> defcan(SkDeferredCanvas::Create(surface));
+            Error err = fSrc.draw(defcan);
+            if (!err.isEmpty()) {
+                return err;
+            }
+            SkAutoTUnref<SkImage> image(defcan->newImageSnapshot());
+            if (!image) {
+                return "failed to create deferred image snapshot";
+            }
+            canvas->drawImage(image, 0, 0, NULL);
+            return "";
+        }
+        SkISize size() const override { return fSrc.size(); }
+        Name name() const override { sk_throw(); return ""; }  // No one should be calling this.
+    } proxy(src);
+    return fSink->draw(proxy, bitmap, stream, log);
+}
+    
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ViaSerialization::ViaSerialization(Sink* sink) : fSink(sink) {}
