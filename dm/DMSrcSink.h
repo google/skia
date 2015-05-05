@@ -295,6 +295,17 @@ private:
     SkAutoTDelete<Sink>  fSink;
 };
 
+class ViaSingletonPictures : public Sink {
+public:
+    explicit ViaSingletonPictures(Sink*);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    int enclave() const override { return fSink->enclave(); }
+    const char* fileExtension() const override { return fSink->fileExtension(); }
+private:
+    SkAutoTDelete<Sink>  fSink;
+};
+
 }  // namespace DM
 
 #endif//DMSrcSink_DEFINED

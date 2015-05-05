@@ -370,6 +370,7 @@ static Sink* create_via(const char* tag, Sink* wrapped) {
     VIA("serialize", ViaSerialization, wrapped);
     VIA("deferred",  ViaDeferred,      wrapped);
     VIA("2ndpic",    ViaSecondPicture, wrapped);
+    VIA("sp",        ViaSingletonPictures, wrapped);
     VIA("tiles",     ViaTiles, 256, 256,               NULL, wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 

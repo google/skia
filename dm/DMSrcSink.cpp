@@ -20,6 +20,8 @@
 #include "SkPictureData.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
+#include "SkRecordDraw.h"
+#include "SkRecorder.h"
 #include "SkSVGCanvas.h"
 #include "SkScanlineDecoder.h"
 #include "SkStream.h"
@@ -720,6 +722,71 @@ Error ViaSecondPicture::draw(
             pic.reset(recorder.endRecordingAsPicture());
         }
         canvas->drawPicture(pic);
+        return "";
+    });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+// This is like SkRecords::Draw, in that it plays back SkRecords ops into a Canvas.
+// Unlike SkRecords::Draw, it builds a single-op sub-picture out of each Draw-type op.
+// This is an only-slightly-exaggerated simluation of Blink's Slimming Paint pictures.
+struct DrawsAsSingletonPictures {
+    SkCanvas* fCanvas;
+
+    SK_CREATE_MEMBER_DETECTOR(paint);
+
+    template <typename T>
+    void draw(const T& op, SkCanvas* canvas) {
+        // We must pass SkMatrix::I() as our initial matrix.
+        // By default SkRecords::Draw() uses the canvas' matrix as its initial matrix,
+        // which would have the funky effect of applying transforms over and over.
+        SkRecords::Draw(canvas, nullptr, nullptr, 0, &SkMatrix::I())(op);
+    }
+
+    // Most things that have paints are Draw-type ops.  Create sub-pictures for each.
+    template <typename T>
+    SK_WHEN(HasMember_paint<T>, void) operator()(const T& op) {
+        SkPictureRecorder rec;
+        this->draw(op, rec.beginRecording(SkRect::MakeLargest()));
+        SkAutoTUnref<SkPicture> pic(rec.endRecordingAsPicture());
+        fCanvas->drawPicture(pic);
+    }
+
+    // If you don't have a paint or are a SaveLayer, you're not a Draw-type op.
+    // We cannot make subpictures out of these because they affect state.  Draw them directly.
+    template <typename T>
+    SK_WHEN(!HasMember_paint<T>, void) operator()(const T& op) { this->draw(op, fCanvas); }
+    void operator()(const SkRecords::SaveLayer& op)            { this->draw(op, fCanvas); }
+};
+
+ViaSingletonPictures::ViaSingletonPictures(Sink* sink) : fSink(sink) {}
+
+// Record Src into a picture, then record it into a macro picture with a sub-picture for each draw.
+// Then play back that macro picture into our wrapped sink.
+Error ViaSingletonPictures::draw(
+        const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    auto size = src.size();
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+        // Use low-level (Skia-private) recording APIs so we can read the SkRecord.
+        SkRecord skr;
+        SkRecorder recorder(&skr, size.width(), size.height());
+        Error err = src.draw(&recorder);
+        if (!err.isEmpty()) {
+            return err;
+        }
+
+        // Record our macro-picture, with each draw op as its own sub-picture.
+        SkPictureRecorder macroRec;
+        SkCanvas* macroCanvas = macroRec.beginRecording(SkIntToScalar(size.width()),
+                                                        SkIntToScalar(size.height()));
+        DrawsAsSingletonPictures drawsAsSingletonPictures = { macroCanvas };
+        for (unsigned i = 0; i < skr.count(); i++) {
+            skr.visit<void>(i, drawsAsSingletonPictures);
+        }
+        SkAutoTUnref<SkPicture> macroPic(macroRec.endRecordingAsPicture());
+
+        canvas->drawPicture(macroPic);
         return "";
     });
 }
