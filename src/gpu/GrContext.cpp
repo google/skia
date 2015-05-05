@@ -1019,6 +1019,8 @@ void GrContext::drawVertices(GrRenderTarget* rt,
         return;
     }
 
+    viewMatrix.mapRect(&bounds);
+
     DrawVerticesBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
     SkAutoTUnref<GrBatch> batch(DrawVerticesBatch::Create(geometry, primitiveType, viewMatrix,
