@@ -25,6 +25,15 @@ uint32_t SkImage::NextUniqueID() {
     return id;
 }
 
+void SkImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
+    as_IB(this)->onDraw(canvas, x, y, paint);
+}
+
+void SkImage::drawRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
+                   const SkPaint* paint) const {
+    as_IB(this)->onDrawRect(canvas, src, dst, paint);
+}
+
 const void* SkImage::peekPixels(SkImageInfo* info, size_t* rowBytes) const {
     SkImageInfo infoStorage;
     size_t rowBytesStorage;

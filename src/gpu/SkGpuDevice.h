@@ -115,9 +115,6 @@ public:
                               const SkPaint&) override;
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) override;
-    void drawImage(const SkDraw&, const SkImage*, SkScalar x, SkScalar y, const SkPaint&) override;
-    void drawImageRect(const SkDraw&, const SkImage*, const SkRect* src, const SkRect& dst,
-                       const SkPaint&) override;
 
     void flush() override;
 
