@@ -7,16 +7,6 @@
 
 #include "SkImageGenerator.h"
 
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-SkImageInfo SkImageGenerator::getInfo() {
-    SkImageInfo info;
-    if (!this->onGetInfo(&info)) {
-        info = SkImageInfo::MakeUnknown(0, 0);
-    }
-    return info;
-}
-#endif
-
 SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels,
                                                      size_t rowBytes, const Options* options,
                                                      SkPMColor ctable[], int* ctableCount) {
@@ -121,15 +111,6 @@ bool SkImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t
 SkData* SkImageGenerator::onRefEncodedData() {
     return NULL;
 }
-
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-bool SkImageGenerator::onGetInfo(SkImageInfo* info) {
-    if (info) {
-        *info = fInfo;
-    }
-    return true;
-}
-#endif
 
 #ifdef SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
 SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t,

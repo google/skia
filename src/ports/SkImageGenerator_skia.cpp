@@ -47,13 +47,6 @@ protected:
         return SkRef(fData.get());
     }
 
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    virtual bool onGetInfo(SkImageInfo* info) override {
-        *info = fInfo;
-        return true;
-    }
-#endif
-
     virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                const Options&,
                                SkPMColor ctableEntries[], int* ctableCount) override {

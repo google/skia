@@ -182,14 +182,6 @@ protected:
                                     kOpaque_SkAlphaType);
     }
 
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    bool onGetInfo(SkImageInfo* info) override {
-        REPORTER_ASSERT(fReporter, info);
-        *info = GetMyInfo();
-        return true;
-    }
-#endif
-
     virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                const Options&,
                                SkPMColor ctable[], int* ctableCount) override {

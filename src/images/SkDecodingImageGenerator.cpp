@@ -38,12 +38,6 @@ public:
 
 protected:
     SkData* onRefEncodedData() override;
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    bool onGetInfo(SkImageInfo* info) override {
-        *info = fInfo;
-        return true;
-    }
-#endif
     Result onGetPixels(const SkImageInfo& info,
                        void* pixels, size_t rowBytes, const Options&,
                        SkPMColor ctable[], int* ctableCount) override;

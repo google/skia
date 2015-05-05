@@ -111,25 +111,9 @@ public:
 protected:
     SkCodec(const SkImageInfo&, SkStream*);
 
-    /**
-     *  The SkAlphaType is a conservative answer. i.e. it is possible that it
-     *  initially returns a non-opaque answer, but completing the decode
-     *  reveals that the image is actually opaque.
-     */
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    bool onGetInfo(SkImageInfo* info) override {
-        *info = fInfo;
-        return true;
-    }
-#endif
-
     virtual SkISize onGetScaledDimensions(float /* desiredScale */) const {
         // By default, scaling is not supported.
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-        return fInfo.dimensions();
-#else
         return this->getInfo().dimensions();
-#endif
     }
 
     virtual SkEncodedFormat onGetEncodedFormat() const = 0;
@@ -194,9 +178,6 @@ protected:
     }
 
 private:
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    const SkImageInfo                   fInfo;
-#endif  //  SK_SUPPORT_LEGACY_BOOL_ONGETINFO
     SkAutoTDelete<SkStream>             fStream;
     bool                                fNeedsRewind;
     SkAutoTDelete<SkScanlineDecoder>    fScanlineDecoder;

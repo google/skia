@@ -22,12 +22,6 @@ class FailureImageGenerator : public SkImageGenerator {
 public:
     FailureImageGenerator() : SkImageGenerator(SkImageInfo::MakeN32Premul(100, 100)) {}
 protected:
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    bool onGetInfo(SkImageInfo* info) override {
-        *info = SkImageInfo::MakeN32Premul(100, 100);
-        return true;
-    }
-#endif
     // default onGetPixels() returns kUnimplemented, which is what we want.
 };
 

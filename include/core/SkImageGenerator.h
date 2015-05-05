@@ -67,17 +67,7 @@ public:
     /**
      *  Return the ImageInfo associated with this generator.
      */
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    SkImageInfo getInfo();
-    bool getInfo(SkImageInfo* info) {
-        if (info) {
-            *info = this->getInfo();
-        }
-        return true;
-    }
-#else
     const SkImageInfo& getInfo() const { return fInfo; }
-#endif
 
     /**
      *  Used to describe the result of a call to getPixels().
@@ -210,10 +200,6 @@ public:
     static SkImageGenerator* NewFromData(SkData*);
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_BOOL_ONGETINFO
-    SkImageGenerator() : fInfo(SkImageInfo::MakeUnknown(0, 0) ) {}
-    virtual bool onGetInfo(SkImageInfo* info);
-#endif
     SkImageGenerator(const SkImageInfo& info) : fInfo(info) {}
 
     virtual SkData* onRefEncodedData();
