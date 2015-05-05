@@ -29,7 +29,9 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
   args = []
 
-  configs = ['565', '8888', 'gpu']
+  configs = ['565', '8888', 'gpu', 'upright-matrix-8888', 'upright-matrix-gpu']
+
+  args.extend('--matrix 0 1 1 0'.split(' '))
 
   if 'TegraK1' in bot or 'GTX550Ti' in bot or 'GTX660' in bot or 'GT610' in bot:
     if 'Android' in bot:
