@@ -174,8 +174,10 @@ def self_test():
   import coverage  # This way the bots don't need coverage.py to be installed.
   args = {}
   cases = [
+    'Pretend-iOS-Bot',
     'Test-Android-GCC-Nexus9-GPU-TegraK1-Arm64-Debug',
     'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
+    'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
     'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
     'Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',

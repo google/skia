@@ -1,4 +1,21 @@
 {
+  "Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release": [
+    "--scales", 
+    "1.0", 
+    "1.1", 
+    "--config", 
+    "565", 
+    "8888", 
+    "gpu", 
+    "nonrendering", 
+    "angle", 
+    "hwui", 
+    "--match", 
+    "~blurroundrect", 
+    "~patch_grid", 
+    "~desk_carsvg", 
+    "~desk_unicodetable"
+  ], 
   "Perf-Android-Nexus7-Tegra3-Arm7-Release": [
     "--scales", 
     "1.0", 

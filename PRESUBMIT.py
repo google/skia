@@ -140,6 +140,17 @@ def _CopyrightChecks(input_api, output_api, source_file_filter=None):
   return results
 
 
+def _ToolFlags(input_api, output_api):
+  """Make sure `{dm,nanobench}_flags.py test` passes if modified."""
+  results = []
+  sources = lambda x: ('dm_flags.py'        in x.LocalPath() or
+                       'nanobench_flags.py' in x.LocalPath())
+  for f in input_api.AffectedSourceFiles(sources):
+    if 0 != subprocess.call(['python', f.LocalPath(), 'test']):
+      results.append(output_api.PresubmitError('`python %s test` failed' % f))
+  return results
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -161,6 +172,7 @@ def _CommonChecks(input_api, output_api):
   results.extend(_IfDefChecks(input_api, output_api))
   results.extend(_CopyrightChecks(input_api, output_api,
                                   source_file_filter=sources))
+  results.extend(_ToolFlags(input_api, output_api))
   return results
 
 
