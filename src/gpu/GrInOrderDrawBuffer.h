@@ -9,7 +9,7 @@
 #define GrInOrderDrawBuffer_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrTargetCommands.h"
+#include "GrCommandBuilder.h"
 #include "SkChunkAlloc.h"
 
 /**
@@ -71,6 +71,7 @@ protected:
     }
 
 private:
+    friend class GrCommandBuilder;
     friend class GrTargetCommands;
     typedef GrTargetCommands::State State;
 
@@ -148,7 +149,7 @@ private:
     // highwater mark
     static const int kPipelineBufferHighWaterMark = 100;
 
-    GrTargetCommands                    fCommands;
+    SkAutoTDelete<GrCommandBuilder>     fCommands;
     SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
     SkChunkAlloc                        fPathIndexBuffer;
     SkChunkAlloc                        fPathTransformBuffer;

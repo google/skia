@@ -24,9 +24,6 @@ class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
 
 class GrTargetCommands : ::SkNoncopyable {
-    struct State;
-    struct SetState;
-
 public:
     GrTargetCommands(GrGpu* gpu,
                      GrVertexBufferAllocPool* vertexPool,
@@ -68,43 +65,9 @@ public:
     void reset();
     void flush(GrInOrderDrawBuffer*);
 
-    Cmd* recordClearStencilClip(const SkIRect& rect,
-                                bool insideClip,
-                                GrRenderTarget* renderTarget);
-
-    Cmd* recordDiscard(GrRenderTarget*);
-    Cmd* recordDrawBatch(State*, GrBatch*);
-    Cmd* recordStencilPath(const GrPipelineBuilder&,
-                           const GrPathProcessor*,
-                           const GrPath*,
-                           const GrScissorState&,
-                           const GrStencilSettings&);
-    Cmd* recordDrawPath(State*,
-                        const GrPathProcessor*,
-                        const GrPath*,
-                        const GrStencilSettings&);
-    Cmd* recordDrawPaths(State*,
-                         GrInOrderDrawBuffer*,
-                         const GrPathProcessor*,
-                         const GrPathRange*,
-                         const void*,
-                         GrDrawTarget::PathIndexType,
-                         const float transformValues[],
-                         GrDrawTarget::PathTransformType ,
-                         int,
-                         const GrStencilSettings&,
-                         const GrDrawTarget::PipelineInfo&);
-    Cmd* recordClear(const SkIRect* rect,
-                     GrColor,
-                     bool canIgnoreRect,
-                     GrRenderTarget*);
-    Cmd* recordCopySurface(GrSurface* dst,
-                           GrSurface* src,
-                           const SkIRect& srcRect,
-                           const SkIPoint& dstPoint);
-
 private:
-    friend class GrInOrderDrawBuffer;
+    friend class GrCommandBuilder;
+    friend class GrInOrderDrawBuffer; // This goes away when State becomes just a pipeline
 
     typedef GrGpu::DrawArgs DrawArgs;
 
@@ -292,6 +255,9 @@ private:
 
     typedef void* TCmdAlign; // This wouldn't be enough align if a command used long double.
     typedef GrTRecorder<Cmd, TCmdAlign> CmdBuffer;
+
+    CmdBuffer* cmdBuffer() { return &fCmdBuffer; }
+    GrBatchTarget* batchTarget() { return &fBatchTarget; }
 
     CmdBuffer                           fCmdBuffer;
     GrBatchTarget                       fBatchTarget;

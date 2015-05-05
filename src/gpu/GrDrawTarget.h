@@ -373,6 +373,7 @@ public:
     bool programUnitTest(int maxStages);
 
 protected:
+    friend class GrCommandBuilder; // for PipelineInfo
     friend class GrTargetCommands; // for PipelineInfo
 
     GrContext* getContext() { return fContext; }

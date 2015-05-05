@@ -86,6 +86,8 @@
       '<(skia_src_path)/gpu/GrClipMaskManager.h',
       '<(skia_src_path)/gpu/GrClipMaskManager.cpp',
       '<(skia_src_path)/gpu/GrContext.cpp',
+      '<(skia_src_path)/gpu/GrCommandBuilder.h',
+      '<(skia_src_path)/gpu/GrCommandBuilder.cpp',
       '<(skia_src_path)/gpu/GrCoordTransform.cpp',
       '<(skia_src_path)/gpu/GrDashLinePathRenderer.cpp',
       '<(skia_src_path)/gpu/GrDashLinePathRenderer.h',
