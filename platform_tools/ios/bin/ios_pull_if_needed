@@ -7,12 +7,14 @@
 # found in the LICENSE file.
 ###############################################################################
 #
-# Pull the given file/directory off the device. 
+# Pull the given file/directory off the device.
 #
+set -x -e
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/ios_setup.sh
 
-HOST_PATH=$1
-DEVICE_PATH=$2
+DEVICE_PATH=$1
+HOST_PATH=$2
 
-ios_pull $HOST_PATH $DEVICE_PATH
+ios_pull $DEVICE_PATH $HOST_PATH

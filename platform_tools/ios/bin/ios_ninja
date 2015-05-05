@@ -7,14 +7,16 @@
 # found in the LICENSE file.
 ###############################################################################
 #
-# Build the skia for ios. This assumes that GYP_DEFINES has been set. 
+# Build the skia for ios. This assumes that GYP_DEFINES has been set.
 #
+set -x -e
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/ios_setup.sh
 
-pushd 
-cd ${SKIA_SRC_DIR} 	
+OLD_DIR=`pwd`
+cd ${SKIA_SRC_DIR}
 "${SKIA_SRC_DIR}/gyp_skia"
 xcodebuild -project "$SKIA_SRC_DIR/out/gyp/iOSShell.xcodeproj"\
        -configuration "$BUILDTYPE"
-popd
+cd $OLD_DIR

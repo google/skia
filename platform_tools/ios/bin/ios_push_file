@@ -5,9 +5,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 ###############################################################################
-
-# Fail-fast if anything in the script fails.
-set -e
+#
+# Copies a single file from the host to the device.
+#
+set -x -e
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/ios_setup.sh

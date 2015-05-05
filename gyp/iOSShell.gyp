@@ -1,4 +1,4 @@
-# Copyright 2015 Google Inc.
+  # Copyright 2015 Google Inc.
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -28,6 +28,7 @@
             '../bench/GMBench.cpp',
             '../bench/RecordingBench.cpp',
             '../bench/SKPBench.cpp',
+            '../bench/SKPAnimationBench.cpp',
             '../bench/nanobench.cpp',
             '../tests/skia_test.cpp',
             '../tools/iOSShell.cpp',

@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 ###############################################################################
 # Copyright 2015 Google Inc.
 #
@@ -7,8 +6,12 @@
 # found in the LICENSE file.
 ###############################################################################
 #
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $SCRIPT_DIR/ios_setup.sh 
+# Removes the path identified by the first argument from the directory.
+#
 
-ios_install_app
-ios_mount 
+set -x -e
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SCRIPT_DIR/ios_setup.sh
+
+ios_rm $1

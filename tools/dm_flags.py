@@ -41,7 +41,8 @@ def get_args(bot):
   # MSAA.  The Tegra2 and Tegra3 just don't support it.
   if ('GalaxyS4'    not in bot and
       'NexusPlayer' not in bot and
-      'Tegra3'      not in bot):
+      'Tegra3'      not in bot and
+      'iOS'         not in bot):
     if 'Android' in bot:
       configs.append('msaa4')
     else:
@@ -127,6 +128,12 @@ def get_args(bot):
     blacklist.extend('pdf skp _ desk_baidu.skp'.split(' '))
     blacklist.extend('pdf skp _ desk_wikipedia.skp'.split(' '))
 
+  if 'iOS' in bot:
+    blacklist.extend('gpu skp _ _ msaa skp _ _'.split(' '))
+    blacklist.extend('gpu image decode _ msaa image decode _'.split(' '))
+    blacklist.extend('gpu image subset _ msaa image subset _'.split(' '))
+    blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
+
   if blacklist:
     args.append('--blacklist')
     args.extend(blacklist)
@@ -147,6 +154,9 @@ def get_args(bot):
 
   if 'NexusPlayer' in bot:
     match.append('~ResourceCache')
+
+  if 'iOS' in bot:
+    match.append('~WritePixels')
 
   if match:
     args.append('--match')

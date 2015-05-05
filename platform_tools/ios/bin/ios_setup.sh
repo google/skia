@@ -8,47 +8,43 @@
 #
 # ios_setup.sh: Sets environment variables used by other iOS scripts.
 
-# File system location where we mount the ios devices. 
+# File system location where we mount the ios devices.
 IOS_MOUNT_POINT="/tmp/mnt_iosdevice"
 
-# Location on the ios device where all data are stored. This is 
-# relative to the mount point. 
+# Location on the ios device where all data are stored. This is
+# relative to the mount point.
 IOS_DOCS_DIR="Documents"
 
-# Temporary location to assemble the app into an .ipa package. 
+# Temporary location to assemble the app into an .ipa package.
 IOS_PCKG_DIR="/tmp/ios_pckg"
 
-# Bundle id of the app that runs the tests. 
+# Bundle id of the app that runs the tests.
 TEST_RUNNER_BUNDLE_ID="com.google.iOSShell"
 
-# Directory with the Skia source. 
+# Directory with the Skia source.
 SKIA_SRC_DIR=$(cd "${SCRIPT_DIR}/../../.."; pwd)
 
-# BuildTYPE is 'Debug' by default. 
-BUILDTYPE="Debug"
-
-# Provisioning profile - this needs to be set up on the local machine. 
+# Provisioning profile - this needs to be set up on the local machine.
 PROVISIONING_PROFILE="9e88090d-abed-4e89-b106-3eff3512d31f"
 
-# Code Signing identity - this needs to be set up on the local machine. 
+# Code Signing identity - this needs to be set up on the local machine.
 CODE_SIGN_IDENTITY="iPhone Developer: Google Development (3F4Y5873JF)"
 
 IOS_BUNDLE_ID="com.google.iOSShell"
 
 IOS_RESULTS_DIR="results"
 
-if [[ $# -ge 1 ]]; then 
-  BUILDTYPE=$1
+# BUILDTYPE is 'Debug' by default.
+if [[ -z "$BUILDTYPE" ]]; then
+  BUILDTYPE="Debug"
 fi
-
-set -x 
 
 ios_uninstall_app() {
   ideviceinstaller -U "$IOS_BUNDLE_ID"
 }
 
 ios_install_app() {
-  rm -rf $IOS_PCKG_DIR 
+  rm -rf $IOS_PCKG_DIR
   mkdir -p $IOS_PCKG_DIR/Payload  # this directory must be named 'Payload'
   cp -rf "${SKIA_SRC_DIR}/xcodebuild/${BUILDTYPE}-iphoneos/iOSShell.app" "${IOS_PCKG_DIR}/Payload/"
   local RET_DIR=`pwd`
@@ -58,12 +54,12 @@ ios_install_app() {
   cd $RET_DIR
 }
 
-ios_rmdir() {
+ios_rm() {
   local TARGET="$IOS_MOUNT_POINT/$IOS_DOCS_DIR/$1"
 
-  ios_mount 
+  ios_mount
   rm -rf "$TARGET"
-  ios_umount 
+  ios_umount
 }
 
 ios_mkdir() {
@@ -73,43 +69,55 @@ ios_mkdir() {
   ios_umount
 }
 
-# ios_mount: mounts the iOS device for reading or writing. 
+ios_cat() {
+  local TARGET="$IOS_MOUNT_POINT/$IOS_DOCS_DIR/$1"
+  ios_mount
+  RET="$(cat $TARGET)"
+  ios_umount
+  echo -e "$RET"
+}
+
+# ios_mount: mounts the iOS device for reading or writing.
 ios_mount() {
-  # If this is already mounted we return. 
-  if $(mount | grep --quiet "$IOS_MOUNT_POINT"); then 
-    echo "Device already mounted at: $IOS_MOUNT_POINT - Unmounting."
+  # If this is already mounted we unmount it.
+  if $(mount | grep --quiet "$IOS_MOUNT_POINT"); then
+    >&2 echo "Device already mounted at: $IOS_MOUNT_POINT - Unmounting."
     ios_umount
   fi
 
-  # Ensure there is a mount directory. 
-  if [[ ! -d "$IOS_MOUNT_POINT" ]]; then 
+  # Ensure there is a mount directory.
+  if [[ ! -d "$IOS_MOUNT_POINT" ]]; then
     mkdir -p $IOS_MOUNT_POINT
-  fi 
+  fi
   ifuse --container $TEST_RUNNER_BUNDLE_ID $IOS_MOUNT_POINT
   sleep 1
-  echo "Successfully mounted device."
+  >&2 echo "Successfully mounted device."
 }
 
-# ios_umount: unmounts the ios device. 
+# ios_umount: unmounts the ios device.
 ios_umount() {
-  umount $IOS_MOUNT_POINT 
+  umount $IOS_MOUNT_POINT
   sleep 1
 }
 
-# ios_restart: restarts the iOS device. 
+# ios_restart: restarts the iOS device.
 ios_restart() {
   idevicediagnostics restart
 }
 
-# ios_pull(ios_src, host_dst): Copies the content of ios_src to host_dst. 
-# The path is relative to the 'Documents' folder on the device. 
+# ios_pull(ios_src, host_dst): Copies the content of ios_src to host_dst.
+# The path is relative to the 'Documents' folder on the device.
 ios_pull() {
   # read input params
-  local IOS_SRC="$1"
+  local IOS_SRC="$IOS_MOUNT_POINT/$IOS_DOCS_DIR/$1"
   local HOST_DST="$2"
 
   ios_mount
-  cp -r $IOS_MOUNT_POINT/$IOS_DOCS_DIR/$IOS_SRC $HOST_DST
+  if [[ -d "${HOST_DST}" ]]; then
+    cp -r "$IOS_SRC/" "$HOST_DST"
+  else
+    cp -r "$IOS_SRC" "$HOST_DST"
+  fi
   ios_umount
 }
 
@@ -118,9 +126,9 @@ ios_push() {
   # read input params
   local HOST_SRC="$1"
   local IOS_DST="$IOS_MOUNT_POINT/$IOS_DOCS_DIR/$2"
-    
+
   ios_mount
-  rm -rf $IOS_DST 
+  rm -rf $IOS_DST
   mkdir -p "$(dirname $IOS_DST)"
   cp -r "$HOST_SRC" "$IOS_DST"
   ios_umount
@@ -128,11 +136,11 @@ ios_push() {
 
 ios_path_exists() {
   local TARGET_PATH="$IOS_MOUNT_POINT/$IOS_DOCS_DIR/$1"
-  local RET=1 
+  local RET=1
   ios_mount
-  if [[ -e $TARGET_PATH ]]; then 
+  if [[ -e $TARGET_PATH ]]; then
     RET=0
-  fi 
+  fi
   ios_umount
   return $RET
 }
