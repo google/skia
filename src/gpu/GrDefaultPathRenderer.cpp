@@ -329,8 +329,8 @@ public:
             return;
         }
 
-        const GrIndexBuffer* indexBuffer;
-        int firstIndex;
+        const GrIndexBuffer* indexBuffer = NULL;
+        int firstIndex = 0;
 
         void* indices = NULL;
         if (isIndexed) {
@@ -370,17 +370,11 @@ public:
         }
 
         GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.setPrimitiveType(primitiveType);
-        drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setStartVertex(firstVertex);
-        drawInfo.setVertexCount(vertexOffset);
         if (isIndexed) {
-            drawInfo.setIndexBuffer(indexBuffer);
-            drawInfo.setStartIndex(firstIndex);
-            drawInfo.setIndexCount(indexOffset);
+            drawInfo.initIndexed(primitiveType, vertexBuffer, indexBuffer, firstVertex, firstIndex,
+                                 vertexOffset, indexOffset);
         } else {
-            drawInfo.setStartIndex(0);
-            drawInfo.setIndexCount(0);
+            drawInfo.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
         batchTarget->draw(drawInfo);
 

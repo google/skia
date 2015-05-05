@@ -11,12 +11,12 @@
 #include <new>
 // TODO remove this header when we move entirely to batch
 #include "GrDrawTarget.h"
+#include "GrBatchTarget.h"
 #include "GrGeometryProcessor.h"
 #include "SkRefCnt.h"
 #include "SkThread.h"
 #include "SkTypes.h"
 
-class GrBatchTarget;
 class GrGpu;
 class GrIndexBufferAllocPool;
 class GrPipeline;
@@ -112,6 +112,48 @@ protected:
     void joinBounds(const SkRect& otherBounds) {
         return fBounds.joinPossiblyEmptyRect(otherBounds);
     }
+
+    /** Helper for rendering instances using an instanced index index buffer. This class creates the
+        space for the vertices and flushes the draws to the batch target.*/
+   class InstancedHelper {
+   public:
+        InstancedHelper() : fInstancesRemaining(0) {}
+        /** Returns the allocated storage for the vertices. The caller should populate the before
+            vertices before calling issueDraws(). */
+        void* init(GrBatchTarget* batchTarget, GrPrimitiveType, size_t vertexStride,
+                   const GrIndexBuffer*, int verticesPerInstance, int indicesPerInstance,
+                   int instancesToDraw);
+
+        /** Call after init() to issue draws to the batch target.*/
+        void issueDraws(GrBatchTarget* batchTarget) {
+            SkASSERT(fDrawInfo.instanceCount());
+            do {
+                batchTarget->draw(fDrawInfo);
+            } while (fDrawInfo.nextInstances(&fInstancesRemaining, fMaxInstancesPerDraw));
+        }
+    private:
+        int                     fInstancesRemaining;
+        int                     fMaxInstancesPerDraw;
+        GrDrawTarget::DrawInfo  fDrawInfo;
+    };
+
+    static const int kVerticesPerQuad = 4;
+    static const int kIndicesPerQuad = 6;
+
+    /** A specialization of InstanceHelper for quad rendering. */
+    class QuadHelper : private InstancedHelper {
+    public:
+        QuadHelper() : INHERITED() {}
+        /** Finds the cached quad index buffer and reserves vertex space. Returns NULL on failure
+            and on sucess a pointer to the vertex data that the caller should populate before
+            calling issueDraws(). */
+        void* init(GrBatchTarget* batchTarget, size_t vertexStride, int quadsToDraw);
+
+        using InstancedHelper::issueDraws;
+
+    private:
+        typedef InstancedHelper INHERITED;
+    };
 
     SkRect fBounds;
 

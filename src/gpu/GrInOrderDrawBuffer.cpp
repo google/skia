@@ -8,7 +8,6 @@
 #include "GrInOrderDrawBuffer.h"
 
 #include "GrDefaultGeoProcFactory.h"
-#include "GrResourceProvider.h"
 #include "GrTemplates.h"
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context,
@@ -132,79 +131,49 @@ public:
         init.fUsesLocalCoords = this->usesLocalCoords();
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
+        int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
-
         SkASSERT(hasExplicitLocalCoords ?
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
+        QuadHelper helper;
+        void* vertices = helper.init(batchTarget, vertexStride, instanceCount);
 
-        int instanceCount = fGeoData.count();
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            batchTarget->resourceProvider()->refQuadIndexBuffer());
-
-        int vertexCount = kVertsPerRect * instanceCount;
-        const GrVertexBuffer* vertexBuffer;
-        int firstVertex;
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              vertexCount,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
-
-        if (!vertices || !indexBuffer) {
-            SkDebugf("Could not allocate buffers\n");
+        if (!vertices) {
             return;
         }
 
-        for (int i = 0; i < instanceCount; i++) {
-            const Geometry& args = fGeoData[i];
 
-            intptr_t offset = GrTCast<intptr_t>(vertices) + kVertsPerRect * i * vertexStride;
+        for (int i = 0; i < instanceCount; i++) {
+            const Geometry& geom = fGeoData[i];
+
+            intptr_t offset = GrTCast<intptr_t>(vertices) + kVerticesPerQuad * i * vertexStride;
             SkPoint* positions = GrTCast<SkPoint*>(offset);
 
-            positions->setRectFan(args.fRect.fLeft, args.fRect.fTop,
-                                  args.fRect.fRight, args.fRect.fBottom, vertexStride);
-            args.fViewMatrix.mapPointsWithStride(positions, vertexStride, kVertsPerRect);
+            positions->setRectFan(geom.fRect.fLeft, geom.fRect.fTop,
+                                  geom.fRect.fRight, geom.fRect.fBottom, vertexStride);
+            geom.fViewMatrix.mapPointsWithStride(positions, vertexStride, kVerticesPerQuad);
 
-            if (args.fHasLocalRect) {
+            if (geom.fHasLocalRect) {
                 static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
                 SkPoint* coords = GrTCast<SkPoint*>(offset + kLocalOffset);
-                coords->setRectFan(args.fLocalRect.fLeft, args.fLocalRect.fTop,
-                                   args.fLocalRect.fRight, args.fLocalRect.fBottom,
+                coords->setRectFan(geom.fLocalRect.fLeft, geom.fLocalRect.fTop,
+                                   geom.fLocalRect.fRight, geom.fLocalRect.fBottom,
                                    vertexStride);
-                if (args.fHasLocalMatrix) {
-                    args.fLocalMatrix.mapPointsWithStride(coords, vertexStride, kVertsPerRect);
+                if (geom.fHasLocalMatrix) {
+                    geom.fLocalMatrix.mapPointsWithStride(coords, vertexStride, kVerticesPerQuad);
                 }
             }
 
             static const int kColorOffset = sizeof(SkPoint);
             GrColor* vertColor = GrTCast<GrColor*>(offset + kColorOffset);
             for (int j = 0; j < 4; ++j) {
-                *vertColor = args.fColor;
+                *vertColor = geom.fColor;
                 vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
             }
         }
 
-        GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
-        drawInfo.setStartVertex(0);
-        drawInfo.setStartIndex(0);
-        drawInfo.setVerticesPerInstance(kVertsPerRect);
-        drawInfo.setIndicesPerInstance(kIndicesPerRect);
-        drawInfo.adjustStartVertex(firstVertex);
-        drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(indexBuffer);
-
-        int maxInstancesPerDraw = indexBuffer->maxQuads();
-        while (instanceCount) {
-            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
-            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
-            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
-
-            batchTarget->draw(drawInfo);
-
-            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
-            instanceCount -= drawInfo.instanceCount();
-       }
+        helper.issueDraws(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -262,9 +231,6 @@ private:
         bool fColorIgnored;
         bool fCoverageIgnored;
     };
-
-    const static int kVertsPerRect = 4;
-    const static int kIndicesPerRect = 6;
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;

@@ -112,22 +112,18 @@ public:
         init.fUsesLocalCoords = this->usesLocalCoords();
         gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(this->getIndexBuffer(
-            batchTarget->resourceProvider()));
-
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(canTweakAlphaForCoverage ?
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
         int instanceCount = fGeoData.count();
-        int vertexCount = kVertsPerAAFillRect * instanceCount;
-        const GrVertexBuffer* vertexBuffer;
-        int firstVertex;
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              vertexCount,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
 
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(this->getIndexBuffer(
+            batchTarget->resourceProvider()));
+        InstancedHelper helper;
+        void* vertices = helper.init(batchTarget, kTriangles_GrPrimitiveType, vertexStride,
+                                     indexBuffer, kVertsPerAAFillRect, kIndicesPerAAFillRect,
+                                     instanceCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -145,28 +141,7 @@ public:
                                              canTweakAlphaForCoverage);
         }
 
-        GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
-        drawInfo.setStartVertex(0);
-        drawInfo.setStartIndex(0);
-        drawInfo.setVerticesPerInstance(kVertsPerAAFillRect);
-        drawInfo.setIndicesPerInstance(kIndicesPerAAFillRect);
-        drawInfo.adjustStartVertex(firstVertex);
-        drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(indexBuffer);
-
-        int maxInstancesPerDraw = kNumAAFillRectsInIndexBuffer;
-
-        while (instanceCount) {
-            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
-            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
-            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
-
-            batchTarget->draw(drawInfo);
-
-            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
-            instanceCount -= drawInfo.instanceCount();
-        }
+        helper.issueDraws(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -485,9 +460,6 @@ public:
 
         batchTarget->initDraw(gp, pipeline);
 
-        const SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            GetIndexBuffer(batchTarget->resourceProvider(), this->miterStroke()));
-
         // TODO this is hacky, but the only way we have to initialize the GP is to use the
         // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
         // everywhere we can remove this nastiness
@@ -505,28 +477,25 @@ public:
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
         int innerVertexNum = 4;
         int outerVertexNum = this->miterStroke() ? 4 : 8;
-        int totalVertexNum = (outerVertexNum + innerVertexNum) * 2;
-
+        int verticesPerInstance = (outerVertexNum + innerVertexNum) * 2;
+        int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
         int instanceCount = fGeoData.count();
-        int vertexCount = totalVertexNum * instanceCount;
 
-        const GrVertexBuffer* vertexBuffer;
-        int firstVertex;
-
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              vertexCount,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
-
+        const SkAutoTUnref<const GrIndexBuffer> indexBuffer(
+            GetIndexBuffer(batchTarget->resourceProvider(), this->miterStroke()));
+        InstancedHelper helper;
+        void* vertices = helper.init(batchTarget, kTriangles_GrPrimitiveType, vertexStride,
+                                     indexBuffer, verticesPerInstance,  indicesPerInstance,
+                                     instanceCount);
         if (!vertices || !indexBuffer) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
-        }
+             SkDebugf("Could not allocate vertices\n");
+             return;
+         }
 
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
             this->generateAAStrokeRectGeometry(vertices,
-                                               i * totalVertexNum * vertexStride,
+                                               i * verticesPerInstance * vertexStride,
                                                vertexStride,
                                                outerVertexNum,
                                                innerVertexNum,
@@ -537,30 +506,7 @@ public:
                                                args.fMiterStroke,
                                                canTweakAlphaForCoverage);
         }
-        int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
-        GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.setPrimitiveType(kTriangles_GrPrimitiveType);
-        drawInfo.setStartVertex(0);
-        drawInfo.setStartIndex(0);
-        drawInfo.setVerticesPerInstance(totalVertexNum);
-        drawInfo.setIndicesPerInstance(indicesPerInstance);
-        drawInfo.adjustStartVertex(firstVertex);
-        drawInfo.setVertexBuffer(vertexBuffer);
-        drawInfo.setIndexBuffer(indexBuffer);
-
-        int maxInstancesPerDraw = this->miterStroke() ? kNumMiterRectsInIndexBuffer :
-                                                        kNumBevelRectsInIndexBuffer;
-
-        while (instanceCount) {
-            drawInfo.setInstanceCount(SkTMin(instanceCount, maxInstancesPerDraw));
-            drawInfo.setVertexCount(drawInfo.instanceCount() * drawInfo.verticesPerInstance());
-            drawInfo.setIndexCount(drawInfo.instanceCount() * drawInfo.indicesPerInstance());
-
-            batchTarget->draw(drawInfo);
-
-            drawInfo.setStartVertex(drawInfo.startVertex() + drawInfo.vertexCount());
-            instanceCount -= drawInfo.instanceCount();
-        }
+        helper.issueDraws(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

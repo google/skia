@@ -888,23 +888,14 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
         }
 
         {
+            int linesLeft = lineCount;
             GrDrawTarget::DrawInfo info;
-            info.setVertexBuffer(vertexBuffer);
-            info.setIndexBuffer(linesIndexBuffer);
-            info.setPrimitiveType(kTriangles_GrPrimitiveType);
-            info.setStartIndex(0);
-
-            int lines = 0;
-            while (lines < lineCount) {
-                int n = SkTMin(lineCount - lines, kLineSegsNumInIdxBuffer);
-
-                info.setStartVertex(kLineSegNumVertices*lines + firstVertex);
-                info.setVertexCount(kLineSegNumVertices*n);
-                info.setIndexCount(kIdxsPerLineSeg*n);
+            info.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer,
+                               firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, &linesLeft,
+                               kLineSegsNumInIdxBuffer);
+            do {
                 batchTarget->draw(info);
-
-                lines += n;
-            }
+            } while (info.nextInstances(&linesLeft, kLineSegsNumInIdxBuffer));
         }
     }
 
@@ -953,23 +944,15 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
             quadGP->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
             {
-               GrDrawTarget::DrawInfo info;
-               info.setVertexBuffer(vertexBuffer);
-               info.setIndexBuffer(quadsIndexBuffer);
-               info.setPrimitiveType(kTriangles_GrPrimitiveType);
-               info.setStartIndex(0);
-
-               int quads = 0;
-               while (quads < quadCount) {
-                   int n = SkTMin(quadCount - quads, kQuadsNumInIdxBuffer);
-
-                   info.setStartVertex(kQuadNumVertices*quads + firstVertex);
-                   info.setVertexCount(kQuadNumVertices*n);
-                   info.setIndexCount(kIdxsPerQuad*n);
+                int quadsLeft = quadCount;
+                GrDrawTarget::DrawInfo info;
+                info.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
+                                   firstVertex, kQuadNumVertices, kIdxsPerQuad, &quadsLeft,
+                                   kQuadsNumInIdxBuffer);
+               do {
                    batchTarget->draw(info);
-
-                   quads += n;
-               }
+               } while (info.nextInstances(&quadsLeft, kQuadsNumInIdxBuffer));
+               firstVertex += quadCount * kQuadNumVertices;
            }
         }
 
@@ -985,23 +968,14 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
             conicGP->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
             {
+                int conicsLeft = conicCount;
                 GrDrawTarget::DrawInfo info;
-                info.setVertexBuffer(vertexBuffer);
-                info.setIndexBuffer(quadsIndexBuffer);
-                info.setPrimitiveType(kTriangles_GrPrimitiveType);
-                info.setStartIndex(0);
-
-                int conics = 0;
-                while (conics < conicCount) {
-                    int n = SkTMin(conicCount - conics, kQuadsNumInIdxBuffer);
-
-                    info.setStartVertex(kQuadNumVertices*(quadCount + conics) + firstVertex);
-                    info.setVertexCount(kQuadNumVertices*n);
-                    info.setIndexCount(kIdxsPerQuad*n);
+                info.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
+                                  firstVertex, kQuadNumVertices, kIdxsPerQuad, &conicsLeft,
+                                  kQuadsNumInIdxBuffer);
+                do {
                     batchTarget->draw(info);
-
-                    conics += n;
-                }
+                } while (info.nextInstances(&conicsLeft, kQuadsNumInIdxBuffer));
             }
         }
     }
