@@ -457,7 +457,6 @@ private:
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
-        GrDrawTarget::DrawInfo drawInfo;
         Vertex* verts = reinterpret_cast<Vertex*>(helper.init(batchTarget, vertexStride, 1));
         if (!verts) {
             return;

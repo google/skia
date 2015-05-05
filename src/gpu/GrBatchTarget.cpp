@@ -46,10 +46,10 @@ void GrBatchTarget::flushNext(int n)  {
 
         GrGpu::DrawArgs args(primProc, pipeline, &desc, &bf->fBatchTracker);
 
-        int drawCount = bf->fDraws.count();
-        const SkSTArray<1, DrawInfo, true>& draws = bf->fDraws;
+        int drawCount = bf->fVertexDraws.count();
+        const SkSTArray<1, GrVertices, true>& vertexDraws = bf->fVertexDraws;
         for (int i = 0; i < drawCount; i++) {
-            fGpu->draw(args, draws[i]);
+            fGpu->draw(args, vertexDraws[i]);
         }
     }
 }

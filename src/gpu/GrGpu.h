@@ -23,6 +23,7 @@ class GrPipeline;
 class GrPrimitiveProcessor;
 class GrStencilAttachment;
 class GrVertexBufferAllocPool;
+class GrVertices;
 
 class GrGpu : public SkRefCnt {
 public:
@@ -280,7 +281,6 @@ public:
     virtual void xferBarrier(GrXferBarrierType) = 0;
 
     struct DrawArgs {
-        typedef GrDrawTarget::DrawInfo DrawInfo;
         DrawArgs(const GrPrimitiveProcessor* primProc,
                  const GrPipeline* pipeline,
                  const GrProgramDesc* desc,
@@ -297,7 +297,7 @@ public:
         const GrBatchTracker* fBatchTracker;
     };
 
-    void draw(const DrawArgs&, const GrDrawTarget::DrawInfo&);
+    void draw(const DrawArgs&, const GrVertices&);
 
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathState {
@@ -435,7 +435,7 @@ private:
     virtual void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const DrawArgs&, const GrDrawTarget::DrawInfo&) = 0;
+    virtual void onDraw(const DrawArgs&, const GrVertices&) = 0;
     virtual void onStencilPath(const GrPath*, const StencilPathState&) = 0;
 
     virtual void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) = 0;

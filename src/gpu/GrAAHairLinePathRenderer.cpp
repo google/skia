@@ -889,7 +889,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
 
         {
             int linesLeft = lineCount;
-            GrDrawTarget::DrawInfo info;
+            GrVertices info;
             info.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer,
                                firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, &linesLeft,
                                kLineSegsNumInIdxBuffer);
@@ -945,7 +945,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
 
             {
                 int quadsLeft = quadCount;
-                GrDrawTarget::DrawInfo info;
+                GrVertices info;
                 info.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
                                    firstVertex, kQuadNumVertices, kIdxsPerQuad, &quadsLeft,
                                    kQuadsNumInIdxBuffer);
@@ -969,7 +969,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
 
             {
                 int conicsLeft = conicCount;
-                GrDrawTarget::DrawInfo info;
+                GrVertices info;
                 info.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
                                   firstVertex, kQuadNumVertices, kIdxsPerQuad, &conicsLeft,
                                   kQuadsNumInIdxBuffer);

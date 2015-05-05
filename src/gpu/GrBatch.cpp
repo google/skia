@@ -69,7 +69,7 @@ void* GrBatch::InstancedHelper::init(GrBatchTarget* batchTarget, GrPrimitiveType
     size_t ibSize = indexBuffer->gpuMemorySize();
     fMaxInstancesPerDraw = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerInstance));
 
-    fDrawInfo.initInstanced(primType, vertexBuffer, indexBuffer,
+    fVertices.initInstanced(primType, vertexBuffer, indexBuffer,
         firstVertex, verticesPerInstance, indicesPerInstance, &fInstancesRemaining,
         fMaxInstancesPerDraw);
     SkASSERT(fMaxInstancesPerDraw > 0);

@@ -16,6 +16,7 @@
 #include "GrTemplates.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
+#include "GrVertices.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
 
@@ -1408,7 +1409,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
 }
 
 void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
-                            const GrDrawTarget::DrawInfo& info,
+                            const GrVertices& info,
                             size_t* indexOffsetInBytes) {
     GrGLVertexBuffer* vbuf;
     vbuf = (GrGLVertexBuffer*) info.vertexBuffer();
@@ -1851,29 +1852,31 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGLGpu::onDraw(const DrawArgs& args, const GrDrawTarget::DrawInfo& info) {
+void GrGLGpu::onDraw(const DrawArgs& args, const GrVertices& vertices) {
     if (!this->flushGLState(args)) {
         return;
     }
 
     size_t indexOffsetInBytes = 0;
-    this->setupGeometry(*args.fPrimitiveProcessor, info, &indexOffsetInBytes);
+    this->setupGeometry(*args.fPrimitiveProcessor, vertices, &indexOffsetInBytes);
 
-    SkASSERT((size_t)info.primitiveType() < SK_ARRAY_COUNT(gPrimitiveType2GLMode));
+    SkASSERT((size_t)vertices.primitiveType() < SK_ARRAY_COUNT(gPrimitiveType2GLMode));
 
-    if (info.isIndexed()) {
+    if (vertices.isIndexed()) {
         GrGLvoid* indices =
-            reinterpret_cast<GrGLvoid*>(indexOffsetInBytes + sizeof(uint16_t) * info.startIndex());
+            reinterpret_cast<GrGLvoid*>(indexOffsetInBytes + sizeof(uint16_t) *
+                                        vertices.startIndex());
         // info.startVertex() was accounted for by setupGeometry.
-        GL_CALL(DrawElements(gPrimitiveType2GLMode[info.primitiveType()],
-                             info.indexCount(),
+        GL_CALL(DrawElements(gPrimitiveType2GLMode[vertices.primitiveType()],
+                             vertices.indexCount(),
                              GR_GL_UNSIGNED_SHORT,
                              indices));
     } else {
         // Pass 0 for parameter first. We have to adjust glVertexAttribPointer() to account for
         // startVertex in the DrawElements case. So we always rely on setupGeometry to have
         // accounted for startVertex.
-        GL_CALL(DrawArrays(gPrimitiveType2GLMode[info.primitiveType()], 0, info.vertexCount()));
+        GL_CALL(DrawArrays(gPrimitiveType2GLMode[vertices.primitiveType()], 0,
+                           vertices.vertexCount()));
     }
 #if SWAP_PER_DRAW
     glFlush();

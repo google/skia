@@ -507,15 +507,15 @@ private:
     }
 
     void flush(GrBatchTarget* batchTarget, FlushInfo* flushInfo) {
-        GrDrawTarget::DrawInfo drawInfo;
+        GrVertices vertices;
         int instancesToFlush = flushInfo->fInstancesToFlush;
         int maxInstancesPerDraw = flushInfo->fIndexBuffer->maxQuads();
-        drawInfo.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
+        vertices.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
             flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
             kIndicesPerQuad, &instancesToFlush, maxInstancesPerDraw);
         do {
-            batchTarget->draw(drawInfo);
-        } while (drawInfo.nextInstances(&instancesToFlush, maxInstancesPerDraw));
+            batchTarget->draw(vertices);
+        } while (vertices.nextInstances(&instancesToFlush, maxInstancesPerDraw));
         flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
         flushInfo->fInstancesToFlush = 0;
     }

@@ -200,7 +200,7 @@ private:
 
     void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override {}
 
-    void onDraw(const DrawArgs&, const GrDrawTarget::DrawInfo&) override {}
+    void onDraw(const DrawArgs&, const GrVertices&) override {}
 
     void onStencilPath(const GrPath* path, const StencilPathState& state) override {}
 

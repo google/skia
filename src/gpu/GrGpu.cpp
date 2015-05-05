@@ -18,6 +18,24 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrVertexBuffer.h"
+#include "GrVertices.h"
+
+GrVertices& GrVertices::operator =(const GrVertices& di) {
+    fPrimitiveType  = di.fPrimitiveType;
+    fStartVertex    = di.fStartVertex;
+    fStartIndex     = di.fStartIndex;
+    fVertexCount    = di.fVertexCount;
+    fIndexCount     = di.fIndexCount;
+
+    fInstanceCount          = di.fInstanceCount;
+    fVerticesPerInstance    = di.fVerticesPerInstance;
+    fIndicesPerInstance     = di.fIndicesPerInstance;
+
+    fVertexBuffer.reset(di.vertexBuffer());
+    fIndexBuffer.reset(di.indexBuffer());
+
+    return *this;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -269,9 +287,9 @@ void GrGpu::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::draw(const DrawArgs& args, const GrDrawTarget::DrawInfo& info) {
+void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
     this->handleDirtyContext();
-    this->onDraw(args, info);
+    this->onDraw(args, vertices);
 }
 
 void GrGpu::stencilPath(const GrPath* path, const StencilPathState& state) {

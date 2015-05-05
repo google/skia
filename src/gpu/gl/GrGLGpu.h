@@ -24,6 +24,7 @@
 #include "SkTypes.h"
 
 class GrPipeline;
+class GrVertices;
 
 #ifdef SK_DEVELOPER
 #define PROGRAM_CACHE_STATS
@@ -148,7 +149,7 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override;
 
-    void onDraw(const DrawArgs&, const GrDrawTarget::DrawInfo&) override;
+    void onDraw(const DrawArgs&, const GrVertices&) override;
     void onStencilPath(const GrPath*, const StencilPathState&) override;
     void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) override;
     void onDrawPaths(const DrawArgs&,
@@ -173,10 +174,10 @@ private:
     bool flushGLState(const DrawArgs&);
 
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
-    // an into the index buffer. It does not account for drawInfo.startIndex() but rather the start
+    // an into the index buffer. It does not account for vertices.startIndex() but rather the start
     // index is relative to the returned offset.
     void setupGeometry(const GrPrimitiveProcessor&,
-                       const GrDrawTarget::DrawInfo& info,
+                       const GrVertices& vertices,
                        size_t* indexOffsetInBytes);
 
     // Subclasses should call this to flush the blend state.

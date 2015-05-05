@@ -9,10 +9,9 @@
 #define GrBatch_DEFINED
 
 #include <new>
-// TODO remove this header when we move entirely to batch
-#include "GrDrawTarget.h"
 #include "GrBatchTarget.h"
 #include "GrGeometryProcessor.h"
+#include "GrVertices.h"
 #include "SkRefCnt.h"
 #include "SkThread.h"
 #include "SkTypes.h"
@@ -126,15 +125,15 @@ protected:
 
         /** Call after init() to issue draws to the batch target.*/
         void issueDraws(GrBatchTarget* batchTarget) {
-            SkASSERT(fDrawInfo.instanceCount());
+            SkASSERT(fVertices.instanceCount());
             do {
-                batchTarget->draw(fDrawInfo);
-            } while (fDrawInfo.nextInstances(&fInstancesRemaining, fMaxInstancesPerDraw));
+                batchTarget->draw(fVertices);
+            } while (fVertices.nextInstances(&fInstancesRemaining, fMaxInstancesPerDraw));
         }
     private:
-        int                     fInstancesRemaining;
-        int                     fMaxInstancesPerDraw;
-        GrDrawTarget::DrawInfo  fDrawInfo;
+        int         fInstancesRemaining;
+        int         fMaxInstancesPerDraw;
+        GrVertices  fVertices;
     };
 
     static const int kVerticesPerQuad = 4;

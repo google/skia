@@ -823,7 +823,7 @@ public:
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, &draws, verts, idxs);
 
-            GrDrawTarget::DrawInfo info;
+            GrVertices info;
 
             for (int i = 0; i < draws.count(); ++i) {
                 const Draw& draw = draws[i];

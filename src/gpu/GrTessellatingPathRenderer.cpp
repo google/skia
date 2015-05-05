@@ -11,7 +11,7 @@
 #include "GrBatchTarget.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
-#include "GrVertexBuffer.h"
+#include "GrVertices.h"
 #include "SkChunkAlloc.h"
 #include "SkGeometry.h"
 
@@ -1439,28 +1439,28 @@ public:
         size_t stride = gp->getVertexStride();
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
-        void* vertices = batchTarget->vertexPool()->makeSpace(stride,
-                                                              count,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
+        void* verts = batchTarget->vertexPool()->makeSpace(stride,
+                                                           count,
+                                                           &vertexBuffer,
+                                                           &firstVertex);
 
-        if (!vertices) {
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
         LOG("emitting %d verts\n", count);
-        void* end = polys_to_triangles(polys, fillType, vertices);
+        void* end = polys_to_triangles(polys, fillType, verts);
         int actualCount = static_cast<int>(
-            (static_cast<char*>(end) - static_cast<char*>(vertices)) / stride);
+            (static_cast<char*>(end) - static_cast<char*>(verts)) / stride);
         LOG("actual count: %d\n", actualCount);
         SkASSERT(actualCount <= count);
 
         GrPrimitiveType primitiveType = WIREFRAME ? kLines_GrPrimitiveType
                                                   : kTriangles_GrPrimitiveType;
-        GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.init(primitiveType, vertexBuffer, firstVertex, actualCount);
-        batchTarget->draw(drawInfo);
+        GrVertices vertices;
+        vertices.init(primitiveType, vertexBuffer, firstVertex, actualCount);
+        batchTarget->draw(vertices);
 
         batchTarget->putBackVertices((size_t)(count - actualCount), stride);
         return;

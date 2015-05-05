@@ -12,8 +12,8 @@
 #include "GrBufferAllocPool.h"
 #include "GrPendingProgramElement.h"
 #include "GrPipeline.h"
-#include "GrGpu.h"
 #include "GrTRecorder.h"
+#include "GrVertices.h"
 
 /*
  * GrBatch instances use this object to allocate space for their geometry and to issue the draws
@@ -30,7 +30,6 @@ public:
                   GrVertexBufferAllocPool* vpool,
                   GrIndexBufferAllocPool* ipool);
 
-    typedef GrDrawTarget::DrawInfo DrawInfo;
     void initDraw(const GrPrimitiveProcessor* primProc, const GrPipeline* pipeline) {
         GrNEW_APPEND_TO_RECORDER(fFlushBuffer, BufferedFlush, (primProc, pipeline));
         fNumberOfDraws++;
@@ -83,8 +82,8 @@ public:
         }
     }
 
-    void draw(const GrDrawTarget::DrawInfo& draw) {
-        fFlushBuffer.back().fDraws.push_back(draw);
+    void draw(const GrVertices& vertices) {
+        fFlushBuffer.back().fVertexDraws.push_back(vertices);
     }
 
     bool isIssued(BatchToken token) const { return fLastFlushedToken >= token; }
@@ -145,7 +144,7 @@ private:
         ProgramPrimitiveProcessor fPrimitiveProcessor;
         const GrPipeline* fPipeline;
         GrBatchTracker fBatchTracker;
-        SkSTArray<1, DrawInfo, true> fDraws;
+        SkSTArray<1, GrVertices, true> fVertexDraws;
     };
 
     enum {

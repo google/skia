@@ -14,7 +14,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
-#include "GrVertexBuffer.h"
+#include "GrVertices.h"
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
@@ -319,12 +319,12 @@ public:
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              maxVertices,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
+        void* verts = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                           maxVertices,
+                                                           &vertexBuffer,
+                                                           &firstVertex);
 
-        if (!vertices) {
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -352,7 +352,7 @@ public:
 
             int vertexCnt = 0;
             int indexCnt = 0;
-            if (!this->createGeom(vertices,
+            if (!this->createGeom(verts,
                                   vertexOffset,
                                   indices,
                                   indexOffset,
@@ -369,14 +369,14 @@ public:
             SkASSERT(vertexOffset <= maxVertices && indexOffset <= maxIndices);
         }
 
-        GrDrawTarget::DrawInfo drawInfo;
+        GrVertices vertices;
         if (isIndexed) {
-            drawInfo.initIndexed(primitiveType, vertexBuffer, indexBuffer, firstVertex, firstIndex,
+            vertices.initIndexed(primitiveType, vertexBuffer, indexBuffer, firstVertex, firstIndex,
                                  vertexOffset, indexOffset);
         } else {
-            drawInfo.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
+            vertices.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
-        batchTarget->draw(drawInfo);
+        batchTarget->draw(vertices);
 
         // put back reserves
         batchTarget->putBackIndices((size_t)(maxIndices - indexOffset));

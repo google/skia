@@ -36,6 +36,7 @@
 #include "GrTexturePriv.h"
 #include "GrTraceMarker.h"
 #include "GrTracing.h"
+#include "GrVertices.h"
 #include "SkDashPathPriv.h"
 #include "SkConfig8888.h"
 #include "SkGr.h"
@@ -473,17 +474,17 @@ public:
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              vertexCount,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
+        void* verts = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                           vertexCount,
+                                                           &vertexBuffer,
+                                                           &firstVertex);
 
-        if (!vertices) {
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        SkPoint* vertex = reinterpret_cast<SkPoint*>(vertices);
+        SkPoint* vertex = reinterpret_cast<SkPoint*>(verts);
 
         GrPrimitiveType primType;
 
@@ -501,9 +502,9 @@ public:
             vertex[4].set(args.fRect.fLeft, args.fRect.fTop);
         }
 
-        GrDrawTarget::DrawInfo drawInfo;
-        drawInfo.init(primType, vertexBuffer, firstVertex, vertexCount);
-        batchTarget->draw(drawInfo);
+        GrVertices vertices;
+        vertices.init(primType, vertexBuffer, firstVertex, vertexCount);
+        batchTarget->draw(vertices);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -811,12 +812,12 @@ public:
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              this->vertexCount(),
-                                                              &vertexBuffer,
+        void* verts = batchTarget->vertexPool()->makeSpace(vertexStride,
+                                                           this->vertexCount(),
+                                                           &vertexBuffer,
                                                               &firstVertex);
 
-        if (!vertices) {
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -849,27 +850,27 @@ public:
             }
 
             for (int j = 0; j < args.fPositions.count(); ++j) {
-                *((SkPoint*)vertices) = args.fPositions[j];
+                *((SkPoint*)verts) = args.fPositions[j];
                 if (this->hasColors()) {
-                    *(GrColor*)((intptr_t)vertices + colorOffset) = args.fColors[j];
+                    *(GrColor*)((intptr_t)verts + colorOffset) = args.fColors[j];
                 }
                 if (this->hasLocalCoords()) {
-                    *(SkPoint*)((intptr_t)vertices + texOffset) = args.fLocalCoords[j];
+                    *(SkPoint*)((intptr_t)verts + texOffset) = args.fLocalCoords[j];
                 }
-                vertices = (void*)((intptr_t)vertices + vertexStride);
+                verts = (void*)((intptr_t)verts + vertexStride);
                 vertexOffset++;
             }
         }
 
-        GrDrawTarget::DrawInfo drawInfo;
+        GrVertices vertices;
         if (this->hasIndices()) {
-            drawInfo.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
+            vertices.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
                                  firstIndex, this->vertexCount(), this->indexCount());
 
         } else {
-            drawInfo.init(this->primitiveType(), vertexBuffer, firstVertex, this->vertexCount());
+            vertices.init(this->primitiveType(), vertexBuffer, firstVertex, this->vertexCount());
         }
-        batchTarget->draw(drawInfo);
+        batchTarget->draw(vertices);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
