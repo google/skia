@@ -841,8 +841,7 @@ static GrBatch* create_circle_batch(GrColor color,
                                     const SkMatrix& viewMatrix,
                                     bool useCoverageAA,
                                     const SkRect& circle,
-                                    const SkStrokeRec& stroke,
-                                    SkRect* bounds) {
+                                    const SkStrokeRec& stroke) {
     SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
     viewMatrix.mapPoints(&center, 1);
     SkScalar radius = viewMatrix.mapRadius(SkScalarHalf(circle.width()));
@@ -876,16 +875,14 @@ static GrBatch* create_circle_batch(GrColor color,
     outerRadius += SK_ScalarHalf;
     innerRadius -= SK_ScalarHalf;
 
-    bounds->setLTRB(center.fX - outerRadius, center.fY - outerRadius,
-                    center.fX + outerRadius, center.fY + outerRadius);
-
     CircleBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;
     geometry.fColor = color;
     geometry.fInnerRadius = innerRadius;
     geometry.fOuterRadius = outerRadius;
     geometry.fStroke = isStrokeOnly && innerRadius > 0;
-    geometry.fDevBounds = *bounds;
+    geometry.fDevBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
+                                           center.fX + outerRadius, center.fY + outerRadius);
 
     return CircleBatch::Create(geometry);
 }
@@ -897,9 +894,8 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
                                 bool useCoverageAA,
                                 const SkRect& circle,
                                 const SkStrokeRec& stroke) {
-    SkRect bounds;
     SkAutoTUnref<GrBatch> batch(create_circle_batch(color, viewMatrix, useCoverageAA, circle,
-                                                    stroke, &bounds));
+                                                    stroke));
     target->drawBatch(pipelineBuilder, batch);
 }
 
@@ -1074,8 +1070,7 @@ static GrBatch* create_ellipse_batch(GrColor color,
                                      const SkMatrix& viewMatrix,
                                      bool useCoverageAA,
                                      const SkRect& ellipse,
-                                     const SkStrokeRec& stroke,
-                                     SkRect* bounds) {
+                                     const SkStrokeRec& stroke) {
 #ifdef SK_DEBUG
     {
         // we should have checked for this previously
@@ -1144,9 +1139,6 @@ static GrBatch* create_ellipse_batch(GrColor color,
     xRadius += SK_ScalarHalf;
     yRadius += SK_ScalarHalf;
 
-    bounds->setLTRB(center.fX - xRadius, center.fY - yRadius,
-                    center.fX + xRadius, center.fY + yRadius);
-
     EllipseBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;
     geometry.fColor = color;
@@ -1155,7 +1147,8 @@ static GrBatch* create_ellipse_batch(GrColor color,
     geometry.fInnerXRadius = innerXRadius;
     geometry.fInnerYRadius = innerYRadius;
     geometry.fStroke = isStrokeOnly && innerXRadius > 0 && innerYRadius > 0;
-    geometry.fDevBounds = *bounds;
+    geometry.fDevBounds = SkRect::MakeLTRB(center.fX - xRadius, center.fY - yRadius,
+                                           center.fX + xRadius, center.fY + yRadius);
 
     return EllipseBatch::Create(geometry);
 }
@@ -1167,9 +1160,8 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                  bool useCoverageAA,
                                  const SkRect& ellipse,
                                  const SkStrokeRec& stroke) {
-    SkRect bounds;
     SkAutoTUnref<GrBatch> batch(create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                                     stroke, &bounds));
+                                                     stroke));
     if (!batch) {
         return false;
     }
@@ -1311,8 +1303,8 @@ private:
             return false;
         }
 
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        // TODO rewrite to allow positioning on CPU
+        if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
             return false;
         }
 
@@ -1342,8 +1334,7 @@ static GrBatch* create_diellipse_batch(GrColor color,
                                        const SkMatrix& viewMatrix,
                                        bool useCoverageAA,
                                        const SkRect& ellipse,
-                                       const SkStrokeRec& stroke,
-                                       SkRect* bounds) {
+                                       const SkStrokeRec& stroke) {
     SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
     SkScalar xRadius = SkScalarHalf(ellipse.width());
     SkScalar yRadius = SkScalarHalf(ellipse.height());
@@ -1399,9 +1390,6 @@ static GrBatch* create_diellipse_batch(GrColor color,
     SkScalar geoDx = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(a*a + c*c));
     SkScalar geoDy = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(b*b + d*d));
 
-    bounds->setLTRB(center.fX - xRadius - geoDx, center.fY - yRadius - geoDy,
-                    center.fX + xRadius + geoDx, center.fY + yRadius + geoDy);
-
     DIEllipseBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;
     geometry.fColor = color;
@@ -1412,10 +1400,12 @@ static GrBatch* create_diellipse_batch(GrColor color,
     geometry.fGeoDx = geoDx;
     geometry.fGeoDy = geoDy;
     geometry.fMode = mode;
-    geometry.fBounds = *bounds;
+    geometry.fBounds = SkRect::MakeLTRB(center.fX - xRadius - geoDx, center.fY - yRadius - geoDy,
+                                        center.fX + xRadius + geoDx, center.fY + yRadius + geoDy);
 
-    viewMatrix.mapRect(bounds);
-    return DIEllipseBatch::Create(geometry, *bounds);
+    SkRect devBounds = geometry.fBounds;
+    viewMatrix.mapRect(&devBounds);
+    return DIEllipseBatch::Create(geometry, devBounds);
 }
 
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
@@ -1425,9 +1415,8 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
                                    bool useCoverageAA,
                                    const SkRect& ellipse,
                                    const SkStrokeRec& stroke) {
-    SkRect bounds;
     SkAutoTUnref<GrBatch> batch(create_diellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                                       stroke, &bounds));
+                                                       stroke));
     if (!batch) {
         return false;
     }
@@ -1920,8 +1909,7 @@ private:
 static GrBatch* create_rrect_batch(GrColor color,
                                    const SkMatrix& viewMatrix,
                                    const SkRRect& rrect,
-                                   const SkStrokeRec& stroke,
-                                   SkRect* bounds) {
+                                   const SkStrokeRec& stroke) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
@@ -1929,7 +1917,8 @@ static GrBatch* create_rrect_batch(GrColor color,
     // RRect batchs only handle simple, but not too simple, rrects
     // do any matrix crunching before we reset the draw state for device coords
     const SkRect& rrectBounds = rrect.getBounds();
-    viewMatrix.mapRect(bounds, rrectBounds);
+    SkRect bounds;
+    viewMatrix.mapRect(&bounds, rrectBounds);
 
     SkVector radii = rrect.getSimpleRadii();
     SkScalar xRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX]*radii.fX +
@@ -1988,7 +1977,7 @@ static GrBatch* create_rrect_batch(GrColor color,
                 innerRadius = xRadius - halfWidth;
             }
             outerRadius += halfWidth;
-            bounds->outset(halfWidth, halfWidth);
+            bounds.outset(halfWidth, halfWidth);
         }
 
         isStrokeOnly = (isStrokeOnly && innerRadius >= 0);
@@ -2002,7 +1991,7 @@ static GrBatch* create_rrect_batch(GrColor color,
         innerRadius -= SK_ScalarHalf;
 
         // Expand the rect so all the pixels will be captured.
-        bounds->outset(SK_ScalarHalf, SK_ScalarHalf);
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
 
         RRectCircleRendererBatch::Geometry geometry;
         geometry.fViewMatrix = viewMatrix;
@@ -2010,7 +1999,7 @@ static GrBatch* create_rrect_batch(GrColor color,
         geometry.fInnerRadius = innerRadius;
         geometry.fOuterRadius = outerRadius;
         geometry.fStroke = isStrokeOnly;
-        geometry.fDevBounds = *bounds;
+        geometry.fDevBounds = bounds;
 
         return RRectCircleRendererBatch::Create(geometry);
     // otherwise we use the ellipse renderer
@@ -2044,13 +2033,13 @@ static GrBatch* create_rrect_batch(GrColor color,
 
             xRadius += scaledStroke.fX;
             yRadius += scaledStroke.fY;
-            bounds->outset(scaledStroke.fX, scaledStroke.fY);
+            bounds.outset(scaledStroke.fX, scaledStroke.fY);
         }
 
         isStrokeOnly = (isStrokeOnly && innerXRadius >= 0 && innerYRadius >= 0);
 
         // Expand the rect so all the pixels will be captured.
-        bounds->outset(SK_ScalarHalf, SK_ScalarHalf);
+        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
 
         RRectEllipseRendererBatch::Geometry geometry;
         geometry.fViewMatrix = viewMatrix;
@@ -2060,7 +2049,7 @@ static GrBatch* create_rrect_batch(GrColor color,
         geometry.fInnerXRadius = innerXRadius;
         geometry.fInnerYRadius = innerYRadius;
         geometry.fStroke = isStrokeOnly;
-        geometry.fDevBounds = *bounds;
+        geometry.fDevBounds = bounds;
 
         return RRectEllipseRendererBatch::Create(geometry);
     }
@@ -2089,8 +2078,7 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
         return false;
     }
 
-    SkRect bounds;
-    SkAutoTUnref<GrBatch> batch(create_rrect_batch(color, viewMatrix, rrect, stroke, &bounds));
+    SkAutoTUnref<GrBatch> batch(create_rrect_batch(color, viewMatrix, rrect, stroke));
     if (!batch) {
         return false;
     }
@@ -2118,9 +2106,7 @@ BATCH_TEST_DEFINE(CircleBatch) {
     GrColor color = GrRandomColor(random);
     bool useCoverageAA = random->nextBool();
     SkRect circle = GrTest::TestRect(random);
-    SkRect bounds; // unused
-    return create_circle_batch(color, viewMatrix, useCoverageAA, circle, random_strokerec(random),
-                               &bounds);
+    return create_circle_batch(color, viewMatrix, useCoverageAA, circle, random_strokerec(random));
 }
 
 BATCH_TEST_DEFINE(EllipseBatch) {
@@ -2128,9 +2114,8 @@ BATCH_TEST_DEFINE(EllipseBatch) {
     GrColor color = GrRandomColor(random);
     bool useCoverageAA = random->nextBool();
     SkRect ellipse = GrTest::TestRect(random);
-    SkRect bounds; // unused
     return create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                random_strokerec(random), &bounds);
+                                random_strokerec(random));
 }
 
 BATCH_TEST_DEFINE(DIEllipseBatch) {
@@ -2138,18 +2123,15 @@ BATCH_TEST_DEFINE(DIEllipseBatch) {
     GrColor color = GrRandomColor(random);
     bool useCoverageAA = random->nextBool();
     SkRect ellipse = GrTest::TestRect(random);
-    SkRect bounds; // unused
     return create_diellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                  random_strokerec(random), &bounds);
+                                  random_strokerec(random));
 }
 
 BATCH_TEST_DEFINE(RRectBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
-
-    SkRect bounds;
-    return create_rrect_batch(color, viewMatrix, rrect, random_strokerec(random), &bounds);
+    return create_rrect_batch(color, viewMatrix, rrect, random_strokerec(random));
 }
 
 #endif
