@@ -29,7 +29,7 @@ public:
         SkASSERT(vertexCount);
         SkASSERT(startVertex >= 0);
         fPrimitiveType = primType;
-        fVertexBuffer.reset(SkRef(vertexBuffer));
+        fVertexBuffer.reset(vertexBuffer);
         fIndexBuffer.reset(NULL);
         fStartVertex = startVertex;
         fStartIndex = 0;
@@ -54,8 +54,8 @@ public:
         SkASSERT(startIndex >= 0);
         SkASSERT(startVertex >= 0);
         fPrimitiveType = primType;
-        fVertexBuffer.reset(SkRef(vertexBuffer));
-        fIndexBuffer.reset(SkRef(indexBuffer));
+        fVertexBuffer.reset(vertexBuffer);
+        fIndexBuffer.reset(indexBuffer);
         fStartVertex = startVertex;
         fStartIndex = startIndex;
         fVertexCount = vertexCount;
@@ -79,8 +79,8 @@ public:
         SkASSERT(indicesPerInstance);
         SkASSERT(startVertex >= 0);
         fPrimitiveType = primType;
-        fVertexBuffer.reset(SkRef(vertexBuffer));
-        fIndexBuffer.reset(SkRef(indexBuffer));
+        fVertexBuffer.reset(vertexBuffer);
+        fIndexBuffer.reset(indexBuffer);
         fStartVertex = startVertex;
         fStartIndex = 0;
         fVerticesPerInstance = verticesPerInstance;
