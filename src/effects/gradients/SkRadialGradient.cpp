@@ -270,13 +270,6 @@ void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
 
 namespace {
 
-inline bool radial_completely_pinned(int fx, int dx, int fy, int dy) {
-    // fast, overly-conservative test: checks unit square instead of unit circle
-    bool xClamped = (fx >= SK_FixedHalf && dx >= 0) || (fx <= -SK_FixedHalf && dx <= 0);
-    bool yClamped = (fy >= SK_FixedHalf && dy >= 0) || (fy <= -SK_FixedHalf && dy <= 0);
-    return xClamped || yClamped;
-}
-
 inline bool radial_completely_pinned(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy) {
     // fast, overly-conservative test: checks unit square instead of unit circle
     bool xClamped = (fx >= 1 && dx >= 0) || (fx <= -1 && dx <= 0);
@@ -284,98 +277,10 @@ inline bool radial_completely_pinned(SkScalar fx, SkScalar dx, SkScalar fy, SkSc
     return xClamped || yClamped;
 }
 
-// Return true if (fx * fy) is always inside the unit circle
-// SkPin32 is expensive, but so are all the SkFixedMul in this test,
-// so it shouldn't be run if count is small.
-inline bool no_need_for_radial_pin(int fx, int dx,
-                                          int fy, int dy, int count) {
-    SkASSERT(count > 0);
-    if (SkAbs32(fx) > 0x7FFF || SkAbs32(fy) > 0x7FFF) {
-        return false;
-    }
-    if (fx*fx + fy*fy > 0x7FFF*0x7FFF) {
-        return false;
-    }
-    fx += (count - 1) * dx;
-    fy += (count - 1) * dy;
-    if (SkAbs32(fx) > 0x7FFF || SkAbs32(fy) > 0x7FFF) {
-        return false;
-    }
-    return fx*fx + fy*fy <= 0x7FFF*0x7FFF;
-}
-
-#define UNPINNED_RADIAL_STEP \
-    fi = (fx * fx + fy * fy) >> (14 + 16 - kSQRT_TABLE_BITS); \
-    *dstC++ = cache[toggle + \
-                    (sqrt_table[fi] >> SkGradientShaderBase::kSqrt32Shift)]; \
-    toggle = next_dither_toggle(toggle); \
-    fx += dx; \
-    fy += dy;
-
 typedef void (* RadialShadeProc)(SkScalar sfx, SkScalar sdx,
         SkScalar sfy, SkScalar sdy,
         SkPMColor* dstC, const SkPMColor* cache,
         int count, int toggle);
-
-// On Linux, this is faster with SkPMColor[] params than SkPMColor* SK_RESTRICT
-void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
-        SkScalar sfy, SkScalar sdy,
-        SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-        int count, int toggle) {
-    // Floating point seems to be slower than fixed point,
-    // even when we have float hardware.
-    const uint8_t* SK_RESTRICT sqrt_table = gSqrt8Table;
-    SkFixed fx = SkScalarToFixed(sfx) >> 1;
-    SkFixed dx = SkScalarToFixed(sdx) >> 1;
-    SkFixed fy = SkScalarToFixed(sfy) >> 1;
-    SkFixed dy = SkScalarToFixed(sdy) >> 1;
-    if ((count > 4) && radial_completely_pinned(fx, dx, fy, dy)) {
-        unsigned fi = SkGradientShaderBase::kCache32Count - 1;
-        sk_memset32_dither(dstC,
-            cache[toggle + fi],
-            cache[next_dither_toggle(toggle) + fi],
-            count);
-    } else if ((count > 4) &&
-               no_need_for_radial_pin(fx, dx, fy, dy, count)) {
-        unsigned fi;
-        // 4x unroll appears to be no faster than 2x unroll on Linux
-        while (count > 1) {
-            UNPINNED_RADIAL_STEP;
-            UNPINNED_RADIAL_STEP;
-            count -= 2;
-        }
-        if (count) {
-            UNPINNED_RADIAL_STEP;
-        }
-    } else  {
-        // Specializing for dy == 0 gains us 25% on Skia benchmarks
-        if (dy == 0) {
-            unsigned yy = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
-            yy *= yy;
-            do {
-                unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
-                unsigned fi = (xx * xx + yy) >> (14 + 16 - kSQRT_TABLE_BITS);
-                fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
-                *dstC++ = cache[toggle + (sqrt_table[fi] >>
-                    SkGradientShaderBase::kSqrt32Shift)];
-                toggle = next_dither_toggle(toggle);
-                fx += dx;
-            } while (--count != 0);
-        } else {
-            do {
-                unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
-                unsigned fi = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
-                fi = (xx * xx + fi * fi) >> (14 + 16 - kSQRT_TABLE_BITS);
-                fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
-                *dstC++ = cache[toggle + (sqrt_table[fi] >>
-                    SkGradientShaderBase::kSqrt32Shift)];
-                toggle = next_dither_toggle(toggle);
-                fx += dx;
-                fy += dy;
-            } while (--count != 0);
-        }
-    }
-}
 
 static inline Sk4f fast_sqrt(const Sk4f& R) {
     // R * R.rsqrt0() is much faster, but it's non-monotonic, which isn't so pretty for gradients.
@@ -474,11 +379,6 @@ void shadeSpan_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
 
 void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
                                                         SkPMColor* SK_RESTRICT dstC, int count) {
-#ifdef SK_SUPPORT_LEGACY_RADIAL_GRADIENT_SQRT
-    const bool use_new_proc = false;
-#else
-    const bool use_new_proc = true;
-#endif
     SkASSERT(count > 0);
 
     const SkRadialGradient& radialGradient = static_cast<const SkRadialGradient&>(fShader);
@@ -507,7 +407,7 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 
         RadialShadeProc shadeProc = shadeSpan_radial_repeat;
         if (SkShader::kClamp_TileMode == radialGradient.fTileMode) {
-            shadeProc = use_new_proc ? shadeSpan_radial_clamp2 : shadeSpan_radial_clamp;
+            shadeProc = shadeSpan_radial_clamp2;
         } else if (SkShader::kMirror_TileMode == radialGradient.fTileMode) {
             shadeProc = shadeSpan_radial_mirror;
         } else {
