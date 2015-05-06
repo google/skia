@@ -27,16 +27,11 @@ enum BlurDirection {
  * lower 8 bits of each 32-bit element of an SSE register.
  */
 inline __m128i expand(int a) {
-    const __m128i zero = _mm_setzero_si128();
-
-    // 0 0 0 0   0 0 0 0   0 0 0 0   A R G B
-    __m128i result = _mm_cvtsi32_si128(a);
-
-    // 0 0 0 0   0 0 0 0   0 A 0 R   0 G 0 B
-    result = _mm_unpacklo_epi8(result, zero);
-
-    // 0 0 0 A   0 0 0 R   0 0 0 G   0 0 0 B
-    return _mm_unpacklo_epi16(result, zero);
+    // ARGB -> 0000 0000 0000 ARGB
+    __m128i widened = _mm_cvtsi32_si128(a);
+    // SSE4.1 has xxxx xxxx xxxx ARGB -> 000A 000R 000G 000B as a one-stop-shop instruction.
+    // It can even work from memory, so a smart compiler probably merges in the _mm_cvtsi32_si128().
+    return _mm_cvtepu8_epi32(widened);
 }
 
 template<BlurDirection srcDirection, BlurDirection dstDirection>
@@ -50,9 +45,8 @@ void SkBoxBlur_SSE4(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
     const int dstStrideY = dstDirection == kX ? width : 1;
     const __m128i scale = _mm_set1_epi32((1 << 24) / kernelSize);
     const __m128i half = _mm_set1_epi32(1 << 23);
-    const __m128i zero = _mm_setzero_si128();
     for (int y = 0; y < height; ++y) {
-        __m128i sum = zero;
+        __m128i sum = _mm_setzero_si128();
         const SkPMColor* p = src;
         for (int i = 0; i < rightBorder; ++i) {
             sum = _mm_add_epi32(sum, expand(*p));
@@ -62,20 +56,20 @@ void SkBoxBlur_SSE4(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
         const SkPMColor* sptr = src;
         SkColor* dptr = dst;
         for (int x = 0; x < width; ++x) {
-            __m128i result = _mm_mullo_epi32(sum, scale);
+            // TODO(mtklein): We are working in 8.24 here. Drop to 8.8 when the kernel is narrow?
 
-            // sumA*scale+.5 sumB*scale+.5 sumG*scale+.5 sumB*scale+.5
+            // Multiply each component by scale (i.e. divide by kernel size) and add half to round.
+            __m128i result = _mm_mullo_epi32(sum, scale);
             result = _mm_add_epi32(result, half);
 
-            // 0 0 0 A   0 0 0 R   0 0 0 G   0 0 0 B
-            result = _mm_srli_epi32(result, 24);
+            // Now pack the top byte of each 32-bit lane back down into one 32-bit color.
+            // Axxx Rxxx Gxxx Bxxx -> xxxx xxxx xxxx ARGB
+            const char _ = 0;  // Don't care what ends up in these bytes.  Happens to be byte 0.
+            result = _mm_shuffle_epi8(result, _mm_set_epi8(_,_,_,_, _,_,_,_, _,_,_,_, 15,11,7,3));
 
-            // 0 0 0 0   0 0 0 0   0 A 0 R   0 G 0 B
-            result = _mm_packs_epi32(result, zero);
-
-            // 0 0 0 0   0 0 0 0   0 0 0 0   A R G B
-            result = _mm_packus_epi16(result, zero);
             *dptr = _mm_cvtsi128_si32(result);
+
+            // TODO(mtklein): experiment with breaking this loop into 3 parts
             if (x >= leftOffset) {
                 SkColor l = *(sptr - leftOffset * srcStrideX);
                 sum = _mm_sub_epi32(sum, expand(l));
@@ -86,6 +80,7 @@ void SkBoxBlur_SSE4(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
             }
             sptr += srcStrideX;
             if (srcDirection == kY) {
+                // TODO(mtklein): experiment with moving this prefetch forward
                 _mm_prefetch(reinterpret_cast<const char*>(sptr + (rightOffset + 1) * srcStrideX),
                              _MM_HINT_T0);
             }
