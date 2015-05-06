@@ -33,12 +33,12 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain
 #if GR_ANDROID_PATH_RENDERING
     chain->addPathRenderer(SkNEW(GrAndroidPathRenderer))->unref();
 #endif
-#if GR_TESSELLATING_PATH_RENDERING
-    chain->addPathRenderer(new GrTessellatingPathRenderer)->unref();
-#endif
     if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx)) {
         chain->addPathRenderer(pr)->unref();
     }
+#if GR_TESSELLATING_PATH_RENDERING
+    chain->addPathRenderer(new GrTessellatingPathRenderer)->unref();
+#endif
     if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create()) {
         chain->addPathRenderer(pr)->unref();
     }
