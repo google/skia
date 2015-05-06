@@ -8,10 +8,11 @@
 #ifndef SkPaintPriv_DEFINED
 #define SkPaintPriv_DEFINED
 
-class SkBitmap;
-class SkPaint;
-
 #include "SkTypes.h"
+
+class SkBitmap;
+class SkImage;
+class SkPaint;
 
 enum SkPaintBitmapOpacity {
     // No content replaces the paint's color
@@ -40,6 +41,7 @@ bool isPaintOpaque(const SkPaint* paint, SkPaintBitmapOpacity contentType);
         shader.
     @return true if paint is opaque
 */
-bool isPaintOpaque(const SkPaint* paint,
-                   const SkBitmap* bmpReplacesShader = NULL);
+bool isPaintOpaque(const SkPaint* paint, const SkBitmap* bmpReplacesShader = NULL);
+bool isPaintOpaque(const SkPaint* paint, const SkImage* image);
+
 #endif

@@ -7,6 +7,7 @@
 
 #include "SkPictureRecord.h"
 #include "SkDevice.h"
+#include "SkImage_Base.h"
 #include "SkPatchUtils.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
@@ -561,6 +562,22 @@ void SkPictureRecord::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src
     this->addRect(dst);
     this->addInt(flags);
     this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
+                                  const SkPaint* paint) {
+    SkBitmap bm;
+    if (as_IB(image)->getROPixels(&bm)) {
+        this->SkPictureRecord::onDrawBitmap(bm, x, y, paint);
+    }
+}
+
+void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                                      const SkPaint* paint) {
+    SkBitmap bm;
+    if (as_IB(image)->getROPixels(&bm)) {
+        this->SkPictureRecord::onDrawBitmapRect(bm, src, dst, paint, kNone_DrawBitmapRectFlag);
+    }
 }
 
 void SkPictureRecord::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
