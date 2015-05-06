@@ -38,8 +38,8 @@ do {                                                                            
 GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
                                      BufferType bufferType,
                                      size_t blockSize,
-                                     int preallocBufferCnt) :
-        fBlocks(SkTMax(8, 2*preallocBufferCnt)) {
+                                     int preallocBufferCnt)
+    : fBlocks(SkTMax(8, 2*preallocBufferCnt)) {
 
     fGpu = SkRef(gpu);
 
@@ -68,7 +68,7 @@ GrBufferAllocPool::~GrBufferAllocPool() {
         }
     }
     while (!fBlocks.empty()) {
-        destroyBlock();
+        this->destroyBlock();
     }
     fPreallocBuffers.unrefAll();
     fGpu->unref();
@@ -191,7 +191,7 @@ void* GrBufferAllocPool::makeSpace(size_t size,
     // updateData() if the amount of data passed is less than the full buffer
     // size.
 
-    if (!createBlock(size)) {
+    if (!this->createBlock(size)) {
         return NULL;
     }
     SkASSERT(fBufferPtr);
@@ -205,27 +205,6 @@ void* GrBufferAllocPool::makeSpace(size_t size,
     return fBufferPtr;
 }
 
-int GrBufferAllocPool::currentBufferItems(size_t itemSize) const {
-    VALIDATE();
-    if (fBufferPtr) {
-        const BufferBlock& back = fBlocks.back();
-        size_t usedBytes = back.fBuffer->gpuMemorySize() - back.fBytesFree;
-        size_t pad = GrSizeAlignUpPad(usedBytes, itemSize);
-        return static_cast<int>((back.fBytesFree - pad) / itemSize);
-    } else if (fPreallocBuffersInUse < fPreallocBuffers.count()) {
-        return static_cast<int>(fMinBlockSize / itemSize);
-    }
-    return 0;
-}
-
-int GrBufferAllocPool::preallocatedBuffersRemaining() const {
-    return fPreallocBuffers.count() - fPreallocBuffersInUse;
-}
-
-int GrBufferAllocPool::preallocatedBufferCount() const {
-    return fPreallocBuffers.count();
-}
-
 void GrBufferAllocPool::putBack(size_t bytes) {
     VALIDATE();
 
@@ -236,7 +215,7 @@ void GrBufferAllocPool::putBack(size_t bytes) {
     int preallocBuffersInUse = fPreallocBuffersInUse;
 
     while (bytes) {
-        // caller shouldnt try to put back more than they've taken
+        // caller shouldn't try to put back more than they've taken
         SkASSERT(!fBlocks.empty());
         BufferBlock& block = fBlocks.back();
         size_t bytesUsed = block.fBuffer->gpuMemorySize() - block.fBytesFree;
@@ -407,14 +386,6 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
     return ptr;
 }
 
-int GrVertexBufferAllocPool::preallocatedBufferVertices(size_t vertexSize) const {
-    return static_cast<int>(INHERITED::preallocatedBufferSize() / vertexSize);
-}
-
-int GrVertexBufferAllocPool::currentBufferVertices(size_t vertexSize) const {
-    return currentBufferItems(vertexSize);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu,
@@ -447,10 +418,4 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
     return ptr;
 }
 
-int GrIndexBufferAllocPool::preallocatedBufferIndices() const {
-    return static_cast<int>(INHERITED::preallocatedBufferSize() / sizeof(uint16_t));
-}
 
-int GrIndexBufferAllocPool::currentBufferIndices() const {
-    return currentBufferItems(sizeof(uint16_t));
-}
