@@ -45,6 +45,7 @@
     '../bench/ColorCubeBench.cpp',
     '../bench/ColorFilterBench.cpp',
     '../bench/ColorPrivBench.cpp',
+    '../bench/ControlBench.cpp',
     '../bench/CoverageBench.cpp',
     '../bench/DashBench.cpp',
     '../bench/DeferredSurfaceCopyBench.cpp',
