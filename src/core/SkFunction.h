@@ -8,94 +8,68 @@
 #ifndef SkFunction_DEFINED
 #define SkFunction_DEFINED
 
-// TODO: document
+// TODO: document, more pervasive move support in constructors, small-Fn optimization
 
+#include "SkTemplates.h"
 #include "SkTypes.h"
-#include "SkTLogic.h"
 
 template <typename> class SkFunction;
 
 template <typename R, typename... Args>
-class SkFunction<R(Args...)> : SkNoncopyable {
+class SkFunction<R(Args...)> {
 public:
-    SkFunction(R (*fn)(Args...)) : fVTable(GetFunctionPointerVTable()) {
-        // We've been passed a function pointer.  We'll just store it.
-        fFunction = reinterpret_cast<void*>(fn);
-    }
+    SkFunction() {}
 
     template <typename Fn>
-    SkFunction(Fn fn, SK_WHEN_C((sizeof(Fn) > sizeof(void*)), void*) = nullptr)
-            : fVTable(GetOutlineVTable<Fn>()) {
-        // We've got a functor larger than a pointer.  We've go to copy it onto the heap.
-        fFunction = SkNEW_ARGS(Fn, (Forward(fn)));
+    SkFunction(const Fn& fn) : fFunction(SkNEW_ARGS(LambdaImpl<Fn>, (fn))) {}
+
+    SkFunction(R (*fn)(Args...)) : fFunction(SkNEW_ARGS(FnPtrImpl, (fn))) {}
+
+    SkFunction(const SkFunction& other) { *this = other; }
+    SkFunction& operator=(const SkFunction& other) {
+        if (this != &other) {
+            fFunction.reset(other.fFunction ? other.fFunction->clone() : nullptr);
+        }
+        return *this;
     }
 
-    template <typename Fn>
-    SkFunction(Fn fn, SK_WHEN_C((sizeof(Fn) <= sizeof(void*)), void*) = nullptr)
-            : fVTable(GetInlineVTable<Fn>()) {
-        // We've got a functor that fits in a pointer.  We copy it right inline.
-        fFunction = NULL;  // Quiets a (spurious) warning that fFunction might be uninitialized.
-        SkNEW_PLACEMENT_ARGS(&fFunction, Fn, (Forward(fn)));
+    R operator()(Args... args) const {
+        SkASSERT(fFunction.get());
+        return fFunction->call(Forward(args)...);
     }
-
-    ~SkFunction() { fVTable.fCleanUp(fFunction); }
-
-    R operator()(Args... args) { return fVTable.fCall(fFunction, Forward(args)...); }
 
 private:
     // ~= std::forward.  This moves its argument if possible, falling back to a copy if not.
     template <typename T> static T&& Forward(T& v) { return (T&&)v; }
 
-    struct VTable {
-        R (*fCall)(void*, Args...);
-        void (*fCleanUp)(void*);
+    struct Interface {
+        virtual ~Interface() {}
+        virtual R call(Args...) const = 0;
+        virtual Interface* clone() const = 0;
     };
 
-    // Used when fFunction is a function pointer of type R(*)(Args...).
-    static const VTable& GetFunctionPointerVTable() {
-        static const VTable vtable = {
-            [](void* fn, Args... args) {
-                return reinterpret_cast<R(*)(Args...)>(fn)(Forward(args)...);
-            },
-            [](void*) { /* Nothing to clean up for function pointers. */ }
-        };
-        return vtable;
-    }
-
-    // Used when fFunction is a pointer to a functor of type Fn on the heap (we own it).
     template <typename Fn>
-    static const VTable& GetOutlineVTable() {
-        static const VTable vtable = {
-            [](void* fn, Args... args) { return (*static_cast<Fn*>(fn))(Forward(args)...); },
-            [](void* fn) { SkDELETE(static_cast<Fn*>(fn)); },
-        };
-        return vtable;
-    }
+    class LambdaImpl final : public Interface {
+    public:
+        LambdaImpl(const Fn& fn) : fFn(fn) {}
 
-    // Used when fFunction _is_ a functor of type Fn, not a pointer to the functor.
-    template <typename Fn>
-    static const VTable& GetInlineVTable() {
-        static const VTable vtable = {
-            [](void* fn, Args... args) {
-                union { void** p; Fn* f; } pun = { &fn };
-                return (*pun.f)(Forward(args)...);
-            },
-            [](void* fn) {
-                union { void** p; Fn* f; } pun = { &fn };
-                (*pun.f).~Fn();
-                (void)(pun.f);   // Otherwise, when ~Fn() is trivial, MSVC complains pun is unused.
-            }
-        };
-        return vtable;
-    }
+        R call(Args... args) const override { return fFn(Forward(args)...); }
+        Interface* clone() const { return SkNEW_ARGS(LambdaImpl<Fn>, (fFn)); }
+    private:
+        Fn fFn;
+    };
 
+    class FnPtrImpl final : public Interface {
+    public:
+        FnPtrImpl(R (*fn)(Args...)) : fFn(fn) {}
 
-    void* fFunction;        // A function pointer, a pointer to a functor, or an inlined functor.
-    const VTable& fVTable;  // How to call, delete (and one day copy, move) fFunction.
+        R call(Args... args) const override { return fFn(Forward(args)...); }
+        Interface* clone() const { return SkNEW_ARGS(FnPtrImpl, (fFn)); }
+    private:
+        R (*fFn)(Args...);
+    };
+
+    SkAutoTDelete<Interface> fFunction;
 };
-
-// TODO:
-//   - is it worth moving fCall out of the VTable into SkFunction itself to avoid the indirection?
-//   - make SkFunction copyable
 
 #endif//SkFunction_DEFINED

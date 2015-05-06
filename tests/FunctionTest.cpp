@@ -8,29 +8,31 @@
 #include "SkFunction.h"
 #include "Test.h"
 
-static void test_add_five(skiatest::Reporter* r, SkFunction<int(int)>&& f) {
+static void test_add_five(skiatest::Reporter* r, SkFunction<int(int)>& f) {
     REPORTER_ASSERT(r, f(3) == 8);
     REPORTER_ASSERT(r, f(4) == 9);
 }
 
+static void test_add_five(skiatest::Reporter* r, SkFunction<int(int)>&& f) { test_add_five(r, f); }
+
 static int add_five(int x) { return x + 5; }
 
 struct AddFive {
-    int operator()(int x) { return x + 5; };
+    int operator()(int x) const { return x + 5; };
 };
 
-class MoveOnlyAdd5 : SkNoncopyable {
+class MoveOnlyThree : SkNoncopyable {
 public:
-    MoveOnlyAdd5() {}
-    MoveOnlyAdd5(MoveOnlyAdd5&&) {}
-    MoveOnlyAdd5& operator=(MoveOnlyAdd5&&) { return *this; }
+    MoveOnlyThree() {}
+    MoveOnlyThree(MoveOnlyThree&&) {}
+    MoveOnlyThree& operator=(MoveOnlyThree&&) { return *this; }
 
-    int operator()(int x) { return x + 5; }
+    int val() { return 3; }
 };
 
 DEF_TEST(Function, r) {
-    // We should be able to turn a static function, an explicit functor, or a lambda
-    // all into an SkFunction equally well.
+    // We should be able to turn a function pointer, an explicit functor, or a
+    // lambda into an SkFunction all equally well.
     test_add_five(r, &add_five);
     test_add_five(r, AddFive());
     test_add_five(r, [](int x) { return x + 5; });
@@ -40,12 +42,29 @@ DEF_TEST(Function, r) {
     int a = 1, b = 1, c = 1, d = 1, e = 1;
     test_add_five(r, [&](int x) { return x + a + b + c + d + e; });
 
-    // Makes sure we forward the functor when constructing SkFunction.
-    test_add_five(r, MoveOnlyAdd5());
-
     // Makes sure we forward arguments when calling SkFunction.
-    SkFunction<int(int, MoveOnlyAdd5&&, int)> f([](int x, MoveOnlyAdd5&& addFive, int y) {
-            return x * addFive(y);
+    SkFunction<int(int, MoveOnlyThree&&, int)> f([](int x, MoveOnlyThree&& three, int y) {
+            return x * three.val() + y;
     });
-    REPORTER_ASSERT(r, f(2, MoveOnlyAdd5(), 4) == 18);
+    REPORTER_ASSERT(r, f(2, MoveOnlyThree(), 4) == 10);
+
+    // SkFunctions can go in containers.
+    SkTArray<SkFunction<int(int)>> add_fivers;
+    add_fivers.push_back(&add_five);
+    add_fivers.push_back(AddFive());
+    add_fivers.push_back([](int x) { return x + 5; });
+    add_fivers.push_back([&](int x) { return x + a + b + c + d + e; });
+    for (auto& f : add_fivers) {
+        test_add_five(r, f);
+    }
+
+    // SkFunctions are assignable.
+    SkFunction<int(int)> empty;
+    empty = [](int x) { return x + 5; };
+    test_add_five(r, empty);
+
+    // This all is silly acrobatics, but it should at least work correctly.
+    SkFunction<int(int)> emptyA, emptyB(emptyA);
+    emptyA = emptyB;
+    emptyA = emptyA;
 }
