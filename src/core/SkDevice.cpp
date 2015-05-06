@@ -9,7 +9,6 @@
 #include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
-#include "SkImage_Base.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
@@ -163,24 +162,6 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
             // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
             runPaint = paint;
         }
-    }
-}
-
-void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
-                             const SkPaint& paint) {
-    // Default impl : turns everything into raster bitmap
-    SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
-        this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
-    }
-}
-
-void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const SkRect* src,
-                                 const SkRect& dst, const SkPaint& paint) {
-    // Default impl : turns everything into raster bitmap
-    SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
-        this->drawBitmapRect(draw, bm, src, dst, paint, SkCanvas::kNone_DrawBitmapRectFlag);
     }
 }
 

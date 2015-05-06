@@ -53,6 +53,8 @@ public:
     SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, const SkSurfaceProps*);
     virtual ~SkImage_Raster();
 
+    void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) const override;
+    void onDrawRect(SkCanvas*, const SkRect*, const SkRect&, const SkPaint*) const override;
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
@@ -116,6 +118,17 @@ SkImage_Raster::~SkImage_Raster() {}
 SkShader* SkImage_Raster::onNewShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
                                       const SkMatrix* localMatrix) const {
     return SkShader::CreateBitmapShader(fBitmap, tileX, tileY, localMatrix);
+}
+
+void SkImage_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
+    SkBitmap shallowCopy(fBitmap);
+    canvas->drawBitmap(shallowCopy, x, y, paint);
+}
+
+void SkImage_Raster::onDrawRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
+                                      const SkPaint* paint) const {
+    SkBitmap shallowCopy(fBitmap);
+    canvas->drawBitmapRectToRect(shallowCopy, src, dst, paint);
 }
 
 SkSurface* SkImage_Raster::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
