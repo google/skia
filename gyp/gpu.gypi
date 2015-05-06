@@ -55,6 +55,8 @@
       '<(skia_src_path)/gpu/GrAAHairLinePathRenderer.h',
       '<(skia_src_path)/gpu/GrAAConvexPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrAAConvexPathRenderer.h',
+      '<(skia_src_path)/gpu/GrAAConvexTessellator.cpp',
+      '<(skia_src_path)/gpu/GrAAConvexTessellator.h',
       '<(skia_src_path)/gpu/GrAADistanceFieldPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrAADistanceFieldPathRenderer.h',
       '<(skia_src_path)/gpu/GrAARectRenderer.cpp',
