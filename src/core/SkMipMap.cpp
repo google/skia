@@ -334,8 +334,13 @@ bool SkMipMap::extractLevel(SkScalar scale, Level* levelPtr) const {
         return false;
     }
     SkASSERT(L >= 0);
+#ifdef SK_SUPPORT_LEGACY_ROUND_MIPMAP_LEVEL_CHOICE
     int level = SkScalarRoundToInt(L);
-//    SkDebugf("mipmap scale=%g L=%g level=%d\n", scale, L, level);
+#else
+//    int rndLevel = SkScalarRoundToInt(L);
+    int level = SkScalarFloorToInt(L);
+#endif
+//    SkDebugf("mipmap scale=%g L=%g level=%d rndLevel=%d\n", scale, L, level, rndLevel);
 
     SkASSERT(level >= 0);
     if (level <= 0) {
