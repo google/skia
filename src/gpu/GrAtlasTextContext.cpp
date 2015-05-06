@@ -1713,9 +1713,20 @@ public:
     // init() so the Batch can initialize itself
     Geometry& geometry() { return fGeoData[0]; }
     void init() {
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fViewMatrix = fGeoData[0].fBlob->fViewMatrix;
-        this->setBounds(fGeoData[0].fBlob->fRuns[fGeoData[0].fRun].fVertexBounds);
+        const Geometry& geo = fGeoData[0];
+        fBatch.fColor = geo.fColor;
+        fBatch.fViewMatrix = geo.fBlob->fViewMatrix;
+
+        // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
+        // into device space
+        const Run& run = geo.fBlob->fRuns[geo.fRun];
+        if (run.fSubRunInfo[geo.fSubRun].fDrawAsDistanceFields) {
+            SkRect bounds = run.fVertexBounds;
+            fBatch.fViewMatrix.mapRect(&bounds);
+            this->setBounds(bounds);
+        } else {
+            this->setBounds(run.fVertexBounds);
+        }
     }
 
 private:
