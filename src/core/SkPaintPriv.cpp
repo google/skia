@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkColorFilter.h"
+#include "SkImage.h"
 #include "SkPaint.h"
 #include "SkShader.h"
 
@@ -48,4 +49,9 @@ bool isPaintOpaque(const SkPaint* paint, const SkBitmap* bmpReplacesShader) {
         contentType = kUnknown_SkPaintBitmapOpacity;
 
     return isPaintOpaque(paint, contentType);
+}
+
+bool isPaintOpaque(const SkPaint* paint, const SkImage* image) {
+    return isPaintOpaque(paint, image->isOpaque() ?
+                         kOpaque_SkPaintBitmapOpacity : kUnknown_SkPaintBitmapOpacity);
 }
