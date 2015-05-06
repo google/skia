@@ -172,6 +172,32 @@ void GrGLShaderBuilder::appendTextureLookup(const char* samplerName,
                           kVec2f_GrSLType);
 }
 
+void GrGLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {
+    SkASSERT(fProgramBuilder->gpu()->glslGeneration() >= k330_GrGLSLGeneration);
+    fLayoutParams[interface].push_back() = param;
+}
+
+void GrGLShaderBuilder::compileAndAppendLayoutQualifiers() {
+    static const char* interfaceQualifierNames[] = {
+        "out"
+    };
+
+    for (int interface = 0; interface <= kLastInterfaceQualifier; ++interface) {
+        const SkTArray<SkString>& params = fLayoutParams[interface];
+        if (params.empty()) {
+            continue;
+        }
+        this->layoutQualifiers().appendf("layout(%s", params[0].c_str());
+        for (int i = 1; i < params.count(); ++i) {
+            this->layoutQualifiers().appendf(", %s", params[i].c_str());
+        }
+        this->layoutQualifiers().appendf(") %s;\n", interfaceQualifierNames[interface]);
+    }
+
+    GR_STATIC_ASSERT(0 == GrGLShaderBuilder::kOut_InterfaceQualifier);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(interfaceQualifierNames) == kLastInterfaceQualifier + 1);
+}
+
 bool
 GrGLShaderBuilder::finalize(GrGLuint programId, GrGLenum type, SkTDArray<GrGLuint>* shaderIds) {
     SkASSERT(!fFinalized);

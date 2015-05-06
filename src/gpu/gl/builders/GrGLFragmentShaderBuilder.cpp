@@ -215,6 +215,7 @@ bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
     append_default_precision_qualifier(kDefault_GrSLPrecision,
                                        gpu->glStandard(),
                                        &this->precisionQualifier());
+    this->compileAndAppendLayoutQualifiers();
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility,
                                         &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());

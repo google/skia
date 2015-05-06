@@ -139,6 +139,22 @@ protected:
      */
     void addFeature(uint32_t featureBit, const char* extensionName);
 
+    enum InterfaceQualifier {
+        kOut_InterfaceQualifier,
+        kLastInterfaceQualifier = kOut_InterfaceQualifier
+    };
+
+    /*
+     * A low level function to build default layout qualifiers.
+     *
+     *   e.g. layout(param1, param2, ...) out;
+     *
+     * GLSL allows default layout qualifiers for in, out, and uniform.
+     */
+    void addLayoutQualifier(const char* param, InterfaceQualifier);
+
+    void compileAndAppendLayoutQualifiers();
+
     void nextStage() {
         fShaderStrings.push_back();
         fCompilerStrings.push_back(this->code().c_str());
@@ -149,6 +165,7 @@ protected:
     SkString& versionDecl() { return fShaderStrings[kVersionDecl]; }
     SkString& extensions() { return fShaderStrings[kExtensions]; }
     SkString& precisionQualifier() { return fShaderStrings[kPrecisionQualifier]; }
+    SkString& layoutQualifiers() { return fShaderStrings[kLayoutQualifiers]; }
     SkString& uniforms() { return fShaderStrings[kUniforms]; }
     SkString& inputs() { return fShaderStrings[kInputs]; }
     SkString& outputs() { return fShaderStrings[kOutputs]; }
@@ -161,6 +178,7 @@ protected:
         kVersionDecl,
         kExtensions,
         kPrecisionQualifier,
+        kLayoutQualifiers,
         kUniforms,
         kInputs,
         kOutputs,
@@ -180,6 +198,7 @@ protected:
     VarArray fInputs;
     VarArray fOutputs;
     uint32_t fFeaturesAddedMask;
+    SkSTArray<1, SkString> fLayoutParams[kLastInterfaceQualifier + 1];
     int fCodeIndex;
     bool fFinalized;
 

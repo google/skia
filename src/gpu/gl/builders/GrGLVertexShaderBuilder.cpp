@@ -81,6 +81,7 @@ void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
 bool
 GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) {
     this->versionDecl() = GrGetGLSLVersionDecl(fProgramBuilder->ctxInfo());
+    this->compileAndAppendLayoutQualifiers();
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kVertex_Visibility, &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
     this->appendDecls(fOutputs, &this->outputs());
