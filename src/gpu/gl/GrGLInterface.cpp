@@ -115,10 +115,7 @@ bool GrGLInterface::validate() const {
         NULL == fFunctions.fBindBuffer ||
         NULL == fFunctions.fBindTexture ||
         NULL == fFunctions.fBlendColor ||      // -> GL >= 1.4 or extension, ES >= 2.0
-#if 0
-        // TODO: Re-enable validation for fBlendEquation when Chrome has it hooked up.
         NULL == fFunctions.fBlendEquation ||   // -> GL >= 1.4 or extension, ES >= 2.0
-#endif
         NULL == fFunctions.fBlendFunc ||
         NULL == fFunctions.fBufferData ||
         NULL == fFunctions.fBufferSubData ||
@@ -325,15 +322,12 @@ bool GrGLInterface::validate() const {
         }
     }
 
-// FIXME: Remove this once Chromium is updated to provide this function
-#if 0
     if (fExtensions.has("GL_KHR_blend_equation_advanced") ||
         fExtensions.has("GL_NV_blend_equation_advanced")) {
         if (NULL == fFunctions.fBlendBarrier) {
             RETURN_FALSE_INTERFACE
         }
     }
-#endif
 
     if (fExtensions.has("GL_EXT_discard_framebuffer")) {
 // FIXME: Remove this once Chromium is updated to provide this function
