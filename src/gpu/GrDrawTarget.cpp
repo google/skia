@@ -638,6 +638,7 @@ void GrDrawTargetCaps::reset() {
 
     fUseDrawInsteadOfClear = false;
 
+    fBlendEquationSupport = kBasic_BlendEquationSupport;
     fMapBufferFlags = kNone_MapFlags;
 
     fMaxRenderTargetSize = 0;
@@ -662,6 +663,7 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
 
     fUseDrawInsteadOfClear = other.fUseDrawInsteadOfClear;
 
+    fBlendEquationSupport = other.fBlendEquationSupport;
     fMapBufferFlags = other.fMapBufferFlags;
 
     fMaxRenderTargetSize = other.fMaxRenderTargetSize;
@@ -713,6 +715,18 @@ SkString GrDrawTargetCaps::dump() const {
     r.appendf("Max Render Target Size             : %d\n", fMaxRenderTargetSize);
     r.appendf("Max Sample Count                   : %d\n", fMaxSampleCount);
 
+    static const char* kBlendEquationSupportNames[] = {
+        "Basic",
+        "Advanced",
+        "Advanced Coherent",
+    };
+    GR_STATIC_ASSERT(0 == kBasic_BlendEquationSupport);
+    GR_STATIC_ASSERT(1 == kAdvanced_BlendEquationSupport);
+    GR_STATIC_ASSERT(2 == kAdvancedCoherent_BlendEquationSupport);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kBlendEquationSupportNames) == kLast_BlendEquationSupport + 1);
+
+    r.appendf("Blend Equation Support             : %s\n",
+              kBlendEquationSupportNames[fBlendEquationSupport]);
     r.appendf("Map Buffer Support                 : %s\n",
               map_flags_to_string(fMapBufferFlags).c_str());
 

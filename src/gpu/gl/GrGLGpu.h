@@ -438,6 +438,7 @@ private:
     } fHWGeometryState;
 
     struct {
+        GrBlendEquation fEquation;
         GrBlendCoeff    fSrcCoeff;
         GrBlendCoeff    fDstCoeff;
         GrColor         fConstColor;
@@ -445,6 +446,7 @@ private:
         TriState        fEnabled;
 
         void invalidate() {
+            fEquation = kInvalid_GrBlendEquation;
             fSrcCoeff = kInvalid_GrBlendCoeff;
             fDstCoeff = kInvalid_GrBlendCoeff;
             fConstColorValid = false;

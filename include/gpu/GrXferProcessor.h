@@ -20,6 +20,43 @@ class GrGLXferProcessor;
 class GrProcOptInfo;
 
 /**
+ * Equations for alpha-blending.
+ */
+enum GrBlendEquation {
+    kInvalid_GrBlendEquation = -1,
+
+    // Basic blend equations.
+    kAdd_GrBlendEquation,             //<! Cs*S + Cd*D
+    kSubtract_GrBlendEquation,        //<! Cs*S - Cd*D
+    kReverseSubtract_GrBlendEquation, //<! Cd*D - Cs*S
+
+    // Advanced blend equations. These are described in the SVG and PDF specs.
+    kScreen_GrBlendEquation,
+    kOverlay_GrBlendEquation,
+    kDarken_GrBlendEquation,
+    kLighten_GrBlendEquation,
+    kColorDodge_GrBlendEquation,
+    kColorBurn_GrBlendEquation,
+    kHardLight_GrBlendEquation,
+    kSoftLight_GrBlendEquation,
+    kDifference_GrBlendEquation,
+    kExclusion_GrBlendEquation,
+    kMultiply_GrBlendEquation,
+    kHSLHue_GrBlendEquation,
+    kHSLSaturation_GrBlendEquation,
+    kHSLColor_GrBlendEquation,
+    kHSLLuminosity_GrBlendEquation,
+
+    kTotalGrBlendEquationCount,
+
+    kFirstAdvancedGrBlendEquation = kScreen_GrBlendEquation
+};
+
+inline bool GrBlendEquationIsAdvanced(GrBlendEquation equation) {
+    return equation >= kFirstAdvancedGrBlendEquation;
+}
+
+/**
  * Coeffecients for alpha-blending.
  */
 enum GrBlendCoeff {
@@ -53,6 +90,7 @@ enum GrBlendCoeff {
  */
 enum GrXferBarrierType {
     kTexture_GrXferBarrierType, //<! Required when a shader reads and renders to the same texture.
+    kBlend_GrXferBarrierType,   //<! Required by certain blend extensions.
 };
 
 /**
@@ -142,16 +180,18 @@ public:
 
     struct BlendInfo {
         void reset() {
+            fEquation = kAdd_GrBlendEquation;
             fSrcBlend = kOne_GrBlendCoeff;
             fDstBlend = kZero_GrBlendCoeff;
             fBlendConstant = 0;
             fWriteColor = true;
         }
 
-        GrBlendCoeff fSrcBlend;
-        GrBlendCoeff fDstBlend;
-        GrColor      fBlendConstant;
-        bool         fWriteColor;
+        GrBlendEquation fEquation;
+        GrBlendCoeff    fSrcBlend;
+        GrBlendCoeff    fDstBlend;
+        GrColor         fBlendConstant;
+        bool            fWriteColor;
     };
 
     void getBlendInfo(BlendInfo* blendInfo) const {
@@ -217,6 +257,16 @@ private:
      */
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const = 0;
+
+    /**
+     * If not using a texture barrier, retrieves whether the subclass will require a different type
+     * of barrier.
+     */
+    virtual bool onWillNeedXferBarrier(const GrRenderTarget*,
+                                       const GrDrawTargetCaps&,
+                                       GrXferBarrierType* outBarrierType SK_UNUSED) const {
+        return false;
+    }
 
     /**
      * Retrieves the hardware blend state required by this Xfer processor. The BlendInfo struct

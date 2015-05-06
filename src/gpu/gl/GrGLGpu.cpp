@@ -39,6 +39,49 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
+static const GrGLenum gXfermodeEquation2Blend[] = {
+    // Basic OpenGL blend equations.
+    GR_GL_FUNC_ADD,
+    GR_GL_FUNC_SUBTRACT,
+    GR_GL_FUNC_REVERSE_SUBTRACT,
+
+    // GL_KHR_blend_equation_advanced.
+    GR_GL_SCREEN,
+    GR_GL_OVERLAY,
+    GR_GL_DARKEN,
+    GR_GL_LIGHTEN,
+    GR_GL_COLORDODGE,
+    GR_GL_COLORBURN,
+    GR_GL_HARDLIGHT,
+    GR_GL_SOFTLIGHT,
+    GR_GL_DIFFERENCE,
+    GR_GL_EXCLUSION,
+    GR_GL_MULTIPLY,
+    GR_GL_HSL_HUE,
+    GR_GL_HSL_SATURATION,
+    GR_GL_HSL_COLOR,
+    GR_GL_HSL_LUMINOSITY
+};
+GR_STATIC_ASSERT(0 == kAdd_GrBlendEquation);
+GR_STATIC_ASSERT(1 == kSubtract_GrBlendEquation);
+GR_STATIC_ASSERT(2 == kReverseSubtract_GrBlendEquation);
+GR_STATIC_ASSERT(3 == kScreen_GrBlendEquation);
+GR_STATIC_ASSERT(4 == kOverlay_GrBlendEquation);
+GR_STATIC_ASSERT(5 == kDarken_GrBlendEquation);
+GR_STATIC_ASSERT(6 == kLighten_GrBlendEquation);
+GR_STATIC_ASSERT(7 == kColorDodge_GrBlendEquation);
+GR_STATIC_ASSERT(8 == kColorBurn_GrBlendEquation);
+GR_STATIC_ASSERT(9 == kHardLight_GrBlendEquation);
+GR_STATIC_ASSERT(10 == kSoftLight_GrBlendEquation);
+GR_STATIC_ASSERT(11 == kDifference_GrBlendEquation);
+GR_STATIC_ASSERT(12 == kExclusion_GrBlendEquation);
+GR_STATIC_ASSERT(13 == kMultiply_GrBlendEquation);
+GR_STATIC_ASSERT(14 == kHSLHue_GrBlendEquation);
+GR_STATIC_ASSERT(15 == kHSLSaturation_GrBlendEquation);
+GR_STATIC_ASSERT(16 == kHSLColor_GrBlendEquation);
+GR_STATIC_ASSERT(17 == kHSLLuminosity_GrBlendEquation);
+GR_STATIC_ASSERT(18 == kTotalGrBlendEquationCount);
+
 static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ZERO,
     GR_GL_ONE,
@@ -2077,39 +2120,55 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
 
 void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
     // Any optimization to disable blending should have already been applied and
-    // tweaked the coeffs to (1, 0).
+    // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
     
+    GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
-    bool blendOff = kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
+    bool blendOff = (kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
+                    kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
     if (blendOff) {
         if (kNo_TriState != fHWBlendState.fEnabled) {
             GL_CALL(Disable(GR_GL_BLEND));
             fHWBlendState.fEnabled = kNo_TriState;
         }
-    } else {
-        if (kYes_TriState != fHWBlendState.fEnabled) {
-            GL_CALL(Enable(GR_GL_BLEND));
-            fHWBlendState.fEnabled = kYes_TriState;
-        }
-        if (fHWBlendState.fSrcCoeff != srcCoeff ||
-            fHWBlendState.fDstCoeff != dstCoeff) {
-            GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
-                              gXfermodeCoeff2Blend[dstCoeff]));
-            fHWBlendState.fSrcCoeff = srcCoeff;
-            fHWBlendState.fDstCoeff = dstCoeff;
-        }
-        GrColor blendConst = blendInfo.fBlendConstant;
-        if ((BlendCoeffReferencesConstant(srcCoeff) ||
-             BlendCoeffReferencesConstant(dstCoeff)) &&
-            (!fHWBlendState.fConstColorValid ||
-             fHWBlendState.fConstColor != blendConst)) {
-            GrGLfloat c[4];
-            GrColorToRGBAFloat(blendConst, c);
-            GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
-            fHWBlendState.fConstColor = blendConst;
-            fHWBlendState.fConstColorValid = true;
-        }
+        return;
+    }
+
+    if (kYes_TriState != fHWBlendState.fEnabled) {
+        GL_CALL(Enable(GR_GL_BLEND));
+        fHWBlendState.fEnabled = kYes_TriState;
+    }
+
+    if (fHWBlendState.fEquation != equation) {
+        GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
+        fHWBlendState.fEquation = equation;
+    }
+
+    if (GrBlendEquationIsAdvanced(equation)) {
+        SkASSERT(this->caps()->advancedBlendEquationSupport());
+        // Advanced equations have no other blend state.
+        return;
+    }
+
+    if (fHWBlendState.fSrcCoeff != srcCoeff ||
+        fHWBlendState.fDstCoeff != dstCoeff) {
+        GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
+                          gXfermodeCoeff2Blend[dstCoeff]));
+        fHWBlendState.fSrcCoeff = srcCoeff;
+        fHWBlendState.fDstCoeff = dstCoeff;
+    }
+
+    GrColor blendConst = blendInfo.fBlendConstant;
+    if ((BlendCoeffReferencesConstant(srcCoeff) ||
+         BlendCoeffReferencesConstant(dstCoeff)) &&
+        (!fHWBlendState.fConstColorValid ||
+         fHWBlendState.fConstColor != blendConst)) {
+        GrGLfloat c[4];
+        GrColorToRGBAFloat(blendConst, c);
+        GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
+        fHWBlendState.fConstColor = blendConst;
+        fHWBlendState.fConstColorValid = true;
     }
 }
 
@@ -2735,6 +2794,11 @@ void GrGLGpu::xferBarrier(GrXferBarrierType type) {
         case kTexture_GrXferBarrierType:
             SkASSERT(this->caps()->textureBarrierSupport());
             GL_CALL(TextureBarrier());
+            return;
+        case kBlend_GrXferBarrierType:
+            SkASSERT(GrDrawTargetCaps::kAdvanced_BlendEquationSupport ==
+                     this->caps()->blendEquationSupport());
+            GL_CALL(BlendBarrier());
             return;
     }
 }

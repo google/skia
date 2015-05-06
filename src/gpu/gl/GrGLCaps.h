@@ -380,6 +380,19 @@ public:
     SK_DECLARE_INST_COUNT(GrGLSLCaps)
 
     /**
+    * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
+    * special layout qualifiers in the fragment shader.
+    */
+    enum AdvBlendEqInteraction {
+        kNotSupported_AdvBlendEqInteraction,     //<! No _blend_equation_advanced extension
+        kAutomatic_AdvBlendEqInteraction,        //<! No interaction required
+        kGeneralEnable_AdvBlendEqInteraction,    //<! layout(blend_support_all_equations) out
+        kSpecificEnables_AdvBlendEqInteraction,  //<! Specific layout qualifiers per equation
+
+        kLast_AdvBlendEqInteraction = kSpecificEnables_AdvBlendEqInteraction
+    };
+
+    /**
      * Creates a GrGLSLCaps that advertises no support for any extensions,
      * formats, etc. Call init to initialize from a GrGLContextInfo.
      */
@@ -399,7 +412,7 @@ public:
      * Initializes the GrGLSLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
      */
-    bool init(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface);
+    bool init(const GrGLContextInfo&, const GrGLInterface*, const GrGLCaps&);
 
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
@@ -416,6 +429,16 @@ public:
 
     bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
 
+    AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
+
+    bool mustEnableAdvBlendEqs() const {
+        return fAdvBlendEqInteraction >= kGeneralEnable_AdvBlendEqInteraction;
+    }
+
+    bool mustEnableSpecificAdvBlendEqs() const {
+        return fAdvBlendEqInteraction == kSpecificEnables_AdvBlendEqInteraction;
+    }
+
     /**
     * Returns a string containing the caps info.
     */
@@ -431,6 +454,8 @@ private:
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
+
+    AdvBlendEqInteraction fAdvBlendEqInteraction;
 
     typedef GrShaderCaps INHERITED;
 };

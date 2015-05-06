@@ -173,7 +173,8 @@ void GrGLShaderBuilder::appendTextureLookup(const char* samplerName,
 }
 
 void GrGLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {
-    SkASSERT(fProgramBuilder->gpu()->glslGeneration() >= k330_GrGLSLGeneration);
+    SkASSERT(fProgramBuilder->gpu()->glslGeneration() >= k330_GrGLSLGeneration ||
+             fProgramBuilder->gpu()->glCaps().glslCaps()->mustEnableAdvBlendEqs());
     fLayoutParams[interface].push_back() = param;
 }
 

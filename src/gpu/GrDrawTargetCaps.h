@@ -142,6 +142,30 @@ public:
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
 
     /**
+     * Indicates the capabilities of the fixed function blend unit.
+     */
+    enum BlendEquationSupport {
+        kBasic_BlendEquationSupport,             //<! Support to select the operator that
+                                                 //   combines src and dst terms.
+        kAdvanced_BlendEquationSupport,          //<! Additional fixed function support for specific
+                                                 //   SVG/PDF blend modes. Requires blend barriers.
+        kAdvancedCoherent_BlendEquationSupport,  //<! Advanced blend equation support that does not
+                                                 //   require blend barriers, and permits overlap.
+
+        kLast_BlendEquationSupport = kAdvancedCoherent_BlendEquationSupport
+    };
+
+    BlendEquationSupport blendEquationSupport() const { return fBlendEquationSupport; }
+
+    bool advancedBlendEquationSupport() const {
+        return fBlendEquationSupport >= kAdvanced_BlendEquationSupport;
+    }
+
+    bool advancedCoherentBlendEquationSupport() const {
+        return kAdvancedCoherent_BlendEquationSupport == fBlendEquationSupport;
+    }
+
+    /**
      * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and
      * textures allows partial mappings or full mappings.
      */
@@ -192,6 +216,7 @@ protected:
     // Driver workaround
     bool fUseDrawInsteadOfClear         : 1;
 
+    BlendEquationSupport fBlendEquationSupport;
     uint32_t fMapBufferFlags;
 
     int fMaxRenderTargetSize;

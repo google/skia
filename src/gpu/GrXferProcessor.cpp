@@ -42,7 +42,7 @@ bool GrXferProcessor::willNeedXferBarrier(const GrRenderTarget* rt,
         *outBarrierType = kTexture_GrXferBarrierType;
         return true;
     }
-    return false;
+    return this->onWillNeedXferBarrier(rt, caps, outBarrierType);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

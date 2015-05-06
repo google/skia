@@ -269,6 +269,21 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fStencilWrapOpsSupport = true;
     }
 
+    if (kIntel_GrGLVendor != ctxInfo.vendor()) {
+        if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced_coherent") ||
+            ctxInfo.hasExtension("GL_NV_blend_equation_advanced_coherent")) {
+            fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
+        } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced") ||
+                   ctxInfo.hasExtension("GL_NV_blend_equation_advanced")) {
+            fBlendEquationSupport = kAdvanced_BlendEquationSupport;
+        } else {
+            fBlendEquationSupport = kBasic_BlendEquationSupport;
+        }
+    } else {
+        // On Intel platforms, KHR_blend_equation_advanced is not conformant.
+        fBlendEquationSupport = kBasic_BlendEquationSupport;
+    }
+
     if (kGL_GrGLStandard == standard) {
         fMapBufferFlags = kCanMap_MapFlag; // we require VBO support and the desktop VBO
                                             // extension includes glMapBuffer.
@@ -352,7 +367,7 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     this->initConfigTexturableTable(ctxInfo, gli);
     this->initConfigRenderableTable(ctxInfo);
 
-    reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get())->init(ctxInfo, gli);
+    reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get())->init(ctxInfo, gli, *this);
 
     return true;
 }
@@ -914,6 +929,7 @@ void GrGLSLCaps::reset() {
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
+    fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
 }
@@ -927,13 +943,16 @@ GrGLSLCaps& GrGLSLCaps::operator= (const GrGLSLCaps& caps) {
     fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
     fFBFetchSupport = caps.fFBFetchSupport;
     fFBFetchNeedsCustomOutput = caps.fFBFetchNeedsCustomOutput;
+    fAdvBlendEqInteraction = caps.fAdvBlendEqInteraction;
     fFBFetchColorName = caps.fFBFetchColorName;
     fFBFetchExtensionString = caps.fFBFetchExtensionString;
 
     return *this;
 }
 
-bool GrGLSLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
+bool GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
+                      const GrGLInterface* gli,
+                      const GrGLCaps& glCaps) {
     this->reset();
     if (!ctxInfo.isInitialized()) {
         return false;
@@ -1010,6 +1029,18 @@ bool GrGLSLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) 
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
     }
 
+    if (glCaps.advancedBlendEquationSupport()) {
+        bool coherent = glCaps.advancedCoherentBlendEquationSupport();
+        if (ctxInfo.hasExtension(coherent ? "GL_NV_blend_equation_advanced_coherent"
+                                          : "GL_NV_blend_equation_advanced")) {
+            fAdvBlendEqInteraction = kAutomatic_AdvBlendEqInteraction;
+        } else {
+            fAdvBlendEqInteraction = kGeneralEnable_AdvBlendEqInteraction;
+            // TODO: Use the following on any platform where "blend_support_all_equations" is slow.
+            //fAdvBlendEqInteraction = kSpecificEnables_AdvBlendEqInteraction;
+        }
+    }
+
     this->initShaderPrecisionTable(ctxInfo, gli);
 
     return true;
@@ -1018,10 +1049,24 @@ bool GrGLSLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) 
 SkString GrGLSLCaps::dump() const {
     SkString r = INHERITED::dump();
 
+    static const char* kAdvBlendEqInteractionStr[] = {
+        "Not Supported",
+        "Automatic",
+        "General Enable",
+        "Specific Enables",
+    };
+    GR_STATIC_ASSERT(0 == kNotSupported_AdvBlendEqInteraction);
+    GR_STATIC_ASSERT(1 == kAutomatic_AdvBlendEqInteraction);
+    GR_STATIC_ASSERT(2 == kGeneralEnable_AdvBlendEqInteraction);
+    GR_STATIC_ASSERT(3 == kSpecificEnables_AdvBlendEqInteraction);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAdvBlendEqInteractionStr) == kLast_AdvBlendEqInteraction + 1);
+
     r.appendf("--- GLSL-Specific ---\n");
 
     r.appendf("FB Fetch Support: %s\n", (fFBFetchSupport ? "YES" : "NO"));
     r.appendf("Drops tile on zero divide: %s\n", (fDropsTileOnZeroDivide ? "YES" : "NO"));
+    r.appendf("Advanced blend equation interaction: %s\n",
+              kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     return r;
 }
 

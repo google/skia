@@ -75,9 +75,7 @@ private:
 
     bool willReadDstColor(const GrDrawTargetCaps& caps,
                           const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI) const override {
-        return true;
-    }
+                          const GrProcOptInfo& coveragePOI) const override;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {
         const GrCustomXPFactory& xpf = xpfBase.cast<GrCustomXPFactory>();

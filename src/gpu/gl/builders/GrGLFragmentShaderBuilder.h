@@ -66,6 +66,11 @@ public:
         no effect advertised that it will read the destination. */
     virtual const char* dstColor() = 0;
 
+    /** Adds any necessary layout qualifiers in order to legalize the supplied blend equation with
+        this shader. It is only legal to call this method with an advanced blend equation, and only
+        if these equations are supported. */
+    virtual void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) = 0;
+
 private:
     typedef GrGLFragmentBuilder INHERITED;
 };
@@ -95,6 +100,8 @@ public:
     const char* fragmentPosition() override;
     const char* dstColor() override;
 
+    void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
+
 private:
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader
     void enableCustomOutput();
@@ -123,7 +130,8 @@ private:
      */
     enum GLSLPrivateFeature {
         kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1,
-        kLastGLSLPrivateFeature = kFragCoordConventions_GLSLPrivateFeature
+        kBlendEquationAdvanced_GLSLPrivateFeature,
+        kLastGLSLPrivateFeature = kBlendEquationAdvanced_GLSLPrivateFeature
     };
 
     // Interpretation of DstReadKey when generating code
