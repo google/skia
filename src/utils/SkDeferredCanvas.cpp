@@ -32,17 +32,10 @@ enum PlaybackMode {
     kSilent_PlaybackMode,
 };
 
-static uint64_t image_area(const SkImage* image) {
-    return sk_64_mul(image->width(), image->height());
-}
-
-static bool should_draw_immediately(const SkBitmap* bitmap, const SkImage* image,
-                                    const SkPaint* paint, size_t bitmapSizeThreshold) {
+static bool should_draw_immediately(const SkBitmap* bitmap, const SkPaint* paint,
+                                    size_t bitmapSizeThreshold) {
     if (bitmap && ((bitmap->getTexture() && !bitmap->isImmutable()) ||
-                   (bitmap->getSize() > bitmapSizeThreshold))) {
-        return true;
-    }
-    if (image && (image_area(image) > bitmapSizeThreshold)) {
+        (bitmap->getSize() > bitmapSizeThreshold))) {
         return true;
     }
     if (paint) {
@@ -208,11 +201,6 @@ protected:
         {SkASSERT(0);}
     void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                     int x, int y, const SkPaint& paint) override
-        {SkASSERT(0);}
-    void drawImage(const SkDraw&, const SkImage*, SkScalar, SkScalar, const SkPaint&) override
-        {SkASSERT(0);}
-    void drawImageRect(const SkDraw&, const SkImage*, const SkRect*, const SkRect&,
-                       const SkPaint&) override
         {SkASSERT(0);}
     void drawText(const SkDraw&, const void* text, size_t len,
                   SkScalar x, SkScalar y, const SkPaint& paint) override
@@ -493,15 +481,11 @@ class AutoImmediateDrawIfNeeded {
 public:
     AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkBitmap* bitmap,
                               const SkPaint* paint) {
-        this->init(canvas, bitmap, NULL, paint);
-    }
-    AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkImage* image,
-                              const SkPaint* paint) {
-        this->init(canvas, NULL, image, paint);
+        this->init(canvas, bitmap, paint);
     }
 
     AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkPaint* paint) {
-        this->init(canvas, NULL, NULL, paint);
+        this->init(canvas, NULL, paint);
     }
 
     ~AutoImmediateDrawIfNeeded() {
@@ -510,10 +494,9 @@ public:
         }
     }
 private:
-    void init(SkDeferredCanvas& canvas, const SkBitmap* bitmap, const SkImage* image,
-              const SkPaint* paint) {
+    void init(SkDeferredCanvas& canvas, const SkBitmap* bitmap, const SkPaint* paint) {
         if (canvas.isDeferredDrawing() &&
-            should_draw_immediately(bitmap, image, paint, canvas.getBitmapSizeThreshold())) {
+            should_draw_immediately(bitmap, paint, canvas.getBitmapSizeThreshold())) {
             canvas.setDeferredDrawing(false);
             fCanvas = &canvas;
         } else {
@@ -850,34 +833,6 @@ void SkDeferredCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* sr
 
     AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
     this->drawingCanvas()->drawBitmapRectToRect(bitmap, src, dst, paint, flags);
-    this->recordedDrawCommand();
-}
-
-
-void SkDeferredCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
-                                   const SkPaint* paint) {
-    SkRect bounds = SkRect::MakeXYWH(x, y,
-                                     SkIntToScalar(image->width()), SkIntToScalar(image->height()));
-    if (fDeferredDrawing &&
-        this->isFullFrame(&bounds, paint) &&
-        isPaintOpaque(paint, image)) {
-        this->getDeferredDevice()->skipPendingCommands();
-    }
-    
-    AutoImmediateDrawIfNeeded autoDraw(*this, image, paint);
-    this->drawingCanvas()->drawImage(image, x, y, paint);
-    this->recordedDrawCommand();
-}
-void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                       const SkPaint* paint) {
-    if (fDeferredDrawing &&
-        this->isFullFrame(&dst, paint) &&
-        isPaintOpaque(paint, image)) {
-        this->getDeferredDevice()->skipPendingCommands();
-    }
-    
-    AutoImmediateDrawIfNeeded autoDraw(*this, image, paint);
-    this->drawingCanvas()->drawImageRect(image, src, dst, paint);
     this->recordedDrawCommand();
 }
 

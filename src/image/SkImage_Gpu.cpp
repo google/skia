@@ -26,6 +26,15 @@ SkShader* SkImage_Gpu::onNewShader(SkShader::TileMode tileX,
     return SkShader::CreateBitmapShader(fBitmap, tileX, tileY, localMatrix);
 }
 
+void SkImage_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const {
+    canvas->drawBitmap(fBitmap, x, y, paint);
+}
+
+void SkImage_Gpu::onDrawRect(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
+                                   const SkPaint* paint) const {
+    canvas->drawBitmapRectToRect(fBitmap, src, dst, paint);
+}
+
 SkSurface* SkImage_Gpu::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
     GrContext* ctx = this->getTexture()->getContext();
     // TODO: Change signature of onNewSurface to take a budgeted param.
