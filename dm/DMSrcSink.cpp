@@ -533,7 +533,7 @@ static SkISize auto_compute_translate(SkMatrix* matrix, int srcW, int srcH) {
     return SkISize::Make(SkScalarRoundToInt(bounds.width()), SkScalarRoundToInt(bounds.height()));
 }
 
-ViaMatrix::ViaMatrix(SkMatrix matrix, Sink* sink) : fMatrix(matrix), fSink(sink) {}
+ViaMatrix::ViaMatrix(SkMatrix matrix, Sink* sink) : Via(sink), fMatrix(matrix) {}
 
 Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     SkMatrix matrix = fMatrix;
@@ -546,7 +546,7 @@ Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStr
 
 // Undoes any flip or 90 degree rotate without changing the scale of the bitmap.
 // This should be pixel-preserving.
-ViaUpright::ViaUpright(SkMatrix matrix, Sink* sink) : fMatrix(matrix), fSink(sink) {}
+ViaUpright::ViaUpright(SkMatrix matrix, Sink* sink) : Via(sink), fMatrix(matrix) {}
 
 Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     Error err = fSink->draw(src, bitmap, stream, log);
@@ -581,8 +581,6 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ViaPipe::ViaPipe(Sink* sink) : fSink(sink) {}
-
 Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
@@ -594,8 +592,6 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-ViaDeferred::ViaDeferred(Sink* sink) : fSink(sink) {}
 
 Error ViaDeferred::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     // We draw via a deferred canvas into a surface that's compatible with the original canvas,
@@ -620,8 +616,6 @@ Error ViaDeferred::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkS
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-ViaSerialization::ViaSerialization(Sink* sink) : fSink(sink) {}
 
 Error ViaSerialization::draw(
         const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
@@ -650,10 +644,10 @@ Error ViaSerialization::draw(
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ViaTiles::ViaTiles(int w, int h, SkBBHFactory* factory, Sink* sink)
-    : fW(w)
+    : Via(sink)
+    , fW(w)
     , fH(h)
-    , fFactory(factory)
-    , fSink(sink) {}
+    , fFactory(factory) {}
 
 Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
@@ -702,8 +696,6 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-ViaSecondPicture::ViaSecondPicture(Sink* sink) : fSink(sink) {}
 
 // Draw the Src into two pictures, then draw the second picture into the wrapped Sink.
 // This tests that any shortcuts we may take while recording that second picture are legal.
@@ -759,8 +751,6 @@ struct DrawsAsSingletonPictures {
     SK_WHEN(!HasMember_paint<T>, void) operator()(const T& op) { this->draw(op, fCanvas); }
     void operator()(const SkRecords::SaveLayer& op)            { this->draw(op, fCanvas); }
 };
-
-ViaSingletonPictures::ViaSingletonPictures(Sink* sink) : fSink(sink) {}
 
 // Record Src into a picture, then record it into a macro picture with a sub-picture for each draw.
 // Then play back that macro picture into our wrapped sink.

@@ -214,96 +214,68 @@ public:
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-class ViaMatrix : public Sink {
+class Via : public Sink {
+public:
+    explicit Via(Sink* sink) : fSink(sink) {}
+    const char* fileExtension() const override { return fSink->fileExtension(); }
+    int               enclave() const override { return fSink->enclave(); }
+protected:
+    SkAutoTDelete<Sink> fSink;
+};
+
+class ViaMatrix : public Via {
 public:
     ViaMatrix(SkMatrix, Sink*);
-
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return fSink->enclave(); }
-    const char* fileExtension() const override { return fSink->fileExtension(); }
 private:
-    SkMatrix            fMatrix;
-    SkAutoTDelete<Sink> fSink;
+    const SkMatrix fMatrix;
 };
 
-class ViaUpright : public Sink {
+class ViaUpright : public Via {
 public:
     ViaUpright(SkMatrix, Sink*);
-
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return fSink->enclave(); }
-    const char* fileExtension() const override { return fSink->fileExtension(); }
 private:
-    SkMatrix            fMatrix;
-    SkAutoTDelete<Sink> fSink;
+    const SkMatrix fMatrix;
 };
 
-class ViaPipe : public Sink {
+class ViaPipe : public Via {
 public:
-    explicit ViaPipe(Sink*);
-
+    explicit ViaPipe(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return fSink->enclave(); }
-    const char* fileExtension() const override { return fSink->fileExtension(); }
-private:
-    SkAutoTDelete<Sink>  fSink;
 };
 
-class ViaDeferred : public Sink {
+class ViaDeferred : public Via {
 public:
-    explicit ViaDeferred(Sink*);
-
+    explicit ViaDeferred(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return fSink->enclave(); }
-    const char* fileExtension() const override { return fSink->fileExtension(); }
-private:
-    SkAutoTDelete<Sink>  fSink;
 };
 
-class ViaSerialization : public Sink {
+class ViaSerialization : public Via {
 public:
-    explicit ViaSerialization(Sink*);
-
+    explicit ViaSerialization(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return fSink->enclave(); }
-    const char* fileExtension() const override { return fSink->fileExtension(); }
-private:
-    SkAutoTDelete<Sink> fSink;
 };
 
-class ViaTiles : public Sink {
+class ViaTiles : public Via {
 public:
     ViaTiles(int w, int h, SkBBHFactory*, Sink*);
-
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return fSink->enclave(); }
-    const char* fileExtension() const override { return fSink->fileExtension(); }
 private:
     const int                   fW, fH;
     SkAutoTDelete<SkBBHFactory> fFactory;
-    SkAutoTDelete<Sink>         fSink;
 };
 
-class ViaSecondPicture : public Sink {
+class ViaSecondPicture : public Via {
 public:
-    explicit ViaSecondPicture(Sink*);
-
+    explicit ViaSecondPicture(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return fSink->enclave(); }
-    const char* fileExtension() const override { return fSink->fileExtension(); }
-private:
-    SkAutoTDelete<Sink>  fSink;
 };
 
-class ViaSingletonPictures : public Sink {
+class ViaSingletonPictures : public Via {
 public:
-    explicit ViaSingletonPictures(Sink*);
-
+    explicit ViaSingletonPictures(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    int enclave() const override { return fSink->enclave(); }
-    const char* fileExtension() const override { return fSink->fileExtension(); }
-private:
-    SkAutoTDelete<Sink>  fSink;
 };
 
 }  // namespace DM
