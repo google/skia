@@ -366,6 +366,7 @@ static Sink* create_sink(const char* tag) {
 
 static Sink* create_via(const char* tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (0 == strcmp(t, tag)) { return new via(__VA_ARGS__); }
+    VIA("twice",     ViaTwice,         wrapped);
     VIA("pipe",      ViaPipe,          wrapped);
     VIA("serialize", ViaSerialization, wrapped);
     VIA("deferred",  ViaDeferred,      wrapped);

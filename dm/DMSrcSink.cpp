@@ -288,19 +288,7 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
     stream.reset((SkStream*)NULL);  // Might as well drop this when we're done with it.
 
     canvas->clipRect(kSKPViewport);
-    // Testing TextBlob batching requires that we see individual text blobs more than once
-    // TODO remove this and add a flag to DM so we can run skps multiple times
-//#define DOUBLE_LOOP
-#ifdef DOUBLE_LOOP
-    {
-        SkAutoCanvasRestore acr(canvas, true);
-#endif
-        canvas->drawPicture(pic);
-#ifdef DOUBLE_LOOP
-    }
-    canvas->clear(0);
     canvas->drawPicture(pic);
-#endif
     return "";
 }
 
@@ -714,6 +702,23 @@ Error ViaSecondPicture::draw(
             pic.reset(recorder.endRecordingAsPicture());
         }
         canvas->drawPicture(pic);
+        return "";
+    });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+// Draw the Src twice.  This can help exercise caching.
+Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) -> Error {
+        for (int i = 0; i < 2; i++) {
+            SkAutoCanvasRestore acr(canvas, true/*save now*/);
+            canvas->clear(SK_ColorTRANSPARENT);
+            Error err = src.draw(canvas);
+            if (err.isEmpty()) {
+                return err;
+            }
+        }
         return "";
     });
 }

@@ -278,6 +278,12 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
+class ViaTwice : public Via {
+public:
+    explicit ViaTwice(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
 }  // namespace DM
 
 #endif//DMSrcSink_DEFINED
