@@ -40,13 +40,13 @@
 static void emit_pdf_color(SkColor color, SkWStream* result) {
     SkASSERT(SkColorGetA(color) == 0xFF);  // We handle alpha elsewhere.
     SkScalar colorMax = SkIntToScalar(0xFF);
-    SkPDFScalar::Append(
+    SkPDFUtils::AppendScalar(
             SkScalarDiv(SkIntToScalar(SkColorGetR(color)), colorMax), result);
     result->writeText(" ");
-    SkPDFScalar::Append(
+    SkPDFUtils::AppendScalar(
             SkScalarDiv(SkIntToScalar(SkColorGetG(color)), colorMax), result);
     result->writeText(" ");
-    SkPDFScalar::Append(
+    SkPDFUtils::AppendScalar(
             SkScalarDiv(SkIntToScalar(SkColorGetB(color)), colorMax), result);
     result->writeText(" ");
 }
@@ -164,11 +164,11 @@ static void set_text_transform(SkScalar x, SkScalar y, SkScalar textSkewX,
     // Flip the text about the x-axis to account for origin swap and include
     // the passed parameters.
     content->writeText("1 0 ");
-    SkPDFScalar::Append(0 - textSkewX, content);
+    SkPDFUtils::AppendScalar(0 - textSkewX, content);
     content->writeText(" -1 ");
-    SkPDFScalar::Append(x, content);
+    SkPDFUtils::AppendScalar(x, content);
     content->writeText(" ");
-    SkPDFScalar::Append(y, content);
+    SkPDFUtils::AppendScalar(y, content);
     content->writeText(" Tm\n");
 }
 
@@ -547,7 +547,7 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
         if (state.fTextScaleX != currentEntry()->fTextScaleX) {
             SkScalar pdfScale = SkScalarMul(state.fTextScaleX,
                                             SkIntToScalar(100));
-            SkPDFScalar::Append(pdfScale, fContentStream);
+            SkPDFUtils::AppendScalar(pdfScale, fContentStream);
             fContentStream->writeText(" Tz\n");
             currentEntry()->fTextScaleX = state.fTextScaleX;
         }
@@ -1080,7 +1080,7 @@ static SkString format_wide_string(const uint16_t* input,
             SkASSERT(0 == input[i] >> 8);
             tmp[i] = static_cast<uint8_t>(input[i]);
         }
-        return SkPDFString::FormatString(tmp.c_str(), tmp.size());
+        return SkPDFUtils::FormatString(tmp.c_str(), tmp.size());
     }
 }
 
@@ -1988,7 +1988,7 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
                 SkPDFResourceDict::kFont_ResourceType,
                 fontIndex).c_str());
         contentEntry->fContent.writeText(" ");
-        SkPDFScalar::Append(paint.getTextSize(), &contentEntry->fContent);
+        SkPDFUtils::AppendScalar(paint.getTextSize(), &contentEntry->fContent);
         contentEntry->fContent.writeText(" Tf\n");
         contentEntry->fState.fFont = fFontResources[fontIndex];
     }

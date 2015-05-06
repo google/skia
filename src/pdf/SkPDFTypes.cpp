@@ -7,6 +7,7 @@
  */
 
 #include "SkPDFTypes.h"
+#include "SkPDFUtils.h"
 #include "SkStream.h"
 
 #ifdef SK_BUILD_FOR_WIN
@@ -134,11 +135,11 @@ static void write_string(SkWStream* o, const SkString& s) {
 }
 
 static SkString format_string(const SkString& s) {
-    return SkPDFString::FormatString(s.c_str(), s.size());
+    return SkPDFUtils::FormatString(s.c_str(), s.size());
 }
 
 static SkString format_string(const char* s) {
-    return SkPDFString::FormatString(s, strlen(s));
+    return SkPDFUtils::FormatString(s, strlen(s));
 }
 
 void SkPDFUnion::emitObject(SkWStream* stream,
@@ -152,7 +153,7 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             stream->writeText(fBoolValue ? "true" : "false");
             return;
         case Type::kScalar:
-            SkPDFScalar::Append(fScalarValue, stream);
+            SkPDFUtils::AppendScalar(fScalarValue, stream);
             return;
         case Type::kName:
             stream->writeText("/");
@@ -281,103 +282,6 @@ void SkPDFAtom::addResources(SkPDFObjNumMap* map,
     fValue.addResources(map, substitutes);
 }
 #endif  // 0
-////////////////////////////////////////////////////////////////////////////////
-
-// static
-void SkPDFScalar::Append(SkScalar value, SkWStream* stream) {
-    // The range of reals in PDF/A is the same as SkFixed: +/- 32,767 and
-    // +/- 1/65,536 (though integers can range from 2^31 - 1 to -2^31).
-    // When using floats that are outside the whole value range, we can use
-    // integers instead.
-
-#if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
-    if (value > 32767 || value < -32767) {
-        stream->writeDecAsText(SkScalarRoundToInt(value));
-        return;
-    }
-
-    char buffer[SkStrAppendScalar_MaxSize];
-    char* end = SkStrAppendFixed(buffer, SkScalarToFixed(value));
-    stream->write(buffer, end - buffer);
-    return;
-#endif  // !SK_ALLOW_LARGE_PDF_SCALARS
-
-#if defined(SK_ALLOW_LARGE_PDF_SCALARS)
-    // Floats have 24bits of significance, so anything outside that range is
-    // no more precise than an int. (Plus PDF doesn't support scientific
-    // notation, so this clamps to SK_Max/MinS32).
-    if (value > (1 << 24) || value < -(1 << 24)) {
-        stream->writeDecAsText(value);
-        return;
-    }
-    // Continue to enforce the PDF limits for small floats.
-    if (value < 1.0f/65536 && value > -1.0f/65536) {
-        stream->writeDecAsText(0);
-        return;
-    }
-    // SkStrAppendFloat might still use scientific notation, so use snprintf
-    // directly..
-    static const int kFloat_MaxSize = 19;
-    char buffer[kFloat_MaxSize];
-    int len = SNPRINTF(buffer, kFloat_MaxSize, "%#.8f", value);
-    // %f always prints trailing 0s, so strip them.
-    for (; buffer[len - 1] == '0' && len > 0; len--) {
-        buffer[len - 1] = '\0';
-    }
-    if (buffer[len - 1] == '.') {
-        buffer[len - 1] = '\0';
-    }
-    stream->writeText(buffer);
-    return;
-#endif  // SK_ALLOW_LARGE_PDF_SCALARS
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-// static
-
-SkString SkPDFString::FormatString(const char* cin, size_t len) {
-    SkASSERT(len <= kMaxLen);
-
-    // 7-bit clean is a heuristic to decide what string format to use;
-    // a 7-bit clean string should require little escaping.
-    bool sevenBitClean = true;
-    size_t characterCount = 2 + len;
-    for (size_t i = 0; i < len; i++) {
-        if (cin[i] > '~' || cin[i] < ' ') {
-            sevenBitClean = false;
-            break;
-        }
-        if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-            ++characterCount;
-        }
-    }
-    SkString result;
-    if (sevenBitClean) {
-        result.resize(characterCount);
-        char* str = result.writable_str();
-        *str++ = '(';
-        for (size_t i = 0; i < len; i++) {
-            if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-                *str++ = '\\';
-            }
-            *str++ = cin[i];
-        }
-        *str++ = ')';
-    } else {
-        result.resize(2 * len + 2);
-        char* str = result.writable_str();
-        *str++ = '<';
-        for (size_t i = 0; i < len; i++) {
-            uint8_t c = static_cast<uint8_t>(cin[i]);
-            static const char gHex[] = "0123456789ABCDEF";
-            *str++ = gHex[(c >> 4) & 0xF];
-            *str++ = gHex[(c     ) & 0xF];
-        }
-        *str++ = '>';
-    }
-    return result;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -180,17 +180,7 @@ private:
 };
 #endif  // 0
 
-class SkPDFScalar {
-public:
-    static void Append(SkScalar value, SkWStream* stream);
-};
-
-class SkPDFString {
-public:
-    static SkString FormatString(const char* input, size_t len);
-    static const size_t kMaxLen = 65535;
-};
-
+////////////////////////////////////////////////////////////////////////////////
 
 /** \class SkPDFArray
 

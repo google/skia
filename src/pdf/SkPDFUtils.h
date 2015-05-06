@@ -54,6 +54,8 @@ public:
     static void DrawFormXObject(int objectIndex, SkWStream* content);
     static void ApplyGraphicState(int objectIndex, SkWStream* content);
     static void ApplyPattern(int objectIndex, SkWStream* content);
+    static void AppendScalar(SkScalar value, SkWStream* stream);
+    static SkString FormatString(const char* input, size_t len);
 };
 
 #endif

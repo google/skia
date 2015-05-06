@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -50,7 +49,7 @@ void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
         SkMatrix::SetAffineIdentity(values);
     }
     for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
-        SkPDFScalar::Append(values[i], content);
+        SkPDFUtils::AppendScalar(values[i], content);
         content->writeText(" ");
     }
     content->writeText("cm\n");
@@ -58,17 +57,17 @@ void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
 
 // static
 void SkPDFUtils::MoveTo(SkScalar x, SkScalar y, SkWStream* content) {
-    SkPDFScalar::Append(x, content);
+    SkPDFUtils::AppendScalar(x, content);
     content->writeText(" ");
-    SkPDFScalar::Append(y, content);
+    SkPDFUtils::AppendScalar(y, content);
     content->writeText(" m\n");
 }
 
 // static
 void SkPDFUtils::AppendLine(SkScalar x, SkScalar y, SkWStream* content) {
-    SkPDFScalar::Append(x, content);
+    SkPDFUtils::AppendScalar(x, content);
     content->writeText(" ");
-    SkPDFScalar::Append(y, content);
+    SkPDFUtils::AppendScalar(y, content);
     content->writeText(" l\n");
 }
 
@@ -77,20 +76,20 @@ void SkPDFUtils::AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
                              SkScalar ctl2X, SkScalar ctl2Y,
                              SkScalar dstX, SkScalar dstY, SkWStream* content) {
     SkString cmd("y\n");
-    SkPDFScalar::Append(ctl1X, content);
+    SkPDFUtils::AppendScalar(ctl1X, content);
     content->writeText(" ");
-    SkPDFScalar::Append(ctl1Y, content);
+    SkPDFUtils::AppendScalar(ctl1Y, content);
     content->writeText(" ");
     if (ctl2X != dstX || ctl2Y != dstY) {
         cmd.set("c\n");
-        SkPDFScalar::Append(ctl2X, content);
+        SkPDFUtils::AppendScalar(ctl2X, content);
         content->writeText(" ");
-        SkPDFScalar::Append(ctl2Y, content);
+        SkPDFUtils::AppendScalar(ctl2Y, content);
         content->writeText(" ");
     }
-    SkPDFScalar::Append(dstX, content);
+    SkPDFUtils::AppendScalar(dstX, content);
     content->writeText(" ");
-    SkPDFScalar::Append(dstY, content);
+    SkPDFUtils::AppendScalar(dstY, content);
     content->writeText(" ");
     content->writeText(cmd.c_str());
 }
@@ -107,13 +106,13 @@ void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
     SkScalar bottom = SkMinScalar(rect.fBottom, rect.fTop);
 
-    SkPDFScalar::Append(rect.fLeft, content);
+    SkPDFUtils::AppendScalar(rect.fLeft, content);
     content->writeText(" ");
-    SkPDFScalar::Append(bottom, content);
+    SkPDFUtils::AppendScalar(bottom, content);
     content->writeText(" ");
-    SkPDFScalar::Append(rect.width(), content);
+    SkPDFUtils::AppendScalar(rect.width(), content);
     content->writeText(" ");
-    SkPDFScalar::Append(rect.height(), content);
+    SkPDFUtils::AppendScalar(rect.height(), content);
     content->writeText(" re\n");
 }
 
@@ -251,4 +250,96 @@ void SkPDFUtils::ApplyPattern(int objectIndex, SkWStream* content) {
     content->writeText(" SCN/");
     content->writeText(resourceName.c_str());
     content->writeText(" scn\n");
+}
+
+void SkPDFUtils::AppendScalar(SkScalar value, SkWStream* stream) {
+    // The range of reals in PDF/A is the same as SkFixed: +/- 32,767 and
+    // +/- 1/65,536 (though integers can range from 2^31 - 1 to -2^31).
+    // When using floats that are outside the whole value range, we can use
+    // integers instead.
+
+#if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
+    if (value > 32767 || value < -32767) {
+        stream->writeDecAsText(SkScalarRoundToInt(value));
+        return;
+    }
+
+    char buffer[SkStrAppendScalar_MaxSize];
+    char* end = SkStrAppendFixed(buffer, SkScalarToFixed(value));
+    stream->write(buffer, end - buffer);
+    return;
+#endif  // !SK_ALLOW_LARGE_PDF_SCALARS
+
+#if defined(SK_ALLOW_LARGE_PDF_SCALARS)
+    // Floats have 24bits of significance, so anything outside that range is
+    // no more precise than an int. (Plus PDF doesn't support scientific
+    // notation, so this clamps to SK_Max/MinS32).
+    if (value > (1 << 24) || value < -(1 << 24)) {
+        stream->writeDecAsText(value);
+        return;
+    }
+    // Continue to enforce the PDF limits for small floats.
+    if (value < 1.0f/65536 && value > -1.0f/65536) {
+        stream->writeDecAsText(0);
+        return;
+    }
+    // SkStrAppendFloat might still use scientific notation, so use snprintf
+    // directly..
+    static const int kFloat_MaxSize = 19;
+    char buffer[kFloat_MaxSize];
+    int len = SNPRINTF(buffer, kFloat_MaxSize, "%#.8f", value);
+    // %f always prints trailing 0s, so strip them.
+    for (; buffer[len - 1] == '0' && len > 0; len--) {
+        buffer[len - 1] = '\0';
+    }
+    if (buffer[len - 1] == '.') {
+        buffer[len - 1] = '\0';
+    }
+    stream->writeText(buffer);
+    return;
+#endif  // SK_ALLOW_LARGE_PDF_SCALARS
+}
+
+SkString SkPDFUtils::FormatString(const char* cin, size_t len) {
+    SkDEBUGCODE(static const size_t kMaxLen = 65535;)
+    SkASSERT(len <= kMaxLen);
+
+    // 7-bit clean is a heuristic to decide what string format to use;
+    // a 7-bit clean string should require little escaping.
+    bool sevenBitClean = true;
+    size_t characterCount = 2 + len;
+    for (size_t i = 0; i < len; i++) {
+        if (cin[i] > '~' || cin[i] < ' ') {
+            sevenBitClean = false;
+            break;
+        }
+        if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
+            ++characterCount;
+        }
+    }
+    SkString result;
+    if (sevenBitClean) {
+        result.resize(characterCount);
+        char* str = result.writable_str();
+        *str++ = '(';
+        for (size_t i = 0; i < len; i++) {
+            if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
+                *str++ = '\\';
+            }
+            *str++ = cin[i];
+        }
+        *str++ = ')';
+    } else {
+        result.resize(2 * len + 2);
+        char* str = result.writable_str();
+        *str++ = '<';
+        for (size_t i = 0; i < len; i++) {
+            uint8_t c = static_cast<uint8_t>(cin[i]);
+            static const char gHex[] = "0123456789ABCDEF";
+            *str++ = gHex[(c >> 4) & 0xF];
+            *str++ = gHex[(c     ) & 0xF];
+        }
+        *str++ = '>';
+    }
+    return result;
 }
