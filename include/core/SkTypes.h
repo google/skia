@@ -296,9 +296,9 @@ static inline bool SkIsU16(long x) {
     #define SK_OFFSETOF(type, field)    (size_t)((char*)&(((type*)1)->field) - (char*)1)
 #endif
 
-/** Returns the number of entries in an array (not a pointer)
-*/
-#define SK_ARRAY_COUNT(array)       (sizeof(array) / sizeof(array[0]))
+/** Returns the number of entries in an array (not a pointer) */
+template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
+#define SK_ARRAY_COUNT(array) (sizeof(SkArrayCountHelper(array)))
 
 #define SkAlign2(x)     (((x) + 1) >> 1 << 1)
 #define SkIsAlign2(x)   (0 == ((x) & 1))
