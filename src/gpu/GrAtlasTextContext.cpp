@@ -1526,10 +1526,10 @@ public:
         int instanceCount = fInstanceCount;
         const GrVertexBuffer* vertexBuffer;
 
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              glyphCount * kVerticesPerGlyph,
-                                                              &vertexBuffer,
-                                                              &flushInfo.fVertexOffset);
+        void* vertices = batchTarget->makeVertSpace(vertexStride,
+                                                    glyphCount * kVerticesPerGlyph,
+                                                    &vertexBuffer,
+                                                    &flushInfo.fVertexOffset);
         flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
         flushInfo.fIndexBuffer.reset(batchTarget->resourceProvider()->refQuadIndexBuffer());
         if (!vertices || !flushInfo.fVertexBuffer) {

@@ -131,7 +131,6 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 // Code for the mock context. It's built on a mock GrGpu class that does nothing.
 ////
 
-#include "GrBufferAllocPool.h"
 #include "GrInOrderDrawBuffer.h"
 #include "GrGpu.h"
 
@@ -266,10 +265,6 @@ void GrContext::initMockContext() {
     // these objects are required for any of tests that use this context. TODO: make stop allocating
     // resources in the buffer pools.
     SkDELETE(fDrawBuffer);
-    SkDELETE(fDrawBufferVBAllocPool);
-    SkDELETE(fDrawBufferIBAllocPool);
-
     fDrawBuffer = NULL;
-    fDrawBufferVBAllocPool = NULL;
-    fDrawBufferIBAllocPool = NULL;
+
 }

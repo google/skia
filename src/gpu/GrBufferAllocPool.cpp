@@ -358,10 +358,10 @@ GrGeometryBuffer* GrBufferAllocPool::createBuffer(size_t size) {
 GrVertexBufferAllocPool::GrVertexBufferAllocPool(GrGpu* gpu,
                                                  size_t bufferSize,
                                                  int preallocBufferCnt)
-: GrBufferAllocPool(gpu,
-                    kVertex_BufferType,
-                    bufferSize,
-                    preallocBufferCnt) {
+    : GrBufferAllocPool(gpu,
+                        kVertex_BufferType,
+                        bufferSize,
+                        preallocBufferCnt) {
 }
 
 void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
@@ -391,10 +391,10 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
 GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu,
                                                size_t bufferSize,
                                                int preallocBufferCnt)
-: GrBufferAllocPool(gpu,
-                    kIndex_BufferType,
-                    bufferSize,
-                    preallocBufferCnt) {
+    : GrBufferAllocPool(gpu,
+                        kIndex_BufferType,
+                        bufferSize,
+                        preallocBufferCnt) {
 }
 
 void* GrIndexBufferAllocPool::makeSpace(int indexCount,

@@ -9,7 +9,6 @@
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
-#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrGeometryProcessor.h"

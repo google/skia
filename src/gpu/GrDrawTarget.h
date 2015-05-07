@@ -30,11 +30,9 @@
 
 class GrClip;
 class GrDrawTargetCaps;
-class GrIndexBufferAllocPool;
 class GrPath;
 class GrPathRange;
 class GrPipeline;
-class GrVertexBufferAllocPool;
 
 class GrDrawTarget : public SkRefCnt {
 public:
@@ -47,14 +45,14 @@ public:
 
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
-    GrDrawTarget(GrContext* context, GrVertexBufferAllocPool*, GrIndexBufferAllocPool*);
+    GrDrawTarget(GrContext* context);
 
     virtual ~GrDrawTarget() {}
 
     /**
      * Empties the draw buffer of any queued up draws.
      */
-    void reset();
+    void reset() { this->onReset(); }
 
     /**
      * This plays any queued up draws to its GrGpu target. It also resets this object (i.e. flushing
@@ -240,9 +238,6 @@ protected:
         return fContext->getGpu();
     }
 
-    GrVertexBufferAllocPool* getVertexAllocPool() { return fVertexPool; }
-    GrIndexBufferAllocPool* getIndexAllocPool() { return fIndexPool; }
-
     const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
@@ -334,8 +329,6 @@ private:
     int                                                             fGpuTraceMarkerCount;
     GrTraceMarkerSet                                                fActiveTraceMarkers;
     GrTraceMarkerSet                                                fStoredTraceMarkers;
-    GrVertexBufferAllocPool*                                        fVertexPool;
-    GrIndexBufferAllocPool*                                         fIndexPool;
     bool                                                            fFlushing;
 
     typedef SkRefCnt INHERITED;
@@ -346,10 +339,8 @@ private:
  */
 class GrClipTarget : public GrDrawTarget {
 public:
-    GrClipTarget(GrContext* context,
-                 GrVertexBufferAllocPool* vpool,
-                 GrIndexBufferAllocPool* ipool)
-        : INHERITED(context, vpool, ipool) {
+    GrClipTarget(GrContext* context)
+        : INHERITED(context) {
         fClipMaskManager.setClipTarget(this);
     }
 

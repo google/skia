@@ -20,16 +20,13 @@
 #include "SkTypes.h"
 
 class GrInOrderDrawBuffer;
-class GrVertexBufferAllocPool;
-class GrIndexBufferAllocPool;
+
 
 class GrTargetCommands : ::SkNoncopyable {
 public:
-    GrTargetCommands(GrGpu* gpu,
-                     GrVertexBufferAllocPool* vertexPool,
-                     GrIndexBufferAllocPool* indexPool)
+    GrTargetCommands(GrGpu* gpu)
         : fCmdBuffer(kCmdBufferInitialSizeInBytes)
-        , fBatchTarget(gpu, vertexPool, indexPool) {
+        , fBatchTarget(gpu) {
     }
 
     class Cmd : ::SkNoncopyable {

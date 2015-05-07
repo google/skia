@@ -10,7 +10,6 @@
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
-#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTargetCaps.h"
@@ -870,10 +869,8 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
 
         size_t vertexStride = lineGP->getVertexStride();
         int vertexCount = kLineSegNumVertices * lineCount;
-        void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              vertexCount,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
+        void *vertices = batchTarget->makeVertSpace(vertexStride, vertexCount,
+                                                    &vertexBuffer, &firstVertex);
 
         if (!vertices || !linesIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -908,10 +905,8 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
 
         size_t vertexStride = sizeof(BezierVertex);
         int vertexCount = kQuadNumVertices * quadCount + kQuadNumVertices * conicCount;
-        void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              vertexCount,
-                                                              &vertexBuffer,
-                                                              &firstVertex);
+        void *vertices = batchTarget->makeVertSpace(vertexStride, vertexCount,
+                                                    &vertexBuffer, &firstVertex);
 
         if (!vertices || !quadsIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");

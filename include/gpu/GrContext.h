@@ -25,7 +25,6 @@ class GrFragmentProcessor;
 class GrGpu;
 class GrGpuTraceMarker;
 class GrIndexBuffer;
-class GrIndexBufferAllocPool;
 class GrLayerCache;
 class GrOvalRenderer;
 class GrPath;
@@ -39,7 +38,6 @@ class GrTextBlobCache;
 class GrTextContext;
 class GrTextureParams;
 class GrVertexBuffer;
-class GrVertexBufferAllocPool;
 class GrStrokeInfo;
 class GrSoftwarePathRenderer;
 class SkGpuDevice;
@@ -596,8 +594,6 @@ private:
     GrPathRendererChain*            fPathRendererChain;
     GrSoftwarePathRenderer*         fSoftwarePathRenderer;
 
-    GrVertexBufferAllocPool*        fDrawBufferVBAllocPool;
-    GrIndexBufferAllocPool*         fDrawBufferIBAllocPool;
     GrDrawTarget*                   fDrawBuffer;
 
     // Set by OverbudgetCB() to request that GrContext flush before exiting a draw.
@@ -625,8 +621,6 @@ private:
     bool init(GrBackend, GrBackendContext);
     void initMockContext();
     void initCommon();
-
-    void setupDrawBuffer();
 
     class AutoCheckFlush;
     // Sets the paint and returns the target to draw into.

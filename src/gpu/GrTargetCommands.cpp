@@ -11,6 +11,7 @@
 
 void GrTargetCommands::reset() {
     fCmdBuffer.reset();
+    fBatchTarget.reset();
 }
 
 void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
@@ -31,8 +32,6 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
         }
     }
 
-    iodb->getVertexAllocPool()->unmap();
-    iodb->getIndexAllocPool()->unmap();
     fBatchTarget.preFlush();
 
     CmdBuffer::Iter iter(fCmdBuffer);

@@ -19,16 +19,10 @@
  * GrBatch instances use this object to allocate space for their geometry and to issue the draws
  * that render their batch.
  */
-
-class GrIndexBufferAllocPool;
-class GrVertexBufferAllocPool;
-
 class GrBatchTarget : public SkNoncopyable {
 public:
     typedef GrBatchAtlas::BatchToken BatchToken;
-    GrBatchTarget(GrGpu* gpu,
-                  GrVertexBufferAllocPool* vpool,
-                  GrIndexBufferAllocPool* ipool);
+    GrBatchTarget(GrGpu* gpu);
 
     void initDraw(const GrPrimitiveProcessor* primProc, const GrPipeline* pipeline) {
         GrNEW_APPEND_TO_RECORDER(fFlushBuffer, BufferedFlush, (primProc, pipeline));
@@ -94,6 +88,7 @@ public:
     void resetNumberOfDraws() { fNumberOfDraws = 0; }
     int numberOfDraws() const { return fNumberOfDraws; }
     void preFlush() {
+        this->unmapVertexAndIndexBuffers();
         int updateCount = fAsapUploads.count();
         for (int i = 0; i < updateCount; i++) {
             fAsapUploads[i]->upload(TextureUploader(fGpu));
@@ -117,10 +112,12 @@ public:
 
     const GrDrawTargetCaps& caps() const { return *fGpu->caps(); }
 
-    GrVertexBufferAllocPool* vertexPool() { return fVertexPool; }
-    GrIndexBufferAllocPool* indexPool() { return fIndexPool; }
-
     GrResourceProvider* resourceProvider() const { return fGpu->getContext()->resourceProvider(); }
+
+    void* makeVertSpace(size_t vertexSize, int vertexCount,
+                        const GrVertexBuffer** buffer, int* startVertex);
+    uint16_t* makeIndexSpace(int indexCount,
+                             const GrIndexBuffer** buffer, int* startIndex);
 
     // A helper for draws which overallocate and then return data to the pool
     void putBackIndices(size_t indices) { fIndexPool->putBack(indices * sizeof(uint16_t)); }
@@ -129,10 +126,20 @@ public:
         fVertexPool->putBack(vertices * vertexStride);
     }
 
+    void reset() {
+        fVertexPool->reset();
+        fIndexPool->reset();    
+    }
+
 private:
+    void unmapVertexAndIndexBuffers() {
+        fVertexPool->unmap();
+        fIndexPool->unmap();
+    }
+
     GrGpu* fGpu;
-    GrVertexBufferAllocPool* fVertexPool;
-    GrIndexBufferAllocPool* fIndexPool;
+    SkAutoTDelete<GrVertexBufferAllocPool> fVertexPool;
+    SkAutoTDelete<GrIndexBufferAllocPool> fIndexPool;
 
     typedef void* TBufferAlign; // This wouldn't be enough align if a command used long double.
 

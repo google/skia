@@ -66,10 +66,8 @@ private:
     SkAlignedSStorage<kMaxSize> fData;
 };
 
-class GrIndexBufferAllocPool;
 class GrGLSLCaps;
 class GrGLPrimitiveProcessor;
-class GrVertexBufferAllocPool;
 
 struct GrInitInvariantOutput;
 

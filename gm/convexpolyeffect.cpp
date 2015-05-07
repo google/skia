@@ -13,7 +13,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrBatchTarget.h"
-#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"

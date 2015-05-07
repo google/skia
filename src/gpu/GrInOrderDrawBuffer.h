@@ -29,14 +29,8 @@ public:
      * Creates a GrInOrderDrawBuffer
      *
      * @param context    the context object that owns this draw buffer.
-     * @param vertexPool pool where vertices for queued draws will be saved when
-     *                   the vertex source is either reserved or array.
-     * @param indexPool  pool where indices for queued draws will be saved when
-     *                   the index source is either reserved or array.
      */
-    GrInOrderDrawBuffer(GrContext* context,
-                        GrVertexBufferAllocPool* vertexPool,
-                        GrIndexBufferAllocPool* indexPool);
+    GrInOrderDrawBuffer(GrContext* context);
 
     ~GrInOrderDrawBuffer() override;
 

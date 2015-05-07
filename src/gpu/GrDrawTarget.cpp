@@ -9,7 +9,6 @@
 #include "GrDrawTarget.h"
 
 #include "GrBatch.h"
-#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrPath.h"
@@ -30,14 +29,10 @@
 #define DEBUG_INVAL_BUFFER 0xdeadcafe
 #define DEBUG_INVAL_START_IDX -1
 
-GrDrawTarget::GrDrawTarget(GrContext* context,
-                           GrVertexBufferAllocPool* vpool,
-                           GrIndexBufferAllocPool* ipool)
+GrDrawTarget::GrDrawTarget(GrContext* context)
     : fContext(context)
     , fCaps(SkRef(context->getGpu()->caps()))
     , fGpuTraceMarkerCount(0)
-    , fVertexPool(vpool)
-    , fIndexPool(ipool)
     , fFlushing(false) {
     SkASSERT(context);
 }
@@ -111,13 +106,6 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     } else {
         return false;
     }
-}
-
-void GrDrawTarget::reset() {
-    fVertexPool->reset();
-    fIndexPool->reset();
-
-    this->onReset();
 }
 
 void GrDrawTarget::flush() {

@@ -17,9 +17,7 @@
 #include "SkTypes.h"
 
 class GrGpu;
-class GrIndexBufferAllocPool;
 class GrPipeline;
-class GrVertexBufferAllocPool;
 
 struct GrInitInvariantOutput;
 

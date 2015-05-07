@@ -58,8 +58,8 @@ void* GrBatch::InstancedHelper::init(GrBatchTarget* batchTarget, GrPrimitiveType
     const GrVertexBuffer* vertexBuffer;
     int firstVertex;
     int vertexCount = verticesPerInstance * instancesToDraw;
-    void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride, vertexCount, &vertexBuffer,
-                                                          &firstVertex);
+    void* vertices = batchTarget->makeVertSpace(vertexStride, vertexCount,
+                                                &vertexBuffer, &firstVertex);
     if (!vertices) {
         SkDebugf("Vertices could not be allocated for instanced rendering.");
         return NULL;

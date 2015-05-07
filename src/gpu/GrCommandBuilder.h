@@ -11,19 +11,13 @@
 #include "GrTargetCommands.h"
 
 class GrInOrderDrawBuffer;
-class GrVertexBufferAllocPool;
-class GrIndexBufferAllocPool;
 
 class GrCommandBuilder : ::SkNoncopyable {
 public:
     typedef GrTargetCommands::Cmd Cmd;
     typedef GrTargetCommands::State State;
 
-    GrCommandBuilder(GrGpu* gpu,
-                     GrVertexBufferAllocPool* vertexPool,
-                     GrIndexBufferAllocPool* indexPool)
-        : fCommands(gpu, vertexPool, indexPool) {
-    }
+    GrCommandBuilder(GrGpu* gpu) : fCommands(gpu) { }
 
     virtual ~GrCommandBuilder() {}
 

@@ -10,7 +10,6 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
-#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
@@ -209,10 +208,10 @@ public:
         SkASSERT(vertexStride == 2 * sizeof(SkPoint));
 
         const GrVertexBuffer* vertexBuffer;
-        void* vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                              kVerticesPerQuad * instanceCount,
-                                                              &vertexBuffer,
-                                                              &flushInfo.fVertexOffset);
+        void* vertices = batchTarget->makeVertSpace(vertexStride,
+                                                    kVerticesPerQuad * instanceCount,
+                                                    &vertexBuffer,
+                                                    &flushInfo.fVertexOffset);
         flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
         flushInfo.fIndexBuffer.reset(batchTarget->resourceProvider()->refQuadIndexBuffer());
         if (!vertices || !flushInfo.fIndexBuffer) {

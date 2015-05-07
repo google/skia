@@ -13,7 +13,6 @@
 #include "GrBatch.h"
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
-#include "GrBufferAllocPool.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrGpuResource.h"
 #include "GrGpuResourcePriv.h"
@@ -49,12 +48,6 @@
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrDashingEffect.h"
 #include "effects/GrSingleTextureEffect.h"
-
-static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 15;
-static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
-
-static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = 1 << 11;
-static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 4;
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define RETURN_IF_ABANDONED if (!fDrawBuffer) { return; }
@@ -109,8 +102,6 @@ GrContext::GrContext(const Options& opts) : fOptions(opts), fUniqueID(next_id())
     fSoftwarePathRenderer = NULL;
     fBatchFontCache = NULL;
     fDrawBuffer = NULL;
-    fDrawBufferVBAllocPool = NULL;
-    fDrawBufferIBAllocPool = NULL;
     fFlushToReduceCacheSize = false;
     fAARectRenderer = NULL;
     fOvalRenderer = NULL;
@@ -140,7 +131,7 @@ void GrContext::initCommon() {
 
     fDidTestPMConversions = false;
 
-    this->setupDrawBuffer();
+    fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (this));
 
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = SkNEW_ARGS(GrBatchFontCache, (this));
@@ -163,8 +154,6 @@ GrContext::~GrContext() {
     SkDELETE(fResourceCache);
     SkDELETE(fBatchFontCache);
     SkDELETE(fDrawBuffer);
-    SkDELETE(fDrawBufferVBAllocPool);
-    SkDELETE(fDrawBufferIBAllocPool);
 
     fAARectRenderer->unref();
     fOvalRenderer->unref();
@@ -187,14 +176,8 @@ void GrContext::abandonContext() {
     SkSafeSetNull(fPathRendererChain);
     SkSafeSetNull(fSoftwarePathRenderer);
 
-    delete fDrawBuffer;
+    SkDELETE(fDrawBuffer);
     fDrawBuffer = NULL;
-
-    delete fDrawBufferVBAllocPool;
-    fDrawBufferVBAllocPool = NULL;
-
-    delete fDrawBufferIBAllocPool;
-    fDrawBufferIBAllocPool = NULL;
 
     fBatchFontCache->freeAll();
     fLayerCache->freeAll();
@@ -483,10 +466,8 @@ public:
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
-        void* verts = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                           vertexCount,
-                                                           &vertexBuffer,
-                                                           &firstVertex);
+        void* verts = batchTarget->makeVertSpace(vertexStride, vertexCount,
+                                                 &vertexBuffer, &firstVertex);
 
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -821,10 +802,8 @@ public:
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
-        void* verts = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                           this->vertexCount(),
-                                                           &vertexBuffer,
-                                                              &firstVertex);
+        void* verts = batchTarget->makeVertSpace(vertexStride, this->vertexCount(),
+                                                 &vertexBuffer, &firstVertex);
 
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -834,11 +813,9 @@ public:
         const GrIndexBuffer* indexBuffer = NULL;
         int firstIndex = 0;
 
-        void* indices = NULL;
+        uint16_t* indices = NULL;
         if (this->hasIndices()) {
-            indices = batchTarget->indexPool()->makeSpace(this->indexCount(),
-                                                          &indexBuffer,
-                                                          &firstIndex);
+            indices = batchTarget->makeIndexSpace(this->indexCount(), &indexBuffer, &firstIndex);
 
             if (!indices) {
                 SkDebugf("Could not allocate indices\n");
@@ -854,7 +831,7 @@ public:
             // TODO we can actually cache this interleaved and then just memcopy
             if (this->hasIndices()) {
                 for (int j = 0; j < args.fIndices.count(); ++j, ++indexOffset) {
-                    *((uint16_t*)indices + indexOffset) = args.fIndices[j] + vertexOffset;
+                    *(indices + indexOffset) = args.fIndices[j] + vertexOffset;
                 }
             }
 
@@ -1811,25 +1788,6 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
     }
     return chosenSampleCount <= fGpu->caps()->maxSampleCount() ?
         chosenSampleCount : 0;
-}
-
-void GrContext::setupDrawBuffer() {
-    SkASSERT(NULL == fDrawBuffer);
-    SkASSERT(NULL == fDrawBufferVBAllocPool);
-    SkASSERT(NULL == fDrawBufferIBAllocPool);
-
-    fDrawBufferVBAllocPool =
-        SkNEW_ARGS(GrVertexBufferAllocPool, (fGpu,
-                                             DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
-                                             DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS));
-    fDrawBufferIBAllocPool =
-        SkNEW_ARGS(GrIndexBufferAllocPool, (fGpu,
-                                            DRAW_BUFFER_IBPOOL_BUFFER_SIZE,
-                                            DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS));
-
-    fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (this,
-                                                   fDrawBufferVBAllocPool,
-                                                   fDrawBufferIBAllocPool));
 }
 
 GrDrawTarget* GrContext::getTextTarget() {

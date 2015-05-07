@@ -10,7 +10,6 @@
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
-#include "GrBufferAllocPool.h"
 #include "GrDrawTarget.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"

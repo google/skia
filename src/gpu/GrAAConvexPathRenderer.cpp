@@ -10,7 +10,6 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
-#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGeometryProcessor.h"
@@ -795,11 +794,8 @@ public:
             int firstVertex;
 
             size_t vertexStride = quadProcessor->getVertexStride();
-            void *vertices = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                                  vertexCount,
-                                                                  &vertexBuffer,
-                                                                  &firstVertex);
-
+            void *vertices = batchTarget->makeVertSpace(vertexStride, vertexCount,
+                                                        &vertexBuffer, &firstVertex);
             if (!vertices) {
                 SkDebugf("Could not allocate vertices\n");
                 return;
@@ -808,17 +804,13 @@ public:
             const GrIndexBuffer* indexBuffer;
             int firstIndex;
 
-            void *indices = batchTarget->indexPool()->makeSpace(indexCount,
-                                                                &indexBuffer,
-                                                                &firstIndex);
-
-            if (!indices) {
+            uint16_t *idxs = batchTarget->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
+            if (!idxs) {
                 SkDebugf("Could not allocate indices\n");
                 return;
             }
 
             QuadVertex* verts = reinterpret_cast<QuadVertex*>(vertices);
-            uint16_t* idxs = reinterpret_cast<uint16_t*>(indices);
 
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, &draws, verts, idxs);

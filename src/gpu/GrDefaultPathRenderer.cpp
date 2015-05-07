@@ -10,7 +10,6 @@
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
-#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
@@ -320,10 +319,8 @@ public:
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
-        void* verts = batchTarget->vertexPool()->makeSpace(vertexStride,
-                                                           maxVertices,
-                                                           &vertexBuffer,
-                                                           &firstVertex);
+        void* verts = batchTarget->makeVertSpace(vertexStride, maxVertices,
+                                                 &vertexBuffer, &firstVertex);
 
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -335,9 +332,7 @@ public:
 
         void* indices = NULL;
         if (isIndexed) {
-            indices = batchTarget->indexPool()->makeSpace(maxIndices,
-                                                          &indexBuffer,
-                                                          &firstIndex);
+            indices = batchTarget->makeIndexSpace(maxIndices, &indexBuffer, &firstIndex);
 
             if (!indices) {
                 SkDebugf("Could not allocate indices\n");

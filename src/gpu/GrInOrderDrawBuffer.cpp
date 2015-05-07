@@ -7,18 +7,13 @@
 
 #include "GrInOrderDrawBuffer.h"
 
-GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context,
-                                         GrVertexBufferAllocPool* vertexPool,
-                                         GrIndexBufferAllocPool* indexPool)
-    : INHERITED(context, vertexPool, indexPool)
-    , fCommands(SkNEW_ARGS(GrInOrderCommandBuilder, (context->getGpu(), vertexPool, indexPool)))
+GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context)
+    : INHERITED(context)
+    , fCommands(SkNEW_ARGS(GrInOrderCommandBuilder, (context->getGpu())))
     , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
     , fPathTransformBuffer(kPathXformBufferMinReserve * sizeof(float)/4)
     , fPipelineBuffer(kPipelineBufferMinReserve)
     , fDrawID(0) {
-
-    SkASSERT(vertexPool);
-    SkASSERT(indexPool);
 }
 
 GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {

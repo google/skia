@@ -9,7 +9,6 @@
 
 #include "GrGpu.h"
 
-#include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpuResourcePriv.h"

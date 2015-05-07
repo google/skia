@@ -14,7 +14,6 @@
 #include "SkPath.h"
 
 class GrContext;
-class GrIndexBufferAllocPool;
 class GrPath;
 class GrPathRange;
 class GrPathRenderer;
@@ -22,7 +21,6 @@ class GrPathRendererChain;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrStencilAttachment;
-class GrVertexBufferAllocPool;
 class GrVertices;
 
 class GrGpu : public SkRefCnt {

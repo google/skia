@@ -1439,11 +1439,7 @@ public:
         size_t stride = gp->getVertexStride();
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
-        void* verts = batchTarget->vertexPool()->makeSpace(stride,
-                                                           count,
-                                                           &vertexBuffer,
-                                                           &firstVertex);
-
+        void* verts = batchTarget->makeVertSpace(stride, count, &vertexBuffer, &firstVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
