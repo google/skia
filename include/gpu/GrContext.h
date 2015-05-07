@@ -514,6 +514,11 @@ public:
      */
     void discardRenderTarget(GrRenderTarget*);
 
+    /**
+     * An ID associated with this context, guaranteed to be unique.
+     */
+    uint32_t uniqueID() { return fUniqueID; }
+
     ///////////////////////////////////////////////////////////////////////////
     // Legacy functions, to be removed once Chromium stops using them.
 
@@ -614,6 +619,7 @@ private:
     int                             fMaxTextureSizeOverride;
 
     const Options                   fOptions;
+    const uint32_t                  fUniqueID;
 
     GrContext(const Options&); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext);

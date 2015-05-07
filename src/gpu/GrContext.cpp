@@ -92,7 +92,16 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
     }
 }
 
-GrContext::GrContext(const Options& opts) : fOptions(opts) {
+static int32_t gNextID = 1;
+static int32_t next_id() {
+    int32_t id;
+    do {
+        id = sk_atomic_inc(&gNextID);
+    } while (id == SK_InvalidGenID);
+    return id;
+}
+
+GrContext::GrContext(const Options& opts) : fOptions(opts), fUniqueID(next_id()) {
     fGpu = NULL;
     fResourceCache = NULL;
     fResourceProvider = NULL;
