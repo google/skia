@@ -8,7 +8,9 @@
 #ifndef SkRecorder_DEFINED
 #define SkRecorder_DEFINED
 
+#include "SkBigPicture.h"
 #include "SkCanvas.h"
+#include "SkMiniRecorder.h"
 #include "SkRecord.h"
 #include "SkRecords.h"
 #include "SkTDArray.h"
@@ -25,7 +27,7 @@ public:
     void append(SkDrawable* drawable);
 
     // Return a new or ref'd array of pictures that were snapped from our drawables.
-    SkPicture::SnapshotArray* newDrawableSnapshot();
+    SkBigPicture::SnapshotArray* newDrawableSnapshot();
 
 private:
     SkTDArray<SkDrawable*> fArray;
@@ -36,10 +38,10 @@ private:
 class SkRecorder : public SkCanvas {
 public:
     // Does not take ownership of the SkRecord.
-    SkRecorder(SkRecord*, int width, int height);   // legacy version
-    SkRecorder(SkRecord*, const SkRect& bounds);
+    SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
+    SkRecorder(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
-    void reset(SkRecord*, const SkRect& bounds);
+    void reset(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
 
@@ -120,6 +122,8 @@ public:
 
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override { return NULL; }
 
+    void flushMiniRecorder();
+
 private:
     template <typename T>
     T* copy(const T*);
@@ -136,6 +140,8 @@ private:
     size_t fApproxBytesUsedBySubPictures;
     SkRecord* fRecord;
     SkAutoTDelete<SkDrawableList> fDrawableList;
+
+    SkMiniRecorder* fMiniRecorder;
 };
 
 #endif//SkRecorder_DEFINED

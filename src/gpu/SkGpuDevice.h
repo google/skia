@@ -217,8 +217,6 @@ private:
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 
-    static SkPicture::AccelData::Key ComputeAccelDataKey();
-
     static GrRenderTarget* CreateRenderTarget(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
                                               int sampleCount);
 

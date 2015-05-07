@@ -2014,9 +2014,10 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return false;
     }
 
-    SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
-
-    const SkPicture::AccelData* data = mainPicture->EXPERIMENTAL_getAccelData(key);
+    const SkBigPicture::AccelData* data = NULL;
+    if (const SkBigPicture* bp = mainPicture->asSkBigPicture()) {
+        data = bp->accelData();
+    }
     if (!data) {
         return false;
     }
