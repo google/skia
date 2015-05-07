@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
+#include "SkImage_Gpu.h"
 #include "SkImagePriv.h"
 #include "SkSurface_Base.h"
 
@@ -44,9 +45,15 @@ SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
+    const SkImageInfo info = fDevice->imageInfo();
     const int sampleCount = fDevice->accessRenderTarget()->numSamples();
-    SkImage* image = SkNewImageFromBitmapTexture(fDevice->accessBitmap(false), sampleCount,
-                                                 budgeted);
+    SkImage* image = NULL;
+    GrTexture* tex = fDevice->accessRenderTarget()->asTexture();
+    if (tex) {
+        image = SkNEW_ARGS(SkImage_Gpu,
+                           (info.width(), info.height(), info.alphaType(),
+                            tex, sampleCount, budgeted));
+    }
     if (image) {
         as_IB(image)->initWithProps(this->props());
     }
@@ -67,7 +74,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     // image because onCopyOnWrite is only called when there is a cached image.
     SkImage* image = this->getCachedImage(kNo_Budgeted);
     SkASSERT(image);
-    if (rt->asTexture() == SkTextureImageGetTexture(image)) {
+    if (rt->asTexture() == image->getTexture()) {
         this->fDevice->replaceRenderTarget(SkSurface::kRetain_ContentChangeMode == mode);
         SkTextureImageApplyBudgetedDecision(image);
     } else if (kDiscard_ContentChangeMode == mode) {

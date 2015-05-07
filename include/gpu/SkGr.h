@@ -90,6 +90,12 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget*, const SkPaint&
 bool SkPaint2GrPaint(GrContext* context, GrRenderTarget*, const SkPaint& skPaint,
                      const SkMatrix& viewM, bool constantColor, GrPaint* grPaint);
 
+
+SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque);
+
+// Using the dreaded SkGrPixelRef ...
+void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque, SkBitmap* dst);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Classes
 

@@ -12,6 +12,7 @@
 #include "SkConfig8888.h"
 #include "SkData.h"
 #include "SkErrorInternals.h"
+#include "SkGrPixelRef.h"
 #include "SkMessageBus.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
@@ -736,4 +737,26 @@ bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPa
     // The grcolor is automatically set when calling asFragmentProcessor.
     // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.
     return SkPaint2GrPaintNoShader(context, rt, skPaint, paintColor, constantColor, grPaint);
+}
+
+SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque) {
+#ifdef SK_DEBUG
+    const GrSurfaceDesc& desc = tex->desc();
+    SkASSERT(w <= desc.fWidth);
+    SkASSERT(h <= desc.fHeight);
+#endif
+    const GrPixelConfig config = tex->config();
+    SkColorType ct;
+    SkAlphaType at = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    if (!GrPixelConfig2ColorAndProfileType(config, &ct, NULL)) {
+        ct = kUnknown_SkColorType;
+    }
+    return SkImageInfo::Make(w, h, ct, at);
+}
+
+
+void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque, SkBitmap* dst) {
+    const SkImageInfo info = GrMakeInfoFromTexture(src, w, h, isOpaque);
+    dst->setInfo(info);
+    dst->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, src)))->unref();
 }

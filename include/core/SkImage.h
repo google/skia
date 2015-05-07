@@ -64,6 +64,24 @@ public:
      */
     static SkImage* NewFromData(SkData* data);
 
+    /**
+     *  Create a new image from the specified descriptor. Note - the caller is responsible for
+     *  managing the lifetime of the underlying platform texture.
+     *
+     *  Will return NULL if the specified descriptor is unsupported.
+     */
+    static SkImage* NewFromTexture(GrContext*, const GrBackendTextureDesc&,
+                                   SkAlphaType = kPremul_SkAlphaType);
+
+    /**
+     *  Create a new image by copying the pixels from the specified descriptor. No reference is
+     *  kept to the original platform texture.
+     *
+     *  Will return NULL if the specified descriptor is unsupported.
+     */
+    static SkImage* NewFromTextureCopy(GrContext*, const GrBackendTextureDesc&,
+                                       SkAlphaType = kPremul_SkAlphaType);
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     uint32_t uniqueID() const { return fUniqueID; }

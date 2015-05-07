@@ -169,4 +169,16 @@ SkImage* SkImage_Base::onNewImage(int newWidth, int newHeight, const SkIRect* su
     return surface->newImageSnapshot();
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
 
+#if !SK_SUPPORT_GPU
+
+SkImage* SkImage::NewFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType) {
+    return NULL;
+}
+
+SkImage* SkImage::NewFromTextureCopy(GrContext*, const GrBackendTextureDesc&, SkAlphaType) {
+    return NULL;
+}
+
+#endif

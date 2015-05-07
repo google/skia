@@ -38,11 +38,6 @@ static inline size_t SkImageMinRowBytes(const SkImageInfo& info) {
 // in which case the surface may need to perform a copy-on-write.
 extern const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* rasterImage);
 
-// Given an image created with NewTexture, return its GrTexture. This
-// may be called to see if the surface and the image share the same GrTexture,
-// in which case the surface may need to perform a copy-on-write.
-extern GrTexture* SkTextureImageGetTexture(SkImage* textureImage);
-
 // When a texture is shared by a surface and an image its budgeted status is that of the
 // surface. This function is used when the surface makes a new texture for itself in order
 // for the orphaned image to determine whether the original texture counts against the
@@ -53,8 +48,5 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* textureImage);
 // is called when a surface and image share the same GrTexture and the
 // surface needs to perform a copy-on-write
 extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
-
-extern SkImage* SkNewImageFromBitmapTexture(const SkBitmap&, int sampleCountForNewSurfaces,
-                                            SkSurface::Budgeted);
 
 #endif

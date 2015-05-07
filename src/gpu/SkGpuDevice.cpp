@@ -1731,29 +1731,14 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
                                filter, ctx, result, offset);
 }
 
-static SkImageInfo make_info(GrTexture* tex, int w, int h, bool isOpaque) {
-    const GrPixelConfig config = tex->config();
-    SkColorType ct;
-    SkAlphaType at = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    if (!GrPixelConfig2ColorAndProfileType(config, &ct, NULL)) {
-        ct = kUnknown_SkColorType;
-    }
-    return SkImageInfo::Make(w, h, ct, at);
-}
-
 static bool wrap_as_bm(const SkImage* image, SkBitmap* bm) {
     GrTexture* tex = image->getTexture();
     if (tex) {
-        // TODO: handle the GrTexture directly, and skip GrPixelRef
-        const SkImageInfo info = make_info(tex, image->width(), image->height(), image->isOpaque());
-        bm->setInfo(info);
-        bm->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, tex)))->unref();
+        GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), bm);
+        return true;
     } else {
-        if (!as_IB(image)->getROPixels(bm)) {
-            return false;
-        }
+        return as_IB(image)->getROPixels(bm);
     }
-    return true;
 }
 
 void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
