@@ -9,6 +9,7 @@
 #include "SkData.h"
 #include "SkFlate.h"
 #include "SkImageGenerator.h"
+#include "SkJpegInfo.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPixelRef.h"
@@ -401,8 +402,9 @@ namespace {
 class PDFJpegBitmap : public SkPDFBitmap {
 public:
     SkAutoTUnref<SkData> fData;
-    PDFJpegBitmap(const SkBitmap& bm, SkData* data)
-        : SkPDFBitmap(bm), fData(SkRef(data)) {}
+    bool fIsYUV;
+    PDFJpegBitmap(const SkBitmap& bm, SkData* data, bool isYUV)
+        : SkPDFBitmap(bm), fData(SkRef(data)), fIsYUV(isYUV) {}
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
                     const SkPDFSubstituteMap&) override;
@@ -415,7 +417,11 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
     pdfDict.insertName("Subtype", "Image");
     pdfDict.insertInt("Width", fBitmap.width());
     pdfDict.insertInt("Height", fBitmap.height());
-    pdfDict.insertName("ColorSpace", "DeviceRGB");
+    if (fIsYUV) {
+        pdfDict.insertName("ColorSpace", "DeviceRGB");
+    } else {
+        pdfDict.insertName("ColorSpace", "DeviceGray");
+    }
     pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "DCTDecode");
     pdfDict.insertInt("ColorTransform", 0);
@@ -428,23 +434,6 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
-
-static bool is_jfif_yuv_jpeg(SkData* data) {
-    const uint8_t bytesZeroToThree[] = {0xFF, 0xD8, 0xFF, 0xE0};
-    const uint8_t bytesSixToTen[] = {'J', 'F', 'I', 'F', 0};
-    // 0   1   2   3   4   5   6   7   8   9   10
-    // FF  D8  FF  E0  ??  ??  'J' 'F' 'I' 'F' 00 ...
-    if (data->size() < 11 ||
-        0 != memcmp(data->bytes(), bytesZeroToThree,
-                    sizeof(bytesZeroToThree)) ||
-        0 != memcmp(data->bytes() + 6, bytesSixToTen, sizeof(bytesSixToTen))) {
-        return false;
-    }
-    SkAutoTDelete<SkImageGenerator> gen(SkImageGenerator::NewFromData(data));
-    SkISize sizes[3];
-    // Only YUV JPEG allows access to YUV planes.
-    return gen && gen->getYUV8Planes(sizes, NULL, NULL, NULL);
-}
 
 SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon, const SkBitmap& bitmap) {
     SkASSERT(canon);
@@ -465,8 +454,10 @@ SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon, const SkBitmap& bitmap) {
         bm.dimensions() == bm.pixelRef()->info().dimensions()) {
         // Requires the bitmap to be backed by lazy pixels.
         SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
-        if (data && is_jfif_yuv_jpeg(data)) {
-            SkPDFBitmap* pdfBitmap = SkNEW_ARGS(PDFJpegBitmap, (bm, data));
+        SkJFIFInfo info;
+        if (data && SkIsJFIF(data, &info)) {
+            bool yuv = info.fType == SkJFIFInfo::kYCbCr;
+            SkPDFBitmap* pdfBitmap = SkNEW_ARGS(PDFJpegBitmap, (bm, data, yuv));
             canon->addBitmap(pdfBitmap);
             return pdfBitmap;
         }

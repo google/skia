@@ -87,3 +87,41 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     // embedded into the PDF directly.
     REPORTER_ASSERT(r, !is_subset_of(cmykData, pdfData));
 }
+
+#include "SkJpegInfo.h"
+
+DEF_TEST(JpegIdentification, r) {
+    static struct {
+        const char* path;
+        bool isJfif;
+        SkJFIFInfo::Type type;
+    } kTests[] = {{"CMYK.jpg", false, SkJFIFInfo::kGrayscale},
+                  {"color_wheel.jpg", true, SkJFIFInfo::kYCbCr},
+                  {"grayscale.jpg", true, SkJFIFInfo::kGrayscale},
+                  {"mandrill_512_q075.jpg", true, SkJFIFInfo::kYCbCr},
+                  {"randPixels.jpg", true, SkJFIFInfo::kYCbCr}};
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kTests); ++i) {
+        SkAutoTUnref<SkData> data(
+                load_resource(r, "JpegIdentification", kTests[i].path));
+        if (!data) {
+            continue;
+        }
+        SkJFIFInfo info;
+        bool isJfif = SkIsJFIF(data, &info);
+        if (isJfif != kTests[i].isJfif) {
+            ERRORF(r, "%s failed isJfif test", kTests[i].path);
+            continue;
+        }
+        if (!isJfif) {
+            continue;  // not applicable
+        }
+        if (kTests[i].type != info.fType) {
+            ERRORF(r, "%s failed jfif type test", kTests[i].path);
+            continue;
+        }
+        if (r->verbose()) {
+            SkDebugf("\nJpegIdentification: %s [%d x %d]\n", kTests[i].path,
+                     info.fWidth, info.fHeight);
+        }
+    }
+}
