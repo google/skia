@@ -27,6 +27,7 @@ namespace GrTest {
 const SkMatrix& TestMatrix(SkRandom*);
 const SkMatrix& TestMatrixPreservesRightAngles(SkRandom*);
 const SkMatrix& TestMatrixRectStaysRect(SkRandom*);
+const SkMatrix& TestMatrixInvertible(SkRandom*);
 const SkRect& TestRect(SkRandom*);
 const SkRRect& TestRRectSimple(SkRandom*);
 const SkPath& TestPath(SkRandom*);

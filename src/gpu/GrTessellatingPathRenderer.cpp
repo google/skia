@@ -9,6 +9,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
 #include "GrVertices.h"
@@ -1514,3 +1515,23 @@ bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
 
     return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+BATCH_TEST_DEFINE(TesselatingPathRenderer) {
+    GrColor color = GrRandomColor(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    SkPath path = GrTest::TestPath(random);
+    SkRect clipBounds = GrTest::TestRect(random);
+    SkMatrix vmi;
+    bool result = viewMatrix.invert(&vmi);
+    if (!result) {
+        SkFAIL("Cannot invert matrix\n");
+    }
+    vmi.mapRect(&clipBounds);
+    return TessellatingPathBatch::Create(color, path, viewMatrix, clipBounds);
+}
+
+#endif
