@@ -201,6 +201,9 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
     args.push_back("--pictureDir");
     args.push_back("/sdcard/skiabot/skia_skp");
 
+    args.push_back("--resourcePath");
+    args.push_back("/data/local/tmp/skia/resources/");
+
     SkString msaaSampleCountString;
     if (msaaSampleCount > 0) {
         args.push_back("--msaa");
