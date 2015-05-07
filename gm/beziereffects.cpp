@@ -81,7 +81,7 @@ private:
             verts[v].fKLM[1] = eval_line(verts[v].fPosition, fKlmEqs + 3, fSign);
             verts[v].fKLM[2] = eval_line(verts[v].fPosition, fKlmEqs + 6, 1.f);
         }
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     Geometry fGeometry;
@@ -464,7 +464,7 @@ private:
                                       fGeometry.fBounds.fRight, fGeometry.fBounds.fBottom,
                                       sizeof(Vertex));
         fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     Geometry fGeometry;

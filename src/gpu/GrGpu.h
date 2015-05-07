@@ -14,6 +14,7 @@
 #include "SkPath.h"
 
 class GrContext;
+class GrNonInstancedVertices;
 class GrPath;
 class GrPathRange;
 class GrPathRenderer;
@@ -433,7 +434,7 @@ private:
     virtual void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const DrawArgs&, const GrVertices&) = 0;
+    virtual void onDraw(const DrawArgs&, const GrNonInstancedVertices&) = 0;
     virtual void onStencilPath(const GrPath*, const StencilPathState&) = 0;
 
     virtual void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) = 0;

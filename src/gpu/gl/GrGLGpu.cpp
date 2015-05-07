@@ -1452,20 +1452,20 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
 }
 
 void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
-                            const GrVertices& info,
+                            const GrNonInstancedVertices& vertices,
                             size_t* indexOffsetInBytes) {
     GrGLVertexBuffer* vbuf;
-    vbuf = (GrGLVertexBuffer*) info.vertexBuffer();
+    vbuf = (GrGLVertexBuffer*) vertices.vertexBuffer();
 
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
 
     GrGLIndexBuffer* ibuf = NULL;
-    if (info.isIndexed()) {
+    if (vertices.isIndexed()) {
         SkASSERT(indexOffsetInBytes);
 
         *indexOffsetInBytes = 0;
-        ibuf = (GrGLIndexBuffer*)info.indexBuffer();
+        ibuf = (GrGLIndexBuffer*)vertices.indexBuffer();
 
         SkASSERT(ibuf);
         SkASSERT(!ibuf->isMapped());
@@ -1479,7 +1479,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
 
         GrGLsizei stride = static_cast<GrGLsizei>(primProc.getVertexStride());
 
-        size_t vertexOffsetInBytes = stride * info.startVertex();
+        size_t vertexOffsetInBytes = stride * vertices.startVertex();
 
         vertexOffsetInBytes += vbuf->baseOffset();
 
@@ -1895,7 +1895,7 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGLGpu::onDraw(const DrawArgs& args, const GrVertices& vertices) {
+void GrGLGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertices) {
     if (!this->flushGLState(args)) {
         return;
     }

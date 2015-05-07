@@ -29,6 +29,7 @@ GrVertices& GrVertices::operator =(const GrVertices& di) {
     fInstanceCount          = di.fInstanceCount;
     fVerticesPerInstance    = di.fVerticesPerInstance;
     fIndicesPerInstance     = di.fIndicesPerInstance;
+    fMaxInstancesPerDraw    = di.fMaxInstancesPerDraw;
 
     fVertexBuffer.reset(di.vertexBuffer());
     fIndexBuffer.reset(di.indexBuffer());
@@ -288,7 +289,11 @@ void GrGpu::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 
 void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
     this->handleDirtyContext();
-    this->onDraw(args, vertices);
+    GrVertices::Iterator iter;
+    const GrNonInstancedVertices* verts = iter.init(vertices);
+    do {
+        this->onDraw(args, *verts);
+    } while ((verts = iter.next()));
 }
 
 void GrGpu::stencilPath(const GrPath* path, const StencilPathState& state) {

@@ -140,7 +140,7 @@ public:
                                              canTweakAlphaForCoverage);
         }
 
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -505,7 +505,7 @@ public:
                                                args.fMiterStroke,
                                                canTweakAlphaForCoverage);
         }
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

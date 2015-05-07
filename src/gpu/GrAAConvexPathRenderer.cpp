@@ -794,9 +794,10 @@ public:
             int firstVertex;
 
             size_t vertexStride = quadProcessor->getVertexStride();
-            void *vertices = batchTarget->makeVertSpace(vertexStride, vertexCount,
-                                                        &vertexBuffer, &firstVertex);
-            if (!vertices) {
+            QuadVertex* verts = reinterpret_cast<QuadVertex*>(batchTarget->makeVertSpace(
+                vertexStride, vertexCount, &vertexBuffer, &firstVertex));
+
+            if (!verts) {
                 SkDebugf("Could not allocate vertices\n");
                 return;
             }
@@ -810,18 +811,16 @@ public:
                 return;
             }
 
-            QuadVertex* verts = reinterpret_cast<QuadVertex*>(vertices);
-
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, &draws, verts, idxs);
 
-            GrVertices info;
+            GrVertices vertices;
 
             for (int i = 0; i < draws.count(); ++i) {
                 const Draw& draw = draws[i];
-                info.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                                 firstIndex, draw.fVertexCnt, draw.fIndexCnt);
-                batchTarget->draw(info);
+                vertices.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
+                                     firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
+                batchTarget->draw(vertices);
                 firstVertex += draw.fVertexCnt;
                 firstIndex += draw.fIndexCnt;
             }

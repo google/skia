@@ -64,7 +64,7 @@ private:
         fGeometry.fBounds.outset(5.f, 5.f);
         fGeometry.fBounds.toQuad(verts);
 
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     Geometry fGeometry;

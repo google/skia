@@ -784,7 +784,7 @@ public:
 
             verts += kVerticesPerQuad;
         }
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1013,7 +1013,7 @@ public:
 
             verts += kVerticesPerQuad;
         }
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1277,7 +1277,7 @@ public:
 
             verts += kVerticesPerQuad;
         }
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1661,7 +1661,7 @@ public:
             }
         }
 
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1853,7 +1853,7 @@ public:
                 verts++;
             }
         }
-        helper.issueDraws(batchTarget);
+        helper.issueDraw(batchTarget);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

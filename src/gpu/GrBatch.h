@@ -114,7 +114,7 @@ protected:
         space for the vertices and flushes the draws to the batch target.*/
    class InstancedHelper {
    public:
-        InstancedHelper() : fInstancesRemaining(0) {}
+        InstancedHelper() {}
         /** Returns the allocated storage for the vertices. The caller should populate the before
             vertices before calling issueDraws(). */
         void* init(GrBatchTarget* batchTarget, GrPrimitiveType, size_t vertexStride,
@@ -122,15 +122,11 @@ protected:
                    int instancesToDraw);
 
         /** Call after init() to issue draws to the batch target.*/
-        void issueDraws(GrBatchTarget* batchTarget) {
+        void issueDraw(GrBatchTarget* batchTarget) {
             SkASSERT(fVertices.instanceCount());
-            do {
-                batchTarget->draw(fVertices);
-            } while (fVertices.nextInstances(&fInstancesRemaining, fMaxInstancesPerDraw));
+            batchTarget->draw(fVertices);
         }
     private:
-        int         fInstancesRemaining;
-        int         fMaxInstancesPerDraw;
         GrVertices  fVertices;
     };
 
@@ -146,7 +142,7 @@ protected:
             calling issueDraws(). */
         void* init(GrBatchTarget* batchTarget, size_t vertexStride, int quadsToDraw);
 
-        using InstancedHelper::issueDraws;
+        using InstancedHelper::issueDraw;
 
     private:
         typedef InstancedHelper INHERITED;
