@@ -35,6 +35,9 @@ def get_args(bot):
     configs.extend(('upright-matrix-8888', 'upright-matrix-gpu'))
     args.extend('--matrix 0 1 1 0'.split(' '))
 
+  if '-GCE-' in bot:
+    configs.append('sp-8888')
+
   if 'TegraK1' in bot or 'GTX550Ti' in bot or 'GTX660' in bot or 'GT610' in bot:
     if 'Android' in bot:
       configs.append('nvprmsaa4')
