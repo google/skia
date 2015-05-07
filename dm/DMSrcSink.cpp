@@ -13,6 +13,7 @@
 #include "SkDeferredCanvas.h"
 #include "SkDocument.h"
 #include "SkError.h"
+#include "SkFunction.h"
 #include "SkImageGenerator.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
@@ -493,21 +494,20 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 // Handy for front-patching a Src.  Do whatever up-front work you need, then call draw_to_canvas(),
-// passing the Sink draw() arguments, a size, and a lambda that takes SkCanvas* and returns Error.
+// passing the Sink draw() arguments, a size, and a function draws into an SkCanvas.
 // Several examples below.
 
-template <typename DrawFn>
 static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkString* log,
-                            SkISize size, DrawFn draw) {
+                            SkISize size, SkFunction<Error(SkCanvas*)> draw) {
     class ProxySrc : public Src {
     public:
-        ProxySrc(SkISize size, DrawFn draw) : fSize(size), fDraw(draw) {}
+        ProxySrc(SkISize size, SkFunction<Error(SkCanvas*)> draw) : fSize(size), fDraw(draw) {}
         Error   draw(SkCanvas* canvas) const override { return fDraw(canvas); }
         Name                    name() const override { sk_throw(); return ""; } // Won't be called.
         SkISize                 size() const override { return fSize; }
     private:
-        SkISize fSize;
-        DrawFn  fDraw;
+        SkISize                      fSize;
+        SkFunction<Error(SkCanvas*)> fDraw;
     };
     return sink->draw(ProxySrc(size, draw), bitmap, stream, log);
 }
