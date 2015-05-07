@@ -9,6 +9,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrTemplates.h"
@@ -41,13 +42,13 @@ static const GrGeometryProcessor* create_rect_gp(bool hasExplicitLocalCoords,
 class RectBatch : public GrBatch {
 public:
     struct Geometry {
-        GrColor fColor;
         SkMatrix fViewMatrix;
         SkRect fRect;
-        bool fHasLocalRect;
-        bool fHasLocalMatrix;
         SkRect fLocalRect;
         SkMatrix fLocalMatrix;
+        GrColor fColor;
+        bool fHasLocalRect;
+        bool fHasLocalMatrix;
     };
 
     static GrBatch* Create(const Geometry& geometry) {
@@ -249,3 +250,35 @@ GrBatch* Create(GrColor color,
 }
 
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+BATCH_TEST_DEFINE(RectBatch) {
+    GrColor color = GrRandomColor(random);
+
+    SkRect rect = GrTest::TestRect(random);
+    SkRect localRect;
+    bool hasLocalRect = random->nextBool();
+    bool hasLocalMatrix = random->nextBool();
+
+    SkMatrix viewMatrix;
+    SkMatrix localMatrix;
+    if (hasLocalRect) {
+        viewMatrix = GrTest::TestMatrixInvertible(random);
+        localRect = GrTest::TestRect(random);
+    } else {
+        viewMatrix = GrTest::TestMatrix(random);
+    }
+
+    if (hasLocalMatrix) {
+        localMatrix = GrTest::TestMatrix(random);
+    }
+
+    return GrRectBatch::Create(color, viewMatrix, rect,
+                               hasLocalRect ? &localRect : NULL,
+                               hasLocalMatrix ? &localMatrix : NULL);
+}
+
+#endif
