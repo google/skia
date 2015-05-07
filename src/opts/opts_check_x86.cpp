@@ -350,20 +350,15 @@ SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType t
 ////////////////////////////////////////////////////////////////////////////////
 
 bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
-                               SkBoxBlurProc* boxBlurY,
                                SkBoxBlurProc* boxBlurXY,
                                SkBoxBlurProc* boxBlurYX) {
-#ifdef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
-    return false;
-#else
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE41)) {
-        return SkBoxBlurGetPlatformProcs_SSE4(boxBlurX, boxBlurY, boxBlurXY, boxBlurYX);
+        return SkBoxBlurGetPlatformProcs_SSE4(boxBlurX, boxBlurXY, boxBlurYX);
     }
     else if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        return SkBoxBlurGetPlatformProcs_SSE2(boxBlurX, boxBlurY, boxBlurXY, boxBlurYX);
+        return SkBoxBlurGetPlatformProcs_SSE2(boxBlurX, boxBlurXY, boxBlurYX);
     }
     return false;
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

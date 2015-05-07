@@ -94,11 +94,9 @@ void SkBoxBlur_SSE4(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
 } // namespace
 
 bool SkBoxBlurGetPlatformProcs_SSE4(SkBoxBlurProc* boxBlurX,
-                                    SkBoxBlurProc* boxBlurY,
                                     SkBoxBlurProc* boxBlurXY,
                                     SkBoxBlurProc* boxBlurYX) {
     *boxBlurX = SkBoxBlur_SSE4<kX, kX>;
-    *boxBlurY = SkBoxBlur_SSE4<kY, kY>;
     *boxBlurXY = SkBoxBlur_SSE4<kX, kY>;
     *boxBlurYX = SkBoxBlur_SSE4<kY, kX>;
     return true;
@@ -107,7 +105,6 @@ bool SkBoxBlurGetPlatformProcs_SSE4(SkBoxBlurProc* boxBlurX,
 #else // SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
 
 bool SkBoxBlurGetPlatformProcs_SSE4(SkBoxBlurProc* boxBlurX,
-                                    SkBoxBlurProc* boxBlurY,
                                     SkBoxBlurProc* boxBlurXY,
                                     SkBoxBlurProc* boxBlurYX) {
     sk_throw();

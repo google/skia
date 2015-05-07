@@ -14,7 +14,6 @@ typedef void (*SkBoxBlurProc)(const SkPMColor* src, int srcStride, SkPMColor* ds
                               int leftOffset, int rightOffset, int width, int height);
 
 bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
-                               SkBoxBlurProc* boxBlurY,
                                SkBoxBlurProc* boxBlurXY,
                                SkBoxBlurProc* boxBlurYX);
 #endif

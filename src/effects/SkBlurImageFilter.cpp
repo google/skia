@@ -203,10 +203,9 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     SkPMColor* d = dst->getAddr32(0, 0);
     int w = dstBounds.width(), h = dstBounds.height();
     int sw = src.rowBytesAsPixels();
-    SkBoxBlurProc boxBlurX, boxBlurY, boxBlurXY, boxBlurYX;
-    if (!SkBoxBlurGetPlatformProcs(&boxBlurX, &boxBlurY, &boxBlurXY, &boxBlurYX)) {
+    SkBoxBlurProc boxBlurX, boxBlurXY, boxBlurYX;
+    if (!SkBoxBlurGetPlatformProcs(&boxBlurX, &boxBlurXY, &boxBlurYX)) {
         boxBlurX = boxBlur<kX, kX>;
-        boxBlurY = boxBlur<kY, kY>;
         boxBlurXY = boxBlur<kX, kY>;
         boxBlurYX = boxBlur<kY, kX>;
     }

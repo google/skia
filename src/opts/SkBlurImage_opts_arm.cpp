@@ -9,7 +9,6 @@
 #include "SkUtilsArm.h"
 
 bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
-                               SkBoxBlurProc* boxBlurY,
                                SkBoxBlurProc* boxBlurXY,
                                SkBoxBlurProc* boxBlurYX) {
 #if SK_ARM_NEON_IS_NONE
@@ -20,6 +19,6 @@ bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
         return false;
     }
 #endif
-    return SkBoxBlurGetPlatformProcs_NEON(boxBlurX, boxBlurY, boxBlurXY, boxBlurYX);
+    return SkBoxBlurGetPlatformProcs_NEON(boxBlurX, boxBlurXY, boxBlurYX);
 #endif
 }
