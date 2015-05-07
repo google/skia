@@ -9,6 +9,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrBufferAllocPool.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -748,3 +749,33 @@ void GrDefaultPathRenderer::onStencilPath(GrDrawTarget* target,
     SkASSERT(SkPath::kInverseWinding_FillType != path.getFillType());
     this->internalDrawPath(target, pipelineBuilder, GrColor_WHITE, viewMatrix, path, stroke, true);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+BATCH_TEST_DEFINE(DefaultPathRenderer) {
+    GrColor color = GrRandomColor(random);
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+
+    // For now just hairlines because the other types of draws require two batches.
+    // TODO we should figure out a way to combine the stencil and cover steps into one batch
+    GrStrokeInfo stroke(SkStrokeRec::kHairline_InitStyle);
+    SkPath path = GrTest::TestPath(random);
+
+    // Compute srcSpaceTol
+    SkRect bounds = path.getBounds();
+    SkScalar tol = GrPathUtils::kDefaultTolerance;
+    SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, bounds);
+
+    DefaultPathBatch::Geometry geometry;
+    geometry.fColor = color;
+    geometry.fPath = path;
+    geometry.fTolerance = srcSpaceTol;
+
+    viewMatrix.mapRect(&bounds);
+    uint8_t coverage = GrRandomCoverage(random);
+    return DefaultPathBatch::Create(geometry, coverage, viewMatrix, true, bounds);
+}
+
+#endif
