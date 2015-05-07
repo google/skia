@@ -9,7 +9,7 @@
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context)
     : INHERITED(context)
-    , fCommands(SkNEW_ARGS(GrInOrderCommandBuilder, (context->getGpu())))
+    , fCommands(GrCommandBuilder::Create(context->getGpu(), false))
     , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
     , fPathTransformBuffer(kPathXformBufferMinReserve * sizeof(float)/4)
     , fPipelineBuffer(kPipelineBufferMinReserve)

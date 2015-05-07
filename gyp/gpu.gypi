@@ -173,6 +173,8 @@
       '<(skia_src_path)/gpu/GrRenderTargetPriv.h',
       '<(skia_src_path)/gpu/GrReducedClip.cpp',
       '<(skia_src_path)/gpu/GrReducedClip.h',
+      '<(skia_src_path)/gpu/GrReorderCommandBuilder.h',
+      '<(skia_src_path)/gpu/GrReorderCommandBuilder.cpp',
       '<(skia_src_path)/gpu/GrResourceCache.cpp',
       '<(skia_src_path)/gpu/GrResourceCache.h',
       '<(skia_src_path)/gpu/GrResourceProvider.cpp',

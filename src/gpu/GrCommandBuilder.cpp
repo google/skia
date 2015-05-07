@@ -7,6 +7,17 @@
 
 #include "GrCommandBuilder.h"
 
+#include "GrInOrderCommandBuilder.h"
+#include "GrReorderCommandBuilder.h"
+
+GrCommandBuilder* GrCommandBuilder::Create(GrGpu* gpu, bool reorder) {
+    if (reorder) {
+        return SkNEW_ARGS(GrReorderCommandBuilder, (gpu));
+    } else {
+        return SkNEW_ARGS(GrInOrderCommandBuilder, (gpu));
+    }
+}
+
 GrTargetCommands::Cmd* GrCommandBuilder::recordClear(const SkIRect* rect,
                                                      GrColor color,
                                                      bool canIgnoreRect,

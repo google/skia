@@ -9,7 +9,7 @@
 #define GrInOrderDrawBuffer_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrInOrderCommandBuilder.h"
+#include "GrCommandBuilder.h"
 #include "SkChunkAlloc.h"
 
 /**

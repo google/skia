@@ -65,6 +65,7 @@ public:
 private:
     friend class GrCommandBuilder;
     friend class GrInOrderDrawBuffer; // This goes away when State becomes just a pipeline
+    friend class GrReorderCommandBuilder;
 
     typedef GrGpu::DrawArgs DrawArgs;
 

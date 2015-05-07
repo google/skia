@@ -17,7 +17,7 @@ public:
     typedef GrTargetCommands::Cmd Cmd;
     typedef GrTargetCommands::State State;
 
-    GrCommandBuilder(GrGpu* gpu) : fCommands(gpu) { }
+    static GrCommandBuilder* Create(GrGpu* gpu, bool reorder);
 
     virtual ~GrCommandBuilder() {}
 
@@ -68,6 +68,8 @@ protected:
     typedef GrTargetCommands::ClearStencilClip ClearStencilClip;
     typedef GrTargetCommands::CopySurface CopySurface;
     typedef GrTargetCommands::XferBarrier XferBarrier;
+
+    GrCommandBuilder(GrGpu* gpu) : fCommands(gpu) {}
 
     GrTargetCommands::CmdBuffer* cmdBuffer() { return fCommands.cmdBuffer(); }
     GrBatchTarget* batchTarget() { return fCommands.batchTarget(); }
