@@ -49,18 +49,17 @@ public:
 
         bool hasVertexCoverage = SkToBool(fInCoverage) && !init.fCoverageIgnored;
         bool covIsSolidWhite = !hasVertexCoverage && 0xff == this->coverage();
-        if (covIsSolidWhite) {
+        if (init.fCoverageIgnored) {
+            local->fInputCoverageType = kIgnored_GrGPInput;
+        } else if (covIsSolidWhite) {
             local->fInputCoverageType = kAllOnes_GrGPInput;
-        } else if (!hasVertexCoverage) {
-            local->fInputCoverageType = kUniform_GrGPInput;
-            local->fCoverage = this->coverage();
         } else if (hasVertexCoverage) {
             SkASSERT(fInCoverage);
             local->fInputCoverageType = kAttribute_GrGPInput;
         } else {
-            local->fInputCoverageType = kIgnored_GrGPInput;
+            local->fInputCoverageType = kUniform_GrGPInput;
+            local->fCoverage = this->coverage();
         }
-
         local->fUsesLocalCoords = init.fUsesLocalCoords;
     }
 
