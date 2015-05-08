@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBigPicture.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
@@ -15,7 +14,7 @@ SkDrawableList::~SkDrawableList() {
     fArray.unrefAll();
 }
 
-SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
+SkPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
     const int count = fArray.count();
     if (0 == count) {
         return NULL;
@@ -24,7 +23,7 @@ SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
     for (int i = 0; i < count; ++i) {
         pics[i] = fArray[i]->newPictureSnapshot();
     }
-    return SkNEW_ARGS(SkBigPicture::SnapshotArray, (pics.detach(), count));
+    return SkNEW_ARGS(SkPicture::SnapshotArray, (pics.detach(), count));
 }
 
 void SkDrawableList::append(SkDrawable* drawable) {
@@ -33,23 +32,20 @@ void SkDrawableList::append(SkDrawable* drawable) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-SkRecorder::SkRecorder(SkRecord* record, int width, int height, SkMiniRecorder* mr)
+SkRecorder::SkRecorder(SkRecord* record, int width, int height)
     : SkCanvas(SkIRect::MakeWH(width, height), SkCanvas::kConservativeRasterClip_InitFlag)
     , fApproxBytesUsedBySubPictures(0)
-    , fRecord(record)
-    , fMiniRecorder(mr) {}
+    , fRecord(record) {}
 
-SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr)
+SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds)
     : SkCanvas(bounds.roundOut(), SkCanvas::kConservativeRasterClip_InitFlag)
     , fApproxBytesUsedBySubPictures(0)
-    , fRecord(record)
-    , fMiniRecorder(mr) {}
+    , fRecord(record) {}
 
-void SkRecorder::reset(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr) {
+void SkRecorder::reset(SkRecord* record, const SkRect& bounds) {
     this->forgetRecord();
     fRecord = record;
     this->resetForNextPicture(bounds.roundOut());
-    fMiniRecorder = mr;
 }
 
 void SkRecorder::forgetRecord() {
@@ -59,12 +55,8 @@ void SkRecorder::forgetRecord() {
 }
 
 // To make appending to fRecord a little less verbose.
-#define APPEND(T, ...)                                    \
-        if (fMiniRecorder) { this->flushMiniRecorder(); } \
+#define APPEND(T, ...) \
         SkNEW_PLACEMENT_ARGS(fRecord->append<SkRecords::T>(), SkRecords::T, (__VA_ARGS__))
-
-#define TRY_MINIRECORDER(method, ...)                       \
-    if (fMiniRecorder && fMiniRecorder->method(__VA_ARGS__)) { return; }
 
 // For methods which must call back into SkCanvas.
 #define INHERITED(method, ...) this->SkCanvas::method(__VA_ARGS__)
@@ -133,15 +125,6 @@ char* SkRecorder::copy(const char* src) {
     return this->copy(src, strlen(src)+1);
 }
 
-void SkRecorder::flushMiniRecorder() {
-    if (fMiniRecorder) {
-        SkMiniRecorder* mr = fMiniRecorder;
-        fMiniRecorder = nullptr;  // Needs to happen before p->playback(this) or we loop forever.
-        // TODO: this can probably be done more efficiently by SkMiniRecorder if it matters.
-        SkAutoTUnref<SkPicture> p(mr->detachAsPicture(SkRect::MakeEmpty()));
-        p->playback(this);
-    }
-}
 
 void SkRecorder::onDrawPaint(const SkPaint& paint) {
     APPEND(DrawPaint, delay_copy(paint));
@@ -155,7 +138,6 @@ void SkRecorder::onDrawPoints(PointMode mode,
 }
 
 void SkRecorder::onDrawRect(const SkRect& rect, const SkPaint& paint) {
-    TRY_MINIRECORDER(drawRect, rect, paint);
     APPEND(DrawRect, delay_copy(paint), rect);
 }
 
@@ -180,7 +162,6 @@ void SkRecorder::onDrawDrawable(SkDrawable* drawable) {
 }
 
 void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
-    TRY_MINIRECORDER(drawPath, path, paint);
     APPEND(DrawPath, delay_copy(paint), delay_copy(path));
 }
 
@@ -267,7 +248,6 @@ void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkP
 
 void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) {
-    TRY_MINIRECORDER(drawTextBlob, blob, x, y, paint);
     APPEND(DrawTextBlob, delay_copy(paint), blob, x, y);
 }
 

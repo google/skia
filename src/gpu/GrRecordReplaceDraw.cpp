@@ -8,7 +8,6 @@
 #include "GrContext.h"
 #include "GrLayerCache.h"
 #include "GrRecordReplaceDraw.h"
-#include "SkBigPicture.h"
 #include "SkCanvasPriv.h"
 #include "SkGrPixelRef.h"
 #include "SkImage.h"
@@ -46,7 +45,7 @@ static inline void draw_replacement_bitmap(GrCachedLayer* layer, SkCanvas* canva
         canvas->drawBitmapRectToRect(bm, &src, dst, layer->paint());
         canvas->restore();
     } else {
-        canvas->drawSprite(bm,
+        canvas->drawSprite(bm, 
                            layer->srcIR().fLeft + layer->offset().fX,
                            layer->srcIR().fTop + layer->offset().fY,
                            layer->paint());
@@ -60,7 +59,7 @@ public:
     ReplaceDraw(SkCanvas* canvas, GrLayerCache* layerCache,
                 SkPicture const* const drawablePicts[], int drawableCount,
                 const SkPicture* topLevelPicture,
-                const SkBigPicture* picture,
+                const SkPicture* picture,
                 const SkMatrix& initialMatrix,
                 SkPicture::AbortCallback* callback,
                 const unsigned* opIndices, int numIndices)
@@ -77,8 +76,8 @@ public:
     }
 
     int draw() {
-        const SkBBoxHierarchy* bbh = fPicture->bbh();
-        const SkRecord* record = fPicture->record();
+        const SkBBoxHierarchy* bbh = fPicture->fBBH.get();
+        const SkRecord* record = fPicture->fRecord.get();
         if (NULL == record) {
             return 0;
         }
@@ -136,17 +135,13 @@ public:
 
         SkAutoCanvasMatrixPaint acmp(fCanvas, &dp.matrix, dp.paint, dp.picture->cullRect());
 
-        if (const SkBigPicture* bp = dp.picture->asSkBigPicture()) {
-            // Draw sub-pictures with the same replacement list but a different picture
-            ReplaceDraw draw(fCanvas, fLayerCache,
-                             this->drawablePicts(), this->drawableCount(),
-                             fTopLevelPicture, bp, fInitialMatrix, fCallback,
-                             fOpIndexStack.begin(), fOpIndexStack.count());
-            fNumReplaced += draw.draw();
-        } else {
-            // TODO: can we assume / assert this doesn't happen?
-            dp.picture->playback(fCanvas, fCallback);
-        }
+        // Draw sub-pictures with the same replacement list but a different picture
+        ReplaceDraw draw(fCanvas, fLayerCache, 
+                         this->drawablePicts(), this->drawableCount(),
+                         fTopLevelPicture, dp.picture, fInitialMatrix, fCallback,
+                         fOpIndexStack.begin(), fOpIndexStack.count());
+
+        fNumReplaced += draw.draw();
 
         fOpIndexStack.pop();
     }
@@ -173,7 +168,7 @@ public:
 
             draw_replacement_bitmap(layer, fCanvas);
 
-            if (fPicture->bbh()) {
+            if (fPicture->fBBH.get()) {
                 while (fOps[fIndex] < layer->stop()) {
                     ++fIndex;
                 }
@@ -195,7 +190,7 @@ private:
     SkCanvas*                 fCanvas;
     GrLayerCache*             fLayerCache;
     const SkPicture*          fTopLevelPicture;
-    const SkBigPicture*       fPicture;
+    const SkPicture*          fPicture;
     const SkMatrix            fInitialMatrix;
     SkPicture::AbortCallback* fCallback;
 
@@ -216,15 +211,9 @@ int GrRecordReplaceDraw(const SkPicture* picture,
                         SkPicture::AbortCallback* callback) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
-    if (const SkBigPicture* bp = picture->asSkBigPicture()) {
-        // TODO: drawablePicts?
-        ReplaceDraw draw(canvas, layerCache, NULL, 0,
-                         bp, bp,
-                         initialMatrix, callback, NULL, 0);
-        return draw.draw();
-    } else {
-        // TODO: can we assume / assert this doesn't happen?
-        picture->playback(canvas, callback);
-        return 0;
-    }
+    // TODO: drawablePicts?
+    ReplaceDraw draw(canvas, layerCache, NULL, 0,
+                     picture, picture,
+                     initialMatrix, callback, NULL, 0);
+    return draw.draw();
 }

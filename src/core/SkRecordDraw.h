@@ -9,7 +9,6 @@
 #define SkRecordDraw_DEFINED
 
 #include "SkBBoxHierarchy.h"
-#include "SkBigPicture.h"
 #include "SkCanvas.h"
 #include "SkMatrix.h"
 #include "SkRecord.h"
@@ -21,7 +20,7 @@ class SkLayerInfo;
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&, SkBBoxHierarchy*);
 
 void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
-                           const SkBigPicture::SnapshotArray*,
+                           const SkPicture::SnapshotArray*,
                            SkBBoxHierarchy* bbh, SkLayerInfo* data);
 
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.

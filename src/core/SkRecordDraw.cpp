@@ -587,7 +587,7 @@ private:
 class CollectLayers : SkNoncopyable {
 public:
     CollectLayers(const SkRect& cullRect, const SkRecord& record,
-                  const SkBigPicture::SnapshotArray* pictList, SkLayerInfo* accelData)
+                  const SkPicture::SnapshotArray* pictList, SkLayerInfo* accelData)
         : fSaveLayersInStack(0)
         , fAccelData(accelData)
         , fPictList(pictList)
@@ -640,10 +640,10 @@ private:
     void trackSaveLayersForPicture(const SkPicture* picture, const SkPaint* paint) {
         // For sub-pictures, we wrap their layer information within the parent
         // picture's rendering hierarchy
-        const SkLayerInfo* childData = NULL;
-        if (const SkBigPicture* bp = picture->asSkBigPicture()) {
-            childData = static_cast<const SkLayerInfo*>(bp->accelData());
-        }
+        SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
+
+        const SkLayerInfo* childData =
+            static_cast<const SkLayerInfo*>(picture->EXPERIMENTAL_getAccelData(key));
         if (!childData) {
             // If the child layer hasn't been generated with saveLayer data we
             // assume the worst (i.e., that it does contain layers which nest
@@ -774,7 +774,7 @@ private:
     // The op code indices of all the currently active saveLayers
     SkTDArray<unsigned>      fSaveLayerOpStack;
     SkLayerInfo*             fAccelData;
-    const SkBigPicture::SnapshotArray* fPictList;
+    const SkPicture::SnapshotArray* fPictList;
 
     SkRecords::FillBounds fFillBounds;
 };
@@ -793,7 +793,7 @@ void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHi
 }
 
 void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
-                           const SkBigPicture::SnapshotArray* pictList, SkBBoxHierarchy* bbh,
+                           const SkPicture::SnapshotArray* pictList, SkBBoxHierarchy* bbh,
                            SkLayerInfo* data) {
     SkRecords::CollectLayers visitor(cullRect, record, pictList, data);
 

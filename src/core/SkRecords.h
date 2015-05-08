@@ -81,7 +81,6 @@ struct T {                              \
 #define RECORD1(T, A, a)                \
 struct T {                              \
     static const Type kType = T##_Type; \
-    T() {}                              \
     template <typename Z>               \
     T(Z a) : a(a) {}                    \
     A a;                                \
@@ -90,7 +89,6 @@ struct T {                              \
 #define RECORD2(T, A, a, B, b)          \
 struct T {                              \
     static const Type kType = T##_Type; \
-    T() {}                              \
     template <typename Z, typename Y>   \
     T(Z a, Y b) : a(a), b(b) {}         \
     A a; B b;                           \
@@ -99,7 +97,6 @@ struct T {                              \
 #define RECORD3(T, A, a, B, b, C, c)              \
 struct T {                                        \
     static const Type kType = T##_Type;           \
-    T() {}                                        \
     template <typename Z, typename Y, typename X> \
     T(Z a, Y b, X c) : a(a), b(b), c(c) {}        \
     A a; B b; C c;                                \
@@ -108,7 +105,6 @@ struct T {                                        \
 #define RECORD4(T, A, a, B, b, C, c, D, d)                    \
 struct T {                                                    \
     static const Type kType = T##_Type;                       \
-    T() {}                                                    \
     template <typename Z, typename Y, typename X, typename W> \
     T(Z a, Y b, X c, W d) : a(a), b(b), c(c), d(d) {}         \
     A a; B b; C c; D d;                                       \
@@ -117,7 +113,6 @@ struct T {                                                    \
 #define RECORD5(T, A, a, B, b, C, c, D, d, E, e)                          \
 struct T {                                                                \
     static const Type kType = T##_Type;                                   \
-    T() {}                                                                \
     template <typename Z, typename Y, typename X, typename W, typename V> \
     T(Z a, Y b, X c, W d, V e) : a(a), b(b), c(c), d(d), e(e) {}          \
     A a; B b; C c; D d; E e;                                              \
@@ -130,7 +125,6 @@ struct T {                                                                \
 template <typename T>
 class RefBox : SkNoncopyable {
 public:
-    RefBox() {}
     RefBox(T* obj) : fObj(SkSafeRef(obj)) {}
     ~RefBox() { SkSafeUnref(fObj); }
 
@@ -144,7 +138,6 @@ private:
 template <typename T>
 class Optional : SkNoncopyable {
 public:
-    Optional() : fPtr(nullptr) {}
     Optional(T* ptr) : fPtr(ptr) {}
     ~Optional() { if (fPtr) fPtr->~T(); }
 
@@ -174,7 +167,6 @@ private:
 template <typename T>
 class PODArray {
 public:
-    PODArray() {}
     PODArray(T* ptr) : fPtr(ptr) {}
     // Default copy and assign.
 
@@ -189,7 +181,6 @@ private:
 // Using this, we guarantee the immutability of all bitmaps we record.
 class ImmutableBitmap : SkNoncopyable {
 public:
-    ImmutableBitmap() {}
     explicit ImmutableBitmap(const SkBitmap& bitmap) {
         if (bitmap.isImmutable()) {
             fBitmap = bitmap;
@@ -212,7 +203,6 @@ private:
 // SkPath::cheapComputeDirection() is similar.
 // Recording is a convenient time to cache these, or we can delay it to between record and playback.
 struct PreCachedPath : public SkPath {
-    PreCachedPath() {}
     explicit PreCachedPath(const SkPath& path) : SkPath(path) {
         this->updateBoundsCache();
         SkPath::Direction junk;
@@ -223,7 +213,6 @@ struct PreCachedPath : public SkPath {
 // Like SkPath::getBounds(), SkMatrix::getType() isn't thread safe unless we precache it.
 // This may not cover all SkMatrices used by the picture (e.g. some could be hiding in a shader).
 struct TypedMatrix : public SkMatrix {
-    TypedMatrix() {}
     explicit TypedMatrix(const SkMatrix& matrix) : SkMatrix(matrix) {
         (void)this->getType();
     }
@@ -238,7 +227,6 @@ RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas:
 RECORD1(SetMatrix, TypedMatrix, matrix);
 
 struct RegionOpAndAA {
-    RegionOpAndAA() {}
     RegionOpAndAA(SkRegion::Op op, bool aa) : op(op), aa(aa) {}
     SkRegion::Op op : 31;  // This really only needs to be 3, but there's no win today to do so.
     unsigned     aa :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.

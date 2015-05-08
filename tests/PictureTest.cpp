@@ -363,10 +363,9 @@ static void test_savelayer_extraction(skiatest::Reporter* reporter) {
 
     // Now test out the SaveLayer extraction
     if (!SkCanvas::Internal_Private_GetIgnoreSaveLayerBounds()) {
-        const SkBigPicture* bp = pict->asSkBigPicture();
-        REPORTER_ASSERT(reporter, bp);
+        SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
 
-        const SkBigPicture::AccelData* data = bp->accelData();
+        const SkPicture::AccelData* data = pict->EXPERIMENTAL_getAccelData(key);
         REPORTER_ASSERT(reporter, data);
 
         const SkLayerInfo *gpuData = static_cast<const SkLayerInfo*>(data);
@@ -1108,6 +1107,30 @@ static void test_gen_id(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, hasData->uniqueID() != empty->uniqueID());
 }
 
+static void test_bytes_used(skiatest::Reporter* reporter) {
+    SkPictureRecorder recorder;
+
+    recorder.beginRecording(0, 0);
+    SkAutoTUnref<SkPicture> empty(recorder.endRecording());
+
+    // Sanity check to make sure we aren't under-measuring.
+    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(empty.get()) >=
+                              sizeof(SkPicture) + sizeof(SkRecord));
+
+    // Protect against any unintentional bloat.
+    size_t approxUsed = SkPictureUtils::ApproximateBytesUsed(empty.get());
+    REPORTER_ASSERT(reporter, approxUsed <= 432);
+
+    // Sanity check of nested SkPictures.
+    SkPictureRecorder r2;
+    r2.beginRecording(0, 0);
+    r2.getRecordingCanvas()->drawPicture(empty.get());
+    SkAutoTUnref<SkPicture> nested(r2.endRecording());
+
+    REPORTER_ASSERT(reporter, SkPictureUtils::ApproximateBytesUsed(nested.get()) >=
+                              SkPictureUtils::ApproximateBytesUsed(empty.get()));
+}
+
 DEF_TEST(Picture, reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_picture();
@@ -1128,6 +1151,7 @@ DEF_TEST(Picture, reporter) {
     test_hierarchical(reporter);
     test_gen_id(reporter);
     test_savelayer_extraction(reporter);
+    test_bytes_used(reporter);
 }
 
 static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
@@ -1243,10 +1267,7 @@ DEF_TEST(Picture_SkipBBH, r) {
     SpoonFedBBHFactory factory(&bbh);
 
     SkPictureRecorder recorder;
-    SkCanvas* c = recorder.beginRecording(bound, &factory);
-    // Record a few ops so we don't hit a small- or empty- picture optimization.
-        c->drawRect(bound, SkPaint());
-        c->drawRect(bound, SkPaint());
+    recorder.beginRecording(bound, &factory);
     SkAutoTUnref<const SkPicture> picture(recorder.endRecording());
 
     SkCanvas big(640, 480), small(300, 200);
