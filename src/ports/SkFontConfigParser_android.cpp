@@ -263,6 +263,25 @@ static void XMLCALL start_element_handler(void* data, const char* tag, const cha
     }
 }
 
+static bool is_whitespace(char c) {
+    return c == ' ' || c == '\n'|| c == '\r' || c == '\t';
+}
+
+static void trim_string(SkString* s) {
+    char* str = s->writable_str();
+    const char* start = str;  // start is inclusive
+    const char* end = start + s->size();  // end is exclusive
+    while (is_whitespace(*start)) { ++start; }
+    if (start != end) {
+        --end;  // make end inclusive
+        while (is_whitespace(*end)) { --end; }
+        ++end;  // make end exclusive
+    }
+    size_t len = end - start;
+    memmove(str, start, len);
+    s->resize(len);
+}
+
 static void XMLCALL end_element_handler(void* data, const char* tag) {
     FamilyData* self = static_cast<FamilyData*>(data);
     size_t len = strlen(tag);
@@ -270,6 +289,7 @@ static void XMLCALL end_element_handler(void* data, const char* tag) {
         *self->fFamilies.append() = self->fCurrentFamily.detach();
     } else if (MEMEQ("font", tag, len)) {
         XML_SetCharacterDataHandler(self->fParser, NULL);
+        trim_string(&self->fCurrentFontInfo->fFileName);
     }
 }
 
