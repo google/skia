@@ -269,6 +269,8 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fStencilWrapOpsSupport = true;
     }
 
+// Disabling advanced blend until we can resolve various bugs
+#if 0
     if (kIntel_GrGLVendor != ctxInfo.vendor()) {
         if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced_coherent") ||
             ctxInfo.hasExtension("GL_NV_blend_equation_advanced_coherent")) {
@@ -283,7 +285,7 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         // On Intel platforms, KHR_blend_equation_advanced is not conformant.
         fBlendEquationSupport = kBasic_BlendEquationSupport;
     }
-
+#endif
     if (kGL_GrGLStandard == standard) {
         fMapBufferFlags = kCanMap_MapFlag; // we require VBO support and the desktop VBO
                                             // extension includes glMapBuffer.
