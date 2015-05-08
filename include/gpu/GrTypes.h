@@ -390,10 +390,6 @@ enum GrSurfaceFlags {
      */
     kRenderTarget_GrSurfaceFlag     = 0x1,
     /**
-     * DEPRECATED. This has no effect.
-     */
-    kNoStencil_GrSurfaceFlag        = 0x2,
-    /**
      * Indicates that all allocations (color buffer, FBO completeness, etc)
      * should be verified.
      */
@@ -401,13 +397,6 @@ enum GrSurfaceFlags {
 };
 
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
-
-// Legacy aliases
-typedef GrSurfaceFlags GrTextureFlags;
-static const GrSurfaceFlags kNone_GrTextureFlags = kNone_GrSurfaceFlags;
-static const GrSurfaceFlags kRenderTarget_GrTextureFlagBit = kRenderTarget_GrSurfaceFlag;
-static const GrSurfaceFlags kNoStencil_GrTextureFlagBit = kNoStencil_GrSurfaceFlag;
-static const GrSurfaceFlags kCheckAllocation_GrTextureFlagBit = kCheckAllocation_GrSurfaceFlag;
 
 /**
  * Some textures will be stored such that the upper and left edges of the content meet at the

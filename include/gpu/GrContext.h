@@ -518,23 +518,6 @@ public:
     uint32_t uniqueID() { return fUniqueID; }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Legacy functions, to be removed once Chromium stops using them.
-
-    enum ScratchTexMatch {
-        kExact_ScratchTexMatch = GrTextureProvider::kExact_ScratchTexMatch,
-        kApprox_ScratchTexMatch = GrTextureProvider::kApprox_ScratchTexMatch
-    };
-
-    GrTexture* refScratchTexture(const GrSurfaceDesc& desc, ScratchTexMatch match) {
-        return this->textureProvider()->refScratchTexture(
-            desc, (GrTextureProvider::ScratchTexMatch) match);
-    }
-
-    GrTexture* wrapBackendTexture(const GrBackendTextureDesc& desc) {
-        return this->textureProvider()->wrapBackendTexture(desc);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
