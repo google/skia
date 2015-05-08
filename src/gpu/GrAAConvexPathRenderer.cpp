@@ -8,9 +8,11 @@
 
 #include "GrAAConvexPathRenderer.h"
 
+#include "GrAAConvexTessellator.h"
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrContext.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
@@ -703,6 +705,51 @@ bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
             stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
 
+// extract the result vertices and indices from the GrAAConvexTessellator
+static void extract_verts(const GrAAConvexTessellator& tess,
+                          void* vertices,
+                          size_t vertexStride,
+                          GrColor color,
+                          uint16_t* idxs,
+                          bool tweakAlphaForCoverage) {
+    intptr_t verts = reinterpret_cast<intptr_t>(vertices);
+
+    for (int i = 0; i < tess.numPts(); ++i) {
+        *((SkPoint*)((intptr_t)verts + i * vertexStride)) = tess.point(i);
+    }
+
+    // Make 'verts' point to the colors
+    verts += sizeof(SkPoint);
+    for (int i = 0; i < tess.numPts(); ++i) {
+        SkASSERT(tess.depth(i) >= -0.5f && tess.depth(i) <= 0.5f);
+        if (tweakAlphaForCoverage) {
+            SkASSERT(SkScalarRoundToInt(255.0f * (tess.depth(i) + 0.5f)) <= 255);
+            unsigned scale = SkScalarRoundToInt(255.0f * (tess.depth(i) + 0.5f));
+            GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
+        } else {
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
+            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 
+                                                                    tess.depth(i) + 0.5f;
+        }
+    }
+
+    for (int i = 0; i < tess.numIndices(); ++i) {
+        idxs[i] = tess.index(i);
+    }
+}
+
+static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
+                                                 const SkMatrix& localMatrix) {
+    uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
+    if (!tweakAlphaForCoverage) {
+        flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
+    }
+
+    return  GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, SkMatrix::I(), localMatrix,
+                                            false, 0xff);
+}
+
 class AAConvexPathBatch : public GrBatch {
 public:
     struct Geometry {
@@ -738,9 +785,91 @@ public:
         fBatch.fColor = fGeoData[0].fColor;
         fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
         fBatch.fCoverageIgnored = init.fCoverageIgnored;
+        fBatch.fLinesOnly = SkPath::kLine_SegmentMask == fGeoData[0].fPath.getSegmentMasks();
+        fBatch.fCanTweakAlphaForCoverage = init.fCanTweakAlphaForCoverage;
+    }
+
+    void generateGeometryLinesOnly(GrBatchTarget* batchTarget, const GrPipeline* pipeline) {
+        bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
+
+        SkMatrix invert;
+        if (this->usesLocalCoords() && !this->viewMatrix().invert(&invert)) {
+            SkDebugf("Could not invert viewmatrix\n");
+            return;
+        }
+
+        // Setup GrGeometryProcessor
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+                                                create_fill_gp(canTweakAlphaForCoverage, invert));
+
+        batchTarget->initDraw(gp, pipeline);
+
+        // TODO remove this when batch is everywhere
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
+
+        size_t vertexStride = gp->getVertexStride();
+
+        SkASSERT(canTweakAlphaForCoverage ?
+                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
+                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
+
+        GrAAConvexTessellator tess;
+
+        int instanceCount = fGeoData.count();
+
+        for (int i = 0; i < instanceCount; i++) {
+            tess.rewind();
+
+            Geometry& args = fGeoData[i];
+
+            if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
+                continue;
+            }
+
+            const GrVertexBuffer* vertexBuffer;
+            int firstVertex;
+
+            void* verts = batchTarget->makeVertSpace(vertexStride, tess.numPts(),
+                                                     &vertexBuffer, &firstVertex);
+            if (!verts) {
+                SkDebugf("Could not allocate vertices\n");
+                return;
+            }
+
+            const GrIndexBuffer* indexBuffer;
+            int firstIndex;
+
+            uint16_t* idxs = batchTarget->makeIndexSpace(tess.numIndices(),
+                                                        &indexBuffer, &firstIndex);
+            if (!idxs) {
+                SkDebugf("Could not allocate indices\n");
+                return;
+            }
+
+            extract_verts(tess, verts, vertexStride, args.fColor, idxs, canTweakAlphaForCoverage);
+
+            GrVertices info;
+            info.initIndexed(kTriangles_GrPrimitiveType,
+                             vertexBuffer, indexBuffer,
+                             firstVertex, firstIndex,
+                             tess.numPts(), tess.numIndices());
+            batchTarget->draw(info);
+        }
     }
 
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+#ifndef SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS
+        if (this->linesOnly()) {
+            this->generateGeometryLinesOnly(batchTarget, pipeline);
+            return;
+        }
+#endif
+
         int instanceCount = fGeoData.count();
 
         SkMatrix invert;
@@ -851,13 +980,25 @@ private:
             return false;
         }
 
+        if (this->linesOnly() != that->linesOnly()) {
+            return false;
+        }
+
+        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
+        // not tweaking
+        if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
+            fBatch.fCanTweakAlphaForCoverage = false;
+        }
+
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
         this->joinBounds(that->bounds());
         return true;
     }
 
     GrColor color() const { return fBatch.fColor; }
+    bool linesOnly() const { return fBatch.fLinesOnly; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
 
     struct BatchTracker {
@@ -865,6 +1006,8 @@ private:
         bool fUsesLocalCoords;
         bool fColorIgnored;
         bool fCoverageIgnored;
+        bool fLinesOnly;
+        bool fCanTweakAlphaForCoverage;
     };
 
     BatchTracker fBatch;
