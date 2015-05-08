@@ -28,7 +28,6 @@ namespace skiagm {
 class ConvexLineOnlyPathsGM : public GM {
 public:
     ConvexLineOnlyPathsGM() { 
-        fOffset.set(0, SkScalarHalf(kMaxPathHeight));
         this->setBGColor(0xFFFFFFFF);
     }
 
@@ -250,17 +249,17 @@ protected:
 
     // Draw a single path several times, shrinking it, flipping its direction
     // and changing its start vertex each time.
-    void drawPath(SkCanvas* canvas, int index) {
+    void drawPath(SkCanvas* canvas, int index, SkPoint* offset) {
 
         SkPoint center;
         {
             SkPath path = GetPath(index, 0, SkPath::kCW_Direction);
-            if (fOffset.fX+path.getBounds().width() > kGMWidth) {
-                fOffset.fX = 0;
-                fOffset.fY += kMaxPathHeight;
+            if (offset->fX+path.getBounds().width() > kGMWidth) {
+                offset->fX = 0;
+                offset->fY += kMaxPathHeight;
             }
-            center = { fOffset.fX + SkScalarHalf(path.getBounds().width()), fOffset.fY};
-            fOffset.fX += path.getBounds().width();
+            center = { offset->fX + SkScalarHalf(path.getBounds().width()), offset->fY};
+            offset->fX += path.getBounds().width();
         }
 
         const SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
@@ -283,8 +282,11 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        // the right edge of the last drawn path
+        SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) }; 
+
         for (int i = 0; i < kNumPaths; ++i) {
-            this->drawPath(canvas, i);
+            this->drawPath(canvas, i, &offset);
         }
 
         // Repro for crbug.com/472723 (Missing AA on portions of graphic with GPU rasterization)
@@ -308,8 +310,6 @@ private:
     static const int kMaxPathHeight = 100;
     static const int kGMWidth       = 512;
     static const int kGMHeight      = 512;
-
-    SkPoint fOffset;        // the right edge of the last drawn path
 
     typedef GM INHERITED;
 };
