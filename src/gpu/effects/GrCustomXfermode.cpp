@@ -525,14 +525,7 @@ public:
 
     bool hasSecondaryOutput() const override { return false; }
 
-    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               bool doesStencilWrite,
-                                               GrColor* overrideColor,
-                                               const GrDrawTargetCaps& caps) override;
-
     SkXfermode::Mode mode() const { return fMode; }
-    bool hasCoverage() const { return fHasCoverage; }
     bool hasHWBlendEquation() const { return kInvalid_GrBlendEquation != fHWBlendEquation; }
 
     GrBlendEquation hwBlendEquation() const {
@@ -542,6 +535,12 @@ public:
 
 private:
     CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+
+    GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
+                                                 const GrProcOptInfo& coveragePOI,
+                                                 bool doesStencilWrite,
+                                                 GrColor* overrideColor,
+                                                 const GrDrawTargetCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -554,7 +553,6 @@ private:
     bool onIsEqual(const GrXferProcessor& xpBase) const override;
 
     SkXfermode::Mode fMode;
-    bool             fHasCoverage;
     GrBlendEquation  fHWBlendEquation;
 
     typedef GrXferProcessor INHERITED;
@@ -581,7 +579,7 @@ public:
         const CustomXP& xp = p.cast<CustomXP>();
         uint32_t key = xp.numTextures();
         SkASSERT(key <= 1);
-        key |= xp.hasCoverage() << 1;
+        key |= xp.readsCoverage() << 1;
         if (xp.hasHWBlendEquation()) {
             SkASSERT(caps.advBlendEqInteraction() > 0);  // 0 will mean !xp.hasHWBlendEquation().
             key |= caps.advBlendEqInteraction() << 2;
@@ -601,7 +599,7 @@ private:
         if (xp.hasHWBlendEquation()) {
             // The blend mode will be implemented in hardware; only output the src color.
             fsBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
-            if (xp.hasCoverage()) {
+            if (xp.readsCoverage()) {
                 // Do coverage modulation by multiplying it into the src color before blending.
                 // (See getOptimizations())
                 fsBuilder->codeAppendf("%s = %s * %s;",
@@ -613,7 +611,7 @@ private:
             const char* dstColor = fsBuilder->dstColor();
             emit_custom_xfermode_code(xp.mode(), fsBuilder, args.fOutputPrimary, args.fInputColor,
                                       dstColor);
-            if (xp.hasCoverage()) {
+            if (xp.readsCoverage()) {
                 fsBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
                                        args.fOutputPrimary, args.fOutputPrimary,
                                        args.fInputCoverage, args.fInputCoverage, dstColor);
@@ -632,7 +630,6 @@ CustomXP::CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
                    bool willReadDstColor)
     : INHERITED(dstCopy, willReadDstColor),
       fMode(mode),
-      fHasCoverage(true),
       fHWBlendEquation(kInvalid_GrBlendEquation) {
     this->initClassID<CustomXP>();
 }
@@ -648,12 +645,10 @@ GrGLXferProcessor* CustomXP::createGLInstance() const {
 
 bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
     const CustomXP& s = other.cast<CustomXP>();
-    return fMode == s.fMode &&
-           fHasCoverage == s.fHasCoverage &&
-           fHWBlendEquation == s.fHWBlendEquation;
+    return fMode == s.fMode && fHWBlendEquation == s.fHWBlendEquation;
 }
 
-GrXferProcessor::OptFlags CustomXP::getOptimizations(const GrProcOptInfo& colorPOI,
+GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                        const GrProcOptInfo& coveragePOI,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
@@ -760,7 +755,6 @@ GrXferProcessor::OptFlags CustomXP::getOptimizations(const GrProcOptInfo& colorP
     }
     if (coveragePOI.isSolidWhite()) {
         flags = flags | kIgnoreCoverage_OptFlag;
-        fHasCoverage = false;
     }
     if (caps.advancedBlendEquationSupport() && !coveragePOI.isFourChannelOutput()) {
         // This blend mode can be implemented in hardware.

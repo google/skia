@@ -175,12 +175,6 @@ public:
 
     bool hasSecondaryOutput() const override { return false; }
 
-    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               bool doesStencilWrite,
-                                               GrColor* overrideColor,
-                                               const GrDrawTargetCaps& caps) override;
-
     float k1() const { return fK1; }
     float k2() const { return fK2; }
     float k3() const { return fK3; }
@@ -190,6 +184,12 @@ public:
 private:
     ArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
                    const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+
+    GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
+                                                 const GrProcOptInfo& coveragePOI,
+                                                 bool doesStencilWrite,
+                                                 GrColor* overrideColor,
+                                                 const GrDrawTargetCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -281,11 +281,11 @@ GrGLXferProcessor* ArithmeticXP::createGLInstance() const {
     return SkNEW_ARGS(GLArithmeticXP, (*this));
 }
 
-GrXferProcessor::OptFlags ArithmeticXP::getOptimizations(const GrProcOptInfo& colorPOI,
-                                                         const GrProcOptInfo& coveragePOI,
-                                                         bool doesStencilWrite,
-                                                         GrColor* overrideColor,
-                                                         const GrDrawTargetCaps& caps) {
+GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(const GrProcOptInfo& colorPOI,
+                                                           const GrProcOptInfo& coveragePOI,
+                                                           bool doesStencilWrite,
+                                                           GrColor* overrideColor,
+                                                           const GrDrawTargetCaps& caps) {
    return GrXferProcessor::kNone_Opt;
 }
 

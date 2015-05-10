@@ -164,11 +164,11 @@ public:
      * A caller who calls this function on a XP is required to honor the returned OptFlags
      * and color values for its draw.
      */
-    virtual OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
-                                      const GrProcOptInfo& coveragePOI,
-                                      bool doesStencilWrite,
-                                      GrColor* overrideColor,
-                                      const GrDrawTargetCaps& caps) = 0;
+    OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
+                              const GrProcOptInfo& coveragePOI,
+                              bool doesStencilWrite,
+                              GrColor* overrideColor,
+                              const GrDrawTargetCaps& caps);
 
     /**
      * Returns whether this XP will require an Xfer barrier on the given rt. If true, outBarrierType
@@ -217,6 +217,11 @@ public:
         return fDstCopyTextureOffset;
     }
 
+    /**
+     * Returns whether or not the XP will look at coverage when doing its blending.
+     */
+    bool readsCoverage() const { return fReadsCoverage; }
+
     /** 
      * Returns whether or not this xferProcossor will set a secondary output to be used with dual
      * source blending.
@@ -237,6 +242,9 @@ public:
         if (this->fWillReadDstColor != that.fWillReadDstColor) {
             return false;
         }
+        if (this->fReadsCoverage != that.fReadsCoverage) {
+            return false;
+        }
         if (this->fDstCopy.getTexture() != that.fDstCopy.getTexture()) {
             return false;
         }
@@ -251,6 +259,12 @@ protected:
     GrXferProcessor(const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
 
 private:
+    virtual OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
+                                        const GrProcOptInfo& coveragePOI,
+                                        bool doesStencilWrite,
+                                        GrColor* overrideColor,
+                                        const GrDrawTargetCaps& caps) = 0;
+
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
      * processor's GL backend implementation.
@@ -278,6 +292,7 @@ private:
     virtual bool onIsEqual(const GrXferProcessor&) const = 0;
 
     bool                    fWillReadDstColor;
+    bool                    fReadsCoverage;
     SkIPoint                fDstCopyTextureOffset;
     GrTextureAccess         fDstCopy;
 

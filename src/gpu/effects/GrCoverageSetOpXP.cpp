@@ -29,16 +29,16 @@ public:
 
     bool hasSecondaryOutput() const override { return false; }
 
-    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               bool doesStencilWrite,
-                                               GrColor* color,
-                                               const GrDrawTargetCaps& caps) override;
-
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
     CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
+
+    GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
+                                                 const GrProcOptInfo& coveragePOI,
+                                                 bool doesStencilWrite,
+                                                 GrColor* color,
+                                                 const GrDrawTargetCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -108,11 +108,11 @@ GrGLXferProcessor* CoverageSetOpXP::createGLInstance() const {
 }
 
 GrXferProcessor::OptFlags
-CoverageSetOpXP::getOptimizations(const GrProcOptInfo& colorPOI,
-                                  const GrProcOptInfo& coveragePOI,
-                                  bool doesStencilWrite,
-                                  GrColor* color,
-                                  const GrDrawTargetCaps& caps) {
+CoverageSetOpXP::onGetOptimizations(const GrProcOptInfo& colorPOI,
+                                    const GrProcOptInfo& coveragePOI,
+                                    bool doesStencilWrite,
+                                    GrColor* color,
+                                    const GrDrawTargetCaps& caps) {
     // We never look at the color input
     return GrXferProcessor::kIgnoreColor_OptFlag; 
 }

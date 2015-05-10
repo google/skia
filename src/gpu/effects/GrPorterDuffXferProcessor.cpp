@@ -84,18 +84,18 @@ public:
     PrimaryOutputType primaryOutputType() const { return fPrimaryOutputType; }
     SecondaryOutputType secondaryOutputType() const { return fSecondaryOutputType; }
 
-    GrXferProcessor::OptFlags getOptimizations(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               bool doesStencilWrite,
-                                               GrColor* overrideColor,
-                                               const GrDrawTargetCaps& caps) override;
-
     GrBlendCoeff getSrcBlend() const { return fSrcBlend; }
     GrBlendCoeff getDstBlend() const { return fDstBlend; }
 
 private:
     PorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant,
                             const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+
+    GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
+                                                 const GrProcOptInfo& coveragePOI,
+                                                 bool doesStencilWrite,
+                                                 GrColor* overrideColor,
+                                                 const GrDrawTargetCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -301,11 +301,11 @@ GrGLXferProcessor* PorterDuffXferProcessor::createGLInstance() const {
 }
 
 GrXferProcessor::OptFlags
-PorterDuffXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
-                                          const GrProcOptInfo& coveragePOI,
-                                          bool doesStencilWrite,
-                                          GrColor* overrideColor,
-                                          const GrDrawTargetCaps& caps) {
+PorterDuffXferProcessor::onGetOptimizations(const GrProcOptInfo& colorPOI,
+                                            const GrProcOptInfo& coveragePOI,
+                                            bool doesStencilWrite,
+                                            GrColor* overrideColor,
+                                            const GrDrawTargetCaps& caps) {
     GrXferProcessor::OptFlags optFlags;
     // Optimizations when doing RGB Coverage
     if (coveragePOI.isFourChannelOutput()) {

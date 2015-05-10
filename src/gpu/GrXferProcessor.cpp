@@ -8,11 +8,13 @@
 #include "GrXferProcessor.h"
 #include "gl/GrGLCaps.h"
 
-GrXferProcessor::GrXferProcessor() : fWillReadDstColor(false), fDstCopyTextureOffset() {
+GrXferProcessor::GrXferProcessor()
+    : fWillReadDstColor(false), fReadsCoverage(true), fDstCopyTextureOffset() {
 }
 
 GrXferProcessor::GrXferProcessor(const GrDeviceCoordTexture* dstCopy, bool willReadDstColor)
     : fWillReadDstColor(willReadDstColor)
+    , fReadsCoverage(true)
     , fDstCopyTextureOffset() {
     if (dstCopy && dstCopy->texture()) {
         fDstCopy.reset(dstCopy->texture());
@@ -20,6 +22,23 @@ GrXferProcessor::GrXferProcessor(const GrDeviceCoordTexture* dstCopy, bool willR
         this->addTextureAccess(&fDstCopy);
         this->setWillReadFragmentPosition();
     }
+}
+
+GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(const GrProcOptInfo& colorPOI,
+                                                            const GrProcOptInfo& coveragePOI,
+                                                            bool doesStencilWrite,
+                                                            GrColor* overrideColor,
+                                                            const GrDrawTargetCaps& caps) {
+    GrXferProcessor::OptFlags flags = this->onGetOptimizations(colorPOI,
+                                                               coveragePOI,
+                                                               doesStencilWrite,
+                                                               overrideColor,
+                                                               caps);
+
+    if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
+        fReadsCoverage = false;
+    }
+    return flags;
 }
 
 void GrXferProcessor::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
