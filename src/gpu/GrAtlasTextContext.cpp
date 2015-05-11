@@ -366,12 +366,18 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
 
     if (canCache) {
         bool hasLCD = HasLCD(blob);
+
+        // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
+        SkPixelGeometry pixelGeometry = hasLCD ? fDeviceProperties.pixelGeometry() :
+                                                 kUnknown_SkPixelGeometry;
+
         // TODO we want to figure out a way to be able to use the canonical color on LCD text,
         // see the note on ComputeCanonicalColor above.  We pick a dummy value for LCD text to
         // ensure we always match the same key
         GrColor canonicalColor = hasLCD ? SK_ColorTRANSPARENT :
                                           ComputeCanonicalColor(skPaint, hasLCD);
 
+        key.fPixelGeometry = pixelGeometry;
         key.fUniqueID = blob->uniqueID();
         key.fStyle = skPaint.getStyle();
         key.fHasBlur = SkToBool(mf);

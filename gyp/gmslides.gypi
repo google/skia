@@ -218,6 +218,7 @@
         '../gm/textblob.cpp',
         '../gm/textbloblooper.cpp',
         '../gm/textblobcolortrans.cpp',
+        '../gm/textblobgeometrychange.cpp',
         '../gm/textblobshader.cpp',
         '../gm/textblobtransforms.cpp',
         '../gm/texturedomaineffect.cpp',

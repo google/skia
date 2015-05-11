@@ -163,12 +163,13 @@ private:
                 sk_bzero(this, sizeof(Key));
             }
             uint32_t fUniqueID;
-            SkPaint::Style fStyle;
             // Color may affect the gamma of the mask we generate, but in a fairly limited way.
             // Each color is assigned to on of a fixed number of buckets based on its
             // luminance. For each luminance bucket there is a "canonical color" that
             // represents the bucket.  This functionality is currently only supported for A8
             SkColor fCanonicalColor;
+            SkPaint::Style fStyle;
+            SkPixelGeometry fPixelGeometry;
             bool fHasBlur;
 
             bool operator==(const Key& other) const {
