@@ -1557,7 +1557,7 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
     const SkScalar dot = SkVector::DotProduct(lastQ, finalP);
     SkASSERT(0 <= dot && dot <= SK_Scalar1 + SK_ScalarNearlyZero);
 
-    if (dot < 1 - SK_ScalarNearlyZero) {
+    if (dot < 1) {
         SkVector offCurve = { lastQ.x() + x, lastQ.y() + y };
         // compute the bisector vector, and then rescale to be the off-curve point.
         // we compute its length from cos(theta/2) = length / 1, using half-angle identity we get
