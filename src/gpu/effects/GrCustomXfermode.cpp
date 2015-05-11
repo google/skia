@@ -48,7 +48,7 @@ static GrBlendEquation hw_blend_equation(SkXfermode::Mode mode) {
     GR_STATIC_ASSERT(kHSLSaturation_GrBlendEquation == SkXfermode::kSaturation_Mode + kOffset);
     GR_STATIC_ASSERT(kHSLColor_GrBlendEquation == SkXfermode::kColor_Mode + kOffset);
     GR_STATIC_ASSERT(kHSLLuminosity_GrBlendEquation == SkXfermode::kLuminosity_Mode + kOffset);
-    GR_STATIC_ASSERT(kTotalGrBlendEquationCount == SkXfermode::kLastMode + 1 + kOffset);
+    GR_STATIC_ASSERT(kGrBlendEquationCnt == SkXfermode::kLastMode + 1 + kOffset);
 }
 
 static void hard_light(GrGLFragmentBuilder* fsBuilder,
@@ -526,7 +526,7 @@ public:
     bool hasSecondaryOutput() const override { return false; }
 
     SkXfermode::Mode mode() const { return fMode; }
-    bool hasHWBlendEquation() const { return kInvalid_GrBlendEquation != fHWBlendEquation; }
+    bool hasHWBlendEquation() const { return -1 != static_cast<int>(fHWBlendEquation); }
 
     GrBlendEquation hwBlendEquation() const {
         SkASSERT(this->hasHWBlendEquation());
@@ -630,7 +630,7 @@ CustomXP::CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
                    bool willReadDstColor)
     : INHERITED(dstCopy, willReadDstColor),
       fMode(mode),
-      fHWBlendEquation(kInvalid_GrBlendEquation) {
+      fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
     this->initClassID<CustomXP>();
 }
 

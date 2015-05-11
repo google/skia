@@ -23,8 +23,6 @@ class GrProcOptInfo;
  * Equations for alpha-blending.
  */
 enum GrBlendEquation {
-    kInvalid_GrBlendEquation = -1,
-
     // Basic blend equations.
     kAdd_GrBlendEquation,             //<! Cs*S + Cd*D
     kSubtract_GrBlendEquation,        //<! Cs*S - Cd*D
@@ -47,10 +45,11 @@ enum GrBlendEquation {
     kHSLColor_GrBlendEquation,
     kHSLLuminosity_GrBlendEquation,
 
-    kTotalGrBlendEquationCount,
-
-    kFirstAdvancedGrBlendEquation = kScreen_GrBlendEquation
+    kFirstAdvancedGrBlendEquation = kScreen_GrBlendEquation,
+    kLast_GrBlendEquation = kHSLLuminosity_GrBlendEquation
 };
+
+static const int kGrBlendEquationCnt = kLast_GrBlendEquation + 1;
 
 inline bool GrBlendEquationIsAdvanced(GrBlendEquation equation) {
     return equation >= kFirstAdvancedGrBlendEquation;
@@ -60,8 +59,6 @@ inline bool GrBlendEquationIsAdvanced(GrBlendEquation equation) {
  * Coeffecients for alpha-blending.
  */
 enum GrBlendCoeff {
-    kInvalid_GrBlendCoeff = -1,
-
     kZero_GrBlendCoeff,    //<! 0
     kOne_GrBlendCoeff,     //<! 1
     kSC_GrBlendCoeff,      //<! src color
@@ -81,8 +78,10 @@ enum GrBlendCoeff {
     kS2A_GrBlendCoeff,
     kIS2A_GrBlendCoeff,
 
-    kTotalGrBlendCoeffCount
+    kLast_GrBlendCoeff = kIS2A_GrBlendCoeff
 };
+
+static const int kGrBlendCoeffCnt = kLast_GrBlendCoeff + 1;
 
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
@@ -186,6 +185,8 @@ public:
             fBlendConstant = 0;
             fWriteColor = true;
         }
+
+        SkDEBUGCODE(SkString dump() const;)
 
         GrBlendEquation fEquation;
         GrBlendCoeff    fSrcBlend;

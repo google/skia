@@ -74,7 +74,7 @@ static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     GR_STATIC_ASSERT(13 == kHSLColor_GrBlendEquation - kFirstAdvancedGrBlendEquation);
     GR_STATIC_ASSERT(14 == kHSLLuminosity_GrBlendEquation - kFirstAdvancedGrBlendEquation);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kLayoutQualifierNames) ==
-                     kTotalGrBlendEquationCount - kFirstAdvancedGrBlendEquation);
+                     kGrBlendEquationCnt - kFirstAdvancedGrBlendEquation);
 }
 
 GrGLFragmentShaderBuilder::DstReadKey

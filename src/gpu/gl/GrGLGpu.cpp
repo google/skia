@@ -80,7 +80,7 @@ GR_STATIC_ASSERT(14 == kHSLHue_GrBlendEquation);
 GR_STATIC_ASSERT(15 == kHSLSaturation_GrBlendEquation);
 GR_STATIC_ASSERT(16 == kHSLColor_GrBlendEquation);
 GR_STATIC_ASSERT(17 == kHSLLuminosity_GrBlendEquation);
-GR_STATIC_ASSERT(18 == kTotalGrBlendEquationCount);
+GR_STATIC_ASSERT(SK_ARRAY_COUNT(gXfermodeEquation2Blend) == kGrBlendEquationCnt);
 
 static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ZERO,
@@ -129,8 +129,7 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
         false,
     };
     return gCoeffReferencesBlendConst[coeff];
-    GR_STATIC_ASSERT(kTotalGrBlendCoeffCount ==
-                     SK_ARRAY_COUNT(gCoeffReferencesBlendConst));
+    GR_STATIC_ASSERT(kGrBlendCoeffCnt == SK_ARRAY_COUNT(gCoeffReferencesBlendConst));
 
     GR_STATIC_ASSERT(0 == kZero_GrBlendCoeff);
     GR_STATIC_ASSERT(1 == kOne_GrBlendCoeff);
@@ -153,8 +152,7 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
     GR_STATIC_ASSERT(17 == kIS2A_GrBlendCoeff);
 
     // assertion for gXfermodeCoeff2Blend have to be in GrGpu scope
-    GR_STATIC_ASSERT(kTotalGrBlendCoeffCount ==
-                     SK_ARRAY_COUNT(gXfermodeCoeff2Blend));
+    GR_STATIC_ASSERT(kGrBlendCoeffCnt == SK_ARRAY_COUNT(gXfermodeCoeff2Blend));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2121,7 +2119,7 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
 void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
     // Any optimization to disable blending should have already been applied and
     // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
-    
+
     GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;

@@ -64,6 +64,100 @@ bool GrXferProcessor::willNeedXferBarrier(const GrRenderTarget* rt,
     return this->onWillNeedXferBarrier(rt, caps, outBarrierType);
 }
 
+#ifdef SK_DEBUG
+static const char* equation_string(GrBlendEquation eq) {
+    switch (eq) {
+        case kAdd_GrBlendEquation:
+            return "add";
+        case kSubtract_GrBlendEquation:
+            return "subtract";
+        case kReverseSubtract_GrBlendEquation:
+            return "reverse_subtract";
+        case kScreen_GrBlendEquation:
+            return "screen";
+        case kOverlay_GrBlendEquation:
+            return "overlay";
+        case kDarken_GrBlendEquation:
+            return "darken";
+        case kLighten_GrBlendEquation:
+            return "lighten";
+        case kColorDodge_GrBlendEquation:
+            return "color_dodge";
+        case kColorBurn_GrBlendEquation:
+            return "color_burn";
+        case kHardLight_GrBlendEquation:
+            return "hard_light";
+        case kSoftLight_GrBlendEquation:
+            return "soft_light";
+        case kDifference_GrBlendEquation:
+            return "difference";
+        case kExclusion_GrBlendEquation:
+            return "exclusion";
+        case kMultiply_GrBlendEquation:
+            return "multiply";
+        case kHSLHue_GrBlendEquation:
+            return "hsl_hue";
+        case kHSLSaturation_GrBlendEquation:
+            return "hsl_saturation";
+        case kHSLColor_GrBlendEquation:
+            return "hsl_color";
+        case kHSLLuminosity_GrBlendEquation:
+            return "hsl_luminosity";
+    };
+    return "";
+}
+
+static const char* coeff_string(GrBlendCoeff coeff) {
+    switch (coeff) {
+        case kZero_GrBlendCoeff:
+            return "zero";
+        case kOne_GrBlendCoeff:
+            return "one";
+        case kSC_GrBlendCoeff:
+            return "src_color";
+        case kISC_GrBlendCoeff:
+            return "inv_src_color";
+        case kDC_GrBlendCoeff:
+            return "dst_color";
+        case kIDC_GrBlendCoeff:
+            return "inv_dst_color";
+        case kSA_GrBlendCoeff:
+            return "src_alpha";
+        case kISA_GrBlendCoeff:
+            return "inv_src_alpha";
+        case kDA_GrBlendCoeff:
+            return "dst_alpha";
+        case kIDA_GrBlendCoeff:
+            return "inv_dst_alpha";
+        case kConstC_GrBlendCoeff:
+            return "const_color";
+        case kIConstC_GrBlendCoeff:
+            return "inv_const_color";
+        case kConstA_GrBlendCoeff:
+            return "const_alpha";
+        case kIConstA_GrBlendCoeff:
+            return "inv_const_alpha";
+        case kS2C_GrBlendCoeff:
+            return "src2_color";
+        case kIS2C_GrBlendCoeff:
+            return "inv_src2_color";
+        case kS2A_GrBlendCoeff:
+            return "src2_alpha";
+        case kIS2A_GrBlendCoeff:
+            return "inv_src2_alpha";
+    }
+    return "";
+}
+
+SkString GrXferProcessor::BlendInfo::dump() const {
+    SkString out;
+    out.printf("write_color(%d) equation(%s) src_coeff(%s) dst_coeff:(%s) const(0x%08x)",
+               fWriteColor, equation_string(fEquation), coeff_string(fSrcBlend),
+               coeff_string(fDstBlend), fBlendConstant);
+    return out;
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrXferProcessor* GrXPFactory::createXferProcessor(const GrProcOptInfo& colorPOI,
