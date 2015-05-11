@@ -32,6 +32,7 @@ const SkMatrix& TestMatrixInvertible(SkRandom*);
 const SkRect& TestRect(SkRandom*);
 const SkRRect& TestRRectSimple(SkRandom*);
 const SkPath& TestPath(SkRandom*);
+const SkPath& TestPathConvex(SkRandom*);
 SkStrokeRec TestStrokeRec(SkRandom*);
 
 }

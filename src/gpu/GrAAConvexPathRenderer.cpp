@@ -11,6 +11,7 @@
 #include "GrAAConvexTessellator.h"
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawTargetCaps.h"
@@ -1036,3 +1037,18 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     return true;
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+BATCH_TEST_DEFINE(AAConvexPath) {
+    AAConvexPathBatch::Geometry geometry;
+    geometry.fColor = GrRandomColor(random);
+    geometry.fViewMatrix = GrTest::TestMatrix(random);
+    geometry.fPath = GrTest::TestPathConvex(random);
+
+    return AAConvexPathBatch::Create(geometry);
+}
+
+#endif

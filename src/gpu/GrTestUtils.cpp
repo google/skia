@@ -175,6 +175,36 @@ const SkPath& TestPath(SkRandom* random) {
     return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
 }
 
+const SkPath& TestPathConvex(SkRandom* random) {
+    static SkPath gPath[3];
+    static bool gOnce;
+    if (!gOnce) {
+        gOnce = true;
+        // narrow rect
+        gPath[0].moveTo(0.f, 0.f);
+        gPath[0].lineTo(-1.5f, -50.0f);
+        gPath[0].lineTo( 1.5f, -50.0f);
+        gPath[0].lineTo( 1.5f,  50.0f);
+        gPath[0].lineTo(-1.5f,  50.0f);
+        // degenerate
+        gPath[1].moveTo(0.f, 0.f);
+        gPath[1].lineTo(-0.025f, -0.025f);
+        gPath[1].lineTo( 0.025f, -0.025f);
+        gPath[1].lineTo( 0.025f,  0.025f);
+        gPath[1].lineTo(-0.025f,  0.025f);
+        // clipped triangle
+        gPath[2].moveTo(0.f, 0.f);
+        gPath[2].lineTo(-10.0f, -50.0f);
+        gPath[2].lineTo( 10.0f, -50.0f);
+        gPath[2].lineTo( 50.0f,  31.0f);
+        gPath[2].lineTo( 40.0f,  50.0f);
+        gPath[2].lineTo(-40.0f,  50.0f);
+        gPath[2].lineTo(-50.0f,  31.0f);
+    }
+
+    return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
+}
+
 SkStrokeRec TestStrokeRec(SkRandom* random) {
     SkStrokeRec::InitStyle style =
             SkStrokeRec::InitStyle(random->nextULessThan(SkStrokeRec::kFill_InitStyle + 1));
