@@ -10,41 +10,17 @@
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
 
-static bool bridgeWinding(SkTDArray<SkOpContour* >& contourList, SkPathWriter* simple,
+static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
         SkChunkAlloc* allocator) {
-    bool firstContour = true;
     bool unsortable = false;
-    bool topUnsortable = false;
-    bool firstPass = true;
-    SkDPoint lastTopLeft;
-    SkDPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
-        SkOpSpanBase* start = NULL;
-        SkOpSpanBase* end = NULL;
-        bool topDone;
-        bool onlyVertical = false;
-        lastTopLeft = topLeft;
-        SkOpSegment* current = FindSortableTop(contourList, firstPass, SkOpAngle::kUnaryWinding,
-                &firstContour, &start, &end, &topLeft, &topUnsortable, &topDone, &onlyVertical,
-                allocator);
-        if (!current) {
-            if ((!topUnsortable || firstPass) && !topDone) {
-                SkASSERT(topLeft.fX != SK_ScalarMin && topLeft.fY != SK_ScalarMin);
-                if (lastTopLeft.fX == SK_ScalarMin && lastTopLeft.fY == SK_ScalarMin) {
-                    if (firstPass) {
-                        firstPass = false;
-                    } else {
-                        break;
-                    }
-                }
-                topLeft.fX = topLeft.fY = SK_ScalarMin;
-                continue;
-            }
-            break;
-        } else if (onlyVertical) {
+        SkOpSpan* span = FindSortableTop(contourList);
+        if (!span) {
             break;
         }
-        firstPass = !topUnsortable || lastTopLeft != topLeft;
+        SkOpSegment* current = span->segment();
+        SkOpSpanBase* start = span->next();
+        SkOpSpanBase* end = span;
         SkTDArray<SkOpSpanBase*> chase;
         do {
             if (current->activeWinding(start, end)) {
@@ -93,7 +69,6 @@ static bool bridgeWinding(SkTDArray<SkOpContour* >& contourList, SkPathWriter* s
                 if (last && !last->chased()) {
                     last->setChased(true);
                     SkASSERT(!SkPathOpsDebug::ChaseContains(chase, last));
-                    // assert that last isn't already in array
                     *chase.append() = last;
 #if DEBUG_WINDING
                     SkDebugf("%s chase.append id=%d", __FUNCTION__, last->segment()->debugID());
@@ -117,7 +92,7 @@ static bool bridgeWinding(SkTDArray<SkOpContour* >& contourList, SkPathWriter* s
 }
 
 // returns true if all edges were processed
-static bool bridgeXor(SkTDArray<SkOpContour* >& contourList, SkPathWriter* simple,
+static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
         SkChunkAlloc* allocator) {
     SkOpSegment* current;
     SkOpSpanBase* start;
@@ -191,8 +166,9 @@ bool Simplify(const SkPath& path, SkPath* result) {
     // turn path into list of segments
     SkOpCoincidence coincidence;
     SkOpContour contour;
-    SkOpGlobalState globalState(&coincidence  SkDEBUGPARAMS(&contour));
-#if DEBUG_SORT || DEBUG_SWAP_TOP
+    SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
+    SkOpGlobalState globalState(&coincidence, contourList);
+#if DEBUG_SORT
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
     SkOpEdgeBuilder builder(path, &contour, &allocator, &globalState);
@@ -202,34 +178,22 @@ bool Simplify(const SkPath& path, SkPath* result) {
 #if DEBUG_DUMP_SEGMENTS
     contour.dumpSegments((SkPathOp) -1);
 #endif
-    SkTDArray<SkOpContour* > contourList;
-    MakeContourList(&contour, contourList, false, false);
-    SkOpContour** currentPtr = contourList.begin();
-    if (!currentPtr) {
+    if (!SortContourList(&contourList, false, false)) {
         result->reset();
         result->setFillType(fillType);
         return true;
     }
-    if ((*currentPtr)->count() == 0) {
-        SkASSERT((*currentPtr)->next() == NULL);
-        result->reset();
-        result->setFillType(fillType);
-        return true;
-    }
-    SkOpContour** listEnd2 = contourList.end();
     // find all intersections between segments
+    SkOpContour* current = contourList;
     do {
-        SkOpContour** nextPtr = currentPtr;
-        SkOpContour* current = *currentPtr++;
-        SkOpContour* next;
-        do {
-            next = *nextPtr++;
-        } while (AddIntersectTs(current, next, &coincidence, &allocator) && nextPtr != listEnd2);
-    } while (currentPtr != listEnd2);
+        SkOpContour* next = current;
+        while (AddIntersectTs(current, next, &coincidence, &allocator)
+                && (next = next->next()));
+    } while ((current = current->next()));
 #if DEBUG_VALIDATE
     globalState.setPhase(SkOpGlobalState::kWalking);
 #endif
-    if (!HandleCoincidence(&contourList, &coincidence, &allocator, &globalState)) {
+    if (!HandleCoincidence(contourList, &coincidence, &allocator)) {
         return false;
     }
     // construct closed contours

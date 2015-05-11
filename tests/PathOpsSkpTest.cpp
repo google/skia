@@ -1090,7 +1090,7 @@ static void skpcyclist_friends_gr52(skiatest::Reporter* reporter, const char* fi
     // FIXME: this generates quads and cubics that are (correctly) not coincident unlike the old code
     // however, somewhere the angles are sorted incorrectly and the winding is computed to be -1/-2
     // but I can't find the error
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 static void skpwww_fj_p_com_22(skiatest::Reporter* reporter, const char* filename) {
@@ -3769,7 +3769,7 @@ pathB.cubicTo(980.018494f, 1481.22131f, 979.602478f, 1478.38831f, 984.546021f, 1
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = skpwww_macrumors_com_131;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = skpwww_cooksnaps_com_32;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {

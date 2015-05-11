@@ -25,37 +25,6 @@ int SkIntersections::closestTo(double rangeStart, double rangeEnd, const SkDPoin
     return closest;
 }
 
-// called only by test code
-int SkIntersections::coincidentUsed() const {
-    if (!fIsCoincident[0]) {
-        SkASSERT(!fIsCoincident[1]);
-        return 0;
-    }
-    int count = 0;
-    SkDEBUGCODE(int count2 = 0;)
-    for (int index = 0; index < fUsed; ++index) {
-        if (fIsCoincident[0] & (1 << index)) {
-            ++count;
-        }
-#ifdef SK_DEBUG
-        if (fIsCoincident[1] & (1 << index)) {
-            ++count2;
-        }
-#endif
-    }
-    SkASSERT(count == count2);
-    return count;
-}
-
-int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar,
-                                               SkScalar, SkScalar, SkScalar, bool) = {
-    NULL,
-    &SkIntersections::verticalLine,
-    &SkIntersections::verticalQuad,
-    &SkIntersections::verticalConic,
-    &SkIntersections::verticalCubic
-};
-
 void SkIntersections::flip() {
     for (int index = 0; index < fUsed; ++index) {
         fT[1][index] = 1 - fT[1][index];
@@ -174,12 +143,6 @@ int SkIntersections::mostOutside(double rangeStart, double rangeEnd, const SkDPo
     return result;
 }
 
-void SkIntersections::quickRemoveOne(int index, int replace) {
-    if (index < replace) {
-        fT[0][index] = fT[0][replace];
-    }
-}
-
 void SkIntersections::removeOne(int index) {
     int remaining = --fUsed - index;
     if (remaining <= 0) {
@@ -193,32 +156,4 @@ void SkIntersections::removeOne(int index) {
     fIsCoincident[0] -= ((fIsCoincident[0] >> 1) & ~((1 << index) - 1)) + coBit;
     SkASSERT(!(coBit ^ (fIsCoincident[1] & (1 << index))));
     fIsCoincident[1] -= ((fIsCoincident[1] >> 1) & ~((1 << index) - 1)) + coBit;
-}
-
-int SkIntersections::verticalConic(const SkPoint a[3], SkScalar weight,
-        SkScalar top, SkScalar bottom, SkScalar x, bool flipped) {
-    SkDConic conic;
-    conic.set(a, weight);
-    return vertical(conic, top, bottom, x, flipped);
-}
-
-int SkIntersections::verticalCubic(const SkPoint a[4], SkScalar weight,
-        SkScalar top, SkScalar bottom, SkScalar x, bool flipped) {
-    SkDCubic cubic;
-    cubic.set(a);
-    return vertical(cubic, top, bottom, x, flipped);
-}
-
-int SkIntersections::verticalLine(const SkPoint a[2], SkScalar weight, 
-        SkScalar top, SkScalar bottom, SkScalar x, bool flipped) {
-    SkDLine line;
-    line.set(a);
-    return vertical(line, top, bottom, x, flipped);
-}
-
-int SkIntersections::verticalQuad(const SkPoint a[3], SkScalar weight,
-        SkScalar top, SkScalar bottom, SkScalar x, bool flipped) {
-    SkDQuad quad;
-    quad.set(a);
-    return vertical(quad, top, bottom, x, flipped);
 }

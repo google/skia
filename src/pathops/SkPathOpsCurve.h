@@ -8,9 +8,6 @@
 #define SkPathOpsCurve_DEFINE
 
 #include "SkIntersections.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
 
 #ifndef SK_RELEASE
 #include "SkPath.h"
@@ -78,14 +75,10 @@ struct SkDCurve {
                         double s, double e, SkPathOpsBounds* );
     void setCubicBounds(const SkPoint curve[4], SkScalar ,
                         double s, double e, SkPathOpsBounds* );
-    void setLineBounds(const SkPoint[2], SkScalar , double , double , SkPathOpsBounds* );
     void setQuadBounds(const SkPoint curve[3], SkScalar ,
                        double s, double e, SkPathOpsBounds*);
 };
 
-
-extern void (SkDCurve::* const SetBounds[])(const SkPoint curve[], SkScalar cWeight,
-        double tStart, double tEnd, SkPathOpsBounds* );
 
 extern SkDPoint (SkDCurve::* const Top[])(const SkPoint curve[], SkScalar cWeight,
     double tStart, double tEnd, double* topT);
@@ -274,6 +267,61 @@ static void (* const CurveIntersectRay[])(const SkPoint[] , SkScalar , const SkD
     quad_intersect_ray,
     conic_intersect_ray,
     cubic_intersect_ray
+};
+
+static int line_intercept_h(const SkPoint a[2], SkScalar , SkScalar y, double* roots) {
+    SkDLine line;
+    roots[0] = SkIntersections::HorizontalIntercept(line.set(a), y);
+    return between(0, roots[0], 1);
+}
+
+static int line_intercept_v(const SkPoint a[2], SkScalar , SkScalar x, double* roots) {
+    SkDLine line;
+    roots[0] = SkIntersections::VerticalIntercept(line.set(a), x);
+    return between(0, roots[0], 1);
+}
+
+static int quad_intercept_h(const SkPoint a[2], SkScalar , SkScalar y, double* roots) {
+    SkDQuad quad;
+    return SkIntersections::HorizontalIntercept(quad.set(a), y, roots);
+}
+
+static int quad_intercept_v(const SkPoint a[2], SkScalar , SkScalar x, double* roots) {
+    SkDQuad quad;
+    return SkIntersections::VerticalIntercept(quad.set(a), x, roots);
+}
+
+static int conic_intercept_h(const SkPoint a[2], SkScalar w, SkScalar y, double* roots) {
+    SkDConic conic;
+    return SkIntersections::HorizontalIntercept(conic.set(a, w), y, roots);
+}
+
+static int conic_intercept_v(const SkPoint a[2], SkScalar w, SkScalar x, double* roots) {
+    SkDConic conic;
+    return SkIntersections::VerticalIntercept(conic.set(a, w), x, roots);
+}
+
+static int cubic_intercept_h(const SkPoint a[3], SkScalar , SkScalar y, double* roots) {
+    SkDCubic cubic;
+    return cubic.set(a).horizontalIntersect(y, roots);
+}
+
+static int cubic_intercept_v(const SkPoint a[3], SkScalar , SkScalar x, double* roots) {
+    SkDCubic cubic;
+    return cubic.set(a).verticalIntersect(x, roots);
+}
+
+static int (* const CurveIntercept[])(const SkPoint[] , SkScalar , SkScalar , double* ) = {
+    NULL,
+    NULL,
+    line_intercept_h,
+    line_intercept_v,
+    quad_intercept_h,
+    quad_intercept_v,
+    conic_intercept_h,
+    conic_intercept_v,
+    cubic_intercept_h,
+    cubic_intercept_v,
 };
 
 #endif

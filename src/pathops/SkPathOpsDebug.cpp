@@ -14,6 +14,15 @@
 extern bool FLAGS_runFail;
 #endif
 
+#if DEBUG_SORT
+int SkPathOpsDebug::gSortCountDefault = SK_MaxS32;
+int SkPathOpsDebug::gSortCount;
+#endif
+
+#if DEBUG_ACTIVE_OP
+const char* SkPathOpsDebug::kPathOpStr[] = {"diff", "sect", "union", "xor"};
+#endif
+
 #if defined SK_DEBUG || !FORCE_RELEASE
 
 const char* SkPathOpsDebug::kLVerbStr[] = {"", "line", "quad", "cubic"};
@@ -21,15 +30,6 @@ const char* SkPathOpsDebug::kLVerbStr[] = {"", "line", "quad", "cubic"};
 #if defined(SK_DEBUG) || !FORCE_RELEASE
 int SkPathOpsDebug::gContourID = 0;
 int SkPathOpsDebug::gSegmentID = 0;
-#endif
-
-#if DEBUG_SORT || DEBUG_SWAP_TOP
-int SkPathOpsDebug::gSortCountDefault = SK_MaxS32;
-int SkPathOpsDebug::gSortCount;
-#endif
-
-#if DEBUG_ACTIVE_OP
-const char* SkPathOpsDebug::kPathOpStr[] = {"diff", "sect", "union", "xor"};
 #endif
 
 bool SkPathOpsDebug::ChaseContains(const SkTDArray<SkOpSpanBase* >& chaseArray,
@@ -135,19 +135,24 @@ void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp
     show_op(shapeOp, "path", "pathB");
 }
 
-#include "SkOpAngle.h"
-#include "SkOpSegment.h"
+#include "SkPathOpsCubic.h"
+#include "SkPathOpsQuad.h"
 
-#if DEBUG_SWAP_TOP
-int SkOpSegment::debugInflections(const SkOpSpanBase* start, const SkOpSpanBase* end) const {
-    if (fVerb != SkPath::kCubic_Verb) {
-        return false;
-    }
-    SkDCubic dst = SkDCubic::SubDivide(fPts, start->t(), end->t());
-    double inflections[2];
-    return dst.findInflections(inflections);
+SkDCubic SkDQuad::debugToCubic() const {
+    SkDCubic cubic;
+    cubic[0] = fPts[0];
+    cubic[2] = fPts[1];
+    cubic[3] = fPts[2];
+    cubic[1].fX = (cubic[0].fX + cubic[2].fX * 2) / 3;
+    cubic[1].fY = (cubic[0].fY + cubic[2].fY * 2) / 3;
+    cubic[2].fX = (cubic[3].fX + cubic[2].fX * 2) / 3;
+    cubic[2].fY = (cubic[3].fY + cubic[2].fY * 2) / 3;
+    return cubic;
 }
-#endif
+
+#include "SkOpAngle.h"
+#include "SkOpCoincidence.h"
+#include "SkOpSegment.h"
 
 SkOpAngle* SkOpSegment::debugLastAngle() {
     SkOpAngle* result = NULL;
@@ -195,13 +200,20 @@ void SkOpSegment::debugShowActiveSpans() const {
         const SkOpPtT* ptT = span->ptT();
         SkDebugf(") t=%1.9g (%1.9g,%1.9g)", ptT->fT, ptT->fPt.fX, ptT->fPt.fY);
         SkDebugf(" tEnd=%1.9g", span->next()->t());
-        SkDebugf(" windSum=");
         if (span->windSum() == SK_MinS32) {
-            SkDebugf("?");
+            SkDebugf(" windSum=?");
         } else {
-            SkDebugf("%d", span->windSum());
+            SkDebugf(" windSum=%d", span->windSum());
         }
-        SkDebugf(" windValue=%d oppValue=%d", span->windValue(), span->oppValue());
+        if (span->oppValue() && span->oppSum() == SK_MinS32) {
+            SkDebugf(" oppSum=?");
+        } else if (span->oppValue() || span->oppSum() != SK_MinS32) {
+            SkDebugf(" oppSum=%d", span->oppSum());
+        }
+        SkDebugf(" windValue=%d", span->windValue());
+        if (span->oppValue() || span->oppSum() != SK_MinS32) {
+            SkDebugf(" oppValue=%d", span->oppValue());
+        }
         SkDebugf("\n");
    } while ((span = span->next()->upCastable()));
 }
@@ -297,7 +309,7 @@ SkString SkOpAngle::debugPart() const {
 }
 #endif
 
-#if DEBUG_SORT || DEBUG_SWAP_TOP
+#if DEBUG_SORT
 void SkOpAngle::debugLoop() const {
     const SkOpAngle* first = this;
     const SkOpAngle* next = this;
@@ -339,14 +351,14 @@ void SkOpAngle::debugValidate() const {
         bool useXor = op ? oppXor : isXor;
         SkASSERT(lastXor == -1 || lastXor == (int) useXor);
         lastXor = (int) useXor;
-        wind += next->sign() * (op ? minSpan->oppValue() : minSpan->windValue());
+        wind += next->debugSign() * (op ? minSpan->oppValue() : minSpan->windValue());
         if (useXor) {
             wind &= 1;
         }
         useXor = op ? isXor : oppXor;
         SkASSERT(lastOppXor == -1 || lastOppXor == (int) useXor);
         lastOppXor = (int) useXor;
-        opp += next->sign() * (op ? minSpan->windValue() : minSpan->oppValue());
+        opp += next->debugSign() * (op ? minSpan->windValue() : minSpan->oppValue());
         if (useXor) {
             opp &= 1;
         }
@@ -375,6 +387,19 @@ void SkOpAngle::debugValidateNext() const {
         }
     } while (true);
 #endif
+}
+
+void SkOpCoincidence::debugShowCoincidence() const {
+    SkCoincidentSpans* span = fHead;
+    while (span) {
+        SkDebugf("%s - id=%d t=%1.9g tEnd=%1.9g\n", __FUNCTION__,
+                span->fCoinPtTStart->segment()->debugID(),
+                span->fCoinPtTStart->fT, span->fCoinPtTEnd->fT);
+        SkDebugf("%s + id=%d t=%1.9g tEnd=%1.9g\n", __FUNCTION__,
+                span->fOppPtTStart->segment()->debugID(),
+                span->fOppPtTStart->fT, span->fOppPtTEnd->fT);
+        span = span->fNext;
+    }
 }
 
 void SkOpSegment::debugValidate() const {
@@ -472,6 +497,28 @@ bool SkOpSpan::debugCoinLoopCheck() const {
         ++loop;
     } while ((next = nextCoin) && next != this);
     return true;
+}
+
+// called only by test code
+int SkIntersections::debugCoincidentUsed() const {
+    if (!fIsCoincident[0]) {
+        SkASSERT(!fIsCoincident[1]);
+        return 0;
+    }
+    int count = 0;
+    SkDEBUGCODE(int count2 = 0;)
+    for (int index = 0; index < fUsed; ++index) {
+        if (fIsCoincident[0] & (1 << index)) {
+            ++count;
+        }
+#ifdef SK_DEBUG
+        if (fIsCoincident[1] & (1 << index)) {
+            ++count2;
+        }
+#endif
+    }
+    SkASSERT(count == count2);
+    return count;
 }
 
 #include "SkOpContour.h"

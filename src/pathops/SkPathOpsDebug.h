@@ -45,15 +45,14 @@
 #define DEBUG_ASSEMBLE 0
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 0
-#define DEBUG_DUMP_SEGMENTS 0 // 1
+#define DEBUG_DUMP_SEGMENTS 0
 #define DEBUG_FLOW 0
 #define DEBUG_LIMIT_WIND_SUM 0
 #define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 0
 #define DEBUG_PERP 0
-#define DEBUG_SHOW_TEST_NAME 0 // 1
+#define DEBUG_SHOW_TEST_NAME 0
 #define DEBUG_SORT 0
-#define DEBUG_SWAP_TOP 0 // 1
 #define DEBUG_T_SECT 0
 #define DEBUG_T_SECT_DUMP 0
 #define DEBUG_VALIDATE 0
@@ -78,7 +77,6 @@
 #define DEBUG_PERP 1
 #define DEBUG_SHOW_TEST_NAME 1
 #define DEBUG_SORT 1
-#define DEBUG_SWAP_TOP 1
 #define DEBUG_T_SECT 0
 #define DEBUG_T_SECT_DUMP 0
 #define DEBUG_VALIDATE 1
@@ -133,8 +131,6 @@
 #include "SkTLS.h"
 #endif
 
-#include "SkTDArray.h"
-
 class SkPathOpsDebug {
 public:
     static const char* kLVerbStr[];
@@ -144,7 +140,7 @@ public:
     static int gSegmentID;
 #endif
 
-#if DEBUG_SORT || DEBUG_SWAP_TOP
+#if DEBUG_SORT
     static int gSortCountDefault;
     static int gSortCount;
 #endif
@@ -200,15 +196,6 @@ public:
     static const class SkOpPtT* DebugSpanPtT(const class SkOpSpanBase*, int id);
     static const class SkOpSegment* DebugSpanSegment(const class SkOpSpanBase*, int id);
     static const class SkOpSpanBase* DebugSpanSpan(const class SkOpSpanBase*, int id);
-
-    static void DumpContours(SkTDArray<class SkOpContour* >* contours);
-    static void DumpContoursAll(SkTDArray<class SkOpContour* >* contours);
-    static void DumpContoursAngles(const SkTDArray<class SkOpContour* >* contours);
-    static void DumpContoursPt(const SkTDArray<class SkOpContour* >* contours, int id);
-    static void DumpContoursPts(const SkTDArray<class SkOpContour* >* contours);
-    static void DumpContoursSegment(const SkTDArray<class SkOpContour* >* contours, int id);
-    static void DumpContoursSpan(const SkTDArray<class SkOpContour* >* contours, int id);
-    static void DumpContoursSpans(const SkTDArray<class SkOpContour* >* contours);
 };
 
 struct SkDQuad;
@@ -217,19 +204,4 @@ struct SkDQuad;
 void DumpQ(const SkDQuad& quad1, const SkDQuad& quad2, int testNo);
 void DumpT(const SkDQuad& quad, double t);
 
-const struct SkOpAngle* DebugAngle(const SkTDArray<class SkOpContour* >* contours, int id);
-class SkOpContour* DebugContour(const SkTDArray<class SkOpContour* >* contours, int id);
-const class SkOpPtT* DebugPtT(const SkTDArray<class SkOpContour* >* contours, int id);
-const class SkOpSegment* DebugSegment(const SkTDArray<class SkOpContour* >* contours, int id);
-const class SkOpSpanBase* DebugSpan(const SkTDArray<class SkOpContour* >* contours, int id);
-
-void Dump(const SkTDArray<class SkOpContour* >* contours);
-void DumpAll(SkTDArray<class SkOpContour* >* contours);
-void DumpAngles(const SkTDArray<class SkOpContour* >* contours);
-void DumpCoin(const SkTDArray<class SkOpContour* >* contours);
-void DumpPt(const SkTDArray<class SkOpContour* >* contours, int segmentID);
-void DumpPts(const SkTDArray<class SkOpContour* >* contours);
-void DumpSegment(const SkTDArray<class SkOpContour* >* contours, int segmentID);
-void DumpSpan(const SkTDArray<class SkOpContour* >* contours, int spanID);
-void DumpSpans(const SkTDArray<class SkOpContour* >* contours);
 #endif

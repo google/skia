@@ -86,65 +86,6 @@ SkOpSegment* SkOpPtT::segment() {
     return span()->segment();
 }
 
-// find the starting or ending span with an existing loop of angles
-// OPTIMIZE? remove the spans pointing to windValue==0 here or earlier?
-// FIXME? assert that only one other span has a valid windValue or oppValue
-bool SkOpSpanBase::addSimpleAngle(bool checkFrom, SkChunkAlloc* allocator) {
-    SkOpAngle* angle;
-    if (checkFrom) {
-        if (!this->final()) {
-            return false;
-        }
-        if (this->fromAngle()) {
-            SkASSERT(this->fromAngle()->loopCount() == 2);
-            return true;
-        }
-        angle = this->segment()->addEndSpan(allocator);
-    } else {
-        SkASSERT(this->t() == 0);
-        SkOpSpan* span = this->upCast();
-        if (span->toAngle()) {
-            SkASSERT(span->toAngle()->loopCount() == 2);
-            SkASSERT(!span->fromAngle());
-            span->setFromAngle(span->toAngle()->next());
-            return true;
-        }
-        angle = this->segment()->addStartSpan(allocator);
-    }
-    SkOpPtT* ptT = this->ptT();
-    SkOpSpanBase* oSpanBase;
-    SkOpSpan* oSpan;
-    SkOpSegment* other;
-    do {
-        ptT = ptT->next();
-        oSpanBase = ptT->span();
-        oSpan = oSpanBase->upCastable();
-        other = oSpanBase->segment();
-        if (oSpan && oSpan->windValue()) {
-            break;
-        }
-        if (oSpanBase->t() == 0) {
-            continue;
-        }
-        SkOpSpan* oFromSpan = oSpanBase->prev();
-        SkASSERT(oFromSpan->t() < 1);
-        if (oFromSpan->windValue()) {
-            break;
-        }
-    } while (ptT != this->ptT());
-    SkOpAngle* oAngle;
-    if (checkFrom) {
-        oAngle = other->addStartSpan(allocator);
-        SkASSERT(oSpan && !oSpan->final());
-        SkASSERT(oAngle == oSpan->toAngle());
-    } else {
-        oAngle = other->addEndSpan(allocator);
-        SkASSERT(oAngle == oSpanBase->fromAngle());
-    }
-    angle->insert(oAngle);
-    return true;
-}
-
 void SkOpSpanBase::align() {
     if (this->fAligned) {
         return;
@@ -308,11 +249,6 @@ tryNextRemainder:
     fSpanAdds += span->fSpanAdds;
 }
 
-void SkOpSpan::applyCoincidence(SkOpSpan* opp) {
-    SkASSERT(!final());
-    SkASSERT(0);  // incomplete
-}
-
 bool SkOpSpan::containsCoincidence(const SkOpSegment* segment) const {
     SkASSERT(this->segment() != segment);
     const SkOpSpan* next = fCoincident;
@@ -345,6 +281,7 @@ void SkOpSpan::init(SkOpSegment* segment, SkOpSpan* prev, double t, const SkPoin
     fWindSum = fOppSum = SK_MinS32;
     fWindValue = 1;
     fOppValue = 0;
+    fTopTTry = 0;
     fChased = fDone = false;
     segment->bumpCount();
 }
@@ -357,4 +294,14 @@ void SkOpSpan::setOppSum(int oppSum) {
     }
     SkASSERT(!DEBUG_LIMIT_WIND_SUM || abs(oppSum) <= DEBUG_LIMIT_WIND_SUM);
     fOppSum = oppSum;
+}
+
+void SkOpSpan::setWindSum(int windSum) {
+    SkASSERT(!final());
+    if (fWindSum != SK_MinS32 && fWindSum != windSum) {
+        this->globalState()->setWindingFailed();
+        return;
+    }
+    SkASSERT(!DEBUG_LIMIT_WIND_SUM || abs(windSum) <= DEBUG_LIMIT_WIND_SUM);
+    fWindSum = windSum;
 }

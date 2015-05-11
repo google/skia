@@ -15,9 +15,10 @@ struct SkDLine {
     const SkDPoint& operator[](int n) const { SkASSERT(n >= 0 && n < 2); return fPts[n]; }
     SkDPoint& operator[](int n) { SkASSERT(n >= 0 && n < 2); return fPts[n]; }
 
-    void set(const SkPoint pts[2]) {
+    const SkDLine& set(const SkPoint pts[2]) {
         fPts[0] = pts[0];
         fPts[1] = pts[1];
+        return *this;
     }
 
     double exactPoint(const SkDPoint& xy) const;

@@ -24,17 +24,18 @@ enum SkPathOpsMask {
 
 class SkOpCoincidence;
 class SkOpContour;
+class SkOpContourHead;
 
 class SkOpGlobalState {
 public:
-    SkOpGlobalState(SkOpCoincidence* coincidence  SkDEBUGPARAMS(SkOpContour* head))
+    SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head)
         : fCoincidence(coincidence)
+        , fContourHead(head)
         , fWindingFailed(false)
         , fAngleCoincidence(false)
 #if DEBUG_VALIDATE
         , fPhase(kIntersecting)
 #endif
-        SkDEBUGPARAMS(fHead(head))
         SkDEBUGPARAMS(fAngleID(0))
         SkDEBUGPARAMS(fContourID(0))
         SkDEBUGPARAMS(fPtTID(0))
@@ -49,12 +50,20 @@ public:
     };
 #endif
 
+    enum {
+        kMaxWindingTries = 10
+    };
+
     bool angleCoincidence() {
         return fAngleCoincidence;
     }
 
     SkOpCoincidence* coincidence() {
         return fCoincidence;
+    }
+
+    SkOpContourHead* contourHead() {
+        return fContourHead;
     }
 
 #ifdef SK_DEBUG
@@ -94,6 +103,10 @@ public:
         fAngleCoincidence = true;
     }
     
+    void setContourHead(SkOpContourHead* contourHead) {
+        fContourHead = contourHead;
+    }
+
 #if DEBUG_VALIDATE
     void setPhase(Phase phase) {
         SkASSERT(fPhase != phase);
@@ -112,13 +125,13 @@ public:
 
 private:
     SkOpCoincidence* fCoincidence;
+    SkOpContourHead* fContourHead;
     bool fWindingFailed;
     bool fAngleCoincidence;
 #if DEBUG_VALIDATE
     Phase fPhase;
 #endif
 #ifdef SK_DEBUG
-    SkOpContour* fHead;
     int fAngleID;
     int fContourID;
     int fPtTID;

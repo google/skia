@@ -365,6 +365,7 @@
         '<(skia_src_path)/pathops/SkPathOpsTSect.cpp',
         '<(skia_src_path)/pathops/SkPathOpsTightBounds.cpp',
         '<(skia_src_path)/pathops/SkPathOpsTypes.cpp',
+        '<(skia_src_path)/pathops/SkPathOpsWinding.cpp',
         '<(skia_src_path)/pathops/SkPathWriter.cpp',
         '<(skia_src_path)/pathops/SkReduceOrder.cpp',
 

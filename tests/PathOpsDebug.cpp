@@ -298,60 +298,60 @@ const SkOpSpanBase* SkPathOpsDebug::DebugSpanSpan(const SkOpSpanBase* span, int 
     return span->debugSpan(id);
 }
 
-void SkPathOpsDebug::DumpContours(SkTDArray<SkOpContour* >* contours) {
-    int count = contours->count();
-    for (int index = 0; index < count; ++index) {
-        (*contours)[index]->dump();
-    }
+void SkOpContour::dumpContours() const {
+    SkOpContour* contour = this->globalState()->contourHead();
+    do {
+        contour->dump();
+    } while ((contour = contour->next()));
 }
 
-void SkPathOpsDebug::DumpContoursAll(SkTDArray<SkOpContour* >* contours) {
-    int count = contours->count();
-    for (int index = 0; index < count; ++index) {
-        (*contours)[index]->dumpAll();
-    }
+void SkOpContour::dumpContoursAll() const {
+    SkOpContour* contour = this->globalState()->contourHead();
+    do {
+        contour->dumpAll();
+    } while ((contour = contour->next()));
 }
 
-void SkPathOpsDebug::DumpContoursAngles(const SkTDArray<SkOpContour* >* contours) {
-    int count = contours->count();
-    for (int index = 0; index < count; ++index) {
-        (*contours)[index]->dumpAngles();
-    }
+void SkOpContour::dumpContoursAngles() const {
+    SkOpContour* contour = this->globalState()->contourHead();
+    do {
+        contour->dumpAngles();
+    } while ((contour = contour->next()));
 }
 
-void SkPathOpsDebug::DumpContoursPts(const SkTDArray<SkOpContour* >* contours) {
-    int count = contours->count();
-    for (int index = 0; index < count; ++index) {
-        (*contours)[index]->dumpPts();
-    }
+void SkOpContour::dumpContoursPts() const {
+    SkOpContour* contour = this->globalState()->contourHead();
+    do {
+        contour->dumpPts();
+    } while ((contour = contour->next()));
 }
 
-void SkPathOpsDebug::DumpContoursPt(const SkTDArray<SkOpContour* >* contours, int segmentID) {
-    int count = contours->count();
-    for (int index = 0; index < count; ++index) {
-        (*contours)[index]->dumpPt(segmentID);
-    }
+void SkOpContour::dumpContoursPt(int segmentID) const {
+    SkOpContour* contour = this->globalState()->contourHead();
+    do {
+        contour->dumpPt(segmentID);
+    } while ((contour = contour->next()));
 }
 
-void SkPathOpsDebug::DumpContoursSegment(const SkTDArray<SkOpContour* >* contours,
-        int segmentID) {
-    if (contours->count()) {
-        (*contours)[0]->dumpSegment(segmentID);
-    }
+void SkOpContour::dumpContoursSegment(int segmentID) const {
+    SkOpContour* contour = this->globalState()->contourHead();
+    do {
+        contour->dumpSegment(segmentID);
+    } while ((contour = contour->next()));
 }
 
-void SkPathOpsDebug::DumpContoursSpan(const SkTDArray<SkOpContour* >* contours,
-        int spanID) {
-    if (contours->count()) {
-        (*contours)[0]->dumpSpan(spanID);
-    }
+void SkOpContour::dumpContoursSpan(int spanID) const {
+    SkOpContour* contour = this->globalState()->contourHead();
+    do {
+        contour->dumpSpan(spanID);
+    } while ((contour = contour->next()));
 }
 
-void SkPathOpsDebug::DumpContoursSpans(const SkTDArray<SkOpContour* >* contours) {
-    int count = contours->count();
-    for (int index = 0; index < count; ++index) {
-        (*contours)[index]->dumpSpans();
-    }
+void SkOpContour::dumpContoursSpans() const {
+    SkOpContour* contour = this->globalState()->contourHead();
+    do {
+        contour->dumpSpans();
+    } while ((contour = contour->next()));
 }
 
 template <typename TCurve, typename OppCurve>
@@ -728,6 +728,11 @@ const SkOpSegment* SkOpAngle::debugSegment(int id) const {
     return this->segment()->debugSegment(id);
 }
 
+int SkOpAngle::debugSign() const {
+    SkASSERT(fStart->t() != fEnd->t());
+    return fStart->t() < fEnd->t() ? -1 : 1;
+}
+
 const SkOpSpanBase* SkOpAngle::debugSpan(int id) const {
     return this->segment()->debugSpan(id);
 }
@@ -756,7 +761,7 @@ void SkOpAngle::dumpOne(bool functionHeader) const {
     SkDebugf(" sect=%d/%d ", fSectorStart, fSectorEnd);
     SkDebugf(" s=%1.9g [%d] e=%1.9g [%d]", fStart->t(), fStart->debugID(),
                 fEnd->t(), fEnd->debugID());
-    SkDebugf(" sgn=%d windVal=%d", this->sign(), mSpan.windValue());
+    SkDebugf(" sgn=%d windVal=%d", this->debugSign(), mSpan.windValue());
 
     SkDebugf(" windSum=");
     SkPathOpsDebug::WindingPrintf(mSpan.windSum());
@@ -773,9 +778,6 @@ void SkOpAngle::dumpOne(bool functionHeader) const {
     }
     if (segment->operand()) {
         SkDebugf(" operand");
-    }
-    if (fStop) {
-        SkDebugf(" stop");
     }
 }
 
@@ -1061,7 +1063,7 @@ void SkOpSegment::dumpCoin() const {
     } while ((span = span->next()->upCastable()));
 }
 
-void SkOpSegment::dumpPts() const {
+void SkOpSegment::dumpPtsInner() const {
     int last = SkPathOpsVerbToPoints(fVerb);
     SkDebugf("seg=%d {{", this->debugID());
     if (fVerb == SkPath::kConic_Verb) {
@@ -1077,6 +1079,10 @@ void SkOpSegment::dumpPts() const {
     if (fVerb == SkPath::kConic_Verb) {
         SkDebugf(", %1.9gf}", fWeight);
     }
+}
+
+void SkOpSegment::dumpPts() const {
+    dumpPtsInner();
     SkDebugf("\n");
 }
 
@@ -1115,32 +1121,32 @@ void SkOpCoincidence::dump() const {
     }
 }
 
-void SkOpContour::dump() {
+void SkOpContour::dump() const {
     SkDebugf("contour=%d count=%d op=%d xor=%d\n", this->debugID(), fCount, fOperand, fXor);
     if (!fCount) {
         return;
     }
     const SkOpSegment* segment = &fHead;
-    SkDEBUGCODE(fIndent = 0);
-    indentDump();
+    SkDEBUGCODE(fDebugIndent = 0);
+    this->indentDump();
     do {
         segment->dump();
     } while ((segment = segment->next()));
-    outdentDump();
+    this->outdentDump();
 }
 
-void SkOpContour::dumpAll() {
+void SkOpContour::dumpAll() const {
     SkDebugf("contour=%d count=%d op=%d xor=%d\n", this->debugID(), fCount, fOperand, fXor);
     if (!fCount) {
         return;
     }
     const SkOpSegment* segment = &fHead;
-    SkDEBUGCODE(fIndent = 0);
-    indentDump();
+    SkDEBUGCODE(fDebugIndent = 0);
+    this->indentDump();
     do {
         segment->dumpAll();
     } while ((segment = segment->next()));
-    outdentDump();
+    this->outdentDump();
 }
 
 
@@ -1225,7 +1231,7 @@ void SkOpCurve::dump() const {
 
 #ifdef SK_DEBUG
 const SkOpAngle* SkOpGlobalState::debugAngle(int id) const {
-    const SkOpContour* contour = fHead;
+    const SkOpContour* contour = fContourHead;
     do {
         const SkOpSegment* segment = contour->first();
         while (segment) {
@@ -1252,7 +1258,7 @@ const SkOpAngle* SkOpGlobalState::debugAngle(int id) const {
 }
 
 SkOpContour* SkOpGlobalState::debugContour(int id) {
-    SkOpContour* contour = fHead;
+    SkOpContour* contour = fContourHead;
     do {
         if (contour->debugID() == id) {
             return contour;
@@ -1262,7 +1268,7 @@ SkOpContour* SkOpGlobalState::debugContour(int id) {
 }
 
 const SkOpPtT* SkOpGlobalState::debugPtT(int id) const {
-    const SkOpContour* contour = fHead;
+    const SkOpContour* contour = fContourHead;
     do {
         const SkOpSegment* segment = contour->first();
         while (segment) {
@@ -1285,7 +1291,7 @@ const SkOpPtT* SkOpGlobalState::debugPtT(int id) const {
 }
 
 const SkOpSegment* SkOpGlobalState::debugSegment(int id) const {
-    const SkOpContour* contour = fHead;
+    const SkOpContour* contour = fContourHead;
     do {
         const SkOpSegment* segment = contour->first();
         while (segment) {
@@ -1299,7 +1305,7 @@ const SkOpSegment* SkOpGlobalState::debugSegment(int id) const {
 }
 
 const SkOpSpanBase* SkOpGlobalState::debugSpan(int id) const {
-    const SkOpContour* contour = fHead;
+    const SkOpContour* contour = fContourHead;
     do {
         const SkOpSegment* segment = contour->first();
         while (segment) {
@@ -1319,58 +1325,6 @@ const SkOpSpanBase* SkOpGlobalState::debugSpan(int id) const {
     return NULL;
 }
 #endif
-
-const SkOpAngle* DebugAngle(const SkTDArray<SkOpContour* >* contours, int id) {
-    return (*contours)[0]->debugAngle(id);
-}
-
-SkOpContour* DumpContour(const SkTDArray<SkOpContour* >* contours, int id) {
-    return (*contours)[0]->debugContour(id);
-}
-
-const SkOpPtT* DebugPtT(const SkTDArray<SkOpContour* >* contours, int id) {
-    return (*contours)[0]->debugPtT(id);
-}
-
-const SkOpSegment* DebugSegment(const SkTDArray<SkOpContour* >* contours, int id) {
-    return (*contours)[0]->debugSegment(id);
-}
-
-const SkOpSpanBase* DebugSpan(const SkTDArray<SkOpContour* >* contours, int id) {
-    return (*contours)[0]->debugSpan(id);
-}
-
-void Dump(SkTDArray<SkOpContour* >* contours) {
-    SkPathOpsDebug::DumpContours(contours);
-}
-
-void DumpAll(SkTDArray<SkOpContour* >* contours) {
-    SkPathOpsDebug::DumpContoursAll(contours);
-}
-
-void DumpAngles(const SkTDArray<SkOpContour* >* contours) {
-    SkPathOpsDebug::DumpContoursAngles(contours);
-}
-
-void DumpSegment(const SkTDArray<SkOpContour* >* contours, int segmentID) {
-    SkPathOpsDebug::DumpContoursSegment(contours, segmentID);
-}
-
-void DumpSpan(const SkTDArray<SkOpContour* >* contours, int spanID) {
-    SkPathOpsDebug::DumpContoursSpan(contours, spanID);
-}
-
-void DumpSpans(const SkTDArray<SkOpContour* >* contours) {
-    SkPathOpsDebug::DumpContoursSpans(contours);
-}
-
-void DumpPt(const SkTDArray<SkOpContour* >* contours, int segmentID) {
-    SkPathOpsDebug::DumpContoursPt(contours, segmentID);
-}
-
-void DumpPts(const SkTDArray<SkOpContour* >* contours) {
-    SkPathOpsDebug::DumpContoursPts(contours);
-}
 
 #if DEBUG_T_SECT_DUMP > 1
 int gDumpTSectNum;

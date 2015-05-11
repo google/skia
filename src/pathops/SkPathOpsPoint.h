@@ -23,8 +23,6 @@ struct SkDVector {
         fY = pt.fY;
     }
 
-    friend SkDPoint operator+(const SkDPoint& a, const SkDVector& b);
-
     // only used by testing
     void operator+=(const SkDVector& v) {
         fX += v.fX;
@@ -208,7 +206,7 @@ struct SkDPoint {
     }
 
     static bool RoughlyEqual(const SkPoint& a, const SkPoint& b) {
-        if (!RoughlyEqualUlps(a.fX, b.fX) || !RoughlyEqualUlps(a.fY, b.fY)) {
+        if (!RoughlyEqualUlps(a.fX, b.fX) && !RoughlyEqualUlps(a.fY, b.fY)) {
             return false;
         }
         SkDPoint dA, dB;

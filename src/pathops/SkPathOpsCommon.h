@@ -17,19 +17,14 @@ class SkPathWriter;
 void Assemble(const SkPathWriter& path, SkPathWriter* simple);
 SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
                        SkOpSpanBase** endPtr);
-SkOpSegment* FindSortableTop(const SkTDArray<SkOpContour*>& , bool firstPass,
-                              SkOpAngle::IncludeType , bool* firstContour, SkOpSpanBase** index,
-                              SkOpSpanBase** endIndex, SkDPoint* topLeft, bool* unsortable,
-                              bool* done, bool* onlyVertical, SkChunkAlloc* );
-SkOpSegment* FindUndone(SkTDArray<SkOpContour*>& contourList, SkOpSpanBase** startPtr,
+SkOpSpan* FindSortableTop(SkOpContourHead* );
+SkOpSegment* FindUndone(SkOpContourHead* , SkOpSpanBase** startPtr,
                          SkOpSpanBase** endPtr);
-void MakeContourList(SkOpContour* , SkTDArray<SkOpContour*>& list,
-                     bool evenOdd, bool oppEvenOdd);
-bool HandleCoincidence(SkTDArray<SkOpContour*>* , SkOpCoincidence* , SkChunkAlloc* ,
-                       SkOpGlobalState* );
-
+bool SortContourList(SkOpContourHead** , bool evenOdd, bool oppEvenOdd);
+bool HandleCoincidence(SkOpContourHead* , SkOpCoincidence* , SkChunkAlloc* );
+bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result, bool expectSuccess);
 #if DEBUG_ACTIVE_SPANS
-void DebugShowActiveSpans(SkTDArray<SkOpContour*>& contourList);
+void DebugShowActiveSpans(SkOpContourHead* );
 #endif
 
 #endif

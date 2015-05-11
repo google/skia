@@ -188,7 +188,7 @@ static int horizontal_coincident(const SkDLine& line, double y) {
     return 1;
 }
 
-static double horizontal_intercept(const SkDLine& line, double y) {
+double SkIntersections::HorizontalIntercept(const SkDLine& line, double y) {
      return SkPinT((y - line[0].fY) / (line[1].fY - line[0].fY));
 }
 
@@ -214,7 +214,7 @@ int SkIntersections::horizontal(const SkDLine& line, double left, double right,
     }
     int result = horizontal_coincident(line, y);
     if (result == 1 && fUsed == 0) {
-        fT[0][0] = horizontal_intercept(line, y);
+        fT[0][0] = HorizontalIntercept(line, y);
         double xIntercept = line[0].fX + fT[0][0] * (line[1].fX - line[0].fX);
         if (between(left, xIntercept, right)) {
             fT[1][0] = (xIntercept - left) / (right - left);
@@ -264,7 +264,7 @@ static int vertical_coincident(const SkDLine& line, double x) {
     return 1;
 }
 
-static double vertical_intercept(const SkDLine& line, double x) {
+double SkIntersections::VerticalIntercept(const SkDLine& line, double x) {
     return SkPinT((x - line[0].fX) / (line[1].fX - line[0].fX));
 }
 
@@ -290,7 +290,7 @@ int SkIntersections::vertical(const SkDLine& line, double top, double bottom,
     }
     int result = vertical_coincident(line, x);
     if (result == 1 && fUsed == 0) {
-        fT[0][0] = vertical_intercept(line, x);
+        fT[0][0] = VerticalIntercept(line, x);
         double yIntercept = line[0].fY + fT[0][0] * (line[1].fY - line[0].fY);
         if (between(top, yIntercept, bottom)) {
             fT[1][0] = (yIntercept - top) / (bottom - top);

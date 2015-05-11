@@ -124,7 +124,6 @@ protected:
 
 class SkOpSpanBase {
 public:
-    bool addSimpleAngle(bool checkFrom , SkChunkAlloc* );
     void align();
 
     bool aligned() const {
@@ -333,8 +332,6 @@ protected:  // no direct access to internals to avoid treating a span base as a 
 
 class SkOpSpan : public SkOpSpanBase {
 public:
-    void applyCoincidence(SkOpSpan* opp);
-
     bool clearCoincident() {
         SkASSERT(!final());
         if (fCoincident == this) {
@@ -432,12 +429,7 @@ public:
         fToAngle = angle;
     }
 
-    void setWindSum(int windSum) {
-        SkASSERT(!final());
-        SkASSERT(fWindSum == SK_MinS32 || fWindSum == windSum);
-        SkASSERT(!DEBUG_LIMIT_WIND_SUM || abs(windSum) <= DEBUG_LIMIT_WIND_SUM);
-        fWindSum = windSum;
-    }
+    void setWindSum(int windSum);
 
     void setWindValue(int windValue) {
         SkASSERT(!final());
@@ -445,6 +437,8 @@ public:
         SkASSERT(fWindSum == SK_MinS32);
         fWindValue = windValue;
     }
+
+    bool sortableTop(SkOpContour* );
 
     SkOpAngle* toAngle() const {
         SkASSERT(!final());
@@ -469,6 +463,7 @@ private:  // no direct access to internals to avoid treating a span base as a sp
     int fOppSum;  // for binary operators: the opposite winding sum
     int fWindValue;  // 0 == canceled; 1 == normal; >1 == coincident
     int fOppValue;  // normally 0 -- when binary coincident edges combine, opp value goes here
+    int fTopTTry; // specifies direction and t value to try next
     bool fDone;  // if set, this span to next higher T has been processed
 };
 

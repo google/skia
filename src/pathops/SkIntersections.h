@@ -224,7 +224,6 @@ public:
     void alignQuadPts(const SkPoint a[3], const SkPoint b[3]);
     int cleanUpCoincidence();
     int closestTo(double rangeStart, double rangeEnd, const SkDPoint& testPt, double* dist) const;
-    int coincidentUsed() const;
     void cubicInsert(double one, double two, const SkDPoint& pt, const SkDCubic& c1,
                      const SkDCubic& c2);
     void flip();
@@ -235,6 +234,9 @@ public:
     int horizontal(const SkDConic&, double left, double right, double y, bool flipped);
     int horizontal(const SkDCubic&, double left, double right, double y, bool flipped);
     int horizontal(const SkDCubic&, double left, double right, double y, double tRange[3]);
+    static double HorizontalIntercept(const SkDLine& line, double y);
+    static int HorizontalIntercept(const SkDQuad& quad, SkScalar y, double* roots);
+    static int HorizontalIntercept(const SkDConic& conic, SkScalar y, double* roots);
     // FIXME : does not respect swap
     int insert(double one, double two, const SkDPoint& pt);
     void insertNear(double one, double two, const SkDPoint& pt1, const SkDPoint& pt2);
@@ -256,21 +258,15 @@ public:
     int intersectRay(const SkDCubic&, const SkDLine&);
     void merge(const SkIntersections& , int , const SkIntersections& , int );
     int mostOutside(double rangeStart, double rangeEnd, const SkDPoint& origin) const;
-    void quickRemoveOne(int index, int replace);
     void removeOne(int index);
     void setCoincident(int index);
     int vertical(const SkDLine&, double top, double bottom, double x, bool flipped);
     int vertical(const SkDQuad&, double top, double bottom, double x, bool flipped);
     int vertical(const SkDConic&, double top, double bottom, double x, bool flipped);
     int vertical(const SkDCubic&, double top, double bottom, double x, bool flipped);
-    int verticalConic(const SkPoint a[3], SkScalar weight, SkScalar top, SkScalar bottom,
-                      SkScalar x, bool flipped);
-    int verticalCubic(const SkPoint a[4], SkScalar weight, SkScalar top, SkScalar bottom,
-                      SkScalar x, bool flipped);
-    int verticalLine(const SkPoint a[2], SkScalar weight, SkScalar top, SkScalar bottom,
-                     SkScalar x, bool flipped);
-    int verticalQuad(const SkPoint a[3], SkScalar weight, SkScalar top, SkScalar bottom,
-                     SkScalar x, bool flipped);
+    static double VerticalIntercept(const SkDLine& line, double x);
+    static int VerticalIntercept(const SkDQuad& quad, SkScalar x, double* roots);
+    static int VerticalIntercept(const SkDConic& conic, SkScalar x, double* roots);
 
     int depth() const {
 #ifdef SK_DEBUG
@@ -280,6 +276,7 @@ public:
 #endif
     }
 
+    int debugCoincidentUsed() const;
     void dump() const;  // implemented for testing only
 
 private:
@@ -302,8 +299,5 @@ private:
     int fDepth;
 #endif
 };
-
-extern int (SkIntersections::* const CurveVertical[])(const SkPoint[], SkScalar weight,
-            SkScalar top, SkScalar bottom, SkScalar x, bool flipped);
 
 #endif

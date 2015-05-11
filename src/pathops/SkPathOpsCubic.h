@@ -57,8 +57,6 @@ struct SkDCubic {
     double binarySearch(double min, double max, double axisIntercept, SearchAxis xAxis) const;
     double calcPrecision() const;
     SkDCubicPair chopAt(double t) const;
-    bool clockwise(const SkDCubic& whole, bool* swap) const;
-    static bool Clockwise(const SkPoint* pts, double startT, double endT, bool* swap);
     static void Coefficients(const double* cubic, double* A, double* B, double* C, double* D);
     static bool ComplexBreak(const SkPoint pts[4], SkScalar* t, CubicType* cubicType);
     int convexHull(char order[kPointCount]) const;
@@ -77,8 +75,7 @@ struct SkDCubic {
 
     static int FindInflections(const SkPoint a[kPointCount], double tValues[2]) {
         SkDCubic cubic;
-        cubic.set(a);
-        return cubic.findInflections(tValues);
+        return cubic.set(a).findInflections(tValues);
     }
 
     int findMaxCurvature(double tValues[]) const;
@@ -120,8 +117,7 @@ struct SkDCubic {
 
     static SkDCubic SubDivide(const SkPoint a[kPointCount], double t1, double t2) {
         SkDCubic cubic;
-        cubic.set(a);
-        return cubic.subDivide(t1, t2);
+        return cubic.set(a).subDivide(t1, t2);
     }
 
     void subDivide(const SkDPoint& a, const SkDPoint& d, double t1, double t2, SkDPoint p[2]) const;
@@ -129,10 +125,10 @@ struct SkDCubic {
     static void SubDivide(const SkPoint pts[kPointCount], const SkDPoint& a, const SkDPoint& d, double t1,
                           double t2, SkDPoint p[2]) {
         SkDCubic cubic;
-        cubic.set(pts);
-        cubic.subDivide(a, d, t1, t2, p);
+        cubic.set(pts).subDivide(a, d, t1, t2, p);
     }
 
+    double top(const SkDCubic& dCurve, double startT, double endT, SkDPoint*topPt) const;
     SkDQuad toQuad() const;
 
     static const int gPrecisionUnit;

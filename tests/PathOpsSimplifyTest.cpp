@@ -4726,11 +4726,39 @@ static void testQuads64(skiatest::Reporter* reporter,const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
+static void testTriangle1(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 2);
+    path.lineTo(1, 0);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void testTriangle2(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(0, 2);
+    path.lineTo(2, 2);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(testTriangle2),
+    TEST(testTriangle1),
     TEST(testQuads64),
     TEST(testQuads63),
     TEST(testQuads62),

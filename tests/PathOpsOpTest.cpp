@@ -7,7 +7,27 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsTestCommon.h"
 
-#define TEST(name) { name, #name }
+class PathTest_Private {
+public:
+    PathTest_Private(SkPath* path)
+        : fPath(path) {}
+
+    void setPt(int index, SkScalar x, SkScalar y) {
+        fPath->setPt(index, x, y);
+    }
+
+    SkPath* fPath;
+};
+
+static void path_edit(const SkPoint& from, const SkPoint& to, SkPath* path) {
+    PathTest_Private testPath(path);
+    for (int index = 0; index < path->countPoints(); ++index) {
+        if (SkDPoint::ApproximatelyEqual(path->getPoint(index), from)) {
+            testPath.setPt(index, to.fX, to.fY);
+            return;
+        }
+    }
+}
 
 static void cubicOp1d(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
@@ -2455,7 +2475,7 @@ static void skpaiaigames_com870(skiatest::Reporter* reporter, const char* filena
     pathB.cubicTo(145, 715.477173f, 149.477158f, 711, 155, 711);
     pathB.lineTo(317, 711);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 static void cubicOp92i(skiatest::Reporter* reporter, const char* filename) {
@@ -3639,7 +3659,7 @@ static void issue3517(skiatest::Reporter* reporter, const char* filename) {
 
     const char strB[] = "M31.35 57.75L31.35 57.75C31.9 57.7514 32.45 57.7052 33 57.7587C33.55 57.8122 34.1 57.9986 34.65 58.0709C35.2 58.1431 35.75 58.1777 36.3 58.1921C36.85 58.2065 37.4 58.1857 37.95 58.1572C38.5 58.1288 39.05 58.0888 39.6 58.0214C40.15 57.954 40.7 57.7971 41.25 57.7528C41.8 57.7084 42.35 57.7038 42.9 57.7555C43.45 57.8072 44 57.9655 44.55 58.0627C45.1 58.16 45.65 58.2885 46.2 58.3389C46.75 58.3893 47.3 58.3629 47.85 58.3651C48.4 58.3673 48.95 58.356 49.5 58.3522C50.05 58.3484 50.6 58.3447 51.15 58.3421C51.7 58.3395 52.25 58.3399 52.8 58.3366C53.35 58.3333 53.9 58.3269 54.45 58.3224C55 58.318 55.55 58.3084 56.1 58.31C56.65 58.3116 57.2 58.322 57.75 58.332C58.3 58.342 58.85 58.3645 59.4 58.3701C59.95 58.3757 60.5 58.3662 61.05 58.3655C61.6 58.3648 62.15 58.376 62.7 58.366C63.25 58.3559 63.8 58.3269 64.35 58.305C64.9 58.2831 65.45 58.2468 66 58.2345C66.55 58.2222 67.1 58.2353 67.65 58.2313C68.2 58.2272 68.75 58.233 69.3 58.2104C69.85 58.1878 70.4 58.129 70.95 58.0956C71.5 58.0623 72.05 58.0332 72.6 58.0104C73.15 57.9877 73.7 57.955 74.25 57.9592C74.8 57.9635 75.35 57.9932 75.9 58.0359C76.45 58.0787 77 58.1756 77.55 58.2158C78.1 58.256 78.65 58.2837 79.2 58.2772C79.75 58.2707 80.3 58.21 80.85 58.1768C81.4 58.1437 81.95 58.104 82.5 58.0781C83.05 58.0522 83.6 58.0363 84.15 58.0213C84.7 58.0063 85.25 57.9989 85.8 57.9879C86.35 57.977 86.9 57.9589 87.45 57.9556C88 57.9523 88.55 57.9337 89.1 57.9682C89.65 58.0028 90.2 58.1874 90.75 58.163C91.3 58.1387 91.85 57.8912 92.4 57.8224C92.95 57.7535 93.5 57.7621 94.05 57.75C94.6 57.7379 95.15 57.75 95.7 57.75L95.7 57.75L31.35 57.75Z";
     SkParsePath::FromSVGString(strB, &pathB);
-    testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
+    testPathOpCheck(reporter, path, pathB, kUnion_SkPathOp, filename, FLAGS_runFail);
 }
 
 static void cubicOp119(skiatest::Reporter* reporter, const char* filename) {
@@ -4028,29 +4048,6 @@ static void loop12(skiatest::Reporter* reporter, const char* filename) {
     pathB.cubicTo(-3.16666675f,3.66666675f, 6.33333349f,3.33333349f, 1,2);
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
-}
-
-static void loop15(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path, pathB;
-    path.moveTo(2,6);
-    path.cubicTo(1,2, 7.16666698f,6.66666698f, -4.66666651f,7.66666651f);
-    path.close();
-    pathB.moveTo(1,2);
-    pathB.cubicTo(7.16666698f,6.66666698f, -4.66666651f,7.66666651f, 2,6);
-    pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
-}
-
-// lots of loopy interesections -- all points appear to be present -- needs more investigation
-static void loop16(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path, pathB;
-    path.moveTo(1,5);
-    path.cubicTo(0,1, 7.33333302f,5.33333349f, -7,7);
-    path.close();
-    pathB.moveTo(0,1);
-    pathB.cubicTo(7.33333302f,5.33333349f, -7,7, 1,5);
-    pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
 }
 
 static void cubicOp133(skiatest::Reporter* reporter, const char* filename) {
@@ -4540,7 +4537,7 @@ static void loops23i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(0, 1);
     pathB.cubicTo(6.16666698f, 5.66666698f, -5.66666651f, 6.66666651f, 1, 5);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 static void loops24i(skiatest::Reporter* reporter, const char* filename) {
@@ -4579,7 +4576,7 @@ static void loops26i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(0, 2);
     pathB.cubicTo(6.16666698f, 6.66666698f, -5.66666651f, 7.66666651f, 1, 6);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 static void loops27i(skiatest::Reporter* reporter, const char* filename) {
@@ -4670,7 +4667,7 @@ static void loops33i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 2);
     pathB.cubicTo(7.16666698f, 6.66666698f, -4.66666651f, 7.66666651f, 2, 6);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 static void loops33iMod(skiatest::Reporter* reporter, const char* filename) {
@@ -4696,8 +4693,7 @@ static void loops33iMod(skiatest::Reporter* reporter, const char* filename) {
         pathB.moveTo(pts[4]);
         pathB.cubicTo(pts[5], pts[6], pts[7]);
         pathB.close();
-        bool result = testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, name.c_str(),
-            FLAGS_runFail);
+        bool result = testPathOp(reporter, path, pathB, kIntersect_SkPathOp, name.c_str());
         if (lastResult != result) {
             up = !up;
         }
@@ -4831,51 +4827,6 @@ static void loops40iAsQuads(skiatest::Reporter* reporter, const char* filename) 
     testPathOp(reporter, qPath, qPathB, kIntersect_SkPathOp, filename);
 }
 
-static void loops41i(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path, pathB;
-    path.setFillType(SkPath::kWinding_FillType);
-    path.moveTo(1, 5);
-    path.cubicTo(0, 1, 6.16666698f, 5.66666698f, -5.66666651f, 6.66666651f);
-    path.close();
-    pathB.setFillType(SkPath::kWinding_FillType);
-    pathB.moveTo(0, 1);
-    pathB.cubicTo(6.16666698f, 5.66666698f, -5.66666651f, 6.66666651f, 1, 5);
-    pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
-}
-
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
-static void loops42i(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path, pathB;
-    path.setFillType(SkPath::kWinding_FillType);
-    path.moveTo(1, 6);
-    path.cubicTo(0, 2, 6.16666698f, 6.66666698f, -5.66666651f, 7.66666651f);
-    path.close();
-    pathB.setFillType(SkPath::kWinding_FillType);
-    pathB.moveTo(0, 2);
-    pathB.cubicTo(6.16666698f, 6.66666698f, -5.66666651f, 7.66666651f, 1, 6);
-    pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
-}
-
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
-static void loops43i(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path, pathB;
-    path.setFillType(SkPath::kWinding_FillType);
-    path.moveTo(2, 6);
-    path.cubicTo(1, 2, 7.16666698f, 6.66666698f, -4.66666651f, 7.66666651f);
-    path.close();
-    pathB.setFillType(SkPath::kWinding_FillType);
-    pathB.moveTo(1, 2);
-    pathB.cubicTo(7.16666698f, 6.66666698f, -4.66666651f, 7.66666651f, 2, 6);
-    pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
-}
-
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops44i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -4886,11 +4837,9 @@ static void loops44i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(0, 1);
     pathB.cubicTo(7.33333302f, 5.33333349f, -7, 7, 1, 5);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops45i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -4901,11 +4850,9 @@ static void loops45i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(0, 2);
     pathB.cubicTo(7.33333302f, 6.33333302f, -7, 8, 1, 6);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops46i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -4916,7 +4863,7 @@ static void loops46i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 2);
     pathB.cubicTo(8.33333302f, 6.33333302f, -6, 8, 2, 6);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 /*
@@ -4931,11 +4878,9 @@ static void loops47i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(0, 1);
     pathB.cubicTo(6, 5.83333302f, -4, 8, 2, 4);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops48i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -4946,11 +4891,9 @@ static void loops48i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(0, 1);
     pathB.cubicTo(9.33333302f, 6.83333302f, -8.33333302f, 9.16666603f, 2, 6);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops49i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -4961,11 +4904,9 @@ static void loops49i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 4);
     pathB.cubicTo(-0.166666687f, 2.66666675f, 1.66666675f, 2, 0, 2);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops50i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -4976,11 +4917,9 @@ static void loops50i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 5);
     pathB.cubicTo(-0.166666687f, 3.66666675f, 1.66666675f, 3, 0, 3);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops51i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -4991,11 +4930,9 @@ static void loops51i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(2, 4);
     pathB.cubicTo(0.833333313f, 2.66666675f, 2.66666675f, 2, 1, 2);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops52i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -5006,11 +4943,9 @@ static void loops52i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(2, 5);
     pathB.cubicTo(0.833333313f, 3.66666675f, 2.66666675f, 3, 1, 3);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops53i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -5021,11 +4956,9 @@ static void loops53i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(3, 5);
     pathB.cubicTo(1.83333325f, 3.66666675f, 3.66666651f, 3, 2, 3);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops54i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -5036,11 +4969,9 @@ static void loops54i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 4);
     pathB.cubicTo(0, 3, 1.66666675f, 2, 0, 2);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops55i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -5051,11 +4982,9 @@ static void loops55i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 5);
     pathB.cubicTo(0, 4, 1.66666675f, 3, 0, 3);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops56i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -5066,11 +4995,9 @@ static void loops56i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(2, 4);
     pathB.cubicTo(0.99999994f, 3, 2.66666675f, 2, 1, 2);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops57i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -5081,11 +5008,9 @@ static void loops57i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(2, 5);
     pathB.cubicTo(0.99999994f, 4, 2.66666675f, 3, 1, 3);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
 static void loops58i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -5096,11 +5021,28 @@ static void loops58i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(3, 5);
     pathB.cubicTo(2, 4, 3.66666651f, 3, 2, 3);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-/*
-FAILED: d:\cygwin\puregit\tests\pathopsextendedtest.cpp:346	0 */
+static void loops58iAsQuads(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2, 3);
+    path.cubicTo(3, 5, 2, 4, 3.66666651f, 3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(3, 5);
+    pathB.cubicTo(2, 4, 3.66666651f, 3, 2, 3);
+    pathB.close();
+    SkPath qPath, qPathB;
+    CubicPathToQuads(path, &qPath);
+    CubicPathToQuads(pathB, &qPathB);
+//    SkPoint from = {2.61714339f,1.90228665f};
+//    SkPoint to = {2.617045833359139f,1.9013528935803314f};
+//    path_edit(from, to, &qPathB);
+    testPathOp(reporter, qPath, qPathB, kIntersect_SkPathOp, filename);
+}
+
 static void loops59i(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
@@ -5112,28 +5054,6 @@ static void loops59i(skiatest::Reporter* reporter, const char* filename) {
     pathB.cubicTo(7.33333302f, 1.66666663f, -7.5f, 2, 0, 6);
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
-}
-
-class PathTest_Private {
-public:
-    PathTest_Private(SkPath* path)
-        : fPath(path) {}
-
-    void setPt(int index, SkScalar x, SkScalar y) {
-        fPath->setPt(index, x, y);
-    }
-
-    SkPath* fPath;
-};
-
-static void path_edit(const SkPoint& from, const SkPoint& to, SkPath* path) {
-    PathTest_Private testPath(path);
-    for (int index = 0; index < path->countPoints(); ++index) {
-        if (SkDPoint::ApproximatelyEqual(path->getPoint(index), from)) {
-            testPath.setPt(index, to.fX, to.fY);
-            return;
-        }
-    }
 }
 
 static void loops59iasQuads(skiatest::Reporter* reporter, const char* filename) {
@@ -5168,17 +5088,87 @@ static void cubics41d(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
 }
 
+void loops61i(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 1);
+    path.cubicTo(1, 5, -6.33333302f, 0.666666627f, 8, -1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 5);
+    pathB.cubicTo(-6.33333302f, 0.666666627f, 8, -1, 0, 1);
+    pathB.close();
+    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+}
+
+static void loops62i(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 2);
+    path.cubicTo(1, 6, -6.33333302f, 1.66666663f, 8, 0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 6);
+    pathB.cubicTo(-6.33333302f, 1.66666663f, 8, 0, 0, 2);
+    pathB.close();
+    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+}
+
+static void loops63i(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 1);
+    path.cubicTo(2, 4, -4, -0.833333254f, 6, -3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2, 4);
+    pathB.cubicTo(-4, -0.833333254f, 6, -3, 0, 1);
+    pathB.close();
+    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+}
+
+static void cubics44d(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(3, 4);
+    path.cubicTo(2, 5, 3, 1, 6, 2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 3);
+    pathB.cubicTo(2, 6, 4, 3, 5, 2);
+    pathB.close();
+    testPathOpCheck(reporter, path, pathB, kDifference_SkPathOp, filename, FLAGS_runFail);
+}
+
+static void cubics45u(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1, 3);
+    path.cubicTo(2, 6, 4, 3, 5, 2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(3, 4);
+    pathB.cubicTo(2, 5, 3, 1, 6, 2);
+    pathB.close();
+    testPathOpCheck(reporter, path, pathB, kUnion_SkPathOp, filename, FLAGS_runFail);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = loops59i;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
+#define TEST(name) { name, #name }
+
 static struct TestDesc tests[] = {
+    TEST(cubics44d),
+    TEST(cubics45u),
+    TEST(loops61i),
+    TEST(loops62i),
+    TEST(loops63i),
+    TEST(loops58iAsQuads),
     TEST(cubics41d),
     TEST(loops59iasQuads),
     TEST(loops59i),
-    TEST(loops41i),
-    TEST(loops42i),
-    TEST(loops43i),
     TEST(loops44i),
     TEST(loops45i),
     TEST(loops46i),
@@ -5254,8 +5244,6 @@ static struct TestDesc tests[] = {
     TEST(cubicOp135),
     TEST(cubicOp134),
     TEST(cubicOp133),
-    TEST(loop16),
-    TEST(loop15),
     TEST(loop12),
     TEST(cubicOp132),
     TEST(loop11),
@@ -5509,58 +5497,16 @@ static struct TestDesc tests[] = {
 static const size_t testCount = SK_ARRAY_COUNT(tests);
 
 static struct TestDesc subTests[] = {
-    TEST(loops40i),
-    TEST(loops39i),
-    TEST(loops38i),
-    TEST(loops37i),
-    TEST(loops36i),
-    TEST(loops35i),
-    TEST(loops34i),
-    TEST(loops33i),
-    TEST(loops32i),
-    TEST(loops31i),
-    TEST(loops30i),
-    TEST(loops29i),
-    TEST(loops28i),
-    TEST(loops27i),
-    TEST(loops26i),
-    TEST(loops25i),
-    TEST(loops24i),
-    TEST(loops23i),
-    TEST(loops22i),
-    TEST(loops21i),
-    TEST(loops20i),
-    TEST(cubics20d),
-    TEST(cubics6d),
-    TEST(cubics7d),
-    TEST(cubics8d),
-    TEST(cubics9d),
-    TEST(cubics10u),
-    TEST(cubics11i),
-    TEST(cubics12d),
-    TEST(cubics13d),
-    TEST(cubics14d),
-    TEST(cubics15d),
-    TEST(cubics16i),
-    TEST(cubics17d),
-    TEST(cubics18d),
-    TEST(cubics19d),
-    TEST(cubicOp157),
-    TEST(cubicOp142),
-    TEST(loops4i),
-    TEST(quadRect1),
-    TEST(quadRect2),
-    TEST(quadRect3),
-    TEST(quadRect4),
-    TEST(quadRect5),
-    TEST(quadRect6),
+    TEST(cubics45u),
+    TEST(loops61i),
+    TEST(loops62i),
 };
 
 static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
 
 static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = 0;
 
-static bool runSubTests = false;
+static bool runSubTests = true;
 static bool runSubTestsFirst = true;
 static bool runReverse = false;
 
@@ -5582,7 +5528,7 @@ static void bufferOverflow(skiatest::Reporter* reporter, const char* filename) {
     path.addRect(0,0, 300,170141183460469231731687303715884105728.f);
     SkPath pathB;
     pathB.addRect(0,0, 300,16);
-    testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
+    testPathOpFailCheck(reporter, path, pathB, kUnion_SkPathOp, filename);
 }
 
 // m 100,0 60,170 -160,-110 200,0 -170,11000000000 z
@@ -5769,10 +5715,10 @@ path.close();
 }
 
 static struct TestDesc failTests[] = {
+    TEST(fuzz487a),
     TEST(fuzz433),
     TEST(fuzz1),
     TEST(fuzz714),
-    TEST(fuzz487a),
     TEST(fuzz487b),
     TEST(fuzz433b),
     TEST(bufferOverflow),

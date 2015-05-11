@@ -42,7 +42,7 @@ struct SkOpAngle {
         return SkDEBUGRELEASE(fID, -1);
     }
 
-#if DEBUG_SORT || DEBUG_SWAP_TOP
+#if DEBUG_SORT
     void debugLoop() const;
 #endif
 
@@ -51,6 +51,7 @@ struct SkOpAngle {
 #endif
     const SkOpPtT* debugPtT(int id) const;
     const SkOpSegment* debugSegment(int id) const;
+    int debugSign() const;
     const SkOpSpanBase* debugSpan(int id) const;
     void debugValidate() const; 
     void debugValidateNext() const;  // in debug builds, verify that angle loop is uncorrupted
@@ -69,14 +70,12 @@ struct SkOpAngle {
 
     bool endsIntersect(SkOpAngle* );
     bool endToSide(const SkOpAngle* rh, bool* inside) const;
-    SkOpAngle* findFirst();
     int findSector(SkPath::Verb verb, double x, double y) const;
     SkOpGlobalState* globalState() const;
     void insert(SkOpAngle* );
     SkOpSpanBase* lastMarked() const;
     bool loopContains(const SkOpAngle* ) const;
     int loopCount() const;
-    bool markStops();
     bool merge(SkOpAngle* );
     double midT() const;
     bool midToSide(const SkOpAngle* rh, bool* inside) const;
@@ -112,7 +111,6 @@ struct SkOpAngle {
 
     void setSector();
     void setSpans();
-    int sign() const;
 
     SkOpSpanBase* start() const {
         return fStart;
@@ -138,7 +136,6 @@ struct SkOpAngle {
     int8_t fSectorStart;  // in 32nds of a circle
     int8_t fSectorEnd;
     bool fIsCurve;
-    bool fStop;  // set if ordered angle is greater than the previous
     bool fUnorderable;
     bool fUnorderedSweep;  // set when a cubic's first control point between the sweep vectors
     bool fComputeSector;

@@ -360,6 +360,10 @@ recomputeSector:
         fUnorderable = true;
         return false;
     }
+    if (stepUp != (fStart->t() < computedEnd->t())) {
+        fUnorderable = true;
+        return false;
+    }
     SkOpSpanBase* saveEnd = fEnd;
     fComputedEnd = fEnd = computedEnd;
     setSpans();
@@ -597,78 +601,6 @@ bool SkOpAngle::endToSide(const SkOpAngle* rh, bool* inside) const {
     return true;
 }
 
-// Most of the time, the first one can be found trivially by detecting the smallest sector value.
-// If all angles have the same sector value, actual sorting is required.
-SkOpAngle* SkOpAngle::findFirst() {
-    SkOpAngle* best = this;
-    int bestStart = SkTMin(fSectorStart, fSectorEnd);
-    SkOpAngle* angle = this;
-    while ((angle = angle->fNext) != this) {
-        int angleEnd = SkTMax(angle->fSectorStart, angle->fSectorEnd);
-        if (angleEnd < bestStart) {
-            return angle;    // we wrapped around
-        }
-        int angleStart = SkTMin(angle->fSectorStart, angle->fSectorEnd);
-        if (bestStart > angleStart) {
-            best = angle;
-            bestStart = angleStart;
-        }
-    }
-    // back up to the first possible angle
-    SkOpAngle* firstBest = best;
-    angle = best;
-    int bestEnd = SkTMax(best->fSectorStart, best->fSectorEnd);
-    while ((angle = angle->previous()) != firstBest) {
-        if (angle->fStop) {
-            break;
-        }
-        int angleStart = SkTMin(angle->fSectorStart, angle->fSectorEnd);
-        // angles that are smaller by one aren't necessary better, since the larger may be a line
-        // and the smaller may be a curve that curls to the other side of the line.
-        if (bestEnd + 1 < angleStart) {
-            return best;
-        }
-        best = angle;
-        bestEnd = SkTMax(angle->fSectorStart, angle->fSectorEnd);
-    }
-    // in the case where all angles are nearly in the same sector, check the order to find the best
-    firstBest = best;
-    angle = best;
-    do {
-        angle = angle->fNext;
-        if (angle->fStop) {
-            return firstBest;
-        }
-        bool orderable = best->orderable(angle);  // note: may return an unorderable angle
-        if (orderable == 0) {
-            return angle;
-        }
-        best = angle;
-    } while (angle != firstBest);
-    // if the angles are equally ordered, fall back on the initial tangent
-    bool foundBelow = false;
-    while ((angle = angle->fNext)) {
-        SkDVector scratch[2];
-        const SkDVector* sweep;
-        if (!angle->fUnorderedSweep) {
-            sweep = angle->fSweep;
-        } else {
-            scratch[0] = angle->fCurvePart[1] - angle->fCurvePart[0];
-            sweep = &scratch[0];
-        }
-        bool isAbove = sweep->fY <= 0;
-        if (isAbove && foundBelow) {
-            return angle;
-        }
-        foundBelow |= !isAbove;
-        if (angle == firstBest) {
-            return NULL; // should not loop around
-        }
-    }
-    SkASSERT(0);  // should never get here
-    return NULL;
-}
-
 /*      y<0 y==0 y>0  x<0 x==0 x>0 xy<0 xy==0 xy>0
     0    x                      x               x
     1    x                      x          x
@@ -816,26 +748,6 @@ int SkOpAngle::loopCount() const {
     return count;
 }
 
-// OPTIMIZATION: can this be done better in after when angles are sorted?
-bool SkOpAngle::markStops() {
-    SkOpAngle* angle = this;
-    int lastEnd = SkTMax(fSectorStart, fSectorEnd);
-    do {
-        angle = angle->fNext;
-        if (!angle) {
-            return false;
-        }
-        int angleStart = SkTMin(angle->fSectorStart, angle->fSectorEnd);
-        // angles that are smaller by one aren't necessary better, since the larger may be a line
-        // and the smaller may be a curve that curls to the other side of the line.
-        if (lastEnd + 1 < angleStart) {
-            angle->fStop = true;
-        }
-        lastEnd = SkTMax(angle->fSectorStart, angle->fSectorEnd);
-    } while (angle != this);
-    return true;
-}
-
 bool SkOpAngle::merge(SkOpAngle* angle) {
     SkASSERT(fNext);
     SkASSERT(angle->fNext);
@@ -968,7 +880,6 @@ void SkOpAngle::set(SkOpSpanBase* start, SkOpSpanBase* end) {
     SkASSERT(start != end);
     fNext = NULL;
     fComputeSector = fComputedSector = fCheckCoincidence = false;
-    fStop = false;
     setSpans();
     setSector();
     SkDEBUGCODE(fID = start ? start->globalState()->nextAngleID() : -1);
@@ -1155,11 +1066,6 @@ deferTilLater:
     } else {
         fSectorMask = (unsigned) -1 >> (31 - start) | (-1 << end);
     }
-}
-
-int SkOpAngle::sign() const {
-    SkASSERT(fStart->t() != fEnd->t());
-    return fStart->t() < fEnd->t() ? -1 : 1;
 }
 
 SkOpSpan* SkOpAngle::starter() {

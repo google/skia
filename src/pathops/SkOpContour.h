@@ -12,6 +12,8 @@
 #include "SkTSort.h"
 
 class SkChunkAlloc;
+enum class SkOpRayDir;
+struct SkOpRayHit;
 class SkPathWriter;
 
 class SkOpContour {
@@ -106,7 +108,7 @@ public:
     }
 
     int debugIndent() const {
-        return SkDEBUGRELEASE(fIndent, 0);
+        return SkDEBUGRELEASE(fDebugIndent, 0);
     }
 
 #if DEBUG_ACTIVE_SPANS
@@ -119,23 +121,23 @@ public:
 #endif
 
     const SkOpAngle* debugAngle(int id) const {
-        return SkDEBUGRELEASE(globalState()->debugAngle(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugAngle(id), NULL);
     }
 
     SkOpContour* debugContour(int id) {
-        return SkDEBUGRELEASE(globalState()->debugContour(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugContour(id), NULL);
     }
 
     const SkOpPtT* debugPtT(int id) const {
-        return SkDEBUGRELEASE(globalState()->debugPtT(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugPtT(id), NULL);
     }
 
     const SkOpSegment* debugSegment(int id) const {
-        return SkDEBUGRELEASE(globalState()->debugSegment(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugSegment(id), NULL);
     }
 
     const SkOpSpanBase* debugSpan(int id) const {
-        return SkDEBUGRELEASE(globalState()->debugSpan(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugSpan(id), NULL);
     }
 
     SkOpGlobalState* globalState() const {
@@ -159,9 +161,17 @@ public:
         return fDone;
     }
 
-    void dump();
-    void dumpAll();
+    void dump() const;
+    void dumpAll() const;
     void dumpAngles() const;
+    void dumpContours() const;
+    void dumpContoursAll() const;
+    void dumpContoursAngles() const;
+    void dumpContoursPts() const;
+    void dumpContoursPt(int segmentID) const;
+    void dumpContoursSegment(int segmentID) const;
+    void dumpContoursSpan(int segmentID) const;
+    void dumpContoursSpans() const;
     void dumpPt(int ) const;
     void dumpPts() const;
     void dumpPtsX() const;
@@ -174,6 +184,8 @@ public:
         return fTail->pts()[SkPathOpsVerbToPoints(fTail->verb())];
     }
 
+    SkOpSpan* findSortableTop(SkOpContour* );
+
     SkOpSegment* first() {
         SkASSERT(fCount > 0);
         return &fHead;
@@ -184,8 +196,8 @@ public:
         return &fHead;
     }
 
-    void indentDump() {
-        SkDEBUGCODE(fIndent += 2);
+    void indentDump() const {
+        SkDEBUGCODE(fDebugIndent += 2);
     }
 
     void init(SkOpGlobalState* globalState, bool operand, bool isXor) {
@@ -236,8 +248,6 @@ public:
         return fNext;
     }
 
-    SkOpSegment* nonVerticalSegment(SkOpSpanBase** start, SkOpSpanBase** end);
-
     bool operand() const {
         return fOperand;
     }
@@ -246,9 +256,11 @@ public:
         return fOppXor;
     }
 
-    void outdentDump() {
-        SkDEBUGCODE(fIndent -= 2);
+    void outdentDump() const {
+        SkDEBUGCODE(fDebugIndent -= 2);
     }
+
+    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc* );
 
     void remove(SkOpContour* contour) {
         if (contour == this) {
@@ -271,9 +283,10 @@ public:
         fNext = NULL;
         fCount = 0;
         fDone = false;
+        fTopsFound = false;
         SkDEBUGCODE(fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin));
         SkDEBUGCODE(fFirstSorted = -1);
-        SkDEBUGCODE(fIndent = 0);
+        SkDEBUGCODE(fDebugIndent = 0);
     }
 
     void setBounds() {
@@ -316,15 +329,6 @@ public:
         } while ((segment = segment->next()));
     }
 
-    void sortSegments() {
-        SkOpSegment* segment = &fHead;
-        do {
-            *fSortedSegments.append() = segment;
-        } while ((segment = segment->next()));
-        SkTQSort<SkOpSegment>(fSortedSegments.begin(), fSortedSegments.end() - 1);
-        fFirstSorted = 0;
-    }
-
     const SkPoint& start() const {
         return fHead.pts()[0];
     }
@@ -344,7 +348,6 @@ public:
     }
 
     void toPath(SkPathWriter* path) const;
-    void topSortableSegment(const SkDPoint& topLeft, SkDPoint* bestXY, SkOpSegment** topStart);
     SkOpSegment* undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr);
 
 private:
@@ -352,16 +355,19 @@ private:
     SkOpSegment fHead;
     SkOpSegment* fTail;
     SkOpContour* fNext;
-    SkTDArray<SkOpSegment*> fSortedSegments;  // set by find top segment
     SkPathOpsBounds fBounds;
     int fCount;
     int fFirstSorted;
     bool fDone;  // set by find top segment
+    bool fTopsFound;
     bool fOperand;  // true for the second argument to a binary operator
     bool fXor;  // set if original path had even-odd fill
     bool fOppXor;  // set if opposite path had even-odd fill
     SkDEBUGCODE(int fID);
-    SkDEBUGCODE(int fIndent);
+    SkDEBUGCODE(mutable int fDebugIndent);
+};
+
+class SkOpContourHead : public SkOpContour {
 };
 
 #endif

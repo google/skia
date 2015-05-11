@@ -10,24 +10,20 @@
 bool TightBounds(const SkPath& path, SkRect* result) {
     SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpContour contour;
-    SkOpGlobalState globalState( NULL  SkDEBUGPARAMS(&contour));
+    SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
+    SkOpGlobalState globalState(NULL, contourList);
     // turn path into list of segments
     SkOpEdgeBuilder builder(path, &contour, &allocator, &globalState);
     if (!builder.finish(&allocator)) {
         return false;
     }
-    SkTDArray<SkOpContour* > contourList;
-    MakeContourList(&contour, contourList, false, false);
-    SkOpContour** currentPtr = contourList.begin();
-    result->setEmpty();
-    if (!currentPtr) {
+    if (!SortContourList(&contourList, false, false)) {
+        result->setEmpty();
         return true;
     }
-    SkOpContour** listEnd = contourList.end();
-    SkOpContour* current = *currentPtr++;
+    SkOpContour* current = contourList;
     SkPathOpsBounds bounds = current->bounds();
-    while (currentPtr != listEnd) {
-        current = *currentPtr++;
+    while ((current = current->next())) {
         bounds.add(current->bounds());
     }
     *result = bounds;

@@ -73,39 +73,6 @@ void SkDQuad::otherPts(int oddMan, const SkDPoint* endPt[2]) const {
     }
 }
 
-// from http://blog.gludion.com/2009/08/distance-to-quadratic-bezier-curve.html
-// (currently only used by testing)
-double SkDQuad::nearestT(const SkDPoint& pt) const {
-    SkDVector pos = fPts[0] - pt;
-    // search points P of bezier curve with PM.(dP / dt) = 0
-    // a calculus leads to a 3d degree equation :
-    SkDVector A = fPts[1] - fPts[0];
-    SkDVector B = fPts[2] - fPts[1];
-    B -= A;
-    double a = B.dot(B);
-    double b = 3 * A.dot(B);
-    double c = 2 * A.dot(A) + pos.dot(B);
-    double d = pos.dot(A);
-    double ts[3];
-    int roots = SkDCubic::RootsValidT(a, b, c, d, ts);
-    double d0 = pt.distanceSquared(fPts[0]);
-    double d2 = pt.distanceSquared(fPts[2]);
-    double distMin = SkTMin(d0, d2);
-    int bestIndex = -1;
-    for (int index = 0; index < roots; ++index) {
-        SkDPoint onQuad = ptAtT(ts[index]);
-        double dist = pt.distanceSquared(onQuad);
-        if (distMin > dist) {
-            distMin = dist;
-            bestIndex = index;
-        }
-    }
-    if (bestIndex >= 0) {
-        return ts[bestIndex];
-    }
-    return d0 < d2 ? 0 : 1;
-}
-
 int SkDQuad::AddValidTs(double s[], int realRoots, double* t) {
     int foundRoots = 0;
     for (int index = 0; index < realRoots; ++index) {
@@ -186,25 +153,6 @@ bool SkDQuad::isLinear(int startIndex, int endIndex) const {
             fPts[1].fX), fPts[1].fY), fPts[2].fX), fPts[2].fY);
     largest = SkTMax(largest, -tiniest);
     return approximately_zero_when_compared_to(distance, largest);
-}
-
-SkDConic SkDQuad::toConic() const {
-    SkDConic conic;
-    memcpy(conic.fPts.fPts, fPts, sizeof(fPts));
-    conic.fWeight = 1;
-    return conic;
-}
-
-SkDCubic SkDQuad::toCubic() const {
-    SkDCubic cubic;
-    cubic[0] = fPts[0];
-    cubic[2] = fPts[1];
-    cubic[3] = fPts[2];
-    cubic[1].fX = (cubic[0].fX + cubic[2].fX * 2) / 3;
-    cubic[1].fY = (cubic[0].fY + cubic[2].fY * 2) / 3;
-    cubic[2].fX = (cubic[3].fX + cubic[2].fX * 2) / 3;
-    cubic[2].fY = (cubic[3].fY + cubic[2].fY * 2) / 3;
-    return cubic;
 }
 
 SkDVector SkDQuad::dxdyAtT(double t) const {
@@ -344,17 +292,6 @@ SkDQuadPair SkDQuad::chopAt(double t) const
     interp_quad_coords(&fPts[0].fX, &dst.pts[0].fX, t);
     interp_quad_coords(&fPts[0].fY, &dst.pts[0].fY, t);
     return dst;
-}
-
-bool SkDQuad::Clockwise(const SkOpCurve& edge, bool* swap) {
-    SkDQuad temp;
-    double sum = (edge[0].fX - edge[kPointLast].fX) * (edge[0].fY + edge[kPointLast].fY);
-    for (int idx = 0; idx < kPointLast; ++idx){
-        sum += (edge[idx + 1].fX - edge[idx].fX) * (edge[idx + 1].fY + edge[idx].fY);
-    }
-    temp.set(edge.fPts);
-    *swap = sum > 0 && !temp.monotonicInY();
-    return sum <= 0;
 }
 
 static int valid_unit_divide(double numer, double denom, double* ratio)

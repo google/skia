@@ -95,10 +95,17 @@ public:
 
     LineQuadraticIntersections(const SkDQuad& q, const SkDLine& l, SkIntersections* i)
         : fQuad(q)
-        , fLine(l)
+        , fLine(&l)
         , fIntersections(i)
         , fAllowNear(true) {
         i->setMax(3);  // allow short partial coincidence plus discrete intersection
+    }
+
+    LineQuadraticIntersections(const SkDQuad& q)
+        : fQuad(q) 
+        SkDEBUGPARAMS(fLine(NULL))
+        SkDEBUGPARAMS(fIntersections(NULL))
+        SkDEBUGPARAMS(fAllowNear(false)) {
     }
 
     void allowNear(bool allow) {
@@ -110,7 +117,7 @@ public:
         for (int index = 0; index < last; ) {
             double quadMidT = ((*fIntersections)[0][index] + (*fIntersections)[0][index + 1]) / 2;
             SkDPoint quadMidPt = fQuad.ptAtT(quadMidT);
-            double t = fLine.nearPoint(quadMidPt, NULL);
+            double t = fLine->nearPoint(quadMidPt, NULL);
             if (t < 0) {
                 ++index;
                 continue;
@@ -144,11 +151,11 @@ public:
         for each of the three points (e.g. n = 0 to 2)
         quad[n].fY' = (quad[n].fY - line[0].fY) * A - (quad[n].fX - line[0].fX) * O
     */
-        double adj = fLine[1].fX - fLine[0].fX;
-        double opp = fLine[1].fY - fLine[0].fY;
+        double adj = (*fLine)[1].fX - (*fLine)[0].fX;
+        double opp = (*fLine)[1].fY - (*fLine)[0].fY;
         double r[3];
         for (int n = 0; n < 3; ++n) {
-            r[n] = (fQuad[n].fY - fLine[0].fY) * adj - (fQuad[n].fX - fLine[0].fX) * opp;
+            r[n] = (fQuad[n].fY - (*fLine)[0].fY) * adj - (fQuad[n].fX - (*fLine)[0].fX) * opp;
         }
         double A = r[2];
         double B = r[1];
@@ -269,7 +276,7 @@ protected:
     // add endpoints first to get zero and one t values exactly
     void addExactEndPoints() {
         for (int qIndex = 0; qIndex < 3; qIndex += 2) {
-            double lineT = fLine.exactPoint(fQuad[qIndex]);
+            double lineT = fLine->exactPoint(fQuad[qIndex]);
             if (lineT < 0) {
                 continue;
             }
@@ -284,7 +291,7 @@ protected:
             if (fIntersections->hasT(quadT)) {
                 continue;
             }
-            double lineT = fLine.nearPoint(fQuad[qIndex], NULL);
+            double lineT = fLine->nearPoint(fQuad[qIndex], NULL);
             if (lineT < 0) {
                 continue;
             }
@@ -347,12 +354,12 @@ protected:
 
     double findLineT(double t) {
         SkDPoint xy = fQuad.ptAtT(t);
-        double dx = fLine[1].fX - fLine[0].fX;
-        double dy = fLine[1].fY - fLine[0].fY;
+        double dx = (*fLine)[1].fX - (*fLine)[0].fX;
+        double dy = (*fLine)[1].fY - (*fLine)[0].fY;
         if (fabs(dx) > fabs(dy)) {
-            return (xy.fX - fLine[0].fX) / dx;
+            return (xy.fX - (*fLine)[0].fX) / dx;
         }
-        return (xy.fY - fLine[0].fY) / dy;
+        return (xy.fY - (*fLine)[0].fY) / dy;
     }
 
     bool pinTs(double* quadT, double* lineT, SkDPoint* pt, PinTPoint ptSet) {
@@ -365,16 +372,16 @@ protected:
         double qT = *quadT = SkPinT(*quadT);
         double lT = *lineT = SkPinT(*lineT);
         if (lT == 0 || lT == 1 || (ptSet == kPointUninitialized && qT != 0 && qT != 1)) {
-            *pt = fLine.ptAtT(lT);
+            *pt = (*fLine).ptAtT(lT);
         } else if (ptSet == kPointUninitialized) {
             *pt = fQuad.ptAtT(qT);
         }
         SkPoint gridPt = pt->asSkPoint();
-        if (SkDPoint::ApproximatelyEqual(gridPt, fLine[0].asSkPoint())) {
-            *pt = fLine[0];
+        if (SkDPoint::ApproximatelyEqual(gridPt, (*fLine)[0].asSkPoint())) {
+            *pt = (*fLine)[0];
             *lineT = 0;
-        } else if (SkDPoint::ApproximatelyEqual(gridPt, fLine[1].asSkPoint())) {
-            *pt = fLine[1];
+        } else if (SkDPoint::ApproximatelyEqual(gridPt, (*fLine)[1].asSkPoint())) {
+            *pt = (*fLine)[1];
             *lineT = 1;
         }
         if (fIntersections->used() > 0 && approximately_equal((*fIntersections)[1][0], *lineT)) {
@@ -392,7 +399,7 @@ protected:
 
 private:
     const SkDQuad& fQuad;
-    const SkDLine& fLine;
+    const SkDLine* fLine;
     SkIntersections* fIntersections;
     bool fAllowNear;
 };
@@ -424,4 +431,14 @@ int SkIntersections::intersectRay(const SkDQuad& quad, const SkDLine& line) {
         fPt[index] = quad.ptAtT(fT[0][index]);
     }
     return fUsed;
+}
+
+int SkIntersections::HorizontalIntercept(const SkDQuad& quad, SkScalar y, double* roots) {
+    LineQuadraticIntersections q(quad);
+    return q.horizontalIntersect(y, roots);
+}
+
+int SkIntersections::VerticalIntercept(const SkDQuad& quad, SkScalar x, double* roots) {
+    LineQuadraticIntersections q(quad);
+    return q.verticalIntersect(x, roots);
 }

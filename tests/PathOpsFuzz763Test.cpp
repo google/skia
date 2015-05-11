@@ -454,7 +454,7 @@ path.quadTo(SkBits2Float(0xc2382594), SkBits2Float(0x41a85c76), SkBits2Float(0xc
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 
@@ -932,7 +932,7 @@ path.quadTo(SkBits2Float(0x42240000), SkBits2Float(0x41ed7d86), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_24588(skiatest::Reporter* reporter, const char* filename) {
@@ -1528,7 +1528,7 @@ path.quadTo(SkBits2Float(0xc238d05c), SkBits2Float(0x41a56952), SkBits2Float(0xc
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz763_34974(skiatest::Reporter* reporter, const char* filename) {
@@ -2198,7 +2198,7 @@ path.quadTo(SkBits2Float(0x424a2ff8), SkBits2Float(0xc02cd470), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOpFlaky(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_2674194(skiatest::Reporter* reporter, const char* filename) {
@@ -2391,11 +2391,11 @@ path.quadTo(SkBits2Float(0x42240000), SkBits2Float(0x41ed7d86), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = fuzz763_2674194;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {

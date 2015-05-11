@@ -47,19 +47,6 @@ struct SkPathOpsBounds : public SkRect {
                 && AlmostLessOrEqualUlps(pt.fY, fBottom);
     }
 
-    // unlike isEmpty(), this permits lines, but not points
-    // FIXME: unused for now
-    bool isReallyEmpty() const {
-        // use !<= instead of > to detect NaN values
-        return !(fLeft <= fRight) || !(fTop <= fBottom)
-                || (fLeft == fRight && fTop == fBottom);
-    }
-
-    void setPointBounds(const SkDPoint& pt) {
-        fLeft = fRight = SkDoubleToScalar(pt.fX);
-        fTop = fBottom = SkDoubleToScalar(pt.fY);
-    }
-
     typedef SkRect INHERITED;
 };
 

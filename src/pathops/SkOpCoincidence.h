@@ -36,6 +36,7 @@ public:
     bool apply();
     bool contains(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,
                   SkOpPtT* oppPtTEnd, bool flipped);
+    void debugShowCoincidence() const;
     void detach(SkCoincidentSpans* );
     void dump() const;
     void expand();

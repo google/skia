@@ -4831,7 +4831,7 @@ path.lineTo(SkBits2Float(0x425b4ae0), SkBits2Float(0x427944c0));
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 // op end success 1
 
@@ -10681,7 +10681,7 @@ path.close();
     testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = battleOp1394;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = battleOp121;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
