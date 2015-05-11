@@ -66,6 +66,7 @@ void GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
     } while (textContext);
 
     // fall back to drawing as a path
+    SkASSERT(fGpuDevice);
     this->drawTextAsPath(skPaint, viewMatrix, text, byteLength, x, y, clipBounds);
 }
 
@@ -89,6 +90,7 @@ void GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
     } while (textContext);
 
     // fall back to drawing as a path
+    SkASSERT(fGpuDevice);
     this->drawPosTextAsPath(skPaint, viewMatrix, text, byteLength, pos, scalarsPerPosition, offset,
                             clipBounds);
 }

@@ -19,6 +19,11 @@
 #include "SkTextBlob.h"
 #include "SkTInternalLList.h"
 
+#ifdef GR_TEST_UTILS
+#include "GrBatchTest.h"
+#endif
+
+class BitmapTextBatch;
 class GrPipelineBuilder;
 class GrTextBlobCache;
 
@@ -265,6 +270,10 @@ private:
     inline void flushRunAsPaths(const SkTextBlob::RunIterator&, const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                                 SkScalar y);
+    inline BitmapTextBatch* createBatch(BitmapTextBlob*, const PerSubRunInfo&,
+                                        int glyphCount, int run, int subRun,
+                                        GrColor, SkScalar transX, SkScalar transY,
+                                        const SkPaint&);
     inline void flushRun(GrDrawTarget*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
     inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
@@ -332,6 +341,20 @@ private:
     inline void initDistanceFieldPaint(BitmapTextBlob*, SkPaint*, SkScalar* textRatio,
                                        const SkMatrix&);
 
+    // Test methods
+    // TODO this is really ugly.  It'd be much nicer if positioning could be moved to batch
+    inline BitmapTextBlob* createDrawTextBlob(GrRenderTarget*, const GrClip&, const GrPaint&,
+                                              const SkPaint&, const SkMatrix& viewMatrix,
+                                              const char text[], size_t byteLength,
+                                              SkScalar x, SkScalar y,
+                                              const SkIRect& regionClipBounds);
+    inline BitmapTextBlob* createDrawPosTextBlob(GrRenderTarget*, const GrClip&, const GrPaint&,
+                                                 const SkPaint&, const SkMatrix& viewMatrix,
+                                                 const char text[], size_t byteLength,
+                                                 const SkScalar pos[], int scalarsPerPosition,
+                                                 const SkPoint& offset,
+                                                 const SkIRect& regionClipBounds);
+
     // Distance field text needs this table to compute a value for use in the fragment shader.
     // Because the GrAtlasTextContext can go out of scope before the final flush, this needs to be
     // refcnted and malloced
@@ -359,6 +382,10 @@ private:
 
     friend class GrTextBlobCache;
     friend class BitmapTextBatch;
+
+#ifdef GR_TEST_UTILS
+    BATCH_TEST_FRIEND(TextBlob);
+#endif
 
     typedef GrTextContext INHERITED;
 };

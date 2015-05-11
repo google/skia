@@ -29,7 +29,9 @@ typedef GrBatch* (*BatchTestFunc)(SkRandom* random, GrContext* context);
 #define BATCH_TEST_EXTERN(Batch) \
     extern GrBatch* Batch##__Test(SkRandom*, GrContext* context);
 #define BATCH_TEST_ENTRY(Batch) \
-        Batch##__Test
+    Batch##__Test
+#define BATCH_TEST_FRIEND(Batch) \
+    friend GrBatch* Batch##__Test(SkRandom* random, GrContext* context);
 
 GrBatch* GrRandomBatch(SkRandom*, GrContext*);
 

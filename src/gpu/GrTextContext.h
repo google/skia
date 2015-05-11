@@ -12,7 +12,6 @@
 #include "GrGlyph.h"
 #include "GrPaint.h"
 #include "SkDeviceProperties.h"
-
 #include "SkPostConfig.h"
 
 class GrClip;
