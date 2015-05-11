@@ -10,6 +10,7 @@
 
 #include "GrBatch.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
@@ -553,6 +554,28 @@ private:
     PathDataList* fPathList;
 };
 
+static GrBatchAtlas* create_atlas(GrContext* context, GrBatchAtlas::EvictionFunc func, void* data) {
+    GrBatchAtlas* atlas;
+    // Create a new atlas
+    GrSurfaceDesc desc;
+    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fWidth = ATLAS_TEXTURE_WIDTH;
+    desc.fHeight = ATLAS_TEXTURE_HEIGHT;
+    desc.fConfig = kAlpha_8_GrPixelConfig;
+
+    // We don't want to flush the context so we claim we're in the middle of flushing so as to
+    // guarantee we do not recieve a texture with pending IO
+    GrTexture* texture = context->textureProvider()->refScratchTexture(
+        desc, GrTextureProvider::kApprox_ScratchTexMatch, true);
+    if (texture) {
+        atlas = SkNEW_ARGS(GrBatchAtlas, (texture, NUM_PLOTS_X, NUM_PLOTS_Y));
+    } else {
+        return NULL;
+    }
+    atlas->registerEvictionCallback(func, data);
+    return atlas;
+}
+
 bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
                                                GrPipelineBuilder* pipelineBuilder,
                                                GrColor color,
@@ -568,24 +591,11 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
     SkASSERT(fContext);
 
     if (!fAtlas) {
-        // Create a new atlas
-        GrSurfaceDesc desc;
-        desc.fFlags = kNone_GrSurfaceFlags;
-        desc.fWidth = ATLAS_TEXTURE_WIDTH;
-        desc.fHeight = ATLAS_TEXTURE_HEIGHT;
-        desc.fConfig = kAlpha_8_GrPixelConfig;
-
-        // We don't want to flush the context so we claim we're in the middle of flushing so as to
-        // guarantee we do not recieve a texture with pending IO
-        GrTexture* texture = fContext->textureProvider()->refScratchTexture(
-            desc, GrTextureProvider::kApprox_ScratchTexMatch, true);
-        if (texture) {
-            fAtlas = SkNEW_ARGS(GrBatchAtlas, (texture, NUM_PLOTS_X, NUM_PLOTS_Y));
-        } else {
+        fAtlas = create_atlas(fContext, &GrAADistanceFieldPathRenderer::HandleEviction,
+                              (void*)this);
+        if (!fAtlas) {
             return false;
         }
-        fAtlas->registerEvictionCallback(&GrAADistanceFieldPathRenderer::HandleEviction,
-                                         (void*)this);
     }
 
     AADistanceFieldPathBatch::Geometry geometry(stroke.getStrokeRec());
@@ -599,3 +609,72 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+struct PathTestStruct {
+    typedef GrAADistanceFieldPathRenderer::PathCache PathCache;
+    typedef GrAADistanceFieldPathRenderer::PathData PathData;
+    typedef GrAADistanceFieldPathRenderer::PathDataList PathDataList;
+    PathTestStruct() : fContextID(SK_InvalidGenID), fAtlas(NULL) {}
+    ~PathTestStruct() { this->reset(); }
+
+    void reset() {
+        PathDataList::Iter iter;
+        iter.init(fPathList, PathDataList::Iter::kHead_IterStart);
+        PathData* pathData;
+        while ((pathData = iter.get())) {
+            iter.next();
+            fPathList.remove(pathData);
+            SkDELETE(pathData);
+        }
+        SkDELETE(fAtlas);
+    }
+
+    static void HandleEviction(GrBatchAtlas::AtlasID id, void* pr) {
+        PathTestStruct* dfpr = (PathTestStruct*)pr;
+        // remove any paths that use this plot
+        PathDataList::Iter iter;
+        iter.init(dfpr->fPathList, PathDataList::Iter::kHead_IterStart);
+        PathData* pathData;
+        while ((pathData = iter.get())) {
+            iter.next();
+            if (id == pathData->fID) {
+                dfpr->fPathCache.remove(pathData->fKey);
+                dfpr->fPathList.remove(pathData);
+                SkDELETE(pathData);
+            }
+        }
+    }
+
+    uint32_t fContextID;
+    GrBatchAtlas* fAtlas;
+    PathCache fPathCache;
+    PathDataList fPathList;
+};
+
+BATCH_TEST_DEFINE(AADistanceFieldPathRenderer) {
+    static PathTestStruct gTestStruct;
+
+    if (context->uniqueID() != gTestStruct.fContextID) {
+        gTestStruct.fContextID = context->uniqueID();
+        gTestStruct.reset();
+        gTestStruct.fAtlas = create_atlas(context, &PathTestStruct::HandleEviction,
+                                          (void*)&gTestStruct);
+    }
+
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    GrColor color = GrRandomColor(random);
+
+    AADistanceFieldPathBatch::Geometry geometry(GrTest::TestStrokeRec(random));
+    geometry.fPath = GrTest::TestPath(random);
+    geometry.fAntiAlias = random->nextBool();
+
+    return AADistanceFieldPathBatch::Create(geometry, color, viewMatrix,
+                                            gTestStruct.fAtlas,
+                                            &gTestStruct.fPathCache,
+                                            &gTestStruct.fPathList);
+}
+
+#endif

@@ -175,6 +175,21 @@ const SkPath& TestPath(SkRandom* random) {
     return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
 }
 
+SkStrokeRec TestStrokeRec(SkRandom* random) {
+    SkStrokeRec::InitStyle style =
+            SkStrokeRec::InitStyle(random->nextULessThan(SkStrokeRec::kFill_InitStyle + 1));
+    SkStrokeRec rec(style);
+    bool strokeAndFill = random->nextBool();
+    SkScalar strokeWidth = random->nextBool() ? 0.f : 1.f;
+    rec.setStrokeStyle(strokeWidth, strokeAndFill);
+
+    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::kCapCount));
+    SkPaint::Join join = SkPaint::Join(random->nextULessThan(SkPaint::kJoinCount));
+    SkScalar miterLimit = random->nextRangeScalar(1.f, 5.f);
+    rec.setStrokeParams(cap, join, miterLimit);
+    return rec;
+}
+
 };
 
 #endif

@@ -2090,22 +2090,13 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
 
 #ifdef GR_TEST_UTILS
 
-static SkStrokeRec random_strokerec(SkRandom* random) {
-    SkStrokeRec::InitStyle style =
-            SkStrokeRec::InitStyle(random->nextULessThan(SkStrokeRec::kFill_InitStyle + 1));
-    SkStrokeRec rec(style);
-    bool strokeAndFill = random->nextBool();
-    SkScalar strokeWidth = random->nextBool() ? 0.f : 1.f;
-    rec.setStrokeStyle(strokeWidth, strokeAndFill);
-    return rec;
-}
-
 BATCH_TEST_DEFINE(CircleBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     bool useCoverageAA = random->nextBool();
     SkRect circle = GrTest::TestRect(random);
-    return create_circle_batch(color, viewMatrix, useCoverageAA, circle, random_strokerec(random));
+    return create_circle_batch(color, viewMatrix, useCoverageAA, circle,
+                               GrTest::TestStrokeRec(random));
 }
 
 BATCH_TEST_DEFINE(EllipseBatch) {
@@ -2114,7 +2105,7 @@ BATCH_TEST_DEFINE(EllipseBatch) {
     bool useCoverageAA = random->nextBool();
     SkRect ellipse = GrTest::TestRect(random);
     return create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                random_strokerec(random));
+                                GrTest::TestStrokeRec(random));
 }
 
 BATCH_TEST_DEFINE(DIEllipseBatch) {
@@ -2123,14 +2114,14 @@ BATCH_TEST_DEFINE(DIEllipseBatch) {
     bool useCoverageAA = random->nextBool();
     SkRect ellipse = GrTest::TestRect(random);
     return create_diellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                  random_strokerec(random));
+                                  GrTest::TestStrokeRec(random));
 }
 
 BATCH_TEST_DEFINE(RRectBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
-    return create_rrect_batch(color, viewMatrix, rrect, random_strokerec(random));
+    return create_rrect_batch(color, viewMatrix, rrect, GrTest::TestStrokeRec(random));
 }
 
 #endif

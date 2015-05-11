@@ -72,16 +72,18 @@ private:
 
     static void HandleEviction(GrBatchAtlas::AtlasID, void*);
 
+    typedef SkTDynamicHash<PathData, PathData::Key> PathCache;
     typedef SkTInternalLList<PathData> PathDataList;
     
     GrContext*                         fContext;
     GrBatchAtlas*                      fAtlas;
-    SkTDynamicHash<PathData, PathData::Key> fPathCache;
+    PathCache                          fPathCache;
     PathDataList                       fPathList;
     
     typedef GrPathRenderer INHERITED;
 
     friend class AADistanceFieldPathBatch;
+    friend struct PathTestStruct;
 };
 
 #endif

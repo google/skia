@@ -14,6 +14,7 @@
 
 #include "GrColor.h"
 #include "SkRandom.h"
+#include "SkStrokeRec.h"
 
 class SkMatrix;
 class SkPath;
@@ -31,6 +32,7 @@ const SkMatrix& TestMatrixInvertible(SkRandom*);
 const SkRect& TestRect(SkRandom*);
 const SkRRect& TestRRectSimple(SkRandom*);
 const SkPath& TestPath(SkRandom*);
+SkStrokeRec TestStrokeRec(SkRandom*);
 
 }
 
