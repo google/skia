@@ -116,6 +116,7 @@ public:
     GrDrawTargetCaps(const GrDrawTargetCaps& other) : INHERITED() {
         *this = other;
     }
+    virtual ~GrDrawTargetCaps() {}
     GrDrawTargetCaps& operator= (const GrDrawTargetCaps&);
 
     virtual void reset();
