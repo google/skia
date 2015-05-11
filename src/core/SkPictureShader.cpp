@@ -178,8 +178,8 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
         if (scaledSize.width() > maxTextureSize || scaledSize.height() > maxTextureSize) {
             SkScalar downScale = SkScalarDiv(maxTextureSize,
                                             SkMax32(scaledSize.width(), scaledSize.height()));
-            scaledSize.set(SkScalarMul(scaledSize.width(), downScale),
-                           SkScalarMul(scaledSize.height(), downScale));
+            scaledSize.set(SkScalarFloorToScalar(SkScalarMul(scaledSize.width(), downScale)),
+                           SkScalarFloorToScalar(SkScalarMul(scaledSize.height(), downScale)));
         }
     }
 #endif
