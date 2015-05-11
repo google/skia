@@ -778,7 +778,7 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
     SkAutoTUnref<BitmapTextBlob> blob(
             this->createDrawTextBlob(rt, clip, paint, skPaint, viewMatrix,
                                      text, byteLength, x, y, regionClipBounds));
-    this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip);
+    this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip, regionClipBounds);
 }
 
 void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
@@ -793,7 +793,7 @@ void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
                                         pos, scalarsPerPosition,
                                         offset, regionClipBounds));
 
-    this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip);
+    this->flush(fContext->getTextTarget(), blob, rt, skPaint, paint, clip, regionClipBounds);
 }
 
 void GrAtlasTextContext::internalDrawBMPText(BitmapTextBlob* blob, int runIndex,
@@ -2145,8 +2145,9 @@ inline void GrAtlasTextContext::flushRun(GrDrawTarget* target, GrPipelineBuilder
 }
 
 inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
-                                               const GrPaint& grPaint, const GrClip& clip,
-                                               SkScalar transX, SkScalar transY) {
+                                               const SkPaint& skPaint,
+                                               SkScalar transX, SkScalar transY,
+                                               const SkIRect& clipBounds) {
     for (int i = 0; i < cacheBlob->fBigGlyphs.count(); i++) {
         BitmapTextBlob::BigGlyph& bigGlyph = cacheBlob->fBigGlyphs[i];
         bigGlyph.fVx += SkScalarTruncToInt(transX);
@@ -2154,10 +2155,9 @@ inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRend
         SkMatrix translate;
         translate.setTranslate(SkIntToScalar(bigGlyph.fVx),
                                SkIntToScalar(bigGlyph.fVy));
-        SkPath tmpPath(bigGlyph.fPath);
-        tmpPath.transform(translate);
         GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
-        fContext->drawPath(rt, clip, grPaint, SkMatrix::I(), tmpPath, strokeInfo);
+        fGpuDevice->internalDrawPath(bigGlyph.fPath, skPaint, SkMatrix::I(), &translate, clipBounds,
+                                     false);
     }
 }
 
@@ -2191,7 +2191,7 @@ void GrAtlasTextContext::flush(GrDrawTarget* target,
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(cacheBlob, rt, grPaint, clip, transX, transY);
+    this->flushBigGlyphs(cacheBlob, rt, skPaint, transX, transY, clipBounds);
 }
 
 void GrAtlasTextContext::flush(GrDrawTarget* target,
@@ -2199,7 +2199,8 @@ void GrAtlasTextContext::flush(GrDrawTarget* target,
                                GrRenderTarget* rt,
                                const SkPaint& skPaint,
                                const GrPaint& grPaint,
-                               const GrClip& clip) {
+                               const GrClip& clip,
+                               const SkIRect& clipBounds) {
     GrPipelineBuilder pipelineBuilder;
     pipelineBuilder.setFromPaint(grPaint, rt, clip);
 
@@ -2209,7 +2210,7 @@ void GrAtlasTextContext::flush(GrDrawTarget* target,
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(cacheBlob, rt, grPaint, clip, 0, 0);
+    this->flushBigGlyphs(cacheBlob, rt, skPaint, 0, 0, clipBounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -278,15 +278,15 @@ private:
     inline void flushRun(GrDrawTarget*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
     inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
-                               const GrPaint& grPaint, const GrClip& clip,
-                               SkScalar transX, SkScalar transY);
+                               const SkPaint& skPaint,
+                               SkScalar transX, SkScalar transY, const SkIRect& clipBounds);
 
     // We have to flush SkTextBlobs differently from drawText / drawPosText
     void flush(GrDrawTarget*, const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
                const GrPaint&, SkDrawFilter*, const GrClip&, const SkMatrix& viewMatrix,
                const SkIRect& clipBounds, SkScalar x, SkScalar y, SkScalar transX, SkScalar transY);
     void flush(GrDrawTarget*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
-               const GrPaint&, const GrClip&);
+               const GrPaint&, const GrClip&, const SkIRect& clipBounds);
 
     // A helper for drawing BitmapText in a run of distance fields
     inline void fallbackDrawPosText(BitmapTextBlob*, int runIndex,
