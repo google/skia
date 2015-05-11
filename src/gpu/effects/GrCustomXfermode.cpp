@@ -751,10 +751,10 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrProcOptInfo& colo
 
     OptFlags flags = kNone_Opt;
     if (colorPOI.allStagesMultiplyInput()) {
-        flags = flags | kCanTweakAlphaForCoverage_OptFlag;
+        flags |= kCanTweakAlphaForCoverage_OptFlag;
     }
     if (coveragePOI.isSolidWhite()) {
-        flags = flags | kIgnoreCoverage_OptFlag;
+        flags |= kIgnoreCoverage_OptFlag;
     }
     if (caps.advancedBlendEquationSupport() && !coveragePOI.isFourChannelOutput()) {
         // This blend mode can be implemented in hardware.

@@ -23,6 +23,9 @@
     inline X operator | (X a, X b) { \
         return (X) (+a | +b); \
     } \
+    inline X& operator |= (X& a, X b) { \
+        return (a = a | b); \
+    } \
     \
     inline X operator & (X a, X b) { \
         return (X) (+a & +b); \
@@ -38,6 +41,7 @@
 
 #define GR_DECL_BITFIELD_OPS_FRIENDS(X) \
     friend X operator | (X a, X b); \
+    friend X& operator |= (X& a, X b); \
     \
     friend X operator & (X a, X b); \
     \
