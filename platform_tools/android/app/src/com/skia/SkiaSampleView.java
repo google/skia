@@ -25,10 +25,10 @@ public class SkiaSampleView extends GLSurfaceView {
     private boolean mRequestedOpenGLAPI; // true == use (desktop) OpenGL. false == use OpenGL ES.
     private int mRequestedMSAASampleCount;
 
-    public SkiaSampleView(Context ctx, boolean useOpenGL, int msaaSampleCount) {
+    public SkiaSampleView(Context ctx, String cmdLineFlags, boolean useOpenGL, int msaaSampleCount) {
         super(ctx);
 
-        mSampleRenderer = new SkiaSampleRenderer(this);
+        mSampleRenderer = new SkiaSampleRenderer(this, cmdLineFlags);
         mRequestedMSAASampleCount = msaaSampleCount;
 
         setEGLContextClientVersion(2);

@@ -172,7 +172,7 @@ static jmethodID GetJMethod(JNIEnv* env, jclass clazz, const char name[],
 }
 
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
-        jobject thiz, jobject jsampleActivity, jint msaaSampleCount)
+        jobject thiz, jobject jsampleActivity, jstring cmdLineFlags, jint msaaSampleCount)
 {
     // setup jni hooks to the java activity
     gActivityGlue.m_env = env;
@@ -194,15 +194,17 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
     env->DeleteLocalRef(clazz);
 
     application_init();
+
+    const char* flags = env->GetStringUTFChars(cmdLineFlags, JNI_FALSE);
+    SkTArray<SkString> flagEntries;
+    SkStrSplit(flags, " ", &flagEntries);
+
     SkTArray<const char*> args;
-
     args.push_back("SampleApp");
-    // TODO: push ability to select skp dir into the UI
-    args.push_back("--pictureDir");
-    args.push_back("/sdcard/skiabot/skia_skp");
-
-    args.push_back("--resourcePath");
-    args.push_back("/data/local/tmp/skia/resources/");
+    for (int i = 0; i < flagEntries.count(); i++) {
+        SkDebugf(flagEntries[i].c_str());
+        args.push_back(flagEntries[i].c_str());
+    }
 
     SkString msaaSampleCountString;
     if (msaaSampleCount > 0) {
@@ -211,7 +213,14 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
         args.push_back(msaaSampleCountString.c_str());
     }
 
-    gWindow = new SampleWindow(NULL, args.count(), const_cast<char**>(args.begin()), NULL);
+    if (gWindow) {
+        SkDebugf("The sample window already exists.");
+    } else {
+        gWindow = new SampleWindow(NULL, args.count(), const_cast<char**>(args.begin()), NULL);
+    }
+
+    // cleanup the command line flags
+    env->ReleaseStringUTFChars(cmdLineFlags, flags);
 
     // send the list of slides up to the activity
     const int slideCount = gWindow->sampleCount();

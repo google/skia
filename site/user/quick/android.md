@@ -139,8 +139,19 @@ Then, install the app onto the device:
 
     ./platform_tools/android/bin/android_install_app
 
-Finally to run the application you must navigate to the Skia Samples
-application using the application launcher on your device.
+Finally to run the application you can either navigate to the Skia Samples
+application using the application launcher on your device or from the command
+line.  The command line option allows you to pass additional details to the
+application (similiar to other operating system) that specify where to find
+skp files and other resources.
+
+    ./platform_tools/android/bin/android_launch_app --resourcePath /data/local/tmp/resources
+
+By default if no additional parameters are specified the app will use the default
+params...
+
+    --resourcePath /data/local/tmp/skia_resoures 
+    --pictureDir /data/local/tmp/skia_skp
 
 Build tools
 -----------

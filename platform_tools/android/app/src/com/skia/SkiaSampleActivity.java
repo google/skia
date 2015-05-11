@@ -10,6 +10,7 @@ package com.skia;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.Intent;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -65,7 +66,16 @@ public class SkiaSampleActivity extends Activity
             mSampleView.terminate();
         }
 
-        mSampleView = new SkiaSampleView(this, useOpenGLAPI, msaaSampleCount);
+        // intent get intent extras if triggered from the command line
+        Intent intent = this.getIntent();
+        String flags = intent.getStringExtra("cmdLineFlags");
+        
+        if (flags == null || flags.isEmpty()) {
+            flags  = "--pictureDir /data/local/tmp/skia_skp ";
+            flags += "--resourcePath /data/local/tmp/skia_resources ";
+        }
+        
+        mSampleView = new SkiaSampleView(this, flags, useOpenGLAPI, msaaSampleCount);
         LinearLayout holder = (LinearLayout) findViewById(R.id.holder);
         holder.addView(mSampleView, new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,

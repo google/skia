@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# android_launch_app: Launches the skia sampleApp on the device.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/setup_adb.sh
+
+# TODO: check to ensure that the app exists on the device and prompt to install
+
+if [[ -n $RESOURCE_PATH ]]; then
+  adb_push_if_needed "${SKIA_SRC_DIR}/resources" $RESOURCE_PATH
+fi
+
+$ADB ${DEVICE_SERIAL} shell am start -S -n "com.skia/.SkiaSampleActivity" --es "cmdLineFlags" "${APP_ARGS[*]}"
+

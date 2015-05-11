@@ -182,8 +182,13 @@ adb_pull_if_needed() {
 
   if [ -f $HOST_DST ];
   then
-    #get the MD5 for dst and src
-    ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_SRC`
+    #get the MD5 for dst and src depending on OS and/or OS revision
+    ANDROID_MD5_SUPPORT=`$ADB $DEVICE_SERIAL shell ls -ld /system/bin/md5`
+    if [ "${ANDROID_MD5_SUPPORT:0:15}" != "/system/bin/md5" ]; then
+      ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_DST`
+    else
+      ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5sum $ANDROID_DST`
+    fi
     if [ $(uname) == "Darwin" ]; then
       HOST_MD5=`md5 -q $HOST_DST`
     else
@@ -220,8 +225,14 @@ adb_push_if_needed() {
 
   ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld $ANDROID_DST`
   if [ "${ANDROID_LS:0:1}" == "-" ]; then
-    #get the MD5 for dst and src
-    ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_DST`
+    #get the MD5 for dst and src depending on OS and/or OS revision
+    ANDROID_MD5_SUPPORT=`$ADB $DEVICE_SERIAL shell ls -ld /system/bin/md5`
+    if [ "${ANDROID_MD5_SUPPORT:0:15}" != "/system/bin/md5" ]; then
+      ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5 $ANDROID_DST`
+    else
+      ANDROID_MD5=`$ADB $DEVICE_SERIAL shell md5sum $ANDROID_DST`
+    fi
+
     if [ $(uname) == "Darwin" ]; then
       HOST_MD5=`md5 -q $HOST_SRC`
     else

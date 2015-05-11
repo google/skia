@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_skia_SkiaSampleRenderer
  * Method:    init
- * Signature: (Lcom/skia/SkiaSampleActivity;I)V
+ * Signature: (Lcom/skia/SkiaSampleActivity;Ljava/lang/String;I)V
  */
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init
-  (JNIEnv *, jobject, jobject, jint);
+  (JNIEnv *, jobject, jobject, jstring, jint);
 
 /*
  * Class:     com_skia_SkiaSampleRenderer

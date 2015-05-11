@@ -20,9 +20,11 @@ public class SkiaSampleRenderer implements GLSurfaceView.Renderer {
     private final SkiaSampleView mSampleView;
     private Handler mHandler = new Handler();
     private int mMSAASampleCount;
+    private String mCmdLineFlags;
 
-    SkiaSampleRenderer(SkiaSampleView view) {
+    SkiaSampleRenderer(SkiaSampleView view, String cmdLineFlags) {
         mSampleView = view;
+        mCmdLineFlags = cmdLineFlags;
     }
 
     @Override
@@ -49,7 +51,8 @@ public class SkiaSampleRenderer implements GLSurfaceView.Renderer {
 
         gl.glClearStencil(0);
         gl.glClear(GL10.GL_STENCIL_BUFFER_BIT);
-        init((SkiaSampleActivity)mSampleView.getContext(), mMSAASampleCount);
+
+        init((SkiaSampleActivity)mSampleView.getContext(), mCmdLineFlags, mMSAASampleCount);
     }
 
     // Called by JNI and the view.
@@ -89,7 +92,7 @@ public class SkiaSampleRenderer implements GLSurfaceView.Renderer {
         mSampleView.requestRender();
     }
 
-    native void init(SkiaSampleActivity activity, int msaaSampleCount);
+    native void init(SkiaSampleActivity activity, String flags, int msaaSampleCount);
     native void term();
     native void draw();
     native void updateSize(int w, int h);
