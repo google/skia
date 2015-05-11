@@ -142,7 +142,8 @@ enum GrPrimitiveType {
     kTriangleFan_GrPrimitiveType,
     kPoints_GrPrimitiveType,
     kLines_GrPrimitiveType,     // 1 pix wide only
-    kLineStrip_GrPrimitiveType  // 1 pix wide only
+    kLineStrip_GrPrimitiveType, // 1 pix wide only
+    kLast_GrPrimitiveType = kLineStrip_GrPrimitiveType
 };
 
 static inline bool GrIsPrimTypeLines(GrPrimitiveType type) {

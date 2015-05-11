@@ -13,6 +13,7 @@
 #include "GrBatch.h"
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
+#include "GrBatchTest.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrGpuResource.h"
 #include "GrGpuResourcePriv.h"
@@ -1866,3 +1867,130 @@ void GrContext::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
         fDrawBuffer->removeGpuTraceMarker(marker);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef GR_TEST_UTILS
+
+BATCH_TEST_DEFINE(StrokeRect) {
+    StrokeRectBatch::Geometry geometry;
+    geometry.fViewMatrix = GrTest::TestMatrix(random);
+    geometry.fColor = GrRandomColor(random);
+    geometry.fRect = GrTest::TestRect(random);
+    geometry.fStrokeWidth = random->nextBool() ? 0.0f : 1.0f;
+
+    return StrokeRectBatch::Create(geometry);
+}
+
+static uint32_t seed_vertices(GrPrimitiveType type) {
+    switch (type) {
+        case kTriangles_GrPrimitiveType:
+        case kTriangleStrip_GrPrimitiveType:
+        case kTriangleFan_GrPrimitiveType:
+            return 3;
+        case kPoints_GrPrimitiveType:
+            return 1;
+        case kLines_GrPrimitiveType:
+        case kLineStrip_GrPrimitiveType:
+            return 2;
+    }
+    SkFAIL("Incomplete switch\n");
+    return 0;
+}
+
+static uint32_t primitive_vertices(GrPrimitiveType type) {
+    switch (type) {
+        case kTriangles_GrPrimitiveType:
+            return 3;
+        case kLines_GrPrimitiveType:
+            return 2;
+        case kTriangleStrip_GrPrimitiveType:
+        case kTriangleFan_GrPrimitiveType:
+        case kPoints_GrPrimitiveType:
+        case kLineStrip_GrPrimitiveType:
+            return 1;
+    }
+    SkFAIL("Incomplete switch\n");
+    return 0;
+}
+
+static SkPoint random_point(SkRandom* random, SkScalar min, SkScalar max) {
+    SkPoint p;
+    p.fX = random->nextRangeScalar(min, max);
+    p.fY = random->nextRangeScalar(min, max);
+    return p;
+}
+
+static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkScalar max,
+                             SkRandom* random,
+                             SkTArray<SkPoint>* positions,
+                             SkTArray<SkPoint>* texCoords, bool hasTexCoords,
+                             SkTArray<GrColor>* colors, bool hasColors,
+                             SkTArray<uint16_t>* indices, bool hasIndices) {
+    for (uint32_t v = 0; v < count; v++) {
+        positions->push_back(random_point(random, min, max));
+        if (hasTexCoords) {
+            texCoords->push_back(random_point(random, min, max));
+        }
+        if (hasColors) {
+            colors->push_back(GrRandomColor(random));
+        }
+        if (hasIndices) {
+            SkASSERT(maxVertex <= SK_MaxU16);
+            indices->push_back(random->nextULessThan((uint16_t)maxVertex));
+        }
+    }
+}
+
+BATCH_TEST_DEFINE(Vertices) {
+    GrPrimitiveType type = GrPrimitiveType(random->nextULessThan(kLast_GrPrimitiveType + 1));
+    uint32_t primitiveCount = random->nextRangeU(1, 100);
+
+    // TODO make 'sensible' indexbuffers
+    SkTArray<SkPoint> positions;
+    SkTArray<SkPoint> texCoords;
+    SkTArray<GrColor> colors;
+    SkTArray<uint16_t> indices;
+
+    bool hasTexCoords = random->nextBool();
+    bool hasIndices = random->nextBool();
+    bool hasColors = random->nextBool();
+
+    uint32_t vertexCount = seed_vertices(type) + (primitiveCount - 1) * primitive_vertices(type);
+
+    static const SkScalar kMinVertExtent = -100.f;
+    static const SkScalar kMaxVertExtent = 100.f;
+    randomize_params(seed_vertices(type), vertexCount, kMinVertExtent, kMaxVertExtent,
+                     random,
+                     &positions,
+                     &texCoords, hasTexCoords,
+                     &colors, hasColors,
+                     &indices, hasIndices);
+
+    for (uint32_t i = 1; i < primitiveCount; i++) {
+        randomize_params(primitive_vertices(type), vertexCount, kMinVertExtent, kMaxVertExtent,
+                         random,
+                         &positions,
+                         &texCoords, hasTexCoords,
+                         &colors, hasColors,
+                         &indices, hasIndices);
+    }
+
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    SkRect bounds;
+    SkDEBUGCODE(bool result = ) bounds.setBoundsCheck(positions.begin(), vertexCount);
+    SkASSERT(result);
+
+    viewMatrix.mapRect(&bounds);
+
+    DrawVerticesBatch::Geometry geometry;
+    geometry.fColor = GrRandomColor(random);
+    return DrawVerticesBatch::Create(geometry, type, viewMatrix,
+                                     positions.begin(), vertexCount,
+                                     indices.begin(), hasIndices ? vertexCount : 0,
+                                     colors.begin(),
+                                     texCoords.begin(),
+                                     bounds);
+}
+
+#endif
