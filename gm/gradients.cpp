@@ -80,8 +80,8 @@ static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
 static SkShader* Make2Conical(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    SkScalar radius0 = (pts[1].fX - pts[0].fX) / 10;
-    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
+    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 10);
+    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
     return SkGradientShader::CreateTwoPointConical(center1, radius1,
@@ -185,8 +185,10 @@ protected:
                 // apply an increasing y perspective as we move to the right
                 SkMatrix perspective;
                 perspective.setIdentity();
-                perspective.setPerspY(SkIntToScalar(i+1) / 500);
-                perspective.setSkewX(SkIntToScalar(i+1) / 10);
+                perspective.setPerspY(SkScalarDiv(SkIntToScalar((unsigned) i+1),
+                                      SkIntToScalar(500)));
+                perspective.setSkewX(SkScalarDiv(SkIntToScalar((unsigned) i+1),
+                                     SkIntToScalar(10)));
 
                 SkShader* shader = gGradMakers[j](pts, gGradData[i], tm, perspective);
 
@@ -218,8 +220,8 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkMatrix perspective;
         perspective.setIdentity();
-        perspective.setPerspY(0.001f);
-        perspective.setSkewX(SkIntToScalar(8) / 25);
+        perspective.setPerspY(SkScalarDiv(SK_Scalar1, SkIntToScalar(1000)));
+        perspective.setSkewX(SkScalarDiv(SkIntToScalar(8), SkIntToScalar(25)));
         canvas->concat(perspective);
         INHERITED::onDraw(canvas);
     }

@@ -1253,11 +1253,11 @@ public:
             const SkRect& bounds = geom.fBounds;
 
             // This adjusts the "radius" to include the half-pixel border
-            SkScalar offsetDx = geom.fGeoDx / xRadius;
-            SkScalar offsetDy = geom.fGeoDy / yRadius;
+            SkScalar offsetDx = SkScalarDiv(geom.fGeoDx, xRadius);
+            SkScalar offsetDy = SkScalarDiv(geom.fGeoDy, yRadius);
 
-            SkScalar innerRatioX = xRadius / geom.fInnerXRadius;
-            SkScalar innerRatioY = yRadius / geom.fInnerYRadius;
+            SkScalar innerRatioX = SkScalarDiv(xRadius, geom.fInnerXRadius);
+            SkScalar innerRatioY = SkScalarDiv(yRadius, geom.fInnerYRadius);
 
             verts[0].fPos = SkPoint::Make(bounds.fLeft, bounds.fTop);
             verts[0].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy);
@@ -1386,8 +1386,8 @@ static GrBatch* create_diellipse_batch(GrColor color,
     SkScalar b = viewMatrix[SkMatrix::kMSkewX];
     SkScalar c = viewMatrix[SkMatrix::kMSkewY];
     SkScalar d = viewMatrix[SkMatrix::kMScaleY];
-    SkScalar geoDx = SK_ScalarHalf / SkScalarSqrt(a*a + c*c);
-    SkScalar geoDy = SK_ScalarHalf / SkScalarSqrt(b*b + d*d);
+    SkScalar geoDx = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(a*a + c*c));
+    SkScalar geoDy = SkScalarDiv(SK_ScalarHalf, SkScalarSqrt(b*b + d*d));
 
     DIEllipseBatch::Geometry geometry;
     geometry.fViewMatrix = viewMatrix;

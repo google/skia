@@ -41,7 +41,7 @@ void SkAnimate::dump(SkAnimateMaker* maker) {
             SkDebugf("mirror=\"true\" ");
         if (fReset)
             SkDebugf("reset=\"true\" ");
-        SkDebugf("dur=\"%g\" ", dur * 0.001);
+        SkDebugf("dur=\"%g\" ", SkScalarToFloat(SkScalarDiv(dur,1000)));
         if (repeat != SK_Scalar1)
             SkDebugf("repeat=\"%g\" ", SkScalarToFloat(repeat));
         //if (fHasValues)

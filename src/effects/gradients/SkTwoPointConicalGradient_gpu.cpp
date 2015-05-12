@@ -357,7 +357,7 @@ static ConicalType set_matrix_focal_conical(const SkTwoPointConicalGradient& sha
 
     // Scale factor 1 / (1 - focalX * focalX)
     SkScalar oneMinusF2 = 1.f - SkScalarMul(*focalX, *focalX);
-    SkScalar s = SkScalarInvert(oneMinusF2);
+    SkScalar s = SkScalarDiv(1.f, oneMinusF2);
 
 
     if (s >= 0.f) {
@@ -1115,7 +1115,8 @@ private:
         : INHERITED(ctx, shader, matrix, tm), fInfo(info) {
         this->initClassID<CircleOutside2PtConicalEffect>();
         if (shader.getStartRadius() != shader.getEndRadius()) {
-            fTLimit = shader.getStartRadius() / (shader.getStartRadius() - shader.getEndRadius());
+            fTLimit = SkScalarDiv(shader.getStartRadius(),
+                                  (shader.getStartRadius() - shader.getEndRadius()));
         } else {
             fTLimit = SK_ScalarMin;
         }

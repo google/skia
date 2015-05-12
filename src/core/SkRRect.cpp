@@ -26,7 +26,8 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
     }
 
     if (rect.width() < xRad+xRad || rect.height() < yRad+yRad) {
-        SkScalar scale = SkMinScalar(rect.width() / (xRad + xRad), rect.height() / (yRad + yRad));
+        SkScalar scale = SkMinScalar(SkScalarDiv(rect.width(), xRad + xRad),
+                                     SkScalarDiv(rect.height(), yRad + yRad));
         SkASSERT(scale < SK_Scalar1);
         xRad = SkScalarMul(xRad, scale);
         yRad = SkScalarMul(yRad, scale);
@@ -65,10 +66,10 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
 
     SkScalar scale = SK_Scalar1;
     if (leftRad + rightRad > rect.width()) {
-        scale = rect.width() / (leftRad + rightRad);
+        scale = SkScalarDiv(rect.width(), leftRad + rightRad);
     }
     if (topRad + bottomRad > rect.height()) {
-        scale = SkMinScalar(scale, rect.height() / (topRad + bottomRad));
+        scale = SkMinScalar(scale, SkScalarDiv(rect.height(), topRad + bottomRad));
     }
 
     if (scale < SK_Scalar1) {

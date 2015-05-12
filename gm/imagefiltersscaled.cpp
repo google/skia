@@ -134,7 +134,8 @@ protected:
                     canvas->scale(SkScalarInvert(RESIZE_FACTOR),
                                   SkScalarInvert(RESIZE_FACTOR));
                 }
-                canvas->drawCircle(r.centerX(), r.centerY(), r.width()*2/5, paint);
+                canvas->drawCircle(r.centerX(), r.centerY(),
+                                   SkScalarDiv(r.width()*2, SkIntToScalar(5)), paint);
                 canvas->restore();
                 canvas->translate(r.width() * scales[j].fX + margin, 0);
             }

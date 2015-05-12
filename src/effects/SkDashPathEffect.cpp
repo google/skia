@@ -248,7 +248,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
                 len2 -= clampedInitialDashLength; // skip initial partial empty
             }
         }
-        int numMidPoints = SkScalarFloorToInt(len2 / fIntervalLength);
+        int numMidPoints = SkScalarFloorToInt(SkScalarDiv(len2, fIntervalLength));
         results->fNumPoints += numMidPoints;
         len2 -= numMidPoints * fIntervalLength;
         bool partialLast = false;

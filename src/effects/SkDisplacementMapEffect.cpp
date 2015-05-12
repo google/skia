@@ -56,7 +56,7 @@ void computeDisplacement(const SkVector& scale, SkBitmap* dst,
                          SkBitmap* src,
                          const SkIRect& bounds)
 {
-    static const SkScalar Inv8bit = SkScalarInvert(255);
+    static const SkScalar Inv8bit = SkScalarDiv(SK_Scalar1, 255.0f);
     const int srcW = src->width();
     const int srcH = src->height();
     const SkVector scaleForColor = SkVector::Make(SkScalarMul(scale.fX, Inv8bit),
@@ -625,8 +625,8 @@ void GrGLDisplacementMapEffect::setData(const GrGLProgramDataManager& pdman,
                                         const GrProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
     GrTexture* colorTex = displacementMap.texture(1);
-    SkScalar scaleX = displacementMap.scale().fX / colorTex->width();
-    SkScalar scaleY = displacementMap.scale().fY / colorTex->height();
+    SkScalar scaleX = SkScalarDiv(displacementMap.scale().fX, SkIntToScalar(colorTex->width()));
+    SkScalar scaleY = SkScalarDiv(displacementMap.scale().fY, SkIntToScalar(colorTex->height()));
     pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),
                 colorTex->origin() == kTopLeft_GrSurfaceOrigin ?
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));

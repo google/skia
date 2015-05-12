@@ -1320,18 +1320,18 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         static const SkScalar gAnimPeriod = 10 * SK_Scalar1;
         static const SkScalar gAnimMag = SK_Scalar1 / 1000;
         SkScalar t = SkScalarMod(secs, gAnimPeriod);
-        if (SkScalarFloorToInt(secs / gAnimPeriod) & 0x1) {
+        if (SkScalarFloorToInt(SkScalarDiv(secs, gAnimPeriod)) & 0x1) {
             t = gAnimPeriod - t;
         }
         t = 2 * t - gAnimPeriod;
-        t *= gAnimMag / gAnimPeriod;
+        t = SkScalarMul(SkScalarDiv(t, gAnimPeriod), gAnimMag);
         SkMatrix m;
         m.reset();
 #if 1
         m.setPerspY(t);
 #else
         m.setPerspY(SK_Scalar1 / 1000);
-        m.setSkewX(8.0f / 25);
+        m.setSkewX(SkScalarDiv(8, 25));
         m.dump();
 #endif
         canvas->concat(m);

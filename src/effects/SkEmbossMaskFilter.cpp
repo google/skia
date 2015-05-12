@@ -61,7 +61,7 @@ static void normalize(SkScalar v[3]) {
     mag = SkScalarSqrt(mag);
 
     for (int i = 0; i < 3; i++) {
-        v[i] /= mag;
+        v[i] = SkScalarDiv(v[i], mag);
     }
 }
 

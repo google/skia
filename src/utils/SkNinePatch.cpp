@@ -161,7 +161,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         if (bounds.width() >= fixed)
             stretchX = (bounds.width() - fixed) / stretchSize;
         else // reuse stretchX, but keep it negative as a signal
-            stretchX = -bounds.width() / fixed;
+            stretchX = SkScalarDiv(-bounds.width(), fixed);
     }
 
     if (numYStretch > 0) {
@@ -173,7 +173,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         if (bounds.height() >= fixed)
             stretchY = (bounds.height() - fixed) / stretchSize;
         else // reuse stretchX, but keep it negative as a signal
-            stretchY = -bounds.height() / fixed;
+            stretchY = SkScalarDiv(-bounds.height(), fixed);
     }
 
 #if 0

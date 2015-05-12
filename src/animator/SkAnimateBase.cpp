@@ -91,7 +91,7 @@ void SkAnimateBase::dump(SkAnimateMaker* maker) {
         SkDebugf("to=\"%s\" ", to.c_str());
     }
     if (begin != 0) {
-        SkDebugf("begin=\"%g\" ", begin * 0.001);
+        SkDebugf("begin=\"%g\" ", SkScalarToFloat(SkScalarDiv(begin,1000)));
     }
 }
 #endif

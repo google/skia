@@ -1198,7 +1198,8 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     // This means do not try to scale embedded bitmaps; only scale bitmaps in bitmap only fonts.
     if (!FT_IS_SCALABLE(fFace) && fScaleY && fFace->size->metrics.y_ppem) {
         // NOTE: both dimensions are scaled by y_ppem. this is WAI.
-        scaleGlyphMetrics(*glyph, SkFixedToScalar(fScaleY) / fFace->size->metrics.y_ppem);
+        scaleGlyphMetrics(*glyph, SkScalarDiv(SkFixedToScalar(fScaleY),
+                                              SkIntToScalar(fFace->size->metrics.y_ppem)));
     }
 
 #ifdef ENABLE_GLYPH_SPEW

@@ -80,9 +80,10 @@ protected:
         if (background) {
             scale = 0.6f;
         }
-        SkScalar shaderWidth = width / scale;
-        SkScalar shaderHeight = height / scale;
-        SkMatrix shaderScale = SkMatrix::MakeScale(scale);
+        SkScalar shaderWidth = SkScalarDiv(SkIntToScalar(width), scale);
+        SkScalar shaderHeight = SkScalarDiv(SkIntToScalar(height), scale);
+        SkMatrix shaderScale;
+        shaderScale.setScale(scale, scale);
         SkShader* shader = fShaderMaker(shaderWidth, shaderHeight, background, shaderScale);
         return shader;
     }

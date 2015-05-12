@@ -43,8 +43,11 @@ void SkSVGSVG::translate(SkSVGParser& parser, bool defState) {
     if (strcmp(wSuffix, "pt") == 0)
         width = SkScalarMulDiv(width, SK_Scalar1 * 72, SK_Scalar1 * 96);
     SkParse::FindScalars(f_viewBox.c_str(), viewBox, 4);
-    SkRect box = SkRect::MakeLTRB(viewBox[0] / width, viewBox[1] / height,
-                                  viewBox[2] / width, viewBox[3] / height);
+    SkRect box;
+    box.fLeft = SkScalarDiv(viewBox[0], width);
+    box.fTop = SkScalarDiv(viewBox[1], height);
+    box.fRight = SkScalarDiv(viewBox[2], width);
+    box.fBottom = SkScalarDiv(viewBox[3], height);
     if (box.fLeft == 0 && box.fTop == 0 &&
         box.fRight == SK_Scalar1 && box.fBottom == SK_Scalar1)
             return;

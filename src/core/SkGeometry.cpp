@@ -62,7 +62,7 @@ static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
         return 0;
     }
 
-    SkScalar r = numer / denom;
+    SkScalar r = SkScalarDiv(numer, denom);
     if (SkScalarIsNaN(r)) {
         return 0;
     }
@@ -1149,7 +1149,7 @@ static SkScalar conic_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
     A = -B;
     SkScalar denom = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
 
-    return numer / denom;
+    return SkScalarDiv(numer, denom);
 }
 
 // F' = 2 (C t (1 + t (-1 + w)) - A (-1 + t) (t (-1 + w) - w) + B (1 - 2 t) w)

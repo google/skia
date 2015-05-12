@@ -30,8 +30,8 @@ typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 namespace {
 
-const SkScalar gOneThird = SkIntToScalar(1) / 3;
-const SkScalar gTwoThirds = SkIntToScalar(2) / 3;
+const SkScalar gOneThird = SkScalarInvert(SkIntToScalar(3));
+const SkScalar gTwoThirds = SkScalarDiv(SkIntToScalar(2), SkIntToScalar(3));
 const SkScalar gOneHalf = 0.5f;
 const SkScalar gOneQuarter = 0.25f;
 

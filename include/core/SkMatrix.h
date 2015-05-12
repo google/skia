@@ -28,13 +28,7 @@ public:
         m.setScale(sx, sy);
         return m;
     }
-    
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
-        SkMatrix m;
-        m.setScale(scale, scale);
-        return m;
-    }
-    
+
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
         SkMatrix m;
         m.setTranslate(dx, dy);

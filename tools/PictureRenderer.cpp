@@ -40,7 +40,7 @@
 #include "sk_tool_utils.h"
 
 static inline SkScalar scalar_log2(SkScalar x) {
-    static const SkScalar log2_conversion_factor = SkScalarInvert(SkScalarLog(2));
+    static const SkScalar log2_conversion_factor = SkScalarDiv(1, SkScalarLog(2));
 
     return SkScalarLog(x) * log2_conversion_factor;
 }
