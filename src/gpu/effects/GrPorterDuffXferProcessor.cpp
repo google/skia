@@ -563,7 +563,7 @@ PDLCDXferProcessor::~PDLCDXferProcessor() {
 
 void PDLCDXferProcessor::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
-    GLPorterDuffXferProcessor::GenKey(*this, caps, b);
+    GLPDLCDXferProcessor::GenKey(*this, caps, b);
 }
 
 GrGLXferProcessor* PDLCDXferProcessor::createGLInstance() const {
