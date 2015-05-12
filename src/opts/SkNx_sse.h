@@ -20,7 +20,6 @@ public:
     bool allTrue() const { return 0xff == (_mm_movemask_epi8(fVec) & 0xff); }
     bool anyTrue() const { return 0x00 != (_mm_movemask_epi8(fVec) & 0xff); }
 
-private:
     __m128i fVec;
 };
 
@@ -33,7 +32,6 @@ public:
     bool allTrue() const { return 0xffff == _mm_movemask_epi8(fVec); }
     bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(fVec); }
 
-private:
     __m128i fVec;
 };
 
@@ -46,7 +44,6 @@ public:
     bool allTrue() const { return 0xffff == _mm_movemask_epi8(fVec); }
     bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(fVec); }
 
-private:
     __m128i fVec;
 };
 
@@ -95,7 +92,6 @@ public:
         return pun.fs[k&1];
     }
 
-private:
     __m128 fVec;
 };
 
@@ -141,7 +137,6 @@ public:
         return pun.ds[k&1];
     }
 
-private:
     __m128d fVec;
 };
 
@@ -179,7 +174,7 @@ public:
             default: SkASSERT(false); return 0;
         }
     }
-protected:
+
     __m128i fVec;
 };
 
@@ -227,7 +222,6 @@ public:
         return pun.fs[k&3];
     }
 
-protected:
     __m128 fVec;
 };
 
@@ -254,7 +248,7 @@ public:
         SkASSERT(0 <= k && k < 4);
         return _mm_extract_epi16(fVec, k);
     }
-protected:
+
     __m128i fVec;
 };
 
@@ -282,7 +276,41 @@ public:
         SkASSERT(0 <= k && k < 8);
         return _mm_extract_epi16(fVec, k);
     }
-protected:
+
+    __m128i fVec;
+};
+
+template <>
+class SkNi<16, uint8_t> {
+public:
+    SkNi(const __m128i& vec) : fVec(vec) {}
+
+    SkNi() {}
+    explicit SkNi(uint8_t val) : fVec(_mm_set1_epi8(val)) {}
+    static SkNi Load(const uint8_t vals[16]) { return _mm_loadu_si128((const __m128i*)vals); }
+    SkNi(uint8_t a, uint8_t b, uint8_t c, uint8_t d,
+         uint8_t e, uint8_t f, uint8_t g, uint8_t h,
+         uint8_t i, uint8_t j, uint8_t k, uint8_t l,
+         uint8_t m, uint8_t n, uint8_t o, uint8_t p)
+        : fVec(_mm_setr_epi8(a,b,c,d, e,f,g,h, i,j,k,l, m,n,o,p)) {}
+
+    void store(uint8_t vals[16]) const { _mm_storeu_si128((__m128i*)vals, fVec); }
+
+    SkNi operator + (const SkNi& o) const { return _mm_add_epi8(fVec, o.fVec); }
+    SkNi operator - (const SkNi& o) const { return _mm_sub_epi8(fVec, o.fVec); }
+
+    // SSE cannot multiply or shift vectors of uint8_t.
+    SkNi operator * (const SkNi& o) const { SkASSERT(false); return fVec; }
+    SkNi operator << (int bits) const { SkASSERT(false); return fVec; }
+    SkNi operator >> (int bits) const { SkASSERT(false); return fVec; }
+
+    template <int k> uint8_t kth() const {
+        SkASSERT(0 <= k && k < 16);
+        // SSE4.1 would just `return _mm_extract_epi8(fVec, k)`.  We have to read 16-bits instead.
+        int pair = _mm_extract_epi16(fVec, k/2);
+        return k % 2 == 0 ? pair : (pair >> 8);
+    }
+
     __m128i fVec;
 };
 

@@ -10,6 +10,28 @@
 
 #include <arm_neon.h>
 
+// Well, this is absurd.  The shifts require compile-time constant arguments.
+
+#define SHIFT8(op, v, bits) switch(bits) { \
+    case  1: return op(v,  1);  case  2: return op(v,  2);  case  3: return op(v,  3); \
+    case  4: return op(v,  4);  case  5: return op(v,  5);  case  6: return op(v,  6); \
+    case  7: return op(v,  7); \
+    } return fVec
+
+#define SHIFT16(op, v, bits) if (bits < 8) { SHIFT8(op, v, bits); } switch(bits) { \
+                                case  8: return op(v,  8);  case  9: return op(v,  9); \
+    case 10: return op(v, 10);  case 11: return op(v, 11);  case 12: return op(v, 12); \
+    case 13: return op(v, 13);  case 14: return op(v, 14);  case 15: return op(v, 15); \
+    } return fVec
+
+#define SHIFT32(op, v, bits) if (bits < 16) { SHIFT16(op, v, bits); } switch(bits) { \
+    case 16: return op(v, 16);  case 17: return op(v, 17);  case 18: return op(v, 18); \
+    case 19: return op(v, 19);  case 20: return op(v, 20);  case 21: return op(v, 21); \
+    case 22: return op(v, 22);  case 23: return op(v, 23);  case 24: return op(v, 24); \
+    case 25: return op(v, 25);  case 26: return op(v, 26);  case 27: return op(v, 27); \
+    case 28: return op(v, 28);  case 29: return op(v, 29);  case 30: return op(v, 30); \
+    case 31: return op(v, 31); } return fVec
+
 template <>
 class SkNb<2, 4> {
 public:
@@ -18,7 +40,7 @@ public:
     SkNb() {}
     bool allTrue() const { return vget_lane_u32(fVec, 0) && vget_lane_u32(fVec, 1); }
     bool anyTrue() const { return vget_lane_u32(fVec, 0) || vget_lane_u32(fVec, 1); }
-private:
+
     uint32x2_t fVec;
 };
 
@@ -32,7 +54,7 @@ public:
                                && vgetq_lane_u32(fVec, 2) && vgetq_lane_u32(fVec, 3); }
     bool anyTrue() const { return vgetq_lane_u32(fVec, 0) || vgetq_lane_u32(fVec, 1)
                                || vgetq_lane_u32(fVec, 2) || vgetq_lane_u32(fVec, 3); }
-private:
+
     uint32x4_t fVec;
 };
 
@@ -104,7 +126,6 @@ public:
         return vget_lane_f32(fVec, k&1);
     }
 
-private:
     float32x2_t fVec;
 };
 
@@ -117,7 +138,7 @@ public:
     SkNb() {}
     bool allTrue() const { return vgetq_lane_u64(fVec, 0) && vgetq_lane_u64(fVec, 1); }
     bool anyTrue() const { return vgetq_lane_u64(fVec, 0) || vgetq_lane_u64(fVec, 1); }
-private:
+
     uint64x2_t fVec;
 };
 
@@ -181,7 +202,6 @@ public:
         return vgetq_lane_f64(fVec, k&1);
     }
 
-private:
     float64x2_t fVec;
 };
 #endif//defined(SK_CPU_ARM64)
@@ -202,29 +222,14 @@ public:
     SkNi operator - (const SkNi& o) const { return vsubq_s32(fVec, o.fVec); }
     SkNi operator * (const SkNi& o) const { return vmulq_s32(fVec, o.fVec); }
 
-    // Well, this is absurd.  The shifts require compile-time constant arguments.
-#define SHIFT(op, v, bits) switch(bits) { \
-    case  1: return op(v,  1);  case  2: return op(v,  2);  case  3: return op(v,  3); \
-    case  4: return op(v,  4);  case  5: return op(v,  5);  case  6: return op(v,  6); \
-    case  7: return op(v,  7);  case  8: return op(v,  8);  case  9: return op(v,  9); \
-    case 10: return op(v, 10);  case 11: return op(v, 11);  case 12: return op(v, 12); \
-    case 13: return op(v, 13);  case 14: return op(v, 14);  case 15: return op(v, 15); \
-    case 16: return op(v, 16);  case 17: return op(v, 17);  case 18: return op(v, 18); \
-    case 19: return op(v, 19);  case 20: return op(v, 20);  case 21: return op(v, 21); \
-    case 22: return op(v, 22);  case 23: return op(v, 23);  case 24: return op(v, 24); \
-    case 25: return op(v, 25);  case 26: return op(v, 26);  case 27: return op(v, 27); \
-    case 28: return op(v, 28);  case 29: return op(v, 29);  case 30: return op(v, 30); \
-    case 31: return op(v, 31); } return fVec
-
-    SkNi operator << (int bits) const { SHIFT(vshlq_n_s32, fVec, bits); }
-    SkNi operator >> (int bits) const { SHIFT(vshrq_n_s32, fVec, bits); }
-#undef SHIFT
+    SkNi operator << (int bits) const { SHIFT32(vshlq_n_s32, fVec, bits); }
+    SkNi operator >> (int bits) const { SHIFT32(vshrq_n_s32, fVec, bits); }
 
     template <int k> int kth() const {
         SkASSERT(0 <= k && k < 4);
         return vgetq_lane_s32(fVec, k&3);
     }
-protected:
+
     int32x4_t fVec;
 };
 
@@ -298,8 +303,75 @@ public:
         return vgetq_lane_f32(fVec, k&3);
     }
 
-protected:
     float32x4_t fVec;
 };
+
+template <>
+class SkNi<8, uint16_t> {
+public:
+    SkNi(const uint16x8_t& vec) : fVec(vec) {}
+
+    SkNi() {}
+    explicit SkNi(uint16_t val) : fVec(vdupq_n_u16(val)) {}
+    static SkNi Load(const uint16_t vals[8]) { return vld1q_u16(vals); }
+
+    SkNi(uint16_t a, uint16_t b, uint16_t c, uint16_t d,
+         uint16_t e, uint16_t f, uint16_t g, uint16_t h) {
+        fVec = (uint16x8_t) { a,b,c,d, e,f,g,h };
+    }
+
+    void store(uint16_t vals[8]) const { vst1q_u16(vals, fVec); }
+
+    SkNi operator + (const SkNi& o) const { return vaddq_u16(fVec, o.fVec); }
+    SkNi operator - (const SkNi& o) const { return vsubq_u16(fVec, o.fVec); }
+    SkNi operator * (const SkNi& o) const { return vmulq_u16(fVec, o.fVec); }
+
+    SkNi operator << (int bits) const { SHIFT16(vshlq_n_u16, fVec, bits); }
+    SkNi operator >> (int bits) const { SHIFT16(vshrq_n_u16, fVec, bits); }
+
+    template <int k> uint16_t kth() const {
+        SkASSERT(0 <= k && k < 8);
+        return vgetq_lane_u16(fVec, k&7);
+    }
+
+    uint16x8_t fVec;
+};
+
+template <>
+class SkNi<16, uint8_t> {
+public:
+    SkNi(const uint8x16_t& vec) : fVec(vec) {}
+
+    SkNi() {}
+    explicit SkNi(uint8_t val) : fVec(vdupq_n_u8(val)) {}
+    static SkNi Load(const uint8_t vals[16]) { return vld1q_u8(vals); }
+
+    SkNi(uint8_t a, uint8_t b, uint8_t c, uint8_t d,
+         uint8_t e, uint8_t f, uint8_t g, uint8_t h,
+         uint8_t i, uint8_t j, uint8_t k, uint8_t l,
+         uint8_t m, uint8_t n, uint8_t o, uint8_t p) {
+        fVec = (uint8x16_t) { a,b,c,d, e,f,g,h, i,j,k,l, m,n,o,p };
+    }
+
+    void store(uint8_t vals[16]) const { vst1q_u8(vals, fVec); }
+
+    SkNi operator + (const SkNi& o) const { return vaddq_u8(fVec, o.fVec); }
+    SkNi operator - (const SkNi& o) const { return vsubq_u8(fVec, o.fVec); }
+    SkNi operator * (const SkNi& o) const { return vmulq_u8(fVec, o.fVec); }
+
+    SkNi operator << (int bits) const { SHIFT8(vshlq_n_u8, fVec, bits); }
+    SkNi operator >> (int bits) const { SHIFT8(vshrq_n_u8, fVec, bits); }
+
+    template <int k> uint8_t kth() const {
+        SkASSERT(0 <= k && k < 15);
+        return vgetq_lane_u8(fVec, k&16);
+    }
+
+    uint8x16_t fVec;
+};
+
+#undef SHIFT32
+#undef SHIFT16
+#undef SHIFT8
 
 #endif//SkNx_neon_DEFINED

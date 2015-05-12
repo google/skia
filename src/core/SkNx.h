@@ -30,7 +30,7 @@ public:
     bool allTrue() const { return fLo.allTrue() && fHi.allTrue(); }
     bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
 
-private:
+protected:
     REQUIRE(0 == (N & (N-1)));
     SkNb<N/2, Bytes> fLo, fHi;
 };
@@ -45,9 +45,12 @@ public:
         return SkNi(SkNi<N/2,T>::Load(vals), SkNi<N/2,T>::Load(vals+N/2));
     }
 
-    SkNi(T a, T b)                               : fLo(a),       fHi(b)       { REQUIRE(N==2); }
-    SkNi(T a, T b, T c, T d)                     : fLo(a,b),     fHi(c,d)     { REQUIRE(N==4); }
-    SkNi(T a, T b, T c, T d, T e, T f, T g, T h) : fLo(a,b,c,d), fHi(e,f,g,h) { REQUIRE(N==8); }
+    SkNi(T a, T b)                                : fLo(a),       fHi(b)       { REQUIRE(N==2); }
+    SkNi(T a, T b, T c, T d)                      : fLo(a,b),     fHi(c,d)     { REQUIRE(N==4); }
+    SkNi(T a, T b, T c, T d,  T e, T f, T g, T h) : fLo(a,b,c,d), fHi(e,f,g,h) { REQUIRE(N==8); }
+    SkNi(T a, T b, T c, T d,  T e, T f, T g, T h,
+         T i, T j, T k, T l,  T m, T n, T o, T p)
+        : fLo(a,b,c,d, e,f,g,h), fHi(i,j,k,l, m,n,o,p) { REQUIRE(N==16); }
 
     void store(T vals[N]) const {
         fLo.store(vals);
@@ -68,7 +71,7 @@ public:
         return k < N/2 ? fLo.template kth<k>() : fHi.template kth<k-N/2>();
     }
 
-private:
+protected:
     REQUIRE(0 == (N & (N-1)));
 
     SkNi<N/2, T> fLo, fHi;
@@ -133,7 +136,7 @@ public:
         return k < N/2 ? fLo.template kth<k>() : fHi.template kth<k-N/2>();
     }
 
-private:
+protected:
     REQUIRE(0 == (N & (N-1)));
     SkNf(const SkNf<N/2, T>& lo, const SkNf<N/2, T>& hi) : fLo(lo), fHi(hi) {}
 
@@ -150,7 +153,7 @@ public:
     explicit SkNb(bool val) : fVal(val) {}
     bool allTrue() const { return fVal; }
     bool anyTrue() const { return fVal; }
-private:
+protected:
     bool fVal;
 };
 
@@ -175,7 +178,7 @@ public:
         return fVal;
     }
 
-private:
+protected:
     T fVal;
 };
 
@@ -223,7 +226,7 @@ public:
         return fVal;
     }
 
-private:
+protected:
     // We do double sqrts natively, or via floats for any other type.
     template <typename U>
     static U      Sqrt(U      val) { return (U) ::sqrtf((float)val); }
@@ -263,9 +266,13 @@ typedef SkNf<4,    float> Sk4f;
 typedef SkNf<4,   double> Sk4d;
 typedef SkNf<4, SkScalar> Sk4s;
 
-typedef SkNi<4, uint16_t> Sk4h;
-typedef SkNi<8, uint16_t> Sk8h;
+typedef SkNi<4,  uint16_t> Sk4h;
+typedef SkNi<8,  uint16_t> Sk8h;
+typedef SkNi<16, uint16_t> Sk16h;
 
-typedef SkNi<4, int> Sk4i;
+typedef SkNi<16, uint8_t> Sk16b;
+
+typedef SkNi<4,  int32_t> Sk4i;
+typedef SkNi<4, uint32_t> Sk4u;
 
 #endif//SkNx_DEFINED
