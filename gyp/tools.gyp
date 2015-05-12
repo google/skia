@@ -18,6 +18,7 @@
       'type': 'none',
       'dependencies': [
         'bench_pictures',
+        'chrome_fuzz',
         'dump_record',
         'filter',
         'gpuveto',
@@ -44,6 +45,16 @@
             ],
           },
         ],
+      ],
+    },
+    {
+      'target_name': 'chrome_fuzz',
+      'type': 'executable',
+      'sources': [
+        '../tools/chrome_fuzz.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
       ],
     },
     {
