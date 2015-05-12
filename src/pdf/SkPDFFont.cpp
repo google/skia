@@ -844,7 +844,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFCanon* canon,
             fontMetrics->fType != SkAdvancedTypefaceMetrics::kTrueType_Font) {
             // Font does not support subsetting, get new info with advance.
             info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
-                      info, SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo);
+                      info, kHAdvance_PerGlyphInfo);
             fontMetrics.reset(
                 typeface->getAdvancedTypefaceMetrics(info, NULL, 0));
         }
