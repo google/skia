@@ -135,10 +135,10 @@ static SkScalar calc_end_adjustment(const SkScalar intervals[2], const SkPoint p
     }
     SkScalar srcIntervalLen = intervals[0] + intervals[1];
     SkScalar totalLen = pts[1].fX - pts[0].fX;
-    SkScalar temp = SkScalarDiv(totalLen, srcIntervalLen);
+    SkScalar temp = totalLen / srcIntervalLen;
     SkScalar numFullIntervals = SkScalarFloorToScalar(temp);
     *endingInt = totalLen - numFullIntervals * srcIntervalLen + phase;
-    temp = SkScalarDiv(*endingInt, srcIntervalLen);
+    temp = *endingInt / srcIntervalLen;
     *endingInt = *endingInt - SkScalarFloorToScalar(temp) * srcIntervalLen;
     if (0 == *endingInt) {
         *endingInt = srcIntervalLen;

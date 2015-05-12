@@ -58,7 +58,7 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
     // Figure out how to scale each color component.
     SkScalar multiplier[kColorComponents];
     for (int i = 0; i < kColorComponents; i++) {
-        multiplier[i] = SkScalarDiv(curColor[i] - prevColor[i], range);
+        multiplier[i] = (curColor[i] - prevColor[i]) / range;
     }
 
     // Calculate when we no longer need to keep a copy of the input parameter t.
@@ -1132,7 +1132,7 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
             static const SkScalar kMaxBitmapArea = 1024 * 1024;
             SkScalar bitmapArea = rasterScale * bbox.width() * rasterScale * bbox.height();
             if (bitmapArea > kMaxBitmapArea) {
-                rasterScale *= SkScalarSqrt(SkScalarDiv(kMaxBitmapArea, bitmapArea));
+                rasterScale *= SkScalarSqrt(kMaxBitmapArea / bitmapArea);
             }
 
             SkISize size = SkISize::Make(SkScalarRoundToInt(rasterScale * bbox.width()),

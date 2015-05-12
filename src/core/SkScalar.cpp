@@ -31,6 +31,6 @@ SkScalar SkScalarInterpFunc(SkScalar searchKey, const SkScalar keys[],
     // Otherwise, interpolate between right - 1 and right.
     SkScalar rightKey = keys[right];
     SkScalar leftKey = keys[right-1];
-    SkScalar fract = SkScalarDiv(searchKey-leftKey,rightKey-leftKey);
+    SkScalar fract = (searchKey - leftKey) / (rightKey - leftKey);
     return SkScalarInterp(values[right-1], values[right], fract);
 }

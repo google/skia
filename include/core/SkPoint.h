@@ -348,6 +348,16 @@ struct SK_API SkPoint {
         fY -= v.fY;
     }
 
+    SkPoint operator*(SkScalar scale) const {
+        return Make(fX * scale, fY * scale);
+    }
+    
+    SkPoint& operator*=(SkScalar scale) {
+        fX *= scale;
+        fY *= scale;
+        return *this;
+    }
+    
     /**
      *  Returns true if both X and Y are finite (not infinity or NaN)
      */

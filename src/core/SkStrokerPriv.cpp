@@ -214,7 +214,7 @@ static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
     else
         mid.set(before.fX + after.fX, before.fY + after.fY);
 
-    mid.setLength(SkScalarDiv(radius, sinHalfAngle));
+    mid.setLength(radius / sinHalfAngle);
 DO_MITER:
     if (prevIsLine)
         outer->setLastPt(pivot.fX + mid.fX, pivot.fY + mid.fY);

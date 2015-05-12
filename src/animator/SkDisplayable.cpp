@@ -377,7 +377,7 @@ void SkDisplayable::dumpValues(const SkMemberInfo* info, SkDisplayTypes type, Sk
         break;
     case SkType_MSec:
         if (op.fS32 != blankOp.fS32) {
-            SkDebugf(" %s=\"%g\"  ", info->fName, SkScalarToFloat(SkScalarDiv(op.fS32, 1000)));
+            SkDebugf(" %s=\"%g\"  ", info->fName, op.fS32 * 0.001);
         }
     default:
         SkDebugf("");

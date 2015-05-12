@@ -82,10 +82,8 @@ protected:
         canvas->scale(3.0f, 3.0f);
         SkMatrix skew;
         skew.setIdentity();
-        skew.setSkewX(SkScalarDiv(8.0f,
-                                  25.0f));
-        skew.setSkewY(SkScalarDiv(2.0f,
-                                  25.0f));
+        skew.setSkewX(8.0f / 25.0f);
+        skew.setSkewY(2.0f / 25.0f);
         canvas->concat(skew);
         drawTestCase(canvas, 1.0f);
         canvas->restore();
@@ -95,11 +93,9 @@ protected:
         canvas->save();
         SkMatrix perspective;
         perspective.setIdentity();
-        perspective.setPerspX(-SkScalarDiv(SK_Scalar1, 340.0f));
-        perspective.setSkewX(SkScalarDiv(8.0f,
-                                         25.0f));
-        perspective.setSkewY(SkScalarDiv(2.0f,
-                                         25.0f));
+        perspective.setPerspX(-SkScalarInvert(340));
+        perspective.setSkewX(8.0f / 25.0f);
+        perspective.setSkewY(2.0f / 25.0f);
 
 
         canvas->concat(perspective);

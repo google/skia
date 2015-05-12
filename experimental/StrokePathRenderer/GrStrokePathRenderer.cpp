@@ -39,8 +39,8 @@ static IntersectionType intersection(const SkPoint& p1, const SkPoint& p2,
     SkScalar pre  = SkScalarMul(x1, y2) - SkScalarMul(y1, x2),
              post = SkScalarMul(x3, y4) - SkScalarMul(y3, x4);
     // Compute the point of intersection
-    res.set(SkScalarDiv(SkScalarMul(pre, x3 - x4) - SkScalarMul(x1 - x2, post), d),
-            SkScalarDiv(SkScalarMul(pre, y3 - y4) - SkScalarMul(y1 - y2, post), d));
+    res.set((SkScalarMul(pre, x3 - x4) - SkScalarMul(x1 - x2, post) / d,
+            (SkScalarMul(pre, y3 - y4) - SkScalarMul(y1 - y2, post) / d);
 
     // Check if the x and y coordinates are within both lines
     return (res.x() < GrMin(x1, x2) || res.x() > GrMax(x1, x2) ||
@@ -184,9 +184,7 @@ bool GrStrokePathRenderer::onDrawPath(const SkPath& origPath,
                                                 SkPoint miterPt1 = miterPt[0] - *pt1;
                                                 SkScalar sqDist0 = miterPt0.dot(miterPt0);
                                                 SkScalar sqDist1 = miterPt1.dot(miterPt1);
-                                                const SkScalar rSq =
-                                                        SkScalarDiv(SkScalarMul(radius, radius),
-                                                                    sinHalfAngleSq);
+                                                const SkScalar rSq = radius*radius / sinHalfAngleSq;
                                                 const SkScalar sqRLimit =
                                                         SkScalarMul(sqMiterLimit, rSq);
                                                 if (sqDist0 > sqRLimit || sqDist1 > sqRLimit) {

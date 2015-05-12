@@ -412,7 +412,7 @@ bool SkAnimatorScript2::evalMemberCommon(const SkMemberInfo* info,
             if (info->fType != SkType_MemberProperty && info->fType != SkType_MemberFunction)
                 value->fS32 = *(int32_t*) info->memberData(displayable);    // OK for SkScalar too
             if (type == SkType_MSec) {
-                value->fScalar = SkScalarDiv((SkScalar) value->fS32, 1000); // dividing two ints is the same as dividing two scalars
+                value->fScalar = value->fS32 * 0.001f;
                 type = SkType_Float;
             }
             break;

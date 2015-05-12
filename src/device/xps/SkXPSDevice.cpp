@@ -512,7 +512,7 @@ static void transform_offsets(SkScalar* stopOffsets, const int numOffsets,
         SkScalar startToStop = (stopTransformed.fX - startTransformed.fX)
                              + (stopTransformed.fY - startTransformed.fY);
         //Percentage along transformed line.
-        stopOffsets[i] = SkScalarDiv(startToStop, startToEnd);
+        stopOffsets[i] = startToStop / startToEnd;
     }
 }
 
@@ -1396,10 +1396,8 @@ void SkXPSDevice::convertToPpm(const SkMaskFilter* filter,
                                SkVector* ppuScale,
                                const SkIRect& clip, SkIRect* clipIRect) {
     //This action is in unit space, but the ppm is specified in physical space.
-    ppuScale->fX = SkScalarDiv(this->fCurrentPixelsPerMeter.fX,
-                               this->fCurrentUnitsPerMeter.fX);
-    ppuScale->fY = SkScalarDiv(this->fCurrentPixelsPerMeter.fY,
-                               this->fCurrentUnitsPerMeter.fY);
+    ppuScale->set(fCurrentPixelsPerMeter.fX / fCurrentUnitsPerMeter.fX,
+                  fCurrentPixelsPerMeter.fY / fCurrentUnitsPerMeter.fY);
 
     matrix->postScale(ppuScale->fX, ppuScale->fY);
 

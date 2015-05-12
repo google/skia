@@ -40,8 +40,8 @@ static const GradData gGradData[] = {
 static SkShader* Make2ConicalOutside(const SkPoint pts[2], const GradData& data,
                                      SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 10);
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius0 = (pts[1].fX - pts[0].fX) / 10;
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
     return SkGradientShader::CreateTwoPointConical(center0, radius0,
@@ -53,8 +53,8 @@ static SkShader* Make2ConicalOutside(const SkPoint pts[2], const GradData& data,
 static SkShader* Make2ConicalOutsideFlip(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 10);
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius0 = (pts[1].fX - pts[0].fX) / 10;
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
     return SkGradientShader::CreateTwoPointConical(center1, radius1,
@@ -145,7 +145,7 @@ static SkShader* Make2ConicalZeroRadOutside(const SkPoint pts[2], const GradData
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
     SkScalar radius0 = 0.f;
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
     return SkGradientShader::CreateTwoPointConical(center0, radius0,
@@ -158,7 +158,7 @@ static SkShader* Make2ConicalZeroRadFlipOutside(const SkPoint pts[2], const Grad
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
     SkScalar radius0 = 0.f;
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
     return SkGradientShader::CreateTwoPointConical(center1, radius1,
@@ -170,8 +170,8 @@ static SkShader* Make2ConicalZeroRadFlipOutside(const SkPoint pts[2], const Grad
 static SkShader* Make2ConicalEdgeX(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 7);
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius0 = (pts[1].fX - pts[0].fX) / 7;
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center1.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center0.set(center1.fX + radius1, center1.fY);
@@ -184,8 +184,8 @@ static SkShader* Make2ConicalEdgeX(const SkPoint pts[2], const GradData& data,
 static SkShader* Make2ConicalEdgeY(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 7);
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius0 = (pts[1].fX - pts[0].fX) / 7;
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center1.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center0.set(center1.fX, center1.fY + radius1);
@@ -199,7 +199,7 @@ static SkShader* Make2ConicalZeroRadEdgeX(const SkPoint pts[2], const GradData& 
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
     SkScalar radius0 = 0.f;
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center1.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center0.set(center1.fX + radius1, center1.fY);
@@ -213,7 +213,7 @@ static SkShader* Make2ConicalZeroRadEdgeY(const SkPoint pts[2], const GradData& 
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
     SkScalar radius0 = 0.f;
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center1.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center0.set(center1.fX, center1.fY + radius1);
@@ -226,8 +226,8 @@ static SkShader* Make2ConicalZeroRadEdgeY(const SkPoint pts[2], const GradData& 
 static SkShader* Make2ConicalTouchX(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 7);
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius0 = (pts[1].fX - pts[0].fX) / 7;
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center1.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center0.set(center1.fX - radius1 + radius0, center1.fY);
@@ -240,8 +240,8 @@ static SkShader* Make2ConicalTouchX(const SkPoint pts[2], const GradData& data,
 static SkShader* Make2ConicalTouchY(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 7);
-    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    SkScalar radius0 = (pts[1].fX - pts[0].fX) / 7;
+    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center1.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center0.set(center1.fX, center1.fY + radius1 - radius0);

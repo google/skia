@@ -32,8 +32,8 @@ protected:
         SkRect dstRect;
         canvas->getTotalMatrix().mapRect(&dstRect, rect);
         canvas->save();
-        SkScalar deviceScaleX = SkScalarDiv(deviceSize.width(), dstRect.width());
-        SkScalar deviceScaleY = SkScalarDiv(deviceSize.height(), dstRect.height());
+        SkScalar deviceScaleX = deviceSize.width() / dstRect.width();
+        SkScalar deviceScaleY = deviceSize.height() / dstRect.height();
         canvas->translate(rect.x(), rect.y());
         canvas->scale(deviceScaleX, deviceScaleY);
         canvas->translate(-rect.x(), -rect.y());
@@ -96,7 +96,7 @@ protected:
             SkPaint paint;
             paint.setColor(0xFF00FF00);
             SkRect ovalRect = SkRect::MakeWH(16, 16);
-            ovalRect.inset(SkScalarDiv(2.0f, 3.0f), SkScalarDiv(2.0f, 3.0f));
+            ovalRect.inset(SkIntToScalar(2)/3, SkIntToScalar(2)/3);
             bitmapCanvas.drawOval(ovalRect, paint);
         }
         SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);

@@ -201,7 +201,7 @@ void SkPDFGraphicState::emitObject(SkWStream* stream,
     SkAutoTUnref<SkPDFDict> dict(SkNEW_ARGS(SkPDFDict, ("ExtGState")));
     dict->insertName("Type", "ExtGState");
 
-    SkScalar alpha = SkScalarDiv(fAlpha, 0xFF);
+    SkScalar alpha = SkIntToScalar(fAlpha) / 0xFF;
     dict->insertScalar("CA", alpha);
     dict->insertScalar("ca", alpha);
 
