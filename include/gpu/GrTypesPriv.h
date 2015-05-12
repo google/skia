@@ -264,4 +264,14 @@ private:
     SkIRect fRect;
 };
 
+#ifdef SK_DEBUG
+// Takes a pointer to a GrContext, and will suppress prints if required
+#define GrContextDebugf(context, ...) \
+    if (!context->suppressPrints()) {         \
+        SkDebugf(__VA_ARGS__);      \
+    }
+#else
+#define GrContextDebugf(context, ...)
+#endif
+
 #endif
