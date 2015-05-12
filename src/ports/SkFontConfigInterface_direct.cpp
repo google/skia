@@ -229,6 +229,7 @@ FontEquivClass GetFontEquivClass(const char* fontname)
         { GOTHIC, "MS Gothic" },
         { GOTHIC, "\xef\xbc\xad\xef\xbc\xb3 "
                   "\xe3\x82\xb4\xe3\x82\xb7\xe3\x83\x83\xe3\x82\xaf" },
+        { GOTHIC, "Noto Sans Mono CJK JP" },
         { GOTHIC, "IPAGothic" },
         { GOTHIC, "MotoyaG04GothicMono" },
 
