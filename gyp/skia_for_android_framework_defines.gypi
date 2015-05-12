@@ -18,6 +18,7 @@
       # Needed until we fix skbug.com/2440.
       'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
       'SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS',
+      'SK_SUPPORT_LEGACY_SCALAR_DIV',
     ],
   },
 }
