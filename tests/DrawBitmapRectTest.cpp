@@ -124,19 +124,19 @@ static void test_treatAsSprite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, bilerBits));
 
     const SkScalar twoThirds = SK_Scalar1 * 2 / 3;
-    const SkScalar bigScale = SkScalarDiv(size.width() + twoThirds, size.width());
+    const SkScalar bigScale = (size.width() + twoThirds) / size.width();
     mat.setScale(bigScale, bigScale);
     REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, false));
     REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
 
     const SkScalar oneThird = SK_Scalar1 / 3;
-    const SkScalar smallScale = SkScalarDiv(size.width() + oneThird, size.width());
+    const SkScalar smallScale = (size.width() + oneThird) / size.width();
     mat.setScale(smallScale, smallScale);
     REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, false));
     REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
 
     const SkScalar oneFortyth = SK_Scalar1 / 40;
-    const SkScalar tinyScale = SkScalarDiv(size.width() + oneFortyth, size.width());
+    const SkScalar tinyScale = (size.width() + oneFortyth) / size.width();
     mat.setScale(tinyScale, tinyScale);
     REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, false));
     REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, bilerBits));

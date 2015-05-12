@@ -2313,7 +2313,7 @@ SkTextToPathIter::SkTextToPathIter( const char text[], size_t length,
         fPaint.setTextSize(SkIntToScalar(SkPaint::kCanonicalTextSizeForPaths));
         fScale = paint.getTextSize() / SkPaint::kCanonicalTextSizeForPaths;
         if (has_thick_frame(fPaint)) {
-            fPaint.setStrokeWidth(SkScalarDiv(fPaint.getStrokeWidth(), fScale));
+            fPaint.setStrokeWidth(fPaint.getStrokeWidth() / fScale);
         }
     } else {
         fScale = SK_Scalar1;

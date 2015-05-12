@@ -212,8 +212,7 @@ private:
             SkScalar highFrequencx =
                 SkScalarCeilToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
             // BaseFrequency should be non-negative according to the standard.
-            if (SkScalarDiv(fBaseFrequency.fX, lowFrequencx) <
-                SkScalarDiv(highFrequencx, fBaseFrequency.fX)) {
+            if (fBaseFrequency.fX / lowFrequencx < highFrequencx / fBaseFrequency.fX) {
                 fBaseFrequency.fX = lowFrequencx;
             } else {
                 fBaseFrequency.fX = highFrequencx;
@@ -224,8 +223,7 @@ private:
                 SkScalarFloorToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
             SkScalar highFrequency =
                 SkScalarCeilToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
-            if (SkScalarDiv(fBaseFrequency.fY, lowFrequency) <
-                SkScalarDiv(highFrequency, fBaseFrequency.fY)) {
+            if (fBaseFrequency.fY / lowFrequency < highFrequency / fBaseFrequency.fY) {
                 fBaseFrequency.fY = lowFrequency;
             } else {
                 fBaseFrequency.fY = highFrequency;
@@ -384,8 +382,9 @@ SkScalar SkPerlinNoiseShader::PerlinNoiseShaderContext::calculateTurbulenceValue
     SkScalar ratio = SK_Scalar1;
     for (int octave = 0; octave < perlinNoiseShader.fNumOctaves; ++octave) {
         SkScalar noise = noise2D(channel, stitchData, noiseVector);
-        turbulenceFunctionResult += SkScalarDiv(
-            (perlinNoiseShader.fType == kFractalNoise_Type) ? noise : SkScalarAbs(noise), ratio);
+        SkScalar numer = (perlinNoiseShader.fType == kFractalNoise_Type) ?
+                            noise : SkScalarAbs(noise);
+        turbulenceFunctionResult += numer / ratio;
         noiseVector.fX *= 2;
         noiseVector.fY *= 2;
         ratio *= 2;
@@ -406,8 +405,7 @@ SkScalar SkPerlinNoiseShader::PerlinNoiseShaderContext::calculateTurbulenceValue
     }
 
     if (channel == 3) { // Scale alpha by paint value
-        turbulenceFunctionResult = SkScalarMul(turbulenceFunctionResult,
-            SkScalarDiv(SkIntToScalar(getPaintAlpha()), SkIntToScalar(255)));
+        turbulenceFunctionResult *= SkIntToScalar(getPaintAlpha()) / 255;
     }
 
     // Clamp result
@@ -931,7 +929,7 @@ void GrGLPerlinNoise::setData(const GrGLProgramDataManager& pdman, const GrProce
 
     const SkVector& baseFrequency = turbulence.baseFrequency();
     pdman.set2f(fBaseFrequencyUni, baseFrequency.fX, baseFrequency.fY);
-    pdman.set1f(fAlphaUni, SkScalarDiv(SkIntToScalar(turbulence.alpha()), SkIntToScalar(255)));
+    pdman.set1f(fAlphaUni, SkIntToScalar(turbulence.alpha()) / 255);
 
     if (turbulence.stitchTiles()) {
         const SkPerlinNoiseShader::StitchData& stitchData = turbulence.stitchData();

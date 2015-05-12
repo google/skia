@@ -168,7 +168,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
     static const SkScalar kMaxTileArea = 2048 * 2048;
     SkScalar tileArea = SkScalarMul(scaledSize.width(), scaledSize.height());
     if (tileArea > kMaxTileArea) {
-        SkScalar clampScale = SkScalarSqrt(SkScalarDiv(kMaxTileArea, tileArea));
+        SkScalar clampScale = SkScalarSqrt(kMaxTileArea / tileArea);
         scaledSize.set(SkScalarMul(scaledSize.width(), clampScale),
                        SkScalarMul(scaledSize.height(), clampScale));
     }
@@ -176,8 +176,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
     // Scale down the tile size if larger than maxTextureSize for GPU Path or it should fail on create texture
     if (maxTextureSize) {
         if (scaledSize.width() > maxTextureSize || scaledSize.height() > maxTextureSize) {
-            SkScalar downScale = SkScalarDiv(maxTextureSize,
-                                            SkMax32(scaledSize.width(), scaledSize.height()));
+            SkScalar downScale = maxTextureSize / SkMax32(scaledSize.width(), scaledSize.height());
             scaledSize.set(SkScalarFloorToScalar(SkScalarMul(scaledSize.width(), downScale)),
                            SkScalarFloorToScalar(SkScalarMul(scaledSize.height(), downScale)));
         }

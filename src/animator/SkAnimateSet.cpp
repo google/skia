@@ -39,7 +39,7 @@ SkSet::SkSet() {
 void SkSet::dump(SkAnimateMaker* maker) {
     INHERITED::dump(maker);
     if (dur != 1) {
-        SkDebugf("dur=\"%g\" ", SkScalarToFloat(SkScalarDiv(dur,1000)));
+        SkDebugf("dur=\"%g\" ", dur * 0.001);
     }
     //don't want double />\n's
     SkDebugf("/>\n");

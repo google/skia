@@ -76,7 +76,7 @@ void SkPost::dump(SkAnimateMaker* maker) {
     delete eventType;
 
     if (delay > 0) {
-        SkDebugf("delay=\"%g\" ", SkScalarToFloat(SkScalarDiv(delay, 1000)));
+        SkDebugf("delay=\"%g\" ", delay * 0.001);
     }
 //  if (initialized == false)
 //      SkDebugf("(uninitialized) ");

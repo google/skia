@@ -62,8 +62,7 @@ SkScalar SkInterpolatorBase::ComputeRelativeT(SkMSec time, SkMSec prevTime,
                                   SkMSec nextTime, const SkScalar blend[4]) {
     SkASSERT(time > prevTime && time < nextTime);
 
-    SkScalar t = SkScalarDiv((SkScalar)(time - prevTime),
-                             (SkScalar)(nextTime - prevTime));
+    SkScalar t = (SkScalar)(time - prevTime) / (SkScalar)(nextTime - prevTime);
     return blend ?
             SkUnitCubicInterp(t, blend[0], blend[1], blend[2], blend[3]) : t;
 }

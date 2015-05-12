@@ -60,7 +60,7 @@ static inline uint32_t compute_pointCount(SkScalar d, SkScalar tol) {
     if (d < tol) {
        return 1;
     } else {
-       int temp = SkScalarCeilToInt(SkScalarSqrt(SkScalarDiv(d, tol)));
+       int temp = SkScalarCeilToInt(SkScalarSqrt(d / tol));
        uint32_t count = SkMin32(SkNextPow2(temp), MAX_POINTS_PER_CURVE);
        return count;
     }

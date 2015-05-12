@@ -1387,7 +1387,7 @@ bool SkScriptEngine::processOp() {
             if (operand2.fScalar == 0)
                 operand2.fScalar = operand1.fScalar == 0 ? SK_ScalarNaN : operand1.fScalar > 0 ? SK_ScalarMax : -SK_ScalarMax;
             else
-                operand2.fScalar = SkScalarDiv(operand1.fScalar, operand2.fScalar);
+                operand2.fScalar = operand1.fScalar / operand2.fScalar;
             break;
         case kEqualInt:
             operand2.fS32 = operand1.fS32 == operand2.fS32;

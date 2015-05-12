@@ -105,7 +105,7 @@ static void center_of_mass(const SegmentArray& segments, SkPoint* c) {
         *c = avg;
     } else {
         area *= 3;
-        area = SkScalarDiv(SK_Scalar1, area);
+        area = SkScalarInvert(area);
         center.fX = SkScalarMul(center.fX, area);
         center.fY = SkScalarMul(center.fY, area);
         // undo the translate of p0 to the origin.

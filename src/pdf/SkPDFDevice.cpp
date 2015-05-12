@@ -39,15 +39,12 @@
 
 static void emit_pdf_color(SkColor color, SkWStream* result) {
     SkASSERT(SkColorGetA(color) == 0xFF);  // We handle alpha elsewhere.
-    SkScalar colorMax = SkIntToScalar(0xFF);
-    SkPDFUtils::AppendScalar(
-            SkScalarDiv(SkIntToScalar(SkColorGetR(color)), colorMax), result);
+    SkScalar colorScale = SkScalarInvert(0xFF);
+    SkPDFUtils::AppendScalar(SkColorGetR(color) * colorScale, result);
     result->writeText(" ");
-    SkPDFUtils::AppendScalar(
-            SkScalarDiv(SkIntToScalar(SkColorGetG(color)), colorMax), result);
+    SkPDFUtils::AppendScalar(SkColorGetG(color) * colorScale, result);
     result->writeText(" ");
-    SkPDFUtils::AppendScalar(
-            SkScalarDiv(SkIntToScalar(SkColorGetB(color)), colorMax), result);
+    SkPDFUtils::AppendScalar(SkColorGetB(color) * colorScale, result);
     result->writeText(" ");
 }
 

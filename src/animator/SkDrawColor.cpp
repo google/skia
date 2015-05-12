@@ -30,14 +30,14 @@ static SkScalar RGB_to_HSV(SkColor color, HSV_Choice choice) {
     if (choice == kGetValue)
         return value/255;
     SkScalar delta = value - min;
-    SkScalar saturation = value == 0 ? 0 : SkScalarDiv(delta, value);
+    SkScalar saturation = value == 0 ? 0 : delta / value;
     if (choice == kGetSaturation)
         return saturation;
     SkScalar hue;
     if (saturation == 0)
         hue = 0;
     else {
-        SkScalar part60 = SkScalarDiv(60 * SK_Scalar1, delta);
+        SkScalar part60 = 60 / delta;
         if (red == value) {
             hue = SkScalarMul(green - blue, part60);
             if (hue < 0)

@@ -249,7 +249,7 @@ bool SkScriptRuntime::executeTokens(unsigned char* opCode) {
                 operand[0].fScalar = operand[0].fScalar == 0 ? SK_ScalarNaN :
                     operand[0].fScalar > 0 ? SK_ScalarMax : -SK_ScalarMax;
             else
-                operand[0].fScalar = SkScalarDiv(operand[0].fScalar, operand[1].fScalar);
+                operand[0].fScalar = operand[0].fScalar / operand[1].fScalar;
             break;
         case SkScriptEngine2::kEqualInt:
             operand[0].fS32 = operand[0].fS32 == operand[1].fS32;

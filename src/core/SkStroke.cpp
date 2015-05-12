@@ -454,8 +454,7 @@ void SkPathStroker::quad_to(const SkPoint pts[3],
         normalB = pts[2] - pts[0];
         normalB.rotateCCW();
         SkScalar dot = SkPoint::DotProduct(unitNormalAB, *unitNormalBC);
-        SkAssertResult(normalB.setLength(SkScalarDiv(fRadius,
-                                     SkScalarSqrt((SK_Scalar1 + dot)/2))));
+        SkAssertResult(normalB.setLength(fRadius / SkScalarSqrt((SK_Scalar1 + dot)/2)));
 
         fOuter.quadTo(  pts[1].fX + normalB.fX, pts[1].fY + normalB.fY,
                         pts[2].fX + normalBC->fX, pts[2].fY + normalBC->fY);
@@ -761,11 +760,9 @@ DRAW_LINE:
         normalC = *unitNormalCD + unitBC;
 
         SkScalar dot = SkPoint::DotProduct(unitNormalAB, unitBC);
-        SkAssertResult(normalB.setLength(SkScalarDiv(fRadius,
-                                    SkScalarSqrt((SK_Scalar1 + dot)/2))));
+        SkAssertResult(normalB.setLength(fRadius / SkScalarSqrt((SK_Scalar1 + dot)/2)));
         dot = SkPoint::DotProduct(*unitNormalCD, unitBC);
-        SkAssertResult(normalC.setLength(SkScalarDiv(fRadius,
-                                    SkScalarSqrt((SK_Scalar1 + dot)/2))));
+        SkAssertResult(normalC.setLength(fRadius / SkScalarSqrt((SK_Scalar1 + dot)/2)));
 
         fOuter.cubicTo( pts[1].fX + normalB.fX, pts[1].fY + normalB.fY,
                         pts[2].fX + normalC.fX, pts[2].fY + normalC.fY,

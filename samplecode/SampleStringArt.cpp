@@ -42,7 +42,7 @@ protected:
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
             path.lineTo(rp);
-            length += SkScalarDiv(angle, SkScalarHalf(SK_ScalarPI));
+            length += angle / SkScalarHalf(SK_ScalarPI);
             step += angle;
         }
         path.close();

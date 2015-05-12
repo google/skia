@@ -341,8 +341,7 @@ static void seg_to(const SkPoint pts[], int segType,
                 if (SK_Scalar1 == stopT) {
                     dst->quadTo(tmp0[3], tmp0[4]);
                 } else {
-                    SkChopQuadAt(&tmp0[2], tmp1, SkScalarDiv(stopT - startT,
-                                                         SK_Scalar1 - startT));
+                    SkChopQuadAt(&tmp0[2], tmp1, (stopT - startT) / (1 - startT));
                     dst->quadTo(tmp1[1], tmp1[2]);
                 }
             }
@@ -383,8 +382,7 @@ static void seg_to(const SkPoint pts[], int segType,
                 if (SK_Scalar1 == stopT) {
                     dst->cubicTo(tmp0[4], tmp0[5], tmp0[6]);
                 } else {
-                    SkChopCubicAt(&tmp0[3], tmp1, SkScalarDiv(stopT - startT,
-                                                        SK_Scalar1 - startT));
+                    SkChopCubicAt(&tmp0[3], tmp1, (stopT - startT) / (1 - startT));
                     dst->cubicTo(tmp1[1], tmp1[2], tmp1[3]);
                 }
             }

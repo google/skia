@@ -20,13 +20,12 @@ static bool ComputeStep(const SkPoint& a, const SkPoint& b, SkScalar radius,
                         SkPoint* step) {
     SkScalar dist = SkPoint::Distance(a, b);
 
-    step->set(b.fX - a.fX, b.fY - a.fY);
-
+    *step = b - a;
     if (dist <= radius * 2) {
-        step->scale(SK_ScalarHalf);
+        *step *= SK_ScalarHalf;
         return false;
     } else {
-        step->scale(SkScalarDiv(radius, dist));
+        *step *= radius / dist;
         return true;
     }
 }
@@ -47,6 +46,7 @@ bool SkCornerPathEffect::filterPath(SkPath* dst, const SkPath& src,
     bool        prevIsValid = true;
 
     // to avoid warnings
+    step.set(0, 0);
     moveTo.set(0, 0);
     firstStep.set(0, 0);
     lastCorner.set(0, 0);
