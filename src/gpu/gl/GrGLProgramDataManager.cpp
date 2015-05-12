@@ -62,7 +62,7 @@ void GrGLProgramDataManager::set1f(UniformHandle u, GrGLfloat v0) const {
     const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform1f(uni.fFSLocation, v0));
     }
@@ -94,7 +94,7 @@ void GrGLProgramDataManager::set2f(UniformHandle u, GrGLfloat v0, GrGLfloat v1) 
     const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform2f(uni.fFSLocation, v0, v1));
     }
@@ -110,7 +110,7 @@ void GrGLProgramDataManager::set2fv(UniformHandle u,
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform2fv(uni.fFSLocation, arrayCount, v));
     }
@@ -123,7 +123,7 @@ void GrGLProgramDataManager::set3f(UniformHandle u, GrGLfloat v0, GrGLfloat v1, 
     const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform3f(uni.fFSLocation, v0, v1, v2));
     }
@@ -139,7 +139,7 @@ void GrGLProgramDataManager::set3fv(UniformHandle u,
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform3fv(uni.fFSLocation, arrayCount, v));
     }
@@ -156,7 +156,7 @@ void GrGLProgramDataManager::set4f(UniformHandle u,
     const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform4f(uni.fFSLocation, v0, v1, v2, v3));
     }
@@ -172,7 +172,7 @@ void GrGLProgramDataManager::set4fv(UniformHandle u,
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform4fv(uni.fFSLocation, arrayCount, v));
     }
@@ -185,7 +185,7 @@ void GrGLProgramDataManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix
     const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kMat33f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), UniformMatrix3fv(uni.fFSLocation, 1, false, matrix));
     }
@@ -198,7 +198,7 @@ void GrGLProgramDataManager::setMatrix4f(UniformHandle u, const GrGLfloat matrix
     const Uniform& uni = fUniforms[u.toProgramDataIndex()];
     SkASSERT(uni.fType == kMat44f_GrSLType);
     SkASSERT(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(), UniformMatrix4fv(uni.fFSLocation, 1, false, matrix));
     }
@@ -214,7 +214,7 @@ void GrGLProgramDataManager::setMatrix3fv(UniformHandle u,
     SkASSERT(uni.fType == kMat33f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(),
                    UniformMatrix3fv(uni.fFSLocation, arrayCount, false, matrices));
@@ -232,7 +232,7 @@ void GrGLProgramDataManager::setMatrix4fv(UniformHandle u,
     SkASSERT(uni.fType == kMat44f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    this->printUnused(uni);
+    SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fGpu->glInterface(),
                    UniformMatrix4fv(uni.fFSLocation, arrayCount, false, matrices));
@@ -261,7 +261,7 @@ void GrGLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix
 #ifdef SK_DEBUG
 void GrGLProgramDataManager::printUnused(const Uniform& uni) const {
     if (kUnusedUniform == uni.fFSLocation && kUnusedUniform == uni.fVSLocation) {
-        SkDebugf("Unused uniform in shader\n");
+        GrContextDebugf(fGpu->getContext(), "Unused uniform in shader\n");
     }
 }
 #endif

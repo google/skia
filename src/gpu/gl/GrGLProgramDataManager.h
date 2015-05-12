@@ -106,11 +106,7 @@ private:
         );
     };
 
-#ifdef SK_DEBUG
-    void printUnused(const Uniform&) const;
-#else
-    void printUnused(const Uniform&) const {}
-#endif
+    SkDEBUGCODE(void printUnused(const Uniform&) const;)
 
     SkTArray<Uniform, true> fUniforms;
     GrGLGpu* fGpu;

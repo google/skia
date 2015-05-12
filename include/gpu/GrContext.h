@@ -47,12 +47,13 @@ public:
     SK_DECLARE_INST_COUNT(GrContext)
 
     struct Options {
-        Options() : fDrawPathToCompressedTexture(false) { }
+        Options() : fDrawPathToCompressedTexture(false), fSuppressPrints(false) { }
 
         // EXPERIMENTAL
         // May be removed in the future, or may become standard depending
         // on the outcomes of a variety of internal tests.
         bool fDrawPathToCompressedTexture;
+        bool fSuppressPrints;
     };
 
     /**
@@ -529,6 +530,7 @@ public:
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
+    bool suppressPrints() const { return fOptions.fSuppressPrints; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
     void getTestTarget(GrTestTarget*);
