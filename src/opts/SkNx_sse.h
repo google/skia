@@ -296,6 +296,8 @@ public:
 
     void store(uint8_t vals[16]) const { _mm_storeu_si128((__m128i*)vals, fVec); }
 
+    SkNi saturatedAdd(const SkNi& o) const { return _mm_adds_epu8(fVec, o.fVec); }
+
     SkNi operator + (const SkNi& o) const { return _mm_add_epi8(fVec, o.fVec); }
     SkNi operator - (const SkNi& o) const { return _mm_sub_epi8(fVec, o.fVec); }
 

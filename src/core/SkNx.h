@@ -57,6 +57,10 @@ public:
         fHi.store(vals+N/2);
     }
 
+    SkNi saturatedAdd(const SkNi& o) const {
+        return SkNi(fLo.saturatedAdd(o.fLo), fHi.saturatedAdd(o.fHi));
+    }
+
     SkNi operator + (const SkNi& o) const { return SkNi(fLo + o.fLo, fHi + o.fHi); }
     SkNi operator - (const SkNi& o) const { return SkNi(fLo - o.fLo, fHi - o.fHi); }
     SkNi operator * (const SkNi& o) const { return SkNi(fLo * o.fLo, fHi * o.fHi); }
@@ -165,6 +169,12 @@ public:
     static SkNi Load(const T vals[1]) { return SkNi(vals[0]); }
 
     void store(T vals[1]) const { vals[0] = fVal; }
+
+    SkNi saturatedAdd(const SkNi& o) const {
+        SkASSERT((T)(~0) > 0); // TODO: support signed T
+        T sum = fVal + o.fVal;
+        return SkNi(sum > fVal ? sum : (T)(~0));
+    }
 
     SkNi operator + (const SkNi& o) const { return SkNi(fVal + o.fVal); }
     SkNi operator - (const SkNi& o) const { return SkNi(fVal - o.fVal); }

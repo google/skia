@@ -9,6 +9,7 @@
 #include "SkXfermode.h"
 #include "SkXfermode_opts_SSE2.h"
 #include "SkXfermode_proccoeff.h"
+#include "Sk4px.h"
 #include "SkColorPriv.h"
 #include "SkLazyPtr.h"
 #include "SkMathPriv.h"
@@ -1269,7 +1270,10 @@ struct Plus4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
         return check_as_pmfloat(clamp_255(src + dst));
     }
-    static const bool kFoldCoverageIntoSrcAlpha = true;
+    static Sk4px Xfer(const Sk4px& src, const Sk4px& dst) {
+        return src.saturatedAdd(dst);
+    }
+    static const bool kFoldCoverageIntoSrcAlpha = false;
     static const SkXfermode::Mode kMode = SkXfermode::kPlus_Mode;
 };
 
@@ -1278,6 +1282,9 @@ struct Modulate4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
         const Sk4f inv255(gInv255);
         return check_as_pmfloat(src * dst * inv255);
+    }
+    static Sk4px Xfer(const Sk4px& src, const Sk4px& dst) {
+        return src.mulWiden(dst).div255RoundNarrow();
     }
     static const bool kFoldCoverageIntoSrcAlpha = false;
     static const SkXfermode::Mode kMode = SkXfermode::kModulate_Mode;
@@ -1288,6 +1295,12 @@ struct Screen4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
         const Sk4f inv255(gInv255);
         return check_as_pmfloat(src + dst - src * dst * inv255);
+    }
+    static Sk4px Xfer(const Sk4px& src, const Sk4px& dst) {
+        // Doing the math as S + (1-S)*D or S + (D - S*D) means the add and subtract can be done
+        // in 8-bit space without overflow.  S + (1-S)*D is a touch faster because 255-x is an xor.
+        // TODO: do we need to explicitly implement / call Sk16b(255) ^ src ?
+        return src + Sk4px(Sk16b(255) - src).mulWiden(dst).div255RoundNarrow();
     }
     static const bool kFoldCoverageIntoSrcAlpha = true;
     static const SkXfermode::Mode kMode = SkXfermode::kScreen_Mode;
@@ -1370,6 +1383,35 @@ private:
 
     typedef SkProcCoeffXfermode INHERITED;
 };
+
+template <typename ProcType>
+class SkT4pxXfermode : public SkProcCoeffXfermode {
+public:
+    static SkXfermode* Create(const ProcCoeff& rec) {
+        return SkNEW_ARGS(SkT4pxXfermode, (rec));
+    }
+
+    void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        if (NULL == aa) {
+            Sk4px::MapDstSrc(n, dst, src, [&](const Sk4px& dst4, const Sk4px& src4) {
+                return ProcType::Xfer(src4, dst4);
+            });
+        } else {
+            Sk4px::MapDstSrcAlpha(n, dst, src, aa,
+                    [&](const Sk4px& dst4, const Sk4px& src4, const Sk16b& alpha) {
+                // We can't exploit kFoldCoverageIntoSrcAlpha. That requires >=24-bit intermediates.
+                Sk4px res4 = ProcType::Xfer(src4, dst4);
+                return Sk4px::Wide(res4.mulWiden(alpha) + dst4.mulWiden(Sk16b(255)-alpha))
+                           .div255RoundNarrow();
+            });
+        }
+    }
+
+private:
+    SkT4pxXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, ProcType::kMode) {}
+
+    typedef SkProcCoeffXfermode INHERITED;
+};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1445,6 +1487,7 @@ SkXfermode* create_mode(int iMode) {
         case SkXfermode::kXor_Mode:
             xfer = SkT4fXfermode<Xor4f>::Create(rec);
             break;
+    #ifdef SK_PREFER_LEGACY_FLOAT_XFERMODES
         case SkXfermode::kPlus_Mode:
             xfer = SkT4fXfermode<Plus4f>::Create(rec);
             break;
@@ -1454,6 +1497,17 @@ SkXfermode* create_mode(int iMode) {
         case SkXfermode::kScreen_Mode:
             xfer = SkT4fXfermode<Screen4f>::Create(rec);
             break;
+    #else
+        case SkXfermode::kPlus_Mode:
+            xfer = SkT4pxXfermode<Plus4f>::Create(rec);
+            break;
+        case SkXfermode::kModulate_Mode:
+            xfer = SkT4pxXfermode<Modulate4f>::Create(rec);
+            break;
+        case SkXfermode::kScreen_Mode:
+            xfer = SkT4pxXfermode<Screen4f>::Create(rec);
+            break;
+    #endif
         case SkXfermode::kMultiply_Mode:
             xfer = SkT4fXfermode<Multiply4f>::Create(rec);
             break;
