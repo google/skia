@@ -68,8 +68,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
         drawBounds->roundOut(&drawIBounds);
         if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
-            GrContextDebugf(fContext, "Missed an early reject. "
-                                      "Bailing on draw from setupDstReadIfNecessary.\n");
+            SkDebugf("Missed an early reject. Bailing on draw from setupDstReadIfNecessary.\n");
 #endif
             return false;
         }
