@@ -69,7 +69,7 @@ protected:
     SkScalerContext* onCreateScalerContext(const SkDescriptor* desc) const override;
     void onFilterRec(SkScalerContextRec* rec) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-        SkAdvancedTypefaceMetrics::PerGlyphInfo,
+        PerGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) const override;
 

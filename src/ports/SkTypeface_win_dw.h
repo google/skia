@@ -99,9 +99,8 @@ protected:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
     SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
-    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-                                SkAdvancedTypefaceMetrics::PerGlyphInfo,
-                                const uint32_t*, uint32_t) const override;
+    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                PerGlyphInfo, const uint32_t*, uint32_t) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const override;

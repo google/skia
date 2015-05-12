@@ -10,9 +10,10 @@
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
 
-#include "SkAdvancedTypefaceMetrics.h"
 #include "SkFontStyle.h"
 #include "SkLazyPtr.h"
+#include "SkRect.h"
+#include "SkString.h"
 #include "SkWeakRefCnt.h"
 
 class SkDescriptor;
@@ -307,6 +308,16 @@ public:
     }
 
 protected:
+    // The type of advance data wanted.
+    enum PerGlyphInfo {
+        kNo_PerGlyphInfo         = 0x0, // Don't populate any per glyph info.
+        kHAdvance_PerGlyphInfo   = 0x1, // Populate horizontal advance data.
+        kVAdvance_PerGlyphInfo   = 0x2, // Populate vertical advance data.
+        kGlyphNames_PerGlyphInfo = 0x4, // Populate glyph names (Type 1 only).
+        kToUnicode_PerGlyphInfo  = 0x8  // Populate ToUnicode table, ignored
+        // for Type 1 fonts
+    };
+
     /** uniqueID must be unique and non-zero
     */
     SkTypeface(const SkFontStyle& style, SkFontID uniqueID, bool isFixedPitch = false);
@@ -321,7 +332,7 @@ protected:
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-                        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+                        PerGlyphInfo,
                         const uint32_t* glyphIDs,
                         uint32_t glyphIDsCount) const = 0;
 
@@ -368,7 +379,7 @@ private:
      @return The returned object has already been referenced.
      */
     SkAdvancedTypefaceMetrics* getAdvancedTypefaceMetrics(
-                          SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+                          PerGlyphInfo,
                           const uint32_t* glyphIDs = NULL,
                           uint32_t glyphIDsCount = 0) const;
 

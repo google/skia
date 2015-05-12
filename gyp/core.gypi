@@ -18,6 +18,7 @@
         '<(skia_src_path)/core/SkAAClip.cpp',
         '<(skia_src_path)/core/SkAnnotation.cpp',
         '<(skia_src_path)/core/SkAdvancedTypefaceMetrics.cpp',
+        '<(skia_src_path)/core/SkAdvancedTypefaceMetrics.h',
         '<(skia_src_path)/core/SkAlphaRuns.cpp',
         '<(skia_src_path)/core/SkAntiRun.h',
         '<(skia_src_path)/core/SkBBHFactory.cpp',
@@ -242,7 +243,6 @@
         '<(skia_src_path)/pipe/SkGPipeRead.cpp',
         '<(skia_src_path)/pipe/SkGPipeWrite.cpp',
 
-        '<(skia_include_path)/core/SkAdvancedTypefaceMetrics.h',
         '<(skia_include_path)/core/SkBBHFactory.h',
         '<(skia_include_path)/core/SkBitmap.h',
         '<(skia_include_path)/core/SkBitmapDevice.h',

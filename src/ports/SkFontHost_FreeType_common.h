@@ -61,9 +61,8 @@ protected:
     virtual SkScalerContext* onCreateScalerContext(
                                         const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
-    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-                                SkAdvancedTypefaceMetrics::PerGlyphInfo,
-                                const uint32_t*, uint32_t) const override;
+    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                        PerGlyphInfo, const uint32_t*, uint32_t) const override;
     int onGetUPEM() const override;
     virtual bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                        int32_t adjustments[]) const override;

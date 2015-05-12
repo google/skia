@@ -829,13 +829,13 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFCanon* canon,
             return SkRef(relatedFont);
         }
     } else {
-        SkAdvancedTypefaceMetrics::PerGlyphInfo info;
-        info = SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo;
-        info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
-                  info, SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo);
+        SkTypeface::PerGlyphInfo info;
+        info = SkTypeface::kGlyphNames_PerGlyphInfo;
+        info = SkTBitOr<SkTypeface::PerGlyphInfo>(
+                  info, SkTypeface::kToUnicode_PerGlyphInfo);
 #if !defined (SK_SFNTLY_SUBSETTER)
-        info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
-                  info, SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo);
+        info = SkTBitOr<SkTypeface::PerGlyphInfo>(
+                  info, SkTypeface::kHAdvance_PerGlyphInfo);
 #endif
         fontMetrics.reset(
             typeface->getAdvancedTypefaceMetrics(info, NULL, 0));
@@ -1127,10 +1127,10 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
             subset->exportTo(&glyphIDs);
         }
 
-        SkAdvancedTypefaceMetrics::PerGlyphInfo info;
-        info = SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo;
-        info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
-                  info, SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo);
+        SkTypeface::PerGlyphInfo info;
+        info = SkTypeface::kGlyphNames_PerGlyphInfo;
+        info = SkTBitOr<SkTypeface::PerGlyphInfo>(
+                  info, SkTypeface::kHAdvance_PerGlyphInfo);
         uint32_t* glyphs = (glyphIDs.count() == 0) ? NULL : glyphIDs.begin();
         uint32_t glyphsCount = glyphs ? glyphIDs.count() : 0;
         SkAutoTUnref<const SkAdvancedTypefaceMetrics> fontMetrics(

@@ -178,7 +178,7 @@ void SkGTypeface::onFilterRec(SkScalerContextRec* rec) const {
 }
 
 SkAdvancedTypefaceMetrics* SkGTypeface::onGetAdvancedTypefaceMetrics(
-                                SkAdvancedTypefaceMetrics::PerGlyphInfo info,
+                                PerGlyphInfo info,
                                 const uint32_t* glyphIDs,
                                 uint32_t glyphIDsCount) const {
     return fProxy->getAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);

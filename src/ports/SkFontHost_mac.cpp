@@ -19,6 +19,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include "SkAdvancedTypefaceMetrics.h"
 #include "SkCGUtils.h"
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
@@ -453,7 +454,7 @@ protected:
     void onFilterRec(SkScalerContextRec*) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-                                SkAdvancedTypefaceMetrics::PerGlyphInfo,
+                                PerGlyphInfo,
                                 const uint32_t*, uint32_t) const override;
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
                                 int glyphCount) const override;
@@ -1543,7 +1544,7 @@ static void CFStringToSkString(CFStringRef src, SkString* dst) {
 }
 
 SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+        PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) const {
 
@@ -1565,7 +1566,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
     info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
     info->fStyle = 0;
 
-    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
+    if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
         populate_glyph_to_unicode(ctFont, glyphCount, &info->fGlyphToUnicode);
     }
 
@@ -1632,7 +1633,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
         }
     }
 
-    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
+    if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         if (info->fStyle & SkAdvancedTypefaceMetrics::kFixedPitch_Style) {
             skia_advanced_typeface_metrics_utils::appendRange(&info->fGlyphWidths, 0);
             info->fGlyphWidths->fAdvance.append(1, &min_width);

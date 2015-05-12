@@ -460,7 +460,7 @@ static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyph
 }
 
 SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+        PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) const {
 #if defined(SK_BUILD_FOR_MAC)
@@ -587,10 +587,10 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
                                     face->bbox.xMax, face->bbox.yMin);
 
     if (!FT_IS_SCALABLE(face)) {
-        perGlyphInfo = SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo;
+        perGlyphInfo = kNo_PerGlyphInfo;
     }
 
-    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
+    if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         if (FT_IS_FIXED_WIDTH(face)) {
             appendRange(&info->fGlyphWidths, 0);
             int16_t advance = face->max_advance_width;
@@ -624,12 +624,12 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
         }
     }
 
-    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kVAdvance_PerGlyphInfo &&
+    if (perGlyphInfo & kVAdvance_PerGlyphInfo &&
             FT_HAS_VERTICAL(face)) {
         SkASSERT(false);  // Not implemented yet.
     }
 
-    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo &&
+    if (perGlyphInfo & kGlyphNames_PerGlyphInfo &&
             info->fType == SkAdvancedTypefaceMetrics::kType1_Font) {
         // Postscript fonts may contain more than 255 glyphs, so we end up
         // using multiple font descriptions with a glyph ordering.  Record
@@ -643,7 +643,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
         }
     }
 
-    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo &&
+    if (perGlyphInfo & kToUnicode_PerGlyphInfo &&
            info->fType != SkAdvancedTypefaceMetrics::kType1_Font &&
            face->num_charmaps) {
         populate_glyph_to_unicode(face, &(info->fGlyphToUnicode));

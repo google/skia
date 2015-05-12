@@ -322,7 +322,7 @@ static bool getWidthAdvance(IDWriteFontFace* fontFace, int gId, int16_t* advance
 }
 
 SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+        PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) const {
 
@@ -355,7 +355,7 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
 
     hr = sk_wchar_to_skstring(familyName.get(), familyNameLen, &info->fFontName);
 
-    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
+    if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
         populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
     }
 
@@ -442,7 +442,7 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     }
     */
 
-    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
+    if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         if (fixedWidth) {
             appendRange(&info->fGlyphWidths, 0);
             int16_t advance;

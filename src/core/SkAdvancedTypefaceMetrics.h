@@ -74,16 +74,6 @@ public:
 
     SkIRect fBBox;  // The bounding box of all glyphs (in font units).
 
-    // The type of advance data wanted.
-    enum PerGlyphInfo {
-      kNo_PerGlyphInfo         = 0x0, // Don't populate any per glyph info.
-      kHAdvance_PerGlyphInfo   = 0x1, // Populate horizontal advance data.
-      kVAdvance_PerGlyphInfo   = 0x2, // Populate vertical advance data.
-      kGlyphNames_PerGlyphInfo = 0x4, // Populate glyph names (Type 1 only).
-      kToUnicode_PerGlyphInfo  = 0x8  // Populate ToUnicode table, ignored
-                                      // for Type 1 fonts
-    };
-
     template <typename Data>
     struct AdvanceMetric {
         enum MetricType {

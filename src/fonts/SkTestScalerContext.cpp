@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDescriptor.h"
@@ -140,7 +141,7 @@ void SkTestTypeface::onFilterRec(SkScalerContextRec* rec) const {
 }
 
 SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
-                                SkAdvancedTypefaceMetrics::PerGlyphInfo ,
+                                PerGlyphInfo ,
                                 const uint32_t* glyphIDs,
                                 uint32_t glyphIDsCount) const {
 // pdf only
