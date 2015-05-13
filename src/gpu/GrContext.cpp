@@ -1885,7 +1885,7 @@ void GrContext::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(StrokeRect) {
+BATCH_TEST_DEFINE(StrokeRectBatch) {
     StrokeRectBatch::Geometry geometry;
     geometry.fViewMatrix = GrTest::TestMatrix(random);
     geometry.fColor = GrRandomColor(random);
@@ -1955,7 +1955,7 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
     }
 }
 
-BATCH_TEST_DEFINE(Vertices) {
+BATCH_TEST_DEFINE(VerticesBatch) {
     GrPrimitiveType type = GrPrimitiveType(random->nextULessThan(kLast_GrPrimitiveType + 1));
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 

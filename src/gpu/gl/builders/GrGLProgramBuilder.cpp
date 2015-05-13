@@ -67,7 +67,9 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
     GrGLSLExpr4 inputColor;
     GrGLSLExpr4 inputCoverage;
 
-    pb->emitAndInstallProcs(&inputColor, &inputCoverage);
+    if (!pb->emitAndInstallProcs(&inputColor, &inputCoverage)) {
+        return NULL;
+    }
 
     return pb->finalize();
 }
@@ -189,9 +191,12 @@ const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
     return fGpu->ctxInfo();
 }
 
-void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {
+bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {
     // First we loop over all of the installed processors and collect coord transforms.  These will
     // be sent to the GrGLPrimitiveProcessor in its emitCode function
+    const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
+    int totalTextures = primProc.numTextures();
+    const int maxTextureUnits = fGpu->glCaps().maxFragmentTextureUnits();
     SkSTArray<8, GrGLProcessor::TransformedCoordsArray> outCoords;
     for (int i = 0; i < this->pipeline().numFragmentStages(); i++) {
         const GrFragmentProcessor* processor = this->pipeline().getFragmentStage(i).processor();
@@ -199,9 +204,14 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
         for (int t = 0; t < processor->numTransforms(); t++) {
             procCoords.push_back(&processor->coordTransform(t));
         }
+
+        totalTextures += processor->numTextures();
+        if (totalTextures >= maxTextureUnits) {
+            GrContextDebugf(fGpu->getContext(), "Program would use too many texture units\n");
+            return false;
+        }
     }
 
-    const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
     this->emitAndInstallProc(primProc, inputColor, inputCoverage);
 
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
@@ -210,6 +220,7 @@ void GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     this->emitAndInstallFragProcs(this->pipeline().numColorFragmentStages(), numProcs,
                                   inputCoverage);
     this->emitAndInstallXferProc(*this->pipeline().getXferProcessor(), *inputColor, *inputCoverage);
+    return true;
 }
 
 void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset,

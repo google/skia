@@ -1042,10 +1042,10 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(AAConvexPath) {
+BATCH_TEST_DEFINE(AAConvexPathBatch) {
     AAConvexPathBatch::Geometry geometry;
     geometry.fColor = GrRandomColor(random);
-    geometry.fViewMatrix = GrTest::TestMatrix(random);
+    geometry.fViewMatrix = GrTest::TestMatrixInvertible(random);
     geometry.fPath = GrTest::TestPathConvex(random);
 
     return AAConvexPathBatch::Create(geometry);

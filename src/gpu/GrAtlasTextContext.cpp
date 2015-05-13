@@ -2217,7 +2217,7 @@ void GrAtlasTextContext::flush(GrDrawTarget* target,
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(TextBlob) {
+BATCH_TEST_DEFINE(TextBlobBatch) {
     static uint32_t gContextID = SK_InvalidGenID;
     static GrAtlasTextContext* gTextContext = NULL;
     static SkDeviceProperties gDeviceProperties(SkDeviceProperties::kLegacyLCD_InitType);
@@ -2245,7 +2245,7 @@ BATCH_TEST_DEFINE(TextBlob) {
 
     // Setup dummy SkPaint / GrPaint
     GrColor color = GrRandomColor(random);
-    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPaint skPaint;
     skPaint.setDistanceFieldTextTEMP(random->nextBool());
     skPaint.setColor(color);

@@ -385,7 +385,7 @@ private:
     friend class BitmapTextBatch;
 
 #ifdef GR_TEST_UTILS
-    BATCH_TEST_FRIEND(TextBlob);
+    BATCH_TEST_FRIEND(TextBlobBatch);
 #endif
 
     typedef GrTextContext INHERITED;

@@ -2094,7 +2094,7 @@ BATCH_TEST_DEFINE(CircleBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     bool useCoverageAA = random->nextBool();
-    SkRect circle = GrTest::TestRect(random);
+    SkRect circle = GrTest::TestSquare(random);
     return create_circle_batch(color, viewMatrix, useCoverageAA, circle,
                                GrTest::TestStrokeRec(random));
 }
@@ -2102,9 +2102,8 @@ BATCH_TEST_DEFINE(CircleBatch) {
 BATCH_TEST_DEFINE(EllipseBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
-    bool useCoverageAA = random->nextBool();
-    SkRect ellipse = GrTest::TestRect(random);
-    return create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
+    SkRect ellipse = GrTest::TestSquare(random);
+    return create_ellipse_batch(color, viewMatrix, true, ellipse,
                                 GrTest::TestStrokeRec(random));
 }
 
@@ -2112,7 +2111,7 @@ BATCH_TEST_DEFINE(DIEllipseBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     bool useCoverageAA = random->nextBool();
-    SkRect ellipse = GrTest::TestRect(random);
+    SkRect ellipse = GrTest::TestSquare(random);
     return create_diellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
                                   GrTest::TestStrokeRec(random));
 }

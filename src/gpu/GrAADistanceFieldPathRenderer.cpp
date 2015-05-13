@@ -630,6 +630,7 @@ struct PathTestStruct {
             SkDELETE(pathData);
         }
         SkDELETE(fAtlas);
+        fPathCache.reset();
     }
 
     static void HandleEviction(GrBatchAtlas::AtlasID id, void* pr) {
@@ -654,7 +655,7 @@ struct PathTestStruct {
     PathDataList fPathList;
 };
 
-BATCH_TEST_DEFINE(AADistanceFieldPathRenderer) {
+BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
     static PathTestStruct gTestStruct;
 
     if (context->uniqueID() != gTestStruct.fContextID) {

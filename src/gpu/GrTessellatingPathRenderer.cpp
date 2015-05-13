@@ -1520,7 +1520,7 @@ bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(TesselatingPathRenderer) {
+BATCH_TEST_DEFINE(TesselatingPathBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);

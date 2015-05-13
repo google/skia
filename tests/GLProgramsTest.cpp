@@ -13,6 +13,8 @@
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "GrAutoLocaleSetter.h"
+#include "GrBatch.h"
+#include "GrBatchTest.h"
 #include "GrContextFactory.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
@@ -42,7 +44,11 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TransformedCoordsArray&,
-                          const TextureSamplerArray&) {}
+                          const TextureSamplerArray&) {
+        // pass through
+        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        fsBuilder->codeAppendf("%s = %s;\n", outputColor, inputColor);
+    }
 
     static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         for (uint32_t i = 0; i < kMaxKeySize; i++) {
@@ -109,10 +115,13 @@ static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random
     texDesc.fConfig = kRGBA_8888_GrPixelConfig;
     texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
                                                    kBottomLeft_GrSurfaceOrigin;
+    texDesc.fSampleCnt = random->nextBool() == true ? 4 : 0;
+
     GrUniqueKey key;
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(&key, kDomain, 1);
+    GrUniqueKey::Builder builder(&key, kDomain, 2);
     builder[0] = texDesc.fOrigin;
+    builder[1] = texDesc.fSampleCnt;
     builder.finish();
 
     GrTexture* texture = context->textureProvider()->findAndRefTextureByUniqueKey(key);
@@ -134,20 +143,9 @@ static void set_random_xpf(GrContext* context, const GrDrawTargetCaps& caps,
     pipelineBuilder->setXPFactory(xpf.get());
 }
 
-static const GrGeometryProcessor* get_random_gp(GrContext* context,
-                                                const GrDrawTargetCaps& caps,
-                                                SkRandom* random,
-                                                GrTexture* dummyTextures[]) {
-    return GrProcessorTestFactory<GrGeometryProcessor>::CreateStage(random,
-                                                                    context,
-                                                                    caps,
-                                                                    dummyTextures);
-}
-
 static void set_random_color_coverage_stages(GrGLGpu* gpu,
                                              GrPipelineBuilder* pipelineBuilder,
                                              int maxStages,
-                                             bool usePathRendering,
                                              SkRandom* random,
                                              GrTexture* dummyTextures[]) {
     int numProcs = random->nextULessThan(maxStages + 1);
@@ -175,6 +173,12 @@ static void set_random_state(GrPipelineBuilder* pipelineBuilder, SkRandom* rando
     int state = 0;
     for (int i = 1; i <= GrPipelineBuilder::kLast_Flag; i <<= 1) {
         state |= random->nextBool() * i;
+    }
+
+    // If we don't have an MSAA rendertarget then we have to disable useHWAA
+    if ((state | GrPipelineBuilder::kHWAntialias_Flag) &&
+        !pipelineBuilder->getRenderTarget()->isMultisampled()) {
+        state &= ~GrPipelineBuilder::kHWAntialias_Flag;
     }
     pipelineBuilder->enableState(state);
 }
@@ -228,20 +232,12 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
     // dummy scissor state
     GrScissorState scissor;
 
-    // setup clip
-    SkRect screen = SkRect::MakeWH(SkIntToScalar(kRenderTargetWidth),
-                                   SkIntToScalar(kRenderTargetHeight));
-
-    SkClipStack stack;
-    stack.clipDevRect(screen, SkRegion::kReplace_Op, false);
-
-    // wrap the SkClipStack in a GrClip
+    // wide open clip
     GrClip clip;
-    clip.setClipStack(&stack);
 
     SkRandom random;
-    static const int NUM_TESTS = 512;
-    for (int t = 0; t < NUM_TESTS;) {
+    static const int NUM_TESTS = 2048;
+    for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
         SkAutoTUnref<GrRenderTarget> rt(random_render_target(fContext, &random));
         if (!rt.get()) {
@@ -253,23 +249,12 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         pipelineBuilder.setRenderTarget(rt.get());
         pipelineBuilder.setClip(clip);
 
-        // if path rendering we have to setup a couple of things like the draw type
-        bool usePathRendering = gpu->glCaps().shaderCaps()->pathRenderingSupport() &&
-                                random.nextBool();
+        SkAutoTUnref<GrBatch> batch(GrRandomBatch(&random, fContext));
+        SkASSERT(batch);
 
-        // twiddle drawstate knobs randomly
-        bool hasGeometryProcessor = !usePathRendering;
-        SkAutoTUnref<const GrGeometryProcessor> gp;
-        SkAutoTUnref<const GrPathProcessor> pathProc;
-        if (hasGeometryProcessor) {
-            gp.reset(get_random_gp(fContext, gpu->glCaps(), &random, dummyTextures));
-        } else {
-            pathProc.reset(GrPathProcessor::Create(GrColor_WHITE));
-        }
         set_random_color_coverage_stages(gpu,
                                          &pipelineBuilder,
-                                         maxStages - hasGeometryProcessor,
-                                         usePathRendering,
+                                         maxStages,
                                          &random,
                                          dummyTextures);
 
@@ -279,55 +264,11 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
         set_random_state(&pipelineBuilder, &random);
         set_random_stencil(&pipelineBuilder, &random);
 
-        GrDeviceCoordTexture dstCopy;
-
-        const GrPrimitiveProcessor* primProc;
-        if (hasGeometryProcessor) {
-            primProc = gp.get();
-        } else {
-            primProc = pathProc.get();
-        }
-
-        const GrProcOptInfo& colorPOI = pipelineBuilder.colorProcInfo(primProc);
-        const GrProcOptInfo& coveragePOI = pipelineBuilder.coverageProcInfo(primProc);
-
-        if (!this->setupDstReadIfNecessary(pipelineBuilder, colorPOI, coveragePOI, &dstCopy,
-                                           NULL)) {
-            SkDebugf("Couldn't setup dst read texture");
-            return false;
-        }
-
-        // create optimized draw state, setup readDst texture if required, and build a descriptor
-        // and program.  ODS creation can fail, so we have to check
-        GrPipeline pipeline(pipelineBuilder, colorPOI, coveragePOI,
-                            *gpu->caps(), scissor, &dstCopy);
-        if (pipeline.mustSkip()) {
-            continue;
-        }
-
-        GrXferBarrierType barrierType;
-        if (pipeline.getXferProcessor()->willNeedXferBarrier(rt, *gpu->caps(), &barrierType)) {
-            gpu->xferBarrier(barrierType);
-        }
-
-        GrBatchTracker bt;
-        primProc->initBatchTracker(&bt, pipeline.getInitBatchTracker());
-
-        GrProgramDesc desc;
-        gpu->buildProgramDesc(&desc, *primProc, pipeline, bt);
-
-        GrGpu::DrawArgs args(primProc, &pipeline, &desc, &bt);
-        SkAutoTUnref<GrGLProgram> program(GrGLProgramBuilder::CreateProgram(args, gpu));
-
-        if (NULL == program.get()) {
-            SkDebugf("Failed to create program!");
-            return false;
-        }
-
-        // because occasionally optimized drawstate creation will fail for valid reasons, we only
-        // want to increment on success
-        ++t;
+        this->drawBatch(&pipelineBuilder, batch);
     }
+
+    // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
+    this->flush();
     return true;
 }
 
@@ -340,8 +281,12 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
     GrAutoLocaleSetter als("sv_SE.UTF-8");
 #endif
 
+    // We suppress prints to avoid spew
+    GrContext::Options opts;
+    opts.fSuppressPrints = true;
+    GrContextFactory debugFactory(opts);
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
+        GrContext* context = debugFactory.get(static_cast<GrContextFactory::GLContextType>(type));
         if (context) {
             GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
 

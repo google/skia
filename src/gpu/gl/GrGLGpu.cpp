@@ -1419,7 +1419,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
 
     fCurrentProgram.reset(fProgramCache->getProgram(args));
     if (NULL == fCurrentProgram.get()) {
-        SkDEBUGFAIL("Failed to create program!");
+        GrContextDebugf(this->getContext(), "Failed to create program!\n");
         return false;
     }
 

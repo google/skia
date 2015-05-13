@@ -290,8 +290,7 @@ protected:
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
     // If GrGLSLExpr4 has a valid name then it will use that instead
     void nameExpression(GrGLSLExpr4*, const char* baseName);
-    void emitAndInstallProcs(GrGLSLExpr4* inputColor,
-                             GrGLSLExpr4* inputCoverage);
+    bool emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage);
     void emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut);
     void emitAndInstallProc(const GrPendingFragmentStage&,
                             int index,

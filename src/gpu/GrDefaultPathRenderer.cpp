@@ -749,7 +749,7 @@ void GrDefaultPathRenderer::onStencilPath(GrDrawTarget* target,
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(DefaultPathRenderer) {
+BATCH_TEST_DEFINE(DefaultPathBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
 

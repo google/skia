@@ -106,26 +106,33 @@ const SkRect& TestRect(SkRandom* random) {
         gRects[2] = SkRect::MakeWH(256.0f, 1.0f);
         gRects[4] = SkRect::MakeLargest();
         gRects[5] = SkRect::MakeLTRB(-65535.0f, -65535.0f, 65535.0f, 65535.0f);
-        gRects[6] = SkRect::MakeLTRB(10.0f, 10.0f, -10.0f, -10.0f);
+        gRects[6] = SkRect::MakeLTRB(-10.0f, -10.0f, 10.0f, 10.0f);
+    }
+    return gRects[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gRects)))];
+}
+
+// Just some simple rects for code which expects its input very sanitized
+const SkRect& TestSquare(SkRandom* random) {
+    static SkRect gRects[2];
+    static bool gOnce;
+    if (!gOnce) {
+        gOnce = true;
+        gRects[0] = SkRect::MakeWH(128.f, 128.f);
+        gRects[1] = SkRect::MakeWH(256.0f, 256.0f);
     }
     return gRects[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gRects)))];
 }
 
 const SkRRect& TestRRectSimple(SkRandom* random) {
-    static SkRRect gRRect[4];
+    static SkRRect gRRect[2];
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
-        SkRect square = SkRect::MakeWH(10.f, 10.f);
         SkRect rectangle = SkRect::MakeWH(10.f, 20.f);
-        // rect
-        gRRect[0].setRect(square);
-        // oval
-        gRRect[1].setOval(rectangle);
         // true round rect with circular corners
-        gRRect[2].setRectXY(rectangle, 1.f, 1.f);
+        gRRect[0].setRectXY(rectangle, 1.f, 1.f);
         // true round rect with elliptical corners
-        gRRect[3].setRectXY(rectangle, 2.0f, 1.0f);
+        gRRect[1].setRectXY(rectangle, 2.0f, 1.0f);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRRect); i++) {
             SkASSERT(gRRect[i].isSimple());
@@ -181,25 +188,29 @@ const SkPath& TestPathConvex(SkRandom* random) {
     if (!gOnce) {
         gOnce = true;
         // narrow rect
-        gPath[0].moveTo(0.f, 0.f);
+        gPath[0].moveTo(-1.5f, -50.0f);
         gPath[0].lineTo(-1.5f, -50.0f);
         gPath[0].lineTo( 1.5f, -50.0f);
         gPath[0].lineTo( 1.5f,  50.0f);
         gPath[0].lineTo(-1.5f,  50.0f);
         // degenerate
-        gPath[1].moveTo(0.f, 0.f);
+        gPath[1].moveTo(-0.025f, -0.025f);
         gPath[1].lineTo(-0.025f, -0.025f);
         gPath[1].lineTo( 0.025f, -0.025f);
         gPath[1].lineTo( 0.025f,  0.025f);
         gPath[1].lineTo(-0.025f,  0.025f);
         // clipped triangle
-        gPath[2].moveTo(0.f, 0.f);
+        gPath[2].moveTo(-10.0f, -50.0f);
         gPath[2].lineTo(-10.0f, -50.0f);
         gPath[2].lineTo( 10.0f, -50.0f);
         gPath[2].lineTo( 50.0f,  31.0f);
         gPath[2].lineTo( 40.0f,  50.0f);
         gPath[2].lineTo(-40.0f,  50.0f);
         gPath[2].lineTo(-50.0f,  31.0f);
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gPath); i++) {
+            SkASSERT(SkPath::kConvex_Convexity == gPath[i].getConvexity());
+        }
     }
 
     return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
