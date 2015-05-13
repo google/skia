@@ -336,7 +336,7 @@ private:
     public:
         HWGeometryState() { fVBOVertexArray = NULL; this->invalidate(); }
 
-        ~HWGeometryState() { SkSafeUnref(fVBOVertexArray); }
+        ~HWGeometryState() { SkDELETE(fVBOVertexArray); }
 
         void invalidate() {
             fBoundVertexArrayIDIsValid = false;

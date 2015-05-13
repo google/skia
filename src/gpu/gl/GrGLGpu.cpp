@@ -2834,14 +2834,13 @@ GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(
 
     // We use a vertex array if we're on a core profile and the verts are in a VBO.
     if (gpu->glCaps().isCoreProfile() && !vbuffer->isCPUBacked()) {
-        if (NULL == fVBOVertexArray || fVBOVertexArray->wasDestroyed()) {
-            SkSafeUnref(fVBOVertexArray);
+        if (!fVBOVertexArray) {
             GrGLuint arrayID;
             GR_GL_CALL(gpu->glInterface(), GenVertexArrays(1, &arrayID));
             int attrCount = gpu->glCaps().maxVertexAttributes();
-            fVBOVertexArray = SkNEW_ARGS(GrGLVertexArray, (gpu, arrayID, attrCount));
+            fVBOVertexArray = SkNEW_ARGS(GrGLVertexArray, (arrayID, attrCount));
         }
-        attribState = fVBOVertexArray->bindWithIndexBuffer(ibuffer);
+        attribState = fVBOVertexArray->bindWithIndexBuffer(gpu, ibuffer);
     } else {
         if (ibuffer) {
             this->setIndexBufferIDOnDefaultVertexArray(gpu, ibuffer->bufferID());

@@ -8,11 +8,9 @@
 #ifndef GrGLVertexArray_DEFINED
 #define GrGLVertexArray_DEFINED
 
-#include "GrGpuResource.h"
 #include "GrTypesPriv.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLFunctions.h"
-
 #include "SkTArray.h"
 
 class GrGLVertexBuffer;
@@ -134,22 +132,22 @@ private:
  * This class represents an OpenGL vertex array object. It manages the lifetime of the vertex array
  * and is used to track the state of the vertex array to avoid redundant GL calls.
  */
-class GrGLVertexArray : public GrGpuResource {
+class GrGLVertexArray {
 public:
-    GrGLVertexArray(GrGLGpu* gpu, GrGLint id, int attribCount);
+    GrGLVertexArray(GrGLint id, int attribCount);
 
     /**
      * Binds this vertex array. If the ID has been deleted or abandoned then NULL is returned.
      * Otherwise, the GrGLAttribArrayState that is tracking this vertex array's attrib bindings is
      * returned.
      */
-    GrGLAttribArrayState* bind();
+    GrGLAttribArrayState* bind(GrGLGpu*);
 
     /**
      * This is a version of the above function that also binds an index buffer to the vertex
      * array object.
      */
-    GrGLAttribArrayState* bindWithIndexBuffer(const GrGLIndexBuffer* indexBuffer);
+    GrGLAttribArrayState* bindWithIndexBuffer(GrGLGpu* gpu, const GrGLIndexBuffer*);
 
     void notifyIndexBufferDelete(GrGLuint bufferID);
 
@@ -161,20 +159,11 @@ public:
 
     void invalidateCachedState();
 
-protected:
-    size_t onGpuMemorySize() const override { return 0; }
-
-    void onAbandon() override;
-
-    void onRelease() override;
-
 private:
     GrGLuint                fID;
     GrGLAttribArrayState    fAttribArrays;
     GrGLuint                fIndexBufferID;
     bool                    fIndexBufferIDIsValid;
-
-    typedef GrGpuResource INHERITED;
 };
 
 #endif
