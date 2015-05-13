@@ -105,7 +105,8 @@ GrFragmentProcessor* BigKeyProcessor::TestCreate(SkRandom*,
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random) {
+static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random,
+                                            const GrDrawTargetCaps* caps) {
     // setup render target
     GrTextureParams params;
     GrSurfaceDesc texDesc;
@@ -115,7 +116,7 @@ static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random
     texDesc.fConfig = kRGBA_8888_GrPixelConfig;
     texDesc.fOrigin = random->nextBool() == true ? kTopLeft_GrSurfaceOrigin :
                                                    kBottomLeft_GrSurfaceOrigin;
-    texDesc.fSampleCnt = random->nextBool() == true ? 4 : 0;
+    texDesc.fSampleCnt = random->nextBool() == true ? SkTMin(4, caps->maxSampleCount()) : 0;
 
     GrUniqueKey key;
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
@@ -239,7 +240,7 @@ bool GrDrawTarget::programUnitTest(int maxStages) {
     static const int NUM_TESTS = 2048;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        SkAutoTUnref<GrRenderTarget> rt(random_render_target(fContext, &random));
+        SkAutoTUnref<GrRenderTarget> rt(random_render_target(fContext, &random, this->caps()));
         if (!rt.get()) {
             SkDebugf("Could not allocate render target");
             return false;

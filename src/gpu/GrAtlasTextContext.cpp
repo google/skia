@@ -2245,7 +2245,7 @@ BATCH_TEST_DEFINE(TextBlobBatch) {
     desc.fWidth = 1024;
     desc.fHeight = 1024;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = 1;
+    desc.fSampleCnt = 0;
     SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc, true, NULL, 0));
     SkASSERT(texture);
     SkASSERT(NULL != texture->asRenderTarget());
