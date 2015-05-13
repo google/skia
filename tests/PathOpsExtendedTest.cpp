@@ -331,7 +331,7 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
     const int MAX_ERRORS = 8;
     (void) pathsDrawTheSame(bitmap, scaledOne, scaledTwo, errors2x2);
     if (!expectSuccess) {
-        if (errors2x2 <= MAX_ERRORS) {
+        if (errors2x2 <= MAX_ERRORS && !flaky) {
             REPORTER_ASSERT(reporter, 0);
         }
         return 0;
@@ -559,7 +559,7 @@ bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath
 
 bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, false, false, false);
+    return innerPathOp(reporter, a, b, shapeOp, testName, false, false, true);
 }
 
 bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,

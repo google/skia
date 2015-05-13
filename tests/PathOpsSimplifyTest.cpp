@@ -4752,11 +4752,19 @@ static void testTriangle2(skiatest::Reporter* reporter,const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
+static void testArc(skiatest::Reporter* reporter,const char* filename) {
+    SkRect r = SkRect::MakeWH(150, 100);
+    SkPath path;
+    path.arcTo(r, 0, 0.0025f, false);
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(testArc),
     TEST(testTriangle2),
     TEST(testTriangle1),
     TEST(testQuads64),

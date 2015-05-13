@@ -40,6 +40,8 @@ public:
     void detach(SkCoincidentSpans* );
     void dump() const;
     void expand();
+    bool extend(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,
+        SkOpPtT* oppPtTEnd);
     void fixUp(SkOpPtT* deleted, SkOpPtT* kept);
     void mark();
 

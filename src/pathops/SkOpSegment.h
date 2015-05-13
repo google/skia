@@ -33,11 +33,11 @@ public:
     }
 
     SkOpAngle* activeAngle(SkOpSpanBase* start, SkOpSpanBase** startPtr, SkOpSpanBase** endPtr,
-                            bool* done, bool* sortable);
+                            bool* done);
     SkOpAngle* activeAngleInner(SkOpSpanBase* start, SkOpSpanBase** startPtr,
-                                       SkOpSpanBase** endPtr, bool* done, bool* sortable);
+                                       SkOpSpanBase** endPtr, bool* done);
     SkOpAngle* activeAngleOther(SkOpSpanBase* start, SkOpSpanBase** startPtr,
-                                       SkOpSpanBase** endPtr, bool* done, bool* sortable);
+                                       SkOpSpanBase** endPtr, bool* done);
     bool activeOp(SkOpSpanBase* start, SkOpSpanBase* end, int xorMiMask, int xorSuMask,
                   SkPathOp op);
     bool activeOp(int xorMiMask, int xorSuMask, SkOpSpanBase* start, SkOpSpanBase* end, SkPathOp op,
@@ -110,6 +110,7 @@ public:
     void calcAngles(SkChunkAlloc*);
     void checkAngleCoin(SkOpCoincidence* coincidences, SkChunkAlloc* allocator);
     void checkNearCoincidence(SkOpAngle* );
+    bool collapsed() const;
     static void ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
                               SkOpAngle::IncludeType );
     static void ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngle,
@@ -306,11 +307,8 @@ public:
         fPrev = prev;
     }
 
-    bool setVisited() {
-        if (fVisited) {
-            return false;
-        }
-        return (fVisited = true);
+    void setVisited() {
+        fVisited = true;
     }
 
     void setUpWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* maxWinding, int* sumWinding) {
@@ -359,6 +357,15 @@ public:
 
     SkPath::Verb verb() const {
         return fVerb;
+    }
+
+    // look for two different spans that point to the same opposite segment
+    bool visited() {
+        if (!fVisited) {
+            fVisited = true;
+            return false;
+        }
+        return true;
     }
 
     SkScalar weight() const {

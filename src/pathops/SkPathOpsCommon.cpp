@@ -11,6 +11,55 @@
 #include "SkPathWriter.h"
 #include "SkTSort.h"
 
+const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windingPtr,
+        bool* sortablePtr) {
+    // find first angle, initialize winding to computed fWindSum
+    SkOpSegment* segment = start->segment();
+    const SkOpAngle* angle = segment->spanToAngle(start, end);
+    if (!angle) {
+        *windingPtr = SK_MinS32;
+        return NULL;
+    }
+    bool computeWinding = false;
+    const SkOpAngle* firstAngle = angle;
+    bool loop = false;
+    bool unorderable = false;
+    int winding = SK_MinS32;
+    do {
+        angle = angle->next();
+        unorderable |= angle->unorderable();
+        if ((computeWinding = unorderable || (angle == firstAngle && loop))) {
+            break;    // if we get here, there's no winding, loop is unorderable
+        }
+        loop |= angle == firstAngle;
+        segment = angle->segment();
+        winding = segment->windSum(angle);
+    } while (winding == SK_MinS32);
+    // if the angle loop contains an unorderable span, the angle order may be useless
+    // directly compute the winding in this case for each span
+    if (computeWinding) {
+        firstAngle = angle;
+        winding = SK_MinS32;
+        do {
+            SkOpSpanBase* startSpan = angle->start();
+            SkOpSpanBase* endSpan = angle->end();
+            SkOpSpan* lesser = startSpan->starter(endSpan);
+            int testWinding = lesser->windSum();
+            if (testWinding == SK_MinS32) {
+                testWinding = lesser->computeWindSum();
+            }
+            if (testWinding != SK_MinS32) {
+                segment = angle->segment();
+                winding = testWinding;
+            }
+            angle = angle->next();
+        } while (angle != firstAngle);
+    }
+    *sortablePtr = !unorderable;
+    *windingPtr = winding;
+    return angle;
+}
+
 SkOpSegment* FindUndone(SkOpContourHead* contourList, SkOpSpanBase** startPtr,
          SkOpSpanBase** endPtr) {
     SkOpSegment* result;
@@ -31,14 +80,9 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
         chase->pop(&span);
         SkOpSegment* segment = span->segment();
         *startPtr = span->ptT()->next()->span();
-        bool sortable = true;
         bool done = true;
         *endPtr = NULL;
-        if (SkOpAngle* last = segment->activeAngle(*startPtr, startPtr, endPtr, &done,
-                &sortable)) {
-            if (last->unorderable()) {
-                continue;
-            }
+        if (SkOpAngle* last = segment->activeAngle(*startPtr, startPtr, endPtr, &done)) {
             *startPtr = last->start();
             *endPtr = last->end();
     #if TRY_ROTATE
@@ -51,46 +95,38 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
         if (done) {
             continue;
         }
-        if (!sortable) {
-            continue;
-        }
         // find first angle, initialize winding to computed wind sum
-        const SkOpAngle* angle = segment->spanToAngle(*startPtr, *endPtr);
-        if (!angle) {
-            continue;
-        }
-        const SkOpAngle* firstAngle = angle;
-        bool loop = false;
-        int winding = SK_MinS32;
-        do {
-            angle = angle->next();
-            if (angle == firstAngle && loop) {
-                break;    // if we get here, there's no winding, loop is unorderable
-            }
-            loop |= angle == firstAngle;
-            segment = angle->segment();
-            winding = segment->windSum(angle);
-        } while (winding == SK_MinS32);
+        int winding;
+        bool sortable;
+        const SkOpAngle* angle = AngleWinding(*startPtr, *endPtr, &winding, &sortable);
         if (winding == SK_MinS32) {
             continue;
         }
-        int sumWinding = segment->updateWindingReverse(angle);
+        int sumWinding SK_INIT_TO_AVOID_WARNING;
+        if (sortable) {
+            segment = angle->segment();
+            sumWinding = segment->updateWindingReverse(angle);
+        }
         SkOpSegment* first = NULL;
-        firstAngle = angle;
+        const SkOpAngle* firstAngle = angle;
         while ((angle = angle->next()) != firstAngle) {
             segment = angle->segment();
             SkOpSpanBase* start = angle->start();
             SkOpSpanBase* end = angle->end();
             int maxWinding;
-            segment->setUpWinding(start, end, &maxWinding, &sumWinding);
+            if (sortable) {
+                segment->setUpWinding(start, end, &maxWinding, &sumWinding);
+            }
             if (!segment->done(angle)) {
-                if (!first) {
+                if (!first && (sortable || start->starter(end)->windSum() != SK_MinS32)) {
                     first = segment;
                     *startPtr = start;
                     *endPtr = end;
                 }
                 // OPTIMIZATION: should this also add to the chase?
-                (void) segment->markAngle(maxWinding, sumWinding, angle);
+                if (sortable) {
+                    (void) segment->markAngle(maxWinding, sumWinding, angle);
+                }
             }
         }
         if (first) {

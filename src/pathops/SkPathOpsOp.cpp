@@ -18,14 +18,9 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
         // OPTIMIZE: prev makes this compatible with old code -- but is it necessary?
         *startPtr = span->ptT()->prev()->span();
         SkOpSegment* segment = (*startPtr)->segment();
-        bool sortable = true;
         bool done = true;
         *endPtr = NULL;
-        if (SkOpAngle* last = segment->activeAngle(*startPtr, startPtr, endPtr, &done,
-                &sortable)) {
-            if (last->unorderable()) {
-                continue;
-            }
+        if (SkOpAngle* last = segment->activeAngle(*startPtr, startPtr, endPtr, &done)) {
             *startPtr = last->start();
             *endPtr = last->end();
    #if TRY_ROTATE
@@ -38,52 +33,43 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
         if (done) {
             continue;
         }
-        if (!sortable) {
-            continue;
-        }
-        // find first angle, initialize winding to computed fWindSum
-        const SkOpAngle* angle = segment->spanToAngle(*startPtr, *endPtr);
-        if (!angle) {
-            continue;
-        }
-        const SkOpAngle* firstAngle = angle;
-        bool loop = false;
-        int winding = SK_MinS32;
-        do {
-            angle = angle->next();
-            if (angle == firstAngle && loop) {
-                break;    // if we get here, there's no winding, loop is unorderable
-            }
-            loop |= angle == firstAngle;
-            segment = angle->segment();
-            winding = segment->windSum(angle);
-        } while (winding == SK_MinS32);
+        int winding;
+        bool sortable;
+        const SkOpAngle* angle = AngleWinding(*startPtr, *endPtr, &winding, &sortable);
         if (winding == SK_MinS32) {
             continue;
         }
-        int sumMiWinding = segment->updateWindingReverse(angle);
-        int sumSuWinding = segment->updateOppWindingReverse(angle);
-        if (segment->operand()) {
-            SkTSwap<int>(sumMiWinding, sumSuWinding);
+        int sumMiWinding, sumSuWinding;
+        if (sortable) {
+            segment = angle->segment();
+            sumMiWinding = segment->updateWindingReverse(angle);
+            sumSuWinding = segment->updateOppWindingReverse(angle);
+            if (segment->operand()) {
+                SkTSwap<int>(sumMiWinding, sumSuWinding);
+            }
         }
         SkOpSegment* first = NULL;
-        firstAngle = angle;
+        const SkOpAngle* firstAngle = angle;
         while ((angle = angle->next()) != firstAngle) {
             segment = angle->segment();
             SkOpSpanBase* start = angle->start();
             SkOpSpanBase* end = angle->end();
             int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
-            segment->setUpWindings(start, end, &sumMiWinding, &sumSuWinding,
-                    &maxWinding, &sumWinding, &oppMaxWinding, &oppSumWinding);
+            if (sortable) {
+                segment->setUpWindings(start, end, &sumMiWinding, &sumSuWinding,
+                        &maxWinding, &sumWinding, &oppMaxWinding, &oppSumWinding);
+            }
             if (!segment->done(angle)) {
-                if (!first) {
+                if (!first && (sortable || start->starter(end)->windSum() != SK_MinS32)) {
                     first = segment;
                     *startPtr = start;
                     *endPtr = end;
                 }
                 // OPTIMIZATION: should this also add to the chase?
-                (void) segment->markAngle(maxWinding, sumWinding, oppMaxWinding,
-                    oppSumWinding, angle);
+                if (sortable) {
+                    (void) segment->markAngle(maxWinding, sumWinding, oppMaxWinding,
+                        oppSumWinding, angle);
+                }
             }
         }
         if (first) {

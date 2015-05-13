@@ -249,6 +249,16 @@ tryNextRemainder:
     fSpanAdds += span->fSpanAdds;
 }
 
+int SkOpSpan::computeWindSum() {
+    SkOpGlobalState* globals = this->globalState();
+    SkOpContour* contourHead = globals->contourHead();
+    int windTry = 0;
+    while (!this->sortableTop(contourHead) && ++windTry < SkOpGlobalState::kMaxWindingTries) {
+        ;
+    }
+    return this->windSum();
+}
+
 bool SkOpSpan::containsCoincidence(const SkOpSegment* segment) const {
     SkASSERT(this->segment() != segment);
     const SkOpSpan* next = fCoincident;

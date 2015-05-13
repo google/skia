@@ -341,6 +341,7 @@ public:
         return true;
     }
 
+    int computeWindSum();
     bool containsCoincidence(const SkOpSegment* ) const;
 
     bool containsCoincidence(const SkOpSpan* coin) const {

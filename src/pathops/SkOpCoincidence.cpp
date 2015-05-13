@@ -8,6 +8,38 @@
 #include "SkOpSegment.h"
 #include "SkPathOpsTSect.h"
 
+bool SkOpCoincidence::extend(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,
+        SkOpPtT* oppPtTEnd) {
+    // if there is an existing pair that overlaps the addition, extend it
+    SkCoincidentSpans* coinRec = fHead;
+    if (coinRec) {
+        do {
+            if (coinRec->fCoinPtTStart->segment() != coinPtTStart->segment()) {
+                continue;
+            }
+            if (coinRec->fOppPtTStart->segment() != oppPtTStart->segment()) {
+                continue;
+            }
+            if (coinRec->fCoinPtTStart->fT > coinPtTEnd->fT) {
+                continue;
+            }
+            if (coinRec->fCoinPtTEnd->fT < coinPtTStart->fT) {
+                continue;
+            }
+            if (coinRec->fCoinPtTStart->fT > coinPtTStart->fT) {
+                coinRec->fCoinPtTStart = coinPtTStart;
+                coinRec->fOppPtTStart = oppPtTStart;
+            }
+            if (coinRec->fCoinPtTEnd->fT < coinPtTEnd->fT) {
+                coinRec->fCoinPtTEnd = coinPtTEnd;
+                coinRec->fOppPtTEnd = oppPtTEnd;
+            }
+            return true;
+        } while ((coinRec = coinRec->fNext));
+    }
+    return false;
+}
+
 void SkOpCoincidence::add(SkOpPtT* coinPtTStart, SkOpPtT* coinPtTEnd, SkOpPtT* oppPtTStart,
         SkOpPtT* oppPtTEnd, SkChunkAlloc* allocator) {
     SkASSERT(coinPtTStart->fT < coinPtTEnd->fT);

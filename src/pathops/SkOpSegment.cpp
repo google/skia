@@ -43,18 +43,18 @@ static const bool gActiveEdge[kXOR_SkPathOp + 1][2][2][2][2] = {
 #undef T
 
 SkOpAngle* SkOpSegment::activeAngle(SkOpSpanBase* start, SkOpSpanBase** startPtr,
-        SkOpSpanBase** endPtr, bool* done, bool* sortable) {
-    if (SkOpAngle* result = activeAngleInner(start, startPtr, endPtr, done, sortable)) {
+        SkOpSpanBase** endPtr, bool* done) {
+    if (SkOpAngle* result = activeAngleInner(start, startPtr, endPtr, done)) {
         return result;
     }
-    if (SkOpAngle* result = activeAngleOther(start, startPtr, endPtr, done, sortable)) {
+    if (SkOpAngle* result = activeAngleOther(start, startPtr, endPtr, done)) {
         return result;
     }
     return NULL;
 }
 
 SkOpAngle* SkOpSegment::activeAngleInner(SkOpSpanBase* start, SkOpSpanBase** startPtr,
-        SkOpSpanBase** endPtr, bool* done, bool* sortable) {
+        SkOpSpanBase** endPtr, bool* done) {
     SkOpSpan* upSpan = start->upCastable();
     if (upSpan) {
         if (upSpan->windValue() || upSpan->oppValue()) {
@@ -95,11 +95,11 @@ SkOpAngle* SkOpSegment::activeAngleInner(SkOpSpanBase* start, SkOpSpanBase** sta
 }
 
 SkOpAngle* SkOpSegment::activeAngleOther(SkOpSpanBase* start, SkOpSpanBase** startPtr,
-        SkOpSpanBase** endPtr, bool* done, bool* sortable) {
+        SkOpSpanBase** endPtr, bool* done) {
     SkOpPtT* oPtT = start->ptT()->next();
     SkOpSegment* other = oPtT->segment();
     SkOpSpanBase* oSpan = oPtT->span();
-    return other->activeAngleInner(oSpan, startPtr, endPtr, done, sortable);
+    return other->activeAngleInner(oSpan, startPtr, endPtr, done);
 }
 
 bool SkOpSegment::activeOp(SkOpSpanBase* start, SkOpSpanBase* end, int xorMiMask, int xorSuMask,
@@ -311,6 +311,14 @@ void SkOpSegment::align() {
     if (!span->aligned()) {
         span->alignEnd(1, fPts[SkPathOpsVerbToPoints(fVerb)]);
     }
+    if (this->collapsed()) {
+        SkOpSpan* span = &fHead;
+        do {
+            span->setWindValue(0);
+            span->setOppValue(0);
+            this->markDone(span);
+        } while ((span = span->next()->upCastable()));
+    }
     debugValidate();
 }
 
@@ -361,6 +369,10 @@ void SkOpSegment::checkAngleCoin(SkOpCoincidence* coincidences, SkChunkAlloc* al
             angle->checkNearCoincidence();
         }
     } while ((base = span->next()));
+}
+
+bool SkOpSegment::collapsed() const {
+    return fVerb == SkPath::kLine_Verb && fHead.pt() == fTail.pt();
 }
 
 void SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
@@ -1078,7 +1090,7 @@ SkOpSegment* SkOpSegment::nextChase(SkOpSpanBase** startPtr, int* stepPtr, SkOpS
     return other;
 }
 
-static void clear_visited(SkOpSpan* span) {
+static void clear_visited(SkOpSpanBase* span) {
     // reset visited flag back to false
     do {
         SkOpPtT* ptT = span->ptT(), * stopPtT = ptT;
@@ -1086,7 +1098,7 @@ static void clear_visited(SkOpSpan* span) {
             SkOpSegment* opp = ptT->segment();
             opp->resetVisited();
         }
-    } while ((span = span->next()->upCastable()));
+    } while (!span->final() && (span = span->upCast()->next()));
 }
 
 // look for pairs of undetected coincident curves
@@ -1098,50 +1110,59 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
     if (this->verb() != SkPath::kLine_Verb) {
         return;
     }
+    if (this->done()) {
+        return;
+    }
     SkOpSpan* prior = NULL;
-    SkOpSpan* span = &fHead;
+    SkOpSpanBase* spanBase = &fHead;
     do {
-        SkOpPtT* ptT = span->ptT(), * spanStopPtT = ptT;
-        SkASSERT(ptT->span() == span);
+        SkOpPtT* ptT = spanBase->ptT(), * spanStopPtT = ptT;
+        SkASSERT(ptT->span() == spanBase);
         while ((ptT = ptT->next()) != spanStopPtT) {
             SkOpSegment* opp = ptT->span()->segment();
-            if (!opp->setVisited()) {
-                continue;
-            }
             if (opp->verb() == SkPath::kLine_Verb) {
                 continue;
             }
-            if (span->containsCoincidence(opp)) { // FIXME: this assumes that if the opposite
-                                                  // segment is coincident then no more coincidence
-                                                  // needs to be detected. This may not be true. 
+            if (opp->done()) {
                 continue;
             }
-            if (span->containsCoinEnd(opp)) {
+            // when opp is encounted the 1st time, continue; on 2nd encounter, look for coincidence
+            if (!opp->visited()) {
+                continue;
+            }
+            if (spanBase == &fHead) {
+                continue;
+            }
+            SkOpSpan* span = spanBase->upCastable();
+            // FIXME?: this assumes that if the opposite segment is coincident then no more
+            // coincidence needs to be detected. This may not be true.
+            if (span && span->containsCoincidence(opp)) { 
+                continue;
+            }
+            if (spanBase->containsCoinEnd(opp)) {
                 continue;
             } 
-            // if already visited and visited again, check for coin
-            if (span == &fHead) {
-                continue;
-            }
             SkOpPtT* priorPtT = NULL, * priorStopPtT;
             // find prior span containing opp segment
             SkOpSegment* priorOpp = NULL;
-            prior = span;
-            while (!priorOpp && (prior = prior->prev())) {
-                priorStopPtT = priorPtT = prior->ptT();
+            SkOpSpan* priorTest = spanBase->prev();
+            while (!priorOpp && priorTest) {
+                priorStopPtT = priorPtT = priorTest->ptT();
                 while ((priorPtT = priorPtT->next()) != priorStopPtT) {
                     SkOpSegment* segment = priorPtT->span()->segment();
                     if (segment == opp) {
+                        prior = priorTest;
                         priorOpp = opp;
                         break;
                     }
                 }
+                priorTest = priorTest->prev();
             }
             if (!priorOpp) {
                 continue;
             }
             SkOpPtT* oppStart = prior->ptT();
-            SkOpPtT* oppEnd = span->ptT();
+            SkOpPtT* oppEnd = spanBase->ptT();
             bool swapped = priorPtT->fT > ptT->fT;
             if (swapped) {
                 SkTSwap(priorPtT, ptT);
@@ -1154,7 +1175,7 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             }
             {
                 // average t, find mid pt
-                double midT = (prior->t() + span->t()) / 2;
+                double midT = (prior->t() + spanBase->t()) / 2;
                 SkPoint midPt = this->ptAtT(midT);
                 coincident = true;
                 // if the mid pt is not near either end pt, project perpendicular through opp seg
@@ -1182,9 +1203,10 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             }
             if (coincident) {
             // mark coincidence
-                coincidences->add(priorPtT, ptT, oppStart, oppEnd, allocator);
+                if (!coincidences->extend(priorPtT, ptT, oppStart, oppEnd)) {
+                    coincidences->add(priorPtT, ptT, oppStart, oppEnd, allocator);
+                }
                 clear_visited(&fHead);
-                missingCoincidence(coincidences, allocator);
                 return;
             }
     swapBack:
@@ -1192,7 +1214,7 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
                 SkTSwap(priorPtT, ptT);
             }
         }
-    } while ((span = span->next()->upCastable()));
+    } while ((spanBase = spanBase->final() ? NULL : spanBase->upCast()->next()));
     clear_visited(&fHead);
 }
 
@@ -1610,13 +1632,7 @@ int SkOpSegment::updateWinding(SkOpSpanBase* start, SkOpSpanBase* end) {
     SkOpSpan* lesser = start->starter(end);
     int winding = lesser->windSum();
     if (winding == SK_MinS32) {
-        SkOpGlobalState* globals = this->globalState();
-        SkOpContour* contourHead = globals->contourHead();
-        int windTry = 0;
-        while (!lesser->sortableTop(contourHead) && ++windTry < SkOpGlobalState::kMaxWindingTries) {
-            ;
-        }
-        winding = lesser->windSum();
+        winding = lesser->computeWindSum();
     }
     if (winding == SK_MinS32) {
         return winding;

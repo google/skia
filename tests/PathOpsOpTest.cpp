@@ -3659,7 +3659,7 @@ static void issue3517(skiatest::Reporter* reporter, const char* filename) {
 
     const char strB[] = "M31.35 57.75L31.35 57.75C31.9 57.7514 32.45 57.7052 33 57.7587C33.55 57.8122 34.1 57.9986 34.65 58.0709C35.2 58.1431 35.75 58.1777 36.3 58.1921C36.85 58.2065 37.4 58.1857 37.95 58.1572C38.5 58.1288 39.05 58.0888 39.6 58.0214C40.15 57.954 40.7 57.7971 41.25 57.7528C41.8 57.7084 42.35 57.7038 42.9 57.7555C43.45 57.8072 44 57.9655 44.55 58.0627C45.1 58.16 45.65 58.2885 46.2 58.3389C46.75 58.3893 47.3 58.3629 47.85 58.3651C48.4 58.3673 48.95 58.356 49.5 58.3522C50.05 58.3484 50.6 58.3447 51.15 58.3421C51.7 58.3395 52.25 58.3399 52.8 58.3366C53.35 58.3333 53.9 58.3269 54.45 58.3224C55 58.318 55.55 58.3084 56.1 58.31C56.65 58.3116 57.2 58.322 57.75 58.332C58.3 58.342 58.85 58.3645 59.4 58.3701C59.95 58.3757 60.5 58.3662 61.05 58.3655C61.6 58.3648 62.15 58.376 62.7 58.366C63.25 58.3559 63.8 58.3269 64.35 58.305C64.9 58.2831 65.45 58.2468 66 58.2345C66.55 58.2222 67.1 58.2353 67.65 58.2313C68.2 58.2272 68.75 58.233 69.3 58.2104C69.85 58.1878 70.4 58.129 70.95 58.0956C71.5 58.0623 72.05 58.0332 72.6 58.0104C73.15 57.9877 73.7 57.955 74.25 57.9592C74.8 57.9635 75.35 57.9932 75.9 58.0359C76.45 58.0787 77 58.1756 77.55 58.2158C78.1 58.256 78.65 58.2837 79.2 58.2772C79.75 58.2707 80.3 58.21 80.85 58.1768C81.4 58.1437 81.95 58.104 82.5 58.0781C83.05 58.0522 83.6 58.0363 84.15 58.0213C84.7 58.0063 85.25 57.9989 85.8 57.9879C86.35 57.977 86.9 57.9589 87.45 57.9556C88 57.9523 88.55 57.9337 89.1 57.9682C89.65 58.0028 90.2 58.1874 90.75 58.163C91.3 58.1387 91.85 57.8912 92.4 57.8224C92.95 57.7535 93.5 57.7621 94.05 57.75C94.6 57.7379 95.15 57.75 95.7 57.75L95.7 57.75L31.35 57.75Z";
     SkParsePath::FromSVGString(strB, &pathB);
-    testPathOpCheck(reporter, path, pathB, kUnion_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
 }
 
 static void cubicOp119(skiatest::Reporter* reporter, const char* filename) {
@@ -5098,7 +5098,7 @@ void loops61i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 5);
     pathB.cubicTo(-6.33333302f, 0.666666627f, 8, -1, 0, 1);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 static void loops62i(skiatest::Reporter* reporter, const char* filename) {
@@ -5111,7 +5111,7 @@ static void loops62i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 6);
     pathB.cubicTo(-6.33333302f, 1.66666663f, 8, 0, 0, 2);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 static void loops63i(skiatest::Reporter* reporter, const char* filename) {
@@ -5124,7 +5124,7 @@ static void loops63i(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(2, 4);
     pathB.cubicTo(-4, -0.833333254f, 6, -3, 0, 1);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kIntersect_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
 static void cubics44d(skiatest::Reporter* reporter, const char* filename) {
@@ -5137,7 +5137,7 @@ static void cubics44d(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(1, 3);
     pathB.cubicTo(2, 6, 4, 3, 5, 2);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kDifference_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
 }
 
 static void cubics45u(skiatest::Reporter* reporter, const char* filename) {
@@ -5150,11 +5150,11 @@ static void cubics45u(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(3, 4);
     pathB.cubicTo(2, 5, 3, 1, 6, 2);
     pathB.close();
-    testPathOpCheck(reporter, path, pathB, kUnion_SkPathOp, filename, FLAGS_runFail);
+    testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = loops63i;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 #define TEST(name) { name, #name }
@@ -5497,16 +5497,17 @@ static struct TestDesc tests[] = {
 static const size_t testCount = SK_ARRAY_COUNT(tests);
 
 static struct TestDesc subTests[] = {
-    TEST(cubics45u),
+    TEST(loops47i),
     TEST(loops61i),
     TEST(loops62i),
+    TEST(issue3517),
 };
 
 static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
 
 static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = 0;
 
-static bool runSubTests = true;
+static bool runSubTests = false;
 static bool runSubTestsFirst = true;
 static bool runReverse = false;
 
@@ -5528,7 +5529,7 @@ static void bufferOverflow(skiatest::Reporter* reporter, const char* filename) {
     path.addRect(0,0, 300,170141183460469231731687303715884105728.f);
     SkPath pathB;
     pathB.addRect(0,0, 300,16);
-    testPathOpFailCheck(reporter, path, pathB, kUnion_SkPathOp, filename);
+    testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
 }
 
 // m 100,0 60,170 -160,-110 200,0 -170,11000000000 z
@@ -5548,7 +5549,7 @@ static void fuzz433(skiatest::Reporter* reporter, const char* filename) {
     path2.lineTo(-170 + 20,11000000000.0f + 20);
     path2.close();
 
-    testPathOpFailCheck(reporter, path1, path2, kIntersect_SkPathOp, filename);
+    testPathOpCheck(reporter, path1, path2, kIntersect_SkPathOp, filename, FLAGS_runFail);
 }
 
 static void fuzz433b(skiatest::Reporter* reporter, const char* filename) {
@@ -5571,7 +5572,7 @@ static void fuzz433b(skiatest::Reporter* reporter, const char* filename) {
     path2.lineTo(190, 60);
     path2.close();
 
-    testPathOpFailCheck(reporter, path1, path2, kUnion_SkPathOp, filename);
+    testPathOpCheck(reporter, path1, path2, kUnion_SkPathOp, filename, FLAGS_runFail);
 }
 
 static void fuzz487a(skiatest::Reporter* reporter, const char* filename) {
@@ -5617,7 +5618,7 @@ path.lineTo(SkBits2Float(0x432c8000), SkBits2Float(0x42c00000));
 path.close();
 
     SkPath path2(path);
-    testPathOpFailCheck(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz487b(skiatest::Reporter* reporter, const char* filename) {
@@ -5663,7 +5664,7 @@ path.lineTo(SkBits2Float(0x432c8000), SkBits2Float(0x42c00000));
 path.close();
 
     SkPath path2(path);
-    testPathOpFailCheck(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz714(skiatest::Reporter* reporter, const char* filename) {
@@ -5689,7 +5690,7 @@ path.lineTo(SkBits2Float(0x43200000), SkBits2Float(0x42700000));
 path.close();
 
     SkPath path2(path);
-    testPathOpFailCheck(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
 }
 
 static void fuzz1(skiatest::Reporter* reporter, const char* filename) {
