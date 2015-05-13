@@ -14,21 +14,22 @@
 // 1, 2 or 4 SkPMColors, generally vectorized.
 class Sk4px : public Sk16b {
 public:
-    Sk4px(SkAlpha a) : INHERITED(a) {} // Duplicate 16x.
-    Sk4px(SkPMColor);                  // Duplicate 4x.
+    Sk4px(SkAlpha a) : INHERITED(a) {} // Duplicate 16x: a    -> aaaa aaaa aaaa aaaa
+    Sk4px(SkPMColor);                  // Duplicate 4x:  argb -> argb argb argb argb
     Sk4px(const Sk16b& v) : INHERITED(v) {}
 
-    // ARGB argb XYZW xyzw -> AAAA aaaa XXXX xxxx
-    Sk4px alphas() const;
+    Sk4px alphas() const;  // ARGB argb XYZW xyzw -> AAAA aaaa XXXX xxxx
+
+    Sk4px inv() const { return Sk16b(255) - *this; }
 
     // When loading or storing fewer than 4 SkPMColors, we use the low lanes.
-    static Sk4px Load4(const SkPMColor[4]);
-    static Sk4px Load2(const SkPMColor[2]);
-    static Sk4px Load1(const SkPMColor[1]);
+    static Sk4px Load4(const SkPMColor[4]);  // PMColor[4] -> ARGB argb XYZW xyzw
+    static Sk4px Load2(const SkPMColor[2]);  // PMColor[2] -> ARGB argb ???? ????
+    static Sk4px Load1(const SkPMColor[1]);  // PMColor[1] -> ARGB ???? ???? ????
 
     // Ditto for Alphas... Load2Alphas fills the low two lanes of Sk4px.
     static Sk4px Load4Alphas(const SkAlpha[4]);  // AaXx -> AAAA aaaa XXXX xxxx
-    static Sk4px Load2Alphas(const SkAlpha[2]);  // Aa   -> AAAA aaaa 0000 0000
+    static Sk4px Load2Alphas(const SkAlpha[2]);  // Aa   -> AAAA aaaa ???? ????
 
     void store4(SkPMColor[4]) const;
     void store2(SkPMColor[2]) const;
