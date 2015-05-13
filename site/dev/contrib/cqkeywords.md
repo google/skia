@@ -96,3 +96,12 @@ If you cannot wait for the try job results, you can add the following line to th
     NOTRY=true
 
 The CQ will then not run any try jobs for your change and will commit the CL as soon as the tree is open, assuming the presubmit check passes.
+
+NO_MERGE_BUILDS
+---------------
+
+This keyword prevents the Skia build masters from building this commit with others. Use it when your
+commit may have effects that you don't want mis-attributed to other commits. Just include the keyword
+somewhere in the commit message:
+
+    NO_MERGE_BUILDS
