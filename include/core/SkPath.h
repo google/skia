@@ -918,7 +918,6 @@ public:
         const uint8_t*  fVerbStop;
         const SkScalar* fConicWeights;
         SkPoint         fMoveTo;
-        SkPoint         fLastPt;
     };
 
     /**

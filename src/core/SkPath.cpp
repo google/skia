@@ -1777,7 +1777,7 @@ SkPath::RawIter::RawIter() {
 #ifdef SK_DEBUG
     fPts = NULL;
     fConicWeights = NULL;
-    fMoveTo.fX = fMoveTo.fY = fLastPt.fX = fLastPt.fY = 0;
+    fMoveTo.fX = fMoveTo.fY = 0;
 #endif
     // need to init enough to make next() harmlessly return kDone_Verb
     fVerbs = NULL;
@@ -1794,7 +1794,6 @@ void SkPath::RawIter::setPath(const SkPath& path) {
     fVerbStop = path.fPathRef->verbsMemBegin();
     fConicWeights = path.fPathRef->conicWeights() - 1; // begin one behind
     fMoveTo.fX = fMoveTo.fY = 0;
-    fLastPt.fX = fLastPt.fY = 0;
 }
 
 SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
@@ -1809,34 +1808,31 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
 
     switch (verb) {
         case kMove_Verb:
-            pts[0] = *srcPts;
-            fMoveTo = srcPts[0];
-            fLastPt = fMoveTo;
+            fMoveTo = pts[0] = srcPts[0];
             srcPts += 1;
             break;
         case kLine_Verb:
-            pts[0] = fLastPt;
+            pts[0] = srcPts[-1];
             pts[1] = srcPts[0];
-            fLastPt = srcPts[0];
             srcPts += 1;
             break;
         case kConic_Verb:
             fConicWeights += 1;
             // fall-through
         case kQuad_Verb:
-            pts[0] = fLastPt;
-            memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
-            fLastPt = srcPts[1];
+            pts[0] = srcPts[-1];
+            pts[1] = srcPts[0];
+            pts[2] = srcPts[1];
             srcPts += 2;
             break;
         case kCubic_Verb:
-            pts[0] = fLastPt;
-            memcpy(&pts[1], srcPts, 3 * sizeof(SkPoint));
-            fLastPt = srcPts[2];
+            pts[0] = srcPts[-1];
+            pts[1] = srcPts[0];
+            pts[2] = srcPts[1];
+            pts[3] = srcPts[2];
             srcPts += 3;
             break;
         case kClose_Verb:
-            fLastPt = fMoveTo;
             pts[0] = fMoveTo;
             break;
     }
