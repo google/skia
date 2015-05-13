@@ -64,7 +64,7 @@ static void testOpCubicsMain(PathOpsThreadState* data) {
                         SkPathOpsDebug::OpStr((SkPathOp) op));
                 str += sprintf(str, "}\n");
             }
-            if (!testThreadedPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "cubics")) {
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "cubics")) {
                 if (progress) {
                     ++loopNo;
                     goto skipToNext;

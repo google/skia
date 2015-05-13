@@ -2198,7 +2198,7 @@ path.quadTo(SkBits2Float(0x424a2ff8), SkBits2Float(0xc02cd470), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-    testPathOpFlaky(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_2674194(skiatest::Reporter* reporter, const char* filename) {

@@ -53,7 +53,7 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
             if (progress) {
                 outputProgress(state.fPathStr, pathStr, (SkPathOp) op);
             }
-            testThreadedPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "circles");
+            testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "circles");
         }
     }
                     }

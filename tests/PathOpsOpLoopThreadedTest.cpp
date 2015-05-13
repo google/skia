@@ -85,7 +85,7 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
         if (progress) {
             outputProgress(state.fPathStr, pathStr, kIntersect_SkPathOp);
         }
-        testThreadedPathOp(state.fReporter, pathA, pathB, kIntersect_SkPathOp, "loops");
+        testPathOp(state.fReporter, pathA, pathB, kIntersect_SkPathOp, "loops");
                 }
             }
         }

@@ -322,16 +322,16 @@ void ShowTestArray(const char* testName) {
 }
 
 SK_DECLARE_STATIC_MUTEX(compareDebugOut3);
-SK_DECLARE_STATIC_MUTEX(compareDebugOut4);
+
 static int comparePaths(skiatest::Reporter* reporter, const char* testName, const SkPath& one,
         const SkPath& scaledOne, const SkPath& two, const SkPath& scaledTwo, SkBitmap& bitmap,
         const SkPath& a, const SkPath& b, const SkPathOp shapeOp, const SkMatrix& scale,
-        bool expectSuccess, bool flaky) {
+        bool expectSuccess) {
     int errors2x2;
     const int MAX_ERRORS = 8;
     (void) pathsDrawTheSame(bitmap, scaledOne, scaledTwo, errors2x2);
     if (!expectSuccess) {
-        if (errors2x2 <= MAX_ERRORS && !flaky) {
+        if (errors2x2 < MAX_ERRORS) {
             REPORTER_ASSERT(reporter, 0);
         }
         return 0;
@@ -339,20 +339,14 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
     if (errors2x2 == 0) {
         return 0;
     }
-    if (flaky) {
-        return 0;
-    }
-    if (errors2x2 > MAX_ERRORS) {
+    if (errors2x2 >= MAX_ERRORS) {
         SkAutoMutexAcquire autoM(compareDebugOut3);
         showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
         SkDebugf("\n/*");
         REPORTER_ASSERT(reporter, 0);
         SkDebugf(" */\n");
-    } else if (errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {
-        SkAutoMutexAcquire autoM(compareDebugOut4);
-        showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
     }
-    return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
+    return errors2x2 >= MAX_ERRORS ? errors2x2 : 0;
 }
 
 // Default values for when reporter->verbose() is false.
@@ -498,8 +492,7 @@ static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result, bool expectSuccess);
 
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-        const SkPathOp shapeOp, const char* testName, bool threaded, bool expectSuccess,
-        bool flaky) {
+        const SkPathOp shapeOp, const char* testName, bool expectSuccess) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showName(a, b, shapeOp);
 #endif
@@ -537,29 +530,24 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     scaledOut.addPath(out, scale);
     scaledOut.setFillType(out.getFillType());
     int result = comparePaths(reporter, testName, pathOut, scaledPathOut, out, scaledOut, bitmap,
-            a, b, shapeOp, scale, expectSuccess, flaky);
+            a, b, shapeOp, scale, expectSuccess);
     reporter->bumpTestCount();
     return result == 0;
 }
 
 bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, false, true, false);
-}
-
-bool testPathOpFlaky(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-        const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, false, true, true);
+    return innerPathOp(reporter, a, b, shapeOp, testName, true);
 }
 
 bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, bool checkFail) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, false, checkFail, false);
+    return innerPathOp(reporter, a, b, shapeOp, testName, checkFail);
 }
 
 bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, false, false, true);
+    return innerPathOp(reporter, a, b, shapeOp, testName, false);
 }
 
 bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
@@ -577,11 +565,6 @@ bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath&
     }
     SkASSERT(out == orig);
     return true;
-}
-
-bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                 const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, true, true, false);
 }
 
 SK_DECLARE_STATIC_MUTEX(gMutex);

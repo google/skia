@@ -37,12 +37,8 @@ extern bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const
                             const SkPathOp , const char* testName, bool checkFail);
 extern bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                                 const SkPathOp , const char* testName);
-extern bool testPathOpFlaky(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                            const SkPathOp , const char* testName);
 extern bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                            const SkPathOp , const char* testName);
-extern bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                               const SkPathOp , const char* testName);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                          const char* pathStr);
 extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename);
