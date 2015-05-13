@@ -25,11 +25,7 @@ public:
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
-        if (fGeometryProcessor->hasVertexColor()) {
-            out->setUnknownFourComponents();
-        } else {
-            out->setKnownFourComponents(fGeometryProcessor->color());
-        }
+        out->setKnownFourComponents(fGeometryProcessor->color());
     }
 
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {

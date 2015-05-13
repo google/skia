@@ -23,61 +23,33 @@ public:
     // atleast bundles
     GrGeometryProcessor(GrColor color,
                         const SkMatrix& viewMatrix = SkMatrix::I(),
-                        const SkMatrix& localMatrix = SkMatrix::I(),
-                        bool opaqueVertexColors = false)
+                        const SkMatrix& localMatrix = SkMatrix::I())
         : INHERITED(viewMatrix, localMatrix, false)
         , fColor(color)
-        , fOpaqueVertexColors(opaqueVertexColors)
         , fWillUseGeoShader(false)
-        , fHasVertexColor(false)
         , fHasLocalCoords(false) {}
 
     bool willUseGeoShader() const { return fWillUseGeoShader; }
 
-    /*
-     * In an ideal world, two GrGeometryProcessors with the same class id and texture accesses
-     * would ALWAYS be able to batch together.  If two GrGeometryProcesosrs are the same then we
-     * will only keep one of them.  The remaining GrGeometryProcessor then updates its
-     * GrBatchTracker to incorporate the draw information from the GrGeometryProcessor we discard.
-     * Any bundles associated with the discarded GrGeometryProcessor will be attached to the
-     * remaining GrGeometryProcessor.
-     */
+    // TODO delete this when paths are in batch
     bool canMakeEqual(const GrBatchTracker& mine,
                       const GrPrimitiveProcessor& that,
                       const GrBatchTracker& theirs) const override {
-        if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
-            return false;
-        }
-
-        // TODO let the GPs decide this
-        if (!this->viewMatrix().cheapEqualTo(that.viewMatrix())) {
-            return false;
-        }
-
-        // TODO remove the hint
-        const GrGeometryProcessor& other = that.cast<GrGeometryProcessor>();
-        if (fHasVertexColor && fOpaqueVertexColors != other.fOpaqueVertexColors) {
-            return false;
-        }
-
-        // TODO this equality test should really be broken up, some of this can live on the batch
-        // tracker test and some of this should be in bundles
-        if (!this->onIsEqual(other)) {
-            return false;
-        }
-
-        return this->onCanMakeEqual(mine, other, theirs);
+        SkFAIL("Unsupported\n");
+        return false;
     }
     
     // TODO we can remove color from the GrGeometryProcessor base class once we have bundles of
     // primitive data
     GrColor color() const { return fColor; }
 
-    // TODO this is a total hack until the gp can do deferred geometry
-    bool hasVertexColor() const { return fHasVertexColor; }
-
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override;
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override;
+    // TODO Delete when paths are in batch
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+        SkFAIL("Unsupported\n");
+    }
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        SkFAIL("Unsupported\n");
+    }
 
 protected:
     /*
@@ -128,26 +100,13 @@ protected:
     void setWillUseGeoShader() { fWillUseGeoShader = true; }
 
     // TODO hack see above
-    void setHasVertexColor() { fHasVertexColor = true; }
     void setHasLocalCoords() { fHasLocalCoords = true; }
 
-    virtual void onGetInvariantOutputColor(GrInitInvariantOutput*) const {}
-    virtual void onGetInvariantOutputCoverage(GrInitInvariantOutput*) const = 0;
-
 private:
-    virtual bool onCanMakeEqual(const GrBatchTracker& mine,
-                                const GrGeometryProcessor& that,
-                                const GrBatchTracker& theirs) const = 0;
-
-    // TODO delete this when we have more advanced equality testing via bundles and the BT
-    virtual bool onIsEqual(const GrGeometryProcessor&) const = 0;
-
     bool hasExplicitLocalCoords() const override { return fHasLocalCoords; }
 
     GrColor fColor;
-    bool fOpaqueVertexColors;
     bool fWillUseGeoShader;
-    bool fHasVertexColor;
     bool fHasLocalCoords;
 
     typedef GrPrimitiveProcessor INHERITED;

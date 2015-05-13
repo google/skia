@@ -31,11 +31,9 @@ static const GrGeometryProcessor* create_rect_gp(bool hasExplicitLocalCoords,
                      GrDefaultGeoProcFactory::kColor_GPType;
     flags |= hasExplicitLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
     if (localMatrix) {
-        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), *localMatrix,
-                                               GrColorIsOpaque(color));
+        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), *localMatrix);
     } else {
-        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), SkMatrix::I(),
-                                               GrColorIsOpaque(color));
+        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), SkMatrix::I());
     }
 }
 

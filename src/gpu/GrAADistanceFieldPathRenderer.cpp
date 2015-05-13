@@ -197,8 +197,7 @@ public:
                                                    this->viewMatrix(),
                                                    atlas->getTexture(),
                                                    params,
-                                                   flags,
-                                                   false));
+                                                   flags));
 
         this->initDraw(batchTarget, dfProcessor, pipeline);
 
