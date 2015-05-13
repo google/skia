@@ -197,7 +197,8 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            float distanceAdjust,
 #endif
                                                            uint32_t flags)
-    : INHERITED(color, viewMatrix, SkMatrix::I())
+    : INHERITED(viewMatrix, SkMatrix::I())
+    , fColor(color)
     , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fDistanceAdjust(distanceAdjust)
@@ -423,7 +424,8 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         GrTexture* texture,
         const GrTextureParams& params,
         uint32_t flags)
-    : INHERITED(color, viewMatrix, SkMatrix::I())
+    : INHERITED(viewMatrix, SkMatrix::I())
+    , fColor(color)
     , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
@@ -691,7 +693,8 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrTexture* texture, const GrTextureParams& params,
                                                   DistanceAdjust distanceAdjust,
                                                   uint32_t flags)
-    : INHERITED(color, viewMatrix, SkMatrix::I())
+    : INHERITED(viewMatrix, SkMatrix::I())
+    , fColor(color)
     , fTextureAccess(texture, params)
     , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask){

@@ -535,6 +535,7 @@ public:
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inQuadEdge() const { return fInQuadEdge; }
+    GrColor color() const { return fColor; }
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
@@ -643,7 +644,8 @@ public:
 
 private:
     QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix)
-        : INHERITED(color, SkMatrix::I(), localMatrix) {
+        : INHERITED(SkMatrix::I(), localMatrix)
+        , fColor(color) {
         this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInQuadEdge = &this->addVertexAttrib(Attribute("inQuadEdge", kVec4f_GrVertexAttribType));
@@ -657,6 +659,7 @@ private:
 
     const Attribute* fInPosition;
     const Attribute* fInQuadEdge;
+    GrColor          fColor;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 

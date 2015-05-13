@@ -25,7 +25,7 @@ public:
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeometryProcessor->color());
+        out->setKnownFourComponents(this->geoData(0)->fColor);
     }
 
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
@@ -74,6 +74,7 @@ protected:
 
 private:
     virtual Geometry* geoData(int index) = 0;
+    virtual const Geometry* geoData(int index) const = 0;
 
     bool onCombineIfPossible(GrBatch* t) override {
         return false;

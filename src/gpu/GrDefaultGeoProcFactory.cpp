@@ -38,6 +38,7 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inLocalCoords() const { return fInLocalCoords; }
     const Attribute* inCoverage() const { return fInCoverage; }
+    GrColor color() const { return fColor; }
     uint8_t coverage() const { return fCoverage; }
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override {
@@ -168,11 +169,12 @@ private:
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,
                    uint8_t coverage)
-        : INHERITED(color, viewMatrix, localMatrix)
+        : INHERITED(viewMatrix, localMatrix)
         , fInPosition(NULL)
         , fInColor(NULL)
         , fInLocalCoords(NULL)
         , fInCoverage(NULL)
+        , fColor(color)
         , fCoverage(coverage)
         , fFlags(gpTypeFlags) {
         this->initClassID<DefaultGeoProc>();
@@ -206,6 +208,7 @@ private:
     const Attribute* fInColor;
     const Attribute* fInLocalCoords;
     const Attribute* fInCoverage;
+    GrColor fColor;
     uint8_t fCoverage;
     uint32_t fFlags;
 

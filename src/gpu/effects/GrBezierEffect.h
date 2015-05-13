@@ -97,6 +97,7 @@ public:
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
+    GrColor color() const { return fColor; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -111,8 +112,9 @@ private:
     GrConicEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrPrimitiveEdgeType,
                   const SkMatrix& localMatrix);
 
-    uint8_t               fCoverageScale;
-    GrPrimitiveEdgeType   fEdgeType;
+    GrColor             fColor;
+    uint8_t             fCoverageScale;
+    GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
     const Attribute*    fInConicCoeffs;
 
@@ -173,6 +175,7 @@ public:
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
+    GrColor color() const { return fColor; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -187,8 +190,9 @@ private:
     GrQuadEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrPrimitiveEdgeType,
                  const SkMatrix& localMatrix);
 
-    uint8_t               fCoverageScale;
-    GrPrimitiveEdgeType   fEdgeType;
+    GrColor             fColor;
+    uint8_t             fCoverageScale;
+    GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
     const Attribute*    fInHairQuadEdge;
 
@@ -245,6 +249,7 @@ public:
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
+    GrColor color() const { return fColor; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -258,7 +263,8 @@ public:
 private:
     GrCubicEffect(GrColor, const SkMatrix& viewMatrix, GrPrimitiveEdgeType);
 
-    GrPrimitiveEdgeType   fEdgeType;
+    GrColor             fColor;
+    GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
     const Attribute*    fInCubicCoeffs;
 

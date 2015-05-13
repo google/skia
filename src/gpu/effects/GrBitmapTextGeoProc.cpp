@@ -119,7 +119,8 @@ private:
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
                                          const GrTextureParams& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix)
-    : INHERITED(color, SkMatrix::I(), localMatrix)
+    : INHERITED(SkMatrix::I(), localMatrix)
+    , fColor(color)
     , fTextureAccess(texture, params)
     , fInColor(NULL)
     , fMaskFormat(format) {

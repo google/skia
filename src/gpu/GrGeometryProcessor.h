@@ -19,13 +19,9 @@
  */
 class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
-    // TODO the Hint can be handled in a much more clean way when we have deferred geometry or
-    // atleast bundles
-    GrGeometryProcessor(GrColor color,
-                        const SkMatrix& viewMatrix = SkMatrix::I(),
+    GrGeometryProcessor(const SkMatrix& viewMatrix = SkMatrix::I(),
                         const SkMatrix& localMatrix = SkMatrix::I())
         : INHERITED(viewMatrix, localMatrix, false)
-        , fColor(color)
         , fWillUseGeoShader(false)
         , fHasLocalCoords(false) {}
 
@@ -38,10 +34,6 @@ public:
         SkFAIL("Unsupported\n");
         return false;
     }
-    
-    // TODO we can remove color from the GrGeometryProcessor base class once we have bundles of
-    // primitive data
-    GrColor color() const { return fColor; }
 
     // TODO Delete when paths are in batch
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
@@ -105,7 +97,6 @@ protected:
 private:
     bool hasExplicitLocalCoords() const override { return fHasLocalCoords; }
 
-    GrColor fColor;
     bool fWillUseGeoShader;
     bool fHasLocalCoords;
 

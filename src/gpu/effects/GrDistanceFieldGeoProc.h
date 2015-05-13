@@ -68,6 +68,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
+    GrColor color() const { return fColor; }
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getDistanceAdjust() const { return fDistanceAdjust; }
 #endif
@@ -90,6 +91,7 @@ private:
 #endif
                                  uint32_t flags);
 
+    GrColor          fColor;
     GrTextureAccess  fTextureAccess;
 #ifdef SK_GAMMA_APPLY_TO_A8
     float            fDistanceAdjust;
@@ -126,6 +128,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
+    GrColor color() const { return fColor; }
     uint32_t getFlags() const { return fFlags; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
@@ -141,8 +144,9 @@ private:
     GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
                                const GrTextureParams& params, uint32_t flags);
 
-    GrTextureAccess    fTextureAccess;
-    uint32_t           fFlags;
+    GrColor          fColor;
+    GrTextureAccess  fTextureAccess;
+    uint32_t         fFlags;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;
@@ -189,6 +193,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
+    GrColor color() const { return fColor; }
     uint32_t getFlags() const { return fFlags; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
@@ -205,6 +210,7 @@ private:
                                   GrTexture* texture, const GrTextureParams& params,
                                   DistanceAdjust wa, uint32_t flags);
 
+    GrColor          fColor;
     GrTextureAccess  fTextureAccess;
     DistanceAdjust   fDistanceAdjust;
     uint32_t         fFlags;

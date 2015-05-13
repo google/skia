@@ -783,6 +783,8 @@ public:
 
     DashAAMode aaMode() const { return fAAMode; }
 
+    GrColor color() const { return fColor; }
+
     virtual void getGLProcessorKey(const GrBatchTracker&,
                                    const GrGLSLCaps&,
                                    GrProcessorKeyBuilder* b) const override;
@@ -795,6 +797,7 @@ public:
 private:
     DashingCircleEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix);
 
+    GrColor             fColor;
     DashAAMode          fAAMode;
     const Attribute*    fInPosition;
     const Attribute*    fInDashParams;
@@ -937,7 +940,9 @@ GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrBatchTrack
 DashingCircleEffect::DashingCircleEffect(GrColor color,
                                          DashAAMode aaMode,
                                          const SkMatrix& localMatrix)
-    : INHERITED(color, SkMatrix::I(), localMatrix), fAAMode(aaMode) {
+    : INHERITED(SkMatrix::I(), localMatrix)
+    , fColor(color)
+    , fAAMode(aaMode) {
     this->initClassID<DashingCircleEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     fInDashParams = &this->addVertexAttrib(Attribute("inDashParams", kVec3f_GrVertexAttribType));
@@ -999,6 +1004,8 @@ public:
 
     DashAAMode aaMode() const { return fAAMode; }
 
+    GrColor color() const { return fColor; }
+
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
@@ -1011,6 +1018,7 @@ public:
 private:
     DashingLineEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix);
 
+    GrColor             fColor;
     DashAAMode          fAAMode;
     const Attribute*    fInPosition;
     const Attribute*    fInDashParams;
@@ -1165,7 +1173,9 @@ GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker
 DashingLineEffect::DashingLineEffect(GrColor color,
                                      DashAAMode aaMode,
                                      const SkMatrix& localMatrix)
-    : INHERITED(color, SkMatrix::I(), localMatrix), fAAMode(aaMode) {
+    : INHERITED(SkMatrix::I(), localMatrix)
+    , fColor(color)
+    , fAAMode(aaMode) {
     this->initClassID<DashingLineEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     fInDashParams = &this->addVertexAttrib(Attribute("inDashParams", kVec3f_GrVertexAttribType));

@@ -64,6 +64,11 @@ private:
         return &fGeometry;
     }
 
+    const Geometry* geoData(int index) const override {
+        SkASSERT(0 == index);
+        return &fGeometry;
+    }
+
     void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
@@ -138,6 +143,7 @@ protected:
         SkScalar h = SkIntToScalar(rt->height()) / numRows;
         int row = 0;
         int col = 0;
+        static const GrColor color = 0xff000000;
 
         for (int i = 0; i < kNumCubics; ++i) {
             SkPoint baseControlPts[] = {
@@ -155,7 +161,7 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrCubicEffect::Create(0xff000000, SkMatrix::I(), et,
+                    gp.reset(GrCubicEffect::Create(color, SkMatrix::I(), et,
                                                    *tt.target()->caps()));
                     if (!gp) {
                         continue;
@@ -217,7 +223,7 @@ protected:
                     pipelineBuilder.setRenderTarget(rt);
 
                     BezierCubicOrConicTestBatch::Geometry geometry;
-                    geometry.fColor = gp->color();
+                    geometry.fColor = color;
                     geometry.fBounds = bounds;
 
                     SkAutoTUnref<GrBatch> batch(
@@ -285,6 +291,7 @@ protected:
         SkScalar h = SkIntToScalar(rt->height()) / numRows;
         int row = 0;
         int col = 0;
+        static const GrColor color = 0xff000000;
 
         for (int i = 0; i < kNumConics; ++i) {
             SkPoint baseControlPts[] = {
@@ -302,7 +309,7 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrConicEffect::Create(0xff000000, SkMatrix::I(), et,
+                    gp.reset(GrConicEffect::Create(color, SkMatrix::I(), et,
                                                    *tt.target()->caps(), SkMatrix::I()));
                     if (!gp) {
                         continue;
@@ -361,7 +368,7 @@ protected:
                     pipelineBuilder.setRenderTarget(rt);
 
                     BezierCubicOrConicTestBatch::Geometry geometry;
-                    geometry.fColor = gp->color();
+                    geometry.fColor = color;
                     geometry.fBounds = bounds;
 
                     SkAutoTUnref<GrBatch> batch(
@@ -452,6 +459,11 @@ private:
         return &fGeometry;
     }
 
+    const Geometry* geoData(int index) const override {
+        SkASSERT(0 == index);
+        return &fGeometry;
+    }
+
     void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
@@ -520,6 +532,7 @@ protected:
         SkScalar h = SkIntToScalar(rt->height()) / numRows;
         int row = 0;
         int col = 0;
+        static const GrColor color = 0xff000000;
 
         for (int i = 0; i < kNumQuads; ++i) {
             SkPoint baseControlPts[] = {
@@ -536,7 +549,7 @@ protected:
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrQuadEffect::Create(0xff000000, SkMatrix::I(), et,
+                    gp.reset(GrQuadEffect::Create(color, SkMatrix::I(), et,
                                                   *tt.target()->caps(), SkMatrix::I()));
                     if (!gp) {
                         continue;
@@ -594,7 +607,7 @@ protected:
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
                     BezierQuadTestBatch::Geometry geometry;
-                    geometry.fColor = gp->color();
+                    geometry.fColor = color;
                     geometry.fBounds = bounds;
 
                     SkAutoTUnref<GrBatch> batch(BezierQuadTestBatch::Create(gp, geometry, DevToUV));

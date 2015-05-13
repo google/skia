@@ -50,6 +50,11 @@ private:
         return &fGeometry;
     }
 
+    const Geometry* geoData(int index) const override {
+        SkASSERT(0 == index);
+        return &fGeometry;
+    }
+
     void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
@@ -151,9 +156,9 @@ protected:
             return;
         }
 
+        static const GrColor color = 0xff000000;
         SkAutoTUnref<const GrGeometryProcessor> gp(
-                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
-                                                0xff000000));
+                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType, color));
 
         SkScalar y = 0;
         for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);
@@ -184,7 +189,7 @@ protected:
                 pipelineBuilder.setRenderTarget(rt);
 
                 ConvexPolyTestBatch::Geometry geometry;
-                geometry.fColor = gp->color();
+                geometry.fColor = color;
                 geometry.fBounds = p.getBounds();
 
                 SkAutoTUnref<GrBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
@@ -233,7 +238,7 @@ protected:
                 pipelineBuilder.setRenderTarget(rt);
 
                 ConvexPolyTestBatch::Geometry geometry;
-                geometry.fColor = gp->color();
+                geometry.fColor = color;
                 geometry.fBounds = rect;
 
                 SkAutoTUnref<GrBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));

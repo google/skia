@@ -191,7 +191,8 @@ GrGLPrimitiveProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt
 
 GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
                              GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix)
-    : INHERITED(color, viewMatrix, localMatrix)
+    : INHERITED(viewMatrix, localMatrix)
+    , fColor(color)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrConicEffect>();
@@ -395,7 +396,8 @@ GrGLPrimitiveProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt,
 
 GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
                            GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix)
-    : INHERITED(color, viewMatrix, localMatrix)
+    : INHERITED(viewMatrix, localMatrix)
+    , fColor(color)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrQuadEffect>();
@@ -622,7 +624,9 @@ GrGLPrimitiveProcessor* GrCubicEffect::createGLInstance(const GrBatchTracker& bt
 
 GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,
                              GrPrimitiveEdgeType edgeType)
-    : INHERITED(color, viewMatrix), fEdgeType(edgeType) {
+    : INHERITED(viewMatrix)
+    , fColor(color)
+    , fEdgeType(edgeType) {
     this->initClassID<GrCubicEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     fInCubicCoeffs = &this->addVertexAttrib(Attribute("inCubicCoeffs",

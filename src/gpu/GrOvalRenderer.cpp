@@ -77,6 +77,7 @@ public:
 
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inCircleEdge() const { return fInCircleEdge; }
+    GrColor color() const { return fColor; }
     virtual ~CircleEdgeEffect() {}
 
     const char* name() const override { return "CircleEdge"; }
@@ -176,7 +177,8 @@ public:
 
 private:
     CircleEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
-        : INHERITED(color, SkMatrix::I(), localMatrix) {
+        : INHERITED(SkMatrix::I(), localMatrix)
+        , fColor(color) {
         this->initClassID<CircleEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInCircleEdge = &this->addVertexAttrib(Attribute("inCircleEdge",
@@ -190,6 +192,7 @@ private:
         bool fUsesLocalCoords;
     };
 
+    GrColor fColor;
     const Attribute* fInPosition;
     const Attribute* fInCircleEdge;
     bool fStroke;
@@ -233,6 +236,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inEllipseOffset() const { return fInEllipseOffset; }
     const Attribute* inEllipseRadii() const { return fInEllipseRadii; }
+    GrColor color() const { return fColor; }
 
     inline bool isStroked() const { return fStroke; }
 
@@ -351,7 +355,8 @@ public:
 
 private:
     EllipseEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
-        : INHERITED(color, SkMatrix::I(), localMatrix) {
+        : INHERITED(SkMatrix::I(), localMatrix)
+        , fColor(color) {
         this->initClassID<EllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffset = &this->addVertexAttrib(Attribute("inEllipseOffset",
@@ -370,6 +375,7 @@ private:
     const Attribute* fInPosition;
     const Attribute* fInEllipseOffset;
     const Attribute* fInEllipseRadii;
+    GrColor fColor;
     bool fStroke;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
@@ -414,6 +420,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
     const Attribute* inEllipseOffsets1() const { return fInEllipseOffsets1; }
+    GrColor color() const { return fColor; }
 
     inline Mode getMode() const { return fMode; }
 
@@ -546,7 +553,8 @@ public:
 
 private:
     DIEllipseEdgeEffect(GrColor color, const SkMatrix& viewMatrix, Mode mode)
-        : INHERITED(color, viewMatrix) {
+        : INHERITED(viewMatrix)
+        , fColor(color) {
         this->initClassID<DIEllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffsets0 = &this->addVertexAttrib(Attribute("inEllipseOffsets0",
@@ -565,6 +573,7 @@ private:
     const Attribute* fInPosition;
     const Attribute* fInEllipseOffsets0;
     const Attribute* fInEllipseOffsets1;
+    GrColor fColor;
     Mode fMode;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;

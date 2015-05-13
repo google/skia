@@ -35,6 +35,7 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrMaskFormat maskFormat() const { return fMaskFormat; }
+    GrColor color() const { return fColor; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -49,6 +50,7 @@ private:
     GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrTextureParams& params,
                         GrMaskFormat format, const SkMatrix& localMatrix);
 
+    GrColor          fColor;
     GrTextureAccess  fTextureAccess;
     const Attribute* fInPosition;
     const Attribute* fInColor;
