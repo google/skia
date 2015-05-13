@@ -31,7 +31,7 @@ public:
     static uint64_t ComputeStrokeKey(const SkStrokeRec&);
 
     bool isEqualTo(const SkPath& path, const SkStrokeRec& stroke) {
-        return fSkPath == path && fStroke == stroke;
+        return fSkPath == path && fStroke.hasEqualEffect(stroke);
     }
 
     const SkRect& getBounds() const { return fBounds; }
