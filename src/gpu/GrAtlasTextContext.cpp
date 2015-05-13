@@ -2147,13 +2147,24 @@ inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRend
                                                const SkPaint& skPaint,
                                                SkScalar transX, SkScalar transY,
                                                const SkIRect& clipBounds) {
+    if (!cacheBlob->fBigGlyphs.count()) {
+        return;
+    }
+
+    SkMatrix pathMatrix;
+    if (!cacheBlob->fViewMatrix.invert(&pathMatrix)) {
+        SkDebugf("could not invert viewmatrix\n");
+        return;
+    }
+
     for (int i = 0; i < cacheBlob->fBigGlyphs.count(); i++) {
         BitmapTextBlob::BigGlyph& bigGlyph = cacheBlob->fBigGlyphs[i];
         bigGlyph.fVx += transX;
         bigGlyph.fVy += transY;
-        SkMatrix translate;
-        translate.setTranslate(bigGlyph.fVx, bigGlyph.fVy);
-        fGpuDevice->internalDrawPath(bigGlyph.fPath, skPaint, SkMatrix::I(), &translate, clipBounds,
+        SkMatrix translate = cacheBlob->fViewMatrix;
+        translate.postTranslate(bigGlyph.fVx, bigGlyph.fVy);
+
+        fGpuDevice->internalDrawPath(bigGlyph.fPath, skPaint, translate, &pathMatrix, clipBounds,
                                      false);
     }
 }

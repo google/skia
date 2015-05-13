@@ -785,9 +785,9 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
     SkMatrix viewMatrix = origViewMatrix;
 
     if (prePathMatrix) {
-        // stroking and path effects are supposed to be applied *after* the prePathMatrix.
-        // The pre-path-matrix also should not affect shadeing.
-        if (NULL == pathEffect && NULL == paint.getShader() &&
+        // stroking, path effects, and blurs are supposed to be applied *after* the prePathMatrix.
+        // The pre-path-matrix also should not affect shading.
+        if (NULL == paint.getMaskFilter() && NULL == pathEffect && NULL == paint.getShader() &&
             (strokeInfo.getStrokeRec().isFillStyle() ||
              strokeInfo.getStrokeRec().isHairlineStyle())) {
             viewMatrix.preConcat(*prePathMatrix);
