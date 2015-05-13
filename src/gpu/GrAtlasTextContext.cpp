@@ -1255,7 +1255,7 @@ void GrAtlasTextContext::bmpAppendGlyph(BitmapTextBlob* blob, int runIndex,
 
     // If the glyph is too large we fall back to paths
     if (glyph->fTooLargeForAtlas) {
-        this->appendGlyphPath(blob, glyph, scaler, vx, vy);
+        this->appendGlyphPath(blob, glyph, scaler, SkIntToScalar(vx), SkIntToScalar(vy));
         return;
     }
 
@@ -1331,8 +1331,7 @@ bool GrAtlasTextContext::dfAppendGlyph(BitmapTextBlob* blob, int runIndex,
     // TODO combine with the above
     // If the glyph is too large we fall back to paths
     if (glyph->fTooLargeForAtlas) {
-        this->appendGlyphPath(blob, glyph, scaler, SkScalarRoundToInt(sx - dx),
-                                                   SkScalarRoundToInt(sy - dy));
+        this->appendGlyphPath(blob, glyph, scaler, sx - dx, sy - dy);
         return true;
     }
 
@@ -1349,7 +1348,7 @@ bool GrAtlasTextContext::dfAppendGlyph(BitmapTextBlob* blob, int runIndex,
 }
 
 inline void GrAtlasTextContext::appendGlyphPath(BitmapTextBlob* blob, GrGlyph* glyph,
-                                                GrFontScaler* scaler, int x, int y) {
+                                                GrFontScaler* scaler, SkScalar x, SkScalar y) {
     if (NULL == glyph->fPath) {
         SkPath* path = SkNEW(SkPath);
         if (!scaler->getGlyphPath(glyph->glyphID(), path)) {
@@ -2150,12 +2149,10 @@ inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRend
                                                const SkIRect& clipBounds) {
     for (int i = 0; i < cacheBlob->fBigGlyphs.count(); i++) {
         BitmapTextBlob::BigGlyph& bigGlyph = cacheBlob->fBigGlyphs[i];
-        bigGlyph.fVx += SkScalarTruncToInt(transX);
-        bigGlyph.fVy += SkScalarTruncToInt(transY);
+        bigGlyph.fVx += transX;
+        bigGlyph.fVy += transY;
         SkMatrix translate;
-        translate.setTranslate(SkIntToScalar(bigGlyph.fVx),
-                               SkIntToScalar(bigGlyph.fVy));
-        GrStrokeInfo strokeInfo(SkStrokeRec::kFill_InitStyle);
+        translate.setTranslate(bigGlyph.fVx, bigGlyph.fVy);
         fGpuDevice->internalDrawPath(bigGlyph.fPath, skPaint, SkMatrix::I(), &translate, clipBounds,
                                      false);
     }

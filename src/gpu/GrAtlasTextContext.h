@@ -152,10 +152,13 @@ private:
         };
 
         struct BigGlyph {
-            BigGlyph(const SkPath& path, int vx, int vy) : fPath(path), fVx(vx), fVy(vy) {}
+            BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy)
+                : fPath(path)
+                , fVx(vx)
+                , fVy(vy) {}
             SkPath fPath;
-            int fVx;
-            int fVy;
+            SkScalar fVx;
+            SkScalar fVy;
         };
 
         struct Key {
@@ -262,7 +265,7 @@ private:
                        GrColor color, GrFontScaler*, const SkIRect& clipRect, SkScalar textRatio,
                        const SkMatrix& viewMatrix);
     inline void appendGlyphPath(BitmapTextBlob* blob, GrGlyph* glyph,
-                                GrFontScaler* scaler, int x, int y);
+                                GrFontScaler* scaler, SkScalar x, SkScalar y);
     inline void appendGlyphCommon(BitmapTextBlob*, Run*, Run::SubRunInfo*,
                                   const SkRect& positions, GrColor color,
                                   size_t vertexStride, bool useVertexColor,
