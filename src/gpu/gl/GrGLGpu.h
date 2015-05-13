@@ -106,7 +106,7 @@ public:
                         const SkIRect& srcRect,
                         const SkIPoint& dstPoint) override;
 
-    void xferBarrier(GrXferBarrierType) override;
+    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     void buildProgramDesc(GrProgramDesc*,
                           const GrPrimitiveProcessor&,

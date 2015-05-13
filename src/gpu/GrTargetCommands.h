@@ -242,11 +242,17 @@ private:
     };
 
     struct XferBarrier : public Cmd {
-        XferBarrier() : Cmd(kXferBarrier_CmdType) {}
+        XferBarrier(GrRenderTarget* rt)
+            : Cmd(kXferBarrier_CmdType)
+            , fRenderTarget(rt) {
+        }
 
         void execute(GrGpu*) override;
 
         GrXferBarrierType   fBarrierType;
+
+    private:
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
     };
 
     static const int kCmdBufferInitialSizeInBytes = 8 * 1024;

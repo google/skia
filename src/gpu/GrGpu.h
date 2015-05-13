@@ -277,7 +277,7 @@ public:
                              const SkIPoint& dstPoint) = 0;
 
     // Called before certain draws in order to guarantee coherent results from dst reads.
-    virtual void xferBarrier(GrXferBarrierType) = 0;
+    virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
     struct DrawArgs {
         DrawArgs(const GrPrimitiveProcessor* primProc,

@@ -111,5 +111,5 @@ void GrTargetCommands::CopySurface::execute(GrGpu* gpu) {
 }
 
 void GrTargetCommands::XferBarrier::execute(GrGpu* gpu) {
-    gpu->xferBarrier(fBarrierType);
+    gpu->xferBarrier(fRenderTarget.get(), fBarrierType);
 }

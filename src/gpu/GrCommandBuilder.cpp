@@ -82,7 +82,7 @@ GrCommandBuilder::recordXferBarrierIfNecessary(const GrPipeline& pipeline,
         return NULL;
     }
 
-    XferBarrier* xb = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), XferBarrier, ());
+    XferBarrier* xb = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), XferBarrier, (rt));
     xb->fBarrierType = barrierType;
     return xb;
 }

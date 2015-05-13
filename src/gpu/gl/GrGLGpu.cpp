@@ -2787,12 +2787,20 @@ bool GrGLGpu::canCopySurface(const GrSurface* dst,
     return false;
 }
 
-void GrGLGpu::xferBarrier(GrXferBarrierType type) {
+void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     switch (type) {
-        case kTexture_GrXferBarrierType:
+        case kTexture_GrXferBarrierType: {
+            GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
+            if (glrt->textureFBOID() != glrt->renderFBOID()) {
+                // The render target uses separate storage so no need for glTextureBarrier.
+                // FIXME: The render target will resolve automatically when its texture is bound,
+                // but we could resolve only the bounds that will be read if we do it here instead.
+                return;
+            }
             SkASSERT(this->caps()->textureBarrierSupport());
             GL_CALL(TextureBarrier());
             return;
+        }
         case kBlend_GrXferBarrierType:
             SkASSERT(GrDrawTargetCaps::kAdvanced_BlendEquationSupport ==
                      this->caps()->blendEquationSupport());
