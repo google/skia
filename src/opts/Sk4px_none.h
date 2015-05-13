@@ -55,3 +55,25 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
                  r.kth< 8>(), r.kth< 9>(), r.kth<10>(), r.kth<11>(),
                  r.kth<12>(), r.kth<13>(), r.kth<14>(), r.kth<15>());
 }
+
+inline Sk4px Sk4px::alphas() const {
+    static_assert(SK_A32_SHIFT == 24, "This method assumes little-endian.");
+    return Sk16b(this->kth< 3>(), this->kth< 3>(), this->kth< 3>(), this->kth< 3>(),
+                 this->kth< 7>(), this->kth< 7>(), this->kth< 7>(), this->kth< 7>(),
+                 this->kth<11>(), this->kth<11>(), this->kth<11>(), this->kth<11>(),
+                 this->kth<15>(), this->kth<15>(), this->kth<15>(), this->kth<15>());
+}
+
+inline Sk4px Sk4px::Load4Alphas(const SkAlpha a[4]) {
+    return Sk16b(a[0], a[0], a[0], a[0],
+                 a[1], a[1], a[1], a[1],
+                 a[2], a[2], a[2], a[2],
+                 a[3], a[3], a[3], a[3]);
+}
+
+inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
+    return Sk16b(a[0], a[0], a[0], a[0],
+                 a[1], a[1], a[1], a[1],
+                 0,0,0,0,
+                 0,0,0,0);
+}

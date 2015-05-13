@@ -14,13 +14,21 @@
 // 1, 2 or 4 SkPMColors, generally vectorized.
 class Sk4px : public Sk16b {
 public:
-    Sk4px(SkPMColor);  // Duplicate 4x.
-    Sk4px(const Sk16b& v) : Sk16b(v) {}
+    Sk4px(SkAlpha a) : INHERITED(a) {} // Duplicate 16x.
+    Sk4px(SkPMColor);                  // Duplicate 4x.
+    Sk4px(const Sk16b& v) : INHERITED(v) {}
+
+    // ARGB argb XYZW xyzw -> AAAA aaaa XXXX xxxx
+    Sk4px alphas() const;
 
     // When loading or storing fewer than 4 SkPMColors, we use the low lanes.
     static Sk4px Load4(const SkPMColor[4]);
     static Sk4px Load2(const SkPMColor[2]);
     static Sk4px Load1(const SkPMColor[1]);
+
+    // Ditto for Alphas... Load2Alphas fills the low two lanes of Sk4px.
+    static Sk4px Load4Alphas(const SkAlpha[4]);  // AaXx -> AAAA aaaa XXXX xxxx
+    static Sk4px Load2Alphas(const SkAlpha[2]);  // Aa   -> AAAA aaaa 0000 0000
 
     void store4(SkPMColor[4]) const;
     void store2(SkPMColor[2]) const;
@@ -111,13 +119,10 @@ public:
     template <typename Fn>
     static void MapDstSrcAlpha(
             int count, SkPMColor* dst, const SkPMColor* src, const SkAlpha* a, Fn fn) {
-        // TODO: find a terser / faster way to construct Sk16b alphas.
         while (count > 0) {
             if (count >= 8) {
-                Sk16b alpha0(a[0],a[0],a[0],a[0], a[1],a[1],a[1],a[1],
-                             a[2],a[2],a[2],a[2], a[3],a[3],a[3],a[3]),
-                      alpha4(a[4],a[4],a[4],a[4], a[5],a[5],a[5],a[5],
-                             a[6],a[6],a[6],a[6], a[7],a[7],a[7],a[7]);
+                Sk4px alpha0 = Load4Alphas(a+0),
+                      alpha4 = Load4Alphas(a+4);
                 Sk4px dst0 = fn(Load4(dst+0), Load4(src+0), alpha0),
                       dst4 = fn(Load4(dst+4), Load4(src+4), alpha4);
                 dst0.store4(dst+0);
@@ -127,18 +132,17 @@ public:
             }
             SkASSERT(count <= 7);
             if (count >= 4) {
-                Sk16b alpha(a[0],a[0],a[0],a[0], a[1],a[1],a[1],a[1],
-                            a[2],a[2],a[2],a[2], a[3],a[3],a[3],a[3]);
+                Sk4px alpha = Load4Alphas(a);
                 fn(Load4(dst), Load4(src), alpha).store4(dst);
                 dst += 4; src += 4; a += 4; count -= 4;
             }
             if (count >= 2) {
-                Sk16b alpha(a[0],a[0],a[0],a[0], a[1],a[1],a[1],a[1], 0,0,0,0, 0,0,0,0);
+                Sk4px alpha = Load2Alphas(a);
                 fn(Load2(dst), Load2(src), alpha).store2(dst);
                 dst += 2; src += 2; a += 2; count -= 2;
             }
             if (count >= 1) {
-                Sk16b alpha(a[0],a[0],a[0],a[0], 0,0,0,0, 0,0,0,0, 0,0,0,0);
+                Sk4px alpha(*a);
                 fn(Load1(dst), Load1(src), alpha).store1(dst);
             }
             break;
