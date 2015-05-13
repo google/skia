@@ -13,52 +13,65 @@
 #include "SkString.h"
 #include "SkXfermode.h"
 
-// Benchmark that draws non-AA rects with an SkXfermode::Mode
+// Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XfermodeBench : public Benchmark {
 public:
-    XfermodeBench(SkXfermode::Mode mode) {
+    XfermodeBench(SkXfermode::Mode mode, bool aa) {
         fXfermode.reset(SkXfermode::Create(mode));
+        fAA = aa;
         SkASSERT(fXfermode.get() || SkXfermode::kSrcOver_Mode == mode);
-        fName.printf("Xfermode_%s", SkXfermode::ModeName(mode));
+        fName.printf("Xfermode_%s%s", SkXfermode::ModeName(mode), aa ? "_aa" : "");
     }
 
-    XfermodeBench(SkXfermode* xferMode, const char* name) {
+    XfermodeBench(SkXfermode* xferMode, const char* name, bool aa) {
         SkASSERT(xferMode);
         fXfermode.reset(xferMode);
-        fName.printf("Xfermode_%s", name);
+        fAA = aa;
+        fName.printf("Xfermode_%s%s", name, aa ? "_aa" : "");
     }
 
 protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(const int loops, SkCanvas* canvas) override {
+        const char* text = "Hamburgefons";
+        size_t len = strlen(text);
         SkISize size = canvas->getDeviceSize();
         SkRandom random;
         for (int i = 0; i < loops; ++i) {
             SkPaint paint;
             paint.setXfermode(fXfermode.get());
             paint.setColor(random.nextU());
-            SkScalar w = random.nextRangeScalar(SkIntToScalar(kMinSize), SkIntToScalar(kMaxSize));
-            SkScalar h = random.nextRangeScalar(SkIntToScalar(kMinSize), SkIntToScalar(kMaxSize));
-            SkRect rect = SkRect::MakeXYWH(
-                random.nextUScalar1() * (size.fWidth - w),
-                random.nextUScalar1() * (size.fHeight - h),
-                w,
-                h
-            );
-            for (int j = 0; j < 1000; ++j) {
-                canvas->drawRect(rect, paint);
+            if (fAA) {
+                // Draw text to exercise AA code paths.
+                paint.setAntiAlias(true);
+                paint.setTextSize(random.nextRangeScalar(12, 96));
+                SkScalar x = random.nextRangeScalar(0, (SkScalar)size.fWidth),
+                         y = random.nextRangeScalar(0, (SkScalar)size.fHeight);
+                for (int j = 0; j < 1000; ++j) {
+                    canvas->drawText(text, len, x, y, paint);
+                }
+            } else {
+                // Draw rects to exercise non-AA code paths.
+                SkScalar w = random.nextRangeScalar(50, 100);
+                SkScalar h = random.nextRangeScalar(50, 100);
+                SkRect rect = SkRect::MakeXYWH(
+                    random.nextUScalar1() * (size.fWidth - w),
+                    random.nextUScalar1() * (size.fHeight - h),
+                    w,
+                    h
+                );
+                for (int j = 0; j < 1000; ++j) {
+                    canvas->drawRect(rect, paint);
+                }
             }
         }
     }
 
 private:
-    enum {
-        kMinSize = 50,
-        kMaxSize = 100,
-    };
     SkAutoTUnref<SkXfermode> fXfermode;
     SkString fName;
+    bool fAA;
 
     typedef Benchmark INHERITED;
 };
@@ -87,11 +100,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#define CONCAT_I(x, y) x ## y
-#define CONCAT(x, y) CONCAT_I(x, y) // allow for macro expansion
-#define BENCH(...) \
-    DEF_BENCH( return new XfermodeBench(__VA_ARGS__); );\
-
+#define BENCH(...)                                             \
+    DEF_BENCH( return new XfermodeBench(__VA_ARGS__, true); )  \
+    DEF_BENCH( return new XfermodeBench(__VA_ARGS__, false); )
 
 BENCH(SkXfermode::kClear_Mode)
 BENCH(SkXfermode::kSrc_Mode)
