@@ -887,7 +887,9 @@ SkPDFFont* SkPDFFont::Create(SkPDFCanon* canon,
     SkAdvancedTypefaceMetrics::FontType type =
         info ? info->fType : SkAdvancedTypefaceMetrics::kOther_Font;
 
-    if (info && (info->fFlags & SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag)) {
+    if (info &&
+            (info->fFlags & SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag)) {
+        NOT_IMPLEMENTED(true, true);
         return new SkPDFType3Font(info, typeface, glyphID);
     }
     if (type == SkAdvancedTypefaceMetrics::kType1CID_Font ||

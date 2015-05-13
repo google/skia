@@ -12,7 +12,6 @@
 #include "SkFontStyle.h"
 
 class SkData;
-class SkFontData;
 class SkStreamAsset;
 class SkString;
 class SkTypeface;
@@ -96,14 +95,6 @@ public:
     SkTypeface* createFromStream(SkStreamAsset*, int ttcIndex = 0) const;
 
     /**
-     *  Create a typeface from the specified font data.
-     *  Takes ownership of the font data, so the caller should not reference it again.
-     *  Will return NULL if the typeface could not be created.
-     *  The caller must call unref() on the returned object if it is not null.
-     */
-    SkTypeface* createFromFontData(SkFontData*) const;
-
-    /**
      *  Create a typeface for the specified fileName and TTC index
      *  (pass 0 for none) or NULL if the file is not found, or its contents are
      *  not recognized. The caller must call unref() on the returned object
@@ -138,8 +129,6 @@ protected:
 
     virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) const = 0;
     virtual SkTypeface* onCreateFromStream(SkStreamAsset*, int ttcIndex) const = 0;
-    // TODO: make pure virtual.
-    virtual SkTypeface* onCreateFromFontData(SkFontData*) const;
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const = 0;
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],

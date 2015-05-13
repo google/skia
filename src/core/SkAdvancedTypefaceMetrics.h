@@ -43,7 +43,7 @@ public:
 
     enum FontFlags {
         kEmpty_FontFlag          = 0x0,  //!<No flags set
-        kMultiMaster_FontFlag    = 0x1,  //!<May be true for Type1, CFF, or TrueType fonts.
+        kMultiMaster_FontFlag    = 0x1,  //!<May be true for Type1 or CFF fonts.
         kNotEmbeddable_FontFlag  = 0x2,  //!<May not be embedded.
         kNotSubsettable_FontFlag = 0x4,  //!<May not be subset.
     };

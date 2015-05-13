@@ -375,10 +375,11 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 
 class SkTypeface_stream : public SkTypeface_FreeType {
 public:
-    /** @param data takes ownership of the font data.*/
-    SkTypeface_stream(SkFontData* data, const SkFontStyle& style, bool fixedWidth)
+    /** @param stream does not take ownership of the reference, does take ownership of the stream.*/
+    SkTypeface_stream(const SkFontStyle& style, bool fixedWidth, int index, SkStreamAsset* stream)
         : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth)
-        , fData(data)
+        , fStream(stream)
+        , fIndex(index)
     { };
 
     void onGetFamilyName(SkString* familyName) const override {
@@ -386,20 +387,18 @@ public:
     }
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
+        desc->setFontIndex(fIndex);
         *serialize = true;
     }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
-        *ttcIndex = fData->getIndex();
-        return fData->duplicateStream();
-    }
-
-    SkFontData* onCreateFontData() const override {
-        return new SkFontData(*fData.get());
+        *ttcIndex = fIndex;
+        return fStream->duplicate();
     }
 
 private:
-    const SkAutoTDelete<const SkFontData> fData;
+    SkAutoTDelete<SkStreamAsset> fStream;
+    int fIndex;
 
     typedef SkTypeface_FreeType INHERITED;
 };
@@ -421,6 +420,7 @@ public:
         desc->setFamilyName(get_string(fPattern, FC_FAMILY));
         desc->setFullName(get_string(fPattern, FC_FULLNAME));
         desc->setPostscriptName(get_string(fPattern, FC_POSTSCRIPT_NAME));
+        desc->setFontIndex(get_int(fPattern, FC_INDEX, 0));
         *serialize = false;
     }
 
@@ -822,12 +822,12 @@ protected:
 
         SkFontStyle style;
         bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, ttcIndex, NULL, &style, &isFixedWidth, NULL)) {
+        if (!fScanner.scanFont(stream, ttcIndex, NULL, &style, &isFixedWidth)) {
             return NULL;
         }
 
-        return SkNEW_ARGS(SkTypeface_stream, (new SkFontData(stream.detach(), ttcIndex, NULL, 0),
-                                              style, isFixedWidth));
+        return SkNEW_ARGS(SkTypeface_stream, (style, isFixedWidth, ttcIndex,
+                                              static_cast<SkStreamAsset*>(stream.detach())));
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
@@ -836,23 +836,6 @@ protected:
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         return this->createFromStream(SkStream::NewFromFile(path), ttcIndex);
-    }
-
-    SkTypeface* onCreateFromFontData(SkFontData* fontData) const override {
-        SkStreamAsset* stream(fontData->getStream());
-        const size_t length = stream->getLength();
-        if (length <= 0 || (1u << 30) < length) {
-            return NULL;
-        }
-
-        const int ttcIndex = fontData->getIndex();
-        SkFontStyle style;
-        bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, ttcIndex, NULL, &style, &isFixedWidth, NULL)) {
-            return NULL;
-        }
-
-        return SkNEW_ARGS(SkTypeface_stream, (fontData, style, isFixedWidth));
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],

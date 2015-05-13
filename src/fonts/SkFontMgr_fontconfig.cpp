@@ -308,7 +308,7 @@ protected:
         // TODO should the caller give us the style or should we get it from freetype?
         SkFontStyle style;
         bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, 0, NULL, &style, &isFixedWidth, NULL)) {
+        if (!fScanner.scanFont(stream, 0, NULL, &style, &isFixedWidth)) {
             return NULL;
         }
 
