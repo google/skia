@@ -63,3 +63,13 @@ Writing a Rendering Test
         ./gyp_skia
         ninja -C out/Debug dm
         out/Debug/dm --match newgmtest
+
+4.  Run the GM inside SampleApp:
+
+        ./gyp_skia
+        ninja -C out/Debug SampleApp
+        out/Debug/SampleApp --slide GM:newgmtest
+
+    On MacOS, try this:
+
+        out/Debug/SampleApp.app/Contents/MacOS/SampleApp --slide GM:newgmtest
