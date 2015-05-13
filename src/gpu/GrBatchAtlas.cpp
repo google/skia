@@ -287,7 +287,7 @@ inline void GrBatchAtlas::updatePlot(GrBatchTarget* batchTarget, AtlasID* id, Ba
 bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
                               int width, int height, const void* image, SkIPoint16* loc) {
     // We should already have a texture, TODO clean this up
-    SkASSERT(fTexture && width < fPlotWidth && height < fPlotHeight);
+    SkASSERT(fTexture && width <= fPlotWidth && height <= fPlotHeight);
 
     // now look through all allocated plots for one we can share, in Most Recently Refed order
     GrBatchPlotList::Iter plotIter;
