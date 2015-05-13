@@ -19,19 +19,17 @@
 #include "SkUtilsArm.h"
 #include "SkWriteBuffer.h"
 
-#ifndef SK_SUPPORT_LEGACY_SCALAR_XFERMODES
+// When implemented, the Sk4f and Sk4px xfermodes beat src/opts/SkXfermodes_opts_SSE2's.
+// When implemented, the Sk4px, but not Sk4f, xfermodes beat src/opts/SkXfermodes_arm_neon's.
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    /*
-     * To be conservative, we only enable the new code path (using SkPMFloat) when we
-     * "know" we're faster, which at the moment is only when we have SSE2 or better.
-     */
-#else
-    #define SK_SUPPORT_LEGACY_SCALAR_XFERMODES
-#endif
+    #define SK_4F_XFERMODES_ARE_FAST
+    #define SK_4PX_XFERMODES_ARE_FAST
+#elif defined(SK_ARM_HAS_NEON)
+    #define SK_4PX_XFERMODES_ARE_FAST
 #endif
 
 #if !SK_ARM_NEON_IS_NONE
-#include "SkXfermode_opts_arm_neon.h"
+    #include "SkXfermode_opts_arm_neon.h"
 #endif
 
 #define SkAlphaMulAlpha(a, b)   SkMulDiv255Round(a, b)
@@ -1196,7 +1194,6 @@ void SkDstInXfermode::toString(SkString* str) const {
 { screen_modeproc,  SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff },
 */
 
-#ifndef SK_SUPPORT_LEGACY_SCALAR_XFERMODES
 static const float gInv255 = 0.0039215683f; //  (1.0f / 255) - ULP == SkBits2Float(0x3B808080)
 
 static Sk4f ramp(const Sk4f& v0, const Sk4f& v1, const Sk4f& t) {
@@ -1412,7 +1409,6 @@ private:
 
     typedef SkProcCoeffXfermode INHERITED;
 };
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1474,56 +1470,31 @@ SkXfermode* create_mode(int iMode) {
         rec.fProc = pp;
     }
 
-    SkXfermode* xfer = NULL;
-
-#ifndef SK_SUPPORT_LEGACY_SCALAR_XFERMODES
+#if defined(SK_4PX_XFERMODES_ARE_FAST) && !defined(SK_PREFER_LEGACY_FLOAT_XFERMODES)
     switch (mode) {
-        case SkXfermode::kSrcATop_Mode:
-            xfer = SkT4fXfermode<SrcATop4f>::Create(rec);
-            break;
-        case SkXfermode::kDstATop_Mode:
-            xfer = SkT4fXfermode<DstATop4f>::Create(rec);
-            break;
-        case SkXfermode::kXor_Mode:
-            xfer = SkT4fXfermode<Xor4f>::Create(rec);
-            break;
-    #ifdef SK_PREFER_LEGACY_FLOAT_XFERMODES
-        case SkXfermode::kPlus_Mode:
-            xfer = SkT4fXfermode<Plus4f>::Create(rec);
-            break;
-        case SkXfermode::kModulate_Mode:
-            xfer = SkT4fXfermode<Modulate4f>::Create(rec);
-            break;
-        case SkXfermode::kScreen_Mode:
-            xfer = SkT4fXfermode<Screen4f>::Create(rec);
-            break;
-    #else
-        case SkXfermode::kPlus_Mode:
-            xfer = SkT4pxXfermode<Plus4f>::Create(rec);
-            break;
-        case SkXfermode::kModulate_Mode:
-            xfer = SkT4pxXfermode<Modulate4f>::Create(rec);
-            break;
-        case SkXfermode::kScreen_Mode:
-            xfer = SkT4pxXfermode<Screen4f>::Create(rec);
-            break;
-    #endif
-        case SkXfermode::kMultiply_Mode:
-            xfer = SkT4fXfermode<Multiply4f>::Create(rec);
-            break;
-        case SkXfermode::kDifference_Mode:
-            xfer = SkT4fXfermode<Difference4f>::Create(rec);
-            break;
-        case SkXfermode::kExclusion_Mode:
-            xfer = SkT4fXfermode<Exclusion4f>::Create(rec);
-            break;
-        default:
-            break;
-    }
-    if (xfer) {
-        return xfer;
+        case SkXfermode::kPlus_Mode:     return SkT4pxXfermode<Plus4f>::Create(rec);
+        case SkXfermode::kModulate_Mode: return SkT4pxXfermode<Modulate4f>::Create(rec);
+        case SkXfermode::kScreen_Mode:   return SkT4pxXfermode<Screen4f>::Create(rec);
+        default: break;
     }
 #endif
+
+#if defined(SK_4F_XFERMODES_ARE_FAST)
+    switch (mode) {
+        case SkXfermode::kSrcATop_Mode:    return SkT4fXfermode<SrcATop4f>::Create(rec);
+        case SkXfermode::kDstATop_Mode:    return SkT4fXfermode<DstATop4f>::Create(rec);
+        case SkXfermode::kXor_Mode:        return SkT4fXfermode<Xor4f>::Create(rec);
+        case SkXfermode::kPlus_Mode:       return SkT4fXfermode<Plus4f>::Create(rec);
+        case SkXfermode::kModulate_Mode:   return SkT4fXfermode<Modulate4f>::Create(rec);
+        case SkXfermode::kScreen_Mode:     return SkT4fXfermode<Screen4f>::Create(rec);
+        case SkXfermode::kMultiply_Mode:   return SkT4fXfermode<Multiply4f>::Create(rec);
+        case SkXfermode::kDifference_Mode: return SkT4fXfermode<Difference4f>::Create(rec);
+        case SkXfermode::kExclusion_Mode:  return SkT4fXfermode<Exclusion4f>::Create(rec);
+        default: break;
+    }
+#endif
+
+    SkXfermode* xfer = NULL;
 
     // check if we have a platform optim for that
     SkProcCoeffXfermode* xfm = SkPlatformXfermodeFactory(rec, mode);

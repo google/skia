@@ -355,6 +355,8 @@ public:
 
     void store(uint8_t vals[16]) const { vst1q_u8(vals, fVec); }
 
+    SkNi saturatedAdd(const SkNi& o) const { return vqaddq_u8(fVec, o.fVec); }
+
     SkNi operator + (const SkNi& o) const { return vaddq_u8(fVec, o.fVec); }
     SkNi operator - (const SkNi& o) const { return vsubq_u8(fVec, o.fVec); }
     SkNi operator * (const SkNi& o) const { return vmulq_u8(fVec, o.fVec); }
