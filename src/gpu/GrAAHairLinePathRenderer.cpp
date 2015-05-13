@@ -730,6 +730,10 @@ private:
         // compute bounds
         fBounds = geometry.fPath.getBounds();
         geometry.fViewMatrix.mapRect(&fBounds);
+
+        // This is b.c. hairlines are notionally infinitely thin so without expansion
+        // two overlapping lines could be reordered even though they hit the same pixels.
+        fBounds.outset(0.5f, 0.5f);
     }
 
     bool onCombineIfPossible(GrBatch* t) override {

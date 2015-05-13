@@ -404,8 +404,8 @@ public:
         SkScalar fStrokeWidth;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(StrokeRectBatch, (geometry));
+    static GrBatch* Create(const Geometry& geometry, bool snapToPixelCenters) {
+        return SkNEW_ARGS(StrokeRectBatch, (geometry, snapToPixelCenters));
     }
 
     const char* name() const override { return "StrokeRectBatch"; }
@@ -501,7 +501,7 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    StrokeRectBatch(const Geometry& geometry) {
+    StrokeRectBatch(const Geometry& geometry, bool snapToPixelCenters) {
         this->initClassID<StrokeRectBatch>();
 
         fBatch.fHairline = geometry.fStrokeWidth == 0;
@@ -513,6 +513,11 @@ private:
         SkScalar rad = SkScalarHalf(geometry.fStrokeWidth);
         fBounds.outset(rad, rad);
         geometry.fViewMatrix.mapRect(&fBounds);
+
+        // If our caller snaps to pixel centers then we have to round out the bounds
+        if (snapToPixelCenters) {
+            fBounds.roundOut();
+        }
     }
 
     /*  create a triangle strip that strokes the specified rect. There are 8
@@ -661,13 +666,15 @@ void GrContext::drawRect(GrRenderTarget* rt,
         geometry.fRect = rect;
         geometry.fStrokeWidth = width;
 
-        SkAutoTUnref<GrBatch> batch(StrokeRectBatch::Create(geometry));
+        // Non-AA hairlines are snapped to pixel centers to make which pixels are hit deterministic
+        bool snapToPixelCenters = (0 == width && !rt->isMultisampled());
+        SkAutoTUnref<GrBatch> batch(StrokeRectBatch::Create(geometry, snapToPixelCenters));
 
         // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
         // hairline rects. We jam all the vertices to pixel centers to avoid this, but not when MSAA
         // is enabled because it can cause ugly artifacts.
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
-                                 0 == width && !rt->isMultisampled());
+                                 snapToPixelCenters);
         target->drawBatch(&pipelineBuilder, batch);
     } else {
         // filled BW rect
@@ -1007,6 +1014,12 @@ void GrContext::drawVertices(GrRenderTarget* rt,
     }
 
     viewMatrix.mapRect(&bounds);
+
+    // If we don't have AA then we outset for a half pixel in each direction to account for
+    // snapping
+    if (!paint.isAntiAlias()) {
+        bounds.outset(0.5f, 0.5f);
+    }
 
     DrawVerticesBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
@@ -1879,7 +1892,7 @@ BATCH_TEST_DEFINE(StrokeRect) {
     geometry.fRect = GrTest::TestRect(random);
     geometry.fStrokeWidth = random->nextBool() ? 0.0f : 1.0f;
 
-    return StrokeRectBatch::Create(geometry);
+    return StrokeRectBatch::Create(geometry, random->nextBool());
 }
 
 static uint32_t seed_vertices(GrPrimitiveType type) {
