@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
 #include "SkFDot6.h"
+#include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkGlyph.h"
 #include "SkMask.h"
@@ -33,6 +34,7 @@
 #include FT_FREETYPE_H
 #include FT_LCD_FILTER_H
 #include FT_MODULE_H
+#include FT_MULTIPLE_MASTERS_H
 #include FT_OUTLINE_H
 #include FT_SIZES_H
 #include FT_SYSTEM_H
@@ -273,6 +275,37 @@ SkFaceRec::SkFaceRec(SkStreamAsset* stream, uint32_t fontID)
     fFTStream.close = sk_ft_stream_close;
 }
 
+static void ft_face_setup_axes(FT_Face face, const SkFontData& data) {
+    if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+        return;
+    }
+
+    SkDEBUGCODE(
+        FT_MM_Var* variations = NULL;
+        if (FT_Get_MM_Var(face, &variations)) {
+            SkDEBUGF(("INFO: font %s claims variations, but none found.\n", face->family_name));
+            return;
+        }
+        SkAutoFree autoFreeVariations(variations);
+
+        if (static_cast<FT_UInt>(data.getAxisCount()) != variations->num_axis) {
+            SkDEBUGF(("INFO: font %s has %d variations, but %d were specified.\n",
+                    face->family_name, variations->num_axis, data.getAxisCount()));
+            return;
+        }
+    )
+
+    SkAutoSTMalloc<4, FT_Fixed> coords(data.getAxisCount());
+    for (int i = 0; i < data.getAxisCount(); ++i) {
+        coords[i] = data.getAxis()[i];
+    }
+    if (FT_Set_Var_Design_Coordinates(face, data.getAxisCount(), coords.get())) {
+        SkDEBUGF(("INFO: font %s has variations, but specified variations could not be set.\n",
+                  face->family_name));
+        return;
+    }
+}
+
 // Will return 0 on failure
 // Caller must lock gFTMutex before calling this function.
 static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
@@ -289,34 +322,36 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
         rec = rec->fNext;
     }
 
-    int face_index;
-    SkStreamAsset* stream = typeface->openStream(&face_index);
-    if (NULL == stream) {
+    SkAutoTDelete<SkFontData> data(typeface->createFontData());
+    if (NULL == data || !data->hasStream()) {
         return NULL;
     }
 
     // this passes ownership of stream to the rec
-    rec = SkNEW_ARGS(SkFaceRec, (stream, fontID));
+    rec = SkNEW_ARGS(SkFaceRec, (data->detachStream(), fontID));
 
     FT_Open_Args args;
     memset(&args, 0, sizeof(args));
-    const void* memoryBase = stream->getMemoryBase();
+    const void* memoryBase = rec->fSkStream->getMemoryBase();
     if (memoryBase) {
         args.flags = FT_OPEN_MEMORY;
         args.memory_base = (const FT_Byte*)memoryBase;
-        args.memory_size = stream->getLength();
+        args.memory_size = rec->fSkStream->getLength();
     } else {
         args.flags = FT_OPEN_STREAM;
         args.stream = &rec->fFTStream;
     }
 
-    FT_Error err = FT_Open_Face(gFTLibrary->library(), &args, face_index, &rec->fFace);
-    if (err) {    // bad filename, try the default font
+    FT_Error err = FT_Open_Face(gFTLibrary->library(), &args, data->getIndex(), &rec->fFace);
+    if (err) {
         SkDEBUGF(("ERROR: unable to open font '%x'\n", fontID));
         SkDELETE(rec);
         return NULL;
     }
     SkASSERT(rec->fFace);
+
+    ft_face_setup_axes(rec->fFace, *data);
+
     rec->fNext = gFaceRecHead;
     gFaceRecHead = rec;
     return rec;
@@ -1649,7 +1684,8 @@ bool SkTypeface_FreeType::Scanner::recognizedFont(SkStream* stream, int* numFace
 
 #include "SkTSearch.h"
 bool SkTypeface_FreeType::Scanner::scanFont(
-    SkStream* stream, int ttcIndex, SkString* name, SkFontStyle* style, bool* isFixedPitch) const
+    SkStream* stream, int ttcIndex,
+    SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const
 {
     SkAutoMutexAcquire libraryLock(fLibraryMutex);
 
@@ -1723,6 +1759,26 @@ bool SkTypeface_FreeType::Scanner::scanFont(
     }
     if (isFixedPitch) {
         *isFixedPitch = FT_IS_FIXED_WIDTH(face);
+    }
+
+    if (axes && face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
+        FT_MM_Var* variations = NULL;
+        FT_Error err = FT_Get_MM_Var(face, &variations);
+        if (err) {
+            SkDEBUGF(("INFO: font %s claims to have variations, but none found.\n",
+                      face->family_name));
+            return false;
+        }
+        SkAutoFree autoFreeVariations(variations);
+
+        axes->reset(variations->num_axis);
+        for (FT_UInt i = 0; i < variations->num_axis; ++i) {
+            const FT_Var_Axis& ftAxis = variations->axis[i];
+            (*axes)[i].fTag = ftAxis.tag;
+            (*axes)[i].fMinimum = ftAxis.minimum;
+            (*axes)[i].fDefault = ftAxis.def;
+            (*axes)[i].fMaximum = ftAxis.maximum;
+        }
     }
 
     FT_Done_Face(face);

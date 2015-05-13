@@ -109,6 +109,7 @@
         '../gm/fontcache.cpp',
         '../gm/fontmgr.cpp',
         '../gm/fontscaler.cpp',
+        '../gm/fontscalerdistortable.cpp',
         '../gm/gammatext.cpp',
         '../gm/getpostextpath.cpp',
         '../gm/giantbitmap.cpp',

@@ -155,6 +155,5 @@ void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     SkString name;
     this->getFamilyName(&name);
     desc->setFamilyName(name.c_str());
-    desc->setFontIndex(this->getIdentity().fTTCIndex);
     *isLocalStream = SkToBool(this->getLocalStream());
 }
