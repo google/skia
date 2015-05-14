@@ -62,6 +62,7 @@ enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
 // a sub region of a larger source image.
 #define COLOR_BLEED_TOLERANCE 0.001f
 
+// Do deferred clear just before any draw call
 #define DO_DEFERRED_CLEAR()             \
     do {                                \
         if (fNeedClear) {               \
@@ -302,7 +303,6 @@ void SkGpuDevice::prepareDraw(const SkDraw& draw) {
 }
 
 GrRenderTarget* SkGpuDevice::accessRenderTarget() {
-    DO_DEFERRED_CLEAR();
     return fRenderTarget;
 }
 
