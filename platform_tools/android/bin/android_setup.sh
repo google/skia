@@ -33,6 +33,8 @@ while (( "$#" )); do
     USE_CLANG="true"
   elif [[ "$1" == "--logcat" ]]; then
     LOGCAT=1
+  elif [[ "$1" == "--verbose" ]]; then
+    set -x
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
