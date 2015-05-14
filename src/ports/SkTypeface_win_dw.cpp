@@ -42,7 +42,6 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     sk_get_locale_string(familyNames.get(), NULL/*fMgr->fLocaleName.get()*/, &utf8FamilyName);
 
     desc->setFamilyName(utf8FamilyName.c_str());
-    desc->setFontIndex(fDWriteFontFace->GetIndex());
     *isLocalStream = SkToBool(fDWriteFontFileLoader.get());
 }
 

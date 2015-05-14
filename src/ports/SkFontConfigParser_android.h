@@ -12,6 +12,9 @@
 #include "SkString.h"
 #include "SkTDArray.h"
 
+#include <climits>
+#include <limits>
+
 /** \class SkLanguage
 
     The SkLanguage class represents a human written language, and is used by
@@ -68,6 +71,12 @@ struct FontFileInfo {
     int fIndex;
     int fWeight;
     enum class Style { kAuto, kNormal, kItalic } fStyle;
+    struct Axis {
+        Axis() : fTag(SkSetFourByteTag('\0','\0','\0','\0')), fValue(0) { }
+        SkFourByteTag fTag;
+        SkFixed fValue;
+    };
+    SkSTArray<4, Axis, true> fAxes;
 };
 
 /**
@@ -107,5 +116,101 @@ void GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
                            const char* langFallbackFontsDir = NULL);
 
 } // SkFontConfigParser namespace
+
+
+/** Parses a null terminated string into an integer type, checking for overflow.
+ *  http://www.w3.org/TR/html-markup/datatypes.html#common.data.integer.non-negative-def
+ *
+ *  If the string cannot be parsed into 'value', returns false and does not change 'value'.
+ */
+template <typename T> static bool parse_non_negative_integer(const char* s, T* value) {
+    SK_COMPILE_ASSERT(std::numeric_limits<T>::is_integer, T_must_be_integer);
+
+    if (*s == '\0') {
+        return false;
+    }
+
+    const T nMax = std::numeric_limits<T>::max() / 10;
+    const T dMax = std::numeric_limits<T>::max() - (nMax * 10);
+    T n = 0;
+    for (; *s; ++s) {
+        // Check if digit
+        if (*s < '0' || '9' < *s) {
+            return false;
+        }
+        T d = *s - '0';
+        // Check for overflow
+        if (n > nMax || (n == nMax && d > dMax)) {
+            return false;
+        }
+        n = (n * 10) + d;
+    }
+    *value = n;
+    return true;
+}
+
+/** Parses a null terminated string into a signed fixed point value with bias N.
+ *
+ *  Like http://www.w3.org/TR/html-markup/datatypes.html#common.data.float-def ,
+ *  but may start with '.' and does not support 'e'. '-?((:digit:+(.:digit:+)?)|(.:digit:+))'
+ *
+ *  Checks for overflow.
+ *  Low bit rounding is not defined (is currently truncate).
+ *  Bias (N) required to allow for the sign bit and 4 bits of integer.
+ *
+ *  If the string cannot be parsed into 'value', returns false and does not change 'value'.
+ */
+template <int N, typename T> static bool parse_fixed(const char* s, T* value) {
+    SK_COMPILE_ASSERT(std::numeric_limits<T>::is_integer, T_must_be_integer);
+    SK_COMPILE_ASSERT(std::numeric_limits<T>::is_signed, T_must_be_signed);
+    SK_COMPILE_ASSERT(sizeof(T) * CHAR_BIT - N >= 5, N_must_leave_four_bits_plus_sign);
+
+    bool negate = false;
+    if (*s == '-') {
+        ++s;
+        negate = true;
+    }
+    if (*s == '\0') {
+        return false;
+    }
+
+    const T nMax = (std::numeric_limits<T>::max() >> N) / 10;
+    const T dMax = (std::numeric_limits<T>::max() >> N) - (nMax * 10);
+    T n = 0;
+    T frac = 0;
+    for (; *s; ++s) {
+        // Check if digit
+        if (*s < '0' || '9' < *s) {
+            // If it wasn't a digit, check if it is a '.' followed by something.
+            if (*s != '.' || s[1] == '\0') {
+                return false;
+            }
+            // Find the end, verify digits.
+            for (++s; *s; ++s) {
+                if (*s < '0' || '9' < *s) {
+                    return false;
+                }
+            }
+            // Read back toward the '.'.
+            for (--s; *s != '.'; --s) {
+                T d = *s - '0';
+                frac = (frac + (d << N)) / 10; // This requires four bits overhead.
+            }
+            break;
+        }
+        T d = *s - '0';
+        // Check for overflow
+        if (n > nMax || (n == nMax && d > dMax)) {
+            return false;
+        }
+        n = (n * 10) + d;
+    }
+    if (negate) {
+        n = -n;
+        frac = -frac;
+    }
+    *value = (n << N) + frac;
+    return true;
+}
 
 #endif /* SKFONTCONFIGPARSER_ANDROID_H_ */
