@@ -195,12 +195,18 @@ bool SkOpCoincidence::apply() {
         return true;
     }
     do {
-        SkOpSpanBase* end = coin->fCoinPtTEnd->span();
         SkOpSpan* start = coin->fCoinPtTStart->span()->upCast();
+        if (start->deleted()) {
+            continue;
+        }
+        SkOpSpanBase* end = coin->fCoinPtTEnd->span();
         SkASSERT(start == start->starter(end));
         bool flipped = coin->fFlipped;
-        SkOpSpanBase* oEnd = (flipped ? coin->fOppPtTStart : coin->fOppPtTEnd)->span();
         SkOpSpan* oStart = (flipped ? coin->fOppPtTEnd : coin->fOppPtTStart)->span()->upCast();
+        if (oStart->deleted()) {
+            continue;
+        }
+        SkOpSpanBase* oEnd = (flipped ? coin->fOppPtTStart : coin->fOppPtTEnd)->span();
         SkASSERT(oStart == oStart->starter(oEnd));
         SkOpSegment* segment = start->segment();
         SkOpSegment* oSegment = oStart->segment();

@@ -1119,6 +1119,9 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
         SkOpPtT* ptT = spanBase->ptT(), * spanStopPtT = ptT;
         SkASSERT(ptT->span() == spanBase);
         while ((ptT = ptT->next()) != spanStopPtT) {
+            if (ptT->deleted()) {
+                continue;
+            }
             SkOpSegment* opp = ptT->span()->segment();
             if (opp->verb() == SkPath::kLine_Verb) {
                 continue;
@@ -1149,6 +1152,9 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             while (!priorOpp && priorTest) {
                 priorStopPtT = priorPtT = priorTest->ptT();
                 while ((priorPtT = priorPtT->next()) != priorStopPtT) {
+                    if (priorPtT->deleted()) {
+                        continue;
+                    }
                     SkOpSegment* segment = priorPtT->span()->segment();
                     if (segment == opp) {
                         prior = priorTest;
@@ -1203,7 +1209,8 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             }
             if (coincident) {
             // mark coincidence
-                if (!coincidences->extend(priorPtT, ptT, oppStart, oppEnd)) {
+                if (!coincidences->extend(priorPtT, ptT, oppStart, oppEnd)
+                        && !coincidences->extend(oppStart, oppEnd, priorPtT, ptT)) {
                     coincidences->add(priorPtT, ptT, oppStart, oppEnd, allocator);
                 }
                 clear_visited(&fHead);

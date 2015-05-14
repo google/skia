@@ -364,7 +364,7 @@ void SkOpAngle::debugValidate() const {
         }
         next = next->fNext;
     } while (next && next != first);
-    SkASSERT(wind == 0);
+    SkASSERT(wind == 0 || !FLAGS_runFail);
     SkASSERT(opp == 0 || !FLAGS_runFail);
 #endif
 }
