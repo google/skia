@@ -205,7 +205,6 @@ void GrDebugGL::useProgram(GrProgramObj *program) {
 
 void GrDebugGL::report() const {
     for (int i = 0; i < fObjects.count(); ++i) {
-        GrAlwaysAssert(0 < fObjects[i]->getHighRefCount());
         if (!fAbandoned) {
             GrAlwaysAssert(0 == fObjects[i]->getRefCount());
             GrAlwaysAssert(fObjects[i]->getDeleted());

@@ -22,7 +22,6 @@ class GrFakeRefObj : SkNoncopyable {
 public:
     GrFakeRefObj()
         : fRef(0)
-        , fHighRefCount(0)
         , fMarkedForDeletion(false)
         , fDeleted(false) {
 
@@ -35,9 +34,6 @@ public:
 
     void ref() {
         fRef++;
-        if (fHighRefCount < fRef) {
-            fHighRefCount = fRef;
-        }
     }
     void unref() {
         fRef--;
@@ -51,7 +47,6 @@ public:
         }
     }
     int getRefCount() const             { return fRef; }
-    int getHighRefCount() const         { return fHighRefCount; }
 
     GrGLuint getID() const              { return fID; }
 
@@ -69,7 +64,6 @@ public:
 protected:
 private:
     int         fRef;               // ref count
-    int         fHighRefCount;      // high water mark of the ref count
     GrGLuint    fID;                // globally unique ID
     bool        fMarkedForDeletion;
     // The deleted flag is only set when OpenGL thinks the object is deleted
