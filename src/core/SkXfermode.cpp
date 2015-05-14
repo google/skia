@@ -1489,9 +1489,7 @@ SkXfermode* create_mode(int iMode) {
     switch (mode) {
         case SkXfermode::kSrcATop_Mode:  return SkT4pxXfermode<SrcATop4f>::Create(rec);
         case SkXfermode::kDstATop_Mode:  return SkT4pxXfermode<DstATop4f>::Create(rec);
-        // Temporarily reverted to see if this is the source of NEON diffs.
-        // If not, try DstATop then SrcATop next.  Multiply is not the problem.
-        // case SkXfermode::kXor_Mode:      return SkT4pxXfermode<Xor4f>::Create(rec);
+        case SkXfermode::kXor_Mode:      return SkT4pxXfermode<Xor4f>::Create(rec);
         case SkXfermode::kPlus_Mode:     return SkT4pxXfermode<Plus4f>::Create(rec);
         case SkXfermode::kModulate_Mode: return SkT4pxXfermode<Modulate4f>::Create(rec);
         case SkXfermode::kScreen_Mode:   return SkT4pxXfermode<Screen4f>::Create(rec);
