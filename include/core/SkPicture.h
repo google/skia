@@ -10,6 +10,7 @@
 #define SkPicture_DEFINED
 
 #include "SkImageDecoder.h"
+#include "SkLazyPtr.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 
@@ -293,7 +294,9 @@ private:
         uint8_t     fNumSlowPathsAndDashEffects;
         bool        fWillPlaybackBitmaps : 1;
         bool        fHasText             : 1;
-    } fAnalysis;
+    };
+    SkLazyPtr<Analysis> fAnalysis;
+    const Analysis& analysis() const;
 
     friend class SkPictureRecorder;            // SkRecord-based constructor.
     friend class GrLayerHoister;               // access to fRecord

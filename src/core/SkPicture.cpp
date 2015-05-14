@@ -137,7 +137,7 @@ struct SkPicture::PathCounter {
 
     // Recurse into nested pictures.
     void operator()(const SkRecords::DrawPicture& op) {
-        const SkPicture::Analysis& analysis = op.picture->fAnalysis;
+        const SkPicture::Analysis& analysis = op.picture->analysis();
         fNumSlowPathsAndDashEffects += analysis.fNumSlowPathsAndDashEffects;
     }
 
@@ -438,14 +438,19 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
+const SkPicture::Analysis& SkPicture::analysis() const {
+    auto create = [&](){ return SkNEW_ARGS(Analysis, (*fRecord)); };
+    return *fAnalysis.get(create);
+}
+
 #if SK_SUPPORT_GPU
 bool SkPicture::suitableForGpuRasterization(GrContext*, const char **reason) const {
-    return fAnalysis.suitableForGpuRasterization(reason, 0);
+    return this->analysis().suitableForGpuRasterization(reason, 0);
 }
 #endif
 
-bool SkPicture::hasText()             const { return fAnalysis.fHasText; }
-bool SkPicture::willPlayBackBitmaps() const { return fAnalysis.fWillPlaybackBitmaps; }
+bool SkPicture::hasText()             const { return this->analysis().fHasText; }
+bool SkPicture::willPlayBackBitmaps() const { return this->analysis().fWillPlaybackBitmaps; }
 int  SkPicture::approximateOpCount()  const { return fRecord->count(); }
 
 SkPicture::SkPicture(const SkRect& cullRect,
@@ -461,7 +466,6 @@ SkPicture::SkPicture(const SkRect& cullRect,
     , fBBH(bbh)                     // Take ownership of caller's ref.
     , fAccelData(accelData)         // Take ownership of caller's ref.
     , fApproxBytesUsedBySubPictures(approxBytesUsedBySubPictures)
-    , fAnalysis(*fRecord)
 {}
 
 
