@@ -78,3 +78,29 @@ DEF_TEST(PathOpsBuilder, reporter) {
     int pixelDiff = comparePaths(reporter, __FUNCTION__, opCompare, result, bitmap);
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 }
+
+DEF_TEST(Issue3838, reporter) {
+    SkPath path;
+    path.moveTo(200, 170);
+    path.lineTo(220, 170);
+    path.lineTo(220, 230);
+    path.lineTo(240, 230);
+    path.lineTo(240, 210);
+    path.lineTo(180, 210);
+    path.lineTo(180, 190);
+    path.lineTo(260, 190);
+    path.lineTo(260, 250);
+    path.lineTo(200, 250);
+    path.lineTo(200, 170);
+    path.close();
+    testSimplify(reporter, path, __FUNCTION__);
+    SkPath path3;
+    Simplify(path, &path3);
+    SkPath path2;
+    SkOpBuilder builder;
+    builder.add(path, kUnion_SkPathOp);
+    builder.resolve(&path2);
+    SkBitmap bitmap;
+    int pixelDiff = comparePaths(reporter, __FUNCTION__, path, path2, bitmap);
+    REPORTER_ASSERT(reporter, pixelDiff == 0);
+}

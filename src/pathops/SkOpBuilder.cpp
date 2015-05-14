@@ -85,6 +85,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
         sum.addPath(fPathRefs[index]);
     }
     reset();
+    sum.setFillType(SkPath::kEvenOdd_FillType);
     bool success = Simplify(sum, result);
     if (!success) {
         *result = original;
