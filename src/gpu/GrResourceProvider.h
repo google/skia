@@ -71,9 +71,6 @@ public:
     using GrTextureProvider::findAndRefResourceByUniqueKey;
     using GrTextureProvider::abandon;
 
-    GrIndexBuffer* getIndexBuffer(size_t size, bool dynamic, bool calledDuringFlush);
-    GrVertexBuffer* getVertexBuffer(size_t size, bool dynamic, bool calledDuringFlush);
-
 private:
     const GrIndexBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
                                                     int patternSize,

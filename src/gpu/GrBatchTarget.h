@@ -120,26 +120,26 @@ public:
                              const GrIndexBuffer** buffer, int* startIndex);
 
     // A helper for draws which overallocate and then return data to the pool
-    void putBackIndices(size_t indices) { fIndexPool.putBack(indices * sizeof(uint16_t)); }
+    void putBackIndices(size_t indices) { fIndexPool->putBack(indices * sizeof(uint16_t)); }
 
     void putBackVertices(size_t vertices, size_t vertexStride) {
-        fVertexPool.putBack(vertices * vertexStride);
+        fVertexPool->putBack(vertices * vertexStride);
     }
 
     void reset() {
-        fVertexPool.reset();
-        fIndexPool.reset();    
+        fVertexPool->reset();
+        fIndexPool->reset();    
     }
 
 private:
     void unmapVertexAndIndexBuffers() {
-        fVertexPool.unmap();
-        fIndexPool.unmap();
+        fVertexPool->unmap();
+        fIndexPool->unmap();
     }
 
     GrGpu* fGpu;
-    GrVertexBufferAllocPool fVertexPool;
-    GrIndexBufferAllocPool fIndexPool;
+    SkAutoTDelete<GrVertexBufferAllocPool> fVertexPool;
+    SkAutoTDelete<GrIndexBufferAllocPool> fIndexPool;
 
     typedef void* TBufferAlign; // This wouldn't be enough align if a command used long double.
 

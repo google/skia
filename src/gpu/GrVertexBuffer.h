@@ -14,24 +14,9 @@
 #include "GrGeometryBuffer.h"
 
 class GrVertexBuffer : public GrGeometryBuffer {
-public:
-    static void ComputeScratchKey(size_t size, bool dynamic, GrScratchKey* key) {
-        static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
-
-        GrScratchKey::Builder builder(key, kType, 2);
-
-        builder[0] = SkToUInt(size);
-        builder[1] = dynamic ? 1 : 0;
-    }
-
 protected:
     GrVertexBuffer(GrGpu* gpu, size_t gpuMemorySize, bool dynamic, bool cpuBacked)
-        : INHERITED(gpu, gpuMemorySize, dynamic, cpuBacked) {
-        GrScratchKey key;
-        ComputeScratchKey(gpuMemorySize, dynamic, &key);
-        this->setScratchKey(key);
-    }
-
+        : INHERITED(gpu, gpuMemorySize, dynamic, cpuBacked) {}
 private:
     typedef GrGeometryBuffer INHERITED;
 };
