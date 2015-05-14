@@ -108,7 +108,7 @@ public:
                                         &fColorUniform);
 
             // Setup position
-            this->setupPosition(pb, gpArgs, ce.inPosition()->fName, ce.viewMatrix());
+            this->setupPosition(pb, gpArgs, ce.inPosition()->fName);
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ce.inPosition()->fName,
@@ -134,15 +134,12 @@ public:
             const CircleEdgeEffect& circleEffect = gp.cast<CircleEdgeEffect>();
             uint16_t key = circleEffect.isStroked() ? 0x1 : 0x0;
             key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x2 : 0x0;
-            key |= ComputePosKey(gp.viewMatrix()) << 2;
             b->add32(key << 16 | local.fInputColorType);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) override {
-            this->setUniformViewMatrix(pdman, gp.viewMatrix());
-
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
                 GrGLfloat c[4];
@@ -177,7 +174,7 @@ public:
 
 private:
     CircleEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
-        : INHERITED(SkMatrix::I(), localMatrix)
+        : INHERITED(localMatrix)
         , fColor(color) {
         this->initClassID<CircleEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
@@ -270,7 +267,7 @@ public:
                                         &fColorUniform);
 
             // Setup position
-            this->setupPosition(pb, gpArgs, ee.inPosition()->fName, ee.viewMatrix());
+            this->setupPosition(pb, gpArgs, ee.inPosition()->fName);
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
@@ -311,14 +308,12 @@ public:
             const EllipseEdgeEffect& ellipseEffect = gp.cast<EllipseEdgeEffect>();
             uint16_t key = ellipseEffect.isStroked() ? 0x1 : 0x0;
             key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x2 : 0x0;
-            key |= ComputePosKey(gp.viewMatrix()) << 2;
             b->add32(key << 16 | local.fInputColorType);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) override {
-            this->setUniformViewMatrix(pdman, gp.viewMatrix());
 
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -355,7 +350,7 @@ public:
 
 private:
     EllipseEdgeEffect(GrColor color, bool stroke, const SkMatrix& localMatrix)
-        : INHERITED(SkMatrix::I(), localMatrix)
+        : INHERITED(localMatrix)
         , fColor(color) {
         this->initClassID<EllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
@@ -421,6 +416,7 @@ public:
     const Attribute* inEllipseOffsets0() const { return fInEllipseOffsets0; }
     const Attribute* inEllipseOffsets1() const { return fInEllipseOffsets1; }
     GrColor color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
 
     inline Mode getMode() const { return fMode; }
 
@@ -509,14 +505,15 @@ public:
             const DIEllipseEdgeEffect& ellipseEffect = gp.cast<DIEllipseEdgeEffect>();
             uint16_t key = ellipseEffect.getMode();
             key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 8 : 0x0;
-            key |= ComputePosKey(gp.viewMatrix()) << 9;
+            key |= ComputePosKey(ellipseEffect.viewMatrix()) << 9;
             b->add32(key << 16 | local.fInputColorType);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) override {
-            this->setUniformViewMatrix(pdman, gp.viewMatrix());
+            const DIEllipseEdgeEffect& dee = gp.cast<DIEllipseEdgeEffect>();
+            this->setUniformViewMatrix(pdman, dee.viewMatrix());
 
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -553,8 +550,8 @@ public:
 
 private:
     DIEllipseEdgeEffect(GrColor color, const SkMatrix& viewMatrix, Mode mode)
-        : INHERITED(viewMatrix)
-        , fColor(color) {
+        : fColor(color)
+        , fViewMatrix(viewMatrix) {
         this->initClassID<DIEllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffsets0 = &this->addVertexAttrib(Attribute("inEllipseOffsets0",
@@ -574,6 +571,7 @@ private:
     const Attribute* fInEllipseOffsets0;
     const Attribute* fInEllipseOffsets1;
     GrColor fColor;
+    SkMatrix fViewMatrix;
     Mode fMode;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;

@@ -206,6 +206,7 @@ void GrGLNvprProgram::onSetRenderTargetState(const GrPrimitiveProcessor& primPro
     const GrRenderTarget* rt = pipeline.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
-    fGpu->glPathRendering()->setProjectionMatrix(primProc.viewMatrix(),
+    const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
+    fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(),
                                                  size, rt->origin());
 }

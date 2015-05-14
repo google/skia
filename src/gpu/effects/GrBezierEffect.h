@@ -98,6 +98,7 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -113,6 +114,7 @@ private:
                   const SkMatrix& localMatrix);
 
     GrColor             fColor;
+    SkMatrix            fViewMatrix;
     uint8_t             fCoverageScale;
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
@@ -176,6 +178,7 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -191,6 +194,7 @@ private:
                  const SkMatrix& localMatrix);
 
     GrColor             fColor;
+    SkMatrix            fViewMatrix;
     uint8_t             fCoverageScale;
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
@@ -250,6 +254,7 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -264,6 +269,7 @@ private:
     GrCubicEffect(GrColor, const SkMatrix& viewMatrix, GrPrimitiveEdgeType);
 
     GrColor             fColor;
+    SkMatrix            fViewMatrix;
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
     const Attribute*    fInCubicCoeffs;

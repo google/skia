@@ -54,7 +54,7 @@ protected:
     void setupPosition(GrGLGPBuilder* pb,
                        GrGPArgs* gpArgs,
                        const char* posName,
-                       const SkMatrix& mat);
+                       const SkMatrix& mat = SkMatrix::I());
 
     static uint32_t ComputePosKey(const SkMatrix& mat) {
         if (mat.isIdentity()) {

@@ -866,7 +866,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL, &fColorUniform);
 
     // Setup position
-    this->setupPosition(pb, gpArgs, dce.inPosition()->fName, dce.viewMatrix());
+    this->setupPosition(pb, gpArgs, dce.inPosition()->fName);
 
     // emit transforms
     this->emitTransforms(args.fPB, gpArgs->fPositionVar, dce.inPosition()->fName, dce.localMatrix(),
@@ -894,8 +894,6 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
                                     const GrPrimitiveProcessor& processor,
                                     const GrBatchTracker& bt) {
-    this->setUniformViewMatrix(pdman, processor.viewMatrix());
-
     const DashingCircleBatchTracker& local = bt.cast<DashingCircleBatchTracker>();
     if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
         GrGLfloat c[4];
@@ -913,7 +911,6 @@ void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
     const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
     uint32_t key = 0;
     key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
-    key |= ComputePosKey(gp.viewMatrix()) << 1;
     key |= dce.aaMode() << 8;
     b->add32(key << 16 | local.fInputColorType);
 }
@@ -940,7 +937,7 @@ GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrBatchTrack
 DashingCircleEffect::DashingCircleEffect(GrColor color,
                                          DashAAMode aaMode,
                                          const SkMatrix& localMatrix)
-    : INHERITED(SkMatrix::I(), localMatrix)
+    : INHERITED(localMatrix)
     , fColor(color)
     , fAAMode(aaMode) {
     this->initClassID<DashingCircleEffect>();
@@ -1082,7 +1079,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL, &fColorUniform);
 
     // Setup position
-    this->setupPosition(pb, gpArgs, de.inPosition()->fName, de.viewMatrix());
+    this->setupPosition(pb, gpArgs, de.inPosition()->fName);
 
     // emit transforms
     this->emitTransforms(args.fPB, gpArgs->fPositionVar, de.inPosition()->fName, de.localMatrix(),
@@ -1127,8 +1124,6 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
                                   const GrPrimitiveProcessor& processor,
                                   const GrBatchTracker& bt) {
-    this->setUniformViewMatrix(pdman, processor.viewMatrix());
-
     const DashingLineBatchTracker& local = bt.cast<DashingLineBatchTracker>();
     if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
         GrGLfloat c[4];
@@ -1146,7 +1141,6 @@ void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
     const DashingLineEffect& de = gp.cast<DashingLineEffect>();
     uint32_t key = 0;
     key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
-    key |= ComputePosKey(gp.viewMatrix()) << 1;
     key |= de.aaMode() << 8;
     b->add32(key << 16 | local.fInputColorType);
 }
@@ -1173,7 +1167,7 @@ GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker
 DashingLineEffect::DashingLineEffect(GrColor color,
                                      DashAAMode aaMode,
                                      const SkMatrix& localMatrix)
-    : INHERITED(SkMatrix::I(), localMatrix)
+    : INHERITED(localMatrix)
     , fColor(color)
     , fAAMode(aaMode) {
     this->initClassID<DashingLineEffect>();

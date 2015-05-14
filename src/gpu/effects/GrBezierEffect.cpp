@@ -34,7 +34,8 @@ public:
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) override {
-        this->setUniformViewMatrix(pdman, primProc.viewMatrix());
+        const GrConicEffect& ce = primProc.cast<GrConicEffect>();
+        this->setUniformViewMatrix(pdman, ce.viewMatrix());
 
         const ConicBatchTracker& local = bt.cast<ConicBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -170,7 +171,7 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x0;
     key |= 0xff != local.fCoverageScale ? 0x8 : 0x0;
     key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x10 : 0x0;
-    key |= ComputePosKey(gp.viewMatrix()) << 5;
+    key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }
 
@@ -191,8 +192,9 @@ GrGLPrimitiveProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt
 
 GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
                              GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix)
-    : INHERITED(viewMatrix, localMatrix)
+    : INHERITED(localMatrix)
     , fColor(color)
+    , fViewMatrix(viewMatrix)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrConicEffect>();
@@ -253,7 +255,8 @@ public:
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) override {
-        this->setUniformViewMatrix(pdman, primProc.viewMatrix());
+        const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
+        this->setUniformViewMatrix(pdman, qe.viewMatrix());
 
         const QuadBatchTracker& local = bt.cast<QuadBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -375,7 +378,7 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x0;
     key |= 0xff != local.fCoverageScale ? 0x8 : 0x0;
     key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x10 : 0x0;
-    key |= ComputePosKey(gp.viewMatrix()) << 5;
+    key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }
 
@@ -396,8 +399,9 @@ GrGLPrimitiveProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt,
 
 GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
                            GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix)
-    : INHERITED(viewMatrix, localMatrix)
+    : INHERITED(localMatrix)
     , fColor(color)
+    , fViewMatrix(viewMatrix)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrQuadEffect>();
@@ -458,7 +462,8 @@ public:
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) override {
-        this->setUniformViewMatrix(pdman, primProc.viewMatrix());
+        const GrCubicEffect& ce = primProc.cast<GrCubicEffect>();
+        this->setUniformViewMatrix(pdman, ce.viewMatrix());
 
         const CubicBatchTracker& local = bt.cast<CubicBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -603,7 +608,7 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x8;
     key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x10 : 0x0;
-    key |= ComputePosKey(gp.viewMatrix()) << 5;
+    key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }
 
@@ -624,8 +629,8 @@ GrGLPrimitiveProcessor* GrCubicEffect::createGLInstance(const GrBatchTracker& bt
 
 GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,
                              GrPrimitiveEdgeType edgeType)
-    : INHERITED(viewMatrix)
-    , fColor(color)
+    : fColor(color)
+    , fViewMatrix(viewMatrix)
     , fEdgeType(edgeType) {
     this->initClassID<GrCubicEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));

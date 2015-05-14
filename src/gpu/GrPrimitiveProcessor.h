@@ -104,7 +104,6 @@ class GrPrimitiveProcessor : public GrProcessor {
 public:
     // TODO let the PrimProc itself set this in its setData call, this should really live on the
     // bundle of primitive data
-    const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     virtual void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const = 0;
@@ -174,11 +173,9 @@ public:
     bool isPathRendering() const { return fIsPathRendering; }
 
 protected:
-    GrPrimitiveProcessor(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
-                         bool isPathRendering)
+    GrPrimitiveProcessor(const SkMatrix& localMatrix, bool isPathRendering)
         : fNumAttribs(0)
         , fVertexStride(0)
-        , fViewMatrix(viewMatrix)
         , fLocalMatrix(localMatrix)
         , fIsPathRendering(isPathRendering) {}
 
@@ -219,7 +216,6 @@ protected:
 private:
     virtual bool hasExplicitLocalCoords() const = 0;
 
-    const SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;
     bool fIsPathRendering;
 

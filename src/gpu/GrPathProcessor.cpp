@@ -13,7 +13,8 @@
 GrPathProcessor::GrPathProcessor(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
-    : INHERITED(viewMatrix, localMatrix, true)
+    : INHERITED(localMatrix, true)
+    , fViewMatrix(viewMatrix)
     , fColor(color) {
     this->initClassID<GrPathProcessor>();
 }
@@ -48,7 +49,8 @@ bool GrPathProcessor::canMakeEqual(const GrBatchTracker& m,
         return false;
     }
 
-    if (!this->viewMatrix().cheapEqualTo(that.viewMatrix())) {
+    const GrPathProcessor& other = that.cast<GrPathProcessor>();
+    if (!this->viewMatrix().cheapEqualTo(other.viewMatrix())) {
         return false;
     }
 

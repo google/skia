@@ -37,6 +37,7 @@ public:
 
     const char* name() const override { return "PathProcessor"; }
 
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fColor; }
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override;
@@ -51,12 +52,11 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps& caps) const override;
 
-protected:
-    GrPathProcessor(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
-
 private:
+    GrPathProcessor(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
     bool hasExplicitLocalCoords() const override { return false; }
 
+    const SkMatrix fViewMatrix;
     GrColor fColor;
 
     typedef GrPrimitiveProcessor INHERITED;

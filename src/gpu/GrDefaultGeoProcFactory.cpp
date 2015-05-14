@@ -39,6 +39,7 @@ public:
     const Attribute* inLocalCoords() const { return fInLocalCoords; }
     const Attribute* inCoverage() const { return fInCoverage; }
     GrColor color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint8_t coverage() const { return fCoverage; }
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override {
@@ -121,14 +122,15 @@ public:
             uint32_t key = def.fFlags;
             key |= local.fInputColorType << 8 | local.fInputCoverageType << 16;
             key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24 : 0x0;
-            key |= ComputePosKey(gp.viewMatrix()) << 25;
+            key |= ComputePosKey(def.viewMatrix()) << 25;
             b->add32(key);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) override {
-            this->setUniformViewMatrix(pdman, gp.viewMatrix());
+            const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
+            this->setUniformViewMatrix(pdman, dgp.viewMatrix());
 
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -169,12 +171,13 @@ private:
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,
                    uint8_t coverage)
-        : INHERITED(viewMatrix, localMatrix)
+        : INHERITED(localMatrix)
         , fInPosition(NULL)
         , fInColor(NULL)
         , fInLocalCoords(NULL)
         , fInCoverage(NULL)
         , fColor(color)
+        , fViewMatrix(viewMatrix)
         , fCoverage(coverage)
         , fFlags(gpTypeFlags) {
         this->initClassID<DefaultGeoProc>();
@@ -209,6 +212,7 @@ private:
     const Attribute* fInLocalCoords;
     const Attribute* fInCoverage;
     GrColor fColor;
+    SkMatrix fViewMatrix;
     uint8_t fCoverage;
     uint32_t fFlags;
 

@@ -54,7 +54,7 @@ public:
                                     &fColorUniform);
 
         // Setup position
-        this->setupPosition(pb, gpArgs, cte.inPosition()->fName, cte.viewMatrix());
+        this->setupPosition(pb, gpArgs, cte.inPosition()->fName);
 
         // emit transforms
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, cte.inPosition()->fName,
@@ -79,8 +79,6 @@ public:
     virtual void setData(const GrGLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& gp,
                          const GrBatchTracker& bt) override {
-        this->setUniformViewMatrix(pdman, gp.viewMatrix());
-
         const BitmapTextBatchTracker& local = bt.cast<BitmapTextBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
             GrGLfloat c[4];
@@ -103,7 +101,6 @@ public:
         key |= SkToBool(gp.inColor()) ? 0x1 : 0x0;
         key |= local.fUsesLocalCoords && proc.localMatrix().hasPerspective() ? 0x2 : 0x0;
         key |= gp.maskFormat() == kARGB_GrMaskFormat ? 0x4 : 0x0;
-        key |= ComputePosKey(gp.viewMatrix()) << 3;
         b->add32(local.fInputColorType << 16 | key);
     }
 
@@ -119,7 +116,7 @@ private:
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
                                          const GrTextureParams& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix)
-    : INHERITED(SkMatrix::I(), localMatrix)
+    : INHERITED(localMatrix)
     , fColor(color)
     , fTextureAccess(texture, params)
     , fInColor(NULL)

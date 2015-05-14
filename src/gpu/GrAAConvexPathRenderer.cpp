@@ -562,7 +562,7 @@ public:
                                         &fColorUniform);
 
             // Setup position
-            this->setupPosition(pb, gpArgs, qe.inPosition()->fName, qe.viewMatrix());
+            this->setupPosition(pb, gpArgs, qe.inPosition()->fName);
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, qe.inPosition()->fName,
@@ -600,15 +600,12 @@ public:
             const BatchTracker& local = bt.cast<BatchTracker>();
             uint32_t key = local.fInputColorType << 16;
             key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
-            key |= ComputePosKey(gp.viewMatrix()) << 1;
             b->add32(key);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) override {
-            this->setUniformViewMatrix(pdman, gp.viewMatrix());
-
             const BatchTracker& local = bt.cast<BatchTracker>();
             if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
                 GrGLfloat c[4];
@@ -644,7 +641,7 @@ public:
 
 private:
     QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix)
-        : INHERITED(SkMatrix::I(), localMatrix)
+        : INHERITED(localMatrix)
         , fColor(color) {
         this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));

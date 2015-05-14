@@ -152,7 +152,8 @@ public:
         }
 #endif
 
-        this->setUniformViewMatrix(pdman, proc.viewMatrix());
+        const GrDistanceFieldA8TextGeoProc& dfa8gp = proc.cast<GrDistanceFieldA8TextGeoProc>();
+        this->setUniformViewMatrix(pdman, dfa8gp.viewMatrix());
 
         const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -172,7 +173,7 @@ public:
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
         key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
-        key |= ComputePosKey(gp.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
 
@@ -197,8 +198,9 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            float distanceAdjust,
 #endif
                                                            uint32_t flags)
-    : INHERITED(viewMatrix, SkMatrix::I())
+    : INHERITED(SkMatrix::I())
     , fColor(color)
+    , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fDistanceAdjust(distanceAdjust)
@@ -382,7 +384,8 @@ public:
                         SkIntToScalar(fTextureSize.height()));
         }
 
-        this->setUniformViewMatrix(pdman, proc.viewMatrix());
+        const GrDistanceFieldPathGeoProc& dfpgp = proc.cast<GrDistanceFieldPathGeoProc>();
+        this->setUniformViewMatrix(pdman, dfpgp.viewMatrix());
 
         const DistanceFieldPathBatchTracker& local = bt.cast<DistanceFieldPathBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -403,7 +406,7 @@ public:
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
         key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
-        key |= ComputePosKey(gp.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
 
@@ -424,8 +427,9 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         GrTexture* texture,
         const GrTextureParams& params,
         uint32_t flags)
-    : INHERITED(viewMatrix, SkMatrix::I())
+    : INHERITED(SkMatrix::I())
     , fColor(color)
+    , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(NULL) {
@@ -652,7 +656,7 @@ public:
             fDistanceAdjust = wa;
         }
 
-        this->setUniformViewMatrix(pdman, processor.viewMatrix());
+        this->setUniformViewMatrix(pdman, dfTexEffect.viewMatrix());
 
         const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
         if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
@@ -673,7 +677,7 @@ public:
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
         key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
-        key |= ComputePosKey(gp.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
 
@@ -693,8 +697,9 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrTexture* texture, const GrTextureParams& params,
                                                   DistanceAdjust distanceAdjust,
                                                   uint32_t flags)
-    : INHERITED(viewMatrix, SkMatrix::I())
+    : INHERITED(SkMatrix::I())
     , fColor(color)
+    , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
     , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask){

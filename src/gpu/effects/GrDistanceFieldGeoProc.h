@@ -69,6 +69,7 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getDistanceAdjust() const { return fDistanceAdjust; }
 #endif
@@ -92,6 +93,7 @@ private:
                                  uint32_t flags);
 
     GrColor          fColor;
+    SkMatrix         fViewMatrix;
     GrTextureAccess  fTextureAccess;
 #ifdef SK_GAMMA_APPLY_TO_A8
     float            fDistanceAdjust;
@@ -129,6 +131,7 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint32_t getFlags() const { return fFlags; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
@@ -145,6 +148,7 @@ private:
                                const GrTextureParams& params, uint32_t flags);
 
     GrColor          fColor;
+    SkMatrix         fViewMatrix;
     GrTextureAccess  fTextureAccess;
     uint32_t         fFlags;
     const Attribute* fInPosition;
@@ -194,6 +198,7 @@ public:
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     GrColor color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint32_t getFlags() const { return fFlags; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
@@ -211,6 +216,7 @@ private:
                                   DistanceAdjust wa, uint32_t flags);
 
     GrColor          fColor;
+    SkMatrix         fViewMatrix;
     GrTextureAccess  fTextureAccess;
     DistanceAdjust   fDistanceAdjust;
     uint32_t         fFlags;
