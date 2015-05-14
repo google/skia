@@ -5,12 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
 // This tests out GIF decoder (SkImageDecoder_libgif.cpp)
 // It is not used on these platforms:
 #if (!defined(SK_BUILD_FOR_WIN32)) &&           \
     (!defined(SK_BUILD_FOR_IOS)) &&             \
     (!defined(SK_BUILD_FOR_MAC))
 
+#include "Resources.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
@@ -195,6 +198,27 @@ DEF_TEST(Gif, reporter) {
     test_interlaced_gif_data(reporter, static_cast<void *>(gInterlacedGIF),
                              100);  // 100 is missing a few bytes
     // "libgif warning [interlace DGifGetLine]"
+}
+
+// Regression test for decoding a gif image with sampleSize of 4, which was
+// previously crashing.
+DEF_TEST(Gif_Sampled, r) {
+    SkFILEStream fileStream(GetResourcePath("test640x479.gif").c_str());
+    REPORTER_ASSERT(r, fileStream.isValid());
+    if (!fileStream.isValid()) {
+        return;
+    }
+
+    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&fileStream));
+    REPORTER_ASSERT(r, decoder);
+    if (!decoder) {
+        return;
+    }
+    decoder->setSampleSize(4);
+    SkBitmap bm;
+    const SkImageDecoder::Result result = decoder->decode(&fileStream, &bm,
+            SkImageDecoder::kDecodePixels_Mode);
+    REPORTER_ASSERT(r, result == SkImageDecoder::kSuccess);
 }
 
 #endif  // !(SK_BUILD_FOR_WIN32||SK_BUILD_FOR_IOS||SK_BUILD_FOR_MAC)
