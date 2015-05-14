@@ -115,12 +115,14 @@ struct DeviceCM {
     SkPaint*            fPaint; // may be null (in the future)
     const SkMatrix*     fMatrix;
     SkMatrix            fMatrixStorage;
+    SkMatrix            fStashedMatrix; // Original CTM; used by imageFilter at saveLayer time
     const bool          fDeviceIsBitmapDevice;
 
     DeviceCM(SkBaseDevice* device, const SkPaint* paint, SkCanvas* canvas,
-             bool conservativeRasterClip, bool deviceIsBitmapDevice)
+             bool conservativeRasterClip, bool deviceIsBitmapDevice, const SkMatrix& stashed)
         : fNext(NULL)
         , fClip(conservativeRasterClip)
+        , fStashedMatrix(stashed)
         , fDeviceIsBitmapDevice(deviceIsBitmapDevice)
     {
         if (NULL != device) {
@@ -528,7 +530,8 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
-    new (fDeviceCMStorage) DeviceCM(NULL, NULL, NULL, fConservativeRasterClip, false);
+    new (fDeviceCMStorage) DeviceCM(NULL, NULL, NULL, fConservativeRasterClip, false,
+                                    fMCRec->fMatrix);
 
     fMCRec->fTopLayer = fMCRec->fLayer;
 
@@ -991,6 +994,40 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     flags |= kClipToLayer_SaveFlag;
 #endif
+    SkLazyPaint lazyP;
+    SkImageFilter* imageFilter = paint ? paint->getImageFilter() : NULL;
+    SkMatrix stashedMatrix = fMCRec->fMatrix;
+#ifndef SK_SUPPORT_LEGACY_IMAGEFILTER_CTM
+    SkMatrix remainder;
+    SkSize scale;
+    /*
+     *  ImageFilters (so far) do not correctly handle matrices (CTM) that contain rotation/skew/etc.
+     *  but they do handle scaling. To accommodate this, we do the following:
+     *
+     *  1. Stash off the current CTM
+     *  2. Decompose the CTM into SCALE and REMAINDER
+     *  3. Wack the CTM to be just SCALE, and wrap the imagefilter with a MatrixImageFilter that
+     *     contains the REMAINDER
+     *  4. Proceed as usual, allowing the client to draw into the layer (now with a scale-only CTM)
+     *  5. During restore, we process the MatrixImageFilter, which applies REMAINDER to the output
+     *     of the original imagefilter, and draw that (via drawSprite)
+     *  6. Unwack the CTM to its original state (i.e. stashedMatrix)
+     *
+     *  Perhaps in the future we could augment #5 to apply REMAINDER as part of the draw (no longer
+     *  a sprite operation) to avoid the extra buffer/overhead of MatrixImageFilter.
+     */
+    if (imageFilter &&
+        !stashedMatrix.isScaleTranslate() && stashedMatrix.decomposeScale(&scale, &remainder)) {
+        // We will restore the matrix (which we are overwriting here) in restore via fStashedMatrix
+        this->internalSetMatrix(SkMatrix::MakeScale(scale.width(), scale.height()));
+        SkAutoTUnref<SkImageFilter> matrixFilter(SkImageFilter::CreateMatrixFilter(
+                                    remainder, SkFilterQuality::kLow_SkFilterQuality, imageFilter));
+        imageFilter = matrixFilter.get();
+        SkPaint* p = lazyP.set(*paint);
+        p->setImageFilter(imageFilter);
+        paint = p;
+    }
+#endif
 
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
@@ -999,7 +1036,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     fDeviceCMDirty = true;
 
     SkIRect ir;
-    if (!this->clipRectBounds(bounds, flags, &ir, paint ? paint->getImageFilter() : NULL)) {
+    if (!this->clipRectBounds(bounds, flags, &ir, imageFilter)) {
         return;
     }
 
@@ -1047,7 +1084,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
 
     device->setOrigin(ir.fLeft, ir.fTop);
     DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, paint, this, fConservativeRasterClip,
-                                            forceSpriteOnRestore));
+                                            forceSpriteOnRestore, stashedMatrix));
     device->unref();
 
     layer->fNext = fMCRec->fTopLayer;
@@ -1097,6 +1134,8 @@ void SkCanvas::internalRestore() {
             const SkIPoint& origin = layer->fDevice->getOrigin();
             this->internalDrawDevice(layer->fDevice, origin.x(), origin.y(),
                                      layer->fPaint, layer->fDeviceIsBitmapDevice);
+            // restore what we smashed in internalSaveLayer
+            fMCRec->fMatrix = layer->fStashedMatrix;
             // reset this, since internalDrawDevice will have set it to true
             fDeviceCMDirty = true;
             SkDELETE(layer);
@@ -1104,6 +1143,7 @@ void SkCanvas::internalRestore() {
             // we're at the root
             SkASSERT(layer == (void*)fDeviceCMStorage);
             layer->~DeviceCM();
+            // no need to update fMCRec, 'cause we're killing the canvas
         }
     }
 }
@@ -1332,11 +1372,15 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     this->didConcat(matrix);
 }
 
-void SkCanvas::setMatrix(const SkMatrix& matrix) {
-    this->checkForDeferredSave();
+void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
     fMCRec->fMatrix = matrix;
+}
+
+void SkCanvas::setMatrix(const SkMatrix& matrix) {
+    this->checkForDeferredSave();
+    this->internalSetMatrix(matrix);
     this->didSetMatrix(matrix);
 }
 
