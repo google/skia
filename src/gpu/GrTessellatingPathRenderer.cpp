@@ -185,13 +185,12 @@ bool sweep_gt_vert(const SkPoint& a, const SkPoint& b) {
     return a.fY == b.fY ? a.fX > b.fX : a.fY > b.fY;
 }
 
-inline void* emit_vertex(Vertex* v, void* data) {
-    SkPoint* d = static_cast<SkPoint*>(data);
-    *d++ = v->fPoint;
-    return d;
+inline SkPoint* emit_vertex(Vertex* v, SkPoint* data) {
+    *data++ = v->fPoint;
+    return data;
 }
 
-void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, void* data) {
+SkPoint* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, SkPoint* data) {
 #if WIREFRAME
     data = emit_vertex(v0, data);
     data = emit_vertex(v1, data);
@@ -360,7 +359,7 @@ struct Poly {
             return done;
         }
 
-        void* emit(void* data) {
+        SkPoint* emit(SkPoint* data) {
             Vertex* first = fHead;
             Vertex* v = first->fNext;
             while (v != fTail) {
@@ -428,7 +427,7 @@ struct Poly {
         }
         addVertex(v, fActive->fSide == kLeft_Side ? kRight_Side : kLeft_Side, alloc);
     }
-    void* emit(void *data) {
+    SkPoint* emit(SkPoint *data) {
         if (fCount < 3) {
             return data;
         }
@@ -1277,7 +1276,7 @@ Poly* tessellate(Vertex* vertices, SkChunkAlloc& alloc) {
         }
 #if LOGGING_ENABLED
         LOG("\nactive edges:\n");
-        for (Edge* e = activeEdges->fHead; e != NULL; e = e->fRight) {
+        for (Edge* e = activeEdges.fHead; e != NULL; e = e->fRight) {
             LOG("%g -> %g, lpoly %d, rpoly %d\n", e->fTop->fID, e->fBottom->fID,
                 e->fLeftPoly ? e->fLeftPoly->fID : -1, e->fRightPoly ? e->fRightPoly->fID : -1);
         }
@@ -1320,8 +1319,8 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt, Comparator& c, SkChun
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
-void* polys_to_triangles(Poly* polys, SkPath::FillType fillType, void* data) {
-    void* d = data;
+SkPoint* polys_to_triangles(Poly* polys, SkPath::FillType fillType, SkPoint* data) {
+    SkPoint* d = data;
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly->fWinding)) {
             d = poly->emit(d);
@@ -1438,18 +1437,19 @@ public:
         }
 
         size_t stride = gp->getVertexStride();
+        SkASSERT(stride == sizeof(SkPoint));
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
-        void* verts = batchTarget->makeVertSpace(stride, count, &vertexBuffer, &firstVertex);
+        SkPoint* verts = static_cast<SkPoint*>(
+            batchTarget->makeVertSpace(stride, count, &vertexBuffer, &firstVertex));
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
         LOG("emitting %d verts\n", count);
-        void* end = polys_to_triangles(polys, fillType, verts);
-        int actualCount = static_cast<int>(
-            (static_cast<char*>(end) - static_cast<char*>(verts)) / stride);
+        SkPoint* end = polys_to_triangles(polys, fillType, verts);
+        int actualCount = static_cast<int>(end - verts);
         LOG("actual count: %d\n", actualCount);
         SkASSERT(actualCount <= count);
 
