@@ -6,6 +6,7 @@
  */
 
 #include "SkNx.h"
+#include "SkRandom.h"
 #include "Test.h"
 
 template <int N, typename T>
@@ -129,4 +130,27 @@ DEF_TEST(SkNi, r) {
     test_Ni<2, int>(r);
     test_Ni<4, int>(r);
     test_Ni<8, int>(r);
+}
+
+DEF_TEST(SkNi_min, r) {
+    // Exhaustively check the 8x8 bit space.
+    for (int a = 0; a < (1<<8); a++) {
+    for (int b = 0; b < (1<<8); b++) {
+        REPORTER_ASSERT(r, Sk16b::Min(Sk16b(a), Sk16b(b)).kth<0>() == SkTMin(a, b));
+    }}
+
+    // Exhausting the 16x16 bit space is kind of slow, so only do that in release builds.
+#ifdef SK_DEBUG
+    SkRandom rand;
+    for (int i = 0; i < (1<<16); i++) {
+        uint16_t a = rand.nextU() >> 16,
+                 b = rand.nextU() >> 16;
+        REPORTER_ASSERT(r, Sk8h::Min(Sk8h(a), Sk8h(b)).kth<0>() == SkTMin(a, b));
+    }
+#else
+    for (int a = 0; a < (1<<16); a++) {
+    for (int b = 0; b < (1<<16); b++) {
+        REPORTER_ASSERT(r, Sk8h::Min(Sk8h(a), Sk8h(b)).kth<0>() == SkTMin(a, b));
+    }}
+#endif
 }

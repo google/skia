@@ -68,7 +68,11 @@ public:
     SkNi operator << (int bits) const { return SkNi(fLo << bits, fHi << bits); }
     SkNi operator >> (int bits) const { return SkNi(fLo >> bits, fHi >> bits); }
 
-    // TODO: comparisons, min, max?
+    static SkNi Min(const SkNi& a, const SkNi& b) {
+        return SkNi(SkNi<N/2, T>::Min(a.fLo, b.fLo), SkNi<N/2, T>::Min(a.fHi, b.fHi));
+    }
+
+    // TODO: comparisons, max?
 
     template <int k> T kth() const {
         SkASSERT(0 <= k && k < N);
@@ -182,6 +186,8 @@ public:
 
     SkNi operator << (int bits) const { return SkNi(fVal << bits); }
     SkNi operator >> (int bits) const { return SkNi(fVal >> bits); }
+
+    static SkNi Min(const SkNi& a, const SkNi& b) { return SkNi(SkTMin(a.fVal, b.fVal)); }
 
     template <int k> T kth() const {
         SkASSERT(0 == k);

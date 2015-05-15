@@ -272,6 +272,15 @@ public:
     SkNi operator << (int bits) const { return _mm_slli_epi16(fVec, bits); }
     SkNi operator >> (int bits) const { return _mm_srli_epi16(fVec, bits); }
 
+    static SkNi Min(const SkNi& a, const SkNi& b) {
+        // No unsigned _mm_min_epu16, so we'll shift into a space where we can use the
+        // signed version, _mm_min_epi16, then shift back.
+        const uint16_t top = 0x8000; // Keep this separate from _mm_set1_epi16 or MSVC will whine.
+        const __m128i top_8x = _mm_set1_epi16(top);
+        return _mm_add_epi8(top_8x, _mm_min_epi16(_mm_sub_epi8(a.fVec, top_8x),
+                                                  _mm_sub_epi8(b.fVec, top_8x)));
+    }
+
     template <int k> uint16_t kth() const {
         SkASSERT(0 <= k && k < 8);
         return _mm_extract_epi16(fVec, k);
@@ -305,6 +314,8 @@ public:
     SkNi operator * (const SkNi& o) const { SkASSERT(false); return fVec; }
     SkNi operator << (int bits) const { SkASSERT(false); return fVec; }
     SkNi operator >> (int bits) const { SkASSERT(false); return fVec; }
+
+    static SkNi Min(const SkNi& a, const SkNi& b) { return _mm_min_epu8(a.fVec, b.fVec); }
 
     template <int k> uint8_t kth() const {
         SkASSERT(0 <= k && k < 16);

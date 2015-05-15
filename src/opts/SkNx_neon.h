@@ -329,6 +329,8 @@ public:
     SkNi operator << (int bits) const { SHIFT16(vshlq_n_u16, fVec, bits); }
     SkNi operator >> (int bits) const { SHIFT16(vshrq_n_u16, fVec, bits); }
 
+    static SkNi Min(const SkNi& a, const SkNi& b) { return vminq_u16(a.fVec, b.fVec); }
+
     template <int k> uint16_t kth() const {
         SkASSERT(0 <= k && k < 8);
         return vgetq_lane_u16(fVec, k&7);
@@ -363,6 +365,8 @@ public:
 
     SkNi operator << (int bits) const { SHIFT8(vshlq_n_u8, fVec, bits); }
     SkNi operator >> (int bits) const { SHIFT8(vshrq_n_u8, fVec, bits); }
+
+    static SkNi Min(const SkNi& a, const SkNi& b) { return vminq_u8(a.fVec, b.fVec); }
 
     template <int k> uint8_t kth() const {
         SkASSERT(0 <= k && k < 15);
