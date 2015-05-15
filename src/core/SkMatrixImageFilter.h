@@ -57,8 +57,6 @@ protected:
                                 SkIRect* dst) const override;
 
 private:
-    bool onMayDrawWithMatrix() const override { return true; }
-
     SkMatrix              fTransform;
     SkFilterQuality       fFilterQuality;
     typedef SkImageFilter INHERITED;

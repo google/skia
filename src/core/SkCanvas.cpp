@@ -992,8 +992,6 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     flags |= kClipToLayer_SaveFlag;
 #endif
 
-    SkImageFilter* imgf = paint ? paint->getImageFilter() : NULL;
-
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
     this->internalSave();
@@ -1001,7 +999,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     fDeviceCMDirty = true;
 
     SkIRect ir;
-    if (!this->clipRectBounds(bounds, flags, &ir, imgf)) {
+    if (!this->clipRectBounds(bounds, flags, &ir, paint ? paint->getImageFilter() : NULL)) {
         return;
     }
 
@@ -1015,7 +1013,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     SkPixelGeometry geo = fProps.pixelGeometry();
     if (paint) {
         // TODO: perhaps add a query to filters so we might preserve opaqueness...
-        if (imgf || paint->getColorFilter()) {
+        if (paint->getImageFilter() || paint->getColorFilter()) {
             isOpaque = false;
             geo = kUnknown_SkPixelGeometry;
         }
@@ -1031,10 +1029,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
 
     bool forceSpriteOnRestore = false;
     {
-        SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
-        if (imgf && imgf->mayDrawWithMatrix()) {
-            usage = SkBaseDevice::kPossible_TileUsage;
-        }
+        const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
         const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo);
         SkBaseDevice* newDev = device->onCreateDevice(createInfo, paint);
         if (NULL == newDev) {

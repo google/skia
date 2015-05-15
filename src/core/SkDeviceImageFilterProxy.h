@@ -21,8 +21,6 @@ public:
     {}
 
     SkBaseDevice* createDevice(int w, int h) override {
-        // Our contract is to return a zero-initialized device, so we request iPremul_AlphaType
-        // which is the signal to the fDevice to perform this init.
         SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
                                        SkBaseDevice::kNever_TileUsage,
                                        kUnknown_SkPixelGeometry,
