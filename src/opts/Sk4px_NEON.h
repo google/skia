@@ -78,3 +78,13 @@ inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
     a32 = vorrq_u32(a32, vshlq_n_u32(a32, 16));           // ____ ____ 1111 0000
     return Sk16b((uint8x16_t)a32);
 }
+
+inline Sk4px Sk4px::zeroColors() const {
+    return Sk16b(vandq_u8(this->fVec, (uint8x16_t)vdupq_n_u32(0xFF << SK_A32_SHIFT)));
+}
+
+inline Sk4px Sk4px::zeroAlphas() const {
+    // vbic(a,b) == a & ~b
+    return Sk16b(vbicq_u8(this->fVec, (uint8x16_t)vdupq_n_u32(0xFF << SK_A32_SHIFT)));
+}
+

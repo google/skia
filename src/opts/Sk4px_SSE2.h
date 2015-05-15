@@ -76,3 +76,12 @@ inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
     uint32_t as = *(const uint16_t*)a;   // Aa -> Aa00
     return Load4Alphas((const SkAlpha*)&as);
 }
+
+inline Sk4px Sk4px::zeroColors() const {
+    return Sk16b(_mm_and_si128(_mm_set1_epi32(0xFF << SK_A32_SHIFT), this->fVec));
+}
+
+inline Sk4px Sk4px::zeroAlphas() const {
+    // andnot(a,b) == ~a & b
+    return Sk16b(_mm_andnot_si128(_mm_set1_epi32(0xFF << SK_A32_SHIFT), this->fVec));
+}

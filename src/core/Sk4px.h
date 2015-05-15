@@ -20,6 +20,10 @@ public:
 
     Sk4px alphas() const;  // ARGB argb XYZW xyzw -> AAAA aaaa XXXX xxxx
 
+    // Mask away color or alpha lanes.
+    Sk4px zeroColors() const;  // ARGB argb XYZW xyzw -> A000 a000 X000 x000
+    Sk4px zeroAlphas() const;  // ARGB argb XYZW xyzw -> 0RGB 0rgb 0YZW 0yzw
+
     Sk4px inv() const { return Sk16b(255) - *this; }
 
     // When loading or storing fewer than 4 SkPMColors, we use the low lanes.
@@ -56,6 +60,10 @@ public:
     Wide widenLo() const;               // ARGB -> 0A 0R 0G 0B
     Wide widenHi() const;               // ARGB -> A0 R0 G0 B0
     Wide mulWiden(const Sk16b&) const;  // 8-bit x 8-bit -> 16-bit components.
+    Wide mul255Widen() const {
+        // TODO: x*255 = x*256-x, so something like this->widenHi() - this->widenLo()?
+        return this->mulWiden(Sk16b(255));
+    }
 
     // A generic driver that maps fn over a src array into a dst array.
     // fn should take an Sk4px (4 src pixels) and return an Sk4px (4 dst pixels).

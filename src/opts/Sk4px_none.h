@@ -77,3 +77,20 @@ inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
                  0,0,0,0,
                  0,0,0,0);
 }
+
+inline Sk4px Sk4px::zeroAlphas() const {
+    static_assert(SK_A32_SHIFT == 24, "This method assumes little-endian.");
+    return Sk16b(this->kth< 0>(), this->kth< 1>(), this->kth< 2>(), 0,
+                 this->kth< 4>(), this->kth< 5>(), this->kth< 6>(), 0,
+                 this->kth< 8>(), this->kth< 9>(), this->kth<10>(), 0,
+                 this->kth<12>(), this->kth<13>(), this->kth<14>(), 0);
+}
+
+inline Sk4px Sk4px::zeroColors() const {
+    static_assert(SK_A32_SHIFT == 24, "This method assumes little-endian.");
+    return Sk16b(0,0,0, this->kth< 3>(),
+                 0,0,0, this->kth< 7>(),
+                 0,0,0, this->kth<11>(),
+                 0,0,0, this->kth<15>());
+}
+
