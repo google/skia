@@ -603,10 +603,34 @@ void SkSVGDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
                                           SkIntToScalar(this->height())));
 }
 
-void SkSVGDevice::drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
-                             const SkPoint[], const SkPaint& paint) {
-    // todo
-    SkDebugf("unsupported operation: drawPoints()\n");
+void SkSVGDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
+                             const SkPoint pts[], const SkPaint& paint) {
+    SkPath path;
+
+    switch (mode) {
+            // todo
+        case SkCanvas::kPoints_PointMode:
+            SkDebugf("unsupported operation: drawPoints(kPoints_PointMode)\n");
+            break;
+        case SkCanvas::kLines_PointMode:
+            count -= 1;
+            for (size_t i = 0; i < count; i += 2) {
+                path.rewind();
+                path.moveTo(pts[i]);
+                path.lineTo(pts[i+1]);
+                AutoElement elem("path", fWriter, fResourceBucket, draw, paint);
+                elem.addPathAttributes(path);
+            }
+            break;
+        case SkCanvas::kPolygon_PointMode:
+            if (count > 1) {
+                path.addPoly(pts, SkToInt(count), false);
+                path.moveTo(pts[0]);
+                AutoElement elem("path", fWriter, fResourceBucket, draw, paint);
+                elem.addPathAttributes(path);
+            }
+            break;
+    }
 }
 
 void SkSVGDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
@@ -622,9 +646,12 @@ void SkSVGDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
     ellipse.addAttribute("ry", oval.height() / 2);
 }
 
-void SkSVGDevice::drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& paint) {
-    // todo
-    SkDebugf("unsupported operation: drawRRect()\n");
+void SkSVGDevice::drawRRect(const SkDraw& draw, const SkRRect& rr, const SkPaint& paint) {
+    SkPath path;
+    path.addRRect(rr);
+
+    AutoElement elem("path", fWriter, fResourceBucket, draw, paint);
+    elem.addPathAttributes(path);
 }
 
 void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint& paint,
