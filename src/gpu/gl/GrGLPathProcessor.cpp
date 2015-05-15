@@ -108,11 +108,12 @@ void GrGLPathProcessor::setTransformData(
         const SkTArray<const GrCoordTransform*, true>& coordTransforms,
         GrGLPathRendering* glpr,
         GrGLuint programID) {
+    const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
     SkSTArray<2, Transform, true>& transforms = fInstalledTransforms[index];
     int numTransforms = transforms.count();
     for (int t = 0; t < numTransforms; ++t) {
         SkASSERT(transforms[t].fHandle.isValid());
-        const SkMatrix& transform = GetTransformMatrix(primProc.localMatrix(),
+        const SkMatrix& transform = GetTransformMatrix(pathProc.localMatrix(),
                                                        *coordTransforms[t]);
         if (transforms[t].fCurrentValue.cheapEqualTo(transform)) {
             continue;

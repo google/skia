@@ -89,23 +89,6 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
     }
 }
 
-void
-GrGLGeometryProcessor::setTransformData(const GrPrimitiveProcessor& primProc,
-                                        const GrGLProgramDataManager& pdman,
-                                        int index,
-                                        const SkTArray<const GrCoordTransform*, true>& transforms) {
-    SkSTArray<2, Transform, true>& procTransforms = fInstalledTransforms[index];
-    int numTransforms = transforms.count();
-    for (int t = 0; t < numTransforms; ++t) {
-        SkASSERT(procTransforms[t].fHandle.isValid());
-        const SkMatrix& transform = GetTransformMatrix(primProc.localMatrix(), *transforms[t]);
-        if (!procTransforms[t].fCurrentValue.cheapEqualTo(transform)) {
-            pdman.setSkMatrix(procTransforms[t].fHandle.convertToUniformHandle(), transform);
-            procTransforms[t].fCurrentValue = transform;
-        }
-    }
-}
-
 void GrGLGeometryProcessor::setupPosition(GrGLGPBuilder* pb,
                                           GrGPArgs* gpArgs,
                                           const char* posName,

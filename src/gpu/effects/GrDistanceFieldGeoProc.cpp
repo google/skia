@@ -68,9 +68,8 @@ public:
         this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
 
         // emit transforms
-        const SkMatrix& localMatrix = dfTexEffect.localMatrix();
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
-                             localMatrix, args.fTransformsIn, args.fTransformsOut);
+                             args.fTransformsIn, args.fTransformsOut);
 
         // add varyings
         GrGLVertToFrag recipScale(kFloat_GrSLType);
@@ -172,7 +171,6 @@ public:
         const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
-        key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
@@ -198,8 +196,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            float distanceAdjust,
 #endif
                                                            uint32_t flags)
-    : INHERITED(SkMatrix::I())
-    , fColor(color)
+    : fColor(color)
     , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -312,7 +309,7 @@ public:
 
         // emit transforms
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
-                             dfTexEffect.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+                             args.fTransformsIn, args.fTransformsOut);
 
         const char* textureSizeUniName = NULL;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -405,7 +402,6 @@ public:
         const DistanceFieldPathBatchTracker& local = bt.cast<DistanceFieldPathBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
-        key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
@@ -427,8 +423,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         GrTexture* texture,
         const GrTextureParams& params,
         uint32_t flags)
-    : INHERITED(SkMatrix::I())
-    , fColor(color)
+    : fColor(color)
     , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
@@ -526,9 +521,8 @@ public:
         this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
 
         // emit transforms
-        const SkMatrix& localMatrix = dfTexEffect.localMatrix();
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
-                             localMatrix, args.fTransformsIn, args.fTransformsOut);
+                             args.fTransformsIn, args.fTransformsOut);
 
         // set up varyings
         bool isUniformScale = SkToBool(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
@@ -676,7 +670,6 @@ public:
         const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
         key |= local.fInputColorType << 16;
-        key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24: 0x0;
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
@@ -697,8 +690,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrTexture* texture, const GrTextureParams& params,
                                                   DistanceAdjust distanceAdjust,
                                                   uint32_t flags)
-    : INHERITED(SkMatrix::I())
-    , fColor(color)
+    : fColor(color)
     , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
     , fDistanceAdjust(distanceAdjust)

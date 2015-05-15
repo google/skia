@@ -19,8 +19,8 @@
  */
 class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
-    GrGeometryProcessor(const SkMatrix& localMatrix = SkMatrix::I())
-        : INHERITED(localMatrix, false)
+    GrGeometryProcessor()
+        : INHERITED(false)
         , fWillUseGeoShader(false)
         , fHasLocalCoords(false) {}
 

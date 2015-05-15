@@ -99,6 +99,7 @@ public:
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -115,6 +116,7 @@ private:
 
     GrColor             fColor;
     SkMatrix            fViewMatrix;
+    SkMatrix            fLocalMatrix;
     uint8_t             fCoverageScale;
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
@@ -179,6 +181,7 @@ public:
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -195,6 +198,7 @@ private:
 
     GrColor             fColor;
     SkMatrix            fViewMatrix;
+    SkMatrix            fLocalMatrix;
     uint8_t             fCoverageScale;
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;

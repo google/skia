@@ -13,9 +13,10 @@
 GrPathProcessor::GrPathProcessor(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
-    : INHERITED(localMatrix, true)
+    : INHERITED(true)
+    , fColor(color)
     , fViewMatrix(viewMatrix)
-    , fColor(color) {
+    , fLocalMatrix(localMatrix) {
     this->initClassID<GrPathProcessor>();
 }
 

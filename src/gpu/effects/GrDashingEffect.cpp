@@ -785,6 +785,8 @@ public:
 
     GrColor color() const { return fColor; }
 
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
+
     virtual void getGLProcessorKey(const GrBatchTracker&,
                                    const GrGLSLCaps&,
                                    GrProcessorKeyBuilder* b) const override;
@@ -798,6 +800,7 @@ private:
     DashingCircleEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix);
 
     GrColor             fColor;
+    SkMatrix            fLocalMatrix;
     DashAAMode          fAAMode;
     const Attribute*    fInPosition;
     const Attribute*    fInDashParams;
@@ -824,6 +827,13 @@ public:
     virtual void setData(const GrGLProgramDataManager&,
                          const GrPrimitiveProcessor&,
                          const GrBatchTracker&) override;
+
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
+        this->setTransformDataHelper<DashingCircleEffect>(primProc, pdman, index, transforms);
+    }
 
 private:
     UniformHandle fParamUniform;
@@ -910,7 +920,7 @@ void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
     const DashingCircleBatchTracker& local = bt.cast<DashingCircleBatchTracker>();
     const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
     uint32_t key = 0;
-    key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
+    key |= local.fUsesLocalCoords && dce.localMatrix().hasPerspective() ? 0x1 : 0x0;
     key |= dce.aaMode() << 8;
     b->add32(key << 16 | local.fInputColorType);
 }
@@ -937,8 +947,8 @@ GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrBatchTrack
 DashingCircleEffect::DashingCircleEffect(GrColor color,
                                          DashAAMode aaMode,
                                          const SkMatrix& localMatrix)
-    : INHERITED(localMatrix)
-    , fColor(color)
+    : fColor(color)
+    , fLocalMatrix(localMatrix)
     , fAAMode(aaMode) {
     this->initClassID<DashingCircleEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
@@ -1003,6 +1013,8 @@ public:
 
     GrColor color() const { return fColor; }
 
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
+
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
@@ -1016,6 +1028,7 @@ private:
     DashingLineEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix);
 
     GrColor             fColor;
+    SkMatrix            fLocalMatrix;
     DashAAMode          fAAMode;
     const Attribute*    fInPosition;
     const Attribute*    fInDashParams;
@@ -1042,6 +1055,13 @@ public:
     virtual void setData(const GrGLProgramDataManager&,
                          const GrPrimitiveProcessor&,
                          const GrBatchTracker&) override;
+
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
+        this->setTransformDataHelper<DashingLineEffect>(primProc, pdman, index, transforms);
+    }
 
 private:
     GrColor       fColor;
@@ -1140,7 +1160,7 @@ void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
     const DashingLineBatchTracker& local = bt.cast<DashingLineBatchTracker>();
     const DashingLineEffect& de = gp.cast<DashingLineEffect>();
     uint32_t key = 0;
-    key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
+    key |= local.fUsesLocalCoords && de.localMatrix().hasPerspective() ? 0x1 : 0x0;
     key |= de.aaMode() << 8;
     b->add32(key << 16 | local.fInputColorType);
 }
@@ -1167,8 +1187,8 @@ GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker
 DashingLineEffect::DashingLineEffect(GrColor color,
                                      DashAAMode aaMode,
                                      const SkMatrix& localMatrix)
-    : INHERITED(localMatrix)
-    , fColor(color)
+    : fColor(color)
+    , fLocalMatrix(localMatrix)
     , fAAMode(aaMode) {
     this->initClassID<DashingLineEffect>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));

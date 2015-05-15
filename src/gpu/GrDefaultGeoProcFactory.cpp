@@ -40,6 +40,7 @@ public:
     const Attribute* inCoverage() const { return fInCoverage; }
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
     uint8_t coverage() const { return fCoverage; }
 
     void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override {
@@ -121,7 +122,7 @@ public:
             const BatchTracker& local = bt.cast<BatchTracker>();
             uint32_t key = def.fFlags;
             key |= local.fInputColorType << 8 | local.fInputCoverageType << 16;
-            key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 << 24 : 0x0;
+            key |= local.fUsesLocalCoords && def.localMatrix().hasPerspective() ? 0x1 << 24 : 0x0;
             key |= ComputePosKey(def.viewMatrix()) << 25;
             b->add32(key);
         }
@@ -143,6 +144,13 @@ public:
                 pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(local.fCoverage));
                 fCoverage = local.fCoverage;
             }
+        }
+
+        void setTransformData(const GrPrimitiveProcessor& primProc,
+                              const GrGLProgramDataManager& pdman,
+                              int index,
+                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
+            this->setTransformDataHelper<DefaultGeoProc>(primProc, pdman, index, transforms);
         }
 
     private:
@@ -171,13 +179,13 @@ private:
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,
                    uint8_t coverage)
-        : INHERITED(localMatrix)
-        , fInPosition(NULL)
+        : fInPosition(NULL)
         , fInColor(NULL)
         , fInLocalCoords(NULL)
         , fInCoverage(NULL)
         , fColor(color)
         , fViewMatrix(viewMatrix)
+        , fLocalMatrix(localMatrix)
         , fCoverage(coverage)
         , fFlags(gpTypeFlags) {
         this->initClassID<DefaultGeoProc>();
@@ -213,6 +221,7 @@ private:
     const Attribute* fInCoverage;
     GrColor fColor;
     SkMatrix fViewMatrix;
+    SkMatrix fLocalMatrix;
     uint8_t fCoverage;
     uint32_t fFlags;
 

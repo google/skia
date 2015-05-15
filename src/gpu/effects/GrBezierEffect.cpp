@@ -50,6 +50,13 @@ public:
         }
     }
 
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
+        this->setTransformDataHelper<GrConicEffect>(primProc, pdman, index, transforms);
+    }
+
 private:
     GrColor fColor;
     uint8_t fCoverageScale;
@@ -170,7 +177,7 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x0;
     key |= 0xff != local.fCoverageScale ? 0x8 : 0x0;
-    key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x10 : 0x0;
+    key |= local.fUsesLocalCoords && ce.localMatrix().hasPerspective() ? 0x10 : 0x0;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }
@@ -192,9 +199,9 @@ GrGLPrimitiveProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt
 
 GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
                              GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix)
-    : INHERITED(localMatrix)
-    , fColor(color)
+    : fColor(color)
     , fViewMatrix(viewMatrix)
+    , fLocalMatrix(viewMatrix)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrConicEffect>();
@@ -269,6 +276,13 @@ public:
             pdman.set1f(fCoverageScaleUniform, GrNormalizeByteToFloat(local.fCoverageScale));
             fCoverageScale = local.fCoverageScale;
         }
+    }
+
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
+        this->setTransformDataHelper<GrQuadEffect>(primProc, pdman, index, transforms);
     }
 
 private:
@@ -377,7 +391,7 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x0;
     key |= 0xff != local.fCoverageScale ? 0x8 : 0x0;
-    key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x10 : 0x0;
+    key |= local.fUsesLocalCoords && ce.localMatrix().hasPerspective() ? 0x10 : 0x0;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }
@@ -399,9 +413,9 @@ GrGLPrimitiveProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt,
 
 GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
                            GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix)
-    : INHERITED(localMatrix)
-    , fColor(color)
+    : fColor(color)
     , fViewMatrix(viewMatrix)
+    , fLocalMatrix(localMatrix)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrQuadEffect>();
@@ -509,8 +523,8 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupPosition(args.fPB, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
 
     // emit transforms with position
-    this->emitTransforms(args.fPB, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),
-                         args.fTransformsIn, args.fTransformsOut);
+    this->emitTransforms(args.fPB, gpArgs->fPositionVar, gp.inPosition()->fName, args.fTransformsIn,
+                         args.fTransformsOut);
 
     GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
@@ -607,7 +621,6 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
     const CubicBatchTracker& local = bt.cast<CubicBatchTracker>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
     key |= kUniform_GrGPInput == local.fInputColorType ? 0x4 : 0x8;
-    key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x10 : 0x0;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }

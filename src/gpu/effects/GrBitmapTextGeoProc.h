@@ -36,6 +36,7 @@ public:
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrMaskFormat maskFormat() const { return fMaskFormat; }
     GrColor color() const { return fColor; }
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -51,6 +52,7 @@ private:
                         GrMaskFormat format, const SkMatrix& localMatrix);
 
     GrColor          fColor;
+    SkMatrix         fLocalMatrix;
     GrTextureAccess  fTextureAccess;
     const Attribute* fInPosition;
     const Attribute* fInColor;

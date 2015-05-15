@@ -88,6 +88,13 @@ public:
         }
     }
 
+    void setTransformData(const GrPrimitiveProcessor& primProc,
+                          const GrGLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
+        this->setTransformDataHelper<GrBitmapTextGeoProc>(primProc, pdman, index, transforms);
+    }
+
     static inline void GenKey(const GrGeometryProcessor& proc,
                               const GrBatchTracker& bt,
                               const GrGLSLCaps&,
@@ -99,7 +106,7 @@ public:
         const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
         uint32_t key = 0;
         key |= SkToBool(gp.inColor()) ? 0x1 : 0x0;
-        key |= local.fUsesLocalCoords && proc.localMatrix().hasPerspective() ? 0x2 : 0x0;
+        key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x2 : 0x0;
         key |= gp.maskFormat() == kARGB_GrMaskFormat ? 0x4 : 0x0;
         b->add32(local.fInputColorType << 16 | key);
     }
@@ -116,8 +123,8 @@ private:
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
                                          const GrTextureParams& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix)
-    : INHERITED(localMatrix)
-    , fColor(color)
+    : fColor(color)
+    , fLocalMatrix(localMatrix)
     , fTextureAccess(texture, params)
     , fInColor(NULL)
     , fMaskFormat(format) {

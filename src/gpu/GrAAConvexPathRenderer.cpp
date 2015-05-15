@@ -536,6 +536,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inQuadEdge() const { return fInQuadEdge; }
     GrColor color() const { return fColor; }
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
@@ -598,8 +599,9 @@ public:
                                   const GrGLSLCaps&,
                                   GrProcessorKeyBuilder* b) {
             const BatchTracker& local = bt.cast<BatchTracker>();
+            const QuadEdgeEffect& qee = gp.cast<QuadEdgeEffect>();
             uint32_t key = local.fInputColorType << 16;
-            key |= local.fUsesLocalCoords && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
+            key |= local.fUsesLocalCoords && qee.localMatrix().hasPerspective() ? 0x1 : 0x0;
             b->add32(key);
         }
 
@@ -613,6 +615,13 @@ public:
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = local.fColor;
             }
+        }
+
+        void setTransformData(const GrPrimitiveProcessor& primProc,
+                              const GrGLProgramDataManager& pdman,
+                              int index,
+                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
+            this->setTransformDataHelper<QuadEdgeEffect>(primProc, pdman, index, transforms);
         }
 
     private:
@@ -641,8 +650,8 @@ public:
 
 private:
     QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix)
-        : INHERITED(localMatrix)
-        , fColor(color) {
+        : fColor(color)
+        , fLocalMatrix(localMatrix) {
         this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInQuadEdge = &this->addVertexAttrib(Attribute("inQuadEdge", kVec4f_GrVertexAttribType));
@@ -657,6 +666,7 @@ private:
     const Attribute* fInPosition;
     const Attribute* fInQuadEdge;
     GrColor          fColor;
+    SkMatrix         fLocalMatrix;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
