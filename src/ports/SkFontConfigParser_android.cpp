@@ -14,7 +14,9 @@
 
 #include <expat.h>
 #include <dirent.h>
+#include <stdio.h>
 
+#include <limits>
 #include <stdlib.h>
 
 #define LMP_SYSTEM_FONTS_FILE "/system/etc/fonts.xml"
@@ -109,6 +111,32 @@ struct FamilyData {
     SkTDArray<const TagHandler*> fHandler;    // The stack of current tag handlers.
 };
 
+/** Parses a null terminated string into an integer type, checking for overflow.
+ *  http://www.w3.org/TR/html-markup/datatypes.html#common.data.integer.non-negative-def
+ *
+ *  If the string cannot be parsed into 'value', returns false and does not change 'value'.
+ */
+template <typename T> static bool parse_non_negative_integer(const char* s, T* value) {
+    SK_COMPILE_ASSERT(std::numeric_limits<T>::is_integer, T_must_be_integer);
+    const T nMax = std::numeric_limits<T>::max() / 10;
+    const T dMax = std::numeric_limits<T>::max() - (nMax * 10);
+    T n = 0;
+    for (; *s; ++s) {
+        // Check if digit
+        if (*s < '0' || '9' < *s) {
+            return false;
+        }
+        int d = *s - '0';
+        // Check for overflow
+        if (n > nMax || (n == nMax && d > dMax)) {
+            return false;
+        }
+        n = (n * 10) + d;
+    }
+    *value = n;
+    return true;
+}
+
 static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
     return n1 == n2 && 0 == memcmp(s1, s2, n1);
 }
@@ -146,43 +174,6 @@ static void trim_string(SkString* s) {
 
 namespace lmpParser {
 
-static const TagHandler axisHandler = {
-    /*start*/[](FamilyData* self, const char* tag, const char** attributes) {
-        FontFileInfo& file = *self->fCurrentFontInfo;
-        FontFileInfo::Axis& axis = file.fAxes.push_back();
-        for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
-            const char* name = attributes[i];
-            const char* value = attributes[i+1];
-            size_t nameLen = strlen(name);
-            if (MEMEQ("tag", name, nameLen)) {
-                size_t valueLen = strlen(value);
-                if (valueLen == 4) {
-                    SkFourByteTag tag = SkSetFourByteTag(value[0], value[1], value[2], value[3]);
-                    for (int j = 0; j < file.fAxes.count() - 1; ++j) {
-                        if (file.fAxes[j].fTag == tag) {
-                            SK_FONTCONFIGPARSER_WARNING("'%c%c%c%c' axis specified more than once",
-                                                        (tag >> 24) & 0xFF,
-                                                        (tag >> 16) & 0xFF,
-                                                        (tag >>  8) & 0xFF,
-                                                        (tag      ) & 0xFF);
-                        }
-                    }
-                    axis.fTag = SkSetFourByteTag(value[0], value[1], value[2], value[3]);
-                } else {
-                    SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid axis tag", value);
-                }
-            } else if (MEMEQ("stylevalue", name, nameLen)) {
-                if (!parse_fixed<16>(value, &axis.fValue)) {
-                    SK_FONTCONFIGPARSER_WARNING("'%s' is an invalid axis stylevalue", value);
-                }
-            }
-        }
-    },
-    /*end*/NULL,
-    /*tag*/NULL,
-    /*chars*/NULL,
-};
-
 static const TagHandler fontHandler = {
     /*start*/[](FamilyData* self, const char* tag, const char** attributes) {
         // 'weight' (non-negative integer) [default 0]
@@ -216,13 +207,7 @@ static const TagHandler fontHandler = {
     /*end*/[](FamilyData* self, const char* tag) {
         trim_string(&self->fCurrentFontInfo->fFileName);
     },
-    /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
-        size_t len = strlen(tag);
-        if (MEMEQ("axis", tag, len)) {
-            return &axisHandler;
-        }
-        return NULL;
-    },
+    /*tag*/NULL,
     /*chars*/[](void* data, const char* s, int len) {
         FamilyData* self = static_cast<FamilyData*>(data);
         self->fCurrentFontInfo->fFileName.append(s, len);

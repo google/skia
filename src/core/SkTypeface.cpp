@@ -143,11 +143,6 @@ SkTypeface* SkTypeface::CreateFromStream(SkStreamAsset* stream, int index) {
     return fm->createFromStream(stream, index);
 }
 
-SkTypeface* SkTypeface::CreateFromFontData(SkFontData* data) {
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return fm->createFromFontData(data);
-}
-
 SkTypeface* SkTypeface::CreateFromFile(const char path[], int index) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     return fm->createFromFile(path, index);
@@ -162,7 +157,9 @@ void SkTypeface::serialize(SkWStream* wstream) const {
 
     // Embed font data if it's a local font.
     if (isLocal && !desc.hasFontData()) {
-        desc.setFontData(this->onCreateFontData());
+        int ttcIndex;
+        desc.setFontData(this->onOpenStream(&ttcIndex));
+        desc.setFontIndex(ttcIndex);
     }
     desc.serialize(wstream);
 }
@@ -174,16 +171,18 @@ void SkTypeface::serializeForcingEmbedding(SkWStream* wstream) const {
 
     // Always embed font data.
     if (!desc.hasFontData()) {
-        desc.setFontData(this->onCreateFontData());
+        int ttcIndex;
+        desc.setFontData(this->onOpenStream(&ttcIndex));
+        desc.setFontIndex(ttcIndex);
     }
     desc.serialize(wstream);
 }
 
 SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
     SkFontDescriptor desc(stream);
-    SkFontData* data = desc.detachFontData();
+    SkStreamAsset* data = desc.transferFontData();
     if (data) {
-        SkTypeface* typeface = SkTypeface::CreateFromFontData(data);
+        SkTypeface* typeface = SkTypeface::CreateFromStream(data, desc.getFontIndex());
         if (typeface) {
             return typeface;
         }
@@ -218,17 +217,6 @@ SkStreamAsset* SkTypeface::openStream(int* ttcIndex) const {
     }
     return this->onOpenStream(ttcIndex);
 }
-
-SkFontData* SkTypeface::createFontData() const {
-    return this->onCreateFontData();
-}
-
-// This implementation is temporary until this method can be made pure virtual.
-SkFontData* SkTypeface::onCreateFontData() const {
-    int index;
-    SkAutoTDelete<SkStreamAsset> stream(this->onOpenStream(&index));
-    return new SkFontData(stream.detach(), index, NULL, 0);
-};
 
 int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
                               uint16_t glyphs[], int glyphCount) const {

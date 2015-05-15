@@ -8,8 +8,6 @@
 #include "Resources.h"
 #include "SkBitmapSource.h"
 #include "SkCanvas.h"
-#include "SkFixed.h"
-#include "SkFontDescriptor.h"
 #include "SkMallocPixelRef.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
@@ -317,14 +315,21 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
     }
     REPORTER_ASSERT(reporter, 0 == pixelErrors);
 }
-static void serialize_and_compare_typeface(SkTypeface* typeface, const char* text,
-                                           skiatest::Reporter* reporter)
-{
-    // Create a paint with the typeface.
+
+static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
+    // Load typeface form file to test CreateFromFile with index.
+    SkString filename = GetResourcePath("/fonts/test.ttc");
+    SkTypeface* typeface = SkTypeface::CreateFromFile(filename.c_str(), 1);
+    if (!typeface) {
+        SkDebugf("Could not run fontstream test because test.ttc not found.");
+        return;
+    }
+
+    // Create a paint with the typeface we loaded.
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
     paint.setTextSize(SkIntToScalar(30));
-    paint.setTypeface(typeface);
+    SkSafeUnref(paint.setTypeface(typeface));
 
     // Paint some text.
     SkPictureRecorder recorder;
@@ -333,7 +338,7 @@ static void serialize_and_compare_typeface(SkTypeface* typeface, const char* tex
                                                SkIntToScalar(canvasRect.height()), 
                                                NULL, 0);
     canvas->drawColor(SK_ColorWHITE);
-    canvas->drawText(text, 2, 24, 32, paint);
+    canvas->drawText("A!", 2, 24, 32, paint);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     // Serlialize picture and create its clone from stream.
@@ -346,36 +351,6 @@ static void serialize_and_compare_typeface(SkTypeface* typeface, const char* tex
     SkBitmap origBitmap = draw_picture(*picture);
     SkBitmap destBitmap = draw_picture(*loadedPicture);
     compare_bitmaps(reporter, origBitmap, destBitmap);
-}
-
-static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
-    {
-        // Load typeface from file to test CreateFromFile with index.
-        SkString filename = GetResourcePath("/fonts/test.ttc");
-        SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFile(filename.c_str(), 1));
-        if (!typeface) {
-            SkDebugf("Could not run fontstream test because test.ttc not found.");
-        } else {
-            serialize_and_compare_typeface(typeface, "A!", reporter);
-        }
-    }
-
-    {
-        // Load typeface as stream to create with axis settings.
-        SkAutoTDelete<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
-        if (!distortable) {
-            SkDebugf("Could not run fontstream test because Distortable.ttf not found.");
-        } else {
-            SkFixed axis = SK_FixedSqrt2;
-            SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFontData(
-                new SkFontData(distortable.detach(), 0, &axis, 1)));
-            if (!typeface) {
-                SkDebugf("Could not run fontstream test because Distortable.ttf not created.");
-            } else {
-                serialize_and_compare_typeface(typeface, "abc", reporter);
-            }
-        }
-    }
 }
 
 static void setup_bitmap_for_canvas(SkBitmap* bitmap) {

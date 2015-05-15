@@ -25,7 +25,6 @@
                       # Android provides at least FreeType 2.4.0
                       'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',
                       'SK_CAN_USE_DLOPEN=0',
-                      'SK_ANDROID_FREETYPE_HAS_MM=1',
                     ],
                   }
                 }

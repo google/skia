@@ -17,7 +17,6 @@
 #include "SkWeakRefCnt.h"
 
 class SkDescriptor;
-class SkFontData;
 class SkFontDescriptor;
 class SkScalerContext;
 struct SkScalerContextRec;
@@ -134,12 +133,6 @@ public:
         transferred, so the caller must not reference it again.
     */
     static SkTypeface* CreateFromStream(SkStreamAsset* stream, int index = 0);
-
-    /** Return a new typeface given font data and configuration. If the data
-        is not valid font data, returns null. Ownership of the font data is
-        transferred, so the caller must not reference it again.
-    */
-    static SkTypeface* CreateFromFontData(SkFontData*);
 
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
@@ -291,12 +284,6 @@ public:
     SkStreamAsset* openStream(int* ttcIndex) const;
 
     /**
-     *  Return the font data, or NULL on failure.
-     *  The caller is responsible for deleting the font data.
-     */
-    SkFontData* createFontData() const;
-
-    /**
      *  Return a scalercontext for the given descriptor. If this fails, then
      *  if allowFailure is true, this returns NULL, else it returns a
      *  dummy scalercontext that will not crash, but will draw nothing.
@@ -350,9 +337,6 @@ protected:
                         uint32_t glyphIDsCount) const = 0;
 
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
-    // TODO: make pure virtual.
-    virtual SkFontData* onCreateFontData() const;
-
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],

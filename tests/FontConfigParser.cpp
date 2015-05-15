@@ -10,9 +10,6 @@
 #include "SkFontConfigParser_android.h"
 #include "Test.h"
 
-#include <cmath>
-#include <cstdio>
-
 DECLARE_bool(verboseFontMgr);
 
 int CountFallbacks(SkTDArray<FontFamily*> fontFamilies) {
@@ -94,55 +91,7 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* label) {
     SkDebugf("\n\n");
 }
 
-template <int N, typename T> static double test_parse_fixed_r(skiatest::Reporter* reporter,
-                                                              double low, double high, double inc)
-{
-    double SK_FixedMax_double = nextafter(1 << (sizeof(T) * CHAR_BIT - N - 1), 0.0);
-    double SK_FixedEpsilon_double = (1.0 / (1 << N));
-    double maxError = 0;
-    char buffer[64];
-    for (double f = low; f < high; f += inc) {
-        SkString s;
-        // 'sprintf' formatting as expected depends on the current locale being "C".
-        // We currently expect tests and tools to run in the "C" locale.
-        sprintf(buffer, "%.20f", f);
-        T fix;
-        bool b = parse_fixed<N>(buffer, &fix);
-        if (b) {
-            double f2 = fix * SK_FixedEpsilon_double;
-            double error = fabs(f - f2);
-            REPORTER_ASSERT(reporter,  error <= SK_FixedEpsilon_double);
-            maxError = SkTMax(maxError, error);
-        } else {
-            REPORTER_ASSERT(reporter, f < -SK_FixedMax_double || SK_FixedMax_double < f);
-        }
-    }
-
-    //SkDebugf("maxError: %.20f\n", maxError);
-    return maxError;
-}
-
-static void test_parse_fixed(skiatest::Reporter* reporter) {
-    test_parse_fixed_r<27, int32_t>(reporter, -8.1, -7.9, 0.000001);
-    test_parse_fixed_r<27, int32_t>(reporter, -0.1, 0.1, 0.000001);
-    test_parse_fixed_r<27, int32_t>(reporter, 7.9, 8.1, 0.000001);
-    test_parse_fixed_r<16, int32_t>(reporter, -0.125, 0.125, 1.0 / (1 << 19));
-    test_parse_fixed_r<16, int32_t>(reporter, -32768.125, -32766.875, 1.0 / (1 << 17));
-    test_parse_fixed_r<16, int32_t>(reporter, 32766.875, 32768.125, 1.0 / (1 << 17));
-    test_parse_fixed_r<16, int32_t>(reporter, -1.1, 1.1, 0.0001);
-
-    SkFixed fix;
-    REPORTER_ASSERT(reporter, !parse_fixed<27>("-17.1", &fix));
-    REPORTER_ASSERT(reporter, !parse_fixed<16>("32768", &fix));
-    REPORTER_ASSERT(reporter, !parse_fixed<16>("", &fix));
-    REPORTER_ASSERT(reporter, !parse_fixed<16>(".", &fix));
-    REPORTER_ASSERT(reporter, !parse_fixed<16>("123.", &fix));
-    REPORTER_ASSERT(reporter, !parse_fixed<16>("a", &fix));
-    REPORTER_ASSERT(reporter, !parse_fixed<16>(".123a", &fix));
-}
-
 DEF_TEST(FontConfigParserAndroid, reporter) {
-    test_parse_fixed(reporter);
 
     bool resourcesMissing = false;
 
@@ -188,7 +137,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
         NULL);
 
     if (v22FontFamilies.count() > 0) {
-        REPORTER_ASSERT(reporter, v22FontFamilies.count() == 54);
+        REPORTER_ASSERT(reporter, v22FontFamilies.count() == 53);
         REPORTER_ASSERT(reporter, CountFallbacks(v22FontFamilies) == 42);
 
         DumpLoadedFonts(v22FontFamilies, "version 22");
