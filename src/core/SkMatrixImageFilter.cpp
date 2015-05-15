@@ -76,13 +76,13 @@ bool SkMatrixImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
+    SkPaint paint;
+    paint.setFilterQuality(fFilterQuality);
+    paint.setAntiAlias(true);   // since we may be rotated, we definitely want a smooth edge
+    
     SkCanvas canvas(device.get());
     canvas.translate(-SkIntToScalar(dstBounds.x()), -SkIntToScalar(dstBounds.y()));
     canvas.concat(matrix);
-    SkPaint paint;
-
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    paint.setFilterQuality(fFilterQuality);
     canvas.drawBitmap(src, srcRect.x(), srcRect.y(), &paint);
 
     *result = device.get()->accessBitmap(false);

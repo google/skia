@@ -81,6 +81,9 @@ public:
     public:
         virtual ~Proxy() {};
 
+        /**
+         *  The returned device will be zero-initialized (transparent black)
+         */
         virtual SkBaseDevice* createDevice(int width, int height) = 0;
         // returns true if the proxy can handle this filter natively
         virtual bool canHandleImageFilter(const SkImageFilter*) = 0;
@@ -343,6 +346,12 @@ protected:
 
 private:
     bool usesSrcInput() const { return fUsesSrcInput; }
+
+    // Hack to optimize how we saveLayer, remove when no longer needed by SkCanvas
+    bool mayDrawWithMatrix() const { return this->onMayDrawWithMatrix(); }
+    // Return true if the subclass may draw the src transformed (e.g. w/ matrix)
+    virtual bool onMayDrawWithMatrix() const { return false; }
+    friend class SkCanvas;
 
     typedef SkFlattenable INHERITED;
     int fInputCount;
