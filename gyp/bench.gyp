@@ -14,14 +14,6 @@
       'type': 'executable',
       'sources': [
         '../gm/gm.cpp',
-        '../bench/CodecBench.cpp',
-        '../bench/DecodingBench.cpp',
-        '../bench/DecodingSubsetBench.cpp',
-        '../bench/GMBench.cpp',
-        '../bench/RecordingBench.cpp',
-        '../bench/SKPAnimationBench.cpp',
-        '../bench/SKPBench.cpp',
-        '../bench/nanobench.cpp',
       ],
       'includes': [
         'bench.gypi',
@@ -47,9 +39,6 @@
           'include_dirs': [
             '../../../frameworks/base/libs/hwui/',
             '../../../frameworks/native/include/',
-          ],
-          'sources': [
-            '../bench/nanobenchAndroid.cpp',
           ],
           'dependencies': [
             'utils.gyp:android_utils',
