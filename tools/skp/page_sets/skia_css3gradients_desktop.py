@@ -22,7 +22,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.ScrollElement()
 
   def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
+    action_runner.Navigate(self.url)
     action_runner.Wait(15)
 
 

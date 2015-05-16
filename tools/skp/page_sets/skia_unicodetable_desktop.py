@@ -19,7 +19,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.archive_data_file = 'data/skia_unicodetable_desktop.json'
 
   def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
+    action_runner.Navigate(self.url)
     action_runner.ScrollPage(distance=100000)
     action_runner.Wait(20)
 

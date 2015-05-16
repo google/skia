@@ -19,7 +19,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.archive_data_file = 'data/skia_digg_nexus10.json'
 
   def RunNavigateSteps(self, action_runner):
-    action_runner.NavigateToPage(self)
+    action_runner.Navigate(self.url)
     action_runner.Wait(5)
 
 class SkiaDiggNexus10PageSet(page_set_module.PageSet):
