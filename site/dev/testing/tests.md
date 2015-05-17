@@ -23,11 +23,7 @@ Writing a Unit Test
             REPORTER_ASSERT(reporter, lifeIsGood);
         }
 
-2.  Add a line to `gyp/tests.gypi`:
-
-        '../tests/NewUnitTest.cpp',
-
-3.  Recompile and run test:
+2.  Recompile and run test:
 
         ./gyp_skia
         ninja -C out/Debug dm
@@ -54,17 +50,13 @@ Writing a Rendering Test
             canvas->drawLine(16, 16, 112, 112, p);
         }
 
-2.  Add a line to `gyp/gmslides.gypi`:
-
-        '../gm/newgmtest.cpp',
-
-3.  Recompile and run test:
+2.  Recompile and run test:
 
         ./gyp_skia
         ninja -C out/Debug dm
         out/Debug/dm --match newgmtest
 
-4.  Run the GM inside SampleApp:
+3.  Run the GM inside SampleApp:
 
         ./gyp_skia
         ninja -C out/Debug SampleApp
