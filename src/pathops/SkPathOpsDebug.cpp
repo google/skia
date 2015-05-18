@@ -547,7 +547,9 @@ int SkOpPtT::debugLoopLimit(bool report) const {
 
 void SkOpPtT::debugValidate() const {
 #if DEBUG_VALIDATE
-    if (contour()->globalState()->phase() == SkOpGlobalState::kIntersecting) {
+    SkOpGlobalState::Phase phase = contour()->globalState()->phase();
+    if (phase == SkOpGlobalState::kIntersecting
+            || phase == SkOpGlobalState::kFixWinding) {
         return;
     }
     SkASSERT(fNext);

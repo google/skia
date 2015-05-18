@@ -31,6 +31,7 @@ public:
     SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head)
         : fCoincidence(coincidence)
         , fContourHead(head)
+        , fNested(0)
         , fWindingFailed(false)
         , fAngleCoincidence(false)
         , fPhase(kIntersecting)
@@ -55,6 +56,14 @@ public:
         return fAngleCoincidence;
     }
 
+    void bumpNested() {
+        ++fNested;
+    }
+
+    void clearNested() {
+        fNested = 0;
+    }
+
     SkOpCoincidence* coincidence() {
         return fCoincidence;
     }
@@ -69,7 +78,13 @@ public:
     const class SkOpPtT* debugPtT(int id) const;
     const class SkOpSegment* debugSegment(int id) const;
     const class SkOpSpanBase* debugSpan(int id) const;
+#endif
 
+    int nested() const {
+        return fNested;
+    }
+
+#ifdef SK_DEBUG
     int nextAngleID() {
         return ++fAngleID;
     }
@@ -119,6 +134,7 @@ public:
 private:
     SkOpCoincidence* fCoincidence;
     SkOpContourHead* fContourHead;
+    int fNested;
     bool fWindingFailed;
     bool fAngleCoincidence;
     Phase fPhase;

@@ -353,6 +353,7 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
             SkTSwap(wind, oppWind);
         }
         last = &hit->fPt;
+        this->globalState()->bumpNested();
     }
     return true;
 }

@@ -55,13 +55,17 @@ void FixWinding(SkPath* path) {
     while ((topSpan = FindSortableTop(&contourHead))) {
         SkOpSegment* topSegment = topSpan->segment();
         SkOpContour* topContour = topSegment->contour();
-        bool active = topSegment->activeWinding(topSpan, topSpan->next());
         SkASSERT(topContour->isCcw() >= 0);
-        if (active != SkToBool(topContour->isCcw())) {
+#if DEBUG_WINDING
+        SkDebugf("%s id=%d nested=%d ccw=%d\n",  __FUNCTION__,
+                topSegment->debugID(), globalState.nested(), topContour->isCcw());
+#endif
+        if ((globalState.nested() & 1) != SkToBool(topContour->isCcw())) {
             topContour->setReverse();
             writePath = true;
         }
         topContour->markDone();
+        globalState.clearNested();
     }
     if (!writePath) {
         path->setFillType(fillType);
