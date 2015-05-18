@@ -10,6 +10,7 @@
       'product_name': 'skia_pdf',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'variables': { 'skia_pdf_use_sfntly%': 1, },
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'skflate.gyp:skflate',
@@ -26,6 +27,9 @@
         'pdf.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
       'conditions': [
+        [ 'skia_pdf_use_sfntly and not skia_android_framework',
+          { 'dependencies': [ 'sfntly.gyp:sfntly' ] }
+        ],
         [ 'skia_android_framework', {
             # Add SFTNLY support for PDF (which in turns depends on ICU)
             'include_dirs': [
