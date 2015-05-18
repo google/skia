@@ -231,6 +231,7 @@ public:
         return fPts[SkPathOpsVerbToPoints(fVerb)];
     }
 
+    void markAllDone();
     SkOpSpanBase* markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* end);
     bool markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end, int winding,
             SkOpSpanBase** lastPtr);

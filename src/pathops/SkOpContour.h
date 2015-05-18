@@ -207,8 +207,19 @@ public:
         SkDEBUGCODE(fID = globalState->nextContourID());
     }
 
+    int isCcw() const {
+        return fCcw;
+    }
+
     bool isXor() const {
         return fXor;
+    }
+
+    void markDone() {
+        SkOpSegment* segment = &fHead;
+        do {
+            segment->markAllDone();
+        } while ((segment = segment->next()));
     }
 
     void missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator) {
@@ -289,6 +300,18 @@ public:
         SkDEBUGCODE(fDebugIndent = 0);
     }
 
+    void resetReverse() {
+        SkOpContour* next = this;
+        do {
+            next->fCcw = -1;
+            next->fReverse = false;
+        } while ((next = next->next()));
+    }
+
+    bool reversed() const {
+        return fReverse;
+    }
+
     void setBounds() {
         SkASSERT(fCount > 0);
         const SkOpSegment* segment = &fHead;
@@ -296,6 +319,10 @@ public:
         while ((segment = segment->next())) {
             fBounds.add(segment->bounds());
         }
+    }
+
+    void setCcw(int ccw) {
+        fCcw = ccw;
     }
 
     void setGlobalState(SkOpGlobalState* state) {
@@ -313,6 +340,10 @@ public:
 
     void setOppXor(bool isOppXor) {
         fOppXor = isOppXor;
+    }
+
+    void setReverse() {
+        fReverse = true;
     }
 
     void setXor(bool isXor) {
@@ -347,6 +378,7 @@ public:
         } while ((segment = segment->next()));
     }
 
+    void toReversePath(SkPathWriter* path) const;
     void toPath(SkPathWriter* path) const;
     SkOpSegment* undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr);
 
@@ -356,11 +388,13 @@ private:
     SkOpSegment* fTail;
     SkOpContour* fNext;
     SkPathOpsBounds fBounds;
+    int fCcw;
     int fCount;
     int fFirstSorted;
     bool fDone;  // set by find top segment
     bool fTopsFound;
     bool fOperand;  // true for the second argument to a binary operator
+    bool fReverse;  // true if contour should be reverse written to path (used only by fix winding)
     bool fXor;  // set if original path had even-odd fill
     bool fOppXor;  // set if opposite path had even-odd fill
     SkDEBUGCODE(int fID);

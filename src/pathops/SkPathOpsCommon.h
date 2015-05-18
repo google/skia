@@ -22,6 +22,7 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
 SkOpSpan* FindSortableTop(SkOpContourHead* );
 SkOpSegment* FindUndone(SkOpContourHead* , SkOpSpanBase** startPtr,
                         SkOpSpanBase** endPtr);
+void FixWinding(SkPath* path);
 bool SortContourList(SkOpContourHead** , bool evenOdd, bool oppEvenOdd);
 bool HandleCoincidence(SkOpContourHead* , SkOpCoincidence* , SkChunkAlloc* );
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result, bool expectSuccess);

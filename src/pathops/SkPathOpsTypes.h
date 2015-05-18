@@ -33,9 +33,7 @@ public:
         , fContourHead(head)
         , fWindingFailed(false)
         , fAngleCoincidence(false)
-#if DEBUG_VALIDATE
         , fPhase(kIntersecting)
-#endif
         SkDEBUGPARAMS(fAngleID(0))
         SkDEBUGPARAMS(fContourID(0))
         SkDEBUGPARAMS(fPtTID(0))
@@ -43,12 +41,11 @@ public:
         SkDEBUGPARAMS(fSpanID(0)) {
     }
 
-#if DEBUG_VALIDATE
     enum Phase {
         kIntersecting,
-        kWalking
+        kWalking,
+        kFixWinding,
     };
-#endif
 
     enum {
         kMaxWindingTries = 10
@@ -93,11 +90,9 @@ public:
     }
 #endif
 
-#if DEBUG_VALIDATE
     Phase phase() const {
         return fPhase;
     }
-#endif
 
     void setAngleCoincidence() {
         fAngleCoincidence = true;
@@ -107,12 +102,10 @@ public:
         fContourHead = contourHead;
     }
 
-#if DEBUG_VALIDATE
     void setPhase(Phase phase) {
         SkASSERT(fPhase != phase);
         fPhase = phase;
     }
-#endif
 
     // called in very rare cases where angles are sorted incorrectly -- signfies op will fail
     void setWindingFailed() {
@@ -128,9 +121,7 @@ private:
     SkOpContourHead* fContourHead;
     bool fWindingFailed;
     bool fAngleCoincidence;
-#if DEBUG_VALIDATE
     Phase fPhase;
-#endif
 #ifdef SK_DEBUG
     int fAngleID;
     int fContourID;

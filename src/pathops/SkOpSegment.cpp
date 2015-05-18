@@ -852,6 +852,13 @@ bool SkOpSegment::isXor() const {
     return fContour->isXor();
 }
 
+void SkOpSegment::markAllDone() {
+    SkOpSpan* span = this->head();
+    do {
+        this->markDone(span);
+    } while ((span = span->next()->upCastable()));
+}
+
 SkOpSpanBase* SkOpSegment::markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* end) {
     int step = start->step(end);
     SkOpSpan* minSpan = start->starter(end);

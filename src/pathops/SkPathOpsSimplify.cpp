@@ -212,3 +212,4 @@ bool Simplify(const SkPath& path, SkPath* result) {
     }
     return true;
 }
+

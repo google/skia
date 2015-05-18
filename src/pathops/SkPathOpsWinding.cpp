@@ -342,8 +342,12 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
 #endif
         }
         if (sumSet) {
-            (void) hitSegment->markAndChaseWinding(span, span->next(), windSum, oppSum, NULL);
-            (void) hitSegment->markAndChaseWinding(span->next(), span, windSum, oppSum, NULL);
+            if (this->globalState()->phase() == SkOpGlobalState::kFixWinding) {
+                hitSegment->contour()->setCcw(ccw);
+            } else {
+                (void) hitSegment->markAndChaseWinding(span, span->next(), windSum, oppSum, NULL);
+                (void) hitSegment->markAndChaseWinding(span->next(), span, windSum, oppSum, NULL);
+            }
         }
         if (operand) {
             SkTSwap(wind, oppWind);

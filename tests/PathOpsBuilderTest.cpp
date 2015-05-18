@@ -33,8 +33,10 @@ DEF_TEST(PathOpsBuilder, reporter) {
     SkPath::Direction dir;
     REPORTER_ASSERT(reporter, result.isRect(NULL, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
-    REPORTER_ASSERT(reporter, dir == SkPath::kCW_Direction);
-    REPORTER_ASSERT(reporter, rectPath == result);
+    REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
+    SkBitmap bitmap;
+    int pixelDiff = comparePaths(reporter, __FUNCTION__, rectPath, result, bitmap);
+    REPORTER_ASSERT(reporter, pixelDiff == 0);
 
     rectPath.reset();
     rectPath.setFillType(SkPath::kEvenOdd_FillType);
@@ -44,7 +46,7 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, result.isRect(NULL, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
-     REPORTER_ASSERT(reporter, rectPath == result);
+    REPORTER_ASSERT(reporter, rectPath == result);
 
     builder.add(rectPath, kDifference_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
@@ -74,12 +76,11 @@ DEF_TEST(PathOpsBuilder, reporter) {
     builder.add(circle2, kUnion_SkPathOp);
     builder.add(circle3, kDifference_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
-    SkBitmap bitmap;
-    int pixelDiff = comparePaths(reporter, __FUNCTION__, opCompare, result, bitmap);
+    pixelDiff = comparePaths(reporter, __FUNCTION__, opCompare, result, bitmap);
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 }
 
-DEF_TEST(Issue3838, reporter) {
+DEF_TEST(BuilderIssue3838, reporter) {
     SkPath path;
     path.moveTo(200, 170);
     path.lineTo(220, 170);
@@ -93,14 +94,26 @@ DEF_TEST(Issue3838, reporter) {
     path.lineTo(200, 250);
     path.lineTo(200, 170);
     path.close();
-    testSimplify(reporter, path, __FUNCTION__);
-    SkPath path3;
-    Simplify(path, &path3);
     SkPath path2;
     SkOpBuilder builder;
     builder.add(path, kUnion_SkPathOp);
     builder.resolve(&path2);
     SkBitmap bitmap;
     int pixelDiff = comparePaths(reporter, __FUNCTION__, path, path2, bitmap);
+    REPORTER_ASSERT(reporter, pixelDiff == 0);
+}
+
+DEF_TEST(BuilderIssue3838_2, reporter) {
+    SkPath path;
+    path.addCircle(100, 100, 50);
+
+    SkOpBuilder builder;
+    builder.add(path, kUnion_SkPathOp);
+    builder.add(path, kUnion_SkPathOp);
+
+    SkPath result;
+    SkBitmap bitmap;
+    builder.resolve(&result);
+    int pixelDiff = comparePaths(reporter, __FUNCTION__, path, result, bitmap);
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 }

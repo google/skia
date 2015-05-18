@@ -47,6 +47,16 @@ void SkOpContour::toPath(SkPathWriter* path) const {
     path->close();
 }
 
+void SkOpContour::toReversePath(SkPathWriter* path) const {
+    const SkPoint& pt = fTail->pts()[0];
+    path->deferredMove(pt);
+    const SkOpSegment* segment = fTail;
+    do {
+        segment->addCurveTo(segment->tail(), segment->head(), path, true);
+    } while ((segment = segment->prev()));
+    path->close();
+}
+
 SkOpSegment* SkOpContour::undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr) {
     SkOpSegment* segment = &fHead;
     do {
