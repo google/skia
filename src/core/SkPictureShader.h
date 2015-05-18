@@ -21,7 +21,7 @@ class SkPicture;
  */
 class SkPictureShader : public SkShader {
 public:
-    static SkPictureShader* Create(const SkPicture*, TileMode, TileMode, const SkMatrix*,
+    static SkShader* Create(const SkPicture*, TileMode, TileMode, const SkMatrix*,
                                    const SkRect*);
     virtual ~SkPictureShader();
 

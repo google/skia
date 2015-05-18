@@ -114,10 +114,10 @@ SkPictureShader::~SkPictureShader() {
     fPicture->unref();
 }
 
-SkPictureShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMode tmy,
+SkShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMode tmy,
                                          const SkMatrix* localMatrix, const SkRect* tile) {
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
-        return NULL;
+        return SkShader::CreateEmptyShader();
     }
     return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy, localMatrix, tile));
 }
@@ -185,7 +185,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
 
     SkISize tileSize = scaledSize.toRound();
     if (tileSize.isEmpty()) {
-        return NULL;
+        return SkShader::CreateEmptyShader();
     }
 
     // The actual scale, compensating for rounding & clamping.
@@ -204,7 +204,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
         SkBitmap bm;
         bm.setInfo(SkImageInfo::MakeN32Premul(tileSize));
         if (!cache_try_alloc_pixels(&bm)) {
-            return NULL;
+            return SkShader::CreateEmptyShader();
         }
         bm.eraseColor(SK_ColorTRANSPARENT);
 
