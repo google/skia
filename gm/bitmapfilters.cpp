@@ -8,8 +8,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-namespace skiagm {
-
 static void make_bm(SkBitmap* bm) {
     const SkColor colors[4] = {
         SK_ColorRED, SK_ColorGREEN,
@@ -70,37 +68,31 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     return x * scale / 3;
 }
 
-class FilterGM : public GM {
-    bool fOnce;
-    void init() {
-        if (fOnce) {
-            return;
-        }
-        fOnce = true;
+class FilterGM : public skiagm::GM {
+    void onOnceBeforeDraw() override {
         make_bm(&fBM8);
         fBM8.copyTo(&fBM4444, kARGB_4444_SkColorType);
         fBM8.copyTo(&fBM16, kRGB_565_SkColorType);
         fBM8.copyTo(&fBM32, kN32_SkColorType);
     }
+
 public:
     SkBitmap    fBM8, fBM4444, fBM16, fBM32;
 
-    FilterGM() : fOnce(false) {
+    FilterGM() {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         return SkString("bitmapfilters");
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() override {
         return SkISize::Make(540, 330);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        this->init();
-
+    void onDraw(SkCanvas* canvas) override {
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
 
@@ -115,12 +107,55 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
+DEF_GM( return new FilterGM; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new FilterGM; }
-static GMRegistry reg(MyFactory);
+class TestExtractAlphaGM : public skiagm::GM {
+    void onOnceBeforeDraw() override {
+        // Make a bitmap with per-pixels alpha (stroked circle)
+        fBitmap.allocN32Pixels(100, 100);
+        SkCanvas canvas(fBitmap);
+        canvas.clear(0);
 
-}
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(SK_ColorBLUE);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(20);
+
+        canvas.drawCircle(50, 50, 39, paint);
+        canvas.flush();
+
+        fBitmap.extractAlpha(&fAlpha);
+    }
+    
+public:
+    SkBitmap fBitmap, fAlpha;
+    
+protected:
+    SkString onShortName() override {
+        return SkString("extractalpha");
+    }
+    
+    SkISize onISize() override {
+        return SkISize::Make(540, 330);
+    }
+    
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        paint.setColor(SK_ColorRED);
+
+        canvas->drawBitmap(fBitmap, 10, 10, &paint);    // should stay blue (ignore paint's color)
+        canvas->drawBitmap(fAlpha, 120, 10, &paint);    // should draw red
+    }
+    
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new TestExtractAlphaGM; )
+
