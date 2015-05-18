@@ -82,7 +82,7 @@ ios_mount() {
   # If this is already mounted we unmount it.
   if $(mount | grep --quiet "$IOS_MOUNT_POINT"); then
     >&2 echo "Device already mounted at: $IOS_MOUNT_POINT - Unmounting."
-    ios_umount
+    ios_umount || true   
   fi
 
   # Ensure there is a mount directory.
