@@ -54,8 +54,9 @@ void SkHwuiRenderer::initialize(SkISize size) {
     this->proxy->initialize(this->androidSurface.get());
     float lightX = size.width() / 2.0f;
     android::uirenderer::Vector3 lightVector { lightX, -200.0f, 800.0f };
-    this->proxy->setup(size.width(), size.height(), lightVector, 800.0f,
+    this->proxy->setup(size.width(), size.height(), 800.0f,
                          255 * 0.075f, 255 * 0.15f);
+    this->proxy->setLightCenter(lightVector);
     this->canvas.reset(new android::uirenderer::DisplayListCanvas());
     this->canvas->setViewport(size.width(), size.height());
 }
