@@ -219,9 +219,12 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fUseNonVBOVertexAndIndexDynamicData = true;
     }
 
-    if ((kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) ||
-        (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) ||
-        ctxInfo.hasExtension("GL_ARB_invalidate_subdata")) {
+    // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
+    // Thus we are blacklisting this extension for now on Adreno4xx devices.
+    if (kAdreno4xx_GrGLRenderer != ctxInfo.renderer() &&
+        ((kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) ||
+         (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) ||
+         ctxInfo.hasExtension("GL_ARB_invalidate_subdata"))) {
         fDiscardRenderTargetSupport = true;
         fInvalidateFBType = kInvalidate_InvalidateFBType;
     } else if (ctxInfo.hasExtension("GL_EXT_discard_framebuffer")) {
