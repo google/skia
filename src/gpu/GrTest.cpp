@@ -155,6 +155,11 @@ public:
 
     void discard(GrRenderTarget*) override {}
 
+    bool canCopySurface(const GrSurface* dst,
+                        const GrSurface* src,
+                        const SkIRect& srcRect,
+                        const SkIPoint& dstPoint) override { return false; };
+
     bool copySurface(GrSurface* dst,
                      GrSurface* src,
                      const SkIRect& srcRect,

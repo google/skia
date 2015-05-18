@@ -91,25 +91,6 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
     }
 }
 
-void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p, GrGLStandard s, SkString* out) {
-    // Desktop GLSL has added precision qualifiers but they don't do anything.
-    if (kGLES_GrGLStandard == s) {
-        switch (p) {
-            case kHigh_GrSLPrecision:
-                out->append("precision highp float;\n");
-                break;
-            case kMedium_GrSLPrecision:
-                out->append("precision mediump float;\n");
-                break;
-            case kLow_GrSLPrecision:
-                out->append("precision lowp float;\n");
-                break;
-            default:
-                SkFAIL("Unknown precision value.");
-        }
-    }
-}
-
 void GrGLSLMulVarBy4f(SkString* outAppend, const char* vec4VarName, const GrGLSLExpr4& mulFactor) {
     if (mulFactor.isOnes()) {
         *outAppend = SkString();

@@ -67,9 +67,9 @@ public:
      * assumed that the GrGLAttribArrayState is tracking the state of the currently bound vertex
      * array object.
      */
-    void set(GrGLGpu*,
-             int attribIndex,
-             GrGLuint vertexBufferID,
+    void set(const GrGLGpu*,
+             int index,
+             GrGLVertexBuffer*,
              GrGLint size,
              GrGLenum type,
              GrGLboolean normalized,
@@ -147,7 +147,7 @@ public:
      * This is a version of the above function that also binds an index buffer to the vertex
      * array object.
      */
-    GrGLAttribArrayState* bindWithIndexBuffer(GrGLGpu* gpu, GrGLuint indexBufferID);
+    GrGLAttribArrayState* bindWithIndexBuffer(GrGLGpu* gpu, const GrGLIndexBuffer*);
 
     void notifyIndexBufferDelete(GrGLuint bufferID);
 

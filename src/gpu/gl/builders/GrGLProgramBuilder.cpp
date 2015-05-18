@@ -343,7 +343,8 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
         fFS.enableSecondaryOutput();
     }
 
-    if (this->ctxInfo().caps()->glslCaps()->mustDeclareFragmentShaderOutput()) {
+    // On any post 1.10 GLSL supporting GPU, we declare custom output
+    if (k110_GrGLSLGeneration != fFS.fProgramBuilder->gpu()->glslGeneration()) {
         fFS.enableCustomOutput();
     }
 

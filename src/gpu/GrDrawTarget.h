@@ -178,14 +178,24 @@ public:
      * copied are specified by srcRect. They are copied to a rect of the same
      * size in dst with top left at dstPoint. If the src rect is clipped by the
      * src bounds then  pixel values in the dst rect corresponding to area clipped
-     * by the src rect are not overwritten. This method is not guaranteed to succeed
+     * by the src rect are not overwritten. This method can fail and return false
      * depending on the type of surface, configs, etc, and the backend-specific
-     * limitations.
+     * limitations. If rect is clipped out entirely by the src or dst bounds then
+     * true is returned since there is no actual copy necessary to succeed.
      */
-    void copySurface(GrSurface* dst,
+    bool copySurface(GrSurface* dst,
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
+    /**
+     * Function that determines whether a copySurface call would succeed without actually
+     * performing the copy.
+     */
+    bool canCopySurface(const GrSurface* dst,
+                        const GrSurface* src,
+                        const SkIRect& srcRect,
+                        const SkIPoint& dstPoint);
+
     /**
      * Release any resources that are cached but not currently in use. This
      * is intended to give an application some recourse when resources are low.

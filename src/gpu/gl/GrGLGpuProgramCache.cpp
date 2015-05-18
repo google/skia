@@ -90,7 +90,7 @@ int GrGLGpu::ProgramCache::search(const GrProgramDesc& desc) const {
     return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
 }
 
-GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
+GrGLProgram* GrGLGpu::ProgramCache::getProgram(const DrawArgs& args) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -193,5 +193,5 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
         }
     }
     ++fCurrLRUStamp;
-    return SkRef(entry->fProgram.get());
+    return entry->fProgram;
 }

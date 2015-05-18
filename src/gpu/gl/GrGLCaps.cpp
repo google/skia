@@ -942,7 +942,6 @@ GrGLSLCaps::GrGLSLCaps(const GrGLSLCaps& caps) : GrShaderCaps() {
 
 GrGLSLCaps& GrGLSLCaps::operator= (const GrGLSLCaps& caps) {
     INHERITED::operator=(caps);
-    fGLSLGeneration = caps.fGLSLGeneration;
     fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
     fFBFetchSupport = caps.fFBFetchSupport;
     fFBFetchNeedsCustomOutput = caps.fFBFetchNeedsCustomOutput;
@@ -961,8 +960,6 @@ bool GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
         return false;
     }
 
-    fGLSLGeneration = ctxInfo.glslGeneration();
-    
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
