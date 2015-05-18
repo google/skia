@@ -8,7 +8,6 @@
 #ifndef SkPictureRecorder_DEFINED
 #define SkPictureRecorder_DEFINED
 
-#include "../../src/core/SkMiniRecorder.h"
 #include "SkBBHFactory.h"
 #include "SkPicture.h"
 #include "SkRefCnt.h"
@@ -103,7 +102,6 @@ private:
     SkAutoTUnref<SkBBoxHierarchy> fBBH;
     SkAutoTUnref<SkRecorder>      fRecorder;
     SkAutoTUnref<SkRecord>        fRecord;
-    SkMiniRecorder                fMiniRecorder;
 
     typedef SkNoncopyable INHERITED;
 };

@@ -9,7 +9,6 @@
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
 
-#include "SkBigPicture.h"
 #include "SkCanvas.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDeviceProperties.h"
@@ -22,7 +21,7 @@
 
 // Create the layer information for the hoisted layer and secure the
 // required texture/render target resources.
-static void prepare_for_hoisting(GrLayerCache* layerCache,
+static void prepare_for_hoisting(GrLayerCache* layerCache, 
                                  const SkPicture* topLevelPicture,
                                  const SkMatrix& initialMat,
                                  const SkLayerInfo::BlockInfo& info,
@@ -75,7 +74,7 @@ static void prepare_for_hoisting(GrLayerCache* layerCache,
     } else {
         hl = recycled->append();
     }
-
+    
     layerCache->addUse(layer);
     hl->fLayer = layer;
     hl->fPicture = pict;
@@ -130,12 +129,12 @@ void GrLayerHoister::FindLayersToAtlas(GrContext* context,
     }
 
     GrLayerCache* layerCache = context->getLayerCache();
+
     layerCache->processDeletedPictures();
 
-    const SkBigPicture::AccelData* topLevelData = NULL;
-    if (const SkBigPicture* bp = topLevelPicture->asSkBigPicture()) {
-        topLevelData = bp->accelData();
-    }
+    SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
+
+    const SkPicture::AccelData* topLevelData = topLevelPicture->EXPERIMENTAL_getAccelData(key);
     if (!topLevelData) {
         return;
     }
@@ -190,10 +189,9 @@ void GrLayerHoister::FindLayersToHoist(GrContext* context,
 
     layerCache->processDeletedPictures();
 
-    const SkBigPicture::AccelData* topLevelData = NULL;
-    if (const SkBigPicture* bp = topLevelPicture->asSkBigPicture()) {
-        topLevelData = bp->accelData();
-    }
+    SkPicture::AccelData::Key key = SkLayerInfo::ComputeKey();
+
+    const SkPicture::AccelData* topLevelData = topLevelPicture->EXPERIMENTAL_getAccelData(key);
     if (!topLevelData) {
         return;
     }
@@ -241,11 +239,7 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
 
         for (int i = 0; i < atlased.count(); ++i) {
             const GrCachedLayer* layer = atlased[i].fLayer;
-            const SkBigPicture* pict = atlased[i].fPicture->asSkBigPicture();
-            if (!pict) {
-                // TODO: can we assume / assert this?
-                continue;
-            }
+            const SkPicture* pict = atlased[i].fPicture;
             const SkIPoint offset = SkIPoint::Make(layer->srcIR().fLeft, layer->srcIR().fTop);
             SkDEBUGCODE(const SkPaint* layerPaint = layer->paint();)
 
@@ -271,7 +265,10 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
             atlasCanvas->setMatrix(initialCTM);
             atlasCanvas->concat(atlased[i].fLocalMat);
 
-            pict->partialPlayback(atlasCanvas, layer->start() + 1, layer->stop(), initialCTM);
+            SkRecordPartialDraw(*pict->fRecord.get(), atlasCanvas,
+                                pict->drawablePicts(), pict->drawableCount(),
+                                layer->start() + 1, layer->stop(), initialCTM);
+
             atlasCanvas->restore();
         }
 
@@ -331,11 +328,7 @@ void GrLayerHoister::FilterLayer(GrContext* context,
 void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLayer>& layers) {
     for (int i = 0; i < layers.count(); ++i) {
         GrCachedLayer* layer = layers[i].fLayer;
-        const SkBigPicture* pict = layers[i].fPicture->asSkBigPicture();
-        if (!pict) {
-            // TODO: can we assume / assert this?
-            continue;
-        }
+        const SkPicture* pict = layers[i].fPicture;
         const SkIPoint offset = SkIPoint::Make(layer->srcIR().fLeft, layer->srcIR().fTop);
 
         // Each non-atlased layer has its own GrTexture
@@ -360,7 +353,10 @@ void GrLayerHoister::DrawLayers(GrContext* context, const SkTDArray<GrHoistedLay
         layerCanvas->setMatrix(initialCTM);
         layerCanvas->concat(layers[i].fLocalMat);
 
-        pict->partialPlayback(layerCanvas, layer->start()+1, layer->stop(), initialCTM);
+        SkRecordPartialDraw(*pict->fRecord.get(), layerCanvas,
+                            pict->drawablePicts(), pict->drawableCount(),
+                            layer->start()+1, layer->stop(), initialCTM);
+
         layerCanvas->flush();
 
         if (layer->filter()) {
