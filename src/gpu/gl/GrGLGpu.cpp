@@ -17,6 +17,7 @@
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "GrVertices.h"
+#include "builders/GrGLShaderStringBuilder.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
 
@@ -200,13 +201,14 @@ GrGLGpu::GrGLGpu(const GrGLContext& ctx, GrContext* context)
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         fPathRendering.reset(new GrGLPathRendering(this));
     }
+
+    this->createCopyProgram();
 }
 
 GrGLGpu::~GrGLGpu() {
     if (0 != fHWProgramID) {
         // detach the current program so there is no confusion on OpenGL's part
         // that we want it to be deleted
-        SkASSERT(fHWProgramID == fCurrentProgram->programID());
         GL_CALL(UseProgram(0));
     }
 
@@ -220,6 +222,14 @@ GrGLGpu::~GrGLGpu() {
         GL_CALL(DeleteFramebuffers(1, &fStencilClearFBOID));
     }
 
+    if (0 != fCopyProgram.fArrayBuffer) {
+        GL_CALL(DeleteBuffers(1, &fCopyProgram.fArrayBuffer));
+    }
+
+    if (0 != fCopyProgram.fProgram) {
+        GL_CALL(DeleteProgram(fCopyProgram.fProgram));
+    }
+
     delete fProgramCache;
 }
 
@@ -230,6 +240,8 @@ void GrGLGpu::contextAbandoned() {
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
     fStencilClearFBOID = 0;
+    fCopyProgram.fArrayBuffer = 0;
+    fCopyProgram.fProgram = 0;
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->abandonGpuResources();
     }
@@ -1417,15 +1429,13 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     this->flushColorWrite(blendInfo.fWriteColor);
     this->flushDrawFace(pipeline.getDrawFace());
 
-    fCurrentProgram.reset(fProgramCache->getProgram(args));
-    if (NULL == fCurrentProgram.get()) {
+    SkAutoTUnref<GrGLProgram> program(fProgramCache->refProgram(args));
+    if (!program) {
         GrContextDebugf(this->getContext(), "Failed to create program!\n");
         return false;
     }
 
-    fCurrentProgram.get()->ref();
-
-    GrGLuint programID = fCurrentProgram->programID();
+    GrGLuint programID = program->programID();
     if (fHWProgramID != programID) {
         GL_CALL(UseProgram(programID));
         fHWProgramID = programID;
@@ -1435,7 +1445,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
         this->flushBlend(blendInfo);
     }
 
-    fCurrentProgram->setData(*args.fPrimitiveProcessor, pipeline, *args.fBatchTracker);
+    program->setData(*args.fPrimitiveProcessor, pipeline, *args.fBatchTracker);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());
@@ -1490,7 +1500,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
             GrVertexAttribType attribType = attrib.fType;
             attribState->set(this,
                              attribIndex,
-                             vbuf,
+                             vbuf->bufferID(),
                              GrGLAttribTypeToLayout(attribType).fCount,
                              GrGLAttribTypeToLayout(attribType).fType,
                              GrGLAttribTypeToLayout(attribType).fNormalized,
@@ -2618,7 +2628,16 @@ void GrGLGpu::unbindTextureFromFBO(GrGLenum fboTarget) {
 }
 
 bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) {
-    // In here we look for opportunities to use CopyTexSubImage, or fbo blit. If neither are
+    // If the src is a texture, we can implement the blit as a draw assuming the config is
+    // renderable.
+    if (src->asTexture() && this->caps()->isConfigRenderable(src->config(), false)) {
+        desc->fOrigin = kDefault_GrSurfaceOrigin;
+        desc->fFlags = kRenderTarget_GrSurfaceFlag;
+        desc->fConfig = src->config();
+        return true;
+    }
+
+    // We look for opportunities to use CopyTexSubImage, or fbo blit. If neither are
     // possible and we return false to fallback to creating a render target dst for render-to-
     // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
@@ -2664,127 +2683,295 @@ bool GrGLGpu::copySurface(GrSurface* dst,
                           GrSurface* src,
                           const SkIRect& srcRect,
                           const SkIPoint& dstPoint) {
-    bool copied = false;
-    if (can_copy_texsubimage(dst, src, this)) {
-        GrGLuint srcFBO;
-        GrGLIRect srcVP;
-        srcFBO = this->bindSurfaceAsFBO(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
-        GrGLTexture* dstTex = static_cast<GrGLTexture*>(dst->asTexture());
-        SkASSERT(dstTex);
-        // We modified the bound FBO
-        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
-        GrGLIRect srcGLRect;
-        srcGLRect.setRelativeTo(srcVP,
-                                srcRect.fLeft,
-                                srcRect.fTop,
-                                srcRect.width(),
-                                srcRect.height(),
-                                src->origin());
-
-        this->setScratchTextureUnit();
-        GL_CALL(BindTexture(GR_GL_TEXTURE_2D, dstTex->textureID()));
-        GrGLint dstY;
-        if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
-            dstY = dst->height() - (dstPoint.fY + srcGLRect.fHeight);
-        } else {
-            dstY = dstPoint.fY;
-        }
-        GL_CALL(CopyTexSubImage2D(GR_GL_TEXTURE_2D, 0,
-                                  dstPoint.fX, dstY,
-                                  srcGLRect.fLeft, srcGLRect.fBottom,
-                                  srcGLRect.fWidth, srcGLRect.fHeight));
-        copied = true;
-        if (srcFBO) {
-            this->unbindTextureFromFBO(GR_GL_FRAMEBUFFER);
-        }
-    } else if (can_blit_framebuffer(dst, src, this)) {
-        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
-                                            srcRect.width(), srcRect.height());
-        bool selfOverlap = false;
-        if (dst == src) {
-            selfOverlap = SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect);
-        }
-
-        if (!selfOverlap) {
-            GrGLuint dstFBO;
-            GrGLuint srcFBO;
-            GrGLIRect dstVP;
-            GrGLIRect srcVP;
-            dstFBO = this->bindSurfaceAsFBO(dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP,
-                                            kDst_TempFBOTarget);
-            srcFBO = this->bindSurfaceAsFBO(src, GR_GL_READ_FRAMEBUFFER, &srcVP,
-                                            kSrc_TempFBOTarget);
-            // We modified the bound FBO
-            fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
-            GrGLIRect srcGLRect;
-            GrGLIRect dstGLRect;
-            srcGLRect.setRelativeTo(srcVP,
-                                    srcRect.fLeft,
-                                    srcRect.fTop,
-                                    srcRect.width(),
-                                    srcRect.height(),
-                                    src->origin());
-            dstGLRect.setRelativeTo(dstVP,
-                                    dstRect.fLeft,
-                                    dstRect.fTop,
-                                    dstRect.width(),
-                                    dstRect.height(),
-                                    dst->origin());
-
-            // BlitFrameBuffer respects the scissor, so disable it.
-            this->disableScissor();
-
-            GrGLint srcY0;
-            GrGLint srcY1;
-            // Does the blit need to y-mirror or not?
-            if (src->origin() == dst->origin()) {
-                srcY0 = srcGLRect.fBottom;
-                srcY1 = srcGLRect.fBottom + srcGLRect.fHeight;
-            } else {
-                srcY0 = srcGLRect.fBottom + srcGLRect.fHeight;
-                srcY1 = srcGLRect.fBottom;
-            }
-            GL_CALL(BlitFramebuffer(srcGLRect.fLeft,
-                                    srcY0,
-                                    srcGLRect.fLeft + srcGLRect.fWidth,
-                                    srcY1,
-                                    dstGLRect.fLeft,
-                                    dstGLRect.fBottom,
-                                    dstGLRect.fLeft + dstGLRect.fWidth,
-                                    dstGLRect.fBottom + dstGLRect.fHeight,
-                                    GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
-            if (dstFBO) {
-                this->unbindTextureFromFBO(GR_GL_DRAW_FRAMEBUFFER);
-            }
-            if (srcFBO) {
-                this->unbindTextureFromFBO(GR_GL_READ_FRAMEBUFFER);
-            }
-            copied = true;
-        }
-    }
-    return copied;
-}
-
-bool GrGLGpu::canCopySurface(const GrSurface* dst,
-                             const GrSurface* src,
-                             const SkIRect& srcRect,
-                             const SkIPoint& dstPoint) {
-    // This mirrors the logic in onCopySurface.
-    if (can_copy_texsubimage(dst, src, this)) {
+    if (src->asTexture() && dst->asRenderTarget()) {
+        this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
         return true;
     }
+    
+    if (can_copy_texsubimage(dst, src, this)) {
+        this->copySurfaceAsCopyTexSubImage(dst, src, srcRect, dstPoint);
+        return true;
+    }
+
     if (can_blit_framebuffer(dst, src, this)) {
-        if (dst == src) {
-            SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
-                                                srcRect.width(), srcRect.height());
-            if(!SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect)) {
-                return true;
-            }
-        } else {
-            return true;
+        return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstPoint);
+    }
+
+    return false;
+}
+
+
+void GrGLGpu::createCopyProgram() {
+    const char* version = GrGetGLSLVersionDecl(this->ctxInfo());
+
+    GrGLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
+                                 GrShaderVar::kUniform_TypeModifier);
+    GrGLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLShaderVar uTexture("u_texture", kSampler2D_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrGLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    
+    SkString vshaderTxt(version);
+    aVertex.appendDecl(this->ctxInfo(), &vshaderTxt);
+    vshaderTxt.append(";");
+    uTexCoordXform.appendDecl(this->ctxInfo(), &vshaderTxt);
+    vshaderTxt.append(";");
+    uPosXform.appendDecl(this->ctxInfo(), &vshaderTxt);
+    vshaderTxt.append(";");
+    vTexCoord.appendDecl(this->ctxInfo(), &vshaderTxt);
+    vshaderTxt.append(";");
+    
+    vshaderTxt.append(
+        "// Copy Program VS\n"
+        "void main() {"
+        "  v_texCoord = a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw;"
+        "  gl_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
+        "  gl_Position.zw = vec2(0, 1);"
+        "}"
+    );
+
+    SkString fshaderTxt(version);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, this->glStandard(),
+                                                 &fshaderTxt);
+    vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+    vTexCoord.appendDecl(this->ctxInfo(), &fshaderTxt);
+    fshaderTxt.append(";");
+    uTexture.appendDecl(this->ctxInfo(), &fshaderTxt);
+    fshaderTxt.append(";");
+    const char* fsOutName;
+    if (this->glCaps().glslCaps()->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(this->ctxInfo(), &fshaderTxt);
+        fshaderTxt.append(";");
+        fsOutName = oFragColor.c_str();
+    } else {
+        fsOutName = "gl_FragColor";
+    }
+    fshaderTxt.appendf(
+        "// Copy Program FS\n"
+        "void main() {"
+        "  %s = %s(u_texture, v_texCoord);"
+        "}",
+        fsOutName,
+        GrGLSLTexture2DFunctionName(kVec2f_GrSLType, this->glslGeneration())
+    );
+    
+    GL_CALL_RET(fCopyProgram.fProgram, CreateProgram());
+    const char* str;
+    GrGLint length;
+
+    str = vshaderTxt.c_str();
+    length = SkToInt(vshaderTxt.size());
+    GrGLuint vshader = GrGLCompileAndAttachShader(fGLContext, fCopyProgram.fProgram,
+                                                  GR_GL_VERTEX_SHADER, &str, &length, 1, &fStats);
+
+    str = fshaderTxt.c_str();
+    length = SkToInt(fshaderTxt.size());
+    GrGLuint fshader = GrGLCompileAndAttachShader(fGLContext, fCopyProgram.fProgram,
+                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1, &fStats);
+
+    GL_CALL(LinkProgram(fCopyProgram.fProgram));
+
+    GL_CALL_RET(fCopyProgram.fTextureUniform, GetUniformLocation(fCopyProgram.fProgram,
+                                                                 "u_texture"));
+    GL_CALL_RET(fCopyProgram.fPosXformUniform, GetUniformLocation(fCopyProgram.fProgram,
+                                                                  "u_posXform"));
+    GL_CALL_RET(fCopyProgram.fTexCoordXformUniform, GetUniformLocation(fCopyProgram.fProgram,
+                                                                       "u_texCoordXform"));
+
+    GL_CALL(BindAttribLocation(fCopyProgram.fProgram, 0, "a_vertex"));
+
+    GL_CALL(DeleteShader(vshader));
+    GL_CALL(DeleteShader(fshader));
+
+    GL_CALL(GenBuffers(1, &fCopyProgram.fArrayBuffer));
+    fHWGeometryState.setVertexBufferID(this, fCopyProgram.fArrayBuffer);
+    static const GrGLfloat vdata[] = {
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 1
+    };
+    GL_ALLOC_CALL(this->glInterface(),
+                  BufferData(GR_GL_ARRAY_BUFFER,
+                             (GrGLsizeiptr) sizeof(vdata),
+                             vdata,  // data ptr
+                             GR_GL_STATIC_DRAW));
+}
+
+void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
+                                GrSurface* src,
+                                const SkIRect& srcRect,
+                                const SkIPoint& dstPoint) {
+    int w = srcRect.width();
+    int h = srcRect.height();
+
+    GrGLTexture* srcTex = static_cast<GrGLTexture*>(src->asTexture());
+    GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
+    this->bindTexture(0, params, srcTex);
+
+    GrGLRenderTarget* dstRT = static_cast<GrGLRenderTarget*>(dst->asRenderTarget());
+    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
+    this->flushRenderTarget(dstRT, &dstRect);
+
+    GL_CALL(UseProgram(fCopyProgram.fProgram));
+    fHWProgramID = fCopyProgram.fProgram;
+
+    fHWGeometryState.setVertexArrayID(this, 0);
+
+    GrGLAttribArrayState* attribs =
+        fHWGeometryState.bindArrayAndBufferToDraw(this, fCopyProgram.fArrayBuffer);
+    attribs->set(this, 0, fCopyProgram.fArrayBuffer, 2, GR_GL_FLOAT, false,
+                    2 * sizeof(GrGLfloat), 0);
+
+
+    // dst rect edges in NDC (-1 to 1)
+    int dw = dst->width();
+    int dh = dst->height();
+    GrGLfloat dx0 = 2.f * dstPoint.fX / dw - 1.f;
+    GrGLfloat dx1 = 2.f * (dstPoint.fX + w) / dw - 1.f;
+    GrGLfloat dy0 = 2.f * dstPoint.fY / dh - 1.f;
+    GrGLfloat dy1 = 2.f * (dstPoint.fY + h) / dh - 1.f;
+    if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
+        dy0 = -dy0;
+        dy1 = -dy1;
+    }
+
+    // src rect edges in normalized texture space (0 to 1)
+    int sw = src->width();
+    int sh = src->height();
+    GrGLfloat sx0 = (GrGLfloat)srcRect.fLeft / sw;
+    GrGLfloat sx1 = (GrGLfloat)(srcRect.fLeft + w) / sw;
+    GrGLfloat sy0 = (GrGLfloat)srcRect.fTop / sh;
+    GrGLfloat sy1 = (GrGLfloat)(srcRect.fTop + h) / sh;
+    if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
+        sy0 = 1.f - sy0;
+        sy1 = 1.f - sy1;
+    }
+
+    GL_CALL(Uniform4f(fCopyProgram.fPosXformUniform, dx1 - dx0, dy1 - dy0, dx0, dy0));
+    GL_CALL(Uniform4f(fCopyProgram.fTexCoordXformUniform, sx1 - sx0, sy1 - sy0, sx0, sy0));
+    GL_CALL(Uniform1i(fCopyProgram.fTextureUniform, 0));
+
+    GrXferProcessor::BlendInfo blendInfo;
+    blendInfo.reset();
+    this->flushBlend(blendInfo);
+    this->flushColorWrite(true);
+    this->flushDither(false);
+    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
+    this->flushHWAAState(dstRT, false);
+    this->disableScissor();
+    GrStencilSettings stencil;
+    stencil.setDisabled();
+    this->flushStencil(stencil);
+
+    GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
+}
+
+void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
+                                           GrSurface* src,
+                                           const SkIRect& srcRect,
+                                           const SkIPoint& dstPoint) {
+    SkASSERT(can_copy_texsubimage(dst, src, this));
+    GrGLuint srcFBO;
+    GrGLIRect srcVP;
+    srcFBO = this->bindSurfaceAsFBO(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
+    GrGLTexture* dstTex = static_cast<GrGLTexture*>(dst->asTexture());
+    SkASSERT(dstTex);
+    // We modified the bound FBO
+    fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+    GrGLIRect srcGLRect;
+    srcGLRect.setRelativeTo(srcVP,
+                            srcRect.fLeft,
+                            srcRect.fTop,
+                            srcRect.width(),
+                            srcRect.height(),
+                            src->origin());
+
+    this->setScratchTextureUnit();
+    GL_CALL(BindTexture(GR_GL_TEXTURE_2D, dstTex->textureID()));
+    GrGLint dstY;
+    if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
+        dstY = dst->height() - (dstPoint.fY + srcGLRect.fHeight);
+    } else {
+        dstY = dstPoint.fY;
+    }
+    GL_CALL(CopyTexSubImage2D(GR_GL_TEXTURE_2D, 0,
+                                dstPoint.fX, dstY,
+                                srcGLRect.fLeft, srcGLRect.fBottom,
+                                srcGLRect.fWidth, srcGLRect.fHeight));
+    if (srcFBO) {
+        this->unbindTextureFromFBO(GR_GL_FRAMEBUFFER);
+    }
+}
+
+bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
+                                           GrSurface* src,
+                                           const SkIRect& srcRect,
+                                           const SkIPoint& dstPoint) {
+    SkASSERT(can_blit_framebuffer(dst, src, this));
+    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                        srcRect.width(), srcRect.height());
+    if (dst == src) {
+        if (SkIRect::IntersectsNoEmptyCheck(dstRect, srcRect)) {
+            return false;
         }
     }
-    return false;
+
+    GrGLuint dstFBO;
+    GrGLuint srcFBO;
+    GrGLIRect dstVP;
+    GrGLIRect srcVP;
+    dstFBO = this->bindSurfaceAsFBO(dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP,
+                                    kDst_TempFBOTarget);
+    srcFBO = this->bindSurfaceAsFBO(src, GR_GL_READ_FRAMEBUFFER, &srcVP,
+                                    kSrc_TempFBOTarget);
+    // We modified the bound FBO
+    fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+    GrGLIRect srcGLRect;
+    GrGLIRect dstGLRect;
+    srcGLRect.setRelativeTo(srcVP,
+                            srcRect.fLeft,
+                            srcRect.fTop,
+                            srcRect.width(),
+                            srcRect.height(),
+                            src->origin());
+    dstGLRect.setRelativeTo(dstVP,
+                            dstRect.fLeft,
+                            dstRect.fTop,
+                            dstRect.width(),
+                            dstRect.height(),
+                            dst->origin());
+
+    // BlitFrameBuffer respects the scissor, so disable it.
+    this->disableScissor();
+
+    GrGLint srcY0;
+    GrGLint srcY1;
+    // Does the blit need to y-mirror or not?
+    if (src->origin() == dst->origin()) {
+        srcY0 = srcGLRect.fBottom;
+        srcY1 = srcGLRect.fBottom + srcGLRect.fHeight;
+    } else {
+        srcY0 = srcGLRect.fBottom + srcGLRect.fHeight;
+        srcY1 = srcGLRect.fBottom;
+    }
+    GL_CALL(BlitFramebuffer(srcGLRect.fLeft,
+                            srcY0,
+                            srcGLRect.fLeft + srcGLRect.fWidth,
+                            srcY1,
+                            dstGLRect.fLeft,
+                            dstGLRect.fBottom,
+                            dstGLRect.fLeft + dstGLRect.fWidth,
+                            dstGLRect.fBottom + dstGLRect.fHeight,
+                            GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
+    if (dstFBO) {
+        this->unbindTextureFromFBO(GR_GL_DRAW_FRAMEBUFFER);
+    }
+    if (srcFBO) {
+        this->unbindTextureFromFBO(GR_GL_READ_FRAMEBUFFER);
+    }
+    return true;
 }
 
 void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
@@ -2832,26 +3019,52 @@ void GrGLGpu::didRemoveGpuTraceMarker() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
 GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(
                                                 GrGLGpu* gpu,
                                                 const GrGLVertexBuffer* vbuffer,
                                                 const GrGLIndexBuffer* ibuffer) {
     SkASSERT(vbuffer);
+    GrGLuint vbufferID = vbuffer->bufferID();
+    GrGLuint* ibufferIDPtr = NULL;
+    GrGLuint ibufferID;
+    if (ibuffer) {
+        ibufferID = ibuffer->bufferID();
+        ibufferIDPtr = &ibufferID;
+    }
+    return this->internalBind(gpu, vbufferID, ibufferIDPtr);
+}
+
+GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBufferToDraw(GrGLGpu* gpu,
+                                                                         GrGLuint vbufferID) {
+    return this->internalBind(gpu, vbufferID, NULL);
+}
+
+GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(GrGLGpu* gpu,
+                                                                          GrGLuint vbufferID,
+                                                                          GrGLuint ibufferID) {
+    return this->internalBind(gpu, vbufferID, &ibufferID);
+}
+
+GrGLAttribArrayState* GrGLGpu::HWGeometryState::internalBind(GrGLGpu* gpu,
+                                                             GrGLuint vbufferID,
+                                                             GrGLuint* ibufferID) {
     GrGLAttribArrayState* attribState;
 
-    // We use a vertex array if we're on a core profile and the verts are in a VBO.
-    if (gpu->glCaps().isCoreProfile() && !vbuffer->isCPUBacked()) {
+    if (gpu->glCaps().isCoreProfile() && 0 != vbufferID) {
         if (!fVBOVertexArray) {
             GrGLuint arrayID;
             GR_GL_CALL(gpu->glInterface(), GenVertexArrays(1, &arrayID));
             int attrCount = gpu->glCaps().maxVertexAttributes();
             fVBOVertexArray = SkNEW_ARGS(GrGLVertexArray, (arrayID, attrCount));
         }
-        attribState = fVBOVertexArray->bindWithIndexBuffer(gpu, ibuffer);
+        if (ibufferID) {
+            attribState = fVBOVertexArray->bindWithIndexBuffer(gpu, *ibufferID);
+        } else {
+            attribState = fVBOVertexArray->bind(gpu);
+        }
     } else {
-        if (ibuffer) {
-            this->setIndexBufferIDOnDefaultVertexArray(gpu, ibuffer->bufferID());
+        if (ibufferID) {
+            this->setIndexBufferIDOnDefaultVertexArray(gpu, *ibufferID);
         } else {
             this->setVertexArrayID(gpu, 0);
         }

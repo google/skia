@@ -374,6 +374,7 @@ private:
     typedef GrDrawTargetCaps INHERITED;
 };
 
+#include "GrGLSL.h"
 
 class GrGLSLCaps : public GrShaderCaps {
 public:
@@ -438,6 +439,12 @@ public:
     bool mustEnableSpecificAdvBlendEqs() const {
         return fAdvBlendEqInteraction == kSpecificEnables_AdvBlendEqInteraction;
     }
+    
+    bool mustDeclareFragmentShaderOutput() const {
+        return fGLSLGeneration > k110_GrGLSLGeneration;
+    }
+
+    GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
     /**
     * Returns a string containing the caps info.
@@ -448,6 +455,8 @@ private:
     // Must be called after fGeometryShaderSupport is initialized.
     void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*);
 
+    GrGLSLGeneration fGLSLGeneration;
+    
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;

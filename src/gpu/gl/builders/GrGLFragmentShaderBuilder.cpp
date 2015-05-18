@@ -15,26 +15,6 @@
 const char* GrGLFragmentShaderBuilder::kDstCopyColorName = "_dstColor";
 static const char* declared_color_output_name() { return "fsColorOut"; }
 static const char* dual_source_output_name() { return "dualSourceOut"; }
-static void append_default_precision_qualifier(GrSLPrecision p,
-                                               GrGLStandard standard,
-                                               SkString* str) {
-    // Desktop GLSL has added precision qualifiers but they don't do anything.
-    if (kGLES_GrGLStandard == standard) {
-        switch (p) {
-            case kHigh_GrSLPrecision:
-                str->append("precision highp float;\n");
-                break;
-            case kMedium_GrSLPrecision:
-                str->append("precision mediump float;\n");
-                break;
-            case kLow_GrSLPrecision:
-                str->append("precision lowp float;\n");
-                break;
-            default:
-                SkFAIL("Unknown precision value.");
-        }
-    }
-}
 
 static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
@@ -270,9 +250,9 @@ bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
                                                         SkTDArray<GrGLuint>* shaderIds) {
     GrGLGpu* gpu = fProgramBuilder->gpu();
     this->versionDecl() = GrGetGLSLVersionDecl(gpu->ctxInfo());
-    append_default_precision_qualifier(kDefault_GrSLPrecision,
-                                       gpu->glStandard(),
-                                       &this->precisionQualifier());
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
+                                                 gpu->glStandard(),
+                                                 &this->precisionQualifier());
     this->compileAndAppendLayoutQualifiers();
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility,
                                         &this->uniforms());

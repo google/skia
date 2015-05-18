@@ -100,13 +100,10 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
         return false;
     }
     SkIPoint dstPoint = {0, 0};
-    if (this->copySurface(copy, rt, copyRect, dstPoint)) {
-        dstCopy->setTexture(copy);
-        dstCopy->setOffset(copyRect.fLeft, copyRect.fTop);
-        return true;
-    } else {
-        return false;
-    }
+    this->copySurface(copy, rt, copyRect, dstPoint);
+    dstCopy->setTexture(copy);
+    dstCopy->setOffset(copyRect.fLeft, copyRect.fTop);
+    return true;
 }
 
 void GrDrawTarget::flush() {
@@ -421,7 +418,7 @@ bool clip_srcrect_and_dstpoint(const GrSurface* dst,
 }
 }
 
-bool GrDrawTarget::copySurface(GrSurface* dst,
+void GrDrawTarget::copySurface(GrSurface* dst,
                                GrSurface* src,
                                const SkIRect& srcRect,
                                const SkIPoint& dstPoint) {
@@ -437,56 +434,10 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
                                    dstPoint,
                                    &clippedSrcRect,
                                    &clippedDstPoint)) {
-        return true;
+        return;
     }
 
-    if (this->getGpu()->canCopySurface(dst, src, clippedSrcRect, clippedDstPoint)) {
-        this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
-        return true;
-    }
-
-    GrRenderTarget* rt = dst->asRenderTarget();
-    GrTexture* tex = src->asTexture();
-
-    if ((dst == src) || !rt || !tex) {
-        return false;
-    }
-
-    GrPipelineBuilder pipelineBuilder;
-    pipelineBuilder.setRenderTarget(rt);
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(clippedSrcRect.fLeft - clippedDstPoint.fX),
-                        SkIntToScalar(clippedSrcRect.fTop - clippedDstPoint.fY));
-    matrix.postIDiv(tex->width(), tex->height());
-    pipelineBuilder.addColorTextureProcessor(tex, matrix);
-    SkIRect dstRect = SkIRect::MakeXYWH(clippedDstPoint.fX,
-                                        clippedDstPoint.fY,
-                                        clippedSrcRect.width(),
-                                        clippedSrcRect.height());
-    this->drawSimpleRect(&pipelineBuilder, GrColor_WHITE, SkMatrix::I(), dstRect);
-    return true;
-}
-
-bool GrDrawTarget::canCopySurface(const GrSurface* dst,
-                                  const GrSurface* src,
-                                  const SkIRect& srcRect,
-                                  const SkIPoint& dstPoint) {
-    SkASSERT(dst);
-    SkASSERT(src);
-
-    SkIRect clippedSrcRect;
-    SkIPoint clippedDstPoint;
-    // If the rect is outside the src or dst then we're guaranteed success
-    if (!clip_srcrect_and_dstpoint(dst,
-                                   src,
-                                   srcRect,
-                                   dstPoint,
-                                   &clippedSrcRect,
-                                   &clippedDstPoint)) {
-        return true;
-    }
-    return ((dst != src) && dst->asRenderTarget() && src->asTexture()) ||
-           this->getGpu()->canCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
+    this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
 }
 
 void GrDrawTarget::setupPipeline(const PipelineInfo& pipelineInfo,

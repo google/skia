@@ -12,14 +12,6 @@
 #include "../GrGLShaderVar.h"
 
 namespace {
-inline const char* sample_function_name(GrSLType type, GrGLSLGeneration glslGen) {
-    if (kVec2f_GrSLType == type) {
-        return glslGen >= k130_GrGLSLGeneration ? "texture" : "texture2D";
-    } else {
-        SkASSERT(kVec3f_GrSLType == type);
-        return glslGen >= k130_GrGLSLGeneration ? "textureProj" : "texture2DProj";
-    }
-}
 void append_texture_lookup(SkString* out,
                            GrGLGpu* gpu,
                            const char* samplerName,
@@ -30,7 +22,7 @@ void append_texture_lookup(SkString* out,
     SkASSERT(coordName);
 
     out->appendf("%s(%s, %s)",
-                 sample_function_name(varyingType, gpu->glslGeneration()),
+                 GrGLSLTexture2DFunctionName(varyingType, gpu->glslGeneration()),
                  samplerName,
                  coordName);
 

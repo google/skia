@@ -101,11 +101,6 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint) override;
 
-    bool canCopySurface(const GrSurface* dst,
-                        const GrSurface* src,
-                        const SkIRect& srcRect,
-                        const SkIPoint& dstPoint) override;
-
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     void buildProgramDesc(GrProgramDesc*,
@@ -183,6 +178,19 @@ private:
     // Subclasses should call this to flush the blend state.
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo);
 
+    void copySurfaceAsDraw(GrSurface* dst,
+                           GrSurface* src,
+                           const SkIRect& srcRect,
+                           const SkIPoint& dstPoint);
+    void copySurfaceAsCopyTexSubImage(GrSurface* dst,
+                                      GrSurface* src,
+                                      const SkIRect& srcRect,
+                                      const SkIPoint& dstPoint);
+    bool copySurfaceAsBlitFramebuffer(GrSurface* dst,
+                                      GrSurface* src,
+                                      const SkIRect& srcRect,
+                                      const SkIPoint& dstPoint);
+
     bool hasExtension(const char* ext) const { return fGLContext.hasExtension(ext); }
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
@@ -193,7 +201,7 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* getProgram(const DrawArgs&);
+        GrGLProgram* refProgram(const DrawArgs&);
 
     private:
         enum {
@@ -294,11 +302,12 @@ private:
 
     void unbindTextureFromFBO(GrGLenum fboTarget);
 
+    void createCopyProgram();
+
     GrGLContext fGLContext;
 
     // GL program-related state
     ProgramCache*               fProgramCache;
-    SkAutoTUnref<GrGLProgram>   fCurrentProgram;
 
     ///////////////////////////////////////////////////////////////////////////
     ///@name Caching of GL State
@@ -420,7 +429,17 @@ private:
                                                         const GrGLVertexBuffer* vbuffer,
                                                         const GrGLIndexBuffer* ibuffer);
 
+        /** Variants of the above that takes GL buffer IDs. Note that 0 does not imply that a 
+            buffer won't be bound. The "default buffer" will be bound, which is used for client-side
+            array rendering. */
+        GrGLAttribArrayState* bindArrayAndBufferToDraw(GrGLGpu* gpu, GrGLuint vbufferID);
+        GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGLGpu* gpu,
+                                                        GrGLuint vbufferID,
+                                                        GrGLuint ibufferID);
+
     private:
+        GrGLAttribArrayState* internalBind(GrGLGpu* gpu, GrGLuint vbufferID, GrGLuint* ibufferID);
+
         GrGLuint                fBoundVertexArrayID;
         GrGLuint                fBoundVertexBufferID;
         bool                    fBoundVertexArrayIDIsValid;
@@ -453,6 +472,15 @@ private:
             fEnabled = kUnknown_TriState;
         }
     } fHWBlendState;
+
+    /** IDs for copy surface program. */
+    struct {
+        GrGLuint    fProgram;
+        GrGLint     fTextureUniform;
+        GrGLint     fTexCoordXformUniform;
+        GrGLint     fPosXformUniform;
+        GrGLuint    fArrayBuffer;
+    } fCopyProgram;
 
     TriState fMSAAEnabled;
 
