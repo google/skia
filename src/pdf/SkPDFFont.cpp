@@ -24,12 +24,14 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 
+#if defined (SK_SFNTLY_SUBSETTER)
+    #include SK_SFNTLY_SUBSETTER
+#endif
+
 #if defined (GOOGLE3)
     // #including #defines doesn't work in with this build system.
     #include "typography/font/sfntly/src/sample/chromium/font_subsetter.h"
     #define SK_SFNTLY_SUBSETTER  // For the benefit of #ifdefs below.
-#elif defined (SK_SFNTLY_SUBSETTER)
-    #include SK_SFNTLY_SUBSETTER
 #endif
 
 // PDF's notion of symbolic vs non-symbolic is related to the character set, not

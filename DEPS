@@ -30,11 +30,6 @@ deps = {
 
   # The line below is needed for compiling SkV8Example. Do not delete.
   #"third_party/externals/v8": "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
-
-  # sfntly is used by the PDF backend for font subsetting
-  "third_party/externals/sfntly" : "https://chromium.googlesource.com/external/sfntly/cpp/src.git@1bdaae8fc788a5ac8936d68bf24f37d977a13dac",
-  # ICU is needed for sfntly.
-  "third_party/externals/icu" : "https://chromium.googlesource.com/chromium/deps/icu.git@ce41627e388fb46ab49671bd16a5db81dcd75a71",
 }
 
 recursedeps = [ "common" ]
