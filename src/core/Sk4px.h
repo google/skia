@@ -65,6 +65,15 @@ public:
         return this->mulWiden(Sk16b(255));
     }
 
+    // Generally faster than this->mulWiden(other).div255RoundNarrow().
+    // May be incorrect by +-1, but is always exactly correct when *this or other is 0 or 255.
+    Sk4px fastMulDiv255Round(const Sk16b& other) const {
+        // (x*y + x) / 256 meets these criteria.  (As of course does (x*y + y) / 256 by symmetry.)
+        Sk4px::Wide  x = this->widenLo(),
+                    xy = this->mulWiden(other);
+        return x.addNarrowHi(xy);
+    }
+
     // A generic driver that maps fn over a src array into a dst array.
     // fn should take an Sk4px (4 src pixels) and return an Sk4px (4 dst pixels).
     template <typename Fn>

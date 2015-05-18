@@ -1232,6 +1232,25 @@ static inline SkPMFloat check_as_pmfloat(const Sk4f& value) {
     return pm;
 }
 
+#define XFERMODE(Name)                                                    \
+    struct Name {                                                         \
+        static Sk4px Xfer(const Sk4px&, const Sk4px&);                    \
+        static const SkXfermode::Mode kMode = SkXfermode::k##Name##_Mode; \
+    };                                                                    \
+    inline Sk4px Name::Xfer(const Sk4px& s, const Sk4px& d)
+
+XFERMODE(Clear) { return Sk4px((SkPMColor)0); }
+XFERMODE(Src)   { return s; }
+XFERMODE(Dst)   { return d; }
+XFERMODE(SrcIn)   { return     s.fastMulDiv255Round(d.alphas()      ); }
+XFERMODE(SrcOut)  { return     s.fastMulDiv255Round(d.alphas().inv()); }
+XFERMODE(SrcOver) { return s + d.fastMulDiv255Round(s.alphas().inv()); }
+XFERMODE(DstIn)   { return SrcIn  ::Xfer(d,s); }
+XFERMODE(DstOut)  { return SrcOut ::Xfer(d,s); }
+XFERMODE(DstOver) { return SrcOver::Xfer(d,s); }
+
+#undef XFERMODE
+
 //  kSrcATop_Mode,  //!< [Da, Sc * Da + (1 - Sa) * Dc]
 struct SrcATop4f {
     static SkPMFloat Xfer(const SkPMFloat& src, const SkPMFloat& dst) {
@@ -1291,7 +1310,7 @@ struct Modulate4f {
         return check_as_pmfloat(src * dst * inv255);
     }
     static Sk4px Xfer(const Sk4px& src, const Sk4px& dst) {
-        return src.mulWiden(dst).div255RoundNarrow();
+        return src.fastMulDiv255Round(dst);
     }
     static const bool kFoldCoverageIntoSrcAlpha = false;
     static const SkXfermode::Mode kMode = SkXfermode::kModulate_Mode;
@@ -1306,7 +1325,7 @@ struct Screen4f {
     static Sk4px Xfer(const Sk4px& src, const Sk4px& dst) {
         // Doing the math as S + (1-S)*D or S + (D - S*D) means the add and subtract can be done
         // in 8-bit space without overflow.  S + (1-S)*D is a touch faster because inv() is cheap.
-        return src + src.inv().mulWiden(dst).div255RoundNarrow();
+        return src + dst.fastMulDiv255Round(src.inv());
     }
     static const bool kFoldCoverageIntoSrcAlpha = true;
     static const SkXfermode::Mode kMode = SkXfermode::kScreen_Mode;
@@ -1366,7 +1385,7 @@ struct Exclusion4f {
         return check_as_pmfloat(ra - prod * SkPMFloat(0, 1, 1, 1));
     }
     static Sk4px Xfer(const Sk4px& src, const Sk4px& dst) {
-        auto p = src.mulWiden(dst).div255RoundNarrow();
+        auto p = src.fastMulDiv255Round(dst);
         // There's no chance of underflow, and if we subtract p before adding src+dst, no overflow.
         return (src - p) + (dst - p.zeroAlphas());
     }
@@ -1500,6 +1519,16 @@ SkXfermode* create_mode(int iMode) {
 
 #if defined(SK_4PX_XFERMODES_ARE_FAST) && !defined(SK_PREFER_LEGACY_FLOAT_XFERMODES)
     switch (mode) {
+        case SkXfermode::kClear_Mode:      return SkT4pxXfermode<Clear>::Create(rec);
+        case SkXfermode::kSrc_Mode:        return SkT4pxXfermode<Src>::Create(rec);
+        case SkXfermode::kDst_Mode:        return SkT4pxXfermode<Dst>::Create(rec);
+        case SkXfermode::kSrcOver_Mode:    return SkT4pxXfermode<SrcOver>::Create(rec);
+        case SkXfermode::kDstOver_Mode:    return SkT4pxXfermode<DstOver>::Create(rec);
+        case SkXfermode::kSrcIn_Mode:      return SkT4pxXfermode<SrcIn>::Create(rec);
+        case SkXfermode::kDstIn_Mode:      return SkT4pxXfermode<DstIn>::Create(rec);
+        case SkXfermode::kSrcOut_Mode:     return SkT4pxXfermode<SrcOut>::Create(rec);
+        case SkXfermode::kDstOut_Mode:     return SkT4pxXfermode<DstOut>::Create(rec);
+
         case SkXfermode::kSrcATop_Mode:    return SkT4pxXfermode<SrcATop4f>::Create(rec);
         case SkXfermode::kDstATop_Mode:    return SkT4pxXfermode<DstATop4f>::Create(rec);
         case SkXfermode::kXor_Mode:        return SkT4pxXfermode<Xor4f>::Create(rec);
