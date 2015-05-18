@@ -13,7 +13,6 @@
     # If these become 'permanent', they should be moved into skia_common.gypi
     #
     'skia_for_chromium_defines': [
-      'SK_LEGACY_DRAWPICTURECALLBACK',
       'SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS',
       'SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS',
     ],
