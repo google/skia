@@ -65,7 +65,10 @@ public:
 
         SkASSERT(count >= SkRegion::kRectRegionRuns);
 
-        RunHead* head = (RunHead*)sk_malloc_throw(sizeof(RunHead) + count * sizeof(RunType));
+        const int64_t size = sk_64_mul(count, sizeof(RunType)) + sizeof(RunHead);
+        if (count < 0 || !sk_64_isS32(size)) { SK_CRASH(); }
+
+        RunHead* head = (RunHead*)sk_malloc_throw(size);
         head->fRefCnt = 1;
         head->fRunCount = count;
         // these must be filled in later, otherwise we will be invalid
