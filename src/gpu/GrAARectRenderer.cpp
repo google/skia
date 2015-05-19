@@ -808,12 +808,11 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
                                          const SkMatrix& viewMatrix,
                                          const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());
-    SkASSERT(!rects[1].isEmpty());
+    SkASSERT(!rects[0].isEmpty() && !rects[1].isEmpty());
 
     SkRect devOutside, devInside;
     viewMatrix.mapRect(&devOutside, rects[0]);
-    // can't call mapRect for devInside since it calls sort
-    viewMatrix.mapPoints((SkPoint*)&devInside, (const SkPoint*)&rects[1], 2);
+    viewMatrix.mapRect(&devInside, rects[1]);
 
     if (devInside.isEmpty()) {
         this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside, devOutside);

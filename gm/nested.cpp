@@ -14,7 +14,7 @@ namespace skiagm {
 // Test out various combinations of nested rects, ovals and rrects.
 class NestedGM : public GM {
 public:
-    NestedGM(bool doAA) : fDoAA(doAA) {
+    NestedGM(bool doAA, bool flipped) : fDoAA(doAA), fFlipped(flipped) {
         this->setBGColor(0xFFDDDDDD);
     }
 
@@ -22,6 +22,9 @@ protected:
 
     SkString onShortName() override {
         SkString name("nested");
+        if (fFlipped) {
+            name.append("_flipY");
+        }
         if (fDoAA) {
             name.append("_aa");
         } else {
@@ -87,9 +90,8 @@ protected:
             }
         }
 
-        canvas->translate(2, 2);
+        SkScalar xOff = 2, yOff = 2;
         for (int outerShape = 0; outerShape < kShapeCount; ++outerShape) {
-            canvas->save();
             for (int innerShape = 0; innerShape < kShapeCount; ++innerShape) {
                 for (size_t innerRect = 0; innerRect < SK_ARRAY_COUNT(innerRects); ++innerRect) {
                     SkPath path;
@@ -98,12 +100,23 @@ protected:
                     AddShape(&path, innerRects[innerRect], (Shapes) innerShape,
                              SkPath::kCCW_Direction);
 
+                    canvas->save();
+                    if (fFlipped) {
+                        canvas->scale(1.0f, -1.0f);
+                        canvas->translate(xOff, -yOff - 40.0f);
+                    } else {
+                        canvas->translate(xOff, yOff);
+                    }
+
                     canvas->drawPath(path, shapePaint);
-                    canvas->translate(45, 0);
+                    canvas->restore();
+
+                    xOff += 45;
                 }
             }
-            canvas->restore();
-            canvas->translate(0, 45);
+
+            xOff = 2;
+            yOff += 45;
         }
 
     }
@@ -113,14 +126,16 @@ private:
     static const int kImageHeight = 134;
 
     bool fDoAA;
+    bool fFlipped;
 
     typedef GM INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new NestedGM(true); )
-DEF_GM( return new NestedGM(false); )
-
+DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ false); )
+DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ false); )
+DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ true); )
+DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ true); )
 
 }
