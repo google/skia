@@ -178,6 +178,7 @@ void GrGLPath::InitPathObject(GrGLGpu* gpu,
         GR_GL_CALL(gpu->glInterface(), PathParameteri(pathID, GR_GL_PATH_JOIN_STYLE, join));
         GrGLenum cap = cap_to_gl_cap(stroke.getCap());
         GR_GL_CALL(gpu->glInterface(), PathParameteri(pathID, GR_GL_PATH_END_CAPS, cap));
+        GR_GL_CALL(gpu->glInterface(), PathParameterf(pathID, GR_GL_PATH_STROKE_BOUND, 0.02f));
     }
 }
 

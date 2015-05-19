@@ -838,6 +838,7 @@
 #define GR_GL_PATH_END_CAPS                                 0x9076
 #define GR_GL_PATH_JOIN_STYLE                               0x9079
 #define GR_GL_PATH_MITER_LIMIT                              0x907A
+#define GR_GL_PATH_STROKE_BOUND                             0x9086
 
 // fill modes
 #define GR_GL_COUNT_UP                                      0x9088
