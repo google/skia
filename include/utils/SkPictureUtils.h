@@ -10,6 +10,8 @@
 
 #include "SkPicture.h"
 
+// TODO: remove this file?
+
 class SK_API SkPictureUtils {
 public:
     /**
@@ -18,7 +20,9 @@ public:
      *  includes nested SkPictures, but does not include large objects that
      *  SkRecord holds a reference to (e.g. paths, or pixels backing bitmaps).
      */
-    static size_t ApproximateBytesUsed(const SkPicture* pict);
+    static size_t ApproximateBytesUsed(const SkPicture* pict) {
+        return pict->approximateBytesUsed();
+    }
 };
 
 #endif

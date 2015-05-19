@@ -111,7 +111,10 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         }
 
         SkPictureRecorder recorder;
-        recorder.beginRecording(1, 1);
+        SkCanvas* c = recorder.beginRecording(1, 1);
+            // Draw something, anything, to prevent an empty-picture optimization,
+            // which is a singleton and never purged.
+            c->drawRect(SkRect::MakeWH(1,1), SkPaint());
         SkAutoTUnref<const SkPicture> picture(recorder.endRecording());
 
         GrLayerCache cache(context);

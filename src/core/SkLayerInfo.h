@@ -8,12 +8,12 @@
 #ifndef SkLayerInfo_DEFINED
 #define SkLayerInfo_DEFINED
 
-#include "SkPicture.h"
+#include "SkBigPicture.h"
 #include "SkTArray.h"
 
 // This class stores information about the saveLayer/restore pairs found
 // within an SkPicture. It is used by Ganesh to perform layer hoisting.
-class SkLayerInfo : public SkPicture::AccelData {
+class SkLayerInfo : public SkBigPicture::AccelData {
 public:
     // Information about a given saveLayer/restore block in an SkPicture
     class BlockInfo {
@@ -33,12 +33,12 @@ public:
         SkRect fSrcBounds;
         // The pre-matrix begins as the identity and accumulates the transforms
         // of the containing SkPictures (if any). This matrix state has to be
-        // part of the initial matrix during replay so that it will be 
+        // part of the initial matrix during replay so that it will be
         // preserved across setMatrix calls.
         SkMatrix fPreMat;
-        // The matrix state (in the leaf picture) in which this layer's draws 
+        // The matrix state (in the leaf picture) in which this layer's draws
         // must occur. It will/can be overridden by setMatrix calls in the
-        // layer itself. It does not include the translation needed to map the 
+        // layer itself. It does not include the translation needed to map the
         // layer's top-left point to the origin (which must be part of the
         // initial matrix).
         SkMatrix fLocalMat;
@@ -60,7 +60,7 @@ public:
         int     fKeySize;  // # of ints
     };
 
-    SkLayerInfo(Key key) : INHERITED(key) { }
+    SkLayerInfo() {}
 
     BlockInfo& addBlock() { return fBlocks.push_back(); }
 
@@ -72,14 +72,10 @@ public:
         return fBlocks[index];
     }
 
-    // We may, in the future, need to pass in the GPUDevice in order to
-    // incorporate the clip and matrix state into the key
-    static SkPicture::AccelData::Key ComputeKey();
-
 private:
     SkTArray<BlockInfo, true> fBlocks;
 
-    typedef SkPicture::AccelData INHERITED;
+    typedef SkBigPicture::AccelData INHERITED;
 };
 
 #endif // SkLayerInfo_DEFINED
