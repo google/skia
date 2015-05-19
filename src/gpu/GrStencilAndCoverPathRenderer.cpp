@@ -60,7 +60,6 @@ bool GrStencilAndCoverPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                 const GrStrokeInfo& stroke,
                                                 bool antiAlias) const {
     return !stroke.isHairlineStyle() &&
-        !stroke.isDashed() &&
         !antiAlias && // doesn't do per-path AA, relies on the target having MSAA
         pipelineBuilder->getStencil().isDisabled();
 }
@@ -73,15 +72,17 @@ GrStencilAndCoverPathRenderer::onGetStencilSupport(const GrDrawTarget*,
     return GrPathRenderer::kStencilOnly_StencilSupport;
 }
 
-static GrPath* get_gr_path(GrGpu* gpu, const SkPath& skPath, const SkStrokeRec& stroke) {
+static GrPath* get_gr_path(GrGpu* gpu, const SkPath& skPath, const GrStrokeInfo& stroke) {
     GrContext* ctx = gpu->getContext();
     GrUniqueKey key;
     GrPath::ComputeKey(skPath, stroke, &key);
     SkAutoTUnref<GrPath> path(
         static_cast<GrPath*>(ctx->resourceProvider()->findAndRefResourceByUniqueKey(key)));
-    if (NULL == path || !path->isEqualTo(skPath, stroke)) {
+    if (NULL == path) {
         path.reset(gpu->pathRendering()->createPath(skPath, stroke));
         ctx->resourceProvider()->assignUniqueKeyToResource(key, path);
+    } else {
+        SkASSERT(path->isEqualTo(skPath, stroke));
     }
     return path.detach();
 }
@@ -106,7 +107,6 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
                                                bool antiAlias) {
     SkASSERT(!antiAlias);
     SkASSERT(!stroke.isHairlineStyle());
-    SkASSERT(!stroke.isDashed());
     SkASSERT(pipelineBuilder->getStencil().isDisabled());
 
     SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));

@@ -55,8 +55,10 @@ bool GrStencilAndCoverTextContext::canDraw(const GrRenderTarget* rt,
     if (skPaint.getMaskFilter()) {
         return false;
     }
-    if (skPaint.getPathEffect()) {
-        return false;
+    if (SkPathEffect* pe = skPaint.getPathEffect()) {
+        if (pe->asADash(NULL) != SkPathEffect::kDash_DashType) {
+            return false;
+        }
     }
 
     // No hairlines unless we can map the 1 px width to the object space.
@@ -220,26 +222,27 @@ void GrStencilAndCoverTextContext::onDrawPosText(GrRenderTarget* rt,
 static GrPathRange* get_gr_glyphs(GrContext* ctx,
                                   const SkTypeface* typeface,
                                   const SkDescriptor* desc,
-                                  const SkStrokeRec& stroke) {
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey key;
-    GrUniqueKey::Builder builder(&key, kDomain, 4);
-    struct GlyphKey {
-        uint32_t fChecksum;
-        uint32_t fTypeface;
-        uint64_t fStroke;
-    };
-    GlyphKey* glyphKey = reinterpret_cast<GlyphKey*>(&builder[0]);
-    glyphKey->fChecksum = desc ? desc->getChecksum() : 0;
-    glyphKey->fTypeface = typeface ? typeface->uniqueID() : 0;
-    glyphKey->fStroke = GrPath::ComputeStrokeKey(stroke);
+                                  const GrStrokeInfo& stroke) {
+
+    static const GrUniqueKey::Domain kPathGlyphDomain = GrUniqueKey::GenerateDomain();
+    int strokeDataCount = stroke.computeUniqueKeyFragmentData32Cnt();
+    GrUniqueKey glyphKey;
+    GrUniqueKey::Builder builder(&glyphKey, kPathGlyphDomain, 2 + strokeDataCount);
+    reinterpret_cast<uint32_t&>(builder[0]) = desc ? desc->getChecksum() : 0;
+    reinterpret_cast<uint32_t&>(builder[1]) = typeface ? typeface->uniqueID() : 0;
+    if (strokeDataCount > 0) {
+        stroke.asUniqueKeyFragment(&builder[2]);
+    }
     builder.finish();
 
     SkAutoTUnref<GrPathRange> glyphs(
-        static_cast<GrPathRange*>(ctx->resourceProvider()->findAndRefResourceByUniqueKey(key)));
-    if (NULL == glyphs || (NULL != desc && !glyphs->isEqualTo(*desc))) {
+        static_cast<GrPathRange*>(
+            ctx->resourceProvider()->findAndRefResourceByUniqueKey(glyphKey)));
+    if (NULL == glyphs) {
         glyphs.reset(ctx->getGpu()->pathRendering()->createGlyphs(typeface, desc, stroke));
-        ctx->resourceProvider()->assignUniqueKeyToResource(key, glyphs);
+        ctx->resourceProvider()->assignUniqueKeyToResource(glyphKey, glyphs);
+    } else {
+        SkASSERT(NULL == desc || glyphs->isEqualTo(*desc));
     }
 
     return glyphs.detach();
@@ -273,7 +276,7 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
 
         // The whole shape (including stroke) will be baked into the glyph outlines. Make
         // NVPR just fill the baked shapes.
-        fStroke = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
+        fStroke = GrStrokeInfo(SkStrokeRec::kFill_InitStyle);
 
         fTextRatio = fTextInverseRatio = 1.0f;
 
@@ -298,7 +301,7 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
     } else {
         // Don't bake strokes into the glyph outlines. We will stroke the glyphs
         // using the GPU instead. This is the fast path.
-        fStroke = SkStrokeRec(fSkPaint);
+        fStroke = GrStrokeInfo(fSkPaint);
         fSkPaint.setStyle(SkPaint::kFill_Style);
 
         if (fStroke.isHairlineStyle()) {
@@ -327,8 +330,8 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
         }
 
         bool canUseRawPaths;
-
-        if (otherBackendsWillDrawAsPaths || kMaxPerformance_RenderMode == renderMode) {
+        if (!fStroke.isDashed() && (otherBackendsWillDrawAsPaths ||
+                                    kMaxPerformance_RenderMode == renderMode)) {
             // We can draw the glyphs from canonically sized paths.
             fTextRatio = fSkPaint.getTextSize() / SkPaint::kCanonicalTextSizeForPaths;
             fTextInverseRatio = SkPaint::kCanonicalTextSizeForPaths / fSkPaint.getTextSize();

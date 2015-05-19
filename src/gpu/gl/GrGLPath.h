@@ -25,11 +25,13 @@ public:
     static void InitPathObject(GrGLGpu*,
                                GrGLuint pathID,
                                const SkPath&,
-                               const SkStrokeRec&);
+                               const GrStrokeInfo&);
 
-    GrGLPath(GrGLGpu* gpu, const SkPath& path, const SkStrokeRec& stroke);
+    GrGLPath(GrGLGpu* gpu, const SkPath& path, const GrStrokeInfo& stroke);
     GrGLuint pathID() const { return fPathID; }
 
+    bool shouldStroke() const { return fShouldStroke; }
+    bool shouldFill() const { return fShouldFill; }
 protected:
     void onRelease() override;
     void onAbandon() override;
@@ -39,6 +41,8 @@ private:
     size_t onGpuMemorySize() const override { return 100; }
 
     GrGLuint fPathID;
+    bool fShouldStroke;
+    bool fShouldFill;
 
     typedef GrPath INHERITED;
 };

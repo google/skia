@@ -91,7 +91,8 @@ inline void points_to_coords(const SkPoint points[], size_t first_point, size_t 
 void GrGLPath::InitPathObject(GrGLGpu* gpu,
                               GrGLuint pathID,
                               const SkPath& skPath,
-                              const SkStrokeRec& stroke) {
+                              const GrStrokeInfo& stroke) {
+    SkASSERT(!stroke.isDashed());
     if (!skPath.isEmpty()) {
         int verbCnt = skPath.countVerbs();
         int pointCnt = skPath.countPoints();
@@ -182,16 +183,33 @@ void GrGLPath::InitPathObject(GrGLGpu* gpu,
     }
 }
 
-GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& path, const SkStrokeRec& stroke)
-    : INHERITED(gpu, path, stroke),
+GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& origStroke)
+    : INHERITED(gpu, origSkPath, origStroke),
       fPathID(gpu->glPathRendering()->genPaths(1)) {
+    // Convert a dashing to either a stroke or a fill.
+    const SkPath* skPath = &origSkPath;
+    SkTLazy<SkPath> tmpPath;
+    const GrStrokeInfo* stroke = &origStroke;
+    GrStrokeInfo tmpStroke(SkStrokeRec::kFill_InitStyle);
 
-    InitPathObject(gpu, fPathID, fSkPath, stroke);
-
-    if (stroke.needToApply()) {
-        // FIXME: try to account for stroking, without rasterizing the stroke.
-        fBounds.outset(stroke.getWidth(), stroke.getWidth());
+    if (stroke->isDashed()) {
+        if (stroke->applyDashToPath(tmpPath.init(), &tmpStroke, *skPath)) {
+            skPath = tmpPath.get();
+            stroke = &tmpStroke;
+        }
     }
+
+    InitPathObject(gpu, fPathID, *skPath, *stroke);
+
+    fShouldStroke = stroke->needToApply();
+    fShouldFill = stroke->isFillStyle() ||
+            stroke->getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+
+    if (fShouldStroke) {
+        // FIXME: try to account for stroking, without rasterizing the stroke.
+        fBounds.outset(stroke->getWidth(), stroke->getWidth());
+    }
+
     this->registerWithCache();
 }
 

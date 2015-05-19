@@ -11,6 +11,8 @@
 #include "SkStrokeRec.h"
 #include "SkPathEffect.h"
 
+class GrUniqueKey;
+
 /*
  * GrStrokeInfo encapsulates all the pertinent infomation regarding the stroke. The SkStrokeRec
  * which holds information on fill style, width, miter, cap, and join. It also holds information
@@ -58,6 +60,21 @@ public:
         }
         this->INHERITED::operator=(other);
         return *this;
+    }
+
+    bool hasEqualEffect(const GrStrokeInfo& other) const {
+        if (this->isDashed() != other.isDashed()) {
+            return false;
+        }
+        if (this->isDashed()) {
+            if (fDashPhase != other.fDashPhase ||
+                fIntervals.count() != other.fIntervals.count() ||
+                memcmp(fIntervals.get(), other.fIntervals.get(),
+                       fIntervals.count() * sizeof(SkScalar)) != 0) {
+                return false;
+            }
+        }
+        return this->INHERITED::hasEqualEffect(other);
     }
 
     /*
@@ -127,8 +144,31 @@ public:
      */
     bool applyDashToPath(SkPath* dst, GrStrokeInfo* dstStrokeInfo, const SkPath& src) const;
 
+    /**
+     * Computes the length of the data that will be written by asUniqueKeyFragment() function.
+     */
+    int computeUniqueKeyFragmentData32Cnt() const {
+        const int kSkScalarData32Cnt = sizeof(SkScalar) / sizeof(uint32_t);
+        // SkStrokeRec data: 32 bits for style+join+cap and 2 scalars for miter and width.
+        int strokeKeyData32Cnt = 1 + 2 * kSkScalarData32Cnt;
+
+        if (this->isDashed()) {
+            // One scalar for dash phase and one for each dash value.
+            strokeKeyData32Cnt += (1 + this->getDashCount()) * kSkScalarData32Cnt;
+        }
+        return strokeKeyData32Cnt;
+    }
+
+    /**
+     * Writes the object contents as uint32_t data, to be used with GrUniqueKey.
+     * Note: the data written does not encode the length, so care must be taken to ensure
+     * that the full unique key data is encoded properly. For example, GrStrokeInfo
+     * fragment can be placed last in the sequence, at fixed index.
+     */
+    void asUniqueKeyFragment(uint32_t*) const;
+
 private:
-    // Prevent accidental usage, not implemented for GrStrokeInfos.
+    // Prevent accidental usage, should use GrStrokeInfo::hasEqualEffect.
     bool hasEqualEffect(const SkStrokeRec& other) const;
 
     void init(const SkPaint& paint) {

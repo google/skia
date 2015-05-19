@@ -15,13 +15,18 @@
 class GlyphGenerator : public GrPathRange::PathGenerator {
 public:
     GlyphGenerator(const SkTypeface& typeface, const SkDescriptor& desc)
-        : fDesc(desc.copy()),
-          fScalerContext(typeface.createScalerContext(fDesc)) {
+        : fScalerContext(typeface.createScalerContext(&desc))
+#ifdef SK_DEBUG
+        , fDesc(desc.copy())
+#endif
+    {
         fFlipMatrix.setScale(1, -1);
     }
 
     virtual ~GlyphGenerator() {
+#ifdef SK_DEBUG
         SkDescriptor::Free(fDesc);
+#endif
     }
 
     int getNumPaths() override {
@@ -36,20 +41,22 @@ public:
         fScalerContext->getPath(skGlyph, out);
         out->transform(fFlipMatrix); // Load glyphs with the inverted y-direction.
     }
-
+#ifdef SK_DEBUG
     bool isEqualTo(const SkDescriptor& desc) const override {
         return fDesc->equals(desc);
     }
-
+#endif
 private:
-    SkDescriptor* const fDesc;
     const SkAutoTDelete<SkScalerContext> fScalerContext;
     SkMatrix fFlipMatrix;
+#ifdef SK_DEBUG
+    SkDescriptor* const fDesc;
+#endif
 };
 
 GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
                                            const SkDescriptor* desc,
-                                           const SkStrokeRec& stroke) {
+                                           const GrStrokeInfo& stroke) {
     if (NULL == typeface) {
         typeface = SkTypeface::GetDefaultTypeface();
         SkASSERT(NULL != typeface);

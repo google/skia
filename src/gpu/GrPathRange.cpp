@@ -13,23 +13,19 @@ enum {
 };
 
 GrPathRange::GrPathRange(GrGpu* gpu,
-                         PathGenerator* pathGenerator,
-                         const SkStrokeRec& stroke)
+                         PathGenerator* pathGenerator)
     : INHERITED(gpu, kCached_LifeCycle),
       fPathGenerator(SkRef(pathGenerator)),
-      fNumPaths(fPathGenerator->getNumPaths()),
-      fStroke(stroke) {
+      fNumPaths(fPathGenerator->getNumPaths()) {
     const int numGroups = (fNumPaths + kPathsPerGroup - 1) / kPathsPerGroup;
     fGeneratedPaths.reset((numGroups + 7) / 8); // 1 bit per path group.
     memset(&fGeneratedPaths.front(), 0, fGeneratedPaths.count());
 }
 
 GrPathRange::GrPathRange(GrGpu* gpu,
-                         int numPaths,
-                         const SkStrokeRec& stroke)
+                         int numPaths)
     : INHERITED(gpu, kCached_LifeCycle),
-      fNumPaths(numPaths),
-      fStroke(stroke) {
+      fNumPaths(numPaths) {
 }
 
 void GrPathRange::willDrawPaths(const void* indices, PathIndexType indexType, int count) const {

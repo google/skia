@@ -10,7 +10,7 @@
 
 #include "GrTextContext.h"
 #include "GrDrawTarget.h"
-#include "SkStrokeRec.h"
+#include "GrStrokeInfo.h"
 
 class GrTextStrike;
 class GrPath;
@@ -58,7 +58,7 @@ private:
     float                                               fTextInverseRatio;
     SkGlyphCache*                                       fGlyphCache;
     GrPathRange*                                        fGlyphs;
-    SkStrokeRec                                         fStroke;
+    GrStrokeInfo                                        fStroke;
     uint16_t                                            fGlyphIndices[kGlyphBufferSize];
     SkPoint                                             fGlyphPositions[kGlyphBufferSize];
     int                                                 fQueuedGlyphCount;
