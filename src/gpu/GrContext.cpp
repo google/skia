@@ -595,7 +595,7 @@ void GrContext::drawRect(GrRenderTarget* rt,
     }
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRect", target);
-    SkScalar width = NULL == strokeInfo ? -1 : strokeInfo->getStrokeRec().getWidth();
+    SkScalar width = NULL == strokeInfo ? -1 : strokeInfo->getWidth();
 
     // Check if this is a full RT draw and can be replaced with a clear. We don't bother checking
     // cases where the RT is fully inside a stroke.
@@ -639,14 +639,13 @@ void GrContext::drawRect(GrRenderTarget* rt,
 
     if (doAA) {
         if (width >= 0) {
-            const SkStrokeRec& strokeRec = strokeInfo->getStrokeRec();
             fAARectRenderer->strokeAARect(target,
                                           &pipelineBuilder,
                                           color,
                                           viewMatrix,
                                           rect,
                                           devBoundRect,
-                                          strokeRec);
+                                          *strokeInfo);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(target,
@@ -1060,8 +1059,6 @@ void GrContext::drawRRect(GrRenderTarget*rt,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRRect", target);
 
-    const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
-
     GrColor color = paint.getColor();
     if (!fOvalRenderer->drawRRect(target,
                                   &pipelineBuilder,
@@ -1069,7 +1066,7 @@ void GrContext::drawRRect(GrRenderTarget*rt,
                                   viewMatrix,
                                   paint.isAntiAlias(),
                                   rrect,
-                                  strokeRec)) {
+                                  strokeInfo)) {
         SkPath path;
         path.addRRect(rrect);
         this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
@@ -1144,8 +1141,6 @@ void GrContext::drawOval(GrRenderTarget* rt,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawOval", target);
 
-    const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
-
     GrColor color = paint.getColor();
     if (!fOvalRenderer->drawOval(target,
                                  &pipelineBuilder,
@@ -1153,7 +1148,7 @@ void GrContext::drawOval(GrRenderTarget* rt,
                                  viewMatrix,
                                  paint.isAntiAlias(),
                                  oval,
-                                 strokeRec)) {
+                                 strokeInfo)) {
         SkPath path;
         path.addOval(oval);
         this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
@@ -1245,15 +1240,14 @@ void GrContext::drawPath(GrRenderTarget* rt,
     GR_CREATE_TRACE_MARKER1("GrContext::drawPath", target, "Is Convex", path.isConvex());
 
     if (!strokeInfo.isDashed()) {
-        const SkStrokeRec& strokeRec = strokeInfo.getStrokeRec();
         bool useCoverageAA = paint.isAntiAlias() &&
                 !pipelineBuilder.getRenderTarget()->isMultisampled();
 
-        if (useCoverageAA && strokeRec.getWidth() < 0 && !path.isConvex()) {
+        if (useCoverageAA && strokeInfo.getWidth() < 0 && !path.isConvex()) {
             // Concave AA paths are expensive - try to avoid them for special cases
             SkRect rects[2];
 
-            if (is_nested_rects(target, &pipelineBuilder, color, viewMatrix, path, strokeRec,
+            if (is_nested_rects(target, &pipelineBuilder, color, viewMatrix, path, strokeInfo,
                                 rects)) {
                 fAARectRenderer->fillAANestedRects(target, &pipelineBuilder, color, viewMatrix,
                                                    rects);
@@ -1270,7 +1264,7 @@ void GrContext::drawPath(GrRenderTarget* rt,
                                         viewMatrix,
                                         paint.isAntiAlias(),
                                         ovalRect,
-                                        strokeRec)) {
+                                        strokeInfo)) {
                 return;
             }
         }
@@ -1315,7 +1309,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
     GrStrokeInfo dashlessStrokeInfo(strokeInfo, false);
     if (NULL == pr && strokeInfo.isDashed()) {
         // It didn't work above, so try again with dashed stroke converted to a dashless stroke.
-        if (!strokeInfo.applyDash(tmpPath.init(), &dashlessStrokeInfo, *pathPtr)) {
+        if (!strokeInfo.applyDashToPath(tmpPath.init(), &dashlessStrokeInfo, *pathPtr)) {
             return;
         }
         pathPtr = tmpPath.get();
@@ -1334,16 +1328,15 @@ void GrContext::internalDrawPath(GrDrawTarget* target,
             if (!tmpPath.isValid()) {
                 tmpPath.init();
             }
-            SkStrokeRec* strokeRec = dashlessStrokeInfo.getStrokeRecPtr();
-            strokeRec->setResScale(SkScalarAbs(viewMatrix.getMaxScale()));
-            if (!strokeRec->applyToPath(tmpPath.get(), *pathPtr)) {
+            dashlessStrokeInfo.setResScale(SkScalarAbs(viewMatrix.getMaxScale()));
+            if (!dashlessStrokeInfo.applyToPath(tmpPath.get(), *pathPtr)) {
                 return;
             }
             pathPtr = tmpPath.get();
             if (pathPtr->isEmpty()) {
                 return;
             }
-            strokeRec->setFillStyle();
+            dashlessStrokeInfo.setFillStyle();
             strokeInfoPtr = &dashlessStrokeInfo;
         }
 

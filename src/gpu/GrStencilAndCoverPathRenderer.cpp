@@ -59,7 +59,7 @@ bool GrStencilAndCoverPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                 const SkPath& path,
                                                 const GrStrokeInfo& stroke,
                                                 bool antiAlias) const {
-    return !stroke.getStrokeRec().isHairlineStyle() &&
+    return !stroke.isHairlineStyle() &&
         !stroke.isDashed() &&
         !antiAlias && // doesn't do per-path AA, relies on the target having MSAA
         pipelineBuilder->getStencil().isDisabled();
@@ -93,7 +93,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(GrDrawTarget* target,
                                                   const GrStrokeInfo& stroke) {
     SkASSERT(!path.isInverseFillType());
     SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE, viewMatrix));
-    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke.getStrokeRec()));
+    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));
     target->stencilPath(pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
 }
 
@@ -105,11 +105,11 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
                                                const GrStrokeInfo& stroke,
                                                bool antiAlias) {
     SkASSERT(!antiAlias);
-    SkASSERT(!stroke.getStrokeRec().isHairlineStyle());
+    SkASSERT(!stroke.isHairlineStyle());
     SkASSERT(!stroke.isDashed());
     SkASSERT(pipelineBuilder->getStencil().isDisabled());
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke.getStrokeRec()));
+    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));
 
     if (path.isInverseFillType()) {
         GR_STATIC_CONST_SAME_STENCIL(kInvertedStencilPass,

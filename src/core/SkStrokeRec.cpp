@@ -20,10 +20,6 @@ SkStrokeRec::SkStrokeRec(InitStyle s) {
     fStrokeAndFill  = false;
 }
 
-SkStrokeRec::SkStrokeRec(const SkStrokeRec& src) {
-    memcpy(this, &src, sizeof(src));
-}
-
 SkStrokeRec::SkStrokeRec(const SkPaint& paint, SkScalar resScale) {
     this->init(paint, paint.getStyle(), resScale);
 }

@@ -517,7 +517,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
                                                                         &grPaint,
                                                                         fClip,
                                                                         *draw.fMatrix,
-                                                                        strokeInfo.getStrokeRec(),
+                                                                        strokeInfo,
                                                                         devRRect)) {
                         return;
                     }
@@ -788,8 +788,7 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
         // stroking, path effects, and blurs are supposed to be applied *after* the prePathMatrix.
         // The pre-path-matrix also should not affect shading.
         if (NULL == paint.getMaskFilter() && NULL == pathEffect && NULL == paint.getShader() &&
-            (strokeInfo.getStrokeRec().isFillStyle() ||
-             strokeInfo.getStrokeRec().isHairlineStyle())) {
+            (strokeInfo.isFillStyle() || strokeInfo.isHairlineStyle())) {
             viewMatrix.preConcat(*prePathMatrix);
         } else {
             SkPath* result = pathPtr;
@@ -814,25 +813,23 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
     }
 
     const SkRect* cullRect = NULL;  // TODO: what is our bounds?
-    SkStrokeRec* strokePtr = strokeInfo.getStrokeRecPtr();
     if (!strokeInfo.isDashed() && pathEffect && pathEffect->filterPath(effectPath.init(), *pathPtr,
-                                                                       strokePtr, cullRect)) {
+                                                                       &strokeInfo, cullRect)) {
         pathPtr = effectPath.get();
         pathIsMutable = true;
     }
 
-    const SkStrokeRec& stroke = strokeInfo.getStrokeRec();
     if (paint.getMaskFilter()) {
-        if (!stroke.isHairlineStyle()) {
+        if (!strokeInfo.isHairlineStyle()) {
             SkPath* strokedPath = pathIsMutable ? pathPtr : tmpPath.init();
             if (strokeInfo.isDashed()) {
-                if (pathEffect->filterPath(strokedPath, *pathPtr, strokePtr, cullRect)) {
+                if (pathEffect->filterPath(strokedPath, *pathPtr, &strokeInfo, cullRect)) {
                     pathPtr = strokedPath;
                     pathIsMutable = true;
                 }
                 strokeInfo.removeDash();
             }
-            if (stroke.applyToPath(strokedPath, *pathPtr)) {
+            if (strokeInfo.applyToPath(strokedPath, *pathPtr)) {
                 pathPtr = strokedPath;
                 pathIsMutable = true;
                 strokeInfo.setFillStyle();
@@ -865,7 +862,7 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
                                                            &grPaint,
                                                            fClip,
                                                            viewMatrix,
-                                                           stroke,
+                                                           strokeInfo,
                                                            *devPathPtr)) {
                 // the mask filter was able to draw itself directly, so there's nothing
                 // left to do.
@@ -902,8 +899,8 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
 
         // draw the mask on the CPU - this is a fallthrough path in case the
         // GPU path fails
-        SkPaint::Style style = stroke.isHairlineStyle() ? SkPaint::kStroke_Style :
-                                                          SkPaint::kFill_Style;
+        SkPaint::Style style = strokeInfo.isHairlineStyle() ? SkPaint::kStroke_Style :
+                                                              SkPaint::kFill_Style;
         draw_with_mask_filter(fContext, fRenderTarget, fClip, viewMatrix, *devPathPtr,
                               paint.getMaskFilter(), clipBounds, &grPaint, style);
         return;

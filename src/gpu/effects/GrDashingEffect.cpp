@@ -51,7 +51,7 @@ bool GrDashingEffect::CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& 
         return false;
     }
 
-    SkPaint::Cap cap = strokeInfo.getStrokeRec().getCap();
+    SkPaint::Cap cap = strokeInfo.getCap();
     // Current we do don't handle Round or Square cap dashes
     if (SkPaint::kRound_Cap == cap && intervals[0] != 0.f) {
         return false;
@@ -684,10 +684,10 @@ static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const Sk
     const SkScalar* intervals = strokeInfo.getDashIntervals();
     SkScalar phase = strokeInfo.getDashPhase();
 
-    SkPaint::Cap cap = strokeInfo.getStrokeRec().getCap();
+    SkPaint::Cap cap = strokeInfo.getCap();
 
     DashBatch::Geometry geometry;
-    geometry.fSrcStrokeWidth = strokeInfo.getStrokeRec().getWidth();
+    geometry.fSrcStrokeWidth = strokeInfo.getWidth();
 
     // the phase should be normalized to be [0, sum of all intervals)
     SkASSERT(phase >= 0 && phase < intervals[0] + intervals[1]);

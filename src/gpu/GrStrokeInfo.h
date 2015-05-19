@@ -16,12 +16,15 @@
  * which holds information on fill style, width, miter, cap, and join. It also holds information
  * about the dash like intervals, count, and phase.
  */
-class GrStrokeInfo {
-public: 
-    GrStrokeInfo(SkStrokeRec::InitStyle style) :
-        fStroke(style), fDashType(SkPathEffect::kNone_DashType) {}
+class GrStrokeInfo : public SkStrokeRec {
+public:
+    GrStrokeInfo(SkStrokeRec::InitStyle style)
+        : INHERITED(style)
+        , fDashType(SkPathEffect::kNone_DashType) {
+    }
 
-    GrStrokeInfo(const GrStrokeInfo& src, bool includeDash = true) : fStroke(src.fStroke) {
+    GrStrokeInfo(const GrStrokeInfo& src, bool includeDash = true)
+        : INHERITED(src) {
         if (includeDash && src.isDashed()) {
             fDashType = src.fDashType;
             fDashPhase = src.fDashPhase;
@@ -32,13 +35,15 @@ public:
         }
     }
 
-    GrStrokeInfo(const SkPaint& paint, SkPaint::Style styleOverride) :
-        fStroke(paint, styleOverride), fDashType(SkPathEffect::kNone_DashType) {
+    GrStrokeInfo(const SkPaint& paint, SkPaint::Style styleOverride)
+        : INHERITED(paint, styleOverride)
+        , fDashType(SkPathEffect::kNone_DashType) {
         this->init(paint);
     }
 
-    explicit GrStrokeInfo(const SkPaint& paint) :
-        fStroke(paint), fDashType(SkPathEffect::kNone_DashType) {
+    explicit GrStrokeInfo(const SkPaint& paint)
+        : INHERITED(paint)
+        , fDashType(SkPathEffect::kNone_DashType) {
         this->init(paint);
     }
 
@@ -51,15 +56,9 @@ public:
         } else {
             this->removeDash();
         }
-        fStroke = other.fStroke;
+        this->INHERITED::operator=(other);
         return *this;
     }
-
-    const SkStrokeRec& getStrokeRec() const { return fStroke; }
-
-    SkStrokeRec* getStrokeRecPtr() { return &fStroke; }
-
-    void setFillStyle() { fStroke.setFillStyle(); }
 
     /*
      * This functions takes in a patheffect and updates the dashing information if the path effect
@@ -67,7 +66,7 @@ public:
      * otherwise it returns false.
      */
     bool setDashInfo(const SkPathEffect* pe) {
-        if (pe && !fStroke.isFillStyle()) {
+        if (pe && !this->isFillStyle()) {
             SkPathEffect::DashInfo dashInfo;
             fDashType = pe->asADash(&dashInfo);
             if (SkPathEffect::kDash_DashType == fDashType) {
@@ -85,8 +84,7 @@ public:
      * Like the above, but sets with an explicit SkPathEffect::DashInfo
      */
     bool setDashInfo(const SkPathEffect::DashInfo& info) {
-        if (!fStroke.isFillStyle()) {
-            SkASSERT(!fStroke.isFillStyle());
+        if (!this->isFillStyle()) {
             fDashType = SkPathEffect::kDash_DashType;
             fDashPhase = info.fPhase;
             fIntervals.reset(info.fCount);
@@ -99,10 +97,8 @@ public:
     }
 
     bool isDashed() const {
-        return (!fStroke.isFillStyle() && SkPathEffect::kDash_DashType == fDashType);
+        return (!this->isFillStyle() && SkPathEffect::kDash_DashType == fDashType);
     }
-
-    bool isFillStyle() const { return fStroke.isFillStyle(); }
 
     int32_t getDashCount() const {
         SkASSERT(this->isDashed());
@@ -129,19 +125,21 @@ public:
      *               will be unmodified. The stroking in the SkStrokeRec might still
      *               be applicable.
      */
-    bool applyDash(SkPath* dst, GrStrokeInfo* dstStrokeInfo, const SkPath& src) const;
+    bool applyDashToPath(SkPath* dst, GrStrokeInfo* dstStrokeInfo, const SkPath& src) const;
 
 private:
+    // Prevent accidental usage, not implemented for GrStrokeInfos.
+    bool hasEqualEffect(const SkStrokeRec& other) const;
 
     void init(const SkPaint& paint) {
         const SkPathEffect* pe = paint.getPathEffect();
         this->setDashInfo(pe);
     }
 
-    SkStrokeRec            fStroke;
     SkPathEffect::DashType fDashType;
     SkScalar               fDashPhase;
     SkAutoSTArray<2, SkScalar> fIntervals;
+    typedef SkStrokeRec INHERITED;
 };
 
 #endif

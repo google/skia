@@ -597,7 +597,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
         }
     }
 
-    AADistanceFieldPathBatch::Geometry geometry(stroke.getStrokeRec());
+    AADistanceFieldPathBatch::Geometry geometry(stroke);
     geometry.fPath = path;
     geometry.fAntiAlias = antiAlias;
 

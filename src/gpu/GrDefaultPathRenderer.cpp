@@ -172,7 +172,7 @@ GrDefaultPathRenderer::onGetStencilSupport(const GrDrawTarget*,
                                            const GrPipelineBuilder*,
                                            const SkPath& path,
                                            const GrStrokeInfo& stroke) const {
-    if (single_pass_path(path, stroke.getStrokeRec())) {
+    if (single_pass_path(path, stroke)) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         return GrPathRenderer::kStencilOnly_StencilSupport;
@@ -547,12 +547,12 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     if (IsStrokeHairlineOrEquivalent(*stroke, viewMatrix, &hairlineCoverage)) {
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
 
-        if (!stroke->getStrokeRec().isHairlineStyle()) {
-            stroke.writable()->getStrokeRecPtr()->setHairlineStyle();
+        if (!stroke->isHairlineStyle()) {
+            stroke.writable()->setHairlineStyle();
         }
     }
 
-    const bool isHairline = stroke->getStrokeRec().isHairlineStyle();
+    const bool isHairline = stroke->isHairlineStyle();
 
     // Save the current xp on the draw state so we can reset it if needed
     SkAutoTUnref<const GrXPFactory> backupXPFactory(SkRef(pipelineBuilder->getXPFactory()));
@@ -575,7 +575,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
         lastPassIsBounds = false;
         drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
     } else {
-        if (single_pass_path(path, stroke->getStrokeRec())) {
+        if (single_pass_path(path, *stroke)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;

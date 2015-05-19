@@ -19,8 +19,6 @@ public:
         kFill_InitStyle
     };
     SkStrokeRec(InitStyle style);
-
-    SkStrokeRec(const SkStrokeRec&);
     SkStrokeRec(const SkPaint&, SkPaint::Style, SkScalar resScale = 1);
     explicit SkStrokeRec(const SkPaint&, SkScalar resScale = 1);
 

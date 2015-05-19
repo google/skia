@@ -160,14 +160,14 @@ public:
         if (stroke.isDashed()) {
             return false;
         }
-        if (stroke.getStrokeRec().isHairlineStyle()) {
+        if (stroke.isHairlineStyle()) {
             if (outCoverage) {
                 *outCoverage = SK_Scalar1;
             }
             return true;
         }
-        return stroke.getStrokeRec().getStyle() == SkStrokeRec::kStroke_Style &&
-            SkDrawTreatAAStrokeAsHairline(stroke.getStrokeRec().getWidth(), matrix, outCoverage);
+        return stroke.getStyle() == SkStrokeRec::kStroke_Style &&
+            SkDrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
     }
 
 protected:

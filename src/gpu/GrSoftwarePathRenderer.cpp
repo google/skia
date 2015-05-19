@@ -139,7 +139,7 @@ bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
     }
 
     SkAutoTUnref<GrTexture> texture(
-            GrSWMaskHelper::DrawPathMaskToTexture(fContext, path, stroke.getStrokeRec(),
+            GrSWMaskHelper::DrawPathMaskToTexture(fContext, path, stroke,
                                                   devPathBounds,
                                                   antiAlias, &viewMatrix));
     if (NULL == texture) {

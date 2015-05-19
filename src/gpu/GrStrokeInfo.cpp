@@ -9,16 +9,16 @@
 
 #include "SkDashPathPriv.h"
 
-bool GrStrokeInfo::applyDash(SkPath* dst, GrStrokeInfo* dstStrokeInfo, const SkPath& src) const {
+bool GrStrokeInfo::applyDashToPath(SkPath* dst, GrStrokeInfo* dstStrokeInfo,
+                                   const SkPath& src) const {
     if (this->isDashed()) {
         SkPathEffect::DashInfo info;
         info.fIntervals = fIntervals.get();
         info.fCount = fIntervals.count();
         info.fPhase = fDashPhase;
-        SkStrokeRec strokeRec = fStroke;
-        if (SkDashPath::FilterDashPath(dst, src, &strokeRec, NULL, info)) {
-            dstStrokeInfo->fStroke = strokeRec;
-            dstStrokeInfo->removeDash();
+        GrStrokeInfo filteredStroke(*this, false);
+        if (SkDashPath::FilterDashPath(dst, src, &filteredStroke, NULL, info)) {
+            *dstStrokeInfo = filteredStroke;
             return true;
         }
     }
