@@ -102,6 +102,7 @@ ios_umount() {
 
 # ios_restart: restarts the iOS device.
 ios_restart() {
+  ios_umount || true 
   idevicediagnostics restart
 }
 
