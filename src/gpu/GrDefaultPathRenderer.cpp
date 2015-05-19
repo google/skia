@@ -254,8 +254,6 @@ public:
         SkAutoTUnref<const GrGeometryProcessor> gp(
                 GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
                                                 this->color(),
-                                                this->usesLocalCoords(),
-                                                this->coverageIgnored(),
                                                 this->viewMatrix(),
                                                 SkMatrix::I(),
                                                 this->coverage()));
@@ -264,6 +262,16 @@ public:
         SkASSERT(vertexStride == sizeof(SkPoint));
 
         batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         int instanceCount = fGeoData.count();
 
@@ -510,7 +518,6 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
     bool isHairline() const { return fBatch.fIsHairline; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     struct BatchTracker {
         GrColor fColor;

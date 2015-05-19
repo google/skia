@@ -31,18 +31,14 @@ static void set_inset_fan(SkPoint* pts, size_t stride,
 }
 
 static const GrGeometryProcessor* create_fill_rect_gp(bool tweakAlphaForCoverage,
-                                                      const SkMatrix& localMatrix,
-                                                      bool usesLocalCoords,
-                                                      bool coverageIgnored) {
+                                                      const SkMatrix& localMatrix) {
     uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
     const GrGeometryProcessor* gp;
     if (tweakAlphaForCoverage) {
-        gp = GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords, coverageIgnored,
-                                             SkMatrix::I(), localMatrix);
+        gp = GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, SkMatrix::I(), localMatrix);
     } else {
         flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
-        gp = GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords, coverageIgnored,
-                                             SkMatrix::I(), localMatrix);
+        gp = GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, SkMatrix::I(), localMatrix);
     }
     return gp;
 }
@@ -99,11 +95,19 @@ public:
         }
 
         SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_rect_gp(canTweakAlphaForCoverage,
-                                                                       localMatrix,
-                                                                       this->usesLocalCoords(),
-                                                                       this->coverageIgnored()));
+                                                                       localMatrix));
 
         batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(canTweakAlphaForCoverage ?
@@ -172,7 +176,6 @@ private:
     bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
     bool colorIgnored() const { return fBatch.fColorIgnored; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
         AAFillRectBatch* that = t->cast<AAFillRectBatch>();
@@ -450,11 +453,19 @@ public:
         }
 
         SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_rect_gp(canTweakAlphaForCoverage,
-                                                                       localMatrix,
-                                                                       this->usesLocalCoords(),
-                                                                       this->coverageIgnored()));
+                                                                       localMatrix));
 
         batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -615,7 +626,6 @@ private:
     bool colorIgnored() const { return fBatch.fColorIgnored; }
     const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
     bool miterStroke() const { return fBatch.fMiterStroke; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
         AAStrokeRectBatch* that = t->cast<AAStrokeRectBatch>();

@@ -50,6 +50,16 @@ public:
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         batchTarget->initDraw(fGeometryProcessor, pipeline);
 
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = fBatch.fUsesLocalCoords;
+        fGeometryProcessor->initBatchTracker(batchTarget->currentBatchTracker(), init);
+
         this->onGenerateGeometry(batchTarget, pipeline);
     }
 

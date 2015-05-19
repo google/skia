@@ -158,8 +158,7 @@ protected:
 
         static const GrColor color = 0xff000000;
         SkAutoTUnref<const GrGeometryProcessor> gp(
-                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType, color,
-                                                false, false));
+                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType, color));
 
         SkScalar y = 0;
         for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);

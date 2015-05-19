@@ -438,12 +438,20 @@ public:
         SkAutoTUnref<const GrGeometryProcessor> gp(
                 GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
                                                 this->color(),
-                                                this->usesLocalCoords(),
-                                                this->coverageIgnored(),
                                                 this->viewMatrix(),
                                                 SkMatrix::I()));
 
         batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -541,7 +549,6 @@ private:
     bool colorIgnored() const { return fBatch.fColorIgnored; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     bool hairline() const { return fBatch.fHairline; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
         // StrokeRectBatch* that = t->cast<StrokeRectBatch>();
@@ -704,8 +711,7 @@ static const GrGeometryProcessor* set_vertex_attributes(bool hasLocalCoords,
                                                         int* colorOffset,
                                                         int* texOffset,
                                                         GrColor color,
-                                                        const SkMatrix& viewMatrix,
-                                                        bool coverageIgnored) {
+                                                        const SkMatrix& viewMatrix) {
     *texOffset = -1;
     *colorOffset = -1;
     uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
@@ -721,8 +727,7 @@ static const GrGeometryProcessor* set_vertex_attributes(bool hasLocalCoords,
         *colorOffset = sizeof(SkPoint);
         flags |= GrDefaultGeoProcFactory::kColor_GPType;
     }
-    return GrDefaultGeoProcFactory::Create(flags, color, hasLocalCoords, coverageIgnored,
-                                           viewMatrix, SkMatrix::I());
+    return GrDefaultGeoProcFactory::Create(flags, color, viewMatrix, SkMatrix::I());
 }
 
 class DrawVerticesBatch : public GrBatch {
@@ -780,10 +785,19 @@ public:
         int colorOffset = -1, texOffset = -1;
         SkAutoTUnref<const GrGeometryProcessor> gp(
                 set_vertex_attributes(this->hasLocalCoords(), this->hasColors(), &colorOffset,
-                                      &texOffset, this->color(), this->viewMatrix(),
-                                      this->coverageIgnored()));
+                                      &texOffset, this->color(), this->viewMatrix()));
 
         batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -909,7 +923,6 @@ private:
     bool hasLocalCoords() const { return fBatch.fHasLocalCoords; }
     int vertexCount() const { return fBatch.fVertexCount; }
     int indexCount() const { return fBatch.fIndexCount; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
         DrawVerticesBatch* that = t->cast<DrawVerticesBatch>();

@@ -26,9 +26,6 @@ public:
 
     bool willUseGeoShader() const { return fWillUseGeoShader; }
 
-    // TODO delete when paths are in batch
-    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override {}
-
     // TODO delete this when paths are in batch
     bool canMakeEqual(const GrBatchTracker& mine,
                       const GrPrimitiveProcessor& that,
@@ -46,6 +43,35 @@ public:
     }
 
 protected:
+    /*
+     * An optional simple helper function to determine by what means the GrGeometryProcessor should
+     * use to provide color.  If we are given an override color(ie the given overridecolor is NOT
+     * GrColor_ILLEGAL) then we must always emit that color(currently overrides are only supported
+     * via uniform, but with deferred Geometry we could use attributes).  Otherwise, if our color is
+     * ignored then we should not emit a color.  Lastly, if we don't have vertex colors then we must
+     * emit a color via uniform
+     * TODO this function changes quite a bit with deferred geometry.  There the GrGeometryProcessor
+     * can upload a new color via attribute if needed.
+     */
+    static GrGPInput GetColorInputType(GrColor* color, GrColor primitiveColor,
+                                       const GrPipelineInfo& init,
+                                       bool hasVertexColor) {
+        if (init.fColorIgnored) {
+            *color = GrColor_ILLEGAL;
+            return kIgnored_GrGPInput;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            *color = init.fOverrideColor;
+            return kUniform_GrGPInput;
+        }
+
+        *color = primitiveColor;
+        if (hasVertexColor) {
+            return kAttribute_GrGPInput;
+        } else {
+            return kUniform_GrGPInput;
+        }
+    }
+
     /**
      * Subclasses call this from their constructor to register vertex attributes.  Attributes
      * will be padded to the nearest 4 bytes for performance reasons.

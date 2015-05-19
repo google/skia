@@ -49,16 +49,15 @@ public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
-                                       float lum, uint32_t flags, bool usesLocalCoords) {
+                                       float lum, uint32_t flags) {
         return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex, params, lum,
-                                                         flags, usesLocalCoords));
+                                                         flags));
     }
 #else
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
-                                       uint32_t flags, bool usesLocalCoords) {
-        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex,  params, flags,
-                                                         usesLocalCoords));
+                                       uint32_t flags) {
+        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex,  params, flags));
     }
 #endif
 
@@ -70,10 +69,7 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
-    bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getDistanceAdjust() const { return fDistanceAdjust; }
 #endif
@@ -86,13 +82,15 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override;
 
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
+
 private:
     GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix,
                                  GrTexture* texture, const GrTextureParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
 #endif
-                                 uint32_t flags, bool usesLocalCoords);
+                                 uint32_t flags);
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
@@ -104,7 +102,6 @@ private:
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;
-    bool             fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -122,9 +119,8 @@ class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
                                        const GrTextureParams& params,
-                                       uint32_t flags, bool usesLocalCoords) {
-        return SkNEW_ARGS(GrDistanceFieldPathGeoProc, (color, viewMatrix, tex, params, flags,
-                                                       usesLocalCoords));
+                                       uint32_t flags) {
+        return SkNEW_ARGS(GrDistanceFieldPathGeoProc, (color, viewMatrix, tex, params, flags));
     }
 
     virtual ~GrDistanceFieldPathGeoProc() {}
@@ -135,11 +131,8 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
-    bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint32_t getFlags() const { return fFlags; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -148,10 +141,11 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override;
 
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
+
 private:
     GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
-                               const GrTextureParams& params, uint32_t flags,
-                               bool usesLocalCoords);
+                               const GrTextureParams& params, uint32_t flags);
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
@@ -160,7 +154,6 @@ private:
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;
-    bool             fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -192,10 +185,9 @@ public:
 
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
-                                       DistanceAdjust distanceAdjust, uint32_t flags,
-                                       bool usesLocalCoords) {
+                                       DistanceAdjust distanceAdjust, uint32_t flags) {
         return SkNEW_ARGS(GrDistanceFieldLCDTextGeoProc,
-                          (color, viewMatrix, tex, params, distanceAdjust, flags, usesLocalCoords));
+                          (color, viewMatrix, tex, params, distanceAdjust, flags));
     }
 
     virtual ~GrDistanceFieldLCDTextGeoProc() {}
@@ -206,10 +198,8 @@ public:
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint32_t getFlags() const { return fFlags; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -218,11 +208,12 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override;
 
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override;
+
 private:
     GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix,
                                   GrTexture* texture, const GrTextureParams& params,
-                                  DistanceAdjust wa, uint32_t flags,
-                                  bool usesLocalCoords);
+                                  DistanceAdjust wa, uint32_t flags);
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
@@ -231,7 +222,6 @@ private:
     uint32_t         fFlags;
     const Attribute* fInPosition;
     const Attribute* fInTextureCoords;
-    bool             fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 

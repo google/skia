@@ -310,7 +310,7 @@ protected:
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
                     gp.reset(GrConicEffect::Create(color, SkMatrix::I(), et,
-                                                   *tt.target()->caps(), SkMatrix::I(), false));
+                                                   *tt.target()->caps(), SkMatrix::I()));
                     if (!gp) {
                         continue;
                     }
@@ -550,7 +550,7 @@ protected:
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
                     gp.reset(GrQuadEffect::Create(color, SkMatrix::I(), et,
-                                                  *tt.target()->caps(), SkMatrix::I(), false));
+                                                  *tt.target()->caps(), SkMatrix::I()));
                     if (!gp) {
                         continue;
                     }

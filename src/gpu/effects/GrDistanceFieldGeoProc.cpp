@@ -21,6 +21,12 @@
 // Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
 
+struct DistanceFieldBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor fColor;
+    bool fUsesLocalCoords;
+};
+
 class GrGLDistanceFieldA8TextGeoProc : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldA8TextGeoProc(const GrGeometryProcessor&,
@@ -34,6 +40,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
+        const DistanceFieldBatchTracker& local = args.fBT.cast<DistanceFieldBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
         GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
@@ -54,13 +61,8 @@ public:
 #endif
 
         // Setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            if (dfTexEffect.hasVertexColor()) {
-                pb->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-            } else {
-                this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
-            }
-        }
+        this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
+                                    dfTexEffect.inColor(), &fColorUniform);
 
         // Setup position
         this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
@@ -152,11 +154,12 @@ public:
         const GrDistanceFieldA8TextGeoProc& dfa8gp = proc.cast<GrDistanceFieldA8TextGeoProc>();
         this->setUniformViewMatrix(pdman, dfa8gp.viewMatrix());
 
-        if (dfa8gp.color() != fColor && !dfa8gp.hasVertexColor()) {
+        const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
+        if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
             GrGLfloat c[4];
-            GrColorToRGBAFloat(dfa8gp.color(), c);
+            GrColorToRGBAFloat(local.fColor, c);
             pdman.set4fv(fColorUniform, 1, c);
-            fColor = dfa8gp.color();
+            fColor = local.fColor;
         }
     }
 
@@ -165,9 +168,9 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
+        const DistanceFieldBatchTracker& local = bt.cast<DistanceFieldBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.hasVertexColor() << 16;
-        key |= dfTexEffect.colorIgnored() << 17;
+        key |= local.fInputColorType << 16;
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
@@ -192,8 +195,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                            float distanceAdjust,
 #endif
-                                                           uint32_t flags,
-                                                           bool usesLocalCoords)
+                                                           uint32_t flags)
     : fColor(color)
     , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
@@ -201,8 +203,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
     , fDistanceAdjust(distanceAdjust)
 #endif
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInColor(NULL)
-    , fUsesLocalCoords(usesLocalCoords) {
+    , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     this->initClassID<GrDistanceFieldA8TextGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
@@ -224,6 +225,14 @@ GrGLPrimitiveProcessor*
 GrDistanceFieldA8TextGeoProc::createGLInstance(const GrBatchTracker& bt,
                                                const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldA8TextGeoProc, (*this, bt));
+}
+
+void GrDistanceFieldA8TextGeoProc::initBatchTracker(GrBatchTracker* bt,
+                                                    const GrPipelineInfo& init) const {
+    DistanceFieldBatchTracker* local = bt->cast<DistanceFieldBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
+                                               SkToBool(fInColor));
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -255,11 +264,16 @@ GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(SkRandom* random,
                                                 random->nextF(),
 #endif
                                                 random->nextBool() ?
-                                                    kSimilarity_DistanceFieldEffectFlag : 0,
-                                                random->nextBool());
+                                                    kSimilarity_DistanceFieldEffectFlag : 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+struct DistanceFieldPathBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor fColor;
+    bool fUsesLocalCoords;
+};
 
 class GrGLDistanceFieldPathGeoProc : public GrGLGeometryProcessor {
 public:
@@ -270,6 +284,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldPathGeoProc& dfTexEffect = args.fGP.cast<GrDistanceFieldPathGeoProc>();
 
+        const DistanceFieldPathBatchTracker& local = args.fBT.cast<DistanceFieldPathBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
         GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
@@ -284,13 +299,9 @@ public:
         args.fPB->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
 
         // setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            if (dfTexEffect.hasVertexColor()) {
-                pb->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-            } else {
-                this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
-            }
-        }
+        this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor,
+                                    dfTexEffect.inColor(), &fColorUniform);
+
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // Setup position
@@ -373,11 +384,12 @@ public:
         const GrDistanceFieldPathGeoProc& dfpgp = proc.cast<GrDistanceFieldPathGeoProc>();
         this->setUniformViewMatrix(pdman, dfpgp.viewMatrix());
 
-        if (dfpgp.color() != fColor) {
+        const DistanceFieldPathBatchTracker& local = bt.cast<DistanceFieldPathBatchTracker>();
+        if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
             GrGLfloat c[4];
-            GrColorToRGBAFloat(dfpgp.color(), c);
+            GrColorToRGBAFloat(local.fColor, c);
             pdman.set4fv(fColorUniform, 1, c);
-            fColor = dfpgp.color();
+            fColor = local.fColor;
         }
     }
 
@@ -387,9 +399,9 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
+        const DistanceFieldPathBatchTracker& local = bt.cast<DistanceFieldPathBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.colorIgnored() << 16;
-        key |= dfTexEffect.hasVertexColor() << 17;
+        key |= local.fInputColorType << 16;
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
@@ -410,14 +422,12 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         const SkMatrix& viewMatrix,
         GrTexture* texture,
         const GrTextureParams& params,
-        uint32_t flags,
-        bool usesLocalCoords)
+        uint32_t flags)
     : fColor(color)
     , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInColor(NULL)
-    , fUsesLocalCoords(usesLocalCoords) {
+    , fInColor(NULL) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     this->initClassID<GrDistanceFieldPathGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
@@ -425,7 +435,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
     }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2f_GrVertexAttribType));
+                                                          kVec2f_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -438,6 +448,14 @@ void GrDistanceFieldPathGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
 GrGLPrimitiveProcessor*
 GrDistanceFieldPathGeoProc::createGLInstance(const GrBatchTracker& bt, const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldPathGeoProc, (*this, bt));
+}
+
+void GrDistanceFieldPathGeoProc::initBatchTracker(GrBatchTracker* bt,
+                                                  const GrPipelineInfo& init) const {
+    DistanceFieldPathBatchTracker* local = bt->cast<DistanceFieldPathBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init,
+                                               SkToBool(fInColor));
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -466,12 +484,16 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(SkRandom* random,
                                               GrTest::TestMatrix(random),
                                               textures[texIdx],
                                               params,
-                                              random->nextBool() ?
-                                                      kSimilarity_DistanceFieldEffectFlag : 0,
-                                              random->nextBool());
+        random->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+struct DistanceFieldLCDBatchTracker {
+    GrGPInput fInputColorType;
+    GrColor fColor;
+    bool fUsesLocalCoords;
+};
 
 class GrGLDistanceFieldLCDTextGeoProc : public GrGLGeometryProcessor {
 public:
@@ -483,6 +505,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextGeoProc>();
+        const DistanceFieldLCDBatchTracker& local = args.fBT.cast<DistanceFieldLCDBatchTracker>();
         GrGLGPBuilder* pb = args.fPB;
 
         GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
@@ -491,9 +514,8 @@ public:
         vsBuilder->emitAttributes(dfTexEffect);
 
         // setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
-        }
+        this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
+                                    &fColorUniform);
 
         // Setup position
         this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
@@ -630,11 +652,12 @@ public:
 
         this->setUniformViewMatrix(pdman, dfTexEffect.viewMatrix());
 
-        if (dfTexEffect.color() != fColor) {
+        const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
+        if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
             GrGLfloat c[4];
-            GrColorToRGBAFloat(dfTexEffect.color(), c);
+            GrColorToRGBAFloat(local.fColor, c);
             pdman.set4fv(fColorUniform, 1, c);
-            fColor = dfTexEffect.color();
+            fColor = local.fColor;
         }
     }
 
@@ -644,8 +667,9 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldLCDTextGeoProc>();
 
+        const DistanceFieldLCDBatchTracker& local = bt.cast<DistanceFieldLCDBatchTracker>();
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.colorIgnored() << 16;
+        key |= local.fInputColorType << 16;
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
@@ -665,18 +689,17 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrColor color, const SkMatrix& viewMatrix,
                                                   GrTexture* texture, const GrTextureParams& params,
                                                   DistanceAdjust distanceAdjust,
-                                                  uint32_t flags, bool usesLocalCoords)
+                                                  uint32_t flags)
     : fColor(color)
     , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
     , fDistanceAdjust(distanceAdjust)
-    , fFlags(flags & kLCD_DistanceFieldEffectMask)
-    , fUsesLocalCoords(usesLocalCoords) {
+    , fFlags(flags & kLCD_DistanceFieldEffectMask){
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
     this->initClassID<GrDistanceFieldLCDTextGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
-                                                        kVec2s_GrVertexAttribType));
+                                                          kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -690,6 +713,13 @@ GrGLPrimitiveProcessor*
 GrDistanceFieldLCDTextGeoProc::createGLInstance(const GrBatchTracker& bt,
                                                 const GrGLSLCaps&) const {
     return SkNEW_ARGS(GrGLDistanceFieldLCDTextGeoProc, (*this, bt));
+}
+
+void GrDistanceFieldLCDTextGeoProc::initBatchTracker(GrBatchTracker* bt,
+                                                     const GrPipelineInfo& init) const {
+    DistanceFieldLCDBatchTracker* local = bt->cast<DistanceFieldLCDBatchTracker>();
+    local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+    local->fUsesLocalCoords = init.fUsesLocalCoords;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -721,6 +751,5 @@ GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(SkRandom* random,
                                                  GrTest::TestMatrix(random),
                                                  textures[texIdx], params,
                                                  wa,
-                                                 flags,
-                                                 random->nextBool());
+                                                 flags);
 }

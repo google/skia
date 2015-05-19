@@ -1412,10 +1412,9 @@ public:
         LOG("got %d pts, %d contours\n", maxPts, contourCnt);
         uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
         SkAutoTUnref<const GrGeometryProcessor> gp(
-            GrDefaultGeoProcFactory::Create(flags, fColor, fPipelineInfo.fUsesLocalCoords,
-                                            fPipelineInfo.fCoverageIgnored, fViewMatrix,
-                                            SkMatrix::I()));
+            GrDefaultGeoProcFactory::Create(flags, fColor, fViewMatrix, SkMatrix::I()));
         batchTarget->initDraw(gp, pipeline);
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), fPipelineInfo);
 
         SkAutoTDeleteArray<Vertex*> contours(SkNEW_ARRAY(Vertex *, contourCnt));
 

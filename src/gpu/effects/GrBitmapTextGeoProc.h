@@ -22,10 +22,9 @@ class GrInvariantOutput;
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& p,
-                                       GrMaskFormat format, const SkMatrix& localMatrix,
-                                       bool usesLocalCoords) {
-        return SkNEW_ARGS(GrBitmapTextGeoProc, (color, tex, p, format, localMatrix,
-                usesLocalCoords));
+                                       GrMaskFormat format,
+                                       const SkMatrix& localMatrix) {
+        return SkNEW_ARGS(GrBitmapTextGeoProc, (color, tex, p, format, localMatrix));
     }
 
     virtual ~GrBitmapTextGeoProc() {}
@@ -37,10 +36,7 @@ public:
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrMaskFormat maskFormat() const { return fMaskFormat; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
-    bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -49,13 +45,14 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps& caps) const override;
 
+    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
+
 private:
     GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrTextureParams& params,
-                        GrMaskFormat format, const SkMatrix& localMatrix, bool usesLocalCoords);
+                        GrMaskFormat format, const SkMatrix& localMatrix);
 
     GrColor          fColor;
     SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
     GrTextureAccess  fTextureAccess;
     const Attribute* fInPosition;
     const Attribute* fInColor;

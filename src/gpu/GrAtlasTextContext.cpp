@@ -1537,8 +1537,7 @@ public:
                                                  texture,
                                                  params,
                                                  fMaskFormat,
-                                                 localMatrix,
-                                                 this->usesLocalCoords()));
+                                                 localMatrix));
         }
 
         FlushInfo flushInfo;
@@ -1548,7 +1547,7 @@ public:
                                   get_vertex_stride_df(fMaskFormat, fUseLCDText) :
                                   get_vertex_stride(fMaskFormat)));
 
-        batchTarget->initDraw(gp, pipeline);
+        this->initDraw(batchTarget, gp, pipeline);
 
         int glyphCount = this->numGlyphs();
         int instanceCount = fInstanceCount;
@@ -1658,7 +1657,7 @@ public:
                         if (!fFontCache->hasGlyph(glyph) &&
                             !strike->addGlyphToAtlas(batchTarget, glyph, scaler)) {
                             this->flush(batchTarget, &flushInfo);
-                            batchTarget->initDraw(gp, pipeline);
+                            this->initDraw(batchTarget, gp, pipeline);
                             brokenRun = glyphIdx > 0;
 
                             SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(batchTarget,
@@ -1850,6 +1849,20 @@ private:
         }
     }
 
+    void initDraw(GrBatchTarget* batchTarget,
+                  const GrGeometryProcessor* gp,
+                  const GrPipeline* pipeline) {
+        batchTarget->initDraw(gp, pipeline);
+
+        // TODO remove this when batch is everywhere
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
+    }
+
     void flush(GrBatchTarget* batchTarget, FlushInfo* flushInfo) {
         GrVertices vertices;
         int maxGlyphsPerDraw = flushInfo->fIndexBuffer->maxQuads();
@@ -1979,8 +1992,7 @@ private:
                                                          texture,
                                                          params,
                                                          widthAdjust,
-                                                         flags,
-                                                         this->usesLocalCoords());
+                                                         flags);
         } else {
             flags |= kColorAttr_DistanceFieldEffectFlag;
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -1991,15 +2003,13 @@ private:
                                                         texture,
                                                         params,
                                                         correction,
-                                                        flags,
-                                                        this->usesLocalCoords());
+                                                        flags);
 #else
             return GrDistanceFieldA8TextGeoProc::Create(color,
                                                         viewMatrix,
                                                         texture,
                                                         params,
-                                                        flags,
-                                                        this->usesLocalCoords());
+                                                        flags);
 #endif
         }
 

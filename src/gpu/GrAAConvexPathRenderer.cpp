@@ -525,9 +525,8 @@ static void create_vertices(const SegmentArray&  segments,
 class QuadEdgeEffect : public GrGeometryProcessor {
 public:
 
-    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& localMatrix,
-                                       bool usesLocalCoords) {
-        return SkNEW_ARGS(QuadEdgeEffect, (color, localMatrix, usesLocalCoords));
+    static GrGeometryProcessor* Create(GrColor color, const SkMatrix& localMatrix) {
+        return SkNEW_ARGS(QuadEdgeEffect, (color, localMatrix));
     }
 
     virtual ~QuadEdgeEffect() {}
@@ -537,9 +536,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inQuadEdge() const { return fInQuadEdge; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
@@ -559,10 +556,11 @@ public:
             args.fPB->addVarying("QuadEdge", &v);
             vsBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge()->fName);
 
+            const BatchTracker& local = args.fBT.cast<BatchTracker>();
+
             // Setup pass through color
-            if (!qe.colorIgnored()) {
-                this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
-            }
+            this->setupColorPassThrough(pb, local.fInputColorType, args.fOutputColor, NULL,
+                                        &fColorUniform);
 
             // Setup position
             this->setupPosition(pb, gpArgs, qe.inPosition()->fName);
@@ -600,22 +598,22 @@ public:
                                   const GrBatchTracker& bt,
                                   const GrGLSLCaps&,
                                   GrProcessorKeyBuilder* b) {
+            const BatchTracker& local = bt.cast<BatchTracker>();
             const QuadEdgeEffect& qee = gp.cast<QuadEdgeEffect>();
-            uint32_t key = 0;
-            key |= qee.usesLocalCoords() && qee.localMatrix().hasPerspective() ? 0x1 : 0x0;
-            key |= qee.colorIgnored() ? 0x2 : 0x0;
+            uint32_t key = local.fInputColorType << 16;
+            key |= local.fUsesLocalCoords && qee.localMatrix().hasPerspective() ? 0x1 : 0x0;
             b->add32(key);
         }
 
         virtual void setData(const GrGLProgramDataManager& pdman,
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) override {
-            const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
-            if (qe.color() != fColor) {
+            const BatchTracker& local = bt.cast<BatchTracker>();
+            if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
                 GrGLfloat c[4];
-                GrColorToRGBAFloat(qe.color(), c);
+                GrColorToRGBAFloat(local.fColor, c);
                 pdman.set4fv(fColorUniform, 1, c);
-                fColor = qe.color();
+                fColor = local.fColor;
             }
         }
 
@@ -644,21 +642,31 @@ public:
         return SkNEW_ARGS(GLProcessor, (*this, bt));
     }
 
+    void initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const override {
+        BatchTracker* local = bt->cast<BatchTracker>();
+        local->fInputColorType = GetColorInputType(&local->fColor, this->color(), init, false);
+        local->fUsesLocalCoords = init.fUsesLocalCoords;
+    }
+
 private:
-    QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix, bool usesLocalCoords)
+    QuadEdgeEffect(GrColor color, const SkMatrix& localMatrix)
         : fColor(color)
-        , fLocalMatrix(localMatrix)
-        , fUsesLocalCoords(usesLocalCoords) {
+        , fLocalMatrix(localMatrix) {
         this->initClassID<QuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInQuadEdge = &this->addVertexAttrib(Attribute("inQuadEdge", kVec4f_GrVertexAttribType));
     }
 
+    struct BatchTracker {
+        GrGPInput fInputColorType;
+        GrColor fColor;
+        bool fUsesLocalCoords;
+    };
+
     const Attribute* fInPosition;
     const Attribute* fInQuadEdge;
     GrColor          fColor;
     SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -674,8 +682,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
     // Doesn't work without derivative instructions.
     return caps.shaderCaps()->shaderDerivativeSupport() ?
            QuadEdgeEffect::Create(GrRandomColor(random),
-                                  GrTest::TestMatrix(random),
-                                  random->nextBool()) : NULL;
+                                  GrTest::TestMatrix(random)) : NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -725,16 +732,13 @@ static void extract_verts(const GrAAConvexTessellator& tess,
 }
 
 static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
-                                                 const SkMatrix& localMatrix,
-                                                 bool usesLocalCoords,
-                                                 bool coverageIgnored) {
+                                                 const SkMatrix& localMatrix) {
     uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
     if (!tweakAlphaForCoverage) {
         flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
     }
 
-    return GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords, coverageIgnored,
-                                           SkMatrix::I(), localMatrix);
+    return GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, SkMatrix::I(), localMatrix);
 }
 
 class AAConvexPathBatch : public GrBatch {
@@ -787,11 +791,17 @@ public:
 
         // Setup GrGeometryProcessor
         SkAutoTUnref<const GrGeometryProcessor> gp(
-                                                create_fill_gp(canTweakAlphaForCoverage, invert,
-                                                               this->usesLocalCoords(),
-                                                               this->coverageIgnored()));
+                                                create_fill_gp(canTweakAlphaForCoverage, invert));
 
         batchTarget->initDraw(gp, pipeline);
+
+        // TODO remove this when batch is everywhere
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -860,10 +870,18 @@ public:
         }
 
         // Setup GrGeometryProcessor
-        SkAutoTUnref<GrGeometryProcessor> quadProcessor(
-                QuadEdgeEffect::Create(this->color(), invert, this->usesLocalCoords()));
+        SkAutoTUnref<GrGeometryProcessor> quadProcessor(QuadEdgeEffect::Create(this->color(),
+                                                                               invert));
 
         batchTarget->initDraw(quadProcessor, pipeline);
+
+        // TODO remove this when batch is everywhere
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        quadProcessor->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
@@ -973,7 +991,6 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     struct BatchTracker {
         GrColor fColor;

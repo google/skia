@@ -25,19 +25,15 @@
     The vertex attrib order is always pos, color, [local coords].
  */
 static const GrGeometryProcessor* create_rect_gp(bool hasExplicitLocalCoords,
-                                                 const SkMatrix* localMatrix,
-                                                 bool usesLocalCoords,
-                                                 bool coverageIgnored) {
-    // TODO remove color when we have ignored color from the XP
+                                                 GrColor color,
+                                                 const SkMatrix* localMatrix) {
     uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
                      GrDefaultGeoProcFactory::kColor_GPType;
     flags |= hasExplicitLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
     if (localMatrix) {
-        return GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords,
-                                               coverageIgnored, SkMatrix::I(), *localMatrix);
+        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), *localMatrix);
     } else {
-        return GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords,
-                                               coverageIgnored, SkMatrix::I(), SkMatrix::I());
+        return GrDefaultGeoProcFactory::Create(flags, color, SkMatrix::I(), SkMatrix::I());
     }
 }
 
@@ -102,11 +98,20 @@ public:
         }
 
         SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(hasExplicitLocalCoords,
-                                                                  &invert,
-                                                                  this->usesLocalCoords(),
-                                                                  this->coverageIgnored()));
+                                                                  this->color(),
+                                                                  &invert));
 
         batchTarget->initDraw(gp, pipeline);
+
+        // TODO this is hacky, but the only way we have to initialize the GP is to use the
+        // GrPipelineInfo struct so we can generate the correct shader.  Once we have GrBatch
+        // everywhere we can remove this nastiness
+        GrPipelineInfo init;
+        init.fColorIgnored = fBatch.fColorIgnored;
+        init.fOverrideColor = GrColor_ILLEGAL;
+        init.fCoverageIgnored = fBatch.fCoverageIgnored;
+        init.fUsesLocalCoords = this->usesLocalCoords();
+        gp->initBatchTracker(batchTarget->currentBatchTracker(), init);
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -171,7 +176,6 @@ private:
     const SkMatrix& localMatrix() const { return fGeoData[0].fLocalMatrix; }
     bool hasLocalRect() const { return fGeoData[0].fHasLocalRect; }
     bool hasLocalMatrix() const { return fGeoData[0].fHasLocalMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
         RectBatch* that = t->cast<RectBatch>();
