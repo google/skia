@@ -41,6 +41,11 @@ public:
 
     bool addSubImage(int width, int height, const void*, SkIPoint16*);
 
+    GrDrawTarget::DrawToken drawToken() const { return fDrawToken; }
+    void setDrawToken(GrDrawTarget::DrawToken draw) { fDrawToken = draw; }
+
+    void uploadToTexture();
+
     void resetRects();
 
 private:
@@ -48,6 +53,9 @@ private:
     ~GrPlot(); // does not try to delete the fNext field
     void init(GrAtlas* atlas, int id, int offX, int offY, int width, int height, size_t bpp,
               bool batchUploads);
+
+    // for recycling
+    GrDrawTarget::DrawToken fDrawToken;
 
     int                     fID;
     unsigned char*          fPlotData;
@@ -100,9 +108,15 @@ public:
     // remove reference to this plot
     static void RemovePlot(ClientPlotUsage* usage, const GrPlot* plot);
 
+    // get a plot that's not being used by the current draw
+    // this allows us to overwrite this plot without flushing
+    GrPlot* getUnusedPlot();
+
     GrTexture* getTexture() const {
         return fTexture;
     }
+
+    void uploadPlotsToTexture();
 
     enum IterOrder {
         kLRUFirst_IterOrder,
@@ -111,7 +125,7 @@ public:
 
     typedef GrPlotList::Iter PlotIter;
     GrPlot* iterInit(PlotIter* iter, IterOrder order) {
-        return iter->init(fPlotList, kLRUFirst_IterOrder == order
+        return iter->init(fPlotList, kLRUFirst_IterOrder == order 
                                                        ? GrPlotList::Iter::kTail_IterStart
                                                        : GrPlotList::Iter::kHead_IterStart);
     }

@@ -34,6 +34,9 @@ public:
 
     ~GrInOrderDrawBuffer() override;
 
+    // tracking for draws
+    DrawToken getCurrentDrawToken() override { return DrawToken(this, fDrawID); }
+
     void clearStencilClip(const SkIRect& rect,
                           bool insideClip,
                           GrRenderTarget* renderTarget) override;

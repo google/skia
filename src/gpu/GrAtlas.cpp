@@ -21,7 +21,8 @@ static int g_UploadCount = 0;
 #endif
 
 GrPlot::GrPlot() 
-    : fID(-1)
+    : fDrawToken(NULL, 0)
+    , fID(-1)
     , fTexture(NULL)
     , fRects(NULL)
     , fAtlas(NULL)
@@ -103,6 +104,36 @@ bool GrPlot::addSubImage(int width, int height, const void* image, SkIPoint16* l
 #endif
 
     return true;
+}
+
+void GrPlot::uploadToTexture() {
+    static const float kNearlyFullTolerance = 0.85f;
+
+    // should only do this if batching is enabled
+    SkASSERT(fBatchUploads);
+
+    if (fDirty) {
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrPlot::uploadToTexture");
+        SkASSERT(fTexture);
+        // We pass the flag that does not force a flush. We assume our caller is
+        // smart and hasn't referenced the part of the texture we're about to update
+        // since the last flush.
+        size_t rowBytes = fBytesPerPixel*fRects->width();
+        const unsigned char* dataPtr = fPlotData;
+        dataPtr += rowBytes*fDirtyRect.fTop;
+        dataPtr += fBytesPerPixel*fDirtyRect.fLeft;
+        fTexture->writePixels(fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
+                              fDirtyRect.width(), fDirtyRect.height(), fTexture->config(), dataPtr,
+                              rowBytes, GrContext::kDontFlush_PixelOpsFlag);
+        fDirtyRect.setEmpty();
+        fDirty = false;
+        // If the Plot is nearly full, anything else we add will probably be small and one
+        // at a time, so free up the memory and after this upload any new images directly.
+        if (fRects->percentFull() > kNearlyFullTolerance) {
+            SkDELETE_ARRAY(fPlotData);
+            fPlotData = NULL;
+        }
+    }
 }
 
 void GrPlot::resetRects() {
@@ -225,5 +256,32 @@ void GrAtlas::RemovePlot(ClientPlotUsage* usage, const GrPlot* plot) {
     int index = usage->fPlots.find(const_cast<GrPlot*>(plot));
     if (index >= 0) {
         usage->fPlots.remove(index);
+    }
+}
+
+// get a plot that's not being used by the current draw
+GrPlot* GrAtlas::getUnusedPlot() {
+    GrPlotList::Iter plotIter;
+    plotIter.init(fPlotList, GrPlotList::Iter::kTail_IterStart);
+    GrPlot* plot;
+    while ((plot = plotIter.get())) {
+        if (plot->drawToken().isIssued()) {
+            return plot;
+        }
+        plotIter.prev();
+    }
+
+    return NULL;
+}
+
+void GrAtlas::uploadPlotsToTexture() {
+    if (fBatchUploads) {
+        GrPlotList::Iter plotIter;
+        plotIter.init(fPlotList, GrPlotList::Iter::kHead_IterStart);
+        GrPlot* plot;
+        while ((plot = plotIter.get())) {
+            plot->uploadToTexture();
+            plotIter.next();
+        }
     }
 }
