@@ -276,7 +276,7 @@ struct SkConic {
      *
      *  @return  true if max curvature found inside 0..1 range, false otherwise
      */
-    bool findMaxCurvature(SkScalar* t) const;
+//    bool findMaxCurvature(SkScalar* t) const;  // unimplemented
 
     static SkScalar TransformW(const SkPoint[3], SkScalar w, const SkMatrix&);
 

@@ -304,10 +304,10 @@ protected:
 
     void draw_stroke(SkCanvas* canvas, const SkPath& path, SkScalar width, SkScalar scale,
             bool drawText) {
-        SkRect bounds = path.getBounds();
-        if (bounds.isEmpty()) {
+        if (path.isEmpty()) {
             return;
         }
+        SkRect bounds = path.getBounds();
         this->setWHZ(SkScalarCeilToInt(bounds.right()), drawText 
                 ? SkScalarRoundToInt(scale * 3 / 2) : SkScalarRoundToInt(scale),
                 SkScalarRoundToInt(950.0f / scale));

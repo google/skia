@@ -1474,10 +1474,12 @@ void SkConic::computeFastBounds(SkRect* bounds) const {
     bounds->set(fPts, 3);
 }
 
+#if 0  // unimplemented
 bool SkConic::findMaxCurvature(SkScalar* t) const {
     // TODO: Implement me
     return false;
 }
+#endif
 
 SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w,
                              const SkMatrix& matrix) {

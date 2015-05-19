@@ -241,12 +241,42 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+class Strokes4GM : public skiagm::GM {
+public:
+    Strokes4GM() {}
+
+protected:
+
+    SkString onShortName() override {
+        return SkString("strokes_zoomed");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(W, H*2);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(0.055f);
+    
+        canvas->scale(1000, 1000);
+        canvas->drawCircle(0, 2, 1.97f, paint);
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+
 //////////////////////////////////////////////////////////////////////////////
 
 static skiagm::GM* F0(void*) { return new StrokesGM; }
 static skiagm::GM* F1(void*) { return new Strokes2GM; }
 static skiagm::GM* F2(void*) { return new Strokes3GM; }
+static skiagm::GM* F3(void*) { return new Strokes4GM; }
 
 static skiagm::GMRegistry R0(F0);
 static skiagm::GMRegistry R1(F1);
 static skiagm::GMRegistry R2(F2);
+static skiagm::GMRegistry R3(F3);
