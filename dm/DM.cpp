@@ -89,14 +89,16 @@ static void done(double ms,
         log.prepend("\n");
     }
     auto pending = sk_atomic_dec(&gPending)-1;
-    SkDebugf("%s(%4d/%-4dMB %5d) %s\t%s%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
-                                       , sk_tools::getCurrResidentSetSizeMB()
-                                       , sk_tools::getMaxResidentSetSizeMB()
-                                       , pending
-                                       , HumanizeMs(ms).c_str()
-                                       , id.c_str()
-                                       , note.c_str()
-                                       , log.c_str());
+    if (!FLAGS_quiet) {
+        SkDebugf("%s(%4d/%-4dMB %5d) %s\t%s%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
+                                           , sk_tools::getCurrResidentSetSizeMB()
+                                           , sk_tools::getMaxResidentSetSizeMB()
+                                           , pending
+                                           , HumanizeMs(ms).c_str()
+                                           , id.c_str()
+                                           , note.c_str()
+                                           , log.c_str());
+    }
     // We write our dm.json file every once in a while in case we crash.
     // Notice this also handles the final dm.json when pending == 0.
     if (pending % 500 == 0) {
