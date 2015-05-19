@@ -57,38 +57,6 @@ public:
 private:
     GrPathProcessor(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
-    /*
-     * CanCombineOutput will return true if two draws are 'batchable' from a color perspective.
-     * TODO is this really necessary?
-     */
-    static bool CanCombineOutput(GrGPInput left, GrColor lColor, GrGPInput right, GrColor rColor) {
-        if (left != right) {
-            return false;
-        }
-
-        if (kUniform_GrGPInput == left && lColor != rColor) {
-            return false;
-        }
-
-        return true;
-    }
-
-    static bool CanCombineLocalMatrices(const GrPrimitiveProcessor& l,
-                                        bool leftUsesLocalCoords,
-                                        const GrPrimitiveProcessor& r,
-                                        bool rightUsesLocalCoords) {
-        if (leftUsesLocalCoords != rightUsesLocalCoords) {
-            return false;
-        }
-
-        const GrPathProcessor& left = l.cast<GrPathProcessor>();
-        const GrPathProcessor& right = r.cast<GrPathProcessor>();
-        if (leftUsesLocalCoords && !left.localMatrix().cheapEqualTo(right.localMatrix())) {
-            return false;
-        }
-        return true;
-    }
-
     bool hasExplicitLocalCoords() const override { return false; }
 
     GrColor fColor;

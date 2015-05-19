@@ -57,12 +57,19 @@ bool GrPathProcessor::canMakeEqual(const GrBatchTracker& m,
 
     const PathBatchTracker& mine = m.cast<PathBatchTracker>();
     const PathBatchTracker& theirs = t.cast<PathBatchTracker>();
-    return CanCombineLocalMatrices(*this, mine.fUsesLocalCoords,
-                                   that, theirs.fUsesLocalCoords) &&
-           CanCombineOutput(mine.fInputColorType, mine.fColor,
-                            theirs.fInputColorType, theirs.fColor) &&
-           CanCombineOutput(mine.fInputCoverageType, 0xff,
-                            theirs.fInputCoverageType, 0xff);
+    if (mine.fColor != theirs.fColor) {
+        return false;
+    }
+
+    if (mine.fUsesLocalCoords != theirs.fUsesLocalCoords) {
+        return false;
+    }
+
+    if (mine.fUsesLocalCoords && !this->localMatrix().cheapEqualTo(other.localMatrix())) {
+        return false;
+    }
+
+    return true;
 }
 
 void GrPathProcessor::getGLProcessorKey(const GrBatchTracker& bt,

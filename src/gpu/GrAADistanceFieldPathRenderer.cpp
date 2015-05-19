@@ -197,9 +197,10 @@ public:
                                                    this->viewMatrix(),
                                                    atlas->getTexture(),
                                                    params,
-                                                   flags));
+                                                   flags,
+                                                   this->usesLocalCoords()));
 
-        this->initDraw(batchTarget, dfProcessor, pipeline);
+        batchTarget->initDraw(dfProcessor, pipeline);
 
         FlushInfo flushInfo;
 
@@ -414,7 +415,7 @@ private:
                                          &atlasLocation);
         if (!success) {
             this->flush(batchTarget, flushInfo);
-            this->initDraw(batchTarget, dfProcessor, pipeline);
+            batchTarget->initDraw(dfProcessor, pipeline);
 
             SkDEBUGCODE(success =) atlas->addToAtlas(&id, batchTarget, width, height,
                                                      dfStorage.get(), &atlasLocation);
@@ -489,20 +490,6 @@ private:
                                   SkFixedToFloat(texture->texturePriv().normalizeFixedX(tx + tw)),
                                   SkFixedToFloat(texture->texturePriv().normalizeFixedY(ty + th)),
                                   vertexStride);
-    }
-
-    void initDraw(GrBatchTarget* batchTarget,
-                  const GrGeometryProcessor* dfProcessor,
-                  const GrPipeline* pipeline) {
-        batchTarget->initDraw(dfProcessor, pipeline);
-
-        // TODO remove this when batch is everywhere
-        GrPipelineInfo init;
-        init.fColorIgnored = fBatch.fColorIgnored;
-        init.fOverrideColor = GrColor_ILLEGAL;
-        init.fCoverageIgnored = fBatch.fCoverageIgnored;
-        init.fUsesLocalCoords = this->usesLocalCoords();
-        dfProcessor->initBatchTracker(batchTarget->currentBatchTracker(), init);
     }
 
     void flush(GrBatchTarget* batchTarget, FlushInfo* flushInfo) {

@@ -74,16 +74,7 @@ public:
     static SkMatrix GetTransformMatrix(const SkMatrix& localMatrix, const GrCoordTransform&);
 
 protected:
-    /** a helper which can setup vertex, constant, or uniform color depending on inputType.
-     *  This function will only do the minimum required to emit the correct shader code.  If
-     *  inputType == attribute, then colorAttr must not be NULL.  Likewise, if inputType == Uniform
-     *  then colorUniform must not be NULL.
-     */
-    void setupColorPassThrough(GrGLGPBuilder* pb,
-                               GrGPInput inputType,
-                               const char* inputName,
-                               const GrPrimitiveProcessor::Attribute* colorAttr,
-                               UniformHandle* colorUniform);
+    void setupUniformColor(GrGLGPBuilder* pb, const char* outputName, UniformHandle* colorUniform);
 
     const char* uViewM() const { return fViewMatrixName; }
 
