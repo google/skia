@@ -48,7 +48,7 @@ SkTypeface* GetResourceAsTypeface(const char* resource) {
     }
     SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromStream(stream.detach()));
     if (!typeface) {
-        SkDebugf("Resource %s not a valid font.", resource);
+        SkDebugf("Resource %s not a valid font.\n", resource);
     }
     return typeface.detach();
 }
