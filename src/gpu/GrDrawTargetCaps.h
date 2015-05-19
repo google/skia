@@ -5,8 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GrDrawTargetCaps_DEFINED
-#define GrDrawTargetCaps_DEFINED
+#ifndef GrCaps_DEFINED
+#define GrCaps_DEFINED
 
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
@@ -103,21 +103,21 @@ private:
 };
 
 /**
- * Represents the draw target capabilities.
+ * Represents the capabilities of a GrContext.
  */
-class GrDrawTargetCaps : public SkRefCnt {
+class GrCaps : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrDrawTargetCaps)
+    SK_DECLARE_INST_COUNT(GrCaps)
 
-    GrDrawTargetCaps() {
+    GrCaps() {
         fShaderCaps.reset(NULL);
         this->reset();
     }
-    GrDrawTargetCaps(const GrDrawTargetCaps& other) : INHERITED() {
+    GrCaps(const GrCaps& other) : INHERITED() {
         *this = other;
     }
-    virtual ~GrDrawTargetCaps() {}
-    GrDrawTargetCaps& operator= (const GrDrawTargetCaps&);
+    virtual ~GrCaps() {}
+    GrCaps& operator= (const GrCaps&);
 
     virtual void reset();
     virtual SkString dump() const;

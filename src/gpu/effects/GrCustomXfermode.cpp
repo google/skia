@@ -495,7 +495,7 @@ void GrCustomXferFP::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCustomXferFP);
 GrFragmentProcessor* GrCustomXferFP::TestCreate(SkRandom* rand,
                                                 GrContext*,
-                                                const GrDrawTargetCaps&,
+                                                const GrCaps&,
                                                 GrTexture* textures[]) {
     int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 
@@ -540,12 +540,12 @@ private:
                                                  const GrProcOptInfo& coveragePOI,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrDrawTargetCaps& caps) override;
+                                                 const GrCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onWillNeedXferBarrier(const GrRenderTarget* rt,
-                               const GrDrawTargetCaps& caps,
+                               const GrCaps& caps,
                                GrXferBarrierType* outBarrierType) const override;
 
     void onGetBlendInfo(BlendInfo*) const override;
@@ -652,7 +652,7 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrProcOptInfo& colo
                                                        const GrProcOptInfo& coveragePOI,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
-                                                       const GrDrawTargetCaps& caps) {
+                                                       const GrCaps& caps) {
   /*
     Most the optimizations we do here are based on tweaking alpha for coverage.
 
@@ -764,7 +764,7 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrProcOptInfo& colo
 }
 
 bool CustomXP::onWillNeedXferBarrier(const GrRenderTarget* rt,
-                                     const GrDrawTargetCaps& caps,
+                                     const GrCaps& caps,
                                      GrXferBarrierType* outBarrierType) const {
     if (this->hasHWBlendEquation() && !caps.advancedCoherentBlendEquationSupport()) {
         *outBarrierType = kBlend_GrXferBarrierType;
@@ -787,14 +787,14 @@ GrCustomXPFactory::GrCustomXPFactory(SkXfermode::Mode mode)
 }
 
 GrXferProcessor*
-GrCustomXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
+GrCustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                          const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI,
                                          const GrDeviceCoordTexture* dstCopy) const {
     return CustomXP::Create(fMode, dstCopy, this->willReadDstColor(caps, colorPOI, coveragePOI));
 }
 
-bool GrCustomXPFactory::willReadDstColor(const GrDrawTargetCaps& caps,
+bool GrCustomXPFactory::willReadDstColor(const GrCaps& caps,
                                          const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI) const {
     if (!caps.advancedBlendEquationSupport()) {
@@ -818,7 +818,7 @@ void GrCustomXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
 GR_DEFINE_XP_FACTORY_TEST(GrCustomXPFactory);
 GrXPFactory* GrCustomXPFactory::TestCreate(SkRandom* rand,
                                            GrContext*,
-                                           const GrDrawTargetCaps&,
+                                           const GrCaps&,
                                            GrTexture*[]) {
     int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 

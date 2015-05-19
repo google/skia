@@ -210,7 +210,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 
 GrFragmentProcessor* GrMagnifierEffect::TestCreate(SkRandom* random,
                                                    GrContext* context,
-                                                   const GrDrawTargetCaps&,
+                                                   const GrCaps&,
                                                    GrTexture** textures) {
     GrTexture* texture = textures[0];
     const int kMaxWidth = 200;

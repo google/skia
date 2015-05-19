@@ -17,7 +17,7 @@
 GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
                        const GrProcOptInfo& colorPOI,
                        const GrProcOptInfo& coveragePOI,
-                       const GrDrawTargetCaps& caps,
+                       const GrCaps& caps,
                        const GrScissorState& scissorState,
                        const GrDeviceCoordTexture* dstCopy) {
     // Create XferProcessor from DS's XPFactory

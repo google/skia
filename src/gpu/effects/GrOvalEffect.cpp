@@ -78,7 +78,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleEffect);
 
 GrFragmentProcessor* CircleEffect::TestCreate(SkRandom* random,
                                               GrContext*,
-                                              const GrDrawTargetCaps& caps,
+                                              const GrCaps& caps,
                                               GrTexture*[]) {
     SkPoint center;
     center.fX = random->nextRangeScalar(0.f, 1000.f);
@@ -260,7 +260,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(EllipseEffect);
 
 GrFragmentProcessor* EllipseEffect::TestCreate(SkRandom* random,
                                                GrContext*,
-                                               const GrDrawTargetCaps& caps,
+                                               const GrCaps& caps,
                                                GrTexture*[]) {
     SkPoint center;
     center.fX = random->nextRangeScalar(0.f, 1000.f);

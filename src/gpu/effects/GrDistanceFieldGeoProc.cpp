@@ -232,7 +232,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
 
 GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(SkRandom* random,
                                                               GrContext*,
-                                                              const GrDrawTargetCaps&,
+                                                              const GrCaps&,
                                                               GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;
@@ -446,7 +446,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
 
 GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(SkRandom* random,
                                                             GrContext*,
-                                                            const GrDrawTargetCaps&,
+                                                            const GrCaps&,
                                                             GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx 
                                     : GrProcessorUnitTest::kAlphaTextureIdx;
@@ -698,7 +698,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
 
 GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(SkRandom* random,
                                                                  GrContext*,
-                                                                 const GrDrawTargetCaps&,
+                                                                 const GrCaps&,
                                                                  GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;

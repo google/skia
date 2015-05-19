@@ -95,7 +95,7 @@ private:
                                                  const GrProcOptInfo& coveragePOI,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrDrawTargetCaps& caps) override;
+                                                 const GrCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -126,7 +126,7 @@ private:
                                                        const GrProcOptInfo& coveragePOI,
                                                        bool doesStencilWrite);
 
-    void calcOutputTypes(GrXferProcessor::OptFlags blendOpts, const GrDrawTargetCaps& caps,
+    void calcOutputTypes(GrXferProcessor::OptFlags blendOpts, const GrCaps& caps,
                          bool hasSolidCoverage);
 
     GrBlendCoeff fSrcBlend;
@@ -305,7 +305,7 @@ PorterDuffXferProcessor::onGetOptimizations(const GrProcOptInfo& colorPOI,
                                             const GrProcOptInfo& coveragePOI,
                                             bool doesStencilWrite,
                                             GrColor* overrideColor,
-                                            const GrDrawTargetCaps& caps) {
+                                            const GrCaps& caps) {
     GrXferProcessor::OptFlags optFlags = this->internalGetOptimizations(colorPOI,
                                                                         coveragePOI,
                                                                         doesStencilWrite);
@@ -314,7 +314,7 @@ PorterDuffXferProcessor::onGetOptimizations(const GrProcOptInfo& colorPOI,
 }
 
 void PorterDuffXferProcessor::calcOutputTypes(GrXferProcessor::OptFlags optFlags,
-                                              const GrDrawTargetCaps& caps,
+                                              const GrCaps& caps,
                                               bool hasSolidCoverage) {
     if (this->willReadDstColor()) {
         fPrimaryOutputType = kCustom_PrimaryOutputType;
@@ -484,7 +484,7 @@ private:
                                                  const GrProcOptInfo& coveragePOI,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrDrawTargetCaps& caps) override;
+                                                 const GrCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -575,7 +575,7 @@ PDLCDXferProcessor::onGetOptimizations(const GrProcOptInfo& colorPOI,
                                        const GrProcOptInfo& coveragePOI,
                                        bool doesStencilWrite,
                                        GrColor* overrideColor,
-                                       const GrDrawTargetCaps& caps) {
+                                       const GrCaps& caps) {
         // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
         // value of the blend the constant. We should already have valid blend coeff's if we are at
         // a point where we have RGB coverage. We don't need any color stages since the known color
@@ -673,7 +673,7 @@ GrXPFactory* GrPorterDuffXPFactory::Create(SkXfermode::Mode mode) {
 }
 
 GrXferProcessor*
-GrPorterDuffXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
+GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& covPOI,
                                              const GrDeviceCoordTexture* dstCopy) const {
@@ -763,7 +763,7 @@ void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
     output->fWillBlendWithDst = false;
 }
 
-bool GrPorterDuffXPFactory::willReadDstColor(const GrDrawTargetCaps& caps,
+bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI) const {
     // We can always blend correctly if we have dual source blending.
@@ -800,7 +800,7 @@ GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
 
 GrXPFactory* GrPorterDuffXPFactory::TestCreate(SkRandom* random,
                                                GrContext*,
-                                               const GrDrawTargetCaps&,
+                                               const GrCaps&,
                                                GrTexture*[]) {
     SkXfermode::Mode mode = SkXfermode::Mode(random->nextULessThan(SkXfermode::kLastCoeffMode));
     return GrPorterDuffXPFactory::Create(mode);

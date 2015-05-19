@@ -527,7 +527,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradient);
 
 GrFragmentProcessor* GrLinearGradient::TestCreate(SkRandom* random,
                                                   GrContext* context,
-                                                  const GrDrawTargetCaps&,
+                                                  const GrCaps&,
                                                   GrTexture**) {
     SkPoint points[] = {{random->nextUScalar1(), random->nextUScalar1()},
                         {random->nextUScalar1(), random->nextUScalar1()}};

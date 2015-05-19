@@ -104,7 +104,7 @@ public:
         fInlineUploads.reset();
     }
 
-    const GrDrawTargetCaps& caps() const { return *fGpu->caps(); }
+    const GrCaps& caps() const { return *fGpu->caps(); }
 
     GrResourceProvider* resourceProvider() const { return fGpu->getContext()->resourceProvider(); }
 

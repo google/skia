@@ -56,7 +56,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DitherEffect);
 
 GrFragmentProcessor* DitherEffect::TestCreate(SkRandom*,
                                               GrContext*,
-                                              const GrDrawTargetCaps&,
+                                              const GrCaps&,
                                               GrTexture*[]) {
     return DitherEffect::Create();
 }

@@ -203,7 +203,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(AlphaThresholdEffect);
 
 GrFragmentProcessor* AlphaThresholdEffect::TestCreate(SkRandom* random,
                                            GrContext* context,
-                                           const GrDrawTargetCaps&,
+                                           const GrCaps&,
                                            GrTexture** textures) {
     GrTexture* bmpTex = textures[GrProcessorUnitTest::kSkiaPMTextureIdx];
     GrTexture* maskTex = textures[GrProcessorUnitTest::kAlphaTextureIdx];

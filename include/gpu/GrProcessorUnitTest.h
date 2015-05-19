@@ -13,7 +13,7 @@
 #include "SkTypes.h"
 
 class SkMatrix;
-class GrDrawTargetCaps;
+class GrCaps;
 
 namespace GrProcessorUnitTest {
 // Used to access the dummy textures in TestCreate procs.
@@ -36,7 +36,7 @@ public:
 
     typedef Processor* (*CreateProc)(SkRandom*,
                                      GrContext*,
-                                     const GrDrawTargetCaps& caps,
+                                     const GrCaps& caps,
                                      GrTexture* dummyTextures[]);
 
     GrProcessorTestFactory(CreateProc createProc) {
@@ -46,7 +46,7 @@ public:
 
     static Processor* CreateStage(SkRandom* random,
                                   GrContext* context,
-                                  const GrDrawTargetCaps& caps,
+                                  const GrCaps& caps,
                                   GrTexture* dummyTextures[]) {
         VerifyFactoryCount();
         SkASSERT(GetFactories()->count());
@@ -73,21 +73,21 @@ private:
     static GrProcessorTestFactory<GrGeometryProcessor> gTestFactory SK_UNUSED;                     \
     static GrGeometryProcessor* TestCreate(SkRandom*,                                              \
                                            GrContext*,                                             \
-                                           const GrDrawTargetCaps&,                                \
+                                           const GrCaps&,                                          \
                                            GrTexture* dummyTextures[2])
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrFragmentProcessor> gTestFactory SK_UNUSED;                     \
     static GrFragmentProcessor* TestCreate(SkRandom*,                                              \
                                            GrContext*,                                             \
-                                           const GrDrawTargetCaps&,                                \
+                                           const GrCaps&,                                          \
                                            GrTexture* dummyTextures[2])
 
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
     static GrProcessorTestFactory<GrXPFactory> gTestFactory SK_UNUSED;                             \
     static GrXPFactory* TestCreate(SkRandom*,                                                      \
                                    GrContext*,                                                     \
-                                   const GrDrawTargetCaps&,                                        \
+                                   const GrCaps&,                                                  \
                                    GrTexture* dummyTextures[2])
 
 
@@ -95,7 +95,7 @@ private:
  *  also implement this static function:
  *      GrProcessor* TestCreate(SkRandom*,
  *                           GrContext*,
- *                           const GrDrawTargetCaps&,
+ *                           const GrCaps&,
  *                           GrTexture* dummyTextures[2]);
  * dummyTextures[] are valid textures that can optionally be used to construct GrTextureAccesses.
  * The first texture has config kSkia8888_GrPixelConfig and the second has
@@ -118,7 +118,7 @@ private:
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
     static GrFragmentProcessor* TestCreate(SkRandom*,                                              \
                                            GrContext*,                                             \
-                                           const GrDrawTargetCaps&,                                \
+                                           const GrCaps&,                                          \
                                            GrTexture* dummyTextures[2])
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(X)
 
@@ -127,7 +127,7 @@ private:
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
     static GrXPFactory* TestCreate(SkRandom*,                                                      \
                                    GrContext*,                                                     \
-                                   const GrDrawTargetCaps&,                                        \
+                                   const GrCaps&,                                                  \
                                    GrTexture* dummyTextures[2])
 #define GR_DEFINE_XP_FACTORY_TEST(X)
 
@@ -136,7 +136,7 @@ private:
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
     static GrGeometryProcessor* TestCreate(SkRandom*,                                              \
                                            GrContext*,                                             \
-                                           const GrDrawTargetCaps&,                                \
+                                           const GrCaps&,                                          \
                                            GrTexture* dummyTextures[2])
 #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(X)
 

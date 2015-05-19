@@ -29,7 +29,7 @@
 #include "SkXfermode.h"
 
 class GrClip;
-class GrDrawTargetCaps;
+class GrCaps;
 class GrPath;
 class GrPathRange;
 class GrPipeline;
@@ -63,7 +63,7 @@ public:
     /**
      * Gets the capabilities of the draw target.
      */
-    const GrDrawTargetCaps* caps() const { return fCaps.get(); }
+    const GrCaps* caps() const { return fCaps.get(); }
 
     void drawBatch(GrPipelineBuilder*, GrBatch*);
 
@@ -325,7 +325,7 @@ private:
 
     // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
     GrContext*                                                      fContext;
-    SkAutoTUnref<const GrDrawTargetCaps>                            fCaps;
+    SkAutoTUnref<const GrCaps>                            fCaps;
     // To keep track that we always have at least as many debug marker adds as removes
     int                                                             fGpuTraceMarkerCount;
     GrTraceMarkerSet                                                fActiveTraceMarkers;

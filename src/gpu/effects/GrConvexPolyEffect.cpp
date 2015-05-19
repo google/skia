@@ -63,7 +63,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(AARectEffect);
 
 GrFragmentProcessor* AARectEffect::TestCreate(SkRandom* random,
                                               GrContext*,
-                                              const GrDrawTargetCaps& caps,
+                                              const GrCaps& caps,
                                               GrTexture*[]) {
     SkRect rect = SkRect::MakeLTRB(random->nextSScalar1(),
                                    random->nextSScalar1(),
@@ -363,7 +363,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvexPolyEffect);
 
 GrFragmentProcessor* GrConvexPolyEffect::TestCreate(SkRandom* random,
                                                     GrContext*,
-                                                    const GrDrawTargetCaps& caps,
+                                                    const GrCaps& caps,
                                                     GrTexture*[]) {
     int count = random->nextULessThan(kMaxEdges) + 1;
     SkScalar edges[kMaxEdges * 3];

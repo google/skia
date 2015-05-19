@@ -32,7 +32,7 @@ public:
     GrPipeline(const GrPipelineBuilder&,
                const GrProcOptInfo& colorPOI,
                const GrProcOptInfo& coveragePOI,
-               const GrDrawTargetCaps&,
+               const GrCaps&,
                const GrScissorState&,
                const GrDeviceCoordTexture* dstCopy);
 
@@ -115,7 +115,7 @@ private:
      * blend coeffs will represent those used by backend API.
      */
     void setOutputStateInfo(const GrPipelineBuilder& ds, GrXferProcessor::OptFlags,
-                            const GrDrawTargetCaps&);
+                            const GrCaps&);
 
     enum Flags {
         kDither_Flag            = 0x1,

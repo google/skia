@@ -6,15 +6,15 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
-#include "Test.h"
 
-static void test_print(skiatest::Reporter*, const GrDrawTargetCaps* caps) {
+static void test_print(skiatest::Reporter*, const GrCaps* caps) {
     // This used to assert.
     SkString result = caps->dump();
     SkASSERT(!result.isEmpty());

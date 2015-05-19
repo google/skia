@@ -1589,7 +1589,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDiffuseLightingEffect);
 
 GrFragmentProcessor* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
                                               GrContext* context,
-                                              const GrDrawTargetCaps&,
+                                              const GrCaps&,
                                               GrTexture* textures[]) {
     SkScalar surfaceScale = random->nextSScalar1();
     SkScalar kd = random->nextUScalar1();
@@ -1797,7 +1797,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
 
 GrFragmentProcessor* GrSpecularLightingEffect::TestCreate(SkRandom* random,
                                                           GrContext* context,
-                                                          const GrDrawTargetCaps&,
+                                                          const GrCaps&,
                                                           GrTexture* textures[]) {
     SkScalar surfaceScale = random->nextSScalar1();
     SkScalar ks = random->nextUScalar1();

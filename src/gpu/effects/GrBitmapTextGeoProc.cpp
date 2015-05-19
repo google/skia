@@ -155,7 +155,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
 GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(SkRandom* random,
                                                      GrContext*,
-                                                     const GrDrawTargetCaps&,
+                                                     const GrCaps&,
                                                      GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;

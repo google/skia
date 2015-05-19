@@ -55,7 +55,7 @@ void GrGLCaps::reset() {
 
 }
 
-GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTargetCaps() {
+GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrCaps() {
     *this = caps;
 }
 
@@ -256,7 +256,7 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     this->initStencilFormats(ctxInfo);
 
     /**************************************************************************
-     * GrDrawTargetCaps fields
+     * GrCaps fields
      **************************************************************************/
     if (kGL_GrGLStandard == standard) {
         // we could also look for GL_ATI_separate_stencil extension or

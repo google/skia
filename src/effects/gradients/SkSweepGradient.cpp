@@ -246,7 +246,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSweepGradient);
 
 GrFragmentProcessor* GrSweepGradient::TestCreate(SkRandom* random,
                                                  GrContext* context,
-                                                 const GrDrawTargetCaps&,
+                                                 const GrCaps&,
                                                  GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
 

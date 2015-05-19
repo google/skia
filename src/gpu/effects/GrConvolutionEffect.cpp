@@ -220,7 +220,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvolutionEffect);
 
 GrFragmentProcessor* GrConvolutionEffect::TestCreate(SkRandom* random,
                                                      GrContext*,
-                                                     const GrDrawTargetCaps&,
+                                                     const GrCaps&,
                                                      GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;

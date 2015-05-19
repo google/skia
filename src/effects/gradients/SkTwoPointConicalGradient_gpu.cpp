@@ -186,7 +186,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Edge2PtConicalEffect);
  */
 GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(SkRandom* random,
                                                       GrContext* context,
-                                                      const GrDrawTargetCaps&,
+                                                      const GrCaps&,
                                                       GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = random->nextUScalar1();
@@ -475,7 +475,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(FocalOutside2PtConicalEffect);
  */
 GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                               GrContext* context,
-                                                              const GrDrawTargetCaps&,
+                                                              const GrCaps&,
                                                               GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = 0.f;
@@ -694,7 +694,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(FocalInside2PtConicalEffect);
  */
 GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                              GrContext* context,
-                                                             const GrDrawTargetCaps&,
+                                                             const GrCaps&,
                                                              GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = 0.f;
@@ -950,7 +950,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleInside2PtConicalEffect);
  */
 GrFragmentProcessor* CircleInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                               GrContext* context,
-                                                              const GrDrawTargetCaps&,
+                                                              const GrCaps&,
                                                               GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = random->nextUScalar1() + 0.0001f; // make sure radius1 != 0
@@ -1189,7 +1189,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleOutside2PtConicalEffect);
  */
 GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                                GrContext* context,
-                                                               const GrDrawTargetCaps&,
+                                                               const GrCaps&,
                                                                GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = random->nextUScalar1() + 0.0001f; // make sure radius1 != 0

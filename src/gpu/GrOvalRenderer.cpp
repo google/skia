@@ -205,7 +205,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleEdgeEffect);
 
 GrGeometryProcessor* CircleEdgeEffect::TestCreate(SkRandom* random,
                                                   GrContext* context,
-                                                  const GrDrawTargetCaps&,
+                                                  const GrCaps&,
                                                   GrTexture* textures[]) {
     return CircleEdgeEffect::Create(GrRandomColor(random),
                                     random->nextBool(),
@@ -387,7 +387,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseEdgeEffect);
 
 GrGeometryProcessor* EllipseEdgeEffect::TestCreate(SkRandom* random,
                                                    GrContext* context,
-                                                   const GrDrawTargetCaps&,
+                                                   const GrCaps&,
                                                    GrTexture* textures[]) {
     return EllipseEdgeEffect::Create(GrRandomColor(random),
                                      random->nextBool(),
@@ -581,7 +581,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseEdgeEffect);
 
 GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(SkRandom* random,
                                                      GrContext* context,
-                                                     const GrDrawTargetCaps&,
+                                                     const GrCaps&,
                                                      GrTexture* textures[]) {
     return DIEllipseEdgeEffect::Create(GrRandomColor(random),
                                        GrTest::TestMatrix(random),

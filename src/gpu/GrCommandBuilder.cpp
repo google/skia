@@ -73,7 +73,7 @@ GrTargetCommands::Cmd* GrCommandBuilder::recordCopySurface(GrSurface* dst,
 
 GrTargetCommands::Cmd*
 GrCommandBuilder::recordXferBarrierIfNecessary(const GrPipeline& pipeline,
-                                               const GrDrawTargetCaps& caps) {
+                                               const GrCaps& caps) {
     const GrXferProcessor& xp = *pipeline.getXferProcessor();
     GrRenderTarget* rt = pipeline.getRenderTarget();
 

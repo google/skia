@@ -211,7 +211,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
 GrGeometryProcessor* GrConicEffect::TestCreate(SkRandom* random,
                                                GrContext*,
-                                               const GrDrawTargetCaps& caps,
+                                               const GrCaps& caps,
                                                GrTexture*[]) {
     GrGeometryProcessor* gp;
     do {
@@ -412,7 +412,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
 GrGeometryProcessor* GrQuadEffect::TestCreate(SkRandom* random,
                                               GrContext*,
-                                              const GrDrawTargetCaps& caps,
+                                              const GrCaps& caps,
                                               GrTexture*[]) {
     GrGeometryProcessor* gp;
     do {
@@ -625,7 +625,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrCubicEffect);
 
 GrGeometryProcessor* GrCubicEffect::TestCreate(SkRandom* random,
                                                GrContext*,
-                                               const GrDrawTargetCaps& caps,
+                                               const GrCaps& caps,
                                                GrTexture*[]) {
     GrGeometryProcessor* gp;
     do {

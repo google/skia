@@ -2802,7 +2802,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
             return;
         }
         case kBlend_GrXferBarrierType:
-            SkASSERT(GrDrawTargetCaps::kAdvanced_BlendEquationSupport ==
+            SkASSERT(GrCaps::kAdvanced_BlendEquationSupport ==
                      this->caps()->blendEquationSupport());
             GL_CALL(BlendBarrier());
             return;

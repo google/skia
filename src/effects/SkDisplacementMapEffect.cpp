@@ -517,7 +517,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDisplacementMapEffect);
 
 GrFragmentProcessor* GrDisplacementMapEffect::TestCreate(SkRandom* random,
                                               GrContext*,
-                                              const GrDrawTargetCaps&,
+                                              const GrCaps&,
                                               GrTexture* textures[]) {
     int texIdxDispl = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                            GrProcessorUnitTest::kAlphaTextureIdx;

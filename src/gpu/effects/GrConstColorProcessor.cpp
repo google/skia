@@ -107,7 +107,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 
 GrFragmentProcessor* GrConstColorProcessor::TestCreate(SkRandom* random,
                                                        GrContext*,
-                                                       const GrDrawTargetCaps&,
+                                                       const GrCaps&,
                                                        GrTexture*[]) {
     GrColor color;
     int colorPicker = random->nextULessThan(3);

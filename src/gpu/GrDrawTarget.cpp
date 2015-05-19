@@ -613,7 +613,7 @@ SkString GrShaderCaps::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTargetCaps::reset() {
+void GrCaps::reset() {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
     fTwoSidedStencilSupport = false;
@@ -638,7 +638,7 @@ void GrDrawTargetCaps::reset() {
     memset(fConfigTextureSupport, 0, sizeof(fConfigTextureSupport));
 }
 
-GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
+GrCaps& GrCaps::operator=(const GrCaps& other) {
     fMipMapSupport = other.fMipMapSupport;
     fNPOTTextureTileSupport = other.fNPOTTextureTileSupport;
     fTwoSidedStencilSupport = other.fTwoSidedStencilSupport;
@@ -667,25 +667,25 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
 
 static SkString map_flags_to_string(uint32_t flags) {
     SkString str;
-    if (GrDrawTargetCaps::kNone_MapFlags == flags) {
+    if (GrCaps::kNone_MapFlags == flags) {
         str = "none";
     } else {
-        SkASSERT(GrDrawTargetCaps::kCanMap_MapFlag & flags);
-        SkDEBUGCODE(flags &= ~GrDrawTargetCaps::kCanMap_MapFlag);
+        SkASSERT(GrCaps::kCanMap_MapFlag & flags);
+        SkDEBUGCODE(flags &= ~GrCaps::kCanMap_MapFlag);
         str = "can_map";
 
-        if (GrDrawTargetCaps::kSubset_MapFlag & flags) {
+        if (GrCaps::kSubset_MapFlag & flags) {
             str.append(" partial");
         } else {
             str.append(" full");
         }
-        SkDEBUGCODE(flags &= ~GrDrawTargetCaps::kSubset_MapFlag);
+        SkDEBUGCODE(flags &= ~GrCaps::kSubset_MapFlag);
     }
     SkASSERT(0 == flags); // Make sure we handled all the flags.
     return str;
 }
 
-SkString GrDrawTargetCaps::dump() const {
+SkString GrCaps::dump() const {
     SkString r;
     static const char* gNY[] = {"NO", "YES"};
     r.appendf("MIP Map Support                    : %s\n", gNY[fMipMapSupport]);

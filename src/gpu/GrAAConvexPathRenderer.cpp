@@ -669,7 +669,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 
 GrGeometryProcessor* QuadEdgeEffect::TestCreate(SkRandom* random,
                                                 GrContext*,
-                                                const GrDrawTargetCaps& caps,
+                                                const GrCaps& caps,
                                                 GrTexture*[]) {
     // Doesn't work without derivative instructions.
     return caps.shaderCaps()->shaderDerivativeSupport() ?

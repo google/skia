@@ -822,7 +822,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 
 GrFragmentProcessor* GrRectBlurEffect::TestCreate(SkRandom* random,
                                                   GrContext* context,
-                                                  const GrDrawTargetCaps&,
+                                                  const GrCaps&,
                                                   GrTexture**) {
     float sigma = random->nextRangeF(3,8);
     float width = random->nextRangeF(200,300);
@@ -1004,7 +1004,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 
 GrFragmentProcessor* GrRRectBlurEffect::TestCreate(SkRandom* random,
                                         GrContext* context,
-                                        const GrDrawTargetCaps& caps,
+                                        const GrCaps& caps,
                                         GrTexture*[]) {
     SkScalar w = random->nextRangeScalar(100.f, 1000.f);
     SkScalar h = random->nextRangeScalar(100.f, 1000.f);

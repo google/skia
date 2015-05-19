@@ -94,7 +94,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
 
 GrFragmentProcessor* BigKeyProcessor::TestCreate(SkRandom*,
                                                  GrContext*,
-                                                 const GrDrawTargetCaps&,
+                                                 const GrCaps&,
                                                  GrTexture*[]) {
     return BigKeyProcessor::Create();
 }
@@ -106,7 +106,7 @@ static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
 static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random,
-                                            const GrDrawTargetCaps* caps) {
+                                            const GrCaps* caps) {
     // setup render target
     GrTextureParams params;
     GrSurfaceDesc texDesc;
@@ -135,7 +135,7 @@ static GrRenderTarget* random_render_target(GrContext* context, SkRandom* random
     return texture ? texture->asRenderTarget() : NULL;
 }
 
-static void set_random_xpf(GrContext* context, const GrDrawTargetCaps& caps,
+static void set_random_xpf(GrContext* context, const GrCaps& caps,
                            GrPipelineBuilder* pipelineBuilder, SkRandom* random,
                            GrTexture* dummyTextures[]) {
     SkAutoTUnref<const GrXPFactory> xpf(

@@ -26,12 +26,12 @@ public:
 private:
     GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 
 
-    GrXferProcessor* onCreateXferProcessor(const GrDrawTargetCaps& caps,
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
                                            const GrDeviceCoordTexture* dstCopy) const override;
 
-    bool willReadDstColor(const GrDrawTargetCaps& caps,
+    bool willReadDstColor(const GrCaps& caps,
                           const GrProcOptInfo& colorPOI,
                           const GrProcOptInfo& coveragePOI) const override;
 

@@ -23,7 +23,7 @@ class GrGLSLCaps;
  * version and the extensions string. It also tracks formats that have passed
  * the FBO completeness test.
  */
-class GrGLCaps : public GrDrawTargetCaps {
+class GrGLCaps : public GrCaps {
 public:
     SK_DECLARE_INST_COUNT(GrGLCaps)
 
@@ -371,7 +371,7 @@ private:
     };
     mutable SkTHashMap<ReadPixelsSupportedFormat, bool> fReadPixelsSupportedCache;
 
-    typedef GrDrawTargetCaps INHERITED;
+    typedef GrCaps INHERITED;
 };
 
 

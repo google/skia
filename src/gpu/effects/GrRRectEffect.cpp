@@ -110,7 +110,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircularRRectEffect);
 
 GrFragmentProcessor* CircularRRectEffect::TestCreate(SkRandom* random,
                                                      GrContext*,
-                                                     const GrDrawTargetCaps& caps,
+                                                     const GrCaps& caps,
                                                      GrTexture*[]) {
     SkScalar w = random->nextRangeScalar(20.f, 1000.f);
     SkScalar h = random->nextRangeScalar(20.f, 1000.f);
@@ -447,7 +447,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(EllipticalRRectEffect);
 
 GrFragmentProcessor* EllipticalRRectEffect::TestCreate(SkRandom* random,
                                                        GrContext*,
-                                                       const GrDrawTargetCaps& caps,
+                                                       const GrCaps& caps,
                                                        GrTexture*[]) {
     SkScalar w = random->nextRangeScalar(20.f, 1000.f);
     SkScalar h = random->nextRangeScalar(20.f, 1000.f);

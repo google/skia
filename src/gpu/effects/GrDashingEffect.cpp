@@ -961,7 +961,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
 
 GrGeometryProcessor* DashingCircleEffect::TestCreate(SkRandom* random,
                                                      GrContext*,
-                                                     const GrDrawTargetCaps& caps,
+                                                     const GrCaps& caps,
                                                      GrTexture*[]) {
     DashAAMode aaMode = static_cast<DashAAMode>(random->nextULessThan(kDashAAModeCount));
     return DashingCircleEffect::Create(GrRandomColor(random),
@@ -1199,7 +1199,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
 
 GrGeometryProcessor* DashingLineEffect::TestCreate(SkRandom* random,
                                                    GrContext*,
-                                                   const GrDrawTargetCaps& caps,
+                                                   const GrCaps& caps,
                                                    GrTexture*[]) {
     DashAAMode aaMode = static_cast<DashAAMode>(random->nextULessThan(kDashAAModeCount));
     return DashingLineEffect::Create(GrRandomColor(random),

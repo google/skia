@@ -138,7 +138,7 @@ class GrPipeline;
 
 class MockGpu : public GrGpu {
 public:
-    MockGpu(GrContext* context) : INHERITED(context) { fCaps.reset(SkNEW(GrDrawTargetCaps)); }
+    MockGpu(GrContext* context) : INHERITED(context) { fCaps.reset(SkNEW(GrCaps)); }
     ~MockGpu() override {}
     bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const override {
         return true;

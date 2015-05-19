@@ -28,7 +28,7 @@ GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(const GrProcOptInfo&
                                                             const GrProcOptInfo& coveragePOI,
                                                             bool doesStencilWrite,
                                                             GrColor* overrideColor,
-                                                            const GrDrawTargetCaps& caps) {
+                                                            const GrCaps& caps) {
     GrXferProcessor::OptFlags flags = this->onGetOptimizations(colorPOI,
                                                                coveragePOI,
                                                                doesStencilWrite,
@@ -52,7 +52,7 @@ void GrXferProcessor::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBu
 }
 
 bool GrXferProcessor::willNeedXferBarrier(const GrRenderTarget* rt,
-                                          const GrDrawTargetCaps& caps,
+                                          const GrCaps& caps,
                                           GrXferBarrierType* outBarrierType) const {
     if (static_cast<const GrSurface*>(rt) == this->getDstCopyTexture()) {
         // Texture barriers are required when a shader reads and renders to the same texture.
@@ -163,7 +163,7 @@ SkString GrXferProcessor::BlendInfo::dump() const {
 GrXferProcessor* GrXPFactory::createXferProcessor(const GrProcOptInfo& colorPOI,
                                                   const GrProcOptInfo& coveragePOI,
                                                   const GrDeviceCoordTexture* dstCopy,
-                                                  const GrDrawTargetCaps& caps) const {
+                                                  const GrCaps& caps) const {
 #ifdef SK_DEBUG
     if (this->willReadDstColor(caps, colorPOI, coveragePOI)) {
         if (!caps.shaderCaps()->dstReadInShaderSupport()) {
@@ -178,7 +178,7 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrProcOptInfo& colorPOI,
     return this->onCreateXferProcessor(caps, colorPOI, coveragePOI, dstCopy);
 }
 
-bool GrXPFactory::willNeedDstCopy(const GrDrawTargetCaps& caps, const GrProcOptInfo& colorPOI,
+bool GrXPFactory::willNeedDstCopy(const GrCaps& caps, const GrProcOptInfo& colorPOI,
                                   const GrProcOptInfo& coveragePOI) const {
     return (this->willReadDstColor(caps, colorPOI, coveragePOI) 
             && !caps.shaderCaps()->dstReadInShaderSupport());

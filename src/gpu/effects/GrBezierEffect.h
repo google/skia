@@ -61,7 +61,7 @@ public:
     static GrGeometryProcessor* Create(GrColor color,
                                        const SkMatrix& viewMatrix,
                                        const GrPrimitiveEdgeType edgeType,
-                                       const GrDrawTargetCaps& caps,
+                                       const GrCaps& caps,
                                        const SkMatrix& localMatrix,
                                        bool usesLocalCoords,
                                        uint8_t coverage = 0xff) {
@@ -146,7 +146,7 @@ public:
     static GrGeometryProcessor* Create(GrColor color,
                                        const SkMatrix& viewMatrix,
                                        const GrPrimitiveEdgeType edgeType,
-                                       const GrDrawTargetCaps& caps,
+                                       const GrCaps& caps,
                                        const SkMatrix& localMatrix,
                                        bool usesLocalCoords,
                                        uint8_t coverage = 0xff) {
@@ -233,7 +233,7 @@ public:
     static GrGeometryProcessor* Create(GrColor color,
                                        const SkMatrix& viewMatrix,
                                        const GrPrimitiveEdgeType edgeType,
-                                       const GrDrawTargetCaps& caps) {
+                                       const GrCaps& caps) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {

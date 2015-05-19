@@ -229,7 +229,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
 GrGeometryProcessor* DefaultGeoProc::TestCreate(SkRandom* random,
                                                 GrContext*,
-                                                const GrDrawTargetCaps& caps,
+                                                const GrCaps& caps,
                                                 GrTexture*[]) {
     uint32_t flags = 0;
     if (random->nextBool()) {

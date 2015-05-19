@@ -44,7 +44,7 @@ public:
     /**
      * Gets the capabilities of the draw target.
      */
-    const GrDrawTargetCaps* caps() const { return fCaps.get(); }
+    const GrCaps* caps() const { return fCaps.get(); }
 
     GrPathRendering* pathRendering() { return fPathRendering.get(); }
 
@@ -66,7 +66,7 @@ public:
      * Creates a texture object. If kRenderTarget_GrSurfaceFlag the texture can
      * be used as a render target by calling GrTexture::asRenderTarget(). Not all
      * pixel configs can be used as render targets. Support for configs as textures
-     * or render targets can be checked using GrDrawTargetCaps.
+     * or render targets can be checked using GrCaps.
      *
      * @param desc        describes the texture to be created.
      * @param budgeted    does this texture count against the resource cache budget?
@@ -403,7 +403,7 @@ protected:
     Stats                                   fStats;
     SkAutoTDelete<GrPathRendering>          fPathRendering;
     // Subclass must initialize this in its constructor.
-    SkAutoTUnref<const GrDrawTargetCaps>    fCaps;
+    SkAutoTUnref<const GrCaps>    fCaps;
 
 private:
     // called when the 3D context state is unknown. Subclass should emit any

@@ -602,7 +602,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoiseEffect);
 
 GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
                                                      GrContext* context,
-                                                     const GrDrawTargetCaps&,
+                                                     const GrCaps&,
                                                      GrTexture**) {
     int      numOctaves = random->nextRangeU(2, 10);
     bool     stitchTiles = random->nextBool();

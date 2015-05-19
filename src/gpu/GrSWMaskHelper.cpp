@@ -67,7 +67,7 @@ static inline GrPixelConfig fmt_to_config(SkTextureCompressor::Format fmt) {
     return config;
 }
 
-static bool choose_compressed_fmt(const GrDrawTargetCaps* caps,
+static bool choose_compressed_fmt(const GrCaps* caps,
                                   SkTextureCompressor::Format *fmt) {
     if (NULL == fmt) {
         return false;

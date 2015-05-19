@@ -287,7 +287,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     // Otherwise when buffer mapping is supported we map if the buffer size is greater than the
     // threshold.
     bool attemptMap = block.fBuffer->isCPUBacked();
-    if (!attemptMap && GrDrawTargetCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
+    if (!attemptMap && GrCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
         attemptMap = size > GR_GEOM_BUFFER_MAP_THRESHOLD;
     }
 
@@ -331,7 +331,7 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
     SkASSERT(flushSize <= buffer->gpuMemorySize());
     VALIDATE(true);
 
-    if (GrDrawTargetCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags() &&
+    if (GrCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags() &&
         flushSize > GR_GEOM_BUFFER_MAP_THRESHOLD) {
         void* data = buffer->map();
         if (data) {

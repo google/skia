@@ -86,7 +86,7 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, c
 
 //////////////////////////////////////////////////////////////////////////////s
 
-bool GrPipelineBuilder::willXPNeedDstCopy(const GrDrawTargetCaps& caps,
+bool GrPipelineBuilder::willXPNeedDstCopy(const GrCaps& caps,
                                           const GrProcOptInfo& colorPOI,
                                           const GrProcOptInfo& coveragePOI) const {
     return this->getXPFactory()->willNeedDstCopy(caps, colorPOI, coveragePOI);

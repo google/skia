@@ -501,7 +501,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradient);
 
 GrFragmentProcessor* GrRadialGradient::TestCreate(SkRandom* random,
                                                   GrContext* context,
-                                                  const GrDrawTargetCaps&,
+                                                  const GrCaps&,
                                                   GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius = random->nextUScalar1();

@@ -57,7 +57,7 @@ public:
                                    GrSurface* src,
                                    const SkIRect& srcRect,
                                    const SkIPoint& dstPoint);
-    virtual Cmd* recordXferBarrierIfNecessary(const GrPipeline&, const GrDrawTargetCaps&);
+    virtual Cmd* recordXferBarrierIfNecessary(const GrPipeline&, const GrCaps&);
 
 protected:
     typedef GrTargetCommands::DrawBatch DrawBatch;

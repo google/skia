@@ -36,7 +36,7 @@ private:
                                                  const GrProcOptInfo& coveragePOI,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
-                                                 const GrDrawTargetCaps& caps) override {
+                                                 const GrCaps& caps) override {
         return GrXferProcessor::kIgnoreColor_OptFlag | GrXferProcessor::kIgnoreCoverage_OptFlag;
     }
 
@@ -100,7 +100,7 @@ GrDisableColorXPFactory::GrDisableColorXPFactory() {
 }
 
 GrXferProcessor*
-GrDisableColorXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
+GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& covPOI,
                                                const GrDeviceCoordTexture* dstCopy) const {
@@ -111,7 +111,7 @@ GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory);
 
 GrXPFactory* GrDisableColorXPFactory::TestCreate(SkRandom* random,
                                                   GrContext*,
-                                                  const GrDrawTargetCaps&,
+                                                  const GrCaps&,
                                                   GrTexture*[]) {
     return GrDisableColorXPFactory::Create();
 }

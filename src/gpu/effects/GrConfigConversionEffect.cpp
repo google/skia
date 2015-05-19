@@ -129,7 +129,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 
 GrFragmentProcessor* GrConfigConversionEffect::TestCreate(SkRandom* random,
                                                           GrContext*,
-                                                          const GrDrawTargetCaps&,
+                                                          const GrCaps&,
                                                           GrTexture* textures[]) {
     PMConversion pmConv = static_cast<PMConversion>(random->nextULessThan(kPMConversionCnt));
     bool swapRB;

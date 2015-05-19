@@ -346,7 +346,7 @@ void ModeColorFilterEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ModeColorFilterEffect);
 GrFragmentProcessor* ModeColorFilterEffect::TestCreate(SkRandom* rand,
                                                        GrContext*,
-                                                       const GrDrawTargetCaps&,
+                                                       const GrCaps&,
                                                        GrTexture*[]) {
     SkXfermode::Mode mode = SkXfermode::kDst_Mode;
     while (SkXfermode::kDst_Mode == mode) {

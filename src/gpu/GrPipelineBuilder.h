@@ -24,7 +24,7 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 class GrBatch;
-class GrDrawTargetCaps;
+class GrCaps;
 class GrPaint;
 class GrTexture;
 
@@ -179,7 +179,7 @@ public:
     /**
      * Checks whether the xp will need a copy of the destination to correctly blend.
      */
-    bool willXPNeedDstCopy(const GrDrawTargetCaps& caps, const GrProcOptInfo& colorPOI,
+    bool willXPNeedDstCopy(const GrCaps& caps, const GrProcOptInfo& colorPOI,
                            const GrProcOptInfo& coveragePOI) const;
 
     /// @}

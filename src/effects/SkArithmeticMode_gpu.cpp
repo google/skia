@@ -141,7 +141,7 @@ void GrArithmeticFP::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 GrFragmentProcessor* GrArithmeticFP::TestCreate(SkRandom* rand,
                                                 GrContext*,
-                                                const GrDrawTargetCaps&,
+                                                const GrCaps&,
                                                 GrTexture* textures[]) {
     float k1 = rand->nextF();
     float k2 = rand->nextF();
@@ -189,7 +189,7 @@ private:
                                                  const GrProcOptInfo& coveragePOI,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrDrawTargetCaps& caps) override;
+                                                 const GrCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -285,7 +285,7 @@ GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(const GrProcOptInfo& 
                                                            const GrProcOptInfo& coveragePOI,
                                                            bool doesStencilWrite,
                                                            GrColor* overrideColor,
-                                                           const GrDrawTargetCaps& caps) {
+                                                           const GrCaps& caps) {
    return GrXferProcessor::kNone_Opt;
 }
 
@@ -298,7 +298,7 @@ GrArithmeticXPFactory::GrArithmeticXPFactory(float k1, float k2, float k3, float
 }
 
 GrXferProcessor*
-GrArithmeticXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
+GrArithmeticXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI,
                                              const GrDeviceCoordTexture* dstCopy) const {
@@ -322,7 +322,7 @@ GR_DEFINE_XP_FACTORY_TEST(GrArithmeticXPFactory);
 
 GrXPFactory* GrArithmeticXPFactory::TestCreate(SkRandom* random,
                                                GrContext*,
-                                               const GrDrawTargetCaps&,
+                                               const GrCaps&,
                                                GrTexture*[]) {
     float k1 = random->nextF();
     float k2 = random->nextF();

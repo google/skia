@@ -38,7 +38,7 @@ private:
                                                  const GrProcOptInfo& coveragePOI,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
-                                                 const GrDrawTargetCaps& caps) override;
+                                                 const GrCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -112,7 +112,7 @@ CoverageSetOpXP::onGetOptimizations(const GrProcOptInfo& colorPOI,
                                     const GrProcOptInfo& coveragePOI,
                                     bool doesStencilWrite,
                                     GrColor* color,
-                                    const GrDrawTargetCaps& caps) {
+                                    const GrCaps& caps) {
     // We never look at the color input
     return GrXferProcessor::kIgnoreColor_OptFlag; 
 }
@@ -223,7 +223,7 @@ GrXPFactory* GrCoverageSetOpXPFactory::Create(SkRegion::Op regionOp, bool invert
 }
 
 GrXferProcessor*
-GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrDrawTargetCaps& caps,
+GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                 const GrProcOptInfo& colorPOI,
                                                 const GrProcOptInfo& covPOI,
                                                 const GrDeviceCoordTexture* dstCopy) const {
@@ -252,7 +252,7 @@ GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);
 
 GrXPFactory* GrCoverageSetOpXPFactory::TestCreate(SkRandom* random,
                                                   GrContext*,
-                                                  const GrDrawTargetCaps&,
+                                                  const GrCaps&,
                                                   GrTexture*[]) {
     SkRegion::Op regionOp = SkRegion::Op(random->nextULessThan(SkRegion::kLastOp + 1));
     bool invertCoverage = random->nextBool();
