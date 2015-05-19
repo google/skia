@@ -83,6 +83,8 @@ public:
     // TODO clean this up
     static const GrGeometryProcessor* Create(uint32_t gpTypeFlags,
                                              GrColor,
+                                             bool usesLocalCoords,
+                                             bool coverageIgnored,
                                              const SkMatrix& viewMatrix = SkMatrix::I(),
                                              const SkMatrix& localMatrix = SkMatrix::I(),
                                              uint8_t coverage = 0xff);

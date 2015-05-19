@@ -63,6 +63,7 @@ public:
                                        const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps,
                                        const SkMatrix& localMatrix,
+                                       bool usesLocalCoords,
                                        uint8_t coverage = 0xff) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
@@ -71,18 +72,18 @@ public:
                 }
                 return SkNEW_ARGS(GrConicEffect, (color, viewMatrix, coverage,
                                                   kFillAA_GrProcessorEdgeType,
-                                                  localMatrix));
+                                                  localMatrix, usesLocalCoords));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrConicEffect, (color, viewMatrix, coverage,
                                                   kHairlineAA_GrProcessorEdgeType,
-                                                  localMatrix));
+                                                  localMatrix, usesLocalCoords));
             case kFillBW_GrProcessorEdgeType:
                 return SkNEW_ARGS(GrConicEffect, (color, viewMatrix, coverage,
                                                   kFillBW_GrProcessorEdgeType,
-                                                  localMatrix));
+                                                  localMatrix, usesLocalCoords));
             default:
                 return NULL;
         }
@@ -98,8 +99,11 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
+    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    uint8_t coverageScale() const { return fCoverageScale; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -108,15 +112,14 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override;
 
-    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
-
 private:
     GrConicEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrPrimitiveEdgeType,
-                  const SkMatrix& localMatrix);
+                  const SkMatrix& localMatrix, bool usesLocalCoords);
 
     GrColor             fColor;
     SkMatrix            fViewMatrix;
     SkMatrix            fLocalMatrix;
+    bool                fUsesLocalCoords;
     uint8_t             fCoverageScale;
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
@@ -145,6 +148,7 @@ public:
                                        const GrPrimitiveEdgeType edgeType,
                                        const GrDrawTargetCaps& caps,
                                        const SkMatrix& localMatrix,
+                                       bool usesLocalCoords,
                                        uint8_t coverage = 0xff) {
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
@@ -153,18 +157,18 @@ public:
                 }
                 return SkNEW_ARGS(GrQuadEffect, (color, viewMatrix, coverage,
                                                  kFillAA_GrProcessorEdgeType,
-                                                 localMatrix));
+                                                 localMatrix, usesLocalCoords));
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
                 return SkNEW_ARGS(GrQuadEffect, (color, viewMatrix, coverage,
                                                  kHairlineAA_GrProcessorEdgeType,
-                                                 localMatrix));
+                                                 localMatrix, usesLocalCoords));
             case kFillBW_GrProcessorEdgeType:
                 return SkNEW_ARGS(GrQuadEffect, (color, viewMatrix, coverage,
                                                  kFillBW_GrProcessorEdgeType,
-                                                 localMatrix));
+                                                 localMatrix, usesLocalCoords));
             default:
                 return NULL;
         }
@@ -180,8 +184,11 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
+    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    uint8_t coverageScale() const { return fCoverageScale; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
@@ -190,15 +197,14 @@ public:
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override;
 
-    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
-
 private:
     GrQuadEffect(GrColor, const SkMatrix& viewMatrix, uint8_t coverage, GrPrimitiveEdgeType,
-                 const SkMatrix& localMatrix);
+                 const SkMatrix& localMatrix, bool usesLocalCoords);
 
     GrColor             fColor;
     SkMatrix            fViewMatrix;
     SkMatrix            fLocalMatrix;
+    bool                fUsesLocalCoords;
     uint8_t             fCoverageScale;
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
@@ -258,6 +264,7 @@ public:
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
+    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
 
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
@@ -266,8 +273,6 @@ public:
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override;
-
-    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
 
 private:
     GrCubicEffect(GrColor, const SkMatrix& viewMatrix, GrPrimitiveEdgeType);

@@ -31,28 +31,18 @@ SkMatrix GrGLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
     return combined;
 }
 
-void
-GrGLPrimitiveProcessor::setupColorPassThrough(GrGLGPBuilder* pb,
-                                              GrGPInput inputType,
-                                              const char* outputName,
-                                              const GrGeometryProcessor::Attribute* colorAttr,
-                                              UniformHandle* colorUniform) {
+void GrGLPrimitiveProcessor::setupUniformColor(GrGLGPBuilder* pb,
+                                               const char* outputName,
+                                               UniformHandle* colorUniform) {
     GrGLFragmentBuilder* fs = pb->getFragmentShaderBuilder();
-    if (kUniform_GrGPInput == inputType) {
-        SkASSERT(colorUniform);
-        const char* stagedLocalVarName;
-        *colorUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                       kVec4f_GrSLType,
-                                       kDefault_GrSLPrecision,
-                                       "Color",
-                                       &stagedLocalVarName);
-        fs->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
-    } else if (kAttribute_GrGPInput == inputType) {
-        SkASSERT(colorAttr);
-        pb->addPassThroughAttribute(colorAttr, outputName);
-    } else if (kAllOnes_GrGPInput == inputType) {
-        fs->codeAppendf("%s = vec4(1);", outputName);
-    }
+    SkASSERT(colorUniform);
+    const char* stagedLocalVarName;
+    *colorUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                   kVec4f_GrSLType,
+                                   kDefault_GrSLPrecision,
+                                   "Color",
+                                   &stagedLocalVarName);
+    fs->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
 }
 
 void GrGLPrimitiveProcessor::addUniformViewMatrix(GrGLGPBuilder* pb) {

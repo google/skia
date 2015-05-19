@@ -104,12 +104,6 @@ public:
         fInlineUploads.reset();
     }
 
-    // TODO This goes away when everything uses batch
-    GrBatchTracker* currentBatchTracker() {
-        SkASSERT(!fFlushBuffer.empty());
-        return &fFlushBuffer.back().fBatchTracker;
-    }
-
     const GrDrawTargetCaps& caps() const { return *fGpu->caps(); }
 
     GrResourceProvider* resourceProvider() const { return fGpu->getContext()->resourceProvider(); }
