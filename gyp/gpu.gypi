@@ -113,6 +113,8 @@
       '<(skia_src_path)/gpu/GrGpuResource.cpp',
       '<(skia_src_path)/gpu/GrGpuFactory.cpp',
       '<(skia_src_path)/gpu/GrGpuFactory.h',
+      '<(skia_src_path)/gpu/GrImmediateDrawTarget.cpp',
+      '<(skia_src_path)/gpu/GrImmediateDrawTarget.h',
       '<(skia_src_path)/gpu/GrIndexBuffer.h',
       '<(skia_src_path)/gpu/GrInvariantOutput.cpp',
       '<(skia_src_path)/gpu/GrInOrderCommandBuilder.cpp',

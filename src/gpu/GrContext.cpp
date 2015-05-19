@@ -19,6 +19,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
+#include "GrImmediateDrawTarget.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
 #include "GrLayerCache.h"
@@ -132,7 +133,11 @@ void GrContext::initCommon() {
 
     fDidTestPMConversions = false;
 
+#ifdef IMMEDIATE_MODE
+    fDrawBuffer = SkNEW_ARGS(GrImmediateDrawTarget, (this));
+#else
     fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (this));
+#endif
 
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = SkNEW_ARGS(GrBatchFontCache, (this));
