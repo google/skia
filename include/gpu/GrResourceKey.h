@@ -46,7 +46,10 @@ protected:
     }
 
     bool operator==(const GrResourceKey& that) const {
-        return 0 == memcmp(fKey.get(), that.fKey.get(), this->size());
+        return this->hash() == that.hash() &&
+                0 == memcmp(&fKey[kHash_MetaDataIdx + 1],
+                            &that.fKey[kHash_MetaDataIdx + 1],
+                            this->internalSize() - sizeof(uint32_t));
     }
 
     GrResourceKey& operator=(const GrResourceKey& that) {
