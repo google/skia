@@ -183,7 +183,8 @@ private:
         , fLocalMatrix(localMatrix)
         , fUsesLocalCoords(usesLocalCoords) {
         this->initClassID<CircleEdgeEffect>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
+                                                       kHigh_GrSLPrecision));
         fInCircleEdge = &this->addVertexAttrib(Attribute("inCircleEdge",
                                                            kVec4f_GrVertexAttribType));
         fStroke = stroke;
@@ -556,7 +557,8 @@ private:
         , fViewMatrix(viewMatrix)
         , fUsesLocalCoords(usesLocalCoords) {
         this->initClassID<DIEllipseEdgeEffect>();
-        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
+        fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
+                                                       kHigh_GrSLPrecision));
         fInEllipseOffsets0 = &this->addVertexAttrib(Attribute("inEllipseOffsets0",
                                                               kVec2f_GrVertexAttribType));
         fInEllipseOffsets1 = &this->addVertexAttrib(Attribute("inEllipseOffsets1",

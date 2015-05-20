@@ -23,7 +23,9 @@ public:
     void addAttribute(const GrGeometryProcessor::Attribute* attr) {
         this->addAttribute(GrShaderVar(attr->fName,
                                        GrVertexAttribTypeToSLType(attr->fType),
-                                       GrShaderVar::kAttribute_TypeModifier));
+                                       GrShaderVar::kAttribute_TypeModifier,
+                                       GrShaderVar::kNonArray,
+                                       attr->fPrecision));
     }
 
 private:

@@ -47,7 +47,7 @@ void GrGLPrimitiveProcessor::setupUniformColor(GrGLGPBuilder* pb,
 
 void GrGLPrimitiveProcessor::addUniformViewMatrix(GrGLGPBuilder* pb) {
     fViewMatrixUniform = pb->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                        kMat33f_GrSLType, kDefault_GrSLPrecision,
+                                        kMat33f_GrSLType, kHigh_GrSLPrecision,
                                         "uViewM",
                                         &fViewMatrixName);
 }
