@@ -170,10 +170,11 @@ private:
     // V39: Added FilterLevel option to SkPictureImageFilter
     // V40: Remove UniqueID serialization from SkImageFilter.
     // V41: Added serialization of SkBitmapSource's filterQuality parameter
+    // V42: Added a bool to SkPictureShader serialization to indicate did-we-serialize-a-picture?
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
-    static const uint32_t CURRENT_PICTURE_VERSION = 41;
+    static const uint32_t CURRENT_PICTURE_VERSION = 42;
 
     static_assert(MIN_PICTURE_VERSION <= 41,
                   "Remove kFontFileName and related code from SkFontDescriptor.cpp.");

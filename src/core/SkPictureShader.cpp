@@ -122,6 +122,8 @@ SkShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMo
     return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy, localMatrix, tile));
 }
 
+// TODO: rename SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS to SK_DISALLOW_CROSSPROCESS_PICTURES
+
 SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
@@ -129,7 +131,27 @@ SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     TileMode my = (TileMode)buffer.read32();
     SkRect tile;
     buffer.readRect(&tile);
-    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromBuffer(buffer));
+
+    SkAutoTUnref<SkPicture> picture;
+#ifdef SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS
+    if (buffer.isCrossProcess()) {
+        if (buffer.isVersionLT(SkReadBuffer::kPictureShaderHasPictureBool_Version)) {
+            // Older code blindly serialized pictures.  We don't trust them.
+            buffer.validate(false);
+            return NULL;
+        }
+        // Newer code won't serialize pictures in disallow-cross-process-picture mode.
+        // Assert that they didn't serialize anything except a false here.
+        buffer.validate(!buffer.readBool());
+    } else
+#endif
+    {
+        // Old code always serialized the picture.  New code writes a 'true' first if it did.
+        if (buffer.isVersionLT(SkReadBuffer::kPictureShaderHasPictureBool_Version) ||
+            buffer.readBool()) {
+            picture.reset(SkPicture::CreateFromBuffer(buffer));
+        }
+    }
     return SkPictureShader::Create(picture, mx, my, &lm, &tile);
 }
 
@@ -138,7 +160,18 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fTmx);
     buffer.write32(fTmy);
     buffer.writeRect(fTile);
-    fPicture->flatten(buffer);
+
+#ifdef SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS
+    // The deserialization code won't trust that our serialized picture is safe to deserialize.
+    // So write a 'false' telling it that we're not serializing a picture.
+    if (buffer.isCrossProcess()) {
+        buffer.writeBool(false);
+    } else
+#endif
+    {
+        buffer.writeBool(true);
+        fPicture->flatten(buffer);
+    }
 }
 
 SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatrix* localM,
