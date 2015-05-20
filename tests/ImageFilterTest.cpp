@@ -442,6 +442,12 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
 
     SkAutoTUnref<SkImageFilter> rectShaderFilter(SkRectShaderImageFilter::Create(shader.get()));
 
+    SkAutoTUnref<SkShader> greenColorShader(SkShader::CreateColorShader(SK_ColorGREEN));
+    SkImageFilter::CropRect leftSideCropRect(SkRect::MakeXYWH(0, 0, 32, 64));
+    SkAutoTUnref<SkImageFilter> rectShaderFilterLeft(SkRectShaderImageFilter::Create(greenColorShader.get(), &leftSideCropRect));
+    SkImageFilter::CropRect rightSideCropRect(SkRect::MakeXYWH(32, 0, 32, 64));
+    SkAutoTUnref<SkImageFilter> rectShaderFilterRight(SkRectShaderImageFilter::Create(greenColorShader.get(), &rightSideCropRect));
+
     struct {
         const char*    fName;
         SkImageFilter* fFilter;
@@ -464,6 +470,8 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
                   kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1),
                   SkMatrixConvolutionImageFilter::kRepeat_TileMode, false) },
         { "merge", SkMergeImageFilter::Create(NULL, NULL, SkXfermode::kSrcOver_Mode) },
+        { "merge with disjoint inputs", SkMergeImageFilter::Create(
+              rectShaderFilterLeft, rectShaderFilterRight, SkXfermode::kSrcOver_Mode) },
         { "offset", SkOffsetImageFilter::Create(SK_Scalar1, SK_Scalar1) },
         { "dilate", SkDilateImageFilter::Create(3, 2) },
         { "erode", SkErodeImageFilter::Create(2, 3) },
