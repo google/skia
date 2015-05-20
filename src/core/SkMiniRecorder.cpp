@@ -86,12 +86,13 @@ bool SkMiniRecorder::drawTextBlob(const SkTextBlob* b, SkScalar x, SkScalar y, c
 }
 #undef TRY_TO_STORE
 
+
+SkPicture* SkMiniRecorder::detachAsPicture(const SkRect& cull) {
 #define CASE(Type)               \
     case State::k##Type:         \
         fState = State::kEmpty;  \
         return SkNEW_ARGS(SkMiniPicture<Type>, (cull, reinterpret_cast<Type*>(fBuffer.get())))
 
-SkPicture* SkMiniRecorder::detachAsPicture(const SkRect& cull) {
     switch (fState) {
         case State::kEmpty: return SkNEW(SkEmptyPicture);
         CASE(DrawPath);
@@ -99,6 +100,25 @@ SkPicture* SkMiniRecorder::detachAsPicture(const SkRect& cull) {
         CASE(DrawTextBlob);
     }
     SkASSERT(false);
-    return NULL;
-}
+    return nullptr;
 #undef CASE
+}
+
+void SkMiniRecorder::flushAndReset(SkCanvas* canvas) {
+#define CASE(Type)                                                  \
+    case State::k##Type: {                                          \
+        fState = State::kEmpty;                                     \
+        Type* op = reinterpret_cast<Type*>(fBuffer.get());          \
+        SkRecords::Draw(canvas, nullptr, nullptr, 0, nullptr)(*op); \
+        op->~Type();                                                \
+    } return
+
+    switch (fState) {
+        case State::kEmpty: return;
+        CASE(DrawPath);
+        CASE(DrawRect);
+        CASE(DrawTextBlob);
+    }
+    SkASSERT(false);
+#undef CASE
+}

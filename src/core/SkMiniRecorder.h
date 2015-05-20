@@ -27,6 +27,12 @@ public:
     // Detach anything we've recorded as a picture, resetting this SkMiniRecorder.
     SkPicture* detachAsPicture(const SkRect& cull);
 
+    // Flush anything we've recorded to the canvas, resetting this SkMiniRecorder.
+    // This is logically the same as but rather more efficient than:
+    //    SkAutoTUnref<SkPicture> pic(this->detachAsPicture(SkRect::MakeEmpty()));
+    //    pic->playback(canvas);
+    void flushAndReset(SkCanvas*);
+
 private:
     enum class State { kEmpty, kDrawPath, kDrawRect, kDrawTextBlob };
 

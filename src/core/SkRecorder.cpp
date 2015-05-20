@@ -136,10 +136,8 @@ char* SkRecorder::copy(const char* src) {
 void SkRecorder::flushMiniRecorder() {
     if (fMiniRecorder) {
         SkMiniRecorder* mr = fMiniRecorder;
-        fMiniRecorder = nullptr;  // Needs to happen before p->playback(this) or we loop forever.
-        // TODO: this can probably be done more efficiently by SkMiniRecorder if it matters.
-        SkAutoTUnref<SkPicture> p(mr->detachAsPicture(SkRect::MakeEmpty()));
-        p->playback(this);
+        fMiniRecorder = nullptr;  // Needs to happen before flushAndReset() or we recurse forever.
+        mr->flushAndReset(this);
     }
 }
 
