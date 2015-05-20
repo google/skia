@@ -1056,7 +1056,9 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
     }
     // check to see if the denomerator is teeny relative to the numerator
     bool validDivide = SkScalarAbs(numerA) * SK_ScalarNearlyZero < SkScalarAbs(denom);
-    SkASSERT(!SkScalarNearlyZero(denom / numerA) == validDivide);
+// the divide check is the same as checking if the scaled denom is nearly zero
+// (commented out because on some platforms the two are not bit-identical)
+//  SkASSERT(!SkScalarNearlyZero(denom / numerA) == validDivide);
     if (validDivide) {
         if (kCtrlPt_RayType == intersectRayType) {
             numerA /= denom;
