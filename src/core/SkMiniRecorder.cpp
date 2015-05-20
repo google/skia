@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkLazyPtr.h"
 #include "SkMiniRecorder.h"
 #include "SkPicture.h"
 #include "SkPictureCommon.h"
@@ -14,9 +15,6 @@
 
 using namespace SkRecords;
 
-// SkEmptyPicture could logically be a singleton, but that plays badly with Blink's
-// Debug-only adopted() / requireAdoption() tracking in sk_ref_cnt_ext_debug.h.
-// TODO(mtklein): modify sk_ref_cnt_ext_debug.h to play better with non-new'd objects.
 class SkEmptyPicture final : public SkPicture {
 public:
     void playback(SkCanvas*, AbortCallback*) const override { }
@@ -28,6 +26,7 @@ public:
     int    numSlowPaths()         const override { return 0; }
     bool   willPlayBackBitmaps()  const override { return false; }
 };
+SK_DECLARE_STATIC_LAZY_PTR(SkEmptyPicture, gEmptyPicture);
 
 template <typename T>
 class SkMiniPicture final : public SkPicture {
@@ -94,7 +93,7 @@ SkPicture* SkMiniRecorder::detachAsPicture(const SkRect& cull) {
         return SkNEW_ARGS(SkMiniPicture<Type>, (cull, reinterpret_cast<Type*>(fBuffer.get())))
 
     switch (fState) {
-        case State::kEmpty: return SkNEW(SkEmptyPicture);
+        case State::kEmpty: return SkRef(gEmptyPicture.get());
         CASE(DrawPath);
         CASE(DrawRect);
         CASE(DrawTextBlob);
