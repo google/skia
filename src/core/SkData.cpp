@@ -63,7 +63,14 @@ SkData* SkData::PrivateNewWithCopy(const void* srcOrNull, size_t length) {
     if (0 == length) {
         return SkData::NewEmpty();
     }
-    char* storage = (char*)sk_malloc_throw(sizeof(SkData) + length);
+
+    const size_t actualLength = length + sizeof(SkData);
+    if (actualLength < length) {
+        // we overflowed
+        sk_throw();
+    }
+
+    char* storage = (char*)sk_malloc_throw(actualLength);
     SkData* data = new (storage) SkData(length);
     if (srcOrNull) {
         memcpy(data->writable_data(), srcOrNull, length);
