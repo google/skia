@@ -39,7 +39,6 @@ protected:
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override {
         desc->setFamilyName(fFamilyName.c_str());
-        desc->setFontIndex(fIndex);
         *isLocal = !this->isSysFont();
     }
 
@@ -306,7 +305,7 @@ protected:
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
-        if (fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch)) {
+        if (fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch, NULL)) {
             return SkNEW_ARGS(SkTypeface_Stream, (style, isFixedPitch, false, name,
                                                   stream.detach(), ttcIndex));
         } else {
@@ -405,7 +404,7 @@ private:
                 bool isFixedPitch;
                 SkString realname;
                 SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
-                if (!scanner.scanFont(stream, faceIndex, &realname, &style, &isFixedPitch)) {
+                if (!scanner.scanFont(stream, faceIndex, &realname, &style, &isFixedPitch, NULL)) {
                     SkDebugf("---- failed to open <%s> <%d> as a font\n",
                              filename.c_str(), faceIndex);
                     continue;
@@ -491,7 +490,7 @@ private:
             bool isFixedPitch;
             SkString realname;
             SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
-            if (!scanner.scanFont(stream, faceIndex, &realname, &style, &isFixedPitch)) {
+            if (!scanner.scanFont(stream, faceIndex, &realname, &style, &isFixedPitch, NULL)) {
                 SkDebugf("---- failed to open <%d> <%d> as a font\n", index, faceIndex);
                 return;
             }

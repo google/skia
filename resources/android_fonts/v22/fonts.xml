@@ -25,6 +25,18 @@
     <alias name="tahoma" to="sans-serif" />
     <alias name="verdana" to="sans-serif" />
 
+    <family name="var">
+        <font weight="100" style="normal"><axis tag="wght" stylevalue="0.5"/>Distortable.ttf</font>
+        <font weight="200" style="normal"><axis tag="wght" stylevalue="0.65"/>Distortable.ttf</font>
+        <font weight="300" style="normal"><axis tag="wght" stylevalue="0.85"/>Distortable.ttf</font>
+        <font weight="400" style="normal"><axis tag="wght" stylevalue="1.0"/>Distortable.ttf</font>
+        <font weight="500" style="normal"><axis tag="wght" stylevalue="1.2"/>Distortable.ttf</font>
+        <font weight="600" style="normal"><axis tag="wght" stylevalue="1.4"/>Distortable.ttf</font>
+        <font weight="700" style="normal"><axis tag="wght" stylevalue="1.6"/>Distortable.ttf</font>
+        <font weight="800" style="normal"><axis tag="wght" stylevalue="1.8"/>Distortable.ttf</font>
+        <font weight="900" style="normal"><axis tag="wght" stylevalue="2.0"/>Distortable.ttf</font>
+    </family>
+
     <family name="sans-serif-condensed">
         <font weight="300" style="normal">RobotoCondensed-Light.ttf</font>
         <font weight="300" style="italic">RobotoCondensed-LightItalic.ttf</font>

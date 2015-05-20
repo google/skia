@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkLazyPtr.h"
 #include "SkStream.h"
@@ -131,6 +132,20 @@ SkTypeface* SkFontMgr::createFromStream(SkStreamAsset* stream, int ttcIndex) con
         return NULL;
     }
     return this->onCreateFromStream(stream, ttcIndex);
+}
+
+SkTypeface* SkFontMgr::createFromFontData(SkFontData* data) const {
+    if (NULL == data) {
+        return NULL;
+    }
+    return this->onCreateFromFontData(data);
+}
+
+// This implementation is temporary until it can be made pure virtual.
+SkTypeface* SkFontMgr::onCreateFromFontData(SkFontData* data) const {
+    SkTypeface* ret = this->createFromStream(data->detachStream(), data->getIndex());
+    delete data;
+    return ret;
 }
 
 SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) const {
