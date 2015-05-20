@@ -10,6 +10,8 @@
 #include "SkThread.h"
 #include "SkTraceEvent.h"
 
+//#define SK_TRACE_PIXELREF_LIFETIME
+
 #ifdef SK_BUILD_FOR_WIN32
     // We don't have SK_BASE_MUTEX_INIT on Windows.
 
@@ -85,6 +87,10 @@ static SkImageInfo validate_info(const SkImageInfo& info) {
     return info.makeAlphaType(newAlphaType);
 }
 
+#ifdef SK_TRACE_PIXELREF_LIFETIME
+    static int32_t gInstCounter;
+#endif
+
 SkPixelRef::SkPixelRef(const SkImageInfo& info)
     : fInfo(validate_info(info))
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -92,6 +98,9 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info)
 #endif
 
 {
+#ifdef SK_TRACE_PIXELREF_LIFETIME
+    SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
+#endif
     this->setMutex(NULL);
     fRec.zero();
     fLockCount = 0;
@@ -108,6 +117,9 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
     , fStableID(next_gen_id())
 #endif
 {
+#ifdef SK_TRACE_PIXELREF_LIFETIME
+    SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
+#endif
     this->setMutex(mutex);
     fRec.zero();
     fLockCount = 0;
@@ -118,6 +130,9 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
 }
 
 SkPixelRef::~SkPixelRef() {
+#ifdef SK_TRACE_PIXELREF_LIFETIME
+    SkDebugf("~pixelref %d\n", sk_atomic_dec(&gInstCounter) - 1);
+#endif
     this->callGenIDChangeListeners();
 }
 

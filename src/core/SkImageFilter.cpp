@@ -474,6 +474,16 @@ public:
             removeInternal(tail);
         }
     }
+
+    void purge() override {
+        SkAutoMutexAcquire mutex(fMutex);
+        while (fCurrentBytes > 0) {
+            Value* tail = fLRU.tail();
+            SkASSERT(tail);
+            this->removeInternal(tail);
+        }
+    }
+
 private:
     void removeInternal(Value* v) {
         fCurrentBytes -= v->fBitmap.getSize();
@@ -503,4 +513,8 @@ SK_DECLARE_STATIC_LAZY_PTR(SkImageFilter::Cache, cache, CreateCache);
 
 SkImageFilter::Cache* SkImageFilter::Cache::Get() {
     return cache.get();
+}
+
+void SkImageFilter::PurgeCache() {
+    cache.get()->purge();
 }

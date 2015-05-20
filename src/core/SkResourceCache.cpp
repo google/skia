@@ -618,6 +618,7 @@ void SkResourceCache::PostPurgeSharedID(uint64_t sharedID) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkGraphics.h"
+#include "SkImageFilter.h"
 
 size_t SkGraphics::GetResourceCacheTotalBytesUsed() {
     return SkResourceCache::GetTotalBytesUsed();
@@ -640,6 +641,7 @@ size_t SkGraphics::SetResourceCacheSingleAllocationByteLimit(size_t newLimit) {
 }
 
 void SkGraphics::PurgeResourceCache() {
+    SkImageFilter::PurgeCache();
     return SkResourceCache::PurgeAll();
 }
 
