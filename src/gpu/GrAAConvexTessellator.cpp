@@ -125,8 +125,16 @@ void GrAAConvexTessellator::computeBisectors() {
     int prev = fBisectors.count() - 1;
     for (int cur = 0; cur < fBisectors.count(); prev = cur, ++cur) {
         fBisectors[cur] = fNorms[cur] + fNorms[prev];
-        fBisectors[cur].normalize();
-        fBisectors[cur].negate();      // make the bisector face in
+        if (!fBisectors[cur].normalize()) {
+            SkASSERT(SkPoint::kLeft_Side == fSide || SkPoint::kRight_Side == fSide);
+            fBisectors[cur].setOrthog(fNorms[cur], (SkPoint::Side)-fSide);
+            SkVector other;
+            other.setOrthog(fNorms[prev], fSide);
+            fBisectors[cur] += other;
+            SkAssertResult(fBisectors[cur].normalize());        
+        } else {
+            fBisectors[cur].negate();      // make the bisector face in
+        }
 
         SkASSERT(SkScalarNearlyEqual(1.0f, fBisectors[cur].length()));
     }
@@ -627,7 +635,7 @@ void GrAAConvexTessellator::validate() const {
 //////////////////////////////////////////////////////////////////////////////
 void GrAAConvexTessellator::Ring::init(const GrAAConvexTessellator& tess) {
     this->computeNormals(tess);
-    this->computeBisectors();
+    this->computeBisectors(tess);
     SkASSERT(this->isConvex(tess));
 }
 
@@ -653,12 +661,20 @@ void GrAAConvexTessellator::Ring::computeNormals(const GrAAConvexTessellator& te
     }
 }
 
-void GrAAConvexTessellator::Ring::computeBisectors() {
+void GrAAConvexTessellator::Ring::computeBisectors(const GrAAConvexTessellator& tess) {
     int prev = fPts.count() - 1;
     for (int cur = 0; cur < fPts.count(); prev = cur, ++cur) {
         fPts[cur].fBisector = fPts[cur].fNorm + fPts[prev].fNorm;
-        fPts[cur].fBisector.normalize();
-        fPts[cur].fBisector.negate();      // make the bisector face in
+        if (!fPts[cur].fBisector.normalize()) {
+            SkASSERT(SkPoint::kLeft_Side == tess.side() || SkPoint::kRight_Side == tess.side());
+            fPts[cur].fBisector.setOrthog(fPts[cur].fNorm, (SkPoint::Side)-tess.side());
+            SkVector other;
+            other.setOrthog(fPts[prev].fNorm, tess.side());
+            fPts[cur].fBisector += other;
+            SkAssertResult(fPts[cur].fBisector.normalize());
+        } else {
+            fPts[cur].fBisector.negate();      // make the bisector face in
+        }
 
         SkASSERT(SkScalarNearlyEqual(1.0f, fPts[cur].fBisector.length()));
     }    

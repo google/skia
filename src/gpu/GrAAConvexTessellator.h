@@ -146,7 +146,7 @@ private:
 
     private:
         void computeNormals(const GrAAConvexTessellator& result);
-        void computeBisectors();
+        void computeBisectors(const GrAAConvexTessellator& tess);
 
         SkDEBUGCODE(bool isConvex(const GrAAConvexTessellator& tess) const;)
 
