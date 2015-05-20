@@ -28,10 +28,7 @@ struct SkPictInfo;
     An SkPicture records drawing commands made to a canvas to be played back at a later time.
     This base class handles serialization and a few other miscellany.
 */
-// TODO(mtklein): logically this could be : public SkRefCnt, but that exposes
-// some ref-count adoption bugs in Blink.  Keeping this using SkNVRefCnt
-// happens to stifle them for now.  skia:3847
-class SK_API SkPicture : public SkNVRefCnt<SkPicture> {
+class SK_API SkPicture : public SkRefCnt {
 public:
     virtual ~SkPicture();
 
