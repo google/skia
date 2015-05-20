@@ -17,6 +17,7 @@ import os
 import sys
 
 for d, kids, files in os.walk(sys.argv[1]):
+  files.sort()
   for f in files:
     if fnmatch.fnmatch(f, sys.argv[2]):
       print os.path.join(d, f).replace('\\', '/')  # Gyp wants Unix paths.
