@@ -2493,6 +2493,16 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
             }
             break;
             
+        case kRGBA_half_GrPixelConfig:
+            *internalFormat = GR_GL_RGBA16F;
+            *externalFormat = GR_GL_RGBA;
+            if (kGL_GrGLStandard == this->glStandard() || this->glVersion() >= GR_GL_VER(3, 0)) {
+                *externalType = GR_GL_HALF_FLOAT;
+            } else {
+                *externalType = GR_GL_HALF_FLOAT_OES;
+            }
+            break;
+
         default:
             return false;
     }

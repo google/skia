@@ -250,7 +250,12 @@ enum GrPixelConfig {
      */
     kAlpha_half_GrPixelConfig,
 
-    kLast_GrPixelConfig = kAlpha_half_GrPixelConfig
+    /**
+    * Byte order is r, g, b, a.  This color format is 16 bits per channel
+    */
+    kRGBA_half_GrPixelConfig,
+
+    kLast_GrPixelConfig = kRGBA_half_GrPixelConfig
 };
 static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 
@@ -335,6 +340,8 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
             return 4;
+        case kRGBA_half_GrPixelConfig:
+            return 8;
         case kRGBA_float_GrPixelConfig:
             return 16;
         default:
@@ -350,6 +357,7 @@ static inline size_t GrUnpackAlignment(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
             return 2;
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:

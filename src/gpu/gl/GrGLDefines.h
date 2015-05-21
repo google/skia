@@ -404,6 +404,7 @@
 
 #define GR_GL_R8                             0x8229
 #define GR_GL_R16F                           0x822D
+#define GR_GL_RGBA16F                        0x881A
 #define GR_GL_ALPHA16F                       0x881C
 
 /* PixelType */

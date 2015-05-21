@@ -734,6 +734,7 @@ SkString GrCaps::dump() const {
         "ASTC12x12",// kASTC_12x12_GrPixelConfig,
         "RGBAFloat",// kRGBA_float_GrPixelConfig
         "AlphaHalf",// kAlpha_half_GrPixelConfig
+        "RGBAHalf", // kRGBA_half_GrPixelConfig
     };
     GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
     GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
@@ -749,6 +750,7 @@ SkString GrCaps::dump() const {
     GR_STATIC_ASSERT(11 == kASTC_12x12_GrPixelConfig);
     GR_STATIC_ASSERT(12 == kRGBA_float_GrPixelConfig);
     GR_STATIC_ASSERT(13 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(14 == kRGBA_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
 
     SkASSERT(!fConfigRenderSupport[kUnknown_GrPixelConfig][0]);
