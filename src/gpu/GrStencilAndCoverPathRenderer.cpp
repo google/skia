@@ -75,12 +75,15 @@ GrStencilAndCoverPathRenderer::onGetStencilSupport(const GrDrawTarget*,
 static GrPath* get_gr_path(GrGpu* gpu, const SkPath& skPath, const GrStrokeInfo& stroke) {
     GrContext* ctx = gpu->getContext();
     GrUniqueKey key;
-    GrPath::ComputeKey(skPath, stroke, &key);
+    bool isVolatile;
+    GrPath::ComputeKey(skPath, stroke, &key, &isVolatile);
     SkAutoTUnref<GrPath> path(
         static_cast<GrPath*>(ctx->resourceProvider()->findAndRefResourceByUniqueKey(key)));
     if (NULL == path) {
         path.reset(gpu->pathRendering()->createPath(skPath, stroke));
-        ctx->resourceProvider()->assignUniqueKeyToResource(key, path);
+        if (!isVolatile) {
+            ctx->resourceProvider()->assignUniqueKeyToResource(key, path);
+        }
     } else {
         SkASSERT(path->isEqualTo(skPath, stroke));
     }

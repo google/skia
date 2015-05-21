@@ -30,7 +30,8 @@ public:
     {
     }
 
-    static void ComputeKey(const SkPath& path, const GrStrokeInfo& stroke, GrUniqueKey* key);
+    static void ComputeKey(const SkPath& path, const GrStrokeInfo& stroke, GrUniqueKey* key,
+                           bool* outIsVolatile);
 
     const SkRect& getBounds() const { return fBounds; }
 
