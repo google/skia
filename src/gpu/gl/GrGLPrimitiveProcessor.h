@@ -17,7 +17,6 @@ class GrGLGPBuilder;
 
 class GrGLPrimitiveProcessor {
 public:
-    GrGLPrimitiveProcessor() : fViewMatrixName(NULL) { fViewMatrix = SkMatrix::InvalidMatrix(); }
     virtual ~GrGLPrimitiveProcessor() {}
 
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -76,18 +75,6 @@ public:
 protected:
     void setupUniformColor(GrGLGPBuilder* pb, const char* outputName, UniformHandle* colorUniform);
 
-    const char* uViewM() const { return fViewMatrixName; }
-
-    /** a helper function to setup the uniform handle for the uniform view matrix */
-    void addUniformViewMatrix(GrGLGPBuilder*);
-
-
-    /** a helper function to upload a uniform viewmatrix.
-     * TODO we can remove this function when we have deferred geometry in place
-     */
-    void setUniformViewMatrix(const GrGLProgramDataManager&,
-                              const SkMatrix& viewMatrix);
-
     class ShaderVarHandle {
     public:
         bool isValid() const { return fHandle > -1; }
@@ -111,11 +98,6 @@ protected:
     };
 
     SkSTArray<8, SkSTArray<2, Transform, true> > fInstalledTransforms;
-
-private:
-    UniformHandle fViewMatrixUniform;
-    SkMatrix fViewMatrix;
-    const char* fViewMatrixName;
 };
 
 #endif

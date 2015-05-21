@@ -25,7 +25,8 @@ class GrGLDistanceFieldA8TextGeoProc : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldA8TextGeoProc(const GrGeometryProcessor&,
                                    const GrBatchTracker&)
-        : fColor(GrColor_ILLEGAL)
+        : fViewMatrix(SkMatrix::InvalidMatrix())
+        , fColor(GrColor_ILLEGAL)
 #ifdef SK_GAMMA_APPLY_TO_A8
         , fDistanceAdjust(-1.0f)
 #endif
@@ -63,7 +64,8 @@ public:
         }
 
         // Setup position
-        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
+        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix(),
+                            &fViewMatrixUniform);
 
         // emit transforms
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
@@ -148,9 +150,14 @@ public:
             fDistanceAdjust = distanceAdjust;
         }
 #endif
-
         const GrDistanceFieldA8TextGeoProc& dfa8gp = proc.cast<GrDistanceFieldA8TextGeoProc>();
-        this->setUniformViewMatrix(pdman, dfa8gp.viewMatrix());
+
+        if (!dfa8gp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dfa8gp.viewMatrix())) {
+            fViewMatrix = dfa8gp.viewMatrix();
+            GrGLfloat viewMatrix[3 * 3];
+            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+        }
 
         if (dfa8gp.color() != fColor && !dfa8gp.hasVertexColor()) {
             GrGLfloat c[4];
@@ -173,8 +180,10 @@ public:
     }
 
 private:
+    SkMatrix      fViewMatrix;
     GrColor       fColor;
     UniformHandle fColorUniform;
+    UniformHandle fViewMatrixUniform;
 #ifdef SK_GAMMA_APPLY_TO_A8
     float         fDistanceAdjust;
     UniformHandle fDistanceAdjustUni;
@@ -266,7 +275,9 @@ class GrGLDistanceFieldPathGeoProc : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldPathGeoProc(const GrGeometryProcessor&,
                                           const GrBatchTracker&)
-        : fColor(GrColor_ILLEGAL), fTextureSize(SkISize::Make(-1, -1)) {}
+        : fViewMatrix(SkMatrix::InvalidMatrix())
+        , fColor(GrColor_ILLEGAL)
+        , fTextureSize(SkISize::Make(-1, -1)) {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldPathGeoProc& dfTexEffect = args.fGP.cast<GrDistanceFieldPathGeoProc>();
@@ -295,7 +306,8 @@ public:
         vsBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // Setup position
-        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
+        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix(),
+                            &fViewMatrixUniform);
 
         // emit transforms
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
@@ -372,7 +384,13 @@ public:
         }
 
         const GrDistanceFieldPathGeoProc& dfpgp = proc.cast<GrDistanceFieldPathGeoProc>();
-        this->setUniformViewMatrix(pdman, dfpgp.viewMatrix());
+
+        if (!dfpgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dfpgp.viewMatrix())) {
+            fViewMatrix = dfpgp.viewMatrix();
+            GrGLfloat viewMatrix[3 * 3];
+            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+        }
 
         if (dfpgp.color() != fColor) {
             GrGLfloat c[4];
@@ -398,6 +416,8 @@ public:
 private:
     UniformHandle fColorUniform;
     UniformHandle fTextureSizeUni;
+    UniformHandle fViewMatrixUniform;
+    SkMatrix      fViewMatrix;
     GrColor       fColor;
     SkISize       fTextureSize;
 
@@ -478,7 +498,7 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(SkRandom* random,
 class GrGLDistanceFieldLCDTextGeoProc : public GrGLGeometryProcessor {
 public:
     GrGLDistanceFieldLCDTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&)
-        : fColor(GrColor_ILLEGAL) {
+        : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {
         fDistanceAdjust = GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(1.0f, 1.0f, 1.0f);
     }
 
@@ -498,7 +518,8 @@ public:
         }
 
         // Setup position
-        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix());
+        this->setupPosition(pb, gpArgs, dfTexEffect.inPosition()->fName, dfTexEffect.viewMatrix(),
+                            &fViewMatrixUniform);
 
         // emit transforms
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
@@ -619,9 +640,8 @@ public:
                          const GrBatchTracker& bt) override {
         SkASSERT(fDistanceAdjustUni.isValid());
 
-        const GrDistanceFieldLCDTextGeoProc& dfTexEffect =
-                processor.cast<GrDistanceFieldLCDTextGeoProc>();
-        GrDistanceFieldLCDTextGeoProc::DistanceAdjust wa = dfTexEffect.getDistanceAdjust();
+        const GrDistanceFieldLCDTextGeoProc& dflcd = processor.cast<GrDistanceFieldLCDTextGeoProc>();
+        GrDistanceFieldLCDTextGeoProc::DistanceAdjust wa = dflcd.getDistanceAdjust();
         if (wa != fDistanceAdjust) {
             pdman.set3f(fDistanceAdjustUni,
                         wa.fR,
@@ -630,13 +650,18 @@ public:
             fDistanceAdjust = wa;
         }
 
-        this->setUniformViewMatrix(pdman, dfTexEffect.viewMatrix());
+        if (!dflcd.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dflcd.viewMatrix())) {
+            fViewMatrix = dflcd.viewMatrix();
+            GrGLfloat viewMatrix[3 * 3];
+            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+        }
 
-        if (dfTexEffect.color() != fColor) {
+        if (dflcd.color() != fColor) {
             GrGLfloat c[4];
-            GrColorToRGBAFloat(dfTexEffect.color(), c);
+            GrColorToRGBAFloat(dflcd.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
-            fColor = dfTexEffect.color();
+            fColor = dflcd.color();
         }
     }
 
@@ -653,7 +678,9 @@ public:
     }
 
 private:
+    SkMatrix                                     fViewMatrix;
     GrColor                                      fColor;
+    UniformHandle                                fViewMatrixUniform;
     UniformHandle                                fColorUniform;
     GrDistanceFieldLCDTextGeoProc::DistanceAdjust fDistanceAdjust;
     UniformHandle                                fDistanceAdjustUni;

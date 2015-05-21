@@ -434,7 +434,7 @@ public:
     public:
         GLProcessor(const GrGeometryProcessor&,
                     const GrBatchTracker&)
-            : fColor(GrColor_ILLEGAL) {}
+            : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
@@ -460,7 +460,8 @@ public:
             }
 
             // Setup position
-            this->setupPosition(pb, gpArgs, ee.inPosition()->fName, ee.viewMatrix());
+            this->setupPosition(pb, gpArgs, ee.inPosition()->fName, ee.viewMatrix(),
+                                &fViewMatrixUniform);
 
             // emit transforms
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
@@ -522,7 +523,13 @@ public:
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) override {
             const DIEllipseEdgeEffect& dee = gp.cast<DIEllipseEdgeEffect>();
-            this->setUniformViewMatrix(pdman, dee.viewMatrix());
+
+            if (!dee.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dee.viewMatrix())) {
+                fViewMatrix = dee.viewMatrix();
+                GrGLfloat viewMatrix[3 * 3];
+                GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+                pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+            }
 
             if (dee.color() != fColor) {
                 GrGLfloat c[4];
@@ -533,8 +540,10 @@ public:
         }
 
     private:
+        SkMatrix fViewMatrix;
         GrColor fColor;
         UniformHandle fColorUniform;
+        UniformHandle fViewMatrixUniform;
 
         typedef GrGLGeometryProcessor INHERITED;
     };

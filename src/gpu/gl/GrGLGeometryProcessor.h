@@ -64,10 +64,9 @@ protected:
     };
 
     // Create the correct type of position variable given the CTM
-    void setupPosition(GrGLGPBuilder* pb,
-                       GrGPArgs* gpArgs,
-                       const char* posName,
-                       const SkMatrix& mat = SkMatrix::I());
+    void setupPosition(GrGLGPBuilder*, GrGPArgs*, const char* posName);
+    void setupPosition(GrGLGPBuilder*, GrGPArgs*, const char* posName, const SkMatrix& mat,
+                       UniformHandle* viewMatrixUniform);
 
     static uint32_t ComputePosKey(const SkMatrix& mat) {
         if (mat.isIdentity()) {

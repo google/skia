@@ -55,7 +55,7 @@ public:
     class GLProcessor : public GrGLGeometryProcessor {
     public:
         GLProcessor(const GrGeometryProcessor& gp, const GrBatchTracker&)
-            : fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
+            : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
@@ -76,7 +76,8 @@ public:
             }
 
             // Setup position
-            this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
+            this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix(),
+                                &fViewMatrixUniform);
 
             if (gp.inLocalCoords()) {
                 // emit transforms with explicit local coords
@@ -128,7 +129,13 @@ public:
                              const GrPrimitiveProcessor& gp,
                              const GrBatchTracker& bt) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
-            this->setUniformViewMatrix(pdman, dgp.viewMatrix());
+
+            if (!dgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dgp.viewMatrix())) {
+                fViewMatrix = dgp.viewMatrix();
+                GrGLfloat viewMatrix[3 * 3];
+                GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+                pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+            }
 
             if (dgp.color() != fColor && !dgp.hasVertexColor()) {
                 GrGLfloat c[4];
@@ -151,8 +158,10 @@ public:
         }
 
     private:
+        SkMatrix fViewMatrix;
         GrColor fColor;
         uint8_t fCoverage;
+        UniformHandle fViewMatrixUniform;
         UniformHandle fColorUniform;
         UniformHandle fCoverageUniform;
 

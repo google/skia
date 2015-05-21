@@ -91,24 +91,35 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
 
 void GrGLGeometryProcessor::setupPosition(GrGLGPBuilder* pb,
                                           GrGPArgs* gpArgs,
+                                          const char* posName) {
+    GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+    gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
+    vsBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
+}
+
+void GrGLGeometryProcessor::setupPosition(GrGLGPBuilder* pb,
+                                          GrGPArgs* gpArgs,
                                           const char* posName,
-                                          const SkMatrix& mat) {
+                                          const SkMatrix& mat,
+                                          UniformHandle* viewMatrixUniform) {
     GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
     if (mat.isIdentity()) {
         gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-
         vsBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
-    } else if (!mat.hasPerspective()) {
-        this->addUniformViewMatrix(pb);
-        gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-
-        vsBuilder->codeAppendf("vec2 %s = vec2(%s * vec3(%s, 1));",
-                               gpArgs->fPositionVar.c_str(), this->uViewM(), posName);
     } else {
-        this->addUniformViewMatrix(pb);
-        gpArgs->fPositionVar.set(kVec3f_GrSLType, "pos3");
-
-        vsBuilder->codeAppendf("vec3 %s = %s * vec3(%s, 1);",
-                               gpArgs->fPositionVar.c_str(), this->uViewM(), posName);
+        const char* viewMatrixName;
+        *viewMatrixUniform = pb->addUniform(GrGLProgramBuilder::kVertex_Visibility,
+                                            kMat33f_GrSLType, kHigh_GrSLPrecision,
+                                            "uViewM",
+                                            &viewMatrixName);
+        if (!mat.hasPerspective()) {
+            gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
+            vsBuilder->codeAppendf("vec2 %s = vec2(%s * vec3(%s, 1));",
+                                   gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
+        } else {
+            gpArgs->fPositionVar.set(kVec3f_GrSLType, "pos3");
+            vsBuilder->codeAppendf("vec3 %s = %s * vec3(%s, 1);",
+                                   gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
+        }
     }
 }

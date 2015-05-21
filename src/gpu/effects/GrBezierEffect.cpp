@@ -28,7 +28,13 @@ public:
                          const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) override {
         const GrConicEffect& ce = primProc.cast<GrConicEffect>();
-        this->setUniformViewMatrix(pdman, ce.viewMatrix());
+
+        if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
+            fViewMatrix = ce.viewMatrix();
+            GrGLfloat viewMatrix[3 * 3];
+            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+        }
 
         if (ce.color() != fColor) {
             GrGLfloat c[4];
@@ -51,18 +57,20 @@ public:
     }
 
 private:
+    SkMatrix fViewMatrix;
     GrColor fColor;
     uint8_t fCoverageScale;
     GrPrimitiveEdgeType fEdgeType;
     UniformHandle fColorUniform;
     UniformHandle fCoverageScaleUniform;
+    UniformHandle fViewMatrixUniform;
 
     typedef GrGLGeometryProcessor INHERITED;
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor,
                                  const GrBatchTracker& bt)
-    : fColor(GrColor_ILLEGAL), fCoverageScale(0xff) {
+    : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL), fCoverageScale(0xff) {
     const GrConicEffect& ce = processor.cast<GrConicEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -85,7 +93,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     // Setup position
-    this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
+    this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix(), &fViewMatrixUniform);
 
     // emit transforms with position
     this->emitTransforms(pb, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),
@@ -245,7 +253,13 @@ public:
                          const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) override {
         const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
-        this->setUniformViewMatrix(pdman, qe.viewMatrix());
+
+        if (!qe.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(qe.viewMatrix())) {
+            fViewMatrix = qe.viewMatrix();
+            GrGLfloat viewMatrix[3 * 3];
+            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+        }
 
         if (qe.color() != fColor) {
             GrGLfloat c[4];
@@ -268,18 +282,20 @@ public:
     }
 
 private:
+    SkMatrix fViewMatrix;
     GrColor fColor;
     uint8_t fCoverageScale;
     GrPrimitiveEdgeType fEdgeType;
     UniformHandle fColorUniform;
     UniformHandle fCoverageScaleUniform;
+    UniformHandle fViewMatrixUniform;
 
     typedef GrGLGeometryProcessor INHERITED;
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor,
                                const GrBatchTracker& bt)
-    : fColor(GrColor_ILLEGAL), fCoverageScale(0xff) {
+    : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL), fCoverageScale(0xff) {
     const GrQuadEffect& ce = processor.cast<GrQuadEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -302,7 +318,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     // Setup position
-    this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
+    this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix(), &fViewMatrixUniform);
 
     // emit transforms with position
     this->emitTransforms(pb, gpArgs->fPositionVar, gp.inPosition()->fName, gp.localMatrix(),
@@ -449,7 +465,13 @@ public:
                          const GrPrimitiveProcessor& primProc,
                          const GrBatchTracker& bt) override {
         const GrCubicEffect& ce = primProc.cast<GrCubicEffect>();
-        this->setUniformViewMatrix(pdman, ce.viewMatrix());
+
+        if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
+            fViewMatrix = ce.viewMatrix();
+            GrGLfloat viewMatrix[3 * 3];
+            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+        }
 
         if (ce.color() != fColor) {
             GrGLfloat c[4];
@@ -460,16 +482,18 @@ public:
     }
 
 private:
+    SkMatrix fViewMatrix;
     GrColor fColor;
     GrPrimitiveEdgeType fEdgeType;
     UniformHandle fColorUniform;
+    UniformHandle fViewMatrixUniform;
 
     typedef GrGLGeometryProcessor INHERITED;
 };
 
 GrGLCubicEffect::GrGLCubicEffect(const GrGeometryProcessor& processor,
                                  const GrBatchTracker&)
-    : fColor(GrColor_ILLEGAL) {
+    : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {
     const GrCubicEffect& ce = processor.cast<GrCubicEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -491,7 +515,8 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     // Setup position
-    this->setupPosition(args.fPB, gpArgs, gp.inPosition()->fName, gp.viewMatrix());
+    this->setupPosition(args.fPB, gpArgs, gp.inPosition()->fName, gp.viewMatrix(),
+                        &fViewMatrixUniform);
 
     // emit transforms with position
     this->emitTransforms(args.fPB, gpArgs->fPositionVar, gp.inPosition()->fName, args.fTransformsIn,

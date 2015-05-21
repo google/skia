@@ -44,22 +44,3 @@ void GrGLPrimitiveProcessor::setupUniformColor(GrGLGPBuilder* pb,
                                    &stagedLocalVarName);
     fs->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
 }
-
-void GrGLPrimitiveProcessor::addUniformViewMatrix(GrGLGPBuilder* pb) {
-    fViewMatrixUniform = pb->addUniform(GrGLProgramBuilder::kVertex_Visibility,
-                                        kMat33f_GrSLType, kHigh_GrSLPrecision,
-                                        "uViewM",
-                                        &fViewMatrixName);
-}
-
-void GrGLPrimitiveProcessor::setUniformViewMatrix(const GrGLProgramDataManager& pdman,
-                                                  const SkMatrix& viewMatrix) {
-    if (!viewMatrix.isIdentity() && !fViewMatrix.cheapEqualTo(viewMatrix)) {
-        SkASSERT(fViewMatrixUniform.isValid());
-        fViewMatrix = viewMatrix;
-
-        GrGLfloat viewMatrix[3 * 3];
-        GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
-        pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
-    }
-}
