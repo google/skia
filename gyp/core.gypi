@@ -40,7 +40,6 @@
         '<(skia_src_path)/core/SkBitmapProcState_sample.h',
         '<(skia_src_path)/core/SkBitmapScaler.h',
         '<(skia_src_path)/core/SkBitmapScaler.cpp',
-        '<(skia_src_path)/core/SkBitmap_scroll.cpp',
         '<(skia_src_path)/core/SkBlitBWMaskTemplate.h',
         '<(skia_src_path)/core/SkBlitMask_D32.cpp',
         '<(skia_src_path)/core/SkBlitRow_D16.cpp',

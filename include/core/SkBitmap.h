@@ -493,28 +493,6 @@ public:
      */
     void eraseArea(const SkIRect& area, SkColor c) const;
 
-    /** Scroll (a subset of) the contents of this bitmap by dx/dy. If there are
-        no pixels allocated (i.e. getPixels() returns null) the method will
-        still update the inval region (if present). If the bitmap is immutable,
-        do nothing and return false.
-
-        @param subset The subset of the bitmap to scroll/move. To scroll the
-                      entire contents, specify [0, 0, width, height] or just
-                      pass null.
-        @param dx The amount to scroll in X
-        @param dy The amount to scroll in Y
-        @param inval Optional (may be null). Returns the area of the bitmap that
-                     was scrolled away. E.g. if dx = dy = 0, then inval would
-                     be set to empty. If dx >= width or dy >= height, then
-                     inval would be set to the entire bounds of the bitmap.
-        @return true if the scroll was doable. Will return false if the colortype is kUnkown or
-                     if the bitmap is immutable.
-                     If no pixels are present (i.e. getPixels() returns false)
-                     inval will still be updated, and true will be returned.
-    */
-    bool scrollRect(const SkIRect* subset, int dx, int dy,
-                    SkRegion* inval = NULL) const;
-
     /**
      *  Return the SkColor of the specified pixel.  In most cases this will
      *  require un-premultiplying the color.  Alpha only colortypes (e.g. kAlpha_8_SkColorType)
