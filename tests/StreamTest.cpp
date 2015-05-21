@@ -272,4 +272,66 @@ DEF_TEST(StreamPeek, reporter) {
         test_peeking_front_buffered_stream(reporter, memStream, i);
     }
 }
-#endif 
+#endif
+
+// Asserts that asset == expected and is peekable.
+static void stream_peek_test(skiatest::Reporter* rep,
+                             SkStreamAsset* asset,
+                             const SkData* expected) {
+    if (asset->getLength() != expected->size()) {
+        ERRORF(rep, "Unexpected length.");
+        return;
+    }
+    SkRandom rand;
+    uint8_t buffer[4096];
+    const uint8_t* expect = expected->bytes();
+    for (size_t i = 0; i < asset->getLength(); ++i) {
+        uint32_t maxSize =
+                SkToU32(SkTMin(sizeof(buffer), asset->getLength() - i));
+        size_t size = rand.nextRangeU(1, maxSize);
+        SkASSERT(size >= 1);
+        SkASSERT(size <= sizeof(buffer));
+        SkASSERT(size + i <= asset->getLength());
+        if (!asset->peek(buffer, size)) {
+            ERRORF(rep, "Peek Failed!");
+            return;
+        }
+        if (0 != memcmp(buffer, &expect[i], size)) {
+            ERRORF(rep, "Peek returned wrong bytes!");
+            return;
+        }
+        uint8_t value;
+        REPORTER_ASSERT(rep, 1 == asset->read(&value, 1));
+        if (value != expect[i]) {
+            ERRORF(rep, "Read Failed!");
+            return;
+        }
+    }
+}
+
+DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
+    const static int kSeed = 1234;
+    SkRandom valueSource(kSeed);
+    SkRandom rand(kSeed << 1);
+    uint8_t buffer[4096];
+    SkDynamicMemoryWStream dynamicMemoryWStream;
+    for (int i = 0; i < 32; ++i) {
+        // Randomize the length of the blocks.
+        size_t size = rand.nextRangeU(1, sizeof(buffer));
+        for (size_t j = 0; j < size; ++j) {
+            buffer[j] = valueSource.nextU() & 0xFF;
+        }
+        dynamicMemoryWStream.write(buffer, size);
+    }
+    SkAutoTDelete<SkStreamAsset> asset(dynamicMemoryWStream.detachAsStream());
+    SkAutoTUnref<SkData> expected(SkData::NewUninitialized(asset->getLength()));
+    uint8_t* expectedPtr = static_cast<uint8_t*>(expected->writable_data());
+    valueSource.setSeed(kSeed);  // reseed.
+    // We want the exact same same "random" string of numbers to put
+    // in expected. i.e.: don't rely on SkDynamicMemoryStream to work
+    // correctly while we are testing SkDynamicMemoryStream.
+    for (size_t i = 0; i < asset->getLength(); ++i) {
+        expectedPtr[i] = valueSource.nextU() & 0xFF;
+    }
+    stream_peek_test(rep, asset, expected);
+}

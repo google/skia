@@ -724,6 +724,27 @@ public:
         return fOffset == fSize;
     }
 
+    bool peek(void* buff, size_t size) const override {
+        SkASSERT(buff != NULL);
+        if (fOffset + size > fSize) {
+            return false;
+        }
+        char* buffer = static_cast<char*>(buff);
+        const SkDynamicMemoryWStream::Block* current = fCurrent;
+        size_t currentOffset = fCurrentOffset;
+        while (size) {
+            SkASSERT(current);
+            size_t bytesFromCurrent =
+                    SkTMin(current->written() - currentOffset, size);
+            memcpy(buffer, current->start() + currentOffset, bytesFromCurrent);
+            size -= bytesFromCurrent;
+            buffer += bytesFromCurrent;
+            current = current->fNext;
+            currentOffset = 0;
+        }
+        return true;
+    }
+
     bool rewind() override {
         fCurrent = fBlockMemory->fHead;
         fOffset = 0;
