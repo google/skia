@@ -164,6 +164,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPopGroupMarkerProc)();
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPushGroupMarkerProc)(GrGLsizei length, const char* marker);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLQueryCounterProc)(GrGLuint id, GrGLenum target);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLRasterSamplesProc)(GrGLuint samples, GrGLboolean fixedsamplelocations);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLReadBufferProc)(GrGLenum src);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLReadPixelsProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLRenderbufferStorageProc)(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);

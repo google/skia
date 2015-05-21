@@ -44,10 +44,10 @@ void GrGLCaps::reset() {
     fFragCoordsConventionSupport = false;
     fVertexArrayObjectSupport = false;
     fES2CompatibilitySupport = false;
+    fMultisampleDisableSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fFullClearIsFree = false;
-    fFBMixedSamplesSupport = false;
 
     fReadPixelsSupportedCache.reset();
 
@@ -86,10 +86,10 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fFragCoordsConventionSupport = caps.fFragCoordsConventionSupport;
     fVertexArrayObjectSupport = caps.fVertexArrayObjectSupport;
     fES2CompatibilitySupport = caps.fES2CompatibilitySupport;
+    fMultisampleDisableSupport = caps.fMultisampleDisableSupport;
     fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
     fIsCoreProfile = caps.fIsCoreProfile;
     fFullClearIsFree = caps.fFullClearIsFree;
-    fFBMixedSamplesSupport = caps.fFBMixedSamplesSupport;
 
     *(reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get())) = 
                                           *(reinterpret_cast<GrGLSLCaps*>(caps.fShaderCaps.get()));
@@ -252,6 +252,12 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fES2CompatibilitySupport = true;
     }
 
+    if (kGL_GrGLStandard == standard) {
+        fMultisampleDisableSupport = true;
+    } else {
+        fMultisampleDisableSupport = false;
+    }
+
     this->initFSAASupport(ctxInfo, gli);
     this->initStencilFormats(ctxInfo);
 
@@ -335,8 +341,6 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
     fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
-
-    fFBMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples");
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 
@@ -935,6 +939,7 @@ SkString GrGLCaps::dump() const {
     r.appendf("Fragment coord conventions support: %s\n",
              (fFragCoordsConventionSupport ? "YES": "NO"));
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
+    r.appendf("Multisample disable support: %s\n", (fMultisampleDisableSupport ? "YES" : "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
@@ -1052,6 +1057,15 @@ bool GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
     else {
         fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
+    }
+
+    // We need dual source blending and the ability to disable multisample in order to support mixed
+    // samples in every corner case.
+    if (fDualSourceBlendingSupport && glCaps.multisampleDisableSupport()) {
+        // We understand "mixed samples" to mean the collective capability of 3 different extensions
+        fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") &&
+                               ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage") &&
+                               ctxInfo.hasExtension("GL_EXT_raster_multisample");
     }
 
     if (glCaps.advancedBlendEquationSupport()) {

@@ -246,6 +246,7 @@ public:
         GLPtr<GrGLPopGroupMarkerProc> fPopGroupMarker;
         GLPtr<GrGLPushGroupMarkerProc> fPushGroupMarker;
         GLPtr<GrGLQueryCounterProc> fQueryCounter;
+        GLPtr<GrGLRasterSamplesProc> fRasterSamples;
         GLPtr<GrGLReadBufferProc> fReadBuffer;
         GLPtr<GrGLReadPixelsProc> fReadPixels;
         GLPtr<GrGLRenderbufferStorageProc> fRenderbufferStorage;

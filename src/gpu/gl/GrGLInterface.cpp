@@ -528,6 +528,12 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if (fExtensions.has("GL_EXT_raster_multisample")) {
+        if (NULL == fFunctions.fRasterSamples) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
     if (fExtensions.has("GL_NV_framebuffer_mixed_samples")) {
         if (NULL == fFunctions.fCoverageModulation) {
             RETURN_FALSE_INTERFACE

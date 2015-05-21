@@ -538,6 +538,7 @@ void GrShaderCaps::reset() {
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
+    fMixedSamplesSupport = false;
 
     fShaderPrecisionVaries = false;
 }
@@ -548,6 +549,7 @@ GrShaderCaps& GrShaderCaps::operator=(const GrShaderCaps& other) {
     fPathRenderingSupport = other.fPathRenderingSupport;
     fDstReadInShaderSupport = other.fDstReadInShaderSupport;
     fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
+    fMixedSamplesSupport = other.fMixedSamplesSupport;
 
     fShaderPrecisionVaries = other.fShaderPrecisionVaries;
     for (int s = 0; s < kGrShaderTypeCount; ++s) {
@@ -590,6 +592,7 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
     r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
     r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
+    r.appendf("Mixed Samples Support              : %s\n", gNY[fMixedSamplesSupport]);
 
     r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 

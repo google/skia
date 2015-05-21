@@ -158,6 +158,9 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
     }
     GET_PROC(PixelStorei);
+    if (extensions.has("GL_EXT_raster_multisample")) {
+        GET_PROC_SUFFIX(RasterSamples, EXT);
+    }
     GET_PROC(ReadBuffer);
     GET_PROC(ReadPixels);
     GET_PROC(Scissor);
@@ -411,6 +414,11 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(LineWidth);
     GET_PROC(LinkProgram);
     GET_PROC(PixelStorei);
+
+    if (extensions.has("GL_EXT_raster_multisample")) {
+        GET_PROC_SUFFIX(RasterSamples, EXT);
+    }
+
     GET_PROC(ReadPixels);
     GET_PROC(Scissor);
     GET_PROC(ShaderSource);

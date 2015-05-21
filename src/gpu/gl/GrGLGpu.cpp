@@ -2101,7 +2101,7 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
 void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     SkASSERT(!useHWAA || rt->isMultisampled());
 
-    if (kGL_GrGLStandard == this->glStandard()) {
+    if (this->glCaps().multisampleDisableSupport()) {
         if (useHWAA) {
             if (kYes_TriState != fMSAAEnabled) {
                 GL_CALL(Enable(GR_GL_MULTISAMPLE));
