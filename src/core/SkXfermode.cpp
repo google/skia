@@ -1241,6 +1241,30 @@ XFERMODE(Exclusion) {
 
 #undef XFERMODE
 
+// A reasonable fallback mode for doing AA is to simply apply the transfermode first,
+// then linearly interpolate the AA.
+template <typename Mode>
+static Sk4px xfer_aa(const Sk4px& s, const Sk4px& d, const Sk16b& aa) {
+    Sk4px noAA = Mode::Xfer(s, d);
+    return Sk4px::Wide(noAA.mulWiden(aa) + d.mulWiden(Sk4px(aa).inv()))
+        .div255RoundNarrow();
+}
+
+// For some transfermodes we specialize AA, either for correctness or performance.
+#ifndef SK_NO_SPECIALIZED_AA_XFERMODES
+    #define XFERMODE_AA(Name) \
+        template <> Sk4px xfer_aa<Name>(const Sk4px& s, const Sk4px& d, const Sk16b& aa)
+
+    // Plus' clamp needs to happen after AA.  skia:3852
+    XFERMODE_AA(Plus) {  // [ clamp(D + AA*S) ]
+        // We implement this as D + Min(S*AA, (1-D)) to fit the arguments to Min in 16 bits.
+        return d +
+            Sk4px::Wide(Sk16h::Min(s.mulWiden(aa), d.inv().mul255Widen())).div255RoundNarrow();
+    }
+
+    #undef XFERMODE_AA
+#endif
+
 template <typename ProcType>
 class SkT4pxXfermode : public SkProcCoeffXfermode {
 public:
@@ -1256,9 +1280,7 @@ public:
         } else {
             Sk4px::MapDstSrcAlpha(n, dst, src, aa,
                     [&](const Sk4px& dst4, const Sk4px& src4, const Sk16b& alpha) {
-                Sk4px res4 = ProcType::Xfer(src4, dst4);
-                return Sk4px::Wide(res4.mulWiden(alpha) + dst4.mulWiden(Sk4px(alpha).inv()))
-                           .div255RoundNarrow();
+                return xfer_aa<ProcType>(src4, dst4, alpha);
             });
         }
     }
