@@ -25,7 +25,12 @@
 class TextBlobBench : public Benchmark {
 public:
     TextBlobBench()
-        : fTypeface(sk_tool_utils::create_portable_typeface("Times", SkTypeface::kNormal)) {
+        : fTypeface(NULL) {
+    }
+
+protected:
+    void onPreDraw() override {
+        fTypeface.reset(sk_tool_utils::create_portable_typeface("Times", SkTypeface::kNormal));
         // make textblob
         SkPaint paint;
         paint.setTypeface(fTypeface);
@@ -45,7 +50,6 @@ public:
         fBlob.reset(builder.build());
     }
 
-protected:
     const char* onGetName() {
         return "TextBlobBench";
     }

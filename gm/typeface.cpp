@@ -21,21 +21,27 @@ static const char* gFaces[] = {
 
 class TypefaceGM : public skiagm::GM {
 public:
-    TypefaceGM() {
+    TypefaceGM()
+        : fFaces(NULL) {
+    }
+
+    virtual ~TypefaceGM() {
+        if (fFaces) {
+            for (size_t i = 0; i < SK_ARRAY_COUNT(gFaces); i++) {
+                SkSafeUnref(fFaces[i]);
+            }
+            delete [] fFaces;
+        }
+    }
+
+protected:
+    void onOnceBeforeDraw() override {
         fFaces = new SkTypeface*[SK_ARRAY_COUNT(gFaces)];
         for (size_t i = 0; i < SK_ARRAY_COUNT(gFaces); i++) {
             fFaces[i] = sk_tool_utils::create_portable_typeface(gFaces[i], SkTypeface::kNormal);
         }
     }
 
-    virtual ~TypefaceGM() {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gFaces); i++) {
-            SkSafeUnref(fFaces[i]);
-        }
-        delete [] fFaces;
-    }
-
-protected:
     SkString onShortName() override {
         return SkString("typeface");
     }
@@ -157,11 +163,9 @@ class TypefaceStylesGM : public skiagm::GM {
     bool fApplyKerning;
 
 public:
-    TypefaceStylesGM(bool applyKerning) : fApplyKerning(applyKerning) {
-        for (int i = 0; i < gFaceStylesCount; i++) {
-            fFaces[i] = sk_tool_utils::create_portable_typeface(gFaceStyles[i].fName,
-                                                         gFaceStyles[i].fStyle);
-        }
+    TypefaceStylesGM(bool applyKerning)
+        : fApplyKerning(applyKerning) {
+        memset(fFaces, 0, sizeof(fFaces));
     }
 
     virtual ~TypefaceStylesGM() {
@@ -171,6 +175,13 @@ public:
     }
 
 protected:
+    void onOnceBeforeDraw() override {
+        for (int i = 0; i < gFaceStylesCount; i++) {
+            fFaces[i] = sk_tool_utils::create_portable_typeface(gFaceStyles[i].fName,
+                                                         gFaceStyles[i].fStyle);
+        }
+    }
+
     SkString onShortName() override {
         SkString name("typefacestyles");
         if (fApplyKerning) {

@@ -67,17 +67,21 @@ const SkScalar kFontSize = 16;
 class TextBlobGM : public skiagm::GM {
 public:
     TextBlobGM(const char* txt)
-        : fTypeface(sk_tool_utils::create_portable_typeface("Times", SkTypeface::kNormal)) {
-        SkPaint p;
-        p.setTypeface(fTypeface);
-        size_t txtLen = strlen(txt);
-        int glyphCount = p.textToGlyphs(txt, txtLen, NULL);
-
-        fGlyphs.append(glyphCount);
-        p.textToGlyphs(txt, txtLen, fGlyphs.begin());
+        : fText(txt) {
     }
 
 protected:
+    void onOnceBeforeDraw() override {
+        fTypeface.reset(sk_tool_utils::create_portable_typeface("Times", SkTypeface::kNormal));
+        SkPaint p;
+        p.setTypeface(fTypeface);
+        size_t txtLen = strlen(fText);
+        int glyphCount = p.textToGlyphs(fText, txtLen, NULL);
+
+        fGlyphs.append(glyphCount);
+        p.textToGlyphs(fText, txtLen, fGlyphs.begin());
+    }
+
     SkString onShortName() override {
         return SkString("textblob");
     }
@@ -178,7 +182,7 @@ private:
 
     SkTDArray<uint16_t>      fGlyphs;
     SkAutoTUnref<SkTypeface> fTypeface;
-
+    const char*              fText;
     typedef skiagm::GM INHERITED;
 };
 

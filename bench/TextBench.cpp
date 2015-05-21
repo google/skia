@@ -52,27 +52,33 @@ class TextBench : public Benchmark {
     SkPoint*    fPos;
 public:
     TextBench(const char text[], int ps,
-              SkColor color, FontQuality fq, bool doColorEmoji = false, bool doPos = false)  {
-        fPos = NULL;
-        fFQ = fq;
-        fDoPos = doPos;
-        fDoColorEmoji = doColorEmoji;
-        fText.set(text);
-
+              SkColor color, FontQuality fq, bool doColorEmoji = false, bool doPos = false)
+        : fText(text)
+        , fFQ(fq)
+        , fDoPos(doPos)
+        , fDoColorEmoji(doColorEmoji)
+        , fPos(NULL) {
         fPaint.setAntiAlias(kBW != fq);
         fPaint.setLCDRenderText(kLCD == fq);
         fPaint.setTextSize(SkIntToScalar(ps));
         fPaint.setColor(color);
+    }
 
-        if (doColorEmoji) {
+    virtual ~TextBench() {
+        delete[] fPos;
+    }
+
+protected:
+    void onPreDraw() override {
+        if (fDoColorEmoji) {
             SkASSERT(kBW == fFQ);
             fColorEmojiTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
         }
 
-        if (doPos) {
-            size_t len = strlen(text);
+        if (fDoPos) {
+            size_t len = fText.size();
             SkScalar* adv = new SkScalar[len];
-            fPaint.getTextWidths(text, len, adv);
+            fPaint.getTextWidths(fText.c_str(), len, adv);
             fPos = new SkPoint[len];
             SkScalar x = 0;
             for (size_t i = 0; i < len; ++i) {
@@ -83,11 +89,7 @@ public:
         }
     }
 
-    virtual ~TextBench() {
-        delete[] fPos;
-    }
 
-protected:
     virtual const char* onGetName() {
         fName.printf("text_%g", SkScalarToFloat(fPaint.getTextSize()));
         if (fDoPos) {
@@ -100,7 +102,7 @@ protected:
             fName.append("_BK");
         }
 
-        if (fDoColorEmoji && fColorEmojiTypeface) {
+        if (fDoColorEmoji) {
             fName.append("_ColorEmoji");
         }
 
