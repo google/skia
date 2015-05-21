@@ -262,11 +262,13 @@ static void check_pixelref(TestImageGenerator::TestType type,
 
 // new/lock/delete is an odd pattern for a pixelref, but it needs to not assert
 static void test_newlockdelete(skiatest::Reporter* reporter) {
+#ifdef SK_SUPPORT_LEGACY_UNBALANCED_PIXELREF_LOCKCOUNT
     SkBitmap bm;
     SkImageGenerator* ig = new TestImageGenerator(
         TestImageGenerator::kSucceedGetPixels_TestType, reporter);
     SkInstallDiscardablePixelRef(ig, &bm);
     bm.pixelRef()->lockPixels();
+#endif
 }
 
 /**

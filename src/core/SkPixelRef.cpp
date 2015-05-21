@@ -10,6 +10,7 @@
 #include "SkThread.h"
 #include "SkTraceEvent.h"
 
+//#define SK_SUPPORT_LEGACY_UNBALANCED_PIXELREF_LOCKCOUNT
 //#define SK_TRACE_PIXELREF_LIFETIME
 
 #ifdef SK_BUILD_FOR_WIN32
@@ -130,6 +131,10 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
 }
 
 SkPixelRef::~SkPixelRef() {
+#ifndef SK_SUPPORT_LEGACY_UNBALANCED_PIXELREF_LOCKCOUNT
+    SkASSERT(SKPIXELREF_PRELOCKED_LOCKCOUNT == fLockCount || 0 == fLockCount);
+#endif
+
 #ifdef SK_TRACE_PIXELREF_LIFETIME
     SkDebugf("~pixelref %d\n", sk_atomic_dec(&gInstCounter) - 1);
 #endif
