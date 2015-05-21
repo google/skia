@@ -31,6 +31,9 @@ def get_args(bot):
 
   args.extend(['--scales', '1.0', '1.1'])
 
+  if 'iOS' in bot:
+    args.extend(['--skps', 'ignore_skps'])
+
   config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui']
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.
@@ -65,6 +68,12 @@ def get_args(bot):
   if 'NexusPlayer' in bot:
     match.append('~desk_unicodetable')
 
+  if 'iOS' in bot:
+    match.append('~blurroundrect')
+    match.append('~patch_grid')  # skia:2847
+    match.append('~desk_carsvg')
+    match.append('~keymobi')
+
   if match:
     args.append('--match')
     args.extend(match)
@@ -81,6 +90,7 @@ def self_test():
     'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
+    'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
   ]
 
   cov = coverage.coverage()
