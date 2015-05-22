@@ -144,6 +144,11 @@ void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMC
         case 255: sk_memset32(dst, color, count);               return;
     }
 
+    // This Sk4px impl works great on other platforms or when we have NEON.
+#if defined(SK_CPU_ARM32) && !defined(SK_ARM_HAS_NEON)
+    if (auto proc = PlatformColor32Proc()) { return proc(dst, src, count, color); }
+#endif
+
     unsigned invA = 255 - SkGetPackedA32(color);
     invA += invA >> 7;
     SkASSERT(invA < 256);  // We've already handled alpha == 0 above.

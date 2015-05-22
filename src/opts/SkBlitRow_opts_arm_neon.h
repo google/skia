@@ -13,4 +13,6 @@ extern const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm_neon[];
 extern const SkBlitRow::ColorProc16 sk_blitrow_platform_565_colorprocs_arm_neon[];
 extern const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[];
 
+extern void sk_blitrow_color32_arm_neon(SkPMColor[], const SkPMColor[], int, SkPMColor);
+
 #endif
