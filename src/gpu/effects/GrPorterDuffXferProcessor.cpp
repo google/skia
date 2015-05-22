@@ -744,11 +744,16 @@ bool GrPorterDuffXPFactory::supportsRGBCoverage(GrColor /*knownColor*/,
 void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& coveragePOI,
                                                GrXPFactory::InvariantOutput* output) const {
-    const BlendFormula& blendFormula = get_blend_formula(fXfermode, colorPOI, coveragePOI);
+    output->fWillBlendWithDst = true;
+    output->fBlendedColorFlags = kNone_GrColorComponentFlags;
 
+    // The LCD coverage XP doesn't use the blend table, and has no invariant output.
+    if (coveragePOI.isFourChannelOutput()) {
+        return;
+    }
+
+    const BlendFormula& blendFormula = get_blend_formula(fXfermode, colorPOI, coveragePOI);
     if (blendFormula.usesDstColor()) {
-        output->fWillBlendWithDst = true;
-        output->fBlendedColorFlags = kNone_GrColorComponentFlags;
         return;
     }
 
@@ -768,16 +773,18 @@ void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
             output->fBlendedColorFlags = colorPOI.validFlags();
             return;
 
-        // TODO: update if we ever use const color.
-        default:
-            output->fBlendedColorFlags = kNone_GrColorComponentFlags;
-            return;
+        default: return;
     }
 }
 
 bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI) const {
+    // The LCD coverage XP doesn't use the blend table, and never requires a dst read.
+    if (coveragePOI.isFourChannelOutput()) {
+        return false;
+    }
+
     // Some formulas use dual source blending, so we fall back if it is required but not supported.
     return !caps.shaderCaps()->dualSourceBlendingSupport() &&
            get_blend_formula(fXfermode, colorPOI, coveragePOI).hasSecondaryOutput();
