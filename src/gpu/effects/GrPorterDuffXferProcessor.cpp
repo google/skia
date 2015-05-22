@@ -8,7 +8,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 #include "GrBlend.h"
-#include "GrDrawTargetCaps.h"
+#include "GrCaps.h"
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrTypes.h"

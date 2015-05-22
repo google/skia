@@ -9,9 +9,9 @@
 
 #include "GrPathRendererChain.h"
 
+#include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDefaultPathRenderer.h"
-#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context)

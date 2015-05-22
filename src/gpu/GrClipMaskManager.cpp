@@ -9,7 +9,7 @@
 #include "GrAAConvexPathRenderer.h"
 #include "GrAAHairLinePathRenderer.h"
 #include "GrAARectRenderer.h"
-#include "GrDrawTargetCaps.h"
+#include "GrCaps.h"
 #include "GrPaint.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTarget.h"

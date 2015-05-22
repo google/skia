@@ -9,7 +9,7 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
-#include "GrDrawTargetCaps.h"
+#include "GrCaps.h"
 #include "GrGLStencilAttachment.h"
 #include "SkChecksum.h"
 #include "SkTHash.h"

@@ -8,8 +8,8 @@
 #ifndef GrCustomXfermodePriv_DEFINED
 #define GrCustomXfermodePriv_DEFINED
 
+#include "GrCaps.h"
 #include "GrCoordTransform.h"
-#include "GrDrawTargetCaps.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureAccess.h"
 #include "GrXferProcessor.h"

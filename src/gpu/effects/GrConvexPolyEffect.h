@@ -8,7 +8,7 @@
 #ifndef GrConvexPolyEffect_DEFINED
 #define GrConvexPolyEffect_DEFINED
 
-#include "GrDrawTargetCaps.h"
+#include "GrCaps.h"
 #include "GrFragmentProcessor.h"
 #include "GrProcessor.h"
 #include "GrTypesPriv.h"

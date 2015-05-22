@@ -7,8 +7,8 @@
  */
 
 #include "effects/GrCoverageSetOpXP.h"
+#include "GrCaps.h"
 #include "GrColor.h"
-#include "GrDrawTargetCaps.h"
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
 #include "gl/GrGLXferProcessor.h"

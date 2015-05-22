@@ -8,7 +8,7 @@
 #ifndef GrBezierEffect_DEFINED
 #define GrBezierEffect_DEFINED
 
-#include "GrDrawTargetCaps.h"
+#include "GrCaps.h"
 #include "GrProcessor.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"

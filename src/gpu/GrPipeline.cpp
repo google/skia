@@ -7,8 +7,8 @@
 
 #include "GrPipeline.h"
 
+#include "GrCaps.h"
 #include "GrBatch.h"
-#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"

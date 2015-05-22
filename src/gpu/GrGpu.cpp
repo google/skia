@@ -9,8 +9,8 @@
 
 #include "GrGpu.h"
 
+#include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawTargetCaps.h"
 #include "GrGpuResourcePriv.h"
 #include "GrIndexBuffer.h"
 #include "GrResourceCache.h"

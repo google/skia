@@ -12,8 +12,8 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrCaps.h"
 #include "GrCoordTransform.h"
-#include "GrDrawTargetCaps.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureAccess.h"
 #include "GrTypes.h"

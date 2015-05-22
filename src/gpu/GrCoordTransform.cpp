@@ -6,8 +6,8 @@
  */
 
 #include "GrCoordTransform.h"
+#include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 
 void GrCoordTransform::reset(GrCoordSet sourceCoords, const SkMatrix& m, const GrTexture* texture,

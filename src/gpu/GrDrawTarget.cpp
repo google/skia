@@ -9,8 +9,8 @@
 #include "GrDrawTarget.h"
 
 #include "GrBatch.h"
+#include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawTargetCaps.h"
 #include "GrPath.h"
 #include "GrPipeline.h"
 #include "GrMemoryPool.h"

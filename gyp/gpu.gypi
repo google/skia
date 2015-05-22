@@ -12,6 +12,7 @@
 {
   'variables': {
     'skgpu_sources': [
+      '<(skia_include_path)/gpu/GrCaps.h',
       '<(skia_include_path)/gpu/GrClip.h',
       '<(skia_include_path)/gpu/GrColor.h',
       '<(skia_include_path)/gpu/GrConfig.h',
@@ -99,7 +100,6 @@
       '<(skia_src_path)/gpu/GrDefaultPathRenderer.h',
       '<(skia_src_path)/gpu/GrDrawTarget.cpp',
       '<(skia_src_path)/gpu/GrDrawTarget.h',
-      '<(skia_src_path)/gpu/GrDrawTargetCaps.h',
       '<(skia_src_path)/gpu/GrFontAtlasSizes.h',
       '<(skia_src_path)/gpu/GrFontScaler.cpp',
       '<(skia_src_path)/gpu/GrFontScaler.h',

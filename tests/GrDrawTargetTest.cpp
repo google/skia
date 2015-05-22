@@ -9,9 +9,9 @@
 #include "Test.h"
 #if SK_SUPPORT_GPU
 
+#include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextFactory.h"
-#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 
 static void test_print(skiatest::Reporter*, const GrCaps* caps) {

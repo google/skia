@@ -8,7 +8,7 @@
 #include "GrSWMaskHelper.h"
 
 #include "GrPipelineBuilder.h"
-#include "GrDrawTargetCaps.h"
+#include "GrCaps.h"
 #include "GrGpu.h"
 
 #include "SkData.h"

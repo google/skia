@@ -7,7 +7,7 @@
  */
 
 #include "GrContext.h"
-#include "GrDrawTargetCaps.h"
+#include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrResourceKey.h"
 #include "GrRenderTarget.h"

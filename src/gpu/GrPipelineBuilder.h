@@ -9,8 +9,8 @@
 #define GrPipelineBuilder_DEFINED
 
 #include "GrBlend.h"
+#include "GrCaps.h"
 #include "GrClip.h"
-#include "GrDrawTargetCaps.h"
 #include "GrGpuResourceRef.h"
 #include "GrFragmentStage.h"
 #include "GrProcOptInfo.h"

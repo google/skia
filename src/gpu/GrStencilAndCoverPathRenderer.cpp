@@ -8,8 +8,9 @@
 
 
 #include "GrStencilAndCoverPathRenderer.h"
+#include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawTargetCaps.h"
+#include "GrGpu.h"
 #include "GrPath.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
