@@ -11,6 +11,7 @@
 #include "SkColor.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
+#include "SkPixmap.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
@@ -427,6 +428,8 @@ public:
      *  modifications will be lost when unlockPixels() is called.)
      */
     bool lockPixelsAreWritable() const;
+
+    bool requestLock(SkAutoPixmapUnlock* result) const;
 
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
         it has non-null pixels, and if required by its colortype, it has a

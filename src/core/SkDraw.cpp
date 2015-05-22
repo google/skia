@@ -1156,16 +1156,17 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
-        SkAutoLockPixels alp(bitmap);
-        if (!bitmap.readyToDraw()) {
+        SkAutoPixmapUnlock result;
+        if (!bitmap.requestLock(&result)) {
             return;
         }
-
+        const SkPixmap& pmap = result.pixmap();
         SkMask  mask;
-        mask.fBounds.set(ix, iy, ix + bitmap.width(), iy + bitmap.height());
+        mask.fBounds.set(ix, iy, ix + pmap.width(), iy + pmap.height());
         mask.fFormat = SkMask::kA8_Format;
-        mask.fRowBytes = SkToU32(bitmap.rowBytes());
-        mask.fImage = bitmap.getAddr8(0, 0);
+        mask.fRowBytes = SkToU32(pmap.rowBytes());
+        // fImage is typed as writable, but in this case it is used read-only
+        mask.fImage = (uint8_t*)pmap.addr8(0, 0);
 
         this->drawDevMask(mask, paint);
     } else {    // need to xform the bitmap first

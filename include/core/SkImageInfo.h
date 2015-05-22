@@ -111,6 +111,17 @@ static inline bool SkColorTypeIsValid(unsigned value) {
     return value <= kLastEnum_SkColorType;
 }
 
+static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size_t rowBytes) {
+    int shift = 0;
+    switch (SkColorTypeBytesPerPixel(ct)) {
+        case 4: shift = 2; break;
+        case 2: shift = 1; break;
+        case 1: shift = 0; break;
+        default: return 0;
+    }
+    return y * rowBytes + (x << shift);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -245,6 +256,12 @@ public:
 
     size_t minRowBytes() const {
         return (size_t)this->minRowBytes64();
+    }
+
+    size_t computeOffset(int x, int y, size_t rowBytes) const {
+        SkASSERT((unsigned)x < (unsigned)fWidth);
+        SkASSERT((unsigned)y < (unsigned)fHeight);
+        return SkColorTypeComputeOffset(fColorType, x, y, rowBytes);
     }
 
     bool operator==(const SkImageInfo& other) const {

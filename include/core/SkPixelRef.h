@@ -10,14 +10,14 @@
 
 #include "SkAtomics.h"
 #include "SkBitmap.h"
+#include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 #include "SkMutex.h"
+#include "SkPixmap.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
 #include "SkTDArray.h"
-
-//#define xed
 
 #ifdef SK_DEBUG
     /**
@@ -193,6 +193,30 @@ public:
         return this->onRefEncodedData();
     }
 
+    struct LockRequest {
+        SkISize         fSize;
+        SkFilterQuality fQuality;
+    };
+
+    struct LockResult {
+        void        (*fUnlockProc)(void* ctx);
+        void*       fUnlockContext;
+
+        SkColorTable* fCTable;  // should be NULL unless colortype is kIndex8
+        const void* fPixels;
+        size_t      fRowBytes;
+        SkISize     fSize;
+
+        void unlock() {
+            if (fUnlockProc) {
+                fUnlockProc(fUnlockContext);
+                fUnlockProc = NULL; // can't unlock twice!
+            }
+        }
+    };
+
+    bool requestLock(const LockRequest&, LockResult*);
+
     /** Are we really wrapping a texture instead of a bitmap?
      */
     virtual GrTexture* getTexture() { return NULL; }
@@ -299,6 +323,8 @@ protected:
      */
     virtual size_t getAllocatedSizeInBytes() const;
 
+    virtual bool onRequestLock(const LockRequest&, LockResult*);
+
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.
     */
@@ -318,6 +344,8 @@ private:
     // LockRec is only valid if we're in a locked state (isLocked())
     LockRec         fRec;
     int             fLockCount;
+
+    bool lockPixelsInsideMutex(LockRec* rec);
 
     // Bottom bit indicates the Gen ID is unique.
     bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }

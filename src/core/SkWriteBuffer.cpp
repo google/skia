@@ -198,12 +198,13 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
         }
 
         // see if the caller wants to manually encode
-        if (fPixelSerializer) {
+        SkAutoPixmapUnlock result;
+        if (fPixelSerializer && bitmap.requestLock(&result)) {
+            const SkPixmap& pmap = result.pixmap();
             SkASSERT(NULL == fBitmapHeap);
-            SkAutoLockPixels alp(bitmap);
-            SkAutoDataUnref data(fPixelSerializer->encodePixels(bitmap.info(),
-                                                                bitmap.getPixels(),
-                                                                bitmap.rowBytes()));
+            SkAutoDataUnref data(fPixelSerializer->encodePixels(pmap.info(),
+                                                                pmap.addr(),
+                                                                pmap.rowBytes()));
             if (data.get() != NULL) {
                 // if we have to "encode" the bitmap, then we assume there is no
                 // offset to share, since we are effectively creating a new pixelref

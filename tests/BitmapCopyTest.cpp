@@ -161,18 +161,15 @@ static void reportCopyVerification(const SkBitmap& bm1, const SkBitmap& bm2,
                             Coordinates& coords,
                             const char* msg,
                             skiatest::Reporter* reporter){
-    bool success = true;
-
     // Confirm all pixels in the list match.
     for (int i = 0; i < coords.length; ++i) {
-        success = success &&
-                  (getPixel(coords[i]->fX, coords[i]->fY, bm1) ==
-                   getPixel(coords[i]->fX, coords[i]->fY, bm2));
-    }
-
-    if (!success) {
-        ERRORF(reporter, "%s [colortype = %s]", msg,
-               gColorTypeName[bm1.colorType()]);
+        uint32_t p1 = getPixel(coords[i]->fX, coords[i]->fY, bm1);
+        uint32_t p2 = getPixel(coords[i]->fX, coords[i]->fY, bm2);
+//        SkDebugf("[%d] (%d %d) p1=%x p2=%x\n", i, coords[i]->fX, coords[i]->fY, p1, p2);
+        if (p1 != p2) {
+            ERRORF(reporter, "%s [colortype = %s]", msg, gColorTypeName[bm1.colorType()]);
+            break;
+        }
     }
 }
 
