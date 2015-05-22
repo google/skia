@@ -12,13 +12,7 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
-GrGLCaps::GrGLCaps() {
-    this->reset();
-}
-
-void GrGLCaps::reset() {
-    INHERITED::reset();
-
+GrGLCaps::GrGLCaps(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface) {
     fVerifiedColorConfigs.reset();
     fStencilFormats.reset();
     fStencilVerifiedColorConfigs.reset();
@@ -51,59 +45,12 @@ void GrGLCaps::reset() {
 
     fReadPixelsSupportedCache.reset();
 
-    fShaderCaps.reset(SkNEW(GrGLSLCaps));
+    this->init(ctxInfo, glInterface);
 
+    fShaderCaps.reset(SkNEW_ARGS(GrGLSLCaps, (ctxInfo, glInterface, *this)));
 }
 
-GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrCaps() {
-    *this = caps;
-}
-
-GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
-    INHERITED::operator=(caps);
-    fVerifiedColorConfigs = caps.fVerifiedColorConfigs;
-    fStencilFormats = caps.fStencilFormats;
-    fStencilVerifiedColorConfigs = caps.fStencilVerifiedColorConfigs;
-    fLATCAlias = caps.fLATCAlias;
-    fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
-    fMaxVertexAttributes = caps.fMaxVertexAttributes;
-    fMaxFragmentTextureUnits = caps.fMaxFragmentTextureUnits;
-    fMSFBOType = caps.fMSFBOType;
-    fInvalidateFBType = caps.fInvalidateFBType;
-    fMapBufferType = caps.fMapBufferType;
-    fRGBA8RenderbufferSupport = caps.fRGBA8RenderbufferSupport;
-    fBGRAIsInternalFormat = caps.fBGRAIsInternalFormat;
-    fTextureSwizzleSupport = caps.fTextureSwizzleSupport;
-    fUnpackRowLengthSupport = caps.fUnpackRowLengthSupport;
-    fUnpackFlipYSupport = caps.fUnpackFlipYSupport;
-    fPackRowLengthSupport = caps.fPackRowLengthSupport;
-    fPackFlipYSupport = caps.fPackFlipYSupport;
-    fTextureUsageSupport = caps.fTextureUsageSupport;
-    fTexStorageSupport = caps.fTexStorageSupport;
-    fTextureRedSupport = caps.fTextureRedSupport;
-    fImagingSupport = caps.fImagingSupport;
-    fTwoFormatLimit = caps.fTwoFormatLimit;
-    fFragCoordsConventionSupport = caps.fFragCoordsConventionSupport;
-    fVertexArrayObjectSupport = caps.fVertexArrayObjectSupport;
-    fES2CompatibilitySupport = caps.fES2CompatibilitySupport;
-    fMultisampleDisableSupport = caps.fMultisampleDisableSupport;
-    fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
-    fIsCoreProfile = caps.fIsCoreProfile;
-    fFullClearIsFree = caps.fFullClearIsFree;
-
-    *(reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get())) = 
-                                          *(reinterpret_cast<GrGLSLCaps*>(caps.fShaderCaps.get()));
-
-    return *this;
-}
-
-bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
-
-    this->reset();
-    if (!ctxInfo.isInitialized()) {
-        return false;
-    }
-
+void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
@@ -375,10 +322,6 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     this->initConfigTexturableTable(ctxInfo, gli);
     this->initConfigRenderableTable(ctxInfo);
-
-    reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get())->init(ctxInfo, gli, *this);
-
-    return true;
 }
 
 void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
@@ -948,46 +891,21 @@ SkString GrGLCaps::dump() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLSLCaps::GrGLSLCaps() {
-    this->reset();
-}
-
-
-void GrGLSLCaps::reset() {
-    INHERITED::reset();
-
+GrGLSLCaps::GrGLSLCaps(const GrGLContextInfo& ctxInfo,
+                       const GrGLInterface* gli,
+                       const GrGLCaps& glCaps) {
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
+    this->init(ctxInfo, gli, glCaps);
 }
 
-GrGLSLCaps::GrGLSLCaps(const GrGLSLCaps& caps) : GrShaderCaps() {
-    *this = caps;
-}
-
-GrGLSLCaps& GrGLSLCaps::operator= (const GrGLSLCaps& caps) {
-    INHERITED::operator=(caps);
-    fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
-    fFBFetchSupport = caps.fFBFetchSupport;
-    fFBFetchNeedsCustomOutput = caps.fFBFetchNeedsCustomOutput;
-    fAdvBlendEqInteraction = caps.fAdvBlendEqInteraction;
-    fFBFetchColorName = caps.fFBFetchColorName;
-    fFBFetchExtensionString = caps.fFBFetchExtensionString;
-
-    return *this;
-}
-
-bool GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
+void GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
                       const GrGLInterface* gli,
                       const GrGLCaps& glCaps) {
-    this->reset();
-    if (!ctxInfo.isInitialized()) {
-        return false;
-    }
-
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
@@ -1081,8 +999,6 @@ bool GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
     }
 
     this->initShaderPrecisionTable(ctxInfo, gli);
-
-    return true;
 }
 
 SkString GrGLSLCaps::dump() const {

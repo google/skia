@@ -88,25 +88,10 @@ public:
     };
 
     /**
-     * Creates a GrGLCaps that advertises no support for any extensions,
-     * formats, etc. Call init to initialize from a GrGLContextInfo.
-     */
-    GrGLCaps();
-
-    GrGLCaps(const GrGLCaps& caps);
-
-    GrGLCaps& operator = (const GrGLCaps& caps);
-
-    /**
-     * Resets the caps such that nothing is supported.
-     */
-    void reset() override;
-
-    /**
      * Initializes the GrGLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
      */
-    bool init(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface);
+    GrGLCaps(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface);
 
     /**
      * Call to note that a color config has been verified as a valid color
@@ -277,6 +262,8 @@ public:
     GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
 private:
+    void init(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface);
+
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
      * performing glCheckFrameBufferStatus for the same config.
@@ -397,26 +384,10 @@ public:
     };
 
     /**
-     * Creates a GrGLSLCaps that advertises no support for any extensions,
-     * formats, etc. Call init to initialize from a GrGLContextInfo.
-     */
-    GrGLSLCaps();
-    ~GrGLSLCaps() override {}
-
-    GrGLSLCaps(const GrGLSLCaps& caps);
-
-    GrGLSLCaps& operator = (const GrGLSLCaps& caps);
-
-    /**
-     * Resets the caps such that nothing is supported.
-     */
-    void reset() override;
-
-    /**
      * Initializes the GrGLSLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
      */
-    bool init(const GrGLContextInfo&, const GrGLInterface*, const GrGLCaps&);
+    GrGLSLCaps(const GrGLContextInfo&, const GrGLInterface*, const GrGLCaps&);
 
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
@@ -449,6 +420,8 @@ public:
     SkString dump() const override;
 
 private:
+    void init(const GrGLContextInfo&, const GrGLInterface*, const GrGLCaps&);
+
     // Must be called after fGeometryShaderSupport is initialized.
     void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*);
 

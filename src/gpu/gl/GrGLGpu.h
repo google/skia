@@ -32,19 +32,19 @@ class GrNonInstancedVertices;
 
 class GrGLGpu : public GrGpu {
 public:
-    GrGLGpu(const GrGLContext& ctx, GrContext* context);
+    static GrGpu* Create(GrBackendContext backendContext, GrContext* context);
     ~GrGLGpu() override;
 
     void contextAbandoned() override;
 
-    const GrGLContext& glContext() const { return fGLContext; }
+    const GrGLContext& glContext() const { return *fGLContext; }
 
-    const GrGLInterface* glInterface() const { return fGLContext.interface(); }
-    const GrGLContextInfo& ctxInfo() const { return fGLContext; }
-    GrGLStandard glStandard() const { return fGLContext.standard(); }
-    GrGLVersion glVersion() const { return fGLContext.version(); }
-    GrGLSLGeneration glslGeneration() const { return fGLContext.glslGeneration(); }
-    const GrGLCaps& glCaps() const { return *fGLContext.caps(); }
+    const GrGLInterface* glInterface() const { return fGLContext->interface(); }
+    const GrGLContextInfo& ctxInfo() const { return *fGLContext; }
+    GrGLStandard glStandard() const { return fGLContext->standard(); }
+    GrGLVersion glVersion() const { return fGLContext->version(); }
+    GrGLSLGeneration glslGeneration() const { return fGLContext->glslGeneration(); }
+    const GrGLCaps& glCaps() const { return *fGLContext->caps(); }
 
     GrGLPathRendering* glPathRendering() {
         SkASSERT(glCaps().shaderCaps()->pathRenderingSupport());
@@ -114,6 +114,8 @@ public:
                           const GrBatchTracker&) const override;
 
 private:
+    GrGLGpu(GrGLContext* ctx, GrContext* context);
+
     // GrGpu overrides
     void onResetContext(uint32_t resetBits) override;
 
@@ -183,7 +185,7 @@ private:
     // Subclasses should call this to flush the blend state.
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo);
 
-    bool hasExtension(const char* ext) const { return fGLContext.hasExtension(ext); }
+    bool hasExtension(const char* ext) const { return fGLContext->hasExtension(ext); }
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
@@ -294,7 +296,7 @@ private:
 
     void unbindTextureFromFBO(GrGLenum fboTarget);
 
-    GrGLContext fGLContext;
+    SkAutoTDelete<GrGLContext>  fGLContext;
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -327,7 +329,7 @@ private:
         }
     } fHWScissorSettings;
 
-    GrGLIRect   fHWViewport;
+    GrGLIRect                   fHWViewport;
 
     /**
      * Tracks bound vertex and index buffers and vertex attrib array state.

@@ -21,30 +21,8 @@
  * Encapsulates information about an OpenGL context including the OpenGL
  * version, the GrGLStandard type of the context, and GLSL version.
  */
-class GrGLContextInfo {
+class GrGLContextInfo : public SkNoncopyable {
 public:
-    /**
-     * Default constructor
-     */
-    GrGLContextInfo() {
-        fGLCaps.reset(SkNEW(GrGLCaps));
-        this->reset();
-    }
-
-    GrGLContextInfo(const GrGLContextInfo& that) {
-        fGLCaps.reset(SkNEW(GrGLCaps));
-        *this = that;
-    }
-
-    GrGLContextInfo& operator= (const GrGLContextInfo&);
-
-    /**
-     * Initializes a GrGLContextInfo from a GrGLInterface and the currently
-     * bound OpenGL context accessible by the GrGLInterface.
-     */
-    bool initialize(const GrGLInterface* interface);
-    bool isInitialized() const;
-
     GrGLStandard standard() const { return fInterface->fStandard; }
     GrGLVersion version() const { return fGLVersion; }
     GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
@@ -59,20 +37,24 @@ public:
     const GrGLCaps* caps() const { return fGLCaps.get(); }
     GrGLCaps* caps() { return fGLCaps; }
     bool hasExtension(const char* ext) const {
-        if (!this->isInitialized()) {
-            return false;
-        }
         return fInterface->hasExtension(ext);
     }
 
     const GrGLExtensions& extensions() const { return fInterface->fExtensions; }
 
-    /**
-     * Reset the information
-     */
-    void reset();
-
 protected:
+    struct ConstructorArgs {
+        const GrGLInterface*                fInterface;
+        GrGLVersion                         fGLVersion;
+        GrGLSLGeneration                    fGLSLGeneration;
+        GrGLVendor                          fVendor;
+        GrGLRenderer                        fRenderer;
+        bool                                fIsMesa;
+        bool                                fIsChromium;
+    };
+
+    GrGLContextInfo(const ConstructorArgs& args);
+
     SkAutoTUnref<const GrGLInterface>   fInterface;
     GrGLVersion                         fGLVersion;
     GrGLSLGeneration                    fGLSLGeneration;
@@ -92,20 +74,13 @@ public:
      * Creates a GrGLContext from a GrGLInterface and the currently
      * bound OpenGL context accessible by the GrGLInterface.
      */
-    explicit GrGLContext(const GrGLInterface* interface) {
-        this->initialize(interface);
-    }
+    static GrGLContext* Create(const GrGLInterface* interface);
 
-    GrGLContext(const GrGLContext& that) : INHERITED(that) {}
-
-    GrGLContext& operator= (const GrGLContext& that) {
-        this->INHERITED::operator=(that);
-        return *this;
-    }
-
-    const GrGLInterface* interface() const { return fInterface.get(); }
+    const GrGLInterface* interface() const { return fInterface; }
 
 private:
+    GrGLContext(const ConstructorArgs& args) : INHERITED(args) {}
+
     typedef GrGLContextInfo INHERITED;
 };
 

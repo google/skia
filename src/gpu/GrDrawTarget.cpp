@@ -532,32 +532,14 @@ GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrShaderCaps::reset() {
+GrShaderCaps::GrShaderCaps() {
     fShaderDerivativeSupport = false;
     fGeometryShaderSupport = false;
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
     fMixedSamplesSupport = false;
-
     fShaderPrecisionVaries = false;
-}
-
-GrShaderCaps& GrShaderCaps::operator=(const GrShaderCaps& other) {
-    fShaderDerivativeSupport = other.fShaderDerivativeSupport;
-    fGeometryShaderSupport = other.fGeometryShaderSupport;
-    fPathRenderingSupport = other.fPathRenderingSupport;
-    fDstReadInShaderSupport = other.fDstReadInShaderSupport;
-    fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
-    fMixedSamplesSupport = other.fMixedSamplesSupport;
-
-    fShaderPrecisionVaries = other.fShaderPrecisionVaries;
-    for (int s = 0; s < kGrShaderTypeCount; ++s) {
-        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-            fFloatPrecisions[s][p] = other.fFloatPrecisions[s][p];
-        }
-    }
-    return *this;
 }
 
 static const char* shader_type_to_string(GrShaderType type) {
@@ -616,7 +598,7 @@ SkString GrShaderCaps::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrCaps::reset() {
+GrCaps::GrCaps() {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
     fTwoSidedStencilSupport = false;
@@ -639,33 +621,6 @@ void GrCaps::reset() {
 
     memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
     memset(fConfigTextureSupport, 0, sizeof(fConfigTextureSupport));
-}
-
-GrCaps& GrCaps::operator=(const GrCaps& other) {
-    fMipMapSupport = other.fMipMapSupport;
-    fNPOTTextureTileSupport = other.fNPOTTextureTileSupport;
-    fTwoSidedStencilSupport = other.fTwoSidedStencilSupport;
-    fStencilWrapOpsSupport = other.fStencilWrapOpsSupport;
-    fDiscardRenderTargetSupport = other.fDiscardRenderTargetSupport;
-    fReuseScratchTextures = other.fReuseScratchTextures;
-    fGpuTracingSupport = other.fGpuTracingSupport;
-    fCompressedTexSubImageSupport = other.fCompressedTexSubImageSupport;
-    fOversizedStencilSupport = other.fOversizedStencilSupport;
-    fTextureBarrierSupport = other.fTextureBarrierSupport;
-
-    fUseDrawInsteadOfClear = other.fUseDrawInsteadOfClear;
-
-    fBlendEquationSupport = other.fBlendEquationSupport;
-    fMapBufferFlags = other.fMapBufferFlags;
-
-    fMaxRenderTargetSize = other.fMaxRenderTargetSize;
-    fMaxTextureSize = other.fMaxTextureSize;
-    fMaxSampleCount = other.fMaxSampleCount;
-
-    memcpy(fConfigRenderSupport, other.fConfigRenderSupport, sizeof(fConfigRenderSupport));
-    memcpy(fConfigTextureSupport, other.fConfigTextureSupport, sizeof(fConfigTextureSupport));
-
-    return *this;
 }
 
 static SkString map_flags_to_string(uint32_t flags) {

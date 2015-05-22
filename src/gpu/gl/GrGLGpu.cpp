@@ -157,18 +157,35 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+GrGpu* GrGLGpu::Create(GrBackendContext backendContext, GrContext* context) {
+    SkAutoTUnref<const GrGLInterface> glInterface(
+        reinterpret_cast<const GrGLInterface*>(backendContext));
+    if (!glInterface) {
+        glInterface.reset(GrGLDefaultInterface());
+    } else {
+        glInterface->ref();
+    }
+    if (!glInterface) {
+        return NULL;
+    }
+    GrGLContext* glContext = GrGLContext::Create(glInterface);
+    if (glContext) {
+        return SkNEW_ARGS(GrGLGpu, (glContext, context));
+    }
+    return NULL;
+}
+
 static bool gPrintStartupSpew;
 
-GrGLGpu::GrGLGpu(const GrGLContext& ctx, GrContext* context)
+GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     : GrGpu(context)
     , fGLContext(ctx) {
-
-    SkASSERT(ctx.isInitialized());
-    fCaps.reset(SkRef(ctx.caps()));
+    SkASSERT(ctx);
+    fCaps.reset(SkRef(ctx->caps()));
 
     fHWBoundTextureUniqueIDs.reset(this->glCaps().maxFragmentTextureUnits());
 
-    GrGLClearErr(fGLContext.interface());
+    GrGLClearErr(this->glInterface());
     if (gPrintStartupSpew) {
         const GrGLubyte* vendor;
         const GrGLubyte* renderer;
@@ -182,7 +199,7 @@ GrGLGpu::GrGLGpu(const GrGLContext& ctx, GrContext* context)
         SkDebugf("------ RENDERER %s\n", renderer);
         SkDebugf("------ VERSION %s\n",  version);
         SkDebugf("------ EXTENSIONS\n");
-        ctx.extensions().print();
+        this->glContext().extensions().print();
         SkDebugf("\n");
         SkDebugf("%s", this->glCaps().dump().c_str());
     }
@@ -331,7 +348,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         }
 
         if (kGLES_GrGLStandard == this->glStandard() &&
-                fGLContext.hasExtension("GL_ARM_shader_framebuffer_fetch")) {
+                this->hasExtension("GL_ARM_shader_framebuffer_fetch")) {
             // The arm extension requires specifically enabling MSAA fetching per sample.
             // On some devices this may have a perf hit.  Also multiple render targets are disabled
             GL_CALL(Enable(GR_GL_FETCH_PER_SAMPLE_ARM));
@@ -812,7 +829,7 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
     return true;
 }
 
-static bool renderbuffer_storage_msaa(GrGLContext& ctx,
+static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
                                       int sampleCount,
                                       GrGLenum format,
                                       int width, int height) {
@@ -899,7 +916,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     if (idDesc->fRTFBOID != idDesc->fTexFBOID) {
         SkASSERT(desc.fSampleCnt > 0);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, idDesc->fMSColorRenderbufferID));
-        if (!renderbuffer_storage_msaa(fGLContext,
+        if (!renderbuffer_storage_msaa(*fGLContext,
                                        desc.fSampleCnt,
                                        msColorFormat,
                                        desc.fWidth, desc.fHeight)) {
@@ -917,7 +934,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 goto FAILED;
             }
-            fGLContext.caps()->markConfigAsValidColorAttachment(desc.fConfig);
+            fGLContext->caps()->markConfigAsValidColorAttachment(desc.fConfig);
         }
     }
     fStats.incRenderTargetBinds();
@@ -940,7 +957,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             goto FAILED;
         }
-        fGLContext.caps()->markConfigAsValidColorAttachment(desc.fConfig);
+        fGLContext->caps()->markConfigAsValidColorAttachment(desc.fConfig);
     }
 
     return true;
@@ -1162,7 +1179,7 @@ bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int wid
         // version on a GL that doesn't have an MSAA extension.
         bool created;
         if (samples > 0) {
-            created = renderbuffer_storage_msaa(fGLContext,
+            created = renderbuffer_storage_msaa(*fGLContext,
                                                 samples,
                                                 sFmt.fInternalFormat,
                                                 width, height);
@@ -1303,7 +1320,7 @@ bool GrGLGpu::attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb, GrR
                 }
                 return false;
             } else {
-                fGLContext.caps()->markColorConfigAndStencilFormatAsVerified(
+                fGLContext->caps()->markColorConfigAndStencilFormatAsVerified(
                     rt->config(),
                     glsb->format());
             }

@@ -277,7 +277,7 @@ void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
     const GrSweepGradient& ge = fp.cast<GrSweepGradient>();
     this->emitUniforms(builder, ge);
     SkString coords2D = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
-    const GrGLContextInfo ctxInfo = builder->ctxInfo();
+    const GrGLContextInfo& ctxInfo = builder->ctxInfo();
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     // On Intel GPU there is an issue where it reads the second arguement to atan "- %s.x" as an int

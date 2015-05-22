@@ -52,16 +52,8 @@ public:
         int fBits;
     };
 
-    GrShaderCaps() {
-        this->reset();
-    }
-    virtual ~GrShaderCaps() {}
-    GrShaderCaps(const GrShaderCaps& other) : INHERITED() {
-        *this = other;
-    }
-    GrShaderCaps& operator= (const GrShaderCaps&);
+    GrShaderCaps();
 
-    virtual void reset();
     virtual SkString dump() const;
 
     bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
@@ -111,17 +103,8 @@ class GrCaps : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrCaps)
 
-    GrCaps() {
-        fShaderCaps.reset(NULL);
-        this->reset();
-    }
-    GrCaps(const GrCaps& other) : INHERITED() {
-        *this = other;
-    }
-    virtual ~GrCaps() {}
-    GrCaps& operator= (const GrCaps&);
+    GrCaps();
 
-    virtual void reset();
     virtual SkString dump() const;
 
     GrShaderCaps* shaderCaps() const { return fShaderCaps; }
