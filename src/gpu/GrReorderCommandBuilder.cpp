@@ -19,6 +19,9 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
     // 1) check every draw
     // 2) intersect with something
     // 3) find a 'blocker'
+    // Experimentally we have found that most batching occurs within the first 10 comparisons.
+    static const int kMaxLookback = 10;
+    int i = 0;
     if (!this->cmdBuffer()->empty()) {
         GrTargetCommands::CmdBuffer::ReverseIter reverseIter(*this->cmdBuffer());
 
@@ -38,7 +41,7 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
                 // TODO temporary until we can navigate the other types of commands
                 break;
             }
-        } while (reverseIter.previous());
+        } while (reverseIter.previous() && ++i < kMaxLookback);
     }
 
     return GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), DrawBatch, (state, batch,
