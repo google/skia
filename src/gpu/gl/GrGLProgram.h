@@ -138,7 +138,7 @@ protected:
     RenderTargetState fRenderTargetState;
     GrColor fColor;
     uint8_t fCoverage;
-    int fDstCopyTexUnit;
+    int fDstTextureUnit;
     BuiltinUniformHandles fBuiltinUniformHandles;
     GrGLuint fProgramID;
 

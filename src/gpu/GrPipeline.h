@@ -34,7 +34,7 @@ public:
                const GrProcOptInfo& coveragePOI,
                const GrCaps&,
                const GrScissorState&,
-               const GrDeviceCoordTexture* dstCopy);
+               const GrXferProcessor::DstTexture*);
 
     /*
      * Returns true if these pipelines are equivalent.

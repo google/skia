@@ -37,7 +37,7 @@ private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
-                                           const GrDeviceCoordTexture* dstCopy) const override;
+                                           const DstTexture*) const override;
 
     bool willReadDstColor(const GrCaps& /*caps*/,
                           const GrProcOptInfo& /*colorPOI*/,

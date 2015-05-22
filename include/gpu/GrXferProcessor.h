@@ -104,6 +104,47 @@ enum GrXferBarrierType {
 class GrXferProcessor : public GrProcessor {
 public:
     /**
+     * A texture that contains the dst pixel values and an integer coord offset from device space
+     * to the space of the texture. Depending on GPU capabilities a DstTexture may be used by a
+     * GrXferProcessor for blending in the fragment shader.
+     */
+    class DstTexture {
+    public:
+        DstTexture() { fOffset.set(0, 0); }
+
+        DstTexture(const DstTexture& other) {
+            *this = other;
+        }
+
+        DstTexture(GrTexture* texture, const SkIPoint& offset)
+            : fTexture(SkSafeRef(texture))
+            , fOffset(offset) {
+        }
+
+        DstTexture& operator=(const DstTexture& other) {
+            fTexture.reset(SkSafeRef(other.fTexture.get()));
+            fOffset = other.fOffset;
+            return *this;
+        }
+
+        const SkIPoint& offset() const { return fOffset; }
+
+        void setOffset(const SkIPoint& offset) { fOffset = offset; }
+        void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
+
+        GrTexture* texture() const { return fTexture.get(); }
+
+        GrTexture* setTexture(GrTexture* texture) {
+            fTexture.reset(SkSafeRef(texture));
+            return texture;
+        }
+
+    private:
+        SkAutoTUnref<GrTexture> fTexture;
+        SkIPoint                fOffset;
+    };
+
+    /**
      * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLProcessorKey(...) to get the
      * specific subclass's key.
      */ 
@@ -199,15 +240,15 @@ public:
      * shader. If the returned texture is NULL then the XP is either not reading the dst or we have
      * extentions that support framebuffer fetching and thus don't need a copy of the dst texture.
      */
-    const GrTexture* getDstCopyTexture() const { return fDstCopy.getTexture(); }
+    const GrTexture* getDstTexture() const { return fDstTexture.getTexture(); }
 
     /**
-     * Returns the offset into the DstCopyTexture to use when reading it in the shader. This value
-     * is only valid if getDstCopyTexture() != NULL.
+     * Returns the offset in device coords to use when accessing the dst texture to get the dst
+     * pixel color in the shader. This value is only valid if getDstTexture() != NULL.
      */
-    const SkIPoint& dstCopyTextureOffset() const {
-        SkASSERT(this->getDstCopyTexture());
-        return fDstCopyTextureOffset;
+    const SkIPoint& dstTextureOffset() const {
+        SkASSERT(this->getDstTexture());
+        return fDstTextureOffset;
     }
 
     /**
@@ -238,10 +279,10 @@ public:
         if (this->fReadsCoverage != that.fReadsCoverage) {
             return false;
         }
-        if (this->fDstCopy.getTexture() != that.fDstCopy.getTexture()) {
+        if (this->fDstTexture.getTexture() != that.fDstTexture.getTexture()) {
             return false;
         }
-        if (this->fDstCopyTextureOffset != that.fDstCopyTextureOffset) {
+        if (this->fDstTextureOffset != that.fDstTextureOffset) {
             return false;
         }
         return this->onIsEqual(that);
@@ -249,7 +290,7 @@ public:
    
 protected:
     GrXferProcessor();
-    GrXferProcessor(const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+    GrXferProcessor(const DstTexture*, bool willReadDstColor);
 
 private:
     virtual OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
@@ -286,8 +327,8 @@ private:
 
     bool                    fWillReadDstColor;
     bool                    fReadsCoverage;
-    SkIPoint                fDstCopyTextureOffset;
-    GrTextureAccess         fDstCopy;
+    SkIPoint                fDstTextureOffset;
+    GrTextureAccess         fDstTexture;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -309,9 +350,10 @@ GR_MAKE_BITFIELD_OPS(GrXferProcessor::OptFlags);
  */
 class GrXPFactory : public SkRefCnt {
 public:
+    typedef GrXferProcessor::DstTexture DstTexture;
     GrXferProcessor* createXferProcessor(const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI,
-                                         const GrDeviceCoordTexture* dstCopy,
+                                         const DstTexture*,
                                          const GrCaps& caps) const;
 
     /**
@@ -335,8 +377,8 @@ public:
     virtual void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
                                     InvariantOutput*) const = 0;
 
-    bool willNeedDstCopy(const GrCaps& caps, const GrProcOptInfo& colorPOI,
-                         const GrProcOptInfo& coveragePOI) const;
+    bool willNeedDstTexture(const GrCaps& caps, const GrProcOptInfo& colorPOI,
+                            const GrProcOptInfo& coveragePOI) const;
 
     bool isEqual(const GrXPFactory& that) const {
         if (this->classID() != that.classID()) {
@@ -366,7 +408,7 @@ private:
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                                    const GrProcOptInfo& colorPOI,
                                                    const GrProcOptInfo& coveragePOI,
-                                                   const GrDeviceCoordTexture* dstCopy) const = 0;
+                                                   const DstTexture*) const = 0;
     /**
      *  Returns true if the XP generated by this factory will explicitly read dst in the fragment
      *  shader.
