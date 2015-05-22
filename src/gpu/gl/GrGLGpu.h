@@ -32,8 +32,7 @@ class GrNonInstancedVertices;
 
 class GrGLGpu : public GrGpu {
 public:
-    static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
-                         GrContext* context);
+    static GrGpu* Create(GrBackendContext backendContext, GrContext* context);
     ~GrGLGpu() override;
 
     void contextAbandoned() override;

@@ -283,7 +283,7 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
 #endif
 
     // We suppress prints to avoid spew
-    GrContextOptions opts;
+    GrContext::Options opts;
     opts.fSuppressPrints = true;
     GrContextFactory debugFactory(opts);
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {

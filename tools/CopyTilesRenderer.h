@@ -11,7 +11,6 @@
 #include "PictureRenderer.h"
 #include "SkTypes.h"
 
-struct GrContextOptions;
 class SkPicture;
 class SkString;
 
@@ -24,7 +23,7 @@ namespace sk_tools {
 
     public:
 #if SK_SUPPORT_GPU
-        CopyTilesRenderer(const GrContextOptions &opts, int x, int y);
+        CopyTilesRenderer(const GrContext::Options &opts, int x, int y);
 #else
         CopyTilesRenderer(int x, int y);
 #endif

@@ -20,13 +20,10 @@ GrGpuFactoryRegistrar::GrGpuFactoryRegistrar(int i, CreateGpuProc proc) {
     gGpuFactories[i] = proc;
 }
 
-GrGpu* GrGpu::Create(GrBackend backend,
-                     GrBackendContext backendContext,
-                     const GrContextOptions& options,
-                     GrContext* context) {
+GrGpu* GrGpu::Create(GrBackend backend, GrBackendContext backendContext, GrContext* context) {
     SkASSERT((int)backend < kMaxNumBackends);
     if (!gGpuFactories[backend]) {
         return NULL;
     }
-    return (gGpuFactories[backend])(backendContext, options, context);
+    return (gGpuFactories[backend])(backendContext, context);
 }

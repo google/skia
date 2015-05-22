@@ -11,7 +11,6 @@
 #include "GrBatch.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrContextOptions.h"
 #include "GrPath.h"
 #include "GrPipeline.h"
 #include "GrMemoryPool.h"
@@ -69,8 +68,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
         drawBounds->roundOut(&drawIBounds);
         if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
-            GrCapsDebugf(fCaps, "Missed an early reject. "
-                         "Bailing on draw from setupDstReadIfNecessary.\n");
+            GrContextDebugf(fContext, "Missed an early reject. "
+                                      "Bailing on draw from setupDstReadIfNecessary.\n");
 #endif
             return false;
         }
@@ -599,7 +598,7 @@ SkString GrShaderCaps::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrCaps::GrCaps(const GrContextOptions& options) {
+GrCaps::GrCaps() {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
     fTwoSidedStencilSupport = false;
@@ -622,9 +621,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
     memset(fConfigTextureSupport, 0, sizeof(fConfigTextureSupport));
-
-    fSupressPrints = options.fSuppressPrints;
-    fDrawPathMasksToCompressedTextureSupport = options.fDrawPathToCompressedTexture;
 }
 
 static SkString map_flags_to_string(uint32_t flags) {

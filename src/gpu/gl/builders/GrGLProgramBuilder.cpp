@@ -207,7 +207,7 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
 
         totalTextures += processor->numTextures();
         if (totalTextures >= maxTextureUnits) {
-            GrCapsDebugf(fGpu->caps(), "Program would use too many texture units\n");
+            GrContextDebugf(fGpu->getContext(), "Program would use too many texture units\n");
             return false;
         }
     }

@@ -9,7 +9,6 @@
 #define GrContextFactory_DEFINED
 
 #include "GrContext.h"
-#include "GrContextOptions.h"
 
 #include "gl/SkGLContext.h"
 #include "SkTArray.h"
@@ -81,7 +80,7 @@ public:
         }
     }
 
-    explicit GrContextFactory(const GrContextOptions& opts) : fGlobalOptions(opts) { }
+    explicit GrContextFactory(const GrContext::Options& opts) : fGlobalOptions(opts) { }
     GrContextFactory() { }
 
     ~GrContextFactory() { this->destroyContexts(); }
@@ -127,7 +126,7 @@ public:
         return NULL;
     }
 
-    const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
+    const GrContext::Options& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
     struct GPUContext {
@@ -136,7 +135,7 @@ private:
         GrContext*                fGrContext;
     };
     SkTArray<GPUContext, true>    fContexts;
-    const GrContextOptions        fGlobalOptions;
+    const GrContext::Options      fGlobalOptions;
 };
 
 #endif

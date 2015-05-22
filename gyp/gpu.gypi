@@ -16,7 +16,6 @@
       '<(skia_include_path)/gpu/GrClip.h',
       '<(skia_include_path)/gpu/GrColor.h',
       '<(skia_include_path)/gpu/GrConfig.h',
-      '<(skia_include_path)/gpu/GrContextOptions.h',
       '<(skia_include_path)/gpu/GrContext.h',
       '<(skia_include_path)/gpu/GrCoordTransform.h',
       '<(skia_include_path)/gpu/GrFragmentProcessor.h',

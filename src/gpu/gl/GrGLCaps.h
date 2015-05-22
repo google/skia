@@ -91,8 +91,7 @@ public:
      * Initializes the GrGLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
      */
-    GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
-             const GrGLInterface* glInterface);
+    GrGLCaps(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface);
 
     /**
      * Call to note that a color config has been verified as a valid color

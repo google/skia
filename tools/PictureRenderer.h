@@ -28,7 +28,6 @@
 
 #include "image_expectations.h"
 
-struct GrContextOptions;
 class SkBitmap;
 class SkCanvas;
 class SkGLContext;
@@ -393,7 +392,7 @@ public:
         return fGrContext;
     }
 
-    const GrContextOptions& getGrContextOptions() {
+    const GrContext::Options& getGrContextOptions() {
         return fGrContextFactory.getGlobalOptions();
     }
 #endif
@@ -407,7 +406,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    explicit PictureRenderer(const GrContextOptions &opts)
+    explicit PictureRenderer(const GrContext::Options &opts)
 #else
     PictureRenderer()
 #endif
@@ -499,7 +498,7 @@ private:
 class RecordPictureRenderer : public PictureRenderer {
 public:
 #if SK_SUPPORT_GPU
-    RecordPictureRenderer(const GrContextOptions &opts) : INHERITED(opts) { }
+    RecordPictureRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
 #endif
 
     bool render(SkBitmap** out = NULL) override;
@@ -520,7 +519,7 @@ private:
 class PipePictureRenderer : public PictureRenderer {
 public:
 #if SK_SUPPORT_GPU
-    PipePictureRenderer(const GrContextOptions &opts) : INHERITED(opts) { }
+    PipePictureRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
 #endif
 
     bool render(SkBitmap** out = NULL) override;
@@ -534,7 +533,7 @@ private:
 class SimplePictureRenderer : public PictureRenderer {
 public:
 #if SK_SUPPORT_GPU
-    SimplePictureRenderer(const GrContextOptions &opts) : INHERITED(opts) { }
+    SimplePictureRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
 #endif
 
     virtual void init(const SkPicture* pict,
@@ -555,7 +554,7 @@ private:
 class TiledPictureRenderer : public PictureRenderer {
 public:
 #if SK_SUPPORT_GPU
-    TiledPictureRenderer(const GrContextOptions &opts);
+    TiledPictureRenderer(const GrContext::Options &opts);
 #else
     TiledPictureRenderer();
 #endif
@@ -690,7 +689,7 @@ private:
 class PlaybackCreationRenderer : public PictureRenderer {
 public:
 #if SK_SUPPORT_GPU
-    PlaybackCreationRenderer(const GrContextOptions &opts) : INHERITED(opts) { }
+    PlaybackCreationRenderer(const GrContext::Options &opts) : INHERITED(opts) { }
 #endif
 
     void setup() override;
@@ -710,7 +709,7 @@ private:
 };
 
 #if SK_SUPPORT_GPU
-extern PictureRenderer* CreateGatherPixelRefsRenderer(const GrContextOptions& opts);
+extern PictureRenderer* CreateGatherPixelRefsRenderer(const GrContext::Options& opts);
 #else
 extern PictureRenderer* CreateGatherPixelRefsRenderer();
 #endif

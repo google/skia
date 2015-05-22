@@ -157,8 +157,7 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
-                       GrContext* context) {
+GrGpu* GrGLGpu::Create(GrBackendContext backendContext, GrContext* context) {
     SkAutoTUnref<const GrGLInterface> glInterface(
         reinterpret_cast<const GrGLInterface*>(backendContext));
     if (!glInterface) {
@@ -169,7 +168,7 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     if (!glInterface) {
         return NULL;
     }
-    GrGLContext* glContext = GrGLContext::Create(glInterface, options);
+    GrGLContext* glContext = GrGLContext::Create(glInterface);
     if (glContext) {
         return SkNEW_ARGS(GrGLGpu, (glContext, context));
     }
@@ -1437,7 +1436,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
 
     fCurrentProgram.reset(fProgramCache->getProgram(args));
     if (NULL == fCurrentProgram.get()) {
-        GrCapsDebugf(this->caps(), "Failed to create program!\n");
+        GrContextDebugf(this->getContext(), "Failed to create program!\n");
         return false;
     }
 

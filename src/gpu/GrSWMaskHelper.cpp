@@ -174,7 +174,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
                                      resultBounds.height());
 
     if (allowCompression &&
-        fContext->getGpu()->caps()->drawPathMasksToCompressedTexturesSupport() &&
+        fContext->getOptions().fDrawPathToCompressedTexture &&
         choose_compressed_fmt(fContext->getGpu()->caps(), &fCompressedFormat)) {
         fCompressionMode = kCompress_CompressionMode;
     }

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContextOptions& options) {
+GrGLContext* GrGLContext::Create(const GrGLInterface* interface) {
     // We haven't validated the GrGLInterface yet, so check for GetString function pointer
     if (!interface->fFunctions.fGetString) {
         return NULL;
@@ -55,9 +55,6 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
     args.fIsMesa = GrGLIsMesaFromVersionString(ver);
 
     args.fIsChromium = GrGLIsChromiumFromRendererString(renderer);
-
-    args.fContextOptions = &options;
-
     return SkNEW_ARGS(GrGLContext, (args));
 }
 
@@ -70,5 +67,5 @@ GrGLContextInfo::GrGLContextInfo(const ConstructorArgs& args) {
     fIsMesa = args.fIsMesa;
     fIsChromium = args.fIsChromium;
 
-    fGLCaps.reset(SkNEW_ARGS(GrGLCaps, (*args.fContextOptions, *this, fInterface)));
+    fGLCaps.reset(SkNEW_ARGS(GrGLCaps, (*this, fInterface)));
 }

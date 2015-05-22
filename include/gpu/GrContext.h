@@ -20,7 +20,6 @@
 
 class GrAARectRenderer;
 class GrBatchFontCache;
-struct GrContextOptions;
 class GrDrawTarget;
 class GrFragmentProcessor;
 class GrGpu;
@@ -47,11 +46,20 @@ class SK_API GrContext : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrContext)
 
+    struct Options {
+        Options() : fDrawPathToCompressedTexture(false), fSuppressPrints(false) { }
+
+        // EXPERIMENTAL
+        // May be removed in the future, or may become standard depending
+        // on the outcomes of a variety of internal tests.
+        bool fDrawPathToCompressedTexture;
+        bool fSuppressPrints;
+    };
+
     /**
      * Creates a GrContext for a backend context.
      */
-    static GrContext* Create(GrBackend, GrBackendContext, const GrContextOptions& options);
-    static GrContext* Create(GrBackend, GrBackendContext);
+    static GrContext* Create(GrBackend, GrBackendContext, const Options* opts = NULL);
 
     /**
      * Only defined in test apps.
@@ -522,6 +530,7 @@ public:
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
+    bool suppressPrints() const { return fOptions.fSuppressPrints; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
     void getTestTarget(GrTestTarget*);
@@ -538,6 +547,12 @@ public:
                     bool allowSW,
                     GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
                     GrPathRendererChain::StencilSupport* stencilSupport = NULL);
+
+    /**
+     *  This returns a copy of the the GrContext::Options that was passed to the
+     *  constructor of this class.
+     */
+    const Options& getOptions() const { return fOptions; }
 
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;
@@ -584,10 +599,11 @@ private:
 
     int                             fMaxTextureSizeOverride;
 
+    const Options                   fOptions;
     const uint32_t                  fUniqueID;
 
-    GrContext(); // init must be called after the constructor.
-    bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
+    GrContext(const Options&); // init must be called after the constructor.
+    bool init(GrBackend, GrBackendContext);
     void initMockContext();
     void initCommon();
 
