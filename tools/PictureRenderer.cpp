@@ -465,7 +465,7 @@ SkString SimplePictureRenderer::getConfigNameInternal() {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-TiledPictureRenderer::TiledPictureRenderer(const GrContext::Options& opts)
+TiledPictureRenderer::TiledPictureRenderer(const GrContextOptions& opts)
     : INHERITED(opts)
     , fTileWidth(kDefaultTileWidth)
 #else

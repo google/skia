@@ -15,7 +15,7 @@
 #include "GrGLSL.h"
 #include "GrGLUtil.h"
 
-#include "SkString.h"
+struct GrContextOptions;
 
 /**
  * Encapsulates information about an OpenGL context including the OpenGL
@@ -51,6 +51,7 @@ protected:
         GrGLRenderer                        fRenderer;
         bool                                fIsMesa;
         bool                                fIsChromium;
+        const  GrContextOptions*            fContextOptions;
     };
 
     GrGLContextInfo(const ConstructorArgs& args);
@@ -74,7 +75,7 @@ public:
      * Creates a GrGLContext from a GrGLInterface and the currently
      * bound OpenGL context accessible by the GrGLInterface.
      */
-    static GrGLContext* Create(const GrGLInterface* interface);
+    static GrGLContext* Create(const GrGLInterface* interface, const GrContextOptions& options);
 
     const GrGLInterface* interface() const { return fInterface; }
 

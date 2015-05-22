@@ -7,6 +7,7 @@
  */
 
 #include "GrTest.h"
+#include "GrContextOptions.h"
 
 #include "GrGpuResourceCacheAccess.h"
 #include "GrInOrderDrawBuffer.h"
@@ -138,7 +139,9 @@ class GrPipeline;
 
 class MockGpu : public GrGpu {
 public:
-    MockGpu(GrContext* context) : INHERITED(context) { fCaps.reset(SkNEW(GrCaps)); }
+    MockGpu(GrContext* context, const GrContextOptions& options) : INHERITED(context) {
+        fCaps.reset(SkNEW_ARGS(GrCaps, (options)));
+    }
     ~MockGpu() override {}
     bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const override {
         return true;
@@ -249,15 +252,16 @@ private:
 };
 
 GrContext* GrContext::CreateMockContext() {
-    GrContext* context = SkNEW_ARGS(GrContext, (Options()));
+    GrContext* context = SkNEW(GrContext);
 
     context->initMockContext();
     return context;
 }
 
 void GrContext::initMockContext() {
+    GrContextOptions options;
     SkASSERT(NULL == fGpu);
-    fGpu = SkNEW_ARGS(MockGpu, (this));
+    fGpu = SkNEW_ARGS(MockGpu, (this, options));
     SkASSERT(fGpu);
     this->initCommon();
 

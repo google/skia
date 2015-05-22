@@ -15,6 +15,7 @@
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
+#include "GrContextOptions.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrGpuResource.h"
 #include "GrGpuResourcePriv.h"
@@ -70,16 +71,16 @@ private:
     GrContext* fContext;
 };
 
-GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
-                             const Options* opts) {
-    GrContext* context;
-    if (NULL == opts) {
-        context = SkNEW_ARGS(GrContext, (Options()));
-    } else {
-        context = SkNEW_ARGS(GrContext, (*opts));
-    }
+GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext) {
+    GrContextOptions defaultOptions;
+    return Create(backend, backendContext, defaultOptions);
+}
 
-    if (context->init(backend, backendContext)) {
+GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
+                             const GrContextOptions& options) {
+    GrContext* context = SkNEW(GrContext);
+
+    if (context->init(backend, backendContext, options)) {
         return context;
     } else {
         context->unref();
@@ -96,7 +97,7 @@ static int32_t next_id() {
     return id;
 }
 
-GrContext::GrContext(const Options& opts) : fOptions(opts), fUniqueID(next_id()) {
+GrContext::GrContext() : fUniqueID(next_id()) {
     fGpu = NULL;
     fResourceCache = NULL;
     fResourceProvider = NULL;
@@ -110,10 +111,11 @@ GrContext::GrContext(const Options& opts) : fOptions(opts), fUniqueID(next_id())
     fMaxTextureSizeOverride = 1 << 20;
 }
 
-bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
+bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
+                     const GrContextOptions& options) {
     SkASSERT(NULL == fGpu);
 
-    fGpu = GrGpu::Create(backend, backendContext, this);
+    fGpu = GrGpu::Create(backend, backendContext, options, this);
     if (NULL == fGpu) {
         return false;
     }

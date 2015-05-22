@@ -8,6 +8,9 @@
 #include "PictureRenderingFlags.h"
 
 #include "CopyTilesRenderer.h"
+#if SK_SUPPORT_GPU
+#include "GrContextOptions.h"
+#endif
 #include "PictureRenderer.h"
 #include "picture_utils.h"
 #include "SkCommandLineFlags.h"
@@ -94,7 +97,7 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     const char* mode = NULL;
 
 #if SK_SUPPORT_GPU
-    GrContext::Options grContextOpts;
+    GrContextOptions grContextOpts;
     grContextOpts.fDrawPathToCompressedTexture = FLAGS_gpuCompressAlphaMasks;
   #define RENDERER_ARGS (grContextOpts)
 #else
