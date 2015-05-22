@@ -127,8 +127,13 @@ can be found at dm_output/8888/image/mandrill_132x132_12x12.astc-5-subsets.png.
 
 dm.json is used by our automated testing system, so you can ignore it if you
 like.  It contains a listing of each test run and a checksum of the image
-generated for that run.  (Boring technical detail: it is not a checksum of the
-.png file, but rather a checksum of the raw pixels used to create that .png.)
+generated for that run.
+
+### Detail <a name="digests"></a>
+Boring technical detail: The checksum is not a checksum of the
+.png file, but rather a checksum of the raw pixels used to create that .png.
+That means it is possible for two different configurations to produce
+the same exact .png, but have their checksums differ.
 
 Unit tests don't generally output anything but a status update when they pass.
 If a test fails, DM will print out its assertion failures, both at the time
