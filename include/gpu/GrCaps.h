@@ -14,6 +14,8 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 
+struct GrContextOptions;
+
 class GrShaderCaps : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrShaderCaps)
@@ -103,7 +105,7 @@ class GrCaps : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrCaps)
 
-    GrCaps();
+    GrCaps(const GrContextOptions&);
 
     virtual SkString dump() const;
 
@@ -186,6 +188,11 @@ public:
         return fConfigTextureSupport[config];
     }
 
+    bool suppressPrints() const { return fSupressPrints; }
+
+    bool drawPathMasksToCompressedTexturesSupport() const {
+        return fDrawPathMasksToCompressedTextureSupport; }
+
 protected:
     SkAutoTUnref<GrShaderCaps>    fShaderCaps;
 
@@ -214,6 +221,9 @@ protected:
     bool fConfigTextureSupport[kGrPixelConfigCnt];
 
 private:
+    bool fSupressPrints : 1;
+    bool fDrawPathMasksToCompressedTextureSupport : 1;
+
     typedef SkRefCnt INHERITED;
 };
 

@@ -47,6 +47,8 @@
     SkAutoTDelete<GrContextFactory> gGrFactory;
 #endif
 
+    struct GrContextOptions;
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 static const int kAutoTuneLoops = 0;
@@ -844,7 +846,7 @@ int nanobench_main() {
     SkTaskGroup::Enabler enabled;
 
 #if SK_SUPPORT_GPU
-    GrContext::Options grContextOpts;
+    GrContextOptions grContextOpts;
     grContextOpts.fDrawPathToCompressedTexture = FLAGS_gpuCompressAlphaMasks;
     gGrFactory.reset(SkNEW_ARGS(GrContextFactory, (grContextOpts)));
 #endif

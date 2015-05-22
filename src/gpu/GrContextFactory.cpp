@@ -75,7 +75,7 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
 
     glCtx->makeCurrent();
     GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glInterface.get());
-    grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, &fGlobalOptions));
+    grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, fGlobalOptions));
     if (!grCtx.get()) {
         return NULL;
     }

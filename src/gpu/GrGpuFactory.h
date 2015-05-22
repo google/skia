@@ -12,8 +12,9 @@
 
 class GrGpu;
 class GrContext;
+struct GrContextOptions;
 
-typedef GrGpu* (*CreateGpuProc)(GrBackendContext, GrContext*);
+typedef GrGpu* (*CreateGpuProc)(GrBackendContext, const GrContextOptions& options, GrContext*);
 
 class GrGpuFactoryRegistrar {
 public:

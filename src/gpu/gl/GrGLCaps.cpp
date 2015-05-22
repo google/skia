@@ -12,7 +12,9 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
-GrGLCaps::GrGLCaps(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface) {
+GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
+                   const GrGLContextInfo& ctxInfo,
+                   const GrGLInterface* glInterface) : INHERITED(contextOptions) {
     fVerifiedColorConfigs.reset();
     fStencilFormats.reset();
     fStencilVerifiedColorConfigs.reset();

@@ -18,7 +18,7 @@
 
 namespace sk_tools {
 #if SK_SUPPORT_GPU
-    CopyTilesRenderer::CopyTilesRenderer(const GrContext::Options& opts, int x, int y)
+    CopyTilesRenderer::CopyTilesRenderer(const GrContextOptions& opts, int x, int y)
     : INHERITED(opts)
     , fXTilesPerLargeTile(x)
     , fYTilesPerLargeTile(y) { }
