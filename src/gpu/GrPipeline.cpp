@@ -19,11 +19,10 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
                        const GrProcOptInfo& coveragePOI,
                        const GrCaps& caps,
                        const GrScissorState& scissorState,
-                       const GrXferProcessor::DstTexture* dstTexture) {
+                       const GrDeviceCoordTexture* dstCopy) {
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
-        pipelineBuilder.getXPFactory()->createXferProcessor(
-            colorPOI, coveragePOI, dstTexture, caps));
+        pipelineBuilder.getXPFactory()->createXferProcessor(colorPOI, coveragePOI, dstCopy, caps));
 
     GrColor overrideColor = GrColor_ILLEGAL;
     if (colorPOI.firstEffectiveStageIndex() != 0) {

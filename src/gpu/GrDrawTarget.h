@@ -18,7 +18,6 @@
 #include "GrPipelineBuilder.h"
 #include "GrTraceMarker.h"
 #include "GrVertexBuffer.h"
-#include "GrXferProcessor.h"
 
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -231,7 +230,7 @@ protected:
     bool setupDstReadIfNecessary(const GrPipelineBuilder&,
                                  const GrProcOptInfo& colorPOI,
                                  const GrProcOptInfo& coveragePOI,
-                                 GrXferProcessor::DstTexture*,
+                                 GrDeviceCoordTexture* dstCopy,
                                  const SkRect* drawBounds);
 
     struct PipelineInfo {
@@ -251,11 +250,11 @@ protected:
 
         bool mustSkipDraw() const { return (NULL == fPipelineBuilder); }
 
-        GrPipelineBuilder*          fPipelineBuilder;
-        GrScissorState*             fScissor;
-        GrProcOptInfo               fColorPOI; 
-        GrProcOptInfo               fCoveragePOI; 
-        GrXferProcessor::DstTexture fDstTexture;
+        GrPipelineBuilder*      fPipelineBuilder;
+        GrScissorState*         fScissor;
+        GrProcOptInfo           fColorPOI; 
+        GrProcOptInfo           fCoveragePOI; 
+        GrDeviceCoordTexture    fDstCopy;
     };
 
     void setupPipeline(const PipelineInfo& pipelineInfo, GrPipeline* pipeline);

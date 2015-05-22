@@ -76,7 +76,7 @@ public:
                const GrProcOptInfo& colorPOI, const GrProcOptInfo& covPOI) {
             SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
             SkAutoTUnref<GrXferProcessor> xp(xpf->createXferProcessor(colorPOI, covPOI, 0, caps));
-            TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI));
+            TEST_ASSERT(!xpf->willNeedDstCopy(caps, colorPOI, covPOI));
             xpf->getInvariantOutput(colorPOI, covPOI, &fInvariantOutput);
             fOptFlags = xp->getOptimizations(colorPOI, covPOI, false, 0, caps);
             GetXPOutputTypes(xp, &fPrimaryOutputType, &fSecondaryOutputType);
@@ -1311,7 +1311,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
     SkASSERT(covPOI.isFourChannelOutput());
 
     SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
-    TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI));
+    TEST_ASSERT(!xpf->willNeedDstCopy(caps, colorPOI, covPOI));
 
     GrXPFactory::InvariantOutput invariantOutput;
     xpf->getInvariantOutput(colorPOI, covPOI, &invariantOutput);

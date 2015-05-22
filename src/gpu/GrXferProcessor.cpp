@@ -9,17 +9,17 @@
 #include "gl/GrGLCaps.h"
 
 GrXferProcessor::GrXferProcessor()
-    : fWillReadDstColor(false), fReadsCoverage(true), fDstTextureOffset() {
+    : fWillReadDstColor(false), fReadsCoverage(true), fDstCopyTextureOffset() {
 }
 
-GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture, bool willReadDstColor)
+GrXferProcessor::GrXferProcessor(const GrDeviceCoordTexture* dstCopy, bool willReadDstColor)
     : fWillReadDstColor(willReadDstColor)
     , fReadsCoverage(true)
-    , fDstTextureOffset() {
-    if (dstTexture && dstTexture->texture()) {
-        fDstTexture.reset(dstTexture->texture());
-        fDstTextureOffset = dstTexture->offset();
-        this->addTextureAccess(&fDstTexture);
+    , fDstCopyTextureOffset() {
+    if (dstCopy && dstCopy->texture()) {
+        fDstCopy.reset(dstCopy->texture());
+        fDstCopyTextureOffset = dstCopy->offset();
+        this->addTextureAccess(&fDstCopy);
         this->setWillReadFragmentPosition();
     }
 }
@@ -43,8 +43,8 @@ GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(const GrProcOptInfo&
 
 void GrXferProcessor::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     uint32_t key = this->willReadDstColor() ? 0x1 : 0x0;
-    if (this->getDstTexture() &&
-        kTopLeft_GrSurfaceOrigin == this->getDstTexture()->origin()) {
+    if (this->getDstCopyTexture() &&
+        kTopLeft_GrSurfaceOrigin == this->getDstCopyTexture()->origin()) {
         key |= 0x2;
     }
     b->add32(key);
@@ -54,7 +54,7 @@ void GrXferProcessor::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBu
 bool GrXferProcessor::willNeedXferBarrier(const GrRenderTarget* rt,
                                           const GrCaps& caps,
                                           GrXferBarrierType* outBarrierType) const {
-    if (static_cast<const GrSurface*>(rt) == this->getDstTexture()) {
+    if (static_cast<const GrSurface*>(rt) == this->getDstCopyTexture()) {
         // Texture barriers are required when a shader reads and renders to the same texture.
         SkASSERT(rt);
         SkASSERT(caps.textureBarrierSupport());
@@ -162,24 +162,25 @@ SkString GrXferProcessor::BlendInfo::dump() const {
 
 GrXferProcessor* GrXPFactory::createXferProcessor(const GrProcOptInfo& colorPOI,
                                                   const GrProcOptInfo& coveragePOI,
-                                                  const DstTexture* dstTexture,
+                                                  const GrDeviceCoordTexture* dstCopy,
                                                   const GrCaps& caps) const {
 #ifdef SK_DEBUG
     if (this->willReadDstColor(caps, colorPOI, coveragePOI)) {
         if (!caps.shaderCaps()->dstReadInShaderSupport()) {
-            SkASSERT(dstTexture && dstTexture->texture());
+            SkASSERT(dstCopy && dstCopy->texture());
         } else {
-            SkASSERT(!dstTexture || !dstTexture->texture()); 
+            SkASSERT(!dstCopy || !dstCopy->texture()); 
         }
     } else {
-        SkASSERT(!dstTexture || !dstTexture->texture()); 
+        SkASSERT(!dstCopy || !dstCopy->texture()); 
     }
 #endif
-    return this->onCreateXferProcessor(caps, colorPOI, coveragePOI, dstTexture);
+    return this->onCreateXferProcessor(caps, colorPOI, coveragePOI, dstCopy);
 }
 
-bool GrXPFactory::willNeedDstTexture(const GrCaps& caps, const GrProcOptInfo& colorPOI,
-                                    const GrProcOptInfo& coveragePOI) const {
+bool GrXPFactory::willNeedDstCopy(const GrCaps& caps, const GrProcOptInfo& colorPOI,
+                                  const GrProcOptInfo& coveragePOI) const {
     return (this->willReadDstColor(caps, colorPOI, coveragePOI) 
             && !caps.shaderCaps()->dstReadInShaderSupport());
 }
+

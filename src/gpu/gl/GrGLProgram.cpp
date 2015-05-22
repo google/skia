@@ -36,7 +36,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          GrGLInstalledFragProcs* fragmentProcessors)
     : fColor(GrColor_ILLEGAL)
     , fCoverage(0)
-    , fDstTextureUnit(-1)
+    , fDstCopyTexUnit(-1)
     , fBuiltinUniformHandles(builtinUniforms)
     , fProgramID(programID)
     , fGeometryProcessor(geometryProcessor)

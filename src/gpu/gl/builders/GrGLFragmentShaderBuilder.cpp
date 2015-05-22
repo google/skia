@@ -12,7 +12,7 @@
 #define GL_CALL(X) GR_GL_CALL(fProgramBuilder->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fProgramBuilder->gpu()->glInterface(), R, X)
 
-const char* GrGLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
+const char* GrGLFragmentShaderBuilder::kDstCopyColorName = "_dstColor";
 static const char* declared_color_output_name() { return "fsColorOut"; }
 static const char* dual_source_output_name() { return "dualSourceOut"; }
 static void append_default_precision_qualifier(GrSLPrecision p,
@@ -78,17 +78,17 @@ static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
 }
 
 GrGLFragmentShaderBuilder::DstReadKey
-GrGLFragmentShaderBuilder::KeyForDstRead(const GrTexture* dstTexture, const GrGLCaps& caps) {
+GrGLFragmentShaderBuilder::KeyForDstRead(const GrTexture* dstCopy, const GrGLCaps& caps) {
     uint32_t key = kYesDstRead_DstReadKeyBit;
     if (caps.glslCaps()->fbFetchSupport()) {
         return key;
     }
-    SkASSERT(dstTexture);
-    if (!caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(dstTexture->config())) {
+    SkASSERT(dstCopy);
+    if (!caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(dstCopy->config())) {
         // The fact that the config is alpha-only must be considered when generating code.
         key |= kUseAlphaConfig_DstReadKeyBit;
     }
-    if (kTopLeft_GrSurfaceOrigin == dstTexture->origin()) {
+    if (kTopLeft_GrSurfaceOrigin == dstCopy->origin()) {
         key |= kTopLeftOrigin_DstReadKeyBit;
     }
     SkASSERT(static_cast<DstReadKey>(key) == key);
@@ -220,7 +220,7 @@ const char* GrGLFragmentShaderBuilder::dstColor() {
         }
         return fbFetchColorName;
     } else {
-        return kDstTextureColorName;
+        return kDstCopyColorName;
     } 
 }
 

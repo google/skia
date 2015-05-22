@@ -177,10 +177,10 @@ public:
     }
 
     /**
-     * Checks whether the xp will need destination in a texture to correctly blend.
+     * Checks whether the xp will need a copy of the destination to correctly blend.
      */
-    bool willXPNeedDstTexture(const GrCaps& caps, const GrProcOptInfo& colorPOI,
-                              const GrProcOptInfo& coveragePOI) const;
+    bool willXPNeedDstCopy(const GrCaps& caps, const GrProcOptInfo& colorPOI,
+                           const GrProcOptInfo& coveragePOI) const;
 
     /// @}
 

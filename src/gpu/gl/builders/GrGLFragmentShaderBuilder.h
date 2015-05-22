@@ -81,10 +81,10 @@ public:
     typedef uint8_t DstReadKey;
     typedef uint8_t FragPosKey;
 
-    /** Returns a key for adding code to read the dst texture color in service of effects that
+    /**  Returns a key for adding code to read the copy-of-dst color in service of effects that
         require reading the dst. It must not return 0 because 0 indicates that there is no dst
-        texture at all (in which case this function should not be called). */
-    static DstReadKey KeyForDstRead(const GrTexture* dsttexture, const GrGLCaps&);
+        copy read at all (in which case this function should not be called). */
+    static DstReadKey KeyForDstRead(const GrTexture* dstCopy, const GrGLCaps&);
 
     /** Returns a key for reading the fragment location. This should only be called if there is an
        effect that will requires the fragment position. If the fragment position is not required,
@@ -149,7 +149,7 @@ private:
         kBottomLeftFragPosRead_FragPosKey   = 0x2,// Read frag pos relative to bottom-left.
     };
 
-    static const char* kDstTextureColorName;
+    static const char* kDstCopyColorName;
 
     bool fHasCustomColorOutput;
     bool fHasSecondaryOutput;

@@ -54,6 +54,8 @@ public:
      *                        this optstate.
      * @param GrGLGpu  A GL Gpu, the caps and Gpu object are used to output processor specific
      *                 parts of the descriptor.
+     * @param GrDeviceCoordTexture  A dstCopy texture, which may be null if frame buffer fetch is
+     *                              supported
      * @param GrProgramDesc  The built and finalized descriptor
      **/
     static bool Build(GrProgramDesc*,

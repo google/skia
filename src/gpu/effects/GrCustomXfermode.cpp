@@ -508,12 +508,12 @@ GrFragmentProcessor* GrCustomXferFP::TestCreate(SkRandom* rand,
 
 class CustomXP : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(SkXfermode::Mode mode, const DstTexture* dstTexture,
+    static GrXferProcessor* Create(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
                                    bool willReadDstColor) {
         if (!GrCustomXfermode::IsSupportedMode(mode)) {
             return NULL;
         } else {
-            return SkNEW_ARGS(CustomXP, (mode, dstTexture, willReadDstColor));
+            return SkNEW_ARGS(CustomXP, (mode, dstCopy, willReadDstColor));
         }
     }
 
@@ -534,7 +534,7 @@ public:
     }
 
 private:
-    CustomXP(SkXfermode::Mode mode, const DstTexture*, bool willReadDstColor);
+    CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
 
     GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                  const GrProcOptInfo& coveragePOI,
@@ -626,8 +626,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-CustomXP::CustomXP(SkXfermode::Mode mode, const DstTexture* dstTexture, bool willReadDstColor)
-    : INHERITED(dstTexture, willReadDstColor),
+CustomXP::CustomXP(SkXfermode::Mode mode, const GrDeviceCoordTexture* dstCopy,
+                   bool willReadDstColor)
+    : INHERITED(dstCopy, willReadDstColor),
       fMode(mode),
       fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
     this->initClassID<CustomXP>();
@@ -789,8 +790,8 @@ GrXferProcessor*
 GrCustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                          const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI,
-                                         const DstTexture* dstTexture) const {
-    return CustomXP::Create(fMode, dstTexture, this->willReadDstColor(caps, colorPOI, coveragePOI));
+                                         const GrDeviceCoordTexture* dstCopy) const {
+    return CustomXP::Create(fMode, dstCopy, this->willReadDstColor(caps, colorPOI, coveragePOI));
 }
 
 bool GrCustomXPFactory::willReadDstColor(const GrCaps& caps,
