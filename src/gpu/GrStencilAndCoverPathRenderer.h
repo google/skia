@@ -21,41 +21,39 @@ class GrGpu;
 class GrStencilAndCoverPathRenderer : public GrPathRenderer {
 public:
 
-    static GrPathRenderer* Create(GrContext*);
+    static GrPathRenderer* Create(GrResourceProvider*, const GrCaps&);
 
-    virtual ~GrStencilAndCoverPathRenderer();
-
-    virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrPipelineBuilder*,
-                             const SkMatrix& viewMatrix,
-                             const SkPath&,
-                             const GrStrokeInfo&,
-                             bool antiAlias) const override;
+    bool canDrawPath(const GrDrawTarget*,
+                     const GrPipelineBuilder*,
+                     const SkMatrix& viewMatrix,
+                     const SkPath&,
+                     const GrStrokeInfo&,
+                     bool antiAlias) const override;
 
 protected:
-    virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
-                                               const GrPipelineBuilder*,
-                                               const SkPath&,
-                                               const GrStrokeInfo&) const override;
+    StencilSupport onGetStencilSupport(const GrDrawTarget*,
+                                       const GrPipelineBuilder*,
+                                       const SkPath&,
+                                       const GrStrokeInfo&) const override;
 
-    virtual bool onDrawPath(GrDrawTarget*,
-                            GrPipelineBuilder*,
-                            GrColor,
-                            const SkMatrix& viewMatrix,
-                            const SkPath&,
-                            const GrStrokeInfo&,
-                            bool antiAlias) override;
+    bool onDrawPath(GrDrawTarget*,
+                    GrPipelineBuilder*,
+                    GrColor,
+                    const SkMatrix& viewMatrix,
+                    const SkPath&,
+                    const GrStrokeInfo&,
+                    bool antiAlias) override;
 
-    virtual void onStencilPath(GrDrawTarget*,
-                               GrPipelineBuilder*,
-                               const SkMatrix& viewMatrix,
-                               const SkPath&,
-                               const GrStrokeInfo&) override;
+    void onStencilPath(GrDrawTarget*,
+                       GrPipelineBuilder*,
+                       const SkMatrix& viewMatrix,
+                       const SkPath&,
+                       const GrStrokeInfo&) override;
 
 private:
-    GrStencilAndCoverPathRenderer(GrGpu*);
+    GrStencilAndCoverPathRenderer(GrResourceProvider*);
 
-    GrGpu* fGpu;
+    GrResourceProvider* fResourceProvider;
 
     typedef GrPathRenderer INHERITED;
 };

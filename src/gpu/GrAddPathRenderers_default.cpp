@@ -11,7 +11,9 @@
 #include "GrAAHairLinePathRenderer.h"
 #include "GrAAConvexPathRenderer.h"
 #include "GrAADistanceFieldPathRenderer.h"
+#include "GrContext.h"
 #include "GrDashLinePathRenderer.h"
+#include "GrGpu.h"
 #include "GrTessellatingPathRenderer.h"
 #if GR_STROKE_PATH_RENDERING
 #include "../../experimental/StrokePathRenderer/GrStrokePathRenderer.h"
@@ -33,7 +35,8 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain
 #if GR_ANDROID_PATH_RENDERING
     chain->addPathRenderer(SkNEW(GrAndroidPathRenderer))->unref();
 #endif
-    if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx)) {
+    if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx->resourceProvider(),
+                                                                   *ctx->getGpu()->caps())) {
         chain->addPathRenderer(pr)->unref();
     }
 #if GR_TESSELLATING_PATH_RENDERING

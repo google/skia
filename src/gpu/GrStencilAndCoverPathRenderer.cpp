@@ -10,10 +10,8 @@
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrContext.h"
 #include "GrDrawTargetCaps.h"
-#include "GrGpu.h"
 #include "GrPath.h"
 #include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
 #include "GrResourceProvider.h"
 #include "GrStrokeInfo.h"
 
@@ -33,24 +31,17 @@ static GrPathRendering::FillType convert_skpath_filltype(SkPath::FillType fill) 
     }
 }
 
-GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
-    SkASSERT(context);
-    SkASSERT(context->getGpu());
-    if (context->getGpu()->caps()->shaderCaps()->pathRenderingSupport()) {
-        return SkNEW_ARGS(GrStencilAndCoverPathRenderer, (context->getGpu()));
+GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
+                                                      const GrCaps& caps) {
+    if (caps.shaderCaps()->pathRenderingSupport()) {
+        return SkNEW_ARGS(GrStencilAndCoverPathRenderer, (resourceProvider));
     } else {
         return NULL;
     }
 }
 
-GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrGpu* gpu) {
-    SkASSERT(gpu->caps()->shaderCaps()->pathRenderingSupport());
-    fGpu = gpu;
-    gpu->ref();
-}
-
-GrStencilAndCoverPathRenderer::~GrStencilAndCoverPathRenderer() {
-    fGpu->unref();
+GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider* resourceProvider)
+    : fResourceProvider(resourceProvider) {    
 }
 
 bool GrStencilAndCoverPathRenderer::canDrawPath(const GrDrawTarget* target,
@@ -72,17 +63,17 @@ GrStencilAndCoverPathRenderer::onGetStencilSupport(const GrDrawTarget*,
     return GrPathRenderer::kStencilOnly_StencilSupport;
 }
 
-static GrPath* get_gr_path(GrGpu* gpu, const SkPath& skPath, const GrStrokeInfo& stroke) {
-    GrContext* ctx = gpu->getContext();
+static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const SkPath& skPath,
+                           const GrStrokeInfo& stroke) {
     GrUniqueKey key;
     bool isVolatile;
     GrPath::ComputeKey(skPath, stroke, &key, &isVolatile);
     SkAutoTUnref<GrPath> path(
-        static_cast<GrPath*>(ctx->resourceProvider()->findAndRefResourceByUniqueKey(key)));
-    if (NULL == path) {
-        path.reset(gpu->pathRendering()->createPath(skPath, stroke));
+        static_cast<GrPath*>(resourceProvider->findAndRefResourceByUniqueKey(key)));
+    if (!path) {
+        path.reset(resourceProvider->createPath(skPath, stroke));
         if (!isVolatile) {
-            ctx->resourceProvider()->assignUniqueKeyToResource(key, path);
+            resourceProvider->assignUniqueKeyToResource(key, path);
         }
     } else {
         SkASSERT(path->isEqualTo(skPath, stroke));
@@ -97,7 +88,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(GrDrawTarget* target,
                                                   const GrStrokeInfo& stroke) {
     SkASSERT(!path.isInverseFillType());
     SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE, viewMatrix));
-    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, stroke));
     target->stencilPath(pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
 }
 
@@ -112,7 +103,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
     SkASSERT(!stroke.isHairlineStyle());
     SkASSERT(pipelineBuilder->getStencil().isDisabled());
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fGpu, path, stroke));
+    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, stroke));
 
     if (path.isInverseFillType()) {
         GR_STATIC_CONST_SAME_STENCIL(kInvertedStencilPass,

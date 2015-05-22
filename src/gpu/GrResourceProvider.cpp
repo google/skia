@@ -63,3 +63,21 @@ const GrIndexBuffer* GrResourceProvider::createQuadIndexBuffer() {
     return this->createInstancedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
 
+GrPath* GrResourceProvider::createPath(const SkPath& path, const GrStrokeInfo& stroke) {
+    SkASSERT(this->gpu()->pathRendering());
+    return this->gpu()->pathRendering()->createPath(path, stroke);
+}
+
+GrPathRange* GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen,
+                                                 const GrStrokeInfo& stroke) {
+    SkASSERT(this->gpu()->pathRendering());
+    return this->gpu()->pathRendering()->createPathRange(gen, stroke);
+}
+
+GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf, const SkDescriptor* desc,
+                                              const GrStrokeInfo& stroke) {
+
+    SkASSERT(this->gpu()->pathRendering());
+    return this->gpu()->pathRendering()->createGlyphs(tf, desc, stroke);
+}
+

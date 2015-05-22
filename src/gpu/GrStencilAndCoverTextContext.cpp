@@ -8,7 +8,6 @@
 #include "GrStencilAndCoverTextContext.h"
 #include "GrAtlasTextContext.h"
 #include "GrDrawTarget.h"
-#include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
 #include "GrResourceProvider.h"
@@ -239,7 +238,7 @@ static GrPathRange* get_gr_glyphs(GrContext* ctx,
         static_cast<GrPathRange*>(
             ctx->resourceProvider()->findAndRefResourceByUniqueKey(glyphKey)));
     if (NULL == glyphs) {
-        glyphs.reset(ctx->getGpu()->pathRendering()->createGlyphs(typeface, desc, stroke));
+        glyphs.reset(ctx->resourceProvider()->createGlyphs(typeface, desc, stroke));
         ctx->resourceProvider()->assignUniqueKeyToResource(glyphKey, glyphs);
     } else {
         SkASSERT(NULL == desc || glyphs->isEqualTo(*desc));
