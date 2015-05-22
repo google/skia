@@ -2384,10 +2384,17 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
         case kSRGBA_8888_GrPixelConfig:
             *internalFormat = GR_GL_SRGB_ALPHA;
             *externalFormat = GR_GL_SRGB_ALPHA;
-            if (getSizedInternalFormat) {
+            if (getSizedInternalFormat || kGL_GrGLStandard == this->glStandard()) {
+                // desktop or ES 3.0
+                SkASSERT(this->glVersion() >= GR_GL_VER(3, 0));
                 *internalFormat = GR_GL_SRGB8_ALPHA8;
+                *externalFormat = GR_GL_RGBA;
             } else {
+                // ES 2.0 with EXT_sRGB
+                SkASSERT(kGL_GrGLStandard != this->glStandard() && 
+                         this->glVersion() < GR_GL_VER(3, 0));
                 *internalFormat = GR_GL_SRGB_ALPHA;
+                *externalFormat = GR_GL_SRGB_ALPHA;
             }
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;

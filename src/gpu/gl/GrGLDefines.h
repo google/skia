@@ -154,6 +154,7 @@
 #define GR_GL_INDEX_LOGIC_OP                 0x0BF1
 #define GR_GL_VERTEX_PROGRAM_POINT_SIZE      0x8642
 #define GR_GL_LINE_STIPPLE                   0x0B24
+#define GR_GL_FRAMEBUFFER_SRGB               0x8DB9
 
 /* ErrorCode */
 #define GR_GL_NO_ERROR                       0
