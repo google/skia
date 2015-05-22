@@ -580,6 +580,7 @@ void GrContext::drawRect(GrRenderTarget* rt,
     RETURN_IF_ABANDONED
     if (strokeInfo && strokeInfo->isDashed()) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addRect(rect);
         this->drawPath(rt, clip, paint, viewMatrix, path, *strokeInfo);
         return;
@@ -1037,6 +1038,7 @@ void GrContext::drawRRect(GrRenderTarget*rt,
 
     if (strokeInfo.isDashed()) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addRRect(rrect);
         this->drawPath(rt, clip, paint, viewMatrix, path, strokeInfo);
         return;
@@ -1060,6 +1062,7 @@ void GrContext::drawRRect(GrRenderTarget*rt,
                                   rrect,
                                   strokeInfo)) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addRRect(rrect);
         this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
                                path, strokeInfo);
@@ -1094,10 +1097,10 @@ void GrContext::drawDRRect(GrRenderTarget* rt,
                                    outer,
                                    inner)) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addRRect(inner);
         path.addRRect(outer);
         path.setFillType(SkPath::kEvenOdd_FillType);
-
         GrStrokeInfo fillRec(SkStrokeRec::kFill_InitStyle);
         this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
                                path, fillRec);
@@ -1119,6 +1122,7 @@ void GrContext::drawOval(GrRenderTarget* rt,
 
     if (strokeInfo.isDashed()) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addOval(oval);
         this->drawPath(rt, clip, paint, viewMatrix, path, strokeInfo);
         return;
@@ -1142,6 +1146,7 @@ void GrContext::drawOval(GrRenderTarget* rt,
                                  oval,
                                  strokeInfo)) {
         SkPath path;
+        path.setIsVolatile(true);
         path.addOval(oval);
         this->internalDrawPath(target, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
                                path, strokeInfo);

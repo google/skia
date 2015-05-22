@@ -62,7 +62,6 @@ inline static bool compute_key_for_simple_path(const SkPath& path, const GrStrok
     if (!path.isVolatile()) {
         return false;
     }
-
     // The check below should take care of negative values casted positive.
     const int verbCnt = path.countVerbs();
     if (verbCnt > kSimpleVolatilePathVerbLimit) {
