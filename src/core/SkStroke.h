@@ -13,7 +13,7 @@
 #include "SkPaint.h"
 #include "SkStrokerPriv.h"
 
-#if !defined SK_LEGACY_STROKE_CURVES && defined SK_DEBUG
+#ifdef SK_DEBUG
 extern bool gDebugStrokerErrorSet;
 extern SkScalar gDebugStrokerError;
 extern int gMaxRecursion[];

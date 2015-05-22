@@ -9,86 +9,47 @@
 #include "SkGeometry.h"
 #include "SkPath.h"
 
-#ifndef SK_LEGACY_STROKE_CURVES
+enum {
+    kTangent_RecursiveLimit,
+    kCubic_RecursiveLimit,
+    kConic_RecursiveLimit,
+    kQuad_RecursiveLimit
+};
 
-    enum {
-        kTangent_RecursiveLimit,
-        kCubic_RecursiveLimit,
-        kConic_RecursiveLimit,
-        kQuad_RecursiveLimit
-    };
+// quads with extreme widths (e.g. (0,1) (1,6) (0,3) width=5e7) recurse to point of failure
+// largest seen for normal cubics : 5, 26
+// largest seen for normal quads : 11
+static const int kRecursiveLimits[] = { 5*3, 26*3, 11*3, 11*3 }; // 3x limits seen in practice
 
-    // quads with extreme widths (e.g. (0,1) (1,6) (0,3) width=5e7) recurse to point of failure
-    // largest seen for normal cubics : 5, 26
-    // largest seen for normal quads : 11
-    static const int kRecursiveLimits[] = { 5*3, 26*3, 11*3, 11*3 }; // 3x limits seen in practice
+SK_COMPILE_ASSERT(0 == kTangent_RecursiveLimit, cubic_stroke_relies_on_tangent_equalling_zero);
+SK_COMPILE_ASSERT(1 == kCubic_RecursiveLimit, cubic_stroke_relies_on_cubic_equalling_one);
+SK_COMPILE_ASSERT(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
+        recursive_limits_mismatch);
 
-    SK_COMPILE_ASSERT(0 == kTangent_RecursiveLimit, cubic_stroke_relies_on_tangent_equalling_zero);
-    SK_COMPILE_ASSERT(1 == kCubic_RecursiveLimit, cubic_stroke_relies_on_cubic_equalling_one);
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
-            recursive_limits_mismatch);
-
-    #ifdef SK_DEBUG
-        int gMaxRecursion[SK_ARRAY_COUNT(kRecursiveLimits)] = { 0 };
-    #endif
-    #ifndef DEBUG_QUAD_STROKER
-        #define DEBUG_QUAD_STROKER 0
-    #endif
-
-    #if DEBUG_QUAD_STROKER
-        /* Enable to show the decisions made in subdividing the curve -- helpful when the resulting
-           stroke has more than the optimal number of quadratics and lines */
-        #define STROKER_RESULT(resultType, depth, quadPts, format, ...) \
-                SkDebugf("[%d] %s " format "\n", depth, __FUNCTION__, __VA_ARGS__), \
-                SkDebugf("  " #resultType " t=(%g,%g)\n", quadPts->fStartT, quadPts->fEndT), \
-                resultType
-        #define STROKER_DEBUG_PARAMS(...) , __VA_ARGS__
-    #else
-        #define STROKER_RESULT(resultType, depth, quadPts, format, ...) \
-                resultType
-        #define STROKER_DEBUG_PARAMS(...)
-    #endif
-
+#ifdef SK_DEBUG
+    int gMaxRecursion[SK_ARRAY_COUNT(kRecursiveLimits)] = { 0 };
+#endif
+#ifndef DEBUG_QUAD_STROKER
+    #define DEBUG_QUAD_STROKER 0
 #endif
 
-#ifdef SK_LEGACY_STROKE_CURVES
-#define kMaxQuadSubdivide   5
-#define kMaxCubicSubdivide  7
+#if DEBUG_QUAD_STROKER
+    /* Enable to show the decisions made in subdividing the curve -- helpful when the resulting
+        stroke has more than the optimal number of quadratics and lines */
+    #define STROKER_RESULT(resultType, depth, quadPts, format, ...) \
+            SkDebugf("[%d] %s " format "\n", depth, __FUNCTION__, __VA_ARGS__), \
+            SkDebugf("  " #resultType " t=(%g,%g)\n", quadPts->fStartT, quadPts->fEndT), \
+            resultType
+    #define STROKER_DEBUG_PARAMS(...) , __VA_ARGS__
+#else
+    #define STROKER_RESULT(resultType, depth, quadPts, format, ...) \
+            resultType
+    #define STROKER_DEBUG_PARAMS(...)
 #endif
 
 static inline bool degenerate_vector(const SkVector& v) {
     return !SkPoint::CanNormalize(v.fX, v.fY);
 }
-
-#ifdef SK_LEGACY_STROKE_CURVES
-static inline bool normals_too_curvy(const SkVector& norm0, SkVector& norm1) {
-    /*  root2/2 is a 45-degree angle
-        make this constant bigger for more subdivisions (but not >= 1)
-    */
-    static const SkScalar kFlatEnoughNormalDotProd =
-                                            SK_ScalarSqrt2/2 + SK_Scalar1/10;
-
-    SkASSERT(kFlatEnoughNormalDotProd > 0 &&
-             kFlatEnoughNormalDotProd < SK_Scalar1);
-
-    return SkPoint::DotProduct(norm0, norm1) <= kFlatEnoughNormalDotProd;
-}
-
-static inline bool normals_too_pinchy(const SkVector& norm0, SkVector& norm1) {
-    // if the dot-product is -1, then we are definitely too pinchy. We tweak
-    // that by an epsilon to ensure we have significant bits in our test
-    static const int kMinSigBitsForDot = 8;
-    static const SkScalar kDotEpsilon = FLT_EPSILON * (1 << kMinSigBitsForDot);
-    static const SkScalar kTooPinchyNormalDotProd = kDotEpsilon - 1;
-
-    // just some sanity asserts to help document the expected range
-    SkASSERT(kTooPinchyNormalDotProd >= -1);
-    SkASSERT(kTooPinchyNormalDotProd < SkDoubleToScalar(-0.999));
-
-    SkScalar dot = SkPoint::DotProduct(norm0, norm1);
-    return dot <= kTooPinchyNormalDotProd;
-}
-#endif
 
 static bool set_normal_unitnormal(const SkPoint& before, const SkPoint& after,
                                   SkScalar radius,
@@ -113,7 +74,6 @@ static bool set_normal_unitnormal(const SkVector& vec,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SK_LEGACY_STROKE_CURVES
 
 struct SkQuadConstruct {    // The state of the quad stroke under construction.
     SkPoint fQuad[3];       // the stroked quad parallel to the original curve
@@ -154,7 +114,6 @@ struct SkQuadConstruct {    // The state of the quad stroke under construction.
         return true;
    }
 };
-#endif
 
 class SkPathStroker {
 public:
@@ -165,9 +124,7 @@ public:
     void moveTo(const SkPoint&);
     void lineTo(const SkPoint&);
     void quadTo(const SkPoint&, const SkPoint&);
-#ifndef SK_LEGACY_STROKE_CURVES
     void conicTo(const SkPoint&, const SkPoint&, SkScalar weight);
-#endif
     void cubicTo(const SkPoint&, const SkPoint&, const SkPoint&);
     void close(bool isLine) { this->finishContour(true, isLine); }
 
@@ -183,10 +140,8 @@ private:
     SkScalar    fRadius;
     SkScalar    fInvMiterLimit;
     SkScalar    fResScale;
-#ifndef SK_LEGACY_STROKE_CURVES
     SkScalar    fInvResScale;
     SkScalar    fInvResScaleSquared;
-#endif
 
     SkVector    fFirstNormal, fPrevNormal, fFirstUnitNormal, fPrevUnitNormal;
     SkPoint     fFirstPt, fPrevPt;  // on original path
@@ -200,7 +155,6 @@ private:
     SkPath  fInner, fOuter; // outer is our working answer, inner is temp
     SkPath  fExtra;         // added as extra complete contours
 
-#ifndef SK_LEGACY_STROKE_CURVES
     enum StrokeType {
         kOuter_StrokeType = 1,      // use sign-opposite values later to flip perpendicular axis
         kInner_StrokeType = -1
@@ -268,7 +222,6 @@ private:
     ResultType strokeCloseEnough(const SkPoint stroke[3], const SkPoint ray[2],
                                  SkQuadConstruct*  STROKER_DEBUG_PARAMS(int depth) ) const;
     ResultType tangentsMeet(const SkPoint cubic[4], SkQuadConstruct* );
-#endif
 
     void    finishContour(bool close, bool isLine);
     bool    preJoinTo(const SkPoint&, SkVector* normal, SkVector* unitNormal,
@@ -277,16 +230,6 @@ private:
                        const SkVector& unitNormal);
 
     void    line_to(const SkPoint& currPt, const SkVector& normal);
-#ifdef SK_LEGACY_STROKE_CURVES
-    void    quad_to(const SkPoint pts[3],
-                    const SkVector& normalAB, const SkVector& unitNormalAB,
-                    SkVector* normalBC, SkVector* unitNormalBC,
-                    int subDivide);
-    void    cubic_to(const SkPoint pts[4],
-                    const SkVector& normalAB, const SkVector& unitNormalAB,
-                    SkVector* normalCD, SkVector* unitNormalCD,
-                    int subDivide);
-#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -392,13 +335,11 @@ SkPathStroker::SkPathStroker(const SkPath& src,
     fOuter.setIsVolatile(true);
     fInner.incReserve(src.countPoints());
     fInner.setIsVolatile(true);
-#ifndef SK_LEGACY_STROKE_CURVES
     // TODO : write a common error function used by stroking and filling
     // The '4' below matches the fill scan converter's error term
     fInvResScale = SkScalarInvert(resScale * 4);
     fInvResScaleSquared = fInvResScale * fInvResScale;
     fRecursionDepth = 0;
-#endif
 }
 
 void SkPathStroker::moveTo(const SkPoint& pt) {
@@ -427,44 +368,6 @@ void SkPathStroker::lineTo(const SkPoint& currPt) {
     this->postJoinTo(currPt, normal, unitNormal);
 }
 
-#ifdef SK_LEGACY_STROKE_CURVES
-void SkPathStroker::quad_to(const SkPoint pts[3],
-                      const SkVector& normalAB, const SkVector& unitNormalAB,
-                      SkVector* normalBC, SkVector* unitNormalBC,
-                      int subDivide) {
-    if (!set_normal_unitnormal(pts[1], pts[2], fRadius,
-                               normalBC, unitNormalBC)) {
-        // pts[1] nearly equals pts[2], so just draw a line to pts[2]
-        this->line_to(pts[2], normalAB);
-        *normalBC = normalAB;
-        *unitNormalBC = unitNormalAB;
-        return;
-    }
-
-    if (--subDivide >= 0 && normals_too_curvy(unitNormalAB, *unitNormalBC)) {
-        SkPoint     tmp[5];
-        SkVector    norm, unit;
-
-        SkChopQuadAtHalf(pts, tmp);
-        this->quad_to(&tmp[0], normalAB, unitNormalAB, &norm, &unit, subDivide);
-        this->quad_to(&tmp[2], norm, unit, normalBC, unitNormalBC, subDivide);
-    } else {
-        SkVector    normalB;
-
-        normalB = pts[2] - pts[0];
-        normalB.rotateCCW();
-        SkScalar dot = SkPoint::DotProduct(unitNormalAB, *unitNormalBC);
-        SkAssertResult(normalB.setLength(fRadius / SkScalarSqrt((SK_Scalar1 + dot)/2)));
-
-        fOuter.quadTo(  pts[1].fX + normalB.fX, pts[1].fY + normalB.fY,
-                        pts[2].fX + normalBC->fX, pts[2].fY + normalBC->fY);
-        fInner.quadTo(  pts[1].fX - normalB.fX, pts[1].fY - normalB.fY,
-                        pts[2].fX - normalBC->fX, pts[2].fY - normalBC->fY);
-    }
-}
-#endif
-
-#ifndef SK_LEGACY_STROKE_CURVES
 void SkPathStroker::setQuadEndNormal(const SkPoint quad[3], const SkVector& normalAB,
         const SkVector& unitNormalAB, SkVector* normalBC, SkVector* unitNormalBC) {
     if (!set_normal_unitnormal(quad[1], quad[2], fRadius, normalBC, unitNormalBC)) {
@@ -700,92 +603,6 @@ SkPathStroker::ReductionType SkPathStroker::CheckQuadLinear(const SkPoint quad[3
     return kDegenerate_ReductionType;
 }
 
-#else
-
-void SkPathStroker::cubic_to(const SkPoint pts[4],
-                      const SkVector& normalAB, const SkVector& unitNormalAB,
-                      SkVector* normalCD, SkVector* unitNormalCD,
-                      int subDivide) {
-    SkVector    ab = pts[1] - pts[0];
-    SkVector    cd = pts[3] - pts[2];
-    SkVector    normalBC, unitNormalBC;
-
-    bool    degenerateAB = degenerate_vector(ab);
-    bool    degenerateCD = degenerate_vector(cd);
-
-    if (degenerateAB && degenerateCD) {
-DRAW_LINE:
-        this->line_to(pts[3], normalAB);
-        *normalCD = normalAB;
-        *unitNormalCD = unitNormalAB;
-        return;
-    }
-
-    if (degenerateAB) {
-        ab = pts[2] - pts[0];
-        degenerateAB = degenerate_vector(ab);
-    }
-    if (degenerateCD) {
-        cd = pts[3] - pts[1];
-        degenerateCD = degenerate_vector(cd);
-    }
-    if (degenerateAB || degenerateCD) {
-        goto DRAW_LINE;
-    }
-    SkAssertResult(set_normal_unitnormal(cd, fRadius, normalCD, unitNormalCD));
-    bool degenerateBC = !set_normal_unitnormal(pts[1], pts[2], fRadius,
-                                               &normalBC, &unitNormalBC);
-#ifndef SK_IGNORE_CUBIC_STROKE_FIX
-    if (--subDivide < 0) {
-        goto DRAW_LINE;
-    }
-#endif
-    if (degenerateBC || normals_too_curvy(unitNormalAB, unitNormalBC) ||
-             normals_too_curvy(unitNormalBC, *unitNormalCD)) {
-#ifdef SK_IGNORE_CUBIC_STROKE_FIX
-        // subdivide if we can
-        if (--subDivide < 0) {
-            goto DRAW_LINE;
-        }
-#endif
-        SkPoint     tmp[7];
-        SkVector    norm, unit, dummy, unitDummy;
-
-        SkChopCubicAtHalf(pts, tmp);
-        this->cubic_to(&tmp[0], normalAB, unitNormalAB, &norm, &unit,
-                       subDivide);
-        // we use dummys since we already have a valid (and more accurate)
-        // normals for CD
-        this->cubic_to(&tmp[3], norm, unit, &dummy, &unitDummy, subDivide);
-    } else {
-        SkVector    normalB, normalC;
-
-        // need normals to inset/outset the off-curve pts B and C
-
-        SkVector    unitBC = pts[2] - pts[1];
-        unitBC.normalize();
-        unitBC.rotateCCW();
-
-        normalB = unitNormalAB + unitBC;
-        normalC = *unitNormalCD + unitBC;
-
-        SkScalar dot = SkPoint::DotProduct(unitNormalAB, unitBC);
-        SkAssertResult(normalB.setLength(fRadius / SkScalarSqrt((SK_Scalar1 + dot)/2)));
-        dot = SkPoint::DotProduct(*unitNormalCD, unitBC);
-        SkAssertResult(normalC.setLength(fRadius / SkScalarSqrt((SK_Scalar1 + dot)/2)));
-
-        fOuter.cubicTo( pts[1].fX + normalB.fX, pts[1].fY + normalB.fY,
-                        pts[2].fX + normalC.fX, pts[2].fY + normalC.fY,
-                        pts[3].fX + normalCD->fX, pts[3].fY + normalCD->fY);
-
-        fInner.cubicTo( pts[1].fX - normalB.fX, pts[1].fY - normalB.fY,
-                        pts[2].fX - normalC.fX, pts[2].fY - normalC.fY,
-                        pts[3].fX - normalCD->fX, pts[3].fY - normalCD->fY);
-    }
-}
-#endif
-
-#ifndef SK_LEGACY_STROKE_CURVES
 void SkPathStroker::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar weight) {
     const SkConic conic(fPrevPt, pt1, pt2, weight);
     SkPoint reduction;
@@ -819,10 +636,8 @@ void SkPathStroker::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar wei
     this->setConicEndNormal(conic, normalAB, unitAB, &normalBC, &unitBC);
     this->postJoinTo(pt2, normalBC, unitBC);
 }
-#endif
 
 void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
-#ifndef SK_LEGACY_STROKE_CURVES
     const SkPoint quad[3] = { fPrevPt, pt1, pt2 };
     SkPoint reduction;
     ReductionType reductionType = CheckQuadLinear(quad, &reduction);
@@ -853,63 +668,10 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
     this->init(kInner_StrokeType, &quadPts, 0, 1);
     (void) this->quadStroke(quad, &quadPts);
     this->setQuadEndNormal(quad, normalAB, unitAB, &normalBC, &unitBC);
-#else
-    bool    degenerateAB = SkPath::IsLineDegenerate(fPrevPt, pt1);
-    bool    degenerateBC = SkPath::IsLineDegenerate(pt1, pt2);
-
-    if (degenerateAB | degenerateBC) {
-        if (degenerateAB ^ degenerateBC) {
-            this->lineTo(pt2);
-        }
-        return;
-    }
-
-    SkVector    normalAB, unitAB, normalBC, unitBC;
-
-    this->preJoinTo(pt1, &normalAB, &unitAB, false);
-
-    {
-        SkPoint pts[3], tmp[5];
-        pts[0] = fPrevPt;
-        pts[1] = pt1;
-        pts[2] = pt2;
-
-        if (SkChopQuadAtMaxCurvature(pts, tmp) == 2) {
-            unitBC.setNormalize(pts[2].fX - pts[1].fX, pts[2].fY - pts[1].fY);
-            unitBC.rotateCCW();
-            if (normals_too_pinchy(unitAB, unitBC)) {
-                normalBC = unitBC;
-                normalBC.scale(fRadius);
-
-                fOuter.lineTo(tmp[2].fX + normalAB.fX, tmp[2].fY + normalAB.fY);
-                fOuter.lineTo(tmp[2].fX + normalBC.fX, tmp[2].fY + normalBC.fY);
-                fOuter.lineTo(tmp[4].fX + normalBC.fX, tmp[4].fY + normalBC.fY);
-
-                fInner.lineTo(tmp[2].fX - normalAB.fX, tmp[2].fY - normalAB.fY);
-                fInner.lineTo(tmp[2].fX - normalBC.fX, tmp[2].fY - normalBC.fY);
-                fInner.lineTo(tmp[4].fX - normalBC.fX, tmp[4].fY - normalBC.fY);
-
-                fExtra.addCircle(tmp[2].fX, tmp[2].fY, fRadius,
-                                 SkPath::kCW_Direction);
-            } else {
-                this->quad_to(&tmp[0], normalAB, unitAB, &normalBC, &unitBC,
-                              kMaxQuadSubdivide);
-                SkVector n = normalBC;
-                SkVector u = unitBC;
-                this->quad_to(&tmp[2], n, u, &normalBC, &unitBC,
-                              kMaxQuadSubdivide);
-            }
-        } else {
-            this->quad_to(pts, normalAB, unitAB, &normalBC, &unitBC,
-                          kMaxQuadSubdivide);
-        }
-    }
-#endif
 
     this->postJoinTo(pt2, normalBC, unitBC);
 }
 
-#ifndef SK_LEGACY_STROKE_CURVES
 // Given a point on the curve and its derivative, scale the derivative by the radius, and
 // compute the perpendicular point and its tangent.
 void SkPathStroker::setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
@@ -1390,11 +1152,8 @@ bool SkPathStroker::quadStroke(const SkPoint quad[3], SkQuadConstruct* quadPts) 
     return true;
 }
 
-#endif
-
 void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
                             const SkPoint& pt3) {
-#ifndef SK_LEGACY_STROKE_CURVES
     const SkPoint cubic[4] = { fPrevPt, pt1, pt2, pt3 };
     SkPoint reduction[3];
     const SkPoint* tangentPt;
@@ -1441,53 +1200,6 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
     // emit the join even if one stroke succeeded but the last one failed
     // this avoids reversing an inner stroke with a partial path followed by another moveto
     this->setCubicEndNormal(cubic, normalAB, unitAB, &normalCD, &unitCD);
-#else
-    bool    degenerateAB = SkPath::IsLineDegenerate(fPrevPt, pt1);
-    bool    degenerateBC = SkPath::IsLineDegenerate(pt1, pt2);
-    bool    degenerateCD = SkPath::IsLineDegenerate(pt2, pt3);
-
-    if (degenerateAB + degenerateBC + degenerateCD >= 2
-            || (degenerateAB && SkPath::IsLineDegenerate(fPrevPt, pt2))) {
-        this->lineTo(pt3);
-        return;
-    }
-
-    SkVector    normalAB, unitAB, normalCD, unitCD;
-
-    // find the first tangent (which might be pt1 or pt2
-    {
-        const SkPoint*  nextPt = &pt1;
-        if (degenerateAB)
-            nextPt = &pt2;
-        this->preJoinTo(*nextPt, &normalAB, &unitAB, false);
-    }
-
-    {
-        SkPoint pts[4], tmp[13];
-        int         i, count;
-        SkVector    n, u;
-        SkScalar    tValues[3];
-
-        pts[0] = fPrevPt;
-        pts[1] = pt1;
-        pts[2] = pt2;
-        pts[3] = pt3;
-
-        count = SkChopCubicAtMaxCurvature(pts, tmp, tValues);
-        n = normalAB;
-        u = unitAB;
-        for (i = 0; i < count; i++) {
-            this->cubic_to(&tmp[i * 3], n, u, &normalCD, &unitCD,
-                           kMaxCubicSubdivide);
-            if (i == count - 1) {
-                break;
-            }
-            n = normalCD;
-            u = unitCD;
-
-        }
-    }
-#endif
 
     this->postJoinTo(pt3, normalCD, unitCD);
 }
@@ -1596,10 +1308,6 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
         }
     }
 
-#ifdef SK_LEGACY_STROKE_CURVES
-    SkAutoConicToQuads converter;
-    const SkScalar conicTol = SK_Scalar1 / 4 / fResScale;
-#endif
     SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(), this->getJoin(), fResScale);
     SkPath::Iter    iter(src, false);
     SkPath::Verb    lastSegment = SkPath::kMove_Verb;
@@ -1619,21 +1327,9 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                 lastSegment = SkPath::kQuad_Verb;
                 break;
             case SkPath::kConic_Verb: {
-#ifndef SK_LEGACY_STROKE_CURVES
                 stroker.conicTo(pts[1], pts[2], iter.conicWeight());
                 lastSegment = SkPath::kConic_Verb;
                 break;
-#else
-                // todo: if we had maxcurvature for conics, perhaps we should
-                // natively extrude the conic instead of converting to quads.
-                const SkPoint* quadPts =
-                    converter.computeQuads(pts, iter.conicWeight(), conicTol);
-                for (int i = 0; i < converter.countQuads(); ++i) {
-                    stroker.quadTo(quadPts[1], quadPts[2]);
-                    quadPts += 2;
-                }
-                lastSegment = SkPath::kQuad_Verb;
-#endif
             } break;
             case SkPath::kCubic_Verb:
                 stroker.cubicTo(pts[1], pts[2], pts[3]);

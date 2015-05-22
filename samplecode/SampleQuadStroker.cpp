@@ -122,7 +122,7 @@ class QuadStrokerView : public SampleView {
     bool fAnimate;
     bool fDrawRibs;
     bool fDrawTangents;
-#if !defined SK_LEGACY_STROKE_CURVES && defined(SK_DEBUG)
+#ifdef SK_DEBUG
     #define kStrokerErrorMin 0.001f
     #define kStrokerErrorMax 5
 #endif
@@ -529,7 +529,7 @@ protected:
         if (fConicButton.fEnabled) {
             draw_control(canvas, fWeightControl, fWeight, 0, 5, "weight");
         }
-#if !defined SK_LEGACY_STROKE_CURVES && defined(SK_DEBUG)
+#ifdef SK_DEBUG
         draw_control(canvas, fErrorControl, gDebugStrokerError, kStrokerErrorMin, kStrokerErrorMax,
                 "error");
 #endif
@@ -561,7 +561,7 @@ protected:
         if (fWeightControl.contains(rectPt)) {
             return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 1);
         }
-#if !defined SK_LEGACY_STROKE_CURVES && defined(SK_DEBUG)
+#ifdef SK_DEBUG
         if (fErrorControl.contains(rectPt)) {
             return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 2);
         }
@@ -612,7 +612,7 @@ protected:
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 1) {
             fWeight = MapScreenYtoValue(click->fICurr.fY, fWeightControl, 0, 5);
         }
-#if !defined SK_LEGACY_STROKE_CURVES && defined(SK_DEBUG)
+#ifdef SK_DEBUG
         else if (index == (int) SK_ARRAY_COUNT(fPts) + 2) {
             gDebugStrokerError = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fICurr.fY,
                     fErrorControl, kStrokerErrorMin, kStrokerErrorMax));
