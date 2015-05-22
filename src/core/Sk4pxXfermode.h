@@ -89,10 +89,8 @@ static Sk4px xfer_aa(const Sk4px& s, const Sk4px& d, const Sk16b& aa) {
         template <> Sk4px xfer_aa<Name>(const Sk4px& s, const Sk4px& d, const Sk16b& aa)
 
     // Plus' clamp needs to happen after AA.  skia:3852
-    XFERMODE_AA(Plus) {  // [ clamp(D + AA*S) ]
-        // We implement this as D + Min(S*AA, (1-D)) to fit the arguments to Min in 16 bits.
-        return d +
-            Sk4px::Wide(Sk16h::Min(s.mulWiden(aa), d.inv().mul255Widen())).div255RoundNarrow();
+    XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
+        return d.saturatedAdd(s.fastMulDiv255Round(aa));
     }
 
     #undef XFERMODE_AA
