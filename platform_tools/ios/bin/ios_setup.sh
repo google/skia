@@ -39,6 +39,11 @@ if [[ -z "$BUILDTYPE" ]]; then
   BUILDTYPE="Debug"
 fi
 
+# Out dir is $SKIA_SRC_DIR/out by default. 
+if [[ -z "$SKIA_OUT" ]]; then 
+  SKIA_OUT="$SKIA_SRC_DIR/out"
+fi 
+
 ios_uninstall_app() {
   ideviceinstaller -U "$IOS_BUNDLE_ID"
 }
