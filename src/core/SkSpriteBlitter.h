@@ -20,11 +20,9 @@ class SkPaint;
 
 class SkSpriteBlitter : public SkBlitter {
 public:
-            SkSpriteBlitter(const SkBitmap& source);
-    virtual ~SkSpriteBlitter();
+    SkSpriteBlitter(const SkBitmap& source);
 
-    virtual void setup(const SkBitmap& device, int left, int top,
-                       const SkPaint& paint);
+    virtual bool setup(const SkBitmap& device, int left, int top, const SkPaint& paint);
 
     // overrides
 #ifdef SK_DEBUG
@@ -41,9 +39,12 @@ public:
 
 protected:
     const SkBitmap* fDevice;
-    const SkBitmap* fSource;
+    const SkPixmap* fSource;
     int             fLeft, fTop;
     const SkPaint*  fPaint;
+
+private:
+    SkAutoPixmapUnlock fUnlocker;
 };
 
 #endif

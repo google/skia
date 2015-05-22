@@ -8,21 +8,21 @@
 #include "SkSmallAllocator.h"
 #include "SkSpriteBlitter.h"
 
-SkSpriteBlitter::SkSpriteBlitter(const SkBitmap& source)
-        : fSource(&source) {
-    fSource->lockPixels();
+SkSpriteBlitter::SkSpriteBlitter(const SkBitmap& source) : fSource(NULL) {
+    if (source.requestLock(&fUnlocker)) {
+        fSource = &fUnlocker.pixmap();
+    }
 }
 
-SkSpriteBlitter::~SkSpriteBlitter() {
-    fSource->unlockPixels();
-}
-
-void SkSpriteBlitter::setup(const SkBitmap& device, int left, int top,
-                            const SkPaint& paint) {
+bool SkSpriteBlitter::setup(const SkBitmap& device, int left, int top, const SkPaint& paint) {
+    if (NULL == fSource) {
+        return false;
+    }
     fDevice = &device;
     fLeft = left;
     fTop = top;
     fPaint = &paint;
+    return true;
 }
 
 #ifdef SK_DEBUG
@@ -76,7 +76,11 @@ SkBlitter* SkBlitter::ChooseSprite(const SkBitmap& device, const SkPaint& paint,
     }
 
     if (blitter) {
-        blitter->setup(device, left, top, paint);
+        if (!blitter->setup(device, left, top, paint)) {
+            // blitter was allocated by allocator, so we have to manually call its destructor
+            blitter->~SkSpriteBlitter();
+            blitter = NULL;
+        }
     }
     return blitter;
 }
