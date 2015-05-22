@@ -75,6 +75,7 @@ GrBatchFontCache::GrBatchFontCache(GrContext* context)
 GrBatchFontCache::~GrBatchFontCache() {
     SkTDynamicHash<GrBatchTextStrike, GrFontDescKey>::Iter iter(&fCache);
     while (!iter.done()) {
+        (*iter).fIsAbandoned = true;
         (*iter).unref();
         ++iter;
     }
@@ -86,6 +87,7 @@ GrBatchFontCache::~GrBatchFontCache() {
 void GrBatchFontCache::freeAll() {
     SkTDynamicHash<GrBatchTextStrike, GrFontDescKey>::Iter iter(&fCache);
     while (!iter.done()) {
+        (*iter).fIsAbandoned = true;
         (*iter).unref();
         ++iter;
     }
