@@ -142,12 +142,16 @@ enum GrColorComponentFlags {
     kB_GrColorComponentFlag = 1 << (GrColor_SHIFT_B / 8),
     kA_GrColorComponentFlag = 1 << (GrColor_SHIFT_A / 8),
 
+    kNone_GrColorComponentFlags = 0,
+
     kRGB_GrColorComponentFlags = (kR_GrColorComponentFlag | kG_GrColorComponentFlag |
                                   kB_GrColorComponentFlag),
 
     kRGBA_GrColorComponentFlags = (kR_GrColorComponentFlag | kG_GrColorComponentFlag |
                                    kB_GrColorComponentFlag | kA_GrColorComponentFlag)
 };
+
+GR_MAKE_BITFIELD_OPS(GrColorComponentFlags)
 
 static inline char GrColorComponentFlagToChar(GrColorComponentFlags component) {
     SkASSERT(SkIsPow2(component));

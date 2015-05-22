@@ -24,7 +24,7 @@ public:
                             GrXPFactory::InvariantOutput*) const override;
 
 private:
-    GrPorterDuffXPFactory(GrBlendCoeff src, GrBlendCoeff dst); 
+    GrPorterDuffXPFactory(SkXfermode::Mode);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrProcOptInfo& colorPOI,
@@ -37,14 +37,15 @@ private:
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {
         const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();
-        return (fSrcCoeff == xpf.fSrcCoeff && fDstCoeff == xpf.fDstCoeff);
+        return fXfermode == xpf.fXfermode;
     }
 
     GR_DECLARE_XP_FACTORY_TEST;
+    static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);
 
-    GrBlendCoeff fSrcCoeff;
-    GrBlendCoeff fDstCoeff;
+    SkXfermode::Mode fXfermode;
 
+    friend class GrPorterDuffTest; // for TestGetXPOutputTypes()
     typedef GrXPFactory INHERITED;
 };
 
