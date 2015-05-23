@@ -44,7 +44,8 @@ public:
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
     bool isOpaque() const { return fInfo.isOpaque(); }
 
-    int64_t getSafeSize64() const { return fInfo.getSafeSize64(fRowBytes); }
+    uint64_t getSize64() const { return sk_64_mul(fInfo.height(), fRowBytes); }
+    uint64_t getSafeSize64() const { return fInfo.getSafeSize64(fRowBytes); }
     size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
 
     const uint32_t* addr32() const {
@@ -92,6 +93,20 @@ public:
     }
     uint8_t* writable_addr8(int x, int y) const {
         return const_cast<uint8_t*>(this->addr8(x, y));
+    }
+
+    // copy methods
+
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY) const;
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const {
+        return this->readPixels(dstInfo, dstPixels, dstRowBytes, 0, 0);
+    }
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY) const {
+        return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), srcX, srcY);
+    }
+    bool readPixels(const SkPixmap& dst) const {
+        return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), 0, 0);
     }
 
 private:

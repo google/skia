@@ -10,6 +10,8 @@
 
 #include "SkImageInfo.h"
 
+class SkColorTable;
+
 struct SkPixelInfo {
     SkColorType fColorType;
     SkAlphaType fAlphaType;

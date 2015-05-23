@@ -882,50 +882,13 @@ bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
     return true;
 }
 
-#include "SkConfig8888.h"
-
 bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
                           int x, int y) const {
-    if (kUnknown_SkColorType == requestedDstInfo.colorType()) {
+    SkAutoPixmapUnlock src;
+    if (!this->requestLock(&src)) {
         return false;
     }
-    if (NULL == dstPixels || dstRB < requestedDstInfo.minRowBytes()) {
-        return false;
-    }
-    if (0 == requestedDstInfo.width() || 0 == requestedDstInfo.height()) {
-        return false;
-    }
-
-    SkIRect srcR = SkIRect::MakeXYWH(x, y, requestedDstInfo.width(), requestedDstInfo.height());
-    if (!srcR.intersect(0, 0, this->width(), this->height())) {
-        return false;
-    }
-
-    // the intersect may have shrunk info's logical size
-    const SkImageInfo dstInfo = requestedDstInfo.makeWH(srcR.width(), srcR.height());
-
-    // if x or y are negative, then we have to adjust pixels
-    if (x > 0) {
-        x = 0;
-    }
-    if (y > 0) {
-        y = 0;
-    }
-    // here x,y are either 0 or negative
-    dstPixels = ((char*)dstPixels - y * dstRB - x * dstInfo.bytesPerPixel());
-
-    //////////////
-
-    SkAutoPixmapUnlock result;
-    if (!this->requestLock(&result)) {
-        return false;
-    }
-    const SkPixmap& pmap = result.pixmap();
-    const SkImageInfo srcInfo = pmap.info().makeWH(dstInfo.width(), dstInfo.height());
-
-    const void* srcPixels = pmap.addr(srcR.x(), srcR.y());
-    return SkPixelInfo::CopyPixels(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, pmap.rowBytes(),
-                                   pmap.ctable());
+    return src.pixmap().readPixels(requestedDstInfo, dstPixels, dstRB, x, y);
 }
 
 bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc) const {
@@ -965,17 +928,13 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
         }
     }
 
-    // we lock this now, since we may need its colortable
-    SkAutoLockPixels srclock(*src);
-    if (!src->readyToDraw()) {
+    SkAutoPixmapUnlock srcUnlocker;
+    if (!src->requestLock(&srcUnlocker)) {
         return false;
     }
+    const SkPixmap& srcPM = srcUnlocker.pixmap();
 
-    // The only way to be readyToDraw is if fPixelRef is non NULL.
-    SkASSERT(fPixelRef != NULL);
-
-    const SkImageInfo dstInfo = src->info().makeColorType(dstColorType);
-
+    const SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
     SkBitmap tmpDst;
     if (!tmpDst.setInfo(dstInfo)) {
         return false;
@@ -984,22 +943,18 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     // allocate colortable if srcConfig == kIndex8_Config
     SkAutoTUnref<SkColorTable> ctable;
     if (dstColorType == kIndex_8_SkColorType) {
-        ctable.reset(SkRef(src->getColorTable()));
+        ctable.reset(SkRef(srcPM.ctable()));
     }
     if (!tmpDst.tryAllocPixels(alloc, ctable)) {
         return false;
     }
 
-    if (!tmpDst.readyToDraw()) {
-        // allocator/lock failed
+    SkAutoPixmapUnlock dstUnlocker;
+    if (!tmpDst.requestLock(&dstUnlocker)) {
         return false;
     }
 
-    // pixelRef must be non NULL or tmpDst.readyToDraw() would have
-    // returned false.
-    SkASSERT(tmpDst.pixelRef() != NULL);
-
-    if (!src->readPixels(tmpDst.info(), tmpDst.getPixels(), tmpDst.rowBytes(), 0, 0)) {
+    if (!srcPM.readPixels(dstUnlocker.pixmap())) {
         return false;
     }
 
@@ -1009,7 +964,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     //  TODO: should we ignore rowbytes (i.e. getSize)? Then it could just be
     //      if (src_pixelref->info == dst_pixelref->info)
     //
-    if (src->colorType() == dstColorType && tmpDst.getSize() == src->getSize()) {
+    if (srcPM.colorType() == dstColorType && tmpDst.getSize() == srcPM.getSize64()) {
         SkPixelRef* dstPixelRef = tmpDst.pixelRef();
         if (dstPixelRef->info() == fPixelRef->info()) {
             dstPixelRef->cloneGenID(*fPixelRef);
