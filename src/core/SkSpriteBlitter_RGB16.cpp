@@ -32,12 +32,9 @@ static inline void D16_S32A_Blend_Pixel_helper(uint16_t* dst, SkPMColor sc,
         db = SkAlphaBlend(SkPacked32ToB16(sc), SkGetPackedB16(dc), src_scale);
     } else {
         unsigned dst_scale = 255 - SkAlphaMul(sa, src_scale);
-        dr = (SkPacked32ToR16(sc) * src_scale +
-              SkGetPackedR16(dc) * dst_scale) >> 8;
-        dg = (SkPacked32ToG16(sc) * src_scale +
-              SkGetPackedG16(dc) * dst_scale) >> 8;
-        db = (SkPacked32ToB16(sc) * src_scale +
-              SkGetPackedB16(dc) * dst_scale) >> 8;
+        dr = (SkPacked32ToR16(sc) * src_scale + SkGetPackedR16(dc) * dst_scale) >> 8;
+        dg = (SkPacked32ToG16(sc) * src_scale + SkGetPackedG16(dc) * dst_scale) >> 8;
+        db = (SkPacked32ToB16(sc) * src_scale + SkGetPackedB16(dc) * dst_scale) >> 8;
     }
     *dst = SkPackRGB16(dr, dg, db);
 }
@@ -50,15 +47,14 @@ static inline void D16_S32A_Blend_Pixel_helper(uint16_t* dst, SkPMColor sc,
 
 class Sprite_D16_S16_Opaque : public SkSpriteBlitter {
 public:
-    Sprite_D16_S16_Opaque(const SkBitmap& source)
-        : SkSpriteBlitter(source) {}
+    Sprite_D16_S16_Opaque(const SkPixmap& source) : SkSpriteBlitter(source) {}
 
     // overrides
     void blitRect(int x, int y, int width, int height) override {
         uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
-        const uint16_t* SK_RESTRICT src = fSource->addr16(x - fLeft, y - fTop);
+        const uint16_t* SK_RESTRICT src = fSource.addr16(x - fLeft, y - fTop);
         size_t dstRB = fDevice->rowBytes();
-        size_t srcRB = fSource->rowBytes();
+        size_t srcRB = fSource.rowBytes();
 
         while (--height >= 0) {
             memcpy(dst, src, width << 1);
@@ -257,35 +253,30 @@ static void blitrow_d16_si8(uint16_t* SK_RESTRICT dst,
 
 class Sprite_D16_S32_BlitRowProc : public SkSpriteBlitter {
 public:
-    Sprite_D16_S32_BlitRowProc(const SkBitmap& source)
-        : SkSpriteBlitter(source) {}
+    Sprite_D16_S32_BlitRowProc(const SkPixmap& source) : SkSpriteBlitter(source) {}
 
-    bool setup(const SkBitmap& device, int left, int top,
-                       const SkPaint& paint) override {
-        if (!this->INHERITED::setup(device, left, top, paint)) {
-            return false;
-        }
+    void setup(const SkBitmap& device, int left, int top, const SkPaint& paint) override {
+        this->INHERITED::setup(device, left, top, paint);
 
         unsigned flags = 0;
 
         if (paint.getAlpha() < 0xFF) {
             flags |= SkBlitRow::kGlobalAlpha_Flag;
         }
-        if (!fSource->isOpaque()) {
+        if (!fSource.isOpaque()) {
             flags |= SkBlitRow::kSrcPixelAlpha_Flag;
         }
         if (paint.isDither()) {
             flags |= SkBlitRow::kDither_Flag;
         }
         fProc = SkBlitRow::Factory16(flags);
-        return true;
     }
 
     void blitRect(int x, int y, int width, int height) override {
         uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
-        const SkPMColor* SK_RESTRICT src = fSource->addr32(x - fLeft, y - fTop);
+        const SkPMColor* SK_RESTRICT src = fSource.addr32(x - fLeft, y - fTop);
         size_t dstRB = fDevice->rowBytes();
-        size_t srcRB = fSource->rowBytes();
+        size_t srcRB = fSource.rowBytes();
         SkBlitRow::Proc16 proc = fProc;
         U8CPU alpha = fPaint->getAlpha();
 
@@ -305,8 +296,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkBitmap& source, const SkPaint& paint,
-        SkTBlitterAllocator* allocator) {
+SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkPixmap& source, const SkPaint& paint,
+                                            SkTBlitterAllocator* allocator) {
 
     SkASSERT(allocator != NULL);
 

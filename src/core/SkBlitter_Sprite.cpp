@@ -8,21 +8,13 @@
 #include "SkSmallAllocator.h"
 #include "SkSpriteBlitter.h"
 
-SkSpriteBlitter::SkSpriteBlitter(const SkBitmap& source) : fSource(NULL) {
-    if (source.requestLock(&fUnlocker)) {
-        fSource = &fUnlocker.pixmap();
-    }
-}
+SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source) : fSource(source) {}
 
-bool SkSpriteBlitter::setup(const SkBitmap& device, int left, int top, const SkPaint& paint) {
-    if (NULL == fSource) {
-        return false;
-    }
+void SkSpriteBlitter::setup(const SkBitmap& device, int left, int top, const SkPaint& paint) {
     fDevice = &device;
     fLeft = left;
     fTop = top;
     fPaint = &paint;
-    return true;
 }
 
 #ifdef SK_DEBUG
@@ -49,7 +41,7 @@ void SkSpriteBlitter::blitMask(const SkMask&, const SkIRect& clip) {
 // returning null means the caller will call SkBlitter::Choose() and
 // have wrapped the source bitmap inside a shader
 SkBlitter* SkBlitter::ChooseSprite(const SkBitmap& device, const SkPaint& paint,
-        const SkBitmap& source, int left, int top, SkTBlitterAllocator* allocator) {
+        const SkPixmap& source, int left, int top, SkTBlitterAllocator* allocator) {
     /*  We currently ignore antialiasing and filtertype, meaning we will take our
         special blitters regardless of these settings. Ignoring filtertype seems fine
         since by definition there is no scale in the matrix. Ignoring antialiasing is
@@ -76,11 +68,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkBitmap& device, const SkPaint& paint,
     }
 
     if (blitter) {
-        if (!blitter->setup(device, left, top, paint)) {
-            // blitter was allocated by allocator, so we have to manually call its destructor
-            blitter->~SkSpriteBlitter();
-            blitter = NULL;
-        }
+        blitter->setup(device, left, top, paint);
     }
     return blitter;
 }

@@ -1242,10 +1242,8 @@ static bool clipped_out(const SkMatrix& matrix, const SkRasterClip& clip,
     return clipped_out(matrix, clip, r);
 }
 
-static bool clipHandlesSprite(const SkRasterClip& clip, int x, int y,
-                              const SkBitmap& bitmap) {
-    return clip.isBW() ||
-           clip.quickContains(x, y, x + bitmap.width(), y + bitmap.height());
+static bool clipHandlesSprite(const SkRasterClip& clip, int x, int y, const SkPixmap& pmap) {
+    return clip.isBW() || clip.quickContains(x, y, x + pmap.width(), y + pmap.height());
 }
 
 void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
@@ -1274,24 +1272,23 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.
         //
-        SkAutoLockPixels alp(bitmap);
-        if (!bitmap.readyToDraw()) {
+        SkAutoPixmapUnlock unlocker;
+        if (!bitmap.requestLock(&unlocker)) {
             return;
         }
+        const SkPixmap& pmap = unlocker.pixmap();
         int ix = SkScalarRoundToInt(matrix.getTranslateX());
         int iy = SkScalarRoundToInt(matrix.getTranslateY());
-        if (clipHandlesSprite(*fRC, ix, iy, bitmap)) {
+        if (clipHandlesSprite(*fRC, ix, iy, pmap)) {
             SkTBlitterAllocator allocator;
             // blitter will be owned by the allocator.
-            SkBlitter* blitter = SkBlitter::ChooseSprite(*fBitmap, paint, bitmap,
-                                                         ix, iy, &allocator);
+            SkBlitter* blitter = SkBlitter::ChooseSprite(*fBitmap, paint, pmap, ix, iy, &allocator);
             if (blitter) {
-                SkIRect    ir;
-                ir.set(ix, iy, ix + bitmap.width(), iy + bitmap.height());
-
-                SkScan::FillIRect(ir, *fRC, blitter);
+                SkScan::FillIRect(SkIRect::MakeXYWH(ix, iy, pmap.width(), pmap.height()),
+                                  *fRC, blitter);
                 return;
             }
+            // if !blitter, then we fall-through to the slower case
         }
     }
 
@@ -1314,8 +1311,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     }
 }
 
-void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
-                        const SkPaint& origPaint) const {
+void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& origPaint) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -1325,8 +1321,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
         return;
     }
 
-    SkIRect    bounds;
-    bounds.set(x, y, x + bitmap.width(), y + bitmap.height());
+    const SkIRect bounds = SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height());
 
     if (fRC->quickReject(bounds)) {
         return; // nothing to draw
@@ -1335,12 +1330,16 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
     SkPaint paint(origPaint);
     paint.setStyle(SkPaint::kFill_Style);
 
-    if (NULL == paint.getColorFilter() && clipHandlesSprite(*fRC, x, y, bitmap)) {
+    SkAutoPixmapUnlock unlocker;
+    if (!bitmap.requestLock(&unlocker)) {
+        return;
+    }
+    const SkPixmap& pmap = unlocker.pixmap();
+
+    if (NULL == paint.getColorFilter() && clipHandlesSprite(*fRC, x, y, pmap)) {
         SkTBlitterAllocator allocator;
         // blitter will be owned by the allocator.
-        SkBlitter* blitter = SkBlitter::ChooseSprite(*fBitmap, paint, bitmap,
-                                                     x, y, &allocator);
-
+        SkBlitter* blitter = SkBlitter::ChooseSprite(*fBitmap, paint, pmap, x, y, &allocator);
         if (blitter) {
             SkScan::FillIRect(bounds, *fRC, blitter);
             return;

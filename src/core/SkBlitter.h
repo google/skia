@@ -130,7 +130,7 @@ public:
 
     static SkBlitter* ChooseSprite(const SkBitmap& device,
                                    const SkPaint&,
-                                   const SkBitmap& src,
+                                   const SkPixmap& src,
                                    int left, int top,
                                    SkTBlitterAllocator*);
     ///@}
