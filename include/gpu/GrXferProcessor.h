@@ -51,6 +51,10 @@ enum GrBlendEquation {
 
 static const int kGrBlendEquationCnt = kLast_GrBlendEquation + 1;
 
+inline bool GrBlendEquationIsAdvanced(GrBlendEquation equation) {
+    return equation >= kFirstAdvancedGrBlendEquation;
+}
+
 /**
  * Coeffecients for alpha-blending.
  */
@@ -138,6 +142,10 @@ public:
          * Clear color stages and override input color to that returned by getOptimizations
          */
         kOverrideColor_OptFlag            = 0x8,
+        /**
+         * Set CoverageDrawing_StateBit
+         */
+        kSetCoverageDrawing_OptFlag       = 0x10,
         /**
          * Can tweak alpha for coverage. Currently this flag should only be used by a batch
          */
