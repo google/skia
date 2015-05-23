@@ -10,7 +10,6 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrBatch.h"
 #include "GrContextFactory.h"
 #include "GrGpu.h"
 #include "GrXferProcessor.h"
@@ -24,7 +23,6 @@ static void test_alpha_opaque_with_coverage(skiatest::Reporter* reporter, const 
 static void test_alpha_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_color_white_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_color_white_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
-static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 
 DEF_GPUTEST(GrPorterDuff, reporter, factory) {
     GrContext* ctx = factory->get(GrContextFactory::kNull_GLContextType);
@@ -46,7 +44,6 @@ DEF_GPUTEST(GrPorterDuff, reporter, factory) {
     test_color_white_with_coverage(reporter, caps);
     test_color_white_with_coverage(reporter, caps);
     test_color_white_no_coverage(reporter, caps);
-    test_lcd_coverage(reporter, caps);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +100,6 @@ static void test_alpha_unknown_with_coverage(skiatest::Reporter* reporter, const
     SkASSERT(!colorPOI.isOpaque());
     SkASSERT(!colorPOI.isSolidWhite());
     SkASSERT(!covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
@@ -294,7 +290,6 @@ static void test_alpha_unknown_no_coverage(skiatest::Reporter* reporter, const G
     SkASSERT(!colorPOI.isOpaque());
     SkASSERT(!colorPOI.isSolidWhite());
     SkASSERT(covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
@@ -496,7 +491,6 @@ static void test_alpha_opaque_with_coverage(skiatest::Reporter* reporter, const 
     SkASSERT(colorPOI.isOpaque());
     SkASSERT(!colorPOI.isSolidWhite());
     SkASSERT(!covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
@@ -690,7 +684,6 @@ static void test_alpha_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
     SkASSERT(colorPOI.isOpaque());
     SkASSERT(!colorPOI.isSolidWhite());
     SkASSERT(covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
@@ -897,7 +890,6 @@ static void test_color_white_with_coverage(skiatest::Reporter* reporter, const G
     SkASSERT(colorPOI.isOpaque());
     SkASSERT(colorPOI.isSolidWhite());
     SkASSERT(!covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
@@ -1090,7 +1082,6 @@ static void test_color_white_no_coverage(skiatest::Reporter* reporter, const GrC
     SkASSERT(colorPOI.isOpaque());
     SkASSERT(colorPOI.isSolidWhite());
     SkASSERT(covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
@@ -1283,53 +1274,6 @@ static void test_color_white_no_coverage(skiatest::Reporter* reporter, const GrC
                 break;
         }
     }
-}
-
-static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    class : public GrBatch {
-        void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-            out->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
-        }
-
-        void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-            out->setUnknownFourComponents();
-            out->setUsingLCDCoverage();
-        }
-
-        const char* name() const override { return "Test LCD Text Batch"; }
-        void initBatchTracker(const GrPipelineInfo&) override {}
-        bool onCombineIfPossible(GrBatch*) override  { return false; }
-        void generateGeometry(GrBatchTarget*, const GrPipeline*) override {}
-
-    } testLCDCoverageBatch;
-
-    GrProcOptInfo colorPOI, covPOI;
-    colorPOI.calcColorWithBatch(&testLCDCoverageBatch, NULL, 0);
-    covPOI.calcCoverageWithBatch(&testLCDCoverageBatch, NULL, 0);
-
-    SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
-    SkASSERT(covPOI.isFourChannelOutput());
-
-    SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
-    TEST_ASSERT(!xpf->willNeedDstCopy(caps, colorPOI, covPOI));
-
-    GrXPFactory::InvariantOutput invariantOutput;
-    xpf->getInvariantOutput(colorPOI, covPOI, &invariantOutput);
-    TEST_ASSERT(invariantOutput.fWillBlendWithDst);
-    TEST_ASSERT(kNone_GrColorComponentFlags == invariantOutput.fBlendedColorFlags);
-
-    SkAutoTUnref<GrXferProcessor> xp(xpf->createXferProcessor(colorPOI, covPOI, 0, caps));
-    if (!xp) {
-        ERRORF(reporter, "Failed to create an XP with LCD coverage.");
-        return;
-    }
-
-    GrColor overrideColor;
-    xp->getOptimizations(colorPOI, covPOI, false, &overrideColor, caps);
-
-    GrXferProcessor::BlendInfo blendInfo;
-    xp->getBlendInfo(&blendInfo);
-    TEST_ASSERT(blendInfo.fWriteColor);
 }
 
 #endif
