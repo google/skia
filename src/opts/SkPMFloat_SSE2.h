@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+namespace {  // See SkPMFloat.h
+
 // For SkPMFloat(SkPMColor), we widen our 8 bit components (fix8) to 8-bit components in 16 bits
 // (fix8_16), then widen those to 8-bit-in-32-bits (fix8_32), and finally convert those to floats.
 
@@ -78,3 +80,5 @@ inline void SkPMFloat::RoundClampTo4PMColors(
     SkPMColorAssert(colors[2]);
     SkPMColorAssert(colors[3]);
 }
+
+}  // namespace

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+namespace {  // See SkPMFloat.h
+
 inline SkPMFloat::SkPMFloat(SkPMColor c) {
     *this = SkPMFloat::FromARGB(SkGetPackedA32(c),
                                 SkGetPackedR32(c),
@@ -62,3 +64,5 @@ inline void SkPMFloat::RoundClampTo4PMColors(
     colors[2] = c.roundClamp();
     colors[3] = d.roundClamp();
 }
+
+}  // namespace

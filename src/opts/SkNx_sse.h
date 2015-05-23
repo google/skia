@@ -9,7 +9,8 @@
 #define SkNx_sse_DEFINED
 
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
-#include <immintrin.h>
+
+namespace {  // See SkNx.h
 
 template <>
 class SkNb<2, 4> {
@@ -326,5 +327,7 @@ public:
 
     __m128i fVec;
 };
+
+}  // namespace
 
 #endif//SkNx_sse_DEFINED

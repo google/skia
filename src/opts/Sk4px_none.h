@@ -7,6 +7,8 @@
 
 #include "SkUtils.h"
 
+namespace { // See Sk4px.h
+
 static_assert(sizeof(Sk4px) == 16, "This file uses memcpy / sk_memset32, so exact size matters.");
 
 inline Sk4px::Sk4px(SkPMColor px) {
@@ -94,3 +96,4 @@ inline Sk4px Sk4px::zeroColors() const {
                  0,0,0, this->kth<15>());
 }
 
+}  // namespace

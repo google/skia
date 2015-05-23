@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+namespace { // See Sk4px.h
+
 inline Sk4px::Sk4px(SkPMColor px) : INHERITED((uint8x16_t)vdupq_n_u32(px)) {}
 
 inline Sk4px Sk4px::Load4(const SkPMColor px[4]) {
@@ -87,4 +89,6 @@ inline Sk4px Sk4px::zeroAlphas() const {
     // vbic(a,b) == a & ~b
     return Sk16b(vbicq_u8(this->fVec, (uint8x16_t)vdupq_n_u32(0xFF << SK_A32_SHIFT)));
 }
+
+} // namespace
 
