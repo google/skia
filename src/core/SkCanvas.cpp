@@ -712,10 +712,12 @@ bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
         weAllocated = true;
     }
 
-    SkBitmap bm(*bitmap);
-    bm.lockPixels();
-    if (bm.getPixels() && this->readPixels(bm.info(), bm.getPixels(), bm.rowBytes(), x, y)) {
-        return true;
+    SkAutoPixmapUnlock unlocker;
+    if (bitmap->requestLock(&unlocker)) {
+        const SkPixmap& pm = unlocker.pixmap();
+        if (this->readPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), x, y)) {
+            return true;
+        }
     }
 
     if (weAllocated) {
@@ -763,10 +765,11 @@ bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
     if (bitmap.getTexture()) {
         return false;
     }
-    SkBitmap bm(bitmap);
-    bm.lockPixels();
-    if (bm.getPixels()) {
-        return this->writePixels(bm.info(), bm.getPixels(), bm.rowBytes(), x, y);
+
+    SkAutoPixmapUnlock unlocker;
+    if (bitmap.requestLock(&unlocker)) {
+        const SkPixmap& pm = unlocker.pixmap();
+        return this->writePixels(pm.info(), pm.addr(), pm.rowBytes(), x, y);
     }
     return false;
 }
