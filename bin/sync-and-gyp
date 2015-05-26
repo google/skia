@@ -41,9 +41,12 @@ function catifexists() { if [ -f "$1" ]; then cat "$1"; fi; }
 
 function gyp_hasher() {
     {
+        echo "$CC"
+        echo "$CXX"
         echo "$GYP_GENERATORS"
         echo "$GYP_DEFINES"
         find gyp -type f -print -exec git hash-object {} \;
+        find bench gm tests -name '*.c*' | LANG= sort
     } | git hash-object --stdin
 }
 
