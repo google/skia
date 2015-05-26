@@ -226,6 +226,7 @@ private:
     friend class GrContext; // for ctor
 
     GrDrawContext(GrContext* context, GrDrawTarget* drawTarget);
+    ~GrDrawContext() override;
 
     // Sets the paint. Returns true on success; false on failure.
     bool prepareToDraw(GrPipelineBuilder*,
@@ -245,8 +246,8 @@ private:
                           const SkPath&,
                           const GrStrokeInfo&);
 
-    GrContext*                     fContext;     // owning context -> no ref
-    SkAutoTUnref<GrDrawTarget>     fDrawTarget;
+    GrContext*     fContext;     // owning context -> no ref
+    GrDrawTarget*  fDrawTarget;
 };
 
 #endif

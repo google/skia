@@ -78,7 +78,7 @@ GrContext::DrawingMgr::~DrawingMgr() {
 
 void GrContext::DrawingMgr::abandon() {
     SkSafeSetNull(fDrawTarget);
-    fDrawContext->fDrawTarget.reset(NULL);
+    SkSafeSetNull(fDrawContext->fDrawTarget);
     SkSafeSetNull(fDrawContext);
 }
 

@@ -33,6 +33,10 @@ GrDrawContext::GrDrawContext(GrContext* context, GrDrawTarget* drawTarget)
     , fDrawTarget(SkRef(drawTarget)) {
 }
 
+GrDrawContext::~GrDrawContext() {
+    SkSafeUnref(fDrawTarget);
+}
+
 void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) {
     if (!this->prepareToDraw(dst)) {
