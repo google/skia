@@ -82,7 +82,7 @@ public:
 
     bool writePixels(const SkImageInfo&, const void*, size_t rowBytes, int x, int y);
 
-    void* accessPixels(SkImageInfo* info, size_t* rowBytes);
+    bool accessPixels(SkPixmap* pmap);
 
     /**
      * Return the device's associated gpu render target, or NULL.
@@ -239,7 +239,9 @@ protected:
 
     virtual void drawTextOnPath(const SkDraw&, const void* text, size_t len, const SkPath&,
                                 const SkMatrix*, const SkPaint&);
+
     bool readPixels(const SkImageInfo&, void* dst, size_t rowBytes, int x, int y);
+    bool peekPixels(SkPixmap*);
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -272,11 +274,8 @@ protected:
     }
 
 protected:
-    // default impl returns NULL
-    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&);
-
-    // default impl returns NULL
-    virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes);
+    virtual SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) { return NULL; }
+    virtual bool onPeekPixels(SkPixmap*) { return false; }
 
     /**
      *  The caller is responsible for "pre-clipping" the dst. The impl can assume that the dst
@@ -294,10 +293,7 @@ protected:
      */
     virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y);
 
-    /**
-     *  Default impl returns NULL.
-     */
-    virtual void* onAccessPixels(SkImageInfo* info, size_t* rowBytes);
+    virtual bool onAccessPixels(SkPixmap*) { return false; }
 
     /**
      *  Leaky properties are those which the device should be applying but it isn't.

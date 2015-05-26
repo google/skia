@@ -118,7 +118,8 @@ protected:
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) override;
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
-    void* onAccessPixels(SkImageInfo* info, size_t* rowBytes) override;
+    bool onPeekPixels(SkPixmap*) override;
+    bool onAccessPixels(SkPixmap*) override;
     void onAttachToCanvas(SkCanvas*) override;
     void onDetachFromCanvas() override;
 
@@ -140,7 +141,6 @@ private:
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps&) override;
-    const void* peekPixels(SkImageInfo*, size_t* rowBytes) override;
 
     SkImageFilter::Cache* getImageFilterCache() override;
 

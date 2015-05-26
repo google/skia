@@ -20,6 +20,23 @@ void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+void SkPixmap::reset() {
+    fPixels = NULL;
+    fCTable = NULL;
+    fRowBytes = 0;
+    fInfo = SkImageInfo::MakeUnknown();
+}
+
+void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes, SkColorTable* ct) {
+    if (addr) {
+        SkASSERT(info.validRowBytes(rowBytes));
+    }
+    fPixels = addr;
+    fCTable = ct;
+    fRowBytes = rowBytes;
+    fInfo = info;
+}
+
 bool SkPixmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
                           int x, int y) const {
     if (kUnknown_SkColorType == requestedDstInfo.colorType()) {

@@ -91,10 +91,6 @@ void SkBaseDevice::initForRootLayer(SkPixelGeometry geo) {
                                                                   geo));
 }
 
-SkSurface* SkBaseDevice::newSurface(const SkImageInfo&, const SkSurfaceProps&) { return NULL; }
-
-const void* SkBaseDevice::peekPixels(SkImageInfo*, size_t*) { return NULL; }
-
 void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
                               const SkRRect& inner, const SkPaint& paint) {
     SkPath path;
@@ -221,26 +217,26 @@ bool SkBaseDevice::onReadPixels(const SkImageInfo&, void*, size_t, int x, int y)
     return false;
 }
 
-void* SkBaseDevice::accessPixels(SkImageInfo* info, size_t* rowBytes) {
-    SkImageInfo tmpInfo;
-    size_t tmpRowBytes;
-    if (NULL == info) {
-        info = &tmpInfo;
-    }
-    if (NULL == rowBytes) {
-        rowBytes = &tmpRowBytes;
-    }
-    return this->onAccessPixels(info, rowBytes);
-}
-
-void* SkBaseDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
-    return NULL;
-}
-
 bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkCanvas*, const SkPicture*, const SkMatrix*,
                                             const SkPaint*) {
     // The base class doesn't perform any accelerated picture rendering
     return false;
+}
+
+bool SkBaseDevice::accessPixels(SkPixmap* pmap) {
+    SkPixmap tempStorage;
+    if (NULL == pmap) {
+        pmap = &tempStorage;
+    }
+    return this->onAccessPixels(pmap);
+}
+
+bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
+    SkPixmap tempStorage;
+    if (NULL == pmap) {
+        pmap = &tempStorage;
+    }
+    return this->onPeekPixels(pmap);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

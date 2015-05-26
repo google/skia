@@ -1156,8 +1156,8 @@ protected:
     virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
 
     // default impl defers to its device
-    virtual const void* onPeekPixels(SkImageInfo*, size_t* rowBytes);
-    virtual void* onAccessTopLayerPixels(SkImageInfo*, size_t* rowBytes);
+    virtual bool onPeekPixels(SkPixmap*);
+    virtual bool onAccessTopLayerPixels(SkPixmap*);
 
     // Subclass save/restore notifiers.
     // Overriders should call the corresponding INHERITED method up the inheritance chain.

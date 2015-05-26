@@ -9,6 +9,7 @@
 #include "SkConfig8888.h"
 #include "SkDeviceProperties.h"
 #include "SkDraw.h"
+#include "SkPixelRef.h"
 #include "SkRasterClip.h"
 #include "SkShader.h"
 #include "SkSurface.h"
@@ -124,17 +125,20 @@ const SkBitmap& SkBitmapDevice::onAccessBitmap() {
     return fBitmap;
 }
 
-void* SkBitmapDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
-    if (fBitmap.getPixels()) {
-        *info = fBitmap.info();
-        *rowBytes = fBitmap.rowBytes();
-        return fBitmap.getPixels();
+bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
+    const SkImageInfo info = fBitmap.info();
+    if (fBitmap.getPixels() && (kUnknown_SkColorType != info.colorType())) {
+        SkColorTable* ctable = NULL;
+        pmap->reset(fBitmap.info(), fBitmap.getPixels(), fBitmap.rowBytes(), ctable);
+        return true;
     }
-    return NULL;
+    return false;
 }
 
-#include "SkConfig8888.h"
-#include "SkPixelRef.h"
+bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
+    // peek and access are the exact same logic for us
+    return this->onAccessPixels(pmap);
+}
 
 bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
                                    size_t srcRowBytes, int x, int y) {
@@ -354,20 +358,6 @@ void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
 
 SkSurface* SkBitmapDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
     return SkSurface::NewRaster(info, &props);
-}
-
-const void* SkBitmapDevice::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    const SkImageInfo bmInfo = fBitmap.info();
-    if (fBitmap.getPixels() && (kUnknown_SkColorType != bmInfo.colorType())) {
-        if (info) {
-            *info = bmInfo;
-        }
-        if (rowBytes) {
-            *rowBytes = fBitmap.rowBytes();
-        }
-        return fBitmap.getPixels();
-    }
-    return NULL;
 }
 
 SkImageFilter::Cache* SkBitmapDevice::getImageFilterCache() {

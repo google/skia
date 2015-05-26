@@ -1133,25 +1133,44 @@ SkImageInfo SkCanvas::imageInfo() const {
 }
 
 const void* SkCanvas::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    return this->onPeekPixels(info, rowBytes);
+    SkPixmap pmap;
+    if (!this->onPeekPixels(&pmap)) {
+        return NULL;
+    }
+    if (info) {
+        *info = pmap.info();
+    }
+    if (rowBytes) {
+        *rowBytes = pmap.rowBytes();
+    }
+    return pmap.addr();
 }
 
-const void* SkCanvas::onPeekPixels(SkImageInfo* info, size_t* rowBytes) {
+bool SkCanvas::onPeekPixels(SkPixmap* pmap) {
     SkBaseDevice* dev = this->getDevice();
-    return dev ? dev->peekPixels(info, rowBytes) : NULL;
+    return dev && dev->peekPixels(pmap);
 }
 
 void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin) {
-    void* pixels = this->onAccessTopLayerPixels(info, rowBytes);
-    if (pixels && origin) {
+    SkPixmap pmap;
+    if (!this->onAccessTopLayerPixels(&pmap)) {
+        return NULL;
+    }
+    if (info) {
+        *info = pmap.info();
+    }
+    if (rowBytes) {
+        *rowBytes = pmap.rowBytes();
+    }
+    if (origin) {
         *origin = this->getTopDevice(false)->getOrigin();
     }
-    return pixels;
+    return pmap.writable_addr();
 }
 
-void* SkCanvas::onAccessTopLayerPixels(SkImageInfo* info, size_t* rowBytes) {
+bool SkCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
     SkBaseDevice* dev = this->getTopDevice();
-    return dev ? dev->accessPixels(info, rowBytes) : NULL;
+    return dev && dev->accessPixels(pmap);
 }
 
 SkAutoROCanvasPixels::SkAutoROCanvasPixels(SkCanvas* canvas) {

@@ -147,9 +147,7 @@ protected:
     }
 
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
-    const void* onPeekPixels(SkImageInfo*, size_t*) override {
-        return NULL;
-    }
+    bool onPeekPixels(SkPixmap*) override { return false; }
 
     void willSave() override;
     SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) override;

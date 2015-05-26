@@ -33,6 +33,10 @@ public:
         }
     }
 
+    void reset();
+    void reset(const SkImageInfo& info, const void* addr, size_t rowBytes,
+               SkColorTable* ctable = NULL);
+
     const SkImageInfo& info() const { return fInfo; }
     size_t rowBytes() const { return fRowBytes; }
     const void* addr() const { return fPixels; }
