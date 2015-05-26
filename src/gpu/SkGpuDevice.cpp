@@ -8,6 +8,7 @@
 #include "SkGpuDevice.h"
 
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrLayerHoister.h"
@@ -168,6 +169,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
     fTextContext = fContext->createTextContext(fRenderTarget, this, this->getLeakyProperties(),
                                                useDFT);
+    fDrawContext.reset(SkRef(fContext->drawContext()));
 }
 
 GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::Budgeted budgeted,
@@ -226,7 +228,7 @@ SkGpuDevice::~SkGpuDevice() {
         delete fDrawProcs;
     }
 
-    delete fTextContext;
+    SkDELETE(fTextContext);
 
     fRenderTarget->unref();
     fContext->unref();
@@ -310,7 +312,7 @@ void SkGpuDevice::clearAll() {
     GrColor color = 0;
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::clearAll", fContext);
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
-    fContext->clear(&rect, color, true, fRenderTarget);
+    fDrawContext->clear(fRenderTarget, &rect, color, true);
     fNeedClear = false;
 }
 
@@ -344,6 +346,8 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     SkASSERT(fRenderTarget->surfacePriv().info() == fLegacyBitmap.info());
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (fRenderTarget->surfacePriv().info(), fRenderTarget));
     fLegacyBitmap.setPixelRef(pr)->unref();
+
+    fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -357,7 +361,7 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
         return;
     }
 
-    fContext->drawPaint(fRenderTarget, fClip, grPaint, *draw.fMatrix);
+    fDrawContext->drawPaint(fRenderTarget, fClip, grPaint, *draw.fMatrix);
 }
 
 // must be in SkCanvas::PointMode order
@@ -388,7 +392,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         path.setIsVolatile(true);
         path.moveTo(pts[0]);
         path.lineTo(pts[1]);
-        fContext->drawPath(fRenderTarget, fClip, grPaint, *draw.fMatrix, path, strokeInfo);
+        fDrawContext->drawPath(fRenderTarget, fClip, grPaint, *draw.fMatrix, path, strokeInfo);
         return;
     }
 
@@ -404,17 +408,17 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         return;
     }
 
-    fContext->drawVertices(fRenderTarget,
-                           fClip,
-                           grPaint,
-                           *draw.fMatrix,
-                           gPointMode2PrimtiveType[mode],
-                           SkToS32(count),
-                           (SkPoint*)pts,
-                           NULL,
-                           NULL,
-                           NULL,
-                           0);
+    fDrawContext->drawVertices(fRenderTarget,
+                               fClip,
+                               grPaint,
+                               *draw.fMatrix,
+                               gPointMode2PrimtiveType[mode],
+                               SkToS32(count),
+                               (SkPoint*)pts,
+                               NULL,
+                               NULL,
+                               NULL,
+                               0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -478,7 +482,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
         return;
     }
 
-    fContext->drawRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, rect, &strokeInfo);
+    fDrawContext->drawRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, rect, &strokeInfo);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -548,7 +552,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         return;
     }
 
-    fContext->drawRRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, rect, strokeInfo);
+    fDrawContext->drawRRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, rect, strokeInfo);
 }
 
 void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
@@ -566,7 +570,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
         }
 
         if (NULL == paint.getMaskFilter() && NULL == paint.getPathEffect()) {
-            fContext->drawDRRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, outer, inner);
+            fDrawContext->drawDRRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, outer, inner);
             return;
         }
     }
@@ -615,7 +619,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
         return;
     }
 
-    fContext->drawOval(fRenderTarget, fClip, grPaint, *draw.fMatrix, oval, strokeInfo);
+    fDrawContext->drawOval(fRenderTarget, fClip, grPaint, *draw.fMatrix, oval, strokeInfo);
 }
 
 #include "SkMaskFilter.h"
@@ -628,7 +632,7 @@ namespace {
 // Draw a mask using the supplied paint. Since the coverage/geometry
 // is already burnt into the mask this boils down to a rect draw.
 // Return true if the mask was successfully drawn.
-bool draw_mask(GrContext* context,
+bool draw_mask(GrDrawContext* drawContext,
                GrRenderTarget* rt,
                const GrClip& clip,
                const SkMatrix& viewMatrix,
@@ -646,7 +650,7 @@ bool draw_mask(GrContext* context,
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
-    context->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(), maskRect, inverse);
+    drawContext->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(), maskRect, inverse);
     return true;
 }
 
@@ -654,7 +658,8 @@ static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& r
     return clipBounds.isEmpty() || rect.isEmpty() || !SkIRect::Intersects(clipBounds, rect);
 }
 
-bool draw_with_mask_filter(GrContext* context,
+bool draw_with_mask_filter(GrDrawContext* drawContext,
+                           GrTextureProvider* textureProvider,
                            GrRenderTarget* rt,
                            const GrClip& clipData,
                            const SkMatrix& viewMatrix,
@@ -688,7 +693,7 @@ bool draw_with_mask_filter(GrContext* context,
     desc.fHeight = dstM.fBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> texture(context->textureProvider()->refScratchTexture(
+    SkAutoTUnref<GrTexture> texture(textureProvider->refScratchTexture(
         desc, GrTextureProvider::kApprox_ScratchTexMatch));
     if (!texture) {
         return false;
@@ -698,12 +703,11 @@ bool draw_with_mask_filter(GrContext* context,
 
     SkRect maskRect = SkRect::Make(dstM.fBounds);
 
-    return draw_mask(context, rt, clipData, viewMatrix, maskRect, grp, texture);
+    return draw_mask(drawContext, rt, clipData, viewMatrix, maskRect, grp, texture);
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.
 GrTexture* create_mask_GPU(GrContext* context,
-                           GrRenderTarget* rt,
                            const SkRect& maskRect,
                            const SkPath& devPath,
                            const GrStrokeInfo& strokeInfo,
@@ -731,7 +735,12 @@ GrTexture* create_mask_GPU(GrContext* context,
 
     SkRect clipRect = SkRect::MakeWH(maskRect.width(), maskRect.height());
 
-    context->clear(NULL, 0x0, true, mask->asRenderTarget());
+    GrDrawContext* drawContext = context->drawContext();
+    if (!drawContext) {
+        return NULL;
+    }
+
+    drawContext->clear(mask->asRenderTarget(), NULL, 0x0, true);
 
     GrPaint tempPaint;
     tempPaint.setAntiAlias(doAA);
@@ -743,7 +752,7 @@ GrTexture* create_mask_GPU(GrContext* context,
     // Draw the mask into maskTexture with the path's top-left at the origin using tempPaint.
     SkMatrix translate;
     translate.setTranslate(-maskRect.fLeft, -maskRect.fTop);
-    context->drawPath(mask->asRenderTarget(), clip, tempPaint, translate, devPath, strokeInfo);
+    drawContext->drawPath(mask->asRenderTarget(), clip, tempPaint, translate, devPath, strokeInfo);
     return mask;
 }
 
@@ -871,7 +880,6 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
 
 
             SkAutoTUnref<GrTexture> mask(create_mask_GPU(fContext,
-                                                         fRenderTarget,
                                                          maskRect,
                                                          *devPathPtr,
                                                          strokeInfo,
@@ -883,7 +891,7 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
                 if (paint.getMaskFilter()->filterMaskGPU(mask, viewMatrix, maskRect, &filtered, true)) {
                     // filterMaskGPU gives us ownership of a ref to the result
                     SkAutoTUnref<GrTexture> atu(filtered);
-                    if (draw_mask(fContext,
+                    if (draw_mask(fDrawContext,
                                   fRenderTarget,
                                   fClip,
                                   viewMatrix,
@@ -901,12 +909,13 @@ void SkGpuDevice::internalDrawPath(const SkPath& origSrcPath, const SkPaint& pai
         // GPU path fails
         SkPaint::Style style = strokeInfo.isHairlineStyle() ? SkPaint::kStroke_Style :
                                                               SkPaint::kFill_Style;
-        draw_with_mask_filter(fContext, fRenderTarget, fClip, viewMatrix, *devPathPtr,
+        draw_with_mask_filter(fDrawContext, fContext->textureProvider(), fRenderTarget,
+                              fClip, viewMatrix, *devPathPtr,
                               paint.getMaskFilter(), clipBounds, &grPaint, style);
         return;
     }
 
-    fContext->drawPath(fRenderTarget, fClip, grPaint, viewMatrix, *pathPtr, strokeInfo);
+    fDrawContext->drawPath(fRenderTarget, fClip, grPaint, viewMatrix, *pathPtr, strokeInfo);
 }
 
 static const int kBmpSmallTileSize = 1 << 10;
@@ -1493,8 +1502,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         return;
     }
 
-    fContext->drawNonAARectToRect(fRenderTarget, fClip, grPaint, viewMatrix, dstRect,
-                                  paintRect);
+    fDrawContext->drawNonAARectToRect(fRenderTarget, fClip, grPaint, viewMatrix, dstRect,
+                                      paintRect);
 }
 
 bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
@@ -1569,18 +1578,18 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
-    fContext->drawNonAARectToRect(fRenderTarget,
-                                  fClip,
-                                  grPaint,
-                                  SkMatrix::I(),
-                                  SkRect::MakeXYWH(SkIntToScalar(left),
-                                                   SkIntToScalar(top),
-                                                   SkIntToScalar(w),
-                                                   SkIntToScalar(h)),
-                                  SkRect::MakeXYWH(0,
-                                                   0,
-                                                   SK_Scalar1 * w / texture->width(),
-                                                   SK_Scalar1 * h / texture->height()));
+    fDrawContext->drawNonAARectToRect(fRenderTarget,
+                                      fClip,
+                                      grPaint,
+                                      SkMatrix::I(),
+                                      SkRect::MakeXYWH(SkIntToScalar(left),
+                                                       SkIntToScalar(top),
+                                                       SkIntToScalar(w),
+                                                       SkIntToScalar(h)),
+                                      SkRect::MakeXYWH(0,
+                                                       0,
+                                                       SK_Scalar1 * w / texture->width(),
+                                                       SK_Scalar1 * h / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
@@ -1695,8 +1704,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     SkRect srcRect = SkRect::MakeWH(SK_Scalar1 * w / devTex->width(),
                                     SK_Scalar1 * h / devTex->height());
 
-    fContext->drawNonAARectToRect(fRenderTarget, fClip, grPaint, SkMatrix::I(), dstRect,
-                                  srcRect);
+    fDrawContext->drawNonAARectToRect(fRenderTarget, fClip, grPaint, SkMatrix::I(), dstRect,
+                                      srcRect);
 }
 
 bool SkGpuDevice::canHandleImageFilter(const SkImageFilter* filter) {
@@ -1865,17 +1874,17 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         }
         colors = convertedColors.get();
     }
-    fContext->drawVertices(fRenderTarget,
-                           fClip,
-                           grPaint,
-                           *draw.fMatrix,
-                           primType,
-                           vertexCount,
-                           vertices,
-                           texs,
-                           colors,
-                           outIndices,
-                           indexCount);
+    fDrawContext->drawVertices(fRenderTarget,
+                               fClip,
+                               grPaint,
+                               *draw.fMatrix,
+                               primType,
+                               vertexCount,
+                               vertices,
+                               texs,
+                               colors,
+                               outIndices,
+                               indexCount);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

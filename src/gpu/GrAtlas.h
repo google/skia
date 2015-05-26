@@ -10,8 +10,8 @@
 #define GrAtlas_DEFINED
 
 
+#include "SkTDArray.h"
 #include "GrTexture.h"
-#include "GrDrawTarget.h"
 #include "SkPoint.h"
 #include "SkTInternalLList.h"
 

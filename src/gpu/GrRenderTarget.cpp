@@ -10,6 +10,7 @@
 #include "GrRenderTarget.h"
 
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrGpu.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
@@ -17,10 +18,12 @@
 void GrRenderTarget::discard() {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
-    if (NULL == context) {
+    GrDrawContext* drawContext = context ? context->drawContext() : NULL;
+    if (!drawContext) {
         return;
     }
-    context->discardRenderTarget(this);
+
+    drawContext->discard(this);
 }
 
 void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {

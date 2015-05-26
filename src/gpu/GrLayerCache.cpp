@@ -6,6 +6,7 @@
  */
 
 #include "GrAtlas.h"
+#include "GrDrawContext.h"
 #include "GrGpu.h"
 #include "GrLayerCache.h"
 #include "GrSurfacePriv.h"
@@ -465,7 +466,11 @@ void GrLayerCache::purgeAll() {
 
     SkASSERT(0 == fPictureHash.count());
 
-    fContext->discardRenderTarget(fAtlas->getTexture()->asRenderTarget());
+    GrDrawContext* drawContext = fContext->drawContext();
+
+    if (drawContext) {
+        drawContext->discard(fAtlas->getTexture()->asRenderTarget());
+    }
 }
 #endif
 

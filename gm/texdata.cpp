@@ -12,6 +12,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "SkColorPriv.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -38,7 +39,8 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* target = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* ctx = canvas->getGrContext();
-        if (ctx && target) {
+        GrDrawContext* drawContext = ctx ? ctx->drawContext() : NULL;
+        if (drawContext && target) {
             SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
             static const int stride = 2 * S;
             static const SkPMColor gray  = SkPackARGB32(0x40, 0x40, 0x40, 0x40);
@@ -111,7 +113,7 @@ protected:
                 tm.postIDiv(2*S, 2*S);
                 paint.addColorTextureProcessor(texture, tm);
 
-                ctx->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
+                drawContext->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
 
                 // now update the lower right of the texture in first pass
                 // or upper right in second pass
@@ -125,7 +127,7 @@ protected:
                 texture->writePixels(S, (i ? 0 : S), S, S,
                                      texture->config(), gTextureData.get(),
                                      4 * stride);
-                ctx->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
+                drawContext->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
             }
         } else {
             this->drawGpuOnlyMessage(canvas);

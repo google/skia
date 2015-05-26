@@ -151,6 +151,7 @@ private:
     SkIPoint                        fClipOrigin;
     GrClip                          fClip;
     GrTextContext*                  fTextContext;
+    SkAutoTUnref<GrDrawContext>     fDrawContext;
     SkSurfaceProps                  fSurfaceProps;
     GrRenderTarget*                 fRenderTarget;
     // remove when our clients don't rely on accessBitmap()

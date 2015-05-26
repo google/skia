@@ -24,6 +24,7 @@
 #endif
 
 class BitmapTextBatch;
+class GrDrawContext;
 class GrPipelineBuilder;
 class GrTextBlobCache;
 
@@ -278,17 +279,17 @@ private:
                                         int glyphCount, int run, int subRun,
                                         GrColor, SkScalar transX, SkScalar transY,
                                         const SkPaint&);
-    inline void flushRun(GrDrawTarget*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
+    inline void flushRun(GrDrawContext*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
     inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
                                const SkPaint& skPaint,
                                SkScalar transX, SkScalar transY, const SkIRect& clipBounds);
 
     // We have to flush SkTextBlobs differently from drawText / drawPosText
-    void flush(GrDrawTarget*, const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
+    void flush(GrDrawContext*, const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
                const GrPaint&, SkDrawFilter*, const GrClip&, const SkMatrix& viewMatrix,
                const SkIRect& clipBounds, SkScalar x, SkScalar y, SkScalar transX, SkScalar transY);
-    void flush(GrDrawTarget*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
+    void flush(GrDrawContext*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
                const GrPaint&, const GrClip&, const SkIRect& clipBounds);
 
     // A helper for drawing BitmapText in a run of distance fields

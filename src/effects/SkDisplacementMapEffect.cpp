@@ -12,6 +12,7 @@
 #include "SkColorPriv.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "effects/GrTextureDomain.h"
@@ -457,8 +458,14 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     SkMatrix matrix;
     matrix.setTranslate(-SkIntToScalar(colorBounds.x()),
                         -SkIntToScalar(colorBounds.y()));
-    context->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, matrix,
-                      SkRect::Make(colorBounds));
+
+    GrDrawContext* drawContext = context->drawContext();
+    if (!drawContext) {
+        return false;
+    }
+
+    drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, matrix,
+                          SkRect::Make(colorBounds));
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     WrapTexture(dst, bounds.width(), bounds.height(), result);

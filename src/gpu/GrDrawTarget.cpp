@@ -8,6 +8,7 @@
 
 #include "GrDrawTarget.h"
 
+#include "GrAARectRenderer.h"
 #include "GrBatch.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -293,7 +294,7 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
                       transformType, count, stencilSettings, pipelineInfo);
 }
 
-void GrDrawTarget::drawRect(GrPipelineBuilder* pipelineBuilder,
+void GrDrawTarget::drawBWRect(GrPipelineBuilder* pipelineBuilder,
                             GrColor color,
                             const SkMatrix& viewMatrix,
                             const SkRect& rect,
@@ -302,6 +303,14 @@ void GrDrawTarget::drawRect(GrPipelineBuilder* pipelineBuilder,
    SkAutoTUnref<GrBatch> batch(GrRectBatch::Create(color, viewMatrix, rect, localRect,
                                                    localMatrix));
    this->drawBatch(pipelineBuilder, batch);
+}
+
+void GrDrawTarget::drawAARect(GrPipelineBuilder* pipelineBuilder,
+                              GrColor color,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& rect,
+                              const SkRect& devRect) {
+   GrAARectRenderer::FillAARect(this, pipelineBuilder, color, viewMatrix, rect, devRect);
 }
 
 void GrDrawTarget::clear(const SkIRect* rect,

@@ -24,8 +24,7 @@ GrTextContext::GrTextContext(GrContext* context, SkGpuDevice* gpuDevice,
     : fFallbackTextContext(NULL)
     , fContext(context)
     , fGpuDevice(gpuDevice)
-    , fDeviceProperties(properties)
-    , fDrawTarget(NULL) {
+    , fDeviceProperties(properties) {
 }
 
 GrTextContext::~GrTextContext() {
@@ -41,8 +40,6 @@ void GrTextContext::init(GrRenderTarget* rt, const GrClip& clip, const GrPaint& 
     fRegionClipBounds = regionClipBounds;
     fClip.getConservativeBounds(fRenderTarget->width(), fRenderTarget->height(), &fClipRect);
 
-    fDrawTarget = fContext->getTextTarget();
-
     fPaint = grPaint;
     fSkPaint = skPaint;
 }
@@ -51,7 +48,7 @@ void GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
                              const SkPaint& skPaint, const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y, const SkIRect& clipBounds) {
-    if (!fContext->getTextTarget()) {
+    if (fContext->abandoned()) {
         return;
     }
 
@@ -75,7 +72,7 @@ void GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset, const SkIRect& clipBounds) {
-    if (!fContext->getTextTarget()) {
+    if (fContext->abandoned()) {
         return;
     }
 

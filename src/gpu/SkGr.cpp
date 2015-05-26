@@ -7,6 +7,7 @@
 
 #include "SkGr.h"
 
+#include "GrDrawContext.h"
 #include "GrXferProcessor.h"
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
@@ -245,8 +246,13 @@ GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
     SkRect localRect = SkRect::MakeWH(1.f, 1.f);
 
-    context->drawNonAARectToRect(stretched->asRenderTarget(), GrClip::WideOpen(), paint,
-                                 SkMatrix::I(), rect, localRect);
+    GrDrawContext* drawContext = context->drawContext();
+    if (!drawContext) {
+        return NULL;
+    }
+
+    drawContext->drawNonAARectToRect(stretched->asRenderTarget(), GrClip::WideOpen(), paint,
+                                     SkMatrix::I(), rect, localRect);
 
     return stretched;
 }
@@ -398,7 +404,12 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
     SkRect r = SkRect::MakeWH(SkIntToScalar(yuvInfo.fSize[0].fWidth),
                               SkIntToScalar(yuvInfo.fSize[0].fHeight));
 
-    ctx->drawRect(renderTarget, GrClip::WideOpen(), paint, SkMatrix::I(), r);
+    GrDrawContext* drawContext = ctx->drawContext();
+    if (!drawContext) {
+        return NULL;
+    }
+
+    drawContext->drawRect(renderTarget, GrClip::WideOpen(), paint, SkMatrix::I(), r);
 
     return result;
 }

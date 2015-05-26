@@ -53,7 +53,6 @@ protected:
 
     SkAutoTUnref<GrRenderTarget>   fRenderTarget;
     GrClip                         fClip;
-    GrDrawTarget*                  fDrawTarget;
     SkIRect                        fClipRect;
     SkIRect                        fRegionClipBounds;
     GrPaint                        fPaint;
@@ -83,7 +82,6 @@ protected:
 
     void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
               const SkIRect& regionClipBounds);
-    void finish() { fDrawTarget = NULL; }
 
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
     // sets extent in stopVector and returns glyph count

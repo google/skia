@@ -602,7 +602,7 @@ GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrOvalRenderer::drawOval(GrDrawTarget* target,
+bool GrOvalRenderer::DrawOval(GrDrawTarget* target,
                               GrPipelineBuilder* pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,
@@ -618,15 +618,15 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target,
 
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height()) && circle_stays_circle(viewMatrix)) {
-        this->drawCircle(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval, stroke);
+        DrawCircle(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
     } else if (target->caps()->shaderCaps()->shaderDerivativeSupport()) {
-        return this->drawDIEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
-                                   stroke);
+        return DrawDIEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
+                             stroke);
     // otherwise axis-aligned ellipses only
     } else if (viewMatrix.rectStaysRect()) {
-        return this->drawEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
-                                 stroke);
+        return DrawEllipse(target, pipelineBuilder, color, viewMatrix, useCoverageAA, oval,
+                           stroke);
     } else {
         return false;
     }
@@ -834,7 +834,7 @@ static GrBatch* create_circle_batch(GrColor color,
     return CircleBatch::Create(geometry);
 }
 
-void GrOvalRenderer::drawCircle(GrDrawTarget* target,
+void GrOvalRenderer::DrawCircle(GrDrawTarget* target,
                                 GrPipelineBuilder* pipelineBuilder,
                                 GrColor color,
                                 const SkMatrix& viewMatrix,
@@ -1091,7 +1091,7 @@ static GrBatch* create_ellipse_batch(GrColor color,
     return EllipseBatch::Create(geometry);
 }
 
-bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
+bool GrOvalRenderer::DrawEllipse(GrDrawTarget* target,
                                  GrPipelineBuilder* pipelineBuilder,
                                  GrColor color,
                                  const SkMatrix& viewMatrix,
@@ -1337,7 +1337,7 @@ static GrBatch* create_diellipse_batch(GrColor color,
     return DIEllipseBatch::Create(geometry, devBounds);
 }
 
-bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
+bool GrOvalRenderer::DrawDIEllipse(GrDrawTarget* target,
                                    GrPipelineBuilder* pipelineBuilder,
                                    GrColor color,
                                    const SkMatrix& viewMatrix,
@@ -1396,7 +1396,7 @@ static const GrIndexBuffer* ref_rrect_index_buffer(bool strokeOnly,
     }
 }
 
-bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
+bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
                                 GrPipelineBuilder* pipelineBuilder,
                                 GrColor color,
                                 const SkMatrix& viewMatrix,
@@ -1426,7 +1426,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
-    if (this->drawRRect(target, pipelineBuilder, color, viewMatrix, useAA, origOuter, fillRec)) {
+    if (DrawRRect(target, pipelineBuilder, color, viewMatrix, useAA, origOuter, fillRec)) {
         return true;
     }
 
@@ -1457,7 +1457,7 @@ bool GrOvalRenderer::drawDRRect(GrDrawTarget* target,
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawRect(pipelineBuilder, color, SkMatrix::I(), bounds, NULL, &invert);
+    target->drawBWRect(pipelineBuilder, color, SkMatrix::I(), bounds, NULL, &invert);
     return true;
 }
 
@@ -1966,7 +1966,7 @@ static GrBatch* create_rrect_batch(GrColor color,
     }
 }
 
-bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
+bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
                                GrPipelineBuilder* pipelineBuilder,
                                GrColor color,
                                const SkMatrix& viewMatrix,
@@ -1974,8 +1974,8 @@ bool GrOvalRenderer::drawRRect(GrDrawTarget* target,
                                const SkRRect& rrect,
                                const SkStrokeRec& stroke) {
     if (rrect.isOval()) {
-        return this->drawOval(target, pipelineBuilder, color, viewMatrix, useAA, rrect.getBounds(),
-                              stroke);
+        return DrawOval(target, pipelineBuilder, color, viewMatrix, useAA, rrect.getBounds(),
+                        stroke);
     }
 
     bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isMultisampled();

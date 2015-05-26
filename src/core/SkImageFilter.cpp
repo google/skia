@@ -20,6 +20,7 @@
 #include "SkValidationUtils.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "SkGrPixelRef.h"
 #include "SkGr.h"
 #endif
@@ -276,11 +277,15 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
         SkASSERT(fp);
         GrPaint paint;
         paint.addColorProcessor(fp)->unref();
-        context->drawNonAARectToRect(dst->asRenderTarget(), clip, paint, SkMatrix::I(), dstRect,
-                                     srcRect);
 
-        WrapTexture(dst, bounds.width(), bounds.height(), result);
-        return true;
+        GrDrawContext* drawContext = context->drawContext();
+        if (drawContext) {
+            drawContext->drawNonAARectToRect(dst->asRenderTarget(), clip, paint, SkMatrix::I(),
+                                             dstRect, srcRect);
+
+            WrapTexture(dst, bounds.width(), bounds.height(), result);
+            return true;
+        }
     }
 #endif
     return false;

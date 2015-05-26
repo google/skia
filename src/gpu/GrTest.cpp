@@ -27,7 +27,7 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    tar->init(this, fDrawBuffer);
+    tar->init(this, fDrawingMgr.fDrawTarget);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -268,7 +268,5 @@ void GrContext::initMockContext() {
     // We delete these because we want to test the cache starting with zero resources. Also, none of
     // these objects are required for any of tests that use this context. TODO: make stop allocating
     // resources in the buffer pools.
-    SkDELETE(fDrawBuffer);
-    fDrawBuffer = NULL;
-
+    fDrawingMgr.abandon();
 }

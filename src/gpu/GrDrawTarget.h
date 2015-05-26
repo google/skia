@@ -118,26 +118,31 @@ public:
      *                    that rectangle before it is input to GrCoordTransforms that read local
      *                    coordinates
      */
-    void drawRect(GrPipelineBuilder* pipelineBuilder,
-                  GrColor color,
-                  const SkMatrix& viewMatrix,
-                  const SkRect& rect,
-                  const SkRect* localRect,
-                  const SkMatrix* localMatrix);
+    void drawBWRect(GrPipelineBuilder* pipelineBuilder,
+                    GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect* localRect,
+                    const SkMatrix* localMatrix);
 
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
     void drawSimpleRect(GrPipelineBuilder* ds, GrColor color, const SkMatrix& viewM,
                         const SkRect& rect) {
-        this->drawRect(ds, color, viewM, rect, NULL, NULL);
+        this->drawBWRect(ds, color, viewM, rect, NULL, NULL);
     }
     void drawSimpleRect(GrPipelineBuilder* ds, GrColor color, const SkMatrix& viewM,
                         const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
-        this->drawRect(ds, color, viewM, rect, NULL, NULL);
+        this->drawBWRect(ds, color, viewM, rect, NULL, NULL);
     }
 
+    void drawAARect(GrPipelineBuilder* pipelineBuilder,
+                    GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect& devRect);
 
     /**
      * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole

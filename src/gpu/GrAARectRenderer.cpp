@@ -313,7 +313,7 @@ enum CoverageAttribType {
 };
 }
 
-void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
+void GrAARectRenderer::GeometryFillAARect(GrDrawTarget* target,
                                           GrPipelineBuilder* pipelineBuilder,
                                           GrColor color,
                                           const SkMatrix& viewMatrix,
@@ -330,7 +330,7 @@ void GrAARectRenderer::geometryFillAARect(GrDrawTarget* target,
     target->drawBatch(pipelineBuilder, batch);
 }
 
-void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
+void GrAARectRenderer::StrokeAARect(GrDrawTarget* target,
                                     GrPipelineBuilder* pipelineBuilder,
                                     GrColor color,
                                     const SkMatrix& viewMatrix,
@@ -371,7 +371,7 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
     }
 
     if (spare <= 0 && miterStroke) {
-        this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside, devOutside);
+        FillAARect(target, pipelineBuilder, color, viewMatrix, devOutside, devOutside);
         return;
     }
 
@@ -388,8 +388,8 @@ void GrAARectRenderer::strokeAARect(GrDrawTarget* target,
         devOutsideAssist.outset(0, ry);
     }
 
-    this->geometryStrokeAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
-                               devOutsideAssist, devInside, miterStroke);
+    GeometryStrokeAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
+                         devOutsideAssist, devInside, miterStroke);
 }
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
@@ -773,7 +773,7 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
+void GrAARectRenderer::GeometryStrokeAARect(GrDrawTarget* target,
                                             GrPipelineBuilder* pipelineBuilder,
                                             GrColor color,
                                             const SkMatrix& viewMatrix,
@@ -792,7 +792,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrDrawTarget* target,
     target->drawBatch(pipelineBuilder, batch);
 }
 
-void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
+void GrAARectRenderer::FillAANestedRects(GrDrawTarget* target,
                                          GrPipelineBuilder* pipelineBuilder,
                                          GrColor color,
                                          const SkMatrix& viewMatrix,
@@ -805,12 +805,12 @@ void GrAARectRenderer::fillAANestedRects(GrDrawTarget* target,
     viewMatrix.mapRect(&devInside, rects[1]);
 
     if (devInside.isEmpty()) {
-        this->fillAARect(target, pipelineBuilder, color, viewMatrix, devOutside, devOutside);
+        FillAARect(target, pipelineBuilder, color, viewMatrix, devOutside, devOutside);
         return;
     }
 
-    this->geometryStrokeAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
-                               devOutside, devInside, true);
+    GeometryStrokeAARect(target, pipelineBuilder, color, viewMatrix, devOutside,
+                         devOutside, devInside, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

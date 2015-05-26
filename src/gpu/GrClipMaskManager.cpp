@@ -8,8 +8,9 @@
 #include "GrClipMaskManager.h"
 #include "GrAAConvexPathRenderer.h"
 #include "GrAAHairLinePathRenderer.h"
-#include "GrAARectRenderer.h"
 #include "GrCaps.h"
+#include "GrDrawContext.h"
+#include "GrDrawTarget.h"
 #include "GrPaint.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTarget.h"
@@ -394,14 +395,12 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
             if (element->isAA()) {
                 SkRect devRect = element->getRect();
                 viewMatrix.mapRect(&devRect);
-                this->getContext()->getAARectRenderer()->fillAARect(fClipTarget,
-                                                                    pipelineBuilder,
-                                                                    color,
-                                                                    viewMatrix,
-                                                                    element->getRect(),
-                                                                    devRect);
+
+                fClipTarget->drawAARect(pipelineBuilder, color, viewMatrix,
+                                        element->getRect(), devRect);
             } else {
-                fClipTarget->drawSimpleRect(pipelineBuilder, color, viewMatrix, element->getRect());
+                fClipTarget->drawSimpleRect(pipelineBuilder, color, viewMatrix,
+                                            element->getRect());
             }
             return true;
         default: {

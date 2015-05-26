@@ -11,7 +11,6 @@
 #include "GrColor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
-#include "SkRefCnt.h"
 #include "SkStrokeRec.h"
 
 class GrClip;
@@ -22,55 +21,53 @@ class GrPipelineBuilder;
 /*
  * This class wraps helper functions that draw AA rects (filled & stroked)
  */
-class GrAARectRenderer : public SkRefCnt {
+class GrAARectRenderer {
 public:
-    SK_DECLARE_INST_COUNT(GrAARectRenderer)
-
     // TODO: potentialy fuse the fill & stroke methods and differentiate
     // between them by passing in stroke (==NULL means fill).
 
-    void fillAARect(GrDrawTarget* target,
-                    GrPipelineBuilder* pipelineBuilder,
-                    GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect& devRect) {
-        this->geometryFillAARect(target, pipelineBuilder, color, viewMatrix, rect, devRect);
+    static void FillAARect(GrDrawTarget* target,
+                           GrPipelineBuilder* pipelineBuilder,
+                           GrColor color,
+                           const SkMatrix& viewMatrix,
+                           const SkRect& rect,
+                           const SkRect& devRect) {
+        GeometryFillAARect(target, pipelineBuilder, color, viewMatrix, rect, devRect);
     }
 
-    void strokeAARect(GrDrawTarget*,
-                      GrPipelineBuilder*,
-                      GrColor,
-                      const SkMatrix& viewMatrix,
-                      const SkRect& rect,
-                      const SkRect& devRect,
-                      const SkStrokeRec& stroke);
+    static void StrokeAARect(GrDrawTarget*,
+                             GrPipelineBuilder*,
+                             GrColor,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rect,
+                             const SkRect& devRect,
+                             const SkStrokeRec& stroke);
 
     // First rect is outer; second rect is inner
-    void fillAANestedRects(GrDrawTarget*,
-                           GrPipelineBuilder*,
-                           GrColor,
-                           const SkMatrix& viewMatrix,
-                           const SkRect rects[2]);
+    static void FillAANestedRects(GrDrawTarget*,
+                                  GrPipelineBuilder*,
+                                  GrColor,
+                                  const SkMatrix& viewMatrix,
+                                  const SkRect rects[2]);
 
 private:
-    void geometryFillAARect(GrDrawTarget*,
-                            GrPipelineBuilder*,
-                            GrColor,
-                            const SkMatrix& viewMatrix,
-                            const SkRect& rect,
-                            const SkRect& devRect);
+    GrAARectRenderer();
 
-    void geometryStrokeAARect(GrDrawTarget*,
-                              GrPipelineBuilder*,
-                              GrColor,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& devOutside,
-                              const SkRect& devOutsideAssist,
-                              const SkRect& devInside,
-                              bool miterStroke);
+    static void GeometryFillAARect(GrDrawTarget*,
+                                   GrPipelineBuilder*,
+                                   GrColor,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkRect& devRect);
 
-    typedef SkRefCnt INHERITED;
+    static void GeometryStrokeAARect(GrDrawTarget*,
+                                     GrPipelineBuilder*,
+                                     GrColor,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRect& devOutside,
+                                     const SkRect& devOutsideAssist,
+                                     const SkRect& devInside,
+                                     bool miterStroke);
 };
 
 #endif // GrAARectRenderer_DEFINED

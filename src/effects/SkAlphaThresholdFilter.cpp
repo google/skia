@@ -10,6 +10,9 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkRegion.h"
+#if SK_SUPPORT_GPU
+#include "GrDrawContext.h"
+#endif
 
 class SK_API SkAlphaThresholdFilterImpl : public SkImageFilter {
 public:
@@ -284,16 +287,17 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
             return false;
         }
 
-        {
+        GrDrawContext* drawContext = context->drawContext();
+        if (drawContext) {
             GrPaint grPaint;
             grPaint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
             SkRegion::Iterator iter(fRegion);
-            context->clear(NULL, 0x0, true, maskTexture->asRenderTarget());
+            drawContext->clear(maskTexture->asRenderTarget(), NULL, 0x0, true);
 
             while (!iter.done()) {
                 SkRect rect = SkRect::Make(iter.rect());
-                context->drawRect(maskTexture->asRenderTarget(), GrClip::WideOpen(), grPaint,
-                                  in_matrix, rect);
+                drawContext->drawRect(maskTexture->asRenderTarget(), GrClip::WideOpen(), grPaint,
+                                      in_matrix, rect);
                 iter.next();
             }
         }

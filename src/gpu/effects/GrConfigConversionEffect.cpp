@@ -7,6 +7,7 @@
 
 #include "GrConfigConversionEffect.h"
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
@@ -207,6 +208,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
     bool failed = true;
 
+    GrDrawContext* drawContext = context->drawContext();
+    if (!drawContext) {
+        return;
+    }
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(kConversionRules) && failed; ++i) {
         *pmToUPMRule = kConversionRules[i][0];
         *upmToPMRule = kConversionRules[i][1];
@@ -229,32 +235,32 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         GrPaint paint1;
         paint1.addColorProcessor(pmToUPM1);
-        context->drawNonAARectToRect(readTex->asRenderTarget(),
-                                     GrClip::WideOpen(),
-                                     paint1,
-                                     SkMatrix::I(),
-                                     kDstRect,
-                                     kSrcRect);
+        drawContext->drawNonAARectToRect(readTex->asRenderTarget(),
+                                         GrClip::WideOpen(),
+                                         paint1,
+                                         SkMatrix::I(),
+                                         kDstRect,
+                                         kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         GrPaint paint2;
         paint2.addColorProcessor(upmToPM);
-        context->drawNonAARectToRect(tempTex->asRenderTarget(),
-                                     GrClip::WideOpen(),
-                                     paint2,
-                                     SkMatrix::I(),
-                                     kDstRect,
-                                     kSrcRect);
+        drawContext->drawNonAARectToRect(tempTex->asRenderTarget(),
+                                         GrClip::WideOpen(),
+                                         paint2,
+                                         SkMatrix::I(),
+                                         kDstRect,
+                                         kSrcRect);
 
         GrPaint paint3;
         paint3.addColorProcessor(pmToUPM2);
-        context->drawNonAARectToRect(readTex->asRenderTarget(),
-                                     GrClip::WideOpen(),
-                                     paint3,
-                                     SkMatrix::I(),
-                                     kDstRect,
-                                     kSrcRect);
+        drawContext->drawNonAARectToRect(readTex->asRenderTarget(),
+                                         GrClip::WideOpen(),
+                                         paint3,
+                                         SkMatrix::I(),
+                                         kDstRect,
+                                         kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);
 

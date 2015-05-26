@@ -19,6 +19,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrTexture.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
@@ -870,8 +871,14 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
-    context->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(), rect, inverse);
-    return true;
+
+    GrDrawContext* drawContext = context->drawContext();
+    if (drawContext) {
+        drawContext->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(), rect, inverse);
+        return true;
+    }
+
+    return false;
 }
 
 class GrRRectBlurEffect : public GrFragmentProcessor {
@@ -1154,8 +1161,15 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
-    context->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(), proxy_rect, inverse);
-    return true;
+
+    GrDrawContext* drawContext = context->drawContext();
+    if (drawContext) {
+        drawContext->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(),
+                                                  proxy_rect, inverse);
+        return true;
+    }
+
+    return false;
 }
 
 bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRect& srcBounds,
@@ -1236,8 +1250,14 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
             //             = 0 * src + (1 - src) * dst
             paint.setCoverageSetOpXPFactory(SkRegion::kDifference_Op);
         }
-        context->drawRect((*result)->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(),
-                          clipRect);
+
+        GrDrawContext* drawContext = context->drawContext();
+        if (!drawContext) {
+            return false;
+        }
+
+        drawContext->drawRect((*result)->asRenderTarget(), GrClip::WideOpen(),
+                              paint, SkMatrix::I(), clipRect);
     }
 
     return true;

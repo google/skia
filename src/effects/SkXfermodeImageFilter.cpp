@@ -14,6 +14,7 @@
 #include "SkXfermode.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "effects/GrTextureDomain.h"
 #include "SkGr.h"
 #endif
@@ -178,7 +179,14 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
 
     paint.addColorProcessor(foregroundDomain.get());
     paint.addColorProcessor(xferProcessor)->unref();
-    context->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(), srcRect);
+
+    GrDrawContext* drawContext = context->drawContext();
+    if (!drawContext) {
+        return false;
+    }
+
+    drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, 
+                          SkMatrix::I(), srcRect);
 
     offset->fX = backgroundOffset.fX;
     offset->fY = backgroundOffset.fY;

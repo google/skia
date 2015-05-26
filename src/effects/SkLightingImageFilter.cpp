@@ -15,6 +15,7 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
+#include "GrDrawContext.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
@@ -310,7 +311,7 @@ protected:
 #endif
 private:
 #if SK_SUPPORT_GPU
-    void drawRect(GrContext* context,
+    void drawRect(GrDrawContext* drawContext,
                   GrTexture* src,
                   GrTexture* dst,
                   const SkMatrix& matrix,
@@ -323,7 +324,7 @@ private:
 };
 
 #if SK_SUPPORT_GPU
-void SkLightingImageFilterInternal::drawRect(GrContext* context,
+void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
                                              GrTexture* src,
                                              GrTexture* dst,
                                              const SkMatrix& matrix,
@@ -335,8 +336,8 @@ void SkLightingImageFilterInternal::drawRect(GrContext* context,
     GrFragmentProcessor* fp = this->getFragmentProcessor(src, matrix, bounds, boundaryMode);
     GrPaint paint;
     paint.addColorProcessor(fp)->unref();
-    context->drawNonAARectToRect(dst->asRenderTarget(), clip, paint, SkMatrix::I(),
-                                 dstRect, srcRect);
+    drawContext->drawNonAARectToRect(dst->asRenderTarget(), clip, paint, SkMatrix::I(),
+                                     dstRect, srcRect);
 }
 
 bool SkLightingImageFilterInternal::filterImageGPU(Proxy* proxy,
@@ -388,19 +389,26 @@ bool SkLightingImageFilterInternal::filterImageGPU(Proxy* proxy,
     SkRect bottomLeft = SkRect::MakeXYWH(0, dstRect.height() - 1, 1, 1);
     SkRect bottom = SkRect::MakeXYWH(1, dstRect.height() - 1, dstRect.width() - 2, 1);
     SkRect bottomRight = SkRect::MakeXYWH(dstRect.width() - 1, dstRect.height() - 1, 1, 1);
-    this->drawRect(context, srcTexture, dst, matrix, clip, topLeft, kTopLeft_BoundaryMode, bounds);
-    this->drawRect(context, srcTexture, dst, matrix, clip, top, kTop_BoundaryMode, bounds);
-    this->drawRect(context, srcTexture, dst, matrix, clip, topRight, kTopRight_BoundaryMode,
+
+    GrDrawContext* drawContext = context->drawContext();
+    if (!drawContext) {
+        return false;
+    }
+
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, topLeft, kTopLeft_BoundaryMode, 
                    bounds);
-    this->drawRect(context, srcTexture, dst, matrix, clip, left, kLeft_BoundaryMode, bounds);
-    this->drawRect(context, srcTexture, dst, matrix, clip, interior, kInterior_BoundaryMode,
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, top, kTop_BoundaryMode, bounds);
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, topRight, kTopRight_BoundaryMode,
                    bounds);
-    this->drawRect(context, srcTexture, dst, matrix, clip, right, kRight_BoundaryMode, bounds);
-    this->drawRect(context, srcTexture, dst, matrix, clip, bottomLeft, kBottomLeft_BoundaryMode,
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, left, kLeft_BoundaryMode, bounds);
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, interior, kInterior_BoundaryMode,
                    bounds);
-    this->drawRect(context, srcTexture, dst, matrix, clip, bottom, kBottom_BoundaryMode, bounds);
-    this->drawRect(context, srcTexture, dst, matrix, clip, bottomRight, kBottomRight_BoundaryMode,
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, right, kRight_BoundaryMode, bounds);
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, bottomLeft, kBottomLeft_BoundaryMode,
                    bounds);
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, bottom, kBottom_BoundaryMode, bounds);
+    this->drawRect(drawContext, srcTexture, dst, matrix, clip, bottomRight,
+                   kBottomRight_BoundaryMode, bounds);
     WrapTexture(dst, bounds.width(), bounds.height(), result);
     return true;
 }

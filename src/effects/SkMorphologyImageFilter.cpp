@@ -14,6 +14,7 @@
 #include "SkMorphology_opts.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrDrawContext.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "effects/Gr1DKernelEffect.h"
@@ -560,7 +561,7 @@ GrFragmentProcessor* GrMorphologyEffect::TestCreate(SkRandom* random,
 namespace {
 
 
-void apply_morphology_rect(GrContext* context,
+void apply_morphology_rect(GrDrawContext* drawContext,
                            GrRenderTarget* rt,
                            const GrClip& clip,
                            GrTexture* texture,
@@ -576,11 +577,11 @@ void apply_morphology_rect(GrContext* context,
                                                        radius,
                                                        morphType,
                                                        bounds))->unref();
-    context->drawNonAARectToRect(rt, clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
-                                 SkRect::Make(srcRect));
+    drawContext->drawNonAARectToRect(rt, clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
+                                     SkRect::Make(srcRect));
 }
 
-void apply_morphology_rect_no_bounds(GrContext* context,
+void apply_morphology_rect_no_bounds(GrDrawContext* drawContext,
                                      GrRenderTarget* rt,
                                      const GrClip& clip,
                                      GrTexture* texture,
@@ -594,11 +595,11 @@ void apply_morphology_rect_no_bounds(GrContext* context,
                                                        direction,
                                                        radius,
                                                        morphType))->unref();
-    context->drawNonAARectToRect(rt, clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
-                                 SkRect::Make(srcRect));
+    drawContext->drawNonAARectToRect(rt, clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
+                                     SkRect::Make(srcRect));
 }
 
-void apply_morphology_pass(GrContext* context,
+void apply_morphology_pass(GrDrawContext* drawContext,
                            GrRenderTarget* rt,
                            const GrClip& clip,
                            GrTexture* texture,
@@ -632,15 +633,15 @@ void apply_morphology_pass(GrContext* context,
     }
     if (middleSrcRect.fLeft - middleSrcRect.fRight >= 0) {
         // radius covers srcRect; use bounds over entire draw
-        apply_morphology_rect(context, rt, clip, texture, srcRect, dstRect, radius,
+        apply_morphology_rect(drawContext, rt, clip, texture, srcRect, dstRect, radius,
                               morphType, bounds, direction);
     } else {
         // Draw upper and lower margins with bounds; middle without.
-        apply_morphology_rect(context, rt, clip, texture, lowerSrcRect, lowerDstRect, radius,
+        apply_morphology_rect(drawContext, rt, clip, texture, lowerSrcRect, lowerDstRect, radius,
                               morphType, bounds, direction);
-        apply_morphology_rect(context, rt, clip, texture, upperSrcRect, upperDstRect, radius,
+        apply_morphology_rect(drawContext, rt, clip, texture, upperSrcRect, upperDstRect, radius,
                               morphType, bounds, direction);
-        apply_morphology_rect_no_bounds(context, rt, clip, texture, middleSrcRect, middleDstRect,
+        apply_morphology_rect_no_bounds(drawContext, rt, clip, texture, middleSrcRect, middleDstRect,
                                         radius, morphType, direction);
     }
 }
@@ -666,13 +667,18 @@ bool apply_morphology(const SkBitmap& input,
     desc.fConfig = kSkia8888_GrPixelConfig;
     SkIRect srcRect = rect;
 
+    GrDrawContext* drawContext = context->drawContext();
+    if (!drawContext) {
+        return false;
+    }
+
     if (radius.fWidth > 0) {
         GrTexture* texture = context->textureProvider()->refScratchTexture(
             desc, GrTextureProvider::kApprox_ScratchTexMatch);
         if (NULL == texture) {
             return false;
         }
-        apply_morphology_pass(context, texture->asRenderTarget(), clip, srcTexture,
+        apply_morphology_pass(drawContext, texture->asRenderTarget(), clip, srcTexture,
                               srcRect, dstRect, radius.fWidth, morphType,
                               Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
@@ -680,7 +686,7 @@ bool apply_morphology(const SkBitmap& input,
         GrColor clearColor = GrMorphologyEffect::kErode_MorphologyType == morphType ?
                                 SK_ColorWHITE :
                                 SK_ColorTRANSPARENT;
-        context->clear(&clearRect, clearColor, false, texture->asRenderTarget());
+        drawContext->clear(texture->asRenderTarget(), &clearRect, clearColor, false);
         srcTexture.reset(texture);
         srcRect = dstRect;
     }
@@ -690,7 +696,7 @@ bool apply_morphology(const SkBitmap& input,
         if (NULL == texture) {
             return false;
         }
-        apply_morphology_pass(context, texture->asRenderTarget(), clip, srcTexture,
+        apply_morphology_pass(drawContext, texture->asRenderTarget(), clip, srcTexture,
                               srcRect, dstRect, radius.fHeight, morphType,
                               Gr1DKernelEffect::kY_Direction);
         srcTexture.reset(texture);

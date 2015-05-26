@@ -7,6 +7,7 @@
 
 #include "GrStencilAndCoverTextContext.h"
 #include "GrAtlasTextContext.h"
+#include "GrDrawContext.h"
 #include "GrDrawTarget.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
@@ -434,7 +435,13 @@ void GrStencilAndCoverTextContext::flush() {
         SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(fPaint.getColor(),
                                                                  fViewMatrix,
                                                                  fLocalMatrix));
-        fDrawTarget->drawPaths(&fPipelineBuilder, pp, fGlyphs,
+
+        GrDrawContext* drawContext = fContext->drawContext();
+        if (!drawContext) {
+            return;
+        }
+
+        drawContext->drawPaths(&fPipelineBuilder, pp, fGlyphs,
                                fGlyphIndices, GrPathRange::kU16_PathIndexType,
                                get_xy_scalar_array(fGlyphPositions),
                                GrPathRendering::kTranslate_PathTransformType,
@@ -482,6 +489,5 @@ void GrStencilAndCoverTextContext::finish() {
     fPipelineBuilder.stencil()->setDisabled();
     fStateRestore.set(NULL);
     fViewMatrix = fContextInitialMatrix;
-    GrTextContext::finish();
 }
 

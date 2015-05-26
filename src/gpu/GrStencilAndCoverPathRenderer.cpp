@@ -142,7 +142,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
             }
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
-        target->drawRect(pipelineBuilder, color, viewM, bounds, NULL, &invert);
+        target->drawBWRect(pipelineBuilder, color, viewM, bounds, NULL, &invert);
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,
