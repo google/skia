@@ -42,7 +42,9 @@ GrAtlasTextContext::BitmapTextBlob* GrTextBlobCache::createBlob(int glyphCount, 
 void GrTextBlobCache::freeAll() {
     SkTDynamicHash<BitmapTextBlob, BitmapTextBlob::Key>::Iter iter(&fCache);
     while (!iter.done()) {
-        (&(*iter))->unref();
+        BitmapTextBlob* blob = &(*iter);
+        fBlobList.remove(blob);
+        blob->unref();
         ++iter;
     }
     fCache.rewind();
