@@ -32,6 +32,11 @@ GrTargetCommands::Cmd* GrCommandBuilder::recordClear(const SkIRect* rect,
         r.setLTRB(0, 0, renderTarget->width(), renderTarget->height());
         rect = &r;
     }
+
+    SkASSERT(color == GrColor_ILLEGAL ||
+             canIgnoreRect ||
+             (rect->fLeft <= rect->fRight && rect->fTop <= rect->fBottom));
+
     Clear* clr = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), Clear, (renderTarget));
     GrColorIsPMAssert(color);
     clr->fColor = color;

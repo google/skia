@@ -35,11 +35,12 @@ public:
             kStencilPath_CmdType       = 1,
             kSetState_CmdType          = 2,
             kClear_CmdType             = 3,
-            kCopySurface_CmdType       = 4,
-            kDrawPath_CmdType          = 5,
-            kDrawPaths_CmdType         = 6,
-            kDrawBatch_CmdType         = 7,
-            kXferBarrier_CmdType       = 8,
+            kClearStencil_CmdType      = 4,
+            kCopySurface_CmdType       = 5,
+            kDrawPath_CmdType          = 6,
+            kDrawPaths_CmdType         = 7,
+            kDrawBatch_CmdType         = 8,
+            kXferBarrier_CmdType       = 9,
         };
 
         Cmd(CmdType type) : fMarkerID(-1), fType(type) {}
@@ -190,7 +191,7 @@ private:
 
     // This command is ONLY used by the clip mask manager to clear the stencil clip bits
     struct ClearStencilClip : public Cmd {
-        ClearStencilClip(GrRenderTarget* rt) : Cmd(kClear_CmdType), fRenderTarget(rt) {}
+        ClearStencilClip(GrRenderTarget* rt) : Cmd(kClearStencil_CmdType), fRenderTarget(rt) {}
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 

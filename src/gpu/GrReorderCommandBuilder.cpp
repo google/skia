@@ -7,7 +7,8 @@
 
 #include "GrReorderCommandBuilder.h"
 
-static bool intersect(const SkRect& a, const SkRect& b) {
+template <class Left, class Right>
+static bool intersect(const Left& a, const Right& b) {
     SkASSERT(a.fLeft <= a.fRight && a.fTop <= a.fBottom &&
              b.fLeft <= b.fRight && b.fTop <= b.fBottom);
     return a.fLeft < b.fRight && b.fLeft < a.fRight &&
@@ -35,6 +36,16 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
                 }
 
                 if (intersect(previous->fBatch->bounds(), batch->bounds())) {
+                    break;
+                }
+            } else if (Cmd::kClear_CmdType == reverseIter->type()) {
+                Clear* previous = static_cast<Clear*>(reverseIter.get());
+
+                // We set the color to illegal if we are doing a discard.
+                // If we can ignore the rect, then we do a full clear
+                if (previous->fColor == GrColor_ILLEGAL ||
+                    previous->fCanIgnoreRect ||
+                    intersect(batch->bounds(), previous->fRect)) {
                     break;
                 }
             } else {
