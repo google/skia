@@ -104,7 +104,6 @@ public:
      */
     virtual void onAttachToCanvas(SkCanvas*) {
         SkASSERT(!fAttachedToCanvas);
-        this->lockPixels();
 #ifdef SK_DEBUG
         fAttachedToCanvas = true;
 #endif
@@ -118,7 +117,6 @@ public:
      */
     virtual void onDetachFromCanvas() {
         SkASSERT(fAttachedToCanvas);
-        this->unlockPixels();
 #ifdef SK_DEBUG
         fAttachedToCanvas = false;
 #endif
@@ -250,12 +248,6 @@ protected:
         @return The device contents as a bitmap
     */
     virtual const SkBitmap& onAccessBitmap() = 0;
-
-    /** Called when this device is installed into a Canvas. Balanced by a call
-        to unlockPixels() when the device is removed from a Canvas.
-    */
-    virtual void lockPixels() {}
-    virtual void unlockPixels() {}
 
     /**
      *  Override and return true for filters that the device can handle

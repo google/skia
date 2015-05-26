@@ -119,12 +119,8 @@ protected:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) override;
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
     void* onAccessPixels(SkImageInfo* info, size_t* rowBytes) override;
-
-    /** Called when this device is installed into a Canvas. Balanced by a call
-        to unlockPixels() when the device is removed from a Canvas.
-    */
-    void lockPixels() override;
-    void unlockPixels() override;
+    void onAttachToCanvas(SkCanvas*) override;
+    void onDetachFromCanvas() override;
 
 private:
     friend class SkCanvas;

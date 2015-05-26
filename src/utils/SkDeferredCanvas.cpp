@@ -252,9 +252,6 @@ protected:
                     const SkPaint&) override
         {SkASSERT(0);}
 
-    void lockPixels() override {}
-    void unlockPixels() override {}
-
     bool canHandleImageFilter(const SkImageFilter*) override {
         return false;
     }

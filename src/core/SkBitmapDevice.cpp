@@ -120,18 +120,6 @@ SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPa
     return SkBitmapDevice::Create(cinfo.fInfo, &leaky);
 }
 
-void SkBitmapDevice::lockPixels() {
-    if (fBitmap.lockPixelsAreWritable()) {
-        fBitmap.lockPixels();
-    }
-}
-
-void SkBitmapDevice::unlockPixels() {
-    if (fBitmap.lockPixelsAreWritable()) {
-        fBitmap.unlockPixels();
-    }
-}
-
 const SkBitmap& SkBitmapDevice::onAccessBitmap() {
     return fBitmap;
 }
@@ -170,6 +158,20 @@ bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPi
 bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                   int x, int y) {
     return fBitmap.readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
+}
+
+void SkBitmapDevice::onAttachToCanvas(SkCanvas* canvas) {
+    INHERITED::onAttachToCanvas(canvas);
+    if (fBitmap.lockPixelsAreWritable()) {
+        fBitmap.lockPixels();
+    }
+}
+
+void SkBitmapDevice::onDetachFromCanvas() {
+    INHERITED::onDetachFromCanvas();
+    if (fBitmap.lockPixelsAreWritable()) {
+        fBitmap.unlockPixels();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
