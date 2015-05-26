@@ -161,9 +161,8 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticFP);
 class ArithmeticXP : public GrXferProcessor {
 public:
     static GrXferProcessor* Create(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                                   const GrDeviceCoordTexture* dstCopy,
-                                   bool willReadDstColor) {
-        return SkNEW_ARGS(ArithmeticXP, (k1, k2, k3, k4, enforcePMColor, dstCopy,
+                                   const DstTexture* dstTexture, bool willReadDstColor) {
+        return SkNEW_ARGS(ArithmeticXP, (k1, k2, k3, k4, enforcePMColor, dstTexture,
                                          willReadDstColor));
     }
 
@@ -183,7 +182,7 @@ public:
 
 private:
     ArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                   const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+                   const DstTexture*, bool willReadDstColor);
 
     GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                  const GrProcOptInfo& coveragePOI,
@@ -263,8 +262,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 ArithmeticXP::ArithmeticXP(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                           const GrDeviceCoordTexture* dstCopy, bool willReadDstColor)
-    : INHERITED(dstCopy, willReadDstColor)
+                           const DstTexture* dstTexture, bool willReadDstColor)
+    : INHERITED(dstTexture, willReadDstColor)
     , fK1(k1)
     , fK2(k2)
     , fK3(k3)
@@ -301,8 +300,8 @@ GrXferProcessor*
 GrArithmeticXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI,
-                                             const GrDeviceCoordTexture* dstCopy) const {
-    return ArithmeticXP::Create(fK1, fK2, fK3, fK4, fEnforcePMColor, dstCopy,
+                                             const DstTexture* dstTexture) const {
+    return ArithmeticXP::Create(fK1, fK2, fK3, fK4, fEnforcePMColor, dstTexture,
                                 this->willReadDstColor(caps, colorPOI, coveragePOI));
 }
 

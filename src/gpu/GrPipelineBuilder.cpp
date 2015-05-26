@@ -86,10 +86,10 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, c
 
 //////////////////////////////////////////////////////////////////////////////s
 
-bool GrPipelineBuilder::willXPNeedDstCopy(const GrCaps& caps,
-                                          const GrProcOptInfo& colorPOI,
-                                          const GrProcOptInfo& coveragePOI) const {
-    return this->getXPFactory()->willNeedDstCopy(caps, colorPOI, coveragePOI);
+bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
+                                             const GrProcOptInfo& colorPOI,
+                                             const GrProcOptInfo& coveragePOI) const {
+    return this->getXPFactory()->willNeedDstTexture(caps, colorPOI, coveragePOI);
 }
 
 void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(GrPipelineBuilder* pipelineBuilder) {

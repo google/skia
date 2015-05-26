@@ -63,8 +63,8 @@ private:
 
     virtual void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) = 0;
 
-    GrGLProgramDataManager::UniformHandle fDstCopyTopLeftUni;
-    GrGLProgramDataManager::UniformHandle fDstCopyScaleUni;
+    GrGLProgramDataManager::UniformHandle fDstTopLeftUni;
+    GrGLProgramDataManager::UniformHandle fDstScaleUni;
 
     typedef GrGLProcessor INHERITED;
 };

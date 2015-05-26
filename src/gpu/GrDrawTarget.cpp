@@ -43,9 +43,9 @@ GrDrawTarget::GrDrawTarget(GrContext* context)
 bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuilder,
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
-                                           GrDeviceCoordTexture* dstCopy,
+                                           GrXferProcessor::DstTexture* dstTexture,
                                            const SkRect* drawBounds) {
-    if (!pipelineBuilder.willXPNeedDstCopy(*this->caps(), colorPOI, coveragePOI)) {
+    if (!pipelineBuilder.willXPNeedDstTexture(*this->caps(), colorPOI, coveragePOI)) {
         return true;
     }
 
@@ -55,8 +55,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
         if (GrTexture* rtTex = rt->asTexture()) {
             // The render target is a texture, se we can read from it directly in the shader. The XP
             // will be responsible to detect this situation and request a texture barrier.
-            dstCopy->setTexture(rtTex);
-            dstCopy->setOffset(0, 0);
+            dstTexture->setTexture(rtTex);
+            dstTexture->setOffset(0, 0);
             return true;
         }
     }
@@ -102,8 +102,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     }
     SkIPoint dstPoint = {0, 0};
     if (this->copySurface(copy, rt, copyRect, dstPoint)) {
-        dstCopy->setTexture(copy);
-        dstCopy->setOffset(copyRect.fLeft, copyRect.fTop);
+        dstTexture->setTexture(copy);
+        dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
         return true;
     } else {
         return false;
@@ -497,7 +497,7 @@ void GrDrawTarget::setupPipeline(const PipelineInfo& pipelineInfo,
                                                 pipelineInfo.fCoveragePOI,
                                                 *this->caps(),
                                                 *pipelineInfo.fScissor,
-                                                &pipelineInfo.fDstCopy));
+                                                &pipelineInfo.fDstTexture));
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -511,7 +511,7 @@ GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
     fColorPOI = fPipelineBuilder->colorProcInfo(primProc);
     fCoveragePOI = fPipelineBuilder->coverageProcInfo(primProc);
     if (!target->setupDstReadIfNecessary(*fPipelineBuilder, fColorPOI, fCoveragePOI,
-                                         &fDstCopy, devBounds)) {
+                                         &fDstTexture, devBounds)) {
         fPipelineBuilder = NULL;
     }
 }
@@ -526,7 +526,7 @@ GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
     fColorPOI = fPipelineBuilder->colorProcInfo(batch);
     fCoveragePOI = fPipelineBuilder->coverageProcInfo(batch);
     if (!target->setupDstReadIfNecessary(*fPipelineBuilder, fColorPOI, fCoveragePOI,
-                                         &fDstCopy, devBounds)) {
+                                         &fDstTexture, devBounds)) {
         fPipelineBuilder = NULL;
     }
 }

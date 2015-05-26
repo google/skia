@@ -35,9 +35,9 @@ static bool can_tweak_alpha_for_coverage(GrBlendCoeff dstCoeff) {
 class PorterDuffXferProcessor : public GrXferProcessor {
 public:
     static GrXferProcessor* Create(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend,
-                                   GrColor constant, const GrDeviceCoordTexture* dstCopy,
+                                   GrColor constant, const DstTexture* dstTexture,
                                    bool willReadDstColor) {
-        return SkNEW_ARGS(PorterDuffXferProcessor, (srcBlend, dstBlend, constant, dstCopy,
+        return SkNEW_ARGS(PorterDuffXferProcessor, (srcBlend, dstBlend, constant, dstTexture,
                                                     willReadDstColor));
     }
 
@@ -89,7 +89,7 @@ public:
 
 private:
     PorterDuffXferProcessor(GrBlendCoeff srcBlend, GrBlendCoeff dstBlend, GrColor constant,
-                            const GrDeviceCoordTexture* dstCopy, bool willReadDstColor);
+                            const DstTexture*, bool willReadDstColor);
 
     GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                  const GrProcOptInfo& coveragePOI,
@@ -277,9 +277,9 @@ private:
 PorterDuffXferProcessor::PorterDuffXferProcessor(GrBlendCoeff srcBlend,
                                                  GrBlendCoeff dstBlend,
                                                  GrColor constant,
-                                                 const GrDeviceCoordTexture* dstCopy,
+                                                 const DstTexture* dstTexture,
                                                  bool willReadDstColor)
-    : INHERITED(dstCopy, willReadDstColor)
+    : INHERITED(dstTexture, willReadDstColor)
     , fSrcBlend(srcBlend)
     , fDstBlend(dstBlend)
     , fBlendConstant(constant)
@@ -676,11 +676,11 @@ GrXferProcessor*
 GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& covPOI,
-                                             const GrDeviceCoordTexture* dstCopy) const {
+                                             const DstTexture* dstTexture) const {
     if (covPOI.isFourChannelOutput()) {
         return PDLCDXferProcessor::Create(fSrcCoeff, fDstCoeff, colorPOI);
     } else {
-        return PorterDuffXferProcessor::Create(fSrcCoeff, fDstCoeff, 0, dstCopy,
+        return PorterDuffXferProcessor::Create(fSrcCoeff, fDstCoeff, 0, dstTexture,
                                                this->willReadDstColor(caps, colorPOI, covPOI));
     }
 }
