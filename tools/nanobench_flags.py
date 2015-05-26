@@ -73,6 +73,7 @@ def get_args(bot):
     match.append('~patch_grid')  # skia:2847
     match.append('~desk_carsvg')
     match.append('~keymobi')
+    match.append('~path_hairline')
 
   if match:
     args.append('--match')
