@@ -60,11 +60,6 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
     return image;
 }
 
-void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
-                              const SkPaint* paint) {
-    canvas->drawBitmap(fDevice->accessBitmap(false), x, y, paint);
-}
-
 // Create a new render target and, if necessary, copy the contents of the old
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.

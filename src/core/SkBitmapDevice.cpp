@@ -126,6 +126,10 @@ const SkBitmap& SkBitmapDevice::onAccessBitmap() {
 }
 
 bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
+    return fBitmap.lockPixelsAreWritable() && this->onPeekPixels(pmap);
+}
+
+bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
     const SkImageInfo info = fBitmap.info();
     if (fBitmap.getPixels() && (kUnknown_SkColorType != info.colorType())) {
         SkColorTable* ctable = NULL;
@@ -133,11 +137,6 @@ bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
         return true;
     }
     return false;
-}
-
-bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
-    // peek and access are the exact same logic for us
-    return this->onAccessPixels(pmap);
 }
 
 bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
@@ -352,8 +351,7 @@ void SkBitmapDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode
 
 void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
                                 int x, int y, const SkPaint& paint) {
-    const SkBitmap& src = device->accessBitmap(false);
-    draw.drawSprite(src, x, y, paint);
+    draw.drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
 }
 
 SkSurface* SkBitmapDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {

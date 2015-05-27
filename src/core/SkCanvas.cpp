@@ -1259,7 +1259,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
                                    tmpUnfiltered);
             }
         } else if (deviceIsBitmapDevice) {
-            const SkBitmap& src = srcDev->accessBitmap(false);
+            const SkBitmap& src = static_cast<SkBitmapDevice*>(srcDev)->fBitmap;
             dstDev->drawSprite(iter, src, pos.x(), pos.y(), *paint);
         } else {
             dstDev->drawDevice(iter, srcDev, pos.x(), pos.y(), *paint);

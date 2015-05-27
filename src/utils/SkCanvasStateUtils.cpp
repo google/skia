@@ -224,8 +224,8 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     for (SkCanvas::LayerIter layer(canvas, true/*skipEmptyClips*/); !layer.done(); layer.next()) {
 
         // we currently only work for bitmap backed devices
-        const SkBitmap& bitmap = layer.device()->accessBitmap(true/*changePixels*/);
-        if (bitmap.empty() || bitmap.isNull() || !bitmap.lockPixelsAreWritable()) {
+        SkPixmap pmap;
+        if (!layer.device()->accessPixels(&pmap) || 0 == pmap.width() || 0 == pmap.height()) {
             return NULL;
         }
 
@@ -234,10 +234,10 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         layerState->type = kRaster_CanvasBackend;
         layerState->x = layer.x();
         layerState->y = layer.y();
-        layerState->width = bitmap.width();
-        layerState->height = bitmap.height();
+        layerState->width = pmap.width();
+        layerState->height = pmap.height();
 
-        switch (bitmap.colorType()) {
+        switch (pmap.colorType()) {
             case kN32_SkColorType:
                 layerState->raster.config = kARGB_8888_RasterConfig;
                 break;
@@ -247,8 +247,8 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
             default:
                 return NULL;
         }
-        layerState->raster.rowBytes = bitmap.rowBytes();
-        layerState->raster.pixels = bitmap.getPixels();
+        layerState->raster.rowBytes = pmap.rowBytes();
+        layerState->raster.pixels = pmap.writable_addr();
 
         setup_MC_state(&layerState->mcState, layer.matrix(), layer.clip());
         layerCount++;
