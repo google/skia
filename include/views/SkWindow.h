@@ -79,6 +79,10 @@ public:
 
     virtual void onPDFSaved(const char title[], const char desc[],
         const char path[]) {}
+
+    virtual void setFullscreen(bool) {}
+    virtual void setVsync(bool) {}
+
 protected:
     virtual bool onEvent(const SkEvent&);
     virtual bool onDispatchClick(int x, int y, Click::State, void* owner, unsigned modi);

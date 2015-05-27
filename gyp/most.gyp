@@ -27,11 +27,13 @@
         'pathops_skpclip.gyp:*',
 #       'pdfviewer.gyp:pdfviewer',
         'dm.gyp:dm',
+        'visualbench.gyp:visualbench',
       ],
       'conditions': [
         [ 'skia_gpu == 0 or skia_os == "android"', {
           'dependencies!': [
             'example.gyp:HelloWorld',
+            'visualbench.gyp:visualbench',
           ],
         }],
         ['skia_os == "android"', {
@@ -41,6 +43,7 @@
           'dependencies!': [
             'example.gyp:HelloWorld',
             'SampleApp.gyp:SampleApp',
+            'visualbench.gyp:visualbench',
           ],
           'dependencies': ['iOSShell.gyp:iOSShell' ],
         }],
@@ -52,6 +55,7 @@
             'dependencies!': [
               'example.gyp:HelloWorld',
               'SampleApp.gyp:SampleApp',
+              'visualbench.gyp:visualbench',
             ]
           }
         ]

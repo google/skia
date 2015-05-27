@@ -326,6 +326,29 @@ void SkOSWindow::mapWindowAndWait() {
 
 }
 
+////////////////////////////////////////////////
+
+// Some helper code to load the correct version of glXSwapInterval
+#define GLX_GET_PROC_ADDR(name) glXGetProcAddress(reinterpret_cast<const GLubyte*>((name)))
+#define EXT_WRANGLE(name, type, ...) \
+    if (GLX_GET_PROC_ADDR(#name)) { \
+        static type k##name; \
+        if (!k##name) { \
+            k##name = (type) GLX_GET_PROC_ADDR(#name); \
+        } \
+        k##name(__VA_ARGS__); \
+        SkDebugf("using %s\n", #name); \
+        return; \
+    }
+
+static void glXSwapInterval(Display* dsp, GLXDrawable drawable, int interval) {
+    EXT_WRANGLE(glXSwapIntervalEXT, PFNGLXSWAPINTERVALEXTPROC, dsp, drawable, interval);
+    EXT_WRANGLE(glXSwapIntervalMESA, PFNGLXSWAPINTERVALMESAPROC, interval);
+    EXT_WRANGLE(glXSwapIntervalSGI, PFNGLXSWAPINTERVALSGIPROC, interval);
+}
+
+/////////////////////////////////////////////////////////////////////////
+
 bool SkOSWindow::attach(SkBackEndTypes, int msaaSampleCount, AttachmentInfo* info) {
     this->initWindow(msaaSampleCount, info);
 
@@ -425,6 +448,44 @@ void SkOSWindow::doPaint() {
               0, 0,     // src x,y
               0, 0,     // dst x,y
               width, height);
+}
+
+enum {
+    _NET_WM_STATE_REMOVE =0,
+    _NET_WM_STATE_ADD = 1,
+    _NET_WM_STATE_TOGGLE =2
+};
+
+void SkOSWindow::setFullscreen(bool setFullscreen) {
+    Display* dsp = fUnixWindow.fDisplay;
+    if (NULL == dsp) {
+        return;
+    }
+    Window win = fUnixWindow.fWin;
+
+    // Full screen
+    Atom wm_state = XInternAtom(dsp, "_NET_WM_STATE", False);
+    Atom fullscreen = XInternAtom(dsp, "_NET_WM_STATE_FULLSCREEN", False);
+
+    XEvent evt;
+    sk_bzero(&evt, sizeof(evt));
+    evt.type = ClientMessage;
+    evt.xclient.window = win;
+    evt.xclient.message_type = wm_state;
+    evt.xclient.format = 32;
+    evt.xclient.data.l[0] = setFullscreen ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
+    evt.xclient.data.l[1] = fullscreen;
+    evt.xclient.data.l[2] = 0;
+
+    XSendEvent(dsp, DefaultRootWindow(dsp), False,
+               SubstructureRedirectMask | SubstructureNotifyMask, &evt);
+}
+
+void SkOSWindow::setVsync(bool vsync) {
+    if (fUnixWindow.fDisplay && fUnixWindow.fGLContext && fUnixWindow.fWin) {
+        int swapInterval = vsync ? 1 : 0;
+        glXSwapInterval(fUnixWindow.fDisplay, fUnixWindow.fWin, swapInterval);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
