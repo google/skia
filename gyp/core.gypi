@@ -228,6 +228,8 @@
         '<(skia_src_path)/core/SkWriteBuffer.cpp',
         '<(skia_src_path)/core/SkWriter32.cpp',
         '<(skia_src_path)/core/SkXfermode.cpp',
+        '<(skia_src_path)/core/SkXfermodeInterpretation.cpp',
+        '<(skia_src_path)/core/SkXfermodeInterpretation.h',
         '<(skia_src_path)/core/SkYUVPlanesCache.cpp',
         '<(skia_src_path)/core/SkYUVPlanesCache.h',
 

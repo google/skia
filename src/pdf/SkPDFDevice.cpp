@@ -32,10 +32,20 @@
 #include "SkTextFormatParams.h"
 #include "SkTemplates.h"
 #include "SkTypefacePriv.h"
+#include "SkXfermodeInterpretation.h"
 
 #define DPI_FOR_RASTER_SCALE_ONE 72
 
 // Utility functions
+
+// If the paint will definitely draw opaquely, replace kSrc_Mode with
+// kSrcOver_Mode.  http://crbug.com/473572
+static void replace_srcmode_on_opaque_paint(SkPaint* paint) {
+    if (kSrcOver_SkXfermodeInterpretation
+        == SkInterpretXfermode(*paint, false)) {
+        paint->setXfermode(NULL);
+    }
+}
 
 static void emit_pdf_color(SkColor color, SkWStream* result) {
     SkASSERT(SkColorGetA(color) == 0xFF);  // We handle alpha elsewhere.
@@ -756,6 +766,8 @@ void SkPDFDevice::cleanUp(bool clearFontUsage) {
 
 void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
     SkPaint newPaint = paint;
+    replace_srcmode_on_opaque_paint(&newPaint);
+
     newPaint.setStyle(SkPaint::kFill_Style);
     ScopedContentEntry content(this, d, newPaint);
     internalDrawPaint(newPaint, content.entry());
@@ -779,9 +791,14 @@ void SkPDFDevice::internalDrawPaint(const SkPaint& paint,
                           &contentEntry->fContent);
 }
 
-void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
-                             size_t count, const SkPoint* points,
-                             const SkPaint& passedPaint) {
+void SkPDFDevice::drawPoints(const SkDraw& d,
+                             SkCanvas::PointMode mode,
+                             size_t count,
+                             const SkPoint* points,
+                             const SkPaint& srcPaint) {
+    SkPaint passedPaint = srcPaint;
+    replace_srcmode_on_opaque_paint(&passedPaint);
+
     if (count == 0) {
         return;
     }
@@ -866,8 +883,11 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
     }
 }
 
-void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& rect,
-                           const SkPaint& paint) {
+void SkPDFDevice::drawRect(const SkDraw& d,
+                           const SkRect& rect,
+                           const SkPaint& srcPaint) {
+    SkPaint paint = srcPaint;
+    replace_srcmode_on_opaque_paint(&paint);
     SkRect r = rect;
     r.sort();
 
@@ -894,21 +914,33 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& rect,
                           &content.entry()->fContent);
 }
 
-void SkPDFDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPaint& paint) {
+void SkPDFDevice::drawRRect(const SkDraw& draw,
+                            const SkRRect& rrect,
+                            const SkPaint& srcPaint) {
+    SkPaint paint = srcPaint;
+    replace_srcmode_on_opaque_paint(&paint);
     SkPath  path;
     path.addRRect(rrect);
     this->drawPath(draw, path, paint, NULL, true);
 }
 
-void SkPDFDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
+void SkPDFDevice::drawOval(const SkDraw& draw,
+                           const SkRect& oval,
+                           const SkPaint& srcPaint) {
+    SkPaint paint = srcPaint;
+    replace_srcmode_on_opaque_paint(&paint);
     SkPath  path;
     path.addOval(oval);
     this->drawPath(draw, path, paint, NULL, true);
 }
 
-void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
-                           const SkPaint& paint, const SkMatrix* prePathMatrix,
+void SkPDFDevice::drawPath(const SkDraw& d,
+                           const SkPath& origPath,
+                           const SkPaint& srcPaint,
+                           const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
+    SkPaint paint = srcPaint;
+    replace_srcmode_on_opaque_paint(&paint);
     SkPath modifiedPath;
     SkPath* pathPtr = const_cast<SkPath*>(&origPath);
 
@@ -967,8 +999,13 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
 
 void SkPDFDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& dst,
-                                 const SkPaint& paint,
+                                 const SkPaint& srcPaint,
                                  SkCanvas::DrawBitmapRectFlags flags) {
+    SkPaint paint = srcPaint;
+    if (bitmap.isOpaque()) {
+        replace_srcmode_on_opaque_paint(&paint);
+    }
+
     // TODO: this code path must be updated to respect the flags parameter
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
@@ -1023,7 +1060,12 @@ void SkPDFDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
-                             const SkMatrix& matrix, const SkPaint& paint) {
+                             const SkMatrix& matrix, const SkPaint& srcPaint) {
+    SkPaint paint = srcPaint;
+    if (bitmap.isOpaque()) {
+        replace_srcmode_on_opaque_paint(&paint);
+    }
+
     if (d.fClip->isEmpty()) {
         return;
     }
@@ -1035,7 +1077,12 @@ void SkPDFDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
 }
 
 void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
-                             int x, int y, const SkPaint& paint) {
+                             int x, int y, const SkPaint& srcPaint) {
+    SkPaint paint = srcPaint;
+    if (bitmap.isOpaque()) {
+        replace_srcmode_on_opaque_paint(&paint);
+    }
+
     if (d.fClip->isEmpty()) {
         return;
     }
@@ -1082,7 +1129,10 @@ static SkString format_wide_string(const uint16_t* input,
 }
 
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
-                           SkScalar x, SkScalar y, const SkPaint& paint) {
+                           SkScalar x, SkScalar y, const SkPaint& srcPaint) {
+    SkPaint paint = srcPaint;
+    replace_srcmode_on_opaque_paint(&paint);
+
     NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
     if (paint.getMaskFilter() != NULL) {
         // Don't pretend we support drawing MaskFilters, it makes for artifacts
@@ -1131,7 +1181,10 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
 
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
-                              const SkPoint& offset, const SkPaint& paint) {
+                              const SkPoint& offset, const SkPaint& srcPaint) {
+    SkPaint paint = srcPaint;
+    replace_srcmode_on_opaque_paint(&paint);
+
     NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
     if (paint.getMaskFilter() != NULL) {
         // Don't pretend we support drawing MaskFilters, it makes for artifacts
