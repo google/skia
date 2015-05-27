@@ -7,11 +7,16 @@
 
 #include "GrInOrderDrawBuffer.h"
 
-static const bool kEnableReordering = true;
+// We will use the reordering buffer, unless we have NVPR.
+// TODO move NVPR to batch so we can reorder
+static inline bool allow_reordering(const GrShaderCaps* caps) {
+    return !caps->pathRenderingSupport();
+}
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context)
     : INHERITED(context)
-    , fCommands(GrCommandBuilder::Create(context->getGpu(), kEnableReordering))
+    , fCommands(GrCommandBuilder::Create(context->getGpu(),
+                                         allow_reordering(context->getGpu()->caps()->shaderCaps())))
     , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
     , fPathTransformBuffer(kPathXformBufferMinReserve * sizeof(float)/4)
     , fPipelineBuffer(kPipelineBufferMinReserve)
