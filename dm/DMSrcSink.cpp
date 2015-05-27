@@ -141,6 +141,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     // Everything else is considered a failure.
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
+            canvas->drawBitmap(bitmap, 0, 0);
             break;
         case kScanline_Mode: {
             SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(decodeInfo, NULL,
@@ -160,10 +161,103 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                               fPath.c_str(), y-1, (int) result);
                 }
             }
+            canvas->drawBitmap(bitmap, 0, 0);
+            break;
+        }
+        case kScanline_Subset_Mode: {
+            //this mode decodes the image in divisor*divisor subsets, using a scanline decoder
+            const int divisor = 2;
+            const int w = decodeInfo.width();
+            const int h = decodeInfo.height();
+            if (w*h == 1) {
+                return Error::Nonfatal("Subset decoding not supported.");
+            }
+            if (divisor > w || divisor > h) {
+                return SkStringPrintf("divisor %d is too big for %s with dimensions (%d x %d)",
+                        divisor, fPath.c_str(), w, h);
+            }
+            const int subsetWidth = w/divisor;
+            const int subsetHeight = h/divisor;
+            // One of our subsets will be larger to contain any pixels that do not divide evenly.
+            const int extraX = w % divisor;
+            const int extraY = h % divisor;
+            /*
+            * if w or h are not evenly divided by divisor need to adjust width and height of end
+            * subsets to cover entire image.
+            * Add extraX and extraY to largestSubsetBm's width and height to adjust width
+            * and height of end subsets.
+            * subsetBm is extracted from largestSubsetBm.
+            * subsetBm's size is determined based on the current subset and may be larger for end
+            * subsets.
+            */
+            SkImageInfo largestSubsetDecodeInfo = 
+                    decodeInfo.makeWH(subsetWidth + extraX, subsetHeight + extraY);
+            SkBitmap largestSubsetBm;
+            if (!largestSubsetBm.tryAllocPixels(largestSubsetDecodeInfo, NULL, colorTable.get())) {
+                return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
+                        largestSubsetDecodeInfo.width(), largestSubsetDecodeInfo.height());
+            }
+            char* line = SkNEW_ARRAY(char, decodeInfo.minRowBytes());
+            SkAutoTDeleteArray<char> lineDeleter(line);
+            for (int col = 0; col < divisor; col++) {
+                //currentSubsetWidth may be larger than subsetWidth for rightmost subsets
+                const int currentSubsetWidth = (col + 1 == divisor) ?
+                        subsetWidth + extraX : subsetWidth;
+                const int x = col * subsetWidth;
+                for (int row = 0; row < divisor; row++) {
+                    //currentSubsetHeight may be larger than subsetHeight for bottom subsets
+                    const int currentSubsetHeight = (row + 1 == divisor) ?
+                            subsetHeight + extraY : subsetHeight;
+                    const int y = row * subsetHeight;
+                    //create scanline decoder for each subset
+                    SkScanlineDecoder* subsetScanlineDecoder = codec->getScanlineDecoder(decodeInfo,
+                            NULL, colorPtr, colorCountPtr);
+                    if (NULL == subsetScanlineDecoder) {
+                        if (x == 0 && y == 0) {
+                            //first try, image may not be compatible
+                            return Error::Nonfatal("Cannot use scanline decoder for all images");
+                        } else {
+                            return "Error scanline decoder is NULL";
+                        }
+                    }
+                    //skip to first line of subset
+                    const SkImageGenerator::Result skipResult = 
+                            subsetScanlineDecoder->skipScanlines(y);
+                    switch (skipResult) {
+                        case SkImageGenerator::kSuccess:
+                        case SkImageGenerator::kIncompleteInput:
+                            break;
+                        default:
+                            return SkStringPrintf("%s failed after attempting to skip %d scanlines"
+                                    "with error message %d", fPath.c_str(), y, (int) skipResult);
+                    }
+                    //create and set size of subsetBm
+                    SkBitmap subsetBm;
+                    SkIRect bounds = SkIRect::MakeWH(subsetWidth, subsetHeight);
+                    bounds.setXYWH(0, 0, currentSubsetWidth, currentSubsetHeight);
+                    SkAssertResult(largestSubsetBm.extractSubset(&subsetBm, bounds));
+                    SkAutoLockPixels autlockSubsetBm(subsetBm, true);
+                    for (int subsetY = 0; subsetY < currentSubsetHeight; ++subsetY) {
+                        const SkImageGenerator::Result subsetResult =
+                                subsetScanlineDecoder->getScanlines(line, 1, 0);
+                        const size_t bpp = decodeInfo.bytesPerPixel();
+                        //copy section of line based on x value
+                        memcpy(subsetBm.getAddr(0, subsetY), line + x*bpp, currentSubsetWidth*bpp);
+                        switch (subsetResult) {
+                            case SkImageGenerator::kSuccess:
+                            case SkImageGenerator::kIncompleteInput:
+                                break;
+                            default:
+                                return SkStringPrintf("%s failed after %d scanlines with error" 
+                                        "message %d", fPath.c_str(), y-1, (int) subsetResult);
+                        }
+                    }
+                    canvas->drawBitmap(subsetBm, SkIntToScalar(x), SkIntToScalar(y));
+                }
+            }
             break;
         }
     }
-    canvas->drawBitmap(bitmap, 0, 0);
     return "";
 }
 

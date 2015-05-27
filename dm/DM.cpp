@@ -209,24 +209,30 @@ static void push_codec_srcs(Path path) {
                     CodecSrc::kGrayscale_Always_DstColorType));
             push_src("image", "scanline_kGray8", new CodecSrc(path, CodecSrc::kScanline_Mode,
                     CodecSrc::kGrayscale_Always_DstColorType));
+            push_src("image", "scanline_subset_kGray8", new CodecSrc(path,
+                    CodecSrc::kScanline_Subset_Mode, CodecSrc::kGrayscale_Always_DstColorType));
             // Intentional fall through
             // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
             // Further discussion on this topic is at skbug.com/3683
-      case kIndex_8_SkColorType:
-          push_src("image", "codec_kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
-                  CodecSrc::kIndex8_Always_DstColorType));
-          push_src("image", "scanline_kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
-                  CodecSrc::kIndex8_Always_DstColorType));
-        break;
-      default:
-        // Do nothing
-        break;
+        case kIndex_8_SkColorType:
+            push_src("image", "codec_kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
+                    CodecSrc::kIndex8_Always_DstColorType));
+            push_src("image", "scanline_kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
+                    CodecSrc::kIndex8_Always_DstColorType));
+            push_src("image", "scanline_subset_kIndex8", new CodecSrc(path,
+                    CodecSrc::kScanline_Subset_Mode, CodecSrc::kIndex8_Always_DstColorType));
+            break;
+        default:
+            // Do nothing
+            break;
     }
 
     // Decode all images to the canvas color type
     push_src("image", "codec", new CodecSrc(path, CodecSrc::kNormal_Mode,
             CodecSrc::kGetFromCanvas_DstColorType));
     push_src("image", "scanline", new CodecSrc(path, CodecSrc::kScanline_Mode,
+            CodecSrc::kGetFromCanvas_DstColorType));
+    push_src("image", "scanline_subset", new CodecSrc(path, CodecSrc::kScanline_Subset_Mode,
             CodecSrc::kGetFromCanvas_DstColorType));
 }
 

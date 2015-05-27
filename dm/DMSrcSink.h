@@ -94,6 +94,7 @@ public:
     enum Mode {
         kNormal_Mode,
         kScanline_Mode,
+        kScanline_Subset_Mode,
     };
     enum DstColorType {
         kGetFromCanvas_DstColorType,
