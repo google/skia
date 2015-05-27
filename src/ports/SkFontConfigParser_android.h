@@ -76,7 +76,7 @@ struct FontFileInfo {
         SkFourByteTag fTag;
         SkFixed fValue;
     };
-    SkSTArray<4, Axis, true> fAxes;
+    SkTArray<Axis, true> fAxes;
 };
 
 /**
