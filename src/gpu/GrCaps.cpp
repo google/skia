@@ -73,8 +73,8 @@ SkString GrShaderCaps::dump() const {
     return r;
 }
 
-void GrShaderCaps::applyOptionsOverrides(const GrContextOptions&) {
-    // Currently no overrides apply to shader caps.
+void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

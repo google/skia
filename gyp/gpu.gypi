@@ -81,7 +81,6 @@
       '<(skia_src_path)/gpu/GrBatchTarget.h',
       '<(skia_src_path)/gpu/GrBatchTest.cpp',
       '<(skia_src_path)/gpu/GrBatchTest.h',
-      '<(skia_src_path)/gpu/GrBlend.cpp',
       '<(skia_src_path)/gpu/GrBlend.h',
       '<(skia_src_path)/gpu/GrBlurUtils.cpp',
       '<(skia_src_path)/gpu/GrBlurUtils.h',

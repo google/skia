@@ -14,7 +14,8 @@ struct GrContextOptions {
     GrContextOptions()
         : fDrawPathToCompressedTexture(false)
         , fSuppressPrints(false)
-        , fMaxTextureSizeOverride(SK_MaxS32) {}
+        , fMaxTextureSizeOverride(SK_MaxS32)
+        , fSuppressDualSourceBlending(false) {}
 
     // EXPERIMENTAL
     // May be removed in the future, or may become standard depending
@@ -28,7 +29,8 @@ struct GrContextOptions {
         overrides can only reduce the feature set or limits, never increase them beyond the
         detected values. */
 
-    int fMaxTextureSizeOverride;
+    int  fMaxTextureSizeOverride;
+    bool fSuppressDualSourceBlending;
 };
 
 #endif
