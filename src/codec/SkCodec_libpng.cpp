@@ -624,8 +624,12 @@ public:
             SkCodecPrintf("setjmp long jump!\n");
             return SkImageGenerator::kInvalidInput;
         }
-
-        png_read_rows(fCodec->fPng_ptr, png_bytepp_NULL, png_bytepp_NULL, count);
+        //there is a potential tradeoff of memory vs speed created by putting this in a loop. 
+        //calling png_read_rows in a loop is insignificantly slower than calling it once with count 
+        //as png_read_rows has it's own loop which calls png_read_row count times.
+        for (int i = 0; i < count; i++) {
+            png_read_rows(fCodec->fPng_ptr, &fSrcRow, png_bytepp_NULL, 1);
+        }
         return SkImageGenerator::kSuccess;
     }
 
