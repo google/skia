@@ -16,7 +16,7 @@
 
 class GrClip;
 class GrContext;
-class GrDrawTarget;
+class GrDrawContext;
 class GrFontScaler;
 class SkDrawFilter;
 class SkGpuDevice;
@@ -37,18 +37,14 @@ public:
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds);
-    virtual void drawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
-                              const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
+    virtual void drawTextBlob(SkGpuDevice*, GrRenderTarget*, const GrClip&, const SkPaint&,
+                              const SkMatrix& viewMatrix, const SkTextBlob*,
+                              SkScalar x, SkScalar y,
                               SkDrawFilter*, const SkIRect& clipBounds);
 
 protected:
     GrTextContext*                 fFallbackTextContext;
     GrContext*                     fContext;
-    // TODO we probably don't really need to store a back pointer to the owning SkGpuDevice, except
-    // we need to be able to call drawPath on it in the event no other text context can draw the
-    // text.  We might be able to move this logic to context though.  This is unreffed because
-    // GrTextContext is completely owned by SkGpuDevice
-    SkGpuDevice*                   fGpuDevice;
     SkDeviceProperties             fDeviceProperties;
 
     SkAutoTUnref<GrRenderTarget>   fRenderTarget;
@@ -58,24 +54,28 @@ protected:
     GrPaint                        fPaint;
     SkPaint                        fSkPaint;
 
-    GrTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&);
+    GrTextContext(GrContext*, const SkDeviceProperties&);
 
     virtual bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                          const SkPaint&, const SkMatrix& viewMatrix) = 0;
 
-    virtual void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
+    virtual void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&,
+                            const GrPaint&, const SkPaint&,
                             const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                             SkScalar x, SkScalar y, const SkIRect& clipBounds) = 0;
-    virtual void onDrawPosText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
+    virtual void onDrawPosText(GrDrawContext*, GrRenderTarget*, const GrClip&,
+                               const GrPaint&, const SkPaint&,
                                const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset, const SkIRect& clipBounds) = 0;
 
-    void drawTextAsPath(const SkPaint& origPaint, const SkMatrix& viewMatrix,
+    void drawTextAsPath(GrDrawContext*, GrRenderTarget*, const GrClip& clip,
+                        const SkPaint& origPaint, const SkMatrix& viewMatrix,
                         const char text[], size_t byteLength, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
-    void drawPosTextAsPath(const SkPaint& origPaint, const SkMatrix& viewMatrix,
+    void drawPosTextAsPath(GrDrawContext*, GrRenderTarget*, const GrClip& clip,
+                           const SkPaint& origPaint, const SkMatrix& viewMatrix,
                            const char text[], size_t byteLength,
                            const SkScalar pos[], int scalarsPerPosition,
                            const SkPoint& offset, const SkIRect& clipBounds);

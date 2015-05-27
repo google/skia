@@ -34,26 +34,25 @@ class GrTextBlobCache;
  */
 class GrAtlasTextContext : public GrTextContext {
 public:
-    static GrAtlasTextContext* Create(GrContext*, SkGpuDevice*, const SkDeviceProperties&,
+    static GrAtlasTextContext* Create(GrContext*, const SkDeviceProperties&,
                                       bool enableDistanceFields);
 
 private:
-    GrAtlasTextContext(GrContext*, SkGpuDevice*, const SkDeviceProperties&,
-                       bool enableDistanceFields);
+    GrAtlasTextContext(GrContext*, const SkDeviceProperties&, bool enableDistanceFields);
     ~GrAtlasTextContext() override {}
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                  const SkPaint&, const SkMatrix& viewMatrix) override;
 
-    void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
+    void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                     const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                     SkScalar x, SkScalar y, const SkIRect& regionClipBounds) override;
-    void onDrawPosText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
-                       const SkMatrix& viewMatrix,
+    void onDrawPosText(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&,
+                       const SkPaint&, const SkMatrix& viewMatrix,
                        const char text[], size_t byteLength,
                        const SkScalar pos[], int scalarsPerPosition,
                        const SkPoint& offset, const SkIRect& regionClipBounds) override;
-    void drawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
+    void drawTextBlob(SkGpuDevice*, GrRenderTarget*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 
@@ -272,7 +271,9 @@ private:
                                   size_t vertexStride, bool useVertexColor,
                                   GrGlyph*);
 
-    inline void flushRunAsPaths(const SkTextBlob::RunIterator&, const SkPaint&, SkDrawFilter*,
+    inline void flushRunAsPaths(SkGpuDevice*, GrDrawContext*, GrRenderTarget*,
+                                const SkTextBlob::RunIterator&, const GrClip& clip,
+                                const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                                 SkScalar y);
     inline BitmapTextBatch* createBatch(BitmapTextBlob*, const PerSubRunInfo&,
@@ -281,14 +282,15 @@ private:
                                         const SkPaint&);
     inline void flushRun(GrDrawContext*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
-    inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
-                               const SkPaint& skPaint,
+    inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrDrawContext*, GrRenderTarget*,
+                               const GrClip& clip, const SkPaint& skPaint,
                                SkScalar transX, SkScalar transY, const SkIRect& clipBounds);
 
     // We have to flush SkTextBlobs differently from drawText / drawPosText
-    void flush(GrDrawContext*, const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
-               const GrPaint&, SkDrawFilter*, const GrClip&, const SkMatrix& viewMatrix,
-               const SkIRect& clipBounds, SkScalar x, SkScalar y, SkScalar transX, SkScalar transY);
+    void flush(SkGpuDevice*, GrDrawContext*, const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*,
+               const SkPaint&, const GrPaint&, SkDrawFilter*, const GrClip&,
+               const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y,
+               SkScalar transX, SkScalar transY);
     void flush(GrDrawContext*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
                const GrPaint&, const GrClip&, const SkIRect& clipBounds);
 
@@ -337,7 +339,7 @@ private:
                                           const BitmapTextBlob&, const SkPaint&,
                                           const SkMaskFilter::BlurRec&,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
-    void regenerateTextBlob(BitmapTextBlob* bmp, const SkPaint& skPaint, GrColor,
+    void regenerateTextBlob(SkGpuDevice*, BitmapTextBlob* bmp, const SkPaint& skPaint, GrColor,
                             const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                             SkDrawFilter* drawFilter, const SkIRect& clipRect, GrRenderTarget*,

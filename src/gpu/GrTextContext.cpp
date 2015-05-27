@@ -6,8 +6,9 @@
  */
 
 #include "GrTextContext.h"
+#include "GrBlurUtils.h"
 #include "GrContext.h"
-#include "GrDrawTarget.h"
+#include "GrDrawContext.h"
 #include "GrFontScaler.h"
 
 #include "SkAutoKern.h"
@@ -19,11 +20,9 @@
 #include "SkTextMapStateProc.h"
 #include "SkTextToPathIter.h"
 
-GrTextContext::GrTextContext(GrContext* context, SkGpuDevice* gpuDevice,
-                             const SkDeviceProperties& properties)
+GrTextContext::GrTextContext(GrContext* context, const SkDeviceProperties& properties)
     : fFallbackTextContext(NULL)
     , fContext(context)
-    , fGpuDevice(gpuDevice)
     , fDeviceProperties(properties) {
 }
 
@@ -52,19 +51,24 @@ void GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
         return;
     }
 
+    GrDrawContext* drawContext = fContext->drawContext();
+    if (!drawContext) {
+        return;
+    }
+
     GrTextContext* textContext = this;
     do {
         if (textContext->canDraw(rt, clip, paint, skPaint, viewMatrix)) {
-            textContext->onDrawText(rt, clip, paint, skPaint, viewMatrix, text, byteLength, x, y,
-                                    clipBounds);
+            textContext->onDrawText(drawContext, rt, clip, paint, skPaint, viewMatrix,
+                                    text, byteLength, x, y, clipBounds);
             return;
         }
         textContext = textContext->fFallbackTextContext;
     } while (textContext);
 
     // fall back to drawing as a path
-    SkASSERT(fGpuDevice);
-    this->drawTextAsPath(skPaint, viewMatrix, text, byteLength, x, y, clipBounds);
+    this->drawTextAsPath(drawContext, rt, clip, skPaint, viewMatrix,
+                         text, byteLength, x, y, clipBounds);
 }
 
 void GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& paint,
@@ -76,10 +80,16 @@ void GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
         return;
     }
 
+    GrDrawContext* drawContext = fContext->drawContext();
+    if (!drawContext) {
+        return;
+    }
+
     GrTextContext* textContext = this;
     do {
         if (textContext->canDraw(rt, clip, paint, skPaint, viewMatrix)) {
-            textContext->onDrawPosText(rt, clip, paint, skPaint, viewMatrix, text, byteLength, pos,
+            textContext->onDrawPosText(drawContext, rt, clip, paint, skPaint, viewMatrix,
+                                       text, byteLength, pos,
                                        scalarsPerPosition, offset, clipBounds);
             return;
         }
@@ -87,12 +97,12 @@ void GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
     } while (textContext);
 
     // fall back to drawing as a path
-    SkASSERT(fGpuDevice);
-    this->drawPosTextAsPath(skPaint, viewMatrix, text, byteLength, pos, scalarsPerPosition, offset,
-                            clipBounds);
+    this->drawPosTextAsPath(drawContext, rt, clip, skPaint, viewMatrix, text, byteLength, pos,
+                            scalarsPerPosition, offset, clipBounds);
 }
 
-void GrTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const SkPaint& skPaint,
+void GrTextContext::drawTextBlob(SkGpuDevice* gpuDevice, GrRenderTarget* rt,
+                                 const GrClip& clip, const SkPaint& skPaint,
                                  const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                  SkScalar x, SkScalar y,
                                  SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
@@ -112,7 +122,7 @@ void GrTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
             continue;
         }
 
-        runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
+        runPaint.setFlags(gpuDevice->filterTextFlags(runPaint));
 
         GrPaint grPaint;
         if (!SkPaint2GrPaint(fContext, fRenderTarget, runPaint, viewMatrix, true, &grPaint)) {
@@ -143,7 +153,9 @@ void GrTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
     }
 }
 
-void GrTextContext::drawTextAsPath(const SkPaint& skPaint, const SkMatrix& viewMatrix,
+void GrTextContext::drawTextAsPath(GrDrawContext* drawContext, GrRenderTarget* rt,
+                                   const GrClip& clip,
+                                   const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                    const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                    const SkIRect& clipBounds) {
     SkTextToPathIter iter(text, byteLength, skPaint, true);
@@ -159,13 +171,16 @@ void GrTextContext::drawTextAsPath(const SkPaint& skPaint, const SkMatrix& viewM
         matrix.postTranslate(xpos - prevXPos, 0);
         if (iterPath) {
             const SkPaint& pnt = iter.getPaint();
-            fGpuDevice->internalDrawPath(*iterPath, pnt, viewMatrix, &matrix, clipBounds, false);
+            GrBlurUtils::drawPathWithMaskFilter(fContext, drawContext, rt, clip, *iterPath,
+                                                pnt, viewMatrix, &matrix, clipBounds, false);
         }
         prevXPos = xpos;
     }
 }
 
-void GrTextContext::drawPosTextAsPath(const SkPaint& origPaint, const SkMatrix& viewMatrix,
+void GrTextContext::drawPosTextAsPath(GrDrawContext* drawContext, GrRenderTarget* rt,
+                                      const GrClip& clip,
+                                      const SkPaint& origPaint, const SkMatrix& viewMatrix,
                                       const char text[], size_t byteLength,
                                       const SkScalar pos[], int scalarsPerPosition,
                                       const SkPoint& offset, const SkIRect& clipBounds) {
@@ -204,7 +219,8 @@ void GrTextContext::drawPosTextAsPath(const SkPaint& origPaint, const SkMatrix& 
 
                 matrix[SkMatrix::kMTransX] = loc.fX;
                 matrix[SkMatrix::kMTransY] = loc.fY;
-                fGpuDevice->internalDrawPath(*path, paint, viewMatrix, &matrix, clipBounds, false);
+                GrBlurUtils::drawPathWithMaskFilter(fContext, drawContext, rt, clip, *path, paint,
+                                                    viewMatrix, &matrix, clipBounds, false);
             }
         }
         pos += scalarsPerPosition;

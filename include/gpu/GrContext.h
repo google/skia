@@ -480,11 +480,9 @@ private:
      * render target and the context. Caller assumes the ownership
      * of the returned object. The returned object must be deleted
      * before the context is destroyed.
-     * TODO we can possibly bury this behind context, but we need to be able to use the
-     * drawText_asPaths logic on SkGpuDevice
+     * TODO bury this behind context!
      */
     GrTextContext* createTextContext(GrRenderTarget*,
-                                     SkGpuDevice*,
                                      const SkDeviceProperties&,
                                      bool enableDistanceFieldFonts);
 

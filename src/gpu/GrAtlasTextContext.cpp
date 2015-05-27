@@ -10,6 +10,7 @@
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
+#include "GrBlurUtils.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawContext.h"
 #include "GrFontScaler.h"
@@ -94,10 +95,9 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
 // Distance field text in textblobs
 
 GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
-                                       SkGpuDevice* gpuDevice,
                                        const SkDeviceProperties& properties,
                                        bool enableDistanceFields)
-    : INHERITED(context, gpuDevice, properties)
+    : INHERITED(context, properties)
     , fDistanceAdjustTable(SkNEW_ARGS(DistanceAdjustTable, (properties.gamma()))) {
     // We overallocate vertices in our textblobs based on the assumption that A8 has the greatest
     // vertexStride
@@ -196,10 +196,9 @@ void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable(float gam
 }
 
 GrAtlasTextContext* GrAtlasTextContext::Create(GrContext* context,
-                                               SkGpuDevice* gpuDevice,
                                                const SkDeviceProperties& props,
                                                bool enableDistanceFields) {
-    return SkNEW_ARGS(GrAtlasTextContext, (context, gpuDevice, props, enableDistanceFields));
+    return SkNEW_ARGS(GrAtlasTextContext, (context, props, enableDistanceFields));
 }
 
 bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
@@ -345,9 +344,10 @@ inline SkGlyphCache* GrAtlasTextContext::setupCache(BitmapTextBlob::Run* run,
     return SkGlyphCache::DetachCache(run->fTypeface, run->fDescriptor.getDesc());
 }
 
-void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
-                                      const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                                      const SkTextBlob* blob, SkScalar x, SkScalar y,
+void GrAtlasTextContext::drawTextBlob(SkGpuDevice* gpuDevice, GrRenderTarget* rt,
+                                      const GrClip& clip, const SkPaint& skPaint,
+                                      const SkMatrix& viewMatrix, const SkTextBlob* blob,
+                                      SkScalar x, SkScalar y,
                                       SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
     // If we have been abandoned, then don't draw
     if (fContext->abandoned()) {
@@ -411,8 +411,8 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
             fCache->remove(cacheBlob);
             cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
                                                            kGrayTextVASize)));
-            this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix, blob, x, y,
-                                     drawFilter, clipRect, rt, clip, grPaint);
+            this->regenerateTextBlob(gpuDevice, cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
+                                     blob, x, y, drawFilter, clipRect, rt, clip, grPaint);
         } else {
             // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
             // offsets
@@ -428,12 +428,12 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip,
         } else {
             cacheBlob.reset(fCache->createBlob(blob, kGrayTextVASize));
         }
-        this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix, blob, x, y,
-                                 drawFilter, clipRect, rt, clip, grPaint);
+        this->regenerateTextBlob(gpuDevice, cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
+                                 blob, x, y, drawFilter, clipRect, rt, clip, grPaint);
     }
 
     cacheBlob->fPaintColor = skPaint.getColor();
-    this->flush(drawContext, blob, cacheBlob, rt, skPaint, grPaint, drawFilter,
+    this->flush(gpuDevice, drawContext, blob, cacheBlob, rt, skPaint, grPaint, drawFilter,
                 clip, viewMatrix, clipBounds, x, y, transX, transY);
 }
 
@@ -472,7 +472,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
     return true;
 }
 
-void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
+void GrAtlasTextContext::regenerateTextBlob(SkGpuDevice* gpuDevice, BitmapTextBlob* cacheBlob,
                                             const SkPaint& skPaint, GrColor color,
                                             const SkMatrix& viewMatrix,
                                             const SkTextBlob* blob, SkScalar x, SkScalar y,
@@ -500,7 +500,7 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
             continue;
         }
 
-        runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
+        runPaint.setFlags(gpuDevice->filterTextFlags(runPaint));
 
         // setup vertex / glyphIndex for the new run
         if (run > 0) {
@@ -775,12 +775,12 @@ GrAtlasTextContext::createDrawPosTextBlob(GrRenderTarget* rt, const GrClip& clip
     return blob;
 }
 
-void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
+void GrAtlasTextContext::onDrawText(GrDrawContext* drawContext, GrRenderTarget* rt,
+                                    const GrClip& clip, 
                                     const GrPaint& paint, const SkPaint& skPaint,
                                     const SkMatrix& viewMatrix,
                                     const char text[], size_t byteLength,
                                     SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
-    GrDrawContext* drawContext = fContext->drawContext();
     if (drawContext) {
         SkAutoTUnref<BitmapTextBlob> blob(
             this->createDrawTextBlob(rt, clip, paint, skPaint, viewMatrix,
@@ -789,13 +789,13 @@ void GrAtlasTextContext::onDrawText(GrRenderTarget* rt, const GrClip& clip,
     }
 }
 
-void GrAtlasTextContext::onDrawPosText(GrRenderTarget* rt, const GrClip& clip,
+void GrAtlasTextContext::onDrawPosText(GrDrawContext* drawContext, GrRenderTarget* rt,
+                                       const GrClip& clip,
                                        const GrPaint& paint, const SkPaint& skPaint,
                                        const SkMatrix& viewMatrix,
                                        const char text[], size_t byteLength,
                                        const SkScalar pos[], int scalarsPerPosition,
                                        const SkPoint& offset, const SkIRect& regionClipBounds) {
-    GrDrawContext* drawContext = fContext->drawContext();
     if (drawContext) {
         SkAutoTUnref<BitmapTextBlob> blob(
             this->createDrawPosTextBlob(rt, clip, paint, skPaint, viewMatrix,
@@ -2043,7 +2043,9 @@ private:
     float fGamma;
 };
 
-void GrAtlasTextContext::flushRunAsPaths(const SkTextBlob::RunIterator& it, const SkPaint& skPaint,
+void GrAtlasTextContext::flushRunAsPaths(SkGpuDevice* gpuDevice, GrDrawContext* drawContext,
+                                         GrRenderTarget* rt, const SkTextBlob::RunIterator& it, 
+                                         const GrClip& clip, const SkPaint& skPaint,
                                          SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
                                          const SkIRect& clipBounds, SkScalar x, SkScalar y) {
     SkPaint runPaint = skPaint;
@@ -2057,20 +2059,23 @@ void GrAtlasTextContext::flushRunAsPaths(const SkTextBlob::RunIterator& it, cons
         return;
     }
 
-    runPaint.setFlags(fGpuDevice->filterTextFlags(runPaint));
+    runPaint.setFlags(gpuDevice->filterTextFlags(runPaint));
 
     switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
-            this->drawTextAsPath(runPaint, viewMatrix, (const char *)it.glyphs(),
+            this->drawTextAsPath(drawContext, rt, clip, runPaint, viewMatrix,
+                                 (const char *)it.glyphs(),
                                  textLen, x + offset.x(), y + offset.y(), clipBounds);
             break;
         case SkTextBlob::kHorizontal_Positioning:
-            this->drawPosTextAsPath(runPaint, viewMatrix, (const char*)it.glyphs(),
+            this->drawPosTextAsPath(drawContext, rt, clip, runPaint, viewMatrix,
+                                    (const char*)it.glyphs(),
                                     textLen, it.pos(), 1, SkPoint::Make(x, y + offset.y()),
                                     clipBounds);
             break;
         case SkTextBlob::kFull_Positioning:
-            this->drawPosTextAsPath(runPaint, viewMatrix, (const char*)it.glyphs(),
+            this->drawPosTextAsPath(drawContext, rt, clip, runPaint, viewMatrix,
+                                    (const char*)it.glyphs(),
                                     textLen, it.pos(), 2, SkPoint::Make(x, y), clipBounds);
             break;
     }
@@ -2140,8 +2145,9 @@ inline void GrAtlasTextContext::flushRun(GrDrawContext* drawContext,
     }
 }
 
-inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget* rt,
-                                               const SkPaint& skPaint,
+inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob,
+                                               GrDrawContext* drawContext, GrRenderTarget* rt,
+                                               const GrClip& clip, const SkPaint& skPaint,
                                                SkScalar transX, SkScalar transY,
                                                const SkIRect& clipBounds) {
     if (!cacheBlob->fBigGlyphs.count()) {
@@ -2161,12 +2167,13 @@ inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRend
         SkMatrix translate = cacheBlob->fViewMatrix;
         translate.postTranslate(bigGlyph.fVx, bigGlyph.fVy);
 
-        fGpuDevice->internalDrawPath(bigGlyph.fPath, skPaint, translate, &pathMatrix, clipBounds,
-                                     false);
+        GrBlurUtils::drawPathWithMaskFilter(fContext, drawContext, rt, clip, bigGlyph.fPath,
+                                            skPaint, translate, &pathMatrix, clipBounds, false);
     }
 }
 
-void GrAtlasTextContext::flush(GrDrawContext* drawContext,
+void GrAtlasTextContext::flush(SkGpuDevice* gpuDevice,
+                               GrDrawContext* drawContext,
                                const SkTextBlob* blob,
                                BitmapTextBlob* cacheBlob,
                                GrRenderTarget* rt,
@@ -2188,7 +2195,8 @@ void GrAtlasTextContext::flush(GrDrawContext* drawContext,
     SkTextBlob::RunIterator it(blob);
     for (int run = 0; !it.done(); it.next(), run++) {
         if (cacheBlob->fRuns[run].fDrawAsPaths) {
-            this->flushRunAsPaths(it, skPaint, drawFilter, viewMatrix, clipBounds, x, y);
+            this->flushRunAsPaths(gpuDevice, drawContext, rt, it, clip, skPaint,
+                                  drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }
         cacheBlob->fRuns[run].fVertexBounds.offset(transX, transY);
@@ -2197,7 +2205,7 @@ void GrAtlasTextContext::flush(GrDrawContext* drawContext,
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(cacheBlob, rt, skPaint, transX, transY, clipBounds);
+    this->flushBigGlyphs(cacheBlob, drawContext, rt, clip, skPaint, transX, transY, clipBounds);
 }
 
 void GrAtlasTextContext::flush(GrDrawContext* drawContext,
@@ -2216,7 +2224,7 @@ void GrAtlasTextContext::flush(GrDrawContext* drawContext,
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(cacheBlob, rt, skPaint, 0, 0, clipBounds);
+    this->flushBigGlyphs(cacheBlob, drawContext, rt, clip, skPaint, 0, 0, clipBounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2234,7 +2242,7 @@ BATCH_TEST_DEFINE(TextBlobBatch) {
         // We don't yet test the fall back to paths in the GrTextContext base class.  This is mostly
         // because we don't really want to have a gpu device here.
         // We enable distance fields by twiddling a knob on the paint
-        gTextContext = GrAtlasTextContext::Create(context, NULL, gDeviceProperties, false);
+        gTextContext = GrAtlasTextContext::Create(context, gDeviceProperties, false);
     }
 
     // create dummy render target

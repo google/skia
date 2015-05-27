@@ -212,10 +212,6 @@ private:
                          int tileSize,
                          bool bicubic);
 
-    void internalDrawPath(const SkPath& origSrcPath, const SkPaint& paint,
-                          const SkMatrix& origViewMatrix, const SkMatrix* prePathMatrix,
-                          const SkIRect& clipBounds, bool pathIsMutable);
-
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 
     static GrRenderTarget* CreateRenderTarget(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
