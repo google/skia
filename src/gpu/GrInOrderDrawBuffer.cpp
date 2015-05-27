@@ -7,9 +7,11 @@
 
 #include "GrInOrderDrawBuffer.h"
 
+static const bool kEnableReordering = true;
+
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context)
     : INHERITED(context)
-    , fCommands(GrCommandBuilder::Create(context->getGpu(), false))
+    , fCommands(GrCommandBuilder::Create(context->getGpu(), kEnableReordering))
     , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
     , fPathTransformBuffer(kPathXformBufferMinReserve * sizeof(float)/4)
     , fPipelineBuffer(kPipelineBufferMinReserve)
