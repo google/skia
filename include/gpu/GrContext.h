@@ -179,15 +179,6 @@ public:
     int getMaxTextureSize() const;
 
     /**
-     *  Temporarily override the true max texture size. Note: an override
-     *  larger then the true max texture size will have no effect.
-     *  This entry point is mainly meant for testing texture size dependent
-     *  features and is only available if defined outside of Skia (see
-     *  bleed GM.
-     */
-    void setMaxTextureSizeOverride(int maxTextureSizeOverride);
-
-    /**
      * Can the provided configuration act as a color render target?
      */
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const;
@@ -428,8 +419,6 @@ private:
     };
 
     SkTDArray<CleanUpData>          fCleanUpData;
-
-    int                             fMaxTextureSizeOverride;
 
     const uint32_t                  fUniqueID;
 

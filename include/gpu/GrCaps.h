@@ -84,6 +84,11 @@ public:
     bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
 
 protected:
+    /** Subclasses must call this at the end of their constructors in order to apply caps
+        overrides requested by the client. Note that overrides will only reduce the caps never
+        expand them. */
+    void applyOptionsOverrides(const GrContextOptions& options);
+
     bool fShaderDerivativeSupport : 1;
     bool fGeometryShaderSupport : 1;
     bool fPathRenderingSupport : 1;
@@ -194,6 +199,11 @@ public:
         return fDrawPathMasksToCompressedTextureSupport; }
 
 protected:
+    /** Subclasses must call this at the end of their constructors in order to apply caps
+        overrides requested by the client. Note that overrides will only reduce the caps never
+        expand them. */
+    void applyOptionsOverrides(const GrContextOptions& options);
+
     SkAutoTUnref<GrShaderCaps>    fShaderCaps;
 
     bool fNPOTTextureTileSupport        : 1;

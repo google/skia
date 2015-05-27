@@ -12,6 +12,7 @@
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
+#include "GrContext.h"
 
 // This tests that we correctly regenerate textblobs after freeing all gpu resources crbug/491350
 namespace skiagm {

@@ -55,8 +55,13 @@ public:
     void dumpGpuStats(SkString*) const {}
 };
 
+struct GrContextOptions {};
+
 class GrContextFactory {
 public:
+    GrContextFactory() {};
+    explicit GrContextFactory(const GrContextOptions&) {}
+
     typedef int GLContextType;
 
     static const GLContextType kANGLE_GLContextType  = 0,

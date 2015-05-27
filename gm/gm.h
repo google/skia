@@ -17,10 +17,7 @@
 #include "sk_tool_utils.h"
 
 class SkAnimTimer;
-
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#endif
+struct GrContextOptions;
 
 #define DEF_GM(code) \
     static skiagm::GM*          SK_MACRO_APPEND_LINE(F_)(void*) { code; } \
@@ -95,6 +92,8 @@ namespace skiagm {
         }
 
         bool animate(const SkAnimTimer&);
+
+        virtual void modifyGrContextOptions(GrContextOptions* options) {}
 
     protected:
         /** draws a standard message that the GM is only intended to be used with the GPU.*/

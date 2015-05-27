@@ -59,6 +59,7 @@ struct Src {
     virtual Error SK_WARN_UNUSED_RESULT draw(SkCanvas*) const = 0;
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
+    virtual void modifyGrContextOptions(GrContextOptions* options) const {}
 };
 
 struct Sink {
@@ -85,6 +86,8 @@ public:
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
+    void modifyGrContextOptions(GrContextOptions* options) const override;
+
 private:
     skiagm::GMRegistry::Factory fFactory;
 };

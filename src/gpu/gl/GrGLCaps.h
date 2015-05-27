@@ -388,7 +388,8 @@ public:
      * Initializes the GrGLSLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
      */
-    GrGLSLCaps(const GrGLContextInfo&, const GrGLInterface*, const GrGLCaps&);
+    GrGLSLCaps(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
+               const GrGLCaps&);
 
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES

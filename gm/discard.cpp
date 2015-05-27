@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkColorShader.h"
 #include "SkPaint.h"
+#include "SkRandom.h"
 #include "SkSurface.h"
 
 #if SK_SUPPORT_GPU

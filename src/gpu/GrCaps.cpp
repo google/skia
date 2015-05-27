@@ -73,6 +73,10 @@ SkString GrShaderCaps::dump() const {
     return r;
 }
 
+void GrShaderCaps::applyOptionsOverrides(const GrContextOptions&) {
+    // Currently no overrides apply to shader caps.
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrCaps::GrCaps(const GrContextOptions& options) {
@@ -101,6 +105,10 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fSupressPrints = options.fSuppressPrints;
     fDrawPathMasksToCompressedTextureSupport = options.fDrawPathToCompressedTexture;
+}
+
+void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
 }
 
 static SkString map_flags_to_string(uint32_t flags) {

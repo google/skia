@@ -32,10 +32,6 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrContext::setMaxTextureSizeOverride(int maxTextureSizeOverride) {
-    fMaxTextureSizeOverride = maxTextureSizeOverride;
-}
-
 void GrContext::purgeAllUnlockedResources() {
     fResourceCache->purgeAllUnlocked();
 }

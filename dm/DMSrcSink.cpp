@@ -57,6 +57,11 @@ Name GMSrc::name() const {
     return gm->getName();
 }
 
+void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
+    SkAutoTDelete<skiagm::GM> gm(fFactory(NULL));
+    gm->modifyGrContextOptions(options);
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType)
@@ -434,7 +439,10 @@ int GPUSink::enclave() const {
 void PreAbandonGpuContextErrorHandler(SkError, void*) {}
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
-    GrContextFactory factory;
+    GrContextOptions options;
+    src.modifyGrContextOptions(&options);
+
+    GrContextFactory factory(options);
     const SkISize size = src.size();
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), kN32_SkColorType, kPremul_SkAlphaType);

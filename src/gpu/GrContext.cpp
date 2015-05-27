@@ -144,7 +144,6 @@ GrContext::GrContext() : fUniqueID(next_id()) {
     fSoftwarePathRenderer = NULL;
     fBatchFontCache = NULL;
     fFlushToReduceCacheSize = false;
-    fMaxTextureSizeOverride = 1 << 20;
 }
 
 bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
@@ -292,7 +291,7 @@ void GrContext::TextBlobCacheOverBudgetCB(void* data) {
 }
 
 int GrContext::getMaxTextureSize() const {
-    return SkTMin(fGpu->caps()->maxTextureSize(), fMaxTextureSizeOverride);
+    return fGpu->caps()->maxTextureSize();
 }
 
 int GrContext::getMaxRenderTargetSize() const {

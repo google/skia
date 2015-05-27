@@ -49,7 +49,10 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
 
     this->init(ctxInfo, glInterface);
 
-    fShaderCaps.reset(SkNEW_ARGS(GrGLSLCaps, (ctxInfo, glInterface, *this)));
+    fShaderCaps.reset(SkNEW_ARGS(GrGLSLCaps, (contextOptions,
+        ctxInfo, glInterface, *this)));
+
+    this->applyOptionsOverrides(contextOptions);
 }
 
 void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
@@ -893,7 +896,8 @@ SkString GrGLCaps::dump() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLSLCaps::GrGLSLCaps(const GrGLContextInfo& ctxInfo,
+GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options,
+                       const GrGLContextInfo& ctxInfo,
                        const GrGLInterface* gli,
                        const GrGLCaps& glCaps) {
     fDropsTileOnZeroDivide = false;
@@ -903,6 +907,7 @@ GrGLSLCaps::GrGLSLCaps(const GrGLContextInfo& ctxInfo,
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
     this->init(ctxInfo, gli, glCaps);
+    this->applyOptionsOverrides(options);
 }
 
 void GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
