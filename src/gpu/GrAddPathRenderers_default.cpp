@@ -27,7 +27,7 @@
 #endif
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
-    chain->addPathRenderer(SkNEW(GrDashLinePathRenderer))->unref();
+    chain->addPathRenderer(SkNEW_ARGS(GrDashLinePathRenderer, (ctx)))->unref();
 
 #if GR_STROKE_PATH_RENDERING
     chain->addPathRenderer(SkNEW(GrStrokePathRenderer))->unref();
@@ -36,7 +36,7 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain
     chain->addPathRenderer(SkNEW(GrAndroidPathRenderer))->unref();
 #endif
     if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx->resourceProvider(),
-                                                                   *ctx->caps())) {
+                                                                   *ctx->getGpu()->caps())) {
         chain->addPathRenderer(pr)->unref();
     }
 #if GR_TESSELLATING_PATH_RENDERING

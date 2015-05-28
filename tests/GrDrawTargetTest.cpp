@@ -29,7 +29,7 @@ DEF_GPUTEST(GrDrawTarget, reporter, factory) {
             continue;
         }
 
-        test_print(reporter, grContext->caps());
+        test_print(reporter, grContext->getGpu()->caps());
     }
 }
 

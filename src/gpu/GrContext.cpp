@@ -138,7 +138,6 @@ static int32_t next_id() {
 
 GrContext::GrContext() : fUniqueID(next_id()) {
     fGpu = NULL;
-    fCaps = NULL;
     fResourceCache = NULL;
     fResourceProvider = NULL;
     fPathRendererChain = NULL;
@@ -174,13 +173,10 @@ void GrContext::initCommon() {
     fBatchFontCache = SkNEW_ARGS(GrBatchFontCache, (this));
 
     fTextBlobCache.reset(SkNEW_ARGS(GrTextBlobCache, (TextBlobCacheOverBudgetCB, this)));
-
-    fCaps = SkRef(fGpu->caps());
 }
 
 GrContext::~GrContext() {
     if (!fGpu) {
-        SkASSERT(!fCaps);
         return;
     }
 
@@ -195,7 +191,6 @@ GrContext::~GrContext() {
     SkDELETE(fBatchFontCache);
 
     fGpu->unref();
-    fCaps->unref();
     SkSafeUnref(fPathRendererChain);
     SkSafeUnref(fSoftwarePathRenderer);
 }
@@ -263,6 +258,18 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool GrContext::shaderDerivativeSupport() const {
+    return fGpu->caps()->shaderCaps()->shaderDerivativeSupport();
+}
+
+bool GrContext::isConfigTexturable(GrPixelConfig config) const {
+    return fGpu->caps()->isConfigTexturable(config);
+}
+
+bool GrContext::npotTextureTileSupport() const {
+    return fGpu->caps()->npotTextureTileSupport();
+}
+
 void GrContext::OverBudgetCB(void* data) {
     SkASSERT(data);
 
@@ -281,6 +288,18 @@ void GrContext::TextBlobCacheOverBudgetCB(void* data) {
     // drawPath on SkGpuDevice
     GrContext* context = reinterpret_cast<GrContext*>(data);
     context->flush();
+}
+
+int GrContext::getMaxTextureSize() const {
+    return fGpu->caps()->maxTextureSize();
+}
+
+int GrContext::getMaxRenderTargetSize() const {
+    return fGpu->caps()->maxRenderTargetSize();
+}
+
+int GrContext::getMaxSampleCount() const {
+    return fGpu->caps()->maxSampleCount();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -668,9 +687,13 @@ GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+bool GrContext::isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
+    return fGpu->caps()->isConfigRenderable(config, withMSAA);
+}
+
 int GrContext::getRecommendedSampleCount(GrPixelConfig config,
                                          SkScalar dpi) const {
-    if (!this->caps()->isConfigRenderable(config, true)) {
+    if (!this->isConfigRenderable(config, true)) {
         return 0;
     }
     int chosenSampleCount = 0;

@@ -122,7 +122,7 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
                     smallRT0->asRenderTarget()->renderTargetPriv().getStencilAttachment() !=
                     bigRT->asRenderTarget()->renderTargetPriv().getStencilAttachment());
 
-    if (context->caps()->maxSampleCount() >= 4) {
+    if (context->getMaxSampleCount() >= 4) {
         // An RT with a different sample count should not share. 
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = 4;
@@ -154,8 +154,7 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
                         smallMSAART1->asRenderTarget()->renderTargetPriv().getStencilAttachment());
         // But not one with a larger sample count should not. (Also check that the request for 4
         // samples didn't get rounded up to >= 8 or else they could share.).
-        if (context->caps()->maxSampleCount() >= 8 &&
-            smallMSAART0 && smallMSAART0->asRenderTarget() &&
+        if (context->getMaxSampleCount() >= 8 && smallMSAART0 && smallMSAART0->asRenderTarget() &&
             smallMSAART0->asRenderTarget()->numSamples() < 8) {
             smallMSAADesc.fSampleCnt = 8;
             smallMSAART1.reset(cache->createTexture(smallMSAADesc, false));

@@ -20,7 +20,6 @@
 
 class GrAARectRenderer;
 class GrBatchFontCache;
-class GrCaps;
 struct GrContextOptions;
 class GrDrawContext;
 class GrDrawTarget;
@@ -156,8 +155,45 @@ public:
      */
     void purgeAllUnlockedResources();
 
-    /** Access the context capabilities */
-    const GrCaps* caps() const { return fCaps; }
+    //////////////////////////////////////////////////////////////////////////
+    /// Texture and Render Target Queries
+
+    /**
+     * Are shader derivatives supported?
+     */
+    bool shaderDerivativeSupport() const;
+
+    /**
+     * Can the provided configuration act as a texture?
+     */
+    bool isConfigTexturable(GrPixelConfig) const;
+
+    /**
+     * Can non-power-of-two textures be used with tile modes other than clamp?
+     */
+    bool npotTextureTileSupport() const;
+
+    /**
+     *  Return the max width or height of a texture supported by the current GPU.
+     */
+    int getMaxTextureSize() const;
+
+    /**
+     * Can the provided configuration act as a color render target?
+     */
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const;
+
+    /**
+     * Return the max width or height of a render target supported by the
+     * current GPU.
+     */
+    int getMaxRenderTargetSize() const;
+
+    /**
+     * Returns the max sample count for a render target. It will be 0 if MSAA
+     * is not supported.
+     */
+    int getMaxSampleCount() const;
 
     /**
      * Returns the recommended sample count for a render target when using this
@@ -356,7 +392,6 @@ public:
 
 private:
     GrGpu*                          fGpu;
-    const GrCaps*                   fCaps;
     GrResourceCache*                fResourceCache;
     // this union exists because the inheritance of GrTextureProvider->GrResourceProvider
     // is in a private header.

@@ -32,7 +32,7 @@
 
 GrDrawTarget::GrDrawTarget(GrContext* context)
     : fContext(context)
-    , fCaps(SkRef(context->caps()))
+    , fCaps(SkRef(context->getGpu()->caps()))
     , fGpuTraceMarkerCount(0)
     , fFlushing(false) {
     SkASSERT(context);

@@ -17,7 +17,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrCaps.h"
 #endif
 
 namespace {
@@ -346,7 +345,7 @@ bool SkPictureShader::asFragmentProcessor(GrContext* context, const SkPaint& pai
                                           GrFragmentProcessor** fp) const {
     int maxTextureSize = 0;
     if (context) {
-        maxTextureSize = context->caps()->maxTextureSize();
+        maxTextureSize = context->getMaxTextureSize();
     }
     SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(viewM, localMatrix, maxTextureSize));
     if (!bitmapShader) {

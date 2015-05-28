@@ -7,7 +7,6 @@
 
 #include "SkGr.h"
 
-#include "GrCaps.h"
 #include "GrDrawContext.h"
 #include "GrXferProcessor.h"
 #include "SkColorFilter.h"
@@ -97,7 +96,7 @@ enum Stretch {
 static Stretch get_stretch_type(const GrContext* ctx, int width, int height,
                                 const GrTextureParams* params) {
     if (params && params->isTiled()) {
-        if (!ctx->caps()->npotTextureTileSupport() && (!SkIsPow2(width) || !SkIsPow2(height))) {
+        if (!ctx->npotTextureTileSupport() && (!SkIsPow2(width) || !SkIsPow2(height))) {
             switch(params->filterMode()) {
                 case GrTextureParams::kNone_FilterMode:
                     return kNearest_Stretch;
@@ -199,7 +198,6 @@ GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
 
     GrContext* context = inputTexture->getContext();
     SkASSERT(context);
-    const GrCaps* caps = context->caps();
 
     // Either it's a cache miss or the original wasn't cached to begin with.
     GrSurfaceDesc rtDesc = inputTexture->desc();
@@ -210,18 +208,18 @@ GrTexture* stretch_texture_to_next_pot(GrTexture* inputTexture, Stretch stretch,
 
     // If the config isn't renderable try converting to either A8 or an 32 bit config. Otherwise,
     // fail.
-    if (!caps->isConfigRenderable(rtDesc.fConfig, false)) {
+    if (!context->isConfigRenderable(rtDesc.fConfig, false)) {
         if (GrPixelConfigIsAlphaOnly(rtDesc.fConfig)) {
-            if (caps->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+            if (context->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
                 rtDesc.fConfig = kAlpha_8_GrPixelConfig;
-            } else if (caps->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
+            } else if (context->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
                 rtDesc.fConfig = kSkia8888_GrPixelConfig;
             } else {
                 return NULL;
             }
         } else if (kRGB_GrColorComponentFlags ==
                    (kRGB_GrColorComponentFlags & GrPixelConfigComponentMask(rtDesc.fConfig))) {
-            if (caps->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
+            if (context->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
                 rtDesc.fConfig = kSkia8888_GrPixelConfig;
             } else {
                 return NULL;
@@ -425,10 +423,9 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
 
     GrSurfaceDesc desc;
     generate_bitmap_texture_desc(*bitmap, &desc);
-    const GrCaps* caps = ctx->caps();
 
     if (kIndex_8_SkColorType == bitmap->colorType()) {
-        if (caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
+        if (ctx->isConfigTexturable(kIndex_8_GrPixelConfig)) {
             size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
                                                           bitmap->width(), bitmap->height());
             SkAutoMalloc storage(imageSize);
@@ -450,7 +447,7 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
 #ifndef SK_IGNORE_ETC1_SUPPORT
     // Make sure that the underlying device supports ETC1 textures before we go ahead
     // and check the data.
-    else if (caps->isConfigTexturable(kETC1_GrPixelConfig)
+    else if (ctx->isConfigTexturable(kETC1_GrPixelConfig)
             // If the bitmap had compressed data and was then uncompressed, it'll still return
             // compressed data on 'refEncodedData' and upload it. Probably not good, since if
             // the bitmap has available pixels, then they might not be what the decompressed
