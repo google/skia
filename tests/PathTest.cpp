@@ -2602,14 +2602,10 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1);
     REPORTER_ASSERT(reporter, pts[0].fY == 0);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kClose_Verb);
-    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1);
-    REPORTER_ASSERT(reporter, pts[0].fY == 0);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
     REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*2);
     REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kClose_Verb);
-    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*2);
-    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kMove_Verb);
     REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*3);
     REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1*2);
@@ -2617,8 +2613,6 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*4);
     REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1*3);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kClose_Verb);
-    REPORTER_ASSERT(reporter, pts[0].fX == SK_Scalar1*4);
-    REPORTER_ASSERT(reporter, pts[0].fY == SK_Scalar1*3);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
 
     // Generate random paths and verify
@@ -2761,7 +2755,6 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
                     numIterPts += 3;
                     break;
                 case SkPath::kClose_Verb:
-                    REPORTER_ASSERT(reporter, pts[0] == lastMoveTo);
                     lastPt = lastMoveTo;
                     break;
                 default:

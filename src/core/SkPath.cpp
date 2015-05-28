@@ -1777,7 +1777,6 @@ SkPath::RawIter::RawIter() {
 #ifdef SK_DEBUG
     fPts = NULL;
     fConicWeights = NULL;
-    fMoveTo.fX = fMoveTo.fY = 0;
 #endif
     // need to init enough to make next() harmlessly return kDone_Verb
     fVerbs = NULL;
@@ -1793,7 +1792,6 @@ void SkPath::RawIter::setPath(const SkPath& path) {
     fVerbs = path.fPathRef->verbs();
     fVerbStop = path.fPathRef->verbsMemBegin();
     fConicWeights = path.fPathRef->conicWeights() - 1; // begin one behind
-    fMoveTo.fX = fMoveTo.fY = 0;
 }
 
 SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
@@ -1808,7 +1806,7 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
 
     switch (verb) {
         case kMove_Verb:
-            fMoveTo = pts[0] = srcPts[0];
+            pts[0] = srcPts[0];
             srcPts += 1;
             break;
         case kLine_Verb:
@@ -1833,7 +1831,9 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
             srcPts += 3;
             break;
         case kClose_Verb:
-            pts[0] = fMoveTo;
+            break;
+        case kDone_Verb:
+            SkASSERT(fVerbs == fVerbStop);
             break;
     }
     fPts = srcPts;

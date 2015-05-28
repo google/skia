@@ -917,7 +917,6 @@ public:
         const uint8_t*  fVerbs;
         const uint8_t*  fVerbStop;
         const SkScalar* fConicWeights;
-        SkPoint         fMoveTo;
     };
 
     /**
