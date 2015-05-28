@@ -209,7 +209,7 @@ typedef unsigned __int64 uint64_t;
  * use updateData().
  */
 #if !defined(GR_GEOM_BUFFER_MAP_THRESHOLD)
-    #define GR_GEOM_BUFFER_MAP_THRESHOLD (1 << 30)
+    #define GR_GEOM_BUFFER_MAP_THRESHOLD (1 << 15)
 #endif
 
 /**
