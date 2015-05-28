@@ -19,7 +19,6 @@ class GrContext;
 class GrDrawContext;
 class GrFontScaler;
 class SkDrawFilter;
-class SkGpuDevice;
 class SkTextBlob;
 
 /*
@@ -37,10 +36,12 @@ public:
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds);
-    virtual void drawTextBlob(SkGpuDevice*, GrRenderTarget*, const GrClip&, const SkPaint&,
+    virtual void drawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
                               const SkMatrix& viewMatrix, const SkTextBlob*,
                               SkScalar x, SkScalar y,
                               SkDrawFilter*, const SkIRect& clipBounds);
+
+    static bool ShouldDisableLCD(const SkPaint& paint);
 
 protected:
     GrTextContext*                 fFallbackTextContext;
@@ -87,6 +88,7 @@ protected:
     // sets extent in stopVector and returns glyph count
     static int MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
                            const char text[], size_t byteLength, SkVector* stopVector);
+    static uint32_t FilterTextFlags(const SkDeviceProperties& devProps, const SkPaint& paint);
 
     friend class BitmapTextBatch;
 };

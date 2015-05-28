@@ -1659,25 +1659,14 @@ void SkGpuDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSca
 
     SkDEBUGCODE(this->validate();)
 
-    fTextContext->drawTextBlob(this, fRenderTarget, fClip, paint, *draw.fMatrix,
+    fTextContext->drawTextBlob(fRenderTarget, fClip, paint, *draw.fMatrix,
                                blob, x, y, drawFilter, draw.fClip->getBounds());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
-    if (paint.getShader() ||
-        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode) ||
-        paint.getMaskFilter() ||
-        paint.getRasterizer() ||
-        paint.getColorFilter() ||
-        paint.getPathEffect() ||
-        paint.isFakeBoldText() ||
-        paint.getStyle() != SkPaint::kFill_Style)
-    {
-        return true;
-    }
-    return false;
+    return GrTextContext::ShouldDisableLCD(paint);
 }
 
 void SkGpuDevice::flush() {

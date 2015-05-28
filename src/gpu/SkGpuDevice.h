@@ -138,7 +138,7 @@ public:
 protected:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) override;
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
-    bool onShouldDisableLCD(const SkPaint&) const override;
+    bool onShouldDisableLCD(const SkPaint&) const final;
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     virtual bool EXPERIMENTAL_drawPicture(SkCanvas* canvas, const SkPicture* picture,

@@ -101,7 +101,37 @@ void GrTextContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
                             scalarsPerPosition, offset, clipBounds);
 }
 
-void GrTextContext::drawTextBlob(SkGpuDevice* gpuDevice, GrRenderTarget* rt,
+bool GrTextContext::ShouldDisableLCD(const SkPaint& paint) {
+    if (paint.getShader() ||
+        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode) ||
+        paint.getMaskFilter() ||
+        paint.getRasterizer() ||
+        paint.getColorFilter() ||
+        paint.getPathEffect() ||
+        paint.isFakeBoldText() ||
+        paint.getStyle() != SkPaint::kFill_Style)
+    {
+        return true;
+    }
+    return false;
+}
+
+uint32_t GrTextContext::FilterTextFlags(const SkDeviceProperties& devProps, const SkPaint& paint) {
+    uint32_t flags = paint.getFlags();
+
+    if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
+        return flags;
+    }
+
+    if (kUnknown_SkPixelGeometry == devProps.pixelGeometry() || ShouldDisableLCD(paint)) {
+        flags &= ~SkPaint::kLCDRenderText_Flag;
+        flags |= SkPaint::kGenA8FromLCD_Flag;
+    }
+
+    return flags;
+}
+
+void GrTextContext::drawTextBlob(GrRenderTarget* rt,
                                  const GrClip& clip, const SkPaint& skPaint,
                                  const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                  SkScalar x, SkScalar y,
@@ -122,7 +152,7 @@ void GrTextContext::drawTextBlob(SkGpuDevice* gpuDevice, GrRenderTarget* rt,
             continue;
         }
 
-        runPaint.setFlags(gpuDevice->filterTextFlags(runPaint));
+        runPaint.setFlags(FilterTextFlags(fDeviceProperties, runPaint));
 
         GrPaint grPaint;
         if (!SkPaint2GrPaint(fContext, fRenderTarget, runPaint, viewMatrix, true, &grPaint)) {

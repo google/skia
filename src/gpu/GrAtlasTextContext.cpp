@@ -344,7 +344,7 @@ inline SkGlyphCache* GrAtlasTextContext::setupCache(BitmapTextBlob::Run* run,
     return SkGlyphCache::DetachCache(run->fTypeface, run->fDescriptor.getDesc());
 }
 
-void GrAtlasTextContext::drawTextBlob(SkGpuDevice* gpuDevice, GrRenderTarget* rt,
+void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt,
                                       const GrClip& clip, const SkPaint& skPaint,
                                       const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                       SkScalar x, SkScalar y,
@@ -411,7 +411,7 @@ void GrAtlasTextContext::drawTextBlob(SkGpuDevice* gpuDevice, GrRenderTarget* rt
             fCache->remove(cacheBlob);
             cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
                                                            kGrayTextVASize)));
-            this->regenerateTextBlob(gpuDevice, cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
+            this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
                                      blob, x, y, drawFilter, clipRect, rt, clip, grPaint);
         } else {
             // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
@@ -428,12 +428,12 @@ void GrAtlasTextContext::drawTextBlob(SkGpuDevice* gpuDevice, GrRenderTarget* rt
         } else {
             cacheBlob.reset(fCache->createBlob(blob, kGrayTextVASize));
         }
-        this->regenerateTextBlob(gpuDevice, cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
+        this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
                                  blob, x, y, drawFilter, clipRect, rt, clip, grPaint);
     }
 
     cacheBlob->fPaintColor = skPaint.getColor();
-    this->flush(gpuDevice, drawContext, blob, cacheBlob, rt, skPaint, grPaint, drawFilter,
+    this->flush(drawContext, blob, cacheBlob, rt, skPaint, grPaint, drawFilter,
                 clip, viewMatrix, clipBounds, x, y, transX, transY);
 }
 
@@ -472,7 +472,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
     return true;
 }
 
-void GrAtlasTextContext::regenerateTextBlob(SkGpuDevice* gpuDevice, BitmapTextBlob* cacheBlob,
+void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
                                             const SkPaint& skPaint, GrColor color,
                                             const SkMatrix& viewMatrix,
                                             const SkTextBlob* blob, SkScalar x, SkScalar y,
@@ -500,7 +500,7 @@ void GrAtlasTextContext::regenerateTextBlob(SkGpuDevice* gpuDevice, BitmapTextBl
             continue;
         }
 
-        runPaint.setFlags(gpuDevice->filterTextFlags(runPaint));
+        runPaint.setFlags(FilterTextFlags(fDeviceProperties, runPaint));
 
         // setup vertex / glyphIndex for the new run
         if (run > 0) {
@@ -2043,7 +2043,7 @@ private:
     float fGamma;
 };
 
-void GrAtlasTextContext::flushRunAsPaths(SkGpuDevice* gpuDevice, GrDrawContext* drawContext,
+void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* drawContext,
                                          GrRenderTarget* rt, const SkTextBlob::RunIterator& it, 
                                          const GrClip& clip, const SkPaint& skPaint,
                                          SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
@@ -2059,7 +2059,7 @@ void GrAtlasTextContext::flushRunAsPaths(SkGpuDevice* gpuDevice, GrDrawContext* 
         return;
     }
 
-    runPaint.setFlags(gpuDevice->filterTextFlags(runPaint));
+    runPaint.setFlags(FilterTextFlags(fDeviceProperties, runPaint));
 
     switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
@@ -2172,8 +2172,7 @@ inline void GrAtlasTextContext::flushBigGlyphs(BitmapTextBlob* cacheBlob,
     }
 }
 
-void GrAtlasTextContext::flush(SkGpuDevice* gpuDevice,
-                               GrDrawContext* drawContext,
+void GrAtlasTextContext::flush(GrDrawContext* drawContext,
                                const SkTextBlob* blob,
                                BitmapTextBlob* cacheBlob,
                                GrRenderTarget* rt,
@@ -2195,7 +2194,7 @@ void GrAtlasTextContext::flush(SkGpuDevice* gpuDevice,
     SkTextBlob::RunIterator it(blob);
     for (int run = 0; !it.done(); it.next(), run++) {
         if (cacheBlob->fRuns[run].fDrawAsPaths) {
-            this->flushRunAsPaths(gpuDevice, drawContext, rt, it, clip, skPaint,
+            this->flushRunAsPaths(drawContext, rt, it, clip, skPaint,
                                   drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }
