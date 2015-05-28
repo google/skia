@@ -174,8 +174,8 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
                                      resultBounds.height());
 
     if (allowCompression &&
-        fContext->getGpu()->caps()->drawPathMasksToCompressedTexturesSupport() &&
-        choose_compressed_fmt(fContext->getGpu()->caps(), &fCompressedFormat)) {
+        fContext->caps()->drawPathMasksToCompressedTexturesSupport() &&
+        choose_compressed_fmt(fContext->caps(), &fCompressedFormat)) {
         fCompressionMode = kCompress_CompressionMode;
     }
 
@@ -245,7 +245,7 @@ GrTexture* GrSWMaskHelper::createTexture() {
 #endif
 
         desc.fConfig = fmt_to_config(fCompressedFormat);
-        SkASSERT(fContext->getGpu()->caps()->isConfigTexturable(desc.fConfig));
+        SkASSERT(fContext->caps()->isConfigTexturable(desc.fConfig));
     }
 
     return fContext->textureProvider()->refScratchTexture(
@@ -256,7 +256,7 @@ void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrSurfaceDesc& de
                                      const void *data, size_t rowbytes) {
     // If we aren't reusing scratch textures we don't need to flush before
     // writing since no one else will be using 'texture'
-    bool reuseScratch = fContext->getGpu()->caps()->reuseScratchTextures();
+    bool reuseScratch = fContext->caps()->reuseScratchTextures();
 
     // Since we're uploading to it, and it's compressed, 'texture' shouldn't
     // have a render target.

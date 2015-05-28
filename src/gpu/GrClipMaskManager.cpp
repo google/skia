@@ -489,7 +489,7 @@ GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = width;
     desc.fHeight = height;
-    if (this->getContext()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+    if (this->getContext()->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
         desc.fConfig = kAlpha_8_GrPixelConfig;
     } else {
         desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -526,7 +526,8 @@ GrTexture* GrClipMaskManager::allocMaskTexture(int32_t elementsGenID,
     desc.fWidth = clipSpaceIBounds.width();
     desc.fHeight = clipSpaceIBounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    if (willUpload || this->getContext()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+    if (willUpload ||
+        this->getContext()->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
         // We would always like A8 but it isn't supported on all platforms
         desc.fConfig = kAlpha_8_GrPixelConfig;
     }

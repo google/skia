@@ -910,7 +910,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     // FIXME: the tiled bitmap code path doesn't currently support
     // anti-aliased edges, we work around that for now by drawing directly
     // if the image size exceeds maximum texture size.
-    int maxTextureSize = fContext->getMaxTextureSize();
+    int maxTextureSize = fContext->caps()->maxTextureSize();
     bool directDraw = fRenderTarget->isMultisampled() ||
                       !paint.isAntiAlias() ||
                       bitmap.width() > maxTextureSize ||
@@ -1034,7 +1034,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     }
     params.setFilterMode(textureFilterMode);
 
-    int maxTileSize = fContext->getMaxTextureSize() - 2 * tileFilterPad;
+    int maxTileSize = fContext->caps()->maxTextureSize() - 2 * tileFilterPad;
     int tileSize;
 
     SkIRect clippedSrcRect;
@@ -1163,8 +1163,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                      SkCanvas::DrawBitmapRectFlags flags,
                                      bool bicubic,
                                      bool needsTextureDomain) {
-    SkASSERT(bitmap.width() <= fContext->getMaxTextureSize() &&
-             bitmap.height() <= fContext->getMaxTextureSize());
+    SkASSERT(bitmap.width() <= fContext->caps()->maxTextureSize() &&
+             bitmap.height() <= fContext->caps()->maxTextureSize());
 
     GrTexture* texture;
     AutoBitmapTexture abt(fContext, bitmap, &params, &texture);

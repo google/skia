@@ -13,9 +13,6 @@
 
 class GrDashLinePathRenderer : public GrPathRenderer {
 public:
-    GrDashLinePathRenderer(GrContext*);
-    ~GrDashLinePathRenderer();
-
     bool canDrawPath(const GrDrawTarget*,
                      const GrPipelineBuilder*,
                      const SkMatrix& viewMatrix,

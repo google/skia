@@ -271,7 +271,7 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
     if (fp) {
         GrContext* context = texture->getContext();
         GrSurfaceDesc maskDesc;
-        if (context->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+        if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
             maskDesc.fConfig = kAlpha_8_GrPixelConfig;
         } else {
             maskDesc.fConfig = kRGBA_8888_GrPixelConfig;
