@@ -1361,6 +1361,7 @@ bool SkBitmap::requestLock(SkAutoPixmapUnlock* result) const {
     SkPixelRef::LockRequest req = { fInfo.dimensions(), kNone_SkFilterQuality };
     SkPixelRef::LockResult res;
     if (pr->requestLock(req, &res)) {
+        SkASSERT(res.fPixels);
         // The bitmap may be a subset of the pixelref's dimensions
         SkASSERT(fPixelRefOrigin.x() + fInfo.width()  <= res.fSize.width());
         SkASSERT(fPixelRefOrigin.y() + fInfo.height() <= res.fSize.height());
