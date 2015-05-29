@@ -186,18 +186,6 @@ typedef unsigned __int64 uint64_t;
 #endif
 
 /**
- * GR_ALWAYS_ALLOCATE_ON_HEAP determines whether various temporary buffers created
- * in the GPU backend are always allocated on the heap or are allowed to be
- * allocated on the stack for smaller memory requests.
- *
- * This is only used for memory buffers that are created and then passed through to the
- * 3D API (e.g. as texture or geometry data)
- */
-#if !defined(GR_ALWAYS_ALLOCATE_ON_HEAP)
-    #define GR_ALWAYS_ALLOCATE_ON_HEAP 0
-#endif
-
-/**
  * GR_FORCE_GPU_TRACE_DEBUGGING will force gpu tracing/debug markers to be turned on. The trace
  * markers will be printed out instead of making the backend calls to push and pop them.
  */

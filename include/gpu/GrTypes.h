@@ -616,22 +616,4 @@ static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
  */
 static const uint32_t kAll_GrBackendState = 0xffffffff;
 
-///////////////////////////////////////////////////////////////////////////////
-
-#if GR_ALWAYS_ALLOCATE_ON_HEAP
-    #define GrAutoMallocBaseType SkAutoMalloc
-#else
-    #define GrAutoMallocBaseType SkAutoSMalloc<S>
-#endif
-
-template <size_t S> class GrAutoMalloc : public GrAutoMallocBaseType {
-public:
-    GrAutoMalloc() : INHERITED() {}
-    explicit GrAutoMalloc(size_t size) : INHERITED(size) {}
-    virtual ~GrAutoMalloc() {}
-private:
-    typedef GrAutoMallocBaseType INHERITED;
-};
-
-#undef GrAutoMallocBaseType
 #endif

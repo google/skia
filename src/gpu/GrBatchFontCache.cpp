@@ -217,7 +217,7 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* gly
     int bytesPerPixel = GrMaskFormatBytesPerPixel(glyph->fMaskFormat);
 
     size_t size = glyph->fBounds.area() * bytesPerPixel;
-    GrAutoMalloc<1024> storage(size);
+    SkAutoSMalloc<1024> storage(size);
 
     if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID)) {
         if (!scaler->getPackedGlyphDFImage(glyph->fPackedID, glyph->width(),
