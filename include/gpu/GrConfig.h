@@ -186,14 +186,6 @@ typedef unsigned __int64 uint64_t;
 #endif
 
 /**
- * GR_STROKE_PATH_RENDERING controls whether or not the GrStrokePathRenderer can be selected
- * as a path renderer. GrStrokePathRenderer is currently an experimental path renderer.
- */
-#if !defined(GR_STROKE_PATH_RENDERING)
-    #define GR_STROKE_PATH_RENDERING                 0
-#endif
-
-/**
  * GR_ALWAYS_ALLOCATE_ON_HEAP determines whether various temporary buffers created
  * in the GPU backend are always allocated on the heap or are allowed to be
  * allocated on the stack for smaller memory requests.
