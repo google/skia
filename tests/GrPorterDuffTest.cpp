@@ -949,7 +949,7 @@ static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
         return;
     }
 
-    const GrCaps& caps = *ctx->getGpu()->caps();
+    const GrCaps& caps = *ctx->caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         SkFAIL("Null context failed to honor request for no ARB_blend_func_extended.");
         return;

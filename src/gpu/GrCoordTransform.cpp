@@ -27,7 +27,7 @@ void GrCoordTransform::reset(GrCoordSet sourceCoords, const SkMatrix& m, const G
     int subPixelThresh = filter > GrTextureParams::kNone_FilterMode ? 4 : 1;
     fPrecision = kDefault_GrSLPrecision;
     if (texture->getContext()) {
-        const GrShaderCaps* caps = texture->getContext()->getGpu()->caps()->shaderCaps();
+        const GrShaderCaps* caps = texture->getContext()->caps()->shaderCaps();
         if (caps->floatPrecisionVaries()) {
             int maxD = SkTMax(texture->width(), texture->height());
             const GrShaderCaps::PrecisionInfo* info;

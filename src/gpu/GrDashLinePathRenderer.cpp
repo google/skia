@@ -10,13 +10,6 @@
 #include "GrGpu.h"
 #include "effects/GrDashingEffect.h"
 
-GrDashLinePathRenderer::GrDashLinePathRenderer(GrContext* context)
-        : fGpu(SkRef(context->getGpu())) {
-}
-
-GrDashLinePathRenderer::~GrDashLinePathRenderer() {
-}
-
 bool GrDashLinePathRenderer::canDrawPath(const GrDrawTarget* target,
                                          const GrPipelineBuilder* pipelineBuilder,
                                          const SkMatrix& viewMatrix,

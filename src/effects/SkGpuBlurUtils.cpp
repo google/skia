@@ -13,6 +13,7 @@
 #include "effects/GrConvolutionEffect.h"
 #include "effects/GrMatrixConvolutionEffect.h"
 #include "GrContext.h"
+#include "GrCaps.h"
 #include "GrDrawContext.h"
 #endif
 
@@ -154,7 +155,7 @@ GrTexture* GaussianBlur(GrContext* context,
     SkIRect clearRect;
     int scaleFactorX, radiusX;
     int scaleFactorY, radiusY;
-    int maxTextureSize = context->getMaxTextureSize();
+    int maxTextureSize = context->caps()->maxTextureSize();
     sigmaX = adjust_sigma(sigmaX, maxTextureSize, &scaleFactorX, &radiusX);
     sigmaY = adjust_sigma(sigmaY, maxTextureSize, &scaleFactorY, &radiusY);
 

@@ -7,6 +7,7 @@
 
 #include "GrBlurUtils.h"
 #include "GrDrawContext.h"
+#include "GrCaps.h"
 #include "GrContext.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "GrStrokeInfo.h"
@@ -110,7 +111,7 @@ static GrTexture* create_mask_GPU(GrContext* context,
     // render target so default to RGBA_8888
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    if (context->isConfigRenderable(kAlpha_8_GrPixelConfig, desc.fSampleCnt > 0)) {
+    if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, desc.fSampleCnt > 0)) {
         desc.fConfig = kAlpha_8_GrPixelConfig;
     }
 

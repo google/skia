@@ -43,6 +43,7 @@
 
 #if SK_SUPPORT_GPU
     #include "gl/GrGLDefines.h"
+    #include "GrCaps.h"
     #include "GrContextFactory.h"
     SkAutoTDelete<GrContextFactory> gGrFactory;
 #endif
@@ -372,7 +373,7 @@ static bool is_gpu_config_allowed(const char* name, GrContextFactory::GLContextT
         return false;
     }
     if (const GrContext* ctx = gGrFactory->get(ctxType)) {
-        return sampleCnt <= ctx->getMaxSampleCount();
+        return sampleCnt <= ctx->caps()->maxSampleCount();
     }
     return false;
 }

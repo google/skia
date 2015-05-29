@@ -460,7 +460,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
     // rasterizers and mask filters modify alpha, which doesn't
     // translate well to distance
     if (skPaint.getRasterizer() || skPaint.getMaskFilter() ||
-        !fContext->shaderDerivativeSupport()) {
+        !fContext->caps()->shaderCaps()->shaderDerivativeSupport()) {
         return false;
     }
 

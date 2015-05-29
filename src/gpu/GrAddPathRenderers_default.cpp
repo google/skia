@@ -21,10 +21,10 @@
 #endif
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
-    chain->addPathRenderer(SkNEW_ARGS(GrDashLinePathRenderer, (ctx)))->unref();
+    chain->addPathRenderer(SkNEW(GrDashLinePathRenderer))->unref();
 
     if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx->resourceProvider(),
-                                                                   *ctx->getGpu()->caps())) {
+                                                                   *ctx->caps())) {
         chain->addPathRenderer(pr)->unref();
     }
 #if GR_TESSELLATING_PATH_RENDERING
