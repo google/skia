@@ -8,7 +8,7 @@
 #ifndef GrClipMaskCache_DEFINED
 #define GrClipMaskCache_DEFINED
 
-#include "GrContext.h"
+#include "GrResourceProvider.h"
 #include "SkClipStack.h"
 #include "SkTypes.h"
 
@@ -20,10 +20,9 @@ class GrTexture;
  */
 class GrClipMaskCache : SkNoncopyable {
 public:
-    GrClipMaskCache();
+    GrClipMaskCache(GrResourceProvider*);
 
     ~GrClipMaskCache() {
-
         while (!fStack.empty()) {
             GrClipStackFrame* temp = (GrClipStackFrame*) fStack.back();
             temp->~GrClipStackFrame();
@@ -124,7 +123,7 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        back->acquireMask(fContext, clipGenID, desc, bound);
+        back->acquireMask(fResourceProvider, clipGenID, desc, bound);
     }
 
     int getLastMaskWidth() const {
@@ -172,14 +171,6 @@ public:
         *bound = back->fLastBound;
     }
 
-    void setContext(GrContext* context) {
-        fContext = context;
-    }
-
-    GrContext* getContext() {
-        return fContext;
-    }
-
     //  TODO: Remove this when we hold cache keys instead of refs to textures.
     void purgeResources() {
         SkDeque::F2BIter iter(fStack);
@@ -197,7 +188,7 @@ private:
             this->reset();
         }
 
-        void acquireMask(GrContext* context,
+        void acquireMask(GrResourceProvider* resourceProvider,
                          int32_t clipGenID,
                          const GrSurfaceDesc& desc,
                          const SkIRect& bound) {
@@ -206,7 +197,7 @@ private:
 
             // HACK: set the last param to true to indicate that this request is at
             // flush time and therefore we require a scratch texture with no pending IO operations.
-            fLastMask.reset(context->textureProvider()->refScratchTexture(
+            fLastMask.reset(resourceProvider->refScratchTexture(
                 desc, GrTextureProvider::kApprox_ScratchTexMatch, /*flushing=*/true));
 
             fLastBound = bound;
@@ -231,8 +222,8 @@ private:
         SkIRect                 fLastBound;
     };
 
-    GrContext*   fContext;
-    SkDeque      fStack;
+    SkDeque             fStack;
+    GrResourceProvider* fResourceProvider;
 
     typedef SkNoncopyable INHERITED;
 };

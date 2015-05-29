@@ -329,10 +329,7 @@ private:
  */
 class GrClipTarget : public GrDrawTarget {
 public:
-    GrClipTarget(GrContext* context)
-        : INHERITED(context) {
-        fClipMaskManager.setClipTarget(this);
-    }
+    GrClipTarget(GrContext*);
 
     /* Clip mask manager needs access to the context.
      * TODO we only need a very small subset of context in the CMM.
@@ -352,17 +349,13 @@ public:
      * Release any resources that are cached but not currently in use. This
      * is intended to give an application some recourse when resources are low.
      */
-    void purgeResources() override {
-        // The clip mask manager can rebuild all its clip masks so just
-        // get rid of them all.
-        fClipMaskManager.purgeResources();
-    };
+    void purgeResources() override;
 
 protected:
-    GrClipMaskManager           fClipMaskManager;
+    SkAutoTDelete<GrClipMaskManager> fClipMaskManager;
 
 private:
-    GrClipMaskManager* clipMaskManager() override { return &fClipMaskManager; }
+    GrClipMaskManager* clipMaskManager() override { return fClipMaskManager; }
 
     virtual bool setupClip(GrPipelineBuilder*,
                            GrPipelineBuilder::AutoRestoreFragmentProcessors*,

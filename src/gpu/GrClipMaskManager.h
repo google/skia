@@ -8,7 +8,6 @@
 #define GrClipMaskManager_DEFINED
 
 #include "GrClipMaskCache.h"
-#include "GrContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrReducedClip.h"
 #include "GrStencil.h"
@@ -35,11 +34,7 @@ class SkPath;
  */
 class GrClipMaskManager : SkNoncopyable {
 public:
-    GrClipMaskManager()
-        : fCurrClipMaskType(kNone_ClipMaskType)
-        , fClipTarget(NULL)
-        , fClipMode(kIgnoreClip_StencilClipMode) {
-    }
+    GrClipMaskManager(GrClipTarget* owner);
 
     /**
      * Creates a clip mask if necessary as a stencil buffer or alpha texture
@@ -68,15 +63,13 @@ public:
         return kAlpha_ClipMaskType == fCurrClipMaskType;
     }
 
-    GrContext* getContext() {
-        return fAACache.getContext();
-    }
-
     void setClipTarget(GrClipTarget*);
 
     void adjustPathStencilParams(const GrStencilAttachment*, GrStencilSettings*);
 
 private:
+    inline GrContext* getContext();
+
     /**
      * Informs the helper function adjustStencilParams() about how the stencil
      * buffer clip is being used.
@@ -190,7 +183,7 @@ private:
     } fCurrClipMaskType;
 
     GrClipMaskCache fAACache;       // cache for the AA path
-    GrClipTarget*   fClipTarget;
+    GrClipTarget*   fClipTarget;    // This is our owning clip target.
     StencilClipMode fClipMode;
 
     typedef SkNoncopyable INHERITED;

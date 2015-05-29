@@ -77,6 +77,15 @@ bool path_needs_SW_renderer(GrContext* context,
 }
 }
 
+GrClipMaskManager::GrClipMaskManager(GrClipTarget* clipTarget)
+    : fCurrClipMaskType(kNone_ClipMaskType)
+    , fAACache(clipTarget->getContext()->resourceProvider())
+    , fClipTarget(clipTarget)
+    , fClipMode(kIgnoreClip_StencilClipMode) {
+}
+
+GrContext* GrClipMaskManager::getContext() { return fClipTarget->getContext(); }
+
 /*
  * This method traverses the clip stack to see if the GrSoftwarePathRenderer
  * will be used on any element. If so, it returns true to indicate that the
@@ -1108,11 +1117,6 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
 ////////////////////////////////////////////////////////////////////////////////
 void GrClipMaskManager::purgeResources() {
     fAACache.purgeResources();
-}
-
-void GrClipMaskManager::setClipTarget(GrClipTarget* clipTarget) {
-    fClipTarget = clipTarget;
-    fAACache.setContext(clipTarget->getContext());
 }
 
 void GrClipMaskManager::adjustPathStencilParams(const GrStencilAttachment* stencilAttachment,

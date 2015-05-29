@@ -540,15 +540,25 @@ GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+GrClipTarget::GrClipTarget(GrContext* context) : INHERITED(context) {
+    fClipMaskManager.reset(SkNEW_ARGS(GrClipMaskManager, (this)));
+}
+
 
 bool GrClipTarget::setupClip(GrPipelineBuilder* pipelineBuilder,
                              GrPipelineBuilder::AutoRestoreFragmentProcessors* arfp,
                              GrPipelineBuilder::AutoRestoreStencil* ars,
                              GrScissorState* scissorState,
                              const SkRect* devBounds) {
-    return fClipMaskManager.setupClipping(pipelineBuilder,
+    return fClipMaskManager->setupClipping(pipelineBuilder,
                                           arfp,
                                           ars,
                                           scissorState,
                                           devBounds);
 }
+
+void GrClipTarget::purgeResources() {
+    // The clip mask manager can rebuild all its clip masks so just
+    // get rid of them all.
+    fClipMaskManager->purgeResources();
+};

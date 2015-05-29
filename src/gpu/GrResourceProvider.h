@@ -8,6 +8,7 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
+#include "GrIndexBuffer.h"
 #include "GrTextureProvider.h"
 #include "GrPathRange.h"
 

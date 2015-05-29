@@ -17,7 +17,7 @@ static const int Y_SIZE = 12;
 
 ////////////////////////////////////////////////////////////////////////////////
 // note: this is unused
-static GrTexture* createTexture(GrContext* context) {
+static GrTexture* create_texture(GrContext* context) {
     unsigned char textureData[X_SIZE][Y_SIZE][4];
 
     memset(textureData, 0, 4* X_SIZE * Y_SIZE);
@@ -133,11 +133,9 @@ static void check_empty_state(skiatest::Reporter* reporter,
 static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     if (false) { // avoid bit rot, suppress warning
-        createTexture(context);
+        create_texture(context);
     }
-    GrClipMaskCache cache;
-
-    cache.setContext(context);
+    GrClipMaskCache cache(context->resourceProvider());
 
     // check initial state
     check_empty_state(reporter, cache);

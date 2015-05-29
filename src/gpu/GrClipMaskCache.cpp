@@ -8,9 +8,9 @@
 
 #include "GrClipMaskCache.h"
 
-GrClipMaskCache::GrClipMaskCache()
-    : fContext(NULL)
-    , fStack(sizeof(GrClipStackFrame)) {
+GrClipMaskCache::GrClipMaskCache(GrResourceProvider* resourceProvider)
+    : fStack(sizeof(GrClipStackFrame))
+    , fResourceProvider(resourceProvider) {
     // We need an initial frame to capture the clip state prior to
     // any pushes
     SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
