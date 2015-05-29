@@ -40,7 +40,6 @@
       '<(skia_include_path)/gpu/GrTextureAccess.h',
       '<(skia_include_path)/gpu/GrTestUtils.h',
       '<(skia_include_path)/gpu/GrTypes.h',
-      '<(skia_include_path)/gpu/GrUserConfig.h',
       '<(skia_include_path)/gpu/GrXferProcessor.h',
 
       '<(skia_include_path)/gpu/effects/GrConstColorProcessor.h',

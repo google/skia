@@ -196,7 +196,12 @@ public:
     bool suppressPrints() const { return fSupressPrints; }
 
     bool drawPathMasksToCompressedTexturesSupport() const {
-        return fDrawPathMasksToCompressedTextureSupport; }
+        return fDrawPathMasksToCompressedTextureSupport;
+    }
+
+    size_t geometryBufferMapThreshold() const {
+        return fGeometryBufferMapThreshold;
+    }
 
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
@@ -233,6 +238,7 @@ protected:
 private:
     bool fSupressPrints : 1;
     bool fDrawPathMasksToCompressedTextureSupport : 1;
+    size_t fGeometryBufferMapThreshold;
 
     typedef SkRefCnt INHERITED;
 };

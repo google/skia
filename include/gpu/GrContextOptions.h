@@ -15,7 +15,8 @@ struct GrContextOptions {
         : fDrawPathToCompressedTexture(false)
         , fSuppressPrints(false)
         , fMaxTextureSizeOverride(SK_MaxS32)
-        , fSuppressDualSourceBlending(false) {}
+        , fSuppressDualSourceBlending(false)
+        , fGeometryBufferMapThreshold(1 << 15) {}
 
     // EXPERIMENTAL
     // May be removed in the future, or may become standard depending
@@ -31,6 +32,12 @@ struct GrContextOptions {
 
     int  fMaxTextureSizeOverride;
     bool fSuppressDualSourceBlending;
+
+    /** fGeometryBufferMapThreshold gives a threshold (in bytes) for when Gr should
+        map a GrGeometryBuffer to update its contents. It will use map() if the
+        size of the updated region is greater than the threshold. Otherwise it will
+        use updateData(). */
+    size_t  fGeometryBufferMapThreshold;
 };
 
 #endif

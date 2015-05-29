@@ -128,6 +128,7 @@ private:
     int                             fPreallocBufferStartIdx;
     SkAutoMalloc                    fCpuData;
     void*                           fBufferPtr;
+    size_t                          fGeometryBufferMapThreshold;
 };
 
 class GrVertexBuffer;

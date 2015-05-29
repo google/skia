@@ -76,23 +76,6 @@ typedef unsigned __int64 uint64_t;
 #include <stdint.h>
 #endif
 
-/*
- *  The "user config" file can be empty, and everything should work. It is
- *  meant to store a given platform/client's overrides of our guess-work.
- *
- *  A alternate user config file can be specified by defining
- *  GR_USER_CONFIG_FILE. It should be defined relative to GrConfig.h
- *
- *  e.g. it can change the BUILD target or supply its own defines for anything
- *  else (e.g. GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT)
- */
-#if !defined(GR_USER_CONFIG_FILE)
-    #include "GrUserConfig.h"
-#else
-    #include GR_USER_CONFIG_FILE
-#endif
-
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 // postconfig section:
@@ -200,16 +183,6 @@ typedef unsigned __int64 uint64_t;
             enum {GR_CONCAT(X,__LINE__) = \
             sizeof(GR_STATIC_ASSERT_FAILURE<CONDITION>)}
     #endif
-#endif
-
-/**
- * GR_GEOM_BUFFER_MAP_THRESHOLD gives a threshold (in bytes) for when Gr should
- * map a GrGeometryBuffer to update its contents. It will use map() if the
- * size of the updated region is greater than the threshold. Otherwise it will
- * use updateData().
- */
-#if !defined(GR_GEOM_BUFFER_MAP_THRESHOLD)
-    #define GR_GEOM_BUFFER_MAP_THRESHOLD (1 << 15)
 #endif
 
 /**

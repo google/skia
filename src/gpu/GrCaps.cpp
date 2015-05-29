@@ -105,6 +105,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fSupressPrints = options.fSuppressPrints;
     fDrawPathMasksToCompressedTextureSupport = options.fDrawPathToCompressedTexture;
+    fGeometryBufferMapThreshold = options.fGeometryBufferMapThreshold;
 }
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {

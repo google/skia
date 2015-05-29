@@ -57,6 +57,7 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
             *fPreallocBuffers.append() = buffer;
         }
     }
+    fGeometryBufferMapThreshold = gpu->caps()->geometryBufferMapThreshold();
 }
 
 GrBufferAllocPool::~GrBufferAllocPool() {
@@ -288,7 +289,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     // threshold.
     bool attemptMap = block.fBuffer->isCPUBacked();
     if (!attemptMap && GrCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
-        attemptMap = size > GR_GEOM_BUFFER_MAP_THRESHOLD;
+        attemptMap = size > fGeometryBufferMapThreshold;
     }
 
     if (attemptMap) {
@@ -332,7 +333,7 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
     VALIDATE(true);
 
     if (GrCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags() &&
-        flushSize > GR_GEOM_BUFFER_MAP_THRESHOLD) {
+        flushSize > fGeometryBufferMapThreshold) {
         void* data = buffer->map();
         if (data) {
             memcpy(data, fBufferPtr, flushSize);
