@@ -11,12 +11,13 @@
 #include "GrAARectRenderer.h"
 #include "GrBatch.h"
 #include "GrCaps.h"
-#include "GrContext.h"
+#include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPipeline.h"
 #include "GrMemoryPool.h"
 #include "GrRectBatch.h"
 #include "GrRenderTarget.h"
+#include "GrResourceProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
 #include "GrTemplates.h"
@@ -27,15 +28,17 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define DEBUG_INVAL_BUFFER 0xdeadcafe
-#define DEBUG_INVAL_START_IDX -1
-
-GrDrawTarget::GrDrawTarget(GrContext* context)
-    : fContext(context)
-    , fCaps(SkRef(context->caps()))
+GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
+    : fGpu(SkRef(gpu))
+    , fCaps(SkRef(gpu->caps()))
+    , fResourceProvider(resourceProvider)
     , fGpuTraceMarkerCount(0)
     , fFlushing(false) {
-    SkASSERT(context);
+}
+
+GrDrawTarget::~GrDrawTarget() {
+    fGpu->unref();
+    fCaps->unref();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,8 +96,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
 
-    SkAutoTUnref<GrTexture> copy(fContext->textureProvider()->refScratchTexture(desc,
-        GrTextureProvider::kApprox_ScratchTexMatch));
+    SkAutoTUnref<GrTexture> copy(
+        fResourceProvider->refScratchTexture(desc, GrTextureProvider::kApprox_ScratchTexMatch));
 
     if (!copy) {
         SkDebugf("Failed to create temporary copy of destination texture.\n");
@@ -540,7 +543,9 @@ GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GrClipTarget::GrClipTarget(GrContext* context) : INHERITED(context) {
+GrClipTarget::GrClipTarget(GrContext* context)
+    : INHERITED(context->getGpu(), context->resourceProvider())
+    , fContext(context) {
     fClipMaskManager.reset(SkNEW_ARGS(GrClipMaskManager, (this)));
 }
 

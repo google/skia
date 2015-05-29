@@ -46,9 +46,9 @@ public:
 
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
-    GrDrawTarget(GrContext* context);
+    GrDrawTarget(GrGpu* gpu, GrResourceProvider*);
 
-    virtual ~GrDrawTarget() {}
+    virtual ~GrDrawTarget();
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -64,7 +64,7 @@ public:
     /**
      * Gets the capabilities of the draw target.
      */
-    const GrCaps* caps() const { return fCaps.get(); }
+    const GrCaps* caps() const { return fCaps; }
 
     void drawBatch(GrPipelineBuilder*, GrBatch*);
 
@@ -208,7 +208,7 @@ public:
      */
     virtual void purgeResources() {};
 
-    bool programUnitTest(int maxStages);
+    bool programUnitTest(GrContext* owner, int maxStages);
 
 protected:
     friend class GrCommandBuilder; // for PipelineInfo
@@ -216,17 +216,8 @@ protected:
     friend class GrReorderCommandBuilder; // for PipelineInfo
     friend class GrTargetCommands; // for PipelineInfo
 
-    GrContext* getContext() { return fContext; }
-    const GrContext* getContext() const { return fContext; }
-
-    GrGpu* getGpu() {
-        SkASSERT(fContext && fContext->getGpu());
-        return fContext->getGpu();
-    }
-    const GrGpu* getGpu() const {
-        SkASSERT(fContext && fContext->getGpu());
-        return fContext->getGpu();
-    }
+    GrGpu* getGpu() { return fGpu; }
+    const GrGpu* getGpu() const { return fGpu; }
 
     const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
 
@@ -312,14 +303,14 @@ private:
                            GrScissorState*,
                            const SkRect* devBounds) = 0;
 
-    // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
-    GrContext*                                                      fContext;
-    SkAutoTUnref<const GrCaps>                            fCaps;
+    GrGpu*                  fGpu;
+    const GrCaps*           fCaps;
+    GrResourceProvider*     fResourceProvider;
     // To keep track that we always have at least as many debug marker adds as removes
-    int                                                             fGpuTraceMarkerCount;
-    GrTraceMarkerSet                                                fActiveTraceMarkers;
-    GrTraceMarkerSet                                                fStoredTraceMarkers;
-    bool                                                            fFlushing;
+    int                     fGpuTraceMarkerCount;
+    GrTraceMarkerSet        fActiveTraceMarkers;
+    GrTraceMarkerSet        fStoredTraceMarkers;
+    bool                    fFlushing;
 
     typedef SkRefCnt INHERITED;
 };
@@ -334,8 +325,8 @@ public:
     /* Clip mask manager needs access to the context.
      * TODO we only need a very small subset of context in the CMM.
      */
-    GrContext* getContext() { return INHERITED::getContext(); }
-    const GrContext* getContext() const { return INHERITED::getContext(); }
+    GrContext* getContext() { return fContext; }
+    const GrContext* getContext() const { return fContext; }
 
     /**
      * Clip Mask Manager(and no one else) needs to clear private stencil bits.
@@ -353,6 +344,7 @@ public:
 
 protected:
     SkAutoTDelete<GrClipMaskManager> fClipMaskManager;
+    GrContext*                       fContext;
 
 private:
     GrClipMaskManager* clipMaskManager() override { return fClipMaskManager; }
