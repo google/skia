@@ -114,6 +114,10 @@ public:
                           const GrPipeline&,
                           const GrBatchTracker&) const override;
 
+    virtual const GrGLInterface* glInterfaceForTesting() const {
+        return this->glInterface();
+    }
+
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 

@@ -18,7 +18,7 @@ namespace {
 class YUVtoRGBEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create(GrTexture* yTexture, GrTexture* uTexture,
-                                       GrTexture* vTexture, SkISize sizes[3],
+                                       GrTexture* vTexture, const SkISize sizes[3],
                                        SkYUVColorSpace colorSpace) {
         SkScalar w[3], h[3];
         w[0] = SkIntToScalar(sizes[0].fWidth)  / SkIntToScalar(yTexture->width());
@@ -111,7 +111,7 @@ public:
 
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                   SkMatrix yuvMatrix[3], GrTextureParams::FilterMode uvFilterMode,
+                   const SkMatrix yuvMatrix[3], GrTextureParams::FilterMode uvFilterMode,
                    SkYUVColorSpace colorSpace)
     : fYTransform(kLocal_GrCoordSet, yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
     , fYAccess(yTexture)
@@ -167,7 +167,7 @@ const GrGLfloat YUVtoRGBEffect::GLProcessor::kRec601ConversionMatrix[16] = {
 
 GrFragmentProcessor*
 GrYUVtoRGBEffect::Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                         SkISize sizes[3], SkYUVColorSpace colorSpace) {
+                         const SkISize sizes[3], SkYUVColorSpace colorSpace) {
     SkASSERT(yTexture && uTexture && vTexture && sizes);
     return YUVtoRGBEffect::Create(yTexture, uTexture, vTexture, sizes, colorSpace);
 }

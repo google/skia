@@ -11,6 +11,7 @@
 
 #include "GrContext.h"
 #include "GrDrawTarget.h"
+#include "gl/GrGLInterface.h"
 
 /** Allows a test to temporarily draw to a GrDrawTarget owned by a GrContext. Tests that use this
     should be careful not to mix using the GrDrawTarget directly and drawing via SkCanvas or
@@ -19,13 +20,17 @@ class GrTestTarget {
 public:
     GrTestTarget() {};
 
-    void init(GrContext*, GrDrawTarget*);
+    void init(GrContext*, GrDrawTarget*, const GrGLInterface*);
 
     GrDrawTarget* target() { return fDrawTarget.get(); }
+
+    /** Returns a GrGLInterface if the GrContext is backed by OpenGL. */
+    const GrGLInterface* glInterface() { return fGLInterface.get(); }
 
 private:
     SkAutoTUnref<GrDrawTarget>              fDrawTarget;
     SkAutoTUnref<GrContext>                 fContext;
+    SkAutoTUnref<const GrGLInterface>       fGLInterface;
 };
 
 #endif
