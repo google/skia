@@ -599,7 +599,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckQuadLinear(const SkPoint quad[3
     if (0 == t) {
         return kLine_ReductionType;
     }
-    SkEvalQuadAt(quad, t, reduction, NULL);
+    *reduction = SkEvalQuadAt(quad, t);
     return kDegenerate_ReductionType;
 }
 
@@ -905,8 +905,7 @@ static bool sharp_angle(const SkPoint quad[3]) {
 
 SkPathStroker::ResultType SkPathStroker::strokeCloseEnough(const SkPoint stroke[3],
         const SkPoint ray[2], SkQuadConstruct* quadPts  STROKER_DEBUG_PARAMS(int depth)) const {
-    SkPoint strokeMid;
-    SkEvalQuadAt(stroke, SK_ScalarHalf, &strokeMid);
+    SkPoint strokeMid = SkEvalQuadAt(stroke, SK_ScalarHalf);
     // measure the distance from the curve to the quad-stroke midpoint, compare to radius
     if (points_within_dist(ray[0], strokeMid, fInvResScaleSquared)) {  // if the difference is small
         if (sharp_angle(quadPts->fQuad)) {
@@ -935,8 +934,7 @@ SkPathStroker::ResultType SkPathStroker::strokeCloseEnough(const SkPoint stroke[
         return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
                 "rootCount=%d != 1", rootCount);
     }
-    SkPoint quadPt;
-    SkEvalQuadAt(stroke, roots[0], &quadPt);
+    SkPoint quadPt = SkEvalQuadAt(stroke, roots[0]);
     SkScalar error = fInvResScale * (SK_Scalar1 - SkScalarAbs(roots[0] - 0.5f) * 2);
     if (points_within_dist(ray[0], quadPt, error)) {  // if the difference is small, we're done
         if (sharp_angle(quadPts->fQuad)) {
