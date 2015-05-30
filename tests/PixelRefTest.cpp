@@ -1,28 +1,7 @@
-/*
- * Copyright 2015 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
-
 #include "Test.h"
 
 #include "SkMallocPixelRef.h"
 #include "SkPixelRef.h"
-
-static void test_install(skiatest::Reporter* reporter) {
-    bool success;
-    SkImageInfo info = SkImageInfo::MakeN32Premul(0, 0);
-    SkBitmap bm;
-    // make sure we don't assert on an empty install
-    success = bm.installPixels(info, NULL, 0);
-    REPORTER_ASSERT(reporter, success);
-
-    // no pixels should be the same as setInfo()
-    info = SkImageInfo::MakeN32Premul(10, 10);
-    success = bm.installPixels(info, NULL, 0);
-    REPORTER_ASSERT(reporter, success);
-}
 
 class TestListener : public SkPixelRef::GenIDChangeListener {
 public:
@@ -64,6 +43,4 @@ DEF_TEST(PixelRef_GenIDChange, r) {
     REPORTER_ASSERT(r, 0 != pixelRef->getGenerationID());
     pixelRef->addGenIDChangeListener(NULL);
     pixelRef->notifyPixelsChanged();
-
-    test_install(r);
 }
