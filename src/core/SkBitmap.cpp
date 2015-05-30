@@ -337,12 +337,23 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, SkPixelRefFactor
     return true;
 }
 
+static void invoke_release_proc(void (*proc)(void* pixels, void* ctx), void* pixels, void* ctx) {
+    if (proc) {
+        proc(pixels, ctx);
+    }
+}
+
 bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, size_t rb,
                              SkColorTable* ct, void (*releaseProc)(void* addr, void* context),
                              void* context) {
     if (!this->setInfo(requestedInfo, rb)) {
+        invoke_release_proc(releaseProc, pixels, context);
         this->reset();
         return false;
+    }
+    if (NULL == pixels) {
+        invoke_release_proc(releaseProc, pixels, context);
+        return true;    // we behaved as if they called setInfo()
     }
 
     // setInfo may have corrected info (e.g. 565 is always opaque).
