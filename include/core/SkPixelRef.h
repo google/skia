@@ -75,6 +75,8 @@ public:
      *  Calling lockPixels returns a LockRec struct (on success).
      */
     struct LockRec {
+        LockRec() : fPixels(NULL), fColorTable(NULL) {}
+
         void*           fPixels;
         SkColorTable*   fColorTable;
         size_t          fRowBytes;
@@ -199,11 +201,13 @@ public:
     };
 
     struct LockResult {
+        LockResult() : fPixels(NULL), fCTable(NULL) {}
+
         void        (*fUnlockProc)(void* ctx);
         void*       fUnlockContext;
 
-        SkColorTable* fCTable;  // should be NULL unless colortype is kIndex8
         const void* fPixels;
+        SkColorTable* fCTable;  // should be NULL unless colortype is kIndex8
         size_t      fRowBytes;
         SkISize     fSize;
 
@@ -345,7 +349,7 @@ private:
     LockRec         fRec;
     int             fLockCount;
 
-    bool lockPixelsInsideMutex(LockRec* rec);
+    bool lockPixelsInsideMutex();
 
     // Bottom bit indicates the Gen ID is unique.
     bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }

@@ -344,6 +344,9 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
         this->reset();
         return false;
     }
+    if (NULL == pixels) {
+        return true;    // we behaved as if they called setInfo()
+    }
 
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
