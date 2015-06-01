@@ -17,7 +17,7 @@ struct GrContextOptions {
         , fMaxTextureSizeOverride(SK_MaxS32)
         , fMinTextureSizeOverride(0)
         , fSuppressDualSourceBlending(false)
-        , fGeometryBufferMapThreshold(1 << 15) {}
+        , fGeometryBufferMapThreshold(-1) {}
 
     // EXPERIMENTAL
     // May be removed in the future, or may become standard depending
@@ -35,11 +35,10 @@ struct GrContextOptions {
     int  fMinTextureSizeOverride;
     bool fSuppressDualSourceBlending;
 
-    /** fGeometryBufferMapThreshold gives a threshold (in bytes) for when Gr should
-        map a GrGeometryBuffer to update its contents. It will use map() if the
-        size of the updated region is greater than the threshold. Otherwise it will
-        use updateData(). */
-    size_t  fGeometryBufferMapThreshold;
+    /** the threshold in bytes above which we will use a buffer mapping API to map vertex and index
+        buffers to CPU memory in order to update them.  A value of -1 means the GrContext should
+        deduce the optimal value for this platform. */
+    int  fGeometryBufferMapThreshold;
 };
 
 #endif

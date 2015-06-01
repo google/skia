@@ -203,6 +203,7 @@ public:
     }
 
     size_t geometryBufferMapThreshold() const {
+        SkASSERT(fGeometryBufferMapThreshold >= 0);
         return fGeometryBufferMapThreshold;
     }
 
@@ -229,6 +230,7 @@ protected:
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fMapBufferFlags;
+    int fGeometryBufferMapThreshold;
 
     int fMaxRenderTargetSize;
     int fMaxTextureSize;
@@ -242,7 +244,6 @@ protected:
 private:
     bool fSupressPrints : 1;
     bool fDrawPathMasksToCompressedTextureSupport : 1;
-    size_t fGeometryBufferMapThreshold;
 
     typedef SkRefCnt INHERITED;
 };

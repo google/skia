@@ -271,6 +271,12 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         }
     }
 
+    // On many GPUs, map memory is very expensive, so we effectively disable it here by setting the
+    // threshold to the maximum unless the client gives us a hint that map memory is cheap.
+    if (fGeometryBufferMapThreshold < 0) {
+        fGeometryBufferMapThreshold = ctxInfo.isChromium() ? 0 : SK_MaxS32;
+    }
+
     if (kGL_GrGLStandard == standard) {
         SkASSERT(ctxInfo.version() >= GR_GL_VER(2,0) ||
                  ctxInfo.hasExtension("GL_ARB_texture_non_power_of_two"));
