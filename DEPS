@@ -10,7 +10,7 @@ deps = {
 
   "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@c415283b2bcd786e1a8c55c19ef3511eb2b3928c",
   "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
-  "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@dd831fd86e7a254c696f53944333562466e453ad",
+  "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@08429da7955a98ef764fafa223dd7de73f654b2d",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@0.9.35",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@1afff032c83e26ddf7f2776e8b43de5ad666c1fa",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@034e9a9747e0983bc19808ea70e469bc8342081f",
