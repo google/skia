@@ -239,6 +239,7 @@ GrContext* GrContext::CreateMockContext() {
 
 void GrContext::initMockContext() {
     GrContextOptions options;
+    options.fGeometryBufferMapThreshold = 0;
     SkASSERT(NULL == fGpu);
     fGpu = SkNEW_ARGS(MockGpu, (this, options));
     SkASSERT(fGpu);
