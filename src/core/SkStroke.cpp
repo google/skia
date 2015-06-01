@@ -907,7 +907,7 @@ SkPathStroker::ResultType SkPathStroker::strokeCloseEnough(const SkPoint stroke[
         const SkPoint ray[2], SkQuadConstruct* quadPts  STROKER_DEBUG_PARAMS(int depth)) const {
     SkPoint strokeMid = SkEvalQuadAt(stroke, SK_ScalarHalf);
     // measure the distance from the curve to the quad-stroke midpoint, compare to radius
-    if (points_within_dist(ray[0], strokeMid, fInvResScaleSquared)) {  // if the difference is small
+    if (points_within_dist(ray[0], strokeMid, fInvResScale)) {  // if the difference is small
         if (sharp_angle(quadPts->fQuad)) {
             return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
                     "sharp_angle (1) =%g,%g, %g,%g, %g,%g",
@@ -916,8 +916,8 @@ SkPathStroker::ResultType SkPathStroker::strokeCloseEnough(const SkPoint stroke[
                     quadPts->fQuad[2].fX, quadPts->fQuad[2].fY);
         }
         return STROKER_RESULT(kQuad_ResultType, depth, quadPts,
-                "points_within_dist(ray[0]=%g,%g, strokeMid=%g,%g, fInvResScaleSquared=%g)",
-                ray[0].fX, ray[0].fY, strokeMid.fX, strokeMid.fY, fInvResScaleSquared);
+                "points_within_dist(ray[0]=%g,%g, strokeMid=%g,%g, fInvResScale=%g)",
+                ray[0].fX, ray[0].fY, strokeMid.fX, strokeMid.fY, fInvResScale);
     }
     // measure the distance to quad's bounds (quick reject)
         // an alternative : look for point in triangle
