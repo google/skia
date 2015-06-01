@@ -55,14 +55,9 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
 }
 
 void GrTargetCommands::StencilPath::execute(GrGpu* gpu) {
-    GrGpu::StencilPathState state;
-    state.fRenderTarget = fRenderTarget.get();
-    state.fScissor = &fScissor;
-    state.fStencil = &fStencil;
-    state.fUseHWAA = fUseHWAA;
-    state.fViewMatrix = &fViewMatrix;
-
-    gpu->stencilPath(this->path(), state);
+    GrPathRendering::StencilPathArgs args(fUseHWAA, fRenderTarget.get(), &fViewMatrix, &fScissor,
+                                          &fStencil);
+    gpu->pathRendering()->stencilPath(args, this->path());
 }
 
 void GrTargetCommands::DrawPath::execute(GrGpu* gpu) {
@@ -71,9 +66,9 @@ void GrTargetCommands::DrawPath::execute(GrGpu* gpu) {
                               fState->fBatchTracker);
         fState->fCompiled = true;
     }
-    DrawArgs args(fState->fPrimitiveProcessor.get(), fState->getPipeline(),
-                  &fState->fDesc, &fState->fBatchTracker);
-    gpu->drawPath(args, this->path(), fStencilSettings);
+    GrPathRendering::DrawPathArgs args(fState->fPrimitiveProcessor.get(), fState->getPipeline(),
+                                       &fState->fDesc, &fState->fBatchTracker, &fStencilSettings);
+    gpu->pathRendering()->drawPath(args, this->path());
 }
 
 void GrTargetCommands::DrawPaths::execute(GrGpu* gpu) {
@@ -82,12 +77,10 @@ void GrTargetCommands::DrawPaths::execute(GrGpu* gpu) {
                               fState->fBatchTracker);
         fState->fCompiled = true;
     }
-    DrawArgs args(fState->fPrimitiveProcessor.get(), fState->getPipeline(),
-                  &fState->fDesc, &fState->fBatchTracker);
-    gpu->drawPaths(args, this->pathRange(),
-                   fIndices, fIndexType,
-                   fTransforms, fTransformType,
-                   fCount, fStencilSettings);
+    GrPathRendering::DrawPathArgs args(fState->fPrimitiveProcessor.get(), fState->getPipeline(),
+                                       &fState->fDesc, &fState->fBatchTracker, &fStencilSettings);
+    gpu->pathRendering()->drawPaths(args, this->pathRange(), fIndices, fIndexType, fTransforms,
+                                    fTransformType, fCount);
 }
 
 void GrTargetCommands::DrawBatch::execute(GrGpu*) {

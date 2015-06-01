@@ -15,9 +15,11 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
+#include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
+#include "GrPaint.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"

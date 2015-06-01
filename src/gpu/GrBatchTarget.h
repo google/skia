@@ -10,6 +10,7 @@
 
 #include "GrBatchAtlas.h"
 #include "GrBufferAllocPool.h"
+#include "GrContext.h"
 #include "GrPendingProgramElement.h"
 #include "GrPipeline.h"
 #include "GrTRecorder.h"

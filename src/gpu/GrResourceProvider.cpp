@@ -8,6 +8,8 @@
 #include "GrResourceProvider.h"
 
 #include "GrGpu.h"
+#include "GrIndexBuffer.h"
+#include "GrPathRendering.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
 #include "GrVertexBuffer.h"

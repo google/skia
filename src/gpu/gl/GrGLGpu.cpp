@@ -1951,43 +1951,6 @@ void GrGLGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
 #endif
 }
 
-void GrGLGpu::onStencilPath(const GrPath* path, const StencilPathState& state) {
-    this->flushColorWrite(false);
-    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
-
-    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(state.fRenderTarget);
-    SkISize size = SkISize::Make(rt->width(), rt->height());
-    this->glPathRendering()->setProjectionMatrix(*state.fViewMatrix, size, rt->origin());
-    this->flushScissor(*state.fScissor, rt->getViewport(), rt->origin());
-    this->flushHWAAState(rt, state.fUseHWAA);
-    this->flushRenderTarget(rt, NULL);
-
-    fPathRendering->stencilPath(path, *state.fStencil);
-}
-
-void GrGLGpu::onDrawPath(const DrawArgs& args, const GrPath* path,
-                         const GrStencilSettings& stencil) {
-    if (!this->flushGLState(args)) {
-        return;
-    }
-    fPathRendering->drawPath(path, stencil);
-}
-
-void GrGLGpu::onDrawPaths(const DrawArgs& args,
-                          const GrPathRange* pathRange,
-                          const void* indices,
-                          GrDrawTarget::PathIndexType indexType,
-                          const float transformValues[],
-                          GrDrawTarget::PathTransformType transformType,
-                           int count,
-                           const GrStencilSettings& stencil) {
-    if (!this->flushGLState(args)) {
-        return;
-    }
-    fPathRendering->drawPaths(pathRange, indices, indexType, transformValues,
-                              transformType, count, stencil);
-}
-
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     if (rt->needsResolve()) {

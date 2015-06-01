@@ -201,19 +201,6 @@ private:
 
     void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override {}
 
-    void onStencilPath(const GrPath* path, const StencilPathState& state) override {}
-
-    void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) override {}
-
-    void onDrawPaths(const DrawArgs&,
-                     const GrPathRange*,
-                     const void* indices,
-                     GrDrawTarget::PathIndexType,
-                     const float transformValues[],
-                     GrDrawTarget::PathTransformType,
-                     int count,
-                     const GrStencilSettings&) override {}
-
     bool onReadPixels(GrRenderTarget* target,
                       int left, int top, int width, int height,
                       GrPixelConfig,

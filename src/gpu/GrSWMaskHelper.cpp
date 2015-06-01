@@ -9,6 +9,7 @@
 
 #include "GrPipelineBuilder.h"
 #include "GrCaps.h"
+#include "GrDrawTarget.h"
 #include "GrGpu.h"
 
 #include "SkData.h"

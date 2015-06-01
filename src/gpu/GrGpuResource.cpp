@@ -7,6 +7,7 @@
  */
 
 #include "GrGpuResource.h"
+#include "GrContext.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"

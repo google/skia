@@ -39,11 +39,6 @@ public:
     virtual GrPathRange* createGlyphs(const SkTypeface*,
                                       const SkDescriptor*,
                                       const GrStrokeInfo&) override;
-    void stencilPath(const GrPath*, const GrStencilSettings&) override;
-    void drawPath(const GrPath*, const GrStencilSettings&) override;
-    virtual void drawPaths(const GrPathRange*, const void* indices, PathIndexType,
-                           const float transformValues[], PathTransformType, int count,
-                           const GrStencilSettings&) override;
 
     /* Called when the 3D context state is unknown. */
     void resetContext();
@@ -67,6 +62,11 @@ public:
     GrGLuint genPaths(GrGLsizei range);
     GrGLvoid deletePaths(GrGLuint path, GrGLsizei range);
 
+protected:
+    void onStencilPath(const StencilPathArgs&, const GrPath*) override;
+    void onDrawPath(const DrawPathArgs&, const GrPath*) override;
+    void onDrawPaths(const DrawPathArgs&, const GrPathRange*, const void* indices, PathIndexType,
+                     const float transformValues[], PathTransformType, int count) override;
 private:
     /**
      * Mark certain functionality as not supported if the driver version is too
@@ -129,8 +129,8 @@ private:
             GrGLGetMatrix<Size>(destMatrix, combined);
         }
     };
+    GrGLGpu* gpu();
 
-    GrGLGpu* fGpu;
     SkAutoTDelete<GrGLNameAllocator> fPathNameAllocator;
     Caps fCaps;
     MatrixState fHWProjectionMatrixState;

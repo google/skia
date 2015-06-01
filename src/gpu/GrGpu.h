@@ -8,21 +8,30 @@
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
-#include "GrDrawTarget.h"
-#include "GrPathRendering.h"
+#include "GrPipelineBuilder.h"
 #include "GrProgramDesc.h"
+#include "GrStencil.h"
+#include "GrTraceMarker.h"
+#include "GrXferProcessor.h"
 #include "SkPath.h"
 
+class GrBatchTracker;
 class GrContext;
 struct GrGLInterface;
+class GrIndexBuffer;
 class GrNonInstancedVertices;
 class GrPath;
 class GrPathRange;
 class GrPathRenderer;
 class GrPathRendererChain;
+class GrPathRendering;
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrRenderTarget;
 class GrStencilAttachment;
+class GrSurface;
+class GrTexture;
+class GrVertexBuffer;
 class GrVertices;
 
 class GrGpu : public SkRefCnt {
@@ -47,7 +56,7 @@ public:
      */
     const GrCaps* caps() const { return fCaps.get(); }
 
-    GrPathRendering* pathRendering() { return fPathRendering.get(); }
+    GrPathRendering* pathRendering() { return fPathRendering.get();  }
 
     // Called by GrContext when the underlying backend context has been destroyed.
     // GrGpu should use this to ensure that no backend API calls will be made from
@@ -299,27 +308,6 @@ public:
 
     void draw(const DrawArgs&, const GrVertices&);
 
-    /** None of these params are optional, pointers used just to avoid making copies. */
-    struct StencilPathState {
-        bool fUseHWAA;
-        GrRenderTarget* fRenderTarget;
-        const SkMatrix* fViewMatrix;
-        const GrStencilSettings* fStencil;
-        const GrScissorState* fScissor;
-    };
-
-    void stencilPath(const GrPath*, const StencilPathState&);
-
-    void drawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&);
-    void drawPaths(const DrawArgs&,
-                   const GrPathRange*,
-                   const void* indices,
-                   GrDrawTarget::PathIndexType,
-                   const float transformValues[],
-                   GrDrawTarget::PathTransformType,
-                   int count,
-                   const GrStencilSettings&);
-
     ///////////////////////////////////////////////////////////////////////////
     // Debugging and Stats
 
@@ -439,19 +427,7 @@ private:
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onDraw(const DrawArgs&, const GrNonInstancedVertices&) = 0;
-    virtual void onStencilPath(const GrPath*, const StencilPathState&) = 0;
 
-    virtual void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) = 0;
-    virtual void onDrawPaths(const DrawArgs&,
-                             const GrPathRange*,
-                             const void* indices,
-                             GrDrawTarget::PathIndexType,
-                             const float transformValues[],
-                             GrDrawTarget::PathTransformType,
-                             int count,
-                             const GrStencilSettings&) = 0;
-
-    // overridden by backend-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top, int width, int height,
                               GrPixelConfig,
@@ -502,6 +478,7 @@ private:
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext*                                                          fContext;
 
+    friend class GrPathRendering;
     typedef SkRefCnt INHERITED;
 };
 

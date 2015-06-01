@@ -17,6 +17,7 @@
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
 #include "GrGLXferProcessor.h"
+#include "GrPathProcessor.h"
 #include "GrPipeline.h"
 #include "GrXferProcessor.h"
 #include "SkXfermode.h"

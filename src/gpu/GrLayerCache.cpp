@@ -6,6 +6,7 @@
  */
 
 #include "GrAtlas.h"
+#include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrGpu.h"
 #include "GrLayerCache.h"

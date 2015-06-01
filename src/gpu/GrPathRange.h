@@ -83,7 +83,7 @@ protected:
 
 private:
     // Notify when paths will be drawn in case this is a lazy-loaded path range.
-    friend class GrGpu;
+    friend class GrPathRendering;
     void willDrawPaths(const void* indices, PathIndexType, int count) const;
     template<typename IndexType> void willDrawPaths(const void* indices, int count) const;
 

@@ -6,6 +6,7 @@
  */
 
 #include "GrBatchFontCache.h"
+#include "GrContext.h"
 #include "GrFontAtlasSizes.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"

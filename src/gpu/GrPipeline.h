@@ -11,6 +11,7 @@
 #include "GrColor.h"
 #include "GrGpu.h"
 #include "GrPendingFragmentStage.h"
+#include "GrPrimitiveProcessor.h"
 #include "GrProgramDesc.h"
 #include "GrStencil.h"
 #include "GrTypesPriv.h"

@@ -157,16 +157,6 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target) override;
 
     void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override;
-    void onStencilPath(const GrPath*, const StencilPathState&) override;
-    void onDrawPath(const DrawArgs&, const GrPath*, const GrStencilSettings&) override;
-    void onDrawPaths(const DrawArgs&,
-                     const GrPathRange*,
-                     const void* indices,
-                     GrDrawTarget::PathIndexType,
-                     const float transformValues[],
-                     GrDrawTarget::PathTransformType,
-                     int count,
-                     const GrStencilSettings&) override;
 
     void clearStencil(GrRenderTarget*) override;
 

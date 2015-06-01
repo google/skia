@@ -13,6 +13,7 @@
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrIndexBuffer.h"
+#include "GrPathRendering.h"
 #include "GrResourceCache.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
@@ -299,30 +300,4 @@ void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
     do {
         this->onDraw(args, *verts);
     } while ((verts = iter.next()));
-}
-
-void GrGpu::stencilPath(const GrPath* path, const StencilPathState& state) {
-    this->handleDirtyContext();
-    this->onStencilPath(path, state);
-}
-
-void GrGpu::drawPath(const DrawArgs& args,
-                     const GrPath* path,
-                     const GrStencilSettings& stencilSettings) {
-    this->handleDirtyContext();
-    this->onDrawPath(args, path, stencilSettings);
-}
-
-void GrGpu::drawPaths(const DrawArgs& args,
-                      const GrPathRange* pathRange,
-                      const void* indices,
-                      GrDrawTarget::PathIndexType indexType,
-                      const float transformValues[],
-                      GrDrawTarget::PathTransformType transformType,
-                      int count,
-                      const GrStencilSettings& stencilSettings) {
-    this->handleDirtyContext();
-    pathRange->willDrawPaths(indices, indexType, count);
-    this->onDrawPaths(args, pathRange, indices, indexType, transformValues,
-                      transformType, count, stencilSettings);
 }

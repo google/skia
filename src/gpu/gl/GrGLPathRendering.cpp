@@ -17,8 +17,8 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-#define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
-#define GL_CALL_RET(RET, X) GR_GL_CALL_RET(fGpu->glInterface(), RET, X)
+#define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
+#define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->gpu()->glInterface(), RET, X)
 
 
 static const GrGLenum gIndexType2GLType[] = {
@@ -60,7 +60,7 @@ static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
 }
 
 GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
-    : fGpu(gpu) {
+    : GrPathRendering(gpu) {
     const GrGLInterface* glInterface = gpu->glInterface();
     fCaps.stencilThenCoverSupport =
         NULL != glInterface->fFunctions.fStencilThenCoverFillPath &&
@@ -92,12 +92,12 @@ void GrGLPathRendering::resetContext() {
 }
 
 GrPath* GrGLPathRendering::createPath(const SkPath& inPath, const GrStrokeInfo& stroke) {
-    return SkNEW_ARGS(GrGLPath, (fGpu, inPath, stroke));
+    return SkNEW_ARGS(GrGLPath, (this->gpu(), inPath, stroke));
 }
 
 GrPathRange* GrGLPathRendering::createPathRange(GrPathRange::PathGenerator* pathGenerator,
                                                 const GrStrokeInfo& stroke) {
-    return SkNEW_ARGS(GrGLPathRange, (fGpu, pathGenerator, stroke));
+    return SkNEW_ARGS(GrGLPathRange, (this->gpu(), pathGenerator, stroke));
 }
 
 GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
@@ -133,7 +133,7 @@ GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
     const GrGLuint basePathID = this->genPaths(numPaths);
 
     // Init the basePathID as the template path.
-    GrGLPath::InitPathObject(fGpu, basePathID, SkPath(), stroke);
+    GrGLPath::InitPathObject(this->gpu(), basePathID, SkPath(), stroke);
 
     GrGLenum status;
     GL_CALL_RET(status, PathMemoryGlyphIndexArray(basePathID, GR_GL_STANDARD_FONT_FORMAT,
@@ -150,13 +150,25 @@ GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
     // a pseudo PathGenerator whose sole purpose is to track the approximate gpu
     // memory size.
     const size_t gpuMemorySize = fontDataLength / 4;
-    return SkNEW_ARGS(GrGLPathRange, (fGpu, basePathID, numPaths, gpuMemorySize, stroke));
+    return SkNEW_ARGS(GrGLPathRange, (this->gpu(), basePathID, numPaths, gpuMemorySize, stroke));
 }
 
-void GrGLPathRendering::stencilPath(const GrPath* path, const GrStencilSettings& stencilSettings) {
+void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath* path) {
+    GrGLGpu* gpu = this->gpu();
+    SkASSERT(gpu->caps()->shaderCaps()->pathRenderingSupport());
+    gpu->flushColorWrite(false);
+    gpu->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
+
+    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(args.fRenderTarget);
+    SkISize size = SkISize::Make(rt->width(), rt->height());
+    this->setProjectionMatrix(*args.fViewMatrix, size, rt->origin());
+    gpu->flushScissor(*args.fScissor, rt->getViewport(), rt->origin());
+    gpu->flushHWAAState(rt, args.fUseHWAA);
+    gpu->flushRenderTarget(rt, NULL);
+
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
-    this->flushPathStencilSettings(stencilSettings);
+    this->flushPathStencilSettings(*args.fStencil);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode = gr_stencil_op_to_gl_path_rendering_fill_mode(
@@ -171,10 +183,13 @@ void GrGLPathRendering::stencilPath(const GrPath* path, const GrStencilSettings&
     }
 }
 
-void GrGLPathRendering::drawPath(const GrPath* path, const GrStencilSettings& stencilSettings) {
+void GrGLPathRendering::onDrawPath(const DrawPathArgs& args, const GrPath* path) {
+    if (!this->gpu()->flushGLState(args)) {
+        return;
+    }
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
-    this->flushPathStencilSettings(stencilSettings);
+    this->flushPathStencilSettings(*args.fStencil);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode = gr_stencil_op_to_gl_path_rendering_fill_mode(
@@ -191,16 +206,18 @@ void GrGLPathRendering::drawPath(const GrPath* path, const GrStencilSettings& st
     }
 }
 
-void GrGLPathRendering::drawPaths(const GrPathRange* pathRange,
-                                  const void* indices, PathIndexType indexType,
-                                  const float transformValues[], PathTransformType transformType,
-                                  int count, const GrStencilSettings& stencilSettings) {
-    SkASSERT(fGpu->caps()->shaderCaps()->pathRenderingSupport());
+void GrGLPathRendering::onDrawPaths(const DrawPathArgs& args, const GrPathRange* pathRange,
+                                    const void* indices, PathIndexType indexType,
+                                    const float transformValues[], PathTransformType transformType,
+                                    int count) {
+    if (!this->gpu()->flushGLState(args)) {
+        return;
+    }
+    this->flushPathStencilSettings(*args.fStencil);
+    SkASSERT(!fHWPathStencilSettings.isTwoSided());
+
 
     const GrGLPathRange* glPathRange = static_cast<const GrGLPathRange*>(pathRange);
-
-    this->flushPathStencilSettings(stencilSettings);
-    SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode =
         gr_stencil_op_to_gl_path_rendering_fill_mode(
@@ -257,7 +274,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
                                             const SkISize& renderTargetSize,
                                             GrSurfaceOrigin renderTargetOrigin) {
 
-    SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
+    SkASSERT(this->gpu()->glCaps().shaderCaps()->pathRenderingSupport());
 
     if (renderTargetOrigin == fHWProjectionMatrixState.fRenderTargetOrigin &&
         renderTargetSize == fHWProjectionMatrixState.fRenderTargetSize &&
@@ -388,4 +405,8 @@ inline void GrGLPathRendering::stencilThenCoverStrokePathInstanced(
                                        reference, mask, transformType, transformValues));
     GL_CALL(CoverStrokePathInstanced(numPaths, pathNameType, paths, pathBase,
                                      coverMode, transformType, transformValues));
+}
+
+inline GrGLGpu* GrGLPathRendering::gpu() {
+    return static_cast<GrGLGpu*>(fGpu);
 }
