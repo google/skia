@@ -267,16 +267,6 @@ public:
                                   const GrPipeline&,
                                   const GrBatchTracker&) const = 0;
 
-    // Called to determine whether a copySurface call would succeed or not. Derived
-    // classes must keep this consistent with their implementation of onCopySurface(). Fallbacks
-    // to issuing a draw from the src to dst take place at the GrDrawTarget level and this function
-    // should only return true if a faster copy path exists. The rect and point are pre-clipped. The
-    // src rect and implied dst rect are guaranteed to be within the src/dst bounds and non-empty.
-    virtual bool canCopySurface(const GrSurface* dst,
-                                const GrSurface* src,
-                                const SkIRect& srcRect,
-                                const SkIPoint& dstPoint) = 0;
-
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
     // take place at the GrDrawTarget level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the

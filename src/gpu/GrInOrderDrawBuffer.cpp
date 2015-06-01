@@ -128,7 +128,6 @@ void GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
                                         GrSurface* src,
                                         const SkIRect& srcRect,
                                         const SkIPoint& dstPoint) {
-    SkASSERT(this->getGpu()->canCopySurface(dst, src, srcRect, dstPoint));
     GrTargetCommands::Cmd* cmd = fCommands->recordCopySurface(dst, src, srcRect, dstPoint);
     this->recordTraceMarkersIfNecessary(cmd);
 }

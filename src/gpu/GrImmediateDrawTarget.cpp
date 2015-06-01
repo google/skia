@@ -52,14 +52,6 @@ void GrImmediateDrawTarget::onClear(const SkIRect* rect, GrColor color,
     this->getGpu()->clear(rect, color, canIgnoreRect, renderTarget);
 }
 
-void GrImmediateDrawTarget::onCopySurface(GrSurface* dst,
-                                          GrSurface* src,
-                                          const SkIRect& srcRect,
-                                          const SkIPoint& dstPoint) {
-    SkASSERT(this->getGpu()->canCopySurface(dst, src, srcRect, dstPoint));
-    this->getGpu()->copySurface(dst, src, srcRect, dstPoint);
-}
-
 void GrImmediateDrawTarget::clearStencilClip(const SkIRect& rect,
                                              bool insideClip,
                                              GrRenderTarget* renderTarget) {

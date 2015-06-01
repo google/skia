@@ -57,6 +57,24 @@ bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation);
 const char* GrGetGLSLVersionDecl(const GrGLContextInfo&);
 
 /**
+ * Adds a line of GLSL code to declare the default precision for float types.
+ */
+void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision, GrGLStandard, SkString* out);
+
+/**
+ * Gets the name of the function that should be used to sample a 2D texture. Coord type is used
+ * to indicate whether the texture is sampled using projective textured (kVec3f) or not (kVec2f).
+ */
+inline const char* GrGLSLTexture2DFunctionName(GrSLType coordType, GrGLSLGeneration glslGen) {
+    if (kVec2f_GrSLType == coordType) {
+        return glslGen >= k130_GrGLSLGeneration ? "texture" : "texture2D";
+    } else {
+        SkASSERT(kVec3f_GrSLType == coordType);
+        return glslGen >= k130_GrGLSLGeneration ? "textureProj" : "texture2DProj";
+    }
+}
+
+/**
  * Converts a GrSLType to a string containing the name of the equivalent GLSL type.
  */
 static inline const char* GrGLSLTypeString(GrSLType t) {

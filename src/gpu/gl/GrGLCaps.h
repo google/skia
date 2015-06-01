@@ -10,6 +10,7 @@
 #define GrGLCaps_DEFINED
 
 #include "GrCaps.h"
+#include "GrGLSL.h"
 #include "GrGLStencilAttachment.h"
 #include "SkChecksum.h"
 #include "SkTHash.h"
@@ -366,7 +367,6 @@ private:
     typedef GrCaps INHERITED;
 };
 
-
 class GrGLSLCaps : public GrShaderCaps {
 public:
     SK_DECLARE_INST_COUNT(GrGLSLCaps)
@@ -415,6 +415,12 @@ public:
     bool mustEnableSpecificAdvBlendEqs() const {
         return fAdvBlendEqInteraction == kSpecificEnables_AdvBlendEqInteraction;
     }
+    
+    bool mustDeclareFragmentShaderOutput() const {
+        return fGLSLGeneration > k110_GrGLSLGeneration;
+    }
+
+    GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
     /**
     * Returns a string containing the caps info.
@@ -427,6 +433,8 @@ private:
     // Must be called after fGeometryShaderSupport is initialized.
     void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*);
 
+    GrGLSLGeneration fGLSLGeneration;
+    
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;

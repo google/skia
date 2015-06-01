@@ -918,6 +918,7 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options,
 void GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
                       const GrGLInterface* gli,
                       const GrGLCaps& glCaps) {
+    fGLSLGeneration = ctxInfo.glslGeneration();
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
