@@ -13,14 +13,18 @@
 
 class StrokeBench : public Benchmark {
 public:
-    StrokeBench(const SkPath& path, const SkPaint& paint, const char pathType[])
-        : fPath(path), fPaint(paint)
+    StrokeBench(const SkPath& path, const SkPaint& paint, const char pathType[], SkScalar res)
+        : fPath(path), fPaint(paint), fRes(res)
     {
         fName.printf("build_stroke_%s_%g_%d_%d",
                      pathType, paint.getStrokeWidth(), paint.getStrokeJoin(), paint.getStrokeCap());
     }
 
 protected:
+    virtual bool isSuitableFor(Backend backend) {
+        return backend == kNonRendering_Backend;
+    }
+
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(const int loops, SkCanvas* canvas) override {
@@ -30,7 +34,7 @@ protected:
         for (int outer = 0; outer < 10; ++outer) {
             for (int i = 0; i < loops; ++i) {
                 SkPath result;
-                paint.getFillPath(fPath, &result);
+                paint.getFillPath(fPath, &result, NULL, fRes);
             }
         }
     }
@@ -39,7 +43,7 @@ private:
     SkPath      fPath;
     SkPaint     fPaint;
     SkString    fName;
-
+    SkScalar    fRes;
     typedef Benchmark INHERITED;
 };
 
@@ -99,7 +103,17 @@ static SkPaint paint_maker() {
     return paint;
 }
 
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (line_path_maker(), paint_maker(), "line")); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (quad_path_maker(), paint_maker(), "quad")); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (conic_path_maker(), paint_maker(), "conic")); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (cubic_path_maker(), paint_maker(), "cubic")); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (line_path_maker(), paint_maker(), "line_1", 1)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (quad_path_maker(), paint_maker(), "quad_1", 1)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (conic_path_maker(), paint_maker(), "conic_1", 1)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (cubic_path_maker(), paint_maker(), "cubic_1", 1)); )
+
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (line_path_maker(), paint_maker(), "line_4", 4)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (quad_path_maker(), paint_maker(), "quad_4", 4)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (conic_path_maker(), paint_maker(), "conic_4", 4)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (cubic_path_maker(), paint_maker(), "cubic_4", 4)); )
+
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (line_path_maker(), paint_maker(), "line_.25", .25f)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (quad_path_maker(), paint_maker(), "quad_.25", .25f)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (conic_path_maker(), paint_maker(), "conic_.25", .25f)); )
+DEF_BENCH( return SkNEW_ARGS(StrokeBench, (cubic_path_maker(), paint_maker(), "cubic_.25", .25f)); )
