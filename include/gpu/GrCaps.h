@@ -180,6 +180,9 @@ public:
 
     int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
     int maxTextureSize() const { return fMaxTextureSize; }
+    /** 0 unless GPU has problems with small textures */
+    int minTextureSize() const { return fMinTextureSize; }
+
     // Will be 0 if MSAA is not supported
     int maxSampleCount() const { return fMaxSampleCount; }
 
@@ -229,6 +232,7 @@ protected:
 
     int fMaxRenderTargetSize;
     int fMaxTextureSize;
+    int fMinTextureSize;
     int fMaxSampleCount;
 
     // The first entry for each config is without msaa and the second is with.

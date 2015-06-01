@@ -294,6 +294,11 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // attachment, hence this min:
     fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
 
+    // This GPU seems to have problems when tiling small textures
+    if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer()) {
+        fMinTextureSize = 16;
+    }
+
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 
     // Disable scratch texture reuse on Mali and Adreno devices

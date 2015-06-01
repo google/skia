@@ -15,6 +15,7 @@ struct GrContextOptions {
         : fDrawPathToCompressedTexture(false)
         , fSuppressPrints(false)
         , fMaxTextureSizeOverride(SK_MaxS32)
+        , fMinTextureSizeOverride(0)
         , fSuppressDualSourceBlending(false)
         , fGeometryBufferMapThreshold(1 << 15) {}
 
@@ -31,6 +32,7 @@ struct GrContextOptions {
         detected values. */
 
     int  fMaxTextureSizeOverride;
+    int  fMinTextureSizeOverride;
     bool fSuppressDualSourceBlending;
 
     /** fGeometryBufferMapThreshold gives a threshold (in bytes) for when Gr should
