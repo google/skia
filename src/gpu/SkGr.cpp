@@ -116,14 +116,18 @@ static void get_stretch(const GrContext* ctx, int width, int height,
         stretch->fHeight = SkTMax(height, ctx->caps()->minTextureSize());
     }
     if (doStretch) {
-        switch(params->filterMode()) {
-            case GrTextureParams::kNone_FilterMode:
-                stretch->fType = Stretch::kNearest_Type;
-                break;
-            case GrTextureParams::kBilerp_FilterMode:
-            case GrTextureParams::kMipMap_FilterMode:
-                stretch->fType = Stretch::kBilerp_Type;
-                break;
+        if (params) {
+            switch(params->filterMode()) {
+                case GrTextureParams::kNone_FilterMode:
+                    stretch->fType = Stretch::kNearest_Type;
+                    break;
+                case GrTextureParams::kBilerp_FilterMode:
+                case GrTextureParams::kMipMap_FilterMode:
+                    stretch->fType = Stretch::kBilerp_Type;
+                    break;
+            }
+        } else {
+            stretch->fType = Stretch::kBilerp_Type;
         }
     } else {
         stretch->fWidth  = -1;
