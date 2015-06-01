@@ -82,6 +82,7 @@ public:
 
     virtual void setFullscreen(bool) {}
     virtual void setVsync(bool) {}
+    virtual void closeWindow() {}
 
 protected:
     virtual bool onEvent(const SkEvent&);

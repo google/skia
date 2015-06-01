@@ -11,6 +11,7 @@
       'mac_bundle' : 1,
       'include_dirs' : [
         '../include/gpu',
+        '../src/core',
         '../src/images',
       ],
       'sources': [
@@ -22,6 +23,7 @@
         'flags.gyp:flags_common',
         'images.gyp:images',
         'skia_lib.gyp:skia_lib',
+        'tools.gyp:proc_stats',
         'tools.gyp:timer',
         'views.gyp:views',
       ],

@@ -42,10 +42,10 @@ SkOSWindow::SkOSWindow(void*)
 }
 
 SkOSWindow::~SkOSWindow() {
-    this->closeWindow();
+    this->internalCloseWindow();
 }
 
-void SkOSWindow::closeWindow() {
+void SkOSWindow::internalCloseWindow() {
     if (fUnixWindow.fDisplay) {
         this->detach();
         SkASSERT(fUnixWindow.fGc);
@@ -61,7 +61,7 @@ void SkOSWindow::closeWindow() {
 
 void SkOSWindow::initWindow(int requestedMSAASampleCount, AttachmentInfo* info) {
     if (fMSAASampleCount != requestedMSAASampleCount) {
-        this->closeWindow();
+        this->internalCloseWindow();
     }
     // presence of fDisplay means we already have a window
     if (fUnixWindow.fDisplay) {
@@ -461,7 +461,6 @@ void SkOSWindow::setFullscreen(bool setFullscreen) {
     if (NULL == dsp) {
         return;
     }
-    Window win = fUnixWindow.fWin;
 
     // Full screen
     Atom wm_state = XInternAtom(dsp, "_NET_WM_STATE", False);
@@ -470,7 +469,7 @@ void SkOSWindow::setFullscreen(bool setFullscreen) {
     XEvent evt;
     sk_bzero(&evt, sizeof(evt));
     evt.type = ClientMessage;
-    evt.xclient.window = win;
+    evt.xclient.window = fUnixWindow.fWin;
     evt.xclient.message_type = wm_state;
     evt.xclient.format = 32;
     evt.xclient.data.l[0] = setFullscreen ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
@@ -486,6 +485,24 @@ void SkOSWindow::setVsync(bool vsync) {
         int swapInterval = vsync ? 1 : 0;
         glXSwapInterval(fUnixWindow.fDisplay, fUnixWindow.fWin, swapInterval);
     }
+}
+
+void SkOSWindow::closeWindow() {
+    Display* dsp = fUnixWindow.fDisplay;
+    if (NULL == dsp) {
+        return;
+    }
+
+    XEvent evt;
+    sk_bzero(&evt, sizeof(evt));
+    evt.type = ClientMessage;
+    evt.xclient.message_type = XInternAtom(dsp, "WM_PROTOCOLS", true);
+    evt.xclient.window = fUnixWindow.fWin;
+    evt.xclient.format = 32;
+    evt.xclient.data.l[0] = XInternAtom(dsp, "WM_DELETE_WINDOW", false);
+    evt.xclient.data.l[1] = CurrentTime;
+
+    XSendEvent(dsp, fUnixWindow.fWin, false, NoEventMask, &evt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

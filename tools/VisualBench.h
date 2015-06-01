@@ -13,6 +13,7 @@
 
 #include "SkPicture.h"
 #include "SkSurface.h"
+#include "Timer.h"
 #include "gl/SkGLContext.h"
 
 class GrContext;
@@ -38,13 +39,30 @@ protected:
 private:
     void setTitle();
     bool setupBackend();
+    void resetContext();
     void setupRenderTarget();
     bool onHandleChar(SkUnichar unichar) override;
+    void printStats();
+    inline void timePicture(SkCanvas*);
+    inline void renderFrame(SkCanvas*);
 
-    int fCurrentLoops;
+    struct Timing {
+        SkString fName;
+        SkTArray<double> fMeasurements;
+    };
+
+    enum State {
+        kPreWarm_State,
+        kTiming_State,
+    };
+
+    int fLoop;
     int fCurrentPicture;
-    int fCurrentFrame;
+    int fCurrentSample;
+    SkTArray<Timing> fTimings;
     SkTArray<SkPicture*> fPictures;
+    WallTimer fTimer;
+    State fState;
 
     // support framework
     SkAutoTUnref<SkSurface> fSurface;

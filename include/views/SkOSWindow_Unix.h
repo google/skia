@@ -48,6 +48,7 @@ public:
 
     void setFullscreen(bool) override;
     void setVsync(bool) override;
+    void closeWindow() override;
 
 protected:
     // Overridden from from SkWindow:
@@ -64,7 +65,9 @@ private:
     void doPaint();
     void mapWindowAndWait();
 
-    void closeWindow();
+    // Forcefully closes the window.  If a graceful shutdown is desired then call the public
+    // closeWindow method
+    void internalCloseWindow();
     void initWindow(int newMSAASampleCount, AttachmentInfo* info);
 
     SkUnixWindow fUnixWindow;
