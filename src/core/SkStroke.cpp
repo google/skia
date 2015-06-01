@@ -1039,7 +1039,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             }
             if ((kDegenerate_ResultType == resultType
                     || points_within_dist(quadPts->fQuad[0], quadPts->fQuad[2],
-                    fInvResScaleSquared)) && cubicMidOnLine(cubic, quadPts)) {
+                    fInvResScale)) && cubicMidOnLine(cubic, quadPts)) {
                 addDegenerateLine(quadPts);
                 return true;
             }
