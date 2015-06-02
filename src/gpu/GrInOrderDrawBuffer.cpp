@@ -10,8 +10,7 @@
 // We will use the reordering buffer, unless we have NVPR.
 // TODO move NVPR to batch so we can reorder
 static inline bool allow_reordering(const GrCaps* caps) {
-    //return !caps->shaderCaps()->pathRenderingSupport();
-    return false;
+    return !caps->shaderCaps()->pathRenderingSupport();
 }
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context)
