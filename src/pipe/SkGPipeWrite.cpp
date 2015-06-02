@@ -228,7 +228,14 @@ public:
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
     size_t storageAllocatedForRecording() {
-        return (NULL == fBitmapHeap) ? 0 : fBitmapHeap->bytesAllocated();
+        size_t bytesAllocated = 0;
+        if (NULL != fBitmapHeap) {
+            bytesAllocated += fBitmapHeap->bytesAllocated();
+        }
+        if (NULL != fImageHeap) {
+            bytesAllocated += fImageHeap->bytesInCache();
+        }
+        return bytesAllocated;
     }
 
     void beginCommentGroup(const char* description) override;
@@ -240,6 +247,8 @@ public:
      * according to slot.
      */
     bool shuttleBitmap(const SkBitmap&, int32_t slot);
+
+    void resetImageHeap();
 
 protected:
     void willSave() override;
@@ -1157,6 +1166,12 @@ void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
     }
 }
 
+void SkGPipeCanvas::resetImageHeap() {
+    if (fImageHeap) {
+        fImageHeap->reset();
+    }
+}
+
 size_t SkGPipeCanvas::freeMemoryIfPossible(size_t bytesToFree) {
     return (NULL == fBitmapHeap) ? 0 : fBitmapHeap->freeMemoryIfPossible(bytesToFree);
 }
@@ -1320,6 +1335,14 @@ void SkGPipeController::setCanvas(SkGPipeCanvas* canvas) {
     SkRefCnt_SafeAssign(fCanvas, canvas);
 }
 
+void SkGPipeController::purgeCaches()
+{
+    fCanvas->resetImageHeap();
+    // Other caches are self-purging with a small MRU pool
+    // We could purge them as well, but it is not clear whether
+    // that would be a win.
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGPipeWriter::SkGPipeWriter()
@@ -1393,10 +1416,16 @@ void BitmapShuttle::removeCanvas() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkImageHeap::SkImageHeap() {}
+SkImageHeap::SkImageHeap() : fBytesInCache (0) {}
 
 SkImageHeap::~SkImageHeap() {
     fArray.unrefAll();
+}
+
+void SkImageHeap::reset() {
+    fArray.unrefAll();
+    fArray.rewind();
+    fBytesInCache = 0;
 }
 
 const SkImage* SkImageHeap::get(int32_t slot) const {
@@ -1417,7 +1446,10 @@ int32_t SkImageHeap::insert(const SkImage* img) {
     if (slot) {
         return slot;
     }
+    // TODO: SkImage does not expose bytes per pixel, 4 is just a best guess.
+    fBytesInCache += img->width() * img->height() * 4;
     *fArray.append() = SkRef(img);
+    printf("Images reff'ed: %d \n", fArray.count());
     return fArray.count();  // slot is always index+1
 }
 

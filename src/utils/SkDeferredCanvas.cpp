@@ -151,6 +151,8 @@ void DeferredPipeController::playback(bool silent) {
 
     // Release all allocated blocks
     fAllocator.reset();
+
+    this->purgeCaches();
 }
 
 //-----------------------------------------------------------------------------

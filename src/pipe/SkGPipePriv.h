@@ -222,6 +222,8 @@ public:
     SkImageHeap();
     virtual ~SkImageHeap();
 
+    size_t bytesInCache() const { return fBytesInCache; }
+    void reset();
     // slot must be "valid" -- 0 is never valid
     const SkImage* get(int32_t slot) const;
     // returns 0 if not found, else returns slot
@@ -231,6 +233,7 @@ public:
 
 private:
     SkTDArray<const SkImage*> fArray;
+    size_t fBytesInCache;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
