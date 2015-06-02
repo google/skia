@@ -42,6 +42,10 @@
 #include FT_TYPE1_TABLES_H
 #include FT_XFREE86_H
 
+#if !defined(SK_BUILD_FOR_ANDROID) || defined(SK_ANDROID_FREETYPE_HAS_MM)
+#    define SK_FREETYPE_HAS_MM 1
+#endif
+
 // FT_LOAD_COLOR and the corresponding FT_Pixel_Mode::FT_PIXEL_MODE_BGRA
 // were introduced in FreeType 2.5.0.
 // The following may be removed once FreeType 2.5.0 is required to build.
@@ -275,6 +279,7 @@ SkFaceRec::SkFaceRec(SkStreamAsset* stream, uint32_t fontID)
     fFTStream.close = sk_ft_stream_close;
 }
 
+#if SK_FREETYPE_HAS_MM
 static void ft_face_setup_axes(FT_Face face, const SkFontData& data) {
     if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
         return;
@@ -305,6 +310,7 @@ static void ft_face_setup_axes(FT_Face face, const SkFontData& data) {
         return;
     }
 }
+#endif
 
 // Will return 0 on failure
 // Caller must lock gFTMutex before calling this function.
@@ -350,7 +356,9 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
     }
     SkASSERT(rec->fFace);
 
+#if SK_FREETYPE_HAS_MM
     ft_face_setup_axes(rec->fFace, *data);
+#endif
 
     rec->fNext = gFaceRecHead;
     gFaceRecHead = rec;
@@ -1761,6 +1769,7 @@ bool SkTypeface_FreeType::Scanner::scanFont(
         *isFixedPitch = FT_IS_FIXED_WIDTH(face);
     }
 
+#if SK_FREETYPE_HAS_MM
     if (axes && face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
         FT_MM_Var* variations = NULL;
         FT_Error err = FT_Get_MM_Var(face, &variations);
@@ -1780,6 +1789,7 @@ bool SkTypeface_FreeType::Scanner::scanFont(
             (*axes)[i].fMaximum = ftAxis.maximum;
         }
     }
+#endif
 
     FT_Done_Face(face);
     return true;
