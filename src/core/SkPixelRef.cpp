@@ -199,7 +199,7 @@ bool SkPixelRef::lockPixelsInsideMutex() {
         }
     }
     validate_pixels_ctable(fInfo, fRec.fPixels, fRec.fColorTable);
-    return true;
+    return fRec.fPixels != NULL;
 }
 
 // For historical reasons, we always inc fLockCount, even if we return false.
@@ -224,7 +224,7 @@ bool SkPixelRef::lockPixels() {
         }
     }
     validate_pixels_ctable(fInfo, fRec.fPixels, fRec.fColorTable);
-    return true;
+    return fRec.fPixels != NULL;
 }
 
 bool SkPixelRef::lockPixels(LockRec* rec) {
@@ -274,7 +274,7 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
         }
     }
     validate_pixels_ctable(fInfo, result->fPixels, result->fCTable);
-    return true;
+    return result->fPixels != NULL;
 }
 
 bool SkPixelRef::lockPixelsAreWritable() const {

@@ -239,6 +239,10 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
         return NULL;
     }
     const SkPixmap& srcPixmap = srcUnlocker.pixmap();
+    // Try to catch where we might have returned NULL for src crbug.com/492818
+    if (NULL == srcPixmap.addr()) {
+        sk_throw();
+    }
 
     SkMipMap* mipmap;
     if (fact) {
