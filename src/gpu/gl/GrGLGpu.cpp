@@ -270,7 +270,7 @@ GrPixelConfig GrGLGpu::preferredReadPixelsConfig(GrPixelConfig readConfig,
                                                  GrPixelConfig surfaceConfig) const {
     if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == readConfig) {
         return kBGRA_8888_GrPixelConfig;
-    } else if (this->glContext().isMesa() &&
+    } else if (kMesa_GrGLDriver == this->glContext().driver() &&
                GrBytesPerPixel(readConfig) == 4 &&
                GrPixelConfigSwapRAndB(readConfig) == surfaceConfig) {
         // Mesa 3D takes a slow path on when reading back  BGRA from an RGBA surface and vice-versa.
@@ -1865,7 +1865,7 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
         // lots of repeated command buffer flushes when the compositor is
         // rendering with Ganesh, which is really slow; even too slow for
         // Debug mode.
-        if (!this->glContext().isChromium()) {
+        if (kChromium_GrGLDriver != this->glContext().driver()) {
             GrGLenum status;
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {

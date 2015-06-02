@@ -429,7 +429,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     GL_CALL(LinkProgram(programID));
 
     // Calling GetProgramiv is expensive in Chromium. Assume success in release builds.
-    bool checkLinked = !fGpu->ctxInfo().isChromium();
+    bool checkLinked = kChromium_GrGLDriver != fGpu->ctxInfo().driver();
 #ifdef SK_DEBUG
     checkLinked = true;
 #endif

@@ -135,7 +135,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support GL_RED 
     // and GL_RG on FBO textures.
-    if (!ctxInfo.isMesa()) {
+    if (kMesa_GrGLDriver != ctxInfo.driver()) {
         if (kGL_GrGLStandard == standard) {
             fTextureRedSupport = version >= GR_GL_VER(3,0) ||
                                  ctxInfo.hasExtension("GL_ARB_texture_rg");
@@ -274,7 +274,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // On many GPUs, map memory is very expensive, so we effectively disable it here by setting the
     // threshold to the maximum unless the client gives us a hint that map memory is cheap.
     if (fGeometryBufferMapThreshold < 0) {
-        fGeometryBufferMapThreshold = ctxInfo.isChromium() ? 0 : SK_MaxS32;
+        fGeometryBufferMapThreshold = kChromium_GrGLDriver == ctxInfo.driver() ? 0 : SK_MaxS32;
     }
 
     if (kGL_GrGLStandard == standard) {

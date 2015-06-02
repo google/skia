@@ -52,9 +52,8 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
 
     args.fRenderer = GrGLGetRendererFromString(renderer);
 
-    args.fIsMesa = GrGLIsMesaFromVersionString(ver);
-
-    args.fIsChromium = GrGLIsChromiumFromRendererString(renderer);
+    GrGLGetDriverInfo(interface->fStandard, args.fVendor, renderer, ver,
+                      &args.fDriver, &args.fDriverVersion);
 
     args.fContextOptions = &options;
 
@@ -67,8 +66,8 @@ GrGLContextInfo::GrGLContextInfo(const ConstructorArgs& args) {
     fGLSLGeneration = args.fGLSLGeneration;
     fVendor = args.fVendor;
     fRenderer = args.fRenderer;
-    fIsMesa = args.fIsMesa;
-    fIsChromium = args.fIsChromium;
+    fDriver = args.fDriver;
+    fDriverVersion = args.fDriverVersion;
 
     fGLCaps.reset(SkNEW_ARGS(GrGLCaps, (*args.fContextOptions, *this, fInterface)));
 }

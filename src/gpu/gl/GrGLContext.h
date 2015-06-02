@@ -28,12 +28,10 @@ public:
     GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
     GrGLVendor vendor() const { return fVendor; }
     GrGLRenderer renderer() const { return fRenderer; }
-    /** Is this a mesa-based driver. Does not mean it is the osmesa software rasterizer. */
-    bool isMesa() const { return fIsMesa; }
-    /** Are we running inside Chromium (using the command buffer)? We make some different tradeoffs
-        about what errors to check for because queries are synchronous. We should probably expose
-        this as an option for clients other than Chromium. */
-    bool isChromium() const { return fIsChromium; }
+    /** What driver is running our GL implementation? This is not necessarily related to the vendor.
+        (e.g. Intel GPU being driven by Mesa) */
+    GrGLDriver driver() const { return fDriver; }
+    GrGLDriverVersion driverVersion() const { return fDriverVersion; }
     const GrGLCaps* caps() const { return fGLCaps.get(); }
     GrGLCaps* caps() { return fGLCaps; }
     bool hasExtension(const char* ext) const {
@@ -49,8 +47,8 @@ protected:
         GrGLSLGeneration                    fGLSLGeneration;
         GrGLVendor                          fVendor;
         GrGLRenderer                        fRenderer;
-        bool                                fIsMesa;
-        bool                                fIsChromium;
+        GrGLDriver                          fDriver;
+        GrGLDriverVersion                   fDriverVersion;
         const  GrContextOptions*            fContextOptions;
     };
 
@@ -61,8 +59,8 @@ protected:
     GrGLSLGeneration                    fGLSLGeneration;
     GrGLVendor                          fVendor;
     GrGLRenderer                        fRenderer;
-    bool                                fIsMesa;
-    bool                                fIsChromium;
+    GrGLDriver                          fDriver;
+    GrGLDriverVersion                   fDriverVersion;
     SkAutoTUnref<GrGLCaps>              fGLCaps;
 };
 

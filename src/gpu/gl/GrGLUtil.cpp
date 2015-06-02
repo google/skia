@@ -92,24 +92,62 @@ GrGLStandard GrGLGetStandardInUseFromString(const char* versionString) {
     return kNone_GrGLStandard;
 }
 
-bool GrGLIsMesaFromVersionString(const char* versionString) {
-    int major, minor, mesaMajor, mesaMinor;
+void GrGLGetDriverInfo(GrGLStandard standard,
+                       GrGLVendor vendor,
+                       const char* rendererString,
+                       const char* versionString,
+                       GrGLDriver* outDriver,
+                       GrGLDriverVersion* outVersion) {
+    int major, minor, rev, driverMajor, driverMinor;
 
-    GrGLStandard standard = GrGLGetStandardInUseFromString(versionString);
+    *outDriver = kUnknown_GrGLDriver;
+    *outVersion = GR_GL_DRIVER_UNKNOWN_VER;
+
+    if (0 == strcmp(rendererString, "Chromium")) {
+        *outDriver = kChromium_GrGLDriver;
+        return;
+    }
 
     if (standard == kGL_GrGLStandard) {
-        int n = sscanf(versionString, "%d.%d Mesa %d.%d", &major, &minor, &mesaMajor, &mesaMinor);
-        return 4 == n;
+        if (kNVIDIA_GrGLVendor == vendor) {
+            *outDriver = kNVIDIA_GrGLDriver;
+            int n = sscanf(versionString, "%d.%d.%d NVIDIA %d.%d",
+                           &major, &minor, &rev, &driverMajor, &driverMinor);
+            // Some older NVIDIA drivers don't report the driver version.
+            if (5 == n) {
+                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+            }
+            return;
+        }
+
+        int n = sscanf(versionString, "%d.%d Mesa %d.%d",
+                       &major, &minor, &driverMajor, &driverMinor);
+        if (4 == n) {
+            *outDriver = kMesa_GrGLDriver;
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+            return;
+        }
     }
     else {
-        int n = sscanf(versionString, "OpenGL ES %d.%d Mesa %d.%d", &major, &minor, &mesaMajor, &mesaMinor);
-        return 4 == n;
-    }
-    return false;
-}
+        if (kNVIDIA_GrGLVendor == vendor) {
+            *outDriver = kNVIDIA_GrGLDriver;
+            int n = sscanf(versionString, "OpenGL ES %d.%d NVIDIA %d.%d",
+                           &major, &minor, &driverMajor, &driverMinor);
+            // Some older NVIDIA drivers don't report the driver version.
+            if (4 == n) {
+                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+            }
+            return;
+        }
 
-bool GrGLIsChromiumFromRendererString(const char* rendererString) {
-    return 0 == strcmp(rendererString, "Chromium");
+        int n = sscanf(versionString, "OpenGL ES %d.%d Mesa %d.%d",
+                       &major, &minor, &driverMajor, &driverMinor);
+        if (4 == n) {
+            *outDriver = kMesa_GrGLDriver;
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+            return;
+        }
+    }
 }
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
