@@ -23,10 +23,10 @@ public:
         return true;
     }
 
-    void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                            GrXPFactory::InvariantOutput* output) const override {
-        output->fBlendedColorFlags = 0;
-        output->fWillBlendWithDst = 0;
+    void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
+                                  GrXPFactory::InvariantBlendedColor* blendedColor) const override {
+        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+        blendedColor->fWillBlendWithDst = false;
     }
 
 private:

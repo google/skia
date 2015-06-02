@@ -20,8 +20,8 @@ public:
 
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const override;
 
-    void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                            GrXPFactory::InvariantOutput*) const override;
+    void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
+                                  GrXPFactory::InvariantBlendedColor*) const override;
 
 private:
     GrPorterDuffXPFactory(SkXfermode::Mode);

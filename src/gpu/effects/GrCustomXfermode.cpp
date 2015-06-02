@@ -807,11 +807,10 @@ bool GrCustomXPFactory::willReadDstColor(const GrCaps& caps,
     return false;
 }
 
-void GrCustomXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               GrXPFactory::InvariantOutput* output) const {
-    output->fWillBlendWithDst = true;
-    output->fBlendedColorFlags = 0;
+void GrCustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
+                                                 InvariantBlendedColor* blendedColor) const {
+    blendedColor->fWillBlendWithDst = true;
+    blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrCustomXPFactory);

@@ -412,7 +412,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
                 rect_contains_inclusive(rect, srcSpaceRTQuad[3])) {
                 // Will it blend?
                 GrColor clearColor;
-                if (paint.isOpaqueAndConstantColor(&clearColor)) {
+                if (paint.isConstantBlendedColor(&clearColor)) {
                     fDrawTarget->clear(NULL, clearColor, true, rt);
                     return;
                 }

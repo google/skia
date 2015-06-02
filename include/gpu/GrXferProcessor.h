@@ -363,19 +363,23 @@ public:
      */
     virtual bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const = 0;
 
-    struct InvariantOutput {
-        bool        fWillBlendWithDst;
-        GrColor     fBlendedColor;
-        uint32_t    fBlendedColorFlags;
+    /**
+     * Known color information after blending, but before accounting for any coverage.
+     */
+    struct InvariantBlendedColor {
+        bool                     fWillBlendWithDst;
+        GrColor                  fKnownColor;
+        GrColorComponentFlags    fKnownColorFlags;
     };
 
     /** 
-     * This function returns known information about the output of the xfer processor produced by
-     * this xp factory. The invariant color information returned by this function refers to the
-     * final color produced after all blending.
+     * Returns information about the output color, produced by XPs from this factory, that will be
+     * known after blending. Note that we can conflate coverage and color, so the actual values
+     * written to pixels with partial coverage may not always seem consistent with the invariant
+     * information returned by this function.
      */
-    virtual void getInvariantOutput(const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI,
-                                    InvariantOutput*) const = 0;
+    virtual void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
+                                          InvariantBlendedColor*) const = 0;
 
     bool willNeedDstTexture(const GrCaps& caps, const GrProcOptInfo& colorPOI,
                             const GrProcOptInfo& coveragePOI) const;

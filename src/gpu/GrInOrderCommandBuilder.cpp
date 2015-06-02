@@ -90,30 +90,30 @@ GrInOrderCommandBuilder::recordDrawPaths(State* state,
 
     if (!this->cmdBuffer()->empty() &&
         Cmd::kDrawPaths_CmdType == this->cmdBuffer()->back().type()) {
-        // The previous command was also DrawPaths. Try to collapse this call into the one
-        // before. Note that stenciling all the paths at once, then covering, may not be
-        // equivalent to two separate draw calls if there is overlap. Blending won't work,
-        // and the combined calls may also cancel each other's winding numbers in some
-        // places. For now the winding numbers are only an issue if the fill is even/odd,
-        // because DrawPaths is currently only used for glyphs, and glyphs in the same
-        // font tend to all wind in the same direction.
+        // Try to combine this call with the previous DrawPaths. We do this by stenciling all the
+        // paths together and then covering them in a single pass. This is not equivalent to two
+        // separate draw calls, so we can only do it if there is no blending (no overlap would also
+        // work). Note that it's also possible for overlapping paths to cancel each other's winding
+        // numbers, and we only partially account for this by not allowing even/odd paths to be
+        // combined. (Glyphs in the same font tend to wind the same direction so it works out OK.)
         DrawPaths* previous = static_cast<DrawPaths*>(&this->cmdBuffer()->back());
         if (pathRange == previous->pathRange() &&
             indexType == previous->fIndexType &&
             transformType == previous->fTransformType &&
             stencilSettings == previous->fStencilSettings &&
             path_fill_type_is_winding(stencilSettings) &&
-            !pipelineInfo.willBlendWithDst(pathProc) &&
-            previous->fState == state) {
-                const int indexBytes = GrPathRange::PathIndexSizeInBytes(indexType);
-                const int xformSize = GrPathRendering::PathTransformSize(transformType);
-                if (&previous->fIndices[previous->fCount*indexBytes] == savedIndices &&
-                    (0 == xformSize ||
-                     &previous->fTransforms[previous->fCount*xformSize] == savedTransforms)) {
-                    // Fold this DrawPaths call into the one previous.
-                    previous->fCount += count;
-                    return NULL;
-                }
+            previous->fState == state &&
+            !pipelineInfo.willColorBlendWithDst(pathProc)) {
+
+            const int indexBytes = GrPathRange::PathIndexSizeInBytes(indexType);
+            const int xformSize = GrPathRendering::PathTransformSize(transformType);
+            if (&previous->fIndices[previous->fCount * indexBytes] == savedIndices &&
+                (0 == xformSize ||
+                 &previous->fTransforms[previous->fCount * xformSize] == savedTransforms)) {
+                // Combine this DrawPaths call with the one previous.
+                previous->fCount += count;
+                return NULL;
+            }
         }
     }
 

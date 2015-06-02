@@ -229,8 +229,8 @@ protected:
                      const GrBatch* batch, const SkRect* devBounds,
                      GrDrawTarget* target);
 
-        bool willBlendWithDst(const GrPrimitiveProcessor* primProc) const {
-            return fPipelineBuilder->willBlendWithDst(primProc);
+        bool willColorBlendWithDst(const GrPrimitiveProcessor* primProc) const {
+            return fPipelineBuilder->willColorBlendWithDst(primProc);
         }
     private:
         friend class GrDrawTarget;

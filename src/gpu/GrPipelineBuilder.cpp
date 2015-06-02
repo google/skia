@@ -123,13 +123,12 @@ GrPipelineBuilder::~GrPipelineBuilder() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrPipelineBuilder::willBlendWithDst(const GrPrimitiveProcessor* pp) const {
+bool GrPipelineBuilder::willColorBlendWithDst(const GrPrimitiveProcessor* pp) const {
     this->calcColorInvariantOutput(pp);
-    this->calcCoverageInvariantOutput(pp);
     
-    GrXPFactory::InvariantOutput output;
-    fXPFactory->getInvariantOutput(fColorProcInfo, fCoverageProcInfo, &output);
-    return output.fWillBlendWithDst;
+    GrXPFactory::InvariantBlendedColor blendedColor;
+    fXPFactory->getInvariantBlendedColor(fColorProcInfo, &blendedColor);
+    return blendedColor.fWillBlendWithDst;
 }
 
 void GrPipelineBuilder::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {

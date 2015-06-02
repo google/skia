@@ -709,6 +709,7 @@ PDLCDXferProcessor::onGetOptimizations(const GrProcOptInfo& colorPOI,
 
 GrPorterDuffXPFactory::GrPorterDuffXPFactory(SkXfermode::Mode xfermode)
     : fXfermode(xfermode) {
+    SkASSERT(fXfermode <= SkXfermode::kLastCoeffMode);
     this->initClassID<GrPorterDuffXPFactory>();
 }
 
@@ -770,39 +771,34 @@ bool GrPorterDuffXPFactory::supportsRGBCoverage(GrColor /*knownColor*/,
     return false;
 }
 
-void GrPorterDuffXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               GrXPFactory::InvariantOutput* output) const {
-    output->fWillBlendWithDst = true;
-    output->fBlendedColorFlags = kNone_GrColorComponentFlags;
-
-    // The blend table doesn't support LCD coverage, but these formulas never have invariant output.
-    if (coveragePOI.isFourChannelOutput()) {
+void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
+                                                     InvariantBlendedColor* blendedColor) const {
+    // Find the blended color info based on the formula that does not have coverage.
+    BlendFormula colorFormula = gBlendTable[colorPOI.isOpaque()][0][fXfermode];
+    if (colorFormula.usesDstColor()) {
+        blendedColor->fWillBlendWithDst = true;
+        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
         return;
     }
 
-    const BlendFormula& blendFormula = get_blend_formula(fXfermode, colorPOI, coveragePOI);
-    if (blendFormula.usesDstColor()) {
-        return;
-    }
+    blendedColor->fWillBlendWithDst = false;
 
-    SkASSERT(coveragePOI.isSolidWhite());
-    SkASSERT(kAdd_GrBlendEquation == blendFormula.fBlendEquation);
+    SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
 
-    output->fWillBlendWithDst = false;
-
-    switch (blendFormula.fSrcCoeff) {
+    switch (colorFormula.fSrcCoeff) {
         case kZero_GrBlendCoeff:
-            output->fBlendedColor = 0;
-            output->fBlendedColorFlags = kRGBA_GrColorComponentFlags;
+            blendedColor->fKnownColor = 0;
+            blendedColor->fKnownColorFlags = kRGBA_GrColorComponentFlags;
             return;
 
         case kOne_GrBlendCoeff:
-            output->fBlendedColor = colorPOI.color();
-            output->fBlendedColorFlags = colorPOI.validFlags();
+            blendedColor->fKnownColor = colorPOI.color();
+            blendedColor->fKnownColorFlags = colorPOI.validFlags();
             return;
 
-        default: return;
+        default:
+            blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+            return;
     }
 }
 

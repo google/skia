@@ -306,15 +306,14 @@ GrArithmeticXPFactory::onCreateXferProcessor(const GrCaps& caps,
 }
 
 
-void GrArithmeticXPFactory::getInvariantOutput(const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& coveragePOI,
-                                               GrXPFactory::InvariantOutput* output) const {
-    output->fWillBlendWithDst = true;
+void GrArithmeticXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
+                                                     InvariantBlendedColor* blendedColor) const {
+    blendedColor->fWillBlendWithDst = true;
 
-    // TODO: We could try to optimize this more. For example if we have solid coverage and fK1 and
-    // fK3 are zero, then we won't be blending the color with dst at all so we can know what the
-    // output color is (up to the valid color components passed in).
-    output->fBlendedColorFlags = 0;
+    // TODO: We could try to optimize this more. For example if fK1 and fK3 are zero, then we won't
+    // be blending the color with dst at all so we can know what the output color is (up to the
+    // valid color components passed in).
+    blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrArithmeticXPFactory);
