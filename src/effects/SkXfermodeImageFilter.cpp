@@ -105,18 +105,7 @@ void SkXfermodeImageFilter::toString(SkString* str) const {
     if (fMode) {
         fMode->toString(str);
     }
-    str->append(")");
-    if (this->getInput(0)) {
-        str->appendf("foreground: (");
-        this->getInput(0)->toString(str);
-        str->appendf(")");
-    }
-    if (this->getInput(1)) {
-        str->appendf("background: (");
-        this->getInput(1)->toString(str);
-        str->appendf(")");
-    }
-    str->append(")");
+    str->append("))");
 }
 #endif
 
