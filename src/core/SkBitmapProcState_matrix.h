@@ -55,7 +55,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
 
     PREAMBLE(s);
 
-    const unsigned maxX = s.fBitmap->width() - 1;
+    const unsigned maxX = s.fPixmap.width() - 1;
     const SkFixed one = s.fFilterOneX;
     const SkFractionalInt dx = s.fInvSxFractionalInt;
     SkFractionalInt fx;
@@ -65,7 +65,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
         s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
         const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
-        const unsigned maxY = s.fBitmap->height() - 1;
+        const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
         *xy++ = PACK_FILTER_Y_NAME(fy, maxY, s.fFilterOneY PREAMBLE_ARG_Y);
         // now initialize fx
@@ -106,8 +106,8 @@ void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
     SkFixed fy = SkScalarToFixed(srcPt.fY) - (oneY >> 1);
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
-    unsigned maxX = s.fBitmap->width() - 1;
-    unsigned maxY = s.fBitmap->height() - 1;
+    unsigned maxX = s.fPixmap.width() - 1;
+    unsigned maxY = s.fPixmap.height() - 1;
 
     do {
         *xy++ = PACK_FILTER_Y_NAME(fy, maxY, oneY PREAMBLE_ARG_Y);
@@ -123,8 +123,8 @@ void PERSP_FILTER_NAME(const SkBitmapProcState& s,
     SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
 
     PREAMBLE(s);
-    unsigned maxX = s.fBitmap->width() - 1;
-    unsigned maxY = s.fBitmap->height() - 1;
+    unsigned maxX = s.fPixmap.width() - 1;
+    unsigned maxY = s.fPixmap.height() - 1;
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
 

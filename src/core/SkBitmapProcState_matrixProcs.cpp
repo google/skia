@@ -1,3 +1,12 @@
+/*
+ * Copyright 2008 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+// The copyright below was added in 2009, but I see no record of moto contributions...?
+
 /* NEON optimized code (C) COPYRIGHT 2009 Motorola
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -321,7 +330,7 @@ static int nofilter_trans_preamble(const SkBitmapProcState& s, uint32_t** xy,
     s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &pt);
     **xy = s.fIntTileProcY(SkScalarToFixed(pt.fY) >> 16,
-                           s.fBitmap->height());
+                           s.fPixmap.height());
     *xy += 1;   // bump the ptr
     // return our starting X position
     return SkScalarToFixed(pt.fX) >> 16;
@@ -332,7 +341,7 @@ static void clampx_nofilter_trans(const SkBitmapProcState& s,
     SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
 
     int xpos = nofilter_trans_preamble(s, &xy, x, y);
-    const int width = s.fBitmap->width();
+    const int width = s.fPixmap.width();
     if (1 == width) {
         // all of the following X values must be 0
         memset(xy, 0, count * sizeof(uint16_t));
@@ -380,7 +389,7 @@ static void repeatx_nofilter_trans(const SkBitmapProcState& s,
     SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
 
     int xpos = nofilter_trans_preamble(s, &xy, x, y);
-    const int width = s.fBitmap->width();
+    const int width = s.fPixmap.width();
     if (1 == width) {
         // all of the following X values must be 0
         memset(xy, 0, count * sizeof(uint16_t));
@@ -420,7 +429,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
     SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
 
     int xpos = nofilter_trans_preamble(s, &xy, x, y);
-    const int width = s.fBitmap->width();
+    const int width = s.fPixmap.width();
     if (1 == width) {
         // all of the following X values must be 0
         memset(xy, 0, count * sizeof(uint16_t));
@@ -507,8 +516,8 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_m
     }
 
     // all remaining procs use this form for filterOne
-    fFilterOneX = SK_Fixed1 / fBitmap->width();
-    fFilterOneY = SK_Fixed1 / fBitmap->height();
+    fFilterOneX = SK_Fixed1 / fPixmap.width();
+    fFilterOneY = SK_Fixed1 / fPixmap.height();
 
     if (SkShader::kRepeat_TileMode == fTileModeX && SkShader::kRepeat_TileMode == fTileModeY) {
         return SK_ARM_NEON_WRAP(RepeatX_RepeatY_Procs)[index];

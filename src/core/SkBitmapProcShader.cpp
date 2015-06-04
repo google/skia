@@ -117,22 +117,22 @@ SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(
     : INHERITED(shader, rec)
     , fState(state)
 {
-    const SkBitmap& bitmap = *fState->fBitmap;
-    bool bitmapIsOpaque = bitmap.isOpaque();
+    const SkPixmap& pixmap = fState->fPixmap;
+    bool isOpaque = pixmap.isOpaque();
 
     // update fFlags
     uint32_t flags = 0;
-    if (bitmapIsOpaque && (255 == this->getPaintAlpha())) {
+    if (isOpaque && (255 == this->getPaintAlpha())) {
         flags |= kOpaqueAlpha_Flag;
     }
 
-    switch (bitmap.colorType()) {
+    switch (pixmap.colorType()) {
         case kRGB_565_SkColorType:
             flags |= (kHasSpan16_Flag | kIntrinsicly16_Flag);
             break;
         case kIndex_8_SkColorType:
         case kN32_SkColorType:
-            if (bitmapIsOpaque) {
+            if (isOpaque) {
                 flags |= kHasSpan16_Flag;
             }
             break;
@@ -142,14 +142,14 @@ SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(
             break;
     }
 
-    if (rec.fPaint->isDither() && bitmap.colorType() != kRGB_565_SkColorType) {
+    if (rec.fPaint->isDither() && pixmap.colorType() != kRGB_565_SkColorType) {
         // gradients can auto-dither in their 16bit sampler, but we don't so
         // we clear the flag here.
         flags &= ~kHasSpan16_Flag;
     }
 
     // if we're only 1-pixel high, and we don't rotate, then we can claim this
-    if (1 == bitmap.height() &&
+    if (1 == pixmap.height() &&
             only_scale_and_translate(this->getTotalInverse())) {
         flags |= kConstInY32_Flag;
         if (flags & kHasSpan16_Flag) {
@@ -190,9 +190,7 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan(int x, int y, SkPMCo
     SkBitmapProcState::SampleProc32 sproc = state.getSampleProc32();
     int max = state.maxCountForBufferSize(sizeof(buffer[0]) * BUF_MAX);
 
-    SkASSERT(state.fBitmap->getPixels());
-    SkASSERT(state.fBitmap->pixelRef() == NULL ||
-             state.fBitmap->pixelRef()->isLocked());
+    SkASSERT(state.fPixmap.addr());
 
     for (;;) {
         int n = count;
@@ -243,9 +241,7 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan16(int x, int y, uint
     SkBitmapProcState::SampleProc16 sproc = state.getSampleProc16();
     int max = state.maxCountForBufferSize(sizeof(buffer));
 
-    SkASSERT(state.fBitmap->getPixels());
-    SkASSERT(state.fBitmap->pixelRef() == NULL ||
-             state.fBitmap->pixelRef()->isLocked());
+    SkASSERT(state.fPixmap.addr());
 
     for (;;) {
         int n = count;

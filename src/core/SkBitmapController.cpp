@@ -42,12 +42,9 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmap& bm,
 
     State* state = this->onRequestBitmap(bm, inv, quality, storage, storageSize);
     if (state) {
-        if (!state->fLockedBitmap.getPixels()) {
-            state->fLockedBitmap.lockPixels();
-            if (!state->fLockedBitmap.getPixels()) {
-                SkInPlaceDeleteCheck(state, storage);
-                state = NULL;
-            }
+        if (NULL == state->fPixmap.addr()) {
+            SkInPlaceDeleteCheck(state, storage);
+            state = NULL;
         }
     }
     return state;
@@ -65,6 +62,7 @@ public:
     SkDefaultBitmapControllerState(const SkBitmap& src, const SkMatrix& inv, SkFilterQuality qual);
 
 private:
+    SkBitmap                     fResultBitmap;
     SkAutoTUnref<const SkMipMap> fCurrMip;
     
     bool processHQRequest(const SkBitmap& orig);
@@ -123,8 +121,8 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmap& origBitmap
     SkScalar roundedDestWidth = SkScalarRoundToScalar(trueDestWidth);
     SkScalar roundedDestHeight = SkScalarRoundToScalar(trueDestHeight);
     
-    if (!SkBitmapCache::Find(origBitmap, roundedDestWidth, roundedDestHeight, &fLockedBitmap)) {
-        if (!SkBitmapScaler::Resize(&fLockedBitmap,
+    if (!SkBitmapCache::Find(origBitmap, roundedDestWidth, roundedDestHeight, &fResultBitmap)) {
+        if (!SkBitmapScaler::Resize(&fResultBitmap,
                                     origBitmap,
                                     SkBitmapScaler::RESIZE_BEST,
                                     roundedDestWidth,
@@ -133,12 +131,12 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmap& origBitmap
             return false; // we failed to create fScaledBitmap
         }
         
-        SkASSERT(fLockedBitmap.getPixels());
-        fLockedBitmap.setImmutable();
-        SkBitmapCache::Add(origBitmap, roundedDestWidth, roundedDestHeight, fLockedBitmap);
+        SkASSERT(fResultBitmap.getPixels());
+        fResultBitmap.setImmutable();
+        SkBitmapCache::Add(origBitmap, roundedDestWidth, roundedDestHeight, fResultBitmap);
     }
     
-    SkASSERT(fLockedBitmap.getPixels());
+    SkASSERT(fResultBitmap.getPixels());
     
     fInvMatrix.postScale(roundedDestWidth / origBitmap.width(),
                          roundedDestHeight / origBitmap.height());
@@ -188,7 +186,7 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmap& origBi
             const SkImageInfo info = origBitmap.info().makeWH(level.fWidth, level.fHeight);
             // todo: if we could wrap the fCurrMip in a pixelref, then we could just install
             //       that here, and not need to explicitly track it ourselves.
-            return fLockedBitmap.installPixels(info, level.fPixels, level.fRowBytes);
+            return fResultBitmap.installPixels(info, level.fPixels, level.fRowBytes);
         } else {
             // failed to extract, so release the mipmap
             fCurrMip.reset(NULL);
@@ -203,10 +201,19 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmap& s
     fInvMatrix = inv;
     fQuality = qual;
 
-    if (!this->processHQRequest(src) && !this->processMediumRequest(src)) {
-        fLockedBitmap = src;
+    if (this->processHQRequest(src) || this->processMediumRequest(src)) {
+        SkASSERT(fResultBitmap.getPixels());
+    } else {
+        fResultBitmap = src;
+        fResultBitmap.lockPixels();
+        // lock may fail to give us pixels
     }
     SkASSERT(fQuality <= kLow_SkFilterQuality);
+
+    // fResultBitmap.getPixels() may be null, but our caller knows to check fPixmap.addr()
+    // and will destroy us if it is NULL.
+    fPixmap.reset(fResultBitmap.info(), fResultBitmap.getPixels(), fResultBitmap.rowBytes(),
+                  fResultBitmap.getColorTable());
 }
 
 SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBitmap& bm,

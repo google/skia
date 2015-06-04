@@ -19,14 +19,14 @@ void NoFilterProc_Scale(const SkBitmapProcState& s, uint32_t xy[],
 
     // we store y, x, x, x, x, x
 
-    const unsigned maxX = s.fBitmap->width() - 1;
+    const unsigned maxX = s.fPixmap.width() - 1;
     SkFractionalInt fx;
     {
         SkPoint pt;
         s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
         fx = SkScalarToFractionalInt(pt.fY);
-        const unsigned maxY = s.fBitmap->height() - 1;
+        const unsigned maxY = s.fPixmap.height() - 1;
         *xy++ = TileProc::Y(s, SkFractionalIntToFixed(fx), maxY);
         fx = SkScalarToFractionalInt(pt.fX);
     }
@@ -89,8 +89,8 @@ void NoFilterProc_Affine(const SkBitmapProcState& s, uint32_t xy[],
     SkFractionalInt fy = SkScalarToFractionalInt(srcPt.fY);
     SkFractionalInt dx = s.fInvSxFractionalInt;
     SkFractionalInt dy = s.fInvKyFractionalInt;
-    int maxX = s.fBitmap->width() - 1;
-    int maxY = s.fBitmap->height() - 1;
+    int maxX = s.fPixmap.width() - 1;
+    int maxY = s.fPixmap.height() - 1;
 
     for (int i = count; i > 0; --i) {
         *xy++ = (TileProc::Y(s, SkFractionalIntToFixed(fy), maxY) << 16) |
@@ -104,8 +104,8 @@ void NoFilterProc_Persp(const SkBitmapProcState& s, uint32_t* SK_RESTRICT xy,
                         int count, int x, int y) {
     SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
 
-    int maxX = s.fBitmap->width() - 1;
-    int maxY = s.fBitmap->height() - 1;
+    int maxX = s.fPixmap.width() - 1;
+    int maxY = s.fPixmap.height() - 1;
 
     SkPerspIter   iter(s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,

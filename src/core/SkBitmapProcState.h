@@ -52,7 +52,7 @@ struct SkBitmapProcState {
     typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
-    const SkBitmap*     fBitmap;            // chooseProcs - orig or scaled
+    SkPixmap            fPixmap;
     SkMatrix            fInvMatrix;         // copy of what is in fBMState, can we remove the dup?
 
     SkMatrix::MapXYProc fInvProc;           // chooseProcs

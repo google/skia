@@ -48,6 +48,8 @@ public:
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
     bool isOpaque() const { return fInfo.isOpaque(); }
 
+    SkIRect bounds() const { return SkIRect::MakeWH(this->width(), this->height()); }
+
     uint64_t getSize64() const { return sk_64_mul(fInfo.height(), fRowBytes); }
     uint64_t getSafeSize64() const { return fInfo.getSafeSize64(fRowBytes); }
     size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }

@@ -48,29 +48,29 @@ void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
 #ifdef PREAMBLE
     PREAMBLE(s);
 #endif
-    const char* SK_RESTRICT srcAddr = (const char*)s.fBitmap->getPixels();
-    size_t rb = s.fBitmap->rowBytes();
+    const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
+    size_t rb = s.fPixmap.rowBytes();
 
     uint32_t XY;
     SRCTYPE src;
 
     for (int i = (count >> 1); i > 0; --i) {
         XY = *xy++;
-        SkASSERT((XY >> 16) < (unsigned)s.fBitmap->height() &&
-                 (XY & 0xFFFF) < (unsigned)s.fBitmap->width());
+        SkASSERT((XY >> 16) < (unsigned)s.fPixmap.height() &&
+                 (XY & 0xFFFF) < (unsigned)s.fPixmap.width());
         src = ((const SRCTYPE*)(srcAddr + (XY >> 16) * rb))[XY & 0xFFFF];
         *colors++ = RETURNDST(src);
 
         XY = *xy++;
-        SkASSERT((XY >> 16) < (unsigned)s.fBitmap->height() &&
-                 (XY & 0xFFFF) < (unsigned)s.fBitmap->width());
+        SkASSERT((XY >> 16) < (unsigned)s.fPixmap.height() &&
+                 (XY & 0xFFFF) < (unsigned)s.fPixmap.width());
         src = ((const SRCTYPE*)(srcAddr + (XY >> 16) * rb))[XY & 0xFFFF];
         *colors++ = RETURNDST(src);
     }
     if (count & 1) {
         XY = *xy++;
-        SkASSERT((XY >> 16) < (unsigned)s.fBitmap->height() &&
-                 (XY & 0xFFFF) < (unsigned)s.fBitmap->width());
+        SkASSERT((XY >> 16) < (unsigned)s.fPixmap.height() &&
+                 (XY & 0xFFFF) < (unsigned)s.fPixmap.width());
         src = ((const SRCTYPE*)(srcAddr + (XY >> 16) * rb))[XY & 0xFFFF];
         *colors++ = RETURNDST(src);
     }
@@ -91,18 +91,18 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
 #ifdef PREAMBLE
     PREAMBLE(s);
 #endif
-    const SRCTYPE* SK_RESTRICT srcAddr = (const SRCTYPE*)s.fBitmap->getPixels();
+    const SRCTYPE* SK_RESTRICT srcAddr = (const SRCTYPE*)s.fPixmap.addr();
 
     // buffer is y32, x16, x16, x16, x16, x16
     // bump srcAddr to the proper row, since we're told Y never changes
-    SkASSERT((unsigned)xy[0] < (unsigned)s.fBitmap->height());
+    SkASSERT((unsigned)xy[0] < (unsigned)s.fPixmap.height());
     srcAddr = (const SRCTYPE*)((const char*)srcAddr +
-                                                xy[0] * s.fBitmap->rowBytes());
+                                                xy[0] * s.fPixmap.rowBytes());
     xy += 1;
 
     SRCTYPE src;
 
-    if (1 == s.fBitmap->width()) {
+    if (1 == s.fPixmap.width()) {
         src = srcAddr[0];
         DSTTYPE dstValue = RETURNDST(src);
         BITMAPPROC_MEMSET(colors, dstValue, count);
@@ -123,7 +123,7 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
         }
         const uint16_t* SK_RESTRICT xx = (const uint16_t*)(xy);
         for (i = (count & 3); i > 0; --i) {
-            SkASSERT(*xx < (unsigned)s.fBitmap->width());
+            SkASSERT(*xx < (unsigned)s.fPixmap.width());
             src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
         }
     }
@@ -145,8 +145,8 @@ void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
 #ifdef PREAMBLE
     PREAMBLE(s);
 #endif
-    const char* SK_RESTRICT srcAddr = (const char*)s.fBitmap->getPixels();
-    size_t rb = s.fBitmap->rowBytes();
+    const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
+    size_t rb = s.fPixmap.rowBytes();
     unsigned subY;
     const SRCTYPE* SK_RESTRICT row0;
     const SRCTYPE* SK_RESTRICT row1;
@@ -191,8 +191,8 @@ void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
 #ifdef PREAMBLE
         PREAMBLE(s);
 #endif
-    const char* SK_RESTRICT srcAddr = (const char*)s.fBitmap->getPixels();
-    size_t rb = s.fBitmap->rowBytes();
+    const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
+    size_t rb = s.fPixmap.rowBytes();
 
     do {
         uint32_t data = *xy++;

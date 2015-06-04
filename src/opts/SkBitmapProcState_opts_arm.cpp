@@ -30,18 +30,17 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
 
-    const uint16_t* SK_RESTRICT table = s.fBitmap->getColorTable()->read16BitCache();
-    const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fBitmap->getPixels();
+    const uint16_t* SK_RESTRICT table = s.fPixmap.ctable()->read16BitCache();
+    const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fPixmap.addr();
 
     // buffer is y32, x16, x16, x16, x16, x16
     // bump srcAddr to the proper row, since we're told Y never changes
-    SkASSERT((unsigned)xy[0] < (unsigned)s.fBitmap->height());
-    srcAddr = (const uint8_t*)((const char*)srcAddr +
-                               xy[0] * s.fBitmap->rowBytes());
+    SkASSERT((unsigned)xy[0] < (unsigned)s.fPixmap.height());
+    srcAddr = (const uint8_t*)((const char*)srcAddr + xy[0] * s.fPixmap.rowBytes());
 
     uint8_t src;
 
-    if (1 == s.fBitmap->width()) {
+    if (1 == s.fPixmap.width()) {
         src = srcAddr[0];
         uint16_t dstValue = table[src];
         sk_memset16(colors, dstValue, count);
@@ -119,15 +118,15 @@ void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
 
-    const SkPMColor* SK_RESTRICT table = s.fBitmap->getColorTable()->readColors();
-    const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fBitmap->getPixels();
+    const SkPMColor* SK_RESTRICT table = s.fPixmap.ctable()->readColors();
+    const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fPixmap.addr();
 
     // buffer is y32, x16, x16, x16, x16, x16
     // bump srcAddr to the proper row, since we're told Y never changes
-    SkASSERT((unsigned)xy[0] < (unsigned)s.fBitmap->height());
-    srcAddr = (const uint8_t*)((const char*)srcAddr + xy[0] * s.fBitmap->rowBytes());
+    SkASSERT((unsigned)xy[0] < (unsigned)s.fPixmap.height());
+    srcAddr = (const uint8_t*)((const char*)srcAddr + xy[0] * s.fPixmap.rowBytes());
 
-    if (1 == s.fBitmap->width()) {
+    if (1 == s.fPixmap.width()) {
         uint8_t src = srcAddr[0];
         SkPMColor dstValue = table[src];
         sk_memset32(colors, dstValue, count);
@@ -199,7 +198,7 @@ void SkBitmapProcState::platformProcs() {
         justDx = true;
     }
 
-    switch (fBitmap->colorType()) {
+    switch (fPixmap.colorType()) {
         case kIndex_8_SkColorType:
             if (justDx && kNone_SkFilterQuality == fFilterLevel) {
 #if 0   /* crashing on android device */

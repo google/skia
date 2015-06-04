@@ -21,12 +21,12 @@ public:
     public:
         virtual ~State() {}
 
-        const SkBitmap& lockedBitmap() const { return fLockedBitmap; }
+        const SkPixmap& pixmap() const { return fPixmap; }
         const SkMatrix& invMatrix() const { return fInvMatrix; }
         SkFilterQuality quality() const { return fQuality; }
     
     protected:
-        SkBitmap        fLockedBitmap;
+        SkPixmap        fPixmap;
         SkMatrix        fInvMatrix;
         SkFilterQuality fQuality;
     

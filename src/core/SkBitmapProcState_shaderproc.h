@@ -24,7 +24,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
     SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 
-    const unsigned maxX = s.fBitmap->width() - 1;
+    const unsigned maxX = s.fPixmap.width() - 1;
     const SkFixed oneX = s.fFilterOneX;
     const SkFixed dx = s.fInvSx;
     SkFixed fx;
@@ -37,14 +37,14 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
         s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
         SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
-        const unsigned maxY = s.fBitmap->height() - 1;
+        const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
         subY = TILEY_LOW_BITS(fy, maxY);
         int y0 = TILEY_PROCF(fy, maxY);
         int y1 = TILEY_PROCF((fy + s.fFilterOneY), maxY);
 
-        const char* SK_RESTRICT srcAddr = (const char*)s.fBitmap->getPixels();
-        size_t rb = s.fBitmap->rowBytes();
+        const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
+        size_t rb = s.fPixmap.rowBytes();
         row0 = (const SRCTYPE*)(srcAddr + y0 * rb);
         row1 = (const SRCTYPE*)(srcAddr + y1 * rb);
         // now initialize fx

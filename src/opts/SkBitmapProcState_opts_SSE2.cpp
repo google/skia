@@ -16,11 +16,11 @@ void S32_opaque_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                    int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
-    SkASSERT(kN32_SkColorType == s.fBitmap->colorType());
+    SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
     SkASSERT(s.fAlphaScale == 256);
 
-    const char* srcAddr = static_cast<const char*>(s.fBitmap->getPixels());
-    size_t rb = s.fBitmap->rowBytes();
+    const char* srcAddr = static_cast<const char*>(s.fPixmap.addr());
+    size_t rb = s.fPixmap.rowBytes();
     uint32_t XY = *xy++;
     unsigned y0 = XY >> 14;
     const uint32_t* row0 = reinterpret_cast<const uint32_t*>(srcAddr + (y0 >> 4) * rb);
@@ -122,11 +122,11 @@ void S32_alpha_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                   int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
-    SkASSERT(kN32_SkColorType == s.fBitmap->colorType());
+    SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
     SkASSERT(s.fAlphaScale < 256);
 
-    const char* srcAddr = static_cast<const char*>(s.fBitmap->getPixels());
-    size_t rb = s.fBitmap->rowBytes();
+    const char* srcAddr = static_cast<const char*>(s.fPixmap.addr());
+    size_t rb = s.fPixmap.rowBytes();
     uint32_t XY = *xy++;
     unsigned y0 = XY >> 14;
     const uint32_t* row0 = reinterpret_cast<const uint32_t*>(srcAddr + (y0 >> 4) * rb);
@@ -249,7 +249,7 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
                              SkMatrix::kScale_Mask)) == 0);
     SkASSERT(s.fInvKy == 0);
 
-    const unsigned maxX = s.fBitmap->width() - 1;
+    const unsigned maxX = s.fPixmap.width() - 1;
     const SkFixed one = s.fFilterOneX;
     const SkFixed dx = s.fInvSx;
     SkFixed fx;
@@ -258,7 +258,7 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
     s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                              SkIntToScalar(y) + SK_ScalarHalf, &pt);
     const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
-    const unsigned maxY = s.fBitmap->height() - 1;
+    const unsigned maxY = s.fPixmap.height() - 1;
     // compute our two Y values up front
     *xy++ = ClampX_ClampY_pack_filter(fy, maxY, s.fFilterOneY);
     // now initialize fx
@@ -373,13 +373,13 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
                              SkMatrix::kScale_Mask)) == 0);
 
     // we store y, x, x, x, x, x
-    const unsigned maxX = s.fBitmap->width() - 1;
+    const unsigned maxX = s.fPixmap.width() - 1;
     SkFixed fx;
     SkPoint pt;
     s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                              SkIntToScalar(y) + SK_ScalarHalf, &pt);
     fx = SkScalarToFixed(pt.fY);
-    const unsigned maxY = s.fBitmap->height() - 1;
+    const unsigned maxY = s.fPixmap.height() - 1;
     *xy++ = SkClampMax(fx >> 16, maxY);
     fx = SkScalarToFixed(pt.fX);
 
@@ -500,8 +500,8 @@ void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
     SkFixed fy = SkScalarToFixed(srcPt.fY) - (oneY >> 1);
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
-    unsigned maxX = s.fBitmap->width() - 1;
-    unsigned maxY = s.fBitmap->height() - 1;
+    unsigned maxX = s.fPixmap.width() - 1;
+    unsigned maxY = s.fPixmap.height() - 1;
 
     if (count >= 2 && (maxX <= 0xFFFF)) {
         SkFixed dx2 = dx + dx;
@@ -574,8 +574,8 @@ void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
     SkFixed fy = SkScalarToFixed(srcPt.fY);
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
-    int maxX = s.fBitmap->width() - 1;
-    int maxY = s.fBitmap->height() - 1;
+    int maxX = s.fPixmap.width() - 1;
+    int maxY = s.fPixmap.height() - 1;
 
     if (count >= 4 && (maxX <= 0xFFFF)) {
         while (((size_t)xy & 0x0F) != 0) {
@@ -642,12 +642,12 @@ void S32_D16_filter_DX_SSE2(const SkBitmapProcState& s,
                             int count, uint16_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
-    SkASSERT(kN32_SkColorType == s.fBitmap->colorType());
-    SkASSERT(s.fBitmap->isOpaque());
+    SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+    SkASSERT(s.fPixmap.isOpaque());
 
     SkPMColor dstColor;
-    const char* srcAddr = static_cast<const char*>(s.fBitmap->getPixels());
-    size_t rb = s.fBitmap->rowBytes();
+    const char* srcAddr = static_cast<const char*>(s.fPixmap.addr());
+    size_t rb = s.fPixmap.rowBytes();
     uint32_t XY = *xy++;
     unsigned y0 = XY >> 14;
     const uint32_t* row0 = reinterpret_cast<const uint32_t*>(srcAddr + (y0 >> 4) * rb);
