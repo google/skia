@@ -10,6 +10,7 @@
 #include "SkBitmapDevice.h"
 #include "SkColorFilter.h"
 #include "SkDeviceImageFilterProxy.h"
+#include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
@@ -1037,7 +1038,8 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
         SkBaseDevice* newDev = device->onCreateDevice(createInfo, paint);
         if (NULL == newDev) {
             // If onCreateDevice didn't succeed, try raster (e.g. PDF couldn't handle the paint)
-            newDev = SkBitmapDevice::Create(createInfo.fInfo);
+            const SkDeviceProperties deviceProps(createInfo.fPixelGeometry);
+            newDev = SkBitmapDevice::Create(createInfo.fInfo, &deviceProps);
             if (NULL == newDev) {
                 SkErrorInternals::SetError(kInternalError_SkError,
                                            "Unable to create device for layer.");
