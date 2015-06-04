@@ -47,12 +47,17 @@ protected:
 
         int scale = 300;
         for (int i = 0; i < 4; ++i) {
-            path.lineTo(rand.nextUScalar1() * scale, rand.nextUScalar1() * scale);
-            path.quadTo(rand.nextUScalar1() * scale, rand.nextUScalar1() * scale,
-                        rand.nextUScalar1() * scale, rand.nextUScalar1() * scale);
-            path.cubicTo(rand.nextUScalar1() * scale, rand.nextUScalar1() * scale,
-                         rand.nextUScalar1() * scale, rand.nextUScalar1() * scale,
-                         rand.nextUScalar1() * scale, rand.nextUScalar1() * scale);
+            // get the random values deterministically
+            SkScalar randoms[12];
+            for (int index = 0; index < (int) SK_ARRAY_COUNT(randoms); ++index) {
+                randoms[index] = rand.nextUScalar1();
+            }
+            path.lineTo(randoms[0] * scale, randoms[1] * scale);
+            path.quadTo(randoms[2] * scale, randoms[3] * scale,
+                        randoms[4] * scale, randoms[5] * scale);
+            path.cubicTo(randoms[6] * scale, randoms[7] * scale,
+                         randoms[8] * scale, randoms[9] * scale,
+                         randoms[10] * scale, randoms[11] * scale);
         }
 
         path.setFillType(SkPath::kEvenOdd_FillType);
