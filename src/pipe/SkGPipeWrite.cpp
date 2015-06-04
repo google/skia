@@ -1449,7 +1449,6 @@ int32_t SkImageHeap::insert(const SkImage* img) {
     // TODO: SkImage does not expose bytes per pixel, 4 is just a best guess.
     fBytesInCache += img->width() * img->height() * 4;
     *fArray.append() = SkRef(img);
-    printf("Images reff'ed: %d \n", fArray.count());
     return fArray.count();  // slot is always index+1
 }
 
