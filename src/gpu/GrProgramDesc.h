@@ -39,9 +39,17 @@ public:
         return *this;
     }
 
-    bool operator== (const GrProgramDesc& other) const {
-        // The length is masked as a hint to the compiler that the address will be 4 byte aligned.
-        return 0 == memcmp(this->asKey(), other.asKey(), this->keyLength() & ~0x3);
+    bool operator== (const GrProgramDesc& that) const {
+        SkASSERT(SkIsAlign4(this->keyLength()));
+        int l = this->keyLength() >> 2;
+        const uint32_t* aKey = this->asKey();
+        const uint32_t* bKey = that.asKey();
+        for (int i = 0; i < l; ++i) {
+            if (aKey[i] != bKey[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     bool operator!= (const GrProgramDesc& other) const {
@@ -49,7 +57,16 @@ public:
     }
 
     static bool Less(const GrProgramDesc& a, const GrProgramDesc& b) {
-        return memcmp(a.asKey(), b.asKey(), a.keyLength() & ~0x3) < 0;
+        SkASSERT(SkIsAlign4(a.keyLength()));
+        int l = a.keyLength() >> 2;
+        const uint32_t* aKey = a.asKey();
+        const uint32_t* bKey = b.asKey();
+        for (int i = 0; i < l; ++i) {
+            if (aKey[i] != bKey[i]) {
+                return aKey[i] < bKey[i] ? true : false;
+            }
+        }
+        return false;
     }
 
     struct KeyHeader {
