@@ -48,6 +48,7 @@ DEFINE_string(uninterestingHashesFile, "",
 
 DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
+DEFINE_bool2(pre_log, p, false, "Log before running each test. May be incomprehensible when threading");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;
@@ -466,6 +467,9 @@ struct Task {
         if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
+            if (FLAGS_pre_log) {
+                SkDebugf("\nRunning %s->%s", name.c_str(), task->sink.tag);
+            }
             start(task->sink.tag, task->src.tag, task->src.options, name.c_str());
             Error err = task->sink->draw(*task->src, &bitmap, &stream, &log);
             if (!err.isEmpty()) {
@@ -657,6 +661,9 @@ static void run_test(skiatest::Test* test) {
     if (!FLAGS_dryRun) {
         start("unit", "test", "", test->name);
         GrContextFactory factory;
+        if (FLAGS_pre_log) {
+            SkDebugf("\nRunning test %s", test->name);
+        }
         test->proc(&reporter, &factory);
     }
     timer.end();
