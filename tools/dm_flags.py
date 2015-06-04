@@ -62,7 +62,7 @@ def get_args(bot):
   if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
                    ['serialize', 'tiles_rt', 'pipe'])
-    configs.append('tiles_rt-gpu')
+
   if 'ANGLE' in bot:
     configs.append('angle')
   args.append('--config')
@@ -140,10 +140,6 @@ def get_args(bot):
     blacklist.extend('gpu image decode _ msaa image decode _'.split(' '))
     blacklist.extend('gpu image subset _ msaa image subset _'.split(' '))
     blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
-
-  if 'GalaxyS4' in bot:
-    # This occasionally runs forever. skia:3802
-    blacklist.extend('tiles_rt-gpu gm _ imagefilterscropped'.split(' '))
 
   if blacklist:
     args.append('--blacklist')
