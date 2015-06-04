@@ -126,13 +126,16 @@ public:
             : fName(NULL)
             , fType(kFloat_GrVertexAttribType)
             , fOffset(0) {}
-        Attribute(const char* name, GrVertexAttribType type)
+        Attribute(const char* name, GrVertexAttribType type,
+                  GrSLPrecision precision = kDefault_GrSLPrecision)
             : fName(name)
             , fType(type)
-            , fOffset(SkAlign4(GrVertexAttribTypeSize(type))) {}
+            , fOffset(SkAlign4(GrVertexAttribTypeSize(type)))
+            , fPrecision(precision) {}
         const char* fName;
         GrVertexAttribType fType;
         size_t fOffset;
+        GrSLPrecision fPrecision;
     };
 
     int numAttribs() const { return fNumAttribs; }
