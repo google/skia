@@ -343,6 +343,8 @@ def PostUploadHook(cl, change, output_api):
     need to be gated on the master branch's tree.
   * Adds 'NOTRY=true' for non master branch changes since trybots do not yet
     work on them.
+  * Adds 'NOPRESUBMIT=true' for non master branch changes since those don't
+    run the presubmit checks.
   """
 
   results = []
@@ -405,6 +407,12 @@ def PostUploadHook(cl, change, output_api):
             output_api.PresubmitNotifyResult(
                 'Trybots do not yet work for non-master branches. '
                 'Automatically added \'NOTRY=true\' to the CL\'s description'))
+      if not re.search(
+          r'^NOPRESUBMIT=true$', new_description, re.M | re.I):
+        new_description += "\nNOPRESUBMIT=true"
+        results.append(
+            output_api.PresubmitNotifyResult(
+                'Branch changes do not run the presubmit checks.'))
 
     # Read and process the HASHTAGS file.
     hashtags_fullpath = os.path.join(change._local_root, 'HASHTAGS')
