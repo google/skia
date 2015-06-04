@@ -9,14 +9,23 @@ to run continuous builds and tests.
 
 Here is a link to our main status page: https://status.skia.org/
 
-There are also Skia client, compile, Android, and FYI console pages for a detailed
-view of those results: 
+There are also buildbot console pages for a detailed view of those results:
   
-  Externally-facing: http://build.chromium.org/p/client.skia/console
-  
-  Internally-facing: http://chromegw.corp.google.com/i/client.skia/console
-                     http://chromegw.corp.google.com/i/client.skia.internal/console
-                     \(only visible internally\)
+  Externally-facing:
+
+* http://build.chromium.org/p/client.skia/console
+* http://build.chromium.org/p/client.skia.android/console
+* http://build.chromium.org/p/client.skia.compile/console
+* http://build.chromium.org/p/client.skia.fyi/console
+
+  Internally-facing:
+
+* http://uberchromegw.corp.google.com/i/client.skia/console
+* http://uberchromegw.corp.google.com/i/client.skia.android/console
+* http://uberchromegw.corp.google.com/i/client.skia.compile/console
+* http://uberchromegw.corp.google.com/i/client.skia.fyi/console
+* http://uberchromegw.corp.google.com/i/client.skia.internal/console
+
 
 Architecture
 ------------
@@ -25,30 +34,35 @@ The buildbot system consists of these elements: \(see
 http://buildbot.net/buildbot/docs/current/manual/introduction.html#system-architecture
 for more detail\) 
 
-* builder
+* Buildbot Master
 
-    * one repeatable build and/or test configuration on a given platform.
-    * each builder maintains its own local checkout of the Skia repo
-    * only one builder is running at any given time on any single buildslave; otherwise,
-       different builders could interfere with each other's performance numbers
+    * Watches for new commits to land in the Skia repository
+      \(https://skia.googlesource.com/skia\)
+    * Whenever a new commit lands, it triggers a **Build** on each **Builder**
+      to test the new revision.
+    * Serves up status pages whenever anybody requests them
 
-* buildbot master
+* Build
+
+    * One run of a particular **Builder**, at a particular code revision.
+    * "Build" is sort of a misnomer; it's just a list of steps (typically shell
+      commands) which are run by the **Buildslave** process on the host
+      machine, and those may include compiling and running code as well as
+      arbitrary other commands.
+
+* Builder
+
+    * One repeatable build and/or test configuration on a given platform. The
+      Builder is basically a blueprint which provides logic to determine which
+      steps to run within a Build.
+
+* Buildslave \(or "buildbot slave"\)
     
-    * watches for new commits to land in the Skia repository 
-      \(https://skia.googlesource.com/skia\) 
-    * whenever a new commit lands, it tells buildbot slaves to start building and 
-      testing the latest revision 
-    * serves up status pages whenever anybody requests them
-
-* buildslave \(or "buildbot slave"\)
-    
-    * a process on a machine that builds and runs code as directed by the buildbot 
-      master
-    * one or more builders run on each buildslave
-
-* build
-
-    * one run of a particular builder, at a particular code revision
+    * A process running on a host machine that builds and runs code as directed
+      by the Buildbot Master.
+    * One or more Builders may run on a given Buildslave, but only one runs at
+      a time.
+    * One or more Buildslaves may run on a given host machine.
 
 
 Status View
