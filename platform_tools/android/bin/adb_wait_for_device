@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Wait for the device to be both attached and booted.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/setup_adb.sh
+
+set -e
+set -x
+
+$ADB $DEVICE_SERIAL wait-for-device
+
+while [ "$($ADB $DEVICE_SERIAL shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; do
+  sleep 5
+done
