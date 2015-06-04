@@ -2821,7 +2821,7 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
         fHWGeometryState.bindArrayAndBufferToDraw(this, fCopyProgram.fArrayBuffer);
     attribs->set(this, 0, fCopyProgram.fArrayBuffer, 2, GR_GL_FLOAT, false,
                     2 * sizeof(GrGLfloat), 0);
-
+    attribs->disableUnusedArrays(this, 0x1);
 
     // dst rect edges in NDC (-1 to 1)
     int dw = dst->width();
