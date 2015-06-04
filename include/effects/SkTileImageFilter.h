@@ -22,10 +22,11 @@ public:
     static SkTileImageFilter* Create(const SkRect& srcRect, const SkRect& dstRect,
                                      SkImageFilter* input);
 
-    virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                               SkBitmap* dst, SkIPoint* offset) const override;
-    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
-                                SkIRect* dst) const override;
+    bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
+                       SkBitmap* dst, SkIPoint* offset) const override;
+    bool onFilterBounds(const SkIRect& src, const SkMatrix&,
+                        SkIRect* dst) const override;
+    void computeFastBounds(const SkRect& src, SkRect* dst) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTileImageFilter)
