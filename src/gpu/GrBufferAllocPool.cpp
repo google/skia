@@ -23,7 +23,7 @@
 #endif
 
 // page size
-#define GrBufferAllocPool_MIN_BLOCK_SIZE ((size_t)1 << 12)
+#define GrBufferAllocPool_MIN_BLOCK_SIZE ((size_t)1 << 15)
 
 #define UNMAP_BUFFER(block)                                                               \
 do {                                                                                      \
