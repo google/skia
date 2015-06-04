@@ -480,14 +480,47 @@ private:
     };
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Pass the object and the storage that was offered during SkInPlaceNewCheck, and this will
+ *  safely destroy (and free if it was dynamically allocated) the object.
+ */
+template <typename T> void SkInPlaceDeleteCheck(T* obj, void* storage) {
+    if (storage == obj) {
+        obj->~T();
+    } else {
+        SkDELETE(obj);
+    }
+}
+
+/**
+ *  Allocates T, using storage if it is large enough, and allocating on the heap (via new) if
+ *  storage is not large enough.
+ *
+ *      obj = SkInPlaceNewCheck<Type>(storage, size);
+ *      ...
+ *      SkInPlaceDeleteCheck(obj, storage);
+ */
+template <typename T> T* SkInPlaceNewCheck(void* storage, size_t size) {
+    return (sizeof(T) <= size) ? new (storage) T : SkNEW(T);
+}
+
+template <typename T, typename A1, typename A2, typename A3>
+T* SkInPlaceNewCheck(void* storage, size_t size, const A1& a1, const A2& a2, const A3& a3) {
+    return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3) : SkNEW_ARGS(T, (a1, a2, a3));
+}
+
 /**
  * Reserves memory that is aligned on double and pointer boundaries.
  * Hopefully this is sufficient for all practical purposes.
  */
 template <size_t N> class SkAlignedSStorage : SkNoncopyable {
 public:
+    size_t size() const { return N; }
     void* get() { return fData; }
     const void* get() const { return fData; }
+
 private:
     union {
         void*   fPtr;

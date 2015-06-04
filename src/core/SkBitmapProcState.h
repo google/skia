@@ -9,6 +9,7 @@
 #define SkBitmapProcState_DEFINED
 
 #include "SkBitmap.h"
+#include "SkBitmapController.h"
 #include "SkBitmapFilter.h"
 #include "SkMatrix.h"
 #include "SkMipMap.h"
@@ -23,6 +24,9 @@ typedef SkFixed3232    SkFractionalInt;
 class SkPaint;
 
 struct SkBitmapProcState {
+    SkBitmapProcState();
+    ~SkBitmapProcState();
+
     typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
                                  SkPMColor[], int count);
 
@@ -49,7 +53,8 @@ struct SkBitmapProcState {
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
     const SkBitmap*     fBitmap;            // chooseProcs - orig or scaled
-    SkMatrix            fInvMatrix;         // chooseProcs
+    SkMatrix            fInvMatrix;         // copy of what is in fBMState, can we remove the dup?
+
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
 
     SkFractionalInt     fInvSxFractionalInt;
@@ -122,21 +127,17 @@ private:
     SampleProc16        fSampleProc16;      // chooseProcs
 
     SkBitmap            fOrigBitmap;        // CONSTRUCTOR
-    SkBitmap            fScaledBitmap;      // chooseProcs
 
-    SkAutoTUnref<const SkMipMap> fCurrMip;
-
-    void processHQRequest();
-    void processMediumRequest();
+    enum {
+        kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
+    };
+    SkAlignedSStorage<kBMStateSize> fBMStateStorage;
+    SkBitmapController::State* fBMState;
 
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp, const SkPaint& paint);
     ShaderProc32 chooseShaderProc32();
-
-    // returns false if we failed to "lock" the pixels at all. Typically this
-    // means we have to abort the shader.
-    bool lockBaseBitmap();
 
     // Return false if we failed to setup for fast translate (e.g. overflow)
     bool setupForTranslate();
