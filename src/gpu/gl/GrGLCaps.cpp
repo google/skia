@@ -984,8 +984,9 @@ void GrGLSLCaps::init(const GrGLContextInfo& ctxInfo,
 
     // Enable supported shader-related caps
     if (kGL_GrGLStandard == standard) {
-        fDualSourceBlendingSupport = ctxInfo.version() >= GR_GL_VER(3, 3) ||
-            ctxInfo.hasExtension("GL_ARB_blend_func_extended");
+        fDualSourceBlendingSupport = (ctxInfo.version() >= GR_GL_VER(3, 3) ||
+            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
+            GrGLSLSupportsNamedFragmentShaderOutputs(ctxInfo.glslGeneration());
         fShaderDerivativeSupport = true;
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
         fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3, 2) &&

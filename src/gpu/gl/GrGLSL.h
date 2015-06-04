@@ -50,6 +50,8 @@ enum GrGLSLGeneration {
  */
 bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation);
 
+bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration);
+
 /**
  * Returns a string to include at the beginning of a shader to declare the GLSL
  * version.

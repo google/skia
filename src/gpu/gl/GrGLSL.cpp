@@ -85,10 +85,22 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
         case k310es_GrGLSLGeneration:
             SkASSERT(kGLES_GrGLStandard == info.standard());
             return "#version 310 es\n";
-        default:
-            SkFAIL("Unknown GL version.");
-            return ""; // suppress warning
     }
+    return "<no version>";
+}
+
+bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
+    switch (gen) {
+        case k110_GrGLSLGeneration:
+            return false;
+        case k130_GrGLSLGeneration:
+        case k140_GrGLSLGeneration:
+        case k150_GrGLSLGeneration:
+        case k330_GrGLSLGeneration:
+        case k310es_GrGLSLGeneration:
+            return true;
+    }
+    return false;
 }
 
 void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p, GrGLStandard s, SkString* out) {
