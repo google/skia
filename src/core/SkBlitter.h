@@ -128,7 +128,7 @@ public:
                              SkTBlitterAllocator*,
                              bool drawCoverage = false);
 
-    static SkBlitter* ChooseSprite(const SkBitmap& device,
+    static SkBlitter* ChooseSprite(const SkPixmap& dst,
                                    const SkPaint&,
                                    const SkPixmap& src,
                                    int left, int top,

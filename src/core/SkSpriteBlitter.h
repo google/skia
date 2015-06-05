@@ -8,9 +8,8 @@
 #ifndef SkSpriteBlitter_DEFINED
 #define SkSpriteBlitter_DEFINED
 
-#include "SkBitmap.h"
-#include "SkBitmapProcShader.h"
 #include "SkBlitter.h"
+#include "SkPixmap.h"
 #include "SkShader.h"
 #include "SkSmallAllocator.h"
 
@@ -20,7 +19,7 @@ class SkSpriteBlitter : public SkBlitter {
 public:
     SkSpriteBlitter(const SkPixmap& source);
 
-    virtual void setup(const SkBitmap& device, int left, int top, const SkPaint&);
+    virtual void setup(const SkPixmap& dst, int left, int top, const SkPaint&);
 
 #ifdef SK_DEBUG
     void blitH(int x, int y, int width) override;
@@ -33,7 +32,7 @@ public:
     static SkSpriteBlitter* ChooseD32(const SkPixmap& source, const SkPaint&, SkTBlitterAllocator*);
 
 protected:
-    const SkBitmap* fDevice;
+    SkPixmap        fDst;
     const SkPixmap  fSource;
     int             fLeft, fTop;
     const SkPaint*  fPaint;

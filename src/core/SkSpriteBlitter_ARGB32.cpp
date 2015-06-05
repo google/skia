@@ -36,9 +36,9 @@ public:
 
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(width > 0 && height > 0);
-        uint32_t* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        uint32_t* SK_RESTRICT dst = fDst.writable_addr32(x, y);
         const uint32_t* SK_RESTRICT src = fSource.addr32(x - fLeft, y - fTop);
-        size_t dstRB = fDevice->rowBytes();
+        size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
         SkBlitRow::Proc32 proc = fProc32;
         U8CPU             alpha = fAlpha;
@@ -89,10 +89,10 @@ public:
         SkSafeUnref(fColorFilter);
     }
 
-    void setup(const SkBitmap& device, int left, int top, const SkPaint& paint) override {
-        this->INHERITED::setup(device, left, top, paint);
+    void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {
+        this->INHERITED::setup(dst, left, top, paint);
 
-        int width = device.width();
+        int width = dst.width();
         if (width > fBufferSize) {
             fBufferSize = width;
             delete[] fBuffer;
@@ -121,9 +121,9 @@ public:
 
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(width > 0 && height > 0);
-        uint32_t* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        uint32_t* SK_RESTRICT dst = fDst.writable_addr32(x, y);
         const uint32_t* SK_RESTRICT src = fSource.addr32(x - fLeft, y - fTop);
-        size_t dstRB = fDevice->rowBytes();
+        size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
         SkColorFilter* colorFilter = fColorFilter;
         SkXfermode* xfermode = fXfermode;
@@ -167,9 +167,9 @@ public:
 
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(width > 0 && height > 0);
-        SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        SkPMColor* SK_RESTRICT dst = fDst.writable_addr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource.addr16(x - fLeft, y - fTop);
-        size_t dstRB = fDevice->rowBytes();
+        size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
         SkPMColor* SK_RESTRICT buffer = fBuffer;
         SkColorFilter* colorFilter = fColorFilter;
@@ -213,9 +213,9 @@ public:
 
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(width > 0 && height > 0);
-        SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        SkPMColor* SK_RESTRICT dst = fDst.writable_addr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource.addr16(x - fLeft, y - fTop);
-        size_t dstRB = fDevice->rowBytes();
+        size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
 
         do {
@@ -241,9 +241,9 @@ public:
 
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(width > 0 && height > 0);
-        SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        SkPMColor* SK_RESTRICT dst = fDst.writable_addr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource.addr16(x - fLeft, y - fTop);
-        size_t dstRB = fDevice->rowBytes();
+        size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
 
         do {

@@ -1388,6 +1388,16 @@ bool SkBitmap::requestLock(SkAutoPixmapUnlock* result) const {
     return false;
 }
 
+bool SkBitmap::peekPixels(SkPixmap* pmap) const {
+    if (fPixels) {
+        if (pmap) {
+            pmap->reset(fInfo, fPixels, fRowBytes, fColorTable);
+        }
+        return true;
+    }
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG

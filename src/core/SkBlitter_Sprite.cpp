@@ -10,8 +10,8 @@
 
 SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source) : fSource(source) {}
 
-void SkSpriteBlitter::setup(const SkBitmap& device, int left, int top, const SkPaint& paint) {
-    fDevice = &device;
+void SkSpriteBlitter::setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) {
+    fDst = dst;
     fLeft = left;
     fTop = top;
     fPaint = &paint;
@@ -40,7 +40,7 @@ void SkSpriteBlitter::blitMask(const SkMask&, const SkIRect& clip) {
 
 // returning null means the caller will call SkBlitter::Choose() and
 // have wrapped the source bitmap inside a shader
-SkBlitter* SkBlitter::ChooseSprite(const SkBitmap& device, const SkPaint& paint,
+SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
         const SkPixmap& source, int left, int top, SkTBlitterAllocator* allocator) {
     /*  We currently ignore antialiasing and filtertype, meaning we will take our
         special blitters regardless of these settings. Ignoring filtertype seems fine
@@ -55,7 +55,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkBitmap& device, const SkPaint& paint,
 
     SkSpriteBlitter* blitter;
 
-    switch (device.colorType()) {
+    switch (dst.colorType()) {
         case kRGB_565_SkColorType:
             blitter = SkSpriteBlitter::ChooseD16(source, paint, allocator);
             break;
@@ -68,7 +68,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkBitmap& device, const SkPaint& paint,
     }
 
     if (blitter) {
-        blitter->setup(device, left, top, paint);
+        blitter->setup(dst, left, top, paint);
     }
     return blitter;
 }

@@ -654,6 +654,17 @@ public:
     bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator,
                       SkIPoint* offset) const;
 
+    /**
+     *  If the pixels are available from this bitmap (w/o locking) return true, and fill out the
+     *  specified pixmap (if not null). If the pixels are not available (either because there are
+     *  none, or becuase accessing them would require locking or other machinary) return false and
+     *  ignore the pixmap parameter.
+     *
+     *  Note: if this returns true, the results (in the pixmap) are only valid until the bitmap
+     *  is changed in anyway, in which case the results are invalid.
+     */
+    bool peekPixels(SkPixmap*) const;
+
     SkDEBUGCODE(void validate() const;)
 
     class Allocator : public SkRefCnt {

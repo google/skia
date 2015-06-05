@@ -15,12 +15,12 @@ public:
         SkASSERT(width > 0 && height > 0);
         int srcX = x - fLeft;
         int srcY = y - fTop;
-        SkSPRITE_DST_TYPE* SK_RESTRICT dst =fDevice->SkSPRITE_DST_GETADDR(x, y);
+        SkSPRITE_DST_TYPE* SK_RESTRICT dst =fDst.SkSPRITE_DST_GETADDR(x, y);
         const SkSPRITE_SRC_TYPE* SK_RESTRICT src = fSource.SkSPRITE_SRC_GETADDR(srcX, srcY);
-        size_t dstRB = fDevice->rowBytes();
+        size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
 
-        SkDEBUGCODE((void)fDevice->SkSPRITE_DST_GETADDR(x + width - 1, y + height - 1);)
+        SkDEBUGCODE((void)fDst.SkSPRITE_DST_GETADDR(x + width - 1, y + height - 1);)
         SkDEBUGCODE((void)fSource.SkSPRITE_SRC_GETADDR(srcX + width  - 1, srcY + height - 1);)
 
         SkSPRITE_PREAMBLE(fSource, srcX, srcY);
