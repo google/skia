@@ -11,6 +11,7 @@
 #include "SkImageInfo.h"
 
 class SkColorTable;
+struct SkMask;
 
 /**
  *  Pairs SkImageInfo with actual pixels and rowbytes. This class does not try to manage the
@@ -36,6 +37,23 @@ public:
     void reset();
     void reset(const SkImageInfo& info, const void* addr, size_t rowBytes,
                SkColorTable* ctable = NULL);
+    void reset(const SkImageInfo& info) {
+        this->reset(info, NULL, 0, NULL);
+    }
+
+    /**
+     *  If supported, set this pixmap to point to the pixels in the specified mask and return true.
+     *  On failure, return false and set this pixmap to empty.
+     */
+    bool SK_WARN_UNUSED_RESULT reset(const SkMask&);
+
+    /**
+     *  Computes the intersection of area and this pixmap. If that intersection is non-empty,
+     *  set subset to that intersection and return true.
+     *
+     *  On failure, return false and ignore the subset parameter.
+     */
+    bool SK_WARN_UNUSED_RESULT extractSubset(SkPixmap* subset, const SkIRect& area) const;
 
     const SkImageInfo& info() const { return fInfo; }
     size_t rowBytes() const { return fRowBytes; }
@@ -120,6 +138,35 @@ private:
     SkColorTable*   fCTable;
     size_t          fRowBytes;
     SkImageInfo     fInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkAutoPixmapStorage : public SkPixmap {
+public:
+    SkAutoPixmapStorage();
+    ~SkAutoPixmapStorage();
+
+    /**
+     *  Try to allocate memory for the pixels needed to match the specified Info. On success
+     *  return true and fill out the pixmap to point to that memory. The storage will be freed
+     *  when this object is destroyed, or if another call to tryAlloc() or alloc() is made.
+     *
+     *  On failure, return false and reset() the pixmap to empty.
+     */
+    bool tryAlloc(const SkImageInfo&);
+
+    /**
+     *  Allocate memory for the pixels needed to match the specified Info and fill out the pixmap
+     *  to point to that memory. The storage will be freed when this object is destroyed,
+     *  or if another call to tryAlloc() or alloc() is made.
+     *
+     *  If the memory cannot be allocated, calls sk_throw().
+     */
+    void alloc(const SkImageInfo&);
+
+private:
+    void*   fStorage;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////
