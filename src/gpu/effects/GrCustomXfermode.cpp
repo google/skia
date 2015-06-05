@@ -51,6 +51,16 @@ static GrBlendEquation hw_blend_equation(SkXfermode::Mode mode) {
     GR_STATIC_ASSERT(kGrBlendEquationCnt == SkXfermode::kLastMode + 1 + kOffset);
 }
 
+static bool can_use_hw_blend_equation(const GrProcOptInfo& coveragePOI, const GrCaps& caps) {
+    if (!caps.advancedBlendEquationSupport()) {
+        return false;
+    }
+    if (coveragePOI.isFourChannelOutput()) {
+        return false; // LCD coverage must be applied after the blend equation.
+    }
+    return true;
+}
+
 static void hard_light(GrGLFragmentBuilder* fsBuilder,
                        const char* final,
                        const char* src,
@@ -508,16 +518,18 @@ GrFragmentProcessor* GrCustomXferFP::TestCreate(SkRandom* rand,
 
 class CustomXP : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(SkXfermode::Mode mode, const DstTexture* dstTexture,
-                                   bool willReadDstColor) {
-        if (!GrCustomXfermode::IsSupportedMode(mode)) {
-            return NULL;
-        } else {
-            return SkNEW_ARGS(CustomXP, (mode, dstTexture, willReadDstColor));
-        }
+    CustomXP(SkXfermode::Mode mode, GrBlendEquation hwBlendEquation)
+        : fMode(mode),
+          fHWBlendEquation(hwBlendEquation) {
+        this->initClassID<CustomXP>();
     }
 
-    ~CustomXP() override {};
+    CustomXP(SkXfermode::Mode mode, const DstTexture* dstTexture)
+        : INHERITED(dstTexture, true),
+          fMode(mode),
+          fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
+        this->initClassID<CustomXP>();
+    }
 
     const char* name() const override { return "Custom Xfermode"; }
 
@@ -534,8 +546,6 @@ public:
     }
 
 private:
-    CustomXP(SkXfermode::Mode mode, const DstTexture*, bool willReadDstColor);
-
     GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                  const GrProcOptInfo& coveragePOI,
                                                  bool doesStencilWrite,
@@ -552,8 +562,8 @@ private:
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override;
 
-    SkXfermode::Mode fMode;
-    GrBlendEquation  fHWBlendEquation;
+    const SkXfermode::Mode fMode;
+    const GrBlendEquation  fHWBlendEquation;
 
     typedef GrXferProcessor INHERITED;
 };
@@ -625,13 +635,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-CustomXP::CustomXP(SkXfermode::Mode mode, const DstTexture* dstTexture, bool willReadDstColor)
-    : INHERITED(dstTexture, willReadDstColor),
-      fMode(mode),
-      fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
-    this->initClassID<CustomXP>();
-}
 
 void CustomXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXP::GenKey(*this, caps, b);
@@ -755,10 +758,6 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrProcOptInfo& colo
     if (coveragePOI.isSolidWhite()) {
         flags |= kIgnoreCoverage_OptFlag;
     }
-    if (caps.advancedBlendEquationSupport() && !coveragePOI.isFourChannelOutput()) {
-        // This blend mode can be implemented in hardware.
-        fHWBlendEquation = hw_blend_equation(fMode);
-    }
     return flags;
 }
 
@@ -781,7 +780,9 @@ void CustomXP::onGetBlendInfo(BlendInfo* blendInfo) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrCustomXPFactory::GrCustomXPFactory(SkXfermode::Mode mode)
-    : fMode(mode) {
+    : fMode(mode),
+      fHWBlendEquation(hw_blend_equation(mode)) {
+    SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     this->initClassID<GrCustomXPFactory>();
 }
 
@@ -790,21 +791,17 @@ GrCustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                          const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI,
                                          const DstTexture* dstTexture) const {
-    return CustomXP::Create(fMode, dstTexture, this->willReadDstColor(caps, colorPOI, coveragePOI));
+    if (can_use_hw_blend_equation(coveragePOI, caps)) {
+        SkASSERT(!dstTexture || !dstTexture->texture());
+        return SkNEW_ARGS(CustomXP, (fMode, fHWBlendEquation));
+    }
+    return SkNEW_ARGS(CustomXP, (fMode, dstTexture));
 }
 
 bool GrCustomXPFactory::willReadDstColor(const GrCaps& caps,
                                          const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI) const {
-    if (!caps.advancedBlendEquationSupport()) {
-        // No hardware support for advanced blend equations; we will need to do it in the shader.
-        return true;
-    }
-    if (coveragePOI.isFourChannelOutput()) {
-        // Advanced blend equations can't tweak alpha for RGB coverage.
-        return true;
-    }
-    return false;
+    return !can_use_hw_blend_equation(coveragePOI, caps);
 }
 
 void GrCustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,

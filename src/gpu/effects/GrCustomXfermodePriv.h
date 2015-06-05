@@ -85,6 +85,7 @@ private:
     GR_DECLARE_XP_FACTORY_TEST;
 
     SkXfermode::Mode fMode;
+    GrBlendEquation  fHWBlendEquation;
 
     typedef GrXPFactory INHERITED;
 };
