@@ -82,7 +82,22 @@ public:
 
     bool writePixels(const SkImageInfo&, const void*, size_t rowBytes, int x, int y);
 
+    /**
+     *  Try to get write-access to the pixels behind the device. If successful, this returns true
+     *  and fills-out the pixmap parameter. On success it also bumps the genID of the underlying
+     *  bitmap.
+     *
+     *  On failure, returns false and ignores the pixmap parameter.
+     */
     bool accessPixels(SkPixmap* pmap);
+
+    /**
+     *  Try to get read-only-access to the pixels behind the device. If successful, this returns
+     *  true and fills-out the pixmap parameter.
+     *
+     *  On failure, returns false and ignores the pixmap parameter.
+     */
+    bool peekPixels(SkPixmap*);
 
     /**
      * Return the device's associated gpu render target, or NULL.
@@ -241,7 +256,6 @@ protected:
                                 const SkMatrix*, const SkPaint&);
 
     bool readPixels(const SkImageInfo&, void* dst, size_t rowBytes, int x, int y);
-    bool peekPixels(SkPixmap*);
 
     ///////////////////////////////////////////////////////////////////////////
 

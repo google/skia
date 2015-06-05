@@ -126,7 +126,11 @@ const SkBitmap& SkBitmapDevice::onAccessBitmap() {
 }
 
 bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
-    return fBitmap.lockPixelsAreWritable() && this->onPeekPixels(pmap);
+    if (fBitmap.lockPixelsAreWritable() && this->onPeekPixels(pmap)) {
+        fBitmap.notifyPixelsChanged();
+        return true;
+    }
+    return false;
 }
 
 bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
