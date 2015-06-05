@@ -153,6 +153,22 @@ static void test_fontstream(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_symbolfont(skiatest::Reporter* reporter) {
+    SkAutoTUnref<SkTypeface> typeface(GetResourceAsTypeface("/fonts/SpiderSymbol.ttf"));
+    if (!typeface) {
+        SkDebugf("Skipping FontHostTest::test_symbolfont\n");
+        return;
+    }
+
+    SkUnichar c = 0xf021;
+    uint16_t g;
+    SkPaint paint;
+    paint.setTypeface(typeface);
+    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+    paint.textToGlyphs(&c, 4, &g);
+    REPORTER_ASSERT(reporter, g == 3);
+}
+
 static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
     if (false) { // avoid bit rot, suppress warning
         SkFontID fontID = face->uniqueID();
@@ -295,6 +311,7 @@ DEF_TEST(FontHost, reporter) {
     test_tables(reporter);
     test_fontstream(reporter);
     test_advances(reporter);
+    test_symbolfont(reporter);
 }
 
 // need tests for SkStrSearch

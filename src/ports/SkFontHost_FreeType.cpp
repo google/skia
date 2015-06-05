@@ -352,6 +352,16 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
 
     ft_face_setup_axes(rec->fFace, *data);
 
+    // FreeType will set the charmap to the "most unicode" cmap if it exists.
+    // If there are no unicode cmaps, the charmap is set to NULL.
+    // However, "symbol" cmaps should also be considered "fallback unicode" cmaps
+    // because they are effectively private use area only (even if they aren't).
+    // This is the last on the fallback list at
+    // https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6cmap.html
+    if (!rec->fFace->charmap) {
+        FT_Select_Charmap(rec->fFace, FT_ENCODING_MS_SYMBOL);
+    }
+
     rec->fNext = gFaceRecHead;
     gFaceRecHead = rec;
     return rec;
@@ -446,51 +456,14 @@ static bool getWidthAdvance(FT_Face face, int gId, int16_t* data) {
 }
 
 static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyphToUnicode) {
-    // Check and see if we have Unicode cmaps.
-    for (int i = 0; i < face->num_charmaps; ++i) {
-        // CMaps known to support Unicode:
-        // Platform ID   Encoding ID   Name
-        // -----------   -----------   -----------------------------------
-        // 0             0,1           Apple Unicode
-        // 0             3             Apple Unicode 2.0 (preferred)
-        // 3             1             Microsoft Unicode UCS-2
-        // 3             10            Microsoft Unicode UCS-4 (preferred)
-        //
-        // See Apple TrueType Reference Manual
-        // http://developer.apple.com/fonts/TTRefMan/RM06/Chap6cmap.html
-        // http://developer.apple.com/fonts/TTRefMan/RM06/Chap6name.html#ID
-        // Microsoft OpenType Specification
-        // http://www.microsoft.com/typography/otspec/cmap.htm
+    glyphToUnicode->setCount(face->num_glyphs);
+    sk_bzero(glyphToUnicode->begin(), sizeof((*glyphToUnicode)[0]) * face->num_glyphs);
 
-        FT_UShort platformId = face->charmaps[i]->platform_id;
-        FT_UShort encodingId = face->charmaps[i]->encoding_id;
-
-        if (platformId != 0 && platformId != 3) {
-            continue;
-        }
-        if (platformId == 3 && encodingId != 1 && encodingId != 10) {
-            continue;
-        }
-        bool preferredMap = ((platformId == 3 && encodingId == 10) ||
-                             (platformId == 0 && encodingId == 3));
-
-        FT_Set_Charmap(face, face->charmaps[i]);
-        if (glyphToUnicode->isEmpty()) {
-            glyphToUnicode->setCount(face->num_glyphs);
-            memset(glyphToUnicode->begin(), 0,
-                   sizeof(SkUnichar) * face->num_glyphs);
-        }
-
-        // Iterate through each cmap entry.
-        FT_UInt glyphIndex;
-        for (SkUnichar charCode = FT_Get_First_Char(face, &glyphIndex);
-             glyphIndex != 0;
-             charCode = FT_Get_Next_Char(face, charCode, &glyphIndex)) {
-            if (charCode &&
-                    ((*glyphToUnicode)[glyphIndex] == 0 || preferredMap)) {
-                (*glyphToUnicode)[glyphIndex] = charCode;
-            }
-        }
+    FT_UInt glyphIndex;
+    SkUnichar charCode = FT_Get_First_Char(face, &glyphIndex);
+    while (glyphIndex) {
+        (*glyphToUnicode)[glyphIndex] = charCode;
+        charCode = FT_Get_Next_Char(face, charCode, &glyphIndex);
     }
 }
 
@@ -1507,7 +1480,8 @@ static EncodingProc find_encoding_proc(SkTypeface::Encoding enc) {
 }
 
 int SkTypeface_FreeType::onCharsToGlyphs(const void* chars, Encoding encoding,
-                                      uint16_t glyphs[], int glyphCount) const {
+                                         uint16_t glyphs[], int glyphCount) const
+{
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
