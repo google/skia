@@ -33,7 +33,6 @@
 #include "SkPathMeasure.h"
 #include "SkPicture.h"
 #include "SkRandom.h"
-#include "SkTransparentShader.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
@@ -376,7 +375,6 @@ protected:
             radialRadius, radialColors, radialPos, radialCount,
             radialMode);
 
-        SkTransparentShader* transparentShader = new SkTransparentShader();
         SkEmbossMaskFilter::Light light;
         light.fDirection[0] = SK_Scalar1/2;
         light.fDirection[1] = SK_Scalar1/2;
@@ -428,7 +426,7 @@ protected:
         paint.setMaskFilter(embossFilter)->unref();
         canvas->drawOval(rect, paint);
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
-        paint.setShader(transparentShader)->unref();
+//        paint.setShader(transparentShader)->unref();
         canvas->drawOval(rect, paint);
         canvas->translate(0, SkIntToScalar(-10));
 

@@ -20,7 +20,6 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTime.h"
-#include "SkTransparentShader.h"
 #include "SkTypeface.h"
 
 static SkShader* make_bitmapfade(const SkBitmap& bm)
@@ -116,13 +115,9 @@ protected:
         canvas->drawRect(r, paint);
         paint.setShader(make_bitmapfade(fBitmap))->unref();
         canvas->drawRect(r, paint);
-
-        paint.setShader(new SkTransparentShader)->unref();
-        canvas->drawRect(r, paint);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) override {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }

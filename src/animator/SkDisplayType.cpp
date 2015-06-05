@@ -42,7 +42,6 @@
 #include "SkDrawText.h"
 #include "SkDrawTextBox.h"
 #include "SkDrawTo.h"
-#include "SkDrawTransparentShader.h"
 #include "SkDump.h"
 #include "SkExtras.h"
 #include "SkHitClear.h"
@@ -196,7 +195,6 @@ SkDisplayable* SkDisplayType::CreateInstance(SkAnimateMaker* maker, SkDisplayTyp
         CASE_NEW(TextToPath);
         CASE_DEBUG_RETURN_NIL(TileMode);
         CASE_NEW(Translate);
-        CASE_DRAW_NEW(TransparentShader);
         CASE_DRAW_NEW(Typeface);
         CASE_DEBUG_RETURN_NIL(Xfermode);
         default:
@@ -351,7 +349,6 @@ const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
         CASE_GET_INFO(TextToPath);
         // tilemode
         CASE_GET_INFO(Translate);
-        // transparentshader
         CASE_GET_DRAW_INFO(Typeface);
         // xfermode
         // knumberoftypes
@@ -518,7 +515,6 @@ const TypeNames gTypeNames[] = {
     { "textToPath", SkType_TextToPath           INIT_BOOL_FIELDS },
     // tilemode
     { "translate", SkType_Translate             INIT_BOOL_FIELDS },
-    DRAW_NAME("transparentShader", SkType_TransparentShader),
     { "typeface", SkType_Typeface               INIT_BOOL_FIELDS }
     // xfermode
     // knumberoftypes
@@ -679,7 +675,6 @@ bool SkDisplayType::IsDisplayable(SkAnimateMaker* , SkDisplayTypes type) {
         case SkType_TextOnPath:
         case SkType_TextToPath:
         case SkType_Translate:
-        case SkType_TransparentShader:
             return true;
         default:    // to avoid warnings
             break;

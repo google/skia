@@ -864,7 +864,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
      */
     SkShader::Context* shaderContext = NULL;
     if (shader) {
-        SkShader::ContextRec rec(device, *paint, matrix);
+        SkShader::ContextRec rec(*paint, matrix, NULL);
         size_t contextSize = shader->contextSize();
         if (contextSize) {
             // Try to create the ShaderContext
@@ -930,11 +930,11 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkTransparentShaderContext : public SkShader::Context {
+class SkZeroShaderContext : public SkShader::Context {
 public:
-    SkTransparentShaderContext(const SkShader& shader, const SkShader::ContextRec& rec)
+    SkZeroShaderContext(const SkShader& shader, const SkShader::ContextRec& rec)
         // Override rec with the identity matrix, so it is guaranteed to be invertible.
-        : INHERITED(shader, SkShader::ContextRec(*rec.fDevice, *rec.fPaint, SkMatrix::I())) {}
+        : INHERITED(shader, SkShader::ContextRec(*rec.fPaint, SkMatrix::I(), NULL)) {}
 
     void shadeSpan(int x, int y, SkPMColor colors[], int count) override {
         sk_bzero(colors, count * sizeof(SkPMColor));
@@ -971,7 +971,7 @@ bool SkShaderBlitter::resetShaderContext(const SkShader::ContextRec& rec) {
     if (NULL == ctx) {
         // Need a valid context in fShaderContext's storage, so we can later (or our caller) call
         // the in-place destructor.
-        SkNEW_PLACEMENT_ARGS(fShaderContext, SkTransparentShaderContext, (*fShader, rec));
+        SkNEW_PLACEMENT_ARGS(fShaderContext, SkZeroShaderContext, (*fShader, rec));
         return false;
     }
     return true;

@@ -60,7 +60,6 @@
     '<(skia_src_path)/effects/SkTableMaskFilter.cpp',
     '<(skia_src_path)/effects/SkTestImageFilters.cpp',
     '<(skia_src_path)/effects/SkTileImageFilter.cpp',
-    '<(skia_src_path)/effects/SkTransparentShader.cpp',
     '<(skia_src_path)/effects/SkXfermodeImageFilter.cpp',
 
     '<(skia_src_path)/effects/gradients/SkClampRange.cpp',
@@ -116,7 +115,6 @@
     '<(skia_include_path)/effects/SkTableColorFilter.h',
     '<(skia_include_path)/effects/SkTableMaskFilter.h',
     '<(skia_include_path)/effects/SkTileImageFilter.h',
-    '<(skia_include_path)/effects/SkTransparentShader.h',
     '<(skia_include_path)/effects/SkMagnifierImageFilter.h',
   ],
 }
