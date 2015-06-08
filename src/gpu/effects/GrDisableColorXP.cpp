@@ -27,8 +27,6 @@ public:
 
     GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const override { return false; }
-
 private:
     DisableColorXP();
 
@@ -62,7 +60,7 @@ public:
     static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
 private:
-    void onEmitCode(const EmitArgs& args) override {
+    void emitOutputsForBlendState(const EmitArgs& args) override {
         // This emit code should be empty. However, on the nexus 6 there is a driver bug where if
         // you do not give gl_FragColor a value, the gl context is lost and we end up drawing
         // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.

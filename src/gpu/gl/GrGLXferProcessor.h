@@ -59,7 +59,24 @@ public:
     void setData(const GrGLProgramDataManager& pdm, const GrXferProcessor& xp);
 
 private:
-    virtual void onEmitCode(const EmitArgs&) = 0;
+    /**
+     * Called by emitCode() when the XP will not be performing a dst read. This method is
+     * responsible for both blending and coverage. A subclass only needs to implement this method if
+     * it can construct a GrXferProcessor that will not read the dst color.
+     */
+    virtual void emitOutputsForBlendState(const EmitArgs&) {
+        SkFAIL("emitOutputsForBlendState not implemented.");
+    }
+
+    /**
+     * Called by emitCode() when the XP will perform a dst read. This method only needs to supply
+     * the blending logic. The base class applies coverage. A subclass only needs to implement this
+     * method if it can construct a GrXferProcessor that reads the dst color.
+     */
+    virtual void emitBlendCodeForDstRead(GrGLXPBuilder*, const char* srcColor, const char* dstColor,
+                                         const char* outColor, const GrXferProcessor&) {
+        SkFAIL("emitBlendCodeForDstRead not implemented.");
+    }
 
     virtual void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) = 0;
 

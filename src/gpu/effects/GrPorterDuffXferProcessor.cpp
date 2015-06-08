@@ -306,7 +306,6 @@ public:
     }
 
     const char* name() const override { return "Porter Duff"; }
-    bool hasSecondaryOutput() const override { return fBlendFormula.hasSecondaryOutput(); }
 
     GrGLXferProcessor* createGLInstance() const override;
 
@@ -324,6 +323,8 @@ private:
                                                  const GrCaps& caps) override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+
+    bool onHasSecondaryOutput() const override { return fBlendFormula.hasSecondaryOutput(); }
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         blendInfo->fEquation = fBlendFormula.fBlendEquation;
@@ -393,7 +394,7 @@ public:
     };
 
 private:
-    void onEmitCode(const EmitArgs& args) override {
+    void emitOutputsForBlendState(const EmitArgs& args) override {
         const PorterDuffXferProcessor& xp = args.fXP.cast<PorterDuffXferProcessor>();
         GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
@@ -459,7 +460,6 @@ public:
     }
 
     const char* name() const override { return "Porter Duff Shader"; }
-    bool hasSecondaryOutput() const override { return false; }
 
     GrGLXferProcessor* createGLInstance() const override;
 
@@ -543,29 +543,22 @@ public:
     }
 
 private:
-    void onEmitCode(const EmitArgs& args) override {
-        const ShaderPDXferProcessor& xp = args.fXP.cast<ShaderPDXferProcessor>();
-        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    void emitBlendCodeForDstRead(GrGLXPBuilder* pb, const char* srcColor, const char* dstColor,
+                                 const char* outColor, const GrXferProcessor& proc) override {
+        const ShaderPDXferProcessor& xp = proc.cast<ShaderPDXferProcessor>();
+        GrGLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
 
         SkXfermode::Coeff srcCoeff, dstCoeff;
         SkXfermode::ModeAsCoeff(xp.getXfermode(), &srcCoeff, &dstCoeff);
 
-        const char* dstColor = fsBuilder->dstColor();
-
-        fsBuilder->codeAppend("vec4 colorBlend =");
+        fsBuilder->codeAppendf("%s =", outColor);
         // append src blend
-        bool didAppend = append_porterduff_term(fsBuilder, srcCoeff,
-                                                args.fInputColor, args.fInputColor,
-                                                dstColor, false);
+        bool didAppend = append_porterduff_term(fsBuilder, srcCoeff, srcColor, srcColor, dstColor,
+                                                false);
         // append dst blend
-        SkAssertResult(append_porterduff_term(fsBuilder, dstCoeff,
-                                              dstColor, args.fInputColor,
-                                              dstColor, didAppend));
+        SkAssertResult(append_porterduff_term(fsBuilder, dstCoeff, dstColor, srcColor, dstColor,
+                                              didAppend));
         fsBuilder->codeAppend(";");
-
-        fsBuilder->codeAppendf("%s = %s * colorBlend + (vec4(1.0) - %s) * %s;",
-                               args.fOutputPrimary, args.fInputCoverage, args.fInputCoverage,
-                               dstColor);
     }
 
     void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
@@ -595,8 +588,6 @@ public:
     const char* name() const override { return "Porter Duff LCD"; }
 
     GrGLXferProcessor* createGLInstance() const override;
-
-    bool hasSecondaryOutput() const override { return false; }
 
 private:
     PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha);
@@ -642,7 +633,7 @@ public:
                        GrProcessorKeyBuilder* b) {}
 
 private:
-    void onEmitCode(const EmitArgs& args) override {
+    void emitOutputsForBlendState(const EmitArgs& args) override {
         GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,

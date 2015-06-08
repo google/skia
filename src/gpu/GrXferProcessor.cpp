@@ -6,6 +6,7 @@
  */
 
 #include "GrXferProcessor.h"
+#include "GrProcOptInfo.h"
 #include "gl/GrGLCaps.h"
 
 GrXferProcessor::GrXferProcessor()
@@ -17,6 +18,7 @@ GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture, bool willReadDstC
     , fReadsCoverage(true)
     , fDstTextureOffset() {
     if (dstTexture && dstTexture->texture()) {
+        SkASSERT(willReadDstColor);
         fDstTexture.reset(dstTexture->texture());
         fDstTextureOffset = dstTexture->offset();
         this->addTextureAccess(&fDstTexture);
@@ -35,17 +37,45 @@ GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(const GrProcOptInfo&
                                                                overrideColor,
                                                                caps);
 
+    if (this->willReadDstColor()) {
+        // When performing a dst read we handle coverage in the base class.
+        SkASSERT(!(flags & GrXferProcessor::kIgnoreCoverage_OptFlag));
+        if (coveragePOI.isSolidWhite()) {
+            flags |= GrXferProcessor::kIgnoreCoverage_OptFlag;
+        }
+    }
     if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
         fReadsCoverage = false;
     }
     return flags;
 }
 
+bool GrXferProcessor::hasSecondaryOutput() const {
+    if (!this->willReadDstColor()) {
+        return this->onHasSecondaryOutput();
+    }
+    return false;
+}
+
+void GrXferProcessor::getBlendInfo(BlendInfo* blendInfo) const {
+    blendInfo->reset();
+    if (!this->willReadDstColor()) {
+        this->onGetBlendInfo(blendInfo);
+    }
+}
+
 void GrXferProcessor::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     uint32_t key = this->willReadDstColor() ? 0x1 : 0x0;
-    if (this->getDstTexture() &&
-        kTopLeft_GrSurfaceOrigin == this->getDstTexture()->origin()) {
-        key |= 0x2;
+    if (key) {
+        if (this->getDstTexture()) {
+            key |= 0x2;
+        }
+        if (kTopLeft_GrSurfaceOrigin == this->getDstTexture()->origin()) {
+            key |= 0x4;
+        }
+        if (this->readsCoverage()) {
+            key |= 0x8;
+        }
     }
     b->add32(key);
     this->onGetGLProcessorKey(caps, b);

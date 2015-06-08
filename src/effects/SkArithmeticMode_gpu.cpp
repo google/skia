@@ -172,8 +172,6 @@ public:
 
     GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const override { return false; }
-
     float k1() const { return fK1; }
     float k2() const { return fK2; }
     float k3() const { return fK3; }
@@ -228,22 +226,16 @@ public:
     }
 
 private:
-    void onEmitCode(const EmitArgs& args) override {
-        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    void emitBlendCodeForDstRead(GrGLXPBuilder* pb, const char* srcColor, const char* dstColor,
+                                 const char* outColor, const GrXferProcessor& proc) override {
+        GrGLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
 
-        const char* dstColor = fsBuilder->dstColor();
+        fKUni = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                               kVec4f_GrSLType, kDefault_GrSLPrecision,
+                               "k");
+        const char* kUni = pb->getUniformCStr(fKUni);
 
-        fKUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                     kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                     "k");
-        const char* kUni = args.fPB->getUniformCStr(fKUni);
-
-        add_arithmetic_code(fsBuilder, args.fInputColor, dstColor, args.fOutputPrimary, kUni, 
-                            fEnforcePMColor);
-
-        fsBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
-                               args.fOutputPrimary, args.fOutputPrimary, args.fInputCoverage,
-                               args.fInputCoverage, dstColor);
+        add_arithmetic_code(fsBuilder, srcColor, dstColor, outColor, kUni, fEnforcePMColor);
     }
 
     void onSetData(const GrGLProgramDataManager& pdman,

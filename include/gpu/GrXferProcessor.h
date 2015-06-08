@@ -90,13 +90,16 @@ enum GrXferBarrierType {
 
 /**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
- * color. It does this by emitting fragment shader code and controlling the fixed-function blend
- * state. The inputs to its shader code are the final computed src color and fractional pixel
- * coverage. The GrXferProcessor's shader code writes the fragment shader output color that goes
- * into the fixed-function blend. When dual-source blending is available, it may also write a
- * seconday fragment shader output color. When allowed by the backend API, the GrXferProcessor may
- * read the destination color. The GrXferProcessor is responsible for setting the blend coefficients
- * and blend constant color.
+ * color, and for applying any coverage. It does this by emitting fragment shader code and
+ * controlling the fixed-function blend state. When dual-source blending is available, it may also
+ * write a seconday fragment shader output color. GrXferProcessor has two modes of operation:
+ *
+ * Dst read: When allowed by the backend API, or when supplied a texture of the destination, the
+ * GrXferProcessor may read the destination color. While operating in this mode, the subclass only
+ * provides shader code that blends the src and dst colors, and the base class applies coverage.
+ *
+ * No dst read: When not performing a dst read, the subclass is given full control of the fixed-
+ * function blend state and/or secondary output, and is responsible to apply coverage on its own.
  *
  * A GrXferProcessor is never installed directly into our draw state, but instead is created from a
  * GrXPFactory once we have finalized the state of our draw.
@@ -228,10 +231,7 @@ public:
         bool            fWriteColor;
     };
 
-    void getBlendInfo(BlendInfo* blendInfo) const {
-        blendInfo->reset();
-        this->onGetBlendInfo(blendInfo);
-    }
+    void getBlendInfo(BlendInfo* blendInfo) const;
 
     bool willReadDstColor() const { return fWillReadDstColor; }
 
@@ -256,11 +256,11 @@ public:
      */
     bool readsCoverage() const { return fReadsCoverage; }
 
-    /** 
+    /**
      * Returns whether or not this xferProcossor will set a secondary output to be used with dual
      * source blending.
      */
-    virtual bool hasSecondaryOutput() const { return false; }
+    bool hasSecondaryOutput() const;
 
     /** Returns true if this and other processor conservatively draw identically. It can only return
         true when the two processor are of the same subclass (i.e. they return the same object from
@@ -317,9 +317,16 @@ private:
     }
 
     /**
-     * Retrieves the hardware blend state required by this Xfer processor. The BlendInfo struct
-     * comes initialized to default values, so the Xfer processor only needs to set the state it
-     * needs. It may not even need to override this method at all.
+     * If we are not performing a dst read, returns whether the subclass will set a secondary
+     * output. When using dst reads, the base class disables the secondary output and this method
+     * will not be called.
+     */
+    virtual bool onHasSecondaryOutput() const { return false; }
+
+    /**
+     * If we are not performing a dst read, retrieves the fixed-function blend state required by the
+     * subclass. When using dst reads, the base class disables fixed-function blending and this
+     * method will not be called. The BlendInfo struct comes initialized to "no blending".
      */
     virtual void onGetBlendInfo(BlendInfo*) const {}
 

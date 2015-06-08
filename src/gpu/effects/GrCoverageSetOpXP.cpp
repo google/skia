@@ -27,8 +27,6 @@ public:
 
     GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const override { return false; }
-
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
@@ -72,7 +70,7 @@ public:
     };
 
 private:
-    void onEmitCode(const EmitArgs& args) override {
+    void emitOutputsForBlendState(const EmitArgs& args) override {
         const CoverageSetOpXP& xp = args.fXP.cast<CoverageSetOpXP>();
         GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 

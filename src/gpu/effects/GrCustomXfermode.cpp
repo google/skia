@@ -535,8 +535,6 @@ public:
 
     GrGLXferProcessor* createGLInstance() const override;
 
-    bool hasSecondaryOutput() const override { return false; }
-
     SkXfermode::Mode mode() const { return fMode; }
     bool hasHWBlendEquation() const { return -1 != static_cast<int>(fHWBlendEquation); }
 
@@ -587,46 +585,44 @@ public:
 
     static void GenKey(const GrXferProcessor& p, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) {
         const CustomXP& xp = p.cast<CustomXP>();
-        uint32_t key = xp.numTextures();
-        SkASSERT(key <= 1);
-        key |= xp.readsCoverage() << 1;
+        uint32_t key = 0;
         if (xp.hasHWBlendEquation()) {
             SkASSERT(caps.advBlendEqInteraction() > 0);  // 0 will mean !xp.hasHWBlendEquation().
-            key |= caps.advBlendEqInteraction() << 2;
+            key |= caps.advBlendEqInteraction();
+            key |= xp.readsCoverage() << 2;
+            GR_STATIC_ASSERT(GrGLSLCaps::kLast_AdvBlendEqInteraction < 4);
         }
         if (!xp.hasHWBlendEquation() || caps.mustEnableSpecificAdvBlendEqs()) {
-            GR_STATIC_ASSERT(GrGLSLCaps::kLast_AdvBlendEqInteraction < 4);
-            key |= xp.mode() << 4;
+            key |= xp.mode() << 3;
         }
         b->add32(key);
     }
 
 private:
-    void onEmitCode(const EmitArgs& args) override {
+    void emitOutputsForBlendState(const EmitArgs& args) override {
         const CustomXP& xp = args.fXP.cast<CustomXP>();
-        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        SkASSERT(xp.hasHWBlendEquation());
 
-        if (xp.hasHWBlendEquation()) {
-            // The blend mode will be implemented in hardware; only output the src color.
-            fsBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
-            if (xp.readsCoverage()) {
-                // Do coverage modulation by multiplying it into the src color before blending.
-                // (See getOptimizations())
-                fsBuilder->codeAppendf("%s = %s * %s;",
-                                       args.fOutputPrimary, args.fInputCoverage, args.fInputColor);
-            } else {
-                fsBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputColor);
-            }
+        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        fsBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
+
+        // Apply coverage by multiplying it into the src color before blending.
+        // (See onGetOptimizations())
+        if (xp.readsCoverage()) {
+            fsBuilder->codeAppendf("%s = %s * %s;",
+                                   args.fOutputPrimary, args.fInputCoverage, args.fInputColor);
         } else {
-            const char* dstColor = fsBuilder->dstColor();
-            emit_custom_xfermode_code(xp.mode(), fsBuilder, args.fOutputPrimary, args.fInputColor,
-                                      dstColor);
-            if (xp.readsCoverage()) {
-                fsBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
-                                       args.fOutputPrimary, args.fOutputPrimary,
-                                       args.fInputCoverage, args.fInputCoverage, dstColor);
-            }
+            fsBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputColor);
         }
+    }
+
+    void emitBlendCodeForDstRead(GrGLXPBuilder* pb, const char* srcColor, const char* dstColor,
+                                 const char* outColor, const GrXferProcessor& proc) override {
+        const CustomXP& xp = proc.cast<CustomXP>();
+        SkASSERT(!xp.hasHWBlendEquation());
+
+        GrGLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        emit_custom_xfermode_code(xp.mode(), fsBuilder, outColor, srcColor, dstColor);
     }
 
     void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
@@ -755,7 +751,7 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrProcOptInfo& colo
     if (colorPOI.allStagesMultiplyInput()) {
         flags |= kCanTweakAlphaForCoverage_OptFlag;
     }
-    if (coveragePOI.isSolidWhite()) {
+    if (this->hasHWBlendEquation() && coveragePOI.isSolidWhite()) {
         flags |= kIgnoreCoverage_OptFlag;
     }
     return flags;

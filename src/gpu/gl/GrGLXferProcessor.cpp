@@ -12,10 +12,16 @@
 #include "gl/builders/GrGLProgramBuilder.h"
 
 void GrGLXferProcessor::emitCode(const EmitArgs& args) {
+    if (!args.fXP.willReadDstColor()) {
+        this->emitOutputsForBlendState(args);
+        return;
+    }
+
+    GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    const char* dstColor = fsBuilder->dstColor();
+
     if (args.fXP.getDstTexture()) {
         bool topDown = kTopLeft_GrSurfaceOrigin == args.fXP.getDstTexture()->origin();
-
-        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         if (args.fXP.readsCoverage()) {
             // We don't think any shaders actually output negative coverage, but just as a safety
@@ -24,8 +30,6 @@ void GrGLXferProcessor::emitCode(const EmitArgs& args) {
                                    "    discard;"
                                    "}", args.fInputCoverage);
         }
-
-        const char* dstColor = fsBuilder->dstColor();
 
         const char* dstTopLeftName;
         const char* dstCoordScaleName;
@@ -55,7 +59,15 @@ void GrGLXferProcessor::emitCode(const EmitArgs& args) {
         fsBuilder->codeAppend(";");
     }
 
-    this->onEmitCode(args);
+    this->emitBlendCodeForDstRead(args.fPB, args.fInputColor, dstColor, args.fOutputPrimary,
+                                  args.fXP);
+
+    // Apply coverage.
+    if (args.fXP.readsCoverage()) {
+        fsBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
+                               args.fOutputPrimary, args.fInputCoverage,
+                               args.fOutputPrimary, args.fInputCoverage, dstColor);
+    }
 }
 
 void GrGLXferProcessor::setData(const GrGLProgramDataManager& pdm, const GrXferProcessor& xp) {
