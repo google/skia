@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorPriv.h"
 #include "SkConfig8888.h"
 #include "SkMask.h"
 #include "SkPixmap.h"
-#include "SkUtils.h"
 
 void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* ctx) {
     SkASSERT(pm.addr() != NULL);
@@ -107,126 +105,30 @@ bool SkPixmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, 
                                    srcInfo, srcPixels, this->rowBytes(), this->ctable());
 }
 
-static uint16_t pack_8888_to_4444(unsigned a, unsigned r, unsigned g, unsigned b) {
-    unsigned pixel = (SkA32To4444(a) << SK_A4444_SHIFT) |
-    (SkR32To4444(r) << SK_R4444_SHIFT) |
-    (SkG32To4444(g) << SK_G4444_SHIFT) |
-    (SkB32To4444(b) << SK_B4444_SHIFT);
-    return SkToU16(pixel);
-}
-
-bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
-    if (NULL == fPixels) {
-        return false;
-    }
-    SkIRect area;
-    if (!area.intersect(this->bounds(), inArea)) {
-        return false;
-    }
-
-    U8CPU a = SkColorGetA(color);
-    U8CPU r = SkColorGetR(color);
-    U8CPU g = SkColorGetG(color);
-    U8CPU b = SkColorGetB(color);
-
-    int height = area.height();
-    const int width = area.width();
-    const int rowBytes = this->rowBytes();
-    
-    switch (this->colorType()) {
-        case kGray_8_SkColorType: {
-            if (255 != a) {
-                r = SkMulDiv255Round(r, a);
-                g = SkMulDiv255Round(g, a);
-                b = SkMulDiv255Round(b, a);
-            }
-            int gray = SkComputeLuminance(r, g, b);
-            uint8_t* p = this->writable_addr8(area.fLeft, area.fTop);
-            while (--height >= 0) {
-                memset(p, gray, width);
-                p += rowBytes;
-            }
-            break;
-        }
-        case kAlpha_8_SkColorType: {
-            uint8_t* p = this->writable_addr8(area.fLeft, area.fTop);
-            while (--height >= 0) {
-                memset(p, a, width);
-                p += rowBytes;
-            }
-            break;
-        }
-        case kARGB_4444_SkColorType:
-        case kRGB_565_SkColorType: {
-            uint16_t* p = this->writable_addr16(area.fLeft, area.fTop);
-            uint16_t v;
-            
-            // make rgb premultiplied
-            if (255 != a) {
-                r = SkAlphaMul(r, a);
-                g = SkAlphaMul(g, a);
-                b = SkAlphaMul(b, a);
-            }
-            
-            if (kARGB_4444_SkColorType == this->colorType()) {
-                v = pack_8888_to_4444(a, r, g, b);
-            } else {
-                v = SkPackRGB16(r >> (8 - SK_R16_BITS),
-                                g >> (8 - SK_G16_BITS),
-                                b >> (8 - SK_B16_BITS));
-            }
-            while (--height >= 0) {
-                sk_memset16(p, v, width);
-                p = (uint16_t*)((char*)p + rowBytes);
-            }
-            break;
-        }
-        case kBGRA_8888_SkColorType:
-        case kRGBA_8888_SkColorType: {
-            uint32_t* p = this->writable_addr32(area.fLeft, area.fTop);
-            
-            if (255 != a && kPremul_SkAlphaType == this->alphaType()) {
-                r = SkAlphaMul(r, a);
-                g = SkAlphaMul(g, a);
-                b = SkAlphaMul(b, a);
-            }
-            uint32_t v = kRGBA_8888_SkColorType == this->colorType() ?
-            SkPackARGB_as_RGBA(a, r, g, b) : SkPackARGB_as_BGRA(a, r, g, b);
-            
-            while (--height >= 0) {
-                sk_memset32(p, v, width);
-                p = (uint32_t*)((char*)p + rowBytes);
-            }
-            break;
-        }
-        default:
-            return false; // no change, so don't call notifyPixelsChanged()
-    }
-    return true;
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkAutoPixmapStorage::SkAutoPixmapStorage() : fStorage(NULL) {}
 
 SkAutoPixmapStorage::~SkAutoPixmapStorage() {
-    this->freeStorage();
+    sk_free(fStorage);
 }
 
 bool SkAutoPixmapStorage::tryAlloc(const SkImageInfo& info) {
-    this->freeStorage();
+    if (fStorage) {
+        sk_free(fStorage);
+        fStorage = NULL;
+    }
     
     size_t rb = info.minRowBytes();
     size_t size = info.getSafeSize(rb);
     if (0 == size) {
         return false;
     }
-    void* pixels = sk_malloc_flags(size, 0);
-    if (NULL == pixels) {
+    fStorage = sk_malloc_flags(size, 0);
+    if (NULL == fStorage) {
         return false;
     }
-    this->reset(info, pixels, rb);
-    fStorage = pixels;
+    this->reset(info, fStorage, rb);
     return true;
 }
 

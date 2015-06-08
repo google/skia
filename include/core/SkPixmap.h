@@ -133,14 +133,6 @@ public:
         return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), 0, 0);
     }
 
-    /**
-     *  Returns true if pixels were written to (e.g. if colorType is kUnknown_SkColorType, this
-     *  will return false). If subset does not intersect the bounds of this pixmap, returns false.
-     */
-    bool erase(SkColor, const SkIRect& subset) const;
-
-    bool erase(SkColor color) const { return this->erase(color, this->bounds()); }
-
 private:
     const void*     fPixels;
     SkColorTable*   fCTable;
@@ -173,34 +165,8 @@ public:
      */
     void alloc(const SkImageInfo&);
 
-    // We wrap these so we can clear our internal storage
-
-    void reset() {
-        this->freeStorage();
-        this->INHERITED::reset();
-    }
-    void reset(const SkImageInfo& info, const void* addr, size_t rb, SkColorTable* ctable = NULL) {
-        this->freeStorage();
-        this->INHERITED::reset(info, addr, rb, ctable);
-    }
-    void reset(const SkImageInfo& info) {
-        this->freeStorage();
-        this->INHERITED::reset(info);
-    }
-    bool SK_WARN_UNUSED_RESULT reset(const SkMask& mask) {
-        this->freeStorage();
-        return this->INHERITED::reset(mask);
-    }
-
 private:
     void*   fStorage;
-
-    void freeStorage() {
-        sk_free(fStorage);
-        fStorage = NULL;
-    }
-
-    typedef SkPixmap INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////

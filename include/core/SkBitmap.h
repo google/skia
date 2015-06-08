@@ -473,7 +473,10 @@ public:
      *  of the color is ignored (treated as opaque). If the colortype only supports
      *  alpha (e.g. A1 or A8) then the color's r,g,b components are ignored.
      */
-    void eraseColor(SkColor c) const;
+    void eraseColor(SkColor c) const {
+        this->eraseARGB(SkColorGetA(c), SkColorGetR(c), SkColorGetG(c),
+                        SkColorGetB(c));
+    }
 
     /**
      *  Fill the entire bitmap with the specified color.
@@ -481,9 +484,7 @@ public:
      *  of the color is ignored (treated as opaque). If the colortype only supports
      *  alpha (e.g. A1 or A8) then the color's r,g,b components are ignored.
      */
-    void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
-        this->eraseColor(SkColorSetARGB(a, r, g, b));
-    }
+    void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const;
 
     SK_ATTR_DEPRECATED("use eraseARGB or eraseColor")
     void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const {
@@ -496,12 +497,7 @@ public:
      *  of the color is ignored (treated as opaque). If the colortype only supports
      *  alpha (e.g. A1 or A8) then the color's r,g,b components are ignored.
      */
-    void erase(SkColor c, const SkIRect& area) const;
-
-    // DEPRECATED
-    void eraseArea(const SkIRect& area, SkColor c) const {
-        this->erase(c, area);
-    }
+    void eraseArea(const SkIRect& area, SkColor c) const;
 
     /**
      *  Return the SkColor of the specified pixel.  In most cases this will
@@ -740,8 +736,12 @@ private:
     };
 
     SkImageInfo fInfo;
+
     uint32_t    fRowBytes;
+
     uint8_t     fFlags;
+
+    void internalErase(const SkIRect&, U8CPU a, U8CPU r, U8CPU g, U8CPU b)const;
 
     /*  Unreference any pixelrefs or colortables
     */
