@@ -1238,12 +1238,12 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     }
 
     SkAutoDataUnref data(SkData::NewUninitialized(SkToSizeT(ramSize)));
-    char* dst = (char*)data->writable_data();
+    unsigned char* dst = (unsigned char*)data->writable_data();
     buffer->readByteArray(dst, SkToSizeT(snugSize));
 
     if (snugSize != ramSize) {
-        const char* srcRow = dst + snugRB * (height - 1);
-        char* dstRow = dst + ramRB * (height - 1);
+        const unsigned char* srcRow = dst + snugRB * (height - 1);
+        unsigned char* dstRow = dst + ramRB * (height - 1);
         for (int y = height - 1; y >= 1; --y) {
             memmove(dstRow, srcRow, snugRB);
             srcRow -= snugRB;
@@ -1255,6 +1255,11 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     SkAutoTUnref<SkColorTable> ctable;
     if (buffer->readBool()) {
         ctable.reset(SkNEW_ARGS(SkColorTable, (*buffer)));
+
+        unsigned char maxIndex = ctable->count() ? ctable->count()-1 : 0;
+        for (uint64_t i = 0; i < ramSize; ++i) {
+            dst[i] = SkTMin(dst[i], maxIndex);
+        }
     }
 
     SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
