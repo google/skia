@@ -899,26 +899,11 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     // 'positions' which are in text space. The glyph location (in device space) must be
     // mapped into text space, so that CG can convert it back into device space.
     // In 10.10.1, this is handled directly in CTFontDrawGlyphs.
-
+    //
     // However, in 10.10.2 color glyphs no longer rotate based on the font transform.
     // So always make the font transform identity and place the transform on the context.
     point = CGPointApplyAffineTransform(point, context.fInvTransform);
 
-    // Attempt to keep on the stack a hard reference to the font tables.
-    // This is an experiment to see if this affects crbug.com/413332 .
-    // When 10.6 headers are no longer supported, 'sbix' can be replaced with kCTFontTableSbix.
-    AutoCFRelease<CFDataRef> sbix;
-    if (static_cast<SkTypeface_Mac*>(context.getTypeface())->fHasColorGlyphs) {
-        sbix.reset(CGFontCopyTableForTag(context.fCGFont, 'sbix'));
-        // Attempt to read from the sbix table data to determine if the returned data is valid.
-        const UInt8* sbixData = CFDataGetBytePtr(sbix);
-        CFIndex sbixLength = CFDataGetLength(sbix);
-        if (sbixLength > 0 && *sbixData > 0x80) {
-            // We need to actually do something to avoid this being optimized away.
-            CFRetain(sbix);
-            CFRelease(sbix);
-        }
-    }
     ctFontDrawGlyphs(context.fCTUnrotatedFont, &glyphID, &point, 1, fCG);
 
     SkASSERT(rowBytesPtr);
