@@ -101,6 +101,7 @@ GrXferProcessor*
 GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                const GrProcOptInfo& colorPOI,
                                                const GrProcOptInfo& covPOI,
+                                               bool hasMixedSamples,
                                                const DstTexture* dst) const {
     return DisableColorXP::Create();
 }

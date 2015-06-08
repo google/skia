@@ -71,11 +71,13 @@ private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
+                                           bool hasMixedSamples,
                                            const DstTexture*) const override; 
 
     bool willReadDstColor(const GrCaps& caps,
                           const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI) const override;
+                          const GrProcOptInfo& coveragePOI,
+                          bool hasMixedSamples) const override;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {
         const GrCustomXPFactory& xpf = xpfBase.cast<GrCustomXPFactory>();

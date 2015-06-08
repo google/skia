@@ -23,7 +23,7 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
         pipelineBuilder.getXPFactory()->createXferProcessor(
-            colorPOI, coveragePOI, dstTexture, caps));
+            colorPOI, coveragePOI, pipelineBuilder.hasMixedSamples(), dstTexture, caps));
 
     GrColor overrideColor = GrColor_ILLEGAL;
     if (colorPOI.firstEffectiveStageIndex() != 0) {

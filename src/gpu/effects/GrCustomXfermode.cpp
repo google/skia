@@ -524,8 +524,8 @@ public:
         this->initClassID<CustomXP>();
     }
 
-    CustomXP(SkXfermode::Mode mode, const DstTexture* dstTexture)
-        : INHERITED(dstTexture, true),
+    CustomXP(const DstTexture* dstTexture, bool hasMixedSamples, SkXfermode::Mode mode)
+        : INHERITED(dstTexture, true, hasMixedSamples),
           fMode(mode),
           fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
         this->initClassID<CustomXP>();
@@ -606,8 +606,8 @@ private:
         GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         fsBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
 
-        // Apply coverage by multiplying it into the src color before blending.
-        // (See onGetOptimizations())
+        // Apply coverage by multiplying it into the src color before blending. Mixed samples will
+        // "just work" automatically. (See onGetOptimizations())
         if (xp.readsCoverage()) {
             fsBuilder->codeAppendf("%s = %s * %s;",
                                    args.fOutputPrimary, args.fInputCoverage, args.fInputColor);
@@ -786,17 +786,19 @@ GrXferProcessor*
 GrCustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                          const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI,
+                                         bool hasMixedSamples,
                                          const DstTexture* dstTexture) const {
     if (can_use_hw_blend_equation(coveragePOI, caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return SkNEW_ARGS(CustomXP, (fMode, fHWBlendEquation));
     }
-    return SkNEW_ARGS(CustomXP, (fMode, dstTexture));
+    return SkNEW_ARGS(CustomXP, (dstTexture, hasMixedSamples, fMode));
 }
 
 bool GrCustomXPFactory::willReadDstColor(const GrCaps& caps,
                                          const GrProcOptInfo& colorPOI,
-                                         const GrProcOptInfo& coveragePOI) const {
+                                         const GrProcOptInfo& coveragePOI,
+                                         bool hasMixedSamples) const {
     return !can_use_hw_blend_equation(coveragePOI, caps);
 }
 

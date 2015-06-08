@@ -89,7 +89,8 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, c
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI) const {
-    return this->getXPFactory()->willNeedDstTexture(caps, colorPOI, coveragePOI);
+    return this->getXPFactory()->willNeedDstTexture(caps, colorPOI, coveragePOI,
+                                                    this->hasMixedSamples());
 }
 
 void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(GrPipelineBuilder* pipelineBuilder) {

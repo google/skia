@@ -288,21 +288,23 @@ static const BlendFormula gBlendTable[2][2][SkXfermode::kLastCoeffMode + 1] = {
     /* screen */     COEFF_FORMULA(   kOne_GrBlendCoeff,    kISC_GrBlendCoeff),
 }}};
 
-static BlendFormula get_blend_formula(SkXfermode::Mode xfermode,
-                                      const GrProcOptInfo& colorPOI,
-                                      const GrProcOptInfo& coveragePOI) {
+static BlendFormula get_blend_formula(const GrProcOptInfo& colorPOI,
+                                      const GrProcOptInfo& coveragePOI,
+                                      bool hasMixedSamples,
+                                      SkXfermode::Mode xfermode) {
     SkASSERT(xfermode >= 0 && xfermode <= SkXfermode::kLastCoeffMode);
     SkASSERT(!coveragePOI.isFourChannelOutput());
 
-    return gBlendTable[colorPOI.isOpaque()][!coveragePOI.isSolidWhite()][xfermode];
+    bool conflatesCoverage = !coveragePOI.isSolidWhite() || hasMixedSamples;
+    return gBlendTable[colorPOI.isOpaque()][conflatesCoverage][xfermode];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class PorterDuffXferProcessor : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(BlendFormula blendFormula) {
-        return SkNEW_ARGS(PorterDuffXferProcessor, (blendFormula));
+    PorterDuffXferProcessor(BlendFormula blendFormula) : fBlendFormula(blendFormula) {
+        this->initClassID<PorterDuffXferProcessor>();
     }
 
     const char* name() const override { return "Porter Duff"; }
@@ -312,10 +314,6 @@ public:
     BlendFormula getBlendFormula() const { return fBlendFormula; }
 
 private:
-    PorterDuffXferProcessor(BlendFormula blendFormula) : fBlendFormula(blendFormula) {
-        this->initClassID<PorterDuffXferProcessor>();
-    }
-
     GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                  const GrProcOptInfo& coveragePOI,
                                                  bool doesStencilWrite,
@@ -353,6 +351,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp, GrGLXPFragmen
             fsBuilder->codeAppendf("%s = vec4(0.0);", output);
             break;
         case BlendFormula::kCoverage_OutputType:
+            // We can have a coverage formula while not reading coverage if there are mixed samples.
             fsBuilder->codeAppendf("%s = %s;",
                                    output, xp.readsCoverage() ? inCoverage : "vec4(1.0)");
             break;
@@ -455,8 +454,12 @@ PorterDuffXferProcessor::onGetOptimizations(const GrProcOptInfo& colorPOI,
 
 class ShaderPDXferProcessor : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(SkXfermode::Mode xfermode, const DstTexture* dstTexture) {
-        return SkNEW_ARGS(ShaderPDXferProcessor, (xfermode, dstTexture));
+    ShaderPDXferProcessor(const DstTexture* dstTexture,
+                          bool hasMixedSamples,
+                          SkXfermode::Mode xfermode)
+        : INHERITED(dstTexture, true, hasMixedSamples)
+        , fXfermode(xfermode) {
+        this->initClassID<ShaderPDXferProcessor>();
     }
 
     const char* name() const override { return "Porter Duff Shader"; }
@@ -466,12 +469,6 @@ public:
     SkXfermode::Mode getXfermode() const { return fXfermode; }
 
 private:
-    ShaderPDXferProcessor(SkXfermode::Mode xfermode, const DstTexture* dstTexture)
-        : INHERITED(dstTexture, true)
-        , fXfermode(xfermode) {
-        this->initClassID<ShaderPDXferProcessor>();
-    }
-
     GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo&, const GrProcOptInfo&,
                                                  bool, GrColor*, const GrCaps&) override {
         return kNone_Opt;
@@ -738,19 +735,20 @@ GrXferProcessor*
 GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& covPOI,
+                                             bool hasMixedSamples,
                                              const DstTexture* dstTexture) const {
     if (covPOI.isFourChannelOutput()) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return PDLCDXferProcessor::Create(fXfermode, colorPOI);
     }
 
-    BlendFormula blendFormula = get_blend_formula(fXfermode, colorPOI, covPOI);
+    BlendFormula blendFormula = get_blend_formula(colorPOI, covPOI, hasMixedSamples, fXfermode);
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
-        return ShaderPDXferProcessor::Create(fXfermode, dstTexture);
+        return SkNEW_ARGS(ShaderPDXferProcessor, (dstTexture, hasMixedSamples, fXfermode));
     }
 
     SkASSERT(!dstTexture || !dstTexture->texture());
-    return PorterDuffXferProcessor::Create(blendFormula);
+    return SkNEW_ARGS(PorterDuffXferProcessor, (blendFormula));
 }
 
 bool GrPorterDuffXPFactory::supportsRGBCoverage(GrColor /*knownColor*/,
@@ -795,15 +793,17 @@ void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
 
 bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
-                                             const GrProcOptInfo& coveragePOI) const {
-    if (coveragePOI.isFourChannelOutput()) {
-        return false; // The LCD XP never does a dst read.
+                                             const GrProcOptInfo& covPOI,
+                                             bool hasMixedSamples) const {
+    if (caps.shaderCaps()->dualSourceBlendingSupport()) {
+        return false;
     }
-
+    if (covPOI.isFourChannelOutput()) {
+        return false; // The LCD XP will abort rather than doing a dst read.
+    }
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
-    return !caps.shaderCaps()->dualSourceBlendingSupport() &&
-           get_blend_formula(fXfermode, colorPOI, coveragePOI).hasSecondaryOutput();
+    return get_blend_formula(colorPOI, covPOI, hasMixedSamples, fXfermode).hasSecondaryOutput();
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);

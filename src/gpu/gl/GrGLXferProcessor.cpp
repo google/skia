@@ -63,7 +63,14 @@ void GrGLXferProcessor::emitCode(const EmitArgs& args) {
                                   args.fXP);
 
     // Apply coverage.
-    if (args.fXP.readsCoverage()) {
+    if (args.fXP.dstReadUsesMixedSamples()) {
+        if (args.fXP.readsCoverage()) {
+            fsBuilder->codeAppendf("%s *= %s;", args.fOutputPrimary, args.fInputCoverage);
+            fsBuilder->codeAppendf("%s = %s;", args.fOutputSecondary, args.fInputCoverage);
+        } else {
+            fsBuilder->codeAppendf("%s = vec4(1.0);", args.fOutputSecondary);
+        }
+    } else if (args.fXP.readsCoverage()) {
         fsBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
                                args.fOutputPrimary, args.fInputCoverage,
                                args.fOutputPrimary, args.fInputCoverage, dstColor);

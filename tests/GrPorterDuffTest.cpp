@@ -75,10 +75,11 @@ public:
         XPInfo(skiatest::Reporter* reporter, SkXfermode::Mode xfermode, const GrCaps& caps,
                const GrProcOptInfo& colorPOI, const GrProcOptInfo& covPOI) {
             SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
-            SkAutoTUnref<GrXferProcessor> xp(xpf->createXferProcessor(colorPOI, covPOI, 0, caps));
-            TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI));
+            SkAutoTUnref<GrXferProcessor> xp(
+                xpf->createXferProcessor(colorPOI, covPOI, false, NULL, caps));
+            TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI, false));
             xpf->getInvariantBlendedColor(colorPOI, &fBlendedColor);
-            fOptFlags = xp->getOptimizations(colorPOI, covPOI, false, 0, caps);
+            fOptFlags = xp->getOptimizations(colorPOI, covPOI, false, NULL, caps);
             GetXPOutputTypes(xp, &fPrimaryOutputType, &fSecondaryOutputType);
             xp->getBlendInfo(&fBlendInfo);
             TEST_ASSERT(!xp->willReadDstColor());
@@ -922,9 +923,10 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
     SkASSERT(covPOI.isFourChannelOutput());
 
     SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
-    TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI));
+    TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI, false));
 
-    SkAutoTUnref<GrXferProcessor> xp(xpf->createXferProcessor(colorPOI, covPOI, 0, caps));
+    SkAutoTUnref<GrXferProcessor> xp(
+        xpf->createXferProcessor(colorPOI, covPOI, false, NULL, caps));
     if (!xp) {
         ERRORF(reporter, "Failed to create an XP with LCD coverage.");
         return;
@@ -994,12 +996,10 @@ static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
             for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
                 SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
                 SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
-                SkAutoTUnref<GrXferProcessor> xp;
-                if (xpf->willNeedDstTexture(caps, colorPOI, covPOI)) {
-                    xp.reset(xpf->createXferProcessor(colorPOI, covPOI, &fakeDstTexture, caps));
-                } else {
-                    xp.reset(xpf->createXferProcessor(colorPOI, covPOI, NULL, caps));
-                }
+                GrXferProcessor::DstTexture* dstTexture =
+                    xpf->willNeedDstTexture(caps, colorPOI, covPOI, false) ? &fakeDstTexture : 0;
+                SkAutoTUnref<GrXferProcessor> xp(
+                    xpf->createXferProcessor(colorPOI, covPOI, false, dstTexture, caps));
                 if (!xp) {
                     ERRORF(reporter, "Failed to create an XP without dual source blending.");
                     return;

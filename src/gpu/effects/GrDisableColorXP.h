@@ -35,11 +35,13 @@ private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
+                                           bool hasMixedSamples,
                                            const DstTexture* dstTexture) const override;
 
     bool willReadDstColor(const GrCaps& caps,
                           const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI) const override {
+                          const GrProcOptInfo& coveragePOI,
+                          bool hasMixedSamples) const override {
         return false;
     }
 
