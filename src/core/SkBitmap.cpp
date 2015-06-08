@@ -666,101 +666,8 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-static uint16_t pack_8888_to_4444(unsigned a, unsigned r, unsigned g, unsigned b) {
-    unsigned pixel = (SkA32To4444(a) << SK_A4444_SHIFT) |
-                     (SkR32To4444(r) << SK_R4444_SHIFT) |
-                     (SkG32To4444(g) << SK_G4444_SHIFT) |
-                     (SkB32To4444(b) << SK_B4444_SHIFT);
-    return SkToU16(pixel);
-}
-
-static bool internal_erase(const SkPixmap& pmap, const SkIRect& area,
-                           U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
-    int height = area.height();
-    const int width = area.width();
-    const int rowBytes = pmap.rowBytes();
-
-    switch (pmap.colorType()) {
-        case kGray_8_SkColorType: {
-            if (255 != a) {
-                r = SkMulDiv255Round(r, a);
-                g = SkMulDiv255Round(g, a);
-                b = SkMulDiv255Round(b, a);
-            }
-            int gray = SkComputeLuminance(r, g, b);
-            uint8_t* p = pmap.writable_addr8(area.fLeft, area.fTop);
-            while (--height >= 0) {
-                memset(p, gray, width);
-                p += rowBytes;
-            }
-            break;
-        }
-        case kAlpha_8_SkColorType: {
-            uint8_t* p = pmap.writable_addr8(area.fLeft, area.fTop);
-            while (--height >= 0) {
-                memset(p, a, width);
-                p += rowBytes;
-            }
-            break;
-        }
-        case kARGB_4444_SkColorType:
-        case kRGB_565_SkColorType: {
-            uint16_t* p = pmap.writable_addr16(area.fLeft, area.fTop);
-            uint16_t v;
-
-            // make rgb premultiplied
-            if (255 != a) {
-                r = SkAlphaMul(r, a);
-                g = SkAlphaMul(g, a);
-                b = SkAlphaMul(b, a);
-            }
-
-            if (kARGB_4444_SkColorType == pmap.colorType()) {
-                v = pack_8888_to_4444(a, r, g, b);
-            } else {
-                v = SkPackRGB16(r >> (8 - SK_R16_BITS),
-                                g >> (8 - SK_G16_BITS),
-                                b >> (8 - SK_B16_BITS));
-            }
-            while (--height >= 0) {
-                sk_memset16(p, v, width);
-                p = (uint16_t*)((char*)p + rowBytes);
-            }
-            break;
-        }
-        case kBGRA_8888_SkColorType:
-        case kRGBA_8888_SkColorType: {
-            uint32_t* p = pmap.writable_addr32(area.fLeft, area.fTop);
-
-            if (255 != a && kPremul_SkAlphaType == pmap.alphaType()) {
-                r = SkAlphaMul(r, a);
-                g = SkAlphaMul(g, a);
-                b = SkAlphaMul(b, a);
-            }
-            uint32_t v = kRGBA_8888_SkColorType == pmap.colorType() ?
-            SkPackARGB_as_RGBA(a, r, g, b) : SkPackARGB_as_BGRA(a, r, g, b);
-
-            while (--height >= 0) {
-                sk_memset32(p, v, width);
-                p = (uint32_t*)((char*)p + rowBytes);
-            }
-            break;
-        }
-        default:
-            return false; // no change, so don't call notifyPixelsChanged()
-    }
-    return true;
-}
-
-void SkBitmap::internalErase(const SkIRect& area, U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
-#ifdef SK_DEBUG
+void SkBitmap::erase(SkColor c, const SkIRect& area) const {
     SkDEBUGCODE(this->validate();)
-    SkASSERT(!area.isEmpty());
-    {
-        SkIRect total = { 0, 0, this->width(), this->height() };
-        SkASSERT(total.contains(area));
-    }
-#endif
 
     switch (fInfo.colorType()) {
         case kUnknown_SkColorType:
@@ -776,24 +683,13 @@ void SkBitmap::internalErase(const SkIRect& area, U8CPU a, U8CPU r, U8CPU g, U8C
         return;
     }
 
-    if (internal_erase(result.pixmap(), area, a, r, g, b)) {
+    if (result.pixmap().erase(c, area)) {
         this->notifyPixelsChanged();
     }
 }
 
-void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
-    SkIRect area = { 0, 0, this->width(), this->height() };
-    if (!area.isEmpty()) {
-        this->internalErase(area, a, r, g, b);
-    }
-}
-
-void SkBitmap::eraseArea(const SkIRect& rect, SkColor c) const {
-    SkIRect area = { 0, 0, this->width(), this->height() };
-    if (area.intersect(rect)) {
-        this->internalErase(area, SkColorGetA(c), SkColorGetR(c),
-                            SkColorGetG(c), SkColorGetB(c));
-    }
+void SkBitmap::eraseColor(SkColor c) const {
+    this->erase(c, SkIRect::MakeWH(this->width(), this->height()));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
