@@ -67,11 +67,11 @@ void GrXferProcessor::getBlendInfo(BlendInfo* blendInfo) const {
 void GrXferProcessor::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     uint32_t key = this->willReadDstColor() ? 0x1 : 0x0;
     if (key) {
-        if (this->getDstTexture()) {
+        if (const GrTexture* dstTexture = this->getDstTexture()) {
             key |= 0x2;
-        }
-        if (kTopLeft_GrSurfaceOrigin == this->getDstTexture()->origin()) {
-            key |= 0x4;
+            if (kTopLeft_GrSurfaceOrigin == dstTexture->origin()) {
+                key |= 0x4;
+            }
         }
         if (this->readsCoverage()) {
             key |= 0x8;
