@@ -19,6 +19,7 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
+#include "SkXfermodeInterpretation.h"
 
 SkBlitter::~SkBlitter() {}
 
@@ -777,63 +778,6 @@ private:
 
 #include "SkCoreBlitters.h"
 
-static bool just_solid_color(const SkPaint& paint) {
-    if (paint.getAlpha() == 0xFF && paint.getColorFilter() == NULL) {
-        SkShader* shader = paint.getShader();
-        if (NULL == shader) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/** By analyzing the paint (with an xfermode), we may decide we can take
-    special action. This enum lists our possible actions
- */
-enum XferInterp {
-    kNormal_XferInterp,         // no special interpretation, draw normally
-    kSrcOver_XferInterp,        // draw as if in srcover mode
-    kSkipDrawing_XferInterp     // draw nothing
-};
-
-static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
-                                     SkColorType deviceCT) {
-    SkXfermode::Mode  mode;
-
-    if (SkXfermode::AsMode(xfer, &mode)) {
-        switch (mode) {
-            case SkXfermode::kSrc_Mode:
-                if (just_solid_color(paint)) {
-                    return kSrcOver_XferInterp;
-                }
-                break;
-            case SkXfermode::kDst_Mode:
-                return kSkipDrawing_XferInterp;
-            case SkXfermode::kSrcOver_Mode:
-                return kSrcOver_XferInterp;
-            case SkXfermode::kDstOver_Mode:
-                if (kRGB_565_SkColorType == deviceCT) {
-                    return kSkipDrawing_XferInterp;
-                }
-                break;
-            case SkXfermode::kSrcIn_Mode:
-                if (kRGB_565_SkColorType == deviceCT &&
-                    just_solid_color(paint)) {
-                    return kSrcOver_XferInterp;
-                }
-                break;
-            case SkXfermode::kDstIn_Mode:
-                if (just_solid_color(paint)) {
-                    return kSkipDrawing_XferInterp;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-    return kNormal_XferInterp;
-}
-
 SkBlitter* SkBlitter::Choose(const SkBitmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& origPaint,
@@ -864,12 +808,13 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     }
 
     if (mode) {
-        switch (interpret_xfermode(*paint, mode, device.colorType())) {
-            case kSrcOver_XferInterp:
+        bool deviceIsOpaque = kRGB_565_SkColorType == device.colorType();
+        switch (SkInterpretXfermode(*paint, deviceIsOpaque)) {
+            case kSrcOver_SkXfermodeInterpretation:
                 mode = NULL;
                 paint.writable()->setXfermode(NULL);
                 break;
-            case kSkipDrawing_XferInterp:{
+            case kSkipDrawing_SkXfermodeInterpretation:{
                 return allocator->createT<SkNullBlitter>();
             }
             default:
