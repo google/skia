@@ -69,7 +69,7 @@ public:
     
     // Reset the internal bitmap
     void clear(uint8_t alpha) {
-        fBM.eraseColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
+        fPixels.erase(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF));
     }
 
     // Canonical usage utility that draws a single path and uploads it
@@ -105,7 +105,7 @@ private:
 
     GrContext*      fContext;
     SkMatrix        fMatrix;
-    SkBitmap        fBM;
+    SkAutoPixmapStorage fPixels;
     SkDraw          fDraw;
     SkRasterClip    fRasterClip;
 

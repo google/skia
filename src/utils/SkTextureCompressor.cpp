@@ -173,19 +173,17 @@ bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcCol
     return false;
 }
 
-SkData* CompressBitmapToFormat(const SkBitmap &bitmap, Format format) {
-    SkAutoLockPixels alp(bitmap);
-
-    int compressedDataSize = GetCompressedDataSize(format, bitmap.width(), bitmap.height());
+SkData* CompressBitmapToFormat(const SkPixmap& pixmap, Format format) {
+    int compressedDataSize = GetCompressedDataSize(format, pixmap.width(), pixmap.height());
     if (compressedDataSize < 0) {
         return NULL;
     }
 
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(bitmap.getPixels());
+    const uint8_t* src = reinterpret_cast<const uint8_t*>(pixmap.addr());
     SkData* dst = SkData::NewUninitialized(compressedDataSize);
 
-    if (!CompressBufferToFormat((uint8_t*)dst->writable_data(), src, bitmap.colorType(),
-                                bitmap.width(), bitmap.height(), bitmap.rowBytes(), format)) {
+    if (!CompressBufferToFormat((uint8_t*)dst->writable_data(), src, pixmap.colorType(),
+                                pixmap.width(), pixmap.height(), pixmap.rowBytes(), format)) {
         dst->unref();
         dst = NULL;
     }

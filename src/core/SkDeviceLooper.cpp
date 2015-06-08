@@ -7,17 +7,16 @@
 
 #include "SkDeviceLooper.h"
 
-SkDeviceLooper::SkDeviceLooper(const SkBitmap& base,
-                               const SkRasterClip& rc,
-                               const SkIRect& bounds, bool aa)
-    : fBaseBitmap(base)
+SkDeviceLooper::SkDeviceLooper(const SkPixmap& base, const SkRasterClip& rc, const SkIRect& bounds,
+                               bool aa)
+    : fBaseDst(base)
     , fBaseRC(rc)
     , fSubsetRC(rc.isForceConservativeRects())
     , fDelta(aa ? kAA_Delta : kBW_Delta)
 {
     // sentinels that next() has not yet been called, and so our mapper functions
     // should not be called either.
-    fCurrBitmap = NULL;
+    fCurrDst = NULL;
     fCurrRC = NULL;
 
     if (!rc.isEmpty()) {
@@ -38,12 +37,11 @@ SkDeviceLooper::SkDeviceLooper(const SkBitmap& base,
     }
 }
 
-SkDeviceLooper::~SkDeviceLooper() {
-}
+SkDeviceLooper::~SkDeviceLooper() {}
 
 void SkDeviceLooper::mapRect(SkRect* dst, const SkRect& src) const {
     SkASSERT(kDone_State != fState);
-    SkASSERT(fCurrBitmap);
+    SkASSERT(fCurrDst);
     SkASSERT(fCurrRC);
 
     *dst = src;
@@ -53,12 +51,11 @@ void SkDeviceLooper::mapRect(SkRect* dst, const SkRect& src) const {
 
 void SkDeviceLooper::mapMatrix(SkMatrix* dst, const SkMatrix& src) const {
     SkASSERT(kDone_State != fState);
-    SkASSERT(fCurrBitmap);
+    SkASSERT(fCurrDst);
     SkASSERT(fCurrRC);
 
     *dst = src;
-    dst->postTranslate(SkIntToScalar(-fCurrOffset.fX),
-                       SkIntToScalar(-fCurrOffset.fY));
+    dst->postTranslate(SkIntToScalar(-fCurrOffset.fX), SkIntToScalar(-fCurrOffset.fY));
 }
 
 bool SkDeviceLooper::computeCurrBitmapAndClip() {
@@ -66,16 +63,14 @@ bool SkDeviceLooper::computeCurrBitmapAndClip() {
 
     SkIRect r = SkIRect::MakeXYWH(fCurrOffset.x(), fCurrOffset.y(),
                                   fDelta, fDelta);
-    if (!fBaseBitmap.extractSubset(&fSubsetBitmap, r)) {
+    if (!fBaseDst.extractSubset(&fSubsetDst, r)) {
         fSubsetRC.setEmpty();
     } else {
-        fSubsetBitmap.lockPixels();
         fBaseRC.translate(-r.left(), -r.top(), &fSubsetRC);
-        (void)fSubsetRC.op(SkIRect::MakeWH(fDelta, fDelta),
-                           SkRegion::kIntersect_Op);
+        (void)fSubsetRC.op(SkIRect::MakeWH(fDelta, fDelta), SkRegion::kIntersect_Op);
     }
 
-    fCurrBitmap = &fSubsetBitmap;
+    fCurrDst = &fSubsetDst;
     fCurrRC = &fSubsetRC;
     return !fCurrRC->isEmpty();
 }
@@ -107,8 +102,8 @@ bool SkDeviceLooper::next() {
 
         case kSimple_State:
             // first time for simple
-            if (NULL == fCurrBitmap) {
-                fCurrBitmap = &fBaseBitmap;
+            if (NULL == fCurrDst) {
+                fCurrDst = &fBaseDst;
                 fCurrRC = &fBaseRC;
                 fCurrOffset.set(0, 0);
                 return true;

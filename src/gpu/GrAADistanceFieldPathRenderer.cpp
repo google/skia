@@ -354,14 +354,12 @@ private:
         SkIRect pathBounds = SkIRect::MakeWH(devPathBounds.width(),
                                              devPathBounds.height());
 
-        SkBitmap bmp;
-        const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(pathBounds.fRight,
-                                                            pathBounds.fBottom);
-        if (!bmp.tryAllocPixels(bmImageInfo)) {
+        SkAutoPixmapStorage dst;
+        if (!dst.tryAlloc(SkImageInfo::MakeA8(pathBounds.width(),
+                                              pathBounds.height()))) {
             return false;
         }
-
-        sk_bzero(bmp.getPixels(), bmp.getSafeSize());
+        sk_bzero(dst.writable_addr(), dst.getSafeSize());
 
         // rasterize path
         SkPaint paint;
@@ -388,7 +386,7 @@ private:
         draw.fRC = &rasterClip;
         draw.fClip = &rasterClip.bwRgn();
         draw.fMatrix = &drawMatrix;
-        draw.fBitmap = &bmp;
+        draw.fDst = dst;
 
         draw.drawPathCoverage(path, paint);
 
@@ -400,13 +398,9 @@ private:
         SkAutoSMalloc<1024> dfStorage(width * height * sizeof(unsigned char));
 
         // Generate signed distance field
-        {
-            SkAutoLockPixels alp(bmp);
-
-            SkGenerateDistanceFieldFromA8Image((unsigned char*)dfStorage.get(),
-                                               (const unsigned char*)bmp.getPixels(),
-                                               bmp.width(), bmp.height(), bmp.rowBytes());
-        }
+        SkGenerateDistanceFieldFromA8Image((unsigned char*)dfStorage.get(),
+                                           (const unsigned char*)dst.addr(),
+                                           dst.width(), dst.height(), dst.rowBytes());
 
         // add to atlas
         SkIPoint16 atlasLocation;

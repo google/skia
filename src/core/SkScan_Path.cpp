@@ -344,7 +344,7 @@ public:
     void blitMask(const SkMask&, const SkIRect& clip) override {
         SkDEBUGFAIL("blitMask unexpected");
     }
-    const SkBitmap* justAnOpaqueColor(uint32_t* value) override {
+    const SkPixmap* justAnOpaqueColor(uint32_t* value) override {
         SkDEBUGFAIL("justAnOpaqueColor unexpected");
         return NULL;
     }
