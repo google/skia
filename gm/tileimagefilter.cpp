@@ -16,46 +16,48 @@
 #define HEIGHT 100
 #define MARGIN 12
 
+static SkBitmap make_bitmap() {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(50, 50);
+    SkCanvas canvas(bitmap);
+    canvas.clear(0xFF000000);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    sk_tool_utils::set_portable_typeface(&paint);
+    paint.setColor(0xD000D000);
+    paint.setTextSize(SkIntToScalar(50));
+    const char* str = "e";
+    canvas.drawText(str, strlen(str), SkIntToScalar(10), SkIntToScalar(45), paint);
+    return bitmap;
+}
+
+
 namespace skiagm {
 
 class TileImageFilterGM : public GM {
 public:
-    TileImageFilterGM() : fInitialized(false) {
+    TileImageFilterGM() {
         this->setBGColor(0xFF000000);
     }
 
 protected:
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         return SkString("tileimagefilter");
     }
 
-    void make_bitmap() {
-        fBitmap.allocN32Pixels(50, 50);
-        SkCanvas canvas(fBitmap);
-        canvas.clear(0xFF000000);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setColor(0xD000D000);
-        paint.setTextSize(SkIntToScalar(50));
-        const char* str = "e";
-        canvas.drawText(str, strlen(str), SkIntToScalar(10), SkIntToScalar(45), paint);
-    }
-
-    virtual SkISize onISize() {
+    SkISize onISize() override{
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        if (!fInitialized) {
-            make_bitmap();
+    void onOnceBeforeDraw() override {
+        fBitmap = make_bitmap();
 
-            fCheckerboard.allocN32Pixels(80, 80);
-            SkCanvas checkerboardCanvas(fCheckerboard);
-            sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
+        fCheckerboard.allocN32Pixels(80, 80);
+        SkCanvas checkerboardCanvas(fCheckerboard);
+        sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
+    }
 
-            fInitialized = true;
-        }
+    void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         int x = 0, y = 0;
@@ -109,14 +111,14 @@ protected:
         canvas->restore();
     }
 private:
+    SkBitmap fBitmap;
+    SkBitmap fCheckerboard;
+
     typedef GM INHERITED;
-    SkBitmap fBitmap, fCheckerboard;
-    bool fInitialized;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new TileImageFilterGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return SkNEW(TileImageFilterGM); )
 
 }
