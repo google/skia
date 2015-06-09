@@ -11,7 +11,6 @@
 
 #include "SkBigPicture.h"
 #include "SkCanvas.h"
-#include "SkDeviceImageFilterProxy.h"
 #include "SkDeviceProperties.h"
 #include "SkGpuDevice.h"
 #include "SkGrPixelRef.h"
@@ -315,7 +314,7 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(kDefaultCacheSize));
     SkImageFilter::Context filterContext(totMat, clipBounds, cache);
 
-    SkDeviceImageFilterProxy proxy(device, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+    SkImageFilter::Proxy proxy(device, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
     const SkBitmap src = wrap_texture(layer->texture());
 
     if (!layer->filter()->filterImage(&proxy, src, filterContext, &filteredBitmap, &offset)) {

@@ -12,15 +12,15 @@
 #include "SkFlattenable.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "SkSurfaceProps.h"
 #include "SkTemplates.h"
 
-class SkBitmap;
-class SkColorFilter;
-class SkBaseDevice;
-class SkSurfaceProps;
-struct SkIPoint;
 class GrFragmentProcessor;
 class GrTexture;
+class SkBaseDevice;
+class SkBitmap;
+class SkColorFilter;
+struct SkIPoint;
 
 /**
  *  Base class for image filters. If one is installed in the paint, then
@@ -75,21 +75,28 @@ public:
     private:
         SkMatrix fCTM;
         SkIRect  fClipBounds;
-        Cache* fCache;
+        Cache*   fCache;
     };
 
     class Proxy {
     public:
-        virtual ~Proxy() {};
-
-        virtual SkBaseDevice* createDevice(int width, int height) = 0;
+        Proxy(SkBaseDevice* device, const SkSurfaceProps& props)
+            : fDevice(device)
+            , fProps(props.flags(), kUnknown_SkPixelGeometry)
+        {}
+        
+        SkBaseDevice* createDevice(int width, int height);
         // returns true if the proxy handled the filter itself. if this returns
         // false then the filter's code will be called.
-        virtual bool filterImage(const SkImageFilter*, const SkBitmap& src,
-                                 const Context&,
-                                 SkBitmap* result, SkIPoint* offset) = 0;
-        virtual const SkSurfaceProps* surfaceProps() const = 0;
+        bool filterImage(const SkImageFilter*, const SkBitmap& src, const SkImageFilter::Context&,
+                         SkBitmap* result, SkIPoint* offset);
+        const SkSurfaceProps& surfaceProps() const { return fProps; }
+        
+    private:
+        SkBaseDevice*        fDevice;
+        const SkSurfaceProps fProps;
     };
+    
 
     /**
      *  Request a new (result) image to be created from the src image.

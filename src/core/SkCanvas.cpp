@@ -9,7 +9,6 @@
 #include "SkCanvasPriv.h"
 #include "SkBitmapDevice.h"
 #include "SkColorFilter.h"
-#include "SkDeviceImageFilterProxy.h"
 #include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkDrawable.h"
@@ -1245,7 +1244,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !dstDev->canHandleImageFilter(filter)) {
-            SkDeviceImageFilterProxy proxy(dstDev, fProps);
+            SkImageFilter::Proxy proxy(dstDev, fProps);
             SkBitmap dst;
             SkIPoint offset = SkIPoint::Make(0, 0);
             const SkBitmap& src = srcDev->accessBitmap(false);
@@ -1297,7 +1296,7 @@ void SkCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint*
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !iter.fDevice->canHandleImageFilter(filter)) {
-            SkDeviceImageFilterProxy proxy(iter.fDevice, fProps);
+            SkImageFilter::Proxy proxy(iter.fDevice, fProps);
             SkBitmap dst;
             SkIPoint offset = SkIPoint::Make(0, 0);
             SkMatrix matrix = *iter.fMatrix;

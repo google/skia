@@ -18,7 +18,6 @@
 #include "GrTextContext.h"
 #include "GrTracing.h"
 #include "SkCanvasPriv.h"
-#include "SkDeviceImageFilterProxy.h"
 #include "SkDrawProcs.h"
 #include "SkErrorInternals.h"
 #include "SkGlyphCache.h"
@@ -1243,7 +1242,7 @@ bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
 
     // FIXME: plumb actual surface props such that we don't have to lie about the flags here
     //        (https://code.google.com/p/skia/issues/detail?id=3148).
-    SkDeviceImageFilterProxy proxy(this, SkSurfaceProps(0, getLeakyProperties().pixelGeometry()));
+    SkImageFilter::Proxy proxy(this, SkSurfaceProps(0, getLeakyProperties().pixelGeometry()));
 
     if (filter->canFilterImageGPU()) {
         return filter->filterImageGPU(&proxy, wrap_texture(texture, width, height),

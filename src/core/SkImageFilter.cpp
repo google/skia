@@ -523,3 +523,26 @@ SkImageFilter::Cache* SkImageFilter::Cache::Get() {
 void SkImageFilter::PurgeCache() {
     cache.get()->purge();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkBitmapDevice.h"
+
+SkBaseDevice* SkImageFilter::Proxy::createDevice(int w, int h) {
+    SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
+                                   SkBaseDevice::kNever_TileUsage,
+                                   kUnknown_SkPixelGeometry,
+                                   true /*forImageFilter*/);
+    SkBaseDevice* dev = fDevice->onCreateDevice(cinfo, NULL);
+    if (NULL == dev) {
+        dev = SkBitmapDevice::Create(cinfo.fInfo);
+    }
+    return dev;
+}
+
+bool SkImageFilter::Proxy::filterImage(const SkImageFilter* filter, const SkBitmap& src,
+                                       const SkImageFilter::Context& ctx,
+                                       SkBitmap* result, SkIPoint* offset) {
+    return fDevice->filterImage(filter, src, ctx, result, offset);
+}
+    

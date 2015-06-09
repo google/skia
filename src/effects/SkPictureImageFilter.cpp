@@ -133,7 +133,7 @@ void SkPictureImageFilter::drawPictureAtDeviceResolution(Proxy* proxy, SkBaseDev
     // Pass explicit surface props, as the simplified canvas constructor discards device properties.
     // FIXME: switch back to the public constructor (and unfriend) after
     //        https://code.google.com/p/skia/issues/detail?id=3142 is fixed.
-    SkCanvas canvas(device, proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
+    SkCanvas canvas(device, &proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
 
     canvas.translate(-SkIntToScalar(deviceBounds.fLeft), -SkIntToScalar(deviceBounds.fTop));
     canvas.concat(ctx.ctm());
@@ -156,14 +156,14 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(Proxy* proxy, SkBaseDevi
     // Pass explicit surface props, as the simplified canvas constructor discards device properties.
     // FIXME: switch back to the public constructor (and unfriend) after
     //        https://code.google.com/p/skia/issues/detail?id=3142 is fixed.
-    SkCanvas localCanvas(localDevice, proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
+    SkCanvas localCanvas(localDevice, &proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
     localCanvas.translate(-SkIntToScalar(localIBounds.fLeft), -SkIntToScalar(localIBounds.fTop));
     localCanvas.drawPicture(fPicture);
 
     // Pass explicit surface props, as the simplified canvas constructor discards device properties.
     // FIXME: switch back to the public constructor (and unfriend) after
     //        https://code.google.com/p/skia/issues/detail?id=3142 is fixed.
-    SkCanvas canvas(device, proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
+    SkCanvas canvas(device, &proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
 
     canvas.translate(-SkIntToScalar(deviceBounds.fLeft), -SkIntToScalar(deviceBounds.fTop));
     canvas.concat(ctx.ctm());

@@ -129,7 +129,6 @@ private:
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
-    friend class SkDeviceImageFilterProxy;
 
     friend class SkSurface_Raster;
 
