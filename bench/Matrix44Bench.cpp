@@ -271,7 +271,7 @@ public:
 protected:
     virtual void performTest() {
         fM0.reset();    // just to normalize this test with prescale/postscale
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10000; ++i) {
             fM0.setConcat(fM1, fM2);
         }
     }
