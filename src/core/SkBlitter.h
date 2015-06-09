@@ -8,11 +8,11 @@
 #ifndef SkBlitter_DEFINED
 #define SkBlitter_DEFINED
 
-#include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkPixmap.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -51,7 +51,7 @@ public:
         bitmap it draws into, and assign value. If not, return NULL and ignore
         the value parameter.
     */
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t* value);
+    virtual const SkPixmap* justAnOpaqueColor(uint32_t* value);
 
     // (x, y), (x + 1, y)
     virtual void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
@@ -122,7 +122,7 @@ public:
     /** @name Factories
         Return the correct blitter to use given the specified context.
      */
-    static SkBlitter* Choose(const SkBitmap& device,
+    static SkBlitter* Choose(const SkPixmap& dst,
                              const SkMatrix& matrix,
                              const SkPaint& paint,
                              SkTBlitterAllocator*,
@@ -152,7 +152,7 @@ public:
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;
     void blitMask(const SkMask&, const SkIRect& clip) override;
-    const SkBitmap* justAnOpaqueColor(uint32_t* value) override;
+    const SkPixmap* justAnOpaqueColor(uint32_t* value) override;
     bool isNullBlitter() const override;
 };
 
@@ -176,7 +176,7 @@ public:
     virtual void blitAntiRect(int x, int y, int width, int height,
                      SkAlpha leftAlpha, SkAlpha rightAlpha) override;
     void blitMask(const SkMask&, const SkIRect& clip) override;
-    const SkBitmap* justAnOpaqueColor(uint32_t* value) override;
+    const SkPixmap* justAnOpaqueColor(uint32_t* value) override;
 
     int requestRowsPreserved() const override {
         return fBlitter->requestRowsPreserved();
@@ -211,7 +211,7 @@ public:
     virtual void blitAntiRect(int x, int y, int width, int height,
                      SkAlpha leftAlpha, SkAlpha rightAlpha) override;
     void blitMask(const SkMask&, const SkIRect& clip) override;
-    const SkBitmap* justAnOpaqueColor(uint32_t* value) override;
+    const SkPixmap* justAnOpaqueColor(uint32_t* value) override;
 
     int requestRowsPreserved() const override {
         return fBlitter->requestRowsPreserved();

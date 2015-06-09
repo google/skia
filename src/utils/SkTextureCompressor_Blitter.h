@@ -368,7 +368,7 @@ public:
     // If the blitter just sets a single value for each pixel, return the
     // bitmap it draws into, and assign value. If not, return NULL and ignore
     // the value parameter.
-    const SkBitmap* justAnOpaqueColor(uint32_t* value) override {
+    const SkPixmap* justAnOpaqueColor(uint32_t* value) override {
         return NULL;
     }
 

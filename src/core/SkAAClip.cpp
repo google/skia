@@ -1297,7 +1297,7 @@ public:
     void blitMask(const SkMask&, const SkIRect& clip) override
         { unexpected(); }
 
-    const SkBitmap* justAnOpaqueColor(uint32_t*) override {
+    const SkPixmap* justAnOpaqueColor(uint32_t*) override {
         return NULL;
     }
 
@@ -2219,6 +2219,6 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
     } while (y < stopY);
 }
 
-const SkBitmap* SkAAClipBlitter::justAnOpaqueColor(uint32_t* value) {
+const SkPixmap* SkAAClipBlitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }

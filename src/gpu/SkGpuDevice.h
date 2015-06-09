@@ -125,6 +125,7 @@ public:
     void onDetachFromCanvas() override;
 
     const SkBitmap& onAccessBitmap() override;
+    bool onAccessPixels(SkPixmap*) override;
 
     bool canHandleImageFilter(const SkImageFilter*) override;
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,

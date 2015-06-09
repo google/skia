@@ -33,7 +33,7 @@ SkShader::Context* SkBlitter::getShaderContext() const {
     return NULL;
 }
 
-const SkBitmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
+const SkPixmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }
 
@@ -243,7 +243,7 @@ void SkNullBlitter::blitRect(int x, int y, int width, int height) {}
 
 void SkNullBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {}
 
-const SkBitmap* SkNullBlitter::justAnOpaqueColor(uint32_t* value) {
+const SkPixmap* SkNullBlitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }
 
@@ -404,7 +404,7 @@ void SkRectClipBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     }
 }
 
-const SkBitmap* SkRectClipBlitter::justAnOpaqueColor(uint32_t* value) {
+const SkPixmap* SkRectClipBlitter::justAnOpaqueColor(uint32_t* value) {
     return fBlitter->justAnOpaqueColor(value);
 }
 
@@ -540,7 +540,7 @@ void SkRgnClipBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     }
 }
 
-const SkBitmap* SkRgnClipBlitter::justAnOpaqueColor(uint32_t* value) {
+const SkPixmap* SkRgnClipBlitter::justAnOpaqueColor(uint32_t* value) {
     return fBlitter->justAnOpaqueColor(value);
 }
 
@@ -778,7 +778,7 @@ private:
 
 #include "SkCoreBlitters.h"
 
-SkBlitter* SkBlitter::Choose(const SkBitmap& device,
+SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& origPaint,
                              SkTBlitterAllocator* allocator,
@@ -944,7 +944,7 @@ private:
     typedef SkShader::Context INHERITED;
 };
 
-SkShaderBlitter::SkShaderBlitter(const SkBitmap& device, const SkPaint& paint,
+SkShaderBlitter::SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
                                  SkShader::Context* shaderContext)
         : INHERITED(device)
         , fShader(paint.getShader())

@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkDevice.h"
 #include "SkImageEncoder.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
@@ -350,6 +351,63 @@ static void test_canvaspeek(skiatest::Reporter* reporter,
     }
 }
 
+// For compatibility with clients that still call accessBitmap(), we need to ensure that we bump
+// the bitmap's genID when we draw to it, else they won't know it has new values. When they are
+// exclusively using surface/image, and we can hide accessBitmap from device, we can remove this
+// test.
+static void test_accessPixels(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    static const struct {
+        SurfaceType fType;
+        bool        fPeekShouldSucceed;
+    } gRec[] = {
+        { kRaster_SurfaceType,          true    },
+        { kRasterDirect_SurfaceType,    true    },
+#if SK_SUPPORT_GPU
+        { kGpu_SurfaceType,             false   },
+        { kGpuScratch_SurfaceType,      false   },
+#endif
+    };
+    
+    int cnt;
+#if SK_SUPPORT_GPU
+    cnt = GrContextFactory::kGLContextTypeCnt;
+#else
+    cnt = 1;
+#endif
+    
+    for (int i= 0; i < cnt; ++i) {
+        GrContext* context = NULL;
+#if SK_SUPPORT_GPU
+        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
+        if (!GrContextFactory::IsRenderingGLContext(glCtxType)) {
+            continue;
+        }
+        context = factory->get(glCtxType);
+        
+        if (NULL == context) {
+            continue;
+        }
+#endif
+        for (size_t j = 0; j < SK_ARRAY_COUNT(gRec); ++j) {
+            SkImageInfo info, requestInfo;
+            
+            SkAutoTUnref<SkSurface> surface(createSurface(gRec[j].fType, context,
+                                                          &requestInfo));
+            SkCanvas* canvas = surface->getCanvas();
+            canvas->clear(0);
+
+            SkBaseDevice* device = canvas->getDevice_just_for_deprecated_compatibility_testing();
+            SkBitmap bm = device->accessBitmap(false);
+            uint32_t genID0 = bm.getGenerationID();
+            // Now we draw something, which needs to "dirty" the genID (sorta like copy-on-write)
+            canvas->drawColor(SK_ColorBLUE);
+            // Now check that we get a different genID
+            uint32_t genID1 = bm.getGenerationID();
+            REPORTER_ASSERT(reporter, genID0 != genID1);
+        }
+    }
+}
+
 static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType surfaceType,
                                    GrContext* context) {
     // Verify that the right canvas commands trigger a copy on write
@@ -586,6 +644,8 @@ DEF_GPUTEST(Surface, reporter, factory) {
 
     test_imagepeek(reporter, factory);
     test_canvaspeek(reporter, factory);
+
+    test_accessPixels(reporter, factory);
 
 #if SK_SUPPORT_GPU
     TestGetTexture(reporter, kRaster_SurfaceType, NULL);

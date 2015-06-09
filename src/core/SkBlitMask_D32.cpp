@@ -147,13 +147,13 @@ SkBlitMask::ColorProc SkBlitMask::ColorFactory(SkColorType ct,
     return NULL;
 }
 
-bool SkBlitMask::BlitColor(const SkBitmap& device, const SkMask& mask,
+bool SkBlitMask::BlitColor(const SkPixmap& device, const SkMask& mask,
                            const SkIRect& clip, SkColor color) {
     ColorProc proc = ColorFactory(device.colorType(), mask.fFormat, color);
     if (proc) {
         int x = clip.fLeft;
         int y = clip.fTop;
-        proc(device.getAddr32(x, y), device.rowBytes(), mask.getAddr(x, y),
+        proc(device.writable_addr32(x, y), device.rowBytes(), mask.getAddr(x, y),
              mask.fRowBytes, color, clip.width(), clip.height());
         return true;
     }

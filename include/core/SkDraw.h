@@ -140,7 +140,7 @@ private:
     computeConservativeLocalClipBounds(SkRect* bounds) const;
 
 public:
-    const SkBitmap* fBitmap;        // required
+    SkPixmap        fDst;
     const SkMatrix* fMatrix;        // required
     const SkRegion* fClip;          // DEPRECATED
     const SkRasterClip* fRC;        // required

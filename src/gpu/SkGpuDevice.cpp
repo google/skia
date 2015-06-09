@@ -277,6 +277,15 @@ const SkBitmap& SkGpuDevice::onAccessBitmap() {
     return fLegacyBitmap;
 }
 
+bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
+    DO_DEFERRED_CLEAR();
+    // For compatibility with clients the know we're backed w/ a bitmap, and want to inspect its
+    // genID. When we can hide/remove that fact, we can eliminate this call to notify.
+    // ... ugh.
+    fLegacyBitmap.notifyPixelsChanged();
+    return false;
+}
+
 void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
     INHERITED::onAttachToCanvas(canvas);
 

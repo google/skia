@@ -42,10 +42,8 @@ static bool compresses_a8(SkTextureCompressor::Format fmt) {
  * Make sure that we properly fail when we don't have multiple of four image dimensions.
  */
 DEF_TEST(CompressAlphaFailDimensions, reporter) {
-    SkBitmap bitmap;
     static const int kWidth = 17;
     static const int kHeight = 17;
-    SkImageInfo info = SkImageInfo::MakeA8(kWidth, kHeight);
 
     // R11_EAC and LATC are both dimensions of 4, so we need to make sure that we
     // are violating those assumptions. And if we are, then we're also violating the
@@ -55,18 +53,16 @@ DEF_TEST(CompressAlphaFailDimensions, reporter) {
     REPORTER_ASSERT(reporter, kWidth % 4 != 0);
     REPORTER_ASSERT(reporter, kHeight % 4 != 0);
 
-    bool setInfoSuccess = bitmap.setInfo(info);
-    REPORTER_ASSERT(reporter, setInfoSuccess);
-
-    bitmap.allocPixels(info);
-    bitmap.unlockPixels();
+    SkAutoPixmapStorage pixmap;
+    pixmap.alloc(SkImageInfo::MakeA8(kWidth, kHeight));
+    // leaving the pixels uninitialized, as they don't affect the test...
     
     for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
         const SkTextureCompressor::Format fmt = static_cast<SkTextureCompressor::Format>(i);
         if (!compresses_a8(fmt)) {
             continue;
         }
-        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(bitmap, fmt));
+        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
         REPORTER_ASSERT(reporter, NULL == data);
     }
 }
@@ -76,10 +72,8 @@ DEF_TEST(CompressAlphaFailDimensions, reporter) {
  * compressed textures can (currently) only be created from A8 bitmaps.
  */
 DEF_TEST(CompressAlphaFailColorType, reporter) {
-    SkBitmap bitmap;
     static const int kWidth = 12;
     static const int kHeight = 12;
-    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
 
     // ASTC is at most 12x12, and any dimension divisible by 12 is also divisible
     // by 4, which is the dimensions of R11_EAC and LATC. In the future, we might
@@ -88,18 +82,16 @@ DEF_TEST(CompressAlphaFailColorType, reporter) {
     REPORTER_ASSERT(reporter, kWidth % 12 == 0);
     REPORTER_ASSERT(reporter, kHeight % 12 == 0);
 
-    bool setInfoSuccess = bitmap.setInfo(info);
-    REPORTER_ASSERT(reporter, setInfoSuccess);
-
-    bitmap.allocPixels(info);
-    bitmap.unlockPixels();
+    SkAutoPixmapStorage pixmap;
+    pixmap.alloc(SkImageInfo::MakeN32Premul(kWidth, kHeight));
+    // leaving the pixels uninitialized, as they don't affect the test...
 
     for (int i = 0; i < SkTextureCompressor::kFormatCnt; ++i) {
         const SkTextureCompressor::Format fmt = static_cast<SkTextureCompressor::Format>(i);
         if (!compresses_a8(fmt)) {
             continue;
         }
-        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(bitmap, fmt));
+        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
         REPORTER_ASSERT(reporter, NULL == data);
     }
 }
@@ -109,10 +101,8 @@ DEF_TEST(CompressAlphaFailColorType, reporter) {
  * then decompress it, you get what you started with.
  */
 DEF_TEST(CompressCheckerboard, reporter) {
-    SkBitmap bitmap;
     static const int kWidth = 48;  // We need the number to be divisible by both
     static const int kHeight = 48; // 12 (ASTC) and 16 (ARM NEON R11 EAC).
-    SkImageInfo info = SkImageInfo::MakeA8(kWidth, kHeight);
 
     // ASTC is at most 12x12, and any dimension divisible by 12 is also divisible
     // by 4, which is the dimensions of R11_EAC and LATC. In the future, we might
@@ -123,17 +113,12 @@ DEF_TEST(CompressCheckerboard, reporter) {
     REPORTER_ASSERT(reporter, kWidth % 48 == 0);
     REPORTER_ASSERT(reporter, kHeight % 48 == 0);
 
-    bool setInfoSuccess = bitmap.setInfo(info);
-    REPORTER_ASSERT(reporter, setInfoSuccess);
+    SkAutoPixmapStorage pixmap;
+    pixmap.alloc(SkImageInfo::MakeA8(kWidth, kHeight));
 
-    bitmap.allocPixels(info);
-    bitmap.unlockPixels();
-
-    // Populate bitmap
+    // Populate the pixels
     {
-        SkAutoLockPixels alp(bitmap);
-
-        uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(pixmap.writable_addr());
         REPORTER_ASSERT(reporter, pixels);
         if (NULL == pixels) {
             return;
@@ -147,7 +132,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
                     pixels[x] = 0;
                 }
             }
-            pixels += bitmap.rowBytes();
+            pixels += pixmap.rowBytes();
         }
     }
 
@@ -167,7 +152,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
             continue;
         }
 
-        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(bitmap, fmt));
+        SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
         REPORTER_ASSERT(reporter, data);
         if (NULL == data) {
             continue;
@@ -180,8 +165,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
                 kWidth, kHeight, fmt);
         REPORTER_ASSERT(reporter, decompResult);
 
-        SkAutoLockPixels alp(bitmap);
-        uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
+        const uint8_t* pixels = reinterpret_cast<const uint8_t*>(pixmap.addr());
         REPORTER_ASSERT(reporter, pixels);
         if (NULL == pixels) {
             continue;
@@ -189,7 +173,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
 
         for (int y = 0; y < kHeight; ++y) {
             for (int x = 0; x < kWidth; ++x) {
-                bool ok = pixels[y*bitmap.rowBytes() + x] == decompBuffer[y*kWidth + x];
+                bool ok = pixels[y*pixmap.rowBytes() + x] == decompBuffer[y*kWidth + x];
                 REPORTER_ASSERT(reporter, ok);
             }
         }
@@ -204,16 +188,11 @@ DEF_TEST(CompressLATC, reporter) {
     const SkTextureCompressor::Format kLATCFormat = SkTextureCompressor::kLATC_Format;
     static const int kLATCEncodedBlockSize = 8;
 
-    SkBitmap bitmap;
     static const int kWidth = 8;
     static const int kHeight = 8;
-    SkImageInfo info = SkImageInfo::MakeA8(kWidth, kHeight);
 
-    bool setInfoSuccess = bitmap.setInfo(info);
-    REPORTER_ASSERT(reporter, setInfoSuccess);
-
-    bitmap.allocPixels(info);
-    bitmap.unlockPixels();
+    SkAutoPixmapStorage pixmap;
+    pixmap.alloc(SkImageInfo::MakeA8(kWidth, kHeight));
 
     int latcDimX, latcDimY;
     SkTextureCompressor::GetBlockDimensions(kLATCFormat, &latcDimX, &latcDimY);
@@ -226,21 +205,13 @@ DEF_TEST(CompressLATC, reporter) {
     REPORTER_ASSERT(reporter, (kSizeToBe % kLATCEncodedBlockSize) == 0);
 
     for (int lum = 0; lum < 256; ++lum) {
-        bitmap.lockPixels();
-        uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap.getPixels());
-        REPORTER_ASSERT(reporter, pixels);
-        if (NULL == pixels) {
-            bitmap.unlockPixels();
-            continue;
-        }
-
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(pixmap.writable_addr());
         for (int i = 0; i < kWidth*kHeight; ++i) {
             pixels[i] = lum;
         }
-        bitmap.unlockPixels();
 
         SkAutoDataUnref latcData(
-            SkTextureCompressor::CompressBitmapToFormat(bitmap, kLATCFormat));
+            SkTextureCompressor::CompressBitmapToFormat(pixmap, kLATCFormat));
         REPORTER_ASSERT(reporter, latcData);
         if (NULL == latcData) {
             continue;

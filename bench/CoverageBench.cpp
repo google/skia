@@ -19,7 +19,7 @@ class DrawPathBench : public Benchmark {
     SkString    fName;
     SkPath      fPath;
     SkRasterClip fRC;
-    SkBitmap    fBitmap;
+    SkAutoPixmapStorage fPixmap;
     SkMatrix    fIdentity;
     SkDraw      fDraw;
     bool        fDrawCoverage;
@@ -32,12 +32,12 @@ public:
         fPath.quadTo(500, 0, 500, 500);
         fPath.quadTo(250, 0, 0, 500);
 
-        fBitmap.allocPixels(SkImageInfo::MakeA8(500, 500));
+        fPixmap.alloc(SkImageInfo::MakeA8(500, 500));
 
         fIdentity.setIdentity();
         fRC.setRect(fPath.getBounds().round());
 
-        fDraw.fBitmap   = &fBitmap;
+        fDraw.fDst      = fPixmap;
         fDraw.fMatrix   = &fIdentity;
         fDraw.fClip     = &fRC.bwRgn();
         fDraw.fRC       = &fRC;

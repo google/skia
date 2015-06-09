@@ -148,6 +148,9 @@ protected:  // Can we make this private?
 #endif
     SkBaseDevice* getDevice() const;
 public:
+    SkBaseDevice* getDevice_just_for_deprecated_compatibility_testing() const {
+        return this->getDevice();
+    }
 
     /**
      *  saveLayer() can create another device (which is later drawn onto

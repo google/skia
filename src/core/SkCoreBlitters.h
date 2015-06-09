@@ -16,10 +16,10 @@
 
 class SkRasterBlitter : public SkBlitter {
 public:
-    SkRasterBlitter(const SkBitmap& device) : fDevice(device) {}
+    SkRasterBlitter(const SkPixmap& device) : fDevice(device) {}
 
 protected:
-    const SkBitmap& fDevice;
+    const SkPixmap fDevice;
 
 private:
     typedef SkBlitter INHERITED;
@@ -32,7 +32,7 @@ public:
       *  The blitter only ensures that the storage always holds a live object, but it may
       *  exchange that object.
       */
-    SkShaderBlitter(const SkBitmap& device, const SkPaint& paint,
+    SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
                     SkShader::Context* shaderContext);
     virtual ~SkShaderBlitter();
 
@@ -61,24 +61,24 @@ private:
 
 class SkA8_Coverage_Blitter : public SkRasterBlitter {
 public:
-    SkA8_Coverage_Blitter(const SkBitmap& device, const SkPaint& paint);
+    SkA8_Coverage_Blitter(const SkPixmap& device, const SkPaint& paint);
     void blitH(int x, int y, int width) override;
     void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override;
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;
     void blitMask(const SkMask&, const SkIRect&) override;
-    const SkBitmap* justAnOpaqueColor(uint32_t*) override;
+    const SkPixmap* justAnOpaqueColor(uint32_t*) override;
 };
 
 class SkA8_Blitter : public SkRasterBlitter {
 public:
-    SkA8_Blitter(const SkBitmap& device, const SkPaint& paint);
+    SkA8_Blitter(const SkPixmap& device, const SkPaint& paint);
     virtual void blitH(int x, int y, int width);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
     virtual void blitRect(int x, int y, int width, int height);
     virtual void blitMask(const SkMask&, const SkIRect&);
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t*);
+    virtual const SkPixmap* justAnOpaqueColor(uint32_t*);
 
 private:
     unsigned fSrcA;
@@ -91,7 +91,7 @@ private:
 
 class SkA8_Shader_Blitter : public SkShaderBlitter {
 public:
-    SkA8_Shader_Blitter(const SkBitmap& device, const SkPaint& paint,
+    SkA8_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
                         SkShader::Context* shaderContext);
     virtual ~SkA8_Shader_Blitter();
     virtual void blitH(int x, int y, int width);
@@ -113,13 +113,13 @@ private:
 
 class SkARGB32_Blitter : public SkRasterBlitter {
 public:
-    SkARGB32_Blitter(const SkBitmap& device, const SkPaint& paint);
+    SkARGB32_Blitter(const SkPixmap& device, const SkPaint& paint);
     virtual void blitH(int x, int y, int width);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
     virtual void blitRect(int x, int y, int width, int height);
     virtual void blitMask(const SkMask&, const SkIRect&);
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t*);
+    virtual const SkPixmap* justAnOpaqueColor(uint32_t*);
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
 
@@ -138,7 +138,7 @@ private:
 
 class SkARGB32_Opaque_Blitter : public SkARGB32_Blitter {
 public:
-    SkARGB32_Opaque_Blitter(const SkBitmap& device, const SkPaint& paint)
+    SkARGB32_Opaque_Blitter(const SkPixmap& device, const SkPaint& paint)
         : INHERITED(device, paint) { SkASSERT(paint.getAlpha() == 0xFF); }
     virtual void blitMask(const SkMask&, const SkIRect&);
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
@@ -150,7 +150,7 @@ private:
 
 class SkARGB32_Black_Blitter : public SkARGB32_Opaque_Blitter {
 public:
-    SkARGB32_Black_Blitter(const SkBitmap& device, const SkPaint& paint)
+    SkARGB32_Black_Blitter(const SkPixmap& device, const SkPaint& paint)
         : INHERITED(device, paint) {}
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
@@ -162,7 +162,7 @@ private:
 
 class SkARGB32_Shader_Blitter : public SkShaderBlitter {
 public:
-    SkARGB32_Shader_Blitter(const SkBitmap& device, const SkPaint& paint,
+    SkARGB32_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
                             SkShader::Context* shaderContext);
     virtual ~SkARGB32_Shader_Blitter();
     void blitH(int x, int y, int width) override;
@@ -200,7 +200,7 @@ private:
     SkBlitter::Choose(...)
  */
 
-SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device, const SkPaint& paint,
+SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
                                 SkShader::Context* shaderContext,
                                 SkTBlitterAllocator* allocator);
 

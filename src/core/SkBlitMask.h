@@ -8,9 +8,9 @@
 #ifndef SkBlitMask_DEFINED
 #define SkBlitMask_DEFINED
 
-#include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkMask.h"
+#include "SkPixmap.h"
 
 class SkBlitMask {
 public:
@@ -18,7 +18,7 @@ public:
      *  Returns true if the device config and mask format were supported.
      *  else return false (nothing was drawn)
      */
-    static bool BlitColor(const SkBitmap& device, const SkMask& mask,
+    static bool BlitColor(const SkPixmap& device, const SkMask& mask,
                           const SkIRect& clip, SkColor color);
 
     /**
