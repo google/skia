@@ -83,8 +83,6 @@ public:
         virtual ~Proxy() {};
 
         virtual SkBaseDevice* createDevice(int width, int height) = 0;
-        // returns true if the proxy can handle this filter natively
-        virtual bool canHandleImageFilter(const SkImageFilter*) = 0;
         // returns true if the proxy handled the filter itself. if this returns
         // false then the filter's code will be called.
         virtual bool filterImage(const SkImageFilter*, const SkBitmap& src,

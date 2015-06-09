@@ -31,15 +31,10 @@ public:
         }
         return dev;
     }
-    bool canHandleImageFilter(const SkImageFilter* filter) override {
-        return fDevice->canHandleImageFilter(filter);
+    bool filterImage(const SkImageFilter* filter, const SkBitmap& src,
+                     const SkImageFilter::Context& ctx, SkBitmap* res, SkIPoint* offset) override {
+        return fDevice->filterImage(filter, src, ctx, res, offset);
     }
-    virtual bool filterImage(const SkImageFilter* filter, const SkBitmap& src,
-                             const SkImageFilter::Context& ctx,
-                             SkBitmap* result, SkIPoint* offset) override {
-        return fDevice->filterImage(filter, src, ctx, result, offset);
-    }
-
     const SkSurfaceProps* surfaceProps() const override {
         return &fProps;
     }
