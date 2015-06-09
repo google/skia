@@ -4,6 +4,8 @@
 # found in the LICENSE file.
 {
   'include_dirs': [
+    '../bench/subset',
+    '../bench',
     '../src/core',
     '../src/effects',
     '../src/gpu',

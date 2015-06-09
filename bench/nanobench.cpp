@@ -13,13 +13,17 @@
 #include "CodecBench.h"
 #include "CrashHandler.h"
 #include "DecodingBench.h"
-#include "DecodingSubsetBench.h"
 #include "GMBench.h"
 #include "ProcStats.h"
 #include "ResultsWriter.h"
 #include "RecordingBench.h"
 #include "SKPAnimationBench.h"
 #include "SKPBench.h"
+#include "SubsetBenchPriv.h"
+#include "SubsetDivisorBench.h"
+#include "SubsetSingleBench.h"
+#include "SubsetTranslateBench.h"
+#include "SubsetZoomBench.h"
 #include "Stats.h"
 #include "Timer.h"
 
@@ -483,6 +487,56 @@ static void create_targets(SkTDArray<Target*>* targets, Benchmark* b,
     }
 }
 
+/*
+ * Returns true if set up for a subset decode succeeds, false otherwise
+ * If the set-up succeeds, the width and height parameters will be set
+ */
+static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool useCodec,
+        int* width, int* height) {
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
+    SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encoded));
+
+    if (useCodec) {
+        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+        if (NULL == codec) {
+            SkDebugf("Could not create codec for %s.  Skipping bench.\n", path.c_str());
+            return false;
+        }
+
+        // These will be initialized by SkCodec if the color type is kIndex8 and
+        // unused otherwise.
+        SkPMColor colors[256];
+        int colorCount;
+        const SkImageInfo info = codec->getInfo().makeColorType(colorType);
+        SkAutoTDeleteArray<uint8_t> row(SkNEW_ARRAY(uint8_t, info.minRowBytes()));
+        SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(info, NULL,
+                colors, &colorCount);
+        if (NULL == scanlineDecoder) {
+            SkDebugf("Could not create scanline decoder for %s with color type %s.  "
+                    "Skipping bench.\n", path.c_str(), get_color_name(colorType));
+            return false;
+        }
+        *width = info.width();
+        *height = info.height();
+    } else {
+        SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
+        if (NULL == decoder) {
+            SkDebugf("Could not create decoder for %s.  Skipping bench.\n", path.c_str());
+            return false;
+        }
+        //FIXME: See skbug.com/3921
+        if (kIndex_8_SkColorType == colorType || kGray_8_SkColorType == colorType) {
+            SkDebugf("Cannot use image subset decoder for %s with color type %s.  "
+                    "Skipping bench.\n", path.c_str(), get_color_name(colorType));
+            return false;
+        }
+        if (!decoder->buildTileIndex(stream.detach(), width, height)) {
+            SkDebugf("Could not build tile index for %s.  Skipping bench.\n", path.c_str());
+            return false;
+        }
+    }
+    return true;
+}
 
 class BenchmarkStream {
 public:
@@ -496,8 +550,9 @@ public:
                       , fCurrentImage(0)
                       , fCurrentSubsetImage(0)
                       , fCurrentColorType(0)
-                      , fCurrentAnimSKP(0)
-                      , fDivisor(2) {
+                      , fCurrentSubsetType(0)
+                      , fUseCodec(0)
+                      , fCurrentAnimSKP(0) {
         for (int i = 0; i < FLAGS_skps.count(); i++) {
             if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
                 fSKPs.push_back() = FLAGS_skps[i];
@@ -551,7 +606,11 @@ public:
 
         // Choose the candidate color types for image decoding
         const SkColorType colorTypes[] =
-            { kN32_SkColorType, kRGB_565_SkColorType, kAlpha_8_SkColorType, kIndex_8_SkColorType };
+            { kN32_SkColorType,
+              kRGB_565_SkColorType,
+              kAlpha_8_SkColorType,
+              kIndex_8_SkColorType,
+              kGray_8_SkColorType };
         fColorTypes.push_back_n(SK_ARRAY_COUNT(colorTypes), colorTypes);
     }
 
@@ -738,56 +797,55 @@ public:
             fCurrentImage++;
         }
 
-        // Run the DecodingSubsetBenches
-        while (fCurrentSubsetImage < fImages.count()) {
-            while (fCurrentColorType < fColorTypes.count()) {
-                const SkString& path = fImages[fCurrentSubsetImage];
-                SkColorType colorType = fColorTypes[fCurrentColorType];
-                fCurrentColorType++;
-                // Check if the image decodes before creating the benchmark
-                SkAutoTUnref<SkData> encoded(
-                        SkData::NewFromFileName(path.c_str()));
-                SkAutoTDelete<SkMemoryStream> stream(
-                        new SkMemoryStream(encoded));
-                SkAutoTDelete<SkImageDecoder>
-                    decoder(SkImageDecoder::Factory(stream.get()));
-                if (!decoder) {
-                    SkDebugf("Cannot find decoder for %s\n", path.c_str());
-                } else {
-                    stream->rewind();
-                    int w, h;
-                    bool success;
-                    if (!decoder->buildTileIndex(stream.detach(), &w, &h)
-                            || w*h == 1) {
-                        // This is not an error, but in this case we still
-                        // do not want to run the benchmark.
-                        success = false;
-                    } else if (fDivisor > w || fDivisor > h) {
-                        SkDebugf("Divisor %d is too big for %s %dx%d\n",
-                                fDivisor, path.c_str(), w, h);
-                        success = false;
-                    } else {
-                        const int sW  = w / fDivisor;
-                        const int sH = h / fDivisor;
-                        SkBitmap bitmap;
-                        success = true;
-                        for (int y = 0; y < h; y += sH) {
-                            for (int x = 0; x < w; x += sW) {
-                                SkIRect rect = SkIRect::MakeXYWH(x, y, sW, sH);
-                                success &= decoder->decodeSubset(&bitmap, rect,
-                                                                 colorType);
+        // Run the SubsetBenches
+        bool useCodecOpts[] = { true, false };
+        while (fUseCodec < 2) {
+            bool useCodec = useCodecOpts[fUseCodec];
+            while (fCurrentSubsetImage < fImages.count()) {
+                while (fCurrentColorType < fColorTypes.count()) {
+                    const SkString& path = fImages[fCurrentSubsetImage];
+                    SkColorType colorType = fColorTypes[fCurrentColorType];
+                    while (fCurrentSubsetType <= kLast_SubsetType) {
+                        int width = 0;
+                        int height = 0;
+                        int currentSubsetType = fCurrentSubsetType++;
+                        if (valid_subset_bench(path, colorType, useCodec, &width, &height)) {
+                            switch (currentSubsetType) {
+                                case kTopLeft_SubsetType:
+                                    return new SubsetSingleBench(path, colorType, width/2,
+                                            height/2, 0, 0, useCodec);
+                                case kTopRight_SubsetType:
+                                    return new SubsetSingleBench(path, colorType, width/2,
+                                            height/2, width/2, 0, useCodec);
+                                case kBottomLeft_SubsetType:
+                                    return new SubsetSingleBench(path, colorType, width/2,
+                                            height/2, 0, height/2, useCodec);
+                                case kBottomRight_SubsetType:
+                                    return new SubsetSingleBench(path, colorType, width/2,
+                                            height/2, width/2, height/2, useCodec);
+                                case k2x2_SubsetType:
+                                    return new SubsetDivisorBench(path, colorType, 2, useCodec);
+                                case k3x3_SubsetType:
+                                    return new SubsetDivisorBench(path, colorType, 3, useCodec);
+                                case kTranslate_SubsetType:
+                                    return new SubsetTranslateBench(path, colorType, 512, 512,
+                                            useCodec);
+                                case kZoom_SubsetType:
+                                    return new SubsetZoomBench(path, colorType, 512, 512,
+                                            useCodec);
                             }
+                        } else {
+                            break;
                         }
                     }
-                    // Create the benchmark if successful
-                    if (success) {
-                        return new DecodingSubsetBench(path, colorType,
-                                                       fDivisor);
-                    }
+                    fCurrentSubsetType = 0;
+                    fCurrentColorType++;
                 }
+                fCurrentColorType = 0;
+                fCurrentSubsetImage++;
             }
-            fCurrentColorType = 0;
-            fCurrentSubsetImage++;
+            fCurrentSubsetImage = 0;
+            fUseCodec++;
         }
 
         return NULL;
@@ -813,6 +871,18 @@ public:
     }
 
 private:
+    enum SubsetType {
+        kTopLeft_SubsetType     = 0,
+        kTopRight_SubsetType    = 1,
+        kBottomLeft_SubsetType  = 2,
+        kBottomRight_SubsetType = 3,
+        k2x2_SubsetType         = 4,
+        k3x3_SubsetType         = 5,
+        kTranslate_SubsetType   = 6,
+        kZoom_SubsetType        = 7,
+        kLast_SubsetType        = kZoom_SubsetType
+    };
+
     const BenchRegistry* fBenches;
     const skiagm::GMRegistry* fGMs;
     SkIRect            fClip;
@@ -836,8 +906,9 @@ private:
     int fCurrentImage;
     int fCurrentSubsetImage;
     int fCurrentColorType;
+    int fCurrentSubsetType;
+    int fUseCodec;
     int fCurrentAnimSKP;
-    const int fDivisor;
 };
 
 int nanobench_main();
