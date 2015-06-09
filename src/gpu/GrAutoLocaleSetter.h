@@ -28,7 +28,7 @@ public:
 #if defined(SK_BUILD_FOR_WIN)
         fOldPerThreadLocale = _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
         fOldLocale = setlocale(LC_ALL, name);
-#elif !defined(SK_BUILD_FOR_ANDROID)
+#elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
         fLocale = newlocale(LC_ALL, name, 0);
         if (fLocale) {
             fOldLocale = uselocale(fLocale);
@@ -42,7 +42,7 @@ public:
 #if defined(SK_BUILD_FOR_WIN)
         setlocale(LC_ALL, fOldLocale);
         _configthreadlocale(fOldPerThreadLocale);
-#elif !defined(SK_BUILD_FOR_ANDROID)
+#elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
         if (fLocale) {
              uselocale(fOldLocale);
              freelocale(fLocale);
@@ -54,7 +54,7 @@ private:
 #if defined(SK_BUILD_FOR_WIN)
     int fOldPerThreadLocale;
     const char* fOldLocale;
-#elif !defined(SK_BUILD_FOR_ANDROID)
+#elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
     locale_t fOldLocale;
     locale_t fLocale;
 #endif
