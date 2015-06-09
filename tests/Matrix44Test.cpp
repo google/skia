@@ -368,15 +368,15 @@ static void test_invert(skiatest::Reporter* reporter) {
                      0,   0,    0,     1);
 
     SkMatrix44 scaleTranslation(SkMatrix44::kUninitialized_Constructor);
-    scaleTranslation.setScale(10, 100, 1000);
+    scaleTranslation.setScale(32, 128, 1024);
     scaleTranslation.preTranslate(2, 3, 4);
     scaleTranslation.invert(&inverse);
     inverse.asRowMajord(inverseData);
     assert16<double>(reporter, inverseData,
-                     0.1,  0,    0,   -2,
-                     0,   0.01,  0,   -3,
-                     0,    0,  0.001, -4,
-                     0,    0,    0,   1);
+                     0.03125,  0,          0,            -2,
+                     0,        0.0078125,  0,            -3,
+                     0,        0,          0.0009765625, -4,
+                     0,        0,          0,             1);
 
     SkMatrix44 rotation(SkMatrix44::kUninitialized_Constructor);
     rotation.setRotateDegreesAbout(0, 0, 1, 90);
@@ -831,14 +831,14 @@ DEF_TEST(Matrix44, reporter) {
 
     // test mixed-valued matrix inverse
     mat.reset();
-    mat.setScale(SkDoubleToMScalar(1.0e-10),
+    mat.setScale(SkDoubleToMScalar(1.0e-2),
                  SkDoubleToMScalar(3.0),
-                 SkDoubleToMScalar(1.0e+10));
+                 SkDoubleToMScalar(1.0e+2));
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
-    mat.postTranslate(SkDoubleToMScalar(1.0e+10),
+    mat.postTranslate(SkDoubleToMScalar(1.0e+2),
                       SkDoubleToMScalar(3.0),
-                      SkDoubleToMScalar(1.0e-10));
+                      SkDoubleToMScalar(1.0e-2));
     REPORTER_ASSERT(reporter, mat.invert(NULL));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
