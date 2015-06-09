@@ -271,9 +271,7 @@ public:
             fClip   = &((SkRasterClip*)&rec->fClip)->forceGetBW();
             fRC     = &rec->fClip;
             fDevice = rec->fDevice;
-            if (!fDevice->accessPixels(&fDst)) {
-                fDst.reset(fDevice->imageInfo(), NULL, 0);
-            }
+            fBitmap = &fDevice->accessBitmap(true);
             fPaint  = rec->fPaint;
             SkDEBUGCODE(this->validate();)
 

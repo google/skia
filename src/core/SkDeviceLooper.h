@@ -30,13 +30,14 @@
  */
 class SkDeviceLooper {
 public:
-    SkDeviceLooper(const SkPixmap& base, const SkRasterClip&, const SkIRect& bounds, bool aa);
+    SkDeviceLooper(const SkBitmap& base, const SkRasterClip&,
+                   const SkIRect& bounds, bool aa);
     ~SkDeviceLooper();
 
-    const SkPixmap& getPixmap() const {
+    const SkBitmap& getBitmap() const {
         SkASSERT(kDone_State != fState);
-        SkASSERT(fCurrDst);
-        return *fCurrDst;
+        SkASSERT(fCurrBitmap);
+        return *fCurrBitmap;
     }
 
     const SkRasterClip& getRC() const {
@@ -60,7 +61,7 @@ public:
     bool next();
 
 private:
-    const SkPixmap&     fBaseDst;
+    const SkBitmap&     fBaseBitmap;
     const SkRasterClip& fBaseRC;
 
     enum State {
@@ -70,10 +71,10 @@ private:
     };
 
     // storage for our tiled versions. Perhaps could use SkTLazy
-    SkPixmap            fSubsetDst;
+    SkBitmap            fSubsetBitmap;
     SkRasterClip        fSubsetRC;
 
-    const SkPixmap*     fCurrDst;
+    const SkBitmap*     fCurrBitmap;
     const SkRasterClip* fCurrRC;
     SkIRect             fClippedBounds;
     SkIPoint            fCurrOffset;

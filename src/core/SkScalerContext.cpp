@@ -248,7 +248,7 @@ static void applyLUTToA8Mask(const SkMask& mask, const uint8_t* lut) {
 }
 
 template<bool APPLY_PREBLEND>
-static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
+static void pack4xHToLCD16(const SkBitmap& src, const SkMask& dst,
                            const SkMaskGamma::PreBlend& maskPreBlend) {
 #define SAMPLES_PER_PIXEL 4
 #define LCD_PER_PIXEL 3
@@ -291,7 +291,7 @@ static void pack4xHToLCD16(const SkPixmap& src, const SkMask& dst,
     };
 
     for (int y = 0; y < height; ++y) {
-        const uint8_t* srcP = src.addr8(0, y);
+        const uint8_t* srcP = src.getAddr8(0, y);
 
         // TODO: this fir filter implementation is straight forward, but slow.
         // It should be possible to make it much faster.
@@ -406,29 +406,29 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     clip.setRect(SkIRect::MakeWH(dstW, dstH));
 
     const SkImageInfo info = SkImageInfo::MakeA8(dstW, dstH);
-    SkAutoPixmapStorage dst;
+    SkBitmap bm;
 
     if (0 == dstRB) {
-        if (!dst.tryAlloc(info)) {
+        if (!bm.tryAllocPixels(info)) {
             // can't allocate offscreen, so empty the mask and return
             sk_bzero(mask.fImage, mask.computeImageSize());
             return;
         }
     } else {
-        dst.reset(info, mask.fImage, dstRB);
+        bm.installPixels(info, mask.fImage, dstRB);
     }
-    sk_bzero(dst.writable_addr(), dst.getSafeSize());
+    sk_bzero(bm.getPixels(), bm.getSafeSize());
 
     SkDraw  draw;
-    draw.fDst   = dst;
     draw.fRC    = &clip;
     draw.fClip  = &clip.bwRgn();
     draw.fMatrix = &matrix;
+    draw.fBitmap = &bm;
     draw.drawPath(path, paint);
 
     switch (mask.fFormat) {
         case SkMask::kBW_Format:
-            packA8ToA1(mask, dst.addr8(0, 0), dst.rowBytes());
+            packA8ToA1(mask, bm.getAddr8(0, 0), bm.rowBytes());
             break;
         case SkMask::kA8_Format:
             if (maskPreBlend.isApplicable()) {
@@ -437,9 +437,9 @@ static void generateMask(const SkMask& mask, const SkPath& path,
             break;
         case SkMask::kLCD16_Format:
             if (maskPreBlend.isApplicable()) {
-                pack4xHToLCD16<true>(dst, mask, maskPreBlend);
+                pack4xHToLCD16<true>(bm, mask, maskPreBlend);
             } else {
-                pack4xHToLCD16<false>(dst, mask, maskPreBlend);
+                pack4xHToLCD16<false>(bm, mask, maskPreBlend);
             }
             break;
         default:

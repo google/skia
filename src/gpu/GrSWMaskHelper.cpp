@@ -146,8 +146,7 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
     if (kBlitter_CompressionMode == fCompressionMode) {
         SkASSERT(fCompressedBuffer.get());
         blitter = SkTextureCompressor::CreateBlitterForFormat(
-            fPixels.width(), fPixels.height(), fCompressedBuffer.get(), &allocator,
-                                                              fCompressedFormat);
+            fBM.width(), fBM.height(), fCompressedBuffer.get(), &allocator, fCompressedFormat);
     }
 
     if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
@@ -203,26 +202,28 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
         }
     } 
 
-    sk_bzero(&fDraw, sizeof(fDraw));
-
     // If we don't have a custom blitter, then we either need a bitmap to compress
     // from or a bitmap that we're going to use as a texture. In any case, we should
     // allocate the pixels for a bitmap
     const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(cmpWidth, cmpHeight);
     if (kBlitter_CompressionMode != fCompressionMode) {
-        if (!fPixels.tryAlloc(bmImageInfo)) {
+        if (!fBM.tryAllocPixels(bmImageInfo)) {
             return false;
         }
-        fPixels.erase(0);
+
+        sk_bzero(fBM.getPixels(), fBM.getSafeSize());
     } else {
         // Otherwise, we just need to remember how big the buffer is...
-        fPixels.reset(bmImageInfo);
+        fBM.setInfo(bmImageInfo);
     }
-    fDraw.fDst      = fPixels;
+
+    sk_bzero(&fDraw, sizeof(fDraw));
+
     fRasterClip.setRect(bounds);
-    fDraw.fRC       = &fRasterClip;
-    fDraw.fClip     = &fRasterClip.bwRgn();
-    fDraw.fMatrix   = &fMatrix;
+    fDraw.fRC    = &fRasterClip;
+    fDraw.fClip  = &fRasterClip.bwRgn();
+    fDraw.fMatrix = &fMatrix;
+    fDraw.fBitmap = &fBM;
     return true;
 }
 
@@ -231,8 +232,8 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
  */
 GrTexture* GrSWMaskHelper::createTexture() {
     GrSurfaceDesc desc;
-    desc.fWidth = fPixels.width();
-    desc.fHeight = fPixels.height();
+    desc.fWidth = fBM.width();
+    desc.fHeight = fBM.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
     if (kNone_CompressionMode != fCompressionMode) {
@@ -272,8 +273,7 @@ void GrSWMaskHelper::compressTextureData(GrTexture *texture, const GrSurfaceDesc
     SkASSERT(GrPixelConfigIsCompressed(desc.fConfig));
     SkASSERT(fmt_to_config(fCompressedFormat) == desc.fConfig);
 
-    SkAutoDataUnref cmpData(SkTextureCompressor::CompressBitmapToFormat(fPixels,
-                                                                        fCompressedFormat));
+    SkAutoDataUnref cmpData(SkTextureCompressor::CompressBitmapToFormat(fBM, fCompressedFormat));
     SkASSERT(cmpData);
 
     this->sendTextureData(texture, desc, cmpData->data(), 0);
@@ -283,15 +283,17 @@ void GrSWMaskHelper::compressTextureData(GrTexture *texture, const GrSurfaceDesc
  * Move the result of the software mask generation back to the gpu
  */
 void GrSWMaskHelper::toTexture(GrTexture *texture) {
+    SkAutoLockPixels alp(fBM);
+
     GrSurfaceDesc desc;
-    desc.fWidth = fPixels.width();
-    desc.fHeight = fPixels.height();
+    desc.fWidth = fBM.width();
+    desc.fHeight = fBM.height();
     desc.fConfig = texture->config();
         
     // First see if we should compress this texture before uploading.
     switch (fCompressionMode) {
         case kNone_CompressionMode:
-            this->sendTextureData(texture, desc, fPixels.addr(), fPixels.rowBytes());
+            this->sendTextureData(texture, desc, fBM.getPixels(), fBM.rowBytes());
             break;
 
         case kCompress_CompressionMode:
@@ -309,8 +311,10 @@ void GrSWMaskHelper::toTexture(GrTexture *texture) {
  * Convert mask generation results to a signed distance field
  */
 void GrSWMaskHelper::toSDF(unsigned char* sdf) {
-    SkGenerateDistanceFieldFromA8Image(sdf, (const unsigned char*)fPixels.addr(),
-                                       fPixels.width(), fPixels.height(), fPixels.rowBytes());
+    SkAutoLockPixels alp(fBM);
+    
+    SkGenerateDistanceFieldFromA8Image(sdf, (const unsigned char*)fBM.getPixels(),
+                                       fBM.width(), fBM.height(), fBM.rowBytes());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

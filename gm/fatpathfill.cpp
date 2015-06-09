@@ -31,17 +31,22 @@ static void draw_pixel_centers(SkCanvas* canvas) {
     }
 }
 
-static void draw_fatpath(SkCanvas* canvas, SkSurface* surface, const SkPath& path) {
+static void draw_fatpath(SkCanvas* canvas, SkSurface* surface,
+                         const SkPath paths[], int count) {
     SkPaint paint;
 
     surface->getCanvas()->clear(SK_ColorTRANSPARENT);
-    surface->getCanvas()->drawPath(path, paint);
+    for (int i = 0; i < count; ++i) {
+        surface->getCanvas()->drawPath(paths[i], paint);
+    }
     surface->draw(canvas, 0, 0, NULL);
 
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawPath(path, paint);
+    for (int j = 0; j < count; ++j) {
+        canvas->drawPath(paths[j], paint);
+    }
 
     draw_pixel_centers(canvas);
 }
@@ -52,15 +57,15 @@ public:
 
 protected:
 
-    SkString onShortName() override {
+    virtual SkString onShortName() {
         return SkString("fatpathfill");
     }
 
-    SkISize onISize() override {
+    virtual SkISize onISize() {
         return SkISize::Make(SMALL_W * ZOOM, SMALL_H * ZOOM * REPEAT_LOOP);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    virtual void onDraw(SkCanvas* canvas) {
         SkAutoTUnref<SkSurface> surface(new_surface(SMALL_W, SMALL_H));
 
         canvas->scale(ZOOM, ZOOM);
@@ -71,10 +76,10 @@ protected:
 
         for (int i = 0; i < REPEAT_LOOP; ++i) {
             SkPath line, path;
-            line.moveTo(1, 2);
-            line.lineTo(SkIntToScalar(4 + i), 1);
+            line.moveTo(SkIntToScalar(1), SkIntToScalar(2));
+            line.lineTo(SkIntToScalar(4 + i), SkIntToScalar(1));
             paint.getFillPath(line, &path);
-            draw_fatpath(canvas, surface, path);
+            draw_fatpath(canvas, surface, &path, 1);
 
             canvas->translate(0, SMALL_H);
         }

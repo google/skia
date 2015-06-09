@@ -9,8 +9,9 @@
 #include "SkRasterClip.h"
 #include "Test.h"
 
-static void make_pm(SkAutoPixmapStorage* pixmap, int w, int h) {
-    pixmap->alloc(SkImageInfo::Make(w, h, kAlpha_8_SkColorType, kPremul_SkAlphaType));
+static void make_bm(SkBitmap* bm, int w, int h) {
+    bm->allocPixels(SkImageInfo::Make(w, h, kAlpha_8_SkColorType,
+                                      kPremul_SkAlphaType));
 }
 
 static bool equal(const SkRasterClip& a, const SkRasterClip& b) {
@@ -39,19 +40,19 @@ static const struct {
 static void test_simple(skiatest::Reporter* reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-        SkAutoPixmapStorage pmap;
-        make_pm(&pmap, gRec[i].fDevSize.width(), gRec[i].fDevSize.height());
+        SkBitmap bitmap;
+        make_bm(&bitmap, gRec[i].fDevSize.width(), gRec[i].fDevSize.height());
 
         SkRasterClip rc(gRec[i].fRCBounds);
 
         for (int aa = 0; aa <= 1; ++aa) {
-            SkDeviceLooper looper(pmap, rc, gRec[i].fRect, SkToBool(aa));
+            SkDeviceLooper looper(bitmap, rc, gRec[i].fRect, SkToBool(aa));
 
             bool valid = looper.next();
             REPORTER_ASSERT(reporter, valid);
             if (valid) {
-                REPORTER_ASSERT(reporter, looper.getPixmap().width() == pmap.width());
-                REPORTER_ASSERT(reporter, looper.getPixmap().height() == pmap.height());
+                REPORTER_ASSERT(reporter, looper.getBitmap().width() == bitmap.width());
+                REPORTER_ASSERT(reporter, looper.getBitmap().height() == bitmap.height());
                 REPORTER_ASSERT(reporter, equal(looper.getRC(), rc));
 
                 REPORTER_ASSERT(reporter, !looper.next());
@@ -61,7 +62,7 @@ static void test_simple(skiatest::Reporter* reporter) {
         {
             SkIRect r = rc.getBounds();
             r.offset(r.width(), 0);
-            SkDeviceLooper looper(pmap, rc, r, false);
+            SkDeviceLooper looper(bitmap, rc, r, false);
             REPORTER_ASSERT(reporter, !looper.next());
         }
     }
@@ -108,8 +109,8 @@ static void test_complex(skiatest::Reporter* reporter) {
         const int w = gRec[i].fSize.width();
         const int h = gRec[i].fSize.height();
 
-        SkAutoPixmapStorage pmap;
-        make_pm(&pmap, w, h);
+        SkBitmap bitmap;
+        make_bm(&bitmap, w, h);
 
         const SkIRect rect = SkIRect::MakeWH(w, h);
 
@@ -124,7 +125,7 @@ static void test_complex(skiatest::Reporter* reporter) {
             SkRasterClip rc;
             rc.op(rgn, SkRegion::kReplace_Op);
 
-            SkDeviceLooper looper(pmap, rc, rect, gRec[i].fAA);
+            SkDeviceLooper looper(bitmap, rc, rect, gRec[i].fAA);
             while (looper.next()) {
                 REPORTER_ASSERT(reporter, !looper.getRC().isEmpty());
             }

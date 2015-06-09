@@ -116,12 +116,9 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     }
 
     if (SkMask::kJustComputeBounds_CreateMode != mode) {
-        SkDraw          draw;
-        if (!draw.fDst.reset(*mask)) {
-            return false;
-        }
-
+        SkBitmap        device;
         SkRasterClip    rectClip;
+        SkDraw          draw;
         SkMatrix        translatedMatrix;  // this translates us to our local pixels
         SkMatrix        drawMatrix;        // this translates the path by each layer's offset
 
@@ -131,6 +128,9 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
         translatedMatrix.postTranslate(-SkIntToScalar(mask->fBounds.fLeft),
                                        -SkIntToScalar(mask->fBounds.fTop));
 
+        device.installMaskPixels(*mask);
+
+        draw.fBitmap    = &device;
         draw.fMatrix    = &drawMatrix;
         draw.fRC        = &rectClip;
         draw.fClip      = &rectClip.bwRgn();
