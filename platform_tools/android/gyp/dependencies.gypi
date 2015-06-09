@@ -19,6 +19,22 @@
   },
   'targets': [
     {
+      'target_name': 'native_app_glue',
+      'type': 'static_library',
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../third_party/native_app_glue',
+        ],
+      },
+      'sources': [
+        '../third_party/native_app_glue/android_native_app_glue.c',
+        '../third_party/native_app_glue/android_native_app_glue.h',
+      ],
+      'cflags': [
+        '-w',
+      ],
+    }, 
+    {
       'target_name': 'cpu_features',
       'type': 'static_library',
       'direct_dependent_settings': {
