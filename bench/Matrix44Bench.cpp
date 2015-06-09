@@ -248,15 +248,25 @@ private:
 
 class SetConcatMatrix44Bench : public Matrix44Bench {
 public:
-    SetConcatMatrix44Bench()
-        : INHERITED("setconcat")
+    // SkMatrix44::setConcat() has a fast path for matrices that are at most scale+translate.
+    SetConcatMatrix44Bench(bool fastPath)
+        : INHERITED(fastPath ? "setconcat_fast" : "setconcat_general")
         , fM0(SkMatrix44::kUninitialized_Constructor)
         , fM1(SkMatrix44::kUninitialized_Constructor)
         , fM2(SkMatrix44::kUninitialized_Constructor)
 {
-        fX = fY = fZ = SkDoubleToMScalar(1.5);
-        fM1.setScale(fX, fY, fZ);
-        fM2.setTranslate(fX, fY, fZ);
+        if (fastPath) {
+            const SkMScalar v = SkDoubleToMScalar(1.5);
+            fM1.setScale(v,v,v);
+            fM2.setTranslate(v,v,v);
+        } else {
+            SkRandom rand;
+            for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                fM1.setFloat(x,y, rand.nextF());
+                fM2.setFloat(x,y, rand.nextF());
+            }}
+        }
     }
 protected:
     virtual void performTest() {
@@ -267,7 +277,6 @@ protected:
     }
 private:
     SkMatrix44 fM0, fM1, fM2;
-    SkMScalar  fX, fY, fZ;
     typedef Matrix44Bench INHERITED;
 };
 
@@ -300,5 +309,6 @@ DEF_BENCH( return new InvertMatrix44Bench(); )
 DEF_BENCH( return new InvertAffineMatrix44Bench(); )
 DEF_BENCH( return new InvertScaleTranslateMatrix44Bench(); )
 DEF_BENCH( return new InvertTranslateMatrix44Bench(); )
-DEF_BENCH( return new SetConcatMatrix44Bench(); )
+DEF_BENCH( return new SetConcatMatrix44Bench(true); )
+DEF_BENCH( return new SetConcatMatrix44Bench(false); )
 DEF_BENCH( return new GetTypeMatrix44Bench(); )
