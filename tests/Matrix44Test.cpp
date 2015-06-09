@@ -200,8 +200,8 @@ static void test_map2(skiatest::Reporter* reporter, const SkMatrix44& mat) {
     SkMScalar dstA[4], dstB[4];
 
     for (int i = 0; i < 4; ++i) {
-        dstA[i] = 123456789;
-        dstB[i] = 987654321;
+        dstA[i] = SkDoubleToMScalar(123456789);
+        dstB[i] = SkDoubleToMScalar(987654321);
     }
 
     mat.map2(src2, 1, dstA);
@@ -532,29 +532,29 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
 static void test_has_perspective(skiatest::Reporter* reporter) {
     SkMatrix44 transform(SkMatrix44::kIdentity_Constructor);
 
-    transform.set(3, 2, -0.1);
+    transform.setDouble(3, 2, -0.1);
     REPORTER_ASSERT(reporter, transform.hasPerspective());
 
     transform.reset();
     REPORTER_ASSERT(reporter, !transform.hasPerspective());
 
-    transform.set(3, 0, -1.0);
+    transform.setDouble(3, 0, -1.0);
     REPORTER_ASSERT(reporter, transform.hasPerspective());
 
     transform.reset();
-    transform.set(3, 1, -1.0);
+    transform.setDouble(3, 1, -1.0);
     REPORTER_ASSERT(reporter, transform.hasPerspective());
 
     transform.reset();
-    transform.set(3, 2, -0.3);
+    transform.setDouble(3, 2, -0.3);
     REPORTER_ASSERT(reporter, transform.hasPerspective());
 
     transform.reset();
-    transform.set(3, 3, 0.5);
+    transform.setDouble(3, 3, 0.5);
     REPORTER_ASSERT(reporter, transform.hasPerspective());
- 
+
     transform.reset();
-    transform.set(3, 3, 0.0);
+    transform.setDouble(3, 3, 0.0);
     REPORTER_ASSERT(reporter, transform.hasPerspective());
 }
 
@@ -757,13 +757,13 @@ static void test_preserves_2d_axis_alignment(skiatest::Reporter* reporter) {
 
   // Perspective cases.
   transform.setIdentity();
-  transform.set(3, 2, -0.1); // Perspective depth 10
+  transform.setDouble(3, 2, -0.1); // Perspective depth 10
   transform2.setRotateDegreesAbout(0.0, 1.0, 0.0, 45.0);
   transform.preConcat(transform2);
   test(false, reporter, transform);
 
   transform.setIdentity();
-  transform.set(3, 2, -0.1); // Perspective depth 10
+  transform.setDouble(3, 2, -0.1); // Perspective depth 10
   transform2.setRotateDegreesAbout(0.0, 0.0, 1.0, 90.0);
   transform.preConcat(transform2);
   test(true, reporter, transform);
@@ -819,10 +819,11 @@ DEF_TEST(Matrix44, reporter) {
 
     // test tiny-valued matrix inverse
     mat.reset();
-    mat.setScale(1.0e-12, 1.0e-12, 1.0e-12);
+    auto v = SkDoubleToMScalar(1.0e-12);
+    mat.setScale(v,v,v);
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
-    mat.postTranslate(1.0e-12, 1.0e-12, 1.0e-12);
+    mat.postTranslate(v,v,v);
     REPORTER_ASSERT(reporter, mat.invert(NULL));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
@@ -830,10 +831,14 @@ DEF_TEST(Matrix44, reporter) {
 
     // test mixed-valued matrix inverse
     mat.reset();
-    mat.setScale(1.0e-10, 3.0, 1.0e+10);
+    mat.setScale(SkDoubleToMScalar(1.0e-10),
+                 SkDoubleToMScalar(3.0),
+                 SkDoubleToMScalar(1.0e+10));
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
-    mat.postTranslate(1.0e+10, 3.0, 1.0e-10);
+    mat.postTranslate(SkDoubleToMScalar(1.0e+10),
+                      SkDoubleToMScalar(3.0),
+                      SkDoubleToMScalar(1.0e-10));
     REPORTER_ASSERT(reporter, mat.invert(NULL));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);

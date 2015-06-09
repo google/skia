@@ -91,6 +91,8 @@ static inline float sk_float_copysign(float x, float y) {
     #define sk_float_log(x)         logf(x)
 #endif
 
+#define sk_float_round(x) sk_float_floor((x) + 0.5f)
+
 // can't find log2f on android, but maybe that just a tool bug?
 #ifdef SK_BUILD_FOR_ANDROID
     static inline float sk_float_log2(float x) {

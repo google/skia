@@ -473,24 +473,24 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
             double invYScale = 1 / fMat[1][1];
             double invZScale = 1 / fMat[2][2];
 
-            inverse->fMat[0][0] = invXScale;
+            inverse->fMat[0][0] = SkDoubleToMScalar(invXScale);
             inverse->fMat[0][1] = 0;
             inverse->fMat[0][2] = 0;
             inverse->fMat[0][3] = 0;
 
             inverse->fMat[1][0] = 0;
-            inverse->fMat[1][1] = invYScale;
+            inverse->fMat[1][1] = SkDoubleToMScalar(invYScale);
             inverse->fMat[1][2] = 0;
             inverse->fMat[1][3] = 0;
 
             inverse->fMat[2][0] = 0;
             inverse->fMat[2][1] = 0;
-            inverse->fMat[2][2] = invZScale;
+            inverse->fMat[2][2] = SkDoubleToMScalar(invZScale);
             inverse->fMat[2][3] = 0;
 
-            inverse->fMat[3][0] = -fMat[3][0] * invXScale;
-            inverse->fMat[3][1] = -fMat[3][1] * invYScale;
-            inverse->fMat[3][2] = -fMat[3][2] * invZScale;
+            inverse->fMat[3][0] = SkDoubleToMScalar(-fMat[3][0] * invXScale);
+            inverse->fMat[3][1] = SkDoubleToMScalar(-fMat[3][1] * invYScale);
+            inverse->fMat[3][2] = SkDoubleToMScalar(-fMat[3][2] * invZScale);
             inverse->fMat[3][3] = 1;
 
             inverse->setTypeMask(this->getType());
