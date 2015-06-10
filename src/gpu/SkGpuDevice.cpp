@@ -1474,7 +1474,7 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
 }
 
 static bool wrap_as_bm(const SkImage* image, SkBitmap* bm) {
-    GrTexture* tex = image->getTexture();
+    GrTexture* tex = as_IB(image)->getTexture();
     if (tex) {
         GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), bm);
         return true;

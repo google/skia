@@ -27,6 +27,7 @@
         '../include/utils/unix',
         '../include/utils/win',
         '../src/core',
+        '../src/image',
         '../src/opts',
         '../src/utils',
       ],

@@ -13,6 +13,7 @@
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"
 #include "SkGPipe.h"
+#include "SkImage_Base.h"
 #include "SkPaint.h"
 #include "SkPaintPriv.h"
 #include "SkRRect.h"
@@ -43,7 +44,7 @@ static uint64_t image_area(const SkImage* image) {
 // mutable for now (at least for the purposes of deferred canvas)
 //
 static bool should_draw_gpu_image_immediately(const SkImage* image) {
-    return image->getTexture() != NULL;
+    return as_IB(image)->getTexture() != NULL;
 }
 
 static bool should_draw_immediately(const SkBitmap* bitmap, const SkImage* image,

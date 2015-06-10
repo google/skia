@@ -46,7 +46,7 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY) const;
     
-    virtual GrTexture* onGetTexture() const { return NULL; }
+    virtual GrTexture* getTexture() const { return NULL; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).

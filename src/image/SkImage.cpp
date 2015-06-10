@@ -13,6 +13,10 @@
 #include "SkReadPixelsRec.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#if SK_SUPPORT_GPU
+#include "GrTexture.h"
+#include "GrContext.h"
+#endif
 
 uint32_t SkImage::NextUniqueID() {
     static int32_t gUniqueID;
@@ -44,10 +48,6 @@ bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dst
         return false;
     }
     return as_IB(this)->onReadPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
-}
-
-GrTexture* SkImage::getTexture() const {
-    return as_IB(this)->onGetTexture();
 }
 
 SkShader* SkImage::newShader(SkShader::TileMode tileX,
@@ -108,6 +108,38 @@ SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset,
 
     return as_IB(this)->onNewImage(newWidth, newHeight, subset, quality);
 }
+
+#if SK_SUPPORT_GPU
+
+GrTexture* SkImage::getTexture() const {
+    return as_IB(this)->getTexture();
+}
+
+bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->getTexture()); }
+
+GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextReads) const {
+    GrTexture* texture = as_IB(this)->getTexture();
+    if (texture) {
+        GrContext* context = texture->getContext();
+        if (context) {            
+            if (flushPendingGrContextReads) {
+                context->prepareSurfaceForExternalRead(texture);
+            }
+        }
+        return texture->getTextureHandle();
+    }
+    return 0;
+}
+
+#else
+
+GrTexture* SkImage::getTexture() const { return NULL; }
+
+bool SkImage::isTextureBacked() const { return false; }
+
+GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextReads) const { return 0; }
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

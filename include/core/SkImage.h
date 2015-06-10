@@ -97,13 +97,6 @@ public:
     uint32_t uniqueID() const { return fUniqueID; }
     virtual bool isOpaque() const { return false; }
 
-    /**
-     * Return the GrTexture that stores the image pixels. Calling getTexture
-     * does not affect the reference count of the GrTexture object.
-     * Will return NULL if the image does not use a texture.
-     */
-    GrTexture* getTexture() const;
-
     virtual SkShader* newShader(SkShader::TileMode,
                                 SkShader::TileMode,
                                 const SkMatrix* localMatrix = NULL) const;
@@ -118,6 +111,21 @@ public:
      *  ignored.
      */
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes) const;
+
+    // DEPRECATED
+    GrTexture* getTexture() const;
+
+    /**
+     *  Returns true if the image is texture backed.
+     */
+    bool isTextureBacked() const;
+
+    /** 
+     *  Retrieves the backend API handle of the texture. If flushPendingGrContextReads then the
+     *  GrContext will issue to the backend API any deferred read operations on the texture before
+     *  returning.
+     */
+    GrBackendObject getTextureHandle(bool flushPendingGrContextReads) const;
 
     /**
      *  Copy the pixels from the image into the specified buffer (pixels + rowBytes),

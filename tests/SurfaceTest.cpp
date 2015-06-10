@@ -9,6 +9,7 @@
 #include "SkData.h"
 #include "SkDevice.h"
 #include "SkImageEncoder.h"
+#include "SkImage_Base.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
@@ -528,13 +529,13 @@ static void Test_crbug263329(skiatest::Reporter* reporter,
     // be recycling a texture that is held by an existing image.
     canvas2->clear(5);
     SkAutoTUnref<SkImage> image4(surface2->newImageSnapshot());
-    REPORTER_ASSERT(reporter, image4->getTexture() != image3->getTexture());
+    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image3)->getTexture());
     // The following assertion checks crbug.com/263329
-    REPORTER_ASSERT(reporter, image4->getTexture() != image2->getTexture());
-    REPORTER_ASSERT(reporter, image4->getTexture() != image1->getTexture());
-    REPORTER_ASSERT(reporter, image3->getTexture() != image2->getTexture());
-    REPORTER_ASSERT(reporter, image3->getTexture() != image1->getTexture());
-    REPORTER_ASSERT(reporter, image2->getTexture() != image1->getTexture());
+    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image2)->getTexture());
+    REPORTER_ASSERT(reporter, as_IB(image4)->getTexture() != as_IB(image1)->getTexture());
+    REPORTER_ASSERT(reporter, as_IB(image3)->getTexture() != as_IB(image2)->getTexture());
+    REPORTER_ASSERT(reporter, as_IB(image3)->getTexture() != as_IB(image1)->getTexture());
+    REPORTER_ASSERT(reporter, as_IB(image2)->getTexture() != as_IB(image1)->getTexture());
 }
 
 static void TestGetTexture(skiatest::Reporter* reporter,
@@ -542,7 +543,7 @@ static void TestGetTexture(skiatest::Reporter* reporter,
                                  GrContext* context) {
     SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
-    GrTexture* texture = image->getTexture();
+    GrTexture* texture = as_IB(image)->getTexture();
     if (surfaceType == kGpu_SurfaceType || surfaceType == kGpuScratch_SurfaceType) {
         REPORTER_ASSERT(reporter, texture);
         REPORTER_ASSERT(reporter, 0 != texture->getTextureHandle());
@@ -550,7 +551,7 @@ static void TestGetTexture(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, NULL == texture);
     }
     surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
-    REPORTER_ASSERT(reporter, image->getTexture() == texture);
+    REPORTER_ASSERT(reporter, as_IB(image)->getTexture() == texture);
 }
 
 #include "GrGpuResourcePriv.h"

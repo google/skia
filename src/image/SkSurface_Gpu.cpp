@@ -69,7 +69,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     // image because onCopyOnWrite is only called when there is a cached image.
     SkImage* image = this->getCachedImage(kNo_Budgeted);
     SkASSERT(image);
-    if (rt->asTexture() == image->getTexture()) {
+    if (rt->asTexture() == as_IB(image)->getTexture()) {
         this->fDevice->replaceRenderTarget(SkSurface::kRetain_ContentChangeMode == mode);
         SkTextureImageApplyBudgetedDecision(image);
     } else if (kDiscard_ContentChangeMode == mode) {

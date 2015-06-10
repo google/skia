@@ -37,7 +37,7 @@ public:
     }
 
     bool getROPixels(SkBitmap*) const override;
-    GrTexture* onGetTexture() const override { return fTexture; }
+    GrTexture* getTexture() const override { return fTexture; }
     SkShader* onNewShader(SkShader::TileMode,
                           SkShader::TileMode,
                           const SkMatrix* localMatrix) const override;

@@ -36,7 +36,7 @@ SkSurface* SkImage_Gpu::onNewSurface(const SkImageInfo& info, const SkSurfacePro
 }
 
 extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
-    if (image->getTexture()) {
+    if (as_IB(image)->getTexture()) {
         ((SkImage_Gpu*)image)->applyBudgetDecision();
     }
 }
