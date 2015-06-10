@@ -13,6 +13,7 @@ then
   exit 1
 fi
 
+verbose "pushing binaries onto the device..."
 adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/skia_launcher" /data/local/tmp
 if [ -f "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" ]; then
     # Does not exist for builds with static skia.
@@ -20,18 +21,24 @@ if [ -f "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" ]; then
 fi
 adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/lib${APP_ARGS[0]}.so" /data/local/tmp
 if [[ -n $RESOURCE_PATH ]]; then
+  verbose "pushing resources onto the device..."
   adb_push_if_needed "${SKIA_SRC_DIR}/resources" $RESOURCE_PATH
 fi
 
-if [ $LOGCAT ]; then $ADB $DEVICE_SERIAL logcat -c; fi
+if [ $LOGCAT ]; then
+   verbose "clearing the device logs..." 
+  $ADB $DEVICE_SERIAL logcat -c;
+fi
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
 CMD_FILENAME=".skia_cmd_tmp_$(date +%s%N)"
 echo "LD_LIBRARY_PATH=/data/local/tmp:$LD_LIBRARY_PATH \
      /data/local/tmp/skia_launcher ${APP_ARGS[*]}; \
      echo \$? > ${STATUS_FILENAME}" > ${CMD_FILENAME}
 chmod +x ${CMD_FILENAME}
+verbose "pushing command file onto the device..."
 $ADB ${DEVICE_SERIAL} push ${CMD_FILENAME} /data/local/tmp
 rm ${CMD_FILENAME}
+verbose "preparing to run ${APP_ARGS[0]} on the device..."
 $ADB ${DEVICE_SERIAL} shell sh /data/local/tmp/${CMD_FILENAME}
     
 if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exists; fi')" ]; then
