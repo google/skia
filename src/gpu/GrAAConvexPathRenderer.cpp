@@ -22,6 +22,7 @@
 #include "GrPipelineBuilder.h"
 #include "GrStrokeInfo.h"
 #include "SkGeometry.h"
+#include "SkPathPriv.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
 #include "gl/GrGLProcessor.h"
@@ -116,7 +117,7 @@ static void center_of_mass(const SegmentArray& segments, SkPoint* c) {
 
 static void compute_vectors(SegmentArray* segments,
                             SkPoint* fanPt,
-                            SkPath::Direction dir,
+                            SkPathPriv::FirstDirection dir,
                             int* vCount,
                             int* iCount) {
     center_of_mass(*segments, fanPt);
@@ -124,7 +125,7 @@ static void compute_vectors(SegmentArray* segments,
 
     // Make the normals point towards the outside
     SkPoint::Side normSide;
-    if (dir == SkPath::kCCW_Direction) {
+    if (dir == SkPathPriv::kCCW_FirstDirection) {
         normSide = SkPoint::kRight_Side;
     } else {
         normSide = SkPoint::kLeft_Side;
@@ -212,8 +213,9 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
     }
 }
 
-static inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::Direction* dir) {
-    if (!path.cheapComputeDirection(dir)) {
+static inline bool get_direction(const SkPath& path, const SkMatrix& m,
+                                 SkPathPriv::FirstDirection* dir) {
+    if (!SkPathPriv::CheapComputeFirstDirection(path, dir)) {
         return false;
     }
     // check whether m reverses the orientation
@@ -221,7 +223,7 @@ static inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::
     SkScalar det2x2 = SkScalarMul(m.get(SkMatrix::kMScaleX), m.get(SkMatrix::kMScaleY)) -
                       SkScalarMul(m.get(SkMatrix::kMSkewX), m.get(SkMatrix::kMSkewY));
     if (det2x2 < 0) {
-        *dir = SkPath::OppositeDirection(*dir);
+        *dir = SkPathPriv::OppositeFirstDirection(*dir);
     }
     return true;
 }
@@ -248,7 +250,7 @@ static inline void add_quad_segment(const SkPoint pts[3],
 }
 
 static inline void add_cubic_segments(const SkPoint pts[4],
-                                      SkPath::Direction dir,
+                                      SkPathPriv::FirstDirection dir,
                                       SegmentArray* segments) {
     SkSTArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, true, dir, &quads);
@@ -273,7 +275,7 @@ static bool get_segments(const SkPath& path,
     // line paths. We detect paths that are very close to a line (zero area) and
     // draw nothing.
     DegenerateTestData degenerateData;
-    SkPath::Direction dir;
+    SkPathPriv::FirstDirection dir;
     // get_direction can fail for some degenerate paths.
     if (!get_direction(path, m, &dir)) {
         return false;

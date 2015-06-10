@@ -7,7 +7,7 @@
 
 #include "SkMatrix.h"
 #include "SkOpEdgeBuilder.h"
-#include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkPathOps.h"
 #include "SkPathOpsCommon.h"
 
@@ -32,9 +32,9 @@ void FixWinding(SkPath* path) {
     } else if (fillType == SkPath::kEvenOdd_FillType) {
         fillType = SkPath::kWinding_FillType;
     }
-    SkPath::Direction dir;
-    if (one_contour(*path) && path->cheapComputeDirection(&dir)) {
-        if (dir != SkPath::kCCW_Direction) {
+    SkPathPriv::FirstDirection dir;
+    if (one_contour(*path) && SkPathPriv::CheapComputeFirstDirection(*path, &dir)) {
+        if (dir != SkPathPriv::kCCW_FirstDirection) {
             SkPath temp;
             temp.reverseAddPath(*path);
             *path = temp;
@@ -106,7 +106,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
     SkPath original = *result;
     int count = fOps.count();
     bool allUnion = true;
-    SkPath::Direction firstDir;
+    SkPathPriv::FirstDirection firstDir;
     for (int index = 0; index < count; ++index) {
         SkPath* test = &fPathRefs[index];
         if (kUnion_SkPathOp != fOps[index] || test->isInverseFillType()) {
@@ -115,8 +115,8 @@ bool SkOpBuilder::resolve(SkPath* result) {
         }
         // If all paths are convex, track direction, reversing as needed.
         if (test->isConvex()) {
-            SkPath::Direction dir;
-            if (!test->cheapComputeDirection(&dir)) {
+            SkPathPriv::FirstDirection dir;
+            if (!SkPathPriv::CheapComputeFirstDirection(*test, &dir)) {
                 allUnion = false;
                 break;
             }

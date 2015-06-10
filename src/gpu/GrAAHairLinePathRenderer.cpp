@@ -345,7 +345,7 @@ static int gather_lines_and_quads(const SkPath& path,
                 if (SkIRect::Intersects(devClipBounds, ibounds)) {
                     PREALLOC_PTARRAY(32) q;
                     // we don't need a direction if we aren't constraining the subdivision
-                    static const SkPath::Direction kDummyDir = SkPath::kCCW_Direction;
+                    const SkPathPriv::FirstDirection kDummyDir = SkPathPriv::kCCW_FirstDirection;
                     // We convert cubics to quadratics (for now).
                     // In perspective have to do conversion in src space.
                     if (persp) {

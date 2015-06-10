@@ -10,6 +10,7 @@
 
 #include "SkCanvas.h"
 #include "SkDrawable.h"
+#include "SkPathPriv.h"
 #include "SkPicture.h"
 #include "SkTextBlob.h"
 
@@ -215,8 +216,8 @@ struct PreCachedPath : public SkPath {
     PreCachedPath() {}
     explicit PreCachedPath(const SkPath& path) : SkPath(path) {
         this->updateBoundsCache();
-        SkPath::Direction junk;
-        (void)this->cheapComputeDirection(&junk);
+        SkPathPriv::FirstDirection junk;
+        (void)SkPathPriv::CheapComputeFirstDirection(*this, &junk);
     }
 };
 

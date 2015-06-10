@@ -7,7 +7,7 @@
 
 #include "SkStrokerPriv.h"
 #include "SkGeometry.h"
-#include "SkPath.h"
+#include "SkPathPriv.h"
 
 enum {
     kTangent_RecursiveLimit,
@@ -1344,7 +1344,7 @@ DONE:
     stroker.done(dst, lastSegment == SkPath::kLine_Verb);
 
     if (fDoFill) {
-        if (src.cheapIsDirection(SkPath::kCCW_Direction)) {
+        if (SkPathPriv::CheapIsFirstDirection(src, SkPathPriv::kCCW_FirstDirection)) {
             dst->reverseAddPath(src);
         } else {
             dst->addPath(src);
@@ -1379,8 +1379,8 @@ DONE:
 }
 
 static SkPath::Direction reverse_direction(SkPath::Direction dir) {
-    SkASSERT(SkPath::kUnknown_Direction != dir);
-    return SkPath::kCW_Direction == dir ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
+    static const SkPath::Direction gOpposite[] = { SkPath::kCCW_Direction, SkPath::kCW_Direction };
+    return gOpposite[dir];
 }
 
 static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPath::Direction dir) {

@@ -9,7 +9,7 @@
 #define GrPathUtils_DEFINED
 
 #include "SkRect.h"
-#include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkTArray.h"
 
 class SkMatrix;
@@ -121,7 +121,7 @@ namespace GrPathUtils {
     void convertCubicToQuads(const SkPoint p[4],
                              SkScalar tolScale,
                              bool constrainWithinTangents,
-                             SkPath::Direction dir,
+                             SkPathPriv::FirstDirection dir,
                              SkTArray<SkPoint, true>* quads);
 
     // Chops the cubic bezier passed in by src, at the double point (intersection point)

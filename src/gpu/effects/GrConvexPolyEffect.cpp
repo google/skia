@@ -7,7 +7,7 @@
 
 #include "GrConvexPolyEffect.h"
 #include "GrInvariantOutput.h"
-#include "SkPath.h"
+#include "SkPathPriv.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLSL.h"
 #include "gl/builders/GrGLProgramBuilder.h"
@@ -279,8 +279,8 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType type, const 
     SkPoint pts[kMaxEdges];
     SkScalar edges[3 * kMaxEdges];
 
-    SkPath::Direction dir;
-    SkAssertResult(path.cheapComputeDirection(&dir));
+    SkPathPriv::FirstDirection dir;
+    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, &dir));
 
     SkVector t;
     if (NULL == offset) {
@@ -295,7 +295,7 @@ GrFragmentProcessor* GrConvexPolyEffect::Create(GrPrimitiveEdgeType type, const 
         if (pts[lastPt] != pts[i]) {
             SkVector v = pts[i] - pts[lastPt];
             v.normalize();
-            if (SkPath::kCCW_Direction == dir) {
+            if (SkPathPriv::kCCW_FirstDirection == dir) {
                 edges[3 * n] = v.fY;
                 edges[3 * n + 1] = -v.fX;
             } else {

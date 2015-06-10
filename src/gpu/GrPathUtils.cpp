@@ -365,16 +365,16 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
                                     const SkVector& ab,
                                     const SkVector& dc,
                                     const SkPoint& d,
-                                    SkPath::Direction dir,
+                                    SkPathPriv::FirstDirection dir,
                                     const SkPoint p) {
     SkVector ap = p - a;
     SkScalar apXab = ap.cross(ab);
-    if (SkPath::kCW_Direction == dir) {
+    if (SkPathPriv::kCW_FirstDirection == dir) {
         if (apXab > 0) {
             return false;
         }
     } else {
-        SkASSERT(SkPath::kCCW_Direction == dir);
+        SkASSERT(SkPathPriv::kCCW_FirstDirection == dir);
         if (apXab < 0) {
             return false;
         }
@@ -382,12 +382,12 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
 
     SkVector dp = p - d;
     SkScalar dpXdc = dp.cross(dc);
-    if (SkPath::kCW_Direction == dir) {
+    if (SkPathPriv::kCW_FirstDirection == dir) {
         if (dpXdc < 0) {
             return false;
         }
     } else {
-        SkASSERT(SkPath::kCCW_Direction == dir);
+        SkASSERT(SkPathPriv::kCCW_FirstDirection == dir);
         if (dpXdc > 0) {
             return false;
         }
@@ -398,7 +398,7 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
 void convert_noninflect_cubic_to_quads(const SkPoint p[4],
                                        SkScalar toleranceSqd,
                                        bool constrainWithinTangents,
-                                       SkPath::Direction dir,
+                                       SkPathPriv::FirstDirection dir,
                                        SkTArray<SkPoint, true>* quads,
                                        int sublevel = 0) {
 
@@ -546,7 +546,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
 void GrPathUtils::convertCubicToQuads(const SkPoint p[4],
                                       SkScalar tolScale,
                                       bool constrainWithinTangents,
-                                      SkPath::Direction dir,
+                                      SkPathPriv::FirstDirection dir,
                                       SkTArray<SkPoint, true>* quads) {
     SkPoint chopped[10];
     int count = SkChopCubicAtInflections(p, chopped);
