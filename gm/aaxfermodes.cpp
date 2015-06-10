@@ -67,9 +67,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-#if 0
         fLabelPaint.setAntiAlias(true);
-#endif
         sk_tool_utils::set_portable_typeface_always(&fLabelPaint);
         fLabelPaint.setTextSize(5 * kShapeSize/8);
         fLabelPaint.setSubpixelText(true);
