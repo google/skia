@@ -312,8 +312,9 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
             }
             if (!flagMatched) {
 #if SK_BUILD_FOR_MAC
-                if (SkStrStartsWith(argv[i], "NSDocumentRevisions")) {
-                        i++;  // skip YES
+                if (SkStrStartsWith(argv[i], "NSDocumentRevisions")
+                        || SkStrStartsWith(argv[i], "-NSDocumentRevisions")) {
+                    i++;  // skip YES
                 } else
 #endif
                 if (FLAGS_undefok) {

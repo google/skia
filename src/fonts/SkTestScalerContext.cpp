@@ -137,7 +137,6 @@ void SkTestTypeface::getPath(const SkGlyph& glyph, SkPath* path) {
 
 void SkTestTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkPaint::kNo_Hinting);
-    rec->fMaskFormat = SkMask::kA8_Format;
 }
 
 SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
@@ -243,7 +242,6 @@ protected:
         glyph->fTop = ibounds.fTop;
         glyph->fWidth = ibounds.width();
         glyph->fHeight = ibounds.height();
-        glyph->fMaskFormat = SkMask::kARGB32_Format;
     }
 
     void generateImage(const SkGlyph& glyph) override {

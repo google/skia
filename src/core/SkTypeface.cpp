@@ -19,6 +19,9 @@ SkTypeface::SkTypeface(const SkFontStyle& style, SkFontID fontID, bool isFixedPi
 
 SkTypeface::~SkTypeface() { }
 
+
+SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style ) = NULL;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkEmptyTypeface : public SkTypeface {
@@ -110,6 +113,12 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
+    if (gCreateTypefaceDelegate) {
+        SkTypeface* result = (*gCreateTypefaceDelegate)(name, style);
+        if (result) {
+            return result;
+        }
+    }
     if (NULL == name) {
         return RefDefault(style);
     }

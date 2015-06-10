@@ -6,6 +6,7 @@
  */
 
 #include "Resources.h"
+#include "SkFontMgr.h"
 #include "SkOSFile.h"
 #include "SkTestScalerContext.h"
 #include "SkThread.h"
@@ -14,7 +15,10 @@
 
 namespace sk_tool_utils {
 
-#include "test_font_data.cpp"
+#include "test_font_monospace.cpp"
+#include "test_font_sans_serif.cpp"
+#include "test_font_serif.cpp"
+#include "test_font_index.cpp"
 
 static void release_portable_typefaces() {
     // We'll clean this up in our own tests, but disable for clients.
@@ -43,8 +47,13 @@ SkTypeface* create_font(const char* name, SkTypeface::Style style) {
             }
         }
         if (!fontData) {
+            // Once all legacy callers to portable fonts are converted, replace this with
+            // SK_CRASH();
             SkDebugf("missing %s %d\n", name, style);
-            return SkTypeface::CreateFromName(name, style);
+            // If we called SkTypeface::CreateFromName() here we'd recurse infinitely,
+            // so we reimplement its core logic here inline without the recursive aspect.
+            SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+            return fm->legacyCreateTypeface(name, style);
         }
     } else {
         sub = &gSubFonts[gDefaultFontIndex];

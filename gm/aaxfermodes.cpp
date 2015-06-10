@@ -49,6 +49,12 @@ public:
     AAXfermodesGM() {}
 
 protected:
+    enum DrawingPass {
+        kCheckerboard_Pass,
+        kBackground_Pass,
+        kShape_Pass
+    };
+
     SkString onShortName() override {
         return SkString("aaxfermodes");
     }
@@ -61,8 +67,10 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
+#if 0
         fLabelPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&fLabelPaint);
+#endif
+        sk_tool_utils::set_portable_typeface_always(&fLabelPaint);
         fLabelPaint.setTextSize(5 * kShapeSize/8);
         fLabelPaint.setSubpixelText(true);
 
@@ -78,38 +86,29 @@ protected:
         fPath.quadTo(pts[3], pts[0]);
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        sk_tool_utils::draw_checkerboard(canvas, 0xffffffff, 0xffc0c0c0, 10);
+    void draw_pass(SkCanvas* canvas, DrawingPass drawingPass) {
+        SkRect clipRect =
+                { -kShapeSize*11/16, -kShapeSize*11/16, kShapeSize*11/16, kShapeSize*11/16 };
 
-        canvas->saveLayer(NULL, NULL);
-        canvas->drawColor(kBGColor, SkXfermode::kSrc_Mode);
-
-        canvas->translate(kMargin, kMargin);
-
-        SkPaint titlePaint(fLabelPaint);
-        titlePaint.setTextSize(9 * titlePaint.getTextSize() / 8);
-        titlePaint.setFakeBoldText(true);
-        titlePaint.setTextAlign(SkPaint::kCenter_Align);
-        canvas->drawText("Porter Duff", sizeof("Porter Duff") - 1,
-                         kLabelSpacing + 3 * kShapeTypeSpacing,
-                         kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
-        canvas->drawText("Advanced", sizeof("Advanced") - 1,
-                         kXfermodeTypeSpacing + kLabelSpacing + 3 * kShapeTypeSpacing,
-                         kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
-
+        canvas->save();
+        if (kCheckerboard_Pass == drawingPass) {
+            canvas->translate(kMargin, kMargin);
+        }
         canvas->translate(0, kTitleSpacing);
 
         for (size_t xfermodeSet = 0; xfermodeSet < 2; xfermodeSet++) {
             size_t firstMode = (SkXfermode::kLastCoeffMode + 1) * xfermodeSet;
             canvas->save();
 
-            fLabelPaint.setTextAlign(SkPaint::kCenter_Align);
-            canvas->drawText("Src Unknown", sizeof("Src Unknown") - 1,
-                             kLabelSpacing + kShapeSpacing / 2 + kShapeTypeSpacing,
-                             kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
-            canvas->drawText("Src Opaque", sizeof("Src Opaque") - 1,
-                             kLabelSpacing + kShapeSpacing / 2 + kShapeTypeSpacing + kPaintSpacing,
-                             kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
+            if (kShape_Pass == drawingPass) {
+                fLabelPaint.setTextAlign(SkPaint::kCenter_Align);
+                canvas->drawText("Src Unknown", sizeof("Src Unknown") - 1,
+                        kLabelSpacing + kShapeSpacing / 2 + kShapeTypeSpacing,
+                        kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
+                canvas->drawText("Src Opaque", sizeof("Src Opaque") - 1,
+                        kLabelSpacing + kShapeSpacing / 2 + kShapeTypeSpacing + kPaintSpacing,
+                        kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
+            }
 
             canvas->translate(0, kSubtitleSpacing + kShapeSpacing/2);
 
@@ -117,7 +116,9 @@ protected:
                 SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(firstMode + m);
                 canvas->save();
 
-                this->drawModeName(canvas, mode);
+                if (kShape_Pass == drawingPass) {
+                    this->drawModeName(canvas, mode);
+                }
                 canvas->translate(kLabelSpacing + kShapeSpacing/2, 0);
 
                 for (size_t colorIdx = 0; colorIdx < SK_ARRAY_COUNT(kShapeColors); colorIdx++) {
@@ -127,7 +128,20 @@ protected:
                     canvas->save();
 
                     for (size_t shapeIdx = 0; shapeIdx <= kLast_Shape; shapeIdx++) {
-                        this->drawShape(canvas, static_cast<Shape>(shapeIdx), paint, mode);
+                        if (kShape_Pass != drawingPass) {
+                            canvas->save();
+                            canvas->clipRect(clipRect);
+                            if (kCheckerboard_Pass == drawingPass) {
+                                sk_tool_utils::draw_checkerboard(canvas, 0xffffffff, 0xffc6c3c6,
+                                        10);
+                            } else {
+                                SkASSERT(kBackground_Pass == drawingPass);
+                                canvas->drawColor(kBGColor, SkXfermode::kSrc_Mode);
+                            }
+                            canvas->restore();
+                        } else {
+                            this->drawShape(canvas, static_cast<Shape>(shapeIdx), paint, mode);
+                        }
                         canvas->translate(kShapeTypeSpacing, 0);
                     }
 
@@ -143,6 +157,28 @@ protected:
             canvas->translate(kXfermodeTypeSpacing, 0);
         }
 
+        canvas->restore();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        draw_pass(canvas, kCheckerboard_Pass);
+        canvas->saveLayer(NULL, NULL);
+
+        canvas->translate(kMargin, kMargin);
+        draw_pass(canvas, kBackground_Pass);
+
+        SkPaint titlePaint(fLabelPaint);
+        titlePaint.setTextSize(9 * titlePaint.getTextSize() / 8);
+        titlePaint.setFakeBoldText(true);
+        titlePaint.setTextAlign(SkPaint::kCenter_Align);
+        canvas->drawText("Porter Duff", sizeof("Porter Duff") - 1,
+                         kLabelSpacing + 3 * kShapeTypeSpacing,
+                         kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
+        canvas->drawText("Advanced", sizeof("Advanced") - 1,
+                         kXfermodeTypeSpacing + kLabelSpacing + 3 * kShapeTypeSpacing,
+                         kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
+
+        draw_pass(canvas, kShape_Pass);
         canvas->restore();
     }
 
