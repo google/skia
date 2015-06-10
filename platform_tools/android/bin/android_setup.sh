@@ -35,7 +35,6 @@ while (( "$#" )); do
     LOGCAT=1
   elif [[ "$1" == "--verbose" ]]; then
     VERBOSE="true"
-    APP_ARGS=("${APP_ARGS[@]}" "${1}")
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
