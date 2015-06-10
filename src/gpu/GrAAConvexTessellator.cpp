@@ -10,6 +10,7 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkString.h"
+#include "GrPathUtils.h"
 
 // Next steps:
 //  use in AAConvexPathRenderer
@@ -51,13 +52,15 @@ static SkScalar abs_dist_from_line(const SkPoint& p0, const SkVector& v, const S
 
 int GrAAConvexTessellator::addPt(const SkPoint& pt,
                                  SkScalar depth,
-                                 bool movable) {
+                                 bool movable,
+                                 bool isCurve) {
     this->validate();
 
     int index = fPts.count();
     *fPts.push() = pt;
     *fDepths.push() = depth;
     *fMovable.push() = movable;
+    *fIsCurve.push() = isCurve;
 
     this->validate();
     return index;
@@ -236,7 +239,6 @@ bool GrAAConvexTessellator::computePtAlongBisector(int startIdx,
 }
 
 bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& path) {
-    SkASSERT(SkPath::kLine_SegmentMask == path.getSegmentMasks());
     SkASSERT(SkPath::kConvex_Convexity == path.getConvexity());
 
     // Outer ring: 3*numPts
@@ -250,7 +252,8 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
 
     fNorms.setReserve(path.countPoints());
 
-    SkScalar minCross = SK_ScalarMax, maxCross = -SK_ScalarMax;
+    SkDEBUGCODE(fMinCross = SK_ScalarMax;)
+    SkDEBUGCODE(fMaxCross = -SK_ScalarMax;)
 
     // TODO: is there a faster way to extract the points from the path? Perhaps
     // get all the points via a new entry point, transform them all in bulk
@@ -261,38 +264,16 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kLine_Verb:
-                m.mapPoints(&pts[1], 1);
-                if (this->numPts() > 0 && duplicate_pt(pts[1], this->lastPoint())) {
-                    continue;
-                }
-
-                SkASSERT(fPts.count() <= 1 || fPts.count() == fNorms.count()+1);
-                if (this->numPts() >= 2 && 
-                    abs_dist_from_line(fPts.top(), fNorms.top(), pts[1]) < kClose) {
-                    // The old last point is on the line from the second to last to the new point
-                    this->popLastPt();
-                    fNorms.pop();
-                }
-
-                this->addPt(pts[1], 0.0f, false);
-                if (this->numPts() > 1) {
-                    *fNorms.push() = fPts.top() - fPts[fPts.count()-2];
-                    SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&fNorms.top());
-                    SkASSERT(len > 0.0f);
-                    SkASSERT(SkScalarNearlyEqual(1.0f, fNorms.top().length()));
-                }
-
-                if (this->numPts() >= 3) {
-                    int cur = this->numPts()-1;
-                    SkScalar cross = SkPoint::CrossProduct(fNorms[cur-1], fNorms[cur-2]);
-                    maxCross = SkTMax(maxCross, cross);
-                    minCross = SkTMin(minCross, cross);
-                }
+                this->lineTo(m, pts[1], false);
                 break;
             case SkPath::kQuad_Verb:
-            case SkPath::kConic_Verb:
+                this->quadTo(m, pts);
+                break;
             case SkPath::kCubic_Verb:
-                SkASSERT(false);
+                this->cubicTo(m, pts);
+                break;
+            case SkPath::kConic_Verb:
+                this->conicTo(m, pts, iter.conicWeight());
                 break;
             case SkPath::kMove_Verb:
             case SkPath::kClose_Verb:
@@ -342,16 +323,14 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
         return false;
     }
 
-    // Check the cross produce of the final trio
+    // Check the cross product of the final trio
     SkScalar cross = SkPoint::CrossProduct(fNorms[0], fNorms.top());
-    maxCross = SkTMax(maxCross, cross);
-    minCross = SkTMin(minCross, cross);
-
-    if (maxCross > 0.0f) {
-        SkASSERT(minCross >= 0.0f);
+    SkDEBUGCODE(fMaxCross = SkTMax(fMaxCross, cross));
+    SkDEBUGCODE(fMinCross = SkTMin(fMinCross, cross));
+    SkASSERT((fMaxCross >= 0.0f) == (fMinCross >= 0.0f));
+    if (cross > 0.0f) {
         fSide = SkPoint::kRight_Side;
     } else {
-        SkASSERT(minCross <= 0.0f);
         fSide = SkPoint::kLeft_Side;
     }
 
@@ -404,69 +383,109 @@ void GrAAConvexTessellator::createOuterRing() {
 
     const int numPts = fPts.count();
 
-    // For each vertex of the original polygon we add three points to the 
-    // outset polygon - one extending perpendicular to each impinging edge
-    // and one along the bisector. Two triangles are added for each corner
-    // and two are added along each edge.
     int prev = numPts - 1;
     int lastPerpIdx = -1, firstPerpIdx = -1, newIdx0, newIdx1, newIdx2;
     for (int cur = 0; cur < numPts; ++cur) {
-        // The perpendicular point for the last edge
-        SkPoint temp = fNorms[prev];
-        temp.scale(fTargetDepth);
-        temp += fPts[cur];
+        if (fIsCurve[cur]) {
+            // Inside a curve, we assume that the curvature is shallow enough (due to tesselation) 
+            // that we only need one corner point. Mathematically, the distance the corner point 
+            // gets shifted out should depend on the angle between the two line segments (as in 
+            // mitering), but again due to tesselation we assume that this angle is small and 
+            // therefore the correction factor is negligible and we do not bother with it.
 
-        // We know it isn't a duplicate of the prior point (since it and this
-        // one are just perpendicular offsets from the non-merged polygon points)
-        newIdx0 = this->addPt(temp, -fTargetDepth, false);
+            // The bisector outset point
+            SkPoint temp = fBisectors[cur];
+            temp.scale(-fTargetDepth);  // the bisectors point in
+            temp += fPts[cur];
 
-        // The bisector outset point
-        temp = fBisectors[cur];
-        temp.scale(-fTargetDepth);  // the bisectors point in
-        temp += fPts[cur];
+            // double-check our "sufficiently flat" assumption; we want the bisector point to be
+            // close to the normal point.
+            #define kFlatnessTolerance 1.0f
+            SkDEBUGCODE(SkPoint prevNormal = fNorms[prev];)
+            SkDEBUGCODE(prevNormal.scale(fTargetDepth);)
+            SkDEBUGCODE(prevNormal += fPts[cur];)
+            SkASSERT((temp - prevNormal).length() < kFlatnessTolerance);
 
-        // For very shallow angles all the corner points could fuse
-        if (duplicate_pt(temp, this->point(newIdx0))) {
-            newIdx1 = newIdx0;
-        } else {
-            newIdx1 = this->addPt(temp, -fTargetDepth, false);
+            newIdx1 = this->addPt(temp, -fTargetDepth, false, true);
+
+            if (0 == cur) {
+                // Store the index of the first perpendicular point to finish up
+                firstPerpIdx = newIdx1;
+                SkASSERT(-1 == lastPerpIdx);
+            } else {
+                // The triangles for the previous edge
+                this->addTri(prev, newIdx1, cur);
+                this->addTri(prev, lastPerpIdx, newIdx1);
+            }
+
+            prev = cur;
+            // Track the last perpendicular outset point so we can construct the
+            // trailing edge triangles.
+            lastPerpIdx = newIdx1;
         }
+        else {
+            // For each vertex of the original polygon we add three points to the 
+            // outset polygon - one extending perpendicular to each impinging edge
+            // and one along the bisector. Two triangles are added for each corner
+            // and two are added along each edge.
 
-        // The perpendicular point for the next edge.
-        temp = fNorms[cur];
-        temp.scale(fTargetDepth);
-        temp += fPts[cur];
+            // The perpendicular point for the last edge
+            SkPoint temp = fNorms[prev];
+            temp.scale(fTargetDepth);
+            temp += fPts[cur];
 
-        // For very shallow angles all the corner points could fuse.
-        if (duplicate_pt(temp, this->point(newIdx1))) {
-            newIdx2 = newIdx1;
-        } else {
-            newIdx2 = this->addPt(temp, -fTargetDepth, false);
+            // We know it isn't a duplicate of the prior point (since it and this
+            // one are just perpendicular offsets from the non-merged polygon points)
+            newIdx0 = this->addPt(temp, -fTargetDepth, false, false);
+
+            // The bisector outset point
+            temp = fBisectors[cur];
+            temp.scale(-fTargetDepth);  // the bisectors point in
+            temp += fPts[cur];
+
+            // For very shallow angles all the corner points could fuse
+            if (duplicate_pt(temp, this->point(newIdx0))) {
+                newIdx1 = newIdx0;
+            } else {
+                newIdx1 = this->addPt(temp, -fTargetDepth, false, false);
+            }
+
+            // The perpendicular point for the next edge.
+            temp = fNorms[cur];
+            temp.scale(fTargetDepth);
+            temp += fPts[cur];
+
+            // For very shallow angles all the corner points could fuse.
+            if (duplicate_pt(temp, this->point(newIdx1))) {
+                newIdx2 = newIdx1;
+            } else {
+                newIdx2 = this->addPt(temp, -fTargetDepth, false, false);
+            }
+
+            if (0 == cur) {
+                // Store the index of the first perpendicular point to finish up
+                firstPerpIdx = newIdx0;
+                SkASSERT(-1 == lastPerpIdx);
+            } else {
+                // The triangles for the previous edge
+                this->addTri(prev, newIdx0, cur);
+                this->addTri(prev, lastPerpIdx, newIdx0);
+            }
+
+            // The two triangles for the corner
+            this->addTri(cur, newIdx0, newIdx1);
+            this->addTri(cur, newIdx1, newIdx2);
+
+            prev = cur;
+            // Track the last perpendicular outset point so we can construct the
+            // trailing edge triangles.
+            lastPerpIdx = newIdx2;
         }
-
-        if (0 == cur) {
-            // Store the index of the first perpendicular point to finish up
-            firstPerpIdx = newIdx0;
-            SkASSERT(-1 == lastPerpIdx);
-        } else {
-            // The triangles for the previous edge
-            this->addTri(prev, newIdx0, cur);
-            this->addTri(prev, lastPerpIdx, newIdx0);
-        }
-
-        // The two triangles for the corner
-        this->addTri(cur, newIdx0, newIdx1);
-        this->addTri(cur, newIdx1, newIdx2);
-
-        prev = cur;
-        // Track the last perpendicular outset point so we can construct the
-        // trailing edge triangles.
-        lastPerpIdx = newIdx2;
     }
 
     // pick up the final edge rect
-    this->addTri(numPts-1, firstPerpIdx, 0);
-    this->addTri(numPts-1, lastPerpIdx, firstPerpIdx);
+    this->addTri(numPts - 1, firstPerpIdx, 0);
+    this->addTri(numPts - 1, lastPerpIdx, firstPerpIdx);
 
     this->validate();
 }
@@ -592,7 +611,7 @@ bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing
             // if the originating index is still valid then this point wasn't 
             // fused (and is thus movable)
             newIdx = this->addPt(fCandidateVerts.point(i), depth,
-                                 fCandidateVerts.originatingIdx(i) != -1);
+                                 fCandidateVerts.originatingIdx(i) != -1, false);
         } else {
             SkASSERT(fCandidateVerts.originatingIdx(i) != -1);
             this->updatePt(fCandidateVerts.originatingIdx(i), fCandidateVerts.point(i), depth);
@@ -767,6 +786,84 @@ void GrAAConvexTessellator::checkAllDepths() const {
     }
 }
 #endif
+
+#define kQuadTolerance 0.2f
+#define kCubicTolerance 0.2f
+#define kConicTolerance 0.5f
+
+void GrAAConvexTessellator::lineTo(const SkMatrix& m, SkPoint p, bool isCurve) {
+    m.mapPoints(&p, 1);
+    if (this->numPts() > 0 && duplicate_pt(p, this->lastPoint())) {
+        return;
+    }
+
+    SkASSERT(fPts.count() <= 1 || fPts.count() == fNorms.count()+1);
+    if (this->numPts() >= 2 && 
+        abs_dist_from_line(fPts.top(), fNorms.top(), p) < kClose) {
+        // The old last point is on the line from the second to last to the new point
+        this->popLastPt();
+        fNorms.pop();
+        fIsCurve.pop();
+    }
+    this->addPt(p, 0.0f, false, isCurve);
+    if (this->numPts() > 1) {
+        *fNorms.push() = fPts.top() - fPts[fPts.count()-2];
+        SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&fNorms.top());
+        SkASSERT(len > 0.0f);
+        SkASSERT(SkScalarNearlyEqual(1.0f, fNorms.top().length()));
+    }
+    SkDEBUGCODE(
+        if (this->numPts() >= 3) {
+            int cur = this->numPts()-1;
+            SkScalar cross = SkPoint::CrossProduct(fNorms[cur-1], fNorms[cur-2]);
+            fMaxCross = SkTMax(fMaxCross, cross);
+            fMinCross = SkTMin(fMinCross, cross);
+        }
+    )
+}
+
+void GrAAConvexTessellator::quadTo(const SkMatrix& m, SkPoint pts[3]) {
+    int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
+    fPointBuffer.setReserve(maxCount);
+    SkPoint* target = fPointBuffer.begin();
+    int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2], 
+            kQuadTolerance, &target, maxCount);
+    fPointBuffer.setCount(count);
+    for (int i = 0; i < count; i++) {
+        lineTo(m, fPointBuffer[i], true);
+    }
+}
+
+void GrAAConvexTessellator::cubicTo(const SkMatrix& m, SkPoint pts[4]) {
+    int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
+    fPointBuffer.setReserve(maxCount);
+    SkPoint* target = fPointBuffer.begin();
+    int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3], 
+            kCubicTolerance, &target, maxCount);
+    fPointBuffer.setCount(count);
+    for (int i = 0; i < count; i++) {
+        lineTo(m, fPointBuffer[i], true);
+    }
+}
+
+// include down here to avoid compilation errors caused by "-" overload in SkGeometry.h
+#include "SkGeometry.h"
+
+void GrAAConvexTessellator::conicTo(const SkMatrix& m, SkPoint* pts, SkScalar w) {
+    SkAutoConicToQuads quadder;
+    const SkPoint* quads = quadder.computeQuads(pts, w, kConicTolerance);
+    SkPoint lastPoint = *(quads++);
+    int count = quadder.countQuads();
+    for (int i = 0; i < count; ++i) {
+        SkPoint quadPts[3];
+        quadPts[0] = lastPoint;
+        quadPts[1] = quads[0];
+        quadPts[2] = i == count - 1 ? pts[2] : quads[1];
+        quadTo(m, quadPts);
+        lastPoint = quadPts[2];
+        quads += 2;
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////
 #if GR_AA_CONVEX_TESSELLATOR_VIZ

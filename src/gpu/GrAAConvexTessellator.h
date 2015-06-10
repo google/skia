@@ -165,7 +165,7 @@ private:
     // Movable points are those that can be slid along their bisector.
     // Basically, a point is immovable if it is part of the original
     // polygon or it results from the fusing of two bisectors.
-    int addPt(const SkPoint& pt, SkScalar depth, bool movable);
+    int addPt(const SkPoint& pt, SkScalar depth, bool movable, bool isCurve);
     void popLastPt();
     void popFirstPtShuffle();
 
@@ -184,6 +184,14 @@ private:
     bool computePtAlongBisector(int startIdx, const SkPoint& bisector,
                                 int edgeIdx, SkScalar desiredDepth,
                                 SkPoint* result) const;
+
+    void lineTo(const SkMatrix& m, SkPoint p, bool isCurve);
+
+    void quadTo(const SkMatrix& m, SkPoint pts[3]);
+
+    void cubicTo(const SkMatrix& m, SkPoint pts[4]);
+
+    void conicTo(const SkMatrix& m, SkPoint pts[3], SkScalar w);
 
     void terminate(const Ring& lastRing);
 
@@ -217,6 +225,11 @@ private:
     // The inward facing bisector at each point in the original polygon. Only
     // needed for exterior ring creation and then handed off to the initial ring.
     SkTDArray<SkVector> fBisectors;
+
+    // Tracks whether a given point is interior to a curve. Such points are 
+    // assumed to have shallow curvature.
+    SkTDArray<bool> fIsCurve;
+
     SkPoint::Side       fSide;    // winding of the original polygon
 
     // The triangulation of the points
@@ -233,10 +246,16 @@ private:
 
     SkScalar            fTargetDepth;
 
+    SkTDArray<SkPoint>  fPointBuffer;
+
     // If some goes wrong with the inset computation the tessellator will 
     // truncate the creation of the inset polygon. In this case the depth
     // check will complain.
     SkDEBUGCODE(bool fShouldCheckDepths;)
+
+    SkDEBUGCODE(SkScalar fMinCross;)
+    
+    SkDEBUGCODE(SkScalar fMaxCross;)
 };
 
 
