@@ -233,7 +233,7 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
     Sk2s B = Sk2s::Load(&coeff[1].fX);
     Sk2s C = Sk2s::Load(&coeff[2].fX);
     for (int i = 1; i < lines; ++i) {
-        t += dt;
+        t = t + dt;
         ((A * t + B) * t + C).store(&tmp[i].fX);
     }
     tmp[lines] = pts[2];
@@ -241,7 +241,7 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
 }
 
 static inline Sk2s abs(const Sk2s& value) {
-    return Sk2s::Max(value, -value);
+    return Sk2s::Max(value, Sk2s(0)-value);
 }
 
 static inline SkScalar max_component(const Sk2s& value) {
@@ -298,7 +298,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
 
     SkPoint coeff[4];
     SkCubicToCoeff(pts, coeff);
-    
+
     const Sk2s dt(SK_Scalar1 / lines);
     Sk2s t(0);
 
@@ -311,7 +311,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     Sk2s C = Sk2s::Load(&coeff[2].fX);
     Sk2s D = Sk2s::Load(&coeff[3].fX);
     for (int i = 1; i < lines; ++i) {
-        t += dt;
+        t = t + dt;
         (((A * t + B) * t + C) * t + D).store(&tmp[i].fX);
     }
     tmp[lines] = pts[3];

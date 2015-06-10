@@ -46,7 +46,7 @@ static void test_Nf(skiatest::Reporter* r) {
     assert_eq(a*b-b, 6, 12, 20, 30);
     assert_eq((a*b).sqrt(), 3, 4, 5, 6);
     assert_eq(a/b, 1, 1, 1, 1);
-    assert_eq(-a, -3, -4, -5, -6);
+    assert_eq(SkNf<N,T>(0)-a, -3, -4, -5, -6);
 
     SkNf<N,T> fours(4);
 

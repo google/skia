@@ -320,8 +320,8 @@ void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar 
 
         for (int i = 0; i < (count >> 2); ++i) {
             Sk4f dist = Sk4f::Min(fast_sqrt(R), max);
-            R += dR;
-            dR += ddR;
+            R = R + dR;
+            dR = dR + ddR;
 
             int fi[4];
             dist.castTrunc().store(fi);

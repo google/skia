@@ -1284,7 +1284,7 @@ SkPoint SkConic::evalAt(SkScalar t) const {
     Sk2s numer = quad_poly_eval(A, B, C, tt);
 
     B = times_2(ww - one);
-    A = -B;
+    A = Sk2s(0)-B;
     Sk2s denom = quad_poly_eval(A, B, one, tt);
 
     return to_point(numer / denom);

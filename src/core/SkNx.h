@@ -260,17 +260,6 @@ protected:
 
 }  // namespace
 
-// Generic syntax sugar that should work equally well for all implementations.
-template <typename T> T operator - (const T& l) { return T(0) - l; }
-
-template <typename L, typename R> L& operator += (L& l, const R& r) { return (l = l + r); }
-template <typename L, typename R> L& operator -= (L& l, const R& r) { return (l = l - r); }
-template <typename L, typename R> L& operator *= (L& l, const R& r) { return (l = l * r); }
-template <typename L, typename R> L& operator /= (L& l, const R& r) { return (l = l / r); }
-
-template <typename L> L& operator <<= (L& l, int bits) { return (l = l << bits); }
-template <typename L> L& operator >>= (L& l, int bits) { return (l = l >> bits); }
-
 // Include platform specific specializations if available.
 #ifndef SKNX_NO_SIMD
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2

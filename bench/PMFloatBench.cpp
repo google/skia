@@ -121,10 +121,10 @@ struct PMFloatGradientBench : public Benchmark {
                 fDevice[i+1] = SkPMFloat(b).trunc();
                 fDevice[i+2] = SkPMFloat(c).trunc();
                 fDevice[i+3] = SkPMFloat(d).trunc();
-                a += dcdx4;
-                b += dcdx4;
-                c += dcdx4;
-                d += dcdx4;
+                a = a + dcdx4;
+                b = b + dcdx4;
+                c = c + dcdx4;
+                d = d + dcdx4;
             }
         }
     }

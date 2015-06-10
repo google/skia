@@ -72,12 +72,12 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
             count -= 2;
         }
         accum = max = min;
-        accum *= Sk4s(0);
+        accum = accum * Sk4s(0);
 
         count >>= 1;
         for (int i = 0; i < count; ++i) {
             Sk4s xy = Sk4s::Load(&pts->fX);
-            accum *= xy;
+            accum = accum * xy;
             min = Sk4s::Min(min, xy);
             max = Sk4s::Max(max, xy);
             pts += 2;
