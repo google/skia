@@ -1079,13 +1079,13 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // XY refers to dashPos, Z is the dash interval length
     GrGLVertToFrag inDashParams(kVec3f_GrSLType);
-    args.fPB->addVarying("DashParams", &inDashParams);
+    args.fPB->addVarying("DashParams", &inDashParams, GrSLPrecision::kHigh_GrSLPrecision);
     vsBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     GrGLVertToFrag inRectParams(kVec4f_GrSLType);
-    args.fPB->addVarying("RectParams", &inRectParams);
+    args.fPB->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
     vsBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
 
     // Setup pass through color
