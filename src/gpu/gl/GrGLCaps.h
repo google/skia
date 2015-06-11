@@ -264,7 +264,7 @@ public:
     GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
 private:
-    void init(const GrGLContextInfo& ctxInfo, const GrGLInterface* glInterface);
+    void init(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
 
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -428,8 +428,6 @@ public:
     SkString dump() const override;
 
 private:
-    void init(const GrGLContextInfo&, const GrGLInterface*, const GrGLCaps&);
-
     // Must be called after fGeometryShaderSupport is initialized.
     void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*);
 
@@ -443,6 +441,8 @@ private:
     const char* fFBFetchExtensionString;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
+
+    friend class GrGLCaps;  // For initialization.
 
     typedef GrShaderCaps INHERITED;
 };
