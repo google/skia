@@ -927,7 +927,13 @@ private:
         // 1 free bit at 24
         kConvexity_SerializationShift = 16, // requires 8 bits
         kFillType_SerializationShift = 8,   // requires 8 bits
-        // 8 free bits at 0
+        // low-8-bits are version
+    };
+
+    enum SerializationVersions {
+        kPathPrivFirstDirection_Version = 1,
+
+        kCurrent_Version = 1
     };
 
     SkAutoTUnref<SkPathRef> fPathRef;

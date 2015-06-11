@@ -1861,7 +1861,8 @@ size_t SkPath::writeToMemory(void* storage) const {
     int32_t packed = (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
                      (fFirstDirection << kDirection_SerializationShift) |
-                     (fIsVolatile << kIsVolatile_SerializationShift);
+                     (fIsVolatile << kIsVolatile_SerializationShift) |
+                     kCurrent_Version;
 
     buffer.write32(packed);
 
@@ -1879,11 +1880,32 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         return 0;
     }
 
+    unsigned version = packed & 0xFF;
+    
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
-    fFirstDirection = (packed >> kDirection_SerializationShift) & 0x3;
+    uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
     fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
+
+    // compatibility check
+    if (version < kPathPrivFirstDirection_Version) {
+        switch (dir) {  // old values
+            case 0:
+                fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+                break;
+            case 1:
+                fFirstDirection = SkPathPriv::kCW_FirstDirection;
+                break;
+            case 2:
+                fFirstDirection = SkPathPriv::kCCW_FirstDirection;
+                break;
+            default:
+                SkASSERT(false);
+        }
+    } else {
+        fFirstDirection = dir;
+    }
 
     size_t sizeRead = 0;
     if (buffer.isValid()) {
