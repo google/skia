@@ -27,23 +27,6 @@ static void output_message(j_common_ptr info) {
     print_message(info, "output_message");
 }
 
-/*
- * Choose the size of the memory buffer on Android
- */
-static void overwrite_mem_buffer_size(jpeg_decompress_struct* dinfo) {
-#ifdef SK_BUILD_FOR_ANDROID
-
-// Use 30 MB for devices with a large amount of system memory and 5MB otherwise
-// TODO: (msarett) This matches SkImageDecoder.  Why were these values chosen?
-#ifdef ANDROID_LARGE_MEMORY_DEVICE
-    dinfo->mem->max_memory_to_use = 30 * 1024 * 1024;
-#else
-    dinfo->mem->max_memory_to_use = 5 * 1024 * 1024;
-#endif
-
-#endif // SK_BUILD_FOR_ANDROID
-}
-
 bool JpegDecoderMgr::returnFalse(const char caller[]) {
     print_message((j_common_ptr) &fDInfo, caller);
     return false;
@@ -89,7 +72,6 @@ void JpegDecoderMgr::init() {
     jpeg_create_decompress(&fDInfo);
     fInit = true;
     fDInfo.src = &fSrcMgr;
-    overwrite_mem_buffer_size(&fDInfo);
     fDInfo.err->emit_message = &emit_message;
     fDInfo.err->output_message = &output_message;
 }

@@ -196,18 +196,6 @@ def write_android_mk(target_dir, common, deviations_from_common):
 
     f.write('LOCAL_ARM_MODE := thumb\n')
 
-    # need a flag to tell the C side when we're on devices with large memory
-    # budgets (i.e. larger than the low-end devices that initially shipped)
-    # On arm, only define the flag if it has VFP. For all other architectures,
-    # always define the flag.
-    f.write('ifeq ($(TARGET_ARCH),arm)\n')
-    f.write('\tifeq ($(ARCH_ARM_HAVE_VFP),true)\n')
-    f.write('\t\tLOCAL_CFLAGS += -DANDROID_LARGE_MEMORY_DEVICE\n')
-    f.write('\tendif\n')
-    f.write('else\n')
-    f.write('\tLOCAL_CFLAGS += -DANDROID_LARGE_MEMORY_DEVICE\n')
-    f.write('endif\n\n')
-
     f.write('# used for testing\n')
     f.write('#LOCAL_CFLAGS += -g -O0\n\n')
 

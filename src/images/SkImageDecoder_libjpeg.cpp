@@ -57,22 +57,6 @@ SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderErrors,
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-static void overwrite_mem_buffer_size(jpeg_decompress_struct* cinfo) {
-#ifdef SK_BUILD_FOR_ANDROID
-    /* Check if the device indicates that it has a large amount of system memory
-     * if so, increase the memory allocation to 30MB instead of the default 5MB.
-     */
-#ifdef ANDROID_LARGE_MEMORY_DEVICE
-    cinfo->mem->max_memory_to_use = 30 * 1024 * 1024;
-#else
-    cinfo->mem->max_memory_to_use = 5 * 1024 * 1024;
-#endif
-#endif // SK_BUILD_FOR_ANDROID
-}
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
 static void do_nothing_emit_message(jpeg_common_struct*, int) {
     /* do nothing */
 }
@@ -84,7 +68,6 @@ static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* sr
     SkASSERT(cinfo != NULL);
     SkASSERT(src_mgr != NULL);
     jpeg_create_decompress(cinfo);
-    overwrite_mem_buffer_size(cinfo);
     cinfo->src = src_mgr;
     /* To suppress warnings with a SK_DEBUG binary, set the
      * environment variable "skia_images_jpeg_suppressDecoderWarnings"

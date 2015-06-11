@@ -42,14 +42,6 @@ ifneq ($(strip $(TARGET_FDO_CFLAGS)),)
 endif
 
 LOCAL_ARM_MODE := thumb
-ifeq ($(TARGET_ARCH),arm)
-	ifeq ($(ARCH_ARM_HAVE_VFP),true)
-		LOCAL_CFLAGS += -DANDROID_LARGE_MEMORY_DEVICE
-	endif
-else
-	LOCAL_CFLAGS += -DANDROID_LARGE_MEMORY_DEVICE
-endif
-
 # used for testing
 #LOCAL_CFLAGS += -g -O0
 
