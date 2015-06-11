@@ -145,11 +145,13 @@ SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
                                 uint32_t glyphIDsCount) const {
 // pdf only
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
+    info->fFontName.set(fTestFont->fName);
+    info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
+    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
+    info->fLastGlyphID = static_cast<uint16_t>(fTestFont->fCharCodesCount - 1);
     info->fEmSize = 0;
     info->fLastGlyphID = SkToU16(onCountGlyphs() - 1);
     info->fStyle = 0;
-    info->fFontName.set(fTestFont->fName);
-    info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
     info->fItalicAngle = 0;
     info->fAscent = 0;
     info->fDescent = 0;
