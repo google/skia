@@ -130,7 +130,7 @@ static int output_points(const SkPoint* pts, int emSize, int count, SkString* pt
 static void output_path_data(const SkPaint& paint,
         int emSize, SkString* ptsOut, SkTDArray<SkPath::Verb>* verbs,
         SkTDArray<unsigned>* charCodes, SkTDArray<SkScalar>* widths) {
-    for (char ch = 0x20; ch < 0x7F; ++ch) {
+    for (int ch = 0x00; ch < 0x7f; ++ch) {
         char str[1];
         str[0] = ch;
         const char* used = str;
@@ -167,8 +167,11 @@ static void output_path_data(const SkPaint& paint,
         SkScalar width;
         SkDEBUGCODE(int charCount =) paint.getTextWidths((const void*) &index, 2, &width);
         SkASSERT(charCount == 1);
-//        SkASSERT(floor(width) == width);  // not true for Hiragino Maru Gothic Pro
+     // SkASSERT(floor(width) == width);  // not true for Hiragino Maru Gothic Pro
         *widths->append() = width;
+        if (!ch) {
+            ch = 0x1f;  // skip the rest of the control codes
+        }
     }
 }
 
@@ -253,8 +256,8 @@ static void output_font(SkTypeface* face, const char* name, SkTypeface::Style st
     }
     fprintf(out, "\n};\n\n");
     
-    // FIXME: all fonts are now 0x20 - 0xFE
-    // don't need to generate or output character codes
+    // all fonts are now 0x00, 0x20 - 0xFE
+    // don't need to generate or output character codes?
     fprintf(out, "const unsigned %sCharCodes[] = {\n", fontname);
     int offsetCount = charCodes.count();
     for (int index = 0; index < offsetCount;) {
