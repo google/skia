@@ -64,10 +64,11 @@ void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType)
+CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, float scale)
     : fPath(path)
     , fMode(mode)
     , fDstColorType(dstColorType)
+    , fScale(scale)
 {}
 
 Error CodecSrc::draw(SkCanvas* canvas) const {
@@ -107,6 +108,13 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             decodeInfo = decodeInfo.makeColorType(canvasColorType);
             break;
     }
+
+    // Try to scale the image if it is desired
+    SkISize size = codec->getScaledDimensions(fScale);
+    if (size == decodeInfo.dimensions() && 1.0f != fScale) {
+        return Error::Nonfatal("Test without scaling is uninteresting.");
+    }
+    decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
     // Construct a color table for the decode if necessary
     SkAutoTUnref<SkColorTable> colorTable(NULL);
@@ -195,7 +203,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             * subsetBm's size is determined based on the current subset and may be larger for end
             * subsets.
             */
-            SkImageInfo largestSubsetDecodeInfo = 
+            SkImageInfo largestSubsetDecodeInfo =
                     decodeInfo.makeWH(subsetWidth + extraX, subsetHeight + extraY);
             SkBitmap largestSubsetBm;
             if (!largestSubsetBm.tryAllocPixels(largestSubsetDecodeInfo, NULL, colorTable.get())) {
@@ -226,7 +234,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         }
                     }
                     //skip to first line of subset
-                    const SkImageGenerator::Result skipResult = 
+                    const SkImageGenerator::Result skipResult =
                             subsetScanlineDecoder->skipScanlines(y);
                     switch (skipResult) {
                         case SkImageGenerator::kSuccess:
@@ -262,6 +270,80 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
             break;
         }
+        case kStripe_Mode: {
+            const int height = decodeInfo.height();
+            // This value is chosen arbitrarily.  We exercise more cases by choosing a value that
+            // does not align with image blocks.
+            const int stripeHeight = 37;
+            const int numStripes = (height + stripeHeight - 1) / stripeHeight;
+
+            // Decode odd stripes
+            SkScanlineDecoder* decoder = codec->getScanlineDecoder(decodeInfo, NULL, colorPtr,
+                    colorCountPtr);
+            if (NULL == decoder) {
+                return Error::Nonfatal("Cannot use scanline decoder for all images");
+            }
+            for (int i = 0; i < numStripes; i += 2) {
+                // Skip a stripe
+                const int linesToSkip = SkTMin(stripeHeight, height - i * stripeHeight);
+                SkImageGenerator::Result result = decoder->skipScanlines(linesToSkip);
+                switch (result) {
+                    case SkImageGenerator::kSuccess:
+                    case SkImageGenerator::kIncompleteInput:
+                        break;
+                    default:
+                        return SkStringPrintf("Cannot skip scanlines for %s.", fPath.c_str());
+                }
+
+                // Read a stripe
+                const int startY = (i + 1) * stripeHeight;
+                const int linesToRead = SkTMin(stripeHeight, height - startY);
+                if (linesToRead > 0) {
+                    result = decoder->getScanlines(bitmap.getAddr(0, startY),
+                            linesToRead, bitmap.rowBytes());
+                    switch (result) {
+                        case SkImageGenerator::kSuccess:
+                        case SkImageGenerator::kIncompleteInput:
+                            break;
+                        default:
+                            return SkStringPrintf("Cannot get scanlines for %s.", fPath.c_str());
+                    }
+                }
+            }
+
+            // Decode even stripes
+            decoder = codec->getScanlineDecoder(decodeInfo, NULL, colorPtr, colorCountPtr);
+            if (NULL == decoder) {
+                return "Failed to create second scanline decoder.";
+            }
+            for (int i = 0; i < numStripes; i += 2) {
+                // Read a stripe
+                const int startY = i * stripeHeight;
+                const int linesToRead = SkTMin(stripeHeight, height - startY);
+                SkImageGenerator::Result result = decoder->getScanlines(bitmap.getAddr(0, startY),
+                        linesToRead, bitmap.rowBytes());
+                switch (result) {
+                    case SkImageGenerator::kSuccess:
+                    case SkImageGenerator::kIncompleteInput:
+                        break;
+                    default:
+                        return SkStringPrintf("Cannot get scanlines for %s.", fPath.c_str());
+                }
+
+                // Skip a stripe
+                const int linesToSkip = SkTMax(0, SkTMin(stripeHeight,
+                        height - (i + 1) * stripeHeight));
+                result = decoder->skipScanlines(linesToSkip);
+                switch (result) {
+                    case SkImageGenerator::kSuccess:
+                    case SkImageGenerator::kIncompleteInput:
+                        break;
+                    default:
+                        return SkStringPrintf("Cannot skip scanlines for %s.", fPath.c_str());
+                }
+            }
+            canvas->drawBitmap(bitmap, 0, 0);
+        }
     }
     return "";
 }
@@ -270,14 +352,19 @@ SkISize CodecSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (NULL != codec) {
-        return codec->getInfo().dimensions();
+        SkISize size = codec->getScaledDimensions(fScale);
+        return size;
     } else {
         return SkISize::Make(0, 0);
     }
 }
 
 Name CodecSrc::name() const {
-    return SkOSPath::Basename(fPath.c_str());
+    if (1.0f == fScale) {
+        return SkOSPath::Basename(fPath.c_str());
+    } else {
+        return SkStringPrintf("%s_%.3f", SkOSPath::Basename(fPath.c_str()).c_str(), fScale);
+    }
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

@@ -98,13 +98,14 @@ public:
         kNormal_Mode,
         kScanline_Mode,
         kScanline_Subset_Mode,
+        kStripe_Mode, // Tests the skipping of scanlines
     };
     enum DstColorType {
         kGetFromCanvas_DstColorType,
         kIndex8_Always_DstColorType,
         kGrayscale_Always_DstColorType,
     };
-    CodecSrc(Path, Mode, DstColorType);
+    CodecSrc(Path, Mode, DstColorType, float);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -113,6 +114,7 @@ private:
     Path                   fPath;
     Mode                   fMode;
     DstColorType           fDstColorType;
+    float                  fScale;
 };
 
 

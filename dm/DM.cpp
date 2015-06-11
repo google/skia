@@ -205,38 +205,54 @@ static void push_codec_srcs(Path path) {
         return;
     }
 
-    // Build additional test cases for images that decode natively to non-canvas types
-    switch(codec->getInfo().colorType()) {
-        case kGray_8_SkColorType:
-            push_src("image", "codec_kGray8", new CodecSrc(path, CodecSrc::kNormal_Mode,
-                    CodecSrc::kGrayscale_Always_DstColorType));
-            push_src("image", "scanline_kGray8", new CodecSrc(path, CodecSrc::kScanline_Mode,
-                    CodecSrc::kGrayscale_Always_DstColorType));
-            push_src("image", "scanline_subset_kGray8", new CodecSrc(path,
-                    CodecSrc::kScanline_Subset_Mode, CodecSrc::kGrayscale_Always_DstColorType));
-            // Intentional fall through
-            // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
-            // Further discussion on this topic is at skbug.com/3683
-        case kIndex_8_SkColorType:
-            push_src("image", "codec_kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
-                    CodecSrc::kIndex8_Always_DstColorType));
-            push_src("image", "scanline_kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
-                    CodecSrc::kIndex8_Always_DstColorType));
-            push_src("image", "scanline_subset_kIndex8", new CodecSrc(path,
-                    CodecSrc::kScanline_Subset_Mode, CodecSrc::kIndex8_Always_DstColorType));
-            break;
-        default:
-            // Do nothing
-            break;
-    }
+    // Choose scales for scaling tests.
+    // TODO (msarett): Add more scaling tests as we implement more flexible scaling.
+    // TODO (msarett): Implement scaling tests for SkImageDecoder in order to compare with these
+    //                 tests.  SkImageDecoder supports downscales by integer factors.
+    const float scales[] = { 0.125f, 0.25f, 0.5f, 1.0f };
 
-    // Decode all images to the canvas color type
-    push_src("image", "codec", new CodecSrc(path, CodecSrc::kNormal_Mode,
-            CodecSrc::kGetFromCanvas_DstColorType));
-    push_src("image", "scanline", new CodecSrc(path, CodecSrc::kScanline_Mode,
-            CodecSrc::kGetFromCanvas_DstColorType));
-    push_src("image", "scanline_subset", new CodecSrc(path, CodecSrc::kScanline_Subset_Mode,
-            CodecSrc::kGetFromCanvas_DstColorType));
+    for (float scale : scales) {
+        // Build additional test cases for images that decode natively to non-canvas types
+        switch(codec->getInfo().colorType()) {
+            case kGray_8_SkColorType:
+                push_src("image", "codec_kGray8", new CodecSrc(path, CodecSrc::kNormal_Mode,
+                        CodecSrc::kGrayscale_Always_DstColorType, scale));
+                push_src("image", "scanline_kGray8", new CodecSrc(path, CodecSrc::kScanline_Mode,
+                        CodecSrc::kGrayscale_Always_DstColorType, scale));
+                push_src("image", "scanline_subset_kGray8", new CodecSrc(path,
+                        CodecSrc::kScanline_Subset_Mode, CodecSrc::kGrayscale_Always_DstColorType,
+                        scale));
+                push_src("image", "stripe_kGray8", new CodecSrc(path, CodecSrc::kStripe_Mode,
+                        CodecSrc::kGrayscale_Always_DstColorType, scale));
+                // Intentional fall through
+                // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
+                // Further discussion on this topic is at skbug.com/3683
+            case kIndex_8_SkColorType:
+                push_src("image", "codec_kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
+                        CodecSrc::kIndex8_Always_DstColorType, scale));
+                push_src("image", "scanline_kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
+                        CodecSrc::kIndex8_Always_DstColorType, scale));
+                push_src("image", "scanline_subset_kIndex8", new CodecSrc(path,
+                        CodecSrc::kScanline_Subset_Mode, CodecSrc::kIndex8_Always_DstColorType,
+                        scale));
+                push_src("image", "stripe_kIndex8", new CodecSrc(path, CodecSrc::kStripe_Mode,
+                        CodecSrc::kIndex8_Always_DstColorType, scale));
+                break;
+            default:
+                // Do nothing
+                break;
+        }
+
+        // Decode all images to the canvas color type
+        push_src("image", "codec", new CodecSrc(path, CodecSrc::kNormal_Mode,
+                CodecSrc::kGetFromCanvas_DstColorType, scale));
+        push_src("image", "scanline", new CodecSrc(path, CodecSrc::kScanline_Mode,
+                CodecSrc::kGetFromCanvas_DstColorType, scale));
+        push_src("image", "scanline_subset", new CodecSrc(path, CodecSrc::kScanline_Subset_Mode,
+                CodecSrc::kGetFromCanvas_DstColorType, scale));
+        push_src("image", "stripe", new CodecSrc(path, CodecSrc::kStripe_Mode,
+                CodecSrc::kGetFromCanvas_DstColorType, scale));
+    }
 }
 
 static bool codec_supported(const char* ext) {
