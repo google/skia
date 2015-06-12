@@ -318,15 +318,3 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
   return true;
 }
 
-// static -- simpler interface to the resizer; returns a default bitmap if scaling
-// fails for any reason.  This is the interface that Chrome expects.
-SkBitmap SkBitmapScaler::Resize(const SkBitmap& source,
-                                ResizeMethod method,
-                                float destWidth, float destHeight,
-                                SkBitmap::Allocator* allocator) {
-  SkBitmap result;
-  if (!Resize(&result, source, method, destWidth, destHeight, allocator)) {
-    return SkBitmap();
-  }
-  return result;
-}
