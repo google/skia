@@ -224,6 +224,15 @@ public:
     /// Is there support for Vertex Array Objects?
     bool vertexArrayObjectSupport() const { return fVertexArrayObjectSupport; }
 
+    /// Is there support for glDraw*Instanced and glVertexAttribDivisor?
+    bool instancedDrawingSupport() const { return fInstancedDrawingSupport; }
+
+    /// Is there support for GL_EXT_direct_state_access?
+    bool directStateAccessSupport() const { return fDirectStateAccessSupport; }
+
+    /// Is there support for GL_KHR_debug?
+    bool debugSupport() const { return fDebugSupport; }
+
     /// Is there support for ES2 compatability?
     bool ES2CompatibilitySupport() const { return fES2CompatibilitySupport; }
 
@@ -350,6 +359,9 @@ private:
     bool fTwoFormatLimit : 1;
     bool fFragCoordsConventionSupport : 1;
     bool fVertexArrayObjectSupport : 1;
+    bool fInstancedDrawingSupport : 1;
+    bool fDirectStateAccessSupport : 1;
+    bool fDebugSupport : 1;
     bool fES2CompatibilitySupport : 1;
     bool fMultisampleDisableSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
@@ -405,6 +417,8 @@ public:
 
     bool fbFetchNeedsCustomOutput() const { return fFBFetchNeedsCustomOutput; }
 
+    bool bindlessTextureSupport() const { return fBindlessTextureSupport; }
+
     const char* fbFetchColorName() const { return fFBFetchColorName; }
 
     const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
@@ -441,6 +455,7 @@ private:
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;
+    bool fBindlessTextureSupport : 1;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;

@@ -240,8 +240,6 @@ public:
         GLPtr<GrGLMapBufferRangeProc> fMapBufferRange;
         GLPtr<GrGLMapBufferSubDataProc> fMapBufferSubData;
         GLPtr<GrGLMapTexSubImage2DProc> fMapTexSubImage2D;
-        GLPtr<GrGLMatrixLoadfProc> fMatrixLoadf;
-        GLPtr<GrGLMatrixLoadIdentityProc> fMatrixLoadIdentity;
         GLPtr<GrGLPixelStoreiProc> fPixelStorei;
         GLPtr<GrGLPopGroupMarkerProc> fPopGroupMarker;
         GLPtr<GrGLPushGroupMarkerProc> fPushGroupMarker;
@@ -323,9 +321,9 @@ public:
         GLPtr<GrGLVertexAttribPointerProc> fVertexAttribPointer;
         GLPtr<GrGLViewportProc> fViewport;
 
-        // Experimental: Functions for GL_NV_path_rendering. These will be
-        // alphabetized with the above functions once this is fully supported
-        // (and functions we are unlikely to use will possibly be omitted).
+        /* GL_NV_path_rendering */
+        GLPtr<GrGLMatrixLoadfProc> fMatrixLoadf;
+        GLPtr<GrGLMatrixLoadIdentityProc> fMatrixLoadIdentity;
         GLPtr<GrGLGetProgramResourceLocationProc> fGetProgramResourceLocation;
         GLPtr<GrGLPathCommandsProc> fPathCommands;
         GLPtr<GrGLPathCoordsProc> fPathCoords;
@@ -352,8 +350,146 @@ public:
         // NV_path_rendering v1.3
         GLPtr<GrGLProgramPathFragmentInputGenProc> fProgramPathFragmentInputGen;
         GLPtr<GrGLPathMemoryGlyphIndexArrayProc> fPathMemoryGlyphIndexArray;
-        // NV_framebuffer_mixed_samples
+
+        /* NV_framebuffer_mixed_samples */
         GLPtr<GrGLCoverageModulationProc> fCoverageModulation;
+
+        /* ARB_draw_instanced */
+        GLPtr<GrGLDrawArraysInstancedProc> fDrawArraysInstanced;
+        GLPtr<GrGLDrawElementsInstancedProc> fDrawElementsInstanced;
+
+        /* ARB_instanced_arrays */
+        GLPtr<GrGLVertexAttribDivisorProc> fVertexAttribDivisor;
+
+        /* NV_bindless_texture */
+        // We use the NVIDIA verson for now because it does not require dynamically uniform handles.
+        // We may switch the the ARB version and/or omit methods in the future.
+        GLPtr<GrGLGetTextureHandleProc> fGetTextureHandle;
+        GLPtr<GrGLGetTextureSamplerHandleProc> fGetTextureSamplerHandle;
+        GLPtr<GrGLMakeTextureHandleResidentProc> fMakeTextureHandleResident;
+        GLPtr<GrGLMakeTextureHandleNonResidentProc> fMakeTextureHandleNonResident;
+        GLPtr<GrGLGetImageHandleProc> fGetImageHandle;
+        GLPtr<GrGLMakeImageHandleResidentProc> fMakeImageHandleResident;
+        GLPtr<GrGLMakeImageHandleNonResidentProc> fMakeImageHandleNonResident;
+        GLPtr<GrGLIsTextureHandleResidentProc> fIsTextureHandleResident;
+        GLPtr<GrGLIsImageHandleResidentProc> fIsImageHandleResident;
+        GLPtr<GrGLUniformHandleui64Proc> fUniformHandleui64;
+        GLPtr<GrGLUniformHandleui64vProc> fUniformHandleui64v;
+        GLPtr<GrGLProgramUniformHandleui64Proc> fProgramUniformHandleui64;
+        GLPtr<GrGLProgramUniformHandleui64vProc> fProgramUniformHandleui64v;
+
+        /* EXT_direct_state_access */
+        // We use the EXT verson because it is more expansive and interacts with more extensions
+        // than the ARB or core (4.5) versions. We may switch and/or omit methods in the future.
+        GLPtr<GrGLTextureParameteriProc> fTextureParameteri;
+        GLPtr<GrGLTextureParameterivProc> fTextureParameteriv;
+        GLPtr<GrGLTextureParameterfProc> fTextureParameterf;
+        GLPtr<GrGLTextureParameterfvProc> fTextureParameterfv;
+        GLPtr<GrGLTextureImage1DProc> fTextureImage1D;
+        GLPtr<GrGLTextureImage2DProc> fTextureImage2D;
+        GLPtr<GrGLTextureSubImage1DProc> fTextureSubImage1D;
+        GLPtr<GrGLTextureSubImage2DProc> fTextureSubImage2D;
+        GLPtr<GrGLCopyTextureImage1DProc> fCopyTextureImage1D;
+        GLPtr<GrGLCopyTextureImage2DProc> fCopyTextureImage2D;
+        GLPtr<GrGLCopyTextureSubImage1DProc> fCopyTextureSubImage1D;
+        GLPtr<GrGLCopyTextureSubImage2DProc> fCopyTextureSubImage2D;
+        GLPtr<GrGLGetTextureImageProc> fGetTextureImage;
+        GLPtr<GrGLGetTextureParameterfvProc> fGetTextureParameterfv;
+        GLPtr<GrGLGetTextureParameterivProc> fGetTextureParameteriv;
+        GLPtr<GrGLGetTextureLevelParameterfvProc> fGetTextureLevelParameterfv;
+        GLPtr<GrGLGetTextureLevelParameterivProc> fGetTextureLevelParameteriv;
+        // OpenGL 1.2
+        GLPtr<GrGLTextureImage3DProc> fTextureImage3D;
+        GLPtr<GrGLTextureSubImage3DProc> fTextureSubImage3D;
+        GLPtr<GrGLCopyTextureSubImage3DProc> fCopyTextureSubImage3D;
+        GLPtr<GrGLCompressedTextureImage3DProc> fCompressedTextureImage3D;
+        GLPtr<GrGLCompressedTextureImage2DProc> fCompressedTextureImage2D;
+        GLPtr<GrGLCompressedTextureImage1DProc> fCompressedTextureImage1D;
+        GLPtr<GrGLCompressedTextureSubImage3DProc> fCompressedTextureSubImage3D;
+        GLPtr<GrGLCompressedTextureSubImage2DProc> fCompressedTextureSubImage2D;
+        GLPtr<GrGLCompressedTextureSubImage1DProc> fCompressedTextureSubImage1D;
+        GLPtr<GrGLGetCompressedTextureImageProc> fGetCompressedTextureImage;
+        // OpenGL 1.5
+        GLPtr<GrGLNamedBufferDataProc> fNamedBufferData;
+        GLPtr<GrGLNamedBufferSubDataProc> fNamedBufferSubData;
+        GLPtr<GrGLMapNamedBufferProc> fMapNamedBuffer;
+        GLPtr<GrGLUnmapNamedBufferProc> fUnmapNamedBuffer;
+        GLPtr<GrGLGetNamedBufferParameterivProc> fGetNamedBufferParameteriv;
+        GLPtr<GrGLGetNamedBufferPointervProc> fGetNamedBufferPointerv;
+        GLPtr<GrGLGetNamedBufferSubDataProc> fGetNamedBufferSubData;
+        // OpenGL 2.0
+        GLPtr<GrGLProgramUniform1fProc> fProgramUniform1f;
+        GLPtr<GrGLProgramUniform2fProc> fProgramUniform2f;
+        GLPtr<GrGLProgramUniform3fProc> fProgramUniform3f;
+        GLPtr<GrGLProgramUniform4fProc> fProgramUniform4f;
+        GLPtr<GrGLProgramUniform1iProc> fProgramUniform1i;
+        GLPtr<GrGLProgramUniform2iProc> fProgramUniform2i;
+        GLPtr<GrGLProgramUniform3iProc> fProgramUniform3i;
+        GLPtr<GrGLProgramUniform4iProc> fProgramUniform4i;
+        GLPtr<GrGLProgramUniform1fvProc> fProgramUniform1fv;
+        GLPtr<GrGLProgramUniform2fvProc> fProgramUniform2fv;
+        GLPtr<GrGLProgramUniform3fvProc> fProgramUniform3fv;
+        GLPtr<GrGLProgramUniform4fvProc> fProgramUniform4fv;
+        GLPtr<GrGLProgramUniform1ivProc> fProgramUniform1iv;
+        GLPtr<GrGLProgramUniform2ivProc> fProgramUniform2iv;
+        GLPtr<GrGLProgramUniform3ivProc> fProgramUniform3iv;
+        GLPtr<GrGLProgramUniform4ivProc> fProgramUniform4iv;
+        GLPtr<GrGLProgramUniformMatrix2fvProc> fProgramUniformMatrix2fv;
+        GLPtr<GrGLProgramUniformMatrix3fvProc> fProgramUniformMatrix3fv;
+        GLPtr<GrGLProgramUniformMatrix4fvProc> fProgramUniformMatrix4fv;
+        // OpenGL 2.1
+        GLPtr<GrGLProgramUniformMatrix2x3fvProc> fProgramUniformMatrix2x3fv;
+        GLPtr<GrGLProgramUniformMatrix3x2fvProc> fProgramUniformMatrix3x2fv;
+        GLPtr<GrGLProgramUniformMatrix2x4fvProc> fProgramUniformMatrix2x4fv;
+        GLPtr<GrGLProgramUniformMatrix4x2fvProc> fProgramUniformMatrix4x2fv;
+        GLPtr<GrGLProgramUniformMatrix3x4fvProc> fProgramUniformMatrix3x4fv;
+        GLPtr<GrGLProgramUniformMatrix4x3fvProc> fProgramUniformMatrix4x3fv;
+        // OpenGL 3.0
+        GLPtr<GrGLNamedRenderbufferStorageProc> fNamedRenderbufferStorage;
+        GLPtr<GrGLGetNamedRenderbufferParameterivProc> fGetNamedRenderbufferParameteriv;
+        GLPtr<GrGLNamedRenderbufferStorageMultisampleProc> fNamedRenderbufferStorageMultisample;
+        GLPtr<GrGLCheckNamedFramebufferStatusProc> fCheckNamedFramebufferStatus;
+        GLPtr<GrGLNamedFramebufferTexture1DProc> fNamedFramebufferTexture1D;
+        GLPtr<GrGLNamedFramebufferTexture2DProc> fNamedFramebufferTexture2D;
+        GLPtr<GrGLNamedFramebufferTexture3DProc> fNamedFramebufferTexture3D;
+        GLPtr<GrGLNamedFramebufferRenderbufferProc> fNamedFramebufferRenderbuffer;
+        GLPtr<GrGLGetNamedFramebufferAttachmentParameterivProc> fGetNamedFramebufferAttachmentParameteriv;
+        GLPtr<GrGLGenerateTextureMipmapProc> fGenerateTextureMipmap;
+        GLPtr<GrGLFramebufferDrawBufferProc> fFramebufferDrawBuffer;
+        GLPtr<GrGLFramebufferDrawBuffersProc> fFramebufferDrawBuffers;
+        GLPtr<GrGLFramebufferReadBufferProc> fFramebufferReadBuffer;
+        GLPtr<GrGLGetFramebufferParameterivProc> fGetFramebufferParameteriv;
+        GLPtr<GrGLNamedCopyBufferSubDataProc> fNamedCopyBufferSubData;
+        GLPtr<GrGLVertexArrayVertexOffsetProc> fVertexArrayVertexOffset;
+        GLPtr<GrGLVertexArrayColorOffsetProc> fVertexArrayColorOffset;
+        GLPtr<GrGLVertexArrayEdgeFlagOffsetProc> fVertexArrayEdgeFlagOffset;
+        GLPtr<GrGLVertexArrayIndexOffsetProc> fVertexArrayIndexOffset;
+        GLPtr<GrGLVertexArrayNormalOffsetProc> fVertexArrayNormalOffset;
+        GLPtr<GrGLVertexArrayTexCoordOffsetProc> fVertexArrayTexCoordOffset;
+        GLPtr<GrGLVertexArrayMultiTexCoordOffsetProc> fVertexArrayMultiTexCoordOffset;
+        GLPtr<GrGLVertexArrayFogCoordOffsetProc> fVertexArrayFogCoordOffset;
+        GLPtr<GrGLVertexArraySecondaryColorOffsetProc> fVertexArraySecondaryColorOffset;
+        GLPtr<GrGLVertexArrayVertexAttribOffsetProc> fVertexArrayVertexAttribOffset;
+        GLPtr<GrGLVertexArrayVertexAttribIOffsetProc> fVertexArrayVertexAttribIOffset;
+        GLPtr<GrGLEnableVertexArrayProc> fEnableVertexArray;
+        GLPtr<GrGLDisableVertexArrayProc> fDisableVertexArray;
+        GLPtr<GrGLEnableVertexArrayAttribProc> fEnableVertexArrayAttrib;
+        GLPtr<GrGLDisableVertexArrayAttribProc> fDisableVertexArrayAttrib;
+        GLPtr<GrGLGetVertexArrayIntegervProc> fGetVertexArrayIntegerv;
+        GLPtr<GrGLGetVertexArrayPointervProc> fGetVertexArrayPointerv;
+        GLPtr<GrGLGetVertexArrayIntegeri_vProc> fGetVertexArrayIntegeri_v;
+        GLPtr<GrGLGetVertexArrayPointeri_vProc> fGetVertexArrayPointeri_v;
+        GLPtr<GrGLMapNamedBufferRangeProc> fMapNamedBufferRange;
+        GLPtr<GrGLFlushMappedNamedBufferRangeProc> fFlushMappedNamedBufferRange;
+
+        /* KHR_debug */
+        GLPtr<GrGLDebugMessageControlProc> fDebugMessageControl;
+        GLPtr<GrGLDebugMessageInsertProc> fDebugMessageInsert;
+        GLPtr<GrGLDebugMessageCallbackProc> fDebugMessageCallback;
+        GLPtr<GrGLGetDebugMessageLogProc> fGetDebugMessageLog;
+        GLPtr<GrGLPushDebugGroupProc> fPushDebugGroup;
+        GLPtr<GrGLPopDebugGroupProc> fPopDebugGroup;
+        GLPtr<GrGLObjectLabelProc> fObjectLabel;
     } fFunctions;
 
     // Per-GL func callback

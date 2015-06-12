@@ -889,4 +889,43 @@
 #define GR_GL_MULTISAMPLE_RASTERIZATION_ALLOWED             0x932B
 #define GR_GL_EFFECTIVE_RASTER_SAMPLES                      0x932C
 
+/* GL_KHR_debug */
+#define GR_GL_DEBUG_OUTPUT                                  0x92E0
+#define GR_GL_DEBUG_OUTPUT_SYNCHRONOUS                      0x8242
+#define GR_GL_CONTEXT_FLAG_DEBUG_BIT                        0x00000002
+#define GR_GL_MAX_DEBUG_MESSAGE_LENGTH                      0x9143
+#define GR_GL_MAX_DEBUG_LOGGED_MESSAGES                     0x9144
+#define GR_GL_DEBUG_LOGGED_MESSAGES                         0x9145
+#define GR_GL_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH              0x8243
+#define GR_GL_MAX_DEBUG_GROUP_STACK_DEPTH                   0x826C
+#define GR_GL_DEBUG_GROUP_STACK_DEPTH                       0x826D
+#define GR_GL_MAX_LABEL_LENGTH                              0x82E8
+#define GR_GL_DEBUG_SOURCE_API                              0x8246
+#define GR_GL_DEBUG_SOURCE_WINDOW_SYSTEM                    0x8247
+#define GR_GL_DEBUG_SOURCE_SHADER_COMPILER                  0x8248
+#define GR_GL_DEBUG_SOURCE_THIRD_PARTY                      0x8249
+#define GR_GL_DEBUG_SOURCE_APPLICATION                      0x824A
+#define GR_GL_DEBUG_SOURCE_OTHER                            0x824B
+#define GR_GL_DEBUG_TYPE_ERROR                              0x824C
+#define GR_GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR                0x824D
+#define GR_GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR                 0x824E
+#define GR_GL_DEBUG_TYPE_PORTABILITY                        0x824F
+#define GR_GL_DEBUG_TYPE_PERFORMANCE                        0x8250
+#define GR_GL_DEBUG_TYPE_OTHER                              0x8251
+#define GR_GL_DEBUG_TYPE_MARKER                             0x8268
+#define GR_GL_DEBUG_TYPE_PUSH_GROUP                         0x8269
+#define GR_GL_DEBUG_TYPE_POP_GROUP                          0x826A
+#define GR_GL_DEBUG_SEVERITY_HIGH                           0x9146
+#define GR_GL_DEBUG_SEVERITY_MEDIUM                         0x9147
+#define GR_GL_DEBUG_SEVERITY_LOW                            0x9148
+#define GR_GL_DEBUG_SEVERITY_NOTIFICATION                   0x826B
+#define GR_GL_STACK_UNDERFLOW                               0x0504
+#define GR_GL_STACK_OVERFLOW                                0x0503
+#define GR_GL_BUFFER                                        0x82E0
+#define GR_GL_SHADER                                        0x82E1
+#define GR_GL_PROGRAM                                       0x82E2
+#define GR_GL_QUERY                                         0x82E3
+#define GR_GL_PROGRAM_PIPELINE                              0x82E4
+#define GR_GL_SAMPLER                                       0x82E6
+
 #endif
