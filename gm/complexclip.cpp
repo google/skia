@@ -23,7 +23,7 @@ public:
     : fDoAAClip(aaclip)
     , fDoSaveLayer(saveLayer)
     , fInvertDraw(invertDraw) {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(0xFFDEDFDE);
     }
 
 protected:
@@ -83,7 +83,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+        sk_tool_utils::set_portable_typeface_always(&paint);
         paint.setTextSize(SkIntToScalar(20));
 
         static const struct {
