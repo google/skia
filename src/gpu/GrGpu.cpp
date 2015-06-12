@@ -146,7 +146,8 @@ bool GrGpu::attachStencilAttachmentToRenderTarget(GrRenderTarget* rt) {
     }
 #endif
 
-    GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height, rt->numSamples(), &sbKey);
+    GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
+        rt->numStencilSamples(), &sbKey);
     SkAutoTUnref<GrStencilAttachment> sb(static_cast<GrStencilAttachment*>(
         this->getContext()->getResourceCache()->findAndRefUniqueResource(sbKey)));
     if (sb) {

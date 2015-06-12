@@ -333,7 +333,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
                                                        : SkSurface::kNo_Budgeted;
 
     SkAutoTUnref<GrRenderTarget> newRT(CreateRenderTarget(
-        fRenderTarget->getContext(), budgeted, this->imageInfo(), fRenderTarget->numSamples()));
+        fRenderTarget->getContext(), budgeted, this->imageInfo(), fRenderTarget->desc().fSampleCnt));
 
     if (NULL == newRT) {
         return;
@@ -919,7 +919,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     // anti-aliased edges, we work around that for now by drawing directly
     // if the image size exceeds maximum texture size.
     int maxTextureSize = fContext->caps()->maxTextureSize();
-    bool directDraw = fRenderTarget->isMultisampled() ||
+    bool directDraw = fRenderTarget->isUnifiedMultisampled() ||
                       !paint.isAntiAlias() ||
                       bitmap.width() > maxTextureSize ||
                       bitmap.height() > maxTextureSize;
@@ -1690,7 +1690,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = cinfo.fInfo.width();
     desc.fHeight = cinfo.fInfo.height();
-    desc.fSampleCnt = fRenderTarget->numSamples();
+    desc.fSampleCnt = fRenderTarget->desc().fSampleCnt;
 
     SkAutoTUnref<GrTexture> texture;
     // Skia's convention is to only clear a device if it is non-opaque.
@@ -1718,7 +1718,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const SkSurface::Budgeted kBudgeted = SkSurface::kNo_Budgeted;
-    return SkSurface::NewRenderTarget(fContext, kBudgeted, info, fRenderTarget->numSamples(),
+    return SkSurface::NewRenderTarget(fContext, kBudgeted, info, fRenderTarget->desc().fSampleCnt,
                                       &props);
 }
 
@@ -1758,7 +1758,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
                                       initialMatrix,
                                       clipBounds,
                                       &atlasedNeedRendering, &atlasedRecycled,
-                                      fRenderTarget->numSamples());
+                                      fRenderTarget->numColorSamples());
 
     GrLayerHoister::DrawLayersToAtlas(fContext, atlasedNeedRendering);
 
@@ -1770,7 +1770,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
                                       initialMatrix,
                                       clipBounds,
                                       &needRendering, &recycled,
-                                      fRenderTarget->numSamples());
+                                      fRenderTarget->numColorSamples());
 
     GrLayerHoister::DrawLayers(fContext, needRendering);
 

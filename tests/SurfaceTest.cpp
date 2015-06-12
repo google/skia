@@ -121,7 +121,7 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
     wrappedDesc.fWidth = dummySurface->width();
     wrappedDesc.fHeight = dummySurface->height();
     wrappedDesc.fOrigin = dummySurface->origin();
-    wrappedDesc.fSampleCnt = dummySurface->asRenderTarget()->numSamples();
+    wrappedDesc.fSampleCnt = dummySurface->asRenderTarget()->numColorSamples();
     wrappedDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
     wrappedDesc.fTextureHandle = textureHandle;
 

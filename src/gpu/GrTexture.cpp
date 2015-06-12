@@ -51,7 +51,7 @@ void GrTexture::validateDesc() const {
     if (this->asRenderTarget()) {
         // This texture has a render target
         SkASSERT(0 != (fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
-        SkASSERT(fDesc.fSampleCnt == this->asRenderTarget()->numSamples());
+        SkASSERT(fDesc.fSampleCnt == this->asRenderTarget()->numColorSamples());
     } else {
         SkASSERT(0 == (fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
         SkASSERT(0 == fDesc.fSampleCnt);

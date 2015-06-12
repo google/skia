@@ -37,7 +37,7 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
 
 SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
-    int sampleCount = rt->numSamples();
+    int sampleCount = rt->numColorSamples();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const Budgeted kBudgeted = kNo_Budgeted;
     return SkSurface::NewRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
@@ -46,7 +46,7 @@ SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 
 SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
     const SkImageInfo info = fDevice->imageInfo();
-    const int sampleCount = fDevice->accessRenderTarget()->numSamples();
+    const int sampleCount = fDevice->accessRenderTarget()->numColorSamples();
     SkImage* image = NULL;
     GrTexture* tex = fDevice->accessRenderTarget()->asTexture();
     if (tex) {

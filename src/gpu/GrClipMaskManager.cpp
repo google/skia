@@ -165,7 +165,7 @@ bool GrClipMaskManager::installClipEffects(GrPipelineBuilder* pipelineBuilder,
         if (!skip) {
             GrPrimitiveEdgeType edgeType;
             if (iter.get()->isAA()) {
-                if (rt->isMultisampled()) {
+                if (rt->isUnifiedMultisampled()) {
                     // Coverage based AA clips don't place nicely with MSAA.
                     failed = true;
                     break;
@@ -306,7 +306,7 @@ bool GrClipMaskManager::setupClipping(GrPipelineBuilder* pipelineBuilder,
     }
 
     // If MSAA is enabled we can do everything in the stencil buffer.
-    if (0 == rt->numSamples() && requiresAA) {
+    if (0 == rt->numColorSamples() && requiresAA) {
         GrTexture* result = NULL;
 
         // The top-left of the mask corresponds to the top-left corner of the bounds.
@@ -750,7 +750,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             pipelineBuilder.setDisableColorXPFactory();
 
             // if the target is MSAA then we want MSAA enabled when the clip is soft
-            if (rt->isMultisampled()) {
+            if (rt->isUnifiedMultisampled()) {
                 pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, element->isAA());
             }
 

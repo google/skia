@@ -75,7 +75,7 @@ void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, c
 
     this->setState(GrPipelineBuilder::kDither_Flag, paint.isDither());
     this->setState(GrPipelineBuilder::kHWAntialias_Flag,
-                   rt->isMultisampled() && paint.isAntiAlias());
+                   rt->isUnifiedMultisampled() && paint.isAntiAlias());
 
     fColorProcInfoValid = false;
     fCoverageProcInfoValid = false;

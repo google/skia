@@ -250,7 +250,8 @@ GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
                                             const SkDeviceProperties&
                                             leakyProperties,
                                             bool enableDistanceFieldFonts) {
-    if (fGpu->caps()->shaderCaps()->pathRenderingSupport() && renderTarget->isMultisampled()) {
+    if (fGpu->caps()->shaderCaps()->pathRenderingSupport() &&
+        renderTarget->isStencilBufferMultisampled()) {
         GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
         if (sb) {
             return GrStencilAndCoverTextContext::Create(this, leakyProperties);

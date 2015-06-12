@@ -259,7 +259,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                                          *devPathPtr,
                                                          strokeInfo,
                                                          grPaint.isAntiAlias(),
-                                                         renderTarget->numSamples()));
+                                                         renderTarget->numColorSamples()));
             if (mask) {
                 GrTexture* filtered;
 

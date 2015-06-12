@@ -51,9 +51,17 @@ bool GrStencilAndCoverPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                 const SkPath& path,
                                                 const GrStrokeInfo& stroke,
                                                 bool antiAlias) const {
-    return !stroke.isHairlineStyle() &&
-        !antiAlias && // doesn't do per-path AA, relies on the target having MSAA
-        pipelineBuilder->getStencil().isDisabled();
+    if (stroke.isHairlineStyle()) {
+        return false;
+    }
+    if (!pipelineBuilder->getStencil().isDisabled()) {
+        return false;
+    }
+    if (antiAlias) {
+        return pipelineBuilder->getRenderTarget()->isStencilBufferMultisampled();
+    } else {
+        return true; // doesn't do per-path AA, relies on the target having MSAA
+    }
 }
 
 GrPathRenderer::StencilSupport
@@ -100,9 +108,13 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
                                                const SkPath& path,
                                                const GrStrokeInfo& stroke,
                                                bool antiAlias) {
-    SkASSERT(!antiAlias);
     SkASSERT(!stroke.isHairlineStyle());
     SkASSERT(pipelineBuilder->getStencil().isDisabled());
+
+    if (antiAlias) {
+        SkASSERT(pipelineBuilder->getRenderTarget()->isStencilBufferMultisampled());
+        pipelineBuilder->enableState(GrPipelineBuilder::kHWAntialias_Flag);
+    }
 
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, stroke));
 

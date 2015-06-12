@@ -210,7 +210,7 @@ public:
      * than the color buffer. In is scenario, the higher sample rate is resolved during blending.
      */
     bool hasMixedSamples() const {
-        return this->isHWAntialias() && !fRenderTarget->isMultisampled();
+        return this->isHWAntialias() && !fRenderTarget->isUnifiedMultisampled();
     }
 
     /// @}

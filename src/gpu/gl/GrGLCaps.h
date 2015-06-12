@@ -67,8 +67,12 @@ public:
          * GL_MAX_SAMPLES value.
          */
         kES_EXT_MsToTexture_MSFBOType,
+        /**
+         * GL_NV_framebuffer_mixed_samples.
+         */
+        kMixedSamples_MSFBOType,
 
-        kLast_MSFBOType = kES_EXT_MsToTexture_MSFBOType
+        kLast_MSFBOType = kMixedSamples_MSFBOType
     };
 
     enum InvalidateFBType {
@@ -141,7 +145,8 @@ public:
     bool usesMSAARenderBuffers() const {
         return kNone_MSFBOType != fMSFBOType &&
                kES_IMG_MsToTexture_MSFBOType != fMSFBOType &&
-               kES_EXT_MsToTexture_MSFBOType != fMSFBOType;
+               kES_EXT_MsToTexture_MSFBOType != fMSFBOType &&
+               kMixedSamples_MSFBOType != fMSFBOType;
     }
 
     /**
@@ -152,8 +157,6 @@ public:
         return kES_IMG_MsToTexture_MSFBOType == fMSFBOType ||
                kES_EXT_MsToTexture_MSFBOType == fMSFBOType;
     }
-
-    bool fbMixedSamplesSupport() const { return fFBMixedSamplesSupport; }
 
     InvalidateFBType invalidateFBType() const { return fInvalidateFBType; }
 
@@ -225,7 +228,9 @@ public:
     bool ES2CompatibilitySupport() const { return fES2CompatibilitySupport; }
 
     /// Can we call glDisable(GL_MULTISAMPLE)?
-    bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
+    bool multisampleDisableSupport() const {
+        return fMultisampleDisableSupport;
+    }
 
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const {
@@ -349,7 +354,6 @@ private:
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
-    bool fFBMixedSamplesSupport : 1;
 
     struct ReadPixelsSupportedFormat {
         GrGLenum fFormat;

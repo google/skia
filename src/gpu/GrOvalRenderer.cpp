@@ -610,7 +610,7 @@ bool GrOvalRenderer::DrawOval(GrDrawTarget* target,
                               const SkRect& oval,
                               const SkStrokeRec& stroke)
 {
-    bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isMultisampled();
+    bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
 
     if (!useCoverageAA) {
         return false;
@@ -1404,7 +1404,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
                                 const SkRRect& origOuter,
                                 const SkRRect& origInner) {
     bool applyAA = useAA &&
-                   !pipelineBuilder->getRenderTarget()->isMultisampled();
+                   !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
     GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
@@ -1978,7 +1978,7 @@ bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
                         stroke);
     }
 
-    bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isMultisampled();
+    bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
 
     // only anti-aliased rrects for now
     if (!useCoverageAA) {

@@ -156,7 +156,7 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
         // samples didn't get rounded up to >= 8 or else they could share.).
         if (context->caps()->maxSampleCount() >= 8 &&
             smallMSAART0 && smallMSAART0->asRenderTarget() &&
-            smallMSAART0->asRenderTarget()->numSamples() < 8) {
+            smallMSAART0->asRenderTarget()->numColorSamples() < 8) {
             smallMSAADesc.fSampleCnt = 8;
             smallMSAART1.reset(cache->createTexture(smallMSAADesc, false));
             SkAutoTUnref<GrTexture> smallMSAART1(cache->createTexture(smallMSAADesc, false));

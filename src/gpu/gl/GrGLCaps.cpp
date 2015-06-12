@@ -292,6 +292,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage") &&
             ctxInfo.hasExtension("GL_EXT_raster_multisample");
     }
+    // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
+    if (kNVIDIA_GrGLDriver == ctxInfo.driver() && fShaderCaps->mixedSamplesSupport()) {
+        fDiscardRenderTargetSupport = false;
+        fInvalidateFBType = kNone_InvalidateFBType;
+    }
 
     /**************************************************************************
      * GrCaps fields
@@ -789,6 +794,8 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
+        } else if (fShaderCaps->mixedSamplesSupport() && fShaderCaps->pathRenderingSupport()) {
+            fMSFBOType = kMixedSamples_MSFBOType;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fMSFBOType = GrGLCaps::kES_3_0_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
@@ -799,7 +806,9 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fMSFBOType = kES_Apple_MSFBOType;
         }
     } else {
-        if ((ctxInfo.version() >= GR_GL_VER(3,0)) ||
+        if (fShaderCaps->mixedSamplesSupport() && fShaderCaps->pathRenderingSupport()) {
+            fMSFBOType = kMixedSamples_MSFBOType;
+        } else if ((ctxInfo.version() >= GR_GL_VER(3,0)) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = GrGLCaps::kDesktop_ARB_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
@@ -932,6 +941,7 @@ SkString GrGLCaps::dump() const {
         "Apple",
         "IMG MS To Texture",
         "EXT MS To Texture",
+        "MixedSamples",
     };
     GR_STATIC_ASSERT(0 == kNone_MSFBOType);
     GR_STATIC_ASSERT(1 == kDesktop_ARB_MSFBOType);
@@ -940,6 +950,7 @@ SkString GrGLCaps::dump() const {
     GR_STATIC_ASSERT(4 == kES_Apple_MSFBOType);
     GR_STATIC_ASSERT(5 == kES_IMG_MsToTexture_MSFBOType);
     GR_STATIC_ASSERT(6 == kES_EXT_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(7 == kMixedSamples_MSFBOType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
     static const char* kInvalidateFBTypeStr[] = {

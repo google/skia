@@ -156,7 +156,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
                              SkScalar strokeWidth,
                              const SkMatrix& combinedMatrix,
                              GrColor color) {
-    if (pipelineBuilder->getRenderTarget()->isMultisampled()) {
+    if (pipelineBuilder->getRenderTarget()->isUnifiedMultisampled()) {
         return false;
     }
 
@@ -422,7 +422,8 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
 
     GrColor color = paint.getColor();
     SkRect devBoundRect;
-    bool needAA = paint.isAntiAlias() && !pipelineBuilder.getRenderTarget()->isMultisampled();
+    bool needAA = paint.isAntiAlias() &&
+                  !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
     bool doAA = needAA && apply_aa_to_rect(fDrawTarget, &pipelineBuilder, &devBoundRect, rect,
                                            width, viewMatrix, color);
 
@@ -455,7 +456,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
         geometry.fStrokeWidth = width;
 
         // Non-AA hairlines are snapped to pixel centers to make which pixels are hit deterministic
-        bool snapToPixelCenters = (0 == width && !rt->isMultisampled());
+        bool snapToPixelCenters = (0 == width && !rt->isUnifiedMultisampled());
         SkAutoTUnref<GrBatch> batch(StrokeRectBatch::Create(geometry, snapToPixelCenters));
 
         // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
@@ -1014,7 +1015,7 @@ void GrDrawContext::drawPath(GrRenderTarget* rt,
 
     if (!strokeInfo.isDashed()) {
         bool useCoverageAA = paint.isAntiAlias() &&
-                !pipelineBuilder.getRenderTarget()->isMultisampled();
+                !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
 
         if (useCoverageAA && strokeInfo.getWidth() < 0 && !path.isConvex()) {
             // Concave AA paths are expensive - try to avoid them for special cases
@@ -1062,7 +1063,7 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
     bool useCoverageAA = useAA &&
-        !pipelineBuilder->getRenderTarget()->isMultisampled();
+        !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
 
 
     GrPathRendererChain::DrawType type =

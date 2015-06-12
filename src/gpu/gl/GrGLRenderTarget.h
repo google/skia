@@ -22,10 +22,11 @@ public:
     enum { kUnresolvableFBOID = 0 };
 
     struct IDDesc {
-        GrGLuint                    fRTFBOID;
-        GrGLuint                    fTexFBOID;
-        GrGLuint                    fMSColorRenderbufferID;
-        GrGpuResource::LifeCycle    fLifeCycle;
+        GrGLuint                     fRTFBOID;
+        GrGLuint                     fTexFBOID;
+        GrGLuint                     fMSColorRenderbufferID;
+        GrGpuResource::LifeCycle     fLifeCycle;
+        GrRenderTarget::SampleConfig fSampleConfig;
     };
 
     GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
@@ -43,7 +44,7 @@ public:
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
-        if (!this->isMultisampled() ||
+        if (!this->isUnifiedMultisampled() ||
             fRTFBOID == fTexFBOID) {
             // catches FBO 0 and non MSAA case
             return kAutoResolves_ResolveType;

@@ -1953,9 +1953,9 @@ void SampleWindow::updateTitle() {
     if (IsGpuDeviceType(fDeviceType) &&
         fDevManager &&
         fDevManager->getGrRenderTarget() &&
-        fDevManager->getGrRenderTarget()->numSamples() > 0) {
+        fDevManager->getGrRenderTarget()->numColorSamples() > 0) {
         title.appendf(" [MSAA: %d]",
-                       fDevManager->getGrRenderTarget()->numSamples());
+                       fDevManager->getGrRenderTarget()->numColorSamples());
     }
 #endif
 

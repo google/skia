@@ -373,6 +373,14 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     if (resetBits & kMSAAEnable_GrGLBackendState) {
         fMSAAEnabled = kUnknown_TriState;
+
+        // In mixed samples mode coverage modulation allows the coverage to be converted to
+        // "opacity", which can then be blended into the color buffer to accomplish antialiasing.
+        // Enable coverage modulation suitable for premultiplied alpha colors.
+        // This state has no effect when not rendering to a mixed sampled target.
+        if (this->glCaps().shaderCaps()->mixedSamplesSupport()) {
+            GL_CALL(CoverageModulation(GR_GL_RGBA));
+        }
     }
 
     fHWActiveTextureUnitIdx = -1; // invalid
@@ -851,6 +859,7 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
     switch (ctx.caps()->msFBOType()) {
         case GrGLCaps::kDesktop_ARB_MSFBOType:
         case GrGLCaps::kDesktop_EXT_MSFBOType:
+        case GrGLCaps::kMixedSamples_MSFBOType:
         case GrGLCaps::kES_3_0_MSFBOType:
             GL_ALLOC_CALL(ctx.interface(),
                             RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
@@ -888,6 +897,9 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     idDesc->fRTFBOID = 0;
     idDesc->fTexFBOID = 0;
     idDesc->fLifeCycle = lifeCycle;
+    idDesc->fSampleConfig = (GrGLCaps::kMixedSamples_MSFBOType == this->glCaps().msFBOType() &&
+                            desc.fSampleCnt > 0) ? GrRenderTarget::kStencil_SampleConfig :
+                                                   GrRenderTarget::kUnified_SampleConfig;
 
     GrGLenum status;
 
@@ -1170,7 +1182,7 @@ bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int wid
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
-    int samples = rt->numSamples();
+    int samples = rt->numStencilSamples();
     GrGLStencilAttachment::IDDesc sbDesc;
 
     int stencilFmtCnt = this->glCaps().stencilFormats().count();
@@ -2090,7 +2102,7 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
 }
 
 void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
-    SkASSERT(!useHWAA || rt->isMultisampled());
+    SkASSERT(!useHWAA || rt->isStencilBufferMultisampled());
 
     if (this->glCaps().multisampleDisableSupport()) {
         if (useHWAA) {

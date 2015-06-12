@@ -31,14 +31,65 @@ public:
 
     // GrRenderTarget
     /**
-     * @return true if the surface is multisampled, false otherwise
-     */
-    bool isMultisampled() const { return 0 != fDesc.fSampleCnt; }
+     * On some hardware it is possible for a render target to have multisampling
+     * only in certain buffers.
+     * Enforce only two legal sample configs.
+     * kUnified_SampleConfig signifies multisampling in both color and stencil
+     * buffers and is available across all hardware.
+     * kStencil_SampleConfig means multisampling is present in stencil buffer
+     * only; this config requires hardware support of
+     * NV_framebuffer_mixed_samples.
+    */
+    enum SampleConfig {
+        kUnified_SampleConfig = 0,
+        kStencil_SampleConfig = 1
+    };
 
     /**
-     * @return the number of samples-per-pixel or zero if non-MSAA.
+     * @return true if the surface is multisampled in all buffers,
+     *         false otherwise
      */
-    int numSamples() const { return fDesc.fSampleCnt; }
+    bool isUnifiedMultisampled() const {
+        if (fSampleConfig != kUnified_SampleConfig) {
+            return false;
+        }
+        return 0 != fDesc.fSampleCnt;
+    }
+
+    /**
+     * @return true if the surface is multisampled in the stencil buffer,
+     *         false otherwise
+     */
+    bool isStencilBufferMultisampled() const {
+        return 0 != fDesc.fSampleCnt;
+    }
+
+    /**
+     * @return the number of color samples-per-pixel, or zero if non-MSAA or
+     *         multisampled in the stencil buffer only.
+     */
+    int numColorSamples() const {
+        if (fSampleConfig == kUnified_SampleConfig) {
+            return fDesc.fSampleCnt;
+        }
+        return 0;
+    }
+
+    /**
+     * @return the number of stencil samples-per-pixel, or zero if non-MSAA.
+     */
+    int numStencilSamples() const {
+        return fDesc.fSampleCnt;
+    }
+
+    /**
+     * @return true if the surface is mixed sampled, false otherwise.
+     */
+    bool hasMixedSamples() const {
+        SkASSERT(kStencil_SampleConfig != fSampleConfig ||
+                 this->isStencilBufferMultisampled());
+        return kStencil_SampleConfig == fSampleConfig;
+    }
 
     /**
      * Call to indicate the multisample contents were modified such that the
@@ -94,9 +145,11 @@ public:
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
-    GrRenderTarget(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
+    GrRenderTarget(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc,
+                   SampleConfig sampleConfig)
         : INHERITED(gpu, lifeCycle, desc)
-        , fStencilAttachment(NULL) {
+        , fStencilAttachment(NULL)
+        , fSampleConfig(sampleConfig) {
         fResolveRect.setLargestInverted();
     }
 
@@ -111,10 +164,12 @@ private:
     friend class GrRenderTargetPriv;
 
     GrStencilAttachment*  fStencilAttachment;
+    SampleConfig          fSampleConfig;
 
     SkIRect               fResolveRect;
 
     typedef GrSurface INHERITED;
 };
+
 
 #endif

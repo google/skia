@@ -179,7 +179,7 @@ static void set_random_state(GrPipelineBuilder* pipelineBuilder, SkRandom* rando
 
     // If we don't have an MSAA rendertarget then we have to disable useHWAA
     if ((state | GrPipelineBuilder::kHWAntialias_Flag) &&
-        !pipelineBuilder->getRenderTarget()->isMultisampled()) {
+        !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled()) {
         state &= ~GrPipelineBuilder::kHWAntialias_Flag;
     }
     pipelineBuilder->enableState(state);

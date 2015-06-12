@@ -141,7 +141,7 @@ void SkMultiPictureDraw::draw(bool flush) {
             GrLayerHoister::FindLayersToAtlas(context, data.fPicture, initialMatrix,
                                               clipBounds,
                                               &atlasedNeedRendering, &atlasedRecycled,
-                                              rt->numSamples());
+                                              rt->numColorSamples());
         }
     }
 
@@ -174,7 +174,7 @@ void SkMultiPictureDraw::draw(bool flush) {
             // layers in the 'recycled' list since they have already been drawn.
             GrLayerHoister::FindLayersToHoist(context, picture, initialMatrix,
                                               clipBounds, &needRendering, &recycled,
-                                              rt->numSamples());
+                                              rt->numColorSamples());
 
             GrLayerHoister::DrawLayers(context, needRendering);
 
