@@ -35,6 +35,9 @@ echo "LD_LIBRARY_PATH=/data/local/tmp:$LD_LIBRARY_PATH \
      /data/local/tmp/skia_launcher ${APP_ARGS[*]}; \
      echo \$? > ${STATUS_FILENAME}" > ${CMD_FILENAME}
 chmod +x ${CMD_FILENAME}
+verbose "======== To reproduce this run: ========"
+verbose "android_run_skia ${APP_ARGS[*]}"
+verbose "========================================"
 verbose "pushing command file onto the device..."
 $ADB ${DEVICE_SERIAL} push ${CMD_FILENAME} /data/local/tmp
 rm ${CMD_FILENAME}
