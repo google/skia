@@ -7,11 +7,72 @@
  */
 
 #include "GrTypes.h"
-#include "SkTLogic.h"
-#include "GrXferProcessor.h"
+#include "../../src/utils/SkTLogic.h"
 
 #ifndef GrBlend_DEFINED
 #define GrBlend_DEFINED
+
+/**
+ * Equations for alpha-blending.
+ */
+enum GrBlendEquation {
+    // Basic blend equations.
+    kAdd_GrBlendEquation,             //<! Cs*S + Cd*D
+    kSubtract_GrBlendEquation,        //<! Cs*S - Cd*D
+    kReverseSubtract_GrBlendEquation, //<! Cd*D - Cs*S
+
+    // Advanced blend equations. These are described in the SVG and PDF specs.
+    kScreen_GrBlendEquation,
+    kOverlay_GrBlendEquation,
+    kDarken_GrBlendEquation,
+    kLighten_GrBlendEquation,
+    kColorDodge_GrBlendEquation,
+    kColorBurn_GrBlendEquation,
+    kHardLight_GrBlendEquation,
+    kSoftLight_GrBlendEquation,
+    kDifference_GrBlendEquation,
+    kExclusion_GrBlendEquation,
+    kMultiply_GrBlendEquation,
+    kHSLHue_GrBlendEquation,
+    kHSLSaturation_GrBlendEquation,
+    kHSLColor_GrBlendEquation,
+    kHSLLuminosity_GrBlendEquation,
+
+    kFirstAdvancedGrBlendEquation = kScreen_GrBlendEquation,
+    kLast_GrBlendEquation = kHSLLuminosity_GrBlendEquation
+};
+
+static const int kGrBlendEquationCnt = kLast_GrBlendEquation + 1;
+
+
+/**
+ * Coeffecients for alpha-blending.
+ */
+enum GrBlendCoeff {
+    kZero_GrBlendCoeff,    //<! 0
+    kOne_GrBlendCoeff,     //<! 1
+    kSC_GrBlendCoeff,      //<! src color
+    kISC_GrBlendCoeff,     //<! one minus src color
+    kDC_GrBlendCoeff,      //<! dst color
+    kIDC_GrBlendCoeff,     //<! one minus dst color
+    kSA_GrBlendCoeff,      //<! src alpha
+    kISA_GrBlendCoeff,     //<! one minus src alpha
+    kDA_GrBlendCoeff,      //<! dst alpha
+    kIDA_GrBlendCoeff,     //<! one minus dst alpha
+    kConstC_GrBlendCoeff,  //<! constant color
+    kIConstC_GrBlendCoeff, //<! one minus constant color
+    kConstA_GrBlendCoeff,  //<! constant color alpha
+    kIConstA_GrBlendCoeff, //<! one minus constant color alpha
+    kS2C_GrBlendCoeff,
+    kIS2C_GrBlendCoeff,
+    kS2A_GrBlendCoeff,
+    kIS2A_GrBlendCoeff,
+
+    kLast_GrBlendCoeff = kIS2A_GrBlendCoeff
+};
+
+static const int kGrBlendCoeffCnt = kLast_GrBlendCoeff + 1;
+
 
 template<GrBlendCoeff Coeff>
 struct GrTBlendCoeffRefsSrc : SkTBool<kSC_GrBlendCoeff == Coeff ||
