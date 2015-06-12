@@ -674,9 +674,16 @@ static void run_test(skiatest::Test* test) {
         }
         bool verbose() const override { return FLAGS_veryVerbose; }
     } reporter;
+
+    SkString note;
+    SkString whyBlacklisted = is_blacklisted("_", "tests", "_", test->name);
+    if (!whyBlacklisted.isEmpty()) {
+        note.appendf(" (--blacklist %s)", whyBlacklisted.c_str());
+    }
+
     WallTimer timer;
     timer.start();
-    if (!FLAGS_dryRun) {
+    if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
         start("unit", "test", "", test->name);
         GrContextFactory factory;
         if (FLAGS_pre_log) {
@@ -685,7 +692,7 @@ static void run_test(skiatest::Test* test) {
         test->proc(&reporter, &factory);
     }
     timer.end();
-    done(timer.fWall, "unit", "test", "", test->name, "", "");
+    done(timer.fWall, "unit", "test", "", test->name, note, "");
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
