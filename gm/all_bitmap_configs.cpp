@@ -66,7 +66,6 @@ static void color_wheel_native(SkCanvas* canvas) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     canvas->translate(0.5f * SCALE, 0.5f * SCALE);
     SkPaint p;
-    sk_tool_utils::set_portable_typeface_always(&p);
     p.setAntiAlias(false);
     p.setColor(SK_ColorWHITE);
     canvas->drawCircle(0.0f, 0.0f, SCALE * 0.5f, p);
@@ -76,7 +75,7 @@ static void color_wheel_native(SkCanvas* canvas) {
     const SkScalar D = 0.3f * SkIntToScalar(SCALE);
     const SkScalar X = SkDoubleToScalar(D * sqrt_3_over_2);
     const SkScalar Y = D * SK_ScalarHalf;
-    sk_tool_utils::set_portable_typeface(&p, NULL, SkTypeface::kBold);
+    sk_tool_utils::set_portable_typeface_always(&p, NULL, SkTypeface::kBold);
     p.setTextSize(0.28125f * SCALE);
     draw_center_letter('K', &p, SK_ColorBLACK, Z, Z, canvas);
     draw_center_letter('R', &p, SK_ColorRED, Z, D, canvas);
