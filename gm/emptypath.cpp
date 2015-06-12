@@ -63,7 +63,7 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&titlePaint);
+        sk_tool_utils::set_portable_typeface_always(&titlePaint);
         titlePaint.setLCDRenderText(true);
         titlePaint.setTextSize(15 * SK_Scalar1);
         const char title[] = "Empty Paths Drawn Into Rectangle Clips With "
@@ -92,7 +92,8 @@ protected:
 
 
                 SkColor color = rand.nextU();
-                color = 0xff000000| color; // force solid
+                color = 0xff000000 | color; // force solid
+                sk_tool_utils::color_to_565(&color);
                 this->drawEmpty(canvas, color, rect,
                                 gStyles[style].fStyle, gFills[fill].fFill);
 
@@ -106,8 +107,7 @@ protected:
                 SkPaint labelPaint;
                 labelPaint.setColor(color);
                 labelPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&labelPaint);
-                labelPaint.setLCDRenderText(true);
+                sk_tool_utils::set_portable_typeface_always(&labelPaint);
                 labelPaint.setTextSize(12 * SK_Scalar1);
                 canvas->drawText(gStyles[style].fName,
                                  strlen(gStyles[style].fName),
