@@ -66,6 +66,7 @@ static void color_wheel_native(SkCanvas* canvas) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     canvas->translate(0.5f * SCALE, 0.5f * SCALE);
     SkPaint p;
+    sk_tool_utils::set_portable_typeface_always(&p);
     p.setAntiAlias(false);
     p.setColor(SK_ColorWHITE);
     canvas->drawCircle(0.0f, 0.0f, SCALE * 0.5f, p);
@@ -156,7 +157,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     SkPaint p;
     p.setColor(SK_ColorBLACK);
     p.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&p, NULL);
+    sk_tool_utils::set_portable_typeface_always(&p, NULL);
 
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
