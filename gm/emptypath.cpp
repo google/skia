@@ -64,7 +64,6 @@ protected:
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface_always(&titlePaint);
-        titlePaint.setLCDRenderText(true);
         titlePaint.setTextSize(15 * SK_Scalar1);
         const char title[] = "Empty Paths Drawn Into Rectangle Clips With "
                              "Indicated Style and Fill";
