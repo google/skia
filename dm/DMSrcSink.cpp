@@ -331,15 +331,16 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 }
 
                 // Skip a stripe
-                const int linesToSkip = SkTMax(0, SkTMin(stripeHeight,
-                        height - (i + 1) * stripeHeight));
-                result = decoder->skipScanlines(linesToSkip);
-                switch (result) {
-                    case SkImageGenerator::kSuccess:
-                    case SkImageGenerator::kIncompleteInput:
-                        break;
-                    default:
-                        return SkStringPrintf("Cannot skip scanlines for %s.", fPath.c_str());
+                const int linesToSkip = SkTMin(stripeHeight, height - (i + 1) * stripeHeight);
+                if (linesToSkip > 0) {
+                    result = decoder->skipScanlines(linesToSkip);
+                    switch (result) {
+                        case SkImageGenerator::kSuccess:
+                        case SkImageGenerator::kIncompleteInput:
+                            break;
+                        default:
+                            return SkStringPrintf("Cannot skip scanlines for %s.", fPath.c_str());
+                    }
                 }
             }
             canvas->drawBitmap(bitmap, 0, 0);
