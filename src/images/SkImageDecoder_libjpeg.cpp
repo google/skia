@@ -8,7 +8,7 @@
 
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
-#include "SkJpegUtility.h"
+#include "SkJpegUtility_images.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkScaledBitmapSampler.h"

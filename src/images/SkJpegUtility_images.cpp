@@ -6,7 +6,7 @@
  */
 
 
-#include "SkJpegUtility.h"
+#include "SkJpegUtility_images.h"
 
 /////////////////////////////////////////////////////////////////////
 static void sk_init_source(j_decompress_ptr cinfo) {
