@@ -65,7 +65,7 @@
         '../src/views/mac/skia_mac.mm',
 
         # SDL
-        '../src/views/SDL/SkOSWindow_SDL.cpp',
+        '../src/views/sdl/SkOSWindow_SDL.cpp',
 
         # *nix
         '../src/views/unix/SkOSWindow_Unix.cpp',
@@ -78,7 +78,7 @@
 
       ],
       'sources!' : [
-        '../src/views/SDL/SkOSWindow_SDL.cpp',
+        '../src/views/sdl/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
