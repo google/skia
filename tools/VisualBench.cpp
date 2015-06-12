@@ -56,7 +56,7 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
             SkOSFile::Iter it(FLAGS_skps[i], ".skp");
             SkString path;
             while (it.next(&path)) {
-                skps.push_back() = SkOSPath::Join(FLAGS_skps[0], path.c_str());
+                skps.push_back() = SkOSPath::Join(FLAGS_skps[i], path.c_str());
                 fTimings.push_back().fName = path.c_str();
             }
         }
@@ -126,7 +126,9 @@ void VisualBench::resetContext() {
 }
 
 void VisualBench::setupRenderTarget() {
-    fRenderTarget.reset(this->renderTarget(fAttachmentInfo, fInterface, fContext));
+    if (fContext) {
+        fRenderTarget.reset(this->renderTarget(fAttachmentInfo, fInterface, fContext));
+    }
 }
 
 inline void VisualBench::renderFrame(SkCanvas* canvas) {

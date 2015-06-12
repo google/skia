@@ -58,6 +58,12 @@ SampleWindow* gWindow;
 ///////////// SkOSWindow impl /////////////
 ///////////////////////////////////////////
 
+SkOSWindow::SkOSWindow(void*) : fDestroyRequested(false) {
+}
+
+SkOSWindow::~SkOSWindow() {
+}
+
 bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int /*msaaSampleCount*/, AttachmentInfo* info)
 {
     JNIEnv* env = gActivityGlue.m_env;
@@ -73,6 +79,18 @@ bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int /*msaaSampleCount*/
     // This is the value requested in SkiaSampleView.java.
     info->fStencilBits = 8;
     return true;
+}
+
+void SkOSWindow::detach() {
+}
+
+void SkOSWindow::present() {
+}
+
+void SkOSWindow::closeWindow() {
+}
+
+void SkOSWindow::setVsync(bool) {
 }
 
 void SkOSWindow::onSetTitle(const char title[])

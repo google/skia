@@ -117,9 +117,9 @@ extern bool gEnableControlledThrow;
 
 bool SkWindow::update(SkIRect* updateArea) {
     if (!fDirtyRgn.isEmpty()) {
+#if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
         SkBitmap bm = this->getBitmap();
 
-#if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
         char* buffer = (char*)GXBeginDraw();
         SkASSERT(buffer);
 
@@ -134,8 +134,9 @@ bool SkWindow::update(SkIRect* updateArea) {
         SkCanvas* canvas = surface->getCanvas();
 
         canvas->clipRegion(fDirtyRgn);
-        if (updateArea)
+        if (updateArea) {
             *updateArea = fDirtyRgn.getBounds();
+        }
 
         SkAutoCanvasRestore acr(canvas, true);
         canvas->concat(fMatrix);

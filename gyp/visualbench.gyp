@@ -17,11 +17,9 @@
       'sources': [
         '../tools/VisualBench.h',
         '../tools/VisualBench.cpp',
-        '../src/images/SkForceLinking.cpp',
       ],
       'dependencies': [
         'flags.gyp:flags_common',
-        'images.gyp:images',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:proc_stats',
         'tools.gyp:timer',
@@ -55,6 +53,19 @@
           'mac_bundle_resources' : [
             '../example/mac/HelloWorld.xib'
           ],
+        }],
+        [ 'skia_os == "android"', {
+          'dependencies': [
+            'android_deps.gyp:Android_VisualBench',
+            'android_deps.gyp:native_app_glue',
+          ],
+         'link_settings': {
+            'libraries': [
+              '-landroid',
+              '-lGLESv2',
+              '-lEGL',
+            ],
+          },        
         }],
       ],
     },
