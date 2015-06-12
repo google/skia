@@ -68,6 +68,14 @@ def get_args(bot):
   args.append('--config')
   args.extend(configs)
 
+  # Run tests and gms everywhere,
+  # and image decoding tests everywhere except GPU bots.
+  # TODO: remove skp from default --src list?
+  if 'GPU' in bot:
+    args.extend('--src tests gm'.split(' '))
+  else:
+    args.extend('--src tests gm image'.split(' '))
+
   if 'GalaxyS' in bot:
     args.extend(('--threads', '0'))
 
@@ -116,13 +124,6 @@ def get_args(bot):
   if 'Win7' in bot:
     blacklist.extend('msaa16 gm _ colorwheelnative'.split(' '))
     blacklist.extend('pdf gm _ fontmgr_iter_factory'.split(' '))
-
-  # Drawing SKPs or images into GPU canvases is a New Thing.
-  # We are running out of RAM on some Android bots, so we are restricting
-  # all GPU Android bots to only run tests and GMs.
-  if ('Android' in bot and
-      'GPU'     in bot):
-    args.extend('--src tests gm'.split(' '))
 
   if 'Valgrind' in bot:
     # PDF + .webp -> jumps depending on uninitialized memory.  skia:3505
