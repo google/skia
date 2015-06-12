@@ -94,6 +94,8 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fUseDrawInsteadOfClear = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
+    fAdvBlendEqBlacklist = 0;
+
     fMapBufferFlags = kNone_MapFlags;
 
     fMaxRenderTargetSize = 0;
@@ -148,6 +150,9 @@ SkString GrCaps::dump() const {
     r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
     r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
     r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
+    if (this->advancedBlendEquationSupport()) {
+        r.appendf("Advanced Blend Equation Blacklist  : 0x%x\n", fAdvBlendEqBlacklist);
+    }
 
     r.appendf("Max Texture Size                   : %d\n", fMaxTextureSize);
     r.appendf("Min Texture Size                   : %d\n", fMinTextureSize);

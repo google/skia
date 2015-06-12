@@ -303,6 +303,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
      **************************************************************************/
 
     this->initFSAASupport(ctxInfo, gli);
+    this->initBlendEqationSupport(ctxInfo);
     this->initStencilFormats(ctxInfo);
 
     if (kGL_GrGLStandard == standard) {
@@ -319,24 +320,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fStencilWrapOpsSupport = true;
     }
 
-// Disabling advanced blend until we can resolve various bugs
-#if 0
-    if (kIntel_GrGLVendor != ctxInfo.vendor()) {
-        if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced_coherent")) {
-            fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
-            glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kAutomatic_AdvBlendEqInteraction;
-        } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced_coherent")) {
-            fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
-            glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kGeneralEnable_AdvBlendEqInteraction;
-        } else if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced")) {
-            fBlendEquationSupport = kAdvanced_BlendEquationSupport;
-            glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kAutomatic_AdvBlendEqInteraction;
-        } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced")) {
-            fBlendEquationSupport = kAdvanced_BlendEquationSupport;
-            glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kGeneralEnable_AdvBlendEqInteraction;
-        }
-    }
-#endif
     if (kGL_GrGLStandard == standard) {
         fMapBufferFlags = kCanMap_MapFlag; // we require VBO support and the desktop VBO
                                             // extension includes glMapBuffer.
@@ -815,6 +798,48 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                    ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
             fMSFBOType = GrGLCaps::kDesktop_EXT_MSFBOType;
         }
+    }
+}
+
+void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
+    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+
+    // Disabling advanced blend on various platforms with major known issues. We also block Chrome
+    // for now until its own blacklists can be updated.
+    if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer() ||
+        kIntel_GrGLDriver == ctxInfo.driver() ||
+        kChromium_GrGLDriver == ctxInfo.driver()) {
+        return;
+    }
+
+    if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced_coherent")) {
+        fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
+        glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kAutomatic_AdvBlendEqInteraction;
+    } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced_coherent")) {
+        fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
+        glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kGeneralEnable_AdvBlendEqInteraction;
+    } else if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
+               ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337,00)) {
+        // Non-coherent advanced blend has an issue on NVIDIA pre 337.00.
+        return;
+    } else if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced")) {
+        fBlendEquationSupport = kAdvanced_BlendEquationSupport;
+        glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kAutomatic_AdvBlendEqInteraction;
+    } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced")) {
+        fBlendEquationSupport = kAdvanced_BlendEquationSupport;
+        glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kGeneralEnable_AdvBlendEqInteraction;
+        // TODO: Use kSpecificEnables_AdvBlendEqInteraction if "blend_support_all_equations" is
+        // slow on a particular platform.
+    } else {
+        return; // No advanced blend support.
+    }
+
+    SkASSERT(this->advancedBlendEquationSupport());
+
+    if (kNVIDIA_GrGLDriver == ctxInfo.driver()) {
+        // Blacklist color-dodge and color-burn on NVIDIA until the fix is released.
+        fAdvBlendEqBlacklist |= (1 << kColorDodge_GrBlendEquation) |
+                                (1 << kColorBurn_GrBlendEquation);
     }
 }
 

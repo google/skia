@@ -148,6 +148,11 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             return;
         }
     }
+
+    if (kIntel_GrGLVendor == vendor) {
+        // We presume we're on the Intel driver since it hasn't identified itself as Mesa.
+        *outDriver = kIntel_GrGLDriver;
+    }
 }
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {

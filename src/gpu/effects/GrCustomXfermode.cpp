@@ -51,12 +51,17 @@ static GrBlendEquation hw_blend_equation(SkXfermode::Mode mode) {
     GR_STATIC_ASSERT(kGrBlendEquationCnt == SkXfermode::kLastMode + 1 + kOffset);
 }
 
-static bool can_use_hw_blend_equation(const GrProcOptInfo& coveragePOI, const GrCaps& caps) {
+static bool can_use_hw_blend_equation(GrBlendEquation equation,
+                                      const GrProcOptInfo& coveragePOI,
+                                      const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
         return false;
     }
     if (coveragePOI.isFourChannelOutput()) {
         return false; // LCD coverage must be applied after the blend equation.
+    }
+    if (caps.canUseAdvancedBlendEquation(equation)) {
+        return false;
     }
     return true;
 }
@@ -788,7 +793,7 @@ GrCustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                          const GrProcOptInfo& coveragePOI,
                                          bool hasMixedSamples,
                                          const DstTexture* dstTexture) const {
-    if (can_use_hw_blend_equation(coveragePOI, caps)) {
+    if (can_use_hw_blend_equation(fHWBlendEquation, coveragePOI, caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return SkNEW_ARGS(CustomXP, (fMode, fHWBlendEquation));
     }
@@ -799,7 +804,7 @@ bool GrCustomXPFactory::willReadDstColor(const GrCaps& caps,
                                          const GrProcOptInfo& colorPOI,
                                          const GrProcOptInfo& coveragePOI,
                                          bool hasMixedSamples) const {
-    return !can_use_hw_blend_equation(coveragePOI, caps);
+    return !can_use_hw_blend_equation(fHWBlendEquation, coveragePOI, caps);
 }
 
 void GrCustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,

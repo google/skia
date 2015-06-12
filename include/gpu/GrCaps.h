@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
+#include "GrBlend.h"
 #include "GrShaderVar.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
@@ -157,6 +158,11 @@ public:
         return kAdvancedCoherent_BlendEquationSupport == fBlendEquationSupport;
     }
 
+    bool canUseAdvancedBlendEquation(GrBlendEquation equation) const {
+        SkASSERT(GrBlendEquationIsAdvanced(equation));
+        return SkToBool(fAdvBlendEqBlacklist & (1 << equation));
+    }
+
     /**
      * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and
      * textures allows partial mappings or full mappings.
@@ -228,6 +234,9 @@ protected:
     bool fUseDrawInsteadOfClear         : 1;
 
     BlendEquationSupport fBlendEquationSupport;
+    uint32_t fAdvBlendEqBlacklist;
+    GR_STATIC_ASSERT(kLast_GrBlendEquation < 32);
+
     uint32_t fMapBufferFlags;
     int fGeometryBufferMapThreshold;
 

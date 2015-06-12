@@ -309,6 +309,7 @@ private:
     };
 
     void initFSAASupport(const GrGLContextInfo&, const GrGLInterface*);
+    void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilFormats(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
     void initConfigRenderableTable(const GrGLContextInfo&);
