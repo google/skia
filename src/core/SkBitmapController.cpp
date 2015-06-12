@@ -122,11 +122,12 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmap& origBitmap
     SkScalar roundedDestHeight = SkScalarRoundToScalar(trueDestHeight);
     
     if (!SkBitmapCache::Find(origBitmap, roundedDestWidth, roundedDestHeight, &fResultBitmap)) {
-        if (!SkBitmapScaler::Resize(&fResultBitmap,
-                                    origBitmap,
-                                    SkBitmapScaler::RESIZE_BEST,
-                                    roundedDestWidth,
-                                    roundedDestHeight,
+        SkAutoPixmapUnlock src;
+        if (!origBitmap.requestLock(&src)) {
+            return false;
+        }
+        if (!SkBitmapScaler::Resize(&fResultBitmap, src.pixmap(), SkBitmapScaler::RESIZE_BEST,
+                                    roundedDestWidth, roundedDestHeight,
                                     SkResourceCache::GetAllocator())) {
             return false; // we failed to create fScaledBitmap
         }

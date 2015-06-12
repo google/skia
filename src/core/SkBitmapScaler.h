@@ -79,11 +79,8 @@ public:
         RESIZE_LAST_ALGORITHM_METHOD = RESIZE_MITCHELL,
     };
 
-    static bool Resize(SkBitmap* result,
-                       const SkBitmap& source,
-                       ResizeMethod method,
-                       float dest_width, float dest_height,
-                       SkBitmap::Allocator* allocator = NULL);
+    static bool Resize(SkBitmap* result, const SkPixmap& src, ResizeMethod method,
+                       float dest_width, float dest_height, SkBitmap::Allocator* = NULL);
 
      /** Platforms can also optionally overwrite the convolution functions
         if we have SIMD versions of them.

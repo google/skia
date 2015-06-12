@@ -248,73 +248,65 @@ static SkBitmapScaler::ResizeMethod ResizeMethodToAlgorithmMethod(
     }
 }
 
-// static
-bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
-                            const SkBitmap& source,
-                            ResizeMethod method,
+bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeMethod method,
                             float destWidth, float destHeight,
                             SkBitmap::Allocator* allocator) {
+    if (NULL == source.addr() || source.colorType() != kN32_SkColorType ||
+        source.width() < 1 || source.height() < 1)
+    {
+        return false;
+    }
 
-  SkConvolutionProcs convolveProcs= { 0, NULL, NULL, NULL, NULL };
-  PlatformConvolutionProcs(&convolveProcs);
+    if (destWidth < 1 || destHeight < 1) {
+        // todo: seems like we could handle negative dstWidth/Height, since that
+        // is just a negative scale (flip)
+        return false;
+    }
 
-  SkRect destSubset = { 0, 0, destWidth, destHeight };
+    SkConvolutionProcs convolveProcs= { 0, NULL, NULL, NULL, NULL };
+    PlatformConvolutionProcs(&convolveProcs);
 
-  // Ensure that the ResizeMethod enumeration is sound.
-  SkASSERT(((RESIZE_FIRST_QUALITY_METHOD <= method) &&
+    SkRect destSubset = { 0, 0, destWidth, destHeight };
+
+    // Ensure that the ResizeMethod enumeration is sound.
+    SkASSERT(((RESIZE_FIRST_QUALITY_METHOD <= method) &&
       (method <= RESIZE_LAST_QUALITY_METHOD)) ||
       ((RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
       (method <= RESIZE_LAST_ALGORITHM_METHOD)));
 
-  // If the size of source or destination is 0, i.e. 0x0, 0xN or Nx0, just
-  // return empty.
-  if (source.width() < 1 || source.height() < 1 ||
-      destWidth < 1 || destHeight < 1) {
-      // todo: seems like we could handle negative dstWidth/Height, since that
-      // is just a negative scale (flip)
-      return false;
-  }
+    method = ResizeMethodToAlgorithmMethod(method);
 
-  method = ResizeMethodToAlgorithmMethod(method);
-
-  // Check that we deal with an "algorithm methods" from this point onward.
-  SkASSERT((SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
+    // Check that we deal with an "algorithm methods" from this point onward.
+    SkASSERT((SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
       (method <= SkBitmapScaler::RESIZE_LAST_ALGORITHM_METHOD));
 
-  SkAutoLockPixels locker(source);
-  if (!source.readyToDraw() ||
-      source.colorType() != kN32_SkColorType) {
-      return false;
-  }
-
-  SkResizeFilter filter(method, source.width(), source.height(),
+    SkResizeFilter filter(method, source.width(), source.height(),
                         destWidth, destHeight, destSubset, convolveProcs);
 
-  // Get a source bitmap encompassing this touched area. We construct the
-  // offsets and row strides such that it looks like a new bitmap, while
-  // referring to the old data.
-  const unsigned char* sourceSubset =
-      reinterpret_cast<const unsigned char*>(source.getPixels());
+    // Get a subset encompassing this touched area. We construct the
+    // offsets and row strides such that it looks like a new bitmap, while
+    // referring to the old data.
+    const uint8_t* sourceSubset = reinterpret_cast<const uint8_t*>(source.addr());
 
-  // Convolve into the result.
-  SkBitmap result;
-  result.setInfo(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
+    // Convolve into the result.
+    SkBitmap result;
+    result.setInfo(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
                                       SkScalarCeilToInt(destSubset.height()),
                                       source.alphaType()));
-  result.allocPixels(allocator, NULL);
-  if (!result.readyToDraw()) {
+    result.allocPixels(allocator, NULL);
+    if (!result.readyToDraw()) {
       return false;
-  }
+    }
 
-  BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
+    BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
       !source.isOpaque(), filter.xFilter(), filter.yFilter(),
       static_cast<int>(result.rowBytes()),
       static_cast<unsigned char*>(result.getPixels()),
       convolveProcs, true);
 
-  *resultPtr = result;
-  resultPtr->lockPixels();
-  SkASSERT(resultPtr->getPixels());
-  return true;
+    *resultPtr = result;
+    resultPtr->lockPixels();
+    SkASSERT(resultPtr->getPixels());
+    return true;
 }
 
