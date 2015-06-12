@@ -133,19 +133,22 @@ behavior of the builder itself.
 
         $ killall python
 
-3. Connect the device to the host machine, either through a powered USB hub or
+3. Disable MTP and PTP on the device.  Some devices require one or the other to
+   be enabled; in that case, select PTP and choose to 'do nothing' when
+   attaching to the host machine.
+4. Connect the device to the host machine, either through a powered USB hub or
    directly to the machine.
-4. Make sure that the device is in developer mode and that USB debugging is
+5. Make sure that the device is in developer mode and that USB debugging is
    enabled.
-5. Authorize the device for USB debugging on the host machine by checking the
+6. Authorize the device for USB debugging on the host machine by checking the
    "always allow" box on dialog box which appears on the Android device after
    plugging it into the host.
-6. Ensure that the device appears as "connected" when you run the
+7. Ensure that the device appears as "connected" when you run the
    `which_devices.py` script:
 
         $ python buildbot/scripts/which_devices.py
 
-7. Reboot the machine to start the buildslave.
+8. Reboot the machine to start the buildslave.
 
 
 ### Bringing up a new machine from scratch
