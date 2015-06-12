@@ -140,12 +140,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDrawArrays(GrGLenum mode,
                                               GrGLsizei count) {
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDrawArraysInstanced(GrGLenum mode,
-                                                       GrGLint first,
-                                                       GrGLsizei count,
-                                                       GrGLsizei primcount) {
-}
-
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDrawBuffer(GrGLenum mode) {
 }
 
@@ -157,13 +151,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDrawElements(GrGLenum mode,
                                                 GrGLsizei count,
                                                 GrGLenum type,
                                                 const GrGLvoid* indices) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDrawElementsInstanced(GrGLenum mode,
-                                                         GrGLsizei count,
-                                                         GrGLenum type,
-                                                         const GrGLvoid* indices,
-                                                         GrGLsizei primcount) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLEnable(GrGLenum cap) {
@@ -400,9 +387,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttribPointer(GrGLuint indx,
                                                        GrGLboolean normalized,
                                                        GrGLsizei stride,
                                                        const GrGLvoid* ptr) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttribDivisor(GrGLuint index, GrGLuint divisor) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLViewport(GrGLint x,

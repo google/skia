@@ -18,8 +18,6 @@ static void test_print(skiatest::Reporter*, const GrCaps* caps) {
     // This used to assert.
     SkString result = caps->dump();
     SkASSERT(!result.isEmpty());
-    SkString shaderResult = caps->shaderCaps()->dump();
-    SkASSERT(!shaderResult.isEmpty());
 }
 
 DEF_GPUTEST(GrDrawTarget, reporter, factory) {

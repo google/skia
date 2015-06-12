@@ -153,6 +153,10 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(LineWidth);
     GET_PROC(LinkProgram);
     GET_PROC(MapBuffer);
+    if (extensions.has("GL_EXT_direct_state_access")) {
+        GET_PROC_SUFFIX(MatrixLoadf, EXT);
+        GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
+    }
     GET_PROC(PixelStorei);
     if (extensions.has("GL_EXT_raster_multisample")) {
         GET_PROC_SUFFIX(RasterSamples, EXT);
@@ -269,8 +273,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     }
 
     if (extensions.has("GL_NV_path_rendering")) {
-        GET_PROC_SUFFIX(MatrixLoadf, EXT);
-        GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
         GET_PROC_SUFFIX(PathCommands, NV);
         GET_PROC_SUFFIX(PathCoords, NV);
         GET_PROC_SUFFIX(PathParameteri, NV);
@@ -319,160 +321,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
 
     if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_ARB_program_interface_query")) {
         GET_PROC(GetProgramResourceLocation);
-    }
-
-    if (glVer >= GR_GL_VER(3,1) || extensions.has("GL_ARB_draw_instanced")) {
-        GET_PROC(DrawArraysInstanced);
-        GET_PROC(DrawElementsInstanced);
-    }
-
-    if (glVer >= GR_GL_VER(3,2) || extensions.has("GL_ARB_instanced_arrays")) {
-        GET_PROC(VertexAttribDivisor);
-        if (extensions.has("GL_EXT_direct_state_access")) {
-            GET_PROC_SUFFIX(VertexArrayVertexAttribDivisor, EXT);
-        }
-    }
-
-    if (extensions.has("GL_NV_bindless_texture")) {
-        GET_PROC_SUFFIX(GetTextureHandle, NV);
-        GET_PROC_SUFFIX(GetTextureSamplerHandle, NV);
-        GET_PROC_SUFFIX(MakeTextureHandleResident, NV);
-        GET_PROC_SUFFIX(MakeTextureHandleNonResident, NV);
-        GET_PROC_SUFFIX(GetImageHandle, NV);
-        GET_PROC_SUFFIX(MakeImageHandleResident, NV);
-        GET_PROC_SUFFIX(MakeImageHandleNonResident, NV);
-        GET_PROC_SUFFIX(IsTextureHandleResident, NV);
-        GET_PROC_SUFFIX(IsImageHandleResident, NV);
-        GET_PROC_SUFFIX(UniformHandleui64, NV);
-        GET_PROC_SUFFIX(UniformHandleui64v, NV);
-        GET_PROC_SUFFIX(ProgramUniformHandleui64, NV);
-        GET_PROC_SUFFIX(ProgramUniformHandleui64v, NV);
-    }
-
-    if (extensions.has("GL_EXT_direct_state_access")) {
-        GET_PROC_SUFFIX(TextureParameteri, EXT);
-        GET_PROC_SUFFIX(TextureParameteriv, EXT);
-        GET_PROC_SUFFIX(TextureParameterf, EXT);
-        GET_PROC_SUFFIX(TextureParameterfv, EXT);
-        GET_PROC_SUFFIX(TextureImage1D, EXT);
-        GET_PROC_SUFFIX(TextureImage2D, EXT);
-        GET_PROC_SUFFIX(TextureSubImage1D, EXT);
-        GET_PROC_SUFFIX(TextureSubImage2D, EXT);
-        GET_PROC_SUFFIX(CopyTextureImage1D, EXT);
-        GET_PROC_SUFFIX(CopyTextureImage2D, EXT);
-        GET_PROC_SUFFIX(CopyTextureSubImage1D, EXT);
-        GET_PROC_SUFFIX(CopyTextureSubImage2D, EXT);
-        GET_PROC_SUFFIX(GetTextureImage, EXT);
-        GET_PROC_SUFFIX(GetTextureParameterfv, EXT);
-        GET_PROC_SUFFIX(GetTextureParameteriv, EXT);
-        GET_PROC_SUFFIX(GetTextureLevelParameterfv, EXT);
-        GET_PROC_SUFFIX(GetTextureLevelParameteriv, EXT);
-        if (glVer >= GR_GL_VER(1,2)) {
-            GET_PROC_SUFFIX(TextureImage3D, EXT);
-            GET_PROC_SUFFIX(TextureSubImage3D, EXT);
-            GET_PROC_SUFFIX(CopyTextureSubImage3D, EXT);
-            GET_PROC_SUFFIX(CompressedTextureImage3D, EXT);
-            GET_PROC_SUFFIX(CompressedTextureImage2D, EXT);
-            GET_PROC_SUFFIX(CompressedTextureImage1D, EXT);
-            GET_PROC_SUFFIX(CompressedTextureSubImage3D, EXT);
-            GET_PROC_SUFFIX(CompressedTextureSubImage2D, EXT);
-            GET_PROC_SUFFIX(CompressedTextureSubImage1D, EXT);
-            GET_PROC_SUFFIX(GetCompressedTextureImage, EXT);
-        }
-        if (glVer >= GR_GL_VER(1,5)) {
-            GET_PROC_SUFFIX(NamedBufferData, EXT);
-            GET_PROC_SUFFIX(NamedBufferSubData, EXT);
-            GET_PROC_SUFFIX(MapNamedBuffer, EXT);
-            GET_PROC_SUFFIX(UnmapNamedBuffer, EXT);
-            GET_PROC_SUFFIX(GetNamedBufferParameteriv, EXT);
-            GET_PROC_SUFFIX(GetNamedBufferPointerv, EXT);
-            GET_PROC_SUFFIX(GetNamedBufferSubData, EXT);
-        }
-        if (glVer >= GR_GL_VER(2,0)) {
-            GET_PROC_SUFFIX(ProgramUniform1f, EXT);
-            GET_PROC_SUFFIX(ProgramUniform2f, EXT);
-            GET_PROC_SUFFIX(ProgramUniform3f, EXT);
-            GET_PROC_SUFFIX(ProgramUniform4f, EXT);
-            GET_PROC_SUFFIX(ProgramUniform1i, EXT);
-            GET_PROC_SUFFIX(ProgramUniform2i, EXT);
-            GET_PROC_SUFFIX(ProgramUniform3i, EXT);
-            GET_PROC_SUFFIX(ProgramUniform4i, EXT);
-            GET_PROC_SUFFIX(ProgramUniform1fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform2fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform3fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform4fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform1iv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform2iv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform3iv, EXT);
-            GET_PROC_SUFFIX(ProgramUniform4iv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix2fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix3fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix4fv, EXT);
-        }
-        if (glVer >= GR_GL_VER(2,1)) {
-            GET_PROC_SUFFIX(ProgramUniformMatrix2x3fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix3x2fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix2x4fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix4x2fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix3x4fv, EXT);
-            GET_PROC_SUFFIX(ProgramUniformMatrix4x3fv, EXT);
-        }
-        if (glVer >= GR_GL_VER(3,0)) {
-            GET_PROC_SUFFIX(NamedRenderbufferStorage, EXT);
-            GET_PROC_SUFFIX(GetNamedRenderbufferParameteriv, EXT);
-            GET_PROC_SUFFIX(NamedRenderbufferStorageMultisample, EXT);
-            GET_PROC_SUFFIX(CheckNamedFramebufferStatus, EXT);
-            GET_PROC_SUFFIX(NamedFramebufferTexture1D, EXT);
-            GET_PROC_SUFFIX(NamedFramebufferTexture2D, EXT);
-            GET_PROC_SUFFIX(NamedFramebufferTexture3D, EXT);
-            GET_PROC_SUFFIX(NamedFramebufferRenderbuffer, EXT);
-            GET_PROC_SUFFIX(GetNamedFramebufferAttachmentParameteriv, EXT);
-            GET_PROC_SUFFIX(GenerateTextureMipmap, EXT);
-            GET_PROC_SUFFIX(FramebufferDrawBuffer, EXT);
-            GET_PROC_SUFFIX(FramebufferDrawBuffers, EXT);
-            GET_PROC_SUFFIX(FramebufferReadBuffer, EXT);
-            GET_PROC_SUFFIX(GetFramebufferParameteriv, EXT);
-            GET_PROC_SUFFIX(NamedCopyBufferSubData, EXT);
-            GET_PROC_SUFFIX(VertexArrayVertexOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayColorOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayEdgeFlagOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayIndexOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayNormalOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayTexCoordOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayMultiTexCoordOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayFogCoordOffset, EXT);
-            GET_PROC_SUFFIX(VertexArraySecondaryColorOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayVertexAttribOffset, EXT);
-            GET_PROC_SUFFIX(VertexArrayVertexAttribIOffset, EXT);
-            GET_PROC_SUFFIX(EnableVertexArray, EXT);
-            GET_PROC_SUFFIX(DisableVertexArray, EXT);
-            GET_PROC_SUFFIX(EnableVertexArrayAttrib, EXT);
-            GET_PROC_SUFFIX(DisableVertexArrayAttrib, EXT);
-            GET_PROC_SUFFIX(GetVertexArrayIntegerv, EXT);
-            GET_PROC_SUFFIX(GetVertexArrayPointerv, EXT);
-            GET_PROC_SUFFIX(GetVertexArrayIntegeri_v, EXT);
-            GET_PROC_SUFFIX(GetVertexArrayPointeri_v, EXT);
-            GET_PROC_SUFFIX(MapNamedBufferRange, EXT);
-            GET_PROC_SUFFIX(FlushMappedNamedBufferRange, EXT);
-        }
-    }
-
-    if (glVer >= GR_GL_VER(4,3)) {
-        GET_PROC(DebugMessageControl);
-        GET_PROC(DebugMessageInsert);
-        GET_PROC(DebugMessageCallback);
-        GET_PROC(GetDebugMessageLog);
-        GET_PROC(PushDebugGroup);
-        GET_PROC(PopDebugGroup);
-        GET_PROC(ObjectLabel);
-    } else if (extensions.has("GL_KHR_debug")) {
-        GET_PROC_SUFFIX(DebugMessageControl, KHR);
-        GET_PROC_SUFFIX(DebugMessageInsert, KHR);
-        GET_PROC_SUFFIX(DebugMessageCallback, KHR);
-        GET_PROC_SUFFIX(GetDebugMessageLog, KHR);
-        GET_PROC_SUFFIX(PushDebugGroup, KHR);
-        GET_PROC_SUFFIX(PopDebugGroup, KHR);
-        GET_PROC_SUFFIX(ObjectLabel, KHR);
     }
 
     interface->fStandard = kGL_GrGLStandard;
@@ -716,41 +564,6 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     if (extensions.has("GL_NV_framebuffer_mixed_samples")) {
         GET_PROC_SUFFIX(CoverageModulation, NV);
-    }
-
-    if (version >= GR_GL_VER(3,0) || extensions.has("GL_EXT_draw_instanced")) {
-        GET_PROC(DrawArraysInstanced);
-        GET_PROC(DrawElementsInstanced);
-    }
-
-    if (version >= GR_GL_VER(3,0) || extensions.has("GL_EXT_instanced_arrays")) {
-        GET_PROC(VertexAttribDivisor);
-    }
-
-    if (extensions.has("GL_NV_bindless_texture")) {
-        GET_PROC_SUFFIX(GetTextureHandle, NV);
-        GET_PROC_SUFFIX(GetTextureSamplerHandle, NV);
-        GET_PROC_SUFFIX(MakeTextureHandleResident, NV);
-        GET_PROC_SUFFIX(MakeTextureHandleNonResident, NV);
-        GET_PROC_SUFFIX(GetImageHandle, NV);
-        GET_PROC_SUFFIX(MakeImageHandleResident, NV);
-        GET_PROC_SUFFIX(MakeImageHandleNonResident, NV);
-        GET_PROC_SUFFIX(IsTextureHandleResident, NV);
-        GET_PROC_SUFFIX(IsImageHandleResident, NV);
-        GET_PROC_SUFFIX(UniformHandleui64, NV);
-        GET_PROC_SUFFIX(UniformHandleui64v, NV);
-        GET_PROC_SUFFIX(ProgramUniformHandleui64, NV);
-        GET_PROC_SUFFIX(ProgramUniformHandleui64v, NV);
-    }
-
-    if (extensions.has("GL_KHR_debug")) {
-        GET_PROC_SUFFIX(DebugMessageControl, KHR);
-        GET_PROC_SUFFIX(DebugMessageInsert, KHR);
-        GET_PROC_SUFFIX(DebugMessageCallback, KHR);
-        GET_PROC_SUFFIX(GetDebugMessageLog, KHR);
-        GET_PROC_SUFFIX(PushDebugGroup, KHR);
-        GET_PROC_SUFFIX(PopDebugGroup, KHR);
-        GET_PROC_SUFFIX(ObjectLabel, KHR);
     }
 
     interface->fStandard = kGLES_GrGLStandard;
