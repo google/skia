@@ -562,6 +562,9 @@ bool SkColorMatrixFilter::asFragmentProcessors(GrContext*,
     if (frag) {
         if (array) {
             *array->append() = frag;
+        } else {
+            frag->unref();
+            SkDEBUGCODE(frag = NULL;)
         }
         return true;
     }
