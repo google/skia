@@ -39,6 +39,9 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fTwoFormatLimit = false;
     fFragCoordsConventionSupport = false;
     fVertexArrayObjectSupport = false;
+    fInstancedDrawingSupport = false;
+    fDirectStateAccessSupport = false;
+    fDebugSupport = false;
     fES2CompatibilitySupport = false;
     fMultisampleDisableSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
@@ -88,6 +91,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             glslCaps->fFBFetchExtensionString = "GL_ARM_shader_framebuffer_fetch";
         }
     }
+
+    glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
 
     // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
     glslCaps->fDropsTileOnZeroDivide = kQualcomm_GrGLVendor == ctxInfo.vendor();
@@ -230,6 +235,28 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                     ctxInfo.hasExtension("GL_OES_vertex_array_object");
     }
 
+    if ((kGL_GrGLStandard == standard && version >= GR_GL_VER(3,2)) ||
+        (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0))) {
+        fInstancedDrawingSupport = true;
+    } else {
+        fInstancedDrawingSupport = (ctxInfo.hasExtension("GL_ARB_draw_instanced") ||
+                                    ctxInfo.hasExtension("GL_EXT_draw_instanced")) &&
+                                   (ctxInfo.hasExtension("GL_ARB_instanced_arrays") ||
+                                    ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        fDirectStateAccessSupport = ctxInfo.hasExtension("GL_EXT_direct_state_access");
+    } else {
+        fDirectStateAccessSupport = false;
+    }
+
+    if (kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) {
+        fDebugSupport = true;
+    } else {
+        fDebugSupport = ctxInfo.hasExtension("GL_KHR_debug");
+    }
+
     if (kGL_GrGLStandard == standard) {
         fES2CompatibilitySupport = ctxInfo.hasExtension("GL_ARB_ES2_compatibility");
     }
@@ -254,9 +281,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             // We only support v1.3+ of GL_NV_path_rendering which allows us to
             // set individual fragment inputs with ProgramPathFragmentInputGen. The API
             // additions are detected by checking the existence of the function.
-            glslCaps->fPathRenderingSupport =
-                ctxInfo.hasExtension("GL_EXT_direct_state_access") &&
-                ((ctxInfo.version() >= GR_GL_VER(4, 3) ||
+            glslCaps->fPathRenderingSupport = ((ctxInfo.version() >= GR_GL_VER(4, 3) ||
                 ctxInfo.hasExtension("GL_ARB_program_interface_query")) &&
                 gli->fFunctions.fProgramPathFragmentInputGen);
         }
@@ -1023,6 +1048,9 @@ SkString GrGLCaps::dump() const {
     r.appendf("Fragment coord conventions support: %s\n",
              (fFragCoordsConventionSupport ? "YES": "NO"));
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
+    r.appendf("Instanced drawing support: %s\n", (fInstancedDrawingSupport ? "YES": "NO"));
+    r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
+    r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
     r.appendf("Multisample disable support: %s\n", (fMultisampleDisableSupport ? "YES" : "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
@@ -1039,6 +1067,7 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options,
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
+    fBindlessTextureSupport = false;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
@@ -1063,6 +1092,7 @@ SkString GrGLSLCaps::dump() const {
 
     r.appendf("FB Fetch Support: %s\n", (fFBFetchSupport ? "YES" : "NO"));
     r.appendf("Drops tile on zero divide: %s\n", (fDropsTileOnZeroDivide ? "YES" : "NO"));
+    r.appendf("Bindless texture support: %s\n", (fBindlessTextureSupport ? "YES" : "NO"));
     r.appendf("Advanced blend equation interaction: %s\n",
               kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     return r;
