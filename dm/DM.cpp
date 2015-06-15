@@ -797,6 +797,7 @@ int dm_main() {
     }
     tg.wait();
     // At this point we're back in single-threaded land.
+    sk_tool_utils::release_portable_typefaces();
 
     SkDebugf("\n");
     if (gFailures.count() > 0) {

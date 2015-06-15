@@ -36,6 +36,8 @@ namespace sk_tool_utils {
                                SkTypeface::Style style = SkTypeface::kNormal);
     SkTypeface* create_portable_typeface(const char* name, SkTypeface::Style style);
     SkTypeface* create_portable_typeface_always(const char* name, SkTypeface::Style style);
+    /** Call to clean up portable font references. */
+    void release_portable_typefaces();
     void report_used_chars();
 
     /**
