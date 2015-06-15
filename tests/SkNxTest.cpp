@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Sk4px.h"
 #include "SkNx.h"
 #include "SkRandom.h"
 #include "Test.h"
@@ -153,4 +154,39 @@ DEF_TEST(SkNi_min, r) {
         REPORTER_ASSERT(r, Sk8h::Min(Sk8h(a), Sk8h(b)).kth<0>() == SkTMin(a, b));
     }}
 #endif
+}
+
+DEF_TEST(SkNi_saturatedAdd, r) {
+    for (int a = 0; a < (1<<8); a++) {
+    for (int b = 0; b < (1<<8); b++) {
+        int exact = a+b;
+        if (exact > 255) { exact = 255; }
+        if (exact <   0) { exact =   0; }
+
+        REPORTER_ASSERT(r, Sk16b(a).saturatedAdd(Sk16b(b)).kth<0>() == exact);
+    }
+    }
+}
+
+DEF_TEST(Sk4px_muldiv255round, r) {
+    for (int a = 0; a < (1<<8); a++) {
+    for (int b = 0; b < (1<<8); b++) {
+        int exact = (a*b+127)/255;
+
+        // Duplicate a and b 16x each.
+        Sk4px av((SkAlpha)a),
+              bv((SkAlpha)b);
+
+        // This way should always be exactly correct.
+        int correct = av.mulWiden(bv).div255RoundNarrow().kth<0>();
+        REPORTER_ASSERT(r, correct == exact);
+
+        // We're a bit more flexible on this method: correct for 0 or 255, otherwise off by <=1.
+        int fast = av.fastMulDiv255Round(bv).kth<0>();
+        REPORTER_ASSERT(r, fast-exact >= -1 && fast-exact <= 1);
+        if (a == 0 || a == 255 || b == 0 || b == 255) {
+            REPORTER_ASSERT(r, fast == exact);
+        }
+    }
+    }
 }
