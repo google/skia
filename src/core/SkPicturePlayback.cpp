@@ -204,18 +204,18 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             reader->readRRect(&inner);
             canvas->drawDRRect(outer, inner, paint);
         } break;
-        case BEGIN_COMMENT_GROUP: {
-            const char* desc = reader->readString();
-            canvas->beginCommentGroup(desc);
-        } break;
-        case COMMENT: {
-            const char* kywd = reader->readString();
-            const char* value = reader->readString();
-            canvas->addComment(kywd, value);
-        } break;
-        case END_COMMENT_GROUP: {
-            canvas->endCommentGroup();
-        } break;
+        case BEGIN_COMMENT_GROUP:
+            reader->readString();
+            // deprecated (M44)
+            break;
+        case COMMENT:
+            reader->readString();
+            reader->readString();
+            // deprecated (M44)
+            break;
+        case END_COMMENT_GROUP:
+            // deprecated (M44)
+            break;
         case DRAW_OVAL: {
             const SkPaint& paint = *fPictureData->getPaint(reader);
             canvas->drawOval(reader->skipT<SkRect>(), paint);

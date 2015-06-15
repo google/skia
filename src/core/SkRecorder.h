@@ -116,10 +116,6 @@ public:
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
-    void beginCommentGroup(const char*) override;
-    void addComment(const char*, const char*) override;
-    void endCommentGroup() override;
-
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override { return NULL; }
 
     void flushMiniRecorder();

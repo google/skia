@@ -25,10 +25,6 @@ public:
 
     SkDrawFilter* setDrawFilter(SkDrawFilter*) override;
 
-    void beginCommentGroup(const char* description) override;
-    void addComment(const char* kywd, const char* value) override;
-    void endCommentGroup() override;
-
 protected:
     SkTDArray<SkCanvas*> fList;
 

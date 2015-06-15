@@ -142,10 +142,6 @@ public:
 // Inherited from SkCanvas
 ////////////////////////////////////////////////////////////////////////////////
 
-    void beginCommentGroup(const char* description) override;
-    void addComment(const char* kywd, const char* value) override;
-    void endCommentGroup() override;
-
     static const int kVizImageHeight = 256;
     static const int kVizImageWidth = 256;
 

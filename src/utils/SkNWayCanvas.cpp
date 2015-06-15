@@ -308,24 +308,3 @@ SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     }
     return this->INHERITED::setDrawFilter(filter);
 }
-
-void SkNWayCanvas::beginCommentGroup(const char* description) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->beginCommentGroup(description);
-    }
-}
-
-void SkNWayCanvas::addComment(const char* kywd, const char* value) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->addComment(kywd, value);
-    }
-}
-
-void SkNWayCanvas::endCommentGroup() {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->endCommentGroup();
-    }
-}

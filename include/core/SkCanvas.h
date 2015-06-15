@@ -1033,20 +1033,6 @@ public:
      */
     void drawDrawable(SkDrawable* drawable);
 
-    /** Add comments. beginCommentGroup/endCommentGroup open/close a new group.
-        Each comment added via addComment is notionally attached to its
-        enclosing group. Top-level comments simply belong to no group.
-     */
-    virtual void beginCommentGroup(const char* /*description*/) {
-        // do nothing. Subclasses may do something
-    }
-    virtual void addComment(const char* /*kywd*/, const char* /*value*/) {
-        // do nothing. Subclasses may do something
-    }
-    virtual void endCommentGroup() {
-        // do nothing. Subclasses may do something
-    }
-
     //////////////////////////////////////////////////////////////////////////
 
     /** Get the current filter object. The filter's reference count is not
@@ -1424,28 +1410,6 @@ private:
     int         fSaveCount;
 };
 #define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
-
-/** Stack helper class to automatically open and close a comment block
- */
-class SkAutoCommentBlock : SkNoncopyable {
-public:
-    SkAutoCommentBlock(SkCanvas* canvas, const char* description) {
-        fCanvas = canvas;
-        if (fCanvas) {
-            fCanvas->beginCommentGroup(description);
-        }
-    }
-
-    ~SkAutoCommentBlock() {
-        if (fCanvas) {
-            fCanvas->endCommentGroup();
-        }
-    }
-
-private:
-    SkCanvas* fCanvas;
-};
-#define SkAutoCommentBlock(...) SK_REQUIRE_LOCAL_VAR(SkAutoCommentBlock)
 
 /**
  *  If the caller wants read-only access to the pixels in a canvas, it can just

@@ -179,6 +179,9 @@ private:
     static_assert(MIN_PICTURE_VERSION <= 41,
                   "Remove kFontFileName and related code from SkFontDescriptor.cpp.");
 
+    static_assert(MIN_PICTURE_VERSION <= 42,
+                  "Remove COMMENT API handlers from SkPicturePlayback.cpp");
+
     static bool IsValidPictInfo(const SkPictInfo& info);
     static SkPicture* Forwardport(const SkPictInfo&, const SkPictureData*);
 

@@ -815,33 +815,6 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::beginCommentGroup(const char* description) {
-    // op/size + length of string + \0 terminated chars
-    size_t length = strlen(description);
-    size_t size = 2 * kUInt32Size + SkAlign4(length + 1);
-    size_t initialOffset = this->addDraw(BEGIN_COMMENT_GROUP, &size);
-    fWriter.writeString(description, length);
-    this->validate(initialOffset, size);
-}
-
-void SkPictureRecord::addComment(const char* kywd, const char* value) {
-    // op/size + 2x length of string + 2x \0 terminated chars
-    size_t kywdLen = strlen(kywd);
-    size_t valueLen = strlen(value);
-    size_t size = 3 * kUInt32Size + SkAlign4(kywdLen + 1) + SkAlign4(valueLen + 1);
-    size_t initialOffset = this->addDraw(COMMENT, &size);
-    fWriter.writeString(kywd, kywdLen);
-    fWriter.writeString(value, valueLen);
-    this->validate(initialOffset, size);
-}
-
-void SkPictureRecord::endCommentGroup() {
-    // op/size
-    size_t size = 1 * kUInt32Size;
-    size_t initialOffset = this->addDraw(END_COMMENT_GROUP, &size);
-    this->validate(initialOffset, size);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {

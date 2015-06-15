@@ -86,10 +86,6 @@ DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRect, clipRect(r.rect, r.opAA.op, r.opAA.aa));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
 
-DRAW(BeginCommentGroup, beginCommentGroup(r.description));
-DRAW(AddComment, addComment(r.key, r.value));
-DRAW(EndCommentGroup, endCommentGroup());
-
 DRAW(DrawBitmap, drawBitmap(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
 DRAW(DrawBitmapNine, drawBitmapNine(r.bitmap.shallowCopy(), r.center, r.dst, r.paint));
 DRAW(DrawBitmapRectToRect,
@@ -289,9 +285,6 @@ private:
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
     void trackBounds(const ClipRegion&)        { this->pushControl(); }
-    void trackBounds(const BeginCommentGroup&) { this->pushControl(); }
-    void trackBounds(const AddComment&)        { this->pushControl(); }
-    void trackBounds(const EndCommentGroup&)   { this->pushControl(); }
 
     // For all other ops, we can calculate and store the bounds directly now.
     template <typename T> void trackBounds(const T& op) {

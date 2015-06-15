@@ -238,10 +238,6 @@ public:
         return bytesAllocated;
     }
 
-    void beginCommentGroup(const char* description) override;
-    void addComment(const char* kywd, const char* value) override;
-    void endCommentGroup() override;
-
     /**
      * Flatten an SkBitmap to send to the reader, where it will be referenced
      * according to slot.
@@ -1144,18 +1140,6 @@ void SkGPipeCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4
             fWriter.write32(mode);
         }
     }
-}
-
-void SkGPipeCanvas::beginCommentGroup(const char* description) {
-    // ignore for now
-}
-
-void SkGPipeCanvas::addComment(const char* kywd, const char* value) {
-    // ignore for now
-}
-
-void SkGPipeCanvas::endCommentGroup() {
-    // ignore for now
 }
 
 void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {

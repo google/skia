@@ -15,13 +15,11 @@
 class SK_API SkDrawCommand {
 public:
     enum OpType {
-        kBeginCommentGroup_OpType,
         kBeginDrawPicture_OpType,
         kClipPath_OpType,
         kClipRegion_OpType,
         kClipRect_OpType,
         kClipRRect_OpType,
-        kComment_OpType,
         kConcat_OpType,
         kDrawBitmap_OpType,
         kDrawBitmapNine_OpType,
@@ -42,7 +40,6 @@ public:
         kDrawTextBlob_OpType,
         kDrawTextOnPath_OpType,
         kDrawVertices_OpType,
-        kEndCommentGroup_OpType,
         kEndDrawPicture_OpType,
         kRestore_OpType,
         kSave_OpType,
@@ -264,41 +261,6 @@ private:
     SkPaint*                      fPaintPtr;
     SkCanvas::DrawBitmapRectFlags fFlags;
 
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkBeginCommentGroupCommand : public SkDrawCommand {
-public:
-    SkBeginCommentGroupCommand(const char* description);
-    void execute(SkCanvas* canvas) const override {
-        canvas->beginCommentGroup(fDescription.c_str());
-    };
-private:
-    SkString fDescription;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkCommentCommand : public SkDrawCommand {
-public:
-    SkCommentCommand(const char* kywd, const char* value);
-    void execute(SkCanvas* canvas) const override {
-        canvas->addComment(fKywd.c_str(), fValue.c_str());
-    };
-private:
-    SkString fKywd;
-    SkString fValue;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkEndCommentGroupCommand : public SkDrawCommand {
-public:
-    SkEndCommentGroupCommand();
-    void execute(SkCanvas* canvas) const override {
-        canvas->endCommentGroup();
-    };
-private:
     typedef SkDrawCommand INHERITED;
 };
 

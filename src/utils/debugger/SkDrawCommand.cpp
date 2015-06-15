@@ -25,13 +25,11 @@ SkDrawCommand::~SkDrawCommand() {
 
 const char* SkDrawCommand::GetCommandString(OpType type) {
     switch (type) {
-        case kBeginCommentGroup_OpType: return "BeginCommentGroup";
         case kBeginDrawPicture_OpType: return "BeginDrawPicture";
         case kClipPath_OpType: return "ClipPath";
         case kClipRegion_OpType: return "ClipRegion";
         case kClipRect_OpType: return "ClipRect";
         case kClipRRect_OpType: return "ClipRRect";
-        case kComment_OpType: return "Comment";
         case kConcat_OpType: return "Concat";
         case kDrawBitmap_OpType: return "DrawBitmap";
         case kDrawBitmapNine_OpType: return "DrawBitmapNine";
@@ -52,7 +50,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawTextBlob_OpType: return "DrawTextBlob";
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
         case kDrawVertices_OpType: return "DrawVertices";
-        case kEndCommentGroup_OpType: return "EndCommentGroup";
         case kEndDrawPicture_OpType: return "EndDrawPicture";
         case kRestore_OpType: return "Restore";
         case kSave_OpType: return "Save";
@@ -359,27 +356,6 @@ void SkDrawBitmapRectCommand::execute(SkCanvas* canvas) const {
 bool SkDrawBitmapRectCommand::render(SkCanvas* canvas) const {
     render_bitmap(canvas, fBitmap, this->srcRect());
     return true;
-}
-
-SkBeginCommentGroupCommand::SkBeginCommentGroupCommand(const char* description)
-    : INHERITED(kBeginCommentGroup_OpType)
-    , fDescription(description) {
-    SkString* temp = new SkString;
-    temp->appendf("Description: %s", description);
-    fInfo.push(temp);
-}
-
-SkCommentCommand::SkCommentCommand(const char* kywd, const char* value)
-    : INHERITED(kComment_OpType)
-    , fKywd(kywd)
-    , fValue(value) {
-    SkString* temp = new SkString;
-    temp->appendf("%s: %s", kywd, value);
-    fInfo.push(temp);
-}
-
-SkEndCommentGroupCommand::SkEndCommentGroupCommand()
-    : INHERITED(kEndCommentGroup_OpType) {
 }
 
 SkDrawOvalCommand::SkDrawOvalCommand(const SkRect& oval, const SkPaint& paint)

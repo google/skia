@@ -29,10 +29,6 @@ public:
     SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
     virtual ~SkPictureRecord();
 
-    void beginCommentGroup(const char* description) override;
-    void addComment(const char* kywd, const char* value) override;
-    void endCommentGroup() override;
-
     const SkTDArray<const SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
     }

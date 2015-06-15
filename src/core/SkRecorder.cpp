@@ -350,15 +350,3 @@ void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     APPEND(ClipRegion, this->devBounds(), delay_copy(deviceRgn), op);
 }
 
-void SkRecorder::beginCommentGroup(const char* description) {
-    APPEND(BeginCommentGroup, this->copy(description));
-}
-
-void SkRecorder::addComment(const char* key, const char* value) {
-    APPEND(AddComment, this->copy(key), this->copy(value));
-}
-
-void SkRecorder::endCommentGroup() {
-    APPEND(EndCommentGroup);
-}
-

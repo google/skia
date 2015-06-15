@@ -432,18 +432,6 @@ void SkDebugCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, con
     SkDebugf("SkDebugCanvas::onDrawImageRect unimplemented\n");
 }
 
-void SkDebugCanvas::beginCommentGroup(const char* description) {
-    this->addDrawCommand(new SkBeginCommentGroupCommand(description));
-}
-
-void SkDebugCanvas::addComment(const char* kywd, const char* value) {
-    this->addDrawCommand(new SkCommentCommand(kywd, value));
-}
-
-void SkDebugCanvas::endCommentGroup() {
-    this->addDrawCommand(new SkEndCommentGroupCommand());
-}
-
 void SkDebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawOvalCommand(oval, paint));
 }

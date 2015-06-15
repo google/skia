@@ -26,9 +26,6 @@ public:
     explicit SkNulCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap) {}
     virtual ~SkNulCanvas() {}
 
-    void beginCommentGroup(const char* description) override {}
-    void addComment(const char* kywd, const char* value) override {}
-    void endCommentGroup() override {}
     SkDrawFilter* setDrawFilter(SkDrawFilter* filter) override {return NULL;}
 
     bool isClipEmpty() const override { return false; }

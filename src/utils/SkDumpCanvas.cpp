@@ -490,18 +490,6 @@ void SkDumpCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
               texCoords[2].x(), texCoords[2].y(), texCoords[3].x(), texCoords[3].y());
 }
 
-void SkDumpCanvas::beginCommentGroup(const char* description) {
-    this->dump(kBeginCommentGroup_Verb, NULL, "beginCommentGroup(%s)", description);
-}
-
-void SkDumpCanvas::addComment(const char* kywd, const char* value) {
-    this->dump(kAddComment_Verb, NULL, "addComment(%s, %s)", kywd, value);
-}
-
-void SkDumpCanvas::endCommentGroup() {
-    this->dump(kEndCommentGroup_Verb, NULL, "endCommentGroup()");
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -49,10 +49,6 @@ public:
         kDrawPatch_Verb,
         kDrawData_Verb, // obsolete
 
-        kBeginCommentGroup_Verb,
-        kAddComment_Verb,
-        kEndCommentGroup_Verb,
-
         kCull_Verb
     };
 
@@ -74,10 +70,6 @@ public:
     void    setDumper(Dumper*);
 
     int getNestLevel() const { return fNestLevel; }
-
-    void beginCommentGroup(const char* description) override;
-    void addComment(const char* kywd, const char* value) override;
-    void endCommentGroup() override;
 
 protected:
     void willSave() override;

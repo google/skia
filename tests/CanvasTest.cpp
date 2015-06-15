@@ -348,9 +348,6 @@ SIMPLE_TEST_STEP(ClipRect, clipRect(d.fRect));
 SIMPLE_TEST_STEP(ClipPath, clipPath(d.fPath));
 SIMPLE_TEST_STEP(ClipRegion, clipRegion(d.fRegion, SkRegion::kReplace_Op));
 SIMPLE_TEST_STEP(Clear, clear(d.fColor));
-SIMPLE_TEST_STEP(BeginGroup, beginCommentGroup(d.fText.c_str()));
-SIMPLE_TEST_STEP(AddComment, addComment(d.fText.c_str(), d.fText.c_str()));
-SIMPLE_TEST_STEP(EndGroup, endCommentGroup());
 
 ///////////////////////////////////////////////////////////////////////////////
 // Complex test steps
