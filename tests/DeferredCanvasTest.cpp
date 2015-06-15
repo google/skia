@@ -689,6 +689,22 @@ static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) 
     }
 }
 
+static void TestDeferredCanvasImageFreeAfterFlush(skiatest::Reporter* reporter) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
+    SkAutoTUnref<SkSurface> sourceSurface(SkSurface::NewRasterN32Premul(100, 100));
+    SkAutoTUnref<SkImage> sourceImage(sourceSurface->newImageSnapshot());
+    SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
+
+    canvas->drawImage(sourceImage, 0, 0, NULL);
+
+    size_t newBytesAllocated = canvas->storageAllocatedForRecording();
+    REPORTER_ASSERT(reporter, newBytesAllocated > 0);
+
+    canvas->flush();
+    
+    newBytesAllocated = canvas->storageAllocatedForRecording();
+    REPORTER_ASSERT(reporter, newBytesAllocated == 0);
+}
 
 typedef const void* PixelPtr;
 // Returns an opaque pointer which, either points to a GrTexture or RAM pixel
@@ -930,6 +946,7 @@ DEF_TEST(DeferredCanvas_CPU, reporter) {
     TestDeferredCanvasSkip(reporter);
     TestDeferredCanvasBitmapShaderNoLeak(reporter);
     TestDeferredCanvasBitmapSizeThreshold(reporter);
+    TestDeferredCanvasImageFreeAfterFlush(reporter);    
     TestDeferredCanvasCreateCompatibleDevice(reporter);
     TestDeferredCanvasWritePixelsToSurface(reporter);
     TestDeferredCanvasGetCanvasSize(reporter);

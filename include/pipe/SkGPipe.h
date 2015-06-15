@@ -87,6 +87,12 @@ public:
     virtual void notifyWritten(size_t bytes) = 0;
     virtual int numberOfReaders() const { return 1; }
 
+    /**
+     *  Release resource references that are held in internal caches.
+     *  This must only be called after the pipe has been completely flushed.
+     */
+    void purgeCaches();
+
 private:
     friend class SkGPipeWriter;
     void setCanvas(SkGPipeCanvas*);
