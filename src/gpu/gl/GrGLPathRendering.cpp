@@ -113,7 +113,11 @@ GrPathRange* GrGLPathRendering::createGlyphs(const SkTypeface* typeface,
     }
 
     int faceIndex;
-    SkAutoTDelete<SkStream> fontStream(typeface->openStream(&faceIndex));
+    SkStreamAsset* asset = typeface->openStream(&faceIndex);
+    if (!asset) {
+        return GrPathRendering::createGlyphs(typeface, NULL, stroke);
+    }
+    SkAutoTDelete<SkStream> fontStream(asset);
 
     const size_t fontDataLength = fontStream->getLength();
     if (0 == fontDataLength) {

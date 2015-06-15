@@ -74,7 +74,6 @@ protected:
         uint32_t glyphIDsCount) const override;
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
-        SkASSERT(0);  // don't expect to get here
         return NULL;
     }
 
