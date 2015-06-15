@@ -184,7 +184,7 @@ public:
     SkNi saturatedAdd(const SkNi& o) const {
         SkASSERT((T)(~0) > 0); // TODO: support signed T
         T sum = fVal + o.fVal;
-        return SkNi(sum > fVal ? sum : (T)(~0));
+        return SkNi(sum < fVal ? (T)(~0) : sum);
     }
 
     SkNi operator + (const SkNi& o) const { return SkNi(fVal + o.fVal); }
