@@ -216,8 +216,10 @@ struct PreCachedPath : public SkPath {
     PreCachedPath() {}
     explicit PreCachedPath(const SkPath& path) : SkPath(path) {
         this->updateBoundsCache();
+#if 0  // Disabled to see if we ever really race on this.  It costs time, chromium:496982.
         SkPathPriv::FirstDirection junk;
         (void)SkPathPriv::CheapComputeFirstDirection(*this, &junk);
+#endif
     }
 };
 
