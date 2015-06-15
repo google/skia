@@ -35,6 +35,7 @@ private:
     int fCurrIndex;
     int fLastDrawIndex;
     SkBitmap fBackup;
+    SkColor fPaintingColor;
 };
 
 static int Decode(GifFileType* fileType, GifByteType* out, int size) {
@@ -59,6 +60,7 @@ SkGIFMovie::SkGIFMovie(SkStream* stream)
     }
     fCurrIndex = -1;
     fLastDrawIndex = -1;
+    fPaintingColor = SkPackARGB32(0, 0, 0, 0);
 }
 
 SkGIFMovie::~SkGIFMovie()
@@ -395,7 +397,6 @@ bool SkGIFMovie::onGetBitmap(SkBitmap* bm)
         bgColor = SkColorSetARGB(0xFF, col.Red, col.Green, col.Blue);
     }
 
-    static SkColor paintingColor = SkPackARGB32(0, 0, 0, 0);
     // draw each frames - not intelligent way
     for (int i = startIndex; i <= lastIndex; i++) {
         const SavedImage* cur = &fGIF->SavedImages[i];
@@ -404,17 +405,17 @@ bool SkGIFMovie::onGetBitmap(SkBitmap* bm)
             int disposal;
             getTransparencyAndDisposalMethod(cur, &trans, &disposal);
             if (!trans && gif->SColorMap != NULL) {
-                paintingColor = bgColor;
+                fPaintingColor = bgColor;
             } else {
-                paintingColor = SkColorSetARGB(0, 0, 0, 0);
+                fPaintingColor = SkColorSetARGB(0, 0, 0, 0);
             }
 
-            bm->eraseColor(paintingColor);
-            fBackup.eraseColor(paintingColor);
+            bm->eraseColor(fPaintingColor);
+            fBackup.eraseColor(fPaintingColor);
         } else {
             // Dispose previous frame before move to next frame.
             const SavedImage* prev = &fGIF->SavedImages[i-1];
-            disposeFrameIfNeeded(bm, prev, cur, &fBackup, paintingColor);
+            disposeFrameIfNeeded(bm, prev, cur, &fBackup, fPaintingColor);
         }
 
         // Draw frame
