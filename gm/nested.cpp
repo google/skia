@@ -15,7 +15,7 @@ namespace skiagm {
 class NestedGM : public GM {
 public:
     NestedGM(bool doAA, bool flipped) : fDoAA(doAA), fFlipped(flipped) {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:

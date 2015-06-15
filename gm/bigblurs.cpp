@@ -19,7 +19,7 @@ namespace skiagm {
 class BigBlursGM : public GM {
 public:
     BigBlursGM() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:

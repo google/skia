@@ -15,7 +15,7 @@ namespace skiagm {
 class BigMatrixGM : public GM {
 public:
     BigMatrixGM() {
-        this->setBGColor(0xFF66AA99);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFF66AA99));
     }
 
 protected:

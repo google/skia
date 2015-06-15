@@ -31,7 +31,7 @@ static void make_checker(SkBitmap* bm, int size, int numChecks) {
 }
 
 static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
-    sk_tool_utils::set_portable_typeface(paint, name, style);
+    sk_tool_utils::set_portable_typeface_always(paint, name, style);
 }
 
 class DownsampleBitmapGM : public skiagm::GM {
@@ -44,7 +44,7 @@ public:
     DownsampleBitmapGM(SkFilterQuality filterQuality)
         : fFilterQuality(filterQuality)
     {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
         fBitmapMade = false;
     }
 
@@ -126,13 +126,13 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
           paint.setSubpixelText(true);
           paint.setTextSize(fTextSize);
 
-          setTypeface(&paint, "Times", SkTypeface::kNormal);
+          setTypeface(&paint, "serif", SkTypeface::kNormal);
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 1.2f*fTextSize, paint);
-          setTypeface(&paint, "Times", SkTypeface::kBold);
+          setTypeface(&paint, "serif", SkTypeface::kBold);
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 2.4f*fTextSize, paint);
-          setTypeface(&paint, "Times", SkTypeface::kItalic);
+          setTypeface(&paint, "serif", SkTypeface::kItalic);
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 3.6f*fTextSize, paint);
-          setTypeface(&paint, "Times", SkTypeface::kBoldItalic);
+          setTypeface(&paint, "serif", SkTypeface::kBoldItalic);
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 4.8f*fTextSize, paint);
       }
   private:
@@ -202,7 +202,7 @@ public:
     SkBitmap    fBM;
 
     ShowMipLevels() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
         make_checker(&fBM, 512, 256);
     }
 

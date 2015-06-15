@@ -12,7 +12,7 @@
 class BlursGM : public skiagm::GM {
 public:
     BlursGM() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:

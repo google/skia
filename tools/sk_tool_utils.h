@@ -24,7 +24,7 @@ class SkTextBlobBuilder;
 namespace sk_tool_utils {
 
     const char* colortype_name(SkColorType);
-    void color_to_565(SkColor* color);
+    SkColor color_to_565(SkColor color);
 
     /**
      * Sets the paint to use a platform-independent text renderer if FLAGS_portableFonts is set.

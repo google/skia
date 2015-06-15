@@ -17,7 +17,7 @@ class ComplexClip3GM : public GM {
 public:
     ComplexClip3GM(bool doSimpleClipFirst)
         : fDoSimpleClipFirst(doSimpleClipFirst) {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:
@@ -49,7 +49,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+        sk_tool_utils::set_portable_typeface_always(&paint);
         paint.setTextSize(SkIntToScalar(20));
 
         static const struct {

@@ -20,7 +20,7 @@ namespace skiagm {
 class InternalLinksGM : public GM {
 public:
     InternalLinksGM() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:
@@ -61,7 +61,7 @@ private:
         canvas->drawRect(rect, paint);
 
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+        sk_tool_utils::set_portable_typeface_always(&paint);
         paint.setTextSize(SkIntToScalar(25));
         paint.setColor(SK_ColorBLACK);
         canvas->drawText(text, strlen(text), x, y, paint);

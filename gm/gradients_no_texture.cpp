@@ -81,7 +81,7 @@ static const GradMaker gGradMakers[] = {
 class GradientsNoTextureGM : public GM {
 public:
     GradientsNoTextureGM() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:

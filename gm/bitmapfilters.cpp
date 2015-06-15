@@ -53,7 +53,7 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     const int scale = 32;
 
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
+    sk_tool_utils::set_portable_typeface_always(&paint);
     const char* name = sk_tool_utils::colortype_name(bm.colorType());
     canvas->drawText(name, strlen(name), x, SkIntToScalar(bm.height())*scale*5/8,
                      paint);
@@ -80,7 +80,7 @@ public:
     SkBitmap    fBM8, fBM4444, fBM16, fBM32;
 
     FilterGM() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:
