@@ -92,7 +92,7 @@ protected:
 
                 SkColor color = rand.nextU();
                 color = 0xff000000 | color; // force solid
-                sk_tool_utils::color_to_565(&color);
+                color = sk_tool_utils::color_to_565(color);
                 this->drawEmpty(canvas, color, rect,
                                 gStyles[style].fStyle, gFills[fill].fFill);
 

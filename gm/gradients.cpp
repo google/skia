@@ -101,7 +101,7 @@ static const GradMaker gGradMakers[] = {
 class GradientsGM : public GM {
 public:
     GradientsGM() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:
@@ -156,7 +156,7 @@ DEF_GM( return new GradientsGM; )
 class GradientsLocalPerspectiveGM : public GM {
 public:
     GradientsLocalPerspectiveGM() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:

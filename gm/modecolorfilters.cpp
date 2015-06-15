@@ -56,7 +56,7 @@ static SkShader* make_bg_shader(int checkSize) {
 class ModeColorFilterGM : public GM {
 public:
     ModeColorFilterGM() {
-        this->setBGColor(0xFF303030);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFF303030));
     }
 
 protected:

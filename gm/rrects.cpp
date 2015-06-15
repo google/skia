@@ -27,7 +27,7 @@ public:
         kEffect_Type,
     };
     RRectGM(Type type) : fType(type) {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
         this->setUpRRects();
     }
 
