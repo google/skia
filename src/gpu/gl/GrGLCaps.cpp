@@ -833,7 +833,8 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
     // for now until its own blacklists can be updated.
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer() ||
         kIntel_GrGLDriver == ctxInfo.driver() ||
-        kChromium_GrGLDriver == ctxInfo.driver()) {
+        kChromium_GrGLDriver == ctxInfo.driver() ||
+        kARM_GrGLVendor == ctxInfo.vendor()) {
         return;
     }
 
