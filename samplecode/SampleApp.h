@@ -145,7 +145,6 @@ protected:
     SkCanvas* beforeChildren(SkCanvas*) override;
     void afterChildren(SkCanvas*) override;
     void beforeChild(SkView* child, SkCanvas* canvas) override;
-    void afterChild(SkView* child, SkCanvas* canvas) override;
 
     bool onEvent(const SkEvent& evt) override;
     bool onQuery(SkEvent* evt) override;
@@ -164,6 +163,7 @@ private:
     SkPictureRecorder fRecorder;
     SkAutoTDelete<SkSurface> fDeferredSurface;
     SkAutoTDelete<SkDeferredCanvas> fDeferredCanvas;
+    SkAutoTDelete<SkCanvas> fFlagsFilterCanvas;
     SkPath fClipPath;
 
     SkTouchGesture fGesture;
@@ -232,7 +232,6 @@ private:
     void showZoomer(SkCanvas* canvas);
     void updateMatrix();
     void postAnimatingEvent();
-    void installDrawFilter(SkCanvas*);
     int findByTitle(const char*);
     void listTitles();
     SkSize tileSize() const;

@@ -23,6 +23,7 @@
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkPaint.h"
+#include "SkPaintFilterCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
@@ -463,20 +464,23 @@ static FilterQualityState gFilterQualityStates[] = {
     { kHigh_SkFilterQuality,   "High",     "F3 "   },
 };
 
-class FlagsDrawFilter : public SkDrawFilter {
+class FlagsFilterCanvas : public SkPaintFilterCanvas {
 public:
-    FlagsDrawFilter(SkOSMenu::TriState lcd, SkOSMenu::TriState aa,
-                    SkOSMenu::TriState subpixel, int hinting, int filterQuality)
-        : fLCDState(lcd)
+    FlagsFilterCanvas(SkCanvas* canvas, SkOSMenu::TriState lcd, SkOSMenu::TriState aa,
+                      SkOSMenu::TriState subpixel, int hinting, int filterQuality)
+        : INHERITED(canvas->imageInfo().width(), canvas->imageInfo().height())
+        , fLCDState(lcd)
         , fAAState(aa)
         , fSubpixelState(subpixel)
         , fHintingState(hinting)
-        , fFilterQualityIndex(filterQuality)
-    {
+        , fFilterQualityIndex(filterQuality) {
         SkASSERT((unsigned)filterQuality < SK_ARRAY_COUNT(gFilterQualityStates));
+
+        this->addCanvas(canvas);
     }
 
-    virtual bool filter(SkPaint* paint, Type t) {
+protected:
+    void onFilterPaint(SkPaint* paint, Type t) const override {
         if (kText_Type == t && SkOSMenu::kMixedState != fLCDState) {
             paint->setLCDRenderText(SkOSMenu::kOnState == fLCDState);
         }
@@ -492,7 +496,6 @@ public:
         if (0 != fHintingState && fHintingState < (int)SK_ARRAY_COUNT(gHintingStates)) {
             paint->setHinting(gHintingStates[fHintingState].hinting);
         }
-        return true;
     }
 
 private:
@@ -501,6 +504,8 @@ private:
     SkOSMenu::TriState  fSubpixelState;
     int fHintingState;
     int fFilterQualityIndex;
+
+    typedef SkPaintFilterCanvas INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1211,10 +1216,24 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
         canvas->clipPath(fClipPath, SkRegion::kIntersect_Op, true);
     }
 
+    // Install a flags filter proxy canvas if needed
+    if (fLCDState != SkOSMenu::kMixedState ||
+        fAAState != SkOSMenu::kMixedState ||
+        fSubpixelState != SkOSMenu::kMixedState ||
+        fHintingState > 0 ||
+        fFilterQualityIndex > 0) {
+
+        canvas = SkNEW_ARGS(FlagsFilterCanvas, (canvas, fLCDState, fAAState, fSubpixelState,
+                                                fHintingState, fFilterQualityIndex));
+        fFlagsFilterCanvas.reset(canvas);
+    }
+
     return canvas;
 }
 #include "SkMultiPictureDraw.h"
 void SampleWindow::afterChildren(SkCanvas* orig) {
+    fFlagsFilterCanvas.reset(NULL);
+
     if (fSaveToPdf) {
         fSaveToPdf = false;
         fPDFDocument->endPage();
@@ -1242,8 +1261,6 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
 
         if (true) {
-            this->installDrawFilter(orig);
-            
             if (true) {
                 SkImageInfo info;
                 size_t rowBytes;
@@ -1337,8 +1354,6 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         canvas->concat(m);
     }
 
-    this->installDrawFilter(canvas);
-
     if (fMeasureFPS) {
         if (SampleView::SetRepeatDraw(child, FPS_REPEAT_COUNT)) {
             fMeasureFPS_StartTime = SkTime::GetMSecs();
@@ -1349,10 +1364,6 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     if (fPerspAnim || fRotate) {
         this->inval(NULL);
     }
-}
-
-void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
-    canvas->setDrawFilter(NULL);
 }
 
 void SampleWindow::changeZoomLevel(float delta) {
@@ -1432,11 +1443,6 @@ int SampleWindow::sampleCount() {
 
 void SampleWindow::showOverview() {
     this->loadView(create_overview(fSamples.count(), fSamples.begin()));
-}
-
-void SampleWindow::installDrawFilter(SkCanvas* canvas) {
-    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState, fSubpixelState,
-                                              fHintingState, fFilterQualityIndex))->unref();
 }
 
 void SampleWindow::postAnimatingEvent() {
