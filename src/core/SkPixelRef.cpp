@@ -335,6 +335,7 @@ void SkPixelRef::notifyPixelsChanged() {
 #endif
     this->callGenIDChangeListeners();
     this->needsNewGenID();
+    this->onNotifyPixelsChanged();
 }
 
 void SkPixelRef::changeAlphaType(SkAlphaType at) {
@@ -354,6 +355,8 @@ bool SkPixelRef::readPixels(SkBitmap* dst, const SkIRect* subset) {
 bool SkPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
     return false;
 }
+
+void SkPixelRef::onNotifyPixelsChanged() { }
 
 SkData* SkPixelRef::onRefEncodedData() {
     return NULL;

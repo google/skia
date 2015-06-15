@@ -12,6 +12,7 @@
 
 #include "GrContext.h"
 #include "GrTexture.h"
+#include "GrTexturePriv.h"
 #include "SkBitmapCache.h"
 #include "SkGr.h"
 #include "SkRect.h"
@@ -124,6 +125,13 @@ GrTexture* SkGrPixelRef::getTexture() {
         return fSurface->asTexture();
     }
     return NULL;
+}
+
+void SkGrPixelRef::onNotifyPixelsChanged() {
+    GrTexture* texture = this->getTexture();
+    if (texture) {
+        texture->texturePriv().dirtyMipMaps(true);
+    }
 }
 
 SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, SkColorProfileType dstPT,
