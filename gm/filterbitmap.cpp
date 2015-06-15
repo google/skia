@@ -14,7 +14,7 @@
 #include "SkTypeface.h"
 
 static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
-    sk_tool_utils::set_portable_typeface_always(paint, name, style);
+    sk_tool_utils::set_portable_typeface(paint, name, style);
 }
 
 static SkSize computeSize(const SkBitmap& bm, const SkMatrix& mat) {
@@ -66,7 +66,7 @@ public:
 
     FilterBitmapGM()
     {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -124,13 +124,13 @@ class FilterBitmapTextGM: public FilterBitmapGM {
           paint.setSubpixelText(true);
           paint.setTextSize(fTextSize);
 
-          setTypeface(&paint, "serif", SkTypeface::kNormal);
+          setTypeface(&paint, "Times", SkTypeface::kNormal);
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 1.2f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kBold);
+          setTypeface(&paint, "Times", SkTypeface::kBold);
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 2.4f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kItalic);
+          setTypeface(&paint, "Times", SkTypeface::kItalic);
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 3.6f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkTypeface::kBoldItalic);
+          setTypeface(&paint, "Times", SkTypeface::kBoldItalic);
           canvas.drawText("Hamburgefons", 12, fTextSize/2, 4.8f*fTextSize, paint);
       }
   private:

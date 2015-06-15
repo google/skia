@@ -14,7 +14,7 @@
 // the bmp filter respects the repeat mode at the tile seams.
 class BmpFilterQualityRepeat : public skiagm::GM {
 public:
-    BmpFilterQualityRepeat() { this->setBGColor(sk_tool_utils::color_to_565(0xFFCCBBAA)); }
+    BmpFilterQualityRepeat() { this->setBGColor(0xFFCCBBAA); }
 
 protected:
 
@@ -51,7 +51,6 @@ protected:
 
         for (size_t q = 0; q < SK_ARRAY_COUNT(kQualities); ++q) {
             SkPaint paint;
-            sk_tool_utils::set_portable_typeface_always(&paint);
             paint.setFilterQuality(kQualities[q].fQuality);
             SkPaint bmpPaint(paint);
             SkMatrix lm = SkMatrix::I();

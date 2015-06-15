@@ -48,7 +48,7 @@ public:
     SkBitmap    fDst[NUM_CONFIGS];
 
     BitmapCopyGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -75,9 +75,9 @@ protected:
             src.copyTo(&fDst[i], gColorTypes[i]);
         }
 
-        canvas->clear(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        canvas->clear(0xFFDDDDDD);
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         
         SkScalar width = SkIntToScalar(40);
         SkScalar height = SkIntToScalar(40);

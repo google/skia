@@ -116,7 +116,7 @@ namespace skiagm {
 class GradientMatrixGM : public GM {
 public:
     GradientMatrixGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:

@@ -25,7 +25,7 @@ namespace skiagm {
 class ConstColorProcessor : public GM {
 public:
     ConstColorProcessor() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -124,7 +124,6 @@ protected:
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.
                     SkPaint labelPaint;
-                    sk_tool_utils::set_portable_typeface_always(&labelPaint);
                     labelPaint.setAntiAlias(true);
                     labelPaint.setTextSize(10.f);
                     SkString inputLabel;

@@ -34,10 +34,10 @@ const char* colortype_name(SkColorType ct) {
     }
 }
 
-SkColor color_to_565(SkColor color) {
-    SkPMColor pmColor = SkPreMultiplyColor(color);
+void color_to_565(SkColor* color) {
+    SkPMColor pmColor = SkPreMultiplyColor(*color);
     U16CPU color16 = SkPixel32ToPixel16(pmColor);
-    return SkPixel16ToColor(color16);
+    *color = SkPixel16ToColor(color16);
 }
 
 SkTypeface* create_portable_typeface(const char* name, SkTypeface::Style style) {

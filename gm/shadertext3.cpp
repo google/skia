@@ -48,7 +48,7 @@ static const int kPointSize = 300;
 class ShaderText3GM : public GM {
 public:
     ShaderText3GM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -73,7 +73,7 @@ protected:
 
         SkPaint outlinePaint;
         outlinePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&outlinePaint);
+        sk_tool_utils::set_portable_typeface(&outlinePaint);
         outlinePaint.setTextSize(SkIntToScalar(kPointSize));
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);
@@ -107,7 +107,7 @@ protected:
 
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface_always(&fillPaint);
+                sk_tool_utils::set_portable_typeface(&fillPaint);
                 fillPaint.setTextSize(SkIntToScalar(kPointSize));
                 fillPaint.setFilterQuality(kLow_SkFilterQuality);
                 fillPaint.setShader(shader);

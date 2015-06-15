@@ -43,7 +43,7 @@ struct LabeledMatrix {
 class ShaderText2GM : public GM {
 public:
     ShaderText2GM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -90,13 +90,13 @@ protected:
 
         SkPaint fillPaint;
         fillPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&fillPaint);
+        sk_tool_utils::set_portable_typeface(&fillPaint);
         fillPaint.setTextSize(SkIntToScalar(kPointSize));
         fillPaint.setFilterQuality(kLow_SkFilterQuality);
 
         SkPaint outlinePaint;
         outlinePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&outlinePaint);
+        sk_tool_utils::set_portable_typeface(&outlinePaint);
         outlinePaint.setTextSize(SkIntToScalar(kPointSize));
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);
@@ -112,7 +112,7 @@ protected:
         SkPaint labelPaint;
         labelPaint.setColor(0xff000000);
         labelPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&labelPaint);
+        sk_tool_utils::set_portable_typeface(&labelPaint);
         labelPaint.setTextSize(12.f);
 
         canvas->translate(15.f, 15.f);

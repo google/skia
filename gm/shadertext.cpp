@@ -87,7 +87,7 @@ static const GradMaker gGradMakers[] = {
 class ShaderTextGM : public GM {
 public:
     ShaderTextGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -144,7 +144,7 @@ protected:
         SkPaint paint;
         paint.setDither(true);
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(pointSize));
 
         canvas->save();

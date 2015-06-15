@@ -20,7 +20,7 @@ namespace skiagm {
 // can leave 1 pixel wide remnants of the first rect.
 class ClipDrawDrawGM : public GM {
 public:
-    ClipDrawDrawGM() { this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC)); }
+    ClipDrawDrawGM() { this->setBGColor(0xFFCCCCCC); }
 
 protected:
     SkString onShortName() override { return SkString("clipdrawdraw"); }

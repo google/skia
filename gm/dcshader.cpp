@@ -110,7 +110,7 @@ bool DCShader::asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMat
 class DCShaderGM : public GM {
 public:
     DCShaderGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFAABBCC));
+        this->setBGColor(0xFFAABBCC);
     }
 
     ~DCShaderGM() override {
@@ -210,7 +210,7 @@ protected:
             }
 
             virtual void setFont(SkPaint* paint) {
-                sk_tool_utils::set_portable_typeface_always(paint);
+                sk_tool_utils::set_portable_typeface(paint);
             }
 
             virtual const char* text() const { return "Hello, Skia!"; }
