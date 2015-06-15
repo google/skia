@@ -24,6 +24,7 @@
 #include "SkMatrix.h"
 #include "SkMultiPictureDraw.h"
 #include "SkOSFile.h"
+#include "SkPaintFilterCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
@@ -87,12 +88,16 @@ void PictureRenderer::CopyString(SkString* dest, const SkString* src) {
     }
 }
 
-class FlagsDrawFilter : public SkDrawFilter {
+class FlagsFilterCanvas : public SkPaintFilterCanvas {
 public:
-    FlagsDrawFilter(PictureRenderer::DrawFilterFlags* flags) :
-        fFlags(flags) {}
+    FlagsFilterCanvas(SkCanvas* canvas, PictureRenderer::DrawFilterFlags* flags)
+        : INHERITED(canvas->imageInfo().width(), canvas->imageInfo().height())
+        , fFlags(flags) {
+        this->addCanvas(canvas);
+    }
 
-    virtual bool filter(SkPaint* paint, Type t) {
+protected:
+    void onFilterPaint(SkPaint* paint, Type t) const override {
         paint->setFlags(paint->getFlags() & ~fFlags[t] & SkPaint::kAllFlags);
         if (PictureRenderer::kMaskFilter_DrawFilterFlag & fFlags[t]) {
             SkMaskFilter* maskFilter = paint->getMaskFilter();
@@ -105,21 +110,13 @@ public:
         } else if (PictureRenderer::kSlightHinting_DrawFilterFlag & fFlags[t]) {
             paint->setHinting(SkPaint::kSlight_Hinting);
         }
-        return true;
     }
 
 private:
-    PictureRenderer::DrawFilterFlags* fFlags;
-};
+    const PictureRenderer::DrawFilterFlags* fFlags;
 
-static void setUpFilter(SkCanvas* canvas, PictureRenderer::DrawFilterFlags* drawFilters) {
-    if (drawFilters && !canvas->getDrawFilter()) {
-        canvas->setDrawFilter(SkNEW_ARGS(FlagsDrawFilter, (drawFilters)))->unref();
-        if (drawFilters[0] & PictureRenderer::kAAClip_DrawFilterFlag) {
-            canvas->setAllowSoftClip(false);
-        }
-    }
-}
+    typedef SkPaintFilterCanvas INHERITED;
+};
 
 SkCanvas* PictureRenderer::setupCanvas() {
     const int width = this->getViewWidth();
@@ -128,12 +125,13 @@ SkCanvas* PictureRenderer::setupCanvas() {
 }
 
 SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
-    SkCanvas* canvas;
+    SkAutoTUnref<SkCanvas> canvas;
+
     switch(fDeviceType) {
         case kBitmap_DeviceType: {
             SkBitmap bitmap;
             sk_tools::setup_bitmap(&bitmap, width, height);
-            canvas = SkNEW_ARGS(SkCanvas, (bitmap));
+            canvas.reset(SkNEW_ARGS(SkCanvas, (bitmap)));
         }
         break;
 #if SK_SUPPORT_GPU
@@ -165,7 +163,7 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
             if (!device) {
                 return NULL;
             }
-            canvas = SkNEW_ARGS(SkCanvas, (device));
+            canvas.reset(SkNEW_ARGS(SkCanvas, (device)));
             break;
         }
 #endif
@@ -173,14 +171,22 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
             SkASSERT(0);
             return NULL;
     }
-    setUpFilter(canvas, fDrawFilters);
+
+    if (fHasDrawFilters) {
+        if (fDrawFilters[0] & PictureRenderer::kAAClip_DrawFilterFlag) {
+            canvas->setAllowSoftClip(false);
+        }
+
+        canvas.reset(SkNEW_ARGS(FlagsFilterCanvas, (canvas.get(), fDrawFilters)));
+    }
+
     this->scaleToScaleFactor(canvas);
 
     // Pictures often lie about their extent (i.e., claim to be 100x100 but
     // only ever draw to 90x100). Clear here so the undrawn portion will have
     // a consistent color
     canvas->clear(SK_ColorTRANSPARENT);
-    return canvas;
+    return canvas.detach();
 }
 
 void PictureRenderer::scaleToScaleFactor(SkCanvas* canvas) {

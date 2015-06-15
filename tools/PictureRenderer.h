@@ -227,8 +227,13 @@ public:
 #endif
 
     void setDrawFilters(DrawFilterFlags const * const filters, const SkString& configName) {
-        memcpy(fDrawFilters, filters, sizeof(fDrawFilters));
+        fHasDrawFilters = false;
         fDrawFiltersConfig = configName;
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fDrawFilters); ++i) {
+            fDrawFilters[i] = filters[i];
+            fHasDrawFilters |= SkToBool(filters[i]);
+        }
     }
 
     void setBBoxHierarchyType(BBoxHierarchyType bbhType) {
@@ -415,6 +420,7 @@ public:
         , fDeviceType(kBitmap_DeviceType)
         , fEnableWrites(false)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
+        , fHasDrawFilters(false)
         , fScaleFactor(SK_Scalar1)
 #if SK_SUPPORT_GPU
         , fGrContextFactory(opts)
@@ -442,6 +448,7 @@ protected:
     SkDeviceTypes          fDeviceType;
     bool                   fEnableWrites;
     BBoxHierarchyType      fBBoxHierarchyType;
+    bool                   fHasDrawFilters;
     DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];
     SkString               fDrawFiltersConfig;
     SkString               fWritePath;
