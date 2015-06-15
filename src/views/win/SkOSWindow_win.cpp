@@ -32,8 +32,6 @@
 
 #endif
 
-#define INVALIDATE_DELAY_MS 200
-
 static SkOSWindow* gCurrOSWin;
 static HWND gEventTarget;
 
@@ -144,14 +142,6 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             return true;
             } break;
 
-        case WM_TIMER: {
-            RECT* rect = (RECT*)wParam;
-            InvalidateRect(hWnd, rect, FALSE);
-            KillTimer(hWnd, (UINT_PTR)rect);
-            delete rect;
-            return true;
-        } break;
-
         case WM_LBUTTONDOWN:
             this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
                               Click::kDown_State, NULL, getModifiers(message));
@@ -228,12 +218,12 @@ void SkOSWindow::updateSize()
 #endif
 
 void SkOSWindow::onHandleInval(const SkIRect& r) {
-    RECT* rect = new RECT;
-    rect->left    = r.fLeft;
-    rect->top     = r.fTop;
-    rect->right   = r.fRight;
-    rect->bottom  = r.fBottom;
-    SetTimer((HWND)fHWND, (UINT_PTR)rect, INVALIDATE_DELAY_MS, NULL);
+    RECT rect;
+    rect.left    = r.fLeft;
+    rect.top     = r.fTop;
+    rect.right   = r.fRight;
+    rect.bottom  = r.fBottom;
+    InvalidateRect((HWND)fHWND, &rect, FALSE);
 }
 
 void SkOSWindow::onAddMenu(const SkOSMenu* sk_menu)
