@@ -583,10 +583,10 @@ public:
             exit(1);
         }
 
-        fUseMPDs.push_back() = false;
         if (FLAGS_mpd) {
             fUseMPDs.push_back() = true;
         }
+        fUseMPDs.push_back() = false;
 
         // Prepare the images for decoding
         for (int i = 0; i < FLAGS_images.count(); i++) {
