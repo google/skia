@@ -61,6 +61,23 @@
 #include "SkMatrixImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//
+//  Adding new classes to Init() below has security consequences in Chrome.
+//
+//  In particular, it is important that we don't create code paths that
+//  deserialize untrusted data as SkImageFilters; SkImageFilters are sent from
+//  Chrome renderers (untrusted) to the main (trusted) process.
+//
+//  If you add a new SkImageFilter here _or_ other effect that can be part of
+//  an SkImageFilter, it's a good idea to have chrome-security@google.com sign
+//  off on the CL, and at minimum extend SampleFilterFuzz.cpp to fuzz it.
+//
+//  SkPictures are untrusted data.  Please be extremely careful not to allow
+//  SkPictures created in a Chrome renderer to be deserialized in the main process.
+//
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 class SkPrivateEffectInitializer {
 public:
     static void Init() {
