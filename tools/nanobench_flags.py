@@ -52,8 +52,8 @@ def get_args(bot):
     args.extend(['--samples', '1'])
 
   if 'HD2000' in bot:
-    args.extend(['--benchTileW', '256'])
-    args.extend(['--benchTileH', '256'])
+    args.extend(['--GPUbenchTileW', '256'])
+    args.extend(['--GPUbenchTileH', '256'])
 
   match = []
   if 'Android' in bot:
