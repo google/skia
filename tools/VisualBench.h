@@ -12,6 +12,7 @@
 #include "SkWindow.h"
 
 #include "SkPicture.h"
+#include "SkString.h"
 #include "SkSurface.h"
 #include "Timer.h"
 #include "gl/SkGLContext.h"
@@ -43,11 +44,12 @@ private:
     void setupRenderTarget();
     bool onHandleChar(SkUnichar unichar) override;
     void printStats();
-    inline void timePicture(SkCanvas*);
+    bool loadPicture();
+    bool advanceRecordIfNecessary();
     inline void renderFrame(SkCanvas*);
 
-    struct Timing {
-        SkString fName;
+    struct Record {
+        SkString fFilename;
         SkTArray<double> fMeasurements;
     };
 
@@ -57,10 +59,10 @@ private:
     };
 
     int fLoop;
-    int fCurrentPicture;
+    int fCurrentPictureIdx;
+    SkAutoTUnref<SkPicture> fPicture;
     int fCurrentSample;
-    SkTArray<Timing> fTimings;
-    SkTArray<SkPicture*> fPictures;
+    SkTArray<Record> fRecords;
     WallTimer fTimer;
     State fState;
 

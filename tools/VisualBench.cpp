@@ -28,6 +28,7 @@ DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allow
 DEFINE_int32(samples, 10, "Number of times to render each skp.");
 DEFINE_int32(loops, 5, "Number of times to time.");
 DEFINE_int32(msaa, 0, "Number of msaa samples.");
+DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) {
@@ -41,37 +42,25 @@ static SkString humanize(double ms) {
 VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     : INHERITED(hwnd)
     , fLoop(0)
-    , fCurrentPicture(0)
+    , fCurrentPictureIdx(-1)
     , fCurrentSample(0)
     , fState(kPreWarm_State) {
     SkCommandLineFlags::Parse(argc, argv);
 
-    // load all SKPs
-    SkTArray<SkString> skps;
+    // read all the skp file names.
     for (int i = 0; i < FLAGS_skps.count(); i++) {
         if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
-            skps.push_back() = FLAGS_skps[i];
-            fTimings.push_back().fName = FLAGS_skps[i];
+            fRecords.push_back().fFilename = FLAGS_skps[i];
         } else {
             SkOSFile::Iter it(FLAGS_skps[i], ".skp");
             SkString path;
             while (it.next(&path)) {
-                skps.push_back() = SkOSPath::Join(FLAGS_skps[i], path.c_str());
-                fTimings.push_back().fName = path.c_str();
+                fRecords.push_back().fFilename = SkOSPath::Join(FLAGS_skps[i], path.c_str());;
             }
         }
     }
 
-    for (int i = 0; i < skps.count(); i++) {
-        SkFILEStream stream(skps[i].c_str());
-        if (stream.isValid()) {
-            fPictures.push_back(SkPicture::CreateFromStream(&stream));
-        } else {
-            SkDebugf("couldn't load picture at \"path\"\n", skps[i].c_str());
-        }
-    }
-
-    if (fPictures.empty()) {
+    if (fRecords.empty()) {
         SkDebugf("no valid skps found\n");
     }
 
@@ -80,9 +69,6 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
 }
 
 VisualBench::~VisualBench() {
-    for (int i = 0; i < fPictures.count(); i++) {
-        fPictures[i]->~SkPicture();
-    }
     INHERITED::detach();
 }
 
@@ -101,8 +87,10 @@ bool VisualBench::setupBackend() {
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
-    if (!this->makeFullscreen()) {
-        SkDebugf("Could not go fullscreen!");
+    if (FLAGS_fullscreen) {
+        if (!this->makeFullscreen()) {
+            SkDebugf("Could not go fullscreen!");
+        }
     }
     if (!this->attach(kNativeGL_BackEndType, FLAGS_msaa, &fAttachmentInfo)) {
         SkDebugf("Not possible to create backend.\n");
@@ -134,18 +122,19 @@ void VisualBench::setupRenderTarget() {
 }
 
 inline void VisualBench::renderFrame(SkCanvas* canvas) {
-    canvas->drawPicture(fPictures[fCurrentPicture]);
+    canvas->drawPicture(fPicture);
     fContext->flush();
     INHERITED::present();
 }
 
 void VisualBench::printStats() {
-    const SkTArray<double>& measurements = fTimings[fCurrentPicture].fMeasurements;
+    const SkTArray<double>& measurements = fRecords[fCurrentPictureIdx].fMeasurements;
+    SkString shortName = SkOSPath::Basename(fRecords[fCurrentPictureIdx].fFilename.c_str());
     if (FLAGS_verbose) {
         for (int i = 0; i < measurements.count(); i++) {
             SkDebugf("%s  ", HUMANIZE(measurements[i]));
         }
-        SkDebugf("%s\n", fTimings[fCurrentPicture].fName.c_str());
+        SkDebugf("%s\n", shortName.c_str());
     } else {
         SkASSERT(measurements.count());
         Stats stats(measurements.begin(), measurements.count());
@@ -158,11 +147,44 @@ void VisualBench::printStats() {
                  HUMANIZE(stats.mean),
                  HUMANIZE(stats.max),
                  stdDevPercent,
-                 fTimings[fCurrentPicture].fName.c_str());
+                 shortName.c_str());
     }
 }
 
-void VisualBench::timePicture(SkCanvas* canvas) {
+bool VisualBench::advanceRecordIfNecessary() {
+    if (fPicture) {
+        return true;
+    }
+    ++fCurrentPictureIdx;
+    while (true) {
+        if (fCurrentPictureIdx >= fRecords.count()) {
+            return false;
+        }
+        if (this->loadPicture()) {
+            return true;
+        }
+        fRecords.removeShuffle(fCurrentPictureIdx);
+    }
+}
+
+bool VisualBench::loadPicture() {
+    const char* fileName = fRecords[fCurrentPictureIdx].fFilename.c_str();
+    SkFILEStream stream(fileName);
+    if (stream.isValid()) {
+        fPicture.reset(SkPicture::CreateFromStream(&stream));
+        if (SkToBool(fPicture)) {
+            return true;
+        }
+    }
+    SkDebugf("couldn't load picture at \"%s\"\n", fileName);
+    return false;
+}
+
+void VisualBench::draw(SkCanvas* canvas) {
+    if (!this->advanceRecordIfNecessary()) {
+        this->closeWindow();
+        return;
+    }
     this->renderFrame(canvas);
     switch (fState) {
         case kPreWarm_State: {
@@ -181,14 +203,14 @@ void VisualBench::timePicture(SkCanvas* canvas) {
         case kTiming_State: {
             if (fCurrentSample >= FLAGS_samples) {
                 fTimer.end();
-                fTimings[fCurrentPicture].fMeasurements.push_back(fTimer.fWall / FLAGS_samples);
+                fRecords[fCurrentPictureIdx].fMeasurements.push_back(fTimer.fWall / FLAGS_samples);
                 this->resetContext();
                 fTimer = WallTimer();
                 fState = kPreWarm_State;
                 fCurrentSample = 0;
                 if (fLoop++ > FLAGS_loops) {
                     this->printStats();
-                    fCurrentPicture++;
+                    fPicture.reset(NULL);
                     fLoop = 0;
                 }
             } else {
@@ -196,14 +218,6 @@ void VisualBench::timePicture(SkCanvas* canvas) {
             }
             break;
         }
-    }
-}
-
-void VisualBench::draw(SkCanvas* canvas) {
-    if (fCurrentPicture < fPictures.count()) {
-        this->timePicture(canvas);
-    } else {
-        this->closeWindow();
     }
 
     // Invalidate the window to force a redraw. Poor man's animation mechanism.
