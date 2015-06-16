@@ -9,7 +9,6 @@
 #include "GrContext.h"
 
 #include "GrAARectRenderer.h"
-#include "GrAtlasTextContext.h"
 #include "GrBatch.h"
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
@@ -32,7 +31,6 @@
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
-#include "GrStencilAndCoverTextContext.h"
 #include "GrStrokeInfo.h"
 #include "GrSurfacePriv.h"
 #include "GrTextBlobCache.h"
@@ -62,24 +60,33 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::DrawingMgr::init(GrContext* context) {
+    fContext = context;
+
 #ifdef IMMEDIATE_MODE
     fDrawTarget = SkNEW_ARGS(GrImmediateDrawTarget, (context));
 #else
     fDrawTarget = SkNEW_ARGS(GrInOrderDrawBuffer, (context));
 #endif    
-
-    fDrawContext = SkNEW_ARGS(GrDrawContext, (context, fDrawTarget));
 }
 
 GrContext::DrawingMgr::~DrawingMgr() {
     SkSafeUnref(fDrawTarget);
-    SkSafeUnref(fDrawContext);
+    for (int i = 0; i < kNumPixelGeometries; ++i) {
+        SkSafeUnref(fDrawContext[i][0]);
+        SkSafeUnref(fDrawContext[i][1]);
+    }
 }
 
 void GrContext::DrawingMgr::abandon() {
     SkSafeSetNull(fDrawTarget);
-    SkSafeSetNull(fDrawContext->fDrawTarget);
-    SkSafeSetNull(fDrawContext);
+    for (int i = 0; i < kNumPixelGeometries; ++i) {
+        for (int j = 0; j < kNumDFTOptions; ++j) {
+            if (fDrawContext[i][j]) {
+                SkSafeSetNull(fDrawContext[i][j]->fDrawTarget);
+                SkSafeSetNull(fDrawContext[i][j]);
+            }
+        }
+    }
 }
 
 void GrContext::DrawingMgr::purgeResources() {
@@ -100,11 +107,29 @@ void GrContext::DrawingMgr::flush() {
     }
 }
 
-GrDrawContext* GrContext::DrawingMgr::drawContext() { 
+GrDrawContext* GrContext::DrawingMgr::drawContext(const SkDeviceProperties* devProps, bool useDFT) { 
     if (this->abandoned()) {
         return NULL;
     }
-    return fDrawContext; 
+
+    const SkDeviceProperties defProps;
+    if (!devProps) {
+        devProps = &defProps;
+    }
+
+    SkASSERT(devProps->pixelGeometry() < kNumPixelGeometries);
+    if (!fDrawContext[devProps->pixelGeometry()][useDFT]) {
+        fDrawContext[devProps->pixelGeometry()][useDFT] =
+                SkNEW_ARGS(GrDrawContext, (fContext, fDrawTarget, *devProps, useDFT));
+    }
+
+    SkASSERT(fDrawContext[devProps->pixelGeometry()][useDFT]->fDevProps->pixelGeometry() ==
+             devProps->pixelGeometry());
+    SkASSERT(fDrawContext[devProps->pixelGeometry()][useDFT]->fDevProps->gamma() == 
+             devProps->gamma());
+    SkASSERT(fDrawContext[devProps->pixelGeometry()][useDFT]->fUseDFT == useDFT);
+
+    return fDrawContext[devProps->pixelGeometry()][useDFT]; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -244,21 +269,6 @@ void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes)
     if (resourceBytes) {
         *resourceBytes = fResourceCache->getBudgetedResourceBytes();
     }
-}
-
-GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
-                                            const SkDeviceProperties&
-                                            leakyProperties,
-                                            bool enableDistanceFieldFonts) {
-    if (fGpu->caps()->shaderCaps()->pathRenderingSupport() &&
-        renderTarget->isStencilBufferMultisampled()) {
-        GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
-        if (sb) {
-            return GrStencilAndCoverTextContext::Create(this, leakyProperties);
-        }
-    } 
-
-    return GrAtlasTextContext::Create(this, leakyProperties, enableDistanceFieldFonts);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -19,7 +19,7 @@
 #include "SkTextToPathIter.h"
 
 SkBaseDevice::SkBaseDevice()
-    : fLeakyProperties(SkNEW_ARGS(SkDeviceProperties, (SkDeviceProperties::kLegacyLCD_InitType)))
+    : fLeakyProperties(SkNEW(SkDeviceProperties))
 #ifdef SK_DEBUG
     , fAttachedToCanvas(false)
 #endif
