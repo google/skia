@@ -123,8 +123,6 @@ SkShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMo
     return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy, localMatrix, tile));
 }
 
-// TODO: rename SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS to SK_DISALLOW_CROSSPROCESS_PICTURES
-
 SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
@@ -134,8 +132,8 @@ SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     buffer.readRect(&tile);
 
     SkAutoTUnref<SkPicture> picture;
-#ifdef SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS
-    if (buffer.isCrossProcess()) {
+
+    if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
         if (buffer.isVersionLT(SkReadBuffer::kPictureShaderHasPictureBool_Version)) {
             // Older code blindly serialized pictures.  We don't trust them.
             buffer.validate(false);
@@ -144,9 +142,7 @@ SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
         // Newer code won't serialize pictures in disallow-cross-process-picture mode.
         // Assert that they didn't serialize anything except a false here.
         buffer.validate(!buffer.readBool());
-    } else
-#endif
-    {
+    } else {
         // Old code always serialized the picture.  New code writes a 'true' first if it did.
         if (buffer.isVersionLT(SkReadBuffer::kPictureShaderHasPictureBool_Version) ||
             buffer.readBool()) {
@@ -162,14 +158,11 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fTmy);
     buffer.writeRect(fTile);
 
-#ifdef SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS
     // The deserialization code won't trust that our serialized picture is safe to deserialize.
     // So write a 'false' telling it that we're not serializing a picture.
-    if (buffer.isCrossProcess()) {
+    if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
         buffer.writeBool(false);
-    } else
-#endif
-    {
+    } else {
         buffer.writeBool(true);
         fPicture->flatten(buffer);
     }

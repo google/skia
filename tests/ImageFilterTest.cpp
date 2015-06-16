@@ -859,12 +859,10 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
     canvas.clear(0x0);
     canvas.drawPicture(crossProcessPicture);
     pixel = *bitmap.getAddr32(0, 0);
-#ifdef SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS
-    // The result here should not be green, since the filter draws nothing.
-    REPORTER_ASSERT(reporter, pixel != SK_ColorGREEN);
-#else
-    REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
-#endif
+    // If the security precautions are enabled, the result here should not be green, since the
+    // filter draws nothing.
+    REPORTER_ASSERT(reporter, SkPicture::PictureIOSecurityPrecautionsEnabled() 
+        ? pixel != SK_ColorGREEN : pixel == SK_ColorGREEN);
 }
 
 DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {

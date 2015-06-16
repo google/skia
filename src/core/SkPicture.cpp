@@ -13,6 +13,13 @@
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
 
+#if defined(SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS) || \
+    defined(SK_ENABLE_PICTURE_IO_SECURITY_PRECAUTIONS)
+static bool g_AllPictureIOSecurityPrecautionsEnabled = true;
+#else
+static bool g_AllPictureIOSecurityPrecautionsEnabled = false;
+#endif
+
 DECLARE_SKMESSAGEBUS_MESSAGE(SkPicture::DeletionMessage);
 
 /* SkPicture impl.  This handles generic responsibilities like unique IDs and serialization. */
@@ -195,4 +202,13 @@ bool SkPicture::suitableForGpuRasterization(GrContext*, const char** whyNot) con
         return false;
     }
     return true;
+}
+
+// Global setting to disable security precautions for serialization.
+void SkPicture::SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set) {
+    g_AllPictureIOSecurityPrecautionsEnabled = set;
+}
+
+bool SkPicture::PictureIOSecurityPrecautionsEnabled() {
+    return g_AllPictureIOSecurityPrecautionsEnabled;
 }

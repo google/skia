@@ -153,6 +153,10 @@ public:
     // Returns NULL if this is not an SkBigPicture.
     virtual const SkBigPicture* asSkBigPicture() const { return NULL; }
 
+    // Global setting to enable or disable security precautions for serialization.
+    static void SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set);
+    static bool PictureIOSecurityPrecautionsEnabled();
+
 private:
     // Subclass whitelist.
     SkPicture();
