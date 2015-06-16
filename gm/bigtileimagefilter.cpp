@@ -9,6 +9,19 @@
 #include "SkTileImageFilter.h"
 #include "gm.h"
 
+static void create_circle_texture(SkBitmap* bm, SkColor color) {
+    SkCanvas canvas(*bm);
+    canvas.clear(0xFF000000);
+
+    SkPaint paint;
+    paint.setColor(color);
+    paint.setStrokeWidth(3);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    canvas.drawCircle(SkScalarHalf(bm->width()), SkScalarHalf(bm->height()),
+                      SkScalarHalf(bm->width()), paint);
+}
+
 namespace skiagm {
 
 class BigTileImageFilterGM : public GM {
@@ -28,35 +41,52 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBitmap.allocN32Pixels(kBitmapSize, kBitmapSize);
+        fRedBitmap.allocN32Pixels(kBitmapSize, kBitmapSize);
+        create_circle_texture(&fRedBitmap, SK_ColorRED);
 
-        SkCanvas canvas(fBitmap);
-        canvas.clear(0xFF000000);
-
-        SkPaint paint;
-        paint.setColor(SK_ColorRED);
-        paint.setStrokeWidth(3);
-        paint.setStyle(SkPaint::kStroke_Style);
-
-        canvas.drawCircle(SkScalarHalf(kBitmapSize), SkScalarHalf(kBitmapSize),
-                          SkScalarHalf(kBitmapSize), paint);
+        fGreenBitmap.allocN32Pixels(kBitmapSize, kBitmapSize);
+        create_circle_texture(&fGreenBitmap, SK_ColorGREEN);
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
-        SkPaint p;
+        {
+            SkPaint p;
 
-        SkAutoTUnref<SkBitmapSource> bms(SkBitmapSource::Create(fBitmap));
-        SkAutoTUnref<SkTileImageFilter> tif(SkTileImageFilter::Create(
+            SkRect bound = SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
+            SkAutoTUnref<SkBitmapSource> bms(SkBitmapSource::Create(fRedBitmap));
+            SkAutoTUnref<SkTileImageFilter> tif(SkTileImageFilter::Create(
                             SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
                             SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)),
                             bms));
-        p.setImageFilter(tif);
+            p.setImageFilter(tif);
 
-        SkRect bound = SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
-        canvas->saveLayer(&bound, &p);
-        canvas->restore();
+            canvas->saveLayer(&bound, &p);
+            canvas->restore();
+        }
+
+        {
+            SkPaint p2;
+
+            SkRect bound2 = SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize));
+
+            SkAutoTUnref<SkTileImageFilter> tif2(SkTileImageFilter::Create(
+                            SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
+                            SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
+                            NULL));
+            p2.setImageFilter(tif2);
+
+            canvas->translate(320, 320);
+            canvas->saveLayer(&bound2, &p2);
+            canvas->setMatrix(SkMatrix::I());
+
+            SkRect bound3 = SkRect::MakeXYWH(320, 320,
+                                             SkIntToScalar(kBitmapSize),
+                                             SkIntToScalar(kBitmapSize));
+            canvas->drawBitmapRectToRect(fGreenBitmap, &bound2, bound3);
+            canvas->restore();
+        }
     }
 
 private:
@@ -64,7 +94,8 @@ private:
     static const int kHeight = 512;
     static const int kBitmapSize = 64;
 
-    SkBitmap fBitmap;
+    SkBitmap fRedBitmap;
+    SkBitmap fGreenBitmap;
 
     typedef GM INHERITED;
 };

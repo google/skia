@@ -93,6 +93,12 @@ bool SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
+void SkTileImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    // This is a workaround for skia:3194.
+    *dst = src;
+    dst->join(fDstRect);
+}
+
 SkFlattenable* SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkRect src, dst;
