@@ -17,6 +17,9 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
+#include "GrTest.h"
+#include "gl/GrGLInterface.h"
+#include "gl/GrGLUtil.h"
 #else
 class GrContextFactory;
 class GrContext;
@@ -97,36 +100,92 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
     if (NULL == ctx) {
         return;
     }
-    // Test the wrapped factory for SkSurface by creating a texture using ctx and then treat it as
-    // an external texture and wrap it in a SkSurface.
 
-    GrSurfaceDesc texDesc;
-    texDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    texDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    texDesc.fWidth = texDesc.fHeight = 100;
-    texDesc.fSampleCnt = 0;
-    texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    SkAutoTUnref<GrSurface> dummySurface(ctx->textureProvider()->createTexture(texDesc, false));
-
-    REPORTER_ASSERT(reporter, dummySurface && dummySurface->asTexture() &&
-                              dummySurface->asRenderTarget());
-    if (!dummySurface || !dummySurface->asTexture() || !dummySurface->asRenderTarget()) {
+    GrTestTarget tt;
+    ctx->getTestTarget(&tt);
+    if (!tt.target()) {
+        SkDEBUGFAIL("Couldn't get Gr test target.");
         return;
     }
-    
-    GrBackendObject textureHandle = dummySurface->asTexture()->getTextureHandle();
+
+    // We currently have only implemented the texture uploads for GL.
+    const GrGLInterface* gl = tt.glInterface();
+    if (!gl) {
+        return;
+    }
+
+    // Test the wrapped factory for SkSurface by creating a texture using GL and then wrap it in
+    // a SkSurface.
+    GrGLuint texID;
+    static const int kW = 100;
+    static const int kH = 100;
+    static const uint32_t kOrigColor = 0xFFAABBCC;
+    SkAutoTArray<uint32_t> pixels(kW * kH);
+    sk_memset32(pixels.get(), kOrigColor, kW * kH);
+    GR_GL_CALL(gl, GenTextures(1, &texID));
+    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0));
+    GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
+    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texID));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER,
+                                 GR_GL_NEAREST));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER,
+                                 GR_GL_NEAREST));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_S,
+                                 GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T,
+                                 GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, kW, kH, 0, GR_GL_RGBA,
+                              GR_GL_UNSIGNED_BYTE,
+                              pixels.get()));
 
     GrBackendTextureDesc wrappedDesc;
-    wrappedDesc.fConfig = dummySurface->config();
-    wrappedDesc.fWidth = dummySurface->width();
-    wrappedDesc.fHeight = dummySurface->height();
-    wrappedDesc.fOrigin = dummySurface->origin();
-    wrappedDesc.fSampleCnt = dummySurface->asRenderTarget()->numColorSamples();
+    wrappedDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    wrappedDesc.fWidth = kW;
+    wrappedDesc.fHeight = kH;
+    wrappedDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    wrappedDesc.fSampleCnt = 0;
     wrappedDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-    wrappedDesc.fTextureHandle = textureHandle;
+    wrappedDesc.fTextureHandle = texID;
 
     SkAutoTUnref<SkSurface> surface(SkSurface::NewWrappedRenderTarget(ctx, wrappedDesc, NULL));
     REPORTER_ASSERT(reporter, surface);
+    if (surface) {
+        // Validate that we can draw to the canvas and that the original texture color is preserved
+        // in pixels that aren't rendered to via the surface.
+        SkPaint paint;
+        static const SkColor kRectColor = ~kOrigColor | 0xFF000000;
+        paint.setColor(kRectColor);
+        surface->getCanvas()->drawRect(SkRect::MakeWH(SkIntToScalar(kW), SkIntToScalar(kH)/2),
+                                       paint);
+        SkImageInfo readInfo = SkImageInfo::MakeN32Premul(kW, kH);
+        surface->readPixels(readInfo, pixels.get(), kW * sizeof(uint32_t), 0, 0);
+        bool stop = false;
+        SkPMColor origColorPM = SkPackARGB32((kOrigColor >> 24 & 0xFF),
+                                             (kOrigColor >>  0 & 0xFF),
+                                             (kOrigColor >>  8 & 0xFF),
+                                             (kOrigColor >> 16 & 0xFF));
+        SkPMColor rectColorPM = SkPackARGB32((kRectColor >> 24 & 0xFF),
+                                             (kRectColor >> 16 & 0xFF),
+                                             (kRectColor >>  8 & 0xFF),
+                                             (kRectColor >>  0 & 0xFF));
+        for (int y = 0; y < kH/2 && !stop; ++y) {
+            for (int x = 0; x < kW && !stop; ++x) {
+                REPORTER_ASSERT(reporter, rectColorPM == pixels[x + y * kW]);
+                if (rectColorPM != pixels[x + y * kW]) {
+                    stop = true;
+                }
+            }
+        }
+        stop = false;
+        for (int y = kH/2; y < kH && !stop; ++y) {
+            for (int x = 0; x < kW && !stop; ++x) {
+                REPORTER_ASSERT(reporter, origColorPM == pixels[x + y * kW]);
+                if (origColorPM != pixels[x + y * kW]) {
+                    stop = true;
+                }
+            }
+        }
+    }
 }
 #endif
 

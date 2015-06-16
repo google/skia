@@ -113,8 +113,7 @@ SkSurface* SkSurface::NewWrappedRenderTarget(GrContext* context, GrBackendTextur
     if (!surface) {
         return NULL;
     }
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props,
-                                                         SkGpuDevice::kNeedClear_Flag));
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props));
     if (!device) {
         return NULL;
     }
