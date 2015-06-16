@@ -11,6 +11,8 @@
 #define SkOSWindow_Win_DEFINED
 
 #include "SkWindow.h"
+#include "../../src/core/SkFunction.h"
+#include "../../src/core/SkTHash.h"
 
 #if SK_ANGLE
 #include "EGL/egl.h"
@@ -18,12 +20,13 @@
 
 class SkOSWindow : public SkWindow {
 public:
-    SkOSWindow(void* hwnd);
-    virtual ~SkOSWindow();
+    struct WindowInit {
+        TCHAR*    fClass;
+        HINSTANCE fInstance;
+    };
 
-    void*   getHWND() const { return fHWND; }
-    void    setSize(int width, int height);
-    void    updateSize();
+    SkOSWindow(const void* winInit);
+    virtual ~SkOSWindow();
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
@@ -49,6 +52,24 @@ public:
         SK_WM_SkTimerID = 0xFFFF    // just need a non-zero value
     };
 
+    void setFullscreen(bool) override;
+    void setVsync(bool) override;
+    void closeWindow() override;
+
+    static SkOSWindow* GetOSWindowForHWND(void* hwnd) {
+        SkOSWindow** win = gHwndToOSWindowMap.find(hwnd);
+        if (!win) {
+            return NULL;
+        }
+        return *win;
+    }
+
+    // Iterates SkFunction over all the SkOSWindows and their corresponding HWNDs.
+    // The void* argument to the SkFunction is a HWND.
+    static void ForAllWindows(const SkFunction<void(void*, SkOSWindow**)>& f) {
+        gHwndToOSWindowMap.foreach(f);
+    }
+
 protected:
     virtual bool quitOnDeactivate() { return true; }
 
@@ -60,6 +81,9 @@ protected:
     virtual void onSetTitle(const char title[]);
 
 private:
+    static SkTHashMap<void*, SkOSWindow*> gHwndToOSWindowMap;
+
+    WindowInit          fWinInit;
     void*               fHWND;
 
     void                doPaint(void* ctx);
@@ -74,10 +98,23 @@ private:
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
 
+    bool                fFullscreen;
+    struct SavedWindowState {
+        bool fZoomed;
+        LONG fStyle;
+        LONG fExStyle;
+        RECT fRect;
+        LONG fScreenWidth;
+        LONG fScreenHeight;
+        LONG fScreenBits;
+        void* fHWND;
+    } fSavedWindowState;
+
     HMENU               fMBar;
 
     SkBackEndTypes      fAttached;
 
+    void updateSize();
 #if SK_SUPPORT_GPU
     bool attachGL(int msaaSampleCount, AttachmentInfo* info);
     void detachGL();

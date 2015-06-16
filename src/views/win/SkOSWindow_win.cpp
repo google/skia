@@ -32,18 +32,21 @@
 
 #endif
 
-static SkOSWindow* gCurrOSWin;
-static HWND gEventTarget;
-
 #define WM_EVENT_CALLBACK (WM_USER+0)
 
-void post_skwinevent()
+void post_skwinevent(HWND hwnd)
 {
-    PostMessage(gEventTarget, WM_EVENT_CALLBACK, 0, 0);
+    PostMessage(hwnd, WM_EVENT_CALLBACK, 0, 0);
 }
 
-SkOSWindow::SkOSWindow(void* hWnd) {
-    fHWND = hWnd;
+SkTHashMap<void*, SkOSWindow*> SkOSWindow::gHwndToOSWindowMap;
+
+SkOSWindow::SkOSWindow(const void* winInit) {
+    fWinInit = *(const WindowInit*)winInit;
+
+    fHWND = CreateWindow(fWinInit.fClass, NULL, WS_OVERLAPPEDWINDOW,
+                         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, fWinInit.fInstance, NULL);
+    gHwndToOSWindowMap.set(fHWND, this);
 #if SK_SUPPORT_GPU
 #if SK_ANGLE
     fDisplay = EGL_NO_DISPLAY;
@@ -53,10 +56,11 @@ SkOSWindow::SkOSWindow(void* hWnd) {
     fHGLRC = NULL;
 #endif
     fAttached = kNone_BackEndType;
-    gEventTarget = (HWND)hWnd;
+    fFullscreen = false;
 }
 
 SkOSWindow::~SkOSWindow() {
+    this->setFullscreen(false);
 #if SK_SUPPORT_GPU
     if (fHGLRC) {
         wglDeleteContext((HGLRC)fHGLRC);
@@ -78,6 +82,8 @@ SkOSWindow::~SkOSWindow() {
     }
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
+    gHwndToOSWindowMap.remove(fHWND);
+    DestroyWindow((HWND)fHWND);
 }
 
 static SkKey winToskKey(WPARAM vk) {
@@ -159,7 +165,7 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         case WM_EVENT_CALLBACK:
             if (SkEvent::ProcessEvent()) {
-                post_skwinevent();
+                post_skwinevent(hWnd);
             }
             return true;
     }
@@ -208,14 +214,12 @@ void SkOSWindow::doPaint(void* ctx) {
     }
 }
 
-#if 0
 void SkOSWindow::updateSize()
 {
     RECT    r;
-    GetWindowRect((HWND)this->getHWND(), &r);
+    GetWindowRect((HWND)fHWND, &r);
     this->resize(r.right - r.left, r.bottom - r.top);
 }
-#endif
 
 void SkOSWindow::onHandleInval(const SkIRect& r) {
     RECT rect;
@@ -290,8 +294,9 @@ static SkKey raw2key(uint32_t raw)
 
 void SkEvent::SignalNonEmptyQueue()
 {
-    post_skwinevent();
-    //SkDebugf("signal nonempty\n");
+    SkOSWindow::ForAllWindows([](void* hWND, SkOSWindow**) {
+        post_skwinevent((HWND)hWND);
+    });
 }
 
 static UINT_PTR gTimer;
@@ -367,7 +372,6 @@ void SkOSWindow::detachGL() {
 }
 
 void SkOSWindow::presentGL() {
-    glFlush();
     HDC dc = GetDC((HWND)fHWND);
     SwapBuffers(dc);
     ReleaseDC((HWND)fHWND, dc);
@@ -609,4 +613,115 @@ void SkOSWindow::present() {
     }
 }
 
+void SkOSWindow::setFullscreen(bool fullscreen) {
+    if (fullscreen == fFullscreen) {
+        return;
+    }
+    if (fHGLRC) {
+        this->detachGL();
+    }
+    // This is hacked together from various sources on the web. It can certainly be improved and be
+    // made more robust.
+    if (fullscreen) {
+        // Save current window/resolution information.
+        fSavedWindowState.fZoomed = SkToBool(IsZoomed((HWND)fHWND));
+        if (fSavedWindowState.fZoomed) {
+          SendMessage((HWND)fHWND, WM_SYSCOMMAND, SC_RESTORE, 0);
+        }
+        fSavedWindowState.fStyle = GetWindowLong((HWND)fHWND, GWL_STYLE);
+        fSavedWindowState.fExStyle = GetWindowLong((HWND)fHWND, GWL_EXSTYLE);
+        GetWindowRect((HWND)fHWND, &fSavedWindowState.fRect);
+        DEVMODE dmScreenSettings;                   // Device Mode
+        memset(&dmScreenSettings,0,sizeof(dmScreenSettings));       // Makes Sure Memory's Cleared
+        dmScreenSettings.dmSize=sizeof(dmScreenSettings);       // Size Of The Devmode Structure
+        EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);
+        fSavedWindowState.fScreenWidth = dmScreenSettings.dmPelsWidth;
+        fSavedWindowState.fScreenHeight = dmScreenSettings.dmPelsHeight;
+        fSavedWindowState.fScreenBits = dmScreenSettings.dmBitsPerPel;
+        fSavedWindowState.fHWND = fHWND;
+    }
+
+    if (fullscreen) {
+        // Try different sizes to find an allowed setting? Use ChangeDisplaySettingsEx?
+        static const int kWidth = 1280;
+        static const int kHeight = 1024;
+        DEVMODE dmScreenSettings;
+        memset(&dmScreenSettings,0,sizeof(dmScreenSettings));
+        dmScreenSettings.dmSize=sizeof(dmScreenSettings);
+        dmScreenSettings.dmPelsWidth    = kWidth;
+        dmScreenSettings.dmPelsHeight   = kHeight;
+        dmScreenSettings.dmBitsPerPel   = 32;
+        dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
+        if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+            return;
+        }
+        RECT WindowRect;
+        WindowRect.left = 0;
+        WindowRect.right = kWidth;
+        WindowRect.top = 0;
+        WindowRect.bottom = kHeight;     
+        ShowCursor(FALSE);
+        AdjustWindowRectEx(&WindowRect, WS_POPUP, FALSE, WS_EX_APPWINDOW);
+        HWND fsHWND = CreateWindowEx(
+            WS_EX_APPWINDOW,
+            fWinInit.fClass,
+            NULL,
+            WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+            0, 0, WindowRect.right-WindowRect.left, WindowRect.bottom-WindowRect.top,
+            NULL,
+            NULL,
+            fWinInit.fInstance,
+            NULL
+        );
+        if (!fsHWND) {
+            return;
+        }
+        // Hide the old window and set the entry in the global mapping for this SkOSWindow to the
+        // new HWND.
+        ShowWindow((HWND)fHWND, SW_HIDE);
+        gHwndToOSWindowMap.remove(fHWND);
+        fHWND = fsHWND;
+        gHwndToOSWindowMap.set(fHWND, this);
+        this->updateSize();
+    } else {
+        DEVMODE dmScreenSettings;
+        memset(&dmScreenSettings,0,sizeof(dmScreenSettings));
+        dmScreenSettings.dmSize=sizeof(dmScreenSettings);
+        dmScreenSettings.dmPelsWidth    = fSavedWindowState.fScreenWidth;
+        dmScreenSettings.dmPelsHeight   = fSavedWindowState.fScreenHeight;
+        dmScreenSettings.dmBitsPerPel   = fSavedWindowState.fScreenBits;
+        dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
+        if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+            return;
+        }
+        gHwndToOSWindowMap.remove(fHWND);
+        DestroyWindow((HWND)fHWND);
+        fHWND = fSavedWindowState.fHWND;
+        gHwndToOSWindowMap.set(fHWND, this);
+        ShowWindow((HWND)fHWND, SW_SHOW);
+        SetWindowLong((HWND)fHWND, GWL_STYLE, fSavedWindowState.fStyle);
+        SetWindowLong((HWND)fHWND, GWL_EXSTYLE, fSavedWindowState.fExStyle);
+
+        int width = fSavedWindowState.fRect.right - fSavedWindowState.fRect.left;
+        int height = fSavedWindowState.fRect.right - fSavedWindowState.fRect.left;
+        SetWindowPos((HWND)fHWND, NULL, fSavedWindowState.fRect.left, fSavedWindowState.fRect.top,
+                     width, height,
+                     SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        if (fSavedWindowState.fZoomed) {
+            SendMessage((HWND)fHWND, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+        }
+        this->updateSize();
+    }
+    fFullscreen = fullscreen;
+}
+
+void SkOSWindow::setVsync(bool enable) {
+    SkWGLExtensions wgl;
+    wgl.swapInterval(enable ? 1 : 0);
+}
+
+void SkOSWindow::closeWindow() {
+    this->setFullscreen(false);
+    DestroyWindow((HWND)fHWND);
+}
 #endif

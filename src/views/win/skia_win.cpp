@@ -13,9 +13,8 @@
 #define MAX_LOADSTRING 100
 
 // Global Variables:
-HINSTANCE hInst;                            // current instance
-TCHAR szTitle[] = _T("SampleApp");          // The title bar text
-TCHAR szWindowClass[] = _T("SAMPLEAPP");    // the main window class name
+HINSTANCE gHInst;                            // current instance
+TCHAR gSZWindowClass[] = _T("SkiaApp");    // the main window class name
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -24,9 +23,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPTSTR    lpCmdLine,
-                     int       nCmdShow)
+                       HINSTANCE hPrevInstance,
+                       LPTSTR    lpCmdLine,
+                       int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
 
@@ -77,16 +76,16 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style            = CS_HREDRAW | CS_VREDRAW;
+    wcex.style          = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra        = 0;
-    wcex.cbWndExtra        = 0;
-    wcex.hInstance        = hInstance;
-    wcex.hIcon            = NULL;
+    wcex.cbClsExtra     = 0;
+    wcex.cbWndExtra     = 0;
+    wcex.hInstance      = hInstance;
+    wcex.hIcon          = NULL;
     wcex.hCursor        = NULL;
-    wcex.hbrBackground    = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName    = NULL;
-    wcex.lpszClassName    = szWindowClass;
+    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
+    wcex.lpszMenuName   = NULL;
+    wcex.lpszClassName  = gSZWindowClass;
     wcex.hIconSm        = NULL;
 
     return RegisterClassEx(&wcex);
@@ -94,8 +93,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 #include "SkOSWindow_Win.h"
 extern SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
-
-static SkOSWindow* gSkWind;
 
 char* tchar_to_utf8(const TCHAR* str) {
 #ifdef _UNICODE
@@ -125,16 +122,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
 {
    application_init();
 
-   hInst = hInstance; // Store instance handle in our global variable
-
-   HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-                            CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
-
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-
+   gHInst = hInstance; // Store instance handle in our global variable
    char* argv[4096];
    int argc = 0;
    TCHAR exename[1024], *next;
@@ -148,12 +136,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
       arg = _tcstok_s(NULL, _T(" "), &next);
    }
 
-   gSkWind = create_sk_window(hWnd, argc, argv);
+   SkOSWindow::WindowInit winInit;
+   winInit.fInstance = gHInst;
+   winInit.fClass = gSZWindowClass;
+
+   create_sk_window(&winInit, argc, argv);
    for (int i = 0; i < argc; ++i) {
       sk_free(argv[i]);
    }
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+   SkOSWindow::ForAllWindows([nCmdShow](void* hWnd, SkOSWindow**){
+       ShowWindow((HWND)hWnd, nCmdShow);
+       UpdateWindow((HWND)hWnd); }
+   );
 
    return TRUE;
 }
@@ -171,16 +165,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
-    case WM_COMMAND:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        if (gSkWind->wndProc(hWnd, message, wParam, lParam)) {
-            return 0;
-        } else {
+        case WM_COMMAND:
             return DefWindowProc(hWnd, message, wParam, lParam);
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+        default: {
+            SkOSWindow* window = SkOSWindow::GetOSWindowForHWND(hWnd);
+            if (window && window->wndProc(hWnd, message, wParam, lParam)) {
+                return 0;
+            } else {
+                return DefWindowProc(hWnd, message, wParam, lParam);
+            }
         }
     }
     return 0;
