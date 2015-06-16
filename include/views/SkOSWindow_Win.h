@@ -52,9 +52,9 @@ public:
         SK_WM_SkTimerID = 0xFFFF    // just need a non-zero value
     };
 
-    void setFullscreen(bool) override;
-    void setVsync(bool) override;
-    void closeWindow() override;
+    bool makeFullscreen();
+    void setVsync(bool);
+    void closeWindow();
 
     static SkOSWindow* GetOSWindowForHWND(void* hwnd) {
         SkOSWindow** win = gHwndToOSWindowMap.find(hwnd);

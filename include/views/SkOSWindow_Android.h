@@ -31,8 +31,9 @@ public:
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info);
     void detach();
     void present();
-    void closeWindow() override;
-    void setVsync(bool) override;
+    bool makeFullscreen() { return true; }
+    void closeWindow();
+    void setVsync(bool);
     bool destroyRequested() { return fDestroyRequested; }
 
     virtual void onPDFSaved(const char title[], const char desc[], const char path[]);

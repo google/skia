@@ -101,7 +101,9 @@ bool VisualBench::setupBackend() {
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
-    this->setFullscreen(true);
+    if (!this->makeFullscreen()) {
+        SkDebugf("Could not go fullscreen!");
+    }
     if (!this->attach(kNativeGL_BackEndType, FLAGS_msaa, &fAttachmentInfo)) {
         SkDebugf("Not possible to create backend.\n");
         INHERITED::detach();

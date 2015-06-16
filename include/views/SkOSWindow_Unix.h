@@ -46,9 +46,9 @@ public:
 
     //static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
-    void setFullscreen(bool) override;
-    void setVsync(bool) override;
-    void closeWindow() override;
+    bool makeFullscreen();
+    void setVsync(bool);
+    void closeWindow();
 
 protected:
     // Overridden from from SkWindow:

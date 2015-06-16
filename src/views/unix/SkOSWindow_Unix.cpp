@@ -456,10 +456,10 @@ enum {
     _NET_WM_STATE_TOGGLE =2
 };
 
-void SkOSWindow::setFullscreen(bool setFullscreen) {
+bool SkOSWindow::makeFullscreen() {
     Display* dsp = fUnixWindow.fDisplay;
     if (NULL == dsp) {
-        return;
+        return false;
     }
 
     // Full screen
@@ -472,12 +472,13 @@ void SkOSWindow::setFullscreen(bool setFullscreen) {
     evt.xclient.window = fUnixWindow.fWin;
     evt.xclient.message_type = wm_state;
     evt.xclient.format = 32;
-    evt.xclient.data.l[0] = setFullscreen ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE;
+    evt.xclient.data.l[0] = _NET_WM_STATE_ADD;
     evt.xclient.data.l[1] = fullscreen;
     evt.xclient.data.l[2] = 0;
 
     XSendEvent(dsp, DefaultRootWindow(dsp), False,
                SubstructureRedirectMask | SubstructureNotifyMask, &evt);
+    return true;
 }
 
 void SkOSWindow::setVsync(bool vsync) {
