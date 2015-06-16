@@ -25,7 +25,6 @@
 
 class BitmapTextBatch;
 class GrDrawContext;
-class GrDrawTarget;
 class GrPipelineBuilder;
 class GrTextBlobCache;
 
@@ -35,20 +34,20 @@ class GrTextBlobCache;
  */
 class GrAtlasTextContext : public GrTextContext {
 public:
-    static GrAtlasTextContext* Create(GrContext*, GrDrawContext*,
-                                      const SkDeviceProperties&, bool enableDistanceFields);
+    static GrAtlasTextContext* Create(GrContext*, const SkDeviceProperties&,
+                                      bool enableDistanceFields);
 
 private:
-    GrAtlasTextContext(GrContext*, GrDrawContext*, const SkDeviceProperties&, bool useDFT);
+    GrAtlasTextContext(GrContext*, const SkDeviceProperties&, bool enableDistanceFields);
     ~GrAtlasTextContext() override {}
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                  const SkPaint&, const SkMatrix& viewMatrix) override;
 
-    void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
+    void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                     const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                     SkScalar x, SkScalar y, const SkIRect& regionClipBounds) override;
-    void onDrawPosText(GrRenderTarget*, const GrClip&, const GrPaint&,
+    void onDrawPosText(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&,
                        const SkPaint&, const SkMatrix& viewMatrix,
                        const char text[], size_t byteLength,
                        const SkScalar pos[], int scalarsPerPosition,
@@ -272,7 +271,7 @@ private:
                                   size_t vertexStride, bool useVertexColor,
                                   GrGlyph*);
 
-    inline void flushRunAsPaths(GrRenderTarget*,
+    inline void flushRunAsPaths(GrDrawContext*, GrRenderTarget*,
                                 const SkTextBlob::RunIterator&, const GrClip& clip,
                                 const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
@@ -281,18 +280,18 @@ private:
                                         int glyphCount, int run, int subRun,
                                         GrColor, SkScalar transX, SkScalar transY,
                                         const SkPaint&);
-    inline void flushRun(GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
+    inline void flushRun(GrDrawContext*, GrPipelineBuilder*, BitmapTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
-    inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrRenderTarget*,
+    inline void flushBigGlyphs(BitmapTextBlob* cacheBlob, GrDrawContext*, GrRenderTarget*,
                                const GrClip& clip, const SkPaint& skPaint,
                                SkScalar transX, SkScalar transY, const SkIRect& clipBounds);
 
     // We have to flush SkTextBlobs differently from drawText / drawPosText
-    void flush(const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*,
+    void flush(GrDrawContext*, const SkTextBlob*, BitmapTextBlob*, GrRenderTarget*,
                const SkPaint&, const GrPaint&, SkDrawFilter*, const GrClip&,
                const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y,
                SkScalar transX, SkScalar transY);
-    void flush(BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
+    void flush(GrDrawContext*, BitmapTextBlob*, GrRenderTarget*, const SkPaint&,
                const GrPaint&, const GrClip&, const SkIRect& clipBounds);
 
     // A helper for drawing BitmapText in a run of distance fields

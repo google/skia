@@ -23,6 +23,7 @@ struct GrSkDrawProcs;
 
 class GrAccelData;
 struct GrCachedLayer;
+class GrTextContext;
 
 /**
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
@@ -150,6 +151,7 @@ private:
     SkAutoTUnref<const SkClipStack> fClipStack;
     SkIPoint                        fClipOrigin;
     GrClip                          fClip;
+    GrTextContext*                  fTextContext;
     SkAutoTUnref<GrDrawContext>     fDrawContext;
     SkSurfaceProps                  fSurfaceProps;
     GrRenderTarget*                 fRenderTarget;
@@ -217,6 +219,7 @@ private:
                                               int sampleCount);
 
     friend class GrAtlasTextContext;
+    friend class GrTextContext;
     typedef SkBaseDevice INHERITED;
 };
 

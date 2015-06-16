@@ -48,7 +48,6 @@ protected:
     GrContext*                     fContext;
     SkDeviceProperties             fDeviceProperties;
 
-    GrDrawContext*                 fDrawContext;  // owning drawContext
     SkAutoTUnref<GrRenderTarget>   fRenderTarget;
     GrClip                         fClip;
     SkIRect                        fClipRect;
@@ -56,27 +55,27 @@ protected:
     GrPaint                        fPaint;
     SkPaint                        fSkPaint;
 
-    GrTextContext(GrContext*, GrDrawContext*, const SkDeviceProperties&);
+    GrTextContext(GrContext*, const SkDeviceProperties&);
 
     virtual bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                          const SkPaint&, const SkMatrix& viewMatrix) = 0;
 
-    virtual void onDrawText(GrRenderTarget*, const GrClip&,
+    virtual void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&,
                             const GrPaint&, const SkPaint&,
                             const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                             SkScalar x, SkScalar y, const SkIRect& clipBounds) = 0;
-    virtual void onDrawPosText(GrRenderTarget*, const GrClip&,
+    virtual void onDrawPosText(GrDrawContext*, GrRenderTarget*, const GrClip&,
                                const GrPaint&, const SkPaint&,
                                const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset, const SkIRect& clipBounds) = 0;
 
-    void drawTextAsPath(GrRenderTarget*, const GrClip& clip,
+    void drawTextAsPath(GrDrawContext*, GrRenderTarget*, const GrClip& clip,
                         const SkPaint& origPaint, const SkMatrix& viewMatrix,
                         const char text[], size_t byteLength, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
-    void drawPosTextAsPath(GrRenderTarget*, const GrClip& clip,
+    void drawPosTextAsPath(GrDrawContext*, GrRenderTarget*, const GrClip& clip,
                            const SkPaint& origPaint, const SkMatrix& viewMatrix,
                            const char text[], size_t byteLength,
                            const SkScalar pos[], int scalarsPerPosition,

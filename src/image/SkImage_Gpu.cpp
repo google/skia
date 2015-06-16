@@ -228,8 +228,8 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(dstDesc.fWidth),
                                        SkIntToScalar(dstDesc.fHeight));
-    GrDrawContext* drawContext = ctx->drawContext();
-    drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(), rect);
+    ctx->drawContext()->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(),
+                                 rect);
     ctx->flushSurfaceWrites(dst);
     return SkNEW_ARGS(SkImage_Gpu, (dstDesc.fWidth, dstDesc.fHeight, kOpaque_SkAlphaType, dst, 0,
                                     budgeted));

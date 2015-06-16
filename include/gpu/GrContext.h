@@ -43,6 +43,7 @@ class GrTextureParams;
 class GrVertexBuffer;
 class GrStrokeInfo;
 class GrSoftwarePathRenderer;
+class SkGpuDevice;
 
 class SK_API GrContext : public SkRefCnt {
 public:
@@ -173,16 +174,11 @@ public:
 
     /**
      * Returns a helper object to orchestrate draws. 
-     * Callers should take a ref if they rely on the GrDrawContext sticking around.
-     * NULL will be returned if the context has been abandoned.
-     *
-     * @param  devProps the device properties (mainly defines text drawing)
-     * @param  uesDFT should Distance Field Text be used?
      *
      * @return a draw context
      */
-    GrDrawContext* drawContext(const SkDeviceProperties* devProps = NULL, bool useDFT = false) {
-        return fDrawingMgr.drawContext(devProps, useDFT);    
+    GrDrawContext* drawContext() {
+        return fDrawingMgr.drawContext();    
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -394,17 +390,15 @@ private:
     GrContext(); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
 
-    // Currently the DrawingMgr stores a separate GrDrawContext for each
-    // combination of text drawing options (pixel geometry x DFT use)
-    // and hands the appropriate one back given the user's request.
-    // All of the GrDrawContexts still land in the same GrDrawTarget!
-    //
-    // In the future this class will allocate a new GrDrawContext for 
-    // each GrRenderTarget/GrDrawTarget and manage the DAG.
+    // Currently the DrawingMgr just wraps the single GrDrawTarget in a single
+    // GrDrawContext and hands it out. In the future this class will allocate
+    // a new GrDrawContext for each GrRenderTarget/GrDrawTarget and manage
+    // the DAG.
     class DrawingMgr {
     public:
-        DrawingMgr() : fDrawTarget(NULL) {
-            sk_bzero(fDrawContext, sizeof(fDrawContext));
+        DrawingMgr()
+            : fDrawTarget(NULL)
+            , fDrawContext(NULL) {
         }
 
         ~DrawingMgr();
@@ -420,24 +414,32 @@ private:
 
         // Callers should take a ref if they rely on the GrDrawContext sticking around.
         // NULL will be returned if the context has been abandoned.
-        GrDrawContext* drawContext(const SkDeviceProperties* devProps, bool useDFT);
+        GrDrawContext* drawContext();
 
     private:
         friend class GrContext;  // for access to fDrawTarget for testing
 
-        static const int kNumPixelGeometries = 5; // The different pixel geometries
-        static const int kNumDFTOptions = 2;      // DFT or no DFT
-
-        GrContext*        fContext;
         GrDrawTarget*     fDrawTarget;
 
-        GrDrawContext*    fDrawContext[kNumPixelGeometries][kNumDFTOptions];
+        GrDrawContext*    fDrawContext;
     };
 
     DrawingMgr                      fDrawingMgr;
 
     void initMockContext();
     void initCommon();
+
+    /**
+     * Creates a new text rendering context that is optimal for the
+     * render target and the context. Caller assumes the ownership
+     * of the returned object. The returned object must be deleted
+     * before the context is destroyed.
+     * TODO bury this behind context!
+     */
+    GrTextContext* createTextContext(GrRenderTarget*,
+                                     const SkDeviceProperties&,
+                                     bool enableDistanceFieldFonts);
+
 
     /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair
@@ -458,6 +460,9 @@ private:
      * TODO move textblob draw calls below context so we can use the call above.
      */
     static void TextBlobCacheOverBudgetCB(void* data);
+
+    // TODO see note on createTextContext
+    friend class SkGpuDevice;
 
     typedef SkRefCnt INHERITED;
 };

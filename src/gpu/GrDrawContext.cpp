@@ -7,16 +7,12 @@
  */
 
 #include "GrAARectRenderer.h"
-#include "GrAtlasTextContext.h"
 #include "GrBatch.h"
 #include "GrBatchTest.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawContext.h"
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrStencilAndCoverTextContext.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fContext)
 #define RETURN_IF_ABANDONED        if (!fDrawTarget) { return; }
@@ -32,21 +28,13 @@ private:
     GrContext* fContext;
 };
 
-GrDrawContext::GrDrawContext(GrContext* context,
-                             GrDrawTarget* drawTarget,
-                             const SkDeviceProperties& devProps,
-                             bool useDFT)
+GrDrawContext::GrDrawContext(GrContext* context, GrDrawTarget* drawTarget)
     : fContext(context)
-    , fDrawTarget(SkRef(drawTarget))
-    , fTextContext(NULL)
-    , fDevProps(SkNEW_ARGS(SkDeviceProperties, (devProps)))
-    , fUseDFT(useDFT) {
+    , fDrawTarget(SkRef(drawTarget)) {
 }
 
 GrDrawContext::~GrDrawContext() {
     SkSafeUnref(fDrawTarget);
-    SkDELETE(fTextContext);
-    SkDELETE(fDevProps);
 }
 
 void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
@@ -58,58 +46,8 @@ void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
     fDrawTarget->copySurface(dst, src, srcRect, dstPoint);
 }
 
-GrTextContext* GrDrawContext::createTextContext(GrRenderTarget* renderTarget,
-                                                const SkDeviceProperties& leakyProperties,
-                                                bool enableDistanceFieldFonts) {
-    if (fContext->caps()->shaderCaps()->pathRenderingSupport() &&
-        renderTarget->isStencilBufferMultisampled()) {
-        GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
-        if (sb) {
-            return GrStencilAndCoverTextContext::Create(fContext, this, 
-                                                        leakyProperties,
-                                                        enableDistanceFieldFonts);
-        }
-    } 
-
-    return GrAtlasTextContext::Create(fContext, this, leakyProperties, enableDistanceFieldFonts);
-}
-
-void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
-                             const SkPaint& skPaint,
-                             const SkMatrix& viewMatrix,
-                             const char text[], size_t byteLength,
-                             SkScalar x, SkScalar y, const SkIRect& clipBounds) {
-    if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps, fUseDFT);
-    }
-
-    fTextContext->drawText(rt, clip, grPaint, skPaint, viewMatrix,
-                           text, byteLength, x, y, clipBounds);
-
-}
-void GrDrawContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
-                                const SkPaint& skPaint,
-                                const SkMatrix& viewMatrix,
-                                const char text[], size_t byteLength,
-                                const SkScalar pos[], int scalarsPerPosition,
-                                const SkPoint& offset, const SkIRect& clipBounds) {
-    if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps, fUseDFT);
-    }
-
-    fTextContext->drawPosText(rt, clip, grPaint, skPaint, viewMatrix, text, byteLength,
-                               pos, scalarsPerPosition, offset, clipBounds);
-
-}
-void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const SkPaint& skPaint,
-                                 const SkMatrix& viewMatrix, const SkTextBlob* blob,
-                                 SkScalar x, SkScalar y,
-                                 SkDrawFilter* filter, const SkIRect& clipBounds) {
-    if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps, fUseDFT);
-    }
-
-    fTextContext->drawTextBlob(rt, clip, skPaint, viewMatrix, blob, x, y, filter, clipBounds);
+void GrDrawContext::drawText(GrPipelineBuilder* pipelineBuilder, GrBatch* batch) {
+    fDrawTarget->drawBatch(pipelineBuilder, batch);
 }
 
 void GrDrawContext::drawPaths(GrPipelineBuilder* pipelineBuilder,
@@ -1207,10 +1145,6 @@ bool GrDrawContext::prepareToDraw(GrRenderTarget* rt) {
     ASSERT_OWNED_RESOURCE(rt);
     SkASSERT(rt);
     return true;
-}
-
-void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrBatch* batch) {
-    fDrawTarget->drawBatch(pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
