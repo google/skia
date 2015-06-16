@@ -4,6 +4,9 @@
 # found in the LICENSE file.
 #
 {
+  'includes': [
+    'apptype_console.gypi',
+  ],
   'variables': {
     #manually set sample_pdf_file_viewer to 1 to have the PdfViewer in SampleApp
     'sample_pdf_file_viewer%': 0,
@@ -297,11 +300,6 @@
           ],
         }],
       ],
-      'msvs_settings': {
-        'VCLinkerTool': {
-          'SubSystem': '2',
-        },
-      },
     },
   ],
 }

@@ -8,71 +8,17 @@
 #include <windows.h>
 #include <tchar.h>
 
+#include "SkTypes.h"
 #include "SkApplication.h"
+#include "SkOSWindow_Win.h"
 
-#define MAX_LOADSTRING 100
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-// Global Variables:
-HINSTANCE gHInst;                            // current instance
-TCHAR gSZWindowClass[] = _T("SkiaApp");    // the main window class name
-
-// Forward declarations of functions included in this code module:
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int, LPTSTR);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-
-int APIENTRY _tWinMain(HINSTANCE hInstance,
-                       HINSTANCE hPrevInstance,
-                       LPTSTR    lpCmdLine,
-                       int       nCmdShow)
-{
-    UNREFERENCED_PARAMETER(hPrevInstance);
-
-    MSG msg;
-
-    // Initialize global strings
-    MyRegisterClass(hInstance);
-
-    // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow, lpCmdLine))
-    {
-        return FALSE;
-    }
-
-    // Main message loop:
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        if (true)
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
-
-    application_term();
-
-    return (int) msg.wParam;
-}
-
-
-
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
-//  COMMENTS:
-//
-//    This function and its usage are only necessary if you want this code
-//    to be compatible with Win32 systems prior to the 'RegisterClassEx'
-//    function that was added to Windows 95. It is important to call this function
-//    so that the application will get 'well formed' small icons associated
-//    with it.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
+// Returns the main window Win32 class name.
+static const TCHAR* register_class(HINSTANCE hInstance) {
     WNDCLASSEX wcex;
+    // The main window class name
+    static const TCHAR gSZWindowClass[] = _T("SkiaApp");
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
@@ -88,13 +34,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.lpszClassName  = gSZWindowClass;
     wcex.hIconSm        = NULL;
 
-    return RegisterClassEx(&wcex);
+    RegisterClassEx(&wcex);
+
+    return gSZWindowClass;
 }
 
-#include "SkOSWindow_Win.h"
-extern SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
-
-char* tchar_to_utf8(const TCHAR* str) {
+static char* tchar_to_utf8(const TCHAR* str) {
 #ifdef _UNICODE
     int size = WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), NULL, 0, NULL, NULL);
     char* str8 = (char*) sk_malloc_throw(size+1);
@@ -106,64 +51,69 @@ char* tchar_to_utf8(const TCHAR* str) {
 #endif
 }
 
-//
-//   FUNCTION: InitInstance(HINSTANCE, int, LPTSTR)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
+// This file can work with GUI or CONSOLE subsystem types since we define _tWinMain and main().
 
+static int main_common(HINSTANCE hInstance, int show, int argc, char**argv);
 
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
-{
-   application_init();
+int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine,
+                       int nCmdShow) {
 
-   gHInst = hInstance; // Store instance handle in our global variable
-   char* argv[4096];
-   int argc = 0;
-   TCHAR exename[1024], *next;
-   int exenameLen = GetModuleFileName(NULL, exename, SK_ARRAY_COUNT(exename));
-   // we're ignoring the possibility that the exe name exceeds the exename buffer
-   (void) exenameLen;
-   argv[argc++] = tchar_to_utf8(exename);
-   TCHAR* arg = _tcstok_s(lpCmdLine, _T(" "), &next);
-   while (arg != NULL) {
-      argv[argc++] = tchar_to_utf8(arg);
-      arg = _tcstok_s(NULL, _T(" "), &next);
-   }
-
-   SkOSWindow::WindowInit winInit;
-   winInit.fInstance = gHInst;
-   winInit.fClass = gSZWindowClass;
-
-   create_sk_window(&winInit, argc, argv);
-   for (int i = 0; i < argc; ++i) {
-      sk_free(argv[i]);
-   }
-   SkOSWindow::ForAllWindows([nCmdShow](void* hWnd, SkOSWindow**){
-       ShowWindow((HWND)hWnd, nCmdShow);
-       UpdateWindow((HWND)hWnd); }
-   );
-
-   return TRUE;
+    // convert from lpCmdLine to argc, argv.
+    char* argv[4096];
+    int argc = 0;
+    TCHAR exename[1024], *next;
+    int exenameLen = GetModuleFileName(NULL, exename, SK_ARRAY_COUNT(exename));
+    // we're ignoring the possibility that the exe name exceeds the exename buffer
+    (void) exenameLen;
+    argv[argc++] = tchar_to_utf8(exename);
+    TCHAR* arg = _tcstok_s(lpCmdLine, _T(" "), &next);
+    while (arg != NULL) {
+       argv[argc++] = tchar_to_utf8(arg);
+       arg = _tcstok_s(NULL, _T(" "), &next);
+    }
+    int result = main_common(hInstance, nCmdShow, argc, argv);
+    for (int i = 0; i < argc; ++i) {
+       sk_free(argv[i]);
+    }
+    return result;
 }
 
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE:  Processes messages for the main window.
-//
-//  WM_COMMAND    - process the application menu
-//  WM_PAINT    - Paint the main window
-//  WM_DESTROY    - post a quit message and return
-//
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
+int main(int argc, char**argv) {
+    return main_common(GetModuleHandle(NULL), SW_SHOW, argc, argv);
+}
+
+static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
+    const TCHAR* windowClass = register_class(hInstance);
+
+    application_init();
+
+    SkOSWindow::WindowInit winInit;
+    winInit.fInstance = hInstance;
+    winInit.fClass = windowClass;
+
+    create_sk_window(&winInit, argc, argv);
+    SkOSWindow::ForAllWindows([show](void* hWnd, SkOSWindow**) {
+        ShowWindow((HWND)hWnd, show);
+        UpdateWindow((HWND)hWnd); }
+    );
+
+    MSG msg;
+    // Main message loop
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        if (true) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+
+    application_term();
+
+    return (int) msg.wParam;
+}
+
+extern SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
         case WM_COMMAND:
             return DefWindowProc(hWnd, message, wParam, lParam);
@@ -182,22 +132,3 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    UNREFERENCED_PARAMETER(lParam);
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
-
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
-}

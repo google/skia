@@ -4,6 +4,9 @@
 # found in the LICENSE file.
 # GYP file to build visual bench tool
 {
+  'includes': [
+    'apptype_console.gypi',
+  ],
   'targets': [
     {
       'target_name': 'visualbench',

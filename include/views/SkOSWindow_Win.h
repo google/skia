@@ -21,8 +21,8 @@
 class SkOSWindow : public SkWindow {
 public:
     struct WindowInit {
-        TCHAR*    fClass;
-        HINSTANCE fInstance;
+        const TCHAR*    fClass;
+        HINSTANCE       fInstance;
     };
 
     SkOSWindow(const void* winInit);
