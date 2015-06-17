@@ -13,7 +13,7 @@
         semaphore_t fSemaphore;
 
         OSSemaphore()  {
-            semaphore_create(mach_task_self(), &fSemaphore, SYNC_POLICY_FIFO, 0/*initial count*/);
+            semaphore_create(mach_task_self(), &fSemaphore, SYNC_POLICY_LIFO, 0/*initial count*/);
         }
         ~OSSemaphore() { semaphore_destroy(mach_task_self(), fSemaphore); }
 
