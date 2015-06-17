@@ -590,13 +590,9 @@ class SkFontMgr_fontconfig : public SkFontMgr {
     }
 
 public:
-    SkFontMgr_fontconfig()
-        : fFC(FcInitLoadConfigAndFonts())
-        , fFamilyNames(GetFamilyNames(fFC)) { }
-
     /** Takes control of the reference to 'config'. */
     explicit SkFontMgr_fontconfig(FcConfig* config)
-        : fFC(config)
+        : fFC(config ? config : FcInitLoadConfigAndFonts())
         , fFamilyNames(GetFamilyNames(fFC)) { }
 
     virtual ~SkFontMgr_fontconfig() {
@@ -873,6 +869,6 @@ protected:
     }
 };
 
-SkFontMgr* SkFontMgr::Factory() {
-    return SkNEW(SkFontMgr_fontconfig);
+SK_API SkFontMgr* SkFontMgr_New_FontConfig(FcConfig* fc) {
+    return new SkFontMgr_fontconfig(fc);
 }

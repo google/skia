@@ -34,6 +34,7 @@
         '../src/ports/SkFontHost_win.cpp',
         '../src/ports/SkFontMgr_custom_directory_factory.cpp',
         '../src/ports/SkFontMgr_custom_embedded_factory.cpp',
+        '../src/ports/SkFontMgr_fontconfig_factory.cpp',
         '../src/ports/SkFontMgr_win_dw.cpp',
         '../src/ports/SkFontMgr_win_dw_factory.cpp',
         '../src/ports/SkFontMgr_win_gdi_factory.cpp',
@@ -54,9 +55,16 @@
         '../src/ports/SkTLS_pthread.cpp',
         '../src/ports/SkTLS_win.cpp',
 
+        '../include/ports/SkAtomics_atomic.h',
+        '../include/ports/SkAtomics_std.h',
+        '../include/ports/SkAtomics_sync.h',
         '../include/ports/SkFontConfigInterface.h',
         '../include/ports/SkFontMgr.h',
+        '../include/ports/SkFontMgr_custom.h',
+        '../include/ports/SkFontMgr_fontconfig.h',
         '../include/ports/SkFontMgr_indirect.h',
+        '../include/ports/SkMutex_pthread.h',
+        '../include/ports/SkMutex_win.h',
         '../include/ports/SkRemotableFontMgr.h',
       ],
       'sources/': [
@@ -135,6 +143,7 @@
                 '../src/ports/SkFontHost_fontconfig.cpp',
                 '../src/ports/SkFontConfigInterface_direct.cpp',
               ],
+              'sources/': [['include', '../src/ports/SkFontMgr_fontconfig_factory.cpp']],
             }]
           ],
         }],
