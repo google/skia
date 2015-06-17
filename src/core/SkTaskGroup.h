@@ -9,6 +9,7 @@
 #define SkTaskGroup_DEFINED
 
 #include "SkTypes.h"
+#include "SkAtomics.h"
 
 struct SkRunnable;
 
@@ -45,7 +46,7 @@ private:
     void add  (void_fn, void* arg);
     void batch(void_fn, void* args, int N, size_t stride);
 
-    /*atomic*/ int32_t fPending;
+    SkAtomic<int32_t> fPending;
 };
 
 #endif//SkTaskGroup_DEFINED
