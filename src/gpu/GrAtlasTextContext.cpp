@@ -57,8 +57,6 @@ static const int kMediumDFFontLimit = 72;
 static const int kLargeDFFontSize = 162;
 static const int kLargeDFFontLimit = 2 * kLargeDFFontSize;
 
-static const int kLargeGlyphLimit = 192;
-
 SkDEBUGCODE(static const int kExpectedDistanceAdjustTableSize = 8;)
 static const int kDistanceAdjustLumShift = 5;
 
@@ -453,7 +451,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
     }
 
     if (!fEnableDFRendering && !skPaint.isDistanceFieldTextTEMP() &&
-        scaledTextSize < kLargeGlyphLimit) {
+        scaledTextSize < kLargeDFFontSize) {
         return false;
     }
 
