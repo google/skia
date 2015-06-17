@@ -20,7 +20,6 @@
 #include "SKPAnimationBench.h"
 #include "SKPBench.h"
 #include "SubsetBenchPriv.h"
-#include "SubsetDivisorBench.h"
 #include "SubsetSingleBench.h"
 #include "SubsetTranslateBench.h"
 #include "SubsetZoomBench.h"
@@ -496,6 +495,7 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
     SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encoded));
 
+    // Check that we can create a codec or image decoder.
     if (useCodec) {
         SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
         if (NULL == codec) {
@@ -535,6 +535,13 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
             return false;
         }
     }
+
+    // Check if the image is large enough for a meaningful subset benchmark.
+    if (*width <= 512 && *height <= 512) {
+        // This should not print a message since it is not an error.
+        return false;
+    }
+
     return true;
 }
 
@@ -812,21 +819,20 @@ public:
                         if (valid_subset_bench(path, colorType, useCodec, &width, &height)) {
                             switch (currentSubsetType) {
                                 case kTopLeft_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/2,
-                                            height/2, 0, 0, useCodec);
+                                    return new SubsetSingleBench(path, colorType, width/3,
+                                            height/3, 0, 0, useCodec);
                                 case kTopRight_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/2,
-                                            height/2, width/2, 0, useCodec);
+                                    return new SubsetSingleBench(path, colorType, width/3,
+                                            height/3, 2*width/3, 0, useCodec);
+                                case kMiddle_SubsetType:
+                                    return new SubsetSingleBench(path, colorType, width/3,
+                                            height/3, width/3, height/3, useCodec);
                                 case kBottomLeft_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/2,
-                                            height/2, 0, height/2, useCodec);
+                                    return new SubsetSingleBench(path, colorType, width/3,
+                                            height/3, 0, 2*height/3, useCodec);
                                 case kBottomRight_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/2,
-                                            height/2, width/2, height/2, useCodec);
-                                case k2x2_SubsetType:
-                                    return new SubsetDivisorBench(path, colorType, 2, useCodec);
-                                case k3x3_SubsetType:
-                                    return new SubsetDivisorBench(path, colorType, 3, useCodec);
+                                    return new SubsetSingleBench(path, colorType, width/3,
+                                            height/3, 2*width/3, 2*height/3, useCodec);
                                 case kTranslate_SubsetType:
                                     return new SubsetTranslateBench(path, colorType, 512, 512,
                                             useCodec);
@@ -874,12 +880,11 @@ private:
     enum SubsetType {
         kTopLeft_SubsetType     = 0,
         kTopRight_SubsetType    = 1,
-        kBottomLeft_SubsetType  = 2,
-        kBottomRight_SubsetType = 3,
-        k2x2_SubsetType         = 4,
-        k3x3_SubsetType         = 5,
-        kTranslate_SubsetType   = 6,
-        kZoom_SubsetType        = 7,
+        kMiddle_SubsetType      = 2,
+        kBottomLeft_SubsetType  = 3,
+        kBottomRight_SubsetType = 4,
+        kTranslate_SubsetType   = 5,
+        kZoom_SubsetType        = 6,
         kLast_SubsetType        = kZoom_SubsetType
     };
 
