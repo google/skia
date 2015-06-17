@@ -106,7 +106,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
     SkPath original = *result;
     int count = fOps.count();
     bool allUnion = true;
-    SkPathPriv::FirstDirection firstDir;
+    SkPathPriv::FirstDirection firstDir = SkPathPriv::kUnknown_FirstDirection;
     for (int index = 0; index < count; ++index) {
         SkPath* test = &fPathRefs[index];
         if (kUnion_SkPathOp != fOps[index] || test->isInverseFillType()) {
@@ -120,7 +120,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
                 allUnion = false;
                 break;
             }
-            if (index == 0) {
+            if (firstDir == SkPathPriv::kUnknown_FirstDirection) {
                 firstDir = dir;
             } else if (firstDir != dir) {
                 SkPath temp;
