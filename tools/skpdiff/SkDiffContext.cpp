@@ -209,26 +209,6 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
     }
 }
 
-class SkThreadedDiff : public SkRunnable {
-public:
-    SkThreadedDiff() : fDiffContext(NULL) { }
-
-    void setup(SkDiffContext* diffContext, const SkString& baselinePath, const SkString& testPath) {
-        fDiffContext = diffContext;
-        fBaselinePath = baselinePath;
-        fTestPath = testPath;
-    }
-
-    void run() override {
-        fDiffContext->addDiff(fBaselinePath.c_str(), fTestPath.c_str());
-    }
-
-private:
-    SkDiffContext* fDiffContext;
-    SkString fBaselinePath;
-    SkString fTestPath;
-};
-
 void SkDiffContext::diffDirectories(const char baselinePath[], const char testPath[]) {
     // Get the files in the baseline, we will then look for those inside the test path
     SkTArray<SkString> baselineEntries;
@@ -237,12 +217,8 @@ void SkDiffContext::diffDirectories(const char baselinePath[], const char testPa
         return;
     }
 
-    SkTaskGroup tg;
-    SkTArray<SkThreadedDiff> runnableDiffs;
-    runnableDiffs.reset(baselineEntries.count());
-
-    for (int x = 0; x < baselineEntries.count(); x++) {
-        const char* baseFilename = baselineEntries[x].c_str();
+    sk_parallel_for(baselineEntries.count(), [&](int i) {
+        const char* baseFilename = baselineEntries[i].c_str();
 
         // Find the real location of each file to compare
         SkString baselineFile = SkOSPath::Join(baselinePath, baseFilename);
@@ -250,13 +226,11 @@ void SkDiffContext::diffDirectories(const char baselinePath[], const char testPa
 
         // Check that the test file exists and is a file
         if (sk_exists(testFile.c_str()) && !sk_isdir(testFile.c_str())) {
-            // Queue up the comparison with the differ
-            runnableDiffs[x].setup(this, baselineFile, testFile);
-            tg.add(&runnableDiffs[x]);
+            this->addDiff(baselineFile.c_str(), testFile.c_str());
         } else {
             SkDebugf("Baseline file \"%s\" has no corresponding test file\n", baselineFile.c_str());
         }
-    }
+    });
 }
 
 
@@ -281,15 +255,9 @@ void SkDiffContext::diffPatterns(const char baselinePattern[], const char testPa
         return;
     }
 
-    SkTaskGroup tg;
-    SkTArray<SkThreadedDiff> runnableDiffs;
-    runnableDiffs.reset(baselineEntries.count());
-
-    for (int x = 0; x < baselineEntries.count(); x++) {
-        runnableDiffs[x].setup(this, baselineEntries[x], testEntries[x]);
-        tg.add(&runnableDiffs[x]);
-    }
-    tg.wait();
+    sk_parallel_for(baselineEntries.count(), [&](int i) {
+        this->addDiff(baselineEntries[i].c_str(), testEntries[i].c_str());
+    });
 }
 
 void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {

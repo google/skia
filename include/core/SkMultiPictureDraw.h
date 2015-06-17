@@ -66,8 +66,6 @@ private:
         void draw();
 
         static void Reset(SkTDArray<DrawData>&);
-
-        static void Draw(DrawData* d) { d->draw(); }
     };
 
     SkTDArray<DrawData> fThreadSafeDrawData;

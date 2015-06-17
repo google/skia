@@ -617,42 +617,31 @@ static bool contains_only_moveTo(const SkPath& path) {
 #include "SkTaskGroup.h"
 #include "SkTDArray.h"
 
-struct ThreadState {
-    int fSeed;
-    const SkBitmap* fBitmap;
-};
-
-static void test_fuzz(ThreadState* data) {
-    FuzzPath fuzzPath;
-    fuzzPath.setStrokeOnly();
-    fuzzPath.setSeed(data->fSeed);
-    fuzzPath.randomize();
-    const SkPath& path = fuzzPath.getPath();
-    const SkPaint& paint = fuzzPath.getPaint();
-    const SkImageInfo& info = data->fBitmap->info();
-    SkCanvas* canvas(SkCanvas::NewRasterDirect(info, data->fBitmap->getPixels(),
-            data->fBitmap->rowBytes()));
-    int w = info.width() / 4;
-    int h = info.height() / 4;
-    int x = data->fSeed / 4 % 4;
-    int y = data->fSeed % 4;
-    SkRect clipBounds = SkRect::MakeXYWH(SkIntToScalar(x) * w, SkIntToScalar(y) * h, 
-        SkIntToScalar(w), SkIntToScalar(h));
-    canvas->save();
-        canvas->clipRect(clipBounds);
-        canvas->translate(SkIntToScalar(x) * w, SkIntToScalar(y) * h);
-        canvas->drawPath(path, paint);
-    canvas->restore();
-}
-
 static void path_fuzz_stroker(SkBitmap* bitmap, int seed) {
-    ThreadState states[100];
-    for (size_t i = 0; i < SK_ARRAY_COUNT(states); i++) {
-        states[i].fSeed   = seed + (int) i;
-        states[i].fBitmap = bitmap;
-    }
-    SkTaskGroup tg;
-    tg.batch(test_fuzz, states, SK_ARRAY_COUNT(states));
+    sk_parallel_for(100, [&](int i) {
+        int localSeed = seed + i;
+
+        FuzzPath fuzzPath;
+        fuzzPath.setStrokeOnly();
+        fuzzPath.setSeed(localSeed);
+        fuzzPath.randomize();
+        const SkPath& path = fuzzPath.getPath();
+        const SkPaint& paint = fuzzPath.getPaint();
+        const SkImageInfo& info = bitmap->info();
+        SkCanvas* canvas(
+            SkCanvas::NewRasterDirect(info, bitmap->getPixels(), bitmap->rowBytes()));
+        int w = info.width() / 4;
+        int h = info.height() / 4;
+        int x = localSeed / 4 % 4;
+        int y = localSeed % 4;
+        SkRect clipBounds = SkRect::MakeXYWH(SkIntToScalar(x) * w, SkIntToScalar(y) * h,
+            SkIntToScalar(w), SkIntToScalar(h));
+        canvas->save();
+            canvas->clipRect(clipBounds);
+            canvas->translate(SkIntToScalar(x) * w, SkIntToScalar(y) * h);
+            canvas->drawPath(path, paint);
+        canvas->restore();
+    });
 }
 
 class PathFuzzView : public SampleView {
@@ -673,7 +662,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         fIndex = 0;
-        SkImageInfo info(SkImageInfo::MakeN32Premul(SkScalarRoundToInt(width()), 
+        SkImageInfo info(SkImageInfo::MakeN32Premul(SkScalarRoundToInt(width()),
                 SkScalarRoundToInt(height())));
         offscreen.allocPixels(info);
         path_fuzz_stroker(&offscreen, fIndex);

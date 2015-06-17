@@ -14,7 +14,6 @@
 #include "SkPaint.h"
 #include "SkRTConf.h"
 #include "SkStream.h"
-#include "SkTaskGroup.h"
 #include "SkThread.h"
 
 #ifdef SK_BUILD_FOR_MAC

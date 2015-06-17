@@ -303,10 +303,11 @@ TestRunner::~TestRunner() {
 }
 
 void TestRunner::render() {
-    SkTaskGroup tg;
-    for (int index = 0; index < fRunnables.count(); ++ index) {
-        tg.add(fRunnables[index]);
-    }
+    // TODO: this doesn't really need to use SkRunnables any more.
+    // We can just write the code to run in the for-loop directly.
+    sk_parallel_for(fRunnables.count(), [&](int i) {
+        fRunnables[i]->run();
+    });
 }
 
 ////////////////////////////////////////////////

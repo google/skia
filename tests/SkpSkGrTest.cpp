@@ -1,6 +1,9 @@
-#if !SK_SUPPORT_GPU
-#error "GPU support required"
-#endif
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
@@ -26,6 +29,10 @@
 #include "SkTaskGroup.h"
 #include "SkTime.h"
 #include "Test.h"
+
+#if !SK_SUPPORT_GPU
+#error "GPU support required"
+#endif
 
 #ifdef SK_BUILD_FOR_WIN
     #define PATH_SLASH "\\"
@@ -162,10 +169,11 @@ SkpSkGrThreadedTestRunner::~SkpSkGrThreadedTestRunner() {
 }
 
 void SkpSkGrThreadedTestRunner::render() {
-    SkTaskGroup tg;
-    for (int index = 0; index < fRunnables.count(); ++ index) {
-        tg.add(fRunnables[index]);
-    }
+    // TODO: we don't really need to be using SkRunnables here anymore.
+    // We can just write the code we'd run right in the for loop.
+    sk_parallel_for(fRunnables.count(), [&](int i) {
+        fRunnables[i]->run();
+    });
 }
 
 ////////////////////////////////////////////////

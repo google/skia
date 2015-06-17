@@ -28,42 +28,14 @@ DEF_TEST(SkOnce_Singlethreaded, r) {
     REPORTER_ASSERT(r, 5 == x);
 }
 
-static void add_six(int* x) {
-    *x += 6;
-}
-
-namespace {
-
-class Racer : public SkRunnable {
-public:
-    SkOnceFlag* once;
-    int* ptr;
-
-    void run() override {
-        SkOnce(once, add_six, ptr);
-    }
-};
-
-}  // namespace
-
 SK_DECLARE_STATIC_ONCE(mt_once);
 DEF_TEST(SkOnce_Multithreaded, r) {
-    const int kTasks = 16;
-
-    // Make a bunch of tasks that will race to be the first to add six to x.
-    Racer racers[kTasks];
     int x = 0;
-    for (int i = 0; i < kTasks; i++) {
-        racers[i].once = &mt_once;
-        racers[i].ptr = &x;
-    }
-
-    // Let them race.
-    SkTaskGroup tg;
-    for (int i = 0; i < kTasks; i++) {
-        tg.add(&racers[i]);
-    }
-    tg.wait();
+    // Run a bunch of tasks to be the first to add six to x.
+    sk_parallel_for(1021, [&](int) {
+        void(*add_six)(int*) = [](int* p) { *p += 6; };
+        SkOnce(&mt_once, add_six, &x);
+    });
 
     // Only one should have done the +=.
     REPORTER_ASSERT(r, 6 == x);

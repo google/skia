@@ -91,17 +91,16 @@ void SkMultiPictureDraw::draw(bool flush) {
 
 #ifdef FORCE_SINGLE_THREAD_DRAWING_FOR_TESTING
     for (int i = 0; i < fThreadSafeDrawData.count(); ++i) {
-        DrawData* dd = &fThreadSafeDrawData.begin()[i];
-        dd->fCanvas->drawPicture(dd->fPicture, &dd->fMatrix, dd->fPaint);
+        fThreadSafeDrawData[i].draw();
     }
 #else
-    // we place the taskgroup after the MPDReset, to ensure that we don't delete the DrawData
-    // objects until after we're finished the tasks (which have pointers to the data).
-    SkTaskGroup group;
-    group.batch(DrawData::Draw, fThreadSafeDrawData.begin(), fThreadSafeDrawData.count());
+    sk_parallel_for(fThreadSafeDrawData.count(), [&](int i) {
+        fThreadSafeDrawData[i].draw();
+    });
 #endif
-    // we deliberately don't call wait() here, since the destructor will do that, this allows us
-    // to continue processing gpu-data without having to wait on the cpu tasks.
+
+    // N.B. we could get going on any GPU work from this main thread while the CPU work runs.
+    // But in practice, we've either got GPU work or CPU work, not both.
 
     const int count = fGPUDrawData.count();
     if (0 == count) {

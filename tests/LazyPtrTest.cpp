@@ -1,3 +1,10 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "Test.h"
 #include "SkLazyPtr.h"
 #include "SkRunnable.h"
@@ -44,37 +51,20 @@ DEF_TEST(LazyPtr, r) {
     SkDELETE(ptr);
 }
 
-namespace {
-
-struct Racer : public SkRunnable {
-    Racer() : fLazy(NULL), fSeen(NULL) {}
-
-    void run() override { fSeen = fLazy->get(); }
-
-    SkLazyPtr<int>* fLazy;
-    int* fSeen;
-};
-
-} // namespace
-
 DEF_TEST(LazyPtr_Threaded, r) {
     static const int kRacers = 321;
 
+    // Race to intialize the pointer by calling .get().
     SkLazyPtr<int> lazy;
+    int* seen[kRacers];
 
-    Racer racers[kRacers];
-    for (int i = 0; i < kRacers; i++) {
-        racers[i].fLazy = &lazy;
-    }
+    sk_parallel_for(kRacers, [&](int i) {
+        seen[i] = lazy.get();
+    });
 
-    SkTaskGroup tg;
-    for (int i = 0; i < kRacers; i++) {
-        tg.add(racers + i);
-    }
-    tg.wait();
-
+    // lazy.get() should return the same pointer to all threads.
     for (int i = 1; i < kRacers; i++) {
-        REPORTER_ASSERT(r, racers[i].fSeen);
-        REPORTER_ASSERT(r, racers[i].fSeen == racers[0].fSeen);
+        REPORTER_ASSERT(r, seen[i] != nullptr);
+        REPORTER_ASSERT(r, seen[i] == seen[0]);
     }
 }

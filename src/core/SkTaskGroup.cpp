@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkOnce.h"
 #include "SkRunnable.h"
 #include "SkSemaphore.h"
 #include "SkSpinlock.h"
@@ -13,17 +14,26 @@
 #include "SkThreadUtils.h"
 
 #if defined(SK_BUILD_FOR_WIN32)
-    static inline int num_cores() {
+    static void query_num_cores(int* num_cores) {
         SYSTEM_INFO sysinfo;
         GetSystemInfo(&sysinfo);
-        return sysinfo.dwNumberOfProcessors;
+        *num_cores = sysinfo.dwNumberOfProcessors;
     }
 #else
     #include <unistd.h>
-    static inline int num_cores() {
-        return (int) sysconf(_SC_NPROCESSORS_ONLN);
+    static void query_num_cores(int* num_cores) {
+        *num_cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
     }
 #endif
+
+// We cache sk_num_cores() so we only query the OS once.
+SK_DECLARE_STATIC_ONCE(g_query_num_cores_once);
+int sk_num_cores() {
+    static int num_cores = 0;
+    SkOnce(&g_query_num_cores_once, query_num_cores, &num_cores);
+    SkASSERT(num_cores > 0);
+    return num_cores;
+}
 
 namespace {
 
@@ -98,7 +108,7 @@ private:
 
     explicit ThreadPool(int threads) {
         if (threads == -1) {
-            threads = num_cores();
+            threads = sk_num_cores();
         }
         for (int i = 0; i < threads; i++) {
             fThreads.push(SkNEW_ARGS(SkThread, (&ThreadPool::Loop, this)));
