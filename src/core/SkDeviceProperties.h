@@ -11,11 +11,12 @@
 #include "SkSurfacePriv.h"
 
 struct SkDeviceProperties {
-    enum InitType {
-        kLegacyLCD_InitType
-    };
+    SkDeviceProperties(const SkDeviceProperties& src) 
+        : fGamma(src.fGamma)
+        , fPixelGeometry(src.fPixelGeometry) {
+    }
 
-    SkDeviceProperties(InitType, float gamma = SK_GAMMA_EXPONENT)
+    SkDeviceProperties(float gamma = SK_GAMMA_EXPONENT)
         : fGamma(gamma)
         , fPixelGeometry(SkSurfacePropsDefaultPixelGeometry())
     {}
@@ -25,15 +26,15 @@ struct SkDeviceProperties {
         , fPixelGeometry(geo)
     {}
 
-    SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
     float gamma() const { return fGamma; }
+    SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
 
     void setPixelGeometry(SkPixelGeometry geo) {
         fPixelGeometry = geo;
     }
 
 private:
-    const float   fGamma;
+    const float     fGamma;
     SkPixelGeometry fPixelGeometry;
 };
 

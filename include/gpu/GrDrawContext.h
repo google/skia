@@ -22,14 +22,18 @@ class GrPipelineBuilder;
 class GrRenderTarget;
 class GrStrokeInfo;
 class GrSurface;
+class GrTextContext;
+struct SkDeviceProperties;
+class SkDrawFilter;
 struct SkIPoint;
 struct SkIRect;
 class SkMatrix;
+class SkPaint;
 class SkPath;
 struct SkPoint;
 struct SkRect;
 class SkRRect;
-
+class SkTextBlob;
 
 /*
  * A helper object to orchestrate draws
@@ -38,14 +42,28 @@ class SK_API GrDrawContext : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawContext)
 
+    ~GrDrawContext() override;
+
     void copySurface(GrRenderTarget* dst, GrSurface* src,
                      const SkIRect& srcRect, const SkIPoint& dstPoint);
 
-    // drawText and drawPaths are thanks to the GrAtlasTextContext and the 
-    // GrStencilAndCoverTextContext respectively
-    // TODO: remove these two
-    void drawText(GrPipelineBuilder* pipelineBuilder, GrBatch* batch);
+    // TODO: it is odd that we need both the SkPaint in the following 3 methods.
+    // We should extract the text parameters from SkPaint and pass them separately
+    // akin to GrStrokeInfo (GrTextInfo?)
+    void drawText(GrRenderTarget*, const GrClip&,  const GrPaint&, const SkPaint&,
+                  const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                  SkScalar x, SkScalar y, const SkIRect& clipBounds);
+    void drawPosText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
+                     const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                     const SkScalar pos[], int scalarsPerPosition,
+                     const SkPoint& offset, const SkIRect& clipBounds);
+    void drawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
+                      const SkMatrix& viewMatrix, const SkTextBlob*,
+                      SkScalar x, SkScalar y,
+                      SkDrawFilter*, const SkIRect& clipBounds);
 
+    // drawPaths is thanks to GrStencilAndCoverTextContext
+    // TODO: remove
     void drawPaths(GrPipelineBuilder* pipelineBuilder,
                    const GrPathProcessor* pathProc,
                    const GrPathRange* pathRange,
@@ -223,16 +241,17 @@ public:
 
 
 private:
+    friend class GrAtlasTextContext; // for access to drawBatch
     friend class GrContext; // for ctor
 
-    GrDrawContext(GrContext* context, GrDrawTarget* drawTarget);
-    ~GrDrawContext() override;
+    GrDrawContext(GrContext*, GrDrawTarget*, const SkDeviceProperties&, bool useDFT);
 
     // Sets the paint. Returns true on success; false on failure.
     bool prepareToDraw(GrPipelineBuilder*,
                        GrRenderTarget* rt,
                        const GrClip&,
                        const GrPaint* paint);
+    GrTextContext* createTextContext(GrRenderTarget*, const SkDeviceProperties&, bool useDFT);
 
     // A simpler version of the above which just returns true on success; false on failure.  
     // Clip is *NOT* set
@@ -246,8 +265,16 @@ private:
                           const SkPath&,
                           const GrStrokeInfo&);
 
-    GrContext*     fContext;     // owning context -> no ref
-    GrDrawTarget*  fDrawTarget;
+    // This entry point allows the GrTextContext-derived classes to add their batches to
+    // the drawTarget.
+    void drawBatch(GrPipelineBuilder* pipelineBuilder, GrBatch* batch);
+
+    GrContext*          fContext;     // owning context -> no ref
+    GrDrawTarget*       fDrawTarget;
+    GrTextContext*      fTextContext; // lazily created
+
+    SkDeviceProperties* fDevProps;    // ptr b.c. SkDeviceProperties isn't public
+    bool                fUseDFT;
 };
 
 #endif

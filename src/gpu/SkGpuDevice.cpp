@@ -10,6 +10,7 @@
 #include "GrBlurUtils.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrFontScaler.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrLayerHoister.h"
@@ -137,7 +138,7 @@ static SkDeviceProperties surfaceprops_to_deviceprops(const SkSurfaceProps* prop
     if (props) {
         return SkDeviceProperties(props->pixelGeometry());
     } else {
-        return SkDeviceProperties(SkDeviceProperties::kLegacyLCD_InitType);
+        return SkDeviceProperties();
     }
 }
 
@@ -167,8 +168,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     fLegacyBitmap.setPixelRef(pr)->unref();
 
     bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
-    fTextContext = fContext->createTextContext(fRenderTarget, this->getLeakyProperties(), useDFT);
-    fDrawContext.reset(SkRef(fContext->drawContext()));
+    fDrawContext.reset(SkRef(fContext->drawContext(&this->getLeakyProperties(), useDFT)));
 }
 
 GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::Budgeted budgeted,
@@ -226,8 +226,6 @@ SkGpuDevice::~SkGpuDevice() {
     if (fDrawProcs) {
         delete fDrawProcs;
     }
-
-    SkDELETE(fTextContext);
 
     fRenderTarget->unref();
     fContext->unref();
@@ -355,7 +353,9 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (fRenderTarget->surfacePriv().info(), fRenderTarget));
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext()));
+    bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
+    fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext(&this->getLeakyProperties(),
+                                                                      useDFT)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1638,7 +1638,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
     SkDEBUGCODE(this->validate();)
 
-    fTextContext->drawText(fRenderTarget, fClip, grPaint, paint, *draw.fMatrix,
+    fDrawContext->drawText(fRenderTarget, fClip, grPaint, paint, *draw.fMatrix,
                            (const char *)text, byteLength, x, y, draw.fClip->getBounds());
 }
 
@@ -1655,7 +1655,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
 
     SkDEBUGCODE(this->validate();)
 
-    fTextContext->drawPosText(fRenderTarget, fClip, grPaint, paint, *draw.fMatrix,
+    fDrawContext->drawPosText(fRenderTarget, fClip, grPaint, paint, *draw.fMatrix,
                               (const char *)text, byteLength, pos, scalarsPerPos, offset,
                               draw.fClip->getBounds());
 }
@@ -1667,7 +1667,7 @@ void SkGpuDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSca
 
     SkDEBUGCODE(this->validate();)
 
-    fTextContext->drawTextBlob(fRenderTarget, fClip, paint, *draw.fMatrix,
+    fDrawContext->drawTextBlob(fRenderTarget, fClip, paint, *draw.fMatrix,
                                blob, x, y, drawFilter, draw.fClip->getBounds());
 }
 
