@@ -107,7 +107,7 @@ uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
 }
 
 bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
-    return SkTypeface::UniqueID(facea) == SkTypeface::UniqueID(faceb);
+    return facea == faceb || SkTypeface::UniqueID(facea) == SkTypeface::UniqueID(faceb);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
