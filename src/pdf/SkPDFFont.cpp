@@ -578,7 +578,7 @@ static SkPDFStream* generate_tounicode_cmap(
 }
 
 #if defined (SK_SFNTLY_SUBSETTER)
-static void sk_delete_array(const void* ptr, size_t, void*) {
+static void sk_delete_array(const void* ptr, void*) {
     // Use C-style cast to cast away const and cast type simultaneously.
     delete[] (unsigned char*)ptr;
 }

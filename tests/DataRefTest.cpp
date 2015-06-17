@@ -143,11 +143,19 @@ DEF_TEST(DataTable, reporter) {
 
 static void* gGlobal;
 
-static void delete_int_proc(const void* ptr, size_t len, void* context) {
+static void delete_int_proc(const void* ptr, void* context) {
     int* data = (int*)ptr;
     SkASSERT(context == gGlobal);
     delete[] data;
 }
+
+#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
+static void legacy_delete_int_proc(const void* ptr, size_t size, void* context) {
+    int* data = (int*)ptr;
+    SkASSERT(context == gGlobal);
+    delete[] data;
+}
+#endif
 
 static void assert_len(skiatest::Reporter* reporter, SkData* ref, size_t len) {
     REPORTER_ASSERT(reporter, ref->size() == len);
@@ -213,6 +221,10 @@ DEF_TEST(Data, reporter) {
     SkAutoTUnref<SkData> r2(SkData::NewWithProc(new int[N], N*sizeof(int),
                                            delete_int_proc, gGlobal));
     SkAutoTUnref<SkData> r3(SkData::NewSubset(r1, 7, 6));
+#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
+    SkAutoTUnref<SkData> r4(SkData::NewWithProc(new int[N], N*sizeof(int),
+                                                legacy_delete_int_proc, gGlobal));
+#endif
 
     assert_len(reporter, r0, 0);
     assert_len(reporter, r1, strlen(str));

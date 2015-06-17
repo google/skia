@@ -71,9 +71,9 @@ public:
 
     /**
      *  Function that, if provided, will be called when the SkData goes out
-     *  of scope, allowing for custom allocation/freeing of the data.
+     *  of scope, allowing for custom allocation/freeing of the data's contents.
      */
-    typedef void (*ReleaseProc)(const void* ptr, size_t length, void* context);
+    typedef void (*ReleaseProc)(const void* ptr, void* context);
 
     /**
      *  Create a new dataref by copying the specified data
@@ -95,17 +95,24 @@ public:
     static SkData* NewWithCString(const char cstr[]);
 
     /**
-     *  Create a new dataref, taking the data ptr as is, and using the
+     *  Create a new dataref, taking the ptr as is, and using the
      *  releaseproc to free it. The proc may be NULL.
      */
-    static SkData* NewWithProc(const void* data, size_t length, ReleaseProc proc, void* context);
+    static SkData* NewWithProc(const void* ptr, size_t length, ReleaseProc proc, void* context);
+
+#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
+    // This variant is temporary.
+    // Its signature is meant to match an older version of the API
+    typedef void (*LegacyReleaseProc)(const void* ptr, size_t size, void* ctx);
+    static SkData* NewWithProc(const void* ptr, size_t length, LegacyReleaseProc proc, void* ctx);
+#endif
 
     /**
      *  Call this when the data parameter is already const and will outlive the lifetime of the
      *  SkData. Suitable for with const globals.
      */
     static SkData* NewWithoutCopy(const void* data, size_t length) {
-        return NewWithProc(data, length, NULL, NULL);
+        return NewWithProc(data, length, DummyReleaseProc, NULL);
     }
 
     /**
@@ -160,11 +167,18 @@ public:
 private:
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
+#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
+    LegacyReleaseProc fLegacyReleaseProc;
+#endif
 
     void*       fPtr;
     size_t      fSize;
 
+#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
+    SkData(const void* ptr, size_t size, ReleaseProc, void* context, LegacyReleaseProc = NULL);
+#else
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
+#endif
     SkData(size_t size);   // inplace new/delete
     virtual ~SkData();
 
@@ -182,6 +196,8 @@ private:
 
     // shared internal factory
     static SkData* PrivateNewWithCopy(const void* srcOrNull, size_t length);
+
+    static void DummyReleaseProc(const void*, void*) {}
 
     typedef SkRefCnt INHERITED;
 };
