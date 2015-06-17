@@ -12,6 +12,13 @@
 
 class SkFontMgr;
 
+/**
+ *  For test only -- this only affects the default factory.
+ *  Load font config from given xml files, instead of those from Android system.
+ */
+SK_API void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
+                                    const char* fontsdir);
+
 struct SkFontMgr_Android_CustomFonts {
     /** When specifying custom fonts, indicates how to use system fonts. */
     enum SystemFontUse {

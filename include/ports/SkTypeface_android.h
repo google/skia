@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+// THIS FILE IS DEPRECATED. USE SkFontMgr_android.h instead.
+
 
 #ifndef SkTypeface_android_DEFINED
 #define SkTypeface_android_DEFINED

@@ -32,6 +32,7 @@
         '../src/fonts/SkFontMgr_indirect.cpp',
         '../src/fonts/SkRemotableFontMgr.cpp',
         '../src/ports/SkFontHost_win.cpp',
+        '../src/ports/SkFontMgr_android_factory.cpp',
         '../src/ports/SkFontMgr_custom_directory_factory.cpp',
         '../src/ports/SkFontMgr_custom_embedded_factory.cpp',
         '../src/ports/SkFontMgr_fontconfig_factory.cpp',
@@ -60,6 +61,7 @@
         '../include/ports/SkAtomics_sync.h',
         '../include/ports/SkFontConfigInterface.h',
         '../include/ports/SkFontMgr.h',
+        '../include/ports/SkFontMgr_android.h',
         '../include/ports/SkFontMgr_custom.h',
         '../include/ports/SkFontMgr_fontconfig.h',
         '../include/ports/SkFontMgr_indirect.h',
@@ -215,6 +217,7 @@
             '../src/ports/SkFontConfigParser_android.cpp',
             '../src/ports/SkFontMgr_android.cpp',
           ],
+          'sources/': [['include', '../src/ports/SkFontMgr_android_factory.cpp']],
           'dependencies': [
              'android_deps.gyp:expat',
           ],
