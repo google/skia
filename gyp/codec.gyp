@@ -19,6 +19,7 @@
         'core.gyp:*',
         'giflib.gyp:giflib',
         'libjpeg.gyp:libjpeg',
+        'libwebp.gyp:libwebp',
       ],
       'cflags':[
         # FIXME: This gets around a longjmp warning. See
@@ -44,6 +45,7 @@
         '../src/codec/SkMaskSwizzler.cpp',
         '../src/codec/SkMasks.cpp',
         '../src/codec/SkSwizzler.cpp',
+        '../src/codec/SkWebpCodec.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

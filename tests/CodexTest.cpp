@@ -89,6 +89,11 @@ DEF_TEST(Codec, r) {
     // WBMP
     check(r, "mandrill.wbmp", SkISize::Make(512, 512), false);
 
+    // WEBP
+    check(r, "baby_tux.webp", SkISize::Make(386, 395), false);
+    check(r, "color_wheel.webp", SkISize::Make(128, 128), false);
+    check(r, "yellow_rose.webp", SkISize::Make(400, 301), false);
+
     // BMP
     check(r, "randPixels.bmp", SkISize::Make(8, 8), false);
 

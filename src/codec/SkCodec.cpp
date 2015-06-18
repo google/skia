@@ -15,6 +15,7 @@
 #include "SkCodecPriv.h"
 #include "SkJpegCodec.h"
 #include "SkStream.h"
+#include "SkWebpCodec.h"
 
 struct DecoderProc {
     bool (*IsFormat)(SkStream*);
@@ -24,6 +25,7 @@ struct DecoderProc {
 static const DecoderProc gDecoderProcs[] = {
     { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
     { SkJpegCodec::IsJpeg, SkJpegCodec::NewFromStream },
+    { SkWebpCodec::IsWebp, SkWebpCodec::NewFromStream },
     { SkGifCodec::IsGif, SkGifCodec::NewFromStream },
     { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
     { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream },
