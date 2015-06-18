@@ -41,7 +41,7 @@ perf_setup() {
 
     echo "Copying symbol files"
     adb_pull_if_needed /system/lib/libc.so $TMP_SYS_LIB
-    adb_pull_if_needed /system/lib/libc++.so $TMP_SYS_LIB
+    adb_pull_if_needed /system/lib/libstdc++.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libstlport.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libGLESv2.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libandroid.so $TMP_SYS_LIB
