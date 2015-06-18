@@ -38,9 +38,8 @@ public:
                 static_cast<GrGLPathProcessor*>(fGeometryProcessor->fGLProc.get());
         pathProc->resolveSeparableVaryings(fGpu, programID);
         return SkNEW_ARGS(GrGLNvprProgram, (fGpu, this->desc(), fUniformHandles, programID,
-                                            fUniforms,
-                                            fGeometryProcessor,
-                                            fXferProcessor, fFragmentProcessors.get()));
+                                            fUniforms, fGeometryProcessor, fXferProcessor,
+                                            fFragmentProcessors.get(), &fSamplerUniforms));
     }
 
 private:
@@ -98,7 +97,8 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
     , fXferProcessor(NULL)
     , fArgs(args)
     , fGpu(gpu)
-    , fUniforms(kVarsPerBlock) {
+    , fUniforms(kVarsPerBlock)
+    , fSamplerUniforms(4) {
 }
 
 void GrGLProgramBuilder::addVarying(const char* name,
@@ -381,16 +381,17 @@ template <class Proc>
 void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
                                       GrGLProcessor::TextureSamplerArray* outSamplers,
                                       GrGLInstalledProc<Proc>* ip) {
+    SkDEBUGCODE(ip->fSamplersIdx = fSamplerUniforms.count();)
     int numTextures = processor.numTextures();
-    ip->fSamplers.push_back_n(numTextures);
+    UniformHandle* localSamplerUniforms = fSamplerUniforms.push_back_n(numTextures);
     SkString name;
     for (int t = 0; t < numTextures; ++t) {
         name.printf("Sampler%d", t);
-        ip->fSamplers[t].fUniform = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                     kSampler2D_GrSLType, kDefault_GrSLPrecision,
-                                                     name.c_str());
+        localSamplerUniforms[t] = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                                   kSampler2D_GrSLType, kDefault_GrSLPrecision,
+                                                   name.c_str());
         SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLProcessor::TextureSampler,
-                               (ip->fSamplers[t].fUniform, processor.textureAccess(t)));
+                               (localSamplerUniforms[t], processor.textureAccess(t)));
     }
 }
 
@@ -498,7 +499,8 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
     return SkNEW_ARGS(GrGLProgram, (fGpu, this->desc(), fUniformHandles, programID, fUniforms,
-                                    fGeometryProcessor, fXferProcessor, fFragmentProcessors.get()));
+                                    fGeometryProcessor, fXferProcessor, fFragmentProcessors.get(),
+                                    &fSamplerUniforms));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

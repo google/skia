@@ -90,12 +90,13 @@ public:
     };
 
     /**
-     * This function uploads uniforms and calls each GrGLProcessor's setData. It is called before a
-     * draw occurs using the program after the program has already been bound. It also uses the
-     * GrGLGpu object to bind the textures required by the GrGLProcessors. The color and coverage
-     * stages come from GrGLProgramDesc::Build().
+     * This function uploads uniforms, calls each GrGLProcessor's setData, and retrieves the
+     * textures that need to be bound on each unit. It is the caller's responsibility to ensure
+     * the program is bound before calling, and to bind the outgoing textures to their respective
+     * units upon return. (Each index in the array corresponds to its matching GL texture unit.)
      */
-    void setData(const GrPrimitiveProcessor&, const GrPipeline&, const GrBatchTracker&);
+    void setData(const GrPrimitiveProcessor&, const GrPipeline&, const GrBatchTracker&,
+                 SkTArray<const GrTextureAccess*>* textureBindings);
 
 protected:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -108,21 +109,16 @@ protected:
                 const UniformInfoArray&,
                 GrGLInstalledGeoProc* geometryProcessor,
                 GrGLInstalledXferProc* xferProcessor,
-                GrGLInstalledFragProcs* fragmentProcessors);
-
-    // Sets the texture units for samplers.
-    void initSamplerUniforms();
-    template <class Proc>
-    void initSamplers(Proc*, int* texUnitIdx);
+                GrGLInstalledFragProcs* fragmentProcessors,
+                SkTArray<UniformHandle>* passSamplerUniforms);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
-    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&);
+    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&,
+                         SkTArray<const GrTextureAccess*>* textureBindings);
     virtual void setTransformData(const GrPrimitiveProcessor&,
                                   const GrPendingFragmentStage&,
                                   int index,
                                   GrGLInstalledFragProc*);
-    template <class Proc>
-    void bindTextures(const Proc*, const GrProcessor&);
 
     /*
      * Legacy NVPR needs a hook here to flush path tex gen settings.
@@ -150,6 +146,7 @@ protected:
     GrProgramDesc fDesc;
     GrGLGpu* fGpu;
     GrGLProgramDataManager fProgramDataManager;
+    SkTArray<UniformHandle> fSamplerUniforms;
 
     friend class GrGLProgramBuilder;
 
@@ -172,7 +169,8 @@ protected:
                     const UniformInfoArray&,
                     GrGLInstalledGeoProc*,
                     GrGLInstalledXferProc* xferProcessor,
-                    GrGLInstalledFragProcs* fragmentProcessors);
+                    GrGLInstalledFragProcs* fragmentProcessors,
+                    SkTArray<UniformHandle>* passSamplerUniforms);
 
 private:
     void didSetData() override;

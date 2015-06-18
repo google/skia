@@ -1492,7 +1492,14 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
         this->flushBlend(blendInfo);
     }
 
-    program->setData(*args.fPrimitiveProcessor, pipeline, *args.fBatchTracker);
+    SkSTArray<8, const GrTextureAccess*> textureAccesses;
+    program->setData(*args.fPrimitiveProcessor, pipeline, *args.fBatchTracker, &textureAccesses);
+
+    int numTextureAccesses = textureAccesses.count();
+    for (int i = 0; i < numTextureAccesses; i++) {
+        this->bindTexture(i, textureAccesses[i]->getParams(),
+                          static_cast<GrGLTexture*>(textureAccesses[i]->getTexture()));
+    }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());

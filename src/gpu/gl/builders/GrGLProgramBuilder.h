@@ -188,15 +188,8 @@ public:
  */
 template <class Proc>
 struct GrGLInstalledProc {
-     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
-
-     struct Sampler {
-         SkDEBUGCODE(Sampler() : fTextureUnit(-1) {})
-         UniformHandle  fUniform;
-         int            fTextureUnit;
-     };
-     SkSTArray<4, Sampler, true> fSamplers;
-     SkAutoTDelete<Proc> fGLProc;
+    SkDEBUGCODE(int fSamplersIdx;)
+    SkAutoTDelete<Proc> fGLProc;
 };
 
 typedef GrGLInstalledProc<GrGLPrimitiveProcessor> GrGLInstalledGeoProc;
@@ -390,6 +383,7 @@ protected:
     UniformInfoArray fUniforms;
     GrGLPrimitiveProcessor::TransformsIn fCoordTransforms;
     GrGLPrimitiveProcessor::TransformsOut fOutCoords;
+    SkTArray<UniformHandle> fSamplerUniforms;
 
     friend class GrGLShaderBuilder;
     friend class GrGLVertexBuilder;
