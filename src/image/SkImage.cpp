@@ -205,7 +205,8 @@ SkImage* SkImage_Base::onNewImage(int newWidth, int newHeight, const SkIRect* su
 
 #if !SK_SUPPORT_GPU
 
-SkImage* SkImage::NewFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType) {
+SkImage* SkImage::NewFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
+                                 TextureReleaseProc, ReleaseContext) {
     return NULL;
 }
 

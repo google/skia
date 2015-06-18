@@ -115,7 +115,9 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t row
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                           SkAlphaType at, GrWrapOwnership ownership) {
+                                           SkAlphaType at, GrWrapOwnership ownership,
+                                           SkImage::TextureReleaseProc releaseProc,
+                                           SkImage::ReleaseContext releaseCtx) {
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
         return NULL;
     }
@@ -123,18 +125,23 @@ static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextur
     if (!tex) {
         return NULL;
     }
+    if (releaseProc) {
+        tex->setRelease(releaseProc, releaseCtx);
+    }
+
     const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
     return SkNEW_ARGS(SkImage_Gpu, (desc.fWidth, desc.fHeight, at, tex, 0, budgeted));
 
 }
 
-SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc, SkAlphaType at) {
-    return new_wrapped_texture_common(ctx, desc, at, kBorrow_GrWrapOwnership);
+SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc, SkAlphaType at,
+                                 TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    return new_wrapped_texture_common(ctx, desc, at, kBorrow_GrWrapOwnership, releaseP, releaseC);
 }
 
 SkImage* SkImage::NewFromAdoptedTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
                                         SkAlphaType at) {
-    return new_wrapped_texture_common(ctx, desc, at, kAdopt_GrWrapOwnership);
+    return new_wrapped_texture_common(ctx, desc, at, kAdopt_GrWrapOwnership, NULL, NULL);
 }
 
 SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc& srcDesc,

@@ -282,7 +282,11 @@ public:
     }
 
     size_t getSafeSize(size_t rowBytes) const {
-        return (size_t)this->getSafeSize64(rowBytes);
+        int64_t size = this->getSafeSize64(rowBytes);
+        if (!sk_64_isS32(size)) {
+            return 0;
+        }
+        return sk_64_asS32(size);
     }
 
     bool validRowBytes(size_t rowBytes) const {

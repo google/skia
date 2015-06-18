@@ -44,9 +44,22 @@ public:
     SK_DECLARE_INST_COUNT(SkImage)
 
     typedef SkImageInfo Info;
+    typedef void* ReleaseContext;
 
     static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes);
     static SkImage* NewRasterData(const Info&, SkData* pixels, size_t rowBytes);
+
+    typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext);
+
+    /**
+     *  Return a new Image referencing the specified pixels. These must remain valid and unchanged
+     *  until the specified release-proc is called, indicating that Skia no longer has a reference
+     *  to the pixels.
+     *
+     *  Returns NULL if the requested Info is unsupported.
+     */
+    static SkImage* NewFromRaster(const Info&, const void* pixels, size_t rowBytes,
+                                  RasterReleaseProc, ReleaseContext);
 
     /**
      *  Construct a new SkImage based on the given ImageGenerator.
@@ -70,8 +83,25 @@ public:
      *
      *  Will return NULL if the specified descriptor is unsupported.
      */
-    static SkImage* NewFromTexture(GrContext*, const GrBackendTextureDesc&,
-                                   SkAlphaType = kPremul_SkAlphaType);
+    static SkImage* NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc) {
+        return NewFromTexture(ctx, desc, kPremul_SkAlphaType, NULL, NULL);
+    }
+
+    static SkImage* NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& de, SkAlphaType at) {
+        return NewFromTexture(ctx, de, at, NULL, NULL);
+    }
+
+    typedef void (*TextureReleaseProc)(ReleaseContext);
+
+    /**
+     *  Create a new image from the specified descriptor. The underlying platform texture must stay
+     *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
+     *  nolonger is holding a reference to it.
+     *
+     *  Will return NULL if the specified descriptor is unsupported.
+     */
+    static SkImage* NewFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
+                                   TextureReleaseProc, ReleaseContext);
 
     /**
      *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the

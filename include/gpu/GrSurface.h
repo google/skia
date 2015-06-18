@@ -127,6 +127,14 @@ public:
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;
 
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+    
+    void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
+        fReleaseProc = proc;
+        fReleaseCtx = ctx;
+    }
+
 protected:
     // Methods made available via GrSurfacePriv
     SkImageInfo info() const;
@@ -140,12 +148,32 @@ protected:
 
     GrSurface(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc)
         : INHERITED(gpu, lifeCycle)
-        , fDesc(desc) {
+        , fDesc(desc)
+        , fReleaseProc(NULL)
+        , fReleaseCtx(NULL)
+    {}
+
+    ~GrSurface() override {
+        // check that invokeReleaseProc has been called (if needed)
+        SkASSERT(NULL == fReleaseProc);
     }
 
     GrSurfaceDesc fDesc;
 
+    void invokeReleaseProc() {
+        if (fReleaseProc) {
+            fReleaseProc(fReleaseCtx);
+            fReleaseProc = NULL;
+        }
+    }
+
+    void onRelease() override;
+    void onAbandon() override;
+
 private:
+    ReleaseProc fReleaseProc;
+    ReleaseCtx  fReleaseCtx;
+
     typedef GrGpuResource INHERITED;
 };
 
