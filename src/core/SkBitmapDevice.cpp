@@ -117,7 +117,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
 }
 
 SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
-    SkDeviceProperties leaky(cinfo.fPixelGeometry);
+    const SkDeviceProperties leaky(cinfo.fPixelGeometry);
     return SkBitmapDevice::Create(cinfo.fInfo, &leaky);
 }
 

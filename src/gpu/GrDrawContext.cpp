@@ -34,13 +34,11 @@ private:
 
 GrDrawContext::GrDrawContext(GrContext* context,
                              GrDrawTarget* drawTarget,
-                             const SkDeviceProperties& devProps,
-                             bool useDFT)
+                             const SkDeviceProperties& devProps)
     : fContext(context)
     , fDrawTarget(SkRef(drawTarget))
     , fTextContext(NULL)
-    , fDevProps(SkNEW_ARGS(SkDeviceProperties, (devProps)))
-    , fUseDFT(useDFT) {
+    , fDevProps(SkNEW_ARGS(SkDeviceProperties, (devProps))) {
 }
 
 GrDrawContext::~GrDrawContext() {
@@ -59,19 +57,16 @@ void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
 }
 
 GrTextContext* GrDrawContext::createTextContext(GrRenderTarget* renderTarget,
-                                                const SkDeviceProperties& leakyProperties,
-                                                bool enableDistanceFieldFonts) {
+                                                const SkDeviceProperties& leakyProperties) {
     if (fContext->caps()->shaderCaps()->pathRenderingSupport() &&
         renderTarget->isStencilBufferMultisampled()) {
         GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
         if (sb) {
-            return GrStencilAndCoverTextContext::Create(fContext, this, 
-                                                        leakyProperties,
-                                                        enableDistanceFieldFonts);
+            return GrStencilAndCoverTextContext::Create(fContext, this, leakyProperties);
         }
     } 
 
-    return GrAtlasTextContext::Create(fContext, this, leakyProperties, enableDistanceFieldFonts);
+    return GrAtlasTextContext::Create(fContext, this, leakyProperties);
 }
 
 void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
@@ -80,7 +75,7 @@ void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y, const SkIRect& clipBounds) {
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps, fUseDFT);
+        fTextContext = this->createTextContext(rt, *fDevProps);
     }
 
     fTextContext->drawText(rt, clip, grPaint, skPaint, viewMatrix,
@@ -94,7 +89,7 @@ void GrDrawContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset, const SkIRect& clipBounds) {
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps, fUseDFT);
+        fTextContext = this->createTextContext(rt, *fDevProps);
     }
 
     fTextContext->drawPosText(rt, clip, grPaint, skPaint, viewMatrix, text, byteLength,
@@ -106,7 +101,7 @@ void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
                                  SkScalar x, SkScalar y,
                                  SkDrawFilter* filter, const SkIRect& clipBounds) {
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps, fUseDFT);
+        fTextContext = this->createTextContext(rt, *fDevProps);
     }
 
     fTextContext->drawTextBlob(rt, clip, skPaint, viewMatrix, blob, x, y, filter, clipBounds);

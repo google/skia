@@ -24,7 +24,7 @@ class GrPathRange;
 class GrStencilAndCoverTextContext : public GrTextContext {
 public:
     static GrStencilAndCoverTextContext* Create(GrContext*, GrDrawContext*,
-                                                const SkDeviceProperties&, bool fallbackUsesDFT);
+                                                const SkDeviceProperties&);
 
     virtual ~GrStencilAndCoverTextContext();
 

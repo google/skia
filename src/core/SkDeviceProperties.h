@@ -13,20 +13,24 @@
 struct SkDeviceProperties {
     SkDeviceProperties(const SkDeviceProperties& src) 
         : fGamma(src.fGamma)
+        , fUseDFT(src.fUseDFT)
         , fPixelGeometry(src.fPixelGeometry) {
     }
 
     SkDeviceProperties(float gamma = SK_GAMMA_EXPONENT)
         : fGamma(gamma)
+        , fUseDFT(false)
         , fPixelGeometry(SkSurfacePropsDefaultPixelGeometry())
     {}
 
-    SkDeviceProperties(SkPixelGeometry geo, float gamma = SK_GAMMA_EXPONENT)
+    SkDeviceProperties(SkPixelGeometry geo, bool useDFT = false, float gamma = SK_GAMMA_EXPONENT)
         : fGamma(gamma)
+        , fUseDFT(useDFT)
         , fPixelGeometry(geo)
     {}
 
     float gamma() const { return fGamma; }
+    bool useDFT() const { return fUseDFT; }
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
 
     void setPixelGeometry(SkPixelGeometry geo) {
@@ -35,6 +39,7 @@ struct SkDeviceProperties {
 
 private:
     const float     fGamma;
+    const bool      fUseDFT;
     SkPixelGeometry fPixelGeometry;
 };
 

@@ -177,12 +177,11 @@ public:
      * NULL will be returned if the context has been abandoned.
      *
      * @param  devProps the device properties (mainly defines text drawing)
-     * @param  uesDFT should Distance Field Text be used?
      *
      * @return a draw context
      */
-    GrDrawContext* drawContext(const SkDeviceProperties* devProps = NULL, bool useDFT = false) {
-        return fDrawingMgr.drawContext(devProps, useDFT);    
+    GrDrawContext* drawContext(const SkDeviceProperties* devProps = NULL) {
+        return fDrawingMgr.drawContext(devProps);    
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -420,7 +419,7 @@ private:
 
         // Callers should take a ref if they rely on the GrDrawContext sticking around.
         // NULL will be returned if the context has been abandoned.
-        GrDrawContext* drawContext(const SkDeviceProperties* devProps, bool useDFT);
+        GrDrawContext* drawContext(const SkDeviceProperties* devProps);
 
     private:
         void cleanup();

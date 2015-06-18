@@ -111,7 +111,7 @@ void GrContext::DrawingMgr::flush() {
     }
 }
 
-GrDrawContext* GrContext::DrawingMgr::drawContext(const SkDeviceProperties* devProps, bool useDFT) { 
+GrDrawContext* GrContext::DrawingMgr::drawContext(const SkDeviceProperties* devProps) { 
     if (this->abandoned()) {
         return NULL;
     }
@@ -122,18 +122,12 @@ GrDrawContext* GrContext::DrawingMgr::drawContext(const SkDeviceProperties* devP
     }
 
     SkASSERT(devProps->pixelGeometry() < kNumPixelGeometries);
-    if (!fDrawContext[devProps->pixelGeometry()][useDFT]) {
-        fDrawContext[devProps->pixelGeometry()][useDFT] =
-                SkNEW_ARGS(GrDrawContext, (fContext, fDrawTarget, *devProps, useDFT));
+    if (!fDrawContext[devProps->pixelGeometry()][devProps->useDFT()]) {
+        fDrawContext[devProps->pixelGeometry()][devProps->useDFT()] =
+                SkNEW_ARGS(GrDrawContext, (fContext, fDrawTarget, *devProps));
     }
 
-    SkASSERT(fDrawContext[devProps->pixelGeometry()][useDFT]->fDevProps->pixelGeometry() ==
-             devProps->pixelGeometry());
-    SkASSERT(fDrawContext[devProps->pixelGeometry()][useDFT]->fDevProps->gamma() == 
-             devProps->gamma());
-    SkASSERT(fDrawContext[devProps->pixelGeometry()][useDFT]->fUseDFT == useDFT);
-
-    return fDrawContext[devProps->pixelGeometry()][useDFT]; 
+    return fDrawContext[devProps->pixelGeometry()][devProps->useDFT()]; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -97,8 +97,7 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
 
 GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
                                        GrDrawContext* drawContext,
-                                       const SkDeviceProperties& properties,
-                                       bool useDFT)
+                                       const SkDeviceProperties& properties)
     : INHERITED(context, drawContext, properties)
     , fDistanceAdjustTable(SkNEW_ARGS(DistanceAdjustTable, (properties.gamma()))) {
     // We overallocate vertices in our textblobs based on the assumption that A8 has the greatest
@@ -107,12 +106,6 @@ GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
                       vertex_attribute_changed);
     fCurrStrike = NULL;
     fCache = context->getTextBlobCache();
-
-#if SK_FORCE_DISTANCE_FIELD_TEXT
-    fEnableDFRendering = true;
-#else
-    fEnableDFRendering = useDFT;
-#endif
 }
 
 void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable(float gamma) {
@@ -199,9 +192,8 @@ void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable(float gam
 
 GrAtlasTextContext* GrAtlasTextContext::Create(GrContext* context,
                                                GrDrawContext* drawContext,
-                                               const SkDeviceProperties& props,
-                                               bool useDFT) {
-    return SkNEW_ARGS(GrAtlasTextContext, (context, drawContext, props, useDFT));
+                                               const SkDeviceProperties& props) {
+    return SkNEW_ARGS(GrAtlasTextContext, (context, drawContext, props));
 }
 
 bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
@@ -450,8 +442,12 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
         return false;
     }
 
-    if (!fEnableDFRendering && !skPaint.isDistanceFieldTextTEMP() &&
-        scaledTextSize < kLargeDFFontSize) {
+    bool useDFT = fDeviceProperties.useDFT();
+#if SK_FORCE_DISTANCE_FIELD_TEXT
+    useDFT = true;
+#endif
+
+    if (!useDFT && !skPaint.isDistanceFieldTextTEMP() && scaledTextSize < kLargeDFFontSize) {
         return false;
     }
 
@@ -2228,13 +2224,12 @@ BATCH_TEST_DEFINE(TextBlobBatch) {
         gContextID = context->uniqueID();
         SkDELETE(gTextContext);
 
-        static const bool kUseDFT = false;
         // We don't yet test the fall back to paths in the GrTextContext base class.  This is mostly
         // because we don't really want to have a gpu device here.
         // We enable distance fields by twiddling a knob on the paint
-        GrDrawContext* drawContext = context->drawContext(&gDevProperties, kUseDFT);
+        GrDrawContext* drawContext = context->drawContext(&gDevProperties);
 
-        gTextContext = GrAtlasTextContext::Create(context, drawContext, gDevProperties, kUseDFT);
+        gTextContext = GrAtlasTextContext::Create(context, drawContext, gDevProperties);
     }
 
     // create dummy render target

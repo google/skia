@@ -136,7 +136,7 @@ SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
 
 static SkDeviceProperties surfaceprops_to_deviceprops(const SkSurfaceProps* props) {
     if (props) {
-        return SkDeviceProperties(props->pixelGeometry());
+        return SkDeviceProperties(props->pixelGeometry(), props->isUseDistanceFieldFonts());
     } else {
         return SkDeviceProperties();
     }
@@ -167,8 +167,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
-    fDrawContext.reset(SkRef(fContext->drawContext(&this->getLeakyProperties(), useDFT)));
+    fDrawContext.reset(SkRef(fContext->drawContext(&this->getLeakyProperties())));
 }
 
 GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::Budgeted budgeted,
@@ -353,9 +352,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (fRenderTarget->surfacePriv().info(), fRenderTarget));
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
-    fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext(&this->getLeakyProperties(),
-                                                                      useDFT)));
+    fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext(&this->getLeakyProperties())));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

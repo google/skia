@@ -244,14 +244,14 @@ private:
     friend class GrAtlasTextContext; // for access to drawBatch
     friend class GrContext; // for ctor
 
-    GrDrawContext(GrContext*, GrDrawTarget*, const SkDeviceProperties&, bool useDFT);
+    GrDrawContext(GrContext*, GrDrawTarget*, const SkDeviceProperties&);
 
     // Sets the paint. Returns true on success; false on failure.
     bool prepareToDraw(GrPipelineBuilder*,
                        GrRenderTarget* rt,
                        const GrClip&,
                        const GrPaint* paint);
-    GrTextContext* createTextContext(GrRenderTarget*, const SkDeviceProperties&, bool useDFT);
+    GrTextContext* createTextContext(GrRenderTarget*, const SkDeviceProperties&);
 
     // A simpler version of the above which just returns true on success; false on failure.  
     // Clip is *NOT* set
@@ -274,7 +274,6 @@ private:
     GrTextContext*      fTextContext; // lazily created
 
     SkDeviceProperties* fDevProps;    // ptr b.c. SkDeviceProperties isn't public
-    bool                fUseDFT;
 };
 
 #endif

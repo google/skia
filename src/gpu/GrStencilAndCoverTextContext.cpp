@@ -32,11 +32,10 @@ GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(GrContext* context,
 
 GrStencilAndCoverTextContext*
 GrStencilAndCoverTextContext::Create(GrContext* context, GrDrawContext* drawContext,
-                                     const SkDeviceProperties& props, bool fallbackUsesDFT) {
+                                     const SkDeviceProperties& props) {
     GrStencilAndCoverTextContext* textContext = SkNEW_ARGS(GrStencilAndCoverTextContext,
                                                            (context, drawContext, props));
-    textContext->fFallbackTextContext = GrAtlasTextContext::Create(context, drawContext,
-                                                                   props, fallbackUsesDFT);
+    textContext->fFallbackTextContext = GrAtlasTextContext::Create(context, drawContext, props);
 
     return textContext;
 }

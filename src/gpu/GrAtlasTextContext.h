@@ -35,11 +35,10 @@ class GrTextBlobCache;
  */
 class GrAtlasTextContext : public GrTextContext {
 public:
-    static GrAtlasTextContext* Create(GrContext*, GrDrawContext*,
-                                      const SkDeviceProperties&, bool enableDistanceFields);
+    static GrAtlasTextContext* Create(GrContext*, GrDrawContext*, const SkDeviceProperties&);
 
 private:
-    GrAtlasTextContext(GrContext*, GrDrawContext*, const SkDeviceProperties&, bool useDFT);
+    GrAtlasTextContext(GrContext*, GrDrawContext*, const SkDeviceProperties&);
     ~GrAtlasTextContext() override {}
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
@@ -385,7 +384,6 @@ private:
 
     GrBatchTextStrike* fCurrStrike;
     GrTextBlobCache* fCache;
-    bool fEnableDFRendering;
     SkAutoTUnref<DistanceAdjustTable> fDistanceAdjustTable;
 
     friend class GrTextBlobCache;
