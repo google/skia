@@ -334,9 +334,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     {
         GrTexture* texture = NULL;
         if (!(kUnpremul_PixelOpsFlag & pixelOpsFlags) && (texture = surface->asTexture()) &&
-            fGpu->canWriteTexturePixels(texture, srcConfig) &&
-            (!fCaps->useDrawInsteadOfPartialTextureWrite() ||
-             (width == texture->width() && height == texture->height()))) {
+            fGpu->canWriteTexturePixels(texture, srcConfig)) {
 
             if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) &&
                 surface->surfacePriv().hasPendingIO()) {

@@ -109,7 +109,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fSupressPrints = options.fSuppressPrints;
     fDrawPathMasksToCompressedTextureSupport = options.fDrawPathToCompressedTexture;
     fGeometryBufferMapThreshold = options.fGeometryBufferMapThreshold;
-    fUseDrawInsteadOfPartialTextureWrite = options.fUseDrawInsteadOfPartialTextureWrite;
 }
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
@@ -151,8 +150,6 @@ SkString GrCaps::dump() const {
     r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
     r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
     r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
-    r.appendf("Draw Instead of TexSubImage [workaround] : %s\n",
-              gNY[fUseDrawInsteadOfPartialTextureWrite]);
     if (this->advancedBlendEquationSupport()) {
         r.appendf("Advanced Blend Equation Blacklist  : 0x%x\n", fAdvBlendEqBlacklist);
     }
