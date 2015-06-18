@@ -78,7 +78,7 @@
        },
       'actions': [
         {
-          'action_name': 'SkiaAndroid_apk',
+          'action_name': 'SampleApp_apk',
           'inputs': [
             '<(android_base)/app/AndroidManifest.xml',
             '<(android_base)/app/build.xml',
@@ -90,7 +90,7 @@
             '<(android_base)/app/src/com/skia/SkiaSampleView.java',
           ],
           'outputs': [
-            '<(PRODUCT_DIR)/../android/SampleApp/bin/SkiaAndroid.apk',
+            '<(PRODUCT_DIR)/../android/SampleApp/bin/SampleApp.apk',
           ],
           'action': [
             'ant',
@@ -100,7 +100,7 @@
             '-Dout.dir=<(ANDROID_OUT)/bin',
             '-Dgen.absolute.dir=<(ANDROID_OUT)/gen',
             '-Dnative.libs.absolute.dir=<(ANDROID_OUT)/libs',
-            '-Dout.final.file=<(ANDROID_OUT)/bin/SkiaAndroid.apk',
+            '-Dout.final.file=<(ANDROID_OUT)/bin/SampleApp.apk',
             '-Dsdk.dir=<(ANDROID_SDK_ROOT)',
             'debug',
           ],
