@@ -160,17 +160,17 @@ protected:
 
     GrSurfaceDesc fDesc;
 
+    void onRelease() override;
+    void onAbandon() override;
+
+private:
     void invokeReleaseProc() {
         if (fReleaseProc) {
             fReleaseProc(fReleaseCtx);
             fReleaseProc = NULL;
         }
     }
-
-    void onRelease() override;
-    void onAbandon() override;
-
-private:
+    
     ReleaseProc fReleaseProc;
     ReleaseCtx  fReleaseCtx;
 
