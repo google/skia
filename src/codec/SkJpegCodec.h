@@ -11,7 +11,7 @@
 #include "SkCodec.h"
 #include "SkImageInfo.h"
 #include "SkJpegDecoderMgr.h"
-#include "SkJpegUtility.h"
+#include "SkJpegUtility_codec.h"
 #include "SkStream.h"
 
 extern "C" {

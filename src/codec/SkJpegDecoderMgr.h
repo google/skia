@@ -10,7 +10,7 @@
 
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkJpegUtility.h"
+#include "SkJpegUtility_codec.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
 

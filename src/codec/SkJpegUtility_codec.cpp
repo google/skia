@@ -6,7 +6,7 @@
  */
 
 #include "SkCodecPriv.h"
-#include "SkJpegUtility.h"
+#include "SkJpegUtility_codec.h"
 
 /*
  * Initialize the source manager
@@ -23,7 +23,7 @@ static void sk_init_source(j_decompress_ptr dinfo) {
 static boolean sk_fill_input_buffer(j_decompress_ptr dinfo) {
     skjpeg_source_mgr* src = (skjpeg_source_mgr*) dinfo->src;
     size_t bytes = src->fStream->read(src->fBuffer, skjpeg_source_mgr::kBufferSize);
-    
+
     // libjpeg is still happy with a less than full read, as long as the result is non-zero
     if (bytes == 0) {
         return false;

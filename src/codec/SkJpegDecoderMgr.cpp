@@ -6,7 +6,7 @@
  */
 
 #include "SkJpegDecoderMgr.h"
-#include "SkJpegUtility.h"
+#include "SkJpegUtility_codec.h"
 
 /*
  * Print information, warning, and error messages

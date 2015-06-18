@@ -6,8 +6,8 @@
  */
 
 
-#ifndef SkJpegUtility_DEFINED
-#define SkJpegUtility_DEFINED
+#ifndef SkJpegUtility_codec_DEFINED
+#define SkJpegUtility_codec_DEFINED
 
 #include "SkStream.h"
 
