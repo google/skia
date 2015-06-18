@@ -55,11 +55,7 @@ static const int kSmallDFFontLimit = 32;
 static const int kMediumDFFontSize = 72;
 static const int kMediumDFFontLimit = 72;
 static const int kLargeDFFontSize = 162;
-#ifdef SK_BUILD_FOR_ANDROID
-static const int kLargeDFFontLimit = 2 * 192;
-#else
 static const int kLargeDFFontLimit = 2 * kLargeDFFontSize;
-#endif
 
 SkDEBUGCODE(static const int kExpectedDistanceAdjustTableSize = 8;)
 static const int kDistanceAdjustLumShift = 5;
@@ -2100,11 +2096,6 @@ GrAtlasTextContext::createBatch(BitmapTextBlob* cacheBlob, const PerSubRunInfo& 
         }
         bool useBGR = SkPixelGeometryIsBGR(fDeviceProperties.pixelGeometry());
         float gamma = fDeviceProperties.gamma();
-#ifdef DEBUG_SHOW_DF_TEXT
-        // force all DF text to show up in red
-        filteredColor = 0xff0000ff;
-        subrunColor = GrColorPackRGBA(0xff, 0x00, 0x00, 0xff);
-#endif
         batch = BitmapTextBatch::Create(format, glyphCount, fContext->getBatchFontCache(),
                                         fDistanceAdjustTable, filteredColor,
                                         info.fUseLCDText, useBGR,
