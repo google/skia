@@ -30,10 +30,9 @@ public:
     bool    attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);
     void    present();
 
-    bool    makeFullscreen() { return false; }
-    void    closeWindow()  { /* Not impl yet */ }
-    void    setVsync(bool)  { /* Not impl yet */ }
-
+    bool    makeFullscreen();
+    void    closeWindow();
+    void    setVsync(bool);
 protected:
     // overrides from SkEventSink
     virtual bool onEvent(const SkEvent& evt);

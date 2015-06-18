@@ -61,36 +61,6 @@
             '../src/gpu',
           ]
         }],
-        [ 'skia_os == "win"', {
-          'sources' : [
-            '../src/views/win/SkOSWindow_Win.cpp',
-            '../src/views/win/skia_win.cpp',
-          ],
-        }],
-        [ 'skia_os == "mac"', {
-          'sources': [
-            '../src/views/mac/SampleAppDelegate.h',
-            '../src/views/mac/SampleAppDelegate.mm',
-            '../src/views/mac/SkEventNotifier.mm',
-            '../src/views/mac/skia_mac.mm',
-            '../src/views/mac/SkNSView.h',
-            '../src/views/mac/SkNSView.mm',
-            '../src/views/mac/SkOptionsTableView.h',
-            '../src/views/mac/SkOptionsTableView.mm',
-            '../src/views/mac/SkOSWindow_Mac.mm',
-            '../src/views/mac/SkTextFieldCell.h',
-            '../src/views/mac/SkTextFieldCell.m',
-          ],
-          'include_dirs' : [
-            '../src/views/mac/'
-          ],
-          'xcode_settings' : {
-            'INFOPLIST_FILE' : '../experimental/SkiaExamples/SkiaExamples-Info.plist',
-          },
-          'mac_bundle_resources' : [
-            '../experimental/SkiaExamples/SkiaExamples.xib'
-          ],
-        }],
       ],
     }
   ],

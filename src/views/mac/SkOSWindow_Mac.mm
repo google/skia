@@ -77,4 +77,18 @@ void SkOSWindow::present() {
     [(SkNSView*)fHWND present];
 }
 
+void SkOSWindow::closeWindow() {
+    [[(SkNSView*)fHWND window] close];
+}
+
+void SkOSWindow::setVsync(bool enable) {
+    [(SkNSView*)fHWND setVSync:enable];
+}
+
+bool SkOSWindow::makeFullscreen() {
+    [(SkNSView*)fHWND enterFullScreenMode:[NSScreen mainScreen] withOptions:nil];
+    return true;
+}
+
+
 #endif

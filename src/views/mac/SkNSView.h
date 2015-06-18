@@ -50,6 +50,8 @@ class SkEvent;
 - (void)detach;
 - (void)present;
 
+- (void)setVSync:(bool)enable;
+
 - (void)freeNativeWind;
 
 @end

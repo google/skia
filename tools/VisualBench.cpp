@@ -123,7 +123,7 @@ void VisualBench::setupRenderTarget() {
 
 inline void VisualBench::renderFrame(SkCanvas* canvas) {
     canvas->drawPicture(fPicture);
-    fContext->flush();
+    canvas->flush();
     INHERITED::present();
 }
 

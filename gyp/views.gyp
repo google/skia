@@ -61,6 +61,12 @@
         '../src/views/SkWindow.cpp',
 
         # Mac
+        '../src/views/mac/SkEventNotifier.h',
+        '../src/views/mac/SkEventNotifier.mm',
+        '../src/views/mac/SkTextFieldCell.h',
+        '../src/views/mac/SkTextFieldCell.m',
+        '../src/views/mac/SkNSView.h',
+        '../src/views/mac/SkNSView.mm',
         '../src/views/mac/SkOSWindow_Mac.mm',
         '../src/views/mac/skia_mac.mm',
 
@@ -89,14 +95,22 @@
         [ 'skia_os == "mac"', {
           'link_settings': {
             'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
+              '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
               '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
               '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
             ],
           },
         },{
           'sources!': [
-            '../src/views/mac/SkOSWindow_Mac.mm',
-            '../src/views/mac/skia_mac.mm',
+          '../src/views/mac/SkEventNotifier.h',
+          '../src/views/mac/SkEventNotifier.mm',
+          '../src/views/mac/SkTextFieldCell.h',
+          '../src/views/mac/SkTextFieldCell.m',
+          '../src/views/mac/SkNSView.h',
+          '../src/views/mac/SkNSView.mm',
+          '../src/views/mac/SkOSWindow_Mac.mm',
+          '../src/views/mac/skia_mac.mm',
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {

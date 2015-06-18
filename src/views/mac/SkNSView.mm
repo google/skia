@@ -329,8 +329,7 @@ static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
 ///////////////////////////////////////////////////////////////////////////////
 #include <OpenGL/OpenGL.h>
 
-namespace { 
-CGLContextObj createGLContext(int msaaSampleCount) {
+static CGLContextObj createGLContext(int msaaSampleCount) {
     GLint major, minor;
     CGLGetVersion(&major, &minor);
     
@@ -368,7 +367,6 @@ CGLContextObj createGLContext(int msaaSampleCount) {
     CGLSetParameter(ctx, kCGLCPSwapInterval, &interval);
     CGLSetCurrentContext(ctx);
     return ctx;
-}
 }
 
 - (void)viewDidMoveToWindow {
@@ -418,6 +416,14 @@ CGLContextObj createGLContext(int msaaSampleCount) {
 - (void)present {
     if (nil != fGLContext) {
         [fGLContext flushBuffer];
+    }
+}
+
+- (void)setVSync:(bool)enable {
+    if (fGLContext) {
+        GLint interval = enable ? 1 : 0;
+        CGLContextObj ctx = (CGLContextObj)[fGLContext CGLContextObj];
+        CGLSetParameter(ctx, kCGLCPSwapInterval, &interval);
     }
 }
 @end

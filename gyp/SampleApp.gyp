@@ -15,7 +15,6 @@
     {
       'target_name': 'SampleApp',
       'type': 'executable',
-      'mac_bundle' : 1,
       'include_dirs' : [
         '../src/core',
         '../src/effects', #needed for BlurMask.h
@@ -179,38 +178,6 @@
           'sources!': [
             # require UNIX functions
             '../samplecode/SampleEncode.cpp',
-          ],
-        }],
-        [ 'skia_os == "mac"', {
-          'sources': [
-            # Sample App specific files
-            '../src/views/mac/SampleApp-Info.plist',
-            '../src/views/mac/SampleAppDelegate.h',
-            '../src/views/mac/SampleAppDelegate.mm',
-            '../src/views/mac/SkSampleNSView.h',
-            '../src/views/mac/SkSampleNSView.mm',
-
-            # Mac files
-            '../src/views/mac/SkEventNotifier.h',
-            '../src/views/mac/SkEventNotifier.mm',
-            '../src/views/mac/skia_mac.mm',
-            '../src/views/mac/SkNSView.h',
-            '../src/views/mac/SkNSView.mm',
-            '../src/views/mac/SkOptionsTableView.h',
-            '../src/views/mac/SkOptionsTableView.mm',
-            '../src/views/mac/SkOSWindow_Mac.mm',
-            '../src/views/mac/SkTextFieldCell.h',
-            '../src/views/mac/SkTextFieldCell.m',
-          ],
-          'libraries': [
-            '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
-            '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
-          ],
-          'xcode_settings' : {
-            'INFOPLIST_FILE' : '../src/views/mac/SampleApp-Info.plist',
-          },
-          'mac_bundle_resources' : [
-            '../src/views/mac/SampleApp.xib',
           ],
         }],
         [ 'skia_os == "ios"', {
