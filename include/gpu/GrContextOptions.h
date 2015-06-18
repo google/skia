@@ -17,7 +17,8 @@ struct GrContextOptions {
         , fMaxTextureSizeOverride(SK_MaxS32)
         , fMinTextureSizeOverride(0)
         , fSuppressDualSourceBlending(false)
-        , fGeometryBufferMapThreshold(-1) {}
+        , fGeometryBufferMapThreshold(-1)
+        , fUseDrawInsteadOfPartialTextureWrite(false) {}
 
     // EXPERIMENTAL
     // May be removed in the future, or may become standard depending
@@ -39,6 +40,9 @@ struct GrContextOptions {
         buffers to CPU memory in order to update them.  A value of -1 means the GrContext should
         deduce the optimal value for this platform. */
     int  fGeometryBufferMapThreshold;
+
+    /** some gpus have problems with partial texture writes */
+    bool fUseDrawInsteadOfPartialTextureWrite;
 };
 
 #endif

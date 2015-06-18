@@ -421,6 +421,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fUseDrawInsteadOfClear = true;
     }
 
+    if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
+        fUseDrawInsteadOfPartialTextureWrite = true;
+    }
+
     if (kGL_GrGLStandard == standard) {
         // ARB allows mixed size FBO attachments, EXT does not.
         if (ctxInfo.version() >= GR_GL_VER(3, 0) ||
