@@ -56,7 +56,9 @@ public:
     }
 
     /** When we don't own the FBO ID we don't attempt to modify its attachments. */
-    bool canAttemptStencilAttachment() const override { return !fIsWrapped; }
+    bool canAttemptStencilAttachment() const override {
+        return kCached_LifeCycle == fRTLifecycle || kUncached_LifeCycle == fRTLifecycle;
+    }
 
 protected:
     // The public constructor registers this object with the cache. However, only the most derived
@@ -74,22 +76,22 @@ protected:
     size_t onGpuMemorySize() const override;
 
 private:
-    GrGLuint      fRTFBOID;
-    GrGLuint      fTexFBOID;
-    GrGLuint      fMSColorRenderbufferID;
+    GrGLuint    fRTFBOID;
+    GrGLuint    fTexFBOID;
+    GrGLuint    fMSColorRenderbufferID;
 
     // We track this separately from GrGpuResource because this may be both a texture and a render
     // target, and the texture may be wrapped while the render target is not.
-    bool fIsWrapped;
+    LifeCycle   fRTLifecycle;
 
     // when we switch to this render target we want to set the viewport to
     // only render to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left)
-    GrGLIRect fViewport;
+    GrGLIRect   fViewport;
 
     // onGpuMemorySize() needs to know the VRAM footprint of the FBO(s). However, abandon and
     // release zero out the IDs and the cache needs to know the size even after those actions.
-    size_t fGpuMemorySize;
+    size_t      fGpuMemorySize;
 
     typedef GrRenderTarget INHERITED;
 };

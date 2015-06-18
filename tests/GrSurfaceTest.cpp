@@ -51,7 +51,8 @@ DEF_GPUTEST(GrSurface, reporter, factory) {
         backendDesc.fHeight = 256;
         backendDesc.fSampleCnt = 0;
         backendDesc.fTextureHandle = 5;
-        GrSurface* texRT2 = context->textureProvider()->wrapBackendTexture(backendDesc);
+        GrSurface* texRT2 = context->textureProvider()->wrapBackendTexture(
+            backendDesc, kBorrow_GrWrapOwnership);
         REPORTER_ASSERT(reporter, texRT2 == texRT2->asRenderTarget());
         REPORTER_ASSERT(reporter, texRT2 == texRT2->asTexture());
         REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==

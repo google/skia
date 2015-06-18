@@ -30,23 +30,21 @@ void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
     fTextureID = idDesc.fTextureID;
-    fIsWrapped = kWrapped_LifeCycle == idDesc.fLifeCycle;
+    fTextureIDLifecycle = idDesc.fLifeCycle;
 }
 
 void GrGLTexture::onRelease() {
     if (fTextureID) {
-        if (!fIsWrapped) {
+        if (GrGpuResource::kBorrowed_LifeCycle != fTextureIDLifecycle) {
             GL_CALL(DeleteTextures(1, &fTextureID));
         }
         fTextureID = 0;
-        fIsWrapped = false;
     }
     INHERITED::onRelease();
 }
 
 void GrGLTexture::onAbandon() {
     fTextureID = 0;
-    fIsWrapped = false;
     INHERITED::onAbandon();
 }
 

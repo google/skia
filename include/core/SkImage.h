@@ -74,6 +74,15 @@ public:
                                    SkAlphaType = kPremul_SkAlphaType);
 
     /**
+     *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the
+     *  texture when the image is released.
+     *
+     *  Will return NULL if the specified descriptor is unsupported.
+     */
+    static SkImage* NewFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&,
+                                          SkAlphaType = kPremul_SkAlphaType);
+
+    /**
      *  Create a new image by copying the pixels from the specified descriptor. No reference is
      *  kept to the original platform texture.
      *

@@ -150,17 +150,24 @@ public:
          * The cache may release them whenever there are no refs.
          */
         kCached_LifeCycle,
+
         /**
          * The resource is uncached. As soon as there are no more refs to it, it is released. Under
          * the hood the cache may opaquely recycle it as a cached resource.
          */
         kUncached_LifeCycle,
+
         /**
          * Similar to uncached, but Skia does not manage the lifetime of the underlying backend
          * 3D API object(s). The client is responsible for freeing those. Used to inject client-
          * created GPU resources into Skia (e.g. to render to a client-created texture).
          */
-        kWrapped_LifeCycle,
+        kBorrowed_LifeCycle,
+
+        /**
+         * An external resource with ownership transfered into Skia. Skia will free the resource.
+         */
+        kAdopted_LifeCycle,
     };
 
     /**
@@ -265,7 +272,12 @@ protected:
         backend API calls should be made. */
     virtual void onAbandon() { }
 
-    bool isWrapped() const { return kWrapped_LifeCycle == fLifeCycle; }
+    bool shouldFreeResources() const { return fLifeCycle != kBorrowed_LifeCycle; }
+
+    bool isExternal() const {
+        return GrGpuResource::kAdopted_LifeCycle == fLifeCycle ||
+               GrGpuResource::kBorrowed_LifeCycle == fLifeCycle;
+    }
 
     /**
      * This entry point should be called whenever gpuMemorySize() should report a different size.

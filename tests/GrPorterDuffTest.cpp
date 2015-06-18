@@ -966,7 +966,8 @@ static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
     fakeDesc.fConfig = kRGBA_8888_GrPixelConfig;
     fakeDesc.fWidth = fakeDesc.fHeight = 100;
     fakeDesc.fTextureHandle = 1;
-    SkAutoTUnref<GrTexture> fakeTexture(ctx->resourceProvider()->wrapBackendTexture(fakeDesc));
+    SkAutoTUnref<GrTexture> fakeTexture(ctx->resourceProvider()->wrapBackendTexture(fakeDesc,
+        kBorrow_GrWrapOwnership));
     GrXferProcessor::DstTexture fakeDstTexture;
     fakeDstTexture.setTexture(fakeTexture);
 

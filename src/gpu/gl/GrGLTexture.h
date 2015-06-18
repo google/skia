@@ -71,7 +71,7 @@ private:
 
     // We track this separately from GrGpuResource because this may be both a texture and a render
     // target, and the texture may be wrapped while the render target is not.
-    bool fIsWrapped;
+    LifeCycle                       fTextureIDLifecycle;
 
     typedef GrTexture INHERITED;
 };

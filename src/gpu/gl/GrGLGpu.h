@@ -126,8 +126,9 @@ private:
                                          const void* srcData) override;
     GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override;
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override;
-    GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) override;
-    GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override;
+    GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
+    GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                              GrWrapOwnership) override;
     bool createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int width, int height) override;
     bool attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb,
                                                GrRenderTarget* rt) override;

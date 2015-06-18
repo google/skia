@@ -12,17 +12,21 @@
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
+#include "gl/GrGLInterface.h"
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
+#include "GrTest.h"
 #include "SkCanvas.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
 #include "SkSurface.h"
 #include "Test.h"
+#include "../src/gpu/gl/GrGLDefines.h"
+#include "../src/gpu/gl/GrGLUtil.h"
 
 static const int gWidth = 640;
 static const int gHeight = 480;
@@ -171,6 +175,65 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
                         smallMSAART1->asRenderTarget()->renderTargetPriv().getStencilAttachment());
         }
     }
+}
+
+static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* context) {
+    GrTestTarget tt;
+    context->getTestTarget(&tt);
+
+    const GrGLInterface* gl = tt.glInterface();
+    if (!gl) {
+        return;
+    }
+
+    GrGLuint texIDs[2];
+    static const int kW = 100;
+    static const int kH = 100;
+    GR_GL_CALL(gl, GenTextures(2, texIDs));
+    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0));
+    GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
+    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texIDs[0]));
+    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, kW, kH, 0, GR_GL_RGBA,
+                              GR_GL_UNSIGNED_BYTE, NULL));
+    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texIDs[1]));
+    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, kW, kH, 0, GR_GL_RGBA,
+                              GR_GL_UNSIGNED_BYTE, NULL));
+    context->resetContext();
+
+    GrBackendTextureDesc desc;
+    desc.fConfig = kBGRA_8888_GrPixelConfig;
+    desc.fWidth = kW;
+    desc.fHeight = kH;
+
+    desc.fTextureHandle = texIDs[0];
+    SkAutoTUnref<GrTexture> borrowed(context->textureProvider()->wrapBackendTexture(
+        desc, kBorrow_GrWrapOwnership));
+
+    desc.fTextureHandle = texIDs[1];
+    SkAutoTUnref<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
+        desc, kAdopt_GrWrapOwnership));
+
+    REPORTER_ASSERT(reporter, SkToBool(borrowed) && SkToBool(adopted));
+    if (!SkToBool(borrowed) || !SkToBool(adopted)) {
+        return;
+    }
+
+    borrowed.reset(NULL);
+    adopted.reset(NULL);
+
+    context->flush();
+
+    GrGLboolean borrowedIsAlive;
+    GrGLboolean adoptedIsAlive;
+    GR_GL_CALL_RET(gl, borrowedIsAlive, IsTexture(texIDs[0]));
+    GR_GL_CALL_RET(gl, adoptedIsAlive, IsTexture(texIDs[1]));
+
+    REPORTER_ASSERT(reporter, borrowedIsAlive);
+    REPORTER_ASSERT(reporter, !adoptedIsAlive);
+
+    GR_GL_CALL(gl, GenTextures(1, &texIDs[0]));
+
+    context->resetContext();
 }
 
 class TestResource : public GrGpuResource {
@@ -357,7 +420,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     unique->setSize(11);
     unique->resourcePriv().setUniqueKey(uniqueKey);
     TestResource* wrapped = SkNEW_ARGS(TestResource,
-                                       (context->getGpu(), GrGpuResource::kWrapped_LifeCycle));
+                                       (context->getGpu(), GrGpuResource::kBorrowed_LifeCycle));
     wrapped->setSize(12);
     TestResource* unbudgeted = SkNEW_ARGS(TestResource,
                                           (context->getGpu(), GrGpuResource::kUncached_LifeCycle));
@@ -395,7 +458,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
                               unbudgeted->gpuMemorySize() == cache->getResourceBytes());
 
     // Now try freeing the budgeted resources first
-    wrapped = SkNEW_ARGS(TestResource, (context->getGpu(), GrGpuResource::kWrapped_LifeCycle));
+    wrapped = SkNEW_ARGS(TestResource, (context->getGpu(), GrGpuResource::kBorrowed_LifeCycle));
     scratch->setSize(12);
     unique->unref();
     cache->purgeAllUnlocked();
@@ -472,7 +535,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
 
     wrapped = SkNEW_ARGS(TestResource,
-                         (context->getGpu(), large, GrGpuResource::kWrapped_LifeCycle));
+                         (context->getGpu(), large, GrGpuResource::kBorrowed_LifeCycle));
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 + large == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
@@ -1193,6 +1256,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
                                                                    SkSurface::kNo_Budgeted, info));
         test_cache(reporter, context, surface->getCanvas());
         test_stencil_buffers(reporter, context);
+        test_wrapped_resources(reporter, context);
     }
 
     // The below tests create their own mock contexts.

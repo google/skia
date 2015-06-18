@@ -209,6 +209,10 @@ SkImage* SkImage::NewFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlph
     return NULL;
 }
 
+SkImage* SkImage::NewFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType) {
+    return NULL;
+}
+
 SkImage* SkImage::NewFromTextureCopy(GrContext*, const GrBackendTextureDesc&, SkAlphaType) {
     return NULL;
 }

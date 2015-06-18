@@ -152,6 +152,9 @@ bool GrGLInterface::validate() const {
         NULL == fFunctions.fGetShaderiv ||
         NULL == fFunctions.fGetString ||
         NULL == fFunctions.fGetUniformLocation ||
+#if 0 //  Not included in Chrome yet
+        NULL == fFunctions.fIsTexture ||
+#endif
         NULL == fFunctions.fLinkProgram ||
         NULL == fFunctions.fLineWidth ||
         NULL == fFunctions.fPixelStorei ||

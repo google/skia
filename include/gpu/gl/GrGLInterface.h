@@ -234,6 +234,7 @@ public:
         GLPtr<GrGLInvalidateSubFramebufferProc> fInvalidateSubFramebuffer;
         GLPtr<GrGLInvalidateTexImageProc> fInvalidateTexImage;
         GLPtr<GrGLInvalidateTexSubImageProc> fInvalidateTexSubImage;
+        GLPtr<GrGLIsTextureProc> fIsTexture;
         GLPtr<GrGLLineWidthProc> fLineWidth;
         GLPtr<GrGLLinkProgramProc> fLinkProgram;
         GLPtr<GrGLMapBufferProc> fMapBuffer;

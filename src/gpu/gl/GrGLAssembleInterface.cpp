@@ -150,6 +150,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GenQueries);
     GET_PROC(GenTextures);
     GET_PROC(GetUniformLocation);
+    GET_PROC(IsTexture);
     GET_PROC(LineWidth);
     GET_PROC(LinkProgram);
     GET_PROC(MapBuffer);
@@ -553,6 +554,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetString);
     GET_PROC(GetStringi);
     GET_PROC(GetUniformLocation);
+    GET_PROC(IsTexture);
     GET_PROC(LineWidth);
     GET_PROC(LinkProgram);
     GET_PROC(PixelStorei);

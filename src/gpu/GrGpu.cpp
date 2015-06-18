@@ -175,9 +175,9 @@ bool GrGpu::attachStencilAttachmentToRenderTarget(GrRenderTarget* rt) {
     }
 }
 
-GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc) {
+GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
     this->handleDirtyContext();
-    GrTexture* tex = this->onWrapBackendTexture(desc);
+    GrTexture* tex = this->onWrapBackendTexture(desc, ownership);
     if (NULL == tex) {
         return NULL;
     }
@@ -191,9 +191,10 @@ GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc) {
     }
 }
 
-GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
+GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc,
+                                               GrWrapOwnership ownership) {
     this->handleDirtyContext();
-    return this->onWrapBackendRenderTarget(desc);
+    return this->onWrapBackendRenderTarget(desc, ownership);
 }
 
 GrVertexBuffer* GrGpu::createVertexBuffer(size_t size, bool dynamic) {

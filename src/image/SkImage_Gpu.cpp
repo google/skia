@@ -114,16 +114,27 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t row
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc, SkAlphaType at) {
+static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextureDesc& desc,
+                                           SkAlphaType at, GrWrapOwnership ownership) {
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
         return NULL;
     }
-    SkAutoTUnref<GrTexture> tex(ctx->textureProvider()->wrapBackendTexture(desc));
+    SkAutoTUnref<GrTexture> tex(ctx->textureProvider()->wrapBackendTexture(desc, ownership));
     if (!tex) {
         return NULL;
     }
     const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
     return SkNEW_ARGS(SkImage_Gpu, (desc.fWidth, desc.fHeight, at, tex, 0, budgeted));
+
+}
+
+SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc, SkAlphaType at) {
+    return new_wrapped_texture_common(ctx, desc, at, kBorrow_GrWrapOwnership);
+}
+
+SkImage* SkImage::NewFromAdoptedTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
+                                        SkAlphaType at) {
+    return new_wrapped_texture_common(ctx, desc, at, kAdopt_GrWrapOwnership);
 }
 
 SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc& srcDesc,
@@ -134,7 +145,8 @@ SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc&
     if (srcDesc.fWidth <= 0 || srcDesc.fHeight <= 0) {
         return NULL;
     }
-    SkAutoTUnref<GrTexture> src(ctx->textureProvider()->wrapBackendTexture(srcDesc));
+    SkAutoTUnref<GrTexture> src(ctx->textureProvider()->wrapBackendTexture(
+        srcDesc, kBorrow_GrWrapOwnership));
     if (!src) {
         return NULL;
     }
@@ -199,9 +211,12 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     vDesc.fWidth = yuvSizes[2].fWidth;
     vDesc.fHeight = yuvSizes[2].fHeight;
 
-    SkAutoTUnref<GrTexture> yTex(ctx->textureProvider()->wrapBackendTexture(yDesc));
-    SkAutoTUnref<GrTexture> uTex(ctx->textureProvider()->wrapBackendTexture(uDesc));
-    SkAutoTUnref<GrTexture> vTex(ctx->textureProvider()->wrapBackendTexture(vDesc));
+    SkAutoTUnref<GrTexture> yTex(ctx->textureProvider()->wrapBackendTexture(
+        yDesc, kBorrow_GrWrapOwnership));
+    SkAutoTUnref<GrTexture> uTex(ctx->textureProvider()->wrapBackendTexture(
+        uDesc, kBorrow_GrWrapOwnership));
+    SkAutoTUnref<GrTexture> vTex(ctx->textureProvider()->wrapBackendTexture(
+        vDesc, kBorrow_GrWrapOwnership));
     if (!yTex || !uTex || !vTex) {
         return NULL;
     }

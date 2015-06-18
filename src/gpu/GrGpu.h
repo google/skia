@@ -97,12 +97,12 @@ public:
     /**
      * Implements GrContext::wrapBackendTexture
      */
-    GrTexture* wrapBackendTexture(const GrBackendTextureDesc&);
+    GrTexture* wrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership);
 
     /**
      * Implements GrContext::wrapBackendTexture
      */
-    GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc&);
+    GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc&, GrWrapOwnership);
 
     /**
      * Creates a vertex buffer.
@@ -401,8 +401,9 @@ private:
     virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
                                                  GrGpuResource::LifeCycle lifeCycle,
                                                  const void* srcData) = 0;
-    virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) = 0;
-    virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;
+    virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
+    virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                                      GrWrapOwnership) = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
 

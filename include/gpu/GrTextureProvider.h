@@ -106,19 +106,17 @@ public:
      * OpenGL: if the object is a texture Gr may change its GL texture params
      *         when it is drawn.
      *
-     * @param  desc     description of the object to create.
-     *
      * @return GrTexture object or NULL on failure.
      */
-    GrTexture* wrapBackendTexture(const GrBackendTextureDesc& desc);
+    GrTexture* wrapBackendTexture(const GrBackendTextureDesc& desc,
+                                  GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     /**
      * Wraps an existing render target with a GrRenderTarget object. It is
      * similar to wrapBackendTexture but can be used to draw into surfaces
      * that are not also textures (e.g. FBO 0 in OpenGL, or an MSAA buffer that
-     * the client will resolve to a texture).
-     *
-     * @param  desc     description of the object to create.
+     * the client will resolve to a texture). Currently wrapped render targets
+     * always use the kBorrow_GrWrapOwnership semantics.
      *
      * @return GrTexture object or NULL on failure.
      */

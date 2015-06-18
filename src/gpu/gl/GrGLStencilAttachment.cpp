@@ -18,7 +18,7 @@ size_t GrGLStencilAttachment::onGpuMemorySize() const {
 }
 
 void GrGLStencilAttachment::onRelease() {
-    if (0 != fRenderbufferID && !this->isWrapped()) {
+    if (0 != fRenderbufferID && this->shouldFreeResources()) {
         GrGLGpu* gpuGL = (GrGLGpu*) this->getGpu();
         const GrGLInterface* gl = gpuGL->glInterface();
         GR_GL_CALL(gl, DeleteRenderbuffers(1, &fRenderbufferID));

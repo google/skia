@@ -79,17 +79,25 @@ void GrResourceCache::dumpStats(SkString* out) const {
 
     struct Stats {
         int fScratch;
-        int fWrapped;
+        int fExternal;
+        int fBorrowed;
+        int fAdopted;
         size_t fUnbudgetedSize;
 
-        Stats() : fScratch(0), fWrapped(0), fUnbudgetedSize(0) {}
+        Stats() : fScratch(0), fExternal(0), fBorrowed(0), fAdopted(0), fUnbudgetedSize(0) {}
 
         void update(GrGpuResource* resource) {
             if (resource->cacheAccess().isScratch()) {
                 ++fScratch;
             }
-            if (resource->cacheAccess().isWrapped()) {
-                ++fWrapped;
+            if (resource->cacheAccess().isExternal()) {
+                ++fExternal;
+            }
+            if (resource->cacheAccess().isBorrowed()) {
+                ++fBorrowed;
+            }
+            if (resource->cacheAccess().isAdopted()) {
+                ++fAdopted;
             }
             if (!resource->resourcePriv().isBudgeted()) {
                 fUnbudgetedSize += resource->gpuMemorySize();
@@ -111,9 +119,9 @@ void GrResourceCache::dumpStats(SkString* out) const {
 
     out->appendf("Budget: %d items %d bytes\n", fMaxCount, (int)fMaxBytes);
     out->appendf("\t\tEntry Count: current %d"
-                 " (%d budgeted, %d wrapped, %d locked, %d scratch %.2g%% full), high %d\n",
-                 this->getResourceCount(), fBudgetedCount, stats.fWrapped, locked, stats.fScratch,
-                 countUtilization, fHighWaterCount);
+                 " (%d budgeted, %d external(%d borrowed, %d adopted), %d locked, %d scratch %.2g%% full), high %d\n",
+                 this->getResourceCount(), fBudgetedCount, stats.fExternal, stats.fBorrowed,
+                 stats.fAdopted, locked, stats.fScratch, countUtilization, fHighWaterCount);
     out->appendf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full, %d unbudgeted) high %d\n",
                  SkToInt(fBytes), SkToInt(fBudgetedBytes), byteUtilization,
                  SkToInt(stats.fUnbudgetedSize), SkToInt(fHighWaterBytes));
@@ -179,9 +187,11 @@ private:
         return NULL;
     }
 
-    GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) override { return NULL; }
+    GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&,
+                                    GrWrapOwnership) override { return NULL; }
 
-    GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override {
+    GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                              GrWrapOwnership) override {
         return NULL;
     }
 

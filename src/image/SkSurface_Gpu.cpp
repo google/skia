@@ -109,7 +109,8 @@ SkSurface* SkSurface::NewWrappedRenderTarget(GrContext* context, GrBackendTextur
     if (!SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
         return NULL;
     }
-    SkAutoTUnref<GrSurface> surface(context->textureProvider()->wrapBackendTexture(desc));
+    SkAutoTUnref<GrSurface> surface(context->textureProvider()->wrapBackendTexture(desc,
+                                    kBorrow_GrWrapOwnership));
     if (!surface) {
         return NULL;
     }

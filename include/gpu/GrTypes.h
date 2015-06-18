@@ -474,6 +474,16 @@ enum GrClipType {
 // opaque type for 3D API object handles
 typedef intptr_t GrBackendObject;
 
+
+/** Ownership rules for external GPU resources imported into Skia. */
+enum GrWrapOwnership {
+    /** Skia will assume the client will keep the resource alive and Skia will not free it. */
+    kBorrow_GrWrapOwnership,
+
+    /** Skia will assume ownership of the resource and free it. */
+    kAdopt_GrWrapOwnership,
+};
+
 /**
  * Gr can wrap an existing texture created by the client with a GrTexture
  * object. The client is responsible for ensuring that the texture lives at

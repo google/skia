@@ -452,7 +452,8 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
     }
 }
 
-GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
+GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
+                                         GrWrapOwnership ownership) {
     if (!this->configToGLFormats(desc.fConfig, false, NULL, NULL, NULL)) {
         return NULL;
     }
@@ -470,7 +471,15 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     GrSurfaceDesc surfDesc;
 
     idDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
-    idDesc.fLifeCycle = GrGpuResource::kWrapped_LifeCycle;
+    
+    switch (ownership) {
+        case kAdopt_GrWrapOwnership:
+            idDesc.fLifeCycle = GrGpuResource::kAdopted_LifeCycle;
+            break;
+        case kBorrow_GrWrapOwnership:
+            idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
+            break;
+    }    
 
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
@@ -507,12 +516,20 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     return texture;
 }
 
-GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc) {
+GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
+                                                   GrWrapOwnership ownership) {
     GrGLRenderTarget::IDDesc idDesc;
     idDesc.fRTFBOID = static_cast<GrGLuint>(wrapDesc.fRenderTargetHandle);
     idDesc.fMSColorRenderbufferID = 0;
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
-    idDesc.fLifeCycle = GrGpuResource::kWrapped_LifeCycle;
+    switch (ownership) {
+        case kAdopt_GrWrapOwnership:
+            idDesc.fLifeCycle = GrGpuResource::kAdopted_LifeCycle;
+            break;
+        case kBorrow_GrWrapOwnership:
+            idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
+            break;
+    }    
 
     GrSurfaceDesc desc;
     desc.fConfig = wrapDesc.fConfig;

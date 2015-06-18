@@ -214,7 +214,7 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
 }
 
 void GrGLPath::onRelease() {
-    if (0 != fPathID && !this->isWrapped()) {
+    if (0 != fPathID && this->shouldFreeResources()) {
         static_cast<GrGLGpu*>(this->getGpu())->glPathRendering()->deletePaths(fPathID, 1);
         fPathID = 0;
     }
