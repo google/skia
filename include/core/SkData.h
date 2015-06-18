@@ -100,13 +100,6 @@ public:
      */
     static SkData* NewWithProc(const void* ptr, size_t length, ReleaseProc proc, void* context);
 
-#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
-    // This variant is temporary.
-    // Its signature is meant to match an older version of the API
-    typedef void (*LegacyReleaseProc)(const void* ptr, size_t size, void* ctx);
-    static SkData* NewWithProc(const void* ptr, size_t length, LegacyReleaseProc proc, void* ctx);
-#endif
-
     /**
      *  Call this when the data parameter is already const and will outlive the lifetime of the
      *  SkData. Suitable for with const globals.
@@ -167,19 +160,11 @@ public:
 private:
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
-#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
-    LegacyReleaseProc fLegacyReleaseProc;
-#endif
-
     void*       fPtr;
     size_t      fSize;
 
-#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
-    SkData(const void* ptr, size_t size, ReleaseProc, void* context, LegacyReleaseProc = NULL);
-#else
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
-#endif
-    SkData(size_t size);   // inplace new/delete
+    explicit SkData(size_t size);   // inplace new/delete
     virtual ~SkData();
 
 

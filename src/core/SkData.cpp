@@ -12,19 +12,11 @@
 #include "SkStream.h"
 #include "SkWriteBuffer.h"
 
-#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
-SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context,
-               LegacyReleaseProc legacyProc) {
-#else
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
-#endif
     fPtr = const_cast<void*>(ptr);
     fSize = size;
     fReleaseProc = proc;
     fReleaseProcContext = context;
-#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
-    fLegacyReleaseProc = legacyProc;
-#endif
 }
 
 // This constructor means we are inline with our fPtr's contents. Thus we set fPtr
@@ -36,20 +28,12 @@ SkData::SkData(size_t size) {
     fSize = size;
     fReleaseProc = NULL;
     fReleaseProcContext = NULL;
-#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
-    fLegacyReleaseProc = NULL;
-#endif
 }
 
 SkData::~SkData() {
     if (fReleaseProc) {
         fReleaseProc(fPtr, fReleaseProcContext);
     }
-#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
-    if (fLegacyReleaseProc) {
-        fLegacyReleaseProc(fPtr, fSize, fReleaseProcContext);
-    }
-#endif
 }
 
 bool SkData::equals(const SkData* other) const {
@@ -127,12 +111,6 @@ SkData* SkData::NewUninitialized(size_t length) {
 SkData* SkData::NewWithProc(const void* ptr, size_t length, ReleaseProc proc, void* context) {
     return new SkData(ptr, length, proc, context);
 }
-
-#ifdef SK_SUPPORT_LEGACY_DATARELEASEPROC_PARAMS
-SkData* SkData::NewWithProc(const void* ptr, size_t length, LegacyReleaseProc proc, void* ctx) {
-    return new SkData(ptr, length, NULL, ctx, proc);
-}
-#endif
 
 // assumes fPtr was allocated with sk_fmmap
 static void sk_mmap_releaseproc(const void* addr, void* ctx) {
