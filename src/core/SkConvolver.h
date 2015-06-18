@@ -153,7 +153,8 @@ typedef void (*SkConvolveVertically_pointer)(
 typedef void (*SkConvolve4RowsHorizontally_pointer)(
     const unsigned char* srcData[4],
     const SkConvolutionFilter1D& filter,
-    unsigned char* outRow[4]);
+    unsigned char* outRow[4],
+    size_t outRowBytes);
 typedef void (*SkConvolveHorizontally_pointer)(
     const unsigned char* srcData,
     const SkConvolutionFilter1D& filter,

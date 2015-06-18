@@ -174,7 +174,10 @@ void convolveHorizontally_SSE2(const unsigned char* src_data,
 // refer to that function for detailed comments.
 void convolve4RowsHorizontally_SSE2(const unsigned char* src_data[4],
                                     const SkConvolutionFilter1D& filter,
-                                    unsigned char* out_row[4]) {
+                                    unsigned char* out_row[4],
+                                    size_t outRowBytes) {
+    SkDEBUGCODE(const unsigned char* out_row_0_start = out_row[0];)
+
     int num_values = filter.numValues();
 
     int filter_offset, filter_length;
@@ -274,6 +277,9 @@ void convolve4RowsHorizontally_SSE2(const unsigned char* src_data[4],
         accum3 = _mm_srai_epi32(accum3, SkConvolutionFilter1D::kShiftBits);
         accum3 = _mm_packs_epi32(accum3, zero);
         accum3 = _mm_packus_epi16(accum3, zero);
+
+        // We seem to be running off the edge here (chromium:491660).
+        SkASSERT(((size_t)out_row[0] - (size_t)out_row_0_start) < outRowBytes);
 
         *(reinterpret_cast<int*>(out_row[0])) = _mm_cvtsi128_si32(accum0);
         *(reinterpret_cast<int*>(out_row[1])) = _mm_cvtsi128_si32(accum1);

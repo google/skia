@@ -436,7 +436,7 @@ void BGRAConvolve2D(const unsigned char* sourceData,
                     src[i] = &sourceData[(uint64_t)(nextXRow + i) * sourceByteRowStride];
                     outRow[i] = rowBuffer.advanceRow();
                 }
-                convolveProcs.fConvolve4RowsHorizontally(src, filterX, outRow);
+                convolveProcs.fConvolve4RowsHorizontally(src, filterX, outRow, 4*rowBufferWidth);
                 nextXRow += 4;
             } else {
                 // Check if we need to avoid SSE2 for this row.

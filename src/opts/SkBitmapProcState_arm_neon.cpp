@@ -389,7 +389,8 @@ void convolveVertically_neon(const SkConvolutionFilter1D::ConvolutionFixed* filt
 // refer to that function for detailed comments.
 void convolve4RowsHorizontally_neon(const unsigned char* srcData[4],
                                     const SkConvolutionFilter1D& filter,
-                                    unsigned char* outRow[4]) {
+                                    unsigned char* outRow[4],
+                                    size_t outRowBytes) {
 
     uint8x8_t coeff_mask0 = vcreate_u8(0x0100010001000100);
     uint8x8_t coeff_mask1 = vcreate_u8(0x0302030203020302);
