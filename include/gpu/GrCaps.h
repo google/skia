@@ -133,6 +133,9 @@ public:
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
 
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
+    bool useDrawInsteadOfPartialRenderTargetWrite() const {
+        return fUseDrawInsteadOfPartialRenderTargetWrite;
+    }
 
     /**
      * Indicates the capabilities of the fixed function blend unit.
@@ -220,18 +223,19 @@ protected:
 
     SkAutoTUnref<GrShaderCaps>    fShaderCaps;
 
-    bool fNPOTTextureTileSupport        : 1;
-    bool fMipMapSupport                 : 1;
-    bool fTwoSidedStencilSupport        : 1;
-    bool fStencilWrapOpsSupport         : 1;
-    bool fDiscardRenderTargetSupport    : 1;
-    bool fReuseScratchTextures          : 1;
-    bool fGpuTracingSupport             : 1;
-    bool fCompressedTexSubImageSupport  : 1;
-    bool fOversizedStencilSupport       : 1;
-    bool fTextureBarrierSupport         : 1;
+    bool fNPOTTextureTileSupport                     : 1;
+    bool fMipMapSupport                              : 1;
+    bool fTwoSidedStencilSupport                     : 1;
+    bool fStencilWrapOpsSupport                      : 1;
+    bool fDiscardRenderTargetSupport                 : 1;
+    bool fReuseScratchTextures                       : 1;
+    bool fGpuTracingSupport                          : 1;
+    bool fCompressedTexSubImageSupport               : 1;
+    bool fOversizedStencilSupport                    : 1;
+    bool fTextureBarrierSupport                      : 1;
     // Driver workaround
-    bool fUseDrawInsteadOfClear         : 1;
+    bool fUseDrawInsteadOfClear                      : 1;
+    bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqBlacklist;
