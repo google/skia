@@ -530,6 +530,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
             idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
             break;
     }    
+    idDesc.fSampleConfig = GrRenderTarget::kUnified_SampleConfig;
 
     GrSurfaceDesc desc;
     desc.fConfig = wrapDesc.fConfig;
