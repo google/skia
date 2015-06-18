@@ -50,13 +50,6 @@
 #    define FT_PIXEL_MODE_BGRA 7
 #endif
 
-// FT_HAS_COLOR and the corresponding FT_FACE_FLAG_COLOR
-// were introduced in FreeType 2.5.1
-// The following may be removed once FreeType 2.5.1 is required to build.
-#ifndef FT_HAS_COLOR
-#    define FT_HAS_COLOR(face) false
-#endif
-
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
 //#define DUMP_STRIKE_CREATION
 //#define SK_FONTHOST_FREETYPE_USE_NORMAL_LCD_FILTER
