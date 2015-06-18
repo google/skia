@@ -262,3 +262,31 @@ DEF_TEST(Region, reporter) {
     test_empties(reporter);
     test_fromchrome(reporter);
 }
+
+// Test that writeToMemory reports the same number of bytes whether there was a
+// buffer to write to or not.
+static void test_write(const SkRegion& region, skiatest::Reporter* r) {
+    const size_t bytesNeeded = region.writeToMemory(NULL);
+    SkAutoMalloc storage(bytesNeeded);
+    const size_t bytesWritten = region.writeToMemory(storage.get());
+    REPORTER_ASSERT(r, bytesWritten == bytesNeeded);
+}
+
+DEF_TEST(Region_writeToMemory, r) {
+    // Test an empty region.
+    SkRegion region;
+    REPORTER_ASSERT(r, region.isEmpty());
+    test_write(region, r);
+
+    // Test a rectangular region
+    bool nonEmpty = region.setRect(0, 0, 50, 50);
+    REPORTER_ASSERT(r, nonEmpty);
+    REPORTER_ASSERT(r, region.isRect());
+    test_write(region, r);
+
+    // Test a complex region
+    nonEmpty = region.op(50, 50, 100, 100, SkRegion::kUnion_Op);
+    REPORTER_ASSERT(r, nonEmpty);
+    REPORTER_ASSERT(r, region.isComplex());
+    test_write(region, r);
+}
