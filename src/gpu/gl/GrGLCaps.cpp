@@ -542,12 +542,17 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
             fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = true;
             fConfigRenderSupport[kRGBA_float_GrPixelConfig][kYes_MSAA] = true;
         } else {
+            // for now we only enable this on desktop, because on ES we'd have to solve many
+            // precision issues and no clients actually want this yet
+            /*
             if (ctxInfo.hasExtension("GL_EXT_color_buffer_float")) {
                 fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = true;
             } else {
                 fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = false;
             }
             // for now we don't support floating point MSAA on ES
+            fConfigRenderSupport[kRGBA_float_GrPixelConfig][kYes_MSAA] = false;*/
+            fConfigRenderSupport[kRGBA_float_GrPixelConfig][kNo_MSAA] = false;
             fConfigRenderSupport[kRGBA_float_GrPixelConfig][kYes_MSAA] = false;
         }
     }
