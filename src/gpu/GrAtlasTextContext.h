@@ -366,18 +366,15 @@ private:
     // Because the GrAtlasTextContext can go out of scope before the final flush, this needs to be
     // refcnted and malloced
     struct DistanceAdjustTable : public SkNVRefCnt<DistanceAdjustTable> {
-        DistanceAdjustTable(float gamma) { this->buildDistanceAdjustTable(gamma); }
+        DistanceAdjustTable() { this->buildDistanceAdjustTable(); }
         ~DistanceAdjustTable() { SkDELETE_ARRAY(fTable); }
-
-        void buildDistanceAdjustTable(float gamma);
-
-        SkScalar& operator[] (int i) {
-            return fTable[i];
-        }
 
         const SkScalar& operator[] (int i) const {
             return fTable[i];
         }
+
+    private:
+        void buildDistanceAdjustTable();
 
         SkScalar* fTable;
     };

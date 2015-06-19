@@ -99,7 +99,7 @@ GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
                                        GrDrawContext* drawContext,
                                        const SkDeviceProperties& properties)
     : INHERITED(context, drawContext, properties)
-    , fDistanceAdjustTable(SkNEW_ARGS(DistanceAdjustTable, (properties.gamma()))) {
+    , fDistanceAdjustTable(SkNEW(DistanceAdjustTable)) {
     // We overallocate vertices in our textblobs based on the assumption that A8 has the greatest
     // vertexStride
     SK_COMPILE_ASSERT(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
@@ -108,7 +108,7 @@ GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
     fCache = context->getTextBlobCache();
 }
 
-void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable(float gamma) {
+void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable() {
 
     // This is used for an approximation of the mask gamma hack, used by raster and bitmap
     // text. The mask gamma hack is based off of guessing what the blend color is going to
@@ -153,8 +153,8 @@ void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable(float gam
 #else
     SkScalar contrast = 0.5f;
 #endif
-    SkScalar paintGamma = gamma;
-    SkScalar deviceGamma = gamma;
+    SkScalar paintGamma = SK_GAMMA_EXPONENT;
+    SkScalar deviceGamma = SK_GAMMA_EXPONENT;
 
     size = SkScalerContext::GetGammaLUTSize(contrast, paintGamma, deviceGamma,
         &width, &height);
@@ -1450,9 +1450,9 @@ public:
                                    GrBatchFontCache* fontCache,
                                    DistanceAdjustTable* distanceAdjustTable,
                                    SkColor filteredColor, bool useLCDText,
-                                   bool useBGR, float gamma) {
+                                   bool useBGR) {
         return SkNEW_ARGS(BitmapTextBatch, (maskFormat, glyphCount, fontCache, distanceAdjustTable,
-                                            filteredColor, useLCDText, useBGR, gamma));
+                                            filteredColor, useLCDText, useBGR));
     }
 
     const char* name() const override { return "BitmapTextBatch"; }
@@ -1773,7 +1773,7 @@ private:
 
     BitmapTextBatch(GrMaskFormat maskFormat, int glyphCount, GrBatchFontCache* fontCache,
                     DistanceAdjustTable* distanceAdjustTable, SkColor filteredColor,
-                    bool useLCDText, bool useBGR, float gamma)
+                    bool useLCDText, bool useBGR)
             : fMaskFormat(maskFormat)
             , fPixelConfig(fontCache->getPixelConfig(maskFormat))
             , fFontCache(fontCache)
@@ -1781,8 +1781,7 @@ private:
             , fFilteredColor(filteredColor)
             , fUseDistanceFields(true)
             , fUseLCDText(useLCDText)
-            , fUseBGR(useBGR)
-            , fGamma(gamma) {
+            , fUseBGR(useBGR) {
         this->initClassID<BitmapTextBatch>();
         fBatch.fNumGlyphs = glyphCount;
         fInstanceCount = 1;
@@ -1912,10 +1911,6 @@ private:
                 return false;
             }
 
-            if (fGamma != that->fGamma) {
-                return false;
-            }
-
             // TODO see note above
             if (fUseLCDText && this->color() != that->color()) {
                 return false;
@@ -1986,7 +1981,7 @@ private:
         } else {
             flags |= kColorAttr_DistanceFieldEffectFlag;
 #ifdef SK_GAMMA_APPLY_TO_A8
-            U8CPU lum = SkColorSpaceLuminance::computeLuminance(fGamma, filteredColor);
+            U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, filteredColor);
             float correction = (*fDistanceAdjustTable)[lum >> kDistanceAdjustLumShift];
             return GrDistanceFieldA8TextGeoProc::Create(color,
                                                         viewMatrix,
@@ -2025,12 +2020,11 @@ private:
     GrBatchFontCache* fFontCache;
 
     // Distance field properties
-    SkAutoTUnref<DistanceAdjustTable> fDistanceAdjustTable;
+    SkAutoTUnref<const DistanceAdjustTable> fDistanceAdjustTable;
     SkColor fFilteredColor;
     bool fUseDistanceFields;
     bool fUseLCDText;
     bool fUseBGR;
-    float fGamma;
 };
 
 void GrAtlasTextContext::flushRunAsPaths(GrRenderTarget* rt, const SkTextBlob::RunIterator& it, 
@@ -2095,11 +2089,9 @@ GrAtlasTextContext::createBatch(BitmapTextBlob* cacheBlob, const PerSubRunInfo& 
             filteredColor = skPaint.getColor();
         }
         bool useBGR = SkPixelGeometryIsBGR(fDeviceProperties.pixelGeometry());
-        float gamma = fDeviceProperties.gamma();
         batch = BitmapTextBatch::Create(format, glyphCount, fContext->getBatchFontCache(),
                                         fDistanceAdjustTable, filteredColor,
-                                        info.fUseLCDText, useBGR,
-                                        gamma);
+                                        info.fUseLCDText, useBGR);
     } else {
         batch = BitmapTextBatch::Create(format, glyphCount, fContext->getBatchFontCache());
     }

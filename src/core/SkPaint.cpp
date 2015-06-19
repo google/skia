@@ -1463,18 +1463,12 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     rec->setLuminanceColor(paint.computeLuminanceColor());
 
-    if (NULL == deviceProperties) {
-        rec->setDeviceGamma(SK_GAMMA_EXPONENT);
-        rec->setPaintGamma(SK_GAMMA_EXPONENT);
-    } else {
-        rec->setDeviceGamma(deviceProperties->gamma());
-
-        //For now always set the paint gamma equal to the device gamma.
-        //The math in SkMaskGamma can handle them being different,
-        //but it requires superluminous masks when
-        //Ex : deviceGamma(x) < paintGamma(x) and x is sufficiently large.
-        rec->setPaintGamma(deviceProperties->gamma());
-    }
+    //For now always set the paint gamma equal to the device gamma.
+    //The math in SkMaskGamma can handle them being different,
+    //but it requires superluminous masks when
+    //Ex : deviceGamma(x) < paintGamma(x) and x is sufficiently large.
+    rec->setDeviceGamma(SK_GAMMA_EXPONENT);
+    rec->setPaintGamma(SK_GAMMA_EXPONENT);
 
 #ifdef SK_GAMMA_CONTRAST
     rec->setContrast(SK_GAMMA_CONTRAST);
