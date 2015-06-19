@@ -607,7 +607,7 @@ SkCanvas::SkCanvas(SkBaseDevice* device, const SkSurfaceProps* props, InitFlags 
 
 SkCanvas::SkCanvas(SkBaseDevice* device)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(device->getLeakyProperties())
+    , fProps(device->surfaceProps())
 {
     inc_canvas();
 
@@ -616,7 +616,7 @@ SkCanvas::SkCanvas(SkBaseDevice* device)
 
 SkCanvas::SkCanvas(SkBaseDevice* device, InitFlags flags)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(device->getLeakyProperties())
+    , fProps(device->surfaceProps())
 {
     inc_canvas();
 

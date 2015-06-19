@@ -150,7 +150,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext.reset(SkRef(fContext->drawContext(&this->getLeakyProperties())));
+    fDrawContext.reset(SkRef(fContext->drawContext(&this->surfaceProps())));
 }
 
 GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::Budgeted budgeted,
@@ -335,7 +335,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (fRenderTarget->surfacePriv().info(), fRenderTarget));
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext(&this->getLeakyProperties())));
+    fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext(&this->surfaceProps())));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1231,7 +1231,7 @@ bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
 
     // FIXME: plumb actual surface props such that we don't have to lie about the flags here
     //        (https://code.google.com/p/skia/issues/detail?id=3148).
-    SkImageFilter::Proxy proxy(this, SkSurfaceProps(0, getLeakyProperties().pixelGeometry()));
+    SkImageFilter::Proxy proxy(this, SkSurfaceProps(0, this->surfaceProps().pixelGeometry()));
 
     if (filter->canFilterImageGPU()) {
         return filter->filterImageGPU(&proxy, wrap_texture(texture, width, height),
@@ -1684,7 +1684,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     texture.reset(fContext->textureProvider()->refScratchTexture(desc, match));
 
     if (texture) {
-        SkSurfaceProps props(this->getLeakyProperties().flags(), cinfo.fPixelGeometry);
+        SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
         return SkGpuDevice::Create(
             texture->asRenderTarget(), cinfo.fInfo.width(), cinfo.fInfo.height(), &props, flags);
     } else {

@@ -18,7 +18,7 @@
 #include "SkTextToPathIter.h"
 
 SkBaseDevice::SkBaseDevice()
-    : fLeakyProperties(SkSurfaceProps::kLegacyFontHost_InitType)
+    : fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
 #ifdef SK_DEBUG
     , fAttachedToCanvas(false)
 #endif
@@ -28,7 +28,7 @@ SkBaseDevice::SkBaseDevice()
 }
 
 SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps)
-    : fLeakyProperties(surfaceProps)
+    : fSurfaceProps(surfaceProps)
 #ifdef SK_DEBUG
     , fAttachedToCanvas(false)
 #endif
@@ -84,9 +84,9 @@ void SkBaseDevice::initForRootLayer(SkPixelGeometry geo) {
     // For now we don't expect to change the geometry for the root-layer, but we make the call
     // anyway to document logically what is going on.
     //
-    fLeakyProperties.setPixelGeometry_dont_use(CreateInfo::AdjustGeometry(this->imageInfo(),
-                                                                          kPossible_TileUsage,
-                                                                          geo));
+    fSurfaceProps.setPixelGeometry_dont_use(CreateInfo::AdjustGeometry(this->imageInfo(),
+                                                                       kPossible_TileUsage,
+                                                                       geo));
 }
 
 void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
@@ -369,7 +369,7 @@ uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
         return flags;
     }
 
-    if (kUnknown_SkPixelGeometry == fLeakyProperties.pixelGeometry()
+    if (kUnknown_SkPixelGeometry == fSurfaceProps.pixelGeometry()
         || this->onShouldDisableLCD(paint)) {
 
         flags &= ~SkPaint::kLCDRenderText_Flag;

@@ -76,10 +76,6 @@ public:
         return fLegacyBitmap.info();
     }
 
-    const SkSurfaceProps& surfaceProps() const {
-        return this->getLeakyProperties();
-    }
-
     void drawPaint(const SkDraw&, const SkPaint& paint) override;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
                             const SkPoint[], const SkPaint& paint) override;
@@ -218,6 +214,7 @@ private:
                                               int sampleCount);
 
     friend class GrAtlasTextContext;
+    friend class SkSurface_Gpu;      // for access to surfaceProps
     typedef SkBaseDevice INHERITED;
 };
 

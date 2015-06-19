@@ -1601,7 +1601,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 
     SkDrawCacheProc glyphCacheProc = paint.getDrawCacheProc();
 
-    SkAutoGlyphCache    autoCache(paint, &fDevice->getLeakyProperties(), fMatrix);
+    SkAutoGlyphCache    autoCache(paint, &fDevice->surfaceProps(), fMatrix);
     SkGlyphCache*       cache = autoCache.getCache();
 
     // transform our starting point
@@ -1747,7 +1747,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
-    SkAutoGlyphCache    autoCache(paint, &fDevice->getLeakyProperties(), fMatrix);
+    SkAutoGlyphCache    autoCache(paint, &fDevice->surfaceProps(), fMatrix);
     SkGlyphCache*       cache = autoCache.getCache();
 
     SkAAClipBlitterWrapper wrapper;

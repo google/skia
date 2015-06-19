@@ -17,7 +17,6 @@
 #if SK_SUPPORT_GPU
 
 ///////////////////////////////////////////////////////////////////////////////
-
 SkSurface_Gpu::SkSurface_Gpu(SkGpuDevice* device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(SkRef(device)) {

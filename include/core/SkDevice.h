@@ -309,14 +309,8 @@ protected:
 
     virtual bool onAccessPixels(SkPixmap*) { return false; }
 
-    /**
-     *  Leaky properties are those which the device should be applying but it isn't.
-     *  These properties will be applied by the draw, when and as it can.
-     *  If the device does handle a property, that property should be set to the identity value
-     *  for that property, effectively making it non-leaky.
-     */
-    const SkSurfaceProps& getLeakyProperties() const {
-        return fLeakyProperties;
+    const SkSurfaceProps& surfaceProps() const {
+        return fSurfaceProps;
     }
 
     /**
@@ -399,7 +393,7 @@ private:
 
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
-    SkSurfaceProps fLeakyProperties;
+    SkSurfaceProps fSurfaceProps;
 
 #ifdef SK_DEBUG
     bool        fAttachedToCanvas;
