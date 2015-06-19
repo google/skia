@@ -182,9 +182,7 @@ public:
     virtual ~SkScalerContext_FreeType();
 
     bool success() const {
-        return fFaceRec != NULL &&
-               fFTSize != NULL &&
-               fFace != NULL;
+        return fFTSize != NULL && fFace != NULL;
     }
 
 protected:
@@ -198,7 +196,6 @@ protected:
     SkUnichar generateGlyphToChar(uint16_t glyph) override;
 
 private:
-    SkFaceRec*  fFaceRec;
     FT_Face     fFace;              // reference to shared face in gFaceRecHead
     FT_Size     fFTSize;            // our own copy
     FT_Int      fStrikeIndex;
@@ -301,7 +298,7 @@ static void ft_face_setup_axes(FT_Face face, const SkFontData& data) {
 
 // Will return 0 on failure
 // Caller must lock gFTMutex before calling this function.
-static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
+static FT_Face ref_ft_face(const SkTypeface* typeface) {
     gFTMutex.assertHeld();
 
     const SkFontID fontID = typeface->uniqueID();
@@ -310,7 +307,7 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
         if (rec->fFontID == fontID) {
             SkASSERT(rec->fFace);
             rec->fRefCnt += 1;
-            return rec;
+            return rec->fFace;
         }
         rec = rec->fNext;
     }
@@ -357,7 +354,7 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
 
     rec->fNext = gFaceRecHead;
     gFaceRecHead = rec;
-    return rec;
+    return rec->fFace;
 }
 
 // Caller must lock gFTMutex before calling this function.
@@ -388,15 +385,12 @@ static void unref_ft_face(FT_Face face) {
 
 class AutoFTAccess {
 public:
-    AutoFTAccess(const SkTypeface* tf) : fRec(NULL), fFace(NULL) {
+    AutoFTAccess(const SkTypeface* tf) : fFace(NULL) {
         gFTMutex.acquire();
         if (!ref_ft_library()) {
             sk_throw();
         }
-        fRec = ref_ft_face(tf);
-        if (fRec) {
-            fFace = fRec->fFace;
-        }
+        fFace = ref_ft_face(tf);
     }
 
     ~AutoFTAccess() {
@@ -407,11 +401,9 @@ public:
         gFTMutex.release();
     }
 
-    SkFaceRec* rec() { return fRec; }
     FT_Face face() { return fFace; }
 
 private:
-    SkFaceRec*  fRec;
     FT_Face     fFace;
 };
 
@@ -792,9 +784,9 @@ static FT_Int chooseBitmapStrike(FT_Face face, SkFixed scaleY) {
     return chosenStrikeIndex;
 }
 
-SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
-                                                   const SkDescriptor* desc)
-        : SkScalerContext_FreeType_Base(typeface, desc) {
+SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface, const SkDescriptor* desc)
+    : SkScalerContext_FreeType_Base(typeface, desc)
+{
     SkAutoMutexAcquire  ac(gFTMutex);
 
     if (!ref_ft_library()) {
@@ -804,12 +796,10 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
     // load the font file
     fStrikeIndex = -1;
     fFTSize = NULL;
-    fFace = NULL;
-    fFaceRec = ref_ft_face(typeface);
-    if (NULL == fFaceRec) {
+    fFace = ref_ft_face(typeface);
+    if (NULL == fFace) {
         return;
     }
-    fFace = fFaceRec->fFace;
 
     fRec.computeMatrices(SkScalerContextRec::kFull_PreMatrixScale, &fScale, &fMatrix22Scalar);
     fMatrix22Scalar.setSkewX(-fMatrix22Scalar.getSkewX());
@@ -961,8 +951,8 @@ SkScalerContext_FreeType::~SkScalerContext_FreeType() {
 FT_Error SkScalerContext_FreeType::setupSize() {
     FT_Error err = FT_Activate_Size(fFTSize);
     if (err != 0) {
-        SkDEBUGF(("SkScalerContext_FreeType::FT_Activate_Size(%x, 0x%x, 0x%x) returned 0x%x\n",
-                  fFaceRec->fFontID, fScaleX, fScaleY, err));
+        SkDEBUGF(("SkScalerContext_FreeType::FT_Activate_Size(%s %s, 0x%x, 0x%x) returned 0x%x\n",
+                  fFace->family_name, fFace->style_name, fScaleX, fScaleY, err));
         fFTSize = NULL;
         return err;
     }
@@ -1112,16 +1102,12 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     FT_Error    err;
 
     if (this->setupSize()) {
-        goto ERROR;
+        glyph->zeroMetrics();
+        return;
     }
 
     err = FT_Load_Glyph( fFace, glyph->getGlyphID(), fLoadGlyphFlags );
     if (err != 0) {
-#if 0
-        SkDEBUGF(("SkScalerContext_FreeType::generateMetrics(%x): FT_Load_Glyph(glyph:%d flags:%x) returned 0x%x\n",
-                    fFaceRec->fFontID, glyph->getGlyphID(), fLoadGlyphFlags, err));
-#endif
-    ERROR:
         glyph->zeroMetrics();
         return;
     }
@@ -1169,7 +1155,8 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 
       default:
         SkDEBUGFAIL("unknown glyph format");
-        goto ERROR;
+        glyph->zeroMetrics();
+        return;
     }
 
     if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
