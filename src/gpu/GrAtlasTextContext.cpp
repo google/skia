@@ -55,7 +55,11 @@ static const int kSmallDFFontLimit = 32;
 static const int kMediumDFFontSize = 72;
 static const int kMediumDFFontLimit = 72;
 static const int kLargeDFFontSize = 162;
+#ifdef SK_BUILD_FOR_ANDROID
+static const int kLargeDFFontLimit = 384;
+#else
 static const int kLargeDFFontLimit = 2 * kLargeDFFontSize;
+#endif
 
 SkDEBUGCODE(static const int kExpectedDistanceAdjustTableSize = 8;)
 static const int kDistanceAdjustLumShift = 5;
@@ -438,7 +442,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
     SkScalar scaledTextSize = maxScale*skPaint.getTextSize();
     // Hinted text looks far better at small resolutions
     // Scaling up beyond 2x yields undesireable artifacts
-    if (scaledTextSize < kMinDFFontSize || scaledTextSize > kLargeDFFontLimit) {
+    if (scaledTextSize < kMinDFFontSize || scaledTextSize >= kLargeDFFontLimit) {
         return false;
     }
 
