@@ -126,17 +126,6 @@ bool SkSrcPixelInfo::convertPixelsTo(SkDstPixelInfo* dst, int width, int height)
     return true;
 }
 
-static void rect_memcpy(void* dst, size_t dstRB, const void* src, size_t srcRB, size_t bytesPerRow,
-                        int rowCount) {
-    SkASSERT(bytesPerRow <= srcRB);
-    SkASSERT(bytesPerRow <= dstRB);
-    for (int i = 0; i < rowCount; ++i) {
-        memcpy(dst, src, bytesPerRow);
-        dst = (char*)dst + dstRB;
-        src = (const char*)src + srcRB;
-    }
-}
-
 static void copy_g8_to_32(void* dst, size_t dstRB, const void* src, size_t srcRB, int w, int h) {
     uint32_t* dst32 = (uint32_t*)dst;
     const uint8_t* src8 = (const uint8_t*)src;
@@ -222,7 +211,7 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
             default:
                 return false;
         }
-        rect_memcpy(dstPixels, dstRB, srcPixels, srcRB, width * srcInfo.bytesPerPixel(), height);
+        SkRectMemcpy(dstPixels, dstRB, srcPixels, srcRB, width * srcInfo.bytesPerPixel(), height);
         return true;
     }
 
