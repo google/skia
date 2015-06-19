@@ -786,7 +786,7 @@ bool SkMatrix::asAffine(SkScalar affine[6]) const {
     return true;
 }
 
-void SkMatrix::ComputeInv(SkScalar dst[9], const SkScalar src[9], SkScalar invDet, bool isPersp) {
+void SkMatrix::ComputeInv(SkScalar dst[9], const SkScalar src[9], double invDet, bool isPersp) {
     SkASSERT(src != dst);
     SkASSERT(src && dst);
 

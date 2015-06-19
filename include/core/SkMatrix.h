@@ -723,7 +723,7 @@ private:
      */
     bool isFinite() const;
 
-    static void ComputeInv(SkScalar dst[9], const SkScalar src[9], SkScalar invDet, bool isPersp);
+    static void ComputeInv(SkScalar dst[9], const SkScalar src[9], double invDet, bool isPersp);
 
     void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
         fMat[kMScaleX] = sx;
