@@ -14,11 +14,19 @@
 /**
  * Shared state for our app.
  */
+enum State {
+    kInit_State,
+    kAnimate_State,
+    kDestroyRequested_State,
+    kFinished_State,
+};
+
 struct VisualBenchState {
-    VisualBenchState() : fApp(NULL), fWindow(NULL) {}
+    VisualBenchState() : fApp(NULL), fWindow(NULL), fState(kInit_State) {}
     struct android_app* fApp;
     SkOSWindow* fWindow;
     SkTArray<SkString> fFlags;
+    State fState;
 };
 
 static void handle_cmd(struct android_app* app, int32_t cmd) {
@@ -26,12 +34,7 @@ static void handle_cmd(struct android_app* app, int32_t cmd) {
     switch (cmd) {
         case APP_CMD_INIT_WINDOW:
             // The window is being shown, get it ready.
-            if (state->fApp->window != NULL) {
-                if (state->fWindow) {
-                    SkDELETE(state->fWindow);
-                    application_term();
-                }
-
+            if (state->fApp->window != NULL && kInit_State == state->fState) {
                 // drain any events that occurred before |window| was assigned.
                 while (SkEvent::ProcessEvent());
 
@@ -48,12 +51,12 @@ static void handle_cmd(struct android_app* app, int32_t cmd) {
                 state->fWindow = create_sk_window((void*)state->fApp->window,
                                                   args.count(),
                                                   const_cast<char**>(args.begin()));
+                state->fWindow->forceInvalAll();
+                state->fState = kAnimate_State;
             }
             break;
         case APP_CMD_TERM_WINDOW:
-            SkDELETE(state->fWindow);
-            state->fWindow = NULL;
-            application_term();
+            state->fState = kDestroyRequested_State;
             break;
     }
 }
@@ -84,7 +87,7 @@ void android_main(struct android_app* state) {
                                        "(Ljava/lang/String;)Ljava/lang/String;");
 
     jstring jsParam1 = (jstring)env->CallObjectMethod(intent, gseid,
-                                                      env->NewStringUTF("cmdLineArguments"));
+                                                      env->NewStringUTF("cmdLineFlags"));
     if (jsParam1) {
         const char* flags = env->GetStringUTFChars(jsParam1, 0);
         SkTArray<SkString> flagEntries;
@@ -108,21 +111,25 @@ void android_main(struct android_app* state) {
 
             // Check if we are exiting.
             if (state->destroyRequested != 0) {
-                SkDELETE(visualBenchState.fWindow);
-                application_term();
                 return;
             }
+
         }
 
         if (visualBenchState.fWindow) {
             if (visualBenchState.fWindow->destroyRequested()) {
-                SkDELETE(visualBenchState.fWindow);
-                visualBenchState.fWindow = NULL;
-                application_term();
-                break;
+                visualBenchState.fState = kDestroyRequested_State;
+            } else {
+                visualBenchState.fWindow->update(NULL);
             }
-            visualBenchState.fWindow->update(NULL);
+        }
+
+        if (kDestroyRequested_State == visualBenchState.fState) {
+            SkDELETE(visualBenchState.fWindow);
+            visualBenchState.fWindow = NULL;
+            application_term();
+            ANativeActivity_finish(state->activity);
+            visualBenchState.fState = kFinished_State;
         }
     }
-    ANativeActivity_finish(state->activity);
 }
