@@ -182,12 +182,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             const int divisor = 2;
             const int w = decodeInfo.width();
             const int h = decodeInfo.height();
-            if (w*h == 1) {
-                return Error::Nonfatal("Subset decoding not supported.");
-            }
             if (divisor > w || divisor > h) {
-                return SkStringPrintf("divisor %d is too big for %s with dimensions (%d x %d)",
-                        divisor, fPath.c_str(), w, h);
+                return Error::Nonfatal(SkStringPrintf("Cannot decode subset: divisor %d is too big"
+                        "for %s with dimensions (%d x %d)", divisor, fPath.c_str(), w, h));
             }
             const int subsetWidth = w/divisor;
             const int subsetHeight = h/divisor;
@@ -407,14 +404,14 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
     }
     stream->rewind();
     int w,h;
-    if (!decoder->buildTileIndex(stream.detach(), &w, &h) || w*h == 1) {
+    if (!decoder->buildTileIndex(stream.detach(), &w, &h)) {
         return Error::Nonfatal("Subset decoding not supported.");
     }
 
     // Divide the image into subsets that cover the entire image.
     if (fDivisor > w || fDivisor > h) {
-        return SkStringPrintf("divisor %d is too big for %s with dimensions (%d x %d)",
-                              fDivisor, fPath.c_str(), w, h);
+        return Error::Nonfatal(SkStringPrintf("Cannot decode subset: divisor %d is too big"
+                "for %s with dimensions (%d x %d)", fDivisor, fPath.c_str(), w, h));
     }
     const int subsetWidth  = w / fDivisor,
               subsetHeight = h / fDivisor;
