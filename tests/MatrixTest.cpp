@@ -838,6 +838,13 @@ DEF_TEST(Matrix, reporter) {
     REPORTER_ASSERT(reporter, !mat.invert(NULL));
     REPORTER_ASSERT(reporter, !mat.invert(&inverse));
 
+    // Inverting this matrix results in a non-finite matrix
+    mat.setAll(0.0f, 1.0f, 2.0f,
+               0.0f, 1.0f, -3.40277175e+38f,
+               1.00003040f, 1.0f, 0.0f);
+    REPORTER_ASSERT(reporter, !mat.invert(NULL));
+    REPORTER_ASSERT(reporter, !mat.invert(&inverse));
+
     // rectStaysRect test
     {
         static const struct {

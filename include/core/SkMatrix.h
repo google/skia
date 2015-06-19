@@ -719,6 +719,12 @@ private:
     SkScalar         fMat[9];
     mutable uint32_t fTypeMask;
 
+    /** Are all elements of the matrix finite?
+     */
+    bool isFinite() const;
+
+    static void ComputeInv(SkScalar dst[9], const SkScalar src[9], SkScalar invDet, bool isPersp);
+
     void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
         fMat[kMScaleX] = sx;
         fMat[kMSkewX]  = 0;
