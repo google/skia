@@ -141,11 +141,6 @@ def get_args(bot):
     blacklist.extend('gpu image subset _ msaa image subset _'.split(' '))
     blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
 
-  # Disabled until skbug.com/3942 is resolved.
-  if 'Nexus6' in bot:
-    blacklist.extend('_ tests _ WritePixels'.split(' '))
-    blacklist.extend('_ tests _ FloatingPointTextureTest'.split(' '))
-
   if blacklist:
     args.append('--blacklist')
     args.extend(blacklist)
@@ -186,7 +181,6 @@ def self_test():
     'Test-Android-GCC-Nexus9-GPU-TegraK1-Arm64-Debug',
     'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
-    'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
     'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
     'Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
