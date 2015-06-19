@@ -76,11 +76,6 @@ public:
      *  specified width and height, and populates the rest of info to match
      *  pixels in SkPMColor format.
      */
-#ifdef SK_SUPPORT_LEGACY_NewRasterPMColor
-    static SkSurface* NewRasterPMColor(int width, int height, const SkSurfaceProps* props = NULL) {
-        return NewRaster(SkImageInfo::MakeN32Premul(width, height), props);
-    }
-#endif
     static SkSurface* NewRasterN32Premul(int width, int height, const SkSurfaceProps* props = NULL) {
         return NewRaster(SkImageInfo::MakeN32Premul(width, height), props);
     }
