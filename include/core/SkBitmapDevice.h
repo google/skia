@@ -22,14 +22,15 @@ public:
      *  any drawing to this device will have no effect.
     */
     SkBitmapDevice(const SkBitmap& bitmap);
-private:
+protected:
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,
      *  any drawing to this device will have no effect.
     */
-    SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties);
-    static SkBitmapDevice* Create(const SkImageInfo&, const SkDeviceProperties*);
+    SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps);
+private:
+    static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps*);
 public:
     static SkBitmapDevice* Create(const SkImageInfo& info) {
         return Create(info, NULL);

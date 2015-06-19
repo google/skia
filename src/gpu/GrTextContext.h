@@ -11,7 +11,7 @@
 #include "GrClip.h"
 #include "GrGlyph.h"
 #include "GrPaint.h"
-#include "SkDeviceProperties.h"
+#include "SkSurfaceProps.h"
 #include "SkPostConfig.h"
 
 class GrClip;
@@ -46,7 +46,7 @@ public:
 protected:
     GrTextContext*                 fFallbackTextContext;
     GrContext*                     fContext;
-    SkDeviceProperties             fDeviceProperties;
+    SkSurfaceProps                 fSurfaceProps;
 
     GrDrawContext*                 fDrawContext;  // owning drawContext
     SkAutoTUnref<GrRenderTarget>   fRenderTarget;
@@ -56,7 +56,7 @@ protected:
     GrPaint                        fPaint;
     SkPaint                        fSkPaint;
 
-    GrTextContext(GrContext*, GrDrawContext*, const SkDeviceProperties&);
+    GrTextContext(GrContext*, GrDrawContext*, const SkSurfaceProps&);
 
     virtual bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                          const SkPaint&, const SkMatrix& viewMatrix) = 0;
@@ -89,7 +89,7 @@ protected:
     // sets extent in stopVector and returns glyph count
     static int MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
                            const char text[], size_t byteLength, SkVector* stopVector);
-    static uint32_t FilterTextFlags(const SkDeviceProperties& devProps, const SkPaint& paint);
+    static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
     friend class BitmapTextBatch;
 };

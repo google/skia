@@ -20,7 +20,6 @@ class SkAutoGlyphCache;
 class SkColorFilter;
 class SkData;
 class SkDescriptor;
-struct SkDeviceProperties;
 class SkReadBuffer;
 class SkWriteBuffer;
 class SkGlyph;
@@ -33,6 +32,7 @@ class SkPathEffect;
 struct SkPoint;
 class SkRasterizer;
 class SkShader;
+class SkSurfaceProps;
 class SkTypeface;
 
 typedef const SkGlyph& (*SkDrawCacheProc)(SkGlyphCache*, const char**,
@@ -1066,15 +1066,15 @@ private:
      * Allocs an SkDescriptor on the heap and return it to the caller as a refcnted
      * SkData.  Caller is responsible for managing the lifetime of this object.
      */
-    void getScalerContextDescriptor(SkAutoDescriptor*, const SkDeviceProperties* deviceProperties,
+    void getScalerContextDescriptor(SkAutoDescriptor*, const SkSurfaceProps& surfaceProps,
                                     const SkMatrix*, bool ignoreGamma) const;
 
-    SkGlyphCache* detachCache(const SkDeviceProperties* deviceProperties, const SkMatrix*,
+    SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps, const SkMatrix*,
                               bool ignoreGamma) const;
 
-    void descriptorProc(const SkDeviceProperties* deviceProperties, const SkMatrix* deviceMatrix,
+    void descriptorProc(const SkSurfaceProps* surfaceProps, const SkMatrix* deviceMatrix,
                         void (*proc)(SkTypeface*, const SkDescriptor*, void*),
-                        void* context, bool ignoreGamma = false) const;
+                        void* context, bool ignoreGamma) const;
 
     /*
      * The luminance color is used to determine which Gamma Canonical color to map to.  This is

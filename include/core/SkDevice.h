@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkImageFilter.h"
+#include "SkSurfaceProps.h"
 
 class SkClipStack;
 class SkDraw;
@@ -21,7 +22,6 @@ struct SkIRect;
 class SkMatrix;
 class SkMetaData;
 class SkRegion;
-struct SkDeviceProperties;
 class GrRenderTarget;
 
 class SK_API SkBaseDevice : public SkRefCnt {
@@ -32,7 +32,7 @@ public:
      *  Construct a new device.
     */
     SkBaseDevice();
-    explicit SkBaseDevice(const SkDeviceProperties&);
+    explicit SkBaseDevice(const SkSurfaceProps&);
     virtual ~SkBaseDevice();
 
     SkMetaData& getMetaData();
@@ -315,8 +315,8 @@ protected:
      *  If the device does handle a property, that property should be set to the identity value
      *  for that property, effectively making it non-leaky.
      */
-    const SkDeviceProperties& getLeakyProperties() const {
-        return *fLeakyProperties;
+    const SkSurfaceProps& getLeakyProperties() const {
+        return fLeakyProperties;
     }
 
     /**
@@ -399,7 +399,7 @@ private:
 
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
-    SkDeviceProperties* fLeakyProperties;   // will always exist.
+    SkSurfaceProps fLeakyProperties;
 
 #ifdef SK_DEBUG
     bool        fAttachedToCanvas;

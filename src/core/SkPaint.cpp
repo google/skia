@@ -11,7 +11,6 @@
 #include "SkChecksum.h"
 #include "SkColorFilter.h"
 #include "SkData.h"
-#include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkFontDescriptor.h"
 #include "SkGlyphCache.h"
@@ -32,6 +31,7 @@
 #include "SkTextToPathIter.h"
 #include "SkTLazy.h"
 #include "SkTypeface.h"
+#include "SkSurfacePriv.h"
 #include "SkXfermode.h"
 
 // define this to get a printf for out-of-range parameter in setters
@@ -1329,7 +1329,7 @@ static SkScalar sk_relax(SkScalar x) {
 }
 
 void SkScalerContext::MakeRec(const SkPaint& paint,
-                              const SkDeviceProperties* deviceProperties,
+                              const SkSurfaceProps* surfaceProps,
                               const SkMatrix* deviceMatrix,
                               Rec* rec) {
     SkASSERT(deviceMatrix == NULL || !deviceMatrix->hasPerspective());
@@ -1415,8 +1415,8 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
             rec->fMaskFormat = SkMask::kA8_Format;
             flags |= SkScalerContext::kGenA8FromLCD_Flag;
         } else {
-            SkPixelGeometry geometry = deviceProperties
-                                     ? deviceProperties->pixelGeometry()
+            SkPixelGeometry geometry = surfaceProps
+                                     ? surfaceProps->pixelGeometry()
                                      : SkSurfacePropsDefaultPixelGeometry();
             switch (geometry) {
                 case kUnknown_SkPixelGeometry:
@@ -1603,12 +1603,12 @@ static void write_out_descriptor(SkDescriptor* desc, const SkScalerContext::Rec&
 }
 
 static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
-                           const SkDeviceProperties* deviceProperties,
+                           const SkSurfaceProps* surfaceProps,
                            const SkMatrix* deviceMatrix, bool ignoreGamma,
                            const SkPathEffect* pe, SkWriteBuffer* peBuffer,
                            const SkMaskFilter* mf, SkWriteBuffer* mfBuffer,
                            const SkRasterizer* ra, SkWriteBuffer* raBuffer) {
-    SkScalerContext::MakeRec(paint, deviceProperties, deviceMatrix, rec);
+    SkScalerContext::MakeRec(paint, surfaceProps, deviceMatrix, rec);
     if (ignoreGamma) {
         rec->ignorePreBlend();
     }
@@ -1698,7 +1698,7 @@ static void test_desc(const SkScalerContext::Rec& rec,
 
 /* see the note on ignoreGamma on descriptorProc */
 void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
-                                         const SkDeviceProperties* deviceProperties,
+                                         const SkSurfaceProps& surfaceProps,
                                          const SkMatrix* deviceMatrix, bool ignoreGamma) const {
     SkScalerContext::Rec    rec;
 
@@ -1707,7 +1707,7 @@ void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
     SkRasterizer*   ra = this->getRasterizer();
 
     SkWriteBuffer   peBuffer, mfBuffer, raBuffer;
-    size_t descSize = fill_out_rec(*this, &rec, deviceProperties, deviceMatrix, ignoreGamma,
+    size_t descSize = fill_out_rec(*this, &rec, &surfaceProps, deviceMatrix, ignoreGamma,
                                    pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
 
     ad->reset(descSize);
@@ -1727,7 +1727,7 @@ void SkPaint::getScalerContextDescriptor(SkAutoDescriptor* ad,
  *  by gamma correction, so we set the rec to ignore preblend: i.e. gamma = 1,
  *  contrast = 0, luminanceColor = transparent black.
  */
-void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
+void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
                              const SkMatrix* deviceMatrix,
                              void (*proc)(SkTypeface*, const SkDescriptor*, void*),
                              void* context, bool ignoreGamma) const {
@@ -1738,7 +1738,7 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
     SkRasterizer*   ra = this->getRasterizer();
 
     SkWriteBuffer   peBuffer, mfBuffer, raBuffer;
-    size_t descSize = fill_out_rec(*this, &rec, deviceProperties, deviceMatrix, ignoreGamma,
+    size_t descSize = fill_out_rec(*this, &rec, surfaceProps, deviceMatrix, ignoreGamma,
                                    pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
 
     SkAutoDescriptor    ad(descSize);
@@ -1755,11 +1755,11 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
     proc(fTypeface, desc, context);
 }
 
-SkGlyphCache* SkPaint::detachCache(const SkDeviceProperties* deviceProperties,
+SkGlyphCache* SkPaint::detachCache(const SkSurfaceProps* surfaceProps,
                                    const SkMatrix* deviceMatrix,
                                    bool ignoreGamma) const {
     SkGlyphCache* cache;
-    this->descriptorProc(deviceProperties, deviceMatrix, DetachDescProc, &cache, ignoreGamma);
+    this->descriptorProc(surfaceProps, deviceMatrix, DetachDescProc, &cache, ignoreGamma);
     return cache;
 }
 
@@ -2289,10 +2289,10 @@ static bool has_thick_frame(const SkPaint& paint) {
             paint.getStyle() != SkPaint::kFill_Style;
 }
 
-SkTextToPathIter::SkTextToPathIter( const char text[], size_t length,
-                                    const SkPaint& paint,
-                                    bool applyStrokeAndPathEffects)
-                                    : fPaint(paint) {
+SkTextToPathIter::SkTextToPathIter(const char text[], size_t length,
+                                   const SkPaint& paint,
+                                   bool applyStrokeAndPathEffects)
+    : fPaint(paint) {
     fGlyphCacheProc = paint.getMeasureCacheProc(true);
 
     fPaint.setLinearText(true);

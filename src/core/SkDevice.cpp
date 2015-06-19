@@ -6,7 +6,6 @@
  */
 
 #include "SkDevice.h"
-#include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkImage_Base.h"
@@ -19,7 +18,7 @@
 #include "SkTextToPathIter.h"
 
 SkBaseDevice::SkBaseDevice()
-    : fLeakyProperties(SkNEW(SkDeviceProperties))
+    : fLeakyProperties(SkSurfaceProps::kLegacyFontHost_InitType)
 #ifdef SK_DEBUG
     , fAttachedToCanvas(false)
 #endif
@@ -28,8 +27,8 @@ SkBaseDevice::SkBaseDevice()
     fMetaData = NULL;
 }
 
-SkBaseDevice::SkBaseDevice(const SkDeviceProperties& dp)
-    : fLeakyProperties(SkNEW_ARGS(SkDeviceProperties, (dp)))
+SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps)
+    : fLeakyProperties(surfaceProps)
 #ifdef SK_DEBUG
     , fAttachedToCanvas(false)
 #endif
@@ -39,7 +38,6 @@ SkBaseDevice::SkBaseDevice(const SkDeviceProperties& dp)
 }
 
 SkBaseDevice::~SkBaseDevice() {
-    SkDELETE(fLeakyProperties);
     SkDELETE(fMetaData);
 }
 
@@ -86,9 +84,9 @@ void SkBaseDevice::initForRootLayer(SkPixelGeometry geo) {
     // For now we don't expect to change the geometry for the root-layer, but we make the call
     // anyway to document logically what is going on.
     //
-    fLeakyProperties->setPixelGeometry(CreateInfo::AdjustGeometry(this->imageInfo(),
-                                                                  kPossible_TileUsage,
-                                                                  geo));
+    fLeakyProperties.setPixelGeometry_dont_use(CreateInfo::AdjustGeometry(this->imageInfo(),
+                                                                          kPossible_TileUsage,
+                                                                          geo));
 }
 
 void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
@@ -371,7 +369,7 @@ uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
         return flags;
     }
 
-    if (kUnknown_SkPixelGeometry == fLeakyProperties->pixelGeometry()
+    if (kUnknown_SkPixelGeometry == fLeakyProperties.pixelGeometry()
         || this->onShouldDisableLCD(paint)) {
 
         flags &= ~SkPaint::kLCDRenderText_Flag;

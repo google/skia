@@ -15,6 +15,7 @@
 class GrTextStrike;
 class GrPath;
 class GrPathRange;
+class SkSurfaceProps;
 
 /*
  * This class implements text rendering using stencil and cover path rendering
@@ -24,7 +25,7 @@ class GrPathRange;
 class GrStencilAndCoverTextContext : public GrTextContext {
 public:
     static GrStencilAndCoverTextContext* Create(GrContext*, GrDrawContext*,
-                                                const SkDeviceProperties&);
+                                                const SkSurfaceProps&);
 
     virtual ~GrStencilAndCoverTextContext();
 
@@ -68,7 +69,7 @@ private:
     SkMatrix                                            fLocalMatrix;
     bool                                                fUsingDeviceSpaceGlyphs;
 
-    GrStencilAndCoverTextContext(GrContext*, GrDrawContext*, const SkDeviceProperties&);
+    GrStencilAndCoverTextContext(GrContext*, GrDrawContext*, const SkSurfaceProps&);
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                  const SkPaint&, const SkMatrix& viewMatrix) override;

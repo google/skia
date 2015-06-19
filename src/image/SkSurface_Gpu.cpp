@@ -32,7 +32,7 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
     // When we think this works...
 //    flags |= SkCanvas::kConservativeRasterClip_InitFlag;
 
-    return SkNEW_ARGS(SkCanvas, (fDevice, &this->props(), flags));
+    return SkNEW_ARGS(SkCanvas, (fDevice, flags));
 }
 
 SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {

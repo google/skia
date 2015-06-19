@@ -237,7 +237,7 @@ public:
     static void   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                   void* data);
 
-    static void MakeRec(const SkPaint&, const SkDeviceProperties* deviceProperties,
+    static void MakeRec(const SkPaint&, const SkSurfaceProps* surfaceProps,
                         const SkMatrix*, Rec* rec);
     static inline void PostMakeRec(const SkPaint&, Rec*);
 

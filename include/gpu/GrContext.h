@@ -180,8 +180,8 @@ public:
      *
      * @return a draw context
      */
-    GrDrawContext* drawContext(const SkDeviceProperties* devProps = NULL) {
-        return fDrawingMgr.drawContext(devProps);    
+    GrDrawContext* drawContext(const SkSurfaceProps* surfaceProps = NULL) {
+        return fDrawingMgr.drawContext(surfaceProps);    
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -419,7 +419,7 @@ private:
 
         // Callers should take a ref if they rely on the GrDrawContext sticking around.
         // NULL will be returned if the context has been abandoned.
-        GrDrawContext* drawContext(const SkDeviceProperties* devProps);
+        GrDrawContext* drawContext(const SkSurfaceProps* surfaceProps);
 
     private:
         void cleanup();

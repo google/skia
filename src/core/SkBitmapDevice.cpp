@@ -7,7 +7,6 @@
 
 #include "SkBitmapDevice.h"
 #include "SkConfig8888.h"
-#include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkPixelRef.h"
 #include "SkRasterClip.h"
@@ -63,15 +62,15 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
 
-SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties)
-    : SkBaseDevice(deviceProperties)
+SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps)
+    : SkBaseDevice(surfaceProps)
     , fBitmap(bitmap)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
-                                       const SkDeviceProperties* props) {
+                                       const SkSurfaceProps* surfaceProps) {
     SkAlphaType newAT = origInfo.alphaType();
     if (!valid_for_bitmap_device(origInfo, &newAT)) {
         return NULL;
@@ -93,8 +92,8 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    if (props) {
-        return SkNEW_ARGS(SkBitmapDevice, (bitmap, *props));
+    if (surfaceProps) {
+        return SkNEW_ARGS(SkBitmapDevice, (bitmap, *surfaceProps));
     } else {
         return SkNEW_ARGS(SkBitmapDevice, (bitmap));
     }
@@ -117,7 +116,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
 }
 
 SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
-    const SkDeviceProperties leaky(cinfo.fPixelGeometry);
+    const SkSurfaceProps leaky(0, cinfo.fPixelGeometry);
     return SkBitmapDevice::Create(cinfo.fInfo, &leaky);
 }
 

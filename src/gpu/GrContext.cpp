@@ -43,6 +43,7 @@
 #include "SkGr.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
+#include "SkSurfacePriv.h"
 #include "SkTLazy.h"
 #include "SkTLS.h"
 #include "SkTraceEvent.h"
@@ -111,23 +112,20 @@ void GrContext::DrawingMgr::flush() {
     }
 }
 
-GrDrawContext* GrContext::DrawingMgr::drawContext(const SkDeviceProperties* devProps) { 
+GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceProps) { 
     if (this->abandoned()) {
         return NULL;
     }
 
-    const SkDeviceProperties defProps;
-    if (!devProps) {
-        devProps = &defProps;
+    const SkSurfaceProps props(SkSurfacePropsCopyOrDefault(surfaceProps));
+
+    SkASSERT(props.pixelGeometry() < kNumPixelGeometries);
+    if (!fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()]) {
+        fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()] =
+                SkNEW_ARGS(GrDrawContext, (fContext, fDrawTarget, props));
     }
 
-    SkASSERT(devProps->pixelGeometry() < kNumPixelGeometries);
-    if (!fDrawContext[devProps->pixelGeometry()][devProps->useDFT()]) {
-        fDrawContext[devProps->pixelGeometry()][devProps->useDFT()] =
-                SkNEW_ARGS(GrDrawContext, (fContext, fDrawTarget, *devProps));
-    }
-
-    return fDrawContext[devProps->pixelGeometry()][devProps->useDFT()]; 
+    return fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()]; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,6 @@
 #include "SkCanvasPriv.h"
 #include "SkBitmapDevice.h"
 #include "SkColorFilter.h"
-#include "SkDeviceProperties.h"
 #include "SkDraw.h"
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
@@ -537,6 +536,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fSurfaceBase = NULL;
 
     if (device) {
+        // TODO: remove this - the root device & canvas should always have same surfaceProps
         device->initForRootLayer(fProps.pixelGeometry());
         if (device->forceConservativeRasterClip()) {
             fConservativeRasterClip = true;
@@ -565,8 +565,8 @@ static SkBitmap make_nopixels(int width, int height) {
 
 class SkNoPixelsBitmapDevice : public SkBitmapDevice {
 public:
-    SkNoPixelsBitmapDevice(const SkIRect& bounds)
-        : INHERITED(make_nopixels(bounds.width(), bounds.height()))
+    SkNoPixelsBitmapDevice(const SkIRect& bounds, const SkSurfaceProps& surfaceProps)
+        : INHERITED(make_nopixels(bounds.width(), bounds.height()), surfaceProps)
     {
         this->setOrigin(bounds.x(), bounds.y());
     }
@@ -583,7 +583,7 @@ SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
     inc_canvas();
 
     this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice,
-                          (SkIRect::MakeWH(width, height))), kDefault_InitFlags)->unref();
+                          (SkIRect::MakeWH(width, height), fProps)), kDefault_InitFlags)->unref();
 }
 
 SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
@@ -592,9 +592,10 @@ SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
 {
     inc_canvas();
 
-    this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (bounds)), flags)->unref();
+    this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (bounds, fProps)), flags)->unref();
 }
 
+// TODO: remove this ctor
 SkCanvas::SkCanvas(SkBaseDevice* device, const SkSurfaceProps* props, InitFlags flags)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfacePropsCopyOrDefault(props))
@@ -606,11 +607,20 @@ SkCanvas::SkCanvas(SkBaseDevice* device, const SkSurfaceProps* props, InitFlags 
 
 SkCanvas::SkCanvas(SkBaseDevice* device)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
+    , fProps(device->getLeakyProperties())
 {
     inc_canvas();
 
     this->init(device, kDefault_InitFlags);
+}
+
+SkCanvas::SkCanvas(SkBaseDevice* device, InitFlags flags)
+    : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
+    , fProps(device->getLeakyProperties())
+{
+    inc_canvas();
+
+    this->init(device, flags);
 }
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
@@ -619,7 +629,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
 {
     inc_canvas();
 
-    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
+    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap, fProps)));
     this->init(device, kDefault_InitFlags);
 }
 
@@ -629,7 +639,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
 {
     inc_canvas();
 
-    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
+    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap, fProps)));
     this->init(device, kDefault_InitFlags);
 }
 
@@ -1039,8 +1049,8 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
         SkBaseDevice* newDev = device->onCreateDevice(createInfo, paint);
         if (NULL == newDev) {
             // If onCreateDevice didn't succeed, try raster (e.g. PDF couldn't handle the paint)
-            const SkDeviceProperties deviceProps(createInfo.fPixelGeometry);
-            newDev = SkBitmapDevice::Create(createInfo.fInfo, &deviceProps);
+            const SkSurfaceProps surfaceProps(0, createInfo.fPixelGeometry);
+            newDev = SkBitmapDevice::Create(createInfo.fInfo, &surfaceProps);
             if (NULL == newDev) {
                 SkErrorInternals::SetError(kInternalError_SkError,
                                            "Unable to create device for layer.");

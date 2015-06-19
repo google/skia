@@ -21,10 +21,10 @@
 #include "SkTextToPathIter.h"
 
 GrTextContext::GrTextContext(GrContext* context, GrDrawContext* drawContext,
-                             const SkDeviceProperties& properties)
+                             const SkSurfaceProps& surfaceProps)
     : fFallbackTextContext(NULL)
     , fContext(context)
-    , fDeviceProperties(properties)
+    , fSurfaceProps(surfaceProps)
     , fDrawContext(drawContext) {
 }
 
@@ -108,14 +108,14 @@ bool GrTextContext::ShouldDisableLCD(const SkPaint& paint) {
     return false;
 }
 
-uint32_t GrTextContext::FilterTextFlags(const SkDeviceProperties& devProps, const SkPaint& paint) {
+uint32_t GrTextContext::FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint) {
     uint32_t flags = paint.getFlags();
 
     if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
         return flags;
     }
 
-    if (kUnknown_SkPixelGeometry == devProps.pixelGeometry() || ShouldDisableLCD(paint)) {
+    if (kUnknown_SkPixelGeometry == surfaceProps.pixelGeometry() || ShouldDisableLCD(paint)) {
         flags &= ~SkPaint::kLCDRenderText_Flag;
         flags |= SkPaint::kGenA8FromLCD_Flag;
     }
@@ -144,7 +144,7 @@ void GrTextContext::drawTextBlob(GrRenderTarget* rt,
             continue;
         }
 
-        runPaint.setFlags(FilterTextFlags(fDeviceProperties, runPaint));
+        runPaint.setFlags(FilterTextFlags(fSurfaceProps, runPaint));
 
         GrPaint grPaint;
         if (!SkPaint2GrPaint(fContext, fRenderTarget, runPaint, viewMatrix, true, &grPaint)) {

@@ -34,17 +34,16 @@ private:
 
 GrDrawContext::GrDrawContext(GrContext* context,
                              GrDrawTarget* drawTarget,
-                             const SkDeviceProperties& devProps)
+                             const SkSurfaceProps& surfaceProps)
     : fContext(context)
     , fDrawTarget(SkRef(drawTarget))
     , fTextContext(NULL)
-    , fDevProps(SkNEW_ARGS(SkDeviceProperties, (devProps))) {
+    , fSurfaceProps(surfaceProps) {
 }
 
 GrDrawContext::~GrDrawContext() {
     SkSafeUnref(fDrawTarget);
     SkDELETE(fTextContext);
-    SkDELETE(fDevProps);
 }
 
 void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
@@ -57,16 +56,16 @@ void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
 }
 
 GrTextContext* GrDrawContext::createTextContext(GrRenderTarget* renderTarget,
-                                                const SkDeviceProperties& leakyProperties) {
+                                                const SkSurfaceProps& surfaceProps) {
     if (fContext->caps()->shaderCaps()->pathRenderingSupport() &&
         renderTarget->isStencilBufferMultisampled()) {
         GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
         if (sb) {
-            return GrStencilAndCoverTextContext::Create(fContext, this, leakyProperties);
+            return GrStencilAndCoverTextContext::Create(fContext, this, surfaceProps);
         }
     } 
 
-    return GrAtlasTextContext::Create(fContext, this, leakyProperties);
+    return GrAtlasTextContext::Create(fContext, this, surfaceProps);
 }
 
 void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
@@ -75,7 +74,7 @@ void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y, const SkIRect& clipBounds) {
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps);
+        fTextContext = this->createTextContext(rt, fSurfaceProps);
     }
 
     fTextContext->drawText(rt, clip, grPaint, skPaint, viewMatrix,
@@ -89,7 +88,7 @@ void GrDrawContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset, const SkIRect& clipBounds) {
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps);
+        fTextContext = this->createTextContext(rt, fSurfaceProps);
     }
 
     fTextContext->drawPosText(rt, clip, grPaint, skPaint, viewMatrix, text, byteLength,
@@ -101,7 +100,7 @@ void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
                                  SkScalar x, SkScalar y,
                                  SkDrawFilter* filter, const SkIRect& clipBounds) {
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, *fDevProps);
+        fTextContext = this->createTextContext(rt, fSurfaceProps);
     }
 
     fTextContext->drawTextBlob(rt, clip, skPaint, viewMatrix, blob, x, y, filter, clipBounds);

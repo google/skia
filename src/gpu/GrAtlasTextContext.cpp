@@ -101,8 +101,8 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
 
 GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
                                        GrDrawContext* drawContext,
-                                       const SkDeviceProperties& properties)
-    : INHERITED(context, drawContext, properties)
+                                       const SkSurfaceProps& surfaceProps)
+    : INHERITED(context, drawContext, surfaceProps)
     , fDistanceAdjustTable(SkNEW(DistanceAdjustTable)) {
     // We overallocate vertices in our textblobs based on the assumption that A8 has the greatest
     // vertexStride
@@ -196,8 +196,8 @@ void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable() {
 
 GrAtlasTextContext* GrAtlasTextContext::Create(GrContext* context,
                                                GrDrawContext* drawContext,
-                                               const SkDeviceProperties& props) {
-    return SkNEW_ARGS(GrAtlasTextContext, (context, drawContext, props));
+                                               const SkSurfaceProps& surfaceProps) {
+    return SkNEW_ARGS(GrAtlasTextContext, (context, drawContext, surfaceProps));
 }
 
 bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
@@ -338,7 +338,7 @@ inline SkGlyphCache* GrAtlasTextContext::setupCache(BitmapTextBlob::Run* run,
                                                     const SkPaint& skPaint,
                                                     const SkMatrix* viewMatrix,
                                                     bool noGamma) {
-    skPaint.getScalerContextDescriptor(&run->fDescriptor, &fDeviceProperties, viewMatrix, noGamma);
+    skPaint.getScalerContextDescriptor(&run->fDescriptor, fSurfaceProps, viewMatrix, noGamma);
     run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
     return SkGlyphCache::DetachCache(run->fTypeface, run->fDescriptor.getDesc());
 }
@@ -367,7 +367,7 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt,
         bool hasLCD = HasLCD(blob);
 
         // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
-        SkPixelGeometry pixelGeometry = hasLCD ? fDeviceProperties.pixelGeometry() :
+        SkPixelGeometry pixelGeometry = hasLCD ? fSurfaceProps.pixelGeometry() :
                                                  kUnknown_SkPixelGeometry;
 
         // TODO we want to figure out a way to be able to use the canonical color on LCD text,
@@ -446,7 +446,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
         return false;
     }
 
-    bool useDFT = fDeviceProperties.useDFT();
+    bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
 #if SK_FORCE_DISTANCE_FIELD_TEXT
     useDFT = true;
 #endif
@@ -498,7 +498,7 @@ void GrAtlasTextContext::regenerateTextBlob(BitmapTextBlob* cacheBlob,
             continue;
         }
 
-        runPaint.setFlags(FilterTextFlags(fDeviceProperties, runPaint));
+        runPaint.setFlags(FilterTextFlags(fSurfaceProps, runPaint));
 
         // setup vertex / glyphIndex for the new run
         if (run > 0) {
@@ -666,7 +666,7 @@ inline void GrAtlasTextContext::fallbackDrawPosText(BitmapTextBlob* blob,
     run.push_back();
     run.fOverrideDescriptor.reset(SkNEW(SkAutoDescriptor));
     skPaint.getScalerContextDescriptor(run.fOverrideDescriptor,
-                                       &fDeviceProperties, &viewMatrix, false);
+                                       fSurfaceProps, &viewMatrix, false);
     SkGlyphCache* cache = SkGlyphCache::DetachCache(run.fTypeface,
                                                     run.fOverrideDescriptor->getDesc());
     this->internalDrawBMPPosText(blob, runIndex, cache, skPaint, paint.getColor(), viewMatrix,
@@ -1077,7 +1077,7 @@ void GrAtlasTextContext::internalDrawDFText(BitmapTextBlob* blob, int runIndex,
 
     SkDrawCacheProc glyphCacheProc = origPaint.getDrawCacheProc();
     SkAutoDescriptor desc;
-    origPaint.getScalerContextDescriptor(&desc, &fDeviceProperties, NULL, true);
+    origPaint.getScalerContextDescriptor(&desc, fSurfaceProps, NULL, true);
     SkGlyphCache* origPaintCache = SkGlyphCache::DetachCache(origPaint.getTypeface(),
                                                              desc.getDesc());
 
@@ -2046,7 +2046,7 @@ void GrAtlasTextContext::flushRunAsPaths(GrRenderTarget* rt, const SkTextBlob::R
         return;
     }
 
-    runPaint.setFlags(FilterTextFlags(fDeviceProperties, runPaint));
+    runPaint.setFlags(FilterTextFlags(fSurfaceProps, runPaint));
 
     switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
@@ -2092,7 +2092,7 @@ GrAtlasTextContext::createBatch(BitmapTextBlob* cacheBlob, const PerSubRunInfo& 
         } else {
             filteredColor = skPaint.getColor();
         }
-        bool useBGR = SkPixelGeometryIsBGR(fDeviceProperties.pixelGeometry());
+        bool useBGR = SkPixelGeometryIsBGR(fSurfaceProps.pixelGeometry());
         batch = BitmapTextBatch::Create(format, glyphCount, fContext->getBatchFontCache(),
                                         fDistanceAdjustTable, filteredColor,
                                         info.fUseLCDText, useBGR);
@@ -2214,7 +2214,7 @@ void GrAtlasTextContext::flush(BitmapTextBlob* cacheBlob,
 BATCH_TEST_DEFINE(TextBlobBatch) {
     static uint32_t gContextID = SK_InvalidGenID;
     static GrAtlasTextContext* gTextContext = NULL;
-    static SkDeviceProperties gDevProperties;
+    static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
 
     if (context->uniqueID() != gContextID) {
         gContextID = context->uniqueID();
@@ -2223,9 +2223,9 @@ BATCH_TEST_DEFINE(TextBlobBatch) {
         // We don't yet test the fall back to paths in the GrTextContext base class.  This is mostly
         // because we don't really want to have a gpu device here.
         // We enable distance fields by twiddling a knob on the paint
-        GrDrawContext* drawContext = context->drawContext(&gDevProperties);
+        GrDrawContext* drawContext = context->drawContext(&gSurfaceProps);
 
-        gTextContext = GrAtlasTextContext::Create(context, drawContext, gDevProperties);
+        gTextContext = GrAtlasTextContext::Create(context, drawContext, gSurfaceProps);
     }
 
     // create dummy render target

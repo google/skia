@@ -35,10 +35,10 @@ class GrTextBlobCache;
  */
 class GrAtlasTextContext : public GrTextContext {
 public:
-    static GrAtlasTextContext* Create(GrContext*, GrDrawContext*, const SkDeviceProperties&);
+    static GrAtlasTextContext* Create(GrContext*, GrDrawContext*, const SkSurfaceProps&);
 
 private:
-    GrAtlasTextContext(GrContext*, GrDrawContext*, const SkDeviceProperties&);
+    GrAtlasTextContext(GrContext*, GrDrawContext*, const SkSurfaceProps&);
     ~GrAtlasTextContext() override {}
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,

@@ -134,26 +134,9 @@ SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
     return SkNEW_ARGS(SkGpuDevice, (rt, width, height, props, flags));
 }
 
-static SkDeviceProperties surfaceprops_to_deviceprops(const SkSurfaceProps* props) {
-    if (props) {
-        return SkDeviceProperties(props->pixelGeometry(), props->isUseDistanceFieldFonts());
-    } else {
-        return SkDeviceProperties();
-    }
-}
-
-static SkSurfaceProps copy_or_default_props(const SkSurfaceProps* props) {
-    if (props) {
-        return SkSurfaceProps(*props);
-    } else {
-        return SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
-    }
-}
-
 SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
                          const SkSurfaceProps* props, unsigned flags)
-    : INHERITED(surfaceprops_to_deviceprops(props))
-    , fSurfaceProps(copy_or_default_props(props))
+    : INHERITED(SkSurfacePropsCopyOrDefault(props))
 {
     fDrawProcs = NULL;
 
@@ -1701,7 +1684,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     texture.reset(fContext->textureProvider()->refScratchTexture(desc, match));
 
     if (texture) {
-        SkSurfaceProps props(fSurfaceProps.flags(), cinfo.fPixelGeometry);
+        SkSurfaceProps props(this->getLeakyProperties().flags(), cinfo.fPixelGeometry);
         return SkGpuDevice::Create(
             texture->asRenderTarget(), cinfo.fInfo.width(), cinfo.fInfo.height(), &props, flags);
     } else {

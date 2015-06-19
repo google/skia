@@ -1290,7 +1290,9 @@ private:
         kConservativeRasterClip_InitFlag    = 1 << 0,
     };
     SkCanvas(const SkIRect& bounds, InitFlags);
+    // TODO: remove this ctor - the basedevice should already have surface props
     SkCanvas(SkBaseDevice*, const SkSurfaceProps*, InitFlags);
+    SkCanvas(SkBaseDevice* device, InitFlags);
 
     void resetForNextPicture(const SkIRect& bounds);
 

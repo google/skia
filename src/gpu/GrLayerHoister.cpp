@@ -11,7 +11,6 @@
 
 #include "SkBigPicture.h"
 #include "SkCanvas.h"
-#include "SkDeviceProperties.h"
 #include "SkGpuDevice.h"
 #include "SkGrPixelRef.h"
 #include "SkLayerInfo.h"

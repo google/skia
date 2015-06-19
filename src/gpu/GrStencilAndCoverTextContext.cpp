@@ -23,8 +23,8 @@
 
 GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(GrContext* context,
                                                            GrDrawContext* drawContext,
-                                                           const SkDeviceProperties& properties)
-    : GrTextContext(context, drawContext, properties)
+                                                           const SkSurfaceProps& surfaceProps)
+    : GrTextContext(context, drawContext, surfaceProps)
     , fStroke(SkStrokeRec::kFill_InitStyle)
     , fQueuedGlyphCount(0)
     , fFallbackGlyphsIdx(kGlyphBufferSize) {
@@ -32,10 +32,10 @@ GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(GrContext* context,
 
 GrStencilAndCoverTextContext*
 GrStencilAndCoverTextContext::Create(GrContext* context, GrDrawContext* drawContext,
-                                     const SkDeviceProperties& props) {
+                                     const SkSurfaceProps& surfaceProps) {
     GrStencilAndCoverTextContext* textContext = SkNEW_ARGS(GrStencilAndCoverTextContext,
-                                                           (context, drawContext, props));
-    textContext->fFallbackTextContext = GrAtlasTextContext::Create(context, drawContext, props);
+                                                           (context, drawContext, surfaceProps));
+    textContext->fFallbackTextContext = GrAtlasTextContext::Create(context, drawContext, surfaceProps);
 
     return textContext;
 }
@@ -69,7 +69,7 @@ bool GrStencilAndCoverTextContext::canDraw(const GrRenderTarget* rt,
 
     // No color bitmap fonts.
     SkScalerContext::Rec    rec;
-    SkScalerContext::MakeRec(skPaint, &fDeviceProperties, NULL, &rec);
+    SkScalerContext::MakeRec(skPaint, &fSurfaceProps, NULL, &rec);
     return rec.getFormat() != SkMask::kARGB32_Format;
 }
 
@@ -293,7 +293,7 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
             return;
         }
 
-        fGlyphCache = fSkPaint.detachCache(&fDeviceProperties, &fContextInitialMatrix,
+        fGlyphCache = fSkPaint.detachCache(&fSurfaceProps, &fContextInitialMatrix,
                                            true /*ignoreGamma*/);
         fGlyphs = get_gr_glyphs(fContext, fGlyphCache->getScalerContext()->getTypeface(),
                                 &fGlyphCache->getDescriptor(), fStroke);
@@ -363,7 +363,7 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
         fViewMatrix.preConcat(textMatrix);
         fLocalMatrix = textMatrix;
 
-        fGlyphCache = fSkPaint.detachCache(&fDeviceProperties, NULL, true /*ignoreGamma*/);
+        fGlyphCache = fSkPaint.detachCache(&fSurfaceProps, NULL, true /*ignoreGamma*/);
         fGlyphs = canUseRawPaths ?
                       get_gr_glyphs(fContext, fSkPaint.getTypeface(), NULL, fStroke) :
                       get_gr_glyphs(fContext, fGlyphCache->getScalerContext()->getTypeface(),

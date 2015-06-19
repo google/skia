@@ -10,6 +10,7 @@
 
 #include "GrColor.h"
 #include "SkRefCnt.h"
+#include "SkSurfaceProps.h"
 
 class GrBatch;
 class GrClip;
@@ -23,7 +24,6 @@ class GrRenderTarget;
 class GrStrokeInfo;
 class GrSurface;
 class GrTextContext;
-struct SkDeviceProperties;
 class SkDrawFilter;
 struct SkIPoint;
 struct SkIRect;
@@ -244,14 +244,14 @@ private:
     friend class GrAtlasTextContext; // for access to drawBatch
     friend class GrContext; // for ctor
 
-    GrDrawContext(GrContext*, GrDrawTarget*, const SkDeviceProperties&);
+    GrDrawContext(GrContext*, GrDrawTarget*, const SkSurfaceProps&);
 
     // Sets the paint. Returns true on success; false on failure.
     bool prepareToDraw(GrPipelineBuilder*,
                        GrRenderTarget* rt,
                        const GrClip&,
                        const GrPaint* paint);
-    GrTextContext* createTextContext(GrRenderTarget*, const SkDeviceProperties&);
+    GrTextContext* createTextContext(GrRenderTarget*, const SkSurfaceProps&);
 
     // A simpler version of the above which just returns true on success; false on failure.  
     // Clip is *NOT* set
@@ -273,7 +273,7 @@ private:
     GrDrawTarget*       fDrawTarget;
     GrTextContext*      fTextContext; // lazily created
 
-    SkDeviceProperties* fDevProps;    // ptr b.c. SkDeviceProperties isn't public
+    SkSurfaceProps      fSurfaceProps;
 };
 
 #endif

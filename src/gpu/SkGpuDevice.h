@@ -76,7 +76,9 @@ public:
         return fLegacyBitmap.info();
     }
 
-    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
+    const SkSurfaceProps& surfaceProps() const {
+        return this->getLeakyProperties();
+    }
 
     void drawPaint(const SkDraw&, const SkPaint& paint) override;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
@@ -151,7 +153,6 @@ private:
     SkIPoint                        fClipOrigin;
     GrClip                          fClip;
     SkAutoTUnref<GrDrawContext>     fDrawContext;
-    SkSurfaceProps                  fSurfaceProps;
     GrRenderTarget*                 fRenderTarget;
     // remove when our clients don't rely on accessBitmap()
     SkBitmap                        fLegacyBitmap;

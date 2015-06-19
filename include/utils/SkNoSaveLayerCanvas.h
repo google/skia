@@ -17,7 +17,7 @@
 class SK_API SkNoSaveLayerCanvas : public SkCanvas {
 public:
     SkNoSaveLayerCanvas(SkBaseDevice* device)
-        : INHERITED(device, NULL, kConservativeRasterClip_InitFlag)
+        : INHERITED(device, kConservativeRasterClip_InitFlag)
     {}
 
 protected:
