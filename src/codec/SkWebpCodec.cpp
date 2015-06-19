@@ -103,8 +103,10 @@ static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
     SkISize dim = this->getInfo().dimensions();
-    dim.fWidth = SkScalarRoundToInt(desiredScale * dim.fWidth);
-    dim.fHeight = SkScalarRoundToInt(desiredScale * dim.fHeight);
+    // SkCodec treats zero dimensional images as errors, so the minimum size
+    // that we will recommend is 1x1.
+    dim.fWidth = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fWidth));
+    dim.fHeight = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fHeight));
     return dim;
 }
 
