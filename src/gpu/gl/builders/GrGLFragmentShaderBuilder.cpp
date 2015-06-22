@@ -264,9 +264,7 @@ bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
 }
 
 void GrGLFragmentShaderBuilder::bindFragmentShaderLocations(GrGLuint programID) {
-    // ES 3.00 requires custom color output but doesn't support bindFragDataLocation
-    if (fHasCustomColorOutput &&
-        kGLES_GrGLStandard != fProgramBuilder->gpu()->ctxInfo().standard()) {
+    if (fHasCustomColorOutput && fProgramBuilder->gpu()->glCaps().bindFragDataLocationSupport()) {
         GL_CALL(BindFragDataLocation(programID, 0, declared_color_output_name()));
     }
     if (fHasSecondaryOutput) {

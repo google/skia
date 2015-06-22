@@ -257,6 +257,8 @@ public:
 
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
+    bool bindFragDataLocationSupport() const { return fBindFragDataLocationSupport; }
+
     /**
      * Returns a string containing the caps info.
      */
@@ -367,6 +369,7 @@ private:
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
+    bool fBindFragDataLocationSupport : 1;
 
     struct ReadPixelsSupportedFormat {
         GrGLenum fFormat;

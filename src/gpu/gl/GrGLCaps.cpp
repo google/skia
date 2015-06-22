@@ -47,6 +47,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fFullClearIsFree = false;
+    fBindFragDataLocationSupport = false;
 
     fReadPixelsSupportedCache.reset();
 
@@ -268,6 +269,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMultisampleDisableSupport = true;
     } else {
         fMultisampleDisableSupport = false;
+    }
+
+    if (kGL_GrGLStandard == standard && version >= GR_GL_VER(3, 0)) {
+        fBindFragDataLocationSupport = true;
     }
 
     /**************************************************************************
