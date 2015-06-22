@@ -21,8 +21,9 @@ namespace {
 // 1, 2 or 4 SkPMColors, generally vectorized.
 class Sk4px : public Sk16b {
 public:
-    Sk4px(SkAlpha a) : INHERITED(a) {} // Duplicate 16x: a    -> aaaa aaaa aaaa aaaa
-    Sk4px(SkPMColor);                  // Duplicate 4x:  argb -> argb argb argb argb
+    static Sk4px DupAlpha(SkAlpha a) { return Sk16b(a); }  //    a -> aaaa aaaa aaaa aaaa
+    static Sk4px DupPMColor(SkPMColor c);                  // argb -> argb argb argb argb
+
     Sk4px(const Sk16b& v) : INHERITED(v) {}
 
     Sk4px alphas() const;  // ARGB argb XYZW xyzw -> AAAA aaaa XXXX xxxx
@@ -55,10 +56,20 @@ public:
         // Pack the top byte of each component back down into 4 SkPMColors.
         Sk4px addNarrowHi(const Sk16h&) const;
 
-        Sk4px div255TruncNarrow() const { return this->addNarrowHi(*this >> 8); }
-        Sk4px div255RoundNarrow() const {
-            return Sk4px::Wide(*this + Sk16h(128)).div255TruncNarrow();
+        // Rounds, i.e. (x+127) / 255.
+        Sk4px div255() const {
+            // Calculated as ((x+128) + ((x+128)>>8)) >> 8.
+            auto v = *this + Sk16h(128);
+            return v.addNarrowHi(v >> 8);
         }
+
+        // These just keep the types as Wide so the user doesn't have to keep casting.
+        Wide operator * (const Wide& o) const { return INHERITED::operator*(o); }
+        Wide operator + (const Wide& o) const { return INHERITED::operator+(o); }
+        Wide operator - (const Wide& o) const { return INHERITED::operator-(o); }
+        Wide operator >> (int bits) const { return INHERITED::operator>>(bits); }
+        Wide operator << (int bits) const { return INHERITED::operator<<(bits); }
+        static Wide Min(const Wide& a, const Wide& b) { return INHERITED::Min(a,b); }
 
     private:
         typedef Sk16h INHERITED;
@@ -67,45 +78,46 @@ public:
     Wide widenLo() const;               // ARGB -> 0A 0R 0G 0B
     Wide widenHi() const;               // ARGB -> A0 R0 G0 B0
     Wide mulWiden(const Sk16b&) const;  // 8-bit x 8-bit -> 16-bit components.
-    Wide mul255Widen() const {
-        // TODO: x*255 = x*256-x, so something like this->widenHi() - this->widenLo()?
-        return this->mulWiden(Sk16b(255));
-    }
 
-    // Generally faster than this->mulWiden(other).div255RoundNarrow().
-    // May be incorrect by +-1, but is always exactly correct when *this or other is 0 or 255.
-    Sk4px fastMulDiv255Round(const Sk16b& other) const {
+    // The only 8-bit multiply we use is 8-bit x 8-bit -> 16-bit.  Might as well make it pithy.
+    Wide operator * (const Sk4px& o) const { return this->mulWiden(o); }
+
+    // These just keep the types as Sk4px so the user doesn't have to keep casting.
+    Sk4px operator + (const Sk4px& o) const { return INHERITED::operator+(o); }
+    Sk4px operator - (const Sk4px& o) const { return INHERITED::operator-(o); }
+
+    // Generally faster than (*this * o).div255().
+    // May be incorrect by +-1, but is always exactly correct when *this or o is 0 or 255.
+    Sk4px approxMulDiv255(const Sk16b& o) const {
         // (x*y + x) / 256 meets these criteria.  (As of course does (x*y + y) / 256 by symmetry.)
-        Sk4px::Wide  x = this->widenLo(),
-                    xy = this->mulWiden(other);
-        return x.addNarrowHi(xy);
+        return this->widenLo().addNarrowHi(*this * o);
     }
 
     // A generic driver that maps fn over a src array into a dst array.
     // fn should take an Sk4px (4 src pixels) and return an Sk4px (4 dst pixels).
     template <typename Fn>
-    static void MapSrc(int count, SkPMColor* dst, const SkPMColor* src, Fn fn) {
+    static void MapSrc(int n, SkPMColor* dst, const SkPMColor* src, const Fn& fn) {
         // This looks a bit odd, but it helps loop-invariant hoisting across different calls to fn.
         // Basically, we need to make sure we keep things inside a single loop.
-        while (count > 0) {
-            if (count >= 8) {
+        while (n > 0) {
+            if (n >= 8) {
                 Sk4px dst0 = fn(Load4(src+0)),
                       dst4 = fn(Load4(src+4));
                 dst0.store4(dst+0);
                 dst4.store4(dst+4);
-                dst += 8; src += 8; count -= 8;
+                dst += 8; src += 8; n -= 8;
                 continue;  // Keep our stride at 8 pixels as long as possible.
             }
-            SkASSERT(count <= 7);
-            if (count >= 4) {
+            SkASSERT(n <= 7);
+            if (n >= 4) {
                 fn(Load4(src)).store4(dst);
-                dst += 4; src += 4; count -= 4;
+                dst += 4; src += 4; n -= 4;
             }
-            if (count >= 2) {
+            if (n >= 2) {
                 fn(Load2(src)).store2(dst);
-                dst += 2; src += 2; count -= 2;
+                dst += 2; src += 2; n -= 2;
             }
-            if (count >= 1) {
+            if (n >= 1) {
                 fn(Load1(src)).store1(dst);
             }
             break;
@@ -114,26 +126,26 @@ public:
 
     // As above, but with dst4' = fn(dst4, src4).
     template <typename Fn>
-    static void MapDstSrc(int count, SkPMColor* dst, const SkPMColor* src, Fn fn) {
-        while (count > 0) {
-            if (count >= 8) {
+    static void MapDstSrc(int n, SkPMColor* dst, const SkPMColor* src, const Fn& fn) {
+        while (n > 0) {
+            if (n >= 8) {
                 Sk4px dst0 = fn(Load4(dst+0), Load4(src+0)),
                       dst4 = fn(Load4(dst+4), Load4(src+4));
                 dst0.store4(dst+0);
                 dst4.store4(dst+4);
-                dst += 8; src += 8; count -= 8;
+                dst += 8; src += 8; n -= 8;
                 continue;  // Keep our stride at 8 pixels as long as possible.
             }
-            SkASSERT(count <= 7);
-            if (count >= 4) {
+            SkASSERT(n <= 7);
+            if (n >= 4) {
                 fn(Load4(dst), Load4(src)).store4(dst);
-                dst += 4; src += 4; count -= 4;
+                dst += 4; src += 4; n -= 4;
             }
-            if (count >= 2) {
+            if (n >= 2) {
                 fn(Load2(dst), Load2(src)).store2(dst);
-                dst += 2; src += 2; count -= 2;
+                dst += 2; src += 2; n -= 2;
             }
-            if (count >= 1) {
+            if (n >= 1) {
                 fn(Load1(dst), Load1(src)).store1(dst);
             }
             break;
@@ -142,33 +154,28 @@ public:
 
     // As above, but with dst4' = fn(dst4, src4, alpha4).
     template <typename Fn>
-    static void MapDstSrcAlpha(
-            int count, SkPMColor* dst, const SkPMColor* src, const SkAlpha* a, Fn fn) {
-        while (count > 0) {
-            if (count >= 8) {
-                Sk4px alpha0 = Load4Alphas(a+0),
-                      alpha4 = Load4Alphas(a+4);
-                Sk4px dst0 = fn(Load4(dst+0), Load4(src+0), alpha0),
-                      dst4 = fn(Load4(dst+4), Load4(src+4), alpha4);
+    static void MapDstSrcAlpha(int n, SkPMColor* dst, const SkPMColor* src, const SkAlpha* a,
+                               const Fn& fn) {
+        while (n > 0) {
+            if (n >= 8) {
+                Sk4px dst0 = fn(Load4(dst+0), Load4(src+0), Load4Alphas(a+0)),
+                      dst4 = fn(Load4(dst+4), Load4(src+4), Load4Alphas(a+4));
                 dst0.store4(dst+0);
                 dst4.store4(dst+4);
-                dst += 8; src += 8; a += 8; count -= 8;
+                dst += 8; src += 8; a += 8; n -= 8;
                 continue;  // Keep our stride at 8 pixels as long as possible.
             }
-            SkASSERT(count <= 7);
-            if (count >= 4) {
-                Sk4px alpha = Load4Alphas(a);
-                fn(Load4(dst), Load4(src), alpha).store4(dst);
-                dst += 4; src += 4; a += 4; count -= 4;
+            SkASSERT(n <= 7);
+            if (n >= 4) {
+                fn(Load4(dst), Load4(src), Load4Alphas(a)).store4(dst);
+                dst += 4; src += 4; a += 4; n -= 4;
             }
-            if (count >= 2) {
-                Sk4px alpha = Load2Alphas(a);
-                fn(Load2(dst), Load2(src), alpha).store2(dst);
-                dst += 2; src += 2; a += 2; count -= 2;
+            if (n >= 2) {
+                fn(Load2(dst), Load2(src), Load2Alphas(a)).store2(dst);
+                dst += 2; src += 2; a += 2; n -= 2;
             }
-            if (count >= 1) {
-                Sk4px alpha(*a);
-                fn(Load1(dst), Load1(src), alpha).store1(dst);
+            if (n >= 1) {
+                fn(Load1(dst), Load1(src), DupAlpha(*a)).store1(dst);
             }
             break;
         }

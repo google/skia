@@ -311,11 +311,6 @@ public:
     SkNi operator + (const SkNi& o) const { return _mm_add_epi8(fVec, o.fVec); }
     SkNi operator - (const SkNi& o) const { return _mm_sub_epi8(fVec, o.fVec); }
 
-    // SSE cannot multiply or shift vectors of uint8_t.
-    SkNi operator * (const SkNi& o) const { SkASSERT(false); return fVec; }
-    SkNi operator << (int bits) const { SkASSERT(false); return fVec; }
-    SkNi operator >> (int bits) const { SkASSERT(false); return fVec; }
-
     static SkNi Min(const SkNi& a, const SkNi& b) { return _mm_min_epu8(a.fVec, b.fVec); }
 
     template <int k> uint8_t kth() const {

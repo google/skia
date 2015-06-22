@@ -174,15 +174,15 @@ DEF_TEST(Sk4px_muldiv255round, r) {
         int exact = (a*b+127)/255;
 
         // Duplicate a and b 16x each.
-        Sk4px av((SkAlpha)a),
-              bv((SkAlpha)b);
+        auto av = Sk4px::DupAlpha(a),
+             bv = Sk4px::DupAlpha(b);
 
         // This way should always be exactly correct.
-        int correct = av.mulWiden(bv).div255RoundNarrow().kth<0>();
+        int correct = (av * bv).div255().kth<0>();
         REPORTER_ASSERT(r, correct == exact);
 
         // We're a bit more flexible on this method: correct for 0 or 255, otherwise off by <=1.
-        int fast = av.fastMulDiv255Round(bv).kth<0>();
+        int fast = av.approxMulDiv255(bv).kth<0>();
         REPORTER_ASSERT(r, fast-exact >= -1 && fast-exact <= 1);
         if (a == 0 || a == 255 || b == 0 || b == 255) {
             REPORTER_ASSERT(r, fast == exact);

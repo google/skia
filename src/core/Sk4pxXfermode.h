@@ -21,53 +21,41 @@ namespace {
     };                                                                    \
     inline Sk4px Name::Xfer(const Sk4px& s, const Sk4px& d)
 
-XFERMODE(Clear) { return Sk4px((SkPMColor)0); }
+XFERMODE(Clear) { return Sk4px::DupPMColor(0); }
 XFERMODE(Src)   { return s; }
 XFERMODE(Dst)   { return d; }
-XFERMODE(SrcIn)   { return     s.fastMulDiv255Round(d.alphas()      ); }
-XFERMODE(SrcOut)  { return     s.fastMulDiv255Round(d.alphas().inv()); }
-XFERMODE(SrcOver) { return s + d.fastMulDiv255Round(s.alphas().inv()); }
+XFERMODE(SrcIn)   { return     s.approxMulDiv255(d.alphas()      ); }
+XFERMODE(SrcOut)  { return     s.approxMulDiv255(d.alphas().inv()); }
+XFERMODE(SrcOver) { return s + d.approxMulDiv255(s.alphas().inv()); }
 XFERMODE(DstIn)   { return SrcIn  ::Xfer(d,s); }
 XFERMODE(DstOut)  { return SrcOut ::Xfer(d,s); }
 XFERMODE(DstOver) { return SrcOver::Xfer(d,s); }
 
 // [ S * Da + (1 - Sa) * D]
-XFERMODE(SrcATop) {
-    return Sk4px::Wide(s.mulWiden(d.alphas()) + d.mulWiden(s.alphas().inv()))
-        .div255RoundNarrow();
-}
+XFERMODE(SrcATop) { return (s * d.alphas() + d * s.alphas().inv()).div255(); }
 XFERMODE(DstATop) { return SrcATop::Xfer(d,s); }
 //[ S * (1 - Da) + (1 - Sa) * D ]
-XFERMODE(Xor) {
-    return Sk4px::Wide(s.mulWiden(d.alphas().inv()) + d.mulWiden(s.alphas().inv()))
-        .div255RoundNarrow();
-}
+XFERMODE(Xor) { return (s * d.alphas().inv() + d * s.alphas().inv()).div255(); }
 // [S + D ]
 XFERMODE(Plus) { return s.saturatedAdd(d); }
 // [S * D ]
-XFERMODE(Modulate) { return s.fastMulDiv255Round(d); }
+XFERMODE(Modulate) { return s.approxMulDiv255(d); }
 // [S + D - S * D]
 XFERMODE(Screen) {
     // Doing the math as S + (1-S)*D or S + (D - S*D) means the add and subtract can be done
     // in 8-bit space without overflow.  S + (1-S)*D is a touch faster because inv() is cheap.
-    return s + d.fastMulDiv255Round(s.inv());
+    return s + d.approxMulDiv255(s.inv());
 }
-XFERMODE(Multiply) {
-    return Sk4px::Wide(s.mulWiden(d.alphas().inv()) +
-            d.mulWiden(s.alphas().inv()) +
-            s.mulWiden(d))
-        .div255RoundNarrow();
-}
+XFERMODE(Multiply) { return (s * d.alphas().inv() + d * s.alphas().inv() + s*d).div255(); }
 // [ Sa + Da - Sa*Da, Sc + Dc - 2*min(Sc*Da, Dc*Sa) ]  (And notice Sa*Da == min(Sa*Da, Da*Sa).)
 XFERMODE(Difference) {
-    auto m = Sk4px::Wide(Sk16h::Min(s.mulWiden(d.alphas()), d.mulWiden(s.alphas())))
-        .div255RoundNarrow();
+    auto m = Sk4px::Wide::Min(s * d.alphas(), d * s.alphas()).div255();
     // There's no chance of underflow, and if we subtract m before adding s+d, no overflow.
     return (s - m) + (d - m.zeroAlphas());
 }
 // [ Sa + Da - Sa*Da, Sc + Dc - 2*Sc*Dc ]
 XFERMODE(Exclusion) {
-    auto p = s.fastMulDiv255Round(d);
+    auto p = s.approxMulDiv255(d);
     // There's no chance of underflow, and if we subtract p before adding src+dst, no overflow.
     return (s - p) + (d - p.zeroAlphas());
 }
@@ -77,20 +65,19 @@ XFERMODE(Exclusion) {
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
 // then linearly interpolate the AA.
 template <typename Mode>
-static Sk4px xfer_aa(const Sk4px& s, const Sk4px& d, const Sk16b& aa) {
-    Sk4px noAA = Mode::Xfer(s, d);
-    return Sk4px::Wide(noAA.mulWiden(aa) + d.mulWiden(Sk4px(aa).inv()))
-        .div255RoundNarrow();
+static Sk4px xfer_aa(const Sk4px& s, const Sk4px& d, const Sk4px& aa) {
+    Sk4px bw = Mode::Xfer(s, d);
+    return (bw * aa + d * aa.inv()).div255();
 }
 
 // For some transfermodes we specialize AA, either for correctness or performance.
 #ifndef SK_NO_SPECIALIZED_AA_XFERMODES
     #define XFERMODE_AA(Name) \
-        template <> Sk4px xfer_aa<Name>(const Sk4px& s, const Sk4px& d, const Sk16b& aa)
+        template <> Sk4px xfer_aa<Name>(const Sk4px& s, const Sk4px& d, const Sk4px& aa)
 
     // Plus' clamp needs to happen after AA.  skia:3852
     XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
-        return d.saturatedAdd(s.fastMulDiv255Round(aa));
+        return d.saturatedAdd(s.approxMulDiv255(aa));
     }
 
     #undef XFERMODE_AA
@@ -110,7 +97,7 @@ public:
             });
         } else {
             Sk4px::MapDstSrcAlpha(n, dst, src, aa,
-                    [&](const Sk4px& dst4, const Sk4px& src4, const Sk16b& alpha) {
+                    [&](const Sk4px& dst4, const Sk4px& src4, const Sk4px& alpha) {
                 return xfer_aa<ProcType>(src4, dst4, alpha);
             });
         }

@@ -1740,10 +1740,10 @@ void sk_blitrow_color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count
     invA += invA >> 7;
     SkASSERT(invA < 256);  // Our caller has already handled the alpha == 0 case.
 
-    Sk16h colorHighAndRound = Sk4px(color).widenHi() + Sk16h(128);
+    Sk16h colorHighAndRound = Sk4px::DupPMColor(color).widenHi() + Sk16h(128);
     Sk16b invA_16x(invA);
 
     Sk4px::MapSrc(count, dst, src, [&](const Sk4px& src4) -> Sk4px {
-        return src4.mulWiden(invA_16x).addNarrowHi(colorHighAndRound);
+        return (src4 * invA_16x).addNarrowHi(colorHighAndRound);
     });
 }

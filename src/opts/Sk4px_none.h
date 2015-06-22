@@ -11,8 +11,10 @@ namespace { // See Sk4px.h
 
 static_assert(sizeof(Sk4px) == 16, "This file uses memcpy / sk_memset32, so exact size matters.");
 
-inline Sk4px::Sk4px(SkPMColor px) {
-    sk_memset32((uint32_t*)this, px, 4);
+inline Sk4px Sk4px::DupPMColor(SkPMColor px) {
+    Sk4px px4 = Sk16b();
+    sk_memset32((uint32_t*)&px4, px, 4);
+    return px4;
 }
 
 inline Sk4px Sk4px::Load4(const SkPMColor px[4]) {

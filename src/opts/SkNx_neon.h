@@ -361,10 +361,6 @@ public:
 
     SkNi operator + (const SkNi& o) const { return vaddq_u8(fVec, o.fVec); }
     SkNi operator - (const SkNi& o) const { return vsubq_u8(fVec, o.fVec); }
-    SkNi operator * (const SkNi& o) const { return vmulq_u8(fVec, o.fVec); }
-
-    SkNi operator << (int bits) const { SHIFT8(vshlq_n_u8, fVec, bits); }
-    SkNi operator >> (int bits) const { SHIFT8(vshrq_n_u8, fVec, bits); }
 
     static SkNi Min(const SkNi& a, const SkNi& b) { return vminq_u8(a.fVec, b.fVec); }
 
