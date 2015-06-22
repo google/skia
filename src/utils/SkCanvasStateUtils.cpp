@@ -7,9 +7,9 @@
 
 #include "SkCanvasStateUtils.h"
 
-#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasStack.h"
+#include "SkDevice.h"
 #include "SkErrorInternals.h"
 #include "SkWriter32.h"
 

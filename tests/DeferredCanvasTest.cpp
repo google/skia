@@ -8,7 +8,6 @@
 #include "../src/image/SkImagePriv.h"
 #include "../src/image/SkSurface_Base.h"
 #include "SkBitmap.h"
-#include "SkBitmapDevice.h"
 #include "SkBitmapProcShader.h"
 #include "SkDeferredCanvas.h"
 #include "SkGradientShader.h"
@@ -439,19 +438,6 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, canvas->isFreshFrame());
     }
 }
-
-class MockDevice : public SkBitmapDevice {
-public:
-    MockDevice(const SkBitmap& bm) : SkBitmapDevice(bm) {
-        fDrawBitmapCallCount = 0;
-    }
-    virtual void drawBitmap(const SkDraw&, const SkBitmap&,
-                            const SkMatrix&, const SkPaint&) override {
-        fDrawBitmapCallCount++;
-    }
-
-    int fDrawBitmapCallCount;
-};
 
 class NotificationCounter : public SkDeferredCanvas::NotificationClient {
 public:

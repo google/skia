@@ -31,7 +31,6 @@ public:
     /**
      *  Construct a new device.
     */
-    SkBaseDevice();
     explicit SkBaseDevice(const SkSurfaceProps&);
     virtual ~SkBaseDevice();
 

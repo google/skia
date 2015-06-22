@@ -7,7 +7,6 @@
 
 #include "SamplePipeControllers.h"
 
-#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkGPipe.h"
 #include "SkMatrix.h"
@@ -55,9 +54,7 @@ TiledPipeController::TiledPipeController(const SkBitmap& bitmap,
 
         SkDEBUGCODE(bool extracted = )bitmap.extractSubset(&fBitmaps[i], rect);
         SkASSERT(extracted);
-        SkBaseDevice* device = new SkBitmapDevice(fBitmaps[i]);
-        SkCanvas* canvas = new SkCanvas(device);
-        device->unref();
+        SkCanvas* canvas = new SkCanvas(fBitmaps[i]);
         if (initial != NULL) {
             canvas->setMatrix(*initial);
         }

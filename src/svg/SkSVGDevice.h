@@ -70,6 +70,8 @@ private:
     SkAutoTDelete<AutoElement>    fRootElement;
     SkAutoTDelete<ResourceBucket> fResourceBucket;
     SkBitmap                      fLegacyBitmap;
+
+    typedef SkBaseDevice INHERITED;
 };
 
 #endif // SkSVGDevice_DEFINED

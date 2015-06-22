@@ -8,9 +8,9 @@
 
 #include "SkDeferredCanvas.h"
 
-#include "SkBitmapDevice.h"
 #include "SkChunkAlloc.h"
 #include "SkColorFilter.h"
+#include "SkDevice.h"
 #include "SkDrawFilter.h"
 #include "SkGPipe.h"
 #include "SkImage_Base.h"
@@ -283,9 +283,12 @@ private:
     bool fIsDrawingToLayer;
     size_t fMaxRecordingStorageBytes;
     size_t fPreviousStorageAllocated;
+
+    typedef SkBaseDevice INHERITED;
 };
 
-SkDeferredDevice::SkDeferredDevice(SkSurface* surface) {
+SkDeferredDevice::SkDeferredDevice(SkSurface* surface) 
+    : INHERITED(surface->props()) {
     fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
     fNotificationClient = NULL;
     fImmediateCanvas = NULL;
@@ -537,6 +540,10 @@ private:
 };
 
 SkDeferredCanvas* SkDeferredCanvas::Create(SkSurface* surface) {
+    if (!surface) {
+        return NULL;
+    }
+
     SkAutoTUnref<SkDeferredDevice> deferredDevice(SkNEW_ARGS(SkDeferredDevice, (surface)));
     return SkNEW_ARGS(SkDeferredCanvas, (deferredDevice));
 }

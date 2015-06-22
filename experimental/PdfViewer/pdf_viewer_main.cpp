@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkDevice.h"
@@ -121,8 +120,7 @@ static bool render_page(const SkString& outputDir,
     // Exercise all pdf codepaths as in normal rendering, but no actual bits are changed.
     if (!FLAGS_config.isEmpty() && strcmp(FLAGS_config[0], "nul") == 0) {
         SkBitmap bitmap;
-        SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
-        SkNulCanvas canvas(device);
+        SkNulCanvas canvas(bitmap);
         renderer.renderPage(page < 0 ? 0 : page, &canvas, rect);
     } else {
         // 8888
@@ -143,14 +141,11 @@ static bool render_page(const SkString& outputDir,
         setup_bitmap(&bitmap, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height),
                      background);
 #endif
-        SkAutoTUnref<SkBaseDevice> device;
-        if (strcmp(FLAGS_config[0], "8888") == 0) {
-            device.reset(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
-        } else {
+        if (strcmp(FLAGS_config[0], "8888") != 0) {
             SkDebugf("unknown --config: %s\n", FLAGS_config[0]);
             return false;
         }
-        SkCanvas canvas(device);
+        SkCanvas canvas(bitmap);
 
 #ifdef PDF_TRACE_DIFF_IN_PNG
         gDumpBitmap = &bitmap;

@@ -7,7 +7,6 @@
 
 #include "SkPdfRenderer.h"
 
-#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkDevice.h"
@@ -2910,8 +2909,7 @@ bool SkPDFNativeRenderToBitmap(SkStream* stream,
 
     setup_bitmap(output, SkScalarCeilToInt(width), SkScalarCeilToInt(height));
 
-    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (*output)));
-    SkCanvas canvas(device);
+    SkCanvas canvas(*output);
 
     return renderer->renderPage(page, &canvas, rect);
 }

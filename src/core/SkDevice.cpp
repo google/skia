@@ -17,16 +17,6 @@
 #include "SkTextBlob.h"
 #include "SkTextToPathIter.h"
 
-SkBaseDevice::SkBaseDevice()
-    : fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
-#ifdef SK_DEBUG
-    , fAttachedToCanvas(false)
-#endif
-{
-    fOrigin.setZero();
-    fMetaData = NULL;
-}
-
 SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps)
     : fSurfaceProps(surfaceProps)
 #ifdef SK_DEBUG

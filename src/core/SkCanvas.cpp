@@ -1049,8 +1049,8 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
         SkBaseDevice* newDev = device->onCreateDevice(createInfo, paint);
         if (NULL == newDev) {
             // If onCreateDevice didn't succeed, try raster (e.g. PDF couldn't handle the paint)
-            const SkSurfaceProps surfaceProps(0, createInfo.fPixelGeometry);
-            newDev = SkBitmapDevice::Create(createInfo.fInfo, &surfaceProps);
+            const SkSurfaceProps surfaceProps(fProps.flags(), createInfo.fPixelGeometry);
+            newDev = SkBitmapDevice::Create(createInfo.fInfo, surfaceProps);
             if (NULL == newDev) {
                 SkErrorInternals::SetError(kInternalError_SkError,
                                            "Unable to create device for layer.");

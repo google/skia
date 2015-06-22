@@ -708,7 +708,8 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize,
                          SkScalar rasterDpi,
                          SkPDFCanon* canon,
                          bool flip)
-    : fPageSize(pageSize)
+    : INHERITED(SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+    , fPageSize(pageSize)
     , fContentSize(pageSize)
     , fExistingClipRegion(SkIRect::MakeSize(pageSize))
     , fAnnotations(NULL)

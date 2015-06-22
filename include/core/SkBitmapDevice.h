@@ -20,21 +20,24 @@ public:
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,
      *  any drawing to this device will have no effect.
-    */
+     */
     SkBitmapDevice(const SkBitmap& bitmap);
-protected:
+
+    /**
+     * Create a new device along with its requisite pixel memory using
+     * default SkSurfaceProps (i.e., kLegacyFontHost_InitType-style).
+     * Note: this entry point is slated for removal - no one should call it.
+     */
+    static SkBitmapDevice* Create(const SkImageInfo& info);
+
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,
      *  any drawing to this device will have no effect.
-    */
+     */
     SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps);
-private:
-    static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps*);
-public:
-    static SkBitmapDevice* Create(const SkImageInfo& info) {
-        return Create(info, NULL);
-    }
+
+    static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&);
 
     SkImageInfo imageInfo() const override;
 

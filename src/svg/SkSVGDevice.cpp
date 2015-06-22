@@ -569,7 +569,8 @@ SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkXMLWriter* writer) {
 }
 
 SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
-    : fWriter(writer)
+    : INHERITED(SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+    , fWriter(writer)
     , fResourceBucket(SkNEW(ResourceBucket)) {
     SkASSERT(writer);
 

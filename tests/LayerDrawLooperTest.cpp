@@ -25,12 +25,13 @@ static SkBitmap make_bm(int w, int h) {
     return bm;
 }
 
+// TODO: can this be derived from SkBaseDevice?
 class FakeDevice : public SkBitmapDevice {
 public:
-    FakeDevice() : SkBitmapDevice(make_bm(100, 100)) { }
+    FakeDevice() : INHERITED(make_bm(100, 100), SkSurfaceProps(0, kUnknown_SkPixelGeometry)) {
+    }
 
-    virtual void drawRect(const SkDraw& draw, const SkRect& r,
-                          const SkPaint& paint) override {
+    void drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) override {
         fLastMatrix = *draw.fMatrix;
         this->INHERITED::drawRect(draw, r, paint);
     }

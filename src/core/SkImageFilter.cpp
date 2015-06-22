@@ -8,6 +8,7 @@
 #include "SkImageFilter.h"
 
 #include "SkBitmap.h"
+#include "SkBitmapDevice.h"
 #include "SkChecksum.h"
 #include "SkDevice.h"
 #include "SkLazyPtr.h"
@@ -526,8 +527,6 @@ void SkImageFilter::PurgeCache() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkBitmapDevice.h"
-
 SkBaseDevice* SkImageFilter::Proxy::createDevice(int w, int h) {
     SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
                                    SkBaseDevice::kNever_TileUsage,
@@ -535,7 +534,9 @@ SkBaseDevice* SkImageFilter::Proxy::createDevice(int w, int h) {
                                    true /*forImageFilter*/);
     SkBaseDevice* dev = fDevice->onCreateDevice(cinfo, NULL);
     if (NULL == dev) {
-        dev = SkBitmapDevice::Create(cinfo.fInfo);
+        const SkSurfaceProps surfaceProps(fDevice->fSurfaceProps.flags(),
+                                          kUnknown_SkPixelGeometry);
+        dev = SkBitmapDevice::Create(cinfo.fInfo, surfaceProps);
     }
     return dev;
 }

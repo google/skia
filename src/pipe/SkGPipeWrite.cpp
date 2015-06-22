@@ -7,7 +7,6 @@
  */
 
 #include "SkAnnotation.h"
-#include "SkBitmapDevice.h"
 #include "SkBitmapHeap.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"

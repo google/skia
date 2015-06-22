@@ -58,19 +58,24 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
     return true;
 }
 
-SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {
+SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
+    : INHERITED(SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
+    , fBitmap(bitmap) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
 
+SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
+    return Create(info, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
+}
+
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps)
-    : SkBaseDevice(surfaceProps)
-    , fBitmap(bitmap)
-{
+    : INHERITED(surfaceProps)
+    , fBitmap(bitmap) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
-                                       const SkSurfaceProps* surfaceProps) {
+                                       const SkSurfaceProps& surfaceProps) {
     SkAlphaType newAT = origInfo.alphaType();
     if (!valid_for_bitmap_device(origInfo, &newAT)) {
         return NULL;
@@ -92,11 +97,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    if (surfaceProps) {
-        return SkNEW_ARGS(SkBitmapDevice, (bitmap, *surfaceProps));
-    } else {
-        return SkNEW_ARGS(SkBitmapDevice, (bitmap));
-    }
+    return SkNEW_ARGS(SkBitmapDevice, (bitmap, surfaceProps));
 }
 
 SkImageInfo SkBitmapDevice::imageInfo() const {
@@ -116,8 +117,8 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
 }
 
 SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
-    const SkSurfaceProps surfaceProps(0, cinfo.fPixelGeometry);
-    return SkBitmapDevice::Create(cinfo.fInfo, &surfaceProps);
+    const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
+    return SkBitmapDevice::Create(cinfo.fInfo, surfaceProps);
 }
 
 const SkBitmap& SkBitmapDevice::onAccessBitmap() {

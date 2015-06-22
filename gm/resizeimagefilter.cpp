@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
 #include "SkColor.h"
 #include "SkRefCnt.h"
@@ -91,8 +90,7 @@ protected:
         bitmap.allocN32Pixels(16, 16);
         bitmap.eraseARGB(0x00, 0x00, 0x00, 0x00);
         {
-            SkBitmapDevice bitmapDevice(bitmap);
-            SkCanvas bitmapCanvas(&bitmapDevice);
+            SkCanvas bitmapCanvas(bitmap);
             SkPaint paint;
             paint.setColor(0xFF00FF00);
             SkRect ovalRect = SkRect::MakeWH(16, 16);

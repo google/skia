@@ -13,7 +13,7 @@
 
 /** \class SkTrackDevice
  *
- *   A Track Device is used to track that callstack of an operation that affected some pixels.
+ *   A Track Device is used to track the callstack of an operation that affected some pixels.
  *   It can be used with SampleApp to investigate bugs (CL not checked in yet).
  *
  *   every drawFoo is implemented as such:
@@ -22,12 +22,15 @@
  *      after();  // - checks if pixels of interest, and issue a breakpoint.
  *
  */
+// TODO: can this be derived from SkBaseDevice instead?
 class SkTrackDevice : public SkBitmapDevice {
 public:
     SK_DECLARE_INST_COUNT(SkTrackDevice)
 
-    SkTrackDevice(const SkBitmap& bitmap) : SkBitmapDevice(bitmap)
-                                          , fTracker(NULL) {}
+    SkTrackDevice(const SkBitmap& bitmap)
+        : INHERITED(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+        , fTracker(NULL) {
+    }
 
     virtual ~SkTrackDevice() {}
 
