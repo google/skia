@@ -24,24 +24,23 @@ public class VisualBenchActivity extends android.app.NativeActivity {
     public void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
-    }
-  
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus) {
-            return;
-        }
+      
+        // Setup a bunch of window parameters.  We have to do this here to prevent our backend from
+        // getting spurious term / init messages when we relayout
+      
+        // Layout fullscreen and keep screen on
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
         getWindow().getDecorView().setSystemUiVisibility(
-            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | // hide nav bar
-            View.SYSTEM_UI_FLAG_FULLSCREEN |// hide status bar
-            View.SYSTEM_UI_FLAG_IMMERSIVE);
+              View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | // hide nav bar
+              View.SYSTEM_UI_FLAG_FULLSCREEN |// hide status bar
+              View.SYSTEM_UI_FLAG_IMMERSIVE);
         
         // Disable backlight to keep the system as cool as possible
         // TODO make this configurable
-        Settings.System.putInt(getContentResolver(),
-            Settings.System.SCREEN_BRIGHTNESS_MODE,
-            Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+        Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE,
+                                                     Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
         
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.screenBrightness = 0; // 0f - no backlight
