@@ -229,10 +229,6 @@ void SkPaint::setDevKernText(bool doDevKern) {
     this->setFlags(SkSetClearMask(fBitfields.fFlags, doDevKern, kDevKernText_Flag));
 }
 
-void SkPaint::setDistanceFieldTextTEMP(bool doDistanceFieldText) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doDistanceFieldText, kDistanceFieldTextTEMP_Flag));
-}
-
 void SkPaint::setStyle(Style style) {
     if ((unsigned)style < kStyleCount) {
         fBitfields.fStyle = style;

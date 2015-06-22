@@ -451,7 +451,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
     useDFT = true;
 #endif
 
-    if (!useDFT && !skPaint.isDistanceFieldTextTEMP() && scaledTextSize < kLargeDFFontSize) {
+    if (!useDFT && scaledTextSize < kLargeDFFontSize) {
         return false;
     }
 
@@ -2244,7 +2244,6 @@ BATCH_TEST_DEFINE(TextBlobBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPaint skPaint;
-    skPaint.setDistanceFieldTextTEMP(random->nextBool());
     skPaint.setColor(color);
     skPaint.setLCDRenderText(random->nextBool());
     skPaint.setAntiAlias(skPaint.isLCDRenderText() ? true : random->nextBool());

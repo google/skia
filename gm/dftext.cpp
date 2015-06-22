@@ -72,9 +72,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
-#if !SK_SUPPORT_GPU
-        paint.setDistanceFieldTextTEMP(true);
-#endif
+
         sk_tool_utils::set_portable_typeface(&paint, "Times New Roman", SkTypeface::kNormal);
 
         const char* text = "Hamburgefons";
