@@ -140,7 +140,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     }
 
     switch (fMode) {
-        case kNormal_Mode:
+        case kNormal_Mode: {
             switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), NULL,
                     colorPtr, colorCountPtr)) {
                 case SkImageGenerator::kSuccess:
@@ -156,23 +156,22 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
             canvas->drawBitmap(bitmap, 0, 0);
             break;
+        }
         case kScanline_Mode: {
             SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(decodeInfo, NULL,
                     colorPtr, colorCountPtr);
             if (NULL == scanlineDecoder) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }
-            for (int y = 0; y < decodeInfo.height(); ++y) {
-                const SkImageGenerator::Result result = scanlineDecoder->getScanlines(
-                        bitmap.getAddr(0, y), 1, 0);
-                switch (result) {
-                    case SkImageGenerator::kSuccess:
-                    case SkImageGenerator::kIncompleteInput:
-                        break;
-                    default:
-                        return SkStringPrintf("%s failed after %d scanlines with error message %d",
-                                              fPath.c_str(), y-1, (int) result);
-                }
+            const SkImageGenerator::Result result = scanlineDecoder->getScanlines(
+                    bitmap.getAddr(0, 0), decodeInfo.height(), bitmap.rowBytes());
+            switch (result) {
+                case SkImageGenerator::kSuccess:
+                case SkImageGenerator::kIncompleteInput:
+                    break;
+                default:
+                    return SkStringPrintf("%s failed with error message %d",
+                                          fPath.c_str(), (int) result);
             }
             canvas->drawBitmap(bitmap, 0, 0);
             break;
@@ -207,8 +206,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
                         largestSubsetDecodeInfo.width(), largestSubsetDecodeInfo.height());
             }
-            char* line = SkNEW_ARRAY(char, decodeInfo.minRowBytes());
-            SkAutoTDeleteArray<char> lineDeleter(line);
+            const size_t rowBytes = decodeInfo.minRowBytes();
+            char* buffer = SkNEW_ARRAY(char, largestSubsetDecodeInfo.height() * rowBytes);
+            SkAutoTDeleteArray<char> lineDeleter(buffer);
             for (int col = 0; col < divisor; col++) {
                 //currentSubsetWidth may be larger than subsetWidth for rightmost subsets
                 const int currentSubsetWidth = (col + 1 == divisor) ?
@@ -247,21 +247,33 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     bounds.setXYWH(0, 0, currentSubsetWidth, currentSubsetHeight);
                     SkAssertResult(largestSubsetBm.extractSubset(&subsetBm, bounds));
                     SkAutoLockPixels autlockSubsetBm(subsetBm, true);
-                    for (int subsetY = 0; subsetY < currentSubsetHeight; ++subsetY) {
-                        const SkImageGenerator::Result subsetResult =
-                                subsetScanlineDecoder->getScanlines(line, 1, 0);
-                        const size_t bpp = decodeInfo.bytesPerPixel();
-                        //copy section of line based on x value
-                        memcpy(subsetBm.getAddr(0, subsetY), line + x*bpp, currentSubsetWidth*bpp);
-                        switch (subsetResult) {
-                            case SkImageGenerator::kSuccess:
-                            case SkImageGenerator::kIncompleteInput:
-                                break;
-                            default:
-                                return SkStringPrintf("%s failed after %d scanlines with error" 
-                                        "message %d", fPath.c_str(), y-1, (int) subsetResult);
-                        }
+                    const SkImageGenerator::Result subsetResult =
+                        subsetScanlineDecoder->getScanlines(buffer, currentSubsetHeight, rowBytes);
+                    switch (subsetResult) {
+                        case SkImageGenerator::kSuccess:
+                        case SkImageGenerator::kIncompleteInput:
+                            break;
+                        default:
+                            return SkStringPrintf("%s failed with error message %d", 
+                                    fPath.c_str(), (int) subsetResult);
                     }
+                    const size_t bpp = decodeInfo.bytesPerPixel();
+                    /*    
+                     * we copy all the lines at once becuase when calling getScanlines for 
+                     * interlaced pngs the entire image must be read regardless of the number 
+                     * of lines requested.  Reading an interlaced png in a loop, line-by-line, would
+                     * decode the entire image height times, which is very slow
+                     * it is aknowledged that copying each line as you read it in a loop
+                     * may be faster for other types of images.  Since this is a correctness test
+                     * that's okay.
+                    */
+                    char* bufferRow = buffer; 
+                    for (int subsetY = 0; subsetY < currentSubsetHeight; ++subsetY) {
+                        memcpy(subsetBm.getAddr(0, subsetY), bufferRow + x*bpp, 
+                                currentSubsetWidth*bpp);
+                        bufferRow += rowBytes;
+                    }
+                    
                     canvas->drawBitmap(subsetBm, SkIntToScalar(x), SkIntToScalar(y));
                 }
             }
@@ -341,6 +353,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 }
             }
             canvas->drawBitmap(bitmap, 0, 0);
+            break;
         }
     }
     return "";

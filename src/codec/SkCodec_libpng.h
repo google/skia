@@ -58,6 +58,7 @@ private:
     void destroyReadStruct();
 
     friend class SkPngScanlineDecoder;
+    friend class SkPngInterlacedScanlineDecoder;
 
     typedef SkCodec INHERITED;
 };

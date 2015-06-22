@@ -648,6 +648,98 @@ private:
     typedef SkScanlineDecoder INHERITED;
 };
 
+
+class SkPngInterlacedScanlineDecoder : public SkScanlineDecoder {
+public:
+    SkPngInterlacedScanlineDecoder(const SkImageInfo& dstInfo, SkPngCodec* codec)
+        : INHERITED(dstInfo)
+        , fCodec(codec)
+        , fHasAlpha(false)
+        , fCurrentRow(0)
+        , fHeight(dstInfo.height())
+        , fSrcRowBytes(dstInfo.minRowBytes())
+        , fRewindNeeded(false)
+    {
+        fGarbageRow.reset(fSrcRowBytes);
+        fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
+    }
+
+    SkImageGenerator::Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
+        //rewind stream if have previously called onGetScanlines, 
+        //since we need entire progressive image to get scanlines
+        if (fRewindNeeded) {
+            if(false == fCodec->handleRewind()) {
+                return SkImageGenerator::kCouldNotRewind;
+            }
+        } else {
+            fRewindNeeded = true;
+        }
+        if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
+            SkCodecPrintf("setjmp long jump!\n");
+            return SkImageGenerator::kInvalidInput;
+        }
+        const int number_passes = png_set_interlace_handling(fCodec->fPng_ptr);
+        SkAutoMalloc storage(count * fSrcRowBytes);
+        uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
+        uint8_t* srcRow;
+        for (int i = 0; i < number_passes; i++) {
+            //read rows we planned to skip into garbage row
+            for (int y = 0; y < fCurrentRow; y++){
+                png_read_rows(fCodec->fPng_ptr, &fGarbageRowPtr, png_bytepp_NULL, 1);
+            }
+            //read rows we care about into buffer
+            srcRow = storagePtr;
+            for (int y = 0; y < count; y++) {
+                png_read_rows(fCodec->fPng_ptr, &srcRow, png_bytepp_NULL, 1);
+                srcRow += fSrcRowBytes;
+            }
+            //read rows we don't want into garbage buffer
+            for (int y = 0; y < fHeight - fCurrentRow - count; y++) {
+                png_read_rows(fCodec->fPng_ptr, &fGarbageRowPtr, png_bytepp_NULL, 1);
+            }
+        }
+        //swizzle the rows we care about
+        srcRow = storagePtr;
+        for (int y = 0; y < count; y++) {
+            fCodec->fSwizzler->setDstRow(dst);
+            fHasAlpha |= !SkSwizzler::IsOpaque(fCodec->fSwizzler->next(srcRow));
+            dst = SkTAddOffset<void>(dst, dstRowBytes);
+            srcRow += fSrcRowBytes;
+        }
+        fCurrentRow += count;
+        return SkImageGenerator::kSuccess;
+    }
+
+    SkImageGenerator::Result onSkipScanlines(int count) override {
+        //when ongetScanlines is called it will skip to fCurrentRow
+        fCurrentRow += count;
+        return SkImageGenerator::kSuccess;
+    }
+
+    void onFinish() override {
+        fCodec->finish();
+    }
+
+    bool onReallyHasAlpha() const override { return fHasAlpha; }
+
+private:
+    SkPngCodec*         fCodec;     // Unowned.
+    bool                fHasAlpha;
+    int                 fCurrentRow;
+    int                 fHeight;
+    size_t              fSrcRowBytes;
+    bool                fRewindNeeded;
+    SkAutoMalloc        fGarbageRow;
+    uint8_t*            fGarbageRowPtr;
+    
+    
+    
+    
+
+    typedef SkScanlineDecoder INHERITED;
+};
+
+
 SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
         const Options& options, SkPMColor ctable[], int* ctableCount) {
     if (!this->handleRewind()) {
@@ -675,8 +767,8 @@ SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
 
     SkASSERT(fNumberPasses != INVALID_NUMBER_PASSES);
     if (fNumberPasses > 1) {
-        // We cannot efficiently do scanline decoding.
-        return NULL;
+        // interlaced image
+        return SkNEW_ARGS(SkPngInterlacedScanlineDecoder, (dstInfo, this));
     }
 
     return SkNEW_ARGS(SkPngScanlineDecoder, (dstInfo, this));
