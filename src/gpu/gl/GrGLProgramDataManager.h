@@ -23,7 +23,7 @@ class GrGLProgramBuilder;
  * The resources are objects the program uses to communicate with the
  * application code.
  */
-class GrGLProgramDataManager : public SkRefCnt {
+class GrGLProgramDataManager : SkNoncopyable {
 public:
     // Opaque handle to a uniform
     class ShaderResourceHandle {
@@ -111,6 +111,7 @@ private:
     SkTArray<Uniform, true> fUniforms;
     GrGLGpu* fGpu;
 
-    typedef SkRefCnt INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
+
 #endif
