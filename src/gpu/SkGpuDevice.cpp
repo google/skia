@@ -1229,9 +1229,7 @@ bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
                                 SkBitmap* result, SkIPoint* offset) {
     SkASSERT(filter);
 
-    // FIXME: plumb actual surface props such that we don't have to lie about the flags here
-    //        (https://code.google.com/p/skia/issues/detail?id=3148).
-    SkImageFilter::Proxy proxy(this, SkSurfaceProps(0, this->surfaceProps().pixelGeometry()));
+    SkImageFilter::Proxy proxy(this);
 
     if (filter->canFilterImageGPU()) {
         return filter->filterImageGPU(&proxy, wrap_texture(texture, width, height),

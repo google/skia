@@ -76,7 +76,7 @@ protected:
 private:
 
 
-    void drawPictureAtDeviceResolution(Proxy*, SkBaseDevice*, const SkIRect& deviceBounds,
+    void drawPictureAtDeviceResolution(SkBaseDevice*, const SkIRect& deviceBounds,
                                        const Context&) const;
     void drawPictureAtLocalResolution(Proxy*, SkBaseDevice*, const SkIRect& deviceBounds,
                                       const Context&) const;

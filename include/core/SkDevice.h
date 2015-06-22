@@ -359,8 +359,6 @@ protected:
         return NULL;
     }
 
-    virtual void initForRootLayer(SkPixelGeometry geo);
-
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip

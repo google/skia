@@ -80,21 +80,17 @@ public:
 
     class Proxy {
     public:
-        Proxy(SkBaseDevice* device, const SkSurfaceProps& props)
-            : fDevice(device)
-            , fProps(props.flags(), kUnknown_SkPixelGeometry)
-        {}
+        Proxy(SkBaseDevice* device) : fDevice(device) { }
         
         SkBaseDevice* createDevice(int width, int height);
-        // returns true if the proxy handled the filter itself. if this returns
+
+        // Returns true if the proxy handled the filter itself. If this returns
         // false then the filter's code will be called.
         bool filterImage(const SkImageFilter*, const SkBitmap& src, const SkImageFilter::Context&,
                          SkBitmap* result, SkIPoint* offset);
-        const SkSurfaceProps& surfaceProps() const { return fProps; }
-        
+
     private:
-        SkBaseDevice*        fDevice;
-        const SkSurfaceProps fProps;
+        SkBaseDevice* fDevice;
     };
     
 

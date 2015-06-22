@@ -536,8 +536,8 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fSurfaceBase = NULL;
 
     if (device) {
-        // TODO: remove this - the root device & canvas should always have same surfaceProps
-        device->initForRootLayer(fProps.pixelGeometry());
+        // The root device and the canvas should always have the same pixel geometry
+        SkASSERT(fProps.pixelGeometry() == device->surfaceProps().pixelGeometry());
         if (device->forceConservativeRasterClip()) {
             fConservativeRasterClip = true;
         }
@@ -593,16 +593,6 @@ SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
     inc_canvas();
 
     this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (bounds, fProps)), flags)->unref();
-}
-
-// TODO: remove this ctor
-SkCanvas::SkCanvas(SkBaseDevice* device, const SkSurfaceProps* props, InitFlags flags)
-    : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-    , fProps(SkSurfacePropsCopyOrDefault(props))
-{
-    inc_canvas();
-
-    this->init(device, flags);
 }
 
 SkCanvas::SkCanvas(SkBaseDevice* device)
@@ -1256,7 +1246,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !dstDev->canHandleImageFilter(filter)) {
-            SkImageFilter::Proxy proxy(dstDev, fProps);
+            SkImageFilter::Proxy proxy(dstDev);
             SkBitmap dst;
             SkIPoint offset = SkIPoint::Make(0, 0);
             const SkBitmap& src = srcDev->accessBitmap(false);
@@ -1308,7 +1298,7 @@ void SkCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint*
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !iter.fDevice->canHandleImageFilter(filter)) {
-            SkImageFilter::Proxy proxy(iter.fDevice, fProps);
+            SkImageFilter::Proxy proxy(iter.fDevice);
             SkBitmap dst;
             SkIPoint offset = SkIPoint::Make(0, 0);
             SkMatrix matrix = *iter.fMatrix;

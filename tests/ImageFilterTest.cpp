@@ -400,7 +400,7 @@ DEF_TEST(TestNegativeBlurSigma, reporter) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkBaseDevice> device(SkBitmapDevice::Create(info, props));
-    SkImageFilter::Proxy proxy(device, props);
+    SkImageFilter::Proxy proxy(device);
 
     test_negative_blur_sigma(&proxy, reporter);
 }
@@ -773,7 +773,7 @@ DEF_TEST(ImageFilterCropRect, reporter) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkBaseDevice> device(SkBitmapDevice::Create(info, props));
-    SkImageFilter::Proxy proxy(device, props);
+    SkImageFilter::Proxy proxy(device);
 
     test_crop_rects(&proxy, reporter);
 }
@@ -885,8 +885,9 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(1, 1, 1, 1), NULL);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(2, 2);
-    SkBitmapDevice device(bitmap, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
-    SkImageFilter::Proxy proxy(&device, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkBitmapDevice device(bitmap, props);
+    SkImageFilter::Proxy proxy(&device);
     REPORTER_ASSERT(reporter, !imageFilter->filterImage(&proxy, bitmap, ctx, &result, &offset));
 }
 
@@ -1123,8 +1124,9 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(100, 100);
     bitmap.eraseARGB(0, 0, 0, 0);
-    SkBitmapDevice device(bitmap, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
-    SkImageFilter::Proxy proxy(&device, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkBitmapDevice device(bitmap, props);
+    SkImageFilter::Proxy proxy(&device);
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(1, 0, 20, 20));
     SkAutoTUnref<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(0, 0, NULL, &cropRect));
@@ -1138,19 +1140,20 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
 }
 
 #if SK_SUPPORT_GPU
-const SkSurfaceProps gProps = SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
 
 DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
     if (NULL == context) {
         return;
     }
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkSurface::kNo_Budgeted,
                                                          SkImageInfo::MakeN32Premul(100, 100),
                                                          0,
-                                                         &gProps));
-    SkImageFilter::Proxy proxy(device, gProps);
+                                                         &props));
+    SkImageFilter::Proxy proxy(device);
 
     test_crop_rects(&proxy, reporter);
 }
@@ -1160,11 +1163,13 @@ DEF_GPUTEST(HugeBlurImageFilterGPU, reporter, factory) {
     if (NULL == context) {
         return;
     }
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkSurface::kNo_Budgeted,
                                                          SkImageInfo::MakeN32Premul(100, 100),
                                                          0,
-                                                         &gProps));
+                                                         &props));
     SkCanvas canvas(device);
 
     test_huge_blur(&canvas, reporter);
@@ -1175,11 +1180,13 @@ DEF_GPUTEST(XfermodeImageFilterCroppedInputGPU, reporter, factory) {
     if (NULL == context) {
         return;
     }
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkSurface::kNo_Budgeted,
                                                          SkImageInfo::MakeN32Premul(1, 1),
                                                          0,
-                                                         &gProps));
+                                                         &props));
     SkCanvas canvas(device);
 
     test_xfermode_cropped_input(&canvas, reporter);
@@ -1190,12 +1197,14 @@ DEF_GPUTEST(TestNegativeBlurSigmaGPU, reporter, factory) {
     if (NULL == context) {
         return;
     }
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
                                                          SkSurface::kNo_Budgeted,
                                                          SkImageInfo::MakeN32Premul(1, 1),
                                                          0,
-                                                         &gProps));
-    SkImageFilter::Proxy proxy(device, gProps);
+                                                         &props));
+    SkImageFilter::Proxy proxy(device);
 
     test_negative_blur_sigma(&proxy, reporter);
 }

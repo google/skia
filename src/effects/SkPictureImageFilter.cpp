@@ -110,9 +110,9 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Co
 
     if (kDeviceSpace_PictureResolution == fPictureResolution || 
         0 == (ctx.ctm().getType() & ~SkMatrix::kTranslate_Mask)) {
-        drawPictureAtDeviceResolution(proxy, device.get(), bounds, ctx);        
+        this->drawPictureAtDeviceResolution(device.get(), bounds, ctx);        
     } else {
-        drawPictureAtLocalResolution(proxy, device.get(), bounds, ctx);
+        this->drawPictureAtLocalResolution(proxy, device.get(), bounds, ctx);
     }
 
     *result = device.get()->accessBitmap(false);
@@ -121,13 +121,10 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Co
     return true;
 }
 
-void SkPictureImageFilter::drawPictureAtDeviceResolution(Proxy* proxy, SkBaseDevice* device,
+void SkPictureImageFilter::drawPictureAtDeviceResolution(SkBaseDevice* device,
                                                          const SkIRect& deviceBounds,
                                                          const Context& ctx) const {
-    // Pass explicit surface props, as the simplified canvas constructor discards device properties.
-    // FIXME: switch back to the public constructor (and unfriend) after
-    //        https://code.google.com/p/skia/issues/detail?id=3142 is fixed.
-    SkCanvas canvas(device, &proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
+    SkCanvas canvas(device);
 
     canvas.translate(-SkIntToScalar(deviceBounds.fLeft), -SkIntToScalar(deviceBounds.fTop));
     canvas.concat(ctx.ctm());
@@ -138,26 +135,23 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(Proxy* proxy, SkBaseDevi
                                                         const SkIRect& deviceBounds,
                                                         const Context& ctx) const {
     SkMatrix inverseCtm;
-    if (!ctx.ctm().invert(&inverseCtm))
+    if (!ctx.ctm().invert(&inverseCtm)) {
         return;
+    }
+
     SkRect localBounds = SkRect::Make(ctx.clipBounds());
     inverseCtm.mapRect(&localBounds);
-    if (!localBounds.intersect(fCropRect))
+    if (!localBounds.intersect(fCropRect)) {
         return;
+    }
     SkIRect localIBounds = localBounds.roundOut();
     SkAutoTUnref<SkBaseDevice> localDevice(proxy->createDevice(localIBounds.width(), localIBounds.height()));
 
-    // Pass explicit surface props, as the simplified canvas constructor discards device properties.
-    // FIXME: switch back to the public constructor (and unfriend) after
-    //        https://code.google.com/p/skia/issues/detail?id=3142 is fixed.
-    SkCanvas localCanvas(localDevice, &proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
+    SkCanvas localCanvas(localDevice);
     localCanvas.translate(-SkIntToScalar(localIBounds.fLeft), -SkIntToScalar(localIBounds.fTop));
     localCanvas.drawPicture(fPicture);
 
-    // Pass explicit surface props, as the simplified canvas constructor discards device properties.
-    // FIXME: switch back to the public constructor (and unfriend) after
-    //        https://code.google.com/p/skia/issues/detail?id=3142 is fixed.
-    SkCanvas canvas(device, &proxy->surfaceProps(), SkCanvas::kDefault_InitFlags);
+    SkCanvas canvas(device);
 
     canvas.translate(-SkIntToScalar(deviceBounds.fLeft), -SkIntToScalar(deviceBounds.fTop));
     canvas.concat(ctx.ctm());
@@ -165,7 +159,6 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(Proxy* proxy, SkBaseDevi
     paint.setFilterQuality(fFilterQuality);
     canvas.drawBitmap(localDevice.get()->accessBitmap(false), SkIntToScalar(localIBounds.fLeft),
                       SkIntToScalar(localIBounds.fTop), &paint);
-    //canvas.drawPicture(fPicture);
 }
 
 #ifndef SK_IGNORE_TO_STRING

@@ -70,15 +70,6 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
     return geo;
 }
 
-void SkBaseDevice::initForRootLayer(SkPixelGeometry geo) {
-    // For now we don't expect to change the geometry for the root-layer, but we make the call
-    // anyway to document logically what is going on.
-    //
-    fSurfaceProps.setPixelGeometry_dont_use(CreateInfo::AdjustGeometry(this->imageInfo(),
-                                                                       kPossible_TileUsage,
-                                                                       geo));
-}
-
 void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
                               const SkRRect& inner, const SkPaint& paint) {
     SkPath path;

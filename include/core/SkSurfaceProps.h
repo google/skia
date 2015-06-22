@@ -71,9 +71,6 @@ public:
     bool isDisallowDither() const { return SkToBool(fFlags & kDisallowDither_Flag); }
     bool isUseDistanceFieldFonts() const { return SkToBool(fFlags & kUseDistanceFieldFonts_Flag); }
 
-    // TODO: remove this entry point
-    void setPixelGeometry_dont_use(SkPixelGeometry geo) { fPixelGeometry = geo; }
-
 private:
     SkSurfaceProps();
 

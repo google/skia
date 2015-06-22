@@ -491,7 +491,7 @@ SkBaseDevice* SkDeferredDevice::onCreateDevice(const CreateInfo& cinfo, const Sk
     // will not be used with a deferred canvas (there is no API for that).
     // And connecting a SkDeferredDevice to non-deferred canvas can result
     // in unpredictable behavior.
-    return immediateDevice()->onCreateDevice(cinfo, layerPaint);
+    return this->immediateDevice()->onCreateDevice(cinfo, layerPaint);
 }
 
 SkSurface* SkDeferredDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
