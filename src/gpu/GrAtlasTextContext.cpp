@@ -442,7 +442,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
     SkScalar scaledTextSize = maxScale*skPaint.getTextSize();
     // Hinted text looks far better at small resolutions
     // Scaling up beyond 2x yields undesireable artifacts
-    if (scaledTextSize < kMinDFFontSize || scaledTextSize >= kLargeDFFontLimit) {
+    if (scaledTextSize < kMinDFFontSize || scaledTextSize > kLargeDFFontLimit) {
         return false;
     }
 

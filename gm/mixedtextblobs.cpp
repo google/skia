@@ -54,7 +54,7 @@ protected:
         // make textblob
         // Text so large we draw as paths
         SkPaint paint;
-        paint.setTextSize(384);
+        paint.setTextSize(385);
         const char* text = "O";
         sk_tool_utils::set_portable_typeface(&paint);
 
