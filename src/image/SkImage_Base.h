@@ -59,6 +59,7 @@ public:
     // newWidth > 0, newHeight > 0, subset either NULL or a proper subset of this bounds
     virtual SkImage* onNewImage(int newWidth, int newHeight, const SkIRect* subset,
                                 SkFilterQuality) const;
+    virtual SkData* onRefEncoded() const { return NULL; }
 
 private:
     const SkSurfaceProps fProps;

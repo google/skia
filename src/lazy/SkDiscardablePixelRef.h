@@ -9,7 +9,7 @@
 #define SkDiscardablePixelRef_DEFINED
 
 #include "SkDiscardableMemory.h"
-#include "SkImageGenerator.h"
+#include "SkImageGeneratorPriv.h"
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
 
@@ -61,7 +61,7 @@ private:
         return fGenerator->getYUV8Planes(sizes, planes, rowBytes, colorSpace);
     }
 
-    friend bool SkInstallDiscardablePixelRef(SkImageGenerator*, SkBitmap*,
+    friend bool SkInstallDiscardablePixelRef(SkImageGenerator*, const SkIRect*, SkBitmap*,
                                              SkDiscardableMemory::Factory*);
 
     typedef SkPixelRef INHERITED;

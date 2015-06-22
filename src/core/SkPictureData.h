@@ -51,6 +51,7 @@ struct SkPictInfo {
 #define SK_PICT_PAINT_BUFFER_TAG    SkSetFourByteTag('p', 'n', 't', ' ')
 #define SK_PICT_PATH_BUFFER_TAG     SkSetFourByteTag('p', 't', 'h', ' ')
 #define SK_PICT_TEXTBLOB_BUFFER_TAG SkSetFourByteTag('b', 'l', 'o', 'b')
+#define SK_PICT_IMAGE_BUFFER_TAG    SkSetFourByteTag('i', 'm', 'a', 'g')
 
 // Always write this guy last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
@@ -90,6 +91,11 @@ public:
         return fBitmaps[index];
     }
 
+    const SkImage* getImage(SkReader32* reader) const {
+        const int index = reader->readInt();
+        return fImageRefs[index];
+    }
+    
     const SkPath& getPath(SkReader32* reader) const {
         int index = reader->readInt() - 1;
         return fPaths[index];
@@ -156,6 +162,8 @@ private:
     int fPictureCount;
     const SkTextBlob** fTextBlobRefs;
     int fTextBlobCount;
+    const SkImage** fImageRefs;
+    int fImageCount;
 
     SkPictureContentInfo fContentInfo;
 

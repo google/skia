@@ -68,6 +68,15 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
             fTextBlobRefs[i] = SkRef(blobs[i]);
         }
     }
+        
+    const SkTDArray<const SkImage*>& imgs = record.getImageRefs();
+    fImageCount = imgs.count();
+    if (fImageCount > 0) {
+        fImageRefs = SkNEW_ARRAY(const SkImage*, fImageCount);
+        for (int i = 0; i < fImageCount; ++i) {
+            fImageRefs[i] = SkRef(imgs[i]);
+        }
+    }
 }
 
 void SkPictureData::init() {
@@ -75,6 +84,8 @@ void SkPictureData::init() {
     fPictureCount = 0;
     fTextBlobRefs = NULL;
     fTextBlobCount = 0;
+    fImageRefs = NULL;
+    fImageCount = 0;
     fOpData = NULL;
     fFactoryPlayback = NULL;
 }
@@ -91,12 +102,17 @@ SkPictureData::~SkPictureData() {
         fTextBlobRefs[i]->unref();
     }
     SkDELETE_ARRAY(fTextBlobRefs);
-
+    
+    for (int i = 0; i < fImageCount; i++) {
+        fImageRefs[i]->unref();
+    }
+    SkDELETE_ARRAY(fImageRefs);
+    
     SkDELETE(fFactoryPlayback);
 }
 
 bool SkPictureData::containsBitmaps() const {
-    if (fBitmaps.count() > 0) {
+    if (fBitmaps.count() > 0 || fImageCount > 0) {
         return true;
     }
     for (int i = 0; i < fPictureCount; ++i) {
@@ -215,6 +231,13 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
         write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobCount);
         for (i = 0; i  < fTextBlobCount; ++i) {
             fTextBlobRefs[i]->flatten(buffer);
+        }
+    }
+    
+    if (fImageCount > 0) {
+        write_tag_size(buffer, SK_PICT_IMAGE_BUFFER_TAG, fImageCount);
+        for (i = 0; i  < fImageCount; ++i) {
+            buffer.writeImage(fImageRefs[i]);
         }
     }
 }
@@ -403,8 +426,67 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
     return true;    // success
 }
 
-bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
-                                   uint32_t tag, uint32_t size) {
+static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
+    int width = buffer.read32();
+    int height = buffer.read32();
+    if (width <= 0 || height <= 0) {    // SkImage never has a zero dimension
+        buffer.validate(false);
+        return NULL;
+    }
+
+    SkAutoTUnref<SkData> encoded(buffer.readByteArrayAsData());
+    int originX = buffer.read32();
+    int originY = buffer.read32();
+    if (0 == encoded->size() || originX < 0 || originY < 0) {
+        buffer.validate(false);
+        return NULL;
+    }
+
+    const SkIRect subset = SkIRect::MakeXYWH(originX, originY, width, height);
+    return SkImage::NewFromEncoded(encoded, &subset);
+}
+
+// Need a shallow wrapper to return const SkPicture* to match the other factories,
+// as SkPicture::CreateFromBuffer() returns SkPicture*
+static const SkPicture* create_picture_from_buffer(SkReadBuffer& buffer) {
+    return SkPicture::CreateFromBuffer(buffer);
+}
+
+template <typename T>
+bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
+                           const T*** array, int* outCount, const T* (*factory)(SkReadBuffer&)) {
+    if (!buffer.validate((0 == *outCount) && (NULL == *array))) {
+        return false;
+    }
+    if (0 == inCount) {
+        return true;
+    }
+    *outCount = inCount;
+    *array = SkNEW_ARRAY(const T*, *outCount);
+    bool success = true;
+    int i = 0;
+    for (; i < *outCount; i++) {
+        (*array)[i] = factory(buffer);
+        if (NULL == (*array)[i]) {
+            success = false;
+            break;
+        }
+    }
+    if (!success) {
+        // Delete all of the blobs that were already created (up to but excluding i):
+        for (int j = 0; j < i; j++) {
+            (*array)[j]->unref();
+        }
+        // Delete the array
+        SkDELETE_ARRAY(*array);
+        *array = NULL;
+        *outCount = 0;
+        return false;
+    }
+    return true;
+}
+
+bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t size) {
     switch (tag) {
         case SK_PICT_BITMAP_BUFFER_TAG: {
             const int count = SkToInt(size);
@@ -433,33 +515,18 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
                     buffer.readPath(&fPaths[i]);
                 }
             } break;
-        case SK_PICT_TEXTBLOB_BUFFER_TAG: {
-            if (!buffer.validate((0 == fTextBlobCount) && (NULL == fTextBlobRefs))) {
+        case SK_PICT_TEXTBLOB_BUFFER_TAG:
+            if (!new_array_from_buffer(buffer, size, &fTextBlobRefs, &fTextBlobCount,
+                                       SkTextBlob::CreateFromBuffer)) {
                 return false;
             }
-            fTextBlobCount = size;
-            fTextBlobRefs = SkNEW_ARRAY(const SkTextBlob*, fTextBlobCount);
-            bool success = true;
-            int i = 0;
-            for ( ; i < fTextBlobCount; i++) {
-                fTextBlobRefs[i] = SkTextBlob::CreateFromBuffer(buffer);
-                if (NULL == fTextBlobRefs[i]) {
-                    success = false;
-                    break;
-                }
-            }
-            if (!success) {
-                // Delete all of the blobs that were already created (up to but excluding i):
-                for (int j = 0; j < i; j++) {
-                    fTextBlobRefs[j]->unref();
-                }
-                // Delete the array
-                SkDELETE_ARRAY(fTextBlobRefs);
-                fTextBlobRefs = NULL;
-                fTextBlobCount = 0;
+            break;
+        case SK_PICT_IMAGE_BUFFER_TAG:
+            if (!new_array_from_buffer(buffer, size, &fImageRefs, &fImageCount,
+                                       create_image_from_buffer)) {
                 return false;
             }
-        } break;
+            break;
         case SK_PICT_READER_TAG: {
             SkAutoDataUnref data(SkData::NewUninitialized(size));
             if (!buffer.readByteArray(data->writable_data(), size) ||
@@ -469,32 +536,11 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer,
             SkASSERT(NULL == fOpData);
             fOpData = data.detach();
         } break;
-        case SK_PICT_PICTURE_TAG: {
-            if (!buffer.validate((0 == fPictureCount) && (NULL == fPictureRefs))) {
+        case SK_PICT_PICTURE_TAG:
+            if (!new_array_from_buffer(buffer, size, &fPictureRefs, &fPictureCount,
+                                       create_picture_from_buffer)) {
                 return false;
             }
-            fPictureCount = size;
-            fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
-            bool success = true;
-            int i = 0;
-            for ( ; i < fPictureCount; i++) {
-                fPictureRefs[i] = SkPicture::CreateFromBuffer(buffer);
-                if (NULL == fPictureRefs[i]) {
-                    success = false;
-                    break;
-                }
-            }
-            if (!success) {
-                // Delete all of the pictures that were already created (up to but excluding i):
-                for (int j = 0; j < i; j++) {
-                    fPictureRefs[j]->unref();
-                }
-                // Delete the array
-                SkDELETE_ARRAY(fPictureRefs);
-                fPictureCount = 0;
-                return false;
-            }
-        } break;
         default:
             // The tag was invalid.
             return false;

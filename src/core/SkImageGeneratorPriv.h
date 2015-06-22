@@ -33,7 +33,7 @@
  *
  *  @return true iff successful.
  */
-bool SkInstallDiscardablePixelRef(SkImageGenerator*, SkBitmap* destination,
+bool SkInstallDiscardablePixelRef(SkImageGenerator*, const SkIRect* subset, SkBitmap* destination,
                                   SkDiscardableMemory::Factory* factory);
 
 #endif

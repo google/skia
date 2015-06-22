@@ -58,6 +58,7 @@ public:
         kImageFilterNoUniqueID_Version     = 40,
         kBitmapSourceFilterQuality_Version = 41,
         kPictureShaderHasPictureBool_Version = 42,
+        kHasDrawImageOpCodes_Version       = 43,
     };
 
     /**

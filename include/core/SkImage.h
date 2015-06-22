@@ -65,17 +65,27 @@ public:
      *  Construct a new SkImage based on the given ImageGenerator.
      *  This function will always take ownership of the passed
      *  ImageGenerator.  Returns NULL on error.
+     *
+     *  If a subset is specified, it must be contained within the generator's bounds.
      */
-    static SkImage* NewFromGenerator(SkImageGenerator*);
+    static SkImage* NewFromGenerator(SkImageGenerator*, const SkIRect* subset = NULL);
 
     /**
      *  Construct a new SkImage based on the specified encoded data. Returns NULL on failure,
      *  which can mean that the format of the encoded data was not recognized/supported.
      *
+     *  If a subset is specified, it must be contained within the encoded data's bounds.
+     *
      *  Regardless of success or failure, the caller is responsible for managing their ownership
      *  of the data.
      */
-    static SkImage* NewFromData(SkData* data);
+    static SkImage* NewFromEncoded(SkData* encoded, const SkIRect* subset = NULL);
+
+#ifdef SK_SUPPORT_LEGACY_IMAGE_NEWFROMDATA
+    static SkImage* NewFromData(SkData* data) {
+        return NewFromEncoded(data, NULL);
+    }
+#endif
 
     /**
      *  Create a new image from the specified descriptor. Note - the caller is responsible for
@@ -151,6 +161,15 @@ public:
      */
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes) const;
 
+    /**
+     *  If the image has direct access to its pixels (i.e. they are in local
+     *  RAM) return the (const) address of those pixels, and if not null, return
+     *  true, and if pixmap is not NULL, set it to point into the image.
+     *
+     *  On failure, return false and ignore the pixmap parameter.
+     */
+    bool peekPixels(SkPixmap* pixmap) const;
+
     // DEPRECATED
     GrTexture* getTexture() const;
 
@@ -187,6 +206,8 @@ public:
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY) const;
 
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
+
     /**
      *  Encode the image's pixels and return the result as a new SkData, which
      *  the caller must manage (i.e. call unref() when they are done).
@@ -194,8 +215,22 @@ public:
      *  If the image type cannot be encoded, or the requested encoder type is
      *  not supported, this will return NULL.
      */
-    SkData* encode(SkImageEncoder::Type t = SkImageEncoder::kPNG_Type,
-                   int quality = 80) const;
+    SkData* encode(SkImageEncoder::Type, int quality) const;
+
+    SkData* encode() const {
+        return this->encode(SkImageEncoder::kPNG_Type, 100);
+    }
+
+    /**
+     *  If the image already has its contents in encoded form (e.g. PNG or JPEG), return a ref
+     *  to that data (which the caller must call unref() on). The caller is responsible for calling
+     *  unref on the data when they are done.
+     *
+     *  If the image does not already has its contents in encoded form, return NULL.
+     *
+     *  Note: to force the image to return its contents as encoded data, try calling encode(...).
+     */
+    SkData* refEncoded() const;
 
     /**
      *  Return a new surface that is compatible with this image's internal representation

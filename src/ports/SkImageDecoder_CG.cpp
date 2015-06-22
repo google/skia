@@ -157,7 +157,18 @@ SkImageDecoder::Result SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* b
         }
     }
 
-    bm->setInfo(SkImageInfo::MakeN32Premul(width, height, cpType));
+    SkAlphaType at = kPremul_SkAlphaType;
+    switch (CGImageGetAlphaInfo(image)) {
+        case kCGImageAlphaNone:
+        case kCGImageAlphaNoneSkipLast:
+        case kCGImageAlphaNoneSkipFirst:
+            at = kOpaque_SkAlphaType;
+            break;
+        default:
+            break;
+    }
+
+    bm->setInfo(SkImageInfo::Make(width, height, kN32_SkColorType, at, cpType));
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return kSuccess;
     }

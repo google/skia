@@ -251,7 +251,7 @@ static SkImage* createImage(ImageType imageType, GrContext* context, SkColor col
             bitmap.installPixels(info, addr, rowBytes);
             SkAutoTUnref<SkData> src(
                  SkImageEncoder::EncodeData(bitmap, SkImageEncoder::kPNG_Type, 100));
-            return SkImage::NewFromData(src);
+            return SkImage::NewFromEncoded(src);
         }
     }
     SkASSERT(false);

@@ -249,7 +249,7 @@ static void check_pixelref(TestImageGenerator::TestType type,
         // Ignore factory; use global cache.
         success = SkCachingPixelRef::Install(gen.detach(), &lazy);
     } else {
-        success = SkInstallDiscardablePixelRef(gen.detach(), &lazy, factory);
+        success = SkInstallDiscardablePixelRef(gen.detach(), NULL, &lazy, factory);
     }
     REPORTER_ASSERT(reporter, success);
     if (TestImageGenerator::kSucceedGetPixels_TestType == type) {

@@ -107,37 +107,55 @@ void SkDiscardablePixelRef::onUnlockPixels() {
     fDiscardableMemoryIsLocked = false;
 }
 
-bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst,
+bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, const SkIRect* subset, SkBitmap* dst,
                                   SkDiscardableMemory::Factory* factory) {
     SkAutoTDelete<SkImageGenerator> autoGenerator(generator);
     if (NULL == autoGenerator.get()) {
         return false;
     }
-    SkImageInfo info = autoGenerator->getInfo();
-    if (info.isEmpty() || !dst->setInfo(info)) {
+
+    SkImageInfo prInfo = autoGenerator->getInfo();
+    if (prInfo.isEmpty()) {
         return false;
     }
-    // Since dst->setInfo() may have changed/fixed-up info, we copy it back from that bitmap
-    info = dst->info();
 
-    SkASSERT(info.colorType() != kUnknown_SkColorType);
+    SkIPoint origin = SkIPoint::Make(0, 0);
+    SkImageInfo bmInfo = prInfo;
+    if (subset) {
+        const SkIRect prBounds = SkIRect::MakeWH(prInfo.width(), prInfo.height());
+        if (subset->isEmpty() || !prBounds.contains(*subset)) {
+            return false;
+        }
+        bmInfo = prInfo.makeWH(subset->width(), subset->height());
+        origin.set(subset->x(), subset->y());
+    }
+
+    // must compute our desired rowBytes w.r.t. the pixelRef's dimensions, not ours, which may be
+    // smaller.
+    if (!dst->setInfo(bmInfo, prInfo.minRowBytes())) {
+        return false;
+    }
+
+    // Since dst->setInfo() may have changed/fixed-up info, we check from the bitmap
+    SkASSERT(dst->info().colorType() != kUnknown_SkColorType);
+
     if (dst->empty()) {  // Use a normal pixelref.
         return dst->tryAllocPixels();
     }
     SkAutoTUnref<SkDiscardablePixelRef> ref(
         SkNEW_ARGS(SkDiscardablePixelRef,
-                   (info, autoGenerator.detach(), dst->rowBytes(), factory)));
-    dst->setPixelRef(ref);
+                   (prInfo, autoGenerator.detach(), dst->rowBytes(), factory)));
+    dst->setPixelRef(ref, origin.x(), origin.y());
     return true;
 }
 
 // These are the public API
 
 bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst) {
-    return SkInstallDiscardablePixelRef(generator, dst, NULL);
+    return SkInstallDiscardablePixelRef(generator, NULL, dst, NULL);
 }
 
 bool SkInstallDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
     SkImageGenerator* generator = SkImageGenerator::NewFromData(encoded);
-    return generator ? SkInstallDiscardablePixelRef(generator, dst, NULL) : false;
+    return generator ? SkInstallDiscardablePixelRef(generator, NULL, dst, NULL) : false;
 }

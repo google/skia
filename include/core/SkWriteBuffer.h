@@ -73,6 +73,7 @@ public:
     void writePath(const SkPath& path);
     size_t writeStream(SkStream* stream, size_t length);
     void writeBitmap(const SkBitmap& bitmap);
+    void writeImage(const SkImage*);
     void writeTypeface(SkTypeface* typeface);
     void writePaint(const SkPaint& paint) { paint.flatten(*this); }
 
@@ -106,6 +107,7 @@ public:
      * be set to NULL in release and crash in debug.
      */
     void setPixelSerializer(SkPixelSerializer*);
+    SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer; }
 
 private:
     bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }

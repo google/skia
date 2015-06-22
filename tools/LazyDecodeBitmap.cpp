@@ -40,5 +40,5 @@ bool sk_tools::LazyDecodeBitmap(const void* src, size_t length, SkBitmap* dst) {
         // Only meaningful if platform has a default discardable
         // memory implementation that differs from the global DM pool.
     }
-    return SkInstallDiscardablePixelRef(gen.detach(), dst, pool);
+    return SkInstallDiscardablePixelRef(gen.detach(), NULL, dst, pool);
 }

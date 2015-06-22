@@ -207,8 +207,9 @@ sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pi
     return (sk_image_t*)SkImage::NewRasterCopy(info, pixels, rowBytes);
 }
 
-sk_image_t* sk_image_new_from_data(const sk_data_t* cdata) {
-    return ToImage(SkImage::NewFromData(AsData(cdata)));
+sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* subset) {
+    return ToImage(SkImage::NewFromEncoded(AsData(cdata),
+                                           reinterpret_cast<const SkIRect*>(subset)));
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {

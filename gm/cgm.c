@@ -64,7 +64,7 @@ void sk_test_c_api(sk_canvas_t* canvas) {
     sk_data_t* data = sk_image_encode(img0);
     sk_image_unref(img0);
 
-    sk_image_t* img1 = sk_image_new_from_data(data);
+    sk_image_t* img1 = sk_image_new_from_encoded(data, NULL);
     sk_data_unref(data);
 
     if (img1) {

@@ -7,6 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkData.h"
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
@@ -64,12 +65,16 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     return NULL;
 }
 
-SkImage* SkImage::NewFromData(SkData* data) {
-    if (NULL == data) {
+SkData* SkImage::refEncoded() const {
+    return as_IB(this)->onRefEncoded();
+}
+
+SkImage* SkImage::NewFromEncoded(SkData* encoded, const SkIRect* subset) {
+    if (NULL == encoded || 0 == encoded->size()) {
         return NULL;
     }
-    SkImageGenerator* generator = SkImageGenerator::NewFromData(data);
-    return generator ? SkImage::NewFromGenerator(generator) : NULL;
+    SkImageGenerator* generator = SkImageGenerator::NewFromData(encoded);
+    return generator ? SkImage::NewFromGenerator(generator, subset) : NULL;
 }
 
 SkSurface* SkImage::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) const {
@@ -201,7 +206,26 @@ SkImage* SkImage_Base::onNewImage(int newWidth, int newHeight, const SkIRect* su
     return surface->newImageSnapshot();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkImage::peekPixels(SkPixmap* pmap) const {
+    SkImageInfo info;
+    size_t rowBytes;
+    const void* pixels = this->peekPixels(&info, &rowBytes);
+    if (pixels) {
+        if (pmap) {
+            pmap->reset(info, pixels, rowBytes);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY) const {
+    return this->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), srcX, srcY);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
 

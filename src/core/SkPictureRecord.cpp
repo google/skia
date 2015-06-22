@@ -96,6 +96,8 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         1,  // DRAW_PATCH - right after op code
         1,  // DRAW_PICTURE_MATRIX_PAINT - right after op code
         1,  // DRAW_TEXT_BLOB- right after op code
+        1,  // DRAW_IMAGE - right after op code
+        1,  // DRAW_IMAGE_RECT - right after op code
     };
 
     SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
@@ -566,18 +568,34 @@ void SkPictureRecord::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src
 
 void SkPictureRecord::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
                                   const SkPaint* paint) {
-    SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
-        this->SkPictureRecord::onDrawBitmap(bm, x, y, paint);
-    }
+    // op + paint_index + image_index + x + y
+    size_t size = 3 * kUInt32Size + 2 * sizeof(SkScalar);
+    size_t initialOffset = this->addDraw(DRAW_IMAGE, &size);
+    SkASSERT(initialOffset+get_paint_offset(DRAW_IMAGE, size) == fWriter.bytesWritten());
+    this->addPaintPtr(paint);
+    this->addImage(image);
+    this->addScalar(x);
+    this->addScalar(y);
+    this->validate(initialOffset, size);
 }
 
 void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint) {
-    SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
-        this->SkPictureRecord::onDrawBitmapRect(bm, src, dst, paint, kNone_DrawBitmapRectFlag);
+    // id + paint_index + bitmap_index + bool_for_src
+    size_t size = 4 * kUInt32Size;
+    if (src) {
+        size += sizeof(*src);   // + rect
     }
+    size += sizeof(dst);        // + rect
+    
+    size_t initialOffset = this->addDraw(DRAW_IMAGE_RECT, &size);
+    SkASSERT(initialOffset+get_paint_offset(DRAW_IMAGE_RECT, size)
+             == fWriter.bytesWritten());
+    this->addPaintPtr(paint);
+    this->addImage(image);
+    this->addRectPtr(src);  // may be null
+    this->addRect(dst);
+    this->validate(initialOffset, size);
 }
 
 void SkPictureRecord::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
@@ -890,6 +908,16 @@ void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
         fBitmaps.push_back(copy);
     }
     this->addInt(fBitmaps.count()-1);  // Remember, 0-based.
+}
+
+void SkPictureRecord::addImage(const SkImage* image) {
+    int index = fImageRefs.find(image);
+    if (index >= 0) {
+        this->addInt(index);
+    } else {
+        *fImageRefs.append() = SkRef(image);
+        this->addInt(fImageRefs.count()-1);
+    }
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {

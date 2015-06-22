@@ -9,7 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkImageGenerator.h"
+#include "SkImageGeneratorPriv.h"
 #include "SkImagePriv.h"
 #include "SkPixelRef.h"
 #include "SkSurface.h"
@@ -59,6 +59,7 @@ public:
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
+    SkData* onRefEncoded() const override;
     bool getROPixels(SkBitmap*) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
@@ -141,6 +142,18 @@ const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesP
     return fBitmap.getPixels();
 }
 
+SkData* SkImage_Raster::onRefEncoded() const {
+    SkPixelRef* pr = fBitmap.pixelRef();
+    const SkImageInfo prInfo = pr->info();
+    const SkImageInfo bmInfo = fBitmap.info();
+
+    // we only try if we (the image) cover the entire area of the pixelRef
+    if (prInfo.width() == bmInfo.width() && prInfo.height() == bmInfo.height()) {
+        return pr->refEncodedData();
+    }
+    return NULL;
+}
+
 bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
     *dst = fBitmap;
     return true;
@@ -185,9 +198,9 @@ SkImage* SkImage::NewFromRaster(const SkImageInfo& info, const void* pixels, siz
     return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, NULL));
 }
 
-SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator) {
+SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
     SkBitmap bitmap;
-    if (!SkInstallDiscardablePixelRef(generator, &bitmap)) {
+    if (!SkInstallDiscardablePixelRef(generator, subset, &bitmap, NULL)) {
         return NULL;
     }
     if (0 == bitmap.width() || 0 == bitmap.height()) {

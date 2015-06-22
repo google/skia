@@ -216,6 +216,19 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
         case END_COMMENT_GROUP:
             // deprecated (M44)
             break;
+        case DRAW_IMAGE: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            const SkImage* image = fPictureData->getImage(reader);
+            const SkPoint& loc = reader->skipT<SkPoint>();
+            canvas->drawImage(image, loc.fX, loc.fY, paint);
+        } break;
+        case DRAW_IMAGE_RECT: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            const SkImage* image = fPictureData->getImage(reader);
+            const SkRect* src = get_rect_ptr(reader);   // may be null
+            const SkRect& dst = reader->skipT<SkRect>();     // required
+            canvas->drawImageRect(image, src, dst, paint);
+        } break;
         case DRAW_OVAL: {
             const SkPaint& paint = *fPictureData->getPaint(reader);
             canvas->drawOval(reader->skipT<SkRect>(), paint);

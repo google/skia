@@ -2007,7 +2007,7 @@ static int lsk_loadImage(lua_State* L) {
         const char* name = lua_tolstring(L, 1, NULL);
         SkAutoDataUnref data(SkData::NewFromFileName(name));
         if (data.get()) {
-            SkImage* image = SkImage::NewFromData(data);
+            SkImage* image = SkImage::NewFromEncoded(data);
             if (image) {
                 push_ref(L, image)->unref();
                 return 1;

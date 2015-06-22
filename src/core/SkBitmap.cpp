@@ -1270,7 +1270,9 @@ bool SkBitmap::requestLock(SkAutoPixmapUnlock* result) const {
         return false;
     }
 
-    SkPixelRef::LockRequest req = { fInfo.dimensions(), kNone_SkFilterQuality };
+    // We have to lock the whole thing (using the pixelref's dimensions) until the api supports
+    // a partial lock (with offset/origin). Hence we can't use our fInfo.
+    SkPixelRef::LockRequest req = { pr->info().dimensions(), kNone_SkFilterQuality };
     SkPixelRef::LockResult res;
     if (pr->requestLock(req, &res)) {
         SkASSERT(res.fPixels);

@@ -259,6 +259,10 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
     if (request.fSize.isEmpty()) {
         return false;
     }
+    // until we support subsets, we have to check this...
+    if (request.fSize.width() != fInfo.width() || request.fSize.height() != fInfo.height()) {
+        return false;
+    }
 
     if (fPreLocked) {
         result->fUnlockProc = NULL;

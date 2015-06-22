@@ -68,6 +68,13 @@ typedef struct {
 } sk_point_t;
 
 typedef struct {
+    int32_t left;
+    int32_t top;
+    int32_t right;
+    int32_t bottom;
+} sk_irect_t;
+
+typedef struct {
     float   left;
     float   top;
     float   right;

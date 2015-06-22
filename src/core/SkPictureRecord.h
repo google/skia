@@ -37,6 +37,10 @@ public:
         return fTextBlobRefs;
     }
 
+    const SkTDArray<const SkImage* >& getImageRefs() const {
+        return fImageRefs;
+    }
+    
     SkData* opData(bool deepCopy) const {
         this->validate(fWriter.bytesWritten(), 0);
 
@@ -118,6 +122,7 @@ private:
     }
 
     void addBitmap(const SkBitmap& bitmap);
+    void addImage(const SkImage*);
     void addMatrix(const SkMatrix& matrix);
     void addPaint(const SkPaint& paint) { this->addPaintPtr(&paint); }
     void addPaintPtr(const SkPaint* paint);
@@ -223,6 +228,7 @@ private:
     SkWriter32 fWriter;
 
     // we ref each item in these arrays
+    SkTDArray<const SkImage*>    fImageRefs;
     SkTDArray<const SkPicture*>  fPictureRefs;
     SkTDArray<const SkTextBlob*> fTextBlobRefs;
 

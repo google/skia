@@ -28,7 +28,7 @@ sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t*, const void* pixels, 
  *  On success, the encoded data may be processed immediately, or it may be ref()'d for later
  *  use.
  */
-sk_image_t* sk_image_new_from_data(const sk_data_t* encoded);
+sk_image_t* sk_image_new_from_encoded(const sk_data_t* encoded, const sk_irect_t* subset);
 
 sk_data_t* sk_image_encode(const sk_image_t*);
 
