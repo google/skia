@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKFONTCONFIGPARSER_ANDROID_H_
-#define SKFONTCONFIGPARSER_ANDROID_H_
+#ifndef SkFontMgr_android_parser_DEFINED
+#define SkFontMgr_android_parser_DEFINED
 
-#include "SkFontMgr_android.h"
 #include "SkString.h"
 #include "SkTDArray.h"
 
@@ -98,12 +97,12 @@ struct FontFamily {
     SkTArray<FontFileInfo, true> fFonts;
     SkLanguage fLanguage;
     FontVariant fVariant;
-    int fOrder; // internal to SkFontConfigParser
+    int fOrder; // internal to the parser, not useful to users.
     bool fIsFallbackFont;
     const SkString fBasePath;
 };
 
-namespace SkFontConfigParser {
+namespace SkFontMgr_Android_Parser {
 
 /** Parses system font configuration files and appends result to fontFamilies. */
 void GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies);
@@ -115,7 +114,7 @@ void GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
                            const char* fallbackFontsXml,
                            const char* langFallbackFontsDir = NULL);
 
-} // SkFontConfigParser namespace
+} // SkFontMgr_Android_Parser namespace
 
 
 /** Parses a null terminated string into an integer type, checking for overflow.
@@ -213,4 +212,4 @@ template <int N, typename T> static bool parse_fixed(const char* s, T* value) {
     return true;
 }
 
-#endif /* SKFONTCONFIGPARSER_ANDROID_H_ */
+#endif /* SkFontMgr_android_parser_DEFINED */

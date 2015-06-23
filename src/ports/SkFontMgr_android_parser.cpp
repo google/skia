@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontConfigParser_android.h"
-#include "SkFontMgr_android.h"
+#include "SkFontMgr_android_parser.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTSearch.h"
@@ -116,10 +115,10 @@ static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
 
 #define ATTS_NON_NULL(a, i) (a[i] != NULL && a[i+1] != NULL)
 
-#define SK_FONTCONFIGPARSER_PREFIX "[SkFontConfigParser] "
+#define SK_FONTMGR_ANDROID_PARSER_PREFIX "[SkFontMgr Android Parser] "
 
 #define SK_FONTCONFIGPARSER_WARNING(message, ...) SkDebugf( \
-    SK_FONTCONFIGPARSER_PREFIX "%s:%d:%d: warning: " message "\n", \
+    SK_FONTMGR_ANDROID_PARSER_PREFIX "%s:%d:%d: warning: " message "\n", \
     self->fFilename, \
     XML_GetCurrentLineNumber(self->fParser), \
     XML_GetCurrentColumnNumber(self->fParser), \
@@ -592,14 +591,14 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
     // Some of the files we attempt to parse (in particular, /vendor/etc/fallback_fonts.xml)
     // are optional - failure here is okay because one of these optional files may not exist.
     if (!file.isValid()) {
-        SkDebugf(SK_FONTCONFIGPARSER_PREFIX "'%s' could not be opened\n", filename);
+        SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "'%s' could not be opened\n", filename);
         return -1;
     }
 
     SkAutoTCallVProc<remove_ptr<XML_Parser>::type, XML_ParserFree> parser(
         XML_ParserCreate_MM(NULL, &sk_XML_alloc, NULL));
     if (!parser) {
-        SkDebugf(SK_FONTCONFIGPARSER_PREFIX "could not create XML parser\n");
+        SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "could not create XML parser\n");
         return -1;
     }
 
@@ -621,7 +620,7 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
     while (!done) {
         void* buffer = XML_GetBuffer(parser, bufferSize);
         if (!buffer) {
-            SkDebugf(SK_FONTCONFIGPARSER_PREFIX "could not buffer enough to continue\n");
+            SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "could not buffer enough to continue\n");
             return -1;
         }
         size_t len = file.read(buffer, bufferSize);
@@ -632,7 +631,7 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
             int line = XML_GetCurrentLineNumber(parser);
             int column = XML_GetCurrentColumnNumber(parser);
             const XML_LChar* errorString = XML_ErrorString(error);
-            SkDebugf(SK_FONTCONFIGPARSER_PREFIX "%s:%d:%d error %d: %s.\n",
+            SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "%s:%d:%d error %d: %s.\n",
                      filename, line, column, error, errorString);
             return -1;
         }
@@ -748,7 +747,7 @@ static void mixin_vendor_fallback_font_families(SkTDArray<FontFamily*>& fallback
     }
 }
 
-void SkFontConfigParser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies) {
+void SkFontMgr_Android_Parser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies) {
     // Version 21 of the system font configuration does not need any fallback configuration files.
     SkString basePath(getenv("ANDROID_ROOT"));
     basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1);
@@ -764,11 +763,11 @@ void SkFontConfigParser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamil
     fontFamilies.append(fallbackFonts.count(), fallbackFonts.begin());
 }
 
-void SkFontConfigParser::GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
-                                               const SkString& basePath,
-                                               const char* fontsXml,
-                                               const char* fallbackFontsXml,
-                                               const char* langFallbackFontsDir)
+void SkFontMgr_Android_Parser::GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
+                                                     const SkString& basePath,
+                                                     const char* fontsXml,
+                                                     const char* fallbackFontsXml,
+                                                     const char* langFallbackFontsDir)
 {
     if (fontsXml) {
         parse_config_file(fontsXml, fontFamilies, basePath, false);

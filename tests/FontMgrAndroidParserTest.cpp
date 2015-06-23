@@ -7,7 +7,7 @@
 
 #include "Resources.h"
 #include "SkCommandLineFlags.h"
-#include "SkFontConfigParser_android.h"
+#include "SkFontMgr_android_parser.h"
 #include "Test.h"
 
 #include <cmath>
@@ -141,13 +141,13 @@ static void test_parse_fixed(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !parse_fixed<16>(".123a", &fix));
 }
 
-DEF_TEST(FontConfigParserAndroid, reporter) {
+DEF_TEST(FontMgrAndroidParser, reporter) {
     test_parse_fixed(reporter);
 
     bool resourcesMissing = false;
 
     SkTDArray<FontFamily*> preV17FontFamilies;
-    SkFontConfigParser::GetCustomFontFamilies(preV17FontFamilies,
+    SkFontMgr_Android_Parser::GetCustomFontFamilies(preV17FontFamilies,
         SkString("/custom/font/path/"),
         GetResourcePath("android_fonts/pre_v17/system_fonts.xml").c_str(),
         GetResourcePath("android_fonts/pre_v17/fallback_fonts.xml").c_str());
@@ -164,7 +164,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
 
 
     SkTDArray<FontFamily*> v17FontFamilies;
-    SkFontConfigParser::GetCustomFontFamilies(v17FontFamilies,
+    SkFontMgr_Android_Parser::GetCustomFontFamilies(v17FontFamilies,
         SkString("/custom/font/path/"),
         GetResourcePath("android_fonts/v17/system_fonts.xml").c_str(),
         GetResourcePath("android_fonts/v17/fallback_fonts.xml").c_str(),
@@ -182,7 +182,7 @@ DEF_TEST(FontConfigParserAndroid, reporter) {
 
 
     SkTDArray<FontFamily*> v22FontFamilies;
-    SkFontConfigParser::GetCustomFontFamilies(v22FontFamilies,
+    SkFontMgr_Android_Parser::GetCustomFontFamilies(v22FontFamilies,
         SkString("/custom/font/path/"),
         GetResourcePath("android_fonts/v22/fonts.xml").c_str(),
         NULL);

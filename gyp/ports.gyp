@@ -214,8 +214,8 @@
           ],
           'sources': [
             '../src/ports/SkDebug_android.cpp',
-            '../src/ports/SkFontConfigParser_android.cpp',
             '../src/ports/SkFontMgr_android.cpp',
+            '../src/ports/SkFontMgr_android_parser.cpp',
           ],
           'sources/': [['include', '../src/ports/SkFontMgr_android_factory.cpp']],
           'dependencies': [

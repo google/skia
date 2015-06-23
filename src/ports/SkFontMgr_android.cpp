@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontConfigParser_android.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_android.h"
+#include "SkFontMgr_android_parser.h"
 #include "SkFontStyle.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
@@ -305,18 +305,18 @@ public:
         SkTDArray<FontFamily*> families;
         if (custom && SkFontMgr_Android_CustomFonts::kPreferSystem != custom->fSystemFontUse) {
             SkString base(custom->fBasePath);
-            SkFontConfigParser::GetCustomFontFamilies(families, base,
-                                                      custom->fFontsXml, custom->fFallbackFontsXml);
+            SkFontMgr_Android_Parser::GetCustomFontFamilies(
+                families, base, custom->fFontsXml, custom->fFallbackFontsXml);
         }
         if (!custom ||
             (custom && SkFontMgr_Android_CustomFonts::kOnlyCustom != custom->fSystemFontUse))
         {
-            SkFontConfigParser::GetSystemFontFamilies(families);
+            SkFontMgr_Android_Parser::GetSystemFontFamilies(families);
         }
         if (custom && SkFontMgr_Android_CustomFonts::kPreferSystem == custom->fSystemFontUse) {
             SkString base(custom->fBasePath);
-            SkFontConfigParser::GetCustomFontFamilies(families, base,
-                                                      custom->fFontsXml, custom->fFallbackFontsXml);
+            SkFontMgr_Android_Parser::GetCustomFontFamilies(
+                families, base, custom->fFontsXml, custom->fFallbackFontsXml);
         }
         this->buildNameToFamilyMap(families);
         this->findDefaultFont();
