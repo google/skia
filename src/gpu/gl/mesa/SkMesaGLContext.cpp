@@ -50,26 +50,28 @@ SkMesaGLContext::SkMesaGLContext()
         return;
     }
 
-    fGL.reset(GrGLCreateMesaInterface());
-    if (NULL == fGL.get()) {
+    SkAutoTUnref<const GrGLInterface> gl(GrGLCreateMesaInterface());
+    if (NULL == gl.get()) {
         SkDebugf("Could not create GL interface!\n");
         this->destroyGLContext();
         return;
     }
 
-    if (!fGL->validate()) {
+    if (!gl->validate()) {
         SkDebugf("Could not validate GL interface!\n");
         this->destroyGLContext();
         return;
     }
+
+    this->init(gl.detach());
 }
 
 SkMesaGLContext::~SkMesaGLContext() {
+    this->teardown();
     this->destroyGLContext();
 }
 
 void SkMesaGLContext::destroyGLContext() {
-    fGL.reset(NULL);
     if (fImage) {
         sk_free(fImage);
         fImage = NULL;
@@ -83,7 +85,7 @@ void SkMesaGLContext::destroyGLContext() {
 
 
 
-void SkMesaGLContext::makeCurrent() const {
+void SkMesaGLContext::onPlatformMakeCurrent() const {
     if (fContext) {
         if (!OSMesaMakeCurrent((OSMesaContext)fContext, fImage,
                                GR_GL_UNSIGNED_BYTE, gBOGUS_SIZE, gBOGUS_SIZE)) {
@@ -92,4 +94,8 @@ void SkMesaGLContext::makeCurrent() const {
     }
 }
 
-void SkMesaGLContext::swapBuffers() const { }
+void SkMesaGLContext::onPlatformSwapBuffers() const { }
+
+GrGLFuncPtr SkMesaGLContext::onPlatformGetProcAddress(const char* procName) const {
+    return OSMesaGetProcAddress(procName);
+}

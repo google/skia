@@ -63,7 +63,7 @@ struct Target {
     /** CPU-like targets can just be timed, but GPU-like
         targets need to pay attention to frame boundaries
         or other similar details. */
-    virtual bool needsFrameTiming() const { return false; }
+    virtual bool needsFrameTiming(int* frameLag) const { return false; }
 
     /** Called once per target, during program initialization.
         Returns false if initialization fails. */

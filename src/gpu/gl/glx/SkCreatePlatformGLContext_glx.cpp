@@ -48,11 +48,13 @@ class GLXGLContext : public SkGLContext {
 public:
     GLXGLContext(GrGLStandard forcedGpuAPI);
     ~GLXGLContext() override;
-    void makeCurrent() const override;
-    void swapBuffers() const override;
 
 private:
     void destroyGLContext();
+
+    void onPlatformMakeCurrent() const override;
+    void onPlatformSwapBuffers() const override;
+    GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
     GLXContext fContext;
     Display* fDisplay;
@@ -267,27 +269,29 @@ GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI)
         return;
     }
 
-    fGL.reset(GrGLCreateNativeInterface());
-    if (NULL == fGL.get()) {
+    SkAutoTUnref<const GrGLInterface> gl(GrGLCreateNativeInterface());
+    if (NULL == gl.get()) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();
         return;
     }
 
-    if (!fGL->validate()) {
+    if (!gl->validate()) {
         SkDebugf("Failed to validate gl interface");
         this->destroyGLContext();
         return;
     }
+
+    this->init(gl.detach());
 }
 
 
 GLXGLContext::~GLXGLContext() {
+    this->teardown();
     this->destroyGLContext();
 }
 
 void GLXGLContext::destroyGLContext() {
-    fGL.reset(NULL);
     if (fDisplay) {
         glXMakeCurrent(fDisplay, 0, 0);
 
@@ -311,14 +315,18 @@ void GLXGLContext::destroyGLContext() {
     }
 }
 
-void GLXGLContext::makeCurrent() const {
+void GLXGLContext::onPlatformMakeCurrent() const {
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void GLXGLContext::swapBuffers() const {
+void GLXGLContext::onPlatformSwapBuffers() const {
     glXSwapBuffers(fDisplay, fGlxPixmap);
+}
+
+GrGLFuncPtr GLXGLContext::onPlatformGetProcAddress(const char* procName) const {
+    return glXGetProcAddress(reinterpret_cast<const GLubyte*>(procName));
 }
 
 } // anonymous namespace

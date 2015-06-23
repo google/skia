@@ -9,6 +9,7 @@
 #define SkGLContext_DEFINED
 
 #include "GrGLInterface.h"
+#include "../../src/gpu/SkGpuFenceSync.h"
 
 /**
  * Create an offscreen opengl context with an RGBA8 / 8bit stencil FBO.
@@ -25,19 +26,32 @@ public:
 
     const GrGLInterface* gl() const { return fGL.get(); }
 
-    virtual void makeCurrent() const = 0;
+    bool fenceSyncSupport() const { return SkToBool(fFenceSync); }
+
+    bool getMaxGpuFrameLag(int* maxFrameLag) const {
+        if (!fFenceSync) {
+            return false;
+        }
+        *maxFrameLag = kMaxFrameLag;
+        return true;
+    }
+
+    void makeCurrent() const;
 
     /**
-     * The primary purpose of this function it to provide a means of scheduling
+     * The only purpose of this function it to provide a means of scheduling
      * work on the GPU (since all of the subclasses create primary buffers for
      * testing that are small and not meant to be rendered to the screen).
      *
-     * If the drawing surface provided by the platform is double buffered this
-     * call will cause the platform to swap which buffer is currently being
-     * targeted.  If the current surface does not include a back buffer, this
-     * call has no effect.
+     * If the platform supports fence sync (OpenGL 3.2+ or EGL_KHR_fence_sync),
+     * this will not swap any buffers, but rather emulate triple buffer
+     * synchronization using fences.
+     *
+     * Otherwise it will call the platform SwapBuffers method. This may or may
+     * not perform some sort of synchronization, depending on whether the
+     * drawing surface provided by the platform is double buffered.
      */
-    virtual void swapBuffers() const = 0;
+    void swapBuffers();
 
     /**
      * This notifies the context that we are deliberately testing abandoning
@@ -47,12 +61,36 @@ public:
      */
     void testAbandon();
 
+    class GLFenceSync;  // SkGpuFenceSync implementation that uses the OpenGL functionality.
+
 protected:
     SkGLContext();
+
+    /*
+     * Methods that sublcasses must call from their constructors and destructors.
+     */
+    void init(const GrGLInterface*, SkGpuFenceSync* = NULL);
+    void teardown();
+
+    /*
+     * Operations that have a platform-dependent implementation.
+     */
+    virtual void onPlatformMakeCurrent() const = 0;
+    virtual void onPlatformSwapBuffers() const = 0;
+    virtual GrGLFuncPtr onPlatformGetProcAddress(const char*) const = 0;
+
+private:
+    enum { kMaxFrameLag = 3 };
+
+    SkAutoTDelete<SkGpuFenceSync> fFenceSync;
+    SkPlatformGpuFence            fFrameFences[kMaxFrameLag - 1];
+    int                           fCurrentFenceIdx;
 
     /** Subclass provides the gl interface object if construction was
      *  successful. */
     SkAutoTUnref<const GrGLInterface> fGL;
+
+    friend class GLFenceSync;  // For onPlatformGetProcAddress.
 
     typedef SkRefCnt INHERITED;
 };

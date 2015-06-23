@@ -23,7 +23,7 @@ struct HWUITarget : public Target {
     SkCanvas* beginTiming(SkCanvas* canvas) override;
     void endTiming() override;
     void fence() override;
-    bool needsFrameTiming() const override;
+    bool needsFrameTiming(int* frameLag) const override;
 
     bool init(SkImageInfo info, Benchmark* bench) override;
     bool capturePixels(SkBitmap* bmp) override;

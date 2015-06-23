@@ -18,8 +18,6 @@ private:
 
 public:
     ~SkMesaGLContext() override;
-    void makeCurrent() const override;
-    void swapBuffers() const override;
 
     static SkMesaGLContext* Create(GrGLStandard forcedGpuAPI) {
         if (kGLES_GrGLStandard == forcedGpuAPI) {
@@ -36,6 +34,10 @@ public:
 private:
     SkMesaGLContext();
     void destroyGLContext();
+
+    void onPlatformMakeCurrent() const override;
+    void onPlatformSwapBuffers() const override;
+    GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
     Context fContext;
     GrGLubyte *fImage;

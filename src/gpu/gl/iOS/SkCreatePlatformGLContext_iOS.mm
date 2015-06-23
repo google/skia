@@ -8,6 +8,7 @@
 
 #include "gl/SkGLContext.h"
 #import <OpenGLES/EAGL.h>
+#include <dlfcn.h>
 
 #define EAGLCTX ((EAGLContext*)(fEAGLContext))
 
@@ -17,40 +18,50 @@ class IOSGLContext : public SkGLContext {
 public:
     IOSGLContext();
     ~IOSGLContext() override;
-    void makeCurrent() const override;
-    void swapBuffers() const override;
 
 private:
     void destroyGLContext();
 
+    void onPlatformMakeCurrent() const override;
+    void onPlatformSwapBuffers() const override;
+    GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
+
     void* fEAGLContext;
+    void* fGLLibrary;
 };
 
 IOSGLContext::IOSGLContext()
-    : fEAGLContext(NULL) {
+    : fEAGLContext(NULL)
+    , fGLLibrary(RTLD_DEFAULT) {
 
     fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     [EAGLContext setCurrentContext:EAGLCTX];
 
-    fGL.reset(GrGLCreateNativeInterface());
-    if (NULL == fGL.get()) {
+    SkAutoTUnref<const GrGLInterface> gl(GrGLCreateNativeInterface());
+    if (NULL == gl.get()) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();
         return;
     }
-    if (!fGL->validate()) {
+    if (!gl->validate()) {
         SkDebugf("Failed to validate gl interface");
         this->destroyGLContext();
         return;
     }
+
+    fGLLibrary = dlopen(
+        "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
+        RTLD_LAZY);
+
+    this->init(gl.detach());
 }
 
 IOSGLContext::~IOSGLContext() {
+    this->teardown();
     this->destroyGLContext();
 }
 
 void IOSGLContext::destroyGLContext() {
-    fGL.reset(NULL);
     if (fEAGLContext) {
         if ([EAGLContext currentContext] == EAGLCTX) {
             [EAGLContext setCurrentContext:nil];
@@ -58,16 +69,23 @@ void IOSGLContext::destroyGLContext() {
         [EAGLCTX release];
         fEAGLContext = NULL;
     }
+    if (RTLD_DEFAULT != fGLLibrary) {
+        dlclose(fGLLibrary);
+    }
 }
 
 
-void IOSGLContext::makeCurrent() const {
+void IOSGLContext::onPlatformMakeCurrent() const {
     if (![EAGLContext setCurrentContext:EAGLCTX]) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void IOSGLContext::swapBuffers() const { }
+void IOSGLContext::onPlatformSwapBuffers() const { }
+
+GrGLFuncPtr IOSGLContext::onPlatformGetProcAddress(const char* procName) const {
+    return reinterpret_cast<GrGLFuncPtr>(dlsym(fGLLibrary, procName));
+}
 
 } // anonymous namespace
 

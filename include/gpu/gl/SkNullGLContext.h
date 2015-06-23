@@ -13,8 +13,6 @@
 class SK_API SkNullGLContext : public SkGLContext {
 public:
     ~SkNullGLContext() override;
-    void makeCurrent() const override;
-    void swapBuffers() const override {};
 
     static SkNullGLContext* Create(GrGLStandard);
 
@@ -22,6 +20,10 @@ public:
 
 private:
     SkNullGLContext();
+
+    void onPlatformMakeCurrent() const override;
+    void onPlatformSwapBuffers() const override {}
+    GrGLFuncPtr onPlatformGetProcAddress(const char*) const override { return NULL; }
 
     ContextState* fState;
 };

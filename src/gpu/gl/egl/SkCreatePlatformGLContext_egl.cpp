@@ -8,19 +8,41 @@
 #include "gl/SkGLContext.h"
 
 #include <GLES2/gl2.h>
+
+#define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 namespace {
+
+// TODO: Share this class with ANGLE if/when it gets support for EGL_KHR_fence_sync.
+class SkEGLFenceSync : public SkGpuFenceSync {
+public:
+    static SkEGLFenceSync* CreateIfSupported(EGLDisplay);
+
+    SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool flushAndWaitFence(SkPlatformGpuFence fence) const override;
+    void deleteFence(SkPlatformGpuFence fence) const override;
+
+private:
+    SkEGLFenceSync(EGLDisplay display) : fDisplay(display) {}
+
+    EGLDisplay                    fDisplay;
+
+    typedef SkGpuFenceSync INHERITED;
+};
 
 class EGLGLContext : public SkGLContext  {
 public:
     EGLGLContext(GrGLStandard forcedGpuAPI);
     ~EGLGLContext() override;
-    void makeCurrent() const override;
-    void swapBuffers() const override;
 
 private:
     void destroyGLContext();
+
+    void onPlatformMakeCurrent() const override;
+    void onPlatformSwapBuffers() const override;
+    GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
     EGLContext fContext;
     EGLDisplay fDisplay;
@@ -69,7 +91,9 @@ EGLGLContext::EGLGLContext(GrGLStandard forcedGpuAPI)
     }
     SkASSERT(forcedGpuAPI == kNone_GrGLStandard || kAPIs[api].fStandard == forcedGpuAPI);
 
-    for (; NULL == fGL.get() && api < apiLimit; ++api) {
+    SkAutoTUnref<const GrGLInterface> gl;
+
+    for (; NULL == gl.get() && api < apiLimit; ++api) {
         fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
         EGLint majorVersion;
@@ -134,27 +158,30 @@ EGLGLContext::EGLGLContext(GrGLStandard forcedGpuAPI)
             continue;
         }
 
-        fGL.reset(GrGLCreateNativeInterface());
-        if (NULL == fGL.get()) {
+        gl.reset(GrGLCreateNativeInterface());
+        if (NULL == gl.get()) {
             SkDebugf("Failed to create gl interface.\n");
             this->destroyGLContext();
             continue;
         }
 
-        if (!fGL->validate()) {
+        if (!gl->validate()) {
             SkDebugf("Failed to validate gl interface.\n");
             this->destroyGLContext();
             continue;
         }
+
+        this->init(gl.detach(), SkEGLFenceSync::CreateIfSupported(fDisplay));
+        break;
     }
 }
 
 EGLGLContext::~EGLGLContext() {
+    this->teardown();
     this->destroyGLContext();
 }
 
 void EGLGLContext::destroyGLContext() {
-    fGL.reset(NULL);
     if (fDisplay) {
         eglMakeCurrent(fDisplay, 0, 0, 0);
 
@@ -174,16 +201,59 @@ void EGLGLContext::destroyGLContext() {
 }
 
 
-void EGLGLContext::makeCurrent() const {
+void EGLGLContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void EGLGLContext::swapBuffers() const {
+void EGLGLContext::onPlatformSwapBuffers() const {
     if (!eglSwapBuffers(fDisplay, fSurface)) {
         SkDebugf("Could not complete eglSwapBuffers.\n");
     }
+}
+
+GrGLFuncPtr EGLGLContext::onPlatformGetProcAddress(const char* procName) const {
+    return eglGetProcAddress(procName);
+}
+
+static bool supports_egl_extension(EGLDisplay display, const char* extension) {
+    int extensionLength = strlen(extension);
+    const char* extensionsStr = eglQueryString(display, EGL_EXTENSIONS);
+    while (const char* match = strstr(extensionsStr, extension)) {
+        // Ensure the string we found is its own extension, not a substring of a larger extension
+        // (e.g. GL_ARB_occlusion_query / GL_ARB_occlusion_query2).
+        if ((match == extensionsStr || match[-1] == ' ') &&
+            (match[extensionLength] == ' ' || match[extensionLength] == '\0')) {
+            return true;
+        }
+        extensionsStr = match + extensionLength;
+    }
+    return false;
+}
+
+SkEGLFenceSync* SkEGLFenceSync::CreateIfSupported(EGLDisplay display) {
+    if (!display || !supports_egl_extension(display, "EGL_KHR_fence_sync")) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkEGLFenceSync, (display));
+}
+
+SkPlatformGpuFence SkEGLFenceSync::insertFence() const {
+    return eglCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, NULL);
+}
+
+bool SkEGLFenceSync::flushAndWaitFence(SkPlatformGpuFence platformFence) const {
+    EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
+    return EGL_CONDITION_SATISFIED_KHR == eglClientWaitSyncKHR(fDisplay,
+                                                               eglsync,
+                                                               EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
+                                                               EGL_FOREVER_KHR);
+}
+
+void SkEGLFenceSync::deleteFence(SkPlatformGpuFence platformFence) const {
+    EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
+    eglDestroySyncKHR(fDisplay, eglsync);
 }
 
 } // anonymous namespace

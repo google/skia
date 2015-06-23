@@ -15,8 +15,6 @@
 class SkANGLEGLContext : public SkGLContext {
 public:
     ~SkANGLEGLContext() override;
-    void makeCurrent() const override;
-    void swapBuffers() const override;
 
     static SkANGLEGLContext* Create(GrGLStandard forcedGpuAPI) {
         if (kGL_GrGLStandard == forcedGpuAPI) {
@@ -36,6 +34,10 @@ public:
 private:
     SkANGLEGLContext();
     void destroyGLContext();
+
+    void onPlatformMakeCurrent() const override;
+    void onPlatformSwapBuffers() const override;
+    GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
     void* fContext;
     void* fDisplay;

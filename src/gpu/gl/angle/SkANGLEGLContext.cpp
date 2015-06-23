@@ -96,25 +96,27 @@ SkANGLEGLContext::SkANGLEGLContext()
 
     eglMakeCurrent(fDisplay, fSurface, fSurface, fContext);
 
-    fGL.reset(GrGLCreateANGLEInterface());
-    if (NULL == fGL.get()) {
+    SkAutoTUnref<const GrGLInterface> gl(GrGLCreateANGLEInterface());
+    if (NULL == gl.get()) {
         SkDebugf("Could not create ANGLE GL interface!\n");
         this->destroyGLContext();
         return;
     }
-    if (!fGL->validate()) {
+    if (!gl->validate()) {
         SkDebugf("Could not validate ANGLE GL interface!\n");
         this->destroyGLContext();
         return;
     }
+
+    this->init(gl.detach());
 }
 
 SkANGLEGLContext::~SkANGLEGLContext() {
+    this->teardown();
     this->destroyGLContext();
 }
 
 void SkANGLEGLContext::destroyGLContext() {
-    fGL.reset(NULL);
     if (fDisplay) {
         eglMakeCurrent(fDisplay, 0, 0, 0);
 
@@ -133,14 +135,18 @@ void SkANGLEGLContext::destroyGLContext() {
     }
 }
 
-void SkANGLEGLContext::makeCurrent() const {
+void SkANGLEGLContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
 }
 
-void SkANGLEGLContext::swapBuffers() const {
+void SkANGLEGLContext::onPlatformSwapBuffers() const {
     if (!eglSwapBuffers(fDisplay, fSurface)) {
         SkDebugf("Could not complete eglSwapBuffers.\n");
     }
+}
+
+GrGLFuncPtr SkANGLEGLContext::onPlatformGetProcAddress(const char* name) const {
+    return eglGetProcAddress(name);
 }

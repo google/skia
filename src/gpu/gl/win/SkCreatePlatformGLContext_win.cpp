@@ -21,11 +21,13 @@ class WinGLContext : public SkGLContext {
 public:
     WinGLContext(GrGLStandard forcedGpuAPI);
 	~WinGLContext() override;
-    void makeCurrent() const override;
-    void swapBuffers() const override;
 
 private:
     void destroyGLContext();
+
+    void onPlatformMakeCurrent() const override;
+    void onPlatformSwapBuffers() const override;
+    GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
     HWND fWindow;
     HDC fDeviceContext;
@@ -113,25 +115,27 @@ WinGLContext::WinGLContext(GrGLStandard forcedGpuAPI)
         return;
     }
 
-    fGL.reset(GrGLCreateNativeInterface());
-    if (NULL == fGL.get()) {
+    SkAutoTUnref<const GrGLInterface> gl(GrGLCreateNativeInterface());
+    if (NULL == gl.get()) {
         SkDebugf("Could not create GL interface.\n");
         this->destroyGLContext();
         return;
     }
-    if (!fGL->validate()) {
+    if (!gl->validate()) {
         SkDebugf("Could not validate GL interface.\n");
         this->destroyGLContext();
         return;
     }
+
+    this->init(gl.detach());
 }
 
 WinGLContext::~WinGLContext() {
+    this->teardown();
     this->destroyGLContext();
 }
 
 void WinGLContext::destroyGLContext() {
-    fGL.reset(NULL);
     SkSafeSetNull(fPbufferContext);
     if (fGlRenderContext) {
         wglDeleteContext(fGlRenderContext);
@@ -147,7 +151,7 @@ void WinGLContext::destroyGLContext() {
     }
 }
 
-void WinGLContext::makeCurrent() const {
+void WinGLContext::onPlatformMakeCurrent() const {
     HDC dc;
     HGLRC glrc;
 
@@ -164,7 +168,7 @@ void WinGLContext::makeCurrent() const {
     }
 }
 
-void WinGLContext::swapBuffers() const {
+void WinGLContext::onPlatformSwapBuffers() const {
     HDC dc;
 
     if (NULL == fPbufferContext) {
@@ -175,6 +179,10 @@ void WinGLContext::swapBuffers() const {
     if (!SwapBuffers(dc)) {
         SkDebugf("Could not complete SwapBuffers.\n");
     }
+}
+
+GrGLFuncPtr WinGLContext::onPlatformGetProcAddress(const char* name) const {
+    return reinterpret_cast<GrGLFuncPtr>(wglGetProcAddress(name));
 }
 
 } // anonymous namespace

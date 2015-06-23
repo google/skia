@@ -9,9 +9,9 @@
 #include "gl/debug/SkDebugGLContext.h"
 
 SkDebugGLContext::SkDebugGLContext() {
-    fGL.reset(GrGLCreateDebugInterface());
+    this->init(GrGLCreateDebugInterface());
 }
 
 SkDebugGLContext::~SkDebugGLContext() {
-    fGL.reset(NULL);
+    this->teardown();
 }

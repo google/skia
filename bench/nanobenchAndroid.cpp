@@ -42,7 +42,9 @@ void HWUITarget::fence() {
     this->renderer.proxy->fence();
 }
 
-bool HWUITarget::needsFrameTiming() const {
+bool HWUITarget::needsFrameTiming(int* frameLag) const {
+    extern int FLAGS_gpuFrameLag;
+    *frameLag = FLAGS_gpuFrameLag;
     return true;
 }
 

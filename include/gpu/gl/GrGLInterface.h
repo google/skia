@@ -30,6 +30,8 @@
  * comments in GrGLConfig.h
  */
 
+typedef void(*GrGLFuncPtr)();
+
 struct GrGLInterface;
 
 const GrGLInterface* GrGLDefaultInterface();

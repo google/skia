@@ -547,7 +547,7 @@ SkNullGLContext* SkNullGLContext::Create(GrGLStandard forcedGpuAPI) {
 SkNullGLContext::SkNullGLContext() {
     fState = SkNEW(ContextState);
     GrGLInterface* interface = create_null_interface(fState);
-    fGL.reset(interface);
+    this->init(interface);
 #if GR_GL_PER_GL_FUNC_CALLBACK
     interface->fCallback = set_current_context_from_interface;
     interface->fCallbackData = reinterpret_cast<GrGLInterfaceCallbackData>(fState);
@@ -555,8 +555,8 @@ SkNullGLContext::SkNullGLContext() {
 }
 
 SkNullGLContext::~SkNullGLContext() {
-    fGL.reset(NULL);
+    this->teardown();
     fState->unref();
 }
 
-void SkNullGLContext::makeCurrent() const { set_current_context(fState); }
+void SkNullGLContext::onPlatformMakeCurrent() const { set_current_context(fState); }

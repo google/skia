@@ -13,8 +13,6 @@
 class SkDebugGLContext : public SkGLContext {
 public:
     ~SkDebugGLContext() override;
-    void makeCurrent() const override {}
-    void swapBuffers() const override {}
 
     static SkDebugGLContext* Create(GrGLStandard forcedGpuAPI) {
         if (kGLES_GrGLStandard == forcedGpuAPI) {
@@ -23,6 +21,10 @@ public:
         return SkNEW(SkDebugGLContext);
     }
 private:
+    void onPlatformMakeCurrent() const override {}
+    void onPlatformSwapBuffers() const override {}
+    GrGLFuncPtr onPlatformGetProcAddress(const char*) const override { return NULL; }
+
     SkDebugGLContext();
 };
 

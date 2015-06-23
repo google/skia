@@ -79,7 +79,7 @@ DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
 DEFINE_double(overheadGoal, 0.0001,
               "Loop until timer overhead is at most this fraction of our measurments.");
 DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
-DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allows to lag.");
+DEFINE_int32(gpuFrameLag, 5, "If unknown, estimated maximum number of frames GPU allows to lag.");
 DEFINE_bool(gpuCompressAlphaMasks, false, "Compress masks generated from falling back to "
                                           "software path rendering.");
 
@@ -144,7 +144,13 @@ struct GPUTarget : public Target {
         SK_GL(*this->gl, Finish());
     }
 
-    bool needsFrameTiming() const override { return true; }
+    bool needsFrameTiming(int* maxFrameLag) const override {
+        if (!this->gl->getMaxGpuFrameLag(maxFrameLag)) {
+            // Frame lag is unknown.
+            *maxFrameLag = FLAGS_gpuFrameLag;
+        }
+        return true;
+    }
     bool init(SkImageInfo info, Benchmark* bench) override {
         uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
@@ -154,6 +160,10 @@ struct GPUTarget : public Target {
         this->gl = gGrFactory->getGLContext(this->config.ctxType);
         if (!this->surface.get()) {
             return false;
+        }
+        if (!this->gl->fenceSyncSupport()) {
+            SkDebugf("WARNING: GL context for config \"%s\" does not support fence sync. "
+                     "Timings might not be accurate.\n", this->config.name);
         }
         return true;
     }
@@ -307,7 +317,8 @@ static int cpu_bench(const double overhead, Target* target, Benchmark* bench, do
 
 static int gpu_bench(Target* target,
                      Benchmark* bench,
-                     double* samples) {
+                     double* samples,
+                     int maxGpuFrameLag) {
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
     int loops = FLAGS_loops;
     if (kAutoTuneLoops == loops) {
@@ -321,9 +332,8 @@ static int gpu_bench(Target* target,
             }
             loops *= 2;
             // If the GPU lets frames lag at all, we need to make sure we're timing
-            // _this_ round, not still timing last round.  We force this by looping
-            // more times than any reasonable GPU will allow frames to lag.
-            for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
+            // _this_ round, not still timing last round.
+            for (int i = 0; i < maxGpuFrameLag; i++) {
                 elapsed = time(loops, bench, target);
             }
         } while (elapsed < FLAGS_gpuMs);
@@ -340,7 +350,7 @@ static int gpu_bench(Target* target,
 
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
-    for (int i = 0; i < FLAGS_gpuFrameLag; i++) {
+    for (int i = 0; i < maxGpuFrameLag - 1; i++) {
         time(loops, bench, target);
     }
 
@@ -428,6 +438,9 @@ static void create_configs(SkTDArray<Config>* configs) {
         GPU_CONFIG(nullgpu, kNull_GLContextType, 0, false)
 #ifdef SK_ANGLE
         GPU_CONFIG(angle, kANGLE_GLContextType, 0, false)
+#endif
+#if SK_MESA
+        GPU_CONFIG(mesa, kMESA_GLContextType, 0, false)
 #endif
     }
 #endif
@@ -1008,9 +1021,10 @@ int nanobench_main() {
             targets[j]->setup();
             bench->perCanvasPreDraw(canvas);
 
+            int frameLag;
             const int loops =
-                targets[j]->needsFrameTiming()
-                ? gpu_bench(targets[j], bench.get(), samples.get())
+                targets[j]->needsFrameTiming(&frameLag)
+                ? gpu_bench(targets[j], bench.get(), samples.get(), frameLag)
                 : cpu_bench(overhead, targets[j], bench.get(), samples.get());
 
             bench->perCanvasPostDraw(canvas);
