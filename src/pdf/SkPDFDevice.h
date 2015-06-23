@@ -293,9 +293,17 @@ private:
     bool handleInversePath(const SkDraw& d, const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = NULL);
+    bool handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
+                              const SkPaint& paint);
     bool handlePointAnnotation(const SkPoint* points, size_t count,
-                               const SkMatrix& matrix, SkAnnotation* annot);
+                               const SkMatrix& matrix, const SkPaint& paint);
     void addAnnotation(SkPDFDict*);
+    void handleLinkToURL(SkData* urlData, const SkRect& r,
+                         const SkMatrix& matrix);
+    void handleLinkToNamedDest(SkData* nameData, const SkRect& r,
+                               const SkMatrix& matrix);
+    void defineNamedDestination(SkData* nameData, const SkPoint& point,
+                                const SkMatrix& matrix);
 
     typedef SkBaseDevice INHERITED;
 
