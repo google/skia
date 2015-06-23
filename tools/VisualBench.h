@@ -54,14 +54,19 @@ private:
     };
 
     enum State {
-        kPreWarm_State,
+        kPreWarmLoops_State,
+        kTuneLoops_State,
+        kPreWarmTiming_State,
         kTiming_State,
     };
+    void preWarm(State nextState);
 
-    int fLoop;
     int fCurrentPictureIdx;
     SkAutoTUnref<SkPicture> fPicture;
     int fCurrentSample;
+    int fCurrentFrame;
+    int fFlushes;
+    int fLoops;
     SkTArray<Record> fRecords;
     WallTimer fTimer;
     State fState;
