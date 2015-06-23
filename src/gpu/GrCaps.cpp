@@ -86,7 +86,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fStencilWrapOpsSupport = false;
     fDiscardRenderTargetSupport = false;
     fReuseScratchTextures = true;
-    fReuseScratchBuffers = true;
     fGpuTracingSupport = false;
     fCompressedTexSubImageSupport = false;
     fOversizedStencilSupport = false;
@@ -147,7 +146,6 @@ SkString GrCaps::dump() const {
     r.appendf("Stencil Wrap Ops  Support          : %s\n", gNY[fStencilWrapOpsSupport]);
     r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);
     r.appendf("Reuse Scratch Textures             : %s\n", gNY[fReuseScratchTextures]);
-    r.appendf("Reuse Scratch Buffers              : %s\n", gNY[fReuseScratchBuffers]);
     r.appendf("Gpu Tracing Support                : %s\n", gNY[fGpuTracingSupport]);
     r.appendf("Compressed Update Support          : %s\n", gNY[fCompressedTexSubImageSupport]);
     r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);

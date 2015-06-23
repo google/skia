@@ -9,10 +9,8 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrCaps.h"
-#include "GrContext.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
-#include "GrResourceProvider.h"
 #include "GrTypes.h"
 #include "GrVertexBuffer.h"
 
@@ -23,9 +21,6 @@
 #else
     static void VALIDATE(bool = false) {}
 #endif
-
-static const size_t MIN_VERTEX_BUFFER_SIZE = 1 << 15;
-static const size_t MIN_INDEX_BUFFER_SIZE = 1 << 12;
 
 // page size
 #define GrBufferAllocPool_MIN_BLOCK_SIZE ((size_t)1 << 15)
@@ -42,8 +37,9 @@ do {                                                                            
 
 GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
                                      BufferType bufferType,
-                                     size_t blockSize)
-    : fBlocks(8) {
+                                     size_t blockSize,
+                                     int preallocBufferCnt)
+    : fBlocks(SkTMax(8, 2*preallocBufferCnt)) {
 
     fGpu = SkRef(gpu);
 
@@ -53,10 +49,19 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
 
     fBytesInUse = 0;
 
+    fPreallocBuffersInUse = 0;
+    fPreallocBufferStartIdx = 0;
+    for (int i = 0; i < preallocBufferCnt; ++i) {
+        GrGeometryBuffer* buffer = this->createBuffer(fMinBlockSize);
+        if (buffer) {
+            *fPreallocBuffers.append() = buffer;
+        }
+    }
     fGeometryBufferMapThreshold = gpu->caps()->geometryBufferMapThreshold();
 }
 
-void GrBufferAllocPool::deleteBlocks() {
+GrBufferAllocPool::~GrBufferAllocPool() {
+    VALIDATE();
     if (fBlocks.count()) {
         GrGeometryBuffer* buffer = fBlocks.back().fBuffer;
         if (buffer->isMapped()) {
@@ -66,22 +71,34 @@ void GrBufferAllocPool::deleteBlocks() {
     while (!fBlocks.empty()) {
         this->destroyBlock();
     }
-    SkASSERT(!fBufferPtr);
-}
-
-GrBufferAllocPool::~GrBufferAllocPool() {
-    VALIDATE();
-    this->deleteBlocks();
+    fPreallocBuffers.unrefAll();
     fGpu->unref();
 }
 
 void GrBufferAllocPool::reset() {
     VALIDATE();
     fBytesInUse = 0;
-    this->deleteBlocks();
+    if (fBlocks.count()) {
+        GrGeometryBuffer* buffer = fBlocks.back().fBuffer;
+        if (buffer->isMapped()) {
+            UNMAP_BUFFER(fBlocks.back());
+        }
+    }
+    // fPreallocBuffersInUse will be decremented down to zero in the while loop
+    int preallocBuffersInUse = fPreallocBuffersInUse;
+    while (!fBlocks.empty()) {
+        this->destroyBlock();
+    }
+    if (fPreallocBuffers.count()) {
+        // must set this after above loop.
+        fPreallocBufferStartIdx = (fPreallocBufferStartIdx +
+                                   preallocBuffersInUse) %
+                                  fPreallocBuffers.count();
+    }
     // we may have created a large cpu mirror of a large VB. Reset the size
-    // to match our minimum.
+    // to match our pre-allocated VBs.
     fCpuData.reset(fMinBlockSize);
+    SkASSERT(0 == fPreallocBuffersInUse);
     VALIDATE();
 }
 
@@ -153,7 +170,8 @@ void* GrBufferAllocPool::makeSpace(size_t size,
     if (fBufferPtr) {
         BufferBlock& back = fBlocks.back();
         size_t usedBytes = back.fBuffer->gpuMemorySize() - back.fBytesFree;
-        size_t pad = GrSizeAlignUpPad(usedBytes, alignment);
+        size_t pad = GrSizeAlignUpPad(usedBytes,
+                                      alignment);
         if ((size + pad) <= back.fBytesFree) {
             memset((void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes), 0, pad);
             usedBytes += pad;
@@ -191,6 +209,12 @@ void* GrBufferAllocPool::makeSpace(size_t size,
 void GrBufferAllocPool::putBack(size_t bytes) {
     VALIDATE();
 
+    // if the putBack unwinds all the preallocated buffers then we will
+    // advance the starting index. As blocks are destroyed fPreallocBuffersInUse
+    // will be decremented. I will reach zero if all blocks using preallocated
+    // buffers are released.
+    int preallocBuffersInUse = fPreallocBuffersInUse;
+
     while (bytes) {
         // caller shouldn't try to put back more than they've taken
         SkASSERT(!fBlocks.empty());
@@ -212,7 +236,11 @@ void GrBufferAllocPool::putBack(size_t bytes) {
             break;
         }
     }
-
+    if (!fPreallocBuffersInUse && fPreallocBuffers.count()) {
+            fPreallocBufferStartIdx = (fPreallocBufferStartIdx +
+                                       preallocBuffersInUse) %
+                                      fPreallocBuffers.count();
+    }
     VALIDATE();
 }
 
@@ -225,13 +253,24 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
 
     BufferBlock& block = fBlocks.push_back();
 
-    block.fBuffer = this->getBuffer(size);
-    if (NULL == block.fBuffer) {
-        fBlocks.pop_back();
-        return false;
+    if (size == fMinBlockSize &&
+        fPreallocBuffersInUse < fPreallocBuffers.count()) {
+
+        uint32_t nextBuffer = (fPreallocBuffersInUse +
+                               fPreallocBufferStartIdx) %
+                              fPreallocBuffers.count();
+        block.fBuffer = fPreallocBuffers[nextBuffer];
+        block.fBuffer->ref();
+        ++fPreallocBuffersInUse;
+    } else {
+        block.fBuffer = this->createBuffer(size);
+        if (NULL == block.fBuffer) {
+            fBlocks.pop_back();
+            return false;
+        }
     }
 
-    block.fBytesFree = block.fBuffer->gpuMemorySize();
+    block.fBytesFree = size;
     if (fBufferPtr) {
         SkASSERT(fBlocks.count() > 1);
         BufferBlock& prev = fBlocks.fromBack(1);
@@ -258,7 +297,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     }
 
     if (NULL == fBufferPtr) {
-        fBufferPtr = fCpuData.reset(block.fBytesFree);
+        fBufferPtr = fCpuData.reset(size);
     }
 
     VALIDATE(true);
@@ -270,7 +309,15 @@ void GrBufferAllocPool::destroyBlock() {
     SkASSERT(!fBlocks.empty());
 
     BufferBlock& block = fBlocks.back();
-
+    if (fPreallocBuffersInUse > 0) {
+        uint32_t prevPreallocBuffer = (fPreallocBuffersInUse +
+                                       fPreallocBufferStartIdx +
+                                       (fPreallocBuffers.count() - 1)) %
+                                      fPreallocBuffers.count();
+        if (block.fBuffer == fPreallocBuffers[prevPreallocBuffer]) {
+            --fPreallocBuffersInUse;
+        }
+    }
     SkASSERT(!block.fBuffer->isMapped());
     block.fBuffer->unref();
     fBlocks.pop_back();
@@ -298,22 +345,24 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
     VALIDATE(true);
 }
 
-GrGeometryBuffer* GrBufferAllocPool::getBuffer(size_t size) {
-
-    GrResourceProvider* rp = fGpu->getContext()->resourceProvider();
-
+GrGeometryBuffer* GrBufferAllocPool::createBuffer(size_t size) {
     if (kIndex_BufferType == fBufferType) {
-        return rp->getIndexBuffer(size, /* dynamic = */ true, /* duringFlush = */ true);
+        return fGpu->createIndexBuffer(size, true);
     } else {
         SkASSERT(kVertex_BufferType == fBufferType);
-        return rp->getVertexBuffer(size, /* dynamic = */ true, /* duringFlush = */ true);
+        return fGpu->createVertexBuffer(size, true);
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVertexBufferAllocPool::GrVertexBufferAllocPool(GrGpu* gpu)
-    : GrBufferAllocPool(gpu, kVertex_BufferType, MIN_VERTEX_BUFFER_SIZE) {
+GrVertexBufferAllocPool::GrVertexBufferAllocPool(GrGpu* gpu,
+                                                 size_t bufferSize,
+                                                 int preallocBufferCnt)
+    : GrBufferAllocPool(gpu,
+                        kVertex_BufferType,
+                        bufferSize,
+                        preallocBufferCnt) {
 }
 
 void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
@@ -340,8 +389,13 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu)
-    : GrBufferAllocPool(gpu, kIndex_BufferType, MIN_INDEX_BUFFER_SIZE) {
+GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu,
+                                               size_t bufferSize,
+                                               int preallocBufferCnt)
+    : GrBufferAllocPool(gpu,
+                        kIndex_BufferType,
+                        bufferSize,
+                        preallocBufferCnt) {
 }
 
 void* GrIndexBufferAllocPool::makeSpace(int indexCount,

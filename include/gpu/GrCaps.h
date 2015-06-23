@@ -185,7 +185,6 @@ public:
     // recycled in the texture cache. This is to prevent ghosting by drivers
     // (in particular for deferred architectures).
     bool reuseScratchTextures() const { return fReuseScratchTextures; }
-    bool reuseScratchBuffers() const { return fReuseScratchBuffers; }
 
     int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
     int maxTextureSize() const { return fMaxTextureSize; }
@@ -230,12 +229,10 @@ protected:
     bool fStencilWrapOpsSupport                      : 1;
     bool fDiscardRenderTargetSupport                 : 1;
     bool fReuseScratchTextures                       : 1;
-    bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;
     bool fCompressedTexSubImageSupport               : 1;
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
-
     // Driver workaround
     bool fUseDrawInsteadOfClear                      : 1;
     bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
