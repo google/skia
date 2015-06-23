@@ -414,6 +414,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor() &&
                             kQualcomm_GrGLVendor != ctxInfo.vendor();
 
+#if 0
+    fReuseScratchBuffers = kARM_GrGLVendor != ctxInfo.vendor() &&
+                           kQualcomm_GrGLVendor != ctxInfo.vendor();
+#endif
+
     if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxSampleCount);
     } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {

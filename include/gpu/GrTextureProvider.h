@@ -158,12 +158,12 @@ protected:
     GrGpu* gpu() { return fGpu; }
     const GrGpu* gpu() const { return fGpu; }
 
-private:
     bool isAbandoned() const {
         SkASSERT(SkToBool(fGpu) == SkToBool(fCache));
         return !SkToBool(fCache);
     }
 
+private:
     GrResourceCache* fCache;
     GrGpu* fGpu;
 };
