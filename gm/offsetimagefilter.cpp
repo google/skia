@@ -143,7 +143,9 @@ protected:
             canvas->save();
             canvas->clipRect(*clipR);
         }
-        p.setImageFilter(imgf);
+        if (imgf) {
+            p.setImageFilter(imgf)->unref();
+        }
         p.setColor(0x66FF0000);
         canvas->drawRect(r, p);
 
