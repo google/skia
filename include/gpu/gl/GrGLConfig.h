@@ -177,8 +177,10 @@
  * Hopefully we will understand this better and have a cleaner fix or get a
  * OS/driver level fix.
  */
-#define GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND   \
-    (defined(SK_BUILD_FOR_MAC) &&                       \
-     !GR_GL_USE_BUFFER_DATA_NULL_HINT)
+#if (defined(SK_BUILD_FOR_MAC) && !GR_GL_USE_BUFFER_DATA_NULL_HINT)
+#       define GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND 1
+#else
+#       define GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND 0
+#endif
 
 #endif
