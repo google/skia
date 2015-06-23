@@ -37,6 +37,7 @@ SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
 }
 
 SkPictureRecord::~SkPictureRecord() {
+    fImageRefs.unrefAll();
     fPictureRefs.unrefAll();
     fTextBlobRefs.unrefAll();
 }
