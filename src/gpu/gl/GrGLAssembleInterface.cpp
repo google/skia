@@ -296,7 +296,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
         // NV_path_rendering v1.3 (These methods may not be present)
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
-        GET_PROC_SUFFIX(PathMemoryGlyphIndexArray, NV);
     }
 
     if (extensions.has("GL_NV_framebuffer_mixed_samples")) {
@@ -703,7 +702,6 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, NV);
         GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
-        GET_PROC_SUFFIX(PathMemoryGlyphIndexArray, NV);
     }
 
     if (extensions.has("GL_NV_framebuffer_mixed_samples")) {

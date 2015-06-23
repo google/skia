@@ -36,9 +36,6 @@ public:
     GrPath* createPath(const SkPath&, const GrStrokeInfo&) override;
     virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*,
                                          const GrStrokeInfo&) override;
-    virtual GrPathRange* createGlyphs(const SkTypeface*,
-                                      const SkDescriptor*,
-                                      const GrStrokeInfo&) override;
 
     /* Called when the 3D context state is unknown. */
     void resetContext();
@@ -75,7 +72,6 @@ private:
     struct Caps {
         bool stencilThenCoverSupport : 1;
         bool fragmentInputGenSupport : 1;
-        bool glyphLoadingSupport     : 1;
     };
     const Caps& caps() const { return fCaps; }
 
