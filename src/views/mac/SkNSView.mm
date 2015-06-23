@@ -58,6 +58,7 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 #endif
         fWind->resize((int) size.width, (int) size.height,
                       kN32_SkColorType);
+        [[self window] setAcceptsMouseMovedEvents:YES];
     }
 }
 
