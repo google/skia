@@ -105,3 +105,66 @@ DEF_GM( return new OffsetImageFilterGM; )
 
 //////////////////////////////////////////////////////////////////////////////
 
+class SimpleOffsetImageFilterGM : public skiagm::GM {
+public:
+    SimpleOffsetImageFilterGM() {}
+    
+protected:
+    SkString onShortName() override {
+        return SkString("simple-offsetimagefilter");
+    }
+    
+    SkISize onISize() override { return SkISize::Make(140, 60); }
+    
+    void doDraw(SkCanvas* canvas, const SkRect& r, SkImageFilter* imgf,
+                const SkRect* clipR = NULL) {
+        SkPaint p;
+
+        if (clipR) {
+            p.setColor(0xFF00FF00);
+            p.setStyle(SkPaint::kStroke_Style);
+            canvas->drawRect(clipR->makeInset(SK_ScalarHalf, SK_ScalarHalf), p);
+            p.setStyle(SkPaint::kFill_Style);
+        }
+
+        p.setImageFilter(imgf);
+        p.setColor(SK_ColorRED);
+        canvas->drawRect(r, p);
+
+        if (clipR) {
+            canvas->save();
+            canvas->clipRect(*clipR);
+        }
+        p.setImageFilter(NULL);
+        p.setColor(0x660000FF);
+        canvas->drawRect(r, p);
+        if (clipR) {
+            canvas->restore();
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        const SkRect r = SkRect::MakeWH(10, 10);
+        SkImageFilter::CropRect cr0(r);
+        SkImageFilter::CropRect cr1(SkRect::MakeWH(5, 5));
+
+        canvas->translate(20, 20);
+        this->doDraw(canvas, r, NULL);
+        
+        canvas->translate(20, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5));
+        
+        canvas->translate(20, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5, NULL, &cr0));
+        
+        canvas->translate(20, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5), &r);
+        
+        canvas->translate(20, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5, NULL, &cr1));
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new SimpleOffsetImageFilterGM; )
