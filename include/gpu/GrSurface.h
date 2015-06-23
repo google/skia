@@ -137,7 +137,7 @@ public:
 
 protected:
     // Methods made available via GrSurfacePriv
-    SkImageInfo info() const;
+    SkImageInfo info(SkAlphaType) const;
     bool savePixels(const char* filename);
     bool hasPendingRead() const;
     bool hasPendingWrite() const;

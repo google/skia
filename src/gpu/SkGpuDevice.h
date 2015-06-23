@@ -30,21 +30,22 @@ struct GrCachedLayer;
  */
 class SK_API SkGpuDevice : public SkBaseDevice {
 public:
-    enum Flags {
-        kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
+    enum InitContents {
+        kClear_InitContents,
+        kUninit_InitContents
     };
 
     /**
      * Creates an SkGpuDevice from a GrRenderTarget.
      */
-    static SkGpuDevice* Create(GrRenderTarget* target, const SkSurfaceProps*, unsigned flags = 0);
+    static SkGpuDevice* Create(GrRenderTarget* target, const SkSurfaceProps*, InitContents);
 
     /**
      * Creates an SkGpuDevice from a GrRenderTarget whose texture width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
     static SkGpuDevice* Create(GrRenderTarget* target, int width, int height,
-                               const SkSurfaceProps*, unsigned flags = 0);
+                               const SkSurfaceProps*, InitContents);
 
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
@@ -52,7 +53,7 @@ public:
      * the resource cache budget. On failure, returns NULL.
      */
     static SkGpuDevice* Create(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
-                               int sampleCount, const SkSurfaceProps*, unsigned flags = 0);
+                               int sampleCount, const SkSurfaceProps*, InitContents);
 
     virtual ~SkGpuDevice();
 
@@ -153,6 +154,15 @@ private:
     // remove when our clients don't rely on accessBitmap()
     SkBitmap                        fLegacyBitmap;
     bool                            fNeedClear;
+    bool                            fOpaque;
+
+    enum Flags {
+        kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
+        kIsOpaque_Flag  = 1 << 1,  //!< Hint from client that rendering to this device will be
+                                   //   opaque even if the config supports alpha.
+    };
+    static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
+                                          unsigned* flags);
 
     SkGpuDevice(GrRenderTarget*, int width, int height, const SkSurfaceProps*, unsigned flags);
 

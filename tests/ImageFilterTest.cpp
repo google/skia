@@ -1152,7 +1152,8 @@ DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
                                                          SkSurface::kNo_Budgeted,
                                                          SkImageInfo::MakeN32Premul(100, 100),
                                                          0,
-                                                         &props));
+                                                         &props,
+                                                         SkGpuDevice::kUninit_InitContents));
     SkImageFilter::Proxy proxy(device);
 
     test_crop_rects(&proxy, reporter);
@@ -1169,7 +1170,8 @@ DEF_GPUTEST(HugeBlurImageFilterGPU, reporter, factory) {
                                                          SkSurface::kNo_Budgeted,
                                                          SkImageInfo::MakeN32Premul(100, 100),
                                                          0,
-                                                         &props));
+                                                         &props,
+                                                         SkGpuDevice::kUninit_InitContents));
     SkCanvas canvas(device);
 
     test_huge_blur(&canvas, reporter);
@@ -1186,7 +1188,8 @@ DEF_GPUTEST(XfermodeImageFilterCroppedInputGPU, reporter, factory) {
                                                          SkSurface::kNo_Budgeted,
                                                          SkImageInfo::MakeN32Premul(1, 1),
                                                          0,
-                                                         &props));
+                                                         &props,
+                                                         SkGpuDevice::kUninit_InitContents));
     SkCanvas canvas(device);
 
     test_xfermode_cropped_input(&canvas, reporter);
@@ -1203,7 +1206,8 @@ DEF_GPUTEST(TestNegativeBlurSigmaGPU, reporter, factory) {
                                                          SkSurface::kNo_Budgeted,
                                                          SkImageInfo::MakeN32Premul(1, 1),
                                                          0,
-                                                         &props));
+                                                         &props,
+                                                         SkGpuDevice::kUninit_InitContents));
     SkImageFilter::Proxy proxy(device);
 
     test_negative_blur_sigma(&proxy, reporter);

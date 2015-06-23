@@ -83,7 +83,8 @@ DEF_GPUTEST(ReadWriteAlpha, reporter, factory) {
 
         // Now try writing on the single channel texture
         SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-        SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(texture->asRenderTarget(), &props));
+        SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(texture->asRenderTarget(), &props,
+                                                              SkGpuDevice::kUninit_InitContents));
         SkCanvas canvas(device);
 
         SkPaint paint;

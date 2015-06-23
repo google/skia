@@ -90,7 +90,8 @@ DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
                 if (NULL == ctx) {
                     continue;
                 }
-                device.reset(SkGpuDevice::Create(ctx, SkSurface::kNo_Budgeted, info, 0, &props));
+                device.reset(SkGpuDevice::Create(ctx, SkSurface::kNo_Budgeted, info, 0, &props,
+                                                 SkGpuDevice::kUninit_InitContents));
 #else
                 continue;
 #endif

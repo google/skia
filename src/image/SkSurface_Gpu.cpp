@@ -83,7 +83,8 @@ void SkSurface_Gpu::onDiscard() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurfaceProps* props) {
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(target, props));
+    SkAutoTUnref<SkGpuDevice> device(
+        SkGpuDevice::Create(target, props, SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return NULL;
     }
@@ -93,7 +94,7 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurf
 SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const SkImageInfo& info,
                                       int sampleCount, const SkSurfaceProps* props) {
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(ctx, budgeted, info, sampleCount, props,
-                                                         SkGpuDevice::kNeedClear_Flag));
+                                                         SkGpuDevice::kClear_InitContents));
     if (!device) {
         return NULL;
     }
@@ -113,7 +114,8 @@ SkSurface* SkSurface::NewWrappedRenderTarget(GrContext* context, GrBackendTextur
     if (!surface) {
         return NULL;
     }
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props));
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props,
+                                                         SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return NULL;
     }

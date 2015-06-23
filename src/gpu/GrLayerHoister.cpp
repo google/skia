@@ -281,7 +281,7 @@ SkBitmap wrap_texture(GrTexture* texture) {
     SkASSERT(texture);
 
     SkBitmap result;
-    result.setInfo(texture->surfacePriv().info());
+    result.setInfo(texture->surfacePriv().info(kPremul_SkAlphaType));
     result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (result.info(), texture)))->unref();
     return result;
 }

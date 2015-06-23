@@ -61,7 +61,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
 }
 
 bool SkImage_Gpu::isOpaque() const {
-    return GrPixelConfigIsOpaque(fTexture->config());
+    return GrPixelConfigIsOpaque(fTexture->config()) || fAlphaType == kOpaque_SkAlphaType;
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {

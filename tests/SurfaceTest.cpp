@@ -30,16 +30,20 @@ enum SurfaceType {
     kRasterDirect_SurfaceType,
     kGpu_SurfaceType,
     kGpuScratch_SurfaceType,
+
+    kLastSurfaceType = kGpuScratch_SurfaceType
 };
+static const int kSurfaceTypeCnt = kLastSurfaceType + 1;
 
 static void release_storage(void* pixels, void* context) {
     SkASSERT(pixels == context);
     sk_free(pixels);
 }
 
-static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context,
-                                SkImageInfo* requestedInfo = NULL) {
-    static const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
+static SkSurface* create_surface(SurfaceType surfaceType, GrContext* context,
+                                 SkAlphaType at = kPremul_SkAlphaType,
+                                 SkImageInfo* requestedInfo = NULL) {
+    const SkImageInfo info = SkImageInfo::MakeN32(10, 10, at);
 
     if (requestedInfo) {
         *requestedInfo = info;
@@ -219,8 +223,8 @@ struct ReleaseDataContext {
     }
 };
 
-static SkImage* createImage(ImageType imageType, GrContext* context, SkColor color,
-                            ReleaseDataContext* releaseContext) {
+static SkImage* create_image(ImageType imageType, GrContext* context, SkColor color,
+                             ReleaseDataContext* releaseContext) {
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
     const size_t rowBytes = info.minRowBytes();
@@ -347,7 +351,7 @@ static void test_imagepeek(skiatest::Reporter* reporter, GrContextFactory* facto
         size_t rowBytes;
 
         releaseCtx.fData = NULL;
-        SkAutoTUnref<SkImage> image(createImage(gRec[i].fType, ctx, color, &releaseCtx));
+        SkAutoTUnref<SkImage> image(create_image(gRec[i].fType, ctx, color, &releaseCtx));
         if (!image.get()) {
             SkDebugf("failed to createImage[%d] %s\n", i, gRec[i].fName);
             continue;   // gpu may not be enabled
@@ -417,8 +421,8 @@ static void test_canvaspeek(skiatest::Reporter* reporter,
             SkImageInfo info, requestInfo;
             size_t rowBytes;
 
-            SkAutoTUnref<SkSurface> surface(createSurface(gRec[i].fType, context,
-                                                          &requestInfo));
+            SkAutoTUnref<SkSurface> surface(create_surface(gRec[i].fType, context,
+                                                           kPremul_SkAlphaType, &requestInfo));
             surface->getCanvas()->clear(color);
 
             const void* addr = surface->getCanvas()->peekPixels(&info, &rowBytes);
@@ -484,8 +488,8 @@ static void test_accessPixels(skiatest::Reporter* reporter, GrContextFactory* fa
         for (size_t j = 0; j < SK_ARRAY_COUNT(gRec); ++j) {
             SkImageInfo info, requestInfo;
             
-            SkAutoTUnref<SkSurface> surface(createSurface(gRec[j].fType, context,
-                                                          &requestInfo));
+            SkAutoTUnref<SkSurface> surface(create_surface(gRec[j].fType, context,
+                                                           kPremul_SkAlphaType,  &requestInfo));
             SkCanvas* canvas = surface->getCanvas();
             canvas->clear(0);
 
@@ -501,10 +505,35 @@ static void test_accessPixels(skiatest::Reporter* reporter, GrContextFactory* fa
     }
 }
 
+static void test_snap_alphatype(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    GrContext* context = NULL;
+#if SK_SUPPORT_GPU
+    context = factory->get(GrContextFactory::kNative_GLContextType);
+    if (NULL == context) {
+        return;
+    }
+#endif
+    for (int opaque = 0; opaque < 2; ++opaque) {
+        SkAlphaType atype = SkToBool(opaque) ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+        for (int st = 0; st < kSurfaceTypeCnt; ++st) {
+            SurfaceType stype = (SurfaceType)st;
+            SkAutoTUnref<SkSurface> surface(create_surface(stype, context, atype));
+            REPORTER_ASSERT(reporter, surface);
+            if (surface) {
+                SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+                REPORTER_ASSERT(reporter, image);
+                if (image) {
+                    REPORTER_ASSERT(reporter, image->isOpaque() == SkToBool(opaque));
+                }
+            }
+        }
+    }
+}
+
 static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType surfaceType,
                                    GrContext* context) {
     // Verify that the right canvas commands trigger a copy on write
-    SkSurface* surface = createSurface(surfaceType, context);
+    SkSurface* surface = create_surface(surfaceType, context);
     SkAutoTUnref<SkSurface> aur_surface(surface);
     SkCanvas* canvas = surface->getCanvas();
 
@@ -587,7 +616,7 @@ static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter
     // This test succeeds by not triggering an assertion.
     // The test verifies that the surface remains writable (usable) after
     // acquiring and releasing a snapshot without triggering a copy on write.
-    SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
+    SkAutoTUnref<SkSurface> surface(create_surface(surfaceType, context));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(1);
     surface->newImageSnapshot()->unref();  // Create and destroy SkImage
@@ -602,8 +631,8 @@ static void Test_crbug263329(skiatest::Reporter* reporter,
     // Bug was caused by onCopyOnWrite releasing the old surface texture
     // back to the scratch texture pool even though the texture is used
     // by and active SkImage_Gpu.
-    SkAutoTUnref<SkSurface> surface1(createSurface(surfaceType, context));
-    SkAutoTUnref<SkSurface> surface2(createSurface(surfaceType, context));
+    SkAutoTUnref<SkSurface> surface1(create_surface(surfaceType, context));
+    SkAutoTUnref<SkSurface> surface2(create_surface(surfaceType, context));
     SkCanvas* canvas1 = surface1->getCanvas();
     SkCanvas* canvas2 = surface2->getCanvas();
     canvas1->clear(1);
@@ -633,7 +662,7 @@ static void Test_crbug263329(skiatest::Reporter* reporter,
 static void TestGetTexture(skiatest::Reporter* reporter,
                                  SurfaceType surfaceType,
                                  GrContext* context) {
-    SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
+    SkAutoTUnref<SkSurface> surface(create_surface(surfaceType, context));
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
     GrTexture* texture = as_IB(image)->getTexture();
     if (surfaceType == kGpu_SurfaceType || surfaceType == kGpuScratch_SurfaceType) {
@@ -700,13 +729,13 @@ static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
     // are made before a canvas is created.
     {
         // Test passes by not asserting
-        SkSurface* surface = createSurface(surfaceType, context);
+        SkSurface* surface = create_surface(surfaceType, context);
         SkAutoTUnref<SkSurface> aur_surface(surface);
         surface->notifyContentWillChange(mode);
         SkDEBUGCODE(surface->validate();)
     }
     {
-        SkSurface* surface = createSurface(surfaceType, context);
+        SkSurface* surface = create_surface(surfaceType, context);
         SkAutoTUnref<SkSurface> aur_surface(surface);
         SkImage* image1 = surface->newImageSnapshot();
         SkAutoTUnref<SkImage> aur_image1(image1);
@@ -739,6 +768,8 @@ DEF_GPUTEST(Surface, reporter, factory) {
     test_canvaspeek(reporter, factory);
 
     test_accessPixels(reporter, factory);
+
+    test_snap_alphatype(reporter, factory);
 
 #if SK_SUPPORT_GPU
     TestGetTexture(reporter, kRaster_SurfaceType, NULL);

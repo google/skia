@@ -159,7 +159,9 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
 
             uint32_t flags = fUseDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
             SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(target->asRenderTarget(), &props));
+            SkAutoTUnref<SkGpuDevice> device(
+                SkGpuDevice::Create(target->asRenderTarget(), &props,
+                                    SkGpuDevice::kUninit_InitContents));
             if (!device) {
                 return NULL;
             }

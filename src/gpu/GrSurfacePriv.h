@@ -18,10 +18,10 @@
 class GrSurfacePriv {
 public:
     /**
-     * Derive a SkImageInfo from the surface's descriptor. This is lossy as ImageInfo has fields not
-     * known to GrSurface (e.g. alphaType).
+     * Derive a SkImageInfo from the surface's descriptor. The caller must provide the alpha type as
+     * GrSurface has no equivalent.
      */
-    SkImageInfo info() const { return fSurface->info(); }
+    SkImageInfo info(SkAlphaType alphaType) const { return fSurface->info(alphaType); }
 
     /**
      * Write the contents of the surface to a PNG. Returns true if successful.

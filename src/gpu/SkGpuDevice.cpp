@@ -122,16 +122,59 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, const SkSurfaceProps* props, unsigned flags) {
-    return SkGpuDevice::Create(rt, rt->width(), rt->height(), props, flags);
+/** Checks that the alpha type is legal and gets constructor flags. Returns false if device creation
+    should fail. */
+bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
+                        const SkImageInfo* info, SkGpuDevice::InitContents init, unsigned* flags) {
+    *flags = 0;
+    if (info) {
+        switch (info->alphaType()) {
+            case kPremul_SkAlphaType:
+                break;
+            case kOpaque_SkAlphaType:
+                *flags |= SkGpuDevice::kIsOpaque_Flag;
+                break;
+            default: // If it is unpremul or unknown don't try to render
+                return false;
+        }
+    }
+    if (kClear_InitContents == init) {
+        *flags |= kNeedClear_Flag;
+    }
+    return true;
+}
+
+SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, const SkSurfaceProps* props,
+                                 InitContents init) {
+    return SkGpuDevice::Create(rt, rt->width(), rt->height(), props, init);
 }
 
 SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
-                                 const SkSurfaceProps* props, unsigned flags) {
+                                 const SkSurfaceProps* props, InitContents init) {
     if (!rt || rt->wasDestroyed()) {
         return NULL;
     }
+    unsigned flags;
+    if (!CheckAlphaTypeAndGetFlags(NULL, init, &flags)) {
+        return NULL;
+    }
     return SkNEW_ARGS(SkGpuDevice, (rt, width, height, props, flags));
+}
+
+SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgeted,
+                                 const SkImageInfo& info, int sampleCount,
+                                 const SkSurfaceProps* props, InitContents init) {
+    unsigned flags;
+    if (!CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
+        return NULL;
+    }
+
+    SkAutoTUnref<GrRenderTarget> rt(CreateRenderTarget(context, budgeted, info,  sampleCount));
+    if (NULL == rt) {
+        return NULL;
+    }
+
+    return SkNEW_ARGS(SkGpuDevice, (rt, info.width(), info.height(), props, flags));
 }
 
 SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
@@ -141,11 +184,13 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     fDrawProcs = NULL;
 
     fContext = SkRef(rt->getContext());
-    fNeedClear = flags & kNeedClear_Flag;
+    fNeedClear = SkToBool(flags & kNeedClear_Flag);
+    fOpaque = SkToBool(flags & kIsOpaque_Flag);
 
     fRenderTarget = SkRef(rt);
 
-    SkImageInfo info = rt->surfacePriv().info().makeWH(width, height);
+    SkAlphaType at = fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    SkImageInfo info = rt->surfacePriv().info(at).makeWH(width, height);
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, rt));
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
@@ -192,18 +237,6 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::B
     return texture->asRenderTarget();
 }
 
-SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgeted,
-                                 const SkImageInfo& info, int sampleCount,
-                                 const SkSurfaceProps* props, unsigned flags) {
-
-    SkAutoTUnref<GrRenderTarget> rt(CreateRenderTarget(context, budgeted, info,  sampleCount));
-    if (NULL == rt) {
-        return NULL;
-    }
-
-    return SkNEW_ARGS(SkGpuDevice, (rt, info.width(), info.height(), props, flags));
-}
-
 SkGpuDevice::~SkGpuDevice() {
     if (fDrawProcs) {
         delete fDrawProcs;
@@ -229,8 +262,8 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
     if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    return fContext->readRenderTargetPixels(fRenderTarget, x, y, dstInfo.width(), dstInfo.height(),
-                                            config, dstPixels, dstRowBytes, flags);
+    return fRenderTarget->readPixels(x, y, dstInfo.width(), dstInfo.height(), config, dstPixels,
+                                     dstRowBytes, flags);
 }
 
 bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
@@ -331,8 +364,12 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     fRenderTarget->unref();
     fRenderTarget = newRT.detach();
 
-    SkASSERT(fRenderTarget->surfacePriv().info() == fLegacyBitmap.info());
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (fRenderTarget->surfacePriv().info(), fRenderTarget));
+#ifdef SK_DEBUG
+    SkImageInfo info = fRenderTarget->surfacePriv().info(fOpaque ? kOpaque_SkAlphaType :
+                                                                   kPremul_SkAlphaType);
+    SkASSERT(info == fLegacyBitmap.info());
+#endif
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (fLegacyBitmap.info(), fRenderTarget));
     fLegacyBitmap.setPixelRef(pr)->unref();
 
     fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext(&this->surfaceProps())));
@@ -662,8 +699,7 @@ static int determine_tile_size(const SkBitmap& bitmap, const SkIRect& src, int m
 
 // Given a bitmap, an optional src rect, and a context with a clip and matrix determine what
 // pixels from the bitmap are necessary.
-static void determine_clipped_src_rect(const GrContext* context,
-                                       const GrRenderTarget* rt,
+static void determine_clipped_src_rect(const GrRenderTarget* rt,
                                        const GrClip& clip,
                                        const SkMatrix& viewMatrix,
                                        const SkBitmap& bitmap,
@@ -706,7 +742,7 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
 
     // if it's larger than the max tile size, then we have no choice but tiling.
     if (bitmap.width() > maxTileSize || bitmap.height() > maxTileSize) {
-        determine_clipped_src_rect(fContext, fRenderTarget, fClip, viewMatrix, bitmap,
+        determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, bitmap,
                                    srcRectPtr, clippedSrcRect);
         *tileSize = determine_tile_size(bitmap, *clippedSrcRect, maxTileSize);
         return true;
@@ -736,7 +772,7 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
     }
 
     // Figure out how much of the src we will need based on the src rect and clipping.
-    determine_clipped_src_rect(fContext, fRenderTarget, fClip, viewMatrix, bitmap, srcRectPtr,
+    determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, bitmap, srcRectPtr,
                                clippedSrcRect);
     *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.
     size_t usedTileBytes = get_tile_count(*clippedSrcRect, kBmpSmallTileSize) *
@@ -1672,7 +1708,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     SkAutoTUnref<GrTexture> texture;
     // Skia's convention is to only clear a device if it is non-opaque.
-    unsigned flags = cinfo.fInfo.isOpaque() ? 0 : kNeedClear_Flag;
+    InitContents init = cinfo.fInfo.isOpaque() ? kUninit_InitContents : kClear_InitContents;
 
     // layers are never draw in repeat modes, so we can request an approx
     // match and ignore any padding.
@@ -1684,7 +1720,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     if (texture) {
         SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
         return SkGpuDevice::Create(
-            texture->asRenderTarget(), cinfo.fInfo.width(), cinfo.fInfo.height(), &props, flags);
+            texture->asRenderTarget(), cinfo.fInfo.width(), cinfo.fInfo.height(), &props, init);
     } else {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "---- failed to create gpu device texture [%d %d]\n",
