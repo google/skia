@@ -34,14 +34,14 @@ public:
 
 protected:
     SkSurface* createSurface() override {
+        SkSurfaceProps props(INHERITED::getSurfaceProps());
         if (kGPU_DeviceType == fType) {
-            SkSurfaceProps props(INHERITED::getSurfaceProps());
             return SkSurface::NewRenderTargetDirect(fRenderTarget, &props);
         }
         static const SkImageInfo info = SkImageInfo::MakeN32Premul(
                 SkScalarRoundToInt(this->width()), SkScalarRoundToInt(this->height()));
-        return fSurface = SkSurface::NewRaster(info);
-   }
+        return fSurface = SkSurface::NewRaster(info, &props);
+    }
 
     void draw(SkCanvas* canvas) override;
     void drawContents(SkCanvas* canvas);

@@ -53,6 +53,14 @@ typedef enum {
     DIFFERENCE_SK_CLIPTYPE,
 } sk_cliptype_t;
 
+typedef enum {
+    UNKNOWN_SK_PIXELGEOMETRY,
+    RGB_H_SK_PIXELGEOMETRY,
+    BGR_H_SK_PIXELGEOMETRY,
+    RGB_V_SK_PIXELGEOMETRY,
+    BGR_V_SK_PIXELGEOMETRY,
+} sk_pixelgeometry_t;
+
 sk_colortype_t sk_colortype_get_default_8888();
 
 typedef struct {
@@ -61,6 +69,10 @@ typedef struct {
     sk_colortype_t  colorType;
     sk_alphatype_t  alphaType;
 } sk_imageinfo_t;
+
+typedef struct {
+    sk_pixelgeometry_t pixelGeometry;
+} sk_surfaceprops_t;
 
 typedef struct {
     float   x;

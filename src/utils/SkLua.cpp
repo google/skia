@@ -1993,7 +1993,8 @@ static int lsk_newRasterSurface(lua_State* L) {
     int width = lua2int_def(L, 1, 0);
     int height = lua2int_def(L, 2, 0);
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-    SkSurface* surface = SkSurface::NewRaster(info);
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    SkSurface* surface = SkSurface::NewRaster(info, &props);
     if (NULL == surface) {
         lua_pushnil(L);
     } else {

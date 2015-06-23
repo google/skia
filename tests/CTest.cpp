@@ -18,8 +18,10 @@ static void test_c(skiatest::Reporter* reporter) {
         1, 1, ct, PREMUL_SK_ALPHATYPE
     };
     uint32_t pixel[1] = { 0 };
+    sk_surfaceprops_t surfaceProps = { UNKNOWN_SK_PIXELGEOMETRY };
 
-    sk_surface_t* surface = sk_surface_new_raster_direct(&info, pixel, sizeof(uint32_t));
+    sk_surface_t* surface = sk_surface_new_raster_direct(&info, pixel, sizeof(uint32_t),
+                                                         &surfaceProps);
     sk_paint_t* paint = sk_paint_new();
 
     sk_canvas_t* canvas = sk_surface_get_canvas(surface);

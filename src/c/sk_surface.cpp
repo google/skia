@@ -96,6 +96,30 @@ static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     return true;
 }
 
+const struct {
+    sk_pixelgeometry_t fC;
+    SkPixelGeometry    fSK;
+} gPixelGeometryMap[] = {
+    { UNKNOWN_SK_PIXELGEOMETRY, kUnknown_SkPixelGeometry },
+    { RGB_H_SK_PIXELGEOMETRY,   kRGB_H_SkPixelGeometry   },
+    { BGR_H_SK_PIXELGEOMETRY,   kBGR_H_SkPixelGeometry   },
+    { RGB_V_SK_PIXELGEOMETRY,   kRGB_V_SkPixelGeometry   },
+    { BGR_V_SK_PIXELGEOMETRY,   kBGR_V_SkPixelGeometry   },
+};
+
+
+static bool from_c_pixelgeometry(sk_pixelgeometry_t cGeom, SkPixelGeometry* skGeom) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPixelGeometryMap); ++i) {
+        if (gPixelGeometryMap[i].fC == cGeom) {
+            if (skGeom) {
+                *skGeom = gPixelGeometryMap[i].fSK;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
                    cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
@@ -391,21 +415,35 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo) {
+sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
+                                    const sk_surfaceprops_t* props) {
     SkImageInfo info;
     if (!from_c_info(*cinfo, &info)) {
         return NULL;
     }
-    return (sk_surface_t*)SkSurface::NewRaster(info);
+    SkPixelGeometry geo = kUnknown_SkPixelGeometry;
+    if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
+        return NULL;
+    }
+
+    SkSurfaceProps surfProps(0, geo);
+    return (sk_surface_t*)SkSurface::NewRaster(info, &surfProps);
 }
 
 sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pixels,
-                                           size_t rowBytes) {
+                                           size_t rowBytes,
+                                           const sk_surfaceprops_t* props) {
     SkImageInfo info;
     if (!from_c_info(*cinfo, &info)) {
         return NULL;
     }
-    return (sk_surface_t*)SkSurface::NewRasterDirect(info, pixels, rowBytes);
+    SkPixelGeometry geo = kUnknown_SkPixelGeometry;
+    if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
+        return NULL;
+    }
+
+    SkSurfaceProps surfProps(0, geo);
+    return (sk_surface_t*)SkSurface::NewRasterDirect(info, pixels, rowBytes, &surfProps);
 }
 
 void sk_surface_unref(sk_surface_t* csurf) {
@@ -596,7 +634,10 @@ void sk_test_capi(SkCanvas* canvas) {
     cinfo.colorType = (sk_colortype_t)kN32_SkColorType;
     cinfo.alphaType = (sk_alphatype_t)kPremul_SkAlphaType;
     
-    sk_surface_t* csurface = sk_surface_new_raster(&cinfo);
+    sk_surfaceprops_t surfaceprops;
+    surfaceprops.pixelGeometry = UNKNOWN_SK_PIXELGEOMETRY;
+
+    sk_surface_t* csurface = sk_surface_new_raster(&cinfo, &surfaceprops);
     sk_canvas_t* ccanvas = sk_surface_get_canvas(csurface);
     
     sk_paint_t* cpaint = sk_paint_new();

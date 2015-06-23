@@ -15,8 +15,9 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t*);
-sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t*, void* pixels, size_t rowBytes);
+sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t*, const sk_surfaceprops_t*);
+sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t*, void* pixels, size_t rowBytes,
+                                           const sk_surfaceprops_t* props);
 void sk_surface_unref(sk_surface_t*);
 
 /**

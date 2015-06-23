@@ -33,7 +33,8 @@ static void doDraw(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
 
 static bool do_surface(int w, int h, const char path[], const char text[],
                        const SkPaint& paint) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(w, h));
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(w, h, &props));
     doDraw(surface->getCanvas(), paint, text);
 
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
