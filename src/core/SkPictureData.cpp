@@ -541,6 +541,7 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                                        create_picture_from_buffer)) {
                 return false;
             }
+            break;
         default:
             // The tag was invalid.
             return false;
