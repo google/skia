@@ -67,7 +67,7 @@ From the [Status](https://status.skia.org/) page:
    KVM switch and number used to access the machine, if the machine is in the
    SkiaLab.
 4. Walk over to the lab. While standing at the KVM switch indicated by the host
-   information page, double tab <ctrl> and then press the number or letter from
+   information page, double tap \<ctrl\> and then press the number or letter from
    the information page. It may be necessary to move or click the mouse to wake
    the machine up.
 5. Log in to the machine if necessary. The password is stored in
@@ -108,18 +108,23 @@ behavior of the builder itself.
 2. If we already have a disk image appropriate for this machine, follow the
    instructions for flashing a disk image to a machine below. Otherwise, follow
    the instructions for bringing up a new machine from scratch.
-3. Set the hostname for the machine.
-4. Add the new slave to the slaves.cfg file on the appropriate master, eg.
+3. Power on the machine. Be sure to kill any buildbot processes that start up,
+   eg. `killall python` on Linux and Mac, and just close any cmd instances which
+   pop up on Windows.
+4. Set the hostname for the machine.
+5. Ensure that the machine is labeled with its hostname and KVM number.
+6. Add the new slave to the slaves.cfg file on the appropriate master, eg.
    https://chromium.googlesource.com/chromium/tools/build/+/master/masters/master.client.skia/slaves.cfg,
    and upload the change for code review.
-5. Add an entry for the new host machine to the slave_hosts_cfg.py file in the
+7. Add an entry for the new host machine to the slave_hosts_cfg.py file in the
    Skia infra repo: https://skia.googlesource.com/buildbot/+/master/site_config/slave_hosts_cfg.py,
    and upload it for review.
-6. Commit the change to add the slave to the master. Once it lands, commit the
+8. Commit the change to add the slave to the master. Once it lands, commit the
    slave_hosts_cfg.py change immediately afterward.
-7. Restart the build master. Either ask borenet@ to do this or file a
+9. Restart the build master. Either ask borenet@ to do this or file a
    [ticket](https://code.google.com/p/chromium/issues/entry?template=Build%20Infrastructure&labels=Infra-Labs,Restrict-View-Google,Infra-Troopers&summary=Restart%20request%20for%20[%20name%20]&comment=Please%20provide%20the%20reason%20for%20restart.%0A%0ASet%20to%20Pri-0%20if%20immediate%20restarted%20is%20required,%20otherwise%20please%20set%20to%20Pri-1%20and%20the%20restart%20will%20happen%20when%20the%20trooper%20gets%20a%20free%20moment.) for a trooper to do it.
-8. Reboot the machine and monitor the build master to ensure that it connects.
+10. Reboot the machine and monitor the build master to ensure that it connects.
+    This can take some time, since the bot needs to sync Chrome.
 
 
 ### Bringing up a new Android bot
