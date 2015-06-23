@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -7,7 +6,6 @@
  */
 
 #include "SkFontMgr.h"
-#include "SkScalerContext.h"
 
 SkFontMgr* SkFontMgr::Factory() {
     // Always return NULL, an empty SkFontMgr will be used.
