@@ -112,19 +112,8 @@ SkData* SkImageGenerator::onRefEncodedData() {
     return NULL;
 }
 
-#ifdef SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
-SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo&, void*, size_t,
-                                                       SkPMColor*, int*) {
-    return kUnimplemented;
-}
-#endif
-
 SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst,
                                                        size_t rb, const Options& options,
                                                        SkPMColor* colors, int* colorCount) {
-#ifdef SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
-    return this->onGetPixels(info, dst, rb, colors, colorCount);
-#else
     return kUnimplemented;
-#endif
 }

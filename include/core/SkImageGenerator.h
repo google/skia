@@ -15,8 +15,6 @@ class SkBitmap;
 class SkData;
 class SkImageGenerator;
 
-//#define SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
-
 /**
  *  Takes ownership of SkImageGenerator.  If this method fails for
  *  whatever reason, it will return false and immediatetely delete
@@ -204,11 +202,6 @@ protected:
 
     virtual SkData* onRefEncodedData();
 
-#ifdef SK_SUPPORT_LEGACY_OPTIONLESS_GET_PIXELS
-    virtual Result onGetPixels(const SkImageInfo& info,
-                               void* pixels, size_t rowBytes,
-                               SkPMColor ctable[], int* ctableCount);
-#endif
     virtual Result onGetPixels(const SkImageInfo& info,
                                void* pixels, size_t rowBytes, const Options&,
                                SkPMColor ctable[], int* ctableCount);
