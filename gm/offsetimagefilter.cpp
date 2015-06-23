@@ -114,7 +114,7 @@ protected:
         return SkString("simple-offsetimagefilter");
     }
     
-    SkISize onISize() override { return SkISize::Make(140, 60); }
+    SkISize onISize() override { return SkISize::Make(640, 200); }
     
     void doDraw(SkCanvas* canvas, const SkRect& r, SkImageFilter* imgf,
                 const SkRect* clipR = NULL) {
@@ -155,33 +155,55 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkRect r = SkRect::MakeWH(10, 10);
+        const SkRect r = SkRect::MakeWH(40, 40);
         SkImageFilter::CropRect cr0(r);
-        SkImageFilter::CropRect cr1(SkRect::MakeWH(5, 5));
-        const SkRect r2 = SkRect::MakeXYWH(10, 0, 10, 10);
+        SkImageFilter::CropRect cr1(SkRect::MakeWH(20, 20));
+        const SkRect r2 = SkRect::MakeXYWH(40, 0, 40, 40);
         SkImageFilter::CropRect cr2(r2);
 
-        canvas->translate(20, 20);
+        canvas->translate(40, 40);
+        
+        canvas->save();
         this->doDraw(canvas, r, NULL);
         
-        canvas->translate(20, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5));
+        canvas->translate(100, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20));
         
-        canvas->translate(20, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5, NULL, &cr0));
+        canvas->translate(100, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, NULL, &cr0));
         
-        canvas->translate(20, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5), &r);
+        canvas->translate(100, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20), &r);
         
-        canvas->translate(20, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5, NULL, &cr1));
+        canvas->translate(100, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, NULL, &cr1));
         
-        SkRect clipR = SkRect::MakeXYWH(10, 10, 10, 10);
-        canvas->translate(20, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5, NULL, NULL), &clipR);
-        
-        canvas->translate(20, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(10, 0, NULL, &cr2), NULL);
+        SkRect clipR = SkRect::MakeXYWH(40, 40, 40, 40);
+        canvas->translate(100, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, NULL, NULL), &clipR);
+        canvas->restore();
+
+        // 2nd row
+        canvas->translate(0, 80);
+
+        /*
+         *  combos of clip and crop rects that align with src and dst
+         */
+
+        // crop==clip==src
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, NULL, &cr0), &r);
+
+        // crop==src, clip==dst
+        canvas->translate(100, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, NULL, &cr0), &r2);
+
+        // crop==dst, clip==src
+        canvas->translate(100, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, NULL, &cr2), &r);
+
+        // crop==clip==dst
+        canvas->translate(100, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, NULL, &cr2), &r2);
     }
 
 private:
