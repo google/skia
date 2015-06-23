@@ -127,17 +127,26 @@ protected:
             p.setStyle(SkPaint::kFill_Style);
         }
 
-        p.setImageFilter(imgf);
-        p.setColor(SK_ColorRED);
+        if (imgf && imgf->cropRectIsSet()) {
+            SkImageFilter::CropRect cr = imgf->getCropRect();
+
+            p.setColor(0x66FF00FF);
+            p.setStyle(SkPaint::kStroke_Style);
+            canvas->drawRect(cr.rect().makeInset(SK_ScalarHalf, SK_ScalarHalf), p);
+            p.setStyle(SkPaint::kFill_Style);
+        }
+
+        p.setColor(0x660000FF);
         canvas->drawRect(r, p);
 
         if (clipR) {
             canvas->save();
             canvas->clipRect(*clipR);
         }
-        p.setImageFilter(NULL);
-        p.setColor(0x660000FF);
+        p.setImageFilter(imgf);
+        p.setColor(0x66FF0000);
         canvas->drawRect(r, p);
+
         if (clipR) {
             canvas->restore();
         }
@@ -147,6 +156,8 @@ protected:
         const SkRect r = SkRect::MakeWH(10, 10);
         SkImageFilter::CropRect cr0(r);
         SkImageFilter::CropRect cr1(SkRect::MakeWH(5, 5));
+        const SkRect r2 = SkRect::MakeXYWH(10, 0, 10, 10);
+        SkImageFilter::CropRect cr2(r2);
 
         canvas->translate(20, 20);
         this->doDraw(canvas, r, NULL);
@@ -162,6 +173,13 @@ protected:
         
         canvas->translate(20, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5, NULL, &cr1));
+        
+        SkRect clipR = SkRect::MakeXYWH(10, 10, 10, 10);
+        canvas->translate(20, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(5, 5, NULL, NULL), &clipR);
+        
+        canvas->translate(20, 0);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(10, 0, NULL, &cr2), NULL);
     }
 
 private:

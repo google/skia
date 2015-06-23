@@ -192,6 +192,8 @@ public:
      */
     bool cropRectIsSet() const { return fCropRect.flags() != 0x0; }
 
+    CropRect getCropRect() const { return fCropRect; }
+
     // Default impl returns union of all input bounds.
     virtual void computeFastBounds(const SkRect&, SkRect*) const;
 
