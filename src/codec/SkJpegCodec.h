@@ -100,13 +100,6 @@ private:
     bool handleRewind();
 
     /*
-     * Checks if the conversion between the input image and the requested output
-     * image has been implemented
-     * Sets the output color space
-     */
-    bool setOutputColorSpace(const SkImageInfo& dst);
-
-    /*
      * Checks if we can scale to the requested dimensions and scales the dimensions
      * if possible
      */
@@ -119,6 +112,8 @@ private:
             const Options& options);
 
     SkAutoTDelete<JpegDecoderMgr> fDecoderMgr;
+    SkAutoTDelete<SkSwizzler>     fSwizzler;
+    size_t                        fSrcRowBytes;
 
     friend class SkJpegScanlineDecoder;
 

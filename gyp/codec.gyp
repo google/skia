@@ -18,11 +18,8 @@
       'dependencies': [
         'core.gyp:*',
         'giflib.gyp:giflib',
-        'libjpeg-turbo.gyp:libjpeg-turbo',
+        'libjpeg.gyp:libjpeg',
         'libwebp.gyp:libwebp',
-      ],
-      'export_dependent_settings': [
-        'libjpeg-turbo.gyp:libjpeg-turbo',
       ],
       'cflags':[
         # FIXME: This gets around a longjmp warning. See
