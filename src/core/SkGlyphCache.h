@@ -1,8 +1,7 @@
 /*
  * Copyright 2006 The Android Open Source Project
  *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
+ * Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
  */
 
 #ifndef SkGlyphCache_DEFINED
@@ -21,56 +20,51 @@ class SkPaint;
 
 class SkGlyphCache_Globals;
 
-// Enable this locally to add stats for hash-table hit rates. It also extends the dump()
-// output to show those stats.
+// Enable this locally to add stats for hash-table hit rates. It also extends the dump() output
+// to show those stats.
 //#define SK_GLYPHCACHE_TRACK_HASH_STATS
 
 /** \class SkGlyphCache
 
-    This class represents a strike: a specific combination of typeface, size,
-    matrix, etc., and holds the glyphs for that strike. Calling any of the
-    getUnichar.../getGlyphID... methods will return the requested glyph,
-    either instantly if it is already cached, or by first generating it and then
-    adding it to the strike.
+    This class represents a strike: a specific combination of typeface, size, matrix, etc., and
+    holds the glyphs for that strike. Calling any of the getUnichar.../getGlyphID... methods will
+    return the requested glyph, either instantly if it is already cached, or by first generating
+    it and then adding it to the strike.
 
-    The strikes are held in a global list, available to all threads. To interact
-    with one, call either VisitCache() or DetachCache().
+    The strikes are held in a global list, available to all threads. To interact with one, call
+    either VisitCache() or DetachCache().
 */
 class SkGlyphCache {
 public:
-    /** Returns a glyph with valid fAdvance and fDevKern fields.
-        The remaining fields may be valid, but that is not guaranteed. If you
-        require those, call getUnicharMetrics or getGlyphIDMetrics instead.
+    /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
+        valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
+        getGlyphIDMetrics instead.
     */
     const SkGlyph& getUnicharAdvance(SkUnichar);
     const SkGlyph& getGlyphIDAdvance(uint16_t);
 
-    /** Returns a glyph with all fields valid except fImage and fPath, which
-        may be null. If they are null, call findImage or findPath for those.
-        If they are not null, then they are valid.
+    /** Returns a glyph with all fields valid except fImage and fPath, which may be null. If they
+        are null, call findImage or findPath for those. If they are not null, then they are valid.
 
-        This call is potentially slower than the matching ...Advance call. If
-        you only need the fAdvance/fDevKern fields, call those instead.
+        This call is potentially slower than the matching ...Advance call. If you only need the
+        fAdvance/fDevKern fields, call those instead.
     */
     const SkGlyph& getUnicharMetrics(SkUnichar);
     const SkGlyph& getGlyphIDMetrics(uint16_t);
 
-    /** These are variants that take the device position of the glyph. Call
-        these only if you are drawing in subpixel mode. Passing 0, 0 is
-        effectively the same as calling the variants w/o the extra params, tho
-        a tiny bit slower.
+    /** These are variants that take the device position of the glyph. Call these only if you are
+        drawing in subpixel mode. Passing 0, 0 is effectively the same as calling the variants
+        w/o the extra params, though a tiny bit slower.
     */
     const SkGlyph& getUnicharMetrics(SkUnichar, SkFixed x, SkFixed y);
     const SkGlyph& getGlyphIDMetrics(uint16_t, SkFixed x, SkFixed y);
 
-    /** Return the glyphID for the specified Unichar. If the char has already
-        been seen, use the existing cache entry. If not, ask the scalercontext
-        to compute it for us.
+    /** Return the glyphID for the specified Unichar. If the char has already been seen, use the
+        existing cache entry. If not, ask the scalercontext to compute it for us.
     */
     uint16_t unicharToGlyph(SkUnichar);
 
-    /** Map the glyph to its Unicode equivalent. Unmappable glyphs map to
-        a character code of zero.
+    /** Map the glyph to its Unicode equivalent. Unmappable glyphs map to a character code of zero.
     */
     SkUnichar glyphToUnichar(uint16_t);
 
@@ -78,12 +72,13 @@ public:
     */
     unsigned getGlyphCount();
 
-    /** Return the image associated with the glyph. If it has not been generated
-        this will trigger that.
+    /** Return the image associated with the glyph. If it has not been generated this will
+        trigger that.
     */
     const void* findImage(const SkGlyph&);
-    /** Return the Path associated with the glyph. If it has not been generated
-        this will trigger that.
+
+    /** Return the Path associated with the glyph. If it has not been generated this will trigger
+        that.
     */
     const SkPath* findPath(const SkGlyph&);
 
@@ -105,47 +100,43 @@ public:
 
     void dump() const;
 
-    /*  AuxProc/Data allow a client to associate data with this cache entry.
-        Multiple clients can use this, as their data is keyed with a function
-        pointer. In addition to serving as a key, the function pointer is called
-        with the data when the glyphcache object is deleted, so the client can
-        cleanup their data as well. NOTE: the auxProc must not try to access
-        this glyphcache in any way, since it may be in the process of being
-        deleted.
+    /*  AuxProc/Data allow a client to associate data with this cache entry. Multiple clients can
+        use this, as their data is keyed with a function pointer. In addition to serving as a
+        key, the function pointer is called with the data when the glyphcache object is deleted,
+        so the client can cleanup their data as well.
+        NOTE: the auxProc must not try to access this glyphcache in any way, since it may be in
+        the process of being deleted.
     */
 
     //! If the proc is found, return true and set *dataPtr to its data
     bool getAuxProcData(void (*auxProc)(void*), void** dataPtr) const;
+
     //! Add a proc/data pair to the glyphcache. proc should be non-null
     void setAuxProc(void (*auxProc)(void*), void* auxData);
 
     SkScalerContext* getScalerContext() const { return fScalerContext; }
 
-    /** Find a matching cache entry, and call proc() with it. If none is found
-        create a new one. If the proc() returns true, detach the cache and
-        return it, otherwise leave it and return NULL.
+    /** Find a matching cache entry, and call proc() with it. If none is found create a new one.
+        If the proc() returns true, detach the cache and return it, otherwise leave it and return
+        NULL.
     */
     static SkGlyphCache* VisitCache(SkTypeface*, const SkDescriptor* desc,
                                     bool (*proc)(const SkGlyphCache*, void*),
                                     void* context);
 
-    /** Given a strike that was returned by either VisitCache() or DetachCache()
-        add it back into the global cache list (after which the caller should
-        not reference it anymore.
+    /** Given a strike that was returned by either VisitCache() or DetachCache() add it back into
+        the global cache list (after which the caller should not reference it anymore.
     */
     static void AttachCache(SkGlyphCache*);
 
-    /** Detach a strike from the global cache matching the specified descriptor.
-        Once detached, it can be queried/modified by the current thread, and
-        when finished, be reattached to the global cache with AttachCache().
-        While detached, if another request is made with the same descriptor,
-        a different strike will be generated. This is fine. It does mean we
-        can have more than 1 strike for the same descriptor, but that will
-        eventually get purged, and the win is that different thread will never
-        block each other while a strike is being used.
+    /** Detach a strike from the global cache matching the specified descriptor. Once detached,
+        it can be queried/modified by the current thread, and when finished, be reattached to the
+        global cache with AttachCache(). While detached, if another request is made with the same
+        descriptor, a different strike will be generated. This is fine. It does mean we can have
+        more than 1 strike for the same descriptor, but that will eventually get purged, and the
+        win is that different thread will never block each other while a strike is being used.
     */
-    static SkGlyphCache* DetachCache(SkTypeface* typeface,
-                                     const SkDescriptor* desc) {
+    static SkGlyphCache* DetachCache(SkTypeface* typeface, const SkDescriptor* desc) {
         return VisitCache(typeface, desc, DetachProc, NULL);
     }
 
@@ -177,31 +168,12 @@ public:
     };
 
 private:
-    // we take ownership of the scalercontext
-    SkGlyphCache(SkTypeface*, const SkDescriptor*, SkScalerContext*);
-    ~SkGlyphCache();
+    friend class SkGlyphCache_Globals;
 
     enum MetricsType {
         kJustAdvance_MetricsType,
         kFull_MetricsType
     };
-
-    // Return the SkGlyph* associated with MakeID. The id parameter is the combined glyph/x/y
-    // id generated by MakeID. If it is just a glyph id then x and y are assuemd to be zero.
-    SkGlyph* lookupByCombinedID(uint32_t id, MetricsType type);
-
-    // Return a SkGlyph* associated with unicode id and position x and y.
-    SkGlyph* lookupByChar(SkUnichar id, MetricsType type, SkFixed x = 0, SkFixed y = 0);
-
-    // Return the index of id in the fGlyphArray. If it does
-    // not exist, create a new one using MetricsType.
-    uint16_t lookupMetrics(uint32_t id, MetricsType type);
-    static bool DetachProc(const SkGlyphCache*, void*) { return true; }
-
-    SkGlyphCache*        fNext, *fPrev;
-    SkDescriptor*        fDesc;
-    SkScalerContext*     fScalerContext;
-    SkPaint::FontMetrics fFontMetrics;
 
     enum {
         kHashBits           = 8,
@@ -209,23 +181,33 @@ private:
         kHashMask           = kHashCount - 1
     };
 
-    // A quick lookup to avoid the binary search looking for glyphs in fGlyphArray.
-    uint16_t             fGlyphHash[kHashCount];
-    // Contains the SkGlyphs that are used by fGlyphHash and fCharToGlyphHash. The zero element
-    // is reserved for a sentinel SkGlyph that reduces the logic to check for collisions in the
-    // hash arrays. The zero element has an fID of SkGlyph::kImpossibleID which never matches
-    // any combined id generated for a char or a glyph.
-    SkTDArray<SkGlyph>   fGlyphArray;
-    SkChunkAlloc         fGlyphAlloc;
-
     struct CharGlyphRec {
         uint32_t    fID;    // unichar + subpixel
         uint16_t    fGlyphIndex;
     };
 
-    // no reason to use the same kHashCount as fGlyphHash, but we do for now
-    // Dynamically allocated when chars are encountered.
-    SkAutoTArray<CharGlyphRec> fCharToGlyphHash;
+    struct AuxProcRec {
+        AuxProcRec* fNext;
+        void (*fProc)(void*);
+        void* fData;
+    };
+
+    // SkGlyphCache takes ownership of the scalercontext.
+    SkGlyphCache(SkTypeface*, const SkDescriptor*, SkScalerContext*);
+    ~SkGlyphCache();
+
+    // Return the SkGlyph* associated with MakeID. The id parameter is the
+    // combined glyph/x/y id generated by MakeID. If it is just a glyph id
+    // then x and y are assumed to be zero.
+    SkGlyph* lookupByCombinedID(uint32_t id, MetricsType type);
+
+    // Return a SkGlyph* associated with unicode id and position x and y.
+    SkGlyph* lookupByChar(SkUnichar id, MetricsType type, SkFixed x = 0, SkFixed y = 0);
+
+    // Return the index of id in the fGlyphArray. If it does not exist,
+    // create a new one using MetricsType.
+    uint16_t lookupMetrics(uint32_t id, MetricsType type);
+    static bool DetachProc(const SkGlyphCache*, void*) { return true; }
 
     // The id arg is a combined id generated by MakeID.
     CharGlyphRec* getCharGlyphRec(uint32_t id);
@@ -235,6 +217,29 @@ private:
         return SkChecksum::CheapMix(h) & kHashMask;
     }
 
+    void invokeAndRemoveAuxProcs();
+
+    inline static SkGlyphCache* FindTail(SkGlyphCache* head);
+
+    SkGlyphCache*        fNext, *fPrev;
+    SkDescriptor*        fDesc;
+    SkScalerContext*     fScalerContext;
+    SkPaint::FontMetrics fFontMetrics;
+
+    // A quick lookup to avoid the binary search looking for glyphs in fGlyphArray.
+    uint16_t             fGlyphHash[kHashCount];
+
+    // Contains the SkGlyphs that are used by fGlyphHash and fCharToGlyphHash. The ~0 element is
+    // reserved for a sentinel SkGlyph that reduces the logic to check for collisions in the hash
+    // arrays. The ~0 element has an fID of SkGlyph::kImpossibleID which never matches any
+    // combined id generated for a char or a glyph.
+    SkTDArray<SkGlyph>   fGlyphArray;
+    SkChunkAlloc         fGlyphAlloc;
+
+    // no reason to use the same kHashCount as fGlyphHash, but we do for now
+    // Dynamically allocated when chars are encountered.
+    SkAutoTArray<CharGlyphRec> fCharToGlyphHash;
+
     // used to track (approx) how much ram is tied-up in this cache
     size_t  fMemoryUsed;
 
@@ -243,17 +248,7 @@ private:
     int fHashMissCount;
 #endif
 
-    struct AuxProcRec {
-        AuxProcRec* fNext;
-        void (*fProc)(void*);
-        void* fData;
-    };
     AuxProcRec* fAuxProcList;
-    void invokeAndRemoveAuxProcs();
-
-    inline static SkGlyphCache* FindTail(SkGlyphCache* head);
-
-    friend class SkGlyphCache_Globals;
 };
 
 class SkAutoGlyphCacheBase {
@@ -268,8 +263,8 @@ public:
     }
 
 protected:
-    // Hide the constructors so we can't create one of these directly.
-    // Create SkAutoGlyphCache or SkAutoGlyphCacheNoCache instead.
+    // Hide the constructors so we can't create one of these directly. Create SkAutoGlyphCache or
+    // SkAutoGlyphCacheNoCache instead.
     SkAutoGlyphCacheBase(SkGlyphCache* cache) : fCache(cache) {}
     SkAutoGlyphCacheBase(SkTypeface* typeface, const SkDescriptor* desc) {
         fCache = SkGlyphCache::DetachCache(typeface, desc);
