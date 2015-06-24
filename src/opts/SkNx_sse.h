@@ -12,46 +12,9 @@
 
 namespace {  // See SkNx.h
 
-template <>
-class SkNb<2, 4> {
-public:
-    SkNb(const __m128i& vec) : fVec(vec) {}
-
-    SkNb() {}
-    bool allTrue() const { return 0xff == (_mm_movemask_epi8(fVec) & 0xff); }
-    bool anyTrue() const { return 0x00 != (_mm_movemask_epi8(fVec) & 0xff); }
-
-    __m128i fVec;
-};
-
-template <>
-class SkNb<4, 4> {
-public:
-    SkNb(const __m128i& vec) : fVec(vec) {}
-
-    SkNb() {}
-    bool allTrue() const { return 0xffff == _mm_movemask_epi8(fVec); }
-    bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(fVec); }
-
-    __m128i fVec;
-};
-
-template <>
-class SkNb<2, 8> {
-public:
-    SkNb(const __m128i& vec) : fVec(vec) {}
-
-    SkNb() {}
-    bool allTrue() const { return 0xffff == _mm_movemask_epi8(fVec); }
-    bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(fVec); }
-
-    __m128i fVec;
-};
-
 
 template <>
 class SkNf<2, float> {
-    typedef SkNb<2, 4> Nb;
 public:
     SkNf(const __m128& vec) : fVec(vec) {}
 
@@ -69,12 +32,12 @@ public:
     SkNf operator * (const SkNf& o) const { return _mm_mul_ps(fVec, o.fVec); }
     SkNf operator / (const SkNf& o) const { return _mm_div_ps(fVec, o.fVec); }
 
-    Nb operator == (const SkNf& o) const { return _mm_castps_si128(_mm_cmpeq_ps (fVec, o.fVec)); }
-    Nb operator != (const SkNf& o) const { return _mm_castps_si128(_mm_cmpneq_ps(fVec, o.fVec)); }
-    Nb operator  < (const SkNf& o) const { return _mm_castps_si128(_mm_cmplt_ps (fVec, o.fVec)); }
-    Nb operator  > (const SkNf& o) const { return _mm_castps_si128(_mm_cmpgt_ps (fVec, o.fVec)); }
-    Nb operator <= (const SkNf& o) const { return _mm_castps_si128(_mm_cmple_ps (fVec, o.fVec)); }
-    Nb operator >= (const SkNf& o) const { return _mm_castps_si128(_mm_cmpge_ps (fVec, o.fVec)); }
+    SkNf operator == (const SkNf& o) const { return _mm_cmpeq_ps (fVec, o.fVec); }
+    SkNf operator != (const SkNf& o) const { return _mm_cmpneq_ps(fVec, o.fVec); }
+    SkNf operator  < (const SkNf& o) const { return _mm_cmplt_ps (fVec, o.fVec); }
+    SkNf operator  > (const SkNf& o) const { return _mm_cmpgt_ps (fVec, o.fVec); }
+    SkNf operator <= (const SkNf& o) const { return _mm_cmple_ps (fVec, o.fVec); }
+    SkNf operator >= (const SkNf& o) const { return _mm_cmpge_ps (fVec, o.fVec); }
 
     static SkNf Min(const SkNf& l, const SkNf& r) { return _mm_min_ps(l.fVec, r.fVec); }
     static SkNf Max(const SkNf& l, const SkNf& r) { return _mm_max_ps(l.fVec, r.fVec); }
@@ -93,12 +56,14 @@ public:
         return pun.fs[k&1];
     }
 
+    bool allTrue() const { return 0xff == (_mm_movemask_epi8(_mm_castps_si128(fVec)) & 0xff); }
+    bool anyTrue() const { return 0x00 != (_mm_movemask_epi8(_mm_castps_si128(fVec)) & 0xff); }
+
     __m128 fVec;
 };
 
 template <>
 class SkNf<2, double> {
-    typedef SkNb<2, 8> Nb;
 public:
     SkNf(const __m128d& vec) : fVec(vec) {}
 
@@ -114,12 +79,12 @@ public:
     SkNf operator * (const SkNf& o) const { return _mm_mul_pd(fVec, o.fVec); }
     SkNf operator / (const SkNf& o) const { return _mm_div_pd(fVec, o.fVec); }
 
-    Nb operator == (const SkNf& o) const { return _mm_castpd_si128(_mm_cmpeq_pd (fVec, o.fVec)); }
-    Nb operator != (const SkNf& o) const { return _mm_castpd_si128(_mm_cmpneq_pd(fVec, o.fVec)); }
-    Nb operator  < (const SkNf& o) const { return _mm_castpd_si128(_mm_cmplt_pd (fVec, o.fVec)); }
-    Nb operator  > (const SkNf& o) const { return _mm_castpd_si128(_mm_cmpgt_pd (fVec, o.fVec)); }
-    Nb operator <= (const SkNf& o) const { return _mm_castpd_si128(_mm_cmple_pd (fVec, o.fVec)); }
-    Nb operator >= (const SkNf& o) const { return _mm_castpd_si128(_mm_cmpge_pd (fVec, o.fVec)); }
+    SkNf operator == (const SkNf& o) const { return _mm_cmpeq_pd (fVec, o.fVec); }
+    SkNf operator != (const SkNf& o) const { return _mm_cmpneq_pd(fVec, o.fVec); }
+    SkNf operator  < (const SkNf& o) const { return _mm_cmplt_pd (fVec, o.fVec); }
+    SkNf operator  > (const SkNf& o) const { return _mm_cmpgt_pd (fVec, o.fVec); }
+    SkNf operator <= (const SkNf& o) const { return _mm_cmple_pd (fVec, o.fVec); }
+    SkNf operator >= (const SkNf& o) const { return _mm_cmpge_pd (fVec, o.fVec); }
 
     static SkNf Min(const SkNf& l, const SkNf& r) { return _mm_min_pd(l.fVec, r.fVec); }
     static SkNf Max(const SkNf& l, const SkNf& r) { return _mm_max_pd(l.fVec, r.fVec); }
@@ -137,6 +102,9 @@ public:
         union { __m128d v; double ds[2]; } pun = {fVec};
         return pun.ds[k&1];
     }
+
+    bool allTrue() const { return 0xffff == _mm_movemask_epi8(_mm_castpd_si128(fVec)); }
+    bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castpd_si128(fVec)); }
 
     __m128d fVec;
 };
@@ -181,7 +149,6 @@ public:
 
 template <>
 class SkNf<4, float> {
-    typedef SkNb<4, 4> Nb;
 public:
     SkNf(const __m128& vec) : fVec(vec) {}
 
@@ -199,12 +166,12 @@ public:
     SkNf operator * (const SkNf& o) const { return _mm_mul_ps(fVec, o.fVec); }
     SkNf operator / (const SkNf& o) const { return _mm_div_ps(fVec, o.fVec); }
 
-    Nb operator == (const SkNf& o) const { return _mm_castps_si128(_mm_cmpeq_ps (fVec, o.fVec)); }
-    Nb operator != (const SkNf& o) const { return _mm_castps_si128(_mm_cmpneq_ps(fVec, o.fVec)); }
-    Nb operator  < (const SkNf& o) const { return _mm_castps_si128(_mm_cmplt_ps (fVec, o.fVec)); }
-    Nb operator  > (const SkNf& o) const { return _mm_castps_si128(_mm_cmpgt_ps (fVec, o.fVec)); }
-    Nb operator <= (const SkNf& o) const { return _mm_castps_si128(_mm_cmple_ps (fVec, o.fVec)); }
-    Nb operator >= (const SkNf& o) const { return _mm_castps_si128(_mm_cmpge_ps (fVec, o.fVec)); }
+    SkNf operator == (const SkNf& o) const { return _mm_cmpeq_ps (fVec, o.fVec); }
+    SkNf operator != (const SkNf& o) const { return _mm_cmpneq_ps(fVec, o.fVec); }
+    SkNf operator  < (const SkNf& o) const { return _mm_cmplt_ps (fVec, o.fVec); }
+    SkNf operator  > (const SkNf& o) const { return _mm_cmpgt_ps (fVec, o.fVec); }
+    SkNf operator <= (const SkNf& o) const { return _mm_cmple_ps (fVec, o.fVec); }
+    SkNf operator >= (const SkNf& o) const { return _mm_cmpge_ps (fVec, o.fVec); }
 
     static SkNf Min(const SkNf& l, const SkNf& r) { return _mm_min_ps(l.fVec, r.fVec); }
     static SkNf Max(const SkNf& l, const SkNf& r) { return _mm_max_ps(l.fVec, r.fVec); }
@@ -222,6 +189,9 @@ public:
         union { __m128 v; float fs[4]; } pun = {fVec};
         return pun.fs[k&3];
     }
+
+    bool allTrue() const { return 0xffff == _mm_movemask_epi8(_mm_castps_si128(fVec)); }
+    bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castps_si128(fVec)); }
 
     __m128 fVec;
 };
@@ -312,12 +282,22 @@ public:
     SkNi operator - (const SkNi& o) const { return _mm_sub_epi8(fVec, o.fVec); }
 
     static SkNi Min(const SkNi& a, const SkNi& b) { return _mm_min_epu8(a.fVec, b.fVec); }
+    SkNi operator < (const SkNi& o) const {
+        // There's no unsigned _mm_cmplt_epu8, so we flip the sign bits then use a signed compare.
+        auto flip = _mm_set1_epi8(char(0x80));
+        return _mm_cmplt_epi8(_mm_xor_si128(flip, fVec), _mm_xor_si128(flip, o.fVec));
+    }
 
     template <int k> uint8_t kth() const {
         SkASSERT(0 <= k && k < 16);
         // SSE4.1 would just `return _mm_extract_epi8(fVec, k)`.  We have to read 16-bits instead.
         int pair = _mm_extract_epi16(fVec, k/2);
         return k % 2 == 0 ? pair : (pair >> 8);
+    }
+
+    SkNi thenElse(const SkNi& t, const SkNi& e) const {
+        return _mm_or_si128(_mm_and_si128   (fVec, t.fVec),
+                            _mm_andnot_si128(fVec, e.fVec));
     }
 
     __m128i fVec;

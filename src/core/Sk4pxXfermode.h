@@ -60,6 +60,44 @@ XFERMODE(Exclusion) {
     return (s - p) + (d - p.zeroAlphas());
 }
 
+XFERMODE(HardLight) {
+    auto alphas = SrcOver::Xfer(s,d);
+
+    auto sa = s.alphas(),
+         da = d.alphas();
+
+    auto isDark = s < (sa-s);
+
+    auto dark = s*d << 1,
+         lite = sa*da - ((da-d)*(sa-s) << 1),
+         both = s*da.inv() + d*sa.inv();
+
+    // TODO: do isDark in 16-bit so we only have to div255() once.
+    auto colors = isDark.thenElse((dark + both).div255(),
+                                  (lite + both).div255());
+    return alphas.zeroColors() + colors.zeroAlphas();
+}
+XFERMODE(Overlay) { return HardLight::Xfer(d,s); }
+
+XFERMODE(Darken) {
+    auto sda = s.approxMulDiv255(d.alphas()),
+         dsa = d.approxMulDiv255(s.alphas());
+    auto srcover = s + (d - dsa),
+         dstover = d + (s - sda);
+    auto alphas = srcover,
+         colors = (sda < dsa).thenElse(srcover, dstover);
+    return alphas.zeroColors() + colors.zeroAlphas();
+}
+XFERMODE(Lighten) {
+    auto sda = s.approxMulDiv255(d.alphas()),
+         dsa = d.approxMulDiv255(s.alphas());
+    auto srcover = s + (d - dsa),
+         dstover = d + (s - sda);
+    auto alphas = srcover,
+         colors = (sda < dsa).thenElse(dstover, srcover);
+    return alphas.zeroColors() + colors.zeroAlphas();
+}
+
 #undef XFERMODE
 
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
@@ -71,17 +109,15 @@ static Sk4px xfer_aa(const Sk4px& s, const Sk4px& d, const Sk4px& aa) {
 }
 
 // For some transfermodes we specialize AA, either for correctness or performance.
-#ifndef SK_NO_SPECIALIZED_AA_XFERMODES
-    #define XFERMODE_AA(Name) \
-        template <> Sk4px xfer_aa<Name>(const Sk4px& s, const Sk4px& d, const Sk4px& aa)
+#define XFERMODE_AA(Name) \
+    template <> Sk4px xfer_aa<Name>(const Sk4px& s, const Sk4px& d, const Sk4px& aa)
 
-    // Plus' clamp needs to happen after AA.  skia:3852
-    XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
-        return d.saturatedAdd(s.approxMulDiv255(aa));
-    }
+// Plus' clamp needs to happen after AA.  skia:3852
+XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
+    return d.saturatedAdd(s.approxMulDiv255(aa));
+}
 
-    #undef XFERMODE_AA
-#endif
+#undef XFERMODE_AA
 
 template <typename ProcType>
 class SkT4pxXfermode : public SkProcCoeffXfermode {
@@ -130,6 +166,12 @@ static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode
         case SkXfermode::kMultiply_Mode:   return SkT4pxXfermode<Multiply>::Create(rec);
         case SkXfermode::kDifference_Mode: return SkT4pxXfermode<Difference>::Create(rec);
         case SkXfermode::kExclusion_Mode:  return SkT4pxXfermode<Exclusion>::Create(rec);
+#if !defined(SK_SUPPORT_LEGACY_XFERMODES)  // For staging in Chrome (layout tests).
+        case SkXfermode::kHardLight_Mode:  return SkT4pxXfermode<HardLight>::Create(rec);
+        case SkXfermode::kOverlay_Mode:    return SkT4pxXfermode<Overlay>::Create(rec);
+        case SkXfermode::kDarken_Mode:     return SkT4pxXfermode<Darken>::Create(rec);
+        case SkXfermode::kLighten_Mode:    return SkT4pxXfermode<Lighten>::Create(rec);
+#endif
         default: break;
     }
 #endif

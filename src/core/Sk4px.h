@@ -85,6 +85,8 @@ public:
     // These just keep the types as Sk4px so the user doesn't have to keep casting.
     Sk4px operator + (const Sk4px& o) const { return INHERITED::operator+(o); }
     Sk4px operator - (const Sk4px& o) const { return INHERITED::operator-(o); }
+    Sk4px operator < (const Sk4px& o) const { return INHERITED::operator<(o); }
+    Sk4px thenElse(const Sk4px& t, const Sk4px& e) const { return INHERITED::thenElse(t,e); }
 
     // Generally faster than (*this * o).div255().
     // May be incorrect by +-1, but is always exactly correct when *this or o is 0 or 255.
