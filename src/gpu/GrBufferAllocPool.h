@@ -64,16 +64,12 @@ protected:
      * @param bufferSize            The minimum size of created buffers.
      *                              This value will be clamped to some
      *                              reasonable minimum.
-     * @param preallocBufferCnt     The pool will allocate this number of
-     *                              buffers at bufferSize and keep them until it
-     *                              is destroyed.
      */
      GrBufferAllocPool(GrGpu* gpu,
                        BufferType bufferType,
-                       size_t   bufferSize = 0,
-                       int preallocBufferCnt = 0);
+                       size_t   bufferSize = 0);
 
-    virtual ~GrBufferAllocPool();
+     virtual ~GrBufferAllocPool();
 
     /**
      * Returns a block of memory to hold data. A buffer designated to hold the
@@ -99,7 +95,7 @@ protected:
                     const GrGeometryBuffer** buffer,
                     size_t* offset);
 
-    GrGeometryBuffer* createBuffer(size_t size);
+    GrGeometryBuffer* getBuffer(size_t size);
 
 private:
     struct BufferBlock {
@@ -109,6 +105,7 @@ private:
 
     bool createBlock(size_t requestSize);
     void destroyBlock();
+    void deleteBlocks();
     void flushCpuData(const BufferBlock& block, size_t flushSize);
 #ifdef SK_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
@@ -117,15 +114,10 @@ private:
     size_t                          fBytesInUse;
 
     GrGpu*                          fGpu;
-    SkTDArray<GrGeometryBuffer*>    fPreallocBuffers;
     size_t                          fMinBlockSize;
     BufferType                      fBufferType;
 
     SkTArray<BufferBlock>           fBlocks;
-    int                             fPreallocBuffersInUse;
-    // We attempt to cycle through the preallocated buffers rather than
-    // always starting from the first.
-    int                             fPreallocBufferStartIdx;
     SkAutoMalloc                    fCpuData;
     void*                           fBufferPtr;
     size_t                          fGeometryBufferMapThreshold;
@@ -142,13 +134,8 @@ public:
      * Constructor
      *
      * @param gpu                   The GrGpu used to create the vertex buffers.
-     * @param bufferSize            The minimum size of created VBs. This value
-     *                              will be clamped to some reasonable minimum.
-     * @param preallocBufferCnt     The pool will allocate this number of VBs at
-     *                              bufferSize and keep them until it is
-     *                              destroyed.
      */
-    GrVertexBufferAllocPool(GrGpu* gpu, size_t bufferSize = 0, int preallocBufferCnt = 0);
+    GrVertexBufferAllocPool(GrGpu* gpu);
 
     /**
      * Returns a block of memory to hold vertices. A buffer designated to hold
@@ -191,15 +178,8 @@ public:
      * Constructor
      *
      * @param gpu                   The GrGpu used to create the index buffers.
-     * @param bufferSize            The minimum size of created IBs. This value
-     *                              will be clamped to some reasonable minimum.
-     * @param preallocBufferCnt     The pool will allocate this number of VBs at
-     *                              bufferSize and keep them until it is
-     *                              destroyed.
      */
-    GrIndexBufferAllocPool(GrGpu* gpu,
-                           size_t bufferSize = 0,
-                           int preallocBufferCnt = 0);
+    GrIndexBufferAllocPool(GrGpu* gpu);
 
     /**
      * Returns a block of memory to hold indices. A buffer designated to hold

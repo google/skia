@@ -199,12 +199,20 @@ GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& 
 
 GrVertexBuffer* GrGpu::createVertexBuffer(size_t size, bool dynamic) {
     this->handleDirtyContext();
-    return this->onCreateVertexBuffer(size, dynamic);
+    GrVertexBuffer* vb = this->onCreateVertexBuffer(size, dynamic);
+    if (!this->caps()->reuseScratchBuffers()) {
+        vb->resourcePriv().removeScratchKey();
+    }
+    return vb;
 }
 
 GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
     this->handleDirtyContext();
-    return this->onCreateIndexBuffer(size, dynamic);
+    GrIndexBuffer* ib = this->onCreateIndexBuffer(size, dynamic);
+    if (!this->caps()->reuseScratchBuffers()) {
+        ib->resourcePriv().removeScratchKey();
+    }
+    return ib;
 }
 
 void GrGpu::clear(const SkIRect* rect,
