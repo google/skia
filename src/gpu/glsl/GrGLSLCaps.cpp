@@ -11,13 +11,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
+    fGLSLGeneration = k330_GrGLSLGeneration;
+
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
     fBindlessTextureSupport = false;
-    fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
     fFBFetchColorName = NULL;
     fFBFetchExtensionString = NULL;
+    fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
 SkString GrGLSLCaps::dump() const {
