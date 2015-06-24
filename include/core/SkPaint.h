@@ -282,31 +282,6 @@ public:
     */
     void setDevKernText(bool devKernText);
 
-#ifdef SK_SUPPORT_LEGACY_FILTERLEVEL_ENUM
-    enum FilterLevel {
-        kNone_FilterLevel   = kNone_SkFilterQuality,
-        kLow_FilterLevel    = kLow_SkFilterQuality,
-        kMedium_FilterLevel = kMedium_SkFilterQuality,
-        kHigh_FilterLevel   = kHigh_SkFilterQuality
-    };
-
-    /**
-     *  Return the filter level. This affects the quality (and performance) of
-     *  drawing scaled images.
-     */
-    FilterLevel getFilterLevel() const {
-        return (FilterLevel)this->getFilterQuality();
-    }
-
-    /**
-     *  Set the filter level. This affects the quality (and performance) of
-     *  drawing scaled images.
-     */
-    void setFilterLevel(FilterLevel level) {
-        this->setFilterQuality((SkFilterQuality)level);
-    }
-#endif
-
     /**
      *  Return the filter level. This affects the quality (and performance) of
      *  drawing scaled images.
