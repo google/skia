@@ -81,12 +81,6 @@ public:
      */
     static SkImage* NewFromEncoded(SkData* encoded, const SkIRect* subset = NULL);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGE_NEWFROMDATA
-    static SkImage* NewFromData(SkData* data) {
-        return NewFromEncoded(data, NULL);
-    }
-#endif
-
     /**
      *  Create a new image from the specified descriptor. Note - the caller is responsible for
      *  managing the lifetime of the underlying platform texture.
