@@ -1016,7 +1016,6 @@ SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_neon(const ProcCoeff& rec,
     if (auto xfermode = SkCreate4pxXfermode(rec, mode)) {
         return xfermode;
     }
-    // TODO: Sk4pxXfermode now covers every mode found in this file.  Delete them all!
     if (auto proc = gNEONXfermodeProcs[mode]) {
         return SkNEW_ARGS(SkNEONProcCoeffXfermode, (rec, mode, (void*)proc));
     }
