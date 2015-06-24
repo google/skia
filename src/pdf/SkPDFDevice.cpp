@@ -345,7 +345,7 @@ static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
     SkPath clipPath;
     clipPath.addRect(bounds);
 
-    return Op(clipPath, invPath, kIntersect_PathOp, outPath);
+    return Op(clipPath, invPath, kIntersect_SkPathOp, outPath);
 }
 
 #ifdef SK_PDF_USE_PATHOPS_CLIPPING
@@ -353,16 +353,16 @@ static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
 // enums so region_op_to_pathops_op can do a straight passthrough cast.
 // If these are failing, it may be necessary to make region_op_to_pathops_op
 // do more.
-SK_COMPILE_ASSERT(SkRegion::kDifference_Op == (int)kDifference_PathOp,
+SK_COMPILE_ASSERT(SkRegion::kDifference_Op == (int)kDifference_SkPathOp,
                   region_pathop_mismatch);
-SK_COMPILE_ASSERT(SkRegion::kIntersect_Op == (int)kIntersect_PathOp,
+SK_COMPILE_ASSERT(SkRegion::kIntersect_Op == (int)kIntersect_SkPathOp,
                   region_pathop_mismatch);
-SK_COMPILE_ASSERT(SkRegion::kUnion_Op == (int)kUnion_PathOp,
+SK_COMPILE_ASSERT(SkRegion::kUnion_Op == (int)kUnion_SkPathOp,
                   region_pathop_mismatch);
-SK_COMPILE_ASSERT(SkRegion::kXOR_Op == (int)kXOR_PathOp,
+SK_COMPILE_ASSERT(SkRegion::kXOR_Op == (int)kXOR_SkPathOp,
                   region_pathop_mismatch);
 SK_COMPILE_ASSERT(SkRegion::kReverseDifference_Op ==
-                  (int)kReverseDifference_PathOp,
+                  (int)kReverseDifference_SkPathOp,
                   region_pathop_mismatch);
 
 static SkPathOp region_op_to_pathops_op(SkRegion::Op op) {
