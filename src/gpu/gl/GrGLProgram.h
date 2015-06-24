@@ -12,7 +12,6 @@
 #include "builders/GrGLProgramBuilder.h"
 #include "GrGLContext.h"
 #include "GrGLProgramDesc.h"
-#include "GrGLSL.h"
 #include "GrGLTexture.h"
 #include "GrGLProgramDataManager.h"
 

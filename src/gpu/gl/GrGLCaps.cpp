@@ -9,6 +9,7 @@
 #include "GrGLCaps.h"
 
 #include "GrGLContext.h"
+#include "glsl/GrGLSLCaps.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
@@ -51,8 +52,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
 
     fReadPixelsSupportedCache.reset();
 
-    fShaderCaps.reset(SkNEW_ARGS(GrGLSLCaps, (contextOptions,
-        ctxInfo, glInterface, *this)));
+    fShaderCaps.reset(SkNEW_ARGS(GrGLSLCaps, (contextOptions)));
 
     this->init(contextOptions, ctxInfo, glInterface);
 }
@@ -450,7 +450,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     this->initConfigTexturableTable(ctxInfo, gli);
     this->initConfigRenderableTable(ctxInfo);
-    glslCaps->initShaderPrecisionTable(ctxInfo, gli);
+    this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
 
     this->applyOptionsOverrides(contextOptions);
     glslCaps->applyOptionsOverrides(contextOptions);
@@ -1078,46 +1078,6 @@ SkString GrGLCaps::dump() const {
     return r;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
-
-GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options,
-                       const GrGLContextInfo& ctxInfo,
-                       const GrGLInterface* gli,
-                       const GrGLCaps& glCaps) {
-    fDropsTileOnZeroDivide = false;
-    fFBFetchSupport = false;
-    fFBFetchNeedsCustomOutput = false;
-    fBindlessTextureSupport = false;
-    fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
-    fFBFetchColorName = NULL;
-    fFBFetchExtensionString = NULL;
-}
-
-SkString GrGLSLCaps::dump() const {
-    SkString r = INHERITED::dump();
-
-    static const char* kAdvBlendEqInteractionStr[] = {
-        "Not Supported",
-        "Automatic",
-        "General Enable",
-        "Specific Enables",
-    };
-    GR_STATIC_ASSERT(0 == kNotSupported_AdvBlendEqInteraction);
-    GR_STATIC_ASSERT(1 == kAutomatic_AdvBlendEqInteraction);
-    GR_STATIC_ASSERT(2 == kGeneralEnable_AdvBlendEqInteraction);
-    GR_STATIC_ASSERT(3 == kSpecificEnables_AdvBlendEqInteraction);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAdvBlendEqInteractionStr) == kLast_AdvBlendEqInteraction + 1);
-
-    r.appendf("--- GLSL-Specific ---\n");
-
-    r.appendf("FB Fetch Support: %s\n", (fFBFetchSupport ? "YES" : "NO"));
-    r.appendf("Drops tile on zero divide: %s\n", (fDropsTileOnZeroDivide ? "YES" : "NO"));
-    r.appendf("Bindless texture support: %s\n", (fBindlessTextureSupport ? "YES" : "NO"));
-    r.appendf("Advanced blend equation interaction: %s\n",
-              kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
-    return r;
-}
-
 static GrGLenum precision_to_gl_float_type(GrSLPrecision p) {
     switch (p) {
     case kLow_GrSLPrecision:
@@ -1144,16 +1104,17 @@ static GrGLenum shader_type_to_gl_shader(GrShaderType type) {
     return -1;
 }
 
-void GrGLSLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
-                                          const GrGLInterface* intf) {
+void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
+                                        const GrGLInterface* intf, 
+                                        GrGLSLCaps* glslCaps) {
     if (kGLES_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(4, 1) ||
         ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
         for (int s = 0; s < kGrShaderTypeCount; ++s) {
             if (kGeometry_GrShaderType != s) {
                 GrShaderType shaderType = static_cast<GrShaderType>(s);
                 GrGLenum glShader = shader_type_to_gl_shader(shaderType);
-                PrecisionInfo* first = NULL;
-                fShaderPrecisionVaries = false;
+                GrShaderCaps::PrecisionInfo* first = NULL;
+                glslCaps->fShaderPrecisionVaries = false;
                 for (int p = 0; p < kGrSLPrecisionCount; ++p) {
                     GrSLPrecision precision = static_cast<GrSLPrecision>(p);
                     GrGLenum glPrecision = precision_to_gl_float_type(precision);
@@ -1161,14 +1122,15 @@ void GrGLSLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                     GrGLint bits;
                     GR_GL_GetShaderPrecisionFormat(intf, glShader, glPrecision, range, &bits);
                     if (bits) {
-                        fFloatPrecisions[s][p].fLogRangeLow = range[0];
-                        fFloatPrecisions[s][p].fLogRangeHigh = range[1];
-                        fFloatPrecisions[s][p].fBits = bits;
+                        glslCaps->fFloatPrecisions[s][p].fLogRangeLow = range[0];
+                        glslCaps->fFloatPrecisions[s][p].fLogRangeHigh = range[1];
+                        glslCaps->fFloatPrecisions[s][p].fBits = bits;
                         if (!first) {
-                            first = &fFloatPrecisions[s][p];
+                            first = &glslCaps->fFloatPrecisions[s][p];
                         }
-                        else if (!fShaderPrecisionVaries) {
-                            fShaderPrecisionVaries = (*first != fFloatPrecisions[s][p]);
+                        else if (!glslCaps->fShaderPrecisionVaries) {
+                            glslCaps->fShaderPrecisionVaries = 
+                                                     (*first != glslCaps->fFloatPrecisions[s][p]);
                         }
                     }
                 }
@@ -1177,13 +1139,13 @@ void GrGLSLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
     }
     else {
         // We're on a desktop GL that doesn't have precision info. Assume they're all 32bit float.
-        fShaderPrecisionVaries = false;
+        glslCaps->fShaderPrecisionVaries = false;
         for (int s = 0; s < kGrShaderTypeCount; ++s) {
             if (kGeometry_GrShaderType != s) {
                 for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-                    fFloatPrecisions[s][p].fLogRangeLow = 127;
-                    fFloatPrecisions[s][p].fLogRangeHigh = 127;
-                    fFloatPrecisions[s][p].fBits = 23;
+                    glslCaps->fFloatPrecisions[s][p].fLogRangeLow = 127;
+                    glslCaps->fFloatPrecisions[s][p].fLogRangeHigh = 127;
+                    glslCaps->fFloatPrecisions[s][p].fBits = 23;
                 }
             }
         }
@@ -1192,9 +1154,10 @@ void GrGLSLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
     // the same as the vertex shader. Only fragment shaders were ever allowed to omit support for
     // highp. GS was added after GetShaderPrecisionFormat was added to the list of features that
     // are recommended against.
-    if (fGeometryShaderSupport) {
+    if (glslCaps->fGeometryShaderSupport) {
         for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-            fFloatPrecisions[kGeometry_GrShaderType][p] = fFloatPrecisions[kVertex_GrShaderType][p];
+            glslCaps->fFloatPrecisions[kGeometry_GrShaderType][p] = 
+                                               glslCaps->fFloatPrecisions[kVertex_GrShaderType][p];
         }
     }
 }

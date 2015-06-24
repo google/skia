@@ -6,6 +6,7 @@
  */
 
 #include "GrGLContext.h"
+#include "GrGLGLSL.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +35,7 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
         return NULL;
     }
 
-    if (!GrGetGLSLGeneration(interface, &args.fGLSLGeneration)) {
+    if (!GrGLGetGLSLGeneration(interface, &args.fGLSLGeneration)) {
         return NULL;
     }
 

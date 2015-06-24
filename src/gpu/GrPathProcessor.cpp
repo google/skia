@@ -10,6 +10,8 @@
 #include "gl/GrGLPathProcessor.h"
 #include "gl/GrGLGpu.h"
 
+#include "glsl/GrGLSLCaps.h"
+
 GrPathProcessor::GrPathProcessor(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)

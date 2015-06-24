@@ -7,7 +7,6 @@
 
 #include "effects/GrConstColorProcessor.h"
 #include "gl/GrGLProcessor.h"
-#include "gl/GrGLSL.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class GLConstColorProcessor : public GrGLFragmentProcessor {

@@ -10,6 +10,7 @@
 #include "GrGLShaderStringBuilder.h"
 #include "../GrGLGpu.h"
 #include "../GrGLShaderVar.h"
+#include "glsl/GrGLSLCaps.h"
 
 namespace {
 void append_texture_lookup(SkString* out,

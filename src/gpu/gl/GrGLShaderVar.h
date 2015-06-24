@@ -9,7 +9,6 @@
 #define GrGLShaderVar_DEFINED
 
 #include "GrGLContext.h"
-#include "GrGLSL.h"
 #include "GrShaderVar.h"
 
 #define USE_UNIFORM_FLOAT_ARRAYS true

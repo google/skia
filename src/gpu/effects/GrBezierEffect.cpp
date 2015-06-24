@@ -8,7 +8,6 @@
 #include "GrBezierEffect.h"
 
 #include "gl/GrGLProcessor.h"
-#include "gl/GrGLSL.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 

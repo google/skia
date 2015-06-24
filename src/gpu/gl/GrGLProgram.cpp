@@ -15,7 +15,6 @@
 #include "GrGLPathProcessor.h"
 #include "GrGLPathRendering.h"
 #include "GrGLShaderVar.h"
-#include "GrGLSL.h"
 #include "GrGLXferProcessor.h"
 #include "GrPathProcessor.h"
 #include "GrPipeline.h"

@@ -7,7 +7,6 @@
 
 #include "GrConvolutionEffect.h"
 #include "gl/GrGLProcessor.h"
-#include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 

@@ -8,13 +8,8 @@
 #ifndef GrGLSL_DEFINED
 #define GrGLSL_DEFINED
 
-#include "gl/GrGLInterface.h"
-#include "GrColor.h"
 #include "GrTypesPriv.h"
 #include "SkString.h"
-
-class GrGLContextInfo;
-class GrGLShaderVar;
 
 // Limited set of GLSL versions we build shaders for. Caller should round
 // down the GLSL version to one of these enums.
@@ -45,23 +40,7 @@ enum GrGLSLGeneration {
     k310es_GrGLSLGeneration,
 };
 
-/**
- * Gets the most recent GLSL Generation compatible with the OpenGL context.
- */
-bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation);
-
 bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration);
-
-/**
- * Returns a string to include at the beginning of a shader to declare the GLSL
- * version.
- */
-const char* GrGetGLSLVersionDecl(const GrGLContextInfo&);
-
-/**
- * Adds a line of GLSL code to declare the default precision for float types.
- */
-void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision, GrGLStandard, SkString* out);
 
 /**
  * Gets the name of the function that should be used to sample a 2D texture. Coord type is used

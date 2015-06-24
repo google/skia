@@ -23,7 +23,6 @@
 #include "SkGr.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLProcessor.h"
-#include "gl/GrGLSL.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 ///////////////////////////////////////////////////////////////////////////////

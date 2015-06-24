@@ -7,6 +7,7 @@
 
 #include "GrGLVertexShaderBuilder.h"
 #include "GrGLProgramBuilder.h"
+#include "../GrGLGLSL.h"
 #include "../GrGLGpu.h"
 
 #define GL_CALL(X) GR_GL_CALL(fProgramBuilder->gpu()->glInterface(), X)
@@ -85,7 +86,7 @@ void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
 
 bool
 GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) {
-    this->versionDecl() = GrGetGLSLVersionDecl(fProgramBuilder->ctxInfo());
+    this->versionDecl() = GrGLGetGLSLVersionDecl(fProgramBuilder->ctxInfo());
     this->compileAndAppendLayoutQualifiers();
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kVertex_Visibility, &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());

@@ -7,7 +7,9 @@
 
 #include "GrGLFragmentShaderBuilder.h"
 #include "GrGLProgramBuilder.h"
-#include "../GrGLGpu.h"
+#include "gl/GrGLGpu.h"
+#include "gl/GrGLGLSL.h"
+#include "glsl/GrGLSLCaps.h"
 
 #define GL_CALL(X) GR_GL_CALL(fProgramBuilder->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fProgramBuilder->gpu()->glInterface(), R, X)
@@ -249,10 +251,10 @@ const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
                                                         SkTDArray<GrGLuint>* shaderIds) {
     GrGLGpu* gpu = fProgramBuilder->gpu();
-    this->versionDecl() = GrGetGLSLVersionDecl(gpu->ctxInfo());
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
-                                                 gpu->glStandard(),
-                                                 &this->precisionQualifier());
+    this->versionDecl() = GrGLGetGLSLVersionDecl(gpu->ctxInfo());
+    GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
+                                                   gpu->glStandard(),
+                                                   &this->precisionQualifier());
     this->compileAndAppendLayoutQualifiers();
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility,
                                         &this->uniforms());

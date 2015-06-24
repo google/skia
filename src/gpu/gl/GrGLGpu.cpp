@@ -7,6 +7,7 @@
 
 
 #include "GrGLGpu.h"
+#include "GrGLGLSL.h"
 #include "GrGLStencilAttachment.h"
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourcePriv.h"
@@ -18,6 +19,7 @@
 #include "GrTypes.h"
 #include "GrVertices.h"
 #include "builders/GrGLShaderStringBuilder.h"
+#include "glsl/GrGLSLCaps.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
 
@@ -2737,7 +2739,7 @@ bool GrGLGpu::copySurface(GrSurface* dst,
 
 
 void GrGLGpu::createCopyProgram() {
-    const char* version = GrGetGLSLVersionDecl(this->ctxInfo());
+    const char* version = GrGLGetGLSLVersionDecl(this->ctxInfo());
 
     GrGLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
     GrGLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
@@ -2767,8 +2769,8 @@ void GrGLGpu::createCopyProgram() {
     );
 
     SkString fshaderTxt(version);
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, this->glStandard(),
-                                                 &fshaderTxt);
+    GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, this->glStandard(),
+                                                   &fshaderTxt);
     vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
     vTexCoord.appendDecl(this->ctxInfo(), &fshaderTxt);
     fshaderTxt.append(";");

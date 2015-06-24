@@ -21,6 +21,7 @@
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLProgramDataManager.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLCaps.h"
 
 bool GrCustomXfermode::IsSupportedMode(SkXfermode::Mode mode) {
     return mode > SkXfermode::kLastCoeffMode && mode <= SkXfermode::kLastMode;

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSL.h"
+#include "GrGLGLSL.h"
 #include "GrGLShaderVar.h"
 #include "SkString.h"
 
-bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) {
+bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) {
     SkASSERT(generation);
     GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
     if (GR_GLSL_INVALID_VER == ver) {
@@ -47,7 +47,7 @@ bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) 
     }
 }
 
-const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
+const char* GrGLGetGLSLVersionDecl(const GrGLContextInfo& info) {
     switch (info.glslGeneration()) {
         case k110_GrGLSLGeneration:
             if (kGLES_GrGLStandard == info.standard()) {
@@ -89,21 +89,7 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
     return "<no version>";
 }
 
-bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
-    switch (gen) {
-        case k110_GrGLSLGeneration:
-            return false;
-        case k130_GrGLSLGeneration:
-        case k140_GrGLSLGeneration:
-        case k150_GrGLSLGeneration:
-        case k330_GrGLSLGeneration:
-        case k310es_GrGLSLGeneration:
-            return true;
-    }
-    return false;
-}
-
-void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p, GrGLStandard s, SkString* out) {
+void GrGLAppendGLSLDefaultFloatPrecisionDeclaration(GrSLPrecision p, GrGLStandard s, SkString* out) {
     // Desktop GLSL has added precision qualifiers but they don't do anything.
     if (kGLES_GrGLStandard == s) {
         switch (p) {
@@ -119,17 +105,5 @@ void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p, GrGLStandard 
             default:
                 SkFAIL("Unknown precision value.");
         }
-    }
-}
-
-void GrGLSLMulVarBy4f(SkString* outAppend, const char* vec4VarName, const GrGLSLExpr4& mulFactor) {
-    if (mulFactor.isOnes()) {
-        *outAppend = SkString();
-    }
-
-    if (mulFactor.isZeros()) {
-        outAppend->appendf("%s = vec4(0);", vec4VarName);
-    } else {
-        outAppend->appendf("%s *= %s;", vec4VarName, mulFactor.c_str());
     }
 }

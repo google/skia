@@ -13,7 +13,6 @@
 #include "GrOvalEffect.h"
 #include "SkRRect.h"
 #include "gl/GrGLProcessor.h"
-#include "gl/GrGLSL.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 // The effects defined here only handle rrect radii >= kRadiusMin.

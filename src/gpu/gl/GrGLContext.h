@@ -12,7 +12,6 @@
 #include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
 #include "GrGLCaps.h"
-#include "GrGLSL.h"
 #include "GrGLUtil.h"
 
 struct GrContextOptions;

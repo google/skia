@@ -10,7 +10,6 @@
 #include "GrInvariantOutput.h"
 #include "SkRect.h"
 #include "gl/GrGLProcessor.h"
-#include "gl/GrGLSL.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 //////////////////////////////////////////////////////////////////////////////

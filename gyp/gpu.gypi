@@ -281,6 +281,8 @@
       '<(skia_src_path)/gpu/gl/GrGLDefines.h',
       '<(skia_src_path)/gpu/gl/GrGLGeometryProcessor.cpp',
       '<(skia_src_path)/gpu/gl/GrGLGeometryProcessor.h',
+      '<(skia_src_path)/gpu/gl/GrGLGLSL.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLGLSL.h',
       '<(skia_src_path)/gpu/gl/GrGLGpu.cpp',
       '<(skia_src_path)/gpu/gl/GrGLGpu.h',
       '<(skia_src_path)/gpu/gl/GrGLGpuProgramCache.cpp',
@@ -313,9 +315,6 @@
       '<(skia_src_path)/gpu/gl/GrGLRenderTarget.cpp',
       '<(skia_src_path)/gpu/gl/GrGLRenderTarget.h',
       '<(skia_src_path)/gpu/gl/GrGLShaderVar.h',
-      '<(skia_src_path)/gpu/gl/GrGLSL.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLSL.h',
-      '<(skia_src_path)/gpu/gl/GrGLSL_impl.h',
       '<(skia_src_path)/gpu/gl/GrGLStencilAttachment.cpp',
       '<(skia_src_path)/gpu/gl/GrGLStencilAttachment.h',
       '<(skia_src_path)/gpu/gl/GrGLTexture.cpp',
@@ -345,6 +344,13 @@
       '<(skia_src_path)/gpu/gl/builders/GrGLFragmentShaderBuilder.h',
       '<(skia_src_path)/gpu/gl/builders/GrGLGeometryShaderBuilder.cpp',
       '<(skia_src_path)/gpu/gl/builders/GrGLGeometryShaderBuilder.h',
+
+      # GLSL
+      '<(skia_src_path)/gpu/glsl/GrGLSLCaps.cpp',
+      '<(skia_src_path)/gpu/glsl/GrGLSLCaps.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSL.cpp',
+      '<(skia_src_path)/gpu/glsl/GrGLSL.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSL_impl.h',
 
       # Sk files
       '<(skia_include_path)/gpu/SkGr.h',

@@ -9,7 +9,6 @@
 #define GrGLProgramDataManager_DEFINED
 
 #include "gl/GrGLShaderVar.h"
-#include "gl/GrGLSL.h"
 #include "GrAllocator.h"
 
 #include "SkTArray.h"
