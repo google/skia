@@ -156,19 +156,18 @@ static void soft_light_component_pos_dst_alpha(GrGLFragmentBuilder* fsBuilder,
     fsBuilder->codeAppendf("float DaCub = DaSqd * %s.a;", dst);
     // (Da^3 (-S)+Da^2 (S-D (3 Sa-6 S-1))+12 Da D^2 (Sa-2 S)-16 D^3 (Sa-2 S))/Da^2
     fsBuilder->codeAppendf("%s.%c ="
-                           "(-DaCub*%s.%c + DaSqd*(%s.%c - %s.%c * (3.0*%s.a - 6.0*%s.%c - 1.0)) +"
-                           " 12.0*%s.a*DSqd*(%s.a - 2.0*%s.%c) - 16.0*DCub * (%s.a - 2.0*%s.%c)) /"
-                           "DaSqd;",
-                           final, component, src, component, src, component, dst, component,
+                           "(DaSqd*(%s.%c - %s.%c * (3.0*%s.a - 6.0*%s.%c - 1.0)) +"
+                           " 12.0*%s.a*DSqd*(%s.a - 2.0*%s.%c) - 16.0*DCub * (%s.a - 2.0*%s.%c) -"
+                           " DaCub*%s.%c) / DaSqd;",
+                           final, component, src, component, dst, component,
                            src, src, component, dst, src, src, component, src, src,
-                           component);
+                           component, src, component);
     fsBuilder->codeAppendf("} else {");
     // -sqrt(Da * D) (Sa-2 S)-Da S+D (Sa-2 S+1)+S
-    fsBuilder->codeAppendf("%s.%c = -sqrt(%s.a*%s.%c)*(%s.a - 2.0*%s.%c) - %s.a*%s.%c +"
-                                   "%s.%c*(%s.a - 2.0*%s.%c + 1.0) + %s.%c;",
-                           final, component, dst, dst, component, src, src, component, dst,
-                           src, component, dst, component, src, src, component, src,
-                           component);
+    fsBuilder->codeAppendf("%s.%c = %s.%c*(%s.a - 2.0*%s.%c + 1.0) + %s.%c -"
+                           " sqrt(%s.a*%s.%c)*(%s.a - 2.0*%s.%c) - %s.a*%s.%c;",
+                           final, component, dst, component, src, src, component, src, component,
+                           dst, dst, component, src, src, component, dst, src, component);
     fsBuilder->codeAppendf("}");
 }
 
