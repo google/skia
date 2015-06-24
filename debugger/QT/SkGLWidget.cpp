@@ -62,8 +62,9 @@ void SkGLWidget::createRenderTarget() {
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     SkAutoTUnref<GrRenderTarget> curRenderTarget(
             fCurContext->textureProvider()->wrapBackendRenderTarget(desc));
-    SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-    fGpuDevice.reset(SkGpuDevice::Create(curRenderTarget, &props));
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    fGpuDevice.reset(SkGpuDevice::Create(curRenderTarget, &props,
+                                         SkGpuDevice::kUninit_InitContents));
     fCanvas.reset(new SkCanvas(fGpuDevice));
 }
 
