@@ -161,7 +161,7 @@ bool SkPoint::setLength(float x, float y, float length) {
         // divide by inf. and return (0,0) vector.
         double xx = x;
         double yy = y;
-    #ifdef SK_DISCARD_DENORMALIZED_FOR_SPEED
+    #ifdef SK_CPU_FLUSH_TO_ZERO
         // The iOS ARM processor discards small denormalized numbers to go faster.
         // Casting this to a float would cause the scale to go to zero. Keeping it
         // as a double for the multiply keeps the scale non-zero.

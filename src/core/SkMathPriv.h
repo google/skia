@@ -10,10 +10,14 @@
 
 #include "SkMath.h"
 
-#ifdef SK_BUILD_FOR_IOS
-// The iOS ARM processor discards small denormalized numbers to go faster.
+#if defined(SK_BUILD_FOR_IOS) && (defined(SK_BUILD_FOR_ARM32) || defined(SK_BUILD_FOR_ARM64))
+// iOS on ARM starts processes with the Flush-To-Zero (FTZ) and
+// Denormals-Are-Zero (DAZ) bits in the fpscr register set.
 // Algorithms that rely on denormalized numbers need alternative implementations.
-#define SK_DISCARD_DENORMALIZED_FOR_SPEED
+// This can also be controlled in SSE with the MXCSR register,
+// x87 with FSTCW/FLDCW, and mips with FCSR. This should be detected at runtime,
+// or the library built one way or the other more generally (by the build).
+#define SK_CPU_FLUSH_TO_ZERO
 #endif
 
 /** Returns -1 if n < 0, else returns 0
