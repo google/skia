@@ -270,21 +270,14 @@ void GrGLGpu::contextAbandoned() {
 ///////////////////////////////////////////////////////////////////////////////
 GrPixelConfig GrGLGpu::preferredReadPixelsConfig(GrPixelConfig readConfig,
                                                  GrPixelConfig surfaceConfig) const {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == readConfig) {
-        return kBGRA_8888_GrPixelConfig;
-    } else if (kMesa_GrGLDriver == this->glContext().driver() &&
-               GrBytesPerPixel(readConfig) == 4 &&
-               GrPixelConfigSwapRAndB(readConfig) == surfaceConfig) {
-        // Mesa 3D takes a slow path on when reading back  BGRA from an RGBA surface and vice-versa.
-        // Perhaps this should be guarded by some compiletime or runtime check.
+    if (kMesa_GrGLDriver == this->glContext().driver() &&
+        GrBytesPerPixel(readConfig) == 4 && GrPixelConfigSwapRAndB(readConfig) == surfaceConfig) {
+        // Mesa 3D takes a slow path on when reading back BGRA from an RGBA surface and vice-versa.
+        // Perhaps this should be guarded by some compile-time or runtime check.
         return surfaceConfig;
-    } else if (readConfig == kBGRA_8888_GrPixelConfig
-            && !this->glCaps().readPixelsSupported(
-                this->glInterface(),
-                GR_GL_BGRA,
-                GR_GL_UNSIGNED_BYTE,
-                surfaceConfig
-            )) {
+    } else if (readConfig == kBGRA_8888_GrPixelConfig &&
+               !this->glCaps().readPixelsSupported(this->glInterface(), GR_GL_BGRA,
+                                                   GR_GL_UNSIGNED_BYTE, surfaceConfig)) {
         return kRGBA_8888_GrPixelConfig;
     } else {
         return readConfig;
@@ -293,11 +286,7 @@ GrPixelConfig GrGLGpu::preferredReadPixelsConfig(GrPixelConfig readConfig,
 
 GrPixelConfig GrGLGpu::preferredWritePixelsConfig(GrPixelConfig writeConfig,
                                                   GrPixelConfig surfaceConfig) const {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == writeConfig) {
-        return kBGRA_8888_GrPixelConfig;
-    } else {
-        return writeConfig;
-    }
+    return writeConfig;
 }
 
 bool GrGLGpu::canWriteTexturePixels(const GrTexture* texture, GrPixelConfig srcConfig) const {

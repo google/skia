@@ -148,8 +148,7 @@ public:
     }
 
     /**
-     * Called before uploading writing pixels to a GrTexture when the src pixel config doesn't
-     * match the texture's config.
+     * Called before uploading writing pixels to a GrTexture.
      */
     virtual bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const = 0;
 

@@ -12,13 +12,9 @@
 #define GR_GL_CHECK_ERROR_START                     0
 
 #if defined(SK_BUILD_FOR_WIN32)
-// For RGBA teximage/readpixels ANGLE will sw-convert to/from BGRA.
-#define GR_GL_RGBA_8888_PIXEL_OPS_SLOW              1
-
 // ANGLE can go faster if the entire fbo is read rather than a subrect
 #define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL   1
 #else
-#define GR_GL_RGBA_8888_PIXEL_OPS_SLOW              0
 #define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL   0
 #endif
 
@@ -42,9 +38,5 @@
 // Use updated Khronos signature for glShaderSource
 // (const char* const instead of char**).
 #define GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE       1
-
-#if !defined(GR_GL_IGNORE_ES3_MSAA)
-    #define GR_GL_IGNORE_ES3_MSAA 1
-#endif
 
 #endif
