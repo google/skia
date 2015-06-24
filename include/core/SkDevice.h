@@ -245,6 +245,11 @@ protected:
     // default implementation calls drawVertices
     virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
+
+    // default implementation calls drawPath
+    virtual void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
+                           const SkColor[], int count, SkXfermode::Mode, const SkPaint&);
+
     /** The SkDevice passed will be an SkDevice which was returned by a call to
         onCreateDevice on this device with kNeverTile_TileExpectation.
      */

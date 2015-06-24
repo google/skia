@@ -173,6 +173,8 @@ protected:
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkXfermode* xmode,
                              const SkPaint& paint) override;
+    void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
+                     SkXfermode::Mode, const SkRect*, const SkPaint*) override;
 
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;

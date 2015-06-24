@@ -11,6 +11,7 @@
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkReader32.h"
+#include "SkRSXform.h"
 #include "SkTextBlob.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
@@ -156,6 +157,25 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             canvas->concat(matrix);
             break;
         }
+        case DRAW_ATLAS: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            const SkImage* atlas = fPictureData->getImage(reader);
+            const uint32_t flags = reader->readU32();
+            const int count = reader->readU32();
+            const SkRSXform* xform = (const SkRSXform*)reader->skip(count * sizeof(SkRSXform));
+            const SkRect* tex = (const SkRect*)reader->skip(count * sizeof(SkRect));
+            const SkColor* colors = NULL;
+            SkXfermode::Mode mode = SkXfermode::kDst_Mode;
+            if (flags & DRAW_ATLAS_HAS_COLORS) {
+                colors = (const SkColor*)reader->skip(count * sizeof(SkColor));
+                mode = (SkXfermode::Mode)reader->readU32();
+            }
+            const SkRect* cull = NULL;
+            if (flags & DRAW_ATLAS_HAS_CULL) {
+                cull = (const SkRect*)reader->skip(sizeof(SkRect));
+            }
+            canvas->drawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
+        } break;
         case DRAW_BITMAP: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));

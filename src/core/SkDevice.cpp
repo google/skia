@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorFilter.h"
 #include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
@@ -13,6 +14,7 @@
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
 #include "SkRasterClip.h"
+#include "SkRSXform.h"
 #include "SkShader.h"
 #include "SkTextBlob.h"
 #include "SkTextToPathIter.h"
@@ -158,6 +160,37 @@ void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const
         this->drawBitmapRect(draw, bm, src, dst, paint, SkCanvas::kNone_DrawBitmapRectFlag);
     }
 }
+
+void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRSXform xform[],
+                             const SkRect tex[], const SkColor colors[], int count,
+                             SkXfermode::Mode mode, const SkPaint& paint) {
+    SkPath path;
+    path.setIsVolatile(true);
+
+    for (int i = 0; i < count; ++i) {
+        SkPoint quad[4];
+        xform[i].toQuad(tex[i].width(), tex[i].height(), quad);
+        
+        SkMatrix localM;
+        localM.setRSXform(xform[i]);
+        localM.preTranslate(-tex[i].left(), -tex[i].top());
+
+        SkPaint pnt(paint);
+        pnt.setShader(atlas->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                       &localM))->unref();
+        if (colors && colors[i] != SK_ColorWHITE) {
+            SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(colors[i], mode));
+            pnt.setColorFilter(cf);
+        }
+        
+        path.rewind();
+        path.addPoly(quad, 4, true);
+        path.setConvexity(SkPath::kConvex_Convexity);
+        this->drawPath(draw, path, pnt, NULL, true);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {
 #ifdef SK_DEBUG

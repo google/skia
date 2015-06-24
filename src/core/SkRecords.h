@@ -12,6 +12,7 @@
 #include "SkDrawable.h"
 #include "SkPathPriv.h"
 #include "SkPicture.h"
+#include "SkRSXform.h"
 #include "SkTextBlob.h"
 
 namespace SkRecords {
@@ -58,6 +59,7 @@ namespace SkRecords {
     M(DrawRect)                                                     \
     M(DrawSprite)                                                   \
     M(DrawTextBlob)                                                 \
+    M(DrawAtlas)                                                    \
     M(DrawVertices)
 
 // Defines SkRecords::Type, an enum of all record types.
@@ -121,6 +123,15 @@ struct T {                                                                \
     A a; B b; C c; D d; E e;                                              \
 };
 
+#define RECORD8(T, A, a, B, b, C, c, D, d, E, e, F, f, G, g, H, h)        \
+struct T {                                                                \
+    static const Type kType = T##_Type;                                   \
+    T() {}                                                                \
+    template <typename Z, typename Y, typename X, typename W, typename V, typename U, typename S, typename R> \
+    T(Z a, Y b, X c, W d, V e, U f, S g, R h) : a(a), b(b), c(c), d(d), e(e), f(f), g(g), h(h) {} \
+    A a; B b; C c; D d; E e; F f; G g; H h;                               \
+};
+    
 #define ACT_AS_PTR(ptr)                 \
     operator T*() const { return ptr; } \
     T* operator->() const { return ptr; }
@@ -317,6 +328,15 @@ RECORD5(DrawPatch, SkPaint, paint,
                    PODArray<SkPoint>, texCoords,
                    RefBox<SkXfermode>, xmode);
 
+RECORD8(DrawAtlas,  Optional<SkPaint>, paint,
+                    RefBox<const SkImage>, atlas,
+                    PODArray<SkRSXform>, xforms,
+                    PODArray<SkRect>, texs,
+                    PODArray<SkColor>, colors,
+                    int, count,
+                    SkXfermode::Mode, mode,
+                    Optional<SkRect>, cull);
+
 // This guy is so ugly we just write it manually.
 struct DrawVertices {
     static const Type kType = DrawVertices_Type;
@@ -357,6 +377,7 @@ struct DrawVertices {
 #undef RECORD3
 #undef RECORD4
 #undef RECORD5
+#undef RECORD8
 
 }  // namespace SkRecords
 

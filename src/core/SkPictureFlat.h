@@ -71,8 +71,9 @@ enum DrawType {
     DRAW_TEXT_BLOB,
     DRAW_IMAGE,
     DRAW_IMAGE_RECT,
+    DRAW_ATLAS,
 
-    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_RECT
+    LAST_DRAWTYPE_ENUM = DRAW_ATLAS
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*
@@ -83,6 +84,11 @@ enum DrawVertexFlags {
     DRAW_VERTICES_HAS_COLORS  = 0x02,
     DRAW_VERTICES_HAS_INDICES = 0x04,
     DRAW_VERTICES_HAS_XFER    = 0x08,
+};
+
+enum DrawAtlasFlags {
+    DRAW_ATLAS_HAS_COLORS   = 1 << 0,
+    DRAW_ATLAS_HAS_CULL     = 1 << 1,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@
 #include "SkPatchUtils.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
+#include "SkRSXform.h"
 #include "SkTextBlob.h"
 #include "SkTSearch.h"
 
@@ -99,6 +100,7 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         1,  // DRAW_TEXT_BLOB- right after op code
         1,  // DRAW_IMAGE - right after op code
         1,  // DRAW_IMAGE_RECT - right after op code
+        1,  // DRAW_ATLAS - right after op code
     };
 
     SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
@@ -830,6 +832,42 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
         SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
         xmode->asMode(&mode);
         this->addInt(mode);
+    }
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                                  const SkColor colors[], int count, SkXfermode::Mode mode,
+                                  const SkRect* cull, const SkPaint* paint) {
+    // [op + paint-index + atlas-index + flags + count] + [xform] + [tex] + [*colors + mode] + cull
+    size_t size = 5 * kUInt32Size + count * sizeof(SkRSXform) + count * sizeof(SkRect);
+    uint32_t flags = 0;
+    if (colors) {
+        flags |= DRAW_ATLAS_HAS_COLORS;
+        size += count * sizeof(SkColor);
+        size += sizeof(uint32_t);   // xfermode::mode
+    }
+    if (cull) {
+        flags |= DRAW_ATLAS_HAS_CULL;
+        size += sizeof(SkRect);
+    }
+    
+    size_t initialOffset = this->addDraw(DRAW_ATLAS, &size);
+    SkASSERT(initialOffset+get_paint_offset(DRAW_ATLAS, size) == fWriter.bytesWritten());
+    this->addPaintPtr(paint);
+    this->addImage(atlas);
+    this->addInt(flags);
+    this->addInt(count);
+    fWriter.write(xform, count * sizeof(SkRSXform));
+    fWriter.write(tex, count * sizeof(SkRect));
+
+    // write optional parameters
+    if (colors) {
+        fWriter.write(colors, count * sizeof(SkColor));
+        this->addInt(mode);
+    }
+    if (cull) {
+        fWriter.write(cull, sizeof(SkRect));
     }
     this->validate(initialOffset, size);
 }

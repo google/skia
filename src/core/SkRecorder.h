@@ -108,6 +108,8 @@ public:
                         const SkColor colors[], SkXfermode* xmode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
+    void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
+                     int count, SkXfermode::Mode, const SkRect* cull, const SkPaint*) override;
 
     void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) override;
     void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) override;

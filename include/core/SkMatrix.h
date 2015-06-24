@@ -12,6 +12,7 @@
 
 #include "SkRect.h"
 
+struct SkRSXform;
 class SkString;
 
 /** \class SkMatrix
@@ -244,6 +245,9 @@ public:
     /** Set the matrix to rotate by the specified sine and cosine values.
     */
     void setSinCos(SkScalar sinValue, SkScalar cosValue);
+
+    SkMatrix& setRSXform(const SkRSXform&);
+
     /** Set the matrix to skew by sx and sy, with a pivot point at (px, py).
         The pivot point is the coordinate that should remain unchanged by the
         specified transformation.

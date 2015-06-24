@@ -1801,6 +1801,18 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int left, int top, const SkPai
     this->onDrawSprite(bitmap, left, top, paint);
 }
 
+void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                         const SkColor colors[], int count, SkXfermode::Mode mode,
+                         const SkRect* cull, const SkPaint* paint) {
+    if (count <= 0) {
+        return;
+    }
+    SkASSERT(atlas);
+    SkASSERT(xform);
+    SkASSERT(tex);
+    this->onDrawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //  These are the virtual drawing methods
 //////////////////////////////////////////////////////////////////////////////
@@ -2447,6 +2459,25 @@ void SkCanvas::drawDrawable(SkDrawable* dr) {
 
 void SkCanvas::onDrawDrawable(SkDrawable* dr) {
     dr->draw(this);
+}
+
+void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                           const SkColor colors[], int count, SkXfermode::Mode mode,
+                           const SkRect* cull, const SkPaint* paint) {
+    if (cull && this->quickReject(*cull)) {
+        return;
+    }
+
+    SkPaint pnt;
+    if (paint) {
+        pnt = *paint;
+    }
+    
+    LOOPER_BEGIN(pnt, SkDrawFilter::kPath_Type, NULL)
+    while (iter.next()) {
+        iter.fDevice->drawAtlas(iter, atlas, xform, tex, colors, count, mode, pnt);
+    }
+    LOOPER_END
 }
 
 //////////////////////////////////////////////////////////////////////////////

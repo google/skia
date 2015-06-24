@@ -39,6 +39,7 @@ enum DrawOps {
     kClipRect_DrawOp,
     kClipRRect_DrawOp,
     kConcat_DrawOp,
+    kDrawAtlas_DrawOp,
     kDrawBitmap_DrawOp,
     kDrawBitmapNine_DrawOp,
     kDrawBitmapRectToRect_DrawOp,
@@ -143,6 +144,11 @@ enum {
     kDrawVertices_HasColors_DrawOpFlag   = 1 << 1,
     kDrawVertices_HasIndices_DrawOpFlag  = 1 << 2,
     kDrawVertices_HasXfermode_DrawOpFlag = 1 << 3,
+};
+enum {
+    kDrawAtlas_HasPaint_DrawOpFlag      = 1 << 0,
+    kDrawAtlas_HasColors_DrawOpFlag     = 1 << 1,
+    kDrawAtlas_HasCull_DrawOpFlag       = 1 << 2,
 };
 // These are shared between drawbitmap and drawimage
 enum {

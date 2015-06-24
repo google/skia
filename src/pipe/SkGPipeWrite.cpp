@@ -16,6 +16,7 @@
 #include "SkGPipePriv.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
+#include "SkRSXform.h"
 #include "SkWriteBuffer.h"
 #include "SkPaint.h"
 #include "SkPatchUtils.h"
@@ -287,6 +288,8 @@ protected:
                         const SkColor colors[], SkXfermode* xmode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
+    void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
+                     int count, SkXfermode::Mode, const SkRect* cull, const SkPaint*) override;
     void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
     void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) override;
@@ -1092,6 +1095,48 @@ void SkGPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
         if (flags & kDrawVertices_HasIndices_DrawOpFlag) {
             fWriter.write32(indexCount);
             fWriter.writePad(indices, indexCount * sizeof(uint16_t));
+        }
+    }
+}
+
+void SkGPipeCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                                const SkColor colors[], int count, SkXfermode::Mode mode,
+                                const SkRect* cull, const SkPaint* paint) {
+    NOTIFY_SETUP(this);
+    unsigned flags = 0;  // packs with the op, so needs no extra space
+
+    if (paint) {
+        flags |= kDrawAtlas_HasPaint_DrawOpFlag;
+        this->writePaint(*paint);
+    }
+
+    size_t size = 4;                        // image-slot
+    size += 4;                              // count
+    size += 4;                              // mode
+    size += count * sizeof(SkRSXform);      // xform
+    size += count * sizeof(SkRect);         // tex
+    if (colors) {
+        flags |= kDrawAtlas_HasColors_DrawOpFlag;
+        size += count * sizeof(SkColor);    // colors
+    }
+    if (cull) {
+        flags |= kDrawAtlas_HasCull_DrawOpFlag;
+        size += sizeof(SkRect);             // cull
+    }
+    
+    if (this->needOpBytes(size)) {
+        this->writeOp(kDrawAtlas_DrawOp, flags, 0);
+        int32_t slot = fImageHeap->insert(atlas);
+        fWriter.write32(slot);
+        fWriter.write32(count);
+        fWriter.write32(mode);
+        fWriter.write(xform, count * sizeof(SkRSXform));
+        fWriter.write(tex, count * sizeof(SkRect));
+        if (colors) {
+            fWriter.write(colors, count * sizeof(SkColor));
+        }
+        if (cull) {
+            fWriter.writeRect(*cull);
         }
     }
 }

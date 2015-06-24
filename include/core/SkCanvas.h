@@ -28,6 +28,7 @@ class SkImage;
 class SkMetaData;
 class SkPicture;
 class SkRRect;
+struct SkRSXform;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
@@ -1024,6 +1025,32 @@ public:
                    const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 
     /**
+     *  Draw a set of sprites from the atlas. Each is specified by a tex rectangle in the
+     *  coordinate space of the atlas, and a corresponding xform which transforms the tex rectangle
+     *  into a quad.
+     *
+     *      xform maps [0, 0, tex.width, tex.height] -> quad
+     *
+     *  The color array is optional. When specified, each color modulates the pixels in its
+     *  corresponding quad (via the specified SkXfermode::Mode).
+     *
+     *  The cullRect is optional. When specified, it must be a conservative bounds of all of the
+     *  resulting transformed quads, allowing the canvas to skip drawing if the cullRect does not
+     *  intersect the current clip.
+     *
+     *  The paint is optional. If specified, its antialiasing, alpha, color-filter, image-filter
+     *  and xfermode are used to affect each of the quads.
+     */
+    void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkXfermode::Mode, const SkRect* cullRect,
+                   const SkPaint* paint);
+
+    void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count,
+                   const SkRect* cullRect, const SkPaint* paint) {
+        this->drawAtlas(atlas, xform, tex, NULL, count, SkXfermode::kDst_Mode, cullRect, paint);
+    }
+
+    /**
      *  Draw the contents of this drawable into the canvas. If the canvas is async
      *  (e.g. it is recording into a picture) then the drawable will be referenced instead,
      *  to have its draw() method called when the picture is finalized.
@@ -1197,6 +1224,9 @@ protected:
     virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],
                                 const SkPoint texs[], const SkColor colors[], SkXfermode*,
                                 const uint16_t indices[], int indexCount, const SkPaint&);
+    
+    virtual void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
+                             int count, SkXfermode::Mode, const SkRect* cull, const SkPaint*);
     virtual void onDrawPath(const SkPath&, const SkPaint&);
     virtual void onDrawImage(const SkImage*, SkScalar dx, SkScalar dy, const SkPaint*);
     virtual void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*);

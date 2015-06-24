@@ -20,11 +20,12 @@
 #include "SkDrawLooper.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
-#include "SkReadBuffer.h"
 #include "SkPatchUtils.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
+#include "SkReadBuffer.h"
 #include "SkRRect.h"
+#include "SkRSXform.h"
 #include "SkShader.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
@@ -479,6 +480,33 @@ static void drawVertices_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     }
 }
 
+static void drawAtlas_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32, SkGPipeState* state) {
+    unsigned flags = DrawOp_unpackFlags(op32);
+
+    const SkPaint* paint = NULL;
+    if (flags & kDrawAtlas_HasPaint_DrawOpFlag) {
+        paint = &state->paint();
+    }
+    const int slot = reader->readU32();
+    const SkImage* atlas = state->getImage(slot);
+    const int count = reader->readU32();
+    SkXfermode::Mode mode = (SkXfermode::Mode)reader->readU32();
+    const SkRSXform* xform = skip<SkRSXform>(reader, count);
+    const SkRect* tex = skip<SkRect>(reader, count);
+    const SkColor* colors = NULL;
+    if (flags & kDrawAtlas_HasColors_DrawOpFlag) {
+        colors = skip<SkColor>(reader, count);
+    }
+    const SkRect* cull = NULL;
+    if (flags & kDrawAtlas_HasCull_DrawOpFlag) {
+        cull = skip<SkRect>(reader, 1);
+    }
+
+    if (state->shouldDraw()) {
+        canvas->drawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void drawText_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -831,6 +859,7 @@ static const ReadProc gReadTable[] = {
     clipRect_rp,
     clipRRect_rp,
     concat_rp,
+    drawAtlas_rp,
     drawBitmap_rp,
     drawBitmapNine_rp,
     drawBitmapRect_rp,

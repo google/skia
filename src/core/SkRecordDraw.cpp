@@ -111,6 +111,7 @@ DRAW(DrawSprite, drawSprite(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
+DRAW(DrawAtlas, drawAtlas(r.atlas, r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
 #undef DRAW
@@ -451,7 +452,15 @@ private:
         dst.set(op.vertices, op.vertexCount);
         return this->adjustAndMap(dst, &op.paint);
     }
-
+    
+    Bounds bounds(const DrawAtlas& op) const {
+        if (op.cull) {
+            return this->adjustAndMap(*op.cull, op.paint);
+        } else {
+            return fCurrentClipBounds;
+        }
+    }
+    
     Bounds bounds(const DrawPicture& op) const {
         SkRect dst = op.picture->cullRect();
         op.matrix.mapRect(&dst);

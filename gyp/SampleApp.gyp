@@ -45,6 +45,7 @@
         '../samplecode/SampleAnimBlur.cpp',
         '../samplecode/SampleApp.cpp',
         '../samplecode/SampleArc.cpp',
+        '../samplecode/SampleAtlas.cpp',
         '../samplecode/SampleBigBlur.cpp',
         '../samplecode/SampleBigGradient.cpp',
         '../samplecode/SampleBitmapRect.cpp',

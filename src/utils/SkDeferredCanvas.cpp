@@ -251,6 +251,10 @@ protected:
                    const SkPoint texCoords[4], SkXfermode* xmode,
                    const SkPaint& paint) override
         {SkASSERT(0);}
+    void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
+                   const SkColor[], int count, SkXfermode::Mode, const SkPaint&) override
+        {SkASSERT(0);}
+
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                     const SkPaint&) override
         {SkASSERT(0);}
@@ -356,8 +360,7 @@ bool SkDeferredDevice::hasPendingCommands() {
     return fPipeController.hasPendingCommands();
 }
 
-void SkDeferredDevice::aboutToDraw()
-{
+void SkDeferredDevice::aboutToDraw() {
     if (fNotificationClient) {
         fNotificationClient->prepareForDraw();
     }
@@ -986,6 +989,15 @@ void SkDeferredCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor color
                                    const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawPatch(cubics, colors, texCoords, xmode, paint);
+    this->recordedDrawCommand();
+}
+
+void SkDeferredCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[],
+                                   const SkRect tex[], const SkColor colors[], int count,
+                                   SkXfermode::Mode mode, const SkRect* cullRect,
+                                   const SkPaint* paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, paint);
+    this->drawingCanvas()->drawAtlas(atlas, xform, tex, colors, count, mode, cullRect, paint);
     this->recordedDrawCommand();
 }
 

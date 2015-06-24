@@ -7,6 +7,7 @@
 
 #include "SkMatrix.h"
 #include "SkFloatBits.h"
+#include "SkRSXform.h"
 #include "SkString.h"
 #include "SkNx.h"
 
@@ -438,6 +439,22 @@ void SkMatrix::setSinCos(SkScalar sinV, SkScalar cosV, SkScalar px, SkScalar py)
     fMat[kMPersp2] = 1;
 
     this->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+}
+
+SkMatrix& SkMatrix::setRSXform(const SkRSXform& xform) {
+    fMat[kMScaleX]  = xform.fSCos;
+    fMat[kMSkewX]   = -xform.fSSin;
+    fMat[kMTransX]  = xform.fTx;
+    
+    fMat[kMSkewY]   = xform.fSSin;
+    fMat[kMScaleY]  = xform.fSCos;
+    fMat[kMTransY]  = xform.fTy;
+    
+    fMat[kMPersp0] = fMat[kMPersp1] = 0;
+    fMat[kMPersp2] = 1;
+    
+    this->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+    return *this;
 }
 
 void SkMatrix::setSinCos(SkScalar sinV, SkScalar cosV) {
@@ -1823,3 +1840,15 @@ bool SkDecomposeUpper2x2(const SkMatrix& matrix,
 
     return true;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkRSXform::toQuad(SkScalar width, SkScalar height, SkPoint quad[4]) const {
+    quad[0].set(0, 0);
+    quad[1].set(width, 0);
+    quad[2].set(width, height);
+    quad[3].set(0, height);
+    SkMatrix m;
+    m.setRSXform(*this).mapPoints(quad, quad, 4);
+}
+

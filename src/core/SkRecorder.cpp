@@ -299,6 +299,19 @@ void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
            xmode);
 }
 
+void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                             const SkColor colors[], int count, SkXfermode::Mode mode,
+                             const SkRect* cull, const SkPaint* paint) {
+    APPEND(DrawAtlas, this->copy(paint),
+           atlas,
+           this->copy(xform, count),
+           this->copy(tex, count),
+           this->copy(colors, count),
+           count,
+           mode,
+           this->copy(cull));
+}
+
 void SkRecorder::willSave() {
     APPEND(Save);
 }

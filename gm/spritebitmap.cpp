@@ -8,6 +8,8 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkBlurImageFilter.h"
+#include "SkRSXform.h"
+#include "SkSurface.h"
 
 static void make_bm(SkBitmap* bm) {
     bm->allocN32Pixels(100, 100);
@@ -93,7 +95,5 @@ protected:
 private:
     typedef GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
 DEF_GM( return new SpriteBitmapGM; )
+
