@@ -68,11 +68,13 @@ class DrawAtlasDrawable : public SkDrawable {
                 fVelocity.fX = -fVelocity.fX;
             }
             if (fCenter.fY > bounds.bottom()) {
-                SkASSERT(fVelocity.fY > 0);
-                fVelocity.fY = -fVelocity.fY;
+                if (fVelocity.fY > 0) {
+                    fVelocity.fY = -fVelocity.fY;
+                }
             } else if (fCenter.fY < bounds.top()) {
-                SkASSERT(fVelocity.fY < 0);
-                fVelocity.fY = -fVelocity.fY;
+                if (fVelocity.fY < 0) {
+                    fVelocity.fY = -fVelocity.fY;
+                }
             }
 
             fScale += fDScale;

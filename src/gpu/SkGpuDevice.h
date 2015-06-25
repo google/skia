@@ -111,6 +111,8 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint&) override;
+    void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
+                       const SkColor[], int count, SkXfermode::Mode, const SkPaint&) override;
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) override;
     void drawImage(const SkDraw&, const SkImage*, SkScalar x, SkScalar y, const SkPaint&) override;

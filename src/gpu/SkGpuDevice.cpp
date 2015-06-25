@@ -1639,6 +1639,50 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void append_quad_indices(uint16_t indices[], int quadIndex) {
+    int i = quadIndex * 4;
+    indices[0] = i + 0; indices[1] = i + 1; indices[2] = i + 2;
+    indices[3] = i + 2; indices[4] = i + 3; indices[5] = i + 0;
+}
+
+void SkGpuDevice::drawAtlas(const SkDraw& d, const SkImage* atlas, const SkRSXform xform[],
+                            const SkRect texRect[], const SkColor colors[], int count,
+                            SkXfermode::Mode mode, const SkPaint& paint) {
+    if (paint.isAntiAlias()) {
+        this->INHERITED::drawAtlas(d, atlas, xform, texRect, colors, count, mode, paint);
+        return;
+    }
+
+    SkPaint p(paint);
+    p.setShader(atlas->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode))->unref();
+
+    const int vertCount = count * 4;
+    const int indexCount = count * 6;
+    SkAutoTMalloc<SkPoint> vertStorage(vertCount * 2);
+    SkPoint* verts = vertStorage.get();
+    SkPoint* texs = verts + vertCount;
+    SkAutoTMalloc<uint16_t> indexStorage(indexCount);
+    uint16_t* indices = indexStorage.get();
+    SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
+
+    for (int i = 0; i < count; ++i) {
+        xform[i].toQuad(texRect[i].width(), texRect[i].height(), verts);
+        texRect[i].toQuad(texs);
+        append_quad_indices(indices, i);
+        verts += 4;
+        texs += 4;
+        indices += 6;
+    }
+
+    verts = vertStorage.get();
+    texs = verts + vertCount;
+    indices = indexStorage.get();
+    this->drawVertices(d, SkCanvas::kTriangles_VertexMode, vertCount, verts, texs, colors, xfer,
+                       indices, indexCount, p);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
                            size_t byteLength, SkScalar x, SkScalar y,
                            const SkPaint& paint) {
