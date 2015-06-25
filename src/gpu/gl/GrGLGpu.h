@@ -54,8 +54,7 @@ public:
 
     void discard(GrRenderTarget*) override;
 
-    // Used by GrGLProgram and GrGLPathTexGenProgramEffects to configure OpenGL
-    // state.
+    // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
 
     // GrGpu overrides
