@@ -16,6 +16,7 @@
 #include "SkErrorInternals.h"
 #include "SkImage.h"
 #include "SkMetaData.h"
+#include "SkNinePatchIter.h"
 #include "SkPathOps.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
@@ -1771,8 +1772,19 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src, const SkRe
     this->onDrawImageRect(image, src, dst, paint);
 }
 
+void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
+                             const SkPaint* paint) {
+    if (dst.isEmpty()) {
+        return;
+    }
+    if (!SkNinePatchIter::Valid(image->width(), image->height(), center)) {
+        this->drawImageRect(image, NULL, dst, paint);
+    }
+    this->onDrawImageNine(image, center, dst, paint);
+}
+
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
-    if (bitmap.empty()) {
+    if (bitmap.drawsNothing()) {
         return;
     }
     this->onDrawBitmap(bitmap, dx, dy, paint);
@@ -1780,7 +1792,7 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, cons
 
 void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                                     const SkPaint* paint, DrawBitmapRectFlags flags) {
-    if (bitmap.empty()) {
+    if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
     this->onDrawBitmapRect(bitmap, src, dst, paint, flags);
@@ -1788,14 +1800,17 @@ void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src, c
 
 void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                               const SkPaint* paint) {
-    if (bitmap.empty()) {
+    if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
+    }
+    if (!SkNinePatchIter::Valid(bitmap.width(), bitmap.height(), center)) {
+        this->drawBitmapRectToRect(bitmap, NULL, dst, paint);
     }
     this->onDrawBitmapNine(bitmap, center, dst, paint);
 }
 
 void SkCanvas::drawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
-    if (bitmap.empty()) {
+    if (bitmap.drawsNothing()) {
         return;
     }
     this->onDrawSprite(bitmap, left, top, paint);
@@ -2116,15 +2131,13 @@ void SkCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const
     this->internalDrawBitmapRect(bitmap, src, dst, paint, flags);
 }
 
-void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
-                                      const SkIRect& center, const SkRect& dst,
-                                      const SkPaint* paint) {
-    if (bitmap.drawsNothing()) {
-        return;
-    }
+void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
+                               const SkPaint* paint) {
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageNine()");
+    
+    SkRect storage;
+    const SkRect* bounds = &dst;
     if (NULL == paint || paint->canComputeFastBounds()) {
-        SkRect storage;
-        const SkRect* bounds = &dst;
         if (paint) {
             bounds = &paint->computeFastBounds(dst, &storage);
         }
@@ -2132,58 +2145,19 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
             return;
         }
     }
-
-    const int32_t w = bitmap.width();
-    const int32_t h = bitmap.height();
-
-    SkIRect c = center;
-    // pin center to the bounds of the bitmap
-    c.fLeft = SkMax32(0, center.fLeft);
-    c.fTop = SkMax32(0, center.fTop);
-    c.fRight = SkPin32(center.fRight, c.fLeft, w);
-    c.fBottom = SkPin32(center.fBottom, c.fTop, h);
-
-    const SkScalar srcX[4] = {
-        0, SkIntToScalar(c.fLeft), SkIntToScalar(c.fRight), SkIntToScalar(w)
-    };
-    const SkScalar srcY[4] = {
-        0, SkIntToScalar(c.fTop), SkIntToScalar(c.fBottom), SkIntToScalar(h)
-    };
-    SkScalar dstX[4] = {
-        dst.fLeft, dst.fLeft + SkIntToScalar(c.fLeft),
-        dst.fRight - SkIntToScalar(w - c.fRight), dst.fRight
-    };
-    SkScalar dstY[4] = {
-        dst.fTop, dst.fTop + SkIntToScalar(c.fTop),
-        dst.fBottom - SkIntToScalar(h - c.fBottom), dst.fBottom
-    };
-
-    if (dstX[1] > dstX[2]) {
-        dstX[1] = dstX[0] + (dstX[3] - dstX[0]) * c.fLeft / (w - c.width());
-        dstX[2] = dstX[1];
+    
+    SkLazyPaint lazy;
+    if (NULL == paint) {
+        paint = lazy.init();
     }
-
-    if (dstY[1] > dstY[2]) {
-        dstY[1] = dstY[0] + (dstY[3] - dstY[0]) * c.fTop / (h - c.height());
-        dstY[2] = dstY[1];
+    
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
+    
+    while (iter.next()) {
+        iter.fDevice->drawImageNine(iter, image, center, dst, looper.paint());
     }
-
-    for (int y = 0; y < 3; y++) {
-        SkRect s, d;
-
-        s.fTop = srcY[y];
-        s.fBottom = srcY[y+1];
-        d.fTop = dstY[y];
-        d.fBottom = dstY[y+1];
-        for (int x = 0; x < 3; x++) {
-            s.fLeft = srcX[x];
-            s.fRight = srcX[x+1];
-            d.fLeft = dstX[x];
-            d.fRight = dstX[x+1];
-            this->internalDrawBitmapRect(bitmap, &s, d, paint,
-                                         kNone_DrawBitmapRectFlag);
-        }
-    }
+    
+    LOOPER_END
 }
 
 void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
@@ -2191,8 +2165,29 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapNine()");
     SkDEBUGCODE(bitmap.validate();)
 
-    // Need a device entry-point, so gpu can use a mesh
-    this->internalDrawBitmapNine(bitmap, center, dst, paint);
+    SkRect storage;
+    const SkRect* bounds = &dst;
+    if (NULL == paint || paint->canComputeFastBounds()) {
+        if (paint) {
+            bounds = &paint->computeFastBounds(dst, &storage);
+        }
+        if (this->quickReject(*bounds)) {
+            return;
+        }
+    }
+    
+    SkLazyPaint lazy;
+    if (NULL == paint) {
+        paint = lazy.init();
+    }
+    
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
+    
+    while (iter.next()) {
+        iter.fDevice->drawBitmapNine(iter, bitmap, center, dst, looper.paint());
+    }
+    
+    LOOPER_END
 }
 
 class SkDeviceFilteredPaint {

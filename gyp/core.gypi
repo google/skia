@@ -134,6 +134,7 @@
         '<(skia_src_path)/core/SkMipMap.cpp',
         '<(skia_src_path)/core/SkMiniRecorder.cpp',
         '<(skia_src_path)/core/SkMultiPictureDraw.cpp',
+        '<(skia_src_path)/core/SkNinePatchIter.cpp',
         '<(skia_src_path)/core/SkPackBits.cpp',
         '<(skia_src_path)/core/SkPaint.cpp',
         '<(skia_src_path)/core/SkPaintPriv.cpp',

@@ -242,6 +242,13 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             const SkPoint& loc = reader->skipT<SkPoint>();
             canvas->drawImage(image, loc.fX, loc.fY, paint);
         } break;
+        case DRAW_IMAGE_NINE: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            const SkImage* image = fPictureData->getImage(reader);
+            const SkIRect& center = reader->skipT<SkIRect>();
+            const SkRect& dst = reader->skipT<SkRect>();
+            canvas->drawImageNine(image, center, dst, paint);
+        } break;
         case DRAW_IMAGE_RECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);

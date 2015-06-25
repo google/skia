@@ -46,6 +46,7 @@ enum DrawOps {
     kDrawDRRect_DrawOp,
     kDrawImage_DrawOp,
     kDrawImageRect_DrawOp,
+    kDrawImageNine_DrawOp,
     kDrawOval_DrawOp,
     kDrawPaint_DrawOp,
     kDrawPatch_DrawOp,

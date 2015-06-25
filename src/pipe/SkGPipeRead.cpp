@@ -695,6 +695,19 @@ static void drawImageRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32
     }
 }
 
+static void drawImageNine_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
+                             SkGPipeState* state) {
+    unsigned slot = DrawOp_unpackData(op32);
+    unsigned flags = DrawOp_unpackFlags(op32);
+    bool hasPaint = SkToBool(flags & kDrawBitmap_HasPaint_DrawOpFlag);
+    const SkIRect* center = skip<SkIRect>(reader);
+    const SkRect* dst = skip<SkRect>(reader);
+    const SkImage* image = state->getImage(slot);
+    if (state->shouldDraw()) {
+        canvas->drawImageNine(image, *center, *dst, hasPaint ? &state->paint() : NULL);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void drawPicture_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -866,6 +879,7 @@ static const ReadProc gReadTable[] = {
     drawDRRect_rp,
     drawImage_rp,
     drawImageRect_rp,
+    drawImageNine_rp,
     drawOval_rp,
     drawPaint_rp,
     drawPatch_rp,

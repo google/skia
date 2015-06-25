@@ -229,6 +229,9 @@ protected:
     void drawImageRect(const SkDraw&, const SkImage*, const SkRect*, const SkRect&,
                        const SkPaint&) override
         {SkASSERT(0);}
+    void drawImageNine(const SkDraw&, const SkImage*, const SkIRect&, const SkRect&,
+                       const SkPaint&) override
+        {SkASSERT(0);}
     void drawText(const SkDraw&, const void* text, size_t len,
                   SkScalar x, SkScalar y, const SkPaint& paint) override
         {SkASSERT(0);}
@@ -900,6 +903,19 @@ void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, 
     
     AutoImmediateDrawIfNeeded autoDraw(*this, image, paint);
     this->drawingCanvas()->drawImageRect(image, src, dst, paint);
+    this->recordedDrawCommand();
+}
+
+void SkDeferredCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center,
+                                       const SkRect& dst, const SkPaint* paint) {
+    if (fDeferredDrawing &&
+        this->isFullFrame(&dst, paint) &&
+        isPaintOpaque(paint, image)) {
+        this->getDeferredDevice()->skipPendingCommands();
+    }
+    
+    AutoImmediateDrawIfNeeded autoDraw(*this, image, paint);
+    this->drawingCanvas()->drawImageNine(image, center, dst, paint);
     this->recordedDrawCommand();
 }
 

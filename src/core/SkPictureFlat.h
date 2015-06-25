@@ -72,8 +72,9 @@ enum DrawType {
     DRAW_IMAGE,
     DRAW_IMAGE_RECT,
     DRAW_ATLAS,
+    DRAW_IMAGE_NINE,
 
-    LAST_DRAWTYPE_ENUM = DRAW_ATLAS
+    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_NINE
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

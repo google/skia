@@ -101,6 +101,7 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         1,  // DRAW_IMAGE - right after op code
         1,  // DRAW_IMAGE_RECT - right after op code
         1,  // DRAW_ATLAS - right after op code
+        1,  // DRAW_IMAGE_NINE - right after op code
     };
 
     SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
@@ -584,7 +585,7 @@ void SkPictureRecord::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
 
 void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint) {
-    // id + paint_index + bitmap_index + bool_for_src
+    // id + paint_index + image_index + bool_for_src
     size_t size = 4 * kUInt32Size;
     if (src) {
         size += sizeof(*src);   // + rect
@@ -597,6 +598,20 @@ void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, c
     this->addPaintPtr(paint);
     this->addImage(image);
     this->addRectPtr(src);  // may be null
+    this->addRect(dst);
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawImageNine(const SkImage* img, const SkIRect& center, const SkRect& dst,
+                                      const SkPaint* paint) {
+    // id + paint_index + image_index + center + dst
+    size_t size = 3 * kUInt32Size + sizeof(SkIRect) + sizeof(SkRect);
+    
+    size_t initialOffset = this->addDraw(DRAW_IMAGE_NINE, &size);
+    SkASSERT(initialOffset+get_paint_offset(DRAW_IMAGE_NINE, size) == fWriter.bytesWritten());
+    this->addPaintPtr(paint);
+    this->addImage(img);
+    this->addIRect(center);
     this->addRect(dst);
     this->validate(initialOffset, size);
 }

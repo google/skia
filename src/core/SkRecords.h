@@ -44,6 +44,7 @@ namespace SkRecords {
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
     M(DrawImageRect)                                                \
+    M(DrawImageNine)                                                \
     M(DrawDRRect)                                                   \
     M(DrawOval)                                                     \
     M(DrawPaint)                                                    \
@@ -287,6 +288,10 @@ RECORD4(DrawImage, Optional<SkPaint>, paint,
 RECORD4(DrawImageRect, Optional<SkPaint>, paint,
                        RefBox<const SkImage>, image,
                        Optional<SkRect>, src,
+                       SkRect, dst);
+RECORD4(DrawImageNine, Optional<SkPaint>, paint,
+                       RefBox<const SkImage>, image,
+                       SkIRect, center,
                        SkRect, dst);
 RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);

@@ -222,6 +222,11 @@ void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src,
     APPEND(DrawImageRect, this->copy(paint), image, this->copy(src), dst);
 }
 
+void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
+                                 const SkRect& dst, const SkPaint* paint) {
+    APPEND(DrawImageNine, this->copy(paint), image, center, dst);
+}
+
 void SkRecorder::onDrawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
     APPEND(DrawSprite, this->copy(paint), delay_copy(bitmap), left, top);
 }

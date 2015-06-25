@@ -220,10 +220,14 @@ protected:
                                 const SkRect* srcOrNull, const SkRect& dst,
                                 const SkPaint& paint,
                                 SkCanvas::DrawBitmapRectFlags flags) = 0;
+    virtual void drawBitmapNine(const SkDraw&, const SkBitmap&, const SkIRect& center,
+                               const SkRect& dst, const SkPaint&);
 
     virtual void drawImage(const SkDraw&, const SkImage*, SkScalar x, SkScalar y, const SkPaint&);
     virtual void drawImageRect(const SkDraw&, const SkImage*, const SkRect* src, const SkRect& dst,
                                const SkPaint&);
+    virtual void drawImageNine(const SkDraw&, const SkImage*, const SkIRect& center,
+                               const SkRect& dst, const SkPaint&);
 
     /**
      *  Does not handle text decoration.

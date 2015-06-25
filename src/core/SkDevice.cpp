@@ -11,6 +11,7 @@
 #include "SkDrawFilter.h"
 #include "SkImage_Base.h"
 #include "SkMetaData.h"
+#include "SkNinePatchIter.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
 #include "SkRasterClip.h"
@@ -158,6 +159,26 @@ void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm)) {
         this->drawBitmapRect(draw, bm, src, dst, paint, SkCanvas::kNone_DrawBitmapRectFlag);
+    }
+}
+
+void SkBaseDevice::drawImageNine(const SkDraw& draw, const SkImage* image, const SkIRect& center,
+                                 const SkRect& dst, const SkPaint& paint) {
+    SkNinePatchIter iter(image->width(), image->height(), center, dst);
+
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawImageRect(draw, image, &srcR, dstR, paint);
+    }
+}
+
+void SkBaseDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
+                                  const SkRect& dst, const SkPaint& paint) {
+    SkNinePatchIter iter(bitmap.width(), bitmap.height(), center, dst);
+    
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        this->drawBitmapRect(draw, bitmap, &srcR, dstR, paint, SkCanvas::kNone_DrawBitmapRectFlag);
     }
 }
 

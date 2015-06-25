@@ -97,6 +97,7 @@ DRAW(DrawBitmapRectToRectBleed,
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
 DRAW(DrawImageRect, drawImageRect(r.image, r.src, r.dst, r.paint));
+DRAW(DrawImageNine, drawImageNine(r.image, r.center, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
@@ -411,6 +412,9 @@ private:
         return this->adjustAndMap(rect, op.paint);
     }
     Bounds bounds(const DrawImageRect& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
+    }
+    Bounds bounds(const DrawImageNine& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawBitmapRectToRect& op) const {
