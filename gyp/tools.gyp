@@ -189,6 +189,7 @@
           'link_settings': {
             'libraries': [
               '-lrt',
+              '-pthread',
             ],
           },
         }],
