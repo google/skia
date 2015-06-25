@@ -109,8 +109,8 @@ public:
                           const GrPipeline&,
                           const GrBatchTracker&) const override;
 
-    virtual const GrGLInterface* glInterfaceForTesting() const {
-        return this->glInterface();
+    const GrGLContext* glContextForTesting() const override {
+        return &this->glContext();
     }
 
 private:
@@ -300,7 +300,7 @@ private:
 
     void unbindTextureFromFBO(GrGLenum fboTarget);
 
-    SkAutoTDelete<GrGLContext>  fGLContext;
+    SkAutoTUnref<GrGLContext>  fGLContext;
 
     void createCopyProgram();
 
