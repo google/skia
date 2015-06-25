@@ -17,7 +17,7 @@
 class SKPAnimationBench : public SKPBench {
 public:
     SKPAnimationBench(const char* name, const SkPicture*, const SkIRect& devClip,
-                      SkMatrix viewMatrix, int steps);
+                      SkMatrix viewMatrix, int steps, bool doLooping);
 
 protected:
     const char* onGetName() override;

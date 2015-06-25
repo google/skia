@@ -10,9 +10,9 @@
 #include "SkMultiPictureDraw.h"
 #include "SkSurface.h"
 
-SKPAnimationBench::SKPAnimationBench(const char* name, const SkPicture* pic,
-                                     const SkIRect& clip, SkMatrix animationMatrix, int steps)
-    : INHERITED(name, pic, clip, 1.0, false)
+SKPAnimationBench::SKPAnimationBench(const char* name, const SkPicture* pic, const SkIRect& clip,
+                                     SkMatrix animationMatrix, int steps, bool doLooping)
+    : INHERITED(name, pic, clip, 1.0, false, doLooping)
     , fSteps(steps)
     , fAnimationMatrix(animationMatrix)
     , fName(name) {

@@ -92,6 +92,7 @@ DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_string(zoom, "1.0,1", "Comma-separated scale,step zoom factors for SKPs.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
+DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test.");
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
@@ -272,7 +273,8 @@ static int cpu_bench(const double overhead, Target* target, Benchmark* bench, do
     // First figure out approximately how many loops of bench it takes to make overhead negligible.
     double bench_plus_overhead = 0.0;
     int round = 0;
-    if (kAutoTuneLoops == FLAGS_loops) {
+    int loops = bench->calculateLoops(FLAGS_loops);
+    if (kAutoTuneLoops == loops) {
         while (bench_plus_overhead < overhead) {
             if (round++ == FLAGS_maxCalibrationAttempts) {
                 SkDebugf("WARNING: Can't estimate loops for %s (%s vs. %s); skipping.\n",
@@ -299,7 +301,6 @@ static int cpu_bench(const double overhead, Target* target, Benchmark* bench, do
     //       bench_plus_overhead - overhead)
     //
     // Luckily, this also works well in practice. :)
-    int loops = FLAGS_loops;
     if (kAutoTuneLoops == loops) {
         const double numer = overhead / FLAGS_overheadGoal - overhead;
         const double denom = bench_plus_overhead - overhead;
@@ -320,7 +321,7 @@ static int gpu_bench(Target* target,
                      double* samples,
                      int maxGpuFrameLag) {
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
-    int loops = FLAGS_loops;
+    int loops = bench->calculateLoops(FLAGS_loops);
     if (kAutoTuneLoops == loops) {
         loops = 1;
         double elapsed = 0;
@@ -715,8 +716,8 @@ public:
                     fSourceType = "skp";
                     fBenchType = "playback";
                     return SkNEW_ARGS(SKPBench,
-                                      (name.c_str(), pic.get(), fClip,
-                                       fScales[fCurrentScale], fUseMPDs[fCurrentUseMPD++]));
+                                      (name.c_str(), pic.get(), fClip, fScales[fCurrentScale],
+                                       fUseMPDs[fCurrentUseMPD++], FLAGS_loopSKP));
 
                 }
                 fCurrentUseMPD = 0;
@@ -741,7 +742,7 @@ public:
                 SkMatrix anim = SkMatrix::I();
                 anim.setScale(fZoomScale, fZoomScale);
                 return SkNEW_ARGS(SKPAnimationBench, (name.c_str(), pic.get(), fClip, anim,
-                                  fZoomSteps));
+                                  fZoomSteps, FLAGS_loopSKP));
             }
         }
 

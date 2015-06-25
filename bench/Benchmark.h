@@ -65,6 +65,10 @@ public:
         return backend != kNonRendering_Backend;
     }
 
+    virtual int calculateLoops(int defaultLoops) const {
+        return defaultLoops;
+    }
+
     // Call before draw, allows the benchmark to do setup work outside of the
     // timer. When a benchmark is repeatedly drawn, this should be called once
     // before the initial draw.
