@@ -31,6 +31,7 @@ while (( "$#" )); do
     BUILDTYPE=Release
   elif [[ "$1" == "--clang" ]]; then
     USE_CLANG="true"
+    export GYP_DEFINES="skia_clang_build=1 $GYP_DEFINES"
   elif [[ "$1" == "--logcat" ]]; then
     LOGCAT=1
   elif [[ "$1" == "--verbose" ]]; then
