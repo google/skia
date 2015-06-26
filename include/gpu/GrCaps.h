@@ -214,6 +214,10 @@ public:
         return fGeometryBufferMapThreshold;
     }
 
+    bool supportsInstancedDraws() const {
+        return fSupportsInstancedDraws;
+    }
+
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
         overrides requested by the client. Note that overrides will only reduce the caps never
@@ -233,6 +237,7 @@ protected:
     bool fCompressedTexSubImageSupport               : 1;
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
+    bool fSupportsInstancedDraws                     : 1;
 
     // Driver workaround
     bool fUseDrawInsteadOfClear                      : 1;

@@ -91,6 +91,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fCompressedTexSubImageSupport = false;
     fOversizedStencilSupport = false;
     fTextureBarrierSupport = false;
+    fSupportsInstancedDraws = false;
 
     fUseDrawInsteadOfClear = false;
 
@@ -152,6 +153,7 @@ SkString GrCaps::dump() const {
     r.appendf("Compressed Update Support          : %s\n", gNY[fCompressedTexSubImageSupport]);
     r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
     r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
+    r.appendf("Supports instanced draws           : %s\n", gNY[fSupportsInstancedDraws]);
     r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
     r.appendf("Draw Instead of TexSubImage [workaround] : %s\n",
               gNY[fUseDrawInsteadOfPartialRenderTargetWrite]);
