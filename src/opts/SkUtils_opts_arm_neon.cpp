@@ -10,7 +10,7 @@
 
 void sk_memset32_neon(uint32_t dst[], uint32_t value, int count) {
     uint32x4_t   v4  = vdupq_n_u32(value);
-    uint32x4x4_t v16 = { v4, v4, v4, v4 };
+    uint32x4x4_t v16 = {{ v4, v4, v4, v4 }};
 
     while (count >= 16) {
         vst4q_u32(dst, v16);  // This swizzles, but we don't care: all lanes are the same, value.
@@ -37,7 +37,7 @@ void sk_memset32_neon(uint32_t dst[], uint32_t value, int count) {
 
 void sk_memset16_neon(uint16_t dst[], uint16_t value, int count) {
     uint16x8_t   v8  = vdupq_n_u16(value);
-    uint16x8x4_t v32 = { v8, v8, v8, v8 };
+    uint16x8x4_t v32 = {{ v8, v8, v8, v8 }};
 
     while (count >= 32) {
         vst4q_u16(dst, v32);  // This swizzles, but we don't care: all lanes are the same, value.
