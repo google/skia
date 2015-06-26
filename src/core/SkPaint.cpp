@@ -519,8 +519,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
     return true;
 }
 
-void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count,
-                               SkUnichar textData[]) const {
+void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar textData[]) const {
     if (count <= 0) {
         return;
     }
@@ -528,7 +527,8 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count,
     SkASSERT(glyphs != NULL);
     SkASSERT(textData != NULL);
 
-    SkAutoGlyphCache autoCache(*this, NULL, NULL);
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    SkAutoGlyphCache autoCache(*this, &props, NULL);
     SkGlyphCache*    cache = autoCache.getCache();
 
     for (int index = 0; index < count; index++) {
