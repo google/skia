@@ -105,7 +105,7 @@ protected:
         }
 
         // We currently hav only implemented the texture uploads for GL.
-        const GrGLInterface* gl = tt.glContext()->interface();
+        const GrGLInterface* gl = tt.glInterface();
         if (!gl) {
             return;
         }
@@ -139,7 +139,7 @@ protected:
             return;
         }
 
-        const GrGLInterface* gl = tt.glContext()->interface();
+        const GrGLInterface* gl = tt.glInterface();
         if (!gl) {
             return;
         }

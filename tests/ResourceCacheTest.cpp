@@ -181,7 +181,7 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
     GrTestTarget tt;
     context->getTestTarget(&tt);
 
-    const GrGLInterface* gl = tt.glContext()->interface();
+    const GrGLInterface* gl = tt.glInterface();
     if (!gl) {
         return;
     }

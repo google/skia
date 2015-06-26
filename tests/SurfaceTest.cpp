@@ -115,7 +115,7 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
     }
 
     // We currently have only implemented the texture uploads for GL.
-    const GrGLInterface* gl = tt.glContext()->interface();
+    const GrGLInterface* gl = tt.glInterface();
     if (!gl) {
         return;
     }

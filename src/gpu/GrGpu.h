@@ -17,7 +17,7 @@
 
 class GrBatchTracker;
 class GrContext;
-class GrGLContext;
+struct GrGLInterface;
 class GrIndexBuffer;
 class GrNonInstancedVertices;
 class GrPath;
@@ -366,7 +366,7 @@ public:
     bool attachStencilAttachmentToRenderTarget(GrRenderTarget* target);
 
     // This is only to be used in tests.
-    virtual const GrGLContext* glContextForTesting() const { return NULL; }
+    virtual const GrGLInterface* glInterfaceForTesting() const { return NULL; }
 
 protected:
     // Functions used to map clip-respecting stencil tests into normal

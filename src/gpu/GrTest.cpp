@@ -11,14 +11,15 @@
 #include "GrGpuResourceCacheAccess.h"
 #include "GrInOrderDrawBuffer.h"
 #include "GrResourceCache.h"
+#include "gl/GrGLInterface.h"
 #include "SkString.h"
 
-void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target, const GrGLContext* gl) {
+void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target, const GrGLInterface* gl) {
     SkASSERT(!fContext);
 
     fContext.reset(SkRef(ctx));
     fDrawTarget.reset(SkRef(target));
-    fGLContext.reset(SkRef(gl));
+    fGLInterface.reset(SkSafeRef(gl));
 }
 
 void GrContext::getTestTarget(GrTestTarget* tar) {
@@ -27,7 +28,7 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    tar->init(this, fDrawingMgr.fDrawTarget, fGpu->glContextForTesting());
+    tar->init(this, fDrawingMgr.fDrawTarget, fGpu->glInterfaceForTesting());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

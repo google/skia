@@ -20,7 +20,7 @@ struct GrContextOptions;
  * Encapsulates information about an OpenGL context including the OpenGL
  * version, the GrGLStandard type of the context, and GLSL version.
  */
-class GrGLContextInfo : public SkRefCnt {
+class GrGLContextInfo : public SkNoncopyable {
 public:
     GrGLStandard standard() const { return fInterface->fStandard; }
     GrGLVersion version() const { return fGLVersion; }
