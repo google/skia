@@ -152,7 +152,7 @@ void VisualBench::printStats() {
         SkDebugf("%s\n", shortName.c_str());
     } else {
         SkASSERT(measurements.count());
-        Stats stats(measurements.begin(), measurements.count());
+        Stats stats(measurements);
         const double stdDevPercent = 100 * sqrt(stats.var) / stats.mean;
         SkDebugf("%4d/%-4dMB\t%d\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\n",
                  sk_tools::getCurrResidentSetSizeMB(),

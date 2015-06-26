@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef Stats_DEFINED
 #define Stats_DEFINED
 
@@ -11,7 +18,13 @@
 #endif
 
 struct Stats {
-    Stats(const double samples[], int n) {
+    Stats(const SkTArray<double>& samples) {
+        int n = samples.count();
+        if (!n) {
+            min = max = mean = var = median = 0;
+            return;
+        }
+
         min = samples[0];
         max = samples[0];
         for (int i = 0; i < n; i++) {
@@ -32,7 +45,7 @@ struct Stats {
         var = err / (n-1);
 
         SkAutoTMalloc<double> sorted(n);
-        memcpy(sorted.get(), samples, n * sizeof(double));
+        memcpy(sorted.get(), samples.begin(), n * sizeof(double));
         SkTQSort(sorted.get(), sorted.get() + n - 1);
         median = sorted[n/2];
 

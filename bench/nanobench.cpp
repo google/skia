@@ -55,6 +55,8 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
+static const int kTimedSampling = 0;
+
 static const int kAutoTuneLoops = 0;
 
 static const int kDefaultLoops =
@@ -72,9 +74,17 @@ static SkString loops_help_txt() {
     return help;
 }
 
+static SkString to_string(int n) {
+    SkString str;
+    str.appendS32(n);
+    return str;
+}
+
 DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
 
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
+DEFINE_string(samplingTime, "0", "Amount of time to run each bench. Takes precedence over samples."
+                                 "Must be \"0\", \"%%lfs\", or \"%%lfms\"");
 DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
 DEFINE_double(overheadGoal, 0.0001,
               "Loop until timer overhead is at most this fraction of our measurments.");
@@ -269,7 +279,7 @@ static bool write_canvas_png(Target* target, const SkString& filename) {
 }
 
 static int kFailedLoops = -2;
-static int cpu_bench(const double overhead, Target* target, Benchmark* bench, double* samples) {
+static int setup_cpu_bench(const double overhead, Target* target, Benchmark* bench) {
     // First figure out approximately how many loops of bench it takes to make overhead negligible.
     double bench_plus_overhead = 0.0;
     int round = 0;
@@ -310,16 +320,10 @@ static int cpu_bench(const double overhead, Target* target, Benchmark* bench, do
         loops = detect_forever_loops(loops);
     }
 
-    for (int i = 0; i < FLAGS_samples; i++) {
-        samples[i] = time(loops, bench, target) / loops;
-    }
     return loops;
 }
 
-static int gpu_bench(Target* target,
-                     Benchmark* bench,
-                     double* samples,
-                     int maxGpuFrameLag) {
+static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag) {
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
     int loops = bench->calculateLoops(FLAGS_loops);
     if (kAutoTuneLoops == loops) {
@@ -353,11 +357,6 @@ static int gpu_bench(Target* target,
     // sure we're timing steady-state pipelined frames.
     for (int i = 0; i < maxGpuFrameLag - 1; i++) {
         time(loops, bench, target);
-    }
-
-    // Now, actually do the timing!
-    for (int i = 0; i < FLAGS_samples; i++) {
-        samples[i] = time(loops, bench, target) / loops;
     }
 
     return loops;
@@ -946,6 +945,24 @@ int nanobench_main() {
         FLAGS_verbose = true;
     }
 
+    double samplingTimeMs = 0;
+    if (0 != strcmp("0", FLAGS_samplingTime[0])) {
+        SkSTArray<8, char> timeUnit;
+        timeUnit.push_back_n(static_cast<int>(strlen(FLAGS_samplingTime[0])) + 1);
+        if (2 != sscanf(FLAGS_samplingTime[0], "%lf%s", &samplingTimeMs, timeUnit.begin()) ||
+            (0 != strcmp("s", timeUnit.begin()) && 0 != strcmp("ms", timeUnit.begin()))) {
+            SkDebugf("Invalid --samplingTime \"%s\". Must be \"0\", \"%%lfs\", or \"%%lfms\"\n",
+                     FLAGS_samplingTime[0]);
+            exit(0);
+        }
+        if (0 == strcmp("s", timeUnit.begin())) {
+            samplingTimeMs *= 1000;
+        }
+        if (samplingTimeMs) {
+            FLAGS_samples = kTimedSampling;
+        }
+    }
+
     if (kAutoTuneLoops != FLAGS_loops) {
         FLAGS_samples     = 1;
         FLAGS_gpuFrameLag = 0;
@@ -983,7 +1000,7 @@ int nanobench_main() {
     const double overhead = estimate_timer_overhead();
     SkDebugf("Timer overhead: %s\n", HUMANIZE(overhead));
 
-    SkAutoTMalloc<double> samples(FLAGS_samples);
+    SkTArray<double> samples;
 
     if (kAutoTuneLoops != FLAGS_loops) {
         SkDebugf("Fixed number of loops; times would only be misleading so we won't print them.\n");
@@ -991,6 +1008,8 @@ int nanobench_main() {
         // No header.
     } else if (FLAGS_quiet) {
         SkDebugf("median\tbench\tconfig\n");
+    } else if (kTimedSampling == FLAGS_samples) {
+        SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\tsamples\tconfig\tbench\n");
     } else {
         SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tconfig\tbench\n",
                  FLAGS_samples, "samples");
@@ -1022,11 +1041,29 @@ int nanobench_main() {
             targets[j]->setup();
             bench->perCanvasPreDraw(canvas);
 
-            int frameLag;
-            const int loops =
-                targets[j]->needsFrameTiming(&frameLag)
-                ? gpu_bench(targets[j], bench.get(), samples.get(), frameLag)
-                : cpu_bench(overhead, targets[j], bench.get(), samples.get());
+            int maxFrameLag;
+            const int loops = targets[j]->needsFrameTiming(&maxFrameLag)
+                ? setup_gpu_bench(targets[j], bench.get(), maxFrameLag)
+                : setup_cpu_bench(overhead, targets[j], bench.get());
+
+            if (kTimedSampling != FLAGS_samples) {
+                samples.reset(FLAGS_samples);
+                for (int s = 0; s < FLAGS_samples; s++) {
+                    samples[s] = time(loops, bench, targets[j]) / loops;
+                }
+            } else if (samplingTimeMs) {
+                samples.reset();
+                if (FLAGS_verbose) {
+                    SkDebugf("Begin sampling %s for %ims\n",
+                             bench->getUniqueName(), static_cast<int>(samplingTimeMs));
+                }
+                WallTimer timer;
+                timer.start();
+                do {
+                    samples.push_back(time(loops, bench, targets[j]) / loops);
+                    timer.end();
+                } while (timer.fWall < samplingTimeMs);
+            }
 
             bench->perCanvasPostDraw(canvas);
 
@@ -1043,7 +1080,7 @@ int nanobench_main() {
                 continue;
             }
 
-            Stats stats(samples.get(), FLAGS_samples);
+            Stats stats(samples);
             log->config(config);
             log->configOption("name", bench->getName());
             benchStream.fillCurrentOptions(log.get());
@@ -1063,7 +1100,7 @@ int nanobench_main() {
                          , bench->getUniqueName()
                          , config);
             } else if (FLAGS_verbose) {
-                for (int i = 0; i < FLAGS_samples; i++) {
+                for (int i = 0; i < samples.count(); i++) {
                     SkDebugf("%s  ", HUMANIZE(samples[i]));
                 }
                 SkDebugf("%s\n", bench->getUniqueName());
@@ -1083,7 +1120,8 @@ int nanobench_main() {
                         , HUMANIZE(stats.mean)
                         , HUMANIZE(stats.max)
                         , stddev_percent
-                        , stats.plot.c_str()
+                        , kTimedSampling != FLAGS_samples ? stats.plot.c_str()
+                                                          : to_string(samples.count()).c_str()
                         , config
                         , bench->getUniqueName()
                         );
