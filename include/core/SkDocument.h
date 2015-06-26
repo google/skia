@@ -32,8 +32,6 @@ class SkWStream;
  */
 class SK_API SkDocument : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkDocument)
-
     /**
      *  Create a PDF-backed document, writing the results into a SkWStream.
      *

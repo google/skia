@@ -40,8 +40,6 @@ class SkTextBlob;
  */
 class SK_API GrDrawContext : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrDrawContext)
-
     ~GrDrawContext() override;
 
     void copySurface(GrRenderTarget* dst, GrSurface* src,
@@ -253,7 +251,7 @@ private:
                        const GrPaint* paint);
     GrTextContext* createTextContext(GrRenderTarget*, const SkSurfaceProps&);
 
-    // A simpler version of the above which just returns true on success; false on failure.  
+    // A simpler version of the above which just returns true on success; false on failure.
     // Clip is *NOT* set
     bool prepareToDraw(GrRenderTarget* rt);
 

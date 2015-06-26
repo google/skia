@@ -20,8 +20,6 @@ class SkStream;
  */
 class SK_API SkData : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkData)
-
     /**
      *  Returns the number of bytes stored.
      */

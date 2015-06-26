@@ -23,7 +23,7 @@ class SkPDFObjNumMap;
     SkObjRef).
 */
 class SkPDFStream : public SkPDFDict {
-    SK_DECLARE_INST_COUNT(SkPDFStream)
+    
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary.

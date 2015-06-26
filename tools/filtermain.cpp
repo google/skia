@@ -638,7 +638,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 
     memset(localCount, 0, sizeof(localCount));
 
-    SkDebugCanvas debugCanvas(SkScalarCeilToInt(inPicture->cullRect().width()), 
+    SkDebugCanvas debugCanvas(SkScalarCeilToInt(inPicture->cullRect().width()),
                               SkScalarCeilToInt(inPicture->cullRect().height()));
     inPicture->playback(&debugCanvas);
 
@@ -678,8 +678,8 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 
     if (!outFile.isEmpty()) {
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(inPicture->cullRect().width(), 
-                                                   inPicture->cullRect().height(), 
+        SkCanvas* canvas = recorder.beginRecording(inPicture->cullRect().width(),
+                                                   inPicture->cullRect().height(),
                                                    NULL, 0);
         debugCanvas.draw(canvas);
         SkAutoTUnref<SkPicture> outPicture(recorder.endRecording());
@@ -712,10 +712,6 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 int tool_main(int argc, char** argv); // suppress a warning on mac
 
 int tool_main(int argc, char** argv) {
-#if SK_ENABLE_INST_COUNT
-    gPrintInstCount = true;
-#endif
-
     SkGraphics::Init();
 
     if (argc < 3) {

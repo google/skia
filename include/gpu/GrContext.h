@@ -46,8 +46,6 @@ class GrSoftwarePathRenderer;
 
 class SK_API GrContext : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrContext)
-
     /**
      * Creates a GrContext for a backend context.
      */
@@ -90,7 +88,7 @@ public:
     }
 
     /**
-     * Abandons all GPU resources and assumes the underlying backend 3D API 
+     * Abandons all GPU resources and assumes the underlying backend 3D API
      * context is not longer usable. Call this if you have lost the associated
      * GPU context, and thus internal texture, buffer, etc. references/IDs are
      * now invalid. Should be called even when GrContext is no longer going to
@@ -172,7 +170,7 @@ public:
     int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
 
     /**
-     * Returns a helper object to orchestrate draws. 
+     * Returns a helper object to orchestrate draws.
      * Callers should take a ref if they rely on the GrDrawContext sticking around.
      * NULL will be returned if the context has been abandoned.
      *
@@ -181,7 +179,7 @@ public:
      * @return a draw context
      */
     GrDrawContext* drawContext(const SkSurfaceProps* surfaceProps = NULL) {
-        return fDrawingMgr.drawContext(surfaceProps);    
+        return fDrawingMgr.drawContext(surfaceProps);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -211,7 +209,7 @@ public:
     void flushIfNecessary() {
         if (fFlushToReduceCacheSize) {
             this->flush();
-        }    
+        }
     }
 
    /**
@@ -363,7 +361,7 @@ private:
     GrResourceCache*                fResourceCache;
     // this union exists because the inheritance of GrTextureProvider->GrResourceProvider
     // is in a private header.
-    union { 
+    union {
         GrResourceProvider*         fResourceProvider;
         GrTextureProvider*          fTextureProvider;
     };
@@ -398,7 +396,7 @@ private:
     // and hands the appropriate one back given the user's request.
     // All of the GrDrawContexts still land in the same GrDrawTarget!
     //
-    // In the future this class will allocate a new GrDrawContext for 
+    // In the future this class will allocate a new GrDrawContext for
     // each GrRenderTarget/GrDrawTarget and manage the DAG.
     class DrawingMgr {
     public:

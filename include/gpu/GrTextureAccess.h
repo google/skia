@@ -113,8 +113,6 @@ private:
  */
 class GrTextureAccess : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT(GrTextureAccess);
-
     /**
      * A default GrTextureAccess must have reset() called on it in a GrProcessor subclass's
      * constructor if it will be accessible via GrProcessor::textureAccess().

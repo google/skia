@@ -8,7 +8,6 @@
 #ifndef SkPath_DEFINED
 #define SkPath_DEFINED
 
-#include "SkInstCnt.h"
 #include "SkMatrix.h"
 #include "SkPathRef.h"
 #include "SkTDArray.h"
@@ -28,8 +27,6 @@ class SkWStream;
 */
 class SK_API SkPath {
 public:
-    SK_DECLARE_INST_COUNT(SkPath);
-
     SkPath();
     SkPath(const SkPath&);
     ~SkPath();

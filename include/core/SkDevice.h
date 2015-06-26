@@ -26,8 +26,6 @@ class GrRenderTarget;
 
 class SK_API SkBaseDevice : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkBaseDevice)
-
     /**
      *  Construct a new device.
     */

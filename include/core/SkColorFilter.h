@@ -27,8 +27,6 @@ class GrContext;
  */
 class SK_API SkColorFilter : public SkFlattenable {
 public:
-    SK_DECLARE_INST_COUNT(SkColorFilter)
-
     /**
      *  If the filter can be represented by a source color plus Mode, this
      *  returns true, and sets (if not NULL) the color and mode appropriately.

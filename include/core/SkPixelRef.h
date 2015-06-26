@@ -49,8 +49,6 @@ class GrTexture;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkPixelRef)
-
     explicit SkPixelRef(const SkImageInfo&);
     SkPixelRef(const SkImageInfo&, SkBaseMutex* mutex);
     virtual ~SkPixelRef();

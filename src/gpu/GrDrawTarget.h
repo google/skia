@@ -37,7 +37,7 @@ class GrPipeline;
 
 class GrDrawTarget : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrDrawTarget)
+    
 
     typedef GrPathRange::PathIndexType PathIndexType;
     typedef GrPathRendering::PathTransformType PathTransformType;

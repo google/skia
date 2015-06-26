@@ -34,8 +34,6 @@ public:
         kNoRestriction_StencilSupport,
     };
 
-    SK_DECLARE_INST_COUNT(GrPathRendererChain)
-
     GrPathRendererChain(GrContext* context);
 
     ~GrPathRendererChain();

@@ -10,7 +10,6 @@
 #include "Resources.h"
 #include "SkCommonFlags.h"
 #include "SkGraphics.h"
-#include "SkInstCnt.h"
 #include "SkOSFile.h"
 #include "SkRunnable.h"
 #include "SkTArray.h"
@@ -130,12 +129,6 @@ static bool should_run(const char* testName, bool isGPUTest) {
 int test_main();
 int test_main() {
     SetupCrashHandler();
-
-#if SK_ENABLE_INST_COUNT
-    if (FLAGS_leaks) {
-        gPrintInstCount = true;
-    }
-#endif
 
     SkAutoGraphics ag;
 

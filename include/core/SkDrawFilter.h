@@ -23,8 +23,6 @@ class SkPaint;
  */
 class SK_API SkDrawFilter : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkDrawFilter)
-
     enum Type {
         kPaint_Type,
         kPoint_Type,

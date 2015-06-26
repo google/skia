@@ -57,8 +57,6 @@ private:
  */
 class GrProcessor : public GrProgramElement {
 public:
-    SK_DECLARE_INST_COUNT(GrProcessor)
-
     virtual ~GrProcessor();
 
     /** Human-meaningful string to identify this prcoessor; may be embedded

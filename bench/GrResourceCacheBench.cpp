@@ -23,7 +23,6 @@ enum {
 
 class BenchResource : public GrGpuResource {
 public:
-    SK_DECLARE_INST_COUNT(BenchResource);
     BenchResource (GrGpu* gpu)
         : INHERITED(gpu, kCached_LifeCycle) {
         this->registerWithCache();

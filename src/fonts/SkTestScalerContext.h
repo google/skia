@@ -30,7 +30,7 @@ struct SkTestFontData {
 
 class SkTestFont : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkTestFont)
+    
 
     SkTestFont(const SkTestFontData& );
     virtual ~SkTestFont();

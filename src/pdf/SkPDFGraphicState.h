@@ -24,7 +24,7 @@ class SkPDFFormXObject;
     once, we want to canonicalize them.
 */
 class SkPDFGraphicState : public SkPDFObject {
-    SK_DECLARE_INST_COUNT(SkPDFGraphicState)
+    
 public:
     enum SkPDFSMaskMode {
         kAlpha_SMaskMode,

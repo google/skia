@@ -80,8 +80,6 @@ public:
         kSkXfermode_Type,
     };
 
-    SK_DECLARE_INST_COUNT(SkFlattenable)
-
     typedef SkFlattenable* (*Factory)(SkReadBuffer&);
 
     SkFlattenable() {}

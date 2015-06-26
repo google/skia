@@ -682,7 +682,7 @@ class GrGLLight;
 
 class SkLight : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkLight)
+    
 
     enum LightType {
         kDistant_LightType,

@@ -41,8 +41,6 @@ typedef uint32_t SkFontTableTag;
 */
 class SK_API SkTypeface : public SkWeakRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkTypeface)
-
     /** Style specifies the intrinsic style attributes of a given typeface
     */
     enum Style {

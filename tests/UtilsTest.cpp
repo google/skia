@@ -14,7 +14,7 @@
 
 class RefClass : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(RefClass)
+    
 
     RefClass(int n) : fN(n) {}
     int get() const { return fN; }

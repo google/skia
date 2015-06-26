@@ -19,8 +19,6 @@ struct GrContextOptions;
 
 class GrShaderCaps : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrShaderCaps)
-
     /** Info about shader variable precision within a given shader stage. That is, this info
         is relevant to a float (or vecNf) variable declared with a GrSLPrecision
         in a given GrShaderType. The info here is hoisted from the OpenGL spec. */
@@ -108,7 +106,7 @@ private:
  */
 class GrCaps : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrCaps)
+    
 
     GrCaps(const GrContextOptions&);
 

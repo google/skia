@@ -9,7 +9,6 @@
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
 #include "GrMemoryPool.h"
-#include "SkInstCnt.h"
 #include "SkRandom.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
@@ -44,22 +43,14 @@ public:
         }
     }
 
-    SK_DECLARE_INST_COUNT(A);
-
     static A* Create(SkRandom* r);
 
     static void SetAllocator(size_t preallocSize, size_t minAllocSize) {
-#if SK_ENABLE_INST_COUNT
-        SkASSERT(0 == GetInstanceCount());
-#endif
         GrMemoryPool* pool = new GrMemoryPool(preallocSize, minAllocSize);
         gPool.reset(pool);
     }
 
     static void ResetAllocator() {
-#if SK_ENABLE_INST_COUNT
-        SkASSERT(0 == GetInstanceCount());
-#endif
         gPool.reset(NULL);
     }
 
@@ -232,9 +223,6 @@ DEF_TEST(GrMemoryPool, reporter) {
                 REPORTER_ASSERT(reporter, rec.fInstance->checkValues(rec.fValue));
                 delete rec.fInstance;
             }
-#if SK_ENABLE_INST_COUNT
-            REPORTER_ASSERT(reporter, !A::GetInstanceCount());
-#endif
         }
     }
 }

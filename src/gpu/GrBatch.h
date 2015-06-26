@@ -39,7 +39,7 @@ struct GrInitInvariantOutput;
 
 class GrBatch : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrBatch)
+    
     GrBatch() : fClassID(kIllegalBatchClassID), fNumberOfDraws(0) { SkDEBUGCODE(fUsed = false;) }
     virtual ~GrBatch() {}
 

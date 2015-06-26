@@ -14,7 +14,7 @@
 
 class GrGLSLCaps : public GrShaderCaps {
 public:
-    SK_DECLARE_INST_COUNT(GrGLSLCaps)
+    
 
     /**
     * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires

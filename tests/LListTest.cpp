@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkInstCnt.h"
 #include "SkRandom.h"
 #include "SkTInternalLList.h"
 #include "SkTLList.h"
@@ -17,15 +16,10 @@ public:
     }
     bool operator== (const ListElement& other) { return fID == other.fID; }
 
-#if SK_ENABLE_INST_COUNT
-    // Make the instance count available publicly.
-    static int InstanceCount() { return GetInstanceCount(); }
-#endif
-
     int fID;
 
 private:
-    SK_DECLARE_INST_COUNT(ListElement);
+
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(ListElement);
 };
 
@@ -134,10 +128,6 @@ static void TestTLList(skiatest::Reporter* reporter) {
         Iter iter3;
         Iter iter4;
 
-#if SK_ENABLE_INST_COUNT
-        SkASSERT(0 == ListElement::InstanceCount());
-#endif
-
         REPORTER_ASSERT(reporter, list1.isEmpty());
         REPORTER_ASSERT(reporter, NULL == iter1.init(list1, Iter::kHead_IterStart));
         REPORTER_ASSERT(reporter, NULL == iter1.init(list1, Iter::kTail_IterStart));
@@ -150,9 +140,6 @@ static void TestTLList(skiatest::Reporter* reporter) {
         // Create two identical lists, one by appending to head and the other to the tail.
         list1.addToHead(ListElement(1));
         list2.addToTail(ListElement(1));
-#if SK_ENABLE_INST_COUNT
-        SkASSERT(2 == ListElement::InstanceCount());
-#endif
         iter1.init(list1, Iter::kHead_IterStart);
         iter2.init(list1, Iter::kTail_IterStart);
         REPORTER_ASSERT(reporter, iter1.get()->fID == iter2.get()->fID);
@@ -177,10 +164,6 @@ static void TestTLList(skiatest::Reporter* reporter) {
         iter4.init(list2, Iter::kTail_IterStart);
         list2.addToHead(ListElement(2));
 
-#if SK_ENABLE_INST_COUNT
-        SkASSERT(3 == ListElement::InstanceCount());
-#endif
-
         REPORTER_ASSERT(reporter, iter3.get()->fID == iter1.get()->fID);
         REPORTER_ASSERT(reporter, iter4.get()->fID == iter1.get()->fID);
         REPORTER_ASSERT(reporter, 1 == Iter(list2, Iter::kTail_IterStart).get()->fID);
@@ -188,16 +171,10 @@ static void TestTLList(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, list1 != list2);
         list1.addToHead(ListElement(2));
         REPORTER_ASSERT(reporter, list1 == list2);
-#if SK_ENABLE_INST_COUNT
-        SkASSERT(4 == ListElement::InstanceCount());
-#endif
         REPORTER_ASSERT(reporter, !list1.isEmpty());
 
         list1.reset();
         list2.reset();
-#if SK_ENABLE_INST_COUNT
-        SkASSERT(0 == ListElement::InstanceCount());
-#endif
         REPORTER_ASSERT(reporter, list1.isEmpty() && list2.isEmpty());
 
         // randomly perform insertions and deletions on a list and perform tests
@@ -300,14 +277,8 @@ static void TestTLList(skiatest::Reporter* reporter) {
                 --count;
             }
             REPORTER_ASSERT(reporter, count == list1.count());
-#if SK_ENABLE_INST_COUNT
-            SkASSERT(count == ListElement::InstanceCount());
-#endif
         }
         list1.reset();
-#if SK_ENABLE_INST_COUNT
-        SkASSERT(0 == ListElement::InstanceCount());
-#endif
     }
 }
 

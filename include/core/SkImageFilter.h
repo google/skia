@@ -31,8 +31,6 @@ struct SkIPoint;
  */
 class SK_API SkImageFilter : public SkFlattenable {
 public:
-    SK_DECLARE_INST_COUNT(SkImageFilter)
-
     class CropRect {
     public:
         enum CropEdge {
@@ -84,7 +82,7 @@ public:
     class Proxy {
     public:
         Proxy(SkBaseDevice* device) : fDevice(device) { }
-        
+
         SkBaseDevice* createDevice(int width, int height);
 
         // Returns true if the proxy handled the filter itself. If this returns
@@ -95,7 +93,7 @@ public:
     private:
         SkBaseDevice* fDevice;
     };
-    
+
 
     /**
      *  Request a new (result) image to be created from the src image.

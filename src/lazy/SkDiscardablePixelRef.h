@@ -20,7 +20,7 @@
  */
 class SkDiscardablePixelRef : public SkPixelRef {
 public:
-    SK_DECLARE_INST_COUNT(SkDiscardablePixelRef)
+    
 
 protected:
     ~SkDiscardablePixelRef();

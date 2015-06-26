@@ -26,7 +26,7 @@ class GrGLSLCaps;
  */
 class GrGLCaps : public GrCaps {
 public:
-    SK_DECLARE_INST_COUNT(GrGLCaps)
+    
 
     typedef GrGLStencilAttachment::Format StencilFormat;
 

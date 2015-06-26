@@ -13,7 +13,7 @@
 
 class SkBoundary : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkBoundary)
+    
 
     // These must be 0, 1, 2, 3 for efficiency in the subclass implementations
     enum Edge {

@@ -68,7 +68,7 @@ public:
      */
     class DeviceManager : public SkRefCnt {
     public:
-        SK_DECLARE_INST_COUNT(DeviceManager)
+        
 
         virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) = 0;
 

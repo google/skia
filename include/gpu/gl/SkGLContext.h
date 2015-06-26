@@ -18,7 +18,7 @@
 
 class SK_API SkGLContext : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkGLContext)
+    
 
     ~SkGLContext() override;
 

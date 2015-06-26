@@ -51,7 +51,7 @@ public:
 };
 
 class SkPDFFunctionShader : public SkPDFDict {
-    SK_DECLARE_INST_COUNT(SkPDFFunctionShader);
+    
 
 public:
     static SkPDFFunctionShader* Create(SkPDFCanon*,

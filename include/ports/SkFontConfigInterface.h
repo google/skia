@@ -24,7 +24,7 @@ struct SkBaseMutex;
  */
 class SK_API SkFontConfigInterface : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkFontConfigInterface)
+    
 
     /**
      *  Returns the global SkFontConfigInterface instance, and if it is not

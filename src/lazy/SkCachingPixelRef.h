@@ -26,7 +26,7 @@ class SkColorTable;
  */
 class SkCachingPixelRef : public SkPixelRef {
 public:
-    SK_DECLARE_INST_COUNT(SkCachingPixelRef)
+    
     /**
      *  Takes ownership of SkImageGenerator.  If this method fails for
      *  whatever reason, it will return false and immediatetely delete

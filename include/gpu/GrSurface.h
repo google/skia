@@ -20,8 +20,6 @@ class GrTexture;
 
 class GrSurface : public GrGpuResource {
 public:
-    SK_DECLARE_INST_COUNT(GrSurface);
-
     /**
      * Retrieves the width of the surface.
      */
@@ -122,14 +120,14 @@ public:
      * if the surface has MSAA it will be resolved.
      */
     void prepareForExternalRead();
-    
+
     /** Access methods that are only to be used within Skia code. */
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;
 
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
-    
+
     void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
         fReleaseProc = proc;
         fReleaseCtx = ctx;
@@ -170,7 +168,7 @@ private:
             fReleaseProc = NULL;
         }
     }
-    
+
     ReleaseProc fReleaseProc;
     ReleaseCtx  fReleaseCtx;
 

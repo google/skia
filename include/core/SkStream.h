@@ -181,8 +181,6 @@ public:
 
 class SK_API SkWStream : SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT(SkWStream)
-
     virtual ~SkWStream();
 
     /** Called to write bytes to a SkWStream. Returns true on success
@@ -231,8 +229,6 @@ struct SkFILE;
 /** A stream that wraps a C FILE* file stream. */
 class SK_API SkFILEStream : public SkStreamAsset {
 public:
-    SK_DECLARE_INST_COUNT(SkFILEStream)
-
     /** Initialize the stream by calling sk_fopen on the specified path.
      *  This internal stream will be closed in the destructor.
      */
@@ -286,8 +282,6 @@ private:
 
 class SK_API SkMemoryStream : public SkStreamMemory {
 public:
-    SK_DECLARE_INST_COUNT(SkMemoryStream)
-
     SkMemoryStream();
 
     /** We allocate (and free) the memory. Write to it via getMemoryBase() */
@@ -358,8 +352,6 @@ private:
 
 class SK_API SkFILEWStream : public SkWStream {
 public:
-    SK_DECLARE_INST_COUNT(SkFILEWStream)
-
     SkFILEWStream(const char path[]);
     virtual ~SkFILEWStream();
 
@@ -379,8 +371,6 @@ private:
 
 class SkMemoryWStream : public SkWStream {
 public:
-    SK_DECLARE_INST_COUNT(SkMemoryWStream)
-
     SkMemoryWStream(void* buffer, size_t size);
     bool write(const void* buffer, size_t size) override;
     size_t bytesWritten() const override { return fBytesWritten; }
@@ -395,8 +385,6 @@ private:
 
 class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
-    SK_DECLARE_INST_COUNT(SkDynamicMemoryWStream)
-
     SkDynamicMemoryWStream();
     virtual ~SkDynamicMemoryWStream();
 
@@ -444,7 +432,6 @@ private:
 class SK_API SkDebugWStream : public SkWStream {
 public:
     SkDebugWStream() : fBytesWritten(0) {}
-    SK_DECLARE_INST_COUNT(SkDebugWStream)
 
     // overrides
     bool write(const void* buffer, size_t size) override;

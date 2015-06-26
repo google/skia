@@ -54,8 +54,6 @@ class SkCanvasState;
 */
 class SK_API SkCanvas : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkCanvas)
-
     /**
      *  Attempt to allocate raster canvas, matching the ImageInfo, that will draw directly into the
      *  specified pixels. To access the pixels after drawing to them, the caller should call
@@ -1241,7 +1239,7 @@ protected:
     virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],
                                 const SkPoint texs[], const SkColor colors[], SkXfermode*,
                                 const uint16_t indices[], int indexCount, const SkPaint&);
-    
+
     virtual void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                              int count, SkXfermode::Mode, const SkRect* cull, const SkPaint*);
     virtual void onDrawPath(const SkPath&, const SkPaint&);

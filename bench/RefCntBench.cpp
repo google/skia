@@ -89,8 +89,6 @@ private:
 
 class PlacedRefCnt : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(PlacedRefCnt)
-
     PlacedRefCnt() : SkRefCnt() { }
     void operator delete(void*) { }
 

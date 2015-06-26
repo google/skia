@@ -36,8 +36,6 @@ class SkWBuffer;
 
 class SK_API SkPathRef : public ::SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkPathRef);
-
     class Editor {
     public:
         Editor(SkAutoTUnref<SkPathRef>* pathRef,

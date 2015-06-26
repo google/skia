@@ -673,8 +673,6 @@ public:
 
     class Allocator : public SkRefCnt {
     public:
-        SK_DECLARE_INST_COUNT(Allocator)
-
         /** Allocate the pixel memory for the bitmap, given its dimensions and
             colortype. Return true on success, where success means either setPixels
             or setPixelRef was called. The pixels need not be locked when this

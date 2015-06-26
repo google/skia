@@ -23,8 +23,6 @@ class GrRenderTargetPriv;
  */
 class GrRenderTarget : virtual public GrSurface {
 public:
-    SK_DECLARE_INST_COUNT(GrRenderTarget)
-
     // GrSurface overrides
     GrRenderTarget* asRenderTarget() override { return this; }
     const GrRenderTarget* asRenderTarget() const  override { return this; }

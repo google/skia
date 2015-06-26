@@ -28,7 +28,7 @@ class GrPipelineBuilder;
  */
 class GrPipeline {
 public:
-    SK_DECLARE_INST_COUNT(GrPipeline)
+    
 
     GrPipeline(const GrPipelineBuilder&,
                const GrProcOptInfo& colorPOI,

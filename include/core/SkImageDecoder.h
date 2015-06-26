@@ -133,8 +133,6 @@ public:
     */
     class Peeker : public SkRefCnt {
     public:
-        SK_DECLARE_INST_COUNT(Peeker)
-
         /** Return true to continue decoding, or false to indicate an error, which
             will cause the decoder to not return the image.
         */
@@ -376,7 +374,7 @@ protected:
      *  Return the default preference being used by the current or latest call to decode.
      */
     SkColorType getDefaultPref() { return fDefaultPref; }
-    
+
     /*  Helper for subclasses. Call this to allocate the pixel memory given the bitmap's info.
         Returns true on success. This method handles checking for an optional Allocator.
     */
@@ -421,7 +419,7 @@ private:
  */
 class SkImageDecoderFactory : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkImageDecoderFactory)
+    
 
     virtual SkImageDecoder* newDecoder(SkStreamRewindable*) = 0;
 

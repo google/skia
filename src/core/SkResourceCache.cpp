@@ -74,7 +74,7 @@ void SkResourceCache::init() {
 
 class SkOneShotDiscardablePixelRef : public SkPixelRef {
 public:
-    SK_DECLARE_INST_COUNT(SkOneShotDiscardablePixelRef)
+    
     // Ownership of the discardablememory is transfered to the pixelref
     SkOneShotDiscardablePixelRef(const SkImageInfo&, SkDiscardableMemory*, size_t rowBytes);
     ~SkOneShotDiscardablePixelRef();

@@ -31,7 +31,7 @@
  */
 class SkRTree : public SkBBoxHierarchy {
 public:
-    SK_DECLARE_INST_COUNT(SkRTree)
+    
 
     /**
      * If you have some prior information about the distribution of bounds you're expecting, you

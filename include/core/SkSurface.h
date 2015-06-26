@@ -30,8 +30,6 @@ class GrRenderTarget;
  */
 class SK_API SkSurface : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkSurface)
-
     /**
      *  Indicates whether a new surface or image should count against a cache budget. Currently this
      *  is only used by the GPU backend (sw-raster surfaces and images are never counted against the
@@ -84,7 +82,7 @@ public:
      *  Return a new surface using the specified render target.
      */
     static SkSurface* NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProps*);
-    
+
     static SkSurface* NewRenderTargetDirect(GrRenderTarget* target) {
         return NewRenderTargetDirect(target, NULL);
     }
@@ -95,7 +93,7 @@ public:
      */
     static SkSurface* NewWrappedRenderTarget(GrContext*, GrBackendTextureDesc,
                                              const SkSurfaceProps*);
-    
+
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.

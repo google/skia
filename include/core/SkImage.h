@@ -41,8 +41,6 @@ class GrTexture;
  */
 class SK_API SkImage : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkImage)
-
     typedef SkImageInfo Info;
     typedef void* ReleaseContext;
 
@@ -172,7 +170,7 @@ public:
      */
     bool isTextureBacked() const;
 
-    /** 
+    /**
      *  Retrieves the backend API handle of the texture. If flushPendingGrContextReads then the
      *  GrContext will issue to the backend API any deferred read operations on the texture before
      *  returning.

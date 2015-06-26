@@ -36,8 +36,6 @@
  */
 class GrGpuResourceRef : SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT(GrGpuResourceRef);
-
     ~GrGpuResourceRef();
 
     GrGpuResource* getResource() const { return fResource; }

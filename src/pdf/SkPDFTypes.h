@@ -30,7 +30,7 @@ class SkWStream;
 */
 class SkPDFObject : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFObject);
+    
 
     /** Subclasses must implement this method to print the object to the
      *  PDF file.
@@ -188,7 +188,7 @@ private:
 */
 class SkPDFArray : public SkPDFObject {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFArray)
+    
 
     static const int kMaxLen = 8191;
 
@@ -239,7 +239,7 @@ private:
 */
 class SkPDFDict : public SkPDFObject {
 public:
-    SK_DECLARE_INST_COUNT(SkPDFDict)
+    
 
     /** Create a PDF dictionary. Maximum number of entries is 4095.
      */

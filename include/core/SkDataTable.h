@@ -20,8 +20,6 @@
  */
 class SK_API SkDataTable : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkDataTable)
-
     /**
      *  Returns true if the table is empty (i.e. has no entries).
      */

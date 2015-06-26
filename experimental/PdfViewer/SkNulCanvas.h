@@ -18,8 +18,6 @@
  */
 class SK_API SkNulCanvas : public SkCanvas {
 public:
-    SK_DECLARE_INST_COUNT(SkNulCanvas);
-
     SkNulCanvas() {}
     explicit SkNulCanvas(SkBaseDevice* device) : SkCanvas(device) {}
 
@@ -98,7 +96,7 @@ protected:
                         const uint16_t indices[], int indexCount,
                         const SkPaint& paint) override {}
 
-    
+
 private:
     typedef SkCanvas INHERITED;
 };

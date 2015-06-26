@@ -25,8 +25,6 @@ class GrGpuResourceRef;
  */
 class GrProgramElement : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT(GrProgramElement)
-
     virtual ~GrProgramElement() {
         // fRefCnt can be one when an effect is created statically using GR_CREATE_STATIC_EFFECT
         SkASSERT((0 == fRefCnt || 1 == fRefCnt) && 0 == fPendingExecutions);

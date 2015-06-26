@@ -10,7 +10,7 @@
 
 class TestRC : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(TestRC)
+    
 private:
     typedef SkRefCnt INHERITED;
 };

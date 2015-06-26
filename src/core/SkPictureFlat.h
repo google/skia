@@ -182,7 +182,7 @@ class SkFlatData;
 
 class SkFlatController : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkFlatController)
+    
 
     SkFlatController(uint32_t writeBufferFlags = 0);
     virtual ~SkFlatController();

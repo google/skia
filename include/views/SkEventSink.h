@@ -21,7 +21,7 @@ struct SkTagList;
 */
 class SkEventSink : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkEventSink)
+    
 
              SkEventSink();
     virtual ~SkEventSink();

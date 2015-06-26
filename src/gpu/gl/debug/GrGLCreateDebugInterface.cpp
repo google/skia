@@ -781,7 +781,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetBufferParameteriv(GrGLenum target,
 struct GrDebugGLInterface : public GrGLInterface {
 
 public:
-    SK_DECLARE_INST_COUNT(GrDebugGLInterface)
+    
 
     GrDebugGLInterface()
         : fWrapped(NULL) {

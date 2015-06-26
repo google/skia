@@ -25,7 +25,7 @@
 
 class SkAdvancedTypefaceMetrics : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkAdvancedTypefaceMetrics)
+    
 
     SkString fFontName;
 

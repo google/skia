@@ -18,7 +18,7 @@ class GrResourceKey;
 
 class GrStencilAttachment : public GrGpuResource {
 public:
-    SK_DECLARE_INST_COUNT(GrStencilAttachment);
+    
 
     virtual ~GrStencilAttachment() {
         // TODO: allow SB to be purged and detach itself from rts

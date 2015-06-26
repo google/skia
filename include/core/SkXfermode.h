@@ -31,8 +31,6 @@ class SkString;
  */
 class SK_API SkXfermode : public SkFlattenable {
 public:
-    SK_DECLARE_INST_COUNT(SkXfermode)
-
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const;
     virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
@@ -169,7 +167,7 @@ public:
 
     /**
      * Returns whether or not the xfer mode can support treating coverage as alpha
-     */    
+     */
     virtual bool supportsCoverageAsAlpha() const;
 
     /**

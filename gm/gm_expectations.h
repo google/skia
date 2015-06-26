@@ -171,8 +171,6 @@ namespace skiagm {
      */
     class ExpectationsSource : public SkRefCnt {
     public:
-        SK_DECLARE_INST_COUNT(ExpectationsSource)
-
         virtual Expectations get(const char *testName) const = 0;
 
     private:

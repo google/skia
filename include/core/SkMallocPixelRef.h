@@ -16,7 +16,6 @@
 */
 class SK_API SkMallocPixelRef : public SkPixelRef {
 public:
-    SK_DECLARE_INST_COUNT(SkMallocPixelRef)
     /**
      *  Return a new SkMallocPixelRef with the provided pixel storage, rowBytes,
      *  and optional colortable. The caller is responsible for managing the

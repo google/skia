@@ -121,7 +121,7 @@ private:
     typedef SkRefCnt INHERITED;
 
 public:
-    SK_DECLARE_INST_COUNT(GrGLInterface)
+    
 
     GrGLInterface();
 

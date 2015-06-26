@@ -34,7 +34,7 @@ class GrPipeline;
  */
 class GrGLProgram : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrGLProgram)
+    
 
     typedef GrGLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
 

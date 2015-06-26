@@ -12,7 +12,7 @@
 
 class SkDeviceProfile : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkDeviceProfile)
+    
 
     enum LCDConfig {
         kNone_LCDConfig,   // disables LCD text rendering, uses A8 instead

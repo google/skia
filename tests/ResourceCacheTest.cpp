@@ -240,7 +240,7 @@ class TestResource : public GrGpuResource {
     static const size_t kDefaultSize = 100;
     enum ScratchConstructor { kScratchConstructor };
 public:
-    SK_DECLARE_INST_COUNT(TestResource);
+    
     /** Property that distinctly categorizes the resource.
      * For example, textures have width, height, ... */
     enum SimulatedProperty { kA_SimulatedProperty, kB_SimulatedProperty };

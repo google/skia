@@ -26,8 +26,6 @@ DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
 
 DEFINE_string(images, "resources", "Directory of images to decode.");
 
-DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
-
 DEFINE_string2(match, m, NULL,
                "[~][^]substring[$] [...] of GM name to run.\n"
                "Multiple matches may be separated by spaces.\n"

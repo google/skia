@@ -22,7 +22,7 @@
  */
 class SkPtrSet : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkPtrSet)
+    
 
     /**
      *  Search for the specified ptr in the set. If it is found, return its
@@ -144,7 +144,7 @@ class SkFactorySet : public SkTPtrSet<SkFlattenable::Factory> {};
  */
 class SkNamedFactorySet : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkNamedFactorySet)
+    
 
     SkNamedFactorySet();
 

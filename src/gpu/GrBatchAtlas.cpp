@@ -33,7 +33,7 @@ static GrBatchAtlas::AtlasID create_id(int index, int generation) {
 class BatchPlot : public SkRefCnt {
 public:
     typedef GrBatchAtlas::BatchToken BatchToken;
-    SK_DECLARE_INST_COUNT(BatchPlot);
+    
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(BatchPlot);
 
     // index() refers to the index of the plot in the owning GrAtlas's plot array.  genID() is a

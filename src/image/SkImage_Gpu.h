@@ -17,7 +17,7 @@
 
 class SkImage_Gpu : public SkImage_Base {
 public:
-    SK_DECLARE_INST_COUNT(SkImage_Gpu)
+    
 
     /**
      *  An "image" can be a subset/window into a larger texture, so we explicit take the

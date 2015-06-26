@@ -21,7 +21,7 @@ class SkPath;
  */
 class GrFontDescKey : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrFontDescKey)
+    
     
     typedef uint32_t Hash;
     
@@ -60,7 +60,7 @@ private:
  */
 class GrFontScaler : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(GrFontScaler)
+    
 
     explicit GrFontScaler(SkGlyphCache* strike);
     virtual ~GrFontScaler();

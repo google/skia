@@ -25,8 +25,6 @@
 // TODO: can this be derived from SkBaseDevice instead?
 class SkTrackDevice : public SkBitmapDevice {
 public:
-    SK_DECLARE_INST_COUNT(SkTrackDevice)
-
     SkTrackDevice(const SkBitmap& bitmap)
         : INHERITED(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry))
         , fTracker(NULL) {

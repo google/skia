@@ -24,8 +24,6 @@
 */
 class SK_API SkColorTable : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkColorTable)
-
     /** Copy up to 256 colors into a new SkColorTable.
      */
     SkColorTable(const SkPMColor colors[], int count);

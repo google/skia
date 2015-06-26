@@ -204,8 +204,8 @@ static bool run_single_benchmark(const SkString& inputPath,
 
     SkString filename = SkOSPath::Basename(inputPath.c_str());
 
-    gWriter.bench(filename.c_str(), 
-                  SkScalarCeilToInt(picture->cullRect().width()), 
+    gWriter.bench(filename.c_str(),
+                  SkScalarCeilToInt(picture->cullRect().width()),
                   SkScalarCeilToInt(picture->cullRect().height()));
 
     benchmark.run(picture, FLAGS_mpd);
@@ -444,9 +444,6 @@ int tool_main(int argc, char** argv) {
     gWriter.add(&gLogWriter);
 
 
-#if SK_ENABLE_INST_COUNT
-    gPrintInstCount = true;
-#endif
     SkAutoGraphics ag;
 
     sk_tools::PictureBenchmark benchmark;

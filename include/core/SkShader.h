@@ -33,8 +33,6 @@ class GrFragmentProcessor;
  */
 class SK_API SkShader : public SkFlattenable {
 public:
-    SK_DECLARE_INST_COUNT(SkShader)
-
     SkShader(const SkMatrix* localMatrix = NULL);
     virtual ~SkShader();
 

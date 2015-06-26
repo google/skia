@@ -29,8 +29,6 @@ class SkPath;
 */
 class SK_API SkPathEffect : public SkFlattenable {
 public:
-    SK_DECLARE_INST_COUNT(SkPathEffect)
-
     /**
      *  Given a src path (input) and a stroke-rec (input and output), apply
      *  this effect to the src path, returning the new path in dst, and return
@@ -168,7 +166,7 @@ protected:
     // these are visible to our subclasses
     SkPathEffect* fPE0, *fPE1;
 
-    SK_TO_STRING_OVERRIDE()    
+    SK_TO_STRING_OVERRIDE()
 
 private:
     typedef SkPathEffect INHERITED;
@@ -193,7 +191,7 @@ public:
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const override;
 
-    SK_TO_STRING_OVERRIDE()    
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -230,7 +228,7 @@ public:
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const override;
 
-    SK_TO_STRING_OVERRIDE()    
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK

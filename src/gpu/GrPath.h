@@ -15,7 +15,7 @@
 
 class GrPath : public GrGpuResource {
 public:
-    SK_DECLARE_INST_COUNT(GrPath);
+    
 
     /**
      * Initialize to a path with a fixed stroke. Stroke must not be hairline.

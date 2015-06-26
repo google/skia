@@ -258,7 +258,7 @@ public:
     */
     class Artist : public SkRefCnt {
     public:
-        SK_DECLARE_INST_COUNT(Artist)
+        
 
         void draw(SkView*, SkCanvas*);
         void inflate(const SkDOM&, const SkDOM::Node*);
@@ -286,7 +286,7 @@ public:
     */
     class Layout : public SkRefCnt {
     public:
-        SK_DECLARE_INST_COUNT(Layout)
+        
 
         void layoutChildren(SkView* parent);
         void inflate(const SkDOM&, const SkDOM::Node*);

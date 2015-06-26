@@ -41,8 +41,6 @@ class SkStrokeRec;
 */
 class SK_API SkMaskFilter : public SkFlattenable {
 public:
-    SK_DECLARE_INST_COUNT(SkMaskFilter)
-
     /** Returns the format of the resulting mask that this subclass will return
         when its filterMask() method is called.
     */

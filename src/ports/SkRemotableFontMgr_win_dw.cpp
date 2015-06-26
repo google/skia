@@ -80,7 +80,7 @@ private:
     }
 
 public:
-    SK_DECLARE_INST_COUNT(SkRemotableFontMgr_DirectWrite)
+    
 
     /** localeNameLength must include the null terminator. */
     SkRemotableFontMgr_DirectWrite(IDWriteFontCollection* fontCollection,

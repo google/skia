@@ -14,8 +14,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 class SK_API SkBitmapDevice : public SkBaseDevice {
 public:
-    SK_DECLARE_INST_COUNT(SkBitmapDevice)
-
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,

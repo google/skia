@@ -11,7 +11,6 @@
 #include "GrResourceKey.h"
 #include "GrTypesPriv.h"
 #include "SkData.h"
-#include "SkInstCnt.h"
 
 class GrContext;
 class GrGpu;
@@ -46,8 +45,6 @@ class GrResourceCache;
  */
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT(GrIORef)
-
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
     // templated helper classes (e.g. SkAutoTUnref). However, we have different categories of
     // refs (e.g. pending reads). We also don't require thread safety as GrCacheable objects are
@@ -59,7 +56,7 @@ public:
 
     void unref() const {
         this->validate();
-        
+
         if (!(--fRefCnt)) {
             if (!static_cast<const DERIVED*>(this)->notifyRefCountIsZero()) {
                 return;
@@ -141,7 +138,7 @@ private:
  */
 class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
-    SK_DECLARE_INST_COUNT(GrGpuResource)
+    
 
     enum LifeCycle {
         /**

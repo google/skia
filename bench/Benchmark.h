@@ -43,8 +43,6 @@ public:
 
 class Benchmark : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(Benchmark)
-
     Benchmark();
 
     const char* getName();

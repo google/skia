@@ -122,23 +122,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * SK_ENABLE_INST_COUNT controlls printing how many reference counted objects
- * are still held on exit.
- * Defaults to 1 in DEBUG and 0 in RELEASE.
- */
-#ifndef SK_ENABLE_INST_COUNT
-// Only enabled for static builds, because instance counting relies on static
-// variables in functions defined in header files.
-#  if SK_DEVELOPER && !defined(SKIA_DLL)
-#    define SK_ENABLE_INST_COUNT 1
-#  else
-#    define SK_ENABLE_INST_COUNT 0
-#  endif
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
 #ifdef SK_BUILD_FOR_WIN
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
