@@ -1584,7 +1584,8 @@ public:
             TextInfo& info = run.fSubRunInfo[args.fSubRun];
 
             uint64_t currentAtlasGen = fFontCache->atlasGeneration(fMaskFormat);
-            bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen;
+            bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen ||
+                                           run.fStrike->isAbandoned();
             bool regenerateColors;
             if (fUseDistanceFields) {
                 regenerateColors = !fUseLCDText && run.fColor != args.fColor;
