@@ -1005,8 +1005,6 @@ int nanobench_main() {
 
     if (kAutoTuneLoops != FLAGS_loops) {
         SkDebugf("Fixed number of loops; times would only be misleading so we won't print them.\n");
-    } else if (FLAGS_verbose) {
-        // No header.
     } else if (FLAGS_quiet) {
         SkDebugf("median\tbench\tconfig\n");
     } else if (kTimedSampling == FLAGS_samples) {
@@ -1103,11 +1101,6 @@ int nanobench_main() {
                          , sk_tools::getMaxResidentSetSizeMB()
                          , bench->getUniqueName()
                          , config);
-            } else if (FLAGS_verbose) {
-                for (int i = 0; i < samples.count(); i++) {
-                    SkDebugf("%s  ", HUMANIZE(samples[i]));
-                }
-                SkDebugf("%s\n", bench->getUniqueName());
             } else if (FLAGS_quiet) {
                 if (configs.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
@@ -1137,6 +1130,13 @@ int nanobench_main() {
                 gGrFactory->get(configs[i].ctxType)->printGpuStats();
             }
 #endif
+            if (FLAGS_verbose) {
+                SkDebugf("Samples:  ");
+                for (int i = 0; i < samples.count(); i++) {
+                    SkDebugf("%s  ", HUMANIZE(samples[i]));
+                }
+                SkDebugf("%s\n", bench->getUniqueName());
+            }
             cleanup_run(target);
         }
     }

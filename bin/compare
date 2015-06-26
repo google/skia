@@ -9,9 +9,11 @@ a,b = {},{}
 for (path, d) in [(sys.argv[1], a), (sys.argv[2], b)]:
     for line in open(path):
         try:
-            tokens  = line.split()
-            samples = tokens[:-1]
-            label   = tokens[-1]
+            tokens = line.split()
+            if tokens[0] != "Samples:":
+                continue
+            samples  = tokens[1:-1]
+            label    = tokens[-1]
             d[label] = map(float, samples)
         except:
             pass
