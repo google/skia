@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkBlitRow_opts_SSE4.h"
 
 // Some compilers can't compile SSSE3 or SSE4 intrinsics.  We give them stub methods.

@@ -1,4 +1,9 @@
-// Copyright 2013 unknown
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
