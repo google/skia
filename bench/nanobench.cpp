@@ -488,17 +488,6 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     return target;
 }
 
-// Creates targets for a benchmark and a set of configs.
-static void create_targets(SkTDArray<Target*>* targets, Benchmark* b,
-                           const SkTDArray<Config>& configs) {
-    for (int i = 0; i < configs.count(); ++i) {
-        if (Target* t = is_enabled(b, configs[i])) {
-            targets->push(t);
-        }
-
-    }
-}
-
 /*
  * Returns true if set up for a subset decode succeeds, false otherwise
  * If the set-up succeeds, the width and height parameters will be set
@@ -556,6 +545,18 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
     }
 
     return true;
+}
+
+static void cleanup_run(Target* target) {
+    SkDELETE(target);
+#if SK_SUPPORT_GPU
+    if (FLAGS_abandonGpuContext) {
+        gGrFactory->abandonContexts();
+    }
+    if (FLAGS_resetGpuContext || FLAGS_abandonGpuContext) {
+        gGrFactory->destroyContexts();
+    }
+#endif
 }
 
 class BenchmarkStream {
@@ -1026,30 +1027,32 @@ int nanobench_main() {
             continue;
         }
 
-        SkTDArray<Target*> targets;
-        create_targets(&targets, bench.get(), configs);
-
-        if (!targets.isEmpty()) {
+        if (!configs.isEmpty()) {
             log->bench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
             bench->preDraw();
         }
-        for (int j = 0; j < targets.count(); j++) {
-            // During HWUI output this canvas may be NULL.
-            SkCanvas* canvas = targets[j]->getCanvas();
-            const char* config = targets[j]->config.name;
+        for (int i = 0; i < configs.count(); ++i) {
+            Target* target = is_enabled(b, configs[i]);
+            if (!target) {
+                continue;
+            }
 
-            targets[j]->setup();
+            // During HWUI output this canvas may be NULL.
+            SkCanvas* canvas = target->getCanvas();
+            const char* config = target->config.name;
+
+            target->setup();
             bench->perCanvasPreDraw(canvas);
 
             int maxFrameLag;
-            const int loops = targets[j]->needsFrameTiming(&maxFrameLag)
-                ? setup_gpu_bench(targets[j], bench.get(), maxFrameLag)
-                : setup_cpu_bench(overhead, targets[j], bench.get());
+            const int loops = target->needsFrameTiming(&maxFrameLag)
+                ? setup_gpu_bench(target, bench.get(), maxFrameLag)
+                : setup_cpu_bench(overhead, target, bench.get());
 
             if (kTimedSampling != FLAGS_samples) {
                 samples.reset(FLAGS_samples);
                 for (int s = 0; s < FLAGS_samples; s++) {
-                    samples[s] = time(loops, bench, targets[j]) / loops;
+                    samples[s] = time(loops, bench, target) / loops;
                 }
             } else if (samplingTimeMs) {
                 samples.reset();
@@ -1060,23 +1063,24 @@ int nanobench_main() {
                 WallTimer timer;
                 timer.start();
                 do {
-                    samples.push_back(time(loops, bench, targets[j]) / loops);
+                    samples.push_back(time(loops, bench, target) / loops);
                     timer.end();
                 } while (timer.fWall < samplingTimeMs);
             }
 
             bench->perCanvasPostDraw(canvas);
 
-            if (Benchmark::kNonRendering_Backend != targets[j]->config.backend &&
+            if (Benchmark::kNonRendering_Backend != target->config.backend &&
                 !FLAGS_writePath.isEmpty() && FLAGS_writePath[0]) {
                 SkString pngFilename = SkOSPath::Join(FLAGS_writePath[0], config);
                 pngFilename = SkOSPath::Join(pngFilename.c_str(), bench->getUniqueName());
                 pngFilename.append(".png");
-                write_canvas_png(targets[j], pngFilename);
+                write_canvas_png(target, pngFilename);
             }
 
             if (kFailedLoops == loops) {
                 // Can't be timed.  A warning note has already been printed.
+                cleanup_run(target);
                 continue;
             }
 
@@ -1084,14 +1088,14 @@ int nanobench_main() {
             log->config(config);
             log->configOption("name", bench->getName());
             benchStream.fillCurrentOptions(log.get());
-            targets[j]->fillOptions(log.get());
+            target->fillOptions(log.get());
             log->metric("min_ms",    stats.min);
             if (runs++ % FLAGS_flushEvery == 0) {
                 log->flush();
             }
 
             if (kAutoTuneLoops != FLAGS_loops) {
-                if (targets.count() == 1) {
+                if (configs.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
                 SkDebugf("%4d/%-4dMB\t%s\t%s\n"
@@ -1105,7 +1109,7 @@ int nanobench_main() {
                 }
                 SkDebugf("%s\n", bench->getUniqueName());
             } else if (FLAGS_quiet) {
-                if (targets.count() == 1) {
+                if (configs.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
                 SkDebugf("%s\t%s\t%s\n", HUMANIZE(stats.median), bench->getUniqueName(), config);
@@ -1128,22 +1132,13 @@ int nanobench_main() {
             }
 #if SK_SUPPORT_GPU
             if (FLAGS_gpuStats &&
-                Benchmark::kGPU_Backend == targets[j]->config.backend) {
-                gGrFactory->get(targets[j]->config.ctxType)->printCacheStats();
-                gGrFactory->get(targets[j]->config.ctxType)->printGpuStats();
+                Benchmark::kGPU_Backend == configs[i].backend) {
+                gGrFactory->get(configs[i].ctxType)->printCacheStats();
+                gGrFactory->get(configs[i].ctxType)->printGpuStats();
             }
 #endif
+            cleanup_run(target);
         }
-        targets.deleteAll();
-
-#if SK_SUPPORT_GPU
-        if (FLAGS_abandonGpuContext) {
-            gGrFactory->abandonContexts();
-        }
-        if (FLAGS_resetGpuContext || FLAGS_abandonGpuContext) {
-            gGrFactory->destroyContexts();
-        }
-#endif
     }
 
     log->bench("memory_usage", 0,0);
