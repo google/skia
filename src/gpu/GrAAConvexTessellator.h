@@ -9,7 +9,6 @@
 #define GrAAConvexTessellator_DEFINED
 
 #include "SkColor.h"
-#include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkScalar.h"
 #include "SkTDArray.h"
@@ -20,9 +19,6 @@ class SkPath;
 
 //#define GR_AA_CONVEX_TESSELLATOR_VIZ 1
 
-// device space distance which we inset / outset points in order to create the soft antialiased edge
-static const SkScalar kAntialiasingRadius = 0.5f;
-
 class GrAAConvexTessellator;
 
 // The AAConvexTessellator holds the global pool of points and the triangulation
@@ -31,14 +27,13 @@ class GrAAConvexTessellator;
 // computeDepthFromEdge requests.
 class GrAAConvexTessellator {
 public:
-    GrAAConvexTessellator(SkScalar strokeWidth = -1.0f, 
-                          SkPaint::Join join = SkPaint::Join::kBevel_Join, 
-                          SkScalar miterLimit = 0.0f)
+    GrAAConvexTessellator(SkScalar targetDepth = 0.5f)
         : fSide(SkPoint::kOn_Side)
-        , fStrokeWidth(strokeWidth)
-        , fJoin(join)
-        , fMiterLimit(miterLimit) {
+        , fTargetDepth(targetDepth) {
     }
+
+    void setTargetDepth(SkScalar targetDepth) { fTargetDepth = targetDepth; }
+    SkScalar targetDepth() const { return fTargetDepth; }
 
     SkPoint::Side side() const { return fSide; }
 
@@ -51,7 +46,7 @@ public:
     const SkPoint& lastPoint() const { return fPts.top(); }
     const SkPoint& point(int index) const { return fPts[index]; }
     int index(int index) const { return fIndices[index]; }
-    SkScalar coverage(int index) const { return fCoverages[index]; }
+    SkScalar depth(int index) const {return fDepths[index]; }
 
 #if GR_AA_CONVEX_TESSELLATOR_VIZ
     void draw(SkCanvas* canvas) const;
@@ -144,7 +139,6 @@ private:
         const SkPoint& bisector(int index) const { return fPts[index].fBisector; }
         int index(int index) const { return fPts[index].fIndex; }
         int origEdgeID(int index) const { return fPts[index].fOrigEdgeId; }
-        void setOrigEdgeId(int index, int id) { fPts[index].fOrigEdgeId = id; }
 
     #if GR_AA_CONVEX_TESSELLATOR_VIZ
         void draw(SkCanvas* canvas, const GrAAConvexTessellator& tess) const;
@@ -171,17 +165,17 @@ private:
     // Movable points are those that can be slid along their bisector.
     // Basically, a point is immovable if it is part of the original
     // polygon or it results from the fusing of two bisectors.
-    int addPt(const SkPoint& pt, SkScalar depth, SkScalar coverage, bool movable, bool isCurve);
+    int addPt(const SkPoint& pt, SkScalar depth, bool movable, bool isCurve);
     void popLastPt();
     void popFirstPtShuffle();
 
-    void updatePt(int index, const SkPoint& pt, SkScalar depth, SkScalar coverage);
+    void updatePt(int index, const SkPoint& pt, SkScalar depth);
 
     void addTri(int i0, int i1, int i2);
 
     void reservePts(int count) {
         fPts.setReserve(count);
-        fCoverages.setReserve(count);
+        fDepths.setReserve(count);  
         fMovable.setReserve(count);
     }
 
@@ -191,11 +185,7 @@ private:
                                 int edgeIdx, SkScalar desiredDepth,
                                 SkPoint* result) const;
 
-    void lineTo(SkPoint p, bool isCurve);
-
     void lineTo(const SkMatrix& m, SkPoint p, bool isCurve);
-
-    void quadTo(SkPoint pts[3]);
 
     void quadTo(const SkMatrix& m, SkPoint pts[3]);
 
@@ -210,24 +200,23 @@ private:
     void computeBisectors();
 
     void fanRing(const Ring& ring);
+    void createOuterRing();
 
     Ring* getNextRing(Ring* lastRing);
 
-    void createOuterRing(const Ring& previousRing, SkScalar outset, SkScalar coverage, 
-                         Ring* nextRing);
-
-    bool createInsetRings(Ring& previousRing, SkScalar initialDepth, SkScalar initialCoverage, 
-                          SkScalar targetDepth, SkScalar targetCoverage, Ring** finalRing);
-
-    bool createInsetRing(const Ring& lastRing, Ring* nextRing, 
-                         SkScalar initialDepth, SkScalar initialCoverage, SkScalar targetDepth, 
-                         SkScalar targetCoverage, bool forceNew);
+    bool createInsetRing(const Ring& lastRing, Ring* nextRing);
 
     void validate() const;
 
-    // fPts, fCoverages & fMovable should always have the same # of elements
+
+#ifdef SK_DEBUG
+    SkScalar computeRealDepth(const SkPoint& p) const;
+    void checkAllDepths() const;
+#endif
+
+    // fPts, fWeights & fMovable should always have the same # of elements
     SkTDArray<SkPoint>  fPts;
-    SkTDArray<SkScalar> fCoverages;
+    SkTDArray<SkScalar> fDepths;
     // movable points are those that can be slid further along their bisector
     SkTDArray<bool>     fMovable;
 
@@ -255,14 +244,18 @@ private:
 #endif
     CandidateVerts      fCandidateVerts;
 
-    // < 0 means filling rather than stroking
-    SkScalar            fStrokeWidth;
-
-    SkPaint::Join        fJoin;
-
-    SkScalar            fMiterLimit;
+    SkScalar            fTargetDepth;
 
     SkTDArray<SkPoint>  fPointBuffer;
+
+    // If some goes wrong with the inset computation the tessellator will 
+    // truncate the creation of the inset polygon. In this case the depth
+    // check will complain.
+    SkDEBUGCODE(bool fShouldCheckDepths;)
+
+    SkDEBUGCODE(SkScalar fMinCross;)
+    
+    SkDEBUGCODE(SkScalar fMaxCross;)
 };
 
 

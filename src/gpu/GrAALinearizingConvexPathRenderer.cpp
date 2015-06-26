@@ -23,16 +23,11 @@
 #include "SkGeometry.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
-#include "SkPathPriv.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
-static const int DEFAULT_BUFFER_SIZE = 100;
-
-// The thicker the stroke, the harder it is to produce high-quality results using tessellation. For
-// the time being, we simply drop back to software rendering above this stroke width.
-static const SkScalar kMaxStrokeWidth = 20.0;
+#define DEFAULT_BUFFER_SIZE 100
 
 GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
 }
@@ -45,21 +40,7 @@ bool GrAALinearizingConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
                                                     const SkPath& path,
                                                     const GrStrokeInfo& stroke,
                                                     bool antiAlias) const {
-    if (!antiAlias) {
-        return false;
-    }
-    if (path.isInverseFillType()) {
-        return false;
-    }
-    if (!path.isConvex()) {
-        return false;
-    }
-    if (stroke.getStyle() == SkStrokeRec::kStroke_Style) {
-        return viewMatrix.isSimilarity() && stroke.getWidth() >= 1.0f && 
-                stroke.getWidth() <= kMaxStrokeWidth && !stroke.isDashed() && 
-                SkPathPriv::LastVerbIsClose(path) && stroke.getJoin() != SkPaint::Join::kRound_Join;
-    }
-    return stroke.getStyle() == SkStrokeRec::kFill_Style;
+    return (antiAlias && stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator
@@ -79,15 +60,16 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     // Make 'verts' point to the colors
     verts += sizeof(SkPoint);
     for (int i = 0; i < tess.numPts(); ++i) {
+        SkASSERT(tess.depth(i) >= -0.5f && tess.depth(i) <= 0.5f);
         if (tweakAlphaForCoverage) {
-            SkASSERT(SkScalarRoundToInt(255.0f * tess.coverage(i)) <= 255);
-            unsigned scale = SkScalarRoundToInt(255.0f * tess.coverage(i));
+            SkASSERT(SkScalarRoundToInt(255.0f * (tess.depth(i) + 0.5f)) <= 255);
+            unsigned scale = SkScalarRoundToInt(255.0f * (tess.depth(i) + 0.5f));
             GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
             *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
         } else {
             *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
             *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 
-                    tess.coverage(i);
+                                                                    tess.depth(i) + 0.5f;
         }
     }
 
@@ -115,9 +97,6 @@ public:
         GrColor fColor;
         SkMatrix fViewMatrix;
         SkPath fPath;
-        SkScalar fStrokeWidth;
-        SkPaint::Join fJoin;
-        SkScalar fMiterLimit;
     };
 
     static GrBatch* Create(const Geometry& geometry) {
@@ -179,7 +158,7 @@ public:
                 firstIndex, vertexCount, indexCount);
         batchTarget->draw(info);
     }
-    
+
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
@@ -203,6 +182,8 @@ public:
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
 
+        GrAAConvexTessellator tess;
+
         int instanceCount = fGeoData.count();
 
         int vertexCount = 0;
@@ -212,8 +193,9 @@ public:
         uint8_t* vertices = (uint8_t*) malloc(maxVertices * vertexStride);
         uint16_t* indices = (uint16_t*) malloc(maxIndices * sizeof(uint16_t));
         for (int i = 0; i < instanceCount; i++) {
+            tess.rewind();
+
             Geometry& args = fGeoData[i];
-            GrAAConvexTessellator tess(args.fStrokeWidth, args.fJoin, args.fMiterLimit);
 
             if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
                 continue;
@@ -305,7 +287,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(GrDrawTarget* target,
                                                    GrColor color,
                                                    const SkMatrix& vm,
                                                    const SkPath& path,
-                                                   const GrStrokeInfo& stroke,
+                                                   const GrStrokeInfo&,
                                                    bool antiAlias) {
     if (path.isEmpty()) {
         return true;
@@ -314,9 +296,6 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     geometry.fColor = color;
     geometry.fViewMatrix = vm;
     geometry.fPath = path;
-    geometry.fStrokeWidth = stroke.isFillStyle() ? -1.0f : stroke.getWidth();
-    geometry.fJoin = stroke.isFillStyle() ? SkPaint::Join::kMiter_Join : stroke.getJoin();
-    geometry.fMiterLimit = stroke.getMiter();
 
     SkAutoTUnref<GrBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
     target->drawBatch(pipelineBuilder, batch);

@@ -55,10 +55,6 @@ public:
         return computedDir == dir;
     }
 
-    static bool LastVerbIsClose(const SkPath& path) {
-        int count = path.countVerbs();
-        return count >= 1 && path.fPathRef->verbs()[~(count - 1)] == SkPath::Verb::kClose_Verb;
-    }
 };
 
 #endif

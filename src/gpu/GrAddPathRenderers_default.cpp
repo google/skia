@@ -9,7 +9,7 @@
 
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrAAHairLinePathRenderer.h"
-#include "GrAALinearizingConvexPathRenderer.h"
+#include "GrAAConvexPathRenderer.h"
 #include "GrAADistanceFieldPathRenderer.h"
 #include "GrContext.h"
 #include "GrDashLinePathRenderer.h"
@@ -33,6 +33,6 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain
     if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create()) {
         chain->addPathRenderer(pr)->unref();
     }
-    chain->addPathRenderer(SkNEW(GrAALinearizingConvexPathRenderer))->unref();
+    chain->addPathRenderer(SkNEW(GrAAConvexPathRenderer))->unref();
     chain->addPathRenderer(SkNEW_ARGS(GrAADistanceFieldPathRenderer, (ctx)))->unref();
 }

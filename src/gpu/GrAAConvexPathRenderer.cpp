@@ -707,15 +707,16 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     // Make 'verts' point to the colors
     verts += sizeof(SkPoint);
     for (int i = 0; i < tess.numPts(); ++i) {
+        SkASSERT(tess.depth(i) >= -0.5f && tess.depth(i) <= 0.5f);
         if (tweakAlphaForCoverage) {
-            SkASSERT(SkScalarRoundToInt(255.0f * tess.coverage(i)) <= 255);
-            unsigned scale = SkScalarRoundToInt(255.0f * tess.coverage(i));
+            SkASSERT(SkScalarRoundToInt(255.0f * (tess.depth(i) + 0.5f)) <= 255);
+            unsigned scale = SkScalarRoundToInt(255.0f * (tess.depth(i) + 0.5f));
             GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
             *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
         } else {
             *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
             *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 
-                    tess.coverage(i);
+                                                                    tess.depth(i) + 0.5f;
         }
     }
 
