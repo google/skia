@@ -521,11 +521,11 @@ SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_SSE2(const ProcCoeff& rec,
         case SkProcCoeffXfermode::kDarken_Mode:     proc =     darken_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kLighten_Mode:    proc =    lighten_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kHardLight_Mode:  proc =  hardlight_modeproc_SSE2; break;
-
-        // TODO(mtklein): implement these with SkPMFloat.
-        case SkProcCoeffXfermode::kSoftLight_Mode:  proc =  softlight_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kColorDodge_Mode: proc = colordodge_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kColorBurn_Mode:  proc =  colorburn_modeproc_SSE2; break;
+
+        // TODO(mtklein): implement this with SkPMFloat.
+        case SkProcCoeffXfermode::kSoftLight_Mode:  proc =  softlight_modeproc_SSE2; break;
         default: break;
     }
     return proc ? SkNEW_ARGS(SkSSE2ProcCoeffXfermode, (rec, mode, (void*)proc)) : nullptr;

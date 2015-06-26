@@ -33,4 +33,9 @@ inline SkPMColor SkPMFloat::round() const {
     return c;
 }
 
+inline Sk4f SkPMFloat::alphas() const {
+    static_assert(SK_A32_SHIFT == 24, "");
+    return _mm_shuffle_ps(fVec, fVec, 0xff);  // Read as 11 11 11 11, copying lane 3 to all lanes.
+}
+
 }  // namespace

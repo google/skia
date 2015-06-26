@@ -297,6 +297,13 @@ public:
             || vgetq_lane_u32(v,2) || vgetq_lane_u32(v,3);
     }
 
+    SkNf thenElse(const SkNf& t, const SkNf& e) const {
+        uint32x4_t ci = vreinterpretq_u32_f32(fVec),
+                   ti = vreinterpretq_u32_f32(t.fVec),
+                   ei = vreinterpretq_u32_f32(e.fVec);
+        return vreinterpretq_f32_u32(vorrq_u32(vandq_u32(ti, ci), vbicq_u32(ei, ci)));
+    }
+
     float32x4_t fVec;
 };
 

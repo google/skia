@@ -9,11 +9,13 @@
 #define Sk4pxXfermode_DEFINED
 
 #include "Sk4px.h"
+#include "SkPMFloat.h"
 
 // This file is possibly included into multiple .cpp files.
 // Each gets its own independent instantiation by wrapping in an anonymous namespace.
 namespace {
 
+// Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
 #define XFERMODE(Name)                                                    \
     struct Name {                                                         \
         static Sk4px Xfer(const Sk4px&, const Sk4px&);                    \
@@ -97,7 +99,48 @@ XFERMODE(Lighten) {
          colors = (sda < dsa).thenElse(dstover, srcover);
     return alphas.zeroColors() + colors.zeroAlphas();
 }
+#undef XFERMODE
 
+// Some xfermodes use math like divide or sqrt that's best done in floats 1 pixel at a time.
+#define XFERMODE(Name) \
+    struct Name {                                                         \
+        static SkPMFloat Xfer(const SkPMFloat&, const SkPMFloat&);        \
+        static const SkXfermode::Mode kMode = SkXfermode::k##Name##_Mode; \
+    };                                                                    \
+    inline SkPMFloat Name::Xfer(const SkPMFloat& s, const SkPMFloat& d)
+
+XFERMODE(ColorDodge) {
+    auto sa = s.alphas(),
+         da = d.alphas(),
+         isa = Sk4f(1)-sa,
+         ida = Sk4f(1)-da;
+
+    auto srcover = s + d*isa,
+         dstover = d + s*ida,
+         otherwise = sa * Sk4f::Min(da, (d*sa)*(sa-s).approxInvert()) + s*ida + d*isa;
+
+    // Order matters here, preferring d==0 over s==sa.
+    auto colors = (d == Sk4f(0)).thenElse(dstover,
+                  (s ==      sa).thenElse(srcover,
+                                          otherwise));
+    return srcover * SkPMFloat(1,0,0,0) + colors * SkPMFloat(0,1,1,1);
+}
+XFERMODE(ColorBurn) {
+    auto sa = s.alphas(),
+         da = d.alphas(),
+         isa = Sk4f(1)-sa,
+         ida = Sk4f(1)-da;
+
+    auto srcover = s + d*isa,
+         dstover = d + s*ida,
+         otherwise = sa*(da-Sk4f::Min(da, (da-d)*sa*s.approxInvert())) + s*ida + d*isa;
+
+    // Order matters here, preferring d==da over s==0.
+    auto colors = (d ==      da).thenElse(dstover,
+                  (s == Sk4f(0)).thenElse(srcover,
+                                          otherwise));
+    return srcover * SkPMFloat(1,0,0,0) + colors * SkPMFloat(0,1,1,1);
+}
 #undef XFERMODE
 
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
@@ -140,7 +183,34 @@ public:
     }
 
 private:
-    SkT4pxXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, ProcType::kMode) {}
+    SkT4pxXfermode(const ProcCoeff& rec) : INHERITED(rec, ProcType::kMode) {}
+
+    typedef SkProcCoeffXfermode INHERITED;
+};
+
+template <typename ProcType>
+class SkTPMFloatXfermode : public SkProcCoeffXfermode {
+public:
+    static SkProcCoeffXfermode* Create(const ProcCoeff& rec) {
+        return SkNEW_ARGS(SkTPMFloatXfermode, (rec));
+    }
+
+    void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        for (int i = 0; i < n; i++) {
+            SkPMFloat s(src[i]),
+                      d(dst[i]),
+                      b(ProcType::Xfer(s,d));
+            if (aa) {
+                // We do aa in full float precision before going back down to bytes, because we can!
+                SkPMFloat a = Sk4f(aa[i]) * Sk4f(1.0f/255);
+                b = b*a + d*(Sk4f(1)-a);
+            }
+            dst[i] = b.round();
+        }
+    }
+
+private:
+    SkTPMFloatXfermode(const ProcCoeff& rec) : INHERITED(rec, ProcType::kMode) {}
 
     typedef SkProcCoeffXfermode INHERITED;
 };
@@ -171,6 +241,9 @@ static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode
         case SkXfermode::kOverlay_Mode:    return SkT4pxXfermode<Overlay>::Create(rec);
         case SkXfermode::kDarken_Mode:     return SkT4pxXfermode<Darken>::Create(rec);
         case SkXfermode::kLighten_Mode:    return SkT4pxXfermode<Lighten>::Create(rec);
+
+        case SkXfermode::kColorDodge_Mode: return SkTPMFloatXfermode<ColorDodge>::Create(rec);
+        case SkXfermode::kColorBurn_Mode:  return SkTPMFloatXfermode<ColorBurn>::Create(rec);
 #endif
         default: break;
     }

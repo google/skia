@@ -193,6 +193,11 @@ public:
     bool allTrue() const { return 0xffff == _mm_movemask_epi8(_mm_castps_si128(fVec)); }
     bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castps_si128(fVec)); }
 
+    SkNf thenElse(const SkNf& t, const SkNf& e) const {
+        return _mm_or_ps(_mm_and_ps   (fVec, t.fVec),
+                         _mm_andnot_ps(fVec, e.fVec));
+    }
+
     __m128 fVec;
 };
 

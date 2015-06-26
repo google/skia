@@ -30,4 +30,8 @@ inline SkPMColor SkPMFloat::round() const {
     return c;
 }
 
+inline Sk4f SkPMFloat::alphas() const {
+    return Sk4f(this->a());
+}
+
 }  // namespace

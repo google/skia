@@ -27,4 +27,9 @@ inline SkPMColor SkPMFloat::round() const {
     return c;
 }
 
+inline Sk4f SkPMFloat::alphas() const {
+    static_assert(SK_A32_SHIFT == 24, "Assuming little-endian.");
+    return vdupq_lane_f32(vget_high_f32(fVec), 1);  // Duplicate high lane of high half i.e. lane 3.
+}
+
 }  // namespace
