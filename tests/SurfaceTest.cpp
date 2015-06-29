@@ -223,26 +223,41 @@ struct ReleaseDataContext {
     }
 };
 
+// May we (soon) eliminate the need to keep testing this, by hiding the bloody device!
+#include "SkDevice.h"
+static uint32_t get_legacy_gen_id(SkSurface* surf) {
+    SkBaseDevice* device = surf->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
+    return device->accessBitmap(false).getGenerationID();
+}
+
 static void test_texture_handle(skiatest::Reporter* reporter, SkSurface* surf) {
     SkAutoTUnref<SkImage> image0(surf->newImageSnapshot());
+    const uint32_t genID0 = get_legacy_gen_id(surf);
     GrBackendObject obj = surf->getTextureHandle(SkSurface::kFlushRead_TextureHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image1(surf->newImageSnapshot());
+    const uint32_t genID1 = get_legacy_gen_id(surf);
     // just read access should not affect the snapshot
     REPORTER_ASSERT(reporter, image0->uniqueID() == image1->uniqueID());
+    REPORTER_ASSERT(reporter, genID0 == genID1);
 
     obj = surf->getTextureHandle(SkSurface::kFlushWrite_TextureHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image2(surf->newImageSnapshot());
+    const uint32_t genID2 = get_legacy_gen_id(surf);
     // expect a new image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image2->uniqueID());
+    REPORTER_ASSERT(reporter, genID0 != genID2);
 
     obj = surf->getTextureHandle(SkSurface::kDiscardWrite_TextureHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image3(surf->newImageSnapshot());
+    const uint32_t genID3 = get_legacy_gen_id(surf);
     // expect a new(er) image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image3->uniqueID());
     REPORTER_ASSERT(reporter, image2->uniqueID() != image3->uniqueID());
+    REPORTER_ASSERT(reporter, genID0 != genID3);
+    REPORTER_ASSERT(reporter, genID2 != genID3);
 }
 
 static SkImage* create_image(skiatest::Reporter* reporter,
