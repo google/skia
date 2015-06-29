@@ -141,6 +141,31 @@ XFERMODE(ColorBurn) {
                                           otherwise));
     return srcover * SkPMFloat(1,0,0,0) + colors * SkPMFloat(0,1,1,1);
 }
+XFERMODE(SoftLight) {
+    auto sa = s.alphas(),
+         da = d.alphas(),
+         isa = Sk4f(1)-sa,
+         ida = Sk4f(1)-da;
+
+    // Some common terms.
+    auto m  = (da > Sk4f(0)).thenElse(d / da, Sk4f(0)),
+         s2 = Sk4f(2)*s,
+         m4 = Sk4f(4)*m;
+
+    // The logic forks three ways:
+    //    1. dark src?
+    //    2. light src, dark dst?
+    //    3. light src, light dst?
+    auto darkSrc = d*(sa + (s2 - sa)*(Sk4f(1) - m)),        // Used in case 1.
+         darkDst = (m4*m4 + m4)*(m - Sk4f(1)) + Sk4f(7)*m,  // Used in case 2.
+         liteDst = m.sqrt() - m,                            // Used in case 3.
+         liteSrc = d*sa + da*(s2-sa)*(Sk4f(4)*d < da).thenElse(darkDst, liteDst); // Case 2 or 3?
+
+    auto alpha  = s + d*isa;
+    auto colors = s*ida + d*isa + (s2 < sa).thenElse(darkSrc, liteSrc);           // Case 1 or 2/3?
+
+    return alpha * SkPMFloat(1,0,0,0) + colors * SkPMFloat(0,1,1,1);
+}
 #undef XFERMODE
 
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
@@ -244,6 +269,7 @@ static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode
 
         case SkXfermode::kColorDodge_Mode: return SkTPMFloatXfermode<ColorDodge>::Create(rec);
         case SkXfermode::kColorBurn_Mode:  return SkTPMFloatXfermode<ColorBurn>::Create(rec);
+        case SkXfermode::kSoftLight_Mode:  return SkTPMFloatXfermode<SoftLight>::Create(rec);
 #endif
         default: break;
     }
