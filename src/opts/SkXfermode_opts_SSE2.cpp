@@ -516,15 +516,13 @@ SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_SSE2(const ProcCoeff& rec,
                                                          SkXfermode::Mode mode) {
     SkXfermodeProcSIMD proc = nullptr;
     switch (mode) {
-        // TODO(mtklein): Sk4pxXfermode has these now.  Clean up.
+        // TODO(mtklein): Sk4pxXfermode has these now.  Clean up the whole file!
         case SkProcCoeffXfermode::kOverlay_Mode:    proc =    overlay_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kDarken_Mode:     proc =     darken_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kLighten_Mode:    proc =    lighten_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kHardLight_Mode:  proc =  hardlight_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kColorDodge_Mode: proc = colordodge_modeproc_SSE2; break;
         case SkProcCoeffXfermode::kColorBurn_Mode:  proc =  colorburn_modeproc_SSE2; break;
-
-        // TODO(mtklein): implement this with SkPMFloat.
         case SkProcCoeffXfermode::kSoftLight_Mode:  proc =  softlight_modeproc_SSE2; break;
         default: break;
     }
