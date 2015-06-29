@@ -27,6 +27,9 @@
  * issued.
  */
 class GLInstancedArraysBench : public Benchmark {
+public:
+    GLInstancedArraysBench() : fTexture(0) {}
+
 protected:
     void onPerCanvasPreDraw(SkCanvas* canvas) override;
     virtual void setup(const GrGLContext*)=0;
@@ -78,7 +81,9 @@ public:
      */
     GLCpuPosInstancedArraysBench(VboSetup vboSetup, int32_t drawDiv)
         : fVboSetup(vboSetup)
-        , fDrawDiv(drawDiv) {
+        , fDrawDiv(drawDiv)
+        , fProgram(0)
+        , fVAO(0) {
         fName = VboSetupToStr(vboSetup, fDrawDiv);
     }
 
