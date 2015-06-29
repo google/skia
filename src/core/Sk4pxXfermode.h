@@ -68,15 +68,15 @@ XFERMODE(HardLight) {
     auto sa = s.alphas(),
          da = d.alphas();
 
-    auto isDark = s < (sa-s);
+    auto isLite = (sa-s) < s;
 
     auto dark = s*d << 1,
          lite = sa*da - ((da-d)*(sa-s) << 1),
          both = s*da.inv() + d*sa.inv();
 
-    // TODO: do isDark in 16-bit so we only have to div255() once.
-    auto colors = isDark.thenElse((dark + both).div255(),
-                                  (lite + both).div255());
+    // TODO: do isLite in 16-bit so we only have to div255() once.
+    auto colors = isLite.thenElse((lite + both).div255(),
+                                  (dark + both).div255());
     return alphas.zeroColors() + colors.zeroAlphas();
 }
 XFERMODE(Overlay) { return HardLight::Xfer(d,s); }
@@ -96,7 +96,7 @@ XFERMODE(Lighten) {
     auto srcover = s + (d - dsa),
          dstover = d + (s - sda);
     auto alphas = srcover,
-         colors = (sda < dsa).thenElse(dstover, srcover);
+         colors = (dsa < sda).thenElse(srcover, dstover);
     return alphas.zeroColors() + colors.zeroAlphas();
 }
 #undef XFERMODE
