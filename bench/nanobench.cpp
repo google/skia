@@ -99,7 +99,8 @@ DEFINE_int32(maxCalibrationAttempts, 3,
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
-DEFINE_string(zoom, "1.0,1", "Comma-separated scale,step zoom factors for SKPs.");
+DEFINE_string(zoom, "1.0,0", "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
+                             "function that ping-pongs between 1.0 and zoomMax.");
 DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
@@ -599,8 +600,8 @@ public:
             }
         }
 
-        if (2 != sscanf(FLAGS_zoom[0], "%f,%d", &fZoomScale, &fZoomSteps)) {
-            SkDebugf("Can't parse %s from --zoom as a scale,step.\n", FLAGS_zoom[0]);
+        if (2 != sscanf(FLAGS_zoom[0], "%f,%lf", &fZoomMax, &fZoomPeriodMs)) {
+            SkDebugf("Can't parse %s from --zoom as a zoomMax,zoomPeriodMs.\n", FLAGS_zoom[0]);
             exit(1);
         }
 
@@ -728,7 +729,7 @@ public:
         }
 
         // Now loop over each skp again if we have an animation
-        if (fZoomScale != 1.0f && fZoomSteps != 1) {
+        if (fZoomMax != 1.0f && fZoomPeriodMs > 0) {
             while (fCurrentAnimSKP < fSKPs.count()) {
                 const SkString& path = fSKPs[fCurrentAnimSKP];
                 SkAutoTUnref<SkPicture> pic;
@@ -739,10 +740,10 @@ public:
 
                 fCurrentAnimSKP++;
                 SkString name = SkOSPath::Basename(path.c_str());
-                SkMatrix anim = SkMatrix::I();
-                anim.setScale(fZoomScale, fZoomScale);
-                return SkNEW_ARGS(SKPAnimationBench, (name.c_str(), pic.get(), fClip, anim,
-                                  fZoomSteps, FLAGS_loopSKP));
+                SkAutoTUnref<SKPAnimationBench::Animation> animation(
+                    SKPAnimationBench::CreateZoomAnimation(fZoomMax, fZoomPeriodMs));
+                return SkNEW_ARGS(SKPAnimationBench, (name.c_str(), pic.get(), fClip, animation,
+                                                      FLAGS_loopSKP));
             }
         }
 
@@ -910,8 +911,8 @@ private:
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
     SkTArray<SkColorType> fColorTypes;
-    SkScalar           fZoomScale;
-    int                fZoomSteps;
+    SkScalar           fZoomMax;
+    double             fZoomPeriodMs;
 
     double fSKPBytes, fSKPOps;
 

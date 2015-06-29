@@ -9,6 +9,7 @@
 #define SKPAnimationBench_DEFINED
 
 #include "SKPBench.h"
+#include "Timer.h"
 
 /**
  * Runs an SkPicture as a benchmark by repeatedly drawing it, first centering the picture and
@@ -16,11 +17,20 @@
  */
 class SKPAnimationBench : public SKPBench {
 public:
-    SKPAnimationBench(const char* name, const SkPicture*, const SkIRect& devClip,
-                      SkMatrix viewMatrix, int steps, bool doLooping);
+    class Animation : public SkRefCnt {
+    public:
+        virtual const char* getTag() = 0;
+        virtual void preConcatFrameMatrix(double animationTimeMs, const SkIRect& devBounds,
+                                          SkMatrix* drawMatrix) = 0;
+        virtual ~Animation() {}
+    };
+
+    SKPAnimationBench(const char* name, const SkPicture*, const SkIRect& devClip, Animation*,
+                      bool doLooping);
+
+    static Animation* CreateZoomAnimation(SkScalar zoomMax, double zoomPeriodMs);
 
 protected:
-    const char* onGetName() override;
     const char* onGetUniqueName() override;
     void onPerCanvasPreDraw(SkCanvas* canvas) override;
 
@@ -30,11 +40,10 @@ protected:
     void drawPicture() override;
 
 private:
-    int fSteps;
-    SkMatrix fAnimationMatrix;
-    SkString fName;
-    SkString fUniqueName;
-    SkPoint fCenter;
+    SkAutoTUnref<Animation>   fAnimation;
+    WallTimer                 fAnimationTimer;
+    SkString                  fUniqueName;
+    SkIRect                   fDevBounds;
 
     typedef SKPBench INHERITED;
 };

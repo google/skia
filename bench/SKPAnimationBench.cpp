@@ -11,16 +11,10 @@
 #include "SkSurface.h"
 
 SKPAnimationBench::SKPAnimationBench(const char* name, const SkPicture* pic, const SkIRect& clip,
-                                     SkMatrix animationMatrix, int steps, bool doLooping)
+                                     Animation* animation, bool doLooping)
     : INHERITED(name, pic, clip, 1.0, false, doLooping)
-    , fSteps(steps)
-    , fAnimationMatrix(animationMatrix)
-    , fName(name) {
-    fUniqueName.printf("%s_animation", name);
-}
-
-const char* SKPAnimationBench::onGetName() {
-    return fName.c_str();
+    , fAnimation(SkRef(animation)) {
+    fUniqueName.printf("%s_%s", name, fAnimation->getTag());
 }
 
 const char* SKPAnimationBench::onGetUniqueName() {
@@ -29,32 +23,53 @@ const char* SKPAnimationBench::onGetUniqueName() {
 
 void SKPAnimationBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     INHERITED::onPerCanvasPreDraw(canvas);
-    SkIRect bounds;
-    SkAssertResult(canvas->getClipDeviceBounds(&bounds));
-
-    fCenter.set((bounds.fRight - bounds.fLeft) / 2.0f,
-                (bounds.fBottom - bounds.fTop) / 2.0f);
+    SkAssertResult(canvas->getClipDeviceBounds(&fDevBounds));
+    fAnimationTimer.start();
 }
 
 void SKPAnimationBench::drawPicture() {
-    SkMatrix frameMatrix = SkMatrix::MakeTrans(-fCenter.fX, -fCenter.fY);
-    frameMatrix.postConcat(fAnimationMatrix);
-    SkMatrix reverseTranslate = SkMatrix::MakeTrans(fCenter.fX, fCenter.fY);
-    frameMatrix.postConcat(reverseTranslate);
+    fAnimationTimer.end();
 
-    SkMatrix currentMatrix = frameMatrix;
-    for (int i = 0; i < fSteps; i++) {
-        for (int j = 0; j < this->tileRects().count(); ++j) {
-            SkMatrix trans = SkMatrix::MakeTrans(-1.f * this->tileRects()[j].fLeft,
-                                                 -1.f * this->tileRects()[j].fTop);
-            SkMatrix tileMatrix = currentMatrix;
-            tileMatrix.postConcat(trans);
-            this->surfaces()[j]->getCanvas()->drawPicture(this->picture(), &tileMatrix, NULL);
-        }
-
-        for (int j = 0; j < this->tileRects().count(); ++j) {
-           this->surfaces()[j]->getCanvas()->flush();
-        }
-        currentMatrix.postConcat(frameMatrix);
+    for (int j = 0; j < this->tileRects().count(); ++j) {
+        SkMatrix trans = SkMatrix::MakeTrans(-1.f * this->tileRects()[j].fLeft,
+                                             -1.f * this->tileRects()[j].fTop);
+        fAnimation->preConcatFrameMatrix(fAnimationTimer.fWall, fDevBounds, &trans);
+        this->surfaces()[j]->getCanvas()->drawPicture(this->picture(), &trans, NULL);
     }
+
+    for (int j = 0; j < this->tileRects().count(); ++j) {
+       this->surfaces()[j]->getCanvas()->flush();
+    }
+}
+
+class ZoomAnimation : public SKPAnimationBench::Animation {
+public:
+    ZoomAnimation(SkScalar zoomMax, double zoomPeriodMs)
+        : fZoomMax(zoomMax)
+        , fZoomPeriodMs(zoomPeriodMs) {
+    }
+
+    virtual const char* getTag() { return "zoom"; }
+
+    virtual void preConcatFrameMatrix(double animationTimeMs, const SkIRect& devBounds,
+                                      SkMatrix* drawMatrix) {
+        double t = fmod(animationTimeMs / fZoomPeriodMs, 1.0); // t is in [0, 1).
+        t = fabs(2 * t - 1); // Make t ping-pong between 0 and 1
+        SkScalar zoom = static_cast<SkScalar>(pow(fZoomMax, t));
+
+        SkPoint center = SkPoint::Make((devBounds.fLeft + devBounds.fRight) / 2.0f,
+                                       (devBounds.fTop + devBounds.fBottom) / 2.0f);
+        drawMatrix->preTranslate(center.fX, center.fY);
+        drawMatrix->preScale(zoom, zoom);
+        drawMatrix->preTranslate(-center.fX, -center.fY);
+    }
+
+private:
+    double   fZoomMax;
+    double   fZoomPeriodMs;
+};
+
+SKPAnimationBench::Animation* SKPAnimationBench::CreateZoomAnimation(SkScalar zoomMax,
+                                                                     double zoomPeriodMs) {
+    return SkNEW_ARGS(ZoomAnimation, (zoomMax, zoomPeriodMs));
 }
