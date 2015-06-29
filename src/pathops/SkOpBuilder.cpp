@@ -158,9 +158,11 @@ bool SkOpBuilder::resolve(SkPath* result) {
             *result = original;
             return false;
         }
-        // convert the even odd result back to winding form before accumulating it
-        FixWinding(&fPathRefs[index]);
-        sum.addPath(fPathRefs[index]);
+        if (!fPathRefs[index].isEmpty()) {
+            // convert the even odd result back to winding form before accumulating it
+            FixWinding(&fPathRefs[index]);
+            sum.addPath(fPathRefs[index]);
+        }
     }
     reset();
     bool success = Simplify(sum, result);

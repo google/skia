@@ -135,3 +135,18 @@ DEF_TEST(BuilderIssue3838_3, reporter) {
     int pixelDiff = comparePaths(reporter, __FUNCTION__, path, result);
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 }
+
+DEF_TEST(BuilderIssue502792_2, reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(2, 2, 3, 3, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.addRect(3, 3, 4, 4, SkPath::kCW_Direction);
+    pathB.addRect(3, 3, 4, 4, SkPath::kCW_Direction);
+    SkOpBuilder builder;
+    builder.add(path, kUnion_SkPathOp);
+    builder.add(pathB, kDifference_SkPathOp);
+    SkPath result;
+    builder.resolve(&result);
+}

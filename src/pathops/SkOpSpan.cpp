@@ -279,7 +279,10 @@ void SkOpSpan::detach(SkOpPtT* kept) {
     prev->setNext(next);
     next->setPrev(prev);
     this->segment()->detach(this);
-    this->globalState()->coincidence()->fixUp(this->ptT(), kept);
+    SkOpCoincidence* coincidence = this->globalState()->coincidence();
+    if (coincidence) {
+        coincidence->fixUp(this->ptT(), kept);
+    }
     this->ptT()->setDeleted();
 }
 
