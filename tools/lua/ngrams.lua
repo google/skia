@@ -2,7 +2,8 @@
 
 -- To test this locally, run:
 -- $ GYP_DEFINES="skia_shared_lib=1" make lua_pictures
--- $ out/Debug/lua_pictures -q -r $SKP_DIR -l tools/lua/ngrams.lua > /tmp/lua-output && lua tools/lua/ngrams_aggregate.lua
+-- $ out/Debug/lua_pictures -q -r $SKP_DIR -l tools/lua/ngrams.lua > /tmp/lua-output
+-- $ lua tools/lua/ngrams_aggregate.lua
 
 -- To run on Cluster Telemetry, copy and paste the contents of this file into
 -- the box at https://skia-tree-status.appspot.com/skia-telemetry/lua_script,
