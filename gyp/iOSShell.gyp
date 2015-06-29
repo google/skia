@@ -44,7 +44,6 @@
             '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
 
             '../src/views/ios/SkOSWindow_iOS.mm',
-            '../src/utils/ios/SkStream_NSData.mm',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
           ],
           'link_settings': {
