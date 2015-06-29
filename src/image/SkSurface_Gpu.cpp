@@ -26,6 +26,24 @@ SkSurface_Gpu::~SkSurface_Gpu() {
     fDevice->unref();
 }
 
+GrBackendObject SkSurface_Gpu::onGetTextureHandle(TextureHandleAccess access) {
+    GrRenderTarget* rt = fDevice->accessRenderTarget();
+    switch (access) {
+        case kFlushRead_TextureHandleAccess:
+            rt->prepareForExternalRead();   // todo: rename to prepareForExternalAccess()
+            break;
+        case kFlushWrite_TextureHandleAccess:
+            this->notifyContentWillChange(kRetain_ContentChangeMode);
+            rt->flushWrites();
+            break;
+        case kDiscardWrite_TextureHandleAccess:
+            this->notifyContentWillChange(kDiscard_ContentChangeMode);
+            rt->discard();
+            break;
+    }
+    return rt->asTexture()->getTextureHandle();
+}
+
 SkCanvas* SkSurface_Gpu::onNewCanvas() {
     SkCanvas::InitFlags flags = SkCanvas::kDefault_InitFlags;
     // When we think this works...

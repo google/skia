@@ -175,6 +175,10 @@ bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t d
     return this->getCanvas()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
 }
 
+GrBackendObject SkSurface::getTextureHandle(TextureHandleAccess access) {
+    return asSB(this)->onGetTextureHandle(access);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU

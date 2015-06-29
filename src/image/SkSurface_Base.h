@@ -18,6 +18,10 @@ public:
     SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
     virtual ~SkSurface_Base();
 
+    virtual GrBackendObject onGetTextureHandle(TextureHandleAccess) {
+        return 0;
+    }
+
     /**
      *  Allocate a canvas that will draw into this surface. We will cache this
      *  canvas, to return the same object to the caller multiple times. We

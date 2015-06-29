@@ -21,6 +21,7 @@ public:
     SkSurface_Gpu(SkGpuDevice*);
     virtual ~SkSurface_Gpu();
 
+    GrBackendObject onGetTextureHandle(TextureHandleAccess) override;
     SkCanvas* onNewCanvas() override;
     SkSurface* onNewSurface(const SkImageInfo&) override;
     SkImage* onNewImageSnapshot(Budgeted) override;

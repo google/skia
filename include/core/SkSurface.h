@@ -138,8 +138,24 @@ public:
     /**
      *  Call this if the contents are about to change. This will (lazily) force a new
      *  value to be returned from generationID() when it is called next.
+     *
+     *  CAN WE DEPRECATE THIS?
      */
     void notifyContentWillChange(ContentChangeMode mode);
+
+    enum TextureHandleAccess {
+        kFlushRead_TextureHandleAccess,     //!< caller may read from the texture
+        kFlushWrite_TextureHandleAccess,    //!< caller may write to the texture
+        kDiscardWrite_TextureHandleAccess,  //!< caller must over-write the entire texture
+    };
+    /**
+     *  Retrieves the backend API handle of the texture used by this surface, or 0 if the surface
+     *  is not backed by a GPU texture.
+     *
+     *  The returned texture-handle is only valid until the next draw-call into the surface,
+     *  or the surface is deleted.
+     */
+    GrBackendObject getTextureHandle(TextureHandleAccess);
 
     /**
      *  Return a canvas that will draw into this surface. This will always

@@ -223,7 +223,30 @@ struct ReleaseDataContext {
     }
 };
 
-static SkImage* create_image(ImageType imageType, GrContext* context, SkColor color,
+static void test_texture_handle(skiatest::Reporter* reporter, SkSurface* surf) {
+    SkAutoTUnref<SkImage> image0(surf->newImageSnapshot());
+    GrBackendObject obj = surf->getTextureHandle(SkSurface::kFlushRead_TextureHandleAccess);
+    REPORTER_ASSERT(reporter, obj != 0);
+    SkAutoTUnref<SkImage> image1(surf->newImageSnapshot());
+    // just read access should not affect the snapshot
+    REPORTER_ASSERT(reporter, image0->uniqueID() == image1->uniqueID());
+
+    obj = surf->getTextureHandle(SkSurface::kFlushWrite_TextureHandleAccess);
+    REPORTER_ASSERT(reporter, obj != 0);
+    SkAutoTUnref<SkImage> image2(surf->newImageSnapshot());
+    // expect a new image, since we claimed we would write
+    REPORTER_ASSERT(reporter, image0->uniqueID() != image2->uniqueID());
+
+    obj = surf->getTextureHandle(SkSurface::kDiscardWrite_TextureHandleAccess);
+    REPORTER_ASSERT(reporter, obj != 0);
+    SkAutoTUnref<SkImage> image3(surf->newImageSnapshot());
+    // expect a new(er) image, since we claimed we would write
+    REPORTER_ASSERT(reporter, image0->uniqueID() != image3->uniqueID());
+    REPORTER_ASSERT(reporter, image2->uniqueID() != image3->uniqueID());
+}
+
+static SkImage* create_image(skiatest::Reporter* reporter,
+                             ImageType imageType, GrContext* context, SkColor color,
                              ReleaseDataContext* releaseContext) {
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
@@ -247,6 +270,10 @@ static SkImage* create_image(ImageType imageType, GrContext* context, SkColor co
         case kGpu_ImageType: {
             SkAutoTUnref<SkSurface> surf(
                 SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
+            surf->getCanvas()->clear(color);
+            // test our backing texture while were here...
+            test_texture_handle(reporter, surf);
+            // redraw so our returned image looks as expected.
             surf->getCanvas()->clear(color);
             return surf->newImageSnapshot();
         }
@@ -351,7 +378,7 @@ static void test_imagepeek(skiatest::Reporter* reporter, GrContextFactory* facto
         size_t rowBytes;
 
         releaseCtx.fData = NULL;
-        SkAutoTUnref<SkImage> image(create_image(gRec[i].fType, ctx, color, &releaseCtx));
+        SkAutoTUnref<SkImage> image(create_image(reporter, gRec[i].fType, ctx, color, &releaseCtx));
         if (!image.get()) {
             SkDebugf("failed to createImage[%d] %s\n", i, gRec[i].fName);
             continue;   // gpu may not be enabled
