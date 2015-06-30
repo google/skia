@@ -10,6 +10,7 @@
 
 #include "GrPrimitiveProcessor.h"
 #include "GrGLProcessor.h"
+#include "GrGLPathProgramDataManager.h"
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
@@ -20,6 +21,7 @@ public:
     virtual ~GrGLPrimitiveProcessor() {}
 
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLPathProgramDataManager::SeparableVaryingHandle SeparableVaryingHandle;
     typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
 
     typedef SkSTArray<2, const GrCoordTransform*, true> ProcCoords;
@@ -84,6 +86,10 @@ protected:
         UniformHandle convertToUniformHandle() {
             SkASSERT(this->isValid());
             return GrGLProgramDataManager::UniformHandle::CreateFromUniformIndex(fHandle);
+        }
+        SeparableVaryingHandle convertToSeparableVaryingHandle() {
+            SkASSERT(this->isValid());
+            return SeparableVaryingHandle::CreateFromSeparableVaryingIndex(fHandle);
         }
 
     private:

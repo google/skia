@@ -203,5 +203,6 @@ protected:
     bool fFinalized;
 
     friend class GrGLProgramBuilder;
+    friend class GrGLPathProgramBuilder; // to access fInputs.
 };
 #endif

@@ -71,16 +71,11 @@ void GrGLPathProcessor::emitTransforms(GrGLGPBuilder* pb, const TransformsIn& ti
                     coordTransforms[t]->getMatrix().hasPerspective() ? kVec3f_GrSLType :
                                                                        kVec2f_GrSLType;
 
-
             SkString strVaryingName("MatrixCoord");
             strVaryingName.appendf("_%i_%i", i, t);
             GrGLVertToFrag v(varyingType);
-            pb->addVarying(strVaryingName.c_str(), &v);
-            SeparableVaryingInfo& varyingInfo = fSeparableVaryingInfos.push_back();
-            varyingInfo.fVariable = pb->getFragmentShaderBuilder()->fInputs.back();
-            varyingInfo.fLocation = fSeparableVaryingInfos.count() - 1;
-            varyingInfo.fType = varyingType;
-            fInstalledTransforms[i][t].fHandle = ShaderVarHandle(varyingInfo.fLocation);
+            fInstalledTransforms[i][t].fHandle =
+                    pb->addSeparableVarying(strVaryingName.c_str(), &v).toShaderBuilderIndex();
             fInstalledTransforms[i][t].fType = varyingType;
 
             SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLProcessor::TransformedCoords,
@@ -89,25 +84,11 @@ void GrGLPathProcessor::emitTransforms(GrGLGPBuilder* pb, const TransformsIn& ti
     }
 }
 
-void GrGLPathProcessor::resolveSeparableVaryings(GrGLGpu* gpu, GrGLuint programId) {
-    int count = fSeparableVaryingInfos.count();
-    for (int i = 0; i < count; ++i) {
-        GrGLint location;
-        GR_GL_CALL_RET(gpu->glInterface(),
-                       location,
-                       GetProgramResourceLocation(programId,
-                                                  GR_GL_FRAGMENT_INPUT,
-                                                  fSeparableVaryingInfos[i].fVariable.c_str()));
-        fSeparableVaryingInfos[i].fLocation = location;
-    }
-}
-
 void GrGLPathProcessor::setTransformData(
         const GrPrimitiveProcessor& primProc,
+        const GrGLPathProgramDataManager& pdman,
         int index,
-        const SkTArray<const GrCoordTransform*, true>& coordTransforms,
-        GrGLPathRendering* glpr,
-        GrGLuint programID) {
+        const SkTArray<const GrCoordTransform*, true>& coordTransforms) {
     const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
     SkSTArray<2, Transform, true>& transforms = fInstalledTransforms[index];
     int numTransforms = transforms.count();
@@ -119,15 +100,10 @@ void GrGLPathProcessor::setTransformData(
             continue;
         }
         transforms[t].fCurrentValue = transform;
-        const SeparableVaryingInfo& fragmentInput =
-                fSeparableVaryingInfos[transforms[t].fHandle.handle()];
+
         SkASSERT(transforms[t].fType == kVec2f_GrSLType ||
                  transforms[t].fType == kVec3f_GrSLType);
         unsigned components = transforms[t].fType == kVec2f_GrSLType ? 2 : 3;
-        glpr->setProgramPathFragmentInputTransform(programID,
-                                                   fragmentInput.fLocation,
-                                                   GR_GL_OBJECT_LINEAR,
-                                                   components,
-                                                   transform);
+        pdman.setPathFragmentInputTransform(transforms[t].fHandle.handle(), components, transform);
     }
 }

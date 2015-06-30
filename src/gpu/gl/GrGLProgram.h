@@ -152,36 +152,4 @@ protected:
     typedef SkRefCnt INHERITED;
 };
 
-/*
- * Below are slight specializations of the program object for the different types of programs
- * The default GrGL programs consist of at the very least a vertex and fragment shader.
- * Legacy Nvpr only has a fragment shader, 1.3+ Nvpr ignores the vertex shader, but both require
- * specialized methods for setting transform data. Both types of NVPR also require setting the
- * projection matrix through a special function call
- */
-class GrGLNvprProgram : public GrGLProgram {
-protected:
-    GrGLNvprProgram(GrGLGpu*,
-                    const GrProgramDesc&,
-                    const BuiltinUniformHandles&,
-                    GrGLuint programID,
-                    const UniformInfoArray&,
-                    GrGLInstalledGeoProc*,
-                    GrGLInstalledXferProc* xferProcessor,
-                    GrGLInstalledFragProcs* fragmentProcessors,
-                    SkTArray<UniformHandle>* passSamplerUniforms);
-
-private:
-    void didSetData() override;
-    virtual void setTransformData(const GrPrimitiveProcessor&,
-                                  const GrPendingFragmentStage&,
-                                  int index,
-                                  GrGLInstalledFragProc*) override;
-    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
-
-    friend class GrGLNvprProgramBuilder;
-
-    typedef GrGLProgram INHERITED;
-};
-
 #endif

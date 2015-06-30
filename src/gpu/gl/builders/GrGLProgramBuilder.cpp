@@ -17,6 +17,7 @@
 #include "glsl/GrGLSLCaps.h"
 #include "GrAutoLocaleSetter.h"
 #include "GrCoordTransform.h"
+#include "GrGLPathProgramBuilder.h"
 #include "GrGLProgramBuilder.h"
 #include "GrTexture.h"
 #include "SkRTConf.h"
@@ -24,32 +25,6 @@
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-class GrGLNvprProgramBuilder : public GrGLProgramBuilder {
-public:
-    GrGLNvprProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
-        : INHERITED(gpu, args) {}
-
-    GrGLProgram* createProgram(GrGLuint programID) override {
-        // this is just for nvpr es, which has separable varyings that are plugged in after
-        // building
-        GrGLPathProcessor* pathProc =
-                static_cast<GrGLPathProcessor*>(fGeometryProcessor->fGLProc.get());
-        pathProc->resolveSeparableVaryings(fGpu, programID);
-        return SkNEW_ARGS(GrGLNvprProgram, (fGpu, this->desc(), fUniformHandles, programID,
-                                            fUniforms, fGeometryProcessor, fXferProcessor,
-                                            fFragmentProcessors.get(), &fSamplerUniforms));
-    }
-
-private:
-    typedef GrGLProgramBuilder INHERITED;
-};
-
-
-
-//////////////////////////////////////////////////////////////////////////////
 
 const int GrGLProgramBuilder::kVarsPerBlock = 8;
 
@@ -80,7 +55,7 @@ GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const DrawArgs& arg
         SkASSERT(gpu->glCaps().shaderCaps()->pathRenderingSupport() &&
                  !args.fPrimitiveProcessor->willUseGeoShader() &&
                  args.fPrimitiveProcessor->numAttribs() == 0);
-        return SkNEW_ARGS(GrGLNvprProgramBuilder, (gpu, args));
+        return SkNEW_ARGS(GrGLPathProgramBuilder, (gpu, args));
     } else {
         return SkNEW_ARGS(GrGLProgramBuilder, (gpu, args));
     }
@@ -124,6 +99,18 @@ void GrGLProgramBuilder::addPassThroughAttribute(const GrPrimitiveProcessor::Att
     this->addVarying(input->fName, &v);
     fVS.codeAppendf("%s = %s;", v.vsOut(), input->fName);
     fFS.codeAppendf("%s = %s;", output, v.fsIn());
+}
+
+GrGLProgramBuilder::SeparableVaryingHandle GrGLProgramBuilder::addSeparableVarying(const char*,
+                                                                                   GrGLVertToFrag*,
+                                                                                   GrSLPrecision) {
+    // This call is not used for non-NVPR backends. However, the polymorphism between
+    // GrPrimitiveProcessor, GrGLPrimitiveProcessor and GrGLProgramBuilder does not allow for
+    // a system where GrGLPathProcessor would be able to refer to a primitive-specific builder
+    // that would understand separable varyings. Thus separable varyings need to be present
+    // early in the inheritance chain of builders.
+    SkASSERT(false);
+    return SeparableVaryingHandle();
 }
 
 void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name) {
@@ -423,11 +410,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         return NULL;
     }
 
-    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
-    if (usingBindUniform) {
-        this->bindUniformLocations(programID);
-    }
-    fFS.bindFragmentShaderLocations(programID);
+    this->bindProgramResourceLocations(programID);
+
     GL_CALL(LinkProgram(programID));
 
     // Calling GetProgramiv is expensive in Chromium. Assume success in release builds.
@@ -438,21 +422,24 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     if (checkLinked) {
         checkLinkStatus(programID);
     }
-    if (!usingBindUniform) {
-        this->resolveUniformLocations(programID);
-    }
+    this->resolveProgramResourceLocations(programID);
 
     this->cleanupShaders(shadersToDelete);
 
     return this->createProgram(programID);
 }
 
-void GrGLProgramBuilder::bindUniformLocations(GrGLuint programID) {
-    int count = fUniforms.count();
-    for (int i = 0; i < count; ++i) {
-        GL_CALL(BindUniformLocation(programID, i, fUniforms[i].fVariable.c_str()));
-        fUniforms[i].fLocation = i;
+void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
+    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
+    if (usingBindUniform) {
+        int count = fUniforms.count();
+        for (int i = 0; i < count; ++i) {
+            GL_CALL(BindUniformLocation(programID, i, fUniforms[i].fVariable.c_str()));
+            fUniforms[i].fLocation = i;
+        }
     }
+
+    fFS.bindFragmentShaderLocations(programID);
 }
 
 bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
@@ -479,12 +466,15 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
     return SkToBool(linked);
 }
 
-void GrGLProgramBuilder::resolveUniformLocations(GrGLuint programID) {
-    int count = fUniforms.count();
-    for (int i = 0; i < count; ++i) {
-        GrGLint location;
-        GL_CALL_RET(location, GetUniformLocation(programID, fUniforms[i].fVariable.c_str()));
-        fUniforms[i].fLocation = location;
+void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
+    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
+    if (!usingBindUniform) {
+        int count = fUniforms.count();
+        for (int i = 0; i < count; ++i) {
+            GrGLint location;
+            GL_CALL_RET(location, GetUniformLocation(programID, fUniforms[i].fVariable.c_str()));
+            fUniforms[i].fLocation = location;
+        }
     }
 }
 
