@@ -75,44 +75,43 @@ struct T {                              \
     static const Type kType = T##_Type; \
 };
 
-// We try to be flexible about the types the constructors take.  Instead of requring the exact type
-// A here, we take any type Z which implicitly casts to A.  This allows the delay_copy() trick to
-// work, allowing the caller to decide whether to pass by value or by const&.
+// Instead of requring the exact type A here, we take any type Z which implicitly casts to A.
+// This lets our wrappers like ImmutableBitmap work seamlessly.
 
 #define RECORD1(T, A, a)                \
 struct T {                              \
     static const Type kType = T##_Type; \
     T() {}                              \
     template <typename Z>               \
-    T(Z a) : a(a) {}                    \
+    T(const Z& a) : a(a) {}             \
     A a;                                \
 };
 
-#define RECORD2(T, A, a, B, b)          \
-struct T {                              \
-    static const Type kType = T##_Type; \
-    T() {}                              \
-    template <typename Z, typename Y>   \
-    T(Z a, Y b) : a(a), b(b) {}         \
-    A a; B b;                           \
+#define RECORD2(T, A, a, B, b)                \
+struct T {                                    \
+    static const Type kType = T##_Type;       \
+    T() {}                                    \
+    template <typename Z, typename Y>         \
+    T(const Z& a, const Y& b) : a(a), b(b) {} \
+    A a; B b;                                 \
 };
 
-#define RECORD3(T, A, a, B, b, C, c)              \
-struct T {                                        \
-    static const Type kType = T##_Type;           \
-    T() {}                                        \
-    template <typename Z, typename Y, typename X> \
-    T(Z a, Y b, X c) : a(a), b(b), c(c) {}        \
-    A a; B b; C c;                                \
+#define RECORD3(T, A, a, B, b, C, c)                            \
+struct T {                                                      \
+    static const Type kType = T##_Type;                         \
+    T() {}                                                      \
+    template <typename Z, typename Y, typename X>               \
+    T(const Z& a, const Y& b, const X& c) : a(a), b(b), c(c) {} \
+    A a; B b; C c;                                              \
 };
 
-#define RECORD4(T, A, a, B, b, C, c, D, d)                    \
-struct T {                                                    \
-    static const Type kType = T##_Type;                       \
-    T() {}                                                    \
-    template <typename Z, typename Y, typename X, typename W> \
-    T(Z a, Y b, X c, W d) : a(a), b(b), c(c), d(d) {}         \
-    A a; B b; C c; D d;                                       \
+#define RECORD4(T, A, a, B, b, C, c, D, d)                                        \
+struct T {                                                                        \
+    static const Type kType = T##_Type;                                           \
+    T() {}                                                                        \
+    template <typename Z, typename Y, typename X, typename W>                     \
+    T(const Z& a, const Y& b, const X& c, const W& d) : a(a), b(b), c(c), d(d) {} \
+    A a; B b; C c; D d;                                                           \
 };
 
 #define RECORD5(T, A, a, B, b, C, c, D, d, E, e)                          \
@@ -120,19 +119,23 @@ struct T {                                                                \
     static const Type kType = T##_Type;                                   \
     T() {}                                                                \
     template <typename Z, typename Y, typename X, typename W, typename V> \
-    T(Z a, Y b, X c, W d, V e) : a(a), b(b), c(c), d(d), e(e) {}          \
+    T(const Z& a, const Y& b, const X& c, const W& d, const V& e)         \
+        : a(a), b(b), c(c), d(d), e(e) {}                                 \
     A a; B b; C c; D d; E e;                                              \
 };
 
-#define RECORD8(T, A, a, B, b, C, c, D, d, E, e, F, f, G, g, H, h)        \
-struct T {                                                                \
-    static const Type kType = T##_Type;                                   \
-    T() {}                                                                \
-    template <typename Z, typename Y, typename X, typename W, typename V, typename U, typename S, typename R> \
-    T(Z a, Y b, X c, W d, V e, U f, S g, R h) : a(a), b(b), c(c), d(d), e(e), f(f), g(g), h(h) {} \
-    A a; B b; C c; D d; E e; F f; G g; H h;                               \
+#define RECORD8(T, A, a, B, b, C, c, D, d, E, e, F, f, G, g, H, h) \
+struct T {                                                         \
+    static const Type kType = T##_Type;                            \
+    T() {}                                                         \
+    template <typename Z, typename Y, typename X, typename W,      \
+              typename V, typename U, typename S, typename R>      \
+    T(const Z& a, const Y& b, const X& c, const W& d,              \
+      const V& e, const U& f, const S& g, const R& h)              \
+        : a(a), b(b), c(c), d(d), e(e), f(f), g(g), h(h) {}        \
+    A a; B b; C c; D d; E e; F f; G g; H h;                        \
 };
-    
+
 #define ACT_AS_PTR(ptr)                 \
     operator T*() const { return ptr; } \
     T* operator->() const { return ptr; }
