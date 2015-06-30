@@ -68,7 +68,8 @@ void SubsetTranslateBench::onDraw(const int n, SkCanvas* canvas) {
             SkBitmap bitmap;
             // Note that we use the same bitmap for all of the subsets.
             // It might be larger than necessary for the end subsets.
-            bitmap.allocPixels(info.makeWH(fSubsetWidth, fSubsetHeight));
+            SkImageInfo subsetInfo = info.makeWH(fSubsetWidth, fSubsetHeight);
+            alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
             for (int x = 0; x < info.width(); x += fSubsetWidth) {
                 for (int y = 0; y < info.height(); y += fSubsetHeight) {

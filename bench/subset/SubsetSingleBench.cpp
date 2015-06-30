@@ -70,7 +70,8 @@ void SubsetSingleBench::onDraw(const int n, SkCanvas* canvas) {
                     info, NULL, colors, &colorCount);
 
             SkBitmap bitmap;
-            bitmap.allocPixels(info.makeWH(fSubsetWidth, fSubsetHeight));
+            SkImageInfo subsetInfo = info.makeWH(fSubsetWidth, fSubsetHeight);
+            alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
             scanlineDecoder->skipScanlines(fOffsetTop);
             uint32_t bpp = info.bytesPerPixel();

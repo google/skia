@@ -32,4 +32,19 @@ static const char* get_color_name(SkColorType colorType) {
     }
 }
 
+/*
+ * If we plan to decode to kIndex8, we must create a color table and pass it to the
+ * bitmap when we allocate pixels.  Otherwise, we simply allocate pixels using the
+ * decode info.
+ */
+static inline void alloc_pixels(SkBitmap* bitmap, const SkImageInfo& info, SkPMColor* colors,
+        int colorCount) {
+    if (kIndex_8_SkColorType == info.colorType()) {
+        SkAutoTUnref<SkColorTable> colorTable(SkNEW_ARGS(SkColorTable, (colors, colorCount)));
+        bitmap->allocPixels(info, NULL, colorTable);
+    } else {
+        bitmap->allocPixels(info);
+    }
+}
+
 #endif // SubsetBenchPriv_DEFINED

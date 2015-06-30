@@ -77,7 +77,8 @@ void SubsetZoomBench::onDraw(const int n, SkCanvas* canvas) {
                 // Note that if we subsetted and scaled in a single step, we could use the
                 // same bitmap - as is often done in actual use cases.
                 SkBitmap bitmap;
-                bitmap.allocPixels(info.makeWH(subsetWidth, subsetHeight));
+                SkImageInfo subsetInfo = info.makeWH(subsetWidth, subsetHeight);
+                alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
                 uint32_t bpp = info.bytesPerPixel();
                 scanlineDecoder->skipScanlines(subsetStartY);
