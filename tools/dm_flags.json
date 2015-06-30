@@ -946,7 +946,8 @@
     "decode", 
     "Hopstarter-Mac-Folders-Apple.ico", 
     "--match", 
-    "~Math"
+    "~Math", 
+    "~SkSharedMutexMultiThreaded"
   ], 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind": [
     "--matrix", 
