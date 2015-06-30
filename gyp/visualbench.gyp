@@ -11,19 +11,37 @@
     {
       'target_name': 'visualbench',
       'type': 'executable',
+      'includes' : [
+        'gmslides.gypi',
+      ],
       'include_dirs' : [
+        '../bench',
         '../include/gpu',
         '../src/core',
+        '../src/effects',
         '../src/images',
       ],
       'sources': [
+        '../gm/gm.cpp',
         '../tools/VisualBench/VisualBench.h',
         '../tools/VisualBench/VisualBench.cpp',
+        '../tools/VisualBench/VisualBenchmarkStream.h',
+        '../tools/VisualBench/VisualBenchmarkStream.cpp',
+        '../tools/VisualBench/VisualSKPBench.h',
+        '../tools/VisualBench/VisualSKPBench.cpp',
+        '<!@(python find.py ../bench "*.cpp")',
+      ],
+      'sources!': [
+        '../bench/nanobench.cpp',
+        '../bench/nanobenchAndroid.cpp',
       ],
       'dependencies': [
-        'flags.gyp:flags_common',
+        'etc1.gyp:libetc1',
+        'flags.gyp:flags',
+        'gputest.gyp:skgputest', 
         'skia_lib.gyp:skia_lib',
         'tools.gyp:proc_stats',
+        'tools.gyp:sk_tool_utils',
         'tools.gyp:timer',
         'views.gyp:views',
       ],

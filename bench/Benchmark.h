@@ -102,6 +102,11 @@ public:
         fClearMask = clearMask;
     }
 
+    /*
+     * Benches which support running in a visual mode can advertise this functionality
+     */
+    virtual bool isVisual() { return false; }
+
 protected:
     virtual void setupPaint(SkPaint* paint);
 

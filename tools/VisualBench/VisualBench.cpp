@@ -12,7 +12,6 @@
 #include "SkApplication.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
-#include "SkCommonFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkGr.h"
@@ -35,6 +34,7 @@ DEFINE_double(flushMs, 20, "Target flush time in millseconds.");
 DEFINE_double(loopMs, 5, "Target loop time in millseconds.");
 DEFINE_int32(msaa, 0, "Number of msaa samples.");
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
+DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) {
@@ -47,33 +47,18 @@ static SkString humanize(double ms) {
 
 VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     : INHERITED(hwnd)
-    , fCurrentPictureIdx(-1)
     , fCurrentSample(0)
     , fCurrentFrame(0)
     , fFlushes(1)
     , fLoops(1)
-    , fState(kPreWarmLoops_State) {
+    , fState(kPreWarmLoops_State)
+    , fBenchmark(NULL) {
     SkCommandLineFlags::Parse(argc, argv);
-
-    // read all the skp file names.
-    for (int i = 0; i < FLAGS_skps.count(); i++) {
-        if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
-            fRecords.push_back().fFilename = FLAGS_skps[i];
-        } else {
-            SkOSFile::Iter it(FLAGS_skps[i], ".skp");
-            SkString path;
-            while (it.next(&path)) {
-                fRecords.push_back().fFilename = SkOSPath::Join(FLAGS_skps[i], path.c_str());;
-            }
-        }
-    }
-
-    if (fRecords.empty()) {
-        SkDebugf("no valid skps found\n");
-    }
 
     this->setTitle();
     this->setupBackend();
+
+    fBenchmarkStream.reset(SkNEW(VisualBenchmarkStream));
 
     // Print header
     SkDebugf("curr/maxrss\tloops\tflushes\tmin\tmedian\tmean\tmax\tstddev\tbench\n");
@@ -134,22 +119,20 @@ void VisualBench::setupRenderTarget() {
 
 inline void VisualBench::renderFrame(SkCanvas* canvas) {
     for (int flush = 0; flush < fFlushes; flush++) {
-        for (int loop = 0; loop < fLoops; loop++) {
-            canvas->drawPicture(fPicture);
-        }
+        fBenchmark->draw(fLoops, canvas);
         canvas->flush();
     }
     INHERITED::present();
 }
 
 void VisualBench::printStats() {
-    const SkTArray<double>& measurements = fRecords[fCurrentPictureIdx].fMeasurements;
-    SkString shortName = SkOSPath::Basename(fRecords[fCurrentPictureIdx].fFilename.c_str());
+    const SkTArray<double>& measurements = fRecords.back().fMeasurements;
+    const char* shortName = fBenchmark->getUniqueName();
     if (FLAGS_verbose) {
         for (int i = 0; i < measurements.count(); i++) {
             SkDebugf("%s  ", HUMANIZE(measurements[i]));
         }
-        SkDebugf("%s\n", shortName.c_str());
+        SkDebugf("%s\n", shortName);
     } else {
         SkASSERT(measurements.count());
         Stats stats(measurements);
@@ -164,37 +147,28 @@ void VisualBench::printStats() {
                  HUMANIZE(stats.mean),
                  HUMANIZE(stats.max),
                  stdDevPercent,
-                 shortName.c_str());
+                 shortName);
     }
 }
 
-bool VisualBench::advanceRecordIfNecessary() {
-    if (fPicture) {
+bool VisualBench::advanceRecordIfNecessary(SkCanvas* canvas) {
+    if (fBenchmark) {
         return true;
     }
-    ++fCurrentPictureIdx;
-    while (true) {
-        if (fCurrentPictureIdx >= fRecords.count()) {
-            return false;
-        }
-        if (this->loadPicture()) {
-            return true;
-        }
-        fRecords.removeShuffle(fCurrentPictureIdx);
-    }
-}
 
-bool VisualBench::loadPicture() {
-    const char* fileName = fRecords[fCurrentPictureIdx].fFilename.c_str();
-    SkFILEStream stream(fileName);
-    if (stream.isValid()) {
-        fPicture.reset(SkPicture::CreateFromStream(&stream));
-        if (SkToBool(fPicture)) {
-            return true;
-        }
+    while ((fBenchmark = fBenchmarkStream->next()) &&
+           (SkCommandLineFlags::ShouldSkip(FLAGS_match, fBenchmark->getUniqueName()) ||
+            !fBenchmark->isSuitableFor(Benchmark::kGPU_Backend))) {}
+
+    if (!fBenchmark) {
+        return false;
     }
-    SkDebugf("couldn't load picture at \"%s\"\n", fileName);
-    return false;
+
+    canvas->clear(0xffffffff);
+    fBenchmark->preDraw();
+    fBenchmark->perCanvasPreDraw(canvas);
+    fRecords.push_back();
+    return true;
 }
 
 void VisualBench::preWarm(State nextState) {
@@ -209,7 +183,7 @@ void VisualBench::preWarm(State nextState) {
 }
 
 void VisualBench::draw(SkCanvas* canvas) {
-    if (!this->advanceRecordIfNecessary()) {
+    if (!this->advanceRecordIfNecessary(canvas)) {
         this->closeWindow();
         return;
     }
@@ -251,12 +225,13 @@ void VisualBench::draw(SkCanvas* canvas) {
         case kTiming_State: {
             if (fCurrentFrame >= FLAGS_frames) {
                 fTimer.end();
-                fRecords[fCurrentPictureIdx].fMeasurements.push_back(
+                fRecords.back().fMeasurements.push_back(
                         fTimer.fWall / (FLAGS_frames * fLoops * fFlushes));
                 if (fCurrentSample++ >= FLAGS_samples) {
                     fState = kPreWarmLoops_State;
                     this->printStats();
-                    fPicture.reset(NULL);
+                    fBenchmark->perCanvasPostDraw(canvas);
+                    fBenchmark = NULL;
                     fCurrentSample = 0;
                     fFlushes = 1;
                     fLoops = 1;

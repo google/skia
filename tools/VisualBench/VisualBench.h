@@ -15,6 +15,7 @@
 #include "SkString.h"
 #include "SkSurface.h"
 #include "Timer.h"
+#include "VisualBenchmarkStream.h"
 #include "gl/SkGLContext.h"
 
 class GrContext;
@@ -44,12 +45,10 @@ private:
     void setupRenderTarget();
     bool onHandleChar(SkUnichar unichar) override;
     void printStats();
-    bool loadPicture();
-    bool advanceRecordIfNecessary();
+    bool advanceRecordIfNecessary(SkCanvas*);
     inline void renderFrame(SkCanvas*);
 
     struct Record {
-        SkString fFilename;
         SkTArray<double> fMeasurements;
     };
 
@@ -61,8 +60,6 @@ private:
     };
     void preWarm(State nextState);
 
-    int fCurrentPictureIdx;
-    SkAutoTUnref<SkPicture> fPicture;
     int fCurrentSample;
     int fCurrentFrame;
     int fFlushes;
@@ -70,6 +67,8 @@ private:
     SkTArray<Record> fRecords;
     WallTimer fTimer;
     State fState;
+    SkAutoTDelete<VisualBenchmarkStream> fBenchmarkStream;
+    Benchmark* fBenchmark;
 
     // support framework
     SkAutoTUnref<SkSurface> fSurface;
