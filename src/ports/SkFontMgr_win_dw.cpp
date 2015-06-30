@@ -51,7 +51,7 @@ public:
     SkAutoTDelete<SkStreamAsset> fStream;
 
 private:
-    StreamFontFileLoader(SkStreamAsset* stream) : fRefCount(1), fStream(stream) { }
+    StreamFontFileLoader(SkStreamAsset* stream) : fStream(stream), fRefCount(1) { }
     virtual ~StreamFontFileLoader() { }
 
     ULONG fRefCount;
