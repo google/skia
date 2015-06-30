@@ -85,15 +85,22 @@ void GrGLConvolutionEffect::emitCode(GrGLFPBuilder* builder,
         SkString kernelIndex;
         index.appendS32(i);
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
-        fsBuilder->codeAppendf("\t\t%s += ", outputColor);
-        fsBuilder->appendTextureLookup(samplers[0], "coord");
+
         if (this->useBounds()) {
+            // We used to compute a bool indicating whether we're in bounds or not, cast it to a
+            // float, and then mul weight*texture_sample by the float. However, the Adreno 430 seems
+            // to have a bug that caused corruption.
             const char* bounds = builder->getUniformCStr(fBoundsUni);
             const char* component = this->direction() == Gr1DKernelEffect::kY_Direction ? "y" : "x";
-            fsBuilder->codeAppendf(" * float(coord.%s >= %s.x && coord.%s <= %s.y)",
+            fsBuilder->codeAppendf("if (coord.%s >= %s.x && coord.%s <= %s.y) {",
                 component, bounds, component, bounds);
         }
+        fsBuilder->codeAppendf("\t\t%s += ", outputColor);
+        fsBuilder->appendTextureLookup(samplers[0], "coord");
         fsBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
+        if (this->useBounds()) {
+            fsBuilder->codeAppend("}");
+        }
         fsBuilder->codeAppendf("\t\tcoord += %s;\n", imgInc);
     }
 
