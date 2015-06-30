@@ -88,11 +88,27 @@ public:
     }
 
     /**
-     *  Used to wrap a pre-existing backend 3D API texture in a SkSurface. The kRenderTarget flag
-     *  must be set on GrBackendTextureDesc for this to succeed.
+     *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. The kRenderTarget flag
+     *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
+     *  of the texture and the client must ensure the texture is valid for the lifetime of the
+     *  SkSurface.
      */
-    static SkSurface* NewWrappedRenderTarget(GrContext*, GrBackendTextureDesc,
-                                             const SkSurfaceProps*);
+    static SkSurface* NewFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
+                                            const SkSurfaceProps*);
+    // Legacy alias
+    static SkSurface* NewWrappedRenderTarget(GrContext* ctx, const GrBackendTextureDesc& desc,
+                                             const SkSurfaceProps* props) {
+        return NewFromBackendTexture(ctx, desc, props);
+    }
+
+
+    /**
+     *  Used to wrap a pre-existing 3D API rendering target as a SkSurface. Skia will not assume
+     *  ownership of the render target and the client must ensure the render target is valid for the
+     *  lifetime of the SkSurface.
+     */
+    static SkSurface* NewFromBackendRenderTarget(GrContext*, const GrBackendRenderTargetDesc&,
+                                                 const SkSurfaceProps*);
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen

@@ -192,8 +192,13 @@ SkSurface* SkSurface::NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, 
     return NULL;
 }
 
-SkSurface* SkSurface::NewWrappedRenderTarget(GrContext*, GrBackendTextureDesc,
+SkSurface* SkSurface::NewFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
                                              const SkSurfaceProps*) {
+    return NULL;
+}
+
+SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext*, const GrBackendRenderTargetDesc&,
+                                                 const SkSurfaceProps*) {
     return NULL;
 }
 

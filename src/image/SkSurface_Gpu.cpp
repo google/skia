@@ -116,8 +116,8 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const S
     return SkNEW_ARGS(SkSurface_Gpu, (device));
 }
 
-SkSurface* SkSurface::NewWrappedRenderTarget(GrContext* context, GrBackendTextureDesc desc,
-                                             const SkSurfaceProps* props) {
+SkSurface* SkSurface::NewFromBackendTexture(GrContext* context, const GrBackendTextureDesc& desc,
+                                            const SkSurfaceProps* props) {
     if (NULL == context) {
         return NULL;
     }
@@ -130,6 +130,24 @@ SkSurface* SkSurface::NewWrappedRenderTarget(GrContext* context, GrBackendTextur
         return NULL;
     }
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props,
+                                                         SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return NULL;
+    }
+    return SkNEW_ARGS(SkSurface_Gpu, (device));
+}
+
+SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext* context,
+                                                 const GrBackendRenderTargetDesc& desc,
+                                                 const SkSurfaceProps* props) {
+    if (NULL == context) {
+        return NULL;
+    }
+    SkAutoTUnref<GrRenderTarget> rt(context->textureProvider()->wrapBackendRenderTarget(desc));
+    if (!rt) {
+        return NULL;
+    }
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(rt, props,
                                                          SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return NULL;
