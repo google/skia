@@ -84,9 +84,9 @@ void GrSurface::flushWrites() {
     }
 }
 
-void GrSurface::prepareForExternalRead() {
+void GrSurface::prepareForExternalIO() {
     if (!this->wasDestroyed()) {
-        this->getContext()->prepareSurfaceForExternalRead(this);
+        this->getContext()->prepareSurfaceForExternalIO(this);
     }
 }
 

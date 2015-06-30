@@ -304,15 +304,14 @@ public:
     void flushSurfaceWrites(GrSurface* surface);
 
     /**
-     * Equivalent to flushSurfaceWrites but also performs MSAA resolve if necessary. This call is
-     * used to make the surface contents available to be read in the backend 3D API, usually for a
-     * compositing step external to Skia.
+     * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
+     * if necessary.
      *
      * It is not necessary to call this before reading the render target via Skia/GrContext.
      * GrContext will detect when it must perform a resolve before reading pixels back from the
      * surface or using it as a texture.
      */
-    void prepareSurfaceForExternalRead(GrSurface*);
+    void prepareSurfaceForExternalIO(GrSurface*);
 
     /**
      * An ID associated with this context, guaranteed to be unique.

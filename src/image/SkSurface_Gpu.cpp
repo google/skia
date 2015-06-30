@@ -30,15 +30,14 @@ GrBackendObject SkSurface_Gpu::onGetTextureHandle(TextureHandleAccess access) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     switch (access) {
         case kFlushRead_TextureHandleAccess:
-            rt->prepareForExternalRead();   // todo: rename to prepareForExternalAccess()
             break;
         case kFlushWrite_TextureHandleAccess:
         case kDiscardWrite_TextureHandleAccess:
             // for now we don't special-case on Discard, but we may in the future.
             this->notifyContentWillChange(kRetain_ContentChangeMode);
-            rt->flushWrites();
             break;
     }
+    rt->prepareForExternalIO();
     return rt->asTexture()->getTextureHandle();
 }
 

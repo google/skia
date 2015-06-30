@@ -122,13 +122,13 @@ GrTexture* SkImage::getTexture() const {
 
 bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->getTexture()); }
 
-GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextReads) const {
+GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO) const {
     GrTexture* texture = as_IB(this)->getTexture();
     if (texture) {
         GrContext* context = texture->getContext();
         if (context) {            
-            if (flushPendingGrContextReads) {
-                context->prepareSurfaceForExternalRead(texture);
+            if (flushPendingGrContextIO) {
+                context->prepareSurfaceForExternalIO(texture);
             }
         }
         return texture->getTextureHandle();
@@ -142,7 +142,7 @@ GrTexture* SkImage::getTexture() const { return NULL; }
 
 bool SkImage::isTextureBacked() const { return false; }
 
-GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextReads) const { return 0; }
+GrBackendObject SkImage::getTextureHandle(bool) const { return 0; }
 
 #endif
 

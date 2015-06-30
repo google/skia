@@ -171,11 +171,11 @@ public:
     bool isTextureBacked() const;
 
     /**
-     *  Retrieves the backend API handle of the texture. If flushPendingGrContextReads then the
-     *  GrContext will issue to the backend API any deferred read operations on the texture before
+     *  Retrieves the backend API handle of the texture. If flushPendingGrContextIO then the
+     *  GrContext will issue to the backend API any deferred IO operations on the texture before
      *  returning.
      */
-    GrBackendObject getTextureHandle(bool flushPendingGrContextReads) const;
+    GrBackendObject getTextureHandle(bool flushPendingGrContextIO) const;
 
     /**
      *  Copy the pixels from the image into the specified buffer (pixels + rowBytes),

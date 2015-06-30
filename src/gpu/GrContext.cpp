@@ -593,7 +593,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     return true;
 }
 
-void GrContext::prepareSurfaceForExternalRead(GrSurface* surface) {
+void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     RETURN_IF_ABANDONED
     SkASSERT(surface);
     ASSERT_OWNED_RESOURCE(surface);
