@@ -40,6 +40,7 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
 
     newInterface->fExtensions.remove("GL_NV_path_rendering");
     newInterface->fFunctions.fPathCommands = NULL;
+    newInterface->fFunctions.fPathCoords = NULL;
     newInterface->fFunctions.fPathParameteri = NULL;
     newInterface->fFunctions.fPathParameterf = NULL;
     newInterface->fFunctions.fGenPaths = NULL;
@@ -50,6 +51,7 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
     newInterface->fFunctions.fStencilStrokePath = NULL;
     newInterface->fFunctions.fStencilFillPathInstanced = NULL;
     newInterface->fFunctions.fStencilStrokePathInstanced = NULL;
+    newInterface->fFunctions.fPathTexGen = NULL;
     newInterface->fFunctions.fCoverFillPath = NULL;
     newInterface->fFunctions.fCoverStrokePath = NULL;
     newInterface->fFunctions.fCoverFillPathInstanced = NULL;
@@ -487,6 +489,7 @@ bool GrGLInterface::validate() const {
         if (NULL == fFunctions.fMatrixLoadf ||
             NULL == fFunctions.fMatrixLoadIdentity ||
             NULL == fFunctions.fPathCommands ||
+            NULL == fFunctions.fPathCoords ||
             NULL == fFunctions.fPathParameteri ||
             NULL == fFunctions.fPathParameterf ||
             NULL == fFunctions.fGenPaths ||
@@ -500,20 +503,23 @@ bool GrGLInterface::validate() const {
             NULL == fFunctions.fCoverFillPath ||
             NULL == fFunctions.fCoverStrokePath ||
             NULL == fFunctions.fCoverFillPathInstanced ||
-            NULL == fFunctions.fCoverStrokePathInstanced
-#if 0
-            // List of functions that Skia uses, but which have been added since the initial release
-            // of NV_path_rendering driver. We do not want to fail interface validation due to
-            // missing features, we will just not use the extension.
-            // Update this list -> update GrGLCaps::hasPathRenderingSupport too.
-            || NULL == fFunctions.fStencilThenCoverFillPath ||
-            NULL == fFunctions.fStencilThenCoverStrokePath ||
-            NULL == fFunctions.fStencilThenCoverFillPathInstanced ||
-            NULL == fFunctions.fStencilThenCoverStrokePathInstanced ||
-            NULL == fFunctions.fProgramPathFragmentInputGen
-#endif
-            ) {
+            NULL == fFunctions.fCoverStrokePathInstanced) {
             RETURN_FALSE_INTERFACE
+        }
+        if (kGL_GrGLStandard == fStandard) {
+            // Some methods only exist on desktop
+            if (NULL == fFunctions.fPathTexGen) {
+                RETURN_FALSE_INTERFACE
+            }
+        } else {
+            // All additions through v1.3 exist on GLES
+            if (NULL == fFunctions.fStencilThenCoverFillPath ||
+                NULL == fFunctions.fStencilThenCoverStrokePath ||
+                NULL == fFunctions.fStencilThenCoverFillPathInstanced ||
+                NULL == fFunctions.fStencilThenCoverStrokePathInstanced ||
+                NULL == fFunctions.fProgramPathFragmentInputGen) {
+                RETURN_FALSE_INTERFACE
+            }
         }
     }
 

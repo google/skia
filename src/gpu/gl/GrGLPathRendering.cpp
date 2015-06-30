@@ -61,6 +61,16 @@ static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
 
 GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
     : GrPathRendering(gpu) {
+    const GrGLInterface* glInterface = gpu->glInterface();
+    fCaps.stencilThenCoverSupport =
+        NULL != glInterface->fFunctions.fStencilThenCoverFillPath &&
+        NULL != glInterface->fFunctions.fStencilThenCoverStrokePath &&
+        NULL != glInterface->fFunctions.fStencilThenCoverFillPathInstanced &&
+        NULL != glInterface->fFunctions.fStencilThenCoverStrokePathInstanced;
+    fCaps.fragmentInputGenSupport =
+        NULL != glInterface->fFunctions.fProgramPathFragmentInputGen;
+
+    SkASSERT(fCaps.fragmentInputGenSupport);
 }
 
 GrGLPathRendering::~GrGLPathRendering() {
@@ -75,6 +85,7 @@ void GrGLPathRendering::resetContext() {
     // we don't use the model view matrix.
     GL_CALL(MatrixLoadIdentity(GR_GL_PATH_MODELVIEW));
 
+    SkASSERT(fCaps.fragmentInputGenSupport);
     fHWPathStencilSettings.invalidate();
 }
 
@@ -134,11 +145,9 @@ void GrGLPathRendering::onDrawPath(const DrawPathArgs& args, const GrPath* path)
         if (glPath->shouldFill()) {
             GL_CALL(StencilFillPath(glPath->pathID(), fillMode, writeMask));
         }
-        GL_CALL(StencilThenCoverStrokePath(glPath->pathID(), 0xffff, writeMask,
-                                           GR_GL_BOUNDING_BOX));
+        this->stencilThenCoverStrokePath(glPath->pathID(), 0xffff, writeMask, GR_GL_BOUNDING_BOX);
     } else {
-        GL_CALL(StencilThenCoverFillPath(glPath->pathID(), fillMode, writeMask,
-                                         GR_GL_BOUNDING_BOX));
+        this->stencilThenCoverFillPath(glPath->pathID(), fillMode, writeMask, GR_GL_BOUNDING_BOX);
     }
 }
 
@@ -168,21 +177,22 @@ void GrGLPathRendering::onDrawPaths(const DrawPathArgs& args, const GrPathRange*
                             fillMode, writeMask, gXformType2GLType[transformType],
                             transformValues));
         }
-        GL_CALL(StencilThenCoverStrokePathInstanced(
+        this->stencilThenCoverStrokePathInstanced(
                             count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
                             0xffff, writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                            gXformType2GLType[transformType], transformValues));
+                            gXformType2GLType[transformType], transformValues);
     } else {
-        GL_CALL(StencilThenCoverFillPathInstanced(
+        this->stencilThenCoverFillPathInstanced(
                             count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
                             fillMode, writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                            gXformType2GLType[transformType], transformValues));
+                            gXformType2GLType[transformType], transformValues);
     }
 }
 
 void GrGLPathRendering::setProgramPathFragmentInputTransform(GrGLuint program, GrGLint location,
                                                              GrGLenum genMode, GrGLint components,
                                                              const SkMatrix& matrix) {
+    SkASSERT(caps().fragmentInputGenSupport);
     GrGLfloat coefficients[3 * 3];
     SkASSERT(components >= 1 && components <= 3);
 
@@ -288,6 +298,58 @@ void GrGLPathRendering::flushPathStencilSettings(const GrStencilSettings& stenci
 
         fHWPathStencilSettings = stencilSettings;
     }
+}
+
+inline void GrGLPathRendering::stencilThenCoverFillPath(GrGLuint path, GrGLenum fillMode,
+                                                     GrGLuint mask, GrGLenum coverMode) {
+    if (caps().stencilThenCoverSupport) {
+        GL_CALL(StencilThenCoverFillPath(path, fillMode, mask, coverMode));
+        return;
+    }
+    GL_CALL(StencilFillPath(path, fillMode, mask));
+    GL_CALL(CoverFillPath(path, coverMode));
+}
+
+inline void GrGLPathRendering::stencilThenCoverStrokePath(GrGLuint path, GrGLint reference,
+                                                       GrGLuint mask, GrGLenum coverMode) {
+    if (caps().stencilThenCoverSupport) {
+        GL_CALL(StencilThenCoverStrokePath(path, reference, mask, coverMode));
+        return;
+    }
+    GL_CALL(StencilStrokePath(path, reference, mask));
+    GL_CALL(CoverStrokePath(path, coverMode));
+}
+
+inline void GrGLPathRendering::stencilThenCoverFillPathInstanced(
+             GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths,
+             GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum coverMode,
+             GrGLenum transformType, const GrGLfloat *transformValues) {
+    if (caps().stencilThenCoverSupport) {
+        GL_CALL(StencilThenCoverFillPathInstanced(numPaths, pathNameType, paths, pathBase, fillMode,
+                                                  mask, coverMode, transformType, transformValues));
+        return;
+    }
+    GL_CALL(StencilFillPathInstanced(numPaths, pathNameType, paths, pathBase,
+                                     fillMode, mask, transformType, transformValues));
+    GL_CALL(CoverFillPathInstanced(numPaths, pathNameType, paths, pathBase,
+                                   coverMode, transformType, transformValues));
+}
+
+inline void GrGLPathRendering::stencilThenCoverStrokePathInstanced(
+        GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths,
+        GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum coverMode,
+        GrGLenum transformType, const GrGLfloat *transformValues) {
+    if (caps().stencilThenCoverSupport) {
+        GL_CALL(StencilThenCoverStrokePathInstanced(numPaths, pathNameType, paths, pathBase,
+                                                    reference, mask, coverMode, transformType,
+                                                    transformValues));
+        return;
+    }
+
+    GL_CALL(StencilStrokePathInstanced(numPaths, pathNameType, paths, pathBase,
+                                       reference, mask, transformType, transformValues));
+    GL_CALL(CoverStrokePathInstanced(numPaths, pathNameType, paths, pathBase,
+                                     coverMode, transformType, transformValues));
 }
 
 inline GrGLGpu* GrGLPathRendering::gpu() {
