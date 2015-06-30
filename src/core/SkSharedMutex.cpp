@@ -11,6 +11,62 @@
 #include "SkSemaphore.h"
 #include "SkTypes.h"
 
+
+#if defined(THREAD_SANITIZER)
+
+/* Report that a lock has been created at address "lock". */
+#define ANNOTATE_RWLOCK_CREATE(lock) \
+    AnnotateRWLockCreate(__FILE__, __LINE__, lock)
+
+/* Report that the lock at address "lock" is about to be destroyed. */
+#define ANNOTATE_RWLOCK_DESTROY(lock) \
+    AnnotateRWLockDestroy(__FILE__, __LINE__, lock)
+
+/* Report that the lock at address "lock" has been acquired.
+   is_w=1 for writer lock, is_w=0 for reader lock. */
+#define ANNOTATE_RWLOCK_ACQUIRED(lock, is_w) \
+    AnnotateRWLockAcquired(__FILE__, __LINE__, lock, is_w)
+
+/* Report that the lock at address "lock" is about to be released. */
+#define ANNOTATE_RWLOCK_RELEASED(lock, is_w) \
+  AnnotateRWLockReleased(__FILE__, __LINE__, lock, is_w)
+
+#ifdef DYNAMIC_ANNOTATIONS_WANT_ATTRIBUTE_WEAK
+# ifdef __GNUC__
+#  define DYNAMIC_ANNOTATIONS_ATTRIBUTE_WEAK __attribute__((weak))
+# else
+/* TODO(glider): for Windows support we may want to change this macro in order
+   to prepend __declspec(selectany) to the annotations' declarations. */
+#  error weak annotations are not supported for your compiler
+# endif
+#else
+# define DYNAMIC_ANNOTATIONS_ATTRIBUTE_WEAK
+#endif
+
+extern "C" {
+void AnnotateRWLockCreate(
+    const char *file, int line,
+    const volatile void *lock) DYNAMIC_ANNOTATIONS_ATTRIBUTE_WEAK;
+void AnnotateRWLockDestroy(
+    const char *file, int line,
+    const volatile void *lock) DYNAMIC_ANNOTATIONS_ATTRIBUTE_WEAK;
+void AnnotateRWLockAcquired(
+    const char *file, int line,
+    const volatile void *lock, long is_w) DYNAMIC_ANNOTATIONS_ATTRIBUTE_WEAK;
+void AnnotateRWLockReleased(
+    const char *file, int line,
+    const volatile void *lock, long is_w) DYNAMIC_ANNOTATIONS_ATTRIBUTE_WEAK;
+}
+
+#else
+
+#define ANNOTATE_RWLOCK_CREATE(lock)
+#define ANNOTATE_RWLOCK_DESTROY(lock)
+#define ANNOTATE_RWLOCK_ACQUIRED(lock, is_w)
+#define ANNOTATE_RWLOCK_RELEASED(lock, is_w)
+
+#endif
+
 // The fQueueCounts fields holds many counts in an int32_t in order to make managing them atomic.
 // These three counts must be the same size, so each gets 10 bits. The 10 bits represent
 // the log of the count which is 1024.
@@ -31,8 +87,8 @@ enum {
     kWaitingSharedMask     = ((1 << kLogThreadCount) - 1) << kWaitingSharedOffset,
 };
 
-SkSharedMutex::SkSharedMutex() : fQueueCounts(0) { }
-
+SkSharedMutex::SkSharedMutex() : fQueueCounts(0) { ANNOTATE_RWLOCK_CREATE(this); }
+SkSharedMutex::~SkSharedMutex() {  ANNOTATE_RWLOCK_DESTROY(this); }
 void SkSharedMutex::acquire() {
     // Increment the count of exclusive queue waiters.
     int32_t oldQueueCounts = fQueueCounts.fetch_add(1 << kWaitingExlusiveOffset,
@@ -43,9 +99,12 @@ void SkSharedMutex::acquire() {
     if ((oldQueueCounts & kWaitingExclusiveMask) > 0 || (oldQueueCounts & kSharedMask) > 0) {
         fExclusiveQueue.wait();
     }
+    ANNOTATE_RWLOCK_ACQUIRED(this, 1);
 }
 
 void SkSharedMutex::release() {
+    ANNOTATE_RWLOCK_RELEASED(this, 1);
+
     int32_t oldQueueCounts = fQueueCounts.load(sk_memory_order_relaxed);
     int32_t waitingShared;
     int32_t newQueueCounts;
@@ -101,9 +160,13 @@ void SkSharedMutex::acquireShared() {
     if ((newQueueCounts & kWaitingExclusiveMask) > 0) {
         fSharedQueue.wait();
     }
+    ANNOTATE_RWLOCK_ACQUIRED(this, 0);
+   
 }
 
 void SkSharedMutex::releaseShared() {
+    ANNOTATE_RWLOCK_RELEASED(this, 0);
+
     // Decrement the shared count.
     int32_t oldQueueCounts = fQueueCounts.fetch_add(-1 << kSharedOffset,
                                                     sk_memory_order_release);

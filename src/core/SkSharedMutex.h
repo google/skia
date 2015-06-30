@@ -11,7 +11,7 @@
 #include "SkAtomics.h"
 #include "SkSemaphore.h"
 #include "SkTypes.h"
-
+    
 // This is a shared lock implementation similar to pthreads rwlocks. This implementation is
 // cribbed from Preshing's article:
 // http://preshing.com/20150316/semaphores-are-surprisingly-versatile/
@@ -21,7 +21,7 @@
 class SkSharedMutex {
 public:
     SkSharedMutex();
-
+    ~SkSharedMutex();
     // Acquire lock for exclusive use.
     void acquire();
 
