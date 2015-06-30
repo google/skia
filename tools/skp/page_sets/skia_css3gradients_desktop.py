@@ -4,8 +4,8 @@
 # pylint: disable=W0401,W0614
 
 
-from telemetry import story
 from telemetry.page import page as page_module
+from telemetry.page import page_set as page_set_module
 from telemetry.page import shared_page_state
 
 
@@ -27,7 +27,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(15)
 
 
-class SkiaCss3gradientsDesktopPageSet(story.StorySet):
+class SkiaCss3gradientsDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 

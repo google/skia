@@ -4,8 +4,8 @@
 # pylint: disable=W0401,W0614
 
 
-from telemetry import story
 from telemetry.page import page as page_module
+from telemetry.page import page_set as page_set_module
 from telemetry.page import shared_page_state
 
 
@@ -20,7 +20,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     self.archive_data_file = 'data/skia_carsvg_desktop.json'
 
 
-class SkiaCarsvgDesktopPageSet(story.StorySet):
+class SkiaCarsvgDesktopPageSet(page_set_module.PageSet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
