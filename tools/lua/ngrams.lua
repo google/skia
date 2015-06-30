@@ -11,7 +11,9 @@
 -- box on the same page.
 
 -- Change n as desired.
+-- CHANGEME
 local n = 3
+-- CHANGEME
 
 -- This algorithm uses a list-of-lists for each SKP. For API call, append a
 -- list containing just the verb to the master list. Then, backtrack over the

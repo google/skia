@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+
+
+"""Run Cluster Telemetry to compute n-grams from SKPs."""
+
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+
+NGRAMS_LUA_SUBSTITUTION_STR = '-- CHANGEME\nlocal n = \d+\n-- CHANGEME'
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+def main():
+  # Parse arguments.
+  parser = argparse.ArgumentParser(
+      description='Run Cluster Telemetry to compute n-grams from SKPs.')
+  parser.add_argument('--n', help='Compute n-grams with this integer as N',
+                      required=True)
+  args, extra_args = parser.parse_known_args()
+
+  # Read the n-gram Lua script.
+  script_path = os.path.join(SCRIPT_DIR, 'ngrams.lua')
+  with open(script_path) as f:
+    script_contents = f.read()
+
+  # Replace the default value of n with the value specified by the user.
+  new_contents, subd = re.subn(NGRAMS_LUA_SUBSTITUTION_STR,
+                               'local n = %s' % args.n, script_contents, 1)
+  if subd != 1:
+    raise Exception('Unable to replace N in %s; expected to find:\n%s' % (
+                    script_path, sub))
+
+  # Write the new script contents to a temporary file.
+  tmp_script = tempfile.NamedTemporaryFile(delete=False)
+  try:
+    tmp_script.write(new_contents)
+    tmp_script.close()
+
+    # Run trigger_ct_lua with the new script, forwarding the rest of the
+    # passed-in arguments to the script.
+    trigger_ct_lua = os.path.join(SCRIPT_DIR, 'trigger_ct_lua')
+    cmd = ['python', trigger_ct_lua,
+           '--script', tmp_script.name,
+           '--aggregator', os.path.join(SCRIPT_DIR, 'ngrams_aggregate.lua')]
+    cmd.extend(extra_args)
+    try:
+      subprocess.check_call(cmd)
+    except subprocess.CalledProcessError:
+      exit(1)
+  finally:
+    os.remove(tmp_script.name)
+
+
+if __name__ == '__main__':
+  main()
