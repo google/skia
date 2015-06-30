@@ -426,6 +426,31 @@ static void test_invert(skiatest::Reporter* reporter) {
              0,   0,   -1,    1};
     expected.setRowMajord(expectedInverseAffineAndPerspective);
     REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
+
+    SkMatrix44 tinyScale(SkMatrix44::kIdentity_Constructor);
+    tinyScale.setDouble(0, 0, 1e-39);
+    REPORTER_ASSERT(reporter, tinyScale.getType() == SkMatrix44::kScale_Mask);
+    REPORTER_ASSERT(reporter, !tinyScale.invert(NULL));
+    REPORTER_ASSERT(reporter, !tinyScale.invert(&inverse));
+
+    SkMatrix44 tinyScaleTranslate(SkMatrix44::kIdentity_Constructor);
+    tinyScaleTranslate.setDouble(0, 0, 1e-38);
+    REPORTER_ASSERT(reporter, tinyScaleTranslate.invert(NULL));
+    tinyScaleTranslate.setDouble(0, 3, 10);
+    REPORTER_ASSERT(
+        reporter, tinyScaleTranslate.getType() ==
+                      (SkMatrix44::kScale_Mask | SkMatrix44::kTranslate_Mask));
+    REPORTER_ASSERT(reporter, !tinyScaleTranslate.invert(NULL));
+    REPORTER_ASSERT(reporter, !tinyScaleTranslate.invert(&inverse));
+
+    SkMatrix44 tinyScalePerspective(SkMatrix44::kIdentity_Constructor);
+    tinyScalePerspective.setDouble(0, 0, 1e-39);
+    tinyScalePerspective.setDouble(3, 2, -1);
+    REPORTER_ASSERT(reporter, (tinyScalePerspective.getType() &
+                               SkMatrix44::kPerspective_Mask) ==
+                                  SkMatrix44::kPerspective_Mask);
+    REPORTER_ASSERT(reporter, !tinyScalePerspective.invert(NULL));
+    REPORTER_ASSERT(reporter, !tinyScalePerspective.invert(&inverse));
 }
 
 static void test_transpose(skiatest::Reporter* reporter) {

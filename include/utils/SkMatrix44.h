@@ -358,7 +358,8 @@ public:
     }
 
     /** If this is invertible, return that in inverse and return true. If it is
-        not invertible, return false and ignore the inverse parameter.
+        not invertible, return false and leave the inverse parameter in an
+        unspecified state.
      */
     bool invert(SkMatrix44* inverse) const;
 

@@ -448,54 +448,71 @@ double SkMatrix44::determinant() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkMatrix44::invert(SkMatrix44* inverse) const {
+static bool is_matrix_finite(const SkMatrix44& matrix) {
+    SkMScalar accumulator = 0;
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            accumulator *= matrix.get(row, col);
+        }
+    }
+    return accumulator == 0;
+}
+
+bool SkMatrix44::invert(SkMatrix44* storage) const {
     if (this->isIdentity()) {
-        if (inverse) {
-            inverse->setIdentity();
+        if (storage) {
+            storage->setIdentity();
         }
         return true;
     }
 
     if (this->isTranslate()) {
-        if (inverse) {
-            inverse->setTranslate(-fMat[3][0], -fMat[3][1], -fMat[3][2]);
+        if (storage) {
+            storage->setTranslate(-fMat[3][0], -fMat[3][1], -fMat[3][2]);
         }
         return true;
     }
 
+    SkMatrix44 tmp(kUninitialized_Constructor);
+    // Use storage if it's available and distinct from this matrix.
+    SkMatrix44* inverse = (storage && storage != this) ? storage : &tmp;
     if (this->isScaleTranslate()) {
         if (0 == fMat[0][0] * fMat[1][1] * fMat[2][2]) {
             return false;
         }
 
-        if (inverse) {
-            double invXScale = 1 / fMat[0][0];
-            double invYScale = 1 / fMat[1][1];
-            double invZScale = 1 / fMat[2][2];
+        double invXScale = 1 / fMat[0][0];
+        double invYScale = 1 / fMat[1][1];
+        double invZScale = 1 / fMat[2][2];
 
-            inverse->fMat[0][0] = SkDoubleToMScalar(invXScale);
-            inverse->fMat[0][1] = 0;
-            inverse->fMat[0][2] = 0;
-            inverse->fMat[0][3] = 0;
+        inverse->fMat[0][0] = SkDoubleToMScalar(invXScale);
+        inverse->fMat[0][1] = 0;
+        inverse->fMat[0][2] = 0;
+        inverse->fMat[0][3] = 0;
 
-            inverse->fMat[1][0] = 0;
-            inverse->fMat[1][1] = SkDoubleToMScalar(invYScale);
-            inverse->fMat[1][2] = 0;
-            inverse->fMat[1][3] = 0;
+        inverse->fMat[1][0] = 0;
+        inverse->fMat[1][1] = SkDoubleToMScalar(invYScale);
+        inverse->fMat[1][2] = 0;
+        inverse->fMat[1][3] = 0;
 
-            inverse->fMat[2][0] = 0;
-            inverse->fMat[2][1] = 0;
-            inverse->fMat[2][2] = SkDoubleToMScalar(invZScale);
-            inverse->fMat[2][3] = 0;
+        inverse->fMat[2][0] = 0;
+        inverse->fMat[2][1] = 0;
+        inverse->fMat[2][2] = SkDoubleToMScalar(invZScale);
+        inverse->fMat[2][3] = 0;
 
-            inverse->fMat[3][0] = SkDoubleToMScalar(-fMat[3][0] * invXScale);
-            inverse->fMat[3][1] = SkDoubleToMScalar(-fMat[3][1] * invYScale);
-            inverse->fMat[3][2] = SkDoubleToMScalar(-fMat[3][2] * invZScale);
-            inverse->fMat[3][3] = 1;
+        inverse->fMat[3][0] = SkDoubleToMScalar(-fMat[3][0] * invXScale);
+        inverse->fMat[3][1] = SkDoubleToMScalar(-fMat[3][1] * invYScale);
+        inverse->fMat[3][2] = SkDoubleToMScalar(-fMat[3][2] * invZScale);
+        inverse->fMat[3][3] = 1;
 
-            inverse->setTypeMask(this->getType());
+        inverse->setTypeMask(this->getType());
+
+        if (!is_matrix_finite(*inverse)) {
+            return false;
         }
-
+        if (storage && inverse != storage) {
+            *storage = *inverse;
+        }
         return true;
     }
 
@@ -547,9 +564,6 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
         if (!sk_float_isfinite(invdet)) {
             return false;
         }
-        if (NULL == inverse) {
-            return true;
-        }
 
         b00 *= invdet;
         b01 *= invdet;
@@ -579,6 +593,12 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
         inverse->fMat[3][3] = 1;
 
         inverse->setTypeMask(this->getType());
+        if (!is_matrix_finite(*inverse)) {
+            return false;
+        }
+        if (storage && inverse != storage) {
+            *storage = *inverse;
+        }
         return true;
     }
 
@@ -604,9 +624,6 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
     // handled by checking that 1/det is finite.
     if (!sk_float_isfinite(invdet)) {
         return false;
-    }
-    if (NULL == inverse) {
-        return true;
     }
 
     b00 *= invdet;
@@ -640,6 +657,13 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
     inverse->fMat[3][3] = SkDoubleToMScalar(a20 * b03 - a21 * b01 + a22 * b00);
     inverse->dirtyTypeMask();
 
+    inverse->setTypeMask(this->getType());
+    if (!is_matrix_finite(*inverse)) {
+        return false;
+    }
+    if (storage && inverse != storage) {
+        *storage = *inverse;
+    }
     return true;
 }
 
