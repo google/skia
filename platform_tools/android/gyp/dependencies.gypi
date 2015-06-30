@@ -317,6 +317,7 @@
         ],
         'include_dirs': [
           '../../../tools/timer/',
+          '../../../tools/VisualBench/',
         ],
         'sources': [
           '../visualbench/jni/SkOSWindow_AndroidNative.cpp',

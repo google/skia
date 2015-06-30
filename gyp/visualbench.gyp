@@ -17,8 +17,8 @@
         '../src/images',
       ],
       'sources': [
-        '../tools/VisualBench.h',
-        '../tools/VisualBench.cpp',
+        '../tools/VisualBench/VisualBench.h',
+        '../tools/VisualBench/VisualBench.cpp',
       ],
       'dependencies': [
         'flags.gyp:flags_common',
