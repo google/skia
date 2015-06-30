@@ -17,7 +17,7 @@
 #endif
 #include "gl/SkGLContext.h"
 #include "gl/SkNullGLContext.h"
-
+#include "GrCaps.h"
 
 GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) {
     for (int i = 0; i < fContexts.count(); ++i) {
@@ -60,13 +60,9 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
 
     SkASSERT(glCtx->isValid());
 
-    // Ensure NVPR is available for the NVPR type and block it from other types.
+    // Block NVPR from non-NVPR types.
     SkAutoTUnref<const GrGLInterface> glInterface(SkRef(glCtx->gl()));
-    if (kNVPR_GLContextType == type) {
-        if (!glInterface->hasExtension("GL_NV_path_rendering")) {
-            return NULL;
-        }
-    } else {
+    if (kNVPR_GLContextType != type) {
         glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface));
         if (!glInterface) {
             return NULL;
@@ -79,6 +75,13 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
     if (!grCtx.get()) {
         return NULL;
     }
+    // Ensure path rendering support is available for the NVPR type
+    if (kNVPR_GLContextType == type) {
+        if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
+            return NULL;
+        }
+    }
+
     GPUContext& ctx = fContexts.push_back();
     ctx.fGLContext = glCtx.get();
     ctx.fGLContext->ref();

@@ -329,7 +329,6 @@ public:
         GLPtr<GrGLMatrixLoadIdentityProc> fMatrixLoadIdentity;
         GLPtr<GrGLGetProgramResourceLocationProc> fGetProgramResourceLocation;
         GLPtr<GrGLPathCommandsProc> fPathCommands;
-        GLPtr<GrGLPathCoordsProc> fPathCoords;
         GLPtr<GrGLPathParameteriProc> fPathParameteri;
         GLPtr<GrGLPathParameterfProc> fPathParameterf;
         GLPtr<GrGLGenPathsProc> fGenPaths;
@@ -340,7 +339,6 @@ public:
         GLPtr<GrGLStencilStrokePathProc> fStencilStrokePath;
         GLPtr<GrGLStencilFillPathInstancedProc> fStencilFillPathInstanced;
         GLPtr<GrGLStencilStrokePathInstancedProc> fStencilStrokePathInstanced;
-        GLPtr<GrGLPathTexGenProc> fPathTexGen;
         GLPtr<GrGLCoverFillPathProc> fCoverFillPath;
         GLPtr<GrGLCoverStrokePathProc> fCoverStrokePath;
         GLPtr<GrGLCoverFillPathInstancedProc> fCoverFillPathInstanced;

@@ -273,7 +273,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(MatrixLoadf, EXT);
         GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
         GET_PROC_SUFFIX(PathCommands, NV);
-        GET_PROC_SUFFIX(PathCoords, NV);
         GET_PROC_SUFFIX(PathParameteri, NV);
         GET_PROC_SUFFIX(PathParameterf, NV);
         GET_PROC_SUFFIX(GenPaths, NV);
@@ -284,17 +283,14 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(StencilStrokePath, NV);
         GET_PROC_SUFFIX(StencilFillPathInstanced, NV);
         GET_PROC_SUFFIX(StencilStrokePathInstanced, NV);
-        GET_PROC_SUFFIX(PathTexGen, NV);
         GET_PROC_SUFFIX(CoverFillPath, NV);
         GET_PROC_SUFFIX(CoverStrokePath, NV);
         GET_PROC_SUFFIX(CoverFillPathInstanced, NV);
         GET_PROC_SUFFIX(CoverStrokePathInstanced, NV);
-        // NV_path_rendering v1.2 (These methods may not be present)
         GET_PROC_SUFFIX(StencilThenCoverFillPath, NV);
         GET_PROC_SUFFIX(StencilThenCoverStrokePath, NV);
         GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, NV);
         GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
-        // NV_path_rendering v1.3 (These methods may not be present)
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
     }
 
@@ -682,7 +678,6 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(MatrixLoadf, EXT);
         GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
         GET_PROC_SUFFIX(PathCommands, NV);
-        GET_PROC_SUFFIX(PathCoords, NV);
         GET_PROC_SUFFIX(PathParameteri, NV);
         GET_PROC_SUFFIX(PathParameterf, NV);
         GET_PROC_SUFFIX(GenPaths, NV);
