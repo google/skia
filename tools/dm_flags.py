@@ -148,9 +148,8 @@ def get_args(bot):
   match = []
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
-  if 'TSAN' in bot:
-    match.append('~Math')                        # skia:3562
-    match.append('~SkSharedMutexMultiThreaded')  # skia:3997
+  if 'TSAN' in bot: # skia:3562
+    match.append('~Math')
 
   if 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
