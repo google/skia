@@ -39,4 +39,4 @@ class SkiaUnicodetableDesktopPageSet(story.StorySet):
     ]
 
     for url in urls_list:
-      self.AddUserStory(SkiaBuildbotDesktopPage(url, self))
+      self.AddStory(SkiaBuildbotDesktopPage(url, self))
