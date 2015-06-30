@@ -4,8 +4,9 @@
 # pylint: disable=W0401,W0614
 
 
+from telemetry import story
 from telemetry.page import page as page_module
-from telemetry.page import page_set as page_set_module
+from telemetry.page import shared_page_state
 
 
 class SkiaBuildbotDesktopPage(page_module.Page):
@@ -14,8 +15,8 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     super(SkiaBuildbotDesktopPage, self).__init__(
         url=url,
         page_set=page_set,
-        credentials_path='data/credentials.json')
-    self.user_agent_type = 'tablet'
+        credentials_path='data/credentials.json',
+        shared_page_state_class=shared_page_state.Shared10InchTabletPageState)
     self.archive_data_file = 'data/skia_pravda_nexus10.json'
 
   def RunNavigateSteps(self, action_runner):
@@ -23,13 +24,12 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.Wait(5)
 
 
-class SkiaPravdaNexus10PageSet(page_set_module.PageSet):
+class SkiaPravdaNexus10PageSet(story.StorySet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
     super(SkiaPravdaNexus10PageSet, self).__init__(
-      user_agent_type='tablet',
       archive_data_file='data/skia_pravda_nexus10.json')
 
     urls_list = [
