@@ -72,6 +72,10 @@ static void check(skiatest::Reporter* r,
     if (supportsScanlineDecoding) {
         bm.eraseColor(SK_ColorYELLOW);
         REPORTER_ASSERT(r, scanlineDecoder);
+
+        // Regular decodes should be disabled after creating a scanline decoder
+        result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
+        REPORTER_ASSERT(r, SkImageGenerator::kInvalidParameters == result);
         for (int y = 0; y < info.height(); y++) {
             result = scanlineDecoder->getScanlines(bm.getAddr(0, y), 1, 0);
             REPORTER_ASSERT(r, result == SkImageGenerator::kSuccess);

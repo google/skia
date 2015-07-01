@@ -372,6 +372,12 @@ SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream,
 {}
 
 SkPngCodec::~SkPngCodec() {
+    // First, ensure that the scanline decoder is left in a finished state.
+    SkAutoTDelete<SkScanlineDecoder> decoder(this->detachScanlineDecoder());
+    if (NULL != decoder) {
+        this->finish();
+    }
+
     this->destroyReadStruct();
 }
 
@@ -514,6 +520,12 @@ bool SkPngCodec::handleRewind() {
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
                                         size_t rowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount) {
+    // Do not allow a regular decode if the caller has asked for a scanline decoder
+    if (NULL != this->scanlineDecoder()) {
+        SkCodecPrintf("cannot getPixels() if a scanline decoder has been created\n");
+        return kInvalidParameters;
+    }
+
     if (!this->handleRewind()) {
         return kCouldNotRewind;
     }
@@ -633,10 +645,6 @@ public:
         return SkImageGenerator::kSuccess;
     }
 
-    void onFinish() override {
-        fCodec->finish();
-    }
-
     bool onReallyHasAlpha() const override { return fHasAlpha; }
 
 private:
@@ -716,10 +724,6 @@ public:
         return SkImageGenerator::kSuccess;
     }
 
-    void onFinish() override {
-        fCodec->finish();
-    }
-
     bool onReallyHasAlpha() const override { return fHasAlpha; }
 
 private:
@@ -734,7 +738,7 @@ private:
     
     
     
-    
+
 
     typedef SkScanlineDecoder INHERITED;
 };

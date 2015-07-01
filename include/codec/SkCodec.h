@@ -168,13 +168,30 @@ protected:
      */
     RewindState SK_WARN_UNUSED_RESULT rewindIfNeeded();
 
-    /*
-     *
+    /**
      * Get method for the input stream
-     *
      */
     SkStream* stream() {
         return fStream.get();
+    }
+
+    /**
+     * If the codec has a scanline decoder, return it (no ownership change occurs)
+     * else return NULL.
+     * The returned decoder is valid while the codec exists and the client has not
+     * created a new scanline decoder.
+     */
+    SkScanlineDecoder* scanlineDecoder() {
+        return fScanlineDecoder.get();
+    }
+
+    /**
+     * Allow the codec subclass to detach and take ownership of the scanline decoder.
+     * This will likely be used when the scanline decoder needs to be destroyed
+     * in the destructor of the subclass.
+     */
+    SkScanlineDecoder* detachScanlineDecoder() {
+        return fScanlineDecoder.detach();
     }
 
 private:

@@ -15,8 +15,20 @@
 
 class SkScanlineDecoder : public SkNoncopyable {
 public:
-    // Note for implementations: An SkScanlineDecoder will be deleted by (and
-    // therefore *before*) its associated SkCodec, in case the order matters.
+    /**
+     *  Clean up after reading/skipping scanlines.
+     *
+     *  It is possible that not all scanlines will have been read/skipped.  In
+     *  fact, in the case of subset decodes, it is likely that there will be
+     *  scanlines at the bottom of the image that have been ignored.
+     *
+     *  Note for implementations: An SkScanlineDecoder will be deleted by (and
+     *  therefore *before*) its associated SkCodec, in case the order matters.
+     *  However, while the SkCodec base class maintains ownership of the
+     *  SkScanlineDecoder, the subclass will be deleted before the scanline
+     *  decoder.  If this is an issue, detachScanlineDecoder() provides
+     *  a means for the subclass to take ownership of the SkScanlineDecoder.
+     */
     virtual ~SkScanlineDecoder() {}
 
     /**
@@ -34,7 +46,7 @@ public:
             return SkImageGenerator::kInvalidParameters;
         }
         const SkImageGenerator::Result result = this->onGetScanlines(dst, countLines, rowBytes);
-        this->checkForFinish(countLines);
+        fCurrScanline += countLines;
         return result;
     }
 
@@ -54,7 +66,7 @@ public:
             return SkImageGenerator::kInvalidParameters;
         }
         const SkImageGenerator::Result result = this->onSkipScanlines(countLines);
-        this->checkForFinish(countLines);
+        fCurrScanline += countLines;
         return result;
     }
 
@@ -97,21 +109,5 @@ private:
     virtual SkImageGenerator::Result onGetScanlines(void* dst, int countLines,
                                                     size_t rowBytes) = 0;
 
-    /**
-     *  Called after any set of scanlines read/skipped. Updates fCurrScanline,
-     *  and, if we are at the end, calls onFinish().
-     */
-    void checkForFinish(int countLines) {
-        fCurrScanline += countLines;
-        if (fCurrScanline >= fDstInfo.height()) {
-            this->onFinish();
-        }
-    }
-
-    /**
-     *  This function will be called after reading/skipping all scanlines to do
-     *  any necessary cleanups.
-     */
-    virtual void onFinish() {} // Default does nothing.
 };
 #endif // SkScanlineDecoder_DEFINED

@@ -297,9 +297,15 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
                                          void* dst, size_t dstRowBytes,
                                          const Options& options, SkPMColor*, int*) {
 
+    // Do not allow a regular decode if the caller has asked for a scanline decoder
+    if (NULL != this->scanlineDecoder()) {
+        return fDecoderMgr->returnFailure("cannot getPixels() if a scanline decoder has been"
+                "created", kInvalidParameters);
+    }
+
     // Rewind the stream if needed
     if (!this->handleRewind()) {
-        fDecoderMgr->returnFailure("could not rewind stream", kCouldNotRewind);
+        return fDecoderMgr->returnFailure("could not rewind stream", kCouldNotRewind);
     }
 
     // Get a pointer to the decompress info since we will use it quite frequently
@@ -388,6 +394,25 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 /*
+ * We override the destructor to ensure that the scanline decoder is left in a
+ * finished state before destroying the decode manager.
+ */
+SkJpegCodec::~SkJpegCodec() {
+    SkAutoTDelete<SkScanlineDecoder> decoder(this->detachScanlineDecoder());
+    if (NULL != decoder) {
+        if (setjmp(fDecoderMgr->getJmpBuf())) {
+            SkCodecPrintf("setjmp: Error in libjpeg finish_decompress\n");
+            return;
+        }
+
+        // We may not have decoded the entire image.  Prevent libjpeg-turbo from failing on a
+        // partial decode.
+        fDecoderMgr->dinfo()->output_scanline = this->getInfo().height();
+        jpeg_finish_decompress(fDecoderMgr->dinfo());
+    }
+}
+
+/*
  * Enable scanline decoding for jpegs
  */
 class SkJpegScanlineDecoder : public SkScanlineDecoder {
@@ -441,15 +466,6 @@ public:
         }
 
         return SkImageGenerator::kSuccess;
-    }
-
-    void onFinish() override {
-        if (setjmp(fCodec->fDecoderMgr->getJmpBuf())) {
-            SkCodecPrintf("setjmp: Error in libjpeg finish_decompress\n");
-            return;
-        }
-
-        jpeg_finish_decompress(fCodec->fDecoderMgr->dinfo());
     }
 
 private:
