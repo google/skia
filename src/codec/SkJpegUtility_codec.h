@@ -16,6 +16,7 @@
 #include <stdio.h>
 
 extern "C" {
+    #include "jpeglibmangler.h"
     #include "jpeglib.h"
     #include "jerror.h"
 }

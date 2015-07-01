@@ -73,7 +73,7 @@ skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream)
     init_source = sk_init_source;
     fill_input_buffer = sk_fill_input_buffer;
     skip_input_data = sk_skip_input_data;
-    resync_to_restart = jpeg_resync_to_restart;
+    resync_to_restart = turbo_jpeg_resync_to_restart;
     term_source = sk_term_source;
 }
 
