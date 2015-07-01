@@ -20,7 +20,6 @@
         'xml.gyp:xml',
       ],
       'include_dirs': [
-        '../include/private',
         '../include/views',
         '../include/views/unix',
         '../src/gpu',

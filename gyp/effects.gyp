@@ -20,7 +20,6 @@
       ],
       'include_dirs': [
         '../include/effects',
-        '../include/private',
         '../src/effects',
         '../src/opts',
         '../src/core',

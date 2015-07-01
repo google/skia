@@ -16,7 +16,6 @@
       'target_name': 'SampleApp',
       'type': 'executable',
       'include_dirs' : [
-        '../include/private',
         '../src/core',
         '../src/effects', #needed for BlurMask.h
         '../src/gpu', # needed by SkLua.cpp

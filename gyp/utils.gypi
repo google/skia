@@ -101,6 +101,7 @@
         '<(skia_src_path)/utils/SkThreadUtils_win.cpp',
         '<(skia_src_path)/utils/SkThreadUtils_win.h',
         '<(skia_src_path)/utils/SkTFitsIn.h',
+        '<(skia_src_path)/utils/SkTLogic.h',
 
         #mac
         '<(skia_include_path)/utils/mac/SkCGUtils.h',

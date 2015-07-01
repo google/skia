@@ -269,7 +269,6 @@
         '../tools/skpinfo.cpp',
       ],
       'include_dirs': [
-        '../include/private',
         '../src/core/',
       ],
       'dependencies': [
@@ -418,7 +417,6 @@
         '../tools/LazyDecodeBitmap.cpp',
       ],
       'include_dirs': [
-        '../include/private',
         '../src/core/',
         '../src/images',
         '../src/lazy',
@@ -578,7 +576,6 @@
       'target_name': 'filter',
       'type': 'executable',
       'include_dirs' : [
-        '../include/private',
         '../src/core',
         '../src/utils/debugger',
       ],
