@@ -16,7 +16,7 @@
 #if defined(SK_BUILD_FOR_WIN32)
     static void query_num_cores(int* num_cores) {
         SYSTEM_INFO sysinfo;
-        GetSystemInfo(&sysinfo);
+        GetNativeSystemInfo(&sysinfo);
         *num_cores = sysinfo.dwNumberOfProcessors;
     }
 #else
