@@ -26,7 +26,6 @@ public:
         : fTexture(0)
         , fBuffers(0)
         , fProgram(0)
-        , fVAO(0)
         , fVBO(0)
         , fAttribs(attribs)
         , fStride(2 * sizeof(SkPoint) + fAttribs * sizeof(GrGLfloat) * 4) {
@@ -51,7 +50,6 @@ private:
     GrGLuint fTexture;
     SkTArray<GrGLuint> fBuffers;
     GrGLuint fProgram;
-    GrGLuint fVAO;
     GrGLuint fVBO;
     SkTArray<unsigned char> fVertices;
     uint32_t fAttribs;
@@ -103,13 +101,11 @@ void GLVertexAttributesBench::onPerCanvasPostDraw(SkCanvas* canvas) {
 
     // teardown
     GR_GL_CALL(gl, BindBuffer(GR_GL_ARRAY_BUFFER, 0));
-    GR_GL_CALL(gl, BindVertexArray(0));
     GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, 0));
     GR_GL_CALL(gl, BindFramebuffer(GR_GL_FRAMEBUFFER, 0));
     GR_GL_CALL(gl, DeleteTextures(1, &fTexture));
     GR_GL_CALL(gl, DeleteProgram(fProgram));
     GR_GL_CALL(gl, DeleteBuffers(fBuffers.count(), fBuffers.begin()));
-    GR_GL_CALL(gl, DeleteVertexArrays(1, &fVAO));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +177,7 @@ static GrGLuint compile_shader(const GrGLContext* ctx, uint32_t attribs, uint32_
 
     // Passthrough position as a dummy
     for (uint32_t i = attribs; i < maxAttribs; i++) {
-        vshaderTxt.appendf("%s = vec4(0.f, 0.f, 0.f, 1.f);\n", oVars[i].c_str());
+        vshaderTxt.appendf("%s = vec4(0, 0, 0, 1);\n", oVars[i].c_str());
     }
 
     vshaderTxt.append("}\n");
@@ -279,8 +275,6 @@ static void dump_image(const GrGLInterface* gl, uint32_t screenWidth, uint32_t s
 static void setup_framebuffer(const GrGLInterface* gl, int screenWidth, int screenHeight) {
     //Setup framebuffer
     GrGLuint texture;
-    GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-    GR_GL_CALL(gl, PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
     GR_GL_CALL(gl, GenTextures(1, &texture));
     GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE15));
     GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texture));
@@ -290,7 +284,7 @@ static void setup_framebuffer(const GrGLInterface* gl, int screenWidth, int scre
     GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
     GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D,
                               0, //level
-                              GR_GL_RGBA8, //internal format
+                              GR_GL_RGBA, //internal format
                               screenWidth, // width
                               screenHeight, // height
                               0, //border
@@ -326,10 +320,6 @@ void GLVertexAttributesBench::setup(const GrGLContext* ctx) {
         m.setScale(0.0001f, 0.0001f);
         viewMatrices[i] = m;
     }
-
-    // setup VAO
-    GR_GL_CALL(gl, GenVertexArrays(1, &fVAO));
-    GR_GL_CALL(gl, BindVertexArray(fVAO));
 
     // presetup vertex attributes, color is set to be a light gray no matter how many vertex
     // attributes are used
@@ -369,7 +359,6 @@ void GLVertexAttributesBench::setup(const GrGLContext* ctx) {
 
     // set us up to draw
     GR_GL_CALL(gl, UseProgram(fProgram));
-    GR_GL_CALL(gl, BindVertexArray(fVAO));
 }
 
 void GLVertexAttributesBench::onDraw(const int loops, SkCanvas* canvas) {
