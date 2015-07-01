@@ -8,8 +8,9 @@
 #include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkImageEncoder.h"
+
 #if SK_SUPPORT_GPU
-#include "GrTest.h"
+#include "GLBench.h"
 #include "gl/GrGLGLSL.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLShaderVar.h"
@@ -20,7 +21,7 @@
 /*
  * This is a native GL benchmark for determining the cost of uploading vertex attributes
  */
-class GLVertexAttributesBench : public Benchmark {
+class GLVertexAttributesBench : public GLBench {
 public:
     GLVertexAttributesBench(uint32_t attribs)
         : fTexture(0)
@@ -34,10 +35,9 @@ public:
 
 protected:
     const char* onGetName() override { return fName.c_str(); }
-    void onPerCanvasPreDraw(SkCanvas* canvas) override;
-    void setup(const GrGLContext*);
-    void onDraw(const int loops, SkCanvas*) override;
-    void onPerCanvasPostDraw(SkCanvas* canvas) override;
+    void setup(const GrGLContext*) override;
+    void glDraw(const int loops, const GrGLContext*) override;
+    void teardown(const GrGLInterface*) override;
 
     static const GrGLuint kScreenWidth = 800;
     static const GrGLuint kScreenHeight = 600;
@@ -47,6 +47,8 @@ protected:
     static const uint32_t kMaxAttribs = 7;
 
 private:
+    GrGLuint setupShader(const GrGLContext*, uint32_t attribs, uint32_t maxAttribs);
+
     GrGLuint fTexture;
     SkTArray<GrGLuint> fBuffers;
     GrGLuint fProgram;
@@ -58,82 +60,10 @@ private:
     typedef Benchmark INHERITED;
 };
 
-static const GrGLContext* get_gl_context(SkCanvas* canvas) {
-    // This bench exclusively tests GL calls directly
-    if (NULL == canvas->getGrContext()) {
-        return NULL;
-    }
-    GrContext* context = canvas->getGrContext();
-
-    GrTestTarget tt;
-    context->getTestTarget(&tt);
-    if (!tt.target()) {
-        SkDebugf("Couldn't get Gr test target.");
-        return NULL;
-    }
-
-    const GrGLContext* ctx = tt.glContext();
-    if (!ctx) {
-        SkDebugf("Couldn't get an interface\n");
-        return NULL;
-    }
-
-    return ctx;
-}
-
-void GLVertexAttributesBench::onPerCanvasPreDraw(SkCanvas* canvas) {
-    // This bench exclusively tests GL calls directly
-    const GrGLContext* ctx = get_gl_context(canvas);
-    if (!ctx) {
-        return;
-    }
-    this->setup(ctx);
-}
-
-void GLVertexAttributesBench::onPerCanvasPostDraw(SkCanvas* canvas) {
-    // This bench exclusively tests GL calls directly
-    const GrGLContext* ctx = get_gl_context(canvas);
-    if (!ctx) {
-        return;
-    }
-
-    const GrGLInterface* gl = ctx->interface();
-
-    // teardown
-    GR_GL_CALL(gl, BindBuffer(GR_GL_ARRAY_BUFFER, 0));
-    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, 0));
-    GR_GL_CALL(gl, BindFramebuffer(GR_GL_FRAMEBUFFER, 0));
-    GR_GL_CALL(gl, DeleteTextures(1, &fTexture));
-    GR_GL_CALL(gl, DeleteProgram(fProgram));
-    GR_GL_CALL(gl, DeleteBuffers(fBuffers.count(), fBuffers.begin()));
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static GrGLuint load_shader(const GrGLInterface* gl, const char* shaderSrc, GrGLenum type) {
-    GrGLuint shader;
-    // Create the shader object
-    GR_GL_CALL_RET(gl, shader, CreateShader(type));
-
-    // Load the shader source
-    GR_GL_CALL(gl, ShaderSource(shader, 1, &shaderSrc, NULL));
-
-    // Compile the shader
-    GR_GL_CALL(gl, CompileShader(shader));
-
-    // Check for compile time errors
-    GrGLint success;
-    GrGLchar infoLog[512];
-    GR_GL_CALL(gl, GetShaderiv(shader, GR_GL_COMPILE_STATUS, &success));
-    if (!success) {
-        GR_GL_CALL(gl, GetShaderInfoLog(shader, 512, NULL, infoLog));
-        SkDebugf("ERROR::SHADER::COMPLIATION_FAILED: %s\n", infoLog);
-    }
-
-    return shader;
-}
-
-static GrGLuint compile_shader(const GrGLContext* ctx, uint32_t attribs, uint32_t maxAttribs) {
+GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t attribs,
+                                              uint32_t maxAttribs) {
     const char* version = GrGLGetGLSLVersionDecl(*ctx);
 
     // setup vertex shader
@@ -183,7 +113,6 @@ static GrGLuint compile_shader(const GrGLContext* ctx, uint32_t attribs, uint32_
     vshaderTxt.append("}\n");
 
     const GrGLInterface* gl = ctx->interface();
-    GrGLuint vertexShader = load_shader(gl, vshaderTxt.c_str(), GR_GL_VERTEX_SHADER);
 
     // setup fragment shader
     GrGLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
@@ -219,99 +148,16 @@ static GrGLuint compile_shader(const GrGLContext* ctx, uint32_t attribs, uint32_
     fshaderTxt.append(";\n"
                       "}\n");
 
-    GrGLuint fragmentShader = load_shader(gl, fshaderTxt.c_str(), GR_GL_FRAGMENT_SHADER);
-
-    GrGLint shaderProgram;
-    GR_GL_CALL_RET(gl, shaderProgram, CreateProgram());
-    GR_GL_CALL(gl, AttachShader(shaderProgram, vertexShader));
-    GR_GL_CALL(gl, AttachShader(shaderProgram, fragmentShader));
-    GR_GL_CALL(gl, LinkProgram(shaderProgram));
-
-    // Check for linking errors
-    GrGLint success;
-    GrGLchar infoLog[512];
-    GR_GL_CALL(gl, GetProgramiv(shaderProgram, GR_GL_LINK_STATUS, &success));
-    if (!success) {
-        GR_GL_CALL(gl, GetProgramInfoLog(shaderProgram, 512, NULL, infoLog));
-        SkDebugf("Linker Error: %s\n", infoLog);
-    }
-    GR_GL_CALL(gl, DeleteShader(vertexShader));
-    GR_GL_CALL(gl, DeleteShader(fragmentShader));
-
-    return shaderProgram;
-}
-
-//#define DUMP_IMAGES
-#ifdef DUMP_IMAGES
-static void dump_image(const GrGLInterface* gl, uint32_t screenWidth, uint32_t screenHeight,
-                       const char* filename) {
-    // read back pixels
-    uint32_t readback[screenWidth * screenHeight];
-    GR_GL_CALL(gl, ReadPixels(0, // x
-                              0, // y
-                              screenWidth, // width
-                              screenHeight, // height
-                              GR_GL_RGBA, //format
-                              GR_GL_UNSIGNED_BYTE, //type
-                              readback));
-
-    // dump png
-    SkBitmap bm;
-    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(screenWidth, screenHeight))) {
-        SkDebugf("couldn't allocate bitmap\n");
-        return;
-    }
-
-    bm.setPixels(readback);
-
-    if (!SkImageEncoder::EncodeFile(filename, bm, SkImageEncoder::kPNG_Type, 100)) {
-        SkDebugf("------ failed to encode %s\n", filename);
-        remove(filename);   // remove any partial file
-        return;
-    }
-}
-#endif
-
-static void setup_framebuffer(const GrGLInterface* gl, int screenWidth, int screenHeight) {
-    //Setup framebuffer
-    GrGLuint texture;
-    GR_GL_CALL(gl, GenTextures(1, &texture));
-    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE15));
-    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texture));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
-    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D,
-                              0, //level
-                              GR_GL_RGBA, //internal format
-                              screenWidth, // width
-                              screenHeight, // height
-                              0, //border
-                              GR_GL_RGBA, //format
-                              GR_GL_UNSIGNED_BYTE, // type
-                              NULL));
-
-    // bind framebuffer
-    GrGLuint framebuffer;
-    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, 0));
-    GR_GL_CALL(gl, GenFramebuffers(1, &framebuffer));
-    GR_GL_CALL(gl, BindFramebuffer(GR_GL_FRAMEBUFFER, framebuffer));
-    GR_GL_CALL(gl, FramebufferTexture2D(GR_GL_FRAMEBUFFER,
-                                        GR_GL_COLOR_ATTACHMENT0,
-                                        GR_GL_TEXTURE_2D,
-                                        texture, 0));
-    GR_GL_CALL(gl, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-    GR_GL_CALL(gl, Viewport(0, 0, screenWidth, screenHeight));
+    return CreateProgram(gl, vshaderTxt.c_str(), fshaderTxt.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void GLVertexAttributesBench::setup(const GrGLContext* ctx) {
     const GrGLInterface* gl = ctx->interface();
-    setup_framebuffer(gl, kScreenWidth, kScreenHeight);
+    fTexture = SetupFramebuffer(gl, kScreenWidth, kScreenHeight);
 
-    fProgram = compile_shader(ctx, fAttribs, kMaxAttribs);
+    fProgram = setupShader(ctx, fAttribs, kMaxAttribs);
 
     // setup matrices
     SkMatrix viewMatrices[kNumTri];
@@ -361,12 +207,7 @@ void GLVertexAttributesBench::setup(const GrGLContext* ctx) {
     GR_GL_CALL(gl, UseProgram(fProgram));
 }
 
-void GLVertexAttributesBench::onDraw(const int loops, SkCanvas* canvas) {
-    const GrGLContext* ctx = get_gl_context(canvas);
-    if (!ctx) {
-        return;
-    }
-
+void GLVertexAttributesBench::glDraw(const int loops, const GrGLContext* ctx) {
     const GrGLInterface* gl = ctx->interface();
 
     // upload vertex attributes
@@ -396,14 +237,23 @@ void GLVertexAttributesBench::onDraw(const int loops, SkCanvas* canvas) {
         trianglesToDraw -= triangles;
     }
 
-#ifdef DUMP_IMAGES
+#if 0
     //const char* filename = "/data/local/tmp/out.png";
     SkString filename("out");
     filename.appendf("_%s.png", this->getName());
-    dump_image(gl, kScreenWidth, kScreenHeight, filename.c_str());
+    DumpImage(gl, kScreenWidth, kScreenHeight, filename.c_str());
 #endif
 }
 
+void GLVertexAttributesBench::teardown(const GrGLInterface* gl) {
+    // teardown
+    GR_GL_CALL(gl, BindBuffer(GR_GL_ARRAY_BUFFER, 0));
+    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, 0));
+    GR_GL_CALL(gl, BindFramebuffer(GR_GL_FRAMEBUFFER, 0));
+    GR_GL_CALL(gl, DeleteTextures(1, &fTexture));
+    GR_GL_CALL(gl, DeleteProgram(fProgram));
+    GR_GL_CALL(gl, DeleteBuffers(fBuffers.count(), fBuffers.begin()));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
