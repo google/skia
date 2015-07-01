@@ -208,7 +208,7 @@ static void push_codec_srcs(Path path) {
     // TODO (msarett): Add more scaling tests as we implement more flexible scaling.
     // TODO (msarett): Implement scaling tests for SkImageDecoder in order to compare with these
     //                 tests.  SkImageDecoder supports downscales by integer factors.
-    const float scales[] = { 0.125f, 0.25f, 0.5f, 1.0f };
+    const float scales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
 
     for (float scale : scales) {
         // Build additional test cases for images that decode natively to non-canvas types

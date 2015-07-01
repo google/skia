@@ -39,22 +39,9 @@ SkCodec::Result JpegDecoderMgr::returnFailure(const char caller[], SkCodec::Resu
 
 SkColorType JpegDecoderMgr::getColorType() {
     switch (fDInfo.jpeg_color_space) {
-        case JCS_CMYK:
-        case JCS_YCCK:
-            // libjpeg cannot convert from CMYK or YCCK to RGB.
-            // Here, we ask libjpeg to give us CMYK samples back and
-            // we will later manually convert them to RGB.
-            fDInfo.out_color_space = JCS_CMYK;
-            return kN32_SkColorType;
         case JCS_GRAYSCALE:
-            fDInfo.out_color_space = JCS_GRAYSCALE;
             return kGray_8_SkColorType;
         default:
-#ifdef ANDROID_RGB
-            fDInfo.out_color_space = JCS_RGBA_8888;
-#else
-            fDInfo.out_color_space = JCS_RGB;
-#endif
             return kN32_SkColorType;
     }
 }
@@ -64,7 +51,7 @@ JpegDecoderMgr::JpegDecoderMgr(SkStream* stream)
     , fInit(false)
 {
     // Error manager must be set before any calls to libjeg in order to handle failures
-    fDInfo.err = jpeg_std_error(&fErrorMgr);
+    fDInfo.err = turbo_jpeg_std_error(&fErrorMgr);
     fErrorMgr.error_exit = skjpeg_err_exit;
 }
 
