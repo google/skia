@@ -72,6 +72,20 @@ SkMiniRecorder::~SkMiniRecorder() {
     new (fBuffer.get()) Type(__VA_ARGS__);         \
     return true
 
+bool SkMiniRecorder::drawBitmapRectToRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
+                                          const SkPaint* p, SkCanvas::DrawBitmapRectFlags flags) {
+    SkRect bounds;
+    if (!src) {
+        bm.getBounds(&bounds);
+        src = &bounds;
+    }
+    SkTLazy<SkPaint> defaultPaint;
+    if (!p) {
+        p = defaultPaint.init();
+    }
+    TRY_TO_STORE(DrawBitmapRectToRectFixedSize, *p, bm, *src, dst, flags);
+}
+
 bool SkMiniRecorder::drawRect(const SkRect& rect, const SkPaint& paint) {
     TRY_TO_STORE(DrawRect, paint, rect);
 }
@@ -94,6 +108,7 @@ SkPicture* SkMiniRecorder::detachAsPicture(const SkRect& cull) {
 
     switch (fState) {
         case State::kEmpty: return SkRef(gEmptyPicture.get());
+        CASE(DrawBitmapRectToRectFixedSize);
         CASE(DrawPath);
         CASE(DrawRect);
         CASE(DrawTextBlob);
@@ -114,6 +129,7 @@ void SkMiniRecorder::flushAndReset(SkCanvas* canvas) {
 
     switch (fState) {
         case State::kEmpty: return;
+        CASE(DrawBitmapRectToRectFixedSize);
         CASE(DrawPath);
         CASE(DrawRect);
         CASE(DrawTextBlob);

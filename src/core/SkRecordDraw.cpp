@@ -94,6 +94,8 @@ DRAW(DrawBitmapRectToRect,
 DRAW(DrawBitmapRectToRectBleed,
         drawBitmapRectToRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
                              SkCanvas::kBleed_DrawBitmapRectFlag));
+DRAW(DrawBitmapRectToRectFixedSize,
+        drawBitmapRectToRect(r.bitmap.shallowCopy(), &r.src, r.dst, &r.paint, r.flags));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
 DRAW(DrawImageRect, drawImageRect(r.image, r.src, r.dst, r.paint));
@@ -423,6 +425,9 @@ private:
     Bounds bounds(const DrawBitmapRectToRectBleed& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
+    Bounds bounds(const DrawBitmapRectToRectFixedSize& op) const {
+        return this->adjustAndMap(op.dst, &op.paint);
+    }
     Bounds bounds(const DrawBitmapNine& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
@@ -456,7 +461,7 @@ private:
         dst.set(op.vertices, op.vertexCount);
         return this->adjustAndMap(dst, &op.paint);
     }
-    
+
     Bounds bounds(const DrawAtlas& op) const {
         if (op.cull) {
             return this->adjustAndMap(*op.cull, op.paint);
@@ -464,7 +469,7 @@ private:
             return fCurrentClipBounds;
         }
     }
-    
+
     Bounds bounds(const DrawPicture& op) const {
         SkRect dst = op.picture->cullRect();
         op.matrix.mapRect(&dst);

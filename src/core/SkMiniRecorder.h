@@ -20,6 +20,8 @@ public:
     ~SkMiniRecorder();
 
     // Try to record an op.  Returns false on failure.
+    bool drawBitmapRectToRect(const SkBitmap&, const SkRect* src, const SkRect& dst,
+                              const SkPaint*, SkCanvas::DrawBitmapRectFlags);
     bool drawPath(const SkPath&, const SkPaint&);
     bool drawRect(const SkRect&, const SkPaint&);
     bool drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y, const SkPaint&);
@@ -34,16 +36,24 @@ public:
     void flushAndReset(SkCanvas*);
 
 private:
-    enum class State { kEmpty, kDrawPath, kDrawRect, kDrawTextBlob };
+    enum class State {
+        kEmpty,
+        kDrawBitmapRectToRectFixedSize,
+        kDrawPath,
+        kDrawRect,
+        kDrawTextBlob,
+    };
 
     State fState;
 
     template <size_t A, size_t B>
     struct Max { static const size_t val = A > B ? A : B; };
 
-    static const size_t kInlineStorage = Max<sizeof(SkRecords::DrawPath),
-                                         Max<sizeof(SkRecords::DrawRect),
-                                             sizeof(SkRecords::DrawTextBlob)>::val>::val;
+    static const size_t kInlineStorage =
+        Max<sizeof(SkRecords::DrawBitmapRectToRectFixedSize),
+        Max<sizeof(SkRecords::DrawPath),
+        Max<sizeof(SkRecords::DrawRect),
+            sizeof(SkRecords::DrawTextBlob)>::val>::val>::val;
     SkAlignedSStorage<kInlineStorage> fBuffer;
 };
 

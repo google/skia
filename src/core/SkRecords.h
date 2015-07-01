@@ -41,6 +41,7 @@ namespace SkRecords {
     M(DrawBitmapNine)                                               \
     M(DrawBitmapRectToRect)                                         \
     M(DrawBitmapRectToRectBleed)                                    \
+    M(DrawBitmapRectToRectFixedSize)                                \
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
     M(DrawImageRect)                                                \
@@ -282,6 +283,11 @@ RECORD4(DrawBitmapRectToRectBleed, Optional<SkPaint>, paint,
                                    ImmutableBitmap, bitmap,
                                    Optional<SkRect>, src,
                                    SkRect, dst);
+RECORD5(DrawBitmapRectToRectFixedSize, SkPaint, paint,
+                                       ImmutableBitmap, bitmap,
+                                       SkRect, src,
+                                       SkRect, dst,
+                                       SkCanvas::DrawBitmapRectFlags, flags);
 RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
 RECORD2(DrawDrawable, SkRect, worstCaseBounds, int32_t, index);
 RECORD4(DrawImage, Optional<SkPaint>, paint,

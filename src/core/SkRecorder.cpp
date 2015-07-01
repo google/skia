@@ -178,6 +178,7 @@ void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
                                   const SkRect& dst,
                                   const SkPaint* paint,
                                   DrawBitmapRectFlags flags) {
+    TRY_MINIRECORDER(drawBitmapRectToRect, bitmap, src, dst, paint, flags);
     if (kBleed_DrawBitmapRectFlag == flags) {
         APPEND(DrawBitmapRectToRectBleed,
                this->copy(paint), bitmap, this->copy(src), dst);
