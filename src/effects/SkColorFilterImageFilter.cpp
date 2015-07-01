@@ -101,7 +101,6 @@ bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const
 #ifndef SK_IGNORE_TO_STRING
 void SkColorFilterImageFilter::toString(SkString* str) const {
     str->appendf("SkColorFilterImageFilter: (");
-    this->getCropRect().toString(str);
 
     str->appendf("input: (");
 

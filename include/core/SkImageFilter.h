@@ -44,9 +44,6 @@ public:
         explicit CropRect(const SkRect& rect, uint32_t flags = kHasAll_CropEdge) : fRect(rect), fFlags(flags) {}
         uint32_t flags() const { return fFlags; }
         const SkRect& rect() const { return fRect; }
-#ifndef SK_IGNORE_TO_STRING
-        void toString(SkString* str) const;
-#endif
     private:
         SkRect fRect;
         uint32_t fFlags;
