@@ -16,6 +16,7 @@
             'skia_lib.gyp:skia_lib',
           ],
           'include_dirs': [
+            '../include/private',
             '../include/device/xps',
             '../include/utils/win',
             '../src/core', # needed to get SkGlyphCache.h
