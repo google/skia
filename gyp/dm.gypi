@@ -7,7 +7,6 @@
   'include_dirs': [
     '../dm',
     '../gm',
-    '../include/private',
     '../src/core',
     '../src/effects',
     '../src/images',

@@ -12,7 +12,6 @@
       'target_name': 'HelloWorld',
       'type': 'executable',
       'include_dirs' : [
-        '../include/private',
         '../include/gpu',
       ],
       'sources': [

@@ -23,7 +23,6 @@
         '../include/pathops',
         '../include/pipe',
         '../include/ports',
-        '../include/private',
         '../include/utils',
         '../include/images',
         '../src/core',

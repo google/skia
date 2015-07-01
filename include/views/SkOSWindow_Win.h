@@ -11,8 +11,8 @@
 #define SkOSWindow_Win_DEFINED
 
 #include "SkWindow.h"
-#include "../private/SkFunction.h"
-#include "../private/SkTHash.h"
+#include "../../src/core/SkFunction.h"
+#include "../../src/core/SkTHash.h"
 
 #if SK_ANGLE
 #include "EGL/egl.h"
