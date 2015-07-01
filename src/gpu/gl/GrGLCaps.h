@@ -281,6 +281,7 @@ public:
 
 private:
     void init(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
+    bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
 
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly

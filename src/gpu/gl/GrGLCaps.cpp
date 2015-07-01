@@ -279,21 +279,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     * GrShaderCaps fields
     **************************************************************************/
 
-    glslCaps->fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering");
-
-    if (glslCaps->fPathRenderingSupport) {
-        if (kGL_GrGLStandard == standard) {
-            // We only support v1.3+ of GL_NV_path_rendering which allows us to
-            // set individual fragment inputs with ProgramPathFragmentInputGen. The API
-            // additions are detected by checking the existence of the function.
-            glslCaps->fPathRenderingSupport = ((ctxInfo.version() >= GR_GL_VER(4, 3) ||
-                ctxInfo.hasExtension("GL_ARB_program_interface_query")) &&
-                gli->fFunctions.fProgramPathFragmentInputGen);
-        }
-        else {
-            glslCaps->fPathRenderingSupport = ctxInfo.version() >= GR_GL_VER(3, 1);
-        }
-    }
+    glslCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
 
     // For now these two are equivalent but we could have dst read in shader via some other method
     glslCaps->fDstReadInShaderSupport = glslCaps->fFBFetchSupport;
@@ -475,6 +461,35 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     this->applyOptionsOverrides(contextOptions);
     glslCaps->applyOptionsOverrides(contextOptions);
+}
+
+bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
+    if (!ctxInfo.hasExtension("GL_NV_path_rendering")) {
+        return false;
+    }
+    if (kGL_GrGLStandard == ctxInfo.standard()) {
+        if (ctxInfo.version() < GR_GL_VER(4, 3) &&
+            !ctxInfo.hasExtension("GL_ARB_program_interface_query")) {
+            return false;
+        }
+    } else {
+        if (ctxInfo.version() < GR_GL_VER(3, 1)) {
+            return false;
+        }
+    }
+    // We only support v1.3+ of GL_NV_path_rendering which allows us to
+    // set individual fragment inputs with ProgramPathFragmentInputGen. The API
+    // additions are detected by checking the existence of the function.
+    // We also use *Then* functions that not all drivers might have. Check
+    // them for consistency.
+    if (NULL == gli->fFunctions.fStencilThenCoverFillPath ||
+        NULL == gli->fFunctions.fStencilThenCoverStrokePath ||
+        NULL == gli->fFunctions.fStencilThenCoverFillPathInstanced ||
+        NULL == gli->fFunctions.fStencilThenCoverStrokePathInstanced ||
+        NULL == gli->fFunctions.fProgramPathFragmentInputGen) {
+        return false;
+    }
+    return true;
 }
 
 void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {

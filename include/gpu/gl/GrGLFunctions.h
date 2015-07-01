@@ -236,15 +236,6 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLViewportProc)(GrGLint x, GrGLint y, G
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixLoadfProc)(GrGLenum matrixMode, const GrGLfloat* m);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixLoadIdentityProc)(GrGLenum);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathCommandsProc)(GrGLuint path, GrGLsizei numCommands, const GrGLubyte *commands, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathCoordsProc)(GrGLuint path, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathSubCoordsProc)(GrGLuint path, GrGLsizei coordStart, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathStringProc)(GrGLuint path, GrGLenum format, GrGLsizei length, const GrGLvoid *pathString);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathGlyphsProc)(GrGLuint firstPathName, GrGLenum fontTarget, const GrGLvoid *fontName, GrGLbitfield fontStyle, GrGLsizei numGlyphs, GrGLenum type, const GrGLvoid *charcodes, GrGLenum handleMissingGlyphs, GrGLuint pathParameterTemplate, GrGLfloat emScale);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathGlyphRangeProc)(GrGLuint firstPathName, GrGLenum fontTarget, const GrGLvoid *fontName, GrGLbitfield fontStyle, GrGLuint firstGlyph, GrGLsizei numGlyphs, GrGLenum handleMissingGlyphs, GrGLuint pathParameterTemplate, GrGLfloat emScale);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLWeightPathsProc)(GrGLuint resultPath, GrGLsizei numPaths, const GrGLuint paths[], const GrGLfloat weights[]);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyPathProc)(GrGLuint resultPath, GrGLuint srcPath);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInterpolatePathsProc)(GrGLuint resultPath, GrGLuint pathA, GrGLuint pathB, GrGLfloat weight);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTransformPathProc)(GrGLuint resultPath, GrGLuint srcPath, GrGLenum transformType, const GrGLfloat *transformValues);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathParameteriProc)(GrGLuint path, GrGLenum pname, GrGLint value);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathParameterfProc)(GrGLuint path, GrGLenum pname, GrGLfloat value);
 typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLGenPathsProc)(GrGLsizei range);
@@ -255,7 +246,6 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilFillPathProc)(GrGLuint path, G
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilStrokePathProc)(GrGLuint path, GrGLint reference, GrGLuint mask);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum transformType, const GrGLfloat *transformValues);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum transformType, const GrGLfloat *transformValues);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathTexGenProc)(GrGLenum texCoordSet, GrGLenum genMode, GrGLint components, const GrGLfloat *coeffs);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverFillPathProc)(GrGLuint path, GrGLenum coverMode);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverStrokePathProc)(GrGLuint name, GrGLenum coverMode);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
