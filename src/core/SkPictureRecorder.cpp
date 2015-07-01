@@ -38,7 +38,10 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& cullRect,
     if (!fRecord) {
         fRecord.reset(SkNEW(SkRecord));
     }
-    fRecorder->reset(fRecord.get(), cullRect, &fMiniRecorder);
+    SkRecorder::DrawPictureMode dpm = (recordFlags & kPlaybackDrawPicture_RecordFlag)
+        ? SkRecorder::Playback_DrawPictureMode
+        : SkRecorder::Record_DrawPictureMode;
+    fRecorder->reset(fRecord.get(), cullRect, dpm, &fMiniRecorder);
     fActivelyRecording = true;
     return this->getRecordingCanvas();
 }

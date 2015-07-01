@@ -6,6 +6,7 @@
  */
 
 #include "SkBigPicture.h"
+#include "SkCanvasPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
@@ -35,18 +36,22 @@ void SkDrawableList::append(SkDrawable* drawable) {
 
 SkRecorder::SkRecorder(SkRecord* record, int width, int height, SkMiniRecorder* mr)
     : SkCanvas(SkIRect::MakeWH(width, height), SkCanvas::kConservativeRasterClip_InitFlag)
+    , fDrawPictureMode(Record_DrawPictureMode)
     , fApproxBytesUsedBySubPictures(0)
     , fRecord(record)
     , fMiniRecorder(mr) {}
 
 SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr)
     : SkCanvas(bounds.roundOut(), SkCanvas::kConservativeRasterClip_InitFlag)
+    , fDrawPictureMode(Record_DrawPictureMode)
     , fApproxBytesUsedBySubPictures(0)
     , fRecord(record)
     , fMiniRecorder(mr) {}
 
-void SkRecorder::reset(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr) {
+void SkRecorder::reset(SkRecord* record, const SkRect& bounds,
+                       DrawPictureMode dpm, SkMiniRecorder* mr) {
     this->forgetRecord();
+    fDrawPictureMode = dpm;
     fRecord = record;
     this->resetForNextPicture(bounds.roundOut());
     fMiniRecorder = mr;
@@ -254,8 +259,14 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 }
 
 void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, const SkPaint* paint) {
-    fApproxBytesUsedBySubPictures += SkPictureUtils::ApproximateBytesUsed(pic);
-    APPEND(DrawPicture, this->copy(paint), pic, matrix ? *matrix : SkMatrix::I());
+    if (fDrawPictureMode == Record_DrawPictureMode) {
+        fApproxBytesUsedBySubPictures += SkPictureUtils::ApproximateBytesUsed(pic);
+        APPEND(DrawPicture, this->copy(paint), pic, matrix ? *matrix : SkMatrix::I());
+    } else {
+        SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
+        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, pic->cullRect());
+        pic->playback(this);
+    }
 }
 
 void SkRecorder::onDrawVertices(VertexMode vmode,
