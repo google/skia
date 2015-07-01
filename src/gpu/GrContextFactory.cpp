@@ -68,6 +68,10 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
         if (!glInterface) {
             return NULL;
         }
+    } else {
+        if (!glInterface->hasExtension("GL_NV_path_rendering")) {
+            return NULL;
+        }
     }
 
     glCtx->makeCurrent();
