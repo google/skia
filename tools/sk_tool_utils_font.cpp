@@ -7,9 +7,9 @@
 
 #include "Resources.h"
 #include "SkFontMgr.h"
+#include "SkMutex.h"
 #include "SkOSFile.h"
 #include "SkTestScalerContext.h"
-#include "SkThread.h"
 #include "SkUtils.h"
 #include "sk_tool_utils.h"
 

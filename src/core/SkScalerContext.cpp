@@ -21,7 +21,6 @@
 #include "SkRasterizer.h"
 #include "SkRasterClip.h"
 #include "SkStroke.h"
-#include "SkThread.h"
 
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 

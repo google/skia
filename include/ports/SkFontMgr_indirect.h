@@ -11,6 +11,7 @@
 #include "SkDataTable.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
+#include "SkMutex.h"
 #include "SkRemotableFontMgr.h"
 #include "SkTArray.h"
 #include "SkTypeface.h"

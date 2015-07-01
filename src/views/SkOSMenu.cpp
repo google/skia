@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <stdarg.h>
+#include "SkAtomics.h"
 #include "SkOSMenu.h"
-#include "SkThread.h"
+#include <stdarg.h>
 
 static int gOSMenuCmd = 7000;
 

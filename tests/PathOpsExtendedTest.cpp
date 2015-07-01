@@ -11,10 +11,10 @@
 #include "SkCanvas.h"
 #include "SkForceLinking.h"
 #include "SkMatrix.h"
+#include "SkMutex.h"
 #include "SkPaint.h"
 #include "SkRTConf.h"
 #include "SkStream.h"
-#include "SkThread.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <sys/sysctl.h>

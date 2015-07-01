@@ -8,6 +8,7 @@
 #include "CrashHandler.h"
 #include "OverwriteLine.h"
 #include "Resources.h"
+#include "SkAtomics.h"
 #include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
@@ -15,7 +16,6 @@
 #include "SkTArray.h"
 #include "SkTaskGroup.h"
 #include "SkTemplates.h"
-#include "SkThread.h"
 #include "SkTime.h"
 #include "Test.h"
 

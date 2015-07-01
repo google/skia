@@ -12,8 +12,8 @@
 #include "GrBatchTarget.h"
 #include "GrGeometryProcessor.h"
 #include "GrVertices.h"
+#include "SkAtomics.h"
 #include "SkRefCnt.h"
-#include "SkThread.h"
 #include "SkTypes.h"
 
 class GrGpu;
@@ -39,7 +39,7 @@ struct GrInitInvariantOutput;
 
 class GrBatch : public SkRefCnt {
 public:
-    
+
     GrBatch() : fClassID(kIllegalBatchClassID), fNumberOfDraws(0) { SkDEBUGCODE(fUsed = false;) }
     virtual ~GrBatch() {}
 

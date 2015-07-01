@@ -13,12 +13,13 @@
 #include "SkDevice.h"
 #include "SkLazyPtr.h"
 #include "SkMatrixImageFilter.h"
+#include "SkMutex.h"
 #include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkRect.h"
 #include "SkTDynamicHash.h"
 #include "SkTInternalLList.h"
 #include "SkValidationUtils.h"
+#include "SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
@@ -28,9 +29,9 @@
 
 #ifdef SK_BUILD_FOR_IOS
   enum { kDefaultCacheSize = 2 * 1024 * 1024 };
-#else 
+#else
   enum { kDefaultCacheSize = 128 * 1024 * 1024 };
-#endif 
+#endif
 
 static int32_t next_image_filter_unique_id() {
     static int32_t gImageFilterUniqueID;
@@ -546,4 +547,4 @@ bool SkImageFilter::Proxy::filterImage(const SkImageFilter* filter, const SkBitm
                                        SkBitmap* result, SkIPoint* offset) {
     return fDevice->filterImage(filter, src, ctx, result, offset);
 }
-    
+

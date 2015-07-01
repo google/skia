@@ -9,9 +9,9 @@
 #define SkMessageBus_DEFINED
 
 #include "SkLazyPtr.h"
+#include "SkMutex.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
-#include "SkThread.h"
 #include "SkTypes.h"
 
 template <typename Message>

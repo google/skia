@@ -8,7 +8,7 @@
 #ifndef SkCachedData_DEFINED
 #define SkCachedData_DEFINED
 
-#include "SkThread.h"
+#include "SkMutex.h"
 
 class SkDiscardableMemory;
 
@@ -78,7 +78,7 @@ public:
 #else
     void validate() const {}
 #endif
-    
+
    /*
      *  Attaching a data to to a SkResourceCache (only one at a time) enables the data to be
      *  unlocked when the cache is the only owner, thus freeing it to be purged (assuming the

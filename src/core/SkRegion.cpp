@@ -7,9 +7,9 @@
  */
 
 
+#include "SkAtomics.h"
 #include "SkRegionPriv.h"
 #include "SkTemplates.h"
-#include "SkThread.h"
 #include "SkUtils.h"
 
 /* Region Layout

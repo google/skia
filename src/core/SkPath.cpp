@@ -12,7 +12,6 @@
 #include "SkPathPriv.h"
 #include "SkPathRef.h"
 #include "SkRRect.h"
-#include "SkThread.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -1881,7 +1880,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     }
 
     unsigned version = packed & 0xFF;
-    
+
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
     uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;

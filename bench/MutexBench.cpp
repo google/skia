@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkThread.h"
+#include "SkMutex.h"
 
 class MutexBench : public Benchmark {
 public:

@@ -6,7 +6,7 @@
  */
 
 #include "SkTLS.h"
-#include "SkThread.h"
+#include "SkMutex.h"
 
 static bool gOnce = false;
 static DWORD gTlsIndex;

@@ -7,9 +7,9 @@
  */
 
 
-#include "SkString.h"
+#include "SkAtomics.h"
 #include "SkFixed.h"
-#include "SkThread.h"
+#include "SkString.h"
 #include "SkUtils.h"
 #include <stdarg.h>
 #include <stdio.h>
