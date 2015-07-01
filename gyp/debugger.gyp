@@ -82,6 +82,7 @@
         '/Library/Frameworks',
       ],
       'include_dirs' : [
+        '../include/private',
         '../src/core',
         '../src/utils/debugger',
         '../debugger',      # To pull SkDebugger.h

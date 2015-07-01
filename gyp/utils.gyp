@@ -22,6 +22,7 @@
         '../include/images',
         '../include/pathops',
         '../include/pipe',
+        '../include/private',
         '../include/utils',
         '../include/utils/mac',
         '../include/utils/unix',

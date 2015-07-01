@@ -17,6 +17,7 @@
         '../include/effects',
         '../include/images',
         '../include/ports',
+        '../include/private',
         '../include/utils',
         '../include/utils/win',
         '../src/core',

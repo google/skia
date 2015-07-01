@@ -94,6 +94,7 @@
       ],
       'include_dirs': [
         '../include/gpu',
+        '../include/private',
         '../src/core',
         '../src/gpu',
         '../src/image/',

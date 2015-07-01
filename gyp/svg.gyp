@@ -14,6 +14,7 @@
         'xml.gyp:*',
       ],
       'include_dirs': [
+        '../include/private',
         '../include/svg',
         '../src/core',
       ],
