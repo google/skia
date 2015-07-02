@@ -6,8 +6,8 @@
  */
 
 #include "SkBitmapCache.h"
-#include "SkMutex.h"
 #include "SkPixelRef.h"
+#include "SkThread.h"
 #include "SkTraceEvent.h"
 
 //#define SK_SUPPORT_LEGACY_UNBALANCED_PIXELREF_LOCKCOUNT

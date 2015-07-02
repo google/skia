@@ -7,7 +7,6 @@
  */
 
 
-#include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
@@ -15,13 +14,14 @@
 #include "SkImagePriv.h"
 #include "SkMallocPixelRef.h"
 #include "SkMask.h"
-#include "SkPackBits.h"
-#include "SkPixelRef.h"
 #include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
+#include "SkPixelRef.h"
+#include "SkThread.h"
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 #include "SkValidationUtils.h"
-#include "SkWriteBuffer.h"
+#include "SkPackBits.h"
 #include <new>
 
 static bool reset_return_false(SkBitmap* bm) {

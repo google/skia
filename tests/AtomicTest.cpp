@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
+#include "SkThread.h"
 #include "SkThreadUtils.h"
 #include "SkTypes.h"
 #include "Test.h"

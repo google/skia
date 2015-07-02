@@ -9,11 +9,11 @@
 #define SkDiffContext_DEFINED
 
 #include "SkImageDiffer.h"
-#include "SkMutex.h"
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTLList.h"
+#include "SkThread.h"
 
 class SkWStream;
 
@@ -52,7 +52,7 @@ public:
     void setWhiteDiffDir(const SkString& directory);
 
     /**
-     * Modify the pattern used to generate commonName (= the
+     * Modify the pattern used to generate commonName (= the 
      * basename of rgb/white diff files).
      *
      * - true: basename is a combination of the input file names.
@@ -61,10 +61,10 @@ public:
      * For example, for:
      *   baselinePath=/tmp/dir/image-before.png
      *   testPath=/tmp/dir/image-after.png
-     *
+     * 
      * If setLongNames(true), commonName would be:
      *    image-before-png-vs-image-after-png.png
-     *
+     * 
      * If setLongNames(false), commonName would be:
      *   image-.png
      */
@@ -104,8 +104,8 @@ public:
      *
      * The format of the JSON document is one top level array named "records".
      * Each record in the array is an object with the following values:
-     *    "commonName"     : string containing the output filename (basename)
-     *                       depending on the value of 'longNames'.
+     *    "commonName"     : string containing the output filename (basename) 
+     *                       depending on the value of 'longNames'. 
      *                       (see 'setLongNames' for an explanation and example).
      *    "baselinePath"   : string containing the path to the baseline image
      *    "testPath"       : string containing the path to the test image

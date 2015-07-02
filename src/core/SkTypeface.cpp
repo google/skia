@@ -10,7 +10,6 @@
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkLazyPtr.h"
-#include "SkMutex.h"
 #include "SkOTTable_OS_2.h"
 #include "SkStream.h"
 #include "SkTypeface.h"

@@ -17,7 +17,6 @@
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
-#include "SkMutex.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkPaintDefaults.h"

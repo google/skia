@@ -10,7 +10,6 @@
 #define SKFONTHOST_FREETYPE_COMMON_H_
 
 #include "SkGlyph.h"
-#include "SkMutex.h"
 #include "SkScalerContext.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"

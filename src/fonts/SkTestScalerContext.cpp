@@ -42,7 +42,7 @@ SkTestFont::~SkTestFont() {
 
 #ifdef SK_DEBUG
 
-#include "SkMutex.h"
+#include "SkThread.h"
 SK_DECLARE_STATIC_MUTEX(gUsedCharsMutex);
 
 #endif

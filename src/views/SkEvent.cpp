@@ -265,7 +265,7 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
     #define EVENT_LOGN(s, n)
 #endif
 
-#include "SkMutex.h"
+#include "SkThread.h"
 #include "SkTime.h"
 
 class SkEvent_Globals {

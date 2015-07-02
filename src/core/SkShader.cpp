@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
 #include "SkEmptyShader.h"
+#include "SkReadBuffer.h"
 #include "SkMallocPixelRef.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureShader.h"
-#include "SkReadBuffer.h"
 #include "SkScalar.h"
 #include "SkShader.h"
+#include "SkThread.h"
 #include "SkWriteBuffer.h"
 
 //#define SK_TRACK_SHADER_LIFETIME

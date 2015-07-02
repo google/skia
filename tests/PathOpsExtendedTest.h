@@ -12,6 +12,8 @@
 #include "SkPath.h"
 #include "SkPathOpsTypes.h"
 #include "SkStream.h"
+#include "SkThread.h"
+#include "SkThreadUtils.h"
 #include "Test.h"
 
 DECLARE_bool(runFail);

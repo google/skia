@@ -7,11 +7,11 @@
  */
 
 #include "SkAAClip.h"
-#include "SkAtomics.h"
 #include "SkBlitter.h"
 #include "SkColorPriv.h"
 #include "SkPath.h"
 #include "SkScan.h"
+#include "SkThread.h"
 #include "SkUtils.h"
 
 class AutoAAClipValidate {

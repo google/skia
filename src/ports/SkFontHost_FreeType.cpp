@@ -17,12 +17,12 @@
 #include "SkMask.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
-#include "SkMutex.h"
 #include "SkOTUtils.h"
 #include "SkScalerContext.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
+#include "SkThread.h"
 #include "SkTypes.h"
 
 #if defined(SK_CAN_USE_DLOPEN)

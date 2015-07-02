@@ -8,7 +8,6 @@
 #include "SkChecksum.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
-#include "SkMutex.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
 
@@ -75,7 +74,7 @@ void SkResourceCache::init() {
 
 class SkOneShotDiscardablePixelRef : public SkPixelRef {
 public:
-
+    
     // Ownership of the discardablememory is transfered to the pixelref
     SkOneShotDiscardablePixelRef(const SkImageInfo&, SkDiscardableMemory*, size_t rowBytes);
     ~SkOneShotDiscardablePixelRef();
@@ -237,7 +236,7 @@ static bool gDumpCacheTransactions;
 
 void SkResourceCache::add(Rec* rec) {
     this->checkMessages();
-
+    
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
     Rec* existing = fHash->find(rec->getKey());
@@ -245,7 +244,7 @@ void SkResourceCache::add(Rec* rec) {
         SkDELETE(rec);
         return;
     }
-
+    
     this->addToHead(rec);
     fHash->add(rec);
 
@@ -358,7 +357,7 @@ size_t SkResourceCache::setTotalByteLimit(size_t newLimit) {
 
 SkCachedData* SkResourceCache::newCachedData(size_t bytes) {
     this->checkMessages();
-
+    
     if (fDiscardableFactory) {
         SkDiscardableMemory* dm = fDiscardableFactory(bytes);
         return dm ? SkNEW_ARGS(SkCachedData, (bytes, dm)) : NULL;
@@ -515,6 +514,8 @@ void SkResourceCache::checkMessages() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+#include "SkThread.h"
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
 static SkResourceCache* gResourceCache = NULL;

@@ -9,7 +9,6 @@
 #define SkGlyphCache_Globals_DEFINED
 
 #include "SkGlyphCache.h"
-#include "SkMutex.h"
 #include "SkTLS.h"
 
 #ifndef SK_DEFAULT_FONT_CACHE_COUNT_LIMIT

@@ -23,6 +23,7 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
+#include "SkThread.h"
 #include "SkTypeface_win.h"
 #include "SkTypefaceCache.h"
 #include "SkUtils.h"

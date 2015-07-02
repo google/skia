@@ -11,10 +11,10 @@
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
 #include "SkMath.h"
-#include "SkMutex.h"
 #include "SkString.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
+#include "SkThread.h"
 #include "SkTypefaceCache.h"
 #include "SkOSFile.h"
 
