@@ -59,7 +59,6 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
     newInterface->fFunctions.fStencilThenCoverFillPathInstanced = NULL;
     newInterface->fFunctions.fStencilThenCoverStrokePathInstanced = NULL;
     newInterface->fFunctions.fProgramPathFragmentInputGen = NULL;
-    newInterface->fFunctions.fBindFragmentInputLocation = NULL;
     return newInterface;
 }
 
@@ -484,7 +483,7 @@ bool GrGLInterface::validate() const {
 #endif
     }
 
-    if (fExtensions.has("GL_NV_path_rendering") || fExtensions.has("GL_CHROMIUM_path_rendering")) {
+    if (fExtensions.has("GL_NV_path_rendering")) {
         if (NULL == fFunctions.fMatrixLoadf ||
             NULL == fFunctions.fMatrixLoadIdentity ||
             NULL == fFunctions.fPathCommands ||
@@ -515,11 +514,6 @@ bool GrGLInterface::validate() const {
 #endif
             ) {
             RETURN_FALSE_INTERFACE
-        }
-        if (fExtensions.has("GL_CHROMIUM_path_rendering")) {
-            if (NULL == fFunctions.fBindFragmentInputLocation) {
-                RETURN_FALSE_INTERFACE
-            }
         }
     }
 

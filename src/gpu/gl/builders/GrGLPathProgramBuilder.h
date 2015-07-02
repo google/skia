@@ -17,7 +17,6 @@ public:
 
     SeparableVaryingHandle addSeparableVarying(const char* name, GrGLVertToFrag* v,
                                                GrSLPrecision fsPrecision) override;
-    void bindProgramResourceLocations(GrGLuint programID) override;
     void resolveProgramResourceLocations(GrGLuint programID) override;
 
 private:

@@ -61,9 +61,6 @@ static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
 
 GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
     : GrPathRendering(gpu) {
-    const GrGLInterface* glInterface = gpu->glInterface();
-    fCaps.bindFragmentInputSupport =
-        NULL != glInterface->fFunctions.fBindFragmentInputLocation;
 }
 
 GrGLPathRendering::~GrGLPathRendering() {

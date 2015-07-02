@@ -464,20 +464,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
-    bool hasChromiumPathRendering = ctxInfo.hasExtension("GL_CHROMIUM_path_rendering");
-
-    if (!(ctxInfo.hasExtension("GL_NV_path_rendering") || hasChromiumPathRendering)) {
+    if (!ctxInfo.hasExtension("GL_NV_path_rendering")) {
         return false;
     }
-
     if (kGL_GrGLStandard == ctxInfo.standard()) {
         if (ctxInfo.version() < GR_GL_VER(4, 3) &&
             !ctxInfo.hasExtension("GL_ARB_program_interface_query")) {
             return false;
         }
     } else {
-        if (!hasChromiumPathRendering &&
-            ctxInfo.version() < GR_GL_VER(3, 1)) {
+        if (ctxInfo.version() < GR_GL_VER(3, 1)) {
             return false;
         }
     }

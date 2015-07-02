@@ -328,7 +328,7 @@ protected:
                       GrGLInstalledProc<Proc>*);
 
     GrGLProgram* finalize();
-    virtual void bindProgramResourceLocations(GrGLuint programID);
+    void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);
     virtual void resolveProgramResourceLocations(GrGLuint programID);
     void cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs);

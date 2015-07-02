@@ -35,25 +35,9 @@ GrGLProgramBuilder::SeparableVaryingHandle GrGLPathProgramBuilder::addSeparableV
     return SeparableVaryingHandle::CreateFromSeparableVaryingIndex(varyingInfo.fLocation);
 }
 
-void GrGLPathProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
-    this->INHERITED::bindProgramResourceLocations(programID);
-    if (!fGpu->glPathRendering()->shouldBindFragmentInputs()) {
-        return;
-    }
-    int count = fSeparableVaryingInfos.count();
-    for (int i = 0; i < count; ++i) {
-        GL_CALL(BindFragmentInputLocation(programID,
-                                          i,
-                                          fSeparableVaryingInfos[i].fVariable.c_str()));
-        fSeparableVaryingInfos[i].fLocation = i;
-    }
-}
-
 void GrGLPathProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
     this->INHERITED::resolveProgramResourceLocations(programID);
-    if (fGpu->glPathRendering()->shouldBindFragmentInputs()) {
-        return;
-    }
+
     int count = fSeparableVaryingInfos.count();
     for (int i = 0; i < count; ++i) {
         GrGLint location;
