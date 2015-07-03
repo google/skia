@@ -269,7 +269,7 @@ void SkDisplacementMapEffect::computeFastBounds(const SkRect& src, SkRect* dst) 
 }
 
 bool SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                   SkIRect* dst) const {
+                                             SkIRect* dst) const {
     SkIRect bounds = src;
     SkVector scale = SkVector::Make(fScale, fScale);
     ctm.mapVectors(&scale, 1);
@@ -285,6 +285,7 @@ bool SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix&
 #ifndef SK_IGNORE_TO_STRING
 void SkDisplacementMapEffect::toString(SkString* str) const {
     str->appendf("SkDisplacementMapEffect: (");
+    this->getCropRect().toString(str);
     str->appendf("scale: %f ", fScale);
     str->appendf("displacement: (");
     if (this->getDisplacementInput()) {

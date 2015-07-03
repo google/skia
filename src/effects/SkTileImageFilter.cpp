@@ -27,19 +27,27 @@ SkTileImageFilter* SkTileImageFilter::Create(const SkRect& srcRect, const SkRect
 bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                       const Context& ctx,
                                       SkBitmap* dst, SkIPoint* offset) const {
-    SkBitmap source = src;
-    SkImageFilter* input = getInput(0);
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (input && !input->filterImage(proxy, src, ctx, &source, &srcOffset)) {
-        return false;
-    }
 
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
     const SkIRect dstIRect = dstRect.roundOut();
-    int w = dstIRect.width();
-    int h = dstIRect.height();
-    if (!fSrcRect.width() || !fSrcRect.height() || !w || !h) {
+    if (fSrcRect.isEmpty() || dstIRect.isEmpty()) {
+        return false;
+    }
+
+    // TODO: the actual clip that needs to be applied to the src should be (roughly) determined by:
+    //  intersect ctx.clip and dstIRect
+    //  determine if that rect lies wholly inside fSrcRect
+    //      if so pass it on as the clip
+    //      if not pass the entire fSrcRect as the clip
+    // For now don't apply any clip to the source (since it is usually very small and all of it
+    // will be required anyway).
+    Context srcCtx(ctx.ctm(), SkIRect::MakeLargest(), ctx.cache());
+
+    SkBitmap source = src;
+    SkImageFilter* input = this->getInput(0);
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (input && !input->filterImage(proxy, src, srcCtx, &source, &srcOffset)) {
         return false;
     }
 
@@ -59,7 +67,7 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
         return false;
     }
 
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(w, h));
+    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstIRect.width(), dstIRect.height()));
     if (NULL == device.get()) {
         return false;
     }
@@ -116,12 +124,13 @@ void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
 #ifndef SK_IGNORE_TO_STRING
 void SkTileImageFilter::toString(SkString* str) const {
     str->appendf("SkTileImageFilter: (");
+    this->getCropRect().toString(str);
     str->appendf("src: %.2f %.2f %.2f %.2f",
                  fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom);
     str->appendf(" dst: %.2f %.2f %.2f %.2f",
                  fDstRect.fLeft, fDstRect.fTop, fDstRect.fRight, fDstRect.fBottom);
     if (this->getInput(0)) {
-        str->appendf("input: (");
+        str->appendf(" input: (");
         this->getInput(0)->toString(str);
         str->appendf(")");
     }
