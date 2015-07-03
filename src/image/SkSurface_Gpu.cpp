@@ -35,6 +35,8 @@ GrBackendObject SkSurface_Gpu::onGetTextureHandle(TextureHandleAccess access) {
         case kDiscardWrite_TextureHandleAccess:
             // for now we don't special-case on Discard, but we may in the future.
             this->notifyContentWillChange(kRetain_ContentChangeMode);
+            // legacy: need to dirty the bitmap's genID in our device (curse it)
+            fDevice->fLegacyBitmap.notifyPixelsChanged();
             break;
     }
     rt->prepareForExternalIO();

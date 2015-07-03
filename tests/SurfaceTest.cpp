@@ -260,34 +260,49 @@ static uint32_t get_legacy_gen_id(SkSurface* surf) {
     return device->accessBitmap(false).getGenerationID();
 }
 
+/*
+ *  Test legacy behavor of bumping the surface's device's bitmap's genID when we access its
+ *  texture handle for writing.
+ *
+ *  Note: this needs to be tested separately from checking newImageSnapshot, as calling that
+ *  can also incidentally bump the genID (when a new backing surface is created).
+ */
+static void test_texture_handle_genID(skiatest::Reporter* reporter, SkSurface* surf) {
+    const uint32_t gen0 = get_legacy_gen_id(surf);
+    surf->getTextureHandle(SkSurface::kFlushRead_TextureHandleAccess);
+    const uint32_t gen1 = get_legacy_gen_id(surf);
+    REPORTER_ASSERT(reporter, gen0 == gen1);
+
+    surf->getTextureHandle(SkSurface::kFlushWrite_TextureHandleAccess);
+    const uint32_t gen2 = get_legacy_gen_id(surf);
+    REPORTER_ASSERT(reporter, gen0 != gen2);
+
+    surf->getTextureHandle(SkSurface::kDiscardWrite_TextureHandleAccess);
+    const uint32_t gen3 = get_legacy_gen_id(surf);
+    REPORTER_ASSERT(reporter, gen0 != gen3);
+    REPORTER_ASSERT(reporter, gen2 != gen3);
+}
+
 static void test_texture_handle(skiatest::Reporter* reporter, SkSurface* surf) {
     SkAutoTUnref<SkImage> image0(surf->newImageSnapshot());
-    const uint32_t genID0 = get_legacy_gen_id(surf);
     GrBackendObject obj = surf->getTextureHandle(SkSurface::kFlushRead_TextureHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image1(surf->newImageSnapshot());
-    const uint32_t genID1 = get_legacy_gen_id(surf);
     // just read access should not affect the snapshot
     REPORTER_ASSERT(reporter, image0->uniqueID() == image1->uniqueID());
-    REPORTER_ASSERT(reporter, genID0 == genID1);
 
     obj = surf->getTextureHandle(SkSurface::kFlushWrite_TextureHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image2(surf->newImageSnapshot());
-    const uint32_t genID2 = get_legacy_gen_id(surf);
     // expect a new image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image2->uniqueID());
-    REPORTER_ASSERT(reporter, genID0 != genID2);
 
     obj = surf->getTextureHandle(SkSurface::kDiscardWrite_TextureHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image3(surf->newImageSnapshot());
-    const uint32_t genID3 = get_legacy_gen_id(surf);
     // expect a new(er) image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image3->uniqueID());
     REPORTER_ASSERT(reporter, image2->uniqueID() != image3->uniqueID());
-    REPORTER_ASSERT(reporter, genID0 != genID3);
-    REPORTER_ASSERT(reporter, genID2 != genID3);
 }
 
 static SkImage* create_image(skiatest::Reporter* reporter,
@@ -317,6 +332,7 @@ static SkImage* create_image(skiatest::Reporter* reporter,
                 SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
             surf->getCanvas()->clear(color);
             // test our backing texture while were here...
+            test_texture_handle_genID(reporter, surf);
             test_texture_handle(reporter, surf);
             // redraw so our returned image looks as expected.
             surf->getCanvas()->clear(color);
