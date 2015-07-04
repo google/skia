@@ -8,6 +8,7 @@
 #include "SkImage_Base.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColorTable.h"
 #include "SkData.h"
 #include "SkImageGeneratorPriv.h"
 #include "SkImagePriv.h"
@@ -16,7 +17,8 @@
 
 class SkImage_Raster : public SkImage_Base {
 public:
-    static bool ValidArgs(const Info& info, size_t rowBytes, size_t* minSize) {
+    static bool ValidArgs(const Info& info, size_t rowBytes, SkColorTable* ctable,
+                          size_t* minSize) {
         const int maxDimension = SK_MaxS32 >> 2;
 
         if (info.width() <= 0 || info.height() <= 0) {
@@ -36,7 +38,11 @@ public:
             return false;
         }
 
-        // TODO: check colorspace
+        const bool needsCT = kIndex_8_SkColorType == info.colorType();
+        const bool hasCT = NULL != ctable;
+        if (needsCT != hasCT) {
+            return false;
+        }
 
         if (rowBytes < SkImageMinRowBytes(info)) {
             return false;
@@ -53,7 +59,7 @@ public:
         return true;
     }
 
-    SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, const SkSurfaceProps*);
+    SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, SkColorTable*, const SkSurfaceProps*);
     virtual ~SkImage_Raster();
 
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
@@ -94,12 +100,11 @@ static void release_data(void* addr, void* context) {
 }
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes,
-                               const SkSurfaceProps* props)
+                               SkColorTable* ctable, const SkSurfaceProps* props)
     : INHERITED(info.width(), info.height(), props)
 {
     data->ref();
     void* addr = const_cast<void*>(data->data());
-    SkColorTable* ctable = NULL;
 
     fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data);
     fBitmap.setImmutable();
@@ -161,21 +166,22 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, size_t rowBytes) {
+SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                                SkColorTable* ctable) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, &size) || !pixels) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, ctable, &size) || !pixels) {
         return NULL;
     }
 
     // Here we actually make a copy of the caller's pixel data
     SkAutoDataUnref data(SkData::NewWithCopy(pixels, size));
-    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, NULL));
+    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, ctable, NULL));
 }
 
 
 SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t rowBytes) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, &size) || !data) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, NULL, &size) || !data) {
         return NULL;
     }
 
@@ -184,18 +190,20 @@ SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t ro
         return NULL;
     }
 
-    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, NULL));
+    SkColorTable* ctable = NULL;
+    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, ctable, NULL));
 }
 
 SkImage* SkImage::NewFromRaster(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                                 RasterReleaseProc proc, ReleaseContext ctx) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, &size) || !pixels) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, NULL, &size) || !pixels) {
         return NULL;
     }
 
+    SkColorTable* ctable = NULL;
     SkAutoDataUnref data(SkData::NewWithProc(pixels, size, proc, ctx));
-    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, NULL));
+    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, ctable, NULL));
 }
 
 SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
@@ -213,7 +221,7 @@ SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* s
 SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
                                 const SkIPoint& pixelRefOrigin, size_t rowBytes,
                                 const SkSurfaceProps* props) {
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, NULL)) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, NULL, NULL)) {
         return NULL;
     }
     return SkNEW_ARGS(SkImage_Raster, (info, pr, pixelRefOrigin, rowBytes, props));
@@ -221,7 +229,7 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
 
 SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef,
                               const SkSurfaceProps* props) {
-    if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), NULL)) {
+    if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), NULL, NULL)) {
         return NULL;
     }
 

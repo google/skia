@@ -17,6 +17,7 @@
 
 class SkData;
 class SkCanvas;
+class SkColorTable;
 class SkImageGenerator;
 class SkPaint;
 class SkString;
@@ -44,7 +45,8 @@ public:
     typedef SkImageInfo Info;
     typedef void* ReleaseContext;
 
-    static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes);
+    static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes,
+                                  SkColorTable* ctable = NULL);
     static SkImage* NewRasterData(const Info&, SkData* pixels, size_t rowBytes);
 
     typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext);

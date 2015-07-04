@@ -103,3 +103,30 @@ DEF_GPUTEST(Image_Encode_Gpu, reporter, factory) {
     test_encode(reporter, ctx);
 }
 #endif
+
+DEF_TEST(Image_NewRasterCopy, reporter) {
+    const SkPMColor red =   SkPackARGB32(0xFF, 0xFF, 0, 0);
+    const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
+    const SkPMColor blue =  SkPackARGB32(0xFF, 0, 0, 0xFF);
+    SkPMColor colors[] = { red, green, blue, 0 };
+    SkAutoTUnref<SkColorTable> ctable(SkNEW_ARGS(SkColorTable, (colors, SK_ARRAY_COUNT(colors))));
+    // The colortable made a copy, so we can trash the original colors
+    memset(colors, 0xFF, sizeof(colors));
+
+    const SkImageInfo srcInfo = SkImageInfo::Make(2, 2, kIndex_8_SkColorType, kPremul_SkAlphaType);
+    const size_t srcRowBytes = 2 * sizeof(uint8_t);
+    uint8_t indices[] = { 0, 1, 2, 3 };
+    SkAutoTUnref<SkImage> image(SkImage::NewRasterCopy(srcInfo, indices, srcRowBytes, ctable));
+    // The image made a copy, so we can trash the original indices
+    memset(indices, 0xFF, sizeof(indices));
+
+    const SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(2, 2);
+    const size_t dstRowBytes = 2 * sizeof(SkPMColor);
+    SkPMColor pixels[4];
+    memset(pixels, 0xFF, sizeof(pixels));   // init with values we don't expect
+    image->readPixels(dstInfo, pixels, dstRowBytes, 0, 0);
+    REPORTER_ASSERT(reporter, red == pixels[0]);
+    REPORTER_ASSERT(reporter, green == pixels[1]);
+    REPORTER_ASSERT(reporter, blue == pixels[2]);
+    REPORTER_ASSERT(reporter, 0 == pixels[3]);
+}

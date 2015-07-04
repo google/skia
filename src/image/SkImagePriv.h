@@ -30,7 +30,11 @@ extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
 extern SkImage* SkNewImageFromBitmap(const SkBitmap&, bool canSharePixelRef, const SkSurfaceProps*);
 
 static inline size_t SkImageMinRowBytes(const SkImageInfo& info) {
-    return SkAlign4(info.minRowBytes());
+    size_t minRB = info.minRowBytes();
+    if (kIndex_8_SkColorType != info.colorType()) {
+        minRB = SkAlign4(minRB);
+    }
+    return minRB;
 }
 
 // Given an image created from SkNewImageFromBitmap, return its pixelref. This
