@@ -22,6 +22,8 @@ public:
         , fName("draw_bitmap_") {
 
         fPaint.setAntiAlias(doAA);
+        // Most clients use filtering, so let's focus on this for now.
+        fPaint.setFilterQuality(kLow_SkFilterQuality);
         fName.appendf("%s_%s", doAA ? "aa" : "noaa", name);
     }
 
