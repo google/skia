@@ -725,7 +725,7 @@ private:
 
     /** Are all elements of the matrix finite?
      */
-    bool isFinite() const;
+    bool isFinite() const { return SkScalarsAreFinite(fMat, 9); }
 
     static void ComputeInv(SkScalar dst[9], const SkScalar src[9], double invDet, bool isPersp);
 

@@ -769,16 +769,6 @@ static double sk_inv_determinant(const float mat[9], int isPerspective) {
     return 1.0 / det;
 }
 
-bool SkMatrix::isFinite() const {
-    for (int i = 0; i < 9; ++i) {
-        if (!SkScalarIsFinite(fMat[i])) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void SkMatrix::SetAffineIdentity(SkScalar affine[6]) {
     affine[kAScaleX] = 1;
     affine[kASkewY] = 0;
