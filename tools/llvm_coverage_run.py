@@ -10,6 +10,7 @@
 import argparse
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -96,11 +97,78 @@ def run_coverage(cmd):
   return results
 
 
+def _testname(filename):
+  """Transform the file name into an ingestible test name."""
+  return re.sub(r'[^a-zA-Z0-9]', '_', filename)
+
+
+def _nanobench_json(results, properties, key):
+  """Return the results in JSON format like that produced by nanobench."""
+  rv = {}
+  # Copy over the properties first, then set the 'key' and 'results' keys,
+  # in order to avoid bad formatting in case the user passes in a properties
+  # dict containing those keys.
+  rv.update(properties)
+  rv['key'] = key
+  rv['results'] = {
+    _testname(f): {
+      'coverage': {
+        'percent': percent,
+        'options': {
+          'fullname': f,
+          'dir': os.path.dirname(f),
+        },
+      },
+    } for percent, f in results
+  }
+  return rv
+
+
+def _parse_key_value(kv_list):
+  """Return a dict whose key/value pairs are derived from the given list.
+
+  For example:
+
+      ['k1', 'v1', 'k2', 'v2']
+  becomes:
+
+      {'k1': 'v1',
+       'k2': 'v2'}
+  """
+  if len(kv_list) % 2 != 0:
+    raise Exception('Invalid key/value pairs: %s' % kv_list)
+
+  rv = {}
+  for i in xrange(len(kv_list) / 2):
+    rv[kv_list[i*2]] = kv_list[i*2+1]
+  return rv
+
+
 def main():
-  res = run_coverage(sys.argv[1:])
-  print '% Covered\tFilename'
-  for percent, f in res:
-    print '%f\t%s' % (percent, f)
+  """Run coverage and generate a report."""
+  # Parse args.
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--outResultsFile')
+  parser.add_argument(
+      '--key', metavar='key_or_value', nargs='+',
+      help='key/value pairs identifying this bot.')
+  parser.add_argument(
+      '--properties', metavar='key_or_value', nargs='+',
+      help='key/value pairs representing properties of this build.')
+  args, cmd = parser.parse_known_args()
+  key = _parse_key_value(args.key)
+  properties = _parse_key_value(args.properties)
+
+  # Run coverage.
+  results = run_coverage(cmd)
+
+  # Write results.
+  format_results = _nanobench_json(results, properties, key)
+  if args.outResultsFile:
+    with open(args.outResultsFile, 'w') as f:
+      json.dump(format_results, f)
+  else:
+    print json.dumps(format_results, indent=4, sort_keys=True)
 
 
 if __name__ == '__main__':
