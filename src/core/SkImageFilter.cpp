@@ -32,37 +32,6 @@
   enum { kDefaultCacheSize = 128 * 1024 * 1024 };
 #endif 
 
-#ifndef SK_IGNORE_TO_STRING
-void SkImageFilter::CropRect::toString(SkString* str) const {
-    if (!fFlags) {
-        return;
-    }
-
-    str->appendf("cropRect (");
-    if (fFlags & CropRect::kHasLeft_CropEdge) {
-        str->appendf("%.2f, ", fRect.fLeft);
-    } else {
-        str->appendf("X, ");
-    }
-    if (fFlags & CropRect::kHasTop_CropEdge) {
-        str->appendf("%.2f, ", fRect.fTop);
-    } else {
-        str->appendf("X, ");
-    }
-    if (fFlags & CropRect::kHasRight_CropEdge) {
-        str->appendf("%.2f, ", fRect.fRight);
-    } else {
-        str->appendf("X, ");
-    }
-    if (fFlags & CropRect::kHasBottom_CropEdge) {
-        str->appendf("%.2f", fRect.fBottom);
-    } else {
-        str->appendf("X");
-    }
-    str->appendf(") ");
-}
-#endif
-
 static int32_t next_image_filter_unique_id() {
     static int32_t gImageFilterUniqueID;
 
