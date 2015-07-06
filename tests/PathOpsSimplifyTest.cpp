@@ -4797,11 +4797,25 @@ static void testIssue3838_3(skiatest::Reporter* reporter,const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
+static void testQuads65(skiatest::Reporter* reporter,const char* filename) {
+    SkPath path;
+    path.moveTo(1, 2);
+    path.quadTo(3, 2, 0, 3);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 2);
+    path.quadTo(3, 2, 1, 3);
+    path.close();
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuads65),
     TEST(testIssue3838_3),
     TEST(testIssue3838),
     TEST(testArc),

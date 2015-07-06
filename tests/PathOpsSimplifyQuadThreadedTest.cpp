@@ -49,7 +49,7 @@ static void testSimplifyQuadsMain(PathOpsThreadState* data)
                             SkIntToScalar(hx), SkIntToScalar(hy));
                     path.close();
                     if (progress) {
-                        static int quadTest = 65;
+                        static int quadTest = 66;
                         char* str = pathStr;
                         str += sprintf(str, "static void testQuads%d(skiatest::Reporter* reporter,"
                                 "const char* filename) {\n", quadTest);

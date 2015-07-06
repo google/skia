@@ -159,6 +159,87 @@ bool SkOpSegment::activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
     return result;
 }
 
+void SkOpSegment::addAlignIntersection(SkOpPtT& endPtT, SkPoint& oldPt,
+        SkOpContourHead* contourList, SkChunkAlloc* allocator) {
+    const SkPoint& newPt = endPtT.fPt;
+    if (newPt == oldPt) {
+        return;
+    }
+    SkPoint line[2] = { newPt, oldPt };
+    SkPathOpsBounds lineBounds;
+    lineBounds.setBounds(line, 2);
+    SkDLine aLine;
+    aLine.set(line);
+    SkOpContour* current = contourList;
+    do {
+        if (!SkPathOpsBounds::Intersects(current->bounds(), lineBounds)) {
+            continue;
+        }
+        SkOpSegment* segment = current->first();
+        do {
+            if (!SkPathOpsBounds::Intersects(segment->bounds(), lineBounds)) {
+                continue;
+            }
+            if (newPt == segment->fPts[0]) {
+                continue;
+            }
+            if (newPt == segment->fPts[SkPathOpsVerbToPoints(segment->fVerb)]) {
+                continue;
+            }
+            if (oldPt == segment->fPts[0]) {
+                continue;
+            }
+            if (oldPt == segment->fPts[SkPathOpsVerbToPoints(segment->fVerb)]) {
+                continue;
+            }
+            if (endPtT.contains(segment)) {
+                continue;
+            }
+            SkIntersections i;
+            switch (segment->fVerb) {
+                case SkPath::kLine_Verb: {
+                    SkDLine bLine;
+                    bLine.set(segment->fPts);
+                    i.intersect(bLine, aLine);
+                    } break;
+                case SkPath::kQuad_Verb: {
+                    SkDQuad bQuad;
+                    bQuad.set(segment->fPts);
+                    i.intersect(bQuad, aLine);
+                    } break;
+                case SkPath::kConic_Verb: {
+                    SkDConic bConic;
+                    bConic.set(segment->fPts, segment->fWeight);
+                    i.intersect(bConic, aLine);
+                    } break;
+                case SkPath::kCubic_Verb: {
+                    SkDCubic bCubic;
+                    bCubic.set(segment->fPts);
+                    i.intersect(bCubic, aLine);
+                    } break;
+                default:
+                    SkASSERT(0);
+            }
+            if (i.used()) {
+                SkASSERT(i.used() == 1);
+                SkASSERT(!zero_or_one(i[0][0]));
+                SkOpSpanBase* checkSpan = fHead.next();
+                while (!checkSpan->final()) {
+                    if (checkSpan->contains(segment)) {
+                        goto nextSegment;
+                    }
+                    checkSpan = checkSpan->upCast()->next();
+                }
+                SkOpPtT* ptT = segment->addT(i[0][0], SkOpSegment::kAllowAlias, allocator);
+                ptT->fPt = newPt;
+                endPtT.addOpp(ptT);
+            }
+    nextSegment:
+            ;
+        } while ((segment = segment->next()));
+    } while ((current = current->next()));
+}
+
 void SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
         SkPathWriter* path, bool active) const {
     SkOpCurve edge;
@@ -770,7 +851,7 @@ SkOpSegment* SkOpSegment::findNextXor(SkOpSpanBase** nextStart, SkOpSpanBase** n
     SkASSERT(start != endNear);
     SkASSERT((start->t() < endNear->t()) ^ (step < 0));
     SkOpAngle* angle = this->spanToAngle(end, start);
-    if (angle->unorderable()) {
+    if (!angle || angle->unorderable()) {
         *unsortable = true;
         markDone(start->starter(end));
         return NULL;
@@ -817,6 +898,8 @@ SkOpGlobalState* SkOpSegment::globalState() const {
 void SkOpSegment::init(SkPoint pts[], SkScalar weight, SkOpContour* contour, SkPath::Verb verb) {
     fContour = contour;
     fNext = NULL;
+    fOriginal[0] = pts[0];
+    fOriginal[1] = pts[SkPathOpsVerbToPoints(verb)];
     fPts = pts;
     fWeight = weight;
     fVerb = verb;
@@ -1113,12 +1196,12 @@ static void clear_visited(SkOpSpanBase* span) {
 // curve/curve intersection should now do a pretty good job of finding coincident runs so 
 // this may be only be necessary for line/curve pairs -- so skip unless this is a line and the
 // the opp is not a line
-void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator) {
+bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator) {
     if (this->verb() != SkPath::kLine_Verb) {
-        return;
+        return false;
     }
     if (this->done()) {
-        return;
+        return false;
     }
     SkOpSpan* prior = NULL;
     SkOpSpanBase* spanBase = &fHead;
@@ -1186,34 +1269,7 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             if (coincidences->contains(priorPtT, ptT, oppStart, oppEnd, flipped)) {
                 goto swapBack;
             }
-            {
-                // average t, find mid pt
-                double midT = (prior->t() + spanBase->t()) / 2;
-                SkPoint midPt = this->ptAtT(midT);
-                coincident = true;
-                // if the mid pt is not near either end pt, project perpendicular through opp seg
-                if (!SkDPoint::ApproximatelyEqual(priorPtT->fPt, midPt)
-                        && !SkDPoint::ApproximatelyEqual(ptT->fPt, midPt)) {
-                    coincident = false;
-                    SkIntersections i;
-                    SkVector dxdy = (*CurveSlopeAtT[fVerb])(this->pts(), this->weight(), midT);
-                    SkDLine ray = {{{midPt.fX, midPt.fY},
-                            {midPt.fX + dxdy.fY, midPt.fY - dxdy.fX}}};
-                    (*CurveIntersectRay[opp->verb()])(opp->pts(), opp->weight(), ray, &i);
-                    // measure distance and see if it's small enough to denote coincidence
-                    for (int index = 0; index < i.used(); ++index) {
-                        SkDPoint oppPt = i.pt(index);
-                        if (oppPt.approximatelyEqual(midPt)) {
-                            SkVector oppDxdy = (*CurveSlopeAtT[opp->verb()])(opp->pts(),
-                                    opp->weight(), i[index][0]);
-                            oppDxdy.normalize();
-                            dxdy.normalize();
-                            SkScalar flatness = SkScalarAbs(dxdy.cross(oppDxdy) / FLT_EPSILON);
-                            coincident |= flatness < 5000;  // FIXME: replace with tuned value
-                        }
-                    }
-                }
-            }
+            coincident = testForCoincidence(priorPtT, ptT, prior, spanBase, opp, 5000);
             if (coincident) {
             // mark coincidence
                 if (!coincidences->extend(priorPtT, ptT, oppStart, oppEnd)
@@ -1221,7 +1277,7 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
                     coincidences->add(priorPtT, ptT, oppStart, oppEnd, allocator);
                 }
                 clear_visited(&fHead);
-                return;
+                return true;
             }
     swapBack:
             if (swapped) {
@@ -1230,6 +1286,7 @@ void SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
         }
     } while ((spanBase = spanBase->final() ? NULL : spanBase->upCast()->next()));
     clear_visited(&fHead);
+    return false;
 }
 
 // if a span has more than one intersection, merge the other segments' span as needed
@@ -1605,6 +1662,37 @@ bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,
         SkDCubic::SubDivide(fPts, edge->fCubic[0], edge->fCubic[3], startT, endT, &edge->fCubic[1]);
     }
     return true;
+}
+
+bool SkOpSegment::testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT,
+        const SkOpSpanBase* prior, const SkOpSpanBase* spanBase, const SkOpSegment* opp,
+        SkScalar flatnessLimit) const {
+    // average t, find mid pt
+    double midT = (prior->t() + spanBase->t()) / 2;
+    SkPoint midPt = this->ptAtT(midT);
+    bool coincident = true;
+    // if the mid pt is not near either end pt, project perpendicular through opp seg
+    if (!SkDPoint::ApproximatelyEqual(priorPtT->fPt, midPt)
+            && !SkDPoint::ApproximatelyEqual(ptT->fPt, midPt)) {
+        coincident = false;
+        SkIntersections i;
+        SkVector dxdy = (*CurveSlopeAtT[fVerb])(this->pts(), this->weight(), midT);
+        SkDLine ray = {{{midPt.fX, midPt.fY}, {midPt.fX + dxdy.fY, midPt.fY - dxdy.fX}}};
+        (*CurveIntersectRay[opp->verb()])(opp->pts(), opp->weight(), ray, &i);
+        // measure distance and see if it's small enough to denote coincidence
+        for (int index = 0; index < i.used(); ++index) {
+            SkDPoint oppPt = i.pt(index);
+            if (oppPt.approximatelyEqual(midPt)) {
+                SkVector oppDxdy = (*CurveSlopeAtT[opp->verb()])(opp->pts(),
+                        opp->weight(), i[index][0]);
+                oppDxdy.normalize();
+                dxdy.normalize();
+                SkScalar flatness = SkScalarAbs(dxdy.cross(oppDxdy) / FLT_EPSILON);
+                coincident |= flatness < flatnessLimit;
+            }
+        }
+    }
+    return coincident;
 }
 
 void SkOpSegment::undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end) {

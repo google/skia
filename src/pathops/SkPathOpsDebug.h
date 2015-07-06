@@ -95,6 +95,12 @@
     #define SkDEBUGCODE_(...) __VA_ARGS__  // temporary until SkDEBUGCODE is fixed
 #endif
 
+#if DEBUG_VALIDATE == 0
+    #define PATH_OPS_DEBUG_VALIDATE_PARAMS(...)
+#else
+    #define PATH_OPS_DEBUG_VALIDATE_PARAMS(...) , __VA_ARGS__
+#endif
+
 #if DEBUG_T_SECT == 0
     #define PATH_OPS_DEBUG_T_SECT_RELEASE(a, b) b
     #define PATH_OPS_DEBUG_T_SECT_PARAMS(...)
@@ -178,6 +184,12 @@ public:
     static const class SkOpPtT* DebugContourPtT(class SkOpContour*, int id);
     static const class SkOpSegment* DebugContourSegment(class SkOpContour*, int id);
     static const class SkOpSpanBase* DebugContourSpan(class SkOpContour*, int id);
+
+    static const struct SkOpAngle* DebugCoincidenceAngle(class SkOpCoincidence*, int id);
+    static class SkOpContour* DebugCoincidenceContour(class SkOpCoincidence*, int id);
+    static const class SkOpPtT* DebugCoincidencePtT(class SkOpCoincidence*, int id);
+    static const class SkOpSegment* DebugCoincidenceSegment(class SkOpCoincidence*, int id);
+    static const class SkOpSpanBase* DebugCoincidenceSpan(class SkOpCoincidence*, int id);
 
     static const struct SkOpAngle* DebugPtTAngle(const class SkOpPtT*, int id);
     static class SkOpContour* DebugPtTContour(class SkOpPtT*, int id);

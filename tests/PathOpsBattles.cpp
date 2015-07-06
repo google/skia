@@ -10681,7 +10681,7 @@ path.close();
     testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = battleOp121;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = battleOp183;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {

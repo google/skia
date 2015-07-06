@@ -34,6 +34,14 @@ public:
                 : fBounds.fTop < rh.fBounds.fTop;
     }
 
+    void addAlignIntersections(SkOpContourHead* contourList, SkChunkAlloc* allocator) {
+        SkASSERT(fCount > 0);
+        SkOpSegment* segment = &fHead;
+        do {
+            segment->addAlignIntersections(contourList, allocator);
+        } while ((segment = segment->next()));
+    }
+
     void addConic(SkPoint pts[3], SkScalar weight, SkChunkAlloc* allocator) {
         appendSegment(allocator).addConic(pts, weight, this);
     }
@@ -222,16 +230,23 @@ public:
         } while ((segment = segment->next()));
     }
 
-    void missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator) {
+    bool missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc* allocator) {
         SkASSERT(fCount > 0);
         SkOpSegment* segment = &fHead;
+        bool result = false;
         do {
             if (fState->angleCoincidence()) {
                 segment->checkAngleCoin(coincidences, allocator);
-            } else {
-                segment->missingCoincidence(coincidences, allocator);
+            } else if (segment->missingCoincidence(coincidences, allocator)) {
+                result = true;
+    // FIXME: trying again loops forever in issue3651_6
+    // The continue below is speculative -- once there's an actual case that requires it,
+    // add the plumbing necessary to look for another missing coincidence in the same segment
+         //       continue; // try again in case another missing coincidence is further along
             }
-        } while ((segment = segment->next()));
+            segment = segment->next();
+        } while (segment);
+        return result;
     }
 
     bool moveMultiples() {

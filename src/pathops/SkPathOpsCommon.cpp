@@ -394,6 +394,13 @@ static void align(SkOpContourHead* contourList) {
     } while ((contour = contour->next()));
 }
 
+static void addAlignIntersections(SkOpContourHead* contourList, SkChunkAlloc* allocator) {
+    SkOpContour* contour = contourList;
+    do {
+        contour->addAlignIntersections(contourList, allocator);
+    } while ((contour = contour->next()));
+}
+
 static void calcAngles(SkOpContourHead* contourList, SkChunkAlloc* allocator) {
     SkOpContour* contour = contourList;
     do {
@@ -401,12 +408,14 @@ static void calcAngles(SkOpContourHead* contourList, SkChunkAlloc* allocator) {
     } while ((contour = contour->next()));
 }
 
-static void missingCoincidence(SkOpContourHead* contourList,
+static bool missingCoincidence(SkOpContourHead* contourList,
         SkOpCoincidence* coincidence, SkChunkAlloc* allocator) {
     SkOpContour* contour = contourList;
+    bool result = false;
     do {
-        contour->missingCoincidence(coincidence, allocator);
+        result |= contour->missingCoincidence(coincidence, allocator);
     } while ((contour = contour->next()));
+    return result;
 }
 
 static void moveMultiples(SkOpContourHead* contourList) {
@@ -438,23 +447,42 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     // move t values and points together to eliminate small/tiny gaps
     moveNearby(contourList);
     align(contourList);  // give all span members common values
+    coincidence->fixAligned();  // aligning may have marked a coincidence pt-t deleted
 #if DEBUG_VALIDATE
     globalState->setPhase(SkOpGlobalState::kIntersecting);
 #endif
+    // look for intersections on line segments formed by moving end points
+    addAlignIntersections(contourList, allocator);
     coincidence->addMissing(allocator);
 #if DEBUG_VALIDATE
     globalState->setPhase(SkOpGlobalState::kWalking);
 #endif
-    coincidence->expand();  // check to see if, loosely, coincident ranges may be expanded
-    coincidence->mark();  // mark spans of coincident segments as coincident
-    missingCoincidence(contourList, coincidence, allocator);  // look for coincidence missed earlier
-    if (!coincidence->apply()) {  // adjust the winding value to account for coincident edges
-        return false;
+    // check to see if, loosely, coincident ranges may be expanded
+    if (coincidence->expand()) {
+        coincidence->addExpanded(allocator  PATH_OPS_DEBUG_VALIDATE_PARAMS(globalState));
     }
+    // the expanded ranges may not align -- add the missing spans
+    coincidence->mark();  // mark spans of coincident segments as coincident
+    // look for coincidence missed earlier
+    if (missingCoincidence(contourList, coincidence, allocator)) {
+        (void) coincidence->expand();
+        coincidence->addExpanded(allocator  PATH_OPS_DEBUG_VALIDATE_PARAMS(globalState));
+        coincidence->mark();
+    }
+    SkOpCoincidence overlaps;
+    do {
+        SkOpCoincidence* pairs = overlaps.isEmpty() ? coincidence : &overlaps;
+        if (!pairs->apply()) {  // adjust the winding value to account for coincident edges
+            return false;
+        }
+        // For each coincident pair that overlaps another, when the receivers (the 1st of the pair)
+        // are different, construct a new pair to resolve their mutual span
+        pairs->findOverlaps(&overlaps, allocator);
+    } while (!overlaps.isEmpty());
     calcAngles(contourList, allocator);
     sortAngles(contourList);
     if (globalState->angleCoincidence()) {
-        missingCoincidence(contourList, coincidence, allocator);
+        (void) missingCoincidence(contourList, coincidence, allocator);
         if (!coincidence->apply()) {
             return false;
         }

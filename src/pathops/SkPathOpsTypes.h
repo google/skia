@@ -28,19 +28,7 @@ class SkOpContourHead;
 
 class SkOpGlobalState {
 public:
-    SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head)
-        : fCoincidence(coincidence)
-        , fContourHead(head)
-        , fNested(0)
-        , fWindingFailed(false)
-        , fAngleCoincidence(false)
-        , fPhase(kIntersecting)
-        SkDEBUGPARAMS(fAngleID(0))
-        SkDEBUGPARAMS(fContourID(0))
-        SkDEBUGPARAMS(fPtTID(0))
-        SkDEBUGPARAMS(fSegmentID(0))
-        SkDEBUGPARAMS(fSpanID(0)) {
-    }
+    SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head);
 
     enum Phase {
         kIntersecting,
@@ -76,6 +64,7 @@ public:
     const struct SkOpAngle* debugAngle(int id) const;
     SkOpContour* debugContour(int id);
     const class SkOpPtT* debugPtT(int id) const;
+    bool debugRunFail() const;
     const class SkOpSegment* debugSegment(int id) const;
     const class SkOpSpanBase* debugSpan(int id) const;
 #endif

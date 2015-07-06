@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "SkFloatBits.h"
+#include "SkOpCoincidence.h"
 #include "SkPathOpsTypes.h"
 
 static bool arguments_denormalized(float a, float b, int epsilon) {
@@ -198,3 +199,21 @@ double SkDCubeRoot(double x) {
     }
     return result;
 }
+
+SkOpGlobalState::SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head)
+    : fCoincidence(coincidence)
+    , fContourHead(head)
+    , fNested(0)
+    , fWindingFailed(false)
+    , fAngleCoincidence(false)
+    , fPhase(kIntersecting)
+    SkDEBUGPARAMS(fAngleID(0))
+    SkDEBUGPARAMS(fContourID(0))
+    SkDEBUGPARAMS(fPtTID(0))
+    SkDEBUGPARAMS(fSegmentID(0))
+    SkDEBUGPARAMS(fSpanID(0)) {
+    if (coincidence) {
+        coincidence->debugSetGlobalState(this);
+    }
+}
+

@@ -8,6 +8,7 @@
 #define SkOpSpan_DEFINED
 
 #include "SkPathOpsDebug.h"
+#include "SkPathOpsTypes.h"
 #include "SkPoint.h"
 
 class SkChunkAlloc;
@@ -47,6 +48,8 @@ public:
     }
 
     bool alias() const;
+    bool contains(const SkOpPtT* ) const;
+    SkOpPtT* contains(const SkOpSegment* );
     SkOpContour* contour() const;
 
     int debugID() const {
@@ -67,6 +70,8 @@ public:
         return fDeleted;
     }
 
+    SkOpPtT* doppelganger();
+
     bool duplicate() const {
         return fDuplicatePt;
     }
@@ -75,6 +80,7 @@ public:
     void dumpAll() const;
     void dumpBase() const;
 
+    SkOpPtT* find(SkOpSegment* );
     void init(SkOpSpanBase* , double t, const SkPoint& , bool dup);
 
     void insert(SkOpPtT* span) {
@@ -92,6 +98,25 @@ public:
     }
 
     bool onEnd() const;
+
+    static bool Overlaps(SkOpPtT* s1, SkOpPtT* e1, SkOpPtT* s2, SkOpPtT* e2,
+            SkOpPtT** sOut, SkOpPtT** eOut) {
+        SkOpPtT* start1 = s1->fT < e1->fT ? s1 : e1;
+        SkOpPtT* start2 = s2->fT < e2->fT ? s2 : e2;
+        *sOut = between(s1->fT, start2->fT, e1->fT) ? start2
+                : between(s2->fT, start1->fT, e2->fT) ? start1 : NULL;
+        SkOpPtT* end1 = s1->fT < e1->fT ? e1 : s1;
+        SkOpPtT* end2 = s2->fT < e2->fT ? e2 : s2;
+        *eOut = between(s1->fT, end2->fT, e1->fT) ? end2
+                : between(s2->fT, end1->fT, e2->fT) ? end1 : NULL;
+        if (*sOut == *eOut) {
+            SkASSERT(start1->fT >= end2->fT || start2->fT >= end1->fT);
+            return false;
+        }
+        SkASSERT(!*sOut || *sOut != *eOut);
+        return *sOut && *eOut;
+    }
+
     SkOpPtT* prev();
     SkOpPtT* remove();
     void removeNext(SkOpPtT* kept);
@@ -110,6 +135,10 @@ public:
 
     SkOpSpanBase* span() {
         return fSpan;
+    }
+
+    const SkOpPtT* starter(const SkOpPtT* end) const {
+        return fT < end->fT ? this : end;
     }
 
     double fT; 

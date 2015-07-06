@@ -135,6 +135,18 @@ void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp
     show_op(shapeOp, "path", "pathB");
 }
 
+#include "SkPathOpsTypes.h"
+
+#ifdef SK_DEBUG
+bool SkOpGlobalState::debugRunFail() const {
+#if DEBUG_VALIDATE
+    return FLAGS_runFail;
+#else
+    return false;
+#endif
+}
+#endif
+
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsQuad.h"
 

@@ -13,6 +13,8 @@
 #include "SkOpSegment.h"
 #include "SkString.h"
 
+extern bool FLAGS_runFail;
+
 inline void DebugDumpDouble(double x) {
     if (x == floor(x)) {
         SkDebugf("%.0f", x);
@@ -236,6 +238,26 @@ const SkOpSegment* SkPathOpsDebug::DebugContourSegment(SkOpContour* contour, int
 
 const SkOpSpanBase* SkPathOpsDebug::DebugContourSpan(SkOpContour* contour, int id) {
     return contour->debugSpan(id);
+}
+
+const SkOpAngle* SkPathOpsDebug::DebugCoincidenceAngle(SkOpCoincidence* coin, int id) {
+    return coin->debugAngle(id);
+}
+
+SkOpContour* SkPathOpsDebug::DebugCoincidenceContour(SkOpCoincidence* coin, int id) {
+    return coin->debugContour(id);
+}
+
+const SkOpPtT* SkPathOpsDebug::DebugCoincidencePtT(SkOpCoincidence* coin, int id) {
+    return coin->debugPtT(id);
+}
+
+const SkOpSegment* SkPathOpsDebug::DebugCoincidenceSegment(SkOpCoincidence* coin, int id) {
+    return coin->debugSegment(id);
+}
+
+const SkOpSpanBase* SkPathOpsDebug::DebugCoincidenceSpan(SkOpCoincidence* coin, int id) {
+    return coin->debugSpan(id);
 }
 
 const SkOpAngle* SkPathOpsDebug::DebugPtTAngle(const SkOpPtT* ptT, int id) {
@@ -1115,6 +1137,15 @@ void SkCoincidentSpans::dump() const {
 
 void SkOpCoincidence::dump() const {
     SkCoincidentSpans* span = fHead;
+    while (span) {
+        span->dump();
+        span = span->fNext;
+    }
+    if (!fTop) {
+        return;
+    }
+    SkDebugf("top:\n");
+    span = fTop;
     while (span) {
         span->dump();
         span = span->fNext;
