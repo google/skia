@@ -408,8 +408,15 @@
         ],
         'configurations': {
           'Coverage': {
-            'cflags': ['--coverage'],
-            'ldflags': ['--coverage'],
+            'conditions': [
+              [ 'skia_clang_build', {
+                'cflags': ['-fprofile-instr-generate', '-fcoverage-mapping'],
+                'ldflags': ['-fprofile-instr-generate', '-fcoverage-mapping'],
+              }, {
+                'cflags': ['--coverage'],
+                'ldflags': ['--coverage'],
+              }],
+            ],
           },
           'Debug': {
           },
