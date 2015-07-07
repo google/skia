@@ -11,10 +11,10 @@
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkJSONCPP.h"
+#include "SkMutex.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkTArray.h"
-#include "SkThread.h"
 
 namespace DM {
 

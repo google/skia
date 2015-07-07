@@ -9,8 +9,8 @@
 #include "SkDiscardableMemoryPool.h"
 #include "SkImageGenerator.h"
 #include "SkLazyPtr.h"
+#include "SkMutex.h"
 #include "SkTInternalLList.h"
-#include "SkThread.h"
 
 // Note:
 // A PoolDiscardableMemory is memory that is counted in a pool.

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
-#include "SkThread.h"
 
 static int32_t next_generation_id() {
     static int32_t gCanvasDrawableGenerationID;

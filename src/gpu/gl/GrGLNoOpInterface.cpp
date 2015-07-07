@@ -6,8 +6,8 @@
  */
 
 #include "GrGLNoOpInterface.h"
+#include "SkMutex.h"
 #include "SkString.h"
-#include "SkThread.h"
 
 // the OpenGLES 2.0 spec says this must be >= 128
 static const GrGLint kDefaultMaxVertexUniformVectors = 128;

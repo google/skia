@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontMgr.h"
-#include "SkFontStyle.h"
 #include "SkFontConfigInterface.h"
 #include "SkFontConfigTypeface.h"
+#include "SkFontMgr.h"
+#include "SkFontStyle.h"
 #include "SkMath.h"
+#include "SkMutex.h"
 #include "SkString.h"
 #include "SkTDArray.h"
-#include "SkThread.h"
 
 // for now we pull these in directly. eventually we will solely rely on the
 // SkFontConfigInterface instance.

@@ -15,7 +15,6 @@
 #include "SkRTConf.h"
 #include "SkString.h"
 #include "SkStream.h"
-#include "SkThread.h"
 #include "SkTSearch.h"
 #include "SkTypefaceCache.h"
 #include "SkTArray.h"

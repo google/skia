@@ -15,6 +15,7 @@
 #include "SkBuffer.h"
 #include "SkFontConfigInterface.h"
 #include "SkLazyPtr.h"
+#include "SkMutex.h"
 #include "SkStream.h"
 #include "SkString.h"
 

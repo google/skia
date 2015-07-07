@@ -323,7 +323,6 @@
         '<(skia_include_path)/core/SkTSearch.h',
         '<(skia_include_path)/core/SkTemplates.h',
         '<(skia_include_path)/core/SkTextBlob.h',
-        '<(skia_include_path)/core/SkThread.h',
         '<(skia_include_path)/core/SkTime.h',
         '<(skia_include_path)/core/SkTLazy.h',
         '<(skia_include_path)/core/SkTypeface.h',

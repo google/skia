@@ -1,3 +1,10 @@
+/*
+ * Copyright 2012 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkTLS.h"
 
 // enable to help debug TLS storage
@@ -5,7 +12,7 @@
 
 
 #ifdef SK_TRACE_TLS_LIFETIME
-    #include "SkThread.h"
+    #include "SkAtomics.h"
     static int32_t gTLSRecCount;
 #endif
 

@@ -9,10 +9,11 @@
 #include "SkGlyphCache_Globals.h"
 #include "SkGraphics.h"
 #include "SkLazyPtr.h"
+#include "SkMutex.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkTemplates.h"
 #include "SkTLS.h"
+#include "SkTemplates.h"
 #include "SkTypeface.h"
 
 //#define SPEW_PURGE_STATUS
@@ -416,8 +417,6 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "SkThread.h"
 
 size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
     static const size_t minLimit = 256 * 1024;

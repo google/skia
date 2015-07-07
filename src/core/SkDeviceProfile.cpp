@@ -7,7 +7,7 @@
 
 
 #include "SkDeviceProfile.h"
-#include "SkThread.h"
+#include "SkMutex.h"
 
 #define DEFAULT_GAMMAEXP        2.2f
 #define DEFAULT_CONTRASTSCALE   0.5f

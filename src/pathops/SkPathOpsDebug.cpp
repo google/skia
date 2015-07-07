@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathOpsDebug.h"
+#include "SkMutex.h"
 #include "SkPath.h"
+#include "SkPathOpsDebug.h"
 #include "SkString.h"
-#include "SkThread.h"
 
 #if DEBUG_VALIDATE
 extern bool FLAGS_runFail;
@@ -316,7 +316,7 @@ SkString SkOpAngle::debugPart() const {
             break;
         default:
             SkASSERT(0);
-    } 
+    }
     return result;
 }
 #endif

@@ -18,6 +18,7 @@
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkMD5.h"
+#include "SkMutex.h"
 #include "SkOSFile.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"

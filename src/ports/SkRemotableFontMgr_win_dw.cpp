@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkDataTable.h"
 #include "SkDWrite.h"
 #include "SkDWriteFontFileStream.h"
+#include "SkDataTable.h"
 #include "SkHRESULT.h"
+#include "SkMutex.h"
 #include "SkRemotableFontMgr.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
-#include "SkThread.h"
 #include "SkTScopedComPtr.h"
 #include "SkTypeface_win.h"
 #include "SkTypes.h"
@@ -80,7 +80,7 @@ private:
     }
 
 public:
-    
+
 
     /** localeNameLength must include the null terminator. */
     SkRemotableFontMgr_DirectWrite(IDWriteFontCollection* fontCollection,

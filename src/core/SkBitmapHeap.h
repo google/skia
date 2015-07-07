@@ -12,7 +12,7 @@
 #include "SkFlattenable.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
-#include "SkThread.h"
+#include "SkAtomics.h"
 
 /**
  * SkBitmapHeapEntry provides users of SkBitmapHeap (using internal storage) with a means to...
@@ -52,7 +52,7 @@ private:
 
 class SkBitmapHeapReader : public SkRefCnt {
 public:
-    
+
 
     SkBitmapHeapReader() : INHERITED() {}
     virtual SkBitmap* getBitmap(int32_t slot) const = 0;
@@ -69,7 +69,7 @@ class SkBitmapHeap : public SkBitmapHeapReader {
 public:
     class ExternalStorage : public SkRefCnt {
      public:
-        
+
 
         virtual bool insert(const SkBitmap& bitmap, int32_t slot) = 0;
 
