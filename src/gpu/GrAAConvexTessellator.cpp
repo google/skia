@@ -681,7 +681,12 @@ bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing
         if (!dupPrevVsNext) {
             dst[cur] = fCandidateVerts.fuseWithPrior(lastRing.origEdgeID(cur));
         } else {
-            dst[cur] = dst[cur-1] = fCandidateVerts.fuseWithBoth();
+            const int fused = fCandidateVerts.fuseWithBoth();
+            dst[cur] = fused;
+            const int targetIdx = dst[cur - 1];
+            for (int i = cur - 1; i >= 0 && dst[i] == targetIdx; i--) {
+                dst[i] = fused;
+            }
         }
     }
 
