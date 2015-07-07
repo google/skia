@@ -28,13 +28,11 @@ public:
         typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
     };
 
-    virtual BitmapType asABitmap(SkBitmap* bitmap,
-                                 SkMatrix* matrix,
-                                 TileMode* xy) const override;
+    BitmapType asABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* xy) const override;
     GradientType asAGradient(GradientInfo* info) const override;
-    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
-                                     const SkMatrix*, GrColor*,
-                                     GrFragmentProcessor**) const override;
+    bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
+                             const SkMatrix*, GrColor*,
+                             GrFragmentProcessor**) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRadialGradient)
@@ -45,10 +43,11 @@ protected:
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:
-    friend class SkGradientShader;
-    typedef SkGradientShaderBase INHERITED;
     const SkPoint fCenter;
     const SkScalar fRadius;
+
+    friend class SkGradientShader;
+    typedef SkGradientShaderBase INHERITED;
 };
 
 #endif

@@ -174,7 +174,7 @@ public:
      * Callers should take a ref if they rely on the GrDrawContext sticking around.
      * NULL will be returned if the context has been abandoned.
      *
-     * @param  devProps the device properties (mainly defines text drawing)
+     * @param  surfaceProps the surface properties (mainly defines text drawing)
      *
      * @return a draw context
      */

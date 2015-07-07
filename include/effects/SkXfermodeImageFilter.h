@@ -33,15 +33,15 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter)
 
-    virtual bool onFilterImage(Proxy* proxy,
-                               const SkBitmap& src,
-                               const Context& ctx,
-                               SkBitmap* dst,
-                               SkIPoint* offset) const override;
+    bool onFilterImage(Proxy* proxy,
+                       const SkBitmap& src,
+                       const Context& ctx,
+                       SkBitmap* dst,
+                       SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
     bool canFilterImageGPU() const override;
-    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
-                                SkBitmap* result, SkIPoint* offset) const override;
+    bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
+                        SkBitmap* result, SkIPoint* offset) const override;
 #endif
 
 protected:
