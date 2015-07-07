@@ -26,7 +26,7 @@ DEF_TEST(SkImageFromBitmap_extractSubset, reporter) {
         canvas.drawIRect(r, p);
         SkBitmap dstBitmap;
         srcBitmap.extractSubset(&dstBitmap, r);
-        image.reset(SkNewImageFromBitmap(dstBitmap, true, NULL));
+        image.reset(SkNewImageFromRasterBitmap(dstBitmap, true, NULL));
     }
 
     SkBitmap tgt;

@@ -11,12 +11,15 @@
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
+#include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
 #include "SkString.h"
 #include "SkSurface.h"
+
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
 #include "GrContext.h"
+#include "SkImage_Gpu.h"
 #endif
 
 uint32_t SkImage::NextUniqueID() {
@@ -226,6 +229,41 @@ bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
+    SkPixelRef* pr = bm.pixelRef();
+    if (NULL == pr) {
+        return NULL;
+    }
+
+#if SK_SUPPORT_GPU
+    if (GrTexture* tex = pr->getTexture()) {
+        SkAutoTUnref<GrTexture> unrefCopy;
+        if (!bm.isImmutable()) {
+            const bool notBudgeted = false;
+            tex = GrDeepCopyTexture(tex, notBudgeted);
+            if (NULL == tex) {
+                return NULL;
+            }
+            unrefCopy.reset(tex);
+        }
+        const SkImageInfo info = bm.info();
+        return SkNEW_ARGS(SkImage_Gpu, (info.width(), info.height(), info.alphaType(),
+                                        tex, 0, SkSurface::kNo_Budgeted));
+    }
+#endif
+
+    // Encoded version?
+    if (SkData* encoded = pr->refEncodedData()) {
+        SkAutoTUnref<SkData> data(encoded);
+        return SkImage::NewFromEncoded(encoded);   // todo: add origin/subset/etc?
+    }
+
+    // This will check for immutable (share or copy)
+    return SkNewImageFromRasterBitmap(bm, false, NULL);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
 

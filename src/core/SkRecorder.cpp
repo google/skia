@@ -12,6 +12,8 @@
 #include "SkPictureUtils.h"
 #include "SkRecorder.h"
 
+//#define WRAP_BITMAP_AS_IMAGE
+
 SkDrawableList::~SkDrawableList() {
     fArray.unrefAll();
 }
@@ -170,7 +172,14 @@ void SkRecorder::onDrawBitmap(const SkBitmap& bitmap,
                               SkScalar left,
                               SkScalar top,
                               const SkPaint* paint) {
+#ifdef WRAP_BITMAP_AS_IMAGE
+    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    if (image) {
+        this->onDrawImage(image, left, top, paint);
+    }
+#else
     APPEND(DrawBitmap, this->copy(paint), bitmap, left, top);
+#endif
 }
 
 void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
@@ -178,6 +187,13 @@ void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
                                   const SkRect& dst,
                                   const SkPaint* paint,
                                   DrawBitmapRectFlags flags) {
+#ifdef WRAP_BITMAP_AS_IMAGE
+    // TODO: need a way to support the flags for images...
+    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    if (image) {
+        this->onDrawImageRect(image, src, dst, paint);
+    }
+#else
     TRY_MINIRECORDER(drawBitmapRectToRect, bitmap, src, dst, paint, flags);
     if (kBleed_DrawBitmapRectFlag == flags) {
         APPEND(DrawBitmapRectToRectBleed,
@@ -187,13 +203,21 @@ void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
     SkASSERT(kNone_DrawBitmapRectFlag == flags);
     APPEND(DrawBitmapRectToRect,
            this->copy(paint), bitmap, this->copy(src), dst);
+#endif
 }
 
 void SkRecorder::onDrawBitmapNine(const SkBitmap& bitmap,
                                   const SkIRect& center,
                                   const SkRect& dst,
                                   const SkPaint* paint) {
+#ifdef WRAP_BITMAP_AS_IMAGE
+    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    if (image) {
+        this->onDrawImageNine(image, center, dst, paint);
+    }
+#else
     APPEND(DrawBitmapNine, this->copy(paint), bitmap, center, dst);
+#endif
 }
 
 void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,

@@ -64,7 +64,7 @@ public:
     }
 
     SkImage* onNewImageSnapshot(Budgeted) override {
-        return SkNewImageFromBitmap(fBitmap, true, &this->props());
+        return SkNewImageFromRasterBitmap(fBitmap, true, &this->props());
     }
 
     void onCopyOnWrite(ContentChangeMode mode) override {

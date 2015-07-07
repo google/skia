@@ -144,42 +144,27 @@ SkImage* SkImage::NewFromAdoptedTexture(GrContext* ctx, const GrBackendTextureDe
     return new_wrapped_texture_common(ctx, desc, at, kAdopt_GrWrapOwnership, NULL, NULL);
 }
 
-SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc& srcDesc,
+SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc& desc,
                                      SkAlphaType at) {
-    const bool isBudgeted = true;
-    const SkSurface::Budgeted budgeted = SkSurface::kYes_Budgeted;
-
-    if (srcDesc.fWidth <= 0 || srcDesc.fHeight <= 0) {
+    if (desc.fWidth <= 0 || desc.fHeight <= 0) {
         return NULL;
     }
+
     SkAutoTUnref<GrTexture> src(ctx->textureProvider()->wrapBackendTexture(
-        srcDesc, kBorrow_GrWrapOwnership));
+        desc, kBorrow_GrWrapOwnership));
     if (!src) {
         return NULL;
     }
 
-    GrSurfaceDesc dstDesc;
-    // need to be a rendertarget for readpixels to work, instead of kNone_GrSurfaceFlags
-    dstDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    dstDesc.fOrigin = srcDesc.fOrigin;
-    dstDesc.fWidth = srcDesc.fWidth;
-    dstDesc.fHeight = srcDesc.fHeight;
-    dstDesc.fConfig = srcDesc.fConfig;
-    dstDesc.fSampleCnt = srcDesc.fSampleCnt;
-
-    SkAutoTUnref<GrTexture> dst(ctx->textureProvider()->createTexture(
-                                                                  dstDesc, isBudgeted, NULL, 0));
+    const bool isBudgeted = true;
+    SkAutoTUnref<GrTexture> dst(GrDeepCopyTexture(src, isBudgeted));
     if (!dst) {
         return NULL;
     }
 
-    const SkIRect srcR = SkIRect::MakeWH(dstDesc.fWidth, dstDesc.fHeight);
-    const SkIPoint dstP = SkIPoint::Make(0, 0);
-    ctx->copySurface(dst, src, srcR, dstP, GrContext::kFlushWrites_PixelOp);
-
+    const SkSurface::Budgeted budgeted = SkSurface::kYes_Budgeted;
     const int sampleCount = 0;  // todo: make this an explicit parameter to newSurface()?
-    return SkNEW_ARGS(SkImage_Gpu, (dstDesc.fWidth, dstDesc.fHeight, at, dst, sampleCount,
-                                    budgeted));
+    return SkNEW_ARGS(SkImage_Gpu, (desc.fWidth, desc.fHeight, at, dst, sampleCount, budgeted));
 }
 
 SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorSpace,
@@ -256,3 +241,23 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     return SkNEW_ARGS(SkImage_Gpu, (dstDesc.fWidth, dstDesc.fHeight, kOpaque_SkAlphaType, dst, 0,
                                     budgeted));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+GrTexture* GrDeepCopyTexture(GrTexture* src, bool budgeted) {
+    GrContext* ctx = src->getContext();
+
+    GrSurfaceDesc desc = src->desc();
+    // need to be a rendertarget for readpixels to work, instead of kNone_GrSurfaceFlags
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    GrTexture* dst = ctx->textureProvider()->createTexture(desc, budgeted, NULL, 0);
+    if (!dst) {
+        return NULL;
+    }
+    
+    const SkIRect srcR = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
+    const SkIPoint dstP = SkIPoint::Make(0, 0);
+    ctx->copySurface(dst, src, srcR, dstP, GrContext::kFlushWrites_PixelOp);
+    return dst;
+}
+

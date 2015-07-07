@@ -227,21 +227,24 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
     return SkNEW_ARGS(SkImage_Raster, (info, pr, pixelRefOrigin, rowBytes, props));
 }
 
-SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef,
-                              const SkSurfaceProps* props) {
+SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, bool forceSharePixelRef,
+                                    const SkSurfaceProps* props) {
+    SkASSERT(NULL == bm.getTexture());
+
     if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), NULL, NULL)) {
         return NULL;
     }
 
     SkImage* image = NULL;
-    if (canSharePixelRef || bm.isImmutable()) {
+    if (forceSharePixelRef || bm.isImmutable()) {
         image = SkNEW_ARGS(SkImage_Raster, (bm, props));
     } else {
-        bm.lockPixels();
-        if (bm.getPixels()) {
-            image = SkImage::NewRasterCopy(bm.info(), bm.getPixels(), bm.rowBytes());
+        SkBitmap tmp(bm);
+        tmp.lockPixels();
+        if (tmp.getPixels()) {
+            image = SkImage::NewRasterCopy(tmp.info(), tmp.getPixels(), tmp.rowBytes(),
+                                           tmp.getColorTable());
         }
-        bm.unlockPixels();
 
         // we don't expose props to NewRasterCopy (need a private vers) so post-init it here
         if (image && props) {

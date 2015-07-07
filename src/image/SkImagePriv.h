@@ -23,11 +23,14 @@ extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
  *  be shared if either the bitmap is marked as immutable, or canSharePixelRef
  *  is true.
  *
+ *  It is illegal to call this with a texture-backed bitmap.
+ *
  *  If the bitmap's colortype cannot be converted into a corresponding
  *  SkImageInfo, or the bitmap's pixels cannot be accessed, this will return
  *  NULL.
  */
-extern SkImage* SkNewImageFromBitmap(const SkBitmap&, bool canSharePixelRef, const SkSurfaceProps*);
+extern SkImage* SkNewImageFromRasterBitmap(const SkBitmap&, bool forceSharePixelRef,
+                                           const SkSurfaceProps*);
 
 static inline size_t SkImageMinRowBytes(const SkImageInfo& info) {
     size_t minRB = info.minRowBytes();
@@ -52,5 +55,7 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* textureImage);
 // is called when a surface and image share the same GrTexture and the
 // surface needs to perform a copy-on-write
 extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
+
+GrTexture* GrDeepCopyTexture(GrTexture* src, bool isBudgeted);
 
 #endif

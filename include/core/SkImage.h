@@ -62,6 +62,12 @@ public:
                                   RasterReleaseProc, ReleaseContext);
 
     /**
+     *  Construct a new image from the specified bitmap. If the bitmap is marked immutable, and
+     *  its pixel memory is shareable, it may be shared instead of copied.
+     */
+    static SkImage* NewFromBitmap(const SkBitmap&);
+    
+    /**
      *  Construct a new SkImage based on the given ImageGenerator.
      *  This function will always take ownership of the passed
      *  ImageGenerator.  Returns NULL on error.
