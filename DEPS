@@ -21,6 +21,11 @@ deps = {
   "third_party/externals/libpng"  : "https://skia.googlesource.com/third_party/libpng.git@070a616b8275277e18ef8ee91e2ca23f7bdc67d5",
   "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@android-5.1.0_r3",
 
+  "third_party/externals/libjpeg-turbo"             : "https://skia.googlesource.com/third_party/libjpeg-turbo.git@trunk+leakfix",
+  # libjpeg-turbo depends on yasm to compile .asm files
+  "third_party/externals/yasm/source/patched-yasm/" : "https://chromium.googlesource.com/chromium/deps/yasm/patched-yasm.git@4671120cd8558ce62ee8672ebf3eb6f5216f909b",
+  "third_party/externals/yasm/binaries"             : "https://chromium.googlesource.com/chromium/deps/yasm/binaries.git@52f9b3f4b0aa06da24ef8b123058bb61ee468881",
+
   "platform_tools/android/third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git@android-5.1.0_r3",
   "platform_tools/android/third_party/externals/jpeg" : "https://android.googlesource.com/platform/external/jpeg.git@android-5.1.0_r3",
   "platform_tools/android/third_party/externals/png" : "https://android.googlesource.com/platform/external/libpng.git@android-4.2.2_r1.2",
