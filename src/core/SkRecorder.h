@@ -62,7 +62,7 @@ public:
     void didSetMatrix(const SkMatrix&) override;
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
-    void onDrawDrawable(SkDrawable*) override;
+    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawText(const void* text,
                     size_t byteLength,
                     SkScalar x,

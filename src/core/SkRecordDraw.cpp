@@ -124,9 +124,9 @@ template <> void Draw::draw(const DrawDrawable& r) {
     SkASSERT(r.index < fDrawableCount);
     if (fDrawables) {
         SkASSERT(NULL == fDrawablePicts);
-        fCanvas->drawDrawable(fDrawables[r.index]);
+        fCanvas->drawDrawable(fDrawables[r.index], r.matrix);
     } else {
-        fCanvas->drawPicture(fDrawablePicts[r.index]);
+        fCanvas->drawPicture(fDrawablePicts[r.index], r.matrix, NULL);
     }
 }
 

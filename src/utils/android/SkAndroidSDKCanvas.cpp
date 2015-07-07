@@ -251,8 +251,8 @@ void SkAndroidSDKCanvas::onDrawPicture(const SkPicture* picture,
     fProxyTarget->drawPicture(picture, matrix, filteredPaint);
 }
 
-void SkAndroidSDKCanvas::onDrawDrawable(SkDrawable* drawable) {
-    fProxyTarget->drawDrawable(drawable);
+void SkAndroidSDKCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    fProxyTarget->drawDrawable(drawable, matrix);
 }
 
 SkISize SkAndroidSDKCanvas::getBaseLayerSize() const {

@@ -32,13 +32,21 @@ static void draw_bbox(SkCanvas* canvas, const SkRect& r) {
     canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
 }
 
-void SkDrawable::draw(SkCanvas* canvas) {
+void SkDrawable::draw(SkCanvas* canvas, const SkMatrix* matrix) {
     SkAutoCanvasRestore acr(canvas, true);
+    if (matrix) {
+        canvas->concat(*matrix);
+    }
     this->onDraw(canvas);
 
     if (false) {
         draw_bbox(canvas, this->getBounds());
     }
+}
+
+void SkDrawable::draw(SkCanvas* canvas, SkScalar x, SkScalar y) {
+    SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+    this->draw(canvas, &matrix);
 }
 
 SkPicture* SkDrawable::newPictureSnapshot() {

@@ -155,12 +155,12 @@ void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const 
     APPEND(DrawDRRect, paint, outer, inner);
 }
 
-void SkRecorder::onDrawDrawable(SkDrawable* drawable) {
+void SkRecorder::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     if (!fDrawableList) {
         fDrawableList.reset(SkNEW(SkDrawableList));
     }
     fDrawableList->append(drawable);
-    APPEND(DrawDrawable, drawable->getBounds(), fDrawableList->count() - 1);
+    APPEND(DrawDrawable, this->copy(matrix), drawable->getBounds(), fDrawableList->count() - 1);
 }
 
 void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {

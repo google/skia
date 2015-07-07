@@ -2446,14 +2446,35 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
     LOOPER_END
 }
 
-void SkCanvas::drawDrawable(SkDrawable* dr) {
-    if (dr && !this->quickReject(dr->getBounds())) {
-        this->onDrawDrawable(dr);
+void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
+    if (dr) {
+        if (x || y) {
+            SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+            this->onDrawDrawable(dr, &matrix);
+        } else {
+            this->onDrawDrawable(dr, NULL);
+        }
     }
 }
 
-void SkCanvas::onDrawDrawable(SkDrawable* dr) {
-    dr->draw(this);
+void SkCanvas::drawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
+    if (dr) {
+        if (matrix && matrix->isIdentity()) {
+            matrix = NULL;
+        }
+        this->onDrawDrawable(dr, matrix);
+    }
+}
+
+void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
+    SkRect bounds = dr->getBounds();
+    if (matrix) {
+        matrix->mapRect(&bounds);
+    }
+    if (this->quickReject(bounds)) {
+        return;
+    }
+    dr->draw(this, matrix);
 }
 
 void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],

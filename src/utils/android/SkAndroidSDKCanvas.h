@@ -78,7 +78,7 @@ protected:
 
     // PASS THROUGH
 
-    void onDrawDrawable(SkDrawable*) override;
+    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     SkISize getBaseLayerSize() const override;
     bool getClipBounds(SkRect*) const override;
     bool getClipDeviceBounds(SkIRect*) const override;

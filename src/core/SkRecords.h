@@ -10,6 +10,7 @@
 
 #include "SkCanvas.h"
 #include "SkDrawable.h"
+#include "SkMatrix.h"
 #include "SkPathPriv.h"
 #include "SkPicture.h"
 #include "SkRSXform.h"
@@ -289,7 +290,7 @@ RECORD5(DrawBitmapRectToRectFixedSize, SkPaint, paint,
                                        SkRect, dst,
                                        SkCanvas::DrawBitmapRectFlags, flags);
 RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
-RECORD2(DrawDrawable, SkRect, worstCaseBounds, int32_t, index);
+RECORD3(DrawDrawable, Optional<SkMatrix>, matrix, SkRect, worstCaseBounds, int32_t, index);
 RECORD4(DrawImage, Optional<SkPaint>, paint,
                    RefBox<const SkImage>, image,
                    SkScalar, left,

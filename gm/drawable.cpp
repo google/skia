@@ -10,9 +10,7 @@
 #include "SkDrawable.h"
 
 struct MyDrawable : public SkDrawable {
-    SkRect onGetBounds() override {
-        return SkRect::MakeWH(640, 480);
-    }
+    SkRect onGetBounds() override { return SkRect::MakeWH(50, 100);  }
 
     void onDraw(SkCanvas* canvas) override {
        SkPath path;
@@ -29,7 +27,20 @@ struct MyDrawable : public SkDrawable {
     }
 };
 
-DEF_SIMPLE_GM(Drawables, canvas, 640, 480) {
-    SkAutoTUnref<SkDrawable> d(new MyDrawable);
-    canvas->drawDrawable(d);
+/*
+ *  Test calling drawables w/ translate and matrices
+ */
+DEF_SIMPLE_GM(drawable, canvas, 180, 275) {
+    SkAutoTUnref<SkDrawable> drawable(new MyDrawable);
+
+    canvas->translate(10, 10);
+    canvas->drawDrawable(drawable);
+    canvas->drawDrawable(drawable, 0, 150);
+
+    SkMatrix m = SkMatrix::MakeScale(1.5f, 0.8f);
+    m.postTranslate(70, 0);
+    canvas->drawDrawable(drawable, &m);
+
+    m.postTranslate(0, 150);
+    canvas->drawDrawable(drawable, &m);
 }

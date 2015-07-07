@@ -1073,7 +1073,8 @@ public:
      *  If the intent is to force the contents of the drawable into this canvas immediately,
      *  then drawable->draw(canvas) may be called.
      */
-    void drawDrawable(SkDrawable* drawable);
+    void drawDrawable(SkDrawable* drawable, const SkMatrix* = NULL);
+    void drawDrawable(SkDrawable*, SkScalar x, SkScalar y);
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -1229,7 +1230,7 @@ protected:
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
 
-    virtual void onDrawDrawable(SkDrawable*);
+    virtual void onDrawDrawable(SkDrawable*, const SkMatrix*);
 
     virtual void onDrawPaint(const SkPaint&);
     virtual void onDrawRect(const SkRect&, const SkPaint&);
