@@ -254,26 +254,26 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         case SkImageGenerator::kIncompleteInput:
                             break;
                         default:
-                            return SkStringPrintf("%s failed with error message %d", 
+                            return SkStringPrintf("%s failed with error message %d",
                                     fPath.c_str(), (int) subsetResult);
                     }
                     const size_t bpp = decodeInfo.bytesPerPixel();
-                    /*    
-                     * we copy all the lines at once becuase when calling getScanlines for 
-                     * interlaced pngs the entire image must be read regardless of the number 
+                    /*
+                     * we copy all the lines at once becuase when calling getScanlines for
+                     * interlaced pngs the entire image must be read regardless of the number
                      * of lines requested.  Reading an interlaced png in a loop, line-by-line, would
                      * decode the entire image height times, which is very slow
                      * it is aknowledged that copying each line as you read it in a loop
                      * may be faster for other types of images.  Since this is a correctness test
                      * that's okay.
                     */
-                    char* bufferRow = buffer; 
+                    char* bufferRow = buffer;
                     for (int subsetY = 0; subsetY < currentSubsetHeight; ++subsetY) {
-                        memcpy(subsetBm.getAddr(0, subsetY), bufferRow + x*bpp, 
+                        memcpy(subsetBm.getAddr(0, subsetY), bufferRow + x*bpp,
                                 currentSubsetWidth*bpp);
                         bufferRow += rowBytes;
                     }
-                    
+
                     canvas->drawBitmap(subsetBm, SkIntToScalar(x), SkIntToScalar(y));
                 }
             }
@@ -930,6 +930,7 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 // This is an only-slightly-exaggerated simluation of Blink's Slimming Paint pictures.
 struct DrawsAsSingletonPictures {
     SkCanvas* fCanvas;
+    const SkDrawableList& fDrawables;
 
     SK_CREATE_MEMBER_DETECTOR(paint);
 
@@ -938,7 +939,8 @@ struct DrawsAsSingletonPictures {
         // We must pass SkMatrix::I() as our initial matrix.
         // By default SkRecords::Draw() uses the canvas' matrix as its initial matrix,
         // which would have the funky effect of applying transforms over and over.
-        SkRecords::Draw(canvas, nullptr, nullptr, 0, &SkMatrix::I())(op);
+        SkRecords::Draw d(canvas, nullptr, fDrawables.begin(), fDrawables.count(), &SkMatrix::I());
+        d(op);
     }
 
     // Most things that have paints are Draw-type ops.  Create sub-pictures for each.
@@ -975,7 +977,14 @@ Error ViaSingletonPictures::draw(
         SkPictureRecorder macroRec;
         SkCanvas* macroCanvas = macroRec.beginRecording(SkIntToScalar(size.width()),
                                                         SkIntToScalar(size.height()));
-        DrawsAsSingletonPictures drawsAsSingletonPictures = { macroCanvas };
+
+        SkAutoTDelete<SkDrawableList> drawables(recorder.detachDrawableList());
+        const SkDrawableList empty;
+
+        DrawsAsSingletonPictures drawsAsSingletonPictures = {
+            macroCanvas,
+            drawables ? *drawables : empty,
+        };
         for (unsigned i = 0; i < skr.count(); i++) {
             skr.visit<void>(i, drawsAsSingletonPictures);
         }

@@ -19,6 +19,7 @@ class SkBBHFactory;
 
 class SkDrawableList : SkNoncopyable {
 public:
+    SkDrawableList() {}
     ~SkDrawableList();
 
     int count() const { return fArray.count(); }
