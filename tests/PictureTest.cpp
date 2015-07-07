@@ -984,6 +984,33 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_cull_rect_reset(skiatest::Reporter* reporter) {
+    SkPictureRecorder recorder;
+    SkRect bounds = SkRect::MakeWH(10, 10);
+    SkRTreeFactory factory;
+    SkCanvas* canvas = recorder.beginRecording(bounds, &factory);
+    bounds = SkRect::MakeWH(100, 100);
+    SkPaint paint;
+    canvas->drawRect(bounds, paint);
+    canvas->drawRect(bounds, paint);
+    const SkBigPicture* picture = recorder.endRecordingAsPicture(bounds)->asSkBigPicture();
+    REPORTER_ASSERT(reporter, picture);
+
+    SkRect finalCullRect = picture->cullRect();
+    REPORTER_ASSERT(reporter, 0 == finalCullRect.fLeft);
+    REPORTER_ASSERT(reporter, 0 == finalCullRect.fTop);
+    REPORTER_ASSERT(reporter, 100 == finalCullRect.fBottom);
+    REPORTER_ASSERT(reporter, 100 == finalCullRect.fRight);
+
+    const SkBBoxHierarchy* pictureBBH = picture->bbh();
+    SkRect bbhCullRect = pictureBBH->getRootBound();
+    REPORTER_ASSERT(reporter, 0 == bbhCullRect.fLeft);
+    REPORTER_ASSERT(reporter, 0 == bbhCullRect.fTop);
+    REPORTER_ASSERT(reporter, 100 == bbhCullRect.fBottom);
+    REPORTER_ASSERT(reporter, 100 == bbhCullRect.fRight);
+}
+
+
 /**
  * A canvas that records the number of clip commands.
  */
@@ -1129,6 +1156,7 @@ DEF_TEST(Picture, reporter) {
     test_hierarchical(reporter);
     test_gen_id(reporter);
     test_savelayer_extraction(reporter);
+    test_cull_rect_reset(reporter);
 }
 
 static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {

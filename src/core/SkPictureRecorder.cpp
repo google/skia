@@ -95,6 +95,12 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
                                      subPictureBytes));
 }
 
+SkPicture* SkPictureRecorder::endRecordingAsPicture(const SkRect& cullRect) {
+    fCullRect = cullRect;
+    return this->endRecordingAsPicture();
+}
+
+
 void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     if (NULL == canvas) {
         return;

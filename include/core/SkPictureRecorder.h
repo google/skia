@@ -75,6 +75,17 @@ public:
     SkPicture* SK_WARN_UNUSED_RESULT endRecordingAsPicture();
 
     /**
+     *  Signal that the caller is done recording, and update the cull rect to use for bounding
+     *  box hierarchy (BBH) generation. The behavior is the same as calling
+     *  endRecordingAsPicture(), except that this method updates the cull rect initially passed
+     *  into beginRecording.
+     *  @param cullRect the new culling rectangle to use as the overall bound for BBH generation
+     *                  and subsequent culling operations.
+     *  @return the picture containing the recorded content.
+     */
+    SkPicture* SK_WARN_UNUSED_RESULT endRecordingAsPicture(const SkRect& cullRect);
+
+    /**
      *  Signal that the caller is done recording. This invalidates the canvas returned by
      *  beginRecording/getRecordingCanvas. Ownership of the object is passed to the caller, who
      *  must call unref() when they are done using it.
