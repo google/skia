@@ -218,7 +218,7 @@ void GrTextContext::drawPosTextAsPath(GrRenderTarget* rt,
     paint.setPathEffect(NULL);
 
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
-    SkAutoGlyphCache    autoCache(paint, NULL, NULL);
+    SkAutoGlyphCache    autoCache(paint, &fSurfaceProps, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
 
     const char*        stop = text + byteLength;

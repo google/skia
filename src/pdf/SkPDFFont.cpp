@@ -894,8 +894,7 @@ SkPDFFont* SkPDFFont::Create(SkPDFCanon* canon,
         return new SkPDFType0Font(info, typeface);
     }
     if (type == SkAdvancedTypefaceMetrics::kType1_Font) {
-        return new SkPDFType1Font(info, typeface, glyphID,
-                                  relatedFontDescriptor);
+        return new SkPDFType1Font(info, typeface, glyphID, relatedFontDescriptor);
     }
 
     SkASSERT(type == SkAdvancedTypefaceMetrics::kCFF_Font ||
@@ -990,12 +989,11 @@ void SkPDFFont::populateToUnicodeTable(const SkPDFGlyphSet* subset) {
 // class SkPDFType0Font
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFType0Font::SkPDFType0Font(const SkAdvancedTypefaceMetrics* info,
-                               SkTypeface* typeface)
+SkPDFType0Font::SkPDFType0Font(const SkAdvancedTypefaceMetrics* info, SkTypeface* typeface)
     : SkPDFFont(info, typeface, NULL) {
     SkDEBUGCODE(fPopulated = false);
     if (!canSubset()) {
-        populate(NULL);
+        this->populate(NULL);
     }
 }
 
@@ -1005,8 +1003,7 @@ SkPDFFont* SkPDFType0Font::getFontSubset(const SkPDFGlyphSet* subset) {
     if (!canSubset()) {
         return NULL;
     }
-    SkPDFType0Font* newSubset =
-            new SkPDFType0Font(fontInfo(), typeface());
+    SkPDFType0Font* newSubset = new SkPDFType0Font(fontInfo(), typeface());
     newSubset->populate(subset);
     return newSubset;
 }
@@ -1031,7 +1028,7 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
     descendantFonts->appendObjRef(newCIDFont.detach());
     this->insertObject("DescendantFonts", descendantFonts.detach());
 
-    populateToUnicodeTable(subset);
+    this->populateToUnicodeTable(subset);
 
     SkDEBUGCODE(fPopulated = true);
     return true;
@@ -1045,7 +1042,7 @@ SkPDFCIDFont::SkPDFCIDFont(const SkAdvancedTypefaceMetrics* info,
                            SkTypeface* typeface,
                            const SkPDFGlyphSet* subset)
     : SkPDFFont(info, typeface, NULL) {
-    populate(subset);
+    this->populate(subset);
 }
 
 SkPDFCIDFont::~SkPDFCIDFont() {}
@@ -1202,7 +1199,7 @@ SkPDFType1Font::SkPDFType1Font(const SkAdvancedTypefaceMetrics* info,
                                uint16_t glyphID,
                                SkPDFDict* relatedFontDescriptor)
     : SkPDFFont(info, typeface, relatedFontDescriptor) {
-    populate(glyphID);
+    this->populate(glyphID);
 }
 
 SkPDFType1Font::~SkPDFType1Font() {}
@@ -1325,7 +1322,7 @@ SkPDFType3Font::SkPDFType3Font(const SkAdvancedTypefaceMetrics* info,
                                SkTypeface* typeface,
                                uint16_t glyphID)
     : SkPDFFont(info, typeface, NULL) {
-    populate(glyphID);
+    this->populate(glyphID);
 }
 
 SkPDFType3Font::~SkPDFType3Font() {}
@@ -1334,7 +1331,8 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
     SkPaint paint;
     paint.setTypeface(typeface());
     paint.setTextSize(1000);
-    SkAutoGlyphCache autoCache(paint, NULL, NULL);
+    const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    SkAutoGlyphCache autoCache(paint, &props, NULL);
     SkGlyphCache* cache = autoCache.getCache();
     // If fLastGlyphID isn't set (because there is not fFontInfo), look it up.
     if (lastGlyphID() == 0) {
@@ -1397,7 +1395,7 @@ bool SkPDFType3Font::populate(uint16_t glyphID) {
     this->insertObject("Widths", widthArray.detach());
     this->insertName("CIDToGIDMap", "Identity");
 
-    populateToUnicodeTable(NULL);
+    this->populateToUnicodeTable(NULL);
     return true;
 }
 

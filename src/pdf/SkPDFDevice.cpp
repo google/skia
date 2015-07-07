@@ -1161,7 +1161,7 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     SkTDArray<uint16_t> glyphIDsCopy(glyphIDs, numGlyphs);
 
     while (numGlyphs > consumedGlyphCount) {
-        updateFont(textPaint, glyphIDs[consumedGlyphCount], content.entry());
+        this->updateFont(textPaint, glyphIDs[consumedGlyphCount], content.entry());
         SkPDFFont* font = content.entry()->fState.fFont;
 
         int availableGlyphs = font->glyphsToPDFFontEncoding(
@@ -1206,14 +1206,14 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
 
     SkDrawCacheProc glyphCacheProc = textPaint.getDrawCacheProc();
     content.entry()->fContent.writeText("BT\n");
-    updateFont(textPaint, glyphIDs[0], content.entry());
+    this->updateFont(textPaint, glyphIDs[0], content.entry());
     for (size_t i = 0; i < numGlyphs; i++) {
         SkPDFFont* font = content.entry()->fState.fFont;
         uint16_t encodedValue = glyphIDs[i];
         if (font->glyphsToPDFFontEncoding(&encodedValue, 1) != 1) {
             // The current pdf font cannot encode the current glyph.
             // Try to get a pdf font which can encode the current glyph.
-            updateFont(textPaint, glyphIDs[i], content.entry());
+            this->updateFont(textPaint, glyphIDs[i], content.entry());
             font = content.entry()->fState.fFont;
             if (font->glyphsToPDFFontEncoding(&encodedValue, 1) != 1) {
                 SkDEBUGFAIL("PDF could not encode glyph.");
