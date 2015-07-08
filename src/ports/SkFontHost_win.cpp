@@ -1623,7 +1623,7 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
 }
 
 void SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
-    SkASSERT(&glyph && path);
+    SkASSERT(path);
     SkASSERT(fDDC);
 
     path->reset();
