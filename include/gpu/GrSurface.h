@@ -18,7 +18,7 @@ class GrRenderTarget;
 class GrSurfacePriv;
 class GrTexture;
 
-class GrSurface : public GrGpuResource {
+class SK_API GrSurface : public GrGpuResource {
 public:
     /**
      * Retrieves the width of the surface.
