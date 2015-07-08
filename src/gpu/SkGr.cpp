@@ -720,7 +720,8 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
         } else {
             SkTDArray<GrFragmentProcessor*> array;
             // return false if failed?
-            if (colorFilter->asFragmentProcessors(context, &array)) {
+            if (colorFilter->asFragmentProcessors(context, grPaint->getShaderDataManager(),
+                                                  &array)) {
                 for (int i = 0; i < array.count(); ++i) {
                     grPaint->addColorProcessor(array[i]);
                     array[i]->unref();

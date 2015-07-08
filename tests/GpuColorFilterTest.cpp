@@ -6,15 +6,16 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorFilter.h"
+#include "Test.h"
+
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
-#include "SkColorFilter.h"
 #include "SkGr.h"
-#include "Test.h"
 
 static GrColor filterColor(const GrColor& color, uint32_t flags)  {
     uint32_t mask = 0;
@@ -96,11 +97,12 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
         { kR|kA , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkXfermode::kModulate_Mode, kR|kA, GrColorPackRGBA(50, 0, 0, 64) }
     };
 
+    GrPaint paint;
     for (size_t i = 0; i < SK_ARRAY_COUNT(filterTests); ++i) {
         const GetConstantComponentTestCase& test = filterTests[i];
         SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(test.filterColor, test.filterMode));
         SkTDArray<GrFragmentProcessor*> array;
-        bool hasFrag = cf->asFragmentProcessors(grContext, &array);
+        bool hasFrag = cf->asFragmentProcessors(grContext, paint.getShaderDataManager(), &array);
         REPORTER_ASSERT(reporter, hasFrag);
         REPORTER_ASSERT(reporter, 1 == array.count());
         GrInvariantOutput inout(test.inputColor,

@@ -362,7 +362,7 @@ GrFragmentProcessor* ModeColorFilterEffect::TestCreate(SkRandom* rand,
     return ModeColorFilterEffect::Create(color, mode);
 }
 
-bool SkModeColorFilter::asFragmentProcessors(GrContext*,
+bool SkModeColorFilter::asFragmentProcessors(GrContext*, GrShaderDataManager*,
                                              SkTDArray<GrFragmentProcessor*>* array) const {
     if (SkXfermode::kDst_Mode != fMode) {
         GrFragmentProcessor* frag = ModeColorFilterEffect::Create(SkColor2GrColor(fColor), fMode);
