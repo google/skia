@@ -287,15 +287,17 @@ using namespace skia_advanced_typeface_metrics_utils;
 static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
                                       const unsigned glyphCount,
                                       SkTDArray<SkUnichar>* glyphToUnicode) {
-    HRESULT hr = S_OK;
-
     //Do this like free type instead
     SkAutoTMalloc<SkUnichar> glyphToUni(glyphCount);
     int maxGlyph = -1;
     for (UINT32 c = 0; c < 0x10FFFF; ++c) {
-        UINT16 glyph;
-        hr = fontFace->GetGlyphIndices(&c, 1, &glyph);
-        SkASSERT(glyph < glyphCount);
+        UINT16 glyph = 0;
+        HRVM(fontFace->GetGlyphIndices(&c, 1, &glyph),
+             "Failed to get glyph index.");
+        // Intermittent DW bug on Windows 10. See crbug.com/470146.
+        if (glyph >= glyphCount) {
+          return;
+        }
         if (0 < glyph) {
             maxGlyph = SkTMax(static_cast<int>(glyph), maxGlyph);
             glyphToUni[glyph] = c;
