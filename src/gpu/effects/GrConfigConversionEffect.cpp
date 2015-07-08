@@ -128,22 +128,19 @@ void GrConfigConversionEffect::onComputeInvariantOutput(GrInvariantOutput* inout
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 
-GrFragmentProcessor* GrConfigConversionEffect::TestCreate(SkRandom* random,
-                                                          GrContext*,
-                                                          const GrCaps&,
-                                                          GrTexture* textures[]) {
-    PMConversion pmConv = static_cast<PMConversion>(random->nextULessThan(kPMConversionCnt));
+GrFragmentProcessor* GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
+    PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
     bool swapRB;
     if (kNone_PMConversion == pmConv) {
         swapRB = true;
     } else {
-        swapRB = random->nextBool();
+        swapRB = d->fRandom->nextBool();
     }
     return SkNEW_ARGS(GrConfigConversionEffect,
-                                      (textures[GrProcessorUnitTest::kSkiaPMTextureIdx],
+                                      (d->fTextures[GrProcessorUnitTest::kSkiaPMTextureIdx],
                                        swapRB,
                                        pmConv,
-                                       GrTest::TestMatrix(random)));
+                                       GrTest::TestMatrix(d->fRandom)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -207,17 +207,13 @@ void GrGLAlphaThresholdEffect::setData(const GrGLProgramDataManager& pdman,
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(AlphaThresholdEffect);
 
-GrFragmentProcessor* AlphaThresholdEffect::TestCreate(SkRandom* random,
-                                           GrContext* context,
-                                           const GrCaps&,
-                                           GrTexture** textures) {
-    GrTexture* bmpTex = textures[GrProcessorUnitTest::kSkiaPMTextureIdx];
-    GrTexture* maskTex = textures[GrProcessorUnitTest::kAlphaTextureIdx];
-    float inner_thresh = random->nextUScalar1();
-    float outer_thresh = random->nextUScalar1();
-    GrShaderDataManager shaderDataManager;
-    return AlphaThresholdEffect::Create(&shaderDataManager, bmpTex, maskTex, inner_thresh,
-                                        outer_thresh);
+GrFragmentProcessor* AlphaThresholdEffect::TestCreate(GrProcessorTestData* d) {
+    GrTexture* bmpTex = d->fTextures[GrProcessorUnitTest::kSkiaPMTextureIdx];
+    GrTexture* maskTex = d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx];
+    float innerThresh = d->fRandom->nextUScalar1();
+    float outerThresh = d->fRandom->nextUScalar1();
+    return AlphaThresholdEffect::Create(d->fShaderDataManager, bmpTex, maskTex, innerThresh,
+                                        outerThresh);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

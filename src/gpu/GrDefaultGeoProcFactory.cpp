@@ -239,28 +239,25 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
-GrGeometryProcessor* DefaultGeoProc::TestCreate(SkRandom* random,
-                                                GrContext*,
-                                                const GrCaps& caps,
-                                                GrTexture*[]) {
+GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     uint32_t flags = 0;
-    if (random->nextBool()) {
+    if (d->fRandom->nextBool()) {
         flags |= GrDefaultGeoProcFactory::kColor_GPType;
     }
-    if (random->nextBool()) {
+    if (d->fRandom->nextBool()) {
         flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
     }
-    if (random->nextBool()) {
+    if (d->fRandom->nextBool()) {
         flags |= GrDefaultGeoProcFactory::kLocalCoord_GPType;
     }
 
     return DefaultGeoProc::Create(flags,
-                                  GrRandomColor(random),
-                                  GrTest::TestMatrix(random),
-                                  GrTest::TestMatrix(random),
-                                  random->nextBool(),
-                                  random->nextBool(),
-                                  GrRandomCoverage(random));
+                                  GrRandomColor(d->fRandom),
+                                  GrTest::TestMatrix(d->fRandom),
+                                  GrTest::TestMatrix(d->fRandom),
+                                  d->fRandom->nextBool(),
+                                  d->fRandom->nextBool(),
+                                  GrRandomCoverage(d->fRandom));
 }
 
 const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(uint32_t gpTypeFlags,

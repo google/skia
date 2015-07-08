@@ -203,14 +203,11 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleEdgeEffect);
 
-GrGeometryProcessor* CircleEdgeEffect::TestCreate(SkRandom* random,
-                                                  GrContext* context,
-                                                  const GrCaps&,
-                                                  GrTexture* textures[]) {
-    return CircleEdgeEffect::Create(GrRandomColor(random),
-                                    random->nextBool(),
-                                    GrTest::TestMatrix(random),
-                                    random->nextBool());
+GrGeometryProcessor* CircleEdgeEffect::TestCreate(GrProcessorTestData* d) {
+    return CircleEdgeEffect::Create(GrRandomColor(d->fRandom),
+                                    d->fRandom->nextBool(),
+                                    GrTest::TestMatrix(d->fRandom),
+                                    d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -385,14 +382,11 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseEdgeEffect);
 
-GrGeometryProcessor* EllipseEdgeEffect::TestCreate(SkRandom* random,
-                                                   GrContext* context,
-                                                   const GrCaps&,
-                                                   GrTexture* textures[]) {
-    return EllipseEdgeEffect::Create(GrRandomColor(random),
-                                     random->nextBool(),
-                                     GrTest::TestMatrix(random),
-                                     random->nextBool());
+GrGeometryProcessor* EllipseEdgeEffect::TestCreate(GrProcessorTestData* d) {
+    return EllipseEdgeEffect::Create(GrRandomColor(d->fRandom),
+                                     d->fRandom->nextBool(),
+                                     GrTest::TestMatrix(d->fRandom),
+                                     d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -589,14 +583,11 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseEdgeEffect);
 
-GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(SkRandom* random,
-                                                     GrContext* context,
-                                                     const GrCaps&,
-                                                     GrTexture* textures[]) {
-    return DIEllipseEdgeEffect::Create(GrRandomColor(random),
-                                       GrTest::TestMatrix(random),
-                                       (Mode)(random->nextRangeU(0,2)),
-                                       random->nextBool());
+GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(GrProcessorTestData* d) {
+    return DIEllipseEdgeEffect::Create(GrRandomColor(d->fRandom),
+                                       GrTest::TestMatrix(d->fRandom),
+                                       (Mode)(d->fRandom->nextRangeU(0,2)),
+                                       d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

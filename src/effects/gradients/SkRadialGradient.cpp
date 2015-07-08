@@ -501,28 +501,24 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradient);
 
-GrFragmentProcessor* GrRadialGradient::TestCreate(SkRandom* random,
-                                                  GrContext* context,
-                                                  const GrCaps&,
-                                                  GrTexture**) {
-    SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
-    SkScalar radius = random->nextUScalar1();
+GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) {
+    SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
+    SkScalar radius = d->fRandom->nextUScalar1();
 
     SkColor colors[kMaxRandomGradientColors];
     SkScalar stopsArray[kMaxRandomGradientColors];
     SkScalar* stops = stopsArray;
     SkShader::TileMode tm;
-    int colorCount = RandomGradientParams(random, colors, &stops, &tm);
+    int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateRadial(center, radius,
                                                                  colors, stops, colorCount,
                                                                  tm));
     SkPaint paint;
     GrColor paintColor;
     GrFragmentProcessor* fp;
-    GrPaint grPaint;
-    SkAssertResult(shader->asFragmentProcessor(context, paint,
-                                               GrTest::TestMatrix(random), NULL,
-                                               &paintColor, grPaint.getShaderDataManager(), &fp));
+    SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
+                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               &paintColor, d->fShaderDataManager, &fp));
     return fp;
 }
 

@@ -60,18 +60,15 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(AARectEffect);
 
-GrFragmentProcessor* AARectEffect::TestCreate(SkRandom* random,
-                                              GrContext*,
-                                              const GrCaps& caps,
-                                              GrTexture*[]) {
-    SkRect rect = SkRect::MakeLTRB(random->nextSScalar1(),
-                                   random->nextSScalar1(),
-                                   random->nextSScalar1(),
-                                   random->nextSScalar1());
+GrFragmentProcessor* AARectEffect::TestCreate(GrProcessorTestData* d) {
+    SkRect rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
+                                   d->fRandom->nextSScalar1(),
+                                   d->fRandom->nextSScalar1(),
+                                   d->fRandom->nextSScalar1());
     GrFragmentProcessor* fp;
     do {
-        GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(random->nextULessThan(
-                                                                    kGrProcessorEdgeTypeCnt));
+        GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
+                d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
 
         fp = AARectEffect::Create(edgeType, rect);
     } while (NULL == fp);
@@ -360,20 +357,17 @@ bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvexPolyEffect);
 
-GrFragmentProcessor* GrConvexPolyEffect::TestCreate(SkRandom* random,
-                                                    GrContext*,
-                                                    const GrCaps& caps,
-                                                    GrTexture*[]) {
-    int count = random->nextULessThan(kMaxEdges) + 1;
+GrFragmentProcessor* GrConvexPolyEffect::TestCreate(GrProcessorTestData* d) {
+    int count = d->fRandom->nextULessThan(kMaxEdges) + 1;
     SkScalar edges[kMaxEdges * 3];
     for (int i = 0; i < 3 * count; ++i) {
-        edges[i] = random->nextSScalar1();
+        edges[i] = d->fRandom->nextSScalar1();
     }
 
     GrFragmentProcessor* fp;
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
-                                        random->nextULessThan(kGrProcessorEdgeTypeCnt));
+                d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
         fp = GrConvexPolyEffect::Create(edgeType, count, edges);
     } while (NULL == fp);
     return fp;

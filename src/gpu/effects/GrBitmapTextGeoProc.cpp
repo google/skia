@@ -152,28 +152,23 @@ GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
-GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(SkRandom* random,
-                                                     GrContext*,
-                                                     const GrCaps&,
-                                                     GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                      GrProcessorUnitTest::kAlphaTextureIdx;
+GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                          GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
         SkShader::kMirror_TileMode,
     };
     SkShader::TileMode tileModes[] = {
-        kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
+    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
     GrMaskFormat format;
-    switch (random->nextULessThan(3)) {
-        default:
-            SkFAIL("Incomplete enum\n");
+    switch (d->fRandom->nextULessThan(3)) {
         case 0:
             format = kA8_GrMaskFormat;
             break;
@@ -185,6 +180,7 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(SkRandom* random,
             break;
     }
 
-    return GrBitmapTextGeoProc::Create(GrRandomColor(random), textures[texIdx], params,
-                                       format, GrTest::TestMatrix(random), random->nextBool());
+    return GrBitmapTextGeoProc::Create(GrRandomColor(d->fRandom), d->fTextures[texIdx], params,
+                                       format, GrTest::TestMatrix(d->fRandom),
+                                       d->fRandom->nextBool());
 }

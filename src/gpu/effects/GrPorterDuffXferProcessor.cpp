@@ -808,11 +808,8 @@ bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps,
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
 
-GrXPFactory* GrPorterDuffXPFactory::TestCreate(SkRandom* random,
-                                               GrContext*,
-                                               const GrCaps&,
-                                               GrTexture*[]) {
-    SkXfermode::Mode mode = SkXfermode::Mode(random->nextULessThan(SkXfermode::kLastCoeffMode));
+GrXPFactory* GrPorterDuffXPFactory::TestCreate(GrProcessorTestData* d) {
+    SkXfermode::Mode mode = SkXfermode::Mode(d->fRandom->nextULessThan(SkXfermode::kLastCoeffMode));
     return GrPorterDuffXPFactory::Create(mode);
 }
 

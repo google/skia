@@ -53,10 +53,7 @@ void DitherEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DitherEffect);
 
-GrFragmentProcessor* DitherEffect::TestCreate(SkRandom*,
-                                              GrContext*,
-                                              const GrCaps&,
-                                              GrTexture*[]) {
+GrFragmentProcessor* DitherEffect::TestCreate(GrProcessorTestData*) {
     return DitherEffect::Create();
 }
 

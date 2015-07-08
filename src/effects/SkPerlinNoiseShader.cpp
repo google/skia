@@ -602,20 +602,18 @@ private:
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoiseEffect);
 
-GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
-                                                     GrContext* context,
-                                                     const GrCaps&,
-                                                     GrTexture**) {
-    int      numOctaves = random->nextRangeU(2, 10);
-    bool     stitchTiles = random->nextBool();
-    SkScalar seed = SkIntToScalar(random->nextU());
-    SkISize  tileSize = SkISize::Make(random->nextRangeU(4, 4096), random->nextRangeU(4, 4096));
-    SkScalar baseFrequencyX = random->nextRangeScalar(0.01f,
-                                                      0.99f);
-    SkScalar baseFrequencyY = random->nextRangeScalar(0.01f,
-                                                      0.99f);
+GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* d) {
+    int      numOctaves = d->fRandom->nextRangeU(2, 10);
+    bool     stitchTiles = d->fRandom->nextBool();
+    SkScalar seed = SkIntToScalar(d->fRandom->nextU());
+    SkISize  tileSize = SkISize::Make(d->fRandom->nextRangeU(4, 4096),
+                                      d->fRandom->nextRangeU(4, 4096));
+    SkScalar baseFrequencyX = d->fRandom->nextRangeScalar(0.01f,
+                                                          0.99f);
+    SkScalar baseFrequencyY = d->fRandom->nextRangeScalar(0.01f,
+                                                          0.99f);
 
-    SkShader* shader = random->nextBool() ?
+    SkShader* shader = d->fRandom->nextBool() ?
         SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed,
                                                 stitchTiles ? &tileSize : NULL) :
         SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed,
@@ -625,8 +623,8 @@ GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
     GrColor paintColor;
     GrFragmentProcessor* effect;
     GrPaint grPaint;
-    SkAssertResult(shader->asFragmentProcessor(context, paint,
-                                               GrTest::TestMatrix(random), NULL,
+    SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
+                                               GrTest::TestMatrix(d->fRandom), NULL,
                                                &paintColor, grPaint.getShaderDataManager(),
                                                &effect));
 

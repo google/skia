@@ -180,17 +180,14 @@ void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 
-GrFragmentProcessor* GrBicubicEffect::TestCreate(SkRandom* random,
-                                                 GrContext* context,
-                                                 const GrCaps&,
-                                                 GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                      GrProcessorUnitTest::kAlphaTextureIdx;
+GrFragmentProcessor* GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                          GrProcessorUnitTest::kAlphaTextureIdx;
     SkScalar coefficients[16];
     for (int i = 0; i < 16; i++) {
-        coefficients[i] = random->nextSScalar1();
+        coefficients[i] = d->fRandom->nextSScalar1();
     }
-    return GrBicubicEffect::Create(textures[texIdx], coefficients);
+    return GrBicubicEffect::Create(d->fTextures[texIdx], coefficients);
 }
 
 //////////////////////////////////////////////////////////////////////////////

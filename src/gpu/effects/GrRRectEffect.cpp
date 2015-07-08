@@ -107,19 +107,16 @@ bool CircularRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircularRRectEffect);
 
-GrFragmentProcessor* CircularRRectEffect::TestCreate(SkRandom* random,
-                                                     GrContext*,
-                                                     const GrCaps& caps,
-                                                     GrTexture*[]) {
-    SkScalar w = random->nextRangeScalar(20.f, 1000.f);
-    SkScalar h = random->nextRangeScalar(20.f, 1000.f);
-    SkScalar r = random->nextRangeF(kRadiusMin, 9.f);
+GrFragmentProcessor* CircularRRectEffect::TestCreate(GrProcessorTestData* d) {
+    SkScalar w = d->fRandom->nextRangeScalar(20.f, 1000.f);
+    SkScalar h = d->fRandom->nextRangeScalar(20.f, 1000.f);
+    SkScalar r = d->fRandom->nextRangeF(kRadiusMin, 9.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
     GrFragmentProcessor* fp;
     do {
         GrPrimitiveEdgeType et =
-                (GrPrimitiveEdgeType)random->nextULessThan(kGrProcessorEdgeTypeCnt);
+                (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
         fp = GrRRectEffect::Create(et, rrect);
     } while (NULL == fp);
     return fp;
@@ -444,24 +441,21 @@ bool EllipticalRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(EllipticalRRectEffect);
 
-GrFragmentProcessor* EllipticalRRectEffect::TestCreate(SkRandom* random,
-                                                       GrContext*,
-                                                       const GrCaps& caps,
-                                                       GrTexture*[]) {
-    SkScalar w = random->nextRangeScalar(20.f, 1000.f);
-    SkScalar h = random->nextRangeScalar(20.f, 1000.f);
+GrFragmentProcessor* EllipticalRRectEffect::TestCreate(GrProcessorTestData* d) {
+    SkScalar w = d->fRandom->nextRangeScalar(20.f, 1000.f);
+    SkScalar h = d->fRandom->nextRangeScalar(20.f, 1000.f);
     SkVector r[4];
-    r[SkRRect::kUpperLeft_Corner].fX = random->nextRangeF(kRadiusMin, 9.f);
+    r[SkRRect::kUpperLeft_Corner].fX = d->fRandom->nextRangeF(kRadiusMin, 9.f);
     // ensure at least one corner really is elliptical
     do {
-        r[SkRRect::kUpperLeft_Corner].fY = random->nextRangeF(kRadiusMin, 9.f);
+        r[SkRRect::kUpperLeft_Corner].fY = d->fRandom->nextRangeF(kRadiusMin, 9.f);
     } while (r[SkRRect::kUpperLeft_Corner].fY == r[SkRRect::kUpperLeft_Corner].fX);
 
     SkRRect rrect;
-    if (random->nextBool()) {
+    if (d->fRandom->nextBool()) {
         // half the time create a four-radii rrect.
-        r[SkRRect::kLowerRight_Corner].fX = random->nextRangeF(kRadiusMin, 9.f);
-        r[SkRRect::kLowerRight_Corner].fY = random->nextRangeF(kRadiusMin, 9.f);
+        r[SkRRect::kLowerRight_Corner].fX = d->fRandom->nextRangeF(kRadiusMin, 9.f);
+        r[SkRRect::kLowerRight_Corner].fY = d->fRandom->nextRangeF(kRadiusMin, 9.f);
 
         r[SkRRect::kUpperRight_Corner].fX = r[SkRRect::kLowerRight_Corner].fX;
         r[SkRRect::kUpperRight_Corner].fY = r[SkRRect::kUpperLeft_Corner].fY;
@@ -476,7 +470,8 @@ GrFragmentProcessor* EllipticalRRectEffect::TestCreate(SkRandom* random,
     }
     GrFragmentProcessor* fp;
     do {
-        GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)random->nextULessThan(kGrProcessorEdgeTypeCnt);
+        GrPrimitiveEdgeType et =
+                (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
         fp = GrRRectEffect::Create(et, rrect);
     } while (NULL == fp);
     return fp;

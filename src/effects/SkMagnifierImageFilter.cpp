@@ -207,19 +207,16 @@ GrGLFragmentProcessor* GrMagnifierEffect::createGLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 
-GrFragmentProcessor* GrMagnifierEffect::TestCreate(SkRandom* random,
-                                                   GrContext* context,
-                                                   const GrCaps&,
-                                                   GrTexture** textures) {
-    GrTexture* texture = textures[0];
+GrFragmentProcessor* GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
+    GrTexture* texture = d->fTextures[0];
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
     const int kMaxInset = 20;
-    uint32_t width = random->nextULessThan(kMaxWidth);
-    uint32_t height = random->nextULessThan(kMaxHeight);
-    uint32_t x = random->nextULessThan(kMaxWidth - width);
-    uint32_t y = random->nextULessThan(kMaxHeight - height);
-    uint32_t inset = random->nextULessThan(kMaxInset);
+    uint32_t width = d->fRandom->nextULessThan(kMaxWidth);
+    uint32_t height = d->fRandom->nextULessThan(kMaxHeight);
+    uint32_t x = d->fRandom->nextULessThan(kMaxWidth - width);
+    uint32_t y = d->fRandom->nextULessThan(kMaxHeight - height);
+    uint32_t inset = d->fRandom->nextULessThan(kMaxInset);
 
     GrFragmentProcessor* effect = GrMagnifierEffect::Create(
         texture,

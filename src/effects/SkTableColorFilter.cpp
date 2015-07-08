@@ -551,21 +551,18 @@ void ColorTableEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
 
-GrFragmentProcessor* ColorTableEffect::TestCreate(SkRandom* random,
-                                                  GrContext* context,
-                                                  const GrCaps&,
-                                                  GrTexture* textures[]) {
+GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     int flags = 0;
     uint8_t luts[256][4];
     do {
         for (int i = 0; i < 4; ++i) {
-            flags |= random->nextBool() ? (1  << i): 0;
+            flags |= d->fRandom->nextBool() ? (1  << i): 0;
         }
     } while (!flags);
     for (int i = 0; i < 4; ++i) {
         if (flags & (1 << i)) {
             for (int j = 0; j < 256; ++j) {
-                luts[j][i] = SkToU8(random->nextBits(8));
+                luts[j][i] = SkToU8(d->fRandom->nextBits(8));
             }
         }
     }
@@ -577,8 +574,7 @@ GrFragmentProcessor* ColorTableEffect::TestCreate(SkRandom* random,
     ));
 
     SkTDArray<GrFragmentProcessor*> array;
-    GrPaint grPaint;
-    if (filter->asFragmentProcessors(context, grPaint.getShaderDataManager(), &array)) {
+    if (filter->asFragmentProcessors(d->fContext, d->fShaderDataManager, &array)) {
         SkASSERT(1 == array.count());   // TableColorFilter only returns 1
         return array[0];
     }

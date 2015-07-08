@@ -957,14 +957,11 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
 
-GrGeometryProcessor* DashingCircleEffect::TestCreate(SkRandom* random,
-                                                     GrContext*,
-                                                     const GrCaps& caps,
-                                                     GrTexture*[]) {
-    DashAAMode aaMode = static_cast<DashAAMode>(random->nextULessThan(kDashAAModeCount));
-    return DashingCircleEffect::Create(GrRandomColor(random),
-                                      aaMode, GrTest::TestMatrix(random),
-                                      random->nextBool());
+GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
+    DashAAMode aaMode = static_cast<DashAAMode>(d->fRandom->nextULessThan(kDashAAModeCount));
+    return DashingCircleEffect::Create(GrRandomColor(d->fRandom),
+                                      aaMode, GrTest::TestMatrix(d->fRandom),
+                                      d->fRandom->nextBool());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1195,13 +1192,11 @@ DashingLineEffect::DashingLineEffect(GrColor color,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
 
-GrGeometryProcessor* DashingLineEffect::TestCreate(SkRandom* random,
-                                                   GrContext*,
-                                                   const GrCaps& caps,
-                                                   GrTexture*[]) {
-    DashAAMode aaMode = static_cast<DashAAMode>(random->nextULessThan(kDashAAModeCount));
-    return DashingLineEffect::Create(GrRandomColor(random),
-                                     aaMode, GrTest::TestMatrix(random), random->nextBool());
+GrGeometryProcessor* DashingLineEffect::TestCreate(GrProcessorTestData* d) {
+    DashAAMode aaMode = static_cast<DashAAMode>(d->fRandom->nextULessThan(kDashAAModeCount));
+    return DashingLineEffect::Create(GrRandomColor(d->fRandom),
+                                     aaMode, GrTest::TestMatrix(d->fRandom),
+                                     d->fRandom->nextBool());
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -139,19 +139,15 @@ void GrArithmeticFP::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor* GrArithmeticFP::TestCreate(SkRandom* rand,
-                                                GrContext*,
-                                                const GrCaps&,
-                                                GrTexture* textures[]) {
-    float k1 = rand->nextF();
-    float k2 = rand->nextF();
-    float k3 = rand->nextF();
-    float k4 = rand->nextF();
-    bool enforcePMColor = rand->nextBool();
+GrFragmentProcessor* GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
+    float k1 = d->fRandom->nextF();
+    float k2 = d->fRandom->nextF();
+    float k3 = d->fRandom->nextF();
+    float k4 = d->fRandom->nextF();
+    bool enforcePMColor = d->fRandom->nextBool();
 
-    GrShaderDataManager shaderDataManager;
-    return SkNEW_ARGS(GrArithmeticFP, (&shaderDataManager, k1, k2, k3, k4, enforcePMColor,
-                                       textures[0]));
+    return SkNEW_ARGS(GrArithmeticFP, (d->fShaderDataManager, k1, k2, k3, k4, enforcePMColor,
+                                       d->fTextures[0]));
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticFP);
@@ -305,15 +301,12 @@ void GrArithmeticXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
 
 GR_DEFINE_XP_FACTORY_TEST(GrArithmeticXPFactory);
 
-GrXPFactory* GrArithmeticXPFactory::TestCreate(SkRandom* random,
-                                               GrContext*,
-                                               const GrCaps&,
-                                               GrTexture*[]) {
-    float k1 = random->nextF();
-    float k2 = random->nextF();
-    float k3 = random->nextF();
-    float k4 = random->nextF();
-    bool enforcePMColor = random->nextBool();
+GrXPFactory* GrArithmeticXPFactory::TestCreate(GrProcessorTestData* d) {
+    float k1 = d->fRandom->nextF();
+    float k2 = d->fRandom->nextF();
+    float k3 = d->fRandom->nextF();
+    float k4 = d->fRandom->nextF();
+    bool enforcePMColor = d->fRandom->nextBool();
 
     return GrArithmeticXPFactory::Create(k1, k2, k3, k4, enforcePMColor);
 }

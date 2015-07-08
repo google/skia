@@ -239,33 +239,30 @@ GrDistanceFieldA8TextGeoProc::createGLInstance(const GrBatchTracker& bt,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
 
-GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(SkRandom* random,
-                                                              GrContext*,
-                                                              const GrCaps&,
-                                                              GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                      GrProcessorUnitTest::kAlphaTextureIdx;
+GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                          GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
         SkShader::kMirror_TileMode,
     };
     SkShader::TileMode tileModes[] = {
-        kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
+    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                            GrTextureParams::kNone_FilterMode);
 
-    return GrDistanceFieldA8TextGeoProc::Create(GrRandomColor(random),
-                                                GrTest::TestMatrix(random),
-                                                textures[texIdx], params,
+    return GrDistanceFieldA8TextGeoProc::Create(GrRandomColor(d->fRandom),
+                                                GrTest::TestMatrix(d->fRandom),
+                                                d->fTextures[texIdx], params,
 #ifdef SK_GAMMA_APPLY_TO_A8
-                                                random->nextF(),
+                                                d->fRandom->nextF(),
 #endif
-                                                random->nextBool() ?
+                                                d->fRandom->nextBool() ?
                                                     kSimilarity_DistanceFieldEffectFlag : 0,
-                                                random->nextBool());
+                                                    d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -465,31 +462,28 @@ GrDistanceFieldPathGeoProc::createGLInstance(const GrBatchTracker& bt, const GrG
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
 
-GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(SkRandom* random,
-                                                            GrContext*,
-                                                            const GrCaps&,
-                                                            GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx 
-                                    : GrProcessorUnitTest::kAlphaTextureIdx;
+GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
+                                        : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
         SkShader::kMirror_TileMode,
     };
     SkShader::TileMode tileModes[] = {
-        kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode 
-                                                         : GrTextureParams::kNone_FilterMode);
+    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode
+                                                             : GrTextureParams::kNone_FilterMode);
 
-    return GrDistanceFieldPathGeoProc::Create(GrRandomColor(random),
-                                              GrTest::TestMatrix(random),
-                                              textures[texIdx],
+    return GrDistanceFieldPathGeoProc::Create(GrRandomColor(d->fRandom),
+                                              GrTest::TestMatrix(d->fRandom),
+                                              d->fTextures[texIdx],
                                               params,
-                                              random->nextBool() ?
+                                              d->fRandom->nextBool() ?
                                                       kSimilarity_DistanceFieldEffectFlag : 0,
-                                              random->nextBool());
+                                                      d->fRandom->nextBool());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -725,31 +719,28 @@ GrDistanceFieldLCDTextGeoProc::createGLInstance(const GrBatchTracker& bt,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
 
-GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(SkRandom* random,
-                                                                 GrContext*,
-                                                                 const GrCaps&,
-                                                                 GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                      GrProcessorUnitTest::kAlphaTextureIdx;
+GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                          GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
         SkShader::kMirror_TileMode,
     };
     SkShader::TileMode tileModes[] = {
-        kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[random->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, random->nextBool() ? GrTextureParams::kBilerp_FilterMode :
+    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                            GrTextureParams::kNone_FilterMode);
     DistanceAdjust wa = { 0.0f, 0.1f, -0.1f };
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
-    flags |= random->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
-    flags |= random->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
-    return GrDistanceFieldLCDTextGeoProc::Create(GrRandomColor(random),
-                                                 GrTest::TestMatrix(random),
-                                                 textures[texIdx], params,
+    flags |= d->fRandom->nextBool() ? kUniformScale_DistanceFieldEffectMask : 0;
+    flags |= d->fRandom->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
+    return GrDistanceFieldLCDTextGeoProc::Create(GrRandomColor(d->fRandom),
+                                                 GrTest::TestMatrix(d->fRandom),
+                                                 d->fTextures[texIdx], params,
                                                  wa,
                                                  flags,
-                                                 random->nextBool());
+                                                 d->fRandom->nextBool());
 }

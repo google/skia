@@ -224,25 +224,22 @@ bool GrConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvolutionEffect);
 
-GrFragmentProcessor* GrConvolutionEffect::TestCreate(SkRandom* random,
-                                                     GrContext*,
-                                                     const GrCaps&,
-                                                     GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                      GrProcessorUnitTest::kAlphaTextureIdx;
-    Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
-    int radius = random->nextRangeU(1, kMaxKernelRadius);
+GrFragmentProcessor* GrConvolutionEffect::TestCreate(GrProcessorTestData* d) {
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                          GrProcessorUnitTest::kAlphaTextureIdx;
+    Direction dir = d->fRandom->nextBool() ? kX_Direction : kY_Direction;
+    int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float kernel[kMaxKernelWidth];
     for (size_t i = 0; i < SK_ARRAY_COUNT(kernel); ++i) {
-        kernel[i] = random->nextSScalar1();
+        kernel[i] = d->fRandom->nextSScalar1();
     }
     float bounds[2];
     for (size_t i = 0; i < SK_ARRAY_COUNT(bounds); ++i) {
-        bounds[i] = random->nextF();
+        bounds[i] = d->fRandom->nextF();
     }
 
-    bool useBounds = random->nextBool();
-    return GrConvolutionEffect::Create(textures[texIdx],
+    bool useBounds = d->fRandom->nextBool();
+    return GrConvolutionEffect::Create(d->fTextures[texIdx],
                                        dir,
                                        radius,
                                        kernel,

@@ -14,6 +14,7 @@
 
 class SkMatrix;
 class GrCaps;
+class GrContext;
 
 namespace GrProcessorUnitTest {
 // Used to access the dummy textures in TestCreate procs.
@@ -24,9 +25,35 @@ enum {
 
 }
 
+/*
+ * GrProcessorTestData is an argument struct to TestCreate functions
+ * fTextures are valid textures that can optionally be used to construct
+ * GrTextureAccesses. The first texture has config kSkia8888_GrPixelConfig and the second has
+ * kAlpha_8_GrPixelConfig. TestCreate functions are also free to create additional textures using
+ * the GrContext.
+ */
+struct GrProcessorTestData {
+    GrProcessorTestData(SkRandom* random,
+                        GrContext* context,
+                        GrShaderDataManager* shaderDataManager,
+                        const GrCaps* caps,
+                        GrTexture* textures[2])
+        : fRandom(random)
+        , fContext(context)
+        , fShaderDataManager(shaderDataManager)
+        , fCaps(caps) {
+        fTextures[0] = textures[0];
+        fTextures[1] = textures[1];
+    }
+    SkRandom* fRandom;
+    GrContext* fContext;
+    GrShaderDataManager* fShaderDataManager;
+    const GrCaps* fCaps;
+    GrTexture* fTextures[2];
+};
+
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
-class GrContext;
 class GrProcessor;
 class GrTexture;
 
@@ -34,25 +61,19 @@ template <class Processor>
 class GrProcessorTestFactory : SkNoncopyable {
 public:
 
-    typedef Processor* (*CreateProc)(SkRandom*,
-                                     GrContext*,
-                                     const GrCaps& caps,
-                                     GrTexture* dummyTextures[]);
+    typedef Processor* (*CreateProc)(GrProcessorTestData*);
 
     GrProcessorTestFactory(CreateProc createProc) {
         fCreateProc = createProc;
         GetFactories()->push_back(this);
     }
 
-    static Processor* CreateStage(SkRandom* random,
-                                  GrContext* context,
-                                  const GrCaps& caps,
-                                  GrTexture* dummyTextures[]) {
+    static Processor* CreateStage(GrProcessorTestData* data) {
         VerifyFactoryCount();
         SkASSERT(GetFactories()->count());
-        uint32_t idx = random->nextRangeU(0, GetFactories()->count() - 1);
+        uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
         GrProcessorTestFactory<Processor>* factory = (*GetFactories())[idx];
-        return factory->fCreateProc(random, context, caps, dummyTextures);
+        return factory->fCreateProc(data);
     }
 
     /*
@@ -71,36 +92,20 @@ private:
  */
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrGeometryProcessor> gTestFactory SK_UNUSED;                     \
-    static GrGeometryProcessor* TestCreate(SkRandom*,                                              \
-                                           GrContext*,                                             \
-                                           const GrCaps&,                                          \
-                                           GrTexture* dummyTextures[2])
+    static GrGeometryProcessor* TestCreate(GrProcessorTestData*)
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrFragmentProcessor> gTestFactory SK_UNUSED;                     \
-    static GrFragmentProcessor* TestCreate(SkRandom*,                                              \
-                                           GrContext*,                                             \
-                                           const GrCaps&,                                          \
-                                           GrTexture* dummyTextures[2])
+    static GrFragmentProcessor* TestCreate(GrProcessorTestData*)
 
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
     static GrProcessorTestFactory<GrXPFactory> gTestFactory SK_UNUSED;                             \
-    static GrXPFactory* TestCreate(SkRandom*,                                                      \
-                                   GrContext*,                                                     \
-                                   const GrCaps&,                                                  \
-                                   GrTexture* dummyTextures[2])
+    static GrXPFactory* TestCreate(GrProcessorTestData*)
 
 
 /** GrProcessor subclasses should insert this macro in their implementation file. They must then
  *  also implement this static function:
- *      GrProcessor* TestCreate(SkRandom*,
- *                           GrContext*,
- *                           const GrCaps&,
- *                           GrTexture* dummyTextures[2]);
- * dummyTextures[] are valid textures that can optionally be used to construct GrTextureAccesses.
- * The first texture has config kSkia8888_GrPixelConfig and the second has
- * kAlpha_8_GrPixelConfig. TestCreate functions are also free to create additional textures using
- * the GrContext.
+ *      GrProcessor* TestCreate(GrProcessorTestData*);
  */
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Effect)                                                  \
     GrProcessorTestFactory<GrFragmentProcessor> Effect :: gTestFactory(Effect :: TestCreate)
@@ -116,28 +121,19 @@ private:
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
-    static GrFragmentProcessor* TestCreate(SkRandom*,                                              \
-                                           GrContext*,                                             \
-                                           const GrCaps&,                                          \
-                                           GrTexture* dummyTextures[2])
+    static GrFragmentProcessor* TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(X)
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
-    static GrXPFactory* TestCreate(SkRandom*,                                                      \
-                                   GrContext*,                                                     \
-                                   const GrCaps&,                                                  \
-                                   GrTexture* dummyTextures[2])
+    static GrXPFactory* TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_XP_FACTORY_TEST(X)
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
-    static GrGeometryProcessor* TestCreate(SkRandom*,                                              \
-                                           GrContext*,                                             \
-                                           const GrCaps&,                                          \
-                                           GrTexture* dummyTextures[2])
+    static GrGeometryProcessor* TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(X)
 
 #endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

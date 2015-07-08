@@ -543,19 +543,16 @@ void GrMorphologyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) cons
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
 
-GrFragmentProcessor* GrMorphologyEffect::TestCreate(SkRandom* random,
-                                                    GrContext*,
-                                                    const GrCaps&,
-                                                    GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+GrFragmentProcessor* GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;
-    Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
+    Direction dir = d->fRandom->nextBool() ? kX_Direction : kY_Direction;
     static const int kMaxRadius = 10;
-    int radius = random->nextRangeU(1, kMaxRadius);
-    MorphologyType type = random->nextBool() ? GrMorphologyEffect::kErode_MorphologyType :
+    int radius = d->fRandom->nextRangeU(1, kMaxRadius);
+    MorphologyType type = d->fRandom->nextBool() ? GrMorphologyEffect::kErode_MorphologyType :
                                                GrMorphologyEffect::kDilate_MorphologyType;
 
-    return GrMorphologyEffect::Create(textures[texIdx], dir, radius, type);
+    return GrMorphologyEffect::Create(d->fTextures[texIdx], dir, radius, type);
 }
 
 namespace {

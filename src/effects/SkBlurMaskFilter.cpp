@@ -821,14 +821,11 @@ void GrRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 
-GrFragmentProcessor* GrRectBlurEffect::TestCreate(SkRandom* random,
-                                                  GrContext* context,
-                                                  const GrCaps&,
-                                                  GrTexture**) {
-    float sigma = random->nextRangeF(3,8);
-    float width = random->nextRangeF(200,300);
-    float height = random->nextRangeF(200,300);
-    return GrRectBlurEffect::Create(context->textureProvider(), SkRect::MakeWH(width, height),
+GrFragmentProcessor* GrRectBlurEffect::TestCreate(GrProcessorTestData* d) {
+    float sigma = d->fRandom->nextRangeF(3,8);
+    float width = d->fRandom->nextRangeF(200,300);
+    float height = d->fRandom->nextRangeF(200,300);
+    return GrRectBlurEffect::Create(d->fContext->textureProvider(), SkRect::MakeWH(width, height),
                                     sigma);
 }
 
@@ -1009,17 +1006,14 @@ bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 
-GrFragmentProcessor* GrRRectBlurEffect::TestCreate(SkRandom* random,
-                                        GrContext* context,
-                                        const GrCaps& caps,
-                                        GrTexture*[]) {
-    SkScalar w = random->nextRangeScalar(100.f, 1000.f);
-    SkScalar h = random->nextRangeScalar(100.f, 1000.f);
-    SkScalar r = random->nextRangeF(1.f, 9.f);
-    SkScalar sigma = random->nextRangeF(1.f,10.f);
+GrFragmentProcessor* GrRRectBlurEffect::TestCreate(GrProcessorTestData* d) {
+    SkScalar w = d->fRandom->nextRangeScalar(100.f, 1000.f);
+    SkScalar h = d->fRandom->nextRangeScalar(100.f, 1000.f);
+    SkScalar r = d->fRandom->nextRangeF(1.f, 9.f);
+    SkScalar sigma = d->fRandom->nextRangeF(1.f,10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Create(context, sigma, rrect);
+    return GrRRectBlurEffect::Create(d->fContext, sigma, rrect);
 }
 
 //////////////////////////////////////////////////////////////////////////////

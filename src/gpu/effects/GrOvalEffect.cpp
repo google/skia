@@ -75,17 +75,14 @@ bool CircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleEffect);
 
-GrFragmentProcessor* CircleEffect::TestCreate(SkRandom* random,
-                                              GrContext*,
-                                              const GrCaps& caps,
-                                              GrTexture*[]) {
+GrFragmentProcessor* CircleEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center;
-    center.fX = random->nextRangeScalar(0.f, 1000.f);
-    center.fY = random->nextRangeScalar(0.f, 1000.f);
-    SkScalar radius = random->nextRangeF(0.f, 1000.f);
+    center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
+    center.fY = d->fRandom->nextRangeScalar(0.f, 1000.f);
+    SkScalar radius = d->fRandom->nextRangeF(0.f, 1000.f);
     GrPrimitiveEdgeType et;
     do {
-        et = (GrPrimitiveEdgeType)random->nextULessThan(kGrProcessorEdgeTypeCnt);
+        et = (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
     } while (kHairlineAA_GrProcessorEdgeType == et);
     return CircleEffect::Create(et, center, radius);
 }
@@ -257,18 +254,15 @@ bool EllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(EllipseEffect);
 
-GrFragmentProcessor* EllipseEffect::TestCreate(SkRandom* random,
-                                               GrContext*,
-                                               const GrCaps& caps,
-                                               GrTexture*[]) {
+GrFragmentProcessor* EllipseEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center;
-    center.fX = random->nextRangeScalar(0.f, 1000.f);
-    center.fY = random->nextRangeScalar(0.f, 1000.f);
-    SkScalar rx = random->nextRangeF(0.f, 1000.f);
-    SkScalar ry = random->nextRangeF(0.f, 1000.f);
+    center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
+    center.fY = d->fRandom->nextRangeScalar(0.f, 1000.f);
+    SkScalar rx = d->fRandom->nextRangeF(0.f, 1000.f);
+    SkScalar ry = d->fRandom->nextRangeF(0.f, 1000.f);
     GrPrimitiveEdgeType et;
     do {
-        et = (GrPrimitiveEdgeType)random->nextULessThan(kGrProcessorEdgeTypeCnt);
+        et = (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
     } while (kHairlineAA_GrProcessorEdgeType == et);
     return EllipseEffect::Create(et, center, rx, ry);
 }

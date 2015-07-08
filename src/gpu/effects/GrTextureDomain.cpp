@@ -286,23 +286,20 @@ void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureDomainEffect);
 
-GrFragmentProcessor* GrTextureDomainEffect::TestCreate(SkRandom* random,
-                                                       GrContext*,
-                                                       const GrCaps&,
-                                                       GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                      GrProcessorUnitTest::kAlphaTextureIdx;
+GrFragmentProcessor* GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
+                                          GrProcessorUnitTest::kAlphaTextureIdx;
     SkRect domain;
-    domain.fLeft = random->nextUScalar1();
-    domain.fRight = random->nextRangeScalar(domain.fLeft, SK_Scalar1);
-    domain.fTop = random->nextUScalar1();
-    domain.fBottom = random->nextRangeScalar(domain.fTop, SK_Scalar1);
+    domain.fLeft = d->fRandom->nextUScalar1();
+    domain.fRight = d->fRandom->nextRangeScalar(domain.fLeft, SK_Scalar1);
+    domain.fTop = d->fRandom->nextUScalar1();
+    domain.fBottom = d->fRandom->nextRangeScalar(domain.fTop, SK_Scalar1);
     GrTextureDomain::Mode mode =
-        (GrTextureDomain::Mode) random->nextULessThan(GrTextureDomain::kModeCount);
-    const SkMatrix& matrix = GrTest::TestMatrix(random);
-    bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? random->nextBool() : false;
-    GrCoordSet coords = random->nextBool() ? kLocal_GrCoordSet : kDevice_GrCoordSet;
-    return GrTextureDomainEffect::Create(textures[texIdx],
+        (GrTextureDomain::Mode) d->fRandom->nextULessThan(GrTextureDomain::kModeCount);
+    const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
+    bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? d->fRandom->nextBool() : false;
+    GrCoordSet coords = d->fRandom->nextBool() ? kLocal_GrCoordSet : kDevice_GrCoordSet;
+    return GrTextureDomainEffect::Create(d->fTextures[texIdx],
                                          matrix,
                                          domain,
                                          mode,

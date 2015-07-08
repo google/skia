@@ -1597,19 +1597,16 @@ GrGLFragmentProcessor* GrDiffuseLightingEffect::createGLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDiffuseLightingEffect);
 
-GrFragmentProcessor* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
-                                              GrContext* context,
-                                              const GrCaps&,
-                                              GrTexture* textures[]) {
-    SkScalar surfaceScale = random->nextSScalar1();
-    SkScalar kd = random->nextUScalar1();
-    SkAutoTUnref<SkLight> light(create_random_light(random));
+GrFragmentProcessor* GrDiffuseLightingEffect::TestCreate(GrProcessorTestData* d) {
+    SkScalar surfaceScale = d->fRandom->nextSScalar1();
+    SkScalar kd = d->fRandom->nextUScalar1();
+    SkAutoTUnref<SkLight> light(create_random_light(d->fRandom));
     SkMatrix matrix;
     for (int i = 0; i < 9; i++) {
-        matrix[i] = random->nextUScalar1();
+        matrix[i] = d->fRandom->nextUScalar1();
     }
-    BoundaryMode mode = static_cast<BoundaryMode>(random->nextU() % kBoundaryModeCount);
-    return GrDiffuseLightingEffect::Create(textures[GrProcessorUnitTest::kAlphaTextureIdx],
+    BoundaryMode mode = static_cast<BoundaryMode>(d->fRandom->nextU() % kBoundaryModeCount);
+    return GrDiffuseLightingEffect::Create(d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx],
                                            light, surfaceScale, matrix, kd, mode);
 }
 
@@ -1805,20 +1802,17 @@ GrGLFragmentProcessor* GrSpecularLightingEffect::createGLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
 
-GrFragmentProcessor* GrSpecularLightingEffect::TestCreate(SkRandom* random,
-                                                          GrContext* context,
-                                                          const GrCaps&,
-                                                          GrTexture* textures[]) {
-    SkScalar surfaceScale = random->nextSScalar1();
-    SkScalar ks = random->nextUScalar1();
-    SkScalar shininess = random->nextUScalar1();
-    SkAutoTUnref<SkLight> light(create_random_light(random));
+GrFragmentProcessor* GrSpecularLightingEffect::TestCreate(GrProcessorTestData* d) {
+    SkScalar surfaceScale = d->fRandom->nextSScalar1();
+    SkScalar ks = d->fRandom->nextUScalar1();
+    SkScalar shininess = d->fRandom->nextUScalar1();
+    SkAutoTUnref<SkLight> light(create_random_light(d->fRandom));
     SkMatrix matrix;
     for (int i = 0; i < 9; i++) {
-        matrix[i] = random->nextUScalar1();
+        matrix[i] = d->fRandom->nextUScalar1();
     }
-    BoundaryMode mode = static_cast<BoundaryMode>(random->nextU() % kBoundaryModeCount);
-    return GrSpecularLightingEffect::Create(textures[GrProcessorUnitTest::kAlphaTextureIdx],
+    BoundaryMode mode = static_cast<BoundaryMode>(d->fRandom->nextU() % kBoundaryModeCount);
+    return GrSpecularLightingEffect::Create(d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx],
                                             light, surfaceScale, matrix, ks, shininess, mode);
 }
 
