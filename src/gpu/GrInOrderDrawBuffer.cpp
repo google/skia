@@ -157,8 +157,8 @@ GrInOrderDrawBuffer::setupPipelineAndShouldDraw(const GrPrimitiveProcessor* prim
         return NULL;
     }
 
-    state->fPrimitiveProcessor->initBatchTracker(
-        &state->fBatchTracker, state->getPipeline()->infoForPrimitiveProcessor());
+    state->fPrimitiveProcessor->initBatchTracker(&state->fBatchTracker,
+                                                 state->getPipeline()->getInitBatchTracker());
 
     if (fPrevState && fPrevState->fPrimitiveProcessor.get() &&
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
@@ -186,7 +186,7 @@ GrInOrderDrawBuffer::setupPipelineAndShouldDraw(GrBatch* batch,
         return NULL;
     }
 
-    batch->initBatchTracker(state->getPipeline()->infoForPrimitiveProcessor());
+    batch->initBatchTracker(state->getPipeline()->getInitBatchTracker());
 
     if (fPrevState && !fPrevState->fPrimitiveProcessor.get() &&
         fPrevState->getPipeline()->isEqual(*state->getPipeline())) {

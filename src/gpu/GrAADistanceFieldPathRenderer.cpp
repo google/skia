@@ -157,15 +157,16 @@ public:
 
     void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
-        if (!init.readsColor()) {
+        if (init.fColorIgnored) {
             fBatch.fColor = GrColor_ILLEGAL;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            fBatch.fColor = init.fOverrideColor;
         }
-        init.getOverrideColorIfSet(&fBatch.fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !init.readsColor();
-        fBatch.fUsesLocalCoords = init.readsLocalCoords();
-        fBatch.fCoverageIgnored = !init.readsCoverage();
+        fBatch.fColorIgnored = init.fColorIgnored;
+        fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
+        fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
     struct FlushInfo {

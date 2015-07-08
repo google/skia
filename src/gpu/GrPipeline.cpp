@@ -30,7 +30,7 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
         overrideColor = colorPOI.inputColorToEffectiveStage();
     }
 
-    GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
+    GrXferProcessor::OptFlags optFlags;
     if (xferProcessor) {
         fXferProcessor.reset(xferProcessor.get());
 
@@ -39,11 +39,6 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
                                                    pipelineBuilder.getStencil().doesWrite(),
                                                    &overrideColor,
                                                    caps);
-    }
-
-    // No need to have an override color if it isn't even going to be used.
-    if (SkToBool(GrXferProcessor::kIgnoreColor_OptFlag)) {
-        overrideColor = GrColor_ILLEGAL;
     }
 
     // When path rendering the stencil settings are not always set on the GrPipelineBuilder
@@ -103,25 +98,13 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
                           pipelineBuilder.fCoverageStages[i].processor()->usesLocalCoords();
     }
 
-    // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
-    fInfoForPrimitiveProcessor.fFlags = 0;
-    if (!SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag)) {
-        fInfoForPrimitiveProcessor.fFlags |= GrPipelineInfo::kReadsColor_GrPipelineInfoFlag;
-    }
-    if (GrColor_ILLEGAL != overrideColor) {
-        fInfoForPrimitiveProcessor.fFlags |= GrPipelineInfo::kUseOverrideColor_GrPipelineInfoFlag;
-        fInfoForPrimitiveProcessor.fOverrideColor = overrideColor;
-    }
-    if (!SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag)) {
-        fInfoForPrimitiveProcessor.fFlags |= GrPipelineInfo::kReadsCoverage_GrPipelineInfoFlag;
-    }
-    if (usesLocalCoords) {
-        fInfoForPrimitiveProcessor.fFlags |= GrPipelineInfo::kReadsLocalCoords_GrPipelineInfoFlag;
-    }
-    if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
-       fInfoForPrimitiveProcessor.fFlags |=
-           GrPipelineInfo::kCanTweakAlphaForCoverage_GrPipelineInfoFlag; 
-    }
+    // let the GP init the batch tracker
+    fInitBT.fColorIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag);
+    fInitBT.fOverrideColor = fInitBT.fColorIgnored ? GrColor_ILLEGAL : overrideColor;
+    fInitBT.fCoverageIgnored = SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag);
+    fInitBT.fUsesLocalCoords = usesLocalCoords;
+    fInitBT.fCanTweakAlphaForCoverage =
+        SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag);
 }
 
 void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelineBuilder,

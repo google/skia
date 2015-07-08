@@ -271,7 +271,7 @@ GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(const GrProcOptInfo& 
                                                            bool doesStencilWrite,
                                                            GrColor* overrideColor,
                                                            const GrCaps& caps) {
-   return GrXferProcessor::kNone_OptFlags;
+   return GrXferProcessor::kNone_Opt;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

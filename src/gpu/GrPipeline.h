@@ -97,9 +97,7 @@ public:
 
     bool readsFragPosition() const { return fReadsFragPosition; }
 
-    const GrPipelineInfo& infoForPrimitiveProcessor() const {
-        return fInfoForPrimitiveProcessor;
-    }
+    const GrPipelineInfo& getInitBatchTracker() const { return fInitBT; }
 
 private:
     /**
@@ -137,7 +135,7 @@ private:
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
     bool                                fReadsFragPosition;
-    GrPipelineInfo                      fInfoForPrimitiveProcessor;
+    GrPipelineInfo                      fInitBT;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;

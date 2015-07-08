@@ -34,16 +34,17 @@ public:
 
     void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
-        if (!init.readsColor()) {
+        if (init.fColorIgnored) {
             this->geoData(0)->fColor = GrColor_ILLEGAL;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            this->geoData(0)->fColor = init.fOverrideColor;
         }
-        init.getOverrideColorIfSet(&this->geoData(0)->fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !init.readsColor();
+        fBatch.fColorIgnored = init.fColorIgnored;
         fBatch.fColor = this->geoData(0)->fColor;
-        fBatch.fUsesLocalCoords = init.readsLocalCoords();
-        fBatch.fCoverageIgnored = !init.readsCoverage();
+        fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
+        fBatch.fCoverageIgnored = init.fCoverageIgnored;
     }
 
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {

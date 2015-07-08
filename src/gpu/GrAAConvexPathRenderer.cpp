@@ -761,18 +761,19 @@ public:
 
     void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
-        if (!init.readsColor()) {
+        if (init.fColorIgnored) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
+        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
+            fGeoData[0].fColor = init.fOverrideColor;
         }
-        init.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !init.readsColor();
+        fBatch.fColorIgnored = init.fColorIgnored;
         fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = init.readsLocalCoords();
-        fBatch.fCoverageIgnored = !init.readsCoverage();
+        fBatch.fUsesLocalCoords = init.fUsesLocalCoords;
+        fBatch.fCoverageIgnored = init.fCoverageIgnored;
         fBatch.fLinesOnly = SkPath::kLine_SegmentMask == fGeoData[0].fPath.getSegmentMasks();
-        fBatch.fCanTweakAlphaForCoverage = init.canTweakAlphaForCoverage();
+        fBatch.fCanTweakAlphaForCoverage = init.fCanTweakAlphaForCoverage;
     }
 
     void generateGeometryLinesOnly(GrBatchTarget* batchTarget, const GrPipeline* pipeline) {
