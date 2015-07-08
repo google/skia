@@ -21,6 +21,7 @@
         'chrome_fuzz',
         'dump_record',
         'filter',
+        'flatten',
         'gpuveto',
         'lua_app',
         'lua_pictures',
@@ -273,6 +274,16 @@
       ],
       'dependencies': [
         'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
+      ],
+    },
+    {
+      'target_name': 'flatten',
+      'type': 'executable',
+      'sources': [
+        '../tools/flatten.cpp',
+      ],
+      'dependencies': [
         'skia_lib.gyp:skia_lib',
       ],
     },
