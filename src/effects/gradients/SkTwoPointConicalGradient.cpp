@@ -394,12 +394,13 @@ bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext* context,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* localMatrix,
                                                     GrColor* paintColor,
-                                                    GrShaderDataManager*,
+                                                    GrShaderDataManager* shaderDataManager,
                                                     GrFragmentProcessor** fp)  const {
     SkASSERT(context);
     SkASSERT(fPtsToUnit.isIdentity());
 
-    *fp = Gr2PtConicalGradientEffect::Create(context, *this, fTileMode, localMatrix);
+    *fp = Gr2PtConicalGradientEffect::Create(context, shaderDataManager, *this, fTileMode,
+                                             localMatrix);
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
     return true;
 }

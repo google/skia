@@ -515,13 +515,15 @@ private:
 
 class GrPerlinNoiseEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(SkPerlinNoiseShader::Type type,
+    static GrFragmentProcessor* Create(GrShaderDataManager* shaderDataManager,
+                                       SkPerlinNoiseShader::Type type,
                                        int numOctaves, bool stitchTiles,
                                        SkPerlinNoiseShader::PaintingData* paintingData,
                                        GrTexture* permutationsTexture, GrTexture* noiseTexture,
                                        const SkMatrix& matrix, uint8_t alpha) {
-        return SkNEW_ARGS(GrPerlinNoiseEffect, (type, numOctaves, stitchTiles, paintingData,
-                                                permutationsTexture, noiseTexture, matrix, alpha));
+        return SkNEW_ARGS(GrPerlinNoiseEffect, (shaderDataManager, type, numOctaves, stitchTiles,
+                                                paintingData, permutationsTexture, noiseTexture,
+                                                matrix, alpha));
     }
 
     virtual ~GrPerlinNoiseEffect() {
@@ -563,7 +565,7 @@ private:
         inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
     }
 
-    GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type,
+    GrPerlinNoiseEffect(GrShaderDataManager*, SkPerlinNoiseShader::Type type,
                         int numOctaves, bool stitchTiles,
                         SkPerlinNoiseShader::PaintingData* paintingData,
                         GrTexture* permutationsTexture, GrTexture* noiseTexture,
@@ -945,7 +947,8 @@ void GrGLPerlinNoise::setData(const GrGLProgramDataManager& pdman, const GrProce
 bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                               const SkMatrix& viewM,
                                               const SkMatrix* externalLocalMatrix,
-                                              GrColor* paintColor, GrShaderDataManager*,
+                                              GrColor* paintColor,
+                                              GrShaderDataManager* shaderDataManager,
                                               GrFragmentProcessor** fp) const {
     SkASSERT(context);
 
@@ -984,7 +987,8 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
     if ((permutationsTexture) && (noiseTexture)) {
-        *fp = GrPerlinNoiseEffect::Create(fType,
+        *fp = GrPerlinNoiseEffect::Create(shaderDataManager,
+                                          fType,
                                           fNumOctaves,
                                           fStitchTiles,
                                           paintingData,

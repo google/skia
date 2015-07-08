@@ -44,7 +44,8 @@ public:
     bool isOpaque(SkXfermode::SrcColorOpacity opacityType) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(GrFragmentProcessor**, GrTexture* background) const override;
+    bool asFragmentProcessor(GrFragmentProcessor**, GrShaderDataManager*,
+                             GrTexture* background) const override;
 
     bool asXPFactory(GrXPFactory**) const override;
 #endif

@@ -211,9 +211,9 @@ private:
 
 class GrSweepGradient : public GrGradientEffect {
 public:
-    static GrFragmentProcessor* Create(GrContext* ctx, const SkSweepGradient& shader,
-                                       const SkMatrix& m) {
-        return SkNEW_ARGS(GrSweepGradient, (ctx, shader, m));
+    static GrFragmentProcessor* Create(GrContext* ctx, GrShaderDataManager* shaderDataManager,
+                                       const SkSweepGradient& shader, const SkMatrix& m) {
+        return SkNEW_ARGS(GrSweepGradient, (ctx, shaderDataManager, shader, m));
     }
     virtual ~GrSweepGradient() { }
 
@@ -230,9 +230,10 @@ public:
 
 private:
     GrSweepGradient(GrContext* ctx,
+                    GrShaderDataManager* shaderDataManager,
                     const SkSweepGradient& shader,
                     const SkMatrix& matrix)
-    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) {
+    : INHERITED(ctx, shaderDataManager, shader, matrix, SkShader::kClamp_TileMode) {
         this->initClassID<GrSweepGradient>();
     }
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -298,7 +299,7 @@ void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
 bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                           const SkMatrix& viewM,
                                           const SkMatrix* localMatrix, GrColor* paintColor,
-                                          GrShaderDataManager*,
+                                          GrShaderDataManager* shaderDataManager,
                                           GrFragmentProcessor** effect)  const {
 
     SkMatrix matrix;
@@ -314,7 +315,7 @@ bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& pai
     }
     matrix.postConcat(fPtsToUnit);
 
-    *effect = GrSweepGradient::Create(context, *this, matrix);
+    *effect = GrSweepGradient::Create(context, shaderDataManager, *this, matrix);
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
 
     return true;

@@ -431,11 +431,12 @@ static void emit_custom_xfermode_code(SkXfermode::Mode mode,
 // Fragment Processor
 ///////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor* GrCustomXfermode::CreateFP(SkXfermode::Mode mode, GrTexture* background) {
+GrFragmentProcessor* GrCustomXfermode::CreateFP(GrShaderDataManager* shaderDataManager,
+                                                SkXfermode::Mode mode, GrTexture* background) {
     if (!GrCustomXfermode::IsSupportedMode(mode)) {
         return NULL;
     } else {
-        return SkNEW_ARGS(GrCustomXferFP, (mode, background));
+        return SkNEW_ARGS(GrCustomXferFP, (shaderDataManager, mode, background));
     }
 }
 
@@ -478,7 +479,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrCustomXferFP::GrCustomXferFP(SkXfermode::Mode mode, GrTexture* background)
+GrCustomXferFP::GrCustomXferFP(GrShaderDataManager*, SkXfermode::Mode mode, GrTexture* background)
     : fMode(mode) {
     this->initClassID<GrCustomXferFP>();
 
@@ -514,7 +515,9 @@ GrFragmentProcessor* GrCustomXferFP::TestCreate(SkRandom* rand,
                                                 GrTexture* textures[]) {
     int mode = rand->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 
-    return SkNEW_ARGS(GrCustomXferFP, (static_cast<SkXfermode::Mode>(mode), textures[0]));
+    GrShaderDataManager shaderDataManager;
+    return SkNEW_ARGS(GrCustomXferFP, (&shaderDataManager, static_cast<SkXfermode::Mode>(mode),
+            textures[0]));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -62,11 +62,13 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 class AlphaThresholdEffect : public GrFragmentProcessor {
 
 public:
-    static GrFragmentProcessor* Create(GrTexture* texture,
+    static GrFragmentProcessor* Create(GrShaderDataManager* shaderDataManager,
+                                       GrTexture* texture,
                                        GrTexture* maskTexture,
                                        float innerThreshold,
                                        float outerThreshold) {
-        return SkNEW_ARGS(AlphaThresholdEffect, (texture,
+        return SkNEW_ARGS(AlphaThresholdEffect, (shaderDataManager,
+                                                 texture,
                                                  maskTexture,
                                                  innerThreshold,
                                                  outerThreshold));
@@ -84,7 +86,8 @@ public:
     GrGLFragmentProcessor* createGLInstance() const override;
 
 private:
-    AlphaThresholdEffect(GrTexture* texture,
+    AlphaThresholdEffect(GrShaderDataManager*,
+                         GrTexture* texture,
                          GrTexture* maskTexture,
                          float innerThreshold,
                          float outerThreshold)
@@ -212,7 +215,9 @@ GrFragmentProcessor* AlphaThresholdEffect::TestCreate(SkRandom* random,
     GrTexture* maskTex = textures[GrProcessorUnitTest::kAlphaTextureIdx];
     float inner_thresh = random->nextUScalar1();
     float outer_thresh = random->nextUScalar1();
-    return AlphaThresholdEffect::Create(bmpTex, maskTex, inner_thresh, outer_thresh);
+    GrShaderDataManager shaderDataManager;
+    return AlphaThresholdEffect::Create(&shaderDataManager, bmpTex, maskTex, inner_thresh,
+                                        outer_thresh);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -265,7 +270,7 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
 
 #if SK_SUPPORT_GPU
 bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
-                                                     GrShaderDataManager*,
+                                                     GrShaderDataManager* shaderDataManager,
                                                      GrTexture* texture,
                                                      const SkMatrix& in_matrix,
                                                      const SkIRect&) const {
@@ -303,7 +308,8 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
             }
         }
 
-        *fp = AlphaThresholdEffect::Create(texture,
+        *fp = AlphaThresholdEffect::Create(shaderDataManager,
+                                           texture,
                                            maskTexture,
                                            fInnerThreshold,
                                            fOuterThreshold);

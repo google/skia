@@ -462,10 +462,11 @@ private:
 class GrRadialGradient : public GrGradientEffect {
 public:
     static GrFragmentProcessor* Create(GrContext* ctx,
+                                       GrShaderDataManager* shaderDataManager,
                                        const SkRadialGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm) {
-        return SkNEW_ARGS(GrRadialGradient, (ctx, shader, matrix, tm));
+        return SkNEW_ARGS(GrRadialGradient, (ctx, shaderDataManager, shader, matrix, tm));
     }
 
     virtual ~GrRadialGradient() { }
@@ -483,10 +484,11 @@ public:
 
 private:
     GrRadialGradient(GrContext* ctx,
+                     GrShaderDataManager* shaderDataManager,
                      const SkRadialGradient& shader,
                      const SkMatrix& matrix,
                      SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm) {
+        : INHERITED(ctx, shaderDataManager, shader, matrix, tm) {
         this->initClassID<GrRadialGradient>();
     }
 
@@ -545,7 +547,8 @@ void GrGLRadialGradient::emitCode(GrGLFPBuilder* builder,
 bool SkRadialGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                            const SkMatrix& viewM,
                                            const SkMatrix* localMatrix, GrColor* paintColor,
-                                           GrShaderDataManager*, GrFragmentProcessor** fp) const {
+                                           GrShaderDataManager* shaderDataManager,
+                                           GrFragmentProcessor** fp) const {
     SkASSERT(context);
 
     SkMatrix matrix;
@@ -562,7 +565,7 @@ bool SkRadialGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
     matrix.postConcat(fPtsToUnit);
 
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
-    *fp = GrRadialGradient::Create(context, *this, matrix, fTileMode);
+    *fp = GrRadialGradient::Create(context, shaderDataManager, *this, matrix, fTileMode);
 
     return true;
 }

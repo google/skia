@@ -332,11 +332,13 @@ private:
 class GrDisplacementMapEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create(
+            GrShaderDataManager* shaderDataManager,
             SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector, SkVector scale,
             GrTexture* displacement, const SkMatrix& offsetMatrix, GrTexture* color,
             const SkISize& colorDimensions) {
-        return SkNEW_ARGS(GrDisplacementMapEffect, (xChannelSelector,
+        return SkNEW_ARGS(GrDisplacementMapEffect, (shaderDataManager,
+                                                    xChannelSelector,
                                                     yChannelSelector,
                                                     scale,
                                                     displacement,
@@ -370,7 +372,8 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
-    GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
+    GrDisplacementMapEffect(GrShaderDataManager*,
+                            SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
                             const SkVector& scale,
                             GrTexture* displacement, const SkMatrix& offsetMatrix,
@@ -446,7 +449,8 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
                               SkIntToScalar(colorOffset.fY - displacementOffset.fY));
 
     paint.addColorProcessor(
-        GrDisplacementMapEffect::Create(fXChannelSelector,
+        GrDisplacementMapEffect::Create(paint.getShaderDataManager(),
+                                        fXChannelSelector,
                                         fYChannelSelector,
                                         scale,
                                         displacement,
@@ -475,6 +479,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDisplacementMapEffect::GrDisplacementMapEffect(
+                             GrShaderDataManager*,
                              SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                              SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
                              const SkVector& scale,
@@ -542,7 +547,9 @@ GrFragmentProcessor* GrDisplacementMapEffect::TestCreate(SkRandom* random,
     SkISize colorDimensions;
     colorDimensions.fWidth = random->nextRangeU(0, textures[texIdxColor]->width());
     colorDimensions.fHeight = random->nextRangeU(0, textures[texIdxColor]->height());
-    return GrDisplacementMapEffect::Create(xChannelSelector, yChannelSelector, scale,
+    GrShaderDataManager shaderDataManager;
+    return GrDisplacementMapEffect::Create(&shaderDataManager,
+                                           xChannelSelector, yChannelSelector, scale,
                                            textures[texIdxDispl], SkMatrix::I(),
                                            textures[texIdxColor], colorDimensions);
 }
