@@ -24,16 +24,16 @@ public:
                                        GrColor color,
                                        const SkMatrix& viewMatrix,
                                        const SkMatrix& localMatrix,
-                                       bool usesLocalCoords,
-                                       bool coverageIgnored,
+                                       bool localCoordsWillBeRead,
+                                       bool coverageWillBeIgnored,
                                        uint8_t coverage) {
         return SkNEW_ARGS(DefaultGeoProc, (gpTypeFlags,
                                            color,
                                            viewMatrix,
                                            localMatrix,
                                            coverage,
-                                           usesLocalCoords,
-                                           coverageIgnored));
+                                           localCoordsWillBeRead,
+                                           coverageWillBeIgnored));
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -47,9 +47,9 @@ public:
     bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    bool localCoordsWillBeRead() const { return fLocalCoordsWillBeRead; }
     uint8_t coverage() const { return fCoverage; }
-    bool coverageIgnored() const { return fCoverageIgnored; }
+    bool coverageWillBeIgnored() const { return fCoverageWillBeIgnored; }
     bool hasVertexCoverage() const { return SkToBool(fInCoverage); }
 
     class GLProcessor : public GrGLGeometryProcessor {
@@ -90,7 +90,7 @@ public:
             }
 
             // Setup coverage as pass through
-            if (!gp.coverageIgnored()) {
+            if (!gp.coverageWillBeIgnored()) {
                 if (gp.hasVertexCoverage()) {
                     fs->codeAppendf("float alpha = 1.0;");
                     args.fPB->addPassThroughAttribute(gp.inCoverage(), "alpha");
@@ -116,11 +116,12 @@ public:
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
             key |= def.colorIgnored() << 8;
-            key |= def.coverageIgnored() << 9;
+            key |= def.coverageWillBeIgnored() << 9;
             key |= def.hasVertexColor() << 10;
             key |= def.hasVertexCoverage() << 11;
             key |= def.coverage() == 0xff ? 0x1 << 12 : 0;
-            key |= def.usesLocalCoords() && def.localMatrix().hasPerspective() ? 0x1 << 24 : 0x0;
+            key |= def.localCoordsWillBeRead() && def.localMatrix().hasPerspective() ? 0x1 << 24 :
+                                                                                       0x0;
             key |= ComputePosKey(def.viewMatrix()) << 25;
             b->add32(key);
         }
@@ -144,7 +145,8 @@ public:
                 fColor = dgp.color();
             }
 
-            if (!dgp.coverageIgnored() && dgp.coverage() != fCoverage && !dgp.hasVertexCoverage()) {
+            if (!dgp.coverageWillBeIgnored() &&
+                dgp.coverage() != fCoverage && !dgp.hasVertexCoverage()) {
                 pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(dgp.coverage()));
                 fCoverage = dgp.coverage();
             }
@@ -185,8 +187,8 @@ private:
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,
                    uint8_t coverage,
-                   bool usesLocalCoords,
-                   bool coverageIgnored)
+                   bool localCoordsWillBeRead,
+                   bool coverageWillBeIgnored)
         : fInPosition(NULL)
         , fInColor(NULL)
         , fInLocalCoords(NULL)
@@ -196,8 +198,8 @@ private:
         , fLocalMatrix(localMatrix)
         , fCoverage(coverage)
         , fFlags(gpTypeFlags)
-        , fUsesLocalCoords(usesLocalCoords)
-        , fCoverageIgnored(coverageIgnored) {
+        , fLocalCoordsWillBeRead(localCoordsWillBeRead)
+        , fCoverageWillBeIgnored(coverageWillBeIgnored) {
         this->initClassID<DefaultGeoProc>();
         bool hasColor = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kColor_GPType);
         bool hasLocalCoord = SkToBool(gpTypeFlags & GrDefaultGeoProcFactory::kLocalCoord_GPType);
@@ -214,7 +216,7 @@ private:
         }
         if (hasCoverage) {
             fInCoverage = &this->addVertexAttrib(Attribute("inCoverage",
-                                                             kFloat_GrVertexAttribType));
+                                                           kFloat_GrVertexAttribType));
         }
     }
 
@@ -227,8 +229,8 @@ private:
     SkMatrix fLocalMatrix;
     uint8_t fCoverage;
     uint32_t fFlags;
-    bool fUsesLocalCoords;
-    bool fCoverageIgnored;
+    bool fLocalCoordsWillBeRead;
+    bool fCoverageWillBeIgnored;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -263,8 +265,8 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(SkRandom* random,
 
 const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(uint32_t gpTypeFlags,
                                                            GrColor color,
-                                                           bool usesLocalCoords,
-                                                           bool coverageIgnored,
+                                                           bool localCoordsWillBeRead,
+                                                           bool coverageWillBeIgnored,
                                                            const SkMatrix& viewMatrix,
                                                            const SkMatrix& localMatrix,
                                                            uint8_t coverage) {
@@ -272,7 +274,7 @@ const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(uint32_t gpTypeFlags,
                                   color,
                                   viewMatrix,
                                   localMatrix,
-                                  usesLocalCoords,
-                                  coverageIgnored,
+                                  localCoordsWillBeRead,
+                                  coverageWillBeIgnored,
                                   coverage);
 }

@@ -72,16 +72,65 @@ class GrGLPrimitiveProcessor;
 struct GrInitInvariantOutput;
 
 /*
- * This struct allows the GrPipeline to communicate information about the pipeline.  Most of this
- * is overrides, but some of it is general information.  Logically it should live in GrPipeline.h,
- * but this is problematic due to circular dependencies.
+ * This class allows the GrPipeline to communicate information about the pipeline to a
+ * GrPrimitiveProcessor that will be used in conjunction with the GrPipeline.
  */
-struct GrPipelineInfo {
-    bool fColorIgnored;
-    bool fCoverageIgnored;
-    GrColor fOverrideColor;
-    bool fUsesLocalCoords;
-    bool fCanTweakAlphaForCoverage;
+class GrPipelineInfo {
+public:
+    /** Does the pipeline require the GrPrimitiveProcessor's color? */
+    bool readsColor() const { return SkToBool(kReadsColor_GrPipelineInfoFlag & fFlags); }
+
+    /** Does the pipeline require the GrPrimitiveProcessor's coverage? */
+    bool readsCoverage() const { return SkToBool(kReadsCoverage_GrPipelineInfoFlag & fFlags); }
+
+    /** Does the pipeline require access to (implicit or explicit) local coordinates? */
+    bool readsLocalCoords() const {
+        return SkToBool(kReadsLocalCoords_GrPipelineInfoFlag & fFlags);
+    }
+
+    /** Does the pipeline allow the GrPrimitiveProcessor to combine color and coverage into one
+        color output ? */
+    bool canTweakAlphaForCoverage() const {
+        return SkToBool(kCanTweakAlphaForCoverage_GrPipelineInfoFlag & fFlags);
+    }
+
+    /** Does the pipeline require the GrPrimitiveProcessor to specify a specific color (and if
+        so get the color)? */
+    bool getOverrideColorIfSet(GrColor* overrideColor) const {
+        if (SkToBool(kUseOverrideColor_GrPipelineInfoFlag & fFlags)) {
+            SkASSERT(SkToBool(kReadsColor_GrPipelineInfoFlag & fFlags));
+            if (overrideColor) {
+                *overrideColor = fOverrideColor;
+            }
+            return true;
+        }
+        return false;
+    }
+
+private:
+    enum {
+        // If this is not set the primitive processor need not produce a color output
+        kReadsColor_GrPipelineInfoFlag                  = 0x1,
+
+        // If this is not set the primitive processor need not produce a coverage output
+        kReadsCoverage_GrPipelineInfoFlag               = 0x2,
+
+        // If this is not set the primitive processor need not produce local coordinates
+        kReadsLocalCoords_GrPipelineInfoFlag            = 0x4,
+
+        // If this flag is set then the primitive processor may produce color*coverage as
+        // its color output (and not output a separate coverage).
+        kCanTweakAlphaForCoverage_GrPipelineInfoFlag    = 0x8,
+
+        // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
+        // output color. If not set fOverrideColor is to be ignored.
+        kUseOverrideColor_GrPipelineInfoFlag            = 0x10,
+    };
+
+    uint32_t    fFlags;
+    GrColor     fOverrideColor;
+
+    friend class GrPipeline; // To initialize this
 };
 
 /*

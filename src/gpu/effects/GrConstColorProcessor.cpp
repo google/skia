@@ -66,7 +66,8 @@ private:
 
 void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (kIgnore_InputMode == fMode) {
-        inout->setToOther(kRGBA_GrColorComponentFlags, fColor, GrInvariantOutput::kWill_ReadInput);
+        inout->setToOther(kRGBA_GrColorComponentFlags, fColor,
+                          GrInvariantOutput::kWillNot_ReadInput);
     } else {
         GrColor r = GrColorUnpackR(fColor);
         bool colorIsSingleChannel = r == GrColorUnpackG(fColor) && r == GrColorUnpackB(fColor) &&

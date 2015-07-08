@@ -33,7 +33,7 @@ void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch,
         return;
     }
 
-    batch->initBatchTracker(pipeline->getInitBatchTracker());
+    batch->initBatchTracker(pipeline->infoForPrimitiveProcessor());
 
     fBatchTarget.resetNumberOfDraws();
 

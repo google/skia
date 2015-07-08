@@ -104,10 +104,6 @@ public:
      */
     enum OptFlags {
         /**
-         * No optimizations needed
-         */
-        kNone_Opt                         = 0,
-        /**
          * The draw can be skipped completely.
          */
         kSkipDraw_OptFlag                 = 0x1,
@@ -128,6 +124,8 @@ public:
          */
         kCanTweakAlphaForCoverage_OptFlag = 0x20,
     };
+
+    static const OptFlags kNone_OptFlags = (OptFlags)0;
 
     GR_DECL_BITFIELD_OPS_FRIENDS(OptFlags);
 

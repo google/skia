@@ -1375,11 +1375,10 @@ public:
 
     void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
-        if (init.fColorIgnored) {
+        if (!init.readsColor()) {
             fColor = GrColor_ILLEGAL;
-        } else if (GrColor_ILLEGAL != init.fOverrideColor) {
-            fColor = init.fOverrideColor;
         }
+        init.getOverrideColorIfSet(&fColor);
         fPipelineInfo = init;
     }
 
@@ -1412,8 +1411,8 @@ public:
         LOG("got %d pts, %d contours\n", maxPts, contourCnt);
         uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
         SkAutoTUnref<const GrGeometryProcessor> gp(
-            GrDefaultGeoProcFactory::Create(flags, fColor, fPipelineInfo.fUsesLocalCoords,
-                                            fPipelineInfo.fCoverageIgnored, fViewMatrix,
+            GrDefaultGeoProcFactory::Create(flags, fColor, fPipelineInfo.readsLocalCoords(),
+                                            !fPipelineInfo.readsCoverage(), fViewMatrix,
                                             SkMatrix::I()));
         batchTarget->initDraw(gp, pipeline);
 

@@ -755,7 +755,7 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrProcOptInfo& colo
         = blend(f*Sa, Da)
    */
 
-    OptFlags flags = kNone_Opt;
+    OptFlags flags = kNone_OptFlags;
     if (colorPOI.allStagesMultiplyInput()) {
         flags |= kCanTweakAlphaForCoverage_OptFlag;
     }

@@ -32,17 +32,18 @@ void GrPathProcessor::getInvariantOutputCoverage(GrInitInvariantOutput* out) con
 
 void GrPathProcessor::initBatchTracker(GrBatchTracker* bt, const GrPipelineInfo& init) const {
     PathBatchTracker* local = bt->cast<PathBatchTracker>();
-    if (init.fColorIgnored) {
+    if (!init.readsColor()) {
         local->fInputColorType = kIgnored_GrGPInput;
         local->fColor = GrColor_ILLEGAL;
     } else {
         local->fInputColorType = kUniform_GrGPInput;
-        local->fColor = GrColor_ILLEGAL == init.fOverrideColor ? this->color() :
-                                                                 init.fOverrideColor;
+        if (!init.getOverrideColorIfSet(&local->fColor)) {
+            local->fColor = this->color();
+        }
     }
 
-    local->fInputCoverageType = init.fCoverageIgnored ? kIgnored_GrGPInput : kAllOnes_GrGPInput;
-    local->fUsesLocalCoords = init.fUsesLocalCoords;
+    local->fInputCoverageType = init.readsCoverage() ? kAllOnes_GrGPInput : kIgnored_GrGPInput;
+    local->fUsesLocalCoords = init.readsLocalCoords();
 }
 
 bool GrPathProcessor::canMakeEqual(const GrBatchTracker& m,
