@@ -86,6 +86,7 @@
         '../samplecode/SampleLayerMask.cpp',
         '../samplecode/SampleLayers.cpp',
         '../samplecode/SampleLCD.cpp',
+	'../samplecode/SampleLighting.cpp',
         '../samplecode/SampleLines.cpp',
         '../samplecode/SampleLua.cpp',
         '../samplecode/SampleManyRects.cpp',
