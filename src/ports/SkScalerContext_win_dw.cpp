@@ -722,7 +722,7 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
 }
 
 void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
-    SkASSERT(&glyph && path);
+    SkASSERT(path);
 
     path->reset();
 
