@@ -16,6 +16,27 @@ drawBitmapNine():
     bitmap.extractSubset(&subset, rect);
     canvas->drawBitmapNine(subset, ...);
 
+### Capturing a `.skp` file on a web page in Chromium.
+
+1.  Launch Chrome or Chromium with `--no-sandbox --enable-gpu-benchmarking`
+2.  Open the JS console (ctrl-shift-J)
+3.  Execute: `chrome.gpuBenchmarking.printToSkPicture('/tmp')`
+    This returns "undefined" on success.
+
+Open the resulting file in the Skia Debugger:
+
+    bin/sync-and-gyp
+    ninja -C out/Release debugger
+    out/Release/debugger /tmp/layer_0.skp &
+
+Or use `dm` to rasterize it.
+
+    bin/sync-and-gyp
+    ninja -C out/Release dm
+    out/Release/dm --src skp --skps /tmp/layer_0.skp -w /tmp \
+        --config 8888 gpu pdf --verbose
+    ls -l /tmp/*/skp/layer_0.skp.*
+
 FAQ
 ---
 
