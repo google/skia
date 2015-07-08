@@ -1767,9 +1767,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
     info = new SkAdvancedTypefaceMetrics;
     info->fEmSize = otm.otmEMSquare;
     info->fLastGlyphID = SkToU16(glyphCount - 1);
-    info->fStyle = 0;
     tchar_to_skstring(lf.lfFaceName, &info->fFontName);
-    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
     // If bit 1 is set, the font may not be embedded in a document.
     // If bit 1 is clear, the font can be embedded.
     // If bit 2 is set, the embedding is read-only.
@@ -1787,13 +1785,6 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
         (otm.otmTextMetrics.tmPitchAndFamily & TMPF_TRUETYPE)) {
         info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     } else {
-        info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
-        info->fItalicAngle = 0;
-        info->fAscent = 0;
-        info->fDescent = 0;
-        info->fStemV = 0;
-        info->fCapHeight = 0;
-        info->fBBox = SkIRect::MakeEmpty();
         goto ReturnInfo;
     }
 

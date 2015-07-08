@@ -146,17 +146,7 @@ SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
 // pdf only
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     info->fFontName.set(fTestFont->fName);
-    info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
-    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
     info->fLastGlyphID = SkToU16(onCountGlyphs() - 1);
-    info->fEmSize = 0;
-    info->fStyle = 0;
-    info->fItalicAngle = 0;
-    info->fAscent = 0;
-    info->fDescent = 0;
-    info->fStemV = 0;
-    info->fCapHeight = 0;
-    info->fBBox = SkIRect::MakeEmpty();
     return info;
 }
 

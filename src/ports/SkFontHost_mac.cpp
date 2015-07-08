@@ -1559,8 +1559,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont);
     info->fLastGlyphID = SkToU16(glyphCount - 1);
     info->fEmSize = CTFontGetUnitsPerEm(ctFont);
-    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
-    info->fStyle = 0;
 
     if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
         populate_glyph_to_unicode(ctFont, glyphCount, &info->fGlyphToUnicode);
@@ -1571,13 +1569,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
     // sfntly needs to subset the font. CTFontCopyAttribute() does not always
     // succeed in determining this directly.
     if (!this->getTableSize('glyf') || !this->getTableSize('loca')) {
-        info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
-        info->fItalicAngle = 0;
-        info->fAscent = 0;
-        info->fDescent = 0;
-        info->fStemV = 0;
-        info->fCapHeight = 0;
-        info->fBBox = SkIRect::MakeEmpty();
         return info;
     }
 

@@ -339,8 +339,6 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     info = new SkAdvancedTypefaceMetrics;
     info->fEmSize = dwfm.designUnitsPerEm;
     info->fLastGlyphID = SkToU16(glyphCount - 1);
-    info->fStyle = 0;
-    info->fFlags = SkAdvancedTypefaceMetrics::kEmpty_FontFlag;
 
     // SkAdvancedTypefaceMetrics::fFontName is in theory supposed to be
     // the PostScript name of the font. However, due to the way it is currently
@@ -365,13 +363,9 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
         fontType == DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION) {
         info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     } else {
-        info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
-        info->fItalicAngle = 0;
         info->fAscent = dwfm.ascent;
         info->fDescent = dwfm.descent;
-        info->fStemV = 0;
         info->fCapHeight = dwfm.capHeight;
-        info->fBBox = SkIRect::MakeEmpty();
         return info;
     }
 
@@ -380,12 +374,9 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     AutoTDWriteTable<SkOTTableHorizontalHeader> hheaTable(fDWriteFontFace.get());
     AutoTDWriteTable<SkOTTableOS2> os2Table(fDWriteFontFace.get());
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
-        info->fItalicAngle = 0;
         info->fAscent = dwfm.ascent;
         info->fDescent = dwfm.descent;
-        info->fStemV = 0;
         info->fCapHeight = dwfm.capHeight;
-        info->fBBox = SkIRect::MakeEmpty();
         return info;
     }
 

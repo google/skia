@@ -25,7 +25,19 @@
 
 class SkAdvancedTypefaceMetrics : public SkRefCnt {
 public:
-    
+
+    SkAdvancedTypefaceMetrics()
+        : fType(SkAdvancedTypefaceMetrics::kOther_Font)
+        , fFlags(SkAdvancedTypefaceMetrics::kEmpty_FontFlag)
+        , fLastGlyphID(0)
+        , fEmSize(0)
+        , fStyle(0)
+        , fItalicAngle(0)
+        , fAscent(0)
+        , fDescent(0)
+        , fStemV(0)
+        , fCapHeight(0)
+        , fBBox(SkIRect::MakeEmpty()) {}
 
     SkString fFontName;
 
