@@ -515,7 +515,17 @@ struct Task {
                     hash.writeStream(data, data->getLength());
                     data->rewind();
                 } else {
-                    hash.write(bitmap.getPixels(), bitmap.getSize());
+                    // If we're BGRA (Linux, Windows), swizzle over to RGBA (Mac, Android).
+                    // This helps eliminate multiple 0-pixel-diff hashes on gold.skia.org.
+                    // (Android's general slow speed breaks the tie arbitrarily in RGBA's favor.)
+                    // We might consider promoting 565 to RGBA too.
+                    if (bitmap.colorType() == kBGRA_8888_SkColorType) {
+                        SkBitmap swizzle;
+                        SkAssertResult(bitmap.copyTo(&swizzle, kRGBA_8888_SkColorType));
+                        hash.write(swizzle.getPixels(), swizzle.getSize());
+                    } else {
+                        hash.write(bitmap.getPixels(), bitmap.getSize());
+                    }
                 }
                 SkMD5::Digest digest;
                 hash.finish(digest);
