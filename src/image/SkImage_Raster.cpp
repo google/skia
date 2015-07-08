@@ -79,6 +79,7 @@ public:
                           const SkMatrix* localMatrix) const override;
 
     bool isOpaque() const override;
+    bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
     SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props)
         : INHERITED(bm.width(), bm.height(), props)
@@ -262,3 +263,17 @@ bool SkImage_Raster::isOpaque() const {
     return fBitmap.isOpaque();
 }
 
+bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {
+    if (kRO_LegacyBitmapMode == mode) {
+        // When we're a snapshot from a surface, our bitmap may not be marked immutable
+        // even though logically always we are, but in that case we can't physically share our
+        // pixelref since the caller might call setImmutable() themselves
+        // (thus changing our state).
+        if (fBitmap.isImmutable()) {
+            bitmap->setInfo(fBitmap.info());
+            bitmap->setPixelRef(fBitmap.pixelRef(), fBitmap.pixelRefOrigin());
+            return true;
+        }
+    }
+    return this->INHERITED::onAsLegacyBitmap(bitmap, mode);
+}

@@ -407,6 +407,33 @@ static void test_image_readpixels(skiatest::Reporter* reporter, SkImage* image,
     REPORTER_ASSERT(reporter, has_pixels(&pixels[1], w*h - 1, notExpected));
 }
 
+static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image) {
+    const SkImage::LegacyBitmapMode modes[] = {
+        SkImage::kRO_LegacyBitmapMode,
+        SkImage::kRW_LegacyBitmapMode,
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
+        SkBitmap bitmap;
+        REPORTER_ASSERT(reporter, image->asLegacyBitmap(&bitmap, modes[i]));
+
+        REPORTER_ASSERT(reporter, image->width() == bitmap.width());
+        REPORTER_ASSERT(reporter, image->height() == bitmap.height());
+        REPORTER_ASSERT(reporter, image->isOpaque() == bitmap.isOpaque());
+
+        bitmap.lockPixels();
+        REPORTER_ASSERT(reporter, bitmap.getPixels());
+
+        const SkImageInfo info = SkImageInfo::MakeN32(1, 1, bitmap.alphaType());
+        SkPMColor imageColor;
+        REPORTER_ASSERT(reporter, image->readPixels(info, &imageColor, sizeof(SkPMColor), 0, 0));
+        REPORTER_ASSERT(reporter, imageColor == *bitmap.getAddr32(0, 0));
+
+        if (SkImage::kRO_LegacyBitmapMode == modes[i]) {
+            REPORTER_ASSERT(reporter, bitmap.isImmutable());
+        }
+    }
+}
+
 static void test_imagepeek(skiatest::Reporter* reporter, GrContextFactory* factory) {
     static const struct {
         ImageType   fType;
@@ -449,6 +476,8 @@ static void test_imagepeek(skiatest::Reporter* reporter, GrContextFactory* facto
         } else {
             REPORTER_ASSERT(reporter, NULL == releaseCtx.fData);  // we ignored the context
         }
+
+        test_legacy_bitmap(reporter, image);
 
         const void* addr = image->peekPixels(&info, &rowBytes);
         bool success = SkToBool(addr);

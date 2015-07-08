@@ -257,6 +257,29 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
     return SkNewImageFromRasterBitmap(bm, false, NULL);
 }
 
+bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {
+    return as_IB(this)->onAsLegacyBitmap(bitmap, mode);
+}
+
+bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {
+    // As the base-class, all we can do is make a copy (regardless of mode).
+    // Subclasses that want to be more optimal should override.
+    SkImageInfo info = SkImageInfo::MakeN32(this->width(), this->height(),
+                                    this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+    if (!bitmap->tryAllocPixels(info)) {
+        return false;
+    }
+    if (!this->readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(), 0, 0)) {
+        bitmap->reset();
+        return false;
+    }
+
+    if (kRO_LegacyBitmapMode == mode) {
+        bitmap->setImmutable();
+    }
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU

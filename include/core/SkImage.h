@@ -264,6 +264,24 @@ public:
     SkImage* newImage(int newWidth, int newHeight, const SkIRect* subset = NULL,
                       SkFilterQuality = kNone_SkFilterQuality) const;
 
+    // Helper functions to convert to SkBitmap
+
+    enum LegacyBitmapMode {
+        kRO_LegacyBitmapMode,
+        kRW_LegacyBitmapMode,
+    };
+
+    /**
+     *  Attempt to create a bitmap with the same pixels as the image. The result will always be
+     *  a raster-backed bitmap (texture-backed bitmaps are DEPRECATED, and not supported here).
+     *
+     *  If the mode is kRO (read-only), the resulting bitmap will be marked as immutable.
+     *
+     *  On succcess, returns true. On failure, returns false and the bitmap parameter will be reset
+     *  to empty.
+     */
+    bool asLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
+    
 protected:
     SkImage(int width, int height) :
         fWidth(width),

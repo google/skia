@@ -61,6 +61,8 @@ public:
                                 SkFilterQuality) const;
     virtual SkData* onRefEncoded() const { return NULL; }
 
+    virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
+
 private:
     const SkSurfaceProps fProps;
 
