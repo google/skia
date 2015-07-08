@@ -348,6 +348,7 @@ static GrTextureDomain::Mode convert_tilemodes(
 }
 
 bool SkMatrixConvolutionImageFilter::asFragmentProcessor(GrFragmentProcessor** fp,
+                                                         GrShaderDataManager*,
                                                          GrTexture* texture,
                                                          const SkMatrix&,
                                                          const SkIRect& bounds) const {

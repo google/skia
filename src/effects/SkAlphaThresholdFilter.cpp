@@ -28,8 +28,8 @@ protected:
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                        SkBitmap* result, SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
-                             const SkIRect& bounds) const override;
+    bool asFragmentProcessor(GrFragmentProcessor**, GrShaderDataManager*, GrTexture*,
+                             const SkMatrix&, const SkIRect& bounds) const override;
 #endif
 
 private:
@@ -265,6 +265,7 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
 
 #if SK_SUPPORT_GPU
 bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
+                                                     GrShaderDataManager*,
                                                      GrTexture* texture,
                                                      const SkMatrix& in_matrix,
                                                      const SkIRect&) const {

@@ -276,8 +276,9 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect, SkScalar i
 }
 
 #if SK_SUPPORT_GPU
-bool SkMagnifierImageFilter::asFragmentProcessor(GrFragmentProcessor** fp, GrTexture* texture,
-                                                 const SkMatrix&, const SkIRect&bounds) const {
+bool SkMagnifierImageFilter::asFragmentProcessor(GrFragmentProcessor** fp, GrShaderDataManager*,
+                                                 GrTexture* texture, const SkMatrix&,
+                                                 const SkIRect&bounds) const {
     if (fp) {
         SkScalar yOffset = texture->origin() == kTopLeft_GrSurfaceOrigin ? fSrcRect.y() :
            texture->height() - fSrcRect.height() * texture->height() / bounds.height()

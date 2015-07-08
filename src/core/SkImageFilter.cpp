@@ -232,7 +232,7 @@ bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const Context&,
 }
 
 bool SkImageFilter::canFilterImageGPU() const {
-    return this->asFragmentProcessor(NULL, NULL, SkMatrix::I(), SkIRect());
+    return this->asFragmentProcessor(NULL, NULL, NULL, SkMatrix::I(), SkIRect());
 }
 
 bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
@@ -275,9 +275,9 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     bounds.offset(-srcOffset);
     SkMatrix matrix(ctx.ctm());
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    if (this->asFragmentProcessor(&fp, srcTexture, matrix, bounds)) {
+    GrPaint paint;
+    if (this->asFragmentProcessor(&fp, paint.getShaderDataManager(), srcTexture, matrix, bounds)) {
         SkASSERT(fp);
-        GrPaint paint;
         paint.addColorProcessor(fp)->unref();
 
         GrDrawContext* drawContext = context->drawContext();
@@ -374,8 +374,8 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
-bool SkImageFilter::asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
-                                        const SkIRect&) const {
+bool SkImageFilter::asFragmentProcessor(GrFragmentProcessor**, GrShaderDataManager*, GrTexture*,
+                                        const SkMatrix&, const SkIRect&) const {
     return false;
 }
 
