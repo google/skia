@@ -253,12 +253,6 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
     }
 #endif
 
-    // Encoded version?
-    if (SkData* encoded = pr->refEncodedData()) {
-        SkAutoTUnref<SkData> data(encoded);
-        return SkImage::NewFromEncoded(encoded);   // todo: add origin/subset/etc?
-    }
-
     // This will check for immutable (share or copy)
     return SkNewImageFromRasterBitmap(bm, false, NULL);
 }
