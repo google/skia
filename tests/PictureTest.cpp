@@ -993,7 +993,8 @@ static void test_cull_rect_reset(skiatest::Reporter* reporter) {
     SkPaint paint;
     canvas->drawRect(bounds, paint);
     canvas->drawRect(bounds, paint);
-    const SkBigPicture* picture = recorder.endRecordingAsPicture(bounds)->asSkBigPicture();
+    SkAutoTUnref<const SkPicture> p(recorder.endRecordingAsPicture(bounds));
+    const SkBigPicture* picture = p->asSkBigPicture();
     REPORTER_ASSERT(reporter, picture);
 
     SkRect finalCullRect = picture->cullRect();
