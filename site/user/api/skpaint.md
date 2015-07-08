@@ -20,19 +20,35 @@ of matrix and clip settings.
 
 <!--?prettify lang=cc?-->
 
-    SkPaint paint1, paint2, paint3;
+    void draw(SkCanvas* canvas) {
+        canvas->clear(SK_ColorWHITE);
 
-    paint1.setColor(0xFFFF0000:
-    paint1.setStyle(SkPaint::kFill_Style);
+        SkPaint paint1, paint2, paint3;
 
-    paint2.setColor(0x8000FF00);
-    paint2.setStyle(SkPaint::kStroke_Style);
-    paint2.setStrokeWidth(SkIntToScalar(3));
+        paint1.setTextSize(64.0f);
+        paint1.setAntiAlias(true);
+        paint1.setColor(0xFFFF0000);
+        paint1.setStyle(SkPaint::kFill_Style);
 
-    paint3.setColor(0xFF888888);
-    paint3.setTextSize(SkIntToScalar(24));
-    paint3.setTextScaleX(SkFloatToScalar(0.75f));
+        paint2.setTextSize(64.f);
+        paint2.setAntiAlias(true);
+        paint2.setColor(0xFF008800);
+        paint2.setStyle(SkPaint::kStroke_Style);
+        paint2.setStrokeWidth(SkIntToScalar(3));
 
+        paint3.setTextSize(64.0f);
+        paint3.setAntiAlias(true);
+        paint3.setColor(0xFF888888);
+        paint3.setTextScaleX(SkFloatToScalar(1.5f));
+
+        const char text[] = "Skia!";
+        canvas->drawText(text, strlen(text), 20.0f, 64.0f,  paint1);
+        canvas->drawText(text, strlen(text), 20.0f, 144.0f, paint2);
+        canvas->drawText(text, strlen(text), 20.0f, 224.0f, paint3);
+    }
+
+<a href="https://fiddle.skia.org/c/b8e7991ede1ca88e5458aa1f0039caf9">
+<img src="https://fiddle.skia.org/i/b8e7991ede1ca88e5458aa1f0039caf9_raster.png"></a>
 
 This shows three different paints, each setup to draw in a different
 style. Now the caller can intermix these paints freely, either using

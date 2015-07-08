@@ -19,13 +19,10 @@ heptagram.  This function can be cut and pasted into
         const SkScalar R = 0.45f * scale;
         const SkScalar TAU = 6.2831853f;
         SkPath path;
-        for (int i = 0; i < 7; ++i) {
+        path.moveTo(R, 0.0f);
+        for (int i = 1; i < 7; ++i) {
             SkScalar theta = 3 * i * TAU / 7;
-            if (i == 0) {
-                path.moveTo(R * cos(theta), R * sin(theta));
-            } else {
-                path.lineTo(R * cos(theta), R * sin(theta));
-            }
+            path.lineTo(R * cos(theta), R * sin(theta));
         }
         path.close();
         SkPaint p;
@@ -34,6 +31,9 @@ heptagram.  This function can be cut and pasted into
         canvas->translate(0.5f * scale, 0.5f * scale);
         canvas->drawPath(path, p);
     }
+
+<a href="https://fiddle.skia.org/c/d7b4ccb6d6281b68a274a72b187fc450">
+<img src="https://fiddle.skia.org/i/d7b4ccb6d6281b68a274a72b187fc450_raster.png"></a>
 
 Details
 -------
@@ -56,6 +56,9 @@ SkPaint.
         canvas->drawRect(rect, paint);
         canvas->restore();
     }
+
+<a href="https://fiddle.skia.org/c/71f2e87df2be1cdbc44139ee3e2790eb">
+<img src="https://fiddle.skia.org/i/71f2e87df2be1cdbc44139ee3e2790eb_raster.png"></a>
 
 The code above will draw a rectangle rotated by 45 degrees. Exactly
 what color and style the rect will be drawn in is described by the
@@ -93,10 +96,15 @@ parameter.
 
 <!--?prettify lang=cc?-->
 
+    SkBitmap source;
+
     void draw(SkCanvas* canvas) {
+        canvas->drawColor(SK_ColorWHITE);
+
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(2);
+        paint.setStrokeWidth(4);
+        paint.setColor(SK_ColorRED);
 
         SkRect rect = SkRect::MakeXYWH(50, 50, 40, 60);
         canvas->drawRect(rect, paint);
@@ -104,15 +112,19 @@ parameter.
         SkRRect oval;
         oval.setOval(rect);
         oval.offset(40, 60);
+        paint.setColor(SK_ColorBLUE);
         canvas->drawRRect(oval, paint);
 
+        paint.setColor(SK_ColorCYAN);
         canvas->drawCircle(180, 50, 25, paint);
 
         rect.offset(80, 0);
+        paint.setColor(SK_ColorYELLOW);
         canvas->drawRoundRect(rect, 10, 10, paint);
 
         SkPath path;
         path.cubicTo(768, 0, -512, 256, 256, 256);
+        paint.setColor(SK_ColorGREEN);
         canvas->drawPath(path, paint);
 
         canvas->drawBitmap(source, 128, 128, &paint);
@@ -124,6 +136,9 @@ parameter.
         const char text[] = "Hello, Skia!";
         canvas->drawText(text, strlen(text), 50, 25, paint2);
     }
+
+<a href="https://fiddle.skia.org/c/35b614d41e60289461d658a9d509e28d">
+<img src="https://fiddle.skia.org/i/35b614d41e60289461d658a9d509e28d_raster.png"></a>
 
 In some of the calls, we pass a pointer, rather than a reference, to
 the paint. In those instances, the paint parameter may be null. In all
