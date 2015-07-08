@@ -394,6 +394,7 @@ bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext* context,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* localMatrix,
                                                     GrColor* paintColor,
+                                                    GrShaderDataManager*,
                                                     GrFragmentProcessor** fp)  const {
     SkASSERT(context);
     SkASSERT(fPtsToUnit.isIdentity());
@@ -407,7 +408,8 @@ bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext* context,
 
 bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext*, const SkPaint&,
                                                     const SkMatrix&, const SkMatrix*,
-                                                    GrColor*, GrFragmentProcessor**)  const {
+                                                    GrColor*, GrShaderDataManager*,
+                                                    GrFragmentProcessor**)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

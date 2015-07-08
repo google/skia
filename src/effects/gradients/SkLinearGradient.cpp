@@ -543,9 +543,10 @@ GrFragmentProcessor* GrLinearGradient::TestCreate(SkRandom* random,
     SkPaint paint;
     GrColor paintColor;
     GrFragmentProcessor* fp;
+    GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
                                                GrTest::TestMatrix(random), NULL,
-                                               &paintColor, &fp));
+                                               &paintColor, grPaint.getShaderDataManager(), &fp));
     return fp;
 }
 
@@ -568,7 +569,8 @@ void GrGLLinearGradient::emitCode(GrGLFPBuilder* builder,
 
 bool SkLinearGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                            const SkMatrix& viewm, const SkMatrix* localMatrix,
-                                           GrColor* paintColor, GrFragmentProcessor** fp)  const {
+                                           GrColor* paintColor, GrShaderDataManager*,
+                                           GrFragmentProcessor** fp)  const {
     SkASSERT(context);
 
     SkMatrix matrix;
@@ -593,7 +595,7 @@ bool SkLinearGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
 #else
 
 bool SkLinearGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                           const SkMatrix*, GrColor*,
+                                           const SkMatrix*, GrColor*, GrShaderDataManager*,
                                            GrFragmentProcessor**)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

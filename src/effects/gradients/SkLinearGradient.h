@@ -31,7 +31,8 @@ public:
     BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
     GradientType asAGradient(GradientInfo* info) const override;
     bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
-                             const SkMatrix*, GrColor*, GrFragmentProcessor**) const override;
+                             const SkMatrix*, GrColor*, GrShaderDataManager*,
+                             GrFragmentProcessor**) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLinearGradient)

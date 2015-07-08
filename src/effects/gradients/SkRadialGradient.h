@@ -31,7 +31,7 @@ public:
     BitmapType asABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* xy) const override;
     GradientType asAGradient(GradientInfo* info) const override;
     bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
-                             const SkMatrix*, GrColor*,
+                             const SkMatrix*, GrColor*, GrShaderDataManager*,
                              GrFragmentProcessor**) const override;
 
     SK_TO_STRING_OVERRIDE()

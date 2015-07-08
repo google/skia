@@ -61,7 +61,8 @@ public:
     BitmapType asABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* xy) const override;
     SkShader::GradientType asAGradient(GradientInfo* info) const  override;
     bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&, const SkMatrix*,
-                             GrColor*, GrFragmentProcessor**) const override;
+                             GrColor*, GrShaderDataManager*,
+                             GrFragmentProcessor**) const override;
     bool isOpaque() const override;
 
     SkScalar getCenterX1() const { return SkPoint::Distance(fCenter1, fCenter2); }

@@ -770,7 +770,8 @@ bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPa
         // Allow the shader to modify paintColor and also create an effect to be installed as
         // the first color effect on the GrPaint.
         GrFragmentProcessor* fp = NULL;
-        if (!shader->asFragmentProcessor(context, skPaint, viewM, NULL, &paintColor, &fp)) {
+        if (!shader->asFragmentProcessor(context, skPaint, viewM, NULL, &paintColor,
+                                         grPaint->getShaderDataManager(), &fp)) {
             return false;
         }
         if (fp) {

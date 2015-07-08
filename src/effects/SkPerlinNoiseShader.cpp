@@ -622,9 +622,11 @@ GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
     SkPaint paint;
     GrColor paintColor;
     GrFragmentProcessor* effect;
+    GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
                                                GrTest::TestMatrix(random), NULL,
-                                               &paintColor, &effect));
+                                               &paintColor, grPaint.getShaderDataManager(),
+                                               &effect));
 
     SkDELETE(shader);
 
@@ -943,7 +945,8 @@ void GrGLPerlinNoise::setData(const GrGLProgramDataManager& pdman, const GrProce
 bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                               const SkMatrix& viewM,
                                               const SkMatrix* externalLocalMatrix,
-                                              GrColor* paintColor, GrFragmentProcessor** fp) const {
+                                              GrColor* paintColor, GrShaderDataManager*,
+                                              GrFragmentProcessor** fp) const {
     SkASSERT(context);
 
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
@@ -997,7 +1000,7 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
 #else
 
 bool SkPerlinNoiseShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                              const SkMatrix*, GrColor*,
+                                              const SkMatrix*, GrColor*, GrShaderDataManager*,
                                               GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

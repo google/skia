@@ -12,6 +12,7 @@
 
 #include "GrColor.h"
 #include "GrFragmentStage.h"
+#include "GrShaderDataManager.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
@@ -136,6 +137,8 @@ public:
      */
     bool isConstantBlendedColor(GrColor* constantColor) const;
 
+    GrShaderDataManager* getShaderDataManager() { return &fShaderDataManager; }
+
 private:
     mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
     SkSTArray<4, GrFragmentStage>   fColorStages;
@@ -145,6 +148,7 @@ private:
     bool                            fDither;
 
     GrColor                         fColor;
+    GrShaderDataManager             fShaderDataManager;
 };
 
 #endif

@@ -260,9 +260,10 @@ GrFragmentProcessor* GrSweepGradient::TestCreate(SkRandom* random,
     SkPaint paint;
     GrFragmentProcessor* fp;
     GrColor paintColor;
+    GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
                                                GrTest::TestMatrix(random), NULL,
-                                               &paintColor, &fp));
+                                               &paintColor, grPaint.getShaderDataManager(), &fp));
     return fp;
 }
 
@@ -297,6 +298,7 @@ void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
 bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                           const SkMatrix& viewM,
                                           const SkMatrix* localMatrix, GrColor* paintColor,
+                                          GrShaderDataManager*,
                                           GrFragmentProcessor** effect)  const {
 
     SkMatrix matrix;
@@ -321,7 +323,7 @@ bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& pai
 #else
 
 bool SkSweepGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                          const SkMatrix*, GrColor*,
+                                          const SkMatrix*, GrColor*, GrShaderDataManager*,
                                           GrFragmentProcessor**)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

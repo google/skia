@@ -34,7 +34,7 @@ public:
     }
 
     bool asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
-                             const SkMatrix* localMatrix, GrColor* color,
+                             const SkMatrix* localMatrix, GrColor* color, GrShaderDataManager*,
                              GrFragmentProcessor** fp) const override;
 
 #ifndef SK_IGNORE_TO_STRING
@@ -101,7 +101,7 @@ private:
 
 bool DCShader::asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
                                    const SkMatrix* localMatrix, GrColor* color,
-                                   GrFragmentProcessor** fp) const {
+                                   GrShaderDataManager*, GrFragmentProcessor** fp) const {
     *fp = SkNEW_ARGS(DCFP, (fDeviceMatrix));
     *color = GrColorPackA4(paint.getAlpha());
     return true;

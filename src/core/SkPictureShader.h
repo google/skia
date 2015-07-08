@@ -31,7 +31,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureShader)
 
     bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM, const SkMatrix*,
-                             GrColor*, GrFragmentProcessor**) const override;
+                             GrColor*, GrShaderDataManager*, GrFragmentProcessor**) const override;
 
 protected:
     SkPictureShader(SkReadBuffer&);

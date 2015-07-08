@@ -32,7 +32,7 @@ public:
 
 
     bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM, const SkMatrix*,
-                             GrColor*, GrFragmentProcessor**) const override;
+                             GrColor*, GrShaderDataManager*, GrFragmentProcessor**) const override;
 
     class BitmapProcShaderContext : public SkShader::Context {
     public:

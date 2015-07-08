@@ -11,6 +11,7 @@
 #include "SkTwoPointConicalGradient.h"
 
 #if SK_SUPPORT_GPU
+#include "GrPaint.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 // For brevity
 typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -216,9 +217,10 @@ GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(SkRandom* random,
     SkPaint paint;
     GrFragmentProcessor* fp;
     GrColor paintColor;
+    GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
                                                GrTest::TestMatrix(random), NULL,
-                                               &paintColor, &fp));
+                                               &paintColor, grPaint.getShaderDataManager(), &fp));
     return fp;
 }
 
@@ -502,10 +504,11 @@ GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(SkRandom* random,
     SkPaint paint;
     GrFragmentProcessor* effect;
     GrColor paintColor;
-
+    GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
                                                GrTest::TestMatrix(random), NULL,
-                                               &paintColor, &effect));
+                                               &paintColor, grPaint.getShaderDataManager(),
+                                               &effect));
     return effect;
 }
 
@@ -723,9 +726,10 @@ GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(SkRandom* random,
     SkPaint paint;
     GrColor paintColor;
     GrFragmentProcessor* fp;
+    GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
                                                GrTest::TestMatrix(random), NULL,
-                                               &paintColor, &fp));
+                                               &paintColor, grPaint.getShaderDataManager(), &fp));
     return fp;
 }
 
@@ -977,11 +981,12 @@ GrFragmentProcessor* CircleInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                                           tm));
     SkPaint paint;
     GrColor paintColor;
-    GrFragmentProcessor* processor;
+    GrFragmentProcessor* fp;
+    GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
                                                GrTest::TestMatrix(random), NULL,
-                                               &paintColor, &processor));
-    return processor;
+                                               &paintColor, grPaint.getShaderDataManager(), &fp));
+    return fp;
 }
 
 GLCircleInside2PtConicalEffect::GLCircleInside2PtConicalEffect(const GrProcessor& processor)
@@ -1217,12 +1222,12 @@ GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                                           tm));
     SkPaint paint;
     GrColor paintColor;
-    GrFragmentProcessor* processor;
-
+    GrFragmentProcessor* fp;
+    GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(context, paint,
                                                GrTest::TestMatrix(random), NULL,
-                                               &paintColor, &processor));
-    return processor;
+                                               &paintColor, grPaint.getShaderDataManager(), &fp));
+    return fp;
 }
 
 GLCircleOutside2PtConicalEffect::GLCircleOutside2PtConicalEffect(const GrProcessor& processor)
