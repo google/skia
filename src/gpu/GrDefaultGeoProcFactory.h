@@ -74,17 +74,17 @@ public:
     };
 
     /*
-     * The following functions are used to create default GPs.  If you just need to create
-     * attributes seperately from creating the default GP, use the SetAttribs function followed
-     * by the Create function.  Otherwise use CreateAndSetAttribs to do both at once.
+     * The following functions are used to create default GPs. If you just need to create
+     * attributes separately from creating the default GP, use the SetAttribs function followed
+     * by the Create function. Otherwise use CreateAndSetAttribs to do both at once.
      *
      * You must unref the return from Create.
      */
     // TODO clean this up
     static const GrGeometryProcessor* Create(uint32_t gpTypeFlags,
                                              GrColor,
-                                             bool usesLocalCoords,
-                                             bool coverageIgnored,
+                                             bool localCoordsWillBeRead,
+                                             bool coverageWillBeIgnored,
                                              const SkMatrix& viewMatrix = SkMatrix::I(),
                                              const SkMatrix& localMatrix = SkMatrix::I(),
                                              uint8_t coverage = 0xff);

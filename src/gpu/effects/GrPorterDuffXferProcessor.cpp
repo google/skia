@@ -428,7 +428,7 @@ PorterDuffXferProcessor::onGetOptimizations(const GrProcOptInfo& colorPOI,
                                             bool doesStencilWrite,
                                             GrColor* overrideColor,
                                             const GrCaps& caps) {
-    GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_Opt;
+    GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
     if (!fBlendFormula.modifiesDst()) {
         if (!doesStencilWrite) {
             optFlags |= GrXferProcessor::kSkipDraw_OptFlag;
@@ -471,7 +471,7 @@ public:
 private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo&, const GrProcOptInfo&,
                                                  bool, GrColor*, const GrCaps&) override {
-        return kNone_Opt;
+        return kNone_OptFlags;
     }
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
