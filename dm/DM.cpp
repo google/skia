@@ -93,7 +93,7 @@ static void done(double ms,
     }
     auto pending = sk_atomic_dec(&gPending)-1;
     if (!FLAGS_quiet) {
-        SkDebugf("%s(%4d/%-4dMB %5d) %s\t%s%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
+        SkDebugf("%s(%4d/%-4dMB %6d) %s\t%s%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
                                            , sk_tools::getCurrResidentSetSizeMB()
                                            , sk_tools::getMaxResidentSetSizeMB()
                                            , pending
