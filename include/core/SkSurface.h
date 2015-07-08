@@ -159,11 +159,23 @@ public:
      */
     void notifyContentWillChange(ContentChangeMode mode);
 
-    enum TextureHandleAccess {
-        kFlushRead_TextureHandleAccess,     //!< caller may read from the texture
-        kFlushWrite_TextureHandleAccess,    //!< caller may write to the texture
-        kDiscardWrite_TextureHandleAccess,  //!< caller must over-write the entire texture
+    enum BackendHandleAccess {
+        kFlushRead_BackendHandleAccess,     //!< caller may read from the backend object
+        kFlushWrite_BackendHandleAccess,    //!< caller may write to the backend object
+        kDiscardWrite_BackendHandleAccess,  //!< caller must over-write the entire backend object
     };
+
+    /*
+     * These are legacy aliases which will be removed soon
+     */
+    static const BackendHandleAccess kFlushRead_TextureHandleAccess =
+            kFlushRead_BackendHandleAccess;
+    static const BackendHandleAccess kFlushWrite_TextureHandleAccess =
+            kFlushWrite_BackendHandleAccess;
+    static const BackendHandleAccess kDiscardWrite_TextureHandleAccess =
+            kDiscardWrite_BackendHandleAccess;
+
+
     /**
      *  Retrieves the backend API handle of the texture used by this surface, or 0 if the surface
      *  is not backed by a GPU texture.
@@ -171,7 +183,15 @@ public:
      *  The returned texture-handle is only valid until the next draw-call into the surface,
      *  or the surface is deleted.
      */
-    GrBackendObject getTextureHandle(TextureHandleAccess);
+    GrBackendObject getTextureHandle(BackendHandleAccess);
+
+    /**
+     *  Retrieves the backend API handle of the RenderTarget backing this surface.  Callers must
+     *  ensure this function returns 'true' or else the GrBackendObject will be invalid
+     *
+     *  In OpenGL this will return the FramebufferObject ID.
+     */
+    bool getRenderTargetHandle(GrBackendObject*, BackendHandleAccess);
 
     /**
      *  Return a canvas that will draw into this surface. This will always

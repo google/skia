@@ -138,6 +138,12 @@ public:
     };
     virtual ResolveType getResolveType() const = 0;
 
+    /**
+     *  Return the native ID or handle to the rendertarget, depending on the
+     *  platform. e.g. on OpenGL, return the FBO ID.
+     */
+    virtual GrBackendObject getRenderTargetHandle() const = 0;
+
     // Provides access to functions that aren't part of the public API.
     GrRenderTargetPriv renderTargetPriv();
     const GrRenderTargetPriv renderTargetPriv() const;

@@ -16,12 +16,11 @@ class SkGpuDevice;
 
 class SkSurface_Gpu : public SkSurface_Base {
 public:
-    
-
     SkSurface_Gpu(SkGpuDevice*);
     virtual ~SkSurface_Gpu();
 
-    GrBackendObject onGetTextureHandle(TextureHandleAccess) override;
+    GrBackendObject onGetTextureHandle(BackendHandleAccess) override;
+    bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) override;
     SkCanvas* onNewCanvas() override;
     SkSurface* onNewSurface(const SkImageInfo&) override;
     SkImage* onNewImageSnapshot(Budgeted) override;

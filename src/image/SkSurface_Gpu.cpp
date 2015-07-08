@@ -26,21 +26,37 @@ SkSurface_Gpu::~SkSurface_Gpu() {
     fDevice->unref();
 }
 
-GrBackendObject SkSurface_Gpu::onGetTextureHandle(TextureHandleAccess access) {
-    GrRenderTarget* rt = fDevice->accessRenderTarget();
+static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
+                                                      SkSurface::BackendHandleAccess access) {
+    GrRenderTarget* rt = surface->getDevice()->accessRenderTarget();
     switch (access) {
-        case kFlushRead_TextureHandleAccess:
+        case SkSurface::kFlushRead_BackendHandleAccess:
             break;
-        case kFlushWrite_TextureHandleAccess:
-        case kDiscardWrite_TextureHandleAccess:
+        case SkSurface::kFlushWrite_BackendHandleAccess:
+        case SkSurface::kDiscardWrite_BackendHandleAccess:
             // for now we don't special-case on Discard, but we may in the future.
-            this->notifyContentWillChange(kRetain_ContentChangeMode);
+            surface->notifyContentWillChange(SkSurface::kRetain_ContentChangeMode);
             // legacy: need to dirty the bitmap's genID in our device (curse it)
-            fDevice->fLegacyBitmap.notifyPixelsChanged();
+            surface->getDevice()->accessBitmap(false).notifyPixelsChanged();
             break;
     }
     rt->prepareForExternalIO();
-    return rt->asTexture()->getTextureHandle();
+    return rt;
+}
+
+GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
+    GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    GrTexture* texture = rt->asTexture();
+    if (texture) {
+        return texture->getTextureHandle();
+    }
+    return 0;
+}
+
+bool SkSurface_Gpu::onGetRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
+    GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    *obj = rt->getRenderTargetHandle();
+    return true;
 }
 
 SkCanvas* SkSurface_Gpu::onNewCanvas() {

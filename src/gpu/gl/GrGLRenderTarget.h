@@ -55,6 +55,8 @@ public:
         }
     }
 
+    GrBackendObject getRenderTargetHandle() const override { return fRTFBOID; }
+
     /** When we don't own the FBO ID we don't attempt to modify its attachments. */
     bool canAttemptStencilAttachment() const override {
         return kCached_LifeCycle == fRTLifecycle || kUncached_LifeCycle == fRTLifecycle;

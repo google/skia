@@ -175,8 +175,12 @@ bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t d
     return this->getCanvas()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
 }
 
-GrBackendObject SkSurface::getTextureHandle(TextureHandleAccess access) {
+GrBackendObject SkSurface::getTextureHandle(BackendHandleAccess access) {
     return asSB(this)->onGetTextureHandle(access);
+}
+
+bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
+    return asSB(this)->onGetRenderTargetHandle(obj, access);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

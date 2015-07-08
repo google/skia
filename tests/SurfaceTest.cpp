@@ -102,7 +102,7 @@ static void test_empty_surface(skiatest::Reporter* reporter, GrContext* ctx) {
 }
 
 #if SK_SUPPORT_GPU
-static void test_wrapped_surface(skiatest::Reporter* reporter, GrContext* ctx) {
+static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext* ctx) {
     if (NULL == ctx) {
         return;
     }
@@ -120,107 +120,77 @@ static void test_wrapped_surface(skiatest::Reporter* reporter, GrContext* ctx) {
         return;
     }
 
-    for (int useFBO = 0; useFBO < 2; ++useFBO) {
-        // Test the wrapped factory for SkSurface by creating a texture using GL and then wrap it in
-        // a SkSurface.
-        GrGLuint texID;
-        static const int kW = 100;
-        static const int kH = 100;
-        static const uint32_t kOrigColor = 0xFFAABBCC;
-        SkAutoTArray<uint32_t> pixels(kW * kH);
-        sk_memset32(pixels.get(), kOrigColor, kW * kH);
-        GR_GL_CALL(gl, GenTextures(1, &texID));
-        GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0));
-        GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-        GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texID));
-        GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER,
-                                     GR_GL_NEAREST));
-        GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER,
-                                     GR_GL_NEAREST));
-        GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_S,
-                                     GR_GL_CLAMP_TO_EDGE));
-        GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T,
-                                     GR_GL_CLAMP_TO_EDGE));
-        GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, kW, kH, 0, GR_GL_RGBA,
-                                  GR_GL_UNSIGNED_BYTE,
-                                  pixels.get()));
+    // Test the wrapped factory for SkSurface by creating a texture using GL and then wrap it in
+    // a SkSurface.
+    GrGLuint texID;
+    static const int kW = 100;
+    static const int kH = 100;
+    static const uint32_t kOrigColor = 0xFFAABBCC;
+    SkAutoTArray<uint32_t> pixels(kW * kH);
+    sk_memset32(pixels.get(), kOrigColor, kW * kH);
+    GR_GL_CALL(gl, GenTextures(1, &texID));
+    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0));
+    GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
+    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texID));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER,
+                                 GR_GL_NEAREST));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER,
+                                 GR_GL_NEAREST));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_S,
+                                 GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T,
+                                 GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, kW, kH, 0, GR_GL_RGBA,
+                              GR_GL_UNSIGNED_BYTE,
+                              pixels.get()));
 
-        SkAutoTUnref<SkSurface> surface;
-        GrGLuint fboID = 0;
-        if (useFBO) {
-            GR_GL_CALL(gl, GenFramebuffers(1, &fboID));
-            GR_GL_CALL(gl, BindFramebuffer(GR_GL_FRAMEBUFFER, fboID));
-            GR_GL_CALL(gl, FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
-                                                GR_GL_TEXTURE_2D, texID, 0));
-            GrBackendRenderTargetDesc wrappedDesc;
-            wrappedDesc.fConfig = kRGBA_8888_GrPixelConfig;
-            wrappedDesc.fWidth = kW;
-            wrappedDesc.fHeight = kH;
-            wrappedDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-            wrappedDesc.fSampleCnt = 0;
-            wrappedDesc.fRenderTargetHandle = fboID;
-            wrappedDesc.fStencilBits = 0;
+    GrBackendTextureDesc wrappedDesc;
+    wrappedDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    wrappedDesc.fWidth = kW;
+    wrappedDesc.fHeight = kH;
+    wrappedDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    wrappedDesc.fSampleCnt = 0;
+    wrappedDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    wrappedDesc.fTextureHandle = texID;
 
-            ctx->resetContext();
-            surface.reset(SkSurface::NewFromBackendRenderTarget(ctx, wrappedDesc, NULL));
-        } else {
-            GrBackendTextureDesc wrappedDesc;
-            wrappedDesc.fConfig = kRGBA_8888_GrPixelConfig;
-            wrappedDesc.fWidth = kW;
-            wrappedDesc.fHeight = kH;
-            wrappedDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-            wrappedDesc.fSampleCnt = 0;
-            wrappedDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-            wrappedDesc.fTextureHandle = texID;
-
-            ctx->resetContext();
-            surface.reset(SkSurface::NewFromBackendTexture(ctx, wrappedDesc, NULL));
-        }
-        REPORTER_ASSERT(reporter, surface);
-        if (surface) {
-            // Validate that we can draw to the canvas and that the original texture color is
-            // preserved in pixels that aren't rendered to via the surface.
-            SkPaint paint;
-            static const SkColor kRectColor = ~kOrigColor | 0xFF000000;
-            paint.setColor(kRectColor);
-            surface->getCanvas()->drawRect(SkRect::MakeWH(SkIntToScalar(kW), SkIntToScalar(kH)/2),
-                                           paint);
-            SkImageInfo readInfo = SkImageInfo::MakeN32Premul(kW, kH);
-            surface->readPixels(readInfo, pixels.get(), kW * sizeof(uint32_t), 0, 0);
-            bool stop = false;
-            SkPMColor origColorPM = SkPackARGB32((kOrigColor >> 24 & 0xFF),
-                                                 (kOrigColor >>  0 & 0xFF),
-                                                 (kOrigColor >>  8 & 0xFF),
-                                                 (kOrigColor >> 16 & 0xFF));
-            SkPMColor rectColorPM = SkPackARGB32((kRectColor >> 24 & 0xFF),
-                                                 (kRectColor >> 16 & 0xFF),
-                                                 (kRectColor >>  8 & 0xFF),
-                                                 (kRectColor >>  0 & 0xFF));
-            for (int y = 0; y < kH/2 && !stop; ++y) {
-                for (int x = 0; x < kW && !stop; ++x) {
-                    REPORTER_ASSERT(reporter, rectColorPM == pixels[x + y * kW]);
-                    if (rectColorPM != pixels[x + y * kW]) {
-                        stop = true;
-                    }
-                }
-            }
-            stop = false;
-            for (int y = kH/2; y < kH && !stop; ++y) {
-                for (int x = 0; x < kW && !stop; ++x) {
-                    REPORTER_ASSERT(reporter, origColorPM == pixels[x + y * kW]);
-                    if (origColorPM != pixels[x + y * kW]) {
-                        stop = true;
-                    }
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewWrappedRenderTarget(ctx, wrappedDesc, NULL));
+    REPORTER_ASSERT(reporter, surface);
+    if (surface) {
+        // Validate that we can draw to the canvas and that the original texture color is preserved
+        // in pixels that aren't rendered to via the surface.
+        SkPaint paint;
+        static const SkColor kRectColor = ~kOrigColor | 0xFF000000;
+        paint.setColor(kRectColor);
+        surface->getCanvas()->drawRect(SkRect::MakeWH(SkIntToScalar(kW), SkIntToScalar(kH)/2),
+                                       paint);
+        SkImageInfo readInfo = SkImageInfo::MakeN32Premul(kW, kH);
+        surface->readPixels(readInfo, pixels.get(), kW * sizeof(uint32_t), 0, 0);
+        bool stop = false;
+        SkPMColor origColorPM = SkPackARGB32((kOrigColor >> 24 & 0xFF),
+                                             (kOrigColor >>  0 & 0xFF),
+                                             (kOrigColor >>  8 & 0xFF),
+                                             (kOrigColor >> 16 & 0xFF));
+        SkPMColor rectColorPM = SkPackARGB32((kRectColor >> 24 & 0xFF),
+                                             (kRectColor >> 16 & 0xFF),
+                                             (kRectColor >>  8 & 0xFF),
+                                             (kRectColor >>  0 & 0xFF));
+        for (int y = 0; y < kH/2 && !stop; ++y) {
+            for (int x = 0; x < kW && !stop; ++x) {
+                REPORTER_ASSERT(reporter, rectColorPM == pixels[x + y * kW]);
+                if (rectColorPM != pixels[x + y * kW]) {
+                    stop = true;
                 }
             }
         }
-        if (texID) {
-            GR_GL_CALL(gl, DeleteTextures(1, &texID));
+        stop = false;
+        for (int y = kH/2; y < kH && !stop; ++y) {
+            for (int x = 0; x < kW && !stop; ++x) {
+                REPORTER_ASSERT(reporter, origColorPM == pixels[x + y * kW]);
+                if (origColorPM != pixels[x + y * kW]) {
+                    stop = true;
+                }
+            }
         }
-        if (fboID) {
-            GR_GL_CALL(gl, DeleteFramebuffers(1, &fboID));
-        }
-
     }
 }
 #endif
@@ -267,37 +237,39 @@ static uint32_t get_legacy_gen_id(SkSurface* surf) {
  *  Note: this needs to be tested separately from checking newImageSnapshot, as calling that
  *  can also incidentally bump the genID (when a new backing surface is created).
  */
-static void test_texture_handle_genID(skiatest::Reporter* reporter, SkSurface* surf) {
+template <class F>
+static void test_texture_handle_genID(skiatest::Reporter* reporter, SkSurface* surf, F f) {
     const uint32_t gen0 = get_legacy_gen_id(surf);
-    surf->getTextureHandle(SkSurface::kFlushRead_TextureHandleAccess);
+    f(surf, SkSurface::kFlushRead_BackendHandleAccess);
     const uint32_t gen1 = get_legacy_gen_id(surf);
     REPORTER_ASSERT(reporter, gen0 == gen1);
 
-    surf->getTextureHandle(SkSurface::kFlushWrite_TextureHandleAccess);
+    f(surf, SkSurface::kFlushWrite_BackendHandleAccess);
     const uint32_t gen2 = get_legacy_gen_id(surf);
     REPORTER_ASSERT(reporter, gen0 != gen2);
 
-    surf->getTextureHandle(SkSurface::kDiscardWrite_TextureHandleAccess);
+    f(surf, SkSurface::kDiscardWrite_BackendHandleAccess);
     const uint32_t gen3 = get_legacy_gen_id(surf);
     REPORTER_ASSERT(reporter, gen0 != gen3);
     REPORTER_ASSERT(reporter, gen2 != gen3);
 }
 
-static void test_texture_handle(skiatest::Reporter* reporter, SkSurface* surf) {
+template <class F>
+static void test_backend_handle(skiatest::Reporter* reporter, SkSurface* surf, F f) {
     SkAutoTUnref<SkImage> image0(surf->newImageSnapshot());
-    GrBackendObject obj = surf->getTextureHandle(SkSurface::kFlushRead_TextureHandleAccess);
+    GrBackendObject obj = f(surf, SkSurface::kFlushRead_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image1(surf->newImageSnapshot());
     // just read access should not affect the snapshot
     REPORTER_ASSERT(reporter, image0->uniqueID() == image1->uniqueID());
 
-    obj = surf->getTextureHandle(SkSurface::kFlushWrite_TextureHandleAccess);
+    obj = f(surf, SkSurface::kFlushWrite_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image2(surf->newImageSnapshot());
     // expect a new image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image2->uniqueID());
 
-    obj = surf->getTextureHandle(SkSurface::kDiscardWrite_TextureHandleAccess);
+    obj = f(surf, SkSurface::kDiscardWrite_BackendHandleAccess);
     REPORTER_ASSERT(reporter, obj != 0);
     SkAutoTUnref<SkImage> image3(surf->newImageSnapshot());
     // expect a new(er) image, since we claimed we would write
@@ -331,9 +303,20 @@ static SkImage* create_image(skiatest::Reporter* reporter,
             SkAutoTUnref<SkSurface> surf(
                 SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
             surf->getCanvas()->clear(color);
-            // test our backing texture while were here...
-            test_texture_handle_genID(reporter, surf);
-            test_texture_handle(reporter, surf);
+            // test our backing texture / rendertarget while were here...
+            auto textureAccessorFunc =
+                    [](SkSurface* surf, SkSurface::BackendHandleAccess access) -> GrBackendObject {
+                        return surf->getTextureHandle(access); };
+            auto renderTargetAccessorFunc =
+                    [](SkSurface* surf, SkSurface::BackendHandleAccess access) -> GrBackendObject {
+                        GrBackendObject obj;
+                        SkAssertResult(surf->getRenderTargetHandle(&obj, access));
+                        return obj; };
+            test_backend_handle(reporter, surf, textureAccessorFunc);
+            test_backend_handle(reporter, surf, renderTargetAccessorFunc);
+            test_texture_handle_genID(reporter, surf, textureAccessorFunc);
+            test_texture_handle_genID(reporter, surf, renderTargetAccessorFunc);
+
             // redraw so our returned image looks as expected.
             surf->getCanvas()->clear(color);
             return surf->newImageSnapshot();
@@ -912,7 +895,7 @@ DEF_GPUTEST(Surface, reporter, factory) {
                 TestGetTexture(reporter, kGpuScratch_SurfaceType, context);
                 test_empty_surface(reporter, context);
                 test_surface_budget(reporter, context);
-                test_wrapped_surface(reporter, context);
+                test_wrapped_texture_surface(reporter, context);
             }
         }
     }
