@@ -182,8 +182,7 @@ int SkOpAngle::allOnOneSide(const SkOpAngle* test) {
         int lineStart = fStart->t() < fEnd->t() ? 0 : 1;
         line = linePts[lineStart ^ 1] - linePts[lineStart];
     } else {
-        SkPoint shortPts[2] = { fCurvePart[0].asSkPoint(), fCurvePart[1].asSkPoint() };
-        line = shortPts[1] - shortPts[0];
+        line = (fCurvePart[1] - fCurvePart[0]).asSkVector();
     }
     float crosses[3];
     SkPath::Verb testVerb = test->segment()->verb();

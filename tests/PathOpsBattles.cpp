@@ -5011,7 +5011,7 @@ path.lineTo(SkBits2Float(0x424b624a), SkBits2Float(0x42833479));
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 // op end success 1
 
