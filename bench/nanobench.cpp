@@ -935,7 +935,7 @@ int nanobench_main();
 int nanobench_main() {
     SetupCrashHandler();
     SkAutoGraphics ag;
-    SkTaskGroup::Enabler enabled;
+    SkTaskGroup::Enabler enabled(FLAGS_threads);
 
 #if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
