@@ -113,10 +113,17 @@
       # from asm files. This flag disables UseLibraryDependencyInputs to
       # avoid this problem.
       'msvs_2010_disable_uldi_when_referenced': 1,
-      
+
       # Add target-specific source files.
       'conditions': [
-        [ 'skia_arch_type == "x86"', {
+        # FIXME (msarett): Reenable yasm on Android for x86 and x86_64
+        # https://code.google.com/p/skia/issues/detail?id=4028
+        [ 'skia_os == "android" and "x86" in skia_arch_type', {
+          'sources': [
+            '../third_party/externals/libjpeg-turbo/jsimd_none.c',
+          ],
+        }],
+        [ 'skia_arch_type == "x86" and skia_os != "android"', {
           'sources': [
             '../third_party/externals/libjpeg-turbo/simd/jsimd_i386.c',
             '../third_party/externals/libjpeg-turbo/simd/jccolor-mmx.asm',
@@ -154,7 +161,7 @@
             '../third_party/externals/libjpeg-turbo/simd/jsimdcpu.asm',
           ],
         }],
-        [ 'skia_arch_type == "x86_64"', {
+        [ 'skia_arch_type == "x86_64" and skia_os != "android"', {
           'sources': [
             '../third_party/externals/libjpeg-turbo/simd/jsimd_x86_64.c',
             '../third_party/externals/libjpeg-turbo/simd/jccolor-sse2-64.asm',
