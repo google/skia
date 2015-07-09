@@ -187,11 +187,11 @@ void GrDrawContext::drawPaint(GrRenderTarget* rt,
         }
 
         AutoCheckFlush acf(fContext);
-        GrPipelineBuilder pipelineBuilder;
-        if (!this->prepareToDraw(&pipelineBuilder, rt, clip, paint)) {
+        if (!this->prepareToDraw(rt)) {
             return;
         }
 
+        GrPipelineBuilder pipelineBuilder(*paint, rt, clip);
         fDrawTarget->drawBWRect(&pipelineBuilder,
                                 paint->getColor(),
                                 SkMatrix::I(),
@@ -435,10 +435,11 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
     }
 
     AutoCheckFlush acf(fContext);
-    GrPipelineBuilder pipelineBuilder;
-    if (!this->prepareToDraw(&pipelineBuilder, rt, clip, &paint)) {
+    if (!this->prepareToDraw(rt)) {
         return;
     }
+
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
 
     SkScalar width = NULL == strokeInfo ? -1 : strokeInfo->getWidth();
 
@@ -536,11 +537,11 @@ void GrDrawContext::drawNonAARectToRect(GrRenderTarget* rt,
                                         const SkMatrix* localMatrix) {
     RETURN_IF_ABANDONED
     AutoCheckFlush acf(fContext);
-    GrPipelineBuilder pipelineBuilder;
-    if (!this->prepareToDraw(&pipelineBuilder, rt, clip, &paint)) {
+    if (!this->prepareToDraw(rt)) {
         return;
     }
 
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     fDrawTarget->drawBWRect(&pipelineBuilder,
                             paint.getColor(),
                             viewMatrix,
@@ -832,11 +833,11 @@ void GrDrawContext::drawVertices(GrRenderTarget* rt,
                                  int indexCount) {
     RETURN_IF_ABANDONED
     AutoCheckFlush acf(fContext);
-    GrPipelineBuilder pipelineBuilder;
-
-    if (!this->prepareToDraw(&pipelineBuilder, rt, clip, &paint)) {
+    if (!this->prepareToDraw(rt)) {
         return;
     }
+
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
 
     // TODO clients should give us bounds
     SkRect bounds;
@@ -885,11 +886,11 @@ void GrDrawContext::drawRRect(GrRenderTarget*rt,
     }
 
     AutoCheckFlush acf(fContext);
-    GrPipelineBuilder pipelineBuilder;
-    if (!this->prepareToDraw(&pipelineBuilder, rt, clip, &paint)) {
+    if (!this->prepareToDraw(rt)) {
         return;
     }
 
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     GrColor color = paint.getColor();
     if (!GrOvalRenderer::DrawRRect(fDrawTarget,
                                    &pipelineBuilder,
@@ -920,11 +921,11 @@ void GrDrawContext::drawDRRect(GrRenderTarget* rt,
     }
 
     AutoCheckFlush acf(fContext);
-    GrPipelineBuilder pipelineBuilder;
-    if (!this->prepareToDraw(&pipelineBuilder, rt, clip, &paint)) {
+    if (!this->prepareToDraw(rt)) {
         return;
     }
 
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     GrColor color = paint.getColor();
     if (!GrOvalRenderer::DrawDRRect(fDrawTarget,
                                     &pipelineBuilder,
@@ -967,11 +968,11 @@ void GrDrawContext::drawOval(GrRenderTarget* rt,
     }
 
     AutoCheckFlush acf(fContext);
-    GrPipelineBuilder pipelineBuilder;
-    if (!this->prepareToDraw(&pipelineBuilder, rt, clip, &paint)) {
+    if (!this->prepareToDraw(rt)) {
         return;
     }
 
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     GrColor color = paint.getColor();
     if (!GrOvalRenderer::DrawOval(fDrawTarget,
                                   &pipelineBuilder,
@@ -1063,11 +1064,11 @@ void GrDrawContext::drawPath(GrRenderTarget* rt,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
     AutoCheckFlush acf(fContext);
-    GrPipelineBuilder pipelineBuilder;
-    if (!this->prepareToDraw(&pipelineBuilder, rt, clip, &paint)) {
+    if (!this->prepareToDraw(rt)) {
         return;
     }
 
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     if (!strokeInfo.isDashed()) {
         bool useCoverageAA = paint.isAntiAlias() &&
                 !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
@@ -1180,18 +1181,6 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
     }
 
     pr->drawPath(target, pipelineBuilder, color, viewMatrix, *pathPtr, *strokeInfoPtr, useCoverageAA);
-}
-
-bool GrDrawContext::prepareToDraw(GrPipelineBuilder* pipelineBuilder,
-                                  GrRenderTarget* rt,
-                                  const GrClip& clip,
-                                  const GrPaint* paint) {
-    RETURN_FALSE_IF_ABANDONED
-
-    ASSERT_OWNED_RESOURCE(rt);
-    SkASSERT(rt && paint);
-    pipelineBuilder->setFromPaint(*paint, rt, clip);
-    return true;
 }
 
 bool GrDrawContext::prepareToDraw(GrRenderTarget* rt) {

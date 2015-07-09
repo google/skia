@@ -111,9 +111,8 @@ protected:
                     GrColor color = kColors[procColor];
                     SkAutoTUnref<GrFragmentProcessor> fp(GrConstColorProcessor::Create(color, mode));
 
-                    GrPipelineBuilder pipelineBuilder;
                     GrClip clip;
-                    pipelineBuilder.setFromPaint(grPaint, rt, clip);
+                    GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
                     pipelineBuilder.addColorProcessor(fp);
 
                     tt.target()->drawSimpleRect(&pipelineBuilder,

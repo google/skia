@@ -2167,8 +2167,7 @@ void GrAtlasTextContext::flush(const SkTextBlob* blob,
                                SkScalar transX, SkScalar transY) {
     // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
     // it as paths
-    GrPipelineBuilder pipelineBuilder;
-    pipelineBuilder.setFromPaint(grPaint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
 
     GrColor color = grPaint.getColor();
 
@@ -2194,8 +2193,7 @@ void GrAtlasTextContext::flush(BitmapTextBlob* cacheBlob,
                                const GrPaint& grPaint,
                                const GrClip& clip,
                                const SkIRect& clipBounds) {
-    GrPipelineBuilder pipelineBuilder;
-    pipelineBuilder.setFromPaint(grPaint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
 
     GrColor color = grPaint.getColor();
     for (int run = 0; run < cacheBlob->fRunCount; run++) {

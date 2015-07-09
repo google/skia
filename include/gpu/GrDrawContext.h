@@ -244,15 +244,9 @@ private:
 
     GrDrawContext(GrContext*, GrDrawTarget*, const SkSurfaceProps&);
 
-    // Sets the paint. Returns true on success; false on failure.
-    bool prepareToDraw(GrPipelineBuilder*,
-                       GrRenderTarget* rt,
-                       const GrClip&,
-                       const GrPaint* paint);
     GrTextContext* createTextContext(GrRenderTarget*, const SkSurfaceProps&);
 
-    // A simpler version of the above which just returns true on success; false on failure.
-    // Clip is *NOT* set
+    // Checks if the context has been abandoned and if the rendertarget is owned by this context
     bool prepareToDraw(GrRenderTarget* rt);
 
     void internalDrawPath(GrDrawTarget*,

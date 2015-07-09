@@ -53,8 +53,6 @@ private:
         kMaxPerformance_RenderMode,
     };
 
-    GrPipelineBuilder                                   fPipelineBuilder;
-    GrPipelineBuilder::AutoRestoreFragmentProcessors    fStateRestore;
     SkScalar                                            fTextRatio;
     float                                               fTextInverseRatio;
     SkGlyphCache*                                       fGlyphCache;

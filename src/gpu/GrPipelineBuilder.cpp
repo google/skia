@@ -48,8 +48,8 @@ GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
     return *this;
 }
 
-void GrPipelineBuilder::setFromPaint(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip) {
-    SkASSERT(0 == fBlockEffectRemovalCnt || 0 == this->numFragmentStages());
+GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip) {
+    SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
     fColorStages.reset();
     fCoverageStages.reset();

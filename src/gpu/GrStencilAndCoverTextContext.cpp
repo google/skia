@@ -378,24 +378,6 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
                                     &fGlyphCache->getDescriptor(), fStroke);
     }
 
-    fStateRestore.set(&fPipelineBuilder);
-
-    fPipelineBuilder.setFromPaint(fPaint, fRenderTarget, fClip);
-    SkASSERT(fRenderTarget->isStencilBufferMultisampled() || !fPaint.isAntiAlias());
-    fPipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, fPaint.isAntiAlias());
-
-    GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
-                                 kZero_StencilOp,
-                                 kZero_StencilOp,
-                                 kNotEqual_StencilFunc,
-                                 0xffff,
-                                 0x0000,
-                                 0xffff);
-
-    *fPipelineBuilder.stencil() = kStencilPass;
-
-    SkASSERT(0 == fQueuedGlyphCount);
-    SkASSERT(kGlyphBufferSize == fFallbackGlyphsIdx);
 }
 
 bool GrStencilAndCoverTextContext::mapToFallbackContext(SkMatrix* inverse) {
@@ -445,7 +427,26 @@ void GrStencilAndCoverTextContext::flush() {
                                                                  fViewMatrix,
                                                                  fLocalMatrix));
 
-        fDrawContext->drawPaths(&fPipelineBuilder, pp, fGlyphs,
+        // We should only be flushing about once every run.  However, if this impacts performance
+        // we could move the creation of the GrPipelineBuilder earlier.
+        GrPipelineBuilder pipelineBuilder(fPaint, fRenderTarget, fClip);
+        SkASSERT(fRenderTarget->isStencilBufferMultisampled() || !fPaint.isAntiAlias());
+        pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, fPaint.isAntiAlias());
+
+        GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
+                                     kZero_StencilOp,
+                                     kZero_StencilOp,
+                                     kNotEqual_StencilFunc,
+                                     0xffff,
+                                     0x0000,
+                                     0xffff);
+
+        *pipelineBuilder.stencil() = kStencilPass;
+
+        SkASSERT(0 == fQueuedGlyphCount);
+        SkASSERT(kGlyphBufferSize == fFallbackGlyphsIdx);
+
+        fDrawContext->drawPaths(&pipelineBuilder, pp, fGlyphs,
                                 fGlyphIndices, GrPathRange::kU16_PathIndexType,
                                 get_xy_scalar_array(fGlyphPositions),
                                 GrPathRendering::kTranslate_PathTransformType,
@@ -490,8 +491,6 @@ void GrStencilAndCoverTextContext::finish() {
     SkGlyphCache::AttachCache(fGlyphCache);
     fGlyphCache = NULL;
 
-    fPipelineBuilder.stencil()->setDisabled();
-    fStateRestore.set(NULL);
     fViewMatrix = fContextInitialMatrix;
 }
 
