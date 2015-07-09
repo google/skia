@@ -135,22 +135,22 @@ bool SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst, size_t rb
 
 #include "SkGraphics.h"
 
-static SkGraphics::ImageGeneratorFromEncodedFactory gImageGeneratorFromEncodedFactory;
+static SkGraphics::ImageGeneratorFromEncodedFactory gFactory;
 
-SkGraphics::ImageGeneratorFromEncodedFactory SkGraphics::GetImageGeneratorFromEncodedFactory() {
-    return gImageGeneratorFromEncodedFactory;
-}
-
-void SkGraphics::SetImageGeneratorFromEncodedFactory(ImageGeneratorFromEncodedFactory factory) {
-    gImageGeneratorFromEncodedFactory = factory;
+SkGraphics::ImageGeneratorFromEncodedFactory
+SkGraphics::SetImageGeneratorFromEncodedFactory(ImageGeneratorFromEncodedFactory factory)
+{
+    ImageGeneratorFromEncodedFactory prev = gFactory;
+    gFactory = factory;
+    return prev;
 }
 
 SkImageGenerator* SkImageGenerator::NewFromEncoded(SkData* data) {
     if (NULL == data) {
         return NULL;
     }
-    if (gImageGeneratorFromEncodedFactory) {
-        if (SkImageGenerator* generator = gImageGeneratorFromEncodedFactory(data)) {
+    if (gFactory) {
+        if (SkImageGenerator* generator = gFactory(data)) {
             return generator;
         }
     }

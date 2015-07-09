@@ -221,6 +221,9 @@ protected:
 private:
     const SkImageInfo fInfo;
 
+    // This is our default impl, which may be different on different platforms.
+    // It is called from NewFromEncoded() after it has checked for any runtime factory.
+    // The SkData will never be NULL, as that will have been checked by NewFromEncoded.
     static SkImageGenerator* NewFromEncodedImpl(SkData*);
 };
 

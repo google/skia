@@ -10,31 +10,32 @@
 #include "SkImageGenerator.h"
 #include "Test.h"
 
-static SkImageGenerator* my_factory(SkData* data) {
-    int* ptr = *(int**)data->data();
-    *ptr = 1;   // signal that we were called
+static bool gMyFactoryWasCalled;
+
+static SkImageGenerator* my_factory(SkData*) {
+    gMyFactoryWasCalled = true;
     return NULL;
 }
 
 static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
-    int factoryHasBeenCalled = 0;
-    int* sentinelPtr = &factoryHasBeenCalled;
-    SkData* data = SkData::NewWithCopy(&sentinelPtr, sizeof(sentinelPtr));
+    // just need a non-empty data to test things
+    SkData* data = SkData::NewWithCString("test_imagegenerator_factory");
+
+    gMyFactoryWasCalled = false;
 
     SkImageGenerator* gen;
-    REPORTER_ASSERT(reporter, 0 == *sentinelPtr);
+    REPORTER_ASSERT(reporter, !gMyFactoryWasCalled);
 
     gen = SkImageGenerator::NewFromEncoded(data);
     REPORTER_ASSERT(reporter, NULL == gen);
-    REPORTER_ASSERT(reporter, 0 == *sentinelPtr);
+    REPORTER_ASSERT(reporter, !gMyFactoryWasCalled);
 
     // Test is racy, in that it hopes no other thread is changing this global...
     SkGraphics::ImageGeneratorFromEncodedFactory prev =
-                                                SkGraphics::GetImageGeneratorFromEncodedFactory();
-    SkGraphics::SetImageGeneratorFromEncodedFactory(my_factory);
+                                    SkGraphics::SetImageGeneratorFromEncodedFactory(my_factory);
     gen = SkImageGenerator::NewFromEncoded(data);
     REPORTER_ASSERT(reporter, NULL == gen);
-    REPORTER_ASSERT(reporter, 1 == *sentinelPtr);
+    REPORTER_ASSERT(reporter, gMyFactoryWasCalled);
     SkGraphics::SetImageGeneratorFromEncodedFactory(prev);
 }
 
