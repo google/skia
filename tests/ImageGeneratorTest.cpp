@@ -19,7 +19,7 @@ static SkImageGenerator* my_factory(SkData*) {
 
 static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
     // just need a non-empty data to test things
-    SkData* data = SkData::NewWithCString("test_imagegenerator_factory");
+    SkAutoTUnref<SkData> data(SkData::NewWithCString("test_imagegenerator_factory"));
 
     gMyFactoryWasCalled = false;
 
