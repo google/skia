@@ -14,6 +14,7 @@
 #include "GrGpuResourceRef.h"
 #include "GrFragmentStage.h"
 #include "GrProcOptInfo.h"
+#include "GrProcessorDataManager.h"
 #include "GrRenderTarget.h"
 #include "GrStencil.h"
 #include "GrXferProcessor.h"
@@ -391,6 +392,8 @@ public:
     void setClip(const GrClip& clip) { fClip = clip; }
     const GrClip& clip() const { return fClip; }
 
+    GrProcessorDataManager* getProcessorDataManager() { return &fProcDataManager; }
+
 private:
     // Calculating invariant color / coverage information is expensive, so we partially cache the
     // results.
@@ -431,6 +434,7 @@ private:
 
     typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
 
+    GrProcessorDataManager                  fProcDataManager;
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
     uint32_t                                fFlags;
     GrStencilSettings                       fStencilSettings;

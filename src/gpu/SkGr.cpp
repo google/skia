@@ -428,10 +428,11 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
     GrRenderTarget* renderTarget = result->asRenderTarget();
     SkASSERT(renderTarget);
 
-    SkAutoTUnref<GrFragmentProcessor>
-        yuvToRgbProcessor(GrYUVtoRGBEffect::Create(yuvTextures[0], yuvTextures[1], yuvTextures[2],
-                                                   yuvInfo.fSize, yuvInfo.fColorSpace));
     GrPaint paint;
+    SkAutoTUnref<GrFragmentProcessor>
+        yuvToRgbProcessor(GrYUVtoRGBEffect::Create(paint.getProcessorDataManager(), yuvTextures[0],
+                                                   yuvTextures[1], yuvTextures[2],
+                                                   yuvInfo.fSize, yuvInfo.fColorSpace));
     paint.addColorProcessor(yuvToRgbProcessor);
     SkRect r = SkRect::MakeWH(SkIntToScalar(yuvInfo.fSize[0].fWidth),
                               SkIntToScalar(yuvInfo.fSize[0].fHeight));

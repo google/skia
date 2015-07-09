@@ -111,8 +111,10 @@ protected:
                                        {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
             for (int i = 0; i < 6; ++i) {
+                GrPipelineBuilder pipelineBuilder;
                 SkAutoTUnref<GrFragmentProcessor> fp(
-                            GrYUVtoRGBEffect::Create(texture[indices[i][0]],
+                            GrYUVtoRGBEffect::Create(pipelineBuilder.getProcessorDataManager(),
+                                                     texture[indices[i][0]],
                                                      texture[indices[i][1]],
                                                      texture[indices[i][2]],
                                                      sizes,
@@ -120,7 +122,6 @@ protected:
                 if (fp) {
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorProcessor(fp);
                     tt.target()->drawSimpleRect(&pipelineBuilder,
