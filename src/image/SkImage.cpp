@@ -76,7 +76,7 @@ SkImage* SkImage::NewFromEncoded(SkData* encoded, const SkIRect* subset) {
     if (NULL == encoded || 0 == encoded->size()) {
         return NULL;
     }
-    SkImageGenerator* generator = SkImageGenerator::NewFromData(encoded);
+    SkImageGenerator* generator = SkImageGenerator::NewFromEncoded(encoded);
     return generator ? SkImage::NewFromGenerator(generator, subset) : NULL;
 }
 

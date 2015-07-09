@@ -108,11 +108,7 @@ private:
     typedef SkImageGenerator INHERITED;
 };
 
-SkImageGenerator* SkImageGenerator::NewFromData(SkData* data) {
-    if (NULL == data) {
-        return NULL;
-    }
-
+SkImageGenerator* SkImageGenerator::NewFromEncodedImpl(SkData* data) {
     SkMemoryStream stream(data->data(), data->size(), false);
     SkImageDecoder* decoder = SkImageDecoder::Factory(&stream);
     if (NULL == decoder) {

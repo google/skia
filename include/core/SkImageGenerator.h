@@ -199,7 +199,7 @@ public:
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
      *  the caller is still responsible for managing their ownership of the data.
      */
-    static SkImageGenerator* NewFromData(SkData*);
+    static SkImageGenerator* NewFromEncoded(SkData*);
 
 protected:
     SkImageGenerator(const SkImageInfo& info) : fInfo(info) {}
@@ -220,6 +220,8 @@ protected:
 
 private:
     const SkImageInfo fInfo;
+
+    static SkImageGenerator* NewFromEncodedImpl(SkData*);
 };
 
 #endif  // SkImageGenerator_DEFINED

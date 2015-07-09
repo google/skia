@@ -28,7 +28,7 @@ bool sk_tools::LazyDecodeBitmap(const void* src, size_t length, SkBitmap* dst) {
         return false;
     }
 
-    SkAutoTDelete<SkImageGenerator> gen(SkImageGenerator::NewFromData(data));
+    SkAutoTDelete<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(data));
     if (NULL == gen.get()) {
         return false;
     }

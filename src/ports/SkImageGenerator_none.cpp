@@ -7,6 +7,6 @@
 
 #include "SkImageGenerator.h"
 
-SkImageGenerator* SkImageGenerator::NewFromData(SkData*) {
+SkImageGenerator* SkImageGenerator::NewFromEncodedImpl(SkData*) {
     return NULL;
 }

@@ -142,7 +142,7 @@ static void test_three_encodings(skiatest::Reporter* reporter,
 
 ////////////////////////////////////////////////////////////////////////////////
 static bool install_skCachingPixelRef(SkData* encoded, SkBitmap* dst) {
-    return SkCachingPixelRef::Install(SkImageGenerator::NewFromData(encoded), dst);
+    return SkCachingPixelRef::Install(SkImageGenerator::NewFromEncoded(encoded), dst);
 }
 static bool install_skDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
     // Use system-default discardable memory.

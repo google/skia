@@ -29,7 +29,7 @@ static SkImage* make_image() {
 }
 
 static void test_mip(SkCanvas* canvas) {
-    SkAutoTUnref<SkImage> img(make_image());//SkImage::NewFromData(data));
+    SkAutoTUnref<SkImage> img(make_image());//SkImage::NewFromEncoded(data));
 
     SkPaint paint;
     const SkRect dst = SkRect::MakeWH(177, 15);

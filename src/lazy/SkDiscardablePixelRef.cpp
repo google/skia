@@ -150,6 +150,6 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst) {
 }
 
 bool SkInstallDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
-    SkImageGenerator* generator = SkImageGenerator::NewFromData(encoded);
+    SkImageGenerator* generator = SkImageGenerator::NewFromEncoded(encoded);
     return generator ? SkInstallDiscardablePixelRef(generator, NULL, dst, NULL) : false;
 }
