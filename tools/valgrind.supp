@@ -236,3 +236,65 @@
     Memcheck:Addr2
     fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
 }
+
+# Valgrind issues caused by tip of tree libjpeg-turbo
+# https://code.google.com/p/skia/issues/detail?id=4030
+# TODO (msarett): Determine if any of these errors relate to jpeg_skip_scanlines() and fix those.
+#                 Issue 4 looks like it may.
+#                 Some of these errors may be fixed when we switch to Chromium's version of turbo.
+#                 If they are not fixed in Chromium's version, they need to be fixed after we switch.
+{
+   turbo_issue_1
+   Memcheck:Value8
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__vsnprintf_chk
+   fun:_ZN8SkString7appendfEPKcz
+   fun:_ZN4Task3RunEPS_
+   fun:_ZN12_GLOBAL__N_110ThreadPool4LoopEPv
+   fun:_ZL12thread_startPv
+   fun:start_thread
+   fun:clone
+}
+{
+   turbo_issue_2
+   Memcheck:Cond
+   fun:vfprintf
+   fun:__vsnprintf_chk
+   fun:_ZN8SkString7appendfEPKcz
+   fun:_ZN4Task3RunEPS_
+   fun:_ZN12_GLOBAL__N_110ThreadPool4LoopEPv
+   fun:_ZL12thread_startPv
+   fun:start_thread
+   fun:clone
+}
+{
+   turbo_issue_3
+   Memcheck:Cond
+   fun:_itoa_word
+   fun:vfprintf
+   fun:__vsnprintf_chk
+   fun:_ZN8SkString7appendfEPKcz
+   fun:_ZN4Task3RunEPS_
+   fun:_ZN12_GLOBAL__N_110ThreadPool4LoopEPv
+   fun:_ZL12thread_startPv
+   fun:start_thread
+   fun:clone
+}
+{
+   turbo_issue_4
+   Memcheck:Value8
+   fun:ycc_rgb565D_convert
+   fun:sep_upsample
+   fun:process_data_context_main
+   fun:turbo_jpeg_read_scanlines
+   fun:turbo_jpeg_skip_scanlines
+   fun:_ZN21SkJpegScanlineDecoder15onSkipScanlinesEi
+   fun:_ZNK2DM8CodecSrc4drawEP8SkCanvas
+   fun:_ZNK2DM10RasterSink4drawERKNS_3SrcEP8SkBitmapP9SkWStreamP8SkString
+   fun:_ZN4Task3RunEPS_
+   fun:_ZN12_GLOBAL__N_110ThreadPool4LoopEPv
+   fun:_ZL12thread_startPv
+   fun:start_thread
+   fun:clone
+}
