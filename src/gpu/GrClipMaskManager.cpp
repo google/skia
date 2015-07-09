@@ -842,24 +842,23 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             // element directly or a bounding rect of the entire clip.
             fClipMode = kModifyClip_StencilClipMode;
             for (int p = 0; p < passes; ++p) {
-                GrPipelineBuilder pipelineBuilderCopy(pipelineBuilder);
-                *pipelineBuilderCopy.stencil() = stencilSettings[p];
+                *pipelineBuilder.stencil() = stencilSettings[p];
 
                 if (canDrawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
                         // We need this AGP until everything is in GrBatch
-                        fClipTarget->drawSimpleRect(&pipelineBuilderCopy,
+                        fClipTarget->drawSimpleRect(&pipelineBuilder,
                                                     GrColor_WHITE,
                                                     viewMatrix,
                                                     element->getRect());
                     } else {
-                        pr->drawPath(fClipTarget, &pipelineBuilderCopy, GrColor_WHITE,
+                        pr->drawPath(fClipTarget, &pipelineBuilder, GrColor_WHITE,
                                      viewMatrix, clipPath, stroke, false);
                     }
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
-                    fClipTarget->drawSimpleRect(&pipelineBuilderCopy,
+                    fClipTarget->drawSimpleRect(&pipelineBuilder,
                                                 GrColor_WHITE,
                                                 viewMatrix,
                                                 SkRect::Make(clipSpaceIBounds));

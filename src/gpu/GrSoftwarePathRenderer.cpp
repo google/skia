@@ -146,8 +146,7 @@ bool GrSoftwarePathRenderer::onDrawPath(GrDrawTarget* target,
         return false;
     }
 
-    GrPipelineBuilder copy = *pipelineBuilder;
-    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, &copy, color, viewMatrix,
+    GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, pipelineBuilder, color, viewMatrix,
                                              devPathBounds);
 
     if (path.isInverseFillType()) {
