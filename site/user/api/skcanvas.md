@@ -50,15 +50,17 @@ SkPaint.
 
     void draw(SkCanvas* canvas) {
         canvas->save();
+        canvas->translate(SkIntToScalar(128), SkIntToScalar(128));
         canvas->rotate(SkIntToScalar(45));
-        SkRect rect = SkRect::MakeXYWH(150, -50, 100, 100);
+        SkRect rect = SkRect::MakeXYWH(-90.5f, -90.5f, 181.0f, 181.0f);
         SkPaint paint;
+        paint.setColor(SK_ColorBLUE);
         canvas->drawRect(rect, paint);
         canvas->restore();
     }
 
-<a href="https://fiddle.skia.org/c/71f2e87df2be1cdbc44139ee3e2790eb">
-<img src="https://fiddle.skia.org/i/71f2e87df2be1cdbc44139ee3e2790eb_raster.png"></a>
+<a href="https://fiddle.skia.org/c/6af99894b40ea1331f6a79d55a4cbfd7">
+<img src="https://fiddle.skia.org/i/6af99894b40ea1331f6a79d55a4cbfd7_raster.png"></a>
 
 The code above will draw a rectangle rotated by 45 degrees. Exactly
 what color and style the rect will be drawn in is described by the

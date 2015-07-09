@@ -4,6 +4,8 @@ Tips & FAQ
 Tips and Tricks
 ---------------
 
+<span id="bitmap-subsetting"></span>
+
 ### Bitmap Subsetting
 
 Taking a subset of a bitmap is effectively free - no pixels are copied or
@@ -16,32 +18,43 @@ drawBitmapNine():
     bitmap.extractSubset(&subset, rect);
     canvas->drawBitmapNine(subset, ...);
 
+* * *
+
+<span id="skp-capture"></span>
+
 ### Capturing a `.skp` file on a web page in Chromium.
+
 
 1.  Launch Chrome or Chromium with `--no-sandbox --enable-gpu-benchmarking`
 2.  Open the JS console (ctrl-shift-J)
 3.  Execute: `chrome.gpuBenchmarking.printToSkPicture('/tmp')`
     This returns "undefined" on success.
 
-Open the resulting file in the Skia Debugger:
+Open the resulting file in the Skia Debugger, rasterize it with `dm`,
+or use Skia's `SampleApp` to view it:
+
+<!--?prettify lang=sh?-->
 
     bin/sync-and-gyp
-    ninja -C out/Release debugger
+    ninja -C out/Release debugger dm SampleApp
     out/Release/debugger /tmp/layer_0.skp &
 
-Or use `dm` to rasterize it.
-
-    bin/sync-and-gyp
-    ninja -C out/Release dm
     out/Release/dm --src skp --skps /tmp/layer_0.skp -w /tmp \
         --config 8888 gpu pdf --verbose
     ls -l /tmp/*/skp/layer_0.skp.*
 
+    out/Release/SampleApp --picture /tmp/layer_0.skp
+    # On MacOS, SampleApp is a bundle:
+    open out/Release/SampleApp.app --args --picture /tmp/layer_0.skp
+
+* * *
+
 FAQ
 ---
 
-### Does Skia support HW acceleration?
+<span id="hw-acceleration"></span>
 
+### Does Skia support HW acceleration?
 
 There are two ways Skia can take advantage of HW.
 
@@ -56,6 +69,10 @@ calls to OpenGL. See src/gl/
 There are sets of bottleneck routines inside the blits of Skia that can be
 replace on a platform in order to take advantage of specific CPU features. One
 such example is the NEON SIMD instructions on ARM v7 devices. See src/opts/
+
+* * *
+
+<span id="font-hinting"></span>
 
 ### Does Skia support Font hinting?
 
