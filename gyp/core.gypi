@@ -195,6 +195,7 @@
         '<(skia_src_path)/core/SkShader.cpp',
         '<(skia_src_path)/core/SkSharedMutex.cpp',
         '<(skia_src_path)/core/SkSharedMutex.h',
+        '<(skia_src_path)/core/SkSpinlock.cpp',
         '<(skia_src_path)/core/SkSpriteBlitter_ARGB32.cpp',
         '<(skia_src_path)/core/SkSpriteBlitter_RGB16.cpp',
         '<(skia_src_path)/core/SkSpriteBlitter.h',

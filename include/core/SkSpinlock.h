@@ -15,16 +15,23 @@
 #define SK_DECLARE_STATIC_SPINLOCK(name) namespace {} static SkPODSpinlock name
 
 // This class has no constructor and must be zero-initialized (the macro above does this).
-struct SkPODSpinlock {
+class SkPODSpinlock {
+public:
     void acquire() {
-        // To act as a mutex, we need an acquire barrier.
-        while(sk_atomic_exchange(&fLocked, true, sk_memory_order_acquire)) { /*spin*/ }
+        // To act as a mutex, we need an acquire barrier if we take the lock.
+        if (sk_atomic_exchange(&fLocked, true, sk_memory_order_acquire)) {
+            // Lock was contended.  Fall back to an out-of-line spin loop.
+            this->contendedAcquire();
+        }
     }
+
     void release() {
         // To act as a mutex, we need a release barrier.
         sk_atomic_store(&fLocked, false, sk_memory_order_release);
     }
 
+private:
+    void contendedAcquire();
     bool fLocked;
 };
 
