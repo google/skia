@@ -50,7 +50,7 @@ public:
     SkColorFilter* newComposed(const SkColorFilter* inner) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessors(GrContext*, GrShaderDataManager*,
+    bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
                               SkTDArray<GrFragmentProcessor*>*) const override;
 #endif
 
@@ -574,7 +574,7 @@ GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     ));
 
     SkTDArray<GrFragmentProcessor*> array;
-    if (filter->asFragmentProcessors(d->fContext, d->fShaderDataManager, &array)) {
+    if (filter->asFragmentProcessors(d->fContext, d->fProcDataManager, &array)) {
         SkASSERT(1 == array.count());   // TableColorFilter only returns 1
         return array[0];
     }
@@ -582,7 +582,7 @@ GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) {
 }
 
 bool SkTable_ColorFilter::asFragmentProcessors(GrContext* context,
-                                               GrShaderDataManager*,
+                                               GrProcessorDataManager*,
                                                SkTDArray<GrFragmentProcessor*>* array) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);

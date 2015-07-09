@@ -273,7 +273,7 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect, SkScalar i
 }
 
 #if SK_SUPPORT_GPU
-bool SkMagnifierImageFilter::asFragmentProcessor(GrFragmentProcessor** fp, GrShaderDataManager*,
+bool SkMagnifierImageFilter::asFragmentProcessor(GrFragmentProcessor** fp, GrProcessorDataManager*,
                                                  GrTexture* texture, const SkMatrix&,
                                                  const SkIRect&bounds) const {
     if (fp) {

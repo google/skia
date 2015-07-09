@@ -329,7 +329,7 @@ class GrGradientEffect : public GrFragmentProcessor {
 public:
 
     GrGradientEffect(GrContext* ctx,
-                     GrShaderDataManager*,
+                     GrProcessorDataManager*,
                      const SkGradientShaderBase& shader,
                      const SkMatrix& matrix,
                      SkShader::TileMode tileMode);

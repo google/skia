@@ -14,7 +14,7 @@
 #include "SkColor.h"
 
 class GrFragmentProcessor;
-class GrShaderDataManager;
+class GrProcessorDataManager;
 class GrTexture;
 class GrXPFactory;
 class SkString;
@@ -208,7 +208,7 @@ public:
         required. Upon success the function returns true and the caller owns a ref to the fragment
         parameter. Upon failure false is returned and the processor param is not written to.
      */
-    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrShaderDataManager*,
+    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrProcessorDataManager*,
                                      GrTexture* background) const;
 
     /** A subclass may implement this factory function to work with the GPU backend. It is legal

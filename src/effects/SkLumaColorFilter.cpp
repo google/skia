@@ -119,7 +119,7 @@ private:
     }
 };
 
-bool SkLumaColorFilter::asFragmentProcessors(GrContext*, GrShaderDataManager*,
+bool SkLumaColorFilter::asFragmentProcessors(GrContext*, GrProcessorDataManager*,
                                              SkTDArray<GrFragmentProcessor*>* array) const {
 
     GrFragmentProcessor* frag = LumaColorFilterEffect::Create();

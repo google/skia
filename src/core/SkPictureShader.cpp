@@ -336,7 +336,7 @@ void SkPictureShader::toString(SkString* str) const {
 bool SkPictureShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                           const SkMatrix& viewM, const SkMatrix* localMatrix,
                                           GrColor* paintColor,
-                                          GrShaderDataManager* shaderDataManager,
+                                          GrProcessorDataManager* procDataManager,
                                           GrFragmentProcessor** fp) const {
     int maxTextureSize = 0;
     if (context) {
@@ -347,11 +347,11 @@ bool SkPictureShader::asFragmentProcessor(GrContext* context, const SkPaint& pai
         return false;
     }
     return bitmapShader->asFragmentProcessor(context, paint, viewM, NULL, paintColor,
-                                             shaderDataManager, fp);
+                                             procDataManager, fp);
 }
 #else
 bool SkPictureShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                          const SkMatrix*, GrColor*, GrShaderDataManager*,
+                                          const SkMatrix*, GrColor*, GrProcessorDataManager*,
                                           GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

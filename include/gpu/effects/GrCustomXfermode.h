@@ -22,7 +22,7 @@ class GrTexture;
 namespace GrCustomXfermode {
     bool IsSupportedMode(SkXfermode::Mode mode); 
 
-    GrFragmentProcessor* CreateFP(GrShaderDataManager*, SkXfermode::Mode mode,
+    GrFragmentProcessor* CreateFP(GrProcessorDataManager*, SkXfermode::Mode mode,
                                   GrTexture* background);
 
     GrXPFactory* CreateXPFactory(SkXfermode::Mode mode);

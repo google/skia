@@ -211,9 +211,9 @@ private:
 
 class GrSweepGradient : public GrGradientEffect {
 public:
-    static GrFragmentProcessor* Create(GrContext* ctx, GrShaderDataManager* shaderDataManager,
+    static GrFragmentProcessor* Create(GrContext* ctx, GrProcessorDataManager* procDataManager,
                                        const SkSweepGradient& shader, const SkMatrix& m) {
-        return SkNEW_ARGS(GrSweepGradient, (ctx, shaderDataManager, shader, m));
+        return SkNEW_ARGS(GrSweepGradient, (ctx, procDataManager, shader, m));
     }
     virtual ~GrSweepGradient() { }
 
@@ -230,10 +230,10 @@ public:
 
 private:
     GrSweepGradient(GrContext* ctx,
-                    GrShaderDataManager* shaderDataManager,
+                    GrProcessorDataManager* procDataManager,
                     const SkSweepGradient& shader,
                     const SkMatrix& matrix)
-    : INHERITED(ctx, shaderDataManager, shader, matrix, SkShader::kClamp_TileMode) {
+    : INHERITED(ctx, procDataManager, shader, matrix, SkShader::kClamp_TileMode) {
         this->initClassID<GrSweepGradient>();
     }
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -260,7 +260,7 @@ GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     GrColor paintColor;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
                                                GrTest::TestMatrix(d->fRandom), NULL,
-                                               &paintColor, d->fShaderDataManager, &fp));
+                                               &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
@@ -295,7 +295,7 @@ void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
 bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                           const SkMatrix& viewM,
                                           const SkMatrix* localMatrix, GrColor* paintColor,
-                                          GrShaderDataManager* shaderDataManager,
+                                          GrProcessorDataManager* procDataManager,
                                           GrFragmentProcessor** effect)  const {
 
     SkMatrix matrix;
@@ -311,7 +311,7 @@ bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& pai
     }
     matrix.postConcat(fPtsToUnit);
 
-    *effect = GrSweepGradient::Create(context, shaderDataManager, *this, matrix);
+    *effect = GrSweepGradient::Create(context, procDataManager, *this, matrix);
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
 
     return true;
@@ -320,7 +320,7 @@ bool SkSweepGradient::asFragmentProcessor(GrContext* context, const SkPaint& pai
 #else
 
 bool SkSweepGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                          const SkMatrix*, GrColor*, GrShaderDataManager*,
+                                          const SkMatrix*, GrColor*, GrProcessorDataManager*,
                                           GrFragmentProcessor**)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

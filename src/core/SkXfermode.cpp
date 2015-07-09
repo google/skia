@@ -658,7 +658,7 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asFragmentProcessor(GrFragmentProcessor**, GrShaderDataManager*,
+bool SkXfermode::asFragmentProcessor(GrFragmentProcessor**, GrProcessorDataManager*,
                                      GrTexture*) const {
     return false;
 }
@@ -929,12 +929,12 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 #include "effects/GrCustomXfermode.h"
 
 bool SkProcCoeffXfermode::asFragmentProcessor(GrFragmentProcessor** fp,
-                                              GrShaderDataManager* shaderDataManager,
+                                              GrProcessorDataManager* procDataManager,
                                               GrTexture* background) const {
     if (GrCustomXfermode::IsSupportedMode(fMode)) {
         if (fp) {
-            SkASSERT(shaderDataManager);
-            *fp = GrCustomXfermode::CreateFP(shaderDataManager, fMode, background);
+            SkASSERT(procDataManager);
+            *fp = GrCustomXfermode::CreateFP(procDataManager, fMode, background);
             SkASSERT(*fp);
         }
         return true;

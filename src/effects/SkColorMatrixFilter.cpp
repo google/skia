@@ -539,7 +539,7 @@ GrFragmentProcessor* ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
     return ColorMatrixEffect::Create(colorMatrix);
 }
 
-bool SkColorMatrixFilter::asFragmentProcessors(GrContext*, GrShaderDataManager*,
+bool SkColorMatrixFilter::asFragmentProcessors(GrContext*, GrProcessorDataManager*,
                                                SkTDArray<GrFragmentProcessor*>* array) const {
     GrFragmentProcessor* frag = ColorMatrixEffect::Create(fMatrix);
     if (frag) {

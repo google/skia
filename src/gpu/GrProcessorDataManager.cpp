@@ -5,9 +5,4 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrShaderDataManager_DEFINED
-#define GrShaderDataManager_DEFINED
-
-class GrShaderDataManager {};
-
-#endif
+#include "GrProcessorDataManager.h"

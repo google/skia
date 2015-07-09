@@ -34,7 +34,7 @@ public:
     }
 
     bool asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
-                             const SkMatrix* localMatrix, GrColor* color, GrShaderDataManager*,
+                             const SkMatrix* localMatrix, GrColor* color, GrProcessorDataManager*,
                              GrFragmentProcessor** fp) const override;
 
 #ifndef SK_IGNORE_TO_STRING
@@ -55,7 +55,7 @@ SkFlattenable* DCShader::CreateProc(SkReadBuffer& buf) {
 
 class DCFP : public GrFragmentProcessor {
 public:
-    DCFP(GrShaderDataManager*, const SkMatrix& m) : fDeviceTransform(kDevice_GrCoordSet, m) {
+    DCFP(GrProcessorDataManager*, const SkMatrix& m) : fDeviceTransform(kDevice_GrCoordSet, m) {
         this->addCoordTransform(&fDeviceTransform);
         this->initClassID<DCFP>();
     }
@@ -101,9 +101,9 @@ private:
 
 bool DCShader::asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
                                    const SkMatrix* localMatrix, GrColor* color,
-                                   GrShaderDataManager* shaderDataManager,
+                                   GrProcessorDataManager* procDataManager,
                                    GrFragmentProcessor** fp) const {
-    *fp = SkNEW_ARGS(DCFP, (shaderDataManager, fDeviceMatrix));
+    *fp = SkNEW_ARGS(DCFP, (procDataManager, fDeviceMatrix));
     *color = GrColorPackA4(paint.getAlpha());
     return true;
 }

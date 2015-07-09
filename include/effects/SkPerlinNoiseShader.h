@@ -97,7 +97,7 @@ public:
     };
 
     virtual bool asFragmentProcessor(GrContext* context, const SkPaint&, const SkMatrix& viewM,
-                                     const SkMatrix*, GrColor*, GrShaderDataManager*,
+                                     const SkMatrix*, GrColor*, GrProcessorDataManager*,
                                      GrFragmentProcessor**) const override;
 
     SK_TO_STRING_OVERRIDE()

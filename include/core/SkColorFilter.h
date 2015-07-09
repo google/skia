@@ -16,7 +16,7 @@
 class SkBitmap;
 class GrProcessor;
 class GrContext;
-class GrShaderDataManager;
+class GrProcessorDataManager;
 
 /**
  *  ColorFilters are optional objects in the drawing pipeline. When present in
@@ -135,7 +135,7 @@ public:
      *
      *  If the subclass returns false, then it should not modify the array at all.
      */
-    virtual bool asFragmentProcessors(GrContext*, GrShaderDataManager*,
+    virtual bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
                                       SkTDArray<GrFragmentProcessor*>*) const {
         return false;
     }

@@ -1058,7 +1058,7 @@ void GrGLGradientEffect::emitColor(GrGLFPBuilder* builder,
 /////////////////////////////////////////////////////////////////////
 
 GrGradientEffect::GrGradientEffect(GrContext* ctx,
-                                   GrShaderDataManager*,
+                                   GrProcessorDataManager*,
                                    const SkGradientShaderBase& shader,
                                    const SkMatrix& matrix,
                                    SkShader::TileMode tileMode) {

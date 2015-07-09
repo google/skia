@@ -365,7 +365,8 @@ void SkBitmapProcShader::toString(SkString* str) const {
 bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                              const SkMatrix& viewM,
                                              const SkMatrix* localMatrix, GrColor* paintColor,
-                                             GrShaderDataManager*, GrFragmentProcessor** fp) const {
+                                             GrProcessorDataManager*,
+                                             GrFragmentProcessor** fp) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
@@ -451,7 +452,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
 #else
 
 bool SkBitmapProcShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                             const SkMatrix*, GrColor*, GrShaderDataManager*,
+                                             const SkMatrix*, GrColor*, GrProcessorDataManager*,
                                              GrFragmentProcessor**) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

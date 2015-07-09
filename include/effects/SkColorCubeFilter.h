@@ -25,7 +25,7 @@ public:
     uint32_t getFlags() const override;
 
 #if SK_SUPPORT_GPU
-   bool asFragmentProcessors(GrContext*, GrShaderDataManager*,
+   bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
                              SkTDArray<GrFragmentProcessor*>*) const override;
 #endif
 

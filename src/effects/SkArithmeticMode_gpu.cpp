@@ -101,7 +101,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrArithmeticFP::GrArithmeticFP(GrShaderDataManager*, float k1, float k2, float k3, float k4,
+GrArithmeticFP::GrArithmeticFP(GrProcessorDataManager*, float k1, float k2, float k3, float k4,
                                bool enforcePMColor, GrTexture* background)
   : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
     this->initClassID<GrArithmeticFP>();
@@ -146,7 +146,7 @@ GrFragmentProcessor* GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
     float k4 = d->fRandom->nextF();
     bool enforcePMColor = d->fRandom->nextBool();
 
-    return SkNEW_ARGS(GrArithmeticFP, (d->fShaderDataManager, k1, k2, k3, k4, enforcePMColor,
+    return SkNEW_ARGS(GrArithmeticFP, (d->fProcDataManager, k1, k2, k3, k4, enforcePMColor,
                                        d->fTextures[0]));
 }
 

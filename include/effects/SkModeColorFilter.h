@@ -39,7 +39,7 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessors(GrContext*, GrShaderDataManager*,
+    bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
                               SkTDArray<GrFragmentProcessor*>*) const override;
 #endif
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)

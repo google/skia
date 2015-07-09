@@ -167,7 +167,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     }
 
     GrPaint paint;
-    if (!fMode || !fMode->asFragmentProcessor(&xferProcessor, paint.getShaderDataManager(),
+    if (!fMode || !fMode->asFragmentProcessor(&xferProcessor, paint.getProcessorDataManager(),
                                               backgroundTex)) {
         // canFilterImageGPU() should've taken care of this
         SkASSERT(false);

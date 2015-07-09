@@ -244,8 +244,8 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
         SkAutoTUnref<GrBatch> batch(GrRandomBatch(&random, context));
         SkASSERT(batch);
 
-        GrShaderDataManager shaderDataManager;
-        GrProcessorTestData ptd(&random, context, &shaderDataManager, fGpu->caps(), dummyTextures);
+        GrProcessorDataManager procDataManager;
+        GrProcessorTestData ptd(&random, context, &procDataManager, fGpu->caps(), dummyTextures);
         set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
         set_random_xpf(&pipelineBuilder, &ptd);
         set_random_state(&pipelineBuilder, &random);

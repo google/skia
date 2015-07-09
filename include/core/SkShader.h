@@ -20,7 +20,7 @@ class SkPicture;
 class SkXfermode;
 class GrContext;
 class GrFragmentProcessor;
-class GrShaderDataManager;
+class GrProcessorDataManager;
 
 /** \class SkShader
  *
@@ -365,7 +365,7 @@ public:
      */
     virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
                                      const SkMatrix* localMatrix, GrColor*,
-                                     GrShaderDataManager*, GrFragmentProcessor**) const;
+                                     GrProcessorDataManager*, GrFragmentProcessor**) const;
 
     /**
      *  If the shader can represent its "average" luminance in a single color, return true and

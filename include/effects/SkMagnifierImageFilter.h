@@ -26,7 +26,7 @@ protected:
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                        SkBitmap* result, SkIPoint* offset) const override;
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(GrFragmentProcessor**, GrShaderDataManager*, GrTexture*,
+    bool asFragmentProcessor(GrFragmentProcessor**, GrProcessorDataManager*, GrTexture*,
                              const SkMatrix&, const SkIRect& bounds) const override;
 #endif
 

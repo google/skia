@@ -720,7 +720,7 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
         } else {
             SkTDArray<GrFragmentProcessor*> array;
             // return false if failed?
-            if (colorFilter->asFragmentProcessors(context, grPaint->getShaderDataManager(),
+            if (colorFilter->asFragmentProcessors(context, grPaint->getProcessorDataManager(),
                                                   &array)) {
                 for (int i = 0; i < array.count(); ++i) {
                     grPaint->addColorProcessor(array[i]);
@@ -772,7 +772,7 @@ bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPa
         // the first color effect on the GrPaint.
         GrFragmentProcessor* fp = NULL;
         if (!shader->asFragmentProcessor(context, skPaint, viewM, NULL, &paintColor,
-                                         grPaint->getShaderDataManager(), &fp)) {
+                                         grPaint->getProcessorDataManager(), &fp)) {
             return false;
         }
         if (fp) {

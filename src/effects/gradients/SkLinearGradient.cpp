@@ -489,11 +489,11 @@ class GrLinearGradient : public GrGradientEffect {
 public:
 
     static GrFragmentProcessor* Create(GrContext* ctx,
-                                       GrShaderDataManager* shaderDataManager,
+                                       GrProcessorDataManager* procDataManager,
                                        const SkLinearGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm) {
-        return SkNEW_ARGS(GrLinearGradient, (ctx, shaderDataManager, shader, matrix, tm));
+        return SkNEW_ARGS(GrLinearGradient, (ctx, procDataManager, shader, matrix, tm));
     }
 
     virtual ~GrLinearGradient() { }
@@ -511,11 +511,11 @@ public:
 
 private:
     GrLinearGradient(GrContext* ctx,
-                     GrShaderDataManager* shaderDataManager,
+                     GrProcessorDataManager* procDataManager,
                      const SkLinearGradient& shader,
                      const SkMatrix& matrix,
                      SkShader::TileMode tm)
-        : INHERITED(ctx, shaderDataManager, shader, matrix, tm) {
+        : INHERITED(ctx, procDataManager, shader, matrix, tm) {
         this->initClassID<GrLinearGradient>();
     }
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -544,7 +544,7 @@ GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) {
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
                                                GrTest::TestMatrix(d->fRandom), NULL,
-                                               &paintColor, d->fShaderDataManager, &fp));
+                                               &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
@@ -568,7 +568,7 @@ void GrGLLinearGradient::emitCode(GrGLFPBuilder* builder,
 bool SkLinearGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                            const SkMatrix& viewm, const SkMatrix* localMatrix,
                                            GrColor* paintColor,
-                                           GrShaderDataManager* shaderDataManager,
+                                           GrProcessorDataManager* procDataManager,
                                            GrFragmentProcessor** fp)  const {
     SkASSERT(context);
 
@@ -586,7 +586,7 @@ bool SkLinearGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
     matrix.postConcat(fPtsToUnit);
 
     *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
-    *fp = GrLinearGradient::Create(context, shaderDataManager, *this, matrix, fTileMode);
+    *fp = GrLinearGradient::Create(context, procDataManager, *this, matrix, fTileMode);
 
     return true;
 }
@@ -594,7 +594,7 @@ bool SkLinearGradient::asFragmentProcessor(GrContext* context, const SkPaint& pa
 #else
 
 bool SkLinearGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                           const SkMatrix*, GrColor*, GrShaderDataManager*,
+                                           const SkMatrix*, GrColor*, GrProcessorDataManager*,
                                            GrFragmentProcessor**)  const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

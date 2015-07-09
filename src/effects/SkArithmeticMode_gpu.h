@@ -31,10 +31,10 @@ class GrGLArtithmeticFP;
 
 class GrArithmeticFP : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(GrShaderDataManager* shaderDataManager, float k1, float k2,
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, float k1, float k2,
                                        float k3, float k4, bool enforcePMColor,
                                        GrTexture* background) {
-        return SkNEW_ARGS(GrArithmeticFP, (shaderDataManager, k1, k2, k3, k4, enforcePMColor,
+        return SkNEW_ARGS(GrArithmeticFP, (procDataManager, k1, k2, k3, k4, enforcePMColor,
                                            background));
     }
 
@@ -57,7 +57,7 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
-    GrArithmeticFP(GrShaderDataManager*, float k1, float k2, float k3, float k4,
+    GrArithmeticFP(GrProcessorDataManager*, float k1, float k2, float k3, float k4,
                    bool enforcePMColor, GrTexture* background);
 
     float                       fK1, fK2, fK3, fK4;

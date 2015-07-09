@@ -59,11 +59,11 @@ class Edge2PtConicalEffect : public GrGradientEffect {
 public:
 
     static GrFragmentProcessor* Create(GrContext* ctx,
-                                       GrShaderDataManager* shaderDataManager,
+                                       GrProcessorDataManager* procDataManager,
                                        const SkTwoPointConicalGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm) {
-        return SkNEW_ARGS(Edge2PtConicalEffect, (ctx, shaderDataManager, shader, matrix, tm));
+        return SkNEW_ARGS(Edge2PtConicalEffect, (ctx, procDataManager, shader, matrix, tm));
     }
 
     virtual ~Edge2PtConicalEffect() {}
@@ -91,11 +91,11 @@ private:
     }
 
     Edge2PtConicalEffect(GrContext* ctx,
-                         GrShaderDataManager* shaderDataManager,
+                         GrProcessorDataManager* procDataManager,
                          const SkTwoPointConicalGradient& shader,
                          const SkMatrix& matrix,
                          SkShader::TileMode tm)
-        : INHERITED(ctx, shaderDataManager, shader, matrix, tm),
+        : INHERITED(ctx, procDataManager, shader, matrix, tm),
         fCenterX1(shader.getCenterX1()),
         fRadius0(shader.getStartRadius()),
         fDiffRadius(shader.getDiffRadius()){
@@ -218,7 +218,7 @@ GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     GrColor paintColor;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
                                                GrTest::TestMatrix(d->fRandom), NULL,
-                                               &paintColor, d->fShaderDataManager, &fp));
+                                               &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
@@ -379,12 +379,12 @@ class FocalOutside2PtConicalEffect : public GrGradientEffect {
 public:
 
     static GrFragmentProcessor* Create(GrContext* ctx,
-                                       GrShaderDataManager* shaderDataManager,
+                                       GrProcessorDataManager* procDataManager,
                                        const SkTwoPointConicalGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm,
                                        SkScalar focalX) {
-        return SkNEW_ARGS(FocalOutside2PtConicalEffect, (ctx, shaderDataManager, shader, matrix, tm,
+        return SkNEW_ARGS(FocalOutside2PtConicalEffect, (ctx, procDataManager, shader, matrix, tm,
                                                          focalX));
     }
 
@@ -410,12 +410,12 @@ private:
     }
 
     FocalOutside2PtConicalEffect(GrContext* ctx,
-                                 GrShaderDataManager* shaderDataManager,
+                                 GrProcessorDataManager* procDataManager,
                                  const SkTwoPointConicalGradient& shader,
                                  const SkMatrix& matrix,
                                  SkShader::TileMode tm,
                                  SkScalar focalX)
-    : INHERITED(ctx, shaderDataManager, shader, matrix, tm)
+    : INHERITED(ctx, procDataManager, shader, matrix, tm)
     , fFocalX(focalX)
     , fIsFlipped(shader.isFlippedGrad()) {
         this->initClassID<FocalOutside2PtConicalEffect>();
@@ -507,7 +507,7 @@ GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(GrProcessorTestDat
     GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
                                                GrTest::TestMatrix(d->fRandom), NULL,
-                                               &paintColor, d->fShaderDataManager,
+                                               &paintColor, d->fProcDataManager,
                                                &effect));
     return effect;
 }
@@ -604,12 +604,12 @@ class FocalInside2PtConicalEffect : public GrGradientEffect {
 public:
 
     static GrFragmentProcessor* Create(GrContext* ctx,
-                                       GrShaderDataManager* shaderDataManager,
+                                       GrProcessorDataManager* procDataManager,
                                        const SkTwoPointConicalGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm,
                                        SkScalar focalX) {
-        return SkNEW_ARGS(FocalInside2PtConicalEffect, (ctx, shaderDataManager, shader, matrix, tm,
+        return SkNEW_ARGS(FocalInside2PtConicalEffect, (ctx, procDataManager, shader, matrix, tm,
                                                         focalX));
     }
 
@@ -635,12 +635,12 @@ private:
     }
 
     FocalInside2PtConicalEffect(GrContext* ctx,
-                                GrShaderDataManager* shaderDataManager,
+                                GrProcessorDataManager* procDataManager,
                                 const SkTwoPointConicalGradient& shader,
                                 const SkMatrix& matrix,
                                 SkShader::TileMode tm,
                                 SkScalar focalX)
-        : INHERITED(ctx, shaderDataManager, shader, matrix, tm), fFocalX(focalX) {
+        : INHERITED(ctx, procDataManager, shader, matrix, tm), fFocalX(focalX) {
         this->initClassID<FocalInside2PtConicalEffect>();
     }
 
@@ -728,7 +728,7 @@ GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(GrProcessorTestData
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
                                                GrTest::TestMatrix(d->fRandom), NULL,
-                                               &paintColor, d->fShaderDataManager, &fp));
+                                               &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
@@ -851,12 +851,12 @@ class CircleInside2PtConicalEffect : public GrGradientEffect {
 public:
 
     static GrFragmentProcessor* Create(GrContext* ctx,
-                                       GrShaderDataManager* shaderDataManager,
+                                       GrProcessorDataManager* procDataManager,
                                        const SkTwoPointConicalGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm,
                                        const CircleConicalInfo& info) {
-        return SkNEW_ARGS(CircleInside2PtConicalEffect, (ctx, shaderDataManager, shader, matrix, tm,
+        return SkNEW_ARGS(CircleInside2PtConicalEffect, (ctx, procDataManager, shader, matrix, tm,
                                                          info));
     }
 
@@ -886,12 +886,12 @@ private:
     }
 
     CircleInside2PtConicalEffect(GrContext* ctx,
-                                 GrShaderDataManager* shaderDataManager,
+                                 GrProcessorDataManager* procDataManager,
                                  const SkTwoPointConicalGradient& shader,
                                  const SkMatrix& matrix,
                                  SkShader::TileMode tm,
                                  const CircleConicalInfo& info)
-        : INHERITED(ctx, shaderDataManager, shader, matrix, tm), fInfo(info) {
+        : INHERITED(ctx, procDataManager, shader, matrix, tm), fInfo(info) {
         this->initClassID<CircleInside2PtConicalEffect>();
     }
 
@@ -984,7 +984,7 @@ CircleInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
                                                GrTest::TestMatrix(d->fRandom), NULL,
-                                               &paintColor, d->fShaderDataManager, &fp));
+                                               &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
@@ -1076,12 +1076,12 @@ class CircleOutside2PtConicalEffect : public GrGradientEffect {
 public:
 
     static GrFragmentProcessor* Create(GrContext* ctx,
-                                       GrShaderDataManager* shaderDataManager,
+                                       GrProcessorDataManager* procDataManager,
                                        const SkTwoPointConicalGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm,
                                        const CircleConicalInfo& info) {
-        return SkNEW_ARGS(CircleOutside2PtConicalEffect, (ctx, shaderDataManager, shader, matrix,
+        return SkNEW_ARGS(CircleOutside2PtConicalEffect, (ctx, procDataManager, shader, matrix,
                                                           tm, info));
     }
 
@@ -1114,12 +1114,12 @@ private:
     }
 
     CircleOutside2PtConicalEffect(GrContext* ctx,
-                                  GrShaderDataManager* shaderDataManager,
+                                  GrProcessorDataManager* procDataManager,
                                   const SkTwoPointConicalGradient& shader,
                                   const SkMatrix& matrix,
                                   SkShader::TileMode tm,
                                   const CircleConicalInfo& info)
-        : INHERITED(ctx, shaderDataManager, shader, matrix, tm), fInfo(info) {
+        : INHERITED(ctx, procDataManager, shader, matrix, tm), fInfo(info) {
         this->initClassID<CircleOutside2PtConicalEffect>();
         if (shader.getStartRadius() != shader.getEndRadius()) {
             fTLimit = shader.getStartRadius() / (shader.getStartRadius() - shader.getEndRadius());
@@ -1224,7 +1224,7 @@ GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(GrProcessorTestDa
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
                                                GrTest::TestMatrix(d->fRandom), NULL,
-                                               &paintColor, d->fShaderDataManager, &fp));
+                                               &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
@@ -1339,7 +1339,7 @@ void GLCircleOutside2PtConicalEffect::GenKey(const GrProcessor& processor,
 //////////////////////////////////////////////////////////////////////////////
 
 GrFragmentProcessor* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
-                                                        GrShaderDataManager* shaderDataManager,
+                                                        GrProcessorDataManager* procDataManager,
                                                         const SkTwoPointConicalGradient& shader,
                                                         SkShader::TileMode tm,
                                                         const SkMatrix* localMatrix) {
@@ -1359,13 +1359,13 @@ GrFragmentProcessor* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
         SkScalar focalX;
         ConicalType type = set_matrix_focal_conical(shader, &matrix, &focalX);
         if (type == kInside_ConicalType) {
-            return FocalInside2PtConicalEffect::Create(ctx, shaderDataManager, shader, matrix, tm,
+            return FocalInside2PtConicalEffect::Create(ctx, procDataManager, shader, matrix, tm,
                                                        focalX);
         } else if(type == kEdge_ConicalType) {
             set_matrix_edge_conical(shader, &matrix);
-            return Edge2PtConicalEffect::Create(ctx, shaderDataManager, shader, matrix, tm);
+            return Edge2PtConicalEffect::Create(ctx, procDataManager, shader, matrix, tm);
         } else {
-            return FocalOutside2PtConicalEffect::Create(ctx, shaderDataManager, shader, matrix, tm,
+            return FocalOutside2PtConicalEffect::Create(ctx, procDataManager, shader, matrix, tm,
                                                         focalX);
         }
     }
@@ -1374,13 +1374,13 @@ GrFragmentProcessor* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
     ConicalType type = set_matrix_circle_conical(shader, &matrix, &info);
 
     if (type == kInside_ConicalType) {
-        return CircleInside2PtConicalEffect::Create(ctx, shaderDataManager,  shader, matrix, tm,
+        return CircleInside2PtConicalEffect::Create(ctx, procDataManager,  shader, matrix, tm,
                                                     info);
     } else if (type == kEdge_ConicalType) {
         set_matrix_edge_conical(shader, &matrix);
-        return Edge2PtConicalEffect::Create(ctx, shaderDataManager, shader, matrix, tm);
+        return Edge2PtConicalEffect::Create(ctx, procDataManager, shader, matrix, tm);
     } else {
-        return CircleOutside2PtConicalEffect::Create(ctx, shaderDataManager, shader, matrix, tm,
+        return CircleOutside2PtConicalEffect::Create(ctx, procDataManager, shader, matrix, tm,
                                                      info);
     }
 }

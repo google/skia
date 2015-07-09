@@ -28,7 +28,7 @@ public:
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessors(GrContext*, GrShaderDataManager*,
+    bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
                               SkTDArray<GrFragmentProcessor*>*) const override;
 #endif
 
