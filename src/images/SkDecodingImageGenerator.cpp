@@ -38,9 +38,14 @@ public:
 
 protected:
     SkData* onRefEncodedData() override;
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
     Result onGetPixels(const SkImageInfo& info,
                        void* pixels, size_t rowBytes, const Options&,
                        SkPMColor ctable[], int* ctableCount) override;
+#else
+    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                     SkPMColor ctable[], int* ctableCount) override;
+#endif
     bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                          SkYUVColorSpace* colorSpace) override;
 
@@ -144,23 +149,36 @@ SkData* DecodingImageGenerator::onRefEncodedData() {
     return SkSafeRef(fData);
 }
 
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
 SkImageGenerator::Result DecodingImageGenerator::onGetPixels(const SkImageInfo& info,
         void* pixels, size_t rowBytes, const Options& options, SkPMColor ctableEntries[],
         int* ctableCount) {
+#else
+bool DecodingImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                         SkPMColor ctableEntries[], int* ctableCount) {
+#endif
     if (fInfo != info) {
         // The caller has specified a different info.  This is an
         // error for this kind of SkImageGenerator.  Use the Options
         // to change the settings.
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
         if (info.dimensions() != fInfo.dimensions()) {
             return kInvalidScale;
         }
         return kInvalidConversion;
+#else
+        return false;
+#endif
     }
 
     SkAssertResult(fStream->rewind());
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(fStream));
     if (NULL == decoder.get()) {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
         return kInvalidInput;
+#else
+        return false;
+#endif
     }
     decoder->setDitherImage(fDitherImage);
     decoder->setSampleSize(fSampleSize);
@@ -173,7 +191,11 @@ SkImageGenerator::Result DecodingImageGenerator::onGetPixels(const SkImageInfo& 
                                                                 SkImageDecoder::kDecodePixels_Mode);
     decoder->setAllocator(NULL);
     if (SkImageDecoder::kFailure == decodeResult) {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
         return kInvalidInput;
+#else
+        return false;
+#endif
     }
     if (allocator.isReady()) {  // Did not use pixels!
         SkBitmap bm;
@@ -182,7 +204,11 @@ SkImageGenerator::Result DecodingImageGenerator::onGetPixels(const SkImageInfo& 
         if (!copySuccess || allocator.isReady()) {
             SkDEBUGFAIL("bitmap.copyTo(requestedConfig) failed.");
             // Earlier we checked canCopyto(); we expect consistency.
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
             return kInvalidConversion;
+#else
+            return false;
+#endif
         }
         SkASSERT(check_alpha(info.alphaType(), bm.alphaType()));
     } else {
@@ -192,20 +218,32 @@ SkImageGenerator::Result DecodingImageGenerator::onGetPixels(const SkImageInfo& 
     if (kIndex_8_SkColorType == info.colorType()) {
         if (kIndex_8_SkColorType != bitmap.colorType()) {
             // they asked for Index8, but we didn't receive that from decoder
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
             return kInvalidConversion;
+#else
+            return false;
+#endif
         }
         SkColorTable* ctable = bitmap.getColorTable();
         if (NULL == ctable) {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
             return kInvalidConversion;
+#else
+            return false;
+#endif
         }
         const int count = ctable->count();
         memcpy(ctableEntries, ctable->readColors(), count * sizeof(SkPMColor));
         *ctableCount = count;
     }
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
     if (SkImageDecoder::kPartialSuccess == decodeResult) {
         return kIncompleteInput;
     }
     return kSuccess;
+#else
+    return true;
+#endif
 }
 
 bool DecodingImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3],

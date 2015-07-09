@@ -7,22 +7,21 @@
 
 #include "SkImageGenerator.h"
 
-SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels,
-                                                     size_t rowBytes, const Options* options,
-                                                     SkPMColor ctable[], int* ctableCount) {
+bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                 SkPMColor ctable[], int* ctableCount) {
     if (kUnknown_SkColorType == info.colorType()) {
-        return kInvalidConversion;
+        return false;
     }
     if (NULL == pixels) {
-        return kInvalidParameters;
+        return false;
     }
     if (rowBytes < info.minRowBytes()) {
-        return kInvalidParameters;
+        return false;
     }
 
     if (kIndex_8_SkColorType == info.colorType()) {
         if (NULL == ctable || NULL == ctableCount) {
-            return kInvalidParameters;
+            return false;
         }
     } else {
         if (ctableCount) {
@@ -32,26 +31,33 @@ SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, vo
         ctable = NULL;
     }
 
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
     // Default options.
-    Options optsStorage;
-    if (NULL == options) {
-        options = &optsStorage;
-    }
-    const Result result = this->onGetPixels(info, pixels, rowBytes, *options, ctable, ctableCount);
+    Options options;
+    const Result result = this->onGetPixels(info, pixels, rowBytes, options, ctable, ctableCount);
 
-    if ((kIncompleteInput == result || kSuccess == result) && ctableCount) {
+    if (kIncompleteInput != result && kSuccess != result) {
+        return false;
+    }
+    if (ctableCount) {
         SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
     }
-    return result;
+        return true;
+#else
+    const bool success = this->onGetPixels(info, pixels, rowBytes, ctable, ctableCount);
+    if (success && ctableCount) {
+        SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
+    }
+    return success;
+#endif
 }
 
-SkImageGenerator::Result SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels,
-                                                     size_t rowBytes) {
+bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     SkASSERT(kIndex_8_SkColorType != info.colorType());
     if (kIndex_8_SkColorType == info.colorType()) {
-        return kInvalidConversion;
+        return false;
     }
-    return this->getPixels(info, pixels, rowBytes, NULL, NULL, NULL);
+    return this->getPixels(info, pixels, rowBytes, NULL, NULL);
 }
 
 bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
@@ -112,8 +118,15 @@ SkData* SkImageGenerator::onRefEncodedData() {
     return NULL;
 }
 
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
 SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst,
                                                        size_t rb, const Options& options,
                                                        SkPMColor* colors, int* colorCount) {
     return kUnimplemented;
 }
+#else
+bool SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst, size_t rb,
+                                   SkPMColor* colors, int* colorCount) {
+    return false;
+}
+#endif

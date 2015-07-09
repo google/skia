@@ -182,16 +182,29 @@ protected:
                                     kOpaque_SkAlphaType);
     }
 
-    virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                               const Options&,
-                               SkPMColor ctable[], int* ctableCount) override {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
+    Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                       const Options&,
+                       SkPMColor ctable[], int* ctableCount) override {
+#else
+    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                     SkPMColor ctable[], int* ctableCount) override {
+#endif
         REPORTER_ASSERT(fReporter, pixels != NULL);
         REPORTER_ASSERT(fReporter, rowBytes >= info.minRowBytes());
         if (fType != kSucceedGetPixels_TestType) {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
             return kUnimplemented;
+#else
+            return false;
+#endif
         }
         if (info.colorType() != kN32_SkColorType) {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
             return kInvalidConversion;
+#else
+            return false;
+#endif
         }
         char* bytePtr = static_cast<char*>(pixels);
         for (int y = 0; y < info.height(); ++y) {
@@ -199,7 +212,11 @@ protected:
                         TestImageGenerator::Color(), info.width());
             bytePtr += rowBytes;
         }
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
         return kSuccess;
+#else
+        return true;
+#endif
     }
 
 private:

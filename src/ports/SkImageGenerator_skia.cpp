@@ -46,10 +46,14 @@ protected:
     SkData* onRefEncodedData() override {
         return SkRef(fData.get());
     }
-
-    virtual Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                               const Options&,
-                               SkPMColor ctableEntries[], int* ctableCount) override {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
+    Result onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                       const Options&,
+                       SkPMColor ctableEntries[], int* ctableCount) override {
+#else
+    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                     SkPMColor ctableEntries[], int* ctableCount) override {
+#endif
         SkMemoryStream stream(fData->data(), fData->size(), false);
         SkAutoTUnref<BareMemoryAllocator> allocator(SkNEW_ARGS(BareMemoryAllocator,
                                                                (info, pixels, rowBytes)));
@@ -60,7 +64,11 @@ protected:
         const SkImageDecoder::Result result = fDecoder->decode(&stream, &bm, info.colorType(),
                                                                SkImageDecoder::kDecodePixels_Mode);
         if (SkImageDecoder::kFailure == result) {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
             return kInvalidInput;
+#else
+            return false;
+#endif
         }
 
         SkASSERT(info.colorType() == bm.info().colorType());
@@ -70,16 +78,24 @@ protected:
 
             SkColorTable* ctable = bm.getColorTable();
             if (NULL == ctable) {
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
                 return kInvalidConversion;
+#else
+                return false;
+#endif
             }
             const int count = ctable->count();
             memcpy(ctableEntries, ctable->readColors(), count * sizeof(SkPMColor));
             *ctableCount = count;
         }
+#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
         if (SkImageDecoder::kPartialSuccess == result) {
             return kIncompleteInput;
         }
         return kSuccess;
+#else
+        return true;
+#endif
     }
 
     bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
