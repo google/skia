@@ -1,12 +1,24 @@
 #!/usr/bin/env python
 
+import argparse
+import numpy
 import sys
 from scipy.stats import mannwhitneyu
+from scipy.stats import sem
 
 SIGNIFICANCE_THRESHOLD = 0.0001
 
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description='Compare performance of two runs from nanobench.')
+parser.add_argument('--use_means', action='store_true', default=False,
+                    help='Use means to calculate performance ratios.')
+parser.add_argument('baseline', help='Baseline file.')
+parser.add_argument('experiment', help='Experiment file.')
+args = parser.parse_args()
+
 a,b = {},{}
-for (path, d) in [(sys.argv[1], a), (sys.argv[2], b)]:
+for (path, d) in [(args.baseline, a), (args.experiment, b)]:
     for line in open(path):
         try:
             tokens = line.split()
@@ -23,8 +35,13 @@ common = set(a.keys()).intersection(b.keys())
 ps = []
 for key in common:
     _, p = mannwhitneyu(a[key], b[key])    # Non-parametric t-test.  Doesn't assume normal dist.
-    am, bm = min(a[key]), min(b[key])
-    ps.append((bm/am, p, key, am, bm))
+    if args.use_means:
+        am, bm = numpy.mean(a[key]), numpy.mean(b[key])
+        asem, bsem = sem(a[key]), sem(b[key])
+    else:
+        am, bm = min(a[key]), min(b[key])
+        asem, bsem = 0, 0
+    ps.append((bm/am, p, key, am, bm, asem, bsem))
 ps.sort(reverse=True)
 
 def humanize(ns):
@@ -36,7 +53,11 @@ maxlen = max(map(len, common))
 
 # We print only signficant changes in benchmark timing distribution.
 bonferroni = SIGNIFICANCE_THRESHOLD / len(ps)  # Adjust for the fact we've run multiple tests.
-for ratio, p, key, am, bm in ps:
+for ratio, p, key, am, bm, asem, bsem in ps:
     if p < bonferroni:
         str_ratio = ('%.2gx' if ratio < 1 else '%.3gx') % ratio
-        print '%*s\t%6s -> %6s\t%s' % (maxlen, key, humanize(am), humanize(bm), str_ratio)
+        if args.use_means:
+            print '%*s\t%6s(%6s) -> %6s(%6s)\t%s' % (maxlen, key, humanize(am), humanize(asem),
+                                                     humanize(bm), humanize(bsem), str_ratio)
+        else:
+            print '%*s\t%6s -> %6s\t%s' % (maxlen, key, humanize(am), humanize(bm), str_ratio)
