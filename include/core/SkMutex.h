@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef SkMutex_DEFINED
 #define SkMutex_DEFINED
 
@@ -10,21 +17,22 @@
     #include "../ports/SkMutex_pthread.h"
 #endif
 
-class SkAutoMutexAcquire : SkNoncopyable {
+template <typename Lock>
+class SkAutoTAcquire : SkNoncopyable {
 public:
-    explicit SkAutoMutexAcquire(SkBaseMutex& mutex) : fMutex(&mutex) {
+    explicit SkAutoTAcquire(Lock& mutex) : fMutex(&mutex) {
         SkASSERT(fMutex != NULL);
         mutex.acquire();
     }
 
-    explicit SkAutoMutexAcquire(SkBaseMutex* mutex) : fMutex(mutex) {
+    explicit SkAutoTAcquire(Lock* mutex) : fMutex(mutex) {
         if (mutex) {
             mutex->acquire();
         }
     }
 
     /** If the mutex has not been released, release it now. */
-    ~SkAutoMutexAcquire() {
+    ~SkAutoTAcquire() {
         if (fMutex) {
             fMutex->release();
         }
@@ -45,8 +53,11 @@ public:
     }
 
 private:
-    SkBaseMutex* fMutex;
+    Lock* fMutex;
 };
+
+typedef SkAutoTAcquire<SkBaseMutex> SkAutoMutexAcquire;
+
 #define SkAutoMutexAcquire(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexAcquire)
 
 
