@@ -49,12 +49,6 @@ protected:
     SkSurfaceProps                 fSurfaceProps;
 
     GrDrawContext*                 fDrawContext;  // owning drawContext
-    SkAutoTUnref<GrRenderTarget>   fRenderTarget;
-    GrClip                         fClip;
-    SkIRect                        fClipRect;
-    SkIRect                        fRegionClipBounds;
-    GrPaint                        fPaint;
-    SkPaint                        fSkPaint;
 
     GrTextContext(GrContext*, GrDrawContext*, const SkSurfaceProps&);
 
@@ -81,9 +75,6 @@ protected:
                            const char text[], size_t byteLength,
                            const SkScalar pos[], int scalarsPerPosition,
                            const SkPoint& offset, const SkIRect& clipBounds);
-
-    void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
-              const SkIRect& regionClipBounds);
 
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
     // sets extent in stopVector and returns glyph count

@@ -68,6 +68,12 @@ private:
     SkMatrix                                            fViewMatrix;
     SkMatrix                                            fLocalMatrix;
     bool                                                fUsingDeviceSpaceGlyphs;
+    SkAutoTUnref<GrRenderTarget>                        fRenderTarget;
+    GrClip                                              fClip;
+    SkIRect                                             fClipRect;
+    SkIRect                                             fRegionClipBounds;
+    GrPaint                                             fPaint;
+    SkPaint                                             fSkPaint;
 
     GrStencilAndCoverTextContext(GrContext*, GrDrawContext*, const SkSurfaceProps&);
 

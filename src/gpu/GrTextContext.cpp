@@ -32,19 +32,6 @@ GrTextContext::~GrTextContext() {
     SkDELETE(fFallbackTextContext);
 }
 
-void GrTextContext::init(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
-                         const SkPaint& skPaint, const SkIRect& regionClipBounds) {
-    fClip = clip;
-
-    fRenderTarget.reset(SkRef(rt));
-
-    fRegionClipBounds = regionClipBounds;
-    fClip.getConservativeBounds(fRenderTarget->width(), fRenderTarget->height(), &fClipRect);
-
-    fPaint = grPaint;
-    fSkPaint = skPaint;
-}
-
 void GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& paint,
                              const SkPaint& skPaint, const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
@@ -147,7 +134,7 @@ void GrTextContext::drawTextBlob(GrRenderTarget* rt,
         runPaint.setFlags(FilterTextFlags(fSurfaceProps, runPaint));
 
         GrPaint grPaint;
-        if (!SkPaint2GrPaint(fContext, fRenderTarget, runPaint, viewMatrix, true, &grPaint)) {
+        if (!SkPaint2GrPaint(fContext, rt, runPaint, viewMatrix, true, &grPaint)) {
             return;
         }
 

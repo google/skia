@@ -255,7 +255,15 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
                                         RenderMode renderMode,
                                         const SkMatrix& viewMatrix,
                                         const SkIRect& regionClipBounds) {
-    GrTextContext::init(rt, clip, paint, skPaint, regionClipBounds);
+    fClip = clip;
+
+    fRenderTarget.reset(SkRef(rt));
+
+    fRegionClipBounds = regionClipBounds;
+    fClip.getConservativeBounds(fRenderTarget->width(), fRenderTarget->height(), &fClipRect);
+
+    fPaint = paint;
+    fSkPaint = skPaint;
 
     fContextInitialMatrix = viewMatrix;
     fViewMatrix = viewMatrix;
