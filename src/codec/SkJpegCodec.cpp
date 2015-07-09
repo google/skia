@@ -11,6 +11,7 @@
 #include "SkJpegUtility_codec.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
+#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
@@ -407,10 +408,10 @@ public:
         , fCodec(codec)
     {}
 
-    SkImageGenerator::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
+    SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
         // Set the jump location for libjpeg errors
         if (setjmp(fCodec->fDecoderMgr->getJmpBuf())) {
-            return fCodec->fDecoderMgr->returnFailure("setjmp", SkImageGenerator::kInvalidInput);
+            return fCodec->fDecoderMgr->returnFailure("setjmp", SkCodec::kInvalidInput);
         }
 
         // Read rows one at a time
@@ -423,7 +424,7 @@ public:
                 SkSwizzler::Fill(
                         dstRow, this->dstInfo(), rowBytes, count - y, SK_ColorBLACK, NULL);
                 fCodec->fDecoderMgr->dinfo()->output_scanline = this->dstInfo().height();
-                return SkImageGenerator::kIncompleteInput;
+                return SkCodec::kIncompleteInput;
             }
 
             // Convert to RGBA if necessary
@@ -435,7 +436,7 @@ public:
             dstRow = SkTAddOffset<JSAMPLE>(dstRow, rowBytes);
         }
 
-        return SkImageGenerator::kSuccess;
+        return SkCodec::kSuccess;
     }
 
 #ifndef TURBO_HAS_SKIP
@@ -447,15 +448,15 @@ public:
     }
 #endif
 
-    SkImageGenerator::Result onSkipScanlines(int count) override {
+    SkCodec::Result onSkipScanlines(int count) override {
         // Set the jump location for libjpeg errors
         if (setjmp(fCodec->fDecoderMgr->getJmpBuf())) {
-            return fCodec->fDecoderMgr->returnFailure("setjmp", SkImageGenerator::kInvalidInput);
+            return fCodec->fDecoderMgr->returnFailure("setjmp", SkCodec::kInvalidInput);
         }
 
         turbo_jpeg_skip_scanlines(fCodec->fDecoderMgr->dinfo(), count);
 
-        return SkImageGenerator::kSuccess;
+        return SkCodec::kSuccess;
     }
 
 private:

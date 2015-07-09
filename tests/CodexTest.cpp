@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkMD5.h"
+#include "SkScanlineDecoder.h"
 #include "Test.h"
 
 static SkStreamAsset* resource(const char path[]) {
@@ -51,9 +52,9 @@ static void check(skiatest::Reporter* r,
     SkBitmap bm;
     bm.allocPixels(info);
     SkAutoLockPixels autoLockPixels(bm);
-    SkImageGenerator::Result result =
+    SkCodec::Result result =
         codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
-    REPORTER_ASSERT(r, result == SkImageGenerator::kSuccess);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
     SkMD5::Digest digest1, digest2;
     md5(bm, &digest1);
@@ -63,7 +64,7 @@ static void check(skiatest::Reporter* r,
     result =
         codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
 
-    REPORTER_ASSERT(r, result == SkImageGenerator::kSuccess);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
     // verify that re-decoding gives the same result.
     md5(bm, &digest2);
     REPORTER_ASSERT(r, digest1 == digest2);
@@ -75,10 +76,10 @@ static void check(skiatest::Reporter* r,
 
         // Regular decodes should be disabled after creating a scanline decoder
         result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
-        REPORTER_ASSERT(r, SkImageGenerator::kInvalidParameters == result);
+        REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
         for (int y = 0; y < info.height(); y++) {
             result = scanlineDecoder->getScanlines(bm.getAddr(0, y), 1, 0);
-            REPORTER_ASSERT(r, result == SkImageGenerator::kSuccess);
+            REPORTER_ASSERT(r, result == SkCodec::kSuccess);
         }
         // verify that scanline decoding gives the same result.
         SkMD5::Digest digest3;
@@ -189,9 +190,9 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         size_t totalBytes = scaledInfo.getSafeSize(rowBytes);
         SkAutoTMalloc<SkPMColor> pixels(totalBytes);
 
-        SkImageGenerator::Result result =
+        SkCodec::Result result =
                 codec->getPixels(scaledInfo, pixels.get(), rowBytes, NULL, NULL, NULL);
-        REPORTER_ASSERT(r, SkImageGenerator::kSuccess == result);
+        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     }
 }
 

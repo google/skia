@@ -6,7 +6,6 @@
  */
 
 #include "SkWebpCodec.h"
-#include "SkImageGenerator.h"
 #include "SkTemplates.h"
 
 // A WebP decoder on top of (subset of) libwebp
@@ -63,7 +62,7 @@ static bool webp_parse_header(SkStream* stream, SkImageInfo* info) {
 
     if (info) {
         // FIXME: Is N32 the right type?
-        // Is unpremul the right type? Clients of SkImageGenerator may assume it's the
+        // Is unpremul the right type? Clients of SkCodec may assume it's the
         // best type, when Skia currently cannot draw unpremul (and raster is faster
         // with premul).
         *info = SkImageInfo::Make(features.width, features.height, kN32_SkColorType,
@@ -126,9 +125,8 @@ static WEBP_CSP_MODE webp_decode_mode(SkColorType ct, bool premultiply) {
 // is arbitrary.
 static const size_t BUFFER_SIZE = 4096;
 
-SkImageGenerator::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
-                                                  size_t rowBytes, const Options&, SkPMColor*,
-                                                  int*) {
+SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
+                                         const Options&, SkPMColor*, int*) {
     switch (this->rewindIfNeeded()) {
         case kCouldNotRewind_RewindState:
             return kCouldNotRewind;

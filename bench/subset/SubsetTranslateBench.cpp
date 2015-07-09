@@ -11,6 +11,7 @@
 #include "SkCodec.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
+#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 
 /*

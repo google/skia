@@ -275,7 +275,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        const SkPMColor* ctable,
                                        const SkImageInfo& info, void* dst,
                                        size_t dstRowBytes,
-                                       SkImageGenerator::ZeroInitialized zeroInit) {
+                                       SkCodec::ZeroInitialized zeroInit) {
     if (info.colorType() == kUnknown_SkColorType || kUnknown == sc) {
         return NULL;
     }
@@ -306,7 +306,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             switch (info.colorType()) {
                 case kN32_SkColorType:
                     // We assume the color premultiplied ctable (or not) as desired.
-                    if (SkImageGenerator::kYes_ZeroInitialized == zeroInit) {
+                    if (SkCodec::kYes_ZeroInitialized == zeroInit) {
                         proc = &swizzle_index_to_n32_skipZ;
                         break;
                     } else {
@@ -377,7 +377,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                         // Respect zeroInit?
                         proc = &swizzle_rgba_to_n32_unpremul;
                     } else {
-                        if (SkImageGenerator::kYes_ZeroInitialized == zeroInit) {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
                             proc = &swizzle_rgba_to_n32_premul_skipZ;
                         } else {
                             proc = &swizzle_rgba_to_n32_premul;

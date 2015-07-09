@@ -8,7 +8,6 @@
 #include "CodecBench.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
-#include "SkImageGenerator.h"
 #include "SkOSFile.h"
 
 CodecBench::CodecBench(SkString baseName, SkData* encoded, SkColorType colorType)
@@ -70,11 +69,11 @@ void CodecBench::onDraw(const int n, SkCanvas* canvas) {
         colorCount = 256;
         codec.reset(SkCodec::NewFromData(fData));
 #ifdef SK_DEBUG
-        const SkImageGenerator::Result result =
+        const SkCodec::Result result =
 #endif
         codec->getPixels(fInfo, fPixelStorage.get(), fInfo.minRowBytes(),
                          NULL, colorTable, &colorCount);
-        SkASSERT(result == SkImageGenerator::kSuccess
-                 || result == SkImageGenerator::kIncompleteInput);
+        SkASSERT(result == SkCodec::kSuccess
+                 || result == SkCodec::kIncompleteInput);
     }
 }

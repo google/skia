@@ -127,7 +127,7 @@ public:
     static SkSwizzler* CreateSwizzler(SrcConfig, const SkPMColor* ctable,
                                       const SkImageInfo&, void* dst,
                                       size_t dstRowBytes,
-                                      SkImageGenerator::ZeroInitialized);
+                                      SkCodec::ZeroInitialized);
 
     /**
      * Fill the remainder of the destination with a single color

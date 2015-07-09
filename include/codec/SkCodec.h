@@ -8,21 +8,21 @@
 #ifndef SkCodec_DEFINED
 #define SkCodec_DEFINED
 
+#include "SkColor.h"
 #include "SkEncodedFormat.h"
-#include "SkImageGenerator.h"
 #include "SkImageInfo.h"
-#include "SkScanlineDecoder.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
 class SkData;
+class SkScanlineDecoder;
 
 /**
  *  Abstraction layer directly on top of an image codec.
  */
-class SkCodec : public SkImageGenerator {
+class SkCodec : SkNoncopyable {
 public:
     /**
      *  If this stream represents an encoded image that we know how to decode,
@@ -41,12 +41,17 @@ public:
      */
     static SkCodec* NewFromData(SkData*);
 
+    virtual ~SkCodec();
+
+    /**
+     *  Return the ImageInfo associated with this codec.
+     */
+    const SkImageInfo& getInfo() const { return fInfo; }
+
     /**
      *  Return a size that approximately supports the desired scale factor.
      *  The codec may not be able to scale efficiently to the exact scale
      *  factor requested, so return a size that approximates that scale.
-     *
-     *  FIXME: Move to SkImageGenerator?
      */
     SkISize getScaledDimensions(float desiredScale) const {
         return this->onGetScaledDimensions(desiredScale);
@@ -56,6 +61,115 @@ public:
      *  Format of the encoded data.
      */
     SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
+
+    /**
+     *  Used to describe the result of a call to getPixels().
+     *
+     *  Result is the union of possible results from subclasses.
+     */
+    enum Result {
+        /**
+         *  General return value for success.
+         */
+        kSuccess,
+        /**
+         *  The input is incomplete. A partial image was generated.
+         */
+        kIncompleteInput,
+        /**
+         *  The generator cannot convert to match the request, ignoring
+         *  dimensions.
+         */
+        kInvalidConversion,
+        /**
+         *  The generator cannot scale to requested size.
+         */
+        kInvalidScale,
+        /**
+         *  Parameters (besides info) are invalid. e.g. NULL pixels, rowBytes
+         *  too small, etc.
+         */
+        kInvalidParameters,
+        /**
+         *  The input did not contain a valid image.
+         */
+        kInvalidInput,
+        /**
+         *  Fulfilling this request requires rewinding the input, which is not
+         *  supported for this input.
+         */
+        kCouldNotRewind,
+        /**
+         *  This method is not implemented by this generator.
+         */
+        kUnimplemented,
+    };
+
+    /**
+     *  Whether or not the memory passed to getPixels is zero initialized.
+     */
+    enum ZeroInitialized {
+        /**
+         *  The memory passed to getPixels is zero initialized. The SkCodec
+         *  may take advantage of this by skipping writing zeroes.
+         */
+        kYes_ZeroInitialized,
+        /**
+         *  The memory passed to getPixels has not been initialized to zero,
+         *  so the SkCodec must write all zeroes to memory.
+         *
+         *  This is the default. It will be used if no Options struct is used.
+         */
+        kNo_ZeroInitialized,
+    };
+
+    /**
+     *  Additional options to pass to getPixels.
+     */
+    struct Options {
+        Options()
+            : fZeroInitialized(kNo_ZeroInitialized) {}
+
+        ZeroInitialized fZeroInitialized;
+    };
+
+    /**
+     *  Decode into the given pixels, a block of memory of size at
+     *  least (info.fHeight - 1) * rowBytes + (info.fWidth *
+     *  bytesPerPixel)
+     *
+     *  Repeated calls to this function should give the same results,
+     *  allowing the PixelRef to be immutable.
+     *
+     *  @param info A description of the format (config, size)
+     *         expected by the caller.  This can simply be identical
+     *         to the info returned by getInfo().
+     *
+     *         This contract also allows the caller to specify
+     *         different output-configs, which the implementation can
+     *         decide to support or not.
+     *
+     *         A size that does not match getInfo() implies a request
+     *         to scale. If the generator cannot perform this scale,
+     *         it will return kInvalidScale.
+     *
+     *  If info is kIndex8_SkColorType, then the caller must provide storage for up to 256
+     *  SkPMColor values in ctable. On success the generator must copy N colors into that storage,
+     *  (where N is the logical number of table entries) and set ctableCount to N.
+     *
+     *  If info is not kIndex8_SkColorType, then the last two parameters may be NULL. If ctableCount
+     *  is not null, it will be set to 0.
+     *
+     *  @return Result kSuccess, or another value explaining the type of failure.
+     */
+    Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options*,
+                     SkPMColor ctable[], int* ctableCount);
+
+    /**
+     *  Simplified version of getPixels() that asserts that info is NOT kIndex8_SkColorType and
+     *  uses the default Options.
+     */
+    Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
      *  Return an object which can be used to decode individual scanlines.
@@ -117,6 +231,10 @@ protected:
     }
 
     virtual SkEncodedFormat onGetEncodedFormat() const = 0;
+
+    virtual Result onGetPixels(const SkImageInfo& info,
+                               void* pixels, size_t rowBytes, const Options&,
+                               SkPMColor ctable[], int* ctableCount) = 0;
 
     /**
      *  Override if your codec supports scanline decoding.
@@ -182,7 +300,7 @@ protected:
      * created a new scanline decoder.
      */
     SkScanlineDecoder* scanlineDecoder() {
-        return fScanlineDecoder.get();
+        return fScanlineDecoder;
     }
 
     /**
@@ -191,14 +309,15 @@ protected:
      * in the destructor of the subclass.
      */
     SkScanlineDecoder* detachScanlineDecoder() {
-        return fScanlineDecoder.detach();
+        SkScanlineDecoder* scanlineDecoder = fScanlineDecoder;
+        fScanlineDecoder = NULL;
+        return scanlineDecoder;
     }
 
 private:
-    SkAutoTDelete<SkStream>             fStream;
-    bool                                fNeedsRewind;
-    SkAutoTDelete<SkScanlineDecoder>    fScanlineDecoder;
-
-    typedef SkImageGenerator INHERITED;
+    const SkImageInfo       fInfo;
+    SkAutoTDelete<SkStream> fStream;
+    bool                    fNeedsRewind;
+    SkScanlineDecoder*      fScanlineDecoder;
 };
 #endif // SkCodec_DEFINED

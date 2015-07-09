@@ -16,6 +16,7 @@
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #include "SkJpegCodec.h"
 #endif
+#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 #include "SkWebpCodec.h"
 
@@ -76,10 +77,15 @@ SkCodec* SkCodec::NewFromData(SkData* data) {
 }
 
 SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)
-    : INHERITED(info)
+    : fInfo(info)
     , fStream(stream)
     , fNeedsRewind(false)
+    , fScanlineDecoder(NULL)
 {}
+
+SkCodec::~SkCodec() {
+    SkDELETE(fScanlineDecoder);
+}
 
 SkCodec::RewindState SkCodec::rewindIfNeeded() {
     // Store the value of fNeedsRewind so we can update it. Next read will
@@ -93,6 +99,51 @@ SkCodec::RewindState SkCodec::rewindIfNeeded() {
                              : kCouldNotRewind_RewindState;
 }
 
+SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                   const Options* options, SkPMColor ctable[], int* ctableCount) {
+    if (kUnknown_SkColorType == info.colorType()) {
+        return kInvalidConversion;
+    }
+    if (NULL == pixels) {
+        return kInvalidParameters;
+    }
+    if (rowBytes < info.minRowBytes()) {
+        return kInvalidParameters;
+    }
+
+    if (kIndex_8_SkColorType == info.colorType()) {
+        if (NULL == ctable || NULL == ctableCount) {
+            return kInvalidParameters;
+        }
+    } else {
+        if (ctableCount) {
+            *ctableCount = 0;
+        }
+        ctableCount = NULL;
+        ctable = NULL;
+    }
+
+    // Default options.
+    Options optsStorage;
+    if (NULL == options) {
+        options = &optsStorage;
+    }
+    const Result result = this->onGetPixels(info, pixels, rowBytes, *options, ctable, ctableCount);
+
+    if ((kIncompleteInput == result || kSuccess == result) && ctableCount) {
+        SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
+    }
+    return result;
+}
+
+SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+    SkASSERT(kIndex_8_SkColorType != info.colorType());
+    if (kIndex_8_SkColorType == info.colorType()) {
+        return kInvalidConversion;
+    }
+    return this->getPixels(info, pixels, rowBytes, NULL, NULL, NULL);
+}
+
 SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo, const Options* options,
         SkPMColor ctable[], int* ctableCount) {
 
@@ -102,8 +153,9 @@ SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo, const
         options = &optsStorage;
     }
 
-    fScanlineDecoder.reset(this->onGetScanlineDecoder(dstInfo, *options, ctable, ctableCount));
-    return fScanlineDecoder.get();
+    SkDELETE(fScanlineDecoder);
+    fScanlineDecoder = this->onGetScanlineDecoder(dstInfo, *options, ctable, ctableCount);
+    return fScanlineDecoder;
 }
 
 SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo) {

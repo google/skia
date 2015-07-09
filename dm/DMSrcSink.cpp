@@ -143,12 +143,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         case kNormal_Mode: {
             switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), NULL,
                     colorPtr, colorCountPtr)) {
-                case SkImageGenerator::kSuccess:
+                case SkCodec::kSuccess:
                     // We consider incomplete to be valid, since we should still decode what is
                     // available.
-                case SkImageGenerator::kIncompleteInput:
+                case SkCodec::kIncompleteInput:
                     break;
-                case SkImageGenerator::kInvalidConversion:
+                case SkCodec::kInvalidConversion:
                     return Error::Nonfatal("Incompatible colortype conversion");
                 default:
                     // Everything else is considered a failure.
@@ -163,11 +163,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             if (NULL == scanlineDecoder) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }
-            const SkImageGenerator::Result result = scanlineDecoder->getScanlines(
+            const SkCodec::Result result = scanlineDecoder->getScanlines(
                     bitmap.getAddr(0, 0), decodeInfo.height(), bitmap.rowBytes());
             switch (result) {
-                case SkImageGenerator::kSuccess:
-                case SkImageGenerator::kIncompleteInput:
+                case SkCodec::kSuccess:
+                case SkCodec::kIncompleteInput:
                     break;
                 default:
                     return SkStringPrintf("%s failed with error message %d",
@@ -231,11 +231,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         }
                     }
                     //skip to first line of subset
-                    const SkImageGenerator::Result skipResult =
+                    const SkCodec::Result skipResult =
                             subsetScanlineDecoder->skipScanlines(y);
                     switch (skipResult) {
-                        case SkImageGenerator::kSuccess:
-                        case SkImageGenerator::kIncompleteInput:
+                        case SkCodec::kSuccess:
+                        case SkCodec::kIncompleteInput:
                             break;
                         default:
                             return SkStringPrintf("%s failed after attempting to skip %d scanlines"
@@ -247,11 +247,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     bounds.setXYWH(0, 0, currentSubsetWidth, currentSubsetHeight);
                     SkAssertResult(largestSubsetBm.extractSubset(&subsetBm, bounds));
                     SkAutoLockPixels autlockSubsetBm(subsetBm, true);
-                    const SkImageGenerator::Result subsetResult =
+                    const SkCodec::Result subsetResult =
                         subsetScanlineDecoder->getScanlines(buffer, currentSubsetHeight, rowBytes);
                     switch (subsetResult) {
-                        case SkImageGenerator::kSuccess:
-                        case SkImageGenerator::kIncompleteInput:
+                        case SkCodec::kSuccess:
+                        case SkCodec::kIncompleteInput:
                             break;
                         default:
                             return SkStringPrintf("%s failed with error message %d",
@@ -295,10 +295,10 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             for (int i = 0; i < numStripes; i += 2) {
                 // Skip a stripe
                 const int linesToSkip = SkTMin(stripeHeight, height - i * stripeHeight);
-                SkImageGenerator::Result result = decoder->skipScanlines(linesToSkip);
+                SkCodec::Result result = decoder->skipScanlines(linesToSkip);
                 switch (result) {
-                    case SkImageGenerator::kSuccess:
-                    case SkImageGenerator::kIncompleteInput:
+                    case SkCodec::kSuccess:
+                    case SkCodec::kIncompleteInput:
                         break;
                     default:
                         return SkStringPrintf("Cannot skip scanlines for %s.", fPath.c_str());
@@ -311,8 +311,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     result = decoder->getScanlines(bitmap.getAddr(0, startY),
                             linesToRead, bitmap.rowBytes());
                     switch (result) {
-                        case SkImageGenerator::kSuccess:
-                        case SkImageGenerator::kIncompleteInput:
+                        case SkCodec::kSuccess:
+                        case SkCodec::kIncompleteInput:
                             break;
                         default:
                             return SkStringPrintf("Cannot get scanlines for %s.", fPath.c_str());
@@ -329,11 +329,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 // Read a stripe
                 const int startY = i * stripeHeight;
                 const int linesToRead = SkTMin(stripeHeight, height - startY);
-                SkImageGenerator::Result result = decoder->getScanlines(bitmap.getAddr(0, startY),
+                SkCodec::Result result = decoder->getScanlines(bitmap.getAddr(0, startY),
                         linesToRead, bitmap.rowBytes());
                 switch (result) {
-                    case SkImageGenerator::kSuccess:
-                    case SkImageGenerator::kIncompleteInput:
+                    case SkCodec::kSuccess:
+                    case SkCodec::kIncompleteInput:
                         break;
                     default:
                         return SkStringPrintf("Cannot get scanlines for %s.", fPath.c_str());
@@ -344,8 +344,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 if (linesToSkip > 0) {
                     result = decoder->skipScanlines(linesToSkip);
                     switch (result) {
-                        case SkImageGenerator::kSuccess:
-                        case SkImageGenerator::kIncompleteInput:
+                        case SkCodec::kSuccess:
+                        case SkCodec::kIncompleteInput:
                             break;
                         default:
                             return SkStringPrintf("Cannot skip scanlines for %s.", fPath.c_str());

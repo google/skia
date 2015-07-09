@@ -780,15 +780,15 @@ public:
                 int colorCount = 256;
                 SkPMColor colors[256];
 
-                const SkImageGenerator::Result result = codec->getPixels(
+                const SkCodec::Result result = codec->getPixels(
                         info, storage.get(), rowBytes, NULL, colors,
                         &colorCount);
                 switch (result) {
-                    case SkImageGenerator::kSuccess:
-                    case SkImageGenerator::kIncompleteInput:
+                    case SkCodec::kSuccess:
+                    case SkCodec::kIncompleteInput:
                         return new CodecBench(SkOSPath::Basename(path.c_str()),
                                 encoded, colorType);
-                    case SkImageGenerator::kInvalidConversion:
+                    case SkCodec::kInvalidConversion:
                         // This is okay. Not all conversions are valid.
                         break;
                     default:

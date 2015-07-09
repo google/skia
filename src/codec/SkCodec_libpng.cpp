@@ -610,10 +610,10 @@ public:
         fSrcRow = static_cast<uint8_t*>(fStorage.get());
     }
 
-    SkImageGenerator::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
+    SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
             SkCodecPrintf("setjmp long jump!\n");
-            return SkImageGenerator::kInvalidInput;
+            return SkCodec::kInvalidInput;
         }
 
         for (int i = 0; i < count; i++) {
@@ -622,15 +622,15 @@ public:
             fHasAlpha |= !SkSwizzler::IsOpaque(fCodec->fSwizzler->next(fSrcRow));
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
-        return SkImageGenerator::kSuccess;
+        return SkCodec::kSuccess;
     }
 
-    SkImageGenerator::Result onSkipScanlines(int count) override {
+    SkCodec::Result onSkipScanlines(int count) override {
         // FIXME: Could we use the return value of setjmp to specify the type of
         // error?
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
             SkCodecPrintf("setjmp long jump!\n");
-            return SkImageGenerator::kInvalidInput;
+            return SkCodec::kInvalidInput;
         }
         //there is a potential tradeoff of memory vs speed created by putting this in a loop. 
         //calling png_read_rows in a loop is insignificantly slower than calling it once with count 
@@ -638,7 +638,7 @@ public:
         for (int i = 0; i < count; i++) {
             png_read_rows(fCodec->fPng_ptr, &fSrcRow, png_bytepp_NULL, 1);
         }
-        return SkImageGenerator::kSuccess;
+        return SkCodec::kSuccess;
     }
 
     bool onReallyHasAlpha() const override { return fHasAlpha; }
@@ -668,19 +668,19 @@ public:
         fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
     }
 
-    SkImageGenerator::Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
+    SkCodec::Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
         //rewind stream if have previously called onGetScanlines, 
         //since we need entire progressive image to get scanlines
         if (fRewindNeeded) {
             if(false == fCodec->handleRewind()) {
-                return SkImageGenerator::kCouldNotRewind;
+                return SkCodec::kCouldNotRewind;
             }
         } else {
             fRewindNeeded = true;
         }
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
             SkCodecPrintf("setjmp long jump!\n");
-            return SkImageGenerator::kInvalidInput;
+            return SkCodec::kInvalidInput;
         }
         const int number_passes = png_set_interlace_handling(fCodec->fPng_ptr);
         SkAutoMalloc storage(count * fSrcRowBytes);
@@ -711,13 +711,13 @@ public:
             srcRow += fSrcRowBytes;
         }
         fCurrentRow += count;
-        return SkImageGenerator::kSuccess;
+        return SkCodec::kSuccess;
     }
 
-    SkImageGenerator::Result onSkipScanlines(int count) override {
+    SkCodec::Result onSkipScanlines(int count) override {
         //when ongetScanlines is called it will skip to fCurrentRow
         fCurrentRow += count;
-        return SkImageGenerator::kSuccess;
+        return SkCodec::kSuccess;
     }
 
     bool onReallyHasAlpha() const override { return fHasAlpha; }

@@ -100,20 +100,20 @@ SkEncodedFormat SkWbmpCodec::onGetEncodedFormat() const {
     return kWBMP_SkEncodedFormat;
 }
 
-SkImageGenerator::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
-                                                  void* pixels,
-                                                  size_t rowBytes,
-                                                  const Options&,
-                                                  SkPMColor ctable[],
-                                                  int* ctableCount) {
+SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
+                                         void* pixels,
+                                         size_t rowBytes,
+                                         const Options&,
+                                         SkPMColor ctable[],
+                                         int* ctableCount) {
     SkCodec::RewindState rewindState = this->rewindIfNeeded();
     if (rewindState == kCouldNotRewind_RewindState) {
-        return SkImageGenerator::kCouldNotRewind;
+        return kCouldNotRewind;
     } else if (rewindState == kRewound_RewindState) {
         (void)read_header(this->stream(), NULL);
     }
     if (info.dimensions() != this->getInfo().dimensions()) {
-        return SkImageGenerator::kInvalidScale;
+        return kInvalidScale;
     }
     ExpandProc proc = NULL;
     switch (info.colorType()) {
@@ -133,7 +133,7 @@ SkImageGenerator::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
             proc = expand_bits_to_T<uint16_t, bit_to_rgb565>;
             break;
         default:
-            return SkImageGenerator::kInvalidConversion;
+            return kInvalidConversion;
     }
     SkISize size = info.dimensions();
     uint8_t* dst = static_cast<uint8_t*>(pixels);
@@ -141,12 +141,12 @@ SkImageGenerator::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
     SkAutoTMalloc<uint8_t> src(srcRowBytes);
     for (int y = 0; y < size.height(); ++y) {
         if (this->stream()->read(src.get(), srcRowBytes) != srcRowBytes) {
-            return SkImageGenerator::kIncompleteInput;
+            return kIncompleteInput;
         }
         proc(dst, src.get(), size.width());
         dst += rowBytes;
     }
-    return SkImageGenerator::kSuccess;
+    return kSuccess;
 }
 
 bool SkWbmpCodec::IsWbmp(SkStream* stream) {
