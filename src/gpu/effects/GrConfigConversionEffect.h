@@ -34,8 +34,8 @@ public:
         kPMConversionCnt
     };
 
-    static const GrFragmentProcessor* Create(GrTexture*, bool swapRedAndBlue, PMConversion,
-                                             const SkMatrix&);
+    static const GrFragmentProcessor* Create(GrProcessorDataManager*, GrTexture*,
+                                             bool swapRedAndBlue, PMConversion, const SkMatrix&);
 
     const char* name() const override { return "Config Conversion"; }
 
@@ -56,10 +56,11 @@ public:
                                                PMConversion* UPMToPMRule);
 
 private:
-    GrConfigConversionEffect(GrTexture*,
-                            bool swapRedAndBlue,
-                            PMConversion pmConversion,
-                            const SkMatrix& matrix);
+    GrConfigConversionEffect(GrProcessorDataManager*,
+                             GrTexture*,
+                             bool swapRedAndBlue,
+                             PMConversion pmConversion,
+                             const SkMatrix& matrix);
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 

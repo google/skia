@@ -25,11 +25,14 @@ public:
 
 protected:
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, GrCoordSet = kLocal_GrCoordSet);
-    /** clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, GrTextureParams::FilterMode filterMode,
+    GrSingleTextureEffect(GrProcessorDataManager*, GrTexture*, const SkMatrix&,
                           GrCoordSet = kLocal_GrCoordSet);
-    GrSingleTextureEffect(GrTexture*,
+    /** clamp mode */
+    GrSingleTextureEffect(GrProcessorDataManager*, GrTexture*, const SkMatrix&,
+                          GrTextureParams::FilterMode filterMode,
+                          GrCoordSet = kLocal_GrCoordSet);
+    GrSingleTextureEffect(GrProcessorDataManager*,
+                          GrTexture*,
                           const SkMatrix&,
                           const GrTextureParams&,
                           GrCoordSet = kLocal_GrCoordSet);

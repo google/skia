@@ -1231,7 +1231,8 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
         SkMatrix matrix;
         matrix.setIDiv(src->width(), src->height());
         // Blend pathTexture over blurTexture.
-        paint.addCoverageProcessor(GrSimpleTextureEffect::Create(src, matrix))->unref();
+        paint.addCoverageProcessor(GrSimpleTextureEffect::Create(paint.getProcessorDataManager(),
+                                                                 src, matrix))->unref();
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);

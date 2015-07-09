@@ -7,7 +7,8 @@
 
 #include "effects/GrSingleTextureEffect.h"
 
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
+GrSingleTextureEffect::GrSingleTextureEffect(GrProcessorDataManager* procDataManager,
+                                             GrTexture* texture,
                                              const SkMatrix& m,
                                              GrCoordSet coordSet)
     : fCoordTransform(coordSet, m, texture, GrTextureParams::kNone_FilterMode)
@@ -16,7 +17,8 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
     this->addTextureAccess(&fTextureAccess);
 }
 
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
+GrSingleTextureEffect::GrSingleTextureEffect(GrProcessorDataManager* procDataManager,
+                                             GrTexture* texture,
                                              const SkMatrix& m,
                                              GrTextureParams::FilterMode filterMode,
                                              GrCoordSet coordSet)
@@ -26,7 +28,8 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
     this->addTextureAccess(&fTextureAccess);
 }
 
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
+GrSingleTextureEffect::GrSingleTextureEffect(GrProcessorDataManager* procDataManager,
+                                             GrTexture* texture,
                                              const SkMatrix& m,
                                              const GrTextureParams& params,
                                              GrCoordSet coordSet)

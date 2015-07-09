@@ -23,7 +23,8 @@
 class GrMagnifierEffect : public GrSingleTextureEffect {
 
 public:
-    static GrFragmentProcessor* Create(GrTexture* texture,
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
+                                       GrTexture* texture,
                                        const SkRect& bounds,
                                        float xOffset,
                                        float yOffset,
@@ -31,7 +32,8 @@ public:
                                        float yInvZoom,
                                        float xInvInset,
                                        float yInvInset) {
-        return SkNEW_ARGS(GrMagnifierEffect, (texture,
+        return SkNEW_ARGS(GrMagnifierEffect, (procDataManager,
+                                              texture,
                                               bounds,
                                               xOffset,
                                               yOffset,
@@ -63,7 +65,8 @@ public:
     float y_inv_inset() const { return fYInvInset; }
 
 private:
-    GrMagnifierEffect(GrTexture* texture,
+    GrMagnifierEffect(GrProcessorDataManager* procDataManager,
+                      GrTexture* texture,
                       const SkRect& bounds,
                       float xOffset,
                       float yOffset,
@@ -71,7 +74,7 @@ private:
                       float yInvZoom,
                       float xInvInset,
                       float yInvInset)
-        : GrSingleTextureEffect(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+        : INHERITED(procDataManager, texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
         , fBounds(bounds)
         , fXOffset(xOffset)
         , fYOffset(yOffset)
@@ -219,6 +222,7 @@ GrFragmentProcessor* GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
     uint32_t inset = d->fRandom->nextULessThan(kMaxInset);
 
     GrFragmentProcessor* effect = GrMagnifierEffect::Create(
+        d->fProcDataManager,
         texture,
         SkRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight)),
         (float) width / texture->width(),
@@ -273,7 +277,8 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect, SkScalar i
 }
 
 #if SK_SUPPORT_GPU
-bool SkMagnifierImageFilter::asFragmentProcessor(GrFragmentProcessor** fp, GrProcessorDataManager*,
+bool SkMagnifierImageFilter::asFragmentProcessor(GrFragmentProcessor** fp,
+                                                 GrProcessorDataManager* procDataManager,
                                                  GrTexture* texture, const SkMatrix&,
                                                  const SkIRect&bounds) const {
     if (fp) {
@@ -288,7 +293,8 @@ bool SkMagnifierImageFilter::asFragmentProcessor(GrFragmentProcessor** fp, GrPro
             SkIntToScalar(texture->width()) / bounds.width(),
             SkIntToScalar(texture->height()) / bounds.height());
         SkScalar invInset = fInset > 0 ? SkScalarInvert(fInset) : SK_Scalar1;
-        *fp = GrMagnifierEffect::Create(texture,
+        *fp = GrMagnifierEffect::Create(procDataManager,
+                                        texture,
                                         effectBounds,
                                         fSrcRect.x() / texture->width(),
                                         yOffset / texture->height(),

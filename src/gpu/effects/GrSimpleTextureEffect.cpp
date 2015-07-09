@@ -77,5 +77,6 @@ GrFragmentProcessor* GrSimpleTextureEffect::TestCreate(GrProcessorTestData* d) {
     GrCoordSet coordSet = kCoordSets[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kCoordSets))];
 
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
-    return GrSimpleTextureEffect::Create(d->fTextures[texIdx], matrix, coordSet);
+    return GrSimpleTextureEffect::Create(d->fProcDataManager, d->fTextures[texIdx], matrix,
+                                         coordSet);
 }

@@ -382,11 +382,13 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     // allocate a tmp buffer and sw convert the pixels to premul
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
 
+    GrPaint paint;
     if (kUnpremul_PixelOpsFlag & pixelOpsFlags) {
         if (!GrPixelConfigIs8888(srcConfig)) {
             return false;
         }
-        fp.reset(this->createUPMToPMEffect(texture, swapRAndB, textureMatrix));
+        fp.reset(this->createUPMToPMEffect(paint.getProcessorDataManager(), texture, swapRAndB,
+                                           textureMatrix));
         // handle the unpremul step on the CPU if we couldn't create an effect to do it.
         if (!fp) {
             size_t tmpRowBytes = 4 * width;
@@ -399,8 +401,10 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             buffer = tmpPixels.get();
         }
     }
+
     if (!fp) {
-        fp.reset(GrConfigConversionEffect::Create(texture,
+        fp.reset(GrConfigConversionEffect::Create(paint.getProcessorDataManager(),
+                                                  texture,
                                                   swapRAndB,
                                                   GrConfigConversionEffect::kNone_PMConversion,
                                                   textureMatrix));
@@ -425,7 +429,6 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         return false;
     }
 
-    GrPaint paint;
     paint.addColorProcessor(fp);
 
     SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
@@ -523,9 +526,11 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
             textureMatrix.postIDiv(src->width(), src->height());
 
+            GrPaint paint;
             SkAutoTUnref<const GrFragmentProcessor> fp;
             if (unpremul) {
-                fp.reset(this->createPMToUPMEffect(src, swapRAndB, textureMatrix));
+                fp.reset(this->createPMToUPMEffect(paint.getProcessorDataManager(), src, swapRAndB,
+                                                   textureMatrix));
                 if (fp) {
                     unpremul = false; // we no longer need to do this on CPU after the read back.
                 }
@@ -534,7 +539,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             // there is no longer any point to using the scratch.
             if (fp || flipY || swapRAndB) {
                 if (!fp) {
-                    fp.reset(GrConfigConversionEffect::Create(
+                    fp.reset(GrConfigConversionEffect::Create(paint.getProcessorDataManager(),
                             src, swapRAndB, GrConfigConversionEffect::kNone_PMConversion,
                             textureMatrix));
                 }
@@ -549,7 +554,6 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                         return false;
                     }
 
-                    GrPaint paint;
                     paint.addColorProcessor(fp);
 
                     SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
@@ -705,7 +709,8 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 }
 }
 
-const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrTexture* texture,
+const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrProcessorDataManager* procDataManager,
+                                                          GrTexture* texture,
                                                           bool swapRAndB,
                                                           const SkMatrix& matrix) {
     if (!fDidTestPMConversions) {
@@ -715,13 +720,15 @@ const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrTexture* texture,
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Create(texture, swapRAndB, pmToUPM, matrix);
+        return GrConfigConversionEffect::Create(procDataManager, texture, swapRAndB, pmToUPM,
+                                                matrix);
     } else {
         return NULL;
     }
 }
 
-const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrTexture* texture,
+const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrProcessorDataManager* procDataManager,
+                                                          GrTexture* texture,
                                                           bool swapRAndB,
                                                           const SkMatrix& matrix) {
     if (!fDidTestPMConversions) {
@@ -731,7 +738,8 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrTexture* texture,
     GrConfigConversionEffect::PMConversion upmToPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
-        return GrConfigConversionEffect::Create(texture, swapRAndB, upmToPM, matrix);
+        return GrConfigConversionEffect::Create(procDataManager, texture, swapRAndB, upmToPM,
+                                                matrix);
     } else {
         return NULL;
     }

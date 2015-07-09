@@ -36,15 +36,16 @@ public:
     /**
      * Create a simple filter effect with custom bicubic coefficients and optional domain.
      */
-    static GrFragmentProcessor* Create(GrTexture* tex, const SkScalar coefficients[16],
-                            const SkRect* domain = NULL) {
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
+                                       const SkScalar coefficients[16],
+                                       const SkRect* domain = NULL) {
         if (NULL == domain) {
             static const SkShader::TileMode kTileModes[] = { SkShader::kClamp_TileMode,
                                                              SkShader::kClamp_TileMode };
-            return Create(tex, coefficients, GrCoordTransform::MakeDivByTextureWHMatrix(tex),
-                          kTileModes);
+            return Create(procDataManager, tex, coefficients,
+                          GrCoordTransform::MakeDivByTextureWHMatrix(tex), kTileModes);
         } else {
-            return SkNEW_ARGS(GrBicubicEffect, (tex, coefficients,
+            return SkNEW_ARGS(GrBicubicEffect, (procDataManager, tex, coefficients,
                                                 GrCoordTransform::MakeDivByTextureWHMatrix(tex),
                                                 *domain));
         }
@@ -53,27 +54,29 @@ public:
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
-    static GrFragmentProcessor* Create(GrTexture* tex, const SkMatrix& matrix,
-                            SkShader::TileMode tileModes[2]) {
-        return Create(tex, gMitchellCoefficients, matrix, tileModes);
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
+                                       const SkMatrix& matrix,
+                                       SkShader::TileMode tileModes[2]) {
+        return Create(procDataManager, tex, gMitchellCoefficients, matrix, tileModes);
     }
 
     /**
      * Create a filter effect with custom bicubic coefficients, the texture matrix, and the x/y
      * tilemodes.
      */
-    static GrFragmentProcessor* Create(GrTexture* tex, const SkScalar coefficients[16],
-                                       const SkMatrix& matrix,
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
+                                       const SkScalar coefficients[16], const SkMatrix& matrix,
                                        const SkShader::TileMode tileModes[2]) {
-        return SkNEW_ARGS(GrBicubicEffect, (tex, coefficients, matrix, tileModes));
+        return SkNEW_ARGS(GrBicubicEffect, (procDataManager, tex, coefficients, matrix, tileModes));
     }
 
     /**
      * Create a Mitchell filter effect with a texture matrix and a domain.
      */
-    static GrFragmentProcessor* Create(GrTexture* tex, const SkMatrix& matrix,
-                                       const SkRect& domain) {
-        return SkNEW_ARGS(GrBicubicEffect, (tex, gMitchellCoefficients, matrix, domain));
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
+                                       const SkMatrix& matrix, const SkRect& domain) {
+        return SkNEW_ARGS(GrBicubicEffect, (procDataManager, tex, gMitchellCoefficients, matrix,
+                                            domain));
     }
 
     /**
@@ -87,9 +90,9 @@ public:
                                  GrTextureParams::FilterMode* filterMode);
 
 private:
-    GrBicubicEffect(GrTexture*, const SkScalar coefficients[16],
+    GrBicubicEffect(GrProcessorDataManager*, GrTexture*, const SkScalar coefficients[16],
                     const SkMatrix &matrix, const SkShader::TileMode tileModes[2]);
-    GrBicubicEffect(GrTexture*, const SkScalar coefficients[16],
+    GrBicubicEffect(GrProcessorDataManager*, GrTexture*, const SkScalar coefficients[16],
                     const SkMatrix &matrix, const SkRect& domain);
     bool onIsEqual(const GrFragmentProcessor&) const override;
 

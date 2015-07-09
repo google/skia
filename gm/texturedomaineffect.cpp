@@ -115,8 +115,10 @@ protected:
                 SkScalar x = kDrawPad + kTestPad;
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
+                    GrPipelineBuilder pipelineBuilder;
                     SkAutoTUnref<GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Create(texture, textureMatrices[tm],
+                        GrTextureDomainEffect::Create(pipelineBuilder.getProcessorDataManager(),
+                                                      texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
                                                                                 texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));
@@ -125,7 +127,6 @@ protected:
                         continue;
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    GrPipelineBuilder pipelineBuilder;
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorProcessor(fp);
 

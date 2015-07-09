@@ -154,13 +154,14 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrGLSLCap
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
+GrConvolutionEffect::GrConvolutionEffect(GrProcessorDataManager* procDataManager,
+                                         GrTexture* texture,
                                          Direction direction,
                                          int radius,
                                          const float* kernel,
                                          bool useBounds,
                                          float bounds[2])
-    : Gr1DKernelEffect(texture, direction, radius), fUseBounds(useBounds) {
+    : INHERITED(procDataManager, texture, direction, radius), fUseBounds(useBounds) {
     this->initClassID<GrConvolutionEffect>();
     SkASSERT(radius <= kMaxKernelRadius);
     SkASSERT(kernel);
@@ -171,13 +172,14 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
     memcpy(fBounds, bounds, sizeof(fBounds));
 }
 
-GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
+GrConvolutionEffect::GrConvolutionEffect(GrProcessorDataManager* procDataManager,
+                                         GrTexture* texture,
                                          Direction direction,
                                          int radius,
                                          float gaussianSigma,
                                          bool useBounds,
                                          float bounds[2])
-    : Gr1DKernelEffect(texture, direction, radius), fUseBounds(useBounds) {
+    : INHERITED(procDataManager, texture, direction, radius), fUseBounds(useBounds) {
     this->initClassID<GrConvolutionEffect>();
     SkASSERT(radius <= kMaxKernelRadius);
     int width = this->width();
@@ -239,7 +241,8 @@ GrFragmentProcessor* GrConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     }
 
     bool useBounds = d->fRandom->nextBool();
-    return GrConvolutionEffect::Create(d->fTextures[texIdx],
+    return GrConvolutionEffect::Create(d->fProcDataManager,
+                                       d->fTextures[texIdx],
                                        dir,
                                        radius,
                                        kernel,

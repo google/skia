@@ -298,14 +298,15 @@ public:
         kDilate_MorphologyType,
     };
 
-    static GrFragmentProcessor* Create(GrTexture* tex, Direction dir, int radius,
-                                       MorphologyType type) {
-        return SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type));
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
+                                       Direction dir, int radius, MorphologyType type) {
+        return SkNEW_ARGS(GrMorphologyEffect, (procDataManager, tex, dir, radius, type));
     }
 
-    static GrFragmentProcessor* Create(GrTexture* tex, Direction dir, int radius,
-                                       MorphologyType type, float bounds[2]) {
-        return SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type, bounds));
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
+                                       Direction dir, int radius, MorphologyType type,
+                                       float bounds[2]) {
+        return SkNEW_ARGS(GrMorphologyEffect, (procDataManager, tex, dir, radius, type, bounds));
     }
 
     virtual ~GrMorphologyEffect();
@@ -331,8 +332,9 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
-    GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
-    GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType, float bounds[2]);
+    GrMorphologyEffect(GrProcessorDataManager*, GrTexture*, Direction, int radius, MorphologyType);
+    GrMorphologyEffect(GrProcessorDataManager*, GrTexture*, Direction, int radius, MorphologyType,
+                       float bounds[2]);
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -494,21 +496,23 @@ void GrGLMorphologyEffect::setData(const GrGLProgramDataManager& pdman,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
+GrMorphologyEffect::GrMorphologyEffect(GrProcessorDataManager* procDataManager,
+                                       GrTexture* texture,
                                        Direction direction,
                                        int radius,
                                        MorphologyType type)
-    : Gr1DKernelEffect(texture, direction, radius)
+    : INHERITED(procDataManager, texture, direction, radius)
     , fType(type), fUseRange(false) {
     this->initClassID<GrMorphologyEffect>();
 }
 
-GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
+GrMorphologyEffect::GrMorphologyEffect(GrProcessorDataManager* procDataManager,
+                                       GrTexture* texture,
                                        Direction direction,
                                        int radius,
                                        MorphologyType type,
                                        float range[2])
-    : Gr1DKernelEffect(texture, direction, radius)
+    : INHERITED(procDataManager, texture, direction, radius)
     , fType(type), fUseRange(true) {
     this->initClassID<GrMorphologyEffect>();
     fRange[0] = range[0];
@@ -552,7 +556,7 @@ GrFragmentProcessor* GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
     MorphologyType type = d->fRandom->nextBool() ? GrMorphologyEffect::kErode_MorphologyType :
                                                GrMorphologyEffect::kDilate_MorphologyType;
 
-    return GrMorphologyEffect::Create(d->fTextures[texIdx], dir, radius, type);
+    return GrMorphologyEffect::Create(d->fProcDataManager, d->fTextures[texIdx], dir, radius, type);
 }
 
 namespace {
@@ -569,7 +573,8 @@ void apply_morphology_rect(GrDrawContext* drawContext,
                            float bounds[2],
                            Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.addColorProcessor(GrMorphologyEffect::Create(texture,
+    paint.addColorProcessor(GrMorphologyEffect::Create(paint.getProcessorDataManager(),
+                                                       texture,
                                                        direction,
                                                        radius,
                                                        morphType,
@@ -588,7 +593,8 @@ void apply_morphology_rect_no_bounds(GrDrawContext* drawContext,
                                      GrMorphologyEffect::MorphologyType morphType,
                                      Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.addColorProcessor(GrMorphologyEffect::Create(texture,
+    paint.addColorProcessor(GrMorphologyEffect::Create(paint.getProcessorDataManager(),
+                                                       texture,
                                                        direction,
                                                        radius,
                                                        morphType))->unref();

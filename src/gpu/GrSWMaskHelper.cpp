@@ -368,7 +368,8 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
 
     pipelineBuilder->addCoverageProcessor(
-                         GrSimpleTextureEffect::Create(texture,
+                         GrSimpleTextureEffect::Create(pipelineBuilder->getProcessorDataManager(),
+                                                       texture,
                                                        maskMatrix,
                                                        GrTextureParams::kNone_FilterMode,
                                                        kDevice_GrCoordSet))->unref();

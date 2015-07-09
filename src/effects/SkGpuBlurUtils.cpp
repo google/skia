@@ -58,7 +58,7 @@ static void convolve_gaussian_1d(GrDrawContext* drawContext,
                                  float bounds[2]) {
     GrPaint paint;
     SkAutoTUnref<GrFragmentProcessor> conv(GrConvolutionEffect::CreateGaussian(
-        texture, direction, radius, sigma, useBounds, bounds));
+        paint.getProcessorDataManager(), texture, direction, radius, sigma, useBounds, bounds));
     paint.addColorProcessor(conv);
     drawContext->drawNonAARectToRect(rt, clip, paint, SkMatrix::I(), dstRect, srcRect);
 }
@@ -79,6 +79,7 @@ static void convolve_gaussian_2d(GrDrawContext* drawContext,
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
     SkAutoTUnref<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::CreateGaussian(
+            paint.getProcessorDataManager(),
             texture, bounds, size, 1.0, 0.0, kernelOffset,
             useBounds ? GrTextureDomain::kClamp_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
@@ -214,6 +215,7 @@ GrTexture* GaussianBlur(GrContext* context,
             domain.inset(i < scaleFactorX ? SK_ScalarHalf / srcTexture->width() : 0.0f,
                          i < scaleFactorY ? SK_ScalarHalf / srcTexture->height() : 0.0f);
             SkAutoTUnref<GrFragmentProcessor> fp(   GrTextureDomainEffect::Create(
+                paint.getProcessorDataManager(),
                 srcTexture,
                 matrix,
                 domain,

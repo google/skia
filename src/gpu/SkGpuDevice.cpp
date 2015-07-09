@@ -1206,7 +1206,12 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                       SkScalarMul(srcRect.fBottom, hInv));
 
     SkRect textureDomain = SkRect::MakeEmpty();
+
+    // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
+    // the rest from the SkPaint.
+    GrPaint grPaint;
     SkAutoTUnref<GrFragmentProcessor> fp;
+
     if (needsTextureDomain && !(flags & SkCanvas::kBleed_DrawBitmapRectFlag)) {
         // Use a constrained texture domain to avoid color bleeding
         SkScalar left, top, right, bottom;
@@ -1226,9 +1231,11 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         }
         textureDomain.setLTRB(left, top, right, bottom);
         if (bicubic) {
-            fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), textureDomain));
+            fp.reset(GrBicubicEffect::Create(grPaint.getProcessorDataManager(), texture,
+                                             SkMatrix::I(), textureDomain));
         } else {
-            fp.reset(GrTextureDomainEffect::Create(texture,
+            fp.reset(GrTextureDomainEffect::Create(grPaint.getProcessorDataManager(),
+                                                   texture,
                                                    SkMatrix::I(),
                                                    textureDomain,
                                                    GrTextureDomain::kClamp_Mode,
@@ -1237,14 +1244,13 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     } else if (bicubic) {
         SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), tileModes));
+        fp.reset(GrBicubicEffect::Create(grPaint.getProcessorDataManager(), texture, SkMatrix::I(),
+                                         tileModes));
     } else {
-        fp.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
+        fp.reset(GrSimpleTextureEffect::Create(grPaint.getProcessorDataManager(), texture,
+                                               SkMatrix::I(), params));
     }
 
-    // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
-    // the rest from the SkPaint.
-    GrPaint grPaint;
     grPaint.addColorProcessor(fp);
     bool alphaOnly = !(kAlpha_8_SkColorType == bitmap.colorType());
     GrColor paintColor = (alphaOnly) ? SkColor2GrColorJustAlpha(paint.getColor()) :

@@ -84,23 +84,27 @@ public:
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+        this->addColorProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+                                                              matrix))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
+        this->addCoverageProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+                                                                 matrix))->unref();
     }
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        this->addColorProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
+        this->addColorProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture, matrix,
+                                                              params))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
                                      const GrTextureParams& params) {
-        this->addCoverageProcessor(GrSimpleTextureEffect::Create(texture, matrix, params))->unref();
+        this->addCoverageProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture, matrix,
+                                                                 params))->unref();
     }
 
     /**

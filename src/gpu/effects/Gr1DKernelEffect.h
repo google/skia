@@ -28,10 +28,11 @@ public:
         kY_Direction,
     };
 
-    Gr1DKernelEffect(GrTexture* texture,
+    Gr1DKernelEffect(GrProcessorDataManager* procDataManager,
+                     GrTexture* texture,
                      Direction direction,
                      int radius)
-        : GrSingleTextureEffect(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+        : INHERITED(procDataManager, texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
         , fDirection(direction)
         , fRadius(radius) {}
 

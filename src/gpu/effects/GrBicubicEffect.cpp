@@ -134,22 +134,25 @@ static inline void convert_row_major_scalar_coeffs_to_column_major_floats(float 
     }
 }
 
-GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
+GrBicubicEffect::GrBicubicEffect(GrProcessorDataManager* procDataManager,
+                                 GrTexture* texture,
                                  const SkScalar coefficients[16],
                                  const SkMatrix &matrix,
                                  const SkShader::TileMode tileModes[2])
-  : INHERITED(texture, matrix, GrTextureParams(tileModes, GrTextureParams::kNone_FilterMode))
+  : INHERITED(procDataManager, texture, matrix,
+              GrTextureParams(tileModes, GrTextureParams::kNone_FilterMode))
   , fDomain(GrTextureDomain::IgnoredDomain()) {
     this->initClassID<GrBicubicEffect>();
     convert_row_major_scalar_coeffs_to_column_major_floats(fCoefficients, coefficients);
 }
 
-GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
+GrBicubicEffect::GrBicubicEffect(GrProcessorDataManager* procDataManager,
+                                 GrTexture* texture,
                                  const SkScalar coefficients[16],
                                  const SkMatrix &matrix,
                                  const SkRect& domain)
-  : INHERITED(texture, matrix, GrTextureParams(SkShader::kClamp_TileMode,
-                                               GrTextureParams::kNone_FilterMode))
+  : INHERITED(procDataManager, texture, matrix,
+              GrTextureParams(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode))
   , fDomain(domain, GrTextureDomain::kClamp_Mode) {
     this->initClassID<GrBicubicEffect>();
     convert_row_major_scalar_coeffs_to_column_major_floats(fCoefficients, coefficients);
@@ -187,7 +190,7 @@ GrFragmentProcessor* GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     for (int i = 0; i < 16; i++) {
         coefficients[i] = d->fRandom->nextSScalar1();
     }
-    return GrBicubicEffect::Create(d->fTextures[texIdx], coefficients);
+    return GrBicubicEffect::Create(d->fProcDataManager, d->fTextures[texIdx], coefficients);
 }
 
 //////////////////////////////////////////////////////////////////////////////

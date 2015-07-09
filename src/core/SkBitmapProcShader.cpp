@@ -365,7 +365,7 @@ void SkBitmapProcShader::toString(SkString* str) const {
 bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                              const SkMatrix& viewM,
                                              const SkMatrix* localMatrix, GrColor* paintColor,
-                                             GrProcessorDataManager*,
+                                             GrProcessorDataManager* procDataManager,
                                              GrFragmentProcessor** fp) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
@@ -441,9 +441,9 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
                                                 SkColor2GrColorJustAlpha(paint.getColor());
 
     if (useBicubic) {
-        *fp = GrBicubicEffect::Create(texture, matrix, tm);
+        *fp = GrBicubicEffect::Create(procDataManager, texture, matrix, tm);
     } else {
-        *fp = GrSimpleTextureEffect::Create(texture, matrix, params);
+        *fp = GrSimpleTextureEffect::Create(procDataManager, texture, matrix, params);
     }
 
     return true;

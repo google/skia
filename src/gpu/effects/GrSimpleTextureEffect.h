@@ -23,26 +23,30 @@ class GrInvariantOutput;
 class GrSimpleTextureEffect : public GrSingleTextureEffect {
 public:
     /* unfiltered, clamp mode */
-    static GrFragmentProcessor* Create(GrTexture* tex,
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
+                                       GrTexture* tex,
                                        const SkMatrix& matrix,
                                        GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, GrTextureParams::kNone_FilterMode,
-                                                  coordSet));
+        return SkNEW_ARGS(GrSimpleTextureEffect, (procDataManager, tex, matrix,
+                                                  GrTextureParams::kNone_FilterMode, coordSet));
     }
 
     /* clamp mode */
-    static GrFragmentProcessor* Create(GrTexture* tex,
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
+                                       GrTexture* tex,
                                        const SkMatrix& matrix,
                                        GrTextureParams::FilterMode filterMode,
                                        GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, filterMode, coordSet));
+        return SkNEW_ARGS(GrSimpleTextureEffect, (procDataManager, tex, matrix, filterMode,
+                                                  coordSet));
     }
 
-    static GrFragmentProcessor* Create(GrTexture* tex,
+    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
+                                       GrTexture* tex,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& p,
                                        GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p, coordSet));
+        return SkNEW_ARGS(GrSimpleTextureEffect, (procDataManager, tex, matrix, p, coordSet));
     }
 
     virtual ~GrSimpleTextureEffect() {}
@@ -54,19 +58,21 @@ public:
     GrGLFragmentProcessor* createGLInstance() const override;
 
 private:
-    GrSimpleTextureEffect(GrTexture* texture,
+    GrSimpleTextureEffect(GrProcessorDataManager* procDataManager,
+                          GrTexture* texture,
                           const SkMatrix& matrix,
                           GrTextureParams::FilterMode filterMode,
                           GrCoordSet coordSet)
-        : GrSingleTextureEffect(texture, matrix, filterMode, coordSet) {
+        : GrSingleTextureEffect(procDataManager, texture, matrix, filterMode, coordSet) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
-    GrSimpleTextureEffect(GrTexture* texture,
+    GrSimpleTextureEffect(GrProcessorDataManager* procDataManager,
+                          GrTexture* texture,
                           const SkMatrix& matrix,
                           const GrTextureParams& params,
                           GrCoordSet coordSet)
-        : GrSingleTextureEffect(texture, matrix, params, coordSet) {
+        : GrSingleTextureEffect(procDataManager, texture, matrix, params, coordSet) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
