@@ -2158,6 +2158,18 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
     if (blendOff) {
         if (kNo_TriState != fHWBlendState.fEnabled) {
             GL_CALL(Disable(GR_GL_BLEND));
+
+            // Workaround for the ARM KHR_blend_equation_advanced blacklist issue
+            // https://code.google.com/p/skia/issues/detail?id=3943
+            if (kARM_GrGLVendor == this->ctxInfo().vendor() &&
+                GrBlendEquationIsAdvanced(fHWBlendState.fEquation)) {
+                SkASSERT(this->caps()->advancedBlendEquationSupport());
+                // Set to any basic blending equation.
+                GrBlendEquation blend_equation = kAdd_GrBlendEquation;
+                GL_CALL(BlendEquation(gXfermodeEquation2Blend[blend_equation]));
+                fHWBlendState.fEquation = blend_equation;
+            }
+
             fHWBlendState.fEnabled = kNo_TriState;
         }
         return;
