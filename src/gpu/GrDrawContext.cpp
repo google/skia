@@ -990,10 +990,7 @@ void GrDrawContext::drawOval(GrRenderTarget* rt,
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
-static bool is_nested_rects(GrDrawTarget* target,
-                            GrPipelineBuilder* pipelineBuilder,
-                            GrColor color,
-                            const SkMatrix& viewMatrix,
+static bool is_nested_rects(const SkMatrix& viewMatrix,
                             const SkPath& path,
                             const SkStrokeRec& stroke,
                             SkRect rects[2]) {
@@ -1077,8 +1074,7 @@ void GrDrawContext::drawPath(GrRenderTarget* rt,
             // Concave AA paths are expensive - try to avoid them for special cases
             SkRect rects[2];
 
-            if (is_nested_rects(fDrawTarget, &pipelineBuilder, color, viewMatrix, path, strokeInfo,
-                                rects)) {
+            if (is_nested_rects(viewMatrix, path, strokeInfo, rects)) {
                 GrAARectRenderer::FillAANestedRects(fDrawTarget, &pipelineBuilder, color,
                                                     viewMatrix, rects);
                 return;
