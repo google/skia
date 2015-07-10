@@ -26,7 +26,7 @@ else
 fi
 
 # We need the debug symbols from these files
-GDB_TMP_DIR=$(pwd)/android_gdb_tmp
+GDB_TMP_DIR=$SKIA_OUT/android_gdb_tmp
 mkdir -p $GDB_TMP_DIR
 echo "Copying symbol files"
 adb_pull_if_needed /system/bin/app_process $GDB_TMP_DIR

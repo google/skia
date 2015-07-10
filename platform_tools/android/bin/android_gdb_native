@@ -20,7 +20,7 @@ fi
 sleep 2
 
 # variables that must match those in gdb_server
-GDB_TMP_DIR=$(pwd)/android_gdb_tmp
+GDB_TMP_DIR=$SKIA_OUT/android_gdb_tmp
 APP_NAME=${APP_ARGS[0]}
 PORT=5039
 
