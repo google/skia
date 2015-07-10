@@ -28,11 +28,25 @@ public:
         kY_Direction,
     };
 
+    // Constructor using default nearest-neighbor sampling for the input texture
+    // filter mode.
     Gr1DKernelEffect(GrProcessorDataManager* procDataManager,
                      GrTexture* texture,
                      Direction direction,
                      int radius)
         : INHERITED(procDataManager, texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+        , fDirection(direction)
+        , fRadius(radius) {}
+
+    Gr1DKernelEffect(GrProcessorDataManager* procDataManager,
+                     GrTexture* texture,
+                     Direction direction,
+                     int radius,
+                     GrTextureParams::FilterMode filterMode)
+        : INHERITED(procDataManager,
+                    texture,
+                    GrCoordTransform::MakeDivByTextureWHMatrix(texture),
+                    filterMode)
         , fDirection(direction)
         , fRadius(radius) {}
 
