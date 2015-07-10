@@ -18,6 +18,17 @@
   },
   'targets': [
     {
+      'target_name': 'yasm-win',
+      'type': 'executable',
+      'sources': [
+        '../third_party/externals/yasm/binaries/win/yasm.exe',
+      ],
+      'copies' : [{
+        'destination': '<(PRODUCT_DIR)',
+        'files': [ '../third_party/externals/yasm/binaries/win/yasm.exe' ],
+      }],
+    },
+    {
       'target_name': 'libjpeg-turbo',
       'type': 'static_library',
       'include_dirs': [
@@ -33,9 +44,7 @@
       ],
       'msvs_settings': {
         'VCCLCompilerTool': {
-          'AdditionalOptions': [
-            '/w',
-          ],
+          'WarningLevel': '0',
         },
       },
       'xcode_settings': {
@@ -219,11 +228,14 @@
       
         # Build rules for an asm file.
         # On Windows, we use the precompiled yasm binary.
-        # On Linux, we build our patched yasm and use it except when use_system_yasm is 1.
+        # On Linux, we build our patched yasm and use it.
         # On Mac, we always build our patched yasm and use it.
         [ 'skia_os == "win"', {
+          'dependencies': [
+            'yasm-win',
+          ],
           'variables': {
-            'yasm_path': '../third_party/externals/yasm/binaries/win/yasm.exe',
+            'yasm_path': '<(PRODUCT_DIR)/yasm.exe',
             'conditions': [
               [ 'skia_arch_type == "x86"', {
                 'yasm_format': '-fwin32',
