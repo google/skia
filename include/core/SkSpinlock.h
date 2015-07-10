@@ -15,7 +15,7 @@
 #define SK_DECLARE_STATIC_SPINLOCK(name) namespace {} static SkPODSpinlock name
 
 // This class has no constructor and must be zero-initialized (the macro above does this).
-class SkPODSpinlock {
+class SK_API SkPODSpinlock {
 public:
     void acquire() {
         // To act as a mutex, we need an acquire barrier if we take the lock.
