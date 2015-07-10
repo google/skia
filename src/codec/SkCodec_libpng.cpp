@@ -100,8 +100,9 @@ private:
 };
 #define AutoCleanPng(...) SK_REQUIRE_LOCAL_VAR(AutoCleanPng)
 
-// call only if color_type is PALETTE. Returns true if the ctable has alpha
-static bool has_transparency_in_palette(png_structp png_ptr,
+//checks if there is transparency info in the tRNS chunk
+//image types which could have data in the tRNS chunk include: Index8, Gray8, RGB
+static bool has_transparency_in_tRNS(png_structp png_ptr,
                                         png_infop info_ptr) {
     if (!png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
         return false;
@@ -287,11 +288,11 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
     switch (colorType) {
         case PNG_COLOR_TYPE_PALETTE:
             skColorType = kIndex_8_SkColorType;
-            skAlphaType = has_transparency_in_palette(png_ptr, info_ptr) ?
+            skAlphaType = has_transparency_in_tRNS(png_ptr, info_ptr) ?
                     kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
             break;
         case PNG_COLOR_TYPE_RGB:
-            if (has_transparency_in_palette(png_ptr, info_ptr)) {
+            if (has_transparency_in_tRNS(png_ptr, info_ptr)) {
                 //convert to RGBA with tranparency information in tRNS chunk if it exists
                 png_set_tRNS_to_alpha(png_ptr);
                 skAlphaType = kUnpremul_SkAlphaType;
@@ -303,7 +304,7 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
             skColorType = kN32_SkColorType;
             break;
         case PNG_COLOR_TYPE_GRAY:
-            if (has_transparency_in_palette(png_ptr, info_ptr)) {
+            if (has_transparency_in_tRNS(png_ptr, info_ptr)) {
                 //FIXME: support gray with alpha as a color type
                 //convert to RGBA if there is transparentcy info in the tRNS chunk
                 png_set_tRNS_to_alpha(png_ptr);
