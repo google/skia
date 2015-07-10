@@ -48,6 +48,17 @@
 
 #include <dlfcn.h>
 
+// Experimental code to use a global lock whenever we access CG, to see if this reduces
+// crashes in Chrome
+#define USE_GLOBAL_MUTEX_FOR_CG_ACCESS
+
+#ifdef USE_GLOBAL_MUTEX_FOR_CG_ACCESS
+    static SkMutex gCGMutex;
+    #define AUTO_CG_LOCK()  SkAutoMutexAcquire amc(gCGMutex)
+#else
+    #define AUTO_CG_LOCK()
+#endif
+
 // Set to make glyph bounding boxes visible.
 #define SK_SHOW_TEXT_BLIT_COVERAGE 0
 
@@ -713,6 +724,8 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
         , fVertical(SkToBool(fRec.fFlags & kVertical_Flag))
 
 {
+    AUTO_CG_LOCK();
+
     CTFontRef ctFont = typeface->fFontRef.get();
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
@@ -985,6 +998,8 @@ unsigned SkScalerContext_Mac::generateGlyphCount(void) {
 }
 
 uint16_t SkScalerContext_Mac::generateCharToGlyph(SkUnichar uni) {
+    AUTO_CG_LOCK();
+
     CGGlyph cgGlyph[2];
     UniChar theChar[2]; // UniChar is a UTF-16 16-bit code unit.
 
@@ -1004,6 +1019,8 @@ void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
 }
 
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
+    AUTO_CG_LOCK();
+
     const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID();
     glyph->zeroMetrics();
 
@@ -1320,6 +1337,8 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
 #define kScaleForSubPixelPositionHinting (4.0f)
 
 void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
+    AUTO_CG_LOCK();
+
     CTFontRef font = fCTFont;
     SkScalar scaleX = SK_Scalar1;
     SkScalar scaleY = SK_Scalar1;
@@ -1382,6 +1401,8 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     if (NULL == metrics) {
         return;
     }
+
+    AUTO_CG_LOCK();
 
     CGRect theBounds = CTFontGetBoundingBox(fCTFont);
 
@@ -1543,6 +1564,8 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
         PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) const {
+
+    AUTO_CG_LOCK();
 
     CTFontRef originalCTFont = fFontRef.get();
     AutoCFRelease<CTFontRef> ctFont(CTFontCreateCopyWithAttributes(
