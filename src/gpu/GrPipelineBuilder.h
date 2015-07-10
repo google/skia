@@ -84,26 +84,26 @@ public:
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+        this->addColorProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
                                                               matrix))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+        this->addCoverageProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
                                                                  matrix))->unref();
     }
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        this->addColorProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture, matrix,
+        this->addColorProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
                                                               params))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
                                      const GrTextureParams& params) {
-        this->addCoverageProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture, matrix,
+        this->addCoverageProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
                                                                  params))->unref();
     }
 
@@ -396,7 +396,8 @@ public:
     void setClip(const GrClip& clip) { fClip = clip; }
     const GrClip& clip() const { return fClip; }
 
-    GrProcessorDataManager* getProcessorDataManager() { return &fProcDataManager; }
+    GrProcessorDataManager* getProcessorDataManager() { return fProcDataManager.get(); }
+    const GrProcessorDataManager* processorDataManager() const { return fProcDataManager.get(); }
 
 private:
     // Calculating invariant color / coverage information is expensive, so we partially cache the
@@ -438,7 +439,7 @@ private:
 
     typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
 
-    GrProcessorDataManager                  fProcDataManager;
+    SkAutoTUnref<GrProcessorDataManager>    fProcDataManager;
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
     uint32_t                                fFlags;
     GrStencilSettings                       fStencilSettings;

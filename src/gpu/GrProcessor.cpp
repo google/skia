@@ -157,3 +157,14 @@ void GrFragmentProcessor::computeInvariantOutput(GrInvariantOutput* inout) const
 // Initial static variable from GrXPFactory
 int32_t GrXPFactory::gCurrXPFClassID =
         GrXPFactory::kIllegalXPFClassID;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// GrProcessorDataManager lives in the same pool
+void* GrProcessorDataManager::operator new(size_t size) {
+    return MemoryPoolAccessor().pool()->allocate(size);
+}
+
+void GrProcessorDataManager::operator delete(void* target) {
+    return MemoryPoolAccessor().pool()->release(target);
+}

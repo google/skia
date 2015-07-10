@@ -125,6 +125,7 @@ public:
         fCoverageStages = paint.fCoverageStages;
 
         fXPFactory.reset(SkRef(paint.getXPFactory()));
+        fProcDataManager.reset(SkNEW_ARGS(GrProcessorDataManager, (*paint.processorDataManager())));
 
         return *this;
     }
@@ -137,18 +138,20 @@ public:
      */
     bool isConstantBlendedColor(GrColor* constantColor) const;
 
-    GrProcessorDataManager* getProcessorDataManager() { return &fProcDataManager; }
+    GrProcessorDataManager* getProcessorDataManager() { return fProcDataManager.get(); }
+
+    const GrProcessorDataManager* processorDataManager() const { return fProcDataManager.get(); }
 
 private:
     mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
-    SkSTArray<4, GrFragmentStage>   fColorStages;
-    SkSTArray<2, GrFragmentStage>   fCoverageStages;
+    SkSTArray<4, GrFragmentStage>        fColorStages;
+    SkSTArray<2, GrFragmentStage>        fCoverageStages;
 
-    bool                            fAntiAlias;
-    bool                            fDither;
+    bool                                 fAntiAlias;
+    bool                                 fDither;
 
-    GrColor                         fColor;
-    GrProcessorDataManager          fProcDataManager;
+    GrColor                              fColor;
+    SkAutoTUnref<GrProcessorDataManager> fProcDataManager;
 };
 
 #endif

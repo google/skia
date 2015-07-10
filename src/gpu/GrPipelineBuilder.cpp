@@ -16,7 +16,8 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 GrPipelineBuilder::GrPipelineBuilder()
-    : fFlags(0x0)
+    : fProcDataManager(SkNEW(GrProcessorDataManager))
+    , fFlags(0x0)
     , fDrawFace(kBoth_DrawFace)
     , fColorProcInfoValid(false)
     , fCoverageProcInfoValid(false)
@@ -26,6 +27,7 @@ GrPipelineBuilder::GrPipelineBuilder()
 }
 
 GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
+    fProcDataManager.reset(SkNEW_ARGS(GrProcessorDataManager, (*that.processorDataManager())));
     fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));
     fFlags = that.fFlags;
     fStencilSettings = that.fStencilSettings;
@@ -50,6 +52,10 @@ GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
 
 GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
+
+    // TODO keep this logically const using an AutoReset
+    fProcDataManager.reset(
+         const_cast<GrProcessorDataManager*>(SkRef(paint.processorDataManager())));
 
     fColorStages.reset();
     fCoverageStages.reset();

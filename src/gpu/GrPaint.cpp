@@ -16,7 +16,8 @@
 GrPaint::GrPaint()
     : fAntiAlias(false)
     , fDither(false)
-    , fColor(GrColor_WHITE) {
+    , fColor(GrColor_WHITE)
+    , fProcDataManager(SkNEW(GrProcessorDataManager)) {
 }
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
@@ -24,26 +25,26 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addColorProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+    this->addColorProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
                                                           matrix))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+    this->addCoverageProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
                                                              matrix))->unref();
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& params) {
-    this->addColorProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture, matrix,
+    this->addColorProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
                                                           params))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                           const SkMatrix& matrix,
                                           const GrTextureParams& params) {
-    this->addCoverageProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture, matrix,
+    this->addCoverageProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
                                                              params))->unref();
 }
 
