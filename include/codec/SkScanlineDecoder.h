@@ -21,13 +21,6 @@ public:
      *  It is possible that not all scanlines will have been read/skipped.  In
      *  fact, in the case of subset decodes, it is likely that there will be
      *  scanlines at the bottom of the image that have been ignored.
-     *
-     *  Note for implementations: An SkScanlineDecoder will be deleted by (and
-     *  therefore *before*) its associated SkCodec, in case the order matters.
-     *  However, while the SkCodec base class maintains ownership of the
-     *  SkScanlineDecoder, the subclass will be deleted before the scanline
-     *  decoder.  If this is an issue, detachScanlineDecoder() provides
-     *  a means for the subclass to take ownership of the SkScanlineDecoder.
      */
     virtual ~SkScanlineDecoder() {}
 

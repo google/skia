@@ -158,8 +158,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             break;
         }
         case kScanline_Mode: {
-            SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(decodeInfo, NULL,
-                    colorPtr, colorCountPtr);
+            SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(codec->getScanlineDecoder(
+                    decodeInfo, NULL, colorPtr, colorCountPtr));
             if (NULL == scanlineDecoder) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }
@@ -220,8 +220,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                             subsetHeight + extraY : subsetHeight;
                     const int y = row * subsetHeight;
                     //create scanline decoder for each subset
-                    SkScanlineDecoder* subsetScanlineDecoder = codec->getScanlineDecoder(decodeInfo,
-                            NULL, colorPtr, colorCountPtr);
+                    SkAutoTDelete<SkScanlineDecoder> subsetScanlineDecoder(
+                            codec->getScanlineDecoder(decodeInfo, NULL, colorPtr, colorCountPtr));
                     if (NULL == subsetScanlineDecoder) {
                         if (x == 0 && y == 0) {
                             //first try, image may not be compatible
@@ -287,8 +287,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             const int numStripes = (height + stripeHeight - 1) / stripeHeight;
 
             // Decode odd stripes
-            SkScanlineDecoder* decoder = codec->getScanlineDecoder(decodeInfo, NULL, colorPtr,
-                    colorCountPtr);
+            SkAutoTDelete<SkScanlineDecoder> decoder(
+                    codec->getScanlineDecoder(decodeInfo, NULL, colorPtr, colorCountPtr));
             if (NULL == decoder) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }
@@ -321,7 +321,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             // Decode even stripes
-            decoder = codec->getScanlineDecoder(decodeInfo, NULL, colorPtr, colorCountPtr);
+            decoder.reset(codec->getScanlineDecoder(decodeInfo, NULL, colorPtr, colorCountPtr));
             if (NULL == decoder) {
                 return "Failed to create second scanline decoder.";
             }

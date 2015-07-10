@@ -16,7 +16,6 @@
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #include "SkJpegCodec.h"
 #endif
-#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 #include "SkWebpCodec.h"
 
@@ -80,12 +79,9 @@ SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)
     : fInfo(info)
     , fStream(stream)
     , fNeedsRewind(false)
-    , fScanlineDecoder(NULL)
 {}
 
-SkCodec::~SkCodec() {
-    SkDELETE(fScanlineDecoder);
-}
+SkCodec::~SkCodec() {}
 
 SkCodec::RewindState SkCodec::rewindIfNeeded() {
     // Store the value of fNeedsRewind so we can update it. Next read will
@@ -153,9 +149,7 @@ SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo, const
         options = &optsStorage;
     }
 
-    SkDELETE(fScanlineDecoder);
-    fScanlineDecoder = this->onGetScanlineDecoder(dstInfo, *options, ctable, ctableCount);
-    return fScanlineDecoder;
+    return this->onGetScanlineDecoder(dstInfo, *options, ctable, ctableCount);
 }
 
 SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo) {

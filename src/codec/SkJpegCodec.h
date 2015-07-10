@@ -95,12 +95,6 @@ private:
     SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr);
 
     /*
-     * Explicit destructor is used to ensure that the scanline decoder is deleted
-     * before the decode manager.
-     */
-    ~SkJpegCodec() override;
-
-    /*
      * Handles rewinding the input stream if it is necessary
      */
     bool handleRewind();

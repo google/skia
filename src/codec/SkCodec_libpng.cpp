@@ -120,7 +120,7 @@ typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
 // Note: SkColorTable claims to store SkPMColors, which is not necessarily
 // the case here.
-bool SkPngCodec::decodePalette(bool premultiply, int bitDepth, int* ctableCount) {
+bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
     int numPalette;
     png_colorp palette;
     png_bytep trans;
@@ -177,7 +177,7 @@ bool SkPngCodec::decodePalette(bool premultiply, int bitDepth, int* ctableCount)
         addressed by the bitdepth of the image and fill it with the last palette color or black if
         the palette is empty (really broken image).
     */
-    int colorCount = SkTMax(numPalette, 1 << SkTMin(bitDepth, 8));
+    int colorCount = SkTMax(numPalette, 1 << SkTMin(fBitDepth, 8));
     SkPMColor lastColor = index > 0 ? colorPtr[-1] : SkPackARGB32(0xFF, 0, 0, 0);
     for (; index < colorCount; index++) {
         *colorPtr++ = lastColor;
@@ -374,12 +374,6 @@ SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream,
 {}
 
 SkPngCodec::~SkPngCodec() {
-    // First, ensure that the scanline decoder is left in a finished state.
-    SkAutoTDelete<SkScanlineDecoder> decoder(this->detachScanlineDecoder());
-    if (NULL != decoder) {
-        this->finish();
-    }
-
     this->destroyReadStruct();
 }
 
@@ -454,7 +448,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
         case kIndex_8_SkColorType:
             //decode palette to Skia format
             fSrcConfig = SkSwizzler::kIndex;
-            if (!this->decodePalette(kPremul_SkAlphaType == requestedInfo.alphaType(), fBitDepth,
+            if (!this->decodePalette(kPremul_SkAlphaType == requestedInfo.alphaType(),
                     ctableCount)) {
                 return kInvalidInput;
             }
@@ -522,11 +516,6 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
                                         SkPMColor ctable[], int* ctableCount) {
     if (!conversion_possible(requestedInfo, this->getInfo())) {
         return kInvalidConversion;
-    }
-    // Do not allow a regular decode if the caller has asked for a scanline decoder
-    if (NULL != this->scanlineDecoder()) {
-        SkCodecPrintf("cannot getPixels() if a scanline decoder has been created\n");
-        return kInvalidParameters;
     }
     if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
         return kInvalidScale;
@@ -596,6 +585,7 @@ void SkPngCodec::finish() {
         // We've already read all the scanlines. This is a success.
         return;
     }
+    // FIXME: Is this necessary?
     /* read rest of file, and get additional chunks in info_ptr - REQUIRED */
     png_read_end(fPng_ptr, fInfo_ptr);
 }
@@ -609,6 +599,10 @@ public:
     {
         fStorage.reset(dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig));
         fSrcRow = static_cast<uint8_t*>(fStorage.get());
+    }
+
+    ~SkPngScanlineDecoder() {
+        fCodec->finish();
     }
 
     SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
@@ -645,10 +639,10 @@ public:
     bool onReallyHasAlpha() const override { return fHasAlpha; }
 
 private:
-    SkPngCodec*         fCodec;     // Unowned.
-    bool                fHasAlpha;
-    SkAutoMalloc        fStorage;
-    uint8_t*            fSrcRow;
+    SkAutoTDelete<SkPngCodec>   fCodec;
+    bool                        fHasAlpha;
+    SkAutoMalloc                fStorage;
+    uint8_t*                    fSrcRow;
 
     typedef SkScanlineDecoder INHERITED;
 };
@@ -662,22 +656,21 @@ public:
         , fHasAlpha(false)
         , fCurrentRow(0)
         , fHeight(dstInfo.height())
-        , fRewindNeeded(false)
     {
         fSrcRowBytes = dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig);
         fGarbageRow.reset(fSrcRowBytes);
         fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
     }
 
+    ~SkPngInterlacedScanlineDecoder() {
+        fCodec->finish();
+    }
+
     SkCodec::Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
         //rewind stream if have previously called onGetScanlines, 
         //since we need entire progressive image to get scanlines
-        if (fRewindNeeded) {
-            if(false == fCodec->handleRewind()) {
-                return SkCodec::kCouldNotRewind;
-            }
-        } else {
-            fRewindNeeded = true;
+        if (!fCodec->handleRewind()) {
+            return SkCodec::kCouldNotRewind;
         }
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
             SkCodecPrintf("setjmp long jump!\n");
@@ -724,14 +717,13 @@ public:
     bool onReallyHasAlpha() const override { return fHasAlpha; }
 
 private:
-    SkPngCodec*         fCodec;     // Unowned.
-    bool                fHasAlpha;
-    int                 fCurrentRow;
-    int                 fHeight;
-    size_t              fSrcRowBytes;
-    bool                fRewindNeeded;
-    SkAutoMalloc        fGarbageRow;
-    uint8_t*            fGarbageRowPtr;
+    SkAutoTDelete<SkPngCodec>   fCodec;
+    bool                        fHasAlpha;
+    int                         fCurrentRow;
+    int                         fHeight;
+    size_t                      fSrcRowBytes;
+    SkAutoMalloc                fGarbageRow;
+    uint8_t*                    fGarbageRowPtr;
 
     typedef SkScanlineDecoder INHERITED;
 };
@@ -747,25 +739,31 @@ SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
     if (dstInfo.dimensions() != this->getInfo().dimensions()) {
         return NULL;
     }
-    if (!this->handleRewind()) {
+    // Create a new SkPngCodec, to be owned by the scanline decoder.
+    SkStream* stream = this->stream()->duplicate();
+    if (!stream) {
+        return NULL;
+    }
+    SkAutoTDelete<SkPngCodec> codec (static_cast<SkPngCodec*>(SkPngCodec::NewFromStream(stream)));
+    if (!codec) {
         return NULL;
     }
 
     // Note: We set dst to NULL since we do not know it yet. rowBytes is not needed,
     // since we'll be manually updating the dstRow, but the SkSwizzler requires it to
     // be at least dstInfo.minRowBytes.
-    if (this->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), options, ctable,
+    if (codec->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), options, ctable,
             ctableCount) != kSuccess) {
         SkCodecPrintf("failed to initialize the swizzler.\n");
         return NULL;
     }
 
-    SkASSERT(fNumberPasses != INVALID_NUMBER_PASSES);
-    if (fNumberPasses > 1) {
+    SkASSERT(codec->fNumberPasses != INVALID_NUMBER_PASSES);
+    if (codec->fNumberPasses > 1) {
         // interlaced image
-        return SkNEW_ARGS(SkPngInterlacedScanlineDecoder, (dstInfo, this));
+        return SkNEW_ARGS(SkPngInterlacedScanlineDecoder, (dstInfo, codec.detach()));
     }
 
-    return SkNEW_ARGS(SkPngScanlineDecoder, (dstInfo, this));
+    return SkNEW_ARGS(SkPngScanlineDecoder, (dstInfo, codec.detach()));
 }
 

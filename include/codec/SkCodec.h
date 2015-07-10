@@ -172,15 +172,11 @@ public:
     Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
-     *  Return an object which can be used to decode individual scanlines.
+     *  Create a new object which can be used to decode individual scanlines.
      *
-     *  This object is owned by the SkCodec, which will handle its lifetime. The
-     *  returned object is only valid until the SkCodec is deleted or the next
-     *  call to getScanlineDecoder, whichever comes first.
-     *
-     *  Calling a second time will rewind and replace the existing one with a
-     *  new one. If the stream cannot be rewound, this will delete the existing
-     *  one and return NULL.
+     *  The returned object has its own state, independent of the SkCodec, or any
+     *  previously spawned SkScanlineDecoders. At creation, it will be ready to
+     *  return the first scanline.
      *
      *  @param dstInfo Info of the destination. If the dimensions do not match
      *      those of getInfo, this implies a scale.
@@ -195,11 +191,7 @@ public:
      *      decoding the palette.
      *  @return New SkScanlineDecoder, or NULL on failure.
      *
-     *  NOTE: If any rows were previously decoded, this requires rewinding the
-     *  SkStream.
-     *
-     *  NOTE: The scanline decoder is owned by the SkCodec and will delete it
-     *  when the SkCodec is deleted.
+     *  NOTE: This requires duplicating the SkStream.
      */
     SkScanlineDecoder* getScanlineDecoder(const SkImageInfo& dstInfo, const Options* options,
                                           SkPMColor ctable[], int* ctableCount);
@@ -239,9 +231,6 @@ protected:
     /**
      *  Override if your codec supports scanline decoding.
      *
-     *  As in onGetPixels(), the implementation must call rewindIfNeeded() and
-     *  handle as appropriate.
-     *
      *  @param dstInfo Info of the destination. If the dimensions do not match
      *      those of getInfo, this implies a scale.
      *  @param options Contains decoding options, including if memory is zero
@@ -253,8 +242,8 @@ protected:
      *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
      *      be modified to the true size of the color table (<= 256) after
      *      decoding the palette.
-     *  @return New SkScanlineDecoder on success, NULL otherwise. The SkCodec
-     *      will take ownership of the returned scanline decoder.
+     *  @return New SkScanlineDecoder on success, NULL otherwise. The caller is
+     *      responsible for deleting the returned object.
      */
     virtual SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo,
                                                     const Options& options,
@@ -293,31 +282,9 @@ protected:
         return fStream.get();
     }
 
-    /**
-     * If the codec has a scanline decoder, return it (no ownership change occurs)
-     * else return NULL.
-     * The returned decoder is valid while the codec exists and the client has not
-     * created a new scanline decoder.
-     */
-    SkScanlineDecoder* scanlineDecoder() {
-        return fScanlineDecoder;
-    }
-
-    /**
-     * Allow the codec subclass to detach and take ownership of the scanline decoder.
-     * This will likely be used when the scanline decoder needs to be destroyed
-     * in the destructor of the subclass.
-     */
-    SkScanlineDecoder* detachScanlineDecoder() {
-        SkScanlineDecoder* scanlineDecoder = fScanlineDecoder;
-        fScanlineDecoder = NULL;
-        return scanlineDecoder;
-    }
-
 private:
     const SkImageInfo       fInfo;
     SkAutoTDelete<SkStream> fStream;
     bool                    fNeedsRewind;
-    SkScanlineDecoder*      fScanlineDecoder;
 };
 #endif // SkCodec_DEFINED

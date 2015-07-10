@@ -303,13 +303,6 @@ bool SkJpegCodec::scaleToDimensions(uint32_t dstWidth, uint32_t dstHeight) {
 SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
                                          void* dst, size_t dstRowBytes,
                                          const Options& options, SkPMColor*, int*) {
-
-    // Do not allow a regular decode if the caller has asked for a scanline decoder
-    if (NULL != this->scanlineDecoder()) {
-        return fDecoderMgr->returnFailure("cannot getPixels() if a scanline decoder has been"
-                "created", kInvalidParameters);
-    }
-
     // Rewind the stream if needed
     if (!this->handleRewind()) {
         return fDecoderMgr->returnFailure("could not rewind stream", kCouldNotRewind);
@@ -380,25 +373,6 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 /*
- * We override the destructor to ensure that the scanline decoder is left in a
- * finished state before destroying the decode manager.
- */
-SkJpegCodec::~SkJpegCodec() {
-    SkAutoTDelete<SkScanlineDecoder> decoder(this->detachScanlineDecoder());
-    if (NULL != decoder) {
-        if (setjmp(fDecoderMgr->getJmpBuf())) {
-            SkCodecPrintf("setjmp: Error in libjpeg finish_decompress\n");
-            return;
-        }
-
-        // We may not have decoded the entire image.  Prevent libjpeg-turbo from failing on a
-        // partial decode.
-        fDecoderMgr->dinfo()->output_scanline = this->getInfo().height();
-        turbo_jpeg_finish_decompress(fDecoderMgr->dinfo());
-    }
-}
-
-/*
  * Enable scanline decoding for jpegs
  */
 class SkJpegScanlineDecoder : public SkScanlineDecoder {
@@ -407,6 +381,18 @@ public:
         : INHERITED(dstInfo)
         , fCodec(codec)
     {}
+
+    virtual ~SkJpegScanlineDecoder() {
+        if (setjmp(fCodec->fDecoderMgr->getJmpBuf())) {
+            SkCodecPrintf("setjmp: Error in libjpeg finish_decompress\n");
+            return;
+        }
+
+        // We may not have decoded the entire image.  Prevent libjpeg-turbo from failing on a
+        // partial decode.
+        fCodec->fDecoderMgr->dinfo()->output_scanline = fCodec->getInfo().height();
+        turbo_jpeg_finish_decompress(fCodec->fDecoderMgr->dinfo());
+    }
 
     SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
         // Set the jump location for libjpeg errors
@@ -460,7 +446,7 @@ public:
     }
 
 private:
-    SkJpegCodec* fCodec; // unowned
+    SkAutoTDelete<SkJpegCodec> fCodec;
 
     typedef SkScanlineDecoder INHERITED;
 };
@@ -480,24 +466,33 @@ SkScanlineDecoder* SkJpegCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
         return NULL;
     }
 
+    SkStream* stream = this->stream()->duplicate();
+    if (!stream) {
+        return NULL;
+    }
+    SkAutoTDelete<SkJpegCodec> codec(static_cast<SkJpegCodec*>(SkJpegCodec::NewFromStream(stream)));
+    if (!codec) {
+        return NULL;
+    }
+
     // Check if we can decode to the requested destination and set the output color space
-    if (!this->setOutputColorSpace(dstInfo)) {
+    if (!codec->setOutputColorSpace(dstInfo)) {
         SkCodecPrintf("Cannot convert to output type\n");
         return NULL;
     }
 
     // Perform the necessary scaling
-    if (!this->scaleToDimensions(dstInfo.width(), dstInfo.height())) {
+    if (!codec->scaleToDimensions(dstInfo.width(), dstInfo.height())) {
         SkCodecPrintf("Cannot scale to output dimensions\n");
         return NULL;
     }
 
     // Now, given valid output dimensions, we can start the decompress
-    if (!turbo_jpeg_start_decompress(fDecoderMgr->dinfo())) {
+    if (!turbo_jpeg_start_decompress(codec->fDecoderMgr->dinfo())) {
         SkCodecPrintf("start decompress failed\n");
         return NULL;
     }
 
     // Return the new scanline decoder
-    return SkNEW_ARGS(SkJpegScanlineDecoder, (dstInfo, this));
+    return SkNEW_ARGS(SkJpegScanlineDecoder, (dstInfo, codec.detach()));
 }

@@ -26,6 +26,9 @@ public:
     // Assumes IsPng was called and returned true.
     static SkCodec* NewFromStream(SkStream*);
     static bool IsPng(SkStream*);
+
+    virtual ~SkPngCodec();
+
 protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
             override;
@@ -47,7 +50,6 @@ private:
     int                         fBitDepth;
 
     SkPngCodec(const SkImageInfo&, SkStream*, png_structp, png_infop, int);
-    ~SkPngCodec();
 
 
     // Helper to set up swizzler and color table. Also calls png_read_update_info.
@@ -56,7 +58,7 @@ private:
 
     // Calls rewindIfNeeded and returns true if the decoder can continue.
     bool handleRewind();
-    bool decodePalette(bool premultiply, int bitDepth, int* ctableCount);
+    bool decodePalette(bool premultiply, int* ctableCount);
     void finish();
     void destroyReadStruct();
 

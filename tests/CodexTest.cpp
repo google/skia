@@ -28,6 +28,19 @@ static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
     md5.finish(*digest);
 }
 
+/**
+ *  Compute the digest for bm and compare it to a known good digest.
+ *  @param r Reporter to assert that bm's digest matches goodDigest.
+ *  @param goodDigest The known good digest to compare to.
+ *  @param bm The bitmap to test.
+ */
+static void compare_to_good_digest(skiatest::Reporter* r, const SkMD5::Digest& goodDigest,
+                           const SkBitmap& bm) {
+    SkMD5::Digest digest;
+    md5(bm, &digest);
+    REPORTER_ASSERT(r, digest == goodDigest);
+}
+
 static void check(skiatest::Reporter* r,
                   const char path[],
                   SkISize size,
@@ -56,8 +69,8 @@ static void check(skiatest::Reporter* r,
         codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
-    SkMD5::Digest digest1, digest2;
-    md5(bm, &digest1);
+    SkMD5::Digest digest;
+    md5(bm, &digest);
 
     bm.eraseColor(SK_ColorYELLOW);
 
@@ -66,25 +79,26 @@ static void check(skiatest::Reporter* r,
 
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
     // verify that re-decoding gives the same result.
-    md5(bm, &digest2);
-    REPORTER_ASSERT(r, digest1 == digest2);
+    compare_to_good_digest(r, digest, bm);
 
-    SkScanlineDecoder* scanlineDecoder = codec->getScanlineDecoder(info);
+    SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(codec->getScanlineDecoder(info));
     if (supportsScanlineDecoding) {
         bm.eraseColor(SK_ColorYELLOW);
         REPORTER_ASSERT(r, scanlineDecoder);
 
-        // Regular decodes should be disabled after creating a scanline decoder
+        // Regular decodes should not be affected by creating a scanline decoder
         result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
-        REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
+        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+        compare_to_good_digest(r, digest, bm);
+
+        bm.eraseColor(SK_ColorYELLOW);
+
         for (int y = 0; y < info.height(); y++) {
             result = scanlineDecoder->getScanlines(bm.getAddr(0, y), 1, 0);
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
         }
         // verify that scanline decoding gives the same result.
-        SkMD5::Digest digest3;
-        md5(bm, &digest3);
-        REPORTER_ASSERT(r, digest3 == digest1);
+        compare_to_good_digest(r, digest, bm);
     } else {
         REPORTER_ASSERT(r, !scanlineDecoder);
     }
