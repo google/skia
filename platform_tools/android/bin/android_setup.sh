@@ -119,7 +119,7 @@ setup_device() {
       ANDROID_ARCH="arm"
       ;;
     arm64 | nexus_9)
-      DEFINES="${DEFINES} skia_arch_type=arm64 skia_arch_width=64"
+      DEFINES="${DEFINES} skia_arch_type=arm64 skia_arch_width=64 arm_version=8"
       ANDROID_ARCH="arm64"
       ;;
     x86)

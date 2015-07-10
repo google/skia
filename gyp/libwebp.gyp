@@ -19,6 +19,9 @@
         {
           'target_name': 'libwebp_dec',
           'type': 'static_library',
+          'includes': [
+            'libwebp_skia.gypi',
+          ],
           'include_dirs': [
               '../third_party/externals/libwebp',
           ],
@@ -28,7 +31,6 @@
             '../third_party/externals/libwebp/src/dec/frame.c',
             '../third_party/externals/libwebp/src/dec/idec.c',
             '../third_party/externals/libwebp/src/dec/io.c',
-            '../third_party/externals/libwebp/src/dec/layer.c',
             '../third_party/externals/libwebp/src/dec/quant.c',
             '../third_party/externals/libwebp/src/dec/tree.c',
             '../third_party/externals/libwebp/src/dec/vp8.c',
@@ -41,6 +43,9 @@
         {
           'target_name': 'libwebp_demux',
           'type': 'static_library',
+          'includes': [
+            'libwebp_skia.gypi',
+          ],
           'include_dirs': [
               '../third_party/externals/libwebp',
           ],
@@ -53,19 +58,27 @@
         {
           'target_name': 'libwebp_dsp',
           'type': 'static_library',
+          'includes': [
+            'libwebp_skia.gypi',
+          ],
           'include_dirs': [
               '../third_party/externals/libwebp',
           ],
           'sources': [
+            '../third_party/externals/libwebp/src/dsp/alpha_processing.c',
+            '../third_party/externals/libwebp/src/dsp/alpha_processing_sse2.c',
             '../third_party/externals/libwebp/src/dsp/cpu.c',
             '../third_party/externals/libwebp/src/dsp/dec.c',
+            '../third_party/externals/libwebp/src/dsp/dec_clip_tables.c',
             '../third_party/externals/libwebp/src/dsp/dec_sse2.c',
             '../third_party/externals/libwebp/src/dsp/enc.c',
             '../third_party/externals/libwebp/src/dsp/enc_sse2.c',
             '../third_party/externals/libwebp/src/dsp/lossless.c',
+            '../third_party/externals/libwebp/src/dsp/lossless_sse2.c',
             '../third_party/externals/libwebp/src/dsp/upsampling.c',
             '../third_party/externals/libwebp/src/dsp/upsampling_sse2.c',
             '../third_party/externals/libwebp/src/dsp/yuv.c',
+            '../third_party/externals/libwebp/src/dsp/yuv_sse2.c',
           ],
           'cflags': [ '-w' ],
           'xcode_settings': { 'WARNING_CFLAGS': [ '-w' ] },
@@ -79,7 +92,13 @@
         },
         {
           'target_name': 'libwebp_dsp_neon',
+          'includes': [
+            'libwebp_skia.gypi',
+          ],
           'conditions': [
+            ['arm_version == 7', {
+              'cflags': [ '-mfpu=neon' ],
+            }],
             ['arm_version >= 7', {
               'type': 'static_library',
               'include_dirs': [
@@ -88,13 +107,14 @@
               'sources': [
                 '../third_party/externals/libwebp/src/dsp/dec_neon.c',
                 '../third_party/externals/libwebp/src/dsp/enc_neon.c',
+                '../third_party/externals/libwebp/src/dsp/lossless_neon.c',
                 '../third_party/externals/libwebp/src/dsp/upsampling_neon.c',
               ],
               # behavior similar dsp_neon.c.neon in an Android.mk
               'cflags!': [
                 '-mfpu=vfpv3-d16',
               ],
-              'cflags': [ '-mfpu=neon', '-w' ],
+              'cflags': [ '-w' ],
             },{  # !(arm_version >= 7)
               'type': 'none',
             }],
@@ -103,6 +123,9 @@
         {
           'target_name': 'libwebp_enc',
           'type': 'static_library',
+          'includes': [
+            'libwebp_skia.gypi',
+          ],
           'include_dirs': [
               '../third_party/externals/libwebp',
           ],
@@ -116,8 +139,8 @@
             '../third_party/externals/libwebp/src/enc/frame.c',
             '../third_party/externals/libwebp/src/enc/histogram.c',
             '../third_party/externals/libwebp/src/enc/iterator.c',
-            '../third_party/externals/libwebp/src/enc/layer.c',
             '../third_party/externals/libwebp/src/enc/picture.c',
+            '../third_party/externals/libwebp/src/enc/picture_csp.c',
             '../third_party/externals/libwebp/src/enc/quant.c',
             '../third_party/externals/libwebp/src/enc/syntax.c',
             '../third_party/externals/libwebp/src/enc/token.c',
@@ -131,6 +154,9 @@
         {
           'target_name': 'libwebp_utils',
           'type': 'static_library',
+          'includes': [
+            'libwebp_skia.gypi',
+          ],
           'include_dirs': [
               '../third_party/externals/libwebp',
           ],
@@ -143,6 +169,7 @@
             '../third_party/externals/libwebp/src/utils/huffman_encode.c',
             '../third_party/externals/libwebp/src/utils/quant_levels.c',
             '../third_party/externals/libwebp/src/utils/quant_levels_dec.c',
+            '../third_party/externals/libwebp/src/utils/random.c',
             '../third_party/externals/libwebp/src/utils/rescaler.c',
             '../third_party/externals/libwebp/src/utils/thread.c',
             '../third_party/externals/libwebp/src/utils/utils.c',
@@ -174,7 +201,7 @@
         },
       ],
     }, {
-      # use_system_libwep == 1
+      # use_system_libwebp == 1
       'targets': [
         {
           'target_name': 'libwebp',
