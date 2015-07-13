@@ -752,6 +752,16 @@ static double sk_inv_determinant(const float mat[9], int isPerspective) {
     return 1.0 / det;
 }
 
+bool SkMatrix::isFinite() const {
+    for (int i = 0; i < 9; ++i) {
+        if (!SkScalarIsFinite(fMat[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void SkMatrix::SetAffineIdentity(SkScalar affine[6]) {
     affine[kAScaleX] = 1;
     affine[kASkewY] = 0;
@@ -774,6 +784,37 @@ bool SkMatrix::asAffine(SkScalar affine[6]) const {
         affine[kATransY] = this->fMat[kMTransY];
     }
     return true;
+}
+
+void SkMatrix::ComputeInv(SkScalar dst[9], const SkScalar src[9], SkScalar invDet, bool isPersp) {
+    SkASSERT(src != dst);
+    SkASSERT(src && dst);
+
+    if (isPersp) {
+        dst[kMScaleX] = scross_dscale(src[kMScaleY], src[kMPersp2], src[kMTransY], src[kMPersp1], invDet);
+        dst[kMSkewX]  = scross_dscale(src[kMTransX], src[kMPersp1], src[kMSkewX],  src[kMPersp2], invDet);
+        dst[kMTransX] = scross_dscale(src[kMSkewX],  src[kMTransY], src[kMTransX], src[kMScaleY], invDet);
+
+        dst[kMSkewY]  = scross_dscale(src[kMTransY], src[kMPersp0], src[kMSkewY],  src[kMPersp2], invDet);
+        dst[kMScaleY] = scross_dscale(src[kMScaleX], src[kMPersp2], src[kMTransX], src[kMPersp0], invDet);
+        dst[kMTransY] = scross_dscale(src[kMTransX], src[kMSkewY],  src[kMScaleX], src[kMTransY], invDet);
+
+        dst[kMPersp0] = scross_dscale(src[kMSkewY],  src[kMPersp1], src[kMScaleY], src[kMPersp0], invDet);
+        dst[kMPersp1] = scross_dscale(src[kMSkewX],  src[kMPersp0], src[kMScaleX], src[kMPersp1], invDet);
+        dst[kMPersp2] = scross_dscale(src[kMScaleX], src[kMScaleY], src[kMSkewX],  src[kMSkewY],  invDet);
+    } else {   // not perspective
+        dst[kMScaleX] = SkDoubleToScalar(src[kMScaleY] * invDet);
+        dst[kMSkewX]  = SkDoubleToScalar(-src[kMSkewX] * invDet);
+        dst[kMTransX] = dcross_dscale(src[kMSkewX], src[kMTransY], src[kMScaleY], src[kMTransX], invDet);
+
+        dst[kMSkewY]  = SkDoubleToScalar(-src[kMSkewY] * invDet);
+        dst[kMScaleY] = SkDoubleToScalar(src[kMScaleX] * invDet);
+        dst[kMTransY] = dcross_dscale(src[kMSkewY], src[kMTransX], src[kMScaleX], src[kMTransY], invDet);
+
+        dst[kMPersp0] = 0;
+        dst[kMPersp1] = 0;
+        dst[kMPersp2] = 1;
+    }
 }
 
 bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
@@ -819,50 +860,32 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
     }
 
     int    isPersp = mask & kPerspective_Mask;
-    double scale = sk_inv_determinant(fMat, isPersp);
+    double invDet = sk_inv_determinant(fMat, isPersp);
 
-    if (scale == 0) { // underflow
+    if (invDet == 0) { // underflow
         return false;
     }
 
-    if (inv) {
-        SkMatrix tmp;
-        if (inv == this) {
-            inv = &tmp;
-        }
+    bool applyingInPlace = (inv == this);
 
-        if (isPersp) {
-            inv->fMat[kMScaleX] = scross_dscale(fMat[kMScaleY], fMat[kMPersp2], fMat[kMTransY], fMat[kMPersp1], scale);
-            inv->fMat[kMSkewX]  = scross_dscale(fMat[kMTransX], fMat[kMPersp1], fMat[kMSkewX],  fMat[kMPersp2], scale);
-            inv->fMat[kMTransX] = scross_dscale(fMat[kMSkewX],  fMat[kMTransY], fMat[kMTransX], fMat[kMScaleY], scale);
+    SkMatrix* tmp = inv;
 
-            inv->fMat[kMSkewY]  = scross_dscale(fMat[kMTransY], fMat[kMPersp0], fMat[kMSkewY],  fMat[kMPersp2], scale);
-            inv->fMat[kMScaleY] = scross_dscale(fMat[kMScaleX], fMat[kMPersp2], fMat[kMTransX], fMat[kMPersp0], scale);
-            inv->fMat[kMTransY] = scross_dscale(fMat[kMTransX], fMat[kMSkewY],  fMat[kMScaleX], fMat[kMTransY], scale);
-
-            inv->fMat[kMPersp0] = scross_dscale(fMat[kMSkewY],  fMat[kMPersp1], fMat[kMScaleY], fMat[kMPersp0], scale);
-            inv->fMat[kMPersp1] = scross_dscale(fMat[kMSkewX],  fMat[kMPersp0], fMat[kMScaleX], fMat[kMPersp1], scale);
-            inv->fMat[kMPersp2] = scross_dscale(fMat[kMScaleX], fMat[kMScaleY], fMat[kMSkewX],  fMat[kMSkewY],  scale);
-        } else {   // not perspective
-            inv->fMat[kMScaleX] = SkDoubleToScalar(fMat[kMScaleY] * scale);
-            inv->fMat[kMSkewX]  = SkDoubleToScalar(-fMat[kMSkewX] * scale);
-            inv->fMat[kMTransX] = dcross_dscale(fMat[kMSkewX], fMat[kMTransY], fMat[kMScaleY], fMat[kMTransX], scale);
-
-            inv->fMat[kMSkewY]  = SkDoubleToScalar(-fMat[kMSkewY] * scale);
-            inv->fMat[kMScaleY] = SkDoubleToScalar(fMat[kMScaleX] * scale);
-            inv->fMat[kMTransY] = dcross_dscale(fMat[kMSkewY], fMat[kMTransX], fMat[kMScaleX], fMat[kMTransY], scale);
-
-            inv->fMat[kMPersp0] = 0;
-            inv->fMat[kMPersp1] = 0;
-            inv->fMat[kMPersp2] = 1;
-        }
-
-        inv->setTypeMask(fTypeMask);
-
-        if (inv == &tmp) {
-            *(SkMatrix*)this = tmp;
-        }
+    SkMatrix storage;
+    if (applyingInPlace || NULL == tmp) {
+        tmp = &storage;     // we either need to avoid trampling memory or have no memory
     }
+
+    ComputeInv(tmp->fMat, fMat, invDet, isPersp);
+    if (!tmp->isFinite()) {
+        return false;
+    }
+
+    tmp->setTypeMask(fTypeMask);
+
+    if (applyingInPlace) {
+        *inv = storage; // need to copy answer back
+    }
+
     return true;
 }
 
