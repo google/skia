@@ -18,19 +18,15 @@
     GrContext. In the future this object may provide some guards to prevent this. */
 class GrTestTarget {
 public:
-    GrTestTarget() : fGLContext(NULL) {};
+    GrTestTarget() {};
 
-    void init(GrContext*, GrDrawTarget*, const GrGLContext*);
+    void init(GrContext*, GrDrawTarget*);
 
     GrDrawTarget* target() { return fDrawTarget.get(); }
-
-    /** Returns a GrGLContext if the GrContext is backed by OpenGL. */
-    const GrGLContext* glContext() { return fGLContext; }
 
 private:
     SkAutoTUnref<GrDrawTarget>              fDrawTarget;
     SkAutoTUnref<GrContext>                 fContext;
-    SkAutoTUnref<const GrGLContext>         fGLContext;
 };
 
 #endif

@@ -12,7 +12,6 @@
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
-#include "gl/GrGLInterface.h"
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
@@ -25,8 +24,6 @@
 #include "SkMessageBus.h"
 #include "SkSurface.h"
 #include "Test.h"
-#include "../src/gpu/gl/GrGLDefines.h"
-#include "../src/gpu/gl/GrGLUtil.h"
 
 static const int gWidth = 640;
 static const int gHeight = 480;
@@ -178,26 +175,18 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
 }
 
 static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* context) {
-    GrTestTarget tt;
-    context->getTestTarget(&tt);
-
-    const GrGLInterface* gl = tt.glContext()->interface();
-    if (!gl) {
+    const GrGpu* gpu = context->getGpu();
+    if (!gpu) {
         return;
     }
 
-    GrGLuint texIDs[2];
+    GrBackendObject texIDs[2];
     static const int kW = 100;
     static const int kH = 100;
-    GR_GL_CALL(gl, GenTextures(2, texIDs));
-    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0));
-    GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texIDs[0]));
-    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, kW, kH, 0, GR_GL_RGBA,
-                              GR_GL_UNSIGNED_BYTE, NULL));
-    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texIDs[1]));
-    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, kW, kH, 0, GR_GL_RGBA,
-                              GR_GL_UNSIGNED_BYTE, NULL));
+
+    texIDs[0] = gpu->createBackendTexture(NULL, kW, kH, kRGBA_8888_GrPixelConfig);
+    texIDs[1] = gpu->createBackendTexture(NULL, kW, kH, kRGBA_8888_GrPixelConfig);
+
     context->resetContext();
 
     GrBackendTextureDesc desc;
@@ -223,15 +212,13 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
 
     context->flush();
 
-    GrGLboolean borrowedIsAlive;
-    GrGLboolean adoptedIsAlive;
-    GR_GL_CALL_RET(gl, borrowedIsAlive, IsTexture(texIDs[0]));
-    GR_GL_CALL_RET(gl, adoptedIsAlive, IsTexture(texIDs[1]));
+    bool borrowedIsAlive = gpu->isBackendTexture(texIDs[0]);
+    bool adoptedIsAlive = gpu->isBackendTexture(texIDs[1]);
 
     REPORTER_ASSERT(reporter, borrowedIsAlive);
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
-    GR_GL_CALL(gl, GenTextures(1, &texIDs[0]));
+    gpu->deleteBackendTexture(texIDs[0]);
 
     context->resetContext();
 }

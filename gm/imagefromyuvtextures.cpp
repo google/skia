@@ -13,8 +13,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLUtil.h"
 #include "GrTest.h"
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
@@ -96,54 +94,32 @@ protected:
         fRGBImage.reset(SkImage::NewRasterCopy(rgbBmp.info(), rgbColors, rgbBmp.rowBytes()));
     }
 
-    void createYUVTextures(GrContext* context, GrGLuint yuvIDs[3]) {
-        GrTestTarget tt;
-        context->getTestTarget(&tt);
-        if (!tt.target()) {
-            SkDEBUGFAIL("Couldn't get Gr test target.");
+    void createYUVTextures(GrContext* context, GrBackendObject yuvIDs[3]) {
+        const GrGpu* gpu = context->getGpu();
+        if (!gpu) {
             return;
         }
 
-        // We currently hav only implemented the texture uploads for GL.
-        const GrGLInterface* gl = tt.glContext()->interface();
-        if (!gl) {
-            return;
-        }
-
-        GR_GL_CALL(gl, GenTextures(3, yuvIDs));
-        GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0));
-        GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
         for (int i = 0; i < 3; ++i) {
-            GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, yuvIDs[i]));
-            GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER,
-                                         GR_GL_NEAREST));
-            GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER,
-                                         GR_GL_NEAREST));
-            GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_S,
-                                         GR_GL_CLAMP_TO_EDGE));
-            GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T,
-                                         GR_GL_CLAMP_TO_EDGE));
             SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
-            GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RED, fYUVBmps[i].width(),
-                                      fYUVBmps[i].height(), 0, GR_GL_RED, GR_GL_UNSIGNED_BYTE,
-                                      fYUVBmps[i].getPixels()));
+            yuvIDs[i] = gpu->createBackendTexture(fYUVBmps[i].getPixels(),
+                                                  fYUVBmps[i].width(), fYUVBmps[i].height(),
+                                                  kAlpha_8_GrPixelConfig);
         }
         context->resetContext();
     }
 
-    void deleteYUVTextures(GrContext* context, const GrGLuint yuvIDs[3]) {
-        GrTestTarget tt;
-        context->getTestTarget(&tt);
-        if (!tt.target()) {
-            SkDEBUGFAIL("Couldn't get Gr test target.");
+    void deleteYUVTextures(GrContext* context, const GrBackendObject yuvIDs[3]) {
+
+        const GrGpu* gpu = context->getGpu();
+        if (!gpu) {
             return;
         }
 
-        const GrGLInterface* gl = tt.glContext()->interface();
-        if (!gl) {
-            return;
+        for (int i = 0; i < 3; ++i) {
+            gpu->deleteBackendTexture(yuvIDs[i]);
         }
-        GR_GL_CALL(gl, DeleteTextures(3, yuvIDs));
+
         context->resetContext();
     }
 
@@ -155,16 +131,11 @@ protected:
             return;
         }
 
-        GrGLuint yuvIDs[3];
+        GrBackendObject yuvIDs[3];
         this->createYUVTextures(context, yuvIDs);
 
         static const SkScalar kPad = 10.f;
 
-        GrBackendObject backendTextureObjects[] = {
-            static_cast<GrBackendObject>(yuvIDs[0]),
-            static_cast<GrBackendObject>(yuvIDs[1]),
-            static_cast<GrBackendObject>(yuvIDs[2])
-        };
         SkISize sizes[] = {
             { fYUVBmps[0].width(), fYUVBmps[0].height()},
             { fYUVBmps[1].width(), fYUVBmps[1].height()},
@@ -175,7 +146,7 @@ protected:
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             images.push_back(SkImage::NewFromYUVTexturesCopy(context,
                                                              static_cast<SkYUVColorSpace>(space),
-                                                             backendTextureObjects, sizes,
+                                                             yuvIDs, sizes,
                                                              kTopLeft_GrSurfaceOrigin));
         }
         this->deleteYUVTextures(context, yuvIDs);

@@ -362,10 +362,16 @@ public:
     void saveActiveTraceMarkers();
     void restoreActiveTraceMarkers();
 
+    // creation and deletion of raw texture for testing
+    virtual GrBackendObject createBackendTexture(void* pixels, int w, int h,
+                                                 GrPixelConfig config) const = 0;
+    virtual bool isBackendTexture(GrBackendObject id) const = 0;
+    virtual void deleteBackendTexture(GrBackendObject id) const = 0;
+
     // Given a rt, find or create a stencil buffer and attach it
     bool attachStencilAttachmentToRenderTarget(GrRenderTarget* target);
 
-    // This is only to be used in tests.
+    // This is only to be used in GL-specific tests.
     virtual const GrGLContext* glContextForTesting() const { return NULL; }
 
 protected:

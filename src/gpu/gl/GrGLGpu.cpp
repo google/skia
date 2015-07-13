@@ -2379,7 +2379,7 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
                                 bool getSizedInternalFormat,
                                 GrGLenum* internalFormat,
                                 GrGLenum* externalFormat,
-                                GrGLenum* externalType) {
+                                GrGLenum* externalType) const {
     GrGLenum dontCare;
     if (NULL == internalFormat) {
         internalFormat = &dontCare;
@@ -3065,6 +3065,44 @@ void GrGLGpu::didRemoveGpuTraceMarker() {
         GL_CALL(PopGroupMarker());
 #endif
     }
+}
+
+GrBackendObject GrGLGpu::createBackendTexture(void* pixels, int w, int h,
+                                              GrPixelConfig config) const {
+    GrGLuint texID;
+    GL_CALL(GenTextures(1, &texID));
+    GL_CALL(ActiveTexture(GR_GL_TEXTURE0));
+    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
+    GL_CALL(BindTexture(GR_GL_TEXTURE_2D, texID));
+    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
+    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
+    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
+    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
+
+    GrGLenum internalFormat = 0x0; // suppress warning
+    GrGLenum externalFormat = 0x0; // suppress warning
+    GrGLenum externalType = 0x0;   // suppress warning
+
+    this->configToGLFormats(config, false, &internalFormat, &externalFormat, &externalType);
+
+    GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat, w, h, 0, externalFormat,
+                       externalType, pixels));
+
+    return texID;
+}
+
+bool GrGLGpu::isBackendTexture(GrBackendObject id) const {
+    GrGLuint texID = (GrGLuint)id;
+
+    GrGLboolean result;
+    GL_CALL_RET(result, IsTexture(texID));
+
+    return (GR_GL_TRUE == result);
+}
+
+void GrGLGpu::deleteBackendTexture(GrBackendObject id) const {
+    GrGLuint texID = (GrGLuint)id;
+    GL_CALL(DeleteTextures(1, &texID));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

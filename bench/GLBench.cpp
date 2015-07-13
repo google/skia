@@ -17,15 +17,13 @@ const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {
         return NULL;
     }
     GrContext* context = canvas->getGrContext();
-
-    GrTestTarget tt;
-    context->getTestTarget(&tt);
-    if (!tt.target()) {
-        SkDebugf("Couldn't get Gr test target.");
+    GrGpu* gpu = context->getGpu();
+    if (!gpu) {
+        SkDebugf("Couldn't get Gr gpu.");
         return NULL;
     }
 
-    const GrGLContext* ctx = tt.glContext();
+    const GrGLContext* ctx = gpu->glContextForTesting();
     if (!ctx) {
         SkDebugf("Couldn't get an interface\n");
         return NULL;

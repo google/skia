@@ -112,6 +112,11 @@ public:
         return &this->glContext();
     }
 
+    GrBackendObject createBackendTexture(void* pixels, int w, int h,
+                                         GrPixelConfig config) const override;
+    bool isBackendTexture(GrBackendObject id) const override;
+    void deleteBackendTexture(GrBackendObject id) const override;
+
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 
@@ -265,7 +270,7 @@ private:
                            bool getSizedInternal,
                            GrGLenum* internalFormat,
                            GrGLenum* externalFormat,
-                           GrGLenum* externalType);
+                           GrGLenum* externalType) const;
     // helper for onCreateTexture and writeTexturePixels
     bool uploadTexData(const GrSurfaceDesc& desc,
                        bool isNewTexture,

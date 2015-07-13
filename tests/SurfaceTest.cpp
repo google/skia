@@ -18,8 +18,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
 #include "GrTest.h"
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLUtil.h"
 #else
 class GrContextFactory;
 class GrContext;
@@ -107,42 +105,20 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
         return;
     }
 
-    GrTestTarget tt;
-    ctx->getTestTarget(&tt);
-    if (!tt.target()) {
-        SkDEBUGFAIL("Couldn't get Gr test target.");
+    const GrGpu* gpu = ctx->getGpu();
+    if (!gpu) {
         return;
     }
 
-    // We currently have only implemented the texture uploads for GL.
-    const GrGLInterface* gl = tt.glContext()->interface();
-    if (!gl) {
-        return;
-    }
-
-    // Test the wrapped factory for SkSurface by creating a texture using GL and then wrap it in
+    // Test the wrapped factory for SkSurface by creating a backend texture and then wrap it in
     // a SkSurface.
-    GrGLuint texID;
     static const int kW = 100;
     static const int kH = 100;
     static const uint32_t kOrigColor = 0xFFAABBCC;
     SkAutoTArray<uint32_t> pixels(kW * kH);
     sk_memset32(pixels.get(), kOrigColor, kW * kH);
-    GR_GL_CALL(gl, GenTextures(1, &texID));
-    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0));
-    GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-    GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texID));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER,
-                                 GR_GL_NEAREST));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER,
-                                 GR_GL_NEAREST));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_S,
-                                 GR_GL_CLAMP_TO_EDGE));
-    GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T,
-                                 GR_GL_CLAMP_TO_EDGE));
-    GR_GL_CALL(gl, TexImage2D(GR_GL_TEXTURE_2D, 0, GR_GL_RGBA, kW, kH, 0, GR_GL_RGBA,
-                              GR_GL_UNSIGNED_BYTE,
-                              pixels.get()));
+    GrBackendObject texID = gpu->createBackendTexture(pixels.get(), kW, kH,
+                                                      kRGBA_8888_GrPixelConfig);
 
     GrBackendTextureDesc wrappedDesc;
     wrappedDesc.fConfig = kRGBA_8888_GrPixelConfig;
