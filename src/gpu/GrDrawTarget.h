@@ -290,6 +290,7 @@ private:
     virtual bool setupClip(GrPipelineBuilder*,
                            GrPipelineBuilder::AutoRestoreFragmentProcessors*,
                            GrPipelineBuilder::AutoRestoreStencil*,
+                           GrPipelineBuilder::AutoRestoreProcessorDataManager*,
                            GrScissorState*,
                            const SkRect* devBounds) = 0;
 
@@ -339,11 +340,12 @@ protected:
 private:
     GrClipMaskManager* clipMaskManager() override { return fClipMaskManager; }
 
-    virtual bool setupClip(GrPipelineBuilder*,
-                           GrPipelineBuilder::AutoRestoreFragmentProcessors*,
-                           GrPipelineBuilder::AutoRestoreStencil*,
-                           GrScissorState* scissorState,
-                           const SkRect* devBounds) override;
+    bool setupClip(GrPipelineBuilder*,
+                   GrPipelineBuilder::AutoRestoreFragmentProcessors*,
+                   GrPipelineBuilder::AutoRestoreStencil*,
+                   GrPipelineBuilder::AutoRestoreProcessorDataManager*,
+                   GrScissorState* scissorState,
+                   const SkRect* devBounds) override;
 
     typedef GrDrawTarget INHERITED;
 };

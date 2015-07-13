@@ -99,7 +99,8 @@ bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
                                                     this->hasMixedSamples());
 }
 
-void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(GrPipelineBuilder* pipelineBuilder) {
+void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(
+                                                         const GrPipelineBuilder* pipelineBuilder) {
     if (fPipelineBuilder) {
         int m = fPipelineBuilder->numColorFragmentStages() - fColorEffectCnt;
         SkASSERT(m >= 0);
@@ -114,7 +115,7 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(GrPipelineBuilder* pi
         }
         SkDEBUGCODE(--fPipelineBuilder->fBlockEffectRemovalCnt;)
     }
-    fPipelineBuilder = pipelineBuilder;
+    fPipelineBuilder = const_cast<GrPipelineBuilder*>(pipelineBuilder);
     if (NULL != pipelineBuilder) {
         fColorEffectCnt = pipelineBuilder->numColorFragmentStages();
         fCoverageEffectCnt = pipelineBuilder->numCoverageFragmentStages();

@@ -43,9 +43,10 @@ public:
      * the manager when it must install additional effects to implement the
      * clip. devBounds is optional but can help optimize clipping.
      */
-    bool setupClipping(GrPipelineBuilder*,
+    bool setupClipping(const GrPipelineBuilder&,
                        GrPipelineBuilder::AutoRestoreFragmentProcessors*,
                        GrPipelineBuilder::AutoRestoreStencil*,
+                       GrPipelineBuilder::AutoRestoreProcessorDataManager*,
                        GrScissorState*,
                        const SkRect* devBounds);
 
@@ -86,7 +87,7 @@ private:
 
     // Attempts to install a series of coverage effects to implement the clip. Return indicates
     // whether the element list was successfully converted to effects.
-    bool installClipEffects(GrPipelineBuilder*,
+    bool installClipEffects(const GrPipelineBuilder&,
                             GrPipelineBuilder::AutoRestoreFragmentProcessors*,
                             const GrReducedClip::ElementList&,
                             const SkVector& clipOffset,
@@ -125,7 +126,7 @@ private:
                                 const SkIRect& clipSpaceIBounds,
                                 bool willUpload);
 
-    bool useSWOnlyPath(const GrPipelineBuilder*,
+    bool useSWOnlyPath(const GrPipelineBuilder&,
                        const SkVector& clipToMaskOffset,
                        const GrReducedClip::ElementList& elements);
 
@@ -161,7 +162,8 @@ private:
      * Called prior to return control back the GrGpu in setupClipping. It updates the
      * GrPipelineBuilder with stencil settings that account for stencil-based clipping.
      */
-    void setPipelineBuilderStencil(GrPipelineBuilder*, GrPipelineBuilder::AutoRestoreStencil*);
+    void setPipelineBuilderStencil(const GrPipelineBuilder&,
+                                   GrPipelineBuilder::AutoRestoreStencil*);
 
     /**
      * Adjusts the stencil settings to account for interaction with stencil

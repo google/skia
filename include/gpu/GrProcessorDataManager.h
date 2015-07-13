@@ -30,6 +30,11 @@ public:
     }
 
 private:
+    uint32_t currentSaveMarker() const { return 0; }
+    void restoreToSaveMarker(/*uint32_t marker*/) {}
+
+    // For GrPipelineBuilder::AutoRestoreProcessorDataManager
+    friend class GrPipelineBuilder;
     static const uint32_t kNumProcessor = 1;
     static const uint32_t kDataIndicesPerProcessor = 1;
     static const uint32_t kPreAllocDataPerProcessor = 1;
