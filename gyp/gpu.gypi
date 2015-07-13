@@ -134,7 +134,6 @@
       '<(skia_src_path)/gpu/GrLayerHoister.h',
       '<(skia_src_path)/gpu/GrMemoryPool.cpp',
       '<(skia_src_path)/gpu/GrMemoryPool.h',
-      '<(skia_src_path)/gpu/GrMurmur3HashKey.h',
       '<(skia_src_path)/gpu/GrNonAtomicRef.h',
       '<(skia_src_path)/gpu/GrOrderedSet.h',
       '<(skia_src_path)/gpu/GrOvalRenderer.cpp',

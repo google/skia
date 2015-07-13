@@ -18,7 +18,7 @@
 #endif
 
 class GrTextureStripAtlas::Hash : public SkTDynamicHash<GrTextureStripAtlas::AtlasEntry, 
-                                                        GrTextureStripAtlas::AtlasEntry::Key> {};
+                                                        GrTextureStripAtlas::Desc> {};
 
 int32_t GrTextureStripAtlas::gCacheCount = 0;
 
@@ -40,7 +40,7 @@ void GrTextureStripAtlas::CleanUp(const GrContext*, void* info) {
     AtlasEntry* entry = static_cast<AtlasEntry*>(info);
 
     // remove the cache entry
-    GetCache()->remove(entry->fKey);
+    GetCache()->remove(entry->fDesc);
 
     // remove the actual entry
     SkDELETE(entry);
@@ -52,14 +52,12 @@ void GrTextureStripAtlas::CleanUp(const GrContext*, void* info) {
 }
 
 GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::Desc& desc) {
-    AtlasEntry::Key key;
-    key.setKeyData(desc.asKey());
-    AtlasEntry* entry = GetCache()->find(key);
+    AtlasEntry* entry = GetCache()->find(desc);
     if (NULL == entry) {
         entry = SkNEW(AtlasEntry);
 
         entry->fAtlas = SkNEW_ARGS(GrTextureStripAtlas, (desc));
-        entry->fKey = key;
+        entry->fDesc = desc;
 
         desc.fContext->addCleanUp(CleanUp, entry);
 
