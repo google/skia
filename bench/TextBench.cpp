@@ -90,7 +90,7 @@ protected:
     }
 
 
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         fName.printf("text_%g", SkScalarToFloat(fPaint.getTextSize()));
         if (fDoPos) {
             fName.append("_pos");
@@ -109,7 +109,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         const SkIPoint dim = this->getSize();
         SkRandom rand;
 

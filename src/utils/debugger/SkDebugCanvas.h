@@ -183,7 +183,7 @@ protected:
                         const SkPaint& paint) override;
 
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                     const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
+                     const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) override;
     void onDrawPaint(const SkPaint&) override;
 
     void onDrawRect(const SkRect&, const SkPaint&) override;

@@ -37,7 +37,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "PathClip");
             return true;
@@ -45,7 +45,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkRect oval = fOval;
         oval.offset(fCenter.fX - oval.centerX(), fCenter.fY - oval.centerY());
 
@@ -74,7 +74,7 @@ protected:
         return new Click(this);
     }
 
-    virtual bool onClick(Click* click) {
+    bool onClick(Click* click) override {
         fCenter.set(click->fCurr.fX, click->fCurr.fY);
         this->inval(NULL);
         return false;

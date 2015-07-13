@@ -70,7 +70,7 @@ public:
                             const char* outputColor,
                             const char* inputColor,
                             const TransformedCoordsArray& coords,
-                            const TextureSamplerArray& samplers) {
+                            const TextureSamplerArray& samplers) override {
                 GrGLFragmentBuilder* fpb = builder->getFragmentShaderBuilder();
                 fpb->codeAppendf("vec2 c = %s;", fpb->ensureFSCoords2D(coords, 0).c_str());
                 fpb->codeAppend("vec2 r = mod(c, vec2(20.0));");

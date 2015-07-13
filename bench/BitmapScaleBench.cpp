@@ -32,7 +32,7 @@ protected:
     SkBitmap fInputBitmap, fOutputBitmap;
     SkMatrix fMatrix;
 
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
@@ -56,7 +56,7 @@ protected:
         fName.printf( "bitmap_scale_%s_%d_%d", name, fInputSize, fOutputSize );
     }
 
-    virtual void onPreDraw() {
+    void onPreDraw() override {
         fInputBitmap.allocN32Pixels(fInputSize, fInputSize, true);
         fInputBitmap.eraseColor(SK_ColorWHITE);
 
@@ -65,7 +65,7 @@ protected:
         fMatrix.setScale( scale(), scale() );
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         SkPaint paint;
         this->setupPaint(&paint);
 

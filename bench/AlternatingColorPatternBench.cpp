@@ -112,7 +112,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onPreDraw() {
+    void onPreDraw() override {
         int w = 40;
         int h = 40;
         makebm(&fBmp, w, h);

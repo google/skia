@@ -23,11 +23,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "atomic_inc_32";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             sk_atomic_inc(&fX);
         }
@@ -47,11 +47,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "atomic_inc_64";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             sk_atomic_inc(&fX);
         }
@@ -69,11 +69,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "ref_cnt_stack";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             SkRefCnt ref;
             for (int j = 0; j < M; ++j) {
@@ -103,11 +103,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "ref_cnt_heap";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         char memory[sizeof(PlacedRefCnt)];
         for (int i = 0; i < loops; ++i) {
             PlacedRefCnt* ref = new (memory) PlacedRefCnt();
@@ -130,11 +130,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "ref_cnt_new";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             SkRefCnt* ref = new SkRefCnt();
             for (int j = 0; j < M; ++j) {
@@ -158,11 +158,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "ref_cnt_stack_weak";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
             SkWeakRefCnt ref;
             for (int j = 0; j < M; ++j) {

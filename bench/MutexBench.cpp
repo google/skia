@@ -14,11 +14,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "mutex";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         SkMutex mu;
         for (int i = 0; i < loops; i++) {
             mu.acquire();

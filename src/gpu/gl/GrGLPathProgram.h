@@ -37,7 +37,7 @@ private:
                                   const GrPendingFragmentStage&,
                                   int index,
                                   GrGLInstalledFragProc*) override;
-    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
+    void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&) override;
 
     friend class GrGLPathProgramBuilder;
 

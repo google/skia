@@ -93,7 +93,7 @@ public:
     {}
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         fName.set("bitmap");
         fName.appendf("_%s%s", sk_tool_utils::colortype_name(fColorType),
                       kOpaque_SkAlphaType == fAlphaType ? "" : "_A");
@@ -110,7 +110,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onPreDraw() {
+    void onPreDraw() override {
         SkBitmap bm;
 
         if (kIndex_8_SkColorType == fColorType) {
@@ -120,7 +120,7 @@ protected:
         }
         bm.eraseColor(kOpaque_SkAlphaType == fAlphaType ? SK_ColorBLACK : 0);
 
-        onDrawIntoBitmap(bm);
+        this->onDrawIntoBitmap(bm);
 
         if (kIndex_8_SkColorType == fColorType) {
             convertToIndex666(bm, &fBitmap, fAlphaType);
@@ -131,7 +131,7 @@ protected:
         fBitmap.setIsVolatile(fIsVolatile);
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         if (fDoScale) {
             canvas->scale(.99f, .99f);
         }
@@ -156,7 +156,7 @@ protected:
         }
     }
 
-    virtual void onDrawIntoBitmap(const SkBitmap& bm) {
+     virtual void onDrawIntoBitmap(const SkBitmap& bm) {
         const int w = bm.width();
         const int h = bm.height();
 
@@ -208,7 +208,7 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         fFullName.set(INHERITED::onGetName());
         if (fFlags & kScale_Flag) {
             fFullName.append("_scale");
@@ -225,7 +225,7 @@ protected:
         return fFullName.c_str();
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkISize dim = canvas->getDeviceSize();
         if (fFlags & kScale_Flag) {
             const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
@@ -287,7 +287,7 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         fFullName.set(INHERITED::onGetName());
 
         if (fSourceAlpha == kOpaque_SourceAlpha) {

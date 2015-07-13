@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
 // This tests a Gr class
 #if SK_SUPPORT_GPU
 
@@ -37,11 +39,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "grmemorypool_stack";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
@@ -99,11 +101,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "grmemorypool_random";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
@@ -147,11 +149,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return "grmemorypool_queue";
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         SkRandom r;
         C* objects[M];
         for (int i = 0; i < loops; i++) {

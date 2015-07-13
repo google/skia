@@ -142,7 +142,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Paths");
             return true;
@@ -173,7 +173,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         this->init();
         canvas->translate(50, 50);
 
@@ -194,7 +194,7 @@ protected:
             canvas->translate(0, 200);
         }
     }
-    
+
     bool onAnimate(const SkAnimTimer& timer) override {
         SkScalar currSecs = timer.scaled(100);
         SkScalar delta = currSecs - fPrevSecs;
@@ -241,7 +241,7 @@ public:
             fPts[i].fX = 20 + rand.nextUScalar1() * 640;
             fPts[i].fY = 20 + rand.nextUScalar1() * 480;
         }
-        
+
         const SkScalar rad = 50;
 
         fPtsPaint.setAntiAlias(true);
@@ -289,7 +289,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void makePath(SkPath* path) {
         path->moveTo(fPts[0]);
         for (int i = 1; i < N; ++i) {

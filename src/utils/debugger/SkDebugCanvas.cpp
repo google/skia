@@ -78,7 +78,9 @@ protected:
         }
     }
 
-    void onDrawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
+    void onDrawPicture(const SkPicture* picture,
+                       const SkMatrix* matrix,
+                       const SkPaint* paint) override {
         // We need to replay the picture onto this canvas in order to filter its internal paints.
         this->SkCanvas::onDrawPicture(picture, matrix, paint);
     }

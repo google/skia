@@ -21,7 +21,7 @@ public:
     }
 
 protected:
-    virtual bool isSuitableFor(Backend backend) {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 

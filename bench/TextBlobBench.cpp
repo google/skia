@@ -50,11 +50,11 @@ protected:
         fBlob.reset(builder.build());
     }
 
-    const char* onGetName() {
+    const char* onGetName() override {
         return "TextBlobBench";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint;
 
         // To ensure maximum caching, we just redraw the blob at the same place everytime

@@ -34,7 +34,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkISize dsize = canvas->getDeviceSize();
         canvas->clear(0xFFF0E0F0);
 

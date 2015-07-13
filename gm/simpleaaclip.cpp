@@ -126,7 +126,7 @@ protected:
         canvas->restore();
     }
 
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         SkString str;
         str.printf("simpleaaclip_%s",
                     kRect_GeomType == fGeomType ? "rect" :
@@ -135,11 +135,11 @@ protected:
         return str;
     }
 
-    virtual SkISize onISize() {
+    SkISize onISize() override {
         return SkISize::Make(640, 480);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
 
         static const struct {
             SkColor         fColor;

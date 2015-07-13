@@ -54,7 +54,7 @@ private:
         LambdaImpl(const Fn& fn) : fFn(fn) {}
 
         R call(Args... args) const override { return fFn(Forward(args)...); }
-        Interface* clone() const { return SkNEW_ARGS(LambdaImpl<Fn>, (fFn)); }
+        Interface* clone() const override { return SkNEW_ARGS(LambdaImpl<Fn>, (fFn)); }
     private:
         Fn fFn;
     };
@@ -64,7 +64,7 @@ private:
         FnPtrImpl(R (*fn)(Args...)) : fFn(fn) {}
 
         R call(Args... args) const override { return fFn(Forward(args)...); }
-        Interface* clone() const { return SkNEW_ARGS(FnPtrImpl, (fFn)); }
+        Interface* clone() const override { return SkNEW_ARGS(FnPtrImpl, (fFn)); }
     private:
         R (*fFn)(Args...);
     };

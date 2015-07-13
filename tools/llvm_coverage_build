@@ -23,6 +23,6 @@ echo "CC=$CC"
 echo "CXX=$CXX"
 $CC --version
 
-export GYP_DEFINES="skia_warnings_as_errors=0 skia_clang_build=1"
+export GYP_DEFINES="skia_clang_build=1"
 export BUILDTYPE=Coverage
 make $@

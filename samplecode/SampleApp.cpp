@@ -176,7 +176,7 @@ public:
 #endif
     }
 
-    virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) {
+    void setUpBackend(SampleWindow* win, int msaaSampleCount) override {
         SkASSERT(kNone_BackEndType == fBackend);
 
         fBackend = kNone_BackEndType;
@@ -250,7 +250,7 @@ public:
         this->windowSizeChanged(win);
     }
 
-    virtual void tearDownBackend(SampleWindow *win) {
+    void tearDownBackend(SampleWindow *win) override {
 #if SK_SUPPORT_GPU
         if (fCurContext) {
             // in case we have outstanding refs to this guy (lua?)
@@ -269,8 +269,7 @@ public:
         fBackend = kNone_BackEndType;
     }
 
-    virtual SkSurface* createSurface(SampleWindow::DeviceType dType,
-                                     SampleWindow* win) override {
+    SkSurface* createSurface(SampleWindow::DeviceType dType, SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (IsGpuDeviceType(dType) && fCurContext) {
             SkSurfaceProps props(win->getSurfaceProps());
@@ -280,9 +279,8 @@ public:
         return NULL;
     }
 
-    virtual void publishCanvas(SampleWindow::DeviceType dType,
-                               SkCanvas* canvas,
-                               SampleWindow* win) {
+    void publishCanvas(SampleWindow::DeviceType dType,
+                       SkCanvas* canvas, SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (fCurContext) {
             // in case we have queued drawing calls
@@ -305,7 +303,7 @@ public:
         win->present();
     }
 
-    virtual void windowSizeChanged(SampleWindow* win) {
+    void windowSizeChanged(SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (fCurContext) {
             AttachmentInfo attachmentInfo;
@@ -316,7 +314,7 @@ public:
 #endif
     }
 
-    virtual GrContext* getGrContext() {
+    GrContext* getGrContext() override {
 #if SK_SUPPORT_GPU
         return fCurContext;
 #else

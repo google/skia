@@ -113,11 +113,11 @@ public:
     }
 
 protected:
-    virtual bool isSuitableFor(Backend backend) {
+    bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         SkIPoint canvasSize = onGetSize();
         SkPictureRecorder recorder;
 
@@ -151,7 +151,7 @@ protected:
         fPicture.reset(recorder.endRecording());
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
             canvas->drawPicture(fPicture);
         }

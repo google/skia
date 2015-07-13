@@ -141,7 +141,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Layers");
             return true;
@@ -153,7 +153,7 @@ protected:
         canvas->drawColor(SK_ColorGRAY);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         this->drawBG(canvas);
 
         if (true) {
@@ -214,14 +214,13 @@ protected:
         test_fade(canvas);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) override {
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         this->inval(NULL);
 
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    virtual bool onClick(Click* click) {
+    bool onClick(Click* click) override {
         return this->INHERITED::onClick(click);
     }
 

@@ -15,12 +15,12 @@ struct SkBufferBlock {
     SkBufferBlock*  fNext;
     size_t          fUsed;
     size_t          fCapacity;
-    
+
     const void* startData() const { return this + 1; };
-    
+
     size_t avail() const { return fCapacity - fUsed; }
     void* availData() { return (char*)this->startData() + fUsed; }
-    
+
     static SkBufferBlock* Alloc(size_t length) {
         size_t capacity = LengthToCapacity(length);
         SkBufferBlock* block = (SkBufferBlock*)sk_malloc_throw(sizeof(SkBufferBlock) + capacity);
@@ -73,12 +73,12 @@ struct SkBufferHead {
         head->fBlock.fCapacity = capacity;
         return head;
     }
-    
+
     void ref() const {
         SkASSERT(fRefCnt > 0);
         sk_atomic_inc(&fRefCnt);
     }
-    
+
     void unref() const {
         SkASSERT(fRefCnt > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
@@ -93,7 +93,7 @@ struct SkBufferHead {
             }
         }
     }
-    
+
     void validate(size_t minUsed, SkBufferBlock* tail = NULL) const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt > 0);
@@ -203,7 +203,7 @@ void* SkRWBuffer::append(size_t length) {
     }
 
     fTotalUsed += length;
-    
+
     if (NULL == fHead) {
         fHead = SkBufferHead::Alloc(length);
         fTail = &fHead->fBlock;
@@ -304,16 +304,16 @@ public:
     bool isAtEnd() const override {
         return fBuffer->size() == fGlobalOffset;
     }
-    
+
     SkStreamAsset* duplicate() const override {
         return SkNEW_ARGS(SkROBufferStreamAsset, (fBuffer));
     }
-    
-    size_t getPosition() const {
+
+    size_t getPosition() const override {
         return fGlobalOffset;
     }
-    
-    bool seek(size_t position) {
+
+    bool seek(size_t position) override {
         AUTO_VALIDATE
         if (position < fGlobalOffset) {
             this->rewind();
@@ -321,8 +321,8 @@ public:
         (void)this->skip(position - fGlobalOffset);
         return true;
     }
-    
-    bool move(long offset) {
+
+    bool move(long offset)  override{
         AUTO_VALIDATE
         offset += fGlobalOffset;
         if (offset <= 0) {
@@ -332,13 +332,13 @@ public:
         }
         return true;
     }
-    
+
     SkStreamAsset* fork() const override {
         SkStreamAsset* clone = this->duplicate();
         clone->seek(this->getPosition());
         return clone;
     }
-    
+
 
 private:
     const SkROBuffer*   fBuffer;

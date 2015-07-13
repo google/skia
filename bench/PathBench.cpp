@@ -148,7 +148,7 @@ public:
     void appendName(SkString* name) override {
         name->append("sawtooth");
     }
-    virtual void makePath(SkPath* path) {
+    void makePath(SkPath* path) override {
         SkScalar x = SkIntToScalar(20);
         SkScalar y = SkIntToScalar(20);
         const SkScalar x0 = x;

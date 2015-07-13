@@ -19,7 +19,7 @@ class SkXMLAnimatorWriter : public SkXMLWriter {
 public:
     SkXMLAnimatorWriter(SkAnimator*);
     virtual ~SkXMLAnimatorWriter();
-    virtual void    writeHeader();
+    void writeHeader() override;
     SkDEBUGCODE(static void UnitTest(class SkCanvas* canvas);)
 
 protected:

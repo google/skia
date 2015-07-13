@@ -26,11 +26,11 @@ public:
 protected:
     virtual int mulLoopCount() const { return 1; }
 
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             this->performTest();
         }
@@ -52,7 +52,7 @@ public:
         fM2.set(3, 3, 0);
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         for (int i = 0; i < 10; ++i) {
             (void) (fM0 == fM1);
             (void) (fM1 == fM2);
@@ -78,7 +78,7 @@ public:
         mat.setRowMajord(rowMajor);
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         for (int i = 0; i < 10; ++i) {
             mat.setIdentity();
         }
@@ -97,7 +97,7 @@ public:
         fX = fY = fZ = SkDoubleToMScalar(1.5);
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         fM0.reset();
         for (int i = 0; i < 10; ++i) {
             fM0.preScale(fX, fY, fZ);
@@ -134,7 +134,7 @@ public:
         fM0.setDouble(3, 3, 16.1);
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         for (int i = 0; i < 10; ++i) {
             fM0.invert(&fM1);
         }
@@ -166,7 +166,7 @@ public:
         // bottom row (perspective component) remains (0, 0, 0, 1).
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         for (int i = 0; i < 10; ++i) {
             fM0.invert(&fM1);
         }
@@ -193,7 +193,7 @@ public:
         fM0.setDouble(2, 3, -12.1);
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         for (int i = 0; i < 10; ++i) {
             fM0.invert(&fM1);
         }
@@ -215,7 +215,7 @@ public:
         fM0.setDouble(2, 3, -12.1);
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         for (int i = 0; i < 10; ++i) {
             fM0.invert(&fM1);
         }
@@ -234,7 +234,7 @@ public:
         fX = fY = fZ = SkDoubleToMScalar(1.5);
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         fM0.reset();
         for (int i = 0; i < 10; ++i) {
             fM0.postScale(fX, fY, fZ);
@@ -269,7 +269,7 @@ public:
         }
     }
 protected:
-    virtual void performTest() {
+    void performTest() override {
         fM0.reset();    // just to normalize this test with prescale/postscale
         for (int i = 0; i < 10000; ++i) {
             fM0.setConcat(fM1, fM2);
@@ -290,7 +290,7 @@ protected:
     // Putting random generation of the matrix inside performTest()
     // would help us avoid anomalous runs, but takes up 25% or
     // more of the function time.
-    virtual void performTest() {
+    void performTest() override {
         for (int i = 0; i < 20; ++i) {
             fMatrix.set(1, 2, 1);   // to invalidate the type-cache
             fMatrix.getType();

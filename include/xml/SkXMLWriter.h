@@ -65,7 +65,7 @@ class SkXMLStreamWriter : public SkXMLWriter {
 public:
     SkXMLStreamWriter(SkWStream*);
     virtual ~SkXMLStreamWriter();
-    virtual void    writeHeader();
+    void writeHeader() override;
     SkDEBUGCODE(static void UnitTest();)
 
 protected:
@@ -83,10 +83,10 @@ public:
     SkXMLParserWriter(SkXMLParser*);
     virtual ~SkXMLParserWriter();
 protected:
-    virtual void onStartElementLen(const char elem[], size_t length);
-    virtual void onEndElement();
-    virtual void onAddAttributeLen(const char name[], const char value[], size_t length);
-    virtual void onAddText(const char text[], size_t length) override;
+    void onStartElementLen(const char elem[], size_t length) override;
+    void onEndElement() override;
+    void onAddAttributeLen(const char name[], const char value[], size_t length) override;
+    void onAddText(const char text[], size_t length) override;
 private:
     SkXMLParser&        fParser;
 };
