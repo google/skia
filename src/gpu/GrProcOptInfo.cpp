@@ -8,6 +8,8 @@
 #include "GrProcOptInfo.h"
 
 #include "GrBatch.h"
+#include "GrFragmentProcessor.h"
+#include "GrFragmentStage.h"
 #include "GrGeometryProcessor.h"
 
 void GrProcOptInfo::calcColorWithBatch(const GrBatch* batch,

@@ -10,8 +10,7 @@
 
 #include "GrColor.h"
 #include "GrGpu.h"
-#include "GrStagedProcessor.h"
-#include "GrPendingProgramElement.h"
+#include "GrPendingFragmentStage.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProgramDesc.h"
 #include "GrStencil.h"
@@ -22,8 +21,6 @@
 class GrBatch;
 class GrDeviceCoordTexture;
 class GrPipelineBuilder;
-
-typedef GrStagedProcessor<GrPendingProgramElement> GrPendingFragmentStage;
 
 /**
  * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable

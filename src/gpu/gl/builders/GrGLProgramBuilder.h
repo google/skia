@@ -16,6 +16,7 @@
 #include "../GrGLUniformHandle.h"
 #include "../GrGLPrimitiveProcessor.h"
 #include "../GrGLXferProcessor.h"
+#include "../../GrPendingFragmentStage.h"
 #include "../../GrPipeline.h"
 
 /*

@@ -10,9 +10,9 @@
 
 #include "GrColor.h"
 #include "GrInvariantOutput.h"
-#include "GrStagedProcessor.h"
 
 class GrBatch;
+class GrFragmentStage;
 class GrFragmentProcessor;
 class GrPrimitiveProcessor;
 class GrProcessor;

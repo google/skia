@@ -87,16 +87,20 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
 
     // Copy Stages from PipelineBuilder to Pipeline
     for (int i = firstColorStageIdx; i < pipelineBuilder.numColorFragmentStages(); ++i) {
-        const GrFragmentProcessor* fp = pipelineBuilder.fColorStages[i].processor();
-        SkNEW_APPEND_TO_TARRAY(&fFragmentStages, GrPendingFragmentStage, (fp));
-        usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
+        SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
+                               GrPendingFragmentStage,
+                               (pipelineBuilder.fColorStages[i]));
+        usesLocalCoords = usesLocalCoords ||
+                          pipelineBuilder.fColorStages[i].processor()->usesLocalCoords();
     }
 
     fNumColorStages = fFragmentStages.count();
     for (int i = firstCoverageStageIdx; i < pipelineBuilder.numCoverageFragmentStages(); ++i) {
-        const GrFragmentProcessor* fp = pipelineBuilder.fCoverageStages[i].processor();
-        SkNEW_APPEND_TO_TARRAY(&fFragmentStages, GrPendingFragmentStage, (fp));
-        usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
+        SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
+                               GrPendingFragmentStage,
+                               (pipelineBuilder.fCoverageStages[i]));
+        usesLocalCoords = usesLocalCoords ||
+                          pipelineBuilder.fCoverageStages[i].processor()->usesLocalCoords();
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
