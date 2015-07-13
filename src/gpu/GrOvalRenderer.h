@@ -21,21 +21,21 @@ class SkStrokeRec;
 class GrOvalRenderer {
 public:
     static bool DrawOval(GrDrawTarget*,
-                         GrPipelineBuilder*,
+                         const GrPipelineBuilder&,
                          GrColor,
                          const SkMatrix& viewMatrix,
                          bool useAA,
                          const SkRect& oval,
                          const SkStrokeRec& stroke);
     static bool DrawRRect(GrDrawTarget*,
-                          GrPipelineBuilder*,
+                          const GrPipelineBuilder&,
                           GrColor,
                           const SkMatrix& viewMatrix,
                           bool useAA,
                           const SkRRect& rrect,
                           const SkStrokeRec& stroke);
     static bool DrawDRRect(GrDrawTarget* target,
-                           GrPipelineBuilder*,
+                           const GrPipelineBuilder&,
                            GrColor,
                            const SkMatrix& viewMatrix,
                            bool useAA,
@@ -46,21 +46,21 @@ private:
     GrOvalRenderer();
 
     static bool DrawEllipse(GrDrawTarget* target,
-                            GrPipelineBuilder*,
+                            const GrPipelineBuilder&,
                             GrColor,
                             const SkMatrix& viewMatrix,
                             bool useCoverageAA,
                             const SkRect& ellipse,
                             const SkStrokeRec& stroke);
     static bool DrawDIEllipse(GrDrawTarget* target,
-                              GrPipelineBuilder*,
+                              const GrPipelineBuilder&,
                               GrColor,
                               const SkMatrix& viewMatrix,
                               bool useCoverageAA,
                               const SkRect& ellipse,
                               const SkStrokeRec& stroke);
     static void DrawCircle(GrDrawTarget* target,
-                           GrPipelineBuilder*,
+                           const GrPipelineBuilder&,
                            GrColor,
                            const SkMatrix& viewMatrix,
                            bool useCoverageAA,

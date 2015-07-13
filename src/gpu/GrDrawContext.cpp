@@ -893,7 +893,7 @@ void GrDrawContext::drawRRect(GrRenderTarget*rt,
     GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     GrColor color = paint.getColor();
     if (!GrOvalRenderer::DrawRRect(fDrawTarget,
-                                   &pipelineBuilder,
+                                   pipelineBuilder,
                                    color,
                                    viewMatrix,
                                    paint.isAntiAlias(),
@@ -928,7 +928,7 @@ void GrDrawContext::drawDRRect(GrRenderTarget* rt,
     GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     GrColor color = paint.getColor();
     if (!GrOvalRenderer::DrawDRRect(fDrawTarget,
-                                    &pipelineBuilder,
+                                    pipelineBuilder,
                                     color,
                                     viewMatrix,
                                     paint.isAntiAlias(),
@@ -975,7 +975,7 @@ void GrDrawContext::drawOval(GrRenderTarget* rt,
     GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     GrColor color = paint.getColor();
     if (!GrOvalRenderer::DrawOval(fDrawTarget,
-                                  &pipelineBuilder,
+                                  pipelineBuilder,
                                   color,
                                   viewMatrix,
                                   paint.isAntiAlias(),
@@ -1085,7 +1085,7 @@ void GrDrawContext::drawPath(GrRenderTarget* rt,
 
         if (isOval && !path.isInverseFillType()) {
             if (GrOvalRenderer::DrawOval(fDrawTarget,
-                                         &pipelineBuilder,
+                                         pipelineBuilder,
                                          color,
                                          viewMatrix,
                                          paint.isAntiAlias(),

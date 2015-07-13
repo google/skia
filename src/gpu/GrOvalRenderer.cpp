@@ -593,14 +593,13 @@ GrGeometryProcessor* DIEllipseEdgeEffect::TestCreate(GrProcessorTestData* d) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrOvalRenderer::DrawOval(GrDrawTarget* target,
-                              GrPipelineBuilder* pipelineBuilder,
+                              const GrPipelineBuilder& pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,
                               bool useAA,
                               const SkRect& oval,
-                              const SkStrokeRec& stroke)
-{
-    bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
+                              const SkStrokeRec& stroke) {
+    bool useCoverageAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
 
     if (!useCoverageAA) {
         return false;
@@ -824,7 +823,7 @@ static GrBatch* create_circle_batch(GrColor color,
 }
 
 void GrOvalRenderer::DrawCircle(GrDrawTarget* target,
-                                GrPipelineBuilder* pipelineBuilder,
+                                const GrPipelineBuilder& pipelineBuilder,
                                 GrColor color,
                                 const SkMatrix& viewMatrix,
                                 bool useCoverageAA,
@@ -832,7 +831,7 @@ void GrOvalRenderer::DrawCircle(GrDrawTarget* target,
                                 const SkStrokeRec& stroke) {
     SkAutoTUnref<GrBatch> batch(create_circle_batch(color, viewMatrix, useCoverageAA, circle,
                                                     stroke));
-    target->drawBatch(*pipelineBuilder, batch);
+    target->drawBatch(pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1080,7 +1079,7 @@ static GrBatch* create_ellipse_batch(GrColor color,
 }
 
 bool GrOvalRenderer::DrawEllipse(GrDrawTarget* target,
-                                 GrPipelineBuilder* pipelineBuilder,
+                                 const GrPipelineBuilder& pipelineBuilder,
                                  GrColor color,
                                  const SkMatrix& viewMatrix,
                                  bool useCoverageAA,
@@ -1092,7 +1091,7 @@ bool GrOvalRenderer::DrawEllipse(GrDrawTarget* target,
         return false;
     }
 
-    target->drawBatch(*pipelineBuilder, batch);
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 
@@ -1325,7 +1324,7 @@ static GrBatch* create_diellipse_batch(GrColor color,
 }
 
 bool GrOvalRenderer::DrawDIEllipse(GrDrawTarget* target,
-                                   GrPipelineBuilder* pipelineBuilder,
+                                   const GrPipelineBuilder& pipelineBuilder,
                                    GrColor color,
                                    const SkMatrix& viewMatrix,
                                    bool useCoverageAA,
@@ -1336,7 +1335,7 @@ bool GrOvalRenderer::DrawDIEllipse(GrDrawTarget* target,
     if (!batch) {
         return false;
     }
-    target->drawBatch(*pipelineBuilder, batch);
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 
@@ -1384,14 +1383,13 @@ static const GrIndexBuffer* ref_rrect_index_buffer(bool strokeOnly,
 }
 
 bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
-                                GrPipelineBuilder* pipelineBuilder,
+                                const GrPipelineBuilder& pipelineBuilder,
                                 GrColor color,
                                 const SkMatrix& viewMatrix,
                                 bool useAA,
                                 const SkRRect& origOuter,
                                 const SkRRect& origInner) {
-    bool applyAA = useAA &&
-                   !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
+    bool applyAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
     GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
     if (!origInner.isEmpty()) {
         SkTCopyOnFirstWrite<SkRRect> inner(origInner);
@@ -1408,8 +1406,8 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
         if (NULL == fp) {
             return false;
         }
-        arfp.set(pipelineBuilder);
-        pipelineBuilder->addCoverageProcessor(fp)->unref();
+        arfp.set(&pipelineBuilder);
+        arfp.addCoverageProcessor(fp)->unref();
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
@@ -1431,7 +1429,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
         return false;
     }
     if (!arfp.isSet()) {
-        arfp.set(pipelineBuilder);
+        arfp.set(&pipelineBuilder);
     }
 
     SkMatrix invert;
@@ -1439,12 +1437,12 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
         return false;
     }
 
-    pipelineBuilder->addCoverageProcessor(effect)->unref();
+    arfp.addCoverageProcessor(effect)->unref();
     SkRect bounds = outer->getBounds();
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawBWRect(*pipelineBuilder, color, SkMatrix::I(), bounds, NULL, &invert);
+    target->drawBWRect(pipelineBuilder, color, SkMatrix::I(), bounds, NULL, &invert);
     return true;
 }
 
@@ -1952,7 +1950,7 @@ static GrBatch* create_rrect_batch(GrColor color,
 }
 
 bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
-                               GrPipelineBuilder* pipelineBuilder,
+                               const GrPipelineBuilder& pipelineBuilder,
                                GrColor color,
                                const SkMatrix& viewMatrix,
                                bool useAA,
@@ -1963,7 +1961,7 @@ bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
                         stroke);
     }
 
-    bool useCoverageAA = useAA && !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
+    bool useCoverageAA = useAA && !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
 
     // only anti-aliased rrects for now
     if (!useCoverageAA) {
@@ -1979,7 +1977,7 @@ bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
         return false;
     }
 
-    target->drawBatch(*pipelineBuilder, batch);
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 
