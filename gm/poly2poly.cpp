@@ -37,7 +37,7 @@ private:
 
 SkJSCanvas::SkJSCanvas(SkCanvas* target) : fTarget(target) {
     fFillPaint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&fFillPaint);
+    sk_tool_utils::set_portable_typeface_always(&fFillPaint);
     fStrokePaint.setAntiAlias(true);
     fStrokePaint.setStyle(SkPaint::kStroke_Style);
     fStrokePaint.setStrokeWidth(SK_Scalar1);
@@ -202,7 +202,7 @@ protected:
         matrix.setPolyToPoly(src, dst, count);
         canvas->concat(matrix);
 
-        paint->setColor(SK_ColorGRAY);
+        paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
         paint->setStyle(SkPaint::kStroke_Style);
         const SkScalar D = SkIntToScalar(64);
         canvas->drawRectCoords(0, 0, D, D, *paint);
@@ -227,7 +227,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+        sk_tool_utils::set_portable_typeface_always(&paint);
         paint.setStrokeWidth(SkIntToScalar(4));
         paint.setTextSize(SkIntToScalar(40));
         paint.setTextAlign(SkPaint::kCenter_Align);

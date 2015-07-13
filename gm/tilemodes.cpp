@@ -10,9 +10,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkColorPriv.h"
 #include "SkColorFilter.h"
-#include "SkTypeface.h"
 
 // effects
 #include "SkGradientShader.h"
@@ -100,7 +98,7 @@ protected:
                 SkPaint p;
                 SkString str;
                 p.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&p);
+                sk_tool_utils::set_portable_typeface_always(&p);
                 p.setDither(true);
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
@@ -140,7 +138,7 @@ protected:
                     SkPaint p;
                     SkString str;
                     p.setAntiAlias(true);
-                    sk_tool_utils::set_portable_typeface(&p);
+                    sk_tool_utils::set_portable_typeface_always(&p);
                     str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
                     canvas->drawText(str.c_str(), str.size(), x, y + r.height() * 2 / 3, p);
                 }
@@ -168,7 +166,7 @@ static SkShader* make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkPoint pts[] = { { 0, 0 }, { SkIntToScalar(gWidth), SkIntToScalar(gHeight)} };
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
     SkScalar rad = SkIntToScalar(gWidth)/2;
-    SkColor colors[] = { 0xFFFF0000, 0xFF0044FF };
+    SkColor colors[] = { 0xFFFF0000, sk_tool_utils::color_to_565(0xFF0044FF) };
 
     int index = (int)ty;
     switch (index % 3) {
@@ -220,7 +218,7 @@ protected:
 
         SkPaint p;
         p.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&p);
+        sk_tool_utils::set_portable_typeface_always(&p);
         p.setTextAlign(SkPaint::kCenter_Align);
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
