@@ -130,7 +130,7 @@ protected:
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorProcessor(fp);
 
-                    tt.target()->drawSimpleRect(&pipelineBuilder,
+                    tt.target()->drawSimpleRect(pipelineBuilder,
                                                 GrColor_WHITE,
                                                 viewMatrix,
                                                 renderRect);

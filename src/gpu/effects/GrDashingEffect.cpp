@@ -728,11 +728,12 @@ static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const Sk
 }
 
 bool GrDashingEffect::DrawDashLine(GrDrawTarget* target,
-                                   GrPipelineBuilder* pipelineBuilder, GrColor color,
+                                   const GrPipelineBuilder& pipelineBuilder, GrColor color,
                                    const SkMatrix& viewMatrix, const SkPoint pts[2],
                                    bool useAA, const GrStrokeInfo& strokeInfo) {
-    SkAutoTUnref<GrBatch> batch(create_batch(color, viewMatrix, pts, useAA, strokeInfo,
-                                    pipelineBuilder->getRenderTarget()->isUnifiedMultisampled()));
+    SkAutoTUnref<GrBatch> batch(
+            create_batch(color, viewMatrix, pts, useAA, strokeInfo,
+                         pipelineBuilder.getRenderTarget()->isUnifiedMultisampled()));
     if (!batch) {
         return false;
     }

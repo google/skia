@@ -318,7 +318,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     geometry.fMiterLimit = stroke.getMiter();
 
     SkAutoTUnref<GrBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
 
     return true;
 }

@@ -314,7 +314,7 @@ enum CoverageAttribType {
 }
 
 void GrAARectRenderer::GeometryFillAARect(GrDrawTarget* target,
-                                          GrPipelineBuilder* pipelineBuilder,
+                                          const GrPipelineBuilder& pipelineBuilder,
                                           GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const SkRect& rect,
@@ -331,7 +331,7 @@ void GrAARectRenderer::GeometryFillAARect(GrDrawTarget* target,
 }
 
 void GrAARectRenderer::StrokeAARect(GrDrawTarget* target,
-                                    GrPipelineBuilder* pipelineBuilder,
+                                    const GrPipelineBuilder& pipelineBuilder,
                                     GrColor color,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& rect,
@@ -773,7 +773,7 @@ private:
 };
 
 void GrAARectRenderer::GeometryStrokeAARect(GrDrawTarget* target,
-                                            GrPipelineBuilder* pipelineBuilder,
+                                            const GrPipelineBuilder& pipelineBuilder,
                                             GrColor color,
                                             const SkMatrix& viewMatrix,
                                             const SkRect& devOutside,
@@ -792,7 +792,7 @@ void GrAARectRenderer::GeometryStrokeAARect(GrDrawTarget* target,
 }
 
 void GrAARectRenderer::FillAANestedRects(GrDrawTarget* target,
-                                         GrPipelineBuilder* pipelineBuilder,
+                                         const GrPipelineBuilder& pipelineBuilder,
                                          GrColor color,
                                          const SkMatrix& viewMatrix,
                                          const SkRect rects[2]) {

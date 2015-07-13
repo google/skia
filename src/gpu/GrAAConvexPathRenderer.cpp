@@ -1001,7 +1001,7 @@ bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
     geometry.fPath = path;
 
     SkAutoTUnref<GrBatch> batch(AAConvexPathBatch::Create(geometry));
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
 
     return true;
 

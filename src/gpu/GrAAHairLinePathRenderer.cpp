@@ -983,7 +983,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
 
     SkAutoTUnref<GrBatch> batch(create_hairline_batch(color, viewMatrix, path, stroke,
                                                       devClipBounds));
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
 
     return true;
 }

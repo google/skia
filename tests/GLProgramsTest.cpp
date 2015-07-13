@@ -251,7 +251,7 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
         set_random_state(&pipelineBuilder, &random);
         set_random_stencil(&pipelineBuilder, &random);
 
-        this->drawBatch(&pipelineBuilder, batch);
+        this->drawBatch(pipelineBuilder, batch);
     }
 
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)

@@ -229,7 +229,7 @@ protected:
                     SkAutoTUnref<GrBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, klmSigns[c]));
 
-                    tt.target()->drawBatch(&pipelineBuilder, batch);
+                    tt.target()->drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -374,7 +374,7 @@ protected:
                     SkAutoTUnref<GrBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, 1.f));
 
-                    tt.target()->drawBatch(&pipelineBuilder, batch);
+                    tt.target()->drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -612,7 +612,7 @@ protected:
 
                     SkAutoTUnref<GrBatch> batch(BezierQuadTestBatch::Create(gp, geometry, DevToUV));
 
-                    tt.target()->drawBatch(&pipelineBuilder, batch);
+                    tt.target()->drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {

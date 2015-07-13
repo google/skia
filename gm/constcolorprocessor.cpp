@@ -115,7 +115,7 @@ protected:
                     GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
                     pipelineBuilder.addColorProcessor(fp);
 
-                    tt.target()->drawSimpleRect(&pipelineBuilder,
+                    tt.target()->drawSimpleRect(pipelineBuilder,
                                                 grPaint.getColor(),
                                                 viewMatrix,
                                                 renderRect);

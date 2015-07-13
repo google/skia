@@ -66,7 +66,7 @@ public:
      */
     const GrCaps* caps() const { return fCaps; }
 
-    void drawBatch(GrPipelineBuilder*, GrBatch*);
+    void drawBatch(const GrPipelineBuilder&, GrBatch*);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
@@ -74,14 +74,14 @@ public:
      * on the GrPipelineBuilder (if possible in the 3D API).  Note, we will never have an inverse
      * fill with stencil path
      */
-    void stencilPath(GrPipelineBuilder*, const GrPathProcessor*, const GrPath*,
+    void stencilPath(const GrPipelineBuilder&, const GrPathProcessor*, const GrPath*,
                      GrPathRendering::FillType);
 
     /**
      * Draws a path. Fill must not be a hairline. It will respect the HW
      * antialias flag on the GrPipelineBuilder (if possible in the 3D API).
      */
-    void drawPath(GrPipelineBuilder*, const GrPathProcessor*, const GrPath*,
+    void drawPath(const GrPipelineBuilder&, const GrPathProcessor*, const GrPath*,
                   GrPathRendering::FillType);
 
     /**
@@ -97,7 +97,7 @@ public:
      * @param count           Number of paths to draw
      * @param fill            Fill type for drawing all the paths
      */
-    void drawPaths(GrPipelineBuilder*,
+    void drawPaths(const GrPipelineBuilder&,
                    const GrPathProcessor*,
                    const GrPathRange* pathRange,
                    const void* indices,
@@ -118,7 +118,7 @@ public:
      *                    that rectangle before it is input to GrCoordTransforms that read local
      *                    coordinates
      */
-    void drawBWRect(GrPipelineBuilder* pipelineBuilder,
+    void drawBWRect(const GrPipelineBuilder& pipelineBuilder,
                     GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
@@ -128,17 +128,17 @@ public:
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
-    void drawSimpleRect(GrPipelineBuilder* ds, GrColor color, const SkMatrix& viewM,
+    void drawSimpleRect(const GrPipelineBuilder& ds, GrColor color, const SkMatrix& viewM,
                         const SkRect& rect) {
         this->drawBWRect(ds, color, viewM, rect, NULL, NULL);
     }
-    void drawSimpleRect(GrPipelineBuilder* ds, GrColor color, const SkMatrix& viewM,
+    void drawSimpleRect(const GrPipelineBuilder& ds, GrColor color, const SkMatrix& viewM,
                         const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
         this->drawBWRect(ds, color, viewM, rect, NULL, NULL);
     }
 
-    void drawAARect(GrPipelineBuilder* pipelineBuilder,
+    void drawAARect(const GrPipelineBuilder& pipelineBuilder,
                     GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
@@ -221,11 +221,11 @@ protected:
                                  const SkRect* drawBounds);
 
     struct PipelineInfo {
-        PipelineInfo(GrPipelineBuilder* pipelineBuilder, GrScissorState* scissor,
+        PipelineInfo(const GrPipelineBuilder& pipelineBuilder, GrScissorState* scissor,
                      const GrPrimitiveProcessor* primProc,
                      const SkRect* devBounds, GrDrawTarget* target);
 
-        PipelineInfo(GrPipelineBuilder* pipelineBuilder, GrScissorState* scissor,
+        PipelineInfo(const GrPipelineBuilder& pipelineBuilder, GrScissorState* scissor,
                      const GrBatch* batch, const SkRect* devBounds,
                      GrDrawTarget* target);
 
@@ -237,7 +237,7 @@ protected:
 
         bool mustSkipDraw() const { return (NULL == fPipelineBuilder); }
 
-        GrPipelineBuilder*          fPipelineBuilder;
+        const GrPipelineBuilder*    fPipelineBuilder;
         GrScissorState*             fScissor;
         GrProcOptInfo               fColorPOI; 
         GrProcOptInfo               fCoveragePOI; 
@@ -287,7 +287,7 @@ private:
                                            const GrStencilAttachment*,
                                            GrStencilSettings*);
     virtual GrClipMaskManager* clipMaskManager() = 0;
-    virtual bool setupClip(GrPipelineBuilder*,
+    virtual bool setupClip(const GrPipelineBuilder&,
                            GrPipelineBuilder::AutoRestoreFragmentProcessors*,
                            GrPipelineBuilder::AutoRestoreStencil*,
                            GrPipelineBuilder::AutoRestoreProcessorDataManager*,
@@ -340,7 +340,7 @@ protected:
 private:
     GrClipMaskManager* clipMaskManager() override { return fClipMaskManager; }
 
-    bool setupClip(GrPipelineBuilder*,
+    bool setupClip(const GrPipelineBuilder&,
                    GrPipelineBuilder::AutoRestoreFragmentProcessors*,
                    GrPipelineBuilder::AutoRestoreStencil*,
                    GrPipelineBuilder::AutoRestoreProcessorDataManager*,

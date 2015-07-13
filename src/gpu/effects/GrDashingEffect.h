@@ -20,7 +20,7 @@ class GrPipelineBuilder;
 class GrStrokeInfo;
 
 namespace GrDashingEffect {
-    bool DrawDashLine(GrDrawTarget*, GrPipelineBuilder*, GrColor,
+    bool DrawDashLine(GrDrawTarget*, const GrPipelineBuilder&, GrColor,
                       const SkMatrix& viewMatrix, const SkPoint pts[2], bool useAA,
                       const GrStrokeInfo& strokeInfo);
     bool CanDrawDashLine(const SkPoint pts[2], const GrStrokeInfo& strokeInfo,

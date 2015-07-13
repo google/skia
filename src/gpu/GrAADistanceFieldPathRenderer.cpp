@@ -583,7 +583,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
 
     SkAutoTUnref<GrBatch> batch(AADistanceFieldPathBatch::Create(geometry, color, viewMatrix,
                                                                  fAtlas, &fPathCache, &fPathList));
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
 
     return true;
 }

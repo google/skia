@@ -678,7 +678,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            target->drawBWRect(pipelineBuilder, color, viewM, bounds, NULL, &localMatrix);
+            target->drawBWRect(*pipelineBuilder, color, viewM, bounds, NULL, &localMatrix);
         } else {
             if (passCount > 1) {
                 pipelineBuilder->setDisableColorXPFactory();
@@ -692,7 +692,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             SkAutoTUnref<GrBatch> batch(DefaultPathBatch::Create(geometry, newCoverage, viewMatrix,
                                                                  isHairline, devBounds));
 
-            target->drawBatch(pipelineBuilder, batch);
+            target->drawBatch(*pipelineBuilder, batch);
         }
     }
     return true;

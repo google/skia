@@ -98,7 +98,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(GrDrawTarget* target,
     SkASSERT(!path.isInverseFillType());
     SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE, viewMatrix));
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, path, stroke));
-    target->stencilPath(pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
+    target->stencilPath(*pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
@@ -134,7 +134,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
 
         // fake inverse with a stencil and cover
         SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(GrColor_WHITE, viewMatrix));
-        target->stencilPath(pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
+        target->stencilPath(*pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
 
         SkMatrix invert = SkMatrix::I();
         SkRect bounds =
@@ -154,7 +154,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
             }
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
-        target->drawBWRect(pipelineBuilder, color, viewM, bounds, NULL, &invert);
+        target->drawBWRect(*pipelineBuilder, color, viewM, bounds, NULL, &invert);
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,
@@ -166,7 +166,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(GrDrawTarget* target,
 
         pipelineBuilder->setStencil(kStencilPass);
         SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(color, viewMatrix));
-        target->drawPath(pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
+        target->drawPath(*pipelineBuilder, pp, p, convert_skpath_filltype(path.getFillType()));
     }
 
     pipelineBuilder->stencil()->setDisabled();

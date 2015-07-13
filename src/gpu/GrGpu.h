@@ -245,7 +245,7 @@ public:
      * efficiently succeed. It should only succeed if it can allow copySurface to perform a copy
      * that would be more effecient than drawing the src to a dst render target.
      */
-    virtual bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) = 0;
+    virtual bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const = 0;
 
     // After the client interacts directly with the 3D context state the GrGpu
     // must resync its internal state and assumptions about 3D context state.

@@ -195,7 +195,7 @@ protected:
 
                 SkAutoTUnref<GrBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
 
-                tt.target()->drawBatch(&pipelineBuilder, batch);
+                tt.target()->drawBatch(pipelineBuilder, batch);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + 10.f);
             }
@@ -244,7 +244,7 @@ protected:
 
                 SkAutoTUnref<GrBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
 
-                tt.target()->drawBatch(&pipelineBuilder, batch);
+                tt.target()->drawBatch(pipelineBuilder, batch);
 
                 x += SkScalarCeilToScalar(rect.width() + 10.f);
             }

@@ -116,7 +116,7 @@ void GrDrawContext::drawPaths(GrPipelineBuilder* pipelineBuilder,
                               int /*GrDrawTarget::PathTransformType*/ transformType,
                               int count,
                               int /*GrPathRendering::FillType*/ fill) {
-    fDrawTarget->drawPaths(pipelineBuilder, pathProc, pathRange,
+    fDrawTarget->drawPaths(*pipelineBuilder, pathProc, pathRange,
                            indices, (GrDrawTarget::PathIndexType) indexType,
                            transformValues,
                            (GrDrawTarget::PathTransformType) transformType,
@@ -192,7 +192,7 @@ void GrDrawContext::drawPaint(GrRenderTarget* rt,
         }
 
         GrPipelineBuilder pipelineBuilder(*paint, rt, clip);
-        fDrawTarget->drawBWRect(&pipelineBuilder,
+        fDrawTarget->drawBWRect(pipelineBuilder,
                                 paint->getColor(),
                                 SkMatrix::I(),
                                 r,
@@ -487,7 +487,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
     if (doAA) {
         if (width >= 0) {
             GrAARectRenderer::StrokeAARect(fDrawTarget,
-                                           &pipelineBuilder,
+                                           pipelineBuilder,
                                            color,
                                            viewMatrix,
                                            rect,
@@ -496,7 +496,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
         } else {
             // filled AA rect
             GrAARectRenderer::FillAARect(fDrawTarget,
-                                         &pipelineBuilder,
+                                         pipelineBuilder,
                                          color,
                                          viewMatrix,
                                          rect,
@@ -521,10 +521,10 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
         // is enabled because it can cause ugly artifacts.
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
                                  snapToPixelCenters);
-        fDrawTarget->drawBatch(&pipelineBuilder, batch);
+        fDrawTarget->drawBatch(pipelineBuilder, batch);
     } else {
         // filled BW rect
-        fDrawTarget->drawSimpleRect(&pipelineBuilder, color, viewMatrix, rect);
+        fDrawTarget->drawSimpleRect(pipelineBuilder, color, viewMatrix, rect);
     }
 }
 
@@ -542,7 +542,7 @@ void GrDrawContext::drawNonAARectToRect(GrRenderTarget* rt,
     }
 
     GrPipelineBuilder pipelineBuilder(paint, rt, clip);
-    fDrawTarget->drawBWRect(&pipelineBuilder,
+    fDrawTarget->drawBWRect(pipelineBuilder,
                             paint.getColor(),
                             viewMatrix,
                             rectToDraw,
@@ -861,7 +861,7 @@ void GrDrawContext::drawVertices(GrRenderTarget* rt,
                                                           indexCount, colors, texCoords,
                                                           bounds));
 
-    fDrawTarget->drawBatch(&pipelineBuilder, batch);
+    fDrawTarget->drawBatch(pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1075,7 +1075,7 @@ void GrDrawContext::drawPath(GrRenderTarget* rt,
             SkRect rects[2];
 
             if (is_nested_rects(viewMatrix, path, strokeInfo, rects)) {
-                GrAARectRenderer::FillAANestedRects(fDrawTarget, &pipelineBuilder, color,
+                GrAARectRenderer::FillAANestedRects(fDrawTarget, pipelineBuilder, color,
                                                     viewMatrix, rects);
                 return;
             }
@@ -1188,7 +1188,7 @@ bool GrDrawContext::prepareToDraw(GrRenderTarget* rt) {
 }
 
 void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrBatch* batch) {
-    fDrawTarget->drawBatch(pipelineBuilder, batch);
+    fDrawTarget->drawBatch(*pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

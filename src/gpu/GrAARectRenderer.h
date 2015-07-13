@@ -27,7 +27,7 @@ public:
     // between them by passing in stroke (==NULL means fill).
 
     static void FillAARect(GrDrawTarget* target,
-                           GrPipelineBuilder* pipelineBuilder,
+                           const GrPipelineBuilder& pipelineBuilder,
                            GrColor color,
                            const SkMatrix& viewMatrix,
                            const SkRect& rect,
@@ -36,7 +36,7 @@ public:
     }
 
     static void StrokeAARect(GrDrawTarget*,
-                             GrPipelineBuilder*,
+                             const GrPipelineBuilder&,
                              GrColor,
                              const SkMatrix& viewMatrix,
                              const SkRect& rect,
@@ -45,7 +45,7 @@ public:
 
     // First rect is outer; second rect is inner
     static void FillAANestedRects(GrDrawTarget*,
-                                  GrPipelineBuilder*,
+                                  const GrPipelineBuilder&,
                                   GrColor,
                                   const SkMatrix& viewMatrix,
                                   const SkRect rects[2]);
@@ -54,14 +54,14 @@ private:
     GrAARectRenderer();
 
     static void GeometryFillAARect(GrDrawTarget*,
-                                   GrPipelineBuilder*,
+                                   const GrPipelineBuilder&,
                                    GrColor,
                                    const SkMatrix& viewMatrix,
                                    const SkRect& rect,
                                    const SkRect& devRect);
 
     static void GeometryStrokeAARect(GrDrawTarget*,
-                                     GrPipelineBuilder*,
+                                     const GrPipelineBuilder&,
                                      GrColor,
                                      const SkMatrix& viewMatrix,
                                      const SkRect& devOutside,

@@ -832,7 +832,7 @@ void GrOvalRenderer::DrawCircle(GrDrawTarget* target,
                                 const SkStrokeRec& stroke) {
     SkAutoTUnref<GrBatch> batch(create_circle_batch(color, viewMatrix, useCoverageAA, circle,
                                                     stroke));
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1092,7 +1092,7 @@ bool GrOvalRenderer::DrawEllipse(GrDrawTarget* target,
         return false;
     }
 
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
     return true;
 }
 
@@ -1336,7 +1336,7 @@ bool GrOvalRenderer::DrawDIEllipse(GrDrawTarget* target,
     if (!batch) {
         return false;
     }
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
     return true;
 }
 
@@ -1444,7 +1444,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawBWRect(pipelineBuilder, color, SkMatrix::I(), bounds, NULL, &invert);
+    target->drawBWRect(*pipelineBuilder, color, SkMatrix::I(), bounds, NULL, &invert);
     return true;
 }
 
@@ -1979,7 +1979,7 @@ bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
         return false;
     }
 
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
     return true;
 }
 

@@ -374,5 +374,5 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                                        GrTextureParams::kNone_FilterMode,
                                                        kDevice_GrCoordSet))->unref();
 
-    target->drawBWRect(pipelineBuilder, color, SkMatrix::I(), dstRect, NULL, &invert);
+    target->drawBWRect(*pipelineBuilder, color, SkMatrix::I(), dstRect, NULL, &invert);
 }

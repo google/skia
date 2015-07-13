@@ -1511,7 +1511,7 @@ bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
     }
     vmi.mapRect(&clipBounds);
     SkAutoTUnref<GrBatch> batch(TessellatingPathBatch::Create(color, path, viewM, clipBounds));
-    target->drawBatch(pipelineBuilder, batch);
+    target->drawBatch(*pipelineBuilder, batch);
 
     return true;
 }

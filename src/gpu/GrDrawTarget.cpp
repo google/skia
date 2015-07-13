@@ -126,9 +126,7 @@ void GrDrawTarget::flush() {
     this->reset();
 }
 
-void GrDrawTarget::drawBatch(GrPipelineBuilder* pipelineBuilder,
-                             GrBatch* batch) {
-    SkASSERT(pipelineBuilder);
+void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrBatch* batch) {
     // TODO some kind of checkdraw, but not at this level
 
     // Setup clip
@@ -189,14 +187,13 @@ void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType f
     this->clipMaskManager()->adjustPathStencilParams(sb, outStencilSettings);
 }
 
-void GrDrawTarget::stencilPath(GrPipelineBuilder* pipelineBuilder,
+void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
                                const GrPathProcessor* pathProc,
                                const GrPath* path,
                                GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
-    SkASSERT(pipelineBuilder);
 
     // Setup clip
     GrScissorState scissorState;
@@ -209,21 +206,20 @@ void GrDrawTarget::stencilPath(GrPipelineBuilder* pipelineBuilder,
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
-    this->onStencilPath(*pipelineBuilder, pathProc, path, scissorState, stencilSettings);
+    this->onStencilPath(pipelineBuilder, pathProc, path, scissorState, stencilSettings);
 }
 
-void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
+void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
                             const GrPathProcessor* pathProc,
                             const GrPath* path,
                             GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path rendering.
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
-    SkASSERT(pipelineBuilder);
 
     SkRect devBounds = path->getBounds();
     pathProc->viewMatrix().mapRect(&devBounds);
@@ -239,7 +235,7 @@ void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
@@ -252,7 +248,7 @@ void GrDrawTarget::drawPath(GrPipelineBuilder* pipelineBuilder,
     this->onDrawPath(pathProc, path, stencilSettings, pipelineInfo);
 }
 
-void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
+void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,
                              const GrPathProcessor* pathProc,
                              const GrPathRange* pathRange,
                              const void* indices,
@@ -266,7 +262,6 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
     SkASSERT(indices);
     SkASSERT(0 == reinterpret_cast<long>(indices) % GrPathRange::PathIndexSizeInBytes(indexType));
     SkASSERT(transformValues);
-    SkASSERT(pipelineBuilder);
 
     // Setup clip
     GrScissorState scissorState;
@@ -279,7 +274,7 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
 
     // set stencil settings for path
     GrStencilSettings stencilSettings;
-    GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
@@ -296,18 +291,18 @@ void GrDrawTarget::drawPaths(GrPipelineBuilder* pipelineBuilder,
                       transformType, count, stencilSettings, pipelineInfo);
 }
 
-void GrDrawTarget::drawBWRect(GrPipelineBuilder* pipelineBuilder,
-                            GrColor color,
-                            const SkMatrix& viewMatrix,
-                            const SkRect& rect,
-                            const SkRect* localRect,
-                            const SkMatrix* localMatrix) {
+void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
+                              GrColor color,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& rect,
+                              const SkRect* localRect,
+                              const SkMatrix* localMatrix) {
    SkAutoTUnref<GrBatch> batch(GrRectBatch::Create(color, viewMatrix, rect, localRect,
                                                    localMatrix));
    this->drawBatch(pipelineBuilder, batch);
 }
 
-void GrDrawTarget::drawAARect(GrPipelineBuilder* pipelineBuilder,
+void GrDrawTarget::drawAARect(const GrPipelineBuilder& pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
@@ -333,7 +328,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.setRenderTarget(renderTarget);
 
-        this->drawSimpleRect(&pipelineBuilder, color, SkMatrix::I(), *rect);
+        this->drawSimpleRect(pipelineBuilder, color, SkMatrix::I(), *rect);
     } else {       
         this->onClear(rect, color, canIgnoreRect, renderTarget);
     }
@@ -466,12 +461,12 @@ void GrDrawTarget::setupPipeline(const PipelineInfo& pipelineInfo,
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
+GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder& pipelineBuilder,
                                          GrScissorState* scissor,
                                          const GrPrimitiveProcessor* primProc,
                                          const SkRect* devBounds,
                                          GrDrawTarget* target)
-    : fPipelineBuilder(pipelineBuilder)
+    : fPipelineBuilder(&pipelineBuilder)
     , fScissor(scissor) {
     fColorPOI = fPipelineBuilder->colorProcInfo(primProc);
     fCoveragePOI = fPipelineBuilder->coverageProcInfo(primProc);
@@ -481,12 +476,12 @@ GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
     }
 }
 
-GrDrawTarget::PipelineInfo::PipelineInfo(GrPipelineBuilder* pipelineBuilder,
+GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder& pipelineBuilder,
                                          GrScissorState* scissor,
                                          const GrBatch* batch,
                                          const SkRect* devBounds,
                                          GrDrawTarget* target)
-    : fPipelineBuilder(pipelineBuilder)
+    : fPipelineBuilder(&pipelineBuilder)
     , fScissor(scissor) {
     fColorPOI = fPipelineBuilder->colorProcInfo(batch);
     fCoveragePOI = fPipelineBuilder->coverageProcInfo(batch);
@@ -504,13 +499,13 @@ GrClipTarget::GrClipTarget(GrContext* context)
 }
 
 
-bool GrClipTarget::setupClip(GrPipelineBuilder* pipelineBuilder,
+bool GrClipTarget::setupClip(const GrPipelineBuilder& pipelineBuilder,
                              GrPipelineBuilder::AutoRestoreFragmentProcessors* arfp,
                              GrPipelineBuilder::AutoRestoreStencil* ars,
                              GrPipelineBuilder::AutoRestoreProcessorDataManager* arpdm,
                              GrScissorState* scissorState,
                              const SkRect* devBounds) {
-    return fClipMaskManager->setupClipping(*pipelineBuilder,
+    return fClipMaskManager->setupClipping(pipelineBuilder,
                                            arfp,
                                            ars,
                                            arpdm,
