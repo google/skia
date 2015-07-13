@@ -53,7 +53,7 @@
 #define USE_GLOBAL_MUTEX_FOR_CG_ACCESS
 
 #ifdef USE_GLOBAL_MUTEX_FOR_CG_ACCESS
-    static SkMutex gCGMutex;
+    SK_DECLARE_STATIC_MUTEX(gCGMutex);
     #define AUTO_CG_LOCK()  SkAutoMutexAcquire amc(gCGMutex)
 #else
     #define AUTO_CG_LOCK()
