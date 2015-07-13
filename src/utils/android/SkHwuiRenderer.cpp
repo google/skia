@@ -57,19 +57,17 @@ void SkHwuiRenderer::initialize(SkISize size) {
     this->proxy->setup(size.width(), size.height(), 800.0f,
                          255 * 0.075f, 255 * 0.15f);
     this->proxy->setLightCenter(lightVector);
-    this->canvas.reset(new android::uirenderer::DisplayListCanvas());
-    this->canvas->setViewport(size.width(), size.height());
+    this->canvas.reset(new android::uirenderer::DisplayListCanvas(size.width(), size.height()));
 }
 
 SkCanvas* SkHwuiRenderer::prepareToDraw() {
-    this->canvas->prepare();
+    this->canvas->reset(size.width(), size.height());
     this->canvas->clipRect(0, 0, this->size.width(), this->size.height(),
                            SkRegion::Op::kReplace_Op);
     return this->canvas->asSkCanvas();
 }
 
 void SkHwuiRenderer::finishDrawing() {
-    this->canvas->finish();
     this->rootNode->setStagingDisplayList(this->canvas->finishRecording());
     this->proxy->syncAndDrawFrame();
     // Surprisingly, calling this->proxy->fence() here appears to make no difference to
