@@ -24,10 +24,12 @@ static SkBitmap make_bmp(int w, int h) {
 
     SkScalar    radius = 3 * SkMaxScalar(wScalar, hScalar);
 
-    SkColor     colors[] = { SK_ColorDKGRAY, 0xFF222255,
-                             0xFF331133, 0xFF884422,
-                             0xFF000022, SK_ColorWHITE,
-                             0xFFAABBCC};
+    SkColor     colors[] = { sk_tool_utils::color_to_565(SK_ColorDKGRAY),
+                             sk_tool_utils::color_to_565(0xFF222255),
+                             sk_tool_utils::color_to_565(0xFF331133),
+                             sk_tool_utils::color_to_565(0xFF884422),
+                             sk_tool_utils::color_to_565(0xFF000022), SK_ColorWHITE,
+                             sk_tool_utils::color_to_565(0xFFAABBCC) };
 
     SkScalar    pos[] = {0,
                          SK_Scalar1 / 6,
@@ -54,10 +56,10 @@ static SkBitmap make_bmp(int w, int h) {
     }
 
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
+    sk_tool_utils::set_portable_typeface_always(&paint);
     paint.setTextSize(wScalar / 2.2f);
     paint.setShader(0);
-    paint.setColor(SK_ColorLTGRAY);
+    paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
     static const char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + paint.getTextSize() / 2.5f };
     canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
@@ -150,8 +152,8 @@ protected:
         SkPaint txtPaint;
         txtPaint.setTextSize(23.f);
         txtPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&txtPaint);
-        txtPaint.setColor(SK_ColorDKGRAY);
+        sk_tool_utils::set_portable_typeface_always(&txtPaint);
+        txtPaint.setColor(sk_tool_utils::color_to_565(SK_ColorDKGRAY));
         SkScalar textW = txtPaint.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1);
 
         SkScalar startX = 0;
