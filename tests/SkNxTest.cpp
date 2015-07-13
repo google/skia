@@ -133,11 +133,13 @@ DEF_TEST(SkNi, r) {
     test_Ni<8, int>(r);
 }
 
-DEF_TEST(SkNi_min, r) {
+DEF_TEST(SkNi_min_lt, r) {
     // Exhaustively check the 8x8 bit space.
     for (int a = 0; a < (1<<8); a++) {
     for (int b = 0; b < (1<<8); b++) {
-        REPORTER_ASSERT(r, Sk16b::Min(Sk16b(a), Sk16b(b)).kth<0>() == SkTMin(a, b));
+        Sk16b aw(a), bw(b);
+        REPORTER_ASSERT(r, Sk16b::Min(aw, bw).kth<0>() == SkTMin(a, b));
+        REPORTER_ASSERT(r, !(aw < bw).kth<0>() == !(a < b));
     }}
 
     // Exhausting the 16x16 bit space is kind of slow, so only do that in release builds.
