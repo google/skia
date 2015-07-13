@@ -11,35 +11,12 @@
 #include "SkImageFilter.h"
 #include "SkColor.h"
 
-class SK_API SkPoint3 {
-public:
-    SkPoint3() {}
-    SkPoint3(SkScalar x, SkScalar y, SkScalar z)
-      : fX(x), fY(y), fZ(z) {}
-    SkScalar dot(const SkPoint3& other) const {
-        return fX * other.fX + fY * other.fY + fZ * other.fZ;
-    }
-    SkScalar maxComponent() const {
-        return fX > fY ? (fX > fZ ? fX : fZ) : (fY > fZ ? fY : fZ);
-    }
-    void normalize() {
-        // Small epsilon is added to prevent division by 0.
-        SkScalar scale = SkScalarInvert(SkScalarSqrt(dot(*this)) + SK_ScalarNearlyZero);
-        fX = fX * scale;
-        fY = fY * scale;
-        fZ = fZ * scale;
-    }
-    SkPoint3 operator*(SkScalar scalar) const {
-        return SkPoint3(fX * scalar, fY * scalar, fZ * scalar);
-    }
-    SkPoint3 operator-(const SkPoint3& other) const {
-        return SkPoint3(fX - other.fX, fY - other.fY, fZ - other.fZ);
-    }
-    bool operator==(const SkPoint3& other) const {
-        return fX == other.fX && fY == other.fY && fZ == other.fZ;
-    }
-    SkScalar fX, fY, fZ;
-};
+#ifdef SK_LEGACY_SKPOINT3_CTORS
+// TODO: remove this. Chromium relies on having this included here
+#include "SkPoint3.h"
+#else
+struct SkPoint3;
+#endif
 
 class SkLight;
 

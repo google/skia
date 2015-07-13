@@ -8,11 +8,10 @@
 #include "SkLightingImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkPoint3.h"
 #include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkTypes.h"
+#include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -47,7 +46,7 @@ void setUniformPoint3(const GrGLProgramDataManager& pdman, UniformHandle uni,
 
 void setUniformNormal3(const GrGLProgramDataManager& pdman, UniformHandle uni,
                        const SkPoint3& point) {
-    setUniformPoint3(pdman, uni, SkPoint3(point.fX, point.fY, point.fZ));
+    setUniformPoint3(pdman, uni, point);
 }
 #endif
 
@@ -69,7 +68,7 @@ public:
                     const SkPoint3& lightColor) const {
         SkScalar colorScale = SkScalarMul(fKD, normal.dot(surfaceTolight));
         colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
-        SkPoint3 color(lightColor * colorScale);
+        SkPoint3 color = lightColor.makeScale(colorScale);
         return SkPackARGB32(255,
                             SkClampMax(SkScalarRoundToInt(color.fX), 255),
                             SkClampMax(SkScalarRoundToInt(color.fY), 255),
@@ -78,6 +77,10 @@ public:
 private:
     SkScalar fKD;
 };
+
+static SkScalar max_component(const SkPoint3& p) {
+    return p.x() > p.y() ? (p.x() > p.z() ? p.x() : p.z()) : (p.y() > p.z() ? p.y() : p.z());
+}
 
 class SpecularLightingType {
 public:
@@ -91,8 +94,8 @@ public:
         SkScalar colorScale = SkScalarMul(fKS,
             SkScalarPow(normal.dot(halfDir), fShininess));
         colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
-        SkPoint3 color(lightColor * colorScale);
-        return SkPackARGB32(SkClampMax(SkScalarRoundToInt(color.maxComponent()), 255),
+        SkPoint3 color = lightColor.makeScale(colorScale);
+        return SkPackARGB32(SkClampMax(SkScalarRoundToInt(max_component(color)), 255),
                             SkClampMax(SkScalarRoundToInt(color.fX), 255),
                             SkClampMax(SkScalarRoundToInt(color.fY), 255),
                             SkClampMax(SkScalarRoundToInt(color.fZ), 255));
@@ -107,9 +110,9 @@ inline SkScalar sobel(int a, int b, int c, int d, int e, int f, SkScalar scale) 
 }
 
 inline SkPoint3 pointToNormal(SkScalar x, SkScalar y, SkScalar surfaceScale) {
-    SkPoint3 vector(SkScalarMul(-x, surfaceScale),
-                    SkScalarMul(-y, surfaceScale),
-                    SK_Scalar1);
+    SkPoint3 vector = SkPoint3::Make(SkScalarMul(-x, surfaceScale),
+                                     SkScalarMul(-y, surfaceScale),
+                                     SK_Scalar1);
     vector.normalize();
     return vector;
 }
@@ -712,10 +715,11 @@ public:
     static SkLight* UnflattenLight(SkReadBuffer& buffer);
 
 protected:
-    SkLight(SkColor color)
-      : fColor(SkIntToScalar(SkColorGetR(color)),
-               SkIntToScalar(SkColorGetG(color)),
-               SkIntToScalar(SkColorGetB(color))) {}
+    SkLight(SkColor color) {
+        fColor = SkPoint3::Make(SkIntToScalar(SkColorGetR(color)),
+                                SkIntToScalar(SkColorGetG(color)),
+                                SkIntToScalar(SkColorGetB(color)));
+    }
     SkLight(const SkPoint3& color)
       : fColor(color) {}
     SkLight(SkReadBuffer& buffer) {
@@ -741,7 +745,7 @@ public:
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {
         return fDirection;
     };
-    SkPoint3 lightColor(const SkPoint3&) const { return color(); }
+    const SkPoint3& lightColor(const SkPoint3&) const { return this->color(); }
     LightType type() const override { return kDistant_LightType; }
     const SkPoint3& direction() const { return fDirection; }
     GrGLLight* createGLLight() const override {
@@ -792,13 +796,14 @@ public:
      : INHERITED(color), fLocation(location) {}
 
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {
-        SkPoint3 direction(fLocation.fX - SkIntToScalar(x),
-                           fLocation.fY - SkIntToScalar(y),
-                           fLocation.fZ - SkScalarMul(SkIntToScalar(z), surfaceScale));
+        SkPoint3 direction = SkPoint3::Make(fLocation.fX - SkIntToScalar(x),
+                                            fLocation.fY - SkIntToScalar(y),
+                                            fLocation.fZ - SkScalarMul(SkIntToScalar(z),
+                                                                       surfaceScale));
         direction.normalize();
         return direction;
     };
-    SkPoint3 lightColor(const SkPoint3&) const { return color(); }
+    const SkPoint3& lightColor(const SkPoint3&) const { return this->color(); }
     LightType type() const override { return kPoint_LightType; }
     const SkPoint3& location() const { return fLocation; }
     GrGLLight* createGLLight() const override {
@@ -824,7 +829,9 @@ public:
         // Use X scale and Y scale on Z and average the result
         SkPoint locationZ = SkPoint::Make(fLocation.fZ, fLocation.fZ);
         matrix.mapVectors(&locationZ, 1);
-        SkPoint3 location(location2.fX, location2.fY, SkScalarAve(locationZ.fX, locationZ.fY));
+        SkPoint3 location = SkPoint3::Make(location2.fX, 
+                                           location2.fY, 
+                                           SkScalarAve(locationZ.fX, locationZ.fY));
         return new SkPointLight(location, color());
     }
 
@@ -872,12 +879,14 @@ public:
         // Use X scale and Y scale on Z and average the result
         SkPoint locationZ = SkPoint::Make(fLocation.fZ, fLocation.fZ);
         matrix.mapVectors(&locationZ, 1);
-        SkPoint3 location(location2.fX, location2.fY, SkScalarAve(locationZ.fX, locationZ.fY));
+        SkPoint3 location = SkPoint3::Make(location2.fX, location2.fY,
+                                           SkScalarAve(locationZ.fX, locationZ.fY));
         SkPoint target2 = SkPoint::Make(fTarget.fX, fTarget.fY);
         matrix.mapPoints(&target2, 1);
         SkPoint targetZ = SkPoint::Make(fTarget.fZ, fTarget.fZ);
         matrix.mapVectors(&targetZ, 1);
-        SkPoint3 target(target2.fX, target2.fY, SkScalarAve(targetZ.fX, targetZ.fY));
+        SkPoint3 target = SkPoint3::Make(target2.fX, target2.fY,
+                                         SkScalarAve(targetZ.fX, targetZ.fY));
         SkPoint3 s = target - location;
         s.normalize();
         return new SkSpotLight(location,
@@ -891,23 +900,24 @@ public:
     }
 
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {
-        SkPoint3 direction(fLocation.fX - SkIntToScalar(x),
-                           fLocation.fY - SkIntToScalar(y),
-                           fLocation.fZ - SkScalarMul(SkIntToScalar(z), surfaceScale));
+        SkPoint3 direction = SkPoint3::Make(fLocation.fX - SkIntToScalar(x),
+                                            fLocation.fY - SkIntToScalar(y),
+                                            fLocation.fZ - SkScalarMul(SkIntToScalar(z),
+                                                                       surfaceScale));
         direction.normalize();
         return direction;
     };
     SkPoint3 lightColor(const SkPoint3& surfaceToLight) const {
         SkScalar cosAngle = -surfaceToLight.dot(fS);
-        if (cosAngle < fCosOuterConeAngle) {
-            return SkPoint3(0, 0, 0);
+        SkScalar scale = 0;
+        if (cosAngle >= fCosOuterConeAngle) {
+            scale = SkScalarPow(cosAngle, fSpecularExponent);
+            if (cosAngle < fCosInnerConeAngle) {
+                scale = SkScalarMul(scale, cosAngle - fCosOuterConeAngle);
+                scale *= fConeScale;
+            }
         }
-        SkScalar scale = SkScalarPow(cosAngle, fSpecularExponent);
-        if (cosAngle < fCosInnerConeAngle) {
-            scale = SkScalarMul(scale, cosAngle - fCosOuterConeAngle);
-            return color() * SkScalarMul(scale, fConeScale);
-        }
-        return color() * scale;
+        return this->color().makeScale(scale);
     }
     GrGLLight* createGLLight() const override {
 #if SK_SUPPORT_GPU
@@ -1386,9 +1396,9 @@ GrFragmentProcessor* SkSpecularLightingImageFilter::getFragmentProcessor(
 
 namespace {
 SkPoint3 random_point3(SkRandom* random) {
-    return SkPoint3(SkScalarToFloat(random->nextSScalar1()),
-                    SkScalarToFloat(random->nextSScalar1()),
-                    SkScalarToFloat(random->nextSScalar1()));
+    return SkPoint3::Make(SkScalarToFloat(random->nextSScalar1()),
+                          SkScalarToFloat(random->nextSScalar1()),
+                          SkScalarToFloat(random->nextSScalar1()));
 }
 
 SkLight* create_random_light(SkRandom* random) {
@@ -1883,14 +1893,13 @@ void GrGLLight::emitLightColorUniform(GrGLFPBuilder* builder) {
                                     "LightColor");
 }
 
-void GrGLLight::emitLightColor(GrGLFPBuilder* builder,
-                               const char *surfaceToLight) {
+void GrGLLight::emitLightColor(GrGLFPBuilder* builder, const char *surfaceToLight) {
     builder->getFragmentShaderBuilder()->codeAppend(builder->getUniformCStr(this->lightColorUni()));
 }
 
-void GrGLLight::setData(const GrGLProgramDataManager& pdman,
-                        const SkLight* light) const {
-    setUniformPoint3(pdman, fColorUni, light->color() * SkScalarInvert(SkIntToScalar(255)));
+void GrGLLight::setData(const GrGLProgramDataManager& pdman, const SkLight* light) const {
+    setUniformPoint3(pdman, fColorUni,
+                     light->color().makeScale(SkScalarInvert(SkIntToScalar(255))));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

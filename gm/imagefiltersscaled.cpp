@@ -16,6 +16,7 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
+#include "SkPoint3.h"
 #include "SkRectShaderImageFilter.h"
 #include "SkScalar.h"
 #include "gm.h"
@@ -75,9 +76,11 @@ protected:
         SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
 
-        SkPoint3 pointLocation(0, 0, SkIntToScalar(10));
-        SkPoint3 spotLocation(SkIntToScalar(-10), SkIntToScalar(-10), SkIntToScalar(20));
-        SkPoint3 spotTarget(SkIntToScalar(40), SkIntToScalar(40), 0);
+        SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
+        SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10), 
+                                               SkIntToScalar(-10), 
+                                               SkIntToScalar(20));
+        SkPoint3 spotTarget = SkPoint3::Make(SkIntToScalar(40), SkIntToScalar(40), 0);
         SkScalar spotExponent = SK_Scalar1;
         SkScalar cutoffAngle = SkIntToScalar(15);
         SkScalar kd = SkIntToScalar(2);

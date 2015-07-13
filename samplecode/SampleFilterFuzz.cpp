@@ -26,6 +26,7 @@
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
+#include "SkPoint3.h"
 #include "SkRandom.h"
 #include "SkRectShaderImageFilter.h"
 #include "SkTestImageFilters.h"
@@ -128,7 +129,7 @@ static SkDropShadowImageFilter::ShadowMode make_shadow_mode() {
 }
 
 static SkPoint3 make_point() {
-    return SkPoint3(make_scalar(), make_scalar(), make_scalar(true));
+    return SkPoint3::Make(make_scalar(), make_scalar(), make_scalar(true));
 }
 
 static SkDisplacementMapEffect::ChannelSelectorType make_channel_selector_type() {
@@ -357,10 +358,10 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         break;
     case SPOT_LIGHT:
         filter = (R(2) == 1) ?
-                 SkLightingImageFilter::CreateSpotLitDiffuse(SkPoint3(0, 0, 0),
+                 SkLightingImageFilter::CreateSpotLitDiffuse(SkPoint3::Make(0, 0, 0),
                  make_point(), make_scalar(), make_scalar(), make_color(),
                  make_scalar(), make_scalar(), make_image_filter()) :
-                 SkLightingImageFilter::CreateSpotLitSpecular(SkPoint3(0, 0, 0),
+                 SkLightingImageFilter::CreateSpotLitSpecular(SkPoint3::Make(0, 0, 0),
                  make_point(), make_scalar(), make_scalar(), make_color(),
                  make_scalar(), make_scalar(), SkIntToScalar(R(10)), make_image_filter());
         break;

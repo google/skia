@@ -26,6 +26,7 @@
 #include "SkPicture.h"
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
+#include "SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkRectShaderImageFilter.h"
@@ -244,9 +245,9 @@ DEF_TEST(ImageFilter, reporter) {
         {
             // This tests for :
             // 1 ) location at (0,0,1)
-            SkPoint3 location(0, 0, SK_Scalar1);
+            SkPoint3 location = SkPoint3::Make(0, 0, SK_Scalar1);
             // 2 ) location and target at same value
-            SkPoint3 target(location.fX, location.fY, location.fZ);
+            SkPoint3 target = SkPoint3::Make(location.fX, location.fY, location.fZ);
             // 3 ) large negative specular exponent value
             SkScalar specularExponent = -1000;
 
@@ -277,8 +278,7 @@ static void test_crop_rects(SkImageFilter::Proxy* proxy, skiatest::Reporter* rep
     SkAutoTUnref<SkImageFilter> input(make_grayscale(NULL, &inputCropRect));
 
     SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
-    SkPoint3 location(0, 0, SK_Scalar1);
-    SkPoint3 target(SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    SkPoint3 location = SkPoint3::Make(0, 0, SK_Scalar1);
     SkScalar kernel[9] = {
         SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
         SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
@@ -411,8 +411,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     // Tests pass by not asserting.
 
     SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
-    SkPoint3 location(0, 0, SK_Scalar1);
-    SkPoint3 target(SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    SkPoint3 location = SkPoint3::Make(0, 0, SK_Scalar1);
     SkScalar kernel[9] = {
         SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
         SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),

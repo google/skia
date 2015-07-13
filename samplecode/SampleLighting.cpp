@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkErrorInternals.h"
 #include "SkGr.h"
+#include "SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkShader.h"
 #include "SkWriteBuffer.h"
@@ -20,18 +21,6 @@
 #include "gl/builders/GrGLProgramBuilder.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-
-struct SkVector3 {
-    SkScalar fX, fY, fZ;
-
-    bool operator==(const SkVector3& other) const {
-        return fX == other.fX && fY == other.fY && fZ == other.fZ;
-    }
-
-    bool operator!=(const SkVector3& other) const {
-        return !(*this == other);
-    }
-};
 
 class LightingShader : public SkShader {
 public:
