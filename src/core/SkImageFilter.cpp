@@ -302,10 +302,18 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,
     ctx.ctm().mapRect(&cropRect, fCropRect.rect());
     const SkIRect cropRectI = cropRect.roundOut();
     uint32_t flags = fCropRect.flags();
-    if (flags & CropRect::kHasLeft_CropEdge) srcBounds.fLeft = cropRectI.fLeft;
-    if (flags & CropRect::kHasTop_CropEdge) srcBounds.fTop = cropRectI.fTop;
-    if (flags & CropRect::kHasRight_CropEdge) srcBounds.fRight = cropRectI.fRight;
-    if (flags & CropRect::kHasBottom_CropEdge) srcBounds.fBottom = cropRectI.fBottom;
+    if (flags & CropRect::kHasLeft_CropEdge) {
+        srcBounds.fLeft = cropRectI.fLeft;
+    }
+    if (flags & CropRect::kHasTop_CropEdge) {
+        srcBounds.fTop = cropRectI.fTop;
+    }
+    if (flags & CropRect::kHasRight_CropEdge) {
+        srcBounds.fRight = srcBounds.fLeft + cropRectI.width();
+    }
+    if (flags & CropRect::kHasBottom_CropEdge) {
+        srcBounds.fBottom = srcBounds.fTop + cropRectI.height();
+    }
     if (!srcBounds.intersect(ctx.clipBounds())) {
         return false;
     }
@@ -323,10 +331,18 @@ bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitm
     const SkIRect cropRectI = cropRect.roundOut();
     uint32_t flags = fCropRect.flags();
     *bounds = srcBounds;
-    if (flags & CropRect::kHasLeft_CropEdge) bounds->fLeft = cropRectI.fLeft;
-    if (flags & CropRect::kHasTop_CropEdge) bounds->fTop = cropRectI.fTop;
-    if (flags & CropRect::kHasRight_CropEdge) bounds->fRight = cropRectI.fRight;
-    if (flags & CropRect::kHasBottom_CropEdge) bounds->fBottom = cropRectI.fBottom;
+    if (flags & CropRect::kHasLeft_CropEdge) {
+        bounds->fLeft = cropRectI.fLeft;
+    }
+    if (flags & CropRect::kHasTop_CropEdge) {
+        bounds->fTop = cropRectI.fTop;
+    }
+    if (flags & CropRect::kHasRight_CropEdge) {
+        bounds->fRight = bounds->fLeft + cropRectI.width();
+    }
+    if (flags & CropRect::kHasBottom_CropEdge) {
+        bounds->fBottom = bounds->fTop + cropRectI.height();
+    }
     if (!bounds->intersect(ctx.clipBounds())) {
         return false;
     }

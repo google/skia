@@ -1139,6 +1139,27 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
     REPORTER_ASSERT(reporter, offset.fX == 1 && offset.fY == 0);
 }
 
+DEF_TEST(PartialCropRect, reporter) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(100, 100);
+    bitmap.eraseARGB(0, 0, 0, 0);
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkBitmapDevice device(bitmap, props);
+    SkImageFilter::Proxy proxy(&device);
+
+    SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(100, 0, 20, 30),
+        SkImageFilter::CropRect::kHasRight_CropEdge | SkImageFilter::CropRect::kHasBottom_CropEdge);
+    SkAutoTUnref<SkImageFilter> filter(make_grayscale(NULL, &cropRect));
+    SkBitmap result;
+    SkIPoint offset;
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), NULL);
+    REPORTER_ASSERT(reporter, filter->filterImage(&proxy, bitmap, ctx, &result, &offset));
+    REPORTER_ASSERT(reporter, offset.fX == 0);
+    REPORTER_ASSERT(reporter, offset.fY == 0);
+    REPORTER_ASSERT(reporter, result.width() == 20);
+    REPORTER_ASSERT(reporter, result.height() == 30);
+}
+
 #if SK_SUPPORT_GPU
 
 DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
