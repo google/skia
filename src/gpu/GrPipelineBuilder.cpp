@@ -99,7 +99,7 @@ bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
                                                     this->hasMixedSamples());
 }
 
-void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(
+void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
                                                          const GrPipelineBuilder* pipelineBuilder) {
     if (fPipelineBuilder) {
         int m = fPipelineBuilder->numColorFragmentStages() - fColorEffectCnt;
@@ -114,12 +114,14 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessors::set(
             fPipelineBuilder->fCoverageProcInfoValid = false;
         }
         SkDEBUGCODE(--fPipelineBuilder->fBlockEffectRemovalCnt;)
+        fPipelineBuilder->getProcessorDataManager()->restoreToSaveMarker(/*fSaveMarker*/);
     }
     fPipelineBuilder = const_cast<GrPipelineBuilder*>(pipelineBuilder);
     if (NULL != pipelineBuilder) {
         fColorEffectCnt = pipelineBuilder->numColorFragmentStages();
         fCoverageEffectCnt = pipelineBuilder->numCoverageFragmentStages();
         SkDEBUGCODE(++pipelineBuilder->fBlockEffectRemovalCnt;)
+        fSaveMarker = pipelineBuilder->processorDataManager()->currentSaveMarker();
     }
 }
 

@@ -32,12 +32,10 @@ namespace {
 // stage matrix this also alters the vertex layout
 void setup_drawstate_aaclip(const GrPipelineBuilder& pipelineBuilder,
                             GrTexture* result,
-                            GrPipelineBuilder::AutoRestoreFragmentProcessors* arfp,
-                            GrPipelineBuilder::AutoRestoreProcessorDataManager* arpdm,
+                            GrPipelineBuilder::AutoRestoreFragmentProcessorState* arfps,
                             const SkIRect &devBound) {
-    SkASSERT(arfp && arpdm);
-    arfp->set(&pipelineBuilder);
-    arpdm->set(&pipelineBuilder);
+    SkASSERT(arfps);
+    arfps->set(&pipelineBuilder);
 
     SkMatrix mat;
     // We use device coords to compute the texture coordinates. We set our matrix to be a
@@ -48,8 +46,8 @@ void setup_drawstate_aaclip(const GrPipelineBuilder& pipelineBuilder,
 
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
     // This could be a long-lived effect that is cached with the alpha-mask.
-    arfp->addCoverageProcessor(
-        GrTextureDomainEffect::Create(arpdm->getProcessorDataManager(),
+    arfps->addCoverageProcessor(
+        GrTextureDomainEffect::Create(arfps->getProcessorDataManager(),
                                       result,
                                       mat,
                                       GrTextureDomain::MakeTexelDomain(result, domainTexels),
@@ -123,18 +121,19 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
     return false;
 }
 
-bool GrClipMaskManager::installClipEffects(const GrPipelineBuilder& pipelineBuilder,
-                                           GrPipelineBuilder::AutoRestoreFragmentProcessors* arfp,
-                                           const GrReducedClip::ElementList& elements,
-                                           const SkVector& clipToRTOffset,
-                                           const SkRect* drawBounds) {
+bool GrClipMaskManager::installClipEffects(
+        const GrPipelineBuilder& pipelineBuilder,
+        GrPipelineBuilder::AutoRestoreFragmentProcessorState* arfps,
+        const GrReducedClip::ElementList& elements,
+        const SkVector& clipToRTOffset,
+        const SkRect* drawBounds) {
     SkRect boundsInClipSpace;
     if (drawBounds) {
         boundsInClipSpace = *drawBounds;
         boundsInClipSpace.offset(-clipToRTOffset.fX, -clipToRTOffset.fY);
     }
 
-    arfp->set(&pipelineBuilder);
+    arfps->set(&pipelineBuilder);
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrReducedClip::ElementList::Iter iter(elements);
     bool failed = false;
@@ -201,7 +200,7 @@ bool GrClipMaskManager::installClipEffects(const GrPipelineBuilder& pipelineBuil
                     break;
             }
             if (fp) {
-                arfp->addCoverageProcessor(fp);
+                arfps->addCoverageProcessor(fp);
             } else {
                 failed = true;
                 break;
@@ -211,7 +210,7 @@ bool GrClipMaskManager::installClipEffects(const GrPipelineBuilder& pipelineBuil
     }
 
     if (failed) {
-        arfp->set(NULL);
+        arfps->set(NULL);
     }
     return !failed;
 }
@@ -220,9 +219,8 @@ bool GrClipMaskManager::installClipEffects(const GrPipelineBuilder& pipelineBuil
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
-                                      GrPipelineBuilder::AutoRestoreFragmentProcessors* arfp,
+                                      GrPipelineBuilder::AutoRestoreFragmentProcessorState* arfps,
                                       GrPipelineBuilder::AutoRestoreStencil* ars,
-                                      GrPipelineBuilder::AutoRestoreProcessorDataManager* arpdm,
                                       GrScissorState* scissorState,
                                       const SkRect* devBounds) {
     fCurrClipMaskType = kNone_ClipMaskType;
@@ -296,7 +294,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         SkVector clipToRTOffset = { SkIntToScalar(-clip.origin().fX),
                                     SkIntToScalar(-clip.origin().fY) };
         if (elements.isEmpty() ||
-            (requiresAA && this->installClipEffects(pipelineBuilder, arfp, elements, clipToRTOffset,
+            (requiresAA && this->installClipEffects(pipelineBuilder, arfps, elements, clipToRTOffset,
                                                     devBounds))) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
@@ -336,12 +334,12 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         }
 
         if (result) {
-            arfp->set(&pipelineBuilder);
+            arfps->set(&pipelineBuilder);
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
             rtSpaceMaskBounds.offset(-clip.origin());
-            setup_drawstate_aaclip(pipelineBuilder, result, arfp, arpdm, rtSpaceMaskBounds);
+            setup_drawstate_aaclip(pipelineBuilder, result, arfps, rtSpaceMaskBounds);
             this->setPipelineBuilderStencil(pipelineBuilder, ars);
             return true;
         }

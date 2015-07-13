@@ -131,10 +131,9 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrBatch* 
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    GrPipelineBuilder::AutoRestoreProcessorDataManager arpdm;
-    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &arpdm, &scissorState, &batch->bounds())) {
+    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, &batch->bounds())) {
         return;
     }
 
@@ -197,10 +196,9 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    GrPipelineBuilder::AutoRestoreProcessorDataManager arpdm;
-    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &arpdm, &scissorState, NULL)) {
+    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, NULL)) {
         return;
     }
 
@@ -226,10 +224,9 @@ void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    GrPipelineBuilder::AutoRestoreProcessorDataManager arpdm;
-    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &arpdm, &scissorState, &devBounds)) {
+    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, &devBounds)) {
        return;
     }
 
@@ -265,10 +262,9 @@ void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp;
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    GrPipelineBuilder::AutoRestoreProcessorDataManager arpdm;
-    if (!this->setupClip(pipelineBuilder, &arfp, &ars, &arpdm, &scissorState, NULL)) {
+    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, NULL)) {
         return;
     }
 
@@ -500,15 +496,13 @@ GrClipTarget::GrClipTarget(GrContext* context)
 
 
 bool GrClipTarget::setupClip(const GrPipelineBuilder& pipelineBuilder,
-                             GrPipelineBuilder::AutoRestoreFragmentProcessors* arfp,
+                             GrPipelineBuilder::AutoRestoreFragmentProcessorState* arfps,
                              GrPipelineBuilder::AutoRestoreStencil* ars,
-                             GrPipelineBuilder::AutoRestoreProcessorDataManager* arpdm,
                              GrScissorState* scissorState,
                              const SkRect* devBounds) {
     return fClipMaskManager->setupClipping(pipelineBuilder,
-                                           arfp,
+                                           arfps,
                                            ars,
-                                           arpdm,
                                            scissorState,
                                            devBounds);
 }

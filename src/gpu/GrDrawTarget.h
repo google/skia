@@ -288,9 +288,8 @@ private:
                                            GrStencilSettings*);
     virtual GrClipMaskManager* clipMaskManager() = 0;
     virtual bool setupClip(const GrPipelineBuilder&,
-                           GrPipelineBuilder::AutoRestoreFragmentProcessors*,
+                           GrPipelineBuilder::AutoRestoreFragmentProcessorState*,
                            GrPipelineBuilder::AutoRestoreStencil*,
-                           GrPipelineBuilder::AutoRestoreProcessorDataManager*,
                            GrScissorState*,
                            const SkRect* devBounds) = 0;
 
@@ -341,9 +340,8 @@ private:
     GrClipMaskManager* clipMaskManager() override { return fClipMaskManager; }
 
     bool setupClip(const GrPipelineBuilder&,
-                   GrPipelineBuilder::AutoRestoreFragmentProcessors*,
+                   GrPipelineBuilder::AutoRestoreFragmentProcessorState*,
                    GrPipelineBuilder::AutoRestoreStencil*,
-                   GrPipelineBuilder::AutoRestoreProcessorDataManager*,
                    GrScissorState* scissorState,
                    const SkRect* devBounds) override;
 

@@ -353,7 +353,7 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     if (!viewMatrix.invert(&invert)) {
         return;
     }
-    GrPipelineBuilder::AutoRestoreFragmentProcessors arfp(pipelineBuilder);
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps(*pipelineBuilder);
 
     SkRect dstRect = SkRect::MakeLTRB(SK_Scalar1 * rect.fLeft,
                                       SK_Scalar1 * rect.fTop,

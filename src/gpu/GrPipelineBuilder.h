@@ -109,29 +109,37 @@ public:
 
     /**
      * When this object is destroyed it will remove any color/coverage FPs from the pipeline builder
-     * that were added after its constructor.
+     * and also remove any additions to the GrProcessorDataManager that were added after its
+     * constructor.
      * This class can transiently modify its "const" GrPipelineBuilder object but will restore it
      * when done - so it is notionally "const" correct.
      */
-    class AutoRestoreFragmentProcessors : public ::SkNoncopyable {
+    class AutoRestoreFragmentProcessorState : public ::SkNoncopyable {
     public:
-        AutoRestoreFragmentProcessors() 
+        AutoRestoreFragmentProcessorState() 
             : fPipelineBuilder(NULL)
             , fColorEffectCnt(0)
-            , fCoverageEffectCnt(0) {}
+            , fCoverageEffectCnt(0)
+            , fSaveMarker(0) {}
 
-        AutoRestoreFragmentProcessors(GrPipelineBuilder* ds)
+        AutoRestoreFragmentProcessorState(const GrPipelineBuilder& ds)
             : fPipelineBuilder(NULL)
             , fColorEffectCnt(0)
-            , fCoverageEffectCnt(0) {
-            this->set(ds);
+            , fCoverageEffectCnt(0)
+            , fSaveMarker(0) {
+            this->set(&ds);
         }
 
-        ~AutoRestoreFragmentProcessors() { this->set(NULL); }
+        ~AutoRestoreFragmentProcessorState() { this->set(NULL); }
 
         void set(const GrPipelineBuilder* ds);
 
         bool isSet() const { return SkToBool(fPipelineBuilder); }
+
+        GrProcessorDataManager* getProcessorDataManager() {
+            SkASSERT(this->isSet());
+            return fPipelineBuilder->getProcessorDataManager();
+        }
 
         const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* processor) {
             SkASSERT(this->isSet());
@@ -143,6 +151,7 @@ public:
         GrPipelineBuilder*    fPipelineBuilder;
         int                   fColorEffectCnt;
         int                   fCoverageEffectCnt;
+        uint32_t              fSaveMarker;
     };
 
     /// @}
@@ -261,7 +270,7 @@ public:
     public:
         AutoRestoreStencil() : fPipelineBuilder(NULL) {}
 
-        AutoRestoreStencil(const GrPipelineBuilder* ds) : fPipelineBuilder(NULL) { this->set(ds); }
+        AutoRestoreStencil(const GrPipelineBuilder& ds) : fPipelineBuilder(NULL) { this->set(&ds); }
 
         ~AutoRestoreStencil() { this->set(NULL); }
 
@@ -414,48 +423,6 @@ public:
 
     GrProcessorDataManager* getProcessorDataManager() { return fProcDataManager.get(); }
     const GrProcessorDataManager* processorDataManager() const { return fProcDataManager.get(); }
-
-    /**
-     * When this object is destroyed it will remove any additions to the GrProcessorDataManager
-     * owned by the GrPipelineBuilder
-     * This class can transiently modify its "const" GrPipelineBuilder object but will restore it
-     * when done - so it is notionally "const" correct.
-     */
-    class AutoRestoreProcessorDataManager : public ::SkNoncopyable {
-    public:
-        AutoRestoreProcessorDataManager() : fPipelineBuilder(NULL), fSaveMarker(0) {}
-
-        AutoRestoreProcessorDataManager(GrPipelineBuilder* ds)
-            : fPipelineBuilder(NULL)
-            , fSaveMarker(0) {
-            this->set(ds);
-        }
-
-        ~AutoRestoreProcessorDataManager() { this->set(NULL); }
-
-        void set(const GrPipelineBuilder* ds) {
-            if (fPipelineBuilder) {
-                fPipelineBuilder->getProcessorDataManager()->restoreToSaveMarker(/*fSaveMarker*/);
-            }
-            fPipelineBuilder = const_cast<GrPipelineBuilder*>(ds);
-            if (ds) {
-                fSaveMarker = ds->processorDataManager()->currentSaveMarker();
-            }
-        }
-
-        bool isSet() const { return SkToBool(fPipelineBuilder); }
-
-        GrProcessorDataManager* getProcessorDataManager() {
-            SkASSERT(this->isSet());
-            return fPipelineBuilder->getProcessorDataManager();
-        }
-
-    private:
-        // notionally const (as marginalia)
-        GrPipelineBuilder* fPipelineBuilder;
-        uint32_t fSaveMarker;
-    };
-
 
 private:
     // Calculating invariant color / coverage information is expensive, so we partially cache the
