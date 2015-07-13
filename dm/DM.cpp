@@ -212,6 +212,11 @@ static void push_codec_srcs(Path path) {
     const float scales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
 
     for (float scale : scales) {
+        if (scale != 1.0f && (path.endsWith(".webp") || path.endsWith(".WEBP"))) {
+            // FIXME: skbug.com/4038 Scaling webp seems to leave some pixels uninitialized/
+            // compute their colors based on uninitialized values.
+            continue;
+        }
         // Build additional test cases for images that decode natively to non-canvas types
         switch(codec->getInfo().colorType()) {
             case kGray_8_SkColorType:
