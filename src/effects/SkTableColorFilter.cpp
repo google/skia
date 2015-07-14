@@ -201,8 +201,8 @@ static const uint8_t gCountNibBits[] = {
 void SkTable_ColorFilter::flatten(SkWriteBuffer& buffer) const {
     uint8_t storage[5*256];
     int count = gCountNibBits[fFlags & 0xF];
-    size_t size = SkPackBits::Pack8(fStorage, count * 256, storage);
-    SkASSERT(size <= sizeof(storage));
+    size_t size = SkPackBits::Pack8(fStorage, count * 256, storage,
+                                    sizeof(storage));
 
     buffer.write32(fFlags);
     buffer.writeByteArray(storage, size);
@@ -223,7 +223,8 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     }
 
     uint8_t unpackedStorage[4*256];
-    size_t unpackedSize = SkPackBits::Unpack8(packedStorage, packedSize, unpackedStorage);
+    size_t unpackedSize = SkPackBits::Unpack8(packedStorage, packedSize,
+                              unpackedStorage, sizeof(unpackedStorage));
     // now check that we got the size we expected
     if (!buffer.validate(unpackedSize == count*256)) {
         return NULL;
