@@ -141,7 +141,7 @@ public:
     bool allTrue() const { return fLo.allTrue() && fHi.allTrue(); }
     bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
     SkNf thenElse(const SkNf& t, const SkNf& e) const {
-        return SkNf(fLo.thenElse(t.fLo, t.fHi), fHi.thenElse(t.fLo, t.fHi));
+        return SkNf(fLo.thenElse(t.fLo, e.fLo), fHi.thenElse(t.fHi, e.fHi));
     }
 
 protected:
