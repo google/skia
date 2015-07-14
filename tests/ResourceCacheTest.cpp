@@ -184,8 +184,8 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
     static const int kW = 100;
     static const int kH = 100;
 
-    texIDs[0] = gpu->createBackendTexture(NULL, kW, kH, kRGBA_8888_GrPixelConfig);
-    texIDs[1] = gpu->createBackendTexture(NULL, kW, kH, kRGBA_8888_GrPixelConfig);
+    texIDs[0] = gpu->createTestingOnlyBackendTexture(NULL, kW, kH, kRGBA_8888_GrPixelConfig);
+    texIDs[1] = gpu->createTestingOnlyBackendTexture(NULL, kW, kH, kRGBA_8888_GrPixelConfig);
 
     context->resetContext();
 
@@ -212,13 +212,13 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
 
     context->flush();
 
-    bool borrowedIsAlive = gpu->isBackendTexture(texIDs[0]);
-    bool adoptedIsAlive = gpu->isBackendTexture(texIDs[1]);
+    bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(texIDs[0]);
+    bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(texIDs[1]);
 
     REPORTER_ASSERT(reporter, borrowedIsAlive);
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
-    gpu->deleteBackendTexture(texIDs[0]);
+    gpu->deleteTestingOnlyBackendTexture(texIDs[0]);
 
     context->resetContext();
 }

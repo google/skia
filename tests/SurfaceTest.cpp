@@ -117,8 +117,8 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
     static const uint32_t kOrigColor = 0xFFAABBCC;
     SkAutoTArray<uint32_t> pixels(kW * kH);
     sk_memset32(pixels.get(), kOrigColor, kW * kH);
-    GrBackendObject texID = gpu->createBackendTexture(pixels.get(), kW, kH,
-                                                      kRGBA_8888_GrPixelConfig);
+    GrBackendObject texID = gpu->createTestingOnlyBackendTexture(pixels.get(), kW, kH,
+                                                                 kRGBA_8888_GrPixelConfig);
 
     GrBackendTextureDesc wrappedDesc;
     wrappedDesc.fConfig = kRGBA_8888_GrPixelConfig;

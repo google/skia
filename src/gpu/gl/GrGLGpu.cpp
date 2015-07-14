@@ -3067,7 +3067,7 @@ void GrGLGpu::didRemoveGpuTraceMarker() {
     }
 }
 
-GrBackendObject GrGLGpu::createBackendTexture(void* pixels, int w, int h,
+GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                               GrPixelConfig config) const {
     GrGLuint texID;
     GL_CALL(GenTextures(1, &texID));
@@ -3091,7 +3091,7 @@ GrBackendObject GrGLGpu::createBackendTexture(void* pixels, int w, int h,
     return texID;
 }
 
-bool GrGLGpu::isBackendTexture(GrBackendObject id) const {
+bool GrGLGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
     GrGLuint texID = (GrGLuint)id;
 
     GrGLboolean result;
@@ -3100,7 +3100,7 @@ bool GrGLGpu::isBackendTexture(GrBackendObject id) const {
     return (GR_GL_TRUE == result);
 }
 
-void GrGLGpu::deleteBackendTexture(GrBackendObject id) const {
+void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id) const {
     GrGLuint texID = (GrGLuint)id;
     GL_CALL(DeleteTextures(1, &texID));
 }

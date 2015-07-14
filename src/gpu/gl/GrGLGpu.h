@@ -112,10 +112,10 @@ public:
         return &this->glContext();
     }
 
-    GrBackendObject createBackendTexture(void* pixels, int w, int h,
-                                         GrPixelConfig config) const override;
-    bool isBackendTexture(GrBackendObject id) const override;
-    void deleteBackendTexture(GrBackendObject id) const override;
+    GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                    GrPixelConfig config) const override;
+    bool isTestingOnlyBackendTexture(GrBackendObject id) const override;
+    void deleteTestingOnlyBackendTexture(GrBackendObject id) const override;
 
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
