@@ -48,6 +48,8 @@ inline Sk4px::Wide Sk4px::widenLo() const {
 
 inline Sk4px::Wide Sk4px::widenHi() const { return this->widenLo() << 8; }
 
+inline Sk4px::Wide Sk4px::widenLoHi() const { return this->widenLo() + this->widenHi(); }
+
 inline Sk4px::Wide Sk4px::mulWiden(const Sk16b& other) const {
     return this->widenLo() * Sk4px(other).widenLo();
 }

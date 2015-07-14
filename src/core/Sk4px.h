@@ -70,6 +70,7 @@ public:
         Wide operator >> (int bits) const { return INHERITED::operator>>(bits); }
         Wide operator << (int bits) const { return INHERITED::operator<<(bits); }
         static Wide Min(const Wide& a, const Wide& b) { return INHERITED::Min(a,b); }
+        Wide thenElse(const Wide& t, const Wide& e) const { return INHERITED::thenElse(t,e); }
 
     private:
         typedef Sk16h INHERITED;
@@ -77,6 +78,7 @@ public:
 
     Wide widenLo() const;               // ARGB -> 0A 0R 0G 0B
     Wide widenHi() const;               // ARGB -> A0 R0 G0 B0
+    Wide widenLoHi() const;             // ARGB -> AA RR GG BB
     Wide mulWiden(const Sk16b&) const;  // 8-bit x 8-bit -> 16-bit components.
 
     // The only 8-bit multiply we use is 8-bit x 8-bit -> 16-bit.  Might as well make it pithy.

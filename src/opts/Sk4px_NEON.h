@@ -40,6 +40,12 @@ inline Sk4px::Wide Sk4px::widenHi() const {
                  vshll_n_u8(vget_high_u8(this->fVec), 8));
 }
 
+inline Sk4px::Wide Sk4px::widenLoHi() const {
+    auto zipped = vzipq_u8(this->fVec, this->fVec);
+    return Sk16h((uint16x8_t)zipped.val[0],
+                 (uint16x8_t)zipped.val[1]);
+}
+
 inline Sk4px::Wide Sk4px::mulWiden(const Sk16b& other) const {
     return Sk16h(vmull_u8(vget_low_u8 (this->fVec), vget_low_u8 (other.fVec)),
                  vmull_u8(vget_high_u8(this->fVec), vget_high_u8(other.fVec)));

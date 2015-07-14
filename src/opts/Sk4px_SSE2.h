@@ -31,6 +31,11 @@ inline Sk4px::Wide Sk4px::widenHi() const {
                  _mm_unpackhi_epi8(_mm_setzero_si128(), this->fVec));
 }
 
+inline Sk4px::Wide Sk4px::widenLoHi() const {
+    return Sk16h(_mm_unpacklo_epi8(this->fVec, this->fVec),
+                 _mm_unpackhi_epi8(this->fVec, this->fVec));
+}
+
 inline Sk4px::Wide Sk4px::mulWiden(const Sk16b& other) const {
     return this->widenLo() * Sk4px(other).widenLo();
 }

@@ -192,3 +192,19 @@ DEF_TEST(Sk4px_muldiv255round, r) {
     }
     }
 }
+
+DEF_TEST(Sk4px_widening, r) {
+    SkPMColor colors[] = {
+        SkPreMultiplyColor(0xff00ff00),
+        SkPreMultiplyColor(0x40008000),
+        SkPreMultiplyColor(0x7f020406),
+        SkPreMultiplyColor(0x00000000),
+    };
+    auto packed = Sk4px::Load4(colors);
+
+    auto wideLo = packed.widenLo(),
+         wideHi = packed.widenHi(),
+         wideLoHi    = packed.widenLoHi(),
+         wideLoHiAlt = wideLo + wideHi;
+    REPORTER_ASSERT(r, 0 == memcmp(&wideLoHi, &wideLoHiAlt, sizeof(wideLoHi)));
+}

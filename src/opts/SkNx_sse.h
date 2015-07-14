@@ -257,6 +257,11 @@ public:
                                                   _mm_sub_epi8(b.fVec, top_8x)));
     }
 
+    SkNi thenElse(const SkNi& t, const SkNi& e) const {
+        return _mm_or_si128(_mm_and_si128   (fVec, t.fVec),
+                            _mm_andnot_si128(fVec, e.fVec));
+    }
+
     template <int k> uint16_t kth() const {
         SkASSERT(0 <= k && k < 8);
         return _mm_extract_epi16(fVec, k);

@@ -337,6 +337,11 @@ public:
         return vgetq_lane_u16(fVec, k&7);
     }
 
+    SkNi thenElse(const SkNi& t, const SkNi& e) const {
+        return vorrq_u16(vandq_u16(t.fVec, fVec),
+                         vbicq_u16(e.fVec, fVec));
+    }
+
     uint16x8_t fVec;
 };
 

@@ -68,15 +68,13 @@ XFERMODE(HardLight) {
     auto sa = s.alphas(),
          da = d.alphas();
 
-    auto isLite = (sa-s) < s;
+    auto isLite = ((sa-s) < s).widenLoHi();
 
     auto dark = s*d << 1,
          lite = sa*da - ((da-d)*(sa-s) << 1),
          both = s*da.inv() + d*sa.inv();
 
-    // TODO: do isLite in 16-bit so we only have to div255() once.
-    auto colors = isLite.thenElse((lite + both).div255(),
-                                  (dark + both).div255());
+    auto colors = (both + isLite.thenElse(lite, dark)).div255();
     return alphas.zeroColors() + colors.zeroAlphas();
 }
 XFERMODE(Overlay) { return HardLight::Xfer(d,s); }
