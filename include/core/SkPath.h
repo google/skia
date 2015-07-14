@@ -206,8 +206,8 @@ public:
 
         @return true if the line is of zero length; otherwise false.
     */
-    static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2) {
-        return p1.equalsWithinTolerance(p2);
+    static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact) {
+        return exact ? p1 == p2 : p1.equalsWithinTolerance(p2);
     }
 
     /** Test a quad for zero length
@@ -215,8 +215,8 @@ public:
         @return true if the quad is of zero length; otherwise false.
     */
     static bool IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2,
-                                 const SkPoint& p3) {
-        return p1.equalsWithinTolerance(p2) &&
+                                 const SkPoint& p3, bool exact) {
+        return exact ? p1 == p2 && p2 == p3 : p1.equalsWithinTolerance(p2) &&
                p2.equalsWithinTolerance(p3);
     }
 
@@ -225,8 +225,8 @@ public:
         @return true if the cubic is of zero length; otherwise false.
     */
     static bool IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
-                                  const SkPoint& p3, const SkPoint& p4) {
-        return p1.equalsWithinTolerance(p2) &&
+                                  const SkPoint& p3, const SkPoint& p4, bool exact) {
+        return exact ? p1 == p2 && p2 == p3 && p3 == p4 : p1.equalsWithinTolerance(p2) &&
                p2.equalsWithinTolerance(p3) &&
                p3.equalsWithinTolerance(p4);
     }
@@ -800,11 +800,15 @@ public:
             @param  pts The points representing the current verb and/or segment
             @param doConsumeDegerates If true, first scan for segments that are
                    deemed degenerate (too short) and skip those.
+            @param exact if doConsumeDegenerates is true and exact is true, skip only
+                   degenerate elements with lengths exactly equal to zero. If exact
+                   is false, skip degenerate elements with lengths close to zero. If
+                   doConsumeDegenerates is false, exact has no effect.
             @return The verb for the current segment
         */
-        Verb next(SkPoint pts[4], bool doConsumeDegerates = true) {
+        Verb next(SkPoint pts[4], bool doConsumeDegerates = true, bool exact = false) {
             if (doConsumeDegerates) {
-                this->consumeDegenerateSegments();
+                this->consumeDegenerateSegments(exact);
             }
             return this->doNext(pts);
         }
@@ -844,7 +848,7 @@ public:
 
         inline const SkPoint& cons_moveTo();
         Verb autoClose(SkPoint pts[2]);
-        void consumeDegenerateSegments();
+        void consumeDegenerateSegments(bool exact);
         Verb doNext(SkPoint pts[4]);
     };
 

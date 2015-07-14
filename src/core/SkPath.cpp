@@ -1612,7 +1612,7 @@ const SkPoint& SkPath::Iter::cons_moveTo() {
     }
 }
 
-void SkPath::Iter::consumeDegenerateSegments() {
+void SkPath::Iter::consumeDegenerateSegments(bool exact) {
     // We need to step over anything that will not move the current draw point
     // forward before the next move is seen
     const uint8_t* lastMoveVerb = 0;
@@ -1643,7 +1643,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                 break;
 
             case kLine_Verb:
-                if (!IsLineDegenerate(lastPt, fPts[0])) {
+                if (!IsLineDegenerate(lastPt, fPts[0], exact)) {
                     if (lastMoveVerb) {
                         fVerbs = lastMoveVerb;
                         fPts = lastMovePt;
@@ -1659,7 +1659,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
 
             case kConic_Verb:
             case kQuad_Verb:
-                if (!IsQuadDegenerate(lastPt, fPts[0], fPts[1])) {
+                if (!IsQuadDegenerate(lastPt, fPts[0], fPts[1], exact)) {
                     if (lastMoveVerb) {
                         fVerbs = lastMoveVerb;
                         fPts = lastMovePt;
@@ -1675,7 +1675,7 @@ void SkPath::Iter::consumeDegenerateSegments() {
                 break;
 
             case kCubic_Verb:
-                if (!IsCubicDegenerate(lastPt, fPts[0], fPts[1], fPts[2])) {
+                if (!IsCubicDegenerate(lastPt, fPts[0], fPts[1], fPts[2], exact)) {
                     if (lastMoveVerb) {
                         fVerbs = lastMoveVerb;
                         fPts = lastMovePt;
@@ -2116,7 +2116,7 @@ struct Convexicator {
             SkScalar lengthSqd = vec.lengthSqd();
             if (!SkScalarIsFinite(lengthSqd)) {
                 fIsFinite = false;
-            } else if (!SkScalarNearlyZero(lengthSqd, SK_ScalarNearlyZero*SK_ScalarNearlyZero)) {
+            } else if (lengthSqd) {
                 fPriorPt = fLastPt;
                 fLastPt = fCurrPt;
                 fCurrPt = pt;
@@ -2253,7 +2253,7 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     if (!isFinite()) {
         return kUnknown_Convexity;
     }
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
                 if (++contourCount > 1) {

@@ -356,7 +356,7 @@ void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
 }
 
 void SkPathStroker::lineTo(const SkPoint& currPt) {
-    if (SkPath::IsLineDegenerate(fPrevPt, currPt)) {
+    if (SkPath::IsLineDegenerate(fPrevPt, currPt, false)) {
         return;
     }
     SkVector    normal, unitNormal;
