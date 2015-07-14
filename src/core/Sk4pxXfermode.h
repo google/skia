@@ -62,37 +62,53 @@ XFERMODE(Exclusion) {
     return (s - p) + (d - p.zeroAlphas());
 }
 
-XFERMODE(HardLight) {
-    auto alphas = SrcOver::Xfer(s,d);
+// We take care to use exact math for these next few modes where alphas
+// and colors are calculated using significantly different math.  We need
+// to preserve premul invariants, and exact math makes this easier.
+//
+// TODO: Some of these implementations might be able to be sped up a bit
+// while maintaining exact math, but let's follow up with that.
 
+XFERMODE(HardLight) {
     auto sa = s.alphas(),
          da = d.alphas();
 
+    auto srcover = s + (d * sa.inv()).div255();
+
     auto isLite = ((sa-s) < s).widenLoHi();
 
-    auto dark = s*d << 1,
-         lite = sa*da - ((da-d)*(sa-s) << 1),
+    auto lite = sa*da - ((da-d)*(sa-s) << 1),
+         dark = s*d << 1,
          both = s*da.inv() + d*sa.inv();
 
+    auto alphas = srcover;
     auto colors = (both + isLite.thenElse(lite, dark)).div255();
     return alphas.zeroColors() + colors.zeroAlphas();
 }
 XFERMODE(Overlay) { return HardLight::Xfer(d,s); }
 
 XFERMODE(Darken) {
-    auto sda = s.approxMulDiv255(d.alphas()),
-         dsa = d.approxMulDiv255(s.alphas());
-    auto srcover = s + (d - dsa),
-         dstover = d + (s - sda);
+    auto sa = s.alphas(),
+         da = d.alphas();
+
+    auto sda = (s*da).div255(),
+         dsa = (d*sa).div255();
+
+    auto srcover = s + (d * sa.inv()).div255(),
+         dstover = d + (s * da.inv()).div255();
     auto alphas = srcover,
          colors = (sda < dsa).thenElse(srcover, dstover);
     return alphas.zeroColors() + colors.zeroAlphas();
 }
 XFERMODE(Lighten) {
-    auto sda = s.approxMulDiv255(d.alphas()),
-         dsa = d.approxMulDiv255(s.alphas());
-    auto srcover = s + (d - dsa),
-         dstover = d + (s - sda);
+    auto sa = s.alphas(),
+         da = d.alphas();
+
+    auto sda = (s*da).div255(),
+         dsa = (d*sa).div255();
+
+    auto srcover = s + (d * sa.inv()).div255(),
+         dstover = d + (s * da.inv()).div255();
     auto alphas = srcover,
          colors = (dsa < sda).thenElse(srcover, dstover);
     return alphas.zeroColors() + colors.zeroAlphas();
