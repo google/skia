@@ -134,9 +134,7 @@ SkPicture* SkPicture::Forwardport(const SkPictInfo& info, const SkPictureData* d
     }
     SkPicturePlayback playback(data);
     SkPictureRecorder r;
-    playback.draw(r.beginRecording(SkScalarCeilToInt(info.fCullRect.width()),
-                                   SkScalarCeilToInt(info.fCullRect.height())),
-                  nullptr/*no callback*/);
+    playback.draw(r.beginRecording(info.fCullRect), nullptr/*no callback*/);
     return r.endRecording();
 }
 

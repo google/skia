@@ -1342,3 +1342,23 @@ DEF_TEST(MiniRecorderLeftHanging, r) {
     REPORTER_ASSERT(r, rec.drawRect(SkRect::MakeWH(20,30), paint));
     // Don't call rec.detachPicture().  Test succeeds by not asserting or leaking the shader.
 }
+
+DEF_TEST(Picture_preserveCullRect, r) {
+    SkPictureRecorder recorder;
+
+    SkCanvas* c = recorder.beginRecording(SkRect::MakeLTRB(1, 2, 3, 4));
+    c->clear(SK_ColorCYAN);
+
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    SkDynamicMemoryWStream wstream;
+    picture->serialize(&wstream);
+
+    SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
+    SkAutoTUnref<SkPicture> deserializedPicture(SkPicture::CreateFromStream(rstream));
+
+    REPORTER_ASSERT(r, SkToBool(deserializedPicture));
+    REPORTER_ASSERT(r, deserializedPicture->cullRect().left() == 1);
+    REPORTER_ASSERT(r, deserializedPicture->cullRect().top() == 2);
+    REPORTER_ASSERT(r, deserializedPicture->cullRect().right() == 3);
+    REPORTER_ASSERT(r, deserializedPicture->cullRect().bottom() == 4);
+}
