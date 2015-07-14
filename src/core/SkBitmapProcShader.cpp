@@ -268,6 +268,11 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan16(int x, int y, uint
 // returns true and set color if the bitmap can be drawn as a single color
 // (for efficiency)
 static bool canUseColorShader(const SkBitmap& bm, SkColor* color) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // HWUI does not support color shaders (see b/22390304)
+    return false;
+#endif
+
     if (1 != bm.width() || 1 != bm.height()) {
         return false;
     }
