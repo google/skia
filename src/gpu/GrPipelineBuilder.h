@@ -12,7 +12,7 @@
 #include "GrCaps.h"
 #include "GrClip.h"
 #include "GrGpuResourceRef.h"
-#include "GrFragmentStage.h"
+#include "GrStagedProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProcessorDataManager.h"
 #include "GrRenderTarget.h"

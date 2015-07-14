@@ -10,7 +10,6 @@
 
 #include "GrSingleTextureEffect.h"
 
-class GrFragmentStage;
 class GrInvariantOutput;
 
 /**

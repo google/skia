@@ -11,7 +11,7 @@
 #define GrPaint_DEFINED
 
 #include "GrColor.h"
-#include "GrFragmentStage.h"
+#include "GrStagedProcessor.h"
 #include "GrProcessorDataManager.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
