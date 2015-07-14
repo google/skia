@@ -628,6 +628,10 @@
       ],
     }],
 
+    [ 'sknx_no_simd', {
+      'defines': [ 'SKNX_NO_SIMD' ],
+    }],
+
   ], # end 'conditions'
   # The Xcode SYMROOT must be at the root. See build/common.gypi in chromium for more details
   'xcode_settings': {
