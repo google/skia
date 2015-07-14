@@ -1765,11 +1765,11 @@ void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkP
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                             const SkPaint* paint) {
+                             const SkPaint* paint, SrcRectConstraint constraint) {
     if (dst.isEmpty()) {
         return;
     }
-    this->onDrawImageRect(image, src, dst, paint);
+    this->onDrawImageRect(image, src, dst, paint SRC_RECT_CONSTRAINT_ARG(constraint));
 }
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
@@ -1795,7 +1795,15 @@ void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src, c
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-    this->onDrawBitmapRect(bitmap, src, dst, paint, flags);
+    this->onDrawBitmapRect(bitmap, src, dst, paint, (SK_VIRTUAL_CONSTRAINT_TYPE)flags);
+}
+
+void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                              const SkPaint* paint, SrcRectConstraint constraint) {
+    if (bitmap.drawsNothing() || dst.isEmpty()) {
+        return;
+    }
+    this->onDrawBitmapRect(bitmap, src, dst, paint, (SK_VIRTUAL_CONSTRAINT_TYPE)constraint);
 }
 
 void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
@@ -1804,7 +1812,7 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, con
         return;
     }
     if (!SkNinePatchIter::Valid(bitmap.width(), bitmap.height(), center)) {
-        this->drawBitmapRectToRect(bitmap, NULL, dst, paint);
+        this->drawBitmapRect(bitmap, dst, paint);
     }
     this->onDrawBitmapNine(bitmap, center, dst, paint);
 }
@@ -2042,8 +2050,9 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
 }
 
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                               const SkPaint* paint) {
+                               const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageRect()");
+    SRC_RECT_CONSTRAINT_LOCAL_DEFAULT(constraint)
     SkRect storage;
     const SkRect* bounds = &dst;
     if (NULL == paint || paint->canComputeFastBounds()) {
@@ -2062,7 +2071,7 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
     
     while (iter.next()) {
-        iter.fDevice->drawImageRect(iter, image, src, dst, looper.paint());
+        iter.fDevice->drawImageRect(iter, image, src, dst, looper.paint(), constraint);
     }
     
     LOOPER_END
@@ -2094,7 +2103,7 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
 // this one is non-virtual, so it can be called safely by other canvas apis
 void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                                       const SkRect& dst, const SkPaint* paint,
-                                      DrawBitmapRectFlags flags) {
+                                      SrcRectConstraint constraint) {
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
@@ -2118,17 +2127,18 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
 
     while (iter.next()) {
-        iter.fDevice->drawBitmapRect(iter, bitmap, src, dst, looper.paint(), flags);
+        iter.fDevice->drawBitmapRect(iter, bitmap, src, dst, looper.paint(),
+                                     (SK_VIRTUAL_CONSTRAINT_TYPE)constraint);
     }
 
     LOOPER_END
 }
 
 void SkCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                const SkPaint* paint, DrawBitmapRectFlags flags) {
+                                const SkPaint* paint, SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapRectToRect()");
     SkDEBUGCODE(bitmap.validate();)
-    this->internalDrawBitmapRect(bitmap, src, dst, paint, flags);
+    this->internalDrawBitmapRect(bitmap, src, dst, paint, (SrcRectConstraint)constraint);
 }
 
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,

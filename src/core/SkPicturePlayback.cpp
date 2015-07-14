@@ -182,14 +182,13 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             const SkPoint& loc = reader->skipT<SkPoint>();
             canvas->drawBitmap(bitmap, loc.fX, loc.fY, paint);
         } break;
-        case DRAW_BITMAP_RECT_TO_RECT: {
+        case DRAW_BITMAP_RECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));
             const SkRect* src = get_rect_ptr(reader);   // may be null
             const SkRect& dst = reader->skipT<SkRect>();     // required
-            SkCanvas::DrawBitmapRectFlags flags;
-            flags = (SkCanvas::DrawBitmapRectFlags) reader->readInt();
-            canvas->drawBitmapRectToRect(bitmap, src, dst, paint, flags);
+            SkCanvas::SrcRectConstraint constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
+            canvas->drawBitmapRect(bitmap, src, dst, paint, constraint);
         } break;
         case DRAW_BITMAP_MATRIX: {
             const SkPaint* paint = fPictureData->getPaint(reader);
@@ -249,12 +248,19 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             const SkRect& dst = reader->skipT<SkRect>();
             canvas->drawImageNine(image, center, dst, paint);
         } break;
+        case DRAW_IMAGE_RECT_STRICT:
         case DRAW_IMAGE_RECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);
             const SkRect* src = get_rect_ptr(reader);   // may be null
             const SkRect& dst = reader->skipT<SkRect>();     // required
-            canvas->drawImageRect(image, src, dst, paint);
+            // DRAW_IMAGE_RECT_STRICT assumes this constraint, and doesn't store it
+            SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint;
+            if (DRAW_IMAGE_RECT == op) {
+                // newer op-code stores the constraint explicitly
+                constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
+            }
+            canvas->drawImageRect(image, src, dst, paint, constraint);
         } break;
         case DRAW_OVAL: {
             const SkPaint& paint = *fPictureData->getPaint(reader);

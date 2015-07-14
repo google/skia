@@ -61,7 +61,7 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         1,  // DRAW_BITMAP - right after op code
         1,  // DRAW_BITMAP_MATRIX - right after op code, deprecated
         1,  // DRAW_BITMAP_NINE - right after op code
-        1,  // DRAW_BITMAP_RECT_TO_RECT - right after op code
+        1,  // DRAW_BITMAP_RECT - right after op code
         0,  // DRAW_CLEAR - no paint
         0,  // DRAW_DATA - no paint
         1,  // DRAW_OVAL - right after op code
@@ -99,9 +99,10 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         1,  // DRAW_PICTURE_MATRIX_PAINT - right after op code
         1,  // DRAW_TEXT_BLOB- right after op code
         1,  // DRAW_IMAGE - right after op code
-        1,  // DRAW_IMAGE_RECT - right after op code
+        1,  // DRAW_IMAGE_RECT_STRICT - right after op code
         1,  // DRAW_ATLAS - right after op code
         1,  // DRAW_IMAGE_NINE - right after op code
+        1,  // DRAW_IMAGE_RECT - right after op code
     };
 
     SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
@@ -551,7 +552,8 @@ void SkPictureRecord::onDrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScal
 }
 
 void SkPictureRecord::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                       const SkPaint* paint, DrawBitmapRectFlags flags) {
+                                       const SkPaint* paint,
+                                       SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
     // id + paint index + bitmap index + bool for 'src' + flags
     size_t size = 5 * kUInt32Size;
     if (src) {
@@ -559,14 +561,13 @@ void SkPictureRecord::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src
     }
     size += sizeof(dst);        // + rect
 
-    size_t initialOffset = this->addDraw(DRAW_BITMAP_RECT_TO_RECT, &size);
-    SkASSERT(initialOffset+get_paint_offset(DRAW_BITMAP_RECT_TO_RECT, size)
-             == fWriter.bytesWritten());
+    size_t initialOffset = this->addDraw(DRAW_BITMAP_RECT, &size);
+    SkASSERT(initialOffset+get_paint_offset(DRAW_BITMAP_RECT, size) == fWriter.bytesWritten());
     this->addPaintPtr(paint);
     this->addBitmap(bitmap);
     this->addRectPtr(src);  // may be null
     this->addRect(dst);
-    this->addInt(flags);
+    this->addInt(constraint);
     this->validate(initialOffset, size);
 }
 
@@ -584,9 +585,10 @@ void SkPictureRecord::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
 }
 
 void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                      const SkPaint* paint) {
-    // id + paint_index + image_index + bool_for_src
-    size_t size = 4 * kUInt32Size;
+                                      const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
+    SRC_RECT_CONSTRAINT_LOCAL_DEFAULT(constraint)
+    // id + paint_index + image_index + bool_for_src + constraint
+    size_t size = 5 * kUInt32Size;
     if (src) {
         size += sizeof(*src);   // + rect
     }
@@ -599,6 +601,7 @@ void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, c
     this->addImage(image);
     this->addRectPtr(src);  // may be null
     this->addRect(dst);
+    this->addInt(constraint);
     this->validate(initialOffset, size);
 }
 

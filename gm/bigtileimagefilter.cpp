@@ -84,7 +84,8 @@ protected:
             SkRect bound3 = SkRect::MakeXYWH(320, 320,
                                              SkIntToScalar(kBitmapSize),
                                              SkIntToScalar(kBitmapSize));
-            canvas->drawBitmapRectToRect(fGreenBitmap, &bound2, bound3);
+            canvas->drawBitmapRect(fGreenBitmap, &bound2, bound3, NULL,
+                                   SkCanvas::kStrict_SrcRectConstraint);
             canvas->restore();
         }
     }

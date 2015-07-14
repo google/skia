@@ -643,15 +643,14 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
     } else {
         src = NULL;
     }
-    SkCanvas::DrawBitmapRectFlags dbmrFlags = SkCanvas::kNone_DrawBitmapRectFlag;
+    SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint;
     if (flags & kDrawBitmap_Bleed_DrawOpFlag) {
-        dbmrFlags = (SkCanvas::DrawBitmapRectFlags)(dbmrFlags|SkCanvas::kBleed_DrawBitmapRectFlag);
+        constraint = SkCanvas::kFast_SrcRectConstraint;
     }
     const SkRect* dst = skip<SkRect>(reader);
     const SkBitmap* bitmap = holder.getBitmap();
     if (state->shouldDraw()) {
-        canvas->drawBitmapRectToRect(*bitmap, src, *dst,
-                                     hasPaint ? &state->paint() : NULL, dbmrFlags);
+        canvas->drawBitmapRect(*bitmap, src, *dst, hasPaint ? &state->paint() : NULL, constraint);
     }
 }
 
@@ -689,9 +688,11 @@ static void drawImageRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32
         src = skip<SkRect>(reader);
     }
     const SkRect* dst = skip<SkRect>(reader);
+    SkCanvas::SrcRectConstraint constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
+
     const SkImage* image = state->getImage(slot);
     if (state->shouldDraw()) {
-        canvas->drawImageRect(image, src, *dst, hasPaint ? &state->paint() : NULL);
+        canvas->drawImageRect(image, src, *dst, hasPaint ? &state->paint() : NULL, constraint);
     }
 }
 

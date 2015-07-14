@@ -1001,7 +1001,7 @@ void SkPDFDevice::drawPath(const SkDraw& d,
 void SkPDFDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& dst,
                                  const SkPaint& srcPaint,
-                                 SkCanvas::DrawBitmapRectFlags flags) {
+                                 SK_VIRTUAL_CONSTRAINT_TYPE) {
     SkPaint paint = srcPaint;
     if (bitmap.isOpaque()) {
         replace_srcmode_on_opaque_paint(&paint);

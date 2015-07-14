@@ -81,10 +81,8 @@ protected:
      *  The default impl. will create a bitmap-shader from the bitmap,
      *  and call drawRect with it.
      */
-    virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
-                                const SkRect* srcOrNull, const SkRect& dst,
-                                const SkPaint& paint,
-                                SkCanvas::DrawBitmapRectFlags flags) override;
+    void drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect*, const SkRect&,
+                        const SkPaint&, SK_VIRTUAL_CONSTRAINT_TYPE) override;
 
     /**
      *  Does not handle text decoration.

@@ -237,8 +237,7 @@ void SkBitmapDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                     const SkRect* src, const SkRect& dst,
-                                    const SkPaint& paint,
-                                    SkCanvas::DrawBitmapRectFlags flags) {
+                                    const SkPaint& paint, SK_VIRTUAL_CONSTRAINT_TYPE) {
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;

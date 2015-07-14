@@ -58,10 +58,10 @@ protected:
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
-                          DrawBitmapRectFlags flags) override;
+                          SK_VIRTUAL_CONSTRAINT_TYPE) override;
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
-                         const SkPaint*) override;
+                         const SkPaint* SRC_RECT_CONSTRAINT_PARAM(constraint)) override;
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                           const SkPaint*) override;
     void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) override;

@@ -70,7 +70,8 @@ protected:
 
             canvas->drawBitmap(bitmap, 0, 0, &paint);
             if (!fUseIRect) {
-                canvas->drawBitmapRectToRect(bitmap, &srcR, dstR, &paint);
+                canvas->drawBitmapRect(bitmap, &srcR, dstR, &paint,
+                                       SkCanvas::kStrict_SrcRectConstraint);
             } else {
                 canvas->drawBitmapRect(bitmap, &src[i], dstR, &paint);
             }
@@ -110,7 +111,7 @@ static void make_3x3_bitmap(SkBitmap* bitmap) {
     }
 }
 
-// This GM attempts to make visible any issues drawBitmapRectToRect may have
+// This GM attempts to make visible any issues drawBitmapRect may have
 // with partial source rects. In this case the eight pixels on the border
 // should be half the width/height of the central pixel, i.e.:
 //                         __|____|__

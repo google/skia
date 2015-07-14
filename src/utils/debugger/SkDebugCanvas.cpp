@@ -415,8 +415,9 @@ void SkDebugCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
 }
 
 void SkDebugCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                     const SkPaint* paint, DrawBitmapRectFlags flags) {
-    this->addDrawCommand(new SkDrawBitmapRectCommand(bitmap, src, dst, paint, flags));
+                                     const SkPaint* paint, SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
+    this->addDrawCommand(new SkDrawBitmapRectCommand(bitmap, src, dst, paint,
+                                                     (SrcRectConstraint)constraint));
 }
 
 void SkDebugCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
@@ -430,7 +431,7 @@ void SkDebugCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar to
 }
 
 void SkDebugCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint) {
+                                    const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
     SkDebugf("SkDebugCanvas::onDrawImageRect unimplemented\n");
 }
 

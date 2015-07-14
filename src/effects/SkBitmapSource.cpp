@@ -79,12 +79,12 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context&
     // Subtract off the integer component of the translation (will be applied in loc, below).
     dstRect.offset(-SkIntToScalar(dstIRect.fLeft), -SkIntToScalar(dstIRect.fTop));
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    // FIXME: this probably shouldn't be necessary, but drawBitmapRectToRect asserts
+    // FIXME: this probably shouldn't be necessary, but drawBitmapRect asserts
     // None filtering when it's translate-only
     paint.setFilterQuality(
         fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height() ?
                kNone_SkFilterQuality : fFilterQuality);
-    canvas.drawBitmapRectToRect(fBitmap, &fSrcRect, dstRect, &paint);
+    canvas.drawBitmapRect(fBitmap, &fSrcRect, dstRect, &paint, SkCanvas::kStrict_SrcRectConstraint);
 
     *result = device.get()->accessBitmap(false);
     offset->fX = dstIRect.fLeft;

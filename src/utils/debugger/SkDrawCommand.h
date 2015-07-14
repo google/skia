@@ -229,7 +229,7 @@ class SkDrawBitmapRectCommand : public SkDrawCommand {
 public:
     SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
                             const SkRect& dst, const SkPaint* paint,
-                            SkCanvas::DrawBitmapRectFlags flags);
+                            SkCanvas::SrcRectConstraint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
 
@@ -250,8 +250,8 @@ public:
     const SkRect& dstRect() const { return fDst; }
     void setDstRect(const SkRect& dst) { fDst = dst; }
 
-    SkCanvas::DrawBitmapRectFlags flags() const { return fFlags; }
-    void setFlags(SkCanvas::DrawBitmapRectFlags flags) { fFlags = flags; }
+    SkCanvas::SrcRectConstraint constraint() const { return fConstraint; }
+    void setConstraint(SkCanvas::SrcRectConstraint constraint) { fConstraint = constraint; }
 
 private:
     SkBitmap                      fBitmap;
@@ -259,7 +259,7 @@ private:
     SkRect                        fDst;
     SkPaint                       fPaint;
     SkPaint*                      fPaintPtr;
-    SkCanvas::DrawBitmapRectFlags fFlags;
+    SkCanvas::SrcRectConstraint   fConstraint;
 
     typedef SkDrawCommand INHERITED;
 };

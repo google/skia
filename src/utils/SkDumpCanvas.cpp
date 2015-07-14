@@ -346,7 +346,7 @@ void SkDumpCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 }
 
 void SkDumpCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint, DrawBitmapRectFlags flags) {
+                                    const SkPaint* paint, SK_VIRTUAL_CONSTRAINT_TYPE) {
     SkString bs, rs;
     bitmap.toString(&bs);
     toString(dst, &rs);
@@ -359,8 +359,7 @@ void SkDumpCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, c
         rs.prependf("%s ", ss.c_str());
     }
 
-    this->dump(kDrawBitmap_Verb, paint, "drawBitmapRectToRect(%s %s)",
-               bs.c_str(), rs.c_str());
+    this->dump(kDrawBitmap_Verb, paint, "drawBitmapRect(%s %s)", bs.c_str(), rs.c_str());
 }
 
 void SkDumpCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
@@ -381,7 +380,7 @@ void SkDumpCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, con
 }
 
 void SkDumpCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                   const SkPaint* paint) {
+                                   const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
     SkString bs, rs;
     image->toString(&bs);
     toString(dst, &rs);

@@ -320,7 +320,7 @@ bool SkDrawBitmapNineCommand::render(SkCanvas* canvas) const {
 
 SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
                                                  const SkRect& dst, const SkPaint* paint,
-                                                 SkCanvas::DrawBitmapRectFlags flags)
+                                                 SkCanvas::SrcRectConstraint constraint)
     : INHERITED(kDrawBitmapRect_OpType) {
     fBitmap = bitmap;
     if (src) {
@@ -336,7 +336,7 @@ SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const S
     } else {
         fPaintPtr = NULL;
     }
-    fFlags = flags;
+    fConstraint = constraint;
 
     fInfo.push(SkObjectParser::BitmapToString(bitmap));
     if (src) {
@@ -346,11 +346,11 @@ SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const S
     if (paint) {
         fInfo.push(SkObjectParser::PaintToString(*paint));
     }
-    fInfo.push(SkObjectParser::IntToString(fFlags, "Flags: "));
+    fInfo.push(SkObjectParser::IntToString(fConstraint, "Constraint: "));
 }
 
 void SkDrawBitmapRectCommand::execute(SkCanvas* canvas) const {
-    canvas->drawBitmapRectToRect(fBitmap, this->srcRect(), fDst, fPaintPtr, fFlags);
+    canvas->drawBitmapRect(fBitmap, this->srcRect(), fDst, fPaintPtr, fConstraint);
 }
 
 bool SkDrawBitmapRectCommand::render(SkCanvas* canvas) const {

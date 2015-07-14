@@ -144,9 +144,7 @@ protected:
         SkPaint bgPaint;
         bgPaint.setAlpha(0x15);
         SkISize size = canvas->getDeviceSize();
-        SkRect dstRect = SkRect::MakeWH(SkIntToScalar(size.fWidth),
-                                        SkIntToScalar(size.fHeight));
-        canvas->drawBitmapRectToRect(fBmp, NULL, dstRect, &bgPaint);
+        canvas->drawBitmapRect(fBmp, SkRect::MakeIWH(size.fWidth, size.fHeight), &bgPaint);
 
         static const char kTxt[] = "Clip Me!";
         SkPaint txtPaint;

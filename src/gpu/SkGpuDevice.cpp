@@ -791,7 +791,7 @@ void SkGpuDevice::drawBitmap(const SkDraw& origDraw,
         concat.setConcat(*draw->fMatrix, m);
         draw.writable()->fMatrix = &concat;
     }
-    this->drawBitmapCommon(*draw, bitmap, NULL, NULL, paint, SkCanvas::kNone_DrawBitmapRectFlag);
+    this->drawBitmapCommon(*draw, bitmap, NULL, NULL, paint, SkCanvas::kStrict_SrcRectConstraint);
 }
 
 // This method outsets 'iRect' by 'outset' all around and then clamps its extents to
@@ -903,7 +903,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                    const SkRect* srcRectPtr,
                                    const SkSize* dstSizePtr,
                                    const SkPaint& paint,
-                                   SkCanvas::DrawBitmapRectFlags flags) {
+                                   SkCanvas::SrcRectConstraint constraint) {
     CHECK_SHOULD_DRAW(draw);
 
     SkRect srcRect;
@@ -926,7 +926,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     int height = tex ? tex->height() : bitmap.height();
     if (srcRect.fLeft <= 0 && srcRect.fTop <= 0 &&
         srcRect.fRight >= width && srcRect.fBottom >= height) {
-        flags = (SkCanvas::DrawBitmapRectFlags) (flags | SkCanvas::kBleed_DrawBitmapRectFlag);
+        constraint = SkCanvas::kFast_SrcRectConstraint;
     }
 
     // If the render target is not msaa and draw is antialiased, we call
@@ -976,7 +976,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
             // already accounted for in 'm' and 'srcRect'. In clamp mode we need to chop out
             // the desired portion of the bitmap and then update 'm' and 'srcRect' to
             // compensate.
-            if (!(SkCanvas::kBleed_DrawBitmapRectFlag & flags)) {
+            if (SkCanvas::kStrict_SrcRectConstraint == constraint) {
                 SkIRect iSrc;
                 srcRect.roundOut(&iSrc);
 
@@ -1064,7 +1064,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     SkIRect clippedSrcRect;
     if (this->shouldTileBitmap(bitmap, viewM, params, srcRectPtr, maxTileSize, &tileSize,
                                &clippedSrcRect)) {
-        this->drawTiledBitmap(bitmap, viewM, srcRect, clippedSrcRect, params, paint, flags,
+        this->drawTiledBitmap(bitmap, viewM, srcRect, clippedSrcRect, params, paint, constraint,
                               tileSize, doBicubic);
     } else {
         // take the simple case
@@ -1078,7 +1078,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                  srcRect,
                                  params,
                                  paint,
-                                 flags,
+                                 constraint,
                                  doBicubic,
                                  needsTextureDomain);
     }
@@ -1092,7 +1092,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const SkIRect& clippedSrcIRect,
                                   const GrTextureParams& params,
                                   const SkPaint& paint,
-                                  SkCanvas::DrawBitmapRectFlags flags,
+                                  SkCanvas::SrcRectConstraint constraint,
                                   int tileSize,
                                   bool bicubic) {
     // The following pixel lock is technically redundant, but it is desirable
@@ -1135,7 +1135,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             if (GrTextureParams::kNone_FilterMode != params.filterMode() || bicubic) {
                 SkIRect iClampRect;
 
-                if (SkCanvas::kBleed_DrawBitmapRectFlag & flags) {
+                if (SkCanvas::kFast_SrcRectConstraint == constraint) {
                     // In bleed mode we want to always expand the tile on all edges
                     // but stay within the bitmap bounds
                     iClampRect = SkIRect::MakeWH(bitmap.width(), bitmap.height());
@@ -1163,7 +1163,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                          tileR,
                                          paramsTemp,
                                          paint,
-                                         flags,
+                                         constraint,
                                          bicubic,
                                          needsTextureDomain);
             }
@@ -1184,7 +1184,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                      const SkRect& srcRect,
                                      const GrTextureParams& params,
                                      const SkPaint& paint,
-                                     SkCanvas::DrawBitmapRectFlags flags,
+                                     SkCanvas::SrcRectConstraint constraint,
                                      bool bicubic,
                                      bool needsTextureDomain) {
     SkASSERT(bitmap.width() <= fContext->caps()->maxTextureSize() &&
@@ -1212,7 +1212,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     GrPaint grPaint;
     SkAutoTUnref<GrFragmentProcessor> fp;
 
-    if (needsTextureDomain && !(flags & SkCanvas::kBleed_DrawBitmapRectFlag)) {
+    if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
         // Use a constrained texture domain to avoid color bleeding
         SkScalar left, top, right, bottom;
         if (srcRect.width() > SK_Scalar1) {
@@ -1351,7 +1351,9 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& dst,
                                  const SkPaint& paint,
-                                 SkCanvas::DrawBitmapRectFlags flags) {
+                                 SK_VIRTUAL_CONSTRAINT_TYPE legacyConstraint) {
+    SkCanvas::SrcRectConstraint constraint = (SkCanvas::SrcRectConstraint)legacyConstraint;
+
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc;
 
@@ -1391,7 +1393,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
     dstSize.fWidth = tmpDst.width();
     dstSize.fHeight = tmpDst.height();
 
-    this->drawBitmapCommon(*draw, bitmap, &tmpSrc, &dstSize, paint, flags);
+    this->drawBitmapCommon(*draw, bitmap, &tmpSrc, &dstSize, paint, constraint);
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
@@ -1512,10 +1514,11 @@ void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x
 }
 
 void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const SkRect* src,
-                                const SkRect& dst, const SkPaint& paint) {
+                                const SkRect& dst, const SkPaint& paint,
+                                SkCanvas::SrcRectConstraint constraint) {
     SkBitmap bm;
     if (wrap_as_bm(image, &bm)) {
-        this->drawBitmapRect(draw, bm, src, dst, paint, SkCanvas::kNone_DrawBitmapRectFlag);
+        this->drawBitmapRect(draw, bm, src, dst, paint, (SK_VIRTUAL_CONSTRAINT_TYPE)constraint);
     }
 }
 

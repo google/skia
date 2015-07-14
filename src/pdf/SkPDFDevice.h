@@ -96,7 +96,7 @@ public:
     void drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                         const SkRect* src, const SkRect& dst,
                         const SkPaint& paint,
-                        SkCanvas::DrawBitmapRectFlags flags) override;
+                        SK_VIRTUAL_CONSTRAINT_TYPE) override;
     void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                     const SkMatrix& matrix, const SkPaint&) override;
     void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,

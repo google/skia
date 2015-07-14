@@ -40,9 +40,9 @@ namespace SkRecords {
     M(ClipRegion)                                                   \
     M(DrawBitmap)                                                   \
     M(DrawBitmapNine)                                               \
-    M(DrawBitmapRectToRect)                                         \
-    M(DrawBitmapRectToRectBleed)                                    \
-    M(DrawBitmapRectToRectFixedSize)                                \
+    M(DrawBitmapRect)                                               \
+    M(DrawBitmapRectFast)                                           \
+    M(DrawBitmapRectFixedSize)                                      \
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
     M(DrawImageRect)                                                \
@@ -276,29 +276,30 @@ RECORD4(DrawBitmapNine, Optional<SkPaint>, paint,
                         ImmutableBitmap, bitmap,
                         SkIRect, center,
                         SkRect, dst);
-RECORD4(DrawBitmapRectToRect, Optional<SkPaint>, paint,
-                              ImmutableBitmap, bitmap,
-                              Optional<SkRect>, src,
-                              SkRect, dst);
-RECORD4(DrawBitmapRectToRectBleed, Optional<SkPaint>, paint,
-                                   ImmutableBitmap, bitmap,
-                                   Optional<SkRect>, src,
-                                   SkRect, dst);
-RECORD5(DrawBitmapRectToRectFixedSize, SkPaint, paint,
-                                       ImmutableBitmap, bitmap,
-                                       SkRect, src,
-                                       SkRect, dst,
-                                       SkCanvas::DrawBitmapRectFlags, flags);
+RECORD4(DrawBitmapRect, Optional<SkPaint>, paint,
+                        ImmutableBitmap, bitmap,
+                        Optional<SkRect>, src,
+                        SkRect, dst);
+RECORD4(DrawBitmapRectFast, Optional<SkPaint>, paint,
+                            ImmutableBitmap, bitmap,
+                            Optional<SkRect>, src,
+                            SkRect, dst);
+RECORD5(DrawBitmapRectFixedSize, SkPaint, paint,
+                                 ImmutableBitmap, bitmap,
+                                 SkRect, src,
+                                 SkRect, dst,
+                                 SkCanvas::SrcRectConstraint, constraint);
 RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
 RECORD3(DrawDrawable, Optional<SkMatrix>, matrix, SkRect, worstCaseBounds, int32_t, index);
 RECORD4(DrawImage, Optional<SkPaint>, paint,
                    RefBox<const SkImage>, image,
                    SkScalar, left,
                    SkScalar, top);
-RECORD4(DrawImageRect, Optional<SkPaint>, paint,
+RECORD5(DrawImageRect, Optional<SkPaint>, paint,
                        RefBox<const SkImage>, image,
                        Optional<SkRect>, src,
-                       SkRect, dst);
+                       SkRect, dst,
+                       SkCanvas::SrcRectConstraint, constraint);
 RECORD4(DrawImageNine, Optional<SkPaint>, paint,
                        RefBox<const SkImage>, image,
                        SkIRect, center,

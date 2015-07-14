@@ -716,7 +716,7 @@ void SkSVGDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkSVGDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bm, const SkRect* srcOrNull,
                                  const SkRect& dst, const SkPaint& paint,
-                                 SkCanvas::DrawBitmapRectFlags) {
+                                 SK_VIRTUAL_CONSTRAINT_TYPE) {
     SkMatrix adjustedMatrix;
     adjustedMatrix.setRectToRect(srcOrNull ? *srcOrNull : SkRect::Make(bm.bounds()),
                                  dst,

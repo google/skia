@@ -88,14 +88,14 @@ DRAW(ClipRegion, clipRegion(r.region, r.op));
 
 DRAW(DrawBitmap, drawBitmap(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
 DRAW(DrawBitmapNine, drawBitmapNine(r.bitmap.shallowCopy(), r.center, r.dst, r.paint));
-DRAW(DrawBitmapRectToRect,
-        drawBitmapRectToRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
-                             SkCanvas::kNone_DrawBitmapRectFlag));
-DRAW(DrawBitmapRectToRectBleed,
-        drawBitmapRectToRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
-                             SkCanvas::kBleed_DrawBitmapRectFlag));
-DRAW(DrawBitmapRectToRectFixedSize,
-        drawBitmapRectToRect(r.bitmap.shallowCopy(), &r.src, r.dst, &r.paint, r.flags));
+DRAW(DrawBitmapRect,
+        drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
+                             SkCanvas::kStrict_SrcRectConstraint));
+DRAW(DrawBitmapRectFast,
+        drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
+                       SkCanvas::kFast_SrcRectConstraint));
+DRAW(DrawBitmapRectFixedSize,
+        drawBitmapRect(r.bitmap.shallowCopy(), &r.src, r.dst, &r.paint, r.constraint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
 DRAW(DrawImageRect, drawImageRect(r.image, r.src, r.dst, r.paint));
@@ -419,13 +419,13 @@ private:
     Bounds bounds(const DrawImageNine& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
-    Bounds bounds(const DrawBitmapRectToRect& op) const {
+    Bounds bounds(const DrawBitmapRect& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
-    Bounds bounds(const DrawBitmapRectToRectBleed& op) const {
+    Bounds bounds(const DrawBitmapRectFast& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
-    Bounds bounds(const DrawBitmapRectToRectFixedSize& op) const {
+    Bounds bounds(const DrawBitmapRectFixedSize& op) const {
         return this->adjustAndMap(op.dst, &op.paint);
     }
     Bounds bounds(const DrawBitmapNine& op) const {

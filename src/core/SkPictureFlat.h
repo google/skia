@@ -29,7 +29,7 @@ enum DrawType {
     DRAW_BITMAP,
     DRAW_BITMAP_MATRIX, // deprecated, M41 was last Chromium version to write this to an .skp
     DRAW_BITMAP_NINE,
-    DRAW_BITMAP_RECT_TO_RECT,
+    DRAW_BITMAP_RECT,
     DRAW_CLEAR,
     DRAW_DATA,
     DRAW_OVAL,
@@ -70,11 +70,12 @@ enum DrawType {
     DRAW_PICTURE_MATRIX_PAINT,
     DRAW_TEXT_BLOB,
     DRAW_IMAGE,
-    DRAW_IMAGE_RECT,
+    DRAW_IMAGE_RECT_STRICT, // deprecated (M45)
     DRAW_ATLAS,
     DRAW_IMAGE_NINE,
+    DRAW_IMAGE_RECT,
 
-    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_NINE
+    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_RECT
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

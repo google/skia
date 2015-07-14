@@ -219,7 +219,7 @@ protected:
         {SkASSERT(0);}
     void drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect*,
                         const SkRect&, const SkPaint&,
-                        SkCanvas::DrawBitmapRectFlags) override
+                        SK_VIRTUAL_CONSTRAINT_TYPE) override
         {SkASSERT(0);}
     void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                     int x, int y, const SkPaint& paint) override
@@ -227,7 +227,7 @@ protected:
     void drawImage(const SkDraw&, const SkImage*, SkScalar, SkScalar, const SkPaint&) override
         {SkASSERT(0);}
     void drawImageRect(const SkDraw&, const SkImage*, const SkRect*, const SkRect&,
-                       const SkPaint&) override
+                       const SkPaint&, SkCanvas::SrcRectConstraint) override
         {SkASSERT(0);}
     void drawImageNine(const SkDraw&, const SkImage*, const SkIRect&, const SkRect&,
                        const SkPaint&) override
@@ -865,8 +865,8 @@ void SkDeferredCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
 }
 
 void SkDeferredCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                        const SkRect& dst,
-                                        const SkPaint* paint, DrawBitmapRectFlags flags) {
+                                        const SkRect& dst, const SkPaint* paint,
+                                        SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
         isPaintOpaque(paint, &bitmap)) {
@@ -874,7 +874,7 @@ void SkDeferredCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* sr
     }
 
     AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
-    this->drawingCanvas()->drawBitmapRectToRect(bitmap, src, dst, paint, flags);
+    this->drawingCanvas()->drawBitmapRect(bitmap, src, dst, paint, (SrcRectConstraint)constraint);
     this->recordedDrawCommand();
 }
 
@@ -894,7 +894,7 @@ void SkDeferredCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
     this->recordedDrawCommand();
 }
 void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                       const SkPaint* paint) {
+                                       const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
         isPaintOpaque(paint, image)) {
@@ -902,7 +902,8 @@ void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, 
     }
     
     AutoImmediateDrawIfNeeded autoDraw(*this, image, paint);
-    this->drawingCanvas()->drawImageRect(image, src, dst, paint);
+    this->drawingCanvas()->drawImageRect(image, src, dst, paint
+                                         SRC_RECT_CONSTRAINT_ARG(constraint));
     this->recordedDrawCommand();
 }
 

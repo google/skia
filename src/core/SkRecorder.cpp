@@ -186,7 +186,9 @@ void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
                                   const SkRect* src,
                                   const SkRect& dst,
                                   const SkPaint* paint,
-                                  DrawBitmapRectFlags flags) {
+                                  SK_VIRTUAL_CONSTRAINT_TYPE legacyConstraint) {
+    SrcRectConstraint constraint = (SrcRectConstraint)legacyConstraint;
+
 #ifdef WRAP_BITMAP_AS_IMAGE
     // TODO: need a way to support the flags for images...
     SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
@@ -194,15 +196,13 @@ void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
         this->onDrawImageRect(image, src, dst, paint);
     }
 #else
-    TRY_MINIRECORDER(drawBitmapRectToRect, bitmap, src, dst, paint, flags);
-    if (kBleed_DrawBitmapRectFlag == flags) {
-        APPEND(DrawBitmapRectToRectBleed,
-               this->copy(paint), bitmap, this->copy(src), dst);
+    TRY_MINIRECORDER(drawBitmapRect, bitmap, src, dst, paint, constraint);
+    if (kFast_SrcRectConstraint == constraint) {
+        APPEND(DrawBitmapRectFast, this->copy(paint), bitmap, this->copy(src), dst);
         return;
     }
-    SkASSERT(kNone_DrawBitmapRectFlag == flags);
-    APPEND(DrawBitmapRectToRect,
-           this->copy(paint), bitmap, this->copy(src), dst);
+    SkASSERT(kStrict_SrcRectConstraint == constraint);
+    APPEND(DrawBitmapRect, this->copy(paint), bitmap, this->copy(src), dst);
 #endif
 }
 
@@ -227,8 +227,11 @@ void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
 
 void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src,
                                  const SkRect& dst,
-                                 const SkPaint* paint) {
-    APPEND(DrawImageRect, this->copy(paint), image, this->copy(src), dst);
+                                 const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
+    SrcRectConstraint constraint = kStrict_SrcRectConstraint;
+#endif
+    APPEND(DrawImageRect, this->copy(paint), image, this->copy(src), dst, constraint);
 }
 
 void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
