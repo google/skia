@@ -350,6 +350,8 @@ public:
         GLPtr<GrGLStencilThenCoverStrokePathInstancedProc> fStencilThenCoverStrokePathInstanced;
         // NV_path_rendering v1.3
         GLPtr<GrGLProgramPathFragmentInputGenProc> fProgramPathFragmentInputGen;
+        // CHROMIUM_path_rendering
+        GLPtr<GrGLBindFragmentInputLocationProc> fBindFragmentInputLocation;
 
         /* NV_framebuffer_mixed_samples */
         GLPtr<GrGLCoverageModulationProc> fCoverageModulation;
