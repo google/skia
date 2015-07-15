@@ -217,18 +217,6 @@ protected:
             virtual const char* text() const { return "Hello, Skia!"; }
         };
 
-        struct BmpText : public Text {
-           void setFont(SkPaint* paint) override {
-               if (!fTypeface) {
-                    fTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
-               }
-               paint->setTypeface(fTypeface);
-            }
-
-            const char* text() const override { return "Hi, Skia!"; }
-
-            SkAutoTUnref<SkTypeface> fTypeface;
-        };
         fPrims.push_back(SkNEW(Rect));
         fPrims.push_back(SkNEW(Circle));
         fPrims.push_back(SkNEW(RRect));
@@ -238,7 +226,6 @@ protected:
         fPrims.push_back(SkNEW(Points(SkCanvas::kLines_PointMode)));
         fPrims.push_back(SkNEW(Points(SkCanvas::kPolygon_PointMode)));
         fPrims.push_back(SkNEW(Text));
-        fPrims.push_back(SkNEW(BmpText));
     }
 
     void onDraw(SkCanvas* canvas) override {
