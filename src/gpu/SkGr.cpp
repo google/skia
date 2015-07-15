@@ -12,6 +12,7 @@
 #include "GrXferProcessor.h"
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
+#include "SkCanvas.h"
 #include "SkData.h"
 #include "SkErrorInternals.h"
 #include "SkGrPixelRef.h"
@@ -105,10 +106,9 @@ static void get_stretch(const GrContext* ctx, int width, int height,
     if (params && params->isTiled() && !ctx->caps()->npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
         doStretch = true;
-        stretch->fWidth  = GrNextPow2(width);
-        stretch->fHeight = GrNextPow2(height);
-    } else if (width < ctx->caps()->minTextureSize() ||
-               height < ctx->caps()->minTextureSize()) {
+        stretch->fWidth  = GrNextPow2(SkTMax(width, ctx->caps()->minTextureSize()));
+        stretch->fHeight = GrNextPow2(SkTMax(height, ctx->caps()->minTextureSize()));
+    } else if (width < ctx->caps()->minTextureSize() || height < ctx->caps()->minTextureSize()) {
         // The small texture issues appear to be with tiling. Hence it seems ok to scale them
         // up using the GPU. If issues persist we may need to CPU-stretch.
         doStretch = true;
@@ -450,6 +450,10 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
 static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
                                                     const SkBitmap& origBitmap,
                                                     const GrUniqueKey& optionalKey) {
+    if (origBitmap.width() < ctx->caps()->minTextureSize() ||
+        origBitmap.height() < ctx->caps()->minTextureSize()) {
+        return NULL;
+    }
     SkBitmap tmpBitmap;
 
     const SkBitmap* bitmap = &origBitmap;
@@ -508,6 +512,27 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
                                   bitmap->getPixels(), bitmap->rowBytes());
 }
 
+static SkBitmap stretch_on_cpu(const SkBitmap& bmp, const Stretch& stretch) {
+    SkBitmap stretched;
+    stretched.allocN32Pixels(stretch.fWidth, stretch.fHeight);
+    SkCanvas canvas(stretched);
+    SkPaint paint;
+    switch (stretch.fType) {
+        case Stretch::kNearest_Type:
+            paint.setFilterQuality(kNone_SkFilterQuality);
+            break;
+        case Stretch::kBilerp_Type:
+            paint.setFilterQuality(kLow_SkFilterQuality);
+            break;
+        case Stretch::kNone_Type:
+            SkDEBUGFAIL("Shouldn't get here.");
+            break;
+    }
+    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(stretch.fWidth), SkIntToScalar(stretch.fHeight));
+    canvas.drawBitmapRectToRect(bmp, NULL, dstRect, &paint);
+    return stretched;
+}
+
 static GrTexture* create_bitmap_texture(GrContext* ctx,
                                         const SkBitmap& bmp,
                                         const Stretch& stretch,
@@ -522,15 +547,15 @@ static GrTexture* create_bitmap_texture(GrContext* ctx,
         if (!unstretched) {
             unstretched.reset(create_unstretched_bitmap_texture(ctx, bmp, unstretchedKey));
             if (!unstretched) {
-                return NULL;
+                // We might not have been able to create a unstrecthed texture because it is smaller
+                // than the min texture size. In that case do cpu stretching.
+                SkBitmap stretchedBmp = stretch_on_cpu(bmp, stretch);
+                return create_unstretched_bitmap_texture(ctx, stretchedBmp, stretchedKey);
             }
         }
-        GrTexture* stretched = stretch_texture(unstretched, stretch, bmp.pixelRef(), stretchedKey);
-        return stretched;
+        return stretch_texture(unstretched, stretch, bmp.pixelRef(), stretchedKey);
     }
-
     return create_unstretched_bitmap_texture(ctx, bmp, unstretchedKey);
-
 }
 
 bool GrIsBitmapInCache(const GrContext* ctx,
