@@ -176,7 +176,8 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
 
 static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* context) {
     const GrGpu* gpu = context->getGpu();
-    if (!gpu) {
+    // this test is only valid for GL
+    if (!gpu || !gpu->glContextForTesting()) {
         return;
     }
 
