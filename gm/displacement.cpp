@@ -38,8 +38,8 @@ protected:
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setColor(0xFF884422);
+        sk_tool_utils::set_portable_typeface_always(&paint);
+        paint.setColor(sk_tool_utils::color_to_565(0xFF884422));
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "g";
         canvas.drawText(str, strlen(str), SkIntToScalar(15), SkIntToScalar(55), paint);
@@ -48,7 +48,8 @@ protected:
     void make_checkerboard(SkBitmap* bitmap, int w, int h) {
         bitmap->allocN32Pixels(w, h);
         SkCanvas canvas(*bitmap);
-        sk_tool_utils::draw_checkerboard(&canvas, 0xFF244484, 0xFF804020, 8);
+        sk_tool_utils::draw_checkerboard(&canvas, sk_tool_utils::color_to_565(0xFF244484),
+            sk_tool_utils::color_to_565(0xFF804020), 8);
     }
 
     virtual SkISize onISize() {

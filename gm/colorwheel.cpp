@@ -39,10 +39,10 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
     SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint, NULL, SkTypeface::kBold);
+    sk_tool_utils::set_portable_typeface_always(&paint, NULL, SkTypeface::kBold);
     paint.setTextSize(18.0f);
 
-    canvas->clear(SK_ColorLTGRAY);
+    canvas->clear(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
     paint.setColor(SK_ColorRED);
     canvas->drawText("R", 1, 8.0f, 20.0f, paint);
     paint.setColor(SK_ColorGREEN);

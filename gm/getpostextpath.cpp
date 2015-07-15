@@ -39,7 +39,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+        sk_tool_utils::set_portable_typeface_always(&paint);
         paint.setTextSize(SkIntToScalar(48));
 
         canvas->translate(SkIntToScalar(10), SkIntToScalar(64));
