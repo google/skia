@@ -791,8 +791,7 @@ void SkDeferredCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) 
 }
 
 void SkDeferredCanvas::onDrawPaint(const SkPaint& paint) {
-    if (fDeferredDrawing && this->isFullFrame(NULL, &paint) &&
-        isPaintOpaque(&paint)) {
+    if (fDeferredDrawing && this->isFullFrame(NULL, &paint) && SkPaintPriv::Overwrites(paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
@@ -814,8 +813,7 @@ void SkDeferredCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
 }
 
 void SkDeferredCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
-    if (fDeferredDrawing && this->isFullFrame(&rect, &paint) &&
-        isPaintOpaque(&paint)) {
+    if (fDeferredDrawing && this->isFullFrame(&rect, &paint) && SkPaintPriv::Overwrites(paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
 
@@ -855,7 +853,7 @@ void SkDeferredCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
         SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height()));
     if (fDeferredDrawing &&
         this->isFullFrame(&bitmapRect, paint) &&
-        isPaintOpaque(paint, &bitmap)) {
+        SkPaintPriv::Overwrites(bitmap, paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
 
@@ -869,7 +867,7 @@ void SkDeferredCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* sr
                                         SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
-        isPaintOpaque(paint, &bitmap)) {
+        SkPaintPriv::Overwrites(bitmap, paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
 
@@ -885,7 +883,7 @@ void SkDeferredCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
                                      SkIntToScalar(image->width()), SkIntToScalar(image->height()));
     if (fDeferredDrawing &&
         this->isFullFrame(&bounds, paint) &&
-        isPaintOpaque(paint, image)) {
+        SkPaintPriv::Overwrites(image, paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
     
@@ -897,7 +895,7 @@ void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, 
                                        const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
-        isPaintOpaque(paint, image)) {
+        SkPaintPriv::Overwrites(image, paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
     
@@ -911,7 +909,7 @@ void SkDeferredCanvas::onDrawImageNine(const SkImage* image, const SkIRect& cent
                                        const SkRect& dst, const SkPaint* paint) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
-        isPaintOpaque(paint, image)) {
+        SkPaintPriv::Overwrites(image, paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
     
@@ -939,7 +937,7 @@ void SkDeferredCanvas::onDrawSprite(const SkBitmap& bitmap, int left, int top,
         SkIntToScalar(bitmap.height()));
     if (fDeferredDrawing &&
         this->isFullFrame(&bitmapRect, paint) &&
-        isPaintOpaque(paint, &bitmap)) {
+        SkPaintPriv::Overwrites(bitmap, paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
 
