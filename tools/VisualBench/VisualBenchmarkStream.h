@@ -25,6 +25,8 @@ public:
     Benchmark* next();
 
 private:
+    Benchmark* innerNext();
+
     const BenchRegistry* fBenches;
     const skiagm::GMRegistry* fGMs;
     SkTArray<SkString> fSKPs;

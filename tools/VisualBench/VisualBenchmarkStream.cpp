@@ -65,6 +65,15 @@ bool VisualBenchmarkStream::ReadPicture(const char* path, SkAutoTUnref<SkPicture
 }
 
 Benchmark* VisualBenchmarkStream::next() {
+    Benchmark* bench;
+    // skips non matching benches
+    while ((bench = this->innerNext()) &&
+           SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
+    }
+    return bench;
+}
+
+Benchmark* VisualBenchmarkStream::innerNext() {
     while (fBenches) {
         Benchmark* bench = fBenches->factory()(NULL);
         fBenches = fBenches->next();
