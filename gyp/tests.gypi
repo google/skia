@@ -13,6 +13,7 @@
     '../src/images',
     '../src/pathops',
     '../src/pdf',
+    '../src/ports',
     '../src/pipe/utils',
     '../src/utils',
     '../src/utils/debugger',
@@ -31,13 +32,9 @@
     'tools.gyp:sk_tool_utils',
   ],
   'conditions': [
-    [ 'skia_os == "android"',
-      {
-        'include_dirs': [ '../src/ports', ],
-      }, {
+    [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]', {
         'sources!': [ '../tests/FontMgrAndroidParserTest.cpp', ],
-      }
-    ],
+    }],
     [ 'skia_android_framework == 1', {
       'libraries': [
         '-ldl',
