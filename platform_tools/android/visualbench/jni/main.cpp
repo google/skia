@@ -90,7 +90,6 @@ void android_main(struct android_app* state) {
                                                       env->NewStringUTF("cmdLineFlags"));
     if (jsParam1) {
         const char* flags = env->GetStringUTFChars(jsParam1, 0);
-        SkTArray<SkString> flagEntries;
         SkStrSplit(flags, " ", &visualBenchState.fFlags);
         env->ReleaseStringUTFChars(jsParam1, flags);
     }
