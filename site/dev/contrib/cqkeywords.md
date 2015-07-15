@@ -14,6 +14,10 @@ To do a dry run through the CQ please use Rietveld's [dry run](https://groups.go
 The CQ will run through its list of verifiers (reviewer check, trybots, tree check, 
 presubmit check), and will close the issue instead of committing it.
 
+    NO_DEPENDENCY_CHECK=true
+
+The CQ rejects patchsets with open dependencies. You can skip this check with this keyword.
+
     CQ_INCLUDE_TRYBOTS
 
 Allows you to add arbitrary trybots to the CQ's list of default trybots. 
