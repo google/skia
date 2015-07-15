@@ -17,9 +17,9 @@ import sys
 
 
 BUILDTYPE = 'Coverage'
-OUT_DIR = os.path.realpath(os.path.join('out', BUILDTYPE))
 PROFILE_DATA = 'default.profraw'
 PROFILE_DATA_MERGED = 'prof_merged'
+SKIA_OUT = 'SKIA_OUT'
 
 
 def _fix_filename(filename):
@@ -67,13 +67,19 @@ def _filter_results(results):
   return filtered
 
 
+def _get_out_dir():
+  """Determine the location for compiled binaries."""
+  return os.path.join(os.environ.get(SKIA_OUT, os.path.realpath('out')),
+                      BUILDTYPE)
+
+
 def run_coverage(cmd):
   """Run the given command and return per-file coverage data.
 
   Assumes that the binary has been built using llvm_coverage_build and that
   LLVM 3.6 or newer is installed.
   """
-  binary_path = os.path.join(OUT_DIR, cmd[0])
+  binary_path = os.path.join(_get_out_dir(), cmd[0])
   subprocess.call([binary_path] + cmd[1:])
   try:
     subprocess.check_call(
