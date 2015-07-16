@@ -60,6 +60,15 @@ inline void shiftMatrixLeft(int m[9]) {
     m[7] = m[8];
 }
 
+static inline void fast_normalize(SkPoint3* vector) {
+    // add a tiny bit so we don't have to worry about divide-by-zero
+    SkScalar magSq = vector->dot(*vector) + SK_ScalarNearlyZero;
+    SkScalar scale = sk_float_rsqrt(magSq);
+    vector->fX *= scale;
+    vector->fY *= scale;
+    vector->fZ *= scale;
+}
+
 class DiffuseLightingType {
 public:
     DiffuseLightingType(SkScalar kd)
@@ -90,7 +99,7 @@ public:
                     const SkPoint3& lightColor) const {
         SkPoint3 halfDir(surfaceTolight);
         halfDir.fZ += SK_Scalar1;        // eye position is always (0, 0, 1)
-        halfDir.normalize();
+        fast_normalize(&halfDir);
         SkScalar colorScale = SkScalarMul(fKS,
             SkScalarPow(normal.dot(halfDir), fShininess));
         colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
@@ -113,7 +122,7 @@ inline SkPoint3 pointToNormal(SkScalar x, SkScalar y, SkScalar surfaceScale) {
     SkPoint3 vector = SkPoint3::Make(SkScalarMul(-x, surfaceScale),
                                      SkScalarMul(-y, surfaceScale),
                                      SK_Scalar1);
-    vector.normalize();
+    fast_normalize(&vector);
     return vector;
 }
 
@@ -800,7 +809,7 @@ public:
                                             fLocation.fY - SkIntToScalar(y),
                                             fLocation.fZ - SkScalarMul(SkIntToScalar(z),
                                                                        surfaceScale));
-        direction.normalize();
+        fast_normalize(&direction);
         return direction;
     };
     const SkPoint3& lightColor(const SkPoint3&) const { return this->color(); }
@@ -866,7 +875,7 @@ public:
        fSpecularExponent(SkScalarPin(specularExponent, kSpecularExponentMin, kSpecularExponentMax))
     {
        fS = target - location;
-       fS.normalize();
+       fast_normalize(&fS);
        fCosOuterConeAngle = SkScalarCos(SkDegreesToRadians(cutoffAngle));
        const SkScalar antiAliasThreshold = 0.016f;
        fCosInnerConeAngle = fCosOuterConeAngle + antiAliasThreshold;
@@ -888,7 +897,7 @@ public:
         SkPoint3 target = SkPoint3::Make(target2.fX, target2.fY,
                                          SkScalarAve(targetZ.fX, targetZ.fY));
         SkPoint3 s = target - location;
-        s.normalize();
+        fast_normalize(&s);
         return new SkSpotLight(location,
                                target,
                                fSpecularExponent,
@@ -904,7 +913,7 @@ public:
                                             fLocation.fY - SkIntToScalar(y),
                                             fLocation.fZ - SkScalarMul(SkIntToScalar(z),
                                                                        surfaceScale));
-        direction.normalize();
+        fast_normalize(&direction);
         return direction;
     };
     SkPoint3 lightColor(const SkPoint3& surfaceToLight) const {
