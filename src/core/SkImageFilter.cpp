@@ -50,13 +50,13 @@ void SkImageFilter::CropRect::toString(SkString* str) const {
     } else {
         str->appendf("X, ");
     }
-    if (fFlags & CropRect::kHasRight_CropEdge) {
-        str->appendf("%.2f, ", fRect.fRight);
+    if (fFlags & CropRect::kHasWidth_CropEdge) {
+        str->appendf("%.2f, ", fRect.width());
     } else {
         str->appendf("X, ");
     }
-    if (fFlags & CropRect::kHasBottom_CropEdge) {
-        str->appendf("%.2f", fRect.fBottom);
+    if (fFlags & CropRect::kHasHeight_CropEdge) {
+        str->appendf("%.2f", fRect.height());
     } else {
         str->appendf("X");
     }
@@ -79,10 +79,10 @@ bool SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds, const Context&
         if (fFlags & kHasTop_CropEdge) {
             cropped->fTop = devICropR.fTop;
         }
-        if (fFlags & kHasRight_CropEdge) {
+        if (fFlags & kHasWidth_CropEdge) {
             cropped->fRight = cropped->fLeft + devICropR.width();
         }
-        if (fFlags & kHasBottom_CropEdge) {
+        if (fFlags & kHasHeight_CropEdge) {
             cropped->fBottom = cropped->fTop + devICropR.height();
         }
     }

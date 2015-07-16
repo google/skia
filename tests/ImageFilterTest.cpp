@@ -1147,7 +1147,7 @@ DEF_TEST(PartialCropRect, reporter) {
     SkImageFilter::Proxy proxy(&device);
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(100, 0, 20, 30),
-        SkImageFilter::CropRect::kHasRight_CropEdge | SkImageFilter::CropRect::kHasBottom_CropEdge);
+        SkImageFilter::CropRect::kHasWidth_CropEdge | SkImageFilter::CropRect::kHasHeight_CropEdge);
     SkAutoTUnref<SkImageFilter> filter(make_grayscale(NULL, &cropRect));
     SkBitmap result;
     SkIPoint offset;

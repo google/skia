@@ -64,8 +64,12 @@ public:
         enum CropEdge {
             kHasLeft_CropEdge   = 0x01,
             kHasTop_CropEdge    = 0x02,
-            kHasRight_CropEdge  = 0x04,
-            kHasBottom_CropEdge = 0x08,
+            kHasWidth_CropEdge  = 0x04,
+            kHasHeight_CropEdge = 0x08,
+#ifdef SK_LEGACY_IMAGE_FILTER_CROP_RECT_EDGES
+            kHasRight_CropEdge  = kHasWidth_CropEdge,
+            kHasBottom_CropEdge = kHasHeight_CropEdge,
+#endif
             kHasAll_CropEdge    = 0x0F,
         };
         CropRect() {}
