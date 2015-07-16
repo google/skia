@@ -952,7 +952,6 @@ DEF_GPUTEST(SkImage_NewFromTexture, reporter, factory) {
     sk_memset32(storage, expected0, w * h);
     
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;  // needs to be a rendertarget for readpixels();
     desc.fOrigin = kDefault_GrSurfaceOrigin;
     desc.fWidth = w;
     desc.fHeight = h;

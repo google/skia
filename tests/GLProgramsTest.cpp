@@ -200,7 +200,6 @@ static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* ran
 bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
     // setup dummy textures
     GrSurfaceDesc dummyDesc;
-    dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     dummyDesc.fConfig = kSkia8888_GrPixelConfig;
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;

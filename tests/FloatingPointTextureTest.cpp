@@ -42,7 +42,6 @@ void runFPTest(skiatest::Reporter* reporter, GrContextFactory* factory,
     for (int origin = 0; origin < 2; ++origin) {
         for (int glCtxType = 0; glCtxType < GrContextFactory::kGLContextTypeCnt; ++glCtxType) {
             GrSurfaceDesc desc;
-            desc.fFlags = kRenderTarget_GrSurfaceFlag;
             desc.fWidth = DEV_W;
             desc.fHeight = DEV_H;
             desc.fConfig = config;
