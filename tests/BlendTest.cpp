@@ -1,5 +1,15 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "Test.h"
 #include "SkColor.h"
+#include "SkColorPriv.h"
+#include "SkTaskGroup.h"
+#include "SkXfermode.h"
 
 #define ASSERT(x) REPORTER_ASSERT(r, x)
 
@@ -256,3 +266,36 @@ DEF_TEST(Blend_dst_Exhaustive, r) {
 //  all others
 //
 //  Algorithms that make sense to use in Skia: blend_256_round, blend_256_round_alt, blend_perfect
+
+DEF_TEST(Blend_premul_begets_premul, r) {
+    // This test is quite slow, even if you have enough cores to run each mode in parallel.
+    if (!r->allowExtendedTest()) {
+        return;
+    }
+
+    // No matter what xfermode we use, premul inputs should create premul outputs.
+    auto test_mode = [&](int m) {
+        SkXfermode::Mode mode = (SkXfermode::Mode)m;
+        if (mode == SkXfermode::kSrcOver_Mode) {
+            return;  // TODO: can't create a SrcOver xfermode.
+        }
+        SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(mode));
+        SkASSERT(xfermode);
+        // We'll test all alphas and legal color values, assuming all colors work the same.
+        // This is not true for non-separable blend modes, but this test still can't hurt.
+        for (int sa = 0; sa <= 255; sa++) {
+        for (int da = 0; da <= 255; da++) {
+        for (int  s = 0;  s <= sa;   s++) {
+        for (int  d = 0;  d <= da;   d++) {
+            SkPMColor src = SkPackARGB32(sa, s, s, s),
+                      dst = SkPackARGB32(da, d, d, d);
+            xfermode->xfer32(&dst, &src, 1, nullptr);  // To keep it simple, no AA.
+            if (!SkPMColorValid(dst)) {
+                ERRORF(r, "%08x is not premul using %s", dst, SkXfermode::ModeName(mode));
+            }
+        }}}}
+    };
+
+    // Parallelism helps speed things up on my desktop from ~725s to ~50s.
+    sk_parallel_for(SkXfermode::kLastMode, test_mode);
+}

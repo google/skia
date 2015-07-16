@@ -369,6 +369,18 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
     #define SkPMColorAssert(c)
 #endif
 
+static inline bool SkPMColorValid(SkPMColor c) {
+    auto a = SkGetPackedA32(c);
+    bool valid = a <= SK_A32_MASK
+              && SkGetPackedR32(c) <= a
+              && SkGetPackedG32(c) <= a
+              && SkGetPackedB32(c) <= a;
+    if (valid) {
+        SkPMColorAssert(c);  // Make sure we're consistent when it counts.
+    }
+    return valid;
+}
+
 /**
  *  Pack the components into a SkPMColor, checking (in the debug version) that
  *  the components are 0..255, and are already premultiplied (i.e. alpha >= color)
