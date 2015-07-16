@@ -27,6 +27,7 @@ static bool path_fill_type_is_winding(const GrStencilSettings& pathStencilSettin
 
 GrTargetCommands::Cmd* GrInOrderCommandBuilder::recordDrawBatch(State* state, GrBatch* batch) {
     // Check if there is a Batch Draw we can batch with
+    batch->setPipeline(state->getPipeline());
     if (!this->cmdBuffer()->empty() &&
         Cmd::kDrawBatch_CmdType == this->cmdBuffer()->back().type()) {
         DrawBatch* previous = static_cast<DrawBatch*>(&this->cmdBuffer()->back());
