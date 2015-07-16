@@ -253,6 +253,7 @@ void GLVertexAttributesBench::teardown(const GrGLInterface* gl) {
     GR_GL_CALL(gl, DeleteTextures(1, &fTexture));
     GR_GL_CALL(gl, DeleteProgram(fProgram));
     GR_GL_CALL(gl, DeleteBuffers(fBuffers.count(), fBuffers.begin()));
+    fBuffers.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

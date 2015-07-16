@@ -377,6 +377,7 @@ void GLCpuPosInstancedArraysBench::teardown(const GrGLInterface* gl) {
     GR_GL_CALL(gl, DeleteProgram(fProgram));
     GR_GL_CALL(gl, DeleteBuffers(fBuffers.count(), fBuffers.begin()));
     GR_GL_CALL(gl, DeleteVertexArrays(1, &fVAO));
+    fBuffers.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

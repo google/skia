@@ -105,6 +105,8 @@ bool VisualBench::setupBackend() {
 }
 
 void VisualBench::resetContext() {
+    fSurface.reset(NULL);
+
     fInterface.reset(GrGLCreateNativeInterface());
     SkASSERT(fInterface);
 
