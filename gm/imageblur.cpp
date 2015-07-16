@@ -41,11 +41,11 @@ protected:
         SkRandom rand;
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&textPaint);
+        sk_tool_utils::set_portable_typeface_always(&textPaint);
         for (int i = 0; i < 25; ++i) {
             int x = rand.nextULessThan(WIDTH);
             int y = rand.nextULessThan(HEIGHT);
-            textPaint.setColor(rand.nextBits(24) | 0xFF000000);
+            textPaint.setColor(sk_tool_utils::color_to_565(rand.nextBits(24) | 0xFF000000));
             textPaint.setTextSize(rand.nextRangeScalar(0, 300));
             canvas->drawText(str, strlen(str), SkIntToScalar(x),
                              SkIntToScalar(y), textPaint);

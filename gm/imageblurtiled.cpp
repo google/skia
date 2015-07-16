@@ -50,7 +50,7 @@ protected:
                 };
                 SkPaint textPaint;
                 textPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&textPaint);
+                sk_tool_utils::set_portable_typeface_always(&textPaint);
                 textPaint.setTextSize(SkIntToScalar(100));
                 int posY = 0;
                 for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {

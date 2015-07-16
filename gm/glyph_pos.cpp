@@ -48,9 +48,6 @@ protected:
     SkISize onISize() override { return SkISize::Make(800, 600); }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fProp) {
-            fProp.reset(sk_tool_utils::create_portable_typeface("Helvetica", SkTypeface::kNormal));
-        }
 
         // There's a black pixel at 40, 40 for reference.
         canvas->drawPoint(40.0f, 40.0f, SK_ColorBLACK);
@@ -108,8 +105,7 @@ protected:
         paint.setColor(SK_ColorBLACK);
         paint.setAntiAlias(true);
         paint.setTextSize(kTextHeight * textScale);
-        paint.setTypeface(fProp);
-        paint.setDevKernText(true);
+        sk_tool_utils::set_portable_typeface_always(&paint);
         paint.setStrokeWidth(fStrokeWidth);
         paint.setStyle(fStrokeStyle);
 
@@ -158,7 +154,6 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkTypeface> fProp;
     SkScalar fStrokeWidth;
     SkPaint::Style fStrokeStyle;
 
