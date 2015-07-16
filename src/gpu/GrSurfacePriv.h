@@ -17,6 +17,21 @@
     implemented privately in GrSurface with a inline public method here). */
 class GrSurfacePriv {
 public:
+    /** Helpers used in read/write pixels implementations. The paramters are adjusted so that the
+        read/write respects the bounds of a surface. If the input *rowBytes is 0 it will be
+        the tight row bytes (based on width and bpp) on output. */
+    static bool AdjustReadPixelParams(int surfaceWidth,
+                                      int surfaceHeight,
+                                      size_t bpp,
+                                      int* left, int* top, int* width, int* height,
+                                      void** data,
+                                      size_t* rowBytes);
+    static bool AdjustWritePixelParams(int surfaceWidth,
+                                      int surfaceHeight,
+                                      size_t bpp,
+                                      int* left, int* top, int* width, int* height,
+                                      const void** data,
+                                      size_t* rowBytes);
     /**
      * Derive a SkImageInfo from the surface's descriptor. The caller must provide the alpha type as
      * GrSurface has no equivalent.

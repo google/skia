@@ -13,6 +13,55 @@
 #include "SkImageEncoder.h"
 #include <stdio.h>
 
+template<typename T> static bool adjust_params(int surfaceWidth,
+                                               int surfaceHeight,
+                                               size_t bpp,
+                                               int* left, int* top, int* width, int* height,
+                                               T** data,
+                                               size_t* rowBytes) {
+    if (!*rowBytes) {
+        *rowBytes = *width * bpp;
+    }
+
+    SkIRect subRect = SkIRect::MakeXYWH(*left, *top, *width, *height);
+    SkIRect bounds = SkIRect::MakeWH(surfaceWidth, surfaceHeight);
+
+    if (!subRect.intersect(bounds)) {
+        return false;
+    }
+    *data = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(*data) +
+            (subRect.fTop - *top) * *rowBytes + (subRect.fLeft - *left) * bpp);
+
+    *left = subRect.fLeft;
+    *top = subRect.fTop;
+    *width = subRect.width();
+    *height = subRect.height();
+    return true;
+}
+
+bool GrSurfacePriv::AdjustReadPixelParams(int surfaceWidth,
+                                          int surfaceHeight,
+                                          size_t bpp,
+                                          int* left, int* top, int* width, int* height,
+                                          void** data,
+                                          size_t* rowBytes) {
+    return adjust_params<void>(surfaceWidth, surfaceHeight, bpp, left, top, width, height, data,
+                               rowBytes);
+}
+
+bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
+                                           int surfaceHeight,
+                                           size_t bpp,
+                                           int* left, int* top, int* width, int* height,
+                                           const void** data,
+                                           size_t* rowBytes) {
+    return adjust_params<const void>(surfaceWidth, surfaceHeight, bpp, left, top, width, height,
+                                     data, rowBytes);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool GrSurface::writePixels(int left, int top, int width, int height,
                             GrPixelConfig config, const void* buffer, size_t rowBytes,
                             uint32_t pixelOpsFlags) {
@@ -33,12 +82,8 @@ bool GrSurface::readPixels(int left, int top, int width, int height,
     if (NULL == context) {
         return false;
     }
-    GrRenderTarget* target = this->asRenderTarget();
-    if (target) {
-        return context->readRenderTargetPixels(target, left, top, width, height, config, buffer,
-                                               rowBytes, pixelOpsFlags);
-    }
-    return false;
+    return context->readSurfacePixels(this, left, top, width, height, config, buffer,
+                                      rowBytes, pixelOpsFlags);
 }
 
 SkImageInfo GrSurface::info(SkAlphaType alphaType) const {

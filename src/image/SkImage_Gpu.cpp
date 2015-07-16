@@ -248,8 +248,6 @@ GrTexture* GrDeepCopyTexture(GrTexture* src, bool budgeted) {
     GrContext* ctx = src->getContext();
 
     GrSurfaceDesc desc = src->desc();
-    // need to be a rendertarget for readpixels to work, instead of kNone_GrSurfaceFlags
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     GrTexture* dst = ctx->textureProvider()->createTexture(desc, budgeted, NULL, 0);
     if (!dst) {
         return NULL;

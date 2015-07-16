@@ -15,6 +15,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
 #include "SkGpuDevice.h"
+#include "SkGr.h"
 #endif
 
 static const int DEV_W = 100, DEV_H = 100;
@@ -22,7 +23,7 @@ static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
 static const SkRect DEV_RECT_S = SkRect::MakeWH(DEV_W * SK_Scalar1,
                                                 DEV_H * SK_Scalar1);
 
-static SkPMColor getCanvasColor(int x, int y) {
+static SkPMColor get_src_color(int x, int y) {
     SkASSERT(x >= 0 && x < DEV_W);
     SkASSERT(y >= 0 && y < DEV_H);
 
@@ -50,8 +51,8 @@ static SkPMColor getCanvasColor(int x, int y) {
     }
     return SkPremultiplyARGBInline(a, r, g, b);
 }
-
-static SkPMColor getBitmapColor(int x, int y, int w) {
+    
+static SkPMColor get_dst_bmp_init_color(int x, int y, int w) {
     int n = y * w + x;
 
     U8CPU b = n & 0xff;
@@ -60,8 +61,8 @@ static SkPMColor getBitmapColor(int x, int y, int w) {
     return SkPackARGB32(0xff, r, g , b);
 }
 
-static SkPMColor convertToPMColor(SkColorType ct, SkAlphaType at, const uint32_t* addr,
-                                  bool* doUnpremul) {
+static SkPMColor convert_to_pmcolor(SkColorType ct, SkAlphaType at, const uint32_t* addr,
+                                    bool* doUnpremul) {
     *doUnpremul = (kUnpremul_SkAlphaType == at);
 
     const uint8_t* c = reinterpret_cast<const uint8_t*>(addr);
@@ -92,7 +93,7 @@ static SkPMColor convertToPMColor(SkColorType ct, SkAlphaType at, const uint32_t
     return SkPackARGB32(a, r, g, b);
 }
 
-static void fillCanvas(SkCanvas* canvas) {
+static SkBitmap make_src_bitmap() {
     static SkBitmap bmp;
     if (bmp.isNull()) {
         bmp.allocN32Pixels(DEV_W, DEV_H);
@@ -100,20 +101,34 @@ static void fillCanvas(SkCanvas* canvas) {
         for (int y = 0; y < DEV_H; ++y) {
             for (int x = 0; x < DEV_W; ++x) {
                 SkPMColor* pixel = reinterpret_cast<SkPMColor*>(pixels + y * bmp.rowBytes() + x * bmp.bytesPerPixel());
-                *pixel = getCanvasColor(x, y);
+                *pixel = get_src_color(x, y);
             }
         }
     }
+    return bmp;
+}
+
+static void fill_src_canvas(SkCanvas* canvas) {
     canvas->save();
     canvas->setMatrix(SkMatrix::I());
     canvas->clipRect(DEV_RECT_S, SkRegion::kReplace_Op);
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    canvas->drawBitmap(bmp, 0, 0, &paint);
+    canvas->drawBitmap(make_src_bitmap(), 0, 0, &paint);
     canvas->restore();
 }
 
-static void fillBitmap(SkBitmap* bitmap) {
+#if SK_SUPPORT_GPU
+static void fill_src_texture(GrTexture* texture) {
+    SkBitmap bmp = make_src_bitmap();
+    bmp.lockPixels();
+    texture->writePixels(0, 0, DEV_W, DEV_H, kSkia8888_GrPixelConfig, bmp.getPixels(),
+                         bmp.rowBytes());
+    bmp.unlockPixels();
+}
+#endif
+
+static void fill_dst_bmp_with_init_data(SkBitmap* bitmap) {
     SkASSERT(bitmap->lockPixelsAreWritable());
     SkAutoLockPixels alp(*bitmap);
     int w = bitmap->width();
@@ -122,12 +137,12 @@ static void fillBitmap(SkBitmap* bitmap) {
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             SkPMColor* pixel = reinterpret_cast<SkPMColor*>(pixels + y * bitmap->rowBytes() + x * bitmap->bytesPerPixel());
-            *pixel = getBitmapColor(x, y, w);
+            *pixel = get_dst_bmp_init_color(x, y, w);
         }
     }
 }
 
-static bool checkPixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
+static bool check_read_pixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
     if (!didPremulConversion) {
         return a == b;
     }
@@ -150,11 +165,11 @@ static bool checkPixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
 // checks the bitmap contains correct pixels after the readPixels
 // if the bitmap was prefilled with pixels it checks that these weren't
 // overwritten in the area outside the readPixels.
-static bool checkRead(skiatest::Reporter* reporter,
-                      const SkBitmap& bitmap,
-                      int x, int y,
-                      bool checkCanvasPixels,
-                      bool checkBitmapPixels) {
+static bool check_read(skiatest::Reporter* reporter,
+                       const SkBitmap& bitmap,
+                       int x, int y,
+                       bool checkCanvasPixels,
+                       bool checkBitmapPixels) {
     SkASSERT(4 == bitmap.bytesPerPixel());
     SkASSERT(!bitmap.isNull());
     SkASSERT(checkCanvasPixels || checkBitmapPixels);
@@ -180,18 +195,18 @@ static bool checkRead(skiatest::Reporter* reporter,
 
             if (clippedSrcRect.contains(devx, devy)) {
                 if (checkCanvasPixels) {
-                    SkPMColor canvasPixel = getCanvasColor(devx, devy);
+                    SkPMColor canvasPixel = get_src_color(devx, devy);
                     bool didPremul;
-                    SkPMColor pmPixel = convertToPMColor(ct, at, pixel, &didPremul);
-                    bool check;
-                    REPORTER_ASSERT(reporter, check = checkPixel(pmPixel, canvasPixel, didPremul));
+                    SkPMColor pmPixel = convert_to_pmcolor(ct, at, pixel, &didPremul);
+                    bool check = check_read_pixel(pmPixel, canvasPixel, didPremul);
+                    REPORTER_ASSERT(reporter, check);
                     if (!check) {
                         return false;
                     }
                 }
             } else if (checkBitmapPixels) {
-                REPORTER_ASSERT(reporter, getBitmapColor(bx, by, bw) == *pixel);
-                if (getBitmapColor(bx, by, bw) != *pixel) {
+                REPORTER_ASSERT(reporter, get_dst_bmp_init_color(bx, by, bw) == *pixel);
+                if (get_dst_bmp_init_color(bx, by, bw) != *pixel) {
                     return false;
                 }
             }
@@ -291,6 +306,9 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
     for (int dtype = 0; dtype < 3; ++dtype) {
         int glCtxTypeCnt = 1;
 #if SK_SUPPORT_GPU
+        // On the GPU we will also try reading back from a non-renderable texture.
+        SkAutoTUnref<GrTexture> texture;
+
         if (0 != dtype)  {
             glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
         }
@@ -317,15 +335,24 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                 desc.fHeight = DEV_H;
                 desc.fConfig = kSkia8888_GrPixelConfig;
                 desc.fOrigin = 1 == dtype ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
-                SkAutoTUnref<GrTexture> texture(
+                SkAutoTUnref<GrTexture> surfaceTexture(
                     context->textureProvider()->createTexture(desc, false));
-                surface.reset(SkSurface::NewRenderTargetDirect(texture->asRenderTarget()));
+                surface.reset(SkSurface::NewRenderTargetDirect(surfaceTexture->asRenderTarget()));
+                desc.fFlags = kNone_GrSurfaceFlags;
+
+                texture.reset(context->textureProvider()->createTexture(desc, false));
 #else
                 continue;
 #endif
             }
             SkCanvas& canvas = *surface->getCanvas();
-            fillCanvas(&canvas);
+            fill_src_canvas(&canvas);
+
+#if SK_SUPPORT_GPU
+            if (texture) {
+                fill_src_texture(texture);
+            }
+#endif
 
             static const struct {
                 SkColorType fColorType;
@@ -348,7 +375,7 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                         // note that and fill them with pattern
                         bool startsWithPixels = !bmp.isNull();
                         if (startsWithPixels) {
-                            fillBitmap(&bmp);
+                            fill_dst_bmp_with_init_data(&bmp);
                         }
                         uint32_t idBefore = surface->generationID();
                         bool success = canvas.readPixels(&bmp, srcRect.fLeft, srcRect.fTop);
@@ -363,13 +390,34 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                         REPORTER_ASSERT(reporter, idBefore == idAfter);
 
                         if (success || startsWithPixels) {
-                            checkRead(reporter, bmp, srcRect.fLeft, srcRect.fTop,
-                                      success, startsWithPixels);
+                            check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
+                                       success, startsWithPixels);
                         } else {
                             // if we had no pixels beforehand and the readPixels
                             // failed then our bitmap should still not have pixels
                             REPORTER_ASSERT(reporter, bmp.isNull());
                         }
+#if SK_SUPPORT_GPU
+                        // Try doing the read directly from a non-renderable texture
+                        if (texture && startsWithPixels) {
+                            fill_dst_bmp_with_init_data(&bmp);
+                            GrPixelConfig dstConfig =
+                                SkImageInfo2GrPixelConfig(gReadConfigs[c].fColorType,
+                                                          gReadConfigs[c].fAlphaType,
+                                                          kLinear_SkColorProfileType);
+                            uint32_t flags = 0;
+                            if (gReadConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
+                                flags = GrContext::kUnpremul_PixelOpsFlag;
+                            }
+                            bmp.lockPixels();
+                            success = texture->readPixels(srcRect.fLeft, srcRect.fTop, bmp.width(),
+                                                bmp.height(), dstConfig, bmp.getPixels(),
+                                                bmp.rowBytes(), flags);
+                            bmp.unlockPixels();
+                            check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
+                                       success, true);
+                        }
+#endif
                     }
                     // check the old webkit version of readPixels that clips the
                     // bitmap size
@@ -380,8 +428,8 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                         REPORTER_ASSERT(reporter, success);
                         REPORTER_ASSERT(reporter, kN32_SkColorType == wkbmp.colorType());
                         REPORTER_ASSERT(reporter, kPremul_SkAlphaType == wkbmp.alphaType());
-                        checkRead(reporter, wkbmp, clippedRect.fLeft,
-                                  clippedRect.fTop, true, false);
+                        check_read(reporter, wkbmp, clippedRect.fLeft,
+                                   clippedRect.fTop, true, false);
                     } else {
                         REPORTER_ASSERT(reporter, !success);
                     }

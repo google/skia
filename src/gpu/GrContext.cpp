@@ -347,6 +347,14 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         }
     }
 
+    // Trim the params here so that if we wind up making a temporary surface it can be as small as
+    // necessary.
+    if (!GrSurfacePriv::AdjustWritePixelParams(surface->width(), surface->height(),
+                                               GrBytesPerPixel(srcConfig), &left, &top, &width,
+                                               &height, &buffer, &rowBytes)) {
+        return false;
+    }
+
     // If we didn't do a direct texture write then we upload the pixels to a texture and draw.
     GrRenderTarget* renderTarget = surface->asRenderTarget();
     if (!renderTarget) {
@@ -452,25 +460,28 @@ static SkColorType toggle_colortype32(SkColorType ct) {
     }
 }
 
-bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
-                                       int left, int top, int width, int height,
-                                       GrPixelConfig dstConfig, void* buffer, size_t rowBytes,
-                                       uint32_t flags) {
+bool GrContext::readSurfacePixels(GrSurface* src,
+                                  int left, int top, int width, int height,
+                                  GrPixelConfig dstConfig, void* buffer, size_t rowBytes,
+                                  uint32_t flags) {
     RETURN_FALSE_IF_ABANDONED
-    ASSERT_OWNED_RESOURCE(target);
-    SkASSERT(target);
+    ASSERT_OWNED_RESOURCE(src);
+    SkASSERT(src);
 
-    if (!(kDontFlush_PixelOpsFlag & flags) && target->surfacePriv().hasPendingWrite()) {
+    // Adjust the params so that if we wind up using an intermediate surface we've already done
+    // all the trimming and the temporary can be the min size required.
+    if (!GrSurfacePriv::AdjustReadPixelParams(src->width(), src->height(),
+                                              GrBytesPerPixel(dstConfig), &left,
+                                              &top, &width, &height, &buffer, &rowBytes)) {
+        return false;
+    }
+
+    if (!(kDontFlush_PixelOpsFlag & flags) && src->surfacePriv().hasPendingWrite()) {
         this->flush();
     }
 
     // Determine which conversions have to be applied: flipY, swapRAnd, and/or unpremul.
 
-    // If fGpu->readPixels would incur a y-flip cost then we will read the pixels upside down. We'll
-    // either do the flipY by drawing into a scratch with a matrix or on the cpu after the read.
-    bool flipY = fGpu->readPixelsWillPayForYFlip(target, left, top,
-                                                 width, height, dstConfig,
-                                                 rowBytes);
     // We ignore the preferred config if it is different than our config unless it is an R/B swap.
     // In that case we'll perform an R and B swap while drawing to a scratch texture of the swapped
     // config. Then we will call readPixels on the scratch with the swapped config. The swaps during
@@ -479,13 +490,23 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     GrPixelConfig readConfig = dstConfig;
     bool swapRAndB = false;
     if (GrPixelConfigSwapRAndB(dstConfig) ==
-        fGpu->preferredReadPixelsConfig(dstConfig, target->config())) {
+        fGpu->preferredReadPixelsConfig(dstConfig, src->config())) {
         readConfig = GrPixelConfigSwapRAndB(readConfig);
         swapRAndB = true;
     }
 
-    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
+    bool flipY = false;
+    GrRenderTarget* srcAsRT = src->asRenderTarget();
+    if (srcAsRT) {
+        // If fGpu->readPixels would incur a y-flip cost then we will read the pixels upside down.
+        // We'll either do the flipY by drawing into a scratch with a matrix or on the cpu after the
+        // read.
+        flipY = fGpu->readPixelsWillPayForYFlip(srcAsRT, left, top,
+                                                width, height, dstConfig,
+                                                rowBytes);
+    }
 
+    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
     if (unpremul && !GrPixelConfigIs8888(dstConfig)) {
         // The unpremul flag is only allowed for these two configs.
         return false;
@@ -496,9 +517,11 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     // If the src is a texture and we would have to do conversions after read pixels, we instead
     // do the conversions by drawing the src to a scratch texture. If we handle any of the
     // conversions in the draw we set the corresponding bool to false so that we don't reapply it
-    // on the read back pixels.
-    GrTexture* src = target->asTexture();
-    if (src && (swapRAndB || unpremul || flipY)) {
+    // on the read back pixels. We also do an intermediate draw if the src is not a render target as
+    // GrGpu currently supports reading from render targets but not textures.
+    GrTexture* srcAsTex = src->asTexture();
+    GrRenderTarget* rtToRead = srcAsRT;
+    if (srcAsTex && (swapRAndB || unpremul || flipY || !srcAsRT)) {
         // Make the scratch a render so we can read its pixels.
         GrSurfaceDesc desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -514,8 +537,8 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         GrTextureProvider::ScratchTexMatch match = GrTextureProvider::kApprox_ScratchTexMatch;
         if (0 == left &&
             0 == top &&
-            target->width() == width &&
-            target->height() == height &&
+            src->width() == width &&
+            src->height() == height &&
             fGpu->fullReadPixelsIsFasterThanPartial()) {
             match = GrTextureProvider::kExact_ScratchTexMatch;
         }
@@ -529,18 +552,18 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             GrPaint paint;
             SkAutoTUnref<const GrFragmentProcessor> fp;
             if (unpremul) {
-                fp.reset(this->createPMToUPMEffect(paint.getProcessorDataManager(), src, swapRAndB,
-                                                   textureMatrix));
+                fp.reset(this->createPMToUPMEffect(paint.getProcessorDataManager(), srcAsTex,
+                                                   swapRAndB, textureMatrix));
                 if (fp) {
                     unpremul = false; // we no longer need to do this on CPU after the read back.
                 }
             }
             // If we failed to create a PM->UPM effect and have no other conversions to perform then
             // there is no longer any point to using the scratch.
-            if (fp || flipY || swapRAndB) {
+            if (fp || flipY || swapRAndB || !srcAsRT) {
                 if (!fp) {
                     fp.reset(GrConfigConversionEffect::Create(paint.getProcessorDataManager(),
-                            src, swapRAndB, GrConfigConversionEffect::kNone_PMConversion,
+                            srcAsTex, swapRAndB, GrConfigConversionEffect::kNone_PMConversion,
                             textureMatrix));
                 }
                 swapRAndB = false; // we will handle the swap in the draw.
@@ -564,16 +587,15 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                     // we want to read back from the scratch's origin
                     left = 0;
                     top = 0;
-                    target = tempTexture->asRenderTarget();
+                    rtToRead = tempTexture->asRenderTarget();
                 }
-                this->flushSurfaceWrites(target);
+                this->flushSurfaceWrites(tempTexture);
             }
         }
     }
 
-    if (!fGpu->readPixels(target,
-                          left, top, width, height,
-                          readConfig, buffer, rowBytes)) {
+    if (!rtToRead ||
+        !fGpu->readPixels(rtToRead, left, top, width, height, readConfig, buffer, rowBytes)) {
         return false;
     }
     // Perform any conversions we weren't able to perform using a scratch texture.

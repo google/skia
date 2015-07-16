@@ -228,8 +228,8 @@ public:
     };
 
     /**
-     * Reads a rectangle of pixels from a render target.
-     * @param target        the render target to read from.
+     * Reads a rectangle of pixels from a surface.
+     * @param surface       the surface to read from.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
@@ -241,14 +241,13 @@ public:
      * @param pixelOpsFlags see PixelOpsFlags enum above.
      *
      * @return true if the read succeeded, false if not. The read can fail because of an unsupported
-     *         pixel config or because no render target is currently set and NULL was passed for
-     *         target.
+     *         pixel configs
      */
-    bool readRenderTargetPixels(GrRenderTarget* target,
-                                int left, int top, int width, int height,
-                                GrPixelConfig config, void* buffer,
-                                size_t rowBytes = 0,
-                                uint32_t pixelOpsFlags = 0);
+    bool readSurfacePixels(GrSurface* surface,
+                           int left, int top, int width, int height,
+                           GrPixelConfig config, void* buffer,
+                           size_t rowBytes = 0,
+                           uint32_t pixelOpsFlags = 0);
 
     /**
      * Writes a rectangle of pixels to a surface.

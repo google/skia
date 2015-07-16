@@ -596,32 +596,6 @@ bool GrGLGpu::onWriteTexturePixels(GrTexture* texture,
     return false;
 }
 
-static bool adjust_pixel_ops_params(int surfaceWidth,
-                                    int surfaceHeight,
-                                    size_t bpp,
-                                    int* left, int* top, int* width, int* height,
-                                    const void** data,
-                                    size_t* rowBytes) {
-    if (!*rowBytes) {
-        *rowBytes = *width * bpp;
-    }
-
-    SkIRect subRect = SkIRect::MakeXYWH(*left, *top, *width, *height);
-    SkIRect bounds = SkIRect::MakeWH(surfaceWidth, surfaceHeight);
-
-    if (!subRect.intersect(bounds)) {
-        return false;
-    }
-    *data = reinterpret_cast<const void*>(reinterpret_cast<intptr_t>(*data) +
-          (subRect.fTop - *top) * *rowBytes + (subRect.fLeft - *left) * bpp);
-
-    *left = subRect.fLeft;
-    *top = subRect.fTop;
-    *width = subRect.width();
-    *height = subRect.height();
-    return true;
-}
-
 static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
                                          const GrGLInterface* interface) {
     if (SkToBool(desc.fFlags & kCheckAllocation_GrSurfaceFlag)) {
@@ -643,8 +617,8 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
     size_t bpp = GrBytesPerPixel(dataConfig);
-    if (!adjust_pixel_ops_params(desc.fWidth, desc.fHeight, bpp, &left, &top,
-                                 &width, &height, &data, &rowBytes)) {
+    if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
+                                               &width, &height, &data, &rowBytes)) {
         return false;
     }
     size_t trimRowBytes = width * bpp;
@@ -1781,10 +1755,10 @@ bool GrGLGpu::onReadPixels(GrRenderTarget* target,
         return false;
     }
     size_t bpp = GrBytesPerPixel(config);
-    if (!adjust_pixel_ops_params(target->width(), target->height(), bpp,
-                                 &left, &top, &width, &height,
-                                 const_cast<const void**>(&buffer),
-                                 &rowBytes)) {
+    if (!GrSurfacePriv::AdjustReadPixelParams(target->width(), target->height(), bpp,
+                                              &left, &top, &width, &height,
+                                              &buffer,
+                                              &rowBytes)) {
         return false;
     }
 
