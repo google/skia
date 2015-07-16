@@ -145,7 +145,7 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     paint.setImageFilter(imf);
     paint.setColor(SK_ColorCYAN);
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
+    sk_tool_utils::set_portable_typeface_always(&paint);
     paint.setTextSize(r.height()/2);
     paint.setTextAlign(SkPaint::kCenter_Align);
     canvas->drawText("Text", 4, r.centerX(), r.centerY(), paint);
@@ -283,6 +283,7 @@ protected:
             SkPaint::kAntiAlias_Flag | SkPaint::kLCDRenderText_Flag,
         };
         SkPaint paint(origPaint);
+        sk_tool_utils::set_portable_typeface_always(&paint);
         paint.setTextSize(30);
 
         SkAutoCanvasRestore acr(canvas, true);
