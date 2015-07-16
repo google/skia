@@ -59,8 +59,7 @@ protected:
         signed char* uvPixels[2];
         yPixels = static_cast<unsigned char*>(fYUVBmps[0].getPixels());
         uvPixels[0] = static_cast<signed char*>(fYUVBmps[1].getPixels());
-        uvPixels[1] = static_cast<signed char*>(fYUVBmps[2
-        ].getPixels());
+        uvPixels[1] = static_cast<signed char*>(fYUVBmps[2].getPixels());
 
         // Here we encode using the NTC encoding (even though we will draw it with all the supported
         // yuv color spaces when converted back to RGB)

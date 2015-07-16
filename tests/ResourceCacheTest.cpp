@@ -197,11 +197,11 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
 
     desc.fTextureHandle = texIDs[0];
     SkAutoTUnref<GrTexture> borrowed(context->textureProvider()->wrapBackendTexture(
-        desc, kBorrow_GrWrapOwnership));
+                                     desc, kBorrow_GrWrapOwnership));
 
     desc.fTextureHandle = texIDs[1];
     SkAutoTUnref<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
-        desc, kAdopt_GrWrapOwnership));
+                                    desc, kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, SkToBool(borrowed) && SkToBool(adopted));
     if (!SkToBool(borrowed) || !SkToBool(adopted)) {

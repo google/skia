@@ -83,12 +83,19 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
     // Warn if path rendering support is not available for the NVPR type.
     if (kNVPR_GLContextType == type) {
         if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
-            GrGLGpu* gpu = static_cast<GrGLGpu*>(grCtx->getGpu());
-            const GrGLubyte* verUByte;
-            GR_GL_CALL_RET(gpu->glInterface(), verUByte, GetString(GR_GL_VERSION));
-            const char* ver = reinterpret_cast<const char*>(verUByte);
-            SkDebugf("\nWARNING: nvprmsaa config requested, but driver path rendering support not"
-                     " available. Maybe update the driver? Your driver version string: \"%s\"\n", ver);
+            GrGpu* gpu = grCtx->getGpu();
+            const GrGLContext* ctx = gpu->glContextForTesting();
+            if (ctx) {
+                const GrGLubyte* verUByte;
+                GR_GL_CALL_RET(ctx->interface(), verUByte, GetString(GR_GL_VERSION));
+                const char* ver = reinterpret_cast<const char*>(verUByte);
+                SkDebugf("\nWARNING: nvprmsaa config requested, but driver path rendering "
+                         "support not available. Maybe update the driver? Your driver version "
+                         "string: \"%s\"\n", ver);
+            } else {
+                SkDebugf("\nWARNING: nvprmsaa config requested, but driver path rendering "
+                         "support not available.\n");
+            }
         }
     }
 
