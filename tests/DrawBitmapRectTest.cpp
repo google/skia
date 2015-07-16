@@ -299,7 +299,7 @@ DEF_TEST(DrawBitmapRect, reporter) {
     SkIRect srcR = { gWidth, 0, gWidth + 16, 16 };
     SkRect  dstR = { 0, 0, SkIntToScalar(16), SkIntToScalar(16) };
 
-    canvas.drawBitmapRect(src, &srcR, dstR, NULL);
+    canvas.drawBitmapRect(src, srcR, dstR, NULL);
 
     // ensure that we draw nothing if srcR does not intersect the bitmap
     REPORTER_ASSERT(reporter, check_for_all_zeros(dst));

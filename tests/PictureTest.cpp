@@ -690,7 +690,7 @@ DEF_TEST(PictureRecorder_replay, reporter) {
         make_bm(&bm, 10, 10, SK_ColorRED, true);
 
         r.offset(5.0f, 5.0f);
-        canvas->drawBitmapRectToRect(bm, NULL, r);
+        canvas->drawBitmapRect(bm, r);
 
         SkAutoTUnref<SkPicture> final(recorder.endRecording());
         REPORTER_ASSERT(reporter, final->willPlayBackBitmaps());
@@ -1167,7 +1167,7 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
 
     // Don't care what these record, as long as they're legal.
     canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
-    canvas->drawBitmapRectToRect(bitmap, &rect, rect, &paint, SkCanvas::kNone_DrawBitmapRectFlag);
+    canvas->drawBitmapRect(bitmap, &rect, rect, &paint);
     canvas->drawBitmapNine(bitmap, irect, rect, &paint);
     canvas->drawSprite(bitmap, 1, 1);
 }
@@ -1197,8 +1197,8 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     // This test is from crbug.com/344987.
     // The commands are:
     //   saveLayer with paint that modifies alpha
-    //     drawBitmapRectToRect
-    //     drawBitmapRectToRect
+    //     drawBitmapRect
+    //     drawBitmapRect
     //   restore
     // The bug was that this structure was modified so that:
     //  - The saveLayer and restore were eliminated

@@ -79,30 +79,25 @@ static SkImage* makebm(SkBitmap* bm, int w, int h) {
     return image_from_bitmap(*bm);
 }
 
-static void canvasproc(SkCanvas* canvas, SkImage*, const SkBitmap& bm, const SkIRect* srcR,
+static void canvasproc(SkCanvas* canvas, SkImage*, const SkBitmap& bm, const SkIRect& srcR,
                        const SkRect& dstR) {
-    canvas->drawBitmapRect(bm, srcR, dstR);
+    canvas->drawBitmapRect(bm, srcR, dstR, NULL);
 }
 
-static void imageproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect* srcIR,
+static void imageproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect& srcR,
                       const SkRect& dstR) {
-    SkRect storage, *srcR = NULL;
-    if (srcIR) {
-        storage.set(*srcIR);
-        srcR = &storage;
-    }
-    canvas->drawImageRect(image, srcR, dstR);
+    canvas->drawImageRect(image, srcR, dstR, NULL);
 }
 
-static void imagescaleproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect* srcIR,
+static void imagescaleproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect& srcIR,
                            const SkRect& dstR) {
     const int newW = SkScalarRoundToInt(dstR.width());
     const int newH = SkScalarRoundToInt(dstR.height());
-    SkAutoTUnref<SkImage> newImage(image->newImage(newW, newH, srcIR));
+    SkAutoTUnref<SkImage> newImage(image->newImage(newW, newH, &srcIR));
 
 #ifdef SK_DEBUG
     const SkIRect baseR = SkIRect::MakeWH(image->width(), image->height());
-    const bool containsSubset = !srcIR || baseR.contains(*srcIR);
+    const bool containsSubset = baseR.contains(srcIR);
 #endif
 
     if (newImage) {
@@ -121,7 +116,7 @@ static void imagescaleproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, co
     }
 }
 
-typedef void DrawRectRectProc(SkCanvas*, SkImage*, const SkBitmap&, const SkIRect*, const SkRect&);
+typedef void DrawRectRectProc(SkCanvas*, SkImage*, const SkBitmap&, const SkIRect&, const SkRect&);
 
 static const int gSize = 1024;
 static const int gBmpSize = 2048;
@@ -181,7 +176,7 @@ protected:
             for (int h = 1; h <= kMaxSrcRectSize; h *= 4) {
 
                 SkIRect srcRect = SkIRect::MakeXYWH((gBmpSize - w) / 2, (gBmpSize - h) / 2, w, h);
-                fProc(canvas, fImage, fLargeBitmap, &srcRect, dstRect);
+                fProc(canvas, fImage, fLargeBitmap, srcRect, dstRect);
 
                 SkString label;
                 label.appendf("%d x %d", w, h);
@@ -226,7 +221,7 @@ protected:
                 SkBlurMaskFilter::kHighQuality_BlurFlag |
                 SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
             paint.setMaskFilter(mf)->unref();
-            canvas->drawBitmapRect(bm, &srcRect, dstRect, &paint);
+            canvas->drawBitmapRect(bm, srcRect, dstRect, &paint);
         }
     }
 
