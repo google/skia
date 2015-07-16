@@ -43,6 +43,7 @@ private:
     ConvexPolyTestBatch(const GrGeometryProcessor* gp, const Geometry& geo)
         : INHERITED(gp, geo.fBounds)
         , fGeometry(geo) {
+        this->initClassID<ConvexPolyTestBatch>();
     }
 
     Geometry* geoData(int index) override {
