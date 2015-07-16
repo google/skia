@@ -33,6 +33,64 @@
   enum { kDefaultCacheSize = 128 * 1024 * 1024 };
 #endif
 
+#ifndef SK_IGNORE_TO_STRING
+void SkImageFilter::CropRect::toString(SkString* str) const {
+    if (!fFlags) {
+        return;
+    }
+
+    str->appendf("cropRect (");
+    if (fFlags & CropRect::kHasLeft_CropEdge) {
+        str->appendf("%.2f, ", fRect.fLeft);
+    } else {
+        str->appendf("X, ");
+    }
+    if (fFlags & CropRect::kHasTop_CropEdge) {
+        str->appendf("%.2f, ", fRect.fTop);
+    } else {
+        str->appendf("X, ");
+    }
+    if (fFlags & CropRect::kHasRight_CropEdge) {
+        str->appendf("%.2f, ", fRect.fRight);
+    } else {
+        str->appendf("X, ");
+    }
+    if (fFlags & CropRect::kHasBottom_CropEdge) {
+        str->appendf("%.2f", fRect.fBottom);
+    } else {
+        str->appendf("X");
+    }
+    str->appendf(") ");
+}
+#endif
+
+bool SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds, const Context& ctx,
+                                      SkIRect* cropped) const {
+    *cropped = imageBounds;
+    if (fFlags) {
+        SkRect devCropR;
+        ctx.ctm().mapRect(&devCropR, fRect);
+        const SkIRect devICropR = devCropR.roundOut();
+
+        // Compute the left/top first, in case we have to read them to compute right/bottom
+        if (fFlags & kHasLeft_CropEdge) {
+            cropped->fLeft = devICropR.fLeft;
+        }
+        if (fFlags & kHasTop_CropEdge) {
+            cropped->fTop = devICropR.fTop;
+        }
+        if (fFlags & kHasRight_CropEdge) {
+            cropped->fRight = cropped->fLeft + devICropR.width();
+        }
+        if (fFlags & kHasBottom_CropEdge) {
+            cropped->fBottom = cropped->fTop + devICropR.height();
+        }
+    }
+    return cropped->intersect(ctx.clipBounds());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 static int32_t next_image_filter_unique_id() {
     static int32_t gImageFilterUniqueID;
 
@@ -298,27 +356,7 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,
     SkIRect srcBounds;
     src.getBounds(&srcBounds);
     srcBounds.offset(srcOffset);
-    SkRect cropRect;
-    ctx.ctm().mapRect(&cropRect, fCropRect.rect());
-    const SkIRect cropRectI = cropRect.roundOut();
-    uint32_t flags = fCropRect.flags();
-    if (flags & CropRect::kHasLeft_CropEdge) {
-        srcBounds.fLeft = cropRectI.fLeft;
-    }
-    if (flags & CropRect::kHasTop_CropEdge) {
-        srcBounds.fTop = cropRectI.fTop;
-    }
-    if (flags & CropRect::kHasRight_CropEdge) {
-        srcBounds.fRight = srcBounds.fLeft + cropRectI.width();
-    }
-    if (flags & CropRect::kHasBottom_CropEdge) {
-        srcBounds.fBottom = srcBounds.fTop + cropRectI.height();
-    }
-    if (!srcBounds.intersect(ctx.clipBounds())) {
-        return false;
-    }
-    *bounds = srcBounds;
-    return true;
+    return fCropRect.applyTo(srcBounds, ctx, bounds);
 }
 
 bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitmap& src,
@@ -326,26 +364,10 @@ bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitm
     SkIRect srcBounds;
     src.getBounds(&srcBounds);
     srcBounds.offset(*srcOffset);
-    SkRect cropRect;
-    ctx.ctm().mapRect(&cropRect, fCropRect.rect());
-    const SkIRect cropRectI = cropRect.roundOut();
-    uint32_t flags = fCropRect.flags();
-    *bounds = srcBounds;
-    if (flags & CropRect::kHasLeft_CropEdge) {
-        bounds->fLeft = cropRectI.fLeft;
-    }
-    if (flags & CropRect::kHasTop_CropEdge) {
-        bounds->fTop = cropRectI.fTop;
-    }
-    if (flags & CropRect::kHasRight_CropEdge) {
-        bounds->fRight = bounds->fLeft + cropRectI.width();
-    }
-    if (flags & CropRect::kHasBottom_CropEdge) {
-        bounds->fBottom = bounds->fTop + cropRectI.height();
-    }
-    if (!bounds->intersect(ctx.clipBounds())) {
+    if (!fCropRect.applyTo(srcBounds, ctx, bounds)) {
         return false;
     }
+
     if (srcBounds.contains(*bounds)) {
         *dst = src;
         return true;
