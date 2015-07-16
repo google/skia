@@ -79,6 +79,11 @@ private:
     SkImage*    fCachedImage;
 
     void aboutToDraw(ContentChangeMode mode);
+
+    // Returns true if there is an outstanding image-snapshot, indicating that a call to aboutToDraw
+    // would trigger a copy-on-write.
+    bool outstandingImageSnapshot() const;
+
     friend class SkCanvas;
     friend class SkSurface;
 

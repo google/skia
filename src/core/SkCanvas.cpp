@@ -17,6 +17,7 @@
 #include "SkImage.h"
 #include "SkMetaData.h"
 #include "SkNinePatchIter.h"
+#include "SkPaintPriv.h"
 #include "SkPathOps.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
@@ -35,6 +36,60 @@
 #if SK_SUPPORT_GPU
 #include "GrRenderTarget.h"
 #endif
+
+/*
+ *  Return true if the drawing this rect would hit every pixels in the canvas.
+ *
+ *  Returns false if
+ *  - rect does not contain the canvas' bounds
+ *  - paint is not fill
+ *  - paint would blur or otherwise change the coverage of the rect
+ */
+bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* paint,
+                                           ShaderOverrideOpacity overrideOpacity) const {
+    SK_COMPILE_ASSERT((int)SkPaintPriv::kNone_ShaderOverrideOpacity ==
+                      (int)kNone_ShaderOverrideOpacity,
+                      need_matching_enums0);
+    SK_COMPILE_ASSERT((int)SkPaintPriv::kOpaque_ShaderOverrideOpacity ==
+                      (int)kOpaque_ShaderOverrideOpacity,
+                      need_matching_enums1);
+    SK_COMPILE_ASSERT((int)SkPaintPriv::kNotOpaque_ShaderOverrideOpacity ==
+                      (int)kNotOpaque_ShaderOverrideOpacity,
+                      need_matching_enums2);
+
+    const SkISize size = this->getBaseLayerSize();
+    const SkRect bounds = SkRect::MakeIWH(size.width(), size.height());
+    if (!this->getClipStack()->quickContains(bounds)) {
+        return false;
+    }
+
+    if (rect) {
+        if (!this->getTotalMatrix().rectStaysRect()) {
+            return false; // conservative
+        }
+
+        SkRect devRect;
+        this->getTotalMatrix().mapRect(&devRect, *rect);
+        if (devRect.contains(bounds)) {
+            return false;
+        }
+    }
+
+    if (paint) {
+        SkPaint::Style paintStyle = paint->getStyle();
+        if (!(paintStyle == SkPaint::kFill_Style ||
+              paintStyle == SkPaint::kStrokeAndFill_Style)) {
+            return false;
+        }
+        if (paint->getMaskFilter() || paint->getLooper()
+            || paint->getPathEffect() || paint->getImageFilter()) {
+            return false; // conservative
+        }
+    }
+    return SkPaintPriv::Overwrites(paint, (SkPaintPriv::ShaderOverrideOpacity)overrideOpacity);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool gIgnoreSaveLayerBounds;
 void SkCanvas::Internal_Private_SetIgnoreSaveLayerBounds(bool ignore) {
@@ -80,9 +135,28 @@ bool SkCanvas::Internal_Private_GetTreatSpriteAsBitmap() {
 
 typedef SkTLazy<SkPaint> SkLazyPaint;
 
-void SkCanvas::predrawNotify() {
+void SkCanvas::predrawNotify(bool willOverwritesEntireSurface) {
     if (fSurfaceBase) {
-        fSurfaceBase->aboutToDraw(SkSurface::kRetain_ContentChangeMode);
+        fSurfaceBase->aboutToDraw(willOverwritesEntireSurface
+                                  ? SkSurface::kDiscard_ContentChangeMode
+                                  : SkSurface::kRetain_ContentChangeMode);
+    }
+}
+
+void SkCanvas::predrawNotify(const SkRect* rect, const SkPaint* paint,
+                             ShaderOverrideOpacity overrideOpacity) {
+    if (fSurfaceBase) {
+        SkSurface::ContentChangeMode mode = SkSurface::kRetain_ContentChangeMode;
+        // Since willOverwriteAllPixels() may not be complete free to call, we only do so if
+        // there is an outstanding snapshot, since w/o that, there will be no copy-on-write
+        // and therefore we don't care which mode we're in.
+        //
+        if (fSurfaceBase->outstandingImageSnapshot()) {
+            if (this->wouldOverwriteEntireSurface(rect, paint, overrideOpacity)) {
+                mode = SkSurface::kDiscard_ContentChangeMode;
+            }
+        }
+        fSurfaceBase->aboutToDraw(mode);
     }
 }
 
@@ -497,6 +571,12 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     while (looper.next(type)) {                                     \
         SkDrawIter          iter(this);
 
+#define LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, type, bounds, auxOpaque)  \
+    this->predrawNotify(bounds, &paint, auxOpaque);                 \
+    AutoDrawLooper  looper(this, fProps, paint, false, bounds);     \
+    while (looper.next(type)) {                                     \
+        SkDrawIter          iter(this);
+
 #define LOOPER_END    }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -815,7 +895,8 @@ bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size
     pixels = ((const char*)pixels - y * rowBytes - x * info.bytesPerPixel());
 
     // Tell our owning surface to bump its generation ID
-    this->predrawNotify();
+    const bool completeOverwrite = info.dimensions() == size;
+    this->predrawNotify(completeOverwrite);
 
     // The device can assert that the requested area is always contained in its bounds
     return device->writePixels(info, pixels, rowBytes, target.x(), target.y());
@@ -1866,7 +1947,7 @@ void SkCanvas::onDrawPaint(const SkPaint& paint) {
 }
 
 void SkCanvas::internalDrawPaint(const SkPaint& paint) {
-    LOOPER_BEGIN(paint, SkDrawFilter::kPaint_Type, NULL)
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kPaint_Type, NULL, false)
 
     while (iter.next()) {
         iter.fDevice->drawPaint(iter, looper.paint());
@@ -1924,7 +2005,7 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, bounds)
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kRect_Type, bounds, false)
 
     while (iter.next()) {
         iter.fDevice->drawRect(iter, r, looper.paint());
@@ -2082,7 +2163,8 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
         paint = lazy.init();
     }
     
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, bounds,
+                                          image->isOpaque())
     
     while (iter.next()) {
         iter.fDevice->drawImageRect(iter, image, src, dst, looper.paint(), constraint);
@@ -2138,7 +2220,8 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         paint = lazy.init();
     }
 
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, bounds,
+                                          bitmap.isOpaque())
 
     while (iter.next()) {
         iter.fDevice->drawBitmapRect(iter, bitmap, src, dst, looper.paint(),

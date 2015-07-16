@@ -16,13 +16,23 @@ class SkPaint;
 
 class SkPaintPriv {
 public:
+    enum ShaderOverrideOpacity {
+        kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
+        kOpaque_ShaderOverrideOpacity,      //!< the overriding shader is opaque
+        kNotOpaque_ShaderOverrideOpacity,   //!< the overriding shader may not be opaque
+    };
+    
     /**
      *  Returns true if drawing with this paint (or NULL) will ovewrite all affected pixels.
      *
      *  Note: returns conservative true, meaning it may return false even though the paint might
      *        in fact overwrite its pixels.
      */
-    static bool Overwrites(const SkPaint& paint);
+    static bool Overwrites(const SkPaint* paint, ShaderOverrideOpacity);
+
+    static bool Overwrites(const SkPaint& paint) {
+        return Overwrites(&paint, kNone_ShaderOverrideOpacity);
+    }
 
     /**
      *  Returns true if drawing this bitmap with this paint (or NULL) will ovewrite all affected

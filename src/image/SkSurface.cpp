@@ -86,6 +86,10 @@ void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPa
     }
 }
 
+bool SkSurface_Base::outstandingImageSnapshot() const {
+    return fCachedImage && !fCachedImage->unique();
+}
+
 void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
     this->dirtyGenerationID();
 

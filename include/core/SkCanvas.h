@@ -1367,11 +1367,22 @@ protected:
                         SkIRect* intersection,
                         const SkImageFilter* imageFilter = NULL);
 
+private:
+    enum ShaderOverrideOpacity {
+        kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
+        kOpaque_ShaderOverrideOpacity,      //!< the overriding shader is opaque
+        kNotOpaque_ShaderOverrideOpacity,   //!< the overriding shader may not be opaque
+    };
+
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
-    void predrawNotify();
+    void predrawNotify(bool willOverwritesEntireSurface = false);
+    void predrawNotify(const SkRect* rect, const SkPaint* paint, ShaderOverrideOpacity);
+    void predrawNotify(const SkRect* rect, const SkPaint* paint, bool shaderOverrideIsOpaque) {
+        this->predrawNotify(rect, paint, shaderOverrideIsOpaque ? kOpaque_ShaderOverrideOpacity
+                                                                : kNotOpaque_ShaderOverrideOpacity);
+    }
 
-private:
     class MCRec;
 
     SkAutoTUnref<SkClipStack> fClipStack;
@@ -1416,6 +1427,7 @@ private:
     friend class SkRecorder;        // InitFlags
     friend class SkNoSaveLayerCanvas;   // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
+    friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
 
     enum InitFlags {
         kDefault_InitFlags                  = 0,
@@ -1464,6 +1476,14 @@ private:
 
     // only for canvasutils
     const SkRegion& internal_private_getTotalClip() const;
+
+    /*
+     *  Returns true if drawing the specified rect (or all if it is null) with the specified
+     *  paint (or default if null) would overwrite the entire root device of the canvas
+     *  (i.e. the canvas' surface if it had one).
+     */
+    bool wouldOverwriteEntireSurface(const SkRect*, const SkPaint*, ShaderOverrideOpacity) const;
+
 
     /*  These maintain a cache of the clip bounds in local coordinates,
         (converted to 2s-compliment if floats are slow).
