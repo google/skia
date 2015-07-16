@@ -11,9 +11,9 @@
 #include <new>
 #include "GrBatchTarget.h"
 #include "GrGeometryProcessor.h"
-#include "GrNonAtomicRef.h"
 #include "GrVertices.h"
 #include "SkAtomics.h"
+#include "SkRefCnt.h"
 #include "SkTypes.h"
 
 class GrGpu;
@@ -37,8 +37,9 @@ struct GrInitInvariantOutput;
  * information will be communicated to the GrBatch prior to geometry generation.
  */
 
-class GrBatch : public GrNonAtomicRef {
+class GrBatch : public SkRefCnt {
 public:
+
     GrBatch() : fClassID(kIllegalBatchClassID), fNumberOfDraws(0) { SkDEBUGCODE(fUsed = false;) }
     virtual ~GrBatch() {}
 
@@ -54,10 +55,6 @@ public:
 
     bool combineIfPossible(GrBatch* that) {
         if (this->classID() != that->classID()) {
-            return false;
-        }
-
-        if (!this->pipeline()->isEqual(*that->pipeline())) {
             return false;
         }
 
@@ -97,13 +94,13 @@ public:
 
     SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
-    void setPipeline(const GrPipeline* pipeline) { fPipeline.reset(SkRef(pipeline)); }
-
 protected:
     template <typename PROC_SUBCLASS> void initClassID() {
          static uint32_t kClassID = GenClassID();
          fClassID = kClassID;
     }
+
+    uint32_t fClassID;
 
     // NOTE, compute some bounds, even if extremely conservative.  Do *NOT* setLargest on the bounds
     // rect because we outset it for dst copy textures
@@ -112,8 +109,6 @@ protected:
     void joinBounds(const SkRect& otherBounds) {
         return fBounds.joinPossiblyEmptyRect(otherBounds);
     }
-
-    const GrPipeline* pipeline() const { return fPipeline; }
 
     /** Helper for rendering instances using an instanced index index buffer. This class creates the
         space for the vertices and flushes the draws to the batch target.*/
@@ -153,7 +148,6 @@ protected:
         typedef InstancedHelper INHERITED;
     };
 
-    uint32_t fClassID;
     SkRect fBounds;
 
 private:
@@ -172,10 +166,11 @@ private:
     enum {
         kIllegalBatchClassID = 0,
     };
-    SkAutoTUnref<const GrPipeline> fPipeline;
     static int32_t gCurrBatchClassID;
-    int fNumberOfDraws;
+
     SkDEBUGCODE(bool fUsed;)
+
+    int fNumberOfDraws;
 
     typedef SkRefCnt INHERITED;
 };

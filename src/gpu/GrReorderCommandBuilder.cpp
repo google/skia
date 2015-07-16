@@ -23,7 +23,6 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
     // Experimentally we have found that most batching occurs within the first 10 comparisons.
     static const int kMaxLookback = 10;
     int i = 0;
-    batch->setPipeline(state->getPipeline());
     if (!this->cmdBuffer()->empty()) {
         GrTargetCommands::CmdBuffer::ReverseIter reverseIter(*this->cmdBuffer());
 
@@ -31,7 +30,8 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
             if (Cmd::kDrawBatch_CmdType == reverseIter->type()) {
                 DrawBatch* previous = static_cast<DrawBatch*>(reverseIter.get());
 
-                if (previous->fBatch->combineIfPossible(batch)) {
+                if (previous->fState->getPipeline()->isEqual(*state->getPipeline()) &&
+                    previous->fBatch->combineIfPossible(batch)) {
                     return NULL;
                 }
 

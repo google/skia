@@ -10,7 +10,6 @@
 
 #include "GrColor.h"
 #include "GrGpu.h"
-#include "GrNonAtomicRef.h"
 #include "GrPendingFragmentStage.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProgramDesc.h"
@@ -27,8 +26,10 @@ class GrPipelineBuilder;
  * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable
  * class, and contains all data needed to set the state for a gpu draw.
  */
-class GrPipeline : public GrNonAtomicRef {
+class GrPipeline {
 public:
+    
+
     GrPipeline(const GrPipelineBuilder&,
                const GrProcOptInfo& colorPOI,
                const GrProcOptInfo& coveragePOI,

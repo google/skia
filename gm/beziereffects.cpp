@@ -46,7 +46,6 @@ private:
     BezierCubicOrConicTestBatch(const GrGeometryProcessor* gp, const Geometry& geo,
                                 const SkScalar klmEqs[9], SkScalar sign)
         : INHERITED(gp, geo.fBounds) {
-        this->initClassID<BezierCubicOrConicTestBatch>();
         for (int i = 0; i < 9; i++) {
             fKlmEqs[i] = klmEqs[i];
         }
@@ -448,7 +447,6 @@ private:
         : INHERITED(gp, geo.fBounds)
         , fGeometry(geo)
         , fDevToUV(devToUV) {
-        this->initClassID<BezierQuadTestBatch>();
     }
 
     struct Vertex {
