@@ -68,7 +68,9 @@ Benchmark* VisualBenchmarkStream::next() {
     Benchmark* bench;
     // skips non matching benches
     while ((bench = this->innerNext()) &&
-           SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
+           (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName()) ||
+            !bench->isSuitableFor(Benchmark::kGPU_Backend))) {
+        bench->unref();
     }
     return bench;
 }
@@ -82,6 +84,7 @@ Benchmark* VisualBenchmarkStream::innerNext() {
             fBenchType  = "micro";
             return bench;
         }
+        bench->unref();
     }
 
     while (fGMs) {

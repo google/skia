@@ -68,7 +68,7 @@ private:
     WallTimer fTimer;
     State fState;
     SkAutoTDelete<VisualBenchmarkStream> fBenchmarkStream;
-    Benchmark* fBenchmark;
+    SkAutoTUnref<Benchmark> fBenchmark;
 
     // support framework
     SkAutoTUnref<SkSurface> fSurface;

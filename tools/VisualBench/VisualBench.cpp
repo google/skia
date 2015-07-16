@@ -163,10 +163,7 @@ bool VisualBench::advanceRecordIfNecessary(SkCanvas* canvas) {
         return true;
     }
 
-    while ((fBenchmark = fBenchmarkStream->next()) &&
-           (SkCommandLineFlags::ShouldSkip(FLAGS_match, fBenchmark->getUniqueName()) ||
-            !fBenchmark->isSuitableFor(Benchmark::kGPU_Backend))) {}
-
+    fBenchmark.reset(fBenchmarkStream->next());
     if (!fBenchmark) {
         return false;
     }
@@ -238,7 +235,7 @@ void VisualBench::draw(SkCanvas* canvas) {
                     fState = kPreWarmLoops_State;
                     this->printStats();
                     fBenchmark->perCanvasPostDraw(canvas);
-                    fBenchmark = NULL;
+                    fBenchmark.reset(NULL);
                     fCurrentSample = 0;
                     fFlushes = 1;
                     fLoops = 1;
