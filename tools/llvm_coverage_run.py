@@ -162,6 +162,14 @@ def main():
       '--properties', metavar='key_or_value', nargs='+',
       help='key/value pairs representing properties of this build.')
   args, cmd = parser.parse_known_args()
+
+  # We still need to pass the args we stripped out to DM.
+  cmd.append('--key')
+  cmd.extend(args.key)
+  cmd.append('--properties')
+  cmd.extend(args.properties)
+
+  # Parse the key and properties for use in the nanobench JSON output.
   key = _parse_key_value(args.key)
   properties = _parse_key_value(args.properties)
 
