@@ -501,6 +501,10 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         AADistanceFieldPathBatch* that = t->cast<AADistanceFieldPathBatch>();
 
         // TODO we could actually probably do a bunch of this work on the CPU, ie map viewMatrix,

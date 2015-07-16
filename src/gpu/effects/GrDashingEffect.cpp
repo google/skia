@@ -620,6 +620,10 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         DashBatch* that = t->cast<DashBatch>();
 
         if (this->aaMode() != that->aaMode()) {

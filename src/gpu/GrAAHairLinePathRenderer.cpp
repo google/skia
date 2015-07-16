@@ -736,6 +736,10 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         AAHairlineBatch* that = t->cast<AAHairlineBatch>();
 
         if (this->viewMatrix().hasPerspective() != that->viewMatrix().hasPerspective()) {

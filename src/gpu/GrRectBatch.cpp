@@ -173,6 +173,10 @@ private:
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         RectBatch* that = t->cast<RectBatch>();
 
         if (this->hasLocalRect() != that->hasLocalRect()) {

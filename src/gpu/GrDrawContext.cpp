@@ -397,6 +397,9 @@ private:
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        //if (!this->pipeline()->isEqual(*t->pipeline())) {
+        //    return false;
+        //}
         // StrokeRectBatch* that = t->cast<StrokeRectBatch>();
 
         // NonAA stroke rects cannot batch right now
@@ -762,6 +765,10 @@ private:
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         DrawVerticesBatch* that = t->cast<DrawVerticesBatch>();
 
         if (!this->batchablePrimitiveType() || this->primitiveType() != that->primitiveType()) {

@@ -175,6 +175,10 @@ private:
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         AAFillRectBatch* that = t->cast<AAFillRectBatch>();
 
         SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
@@ -617,6 +621,10 @@ private:
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         AAStrokeRectBatch* that = t->cast<AAStrokeRectBatch>();
 
         // TODO batch across miterstroke changes

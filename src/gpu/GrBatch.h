@@ -57,10 +57,6 @@ public:
             return false;
         }
 
-        if (!this->pipeline()->isEqual(*that->pipeline())) {
-            return false;
-        }
-
         return this->onCombineIfPossible(that);
     }
 
@@ -97,6 +93,7 @@ public:
 
     SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
+    const GrPipeline* pipeline() const { return fPipeline; }
     void setPipeline(const GrPipeline* pipeline) { fPipeline.reset(SkRef(pipeline)); }
 
 protected:
@@ -112,8 +109,6 @@ protected:
     void joinBounds(const SkRect& otherBounds) {
         return fBounds.joinPossiblyEmptyRect(otherBounds);
     }
-
-    const GrPipeline* pipeline() const { return fPipeline; }
 
     /** Helper for rendering instances using an instanced index index buffer. This class creates the
         space for the vertices and flushes the draws to the batch target.*/

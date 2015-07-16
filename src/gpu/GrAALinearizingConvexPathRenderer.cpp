@@ -261,6 +261,10 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         AAFlatteningConvexPathBatch* that = t->cast<AAFlatteningConvexPathBatch>();
 
         SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());

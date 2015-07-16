@@ -938,6 +938,10 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         AAConvexPathBatch* that = t->cast<AAConvexPathBatch>();
 
         if (this->color() != that->color()) {

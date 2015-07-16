@@ -384,6 +384,10 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         DefaultPathBatch* that = t->cast<DefaultPathBatch>();
 
         if (this->color() != that->color()) {

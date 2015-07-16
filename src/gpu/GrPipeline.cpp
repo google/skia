@@ -153,6 +153,11 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrPipeline::isEqual(const GrPipeline& that) const {
+    // If we point to the same pipeline, then we are necessarily equal
+    if (this == &that) {
+        return true;
+    }
+
     if (this->getRenderTarget() != that.getRenderTarget() ||
         this->fFragmentStages.count() != that.fFragmentStages.count() ||
         this->fNumColorStages != that.fNumColorStages ||

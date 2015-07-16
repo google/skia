@@ -1873,6 +1873,10 @@ private:
     int numGlyphs() const { return fBatch.fNumGlyphs; }
 
     bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+
         BitmapTextBatch* that = t->cast<BitmapTextBatch>();
 
         if (fUseDistanceFields != that->fUseDistanceFields) {
