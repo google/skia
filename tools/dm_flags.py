@@ -80,9 +80,13 @@ def get_args(bot):
     args.extend(('--threads', '0'))
 
   blacklist = []
+
+  # We do not draw image sources on msaa anyway, so avoid the creation of
+  # large canvases. skbug.com/4045
+  blacklist.extend('msaa image _ _'.split(' '))
+
   # This image is too large to be a texture for many GPUs.
   blacklist.extend('gpu _ _ PANO_20121023_214540.jpg'.split(' '))
-  blacklist.extend('msaa _ _ PANO_20121023_214540.jpg'.split(' '))
 
   # Several of the newest version bmps fail on SkImageDecoder
   blacklist.extend('_ image decode pal8os2v2.bmp'.split(' '))
