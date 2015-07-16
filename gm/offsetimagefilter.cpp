@@ -57,6 +57,7 @@ protected:
         if (clipRect.intersect(cropRectFloat)) {
             SkPaint strokePaint;
             strokePaint.setStyle(SkPaint::kStroke_Style);
+            strokePaint.setStrokeWidth(2);
             strokePaint.setColor(SK_ColorRED);
             canvas->drawRect(clipRect, strokePaint);
         }
