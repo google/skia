@@ -44,7 +44,8 @@ static SkBitmap make_dst() {
     SkPaint paint;
     SkPoint pts[] = { {0, SkIntToScalar(HH)}, {SkIntToScalar(WW), 0} };
     SkColor colors[] = {
-        SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN, SK_ColorGRAY
+        SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN,
+        sk_tool_utils::color_to_565(SK_ColorGRAY)
     };
     SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
                                                  SkShader::kClamp_TileMode);
@@ -57,7 +58,7 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
     SkPaint paint;
     paint.setTextSize(SkIntToScalar(24));
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
+    sk_tool_utils::set_portable_typeface_always(&paint);
     for (int i = 0; i < 4; ++i) {
         SkString str;
         str.appendScalar(k[i]);

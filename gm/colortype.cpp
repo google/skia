@@ -35,7 +35,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setShader(s)->unref();
 
-        SkTypeface* orig = sk_tool_utils::create_portable_typeface("Times",
+        SkTypeface* orig = sk_tool_utils::create_portable_typeface_always("serif",
                                                             SkTypeface::kBold);
         if (NULL == orig) {
             orig = SkTypeface::RefDefault();
