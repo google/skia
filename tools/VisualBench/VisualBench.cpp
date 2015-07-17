@@ -170,15 +170,24 @@ bool VisualBench::advanceRecordIfNecessary(SkCanvas* canvas) {
 
     canvas->clear(0xffffffff);
     fBenchmark->preDraw();
-    fBenchmark->perCanvasPreDraw(canvas);
     fRecords.push_back();
     return true;
+}
+
+inline void VisualBench::nextState(State nextState) {
+    fState = nextState;
+}
+
+void VisualBench::perCanvasPreDraw(SkCanvas* canvas, State nextState) {
+    fBenchmark->perCanvasPreDraw(canvas);
+    fCurrentFrame = 0;
+    this->nextState(nextState);
 }
 
 void VisualBench::preWarm(State nextState) {
     if (fCurrentFrame >= FLAGS_gpuFrameLag) {
         // we currently time across all frames to make sure we capture all GPU work
-        fState = nextState;
+        this->nextState(nextState);
         fCurrentFrame = 0;
         fTimer.start();
     } else {
@@ -193,33 +202,20 @@ void VisualBench::draw(SkCanvas* canvas) {
     }
     this->renderFrame(canvas);
     switch (fState) {
+        case kPreWarmLoopsPerCanvasPreDraw_State: {
+            this->perCanvasPreDraw(canvas, kPreWarmLoops_State);
+            break;
+        }
         case kPreWarmLoops_State: {
             this->preWarm(kTuneLoops_State);
             break;
         }
         case kTuneLoops_State: {
-            if (1 << 30 == fLoops) {
-                // We're about to wrap.  Something's wrong with the bench.
-                SkDebugf("InnerLoops wrapped\n");
-                fLoops = 0;
-            } else {
-                fTimer.end();
-                double elapsed = fTimer.fWall;
-                if (elapsed > FLAGS_loopMs) {
-                    fState = kPreWarmTiming_State;
-
-                    // Scale back the number of loops
-                    fLoops = (int)ceil(fLoops * FLAGS_loopMs / elapsed);
-                    fFlushes = (int)ceil(FLAGS_flushMs / elapsed);
-                } else {
-                    fState = kPreWarmLoops_State;
-                    fLoops *= 2;
-                }
-
-                fCurrentFrame = 0;
-                fTimer = WallTimer();
-                this->resetContext();
-            }
+            this->tuneLoops();
+            break;
+        }
+        case kPreWarmTimingPerCanvasPreDraw_State: {
+            this->perCanvasPreDraw(canvas, kPreWarmTiming_State);
             break;
         }
         case kPreWarmTiming_State: {
@@ -227,33 +223,77 @@ void VisualBench::draw(SkCanvas* canvas) {
             break;
         }
         case kTiming_State: {
-            if (fCurrentFrame >= FLAGS_frames) {
-                fTimer.end();
-                fRecords.back().fMeasurements.push_back(
-                        fTimer.fWall / (FLAGS_frames * fLoops * fFlushes));
-                if (fCurrentSample++ >= FLAGS_samples) {
-                    fState = kPreWarmLoops_State;
-                    this->printStats();
-                    fBenchmark->perCanvasPostDraw(canvas);
-                    fBenchmark.reset(NULL);
-                    fCurrentSample = 0;
-                    fFlushes = 1;
-                    fLoops = 1;
-                } else {
-                    fState = kPreWarmTiming_State;
-                }
-                fTimer = WallTimer();
-                this->resetContext();
-                fCurrentFrame = 0;
-            } else {
-                fCurrentFrame++;
-            }
+            this->timing(canvas);
             break;
         }
     }
 
     // Invalidate the window to force a redraw. Poor man's animation mechanism.
     this->inval(NULL);
+}
+
+inline double VisualBench::elapsed() {
+    fTimer.end();
+    return fTimer.fWall;
+}
+
+void VisualBench::resetTimingState() {
+    fCurrentFrame = 0;
+    fTimer = WallTimer();
+    this->resetContext();
+}
+
+void VisualBench::scaleLoops(double elapsedMs) {
+    // Scale back the number of loops
+    fLoops = (int)ceil(fLoops * FLAGS_loopMs / elapsedMs);
+    fFlushes = (int)ceil(FLAGS_flushMs / elapsedMs);
+}
+
+inline void VisualBench::tuneLoops() {
+    if (1 << 30 == fLoops) {
+        // We're about to wrap.  Something's wrong with the bench.
+        SkDebugf("InnerLoops wrapped\n");
+        fLoops = 0;
+    } else {
+        double elapsedMs = this->elapsed();
+        if (elapsedMs > FLAGS_loopMs) {
+            this->scaleLoops(elapsedMs);
+            this->nextState(kPreWarmTimingPerCanvasPreDraw_State);
+        } else {
+            fLoops *= 2;
+            this->nextState(kPreWarmLoops_State);
+        }
+        this->resetTimingState();
+    }
+}
+
+void VisualBench::recordMeasurement() {
+    double measurement = this->elapsed() / (FLAGS_frames * fLoops * fFlushes);
+    fRecords.back().fMeasurements.push_back(measurement);
+}
+
+void VisualBench::postDraw(SkCanvas* canvas) {
+    fBenchmark->perCanvasPostDraw(canvas);
+    fBenchmark.reset(NULL);
+    fCurrentSample = 0;
+    fFlushes = 1;
+    fLoops = 1;
+}
+
+inline void VisualBench::timing(SkCanvas* canvas) {
+    if (fCurrentFrame >= FLAGS_frames) {
+        this->recordMeasurement();
+        if (fCurrentSample++ >= FLAGS_samples) {
+            this->printStats();
+            this->postDraw(canvas);
+            this->nextState(kPreWarmLoopsPerCanvasPreDraw_State);
+        } else {
+            this->nextState(kPreWarmTimingPerCanvasPreDraw_State);
+        }
+        this->resetTimingState();
+    } else {
+        fCurrentFrame++;
+    }
 }
 
 void VisualBench::onSizeChange() {
