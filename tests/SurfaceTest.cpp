@@ -691,7 +691,7 @@ static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType sur
     EXPECT_COPY_ON_WRITE(drawRRect(testRRect, testPaint))
     EXPECT_COPY_ON_WRITE(drawPath(testPath, testPaint))
     EXPECT_COPY_ON_WRITE(drawBitmap(testBitmap, 0, 0))
-    EXPECT_COPY_ON_WRITE(drawBitmapRect(testBitmap, NULL, testRect))
+    EXPECT_COPY_ON_WRITE(drawBitmapRect(testBitmap, testRect))
     EXPECT_COPY_ON_WRITE(drawBitmapNine(testBitmap, testIRect, testRect, NULL))
     EXPECT_COPY_ON_WRITE(drawSprite(testBitmap, 0, 0, NULL))
     EXPECT_COPY_ON_WRITE(drawText(testText.c_str(), testText.size(), 0, 1, testPaint))

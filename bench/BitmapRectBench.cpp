@@ -96,7 +96,8 @@ protected:
         paint.setAlpha(fAlpha);
 
         for (int i = 0; i < loops; i++) {
-            canvas->drawBitmapRectToRect(fBitmap, &fSrcR, fDstR, &paint);
+            canvas->drawBitmapRect(fBitmap, &fSrcR, fDstR, &paint,
+                                   SkCanvas::kStrict_SrcRectConstraint);
         }
     }
 

@@ -131,7 +131,8 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             paint.setFilterQuality(1 == i ? kLow_SkFilterQuality : kNone_SkFilterQuality);
-            canvas->drawBitmapRectToRect(bitmap, &srcR, fDstR[i], &paint);
+            canvas->drawBitmapRect(bitmap, &srcR, fDstR[i], &paint,
+                                   SkCanvas::kStrict_SrcRectConstraint);
             canvas->drawRect(fDstR[i], paint);
         }
     }
@@ -225,7 +226,8 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             paint.setFilterQuality(1 == i ? kLow_SkFilterQuality : kNone_SkFilterQuality);
-            canvas->drawBitmapRectToRect(fBitmap, &fSrcR, fDstR[i], &paint);
+            canvas->drawBitmapRect(fBitmap, &fSrcR, fDstR[i], &paint,
+                                   SkCanvas::kStrict_SrcRectConstraint);
             canvas->drawRect(fDstR[i], paint);
         }
     }

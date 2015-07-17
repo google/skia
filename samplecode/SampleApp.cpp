@@ -1116,7 +1116,7 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
         // Clear the background behind our zoomed in view
         paint.setColor(SK_ColorWHITE);
         canvas->drawRect(dest, paint);
-        canvas->drawBitmapRect(bitmap, &src, dest);
+        canvas->drawBitmapRect(bitmap, src, dest, NULL);
         paint.setColor(SK_ColorBLACK);
         paint.setStyle(SkPaint::kStroke_Style);
         // Draw a border around the pixel in the middle

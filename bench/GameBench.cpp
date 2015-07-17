@@ -204,11 +204,11 @@ protected:
                                          4, verts, uvs, NULL, NULL,
                                          indices, 6, p2);
                 } else {
-                    canvas->drawBitmapRect(fAtlas, &src, dst, &p,
-                                           SkCanvas::kBleed_DrawBitmapRectFlag);
+                    canvas->drawBitmapRect(fAtlas, src, dst, &p,
+                                           SkCanvas::kFast_SrcRectConstraint);
                 }
             } else {
-                canvas->drawBitmapRect(fCheckerboard, NULL, dst, &p);
+                canvas->drawBitmapRect(fCheckerboard, dst, &p);
             }
         }
     }

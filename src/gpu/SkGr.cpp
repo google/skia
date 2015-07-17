@@ -529,7 +529,7 @@ static SkBitmap stretch_on_cpu(const SkBitmap& bmp, const Stretch& stretch) {
             break;
     }
     SkRect dstRect = SkRect::MakeWH(SkIntToScalar(stretch.fWidth), SkIntToScalar(stretch.fHeight));
-    canvas.drawBitmapRectToRect(bmp, NULL, dstRect, &paint);
+    canvas.drawBitmapRect(bmp, dstRect, &paint);
     return stretched;
 }
 
