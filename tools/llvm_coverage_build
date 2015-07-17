@@ -7,12 +7,13 @@
 #
 # $ tools/llvm_coverage_build [any other flags to pass to make...]
 #
-# This script assumes the use of Clang >=3.6.
+# This script assumes the use of Clang 3.6. Earlier versions do not support
+# the flags we use in the build, and 3.7+ hit asserts during compilation.
 #
 set -e
 
-export CC="$(which clang)"
-export CXX="$(which clang++)"
+export CC="${CC:-$(which clang)}"
+export CXX="${CXX:-$(which clang++)}"
 
 if [[ -z "${CC}" ]] || [[ -z "${CXX}" ]]; then
   echo "Couldn't find Clang on this machine!"
