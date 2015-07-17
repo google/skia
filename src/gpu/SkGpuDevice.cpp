@@ -396,6 +396,28 @@ static const GrPrimitiveType gPointMode2PrimtiveType[] = {
     kLineStrip_GrPrimitiveType
 };
 
+// suppress antialiasing on axis-aligned integer-coordinate lines
+static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkPoint pts[]) {
+    if (mode == SkCanvas::PointMode::kPoints_PointMode) {
+        return false;
+    }
+    if (count == 2) {
+        // We do not antialias as long as the primary axis of the line is integer-aligned, even if
+        // the other coordinates are not. This does mean the two end pixels of the line will be
+        // sharp even when they shouldn't be, but turning antialiasing on (as things stand 
+        // currently) means that the line will turn into a two-pixel-wide blur. While obviously a
+        // more complete fix is possible down the road, for the time being we accept the error on 
+        // the two end pixels as being the lesser of two evils.
+        if (pts[0].fX == pts[1].fX) {
+            return ((int) pts[0].fX) != pts[0].fX;
+        }
+        if (pts[0].fY == pts[1].fY) {
+            return ((int) pts[0].fY) != pts[0].fY;
+        }
+    }
+    return true;
+}
+
 void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
                              size_t count, const SkPoint pts[], const SkPaint& paint) {
     CHECK_FOR_ANNOTATION(paint);
@@ -421,9 +443,10 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         return;
     }
 
-    // we only handle hairlines and paints without path effects or mask filters,
+    // we only handle non-antialiased hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
-    if (width > 0 || paint.getPathEffect() || paint.getMaskFilter()) {
+    if (width > 0 || paint.getPathEffect() || paint.getMaskFilter() || 
+        (paint.isAntiAlias() && needs_antialiasing(mode, count, pts))) {
         draw.drawPoints(mode, count, pts, paint, true);
         return;
     }
