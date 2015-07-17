@@ -6,8 +6,6 @@
  * found in the LICENSE file.
  */
 
-
-#include "GrTemplates.h"
 #include "GrFontScaler.h"
 #include "SkDescriptor.h"
 #include "SkDistanceFieldGen.h"

@@ -14,7 +14,6 @@
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
-#include "GrTemplates.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "GrVertices.h"

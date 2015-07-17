@@ -20,7 +20,6 @@
 #include "GrResourceProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
-#include "GrTemplates.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
 

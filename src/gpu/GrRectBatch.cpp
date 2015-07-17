@@ -12,7 +12,6 @@
 #include "GrBatchTest.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPrimitiveProcessor.h"
-#include "GrTemplates.h"
 
 /** We always use per-vertex colors so that rects can be batched across color changes. Sometimes we
     have explicit local coords and sometimes not. We *could* always provide explicit local coords
@@ -119,12 +118,12 @@ public:
             return;
         }
 
-
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& geom = fGeoData[i];
 
-            intptr_t offset = GrTCast<intptr_t>(vertices) + kVerticesPerQuad * i * vertexStride;
-            SkPoint* positions = GrTCast<SkPoint*>(offset);
+            intptr_t offset = reinterpret_cast<intptr_t>(vertices) +
+                              kVerticesPerQuad * i * vertexStride;
+            SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
             positions->setRectFan(geom.fRect.fLeft, geom.fRect.fTop,
                                   geom.fRect.fRight, geom.fRect.fBottom, vertexStride);
@@ -132,7 +131,7 @@ public:
 
             if (geom.fHasLocalRect) {
                 static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
-                SkPoint* coords = GrTCast<SkPoint*>(offset + kLocalOffset);
+                SkPoint* coords = reinterpret_cast<SkPoint*>(offset + kLocalOffset);
                 coords->setRectFan(geom.fLocalRect.fLeft, geom.fLocalRect.fTop,
                                    geom.fLocalRect.fRight, geom.fLocalRect.fBottom,
                                    vertexStride);
@@ -142,7 +141,7 @@ public:
             }
 
             static const int kColorOffset = sizeof(SkPoint);
-            GrColor* vertColor = GrTCast<GrColor*>(offset + kColorOffset);
+            GrColor* vertColor = reinterpret_cast<GrColor*>(offset + kColorOffset);
             for (int j = 0; j < 4; ++j) {
                 *vertColor = geom.fColor;
                 vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);

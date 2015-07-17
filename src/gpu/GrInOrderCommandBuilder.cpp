@@ -9,7 +9,6 @@
 
 #include "GrColor.h"
 #include "GrInOrderDrawBuffer.h"
-#include "GrTemplates.h"
 #include "SkPoint.h"
 
 static bool path_fill_type_is_winding(const GrStencilSettings& pathStencilSettings) {
