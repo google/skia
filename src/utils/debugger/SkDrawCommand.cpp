@@ -129,7 +129,7 @@ void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRec
                                   yScale * input.height());
 
     canvas->clear(0xFFFFFFFF);
-    canvas->drawBitmapRect(input, dst);
+    canvas->drawBitmapRect(input, NULL, dst);
 
     if (srcRect) {
         SkRect r = SkRect::MakeLTRB(srcRect->fLeft * xScale + SK_Scalar1,

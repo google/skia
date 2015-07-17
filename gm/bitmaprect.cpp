@@ -73,7 +73,7 @@ protected:
                 canvas->drawBitmapRect(bitmap, &srcR, dstR, &paint,
                                        SkCanvas::kStrict_SrcRectConstraint);
             } else {
-                canvas->drawBitmapRect(bitmap, src[i], dstR, &paint);
+                canvas->drawBitmapRect(bitmap, &src[i], dstR, &paint);
             }
 
             canvas->drawRect(dstR, paint);
@@ -143,7 +143,7 @@ protected:
         SkRect srcR = { 0.5f, 0.5f, 2.5f, 2.5f };
         SkRect dstR = { 100, 100, 300, 200 };
 
-        canvas->drawBitmapRect(bitmap, &srcR, dstR, NULL);
+        canvas->drawBitmapRectToRect(bitmap, &srcR, dstR, NULL);
     }
 
 private:
@@ -213,16 +213,16 @@ protected:
         SkRect dstR2 = { 10, 410, 30, 430 };
 
         if (!fUseIRect) {
-            canvas->drawBitmapRect(fBigBitmap, &srcR1, dstR1, &paint);
-            canvas->drawBitmapRect(fBigBitmap, &srcR2, dstR2, &paint);
+            canvas->drawBitmapRectToRect(fBigBitmap, &srcR1, dstR1, &paint);
+            canvas->drawBitmapRectToRect(fBigBitmap, &srcR2, dstR2, &paint);
         } else {
             SkIRect iSrcR1, iSrcR2;
 
             srcR1.roundOut(&iSrcR1);
             srcR2.roundOut(&iSrcR2);
 
-            canvas->drawBitmapRect(fBigBitmap, iSrcR1, dstR1, &paint);
-            canvas->drawBitmapRect(fBigBitmap, iSrcR2, dstR2, &paint);
+            canvas->drawBitmapRect(fBigBitmap, &iSrcR1, dstR1, &paint);
+            canvas->drawBitmapRect(fBigBitmap, &iSrcR2, dstR2, &paint);
         }
     }
 

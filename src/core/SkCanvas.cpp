@@ -1853,12 +1853,6 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src, const SkRe
     this->onDrawImageRect(image, src, dst, paint SRC_RECT_CONSTRAINT_ARG(constraint));
 }
 
-void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
-                             const SkPaint* paint, SrcRectConstraint constraint) {
-    SkRect src = SkRect::Make(isrc);
-    this->drawImageRect(image, &src, dst, paint, constraint);
-}
-
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
     if (dst.isEmpty()) {
@@ -1877,7 +1871,6 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, cons
     this->onDrawBitmap(bitmap, dx, dy, paint);
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWBITMAPRECTFLAGS_TYPE
 void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                                     const SkPaint* paint, DrawBitmapRectFlags flags) {
     if (bitmap.drawsNothing() || dst.isEmpty()) {
@@ -1885,7 +1878,6 @@ void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src, c
     }
     this->onDrawBitmapRect(bitmap, src, dst, paint, (SK_VIRTUAL_CONSTRAINT_TYPE)flags);
 }
-#endif
 
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                               const SkPaint* paint, SrcRectConstraint constraint) {
@@ -1893,12 +1885,6 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const S
         return;
     }
     this->onDrawBitmapRect(bitmap, src, dst, paint, (SK_VIRTUAL_CONSTRAINT_TYPE)constraint);
-}
-
-void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
-                              const SkPaint* paint, SrcRectConstraint constraint) {
-    SkRect src = SkRect::Make(isrc);
-    this->drawBitmapRect(bitmap, &src, dst, paint, constraint);
 }
 
 void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,

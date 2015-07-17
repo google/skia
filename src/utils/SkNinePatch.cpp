@@ -136,7 +136,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
     const int numYStretch = (numYDivs + 1) >> 1;
 
     if (numXStretch < 1 && numYStretch < 1) {
-        canvas->drawBitmapRect(bitmap, bounds, paint);
+        canvas->drawBitmapRect(bitmap, NULL, bounds, paint);
         return;
     }
 
@@ -293,7 +293,7 @@ static void drawNineViaRects(SkCanvas* canvas, const SkRect& dst,
             s.fRight = srcX[x+1];
             d.fLeft = dstX[x];
             d.fRight = dstX[x+1];
-            canvas->drawBitmapRect(bitmap, s, d, paint);
+            canvas->drawBitmapRect(bitmap, &s, d, paint);
         }
     }
 }

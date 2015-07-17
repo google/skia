@@ -35,7 +35,7 @@ class SkTextBlob;
 class GrContext;
 class GrRenderTarget;
 
-//#define SK_SUPPORT_LEGACY_DRAWBITMAPRECTFLAGS_TYPE
+//#define SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 
 class SkCanvasState;
 
@@ -834,19 +834,17 @@ public:
      *  @param constraint Control the tradeoff between speed and exactness w.r.t. the src-rect.
      */
     void drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                       const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
+                       const SkPaint* paint, SrcRectConstraint);
 
-    void drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst) {
-        this->drawImageRect(image, src, dst, NULL, kStrict_SrcRectConstraint);
+    void drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                       const SkPaint* paint = NULL) {
+        this->drawImageRect(image, src, dst, paint, kStrict_SrcRectConstraint);
     }
 
     void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint = NULL) {
         // With no src-rect, the constraint value is ignored, so we just use the default.
         this->drawImageRect(image, NULL, dst, paint, kStrict_SrcRectConstraint);
     }
-
-    void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
-                       const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
 
     /**
      *  Draw the image stretched differentially to fit into dst.
@@ -895,22 +893,13 @@ public:
      *  @param paint      The paint used to draw the bitmap, or NULL
      *  @param constraint Control the tradeoff between speed and exactness w.r.t. the src-rect.
      */
-#ifdef SK_SUPPORT_LEGACY_DRAWBITMAPRECTFLAGS_TYPE
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                         const SkPaint* paint, SrcRectConstraint);
-#else
-    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                        const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
-#endif
 
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint = NULL) {
         this->drawBitmapRect(bitmap, NULL, dst, paint, kStrict_SrcRectConstraint);
     }
 
-    void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
-                        const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
-
-#ifdef SK_SUPPORT_LEGACY_DRAWBITMAPRECTFLAGS_TYPE
     // IMPORTANT that thse be value-equal with SrcRectConstraint (during transition period)
     enum DrawBitmapRectFlags {
         kNone_DrawBitmapRectFlag            = 0x0,
@@ -945,7 +934,6 @@ public:
         }
         this->drawBitmapRectToRect(bitmap, realSrcPtr, dst, paint, flags);
     }
-#endif
 
     /**
      *  Draw the bitmap stretched differentially to fit into dst.

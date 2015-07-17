@@ -45,7 +45,7 @@ static void show_bm(SkCanvas* canvas, int width, int height, SkColor colors[2]) 
 
     r.offset(SkIntToScalar(150), 0);
     // exercises extract bitmap, but not shader
-    canvas->drawBitmapRect(bm, ir, r, NULL);
+    canvas->drawBitmapRect(bm, &ir, r, NULL);
     canvas->drawRect(r, paint);
 
     r.offset(SkIntToScalar(150), 0);

@@ -53,7 +53,7 @@ protected:
         // the constrained texture domain.
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(5, 5, 305, 305);
-        canvas->drawBitmapRect(fBM, &srcRect, dstRect, &paint);
+        canvas->drawBitmapRectToRect(fBM, &srcRect, dstRect, &paint);
 
         // Test that bitmap draws across separate devices also respect
         // the constrainted texture domain.
@@ -64,7 +64,8 @@ protected:
 
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(1, 1, 3, 3);
-        surface->getCanvas()->drawBitmapRect(fBM, &srcRect, dstRect, &paint);
+        surface->getCanvas()->drawBitmapRectToRect(fBM, &srcRect, dstRect,
+                                                   &paint);
 
         SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
 
@@ -97,7 +98,7 @@ protected:
         dstRect.setXYWH(-150, -150, 300, 300);
         canvas->translate(550, 550);
         canvas->rotate(45);
-        canvas->drawBitmapRect(fBM, dstRect, &paint);
+        canvas->drawBitmapRectToRect(fBM, NULL, dstRect, &paint);
     }
 private:
     typedef SkView INHERITED;

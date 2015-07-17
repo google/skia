@@ -71,7 +71,7 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(src.width()),
                                   SkIntToScalar(src.height()));
-        canvas.drawBitmapRect(tmp, r);
+        canvas.drawBitmapRect(tmp, NULL, r, NULL);
         *result = dev->accessBitmap(false);
     }
     return true;
