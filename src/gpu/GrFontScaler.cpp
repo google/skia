@@ -15,41 +15,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrFontDescKey::GrFontDescKey(const SkDescriptor& desc) : fHash(desc.getChecksum()) {
-    size_t size = desc.getLength();
-    if (size <= sizeof(fStorage)) {
-        fDesc = GrTCast<SkDescriptor*>(fStorage);
-    } else {
-        fDesc = SkDescriptor::Alloc(size);
-    }
-    memcpy(fDesc, &desc, size);
-}
-
-GrFontDescKey::~GrFontDescKey() {
-    if (fDesc != GrTCast<SkDescriptor*>(fStorage)) {
-        SkDescriptor::Free(fDesc);
-    }
-}
-
-bool GrFontDescKey::lt(const GrFontDescKey& rh) const {
-    const SkDescriptor* srcDesc = (&rh)->fDesc;
-    size_t lenLH = fDesc->getLength();
-    size_t lenRH = srcDesc->getLength();
-    int cmp = memcmp(fDesc, srcDesc, SkTMin<size_t>(lenLH, lenRH));
-    if (0 == cmp) {
-        return lenLH < lenRH;
-    } else {
-        return cmp < 0;
-    }
-}
-
-bool GrFontDescKey::eq(const GrFontDescKey& rh) const {
-    const SkDescriptor* srcDesc = (&rh)->fDesc;
-    return fDesc->equals(*srcDesc);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 GrFontScaler::GrFontScaler(SkGlyphCache* strike) {
     fStrike = strike;
     fKey = NULL;

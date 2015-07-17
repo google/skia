@@ -21,33 +21,17 @@ class SkPath;
  */
 class GrFontDescKey : public SkRefCnt {
 public:
+    explicit GrFontDescKey(const SkDescriptor& desc) : fDesc(desc), fHash(desc.getChecksum()) {}
     
-    
-    typedef uint32_t Hash;
-    
-    explicit GrFontDescKey(const SkDescriptor& desc);
-    virtual ~GrFontDescKey();
-    
-    Hash getHash() const { return fHash; }
-    
-    bool operator<(const GrFontDescKey& rh) const {
-        return fHash < rh.fHash || (fHash == rh.fHash && this->lt(rh));
-    }
+    uint32_t getHash() const { return fHash; }
+
     bool operator==(const GrFontDescKey& rh) const {
-        return fHash == rh.fHash && this->eq(rh);
+        return fHash == rh.fHash && fDesc.getDesc()->equals(*rh.fDesc.getDesc());
     }
     
 private:
-    // helper functions for comparisons
-    bool lt(const GrFontDescKey& rh) const;
-    bool eq(const GrFontDescKey& rh) const;
-    
-    SkDescriptor* fDesc;
-    enum {
-        kMaxStorageInts = 16
-    };
-    uint32_t fStorage[kMaxStorageInts];
-    const Hash fHash;
+    SkAutoDescriptor fDesc;
+    uint32_t fHash;
     
     typedef SkRefCnt INHERITED;
 };
@@ -60,8 +44,6 @@ private:
  */
 class GrFontScaler : public SkRefCnt {
 public:
-    
-
     explicit GrFontScaler(SkGlyphCache* strike);
     virtual ~GrFontScaler();
     

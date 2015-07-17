@@ -136,6 +136,11 @@ class SkAutoDescriptor : SkNoncopyable {
 public:
     SkAutoDescriptor() : fDesc(NULL) {}
     SkAutoDescriptor(size_t size) : fDesc(NULL) { this->reset(size); }
+    SkAutoDescriptor(const SkDescriptor& desc) : fDesc(NULL) {
+        size_t size = desc.getLength();
+        this->reset(size);
+        memcpy(fDesc, &desc, size);
+    }
 
     ~SkAutoDescriptor() { this->free(); }
 
