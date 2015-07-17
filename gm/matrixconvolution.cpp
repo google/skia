@@ -30,7 +30,7 @@ protected:
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+        sk_tool_utils::set_portable_typeface_always(&paint);
         paint.setColor(0xFFFFFFFF);
         paint.setTextSize(SkIntToScalar(180));
         SkPoint pts[2] = { SkPoint::Make(0, 0),

@@ -163,7 +163,7 @@ protected:
         blackPaint.setColor(SK_ColorBLACK);
         blackPaint.setTextSize(titleHeight);
         blackPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&blackPaint);
+        sk_tool_utils::set_portable_typeface_always(&blackPaint);
         SkString title;
         title.printf("Bitmap size: %d x %d", gBmpSize, gBmpSize);
         canvas->drawText(title.c_str(), title.size(), 0,
