@@ -27,7 +27,7 @@ static void draw_url_annotated_text_with_box(
 DEF_SIMPLE_GM(annotated_text, canvas, 512, 512) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     canvas->clear(SK_ColorWHITE);
-    canvas->clipRect(SkRect::MakeXYWH(64, 64, 384, 384));
+    canvas->clipRect(SkRect::MakeXYWH(64, 64, 256, 256));
     canvas->clear(0xFFEEEEEE);
     SkPaint p;
     p.setTextSize(40);
