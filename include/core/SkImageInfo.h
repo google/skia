@@ -142,8 +142,11 @@ enum SkYUVColorSpace {
     /** SDTV standard Rec. 601 color space. Uses "studio swing" [16, 235] color
        range. See http://en.wikipedia.org/wiki/Rec._601 for details. */
     kRec601_SkYUVColorSpace,
+    /** HDTV standard Rec. 709 color space. Uses "studio swing" [16, 235] color
+       range. See http://en.wikipedia.org/wiki/Rec._709 for details. */
+    kRec709_SkYUVColorSpace,
 
-    kLastEnum_SkYUVColorSpace = kRec601_SkYUVColorSpace
+    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace
 };
 
 ///////////////////////////////////////////////////////////////////////////////
