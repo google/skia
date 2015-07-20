@@ -28,7 +28,7 @@ protected:
         SkPaint paint;
         paint.setTextSize(162);
         const char* text = "A";
-        sk_tool_utils::set_portable_typeface(&paint);
+        sk_tool_utils::set_portable_typeface_always(&paint);
 
         SkRect bounds;
         paint.measureText(text, strlen(text), &bounds);
@@ -62,7 +62,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        canvas->drawColor(SK_ColorGRAY);
+        canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
 
         SkPaint paint;
 
@@ -72,7 +72,7 @@ protected:
         // Colors were chosen to map to pairs of canonical colors.  The GPU Backend will cache A8
         // Texture Blobs based on the canonical color they map to.  Canonical colors are used to
         // create masks.  For A8 there are 8 of them.
-        //SkColor colors[] = {SK_ColorCYAN, SK_ColorLTGRAY, SK_ColorYELLOW, SK_ColorWHITE};
+        //SkColor colors[] = {SK_ColorCYAN, sk_tool_utils::color_to_565(SK_ColorLTGRAY), SK_ColorYELLOW, SK_ColorWHITE};
 
         SkScalar xOffset = SkScalarCeilToScalar(bounds.width());
         SkScalar yOffset = SkScalarCeilToScalar(bounds.height());

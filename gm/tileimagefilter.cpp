@@ -23,7 +23,7 @@ static SkBitmap make_bitmap() {
     canvas.clear(0xFF000000);
     SkPaint paint;
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
+    sk_tool_utils::set_portable_typeface_always(&paint);
     paint.setColor(0xD000D000);
     paint.setTextSize(SkIntToScalar(50));
     const char* str = "e";
@@ -54,7 +54,9 @@ protected:
 
         fCheckerboard.allocN32Pixels(80, 80);
         SkCanvas checkerboardCanvas(fCheckerboard);
-        sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
+        sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 
+                sk_tool_utils::color_to_565(0xFFA0A0A0),
+                sk_tool_utils::color_to_565(0xFF404040), 8);
     }
 
     void onDraw(SkCanvas* canvas) override {
