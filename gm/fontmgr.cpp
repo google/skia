@@ -65,6 +65,8 @@ public:
         } else {
             fFM.reset(SkFontMgr::RefDefault());
         }
+        fName.append(sk_tool_utils::platform_os_name());
+        fName.append(sk_tool_utils::platform_extra_config("GDI"));
     }
 
 protected:
@@ -131,7 +133,10 @@ public:
 
 protected:
     SkString onShortName() override {
-        return SkString("fontmgr_match");
+        SkString name("fontmgr_match");
+        name.append(sk_tool_utils::platform_os_name());
+        name.append(sk_tool_utils::platform_extra_config("GDI"));
+        return name;
     }
 
     SkISize onISize() override {
@@ -218,6 +223,8 @@ public:
         if (scale != 1 || skew != 0) {
             fName.appendf("_%g_%g", scale, skew);
         }
+        fName.append(sk_tool_utils::platform_os_name());
+        fName.append(sk_tool_utils::platform_extra_config("GDI"));
         fFM.reset(SkFontMgr::RefDefault());
     }
 

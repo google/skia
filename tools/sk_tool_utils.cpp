@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkCommonFlags.h"
 #include "SkShader.h"
 #include "SkTestScalerContext.h"
 #include "SkTextBlob.h"
@@ -18,6 +19,25 @@ DEFINE_bool(portableFonts, false, "Use portable fonts");
 DEFINE_bool(resourceFonts, false, "Use resource fonts");
 
 namespace sk_tool_utils {
+
+const char* platform_os_name() {
+    for (int index = 0; index < FLAGS_key.count(); index += 2) {
+        if (!strcmp("os", FLAGS_key[index])) {
+            return FLAGS_key[index + 1];
+        }
+    }
+    // when running SampleApp or dm without a --key pair, omit the platform name
+    return "";
+}
+
+const char* platform_extra_config(const char* config) {
+    for (int index = 0; index < FLAGS_key.count(); index += 2) {
+        if (!strcmp("extra_config", FLAGS_key[index]) && !strcmp(config, FLAGS_key[index + 1])) {
+            return config;
+        }
+    }
+    return "";
+}
 
 const char* colortype_name(SkColorType ct) {
     switch (ct) {

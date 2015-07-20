@@ -25,6 +25,8 @@ namespace sk_tool_utils {
 
     const char* colortype_name(SkColorType);
     SkColor color_to_565(SkColor color);
+    const char* platform_os_name();
+    const char* platform_extra_config(const char* config);
 
     /**
      * Sets the paint to use a platform-independent text renderer if FLAGS_portableFonts is set.

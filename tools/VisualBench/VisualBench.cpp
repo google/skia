@@ -35,6 +35,7 @@ DEFINE_double(loopMs, 5, "Target loop time in millseconds.");
 DEFINE_int32(msaa, 0, "Number of msaa samples.");
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
+DEFINE_string(key, "", "");  // dummy to enable gm tests that have platform-specific names
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) {
