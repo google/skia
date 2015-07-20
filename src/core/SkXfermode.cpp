@@ -7,7 +7,6 @@
  */
 
 #include "SkXfermode.h"
-#include "SkXfermode_opts_SSE2.h"
 #include "SkXfermode_proccoeff.h"
 #include "Sk4pxXfermode.h"
 #include "SkColorPriv.h"
@@ -16,12 +15,7 @@
 #include "SkPMFloat.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
-#include "SkUtilsArm.h"
 #include "SkWriteBuffer.h"
-
-#if !SK_ARM_NEON_IS_NONE
-    #include "SkXfermode_opts_arm_neon.h"
-#endif
 
 #define SkAlphaMulAlpha(a, b)   SkMulDiv255Round(a, b)
 

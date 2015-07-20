@@ -21,8 +21,6 @@
 #include "SkRTConf.h"
 #include "SkUtils.h"
 #include "SkUtils_opts_SSE2.h"
-#include "SkXfermode.h"
-#include "SkXfermode_proccoeff.h"
 
 #if defined(_MSC_VER) && defined(_WIN64)
 #include <intrin.h>
@@ -359,35 +357,4 @@ bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
         return SkBoxBlurGetPlatformProcs_SSE2(boxBlurX, boxBlurXY, boxBlurYX);
     }
     return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-extern SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_SSE2(const ProcCoeff& rec,
-                                                                SkXfermode::Mode mode);
-
-SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl(const ProcCoeff& rec,
-                                                    SkXfermode::Mode mode);
-
-SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl(const ProcCoeff& rec,
-                                                    SkXfermode::Mode mode) {
-    return NULL;
-}
-
-SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
-                                               SkXfermode::Mode mode);
-
-SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
-                                               SkXfermode::Mode mode) {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        return SkPlatformXfermodeFactory_impl_SSE2(rec, mode);
-    } else {
-        return SkPlatformXfermodeFactory_impl(rec, mode);
-    }
-}
-
-SkXfermodeProc SkPlatformXfermodeProcFactory(SkXfermode::Mode mode);
-
-SkXfermodeProc SkPlatformXfermodeProcFactory(SkXfermode::Mode mode) {
-    return NULL;
 }

@@ -10,6 +10,7 @@
 
 #include "Sk4px.h"
 #include "SkPMFloat.h"
+#include "SkXfermode_proccoeff.h"
 
 // This file is possibly included into multiple .cpp files.
 // Each gets its own independent instantiation by wrapping in an anonymous namespace.
@@ -275,7 +276,6 @@ static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode
         case SkXfermode::kMultiply_Mode:   return SkT4pxXfermode<Multiply>::Create(rec);
         case SkXfermode::kDifference_Mode: return SkT4pxXfermode<Difference>::Create(rec);
         case SkXfermode::kExclusion_Mode:  return SkT4pxXfermode<Exclusion>::Create(rec);
-#if !defined(SK_SUPPORT_LEGACY_XFERMODES)  // For staging in Chrome (layout tests).
         case SkXfermode::kHardLight_Mode:  return SkT4pxXfermode<HardLight>::Create(rec);
         case SkXfermode::kOverlay_Mode:    return SkT4pxXfermode<Overlay>::Create(rec);
         case SkXfermode::kDarken_Mode:     return SkT4pxXfermode<Darken>::Create(rec);
@@ -284,7 +284,6 @@ static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode
         case SkXfermode::kColorDodge_Mode: return SkTPMFloatXfermode<ColorDodge>::Create(rec);
         case SkXfermode::kColorBurn_Mode:  return SkTPMFloatXfermode<ColorBurn>::Create(rec);
         case SkXfermode::kSoftLight_Mode:  return SkTPMFloatXfermode<SoftLight>::Create(rec);
-#endif
         default: break;
     }
 #endif
