@@ -576,18 +576,14 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     // scanline decoding, but we could do it here. Alternatively, we could do
     // it as we go, instead of in post-processing like SkPNGImageDecoder.
 
-    this->finish();
-    return kSuccess;
-}
-
-void SkPngCodec::finish() {
     if (setjmp(png_jmpbuf(fPng_ptr))) {
         // We've already read all the scanlines. This is a success.
-        return;
+        return kSuccess;
     }
-    // FIXME: Is this necessary?
-    /* read rest of file, and get additional chunks in info_ptr - REQUIRED */
+
+    // read rest of file, and get additional comment and time chunks in info_ptr
     png_read_end(fPng_ptr, fInfo_ptr);
+    return kSuccess;
 }
 
 class SkPngScanlineDecoder : public SkScanlineDecoder {
@@ -599,10 +595,6 @@ public:
     {
         fStorage.reset(dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig));
         fSrcRow = static_cast<uint8_t*>(fStorage.get());
-    }
-
-    ~SkPngScanlineDecoder() {
-        fCodec->finish();
     }
 
     SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
@@ -660,10 +652,6 @@ public:
         fSrcRowBytes = dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig);
         fGarbageRow.reset(fSrcRowBytes);
         fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
-    }
-
-    ~SkPngInterlacedScanlineDecoder() {
-        fCodec->finish();
     }
 
     SkCodec::Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {

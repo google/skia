@@ -59,7 +59,6 @@ private:
     // Calls rewindIfNeeded and returns true if the decoder can continue.
     bool handleRewind();
     bool decodePalette(bool premultiply, int* ctableCount);
-    void finish();
     void destroyReadStruct();
 
     friend class SkPngScanlineDecoder;
