@@ -868,13 +868,18 @@ static bool has_aligned_samples(const SkRect& srcRect,
 
 static bool may_color_bleed(const SkRect& srcRect,
                             const SkRect& transformedRect,
-                            const SkMatrix& m) {
+                            const SkMatrix& m,
+                            bool isMSAA) {
     // Only gets called if has_aligned_samples returned false.
     // So we can assume that sampling is axis aligned but not texel aligned.
     SkASSERT(!has_aligned_samples(srcRect, transformedRect));
     SkRect innerSrcRect(srcRect), innerTransformedRect,
         outerTransformedRect(transformedRect);
-    innerSrcRect.inset(SK_ScalarHalf, SK_ScalarHalf);
+    if (isMSAA) {
+        innerSrcRect.inset(SK_Scalar1, SK_Scalar1);
+    } else {
+        innerSrcRect.inset(SK_ScalarHalf, SK_ScalarHalf);
+    }
     m.mapRect(&innerTransformedRect, innerSrcRect);
 
     // The gap between outerTransformedRect and innerTransformedRect
@@ -895,7 +900,8 @@ static bool needs_texture_domain(const SkBitmap& bitmap,
                                  const SkRect& srcRect,
                                  GrTextureParams &params,
                                  const SkMatrix& contextMatrix,
-                                 bool bicubic) {
+                                 bool bicubic,
+                                 bool isMSAA) {
     bool needsTextureDomain = false;
     GrTexture* tex = bitmap.getTexture();
     int width = tex ? tex->width() : bitmap.width();
@@ -914,7 +920,8 @@ static bool needs_texture_domain(const SkBitmap& bitmap,
                 params.setFilterMode(GrTextureParams::kNone_FilterMode);
                 needsTextureDomain = false;
             } else {
-                needsTextureDomain = may_color_bleed(srcRect, transformedRect, contextMatrix);
+                needsTextureDomain = may_color_bleed(srcRect, transformedRect,
+                                                     contextMatrix, isMSAA);
             }
         }
     }
@@ -1095,7 +1102,8 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                                        srcRect,
                                                        params,
                                                        viewM,
-                                                       doBicubic);
+                                                       doBicubic,
+                                                       fRenderTarget->isUnifiedMultisampled());
         this->internalDrawBitmap(bitmap,
                                  viewM,
                                  srcRect,
@@ -1176,11 +1184,10 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                 // now offset it to make it "local" to our tmp bitmap
                 tileR.offset(-offset.fX, -offset.fY);
                 GrTextureParams paramsTemp = params;
-                bool needsTextureDomain = needs_texture_domain(bitmap,
-                                                               srcRect,
-                                                               paramsTemp,
-                                                               viewM,
-                                                               bicubic);
+                bool needsTextureDomain = needs_texture_domain(
+                                                         bitmap, srcRect, paramsTemp,
+                                                         viewM, bicubic,
+                                                         fRenderTarget->isUnifiedMultisampled());
                 this->internalDrawBitmap(tmpB,
                                          viewM,
                                          tileR,
