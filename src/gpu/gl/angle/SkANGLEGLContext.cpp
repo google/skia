@@ -10,10 +10,10 @@
 
 #include <EGL/egl.h>
 
-#define EGL_PLATFORM_ANGLE_ANGLE                0x3202
-#define EGL_PLATFORM_ANGLE_TYPE_ANGLE           0x3203
-#define EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE      0x3207
-#define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE     0x3208
+#define EGL_PLATFORM_ANGLE_ANGLE                0x3201
+#define EGL_PLATFORM_ANGLE_TYPE_ANGLE           0x3202
+#define EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE      0x3206
+#define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE     0x3207
 
 void* SkANGLEGLContext::GetD3DEGLDisplay(void* nativeDisplay) {
 
