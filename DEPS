@@ -8,7 +8,7 @@ deps = {
   # There is some duplication here that might be worth cleaning up:
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
 
-  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@c415283b2bcd786e1a8c55c19ef3511eb2b3928c",
+  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@44897140a2ae07dc5ba88190100179baa6fe7914",
   "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@08429da7955a98ef764fafa223dd7de73f654b2d",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@0.9.35",
