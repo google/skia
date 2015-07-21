@@ -996,225 +996,6 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
 }
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
-
-class SkClearXfermode : public SkProcCoeffXfermode {
-public:
-    static SkClearXfermode* Create(const ProcCoeff& rec) {
-        return SkNEW_ARGS(SkClearXfermode, (rec));
-    }
-
-    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const override;
-    void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const override;
-
-    SK_TO_STRING_OVERRIDE()
-
-private:
-    SkClearXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kClear_Mode) {}
-
-    typedef SkProcCoeffXfermode INHERITED;
-};
-
-void SkClearXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
-                             const SkPMColor* SK_RESTRICT, int count,
-                             const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && count >= 0);
-
-    if (NULL == aa) {
-        memset(dst, 0, count << 2);
-    } else {
-        for (int i = count - 1; i >= 0; --i) {
-            unsigned a = aa[i];
-            if (0xFF == a) {
-                dst[i] = 0;
-            } else if (a != 0) {
-                dst[i] = SkAlphaMulQ(dst[i], SkAlpha255To256(255 - a));
-            }
-        }
-    }
-}
-void SkClearXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
-                             const SkPMColor* SK_RESTRICT, int count,
-                             const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && count >= 0);
-
-    if (NULL == aa) {
-        memset(dst, 0, count);
-    } else {
-        for (int i = count - 1; i >= 0; --i) {
-            unsigned a = aa[i];
-            if (0xFF == a) {
-                dst[i] = 0;
-            } else if (0 != a) {
-                dst[i] = SkAlphaMulAlpha(dst[i], 255 - a);
-            }
-        }
-    }
-}
-
-#ifndef SK_IGNORE_TO_STRING
-void SkClearXfermode::toString(SkString* str) const {
-    this->INHERITED::toString(str);
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-class SkSrcXfermode : public SkProcCoeffXfermode {
-public:
-    static SkSrcXfermode* Create(const ProcCoeff& rec) {
-        return SkNEW_ARGS(SkSrcXfermode, (rec));
-    }
-
-    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const override;
-    void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const override;
-
-    SK_TO_STRING_OVERRIDE()
-
-private:
-    SkSrcXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kSrc_Mode) {}
-    typedef SkProcCoeffXfermode INHERITED;
-};
-
-void SkSrcXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
-                           const SkPMColor* SK_RESTRICT src, int count,
-                           const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    if (NULL == aa) {
-        memcpy(dst, src, count << 2);
-    } else {
-        for (int i = count - 1; i >= 0; --i) {
-            unsigned a = aa[i];
-            if (a == 0xFF) {
-                dst[i] = src[i];
-            } else if (a != 0) {
-                dst[i] = SkFourByteInterp(src[i], dst[i], a);
-            }
-        }
-    }
-}
-
-void SkSrcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
-                           const SkPMColor* SK_RESTRICT src, int count,
-                           const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    if (NULL == aa) {
-        for (int i = count - 1; i >= 0; --i) {
-            dst[i] = SkToU8(SkGetPackedA32(src[i]));
-        }
-    } else {
-        for (int i = count - 1; i >= 0; --i) {
-            unsigned a = aa[i];
-            if (0 != a) {
-                unsigned srcA = SkGetPackedA32(src[i]);
-                if (a == 0xFF) {
-                    dst[i] = SkToU8(srcA);
-                } else {
-                    dst[i] = SkToU8(SkAlphaBlend(srcA, dst[i], a));
-                }
-            }
-        }
-    }
-}
-#ifndef SK_IGNORE_TO_STRING
-void SkSrcXfermode::toString(SkString* str) const {
-    this->INHERITED::toString(str);
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-class SkDstInXfermode : public SkProcCoeffXfermode {
-public:
-    static SkDstInXfermode* Create(const ProcCoeff& rec) {
-        return SkNEW_ARGS(SkDstInXfermode, (rec));
-    }
-
-    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const override;
-
-    SK_TO_STRING_OVERRIDE()
-
-private:
-    SkDstInXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstIn_Mode) {}
-
-    typedef SkProcCoeffXfermode INHERITED;
-};
-
-void SkDstInXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
-                             const SkPMColor* SK_RESTRICT src, int count,
-                             const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src);
-
-    if (count <= 0) {
-        return;
-    }
-    if (aa) {
-        return this->INHERITED::xfer32(dst, src, count, aa);
-    }
-
-    do {
-        unsigned a = SkGetPackedA32(*src);
-        *dst = SkAlphaMulQ(*dst, SkAlpha255To256(a));
-        dst++;
-        src++;
-    } while (--count != 0);
-}
-
-#ifndef SK_IGNORE_TO_STRING
-void SkDstInXfermode::toString(SkString* str) const {
-    this->INHERITED::toString(str);
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
-
-class SkDstOutXfermode : public SkProcCoeffXfermode {
-public:
-    static SkDstOutXfermode* Create(const ProcCoeff& rec) {
-        return SkNEW_ARGS(SkDstOutXfermode, (rec));
-    }
-
-    void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const override;
-
-    SK_TO_STRING_OVERRIDE()
-
-private:
-    SkDstOutXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstOut_Mode) {}
-
-    typedef SkProcCoeffXfermode INHERITED;
-};
-
-void SkDstOutXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
-                              const SkPMColor* SK_RESTRICT src, int count,
-                              const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src);
-
-    if (count <= 0) {
-        return;
-    }
-    if (aa) {
-        return this->INHERITED::xfer32(dst, src, count, aa);
-    }
-
-    do {
-        unsigned a = SkGetPackedA32(*src);
-        *dst = SkAlphaMulQ(*dst, SkAlpha255To256(255 - a));
-        dst++;
-        src++;
-    } while (--count != 0);
-}
-
-#ifndef SK_IGNORE_TO_STRING
-void SkDstOutXfermode::toString(SkString* str) const {
-    this->INHERITED::toString(str);
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
 
 extern SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec, SkXfermode::Mode mode);
 extern SkXfermodeProc SkPlatformXfermodeProcFactory(SkXfermode::Mode mode);
@@ -1225,48 +1006,22 @@ SkXfermode* create_mode(int iMode) {
     SkXfermode::Mode mode = (SkXfermode::Mode)iMode;
 
     ProcCoeff rec = gProcCoeffs[mode];
-    SkXfermodeProc pp = SkPlatformXfermodeProcFactory(mode);
-    if (pp != NULL) {
-        rec.fProc = pp;
+    if (auto proc = SkPlatformXfermodeProcFactory(mode)) {
+        rec.fProc = proc;
     }
 
+    // Check for compile-time SIMD xfermode.
     if (auto xfermode = SkCreate4pxXfermode(rec, mode)) {
         return xfermode;
     }
 
-    SkXfermode* xfer = NULL;
-
-    // check if we have a platform optim for that
-    SkProcCoeffXfermode* xfm = SkPlatformXfermodeFactory(rec, mode);
-    if (xfm != NULL) {
-        xfer = xfm;
-    } else {
-        // All modes can in theory be represented by the ProcCoeff rec, since
-        // it contains function ptrs. However, a few modes are both simple and
-        // commonly used, so we call those out for their own subclasses here.
-        switch (mode) {
-            case SkXfermode::kClear_Mode:
-                xfer = SkClearXfermode::Create(rec);
-                break;
-            case SkXfermode::kSrc_Mode:
-                xfer = SkSrcXfermode::Create(rec);
-                break;
-            case SkXfermode::kSrcOver_Mode:
-                SkASSERT(false);    // should not land here
-                break;
-            case SkXfermode::kDstIn_Mode:
-                xfer = SkDstInXfermode::Create(rec);
-                break;
-            case SkXfermode::kDstOut_Mode:
-                xfer = SkDstOutXfermode::Create(rec);
-                break;
-            default:
-                // no special-case, just rely in the rec and its function-ptrs
-                xfer = SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
-                break;
-        }
+    // Check for runtime-detected SIMD xfermode.
+    if (auto xfermode = SkPlatformXfermodeFactory(rec, mode)) {
+        return xfermode;
     }
-    return xfer;
+
+    // Serial fallback.
+    return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
 }
 }  // namespace
 
