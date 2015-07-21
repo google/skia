@@ -423,7 +423,8 @@
     "Hopstarter-Mac-Folders-Apple.ico", 
     "--match", 
     "~tabl_mozilla_0", 
-    "~desk_yahoonews_0"
+    "~desk_yahoonews_0", 
+    "~imagefiltersclipped"
   ], 
   "Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release": [
     "--config", 

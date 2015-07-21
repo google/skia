@@ -169,6 +169,9 @@ def get_args(bot):
   if 'iOS' in bot:
     match.append('~WritePixels')
 
+  if 'GalaxyS4' in bot:  # skia:4079
+    match.append('~imagefiltersclipped')
+
   if match:
     args.append('--match')
     args.extend(match)
