@@ -8,10 +8,6 @@ the yasm code is pulled into externals via the DEPS file.
 Chromium builds yasm using the below procedure.  We take a few shortcuts.  We mirror Chromium's
 yasm repositories in our DEPS file, and we copy these config files directly from Chromium.
 
-NOTE: We were are currently unable to build yasm for Android on x86 and x86_64.  Instead we are
-using a precompiled binary in the config/android directory.
-TODO (msarett): Fix this!
-
 Excerpt from [chromium] //src/third_party/yasm/README.chromium:
 
 Instructions for recreating the yasm.gyp file.

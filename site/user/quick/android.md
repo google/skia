@@ -4,7 +4,9 @@ Android
 Prerequisites
 -------------
 
-_Currently we only support building Skia for Android on a Linux or Mac host!_
+_Currently we only support building Skia for Android on a Linux or Mac host! In addition,
+ we only use the Mac build for local development. All shipping variants are compiled on
+ Linux for performance reasons._
 
 The following libraries/utilities are required in addition to those needed for a standard skia checkout:
 

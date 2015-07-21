@@ -65,6 +65,7 @@
     'ldflags!': [ '-stdlib=libc++', '-fsanitize=address' ],
     # https://crbug.com/489901
     'cflags!': [ '-fsanitize=bounds', '-fsanitize=address' ],
+    'libraries!': [ '-llog', ],
   },
   'targets': [
     {

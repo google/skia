@@ -125,14 +125,13 @@
 
       # Add target-specific source files.
       'conditions': [
-        # FIXME (msarett): Reenable yasm on Android for x86 and x86_64
-        # https://code.google.com/p/skia/issues/detail?id=4028
-        [ 'skia_os == "android" and "x86" in skia_arch_type', {
-          'sources': [
-            '../third_party/externals/libjpeg-turbo/jsimd_none.c',
-          ],
+        # TODO (msarett): Is it possible to enable cross compiling for Android on other platforms?
+        [ 'skia_os == "android" and host_os != "linux" and "x86" in skia_arch_type', {
+           'sources': [
+             '../third_party/externals/libjpeg-turbo/jsimd_none.c',
+           ],
         }],
-        [ 'skia_arch_type == "x86" and skia_os != "android"', {
+        [ 'skia_arch_type == "x86" and (skia_os != "android" or host_os == "linux")', {
           'sources': [
             '../third_party/externals/libjpeg-turbo/simd/jsimd_i386.c',
             '../third_party/externals/libjpeg-turbo/simd/jccolor-mmx.asm',
@@ -170,7 +169,7 @@
             '../third_party/externals/libjpeg-turbo/simd/jsimdcpu.asm',
           ],
         }],
-        [ 'skia_arch_type == "x86_64" and skia_os != "android"', {
+        [ 'skia_arch_type == "x86_64" and (skia_os != "android" or host_os == "linux")', {
           'sources': [
             '../third_party/externals/libjpeg-turbo/simd/jsimd_x86_64.c',
             '../third_party/externals/libjpeg-turbo/simd/jccolor-sse2-64.asm',
@@ -257,9 +256,13 @@
             ],
           },
         }],
-        [ 'skia_os == "android" and (skia_arch_type == "x86" or skia_arch_type == "x86_64")', {
+        [ 'skia_os == "android" and host_os == "linux" and \
+          (skia_arch_type == "x86" or skia_arch_type == "x86_64")', {
+          'dependencies': [
+            'yasm.gyp:yasm#host',
+          ],
           'variables': {
-            'yasm_path': '../third_party/yasm/config/android/yasm',
+            'yasm_path': '<(PRODUCT_DIR)/yasm',
             'conditions': [
               [ 'skia_arch_type == "x86"', {
                 'yasm_format': '-felf',
