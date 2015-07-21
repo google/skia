@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2014 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -8,6 +8,7 @@
 #include "sk_tool_utils.h"
 #include "sk_tool_utils_flags.h"
 
+#include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
@@ -19,6 +20,41 @@ DEFINE_bool(portableFonts, false, "Use portable fonts");
 DEFINE_bool(resourceFonts, false, "Use resource fonts");
 
 namespace sk_tool_utils {
+
+const char* platform_os_emoji() {
+    const char* osName = platform_os_name();
+    if (!strcmp(osName, "Android") || !strcmp(osName, "Unbuntu")) {
+        return "CBDT";
+    }
+    if (!strncmp(osName, "Mac", 3)) {
+        return "SBIX";
+    }
+    return "";
+}
+
+SkTypeface* emoji_typeface() {
+    if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
+        return GetResourceAsTypeface("/fonts/Funkster.ttf");
+    }
+    if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
+        return SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal);
+    }
+    return NULL;
+}
+
+const char* emoji_sample_text() {
+    if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
+        return "Hamburgefons";
+    } 
+    if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
+        return "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85"  // 💰🏡🎅
+               "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"  // 🍪🍕🚀
+               "\xF0\x9F\x9A\xBB" "\xF0\x9F\x92\xA9" "\xF0\x9F\x93\xB7" // 🚻💩📷
+               "\xF0\x9F\x93\xA6" // 📦
+               "\xF0\x9F\x87\xBA" "\xF0\x9F\x87\xB8" "\xF0\x9F\x87\xA6"; // 🇺🇸🇦
+    }
+    return "";
+}
 
 const char* platform_os_name() {
     for (int index = 0; index < FLAGS_key.count(); index += 2) {

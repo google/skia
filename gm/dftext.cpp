@@ -15,20 +15,18 @@ class DFTextGM : public skiagm::GM {
 public:
     DFTextGM() {
         this->setBGColor(0xFFFFFFFF);
-        fTypeface = NULL;
-    }
-
-    virtual ~DFTextGM() {
-        SkSafeUnref(fTypeface);
     }
 
 protected:
     void onOnceBeforeDraw() override {
-        fTypeface = GetResourceAsTypeface("/fonts/Funkster.ttf");
+        fEmojiTypeface.reset(sk_tool_utils::emoji_typeface());
+        fEmojiText = sk_tool_utils::emoji_sample_text();
     }
 
     SkString onShortName() override {
-        return SkString("dftext");
+        SkString name("dftext");
+        name.append(sk_tool_utils::platform_os_emoji());
+        return name;
     }
 
     SkISize onISize() override {
@@ -73,7 +71,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
 
-        sk_tool_utils::set_portable_typeface(&paint, "Times New Roman", SkTypeface::kNormal);
+        sk_tool_utils::set_portable_typeface_always(&paint, "serif", SkTypeface::kNormal);
 
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);
@@ -151,7 +149,7 @@ protected:
             0xFF000000,
         };
 
-        paint.setColor(0xFFF1F1F1);
+        paint.setColor(0xFFF7F3F7);
         SkRect r = SkRect::MakeLTRB(670, 250, 820, 460);
         canvas->drawRect(r, paint);
 
@@ -169,7 +167,7 @@ protected:
             y += paint.getFontMetrics(NULL);
         }
 
-        paint.setColor(0xFF1F1F1F);
+        paint.setColor(0xFF181C18);
         r = SkRect::MakeLTRB(820, 250, 970, 460);
         canvas->drawRect(r, paint);
 
@@ -204,14 +202,11 @@ protected:
         }
 
         // check color emoji
-        paint.setTypeface(fTypeface);
-#ifdef SK_BUILD_FOR_ANDROID
-        paint.setTextSize(SkIntToScalar(19));
-#else
-        paint.setTextSize(SkIntToScalar(22));
-#endif
-        canvas->drawText(text, textLen, 670, 100, paint);
-
+        if (fEmojiTypeface) {
+            paint.setTypeface(fEmojiTypeface);
+            paint.setTextSize(SkIntToScalar(19));
+            canvas->drawText(fEmojiText, strlen(fEmojiText), 670, 100, paint);
+        }
 #if SK_SUPPORT_GPU
         // render offscreen buffer
         if (surface) {
@@ -226,7 +221,8 @@ protected:
     }
 
 private:
-    SkTypeface* fTypeface;
+    SkAutoTUnref<SkTypeface> fEmojiTypeface;
+    const char* fEmojiText;
 
     typedef skiagm::GM INHERITED;
 };

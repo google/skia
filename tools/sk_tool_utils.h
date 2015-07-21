@@ -25,6 +25,9 @@ namespace sk_tool_utils {
 
     const char* colortype_name(SkColorType);
     SkColor color_to_565(SkColor color);
+    SkTypeface* emoji_typeface();
+    const char* emoji_sample_text();
+    const char* platform_os_emoji();
     const char* platform_os_name();
     const char* platform_extra_config(const char* config);
 

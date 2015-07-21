@@ -39,14 +39,8 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-#ifndef SK_BUILD_FOR_MAC
-        fEmojiTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
-        fEmojiText = "Emoji!!!";
-#else
-        fEmojiTypeface.reset(SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal));
-        fEmojiText = "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85" // 💰🏡🎅
-                     "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"; // 🍪🍕🚀
-#endif
+        fEmojiTypeface.reset(sk_tool_utils::emoji_typeface());
+        fEmojiText = sk_tool_utils::emoji_sample_text();
         fReallyBigATypeface.reset(GetResourceAsTypeface("/fonts/ReallyBigA.ttf"));
 
         SkTextBlobBuilder builder;
@@ -83,13 +77,15 @@ protected:
         yOffset += bounds.height();
 
         // color emoji
-        paint.setSubpixelText(false);
-        paint.setLCDRenderText(false);
-        paint.setTypeface(fEmojiTypeface);
-        text = fEmojiText;
-        paint.measureText(text, strlen(text), &bounds);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.3f,
-                                        yOffset);
+        if (fEmojiTypeface) {
+            paint.setSubpixelText(false);
+            paint.setLCDRenderText(false);
+            paint.setTypeface(fEmojiTypeface);
+            text = fEmojiText;
+            paint.measureText(text, strlen(text), &bounds);
+            sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.3f,
+                                            yOffset);
+        }
 
         // Corrupted font
         paint.setTextSize(12);
@@ -100,7 +96,9 @@ protected:
     }
 
     SkString onShortName() override {
-        return SkString("mixedtextblobs");
+        SkString name("mixedtextblobs");
+        name.append(sk_tool_utils::platform_os_emoji());
+        return name;
     }
 
     SkISize onISize() override {
@@ -109,7 +107,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        canvas->drawColor(SK_ColorGRAY);
+        canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
 
         SkPaint paint;
 
