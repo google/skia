@@ -46,6 +46,7 @@
           'SK_BUILD_FOR_WIN32',
           '_CRT_SECURE_NO_WARNINGS',
           'GR_GL_FUNCTION_TYPE=__stdcall',
+          '_HAS_EXCEPTIONS=0',
         ],
         'msvs_disabled_warnings': [
             4275,  # An exported class was derived from a class that was not exported

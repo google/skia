@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -14,6 +13,8 @@
 #include "SkShader.h"
 #include "SkUtils.h"
 #include "SkImageDecoder.h"
+
+#include <math.h>
 
 static void test_strokerect(SkCanvas* canvas) {
     int width = 100;
@@ -114,11 +115,6 @@ static void test_text(SkCanvas* canvas) {
     paint.setShader(NULL);
     drawFadingText(canvas, str, len, x, y, paint);
 }
-
-#ifdef SK_BUILD_FOR_WIN
-// windows doesn't have roundf
-inline float roundf(float x) { return (x-floor(x))>0.5 ? ceil(x) : floor(x); }
-#endif
 
 #ifdef SK_DEBUG
 static void make_rgn(SkRegion* rgn, int left, int top, int right, int bottom,
