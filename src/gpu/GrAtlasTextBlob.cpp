@@ -57,7 +57,7 @@ void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlo
             SkASSERT(!rRun.fTypeface.get());
         }
 
-        // TODO BOUNDS ARE ALL MESSED UP
+        // We offset bounds right before flush time so they will not be correct here
         //SkASSERT(lRun.fVertexBounds == rRun.fVertexBounds);
 
         SkASSERT(lRun.fDescriptor.getDesc());

@@ -409,8 +409,7 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt,
                                      blob, x, y, drawFilter, clipRect, rt, clip, grPaint);
         } else {
             // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
-            // offsets
-            // TODO bounds are wrong
+            // offsets.  Note, we offset the vertex bounds right before flushing
             cacheBlob->fViewMatrix = viewMatrix;
             cacheBlob->fX = x;
             cacheBlob->fY = y;
@@ -1675,6 +1674,7 @@ public:
                         }
                         glyph = blob->fGlyphs[glyphOffset];
                         SkASSERT(glyph);
+                        SkASSERT(glyph->fMaskFormat == fMaskFormat);
 
                         if (!fFontCache->hasGlyph(glyph) &&
                             !strike->addGlyphToAtlas(batchTarget, glyph, scaler)) {
