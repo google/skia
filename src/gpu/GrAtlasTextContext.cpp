@@ -410,10 +410,25 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt,
         } else {
             // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
             // offsets
+            // TODO bounds are wrong
             cacheBlob->fViewMatrix = viewMatrix;
             cacheBlob->fX = x;
             cacheBlob->fY = y;
             fCache->makeMRU(cacheBlob);
+#ifdef CACHE_SANITY_CHECK
+            {
+                int glyphCount = 0;
+                int runCount = 0;
+                GrTextBlobCache::BlobGlyphCount(&glyphCount, &runCount, blob);
+                SkAutoTUnref<GrAtlasTextBlob> sanityBlob(fCache->createBlob(glyphCount, runCount,
+                                                                            kGrayTextVASize));
+                GrTextBlobCache::SetupCacheBlobKey(sanityBlob, key, blurRec, skPaint);
+                this->regenerateTextBlob(sanityBlob, skPaint, grPaint.getColor(), viewMatrix,
+                                         blob, x, y, drawFilter, clipRect, rt, clip, grPaint);
+                GrAtlasTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
+            }
+
+#endif
         }
     } else {
         if (canCache) {
@@ -426,7 +441,6 @@ void GrAtlasTextContext::drawTextBlob(GrRenderTarget* rt,
                                  blob, x, y, drawFilter, clipRect, rt, clip, grPaint);
     }
 
-    cacheBlob->fPaintColor = skPaint.getColor();
     this->flush(blob, cacheBlob, rt, skPaint, grPaint, drawFilter,
                 clip, viewMatrix, clipBounds, x, y, transX, transY);
 }
@@ -477,6 +491,7 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
                                             SkDrawFilter* drawFilter, const SkIRect& clipRect,
                                             GrRenderTarget* rt, const GrClip& clip,
                                             const GrPaint& paint) {
+    cacheBlob->fPaintColor = skPaint.getColor();
     cacheBlob->fViewMatrix = viewMatrix;
     cacheBlob->fX = x;
     cacheBlob->fY = y;

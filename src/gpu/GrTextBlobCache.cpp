@@ -13,8 +13,7 @@ GrTextBlobCache::~GrTextBlobCache() {
     this->freeAll();
 }
 
-GrAtlasTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount,
-                                                                size_t maxVASize) {
+GrAtlasTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount, size_t maxVASize) {
     // We allocate size for the GrAtlasTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * maxVASize;
@@ -23,7 +22,15 @@ GrAtlasTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount,
                   glyphCount * sizeof(GrGlyph**) +
                   sizeof(GrAtlasTextBlob::Run) * runCount;
 
-    GrAtlasTextBlob* cacheBlob = SkNEW_PLACEMENT(fPool.allocate(size), GrAtlasTextBlob);
+    void* allocation = fPool.allocate(size);
+#ifdef CACHE_SANITY_CHECK
+    sk_bzero(allocation, size);
+#endif
+
+    GrAtlasTextBlob* cacheBlob = SkNEW_PLACEMENT(allocation, GrAtlasTextBlob);
+#ifdef CACHE_SANITY_CHECK
+    cacheBlob->fSize = size;
+#endif
 
     // setup offsets for vertices / glyphs
     cacheBlob->fVertices = sizeof(GrAtlasTextBlob) + reinterpret_cast<unsigned char*>(cacheBlob);

@@ -38,15 +38,10 @@ public:
         return cacheBlob;
     }
 
-    GrAtlasTextBlob* createCachedBlob(const SkTextBlob* blob,
-                                     const GrAtlasTextBlob::Key& key,
-                                     const SkMaskFilter::BlurRec& blurRec,
-                                     const SkPaint& paint,
-                                     size_t maxVAStride) {
-        int glyphCount = 0;
-        int runCount = 0;
-        BlobGlyphCount(&glyphCount, &runCount, blob);
-        GrAtlasTextBlob* cacheBlob = this->createBlob(glyphCount, runCount, maxVAStride);
+    static void SetupCacheBlobKey(GrAtlasTextBlob* cacheBlob,
+                                  const GrAtlasTextBlob::Key& key,
+                                  const SkMaskFilter::BlurRec& blurRec,
+                                  const SkPaint& paint) {
         cacheBlob->fKey = key;
         if (key.fHasBlur) {
             cacheBlob->fBlurRec = blurRec;
@@ -56,6 +51,18 @@ public:
             cacheBlob->fStrokeInfo.fMiterLimit = paint.getStrokeMiter();
             cacheBlob->fStrokeInfo.fJoin = paint.getStrokeJoin();
         }
+    }
+
+    GrAtlasTextBlob* createCachedBlob(const SkTextBlob* blob,
+                                      const GrAtlasTextBlob::Key& key,
+                                      const SkMaskFilter::BlurRec& blurRec,
+                                      const SkPaint& paint,
+                                      size_t maxVAStride) {
+        int glyphCount = 0;
+        int runCount = 0;
+        BlobGlyphCount(&glyphCount, &runCount, blob);
+        GrAtlasTextBlob* cacheBlob = this->createBlob(glyphCount, runCount, maxVAStride);
+        SetupCacheBlobKey(cacheBlob, key, blurRec, paint);
         this->add(cacheBlob);
         return cacheBlob;
     }
@@ -115,15 +122,15 @@ public:
 
     void freeAll();
 
-private:
     // TODO move to SkTextBlob
-    void BlobGlyphCount(int* glyphCount, int* runCount, const SkTextBlob* blob) {
+    static void BlobGlyphCount(int* glyphCount, int* runCount, const SkTextBlob* blob) {
         SkTextBlob::RunIterator itCounter(blob);
         for (; !itCounter.done(); itCounter.next(), (*runCount)++) {
             *glyphCount += itCounter.glyphCount();
         }
     }
 
+private:
     typedef SkTInternalLList<GrAtlasTextBlob> BitmapBlobList;
 
     // Budget was chosen to be ~4 megabytes.  The min alloc and pre alloc sizes in the pool are

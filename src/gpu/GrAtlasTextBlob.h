@@ -10,10 +10,16 @@
 
 #include "GrBatchAtlas.h"
 #include "GrBatchFontCache.h"
+#include "GrColor.h"
 #include "SkDescriptor.h"
 #include "SkMaskFilter.h"
 #include "GrMemoryPool.h"
+#include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
+
+// With this flag enabled, the GrAtlasTextContext will, as a sanity check, regenerate every blob
+// that comes in to verify the integrity of its cache
+//#define CACHE_SANITY_CHECK // VERY SLOW
 
 /*
  * A GrAtlasTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
@@ -26,6 +32,8 @@
  * the GrAtlas will not evict anything the Blob needs.
  *
  * Note: This struct should really be named GrCachedAtasTextBlob, but that is too verbose.
+ *
+ * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
 struct GrAtlasTextBlob : public SkRefCnt {
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrAtlasTextBlob);
@@ -211,6 +219,11 @@ struct GrAtlasTextBlob : public SkRefCnt {
     bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
     void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
     void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
+
+#ifdef CACHE_SANITY_CHECK
+    static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
+    size_t fSize;
+#endif
 };
 
 #endif
