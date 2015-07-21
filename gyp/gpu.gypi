@@ -72,6 +72,7 @@
       '<(skia_src_path)/gpu/GrAllocator.h',
       '<(skia_src_path)/gpu/GrAtlas.cpp',
       '<(skia_src_path)/gpu/GrAtlas.h',
+      '<(skia_src_path)/gpu/GrAtlasTextBlob.h',
       '<(skia_src_path)/gpu/GrAtlasTextContext.cpp',
       '<(skia_src_path)/gpu/GrAtlasTextContext.h',
       '<(skia_src_path)/gpu/GrBatch.cpp',

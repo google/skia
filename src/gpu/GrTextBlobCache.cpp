@@ -13,26 +13,26 @@ GrTextBlobCache::~GrTextBlobCache() {
     this->freeAll();
 }
 
-GrAtlasTextContext::BitmapTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount,
+GrAtlasTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount,
                                                                 size_t maxVASize) {
-    // We allocate size for the BitmapTextBlob itself, plus size for the vertices array,
+    // We allocate size for the GrAtlasTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * maxVASize;
-    size_t size = sizeof(BitmapTextBlob) +
+    size_t size = sizeof(GrAtlasTextBlob) +
                   verticesCount +
                   glyphCount * sizeof(GrGlyph**) +
-                  sizeof(BitmapTextBlob::Run) * runCount;
+                  sizeof(GrAtlasTextBlob::Run) * runCount;
 
-    BitmapTextBlob* cacheBlob = SkNEW_PLACEMENT(fPool.allocate(size), BitmapTextBlob);
+    GrAtlasTextBlob* cacheBlob = SkNEW_PLACEMENT(fPool.allocate(size), GrAtlasTextBlob);
 
     // setup offsets for vertices / glyphs
-    cacheBlob->fVertices = sizeof(BitmapTextBlob) + reinterpret_cast<unsigned char*>(cacheBlob);
+    cacheBlob->fVertices = sizeof(GrAtlasTextBlob) + reinterpret_cast<unsigned char*>(cacheBlob);
     cacheBlob->fGlyphs = reinterpret_cast<GrGlyph**>(cacheBlob->fVertices + verticesCount);
-    cacheBlob->fRuns = reinterpret_cast<BitmapTextBlob::Run*>(cacheBlob->fGlyphs + glyphCount);
+    cacheBlob->fRuns = reinterpret_cast<GrAtlasTextBlob::Run*>(cacheBlob->fGlyphs + glyphCount);
 
     // Initialize runs
     for (int i = 0; i < runCount; i++) {
-        SkNEW_PLACEMENT(&cacheBlob->fRuns[i], BitmapTextBlob::Run);
+        SkNEW_PLACEMENT(&cacheBlob->fRuns[i], GrAtlasTextBlob::Run);
     }
     cacheBlob->fRunCount = runCount;
     cacheBlob->fPool = &fPool;
@@ -40,9 +40,9 @@ GrAtlasTextContext::BitmapTextBlob* GrTextBlobCache::createBlob(int glyphCount, 
 }
 
 void GrTextBlobCache::freeAll() {
-    SkTDynamicHash<BitmapTextBlob, BitmapTextBlob::Key>::Iter iter(&fCache);
+    SkTDynamicHash<GrAtlasTextBlob, GrAtlasTextBlob::Key>::Iter iter(&fCache);
     while (!iter.done()) {
-        BitmapTextBlob* blob = &(*iter);
+        GrAtlasTextBlob* blob = &(*iter);
         fBlobList.remove(blob);
         blob->unref();
         ++iter;
