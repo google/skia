@@ -59,6 +59,25 @@ protected:
         canvas.drawCircle(x, y, radius, paint);
     }
 
+    static void draw_clipped_filter(SkCanvas* canvas, SkImageFilter* filter, size_t i,
+                                    const SkRect& primBounds, const SkRect& clipBounds) {
+        SkPaint paint;
+        paint.setColor(SK_ColorWHITE);
+        paint.setImageFilter(filter);
+        paint.setAntiAlias(true);
+        canvas->save();
+        canvas->clipRect(clipBounds);
+        if (5 == i) {
+            canvas->translate(SkIntToScalar(16), SkIntToScalar(-32));
+        } else if (6 == i) {
+            canvas->scale(SkScalarInvert(RESIZE_FACTOR_X),
+                          SkScalarInvert(RESIZE_FACTOR_Y));
+        }
+        canvas->drawCircle(primBounds.centerX(), primBounds.centerY(),
+                           primBounds.width() * 2 / 5, paint);
+        canvas->restore();
+    }
+
     void onDraw(SkCanvas* canvas) override {
         if (!fInitialized) {
             fCheckerboard.allocN32Pixels(64, 64);
@@ -91,7 +110,6 @@ protected:
             SkErodeImageFilter::Create(2, 2, checkerboard.get()),
             SkOffsetImageFilter::Create(SkIntToScalar(-16), SkIntToScalar(32)),
             SkImageFilter::CreateMatrixFilter(resizeMatrix, kNone_SkFilterQuality),
-            SkRectShaderImageFilter::Create(noise),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
@@ -99,33 +117,31 @@ protected:
         SkRect bounds = r;
         bounds.outset(margin, margin);
 
+        canvas->save();
         for (int xOffset = 0; xOffset < 80; xOffset += 16) {
             canvas->save();
             bounds.fLeft = SkIntToScalar(xOffset);
             for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
-                SkPaint paint;
-                paint.setColor(SK_ColorWHITE);
-                paint.setImageFilter(filters[i]);
-                paint.setAntiAlias(true);
-                canvas->save();
-                canvas->clipRect(bounds);
-                if (5 == i) {
-                    canvas->translate(SkIntToScalar(16), SkIntToScalar(-32));
-                } else if (6 == i) {
-                    canvas->scale(SkScalarInvert(RESIZE_FACTOR_X),
-                                  SkScalarInvert(RESIZE_FACTOR_Y));
-                }
-                canvas->drawCircle(r.centerX(), r.centerY(), r.width() * 2 / 5, paint);
-                canvas->restore();
+                draw_clipped_filter(canvas, filters[i], i, r, bounds);
                 canvas->translate(r.width() + margin, 0);
             }
             canvas->restore();
             canvas->translate(0, r.height() + margin);
         }
+        canvas->restore();
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
             SkSafeUnref(filters[i]);
         }
+
+        SkImageFilter* rectFilter = SkRectShaderImageFilter::Create(noise);
+        canvas->translate(SK_ARRAY_COUNT(filters)*(r.width() + margin), 0);
+        for (int xOffset = 0; xOffset < 80; xOffset += 16) {
+            bounds.fLeft = SkIntToScalar(xOffset);
+            draw_clipped_filter(canvas, rectFilter, 0, r, bounds);
+            canvas->translate(0, r.height() + margin);
+        }
+        SkSafeUnref(rectFilter);
     }
 
 private:
