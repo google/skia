@@ -159,6 +159,7 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
         }
         return "gl_FragCoord";
     } else {
+        static const char* kTempName = "tmpXYFragCoord";
         static const char* kCoordName = "fragCoordYDown";
         if (!fSetupFragPosition) {
             // temporarily change the stage index because we're inserting non-stage code.
@@ -173,11 +174,14 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
                                                 "RTHeight",
                                                 &rtHeightName);
 
-            // Using glFragCoord.zw for the last two components tickles an Adreno driver bug that
-            // causes programs to fail to link. Making this function return a vec2() didn't fix the
-            // problem but using 1.0 for the last two components does.
-            this->codePrependf("\tvec4 %s = vec4(gl_FragCoord.x, %s - gl_FragCoord.y, 1.0, "
-                               "1.0);\n", kCoordName, rtHeightName);
+            // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
+            // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,
+            // depending on the surrounding code, accessing .xy with a uniform involved can
+            // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand 
+            // (and only accessing .xy) seems to "fix" things.
+            this->codePrependf("\tvec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n",
+                               kCoordName, kTempName, rtHeightName, kTempName);
+            this->codePrependf("vec2 %s = gl_FragCoord.xy;", kTempName);
             fSetupFragPosition = true;
         }
         SkASSERT(fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
