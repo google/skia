@@ -297,6 +297,14 @@
 #  endif
 #endif
 
+#if defined(SK_BUILD_FOR_WIN)
+    #define SK_VECTORCALL __vectorcall
+#elif defined(SK_CPU_ARM32)
+    #define SK_VECTORCALL __attribute__((pcs("aapcs-vfp")))
+#else
+    #define SK_VECTORCALL
+#endif
+
 //////////////////////////////////////////////////////////////////////
 
 #if defined(__clang__) || defined(__GNUC__)

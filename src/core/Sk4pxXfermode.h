@@ -17,12 +17,7 @@
 namespace {
 
 // Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
-#define XFERMODE(Name)                                                    \
-    struct Name {                                                         \
-        static Sk4px Xfer(const Sk4px&, const Sk4px&);                    \
-        static const SkXfermode::Mode kMode = SkXfermode::k##Name##_Mode; \
-    };                                                                    \
-    inline Sk4px Name::Xfer(const Sk4px& s, const Sk4px& d)
+#define XFERMODE(Name) static Sk4px SK_VECTORCALL Name(Sk4px s, Sk4px d)
 
 XFERMODE(Clear) { return Sk4px::DupPMColor(0); }
 XFERMODE(Src)   { return s; }
@@ -30,13 +25,13 @@ XFERMODE(Dst)   { return d; }
 XFERMODE(SrcIn)   { return     s.approxMulDiv255(d.alphas()      ); }
 XFERMODE(SrcOut)  { return     s.approxMulDiv255(d.alphas().inv()); }
 XFERMODE(SrcOver) { return s + d.approxMulDiv255(s.alphas().inv()); }
-XFERMODE(DstIn)   { return SrcIn  ::Xfer(d,s); }
-XFERMODE(DstOut)  { return SrcOut ::Xfer(d,s); }
-XFERMODE(DstOver) { return SrcOver::Xfer(d,s); }
+XFERMODE(DstIn)   { return SrcIn  (d,s); }
+XFERMODE(DstOut)  { return SrcOut (d,s); }
+XFERMODE(DstOver) { return SrcOver(d,s); }
 
 // [ S * Da + (1 - Sa) * D]
 XFERMODE(SrcATop) { return (s * d.alphas() + d * s.alphas().inv()).div255(); }
-XFERMODE(DstATop) { return SrcATop::Xfer(d,s); }
+XFERMODE(DstATop) { return SrcATop(d,s); }
 //[ S * (1 - Da) + (1 - Sa) * D ]
 XFERMODE(Xor) { return (s * d.alphas().inv() + d * s.alphas().inv()).div255(); }
 // [S + D ]
@@ -86,7 +81,7 @@ XFERMODE(HardLight) {
     auto colors = (both + isLite.thenElse(lite, dark)).div255();
     return alphas.zeroColors() + colors.zeroAlphas();
 }
-XFERMODE(Overlay) { return HardLight::Xfer(d,s); }
+XFERMODE(Overlay) { return HardLight(d,s); }
 
 XFERMODE(Darken) {
     auto sa = s.alphas(),
@@ -117,12 +112,7 @@ XFERMODE(Lighten) {
 #undef XFERMODE
 
 // Some xfermodes use math like divide or sqrt that's best done in floats 1 pixel at a time.
-#define XFERMODE(Name) \
-    struct Name {                                                         \
-        static SkPMFloat Xfer(const SkPMFloat&, const SkPMFloat&);        \
-        static const SkXfermode::Mode kMode = SkXfermode::k##Name##_Mode; \
-    };                                                                    \
-    inline SkPMFloat Name::Xfer(const SkPMFloat& s, const SkPMFloat& d)
+#define XFERMODE(Name) static SkPMFloat SK_VECTORCALL Name(SkPMFloat s, SkPMFloat d)
 
 XFERMODE(ColorDodge) {
     auto sa = s.alphas(),
@@ -185,15 +175,15 @@ XFERMODE(SoftLight) {
 
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
 // then linearly interpolate the AA.
-template <typename Mode>
-static Sk4px xfer_aa(const Sk4px& s, const Sk4px& d, const Sk4px& aa) {
-    Sk4px bw = Mode::Xfer(s, d);
+template <Sk4px (SK_VECTORCALL *Mode)(Sk4px, Sk4px)>
+static Sk4px SK_VECTORCALL xfer_aa(Sk4px s, Sk4px d, Sk4px aa) {
+    Sk4px bw = Mode(s, d);
     return (bw * aa + d * aa.inv()).div255();
 }
 
 // For some transfermodes we specialize AA, either for correctness or performance.
 #define XFERMODE_AA(Name) \
-    template <> Sk4px xfer_aa<Name>(const Sk4px& s, const Sk4px& d, const Sk4px& aa)
+    template <> Sk4px SK_VECTORCALL xfer_aa<Name>(Sk4px s, Sk4px d, Sk4px aa)
 
 // Plus' clamp needs to happen after AA.  skia:3852
 XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
@@ -202,44 +192,47 @@ XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
 
 #undef XFERMODE_AA
 
-template <typename ProcType>
-class SkT4pxXfermode : public SkProcCoeffXfermode {
+class Sk4pxXfermode : public SkProcCoeffXfermode {
 public:
-    static SkProcCoeffXfermode* Create(const ProcCoeff& rec) {
-        return SkNEW_ARGS(SkT4pxXfermode, (rec));
-    }
+    typedef Sk4px (SK_VECTORCALL *Proc4)(Sk4px, Sk4px);
+    typedef Sk4px (SK_VECTORCALL *AAProc4)(Sk4px, Sk4px, Sk4px);
+
+    Sk4pxXfermode(const ProcCoeff& rec, SkXfermode::Mode mode, Proc4 proc4, AAProc4 aaproc4)
+        : INHERITED(rec, mode)
+        , fProc4(proc4)
+        , fAAProc4(aaproc4) {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         if (NULL == aa) {
             Sk4px::MapDstSrc(n, dst, src, [&](const Sk4px& dst4, const Sk4px& src4) {
-                return ProcType::Xfer(src4, dst4);
+                return fProc4(src4, dst4);
             });
         } else {
             Sk4px::MapDstSrcAlpha(n, dst, src, aa,
                     [&](const Sk4px& dst4, const Sk4px& src4, const Sk4px& alpha) {
-                return xfer_aa<ProcType>(src4, dst4, alpha);
+                return fAAProc4(src4, dst4, alpha);
             });
         }
     }
 
 private:
-    SkT4pxXfermode(const ProcCoeff& rec) : INHERITED(rec, ProcType::kMode) {}
-
+    Proc4 fProc4;
+    AAProc4 fAAProc4;
     typedef SkProcCoeffXfermode INHERITED;
 };
 
-template <typename ProcType>
-class SkTPMFloatXfermode : public SkProcCoeffXfermode {
+class SkPMFloatXfermode : public SkProcCoeffXfermode {
 public:
-    static SkProcCoeffXfermode* Create(const ProcCoeff& rec) {
-        return SkNEW_ARGS(SkTPMFloatXfermode, (rec));
-    }
+    typedef SkPMFloat (SK_VECTORCALL *ProcF)(SkPMFloat, SkPMFloat);
+    SkPMFloatXfermode(const ProcCoeff& rec, SkXfermode::Mode mode, ProcF procf)
+        : INHERITED(rec, mode)
+        , fProcF(procf) {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         for (int i = 0; i < n; i++) {
             SkPMFloat s(src[i]),
                       d(dst[i]),
-                      b(ProcType::Xfer(s,d));
+                      b(fProcF(s,d));
             if (aa) {
                 // We do aa in full float precision before going back down to bytes, because we can!
                 SkPMFloat a = Sk4f(aa[i]) * Sk4f(1.0f/255);
@@ -250,40 +243,46 @@ public:
     }
 
 private:
-    SkTPMFloatXfermode(const ProcCoeff& rec) : INHERITED(rec, ProcType::kMode) {}
-
+    ProcF fProcF;
     typedef SkProcCoeffXfermode INHERITED;
 };
 
 static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
 #if !defined(SK_CPU_ARM32) || defined(SK_ARM_HAS_NEON)
     switch (mode) {
-        case SkXfermode::kClear_Mode:      return SkT4pxXfermode<Clear>::Create(rec);
-        case SkXfermode::kSrc_Mode:        return SkT4pxXfermode<Src>::Create(rec);
-        case SkXfermode::kDst_Mode:        return SkT4pxXfermode<Dst>::Create(rec);
-        case SkXfermode::kSrcOver_Mode:    return SkT4pxXfermode<SrcOver>::Create(rec);
-        case SkXfermode::kDstOver_Mode:    return SkT4pxXfermode<DstOver>::Create(rec);
-        case SkXfermode::kSrcIn_Mode:      return SkT4pxXfermode<SrcIn>::Create(rec);
-        case SkXfermode::kDstIn_Mode:      return SkT4pxXfermode<DstIn>::Create(rec);
-        case SkXfermode::kSrcOut_Mode:     return SkT4pxXfermode<SrcOut>::Create(rec);
-        case SkXfermode::kDstOut_Mode:     return SkT4pxXfermode<DstOut>::Create(rec);
-        case SkXfermode::kSrcATop_Mode:    return SkT4pxXfermode<SrcATop>::Create(rec);
-        case SkXfermode::kDstATop_Mode:    return SkT4pxXfermode<DstATop>::Create(rec);
-        case SkXfermode::kXor_Mode:        return SkT4pxXfermode<Xor>::Create(rec);
-        case SkXfermode::kPlus_Mode:       return SkT4pxXfermode<Plus>::Create(rec);
-        case SkXfermode::kModulate_Mode:   return SkT4pxXfermode<Modulate>::Create(rec);
-        case SkXfermode::kScreen_Mode:     return SkT4pxXfermode<Screen>::Create(rec);
-        case SkXfermode::kMultiply_Mode:   return SkT4pxXfermode<Multiply>::Create(rec);
-        case SkXfermode::kDifference_Mode: return SkT4pxXfermode<Difference>::Create(rec);
-        case SkXfermode::kExclusion_Mode:  return SkT4pxXfermode<Exclusion>::Create(rec);
-        case SkXfermode::kHardLight_Mode:  return SkT4pxXfermode<HardLight>::Create(rec);
-        case SkXfermode::kOverlay_Mode:    return SkT4pxXfermode<Overlay>::Create(rec);
-        case SkXfermode::kDarken_Mode:     return SkT4pxXfermode<Darken>::Create(rec);
-        case SkXfermode::kLighten_Mode:    return SkT4pxXfermode<Lighten>::Create(rec);
+    #define CASE(Mode) case SkXfermode::k##Mode##_Mode: \
+        return SkNEW_ARGS(Sk4pxXfermode, (rec, mode, &Mode, &xfer_aa<Mode>))
+        CASE(Clear);
+        CASE(Src);
+        CASE(Dst);
+        CASE(SrcOver);
+        CASE(DstOver);
+        CASE(SrcIn);
+        CASE(DstIn);
+        CASE(SrcOut);
+        CASE(DstOut);
+        CASE(SrcATop);
+        CASE(DstATop);
+        CASE(Xor);
+        CASE(Plus);
+        CASE(Modulate);
+        CASE(Screen);
+        CASE(Multiply);
+        CASE(Difference);
+        CASE(Exclusion);
+        CASE(HardLight);
+        CASE(Overlay);
+        CASE(Darken);
+        CASE(Lighten);
+    #undef CASE
 
-        case SkXfermode::kColorDodge_Mode: return SkTPMFloatXfermode<ColorDodge>::Create(rec);
-        case SkXfermode::kColorBurn_Mode:  return SkTPMFloatXfermode<ColorBurn>::Create(rec);
-        case SkXfermode::kSoftLight_Mode:  return SkTPMFloatXfermode<SoftLight>::Create(rec);
+    #define CASE(Mode) case SkXfermode::k##Mode##_Mode: \
+        return SkNEW_ARGS(SkPMFloatXfermode, (rec, mode, &Mode))
+        CASE(ColorDodge);
+        CASE(ColorBurn);
+        CASE(SoftLight);
+    #undef CASE
+
         default: break;
     }
 #endif
