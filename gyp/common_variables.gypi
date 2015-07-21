@@ -36,6 +36,7 @@
   # which deals with these same constraints in a similar manner.
   #
   'variables': {  # level 1
+    'angle_path%': '../',
     'variables': {  # level 2
 
       # Variables needed by conditions list within the level-2 variables dict.
