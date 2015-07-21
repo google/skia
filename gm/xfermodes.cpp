@@ -26,7 +26,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
 
     {
         SkCanvas c(*src);
-        p.setColor(0xFFFFCC44);
+        p.setColor(sk_tool_utils::color_to_565(0xFFFFCC44));
         r.set(0, 0, ww*3/4, hh*3/4);
         c.drawOval(r, p);
     }
@@ -36,7 +36,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
 
     {
         SkCanvas c(*dst);
-        p.setColor(0xFF66AAFF);
+        p.setColor(sk_tool_utils::color_to_565(0xFF66AAFF));
         r.set(ww/3, hh/3, ww*19/20, hh*19/20);
         c.drawRect(r, p);
     }
@@ -106,11 +106,11 @@ class XfermodesGM : public GM {
             case kQuarterClear_SrcType: {
                 SkScalar halfW = SkIntToScalar(W) / 2;
                 SkScalar halfH = SkIntToScalar(H) / 2;
-                p.setColor(0xFF66AAFF);
+                p.setColor(sk_tool_utils::color_to_565(0xFF66AAFF));
                 SkRect r = SkRect::MakeXYWH(x + halfW, y, halfW,
                                             SkIntToScalar(H));
                 canvas->drawRect(r, p);
-                p.setColor(0xFFAA66FF);
+                p.setColor(sk_tool_utils::color_to_565(0xFFAA66FF));
                 r = SkRect::MakeXYWH(x, y + halfH, SkIntToScalar(W), halfH);
                 canvas->drawRect(r, p);
                 break;
@@ -129,7 +129,7 @@ class XfermodesGM : public GM {
                 SkScalar h = SkIntToScalar(H);
                 SkRect r = SkRect::MakeXYWH(x + w / 3, y + h / 3,
                                             w * 37 / 60, h * 37 / 60);
-                p.setColor(0xFF66AAFF);
+                p.setColor(sk_tool_utils::color_to_565(0xFF66AAFF));
                 canvas->drawRect(r, p);
                 break;
             }
@@ -232,7 +232,7 @@ protected:
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&labelP);
+        sk_tool_utils::set_portable_typeface_always(&labelP);
         labelP.setTextAlign(SkPaint::kCenter_Align);
 
         const int W = 5;
