@@ -32,10 +32,14 @@ struct TextBlobWrapper {
 };
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<TextBlobWrapper>& blobs) {
+    int yOffset = 0;
     for (int r = 0; r < redraw; r++) {
         for (int i = 0; i < blobs.count(); i++) {
+            const SkTextBlob* blob = blobs[i].fBlob.get();
+            const SkRect& bounds = blob->bounds();
+            yOffset += SkScalarCeilToInt(bounds.height());
             SkPaint paint;
-            canvas->drawTextBlob(blobs[i].fBlob.get(), 0, 0, paint);
+            canvas->drawTextBlob(blob, 0, SkIntToScalar(yOffset), paint);
         }
     }
 }
@@ -46,14 +50,12 @@ static void draw(SkCanvas* canvas, int redraw, const SkTArray<TextBlobWrapper>& 
 #define MAX_FAMILIES 5
 
 // This test hammers the GPU textblobcache and font atlas
-DEF_TEST(TextBlobCache, reporter) {
-    SkAutoTDelete<GrContextFactory> grFactory(SkNEW(GrContextFactory));
-
+DEF_GPUTEST(TextBlobCache, reporter, factory) {
     // setup surface
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
 
-    GrContext* ctx = grFactory->get(GrContextFactory::kNative_GLContextType);
+    GrContext* ctx = factory->get(GrContextFactory::kNative_GLContextType);
     SkImageInfo info = SkImageInfo::Make(1024, 768, kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info,
                                                                0, &props));
