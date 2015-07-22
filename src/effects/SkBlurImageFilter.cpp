@@ -149,7 +149,8 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
                                       SkBitmap* dst, SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctx, &src, &srcOffset)) {
+    if (this->getInput(0) &&
+        !this->getInput(0)->filterImage(proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -231,8 +232,8 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
 
 
 void SkBlurImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    if (getInput(0)) {
-        getInput(0)->computeFastBounds(src, dst);
+    if (this->getInput(0)) {
+        this->getInput(0)->computeFastBounds(src, dst);
     } else {
         *dst = src;
     }
@@ -247,7 +248,7 @@ bool SkBlurImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     SkVector sigma = mapSigma(fSigma, ctm);
     bounds.outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
                   SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
-    if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
+    if (this->getInput(0) && !this->getInput(0)->filterBounds(bounds, ctm, &bounds)) {
         return false;
     }
     *dst = bounds;
@@ -259,7 +260,8 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
 #if SK_SUPPORT_GPU
     SkBitmap input = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctx, &input, &srcOffset)) {
+    if (this->getInput(0) && 
+        !this->getInput(0)->getInputResultGPU(proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
     SkIRect rect;

@@ -242,7 +242,8 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                 return;
             }
 
-            if (paint.getMaskFilter()->directFilterMaskGPU(context,
+            if (paint.getMaskFilter()->directFilterMaskGPU(context->textureProvider(),
+                                                           drawContext,
                                                            renderTarget,
                                                            &grPaint,
                                                            clip,
@@ -253,7 +254,6 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                 // left to do.
                 return;
             }
-
 
             SkAutoTUnref<GrTexture> mask(create_mask_GPU(context,
                                                          maskRect,

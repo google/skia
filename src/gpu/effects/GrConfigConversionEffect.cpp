@@ -207,11 +207,6 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
     bool failed = true;
 
-    GrDrawContext* drawContext = context->drawContext();
-    if (!drawContext) {
-        return;
-    }
-
     for (size_t i = 0; i < SK_ARRAY_COUNT(kConversionRules) && failed; ++i) {
         *pmToUPMRule = kConversionRules[i][0];
         *upmToPMRule = kConversionRules[i][1];
@@ -239,30 +234,51 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                             SkMatrix::I())));
 
         paint1.addColorProcessor(pmToUPM1);
-        drawContext->drawNonAARectToRect(readTex->asRenderTarget(),
-                                         GrClip::WideOpen(),
-                                         paint1,
-                                         SkMatrix::I(),
-                                         kDstRect,
-                                         kSrcRect);
+
+
+        GrDrawContext* readDrawContext = context->drawContext();
+        if (!readDrawContext) {
+            failed = true;
+            break;
+        }
+
+        readDrawContext->drawNonAARectToRect(readTex->asRenderTarget(),
+                                             GrClip::WideOpen(),
+                                             paint1,
+                                             SkMatrix::I(),
+                                             kDstRect,
+                                             kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         paint2.addColorProcessor(upmToPM);
-        drawContext->drawNonAARectToRect(tempTex->asRenderTarget(),
-                                         GrClip::WideOpen(),
-                                         paint2,
-                                         SkMatrix::I(),
-                                         kDstRect,
-                                         kSrcRect);
+
+        GrDrawContext* tempDrawContext = context->drawContext();
+        if (!tempDrawContext) {
+            failed = true;
+            break;
+        }
+        tempDrawContext->drawNonAARectToRect(tempTex->asRenderTarget(),
+                                             GrClip::WideOpen(),
+                                             paint2,
+                                             SkMatrix::I(),
+                                             kDstRect,
+                                             kSrcRect);
 
         paint3.addColorProcessor(pmToUPM2);
-        drawContext->drawNonAARectToRect(readTex->asRenderTarget(),
-                                         GrClip::WideOpen(),
-                                         paint3,
-                                         SkMatrix::I(),
-                                         kDstRect,
-                                         kSrcRect);
+
+        readDrawContext = context->drawContext();
+        if (!readDrawContext) {
+            failed = true;
+            break;
+        }
+
+        readDrawContext->drawNonAARectToRect(readTex->asRenderTarget(),
+                                             GrClip::WideOpen(),
+                                             paint3,
+                                             SkMatrix::I(),
+                                             kDstRect,
+                                             kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);
 

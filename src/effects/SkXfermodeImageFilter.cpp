@@ -49,8 +49,8 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
                                             SkBitmap* dst,
                                             SkIPoint* offset) const {
     SkBitmap background = src, foreground = src;
-    SkImageFilter* backgroundInput = getInput(0);
-    SkImageFilter* foregroundInput = getInput(1);
+    SkImageFilter* backgroundInput = this->getInput(0);
+    SkImageFilter* foregroundInput = this->getInput(1);
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     if (backgroundInput &&
         !backgroundInput->filterImage(proxy, src, ctx, &background, &backgroundOffset)) {
@@ -133,12 +133,12 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
                                            SkIPoint* offset) const {
     SkBitmap background = src;
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctx, &background,
-                                                       &backgroundOffset)) {
-        return onFilterImage(proxy, src, ctx, result, offset);
+    if (this->getInput(0) && 
+        !this->getInput(0)->getInputResultGPU(proxy, src, ctx, &background, &backgroundOffset)) {
+        return this->onFilterImage(proxy, src, ctx, result, offset);
     }
-    GrTexture* backgroundTex = background.getTexture();
 
+    GrTexture* backgroundTex = background.getTexture();
     if (NULL == backgroundTex) {
         SkASSERT(false);
         return false;
@@ -146,9 +146,9 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
 
     SkBitmap foreground = src;
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
-    if (getInput(1) && !getInput(1)->getInputResultGPU(proxy, src, ctx, &foreground,
-                                                       &foregroundOffset)) {
-        return onFilterImage(proxy, src, ctx, result, offset);
+    if (this->getInput(1) && 
+        !this->getInput(1)->getInputResultGPU(proxy, src, ctx, &foreground, &foregroundOffset)) {
+        return this->onFilterImage(proxy, src, ctx, result, offset);
     }
     GrTexture* foregroundTex = foreground.getTexture();
     GrContext* context = foregroundTex->getContext();

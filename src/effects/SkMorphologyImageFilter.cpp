@@ -138,7 +138,8 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
                                                  SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctx, &src, &srcOffset)) {
+    if (this->getInput(0) &&
+        !this->getInput(0)->filterImage(proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -228,8 +229,8 @@ bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
 }
 
 void SkMorphologyImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    if (getInput(0)) {
-        getInput(0)->computeFastBounds(src, dst);
+    if (this->getInput(0)) {
+        this->getInput(0)->computeFastBounds(src, dst);
     } else {
         *dst = src;
     }
@@ -243,7 +244,7 @@ bool SkMorphologyImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&
                                      SkIntToScalar(this->radius().height()));
     ctm.mapVectors(&radius, 1);
     bounds.outset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
-    if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
+    if (this->getInput(0) && !this->getInput(0)->filterBounds(bounds, ctm, &bounds)) {
         return false;
     }
     *dst = bounds;
@@ -670,18 +671,18 @@ bool apply_morphology(const SkBitmap& input,
     desc.fConfig = kSkia8888_GrPixelConfig;
     SkIRect srcRect = rect;
 
-    GrDrawContext* drawContext = context->drawContext();
-    if (!drawContext) {
-        return false;
-    }
-
     if (radius.fWidth > 0) {
-        GrTexture* texture = context->textureProvider()->refScratchTexture(
+        GrTexture* dst = context->textureProvider()->refScratchTexture(
             desc, GrTextureProvider::kApprox_ScratchTexMatch);
-        if (NULL == texture) {
+        if (NULL == dst) {
             return false;
         }
-        apply_morphology_pass(drawContext, texture->asRenderTarget(), clip, srcTexture,
+        GrDrawContext* dstDrawContext = context->drawContext();
+        if (!dstDrawContext) {
+            return false;
+        }
+
+        apply_morphology_pass(dstDrawContext, dst->asRenderTarget(), clip, srcTexture,
                               srcRect, dstRect, radius.fWidth, morphType,
                               Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
@@ -689,20 +690,27 @@ bool apply_morphology(const SkBitmap& input,
         GrColor clearColor = GrMorphologyEffect::kErode_MorphologyType == morphType ?
                                 SK_ColorWHITE :
                                 SK_ColorTRANSPARENT;
-        drawContext->clear(texture->asRenderTarget(), &clearRect, clearColor, false);
-        srcTexture.reset(texture);
+        dstDrawContext->clear(dst->asRenderTarget(), &clearRect, clearColor, false);
+
+        srcTexture.reset(dst);
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        GrTexture* texture = context->textureProvider()->refScratchTexture(desc,
+        GrTexture* dst = context->textureProvider()->refScratchTexture(desc,
             GrTextureProvider::kApprox_ScratchTexMatch);
-        if (NULL == texture) {
+        if (NULL == dst) {
             return false;
         }
-        apply_morphology_pass(drawContext, texture->asRenderTarget(), clip, srcTexture,
+        GrDrawContext* dstDrawContext = context->drawContext();
+        if (!dstDrawContext) {
+            return false;
+        }
+
+        apply_morphology_pass(dstDrawContext, dst->asRenderTarget(), clip, srcTexture,
                               srcRect, dstRect, radius.fHeight, morphType,
                               Gr1DKernelEffect::kY_Direction);
-        srcTexture.reset(texture);
+
+        srcTexture.reset(dst);
     }
     SkImageFilter::WrapTexture(srcTexture, rect.width(), rect.height(), dst);
     return true;
@@ -718,7 +726,8 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
                                                     SkIPoint* offset) const {
     SkBitmap input = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctx, &input, &srcOffset)) {
+    if (this->getInput(0) && 
+        !this->getInput(0)->getInputResultGPU(proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
     SkIRect bounds;
@@ -744,9 +753,9 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
         return true;
     }
 
-    GrMorphologyEffect::MorphologyType type = dilate ? GrMorphologyEffect::kDilate_MorphologyType : GrMorphologyEffect::kErode_MorphologyType;
-    if (!apply_morphology(input, srcBounds, type,
-                          SkISize::Make(width, height), result)) {
+    GrMorphologyEffect::MorphologyType type = dilate ? GrMorphologyEffect::kDilate_MorphologyType
+                                                     : GrMorphologyEffect::kErode_MorphologyType;
+    if (!apply_morphology(input, srcBounds, type, SkISize::Make(width, height), result)) {
         return false;
     }
     offset->fX = bounds.left();

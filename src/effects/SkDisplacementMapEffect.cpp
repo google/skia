@@ -213,8 +213,8 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
                                             SkBitmap* dst,
                                             SkIPoint* offset) const {
     SkBitmap displ = src, color = src;
-    const SkImageFilter* colorInput = getColorInput();
-    const SkImageFilter* displInput = getDisplacementInput();
+    const SkImageFilter* colorInput = this->getColorInput();
+    const SkImageFilter* displInput = this->getDisplacementInput();
     SkIPoint colorOffset = SkIPoint::Make(0, 0), displOffset = SkIPoint::Make(0, 0);
     if ((colorInput && !colorInput->filterImage(proxy, src, ctx, &color, &colorOffset)) ||
         (displInput && !displInput->filterImage(proxy, src, ctx, &displ, &displOffset))) {
@@ -260,8 +260,8 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
 }
 
 void SkDisplacementMapEffect::computeFastBounds(const SkRect& src, SkRect* dst) const {
-    if (getColorInput()) {
-        getColorInput()->computeFastBounds(src, dst);
+    if (this->getColorInput()) {
+        this->getColorInput()->computeFastBounds(src, dst);
     } else {
         *dst = src;
     }
@@ -275,8 +275,8 @@ bool SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix&
     ctm.mapVectors(&scale, 1);
     bounds.outset(SkScalarCeilToInt(scale.fX * SK_ScalarHalf),
                   SkScalarCeilToInt(scale.fY * SK_ScalarHalf));
-    if (getColorInput()) {
-        return getColorInput()->filterBounds(bounds, ctm, dst);
+    if (this->getColorInput()) {
+        return this->getColorInput()->filterBounds(bounds, ctm, dst);
     }
     *dst = bounds;
     return true;
@@ -398,15 +398,15 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
                                              SkBitmap* result, SkIPoint* offset) const {
     SkBitmap colorBM = src;
     SkIPoint colorOffset = SkIPoint::Make(0, 0);
-    if (getColorInput() && !getColorInput()->getInputResultGPU(proxy, src, ctx, &colorBM,
-                                                               &colorOffset)) {
+    if (this->getColorInput() && 
+        !this->getColorInput()->getInputResultGPU(proxy, src, ctx, &colorBM, &colorOffset)) {
         return false;
     }
     SkBitmap displacementBM = src;
     SkIPoint displacementOffset = SkIPoint::Make(0, 0);
-    if (getDisplacementInput() &&
-        !getDisplacementInput()->getInputResultGPU(proxy, src, ctx, &displacementBM,
-                                                   &displacementOffset)) {
+    if (this->getDisplacementInput() &&
+        !this->getDisplacementInput()->getInputResultGPU(proxy, src, ctx, &displacementBM,
+                                                         &displacementOffset)) {
         return false;
     }
     SkIRect bounds;
