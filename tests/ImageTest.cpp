@@ -130,3 +130,38 @@ DEF_TEST(Image_NewRasterCopy, reporter) {
     REPORTER_ASSERT(reporter, blue == pixels[2]);
     REPORTER_ASSERT(reporter, 0 == pixels[3]);
 }
+
+// Test that a draw that only partially covers the drawing surface isn't
+// interpreted as covering the entire drawing surface (i.e., exercise one of the
+// conditions of SkCanvas::wouldOverwriteEntireSurface()).
+DEF_TEST(Image_RetainSnapshot, reporter) {
+    const SkPMColor red   = SkPackARGB32(0xFF, 0xFF, 0, 0);
+    const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    surface->getCanvas()->clear(0xFF00FF00);
+
+    SkPMColor pixels[4];
+    memset(pixels, 0xFF, sizeof(pixels));   // init with values we don't expect
+    const SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(2, 2);
+    const size_t dstRowBytes = 2 * sizeof(SkPMColor);
+
+    SkAutoTUnref<SkImage> image1(surface->newImageSnapshot());
+    REPORTER_ASSERT(reporter, image1->readPixels(dstInfo, pixels, dstRowBytes, 0, 0));
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pixels); ++i) {
+        REPORTER_ASSERT(reporter, pixels[i] == green);
+    }
+
+    SkPaint paint;
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setColor(SK_ColorRED);
+
+    surface->getCanvas()->drawRect(SkRect::MakeXYWH(1, 1, 1, 1), paint);
+
+    SkAutoTUnref<SkImage> image2(surface->newImageSnapshot());
+    REPORTER_ASSERT(reporter, image2->readPixels(dstInfo, pixels, dstRowBytes, 0, 0));
+    REPORTER_ASSERT(reporter, pixels[0] == green);
+    REPORTER_ASSERT(reporter, pixels[1] == green);
+    REPORTER_ASSERT(reporter, pixels[2] == green);
+    REPORTER_ASSERT(reporter, pixels[3] == red);
+}

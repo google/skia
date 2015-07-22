@@ -70,7 +70,7 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
 
         SkRect devRect;
         this->getTotalMatrix().mapRect(&devRect, *rect);
-        if (devRect.contains(bounds)) {
+        if (!devRect.contains(bounds)) {
             return false;
         }
     }
