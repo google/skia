@@ -427,12 +427,13 @@ void SkDebugCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& cent
 
 void SkDebugCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                 const SkPaint* paint) {
-    SkDebugf("SkDebugCanvas::onDrawImage unimplemented\n");
+    this->addDrawCommand(new SkDrawImageCommand(image, left, top, paint));
 }
 
 void SkDebugCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                     const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
-    SkDebugf("SkDebugCanvas::onDrawImageRect unimplemented\n");
+    SRC_RECT_CONSTRAINT_LOCAL_DEFAULT(constraint);
+    this->addDrawCommand(new SkDrawImageRectCommand(image, src, dst, paint, constraint));
 }
 
 void SkDebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {

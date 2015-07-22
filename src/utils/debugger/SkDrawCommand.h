@@ -26,6 +26,8 @@ public:
         kDrawBitmapRect_OpType,
         kDrawClear_OpType,
         kDrawDRRect_OpType,
+        kDrawImage_OpType,
+        kDrawImageRect_OpType,
         kDrawOval_OpType,
         kDrawPaint_OpType,
         kDrawPatch_OpType,
@@ -260,6 +262,36 @@ private:
     SkPaint                       fPaint;
     SkPaint*                      fPaintPtr;
     SkCanvas::SrcRectConstraint   fConstraint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawImageCommand : public SkDrawCommand {
+public:
+    SkDrawImageCommand(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+private:
+    SkAutoTUnref<const SkImage> fImage;
+    SkScalar                    fLeft;
+    SkScalar                    fTop;
+    SkTLazy<SkPaint>            fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawImageRectCommand : public SkDrawCommand {
+public:
+    SkDrawImageRectCommand(const SkImage* image, const SkRect* src, const SkRect& dst,
+                           const SkPaint* paint, SkCanvas::SrcRectConstraint constraint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+private:
+    SkAutoTUnref<const SkImage> fImage;
+    SkTLazy<SkRect>             fSrc;
+    SkRect                      fDst;
+    SkTLazy<SkPaint>            fPaint;
+    SkCanvas::SrcRectConstraint fConstraint;
 
     typedef SkDrawCommand INHERITED;
 };

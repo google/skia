@@ -36,6 +36,8 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawBitmapRect_OpType: return "DrawBitmapRect";
         case kDrawClear_OpType: return "DrawClear";
         case kDrawDRRect_OpType: return "DrawDRRect";
+        case kDrawImage_OpType: return "DrawImage";
+        case kDrawImageRect_OpType: return "DrawImageRect";
         case kDrawOval_OpType: return "DrawOval";
         case kDrawPaint_OpType: return "DrawPaint";
         case kDrawPatch_OpType: return "DrawPatch";
@@ -355,6 +357,64 @@ void SkDrawBitmapRectCommand::execute(SkCanvas* canvas) const {
 
 bool SkDrawBitmapRectCommand::render(SkCanvas* canvas) const {
     render_bitmap(canvas, fBitmap, this->srcRect());
+    return true;
+}
+
+SkDrawImageCommand::SkDrawImageCommand(const SkImage* image, SkScalar left, SkScalar top,
+                                       const SkPaint* paint)
+    : INHERITED(kDrawImage_OpType)
+    , fImage(SkRef(image))
+    , fLeft(left)
+    , fTop(top) {
+
+    if (paint) {
+        fPaint.set(*paint);
+    }
+}
+
+void SkDrawImageCommand::execute(SkCanvas* canvas) const {
+    canvas->drawImage(fImage, fLeft, fTop, fPaint.getMaybeNull());
+}
+
+bool SkDrawImageCommand::render(SkCanvas* canvas) const {
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->clear(0xFFFFFFFF);
+
+    xlate_and_scale_to_bounds(canvas, SkRect::MakeXYWH(fLeft, fTop,
+                                                       SkIntToScalar(fImage->width()),
+                                                       SkIntToScalar(fImage->height())));
+    this->execute(canvas);
+    return true;
+}
+
+SkDrawImageRectCommand::SkDrawImageRectCommand(const SkImage* image, const SkRect* src,
+                                               const SkRect& dst, const SkPaint* paint,
+                                               SkCanvas::SrcRectConstraint constraint)
+    : INHERITED(kDrawImageRect_OpType)
+    , fImage(SkRef(image))
+    , fDst(dst)
+    , fConstraint(constraint) {
+
+    if (src) {
+        fSrc.set(*src);
+    }
+
+    if (paint) {
+        fPaint.set(*paint);
+    }
+}
+
+void SkDrawImageRectCommand::execute(SkCanvas* canvas) const {
+    canvas->drawImageRect(fImage, fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(), fConstraint);
+}
+
+bool SkDrawImageRectCommand::render(SkCanvas* canvas) const {
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->clear(0xFFFFFFFF);
+
+    xlate_and_scale_to_bounds(canvas, fDst);
+
+    this->execute(canvas);
     return true;
 }
 
