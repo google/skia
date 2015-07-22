@@ -287,7 +287,7 @@
           }],
         ],
         'sources': [
-          '../app/jni/com_skia_SkiaSampleRenderer.cpp',
+          '../apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.cpp',
         ],
       },
     },
@@ -320,8 +320,8 @@
           '../../../tools/VisualBench/',
         ],
         'sources': [
-          '../visualbench/jni/SkOSWindow_AndroidNative.cpp',
-          '../visualbench/jni/main.cpp',
+          '../apps/visualbench/src/main/jni/SkOSWindow_AndroidNative.cpp',
+          '../apps/visualbench/src/main/jni/main.cpp',
         ],
       },
     },
