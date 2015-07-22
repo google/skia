@@ -286,7 +286,8 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(fp.numTextures());
     this->emitSamplers(fp, &samplers, ifp);
 
-    ifp->fGLProc->emitCode(this, fp, outColor, inColor, fOutCoords[index], samplers);
+    GrGLFragmentProcessor::EmitArgs args(this, fp, outColor, inColor, fOutCoords[index], samplers);
+    ifp->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit

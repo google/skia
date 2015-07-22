@@ -467,12 +467,7 @@ public:
 
     virtual ~GrGLLinearGradient() { }
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         b->add32(GenBaseGradientKey(processor));
@@ -550,17 +545,13 @@ GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) {
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLLinearGradient::emitCode(GrGLFPBuilder* builder,
-                                  const GrFragmentProcessor& fp,
-                                  const char* outputColor,
-                                  const char* inputColor,
-                                  const TransformedCoordsArray& coords,
-                                  const TextureSamplerArray& samplers) {
-    const GrLinearGradient& ge = fp.cast<GrLinearGradient>();
-    this->emitUniforms(builder, ge);
-    SkString t = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
+void GrGLLinearGradient::emitCode(EmitArgs& args) {
+    const GrLinearGradient& ge = args.fFp.cast<GrLinearGradient>();
+    this->emitUniforms(args.fBuilder, ge);
+    SkString t = args.fBuilder->getFragmentShaderBuilder()->ensureFSCoords2D(args.fCoords, 0);
     t.append(".x");
-    this->emitColor(builder, ge, t.c_str(), outputColor, inputColor, samplers);
+    this->emitColor(args.fBuilder, ge, t.c_str(), args.fOutputColor, args.fInputColor,
+                    args.fSamplers);
 }
 
 /////////////////////////////////////////////////////////////////////

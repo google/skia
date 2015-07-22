@@ -61,24 +61,22 @@ public:
 
         GLProcessor(const GrProcessor&) {}
 
-        virtual void emitCode(GrGLFPBuilder* builder,
-                              const GrFragmentProcessor&,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray& coords,
-                              const TextureSamplerArray& samplers) override {
-            GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        virtual void emitCode(EmitArgs& args) override {
+            GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
 
             const char* yuvMatrix   = NULL;
-            fMatrixUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fMatrixUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kMat44f_GrSLType, kDefault_GrSLPrecision,
                                              "YUVMatrix", &yuvMatrix);
-            fsBuilder->codeAppendf("\t%s = vec4(\n\t\t", outputColor);
-            fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
+            fsBuilder->codeAppendf("\t%s = vec4(\n\t\t", args.fOutputColor);
+            fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+                                           args.fCoords[0].getType());
             fsBuilder->codeAppend(".r,\n\t\t");
-            fsBuilder->appendTextureLookup(samplers[1], coords[1].c_str(), coords[1].getType());
+            fsBuilder->appendTextureLookup(args.fSamplers[1], args.fCoords[1].c_str(),
+                                           args.fCoords[1].getType());
             fsBuilder->codeAppend(".r,\n\t\t");
-            fsBuilder->appendTextureLookup(samplers[2], coords[2].c_str(), coords[2].getType());
+            fsBuilder->appendTextureLookup(args.fSamplers[2], args.fCoords[2].c_str(),
+                                           args.fCoords[2].getType());
             fsBuilder->codeAppendf(".r,\n\t\t1.0) * %s;\n", yuvMatrix);
         }
 

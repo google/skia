@@ -17,18 +17,13 @@ class GrGLSimpleTextureEffect : public GrGLFragmentProcessor {
 public:
     GrGLSimpleTextureEffect(const GrProcessor&) {}
 
-    virtual void emitCode(GrGLFPBuilder* builder,
-                          const GrFragmentProcessor& fp,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray& coords,
-                          const TextureSamplerArray& samplers) override {
-        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("\t%s = ", outputColor);
-        fsBuilder->appendTextureLookupAndModulate(inputColor,
-                                                  samplers[0],
-                                                  coords[0].c_str(),
-                                                  coords[0].getType());
+    virtual void emitCode(EmitArgs& args) override {
+        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        fsBuilder->codeAppendf("\t%s = ", args.fOutputColor);
+        fsBuilder->appendTextureLookupAndModulate(args.fInputColor,
+                                                  args.fSamplers[0],
+                                                  args.fCoords[0].c_str(),
+                                                  args.fCoords[0].getType());
         fsBuilder->codeAppend(";\n");
     }
 

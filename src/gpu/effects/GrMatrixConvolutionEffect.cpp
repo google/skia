@@ -12,12 +12,7 @@
 class GrGLMatrixConvolutionEffect : public GrGLFragmentProcessor {
 public:
     GrGLMatrixConvolutionEffect(const GrProcessor&);
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -44,37 +39,32 @@ GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrProcessor& proc
     fConvolveAlpha = m.convolveAlpha();
 }
 
-void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
-                                           const GrFragmentProcessor& fp,
-                                           const char* outputColor,
-                                           const char* inputColor,
-                                           const TransformedCoordsArray& coords,
-                                           const TextureSamplerArray& samplers) {
-    const GrTextureDomain& domain = fp.cast<GrMatrixConvolutionEffect>().domain();
-    fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
+    const GrTextureDomain& domain = args.fFp.cast<GrMatrixConvolutionEffect>().domain();
+    fImageIncrementUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
                                              "ImageIncrement");
-    fKernelUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
+    fKernelUni = args.fBuilder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                           kFloat_GrSLType, kDefault_GrSLPrecision,
                                           "Kernel",
                                           fKernelSize.width() * fKernelSize.height());
-    fKernelOffsetUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fKernelOffsetUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                            kVec2f_GrSLType, kDefault_GrSLPrecision, "KernelOffset");
-    fGainUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fGainUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, kDefault_GrSLPrecision, "Gain");
-    fBiasUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fBiasUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, kDefault_GrSLPrecision, "Bias");
 
-    const char* kernelOffset = builder->getUniformCStr(fKernelOffsetUni);
-    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
-    const char* kernel = builder->getUniformCStr(fKernelUni);
-    const char* gain = builder->getUniformCStr(fGainUni);
-    const char* bias = builder->getUniformCStr(fBiasUni);
+    const char* kernelOffset = args.fBuilder->getUniformCStr(fKernelOffsetUni);
+    const char* imgInc = args.fBuilder->getUniformCStr(fImageIncrementUni);
+    const char* kernel = args.fBuilder->getUniformCStr(fKernelUni);
+    const char* gain = args.fBuilder->getUniformCStr(fGainUni);
+    const char* bias = args.fBuilder->getUniformCStr(fBiasUni);
     int kWidth = fKernelSize.width();
     int kHeight = fKernelSize.height();
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     fsBuilder->codeAppend("vec4 sum = vec4(0, 0, 0, 0);");
     fsBuilder->codeAppendf("vec2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset,
                            imgInc);
@@ -86,7 +76,7 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
             fsBuilder->codeAppendf("float k = %s[%d * %d + %d];", kernel, y, kWidth, x);
             SkString coord;
             coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);
-            fDomain.sampleTexture(fsBuilder, domain, "c", coord, samplers[0]);
+            fDomain.sampleTexture(fsBuilder, domain, "c", coord, args.fSamplers[0]);
             if (!fConvolveAlpha) {
                 fsBuilder->codeAppend("c.rgb /= c.a;");
                 fsBuilder->codeAppend("c.rgb = clamp(c.rgb, 0.0, 1.0);");
@@ -95,18 +85,18 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLFPBuilder* builder,
         }
     }
     if (fConvolveAlpha) {
-        fsBuilder->codeAppendf("%s = sum * %s + %s;", outputColor, gain, bias);
+        fsBuilder->codeAppendf("%s = sum * %s + %s;", args.fOutputColor, gain, bias);
         fsBuilder->codeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
-                               outputColor, outputColor, outputColor);
+                               args.fOutputColor, args.fOutputColor, args.fOutputColor);
     } else {
-        fDomain.sampleTexture(fsBuilder, domain, "c", coords2D, samplers[0]);
-        fsBuilder->codeAppendf("%s.a = c.a;", outputColor);
-        fsBuilder->codeAppendf("%s.rgb = sum.rgb * %s + %s;", outputColor, gain, bias);
-        fsBuilder->codeAppendf("%s.rgb *= %s.a;", outputColor, outputColor);
+        fDomain.sampleTexture(fsBuilder, domain, "c", coords2D, args.fSamplers[0]);
+        fsBuilder->codeAppendf("%s.a = c.a;", args.fOutputColor);
+        fsBuilder->codeAppendf("%s.rgb = sum.rgb * %s + %s;", args.fOutputColor, gain, bias);
+        fsBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor, args.fOutputColor);
     }
 
     SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, outputColor, inputColor);
+    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
     fsBuilder->codeAppend(modulate.c_str());
 }
 

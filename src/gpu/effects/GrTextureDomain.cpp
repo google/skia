@@ -174,12 +174,7 @@ class GrGLTextureDomainEffect : public GrGLFragmentProcessor {
 public:
     GrGLTextureDomainEffect(const GrProcessor&);
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
@@ -193,18 +188,14 @@ private:
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProcessor&) {
 }
 
-void GrGLTextureDomainEffect::emitCode(GrGLFPBuilder* builder,
-                                       const GrFragmentProcessor& fp,
-                                       const char* outputColor,
-                                       const char* inputColor,
-                                       const TransformedCoordsArray& coords,
-                                       const TextureSamplerArray& samplers) {
-    const GrTextureDomainEffect& textureDomainEffect = fp.cast<GrTextureDomainEffect>();
+void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
+    const GrTextureDomainEffect& textureDomainEffect = args.fFp.cast<GrTextureDomainEffect>();
     const GrTextureDomain& domain = textureDomainEffect.textureDomain();
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
-    fGLDomain.sampleTexture(fsBuilder, domain, outputColor, coords2D, samplers[0], inputColor);
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
+    fGLDomain.sampleTexture(fsBuilder, domain, args.fOutputColor, coords2D, args.fSamplers[0],
+                            args.fInputColor);
 }
 
 void GrGLTextureDomainEffect::setData(const GrGLProgramDataManager& pdman,

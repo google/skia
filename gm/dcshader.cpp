@@ -65,14 +65,9 @@ public:
 
     GrGLFragmentProcessor* createGLInstance() const override {
         class DCGLFP : public GrGLFragmentProcessor {
-            void emitCode(GrGLFPBuilder* builder,
-                            const GrFragmentProcessor& fp,
-                            const char* outputColor,
-                            const char* inputColor,
-                            const TransformedCoordsArray& coords,
-                            const TextureSamplerArray& samplers) override {
-                GrGLFragmentBuilder* fpb = builder->getFragmentShaderBuilder();
-                fpb->codeAppendf("vec2 c = %s;", fpb->ensureFSCoords2D(coords, 0).c_str());
+            void emitCode(EmitArgs& args) override {
+                GrGLFragmentBuilder* fpb = args.fBuilder->getFragmentShaderBuilder();
+                fpb->codeAppendf("vec2 c = %s;", fpb->ensureFSCoords2D(args.fCoords, 0).c_str());
                 fpb->codeAppend("vec2 r = mod(c, vec2(20.0));");
                 fpb->codeAppend("vec4 color = vec4(0.5*sin(c.x / 15.0) + 0.5,"
                                                     "0.5*cos((c.x + c.y) / 15.0) + 0.5,"
@@ -80,7 +75,7 @@ public:
                                                     "distance(r, vec2(15.0)) / 20.0 + 0.2);");
                 fpb->codeAppendf("color.rgb *= color.a;"
                                     "%s = color * %s;",
-                                    outputColor, GrGLSLExpr4(inputColor).c_str());
+                                    args.fOutputColor, GrGLSLExpr4(args.fInputColor).c_str());
             }
             void setData(const GrGLProgramDataManager&, const GrProcessor&) override {}
         };

@@ -40,15 +40,10 @@ class GLBigKeyProcessor : public GrGLFragmentProcessor {
 public:
     GLBigKeyProcessor(const GrProcessor&) {}
 
-    virtual void emitCode(GrGLFPBuilder* builder,
-                          const GrFragmentProcessor& fp,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) {
+    virtual void emitCode(EmitArgs& args) override {
         // pass through
-        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("%s = %s;\n", outputColor, inputColor);
+        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        fsBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
     }
 
     static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {

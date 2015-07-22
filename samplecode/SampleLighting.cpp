@@ -129,38 +129,34 @@ public:
             fLightDir.fX = 10000.0f;
         }
 
-        void emitCode(GrGLFPBuilder* builder,
-                      const GrFragmentProcessor& fp,
-                      const char* outputColor,
-                      const char* inputColor,
-                      const TransformedCoordsArray& coords,
-                      const TextureSamplerArray& samplers) override {
+        void emitCode(EmitArgs& args) override {
 
-            GrGLFragmentBuilder* fpb = builder->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fpb = args.fBuilder->getFragmentShaderBuilder();
 
             // add uniforms
             const char* lightDirUniName = NULL;
-            fLightDirUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fLightDirUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                "LightDir", &lightDirUniName);
 
             const char* lightColorUniName = NULL;
-            fLightColorUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fLightColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                  kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                  "LightColor", &lightColorUniName);
 
             const char* ambientColorUniName = NULL;
-            fAmbientColorUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fAmbientColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                    kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                    "AmbientColor", &ambientColorUniName);
 
             fpb->codeAppend("vec4 diffuseColor = ");
-            fpb->appendTextureLookupAndModulate(inputColor, samplers[0], 
-                                                coords[0].c_str(), coords[0].getType());
+            fpb->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0],
+                                                args.fCoords[0].c_str(), args.fCoords[0].getType());
             fpb->codeAppend(";");
 
             fpb->codeAppend("vec4 normalColor = ");
-            fpb->appendTextureLookup(samplers[1], coords[0].c_str(), coords[0].getType());
+            fpb->appendTextureLookup(args.fSamplers[1], args.fCoords[0].c_str(), 
+                                     args.fCoords[0].getType());
             fpb->codeAppend(";");
 
             fpb->codeAppend("vec3 normal = normalize(2.0*(normalColor.rgb - vec3(0.5)));");
@@ -170,7 +166,7 @@ public:
             fpb->codeAppendf("vec3 result = %s.rgb*diffuseColor.rgb*NdotL;", lightColorUniName);
             // ambient light
             fpb->codeAppendf("result += %s.rgb;", ambientColorUniName);
-            fpb->codeAppendf("%s = vec4(result.rgb, diffuseColor.a);", outputColor);
+            fpb->codeAppendf("%s = vec4(result.rgb, diffuseColor.a);", args.fOutputColor);
         }
 
         void setData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {

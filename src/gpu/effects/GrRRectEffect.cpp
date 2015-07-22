@@ -128,12 +128,7 @@ class GLCircularRRectEffect : public GrGLFragmentProcessor {
 public:
     GLCircularRRectEffect(const GrProcessor&);
 
-    virtual void emitCode(GrGLFPBuilder* builder,
-                          const GrFragmentProcessor& fp,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -150,29 +145,24 @@ GLCircularRRectEffect::GLCircularRRectEffect(const GrProcessor& ) {
     fPrevRRect.setEmpty();
 }
 
-void GLCircularRRectEffect::emitCode(GrGLFPBuilder* builder,
-                                     const GrFragmentProcessor& fp,
-                                     const char* outputColor,
-                                     const char* inputColor,
-                                     const TransformedCoordsArray&,
-                                     const TextureSamplerArray& samplers) {
-    const CircularRRectEffect& crre = fp.cast<CircularRRectEffect>();
+void GLCircularRRectEffect::emitCode(EmitArgs& args) {
+    const CircularRRectEffect& crre = args.fFp.cast<CircularRRectEffect>();
     const char *rectName;
     const char *radiusPlusHalfName;
     // The inner rect is the rrect bounds inset by the radius. Its left, top, right, and bottom
     // edges correspond to components x, y, z, and w, respectively. When a side of the rrect has
     // only rectangular corners, that side's value corresponds to the rect edge's value outset by
     // half a pixel.
-    fInnerRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fInnerRectUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType, kDefault_GrSLPrecision,
                                             "innerRect",
                                             &rectName);
-    fRadiusPlusHalfUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fRadiusPlusHalfUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                  kFloat_GrSLType, kDefault_GrSLPrecision,
                                                  "radiusPlusHalf",
                                                  &radiusPlusHalfName);
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
     // At each quarter-circle corner we compute a vector that is the offset of the fragment position
     // from the circle center. The vector is pinned in x and y to be in the quarter-plane relevant
@@ -279,8 +269,8 @@ void GLCircularRRectEffect::emitCode(GrGLFPBuilder* builder,
         fsBuilder->codeAppend("\t\talpha = 1.0 - alpha;\n");
     }
 
-    fsBuilder->codeAppendf("\t\t%s = %s;\n", outputColor,
-                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
+    fsBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
+                           (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
 void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
@@ -483,12 +473,7 @@ class GLEllipticalRRectEffect : public GrGLFragmentProcessor {
 public:
     GLEllipticalRRectEffect(const GrProcessor&);
 
-    virtual void emitCode(GrGLFPBuilder* builder,
-                          const GrFragmentProcessor& effect,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -505,21 +490,16 @@ GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrProcessor& effect) {
     fPrevRRect.setEmpty();
 }
 
-void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
-                                       const GrFragmentProcessor& effect,
-                                       const char* outputColor,
-                                       const char* inputColor,
-                                       const TransformedCoordsArray&,
-                                       const TextureSamplerArray& samplers) {
-    const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
+void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
+    const EllipticalRRectEffect& erre = args.fFp.cast<EllipticalRRectEffect>();
     const char *rectName;
     // The inner rect is the rrect bounds inset by the x/y radii
-    fInnerRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fInnerRectUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType, kDefault_GrSLPrecision,
                                             "innerRect",
                                             &rectName);
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
     // At each quarter-ellipse corner we compute a vector that is the offset of the fragment pos
     // to the ellipse center. The vector is pinned in x and y to be in the quarter-plane relevant
@@ -537,7 +517,7 @@ void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
     switch (erre.getRRect().getType()) {
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
-            fInvRadiiSqdUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fInvRadiiSqdUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                       kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                       "invRadiiXY",
                                                       &invRadiiXYSqdName);
@@ -548,7 +528,7 @@ void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
         }
         case SkRRect::kNinePatch_Type: {
             const char *invRadiiLTRBSqdName;
-            fInvRadiiSqdUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fInvRadiiSqdUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                       "invRadiiLTRB",
                                                       &invRadiiLTRBSqdName);
@@ -577,8 +557,8 @@ void GLEllipticalRRectEffect::emitCode(GrGLFPBuilder* builder,
         fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
     }
 
-    fsBuilder->codeAppendf("\t\t%s = %s;\n", outputColor,
-                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
+    fsBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
+                           (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
 void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,

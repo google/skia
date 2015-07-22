@@ -63,12 +63,7 @@ class GLDitherEffect : public GrGLFragmentProcessor {
 public:
     GLDitherEffect(const GrProcessor&);
 
-    virtual void emitCode(GrGLFPBuilder* builder,
-                          const GrFragmentProcessor& fp,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs& args) override;
 
 private:
     typedef GrGLFragmentProcessor INHERITED;
@@ -77,13 +72,8 @@ private:
 GLDitherEffect::GLDitherEffect(const GrProcessor&) {
 }
 
-void GLDitherEffect::emitCode(GrGLFPBuilder* builder,
-                              const GrFragmentProcessor& fp,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray& samplers) {
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+void GLDitherEffect::emitCode(EmitArgs& args) {
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     // Generate a random number based on the fragment position. For this
     // random number generator, we use the "GLSL rand" function
     // that seems to be floating around on the internet. It works under
@@ -97,7 +87,7 @@ void GLDitherEffect::emitCode(GrGLFPBuilder* builder,
                            "fract(sin(dot(%s.xy ,vec2(12.9898,78.233))) * 43758.5453);\n",
                            fsBuilder->fragmentPosition());
     fsBuilder->codeAppendf("\t\t%s = (1.0/255.0) * vec4(r, r, r, r) + %s;\n",
-                           outputColor, GrGLSLExpr4(inputColor).c_str());
+                           args.fOutputColor, GrGLSLExpr4(args.fInputColor).c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////////

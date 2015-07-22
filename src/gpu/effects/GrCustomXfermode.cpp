@@ -447,20 +447,16 @@ public:
     GLCustomXferFP(const GrFragmentProcessor&) {}
     ~GLCustomXferFP() override {};
 
-    void emitCode(GrGLFPBuilder* builder,
-                  const GrFragmentProcessor& fp,
-                  const char* outputColor,
-                  const char* inputColor,
-                  const TransformedCoordsArray& coords,
-                  const TextureSamplerArray& samplers) override {
-        SkXfermode::Mode mode = fp.cast<GrCustomXferFP>().mode();
-        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    void emitCode(EmitArgs& args) override {
+        SkXfermode::Mode mode = args.fFp.cast<GrCustomXferFP>().mode();
+        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
         const char* dstColor = "bgColor";
         fsBuilder->codeAppendf("vec4 %s = ", dstColor);
-        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
+        fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+                                       args.fCoords[0].getType());
         fsBuilder->codeAppendf(";");
 
-        emit_custom_xfermode_code(mode, fsBuilder, outputColor, inputColor, dstColor); 
+        emit_custom_xfermode_code(mode, fsBuilder, args.fOutputColor, args.fInputColor, dstColor);
     }
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override {}

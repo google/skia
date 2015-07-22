@@ -208,12 +208,7 @@ public:
         GLProcessor(const GrProcessor&);
         virtual ~GLProcessor();
 
-        virtual void emitCode(GrGLFPBuilder*,
-                              const GrFragmentProcessor&,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray&) override;
+        virtual void emitCode(EmitArgs&) override;
 
         static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -267,24 +262,19 @@ GrColorCubeEffect::GLProcessor::GLProcessor(const GrProcessor&) {
 GrColorCubeEffect::GLProcessor::~GLProcessor() {
 }
 
-void GrColorCubeEffect::GLProcessor::emitCode(GrGLFPBuilder* builder,
-                                              const GrFragmentProcessor&,
-                                              const char* outputColor,
-                                              const char* inputColor,
-                                              const TransformedCoordsArray& coords,
-                                              const TextureSamplerArray& samplers) {
-    if (NULL == inputColor) {
-        inputColor = "vec4(1)";
+void GrColorCubeEffect::GLProcessor::emitCode(EmitArgs& args) {
+    if (NULL == args.fInputColor) {
+        args.fInputColor = "vec4(1)";
     }
 
-    fColorCubeSizeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fColorCubeSizeUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kFloat_GrSLType, kDefault_GrSLPrecision,
                                             "Size");
-    const char* colorCubeSizeUni = builder->getUniformCStr(fColorCubeSizeUni);
-    fColorCubeInvSizeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    const char* colorCubeSizeUni = args.fBuilder->getUniformCStr(fColorCubeSizeUni);
+    fColorCubeInvSizeUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                kFloat_GrSLType, kDefault_GrSLPrecision,
                                                "InvSize");
-    const char* colorCubeInvSizeUni = builder->getUniformCStr(fColorCubeInvSizeUni);
+    const char* colorCubeInvSizeUni = args.fBuilder->getUniformCStr(fColorCubeInvSizeUni);
 
     const char* nonZeroAlpha = "nonZeroAlpha";
     const char* unPMColor = "unPMColor";
@@ -295,12 +285,12 @@ void GrColorCubeEffect::GLProcessor::emitCode(GrGLFPBuilder* builder,
     // Note: if implemented using texture3D in OpenGL ES older than OpenGL ES 3.0,
     //       the shader might need "#extension GL_OES_texture_3D : enable".
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
 
     // Unpremultiply color
-    fsBuilder->codeAppendf("\tfloat %s = max(%s.a, 0.00001);\n", nonZeroAlpha, inputColor);
+    fsBuilder->codeAppendf("\tfloat %s = max(%s.a, 0.00001);\n", nonZeroAlpha, args.fInputColor);
     fsBuilder->codeAppendf("\tvec4 %s = vec4(%s.rgb / %s, %s);\n",
-                           unPMColor, inputColor, nonZeroAlpha, nonZeroAlpha);
+                           unPMColor, args.fInputColor, nonZeroAlpha, nonZeroAlpha);
 
     // Fit input color into the cube.
     fsBuilder->codeAppendf(
@@ -315,14 +305,14 @@ void GrColorCubeEffect::GLProcessor::emitCode(GrGLFPBuilder* builder,
                            cCoords2, cubeIdx, cubeIdx, cubeIdx, colorCubeInvSizeUni);
 
     // Apply the cube.
-    fsBuilder->codeAppendf("%s = vec4(mix(", outputColor);
-    fsBuilder->appendTextureLookup(samplers[0], cCoords1);
+    fsBuilder->codeAppendf("%s = vec4(mix(", args.fOutputColor);
+    fsBuilder->appendTextureLookup(args.fSamplers[0], cCoords1);
     fsBuilder->codeAppend(".rgb, ");
-    fsBuilder->appendTextureLookup(samplers[0], cCoords2);
+    fsBuilder->appendTextureLookup(args.fSamplers[0], cCoords2);
 
     // Premultiply color by alpha. Note that the input alpha is not modified by this shader.
     fsBuilder->codeAppendf(".rgb, fract(%s.b)) * vec3(%s), %s.a);\n",
-                           cubeIdx, nonZeroAlpha, inputColor);
+                           cubeIdx, nonZeroAlpha, args.fInputColor);
 }
 
 void GrColorCubeEffect::GLProcessor::setData(const GrGLProgramDataManager& pdman,

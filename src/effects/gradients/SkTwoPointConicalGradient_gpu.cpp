@@ -144,12 +144,7 @@ public:
     GLEdge2PtConicalEffect(const GrProcessor&);
     virtual ~GLEdge2PtConicalEffect() { }
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
     static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
@@ -228,15 +223,10 @@ GLEdge2PtConicalEffect::GLEdge2PtConicalEffect(const GrProcessor&)
     , fCachedRadius(-SK_ScalarMax)
     , fCachedDiffRadius(-SK_ScalarMax) {}
 
-void GLEdge2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
-                                      const GrFragmentProcessor& fp,
-                                      const char* outputColor,
-                                      const char* inputColor,
-                                      const TransformedCoordsArray& coords,
-                                      const TextureSamplerArray& samplers) {
-    const Edge2PtConicalEffect& ge = fp.cast<Edge2PtConicalEffect>();
-    this->emitUniforms(builder, ge);
-    fParamUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
+void GLEdge2PtConicalEffect::emitCode(EmitArgs& args) {
+    const Edge2PtConicalEffect& ge = args.fFp.cast<Edge2PtConicalEffect>();
+    this->emitUniforms(args.fBuilder, ge);
+    fParamUni = args.fBuilder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, kDefault_GrSLPrecision,
                                          "Conical2FSParams", 3);
 
@@ -246,29 +236,29 @@ void GLEdge2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     SkString p1; // start radius squared
     SkString p2; // difference in radii (r1 - r0)
 
-    builder->getUniformVariable(fParamUni).appendArrayAccess(0, &p0);
-    builder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
-    builder->getUniformVariable(fParamUni).appendArrayAccess(2, &p2);
+    args.fBuilder->getUniformVariable(fParamUni).appendArrayAccess(0, &p0);
+    args.fBuilder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
+    args.fBuilder->getUniformVariable(fParamUni).appendArrayAccess(2, &p2);
 
     // We interpolate the linear component in coords[1].
-    SkASSERT(coords[0].getType() == coords[1].getType());
+    SkASSERT(args.fCoords[0].getType() == args.fCoords[1].getType());
     const char* coords2D;
     SkString bVar;
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    if (kVec3f_GrSLType == coords[0].getType()) {
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    if (kVec3f_GrSLType == args.fCoords[0].getType()) {
         fsBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
-                               coords[0].c_str(), coords[0].c_str(), coords[1].c_str(),
-                               coords[1].c_str());
+                               args.fCoords[0].c_str(), args.fCoords[0].c_str(),
+                               args.fCoords[1].c_str(), args.fCoords[1].c_str());
         coords2D = "interpolants.xy";
         bVar = "interpolants.z";
     } else {
-        coords2D = coords[0].c_str();
-        bVar.printf("%s.x", coords[1].c_str());
+        coords2D = args.fCoords[0].c_str();
+        bVar.printf("%s.x", args.fCoords[1].c_str());
     }
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
+    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
     // c = (x^2)+(y^2) - params[1]
     fsBuilder->codeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
@@ -282,7 +272,8 @@ void GLEdge2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     fsBuilder->codeAppendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                            p2.c_str(), p0.c_str());
     fsBuilder->codeAppend("\t");
-    this->emitColor(builder, ge, tName.c_str(), outputColor, inputColor, samplers);
+    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+                    args.fSamplers);
     fsBuilder->codeAppend("\t}\n");
 }
 
@@ -434,12 +425,7 @@ public:
     GLFocalOutside2PtConicalEffect(const GrProcessor&);
     virtual ~GLFocalOutside2PtConicalEffect() { }
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
     static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
@@ -520,34 +506,29 @@ GLFocalOutside2PtConicalEffect::GLFocalOutside2PtConicalEffect(const GrProcessor
     fIsFlipped = data.isFlipped();
 }
 
-void GLFocalOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
-                                              const GrFragmentProcessor& fp,
-                                              const char* outputColor,
-                                              const char* inputColor,
-                                              const TransformedCoordsArray& coords,
-                                              const TextureSamplerArray& samplers) {
-    const FocalOutside2PtConicalEffect& ge = fp.cast<FocalOutside2PtConicalEffect>();
-    this->emitUniforms(builder, ge);
-    fParamUni = builder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
+void GLFocalOutside2PtConicalEffect::emitCode(EmitArgs& args) {
+    const FocalOutside2PtConicalEffect& ge = args.fFp.cast<FocalOutside2PtConicalEffect>();
+    this->emitUniforms(args.fBuilder, ge);
+    fParamUni = args.fBuilder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, kDefault_GrSLPrecision,
                                          "Conical2FSParams", 2);
     SkString tName("t");
     SkString p0; // focalX
     SkString p1; // 1 - focalX * focalX
 
-    builder->getUniformVariable(fParamUni).appendArrayAccess(0, &p0);
-    builder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
+    args.fBuilder->getUniformVariable(fParamUni).appendArrayAccess(0, &p0);
+    args.fBuilder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
     // t = p.x * focal.x +/- sqrt(p.x^2 + (1 - focal.x^2) * p.y^2)
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
+    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
     fsBuilder->codeAppendf("\tfloat xs = %s.x * %s.x;\n", coords2D, coords2D);
     fsBuilder->codeAppendf("\tfloat ys = %s.y * %s.y;\n", coords2D, coords2D);
@@ -565,7 +546,8 @@ void GLFocalOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
 
     fsBuilder->codeAppendf("\tif (%s >= 0.0 && d >= 0.0) {\n", tName.c_str());
     fsBuilder->codeAppend("\t\t");
-    this->emitColor(builder, ge, tName.c_str(), outputColor, inputColor, samplers);
+    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+                    args.fSamplers);
     fsBuilder->codeAppend("\t}\n");
 }
 
@@ -656,12 +638,7 @@ public:
     GLFocalInside2PtConicalEffect(const GrProcessor&);
     virtual ~GLFocalInside2PtConicalEffect() {}
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
     static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
@@ -737,33 +714,29 @@ GLFocalInside2PtConicalEffect::GLFocalInside2PtConicalEffect(const GrProcessor&)
     , fFSVaryingName(NULL)
     , fCachedFocal(SK_ScalarMax) {}
 
-void GLFocalInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
-                                             const GrFragmentProcessor& fp,
-                                             const char* outputColor,
-                                             const char* inputColor,
-                                             const TransformedCoordsArray& coords,
-                                             const TextureSamplerArray& samplers) {
-    const FocalInside2PtConicalEffect& ge = fp.cast<FocalInside2PtConicalEffect>();
-    this->emitUniforms(builder, ge);
-    fFocalUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+void GLFocalInside2PtConicalEffect::emitCode(EmitArgs& args) {
+    const FocalInside2PtConicalEffect& ge = args.fFp.cast<FocalInside2PtConicalEffect>();
+    this->emitUniforms(args.fBuilder, ge);
+    fFocalUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                     kFloat_GrSLType, kDefault_GrSLPrecision,
                                     "Conical2FSParams");
     SkString tName("t");
 
     // this is the distance along x-axis from the end center to focal point in
     // transformed coordinates
-    GrGLShaderVar focal = builder->getUniformVariable(fFocalUni);
+    GrGLShaderVar focal = args.fBuilder->getUniformVariable(fFocalUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
     // t = p.x * focalX + length(p)
     fsBuilder->codeAppendf("\tfloat %s = %s.x * %s  + length(%s);\n", tName.c_str(),
                            coords2D, focal.c_str(), coords2D);
 
-    this->emitColor(builder, ge, tName.c_str(), outputColor, inputColor, samplers);
+    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+                    args.fSamplers);
 }
 
 void GLFocalInside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
@@ -907,12 +880,7 @@ public:
     GLCircleInside2PtConicalEffect(const GrProcessor&);
     virtual ~GLCircleInside2PtConicalEffect() {}
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
     static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
@@ -997,31 +965,26 @@ GLCircleInside2PtConicalEffect::GLCircleInside2PtConicalEffect(const GrProcessor
     , fCachedB(SK_ScalarMax)
     , fCachedC(SK_ScalarMax) {}
 
-void GLCircleInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
-                                              const GrFragmentProcessor& fp,
-                                              const char* outputColor,
-                                              const char* inputColor,
-                                              const TransformedCoordsArray& coords,
-                                              const TextureSamplerArray& samplers) {
-    const CircleInside2PtConicalEffect& ge = fp.cast<CircleInside2PtConicalEffect>();
-    this->emitUniforms(builder, ge);
-    fCenterUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+void GLCircleInside2PtConicalEffect::emitCode(EmitArgs& args) {
+    const CircleInside2PtConicalEffect& ge = args.fFp.cast<CircleInside2PtConicalEffect>();
+    this->emitUniforms(args.fBuilder, ge);
+    fCenterUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                      kVec2f_GrSLType, kDefault_GrSLPrecision,
                                      "Conical2FSCenter");
-    fParamUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fParamUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                     kVec3f_GrSLType, kDefault_GrSLPrecision,
                                     "Conical2FSParams");
     SkString tName("t");
 
-    GrGLShaderVar center = builder->getUniformVariable(fCenterUni);
+    GrGLShaderVar center = args.fBuilder->getUniformVariable(fCenterUni);
     // params.x = A
     // params.y = B
     // params.z = C
-    GrGLShaderVar params = builder->getUniformVariable(fParamUni);
+    GrGLShaderVar params = args.fBuilder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
     // p = coords2D
@@ -1038,7 +1001,8 @@ void GLCircleInside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
     fsBuilder->codeAppendf("\tfloat %s = d + sqrt(d * d - %s.x * pDotp + %s.z);\n",
                            tName.c_str(), params.c_str(), params.c_str());
 
-    this->emitColor(builder, ge, tName.c_str(), outputColor, inputColor, samplers);
+    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+                    args.fSamplers);
 }
 
 void GLCircleInside2PtConicalEffect::setData(const GrGLProgramDataManager& pdman,
@@ -1144,12 +1108,7 @@ public:
     GLCircleOutside2PtConicalEffect(const GrProcessor&);
     virtual ~GLCircleOutside2PtConicalEffect() {}
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
     static void GenKey(const GrProcessor&, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b);
@@ -1241,36 +1200,31 @@ GLCircleOutside2PtConicalEffect::GLCircleOutside2PtConicalEffect(const GrProcess
     fIsFlipped = data.isFlipped();
     }
 
-void GLCircleOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
-                                               const GrFragmentProcessor& fp,
-                                               const char* outputColor,
-                                               const char* inputColor,
-                                               const TransformedCoordsArray& coords,
-                                               const TextureSamplerArray& samplers) {
-    const CircleOutside2PtConicalEffect& ge = fp.cast<CircleOutside2PtConicalEffect>();
-    this->emitUniforms(builder, ge);
-    fCenterUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+void GLCircleOutside2PtConicalEffect::emitCode(EmitArgs& args) {
+    const CircleOutside2PtConicalEffect& ge = args.fFp.cast<CircleOutside2PtConicalEffect>();
+    this->emitUniforms(args.fBuilder, ge);
+    fCenterUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                      kVec2f_GrSLType, kDefault_GrSLPrecision,
                                      "Conical2FSCenter");
-    fParamUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fParamUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                     kVec4f_GrSLType, kDefault_GrSLPrecision,
                                     "Conical2FSParams");
     SkString tName("t");
 
-    GrGLShaderVar center = builder->getUniformVariable(fCenterUni);
+    GrGLShaderVar center = args.fBuilder->getUniformVariable(fCenterUni);
     // params.x = A
     // params.y = B
     // params.z = C
-    GrGLShaderVar params = builder->getUniformVariable(fParamUni);
+    GrGLShaderVar params = args.fBuilder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    SkString coords2DString = fsBuilder->ensureFSCoords2D(coords, 0);
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
+    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
     // p = coords2D
     // e = center end
@@ -1297,7 +1251,8 @@ void GLCircleOutside2PtConicalEffect::emitCode(GrGLFPBuilder* builder,
 
     fsBuilder->codeAppendf("\tif (%s >= %s.w && deter >= 0.0) {\n", tName.c_str(), params.c_str());
     fsBuilder->codeAppend("\t\t");
-    this->emitColor(builder, ge, tName.c_str(), outputColor, inputColor, samplers);
+    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+                    args.fSamplers);
     fsBuilder->codeAppend("\t}\n");
 }
 

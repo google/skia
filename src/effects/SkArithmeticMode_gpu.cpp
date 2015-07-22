@@ -60,24 +60,21 @@ public:
 
     ~GLArithmeticFP() override {}
 
-    void emitCode(GrGLFPBuilder* builder,
-                  const GrFragmentProcessor& fp,
-                  const char* outputColor,
-                  const char* inputColor,
-                  const TransformedCoordsArray& coords,
-                  const TextureSamplerArray& samplers) override {
-        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    void emitCode(EmitArgs& args) override {
+        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
         fsBuilder->codeAppend("vec4 bgColor = ");
-        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
+        fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+                                       args.fCoords[0].getType());
         fsBuilder->codeAppendf(";");
         const char* dstColor = "bgColor";
 
-        fKUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fKUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                     kVec4f_GrSLType, kDefault_GrSLPrecision,
                                     "k");
-        const char* kUni = builder->getUniformCStr(fKUni);
+        const char* kUni = args.fBuilder->getUniformCStr(fKUni);
 
-        add_arithmetic_code(fsBuilder, inputColor, dstColor, outputColor, kUni, fEnforcePMColor);
+        add_arithmetic_code(fsBuilder, args.fInputColor, dstColor, args.fOutputColor, kUni,
+                            fEnforcePMColor);
     }
 
     void setData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {

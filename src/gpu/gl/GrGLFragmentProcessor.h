@@ -41,14 +41,30 @@ public:
         @param samplers     Contains one entry for each GrTextureAccess of the GrProcessor. These
                             can be passed to the builder to emit texture reads in the generated
                             code.
-        TODO this should take a struct
         */
-    virtual void emitCode(GrGLFPBuilder* builder,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray& coords,
-                          const TextureSamplerArray& samplers) = 0;
+
+    struct EmitArgs {
+        EmitArgs(GrGLFPBuilder* builder,
+                 const GrFragmentProcessor& fp,
+                 const char* outputColor,
+                 const char* inputColor,
+                 const TransformedCoordsArray& coords,
+                 const TextureSamplerArray& samplers)
+            : fBuilder(builder)
+            , fFp(fp)
+            , fOutputColor(outputColor)
+            , fInputColor(inputColor)
+            , fCoords(coords)
+            , fSamplers(samplers) {}
+        GrGLFPBuilder* fBuilder;
+        const GrFragmentProcessor& fFp;
+        const char* fOutputColor;
+        const char* fInputColor;
+        const TransformedCoordsArray& fCoords;
+        const TextureSamplerArray& fSamplers;
+    };
+
+    virtual void emitCode(EmitArgs&) = 0;
 
     /** A GrGLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
         the same stage key; this function reads data from a GrFragmentProcessor and uploads any

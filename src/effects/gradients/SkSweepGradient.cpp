@@ -190,12 +190,7 @@ public:
     GrGLSweepGradient(const GrProcessor&) {}
     virtual ~GrGLSweepGradient() { }
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         b->add32(GenBaseGradientKey(processor));
@@ -266,16 +261,12 @@ GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
-                                 const GrFragmentProcessor& fp,
-                                 const char* outputColor,
-                                 const char* inputColor,
-                                 const TransformedCoordsArray& coords,
-                                 const TextureSamplerArray& samplers) {
-    const GrSweepGradient& ge = fp.cast<GrSweepGradient>();
-    this->emitUniforms(builder, ge);
-    SkString coords2D = builder->getFragmentShaderBuilder()->ensureFSCoords2D(coords, 0);
-    const GrGLContextInfo& ctxInfo = builder->ctxInfo();
+void GrGLSweepGradient::emitCode(EmitArgs& args) {
+    const GrSweepGradient& ge = args.fFp.cast<GrSweepGradient>();
+    this->emitUniforms(args.fBuilder, ge);
+    SkString coords2D = args.fBuilder->getFragmentShaderBuilder()
+                                        ->ensureFSCoords2D(args.fCoords, 0);
+    const GrGLContextInfo& ctxInfo = args.fBuilder->ctxInfo();
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     // On Intel GPU there is an issue where it reads the second arguement to atan "- %s.x" as an int
@@ -287,7 +278,8 @@ void GrGLSweepGradient::emitCode(GrGLFPBuilder* builder,
         t.printf("atan(- %s.y, -1.0 * %s.x) * 0.1591549430918 + 0.5",
                  coords2D.c_str(), coords2D.c_str());
     }
-    this->emitColor(builder, ge, t.c_str(), outputColor, inputColor, samplers);
+    this->emitColor(args.fBuilder, ge, t.c_str(), args.fOutputColor, args.fInputColor,
+                    args.fSamplers);
 }
 
 /////////////////////////////////////////////////////////////////////

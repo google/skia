@@ -1514,12 +1514,7 @@ public:
     GrGLLightingEffect(const GrProcessor&);
     virtual ~GrGLLightingEffect();
 
-    void emitCode(GrGLFPBuilder*,
-                  const GrFragmentProcessor&,
-                  const char* outputColor,
-                  const char* inputColor,
-                  const TransformedCoordsArray&,
-                  const TextureSamplerArray&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
@@ -1656,21 +1651,16 @@ GrGLLightingEffect::~GrGLLightingEffect() {
     delete fLight;
 }
 
-void GrGLLightingEffect::emitCode(GrGLFPBuilder* builder,
-                                  const GrFragmentProcessor&,
-                                  const char* outputColor,
-                                  const char* inputColor,
-                                  const TransformedCoordsArray& coords,
-                                  const TextureSamplerArray& samplers) {
-    fImageIncrementUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+void GrGLLightingEffect::emitCode(EmitArgs& args) {
+    fImageIncrementUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                               kVec2f_GrSLType, kDefault_GrSLPrecision,
                                              "ImageIncrement");
-    fSurfaceScaleUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fSurfaceScaleUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                            kFloat_GrSLType, kDefault_GrSLPrecision,
                                            "SurfaceScale");
-    fLight->emitLightColorUniform(builder);
+    fLight->emitLightColorUniform(args.fBuilder);
     SkString lightFunc;
-    this->emitLightFunc(builder, &lightFunc);
+    this->emitLightFunc(args.fBuilder, &lightFunc);
     static const GrGLShaderVar gSobelArgs[] =  {
         GrGLShaderVar("a", kFloat_GrSLType),
         GrGLShaderVar("b", kFloat_GrSLType),
@@ -1681,8 +1671,8 @@ void GrGLLightingEffect::emitCode(GrGLFPBuilder* builder,
         GrGLShaderVar("scale", kFloat_GrSLType),
     };
     SkString sobelFuncName;
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
     fsBuilder->emitFunction(kFloat_GrSLType,
                             "sobel",
@@ -1721,8 +1711,8 @@ void GrGLLightingEffect::emitCode(GrGLFPBuilder* builder,
     fsBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     fsBuilder->codeAppend("\t\tfloat m[9];\n");
 
-    const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
-    const char* surfScale = builder->getUniformCStr(fSurfaceScaleUni);
+    const char* imgInc = args.fBuilder->getUniformCStr(fImageIncrementUni);
+    const char* surfScale = args.fBuilder->getUniformCStr(fSurfaceScaleUni);
 
     int index = 0;
     for (int dy = 1; dy >= -1; dy--) {
@@ -1730,21 +1720,21 @@ void GrGLLightingEffect::emitCode(GrGLFPBuilder* builder,
             SkString texCoords;
             texCoords.appendf("coord + vec2(%d, %d) * %s", dx, dy, imgInc);
             fsBuilder->codeAppendf("\t\tm[%d] = ", index++);
-            fsBuilder->appendTextureLookup(samplers[0], texCoords.c_str());
+            fsBuilder->appendTextureLookup(args.fSamplers[0], texCoords.c_str());
             fsBuilder->codeAppend(".a;\n");
         }
     }
     fsBuilder->codeAppend("\t\tvec3 surfaceToLight = ");
     SkString arg;
     arg.appendf("%s * m[4]", surfScale);
-    fLight->emitSurfaceToLight(builder, arg.c_str());
+    fLight->emitSurfaceToLight(args.fBuilder, arg.c_str());
     fsBuilder->codeAppend(";\n");
     fsBuilder->codeAppendf("\t\t%s = %s(%s(m, %s), surfaceToLight, ",
-                           outputColor, lightFunc.c_str(), normalName.c_str(), surfScale);
-    fLight->emitLightColor(builder, "surfaceToLight");
+                           args.fOutputColor, lightFunc.c_str(), normalName.c_str(), surfScale);
+    fLight->emitLightColor(args.fBuilder, "surfaceToLight");
     fsBuilder->codeAppend(");\n");
     SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, outputColor, inputColor);
+    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
     fsBuilder->codeAppend(modulate.c_str());
 }
 

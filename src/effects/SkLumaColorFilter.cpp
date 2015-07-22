@@ -80,24 +80,19 @@ public:
 
         static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
 
-        virtual void emitCode(GrGLFPBuilder* builder,
-                              const GrFragmentProcessor&,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray&) override {
-            if (NULL == inputColor) {
-                inputColor = "vec4(1)";
+        virtual void emitCode(EmitArgs& args) override {
+            if (NULL == args.fInputColor) {
+                args.fInputColor = "vec4(1)";
             }
 
-            GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+            GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
                                    SK_ITU_BT709_LUM_COEFF_R,
                                    SK_ITU_BT709_LUM_COEFF_G,
                                    SK_ITU_BT709_LUM_COEFF_B,
-                                   inputColor);
+                                   args.fInputColor);
             fsBuilder->codeAppendf("\t%s = vec4(0, 0, 0, luma);\n",
-                                   outputColor);
+                                   args.fOutputColor);
 
         }
 

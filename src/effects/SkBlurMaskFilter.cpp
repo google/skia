@@ -664,12 +664,7 @@ private:
 class GrGLRectBlurEffect : public GrGLFragmentProcessor {
 public:
     GrGLRectBlurEffect(const GrProcessor&) {}
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
@@ -698,32 +693,27 @@ void OutputRectBlurProfileLookup(GrGLFragmentBuilder* fsBuilder,
     fsBuilder->codeAppendf("\t\t}\n");
 }
 
-void GrGLRectBlurEffect::emitCode(GrGLFPBuilder* builder,
-                                 const GrFragmentProcessor&,
-                                 const char* outputColor,
-                                 const char* inputColor,
-                                 const TransformedCoordsArray& coords,
-                                 const TextureSamplerArray& samplers) {
+void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
 
     const char *rectName;
     const char *profileSizeName;
 
-    fProxyRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fProxyRectUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
                                             kDefault_GrSLPrecision,
                                             "proxyRect",
                                             &rectName);
-    fProfileSizeUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fProfileSizeUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kFloat_GrSLType,
                                             kDefault_GrSLPrecision,
                                             "profileSize",
                                             &profileSizeName);
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     const char *fragmentPos = fsBuilder->fragmentPosition();
 
-    if (inputColor) {
-        fsBuilder->codeAppendf("\tvec4 src=%s;\n", inputColor);
+    if (args.fInputColor) {
+        fsBuilder->codeAppendf("\tvec4 src=%s;\n", args.fInputColor);
     } else {
         fsBuilder->codeAppendf("\tvec4 src=vec4(1)\n;");
     }
@@ -736,11 +726,13 @@ void GrGLRectBlurEffect::emitCode(GrGLFPBuilder* builder,
     fsBuilder->codeAppendf("\tfloat center = 2.0 * floor(%s/2.0 + .25) - 1.0;\n", profileSizeName);
     fsBuilder->codeAppendf("\tvec2 wh = smallDims - vec2(center,center);\n");
 
-    OutputRectBlurProfileLookup(fsBuilder, samplers[0], "horiz_lookup", profileSizeName, "translatedPos.x", "width", "wh.x");
-    OutputRectBlurProfileLookup(fsBuilder, samplers[0], "vert_lookup", profileSizeName, "translatedPos.y", "height", "wh.y");
+    OutputRectBlurProfileLookup(fsBuilder, args.fSamplers[0], "horiz_lookup", profileSizeName,
+                                "translatedPos.x", "width", "wh.x");
+    OutputRectBlurProfileLookup(fsBuilder, args.fSamplers[0], "vert_lookup", profileSizeName,
+                                "translatedPos.y", "height", "wh.y");
 
     fsBuilder->codeAppendf("\tfloat final = horiz_lookup * vert_lookup;\n");
-    fsBuilder->codeAppendf("\t%s = src * final;\n", outputColor );
+    fsBuilder->codeAppendf("\t%s = src * final;\n", args.fOutputColor );
 }
 
 void GrGLRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
@@ -1019,12 +1011,7 @@ class GrGLRRectBlurEffect : public GrGLFragmentProcessor {
 public:
     GrGLRRectBlurEffect(const GrProcessor&) {}
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
@@ -1035,12 +1022,7 @@ private:
     typedef GrGLFragmentProcessor INHERITED;
 };
 
-void GrGLRRectBlurEffect::emitCode(GrGLFPBuilder* builder,
-                                   const GrFragmentProcessor&,
-                                   const char* outputColor,
-                                   const char* inputColor,
-                                   const TransformedCoordsArray&,
-                                   const TextureSamplerArray& samplers) {
+void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     const char *rectName;
     const char *cornerRadiusName;
     const char *blurRadiusName;
@@ -1048,23 +1030,23 @@ void GrGLRRectBlurEffect::emitCode(GrGLFPBuilder* builder,
     // The proxy rect has left, top, right, and bottom edges correspond to
     // components x, y, z, and w, respectively.
 
-    fProxyRectUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fProxyRectUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
                                             kDefault_GrSLPrecision,
                                             "proxyRect",
                                             &rectName);
-    fCornerRadiusUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fCornerRadiusUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                kFloat_GrSLType,
                                                kDefault_GrSLPrecision,
                                                "cornerRadius",
                                                &cornerRadiusName);
-    fBlurRadiusUniform = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fBlurRadiusUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kFloat_GrSLType,
                                               kDefault_GrSLPrecision,
                                               "blurRadius",
                                               &blurRadiusName);
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     const char* fragmentPos = fsBuilder->fragmentPosition();
 
     // warp the fragment position to the appropriate part of the 9patch blur texture
@@ -1089,8 +1071,8 @@ void GrGLRRectBlurEffect::emitCode(GrGLFPBuilder* builder,
     fsBuilder->codeAppendf("\t\tvec2 proxyDims = vec2(2.0*threshold+1.0);\n");
     fsBuilder->codeAppendf("\t\tvec2 texCoord = translatedFragPos / proxyDims;\n");
 
-    fsBuilder->codeAppendf("\t%s = ", outputColor);
-    fsBuilder->appendTextureLookupAndModulate(inputColor, samplers[0], "texCoord");
+    fsBuilder->codeAppendf("\t%s = ", args.fOutputColor);
+    fsBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0], "texCoord");
     fsBuilder->codeAppend(";\n");
 }
 

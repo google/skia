@@ -23,28 +23,24 @@ public:
         fPMConversion = configConversionEffect.pmConversion();
     }
 
-    virtual void emitCode(GrGLFPBuilder* builder,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray& coords,
-                          const TextureSamplerArray& samplers) override {
+    virtual void emitCode(EmitArgs& args) override {
         // Using highp for GLES here in order to avoid some precision issues on specific GPUs.
         GrGLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
         SkString tmpDecl;
-        tmpVar.appendDecl(builder->ctxInfo(), &tmpDecl);
+        tmpVar.appendDecl(args.fBuilder->ctxInfo(), &tmpDecl);
 
-        GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
 
         fsBuilder->codeAppendf("%s;", tmpDecl.c_str());
 
         fsBuilder->codeAppendf("%s = ", tmpVar.c_str());
-        fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
+        fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+                                       args.fCoords[0].getType());
         fsBuilder->codeAppend(";");
 
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             SkASSERT(fSwapRedAndBlue);
-            fsBuilder->codeAppendf("%s = %s.bgra;", outputColor, tmpVar.c_str());
+            fsBuilder->codeAppendf("%s = %s.bgra;", args.fOutputColor, tmpVar.c_str());
         } else {
             const char* swiz = fSwapRedAndBlue ? "bgr" : "rgb";
             switch (fPMConversion) {
@@ -76,10 +72,10 @@ public:
                     SkFAIL("Unknown conversion op.");
                     break;
             }
-            fsBuilder->codeAppendf("%s = %s;", outputColor, tmpVar.c_str());
+            fsBuilder->codeAppendf("%s = %s;", args.fOutputColor, tmpVar.c_str());
         }
         SkString modulate;
-        GrGLSLMulVarBy4f(&modulate, outputColor, inputColor);
+        GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
         fsBuilder->codeAppend(modulate.c_str());
     }
 

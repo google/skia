@@ -166,18 +166,14 @@ public:
         GLProcessor(const GrProcessor&) {
         }
 
-        virtual void emitCode(GrGLFPBuilder* builder,
-                              const GrFragmentProcessor& fp,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TransformedCoordsArray&,
-                              const TextureSamplerArray&) override {
-            SkXfermode::Mode mode = fp.cast<ModeColorFilterEffect>().mode();
+        virtual void emitCode(EmitArgs& args) override {
+            SkXfermode::Mode mode = args.fFp.cast<ModeColorFilterEffect>().mode();
 
             SkASSERT(SkXfermode::kDst_Mode != mode);
             const char* colorFilterColorUniName = NULL;
-            if (fp.cast<ModeColorFilterEffect>().willUseFilterColor()) {
-                fFilterColorUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            if (args.fFp.cast<ModeColorFilterEffect>().willUseFilterColor()) {
+                fFilterColorUni = args.fBuilder->addUniform(
+                                                      GrGLProgramBuilder::kFragment_Visibility,
                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                       "FilterColor",
                                                       &colorFilterColorUniName);
@@ -185,10 +181,10 @@ public:
 
             GrGLSLExpr4 filter =
                 color_filter_expression(mode, GrGLSLExpr4(colorFilterColorUniName),
-                                        GrGLSLExpr4(inputColor));
+                                        GrGLSLExpr4(args.fInputColor));
 
-            builder->getFragmentShaderBuilder()->
-                    codeAppendf("\t%s = %s;\n", outputColor, filter.c_str());
+            args.fBuilder->getFragmentShaderBuilder()->
+                    codeAppendf("\t%s = %s;\n", args.fOutputColor, filter.c_str());
         }
 
         static void GenKey(const GrProcessor& fp, const GrGLSLCaps&,

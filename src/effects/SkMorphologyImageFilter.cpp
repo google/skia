@@ -348,12 +348,7 @@ class GrGLMorphologyEffect : public GrGLFragmentProcessor {
 public:
     GrGLMorphologyEffect(const GrProcessor&);
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
@@ -380,31 +375,26 @@ GrGLMorphologyEffect::GrGLMorphologyEffect(const GrProcessor& proc) {
     fType = m.type();
 }
 
-void GrGLMorphologyEffect::emitCode(GrGLFPBuilder* builder,
-                                    const GrFragmentProcessor&,
-                                    const char* outputColor,
-                                    const char* inputColor,
-                                    const TransformedCoordsArray& coords,
-                                    const TextureSamplerArray& samplers) {
-    fPixelSizeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
+    fPixelSizeUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kFloat_GrSLType, kDefault_GrSLPrecision,
                                             "PixelSize");
-    const char* pixelSizeInc = builder->getUniformCStr(fPixelSizeUni);
-    fRangeUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    const char* pixelSizeInc = args.fBuilder->getUniformCStr(fPixelSizeUni);
+    fRangeUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
                                             "Range");
-    const char* range = builder->getUniformCStr(fRangeUni);
+    const char* range = args.fBuilder->getUniformCStr(fRangeUni);
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
-    SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 0);
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* func;
     switch (fType) {
         case GrMorphologyEffect::kErode_MorphologyType:
-            fsBuilder->codeAppendf("\t\t%s = vec4(1, 1, 1, 1);\n", outputColor);
+            fsBuilder->codeAppendf("\t\t%s = vec4(1, 1, 1, 1);\n", args.fOutputColor);
             func = "min";
             break;
         case GrMorphologyEffect::kDilate_MorphologyType:
-            fsBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
+            fsBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", args.fOutputColor);
             func = "max";
             break;
         default:
@@ -438,8 +428,8 @@ void GrGLMorphologyEffect::emitCode(GrGLFPBuilder* builder,
         fsBuilder->codeAppendf("\t\tcoord.%s = max(%s.x, coord.%s);", dir, range, dir);
     }
     fsBuilder->codeAppendf("\t\tfor (int i = 0; i < %d; i++) {\n", width());
-    fsBuilder->codeAppendf("\t\t\t%s = %s(%s, ", outputColor, func, outputColor);
-    fsBuilder->appendTextureLookup(samplers[0], "coord");
+    fsBuilder->codeAppendf("\t\t\t%s = %s(%s, ", args.fOutputColor, func, args.fOutputColor);
+    fsBuilder->appendTextureLookup(args.fSamplers[0], "coord");
     fsBuilder->codeAppend(");\n");
     // coord.x += pixelSize;
     fsBuilder->codeAppendf("\t\t\tcoord.%s += %s;\n", dir, pixelSizeInc);
@@ -449,7 +439,7 @@ void GrGLMorphologyEffect::emitCode(GrGLFPBuilder* builder,
     }
     fsBuilder->codeAppend("\t\t}\n");
     SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, outputColor, inputColor);
+    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
     fsBuilder->codeAppend(modulate.c_str());
 }
 

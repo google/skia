@@ -306,12 +306,7 @@ public:
     GrGLDisplacementMapEffect(const GrProcessor&);
     virtual ~GrGLDisplacementMapEffect();
 
-    virtual void emitCode(GrGLFPBuilder*,
-                          const GrFragmentProcessor&,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TransformedCoordsArray&,
-                          const TextureSamplerArray&) override;
+    virtual void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -560,33 +555,28 @@ GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrProcessor& proc)
 GrGLDisplacementMapEffect::~GrGLDisplacementMapEffect() {
 }
 
-void GrGLDisplacementMapEffect::emitCode(GrGLFPBuilder* builder,
-                                         const GrFragmentProcessor& fp,
-                                         const char* outputColor,
-                                         const char* inputColor,
-                                         const TransformedCoordsArray& coords,
-                                         const TextureSamplerArray& samplers) {
-    const GrTextureDomain& domain = fp.cast<GrDisplacementMapEffect>().domain();
-    sk_ignore_unused_variable(inputColor);
+void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
+    const GrTextureDomain& domain = args.fFp.cast<GrDisplacementMapEffect>().domain();
 
-    fScaleUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fScaleUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                     kVec2f_GrSLType, kDefault_GrSLPrecision, "Scale");
-    const char* scaleUni = builder->getUniformCStr(fScaleUni);
+    const char* scaleUni = args.fBuilder->getUniformCStr(fScaleUni);
     const char* dColor = "dColor";
     const char* cCoords = "cCoords";
     const char* nearZero = "1e-6"; // Since 6.10352e−5 is the smallest half float, use
                                    // a number smaller than that to approximate 0, but
                                    // leave room for 32-bit float GPU rounding errors.
 
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     fsBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
-    fsBuilder->appendTextureLookup(samplers[0], coords[0].c_str(), coords[0].getType());
+    fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+                                   args.fCoords[0].getType());
     fsBuilder->codeAppend(";\n");
 
     // Unpremultiply the displacement
     fsBuilder->codeAppendf("\t\t%s.rgb = (%s.a < %s) ? vec3(0.0) : clamp(%s.rgb / %s.a, 0.0, 1.0);",
                            dColor, dColor, nearZero, dColor, dColor);
-    SkString coords2D = fsBuilder->ensureFSCoords2D(coords, 1);
+    SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 1);
     fsBuilder->codeAppendf("\t\tvec2 %s = %s + %s*(%s.",
                            cCoords, coords2D.c_str(), scaleUni, dColor);
 
@@ -627,7 +617,8 @@ void GrGLDisplacementMapEffect::emitCode(GrGLFPBuilder* builder,
     }
     fsBuilder->codeAppend("-vec2(0.5));\t\t");
 
-    fGLDomain.sampleTexture(fsBuilder, domain, outputColor, SkString(cCoords), samplers[1]);
+    fGLDomain.sampleTexture(fsBuilder, domain, args.fOutputColor, SkString(cCoords),
+                            args.fSamplers[1]);
     fsBuilder->codeAppend(";\n");
 }
 
