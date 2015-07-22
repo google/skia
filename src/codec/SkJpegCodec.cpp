@@ -308,6 +308,11 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return fDecoderMgr->returnFailure("could not rewind stream", kCouldNotRewind);
     }
 
+    if (options.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
+
     // Get a pointer to the decompress info since we will use it quite frequently
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
 

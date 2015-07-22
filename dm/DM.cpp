@@ -257,6 +257,11 @@ static void push_codec_srcs(Path path) {
                 CodecSrc::kGetFromCanvas_DstColorType, scale));
         push_src("image", "stripe", new CodecSrc(path, CodecSrc::kStripe_Mode,
                 CodecSrc::kGetFromCanvas_DstColorType, scale));
+        // Note: The only codec which supports subsets natively is SkWebpCodec, which will never
+        // report kIndex_8 or kGray_8, so there is no need to test kSubset_mode with those color
+        // types specifically requested.
+        push_src("image", "codec_subset", new CodecSrc(path, CodecSrc::kSubset_Mode,
+                CodecSrc::kGetFromCanvas_DstColorType, scale));
     }
 }
 

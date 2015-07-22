@@ -103,7 +103,7 @@ SkEncodedFormat SkWbmpCodec::onGetEncodedFormat() const {
 SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
                                          void* pixels,
                                          size_t rowBytes,
-                                         const Options&,
+                                         const Options& options,
                                          SkPMColor ctable[],
                                          int* ctableCount) {
     SkCodec::RewindState rewindState = this->rewindIfNeeded();
@@ -111,6 +111,10 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
         return kCouldNotRewind;
     } else if (rewindState == kRewound_RewindState) {
         (void)read_header(this->stream(), NULL);
+    }
+    if (options.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
     }
     if (info.dimensions() != this->getInfo().dimensions()) {
         return kInvalidScale;

@@ -58,6 +58,25 @@ public:
     }
 
     /**
+     *  Return (via desiredSubset) a subset which can decoded from this codec,
+     *  or false if this codec cannot decode subsets or anything similar to
+     *  desiredSubset.
+     *
+     *  @param desiredSubset In/out parameter. As input, a desired subset of
+     *      the original bounds (as specified by getInfo). If true is returned,
+     *      desiredSubset may have been modified to a subset which is
+     *      supported. Although a particular change may have been made to
+     *      desiredSubset to create something supported, it is possible other
+     *      changes could result in a valid subset.
+     *      If false is returned, desiredSubset's value is undefined.
+     *  @return true if this codec supports decoding desiredSubset (as
+     *      returned, potentially modified)
+     */
+    bool getValidSubset(SkIRect* desiredSubset) const {
+        return this->onGetValidSubset(desiredSubset);
+    }
+
+    /**
      *  Format of the encoded data.
      */
     SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
@@ -128,9 +147,20 @@ public:
      */
     struct Options {
         Options()
-            : fZeroInitialized(kNo_ZeroInitialized) {}
+            : fZeroInitialized(kNo_ZeroInitialized)
+            , fSubset(NULL)
+        {}
 
         ZeroInitialized fZeroInitialized;
+        /**
+         *  If not NULL, represents a subset of the original image to decode.
+         *
+         *  Must be within the bounds returned by getInfo().
+         *
+         *  If the EncodedFormat is kWEBP_SkEncodedFormat (the only one which
+         *  currently supports subsets), the top and left values must be even.
+         */
+        SkIRect*        fSubset;
     };
 
     /**
@@ -227,6 +257,11 @@ protected:
     virtual Result onGetPixels(const SkImageInfo& info,
                                void* pixels, size_t rowBytes, const Options&,
                                SkPMColor ctable[], int* ctableCount) = 0;
+
+    virtual bool onGetValidSubset(SkIRect* /* desiredSubset */) const {
+        // By default, subsets are not supported.
+        return false;
+    }
 
     /**
      *  Override if your codec supports scanline decoding.

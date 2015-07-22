@@ -355,6 +355,83 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
+        case kSubset_Mode: {
+            // Arbitrarily choose a divisor.
+            int divisor = 2;
+            // Total width/height of the image.
+            const int W = codec->getInfo().width();
+            const int H = codec->getInfo().height();
+            if (divisor > W || divisor > H) {
+                return Error::Nonfatal(SkStringPrintf("Cannot codec subset: divisor %d is too big "
+                                                      "for %s with dimensions (%d x %d)", divisor,
+                                                      fPath.c_str(), W, H));
+            }
+            // subset dimensions
+            // SkWebpCodec, the only one that supports subsets, requires even top/left boundaries.
+            const int w = SkAlign2(W / divisor);
+            const int h = SkAlign2(H / divisor);
+            SkIRect subset;
+            SkCodec::Options opts;
+            opts.fSubset = &subset;
+            SkBitmap subsetBm;
+            // We will reuse pixel memory from bitmap.
+            void* pixels = bitmap.getPixels();
+            // Keep track of left and top (for drawing subsetBm into canvas). We could use
+            // fScale * x and fScale * y, but we want integers such that the next subset will start
+            // where the last one ended. So we'll add decodeInfo.width() and height().
+            int left = 0;
+            for (int x = 0; x < W; x += w) {
+                int top = 0;
+                for (int y = 0; y < H; y+= h) {
+                    // Do not make the subset go off the edge of the image.
+                    const int preScaleW = SkTMin(w, W - x);
+                    const int preScaleH = SkTMin(h, H - y);
+                    subset.setXYWH(x, y, preScaleW, preScaleH);
+                    // And scale
+                    // FIXME: Should we have a version of getScaledDimensions that takes a subset
+                    // into account?
+                    decodeInfo = decodeInfo.makeWH(SkScalarRoundToInt(preScaleW * fScale),
+                                                   SkScalarRoundToInt(preScaleH * fScale));
+                    size_t rowBytes = decodeInfo.minRowBytes();
+                    if (!subsetBm.installPixels(decodeInfo, pixels, rowBytes, colorTable.get(),
+                                                NULL, NULL)) {
+                        return SkStringPrintf("could not install pixels for %s.", fPath.c_str());
+                    }
+                    const SkCodec::Result result = codec->getPixels(decodeInfo, pixels, rowBytes,
+                            &opts, colorPtr, colorCountPtr);
+                    switch (result) {
+                        case SkCodec::kSuccess:
+                        case SkCodec::kIncompleteInput:
+                            break;
+                        case SkCodec::kInvalidConversion:
+                            if (0 == (x|y)) {
+                                // First subset is okay to return unimplemented.
+                                return Error::Nonfatal("Incompatible colortype conversion");
+                            }
+                            // If the first subset succeeded, a later one should not fail.
+                            // fall through to failure
+                        case SkCodec::kUnimplemented:
+                            if (0 == (x|y)) {
+                                // First subset is okay to return unimplemented.
+                                return Error::Nonfatal("subset codec not supported");
+                            }
+                            // If the first subset succeeded, why would a later one fail?
+                            // fall through to failure
+                        default:
+                            return SkStringPrintf("subset codec failed to decode (%d, %d, %d, %d) "
+                                                  "from %s with dimensions (%d x %d)\t error %d",
+                                                  x, y, decodeInfo.width(), decodeInfo.height(),
+                                                  fPath.c_str(), W, H, result);
+                    }
+                    canvas->drawBitmap(subsetBm, SkIntToScalar(left), SkIntToScalar(top));
+                    // translate by the scaled height.
+                    top += decodeInfo.height();
+                }
+                // translate by the scaled width.
+                left += decodeInfo.width();
+            }
+            return "";
+        }
     }
     return "";
 }

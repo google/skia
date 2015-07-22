@@ -517,6 +517,10 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     if (!conversion_possible(requestedInfo, this->getInfo())) {
         return kInvalidConversion;
     }
+    if (options.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
     if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
         return kInvalidScale;
     }

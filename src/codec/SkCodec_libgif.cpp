@@ -257,6 +257,10 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     // Check for valid input parameters
+    if (opts.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
     if (dstInfo.dimensions() != this->getInfo().dimensions()) {
         return gif_error("Scaling not supported.\n", kInvalidScale);
     }

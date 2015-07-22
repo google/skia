@@ -30,6 +30,8 @@ protected:
     }
 
     SkISize onGetScaledDimensions(float desiredScale) const override;
+
+    bool onGetValidSubset(SkIRect* /* desiredSubset */) const override;
 private:
     SkWebpCodec(const SkImageInfo&, SkStream*);
 

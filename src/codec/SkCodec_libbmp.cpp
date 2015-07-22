@@ -585,6 +585,10 @@ SkCodec::Result SkBmpCodec::onGetPixels(const SkImageInfo& dstInfo,
             return kCouldNotRewind;
         }
     }
+    if (opts.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
     if (dstInfo.dimensions() != this->getInfo().dimensions()) {
         SkCodecPrintf("Error: scaling not supported.\n");
         return kInvalidScale;

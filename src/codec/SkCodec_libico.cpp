@@ -229,6 +229,10 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* dst, size_t dstRowBytes,
                                         const Options& opts, SkPMColor* ct,
                                         int* ptr) {
+    if (opts.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
     // We return invalid scale if there is no candidate image with matching
     // dimensions.
     Result result = kInvalidScale;

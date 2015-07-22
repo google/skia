@@ -99,6 +99,7 @@ public:
         kScanline_Mode,
         kScanline_Subset_Mode,
         kStripe_Mode, // Tests the skipping of scanlines
+        kSubset_Mode, // For codecs that support subsets directly.
     };
     enum DstColorType {
         kGetFromCanvas_DstColorType,
