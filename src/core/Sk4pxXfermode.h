@@ -222,6 +222,19 @@ public:
         }
     }
 
+    void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        if (NULL == aa) {
+            Sk4px::MapDstSrc(n, dst, src, [&](const Sk4px& dst4, const Sk4px& src4) {
+                return fProc4(src4, dst4);
+            });
+        } else {
+            Sk4px::MapDstSrcAlpha(n, dst, src, aa,
+                    [&](const Sk4px& dst4, const Sk4px& src4, const Sk4px& alpha) {
+                return fAAProc4(src4, dst4, alpha);
+            });
+        }
+    }
+
 private:
     Proc4 fProc4;
     AAProc4 fAAProc4;
@@ -237,19 +250,35 @@ public:
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         for (int i = 0; i < n; i++) {
-            SkPMFloat s(src[i]),
-                      d(dst[i]),
-                      b(fProcF(s,d));
-            if (aa) {
-                // We do aa in full float precision before going back down to bytes, because we can!
-                SkPMFloat a = Sk4f(aa[i]) * Sk4f(1.0f/255);
-                b = b*a + d*(Sk4f(1)-a);
-            }
-            dst[i] = b.round();
+            dst[i] = aa ? this->xfer32(dst[i], src[i], aa[i])
+                        : this->xfer32(dst[i], src[i]);
+        }
+    }
+
+    void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        for (int i = 0; i < n; i++) {
+            SkPMColor dst32 = SkPixel16ToPixel32(dst[i]);
+            dst32 = aa ? this->xfer32(dst32, src[i], aa[i])
+                       : this->xfer32(dst32, src[i]);
+            dst[i] = SkPixel32ToPixel16(dst32);
         }
     }
 
 private:
+    inline SkPMColor xfer32(SkPMColor dst, SkPMColor src) const {
+        return fProcF(SkPMFloat(src), SkPMFloat(dst)).round();
+    }
+
+    inline SkPMColor xfer32(SkPMColor dst, SkPMColor src, SkAlpha aa) const {
+        SkPMFloat s(src),
+                  d(dst),
+                  b(fProcF(s,d));
+        // We do aa in full float precision before going back down to bytes, because we can!
+        SkPMFloat a = Sk4f(aa) * Sk4f(1.0f/255);
+        b = b*a + d*(Sk4f(1)-a);
+        return b.round();
+    }
+
     ProcF fProcF;
     typedef SkProcCoeffXfermode INHERITED;
 };
