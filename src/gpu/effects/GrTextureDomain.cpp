@@ -64,21 +64,21 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
 
     switch (textureDomain.mode()) {
         case kIgnore_Mode: {
-            builder->codeAppendf("\t%s = ", outColor);
+            builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler,
                                                       inCoords.c_str());
-            builder->codeAppend(";\n");
+            builder->codeAppend(";");
             break;
         }
         case kClamp_Mode: {
             SkString clampedCoords;
-            clampedCoords.appendf("\tclamp(%s, %s.xy, %s.zw)",
+            clampedCoords.appendf("clamp(%s, %s.xy, %s.zw)",
                                   inCoords.c_str(), fDomainName.c_str(), fDomainName.c_str());
 
-            builder->codeAppendf("\t%s = ", outColor);
+            builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler,
                                                       clampedCoords.c_str());
-            builder->codeAppend(";\n");
+            builder->codeAppend(";");
             break;
         }
         case kDecal_Mode: {
@@ -93,44 +93,49 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
                 // may return undefined results". This appears to be an issue with
                 // the 'any' call since even the simple "result=black; if (any())
                 // result=white;" code fails to compile.
-                builder->codeAppend("\tvec4 outside = vec4(0.0, 0.0, 0.0, 0.0);\n");
-                builder->codeAppend("\tvec4 inside = ");
+                builder->codeAppend("vec4 outside = vec4(0.0, 0.0, 0.0, 0.0);");
+                builder->codeAppend("vec4 inside = ");
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler,
                                                           inCoords.c_str());
-                builder->codeAppend(";\n");
-                builder->codeAppendf("\tfloat x = (%s).x;\n", inCoords.c_str());
-                builder->codeAppendf("\tfloat y = (%s).y;\n", inCoords.c_str());
+                builder->codeAppend(";");
+                
+                builder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
+                                                                   program->ctxInfo().standard()));
+                builder->codeAppendf("float x = (%s).x;", inCoords.c_str());
+                builder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
+                                                                   program->ctxInfo().standard()));
+                builder->codeAppendf("float y = (%s).y;", inCoords.c_str());
 
-                builder->codeAppendf("\tx = abs(2.0*(x - %s.x)/(%s.z - %s.x) - 1.0);\n",
-                                       domain, domain, domain);
-                builder->codeAppendf("\ty = abs(2.0*(y - %s.y)/(%s.w - %s.y) - 1.0);\n",
-                                       domain, domain, domain);
-                builder->codeAppend("\tfloat blend = step(1.0, max(x, y));\n");
-                builder->codeAppendf("\t%s = mix(inside, outside, blend);\n", outColor);
+                builder->codeAppendf("x = abs(2.0*(x - %s.x)/(%s.z - %s.x) - 1.0);",
+                                     domain, domain, domain);
+                builder->codeAppendf("y = abs(2.0*(y - %s.y)/(%s.w - %s.y) - 1.0);",
+                                     domain, domain, domain);
+                builder->codeAppend("float blend = step(1.0, max(x, y));");
+                builder->codeAppendf("%s = mix(inside, outside, blend);", outColor);
             } else {
-                builder->codeAppend("\tbvec4 outside;\n");
-                builder->codeAppendf("\toutside.xy = lessThan(%s, %s.xy);\n", inCoords.c_str(),
+                builder->codeAppend("bvec4 outside;\n");
+                builder->codeAppendf("outside.xy = lessThan(%s, %s.xy);", inCoords.c_str(),
                                        domain);
-                builder->codeAppendf("\toutside.zw = greaterThan(%s, %s.zw);\n", inCoords.c_str(),
+                builder->codeAppendf("outside.zw = greaterThan(%s, %s.zw);", inCoords.c_str(),
                                        domain);
-                builder->codeAppendf("\t%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ",
+                builder->codeAppendf("%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ",
                                        outColor);
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler,
                                                           inCoords.c_str());
-                builder->codeAppend(";\n");
+                builder->codeAppend(";");
             }
             break;
         }
         case kRepeat_Mode: {
             SkString clampedCoords;
-            clampedCoords.printf("\tmod(%s - %s.xy, %s.zw - %s.xy) + %s.xy",
+            clampedCoords.printf("mod(%s - %s.xy, %s.zw - %s.xy) + %s.xy",
                                  inCoords.c_str(), fDomainName.c_str(), fDomainName.c_str(),
                                  fDomainName.c_str(), fDomainName.c_str());
 
-            builder->codeAppendf("\t%s = ", outColor);
+            builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler,
                                                       clampedCoords.c_str());
-            builder->codeAppend(";\n");
+            builder->codeAppend(";");
             break;
         }
     }
