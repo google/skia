@@ -18,11 +18,7 @@
       'dependencies': [
         'core.gyp:*',
         'giflib.gyp:giflib',
-        'libjpeg-turbo.gyp:libjpeg-turbo',
         'libwebp.gyp:libwebp',
-      ],
-      'export_dependent_settings': [
-        'libjpeg-turbo.gyp:libjpeg-turbo',
       ],
       'cflags':[
         # FIXME: This gets around a longjmp warning. See
@@ -63,19 +59,22 @@
             'dependencies': [
               'libpng.gyp:libpng',
             ],
-            # TODO(msarett): update libjpeg-turbo on Android so we can compile SkJpegCodec
+            # TODO(msarett): Add libjpeg-turbo to Android so we can compile SkJpegCodec
             # for the framework.
             'sources!': [
               '../src/codec/SkJpegCodec.cpp',
               '../src/codec/SkJpegDecoderMgr.cpp',
               '../src/codec/SkJpegUtility_codec.cpp',
             ],
-            'dependencies!': [
-              'libjpeg-turbo.gyp:libjpeg-turbo',
-            ],
           }, {  # !skia_android_framework
             'dependencies': [
+              # TODO(msarett): Add libjpeg-turbo to Android so this can be a global
+              # dependency.
+              'libjpeg-turbo.gyp:libjpeg-turbo',
               'libpng.gyp:libpng_static',
+            ],
+            'export_dependent_settings': [
+              'libjpeg-turbo.gyp:libjpeg-turbo',
             ],
             'cflags': [
               '-DTURBO_HAS_SKIP',
