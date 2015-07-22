@@ -107,12 +107,14 @@ def _nanobench_json(results, properties, key):
     _testname(f): {
       'coverage': {
         'percent': percent,
+        'lines_not_covered': not_covered_lines,
         'options': {
           'fullname': f,
           'dir': os.path.dirname(f),
+          'source_type': 'coverage',
         },
       },
-    } for percent, f in results
+    } for percent, not_covered_lines, f in results
   }
   return rv
 
@@ -150,6 +152,7 @@ def _get_per_file_summaries(line_by_line):
           covered_lines += 1
     if total_lines > 0:
       per_file.append((float(covered_lines)/float(total_lines)*100.0,
+                       total_lines - covered_lines,
                        filepath))
   return per_file
 
