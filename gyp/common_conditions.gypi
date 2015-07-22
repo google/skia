@@ -331,9 +331,6 @@
     ],
 
     ['skia_android_framework', {
-      'includes' : [
-        'skia_for_android_framework_defines.gypi',
-      ],
       'cflags': [
         # Skia does not enforce this usage pattern so we disable it here to avoid
         # unecessary log spew when building
@@ -396,7 +393,18 @@
         # this define globally and the the implemention define as a cflag.
         'SKIA_DLL',
         'SK_PRINT_CODEC_MESSAGES',
-        # Defines from skia_for_android_framework_defines.gypi
+      ],
+    }],
+
+    ['skia_use_android_framework_defines', {
+      # Add these defines when building for the Android framework, or when
+      # specifically requested. These should be temporary staging defines. Any
+      # permanent defines should be moved into the skia_android_framework block
+      # above.
+      'includes' : [
+        'skia_for_android_framework_defines.gypi',
+      ],
+      'defines': [
         '<@(skia_for_android_framework_defines)',
       ],
     }],

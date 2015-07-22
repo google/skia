@@ -76,10 +76,12 @@
         [ 'skia_android_framework == 1', {
           'skia_os%': 'android',
           'skia_chrome_utils%': 0,
+          'skia_use_android_framework_defines%': 1,
           'skia_use_system_json%': 1,
         }, {
           'skia_os%': '<(skia_os)',
           'skia_chrome_utils%': 1,
+          'skia_use_android_framework_defines%': 0,
           'skia_use_system_json%': 0,
         }],
         [ 'skia_os == "win"', {
@@ -197,6 +199,7 @@
     'skia_gpu_extra_dependency_path%': '<(skia_gpu_extra_dependency_path)',
     'skia_stroke_path_rendering%': '<(skia_stroke_path_rendering)',
     'skia_android_framework%': '<(skia_android_framework)',
+    'skia_use_android_framework_defines%': '<(skia_use_android_framework_defines)',
     'skia_use_system_json%': '<(skia_use_system_json)',
     'skia_android_path_rendering%': '<(skia_android_path_rendering)',
     'skia_resource_cache_mb_limit%': '<(skia_resource_cache_mb_limit)',
