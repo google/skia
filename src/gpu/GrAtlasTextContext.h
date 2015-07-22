@@ -18,7 +18,6 @@
 #include "GrBatchTest.h"
 #endif
 
-class BitmapTextBatch;
 class GrDrawContext;
 class GrDrawTarget;
 class GrPipelineBuilder;
@@ -75,10 +74,10 @@ private:
                                 const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                                 SkScalar y);
-    inline BitmapTextBatch* createBatch(GrAtlasTextBlob*, const PerSubRunInfo&,
-                                        int glyphCount, int run, int subRun,
-                                        GrColor, SkScalar transX, SkScalar transY,
-                                        const SkPaint&);
+    inline GrBatch* createBatch(GrAtlasTextBlob*, const PerSubRunInfo&,
+                                int glyphCount, int run, int subRun,
+                                GrColor, SkScalar transX, SkScalar transY,
+                                const SkPaint&);
     inline void flushRun(GrPipelineBuilder*, GrAtlasTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
     inline void flushBigGlyphs(GrAtlasTextBlob* cacheBlob, GrRenderTarget*,
@@ -183,7 +182,7 @@ private:
     SkAutoTUnref<DistanceAdjustTable> fDistanceAdjustTable;
 
     friend class GrTextBlobCache;
-    friend class BitmapTextBatch;
+    friend class TextBatch;
 
 #ifdef GR_TEST_UTILS
     BATCH_TEST_FRIEND(TextBlobBatch);

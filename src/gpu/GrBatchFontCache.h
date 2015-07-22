@@ -147,11 +147,20 @@ public:
         return this->getAtlas(format)->atlasGeneration();
     }
 
-    GrPixelConfig getPixelConfig(GrMaskFormat) const;
-
     void dump() const;
 
 private:
+    static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format) {
+        static const GrPixelConfig kPixelConfigs[] = {
+            kAlpha_8_GrPixelConfig,
+            kRGB_565_GrPixelConfig,
+            kSkia8888_GrPixelConfig
+        };
+        SK_COMPILE_ASSERT(SK_ARRAY_COUNT(kPixelConfigs) == kMaskFormatCount, array_size_mismatch);
+
+        return kPixelConfigs[format];
+    }
+
     // There is a 1:1 mapping between GrMaskFormats and atlas indices
     static int MaskFormatToAtlasIndex(GrMaskFormat format) {
         static const int sAtlasIndices[] = {

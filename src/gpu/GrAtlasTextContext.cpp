@@ -1444,7 +1444,7 @@ inline void GrAtlasTextContext::appendGlyphCommon(GrAtlasTextBlob* blob, Run* ru
     subRun->fVertexEndIndex += vertexStride * kVerticesPerGlyph;
 }
 
-class BitmapTextBatch : public GrBatch {
+class TextBatch : public GrBatch {
 public:
     typedef GrAtlasTextContext::DistanceAdjustTable DistanceAdjustTable;
     typedef GrAtlasTextBlob Blob;
@@ -1459,24 +1459,53 @@ public:
         SkScalar fTransY;
     };
 
-    static BitmapTextBatch* Create(GrMaskFormat maskFormat, int glyphCount,
+    static TextBatch* CreateBitmap(GrMaskFormat maskFormat, int glyphCount,
                                    GrBatchFontCache* fontCache) {
-        return SkNEW_ARGS(BitmapTextBatch, (maskFormat, glyphCount, fontCache));
+        TextBatch* batch = SkNEW(TextBatch);
+
+        batch->initClassID<TextBatch>();
+        batch->fFontCache = fontCache;
+        switch (maskFormat) {
+            case kA8_GrMaskFormat:
+                batch->fMaskType = kGrayscaleCoverageMask_MaskType;
+                break;
+            case kA565_GrMaskFormat:
+                batch->fMaskType = kLCDCoverageMask_MaskType;
+                break;
+            case kARGB_GrMaskFormat:
+                batch->fMaskType = kColorBitmapMask_MaskType;
+                break;
+        }
+        batch->fBatch.fNumGlyphs = glyphCount;
+        batch->fInstanceCount = 1;
+        batch->fAllocatedCount = kMinAllocated;
+        batch->fFilteredColor = 0;
+        batch->fFontCache = fontCache;
+        batch->fUseBGR = false;
+        return batch;
     }
 
-    static BitmapTextBatch* Create(GrMaskFormat maskFormat, int glyphCount,
-                                   GrBatchFontCache* fontCache,
-                                   DistanceAdjustTable* distanceAdjustTable,
-                                   SkColor filteredColor, bool useLCDText,
-                                   bool useBGR) {
-        return SkNEW_ARGS(BitmapTextBatch, (maskFormat, glyphCount, fontCache, distanceAdjustTable,
-                                            filteredColor, useLCDText, useBGR));
+    static TextBatch* CreateDistanceField(int glyphCount, GrBatchFontCache* fontCache,
+                                          DistanceAdjustTable* distanceAdjustTable,
+                                          SkColor filteredColor, bool isLCD,
+                                          bool useBGR) {
+        TextBatch* batch = SkNEW(TextBatch);
+        batch->initClassID<TextBatch>();
+        batch->fFontCache = fontCache;
+        batch->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
+        batch->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
+        batch->fFilteredColor = filteredColor;
+        batch->fUseBGR = useBGR;
+        batch->fBatch.fNumGlyphs = glyphCount;
+        batch->fInstanceCount = 1;
+        batch->fAllocatedCount = kMinAllocated;
+        return batch;
     }
 
-    const char* name() const override { return "BitmapTextBatch"; }
+    const char* name() const override { return "TextBatch"; }
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-        if (kARGB_GrMaskFormat == fMaskFormat) {
+        if (kColorBitmapMask_MaskType == fMaskType) {
             out->setUnknownFourComponents();
         } else {
             out->setKnownFourComponents(fBatch.fColor);
@@ -1484,29 +1513,18 @@ public:
     }
 
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        if (!fUseDistanceFields) {
-            // Bitmap Text
-            if (kARGB_GrMaskFormat != fMaskFormat) {
-                if (GrPixelConfigIsAlphaOnly(fPixelConfig)) {
-                    out->setUnknownSingleComponent();
-                } else if (GrPixelConfigIsOpaque(fPixelConfig)) {
-                    out->setUnknownOpaqueFourComponents();
-                    out->setUsingLCDCoverage();
-                } else {
-                    out->setUnknownFourComponents();
-                    out->setUsingLCDCoverage();
-                }
-            } else {
-                out->setKnownSingleComponent(0xff);
-            }
-        } else {
-            // Distance fields
-            if (!fUseLCDText) {
+        switch (fMaskType) {
+            case kGrayscaleDistanceField_MaskType:
+            case kGrayscaleCoverageMask_MaskType:
                 out->setUnknownSingleComponent();
-            } else {
-                out->setUnknownFourComponents();
+                break;
+            case kLCDCoverageMask_MaskType:
+            case kLCDDistanceField_MaskType:
+                out->setUnknownOpaqueFourComponents();
                 out->setUsingLCDCoverage();
-            }
+                break;
+            case kColorBitmapMask_MaskType:
+                out->setKnownSingleComponent(0xff);
         }
     }
 
@@ -1540,14 +1558,18 @@ public:
             return;
         }
 
-        GrTexture* texture = fFontCache->getTexture(fMaskFormat);
+        GrTexture* texture = fFontCache->getTexture(this->maskFormat());
         if (!texture) {
             SkDebugf("Could not allocate backing texture for atlas\n");
             return;
         }
 
+        bool usesDistanceFields = this->usesDistanceFields();
+        GrMaskFormat maskFormat = this->maskFormat();
+        bool isLCD = this->isLCD();
+
         SkAutoTUnref<const GrGeometryProcessor> gp;
-        if (fUseDistanceFields) {
+        if (usesDistanceFields) {
             gp.reset(this->setupDfProcessor(this->viewMatrix(), fFilteredColor, this->color(),
                                             texture));
         } else {
@@ -1555,7 +1577,7 @@ public:
             gp.reset(GrBitmapTextGeoProc::Create(this->color(),
                                                  texture,
                                                  params,
-                                                 fMaskFormat,
+                                                 maskFormat,
                                                  localMatrix,
                                                  this->usesLocalCoords()));
         }
@@ -1563,9 +1585,9 @@ public:
         FlushInfo flushInfo;
         flushInfo.fGlyphsToFlush = 0;
         size_t vertexStride = gp->getVertexStride();
-        SkASSERT(vertexStride == (fUseDistanceFields ?
-                                  get_vertex_stride_df(fMaskFormat, fUseLCDText) :
-                                  get_vertex_stride(fMaskFormat)));
+        SkASSERT(vertexStride == (usesDistanceFields ?
+                                  get_vertex_stride_df(maskFormat, isLCD) :
+                                  get_vertex_stride(maskFormat)));
 
         batchTarget->initDraw(gp, pipeline);
 
@@ -1599,14 +1621,14 @@ public:
             Run& run = blob->fRuns[args.fRun];
             TextInfo& info = run.fSubRunInfo[args.fSubRun];
 
-            uint64_t currentAtlasGen = fFontCache->atlasGeneration(fMaskFormat);
+            uint64_t currentAtlasGen = fFontCache->atlasGeneration(maskFormat);
             bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen ||
                                            run.fStrike->isAbandoned();
             bool regenerateColors;
-            if (fUseDistanceFields) {
-                regenerateColors = !fUseLCDText && run.fColor != args.fColor;
+            if (usesDistanceFields) {
+                regenerateColors = !isLCD && run.fColor != args.fColor;
             } else {
-                regenerateColors = kA8_GrMaskFormat == fMaskFormat && run.fColor != args.fColor;
+                regenerateColors = kA8_GrMaskFormat == maskFormat && run.fColor != args.fColor;
             }
             bool regeneratePositions = args.fTransX != 0.f || args.fTransY != 0.f;
             int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
@@ -1674,7 +1696,7 @@ public:
                         }
                         glyph = blob->fGlyphs[glyphOffset];
                         SkASSERT(glyph);
-                        SkASSERT(glyph->fMaskFormat == fMaskFormat);
+                        SkASSERT(glyph->fMaskFormat == this->maskFormat());
 
                         if (!fFontCache->hasGlyph(glyph) &&
                             !strike->addGlyphToAtlas(batchTarget, glyph, scaler)) {
@@ -1725,7 +1747,7 @@ public:
                         run.fStrike.reset(SkRef(strike));
                     }
                     info.fAtlasGeneration = brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
-                                                        fFontCache->atlasGeneration(fMaskFormat);
+                                                        fFontCache->atlasGeneration(maskFormat);
                 }
             } else {
                 flushInfo.fGlyphsToFlush += glyphCount;
@@ -1734,7 +1756,7 @@ public:
                 // have a valid atlas generation
                 fFontCache->setUseTokenBulk(info.fBulkUseToken,
                                             batchTarget->currentToken(),
-                                            fMaskFormat);
+                                            maskFormat);
             }
 
             // now copy all vertices
@@ -1779,39 +1801,36 @@ public:
     }
 
 private:
-    BitmapTextBatch(GrMaskFormat maskFormat, int glyphCount, GrBatchFontCache* fontCache)
-            : fMaskFormat(maskFormat)
-            , fPixelConfig(fontCache->getPixelConfig(maskFormat))
-            , fFontCache(fontCache)
-            , fUseDistanceFields(false) {
-        this->initClassID<BitmapTextBatch>();
-        fBatch.fNumGlyphs = glyphCount;
-        fInstanceCount = 1;
-        fAllocatedCount = kMinAllocated;
-    }
+    TextBatch() {} // initialized in factory functions.
 
-    BitmapTextBatch(GrMaskFormat maskFormat, int glyphCount, GrBatchFontCache* fontCache,
-                    DistanceAdjustTable* distanceAdjustTable, SkColor filteredColor,
-                    bool useLCDText, bool useBGR)
-            : fMaskFormat(maskFormat)
-            , fPixelConfig(fontCache->getPixelConfig(maskFormat))
-            , fFontCache(fontCache)
-            , fDistanceAdjustTable(SkRef(distanceAdjustTable))
-            , fFilteredColor(filteredColor)
-            , fUseDistanceFields(true)
-            , fUseLCDText(useLCDText)
-            , fUseBGR(useBGR) {
-        this->initClassID<BitmapTextBatch>();
-        fBatch.fNumGlyphs = glyphCount;
-        fInstanceCount = 1;
-        fAllocatedCount = kMinAllocated;
-        SkASSERT(fMaskFormat == kA8_GrMaskFormat);
-    }
-
-    ~BitmapTextBatch() {
+    ~TextBatch() {
         for (int i = 0; i < fInstanceCount; i++) {
             fGeoData[i].fBlob->unref();
         }
+    }
+
+    GrMaskFormat maskFormat() const {
+        switch (fMaskType) {
+            case kLCDCoverageMask_MaskType:
+                return kA565_GrMaskFormat;
+            case kColorBitmapMask_MaskType:
+                return kARGB_GrMaskFormat;
+            case kGrayscaleCoverageMask_MaskType:
+            case kGrayscaleDistanceField_MaskType:
+            case kLCDDistanceField_MaskType:
+                return kA8_GrMaskFormat;
+        }
+        return kA8_GrMaskFormat; // suppress warning
+    }
+
+    bool usesDistanceFields() const {
+        return kGrayscaleDistanceField_MaskType == fMaskType ||
+               kLCDDistanceField_MaskType == fMaskType;
+    }
+
+    bool isLCD() const {
+        return kLCDCoverageMask_MaskType == fMaskType ||
+               kLCDDistanceField_MaskType == fMaskType;
     }
 
     void regenerateTextureCoords(GrGlyph* glyph, intptr_t vertex, size_t vertexStride) {
@@ -1819,7 +1838,7 @@ private:
         int height = glyph->fBounds.height();
 
         int u0, v0, u1, v1;
-        if (fUseDistanceFields) {
+        if (this->usesDistanceFields()) {
             u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
             v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
             u1 = u0 + width - 2 * SK_DistanceFieldInset;
@@ -1892,32 +1911,22 @@ private:
             return false;
         }
 
-        BitmapTextBatch* that = t->cast<BitmapTextBatch>();
+        TextBatch* that = t->cast<TextBatch>();
 
-        if (fUseDistanceFields != that->fUseDistanceFields) {
+        if (fMaskType != that->fMaskType) {
             return false;
         }
 
-        if (!fUseDistanceFields) {
-            // Bitmap Text
-            if (fMaskFormat != that->fMaskFormat) {
-                return false;
-            }
-
+        if (!this->usesDistanceFields()) {
             // TODO we can often batch across LCD text if we have dual source blending and don't
             // have to use the blend constant
-            if (fMaskFormat != kA8_GrMaskFormat && this->color() != that->color()) {
+            if (kGrayscaleCoverageMask_MaskType != fMaskType && this->color() != that->color()) {
                 return false;
             }
-
             if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
                 return false;
             }
         } else {
-            // Distance Fields
-            SkASSERT(this->fMaskFormat == that->fMaskFormat &&
-                     this->fMaskFormat == kA8_GrMaskFormat);
-
             if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
                 return false;
             }
@@ -1926,17 +1935,12 @@ private:
                 return false;
             }
 
-            if (fUseLCDText != that->fUseLCDText) {
-                return false;
-            }
-
             if (fUseBGR != that->fUseBGR) {
                 return false;
             }
 
             // TODO see note above
-            if (fUseLCDText && this->color() != that->color()) {
-                return false;
+            if (kLCDDistanceField_MaskType == fMaskType && this->color() != that->color()) {
             }
         }
 
@@ -1970,17 +1974,16 @@ private:
     GrGeometryProcessor* setupDfProcessor(const SkMatrix& viewMatrix, SkColor filteredColor,
                                           GrColor color, GrTexture* texture) {
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
-
+        bool isLCD = this->isLCD();
         // set up any flags
-        uint32_t flags = 0;
-        flags |= viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-        flags |= fUseLCDText ? kUseLCD_DistanceFieldEffectFlag : 0;
-        flags |= fUseLCDText && viewMatrix.rectStaysRect() ?
-                                kRectToRect_DistanceFieldEffectFlag : 0;
-        flags |= fUseLCDText && fUseBGR ? kBGR_DistanceFieldEffectFlag : 0;
+        uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
 
         // see if we need to create a new effect
-        if (fUseLCDText) {
+        if (isLCD) {
+            flags |= kUseLCD_DistanceFieldEffectFlag;
+            flags |= viewMatrix.rectStaysRect() ? kRectToRect_DistanceFieldEffectFlag : 0;
+            flags |= fUseBGR ? kBGR_DistanceFieldEffectFlag : 0;
+
             GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
 
             float redCorrection =
@@ -2038,16 +2041,21 @@ private:
     SkAutoSTMalloc<kMinAllocated, Geometry> fGeoData;
     int fInstanceCount;
     int fAllocatedCount;
-    GrMaskFormat fMaskFormat;
-    GrPixelConfig fPixelConfig;
+
+    enum MaskType {
+        kGrayscaleCoverageMask_MaskType,
+        kLCDCoverageMask_MaskType,
+        kColorBitmapMask_MaskType,
+        kGrayscaleDistanceField_MaskType,
+        kLCDDistanceField_MaskType,
+    } fMaskType;
+    bool fUseBGR; // fold this into the enum?
+
     GrBatchFontCache* fFontCache;
 
     // Distance field properties
     SkAutoTUnref<const DistanceAdjustTable> fDistanceAdjustTable;
     SkColor fFilteredColor;
-    bool fUseDistanceFields;
-    bool fUseLCDText;
-    bool fUseBGR;
 };
 
 void GrAtlasTextContext::flushRunAsPaths(GrRenderTarget* rt, const SkTextBlob::RunIterator& it, 
@@ -2087,8 +2095,7 @@ void GrAtlasTextContext::flushRunAsPaths(GrRenderTarget* rt, const SkTextBlob::R
     }
 }
 
-
-inline BitmapTextBatch*
+inline GrBatch*
 GrAtlasTextContext::createBatch(GrAtlasTextBlob* cacheBlob, const PerSubRunInfo& info,
                                 int glyphCount, int run, int subRun,
                                 GrColor color, SkScalar transX, SkScalar transY,
@@ -2102,7 +2109,7 @@ GrAtlasTextContext::createBatch(GrAtlasTextBlob* cacheBlob, const PerSubRunInfo&
         subRunColor = color;
     }
 
-    BitmapTextBatch* batch;
+    TextBatch* batch;
     if (info.fDrawAsDistanceFields) {
         SkColor filteredColor;
         SkColorFilter* colorFilter = skPaint.getColorFilter();
@@ -2112,13 +2119,13 @@ GrAtlasTextContext::createBatch(GrAtlasTextBlob* cacheBlob, const PerSubRunInfo&
             filteredColor = skPaint.getColor();
         }
         bool useBGR = SkPixelGeometryIsBGR(fSurfaceProps.pixelGeometry());
-        batch = BitmapTextBatch::Create(format, glyphCount, fContext->getBatchFontCache(),
-                                        fDistanceAdjustTable, filteredColor,
-                                        info.fUseLCDText, useBGR);
+        batch = TextBatch::CreateDistanceField(glyphCount, fContext->getBatchFontCache(),
+                                               fDistanceAdjustTable, filteredColor,
+                                               info.fUseLCDText, useBGR);
     } else {
-        batch = BitmapTextBatch::Create(format, glyphCount, fContext->getBatchFontCache());
+        batch = TextBatch::CreateBitmap(format, glyphCount, fContext->getBatchFontCache());
     }
-    BitmapTextBatch::Geometry& geometry = batch->geometry();
+    TextBatch::Geometry& geometry = batch->geometry();
     geometry.fBlob = SkRef(cacheBlob);
     geometry.fRun = run;
     geometry.fSubRun = subRun;
@@ -2141,9 +2148,9 @@ inline void GrAtlasTextContext::flushRun(GrPipelineBuilder* pipelineBuilder,
             continue;
         }
 
-        SkAutoTUnref<BitmapTextBatch> batch(this->createBatch(cacheBlob, info, glyphCount, run,
-                                                              subRun, color, transX, transY,
-                                                              skPaint));
+        SkAutoTUnref<GrBatch> batch(this->createBatch(cacheBlob, info, glyphCount, run,
+                                                      subRun, color, transX, transY,
+                                                      skPaint));
         fDrawContext->drawBatch(pipelineBuilder, batch);
     }
 }
