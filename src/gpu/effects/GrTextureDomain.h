@@ -9,7 +9,7 @@
 #define GrTextureDomainEffect_DEFINED
 
 #include "GrSingleTextureEffect.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 
 class GrGLProgramBuilder;
 class GrGLShaderBuilder;

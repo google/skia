@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #endif
 

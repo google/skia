@@ -9,7 +9,7 @@
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkFloatingPoint.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)

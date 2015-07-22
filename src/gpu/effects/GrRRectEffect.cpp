@@ -12,7 +12,7 @@
 #include "GrInvariantOutput.h"
 #include "GrOvalEffect.h"
 #include "SkRRect.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 // The effects defined here only handle rrect radii >= kRadiusMin.

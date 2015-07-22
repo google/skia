@@ -294,7 +294,7 @@ static inline int next_dither_toggle16(int toggle) {
 
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 
 class GrInvariantOutput;
 

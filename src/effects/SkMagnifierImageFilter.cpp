@@ -16,7 +16,7 @@
 #if SK_SUPPORT_GPU
 #include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLTexture.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 

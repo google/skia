@@ -9,7 +9,7 @@
 
 #include "builders/GrGLProgramBuilder.h"
 #include "GrProcessor.h"
-#include "GrGLProcessor.h"
+#include "GrGLFragmentProcessor.h"
 #include "GrGLPathRendering.h"
 #include "SkRTConf.h"
 #include "SkTSearch.h"

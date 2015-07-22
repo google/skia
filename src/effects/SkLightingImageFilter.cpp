@@ -20,7 +20,7 @@
 #include "GrInvariantOutput.h"
 #include "GrPaint.h"
 #include "effects/GrSingleTextureEffect.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLDiffuseLightingEffect;

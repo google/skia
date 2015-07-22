@@ -9,7 +9,7 @@
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "gl/GrGLCaps.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLTexture.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 

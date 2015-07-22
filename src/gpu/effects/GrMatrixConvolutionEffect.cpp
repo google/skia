@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "GrMatrixConvolutionEffect.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLTexture.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 

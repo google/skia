@@ -337,7 +337,7 @@ SkColorFilter* SkTable_ColorFilter::newComposed(const SkColorFilter* innerFilter
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
 #include "effects/GrTextureStripAtlas.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class ColorTableEffect : public GrFragmentProcessor {

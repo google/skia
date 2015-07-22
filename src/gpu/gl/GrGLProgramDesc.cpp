@@ -6,7 +6,7 @@
  */
 #include "GrGLProgramDesc.h"
 
-#include "GrGLProcessor.h"
+#include "GrGLFragmentProcessor.h"
 #include "GrProcessor.h"
 #include "GrGLGpu.h"
 #include "GrPipeline.h"

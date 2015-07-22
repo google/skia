@@ -14,7 +14,7 @@
 #include "GrProcessor.h"
 #include "GrTexture.h"
 #include "gl/GrGLCaps.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLProgramDataManager.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 

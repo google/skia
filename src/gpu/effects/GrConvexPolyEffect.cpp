@@ -8,7 +8,7 @@
 #include "GrConvexPolyEffect.h"
 #include "GrInvariantOutput.h"
 #include "SkPathPriv.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 //////////////////////////////////////////////////////////////////////////////

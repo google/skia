@@ -26,7 +26,7 @@
 #include "SkGrPixelRef.h"
 #include "SkDraw.h"
 #include "effects/GrSimpleTextureEffect.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #endif
 

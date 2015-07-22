@@ -19,7 +19,7 @@
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #endif
 

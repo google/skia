@@ -11,7 +11,7 @@
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLConfigConversionEffect : public GrGLFragmentProcessor {

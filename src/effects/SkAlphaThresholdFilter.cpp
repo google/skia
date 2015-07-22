@@ -56,7 +56,7 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 
 #include "SkGr.h"
 
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class AlphaThresholdEffect : public GrFragmentProcessor {

@@ -9,7 +9,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "SkRect.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 //////////////////////////////////////////////////////////////////////////////

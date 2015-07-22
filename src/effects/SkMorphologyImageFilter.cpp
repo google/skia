@@ -18,7 +18,7 @@
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "effects/Gr1DKernelEffect.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #endif
 

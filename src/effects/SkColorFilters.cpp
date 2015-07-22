@@ -69,7 +69,7 @@ SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 #include "GrInvariantOutput.h"
 #include "GrProcessorUnitTest.h"
 #include "SkGr.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 namespace {

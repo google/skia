@@ -8,7 +8,7 @@
 #ifndef GrGLXferProcessor_DEFINED
 #define GrGLXferProcessor_DEFINED
 
-#include "GrGLProcessor.h"
+#include "GrGLFragmentProcessor.h"
 
 class GrGLXPBuilder;
 class GrXferProcessor;

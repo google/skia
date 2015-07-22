@@ -10,7 +10,7 @@
 
 #include "GrSingleTextureEffect.h"
 #include "GrTextureDomain.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 
 class GrGLBicubicEffect;
 class GrInvariantOutput;

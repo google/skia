@@ -18,7 +18,7 @@
 #include "SkXfermode.h"
 #include "gl/GrGLCaps.h"
 #include "gl/GrGLGpu.h"
-#include "gl/GrGLProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLProgramDataManager.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLCaps.h"
