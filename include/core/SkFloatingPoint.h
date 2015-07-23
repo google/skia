@@ -143,12 +143,6 @@ extern const uint32_t gIEEENegativeInfinity;
 #define SK_FloatInfinity            (*SkTCast<const float*>(&gIEEEInfinity))
 #define SK_FloatNegativeInfinity    (*SkTCast<const float*>(&gIEEENegativeInfinity))
 
-#if defined(__SSE__)
-#include <xmmintrin.h>
-#elif defined(SK_ARM_HAS_NEON)
-#include <arm_neon.h>
-#endif
-
 // Fast, approximate inverse square root.
 // Compare to name-brand "1.0f / sk_float_sqrt(x)".  Should be around 10x faster on SSE, 2x on NEON.
 static inline float sk_float_rsqrt(const float x) {
@@ -157,10 +151,8 @@ static inline float sk_float_rsqrt(const float x) {
 //
 // We do one step of Newton's method to refine the estimates in the NEON and null paths.  No
 // refinement is faster, but very innacurate.  Two steps is more accurate, but slower than 1/sqrt.
-#if defined(__SSE__)
-    float result;
-    _mm_store_ss(&result, _mm_rsqrt_ss(_mm_set_ss(x)));
-    return result;
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(x)));
 #elif defined(SK_ARM_HAS_NEON)
     // Get initial estimate.
     const float32x2_t xx = vdup_n_f32(x);  // Clever readers will note we're doing everything 2x.
