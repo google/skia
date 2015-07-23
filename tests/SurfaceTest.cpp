@@ -979,8 +979,12 @@ DEF_GPUTEST(SkImage_NewFromTexture, reporter, factory) {
     sk_memset32(storage, expected1, w * h);
     tex->writePixels(0, 0, w, h, kSkia8888_GrPixelConfig, storage, GrContext::kFlushWrites_PixelOp);
 
-    // We expect the ref'd image to see the new color, but cpy'd one should still see the old color
+    // The cpy'd one should still see the old color
+#if 0
+    // There is no guarantee that refImg sees the new color. We are free to have made a copy. Our
+    // write pixels call violated the contract with refImg and refImg is now undefined.
     test_image_color(reporter, refImg, expected1);
+#endif
     test_image_color(reporter, cpyImg, expected0);
 
     // Now exercise the release proc

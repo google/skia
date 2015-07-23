@@ -106,7 +106,7 @@ public:
     /**
      *  Create a new image from the specified descriptor. The underlying platform texture must stay
      *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
-     *  nolonger is holding a reference to it.
+     *  no longer is holding a reference to it.
      *
      *  Will return NULL if the specified descriptor is unsupported.
      */
