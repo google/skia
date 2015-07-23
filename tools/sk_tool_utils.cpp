@@ -23,7 +23,7 @@ namespace sk_tool_utils {
 
 const char* platform_os_emoji() {
     const char* osName = platform_os_name();
-    if (!strcmp(osName, "Android") || !strcmp(osName, "Unbuntu")) {
+    if (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu")) {
         return "CBDT";
     }
     if (!strncmp(osName, "Mac", 3)) {
