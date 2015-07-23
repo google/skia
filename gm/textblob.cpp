@@ -72,7 +72,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fTypeface.reset(sk_tool_utils::create_portable_typeface("Times", SkTypeface::kNormal));
+        fTypeface.reset(sk_tool_utils::create_portable_typeface_always("serif", SkTypeface::kNormal));
         SkPaint p;
         p.setTypeface(fTypeface);
         size_t txtLen = strlen(fText);
