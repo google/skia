@@ -19,9 +19,8 @@ class GrBatchTarget;
 class GrGpu;
 
 /**
- *  The GrBatchTextStrike manages a pool of CPU backing memory for Glyph Masks.  This backing memory
- *  is abstracted by GrGlyph, and indexed by a PackedID and GrFontScaler.  The GrFontScaler is what
- *  actually creates the mask.
+ *  The GrBatchTextStrike manages a pool of CPU backing memory for GrGlyphs.  This backing memory
+ *  is indexed by a PackedID and GrFontScaler.  The GrFontScaler is what actually creates the mask.
  */
 class GrBatchTextStrike : public SkNVRefCnt<GrBatchTextStrike> {
 public:
