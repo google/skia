@@ -1686,6 +1686,12 @@ static bool read_pixels_pays_for_y_flip(GrRenderTarget* renderTarget, const GrGL
         return false;
     }
 
+    // If the read is really small or smaller than the min texture size, don't force a draw.
+    int minSize = SkTMax(32, caps.minTextureSize());
+    if (width < minSize || height < minSize) {
+        return false;
+    }
+
     // if GL can do the flip then we'll never pay for it.
     if (caps.packFlipYSupport()) {
         return false;
@@ -1726,7 +1732,9 @@ bool GrGLGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, si
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
-    tempDrawInfo->fUseExactScratch = SkToBool(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL);
+    tempDrawInfo->fUseExactScratch = SkToBool(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL) &&
+                                     width >= this->caps()->minTextureSize() &&
+                                     height >= this->caps()->minTextureSize();
 
     // Start off assuming that any temp draw should be to the readConfig, then check if that will
     // be inefficient.

@@ -73,10 +73,10 @@ GrTexture* GrTextureProvider::internalRefScratchTexture(const GrSurfaceDesc& inD
     if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
         if (!(kExact_ScratchTextureFlag & flags)) {
             // bin by pow2 with a reasonable min
-            static const int MIN_SIZE = 16;
+            const int minSize = SkTMin(16, fGpu->caps()->minTextureSize());
             GrSurfaceDesc* wdesc = desc.writable();
-            wdesc->fWidth  = SkTMax(MIN_SIZE, GrNextPow2(desc->fWidth));
-            wdesc->fHeight = SkTMax(MIN_SIZE, GrNextPow2(desc->fHeight));
+            wdesc->fWidth  = SkTMax(minSize, GrNextPow2(desc->fWidth));
+            wdesc->fHeight = SkTMax(minSize, GrNextPow2(desc->fHeight));
         }
 
         GrScratchKey key;
