@@ -450,16 +450,6 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     return true;
 }
 
-// toggles between RGBA and BGRA
-static SkColorType toggle_colortype32(SkColorType ct) {
-    if (kRGBA_8888_SkColorType == ct) {
-        return kBGRA_8888_SkColorType;
-    } else {
-        SkASSERT(kBGRA_8888_SkColorType == ct);
-        return kRGBA_8888_SkColorType;
-    }
-}
-
 bool GrContext::readSurfacePixels(GrSurface* src,
                                   int left, int top, int width, int height,
                                   GrPixelConfig dstConfig, void* buffer, size_t rowBytes,
@@ -480,126 +470,87 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         this->flush();
     }
 
-    // Determine which conversions have to be applied: flipY, swapRAnd, and/or unpremul.
-
-    // We ignore the preferred config if it is different than our config unless it is an R/B swap.
-    // In that case we'll perform an R and B swap while drawing to a scratch texture of the swapped
-    // config. Then we will call readPixels on the scratch with the swapped config. The swaps during
-    // the draw cancels out the fact that we call readPixels with a config that is R/B swapped from
-    // dstConfig.
-    GrPixelConfig readConfig = dstConfig;
-    bool swapRAndB = false;
-    if (GrPixelConfigSwapRAndB(dstConfig) ==
-        fGpu->preferredReadPixelsConfig(dstConfig, src->config())) {
-        readConfig = GrPixelConfigSwapRAndB(readConfig);
-        swapRAndB = true;
-    }
-
-    bool flipY = false;
-    GrRenderTarget* srcAsRT = src->asRenderTarget();
-    if (srcAsRT) {
-        // If fGpu->readPixels would incur a y-flip cost then we will read the pixels upside down.
-        // We'll either do the flipY by drawing into a scratch with a matrix or on the cpu after the
-        // read.
-        flipY = fGpu->readPixelsWillPayForYFlip(srcAsRT, left, top,
-                                                width, height, dstConfig,
-                                                rowBytes);
-    }
-
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
     if (unpremul && !GrPixelConfigIs8888(dstConfig)) {
-        // The unpremul flag is only allowed for these two configs.
+        // The unpremul flag is only allowed for 8888 configs.
         return false;
     }
 
-    SkAutoTUnref<GrTexture> tempTexture;
+    GrGpu::DrawPreference drawPreference = unpremul ? GrGpu::kCallerPrefersDraw_DrawPreference :
+                                                      GrGpu::kNoDraw_DrawPreference;
+    GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
+    if (!fGpu->getReadPixelsInfo(src, width, height, rowBytes, dstConfig, &drawPreference,
+                                 &tempDrawInfo)) {
+        return false;
+    }
 
-    // If the src is a texture and we would have to do conversions after read pixels, we instead
-    // do the conversions by drawing the src to a scratch texture. If we handle any of the
-    // conversions in the draw we set the corresponding bool to false so that we don't reapply it
-    // on the read back pixels. We also do an intermediate draw if the src is not a render target as
-    // GrGpu currently supports reading from render targets but not textures.
-    GrTexture* srcAsTex = src->asTexture();
-    GrRenderTarget* rtToRead = srcAsRT;
-    if (srcAsTex && (swapRAndB || unpremul || flipY || !srcAsRT)) {
-        // Make the scratch a render so we can read its pixels.
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = width;
-        desc.fHeight = height;
-        desc.fConfig = readConfig;
-        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-
-        // When a full read back is faster than a partial we could always make the scratch exactly
-        // match the passed rect. However, if we see many different size rectangles we will trash
-        // our texture cache and pay the cost of creating and destroying many textures. So, we only
-        // request an exact match when the caller is reading an entire RT.
+    GrRenderTarget* rtToRead = src->asRenderTarget();
+    bool didTempDraw = false;
+    if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
         GrTextureProvider::ScratchTexMatch match = GrTextureProvider::kApprox_ScratchTexMatch;
-        if (0 == left &&
-            0 == top &&
-            src->width() == width &&
-            src->height() == height &&
-            fGpu->fullReadPixelsIsFasterThanPartial()) {
-            match = GrTextureProvider::kExact_ScratchTexMatch;
+        if (tempDrawInfo.fUseExactScratch) {
+            // We only respect this when the entire src is being read. Otherwise we can trigger too
+            // many odd ball texture sizes and trash the cache.
+            if (width == src->width() && height == src->height()) {
+                match = GrTextureProvider::kExact_ScratchTexMatch;
+            }
         }
-        tempTexture.reset(this->textureProvider()->refScratchTexture(desc, match));
-        if (tempTexture) {
-            // compute a matrix to perform the draw
+        SkAutoTUnref<GrTexture> temp;
+        temp.reset(this->textureProvider()->refScratchTexture(tempDrawInfo.fTempSurfaceDesc, match));
+        if (temp) {
             SkMatrix textureMatrix;
-            textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
+            textureMatrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
             textureMatrix.postIDiv(src->width(), src->height());
-
             GrPaint paint;
             SkAutoTUnref<const GrFragmentProcessor> fp;
             if (unpremul) {
-                fp.reset(this->createPMToUPMEffect(paint.getProcessorDataManager(), srcAsTex,
-                                                   swapRAndB, textureMatrix));
+                fp.reset(this->createPMToUPMEffect(
+                    paint.getProcessorDataManager(), src->asTexture(), tempDrawInfo.fSwapRAndB,
+                    textureMatrix));
                 if (fp) {
                     unpremul = false; // we no longer need to do this on CPU after the read back.
+                } else if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
+                    // We only wanted to do the draw in order to perform the unpremul so don't
+                    // bother.
+                    temp.reset(NULL);
                 }
             }
-            // If we failed to create a PM->UPM effect and have no other conversions to perform then
-            // there is no longer any point to using the scratch.
-            if (fp || flipY || swapRAndB || !srcAsRT) {
-                if (!fp) {
-                    fp.reset(GrConfigConversionEffect::Create(paint.getProcessorDataManager(),
-                            srcAsTex, swapRAndB, GrConfigConversionEffect::kNone_PMConversion,
-                            textureMatrix));
-                }
-                swapRAndB = false; // we will handle the swap in the draw.
-
-                // We protect the existing geometry here since it may not be
-                // clear to the caller that a draw operation (i.e., drawSimpleRect)
-                // can be invoked in this method
-                {
-                    GrDrawContext* drawContext = this->drawContext();
-                    if (!drawContext) {
-                        return false;
-                    }
-
-                    paint.addColorProcessor(fp);
-
-                    SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-
-                    drawContext->drawRect(tempTexture->asRenderTarget(), GrClip::WideOpen(), paint,
-                                          SkMatrix::I(), rect, NULL);                    
-
-                    // we want to read back from the scratch's origin
-                    left = 0;
-                    top = 0;
-                    rtToRead = tempTexture->asRenderTarget();
-                }
-                this->flushSurfaceWrites(tempTexture);
+            if (!fp && temp) {
+                fp.reset(GrConfigConversionEffect::Create(
+                    paint.getProcessorDataManager(), src->asTexture(), tempDrawInfo.fSwapRAndB,
+                    GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
+            }
+            if (fp) {
+                paint.addColorProcessor(fp);
+                SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
+                GrDrawContext* drawContext = this->drawContext();
+                drawContext->drawRect(temp->asRenderTarget(), GrClip::WideOpen(), paint,
+                                      SkMatrix::I(), rect, NULL);
+                rtToRead = temp->asRenderTarget();
+                left = 0;
+                top = 0;
+                didTempDraw = true;
             }
         }
     }
 
-    if (!rtToRead ||
-        !fGpu->readPixels(rtToRead, left, top, width, height, readConfig, buffer, rowBytes)) {
+    if (GrGpu::kRequireDraw_DrawPreference == drawPreference && !didTempDraw) {
         return false;
     }
-    // Perform any conversions we weren't able to perform using a scratch texture.
-    if (unpremul || swapRAndB) {
+    GrPixelConfig configToRead = dstConfig;
+    if (didTempDraw) {
+        this->flushSurfaceWrites(rtToRead);
+        // We swapped R and B while doing the temp draw. Swap back on the read.
+        if (tempDrawInfo.fSwapRAndB) {
+            configToRead = GrPixelConfigSwapRAndB(dstConfig);
+        }
+    }
+    if (!fGpu->readPixels(rtToRead, left, top, width, height, configToRead, buffer, rowBytes)) {
+        return false;
+    }
+
+    // Perform umpremul conversion if we weren't able to perform it as a draw.
+    if (unpremul) {
         SkDstPixelInfo dstPI;
         if (!GrPixelConfig2ColorAndProfileType(dstConfig, &dstPI.fColorType, NULL)) {
             return false;
@@ -609,7 +560,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         dstPI.fRowBytes = rowBytes;
 
         SkSrcPixelInfo srcPI;
-        srcPI.fColorType = swapRAndB ? toggle_colortype32(dstPI.fColorType) : dstPI.fColorType;
+        srcPI.fColorType = dstPI.fColorType;
         srcPI.fAlphaType = kPremul_SkAlphaType;
         srcPI.fPixels = buffer;
         srcPI.fRowBytes = rowBytes;

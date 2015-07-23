@@ -133,15 +133,58 @@ public:
      */
     void resolveRenderTarget(GrRenderTarget* target);
 
+    /** Info struct returned by getReadPixelsInfo about performing intermediate draws before 
+        reading pixels for performance or correctness. */
+    struct ReadPixelTempDrawInfo {
+        /** If the GrGpu is requesting that the caller do a draw to an intermediate surface then
+            this is descriptor for the temp surface. The draw should always be a rect with
+            dst 0,0,w,h. */
+        GrSurfaceDesc   fTempSurfaceDesc;
+        /** Indicates whether there is a performance advantage to using an exact match texture
+            (in terms of width and height) for the intermediate texture instead of approximate. */
+        bool            fUseExactScratch;
+        /** The caller should swap the R and B channel in the temp draw and then instead of reading
+            the desired config back it should read GrPixelConfigSwapRAndB(readConfig). The swap
+            during the draw and the swap at readback time cancel and the client gets the correct
+            data. The swapped read back is either faster for or required by the underlying backend
+            3D API. */
+        bool            fSwapRAndB;
+    };
+    /** Describes why an intermediate draw must/should be performed before readPixels. */
+    enum DrawPreference {
+        /** On input means that the caller would proceed without draw if the GrGpu doesn't request
+            one.
+            On output means that the GrGpu is not requesting a draw. */
+        kNoDraw_DrawPreference,
+        /** Means that the client would prefer a draw for performance of the readback but
+            can satisfy a straight readPixels call on the inputs without an intermediate draw.
+            getReadPixelsInfo will never set the draw preference to this value but may leave
+            it set. */
+        kCallerPrefersDraw_DrawPreference,
+        /** On output means that GrGpu would prefer a draw for performance of the readback but
+            can satisfy a straight readPixels call on the inputs without an intermediate draw. The
+            caller of getReadPixelsInfo should never specify this on intput. */
+        kGpuPrefersDraw_DrawPreference,
+        /** On input means that the caller requires a draw to do a transformation and there is no
+            CPU fallback.
+            On output means that GrGpu can only satisfy the readPixels request if the intermediate
+            draw is performed.
+          */
+        kRequireDraw_DrawPreference
+    };
+
+    /** Used to negotiates whether and how an intermediate draw should or must be performed before
+        a readPixels call. If this returns false then GrGpu could not deduce an intermediate draw
+        that would allow a successful readPixels call. */
+    virtual bool getReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight,
+                                   size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,
+                                   ReadPixelTempDrawInfo *) = 0;
+
     /**
-     * Gets a preferred 8888 config to use for writing/reading pixel data to/from a surface with
+     * Gets a preferred 8888 config to use for writing pixel data to a surface with
      * config surfaceConfig. The returned config must have at least as many bits per channel as the
-     * readConfig or writeConfig param.
+     * writeConfig param.
      */
-    virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig readConfig,
-                                                    GrPixelConfig surfaceConfig) const {
-        return readConfig;
-    }
     virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig writeConfig,
                                                      GrPixelConfig surfaceConfig) const {
         return writeConfig;
@@ -152,35 +195,6 @@ public:
      * match the texture's config.
      */
     virtual bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const = 0;
-
-    /**
-     * OpenGL's readPixels returns the result bottom-to-top while the skia
-     * API is top-to-bottom. Thus we have to do a y-axis flip. The obvious
-     * solution is to have the subclass do the flip using either the CPU or GPU.
-     * However, the caller (GrContext) may have transformations to apply and can
-     * simply fold in the y-flip for free. On the other hand, the subclass may
-     * be able to do it for free itself. For example, the subclass may have to
-     * do memcpys to handle rowBytes that aren't tight. It could do the y-flip
-     * concurrently.
-     *
-     * This function returns true if a y-flip is required to put the pixels in
-     * top-to-bottom order and the subclass cannot do it for free.
-     *
-     * See read pixels for the params
-     * @return true if calling readPixels with the same set of params will
-     *              produce bottom-to-top data
-     */
-     virtual bool readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
-                                            int left, int top,
-                                            int width, int height,
-                                            GrPixelConfig config,
-                                            size_t rowBytes) const = 0;
-     /**
-      * This should return true if reading a NxM rectangle of pixels from a
-      * render target is faster if the target has dimensons N and M and the read
-      * rectangle has its top-left at 0,0.
-      */
-     virtual bool fullReadPixelsIsFasterThanPartial() const { return false; };
 
     /**
      * Reads a rectangle of pixels from a render target.

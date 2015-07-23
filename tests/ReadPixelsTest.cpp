@@ -198,15 +198,17 @@ static bool check_read(skiatest::Reporter* reporter,
                     SkPMColor canvasPixel = get_src_color(devx, devy);
                     bool didPremul;
                     SkPMColor pmPixel = convert_to_pmcolor(ct, at, pixel, &didPremul);
-                    bool check = check_read_pixel(pmPixel, canvasPixel, didPremul);
-                    REPORTER_ASSERT(reporter, check);
-                    if (!check) {
+                    if (!check_read_pixel(pmPixel, canvasPixel, didPremul)) {
+                        ERRORF(reporter, "Expected readback pixel value 0x%08x, got 0x%08x. "
+                               "Readback was unpremul: %d", canvasPixel, pmPixel, didPremul);
                         return false;
                     }
                 }
             } else if (checkBitmapPixels) {
-                REPORTER_ASSERT(reporter, get_dst_bmp_init_color(bx, by, bw) == *pixel);
-                if (get_dst_bmp_init_color(bx, by, bw) != *pixel) {
+                uint32_t origDstPixel = get_dst_bmp_init_color(bx, by, bw);
+                if (origDstPixel != *pixel) {
+                    ERRORF(reporter, "Expected clipped out area of readback to be unchanged. "
+                           "Expected 0x%08x, got 0x%08x", origDstPixel, *pixel);
                     return false;
                 }
             }

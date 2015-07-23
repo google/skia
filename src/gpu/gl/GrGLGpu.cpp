@@ -267,28 +267,6 @@ void GrGLGpu::contextAbandoned() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GrPixelConfig GrGLGpu::preferredReadPixelsConfig(GrPixelConfig readConfig,
-                                                 GrPixelConfig surfaceConfig) const {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == readConfig) {
-        return kBGRA_8888_GrPixelConfig;
-    } else if (kMesa_GrGLDriver == this->glContext().driver() &&
-               GrBytesPerPixel(readConfig) == 4 &&
-               GrPixelConfigSwapRAndB(readConfig) == surfaceConfig) {
-        // Mesa 3D takes a slow path on when reading back  BGRA from an RGBA surface and vice-versa.
-        // Perhaps this should be guarded by some compiletime or runtime check.
-        return surfaceConfig;
-    } else if (readConfig == kBGRA_8888_GrPixelConfig
-            && !this->glCaps().readPixelsSupported(
-                this->glInterface(),
-                GR_GL_BGRA,
-                GR_GL_UNSIGNED_BYTE,
-                surfaceConfig
-            )) {
-        return kRGBA_8888_GrPixelConfig;
-    } else {
-        return readConfig;
-    }
-}
 
 GrPixelConfig GrGLGpu::preferredWritePixelsConfig(GrPixelConfig writeConfig,
                                                   GrPixelConfig surfaceConfig) const {
@@ -320,10 +298,6 @@ bool GrGLGpu::canWriteTexturePixels(const GrTexture* texture, GrPixelConfig srcC
     } else {
         return true;
     }
-}
-
-bool GrGLGpu::fullReadPixelsIsFasterThanPartial() const {
-    return SkToBool(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL);
 }
 
 void GrGLGpu::onResetContext(uint32_t resetBits) {
@@ -1651,7 +1625,6 @@ void GrGLGpu::discard(GrRenderTarget* renderTarget) {
     renderTarget->flagAsResolved();
 }
 
-
 void GrGLGpu::clearStencil(GrRenderTarget* target) {
     if (NULL == target) {
         return;
@@ -1705,35 +1678,91 @@ void GrGLGpu::onClearStencilClip(GrRenderTarget* target, const SkIRect& rect, bo
     fHWStencilSettings.invalidate();
 }
 
-bool GrGLGpu::readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
-                                        int left, int top,
-                                        int width, int height,
-                                        GrPixelConfig config,
-                                        size_t rowBytes) const {
-    // If this rendertarget is aready TopLeft, we don't need to flip.
+static bool read_pixels_pays_for_y_flip(GrRenderTarget* renderTarget, const GrGLCaps& caps,
+                                        int width, int height,  GrPixelConfig config,
+                                        size_t rowBytes) {
+    // If this render target is already TopLeft, we don't need to flip.
     if (kTopLeft_GrSurfaceOrigin == renderTarget->origin()) {
         return false;
     }
 
     // if GL can do the flip then we'll never pay for it.
-    if (this->glCaps().packFlipYSupport()) {
+    if (caps.packFlipYSupport()) {
         return false;
     }
 
     // If we have to do memcpy to handle non-trim rowBytes then we
     // get the flip for free. Otherwise it costs.
-    if (this->glCaps().packRowLengthSupport()) {
-        return true;
-    }
-    // If we have to do memcpys to handle rowBytes then y-flip is free
-    // Note the rowBytes might be tight to the passed in data, but if data
-    // gets clipped in x to the target the rowBytes will no longer be tight.
-    if (left >= 0 && (left + width) < renderTarget->width()) {
-           return 0 == rowBytes ||
-                  GrBytesPerPixel(config) * width == rowBytes;
-    } else {
+    // Note that we're assuming that 0 rowBytes has already been handled and that the width has been
+    // clipped.
+    return caps.packRowLengthSupport() || GrBytesPerPixel(config) * width == rowBytes;
+}
+
+void elevate_draw_preference(GrGpu::DrawPreference* preference, GrGpu::DrawPreference elevation) {
+    GR_STATIC_ASSERT(GrGpu::kCallerPrefersDraw_DrawPreference > GrGpu::kNoDraw_DrawPreference);
+    GR_STATIC_ASSERT(GrGpu::kGpuPrefersDraw_DrawPreference >
+                     GrGpu::kCallerPrefersDraw_DrawPreference);
+    GR_STATIC_ASSERT(GrGpu::kRequireDraw_DrawPreference > GrGpu::kGpuPrefersDraw_DrawPreference);
+    *preference = SkTMax(*preference, elevation);
+}
+
+bool GrGLGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
+                                GrPixelConfig readConfig, DrawPreference* drawPreference,
+                                ReadPixelTempDrawInfo* tempDrawInfo) {
+    SkASSERT(drawPreference);
+    SkASSERT(tempDrawInfo);
+    SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
+
+    if (GrPixelConfigIsCompressed(readConfig)) {
         return false;
     }
+
+    tempDrawInfo->fSwapRAndB = false;
+
+    // These settings we will always want if a temp draw is performed. The config is set below
+    // depending on whether we want to do a R/B swap or not.
+    tempDrawInfo->fTempSurfaceDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    tempDrawInfo->fTempSurfaceDesc.fWidth = width;
+    tempDrawInfo->fTempSurfaceDesc.fHeight = height;
+    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
+    tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
+    tempDrawInfo->fUseExactScratch = SkToBool(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL);
+
+    // Start off assuming that any temp draw should be to the readConfig, then check if that will
+    // be inefficient.
+    GrPixelConfig srcConfig = srcSurface->config();
+    tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
+
+    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == readConfig) {
+        tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
+    } else if (kMesa_GrGLDriver == this->glContext().driver() &&
+               GrBytesPerPixel(readConfig) == 4 &&
+               GrPixelConfigSwapRAndB(readConfig) == srcConfig) {
+        // Mesa 3D takes a slow path on when reading back  BGRA from an RGBA surface and vice-versa.
+        // Better to do a draw with a R/B swap and then read as the original config.
+        tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
+        tempDrawInfo->fSwapRAndB = true;
+        elevate_draw_preference(drawPreference, kGpuPrefersDraw_DrawPreference);
+    } else if (readConfig == kBGRA_8888_GrPixelConfig &&
+               !this->glCaps().readPixelsSupported(this->glInterface(), GR_GL_BGRA,
+                                                   GR_GL_UNSIGNED_BYTE, srcConfig)) {
+        tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
+        tempDrawInfo->fSwapRAndB = true;
+        elevate_draw_preference(drawPreference, kRequireDraw_DrawPreference);
+    }
+
+    GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
+    if (!srcAsRT) {
+        elevate_draw_preference(drawPreference, kRequireDraw_DrawPreference);
+    } else if (read_pixels_pays_for_y_flip(srcAsRT, this->glCaps(), width, height, readConfig,
+                                           rowBytes)) {
+        elevate_draw_preference(drawPreference, kGpuPrefersDraw_DrawPreference);
+    }
+
+    if (kRequireDraw_DrawPreference == *drawPreference && !srcSurface->asTexture()) {
+        return false;
+    }
+    return true;
 }
 
 bool GrGLGpu::onReadPixels(GrRenderTarget* target,
@@ -1742,6 +1771,8 @@ bool GrGLGpu::onReadPixels(GrRenderTarget* target,
                            GrPixelConfig config,
                            void* buffer,
                            size_t rowBytes) {
+    SkASSERT(target);
+
     // We cannot read pixels into a compressed buffer
     if (GrPixelConfigIsCompressed(config)) {
         return false;

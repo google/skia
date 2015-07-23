@@ -150,11 +150,10 @@ public:
         return true;
     }
 
-    bool readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
-                                   int left, int top,
-                                   int width, int height,
-                                   GrPixelConfig config,
-                                   size_t rowBytes) const override { return false; }
+    bool getReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
+                           GrPixelConfig readConfig, DrawPreference*,
+                           ReadPixelTempDrawInfo*) override { return false; }
+
     void buildProgramDesc(GrProgramDesc*,const GrPrimitiveProcessor&,
                           const GrPipeline&,
                           const GrBatchTracker&) const override {}
