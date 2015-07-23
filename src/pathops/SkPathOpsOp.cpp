@@ -223,12 +223,12 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
 #endif
 
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
-        bool expectSuccess) {
+        bool expectSuccess  SkDEBUGPARAMS(const char* testName)) {
     SkChunkAlloc allocator(4096);  // FIXME: add a constant expression here, tune
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
     SkOpCoincidence coincidence;
-    SkOpGlobalState globalState(&coincidence, contourList);
+    SkOpGlobalState globalState(&coincidence, contourList  SkDEBUGPARAMS(testName));
 #if DEBUGGING_PATHOPS_FROM_HOST
     dump_op(one, two, op);
 #endif    
@@ -304,5 +304,5 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
 }
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
-    return OpDebug(one, two, op, result, true);
+    return OpDebug(one, two, op, result, true  SkDEBUGPARAMS(NULL));
 }

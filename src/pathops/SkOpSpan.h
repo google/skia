@@ -48,6 +48,7 @@ public:
     }
 
     bool alias() const;
+    bool collapsed(const SkOpPtT* ) const;
     bool contains(const SkOpPtT* ) const;
     SkOpPtT* contains(const SkOpSegment* );
     SkOpContour* contour() const;
@@ -264,6 +265,10 @@ public:
 
     SkOpSegment* segment() const {
         return fSegment;
+    }
+
+    void setAligned() {
+        fAligned = true;
     }
 
     void setChased(bool chased) {

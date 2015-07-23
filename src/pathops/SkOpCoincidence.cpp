@@ -568,6 +568,16 @@ void SkOpCoincidence::fixAligned() {
             coin->fOppPtTEnd = coin->fOppPtTEnd->doppelganger();
         }
     } while ((coin = coin->fNext));
+    coin = fHead;
+    SkCoincidentSpans** priorPtr = &fHead;
+    do {
+        if (coin->fCoinPtTStart->collapsed(coin->fCoinPtTEnd)
+                || coin->fOppPtTStart->collapsed(coin->fOppPtTEnd)) {
+            *priorPtr = coin->fNext;
+            continue;
+        }
+        priorPtr = &coin->fNext;
+    } while ((coin = coin->fNext));
 }
 
 void SkOpCoincidence::fixUp(SkOpPtT* deleted, SkOpPtT* kept) {

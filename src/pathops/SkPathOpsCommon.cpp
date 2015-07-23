@@ -198,7 +198,7 @@ public:
 void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
     SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
     SkOpContourHead contour;
-    SkOpGlobalState globalState(NULL, &contour);
+    SkOpGlobalState globalState(NULL, &contour  SkDEBUGPARAMS(NULL));
 #if DEBUG_SHOW_TEST_NAME
     SkDebugf("</div>\n");
 #endif
@@ -408,6 +408,13 @@ static void calcAngles(SkOpContourHead* contourList, SkChunkAlloc* allocator) {
     } while ((contour = contour->next()));
 }
 
+static void findCollapsed(SkOpContourHead* contourList) {
+    SkOpContour* contour = contourList;
+    do {
+        contour->findCollapsed();
+    } while ((contour = contour->next()));
+}
+
 static bool missingCoincidence(SkOpContourHead* contourList,
         SkOpCoincidence* coincidence, SkChunkAlloc* allocator) {
     SkOpContour* contour = contourList;
@@ -444,6 +451,7 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     SkOpGlobalState* globalState = contourList->globalState();
     // combine t values when multiple intersections occur on some segments but not others
     moveMultiples(contourList);
+    findCollapsed(contourList);
     // move t values and points together to eliminate small/tiny gaps
     moveNearby(contourList);
     align(contourList);  // give all span members common values

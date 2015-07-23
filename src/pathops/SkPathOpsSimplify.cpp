@@ -167,7 +167,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
     SkOpCoincidence coincidence;
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
-    SkOpGlobalState globalState(&coincidence, contourList);
+    SkOpGlobalState globalState(&coincidence, contourList  SkDEBUGPARAMS(NULL));
 #if DEBUG_SORT
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif

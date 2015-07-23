@@ -488,7 +488,8 @@ static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
 }
 #endif
 
-bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result, bool expectSuccess);
+bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
+             bool expectSuccess  SkDEBUGPARAMS(const char* testName));
 
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, bool expectSuccess) {
@@ -496,7 +497,7 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     showName(a, b, shapeOp);
 #endif
     SkPath out;
-    if (!OpDebug(a, b, shapeOp, &out, expectSuccess)) {
+    if (!OpDebug(a, b, shapeOp, &out, expectSuccess  SkDEBUGPARAMS(testName))) {
         SkDebugf("%s did not expect failure\n", __FUNCTION__);
         REPORTER_ASSERT(reporter, 0);
         return false;

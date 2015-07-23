@@ -615,6 +615,15 @@ double SkOpSegment::distSq(double t, SkOpAngle* oppAngle) {
     return closestDistSq;
 }
 
+void SkOpSegment::findCollapsed() {
+    if (fHead.contains(&fTail)) {
+        markAllDone();
+        // move start and end to the same point
+        fHead.alignEnd(0, fHead.pt());
+        fTail.setAligned();
+    }
+}
+
 /*
  The M and S variable name parts stand for the operators.
    Mi stands for Minuend (see wiki subtraction, analogous to difference)

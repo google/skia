@@ -419,7 +419,7 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
     SkPoint shortQuads[2][3];
 
     SkOpContourHead contour;
-    SkOpGlobalState state(NULL, &contour);
+    SkOpGlobalState state(NULL, &contour  SkDEBUGPARAMS(NULL));
     contour.init(&state, false, false);
     makeSegment(&contour, quad1, shortQuads[0], allocator);
     makeSegment(&contour, quad1, shortQuads[1], allocator);

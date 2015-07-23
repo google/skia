@@ -200,13 +200,15 @@ double SkDCubeRoot(double x) {
     return result;
 }
 
-SkOpGlobalState::SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head)
+SkOpGlobalState::SkOpGlobalState(SkOpCoincidence* coincidence, SkOpContourHead* head
+                                 SkDEBUGPARAMS(const char* testName))
     : fCoincidence(coincidence)
     , fContourHead(head)
     , fNested(0)
     , fWindingFailed(false)
     , fAngleCoincidence(false)
     , fPhase(kIntersecting)
+    SkDEBUGPARAMS(fDebugTestName(testName))
     SkDEBUGPARAMS(fAngleID(0))
     SkDEBUGPARAMS(fContourID(0))
     SkDEBUGPARAMS(fPtTID(0))

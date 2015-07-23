@@ -13,6 +13,16 @@ bool SkOpPtT::alias() const {
     return this->span()->ptT() != this;
 }
 
+bool SkOpPtT::collapsed(const SkOpPtT* check) const {
+    if (fPt != check->fPt) {
+        return false;
+    }
+    SkASSERT(this != check);
+    const SkOpSegment* segment = this->segment();
+    SkASSERT(segment == check->segment());
+    return segment->collapsed();
+}
+
 bool SkOpPtT::contains(const SkOpPtT* check) const {
     SkASSERT(this != check);
     const SkOpPtT* ptT = this;

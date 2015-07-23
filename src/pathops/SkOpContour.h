@@ -192,6 +192,15 @@ public:
         return fTail->pts()[SkPathOpsVerbToPoints(fTail->verb())];
     }
 
+    bool findCollapsed() {
+        SkASSERT(fCount > 0);
+        SkOpSegment* segment = &fHead;
+        do {
+            segment->findCollapsed();
+        } while ((segment = segment->next()));
+        return true;
+    }
+
     SkOpSpan* findSortableTop(SkOpContour* );
 
     SkOpSegment* first() {

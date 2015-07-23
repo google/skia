@@ -182,6 +182,7 @@ public:
     void dumpPts() const;
     void dumpPtsInner() const;
 
+    void findCollapsed();
     SkOpSegment* findNextOp(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** nextStart,
                              SkOpSpanBase** nextEnd, bool* unsortable, SkPathOp op,
                              int xorMiMask, int xorSuMask);
