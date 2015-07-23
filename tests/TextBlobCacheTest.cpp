@@ -25,7 +25,8 @@
 #include "GrContextFactory.h"
 
 struct TextBlobWrapper {
-    explicit TextBlobWrapper(const SkTextBlob* blob) : fBlob(SkRef(blob)) {}
+    // This class assumes it 'owns' the textblob it wraps, and thus does not need to take a ref
+    explicit TextBlobWrapper(const SkTextBlob* blob) : fBlob(blob) {}
     TextBlobWrapper(const TextBlobWrapper& blob) : fBlob(SkRef(blob.fBlob.get())) {}
 
     SkAutoTUnref<const SkTextBlob> fBlob;
