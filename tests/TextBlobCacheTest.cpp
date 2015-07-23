@@ -48,7 +48,10 @@ static void draw(SkCanvas* canvas, int redraw, const SkTArray<TextBlobWrapper>& 
 // limit this just so we don't take too long to draw
 #define MAX_TOTAL_TEXT 4096
 #define MAX_CHAR 256
-#define MAX_FAMILIES 5
+#define MAX_FAMILIES 30
+
+static const int kWidth = 1024;
+static const int kHeight = 768;
 
 // This test hammers the GPU textblobcache and font atlas
 DEF_GPUTEST(TextBlobCache, reporter, factory) {
@@ -57,7 +60,7 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
 
     GrContext* ctx = factory->get(GrContextFactory::kNative_GLContextType);
-    SkImageInfo info = SkImageInfo::Make(1024, 768, kN32_SkColorType, kPremul_SkAlphaType);
+    SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info,
                                                                0, &props));
     REPORTER_ASSERT(reporter, surface);
@@ -82,7 +85,7 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
     for (int i = 0; i < count; i++) {
         SkPaint paint;
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        paint.setTextSize(256); // draw big glyphs to really stress the atlas
+        paint.setTextSize(48); // draw big glyphs to really stress the atlas
 
         SkString familyName;
         fm->getFamilyName(i, &familyName);
@@ -112,12 +115,27 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
         }
     }
 
+    // create surface where LCD is impossible
+    info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    SkSurfaceProps propsNoLCD(0, kUnknown_SkPixelGeometry);
+    SkAutoTUnref<SkSurface> surfaceNoLCD(canvas->newSurface(info, &propsNoLCD));
+    REPORTER_ASSERT(reporter, surface);
+    if (!surface) {
+        return;
+    }
+
+    SkCanvas* canvasNoLCD = surfaceNoLCD->getCanvas();
+
     // test redraw
     draw(canvas, 2, blobs);
+    draw(canvasNoLCD, 2, blobs);
 
     // test draw after free
     ctx->freeGpuResources();
     draw(canvas, 1, blobs);
+
+    ctx->freeGpuResources();
+    draw(canvasNoLCD, 1, blobs);
 
     // test draw after abandon
     ctx->abandonContext();
