@@ -151,6 +151,8 @@ static inline float sk_float_rsqrt(const float x) {
 //
 // We do one step of Newton's method to refine the estimates in the NEON and null paths.  No
 // refinement is faster, but very innacurate.  Two steps is more accurate, but slower than 1/sqrt.
+//
+// Optimized constants in the null path courtesy of http://rrrola.wz.cz/inv_sqrt.html
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     return _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(x)));
 #elif defined(SK_ARM_HAS_NEON)
@@ -165,12 +167,12 @@ static inline float sk_float_rsqrt(const float x) {
 #else
     // Get initial estimate.
     int i = *SkTCast<int*>(&x);
-    i = 0x5f3759df - (i>>1);
+    i = 0x5F1FFFF9 - (i>>1);
     float estimate = *SkTCast<float*>(&i);
 
     // One step of Newton's method to refine.
     const float estimate_sq = estimate*estimate;
-    estimate *= (1.5f-0.5f*x*estimate_sq);
+    estimate *= 0.703952253f*(2.38924456f-x*estimate_sq);
     return estimate;
 #endif
 }

@@ -382,6 +382,40 @@ static void unittest_half(skiatest::Reporter* reporter) {
 
 }
 
+static void test_rsqrt(skiatest::Reporter* reporter) {
+    const float maxRelativeError = 6.50196699e-4f;
+
+    // test close to 0 up to 1
+    float input = 0.000001f;
+    for (int i = 0; i < 1000; ++i) {
+        float exact = 1.0f/sk_float_sqrt(input);
+        float estimate = sk_float_rsqrt(input);
+        float relativeError = sk_float_abs(exact - estimate)/exact;
+        REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
+        input += 0.001f;
+    }
+
+    // test 1 to ~100
+    input = 1.0f;
+    for (int i = 0; i < 1000; ++i) {
+        float exact = 1.0f/sk_float_sqrt(input);
+        float estimate = sk_float_rsqrt(input);
+        float relativeError = sk_float_abs(exact - estimate)/exact;
+        REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
+        input += 0.01f;
+    }
+
+    // test some big numbers
+    input = 1000000.0f;
+    for (int i = 0; i < 100; ++i) {
+        float exact = 1.0f/sk_float_sqrt(input);
+        float estimate = sk_float_rsqrt(input);
+        float relativeError = sk_float_abs(exact - estimate)/exact;
+        REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
+        input += 754326.f;
+    }
+}
+
 static void test_muldiv255(skiatest::Reporter* reporter) {
     for (int a = 0; a <= 255; a++) {
         for (int b = 0; b <= 255; b++) {
@@ -521,6 +555,7 @@ DEF_TEST(Math, reporter) {
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
+    test_rsqrt(reporter);
 
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();
