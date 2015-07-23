@@ -9,7 +9,7 @@ function print_usage {
   echo "                  -h  Prints this help message"
   echo "            --release Install the release build of Skia"
   echo "      -s [device_s/n] Serial number of the device to be used"
-  echo "              AppName Can be either sample_app or VisualBench"
+  echo "              AppName Can be either SampleApp or VisualBench"
 }
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -18,6 +18,8 @@ source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
 forceRemoval="false"
+installLauncher="false"
+installOptions="-r"
 app=""
 
 for arg in ${APP_ARGS[@]}; do
@@ -43,8 +45,8 @@ for arg in ${APP_ARGS[@]}; do
 done
 
 if [[ ${app} == "" ]]; then
-  echo "defaulting to installing sample_app."
-  app="sample_app"
+  echo "defaulting to installing SampleApp."
+  app="SampleApp"
 fi
 
 
@@ -54,8 +56,6 @@ then
     $ADB ${DEVICE_SERIAL} uninstall com.skia > /dev/null
 fi
 
-BUILD_TYPE_LC=$(echo $BUILDTYPE | tr "[:upper:]" "[:lower:]")
-
-echo "Installing ${app} from ${app}/build/outputs/apk/${app}-${ANDROID_ARCH}-${BUILD_TYPE_LC}.apk"
-$ADB ${DEVICE_SERIAL} install -r ${SCRIPT_DIR}/../apps/${app}/build/outputs/apk/${app}-${ANDROID_ARCH}-${BUILD_TYPE_LC}.apk
+echo "Installing ${app} from ${SKIA_OUT}/${BUILDTYPE}"
+$ADB ${DEVICE_SERIAL} install ${installOptions} ${SKIA_OUT}/${BUILDTYPE}/android/${app}/bin/${app}.apk
 

@@ -70,11 +70,6 @@ if [ -z "$ANDROID_SDK_ROOT" ]; then
   fi
 fi
 
-if [ -z "$ANDROID_HOME" ]; then
-  echo "ANDROID_HOME not set so we are setting it to a default value of ANDROID_SDK_ROOT"
-  exportVar ANDROID_HOME $ANDROID_SDK_ROOT
-fi
-
 # check to see that gclient sync ran successfully
 THIRD_PARTY_EXTERNAL_DIR=${SCRIPT_DIR}/../third_party/externals
 if [ ! -d "$THIRD_PARTY_EXTERNAL_DIR" ]; then

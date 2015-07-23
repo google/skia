@@ -1,12 +1,9 @@
 *.pyc
 *.swp
-*.iml
 .DS_Store
 .android_config
 .gclient*
 .gm-actuals
-.gradle
-.idea
 .cproject
 .project
 .settings/
@@ -15,10 +12,6 @@ bower_components
 common
 gyp/build
 out
-platform_tools/android/apps/build
-platform_tools/android/apps/*.properties
-platform_tools/android/apps/*/build
-platform_tools/android/apps/*/src/main/libs
 platform_tools/chromeos/third_party/externals
 platform_tools/chromeos/toolchain
 skps

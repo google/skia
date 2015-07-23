@@ -10,12 +10,20 @@ _Currently we only support building Skia for Android on a Linux or Mac host! In 
 
 The following libraries/utilities are required in addition to those needed for a standard skia checkout:
 
+  * Apache Ant
   * The Android SDK: http://developer.android.com/sdk/
+
+~~~~
+$ sudo apt-get install ant git
+~~~~
 
 Check out the source code
 -------------------------
 
-Follow the instructions [here](../download) for downloading the Skia source. 
+Follow the instructions [here](../download) for downloading the Skia source. Modify .gclient to add the following line to
+the bottom, and then run gclient sync again:
+
+    target_os = ["android"]
 
 Inside your Skia checkout, `platform_tools/android` contains the Android setup
 scripts, Android specific dependencies, and the Android Sample App.
@@ -55,7 +63,6 @@ the -d option plus any of the options or arguments you would normally pass to
 ninja (see descriptions of some of the other flags here).
 
     export ANDROID_SDK_ROOT=/path/to/android/sdk
-    export ANDROID_HOME=/path/to/android/sdk
     export PATH=$PATH:/path/to/depot_tools
 
     cd skia
@@ -128,7 +135,7 @@ Build and run SampleApp
 
 The SampleApp on Android provides a simple UI for viewing sample slides and gm images.
 
-    BUILDTYPE=Debug ./platform_tools/android/bin/android_ninja -d $TARGET_DEVICE SampleApp_APK
+    BUILDTYPE=Debug ./platform_tools/android/bin/android_ninja -d $TARGET_DEVICE
 
 Then, install the app onto the device:
 
@@ -147,28 +154,6 @@ params...
 
     --resourcePath /data/local/tmp/skia_resoures 
     --pictureDir /data/local/tmp/skia_skp
-
-
-Android Studio Support
------------------------
-
-You can also build and run SampleApp (and some other experimental apps) using Android
-Studio.  To create the project either select "import project" from the quickstart
-screen or use File -> Open.  In both cases you'll need to select ./platform_tools/android/apps
-as the root directory of your project.
-
-Finally to be able to build within Android studio it needs to know the path to 
-ninja so you will need to add a properties file and populate it with the path
-to depot_tools.  The syntax and location of that file is...
- 
-    # 
-    # file location: ./platform_tools/android/apps/gradle.properties
-    #
-    depot_tools.dir=<path_to_depot_tools>
-    
-That should be all the setup you need.  You should now be able to build and deploy
-SampleApp on ARM, Intel, and MIPS devices.
-
 
 Build tools
 -----------
