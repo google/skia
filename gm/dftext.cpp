@@ -146,11 +146,11 @@ protected:
         };
 
         paint.setColor(0xFFF7F3F7);
-        SkRect r = SkRect::MakeLTRB(670, 250, 820, 460);
+        SkRect r = SkRect::MakeLTRB(670, 215, 820, 397);
         canvas->drawRect(r, paint);
 
         x = SkIntToScalar(680);
-        y = SkIntToScalar(270);
+        y = SkIntToScalar(235);
         paint.setTextSize(SkIntToScalar(19));
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
@@ -160,11 +160,11 @@ protected:
         }
 
         paint.setColor(0xFF181C18);
-        r = SkRect::MakeLTRB(820, 250, 970, 460);
+        r = SkRect::MakeLTRB(820, 215, 970, 397);
         canvas->drawRect(r, paint);
 
         x = SkIntToScalar(830);
-        y = SkIntToScalar(270);
+        y = SkIntToScalar(235);
         paint.setTextSize(SkIntToScalar(19));
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
@@ -186,14 +186,14 @@ protected:
             SkAutoCanvasRestore acr(canvas, true);
             canvas->skew(0.5f, 0.0f);
             paint.setTextSize(SkIntToScalar(32));
-            canvas->drawText(text, textLen, 580, 230, paint);
+            canvas->drawText(text, textLen, 580, 125, paint);
         }
 
         // check color emoji
         if (fEmojiTypeface) {
             paint.setTypeface(fEmojiTypeface);
             paint.setTextSize(SkIntToScalar(19));
-            canvas->drawText(fEmojiText, strlen(fEmojiText), 670, 100, paint);
+            canvas->drawText(fEmojiText, strlen(fEmojiText), 670, 90, paint);
         }
 #if SK_SUPPORT_GPU
         // render offscreen buffer
