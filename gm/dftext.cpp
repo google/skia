@@ -42,11 +42,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* inputCanvas) override {
-#ifdef SK_BUILD_FOR_ANDROID
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
-#else
-        SkScalar textSizes[] = { 11.0f, 11.0f*2.0f, 11.0f*5.0f, 11.0f*2.0f*5.0f };
-#endif
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
 
         // set up offscreen rendering with distance field text
@@ -155,11 +151,7 @@ protected:
 
         x = SkIntToScalar(680);
         y = SkIntToScalar(270);
-#ifdef SK_BUILD_FOR_ANDROID
         paint.setTextSize(SkIntToScalar(19));
-#else
-        paint.setTextSize(SkIntToScalar(22));
-#endif
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
 
@@ -173,11 +165,7 @@ protected:
 
         x = SkIntToScalar(830);
         y = SkIntToScalar(270);
-#ifdef SK_BUILD_FOR_ANDROID
         paint.setTextSize(SkIntToScalar(19));
-#else
-        paint.setTextSize(SkIntToScalar(22));
-#endif
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
 
