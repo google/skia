@@ -268,6 +268,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& proc,
     SkString openBrace;
     openBrace.printf("{ // Stage %d, %s\n", fStageIndex, proc.name());
     fFS.codeAppend(openBrace.c_str());
+    fVS.codeAppendf("// Primitive Processor %s\n", proc.name());
 
     this->emitAndInstallProc(proc, outputColor->c_str(), outputCoverage->c_str());
 
