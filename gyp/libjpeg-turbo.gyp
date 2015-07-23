@@ -340,7 +340,8 @@
           'rule_name': 'assemble',
           'extension': 'asm',
           'conditions': [
-            [ 'skia_arch_type == "x86" or skia_arch_type == "x86_64"', {
+            [ '(skia_arch_type == "x86" or skia_arch_type == "x86_64") and \
+               (skia_os != "android" or host_os == "linux")', {
               'inputs': [],
               'outputs': [
                 '<(shared_generated_dir)/<(RULE_INPUT_ROOT).<(object_suffix)',
