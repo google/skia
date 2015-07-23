@@ -50,11 +50,11 @@ public:
 
 protected:
     struct EmojiFont {
-        SkTypeface* typeface;
+        SkAutoTUnref<SkTypeface> typeface;
         const char* text;
     } emojiFont;
     virtual void onOnceBeforeDraw() override {
-        emojiFont.typeface = sk_tool_utils::emoji_typeface();
+        sk_tool_utils::emoji_typeface(&emojiFont.typeface);
         emojiFont.text = sk_tool_utils::emoji_sample_text();
     }
 
@@ -154,10 +154,6 @@ protected:
             canvas->translate(0, bounds.height() + SkIntToScalar(25));
         }
     }
-
-private:
-    SkAutoTUnref<SkTypeface> fCBDT_CBLC_Typeface;
-    SkAutoTUnref<SkTypeface> fSBIX_Typeface;
 
     typedef GM INHERITED;
 };

@@ -32,14 +32,17 @@ const char* platform_os_emoji() {
     return "";
 }
 
-SkTypeface* emoji_typeface() {
+void emoji_typeface(SkAutoTUnref<SkTypeface>* tf) {
     if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
-        return GetResourceAsTypeface("/fonts/Funkster.ttf");
+        tf->reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));
+        return;
     }
     if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
-        return SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal);
+        tf->reset(SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal));
+        return;
     }
-    return NULL;
+    tf->reset(NULL);
+    return;
 }
 
 const char* emoji_sample_text() {

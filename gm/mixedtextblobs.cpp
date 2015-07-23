@@ -39,7 +39,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fEmojiTypeface.reset(sk_tool_utils::emoji_typeface());
+        sk_tool_utils::emoji_typeface(&fEmojiTypeface);
         fEmojiText = sk_tool_utils::emoji_sample_text();
         fReallyBigATypeface.reset(GetResourceAsTypeface("/fonts/ReallyBigA.ttf"));
 
