@@ -24,7 +24,7 @@ public:
         , fWillUseGeoShader(false)
         , fHasLocalCoords(false) {}
 
-    bool willUseGeoShader() const { return fWillUseGeoShader; }
+    bool willUseGeoShader() const override { return fWillUseGeoShader; }
 
     // TODO delete when paths are in batch
     void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override {}
