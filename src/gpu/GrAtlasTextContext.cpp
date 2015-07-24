@@ -1499,12 +1499,13 @@ public:
     void initBatchTracker(const GrPipelineInfo& init) override {
         // Handle any color overrides
         if (!init.readsColor()) {
-            fBatch.fColor = GrColor_ILLEGAL;
+            fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        init.getOverrideColorIfSet(&fBatch.fColor);
+        init.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
         fBatch.fColorIgnored = !init.readsColor();
+        fBatch.fColor = fGeoData[0].fColor;
         fBatch.fUsesLocalCoords = init.readsLocalCoords();
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
