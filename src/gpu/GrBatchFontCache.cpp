@@ -163,20 +163,20 @@ GrBatchTextStrike::~GrBatchTextStrike() {
     }
 }
 
-GrGlyph* GrBatchTextStrike::generateGlyph(GrGlyph::PackedID packed,
+GrGlyph* GrBatchTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                                           GrFontScaler* scaler) {
     SkIRect bounds;
     if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(packed)) {
-        if (!scaler->getPackedGlyphDFBounds(packed, &bounds)) {
+        if (!scaler->getPackedGlyphDFBounds(skGlyph, &bounds)) {
             return NULL;
         }
     } else {
-        if (!scaler->getPackedGlyphBounds(packed, &bounds)) {
+        if (!scaler->getPackedGlyphBounds(skGlyph, &bounds)) {
             return NULL;
         }
     }
-    GrMaskFormat format = scaler->getPackedGlyphMaskFormat(packed);
-    
+    GrMaskFormat format = scaler->getPackedGlyphMaskFormat(skGlyph);
+
     GrGlyph* glyph = (GrGlyph*)fPool.alloc(sizeof(GrGlyph), SK_MALLOC_THROW);
     glyph->init(packed, bounds, format);
     fCache.add(glyph);
@@ -196,7 +196,7 @@ void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
 }
 
 bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* glyph,
-                                        GrFontScaler* scaler) {
+                                        GrFontScaler* scaler, const SkGlyph& skGlyph) {
     SkASSERT(glyph);
     SkASSERT(scaler);
     SkASSERT(fCache.find(glyph->fPackedID));
@@ -210,16 +210,13 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* gly
     SkAutoSMalloc<1024> storage(size);
 
     if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID)) {
-        if (!scaler->getPackedGlyphDFImage(glyph->fPackedID, glyph->width(),
-                                           glyph->height(),
+        if (!scaler->getPackedGlyphDFImage(skGlyph, glyph->width(), glyph->height(),
                                            storage.get())) {
             return false;
         }
     } else {
-        if (!scaler->getPackedGlyphImage(glyph->fPackedID, glyph->width(),
-                                         glyph->height(),
-                                         glyph->width() * bytesPerPixel,
-                                         storage.get())) {
+        if (!scaler->getPackedGlyphImage(skGlyph, glyph->width(), glyph->height(),
+                                         glyph->width() * bytesPerPixel, storage.get())) {
             return false;
         }
     }

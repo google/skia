@@ -22,6 +22,7 @@ class GrDrawContext;
 class GrDrawTarget;
 class GrPipelineBuilder;
 class GrTextBlobCache;
+class SkGlyph;
 
 /*
  * This class implements GrTextContext using standard bitmap fonts, and can also process textblobs.
@@ -57,13 +58,13 @@ private:
     GrAtlasTextBlob* setupDFBlob(int glyphCount, const SkPaint& origPaint,
                                 const SkMatrix& viewMatrix, SkGlyphCache** cache,
                                 SkPaint* dfPaint, SkScalar* textRatio);
-    void bmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyph::PackedID, int left, int top,
+    void bmpAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, int left, int top,
                         GrColor color, GrFontScaler*, const SkIRect& clipRect);
-    bool dfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrGlyph::PackedID, SkScalar sx, SkScalar sy,
+    bool dfAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, SkScalar sx, SkScalar sy,
                        GrColor color, GrFontScaler*, const SkIRect& clipRect, SkScalar textRatio,
                        const SkMatrix& viewMatrix);
-    inline void appendGlyphPath(GrAtlasTextBlob* blob, GrGlyph* glyph,
-                                GrFontScaler* scaler, SkScalar x, SkScalar y);
+    inline void appendGlyphPath(GrAtlasTextBlob*, GrGlyph*, GrFontScaler*, const SkGlyph&,
+                                SkScalar x, SkScalar y);
     inline void appendGlyphCommon(GrAtlasTextBlob*, Run*, Run::SubRunInfo*,
                                   const SkRect& positions, GrColor color,
                                   size_t vertexStride, bool useVertexColor,

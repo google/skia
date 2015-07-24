@@ -11,6 +11,7 @@
 #include "GrBatchAtlas.h"
 #include "GrFontScaler.h"
 #include "GrGlyph.h"
+#include "SkGlyph.h"
 #include "SkTDynamicHash.h"
 #include "SkVarAlloc.h"
 
@@ -30,16 +31,17 @@ public:
     const GrFontDescKey* getFontScalerKey() const { return fFontScalerKey; }
     GrBatchFontCache* getBatchFontCache() const { return fBatchFontCache; }
 
-    inline GrGlyph* getGlyph(GrGlyph::PackedID packed, GrFontScaler* scaler) {
+    inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
+                             GrFontScaler* scaler) {
         GrGlyph* glyph = fCache.find(packed);
         if (NULL == glyph) {
-            glyph = this->generateGlyph(packed, scaler);
+            glyph = this->generateGlyph(skGlyph, packed, scaler);
         }
         return glyph;
     }
 
     // returns true if glyph successfully added to texture atlas, false otherwise
-    bool addGlyphToAtlas(GrBatchTarget*, GrGlyph*, GrFontScaler*);
+    bool addGlyphToAtlas(GrBatchTarget*, GrGlyph*, GrFontScaler*, const SkGlyph&);
 
     // testing
     int countGlyphs() const { return fCache.count(); }
@@ -66,7 +68,7 @@ private:
     int fAtlasedGlyphs;
     bool fIsAbandoned;
 
-    GrGlyph* generateGlyph(GrGlyph::PackedID packed, GrFontScaler* scaler);
+    GrGlyph* generateGlyph(const SkGlyph&, GrGlyph::PackedID, GrFontScaler*);
 
     friend class GrBatchFontCache;
 };
