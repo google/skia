@@ -31,7 +31,7 @@ protected:
         canvas.clear(0x0);
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         const char* str1 = "ABC";
         const char* str2 = "XYZ";
         paint.setColor(0xFFFFFFFF);

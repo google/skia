@@ -31,7 +31,7 @@ protected:
         const char text[] = "Hamburgefons";
 
         SkPaint paint;
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(20);
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);

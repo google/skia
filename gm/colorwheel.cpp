@@ -39,7 +39,7 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
     SkPaint paint;
-    sk_tool_utils::set_portable_typeface_always(&paint, NULL, SkTypeface::kBold);
+    sk_tool_utils::set_portable_typeface(&paint, NULL, SkTypeface::kBold);
     paint.setTextSize(18.0f);
 
     canvas->clear(sk_tool_utils::color_to_565(SK_ColorLTGRAY));

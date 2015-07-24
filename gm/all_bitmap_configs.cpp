@@ -75,7 +75,7 @@ static void color_wheel_native(SkCanvas* canvas) {
     const SkScalar D = 0.3f * SkIntToScalar(SCALE);
     const SkScalar X = SkDoubleToScalar(D * sqrt_3_over_2);
     const SkScalar Y = D * SK_ScalarHalf;
-    sk_tool_utils::set_portable_typeface_always(&p, NULL, SkTypeface::kBold);
+    sk_tool_utils::set_portable_typeface(&p, NULL, SkTypeface::kBold);
     p.setTextSize(0.28125f * SCALE);
     draw_center_letter('K', &p, SK_ColorBLACK, Z, Z, canvas);
     draw_center_letter('R', &p, SK_ColorRED, Z, D, canvas);
@@ -156,7 +156,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     SkPaint p;
     p.setColor(SK_ColorBLACK);
     p.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface_always(&p, NULL);
+    sk_tool_utils::set_portable_typeface(&p, NULL);
 
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 

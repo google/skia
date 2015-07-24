@@ -206,7 +206,7 @@ protected:
             }
 
             virtual void setFont(SkPaint* paint) {
-                sk_tool_utils::set_portable_typeface_always(paint);
+                sk_tool_utils::set_portable_typeface(paint);
             }
 
             virtual const char* text() const { return "Hello, Skia!"; }

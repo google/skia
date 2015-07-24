@@ -67,7 +67,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
 
-        sk_tool_utils::set_portable_typeface_always(&paint, "serif", SkTypeface::kNormal);
+        sk_tool_utils::set_portable_typeface(&paint, "serif", SkTypeface::kNormal);
 
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);

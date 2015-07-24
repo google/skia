@@ -58,7 +58,7 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
     SkPaint paint;
     paint.setTextSize(SkIntToScalar(24));
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface_always(&paint);
+    sk_tool_utils::set_portable_typeface(&paint);
     for (int i = 0; i < 4; ++i) {
         SkString str;
         str.appendScalar(k[i]);

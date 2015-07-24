@@ -51,7 +51,7 @@ protected:
 
         for (size_t q = 0; q < SK_ARRAY_COUNT(kQualities); ++q) {
             SkPaint paint;
-            sk_tool_utils::set_portable_typeface_always(&paint);
+            sk_tool_utils::set_portable_typeface(&paint);
             paint.setFilterQuality(kQualities[q].fQuality);
             SkPaint bmpPaint(paint);
             SkMatrix lm = SkMatrix::I();

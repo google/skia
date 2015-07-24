@@ -144,7 +144,7 @@ protected:
         SkPaint paint;
         paint.setDither(true);
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(pointSize));
 
         canvas->save();

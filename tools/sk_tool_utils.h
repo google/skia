@@ -66,28 +66,15 @@ namespace sk_tool_utils {
     const char* platform_font_name(const char* name);
 
     /**
-     * Sets the paint to use a platform-independent text renderer if FLAGS_portableFonts is set.
-     * FIXME: will become obsolete as GMs migrate to set portable typeface always.
+     * Sets the paint to use a platform-independent text renderer
      */
     void set_portable_typeface(SkPaint* paint, const char* name = NULL,
                                SkTypeface::Style style = SkTypeface::kNormal);
 
     /**
-     * Sets the paint to use a platform-independent text renderer
-     */
-    void set_portable_typeface_always(SkPaint* paint, const char* name = NULL,
-                               SkTypeface::Style style = SkTypeface::kNormal);
-
-    /** 
-     * Returns a platform-independent text renderer if FLAGS_portableFonts is set.
-     * FIXME: will become obsolete as GMs migrate to set portable typeface always.
-     */
-    SkTypeface* create_portable_typeface(const char* name, SkTypeface::Style style);
-
-    /**
      * Returns a platform-independent text renderer.
      */
-    SkTypeface* create_portable_typeface_always(const char* name, SkTypeface::Style style);
+    SkTypeface* create_portable_typeface(const char* name, SkTypeface::Style style);
 
     /** Call to clean up portable font references. */
     void release_portable_typefaces();

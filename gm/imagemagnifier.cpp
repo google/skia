@@ -45,7 +45,7 @@ protected:
             int x = rand.nextULessThan(WIDTH);
             int y = rand.nextULessThan(HEIGHT);
             SkPaint paint;
-            sk_tool_utils::set_portable_typeface_always(&paint);
+            sk_tool_utils::set_portable_typeface(&paint);
             paint.setColor(sk_tool_utils::color_to_565(rand.nextBits(24) | 0xFF000000));
             paint.setTextSize(rand.nextRangeScalar(0, 300));
             paint.setAntiAlias(true);

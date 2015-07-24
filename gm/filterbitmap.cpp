@@ -14,7 +14,7 @@
 #include "SkTypeface.h"
 
 static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
-    sk_tool_utils::set_portable_typeface_always(paint, name, style);
+    sk_tool_utils::set_portable_typeface(paint, name, style);
 }
 
 static SkSize computeSize(const SkBitmap& bm, const SkMatrix& mat) {

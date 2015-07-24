@@ -98,7 +98,7 @@ protected:
                 SkPaint p;
                 SkString str;
                 p.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface_always(&p);
+                sk_tool_utils::set_portable_typeface(&p);
                 p.setDither(true);
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
@@ -138,7 +138,7 @@ protected:
                     SkPaint p;
                     SkString str;
                     p.setAntiAlias(true);
-                    sk_tool_utils::set_portable_typeface_always(&p);
+                    sk_tool_utils::set_portable_typeface(&p);
                     str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
                     canvas->drawText(str.c_str(), str.size(), x, y + r.height() * 2 / 3, p);
                 }
@@ -218,7 +218,7 @@ protected:
 
         SkPaint p;
         p.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&p);
+        sk_tool_utils::set_portable_typeface(&p);
         p.setTextAlign(SkPaint::kCenter_Align);
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {

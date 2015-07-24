@@ -31,7 +31,7 @@ static void make_checker(SkBitmap* bm, int size, int numChecks) {
 }
 
 static void setTypeface(SkPaint* paint, const char name[], SkTypeface::Style style) {
-    sk_tool_utils::set_portable_typeface_always(paint, name, style);
+    sk_tool_utils::set_portable_typeface(paint, name, style);
 }
 
 class DownsampleBitmapGM : public skiagm::GM {

@@ -42,7 +42,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setShader(s)->unref();
 
-        SkTypeface* orig = sk_tool_utils::create_portable_typeface_always("serif",
+        SkTypeface* orig = sk_tool_utils::create_portable_typeface("serif",
                                                             SkTypeface::kBold);
         if (NULL == orig) {
             orig = SkTypeface::RefDefault();
@@ -112,7 +112,7 @@ protected:
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&labelP);
+        sk_tool_utils::set_portable_typeface(&labelP);
         labelP.setTextAlign(SkPaint::kCenter_Align);
 
         SkPaint textP;

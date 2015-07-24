@@ -138,7 +138,7 @@ protected:
         SkPaint textP;
         textP.setTextSize(SkIntToScalar(kTextPad));
         textP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&textP, NULL);
+        sk_tool_utils::set_portable_typeface(&textP, NULL);
 
         for (int i = 0; i < numModes; ++i) {
             canvas->drawText(gModes[i].fLabel, strlen(gModes[i].fLabel),

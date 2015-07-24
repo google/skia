@@ -113,7 +113,7 @@ protected:
         canvas.clear(SK_ColorTRANSPARENT);
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setColor(SK_ColorWHITE);
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "e";

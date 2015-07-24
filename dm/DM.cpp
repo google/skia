@@ -757,7 +757,7 @@ static void start_keepalive() {
 static SkTypeface* create_from_name(const char familyName[], SkTypeface::Style style) {
     if (familyName && strlen(familyName) > sizeof(PORTABLE_FONT_PREFIX)
             && !strncmp(familyName, PORTABLE_FONT_PREFIX, sizeof(PORTABLE_FONT_PREFIX) - 1)) {
-        return sk_tool_utils::create_portable_typeface_always(familyName, style);
+        return sk_tool_utils::create_portable_typeface(familyName, style);
     }
     return NULL;
 }

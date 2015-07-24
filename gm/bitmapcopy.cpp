@@ -77,7 +77,7 @@ protected:
 
         canvas->clear(sk_tool_utils::color_to_565(0xFFDDDDDD));
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         
         SkScalar width = SkIntToScalar(40);
         SkScalar height = SkIntToScalar(40);

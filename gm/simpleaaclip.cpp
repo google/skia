@@ -156,7 +156,7 @@ protected:
 
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&textPaint);
+        sk_tool_utils::set_portable_typeface(&textPaint);
         textPaint.setTextSize(SK_Scalar1*24);
         int xOff = 0;
 

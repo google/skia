@@ -56,7 +56,7 @@ static SkBitmap make_bmp(int w, int h) {
     }
 
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface_always(&paint);
+    sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(wScalar / 2.2f);
     paint.setShader(0);
     paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
@@ -150,7 +150,7 @@ protected:
         SkPaint txtPaint;
         txtPaint.setTextSize(23.f);
         txtPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&txtPaint);
+        sk_tool_utils::set_portable_typeface(&txtPaint);
         txtPaint.setColor(sk_tool_utils::color_to_565(SK_ColorDKGRAY));
         SkScalar textW = txtPaint.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1);
 

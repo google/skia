@@ -26,7 +26,7 @@ static const char* gStandardFontNames[][3] = {
     { "Times New Roman", "Helvetica", "Courier" }, // iOS
     { "Times New Roman", "Arial", "Courier New" }, // Win
     { "Times New Roman", "Arial", "Monospace" }, // Ubuntu
-    { "Droid Serif", "Droid Sans", "Droid Sans Mono" }, // Android
+    { "serif", "sans-serif", "monospace" }, // Android
     { "Tinos", "Arimo", "Cousine" } // ChromeOS
 };
 
@@ -159,25 +159,10 @@ SkColor color_to_565(SkColor color) {
 }
 
 SkTypeface* create_portable_typeface(const char* name, SkTypeface::Style style) {
-    SkTypeface* face;
-    if (FLAGS_portableFonts) {
-        face = create_font(name, style);
-    } else {
-        face = SkTypeface::CreateFromName(name, style);
-    }
-    return face;
-}
-
-SkTypeface* create_portable_typeface_always(const char* name, SkTypeface::Style style) {
     return create_font(name, style);
 }
 
 void set_portable_typeface(SkPaint* paint, const char* name, SkTypeface::Style style) {
-    SkTypeface* face = create_portable_typeface(name, style);
-    SkSafeUnref(paint->setTypeface(face));
-}
-
-void set_portable_typeface_always(SkPaint* paint, const char* name, SkTypeface::Style style) {
     SkTypeface* face = create_font(name, style);
     SkSafeUnref(paint->setTypeface(face));
 }

@@ -18,7 +18,7 @@ static SkColor  kColor2 = SkColorSetARGB(0xff, 0x82, 0xff, 0);
 static void draw_label(SkCanvas* canvas, const char* label,
                        const SkPoint& offset) {
     SkPaint paint;
-    sk_tool_utils::set_portable_typeface_always(&paint);
+    sk_tool_utils::set_portable_typeface(&paint);
     size_t len = strlen(label);
 
     SkScalar width = paint.measureText(label, len);

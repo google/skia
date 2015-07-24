@@ -283,7 +283,7 @@ protected:
         
         // use the portable typeface to generically test the fake bold code everywhere
         // (as long as the freetype option to do the bolding itself isn't enabled)
-        sk_tool_utils::set_portable_typeface_always(&paint, "serif");
+        sk_tool_utils::set_portable_typeface(&paint, "serif");
         const unsigned char hiThere[] = "Hi There";
         show_bold(canvas, hiThere, SK_ARRAY_COUNT(hiThere), x + SkIntToScalar(430), y, paint);
 

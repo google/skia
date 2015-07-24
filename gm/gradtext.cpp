@@ -47,7 +47,7 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(500, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
 
         canvas->clipRect(r);
@@ -76,7 +76,7 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(500, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
 
         paint.setStyle(SkPaint::kFill_Style);
         canvas->drawText("Normal Fill Text", 16, 0, 50, paint);
@@ -129,7 +129,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(26));
 
         const SkISize& size = this->getISize();

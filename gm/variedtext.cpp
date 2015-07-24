@@ -59,10 +59,10 @@ protected:
         SkScalar h = SkIntToScalar(size.fHeight);
 
         SK_COMPILE_ASSERT(4 == SK_ARRAY_COUNT(fTypefacesToUnref), typeface_cnt);
-        fTypefacesToUnref[0] = sk_tool_utils::create_portable_typeface_always("sans-serif", SkTypeface::kNormal);
-        fTypefacesToUnref[1] = sk_tool_utils::create_portable_typeface_always("sans-serif", SkTypeface::kBold);
-        fTypefacesToUnref[2] = sk_tool_utils::create_portable_typeface_always("serif", SkTypeface::kNormal);
-        fTypefacesToUnref[3] = sk_tool_utils::create_portable_typeface_always("serif", SkTypeface::kBold);
+        fTypefacesToUnref[0] = sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kNormal);
+        fTypefacesToUnref[1] = sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kBold);
+        fTypefacesToUnref[2] = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal);
+        fTypefacesToUnref[3] = sk_tool_utils::create_portable_typeface("serif", SkTypeface::kBold);
 
         SkRandom random;
         for (int i = 0; i < kCnt; ++i) {

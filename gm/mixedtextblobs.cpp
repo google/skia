@@ -50,7 +50,7 @@ protected:
         SkPaint paint;
         paint.setTextSize(385);
         const char* text = "O";
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
 
         SkRect bounds;
         paint.measureText(text, strlen(text), &bounds);

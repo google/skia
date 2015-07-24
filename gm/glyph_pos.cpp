@@ -105,7 +105,7 @@ protected:
         paint.setColor(SK_ColorBLACK);
         paint.setAntiAlias(true);
         paint.setTextSize(kTextHeight * textScale);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setStrokeWidth(fStrokeWidth);
         paint.setStyle(fStrokeStyle);
 

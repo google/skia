@@ -123,7 +123,7 @@ protected:
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.
                     SkPaint labelPaint;
-                    sk_tool_utils::set_portable_typeface_always(&labelPaint);
+                    sk_tool_utils::set_portable_typeface(&labelPaint);
                     labelPaint.setAntiAlias(true);
                     labelPaint.setTextSize(10.f);
                     SkString inputLabel;

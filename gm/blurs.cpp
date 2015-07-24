@@ -40,7 +40,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(25));
         canvas->translate(SkIntToScalar(-40), SkIntToScalar(0));
 

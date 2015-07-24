@@ -124,7 +124,7 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&titlePaint);
+        sk_tool_utils::set_portable_typeface(&titlePaint);
         titlePaint.setTextSize(15 * SK_Scalar1);
         const char title[] = "Cubic Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
@@ -168,7 +168,7 @@ protected:
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     labelPaint.setAntiAlias(true);
-                    sk_tool_utils::set_portable_typeface_always(&labelPaint);
+                    sk_tool_utils::set_portable_typeface(&labelPaint);
                     labelPaint.setTextSize(10 * SK_Scalar1);
                     canvas->drawText(gStyles[style].fName,
                                         strlen(gStyles[style].fName),
@@ -269,7 +269,7 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&titlePaint);
+        sk_tool_utils::set_portable_typeface(&titlePaint);
         titlePaint.setTextSize(15 * SK_Scalar1);
         const char title[] = "Cubic Closed Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
@@ -313,7 +313,7 @@ protected:
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     labelPaint.setAntiAlias(true);
-                    sk_tool_utils::set_portable_typeface_always(&labelPaint);
+                    sk_tool_utils::set_portable_typeface(&labelPaint);
                     labelPaint.setTextSize(10 * SK_Scalar1);
                     canvas->drawText(gStyles[style].fName,
                                         strlen(gStyles[style].fName),

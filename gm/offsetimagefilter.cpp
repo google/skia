@@ -31,7 +31,7 @@ protected:
         canvas.clear(0);
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface_always(&paint);
+        sk_tool_utils::set_portable_typeface(&paint);
         paint.setColor(sk_tool_utils::color_to_565(0xD000D000));
         paint.setTextSize(96);
         canvas.drawText("e", 1, 15, 65, paint);
