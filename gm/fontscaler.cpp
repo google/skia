@@ -21,7 +21,9 @@ public:
 protected:
 
     SkString onShortName() override {
-        return SkString("fontscaler");
+        SkString name("fontscaler");
+        name.append(sk_tool_utils::major_platform_os_name());
+        return name;
     }
 
     SkISize onISize() override {
@@ -44,7 +46,6 @@ protected:
         //With freetype the default (normal hinting) can be really ugly.
         //Most distros now set slight (vertical hinting only) in any event.
         paint.setHinting(SkPaint::kSlight_Hinting);
-        sk_tool_utils::set_portable_typeface(&paint, "Times Roman", SkTypeface::kNormal);
 
         const char* text = "Hamburgefons ooo mmm";
         const size_t textLen = strlen(text);

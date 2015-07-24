@@ -17,9 +17,51 @@
 #include "SkTextBlob.h"
 
 DEFINE_bool(portableFonts, false, "Use portable fonts");
-DEFINE_bool(resourceFonts, false, "Use resource fonts");
 
 namespace sk_tool_utils {
+
+/* these are the default fonts chosen by Chrome for serif, sans-serif, and monospace */
+static const char* gStandardFontNames[][3] = {
+    { "Times", "Helvetica", "Courier" }, // Mac
+    { "Times New Roman", "Helvetica", "Courier" }, // iOS
+    { "Times New Roman", "Arial", "Courier New" }, // Win
+    { "Times New Roman", "Arial", "Monospace" }, // Ubuntu
+    { "Droid Serif", "Droid Sans", "Droid Sans Mono" }, // Android
+    { "Tinos", "Arimo", "Cousine" } // ChromeOS
+};
+
+const char* platform_font_name(const char* name) {
+    SkString platform = major_platform_os_name();
+    int index;
+    if (!strcmp(name, "serif")) {
+        index = 0;
+    } else if (!strcmp(name, "san-serif")) {
+        index = 1;
+    } else if (!strcmp(name, "monospace")) {
+        index = 2;
+    } else {
+        return name;
+    }
+    if (platform.equals("Mac")) {
+        return gStandardFontNames[0][index];
+    }
+    if (platform.equals("iOS")) {
+        return gStandardFontNames[1][index];
+    }
+    if (platform.equals("Win")) {
+        return gStandardFontNames[2][index];
+    }
+    if (platform.equals("Ubuntu")) {
+        return gStandardFontNames[3][index];
+    }
+    if (platform.equals("Android")) {
+        return gStandardFontNames[4][index];
+    }
+    if (platform.equals("ChromeOS")) {
+        return gStandardFontNames[5][index];
+    }
+    return name;
+}
 
 const char* platform_os_emoji() {
     const char* osName = platform_os_name();
@@ -69,6 +111,23 @@ const char* platform_os_name() {
     return "";
 }
 
+// omit version number in returned value
+SkString major_platform_os_name() {
+    SkString name;
+    for (int index = 0; index < FLAGS_key.count(); index += 2) {
+        if (!strcmp("os", FLAGS_key[index])) {
+            const char* platform = FLAGS_key[index + 1];
+            const char* end = platform;
+            while (*end && (*end < '0' || *end > '9')) {
+                ++end;
+            }
+            name.append(platform, end - platform);
+            break;
+        }
+    }
+    return name;
+}
+
 const char* platform_extra_config(const char* config) {
     for (int index = 0; index < FLAGS_key.count(); index += 2) {
         if (!strcmp("extra_config", FLAGS_key[index]) && !strcmp(config, FLAGS_key[index + 1])) {
@@ -103,8 +162,6 @@ SkTypeface* create_portable_typeface(const char* name, SkTypeface::Style style) 
     SkTypeface* face;
     if (FLAGS_portableFonts) {
         face = create_font(name, style);
-    } else if (FLAGS_resourceFonts) {
-        face = resource_font(name, style);
     } else {
         face = SkTypeface::CreateFromName(name, style);
     }
