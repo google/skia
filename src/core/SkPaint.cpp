@@ -1243,7 +1243,7 @@ static void add_flattenable(SkDescriptor* desc, uint32_t tag,
     buffer->writeToMemory(desc->addEntry(tag, buffer->bytesWritten(), NULL));
 }
 
-static SkMask::Format computeMaskFormat(const SkPaint& paint) {
+static SkMask::Format compute_mask_format(const SkPaint& paint) {
     uint32_t flags = paint.getFlags();
 
     // Antialiasing being disabled trumps all other settings.
@@ -1405,7 +1405,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->fStrokeJoin = 0;
     }
 
-    rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
+    rec->fMaskFormat = SkToU8(compute_mask_format(paint));
 
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         if (too_big_for_lcd(*rec, checkPost2x2)) {

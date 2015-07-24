@@ -69,6 +69,7 @@ protected:
         // LCD
         paint.setTextSize(32);
         text = "LCD!!!!!";
+        paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
         paint.measureText(text, strlen(text), &bounds);
@@ -78,6 +79,7 @@ protected:
 
         // color emoji
         if (fEmojiTypeface) {
+            paint.setAntiAlias(false);
             paint.setSubpixelText(false);
             paint.setLCDRenderText(false);
             paint.setTypeface(fEmojiTypeface);
