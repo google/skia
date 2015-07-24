@@ -1714,10 +1714,23 @@ void SkGpuDevice::drawAtlas(const SkDraw& d, const SkImage* atlas, const SkRSXfo
         indices += 6;
     }
 
+    SkAutoTMalloc<SkColor> colorStorage;
+    SkColor* vertCols = NULL;
+    if (colors) {
+        colorStorage.reset(vertCount);
+        vertCols = colorStorage.get();
+
+        for (int i = 0; i < count; ++i) {
+             vertCols[0] = vertCols[1] = vertCols[2] = vertCols[3] = colors[i];
+             vertCols += 4;
+        }
+    }
+
     verts = vertStorage.get();
     texs = verts + vertCount;
+    vertCols = colorStorage.get();
     indices = indexStorage.get();
-    this->drawVertices(d, SkCanvas::kTriangles_VertexMode, vertCount, verts, texs, colors, xfer,
+    this->drawVertices(d, SkCanvas::kTriangles_VertexMode, vertCount, verts, texs, vertCols, xfer,
                        indices, indexCount, p);
 }
 
