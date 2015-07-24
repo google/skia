@@ -269,6 +269,8 @@
 
       '<(skia_src_path)/gpu/gl/GrGLAssembleInterface.cpp',
       '<(skia_src_path)/gpu/gl/GrGLAssembleInterface.h',
+      '<(skia_src_path)/gpu/gl/GrGLBlend.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLBlend.h',
       '<(skia_src_path)/gpu/gl/GrGLBufferImpl.cpp',
       '<(skia_src_path)/gpu/gl/GrGLBufferImpl.h',
       '<(skia_src_path)/gpu/gl/GrGLCaps.cpp',
