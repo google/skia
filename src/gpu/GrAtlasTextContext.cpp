@@ -1773,7 +1773,7 @@ public:
     }
 
     // The minimum number of Geometry we will try to allocate.
-    static const int kMinAllocated = 32;
+    static const int kMinAllocated = 4;
 
     // Total number of Geometry this Batch owns
     int instanceCount() const { return fInstanceCount; }
