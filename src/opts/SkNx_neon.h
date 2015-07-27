@@ -298,10 +298,7 @@ public:
     }
 
     SkNf thenElse(const SkNf& t, const SkNf& e) const {
-        uint32x4_t ci = vreinterpretq_u32_f32(fVec),
-                   ti = vreinterpretq_u32_f32(t.fVec),
-                   ei = vreinterpretq_u32_f32(e.fVec);
-        return vreinterpretq_f32_u32(vorrq_u32(vandq_u32(ti, ci), vbicq_u32(ei, ci)));
+        return vbslq_f32(vreinterpretq_u32_f32(fVec), t.fVec, e.fVec);
     }
 
     float32x4_t fVec;
@@ -338,8 +335,7 @@ public:
     }
 
     SkNi thenElse(const SkNi& t, const SkNi& e) const {
-        return vorrq_u16(vandq_u16(t.fVec, fVec),
-                         vbicq_u16(e.fVec, fVec));
+        return vbslq_u16(fVec, t.fVec, e.fVec);
     }
 
     uint16x8_t fVec;
@@ -377,8 +373,7 @@ public:
     }
 
     SkNi thenElse(const SkNi& t, const SkNi& e) const {
-        return vorrq_u8(vandq_u8(t.fVec, fVec),
-                        vbicq_u8(e.fVec, fVec));
+        return vbslq_u8(fVec, t.fVec, e.fVec);
     }
 
     uint8x16_t fVec;
