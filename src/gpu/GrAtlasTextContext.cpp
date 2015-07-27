@@ -1463,8 +1463,7 @@ public:
                 break;
         }
         batch->fBatch.fNumGlyphs = glyphCount;
-        batch->fInstanceCount = 1;
-        batch->fAllocatedCount = kMinAllocated;
+        batch->fGeoCount = 1;
         batch->fFilteredColor = 0;
         batch->fFontCache = fontCache;
         batch->fUseBGR = false;
@@ -1483,8 +1482,7 @@ public:
         batch->fFilteredColor = filteredColor;
         batch->fUseBGR = useBGR;
         batch->fBatch.fNumGlyphs = glyphCount;
-        batch->fInstanceCount = 1;
-        batch->fAllocatedCount = kMinAllocated;
+        batch->fGeoCount = 1;
         return batch;
     }
 
@@ -1578,7 +1576,6 @@ public:
         batchTarget->initDraw(gp, pipeline);
 
         int glyphCount = this->numGlyphs();
-        int instanceCount = fInstanceCount;
         const GrVertexBuffer* vertexBuffer;
 
         void* vertices = batchTarget->makeVertSpace(vertexStride,
@@ -1601,7 +1598,7 @@ public:
         GrFontScaler* scaler = NULL;
         SkTypeface* typeface = NULL;
 
-        for (int i = 0; i < instanceCount; i++) {
+        for (int i = 0; i < fGeoCount; i++) {
             Geometry& args = fGeoData[i];
             Blob* blob = args.fBlob;
             Run& run = blob->fRuns[args.fRun];
@@ -1761,13 +1758,6 @@ public:
         this->flush(batchTarget, &flushInfo);
     }
 
-    // The minimum number of Geometry we will try to allocate.
-    static const int kMinAllocated = 4;
-
-    // Total number of Geometry this Batch owns
-    int instanceCount() const { return fInstanceCount; }
-    SkAutoSTMalloc<kMinAllocated, Geometry>* geoData() { return &fGeoData; }
-
     // to avoid even the initial copy of the struct, we have a getter for the first item which
     // is used to seed the batch with its initial geometry.  After seeding, the client should call
     // init() so the Batch can initialize itself
@@ -1793,7 +1783,7 @@ private:
     TextBatch() {} // initialized in factory functions.
 
     ~TextBatch() {
-        for (int i = 0; i < fInstanceCount; i++) {
+        for (int i = 0; i < fGeoCount; i++) {
             fGeoData[i].fBlob->unref();
         }
     }
@@ -1935,24 +1925,23 @@ private:
 
         fBatch.fNumGlyphs += that->numGlyphs();
 
-        // copy that->geoData().  We do this manually for performance reasons
-        SkAutoSTMalloc<kMinAllocated, Geometry>* otherGeoData = that->geoData();
-        int otherInstanceCount = that->instanceCount();
-        int allocSize = otherInstanceCount + fInstanceCount;
-        if (allocSize > fAllocatedCount) {
-            while (allocSize > fAllocatedCount) {
-                fAllocatedCount = fAllocatedCount << 1;
-            }
-            fGeoData.realloc(fAllocatedCount);
+        // Reallocate space for geo data if necessary and then import that's geo data.
+        int newGeoCount = that->fGeoCount + fGeoCount;
+        // We assume (and here enforce) that the allocation size is the smallest power of two that
+        // is greater than or equal to the number of geometries (and at least
+        // kMinGeometryAllocated).
+        int newAllocSize = GrNextPow2(newGeoCount);
+        int currAllocSize = SkTMax<int>(kMinGeometryAllocated, GrNextPow2(fGeoCount));
+
+        if (newAllocSize > currAllocSize) {
+            fGeoData.realloc(newAllocSize);
         }
 
-        memcpy(&fGeoData[fInstanceCount], otherGeoData->get(),
-               otherInstanceCount * sizeof(Geometry));
-        int total = fInstanceCount + otherInstanceCount;
-        for (int i = fInstanceCount; i < total; i++) {
+        memcpy(&fGeoData[fGeoCount], that->fGeoData.get(), that->fGeoCount * sizeof(Geometry));
+        for (int i = fGeoCount; i < newGeoCount; ++i) {
             fGeoData[i].fBlob->ref();
         }
-        fInstanceCount = total;
+        fGeoCount = newGeoCount;
 
         this->joinBounds(that->bounds());
         return true;
@@ -2027,9 +2016,10 @@ private:
     };
 
     BatchTracker fBatch;
-    SkAutoSTMalloc<kMinAllocated, Geometry> fGeoData;
-    int fInstanceCount;
-    int fAllocatedCount;
+    // The minimum number of Geometry we will try to allocate.
+    enum { kMinGeometryAllocated = 4 };
+    SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
+    int fGeoCount;
 
     enum MaskType {
         kGrayscaleCoverageMask_MaskType,
