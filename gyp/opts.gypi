@@ -34,7 +34,6 @@
             '<(skia_src_path)/opts/SkTextureCompression_opts_neon.cpp',
             '<(skia_src_path)/opts/SkUtils_opts_arm_neon.cpp',
             '<(skia_src_path)/opts/SkXfermode_opts_arm_neon.cpp',
-            '<(skia_src_path)/opts/SkOpts_neon.cpp',
         ],
         'arm64_sources': [
             '<(skia_src_path)/opts/SkBitmapProcState_arm_neon.cpp',
@@ -52,7 +51,6 @@
             '<(skia_src_path)/opts/SkUtils_opts_none.cpp',
             '<(skia_src_path)/opts/SkXfermode_opts_arm.cpp',
             '<(skia_src_path)/opts/SkXfermode_opts_arm_neon.cpp',
-            '<(skia_src_path)/opts/SkOpts_neon.cpp',
         ],
 
         'mips_dsp_sources': [
@@ -76,15 +74,12 @@
             '<(skia_src_path)/opts/SkUtils_opts_SSE2.cpp',
             '<(skia_src_path)/opts/SkXfermode_opts_none.cpp',
             '<(skia_src_path)/opts/opts_check_x86.cpp',
-            '<(skia_src_path)/opts/SkOpts_sse2.cpp',
         ],
         'ssse3_sources': [
             '<(skia_src_path)/opts/SkBitmapProcState_opts_SSSE3.cpp',
-            '<(skia_src_path)/opts/SkOpts_ssse3.cpp',
         ],
         'sse41_sources': [
             '<(skia_src_path)/opts/SkBlurImage_opts_SSE4.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_SSE4.cpp',
-            '<(skia_src_path)/opts/SkOpts_sse41.cpp',
         ],
 }
