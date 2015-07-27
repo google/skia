@@ -174,8 +174,7 @@ static SkSwizzler::ResultAlpha swizzle_mask32_to_n32_premul(
  *
  */
 SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
-        const SkImageInfo& info, void* dst, size_t dstRowBytes, SkMasks* masks,
-        uint32_t bitsPerPixel) {
+        const SkImageInfo& info, SkMasks* masks, uint32_t bitsPerPixel) {
 
     // Choose the appropriate row procedure
     RowProc proc = NULL;
@@ -247,7 +246,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
             SkASSERT(false);
             return NULL;
     }
-    return SkNEW_ARGS(SkMaskSwizzler, (info, dst, dstRowBytes, masks, proc));
+    return SkNEW_ARGS(SkMaskSwizzler, (info, masks, proc));
 }
 
 /*
@@ -255,11 +254,9 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
  * Constructor for mask swizzler
  *
  */
-SkMaskSwizzler::SkMaskSwizzler(const SkImageInfo& dstInfo, void* dst,
-                               size_t dstRowBytes, SkMasks* masks, RowProc proc)
+SkMaskSwizzler::SkMaskSwizzler(const SkImageInfo& dstInfo, SkMasks* masks,
+                               RowProc proc)
     : fDstInfo(dstInfo)
-    , fDst(dst)
-    , fDstRowBytes(dstRowBytes)
     , fMasks(masks)
     , fRowProc(proc)
 {}
@@ -269,11 +266,7 @@ SkMaskSwizzler::SkMaskSwizzler(const SkImageInfo& dstInfo, void* dst,
  * Swizzle the specified row
  *
  */
-SkSwizzler::ResultAlpha SkMaskSwizzler::next(const uint8_t* SK_RESTRICT src,
-        int y) {
-    // Choose the row
-    void* row = SkTAddOffset<void>(fDst, y*fDstRowBytes);
-
-    // Decode the row
-    return fRowProc(row, src, fDstInfo.width(), fMasks);
+SkSwizzler::ResultAlpha SkMaskSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
+    SkASSERT(NULL != dst && NULL != src);
+    return fRowProc(dst, src, fDstInfo.width(), fMasks);
 }

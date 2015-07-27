@@ -428,25 +428,25 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                     //        animated gifs where we draw on top of the
                     //        previous frame.
                     if (!skipBackground) {
-                        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, fillIndex, colorTable);
+                        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height,
+                                fillIndex, colorTable);
                     }
 
                     // Modify the dst pointer
                     const int32_t dstBytesPerPixel =
                             SkColorTypeBytesPerPixel(dstColorType);
-                    void* subsetDst = SkTAddOffset<void*>(dst,
+                    dst = SkTAddOffset<void*>(dst,
                             dstRowBytes * imageTop +
                             dstBytesPerPixel * imageLeft);
 
                     // Create the subset swizzler
                     swizzler.reset(SkSwizzler::CreateSwizzler(
                             SkSwizzler::kIndex, colorTable, subsetDstInfo,
-                            subsetDst, dstRowBytes, zeroInit));
+                            zeroInit));
                 } else {
                     // Create the fully dimensional swizzler
                     swizzler.reset(SkSwizzler::CreateSwizzler(
-                            SkSwizzler::kIndex, colorTable, dstInfo, dst,
-                            dstRowBytes, zeroInit));
+                            SkSwizzler::kIndex, colorTable, dstInfo, zeroInit));
                 }
 
                 // Stores output from dgiflib and input to the swizzler
@@ -466,29 +466,35 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                             if (!skipBackground) {
                                 memset(buffer.get(), fillIndex, innerWidth);
                                 for (; y < innerHeight; y++) {
-                                    swizzler->next(buffer.get(), iter.nextY());
+                                    void* dstRow = SkTAddOffset<void>(dst,
+                                            dstRowBytes * iter.nextY());
+                                    swizzler->swizzle(dstRow, buffer.get());
                                 }
                             }
                             return gif_error(SkStringPrintf(
                                     "Could not decode line %d of %d.\n",
                                     y, height - 1).c_str(), kIncompleteInput);
                         }
-                        swizzler->next(buffer.get(), iter.nextY());
+                        void* dstRow = SkTAddOffset<void>(
+                                dst, dstRowBytes * iter.nextY());
+                        swizzler->swizzle(dstRow, buffer.get());
                     }
                 } else {
                     // Standard mode
+                    void* dstRow = dst;
                     for (int32_t y = 0; y < innerHeight; y++) {
                         if (GIF_ERROR == DGifGetLine(fGif, buffer.get(),
                                 innerWidth)) {
                             if (!skipBackground) {
-                                SkSwizzler::Fill(swizzler->getDstRow(), dstInfo, dstRowBytes,
+                                SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes,
                                         innerHeight - y, fillIndex, colorTable);
                             }
                             return gif_error(SkStringPrintf(
                                     "Could not decode line %d of %d.\n",
                                     y, height - 1).c_str(), kIncompleteInput);
                         }
-                        swizzler->next(buffer.get());
+                        swizzler->swizzle(dstRow, buffer.get());
+                        dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
                     }
                 }
 

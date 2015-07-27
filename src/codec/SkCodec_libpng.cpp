@@ -425,7 +425,6 @@ static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
 }
 
 SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
-                                               void* dst, size_t rowBytes,
                                                const Options& options,
                                                SkPMColor ctable[],
                                                int* ctableCount) {
@@ -474,7 +473,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = fColorTable ? fColorTable->readColors() : NULL;
     fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo,
-            dst, rowBytes, options.fZeroInitialized));
+            options.fZeroInitialized));
     if (!fSwizzler) {
         // FIXME: CreateSwizzler could fail for another reason.
         return kUnimplemented;
@@ -512,7 +511,7 @@ bool SkPngCodec::handleRewind() {
 }
 
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
-                                        size_t rowBytes, const Options& options,
+                                        size_t dstRowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount) {
     if (!conversion_possible(requestedInfo, this->getInfo())) {
         return kInvalidConversion;
@@ -529,8 +528,8 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     }
 
     // Note that ctable and ctableCount may be modified if there is a color table
-    const Result result = this->initializeSwizzler(requestedInfo, dst, rowBytes,
-                                                   options, ctable, ctableCount);
+    const Result result = this->initializeSwizzler(requestedInfo, options,
+                                                   ctable, ctableCount);
     if (result != kSuccess) {
         return result;
     }
@@ -543,36 +542,39 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
 
     SkASSERT(fNumberPasses != INVALID_NUMBER_PASSES);
     SkAutoMalloc storage;
+    void* dstRow = dst;
     if (fNumberPasses > 1) {
         const int width = requestedInfo.width();
         const int height = requestedInfo.height();
         const int bpp = SkSwizzler::BytesPerPixel(fSrcConfig);
-        const size_t rowBytes = width * bpp;
+        const size_t srcRowBytes = width * bpp;
 
         storage.reset(width * height * bpp);
         uint8_t* const base = static_cast<uint8_t*>(storage.get());
 
         for (int i = 0; i < fNumberPasses; i++) {
-            uint8_t* row = base;
+            uint8_t* srcRow = base;
             for (int y = 0; y < height; y++) {
-                uint8_t* bmRow = row;
+                uint8_t* bmRow = srcRow;
                 png_read_rows(fPng_ptr, &bmRow, png_bytepp_NULL, 1);
-                row += rowBytes;
+                srcRow += srcRowBytes;
             }
         }
 
         // Now swizzle it.
-        uint8_t* row = base;
+        uint8_t* srcRow = base;
         for (int y = 0; y < height; y++) {
-            fReallyHasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->next(row));
-            row += rowBytes;
+            fReallyHasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->swizzle(dstRow, srcRow));
+            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+            srcRow += srcRowBytes;
         }
     } else {
         storage.reset(requestedInfo.width() * SkSwizzler::BytesPerPixel(fSrcConfig));
         uint8_t* srcRow = static_cast<uint8_t*>(storage.get());
         for (int y = 0; y < requestedInfo.height(); y++) {
             png_read_rows(fPng_ptr, &srcRow, png_bytepp_NULL, 1);
-            fReallyHasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->next(srcRow));
+            fReallyHasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->swizzle(dstRow, srcRow));
+            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
         }
     }
 
@@ -607,11 +609,11 @@ public:
             return SkCodec::kInvalidInput;
         }
 
+        void* dstRow = dst;
         for (int i = 0; i < count; i++) {
             png_read_rows(fCodec->fPng_ptr, &fSrcRow, png_bytepp_NULL, 1);
-            fCodec->fSwizzler->setDstRow(dst);
-            fHasAlpha |= !SkSwizzler::IsOpaque(fCodec->fSwizzler->next(fSrcRow));
-            dst = SkTAddOffset<void>(dst, rowBytes);
+            fHasAlpha |= !SkSwizzler::IsOpaque(fCodec->fSwizzler->swizzle(dstRow, fSrcRow));
+            dstRow = SkTAddOffset<void>(dstRow, rowBytes);
         }
         return SkCodec::kSuccess;
     }
@@ -690,10 +692,10 @@ public:
         }
         //swizzle the rows we care about
         srcRow = storagePtr;
+        void* dstRow = dst;
         for (int y = 0; y < count; y++) {
-            fCodec->fSwizzler->setDstRow(dst);
-            fHasAlpha |= !SkSwizzler::IsOpaque(fCodec->fSwizzler->next(srcRow));
-            dst = SkTAddOffset<void>(dst, dstRowBytes);
+            fHasAlpha |= !SkSwizzler::IsOpaque(fCodec->fSwizzler->swizzle(dstRow, srcRow));
+            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
             srcRow += fSrcRowBytes;
         }
         fCurrentRow += count;
@@ -741,11 +743,7 @@ SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
         return NULL;
     }
 
-    // Note: We set dst to NULL since we do not know it yet. rowBytes is not needed,
-    // since we'll be manually updating the dstRow, but the SkSwizzler requires it to
-    // be at least dstInfo.minRowBytes.
-    if (codec->initializeSwizzler(dstInfo, NULL, dstInfo.minRowBytes(), options, ctable,
-            ctableCount) != kSuccess) {
+    if (codec->initializeSwizzler(dstInfo, options, ctable, ctableCount) != kSuccess) {
         SkCodecPrintf("failed to initialize the swizzler.\n");
         return NULL;
     }

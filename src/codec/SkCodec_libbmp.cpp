@@ -759,8 +759,7 @@ SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
 
     // Create the swizzler
     SkAutoTDelete<SkMaskSwizzler> maskSwizzler(
-            SkMaskSwizzler::CreateMaskSwizzler(dstInfo, dst, dstRowBytes,
-            fMasks, fBitsPerPixel));
+            SkMaskSwizzler::CreateMaskSwizzler(dstInfo, fMasks, fBitsPerPixel));
 
     // Iterate over rows of the image
     bool transparent = true;
@@ -781,7 +780,8 @@ SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
 
         // Decode the row in destination format
         int row = kBottomUp_RowOrder == fRowOrder ? height - 1 - y : y;
-        SkSwizzler::ResultAlpha r = maskSwizzler->next(srcRow, row);
+        void* dstRow = SkTAddOffset<void>(dst, dstRowBytes * row);
+        SkSwizzler::ResultAlpha r = maskSwizzler->swizzle(dstRow, srcRow);
         transparent &= SkSwizzler::IsTransparent(r);
 
         // Move to the next row
@@ -794,13 +794,13 @@ SkCodec::Result SkBmpCodec::decodeMask(const SkImageInfo& dstInfo,
         const SkImageInfo& opaqueInfo =
                 dstInfo.makeAlphaType(kOpaque_SkAlphaType);
         SkAutoTDelete<SkMaskSwizzler> opaqueSwizzler(
-                SkMaskSwizzler::CreateMaskSwizzler(opaqueInfo, dst, dstRowBytes,
-                                                   fMasks, fBitsPerPixel));
+                SkMaskSwizzler::CreateMaskSwizzler(opaqueInfo, fMasks, fBitsPerPixel));
         srcRow = srcBuffer.get();
         for (int y = 0; y < height; y++) {
             // Decode the row in opaque format
             int row = kBottomUp_RowOrder == fRowOrder ? height - 1 - y : y;
-            opaqueSwizzler->next(srcRow, row);
+            void* dstRow = SkTAddOffset<void>(dst, dstRowBytes * row);
+            opaqueSwizzler->swizzle(dstRow, srcRow);
 
             // Move to the next row
             srcRow = SkTAddOffset<uint8_t>(srcRow, rowBytes);
@@ -1134,7 +1134,7 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
 
     // Create swizzler
     SkAutoTDelete<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(config,
-            colorPtr, dstInfo, dst, dstRowBytes, kNo_ZeroInitialized));
+            colorPtr, dstInfo, kNo_ZeroInitialized));
 
     // Allocate space for a row buffer and a source for the swizzler
     SkAutoTDeleteArray<uint8_t> srcBuffer(SkNEW_ARRAY(uint8_t, rowBytes));
@@ -1162,9 +1162,10 @@ SkCodec::Result SkBmpCodec::decode(const SkImageInfo& dstInfo,
             row = height - 1 - y;
         }
 
-        swizzler->next(srcBuffer.get(), row);
+        void* dstRow = SkTAddOffset<void>(dst, dstRowBytes * row);
+        swizzler->swizzle(dstRow, srcBuffer.get());
         // FIXME: SkSwizzler::ResultAlpha r =
-        //        swizzler->next(srcBuffer.get(), row);
+        //        swizzler->swizzle(dstRow, srcBuffer.get());
         // FIXME: transparent &= SkSwizzler::IsTransparent(r);
     }
 

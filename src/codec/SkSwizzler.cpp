@@ -23,7 +23,7 @@ SkSwizzler::ResultAlpha SkSwizzler::GetResult(uint8_t zeroAlpha,
 
 static SkSwizzler::ResultAlpha swizzle_small_index_to_index(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bitsPerPixel, int y, const SkPMColor ctable[]) {
+        int bitsPerPixel, const SkPMColor ctable[]) {
 
     uint8_t* SK_RESTRICT dst = (uint8_t*) dstRow;
     INIT_RESULT_ALPHA;
@@ -46,7 +46,7 @@ static SkSwizzler::ResultAlpha swizzle_small_index_to_index(
 
 static SkSwizzler::ResultAlpha swizzle_small_index_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bitsPerPixel, int y, const SkPMColor ctable[]) {
+        int bitsPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*) dstRow;
     INIT_RESULT_ALPHA;
@@ -72,7 +72,7 @@ static SkSwizzler::ResultAlpha swizzle_small_index_to_n32(
 
 static SkSwizzler::ResultAlpha swizzle_index_to_index(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     uint8_t* SK_RESTRICT dst = (uint8_t*) dstRow;
     memcpy(dst, src, width);
@@ -88,7 +88,7 @@ static SkSwizzler::ResultAlpha swizzle_index_to_index(
 
 static SkSwizzler::ResultAlpha swizzle_index_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     INIT_RESULT_ALPHA;
@@ -102,7 +102,7 @@ static SkSwizzler::ResultAlpha swizzle_index_to_n32(
 
 static SkSwizzler::ResultAlpha swizzle_index_to_n32_skipZ(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     INIT_RESULT_ALPHA;
@@ -122,7 +122,7 @@ static SkSwizzler::ResultAlpha swizzle_index_to_n32_skipZ(
 
 static SkSwizzler::ResultAlpha swizzle_gray_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     for (int x = 0; x < width; x++) {
@@ -133,7 +133,7 @@ static SkSwizzler::ResultAlpha swizzle_gray_to_n32(
 
 static SkSwizzler::ResultAlpha swizzle_gray_to_gray(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
     memcpy(dstRow, src, width);
     return SkSwizzler::kOpaque_ResultAlpha;
 }
@@ -142,7 +142,7 @@ static SkSwizzler::ResultAlpha swizzle_gray_to_gray(
 
 static SkSwizzler::ResultAlpha swizzle_bgrx_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     for (int x = 0; x < width; x++) {
@@ -156,7 +156,7 @@ static SkSwizzler::ResultAlpha swizzle_bgrx_to_n32(
 
 static SkSwizzler::ResultAlpha swizzle_bgra_to_n32_unpremul(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     INIT_RESULT_ALPHA;
@@ -171,7 +171,7 @@ static SkSwizzler::ResultAlpha swizzle_bgra_to_n32_unpremul(
 
 static SkSwizzler::ResultAlpha swizzle_bgra_to_n32_premul(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     INIT_RESULT_ALPHA;
@@ -187,7 +187,7 @@ static SkSwizzler::ResultAlpha swizzle_bgra_to_n32_premul(
 // n32
 static SkSwizzler::ResultAlpha swizzle_rgbx_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     for (int x = 0; x < width; x++) {
@@ -199,7 +199,7 @@ static SkSwizzler::ResultAlpha swizzle_rgbx_to_n32(
 
 static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_premul(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     INIT_RESULT_ALPHA;
@@ -214,7 +214,7 @@ static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_premul(
 
 static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_unpremul(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     uint32_t* SK_RESTRICT dst = reinterpret_cast<uint32_t*>(dstRow);
     INIT_RESULT_ALPHA;
@@ -229,7 +229,7 @@ static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_unpremul(
 
 static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_premul_skipZ(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
-        int bytesPerPixel, int y, const SkPMColor ctable[]) {
+        int bytesPerPixel, const SkPMColor ctable[]) {
 
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     INIT_RESULT_ALPHA;
@@ -273,14 +273,10 @@ static bool swizzle_rgba_to_n32_unpremul_skipZ(void* SK_RESTRICT dstRow,
 
 SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        const SkPMColor* ctable,
-                                       const SkImageInfo& info, void* dst,
-                                       size_t dstRowBytes,
+                                       const SkImageInfo& info,
                                        SkCodec::ZeroInitialized zeroInit) {
     if (info.colorType() == kUnknown_SkColorType || kUnknown == sc) {
         return NULL;
-    }
-    if (info.minRowBytes() > dstRowBytes) {
-        return  NULL;
     }
     if ((kIndex == sc || kIndex4 == sc || kIndex2 == sc || kIndex1 == sc)
             && NULL == ctable) {
@@ -407,52 +403,20 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
     // Store deltaSrc in bytes if it is an even multiple, otherwise use bits
     int deltaSrc = SkIsAlign8(BitsPerPixel(sc)) ? BytesPerPixel(sc) :
             BitsPerPixel(sc);
-    return SkNEW_ARGS(SkSwizzler, (proc, ctable, deltaSrc, info, dst,
-                                   dstRowBytes));
+    return SkNEW_ARGS(SkSwizzler, (proc, ctable, deltaSrc, info));
 }
 
 SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable,
-                       int deltaSrc, const SkImageInfo& info, void* dst,
-                       size_t rowBytes)
+                       int deltaSrc, const SkImageInfo& info)
     : fRowProc(proc)
     , fColorTable(ctable)
     , fDeltaSrc(deltaSrc)
     , fDstInfo(info)
-    , fDstRow(dst)
-    , fDstRowBytes(rowBytes)
-    , fCurrY(0)
-{
-    SkDEBUGCODE(fNextMode = kUninitialized_NextMode);
-}
+{}
 
-SkSwizzler::ResultAlpha SkSwizzler::next(const uint8_t* SK_RESTRICT src) {
-    SkASSERT(0 <= fCurrY && fCurrY < fDstInfo.height());
-    SkASSERT(fDstRow != NULL);
-    SkASSERT(kDesignateRow_NextMode != fNextMode);
-    SkDEBUGCODE(fNextMode = kConsecutive_NextMode);
-
-    // Decode a row
-    const ResultAlpha result = fRowProc(fDstRow, src, fDstInfo.width(),
-            fDeltaSrc, fCurrY, fColorTable);
-
-    // Move to the next row and return the result
-    fCurrY++;
-    fDstRow = SkTAddOffset<void>(fDstRow, fDstRowBytes);
-    return result;
-}
-
-SkSwizzler::ResultAlpha SkSwizzler::next(const uint8_t* SK_RESTRICT src,
-        int y) {
-    SkASSERT(0 <= y && y < fDstInfo.height());
-    SkASSERT(kConsecutive_NextMode != fNextMode);
-    SkDEBUGCODE(fNextMode = kDesignateRow_NextMode);
-    
-    // Choose the row
-    void* row = SkTAddOffset<void>(fDstRow, y*fDstRowBytes);
-
-    // Decode the row
-    return fRowProc(row, src, fDstInfo.width(), fDeltaSrc, fCurrY,
-            fColorTable);
+SkSwizzler::ResultAlpha SkSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
+    SkASSERT(NULL != dst && NULL != src);
+    return fRowProc(dst, src, fDstInfo.width(), fDeltaSrc, fColorTable);
 }
 
 void SkSwizzler::Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstRowBytes,
