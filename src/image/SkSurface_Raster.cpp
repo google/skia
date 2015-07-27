@@ -118,7 +118,10 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
 }
 
 SkImage* SkSurface_Raster::onNewImageSnapshot(Budgeted) {
-    return SkNewImageFromRasterBitmap(fBitmap, fWeOwnThePixels, &this->props());
+    // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
+    // Lock the shared pixel ref to ensure peekPixels() is usable.
+    return SkNewImageFromRasterBitmap(fBitmap, fWeOwnThePixels, &this->props(),
+                                      kLocked_SharedPixelRefMode);
 }
 
 void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {

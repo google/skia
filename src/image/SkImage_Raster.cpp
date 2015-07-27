@@ -81,9 +81,13 @@ public:
     bool isOpaque() const override;
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
-    SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props)
+    SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props, bool lockPixels = false)
         : INHERITED(bm.width(), bm.height(), props)
-        , fBitmap(bm) {}
+        , fBitmap(bm) {
+        if (lockPixels) {
+            fBitmap.lockPixels();
+        }
+    }
 
 private:
     SkImage_Raster() : INHERITED(0, 0, NULL) {}
@@ -229,7 +233,7 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
 }
 
 SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, bool forceSharePixelRef,
-                                    const SkSurfaceProps* props) {
+                                    const SkSurfaceProps* props, SharedPixelRefMode mode) {
     SkASSERT(NULL == bm.getTexture());
 
     if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), NULL, NULL)) {
@@ -238,7 +242,7 @@ SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, bool forceSharePixelRef,
 
     SkImage* image = NULL;
     if (forceSharePixelRef || bm.isImmutable()) {
-        image = SkNEW_ARGS(SkImage_Raster, (bm, props));
+        image = SkNEW_ARGS(SkImage_Raster, (bm, props, kLocked_SharedPixelRefMode == mode));
     } else {
         SkBitmap tmp(bm);
         tmp.lockPixels();

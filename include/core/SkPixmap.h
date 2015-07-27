@@ -18,7 +18,7 @@ struct SkMask;
  *  Pairs SkImageInfo with actual pixels and rowbytes. This class does not try to manage the
  *  lifetime of the pixel memory (nor the colortable if provided).
  */
-class SkPixmap {
+class SK_API SkPixmap {
 public:
     SkPixmap()
         : fPixels(NULL), fCTable(NULL), fRowBytes(0), fInfo(SkImageInfo::MakeUnknown(0, 0))
@@ -151,7 +151,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkAutoPixmapStorage : public SkPixmap {
+class SK_API SkAutoPixmapStorage : public SkPixmap {
 public:
     SkAutoPixmapStorage();
     ~SkAutoPixmapStorage();
@@ -206,7 +206,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkAutoPixmapUnlock : ::SkNoncopyable {
+class SK_API SkAutoPixmapUnlock : ::SkNoncopyable {
 public:
     SkAutoPixmapUnlock() : fUnlockProc(NULL), fIsLocked(false) {}
     SkAutoPixmapUnlock(const SkPixmap& pm, void (*unlock)(void*), void* ctx)
