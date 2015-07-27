@@ -160,12 +160,10 @@ void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     SkASSERT(!that. genIDIsUnique());
 }
 
-static void validate_pixels_ctable(const SkImageInfo& info, const void* pixels,
-                                   const SkColorTable* ctable) {
+static void validate_pixels_ctable(const SkImageInfo& info, const SkColorTable* ctable) {
     if (info.isEmpty()) {
-        return; // can't require pixels if the dimensions are empty
+        return; // can't require ctable if the dimensions are empty
     }
-    SkASSERT(pixels);
     if (kIndex_8_SkColorType == info.colorType()) {
         SkASSERT(ctable);
     } else {
@@ -175,7 +173,8 @@ static void validate_pixels_ctable(const SkImageInfo& info, const void* pixels,
 
 void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable) {
 #ifndef SK_IGNORE_PIXELREF_SETPRELOCKED
-    validate_pixels_ctable(fInfo, pixels, ctable);
+    SkASSERT(pixels);
+    validate_pixels_ctable(fInfo, ctable);
     // only call me in your constructor, otherwise fLockCount tracking can get
     // out of sync.
     fRec.fPixels = pixels;
@@ -198,8 +197,11 @@ bool SkPixelRef::lockPixelsInsideMutex() {
             return false;
         }
     }
-    validate_pixels_ctable(fInfo, fRec.fPixels, fRec.fColorTable);
-    return fRec.fPixels != NULL;
+    if (fRec.fPixels) {
+        validate_pixels_ctable(fInfo, fRec.fColorTable);
+        return true;
+    }
+    return false;
 }
 
 // For historical reasons, we always inc fLockCount, even if we return false.
@@ -223,8 +225,11 @@ bool SkPixelRef::lockPixels() {
             return false;
         }
     }
-    validate_pixels_ctable(fInfo, fRec.fPixels, fRec.fColorTable);
-    return fRec.fPixels != NULL;
+    if (fRec.fPixels) {
+        validate_pixels_ctable(fInfo, fRec.fColorTable);
+        return true;
+    }
+    return false;
 }
 
 bool SkPixelRef::lockPixels(LockRec* rec) {
@@ -277,8 +282,11 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
             return false;
         }
     }
-    validate_pixels_ctable(fInfo, result->fPixels, result->fCTable);
-    return result->fPixels != NULL;
+    if (result->fPixels) {
+        validate_pixels_ctable(fInfo, result->fCTable);
+        return true;
+    }
+    return false;
 }
 
 bool SkPixelRef::lockPixelsAreWritable() const {
