@@ -96,9 +96,6 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
 
 };
 
-// TODO
-// Distance field text in textblobs
-
 GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
                                        GrDrawContext* drawContext,
                                        const SkSurfaceProps& surfaceProps)
@@ -1938,9 +1935,14 @@ private:
         }
 
         memcpy(&fGeoData[fGeoCount], that->fGeoData.get(), that->fGeoCount * sizeof(Geometry));
-        for (int i = fGeoCount; i < newGeoCount; ++i) {
-            fGeoData[i].fBlob->ref();
+        // We steal the ref on the blobs from the other TextBatch and set its count to 0 so that
+        // it doesn't try to unref them.
+#ifdef SK_DEBUG
+        for (int i = 0; i < that->fGeoCount; ++i) {
+            that->fGeoData.get()[i].fBlob = (Blob*)0x1;
         }
+#endif
+        that->fGeoCount = 0;
         fGeoCount = newGeoCount;
 
         this->joinBounds(that->bounds());
