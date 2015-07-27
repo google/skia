@@ -146,13 +146,6 @@ public:
      */
     static SkXfermodeProc GetProc(Mode mode);
 
-    /** Return a function pointer to a routine that applies the specified
-        porter-duff transfer mode and srcColor to a 16bit device color. Note,
-        if the mode+srcColor might return a non-opaque color, then there is not
-        16bit proc, and this will return NULL.
-      */
-    static SkXfermodeProc16 GetProc16(Mode mode, SkColor srcColor);
-
     /**
      *  If the specified mode can be represented by a pair of Coeff, then return
      *  true and set (if not NULL) the corresponding coeffs. If the mode is
