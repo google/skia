@@ -73,6 +73,56 @@ public:
         kLastGPType = kCoverage_GPType
     };
 
+    struct Color {
+        enum Type {
+            kNone_Type,
+            kUniform_Type,
+            kAttribute_Type,
+        };
+        Color(GrColor color) : fType(kUniform_Type), fColor(color) {}
+        Color(Type type) : fType(type), fColor(GrColor_ILLEGAL) {
+            SkASSERT(type != kUniform_Type);
+
+            // TODO This is temporary
+            if (kAttribute_Type == type) {
+                fColor = GrColor_WHITE;
+            }
+        }
+
+        Type fType;
+        GrColor fColor;
+    };
+
+    struct Coverage {
+        enum Type {
+            kNone_Type,
+            kSolid_Type,
+            kUniform_Type,
+            kAttribute_Type,
+        };
+        Coverage(uint8_t coverage) : fType(kUniform_Type), fCoverage(coverage) {}
+        Coverage(Type type) : fType(type), fCoverage(0xff) {
+            SkASSERT(type != kUniform_Type);
+        }
+
+        Type fType;
+        uint8_t fCoverage;
+    };
+
+    struct LocalCoords {
+        enum Type {
+            kNone_Type,
+            kUsePosition_Type,
+            kHasExplicit_Type,
+        };
+    };
+
+    static const GrGeometryProcessor* Create(const Color&,
+                                             const Coverage&,
+                                             LocalCoords::Type,
+                                             const SkMatrix& viewMatrix = SkMatrix::I(),
+                                             const SkMatrix& localMatrix = SkMatrix::I());
+
     /*
      * The following functions are used to create default GPs. If you just need to create
      * attributes separately from creating the default GP, use the SetAttribs function followed

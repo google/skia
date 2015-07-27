@@ -25,18 +25,24 @@
  */
 static const GrGeometryProcessor* create_rect_gp(bool hasExplicitLocalCoords,
                                                  const SkMatrix* localMatrix,
-                                                 bool usesLocalCoords,
                                                  bool coverageIgnored) {
-    // TODO remove color when we have ignored color from the XP
-    uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType |
-                     GrDefaultGeoProcFactory::kColor_GPType;
-    flags |= hasExplicitLocalCoords ? GrDefaultGeoProcFactory::kLocalCoord_GPType : 0;
-    if (localMatrix) {
-        return GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords,
-                                               coverageIgnored, SkMatrix::I(), *localMatrix);
+    typedef GrDefaultGeoProcFactory::Color Color;
+    typedef GrDefaultGeoProcFactory::Coverage Coverage;
+    typedef GrDefaultGeoProcFactory::LocalCoords LocalCoords;
+    Color color(Color::kAttribute_Type);
+    Coverage coverage(coverageIgnored ? Coverage::kNone_Type : Coverage::kSolid_Type);
+    LocalCoords::Type localCoords;
+    if (hasExplicitLocalCoords) {
+        localCoords = LocalCoords::kHasExplicit_Type;
     } else {
-        return GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords,
-                                               coverageIgnored, SkMatrix::I(), SkMatrix::I());
+        localCoords = LocalCoords::kUsePosition_Type;
+    }
+
+    if (localMatrix) {
+        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I(),
+                                               *localMatrix);
+    } else {
+        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords);
     }
 }
 
@@ -101,7 +107,6 @@ public:
 
         SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(hasExplicitLocalCoords,
                                                                   &invert,
-                                                                  this->usesLocalCoords(),
                                                                   this->coverageIgnored()));
 
         batchTarget->initDraw(gp, pipeline);
@@ -129,6 +134,7 @@ public:
                                   geom.fRect.fRight, geom.fRect.fBottom, vertexStride);
             geom.fViewMatrix.mapPointsWithStride(positions, vertexStride, kVerticesPerQuad);
 
+            // TODO we should only do this if local coords are being read
             if (geom.fHasLocalRect) {
                 static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
                 SkPoint* coords = reinterpret_cast<SkPoint*>(offset + kLocalOffset);

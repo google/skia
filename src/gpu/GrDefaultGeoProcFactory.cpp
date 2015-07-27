@@ -275,3 +275,27 @@ const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(uint32_t gpTypeFlags,
                                   coverageWillBeIgnored,
                                   coverage);
 }
+
+const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(const Color& color,
+                                                           const Coverage& coverage,
+                                                           LocalCoords::Type localCoords,
+                                                           const SkMatrix& viewMatrix,
+                                                           const SkMatrix& localMatrix) {
+    uint32_t flags = 0;
+    flags |= color.fType == Color::kAttribute_Type ? kColor_GPType : 0;
+    flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverage_GPType : 0;
+    flags |= localCoords == LocalCoords::kHasExplicit_Type ? kLocalCoord_GPType : 0;
+
+    uint8_t inCoverage = coverage.fCoverage;
+    bool coverageWillBeIgnored = coverage.fType == Coverage::kNone_Type;
+    bool localCoordsWillBeRead = localCoords != LocalCoords::kNone_Type;
+
+    GrColor inColor = color.fColor;
+    return DefaultGeoProc::Create(flags,
+                                  inColor,
+                                  viewMatrix,
+                                  localMatrix,
+                                  localCoordsWillBeRead,
+                                  coverageWillBeIgnored,
+                                  inCoverage);
+}
