@@ -89,11 +89,6 @@
         }, {
           'os_posix%': 1,
         }],
-        ['"64" in skia_arch_type', {
-          'skia_arch_width%': 64,
-        }, {
-          'skia_arch_width%': 32,
-        }],
         [ 'skia_os == "android"', {
           'skia_static_initializers%': 0,
           'skia_egl%': 1,
@@ -205,7 +200,6 @@
     'skia_resource_cache_mb_limit%': '<(skia_resource_cache_mb_limit)',
     'skia_resource_cache_count_limit%': '<(skia_resource_cache_count_limit)',
     'skia_angle%': '<(skia_angle)',
-    'skia_arch_width%': '<(skia_arch_width)',
     'skia_arch_type%': '<(skia_arch_type)',
     'skia_chrome_utils%': '<(skia_chrome_utils)',
     'skia_gdi%': '<(skia_gdi)',

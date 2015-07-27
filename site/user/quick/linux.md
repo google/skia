@@ -94,7 +94,7 @@ If you want to use Eclipse, see Creating an Eclipse Project after you have gener
 On 32-bit Linux (when `uname -m` is *not* `x86_64`), you will have to
 explicitly specify the architecture:
 
-    GYP_DEFINES='skia_arch_width=32' ./gyp_skia
+    GYP_DEFINES='skia_arch_type=x86' ./gyp_skia
 
 Build and run tests from the command line
 -----------------------------------------

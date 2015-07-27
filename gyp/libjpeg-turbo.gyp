@@ -209,19 +209,16 @@
             }],
           ],
         }],
-        [ 'skia_arch_type == "mips"', {
-          'conditions': [
-            [ 'skia_arch_width == 64', {
-              'sources': [
-                '../third_party/externals/libjpeg-turbo/simd/jsimd_mips.c',
-                '../third_party/externals/libjpeg-turbo/simd/jsimd_mips_dspr2_asm.h',
-                '../third_party/externals/libjpeg-turbo/simd/jsimd_mips_dspr2.S',
-              ],
-            }, {
-              'sources': [
-                '../third_party/externals/libjpeg-turbo/jsimd_none.c',
-              ],
-            }],
+        [ 'skia_arch_type == "mips64"', {
+          'sources': [
+            '../third_party/externals/libjpeg-turbo/simd/jsimd_mips.c',
+            '../third_party/externals/libjpeg-turbo/simd/jsimd_mips_dspr2_asm.h',
+            '../third_party/externals/libjpeg-turbo/simd/jsimd_mips_dspr2.S',
+          ],
+        }],
+        [ 'skia_arch_type == "mips32"', {
+          'sources': [
+            '../third_party/externals/libjpeg-turbo/jsimd_none.c',
           ],
         }],
       

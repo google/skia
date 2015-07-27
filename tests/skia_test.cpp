@@ -153,7 +153,6 @@ int test_main() {
 #else
         header.append(" SK_RELEASE");
 #endif
-        header.appendf(" skia_arch_width=%d", (int)sizeof(void*) * 8);
         if (FLAGS_veryVerbose) {
             header.appendf("\n");
         }

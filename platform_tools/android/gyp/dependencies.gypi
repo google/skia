@@ -195,7 +195,7 @@
             ],
           },
         ],
-        [ 'skia_arch_type == "mips" and mips_dsp == 2',
+        [ '"mips" in skia_arch_type and mips_dsp == 2',
           {
             'sources' : [
               '../third_party/externals/jpeg/mips_jidctfst.c',

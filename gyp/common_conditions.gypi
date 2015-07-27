@@ -162,10 +162,10 @@
               },
             },
           }],
-          [ 'skia_arch_width == 64', {
+          [ 'skia_arch_type == "x86_64"', {
             'msvs_configuration_platform': 'x64',
           }],
-          [ 'skia_arch_width == 32', {
+          [ 'skia_arch_type == "x86"', {
             'msvs_configuration_platform': 'Win32',
           }],
           [ 'skia_warnings_as_errors', {
@@ -295,7 +295,7 @@
               }],
             ],
           }],
-          [ 'skia_arch_type == "mips"', {
+          [ '"mips" in skia_arch_type', {
             'cflags': [
               '-EL',
             ],
@@ -504,8 +504,8 @@
           'conditions': [
             [ 'skia_fast', { 'WARNING_CFLAGS': [ '<@(skia_fast_flags)' ] } ],
             [ 'skia_warnings_as_errors', { 'GCC_TREAT_WARNINGS_AS_ERRORS': 'YES' }],
-            [ 'skia_arch_width == 32', { 'ARCHS': ['i386']   }],
-            [ 'skia_arch_width == 64', { 'ARCHS': ['x86_64'] }],
+            [ 'skia_arch_type == "x86"', { 'ARCHS': ['i386']   }],
+            [ 'skia_arch_type == "x86_64"', { 'ARCHS': ['x86_64'] }],
             [ 'skia_osx_deployment_target==""', {
               'MACOSX_DEPLOYMENT_TARGET': '10.6', # -mmacos-version-min, passed in env to ld.
             }, {

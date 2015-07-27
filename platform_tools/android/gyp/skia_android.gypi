@@ -30,11 +30,11 @@
         'android_arch%': "x86_64",
         'android_variant%': "x86_64",
       }],
-      [ 'skia_arch_type == "mips" and skia_arch_width == 32', {
+      [ 'skia_arch_type == "mips32"', {
         'android_arch%': "mips",
         'android_variant%': "mips",
       }],
-      [ 'skia_arch_type == "mips" and skia_arch_width == 64', {
+      [ 'skia_arch_type == "mips64"', {
         'android_arch%': "mips64",
         'android_variant%': "mips64",
       }],

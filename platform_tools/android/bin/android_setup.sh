@@ -124,7 +124,7 @@ setup_device() {
       ANDROID_ARCH="arm"
       ;;
     arm64 | nexus_9)
-      DEFINES="${DEFINES} skia_arch_type=arm64 skia_arch_width=64 arm_version=8"
+      DEFINES="${DEFINES} skia_arch_type=arm64 arm_version=8"
       ANDROID_ARCH="arm64"
       ;;
     x86)
@@ -136,17 +136,17 @@ setup_device() {
       ANDROID_ARCH="x86_64"
       ;;
     mips)
-      DEFINES="${DEFINES} skia_arch_type=mips skia_arch_width=32"
+      DEFINES="${DEFINES} skia_arch_type=mips32"
       DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ANDROID_ARCH="mips"
       ;;
     mips_dsp2)
-      DEFINES="${DEFINES} skia_arch_type=mips skia_arch_width=32"
+      DEFINES="${DEFINES} skia_arch_type=mips32"
       DEFINES="${DEFINES} mips_arch_variant=mips32r2 mips_dsp=2"
       ANDROID_ARCH="mips"
       ;;
     mips64)
-      DEFINES="${DEFINES} skia_arch_type=mips skia_arch_width=64"
+      DEFINES="${DEFINES} skia_arch_type=mips64"
       ANDROID_ARCH="mips64"
       ;;
     *)

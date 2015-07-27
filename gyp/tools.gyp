@@ -519,7 +519,7 @@
         # VS static libraries don't have a linker option. We must set a global
         # project linker option, or add it to each executable.
         ['skia_win_debuggers_path and skia_os == "win" and '
-         'skia_arch_width == 64',
+         'skia_arch_type == "x86_64"',
           {
             'msvs_settings': {
               'VCLinkerTool': {
@@ -531,7 +531,7 @@
           },
         ],
         ['skia_win_debuggers_path and skia_os == "win" and '
-         'skia_arch_width == 32',
+         'skia_arch_type == "x86"',
           {
             'msvs_settings': {
               'VCLinkerTool': {

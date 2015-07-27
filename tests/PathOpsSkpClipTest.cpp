@@ -1090,7 +1090,6 @@ int tool_main(int argc, char** argv) {
 #else
     header.append(" SK_RELEASE");
 #endif
-    header.appendf(" skia_arch_width=%d", (int)sizeof(void*) * 8);
     if (FLAGS_verbose) {
         header.appendf("\n");
     }
