@@ -105,6 +105,7 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [ 'core.gyp:*' ],
+      'include_dirs': [ '../src/core' ],
       'sources': [ '<@(sse41_sources)' ],
       'conditions': [
         [ 'skia_os == "win"', {

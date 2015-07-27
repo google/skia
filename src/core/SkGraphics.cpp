@@ -14,6 +14,7 @@
 #include "SkGeometry.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
+#include "SkOpts.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPixelRef.h"
@@ -50,6 +51,7 @@ void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
 #endif
 
 void SkGraphics::Init() {
+    SkOpts::Init();
 #ifdef SK_DEVELOPER
     skRTConfRegistry().possiblyDumpFile();
     skRTConfRegistry().validate();
