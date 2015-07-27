@@ -109,10 +109,6 @@ static void sk_memset32_portable(uint32_t dst[], uint32_t value, int count) {
     }
 }
 
-static void sk_memcpy32_portable(uint32_t dst[], const uint32_t src[], int count) {
-    memcpy(dst, src, count * sizeof(uint32_t));
-}
-
 namespace {
 // These three methods technically need external linkage to be passed as template parameters.
 // Since they can't be static, we hide them in an anonymous namespace instead.
@@ -127,11 +123,6 @@ SkMemset32Proc choose_memset32() {
     return proc ? proc : sk_memset32_portable;
 }
 
-SkMemcpy32Proc choose_memcpy32() {
-    SkMemcpy32Proc proc = SkMemcpy32GetPlatformProc();
-    return proc ? proc : sk_memcpy32_portable;
-}
-
 }  // namespace
 
 void sk_memset16_large(uint16_t dst[], uint16_t value, int count) {
@@ -142,11 +133,6 @@ void sk_memset16_large(uint16_t dst[], uint16_t value, int count) {
 void sk_memset32_large(uint32_t dst[], uint32_t value, int count) {
     SK_DECLARE_STATIC_LAZY_FN_PTR(SkMemset32Proc, proc, choose_memset32);
     proc.get()(dst, value, count);
-}
-
-void sk_memcpy32(uint32_t dst[], const uint32_t src[], int count) {
-    SK_DECLARE_STATIC_LAZY_FN_PTR(SkMemcpy32Proc, proc, choose_memcpy32);
-    proc.get()(dst, src, count);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

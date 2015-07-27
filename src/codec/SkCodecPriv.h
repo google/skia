@@ -41,7 +41,7 @@ static inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* co
         SkASSERT(NULL != inputColorPtr);
         SkASSERT(NULL != inputColorCount);
         SkASSERT(NULL != colorTable);
-        sk_memcpy32(inputColorPtr, colorTable->readColors(), *inputColorCount);
+        memcpy(inputColorPtr, colorTable->readColors(), *inputColorCount * 4);
     }
 }
 

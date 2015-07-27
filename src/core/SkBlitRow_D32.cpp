@@ -16,7 +16,7 @@ static void S32_Opaque_BlitRow32(SkPMColor* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src,
                                  int count, U8CPU alpha) {
     SkASSERT(255 == alpha);
-    sk_memcpy32(dst, src, count);
+    memcpy(dst, src, count * 4);
 }
 
 static void S32_Blend_BlitRow32(SkPMColor* SK_RESTRICT dst,
