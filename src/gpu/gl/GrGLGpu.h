@@ -57,15 +57,13 @@ public:
     // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
 
-    bool getReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
-                           GrPixelConfig readConfig, DrawPreference*,
-                           ReadPixelTempDrawInfo*) override;
+    bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
+                             GrPixelConfig readConfig, DrawPreference*,
+                             ReadPixelTempDrawInfo*) override;
 
-
-    // GrGpu overrides
-    GrPixelConfig preferredWritePixelsConfig(GrPixelConfig writeConfig,
-                                             GrPixelConfig surfaceConfig) const override;
-    bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const override;
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
+                              size_t rowBytes, GrPixelConfig srcConfig, DrawPreference*,
+                              WritePixelTempDrawInfo*) override;
 
     bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override;
 

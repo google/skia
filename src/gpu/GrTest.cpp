@@ -146,13 +146,14 @@ public:
         fCaps.reset(SkNEW_ARGS(GrCaps, (options)));
     }
     ~MockGpu() override {}
-    bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const override {
-        return true;
-    }
 
-    bool getReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
-                           GrPixelConfig readConfig, DrawPreference*,
-                           ReadPixelTempDrawInfo*) override { return false; }
+    bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
+                             GrPixelConfig readConfig, DrawPreference*,
+                             ReadPixelTempDrawInfo*) override { return false; }
+
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height, size_t rowBytes,
+                              GrPixelConfig srcConfig, DrawPreference*,
+                              WritePixelTempDrawInfo*) override { return false; }
 
     void buildProgramDesc(GrProgramDesc*,const GrPrimitiveProcessor&,
                           const GrPipeline&,
