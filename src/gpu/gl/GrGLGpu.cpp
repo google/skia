@@ -268,6 +268,38 @@ void GrGLGpu::contextAbandoned() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+GrPixelConfig GrGLGpu::preferredWritePixelsConfig(GrPixelConfig writeConfig,
+                                                  GrPixelConfig surfaceConfig) const {
+    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == writeConfig) {
+        return kBGRA_8888_GrPixelConfig;
+    } else {
+        return writeConfig;
+    }
+}
+
+bool GrGLGpu::canWriteTexturePixels(const GrTexture* texture, GrPixelConfig srcConfig) const {
+    if (kIndex_8_GrPixelConfig == srcConfig || kIndex_8_GrPixelConfig == texture->config()) {
+        return false;
+    }
+    if (srcConfig != texture->config() && kGLES_GrGLStandard == this->glStandard()) {
+        // In general ES2 requires the internal format of the texture and the format of the src
+        // pixels to match. However, It may or may not be possible to upload BGRA data to a RGBA
+        // texture. It depends upon which extension added BGRA. The Apple extension allows it
+        // (BGRA's internal format is RGBA) while the EXT extension does not (BGRA is its own
+        // internal format).
+        if (this->glCaps().isConfigTexturable(kBGRA_8888_GrPixelConfig) &&
+            !this->glCaps().bgraIsInternalFormat() &&
+            kBGRA_8888_GrPixelConfig == srcConfig &&
+            kRGBA_8888_GrPixelConfig == texture->config()) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return true;
+    }
+}
+
 void GrGLGpu::onResetContext(uint32_t resetBits) {
     // we don't use the zb at all
     if (resetBits & kMisc_GrGLBackendState) {
@@ -505,53 +537,6 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                                   size_t rowBytes, GrPixelConfig srcConfig,
-                                   DrawPreference* drawPreference,
-                                   WritePixelTempDrawInfo* tempDrawInfo) {
-    if (kIndex_8_GrPixelConfig == srcConfig || GrPixelConfigIsCompressed(dstSurface->config())) {
-        return false;
-    }
-
-    tempDrawInfo->fSwapRAndB = false;
-
-    // These settings we will always want if a temp draw is performed. Initially set the config
-    // to srcConfig, though that may be modified if we decide to do a R/G swap.
-    tempDrawInfo->fTempSurfaceDesc.fFlags = kNone_GrSurfaceFlags;
-    tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
-    tempDrawInfo->fTempSurfaceDesc.fWidth = width;
-    tempDrawInfo->fTempSurfaceDesc.fHeight = height;
-    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
-    tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
-
-    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
-
-    if (configsAreRBSwaps) {
-        if (!this->caps()->isConfigTexturable(srcConfig)) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-            tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-            tempDrawInfo->fSwapRAndB = true;
-        } else if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == srcConfig) {
-            ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
-            tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-            tempDrawInfo->fSwapRAndB = true;
-        } else if (kGLES_GrGLStandard == this->glStandard() &&
-                   this->glCaps().bgraIsInternalFormat()) {
-            // The internal format and external formats must match texture uploads so we can't
-            // swizzle while uploading when BGRA is a distinct internal format.
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-            tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-            tempDrawInfo->fSwapRAndB = true;
-        }
-    }
-
-    if (!this->glCaps().unpackFlipYSupport() &&
-        kBottomLeft_GrSurfaceOrigin == dstSurface->origin()) {
-        ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
-    }
-
-    return true;
-}
 
 bool GrGLGpu::onWriteTexturePixels(GrTexture* texture,
                                    int left, int top, int width, int height,
@@ -1719,9 +1704,21 @@ static bool read_pixels_pays_for_y_flip(GrRenderTarget* renderTarget, const GrGL
     return caps.packRowLengthSupport() || GrBytesPerPixel(config) * width == rowBytes;
 }
 
-bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
-                                  GrPixelConfig readConfig, DrawPreference* drawPreference,
-                                  ReadPixelTempDrawInfo* tempDrawInfo) {
+void elevate_draw_preference(GrGpu::DrawPreference* preference, GrGpu::DrawPreference elevation) {
+    GR_STATIC_ASSERT(GrGpu::kCallerPrefersDraw_DrawPreference > GrGpu::kNoDraw_DrawPreference);
+    GR_STATIC_ASSERT(GrGpu::kGpuPrefersDraw_DrawPreference >
+                     GrGpu::kCallerPrefersDraw_DrawPreference);
+    GR_STATIC_ASSERT(GrGpu::kRequireDraw_DrawPreference > GrGpu::kGpuPrefersDraw_DrawPreference);
+    *preference = SkTMax(*preference, elevation);
+}
+
+bool GrGLGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
+                                GrPixelConfig readConfig, DrawPreference* drawPreference,
+                                ReadPixelTempDrawInfo* tempDrawInfo) {
+    SkASSERT(drawPreference);
+    SkASSERT(tempDrawInfo);
+    SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
+
     if (GrPixelConfigIsCompressed(readConfig)) {
         return false;
     }
@@ -1753,23 +1750,26 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         // Better to do a draw with a R/B swap and then read as the original config.
         tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
         tempDrawInfo->fSwapRAndB = true;
-        ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
+        elevate_draw_preference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (readConfig == kBGRA_8888_GrPixelConfig &&
                !this->glCaps().readPixelsSupported(this->glInterface(), GR_GL_BGRA,
                                                    GR_GL_UNSIGNED_BYTE, srcConfig)) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
         tempDrawInfo->fSwapRAndB = true;
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        elevate_draw_preference(drawPreference, kRequireDraw_DrawPreference);
     }
 
     GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
     if (!srcAsRT) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        elevate_draw_preference(drawPreference, kRequireDraw_DrawPreference);
     } else if (read_pixels_pays_for_y_flip(srcAsRT, this->glCaps(), width, height, readConfig,
                                            rowBytes)) {
-        ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
+        elevate_draw_preference(drawPreference, kGpuPrefersDraw_DrawPreference);
     }
 
+    if (kRequireDraw_DrawPreference == *drawPreference && !srcSurface->asTexture()) {
+        return false;
+    }
     return true;
 }
 
