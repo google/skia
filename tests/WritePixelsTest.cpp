@@ -27,7 +27,7 @@ static const SkRect DEV_RECT_S = SkRect::MakeWH(DEV_W * SK_Scalar1,
                                                 DEV_H * SK_Scalar1);
 static const U8CPU DEV_PAD = 0xee;
 
-static SkPMColor getCanvasColor(int x, int y) {
+static SkPMColor get_canvas_color(int x, int y) {
     SkASSERT(x >= 0 && x < DEV_W);
     SkASSERT(y >= 0 && y < DEV_H);
 
@@ -57,7 +57,7 @@ static SkPMColor getCanvasColor(int x, int y) {
 }
 
 // assumes any premu/.unpremul has been applied
-static uint32_t packColorType(SkColorType ct, U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+static uint32_t pack_color_type(SkColorType ct, U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     uint32_t r32;
     uint8_t* result = reinterpret_cast<uint8_t*>(&r32);
     switch (ct) {
@@ -80,7 +80,7 @@ static uint32_t packColorType(SkColorType ct, U8CPU a, U8CPU r, U8CPU g, U8CPU b
     return r32;
 }
 
-static uint32_t getBitmapColor(int x, int y, int w, SkColorType ct, SkAlphaType at) {
+static uint32_t get_bitmap_color(int x, int y, int w, SkColorType ct, SkAlphaType at) {
     int n = y * w + x;
     U8CPU b = n & 0xff;
     U8CPU g = (n >> 8) & 0xff;
@@ -108,16 +108,16 @@ static uint32_t getBitmapColor(int x, int y, int w, SkColorType ct, SkAlphaType 
         g = SkMulDiv255Ceiling(g, a);
         b = SkMulDiv255Ceiling(b, a);
     }
-    return packColorType(ct, a, r, g , b);
+    return pack_color_type(ct, a, r, g , b);
 }
 
-static void fillCanvas(SkCanvas* canvas) {
+static void fill_canvas(SkCanvas* canvas) {
     SkBitmap bmp;
     if (bmp.isNull()) {
         bmp.allocN32Pixels(DEV_W, DEV_H);
         for (int y = 0; y < DEV_H; ++y) {
             for (int x = 0; x < DEV_W; ++x) {
-                *bmp.getAddr32(x, y) = getCanvasColor(x, y);
+                *bmp.getAddr32(x, y) = get_canvas_color(x, y);
             }
         }
     }
@@ -164,7 +164,7 @@ static SkPMColor convert_to_PMColor(SkColorType ct, SkAlphaType at, uint32_t col
     return color;
 }
 
-static bool checkPixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
+static bool check_pixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
     if (!didPremulConversion) {
         return a == b;
     }
@@ -219,21 +219,21 @@ static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const Sk
             if (writeRect.contains(cx, cy)) {
                 int bx = cx - writeX;
                 int by = cy - writeY;
-                uint32_t bmpColor8888 = getBitmapColor(bx, by, bitmap.width(),
+                uint32_t bmpColor8888 = get_bitmap_color(bx, by, bitmap.width(),
                                                        bmInfo.colorType(), bmInfo.alphaType());
                 bool mul = (kUnpremul_SkAlphaType == bmInfo.alphaType());
                 SkPMColor bmpPMColor = convert_to_PMColor(bmInfo.colorType(), bmInfo.alphaType(),
                                                           bmpColor8888);
-                bool check = checkPixel(bmpPMColor, canvasPixel, mul);
-                REPORTER_ASSERT(reporter, check);
-                if (!check) {
+                if (!check_pixel(bmpPMColor, canvasPixel, mul)) {
+                    ERRORF(reporter, "Expected canvas pixel at %d, %d to be 0x%08x, got 0x%08x. "
+                           "Write performed premul: %d", cx, cy, bmpPMColor, canvasPixel, mul);
                     return false;
                 }
             } else {
-                bool check;
-                SkPMColor testColor = getCanvasColor(cx, cy);
-                REPORTER_ASSERT(reporter, check = (canvasPixel == testColor));
-                if (!check) {
+                SkPMColor testColor = get_canvas_color(cx, cy);
+                if (canvasPixel != testColor) {
+                    ERRORF(reporter, "Canvas pixel outside write rect at %d, %d changed."
+                           " Should be 0x%08x, got 0x%08x. ", cx, cy, testColor, canvasPixel);
                     return false;
                 }
             }
@@ -282,7 +282,7 @@ static const CanvasConfig gCanvasConfigs[] = {
 // a custom pixelRef (which also has to specify its rowBytes), so we have to be
 // sure that the two rowBytes match (and the infos match).
 //
-static bool allocRowBytes(SkBitmap* bm, const SkImageInfo& info, size_t rowBytes) {
+static bool alloc_row_bytes(SkBitmap* bm, const SkImageInfo& info, size_t rowBytes) {
     if (!bm->setInfo(info, rowBytes)) {
         return false;
     }
@@ -328,13 +328,13 @@ static SkSurface* create_surface(const CanvasConfig& c, GrContext* grCtx) {
 static bool setup_bitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, int h, int tightRB) {
     size_t rowBytes = tightRB ? 0 : 4 * w + 60;
     SkImageInfo info = SkImageInfo::Make(w, h, ct, at);
-    if (!allocRowBytes(bm, info, rowBytes)) {
+    if (!alloc_row_bytes(bm, info, rowBytes)) {
         return false;
     }
     SkAutoLockPixels alp(*bm);
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
-            *bm->getAddr32(x, y) = getBitmapColor(x, y, w, ct, at);
+            *bm->getAddr32(x, y) = get_bitmap_color(x, y, w, ct, at);
         }
     }
     return true;
@@ -451,7 +451,7 @@ DEF_GPUTEST(WritePixels, reporter, factory) {
                         const SkColorType ct = gSrcConfigs[c].fColorType;
                         const SkAlphaType at = gSrcConfigs[c].fAlphaType;
 
-                        fillCanvas(&canvas);
+                        fill_canvas(&canvas);
                         SkBitmap bmp;
                         REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
                                                                rect.height(), SkToBool(tightBmp)));
