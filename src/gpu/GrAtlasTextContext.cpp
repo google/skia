@@ -1268,7 +1268,7 @@ void GrAtlasTextContext::bmpAppendGlyph(BitmapTextBlob* blob, int runIndex,
 
     PerSubRunInfo* subRun = &run.fSubRunInfo.back();
     if (run.fInitialized && subRun->fMaskFormat != format) {
-        subRun = &run.fSubRunInfo.push_back();
+        subRun = &run.push_back();
     }
 
     run.fInitialized = true;
