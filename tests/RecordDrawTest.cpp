@@ -295,7 +295,7 @@ DEF_TEST(RecordDraw_drawImage, r){
         }
 
         void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                             const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) override {
+                             const SkPaint* paint, SrcRectConstraint) override {
             fDrawImageRectCalled = true;
         }
 

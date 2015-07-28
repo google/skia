@@ -552,8 +552,7 @@ void SkPictureRecord::onDrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScal
 }
 
 void SkPictureRecord::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                       const SkPaint* paint,
-                                       SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
+                                       const SkPaint* paint, SrcRectConstraint constraint) {
     // id + paint index + bitmap index + bool for 'src' + flags
     size_t size = 5 * kUInt32Size;
     if (src) {
@@ -585,8 +584,7 @@ void SkPictureRecord::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
 }
 
 void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                      const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
-    SRC_RECT_CONSTRAINT_LOCAL_DEFAULT(constraint)
+                                      const SkPaint* paint, SrcRectConstraint constraint) {
     // id + paint_index + image_index + bool_for_src + constraint
     size_t size = 5 * kUInt32Size;
     if (src) {

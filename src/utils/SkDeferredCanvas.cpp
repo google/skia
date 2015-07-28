@@ -218,8 +218,7 @@ protected:
                     const SkMatrix& matrix, const SkPaint& paint) override
         {SkASSERT(0);}
     void drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect*,
-                        const SkRect&, const SkPaint&,
-                        SK_VIRTUAL_CONSTRAINT_TYPE) override
+                        const SkRect&, const SkPaint&, SkCanvas::SrcRectConstraint) override
         {SkASSERT(0);}
     void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                     int x, int y, const SkPaint& paint) override
@@ -864,7 +863,7 @@ void SkDeferredCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
 
 void SkDeferredCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                                         const SkRect& dst, const SkPaint* paint,
-                                        SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
+                                        SrcRectConstraint constraint) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
         SkPaintPriv::Overwrites(bitmap, paint)) {
@@ -892,7 +891,7 @@ void SkDeferredCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
     this->recordedDrawCommand();
 }
 void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                       const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
+                                       const SkPaint* paint, SrcRectConstraint constraint) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
         SkPaintPriv::Overwrites(image, paint)) {
@@ -900,8 +899,7 @@ void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, 
     }
     
     AutoImmediateDrawIfNeeded autoDraw(*this, image, paint);
-    this->drawingCanvas()->drawImageRect(image, src, dst, paint
-                                         SRC_RECT_CONSTRAINT_ARG(constraint));
+    this->drawingCanvas()->drawImageRect(image, src, dst, paint, constraint);
     this->recordedDrawCommand();
 }
 

@@ -186,9 +186,7 @@ void SkRecorder::onDrawBitmapRect(const SkBitmap& bitmap,
                                   const SkRect* src,
                                   const SkRect& dst,
                                   const SkPaint* paint,
-                                  SK_VIRTUAL_CONSTRAINT_TYPE legacyConstraint) {
-    SrcRectConstraint constraint = (SrcRectConstraint)legacyConstraint;
-
+                                  SrcRectConstraint constraint) {
 #ifdef WRAP_BITMAP_AS_IMAGE
     // TODO: need a way to support the flags for images...
     SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
@@ -225,12 +223,8 @@ void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
     APPEND(DrawImage, this->copy(paint), image, left, top);
 }
 
-void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src,
-                                 const SkRect& dst,
-                                 const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
-    SrcRectConstraint constraint = kStrict_SrcRectConstraint;
-#endif
+void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                                 const SkPaint* paint, SrcRectConstraint constraint) {
     APPEND(DrawImageRect, this->copy(paint), image, this->copy(src), dst, constraint);
 }
 

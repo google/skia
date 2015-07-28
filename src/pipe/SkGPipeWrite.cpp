@@ -276,10 +276,10 @@ protected:
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
-                          SK_VIRTUAL_CONSTRAINT_TYPE) override;
+                          SrcRectConstraint) override;
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
-                         const SkPaint* SRC_RECT_CONSTRAINT_PARAM(constraint)) override;
+                         const SkPaint*, SrcRectConstraint) override;
     void onDrawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
                          const SkPaint*) override;
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
@@ -791,10 +791,7 @@ void SkGPipeCanvas::onDrawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top
 }
 
 void SkGPipeCanvas::onDrawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
-                                     const SkPaint* paint,
-                                     SK_VIRTUAL_CONSTRAINT_TYPE legacyConstraint) {
-    SrcRectConstraint constraint = (SrcRectConstraint)legacyConstraint;
-
+                                     const SkPaint* paint, SrcRectConstraint constraint) {
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(SkRect);
     bool hasSrc = src != NULL;
@@ -872,10 +869,8 @@ void SkGPipeCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
 }
 
 void SkGPipeCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
+                                    const SkPaint* paint, SrcRectConstraint constraint) {
     NOTIFY_SETUP(this);
-
-    SRC_RECT_CONSTRAINT_LOCAL_DEFAULT(constraint)
     unsigned flags = 0;
     size_t opBytesNeeded = sizeof(SkRect);  // dst
     if (src) {

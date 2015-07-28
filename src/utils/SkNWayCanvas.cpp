@@ -193,7 +193,7 @@ void SkNWayCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 }
 
 void SkNWayCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint, SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
+                                    const SkPaint* paint, SrcRectConstraint constraint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawBitmapRect(bitmap, src, dst, paint, (SrcRectConstraint)constraint);
@@ -217,10 +217,10 @@ void SkNWayCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top
 }
 
 void SkNWayCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                   const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
+                                   const SkPaint* paint, SrcRectConstraint constraint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawImageRect(image, src, dst, paint SRC_RECT_CONSTRAINT_ARG(constraint));
+        iter->drawImageRect(image, src, dst, paint, constraint);
     }
 }
 

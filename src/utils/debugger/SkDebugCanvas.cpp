@@ -415,7 +415,7 @@ void SkDebugCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
 }
 
 void SkDebugCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                     const SkPaint* paint, SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
+                                     const SkPaint* paint, SrcRectConstraint constraint) {
     this->addDrawCommand(new SkDrawBitmapRectCommand(bitmap, src, dst, paint,
                                                      (SrcRectConstraint)constraint));
 }
@@ -431,8 +431,7 @@ void SkDebugCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar to
 }
 
 void SkDebugCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
-    SRC_RECT_CONSTRAINT_LOCAL_DEFAULT(constraint);
+                                    const SkPaint* paint, SrcRectConstraint constraint) {
     this->addDrawCommand(new SkDrawImageRectCommand(image, src, dst, paint, constraint));
 }
 

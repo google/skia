@@ -217,7 +217,7 @@ protected:
     virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
                                 const SkRect* srcOrNull, const SkRect& dst,
                                 const SkPaint& paint,
-                                SK_VIRTUAL_CONSTRAINT_TYPE) = 0;
+                                SkCanvas::SrcRectConstraint) = 0;
     virtual void drawBitmapNine(const SkDraw&, const SkBitmap&, const SkIRect& center,
                                const SkRect& dst, const SkPaint&);
 

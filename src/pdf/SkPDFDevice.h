@@ -93,10 +93,8 @@ public:
     void drawPath(const SkDraw&, const SkPath& origpath,
                   const SkPaint& paint, const SkMatrix* prePathMatrix,
                   bool pathIsMutable) override;
-    void drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
-                        const SkRect* src, const SkRect& dst,
-                        const SkPaint& paint,
-                        SK_VIRTUAL_CONSTRAINT_TYPE) override;
+    void drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap, const SkRect* src,
+                        const SkRect& dst, const SkPaint&, SkCanvas::SrcRectConstraint) override;
     void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                     const SkMatrix& matrix, const SkPaint&) override;
     void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,

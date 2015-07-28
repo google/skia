@@ -1381,10 +1381,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& dst,
-                                 const SkPaint& paint,
-                                 SK_VIRTUAL_CONSTRAINT_TYPE legacyConstraint) {
-    SkCanvas::SrcRectConstraint constraint = (SkCanvas::SrcRectConstraint)legacyConstraint;
-
+                                 const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc;
 
@@ -1549,7 +1546,7 @@ void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const 
                                 SkCanvas::SrcRectConstraint constraint) {
     SkBitmap bm;
     if (wrap_as_bm(image, &bm)) {
-        this->drawBitmapRect(draw, bm, src, dst, paint, (SK_VIRTUAL_CONSTRAINT_TYPE)constraint);
+        this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
     }
 }
 

@@ -82,7 +82,7 @@ protected:
      *  and call drawRect with it.
      */
     void drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect*, const SkRect&,
-                        const SkPaint&, SK_VIRTUAL_CONSTRAINT_TYPE) override;
+                        const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
     /**
      *  Does not handle text decoration.

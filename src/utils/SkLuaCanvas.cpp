@@ -215,7 +215,7 @@ void SkLuaCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 }
 
 void SkLuaCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                   const SkPaint* paint, SK_VIRTUAL_CONSTRAINT_TYPE) {
+                                   const SkPaint* paint, SrcRectConstraint) {
     AUTO_LUA("drawBitmapRect");
     if (paint) {
         lua.pushPaint(*paint, "paint");
@@ -238,7 +238,7 @@ void SkLuaCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, cons
 }
 
 void SkLuaCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                  const SkPaint* paint SRC_RECT_CONSTRAINT_PARAM(constraint)) {
+                                  const SkPaint* paint, SrcRectConstraint) {
     AUTO_LUA("drawImageRect");
     if (paint) {
         lua.pushPaint(*paint, "paint");

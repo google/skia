@@ -36,8 +36,7 @@ protected:
                     int x, int y, const SkPaint& paint) override;
     void drawBitmapRect(const SkDraw&, const SkBitmap&,
                         const SkRect* srcOrNull, const SkRect& dst,
-                        const SkPaint& paint,
-                        SK_VIRTUAL_CONSTRAINT_TYPE) override;
+                        const SkPaint& paint, SkCanvas::SrcRectConstraint) override;
 
     void drawText(const SkDraw&, const void* text, size_t len,
                   SkScalar x, SkScalar y, const SkPaint& paint) override;
