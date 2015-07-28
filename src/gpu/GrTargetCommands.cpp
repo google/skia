@@ -7,19 +7,19 @@
 
 #include "GrTargetCommands.h"
 
-#include "GrInOrderDrawBuffer.h"
+#include "GrBufferedDrawTarget.h"
 
 void GrTargetCommands::reset() {
     fCmdBuffer.reset();
     fBatchTarget.reset();
 }
 
-void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
+void GrTargetCommands::flush(GrBufferedDrawTarget* bufferedDrawTarget) {
     if (fCmdBuffer.empty()) {
         return;
     }
 
-    GrGpu* gpu = iodb->getGpu();
+    GrGpu* gpu = bufferedDrawTarget->getGpu();
 
     // Loop over all batches and generate geometry
     CmdBuffer::Iter genIter(fCmdBuffer);
@@ -40,7 +40,7 @@ void GrTargetCommands::flush(GrInOrderDrawBuffer* iodb) {
         GrGpuTraceMarker newMarker("", -1);
         SkString traceString;
         if (iter->isTraced()) {
-            traceString = iodb->getCmdString(iter->markerID());
+            traceString = bufferedDrawTarget->getCmdString(iter->markerID());
             newMarker.fMarker = traceString.c_str();
             gpu->addGpuTraceMarker(&newMarker);
         }

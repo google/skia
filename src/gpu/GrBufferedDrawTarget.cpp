@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrInOrderDrawBuffer.h"
+#include "GrBufferedDrawTarget.h"
 
 // We will use the reordering buffer, unless we have NVPR.
 // TODO move NVPR to batch so we can reorder
@@ -13,7 +13,7 @@ static inline bool allow_reordering(const GrCaps* caps) {
     return caps && caps->shaderCaps() && !caps->shaderCaps()->pathRenderingSupport();
 }
 
-GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context)
+GrBufferedDrawTarget::GrBufferedDrawTarget(GrContext* context)
     : INHERITED(context)
     , fCommands(GrCommandBuilder::Create(context->getGpu(), allow_reordering(context->caps())))
     , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
@@ -22,12 +22,12 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrContext* context)
     , fDrawID(0) {
 }
 
-GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
+GrBufferedDrawTarget::~GrBufferedDrawTarget() {
     this->reset();
 }
 
-void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
-                                      const PipelineInfo& pipelineInfo) {
+void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch,
+                                       const PipelineInfo& pipelineInfo) {
     State* state = this->setupPipelineAndShouldDraw(batch, pipelineInfo);
     if (!state) {
         return;
@@ -37,21 +37,21 @@ void GrInOrderDrawBuffer::onDrawBatch(GrBatch* batch,
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrInOrderDrawBuffer::onStencilPath(const GrPipelineBuilder& pipelineBuilder,
-                                        const GrPathProcessor* pathProc,
-                                        const GrPath* path,
-                                        const GrScissorState& scissorState,
-                                        const GrStencilSettings& stencilSettings) {
+void GrBufferedDrawTarget::onStencilPath(const GrPipelineBuilder& pipelineBuilder,
+                                         const GrPathProcessor* pathProc,
+                                         const GrPath* path,
+                                         const GrScissorState& scissorState,
+                                         const GrStencilSettings& stencilSettings) {
     GrTargetCommands::Cmd* cmd = fCommands->recordStencilPath(pipelineBuilder,
                                                               pathProc, path, scissorState,
                                                               stencilSettings);
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrInOrderDrawBuffer::onDrawPath(const GrPathProcessor* pathProc,
-                                     const GrPath* path,
-                                     const GrStencilSettings& stencilSettings,
-                                     const PipelineInfo& pipelineInfo) {
+void GrBufferedDrawTarget::onDrawPath(const GrPathProcessor* pathProc,
+                                      const GrPath* path,
+                                      const GrStencilSettings& stencilSettings,
+                                      const PipelineInfo& pipelineInfo) {
     State* state = this->setupPipelineAndShouldDraw(pathProc, pipelineInfo);
     if (!state) {
         return;
@@ -60,15 +60,15 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPathProcessor* pathProc,
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
-                                      const GrPathRange* pathRange,
-                                      const void* indices,
-                                      PathIndexType indexType,
-                                      const float transformValues[],
-                                      PathTransformType transformType,
-                                      int count,
-                                      const GrStencilSettings& stencilSettings,
-                                      const PipelineInfo& pipelineInfo) {
+void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
+                                       const GrPathRange* pathRange,
+                                       const void* indices,
+                                       PathIndexType indexType,
+                                       const float transformValues[],
+                                       PathTransformType transformType,
+                                       int count,
+                                       const GrStencilSettings& stencilSettings,
+                                       const PipelineInfo& pipelineInfo) {
     State* state = this->setupPipelineAndShouldDraw(pathProc, pipelineInfo);
     if (!state) {
         return;
@@ -80,20 +80,20 @@ void GrInOrderDrawBuffer::onDrawPaths(const GrPathProcessor* pathProc,
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrInOrderDrawBuffer::onClear(const SkIRect* rect, GrColor color,
+void GrBufferedDrawTarget::onClear(const SkIRect* rect, GrColor color,
                                   bool canIgnoreRect, GrRenderTarget* renderTarget) {
     GrTargetCommands::Cmd* cmd = fCommands->recordClear(rect, color, canIgnoreRect, renderTarget);
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrInOrderDrawBuffer::clearStencilClip(const SkIRect& rect,
-                                           bool insideClip,
-                                           GrRenderTarget* renderTarget) {
+void GrBufferedDrawTarget::clearStencilClip(const SkIRect& rect,
+                                            bool insideClip,
+                                            GrRenderTarget* renderTarget) {
     GrTargetCommands::Cmd* cmd = fCommands->recordClearStencilClip(rect, insideClip, renderTarget);
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
+void GrBufferedDrawTarget::discard(GrRenderTarget* renderTarget) {
     if (!this->caps()->discardRenderTargetSupport()) {
         return;
     }
@@ -102,7 +102,7 @@ void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrInOrderDrawBuffer::onReset() {
+void GrBufferedDrawTarget::onReset() {
     fCommands->reset();
     fPathIndexBuffer.rewind();
     fPathTransformBuffer.rewind();
@@ -118,20 +118,20 @@ void GrInOrderDrawBuffer::onReset() {
     }
 }
 
-void GrInOrderDrawBuffer::onFlush() {
+void GrBufferedDrawTarget::onFlush() {
     fCommands->flush(this);
     ++fDrawID;
 }
 
-void GrInOrderDrawBuffer::onCopySurface(GrSurface* dst,
-                                        GrSurface* src,
-                                        const SkIRect& srcRect,
-                                        const SkIPoint& dstPoint) {
+void GrBufferedDrawTarget::onCopySurface(GrSurface* dst,
+                                         GrSurface* src,
+                                         const SkIRect& srcRect,
+                                         const SkIPoint& dstPoint) {
     GrTargetCommands::Cmd* cmd = fCommands->recordCopySurface(dst, src, srcRect, dstPoint);
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* cmd) {
+void GrBufferedDrawTarget::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* cmd) {
     if (!cmd) {
         return;
     }
@@ -147,8 +147,8 @@ void GrInOrderDrawBuffer::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* c
 }
 
 GrTargetCommands::State*
-GrInOrderDrawBuffer::setupPipelineAndShouldDraw(const GrPrimitiveProcessor* primProc,
-                                                const GrDrawTarget::PipelineInfo& pipelineInfo) {
+GrBufferedDrawTarget::setupPipelineAndShouldDraw(const GrPrimitiveProcessor* primProc,
+                                                 const GrDrawTarget::PipelineInfo& pipelineInfo) {
     State* state = this->allocState(primProc);
     this->setupPipeline(pipelineInfo, state->pipelineLocation());
 
@@ -176,8 +176,8 @@ GrInOrderDrawBuffer::setupPipelineAndShouldDraw(const GrPrimitiveProcessor* prim
 }
 
 GrTargetCommands::State*
-GrInOrderDrawBuffer::setupPipelineAndShouldDraw(GrBatch* batch,
-                                                const GrDrawTarget::PipelineInfo& pipelineInfo) {
+GrBufferedDrawTarget::setupPipelineAndShouldDraw(GrBatch* batch,
+                                                 const GrDrawTarget::PipelineInfo& pipelineInfo) {
     State* state = this->allocState();
     this->setupPipeline(pipelineInfo, state->pipelineLocation());
 

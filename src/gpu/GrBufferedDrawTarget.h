@@ -5,34 +5,30 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrInOrderDrawBuffer_DEFINED
-#define GrInOrderDrawBuffer_DEFINED
+#ifndef GrBufferedDrawTarget_DEFINED
+#define GrBufferedDrawTarget_DEFINED
 
 #include "GrDrawTarget.h"
 #include "GrCommandBuilder.h"
 #include "SkChunkAlloc.h"
 
 /**
- * GrInOrderDrawBuffer is an implementation of GrDrawTarget that queues up draws for eventual
- * playback into a GrGpu. In theory one draw buffer could playback into another. When index or
- * vertex buffers are used as geometry sources it is the callers the draw buffer only holds
- * references to the buffers. It is the callers responsibility to ensure that the data is still
- * valid when the draw buffer is played back into a GrGpu. Similarly, it is the caller's
- * responsibility to ensure that all referenced textures, buffers, and render-targets are associated
- * in the GrGpu object that the buffer is played back into. The buffer requires VB and IB pools to
- * store geometry.
+ * GrBufferedDrawTarget is an implementation of GrDrawTarget that queues up draws for eventual
+ * playback into a GrGpu. In theory one draw buffer could playback into another. Similarly, it is
+ * the caller's responsibility to ensure that all referenced textures, buffers, and render-targets
+ * are associated in the GrGpu object that the buffer is played back into.
  */
-class GrInOrderDrawBuffer : public GrClipTarget {
+class GrBufferedDrawTarget : public GrClipTarget {
 public:
 
     /**
-     * Creates a GrInOrderDrawBuffer
+     * Creates a GrBufferedDrawTarget
      *
      * @param context    the context object that owns this draw buffer.
      */
-    GrInOrderDrawBuffer(GrContext* context);
+    GrBufferedDrawTarget(GrContext* context);
 
-    ~GrInOrderDrawBuffer() override;
+    ~GrBufferedDrawTarget() override;
 
     void clearStencilClip(const SkIRect& rect,
                           bool insideClip,

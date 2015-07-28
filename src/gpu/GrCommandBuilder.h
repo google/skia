@@ -10,7 +10,7 @@
 
 #include "GrTargetCommands.h"
 
-class GrInOrderDrawBuffer;
+class GrBufferedDrawTarget;
 
 class GrCommandBuilder : ::SkNoncopyable {
 public:
@@ -22,7 +22,7 @@ public:
     virtual ~GrCommandBuilder() {}
 
     void reset() { fCommands.reset(); }
-    void flush(GrInOrderDrawBuffer* iodb) { fCommands.flush(iodb); }
+    void flush(GrBufferedDrawTarget* bufferedDrawTarget) { fCommands.flush(bufferedDrawTarget); }
 
     virtual Cmd* recordClearStencilClip(const SkIRect& rect,
                                         bool insideClip,
@@ -39,7 +39,7 @@ public:
                                 const GrPath*,
                                 const GrStencilSettings&) = 0;
     virtual Cmd* recordDrawPaths(State*,
-                                 GrInOrderDrawBuffer*,
+                                 GrBufferedDrawTarget*,
                                  const GrPathProcessor*,
                                  const GrPathRange*,
                                  const void*,

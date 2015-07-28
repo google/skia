@@ -36,7 +36,7 @@ public:
     }
 
     Cmd* recordDrawPaths(State*,
-                         GrInOrderDrawBuffer*,
+                         GrBufferedDrawTarget*,
                          const GrPathProcessor*,
                          const GrPathRange*,
                          const void*,

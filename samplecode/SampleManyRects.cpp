@@ -14,7 +14,7 @@
 #include "SkView.h"
 
 /**
- * Animated sample used to develop batched rect implementation in GrInOrderDrawBuffer.
+ * Animated sample used to develop batched rect implementation in GrBufferedDrawTarget.
  */
 class ManyRectsView : public SampleView {
 private:

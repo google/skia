@@ -349,7 +349,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
     // Either a hard (stencil buffer) clip was explicitly requested or an anti-aliased clip couldn't
     // be created. In either case, free up the texture in the anti-aliased mask cache.
     // TODO: this may require more investigation. Ganesh performs a lot of utility draws (e.g.,
-    // clears, InOrderDrawBuffer playbacks) that hit the stencil buffer path. These may be
+    // clears, GrBufferedDrawTarget playbacks) that hit the stencil buffer path. These may be
     // "incorrectly" clearing the AA cache.
     fAACache.reset();
 

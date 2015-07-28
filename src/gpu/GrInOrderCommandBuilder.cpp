@@ -7,8 +7,9 @@
 
 #include "GrInOrderCommandBuilder.h"
 
+#include "GrBufferedDrawTarget.h"
+
 #include "GrColor.h"
-#include "GrInOrderDrawBuffer.h"
 #include "SkPoint.h"
 
 static bool path_fill_type_is_winding(const GrStencilSettings& pathStencilSettings) {
@@ -67,7 +68,7 @@ GrInOrderCommandBuilder::recordDrawPath(State* state,
 
 GrTargetCommands::Cmd*
 GrInOrderCommandBuilder::recordDrawPaths(State* state,
-                                         GrInOrderDrawBuffer* iodb,
+                                         GrBufferedDrawTarget* bufferedDrawTarget,
                                          const GrPathProcessor* pathProc,
                                          const GrPathRange* pathRange,
                                          const void* indexValues,
@@ -84,9 +85,9 @@ GrInOrderCommandBuilder::recordDrawPaths(State* state,
     char* savedIndices;
     float* savedTransforms;
 
-    iodb->appendIndicesAndTransforms(indexValues, indexType,
-                                     transformValues, transformType,
-                                     count, &savedIndices, &savedTransforms);
+    bufferedDrawTarget->appendIndicesAndTransforms(indexValues, indexType,
+                                                   transformValues, transformType,
+                                                   count, &savedIndices, &savedTransforms);
 
     if (!this->cmdBuffer()->empty() &&
         Cmd::kDrawPaths_CmdType == this->cmdBuffer()->back().type()) {

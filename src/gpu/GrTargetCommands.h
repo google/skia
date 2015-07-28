@@ -19,7 +19,7 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
-class GrInOrderDrawBuffer;
+class GrBufferedDrawTarget;
 
 
 class GrTargetCommands : ::SkNoncopyable {
@@ -61,16 +61,16 @@ public:
     };
 
     void reset();
-    void flush(GrInOrderDrawBuffer*);
+    void flush(GrBufferedDrawTarget*);
 
 private:
     friend class GrCommandBuilder;
-    friend class GrInOrderDrawBuffer; // This goes away when State becomes just a pipeline
+    friend class GrBufferedDrawTarget; // This goes away when State becomes just a pipeline
     friend class GrReorderCommandBuilder;
 
     typedef GrGpu::DrawArgs DrawArgs;
 
-    void recordXferBarrierIfNecessary(const GrPipeline&, GrInOrderDrawBuffer*);
+    void recordXferBarrierIfNecessary(const GrPipeline&, GrBufferedDrawTarget*);
 
     // TODO: This can be just a pipeline once paths are in batch, and it should live elsewhere
     struct State : public SkNVRefCnt<State> {

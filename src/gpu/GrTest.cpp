@@ -7,9 +7,10 @@
  */
 
 #include "GrTest.h"
+
+#include "GrBufferedDrawTarget.h"
 #include "GrContextOptions.h"
 #include "GrGpuResourceCacheAccess.h"
-#include "GrInOrderDrawBuffer.h"
 #include "GrResourceCache.h"
 #include "SkString.h"
 
@@ -135,7 +136,6 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 // Code for the mock context. It's built on a mock GrGpu class that does nothing.
 ////
 
-#include "GrInOrderDrawBuffer.h"
 #include "GrGpu.h"
 
 class GrPipeline;

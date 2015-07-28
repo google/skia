@@ -8,9 +8,9 @@
 #ifndef GrTracing_DEFINED
 #define GrTracing_DEFINED
 
+#include "GrBufferedDrawTarget.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
-#include "GrInOrderDrawBuffer.h"
 #include "GrTraceMarker.h"
 #include "SkTraceEvent.h"
 

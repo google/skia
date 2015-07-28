@@ -13,6 +13,7 @@
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
+#include "GrBufferedDrawTarget.h"
 #include "GrCaps.h"
 #include "GrContextOptions.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -22,7 +23,6 @@
 #include "GrGpu.h"
 #include "GrImmediateDrawTarget.h"
 #include "GrIndexBuffer.h"
-#include "GrInOrderDrawBuffer.h"
 #include "GrLayerCache.h"
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
@@ -66,7 +66,7 @@ void GrContext::DrawingMgr::init(GrContext* context) {
 #ifdef IMMEDIATE_MODE
     fDrawTarget = SkNEW_ARGS(GrImmediateDrawTarget, (context));
 #else
-    fDrawTarget = SkNEW_ARGS(GrInOrderDrawBuffer, (context));
+    fDrawTarget = SkNEW_ARGS(GrBufferedDrawTarget, (context));
 #endif    
 }
 
@@ -276,7 +276,7 @@ void GrContext::OverBudgetCB(void* data) {
 
     GrContext* context = reinterpret_cast<GrContext*>(data);
 
-    // Flush the InOrderDrawBuffer to possibly free up some textures
+    // Flush the GrBufferedDrawTarget to possibly free up some textures
     context->fFlushToReduceCacheSize = true;
 }
 
