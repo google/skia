@@ -74,6 +74,12 @@ bool SkDConic::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
 }
 
 SkDPoint SkDConic::ptAtT(double t) const {
+    if (t == 0) {
+        return fPts[0];
+    }
+    if (t == 1) {
+        return fPts[2];
+    }
     double denominator = conic_eval_denominator(fWeight, t);
     SkDPoint result = {
         conic_eval_numerator(&fPts[0].fX, fWeight, t) / denominator,
@@ -84,16 +90,38 @@ SkDPoint SkDConic::ptAtT(double t) const {
 
 /* see quad subdivide for rationale */
 SkDConic SkDConic::subDivide(double t1, double t2) const {
-    double ax = conic_eval_numerator(&fPts[0].fX, fWeight, t1);
-    double ay = conic_eval_numerator(&fPts[0].fY, fWeight, t1);
-    double az = conic_eval_denominator(fWeight, t1);
+    double ax, ay, az;
+    if (t1 == 0) {
+        ax = fPts[0].fX;
+        ay = fPts[0].fY;
+        az = 1;
+    } else if (t1 != 1) {
+        ax = conic_eval_numerator(&fPts[0].fX, fWeight, t1);
+        ay = conic_eval_numerator(&fPts[0].fY, fWeight, t1);
+        az = conic_eval_denominator(fWeight, t1);
+    } else {
+        ax = fPts[2].fX;
+        ay = fPts[2].fY;
+        az = 1;
+    }
     double midT = (t1 + t2) / 2;
     double dx = conic_eval_numerator(&fPts[0].fX, fWeight, midT);
     double dy = conic_eval_numerator(&fPts[0].fY, fWeight, midT);
     double dz = conic_eval_denominator(fWeight, midT);
-    double cx = conic_eval_numerator(&fPts[0].fX, fWeight, t2);
-    double cy = conic_eval_numerator(&fPts[0].fY, fWeight, t2);
-    double cz = conic_eval_denominator(fWeight, t2);
+    double cx, cy, cz;
+    if (t2 == 1) {
+        cx = fPts[2].fX;
+        cy = fPts[2].fY;
+        cz = 1;
+    } else if (t2 != 0) {
+        cx = conic_eval_numerator(&fPts[0].fX, fWeight, t2);
+        cy = conic_eval_numerator(&fPts[0].fY, fWeight, t2);
+        cz = conic_eval_denominator(fWeight, t2);
+    } else {
+        cx = fPts[0].fX;
+        cy = fPts[0].fY;
+        cz = 1;
+    }
     double bx = 2 * dx - (ax + cx) / 2;
     double by = 2 * dy - (ay + cy) / 2;
     double bz = 2 * dz - (az + cz) / 2;
