@@ -16,8 +16,6 @@
  * matrix. It also leaves coverage untouched.  Behind the scenes, we may add per vertex color or
  * local coords.
  */
-typedef GrDefaultGeoProcFactory Flag;
-
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(uint32_t gpTypeFlags,

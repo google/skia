@@ -175,9 +175,7 @@ private:
         The vertex attrib order is always pos, color, [local coords].
      */
     const GrGeometryProcessor* createRectGP() {
-        typedef GrDefaultGeoProcFactory::Color Color;
-        typedef GrDefaultGeoProcFactory::Coverage Coverage;
-        typedef GrDefaultGeoProcFactory::LocalCoords LocalCoords;
+        using namespace GrDefaultGeoProcFactory;
         Color color(Color::kAttribute_Type);
         Coverage coverage(this->coverageIgnored() ? Coverage::kNone_Type : Coverage::kSolid_Type);
 

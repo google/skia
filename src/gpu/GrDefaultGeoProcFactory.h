@@ -18,8 +18,7 @@ class GrDrawState;
  * used in the creation of optimized draw states because adding default GPs to the drawstate can
  * interfere with batching due to updating the drawstate.
  */
-class GrDefaultGeoProcFactory {
-public:
+namespace GrDefaultGeoProcFactory {
     // Structs for adding vertex attributes
     struct PositionAttr {
         SkPoint fPosition;
@@ -125,31 +124,31 @@ public:
         const SkMatrix* fMatrix;
     };
 
-    static const GrGeometryProcessor* Create(const Color&,
-                                             const Coverage&,
-                                             const LocalCoords&,
-                                             const SkMatrix& viewMatrix = SkMatrix::I());
+    const GrGeometryProcessor* Create(const Color&,
+                                      const Coverage&,
+                                      const LocalCoords&,
+                                      const SkMatrix& viewMatrix = SkMatrix::I());
 
     /*
      * Use this factory to create a GrGeometryProcessor that expects a device space vertex position
      * attribute. The view matrix must still be provided to compute correctly transformed
      * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
      */
-    static const GrGeometryProcessor* CreateForDeviceSpace(const Color&,
-                                                           const Coverage&,
-                                                           const LocalCoords&,
-                                                           const SkMatrix& viewMatrix);
+    const GrGeometryProcessor* CreateForDeviceSpace(const Color&,
+                                                    const Coverage&,
+                                                    const LocalCoords&,
+                                                    const SkMatrix& viewMatrix);
 
     // TODO deprecate this
-    static const GrGeometryProcessor* Create(uint32_t gpTypeFlags,
-                                             GrColor,
-                                             bool localCoordsWillBeRead,
-                                             bool coverageWillBeIgnored,
-                                             const SkMatrix& viewMatrix = SkMatrix::I(),
-                                             const SkMatrix& localMatrix = SkMatrix::I(),
-                                             uint8_t coverage = 0xff);
+    const GrGeometryProcessor* Create(uint32_t gpTypeFlags,
+                                      GrColor,
+                                      bool localCoordsWillBeRead,
+                                      bool coverageWillBeIgnored,
+                                      const SkMatrix& viewMatrix = SkMatrix::I(),
+                                      const SkMatrix& localMatrix = SkMatrix::I(),
+                                      uint8_t coverage = 0xff);
 
-    static size_t DefaultVertexStride() { return sizeof(PositionAttr); }
+    inline size_t DefaultVertexStride() { return sizeof(PositionAttr); }
 };
 
 #endif
