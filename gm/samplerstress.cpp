@@ -128,6 +128,7 @@ protected:
         paint2.setTextSize(72);
         paint2.setStyle(SkPaint::kStroke_Style);
         paint2.setStrokeWidth(1);
+        sk_tool_utils::set_portable_typeface(&paint2);
         canvas->drawText("M", 1,
                          SkIntToScalar(100), SkIntToScalar(100),
                          paint2);
