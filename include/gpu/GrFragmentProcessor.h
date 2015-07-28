@@ -24,7 +24,6 @@ class GrFragmentProcessor : public GrProcessor {
 public:
     GrFragmentProcessor()
         : INHERITED()
-        , fWillUseInputColor(true)
         , fUsesLocalCoords(false) {}
 
     /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
@@ -49,9 +48,6 @@ public:
     const SkTArray<const GrCoordTransform*, true>& coordTransforms() const {
         return fCoordTransforms;
     }
-
-    /** Will this prceossor read the source color value? */
-    bool willUseInputColor() const { return fWillUseInputColor; }
 
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return fUsesLocalCoords; }
@@ -102,13 +98,6 @@ protected:
     void addCoordTransform(const GrCoordTransform*);
 
     /**
-     * If the prceossor will generate a result that does not depend on the input color value then it
-     * must call this function from its constructor. Otherwise, when its generated backend-specific
-     * code might fail during variable binding due to unused variables.
-     */
-    void setWillNotUseInputColor() { fWillUseInputColor = false; }
-
-    /**
      * Subclass implements this to support getConstantColorComponents(...).
      */
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
@@ -125,7 +114,6 @@ private:
     bool hasSameTransforms(const GrFragmentProcessor&) const;
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
-    bool                                         fWillUseInputColor;
     bool                                         fUsesLocalCoords;
 
     typedef GrProcessor INHERITED;
