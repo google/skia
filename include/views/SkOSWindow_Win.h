@@ -10,9 +10,9 @@
 #ifndef SkOSWindow_Win_DEFINED
 #define SkOSWindow_Win_DEFINED
 
-#include "SkWindow.h"
 #include "../../src/core/SkFunction.h"
-#include "../../src/core/SkTHash.h"
+#include "../private/SkTHash.h"
+#include "SkWindow.h"
 
 #if SK_ANGLE
 #include "EGL/egl.h"

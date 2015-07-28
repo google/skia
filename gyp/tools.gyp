@@ -175,6 +175,7 @@
         '../tools/skpdiff/skpdiff_util.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core/', # needed for SkTLList.h
         '../tools/',    # needed for picture_utils::replace_char
       ],
@@ -229,6 +230,7 @@
         '../tools/skpmaker.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core',
       ],
       'dependencies': [
@@ -271,6 +273,7 @@
         '../tools/skpinfo.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core/',
       ],
       'dependencies': [
@@ -297,6 +300,7 @@
         '../tools/LazyDecodeBitmap.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core/',
         '../src/lazy/',
         '../tools/',
@@ -316,6 +320,7 @@
         '../tools/LazyDecodeBitmap.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core/',
         '../src/images',
         '../src/lazy',
@@ -333,6 +338,7 @@
         '../src/utils/SkLua.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         # Lua exposes GrReduceClip which in turn requires src/core for SkTLList
         '../src/gpu/',
         '../src/core/',
@@ -355,6 +361,7 @@
         '../src/utils/SkLua.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         # Lua exposes GrReduceClip which in turn requires src/core for SkTLList
         '../src/gpu/',
         '../src/core/',
@@ -378,6 +385,7 @@
         '../tools/render_pictures_main.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core',
         '../src/images',
         '../src/lazy',
@@ -401,6 +409,7 @@
         '../tools/bench_pictures_main.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core/',
         '../bench',
         '../src/lazy/',
@@ -429,6 +438,7 @@
         '../tools/LazyDecodeBitmap.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core/',
         '../src/images',
         '../src/lazy',
@@ -456,6 +466,7 @@
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core',
         '../src/images',
         '../src/lazy',
@@ -498,6 +509,7 @@
         '../tools/render_pdfs_main.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core',
         '../src/pipe/utils/',
         '../src/utils/',
@@ -588,6 +600,7 @@
       'target_name': 'filter',
       'type': 'executable',
       'include_dirs' : [
+        '../include/private',
         '../src/core',
         '../src/utils/debugger',
       ],
@@ -715,6 +728,7 @@
               '../src/utils/SkLua.cpp',
             ],
             'include_dirs': [
+              '../include/private',
               # Lua exposes GrReduceClip which in turn requires src/core for SkTLList
               '../src/gpu/',
               '../src/core/',
@@ -778,6 +792,7 @@
               '../tools/create_test_font.cpp',
             ],
             'include_dirs': [
+              '../include/private',
               '../src/core',
             ],
             'dependencies': [
