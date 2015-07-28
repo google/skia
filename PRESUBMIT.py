@@ -279,8 +279,10 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
     affected_file_path = affected_file.LocalPath()
     file_path, file_ext = os.path.splitext(affected_file_path)
     # We only care about files that end in .h and are under the top-level
-    # include dir.
-    if file_ext == '.h' and 'include' == file_path.split(os.path.sep)[0]:
+    # include dir, but not include/private.
+    if (file_ext == '.h' and
+        'include' == file_path.split(os.path.sep)[0] and
+        'private' not in file_path):
       requires_owner_check = True
 
   if not requires_owner_check:
@@ -328,8 +330,12 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   if not lgtm_from_owner:
     results.append(
         output_api.PresubmitError(
-            'Since the CL is editing public API, you must have an LGTM from '
-            'one of: %s' % str(PUBLIC_API_OWNERS)))
+            "If this CL adds to or changes Skia's public API, you need an LGTM "
+            "from any of %s.  If this CL only removes from or doesn't change "
+            "Skia's public API, please add a short note to the CL saying so "
+            "and add one of those reviewers on a TBR= line.  If you don't know "
+            "if this CL affects Skia's public API, treat it like it does."
+            % str(PUBLIC_API_OWNERS)))
   return results
 
 
