@@ -568,6 +568,21 @@ static void test_clipped_cubic() {
     }
 }
 
+static void test_bounds_crbug_513799(skiatest::Reporter* reporter) {
+    SkPath path;
+
+    REPORTER_ASSERT(reporter, SkRect::MakeLTRB(0, 0, 0, 0) == path.getBounds());
+
+    path.moveTo(-5, -8);
+    REPORTER_ASSERT(reporter, SkRect::MakeLTRB(-5, -8, -5, -8) == path.getBounds());
+
+    path.addRect(SkRect::MakeLTRB(1, 2, 3, 4));
+    REPORTER_ASSERT(reporter, SkRect::MakeLTRB(-5, -8, 3, 4) == path.getBounds());
+
+    path.moveTo(1, 2);
+    REPORTER_ASSERT(reporter, SkRect::MakeLTRB(-5, -8, 3, 4) == path.getBounds());
+}
+
 // Inspired by http://ie.microsoft.com/testdrive/Performance/Chalkboard/
 // which triggered an assert, from a tricky cubic. This test replicates that
 // example, so we can ensure that we handle it (in SkEdge.cpp), and don't
@@ -2358,9 +2373,9 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
         SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kCubic_Verb, SkPath::kClose_Verb
     };
     static const struct zeroPathTestData gZeroLengthTests[] = {
-        { "M 1 1", 1, {0, 0, 0, 0}, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
+        { "M 1 1", 1, {1, 1, 1, 1}, resultVerbs1, SK_ARRAY_COUNT(resultVerbs1) },
         { "M 1 1 M 2 1", 2, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs2, SK_ARRAY_COUNT(resultVerbs2) },
-        { "M 1 1 z", 1, {0, 0, 0, 0}, resultVerbs3, SK_ARRAY_COUNT(resultVerbs3) },
+        { "M 1 1 z", 1, {1, 1, 1, 1}, resultVerbs3, SK_ARRAY_COUNT(resultVerbs3) },
         { "M 1 1 z M 2 1 z", 2, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs4, SK_ARRAY_COUNT(resultVerbs4) },
         { "M 1 1 L 1 1", 2, {SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1}, resultVerbs5, SK_ARRAY_COUNT(resultVerbs5) },
         { "M 1 1 L 1 1 M 2 1 L 2 1", 4, {SK_Scalar1, SK_Scalar1, 2*SK_Scalar1, SK_Scalar1}, resultVerbs6, SK_ARRAY_COUNT(resultVerbs6) },
@@ -3848,4 +3863,5 @@ DEF_TEST(Paths, reporter) {
     test_path_crbugskia2820(reporter);
     test_skbug_3469(reporter);
     test_skbug_3239(reporter);
+    test_bounds_crbug_513799(reporter);
 }

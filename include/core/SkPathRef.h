@@ -278,13 +278,7 @@ private:
 
     // Return true if the computed bounds are finite.
     static bool ComputePtBounds(SkRect* bounds, const SkPathRef& ref) {
-        int count = ref.countPoints();
-        if (count <= 1) {  // we ignore just 1 point (moveto)
-            bounds->setEmpty();
-            return count ? ref.points()->isFinite() : true;
-        } else {
-            return bounds->setBoundsCheck(ref.points(), count);
-        }
+        return bounds->setBoundsCheck(ref.points(), ref.countPoints());
     }
 
     // called, if dirty, by getBounds()

@@ -273,11 +273,12 @@ public:
     //! Swap contents of this and other. Guaranteed not to throw
     void swap(SkPath& other);
 
-    /** Returns the bounds of the path's points. If the path contains 0 or 1
-        points, the bounds is set to (0,0,0,0), and isEmpty() will return true.
-        Note: this bounds may be larger than the actual shape, since curves
-        do not extend as far as their control points. Additionally this bound
-        can contain trailing MoveTo points (cf. isRect).
+    /**
+     *  Returns the bounds of the path's points. If the path contains zero points/verbs, this
+     *  will return the "empty" rect [0, 0, 0, 0].
+     *  Note: this bounds may be larger than the actual shape, since curves
+     *  do not extend as far as their control points. Additionally this bound encompases all points,
+     *  even isolated moveTos either preceeding or following the last non-degenerate contour.
     */
     const SkRect& getBounds() const {
         return fPathRef->getBounds();
