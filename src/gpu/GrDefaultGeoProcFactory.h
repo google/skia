@@ -111,26 +111,36 @@ public:
 
     struct LocalCoords {
         enum Type {
-            kNone_Type,
+            kUnused_Type,
             kUsePosition_Type,
             kHasExplicit_Type,
         };
+        LocalCoords(Type type) : fType(type), fMatrix(NULL) {}
+        LocalCoords(Type type, const SkMatrix* matrix) : fType(type), fMatrix(matrix) {
+            SkASSERT(kUnused_Type != type);
+        }
+        bool hasLocalMatrix() const { return NULL != fMatrix; }
+
+        Type fType;
+        const SkMatrix* fMatrix;
     };
 
     static const GrGeometryProcessor* Create(const Color&,
                                              const Coverage&,
-                                             LocalCoords::Type,
-                                             const SkMatrix& viewMatrix = SkMatrix::I(),
-                                             const SkMatrix& localMatrix = SkMatrix::I());
+                                             const LocalCoords&,
+                                             const SkMatrix& viewMatrix = SkMatrix::I());
 
     /*
-     * The following functions are used to create default GPs. If you just need to create
-     * attributes separately from creating the default GP, use the SetAttribs function followed
-     * by the Create function. Otherwise use CreateAndSetAttribs to do both at once.
-     *
-     * You must unref the return from Create.
+     * Use this factory to create a GrGeometryProcessor that expects a device space vertex position
+     * attribute. The view matrix must still be provided to compute correctly transformed
+     * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
      */
-    // TODO clean this up
+    static const GrGeometryProcessor* CreateForDeviceSpace(const Color&,
+                                                           const Coverage&,
+                                                           const LocalCoords&,
+                                                           const SkMatrix& viewMatrix);
+
+    // TODO deprecate this
     static const GrGeometryProcessor* Create(uint32_t gpTypeFlags,
                                              GrColor,
                                              bool localCoordsWillBeRead,

@@ -278,24 +278,43 @@ const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(uint32_t gpTypeFlags,
 
 const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(const Color& color,
                                                            const Coverage& coverage,
-                                                           LocalCoords::Type localCoords,
-                                                           const SkMatrix& viewMatrix,
-                                                           const SkMatrix& localMatrix) {
+                                                           const LocalCoords& localCoords,
+                                                           const SkMatrix& viewMatrix) {
     uint32_t flags = 0;
     flags |= color.fType == Color::kAttribute_Type ? kColor_GPType : 0;
     flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverage_GPType : 0;
-    flags |= localCoords == LocalCoords::kHasExplicit_Type ? kLocalCoord_GPType : 0;
+    flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoord_GPType : 0;
 
     uint8_t inCoverage = coverage.fCoverage;
     bool coverageWillBeIgnored = coverage.fType == Coverage::kNone_Type;
-    bool localCoordsWillBeRead = localCoords != LocalCoords::kNone_Type;
+    bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
 
     GrColor inColor = color.fColor;
     return DefaultGeoProc::Create(flags,
                                   inColor,
                                   viewMatrix,
-                                  localMatrix,
+                                  localCoords.fMatrix ? *localCoords.fMatrix : SkMatrix::I(),
                                   localCoordsWillBeRead,
                                   coverageWillBeIgnored,
                                   inCoverage);
+}
+
+const GrGeometryProcessor* GrDefaultGeoProcFactory::CreateForDeviceSpace(
+                                                                     const Color& color,
+                                                                     const Coverage& coverage,
+                                                                     const LocalCoords& localCoords,
+                                                                     const SkMatrix& viewMatrix) {
+    SkASSERT(LocalCoords::kUsePosition_Type == localCoords.fType);
+    SkMatrix invert = SkMatrix::I();
+    if (!viewMatrix.isIdentity() && !viewMatrix.invert(&invert)) {
+        SkDebugf("Could not invert\n");
+        return NULL;
+    }
+
+    if (localCoords.hasLocalMatrix()) {
+        invert.preConcat(*localCoords.fMatrix);
+    }
+
+    LocalCoords inverted(LocalCoords::kUsePosition_Type, &invert);
+    return Create(color, coverage, inverted);
 }

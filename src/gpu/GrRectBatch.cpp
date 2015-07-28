@@ -13,39 +13,6 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPrimitiveProcessor.h"
 
-/** We always use per-vertex colors so that rects can be batched across color changes. Sometimes we
-    have explicit local coords and sometimes not. We *could* always provide explicit local coords
-    and just duplicate the positions when the caller hasn't provided a local coord rect, but we
-    haven't seen a use case which frequently switches between local rect and no local rect draws.
-
-    The color param is used to determine whether the opaque hint can be set on the draw state.
-    The caller must populate the vertex colors itself.
-
-    The vertex attrib order is always pos, color, [local coords].
- */
-static const GrGeometryProcessor* create_rect_gp(bool hasExplicitLocalCoords,
-                                                 const SkMatrix* localMatrix,
-                                                 bool coverageIgnored) {
-    typedef GrDefaultGeoProcFactory::Color Color;
-    typedef GrDefaultGeoProcFactory::Coverage Coverage;
-    typedef GrDefaultGeoProcFactory::LocalCoords LocalCoords;
-    Color color(Color::kAttribute_Type);
-    Coverage coverage(coverageIgnored ? Coverage::kNone_Type : Coverage::kSolid_Type);
-    LocalCoords::Type localCoords;
-    if (hasExplicitLocalCoords) {
-        localCoords = LocalCoords::kHasExplicit_Type;
-    } else {
-        localCoords = LocalCoords::kUsePosition_Type;
-    }
-
-    if (localMatrix) {
-        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I(),
-                                               *localMatrix);
-    } else {
-        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords);
-    }
-}
-
 class RectBatch : public GrBatch {
 public:
     struct Geometry {
@@ -88,32 +55,17 @@ public:
     }
 
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
-        // Go to device coords to allow batching across matrix changes
-        SkMatrix invert = SkMatrix::I();
-
-        // if we have a local rect, then we apply the localMatrix directly to the localRect to
-        // generate vertex local coords
-        bool hasExplicitLocalCoords = this->hasLocalRect();
-        if (!hasExplicitLocalCoords) {
-            if (!this->viewMatrix().isIdentity() && !this->viewMatrix().invert(&invert)) {
-                SkDebugf("Could not invert\n");
-                return;
-            }
-
-            if (this->hasLocalMatrix()) {
-                invert.preConcat(this->localMatrix());
-            }
+        SkAutoTUnref<const GrGeometryProcessor> gp(this->createRectGP());
+        if (!gp) {
+            SkDebugf("Could not create GrGeometryProcessor\n");
+            return;
         }
-
-        SkAutoTUnref<const GrGeometryProcessor> gp(create_rect_gp(hasExplicitLocalCoords,
-                                                                  &invert,
-                                                                  this->coverageIgnored()));
 
         batchTarget->initDraw(gp, pipeline);
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
-        SkASSERT(hasExplicitLocalCoords ?
+        SkASSERT(this->hasLocalRect() ?
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
         QuadHelper helper;
@@ -210,6 +162,38 @@ private:
         this->joinBounds(that->bounds());
         return true;
     }
+
+    /** We always use per-vertex colors so that rects can be batched across color changes. Sometimes
+        we  have explicit local coords and sometimes not. We *could* always provide explicit local
+        coords and just duplicate the positions when the caller hasn't provided a local coord rect,
+        but we haven't seen a use case which frequently switches between local rect and no local
+        rect draws.
+
+        The color param is used to determine whether the opaque hint can be set on the draw state.
+        The caller must populate the vertex colors itself.
+
+        The vertex attrib order is always pos, color, [local coords].
+     */
+    const GrGeometryProcessor* createRectGP() {
+        typedef GrDefaultGeoProcFactory::Color Color;
+        typedef GrDefaultGeoProcFactory::Coverage Coverage;
+        typedef GrDefaultGeoProcFactory::LocalCoords LocalCoords;
+        Color color(Color::kAttribute_Type);
+        Coverage coverage(this->coverageIgnored() ? Coverage::kNone_Type : Coverage::kSolid_Type);
+
+        // if we have a local rect, then we apply the localMatrix directly to the localRect to
+        // generate vertex local coords
+        if (this->hasLocalRect()) {
+            LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
+            return GrDefaultGeoProcFactory::Create(color, coverage, localCoords);
+        } else {
+            LocalCoords localCoords(LocalCoords::kUsePosition_Type,
+                                    this->hasLocalMatrix() ? &this->localMatrix() : NULL);
+            return GrDefaultGeoProcFactory::CreateForDeviceSpace(color, coverage, localCoords,
+                                                                 this->viewMatrix());
+        }
+    }
+
 
     struct BatchTracker {
         GrColor fColor;
