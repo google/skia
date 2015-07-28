@@ -55,7 +55,8 @@ then
 fi
 
 BUILD_TYPE_LC=$(echo $BUILDTYPE | tr "[:upper:]" "[:lower:]")
+APP_LC=$(echo $app | tr "[:upper:]" "[:lower:]")
 
-echo "Installing ${app} from ${app}/build/outputs/apk/${app}-${ANDROID_ARCH}-${BUILD_TYPE_LC}.apk"
-$ADB ${DEVICE_SERIAL} install -r ${SCRIPT_DIR}/../apps/${app}/build/outputs/apk/${app}-${ANDROID_ARCH}-${BUILD_TYPE_LC}.apk
+echo "Installing ${APP_LC} from ${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${BUILD_TYPE_LC}.apk"
+$ADB ${DEVICE_SERIAL} install -r ${SCRIPT_DIR}/../apps/${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${BUILD_TYPE_LC}.apk
 
