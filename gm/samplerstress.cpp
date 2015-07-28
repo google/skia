@@ -101,6 +101,7 @@ protected:
         paint.setTextSize(72);
         paint.setShader(fShader.get());
         paint.setMaskFilter(fMaskFilter.get());
+        sk_tool_utils::set_portable_typeface(&paint);
 
         SkRect temp;
         temp.set(SkIntToScalar(115),
@@ -131,7 +132,7 @@ protected:
                          SkIntToScalar(100), SkIntToScalar(100),
                          paint2);
 
-        paint2.setColor(SK_ColorGRAY);
+        paint2.setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
 
         canvas->drawPath(path, paint2);
     }

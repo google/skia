@@ -98,7 +98,7 @@ static const SkPicture* make_single_layer_hex_plane_picture() {
 
     SkPaint greyFill;
     greyFill.setStyle(SkPaint::kFill_Style);
-    greyFill.setColor(SK_ColorLTGRAY);
+    greyFill.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
 
     SkPaint stroke;
     stroke.setStyle(SkPaint::kStroke_Style);
@@ -154,7 +154,7 @@ static const SkPicture* make_tri_picture() {
 
     SkPaint fill;
     fill.setStyle(SkPaint::kFill_Style);
-    fill.setColor(SK_ColorLTGRAY);
+    fill.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
 
     SkPaint stroke;
     stroke.setStyle(SkPaint::kStroke_Style);
@@ -488,7 +488,7 @@ namespace skiagm {
 
         void onOnceBeforeDraw() override {
             fPictures[0] = make_hex_plane_picture(SK_ColorWHITE);
-            fPictures[1] = make_hex_plane_picture(SK_ColorGRAY);
+            fPictures[1] = make_hex_plane_picture(sk_tool_utils::color_to_565(SK_ColorGRAY));
             fPictures[2] = make_sierpinski_picture();
             fPictures[3] = make_single_layer_hex_plane_picture();
         }

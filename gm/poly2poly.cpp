@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+#include "Resources.h"
+#include "SkTypeface.h"
 
 class SkJSCanvas {
 public:
@@ -215,11 +217,13 @@ protected:
         paint->setStyle(SkPaint::kFill_Style);
         SkScalar x = D/2;
         SkScalar y = D/2 - (fm.fAscent + fm.fDescent)/2;
-        SkString str;
-        str.appendS32(count);
-        canvas->drawText(str.c_str(), str.size(), x, y, *paint);
-
+        uint16_t glyphID = 3; // X
+        canvas->drawText((void*) &glyphID, sizeof(glyphID), x, y, *paint);
         canvas->restore();
+    }
+
+    void onOnceBeforeDraw() override {
+        fEmFace.reset(GetResourceAsTypeface("/fonts/Em.ttf"));
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -227,7 +231,8 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+        paint.setTypeface(fEmFace);
+        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
         paint.setStrokeWidth(SkIntToScalar(4));
         paint.setTextSize(SkIntToScalar(40));
         paint.setTextAlign(SkPaint::kCenter_Align);
@@ -267,6 +272,7 @@ protected:
 
 private:
     typedef skiagm::GM INHERITED;
+    SkAutoTUnref<SkTypeface> fEmFace;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -148,6 +148,7 @@ protected:
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
         paint.setAntiAlias(true);
+        sk_tool_utils::set_portable_typeface(&paint);
         add_to_text_blob(&builder, text, paint, 0, 0);
         fBlob.reset(builder.build());
 
@@ -225,7 +226,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        canvas->drawColor(SK_ColorGRAY);
+        canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
 
         SkPaint paint;
         canvas->translate(10, 40);

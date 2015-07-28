@@ -33,6 +33,7 @@ protected:
         p.setSubpixelText(true);
         p.setTextSize(30);
         p.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        sk_tool_utils::set_portable_typeface(&p);
 
         SkTextBlobBuilder builder;
         int glyphCount = fGlyphs.count();

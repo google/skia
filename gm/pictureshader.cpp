@@ -143,7 +143,7 @@ private:
 
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
-        paint.setColor(SK_ColorLTGRAY);
+        paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
 
         canvas->save();
         canvas->concat(matrix);
@@ -193,9 +193,9 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     SkRect r = tile;
     r.inset(4, 4);
     SkPaint p;
-    p.setColor(0xFF303F9F);  // dark blue
+    p.setColor(sk_tool_utils::color_to_565(0xFF303F9F));  // dark blue
     c->drawRect(r, p);
-    p.setColor(0xFFC5CAE9);  // light blue
+    p.setColor(sk_tool_utils::color_to_565(0xFFC5CAE9));  // light blue
     p.setStrokeWidth(10);
     c->drawLine(20, 20, 80, 80, p);
 
@@ -207,11 +207,11 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
 	      NULL,
 	      NULL));
 
-    p.setColor(0xFF8BC34A);  // green
+    p.setColor(sk_tool_utils::color_to_565(0xFF8BC34A));  // green
     canvas->drawPaint(p);
 
     canvas->clipRect(SkRect::MakeXYWH(0, 0, 400, 350));
-    p.setColor(0xFFB6B6B6);  // gray
+    p.setColor(sk_tool_utils::color_to_565(0xFFB6B6B6));  // gray
     canvas->drawPaint(p);
     p.setShader(shader.get());
 

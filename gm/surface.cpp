@@ -53,6 +53,7 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
     paint.setColor(SK_ColorWHITE);
     paint.setTextSize(32);
     paint.setTextAlign(SkPaint::kCenter_Align);
+    sk_tool_utils::set_portable_typeface(&paint);
     canvas->drawText(label, strlen(label), W / 2, H * 3 / 4, paint);
 }
 

@@ -63,7 +63,8 @@ static void checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
  *  checkerboard pattern looks correct.
  */
 DEF_SIMPLE_GM(transparency_check, canvas, 1792, 1080) {
-    checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
+    checkerboard(canvas, sk_tool_utils::color_to_565(0xFF999999),
+            sk_tool_utils::color_to_565(0xFF666666), 8);
     {
         SkAutoCanvasRestore autoCanvasRestore(canvas, true);
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(256, 9));

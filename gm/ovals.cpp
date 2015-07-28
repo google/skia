@@ -132,7 +132,7 @@ protected:
         hsv[1] = rand->nextRangeF(0.75f, 1.0f);
         hsv[2] = rand->nextRangeF(0.75f, 1.0f);
 
-        return SkHSVToColor(hsv);
+        return sk_tool_utils::color_to_565(SkHSVToColor(hsv));
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -150,7 +150,7 @@ protected:
         rectPaint.setAntiAlias(true);
         rectPaint.setStyle(SkPaint::kStroke_Style);
         rectPaint.setStrokeWidth(SkIntToScalar(0));
-        rectPaint.setColor(SK_ColorLTGRAY);
+        rectPaint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
 
         int testCount = 0;
         for (int i = 0; i < fPaints.count(); ++i) {

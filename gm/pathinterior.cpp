@@ -44,7 +44,7 @@ protected:
         bool hasInterior = false;
 #endif
 
-        paint.setColor(hasInterior ? 0xFF8888FF : SK_ColorGRAY);
+        paint.setColor(sk_tool_utils::color_to_565(hasInterior ? 0xFF8888FF : SK_ColorGRAY));
         canvas->drawPath(path, paint);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorRED);
