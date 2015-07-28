@@ -484,7 +484,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         return false;
     }
 
-    GrRenderTarget* rtToRead = src->asRenderTarget();
+    SkAutoTUnref<GrRenderTarget> rtToRead(SkSafeRef(src->asRenderTarget()));
     bool didTempDraw = false;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
         GrTextureProvider::ScratchTexMatch match = GrTextureProvider::kApprox_ScratchTexMatch;
@@ -496,7 +496,8 @@ bool GrContext::readSurfacePixels(GrSurface* src,
             }
         }
         SkAutoTUnref<GrTexture> temp;
-        temp.reset(this->textureProvider()->refScratchTexture(tempDrawInfo.fTempSurfaceDesc, match));
+        temp.reset(this->textureProvider()->refScratchTexture(tempDrawInfo.fTempSurfaceDesc,
+                                                              match));
         if (temp) {
             SkMatrix textureMatrix;
             textureMatrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
@@ -526,7 +527,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 GrDrawContext* drawContext = this->drawContext();
                 drawContext->drawRect(temp->asRenderTarget(), GrClip::WideOpen(), paint,
                                       SkMatrix::I(), rect, NULL);
-                rtToRead = temp->asRenderTarget();
+                rtToRead.reset(SkRef(temp->asRenderTarget()));
                 left = 0;
                 top = 0;
                 didTempDraw = true;
