@@ -27,6 +27,7 @@
       ],
       'include_dirs': [
         '../include/codec',
+        '../include/private',
         '../src/codec',
         '../src/core',
       ],

@@ -45,6 +45,7 @@
         '../experimental/PdfViewer/pdfparser',
         '../experimental/PdfViewer/pdfparser/native',
         '../experimental/PdfViewer/pdfparser/native/pdfapi',
+        '../include/private',
         '../src/core',
       ],
       'dependencies': [

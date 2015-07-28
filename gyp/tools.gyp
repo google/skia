@@ -119,6 +119,7 @@
         '../tools/timer/TimerData.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core',
         '../src/gpu',
       ],

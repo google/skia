@@ -5,6 +5,7 @@
 # Common gypi for unit tests.
 {
   'include_dirs': [
+    '../include/private',
     '../src/codec',
     '../src/core',
     '../src/effects',

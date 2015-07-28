@@ -25,6 +25,7 @@
         'effects.gyp:*'
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core',
         '../src/opts',
         '../src/utils',
@@ -88,7 +89,10 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [ 'core.gyp:*' ],
-      'include_dirs': [ '../src/core' ],
+      'include_dirs': [
+          '../include/private',
+          '../src/core',
+      ],
       'sources': [ '<@(ssse3_sources)' ],
       'conditions': [
         [ 'skia_os == "win"', {
@@ -105,6 +109,10 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'dependencies': [ 'core.gyp:*' ],
+      'include_dirs': [
+          '../include/private',
+          '../src/core',
+      ],
       'sources': [ '<@(sse41_sources)' ],
       'conditions': [
         [ 'skia_os == "win"', {
@@ -128,6 +136,7 @@
         'effects.gyp:*'
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core',
         '../src/opts',
         '../src/utils',

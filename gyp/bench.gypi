@@ -6,6 +6,7 @@
   'include_dirs': [
     '../bench/subset',
     '../bench',
+    '../include/private',
     '../src/core',
     '../src/effects',
     '../src/gpu',

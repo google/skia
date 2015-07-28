@@ -22,6 +22,7 @@
       ],
       'include_dirs': [
         '../include/images',
+        '../include/private',
         '../src/lazy',
         # for access to SkErrorInternals.h
         '../src/core/',
