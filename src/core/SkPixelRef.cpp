@@ -365,7 +365,6 @@ void SkPixelRef::setTemporarilyImmutable() {
 void SkPixelRef::restoreMutability() {
     SkASSERT(fMutability != kImmutable);
     fMutability = kMutable;
-    this->notifyPixelsChanged();  // This is just precautionary.
 }
 
 bool SkPixelRef::readPixels(SkBitmap* dst, const SkIRect* subset) {
