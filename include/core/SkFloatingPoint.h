@@ -56,40 +56,24 @@ static inline float sk_float_copysign(float x, float y) {
 #endif
 }
 
-#ifdef SK_BUILD_FOR_WINCE
-    #define sk_float_sqrt(x)        (float)::sqrt(x)
-    #define sk_float_sin(x)         (float)::sin(x)
-    #define sk_float_cos(x)         (float)::cos(x)
-    #define sk_float_tan(x)         (float)::tan(x)
-    #define sk_float_acos(x)        (float)::acos(x)
-    #define sk_float_asin(x)        (float)::asin(x)
-    #define sk_float_atan2(y,x)     (float)::atan2(y,x)
-    #define sk_float_abs(x)         (float)::fabs(x)
-    #define sk_float_mod(x,y)       (float)::fmod(x,y)
-    #define sk_float_exp(x)         (float)::exp(x)
-    #define sk_float_log(x)         (float)::log(x)
-    #define sk_float_floor(x)       (float)::floor(x)
-    #define sk_float_ceil(x)        (float)::ceil(x)
-#else
-    #define sk_float_sqrt(x)        sqrtf(x)
-    #define sk_float_sin(x)         sinf(x)
-    #define sk_float_cos(x)         cosf(x)
-    #define sk_float_tan(x)         tanf(x)
-    #define sk_float_floor(x)       floorf(x)
-    #define sk_float_ceil(x)        ceilf(x)
+#define sk_float_sqrt(x)        sqrtf(x)
+#define sk_float_sin(x)         sinf(x)
+#define sk_float_cos(x)         cosf(x)
+#define sk_float_tan(x)         tanf(x)
+#define sk_float_floor(x)       floorf(x)
+#define sk_float_ceil(x)        ceilf(x)
 #ifdef SK_BUILD_FOR_MAC
-    #define sk_float_acos(x)        static_cast<float>(acos(x))
-    #define sk_float_asin(x)        static_cast<float>(asin(x))
+#    define sk_float_acos(x)    static_cast<float>(acos(x))
+#    define sk_float_asin(x)    static_cast<float>(asin(x))
 #else
-    #define sk_float_acos(x)        acosf(x)
-    #define sk_float_asin(x)        asinf(x)
+#    define sk_float_acos(x)    acosf(x)
+#    define sk_float_asin(x)    asinf(x)
 #endif
-    #define sk_float_atan2(y,x)     atan2f(y,x)
-    #define sk_float_abs(x)         fabsf(x)
-    #define sk_float_mod(x,y)       fmodf(x,y)
-    #define sk_float_exp(x)         expf(x)
-    #define sk_float_log(x)         logf(x)
-#endif
+#define sk_float_atan2(y,x)     atan2f(y,x)
+#define sk_float_abs(x)         fabsf(x)
+#define sk_float_mod(x,y)       fmodf(x,y)
+#define sk_float_exp(x)         expf(x)
+#define sk_float_log(x)         logf(x)
 
 #define sk_float_round(x) sk_float_floor((x) + 0.5f)
 

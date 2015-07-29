@@ -17,11 +17,6 @@
 #include "SkSurfaceProps.h"
 #include "SkTDArray.h"
 
-#ifdef SK_BUILD_FOR_WINCEx
-    #define SHOW_FPS
-#endif
-//#define USE_GX_SCREEN
-
 class SkSurface;
 class SkOSMenu;
 

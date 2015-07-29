@@ -23,7 +23,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_PALM) && !defined(SK_BUILD_FOR_WINCE) && !defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_SDL) && !defined(SK_BUILD_FOR_BREW)
+#if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_PALM)  && !defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_SDL) && !defined(SK_BUILD_FOR_BREW)
 
     #ifdef __APPLE__
         #include "TargetConditionals.h"
@@ -31,8 +31,6 @@
 
     #if defined(PALMOS_SDK_VERSION)
         #define SK_BUILD_FOR_PALM
-    #elif defined(UNDER_CE)
-        #define SK_BUILD_FOR_WINCE
     #elif defined(WIN32)
         #define SK_BUILD_FOR_WIN32
     #elif defined(__SYMBIAN32__)

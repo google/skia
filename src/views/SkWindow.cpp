@@ -20,13 +20,7 @@ SkWindow::SkWindow()
 {
     fClicks.reset();
     fWaitingOnInval = false;
-
-#ifdef SK_BUILD_FOR_WINCE
-    fColorType = kRGB_565_SkColorType;
-#else
     fColorType = kN32_SkColorType;
-#endif
-
     fMatrix.reset();
 }
 
@@ -105,31 +99,12 @@ void SkWindow::forceInvalAll() {
                       SkScalarCeilToInt(this->height()));
 }
 
-#if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
-    #include <windows.h>
-    #include <gx.h>
-    extern GXDisplayProperties gDisplayProps;
-#endif
-
 #ifdef SK_SIMULATE_FAILED_MALLOC
 extern bool gEnableControlledThrow;
 #endif
 
 bool SkWindow::update(SkIRect* updateArea) {
     if (!fDirtyRgn.isEmpty()) {
-#if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
-        SkBitmap bm = this->getBitmap();
-
-        char* buffer = (char*)GXBeginDraw();
-        SkASSERT(buffer);
-
-        RECT    rect;
-        GetWindowRect((HWND)((SkOSWindow*)this)->getHWND(), &rect);
-        buffer += rect.top * gDisplayProps.cbyPitch + rect.left * gDisplayProps.cbxPitch;
-
-        bm.setPixels(buffer);
-#endif
-
         SkAutoTUnref<SkSurface> surface(this->createSurface());
         SkCanvas* canvas = surface->getCanvas();
 
@@ -159,10 +134,6 @@ bool SkWindow::update(SkIRect* updateArea) {
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
         gEnableControlledThrow = false;
-#endif
-
-#if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
-        GXEndDraw();
 #endif
 
         return true;
