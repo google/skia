@@ -377,6 +377,7 @@ protected:
 
 private:
     friend class SkGTypeface;
+    friend class SkRandomTypeface;
     friend class SkPDFFont;
     friend class SkPDFCIDFont;
     friend class GrPathRendering;

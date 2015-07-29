@@ -298,6 +298,7 @@ protected:
     virtual SkUnichar generateGlyphToChar(uint16_t glyphId);
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
+    void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
 
 private:
     // never null
