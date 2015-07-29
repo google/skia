@@ -8,9 +8,11 @@
 #ifndef SkTypes_DEFINED
 #define SkTypes_DEFINED
 
+// IWYU pragma: begin_exports
 #include "SkPreConfig.h"
 #include "SkUserConfig.h"
 #include "SkPostConfig.h"
+#include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -19,6 +21,10 @@
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include <immintrin.h>
 #endif
+// IWYU pragma: end_exports
+
+#include <stdlib.h>
+#include <string.h>
 
 /** \file SkTypes.h
 */

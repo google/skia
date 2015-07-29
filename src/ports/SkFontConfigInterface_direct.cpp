@@ -7,17 +7,21 @@
 
 /* migrated from chrome/src/skia/ext/SkFontHost_fontconfig_direct.cpp */
 
-#include <unistd.h>
-#include <fcntl.h>
-
-#include <fontconfig/fontconfig.h>
-
 #include "SkBuffer.h"
+#include "SkDataTable.h"
 #include "SkFontConfigInterface.h"
-#include "SkLazyPtr.h"
+#include "SkFontStyle.h"
 #include "SkMutex.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "SkTArray.h"
+#include "SkTDArray.h"
+#include "SkTemplates.h"
+#include "SkTypeface.h"
+#include "SkTypes.h"
+
+#include <fontconfig/fontconfig.h>
+#include <unistd.h>
 
 size_t SkFontConfigInterface::FontIdentity::writeToMemory(void* addr) const {
     size_t size = sizeof(fID) + sizeof(fTTCIndex);

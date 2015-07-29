@@ -6,11 +6,11 @@
  */
 
 #include "SkOSFile.h"
+#include "SkTypes.h"
 
 #include <errno.h>
 #include <stdio.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #ifdef _WIN32
 #include <direct.h>

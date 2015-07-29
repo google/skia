@@ -5,19 +5,26 @@
  * found in the LICENSE file.
  */
 
+#include "SkFixed.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_android.h"
 #include "SkFontMgr_android_parser.h"
 #include "SkFontStyle.h"
+#include "SkRefCnt.h"
+#include "SkString.h"
 #include "SkStream.h"
+#include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTSearch.h"
+#include "SkTemplates.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
 
 #include <limits>
+
+class SkData;
 
 class SkTypeface_Android : public SkTypeface_FreeType {
 public:
@@ -275,9 +282,9 @@ private:
     }
     static int match_score(const SkFontStyle& pattern, const SkFontStyle& candidate) {
         int score = 0;
-        score += abs((pattern.width() - candidate.width()) * 100);
-        score += abs((pattern.isItalic() == candidate.isItalic()) ? 0 : 1000);
-        score += abs(pattern.weight() - candidate.weight());
+        score += SkTAbs((pattern.width() - candidate.width()) * 100);
+        score += SkTAbs((pattern.isItalic() == candidate.isItalic()) ? 0 : 1000);
+        score += SkTAbs(pattern.weight() - candidate.weight());
         return score;
     }
 
@@ -400,13 +407,7 @@ protected:
                 continue;
             }
 
-            SkPaint paint;
-            paint.setTypeface(face);
-            paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
-
-            uint16_t glyphID;
-            paint.textToGlyphs(&character, sizeof(character), &glyphID);
-            if (glyphID != 0) {
+            if (face->charsToGlyphs(&character, SkTypeface::kUTF32_Encoding, NULL, 0)) {
                 return face.detach();
             }
         }

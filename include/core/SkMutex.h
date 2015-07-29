@@ -11,11 +11,13 @@
 // This file is not part of the public Skia API.
 #include "SkTypes.h"
 
+// IWYU pragma: begin_exports
 #if defined(SK_BUILD_FOR_WIN)
     #include "../ports/SkMutex_win.h"
 #else
     #include "../ports/SkMutex_pthread.h"
 #endif
+// IWYU pragma: end_exports
 
 template <typename Lock>
 class SkAutoTAcquire : SkNoncopyable {

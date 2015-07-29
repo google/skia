@@ -67,6 +67,7 @@ private:
     T fVal;
 };
 
+// IWYU pragma: begin_exports
 #if defined(_MSC_VER)
     #include "../ports/SkAtomics_std.h"
 #elif !defined(SK_BUILD_FOR_IOS) && defined(__ATOMIC_RELAXED)
@@ -74,6 +75,7 @@ private:
 #else
     #include "../ports/SkAtomics_sync.h"
 #endif
+// IWYU pragma: end_exports
 
 // From here down we have shims for our old atomics API, to be weaned off of.
 // We use the default sequentially-consistent memory order to make things simple

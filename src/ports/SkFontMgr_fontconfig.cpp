@@ -6,19 +6,27 @@
  */
 
 #include "SkDataTable.h"
+#include "SkFixed.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
 #include "SkMath.h"
 #include "SkMutex.h"
-#include "SkString.h"
-#include "SkStream.h"
-#include "SkTDArray.h"
-#include "SkTypefaceCache.h"
 #include "SkOSFile.h"
+#include "SkRefCnt.h"
+#include "SkStream.h"
+#include "SkString.h"
+#include "SkTDArray.h"
+#include "SkTemplates.h"
+#include "SkTypeface.h"
+#include "SkTypefaceCache.h"
+#include "SkTypes.h"
 
 #include <fontconfig/fontconfig.h>
+#include <string.h>
+
+class SkData;
 
 // FC_POSTSCRIPT_NAME was added with b561ff20 which ended up in 2.10.92
 // Ubuntu 12.04 is on 2.8.0, 13.10 is on 2.10.93

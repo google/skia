@@ -5,21 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontHost_FreeType_common.h"
 #include "SkFontDescriptor.h"
+#include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_custom.h"
-#include "SkDescriptor.h"
+#include "SkFontStyle.h"
 #include "SkOSFile.h"
-#include "SkPaint.h"
-#include "SkRTConf.h"
-#include "SkString.h"
+#include "SkRefCnt.h"
 #include "SkStream.h"
-#include "SkTSearch.h"
-#include "SkTypefaceCache.h"
+#include "SkString.h"
 #include "SkTArray.h"
+#include "SkTemplates.h"
+#include "SkTypeface.h"
+#include "SkTypefaceCache.h"
+#include "SkTypes.h"
 
 #include <limits>
+
+class SkData;
 
 /** The base SkTypeface implementation for the custom font manager. */
 class SkTypeface_Custom : public SkTypeface_FreeType {

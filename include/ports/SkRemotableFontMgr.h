@@ -11,10 +11,10 @@
 #include "SkFontStyle.h"
 #include "SkRefCnt.h"
 #include "SkTemplates.h"
+#include "SkTypes.h"
 
 class SkDataTable;
 class SkStreamAsset;
-class SkString;
 
 struct SK_API SkFontIdentity {
     static const uint32_t kInvalidDataId = 0xFFFFFFFF;
@@ -35,8 +35,6 @@ struct SK_API SkFontIdentity {
 
 class SK_API SkRemotableFontIdentitySet : public SkRefCnt {
 public:
-    
-
     SkRemotableFontIdentitySet(int count, SkFontIdentity** data);
 
     int count() const { return fCount; }
@@ -57,8 +55,6 @@ private:
 
 class SK_API SkRemotableFontMgr : public SkRefCnt {
 public:
-    
-
     /**
      *  Returns the names of the known fonts on the system.
      *  Will not return NULL, will return an empty table if no families exist.

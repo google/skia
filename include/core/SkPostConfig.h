@@ -8,7 +8,7 @@
 #ifndef SkPostConfig_DEFINED
 #define SkPostConfig_DEFINED
 
-#if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_WINCE)
+#if defined(SK_BUILD_FOR_WIN32)
 #  define SK_BUILD_FOR_WIN
 #endif
 
@@ -215,13 +215,6 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-#ifndef SK_BUILD_FOR_WINCE
-#  include <string.h>
-#  include <stdlib.h>
-#else
-#  define _CMNINTRIN_DECLARE_ONLY
-#  include "cmnintrin.h"
-#endif
 
 #if defined SK_DEBUG && defined SK_BUILD_FOR_WIN32
 #  ifdef free

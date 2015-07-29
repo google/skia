@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkTime.h"
+#include "SkTypes.h"
 
 #include <sys/time.h>
 #include <time.h>

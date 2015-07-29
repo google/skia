@@ -8,8 +8,11 @@
 #ifndef SkFontMgr_android_parser_DEFINED
 #define SkFontMgr_android_parser_DEFINED
 
+#include "SkFixed.h"
 #include "SkString.h"
+#include "SkTArray.h"
 #include "SkTDArray.h"
+#include "SkTypes.h"
 
 #include <climits>
 #include <limits>

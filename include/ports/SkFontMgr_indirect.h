@@ -10,16 +10,17 @@
 
 #include "SkDataTable.h"
 #include "SkFontMgr.h"
-#include "SkFontStyle.h"
 #include "SkMutex.h"
+#include "SkRefCnt.h"
 #include "SkRemotableFontMgr.h"
 #include "SkTArray.h"
 #include "SkTypeface.h"
+#include "SkTypes.h"
 
 class SkData;
-class SkStream;
+class SkFontStyle;
+class SkStreamAsset;
 class SkString;
-class SkTypeface;
 
 class SK_API SkFontMgr_Indirect : public SkFontMgr {
 public:

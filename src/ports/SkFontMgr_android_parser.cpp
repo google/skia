@@ -9,12 +9,13 @@
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTSearch.h"
-#include "SkTypeface.h"
+#include "SkTemplates.h"
 
-#include <expat.h>
 #include <dirent.h>
+#include <expat.h>
 
 #include <stdlib.h>
+#include <string.h>
 
 #define LMP_SYSTEM_FONTS_FILE "/system/etc/fonts.xml"
 #define OLD_SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"

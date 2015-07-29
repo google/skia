@@ -6,12 +6,14 @@
  */
 
 #include "SkOSFile.h"
-
+#include "SkString.h"
 #include "SkTFitsIn.h"
+#include "SkTemplates.h"
 #include "SkTypes.h"
 
 #include <dirent.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>

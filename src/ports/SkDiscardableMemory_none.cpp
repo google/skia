@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkDiscardableMemory.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkTypes.h"
 

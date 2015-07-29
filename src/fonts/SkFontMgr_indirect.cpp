@@ -5,17 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontMgr_indirect.h"
-
 #include "SkDataTable.h"
+#include "SkFontMgr.h"
+#include "SkFontMgr_indirect.h"
 #include "SkFontStyle.h"
+#include "SkMutex.h"
 #include "SkOnce.h"
+#include "SkRefCnt.h"
+#include "SkRemotableFontMgr.h"
 #include "SkStream.h"
-#include "SkTSearch.h"
+#include "SkString.h"
+#include "SkTArray.h"
 #include "SkTypeface.h"
+#include "SkTypes.h"
+#include "SkTemplates.h"
 
 class SkData;
-class SkString;
 
 class SkStyleSet_Indirect : public SkFontStyleSet {
 public:

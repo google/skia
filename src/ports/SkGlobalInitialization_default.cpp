@@ -5,12 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-
 #include "SkBitmapProcShader.h"
-#include "SkMallocPixelRef.h"
 #include "SkPathEffect.h"
-#include "SkPixelRef.h"
 #include "SkXfermode.h"
 
 #include "Sk1DPathEffect.h"
