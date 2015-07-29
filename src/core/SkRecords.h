@@ -11,7 +11,6 @@
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkMatrix.h"
-#include "SkPathPriv.h"
 #include "SkPicture.h"
 #include "SkRSXform.h"
 #include "SkTextBlob.h"
@@ -205,14 +204,7 @@ private:
 class ImmutableBitmap : SkNoncopyable {
 public:
     ImmutableBitmap() {}
-    explicit ImmutableBitmap(const SkBitmap& bitmap) {
-        if (bitmap.isImmutable()) {
-            fBitmap = bitmap;
-        } else {
-            bitmap.copyTo(&fBitmap);
-        }
-        fBitmap.setImmutable();
-    }
+    explicit ImmutableBitmap(const SkBitmap& bitmap);
 
     int width()  const { return fBitmap.width();  }
     int height() const { return fBitmap.height(); }
@@ -228,22 +220,14 @@ private:
 // Recording is a convenient time to cache these, or we can delay it to between record and playback.
 struct PreCachedPath : public SkPath {
     PreCachedPath() {}
-    explicit PreCachedPath(const SkPath& path) : SkPath(path) {
-        this->updateBoundsCache();
-#if 0  // Disabled to see if we ever really race on this.  It costs time, chromium:496982.
-        SkPathPriv::FirstDirection junk;
-        (void)SkPathPriv::CheapComputeFirstDirection(*this, &junk);
-#endif
-    }
+    explicit PreCachedPath(const SkPath& path);
 };
 
 // Like SkPath::getBounds(), SkMatrix::getType() isn't thread safe unless we precache it.
 // This may not cover all SkMatrices used by the picture (e.g. some could be hiding in a shader).
 struct TypedMatrix : public SkMatrix {
     TypedMatrix() {}
-    explicit TypedMatrix(const SkMatrix& matrix) : SkMatrix(matrix) {
-        (void)this->getType();
-    }
+    explicit TypedMatrix(const SkMatrix& matrix);
 };
 
 RECORD0(NoOp);
