@@ -445,6 +445,9 @@ private:
                                                    bool swapRAndB, const SkMatrix&);
     const GrFragmentProcessor* createUPMToPMEffect(GrProcessorDataManager*, GrTexture*,
                                                    bool swapRAndB, const SkMatrix&);
+    /** Returns true if we've already determined that createPMtoUPMEffect and createUPMToPMEffect
+        will fail. In such cases fall back to SW conversion. */
+    bool didFailPMUPMConversionTest() const;
 
     /**
      *  This callback allows the resource cache to callback into the GrContext

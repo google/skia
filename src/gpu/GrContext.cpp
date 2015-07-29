@@ -345,9 +345,14 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         }
         applyPremulToSrc = true;
     }
-    GrGpu::DrawPreference drawPreference = applyPremulToSrc ?
-                                            GrGpu::kCallerPrefersDraw_DrawPreference :
-                                            GrGpu::kNoDraw_DrawPreference;
+
+    GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
+    // Don't prefer to draw for the conversion (and thereby access a texture from the cache) when
+    // we've already determined that there isn't a roundtrip preserving conversion processor pair.
+    if (applyPremulToSrc && !this->didFailPMUPMConversionTest()) {
+        drawPreference = GrGpu::kCallerPrefersDraw_DrawPreference;
+    }
+
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
     if (!fGpu->getWritePixelsInfo(surface, width, height, rowBytes, srcConfig, &drawPreference,
                                   &tempDrawInfo)) {
@@ -476,8 +481,13 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         return false;
     }
 
-    GrGpu::DrawPreference drawPreference = unpremul ? GrGpu::kCallerPrefersDraw_DrawPreference :
-                                                      GrGpu::kNoDraw_DrawPreference;
+    GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
+    // Don't prefer to draw for the conversion (and thereby access a texture from the cache) when
+    // we've already determined that there isn't a roundtrip preserving conversion processor pair.
+    if (unpremul && !this->didFailPMUPMConversionTest()) {
+        drawPreference = GrGpu::kCallerPrefersDraw_DrawPreference;
+    }
+
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
     if (!fGpu->getReadPixelsInfo(src, width, height, rowBytes, dstConfig, &drawPreference,
                                  &tempDrawInfo)) {
@@ -717,6 +727,12 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrProcessorDataManager
     } else {
         return NULL;
     }
+}
+
+bool GrContext::didFailPMUPMConversionTest() const {
+    // The PM<->UPM tests fail or succeed together so we only need to check one.
+    return fDidTestPMConversions &&
+           GrConfigConversionEffect::kNone_PMConversion == fPMToUPMConversion;
 }
 
 //////////////////////////////////////////////////////////////////////////////
