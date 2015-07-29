@@ -1930,7 +1930,7 @@ private:
         int newAllocSize = GrNextPow2(newGeoCount);
         int currAllocSize = SkTMax<int>(kMinGeometryAllocated, GrNextPow2(fGeoCount));
 
-        if (newAllocSize > currAllocSize) {
+        if (newGeoCount > currAllocSize) {
             fGeoData.realloc(newAllocSize);
         }
 
