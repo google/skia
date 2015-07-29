@@ -354,7 +354,14 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
             // the fill color for opaque images.  If the destination is kGray,
             // the low 8 bits of SK_ColorBLACK will be used.  Conveniently,
             // these are zeros, which is the representation for black in kGray.
-            SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, dstHeight - y, SK_ColorBLACK, NULL);
+            // If the destination is kRGB_565, the low 16 bits of SK_ColorBLACK
+            // will be used.  Conveniently, these are zeros, which is the
+            // representation for black in kRGB_565.
+            if (kNo_ZeroInitialized == options.fZeroInitialized ||
+                    kN32_SkColorType == dstInfo.colorType()) {
+                SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, dstHeight - y,
+                        SK_ColorBLACK, NULL);
+            }
 
             // Prevent libjpeg from failing on incomplete decode
             dinfo->output_scanline = dstHeight;
@@ -382,9 +389,11 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
  */
 class SkJpegScanlineDecoder : public SkScanlineDecoder {
 public:
-    SkJpegScanlineDecoder(const SkImageInfo& dstInfo, SkJpegCodec* codec)
+    SkJpegScanlineDecoder(const SkImageInfo& dstInfo, SkJpegCodec* codec,
+            const SkCodec::Options& opts)
         : INHERITED(dstInfo)
         , fCodec(codec)
+        , fOpts(opts)
     {}
 
     virtual ~SkJpegScanlineDecoder() {
@@ -412,8 +421,11 @@ public:
             uint32_t rowsDecoded =
                     turbo_jpeg_read_scanlines(fCodec->fDecoderMgr->dinfo(), &dstRow, 1);
             if (rowsDecoded != 1) {
-                SkSwizzler::Fill(
-                        dstRow, this->dstInfo(), rowBytes, count - y, SK_ColorBLACK, NULL);
+                if (SkCodec::kNo_ZeroInitialized == fOpts.fZeroInitialized ||
+                        kN32_SkColorType == this->dstInfo().colorType()) {
+                    SkSwizzler::Fill(dstRow, this->dstInfo(), rowBytes,
+                            count - y, SK_ColorBLACK, NULL);
+                }
                 fCodec->fDecoderMgr->dinfo()->output_scanline = this->dstInfo().height();
                 return SkCodec::kIncompleteInput;
             }
@@ -452,6 +464,7 @@ public:
 
 private:
     SkAutoTDelete<SkJpegCodec> fCodec;
+    const SkCodec::Options&    fOpts;
 
     typedef SkScanlineDecoder INHERITED;
 };
@@ -499,5 +512,5 @@ SkScanlineDecoder* SkJpegCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
     }
 
     // Return the new scanline decoder
-    return SkNEW_ARGS(SkJpegScanlineDecoder, (dstInfo, codec.detach()));
+    return SkNEW_ARGS(SkJpegScanlineDecoder, (dstInfo, codec.detach(), options));
 }

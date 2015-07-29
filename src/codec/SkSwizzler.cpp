@@ -470,6 +470,15 @@ void SkSwizzler::Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstR
             // for black. 
             memset(dstStartRow, (uint8_t) colorOrIndex, bytesToFill);
             break;
+        case kRGB_565_SkColorType:
+            // If the destination is k565, the caller passes in a 16-bit color.
+            // We will not assert that the high bits of colorOrIndex must be zeroed.
+            // This allows us to take advantage of the fact that the low 16 bits of an
+            // SKPMColor may be a valid a 565 color.  For example, the low 16
+            // bits of SK_ColorBLACK are identical to the 565 representation
+            // for black.
+            memset(dstStartRow, (uint16_t) colorOrIndex, bytesToFill);
+            break;
         default:
             SkCodecPrintf("Error: Unsupported dst color type for fill().  Doing nothing.\n");
             SkASSERT(false);
