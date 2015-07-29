@@ -171,6 +171,48 @@ def build_targets_from_builder_dict(builder_dict):
 
 
 cov_skip.extend([lineno(), lineno() + 1])
+def device_cfg(builder_dict):
+  # Android.
+  if 'Android' in builder_dict.get('extra_config', ''):
+    if 'NoNeon' in builder_dict['extra_config']:
+      return 'arm_v7'
+    return {
+      'Arm64': 'arm64',
+      'x86': 'x86',
+      'x86_64': 'x86_64',
+      'Mips': 'mips',
+      'Mips64': 'mips64',
+      'MipsDSP2': 'mips_dsp2',
+    }.get(builder_dict['target_arch'], 'arm_v7_neon')
+  elif builder_dict.get('os') == 'Android':
+    return {
+      'GalaxyS3': 'arm_v7_neon',
+      'GalaxyS4': 'arm_v7_neon',
+      'Nexus5': 'arm_v7', # This'd be 'nexus_5', but we simulate no-NEON Clank.
+      'Nexus6': 'arm_v7_neon',
+      'Nexus7': 'nexus_7',
+      'Nexus9': 'nexus_9',
+      'Nexus10': 'nexus_10',
+      'NexusPlayer': 'x86',
+      'NVIDIA_Shield': 'arm64',
+    }[builder_dict['model']]
+
+  # ChromeOS.
+  if 'CrOS' in builder_dict.get('extra_config', ''):
+    if 'Link' in builder_dict['extra_config']:
+      return 'link'
+    if 'Daisy' in builder_dict['extra_config']:
+      return 'daisy'
+  elif builder_dict.get('os') == 'ChromeOS':
+    return {
+      'Link': 'link',
+      'Daisy': 'daisy',
+    }[builder_dict['model']]
+
+  return None
+
+
+cov_skip.extend([lineno(), lineno() + 1])
 def get_builder_spec(builder_name):
   builder_dict = builder_name_schema.DictForBuilderName(builder_name)
   env = get_extra_env_vars(builder_dict)
@@ -178,10 +220,15 @@ def get_builder_spec(builder_name):
   gyp_defs_list = ['%s=%s' % (k, v) for k, v in gyp_defs.iteritems()]
   gyp_defs_list.sort()
   env['GYP_DEFINES'] = ' '.join(gyp_defs_list)
-  return {
+  rv = {
     'build_targets': build_targets_from_builder_dict(builder_dict),
+    'builder_cfg': builder_dict,
     'env': env,
   }
+  device = device_cfg(builder_dict)
+  if device:
+    rv['device_cfg'] = device
+  return rv
 
 
 cov_end = lineno()   # Don't care about code coverage past here.
@@ -196,9 +243,14 @@ def self_test():
         'Build-Win-MSVC-x86-Debug-GDI',
         'Build-Win-MSVC-x86-Debug-Exceptions',
         'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',
+        'Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon',
+        'Build-Ubuntu-GCC-Arm7-Debug-CrOS_Daisy',
+        'Build-Ubuntu-GCC-x86_64-Debug-CrOS_Link',
         'Build-Ubuntu-GCC-x86_64-Release-Mesa',
         'Housekeeper-PerCommit',
         'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
+        'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
+        'Test-ChromeOS-GCC-Link-CPU-AVX-x86_64-Debug',
         'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
         'Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD',

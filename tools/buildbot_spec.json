@@ -3,6 +3,16 @@
     "build_targets": [
       "most"
     ], 
+    "builder_cfg": {
+      "compiler": "Clang", 
+      "configuration": "Debug", 
+      "extra_config": "Android", 
+      "is_trybot": false, 
+      "os": "Mac10.8", 
+      "role": "Build", 
+      "target_arch": "Arm7"
+    }, 
+    "device_cfg": "arm_v7_neon", 
     "env": {
       "CC": "/usr/bin/clang", 
       "CXX": "/usr/bin/clang++", 
@@ -13,14 +23,87 @@
     "build_targets": [
       "most"
     ], 
+    "builder_cfg": {
+      "compiler": "GCC", 
+      "configuration": "Debug", 
+      "extra_config": "Android_FrameworkDefs", 
+      "is_trybot": false, 
+      "os": "Ubuntu", 
+      "role": "Build", 
+      "target_arch": "Arm7"
+    }, 
+    "device_cfg": "arm_v7_neon", 
     "env": {
       "GYP_DEFINES": "skia_arch_type=arm skia_use_android_framework_defines=1 skia_warnings_as_errors=1"
+    }
+  }, 
+  "Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon": {
+    "build_targets": [
+      "most"
+    ], 
+    "builder_cfg": {
+      "compiler": "GCC", 
+      "configuration": "Debug", 
+      "extra_config": "Android_NoNeon", 
+      "is_trybot": false, 
+      "os": "Ubuntu", 
+      "role": "Build", 
+      "target_arch": "Arm7"
+    }, 
+    "device_cfg": "arm_v7", 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=1"
+    }
+  }, 
+  "Build-Ubuntu-GCC-Arm7-Debug-CrOS_Daisy": {
+    "build_targets": [
+      "most"
+    ], 
+    "builder_cfg": {
+      "compiler": "GCC", 
+      "configuration": "Debug", 
+      "extra_config": "CrOS_Daisy", 
+      "is_trybot": false, 
+      "os": "Ubuntu", 
+      "role": "Build", 
+      "target_arch": "Arm7"
+    }, 
+    "device_cfg": "daisy", 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=1"
+    }
+  }, 
+  "Build-Ubuntu-GCC-x86_64-Debug-CrOS_Link": {
+    "build_targets": [
+      "most"
+    ], 
+    "builder_cfg": {
+      "compiler": "GCC", 
+      "configuration": "Debug", 
+      "extra_config": "CrOS_Link", 
+      "is_trybot": false, 
+      "os": "Ubuntu", 
+      "role": "Build", 
+      "target_arch": "x86_64"
+    }, 
+    "device_cfg": "link", 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1"
     }
   }, 
   "Build-Ubuntu-GCC-x86_64-Release-Mesa": {
     "build_targets": [
       "most"
     ], 
+    "builder_cfg": {
+      "compiler": "GCC", 
+      "configuration": "Release", 
+      "extra_config": "Mesa", 
+      "is_trybot": false, 
+      "os": "Ubuntu", 
+      "role": "Build", 
+      "target_arch": "x86_64"
+    }, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_mesa=1 skia_warnings_as_errors=1"
     }
@@ -29,6 +112,14 @@
     "build_targets": [
       "most"
     ], 
+    "builder_cfg": {
+      "compiler": "MSVC", 
+      "configuration": "Debug", 
+      "is_trybot": false, 
+      "os": "Win", 
+      "role": "Build", 
+      "target_arch": "x86"
+    }, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0"
     }
@@ -37,6 +128,15 @@
     "build_targets": [
       "most"
     ], 
+    "builder_cfg": {
+      "compiler": "MSVC", 
+      "configuration": "Debug", 
+      "extra_config": "Exceptions", 
+      "is_trybot": false, 
+      "os": "Win", 
+      "role": "Build", 
+      "target_arch": "x86"
+    }, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp skia_win_exceptions=1 skia_win_ltcg=0"
     }
@@ -45,6 +145,15 @@
     "build_targets": [
       "most"
     ], 
+    "builder_cfg": {
+      "compiler": "MSVC", 
+      "configuration": "Debug", 
+      "extra_config": "GDI", 
+      "is_trybot": false, 
+      "os": "Win", 
+      "role": "Build", 
+      "target_arch": "x86"
+    }, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_gdi=1 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0"
     }
@@ -53,6 +162,11 @@
     "build_targets": [
       "most"
     ], 
+    "builder_cfg": {
+      "frequency": "PerCommit", 
+      "is_trybot": false, 
+      "role": "Housekeeper"
+    }, 
     "env": {
       "GYP_DEFINES": "skia_shared_lib=1 skia_warnings_as_errors=0"
     }
@@ -61,14 +175,78 @@
     "build_targets": [
       "nanobench"
     ], 
+    "builder_cfg": {
+      "arch": "x86_64", 
+      "compiler": "MSVC", 
+      "configuration": "Release", 
+      "cpu_or_gpu": "GPU", 
+      "cpu_or_gpu_value": "HD4600", 
+      "is_trybot": true, 
+      "model": "ShuttleB", 
+      "os": "Win8", 
+      "role": "Perf"
+    }, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_arch_type=x86_64 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
+    }
+  }, 
+  "Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug": {
+    "build_targets": [
+      "dm", 
+      "nanobench"
+    ], 
+    "builder_cfg": {
+      "arch": "Arm7", 
+      "compiler": "GCC", 
+      "configuration": "Debug", 
+      "cpu_or_gpu": "GPU", 
+      "cpu_or_gpu_value": "Adreno420", 
+      "is_trybot": false, 
+      "model": "Nexus6", 
+      "os": "Android", 
+      "role": "Test"
+    }, 
+    "device_cfg": "arm_v7_neon", 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0"
+    }
+  }, 
+  "Test-ChromeOS-GCC-Link-CPU-AVX-x86_64-Debug": {
+    "build_targets": [
+      "dm", 
+      "nanobench"
+    ], 
+    "builder_cfg": {
+      "arch": "x86_64", 
+      "compiler": "GCC", 
+      "configuration": "Debug", 
+      "cpu_or_gpu": "CPU", 
+      "cpu_or_gpu_value": "AVX", 
+      "is_trybot": false, 
+      "model": "Link", 
+      "os": "ChromeOS", 
+      "role": "Test"
+    }, 
+    "device_cfg": "link", 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0"
     }
   }, 
   "Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release": {
     "build_targets": [
       "dm"
     ], 
+    "builder_cfg": {
+      "arch": "x86_64", 
+      "compiler": "Clang", 
+      "configuration": "Release", 
+      "cpu_or_gpu": "GPU", 
+      "cpu_or_gpu_value": "GeForce320M", 
+      "is_trybot": false, 
+      "model": "MacMini4.1", 
+      "os": "Mac10.8", 
+      "role": "Test"
+    }, 
     "env": {
       "CC": "/usr/bin/clang", 
       "CXX": "/usr/bin/clang++", 
@@ -79,6 +257,18 @@
     "build_targets": [
       "dm"
     ], 
+    "builder_cfg": {
+      "arch": "x86_64", 
+      "compiler": "GCC", 
+      "configuration": "Release", 
+      "cpu_or_gpu": "CPU", 
+      "cpu_or_gpu_value": "AVX2", 
+      "extra_config": "SKNX_NO_SIMD", 
+      "is_trybot": false, 
+      "model": "GCE", 
+      "os": "Ubuntu", 
+      "role": "Test"
+    }, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0 sknx_no_simd=1"
     }
@@ -87,6 +277,18 @@
     "build_targets": [
       "dm"
     ], 
+    "builder_cfg": {
+      "arch": "x86_64", 
+      "compiler": "GCC", 
+      "configuration": "Release", 
+      "cpu_or_gpu": "CPU", 
+      "cpu_or_gpu_value": "AVX2", 
+      "extra_config": "Shared", 
+      "is_trybot": false, 
+      "model": "GCE", 
+      "os": "Ubuntu", 
+      "role": "Test"
+    }, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_shared_lib=1 skia_warnings_as_errors=0"
     }
@@ -95,6 +297,18 @@
     "build_targets": [
       "dm"
     ], 
+    "builder_cfg": {
+      "arch": "x86_64", 
+      "compiler": "GCC", 
+      "configuration": "Release", 
+      "cpu_or_gpu": "GPU", 
+      "cpu_or_gpu_value": "GTX550Ti", 
+      "extra_config": "Valgrind", 
+      "is_trybot": false, 
+      "model": "ShuttleA", 
+      "os": "Ubuntu", 
+      "role": "Test"
+    }, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_release_optimization_level=1 skia_warnings_as_errors=0"
     }
@@ -104,6 +318,17 @@
       "dm", 
       "nanobench"
     ], 
+    "builder_cfg": {
+      "arch": "x86_64", 
+      "compiler": "MSVC", 
+      "configuration": "Debug", 
+      "cpu_or_gpu": "CPU", 
+      "cpu_or_gpu_value": "AVX", 
+      "is_trybot": false, 
+      "model": "ShuttleA", 
+      "os": "Win8", 
+      "role": "Test"
+    }, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
     }
@@ -112,6 +337,18 @@
     "build_targets": [
       "dm"
     ], 
+    "builder_cfg": {
+      "arch": "x86", 
+      "compiler": "MSVC", 
+      "configuration": "Release", 
+      "cpu_or_gpu": "GPU", 
+      "cpu_or_gpu_value": "HD4600", 
+      "extra_config": "ANGLE", 
+      "is_trybot": false, 
+      "model": "ShuttleB", 
+      "os": "Win8", 
+      "role": "Test"
+    }, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_angle=1 skia_arch_type=x86 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
     }
@@ -120,6 +357,17 @@
     "build_targets": [
       "iOSShell"
     ], 
+    "builder_cfg": {
+      "arch": "Arm7", 
+      "compiler": "Clang", 
+      "configuration": "Debug", 
+      "cpu_or_gpu": "GPU", 
+      "cpu_or_gpu_value": "SGX554", 
+      "is_trybot": false, 
+      "model": "iPad4", 
+      "os": "iOS", 
+      "role": "Test"
+    }, 
     "env": {
       "CC": "/usr/bin/clang", 
       "CXX": "/usr/bin/clang++", 
