@@ -87,6 +87,7 @@ protected:
             case kText_ShapeType: {
                 const char* text = "Hello!";
                 paint->setTextSize(30);
+                sk_tool_utils::set_portable_typeface(paint);
                 canvas->drawText(text, strlen(text), 0, 0, *paint);
             }
             default:
