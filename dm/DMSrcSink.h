@@ -53,6 +53,8 @@ private:
     bool     fFatal;
 };
 
+enum SinkType { kGPU_SinkType, kVector_SinkType, kRaster_SinkType };
+
 struct Src {
     // All Srcs must be thread safe.
     virtual ~Src() {}
@@ -60,6 +62,7 @@ struct Src {
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
     virtual void modifyGrContextOptions(GrContextOptions* options) const {}
+    virtual bool veto(SinkType) const { return false; }
 };
 
 struct Sink {
@@ -111,6 +114,7 @@ public:
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
+    bool veto(SinkType) const override;
 private:
     Path                   fPath;
     Mode                   fMode;
@@ -128,6 +132,7 @@ public:
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
+    bool veto(SinkType) const override;
 private:
     Path fPath;
     const int  fDivisor;

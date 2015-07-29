@@ -165,16 +165,21 @@ static void gather_uninteresting_hashes() {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-template <typename T>
-struct Tagged : public SkAutoTDelete<T> {
-  const char* tag;
-  const char* options;
+struct TaggedSrc : public SkAutoTDelete<Src> {
+    const char* tag;
+    const char* options;
+};
+
+struct TaggedSink : public SkAutoTDelete<Sink> {
+    const char* tag;
+    const char* options;
+    SinkType type;
 };
 
 static const bool kMemcpyOK = true;
 
-static SkTArray<Tagged<Src>,  kMemcpyOK>  gSrcs;
-static SkTArray<Tagged<Sink>, kMemcpyOK> gSinks;
+static SkTArray<TaggedSrc,  kMemcpyOK>  gSrcs;
+static SkTArray<TaggedSink, kMemcpyOK> gSinks;
 
 static bool in_shard() {
     static int N = 0;
@@ -186,7 +191,7 @@ static void push_src(const char* tag, const char* options, Src* s) {
     if (in_shard() &&
         FLAGS_src.contains(tag) &&
         !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
-        Tagged<Src>& s = gSrcs.push_back();
+        TaggedSrc& s = gSrcs.push_back();
         s.reset(src.detach());
         s.tag = tag;
         s.options = options;
@@ -334,25 +339,33 @@ static void push_sink(const char* tag, Sink* s) {
     if (!FLAGS_config.contains(tag)) {
         return;
     }
-    // Try a noop Src as a canary.  If it fails, skip this sink.
+    // Try a simple Src as a canary.  If it fails, skip this sink.
     struct : public Src {
-        Error draw(SkCanvas*) const override { return ""; }
+        Error draw(SkCanvas* c) const override {
+            c->drawRect(SkRect::MakeWH(1,1), SkPaint());
+            return "";
+        }
         SkISize size() const override { return SkISize::Make(16, 16); }
-        Name name() const override { return "noop"; }
-    } noop;
+        Name name() const override { return "justOneRect"; }
+    } justOneRect;
 
     SkBitmap bitmap;
     SkDynamicMemoryWStream stream;
     SkString log;
-    Error err = sink->draw(noop, &bitmap, &stream, &log);
+    Error err = sink->draw(justOneRect, &bitmap, &stream, &log);
     if (err.isFatal()) {
         SkDebugf("Could not run %s: %s\n", tag, err.c_str());
         exit(1);
     }
 
-    Tagged<Sink>& ts = gSinks.push_back();
+    SinkType type = kRaster_SinkType;
+    if (sink->enclave() == kGPU_Enclave) { type = kGPU_SinkType; }
+    if (stream.bytesWritten() > 0) { type = kVector_SinkType; }
+
+    TaggedSink& ts = gSinks.push_back();
     ts.reset(sink.detach());
     ts.tag = tag;
+    ts.type = type;
 }
 
 static bool gpu_supported() {
@@ -477,22 +490,28 @@ static ImplicitString is_blacklisted(const char* sink, const char* src,
 // The finest-grained unit of work we can run: draw a single Src into a single Sink,
 // report any errors, and perhaps write out the output: a .png of the bitmap, or a raw stream.
 struct Task {
-    Task(const Tagged<Src>& src, const Tagged<Sink>& sink) : src(src), sink(sink) {}
-    const Tagged<Src>&  src;
-    const Tagged<Sink>& sink;
+    Task(const TaggedSrc& src, const TaggedSink& sink) : src(src), sink(sink) {}
+    const TaggedSrc&  src;
+    const TaggedSink& sink;
 
     static void Run(Task* task) {
         SkString name = task->src->name();
-        SkString note;
+
+        // We'll skip drawing this Src/Sink pair if:
+        //   - the Src vetoes the Sink;
+        //   - this Src / Sink combination is on the blacklist;
+        //   - it's a dry run.
+        SkString note(task->src->veto(task->sink.type) ? " (veto)" : "");
         SkString whyBlacklisted = is_blacklisted(task->sink.tag, task->src.tag,
                                                  task->src.options, name.c_str());
         if (!whyBlacklisted.isEmpty()) {
             note.appendf(" (--blacklist %s)", whyBlacklisted.c_str());
         }
+
         SkString log;
         WallTimer timer;
         timer.start();
-        if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
+        if (!FLAGS_dryRun && note.isEmpty()) {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
             if (FLAGS_pre_log) {

@@ -71,14 +71,14 @@ CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, float scale)
     , fScale(scale)
 {}
 
-Error CodecSrc::draw(SkCanvas* canvas) const {
-    SkImageInfo canvasInfo;
-    if (NULL == canvas->peekPixels(&canvasInfo, NULL)) {
-        // TODO: Once we implement GPU paths (e.g. JPEG YUV), we should use a deferred decode to
-        // let the GPU handle it.
-        return Error::Nonfatal("No need to test decoding to non-raster backend.");
-    }
+bool CodecSrc::veto(SinkType type) const {
+    // No need to test decoding to non-raster backend.
+    // TODO: Once we implement GPU paths (e.g. JPEG YUV), we should use a deferred decode to
+    // let the GPU handle it.
+    return type != kRaster_SinkType;
+}
 
+Error CodecSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
@@ -90,7 +90,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
     // Choose the color type to decode to
     SkImageInfo decodeInfo = codec->getInfo();
-    SkColorType canvasColorType = canvasInfo.colorType();
+    SkColorType canvasColorType = canvas->imageInfo().colorType();
     switch (fDstColorType) {
         case kIndex8_Always_DstColorType:
             decodeInfo = codec->getInfo().makeColorType(kIndex_8_SkColorType);
@@ -459,18 +459,18 @@ Name CodecSrc::name() const {
 
 ImageSrc::ImageSrc(Path path, int divisor) : fPath(path), fDivisor(divisor) {}
 
-Error ImageSrc::draw(SkCanvas* canvas) const {
-    SkImageInfo canvasInfo;
-    if (NULL == canvas->peekPixels(&canvasInfo, NULL)) {
-        // TODO: Instead, use lazy decoding to allow the GPU to handle cases like YUV.
-        return Error::Nonfatal("No need to test decoding to non-raster backend.");
-    }
+bool ImageSrc::veto(SinkType type) const {
+    // No need to test decoding to non-raster backend.
+    // TODO: Instead, use lazy decoding to allow the GPU to handle cases like YUV.
+    return type != kRaster_SinkType;
+}
 
+Error ImageSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    const SkColorType dstColorType = canvasInfo.colorType();
+    const SkColorType dstColorType = canvas->imageInfo().colorType();
     if (fDivisor == 0) {
         // Decode the full image.
         SkBitmap bitmap;
