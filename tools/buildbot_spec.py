@@ -20,6 +20,8 @@ import os
 import sys
 
 import builder_name_schema
+import dm_flags
+import nanobench_flags
 
 
 def lineno():
@@ -223,7 +225,9 @@ def get_builder_spec(builder_name):
   rv = {
     'build_targets': build_targets_from_builder_dict(builder_dict),
     'builder_cfg': builder_dict,
+    'dm_flags': dm_flags.get_args(builder_name),
     'env': env,
+    'nanobench_flags': nanobench_flags.get_args(builder_name),
   }
   device = device_cfg(builder_dict)
   if device:
