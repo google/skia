@@ -9,7 +9,7 @@
 #define SkGLContext_DEFINED
 
 #include "GrGLInterface.h"
-#include "../../src/gpu/SkGpuFenceSync.h"
+#include "../private/SkGpuFenceSync.h"
 
 /**
  * Create an offscreen opengl context with an RGBA8 / 8bit stencil FBO.
@@ -18,7 +18,7 @@
 
 class SK_API SkGLContext : public SkRefCnt {
 public:
-    
+
 
     ~SkGLContext() override;
 

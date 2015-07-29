@@ -10,7 +10,7 @@
 #ifndef SkOSWindow_Win_DEFINED
 #define SkOSWindow_Win_DEFINED
 
-#include "../../src/core/SkFunction.h"
+#include "../private/SkFunction.h"
 #include "../private/SkTHash.h"
 #include "SkWindow.h"
 
