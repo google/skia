@@ -99,7 +99,8 @@ void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
         // the surface may need to fork its backend, if its sharing it with
         // the cached image. Note: we only call if there is an outstanding owner
         // on the image (besides us).
-        if (!fCachedImage->unique()) {
+        bool unique = fCachedImage->unique();
+        if (!unique) {
             this->onCopyOnWrite(mode);
         }
 
@@ -107,6 +108,13 @@ void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
         // that the next request will get our new contents.
         fCachedImage->unref();
         fCachedImage = NULL;
+
+        if (unique) {
+            // Our content isn't held by any image now, so we can consider that content mutable.
+            // Raster surfaces need to be told it's safe to consider its pixels mutable again.
+            // We make this call after the ->unref() so the subclass can assert there are no images.
+            this->onRestoreBackingMutability();
+        }
     } else if (kDiscard_ContentChangeMode == mode) {
         this->onDiscard();
     }

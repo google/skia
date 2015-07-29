@@ -27,6 +27,7 @@ public:
     SkImage* onNewImageSnapshot(Budgeted) override;
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
+    void onRestoreBackingMutability() override;
 
 private:
     SkBitmap    fBitmap;
@@ -118,10 +119,24 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
 }
 
 SkImage* SkSurface_Raster::onNewImageSnapshot(Budgeted) {
+    if (fWeOwnThePixels) {
+        // SkImage_raster requires these pixels are immutable for its full lifetime.
+        // We'll undo this via onRestoreBackingMutability() if we can avoid the COW.
+        if (SkPixelRef* pr = fBitmap.pixelRef()) {
+            pr->setTemporarilyImmutable();
+        }
+    }
     // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
     // Lock the shared pixel ref to ensure peekPixels() is usable.
-    return SkNewImageFromRasterBitmap(fBitmap, fWeOwnThePixels, &this->props(),
-                                      kLocked_SharedPixelRefMode);
+    return SkNewImageFromRasterBitmap(fBitmap, &this->props(), kLocked_SharedPixelRefMode,
+                                      fWeOwnThePixels ? kNo_ForceCopyMode : kYes_ForceCopyMode);
+}
+
+void SkSurface_Raster::onRestoreBackingMutability() {
+    SkASSERT(!this->hasCachedImage());  // Shouldn't be any snapshots out there.
+    if (SkPixelRef* pr = fBitmap.pixelRef()) {
+        pr->restoreMutability();
+    }
 }
 
 void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
@@ -158,7 +173,7 @@ SkSurface* SkSurface::NewRasterDirectReleaseProc(const SkImageInfo& info, void* 
     if (NULL == pixels) {
         return NULL;
     }
-    
+
     return SkNEW_ARGS(SkSurface_Raster, (info, pixels, rb, releaseProc, context, props));
 }
 

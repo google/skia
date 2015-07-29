@@ -87,10 +87,13 @@ public:
         if (lockPixels) {
             fBitmap.lockPixels();
         }
+        SkASSERT(fBitmap.isImmutable());
     }
 
 private:
-    SkImage_Raster() : INHERITED(0, 0, NULL) {}
+    SkImage_Raster() : INHERITED(0, 0, NULL) {
+        fBitmap.setImmutable();
+    }
 
     SkBitmap    fBitmap;
 
@@ -123,6 +126,7 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint&
     fBitmap.setInfo(info, rowBytes);
     fBitmap.setPixelRef(pr, pixelRefOrigin);
     fBitmap.lockPixels();
+    SkASSERT(fBitmap.isImmutable());
 }
 
 SkImage_Raster::~SkImage_Raster() {}
@@ -232,8 +236,8 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
     return SkNEW_ARGS(SkImage_Raster, (info, pr, pixelRefOrigin, rowBytes, props));
 }
 
-SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, bool forceSharePixelRef,
-                                    const SkSurfaceProps* props, SharedPixelRefMode mode) {
+SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, const SkSurfaceProps* props,
+                                    SharedPixelRefMode mode, ForceCopyMode forceCopy) {
     SkASSERT(NULL == bm.getTexture());
 
     if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), NULL, NULL)) {
@@ -241,9 +245,7 @@ SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, bool forceSharePixelRef,
     }
 
     SkImage* image = NULL;
-    if (forceSharePixelRef || bm.isImmutable()) {
-        image = SkNEW_ARGS(SkImage_Raster, (bm, props, kLocked_SharedPixelRefMode == mode));
-    } else {
+    if (kYes_ForceCopyMode == forceCopy || !bm.isImmutable()) {
         SkBitmap tmp(bm);
         tmp.lockPixels();
         if (tmp.getPixels()) {
@@ -255,6 +257,8 @@ SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, bool forceSharePixelRef,
         if (image && props) {
             as_IB(image)->initWithProps(*props);
         }
+    } else {
+        image = SkNEW_ARGS(SkImage_Raster, (bm, props, kLocked_SharedPixelRefMode == mode));
     }
     return image;
 }

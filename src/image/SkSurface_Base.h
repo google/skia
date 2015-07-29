@@ -68,8 +68,16 @@ public:
      */
     virtual void onCopyOnWrite(ContentChangeMode) = 0;
 
+    /**
+     *  Signal the surface to remind its backing store that it's mutable again.
+     *  Called only when we _didn't_ copy-on-write; we assume the copies start mutable.
+     */
+    virtual void onRestoreBackingMutability() {}
+
     inline SkCanvas* getCachedCanvas();
     inline SkImage* getCachedImage(Budgeted);
+
+    bool hasCachedImage() const { return fCachedImage != NULL; }
 
     // called by SkSurface to compute a new genID
     uint32_t newGenerationID();

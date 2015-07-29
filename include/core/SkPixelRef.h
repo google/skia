@@ -152,7 +152,7 @@ public:
     /** Returns true if this pixelref is marked as immutable, meaning that the
         contents of its pixels will not change for the lifetime of the pixelref.
     */
-    bool isImmutable() const { return fIsImmutable; }
+    bool isImmutable() const { return fMutability != kMutable; }
 
     /** Marks this pixelref is immutable, meaning that the contents of its
         pixels will not change for the lifetime of the pixelref. This state can
@@ -366,8 +366,13 @@ private:
 
     // Set true by caches when they cache content that's derived from the current pixels.
     SkAtomic<bool> fAddedToCache;
-    // can go from false to true, but never from true to false
-    bool fIsImmutable;
+
+    enum {
+        kMutable,               // PixelRefs begin mutable.
+        kTemporarilyImmutable,  // Considered immutable, but can revert to mutable.
+        kImmutable,             // Once set to this state, it never leaves.
+    } fMutability : 8;          // easily fits inside a byte
+
     // only ever set in constructor, const after that
     bool fPreLocked;
 
@@ -375,6 +380,10 @@ private:
     void callGenIDChangeListeners();
 
     void setMutex(SkBaseMutex* mutex);
+
+    void setTemporarilyImmutable();
+    void restoreMutability();
+    friend class SkSurface_Raster;   // For the two methods above.
 
     // When copying a bitmap to another with the same shape and config, we can safely
     // clone the pixelref generation ID too, which makes them equivalent under caching.

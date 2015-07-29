@@ -39,8 +39,12 @@ enum SharedPixelRefMode {
     kLocked_SharedPixelRefMode,
     kUnlocked_SharedPixelRefMode
 };
-extern SkImage* SkNewImageFromRasterBitmap(const SkBitmap&, bool forceSharePixelRef,
-                                           const SkSurfaceProps*, SharedPixelRefMode);
+enum ForceCopyMode {
+    kNo_ForceCopyMode,
+    kYes_ForceCopyMode, // must copy the pixels even if the bitmap is immutable
+};
+extern SkImage* SkNewImageFromRasterBitmap(const SkBitmap&, const SkSurfaceProps*,
+                                           SharedPixelRefMode, ForceCopyMode = kNo_ForceCopyMode);
 
 static inline size_t SkImageMinRowBytes(const SkImageInfo& info) {
     size_t minRB = info.minRowBytes();

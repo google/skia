@@ -106,7 +106,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info)
     fRec.zero();
     fLockCount = 0;
     this->needsNewGenID();
-    fIsImmutable = false;
+    fMutability = kMutable;
     fPreLocked = false;
     fAddedToCache.store(false);
 }
@@ -125,7 +125,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
     fRec.zero();
     fLockCount = 0;
     this->needsNewGenID();
-    fIsImmutable = false;
+    fMutability = kMutable;
     fPreLocked = false;
     fAddedToCache.store(false);
 }
@@ -341,7 +341,7 @@ void SkPixelRef::callGenIDChangeListeners() {
 
 void SkPixelRef::notifyPixelsChanged() {
 #ifdef SK_DEBUG
-    if (fIsImmutable) {
+    if (this->isImmutable()) {
         SkDebugf("========== notifyPixelsChanged called on immutable pixelref");
     }
 #endif
@@ -355,7 +355,17 @@ void SkPixelRef::changeAlphaType(SkAlphaType at) {
 }
 
 void SkPixelRef::setImmutable() {
-    fIsImmutable = true;
+    fMutability = kImmutable;
+}
+void SkPixelRef::setTemporarilyImmutable() {
+    SkASSERT(fMutability != kImmutable);
+    fMutability = kTemporarilyImmutable;
+}
+
+void SkPixelRef::restoreMutability() {
+    SkASSERT(fMutability != kImmutable);
+    fMutability = kMutable;
+    this->notifyPixelsChanged();  // This is just precautionary.
 }
 
 bool SkPixelRef::readPixels(SkBitmap* dst, const SkIRect* subset) {
