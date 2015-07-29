@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,17 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkPreConfig_DEFINED
 #define SkPreConfig_DEFINED
 
-#ifdef WEBKIT_VERSION_MIN_REQUIRED
-    #include "config.h"
-#endif
-
 // Allows embedders that want to disable macros that take arguments to just
 // define that symbol to be one of these
-//
 #define SK_NOTHING_ARG1(arg1)
 #define SK_NOTHING_ARG2(arg1, arg2)
 #define SK_NOTHING_ARG3(arg1, arg2, arg3)
