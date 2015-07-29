@@ -1,0 +1,129 @@
+{
+  "Build-Mac10.8-Clang-Arm7-Debug-Android": {
+    "build_targets": [
+      "most"
+    ], 
+    "env": {
+      "CC": "/usr/bin/clang", 
+      "CXX": "/usr/bin/clang++", 
+      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_warnings_as_errors=0"
+    }
+  }, 
+  "Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs": {
+    "build_targets": [
+      "most"
+    ], 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=arm skia_use_android_framework_defines=1 skia_warnings_as_errors=1"
+    }
+  }, 
+  "Build-Ubuntu-GCC-x86_64-Release-Mesa": {
+    "build_targets": [
+      "most"
+    ], 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_mesa=1 skia_warnings_as_errors=1"
+    }
+  }, 
+  "Build-Win-MSVC-x86-Debug": {
+    "build_targets": [
+      "most"
+    ], 
+    "env": {
+      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0"
+    }
+  }, 
+  "Build-Win-MSVC-x86-Debug-Exceptions": {
+    "build_targets": [
+      "most"
+    ], 
+    "env": {
+      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp skia_win_exceptions=1 skia_win_ltcg=0"
+    }
+  }, 
+  "Build-Win-MSVC-x86-Debug-GDI": {
+    "build_targets": [
+      "most"
+    ], 
+    "env": {
+      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_gdi=1 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0"
+    }
+  }, 
+  "Housekeeper-PerCommit": {
+    "build_targets": [
+      "most"
+    ], 
+    "env": {
+      "GYP_DEFINES": "skia_shared_lib=1 skia_warnings_as_errors=0"
+    }
+  }, 
+  "Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot": {
+    "build_targets": [
+      "nanobench"
+    ], 
+    "env": {
+      "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_arch_type=x86_64 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
+    }
+  }, 
+  "Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release": {
+    "build_targets": [
+      "dm"
+    ], 
+    "env": {
+      "CC": "/usr/bin/clang", 
+      "CXX": "/usr/bin/clang++", 
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_clang_build=1 skia_run_pdfviewer_in_gm=1 skia_warnings_as_errors=0"
+    }
+  }, 
+  "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD": {
+    "build_targets": [
+      "dm"
+    ], 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0 sknx_no_simd=1"
+    }
+  }, 
+  "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared": {
+    "build_targets": [
+      "dm"
+    ], 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_shared_lib=1 skia_warnings_as_errors=0"
+    }
+  }, 
+  "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+    "build_targets": [
+      "dm"
+    ], 
+    "env": {
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_release_optimization_level=1 skia_warnings_as_errors=0"
+    }
+  }, 
+  "Test-Win8-MSVC-ShuttleA-CPU-AVX-x86_64-Debug": {
+    "build_targets": [
+      "dm", 
+      "nanobench"
+    ], 
+    "env": {
+      "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
+    }
+  }, 
+  "Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86-Release-ANGLE": {
+    "build_targets": [
+      "dm"
+    ], 
+    "env": {
+      "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_angle=1 skia_arch_type=x86 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
+    }
+  }, 
+  "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug": {
+    "build_targets": [
+      "iOSShell"
+    ], 
+    "env": {
+      "CC": "/usr/bin/clang", 
+      "CXX": "/usr/bin/clang++", 
+      "GYP_DEFINES": "skia_arch_type=arm skia_clang_build=1 skia_os=ios skia_warnings_as_errors=0"
+    }
+  }
+}
