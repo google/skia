@@ -8,10 +8,10 @@
 #ifndef SkRecords_DEFINED
 #define SkRecords_DEFINED
 
-#include "../private/SkPathPriv.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkMatrix.h"
+#include "SkPathPriv.h"
 #include "SkPicture.h"
 #include "SkRSXform.h"
 #include "SkTextBlob.h"
