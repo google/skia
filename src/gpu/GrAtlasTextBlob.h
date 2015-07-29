@@ -99,8 +99,9 @@ struct GrAtlasTextBlob : public SkRefCnt {
 
         SubRunInfo& push_back() {
             // Forward glyph / vertex information to seed the new sub run
-            SubRunInfo& prevSubRun = fSubRunInfo.back();
             SubRunInfo& newSubRun = fSubRunInfo.push_back();
+            SubRunInfo& prevSubRun = fSubRunInfo.fromBack(1);
+
             newSubRun.fGlyphStartIndex = prevSubRun.fGlyphEndIndex;
             newSubRun.fGlyphEndIndex = prevSubRun.fGlyphEndIndex;
 
