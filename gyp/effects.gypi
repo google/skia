@@ -45,6 +45,8 @@
     '<(skia_src_path)/effects/SkLayerRasterizer.cpp',
     '<(skia_src_path)/effects/SkLerpXfermode.cpp',
     '<(skia_src_path)/effects/SkLightingImageFilter.cpp',
+    '<(skia_src_path)/effects/SkLightingShader.h',
+    '<(skia_src_path)/effects/SkLightingShader.cpp',
     '<(skia_src_path)/effects/SkLumaColorFilter.cpp',
     '<(skia_src_path)/effects/SkMagnifierImageFilter.cpp',
     '<(skia_src_path)/effects/SkMatrixConvolutionImageFilter.cpp',

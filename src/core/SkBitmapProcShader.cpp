@@ -17,20 +17,6 @@
 #include "effects/GrBicubicEffect.h"
 #endif
 
-bool SkBitmapProcShader::CanDo(const SkBitmap& bm, TileMode tx, TileMode ty) {
-    switch (bm.colorType()) {
-        case kAlpha_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kIndex_8_SkColorType:
-        case kN32_SkColorType:
-    //        if (tx == ty && (kClamp_TileMode == tx || kRepeat_TileMode == tx))
-                return true;
-        default:
-            break;
-    }
-    return false;
-}
-
 SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                        const SkMatrix* localMatrix)
         : INHERITED(localMatrix) {
@@ -267,7 +253,7 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan16(int x, int y, uint
 
 // returns true and set color if the bitmap can be drawn as a single color
 // (for efficiency)
-static bool canUseColorShader(const SkBitmap& bm, SkColor* color) {
+static bool can_use_color_shader(const SkBitmap& bm, SkColor* color) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // HWUI does not support color shaders (see b/22390304)
     return false;
@@ -298,14 +284,14 @@ static bool canUseColorShader(const SkBitmap& bm, SkColor* color) {
     return false;
 }
 
-static bool bitmapIsTooBig(const SkBitmap& bm) {
+static bool bitmap_is_too_big(const SkBitmap& bm) {
     // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer, as it
     // communicates between its matrix-proc and its sampler-proc. Until we can
     // widen that, we have to reject bitmaps that are larger.
     //
-    const int maxSize = 65535;
+    static const int kMaxSize = 65535;
 
-    return bm.width() > maxSize || bm.height() > maxSize;
+    return bm.width() > kMaxSize || bm.height() > kMaxSize;
 }
 
 SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
@@ -313,14 +299,13 @@ SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
                                SkTBlitterAllocator* allocator) {
     SkShader* shader;
     SkColor color;
-    if (src.isNull() || bitmapIsTooBig(src)) {
+    if (src.isNull() || bitmap_is_too_big(src)) {
         if (NULL == allocator) {
             shader = SkNEW(SkEmptyShader);
         } else {
             shader = allocator->createT<SkEmptyShader>();
         }
-    }
-    else if (canUseColorShader(src, &color)) {
+    } else if (can_use_color_shader(src, &color)) {
         if (NULL == allocator) {
             shader = SkNEW_ARGS(SkColorShader, (color));
         } else {

@@ -118,6 +118,7 @@ struct SkBitmapProcState {
 
 private:
     friend class SkBitmapProcShader;
+    friend class SkLightingShaderImpl;
 
     ShaderProc32        fShaderProc32;      // chooseProcs
     ShaderProc16        fShaderProc16;      // chooseProcs
