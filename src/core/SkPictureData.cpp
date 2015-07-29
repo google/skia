@@ -373,26 +373,14 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
         } break;
         case SK_PICT_PICTURE_TAG: {
-            fPictureCount = size;
-            fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
-            bool success = true;
-            int i = 0;
-            for ( ; i < fPictureCount; i++) {
+            fPictureCount = 0;
+            fPictureRefs = SkNEW_ARRAY(const SkPicture*, size);
+            for (uint32_t i = 0; i < size; i++) {
                 fPictureRefs[i] = SkPicture::CreateFromStream(stream, proc);
-                if (NULL == fPictureRefs[i]) {
-                    success = false;
-                    break;
+                if (!fPictureRefs[i]) {
+                    return false;
                 }
-            }
-            if (!success) {
-                // Delete all of the pictures that were already created (up to but excluding i):
-                for (int j = 0; j < i; j++) {
-                    fPictureRefs[j]->unref();
-                }
-                // Delete the array
-                SkDELETE_ARRAY(fPictureRefs);
-                fPictureCount = 0;
-                return false;
+                fPictureCount++;
             }
         } break;
         case SK_PICT_BUFFER_SIZE_TAG: {
