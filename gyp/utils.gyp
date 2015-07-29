@@ -35,9 +35,6 @@
       'sources': [
         'utils.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
-      'sources!': [
-          '../src/utils/SDL/SkOSWindow_SDL.cpp',
-      ],
       'conditions': [
         [ 'skia_os == "mac"', {
           'link_settings': {
