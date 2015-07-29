@@ -568,9 +568,19 @@ static void test_clipped_cubic() {
     }
 }
 
+static void dump_if_ne(skiatest::Reporter* reporter, const SkRect& expected, const SkRect& bounds) {
+    if (expected != bounds) {
+        ERRORF(reporter, "path.getBounds() returned [%g %g %g %g], but expected [%g %g %g %g]",
+               bounds.left(), bounds.top(), bounds.right(), bounds.bottom(),
+               expected.left(), expected.top(), expected.right(), expected.bottom());
+    }
+}
+
 static void test_bounds_crbug_513799(skiatest::Reporter* reporter) {
     SkPath path;
-
+#if 0
+    // As written these tests were failing on LLVM 4.2 MacMini Release mysteriously, so we've
+    // rewritten them to avoid this (compiler-bug?).
     REPORTER_ASSERT(reporter, SkRect::MakeLTRB(0, 0, 0, 0) == path.getBounds());
 
     path.moveTo(-5, -8);
@@ -581,6 +591,18 @@ static void test_bounds_crbug_513799(skiatest::Reporter* reporter) {
 
     path.moveTo(1, 2);
     REPORTER_ASSERT(reporter, SkRect::MakeLTRB(-5, -8, 3, 4) == path.getBounds());
+#else
+    dump_if_ne(reporter, SkRect::MakeLTRB(0, 0, 0, 0), path.getBounds());
+
+    path.moveTo(-5, -8);    // should set the bounds
+    dump_if_ne(reporter, SkRect::MakeLTRB(-5, -8, -5, -8), path.getBounds());
+
+    path.addRect(SkRect::MakeLTRB(1, 2, 3, 4)); // should extend the bounds
+    dump_if_ne(reporter, SkRect::MakeLTRB(-5, -8, 3, 4), path.getBounds());
+
+    path.moveTo(1, 2);  // don't expect this to have changed the bounds
+    dump_if_ne(reporter, SkRect::MakeLTRB(-5, -8, 3, 4), path.getBounds());
+#endif
 }
 
 // Inspired by http://ie.microsoft.com/testdrive/Performance/Chalkboard/
