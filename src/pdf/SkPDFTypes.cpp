@@ -99,35 +99,21 @@ bool is_valid_name(const char* n) {
 }
 #endif  // SK_DEBUG
 
-// Given an arbitrary string, convert it to a valid name.
-static SkString escape_name(const char* name, size_t len) {
+// Given an arbitrary string, write it as a valid name (not including
+// leading slash).
+static void write_name_escaped(SkWStream* o, const char* name) {
     static const char kToEscape[] = "#/%()<>[]{}";
-    int count = 0;
-    const char* const end = &name[len];
-    for (const char* n = name; n != end; ++n) {
-        if (*n < '!' || *n > '~' || strchr(kToEscape, *n)) {
-            count += 2;
-        }
-        ++count;
-    }
-    SkString result(count);
-    char* s = result.writable_str();
     static const char kHex[] = "0123456789ABCDEF";
-    for (const char* n = name; n != end; ++n) {
+    for (const uint8_t* n = reinterpret_cast<const uint8_t*>(name); *n; ++n) {
         if (*n < '!' || *n > '~' || strchr(kToEscape, *n)) {
-            *s++ = '#';
-            *s++ = kHex[(*n >> 4) & 0xF];
-            *s++ = kHex[*n & 0xF];
+            char buffer[3] = {'#', '\0', '\0'};
+            buffer[1] = kHex[(*n >> 4) & 0xF];
+            buffer[2] = kHex[*n & 0xF];
+            o->write(buffer, sizeof(buffer));
         } else {
-            *s++ = *n;
+            o->write(n, 1);
         }
     }
-    SkASSERT(&result.writable_str()[count] == s);  // don't over-write
-    return result;                                 // allocated space
-}
-
-static SkString escape_name(const SkString& name) {
-    return escape_name(name.c_str(), name.size());
 }
 
 static void write_string(SkWStream* o, const SkString& s) {
@@ -166,7 +152,7 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             return;
         case Type::kNameSkS:
             stream->writeText("/");
-            write_string(stream, escape_name(*pun(fSkString)));
+            write_name_escaped(stream, pun(fSkString)->c_str());
             return;
         case Type::kStringSkS:
             write_string(stream, format_string(*pun(fSkString)));
