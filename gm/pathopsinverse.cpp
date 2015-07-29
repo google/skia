@@ -20,16 +20,16 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        const unsigned oneColor = 0xFF8080FF;
+        const unsigned oneColor = sk_tool_utils::color_to_565(0xFF8080FF);
         const unsigned twoColor = 0x807F1f1f;
         SkColor blendColor = blend(oneColor, twoColor);
         makePaint(&fOnePaint, oneColor);
         makePaint(&fTwoPaint, twoColor);
         makePaint(&fOpPaint[kDifference_SkPathOp], oneColor);
         makePaint(&fOpPaint[kIntersect_SkPathOp], blendColor);
-        makePaint(&fOpPaint[kUnion_SkPathOp], 0xFFc0FFc0);
+        makePaint(&fOpPaint[kUnion_SkPathOp], sk_tool_utils::color_to_565(0xFFc0FFc0));
         makePaint(&fOpPaint[kReverseDifference_SkPathOp], twoColor);
-        makePaint(&fOpPaint[kXOR_SkPathOp], 0xFFa0FFe0);
+        makePaint(&fOpPaint[kXOR_SkPathOp], sk_tool_utils::color_to_565(0xFFa0FFe0));
         makePaint(&fOutlinePaint, 0xFF000000);
         fOutlinePaint.setStyle(SkPaint::kStroke_Style);
     }

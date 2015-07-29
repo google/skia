@@ -104,7 +104,7 @@ static void draw_rrect_color(SkCanvas* canvas, const SkRRect& rrect) {
     if (rrect.isRect()) {
         paint.setColor(SK_ColorRED);
     } else if (rrect.isOval()) {
-        paint.setColor(0xFF008800);
+        paint.setColor(sk_tool_utils::color_to_565(0xFF008800));
     } else if (rrect.isSimple()) {
         paint.setColor(SK_ColorBLUE);
     } else {

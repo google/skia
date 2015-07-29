@@ -21,7 +21,7 @@ static SkSurface* new_surface(int width, int height) {
 
 static void draw_pixel_centers(SkCanvas* canvas) {
     SkPaint paint;
-    paint.setColor(0xFF0088FF);
+    paint.setColor(sk_tool_utils::color_to_565(0xFF0088FF));
     paint.setAntiAlias(true);
 
     for (int y = 0; y < SMALL_H; ++y) {

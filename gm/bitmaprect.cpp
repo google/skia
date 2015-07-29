@@ -46,7 +46,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->drawColor(0xFFCCCCCC);
+        canvas->drawColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
 
         const SkIRect src[] = {
             { 0, 0, 32, 32 },

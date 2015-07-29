@@ -205,7 +205,7 @@ protected:
         SkPaint fillPaint(origPaint);
         fillPaint.setColor(SK_ColorRED);
         SkPaint strokePaint(origPaint);
-        strokePaint.setColor(0xFF4444FF);
+        strokePaint.setColor(sk_tool_utils::color_to_565(0xFF4444FF));
 
         void (*procs[])(SkPath*, const SkRect&, SkString*) = {
             make0, make1, make2, make3, make4, make5

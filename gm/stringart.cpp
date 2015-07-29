@@ -55,7 +55,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(0xFF007700);
+        paint.setColor(sk_tool_utils::color_to_565(0xFF007700));
 
         canvas->drawPath(path, paint);
     }

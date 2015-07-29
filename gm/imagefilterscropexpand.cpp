@@ -41,9 +41,9 @@ protected:
         SkCanvas canvas(*bitmap);
         canvas.clear(0xFFFF0000);
         SkPaint darkPaint;
-        darkPaint.setColor(0xFF404040);
+        darkPaint.setColor(sk_tool_utils::color_to_565(0xFF404040));
         SkPaint lightPaint;
-        lightPaint.setColor(0xFFA0A0A0);
+        lightPaint.setColor(sk_tool_utils::color_to_565(0xFFA0A0A0));
         for (int y = 8; y < 48; y += 16) {
             for (int x = 8; x < 48; x += 16) {
                 canvas.save();

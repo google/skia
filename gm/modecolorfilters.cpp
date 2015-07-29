@@ -24,7 +24,7 @@ static SkShader* make_color_shader(SkColor color) {
 }
 
 static SkShader* make_solid_shader() {
-    return make_color_shader(SkColorSetARGB(0xFF, 0x40, 0x80, 0x20));
+    return make_color_shader(SkColorSetARGB(0xFF, 0x42, 0x82, 0x21));
 }
 
 static SkShader* make_transparent_shader() {
@@ -40,9 +40,9 @@ static SkShader* make_bg_shader(int checkSize) {
     SkBitmap bmp;
     bmp.allocN32Pixels(2 * checkSize, 2 * checkSize);
     SkCanvas canvas(bmp);
-    canvas.clear(0xFF800000);
+    canvas.clear(sk_tool_utils::color_to_565(0xFF800000));
     SkPaint paint;
-    paint.setColor(0xFF000080);
+    paint.setColor(sk_tool_utils::color_to_565(0xFF000080));
     SkRect rect0 = SkRect::MakeXYWH(0, 0,
                                     SkIntToScalar(checkSize), SkIntToScalar(checkSize));
     SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(checkSize), SkIntToScalar(checkSize),
@@ -94,7 +94,7 @@ protected:
             SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF),
             SkColorSetARGB(0xFF, 0x00, 0x00, 0x00),
             SkColorSetARGB(0x00, 0x00, 0x00, 0x00),
-            SkColorSetARGB(0xFF, 0x10, 0x20, 0x40),
+            SkColorSetARGB(0xFF, 0x10, 0x20, 0x42),
             SkColorSetARGB(0xA0, 0x20, 0x30, 0x90),
         };
 

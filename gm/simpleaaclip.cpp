@@ -148,7 +148,7 @@ protected:
         } gOps[] = {
             { SK_ColorBLACK,    "Difference", SkRegion::kDifference_Op    },
             { SK_ColorRED,      "Intersect",  SkRegion::kIntersect_Op     },
-            { 0xFF008800,       "Union",      SkRegion::kUnion_Op         },
+            { sk_tool_utils::color_to_565(0xFF008800), "Union", SkRegion::kUnion_Op },
             { SK_ColorGREEN,    "Rev Diff",   SkRegion::kReverseDifference_Op },
             { SK_ColorYELLOW,   "Replace",    SkRegion::kReplace_Op       },
             { SK_ColorBLUE,     "XOR",        SkRegion::kXOR_Op           },

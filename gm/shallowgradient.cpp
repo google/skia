@@ -52,7 +52,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkColor colors[] = { 0xFF555555, 0xFF444444 };
+        const SkColor colors[] = { sk_tool_utils::color_to_565(0xFF555555), 
+                sk_tool_utils::color_to_565(0xFF444444) };
         const int colorCount = SK_ARRAY_COUNT(colors);
 
         SkRect r = { 0, 0, this->width(), this->height() };

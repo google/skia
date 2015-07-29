@@ -110,7 +110,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
+        canvas->drawColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
         canvas->translate(20, 20);
 
 
@@ -222,7 +222,7 @@ protected:
         SkBitmap bm;
         make_bm1(&bm);
 
-        canvas->drawColor(0xFFDDDDDD);
+        canvas->drawColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
 
         const int MODES = MODE_COUNT * COLOR_COUNT;
         SkAutoTUnref<SkColorFilter> filters[MODES];

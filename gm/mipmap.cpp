@@ -15,7 +15,7 @@ static SkImage* make_image() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(319, 52);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
     SkCanvas* canvas = surface->getCanvas();
-    canvas->drawColor(0xFFF8F8F8);
+    canvas->drawColor(sk_tool_utils::color_to_565(0xFFF8F8F8));
 
     SkPaint paint;
     paint.setAntiAlias(true);

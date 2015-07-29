@@ -85,10 +85,11 @@ protected:
         for (int r = 0; r < size; ++r) {
             for (int g = 0; g < size; ++g) {
                 for (int b = 0; b < size; ++b) {
-                    pixels[(size * ((size * b) + g)) + r] = SkColorSetARGB(0xFF,
+                    pixels[(size * ((size * b) + g)) + r] = sk_tool_utils::color_to_565(
+                            SkColorSetARGB(0xFF,
                             invR ? invLut[r] : lut[r],
                             invG ? invLut[g] : lut[g],
-                            invB ? invLut[b] : lut[b]);
+                            invB ? invLut[b] : lut[b]));
                 }
             }
         }

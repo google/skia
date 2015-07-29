@@ -296,7 +296,7 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(640, 510); }
 
     void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
+        canvas->drawColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
     virtual void onDraw(SkCanvas* canvas) {

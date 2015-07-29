@@ -29,7 +29,7 @@ DEF_SIMPLE_GM(blend, canvas, 300, 100) {
         p.setColor(SK_ColorRED);
         canvas->drawRect(SkRect::MakeXYWH(2,0,1,1), p);
         canvas->saveLayerAlpha(NULL, 0xFC);
-            p.setColor(0xFF008000);
+            p.setColor(sk_tool_utils::color_to_565(0xFF008000));
             canvas->drawRect(SkRect::MakeXYWH(2,0,1,1), p);
         canvas->restore();
     canvas->restore();

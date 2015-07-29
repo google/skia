@@ -225,7 +225,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         
-        paint.setColor(0xFFCCCCCC);
+        paint.setColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
         canvas->drawPath(path, paint);
         
         paint.setColor(SK_ColorRED);
@@ -238,7 +238,7 @@ protected:
 
         SkRect r = SkRect::MakeXYWH(0, H/4, W, H/2);
         SkPaint paint;
-        paint.setColor(0xFF8888FF);
+        paint.setColor(sk_tool_utils::color_to_565(0xFF8888FF));
 
         canvas->drawRect(r, paint);
         this->doDraw(canvas, path);

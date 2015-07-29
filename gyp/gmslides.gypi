@@ -29,6 +29,7 @@
         '../src/utils/debugger/SkObjectParser.cpp',
       ],
       'sources!': [
+        '../gm/annotated_text.cpp',
         '../gm/system_preferences_default.cpp',
         '../gm/techtalk1.cpp',
       ],

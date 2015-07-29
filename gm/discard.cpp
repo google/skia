@@ -58,7 +58,7 @@ protected:
             for (int y = 0; y < 10; ++y) {
               surface->getCanvas()->discard();
               // Make something that isn't too close to the background color, black.
-              SkColor color = rand.nextU() | 0xFF404040;
+              SkColor color = sk_tool_utils::color_to_565(rand.nextU() | 0xFF404040);
               switch (rand.nextULessThan(3)) {
                   case 0:
                       surface->getCanvas()->drawColor(color);
