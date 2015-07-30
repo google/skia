@@ -274,6 +274,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         bufferRow += rowBytes;
                     }
 
+                    subsetBm.notifyPixelsChanged();
                     canvas->drawBitmap(subsetBm, SkIntToScalar(x), SkIntToScalar(y));
                 }
             }
