@@ -18,10 +18,28 @@
  *  [     0          0      1 ]
  */
 struct SkRSXform {
-    SkScalar    fSCos;
-    SkScalar    fSSin;
-    SkScalar    fTx;
-    SkScalar    fTy;
+    static SkRSXform Make(SkScalar scos, SkScalar ssin, SkScalar tx, SkScalar ty) {
+        SkRSXform xform = { scos, ssin, tx, ty };
+        return xform;
+    }
+
+    /*
+     *  Initialize a new xform based on the scale, rotation (in radians), final tx,ty location
+     *  and anchor-point ax,ay within the src quad.
+     *
+     *  Note: the anchor point is not normalized (e.g. 0...1) but is in pixels of the src image.
+     */
+    static SkRSXform MakeFromRadians(SkScalar scale, SkScalar radians, SkScalar tx, SkScalar ty,
+                                     SkScalar ax, SkScalar ay) {
+        const SkScalar s = SkScalarSin(radians) * scale;
+        const SkScalar c = SkScalarCos(radians) * scale;
+        return Make(c, s, tx + -c * ax + s * ay, ty + -s * ax - c * ay);
+    }
+
+    SkScalar fSCos;
+    SkScalar fSSin;
+    SkScalar fTx;
+    SkScalar fTy;
 
     bool rectStaysRect() const {
         return 0 == fSCos || 0 == fSSin;

@@ -96,18 +96,8 @@ class DrawAtlasDrawable : public SkDrawable {
         }
         
         SkRSXform asRSXform() const {
-            SkMatrix m;
-            m.setTranslate(-8, -8);
-            m.postScale(fScale, fScale);
-            m.postRotate(SkRadiansToDegrees(fRadian));
-            m.postTranslate(fCenter.fX, fCenter.fY);
-
-            SkRSXform x;
-            x.fSCos = m.getScaleX();
-            x.fSSin = m.getSkewY();
-            x.fTx = m.getTranslateX();
-            x.fTy = m.getTranslateY();
-            return x;
+            return SkRSXform::MakeFromRadians(fScale, fRadian, fCenter.x(), fCenter.y(),
+                                              SkScalarHalf(kCellSize), SkScalarHalf(kCellSize));
         }
     };
 
@@ -138,7 +128,7 @@ public:
                 fRec[i].fVelocity.fX = rand.nextSScalar1() * kMaxSpeed;
                 fRec[i].fVelocity.fY = rand.nextSScalar1() * kMaxSpeed;
                 fRec[i].fScale = 1;
-                fRec[i].fDScale = rand.nextSScalar1() / 4;
+                fRec[i].fDScale = rand.nextSScalar1() / 16;
                 fRec[i].fRadian = 0;
                 fRec[i].fDRadian = rand.nextSScalar1() / 8;
                 fRec[i].fAlpha = rand.nextUScalar1();
