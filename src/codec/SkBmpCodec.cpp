@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec_libbmp.h"
+#include "SkBmpCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkStream.h"

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkBmpCodec.h"
 #include "SkCodec.h"
 #include "SkData.h"
-#include "SkCodec_libbmp.h"
 #include "SkCodec_libgif.h"
 #include "SkCodec_libico.h"
 #include "SkCodec_libpng.h"

@@ -32,8 +32,8 @@
         '../src/core',
       ],
       'sources': [
+        '../src/codec/SkBmpCodec.cpp',
         '../src/codec/SkCodec.cpp',
-        '../src/codec/SkCodec_libbmp.cpp',
         '../src/codec/SkCodec_libgif.cpp',
         '../src/codec/SkCodec_libico.cpp',
         '../src/codec/SkCodec_libpng.cpp',
