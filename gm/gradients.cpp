@@ -460,4 +460,34 @@ private:
 };
 DEF_GM( return new RadialGradient3GM; )
 
+class RadialGradient4GM : public GM {
+    SkAutoTUnref<SkShader> fShader;
+
+protected:
+    SkString onShortName() override { return SkString("radial_gradient4"); }
+
+    SkISize onISize() override { return SkISize::Make(500, 500); }
+
+    void onOnceBeforeDraw() override {
+        const SkPoint center = { 250, 250 };
+        const SkScalar kRadius = 250;
+        const SkColor colors[] = { SK_ColorRED, SK_ColorRED, SK_ColorWHITE, SK_ColorWHITE,
+                SK_ColorRED };
+        const SkScalar pos[] = { 0, .4f, .4f, .8f, .8f, 1 };
+        fShader.reset(SkGradientShader::CreateRadial(center, kRadius, colors, pos, 
+                SK_ARRAY_COUNT(gColors), SkShader::kClamp_TileMode));
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setShader(fShader);
+        canvas->drawRect(SkRect::MakeWH(500, 500), paint);
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+DEF_GM( return new RadialGradient4GM; )
+
 }
