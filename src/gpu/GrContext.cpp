@@ -416,9 +416,9 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
                 buffer = tmpPixels.get();
                 applyPremulToSrc = false;
             }
-            if (!fGpu->writeTexturePixels(tempTexture, 0, 0, width, height,
-                                          tempDrawInfo.fTempSurfaceDesc.fConfig, buffer,
-                                          rowBytes)) {
+            if (!fGpu->writePixels(tempTexture, 0, 0, width, height,
+                                   tempDrawInfo.fTempSurfaceDesc.fConfig, buffer,
+                                   rowBytes)) {
                 return false;
             }
             SkMatrix matrix;
@@ -437,7 +437,6 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         }
     }
     if (!tempTexture) {
-        SkASSERT(surface->asTexture());
         if (applyPremulToSrc) {
             size_t tmpRowBytes = 4 * width;
             tmpPixels.reset(width * height);
@@ -449,8 +448,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             buffer = tmpPixels.get();
             applyPremulToSrc = false;
         }
-        return fGpu->writeTexturePixels(surface->asTexture(), left, top, width, height, srcConfig,
-                                        buffer, rowBytes);
+        return fGpu->writePixels(surface, left, top, width, height, srcConfig, buffer, rowBytes);
     }
     return true;
 }
@@ -494,7 +492,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         return false;
     }
 
-    SkAutoTUnref<GrRenderTarget> rtToRead(SkSafeRef(src->asRenderTarget()));
+    SkAutoTUnref<GrSurface> surfaceToRead(SkRef(src));
     bool didTempDraw = false;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
         GrTextureProvider::ScratchTexMatch match = GrTextureProvider::kApprox_ScratchTexMatch;
@@ -537,7 +535,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 GrDrawContext* drawContext = this->drawContext();
                 drawContext->drawRect(temp->asRenderTarget(), GrClip::WideOpen(), paint,
                                       SkMatrix::I(), rect, NULL);
-                rtToRead.reset(SkRef(temp->asRenderTarget()));
+                surfaceToRead.reset(SkRef(temp.get()));
                 left = 0;
                 top = 0;
                 didTempDraw = true;
@@ -550,13 +548,14 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     }
     GrPixelConfig configToRead = dstConfig;
     if (didTempDraw) {
-        this->flushSurfaceWrites(rtToRead);
+        this->flushSurfaceWrites(surfaceToRead);
         // We swapped R and B while doing the temp draw. Swap back on the read.
         if (tempDrawInfo.fSwapRAndB) {
             configToRead = GrPixelConfigSwapRAndB(dstConfig);
         }
     }
-    if (!fGpu->readPixels(rtToRead, left, top, width, height, configToRead, buffer, rowBytes)) {
+    if (!fGpu->readPixels(surfaceToRead, left, top, width, height, configToRead, buffer,
+                           rowBytes)) {
         return false;
     }
 

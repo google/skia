@@ -287,22 +287,20 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height, siz
     return true;
 }
 
-bool GrGpu::readPixels(GrRenderTarget* target,
+bool GrGpu::readPixels(GrSurface* surface,
                        int left, int top, int width, int height,
                        GrPixelConfig config, void* buffer,
                        size_t rowBytes) {
     this->handleDirtyContext();
-    return this->onReadPixels(target, left, top, width, height,
-                              config, buffer, rowBytes);
+    return this->onReadPixels(surface, left, top, width, height, config, buffer, rowBytes);
 }
 
-bool GrGpu::writeTexturePixels(GrTexture* texture,
-                               int left, int top, int width, int height,
-                               GrPixelConfig config, const void* buffer,
-                               size_t rowBytes) {
+bool GrGpu::writePixels(GrSurface* surface,
+                        int left, int top, int width, int height,
+                        GrPixelConfig config, const void* buffer,
+                        size_t rowBytes) {
     this->handleDirtyContext();
-    if (this->onWriteTexturePixels(texture, left, top, width, height,
-                                   config, buffer, rowBytes)) {
+    if (this->onWritePixels(surface, left, top, width, height, config, buffer, rowBytes)) {
         fStats.incTextureUploads();
         return true;
     }

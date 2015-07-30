@@ -513,6 +513,12 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
         return false;
     }
 
+    // This subclass only allows writes to textures. If the dst is not a texture we have to draw
+    // into it. We could use glDrawPixels on GLs that have it, but we don't today.
+    if (!dstSurface->asTexture()) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    }
+
     tempDrawInfo->fSwapRAndB = false;
 
     // These settings we will always want if a temp draw is performed. Initially set the config
@@ -553,14 +559,17 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     return true;
 }
 
-bool GrGLGpu::onWriteTexturePixels(GrTexture* texture,
-                                   int left, int top, int width, int height,
-                                   GrPixelConfig config, const void* buffer,
-                                   size_t rowBytes) {
+bool GrGLGpu::onWritePixels(GrSurface* surface,
+                            int left, int top, int width, int height,
+                            GrPixelConfig config, const void* buffer,
+                            size_t rowBytes) {
     if (NULL == buffer) {
         return false;
     }
-    GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
+    GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
+    if (!glTex) {
+        return false;
+    }
 
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTex->textureID()));
@@ -577,7 +586,7 @@ bool GrGLGpu::onWriteTexturePixels(GrTexture* texture,
     }
 
     if (success) {
-        texture->texturePriv().dirtyMipMaps(true);
+        glTex->texturePriv().dirtyMipMaps(true);
         return true;
     }
 
@@ -1726,6 +1735,12 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         return false;
     }
 
+    // This subclass can only read pixels from a render target. We could use glTexSubImage2D on
+    // GL versions that support it but we don't today.
+    if (!srcSurface->asRenderTarget()) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    }
+
     tempDrawInfo->fSwapRAndB = false;
 
     // These settings we will always want if a temp draw is performed. The config is set below
@@ -1773,27 +1788,32 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
     return true;
 }
 
-bool GrGLGpu::onReadPixels(GrRenderTarget* target,
+bool GrGLGpu::onReadPixels(GrSurface* surface,
                            int left, int top,
                            int width, int height,
                            GrPixelConfig config,
                            void* buffer,
                            size_t rowBytes) {
-    SkASSERT(target);
+    SkASSERT(surface);
 
     // We cannot read pixels into a compressed buffer
     if (GrPixelConfigIsCompressed(config)) {
         return false;
     }
 
+    GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
+    if (!tgt) {
+        return false;
+    }
+
     GrGLenum format = 0;
     GrGLenum type = 0;
-    bool flipY = kBottomLeft_GrSurfaceOrigin == target->origin();
+    bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
     if (!this->configToGLFormats(config, false, NULL, &format, &type)) {
         return false;
     }
     size_t bpp = GrBytesPerPixel(config);
-    if (!GrSurfacePriv::AdjustReadPixelParams(target->width(), target->height(), bpp,
+    if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
                                               &left, &top, &width, &height,
                                               &buffer,
                                               &rowBytes)) {
@@ -1801,12 +1821,11 @@ bool GrGLGpu::onReadPixels(GrRenderTarget* target,
     }
 
     // resolve the render target if necessary
-    GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(target);
     switch (tgt->getResolveType()) {
         case GrGLRenderTarget::kCantResolve_ResolveType:
             return false;
         case GrGLRenderTarget::kAutoResolves_ResolveType:
-            this->flushRenderTarget(static_cast<GrGLRenderTarget*>(target), &SkIRect::EmptyIRect());
+            this->flushRenderTarget(tgt, &SkIRect::EmptyIRect());
             break;
         case GrGLRenderTarget::kCanResolve_ResolveType:
             this->onResolveRenderTarget(tgt);
@@ -1823,7 +1842,7 @@ bool GrGLGpu::onReadPixels(GrRenderTarget* target,
 
     // the read rect is viewport-relative
     GrGLIRect readRect;
-    readRect.setRelativeTo(glvp, left, top, width, height, target->origin());
+    readRect.setRelativeTo(glvp, left, top, width, height, tgt->origin());
 
     size_t tightRowBytes = bpp * width;
     if (0 == rowBytes) {

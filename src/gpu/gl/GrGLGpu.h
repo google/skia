@@ -137,17 +137,17 @@ private:
 
     void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
 
-    bool onReadPixels(GrRenderTarget* target,
+    bool onReadPixels(GrSurface*,
                       int left, int top,
                       int width, int height,
                       GrPixelConfig,
                       void* buffer,
                       size_t rowBytes) override;
 
-    bool onWriteTexturePixels(GrTexture* texture,
-                              int left, int top, int width, int height,
-                              GrPixelConfig config, const void* buffer,
-                              size_t rowBytes) override;
+    bool onWritePixels(GrSurface*,
+                       int left, int top, int width, int height,
+                       GrPixelConfig config, const void* buffer,
+                       size_t rowBytes) override;
 
     void onResolveRenderTarget(GrRenderTarget* target) override;
 

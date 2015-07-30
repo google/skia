@@ -204,7 +204,7 @@ private:
 
     void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override {}
 
-    bool onReadPixels(GrRenderTarget* target,
+    bool onReadPixels(GrSurface* surface,
                       int left, int top, int width, int height,
                       GrPixelConfig,
                       void* buffer,
@@ -212,10 +212,10 @@ private:
         return false;
     }
 
-    bool onWriteTexturePixels(GrTexture* texture,
-                              int left, int top, int width, int height,
-                              GrPixelConfig config, const void* buffer,
-                              size_t rowBytes) override {
+    bool onWritePixels(GrSurface* surface,
+                       int left, int top, int width, int height,
+                       GrPixelConfig config, const void* buffer,
+                       size_t rowBytes) override {
         return false;
     }
 

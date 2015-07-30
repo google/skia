@@ -51,8 +51,7 @@ public:
                                 int left, int top, int width, int height,
                                 GrPixelConfig config, const void* buffer,
                                 size_t rowBytes) {
-            return fGpu->writeTexturePixels(texture, left, top, width, height, config, buffer,
-                                            rowBytes);
+            return fGpu->writePixels(texture, left, top, width, height, config, buffer, rowBytes);
         }
 
     private:

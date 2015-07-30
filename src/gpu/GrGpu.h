@@ -210,8 +210,7 @@ public:
     /**
      * Reads a rectangle of pixels from a render target.
      *
-     * @param renderTarget  the render target to read from. NULL means the
-     *                      current render target.
+     * @param surface       The surface to read from
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
@@ -227,13 +226,14 @@ public:
      *              because of a unsupported pixel config or because no render
      *              target is currently set.
      */
-    bool readPixels(GrRenderTarget* renderTarget,
+    bool readPixels(GrSurface* surface,
                     int left, int top, int width, int height,
                     GrPixelConfig config, void* buffer, size_t rowBytes);
 
     /**
-     * Updates the pixels in a rectangle of a texture.
+     * Updates the pixels in a rectangle of a surface.
      *
+     * @param surface       The surface to write to.
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
      * @param width         width of rectangle to write in pixels.
@@ -243,10 +243,10 @@ public:
      * @param rowBytes      number of bytes between consecutive rows. Zero
      *                      means rows are tightly packed.
      */
-    bool writeTexturePixels(GrTexture* texture,
-                            int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer,
-                            size_t rowBytes);
+    bool writePixels(GrSurface* surface,
+                     int left, int top, int width, int height,
+                     GrPixelConfig config, const void* buffer,
+                     size_t rowBytes);
 
     /**
      * Clear the passed in render target. Ignores the draw state and clip. Clears the whole thing if
@@ -468,17 +468,18 @@ private:
                                       GrPixelConfig srcConfig, DrawPreference*,
                                       WritePixelTempDrawInfo*) = 0;
 
-    virtual bool onReadPixels(GrRenderTarget* target,
+    // overridden by backend-specific derived class to perform the surface read
+    virtual bool onReadPixels(GrSurface*,
                               int left, int top, int width, int height,
                               GrPixelConfig,
                               void* buffer,
                               size_t rowBytes) = 0;
 
-    // overridden by backend-specific derived class to perform the texture update
-    virtual bool onWriteTexturePixels(GrTexture* texture,
-                                      int left, int top, int width, int height,
-                                      GrPixelConfig config, const void* buffer,
-                                      size_t rowBytes) = 0;
+    // overridden by backend-specific derived class to perform the surface write
+    virtual bool onWritePixels(GrSurface*,
+                               int left, int top, int width, int height,
+                               GrPixelConfig config, const void* buffer,
+                               size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
     virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;
