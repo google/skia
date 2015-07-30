@@ -206,8 +206,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // All the above srgb extensions support toggling srgb writes
         fSRGBWriteControl = srgbSupport;
     } else {
-        srgbSupport = ctxInfo.version() >= GR_GL_VER(3,0) ||
-                      ctxInfo.hasExtension("GL_EXT_sRGB");
+        // See http://skbug.com/4148 for PowerVR issue.
+        srgbSupport = kPowerVRRogue_GrGLRenderer != ctxInfo.renderer() &&
+                      (ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB"));
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
         fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
