@@ -490,4 +490,47 @@ private:
 };
 DEF_GM( return new RadialGradient4GM; )
 
+class LinearGradientGM : public GM {
+    SkAutoTUnref<SkShader> fShader[100];
+
+protected:
+    SkString onShortName() override { return SkString("linear_gradient"); }
+    const SkScalar kWidthBump = 30.f;
+    const SkScalar kHeight = 5.f;
+    const SkScalar kMinWidth = 540.f;
+
+    SkISize onISize() override { return SkISize::Make(500, 500); }
+
+    void onOnceBeforeDraw() override {
+        SkPoint pts[2] = { {0, 0}, {0, 0} };
+        const SkColor colors[] = { SK_ColorWHITE, SK_ColorWHITE, 0xFF008200, 0xFF008200,
+                SK_ColorWHITE, SK_ColorWHITE };
+        const SkScalar unitPos[] = { 0, 50, 70, 500, 540 };
+        SkScalar pos[6];
+        pos[5] = 1;
+        for (int index = 0; index < (int) SK_ARRAY_COUNT(fShader); ++index) {
+            pts[1].fX = 500.f + index * kWidthBump;
+            for (int inner = 0; inner < (int) SK_ARRAY_COUNT(unitPos); ++inner) {
+                pos[inner] = unitPos[inner] / (kMinWidth + index * kWidthBump);
+            }
+            fShader[index].reset(SkGradientShader::CreateLinear(pts, colors, pos, 
+                    SK_ARRAY_COUNT(gColors), SkShader::kClamp_TileMode));
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        for (int index = 0; index < (int) SK_ARRAY_COUNT(fShader); ++index) {
+            paint.setShader(fShader[index]);
+            canvas->drawRect(SkRect::MakeLTRB(0, index * kHeight, kMinWidth + index * kWidthBump,
+                    (index + 1) * kHeight), paint);
+        }
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+DEF_GM( return new LinearGradientGM; )
+
 }
