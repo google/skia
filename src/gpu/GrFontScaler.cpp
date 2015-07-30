@@ -64,12 +64,22 @@ GrMaskFormat GrFontScaler::getPackedGlyphMaskFormat(const SkGlyph& glyph) const 
 }
 
 bool GrFontScaler::getPackedGlyphBounds(const SkGlyph& glyph, SkIRect* bounds) {
+#if 1
+    // crbug:510931
+    // Retrieving the image from the cache can actually change the mask format.
+    fStrike->findImage(glyph);
+#endif
     bounds->setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
 
     return true;
 }
 
 bool GrFontScaler::getPackedGlyphDFBounds(const SkGlyph& glyph, SkIRect* bounds) {
+#if 1
+    // crbug:510931
+    // Retrieving the image from the cache can actually change the mask format.
+    fStrike->findImage(glyph);
+#endif
     bounds->setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
     bounds->outset(SK_DistanceFieldPad, SK_DistanceFieldPad);
 
