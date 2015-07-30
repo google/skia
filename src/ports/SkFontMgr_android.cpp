@@ -12,6 +12,7 @@
 #include "SkFontMgr_android.h"
 #include "SkFontMgr_android_parser.h"
 #include "SkFontStyle.h"
+#include "SkPaint.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkStream.h"
@@ -19,7 +20,6 @@
 #include "SkTDArray.h"
 #include "SkTSearch.h"
 #include "SkTemplates.h"
-#include "SkTypeface.h"
 #include "SkTypefaceCache.h"
 
 #include <limits>
@@ -407,7 +407,13 @@ protected:
                 continue;
             }
 
-            if (face->charsToGlyphs(&character, SkTypeface::kUTF32_Encoding, NULL, 0)) {
+            SkPaint paint;
+            paint.setTypeface(face);
+            paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+
+            uint16_t glyphID;
+            paint.textToGlyphs(&character, sizeof(character), &glyphID);
+            if (glyphID != 0) {
                 return face.detach();
             }
         }
