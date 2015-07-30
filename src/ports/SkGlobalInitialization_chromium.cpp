@@ -41,6 +41,7 @@
 #include "SkLayerRasterizer.h"
 #include "SkLerpXfermode.h"
 #include "SkLightingImageFilter.h"
+#include "../effects/SkLightingShader.h"
 #include "SkLocalMatrixShader.h"
 #include "SkLumaColorFilter.h"
 #include "SkMagnifierImageFilter.h"
@@ -132,6 +133,7 @@ public:
         SkColorFilter::InitializeFlattenables();
         SkGradientShader::InitializeFlattenables();
         SkLightingImageFilter::InitializeFlattenables();
+        SkLightingShader::InitializeFlattenables();
         SkTableColorFilter::InitializeFlattenables();
         SkXfermode::InitializeFlattenables();
     }

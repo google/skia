@@ -15,7 +15,7 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
 /*
    SkLightingShader TODOs:
@@ -93,7 +93,7 @@ public:
     };
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(LightingShader)
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingShaderImpl)
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -104,6 +104,8 @@ private:
     SkBitmap                fNormalMap;
     SkLightingShader::Light fLight;
     SkColor                 fAmbientColor;  // linear (unpremul) color
+
+    friend class SkLightingShader;
 
     typedef SkShader INHERITED;
 };
@@ -447,9 +449,9 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
 
         for (int i = 0; i < n; ++i) {
             SkASSERT(0xFF == SkColorGetA(tmpNormal2[i]));  // opaque -> unpremul
-            norm.set(SkIntToScalar(SkColorGetR(tmpNormal2[i]))-127.0f,
-                     SkIntToScalar(SkColorGetG(tmpNormal2[i]))-127.0f,
-                     SkIntToScalar(SkColorGetB(tmpNormal2[i]))-127.0f);
+            norm.set(SkIntToScalar(SkGetPackedR32(tmpNormal2[i]))-127.0f,
+                     SkIntToScalar(SkGetPackedG32(tmpNormal2[i]))-127.0f,
+                     SkIntToScalar(SkGetPackedB32(tmpNormal2[i]))-127.0f);
             norm.normalize();
 
             SkColor diffColor = SkUnPreMultiply::PMColorToColor(tmpColor2[i]);
@@ -580,5 +582,11 @@ SkShader* SkLightingShader::Create(const SkBitmap& diffuse, const SkBitmap& norm
 
     return SkNEW_ARGS(SkLightingShaderImpl, (diffuse, normal, light, ambient, localMatrix));
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkLightingShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingShaderImpl)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 ///////////////////////////////////////////////////////////////////////////////
