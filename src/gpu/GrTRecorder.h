@@ -68,7 +68,7 @@ public:
 
     TBase& back() {
         SkASSERT(!this->empty());
-        return *fLastItem;
+        return *reinterpret_cast<TBase*>(fLastItem);
     }
 
     /**
@@ -110,7 +110,7 @@ private:
         int fTotalLength; // The length of an entry including header, item, and data in TAligns.
         int fPrevLength;  // Same but for the previous entry. Used for iterating backwards.
     };
-    template<typename TItem> TItem* alloc_back(int dataLength);
+    template<typename TItem> void* alloc_back(int dataLength);
 
     struct MemBlock : SkNoncopyable {
         /** Allocates a new block and appends it to prev if not NULL. The length param is in units
@@ -154,7 +154,7 @@ private:
     MemBlock* const fHeadBlock;
     MemBlock* fTailBlock;
 
-    TBase*    fLastItem;
+    void*    fLastItem; // really a ptr to TBase
 
     template<typename TItem> friend struct GrTRecorderAllocWrapper;
 
@@ -174,7 +174,7 @@ void GrTRecorder<TBase, TAlign>::pop_back() {
     Header* header = reinterpret_cast<Header*>(
         reinterpret_cast<TAlign*>(fLastItem) - length_of<Header>::kValue);
     fTailBlock->fBack -= header->fTotalLength;
-    fLastItem->~TBase();
+    reinterpret_cast<TBase*>(fLastItem)->~TBase();
 
     int lastItemLength = header->fPrevLength;
 
@@ -190,13 +190,12 @@ void GrTRecorder<TBase, TAlign>::pop_back() {
         fTailBlock = fTailBlock->fPrev;
         SkASSERT(fTailBlock);
     }
-    fLastItem = reinterpret_cast<TBase*>(
-        &(*fTailBlock)[fTailBlock->fBack - lastItemLength + length_of<Header>::kValue]);
+    fLastItem = &(*fTailBlock)[fTailBlock->fBack - lastItemLength + length_of<Header>::kValue];
 }
 
 template<typename TBase, typename TAlign>
 template<typename TItem>
-TItem* GrTRecorder<TBase, TAlign>::alloc_back(int dataLength) {
+void* GrTRecorder<TBase, TAlign>::alloc_back(int dataLength) {
     // Find the header of the previous entry and get its length. We need to store that in the new
     // header for backwards iteration (pop_back()).
     int prevLength = 0;
@@ -221,8 +220,7 @@ TItem* GrTRecorder<TBase, TAlign>::alloc_back(int dataLength) {
     }
 
     Header* header = reinterpret_cast<Header*>(&(*fTailBlock)[fTailBlock->fBack]);
-    TItem* rawPtr = reinterpret_cast<TItem*>(
-                        &(*fTailBlock)[fTailBlock->fBack + length_of<Header>::kValue]);
+    void* rawPtr = &(*fTailBlock)[fTailBlock->fBack + length_of<Header>::kValue];
 
     header->fTotalLength = totalLength;
     header->fPrevLength = prevLength;
