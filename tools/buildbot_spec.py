@@ -24,6 +24,10 @@ import dm_flags
 import nanobench_flags
 
 
+CONFIG_DEBUG = 'Debug'
+CONFIG_RELEASE = 'Release'
+
+
 def lineno():
   caller = inspect.stack()[1]  # Up one level to our caller.
   return inspect.getframeinfo(caller[0]).lineno
@@ -150,7 +154,12 @@ def gyp_defines(builder_dict):
 cov_skip.extend([lineno(), lineno() + 1])
 def get_extra_env_vars(builder_dict):
   env = {}
-  if builder_dict.get('compiler') == 'Clang':
+  if builder_dict.get('configuration') == 'Coverage':
+    # We have to use Clang 3.6 because earlier versions do not support the
+    # compile flags we use and 3.7 and 3.8 hit asserts during compilation.
+    env['CC'] = '/usr/bin/clang-3.6'
+    env['CXX'] = '/usr/bin/clang++-3.6'
+  elif builder_dict.get('compiler') == 'Clang':
     env['CC'] = '/usr/bin/clang'
     env['CXX'] = '/usr/bin/clang++'
   return env
@@ -232,6 +241,44 @@ def get_builder_spec(builder_name):
   device = device_cfg(builder_dict)
   if device:
     rv['device_cfg'] = device
+
+  role = builder_dict['role']
+  if role == builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
+    configuration = CONFIG_RELEASE
+  else:
+    configuration = builder_dict.get(
+        'configuration', CONFIG_DEBUG)
+  arch = (builder_dict.get('arch') or builder_dict.get('target_arch'))
+  if ('Win' in builder_dict.get('os', '') and arch == 'x86_64'):
+    configuration += '_x64'
+  rv['configuration'] = configuration
+  rv['do_test_steps'] = role == builder_name_schema.BUILDER_ROLE_TEST
+  rv['do_perf_steps'] = (role == builder_name_schema.BUILDER_ROLE_PERF or
+                         (role == builder_name_schema.BUILDER_ROLE_TEST and
+                          configuration == CONFIG_DEBUG) or
+                         'Valgrind' in builder_name)
+
+  # Do we upload perf results?
+  upload_perf_results = False
+  if role == builder_name_schema.BUILDER_ROLE_PERF:
+    upload_perf_results = True
+  rv['upload_perf_results'] = upload_perf_results
+
+  # Do we upload correctness results?
+  skip_upload_bots = [
+    'ASAN',
+    'Coverage',
+    'TSAN',
+    'UBSAN',
+    'Valgrind',
+  ]
+  upload_dm_results = True
+  for s in skip_upload_bots:
+    if s in builder_name:
+      upload_dm_results = False
+      break
+  rv['upload_dm_results'] = upload_dm_results
+
   return rv
 
 

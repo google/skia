@@ -12,6 +12,7 @@
       "role": "Build", 
       "target_arch": "Arm7"
     }, 
+    "configuration": "Debug", 
     "device_cfg": "arm_v7_neon", 
     "dm_flags": [
       "--config", 
@@ -135,6 +136,8 @@
       "~tabl_mozilla_0", 
       "~desk_yahoonews_0"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "CC": "/usr/bin/clang", 
       "CXX": "/usr/bin/clang++", 
@@ -157,7 +160,9 @@
       "~blurroundrect", 
       "~patch_grid", 
       "~desk_carsvg"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs": {
     "build_targets": [
@@ -172,6 +177,7 @@
       "role": "Build", 
       "target_arch": "Arm7"
     }, 
+    "configuration": "Debug", 
     "device_cfg": "arm_v7_neon", 
     "dm_flags": [
       "--config", 
@@ -295,6 +301,8 @@
       "~tabl_mozilla_0", 
       "~desk_yahoonews_0"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=arm skia_use_android_framework_defines=1 skia_warnings_as_errors=1"
     }, 
@@ -315,7 +323,9 @@
       "~blurroundrect", 
       "~patch_grid", 
       "~desk_carsvg"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon": {
     "build_targets": [
@@ -330,6 +340,7 @@
       "role": "Build", 
       "target_arch": "Arm7"
     }, 
+    "configuration": "Debug", 
     "device_cfg": "arm_v7", 
     "dm_flags": [
       "--config", 
@@ -453,6 +464,8 @@
       "~tabl_mozilla_0", 
       "~desk_yahoonews_0"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=1"
     }, 
@@ -473,7 +486,9 @@
       "~blurroundrect", 
       "~patch_grid", 
       "~desk_carsvg"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Build-Ubuntu-GCC-Arm7-Debug-CrOS_Daisy": {
     "build_targets": [
@@ -488,6 +503,7 @@
       "role": "Build", 
       "target_arch": "Arm7"
     }, 
+    "configuration": "Debug", 
     "device_cfg": "daisy", 
     "dm_flags": [
       "--matrix", 
@@ -615,6 +631,8 @@
       "decode", 
       "Hopstarter-Mac-Folders-Apple.ico"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=1"
     }, 
@@ -631,7 +649,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Build-Ubuntu-GCC-x86_64-Debug-CrOS_Link": {
     "build_targets": [
@@ -646,6 +666,7 @@
       "role": "Build", 
       "target_arch": "x86_64"
     }, 
+    "configuration": "Debug", 
     "device_cfg": "link", 
     "dm_flags": [
       "--matrix", 
@@ -774,6 +795,8 @@
       "decode", 
       "Hopstarter-Mac-Folders-Apple.ico"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_warnings_as_errors=1"
     }, 
@@ -790,7 +813,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Build-Ubuntu-GCC-x86_64-Release-Mesa": {
     "build_targets": [
@@ -805,6 +830,7 @@
       "role": "Build", 
       "target_arch": "x86_64"
     }, 
+    "configuration": "Release", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -932,6 +958,8 @@
       "decode", 
       "Hopstarter-Mac-Folders-Apple.ico"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_mesa=1 skia_warnings_as_errors=1"
     }, 
@@ -948,7 +976,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Build-Win-MSVC-x86-Debug": {
     "build_targets": [
@@ -962,6 +992,7 @@
       "role": "Build", 
       "target_arch": "x86"
     }, 
+    "configuration": "Debug", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -1097,6 +1128,8 @@
       "subset", 
       "_"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0"
     }, 
@@ -1113,7 +1146,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Build-Win-MSVC-x86-Debug-Exceptions": {
     "build_targets": [
@@ -1128,6 +1163,7 @@
       "role": "Build", 
       "target_arch": "x86"
     }, 
+    "configuration": "Debug", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -1263,6 +1299,8 @@
       "subset", 
       "_"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp skia_win_exceptions=1 skia_win_ltcg=0"
     }, 
@@ -1279,7 +1317,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Build-Win-MSVC-x86-Debug-GDI": {
     "build_targets": [
@@ -1294,6 +1334,7 @@
       "role": "Build", 
       "target_arch": "x86"
     }, 
+    "configuration": "Debug", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -1429,6 +1470,8 @@
       "subset", 
       "_"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_gdi=1 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0"
     }, 
@@ -1445,7 +1488,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Housekeeper-PerCommit": {
     "build_targets": [
@@ -1456,6 +1501,7 @@
       "is_trybot": false, 
       "role": "Housekeeper"
     }, 
+    "configuration": "Release", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -1583,6 +1629,8 @@
       "decode", 
       "Hopstarter-Mac-Folders-Apple.ico"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "skia_shared_lib=1 skia_warnings_as_errors=0"
     }, 
@@ -1599,7 +1647,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot": {
     "build_targets": [
@@ -1616,6 +1666,7 @@
       "os": "Win8", 
       "role": "Perf"
     }, 
+    "configuration": "Release_x64", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -1750,6 +1801,8 @@
       "subset", 
       "_"
     ], 
+    "do_perf_steps": true, 
+    "do_test_steps": false, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_arch_type=x86_64 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
     }, 
@@ -1766,7 +1819,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": true
   }, 
   "Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug": {
     "build_targets": [
@@ -1784,6 +1839,7 @@
       "os": "Android", 
       "role": "Test"
     }, 
+    "configuration": "Debug", 
     "device_cfg": "arm_v7_neon", 
     "dm_flags": [
       "--config", 
@@ -1906,6 +1962,8 @@
       "~tabl_mozilla_0", 
       "~desk_yahoonews_0"
     ], 
+    "do_perf_steps": true, 
+    "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0"
     }, 
@@ -1926,7 +1984,9 @@
       "~blurroundrect", 
       "~patch_grid", 
       "~desk_carsvg"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Test-ChromeOS-GCC-Link-CPU-AVX-x86_64-Debug": {
     "build_targets": [
@@ -1944,6 +2004,7 @@
       "os": "ChromeOS", 
       "role": "Test"
     }, 
+    "configuration": "Debug", 
     "device_cfg": "link", 
     "dm_flags": [
       "--matrix", 
@@ -2072,6 +2133,8 @@
       "decode", 
       "Hopstarter-Mac-Folders-Apple.ico"
     ], 
+    "do_perf_steps": true, 
+    "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0"
     }, 
@@ -2088,7 +2151,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release": {
     "build_targets": [
@@ -2105,6 +2170,7 @@
       "os": "Mac10.8", 
       "role": "Test"
     }, 
+    "configuration": "Release", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -2231,6 +2297,8 @@
       "decode", 
       "Hopstarter-Mac-Folders-Apple.ico"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": true, 
     "env": {
       "CC": "/usr/bin/clang", 
       "CXX": "/usr/bin/clang++", 
@@ -2249,7 +2317,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD": {
     "build_targets": [
@@ -2267,6 +2337,7 @@
       "os": "Ubuntu", 
       "role": "Test"
     }, 
+    "configuration": "Release", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -2395,6 +2466,8 @@
       "decode", 
       "Hopstarter-Mac-Folders-Apple.ico"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0 sknx_no_simd=1"
     }, 
@@ -2411,7 +2484,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared": {
     "build_targets": [
@@ -2429,6 +2504,7 @@
       "os": "Ubuntu", 
       "role": "Test"
     }, 
+    "configuration": "Release", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -2557,6 +2633,8 @@
       "decode", 
       "Hopstarter-Mac-Folders-Apple.ico"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_shared_lib=1 skia_warnings_as_errors=0"
     }, 
@@ -2573,7 +2651,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
     "build_targets": [
@@ -2591,6 +2671,7 @@
       "os": "Ubuntu", 
       "role": "Test"
     }, 
+    "configuration": "Release", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -2744,6 +2825,8 @@
       "--match", 
       "~Threaded"
     ], 
+    "do_perf_steps": true, 
+    "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "skia_arch_type=x86_64 skia_release_optimization_level=1 skia_warnings_as_errors=0"
     }, 
@@ -2764,7 +2847,9 @@
       "1", 
       "--samples", 
       "1"
-    ]
+    ], 
+    "upload_dm_results": false, 
+    "upload_perf_results": false
   }, 
   "Test-Win8-MSVC-ShuttleA-CPU-AVX-x86_64-Debug": {
     "build_targets": [
@@ -2782,6 +2867,7 @@
       "os": "Win8", 
       "role": "Test"
     }, 
+    "configuration": "Debug_x64", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -2917,6 +3003,8 @@
       "subset", 
       "_"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
     }, 
@@ -2933,7 +3021,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86-Release-ANGLE": {
     "build_targets": [
@@ -2951,6 +3041,7 @@
       "os": "Win8", 
       "role": "Test"
     }, 
+    "configuration": "Release", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -3086,6 +3177,8 @@
       "subset", 
       "_"
     ], 
+    "do_perf_steps": false, 
+    "do_test_steps": true, 
     "env": {
       "GYP_DEFINES": "qt_sdk=C:/Qt/Qt5.1.0/5.1.0/msvc2012_64/ skia_angle=1 skia_arch_type=x86 skia_warnings_as_errors=0 skia_win_debuggers_path=c:/DbgHelp"
     }, 
@@ -3102,7 +3195,9 @@
       "hwui", 
       "msaa16", 
       "nvprmsaa16"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }, 
   "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug": {
     "build_targets": [
@@ -3119,6 +3214,7 @@
       "os": "iOS", 
       "role": "Test"
     }, 
+    "configuration": "Debug", 
     "dm_flags": [
       "--matrix", 
       "0", 
@@ -3274,6 +3370,8 @@
       "--match", 
       "~WritePixels"
     ], 
+    "do_perf_steps": true, 
+    "do_test_steps": true, 
     "env": {
       "CC": "/usr/bin/clang", 
       "CXX": "/usr/bin/clang++", 
@@ -3300,6 +3398,8 @@
       "~desk_carsvg", 
       "~keymobi", 
       "~path_hairline"
-    ]
+    ], 
+    "upload_dm_results": true, 
+    "upload_perf_results": false
   }
 }
