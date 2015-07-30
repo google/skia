@@ -103,12 +103,24 @@ void expand_bits(INT_TYPE* dst,
 }
 
 bool GrFontScaler::getPackedGlyphImage(const SkGlyph& glyph, int width, int height, int dstRB,
-                                       void* dst) {
+                                       GrMaskFormat expectedMaskFormat, void* dst) {
     SkASSERT(glyph.fWidth == width);
     SkASSERT(glyph.fHeight == height);
     const void* src = fStrike->findImage(glyph);
     if (NULL == src) {
         return false;
+    }
+
+    // crbug:510931
+    // Retrieving the image from the cache can actually change the mask format.  This case is very
+    // uncommon so for now we just draw a clear box for these glyphs.
+    if (getPackedGlyphMaskFormat(glyph) != expectedMaskFormat) {
+        const int bpp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+        for (int y = 0; y < height; y++) {
+            sk_bzero(dst, width * bpp);
+            dst = (char*)dst + dstRB;
+        }
+        return true;
     }
 
     int srcRB = glyph.rowBytes();

@@ -52,7 +52,8 @@ public:
     GrMaskFormat getMaskFormat() const;
     GrMaskFormat getPackedGlyphMaskFormat(const SkGlyph&) const;
     bool getPackedGlyphBounds(const SkGlyph&, SkIRect* bounds);
-    bool getPackedGlyphImage(const SkGlyph&, int width, int height, int rowBytes, void* image);
+    bool getPackedGlyphImage(const SkGlyph&, int width, int height, int rowBytes,
+                             GrMaskFormat expectedMaskFormat, void* image);
     bool getPackedGlyphDFBounds(const SkGlyph&, SkIRect* bounds);
     bool getPackedGlyphDFImage(const SkGlyph&, int width, int height, void* image);
     const SkPath* getGlyphPath(const SkGlyph&);

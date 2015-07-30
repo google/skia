@@ -196,7 +196,8 @@ void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
 }
 
 bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* glyph,
-                                        GrFontScaler* scaler, const SkGlyph& skGlyph) {
+                                        GrFontScaler* scaler, const SkGlyph& skGlyph,
+                                        GrMaskFormat expectedMaskFormat) {
     SkASSERT(glyph);
     SkASSERT(scaler);
     SkASSERT(fCache.find(glyph->fPackedID));
@@ -204,7 +205,7 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* gly
 
     SkAutoUnref ar(SkSafeRef(scaler));
 
-    int bytesPerPixel = GrMaskFormatBytesPerPixel(glyph->fMaskFormat);
+    int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
     size_t size = glyph->fBounds.area() * bytesPerPixel;
     SkAutoSMalloc<1024> storage(size);
@@ -216,12 +217,13 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* gly
         }
     } else {
         if (!scaler->getPackedGlyphImage(skGlyph, glyph->width(), glyph->height(),
-                                         glyph->width() * bytesPerPixel, storage.get())) {
+                                         glyph->width() * bytesPerPixel, expectedMaskFormat,
+                                         storage.get())) {
             return false;
         }
     }
 
-    bool success = fBatchFontCache->addToAtlas(this, &glyph->fID, batchTarget, glyph->fMaskFormat,
+    bool success = fBatchFontCache->addToAtlas(this, &glyph->fID, batchTarget, expectedMaskFormat,
                                                glyph->width(), glyph->height(),
                                                storage.get(), &glyph->fAtlasLocation);
     if (success) {

@@ -1681,7 +1681,8 @@ public:
                                  glyph->fMaskFormat == this->maskFormat());
 
                         if (!fFontCache->hasGlyph(glyph) &&
-                            !strike->addGlyphToAtlas(batchTarget, glyph, scaler, skGlyph)) {
+                            !strike->addGlyphToAtlas(batchTarget, glyph, scaler, skGlyph,
+                                                     maskFormat)) {
                             this->flush(batchTarget, &flushInfo);
                             batchTarget->initDraw(gp, pipeline);
                             brokenRun = glyphIdx > 0;
@@ -1689,7 +1690,8 @@ public:
                             SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(batchTarget,
                                                                                 glyph,
                                                                                 scaler,
-                                                                                skGlyph);
+                                                                                skGlyph,
+                                                                                maskFormat);
                             SkASSERT(success);
                         }
                         fFontCache->addGlyphToBulkAndSetUseToken(&info.fBulkUseToken, glyph,

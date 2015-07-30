@@ -40,8 +40,13 @@ public:
         return glyph;
     }
 
-    // returns true if glyph successfully added to texture atlas, false otherwise
-    bool addGlyphToAtlas(GrBatchTarget*, GrGlyph*, GrFontScaler*, const SkGlyph&);
+    // returns true if glyph successfully added to texture atlas, false otherwise.  If the glyph's
+    // mask format has changed, then addGlyphToAtlas will draw a clear box.  This will almost never
+    // happen.
+    // TODO we can handle some of these cases if we really want to, but the long term solution is to
+    // get the actual glyph image itself when we get the glyph metrics.
+    bool addGlyphToAtlas(GrBatchTarget*, GrGlyph*, GrFontScaler*, const SkGlyph&,
+                         GrMaskFormat expectedMaskFormat);
 
     // testing
     int countGlyphs() const { return fCache.count(); }
