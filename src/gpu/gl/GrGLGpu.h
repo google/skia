@@ -489,6 +489,7 @@ private:
     TriState                    fHWWriteToColor;
     TriState                    fHWDitherEnabled;
     uint32_t                    fHWBoundRenderTargetUniqueID;
+    TriState                    fHWSRGBFramebuffer;
     SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
 
     ///@}

@@ -49,6 +49,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fIsCoreProfile = false;
     fFullClearIsFree = false;
     fBindFragDataLocationSupport = false;
+    fSRGBWriteControl = false;
 
     fReadPixelsSupportedCache.reset();
 
@@ -190,6 +191,27 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // ReadPixels. The other format has to checked at run-time since it
     // can change based on which render target is bound
     fTwoFormatLimit = kGLES_GrGLStandard == standard;
+
+    // We only enable srgb support if both textures and FBOs support srgb.
+    bool srgbSupport = false;
+    if (kGL_GrGLStandard == standard) {
+        if (ctxInfo.version() >= GR_GL_VER(3,0)) {
+            srgbSupport = true;
+        } else if (ctxInfo.hasExtension("GL_EXT_texture_sRGB")) {
+            if (ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
+                ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB")) {
+                srgbSupport = true;
+            }
+         }
+        // All the above srgb extensions support toggling srgb writes
+        fSRGBWriteControl = srgbSupport;
+    } else {
+        srgbSupport = ctxInfo.version() >= GR_GL_VER(3,0) ||
+                      ctxInfo.hasExtension("GL_EXT_sRGB");
+        // ES through 3.1 requires EXT_srgb_write_control to support toggling
+        // sRGB writing for destinations.
+        fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
+    }
 
     // Frag Coords Convention support is not part of ES
     // Known issue on at least some Intel platforms:
@@ -455,8 +477,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                  ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
     }
 
-    this->initConfigTexturableTable(ctxInfo, gli);
-    this->initConfigRenderableTable(ctxInfo);
+    this->initConfigTexturableTable(ctxInfo, gli, srgbSupport);
+    this->initConfigRenderableTable(ctxInfo, srgbSupport);
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
 
     this->applyOptionsOverrides(contextOptions);
@@ -496,7 +518,7 @@ bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrG
     return true;
 }
 
-void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
+void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo, bool srgbSupport) {
     // OpenGL < 3.0
     //  no support for render targets unless the GL_ARB_framebuffer_object
     //  extension is supported (in which case we get ALPHA, RED, RG, RGB,
@@ -574,21 +596,9 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         }
     }
 
-    if (this->fRGBA8RenderbufferSupport && this->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
-        if (kGL_GrGLStandard == standard) {
-            if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-                ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
-                ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB")) {
-                fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kNo_MSAA] = true;
-                fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kYes_MSAA] = true;
-            }
-        } else {
-            if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-                ctxInfo.hasExtension("GL_EXT_sRGB")) {
-                fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kNo_MSAA] = true;
-                fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kYes_MSAA] = true;
-            }
-        }
+    if (this->fRGBA8RenderbufferSupport && srgbSupport) {
+        fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kNo_MSAA] = true;
+        fConfigRenderSupport[kSRGBA_8888_GrPixelConfig][kYes_MSAA] = true;
     }
     
     if (this->isConfigTexturable(kRGBA_float_GrPixelConfig)) {
@@ -658,7 +668,8 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
     }
 }
 
-void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
+void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
+                                         bool srgbSupport) {
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
@@ -697,14 +708,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
                  kSkia8888_GrPixelConfig != kBGRA_8888_GrPixelConfig);
     }
 
-    // Check for sRGBA
-    if (kGL_GrGLStandard == standard) {
-        fConfigTextureSupport[kSRGBA_8888_GrPixelConfig] =
-            (version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_texture_sRGB"));
-    } else {
-        fConfigTextureSupport[kSRGBA_8888_GrPixelConfig] =
-            (version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB"));
-    }
+    fConfigTextureSupport[kSRGBA_8888_GrPixelConfig] = srgbSupport;
     
     // Compressed texture support
 
@@ -1118,6 +1122,7 @@ SkString GrGLCaps::dump() const {
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
+    r.appendf("SRGB write contol: %s\n", (fSRGBWriteControl ? "YES" : "NO"));
     return r;
 }
 

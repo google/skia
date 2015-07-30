@@ -313,6 +313,17 @@ static inline bool GrPixelConfigIs8888(GrPixelConfig config) {
     }
 }
 
+// Returns true if the color (non-alpha) components represent sRGB values. It does NOT indicate that
+// all three color components are present in the config or anything about their order.
+static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
+    switch (config) {
+        case kSRGBA_8888_GrPixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
+
 // Takes a config and returns the equivalent config with the R and B order
 // swapped if such a config exists. Otherwise, kUnknown_GrPixelConfig
 static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {

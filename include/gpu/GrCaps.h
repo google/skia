@@ -106,8 +106,6 @@ private:
  */
 class GrCaps : public SkRefCnt {
 public:
-    
-
     GrCaps(const GrContextOptions&);
 
     virtual SkString dump() const;

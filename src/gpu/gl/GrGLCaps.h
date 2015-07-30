@@ -26,8 +26,6 @@ class GrGLSLCaps;
  */
 class GrGLCaps : public GrCaps {
 public:
-    
-
     typedef GrGLStencilAttachment::Format StencilFormat;
 
     /**
@@ -254,10 +252,16 @@ public:
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
-
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
     bool bindFragDataLocationSupport() const { return fBindFragDataLocationSupport; }
+
+    /**
+     * Is there support for enabling/disabling sRGB writes for sRGB-capable color attachments?
+     * If false this does not mean sRGB is not supported but rather that if it is supported
+     * it cannot be turned off for configs that support it.
+     */
+    bool srgbWriteControl() const { return fSRGBWriteControl; }
 
     /**
      * Returns a string containing the caps info.
@@ -324,8 +328,8 @@ private:
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilFormats(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
-    void initConfigRenderableTable(const GrGLContextInfo&);
-    void initConfigTexturableTable(const GrGLContextInfo&, const GrGLInterface*);
+    void initConfigRenderableTable(const GrGLContextInfo&, bool srgbSupport);
+    void initConfigTexturableTable(const GrGLContextInfo&, const GrGLInterface*, bool srgbSupport);
 
     bool doReadPixelsSupported(const GrGLInterface* intf, GrGLenum format, GrGLenum type) const;
 
@@ -375,6 +379,7 @@ private:
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
     bool fBindFragDataLocationSupport : 1;
+    bool fSRGBWriteControl : 1;
 
     struct ReadPixelsSupportedFormat {
         GrGLenum fFormat;

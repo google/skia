@@ -355,6 +355,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     if (resetBits & kRenderTarget_GrGLBackendState) {
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+        fHWSRGBFramebuffer = kUnknown_TriState;
     }
 
     if (resetBits & kPathRendering_GrGLBackendState) {
@@ -519,6 +520,10 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
+    if (GrPixelConfigIsSRGB(dstSurface->config()) != GrPixelConfigIsSRGB(srcConfig)) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    }
+
     tempDrawInfo->fSwapRAndB = false;
 
     // These settings we will always want if a temp draw is performed. Initially set the config
@@ -566,8 +571,14 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
     if (NULL == buffer) {
         return false;
     }
+
     GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
     if (!glTex) {
+        return false;
+    }
+
+    // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
+    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
         return false;
     }
 
@@ -1737,6 +1748,10 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
+    if (GrPixelConfigIsSRGB(srcSurface->config()) != GrPixelConfigIsSRGB(readConfig)) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    }
+
     tempDrawInfo->fSwapRAndB = false;
 
     // These settings we will always want if a temp draw is performed. The config is set below
@@ -1797,11 +1812,22 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         return false;
     }
 
+    // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
+    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
+        return false;
+    }
+
     GrGLenum format = 0;
     GrGLenum type = 0;
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
     if (!this->configToGLFormats(config, false, NULL, &format, &type)) {
         return false;
+    }
+
+    // glReadPixels does not allow GL_SRGB_ALPHA. Instead use GL_RGBA. This will not trigger a
+    // conversion when the src is srgb.
+    if (GR_GL_SRGB_ALPHA == format) {
+        format = GR_GL_RGBA;
     }
 
     // resolve the render target if necessary
@@ -1930,6 +1956,16 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
         if (fHWViewport != vp) {
             vp.pushToGLViewport(this->glInterface());
             fHWViewport = vp;
+        }
+        if (this->glCaps().srgbWriteControl()) {
+            bool enableSRGBWrite = GrPixelConfigIsSRGB(target->config());
+            if (enableSRGBWrite && kYes_TriState != fHWSRGBFramebuffer) {
+                GL_CALL(Enable(GR_GL_FRAMEBUFFER_SRGB));
+                fHWSRGBFramebuffer = kYes_TriState;
+            } else if (!enableSRGBWrite && kNo_TriState != fHWSRGBFramebuffer) {
+                GL_CALL(Disable(GR_GL_FRAMEBUFFER_SRGB));
+                fHWSRGBFramebuffer = kNo_TriState;
+            }
         }
     }
     if (NULL == bound || !bound->isEmpty()) {
@@ -2437,19 +2473,24 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kSRGBA_8888_GrPixelConfig:
-            *internalFormat = GR_GL_SRGB_ALPHA;
-            *externalFormat = GR_GL_SRGB_ALPHA;
-            if (getSizedInternalFormat || kGL_GrGLStandard == this->glStandard()) {
-                // desktop or ES 3.0
-                SkASSERT(this->glVersion() >= GR_GL_VER(3, 0));
+            if (getSizedInternalFormat) {
                 *internalFormat = GR_GL_SRGB8_ALPHA8;
-                *externalFormat = GR_GL_RGBA;
             } else {
-                // ES 2.0 with EXT_sRGB
-                SkASSERT(kGL_GrGLStandard != this->glStandard() && 
-                         this->glVersion() < GR_GL_VER(3, 0));
                 *internalFormat = GR_GL_SRGB_ALPHA;
+            }
+            // OpenGL ES 2.0 + GL_EXT_sRGB allows GL_SRGB_ALPHA to be specified as the <format>
+            // param to Tex(Sub)Image2D. ES 2.0 requires the internalFormat and format to match.
+            // Thus, on ES 2.0 we will use GL_SRGB_ALPHA as the externalFormat. However,
+            // onReadPixels needs code to override that because GL_SRGB_ALPHA is not allowed as a
+            // glReadPixels format.
+            // On OpenGL and ES 3.0 GL_SRGB_ALPHA does not work for the <format> param to
+            // glReadPixels nor does it work with Tex(Sub)Image2D So we always set the externalFormat
+            // return to GL_RGBA.
+            if (this->glStandard() == kGLES_GrGLStandard &&
+                this->glVersion() == GR_GL_VER(2,0)) {
                 *externalFormat = GR_GL_SRGB_ALPHA;
+            } else {
+                *externalFormat = GR_GL_RGBA;
             }
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
