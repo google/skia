@@ -26,10 +26,11 @@ public:
         It returns a shader with a reference count of 1.
         The caller should decrement the shader's reference count when done with the shader.
         It is an error for count to be < 2.
-        @param  diffuse the diffuse bitmap
-        @param  normal  the normal map
-        @param  light   the light applied to the normal map
-        @param  ambient the linear (unpremul) ambient light color. Note: alpha assumed to be 255.
+        @param  diffuse     the diffuse bitmap
+        @param  normal      the normal map
+        @param  light       the light applied to the normal map
+        @param  ambient     the linear (unpremul) ambient light color. Note: alpha assumed to be 255.
+        @param  localMatrix the matrix mapping the textures to the dest rect 
 
         NULL will be returned if:
             either 'diffuse' or 'normal' are empty
@@ -37,7 +38,8 @@ public:
             'diffuse' and 'normal' aren't the same size
     */
     static SkShader* Create(const SkBitmap& diffuse, const SkBitmap& normal,
-                            const SkLightingShader::Light& light, const SkColor ambient);
+                            const SkLightingShader::Light& light, const SkColor ambient,
+                            const SkMatrix* localMatrix);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };

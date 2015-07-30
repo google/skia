@@ -51,8 +51,9 @@ public:
     */
     SkLightingShaderImpl(const SkBitmap& diffuse, const SkBitmap& normal,
                          const SkLightingShader::Light& light,
-                         const SkColor ambient) 
-        : fDiffuseMap(diffuse)
+                         const SkColor ambient, const SkMatrix* localMatrix) 
+        : INHERITED(localMatrix)
+        , fDiffuseMap(diffuse)
         , fNormalMap(normal)
         , fLight(light)
         , fAmbientColor(ambient) {
@@ -480,6 +481,9 @@ void SkLightingShaderImpl::toString(SkString* str) const {
 #endif
 
 SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
+    SkMatrix localMatrix;
+    buf.readMatrix(&localMatrix);
+
     SkBitmap diffuse;
     if (!buf.readBitmap(&diffuse)) {
         return NULL;
@@ -500,12 +504,12 @@ SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     SkColor ambient = buf.readColor();
 
-    // TODO: this would be nice to enable
-    //    return SkCreateLightingShader(diffuse, normal, light, ambient, NULL);
-    return SkNEW_ARGS(SkLightingShaderImpl, (diffuse, normal, light, ambient));
+    return SkNEW_ARGS(SkLightingShaderImpl, (diffuse, normal, light, ambient, &localMatrix));
 }
 
 void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
+    buf.writeMatrix(this->getLocalMatrix());
+
     buf.writeBitmap(fDiffuseMap);
     buf.writeBitmap(fNormalMap);
     buf.writeScalarArray(&fLight.fDirection.fX, 3);
@@ -565,7 +569,8 @@ static bool bitmap_is_too_big(const SkBitmap& bm) {
 
 SkShader* SkLightingShader::Create(const SkBitmap& diffuse, const SkBitmap& normal,
                                    const SkLightingShader::Light& light,
-                                   const SkColor ambient) {
+                                   const SkColor ambient,
+                                   const SkMatrix* localMatrix) {
     if (diffuse.isNull() || bitmap_is_too_big(diffuse) ||
         normal.isNull() || bitmap_is_too_big(normal) ||
         diffuse.width() != normal.width() ||
@@ -573,7 +578,7 @@ SkShader* SkLightingShader::Create(const SkBitmap& diffuse, const SkBitmap& norm
         return nullptr;
     }
 
-    return SkNEW_ARGS(SkLightingShaderImpl, (diffuse, normal, light, ambient));
+    return SkNEW_ARGS(SkLightingShaderImpl, (diffuse, normal, light, ambient, localMatrix));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

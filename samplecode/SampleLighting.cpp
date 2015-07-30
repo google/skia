@@ -41,7 +41,7 @@ public:
         fAmbientColor = SkColorSetRGB(0x1f, 0x1f, 0x1f);
 
         fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
-                                               light, fAmbientColor));
+                                               light, fAmbientColor, nullptr));
     }
 
     virtual ~LightingView() {}
@@ -67,7 +67,7 @@ protected:
         light.fDirection.fZ = SkScalarCos(SK_ScalarPI*0.25f);
 
         fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
-                                               light, fAmbientColor));
+                                               light, fAmbientColor, nullptr));
 
         SkPaint paint;
         paint.setShader(fShader);
