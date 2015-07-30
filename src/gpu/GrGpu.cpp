@@ -17,6 +17,7 @@
 #include "GrResourceCache.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
+#include "GrSurfacePriv.h"
 #include "GrVertexBuffer.h"
 #include "GrVertices.h"
 
@@ -239,6 +240,11 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size
     SkASSERT(tempDrawInfo);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
+    // We currently do not support reading into a compressed buffer
+    if (GrPixelConfigIsCompressed(readConfig)) {
+        return false;
+    }
+
     if (!this->onGetReadPixelsInfo(srcSurface, width, height, rowBytes, readConfig, drawPreference,
                                    tempDrawInfo)) {
         return false;
@@ -292,7 +298,24 @@ bool GrGpu::readPixels(GrSurface* surface,
                        GrPixelConfig config, void* buffer,
                        size_t rowBytes) {
     this->handleDirtyContext();
-    return this->onReadPixels(surface, left, top, width, height, config, buffer, rowBytes);
+
+    // We cannot read pixels into a compressed buffer
+    if (GrPixelConfigIsCompressed(config)) {
+        return false;
+    }
+
+    size_t bpp = GrBytesPerPixel(config);
+    if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
+                                              &left, &top, &width, &height,
+                                              &buffer,
+                                              &rowBytes)) {
+        return false;
+    }
+
+    return this->onReadPixels(surface,
+                              left, top, width, height,
+                              config, buffer,
+                              rowBytes);
 }
 
 bool GrGpu::writePixels(GrSurface* surface,

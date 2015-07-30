@@ -470,7 +470,8 @@ private:
 
     // overridden by backend-specific derived class to perform the surface read
     virtual bool onReadPixels(GrSurface*,
-                              int left, int top, int width, int height,
+                              int left, int top,
+                              int width, int height,
                               GrPixelConfig,
                               void* buffer,
                               size_t rowBytes) = 0;

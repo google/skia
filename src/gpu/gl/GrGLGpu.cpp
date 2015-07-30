@@ -1731,10 +1731,6 @@ static bool read_pixels_pays_for_y_flip(GrRenderTarget* renderTarget, const GrGL
 bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
-    if (GrPixelConfigIsCompressed(readConfig)) {
-        return false;
-    }
-
     // This subclass can only read pixels from a render target. We could use glTexSubImage2D on
     // GL versions that support it but we don't today.
     if (!srcSurface->asRenderTarget()) {
@@ -1796,11 +1792,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
                            size_t rowBytes) {
     SkASSERT(surface);
 
-    // We cannot read pixels into a compressed buffer
-    if (GrPixelConfigIsCompressed(config)) {
-        return false;
-    }
-
     GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!tgt) {
         return false;
@@ -1810,13 +1801,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     GrGLenum type = 0;
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
     if (!this->configToGLFormats(config, false, NULL, &format, &type)) {
-        return false;
-    }
-    size_t bpp = GrBytesPerPixel(config);
-    if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
-                                              &left, &top, &width, &height,
-                                              &buffer,
-                                              &rowBytes)) {
         return false;
     }
 
@@ -1844,10 +1828,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     GrGLIRect readRect;
     readRect.setRelativeTo(glvp, left, top, width, height, tgt->origin());
 
-    size_t tightRowBytes = bpp * width;
-    if (0 == rowBytes) {
-        rowBytes = tightRowBytes;
-    }
+    size_t tightRowBytes = GrBytesPerPixel(config) * width;
+
     size_t readDstRowBytes = tightRowBytes;
     void* readDst = buffer;
 
