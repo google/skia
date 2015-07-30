@@ -16,7 +16,10 @@ namespace SkOpts {
     // Called by SkGraphics::Init(), and automatically #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS.
     void Init();
 
-    // (Function pointers go here).
+    // Declare function pointers here...
+
+    // Returns a fast approximation of 1.0f/sqrtf(x).
+    extern float (*rsqrt)(float);
 }
 
 #endif//SkOpts_DEFINED

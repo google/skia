@@ -20,8 +20,21 @@
     #include <cpu-features.h>
 #endif
 
+static float rsqrt_portable(float x) {
+    // Get initial estimate.
+    int i = *SkTCast<int*>(&x);
+    i = 0x5F1FFFF9 - (i>>1);
+    float estimate = *SkTCast<float*>(&i);
+
+    // One step of Newton's method to refine.
+    const float estimate_sq = estimate*estimate;
+    estimate *= 0.703952253f*(2.38924456f-x*estimate_sq);
+    return estimate;
+}
+
 namespace SkOpts {
-    // (Define default function pointer values here...)
+    // Define default function pointer values here...
+    decltype(rsqrt) rsqrt = rsqrt_portable;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_sse2();

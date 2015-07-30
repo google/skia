@@ -127,6 +127,8 @@ extern const uint32_t gIEEENegativeInfinity;
 #define SK_FloatInfinity            (*SkTCast<const float*>(&gIEEEInfinity))
 #define SK_FloatNegativeInfinity    (*SkTCast<const float*>(&gIEEENegativeInfinity))
 
+namespace SkOpts { extern float (*rsqrt)(float); }
+
 // Fast, approximate inverse square root.
 // Compare to name-brand "1.0f / sk_float_sqrt(x)".  Should be around 10x faster on SSE, 2x on NEON.
 static inline float sk_float_rsqrt(const float x) {
@@ -149,15 +151,8 @@ static inline float sk_float_rsqrt(const float x) {
     estimate = vmul_f32(estimate, vrsqrts_f32(xx, estimate_sq));
     return vget_lane_f32(estimate, 0);  // 1 will work fine too; the answer's in both places.
 #else
-    // Get initial estimate.
-    int i = *SkTCast<int*>(&x);
-    i = 0x5F1FFFF9 - (i>>1);
-    float estimate = *SkTCast<float*>(&i);
-
-    // One step of Newton's method to refine.
-    const float estimate_sq = estimate*estimate;
-    estimate *= 0.703952253f*(2.38924456f-x*estimate_sq);
-    return estimate;
+    // Perhaps runtime-detected NEON, or a portable fallback.
+    return SkOpts::rsqrt(x);
 #endif
 }
 
