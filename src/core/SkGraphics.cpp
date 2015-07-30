@@ -14,6 +14,7 @@
 #include "SkGeometry.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
+#include "SkOpts.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPixelRef.h"
@@ -39,17 +40,10 @@ void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
     }
 }
 
-#define typesizeline(type)  { #type , sizeof(type) }
-
-#ifdef BUILD_EMBOSS_TABLE
-    extern void SkEmbossMask_BuildTable();
-#endif
-
-#ifdef BUILD_RADIALGRADIENT_TABLE
-    extern void SkRadialGradient_BuildTable();
-#endif
-
 void SkGraphics::Init() {
+    // SkGraphics::Init() must be thread-safe and idempotent.
+    SkOpts::Init();
+
 #ifdef SK_DEVELOPER
     skRTConfRegistry().possiblyDumpFile();
     skRTConfRegistry().validate();
@@ -58,71 +52,6 @@ void SkGraphics::Init() {
         skRTConfRegistry().printNonDefault();
     }
 #endif
-
-#ifdef BUILD_EMBOSS_TABLE
-    SkEmbossMask_BuildTable();
-#endif
-#ifdef BUILD_RADIALGRADIENT_TABLE
-    SkRadialGradient_BuildTable();
-#endif
-
-#ifdef SK_DEBUGx
-    int i;
-
-    static const struct {
-        const char* fTypeName;
-        size_t      fSizeOf;
-    } gTypeSize[] = {
-        typesizeline(char),
-        typesizeline(short),
-        typesizeline(int),
-        typesizeline(long),
-        typesizeline(size_t),
-        typesizeline(void*),
-
-        typesizeline(S8CPU),
-        typesizeline(U8CPU),
-        typesizeline(S16CPU),
-        typesizeline(U16CPU),
-
-        typesizeline(SkPoint),
-        typesizeline(SkRect),
-        typesizeline(SkMatrix),
-        typesizeline(SkPath),
-        typesizeline(SkGlyph),
-        typesizeline(SkRefCnt),
-
-        typesizeline(SkPaint),
-        typesizeline(SkCanvas),
-        typesizeline(SkBlitter),
-        typesizeline(SkShader),
-        typesizeline(SkXfermode),
-        typesizeline(SkPathEffect)
-    };
-
-#ifdef SK_CPU_BENDIAN
-    SkDebugf("SkGraphics: big-endian\n");
-#else
-    SkDebugf("SkGraphics: little-endian\n");
-#endif
-
-    {
-        char    test = 0xFF;
-        int     itest = test;   // promote to int, see if it sign-extended
-        if (itest < 0)
-            SkDebugf("SkGraphics: char is signed\n");
-        else
-            SkDebugf("SkGraphics: char is unsigned\n");
-    }
-    for (i = 0; i < (int)SK_ARRAY_COUNT(gTypeSize); i++) {
-        SkDebugf("SkGraphics: sizeof(%s) = %d\n",
-                 gTypeSize[i].fTypeName, gTypeSize[i].fSizeOf);
-    }
-    SkDebugf("SkGraphics: font cache limit %dK\n",
-             GetFontCacheLimit() >> 10);
-
-#endif
-
 }
 
 void SkGraphics::Term() {

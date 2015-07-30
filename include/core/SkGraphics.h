@@ -17,8 +17,8 @@ class SK_API SkGraphics {
 public:
     /**
      *  Call this at process initialization time if your environment does not
-     *  permit static global initializers that execute code. Note that
-     *  Init() is not thread-safe.
+     *  permit static global initializers that execute code.
+     *  Init() is thread-safe and idempotent.
      */
     static void Init();
 
