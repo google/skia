@@ -31,25 +31,11 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
         ctable = NULL;
     }
 
-#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
-    // Default options.
-    Options options;
-    const Result result = this->onGetPixels(info, pixels, rowBytes, options, ctable, ctableCount);
-
-    if (kIncompleteInput != result && kSuccess != result) {
-        return false;
-    }
-    if (ctableCount) {
-        SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
-    }
-        return true;
-#else
     const bool success = this->onGetPixels(info, pixels, rowBytes, ctable, ctableCount);
     if (success && ctableCount) {
         SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
     }
     return success;
-#endif
 }
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -118,18 +104,10 @@ SkData* SkImageGenerator::onRefEncodedData() {
     return NULL;
 }
 
-#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
-SkImageGenerator::Result SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst,
-                                                       size_t rb, const Options& options,
-                                                       SkPMColor* colors, int* colorCount) {
-    return kUnimplemented;
-}
-#else
 bool SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst, size_t rb,
                                    SkPMColor* colors, int* colorCount) {
     return false;
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

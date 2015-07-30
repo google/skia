@@ -15,8 +15,6 @@ class SkBitmap;
 class SkData;
 class SkImageGenerator;
 
-//#define SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
-
 /**
  *  Takes ownership of SkImageGenerator.  If this method fails for
  *  whatever reason, it will return false and immediatetely delete
@@ -68,79 +66,6 @@ public:
      *  Return the ImageInfo associated with this generator.
      */
     const SkImageInfo& getInfo() const { return fInfo; }
-
-#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
-    /**
-     *  Used to describe the result of a call to getPixels().
-     *
-     *  Result is the union of possible results from subclasses.
-     */
-    enum Result {
-        /**
-         *  General return value for success.
-         */
-        kSuccess,
-        /**
-         *  The input is incomplete. A partial image was generated.
-         */
-        kIncompleteInput,
-        /**
-         *  The generator cannot convert to match the request, ignoring
-         *  dimensions.
-         */
-        kInvalidConversion,
-        /**
-         *  The generator cannot scale to requested size.
-         */
-        kInvalidScale,
-        /**
-         *  Parameters (besides info) are invalid. e.g. NULL pixels, rowBytes
-         *  too small, etc.
-         */
-        kInvalidParameters,
-        /**
-         *  The input did not contain a valid image.
-         */
-        kInvalidInput,
-        /**
-         *  Fulfilling this request requires rewinding the input, which is not
-         *  supported for this input.
-         */
-        kCouldNotRewind,
-        /**
-         *  This method is not implemented by this generator.
-         */
-        kUnimplemented,
-    };
-
-    /**
-     *  Whether or not the memory passed to getPixels is zero initialized.
-     */
-    enum ZeroInitialized {
-        /**
-         *  The memory passed to getPixels is zero initialized. The SkCodec
-         *  may take advantage of this by skipping writing zeroes.
-         */
-        kYes_ZeroInitialized,
-        /**
-         *  The memory passed to getPixels has not been initialized to zero,
-         *  so the SkCodec must write all zeroes to memory.
-         *
-         *  This is the default. It will be used if no Options struct is used.
-         */
-        kNo_ZeroInitialized,
-    };
-
-    /**
-     *  Additional options to pass to getPixels.
-     */
-    struct Options {
-        Options()
-            : fZeroInitialized(kNo_ZeroInitialized) {}
-
-        ZeroInitialized fZeroInitialized;
-    };
-#endif
 
     /**
      *  Decode into the given pixels, a block of memory of size at
@@ -206,14 +131,8 @@ protected:
 
     virtual SkData* onRefEncodedData();
 
-#ifdef SK_LEGACY_IMAGE_GENERATOR_ENUMS_AND_OPTIONS
-    virtual Result onGetPixels(const SkImageInfo& info,
-                               void* pixels, size_t rowBytes, const Options&,
-                               SkPMColor ctable[], int* ctableCount);
-#else
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                              SkPMColor ctable[], int* ctableCount);
-#endif
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3]);
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace);
