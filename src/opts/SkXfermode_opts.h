@@ -16,13 +16,6 @@
 // Each gets its own independent instantiation by wrapping in an anonymous namespace.
 namespace {
 
-#if defined(SK_CPU_ARM32) && !defined(SK_ARM_HAS_NEON)
-    // Signals SkXfermode.cpp to look for runtime-detected NEON.
-    static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
-        return nullptr;
-    }
-#else
-
 // Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
 #define XFERMODE(Name) static Sk4px SK_VECTORCALL Name(Sk4px s, Sk4px d)
 
@@ -283,7 +276,7 @@ private:
     typedef SkProcCoeffXfermode INHERITED;
 };
 
-static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
+static SkXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
     switch (mode) {
     #define CASE(Mode) case SkXfermode::k##Mode##_Mode: \
         return SkNEW_ARGS(Sk4pxXfermode, (rec, mode, &Mode, &xfer_aa<Mode>))
@@ -322,8 +315,6 @@ static SkProcCoeffXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode
     }
     return nullptr;
 }
-
-#endif
 
 } // namespace
 

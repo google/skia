@@ -8,10 +8,10 @@
 
 #include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
-#include "Sk4pxXfermode.h"
 #include "SkColorPriv.h"
 #include "SkLazyPtr.h"
 #include "SkMathPriv.h"
+#include "SkOpts.h"
 #include "SkPMFloat.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
@@ -997,30 +997,15 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
 #endif
 
 
-extern SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec, SkXfermode::Mode mode);
-extern SkXfermodeProc SkPlatformXfermodeProcFactory(SkXfermode::Mode mode);
-
 // Technically, can't be static and passed as a template parameter.  So we use anonymous namespace.
 namespace {
 SkXfermode* create_mode(int iMode) {
     SkXfermode::Mode mode = (SkXfermode::Mode)iMode;
 
     ProcCoeff rec = gProcCoeffs[mode];
-    if (auto proc = SkPlatformXfermodeProcFactory(mode)) {
-        rec.fProc = proc;
-    }
-
-    // Check for compile-time SIMD xfermode.
-    if (auto xfermode = SkCreate4pxXfermode(rec, mode)) {
+    if (auto xfermode = SkOpts::create_xfermode(rec, mode)) {
         return xfermode;
     }
-
-    // Check for runtime-detected SIMD xfermode.
-    if (auto xfermode = SkPlatformXfermodeFactory(rec, mode)) {
-        return xfermode;
-    }
-
-    // Serial fallback.
     return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
 }
 }  // namespace

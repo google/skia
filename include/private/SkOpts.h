@@ -9,6 +9,9 @@
 #define SkOpts_DEFINED
 
 #include "SkTypes.h"
+#include "SkXfermode.h"
+
+struct ProcCoeff;
 
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
@@ -24,6 +27,9 @@ namespace SkOpts {
     // See SkUtils.h
     extern void (*memset16)(uint16_t[], uint16_t, int);
     extern void (*memset32)(uint32_t[], uint32_t, int);
+
+    // May return nullptr if we haven't specialized the given Mode.
+    extern SkXfermode* (*create_xfermode)(const ProcCoeff&, SkXfermode::Mode);
 }
 
 #endif//SkOpts_DEFINED

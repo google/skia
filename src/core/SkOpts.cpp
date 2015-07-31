@@ -7,6 +7,7 @@
 
 #include "SkOnce.h"
 #include "SkOpts.h"
+#include "SkXfermode_opts.h"
 
 #if defined(SK_CPU_X86)
     #if defined(SK_BUILD_FOR_WIN32)
@@ -41,10 +42,10 @@ static void memsetT(T dst[], T val, int n) { while (n --> 0) { *dst++ = val; } }
 
 namespace SkOpts {
     // Define default function pointer values here...
-    decltype(rsqrt)       rsqrt = portable::rsqrt;
-    decltype(memset16) memset16 = portable::memsetT<uint16_t>;
-    decltype(memset32) memset32 = portable::memsetT<uint32_t>;
-
+    decltype(rsqrt)                     rsqrt = portable::rsqrt;
+    decltype(memset16)               memset16 = portable::memsetT<uint16_t>;
+    decltype(memset32)               memset32 = portable::memsetT<uint32_t>;
+    decltype(create_xfermode) create_xfermode = SkCreate4pxXfermode;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_sse2();

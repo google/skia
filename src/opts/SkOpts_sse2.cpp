@@ -6,6 +6,7 @@
  */
 
 #include "SkOpts.h"
+#include "SkXfermode_opts.h"
 
 namespace sse2 {  // This helps identify methods from this file when debugging / profiling.
 
@@ -49,7 +50,8 @@ static void memset32(uint32_t* dst, uint32_t val, int n) {
 
 namespace SkOpts {
     void Init_sse2() {
-        memset16 = sse2::memset16;
-        memset32 = sse2::memset32;
+        memset16        = sse2::memset16;
+        memset32        = sse2::memset32;
+        create_xfermode = SkCreate4pxXfermode;
     }
 }

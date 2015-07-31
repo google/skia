@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
 #include "SkFloatingPoint.h"
+#include "SkOpts.h"
+#include "SkXfermode_opts.h"
 
 namespace neon {  // This helps identify methods from this file when debugging / profiling.
 
@@ -66,8 +67,9 @@ static void memset32(uint32_t* dst, uint32_t value, int n) {
 
 namespace SkOpts {
     void Init_neon() {
-        rsqrt    = neon::rsqrt;
-        memset16 = neon::memset16;
-        memset32 = neon::memset32;
+        rsqrt           = neon::rsqrt;
+        memset16        = neon::memset16;
+        memset32        = neon::memset32;
+        create_xfermode = SkCreate4pxXfermode;
     }
 }
