@@ -31,11 +31,6 @@ sk_canvas_t* sk_surface_get_canvas(sk_surface_t*);
  */
 sk_image_t* sk_surface_new_image_snapshot(sk_surface_t*);
 
-#ifdef __cplusplus
-    class SkCanvas;
-    void sk_test_capi(SkCanvas*);
-#endif
-
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

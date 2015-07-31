@@ -142,11 +142,6 @@ typedef enum {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef __cplusplus
-    class SkCanvas;
-    void sk_test_capi(SkCanvas*);
-#endif
-
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
