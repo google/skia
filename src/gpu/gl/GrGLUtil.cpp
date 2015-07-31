@@ -147,6 +147,15 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
             return;
         }
+        if (0 == strncmp("ANGLE", rendererString, 5)) {
+            *outDriver = kANGLE_GrGLDriver;
+            n = sscanf(versionString, "OpenGL ES %d.%d (ANGLE %d.%d", &major, &minor, &driverMajor,
+                                                                      &driverMinor);
+            if (4 == n) {
+                *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+            }
+            return;
+        }
     }
 
     if (kIntel_GrGLVendor == vendor) {

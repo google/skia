@@ -542,7 +542,8 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
             tempDrawInfo->fSwapRAndB = true;
-        } else if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == srcConfig) {
+        } else if (this->glCaps().rgba8888PixelsOpsAreSlow() &&
+                   kRGBA_8888_GrPixelConfig == srcConfig) {
             ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
             tempDrawInfo->fSwapRAndB = true;
@@ -1761,7 +1762,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
-    tempDrawInfo->fUseExactScratch = SkToBool(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL) &&
+    tempDrawInfo->fUseExactScratch = this->glCaps().partialFBOReadIsSlow() &&
                                      width >= this->caps()->minTextureSize() &&
                                      height >= this->caps()->minTextureSize();
 
@@ -1770,7 +1771,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
     GrPixelConfig srcConfig = srcSurface->config();
     tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
 
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == readConfig) {
+    if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
         tempDrawInfo->fSwapRAndB = true;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);

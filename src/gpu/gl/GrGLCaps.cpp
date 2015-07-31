@@ -50,6 +50,8 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fFullClearIsFree = false;
     fBindFragDataLocationSupport = false;
     fSRGBWriteControl = false;
+    fRGBA8888PixelsOpsAreSlow = false;
+    fPartialFBOReadIsSlow = false;
 
     fReadPixelsSupportedCache.reset();
 
@@ -303,6 +305,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fBindFragDataLocationSupport = true;
         }
     }
+
+#ifdef SK_BUILD_FOR_WIN
+    // We're assuming that on Windows Chromium we're using ANGLE.
+    bool isANGLE = kANGLE_GrGLDriver == ctxInfo.driver() ||
+                   kChromium_GrGLDriver == ctxInfo.driver();
+    // Angle has slow read/write pixel paths for 32bit RGBA (but fast for BGRA). 
+    fRGBA8888PixelsOpsAreSlow = isANGLE;
+    // On DX9 ANGLE reading a partial FBO is slow. TODO: Check whether this is still true and
+    // check DX11 ANGLE.
+    fPartialFBOReadIsSlow = isANGLE;
+#endif
 
     /**************************************************************************
     * GrShaderCaps fields
@@ -1132,6 +1145,8 @@ SkString GrGLCaps::dump() const {
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
     r.appendf("SRGB write contol: %s\n", (fSRGBWriteControl ? "YES" : "NO"));
+    r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow? "YES" : "NO"));
+    r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow? "YES" : "NO"));
     return r;
 }
 

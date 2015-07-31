@@ -281,6 +281,9 @@ public:
 
     LATCAlias latcAlias() const { return fLATCAlias; }
 
+    bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
+    bool partialFBOReadIsSlow() const { return fPartialFBOReadIsSlow; }
+
     GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
 private:
@@ -380,6 +383,8 @@ private:
     bool fFullClearIsFree : 1;
     bool fBindFragDataLocationSupport : 1;
     bool fSRGBWriteControl : 1;
+    bool fRGBA8888PixelsOpsAreSlow : 1;
+    bool fPartialFBOReadIsSlow : 1;
 
     struct ReadPixelsSupportedFormat {
         GrGLenum fFormat;

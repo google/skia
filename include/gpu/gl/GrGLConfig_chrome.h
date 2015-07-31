@@ -11,17 +11,6 @@
 // glGetError() forces a sync with gpu process on chrome
 #define GR_GL_CHECK_ERROR_START                     0
 
-#if defined(SK_BUILD_FOR_WIN32)
-// For RGBA teximage/readpixels ANGLE will sw-convert to/from BGRA.
-#define GR_GL_RGBA_8888_PIXEL_OPS_SLOW              1
-
-// ANGLE can go faster if the entire fbo is read rather than a subrect
-#define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL   1
-#else
-#define GR_GL_RGBA_8888_PIXEL_OPS_SLOW              0
-#define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL   0
-#endif
-
 // cmd buffer allocates memory and memsets it to zero when it sees glBufferData
 // with NULL.
 #define GR_GL_USE_BUFFER_DATA_NULL_HINT             0

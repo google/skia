@@ -65,15 +65,6 @@
  * The GrGLInterface field fCallback specifies the function ptr and there is an
  * additional field fCallbackData of type intptr_t for client data.
  *
- * GR_GL_RGBA_8888_PIXEL_OPS_SLOW: Set this to 1 if it is known that performing
- * glReadPixels / glTex(Sub)Image with format=GL_RGBA, type=GL_UNISIGNED_BYTE is
- * significantly slower than format=GL_BGRA, type=GL_UNISIGNED_BYTE.
- *
- * GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL: Set this to 1 if calling
- * glReadPixels to read the entire framebuffer is faster than calling it with
- * the same sized rectangle but with a framebuffer bound that is larger than
- * the rectangle read.
- *
  * GR_GL_CHECK_ALLOC_WITH_GET_ERROR: If set to 1 this will then glTexImage,
  * glBufferData, glRenderbufferStorage, etc will be checked for errors. This
  * amounts to ensuring the error is GL_NO_ERROR, calling the allocating
@@ -126,14 +117,6 @@
 
 #if !defined(GR_GL_PER_GL_FUNC_CALLBACK)
     #define GR_GL_PER_GL_FUNC_CALLBACK                  0
-#endif
-
-#if !defined(GR_GL_RGBA_8888_PIXEL_OPS_SLOW)
-    #define GR_GL_RGBA_8888_PIXEL_OPS_SLOW              0
-#endif
-
-#if !defined(GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL)
-    #define GR_GL_FULL_READPIXELS_FASTER_THAN_PARTIAL   0
 #endif
 
 #if !defined(GR_GL_CHECK_ALLOC_WITH_GET_ERROR)
