@@ -96,7 +96,7 @@ static SkImageInfo validate_info(const SkImageInfo& info) {
 SkPixelRef::SkPixelRef(const SkImageInfo& info)
     : fInfo(validate_info(info))
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    , fStableID(next_gen_id())
+    , fStableID(SkNextID::ImageID())
 #endif
 
 {
@@ -116,7 +116,7 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info)
 SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
     : fInfo(validate_info(info))
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    , fStableID(next_gen_id())
+    , fStableID(SkNextID::ImageID())
 #endif
 {
 #ifdef SK_TRACE_PIXELREF_LIFETIME
