@@ -32,6 +32,11 @@ static void test_c(skiatest::Reporter* reporter) {
     sk_canvas_draw_paint(canvas, paint);
     REPORTER_ASSERT(reporter, 0xFFFFFFFF == pixel[0]);
 
+    sk_paint_set_xfermode_mode(paint, SRC_SK_XFERMODE_MODE);
+    sk_paint_set_color(paint, sk_color_set_argb(0x80, 0x80, 0x80, 0x80));
+    sk_canvas_draw_paint(canvas, paint);
+    REPORTER_ASSERT(reporter, 0x80404040 == pixel[0]);
+
     sk_paint_delete(paint);
     sk_surface_unref(surface);
 }
