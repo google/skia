@@ -14,6 +14,7 @@
 #include "SkGraphics.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
+#include "../src/fonts/SkRandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "SkTypeface_win.h"
@@ -45,21 +46,18 @@ static void draw(SkCanvas* canvas, int redraw, const SkTArray<TextBlobWrapper>& 
     }
 }
 
-// limit this just so we don't take too long to draw
-#define MAX_TOTAL_TEXT 4096
-#define MAX_CHAR 256
-#define MAX_FAMILIES 30
-
 static const int kWidth = 1024;
 static const int kHeight = 768;
 
 // This test hammers the GPU textblobcache and font atlas
-DEF_GPUTEST(TextBlobCache, reporter, factory) {
+static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContextFactory* factory,
+                                  int maxTotalText, int maxGlyphID, int maxFamilies, bool normal) {
     // setup surface
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
 
-    GrContext* ctx = factory->get(GrContextFactory::kNative_GLContextType);
+    // We don't typically actually draw with this unittest
+    GrContext* ctx = factory->get(GrContextFactory::kNull_GLContextType);
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info,
                                                                0, &props));
@@ -72,12 +70,12 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
 
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
 
-    int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
+    int count = SkMin32(fm->countFamilies(), maxFamilies);
 
     // make a ton of text
-    uint16_t text[MAX_TOTAL_TEXT];
-    for (int i = 0; i < MAX_TOTAL_TEXT; i++) {
-        text[i] = i % MAX_CHAR;
+    SkAutoTArray<uint16_t> text(maxTotalText);
+    for (int i = 0; i < maxTotalText; i++) {
+        text[i] = i % maxGlyphID;
     }
 
     // generate textblobs
@@ -94,7 +92,14 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
             SkFontStyle fs;
             set->getStyle(j, &fs, NULL);
 
-            SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
+            // We use a typeface which randomy returns unexpected mask formats to fuzz
+            SkAutoTUnref<SkTypeface> orig(set->createTypeface(j));
+            if (normal) {
+                paint.setTypeface(orig);
+            } else {
+                SkAutoTUnref<SkTypeface> typeface(SkNEW_ARGS(SkRandomTypeface, (orig, paint, true)));
+                paint.setTypeface(typeface);
+            }
 
             SkTextBlobBuilder builder;
             for (int aa = 0; aa < 2; aa++) {
@@ -103,11 +108,14 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
                         paint.setAntiAlias(SkToBool(aa));
                         paint.setSubpixelText(SkToBool(subpixel));
                         paint.setLCDRenderText(SkToBool(lcd));
+                        if (!SkToBool(lcd)) {
+                            paint.setTextSize(160);
+                        }
                         const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(paint,
-                                                                                   MAX_TOTAL_TEXT,
+                                                                                   maxTotalText,
                                                                                    0, 0,
                                                                                    NULL);
-                        memcpy(run.glyphs, text, MAX_TOTAL_TEXT * sizeof(uint16_t));
+                        memcpy(run.glyphs, text.get(), maxTotalText * sizeof(uint16_t));
                     }
                 }
             }
@@ -140,5 +148,17 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
     // test draw after abandon
     ctx->abandonContext();
     draw(canvas, 1, blobs);
+}
+
+DEF_GPUTEST(TextBlobCache, reporter, factory) {
+    text_blob_cache_inner(reporter, factory, 4096, 256, 30, true);
+}
+
+DEF_GPUTEST(TextBlobAbnormal, reporter, factory) {
+#ifdef SK_BUILD_FOR_ANDROID
+    text_blob_cache_inner(reporter, factory, 32, 32, 1, false);
+#else
+    text_blob_cache_inner(reporter, factory, 256, 256, 1, false);
+#endif
 }
 #endif
