@@ -140,7 +140,7 @@ bool GrFontScaler::getPackedGlyphImage(const SkGlyph& glyph, int width, int heig
     if (SkMask::kBW_Format == glyph.fMaskFormat) {
         // expand bits to our mask type
         const uint8_t* bits = reinterpret_cast<const uint8_t*>(src);
-        switch (this->getMaskFormat()) {
+        switch (expectedMaskFormat) {
             case kA8_GrMaskFormat:{
                 uint8_t* bytes = reinterpret_cast<uint8_t*>(dst);
                 expand_bits(bytes, bits, width, height, dstRB, srcRB);
@@ -157,7 +157,7 @@ bool GrFontScaler::getPackedGlyphImage(const SkGlyph& glyph, int width, int heig
     } else if (srcRB == dstRB) {
         memcpy(dst, src, dstRB * height);
     } else {
-        const int bbp = GrMaskFormatBytesPerPixel(this->getMaskFormat());
+        const int bbp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
         for (int y = 0; y < height; y++) {
             memcpy(dst, src, width * bbp);
             src = (const char*)src + srcRB;
