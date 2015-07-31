@@ -78,6 +78,19 @@ struct GrAtlasTextBlob : public SkRefCnt {
                 , fGlyphStartIndex(0)
                 , fGlyphEndIndex(0)
                 , fDrawAsDistanceFields(false) {}
+            SubRunInfo(const SubRunInfo& that)
+                : fBulkUseToken(that.fBulkUseToken)
+                , fStrike(SkSafeRef(that.fStrike.get()))
+                , fAtlasGeneration(that.fAtlasGeneration)
+                , fVertexStartIndex(that.fVertexStartIndex)
+                , fVertexEndIndex(that.fVertexEndIndex)
+                , fGlyphStartIndex(that.fGlyphStartIndex)
+                , fGlyphEndIndex(that.fGlyphEndIndex)
+                , fTextRatio(that.fTextRatio)
+                , fMaskFormat(that.fMaskFormat)
+                , fDrawAsDistanceFields(that.fDrawAsDistanceFields)
+                , fUseLCDText(that.fUseLCDText) {
+            }
             // Distance field text cannot draw coloremoji, and so has to fall back.  However,
             // though the distance field text and the coloremoji may share the same run, they
             // will have different descriptors.  If fOverrideDescriptor is non-NULL, then it
@@ -86,6 +99,7 @@ struct GrAtlasTextBlob : public SkRefCnt {
             // significantly, and then the subrun could just have a refed pointer to the
             // correct descriptor.
             GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
+            SkAutoTUnref<GrBatchTextStrike> fStrike;
             uint64_t fAtlasGeneration;
             size_t fVertexStartIndex;
             size_t fVertexEndIndex;
@@ -110,7 +124,6 @@ struct GrAtlasTextBlob : public SkRefCnt {
             return newSubRun;
         }
         static const int kMinSubRuns = 1;
-        SkAutoTUnref<GrBatchTextStrike> fStrike;
         SkAutoTUnref<SkTypeface> fTypeface;
         SkRect fVertexBounds;
         SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;

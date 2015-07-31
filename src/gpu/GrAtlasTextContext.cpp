@@ -1221,7 +1221,6 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     Run& run = blob->fRuns[runIndex];
     if (!fCurrStrike) {
         fCurrStrike = fContext->getBatchFontCache()->getStrike(scaler);
-        run.fStrike.reset(SkRef(fCurrStrike));
     }
 
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
@@ -1263,6 +1262,9 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     PerSubRunInfo* subRun = &run.fSubRunInfo.back();
     if (run.fInitialized && subRun->fMaskFormat != format) {
         subRun = &run.push_back();
+        subRun->fStrike.reset(SkRef(fCurrStrike));
+    } else if (!run.fInitialized) {
+        subRun->fStrike.reset(SkRef(fCurrStrike));
     }
 
     run.fInitialized = true;
@@ -1288,7 +1290,6 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     Run& run = blob->fRuns[runIndex];
     if (!fCurrStrike) {
         fCurrStrike = fContext->getBatchFontCache()->getStrike(scaler);
-        run.fStrike.reset(SkRef(fCurrStrike));
     }
 
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
@@ -1339,6 +1340,10 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     }
 
     PerSubRunInfo* subRun = &run.fSubRunInfo.back();
+    if (!run.fInitialized) {
+        subRun->fStrike.reset(SkRef(fCurrStrike));
+    }
+    run.fInitialized = true;
     SkASSERT(glyph->fMaskFormat == kA8_GrMaskFormat);
     subRun->fMaskFormat = kA8_GrMaskFormat;
 
@@ -1603,7 +1608,7 @@ public:
 
             uint64_t currentAtlasGen = fFontCache->atlasGeneration(maskFormat);
             bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen ||
-                                           run.fStrike->isAbandoned();
+                                           info.fStrike->isAbandoned();
             bool regenerateColors;
             if (usesDistanceFields) {
                 regenerateColors = !isLCD && run.fColor != args.fColor;
@@ -1651,15 +1656,15 @@ public:
                         desc = newDesc;
                         cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
                         scaler = GrTextContext::GetGrFontScaler(cache);
-                        strike = run.fStrike;
+                        strike = info.fStrike;
                         typeface = run.fTypeface;
                     }
 
-                    if (run.fStrike->isAbandoned()) {
+                    if (info.fStrike->isAbandoned()) {
                         regenerateGlyphs = true;
                         strike = fFontCache->getStrike(scaler);
                     } else {
-                        strike = run.fStrike;
+                        strike = info.fStrike;
                     }
                 }
 
@@ -1732,7 +1737,7 @@ public:
                 run.fColor = args.fColor;
                 if (regenerateTextureCoords) {
                     if (regenerateGlyphs) {
-                        run.fStrike.reset(SkRef(strike));
+                        info.fStrike.reset(SkRef(strike));
                     }
                     info.fAtlasGeneration = brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
                                                         fFontCache->atlasGeneration(maskFormat);
