@@ -28,7 +28,6 @@ protected:
 private:
     SkRandomTypeface*     fFace;
     SkScalerContext* fProxy;
-    SkMatrix         fMatrix;
     bool fFakeIt;
 };
 
@@ -41,28 +40,7 @@ SkRandomScalerContext::SkRandomScalerContext(SkRandomTypeface* face, const SkDes
         : SkScalerContext(face, desc)
         , fFace(face)
         , fFakeIt(fakeIt) {
-    size_t  descSize = SkDescriptor::ComputeOverhead(1) + sizeof(SkScalerContext::Rec);
-    SkAutoDescriptor ad(descSize);
-    SkDescriptor*    newDesc = ad.getDesc();
-
-    newDesc->init();
-    void* entry = newDesc->addEntry(kRec_SkDescriptorTag,
-                                    sizeof(SkScalerContext::Rec), &fRec);
-    {
-        SkScalerContext::Rec* rec = (SkScalerContext::Rec*)entry;
-        rec->fTextSize = STD_SIZE;
-        rec->fPreScaleX = SK_Scalar1;
-        rec->fPreSkewX = 0;
-        rec->fPost2x2[0][0] = rec->fPost2x2[1][1] = SK_Scalar1;
-        rec->fPost2x2[1][0] = rec->fPost2x2[0][1] = 0;
-    }
-    SkASSERT(descSize == newDesc->getLength());
-    newDesc->computeChecksum();
-
-    fProxy = face->proxy()->createScalerContext(newDesc);
-
-    fRec.getSingleMatrix(&fMatrix);
-    fMatrix.preScale(SK_Scalar1 / STD_SIZE, SK_Scalar1 / STD_SIZE);
+    fProxy = face->proxy()->createScalerContext(desc);
 }
 
 SkRandomScalerContext::~SkRandomScalerContext() {
@@ -79,12 +57,6 @@ uint16_t SkRandomScalerContext::generateCharToGlyph(SkUnichar uni) {
 
 void SkRandomScalerContext::generateAdvance(SkGlyph* glyph) {
     fProxy->getAdvance(glyph);
-
-    SkVector advance;
-    fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
-                  SkFixedToScalar(glyph->fAdvanceY), &advance);
-    glyph->fAdvanceX = SkScalarToFixed(advance.fX);
-    glyph->fAdvanceY = SkScalarToFixed(advance.fY);
 }
 
 void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
@@ -110,15 +82,8 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
         return;
     }
     if (SkMask::kARGB32_Format == format) {
-        SkVector advance;
-        fMatrix.mapXY(SkFixedToScalar(glyph->fAdvanceX),
-                      SkFixedToScalar(glyph->fAdvanceY), &advance);
-        glyph->fAdvanceX = SkScalarToFixed(advance.fX);
-        glyph->fAdvanceY = SkScalarToFixed(advance.fY);
-
         SkPath path;
         fProxy->getPath(*glyph, &path);
-        path.transform(fMatrix);
 
         SkRect storage;
         const SkPaint& paint = fFace->paint();
@@ -195,7 +160,6 @@ void SkRandomScalerContext::generateImage(const SkGlyph& glyph) {
             SkCanvas canvas(bm);
             canvas.translate(-SkIntToScalar(glyph.fLeft),
                              -SkIntToScalar(glyph.fTop));
-            canvas.concat(fMatrix);
             canvas.drawPath(path, fFace->paint());
         } else {
             fProxy->forceGenerateImageFromPath();
@@ -209,23 +173,10 @@ void SkRandomScalerContext::generateImage(const SkGlyph& glyph) {
 
 void SkRandomScalerContext::generatePath(const SkGlyph& glyph, SkPath* path) {
     fProxy->getPath(glyph, path);
-    path->transform(fMatrix);
 }
 
 void SkRandomScalerContext::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     fProxy->getFontMetrics(metrics);
-    if (metrics) {
-        SkScalar scale = fMatrix.getScaleY();
-        metrics->fTop = SkScalarMul(metrics->fTop, scale);
-        metrics->fAscent = SkScalarMul(metrics->fAscent, scale);
-        metrics->fDescent = SkScalarMul(metrics->fDescent, scale);
-        metrics->fBottom = SkScalarMul(metrics->fBottom, scale);
-        metrics->fLeading = SkScalarMul(metrics->fLeading, scale);
-        metrics->fAvgCharWidth = SkScalarMul(metrics->fAvgCharWidth, scale);
-        metrics->fXMin = SkScalarMul(metrics->fXMin, scale);
-        metrics->fXMax = SkScalarMul(metrics->fXMax, scale);
-        metrics->fXHeight = SkScalarMul(metrics->fXHeight, scale);
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
