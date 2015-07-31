@@ -149,7 +149,7 @@ SkXfermode
 
 The following example demonstrates all of the Skia's standard transfer
 modes.  In this example the source is a solid magenta color with a
-horizonatal alpha gradient and the destination is a solid cyan color
+horizontal alpha gradient and the destination is a solid cyan color
 with a vertical alpha gradient.
 
 <!--?prettify lang=cc?-->
