@@ -283,21 +283,12 @@ public:
     bool asLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
     
 protected:
-    SkImage(int width, int height) :
-        fWidth(width),
-        fHeight(height),
-        fUniqueID(NextUniqueID()) {
-
-        SkASSERT(width > 0);
-        SkASSERT(height > 0);
-    }
+    SkImage(int width, int height, uint32_t uniqueID);
 
 private:
     const int       fWidth;
     const int       fHeight;
     const uint32_t  fUniqueID;
-
-    static uint32_t NextUniqueID();
 
     typedef SkRefCnt INHERITED;
 };

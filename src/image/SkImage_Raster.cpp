@@ -82,7 +82,7 @@ public:
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
     SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props, bool lockPixels = false)
-        : INHERITED(bm.width(), bm.height(), props)
+        : INHERITED(bm.width(), bm.height(), bm.getGenerationID(), props)
         , fBitmap(bm) {
         if (lockPixels) {
             fBitmap.lockPixels();
@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    SkImage_Raster() : INHERITED(0, 0, NULL) {
+    SkImage_Raster() : INHERITED(0, 0, fBitmap.getGenerationID(), NULL) {
         fBitmap.setImmutable();
     }
 
@@ -109,7 +109,7 @@ static void release_data(void* addr, void* context) {
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes,
                                SkColorTable* ctable, const SkSurfaceProps* props)
-    : INHERITED(info.width(), info.height(), props)
+    : INHERITED(info.width(), info.height(), kNeedNewImageUniqueID, props)
 {
     data->ref();
     void* addr = const_cast<void*>(data->data());
@@ -121,7 +121,7 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes,
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint& pixelRefOrigin,
                                size_t rowBytes,  const SkSurfaceProps* props)
-    : INHERITED(info.width(), info.height(), props)
+    : INHERITED(info.width(), info.height(), pr->getGenerationID(), props)
 {
     fBitmap.setInfo(info, rowBytes);
     fBitmap.setPixelRef(pr, pixelRefOrigin);

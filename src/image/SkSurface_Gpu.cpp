@@ -83,7 +83,7 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
     GrTexture* tex = fDevice->accessRenderTarget()->asTexture();
     if (tex) {
         image = SkNEW_ARGS(SkImage_Gpu,
-                           (info.width(), info.height(), info.alphaType(),
+                           (info.width(), info.height(), kNeedNewImageUniqueID, info.alphaType(),
                             tex, sampleCount, budgeted));
     }
     if (image) {

@@ -23,8 +23,8 @@ public:
      *  An "image" can be a subset/window into a larger texture, so we explicit take the
      *  width and height.
      */
-    SkImage_Gpu(int w, int h, SkAlphaType, GrTexture*, int sampleCountForNewSurfaces,
-                SkSurface::Budgeted);
+    SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, GrTexture*,
+                int sampleCountForNewSurfaces, SkSurface::Budgeted);
 
     void applyBudgetDecision() const {
         GrTexture* tex = this->getTexture();

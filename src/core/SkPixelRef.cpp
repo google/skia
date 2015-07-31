@@ -59,15 +59,16 @@ static SkBaseMutex* get_default_mutex() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+#include "SkNextID.h"
 
-static uint32_t next_gen_id() {
-    static uint32_t gNextGenID = 0;
-    uint32_t genID;
+uint32_t SkNextID::ImageID() {
+    static uint32_t gID = 0;
+    uint32_t id;
     // Loop in case our global wraps around, as we never want to return a 0.
     do {
-        genID = sk_atomic_fetch_add(&gNextGenID, 2u) + 2;  // Never set the low bit.
-    } while (0 == genID);
-    return genID;
+        id = sk_atomic_fetch_add(&gID, 2u) + 2;  // Never set the low bit.
+    } while (0 == id);
+    return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -300,7 +301,7 @@ bool SkPixelRef::onLockPixelsAreWritable() const {
 uint32_t SkPixelRef::getGenerationID() const {
     uint32_t id = fTaggedGenID.load();
     if (0 == id) {
-        uint32_t next = next_gen_id() | 1u;
+        uint32_t next = SkNextID::ImageID() | 1u;
         if (fTaggedGenID.compare_exchange(&id, next)) {
             id = next;  // There was no race or we won the race.  fTaggedGenID is next now.
         } else {

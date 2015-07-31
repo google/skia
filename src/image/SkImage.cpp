@@ -11,6 +11,7 @@
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
+#include "SkNextID.h"
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
 #include "SkString.h"
@@ -22,15 +23,13 @@
 #include "SkImage_Gpu.h"
 #endif
 
-uint32_t SkImage::NextUniqueID() {
-    static int32_t gUniqueID;
-
-    // never return 0;
-    uint32_t id;
-    do {
-        id = sk_atomic_inc(&gUniqueID) + 1;
-    } while (0 == id);
-    return id;
+SkImage::SkImage(int width, int height, uint32_t uniqueID)
+    : fWidth(width)
+    , fHeight(height)
+    , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID)
+{
+    SkASSERT(width > 0);
+    SkASSERT(height > 0);
 }
 
 const void* SkImage::peekPixels(SkImageInfo* info, size_t* rowBytes) const {
@@ -248,8 +247,8 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
             unrefCopy.reset(tex);
         }
         const SkImageInfo info = bm.info();
-        return SkNEW_ARGS(SkImage_Gpu, (info.width(), info.height(), info.alphaType(),
-                                        tex, 0, SkSurface::kNo_Budgeted));
+        return SkNEW_ARGS(SkImage_Gpu, (info.width(), info.height(), bm.getGenerationID(),
+                                        info.alphaType(), tex, 0, SkSurface::kNo_Budgeted));
     }
 #endif
 

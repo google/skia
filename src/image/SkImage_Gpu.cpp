@@ -13,9 +13,9 @@
 #include "SkGpuDevice.h"
 
 
-SkImage_Gpu::SkImage_Gpu(int w, int h, SkAlphaType at, GrTexture* tex,
+SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
                          int sampleCountForNewSurfaces, SkSurface::Budgeted budgeted)
-    : INHERITED(w, h, NULL)
+    : INHERITED(w, h, uniqueID, NULL)
     , fTexture(SkRef(tex))
     , fSampleCountForNewSurfaces(sampleCountForNewSurfaces)
     , fAlphaType(at)
@@ -130,7 +130,8 @@ static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextur
     }
 
     const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
-    return SkNEW_ARGS(SkImage_Gpu, (desc.fWidth, desc.fHeight, at, tex, 0, budgeted));
+    return SkNEW_ARGS(SkImage_Gpu,
+                      (desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, tex, 0, budgeted));
 
 }
 
@@ -164,7 +165,8 @@ SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc&
 
     const SkSurface::Budgeted budgeted = SkSurface::kYes_Budgeted;
     const int sampleCount = 0;  // todo: make this an explicit parameter to newSurface()?
-    return SkNEW_ARGS(SkImage_Gpu, (desc.fWidth, desc.fHeight, at, dst, sampleCount, budgeted));
+    return SkNEW_ARGS(SkImage_Gpu, (desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
+                                    at, dst, sampleCount, budgeted));
 }
 
 SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorSpace,
@@ -238,8 +240,8 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     GrDrawContext* drawContext = ctx->drawContext();
     drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(), rect);
     ctx->flushSurfaceWrites(dst);
-    return SkNEW_ARGS(SkImage_Gpu, (dstDesc.fWidth, dstDesc.fHeight, kOpaque_SkAlphaType, dst, 0,
-                                    budgeted));
+    return SkNEW_ARGS(SkImage_Gpu, (dstDesc.fWidth, dstDesc.fHeight, kNeedNewImageUniqueID,
+                                    kOpaque_SkAlphaType, dst, 0, budgeted));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

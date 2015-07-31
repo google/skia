@@ -11,14 +11,18 @@
 #include "SkImage.h"
 #include "SkSurface.h"
 
+enum {
+    kNeedNewImageUniqueID = 0
+};
+
 static SkSurfaceProps copy_or_safe_defaults(const SkSurfaceProps* props) {
     return props ? *props : SkSurfaceProps(0, kUnknown_SkPixelGeometry);
 }
 
 class SkImage_Base : public SkImage {
 public:
-    SkImage_Base(int width, int height, const SkSurfaceProps* props)
-        : INHERITED(width, height)
+    SkImage_Base(int width, int height, uint32_t uniqueID, const SkSurfaceProps* props)
+        : INHERITED(width, height, uniqueID)
         , fProps(copy_or_safe_defaults(props))
     {}
 
