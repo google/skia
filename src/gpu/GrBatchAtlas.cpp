@@ -42,7 +42,10 @@ public:
     // across atlas spills)
     int index() const { return fIndex; }
     int genID() const { return fGenID; }
-    GrBatchAtlas::AtlasID id() { return fID; }
+    GrBatchAtlas::AtlasID id() {
+        SkASSERT(GrBatchAtlas::kInvalidAtlasID != fID);
+        return fID;
+    }
 
     GrTexture* texture() const { return fTexture; }
 
