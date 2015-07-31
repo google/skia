@@ -67,11 +67,6 @@ public:
     class BulkUseTokenUpdater {
     public:
         BulkUseTokenUpdater() : fPlotAlreadyUpdated(0) {}
-        BulkUseTokenUpdater(const BulkUseTokenUpdater& that)
-            : fPlotsToUpdate(that.fPlotsToUpdate)
-            , fPlotAlreadyUpdated(that.fPlotAlreadyUpdated) {
-        }
-
         void add(AtlasID id) {
             int index = GrBatchAtlas::GetIndexFromID(id);
             if (!this->find(index)) {
