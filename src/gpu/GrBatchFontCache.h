@@ -40,6 +40,20 @@ public:
         return glyph;
     }
 
+    // This variant of the above function is called by TextBatch.  At this point, it is possible
+    // that the maskformat of the glyph differs from what we expect.  In these cases we will just
+    // draw a clear square.
+    // skbug:4143 crbug:510931
+    inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
+                             GrMaskFormat expectedMaskFormat, GrFontScaler* scaler) {
+        GrGlyph* glyph = fCache.find(packed);
+        if (NULL == glyph) {
+            glyph = this->generateGlyph(skGlyph, packed, scaler);
+            glyph->fMaskFormat = expectedMaskFormat;
+        }
+        return glyph;
+    }
+
     // returns true if glyph successfully added to texture atlas, false otherwise.  If the glyph's
     // mask format has changed, then addGlyphToAtlas will draw a clear box.  This will almost never
     // happen.

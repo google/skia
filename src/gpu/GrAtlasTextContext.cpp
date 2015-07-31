@@ -1673,7 +1673,8 @@ public:
                         if (regenerateGlyphs) {
                             // Get the id from the old glyph, and use the new strike to lookup
                             // the glyph.
-                            blob->fGlyphs[glyphOffset] = strike->getGlyph(skGlyph, id, scaler);
+                            blob->fGlyphs[glyphOffset] = strike->getGlyph(skGlyph, id, maskFormat,
+                                                                          scaler);
                         }
                         glyph = blob->fGlyphs[glyphOffset];
                         SkASSERT(glyph);
