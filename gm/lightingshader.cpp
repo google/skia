@@ -105,12 +105,12 @@ public:
     LightingShaderGM() {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
 
-        fLight.fColor = SkColorSetRGB(0xff, 0xff, 0xff);
+        fLight.fColor = SkColor3f::Make(1.0f, 1.0f, 1.0f);
         fLight.fDirection.fX = 0.0f;
         fLight.fDirection.fY = 0.0f;
         fLight.fDirection.fZ = 1.0f;
 
-        fAmbient = SkColorSetRGB(0x1f, 0x1f, 0x1f);
+        fAmbient = SkColor3f::Make(0.1f, 0.1f, 0.1f);
     }
 
 protected:
@@ -171,7 +171,7 @@ private:
     SkBitmap                fFrustumNormalMap;
 
     SkLightingShader::Light fLight;
-    SkColor                 fAmbient;
+    SkColor3f               fAmbient;
 
     typedef GM INHERITED;
 };

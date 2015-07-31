@@ -20,8 +20,8 @@ public:
     SkBitmap               fDiffuseBitmap;
     SkBitmap               fNormalBitmap;
     SkScalar               fLightAngle;
-    int                    fColorFactor;
-    SkColor                fAmbientColor;
+    SkScalar               fColorFactor;
+    SkColor3f              fAmbientColor;
 
     LightingView() {
         SkString diffusePath = GetResourcePath("brickwork-texture.jpg");
@@ -30,15 +30,15 @@ public:
         SkImageDecoder::DecodeFile(normalPath.c_str(), &fNormalBitmap);
 
         fLightAngle = 0.0f;
-        fColorFactor = 0;
+        fColorFactor = 0.0f;
 
         SkLightingShader::Light light;
-        light.fColor = SkColorSetRGB(0xff, 0xff, 0xff);
+        light.fColor = SkColor3f::Make(1.0f, 1.0f, 1.0f);
         light.fDirection.fX = SkScalarSin(fLightAngle)*SkScalarSin(SK_ScalarPI*0.25f);
         light.fDirection.fY = SkScalarCos(fLightAngle)*SkScalarSin(SK_ScalarPI*0.25f);
         light.fDirection.fZ = SkScalarCos(SK_ScalarPI*0.25f);
 
-        fAmbientColor = SkColorSetRGB(0x1f, 0x1f, 0x1f);
+        fAmbientColor = SkColor3f::Make(0.1f, 0.1f, 0.1f);
 
         fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
                                                light, fAmbientColor, nullptr));
@@ -58,10 +58,13 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         fLightAngle += 0.015f;
-        fColorFactor++;
+        fColorFactor += 0.01f;
+        if (fColorFactor > 1.0f) {
+            fColorFactor = 0.0f;
+        }
 
         SkLightingShader::Light light;
-        light.fColor = SkColorSetRGB(0xff, 0xff, (fColorFactor >> 1) & 0xff);
+        light.fColor = SkColor3f::Make(1.0f, 1.0f, fColorFactor);
         light.fDirection.fX = SkScalarSin(fLightAngle)*SkScalarSin(SK_ScalarPI*0.25f);
         light.fDirection.fY = SkScalarCos(fLightAngle)*SkScalarSin(SK_ScalarPI*0.25f);
         light.fDirection.fZ = SkScalarCos(SK_ScalarPI*0.25f);

@@ -109,5 +109,6 @@ struct SK_API SkPoint3 {
 };
 
 typedef SkPoint3 SkVector3;
+typedef SkPoint3 SkColor3f;
 
 #endif

@@ -25,8 +25,6 @@
         support multiple lights
         enforce normal map is 4 channel
         use SkImages instead if SkBitmaps
-        vec3 for ambient and light-color
-        add dox for both lighting equation, and how we compute normal from bitmap
 
     To Test:
         non-opaque diffuse textures
@@ -51,7 +49,7 @@ public:
     */
     SkLightingShaderImpl(const SkBitmap& diffuse, const SkBitmap& normal,
                          const SkLightingShader::Light& light,
-                         const SkColor ambient, const SkMatrix* localMatrix) 
+                         const SkColor3f& ambient, const SkMatrix* localMatrix) 
         : INHERITED(localMatrix)
         , fDiffuseMap(diffuse)
         , fNormalMap(normal)
@@ -60,8 +58,6 @@ public:
         if (!fLight.fDirection.normalize()) {
             fLight.fDirection = SkPoint3::Make(0.0f, 0.0f, 1.0f);
         }
-        SkColorSetA(fLight.fColor, 0xFF);
-        SkColorSetA(fAmbientColor, 0xFF);
     }
 
     bool isOpaque() const override;
@@ -103,7 +99,7 @@ private:
     SkBitmap                fDiffuseMap;
     SkBitmap                fNormalMap;
     SkLightingShader::Light fLight;
-    SkColor                 fAmbientColor;  // linear (unpremul) color
+    SkColor3f               fAmbientColor;  // linear (unpremul) color. Range is 0..1/channel.
 
     friend class SkLightingShader;
 
@@ -124,7 +120,8 @@ private:
 class LightingFP : public GrFragmentProcessor {
 public:
     LightingFP(GrTexture* diffuse, GrTexture* normal, const SkMatrix& matrix,
-               SkVector3 lightDir, GrColor lightColor, GrColor ambientColor)
+               const SkVector3& lightDir, const SkColor3f& lightColor,
+               const SkColor3f& ambientColor)
         : fDeviceTransform(kDevice_GrCoordSet, matrix)
         , fDiffuseTextureAccess(diffuse)
         , fNormalTextureAccess(normal)
@@ -140,8 +137,10 @@ public:
 
     class LightingGLFP : public GrGLFragmentProcessor {
     public:
-        LightingGLFP() : fLightColor(GrColor_ILLEGAL), fAmbientColor(GrColor_ILLEGAL) {
+        LightingGLFP() {
             fLightDir.fX = 10000.0f;
+            fLightColor.fX = 0.0f;
+            fAmbientColor.fX = 0.0f;
         }
 
         void emitCode(EmitArgs& args) override {
@@ -156,12 +155,12 @@ public:
 
             const char* lightColorUniName = NULL;
             fLightColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                       kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                        "LightColor", &lightColorUniName);
 
             const char* ambientColorUniName = NULL;
             fAmbientColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                         kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                          "AmbientColor", &ambientColorUniName);
 
             fpb->codeAppend("vec4 diffuseColor = ");
@@ -180,34 +179,30 @@ public:
             fpb->codeAppendf("vec3 lightDir = normalize(%s);", lightDirUniName);
             fpb->codeAppend("float NdotL = dot(normal, lightDir);");
             // diffuse light
-            fpb->codeAppendf("vec3 result = %s.rgb*diffuseColor.rgb*NdotL;", lightColorUniName);
+            fpb->codeAppendf("vec3 result = %s*diffuseColor.rgb*NdotL;", lightColorUniName);
             // ambient light
-            fpb->codeAppendf("result += %s.rgb;", ambientColorUniName);
+            fpb->codeAppendf("result += %s;", ambientColorUniName);
             fpb->codeAppendf("%s = vec4(result.rgb, diffuseColor.a);", args.fOutputColor);
         }
 
         void setData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {
             const LightingFP& lightingFP = proc.cast<LightingFP>();
 
-            SkVector3 lightDir = lightingFP.lightDir();
+            const SkVector3& lightDir = lightingFP.lightDir();
             if (lightDir != fLightDir) {
                 pdman.set3fv(fLightDirUni, 1, &lightDir.fX);
                 fLightDir = lightDir;
             }
 
-            GrColor lightColor = lightingFP.lightColor();
+            const SkColor3f& lightColor = lightingFP.lightColor();
             if (lightColor != fLightColor) {
-                GrGLfloat c[4];
-                GrColorToRGBAFloat(lightColor, c);
-                pdman.set4fv(fLightColorUni, 1, c);
+                pdman.set3fv(fLightColorUni, 1, &lightColor.fX);
                 fLightColor = lightColor;
             }
 
-            GrColor ambientColor = lightingFP.ambientColor();
+            const SkColor3f& ambientColor = lightingFP.ambientColor();
             if (ambientColor != fAmbientColor) {
-                GrGLfloat c[4];
-                GrColorToRGBAFloat(ambientColor, c);
-                pdman.set4fv(fAmbientColorUni, 1, c);
+                pdman.set3fv(fAmbientColorUni, 1, &ambientColor.fX);
                 fAmbientColor = ambientColor;
             }
         }
@@ -223,10 +218,10 @@ public:
         SkVector3 fLightDir;
         GrGLProgramDataManager::UniformHandle fLightDirUni;
 
-        GrColor fLightColor;
+        SkColor3f fLightColor;
         GrGLProgramDataManager::UniformHandle fLightColorUni;
 
-        GrColor fAmbientColor;
+        SkColor3f fAmbientColor;
         GrGLProgramDataManager::UniformHandle fAmbientColorUni;
     };
 
@@ -242,9 +237,9 @@ public:
         inout->mulByUnknownFourComponents();
     }
 
-    SkVector3 lightDir() const { return fLightDir; }
-    GrColor lightColor() const { return fLightColor; }
-    GrColor ambientColor() const { return fAmbientColor; }
+    const SkVector3& lightDir() const { return fLightDir; }
+    const SkColor3f& lightColor() const { return fLightColor; }
+    const SkColor3f& ambientColor() const { return fAmbientColor; }
 
 private:
     bool onIsEqual(const GrFragmentProcessor& proc) const override { 
@@ -261,8 +256,8 @@ private:
     GrTextureAccess  fDiffuseTextureAccess;
     GrTextureAccess  fNormalTextureAccess;
     SkVector3        fLightDir;
-    GrColor          fLightColor;
-    GrColor          fAmbientColor;
+    SkColor3f        fLightColor;
+    SkColor3f        fAmbientColor;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -341,13 +336,8 @@ bool SkLightingShaderImpl::asFragmentProcessor(GrContext* context, const SkPaint
         return false;
     }
 
-    GrColor lightColor = GrColorPackRGBA(SkColorGetR(fLight.fColor), SkColorGetG(fLight.fColor),
-                                         SkColorGetB(fLight.fColor), SkColorGetA(fLight.fColor));
-    GrColor ambientColor = GrColorPackRGBA(SkColorGetR(fAmbientColor), SkColorGetG(fAmbientColor),
-                                           SkColorGetB(fAmbientColor), SkColorGetA(fAmbientColor));
-
     *fp = SkNEW_ARGS(LightingFP, (diffuseTexture, normalTexture, matrix,
-                                  fLight.fDirection, lightColor, ambientColor));
+                                  fLight.fDirection, fLight.fColor, fAmbientColor));
     *color = GrColorPackA4(paint.getAlpha());
     return true;
 }
@@ -400,14 +390,14 @@ SkLightingShaderImpl::LightingShaderContext::~LightingShaderContext() {
     fNormalState->~SkBitmapProcState();
 }
 
-static inline int light(int light, int diff, SkScalar NdotL, int ambient) {
-    int color = int(light * diff * NdotL + 255 * ambient);
-    if (color <= 0) {
+static inline int light(SkScalar light, int diff, SkScalar NdotL, SkScalar ambient) {
+    SkScalar color = light * diff * NdotL + 255 * ambient;
+    if (color <= 0.0f) {
         return 0;
-    } else if (color >= 255*255) {
+    } else if (color >= 255.0f) {
         return 255;
     } else {
-        return SkDiv255Round(color);
+        return (int) color;
     }
 }
 
@@ -458,12 +448,12 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
             NdotL = norm.dot(lightShader.fLight.fDirection);
 
             // This is all done in linear unpremul color space
-            r = light(SkColorGetR(lightShader.fLight.fColor), SkColorGetR(diffColor), NdotL, 
-                      SkColorGetR(lightShader.fAmbientColor));
-            g = light(SkColorGetG(lightShader.fLight.fColor), SkColorGetG(diffColor), NdotL, 
-                      SkColorGetG(lightShader.fAmbientColor));
-            b = light(SkColorGetB(lightShader.fLight.fColor), SkColorGetB(diffColor), NdotL, 
-                      SkColorGetB(lightShader.fAmbientColor));
+            r = light(lightShader.fLight.fColor.fX, SkColorGetR(diffColor), NdotL, 
+                      lightShader.fAmbientColor.fX);
+            g = light(lightShader.fLight.fColor.fY, SkColorGetG(diffColor), NdotL, 
+                      lightShader.fAmbientColor.fY);
+            b = light(lightShader.fLight.fColor.fZ, SkColorGetB(diffColor), NdotL, 
+                      lightShader.fAmbientColor.fZ);
 
             result[i] = SkPreMultiplyARGB(SkColorGetA(diffColor), r, g, b);
         }
@@ -502,9 +492,14 @@ SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
     if (!buf.readScalarArray(&light.fDirection.fX, 3)) {
         return NULL;
     }
-    light.fColor = buf.readColor();
+    if (!buf.readScalarArray(&light.fColor.fX, 3)) {
+        return NULL;
+    }
 
-    SkColor ambient = buf.readColor();
+    SkColor3f ambient;
+    if (!buf.readScalarArray(&ambient.fX, 3)) {
+        return NULL;
+    }
 
     return SkNEW_ARGS(SkLightingShaderImpl, (diffuse, normal, light, ambient, &localMatrix));
 }
@@ -515,8 +510,8 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     buf.writeBitmap(fDiffuseMap);
     buf.writeBitmap(fNormalMap);
     buf.writeScalarArray(&fLight.fDirection.fX, 3);
-    buf.writeColor(fLight.fColor);
-    buf.writeColor(fAmbientColor);
+    buf.writeScalarArray(&fLight.fColor.fX, 3);
+    buf.writeScalarArray(&fAmbientColor.fX, 3);
 }
 
 SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
@@ -571,7 +566,7 @@ static bool bitmap_is_too_big(const SkBitmap& bm) {
 
 SkShader* SkLightingShader::Create(const SkBitmap& diffuse, const SkBitmap& normal,
                                    const SkLightingShader::Light& light,
-                                   const SkColor ambient,
+                                   const SkColor3f& ambient,
                                    const SkMatrix* localMatrix) {
     if (diffuse.isNull() || bitmap_is_too_big(diffuse) ||
         normal.isNull() || bitmap_is_too_big(normal) ||
