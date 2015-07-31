@@ -42,7 +42,9 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent,
     setWidgetVisibility(kGPU_WidgetType, true);
 #endif
     connect(&fRasterWidget, SIGNAL(drawComplete()), this->parentWidget(), SLOT(drawComplete()));
+#if SK_SUPPORT_GPU
     connect(&fGLWidget, SIGNAL(drawComplete()), this->parentWidget(), SLOT(drawComplete()));
+#endif
 }
 
 SkCanvasWidget::~SkCanvasWidget() {}
