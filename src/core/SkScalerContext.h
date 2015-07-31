@@ -301,8 +301,6 @@ protected:
     void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
 
 private:
-    friend class SkRandomScalerContext; // For debug purposes
-
     // never null
     SkAutoTUnref<SkTypeface> fTypeface;
 

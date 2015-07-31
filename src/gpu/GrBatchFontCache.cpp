@@ -226,7 +226,6 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* gly
                                                glyph->width(), glyph->height(),
                                                storage.get(), &glyph->fAtlasLocation);
     if (success) {
-        SkASSERT(GrBatchAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;
     }
     return success;

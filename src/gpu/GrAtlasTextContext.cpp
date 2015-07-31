@@ -1678,10 +1678,8 @@ public:
                         }
                         glyph = blob->fGlyphs[glyphOffset];
                         SkASSERT(glyph);
-                        SkASSERT(id == glyph->fPackedID);
-                        // We want to be able to assert this but cannot for testing purposes.
-                        // once skbug:4143 has landed we can revist this assert
-                        //SkASSERT(glyph->fMaskFormat == this->maskFormat());
+                        SkASSERT(id == glyph->fPackedID &&
+                                 glyph->fMaskFormat == this->maskFormat());
 
                         if (!fFontCache->hasGlyph(glyph) &&
                             !strike->addGlyphToAtlas(batchTarget, glyph, scaler, skGlyph,

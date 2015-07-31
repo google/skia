@@ -14,8 +14,6 @@
 #include "SkGraphics.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
-#include "../src/fonts/SkRandomScalerContext.h"
-#include "../src/fonts/SkGScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "SkTypeface_win.h"
@@ -61,8 +59,7 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
 
-    // We don't typically actually draw with this unittest
-    GrContext* ctx = factory->get(GrContextFactory::kNull_GLContextType);
+    GrContext* ctx = factory->get(GrContextFactory::kNative_GLContextType);
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info,
                                                                0, &props));
@@ -97,10 +94,7 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
             SkFontStyle fs;
             set->getStyle(j, &fs, NULL);
 
-            // We use a typeface which randomy returns unexpected mask formats to fuzz
-            SkAutoTUnref<SkTypeface> orig(set->createTypeface(j));
-            SkAutoTUnref<SkTypeface> typeface(SkNEW_ARGS(SkRandomTypeface, (orig, paint, true)));
-            paint.setTypeface(typeface);
+            SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
 
             SkTextBlobBuilder builder;
             for (int aa = 0; aa < 2; aa++) {
@@ -109,9 +103,6 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
                         paint.setAntiAlias(SkToBool(aa));
                         paint.setSubpixelText(SkToBool(subpixel));
                         paint.setLCDRenderText(SkToBool(lcd));
-                        if (!SkToBool(lcd)) {
-                            paint.setTextSize(160);
-                        }
                         const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(paint,
                                                                                    MAX_TOTAL_TEXT,
                                                                                    0, 0,
