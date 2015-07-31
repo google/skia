@@ -1772,6 +1772,8 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
 
     if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == readConfig) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
+        tempDrawInfo->fSwapRAndB = true;
+        ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (kMesa_GrGLDriver == this->glContext().driver() &&
                GrBytesPerPixel(readConfig) == 4 &&
                GrPixelConfigSwapRAndB(readConfig) == srcConfig) {
