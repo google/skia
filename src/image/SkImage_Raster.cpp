@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    SkImage_Raster() : INHERITED(0, 0, fBitmap.getGenerationID(), NULL) {
+    SkImage_Raster() : INHERITED(0, 0, kNeedNewImageUniqueID, NULL) {
         fBitmap.setImmutable();
     }
 
