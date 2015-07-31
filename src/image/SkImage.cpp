@@ -253,7 +253,7 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
 #endif
 
     // This will check for immutable (share or copy)
-    return SkNewImageFromRasterBitmap(bm, nullptr, kUnlocked_SharedPixelRefMode);
+    return SkNewImageFromRasterBitmap(bm, nullptr);
 }
 
 bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {

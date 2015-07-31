@@ -128,7 +128,7 @@ SkImage* SkSurface_Raster::onNewImageSnapshot(Budgeted) {
     }
     // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
     // Lock the shared pixel ref to ensure peekPixels() is usable.
-    return SkNewImageFromRasterBitmap(fBitmap, &this->props(), kLocked_SharedPixelRefMode,
+    return SkNewImageFromRasterBitmap(fBitmap, &this->props(),
                                       fWeOwnThePixels ? kNo_ForceCopyMode : kYes_ForceCopyMode);
 }
 

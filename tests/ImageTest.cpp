@@ -245,9 +245,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
         const bool sharedID = (image->uniqueID() == bm.getGenerationID());
         REPORTER_ASSERT(reporter, sharedID == rec[i].fExpectSharedID);
 
-#if 0   // TODO: fix so that peek will succeed in the immutable case
         const bool peekSuccess = image->peekPixels(&pmap);
         REPORTER_ASSERT(reporter, peekSuccess == rec[i].fExpectPeekSuccess);
-#endif
     }
 }

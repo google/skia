@@ -81,10 +81,13 @@ public:
     bool isOpaque() const override;
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
-    SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props, bool lockPixels = false)
+    SkImage_Raster(const SkBitmap& bm, const SkSurfaceProps* props)
         : INHERITED(bm.width(), bm.height(), bm.getGenerationID(), props)
-        , fBitmap(bm) {
-        if (lockPixels) {
+        , fBitmap(bm)
+    {
+        if (bm.pixelRef()->isPreLocked()) {
+            // we only preemptively lock if there is no chance of triggering something expensive
+            // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
             fBitmap.lockPixels();
         }
         SkASSERT(fBitmap.isImmutable());
@@ -237,7 +240,7 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
 }
 
 SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, const SkSurfaceProps* props,
-                                    SharedPixelRefMode mode, ForceCopyMode forceCopy) {
+                                    ForceCopyMode forceCopy) {
     SkASSERT(NULL == bm.getTexture());
 
     if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), NULL, NULL)) {
@@ -258,7 +261,7 @@ SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, const SkSurfaceProps* pr
             as_IB(image)->initWithProps(*props);
         }
     } else {
-        image = SkNEW_ARGS(SkImage_Raster, (bm, props, kLocked_SharedPixelRefMode == mode));
+        image = SkNEW_ARGS(SkImage_Raster, (bm, props));
     }
     return image;
 }

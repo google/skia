@@ -173,7 +173,6 @@ static void validate_pixels_ctable(const SkImageInfo& info, const SkColorTable* 
 }
 
 void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable) {
-#ifndef SK_IGNORE_PIXELREF_SETPRELOCKED
     SkASSERT(pixels);
     validate_pixels_ctable(fInfo, ctable);
     // only call me in your constructor, otherwise fLockCount tracking can get
@@ -183,7 +182,6 @@ void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctabl
     fRec.fRowBytes = rowBytes;
     fLockCount = SKPIXELREF_PRELOCKED_LOCKCOUNT;
     fPreLocked = true;
-#endif
 }
 
 // Increments fLockCount only on success
