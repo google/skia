@@ -43,7 +43,7 @@ protected:
     void onDrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                       const SkPaint* paint) override;
     void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                          const SkPaint* paint, SK_VIRTUAL_CONSTRAINT_TYPE) override;
+                          const SkPaint* paint, SkCanvas::SrcRectConstraint) override;
     void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                           const SkRect& dst, const SkPaint* paint) override;
     void onDrawSprite(const SkBitmap& bitmap, int left, int top,

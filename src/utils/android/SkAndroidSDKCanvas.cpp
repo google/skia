@@ -143,10 +143,9 @@ void SkAndroidSDKCanvas::onDrawBitmapRect(const SkBitmap& bitmap,
                                                    const SkRect* src,
                                                    const SkRect& dst,
                                                    const SkPaint* paint,
-                                                   SK_VIRTUAL_CONSTRAINT_TYPE constraint) {
+                                                   SkCanvas::SrcRectConstraint constraint) {
     FILTER_PTR(paint);
-    fProxyTarget->drawBitmapRect(bitmap, src, dst, filteredPaint,
-                                 (SrcRectConstraint)constraint);
+    fProxyTarget->drawBitmapRect(bitmap, src, dst, filteredPaint, constraint);
 }
 void SkAndroidSDKCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
                                                    const SkIRect& center,
