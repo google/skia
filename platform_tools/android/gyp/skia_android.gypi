@@ -38,6 +38,11 @@
         'android_arch%': "mips64",
         'android_variant%': "mips64",
       }],
+      [ 'android_buildtype == "Release"', {
+        'android_apk_suffix': "release-unsigned.apk",
+      }, {
+        'android_apk_suffix': "debug.apk",
+      }],
     ],
   },
   'targets': [
@@ -96,11 +101,11 @@
             }],
           ],
           'outputs': [
-            '<(android_base)/apps/sample_app/build/outputs/apk/sample_app-arm-debug.apk',
+            '<(android_base)/apps/sample_app/build/outputs/apk/sample_app-<(android_variant)-<(android_apk_suffix)',
           ],
           'action': [
             '<(android_base)/apps/gradlew',
-            ':sample_app:assemble<(android_variant)Debug',
+            ':sample_app:assemble<(android_variant)<(android_buildtype)',
             '-p<(android_base)/apps/sample_app',
             '-PsuppressNativeBuild',
           ],
@@ -159,11 +164,11 @@
             }],
           ],
           'outputs': [
-            '<(android_base)/apps/visualbench/build/outputs/apk/visualbench-arm-debug.apk',
+            '<(android_base)/apps/visualbench/build/outputs/apk/visualbench-<(android_variant)-<(android_apk_suffix)',
           ],
           'action': [
             '<(android_base)/apps/gradlew',
-            ':visualbench:assemble<(android_variant)Debug',
+            ':visualbench:assemble<(android_variant)<(android_buildtype)',
             '-p<(android_base)/apps/visualbench',
             '-PsuppressNativeBuild',
           ],

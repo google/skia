@@ -171,6 +171,7 @@ setup_device() {
   source $SCRIPT_DIR/utils/setup_toolchain.sh
 
   DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
+  DEFINES="${DEFINES} android_buildtype=${BUILDTYPE}"
   exportVar GYP_DEFINES "$DEFINES $GYP_DEFINES"
 
   SKIA_SRC_DIR=$(cd "${SCRIPT_DIR}/../../.."; pwd)

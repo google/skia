@@ -54,9 +54,16 @@ then
     $ADB ${DEVICE_SERIAL} uninstall com.skia > /dev/null
 fi
 
-BUILD_TYPE_LC=$(echo $BUILDTYPE | tr "[:upper:]" "[:lower:]")
+if [[ "$BUILDTYPE" == "Release" ]];
+then
+    apk_suffix="release-unsigned.apk"
+else
+    apk_suffix="debug.apk"
+fi
+
+
 APP_LC=$(echo $app | tr "[:upper:]" "[:lower:]")
 
-echo "Installing ${APP_LC} from ${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${BUILD_TYPE_LC}.apk"
-$ADB ${DEVICE_SERIAL} install -r ${SCRIPT_DIR}/../apps/${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${BUILD_TYPE_LC}.apk
+echo "Installing ${APP_LC} from ${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${apk_suffix}"
+$ADB ${DEVICE_SERIAL} install -r ${SCRIPT_DIR}/../apps/${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${apk_suffix}
 
