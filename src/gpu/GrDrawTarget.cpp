@@ -445,14 +445,14 @@ void GrDrawTarget::copySurface(GrSurface* dst,
     this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint);
 }
 
-void GrDrawTarget::setupPipeline(const PipelineInfo& pipelineInfo,
-                                 GrPipeline* pipeline) {
-    SkNEW_PLACEMENT_ARGS(pipeline, GrPipeline, (*pipelineInfo.fPipelineBuilder,
-                                                pipelineInfo.fColorPOI,
-                                                pipelineInfo.fCoveragePOI,
-                                                *this->caps(),
-                                                *pipelineInfo.fScissor,
-                                                &pipelineInfo.fDstTexture));
+const GrPipeline* GrDrawTarget::setupPipeline(const PipelineInfo& pipelineInfo,
+                                              void* pipelineAddr) {
+    return SkNEW_PLACEMENT_ARGS(pipelineAddr, GrPipeline, (*pipelineInfo.fPipelineBuilder,
+                                                            pipelineInfo.fColorPOI,
+                                                            pipelineInfo.fCoveragePOI,
+                                                            *this->caps(),
+                                                            *pipelineInfo.fScissor,
+                                                            &pipelineInfo.fDstTexture));
 }
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -83,7 +83,7 @@ private:
 
         // This function is only for getting the location in memory where we will create our
         // pipeline object.
-        GrPipeline* pipelineLocation() { return reinterpret_cast<GrPipeline*>(fPipeline.get()); }
+        void* pipelineLocation() { return fPipeline.get(); }
 
         const GrPipeline* getPipeline() const {
             return reinterpret_cast<const GrPipeline*>(fPipeline.get());

@@ -244,7 +244,7 @@ protected:
         GrXferProcessor::DstTexture fDstTexture;
     };
 
-    void setupPipeline(const PipelineInfo& pipelineInfo, GrPipeline* pipeline);
+    const GrPipeline* setupPipeline(const PipelineInfo& pipelineInfo, void* pipelineAddr);
 
 private:
     virtual void onReset() = 0;
