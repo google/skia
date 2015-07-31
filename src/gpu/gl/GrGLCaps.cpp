@@ -291,7 +291,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kGL_GrGLStandard == standard) {
         fMultisampleDisableSupport = true;
     } else {
-        fMultisampleDisableSupport = false;
+        fMultisampleDisableSupport = ctxInfo.hasExtension("GL_EXT_multisample_compatibility");
     }
 
     if (kGL_GrGLStandard == standard && version >= GR_GL_VER(3, 0)) {
