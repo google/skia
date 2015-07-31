@@ -55,7 +55,8 @@ namespace SkOpts {
     //TODO: _dsp2, _armv7, _armv8, _x86, _x86_64, _sse42, _avx, avx2, ... ?
 
     static void init() {
-    #if defined(SK_CPU_X86)
+        // TODO: Chrome's not linking _sse* opts on iOS simulator builds.  Bug or feature?
+    #if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
         uint32_t abcd[] = {0,0,0,0};
         cpuid(abcd);
         if (abcd[3] & (1<<26)) { Init_sse2(); }
