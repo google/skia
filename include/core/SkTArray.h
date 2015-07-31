@@ -107,7 +107,7 @@ public:
         return *this;
     }
 
-    virtual ~SkTArray() {
+    ~SkTArray() {
         for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }
