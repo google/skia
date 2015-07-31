@@ -9,7 +9,11 @@
 #define SkUtils_DEFINED
 
 #include "SkTypes.h"
-#include "../private/SkOpts.h"
+
+namespace SkOpts {
+    extern void (*memset16)(uint16_t[], uint16_t, int);
+    extern void (*memset32)(uint32_t[], uint32_t, int);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
