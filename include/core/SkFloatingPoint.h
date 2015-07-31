@@ -11,6 +11,7 @@
 #define SkFloatingPoint_DEFINED
 
 #include "SkTypes.h"
+#include "../private/SkOpts.h"
 
 #include <math.h>
 #include <float.h>
@@ -126,8 +127,6 @@ extern const uint32_t gIEEENegativeInfinity;
 #define SK_FloatNaN                 (*SkTCast<const float*>(&gIEEENotANumber))
 #define SK_FloatInfinity            (*SkTCast<const float*>(&gIEEEInfinity))
 #define SK_FloatNegativeInfinity    (*SkTCast<const float*>(&gIEEENegativeInfinity))
-
-namespace SkOpts { extern float (*rsqrt)(float); }
 
 // Fast, approximate inverse square root.
 // Compare to name-brand "1.0f / sk_float_sqrt(x)".  Should be around 10x faster on SSE, 2x on NEON.

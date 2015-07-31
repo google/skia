@@ -20,7 +20,9 @@
     #include <cpu-features.h>
 #endif
 
-static float rsqrt_portable(float x) {
+namespace portable {  // This helps identify methods from this file when debugging / profiling.
+
+static float rsqrt(float x) {
     // Get initial estimate.
     int i = *SkTCast<int*>(&x);
     i = 0x5F1FFFF9 - (i>>1);
@@ -32,9 +34,17 @@ static float rsqrt_portable(float x) {
     return estimate;
 }
 
+template <typename T>
+static void memsetT(T dst[], T val, int n) { while (n --> 0) { *dst++ = val; } }
+
+}  // namespace portable
+
 namespace SkOpts {
     // Define default function pointer values here...
-    decltype(rsqrt) rsqrt = rsqrt_portable;
+    decltype(rsqrt)       rsqrt = portable::rsqrt;
+    decltype(memset16) memset16 = portable::memsetT<uint16_t>;
+    decltype(memset32) memset32 = portable::memsetT<uint32_t>;
+
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_sse2();

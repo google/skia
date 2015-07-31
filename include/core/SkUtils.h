@@ -9,57 +9,46 @@
 #define SkUtils_DEFINED
 
 #include "SkTypes.h"
+#include "../private/SkOpts.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Determined empirically using bench/MemsetBench.cpp on a Nexus 7, Nexus 9, and desktop.
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 || defined(SK_ARM_HAS_NEON)
-    // Platforms where we can assume an autovectorizer will give us a good inline memset.
-    #define SK_SMALL_MEMSET 1000
-#else
-    // Platforms like Chrome on ARMv7 that don't typically compile with NEON globally.
-    #define SK_SMALL_MEMSET 10
-#endif
-
+// The inlining heuristics below were determined using bench/MemsetBench.cpp
+// on a x86 desktop, a Nexus 7 with and without NEON, and a Nexus 9:
+//   - on x86, inlining was never faster,
+//   - on ARMv7, inlining was faster for N<=10.  Putting this check inside the NEON
+//     code was not helpful; it's got to be here outside.
+//   - NEON code generation for ARMv8 with GCC 4.9 is terrible,
+//     making the NEON code ~8x slower that just a serial loop.
 
 /** Similar to memset(), but it assigns a 16bit value into the buffer.
     @param buffer   The memory to have value copied into it
     @param value    The 16bit value to be copied into buffer
     @param count    The number of times value should be copied into the buffer.
 */
-void sk_memset16_large(uint16_t dst[], uint16_t value, int count);
-inline void sk_memset16(uint16_t dst[], uint16_t value, int count) {
-    if (count <= SK_SMALL_MEMSET) {
-        for (int i = 0; i < count; i++) {
-            dst[i] = value;
-        }
-    } else {
-        sk_memset16_large(dst, value, count);
-    }
+static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
+#if defined(SK_CPU_ARM64)
+    while (count --> 0) { *buffer++ = value; } return;
+#elif defined(SK_CPU_ARM32)
+    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
+#endif
+    SkOpts::memset16(buffer, value, count);
 }
-typedef void (*SkMemset16Proc)(uint16_t dst[], uint16_t value, int count);
-SkMemset16Proc SkMemset16GetPlatformProc();
 
 /** Similar to memset(), but it assigns a 32bit value into the buffer.
     @param buffer   The memory to have value copied into it
     @param value    The 32bit value to be copied into buffer
     @param count    The number of times value should be copied into the buffer.
 */
-void sk_memset32_large(uint32_t dst[], uint32_t value, int count);
-inline void sk_memset32(uint32_t dst[], uint32_t value, int count) {
-    if (count <= SK_SMALL_MEMSET) {
-        for (int i = 0; i < count; i++) {
-            dst[i] = value;
-        }
-    } else {
-        sk_memset32_large(dst, value, count);
-    }
+static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
+#if defined(SK_CPU_ARM64)
+    while (count --> 0) { *buffer++ = value; } return;
+#elif defined(SK_CPU_ARM32)
+    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
+#endif
+    SkOpts::memset32(buffer, value, count);
 }
 
-typedef void (*SkMemset32Proc)(uint32_t dst[], uint32_t value, int count);
-SkMemset32Proc SkMemset32GetPlatformProc();
-
-#undef SK_SMALL_MEMSET
 
 ///////////////////////////////////////////////////////////////////////////////
 

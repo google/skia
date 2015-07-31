@@ -19,8 +19,6 @@
 #include "SkMorphology_opts.h"
 #include "SkMorphology_opts_SSE2.h"
 #include "SkRTConf.h"
-#include "SkUtils.h"
-#include "SkUtils_opts_SSE2.h"
 
 #if defined(_MSC_VER) && defined(_WIN64)
 #include <intrin.h>
@@ -297,24 +295,6 @@ SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
 
 SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkColorType, SkMask::Format, RowFlags) {
     return NULL;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-SkMemset16Proc SkMemset16GetPlatformProc() {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        return sk_memset16_SSE2;
-    } else {
-        return NULL;
-    }
-}
-
-SkMemset32Proc SkMemset32GetPlatformProc() {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        return sk_memset32_SSE2;
-    } else {
-        return NULL;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
