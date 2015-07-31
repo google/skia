@@ -3,6 +3,11 @@ SkPaint
 
 *color, stroke, font, effects*
 
+-   [SkXfermode](#SkXfermode) - transfer modes
+-   [ShShader](#ShShader) - gradients and patterns
+-   [SkMaskFilter](#SkMaskFilter) - modifications to the alpha mask
+-   [SkColorFilter](#SkColorFilter) - modify the source color before applying the
+
 Anytime you draw something in Skia, and want to specify what color it
 is, or how it blends with the background, or what style or font to
 draw it in, you specify those attributes in a paint.
@@ -136,6 +141,102 @@ but also for measuring it.
     paint.getTextBounds(...);
     paint.textToGlyphs(...);
     paint.getFontMetrics(...);
+
+<span id="SkXfermode"></span>
+
+SkXfermode
+----------
+
+The following example demonstrates all of the Skia's standard transfer
+modes.  In this example the source is a solid magenta color with a
+horizonatal alpha gradient and the destination is a solid cyan color
+with a vertical alpha gradient.
+
+<!--?prettify lang=cc?-->
+
+    SkXfermode::Mode modes[] = {
+        SkXfermode::kClear_Mode,
+        SkXfermode::kSrc_Mode,
+        SkXfermode::kDst_Mode,
+        SkXfermode::kSrcOver_Mode,
+        SkXfermode::kDstOver_Mode,
+        SkXfermode::kSrcIn_Mode,
+        SkXfermode::kDstIn_Mode,
+        SkXfermode::kSrcOut_Mode,
+        SkXfermode::kDstOut_Mode,
+        SkXfermode::kSrcATop_Mode,
+        SkXfermode::kDstATop_Mode,
+        SkXfermode::kXor_Mode,
+        SkXfermode::kPlus_Mode,
+        SkXfermode::kModulate_Mode,
+        SkXfermode::kScreen_Mode,
+        SkXfermode::kOverlay_Mode,
+        SkXfermode::kDarken_Mode,
+        SkXfermode::kLighten_Mode,
+        SkXfermode::kColorDodge_Mode,
+        SkXfermode::kColorBurn_Mode,
+        SkXfermode::kHardLight_Mode,
+        SkXfermode::kSoftLight_Mode,
+        SkXfermode::kDifference_Mode,
+        SkXfermode::kExclusion_Mode,
+        SkXfermode::kMultiply_Mode,
+        SkXfermode::kHue_Mode,
+        SkXfermode::kSaturation_Mode,
+        SkXfermode::kColor_Mode,
+        SkXfermode::kLuminosity_Mode,
+    };
+    SkRect rect = SkRect::MakeWH(64.0f, 64.0f);
+    SkPaint text, stroke, src, dst;
+    stroke.setStyle(SkPaint::kStroke_Style);
+    text.setTextSize(24.0f);
+    text.setAntiAlias(true);
+    SkPoint srcPoints[2] = {
+        SkPoint::Make(0.0f, 0.0f),
+        SkPoint::Make(64.0f, 0.0f)
+    };
+    SkColor srcColors[2] = {
+        SK_ColorMAGENTA & 0x00FFFFFF,
+        SK_ColorMAGENTA};
+    SkAutoTUnref<SkShader> srcShader(
+        SkGradientShader::CreateLinear(
+                srcPoints, srcColors, NULL, 2,
+                SkShader::kClamp_TileMode, 0, NULL));
+    src.setShader(srcShader);
+
+    SkPoint dstPoints[2] = {
+        SkPoint::Make(0.0f, 0.0f),
+        SkPoint::Make(0.0f, 64.0f)
+    };
+    SkColor dstColors[2] = {
+        SK_ColorCYAN & 0x00FFFFFF,
+        SK_ColorCYAN};
+    SkAutoTUnref<SkShader> dstShader(
+        SkGradientShader::CreateLinear(
+                dstPoints, dstColors, NULL, 2,
+                SkShader::kClamp_TileMode, 0, NULL));
+    dst.setShader(dstShader);
+    canvas->clear(SK_ColorWHITE);
+    size_t N = sizeof(modes) / sizeof(modes[0]);
+    size_t K = (N - 1) / 3 + 1;
+    SkASSERT(K * 64 == 640);  // tall enough
+    for (size_t i = 0; i < N; ++i) {
+        SkAutoCanvasRestore autoCanvasRestore(canvas, true);
+        canvas->translate(192.0f * (i / K), 64.0f * (i % K));
+        const char* desc = SkXfermode::ModeName(modes[i]);
+        canvas->drawText(desc, strlen(desc), 68.0f, 30.0f, text);
+        canvas->clipRect(SkRect::MakeWH(64.0f, 64.0f));
+        canvas->drawColor(SK_ColorLTGRAY);
+        (void)canvas->saveLayer(NULL, NULL);
+        canvas->clear(SK_ColorTRANSPARENT);
+        canvas->drawPaint(dst);
+        src.setXfermodeMode(modes[i]);
+        canvas->drawPaint(src);
+        canvas->drawRect(rect, stroke);
+    }
+
+<a href="https://fiddle.skia.org/c/0a2392be5adf339ce6537799f2807f3c"><img src="https://fiddle.skia.org/i/0a2392be5adf339ce6537799f2807f3c_raster.png" alt=""></a>
+
+<span id="ShShader"></span>
 
 ShShader
 --------
@@ -271,6 +372,8 @@ Several shaders are defined (besides the linear gradient already mentioned):
     <img src="https://fiddle.skia.org/i/1209b7a29d870302edcc43dc0916e8d5_raster.png"></a>
 
 
+<span id="SkMaskFilter"></span>
+
 SkMaskFilter
 ------------
 
@@ -313,6 +416,8 @@ SkMaskFilter
     <a href="https://fiddle.skia.org/c/1ef71be7fb749a2d81a55721b2d2c77d">
     <img src="https://fiddle.skia.org/i/1ef71be7fb749a2d81a55721b2d2c77d_raster.png"></a>
 
+
+<span id="SkColorFilter"></span>
 
 SkColorFilter
 -------------
