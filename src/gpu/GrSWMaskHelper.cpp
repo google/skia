@@ -248,8 +248,7 @@ GrTexture* GrSWMaskHelper::createTexture() {
         SkASSERT(fContext->caps()->isConfigTexturable(desc.fConfig));
     }
 
-    return fContext->textureProvider()->refScratchTexture(
-        desc, GrTextureProvider::kApprox_ScratchTexMatch);
+    return fContext->textureProvider()->createApproxTexture(desc);
 }
 
 void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrSurfaceDesc& desc,

@@ -407,9 +407,11 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
         bool needsExactTexture =
             (yuvDesc.fWidth  != yuvInfo.fSize[0].fWidth) ||
             (yuvDesc.fHeight != yuvInfo.fSize[0].fHeight);
-        yuvTextures[i].reset(ctx->textureProvider()->refScratchTexture(yuvDesc,
-            needsExactTexture ? GrTextureProvider::kExact_ScratchTexMatch :
-                                GrTextureProvider::kApprox_ScratchTexMatch));
+        if (needsExactTexture) {
+            yuvTextures[i].reset(ctx->textureProvider()->createTexture(yuvDesc, true));
+        } else {
+            yuvTextures[i].reset(ctx->textureProvider()->createApproxTexture(yuvDesc));
+        }
         if (!yuvTextures[i] ||
             !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
                                          yuvDesc.fConfig, planes[i], yuvInfo.fRowBytes[i])) {

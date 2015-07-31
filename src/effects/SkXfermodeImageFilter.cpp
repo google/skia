@@ -160,8 +160,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     desc.fWidth = src.width();
     desc.fHeight = src.height();
     desc.fConfig = kSkia8888_GrPixelConfig;
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->refScratchTexture(
-        desc, GrTextureProvider::kApprox_ScratchTexMatch));
+    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
     if (!dst) {
         return false;
     }

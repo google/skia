@@ -36,9 +36,12 @@ public:
 protected:
     GrIndexBuffer(GrGpu* gpu, size_t gpuMemorySize, bool dynamic, bool cpuBacked)
         : INHERITED(gpu, gpuMemorySize, dynamic, cpuBacked) {
-        GrScratchKey key;
-        ComputeScratchKey(gpuMemorySize, dynamic, &key);
-        this->setScratchKey(key);
+        // We currently only make buffers scratch if they're both pow2 sized and not cpuBacked.
+        if (!cpuBacked && SkIsPow2(gpuMemorySize)) {
+            GrScratchKey key;
+            ComputeScratchKey(gpuMemorySize, dynamic, &key);
+            this->setScratchKey(key);
+        }
     }
 
 private:

@@ -514,8 +514,7 @@ GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
         desc.fConfig = kRGBA_8888_GrPixelConfig;
     }
 
-    return this->getContext()->textureProvider()->refScratchTexture(
-        desc, GrTextureProvider::kApprox_ScratchTexMatch);
+    return this->getContext()->textureProvider()->createApproxTexture(desc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

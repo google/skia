@@ -162,7 +162,7 @@ private:
             4, 5, 6, 6, 7, 4,
         };
         GR_STATIC_ASSERT(SK_ARRAY_COUNT(gFillAARectIdx) == kIndicesPerAAFillRect);
-        return resourceProvider->refOrCreateInstancedIndexBuffer(gFillAARectIdx,
+        return resourceProvider->findOrCreateInstancedIndexBuffer(gFillAARectIdx,
             kIndicesPerAAFillRect, kNumAAFillRectsInIndexBuffer, kVertsPerAAFillRect,
             gAAFillRectIndexBufferKey);
     }
@@ -543,7 +543,7 @@ private:
             };
             GR_STATIC_ASSERT(SK_ARRAY_COUNT(gMiterIndices) == kMiterIndexCnt);
             GR_DEFINE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
-            return resourceProvider->refOrCreateInstancedIndexBuffer(gMiterIndices,
+            return resourceProvider->findOrCreateInstancedIndexBuffer(gMiterIndices,
                 kMiterIndexCnt, kNumMiterRectsInIndexBuffer, kMiterVertexCnt,
                 gMiterIndexBufferKey);
         } else {
@@ -606,7 +606,7 @@ private:
             GR_STATIC_ASSERT(SK_ARRAY_COUNT(gBevelIndices) == kBevelIndexCnt);
 
             GR_DEFINE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
-            return resourceProvider->refOrCreateInstancedIndexBuffer(gBevelIndices,
+            return resourceProvider->findOrCreateInstancedIndexBuffer(gBevelIndices,
                 kBevelIndexCnt, kNumBevelRectsInIndexBuffer, kBevelVertexCnt,
                 gBevelIndexBufferKey);
         }

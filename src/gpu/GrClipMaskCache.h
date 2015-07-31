@@ -195,10 +195,10 @@ private:
 
             fLastClipGenID = clipGenID;
 
-            // HACK: set the last param to true to indicate that this request is at
-            // flush time and therefore we require a scratch texture with no pending IO operations.
-            fLastMask.reset(resourceProvider->refScratchTexture(
-                desc, GrTextureProvider::kApprox_ScratchTexMatch, /*flushing=*/true));
+            // TODO: Determine if we really need the NoPendingIO flag anymore.
+            // (http://skbug.com/4156)
+            static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
+            fLastMask.reset(resourceProvider->createApproxTexture(desc, kFlags));
 
             fLastBound = bound;
         }

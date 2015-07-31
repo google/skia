@@ -273,8 +273,8 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
         // the outside.
         maskDesc.fWidth = texture->width();
         maskDesc.fHeight = texture->height();
-        SkAutoTUnref<GrTexture> maskTexture(context->textureProvider()->refScratchTexture(
-            maskDesc, GrTextureProvider::kApprox_ScratchTexMatch));
+        SkAutoTUnref<GrTexture> maskTexture(
+            context->textureProvider()->createApproxTexture(maskDesc));
         if (!maskTexture) {
             return false;
         }

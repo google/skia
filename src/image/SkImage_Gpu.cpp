@@ -224,8 +224,7 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     dstDesc.fConfig = kRGBA_8888_GrPixelConfig;
     dstDesc.fSampleCnt = 0;
 
-    SkAutoTUnref<GrTexture> dst(ctx->textureProvider()->refScratchTexture(
-        dstDesc, GrTextureProvider::kExact_ScratchTexMatch));
+    SkAutoTUnref<GrTexture> dst(ctx->textureProvider()->createTexture(dstDesc, true));
     if (!dst) {
         return NULL;
     }

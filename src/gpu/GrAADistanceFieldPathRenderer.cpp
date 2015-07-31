@@ -529,7 +529,8 @@ private:
     PathDataList* fPathList;
 };
 
-static GrBatchAtlas* create_atlas(GrTextureProvider* provider, GrBatchAtlas::EvictionFunc func, void* data) {
+static GrBatchAtlas* create_atlas(GrResourceProvider* provider, GrBatchAtlas::EvictionFunc func,
+                                  void* data) {
     GrBatchAtlas* atlas;
     // Create a new atlas
     GrSurfaceDesc desc;
@@ -540,8 +541,9 @@ static GrBatchAtlas* create_atlas(GrTextureProvider* provider, GrBatchAtlas::Evi
 
     // We don't want to flush the context so we claim we're in the middle of flushing so as to
     // guarantee we do not recieve a texture with pending IO
-    GrTexture* texture = provider->refScratchTexture(
-        desc, GrTextureProvider::kApprox_ScratchTexMatch, true);
+    // TODO: Determine how to avoid having to do this. (http://skbug.com/4156)
+    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
+    GrTexture* texture = provider->createApproxTexture(desc, kFlags);
     if (texture) {
         atlas = SkNEW_ARGS(GrBatchAtlas, (texture, NUM_PLOTS_X, NUM_PLOTS_Y));
     } else {

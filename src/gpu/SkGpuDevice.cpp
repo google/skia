@@ -1806,10 +1806,11 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     // layers are never draw in repeat modes, so we can request an approx
     // match and ignore any padding.
-    const GrTextureProvider::ScratchTexMatch match = (kNever_TileUsage == cinfo.fTileUsage) ?
-                                                  GrTextureProvider::kApprox_ScratchTexMatch :
-                                                  GrTextureProvider::kExact_ScratchTexMatch;
-    texture.reset(fContext->textureProvider()->refScratchTexture(desc, match));
+    if (kNever_TileUsage == cinfo.fTileUsage) {
+        texture.reset(fContext->textureProvider()->createApproxTexture(desc));
+    } else {
+        texture.reset(fContext->textureProvider()->createTexture(desc, true));
+    }
 
     if (texture) {
         SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);

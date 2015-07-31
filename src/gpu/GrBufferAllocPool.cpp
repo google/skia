@@ -302,11 +302,14 @@ GrGeometryBuffer* GrBufferAllocPool::getBuffer(size_t size) {
 
     GrResourceProvider* rp = fGpu->getContext()->resourceProvider();
 
+    static const GrResourceProvider::BufferUsage kUsage = GrResourceProvider::kDynamic_BufferUsage;
+    // Shouldn't have to use this flag (http://skbug.com/4156)
+    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
     if (kIndex_BufferType == fBufferType) {
-        return rp->getIndexBuffer(size, /* dynamic = */ true, /* duringFlush = */ true);
+        return rp->createIndexBuffer(size, kUsage, kFlags);
     } else {
         SkASSERT(kVertex_BufferType == fBufferType);
-        return rp->getVertexBuffer(size, /* dynamic = */ true, /* duringFlush = */ true);
+        return rp->createVertexBuffer(size, kUsage, kFlags);
     }
 }
 

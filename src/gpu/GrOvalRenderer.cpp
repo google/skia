@@ -1383,11 +1383,11 @@ static const GrIndexBuffer* ref_rrect_index_buffer(bool strokeOnly,
     GR_DEFINE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
     GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
     if (strokeOnly) {
-        return resourceProvider->refOrCreateInstancedIndexBuffer(
+        return resourceProvider->findOrCreateInstancedIndexBuffer(
             gRRectIndices, kIndicesPerStrokeRRect, kNumRRectsInIndexBuffer, kVertsPerRRect,
             gStrokeRRectOnlyIndexBufferKey);
     } else {
-        return resourceProvider->refOrCreateInstancedIndexBuffer(
+        return resourceProvider->findOrCreateInstancedIndexBuffer(
             gRRectIndices, kIndicesPerRRect, kNumRRectsInIndexBuffer, kVertsPerRRect,
             gRRectOnlyIndexBufferKey);
 

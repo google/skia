@@ -28,7 +28,9 @@ const GrIndexBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16
                                                                     const GrUniqueKey& key) {
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
-    GrIndexBuffer* buffer = this->getIndexBuffer(bufferSize, /* dynamic = */ false, true);
+    // This is typically used in GrBatchs, so we assume kNoPendingIO.
+    GrIndexBuffer* buffer = this->createIndexBuffer(bufferSize, kStatic_BufferUsage,
+                                                    kNoPendingIO_Flag);
     if (!buffer) {
         return NULL;
     }
@@ -83,21 +85,23 @@ GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf, const SkDesc
     return this->gpu()->pathRendering()->createGlyphs(tf, desc, stroke);
 }
 
-GrIndexBuffer* GrResourceProvider::getIndexBuffer(size_t size, bool dynamic,
-                                                  bool calledDuringFlush) {
+GrIndexBuffer* GrResourceProvider::createIndexBuffer(size_t size, BufferUsage usage,
+                                                     uint32_t flags) {
     if (this->isAbandoned()) {
         return NULL;
     }
 
+    bool noPendingIO = SkToBool(flags & kNoPendingIO_Flag);
+    bool dynamic = kDynamic_BufferUsage == usage;
     if (dynamic) {
         // bin by pow2 with a reasonable min
         static const uint32_t MIN_SIZE = 1 << 12;
         size = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
 
         GrScratchKey key;
-        GrIndexBuffer::ComputeScratchKey(size, dynamic, &key);
+        GrIndexBuffer::ComputeScratchKey(size, true, &key);
         uint32_t scratchFlags = 0;
-        if (calledDuringFlush) {
+        if (noPendingIO) {
             scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
         } else {
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
@@ -107,25 +111,26 @@ GrIndexBuffer* GrResourceProvider::getIndexBuffer(size_t size, bool dynamic,
             return static_cast<GrIndexBuffer*>(resource);
         }
     }
-
-    return this->gpu()->createIndexBuffer(size, dynamic);    
+    return this->gpu()->createIndexBuffer(size, dynamic);
 }
 
-GrVertexBuffer* GrResourceProvider::getVertexBuffer(size_t size, bool dynamic, 
-                                                    bool calledDuringFlush) {
+GrVertexBuffer* GrResourceProvider::createVertexBuffer(size_t size, BufferUsage usage,
+                                                       uint32_t flags) {
     if (this->isAbandoned()) {
         return NULL;
     }
 
+    bool noPendingIO = SkToBool(flags & kNoPendingIO_Flag);
+    bool dynamic = kDynamic_BufferUsage == usage;
     if (dynamic) {
         // bin by pow2 with a reasonable min
-        static const uint32_t MIN_SIZE = 1 << 15;
+        static const uint32_t MIN_SIZE = 1 << 12;
         size = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
 
         GrScratchKey key;
-        GrVertexBuffer::ComputeScratchKey(size, dynamic, &key);
+        GrVertexBuffer::ComputeScratchKey(size, true, &key);
         uint32_t scratchFlags = 0;
-        if (calledDuringFlush) {
+        if (noPendingIO) {
             scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
         } else {
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
@@ -135,6 +140,5 @@ GrVertexBuffer* GrResourceProvider::getVertexBuffer(size_t size, bool dynamic,
             return static_cast<GrVertexBuffer*>(resource);
         }
     }
-
     return this->gpu()->createVertexBuffer(size, dynamic);
 }

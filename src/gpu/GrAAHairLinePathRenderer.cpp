@@ -66,7 +66,7 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
 
 static const GrIndexBuffer* ref_quads_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
-    return resourceProvider->refOrCreateInstancedIndexBuffer(
+    return resourceProvider->findOrCreateInstancedIndexBuffer(
         kQuadIdxBufPattern, kIdxsPerQuad, kQuadsNumInIdxBuffer, kQuadNumVertices,
         gQuadsIndexBufferKey);
 }
@@ -100,7 +100,7 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
 
 static const GrIndexBuffer* ref_lines_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
-    return resourceProvider->refOrCreateInstancedIndexBuffer(
+    return resourceProvider->findOrCreateInstancedIndexBuffer(
         kLineSegIdxBufPattern, kIdxsPerLineSeg,  kLineSegsNumInIdxBuffer, kLineSegNumVertices,
         gLinesIndexBufferKey);
 }

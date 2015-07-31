@@ -200,13 +200,13 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     SkAutoTUnref<GrTexture> dummyTexture1(
-        fResourceProvider->createTexture(dummyDesc, false, NULL, 0));
+        context->textureProvider()->createTexture(dummyDesc, false, NULL, 0));
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
     SkAutoTUnref<GrTexture> dummyTexture2(
-        fResourceProvider->createTexture(dummyDesc, false, NULL, 0));
+        context->textureProvider()->createTexture(dummyDesc, false, NULL, 0));
 
     if (!dummyTexture1 || ! dummyTexture2) {
         SkDebugf("Could not allocate dummy textures");
@@ -226,7 +226,7 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
         SkAutoTUnref<GrRenderTarget> rt(random_render_target(
-            fResourceProvider, &random, this->caps()));
+            context->textureProvider(), &random, this->caps()));
         if (!rt.get()) {
             SkDebugf("Could not allocate render target");
             return false;

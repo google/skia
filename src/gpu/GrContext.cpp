@@ -365,8 +365,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
 
     SkAutoTUnref<GrTexture> tempTexture;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        tempTexture.reset(this->textureProvider()->refScratchTexture(
-            tempDrawInfo.fTempSurfaceDesc, GrTextureProvider::kApprox_ScratchTexMatch));
+        tempTexture.reset(
+            this->textureProvider()->createApproxTexture(tempDrawInfo.fTempSurfaceDesc));
         if (!tempTexture && GrGpu::kRequireDraw_DrawPreference == drawPreference) {
             return false;
         }
@@ -495,17 +495,19 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     SkAutoTUnref<GrSurface> surfaceToRead(SkRef(src));
     bool didTempDraw = false;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        GrTextureProvider::ScratchTexMatch match = GrTextureProvider::kApprox_ScratchTexMatch;
         if (tempDrawInfo.fUseExactScratch) {
             // We only respect this when the entire src is being read. Otherwise we can trigger too
             // many odd ball texture sizes and trash the cache.
-            if (width == src->width() && height == src->height()) {
-                match = GrTextureProvider::kExact_ScratchTexMatch;
+            if (width != src->width() || height != src->height()) {
+                tempDrawInfo.fUseExactScratch = false;
             }
         }
         SkAutoTUnref<GrTexture> temp;
-        temp.reset(this->textureProvider()->refScratchTexture(tempDrawInfo.fTempSurfaceDesc,
-                                                              match));
+        if (tempDrawInfo.fUseExactScratch) {
+            temp.reset(this->textureProvider()->createTexture(tempDrawInfo.fTempSurfaceDesc, true));
+        } else {
+            temp.reset(this->textureProvider()->createApproxTexture(tempDrawInfo.fTempSurfaceDesc));
+        }
         if (temp) {
             SkMatrix textureMatrix;
             textureMatrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
