@@ -201,7 +201,6 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* gly
     SkASSERT(glyph);
     SkASSERT(scaler);
     SkASSERT(fCache.find(glyph->fPackedID));
-    SkASSERT(NULL == glyph->fPlot);
 
     SkAutoUnref ar(SkSafeRef(scaler));
 
