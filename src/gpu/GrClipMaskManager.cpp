@@ -432,9 +432,16 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
             if (NULL == pr) {
                 return false;
             }
-
-            pr->drawPath(fClipTarget, pipelineBuilder, color, viewMatrix, path, stroke,
-                         element->isAA());
+            GrPathRenderer::DrawPathArgs args;
+            args.fTarget = fClipTarget;
+            args.fResourceProvider = this->getContext()->resourceProvider();
+            args.fPipelineBuilder = pipelineBuilder;
+            args.fColor = color;
+            args.fViewMatrix = &viewMatrix;
+            args.fPath = &path;
+            args.fStroke = &stroke;
+            args.fAntiAlias = element->isAA();
+            pr->drawPath(args);
             break;
         }
     }
@@ -829,11 +836,26 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                     if (!clipPath.isEmpty()) {
                         if (canRenderDirectToStencil) {
                             *pipelineBuilder.stencil() = gDrawToStencil;
-                            pr->drawPath(fClipTarget, &pipelineBuilder, GrColor_WHITE,
-                                         viewMatrix, clipPath, stroke, false);
+
+                            GrPathRenderer::DrawPathArgs args;
+                            args.fTarget = fClipTarget;
+                            args.fResourceProvider = this->getContext()->resourceProvider();
+                            args.fPipelineBuilder = &pipelineBuilder;
+                            args.fColor = GrColor_WHITE;
+                            args.fViewMatrix = &viewMatrix;
+                            args.fPath = &clipPath;
+                            args.fStroke = &stroke;
+                            args.fAntiAlias = false;
+                            pr->drawPath(args);
                         } else {
-                            pr->stencilPath(fClipTarget, &pipelineBuilder, viewMatrix,
-                                            clipPath, stroke);
+                            GrPathRenderer::StencilPathArgs args;
+                            args.fTarget = fClipTarget;
+                            args.fResourceProvider = this->getContext()->resourceProvider();
+                            args.fPipelineBuilder = &pipelineBuilder;
+                            args.fViewMatrix = &viewMatrix;
+                            args.fPath = &clipPath;
+                            args.fStroke = &stroke;
+                            pr->stencilPath(args);
                         }
                     }
                 }
@@ -853,8 +875,16 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                                                     viewMatrix,
                                                     element->getRect());
                     } else {
-                        pr->drawPath(fClipTarget, &pipelineBuilder, GrColor_WHITE,
-                                     viewMatrix, clipPath, stroke, false);
+                        GrPathRenderer::DrawPathArgs args;
+                        args.fTarget = fClipTarget;
+                        args.fResourceProvider = this->getContext()->resourceProvider();
+                        args.fPipelineBuilder = &pipelineBuilder;
+                        args.fColor = GrColor_WHITE;
+                        args.fViewMatrix = &viewMatrix;
+                        args.fPath = &clipPath;
+                        args.fStroke = &stroke;
+                        args.fAntiAlias = false;
+                        pr->drawPath(args);
                     }
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so

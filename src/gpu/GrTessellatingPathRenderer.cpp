@@ -1342,15 +1342,10 @@ GrPathRenderer::StencilSupport GrTessellatingPathRenderer::onGetStencilSupport(
     return GrPathRenderer::kNoSupport_StencilSupport;
 }
 
-bool GrTessellatingPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                             const GrPipelineBuilder* pipelineBuilder,
-                                             const SkMatrix& viewMatrix,
-                                             const SkPath& path,
-                                             const GrStrokeInfo& stroke,
-                                             bool antiAlias) const {
+bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This path renderer can draw all fill styles, but does not do antialiasing. It can do convex
     // and concave paths, but we'll leave the convex ones to simpler algorithms.
-    return stroke.isFillStyle() && !antiAlias && !path.isConvex();
+    return args.fStroke->isFillStyle() && !args.fAntiAlias && !args.fPath->isConvex();
 }
 
 class TessellatingPathBatch : public GrBatch {
@@ -1489,29 +1484,24 @@ private:
     GrPipelineInfo fPipelineInfo;
 };
 
-bool GrTessellatingPathRenderer::onDrawPath(GrDrawTarget* target,
-                                            GrPipelineBuilder* pipelineBuilder,
-                                            GrColor color,
-                                            const SkMatrix& viewM,
-                                            const SkPath& path,
-                                            const GrStrokeInfo&,
-                                            bool antiAlias) {
-    SkASSERT(!antiAlias);
-    const GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    SkASSERT(!args.fAntiAlias);
+    const GrRenderTarget* rt = args.fPipelineBuilder->getRenderTarget();
     if (NULL == rt) {
         return false;
     }
 
     SkIRect clipBoundsI;
-    pipelineBuilder->clip().getConservativeBounds(rt, &clipBoundsI);
+    args.fPipelineBuilder->clip().getConservativeBounds(rt, &clipBoundsI);
     SkRect clipBounds = SkRect::Make(clipBoundsI);
     SkMatrix vmi;
-    if (!viewM.invert(&vmi)) {
+    if (!args.fViewMatrix->invert(&vmi)) {
         return false;
     }
     vmi.mapRect(&clipBounds);
-    SkAutoTUnref<GrBatch> batch(TessellatingPathBatch::Create(color, path, viewM, clipBounds));
-    target->drawBatch(*pipelineBuilder, batch);
+    SkAutoTUnref<GrBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fPath,
+                                                              *args.fViewMatrix, clipBounds));
+    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
 }

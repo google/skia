@@ -23,34 +23,19 @@ public:
 
     static GrPathRenderer* Create(GrResourceProvider*, const GrCaps&);
 
-    bool canDrawPath(const GrDrawTarget*,
-                     const GrPipelineBuilder*,
-                     const SkMatrix& viewMatrix,
-                     const SkPath&,
-                     const GrStrokeInfo&,
-                     bool antiAlias) const override;
 
-protected:
+private:
     StencilSupport onGetStencilSupport(const GrDrawTarget*,
                                        const GrPipelineBuilder*,
                                        const SkPath&,
                                        const GrStrokeInfo&) const override;
 
-    bool onDrawPath(GrDrawTarget*,
-                    GrPipelineBuilder*,
-                    GrColor,
-                    const SkMatrix& viewMatrix,
-                    const SkPath&,
-                    const GrStrokeInfo&,
-                    bool antiAlias) override;
+    bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
-    void onStencilPath(GrDrawTarget*,
-                       GrPipelineBuilder*,
-                       const SkMatrix& viewMatrix,
-                       const SkPath&,
-                       const GrStrokeInfo&) override;
+    bool onDrawPath(const DrawPathArgs&) override;
 
-private:
+    void onStencilPath(const StencilPathArgs&) override;
+
     GrStencilAndCoverPathRenderer(GrResourceProvider*);
 
     GrResourceProvider* fResourceProvider;

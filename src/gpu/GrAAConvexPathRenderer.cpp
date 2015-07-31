@@ -678,14 +678,10 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrAAConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                         const GrPipelineBuilder*,
-                                         const SkMatrix& viewMatrix,
-                                         const SkPath& path,
-                                         const GrStrokeInfo& stroke,
-                                         bool antiAlias) const {
-    return (target->caps()->shaderCaps()->shaderDerivativeSupport() && antiAlias &&
-            stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
+bool GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    return (args.fTarget->caps()->shaderCaps()->shaderDerivativeSupport() && args.fAntiAlias &&
+            args.fStroke->isFillStyle() && !args.fPath->isInverseFillType() &&
+            args.fPath->isConvex());
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator
@@ -988,24 +984,18 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-bool GrAAConvexPathRenderer::onDrawPath(GrDrawTarget* target,
-                                        GrPipelineBuilder* pipelineBuilder,
-                                        GrColor color,
-                                        const SkMatrix& vm,
-                                        const SkPath& path,
-                                        const GrStrokeInfo&,
-                                        bool antiAlias) {
-    if (path.isEmpty()) {
+bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    if (args.fPath->isEmpty()) {
         return true;
     }
 
     AAConvexPathBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fViewMatrix = vm;
-    geometry.fPath = path;
+    geometry.fColor = args.fColor;
+    geometry.fViewMatrix = *args.fViewMatrix;
+    geometry.fPath = *args.fPath;
 
     SkAutoTUnref<GrBatch> batch(AAConvexPathBatch::Create(geometry));
-    target->drawBatch(*pipelineBuilder, batch);
+    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
 

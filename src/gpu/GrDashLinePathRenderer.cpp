@@ -10,28 +10,17 @@
 #include "GrGpu.h"
 #include "effects/GrDashingEffect.h"
 
-bool GrDashLinePathRenderer::canDrawPath(const GrDrawTarget* target,
-                                         const GrPipelineBuilder* pipelineBuilder,
-                                         const SkMatrix& viewMatrix,
-                                         const SkPath& path,
-                                         const GrStrokeInfo& stroke,
-                                         bool antiAlias) const {
+bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
-    if (stroke.isDashed() && path.isLine(pts)) {
-        return GrDashingEffect::CanDrawDashLine(pts, stroke, viewMatrix);
+    if (args.fStroke->isDashed() && args.fPath->isLine(pts)) {
+        return GrDashingEffect::CanDrawDashLine(pts, *args.fStroke, *args.fViewMatrix);
     }
     return false;
 }
 
-bool GrDashLinePathRenderer::onDrawPath(GrDrawTarget* target,
-                                        GrPipelineBuilder* pipelineBuilder,
-                                        GrColor color,
-                                        const SkMatrix& viewMatrix,
-                                        const SkPath& path,
-                                        const GrStrokeInfo& stroke,
-                                        bool useAA) {
+bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPoint pts[2];
-    SkAssertResult(path.isLine(pts));
-    return GrDashingEffect::DrawDashLine(target, *pipelineBuilder, color,
-                                         viewMatrix, pts, useAA, stroke);
+    SkAssertResult(args.fPath->isLine(pts));
+    return GrDashingEffect::DrawDashLine(args.fTarget, *args.fPipelineBuilder, args.fColor,
+                                         *args.fViewMatrix, pts, args.fAntiAlias, *args.fStroke);
 }

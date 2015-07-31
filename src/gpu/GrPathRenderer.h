@@ -89,68 +89,127 @@ public:
         return this->onGetStencilSupport(target, pipelineBuilder, path, stroke);
     }
 
+    /** Args to canDrawPath()
+     *
+     * fTarget           The target that the path will be rendered to
+     * fPipelineBuilder  The pipelineBuilder
+     * fViewMatrix       The viewMatrix
+     * fPath             The path to draw
+     * fStroke           The stroke information (width, join, cap)
+     * fAntiAlias        True if anti-aliasing is required.
+     */
+    struct CanDrawPathArgs {
+        const GrDrawTarget*         fTarget;
+        const GrPipelineBuilder*    fPipelineBuilder;
+        const SkMatrix*             fViewMatrix;
+        const SkPath*               fPath;
+        const GrStrokeInfo*         fStroke;
+        bool                        fAntiAlias;
+    };
+
     /**
      * Returns true if this path renderer is able to render the path. Returning false allows the
      * caller to fallback to another path renderer This function is called when searching for a path
      * renderer capable of rendering a path.
      *
-     * @param target           The target that the path will be rendered to
-     * @param pipelineBuilder  The pipelineBuilder
-     * @param viewMatrix       The viewMatrix
-     * @param path             The path to draw
-     * @param stroke           The stroke information (width, join, cap)
-     * @param antiAlias        True if anti-aliasing is required.
-     *
      * @return  true if the path can be drawn by this object, false otherwise.
      */
-    virtual bool canDrawPath(const GrDrawTarget* target,
-                             const GrPipelineBuilder* pipelineBuilder,
-                             const SkMatrix& viewMatrix,
-                             const SkPath& path,
-                             const GrStrokeInfo& rec,
-                             bool antiAlias) const = 0;
+    bool canDrawPath(const CanDrawPathArgs& args) const {
+        SkASSERT(args.fTarget);
+        SkASSERT(args.fPipelineBuilder);
+        SkASSERT(args.fViewMatrix);
+        SkASSERT(args.fPath);
+        SkASSERT(args.fStroke);
+        SkASSERT(!args.fPath->isEmpty());
+        return this->onCanDrawPath(args);
+    }
+
+    /**
+     * Args to drawPath()
+     *
+     * fTarget                The target that the path will be rendered to
+     * fResourceProvider      The resource provider for creating gpu resources to render the path
+     * fPipelineBuilder       The pipelineBuilder
+     * fViewMatrix            The viewMatrix
+     * fPath                  the path to draw.
+     * fStroke                the stroke information (width, join, cap)
+     * fAntiAlias             true if anti-aliasing is required.
+     */
+    struct DrawPathArgs {
+        GrDrawTarget*               fTarget;
+        GrResourceProvider*         fResourceProvider;
+        GrPipelineBuilder*          fPipelineBuilder;
+        GrColor                     fColor;
+        const SkMatrix*             fViewMatrix;
+        const SkPath*               fPath;
+        const GrStrokeInfo*         fStroke;
+        bool                        fAntiAlias;
+    };
+
     /**
      * Draws the path into the draw target. If getStencilSupport() would return kNoRestriction then
-     * the subclass must respect the stencil settings of the target's draw state.
-     *
-     * @param target                The target that the path will be rendered to
-     * @param pipelineBuilder       The pipelineBuilder
-     * @param viewMatrix            The viewMatrix
-     * @param path                  the path to draw.
-     * @param stroke                the stroke information (width, join, cap)
-     * @param antiAlias             true if anti-aliasing is required.
+     * the subclass must respect the stencil settings of the GrPipelineBuilder.
      */
-    bool drawPath(GrDrawTarget* target,
-                  GrPipelineBuilder* ds,
-                  GrColor color,
-                  const SkMatrix& viewMatrix,
-                  const SkPath& path,
-                  const GrStrokeInfo& stroke,
-                  bool antiAlias) {
-        SkASSERT(!path.isEmpty());
-        SkASSERT(this->canDrawPath(target, ds, viewMatrix, path, stroke, antiAlias));
-        SkASSERT(ds->getStencil().isDisabled() ||
-                 kNoRestriction_StencilSupport == this->getStencilSupport(target, ds, path,
-                                                                          stroke));
-        return this->onDrawPath(target, ds, color, viewMatrix, path, stroke, antiAlias);
+    bool drawPath(const DrawPathArgs& args) {
+        SkASSERT(args.fTarget);
+        SkASSERT(args.fPipelineBuilder);
+        SkASSERT(args.fViewMatrix);
+        SkASSERT(args.fPath);
+        SkASSERT(args.fStroke);
+
+        SkASSERT(!args.fPath->isEmpty());
+#ifdef SK_DEBUG
+        CanDrawPathArgs canArgs;
+        canArgs.fTarget = args.fTarget;
+        canArgs.fPipelineBuilder = args.fPipelineBuilder;
+        canArgs.fViewMatrix = args.fViewMatrix;
+        canArgs.fPath = args.fPath;
+        canArgs.fStroke = args.fStroke;
+        canArgs.fAntiAlias = args.fAntiAlias;
+        SkASSERT(this->canDrawPath(canArgs));
+        SkASSERT(args.fPipelineBuilder->getStencil().isDisabled() ||
+                 kNoRestriction_StencilSupport == this->getStencilSupport(args.fTarget,
+                                                                          args.fPipelineBuilder,
+                                                                          *args.fPath,
+                                                                          *args.fStroke));
+#endif
+        return this->onDrawPath(args);
     }
+
+    /* Args to stencilPath().
+     *
+     * fTarget                The target that the path will be rendered to.
+     * fPipelineBuilder       The pipeline builder.
+     * fViewMatrix            Matrix applied to the path.
+     * fPath                  The path to draw.
+     * fStroke                The stroke information (width, join, cap)
+     */
+    struct StencilPathArgs {
+        GrDrawTarget*       fTarget;
+        GrPipelineBuilder*  fPipelineBuilder;
+        GrResourceProvider* fResourceProvider;
+        const SkMatrix*     fViewMatrix;
+        const SkPath*       fPath;
+        const GrStrokeInfo* fStroke;
+    };
 
     /**
      * Draws the path to the stencil buffer. Assume the writable stencil bits are already
      * initialized to zero. The pixels inside the path will have non-zero stencil values afterwards.
      *
-     * @param path                  the path to draw.
-     * @param stroke                the stroke information (width, join, cap)
-     * @param target                target that the path will be rendered to
      */
-    void stencilPath(GrDrawTarget* target,
-                     GrPipelineBuilder* ds,
-                     const SkMatrix& viewMatrix,
-                     const SkPath& path,
-                     const GrStrokeInfo& stroke) {
-        SkASSERT(!path.isEmpty());
-        SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(target, ds, path, stroke));
-        this->onStencilPath(target, ds, viewMatrix, path, stroke);
+    void stencilPath(const StencilPathArgs& args) {
+        SkASSERT(args.fTarget);
+        SkASSERT(args.fPipelineBuilder);
+        SkASSERT(args.fResourceProvider);
+        SkASSERT(args.fViewMatrix);
+        SkASSERT(args.fPath);
+        SkASSERT(args.fStroke);
+        SkASSERT(!args.fPath->isEmpty());
+        SkASSERT(kNoSupport_StencilSupport !=
+                 this->getStencilSupport(args.fTarget, args.fPipelineBuilder, *args.fPath,
+                                         *args.fStroke));
+        this->onStencilPath(args);
     }
 
     // Helper for determining if we can treat a thin stroke as a hairline w/ coverage.
@@ -171,48 +230,6 @@ public:
     }
 
 protected:
-    /**
-     * Subclass overrides if it has any limitations of stenciling support.
-     */
-    virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
-                                               const GrPipelineBuilder*,
-                                               const SkPath&,
-                                               const GrStrokeInfo&) const {
-        return kNoRestriction_StencilSupport;
-    }
-
-    /**
-     * Subclass implementation of drawPath()
-     */
-    virtual bool onDrawPath(GrDrawTarget*,
-                            GrPipelineBuilder*,
-                            GrColor,
-                            const SkMatrix& viewMatrix,
-                            const SkPath&,
-                            const GrStrokeInfo&,
-                            bool antiAlias) = 0;
-
-    /**
-     * Subclass implementation of stencilPath(). Subclass must override iff it ever returns
-     * kStencilOnly in onGetStencilSupport().
-     */
-    virtual void onStencilPath(GrDrawTarget* target,
-                               GrPipelineBuilder* pipelineBuilder,
-                               const SkMatrix& viewMatrix,
-                               const SkPath& path,
-                               const GrStrokeInfo& stroke) {
-        GR_STATIC_CONST_SAME_STENCIL(kIncrementStencil,
-                                     kReplace_StencilOp,
-                                     kReplace_StencilOp,
-                                     kAlways_StencilFunc,
-                                     0xffff,
-                                     0xffff,
-                                     0xffff);
-        pipelineBuilder->setStencil(kIncrementStencil);
-        pipelineBuilder->setDisableColorXPFactory();
-        this->drawPath(target, pipelineBuilder, GrColor_WHITE, viewMatrix, path, stroke, false);
-    }
-
     // Helper for getting the device bounds of a path. Inverse filled paths will have bounds set
     // by devSize. Non-inverse path bounds will not necessarily be clipped to devSize.
     static void GetPathDevBounds(const SkPath& path,
@@ -230,6 +247,52 @@ protected:
     }
 
 private:
+    /**
+     * Subclass overrides if it has any limitations of stenciling support.
+     */
+    virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
+                                               const GrPipelineBuilder*,
+                                               const SkPath&,
+                                               const GrStrokeInfo&) const {
+        return kNoRestriction_StencilSupport;
+    }
+
+    /**
+     * Subclass implementation of drawPath()
+     */
+    virtual bool onDrawPath(const DrawPathArgs& args) = 0;
+
+    /**
+     * Subclass implementation of canDrawPath()
+     */
+    virtual bool onCanDrawPath(const CanDrawPathArgs& args) const = 0;
+
+    /**
+     * Subclass implementation of stencilPath(). Subclass must override iff it ever returns
+     * kStencilOnly in onGetStencilSupport().
+     */
+    virtual void onStencilPath(const StencilPathArgs& args) {
+        GR_STATIC_CONST_SAME_STENCIL(kIncrementStencil,
+                                     kReplace_StencilOp,
+                                     kReplace_StencilOp,
+                                     kAlways_StencilFunc,
+                                     0xffff,
+                                     0xffff,
+                                     0xffff);
+        args.fPipelineBuilder->setStencil(kIncrementStencil);
+        args.fPipelineBuilder->setDisableColorXPFactory();
+        DrawPathArgs drawArgs;
+        drawArgs.fTarget = args.fTarget;
+        drawArgs.fResourceProvider = args.fResourceProvider;
+        drawArgs.fPipelineBuilder = args.fPipelineBuilder;
+        drawArgs.fColor = 0xFFFFFFFF;
+        drawArgs.fViewMatrix = args.fViewMatrix;
+        drawArgs.fPath = args.fPath;
+        drawArgs.fStroke = args.fStroke;
+        drawArgs.fAntiAlias = false;
+        this->drawPath(drawArgs);
+    }
+
 
     typedef SkRefCnt INHERITED;
 };

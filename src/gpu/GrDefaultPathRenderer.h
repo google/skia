@@ -19,13 +19,6 @@ class SK_API GrDefaultPathRenderer : public GrPathRenderer {
 public:
     GrDefaultPathRenderer(bool separateStencilSupport, bool stencilWrapOpsSupport);
 
-    virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrPipelineBuilder*,
-                             const SkMatrix& viewMatrix,
-                             const SkPath&,
-                             const GrStrokeInfo&,
-                             bool antiAlias) const override;
-
 private:
 
     virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
@@ -33,19 +26,11 @@ private:
                                                const SkPath&,
                                                const GrStrokeInfo&) const override;
 
-    virtual bool onDrawPath(GrDrawTarget*,
-                            GrPipelineBuilder*,
-                            GrColor,
-                            const SkMatrix& viewMatrix,
-                            const SkPath&,
-                            const GrStrokeInfo&,
-                            bool antiAlias) override;
+    bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
-    virtual void onStencilPath(GrDrawTarget*,
-                               GrPipelineBuilder*,
-                               const SkMatrix& viewMatrix,
-                               const SkPath&,
-                               const GrStrokeInfo&) override;
+    bool onDrawPath(const DrawPathArgs&) override;
+
+    void onStencilPath(const StencilPathArgs&) override;
 
     bool internalDrawPath(GrDrawTarget*,
                           GrPipelineBuilder*,

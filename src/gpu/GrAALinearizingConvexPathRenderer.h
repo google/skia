@@ -15,21 +15,10 @@ class GrAALinearizingConvexPathRenderer : public GrPathRenderer {
 public:
     GrAALinearizingConvexPathRenderer();
 
-    virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrPipelineBuilder*,
-                             const SkMatrix& viewMatrix,
-                             const SkPath&,
-                             const GrStrokeInfo&,
-                             bool antiAlias) const override;
+private:
+    bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
-protected:
-    virtual bool onDrawPath(GrDrawTarget*,
-                            GrPipelineBuilder*,
-                            GrColor,
-                            const SkMatrix& viewMatrix,
-                            const SkPath&,
-                            const GrStrokeInfo&,
-                            bool antiAlias) override;
+    bool onDrawPath(const DrawPathArgs&) override;
 };
 
 #endif

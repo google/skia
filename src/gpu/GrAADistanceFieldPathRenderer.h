@@ -20,31 +20,19 @@ class GrContext;
 
 class GrAADistanceFieldPathRenderer : public GrPathRenderer {
 public:
-    GrAADistanceFieldPathRenderer(GrContext* context);
+    GrAADistanceFieldPathRenderer();
     virtual ~GrAADistanceFieldPathRenderer();
-    
-    virtual bool canDrawPath(const GrDrawTarget*,
-                             const GrPipelineBuilder*,
-                             const SkMatrix& viewMatrix,
-                             const SkPath&,
-                             const GrStrokeInfo&,
-                             bool antiAlias) const override;
-
-protected:
-    virtual StencilSupport onGetStencilSupport(const GrDrawTarget*,
-                                               const GrPipelineBuilder*,
-                                               const SkPath&,
-                                               const GrStrokeInfo&) const override;
-    
-    virtual bool onDrawPath(GrDrawTarget*,
-                            GrPipelineBuilder*,
-                            GrColor,
-                            const SkMatrix& viewMatrix,
-                            const SkPath&,
-                            const GrStrokeInfo&,
-                            bool antiAlias) override;
 
 private:
+    StencilSupport onGetStencilSupport(const GrDrawTarget*,
+                                       const GrPipelineBuilder*,
+                                       const SkPath&,
+                                       const GrStrokeInfo&) const override;
+
+    bool onCanDrawPath(const CanDrawPathArgs&) const override;
+
+    bool onDrawPath(const DrawPathArgs&) override;
+
     struct PathData {
         struct Key {
             uint32_t   fGenID;
@@ -75,7 +63,6 @@ private:
     typedef SkTDynamicHash<PathData, PathData::Key> PathCache;
     typedef SkTInternalLList<PathData> PathDataList;
     
-    GrContext*                         fContext;
     GrBatchAtlas*                      fAtlas;
     PathCache                          fPathCache;
     PathDataList                       fPathList;

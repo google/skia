@@ -36,5 +36,5 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain
     }
     chain->addPathRenderer(SkNEW(GrAAConvexPathRenderer))->unref();
     chain->addPathRenderer(SkNEW(GrAALinearizingConvexPathRenderer))->unref();
-    chain->addPathRenderer(SkNEW_ARGS(GrAADistanceFieldPathRenderer, (ctx)))->unref();
+    chain->addPathRenderer(SkNEW(GrAADistanceFieldPathRenderer))->unref();
 }

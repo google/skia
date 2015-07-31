@@ -39,27 +39,23 @@ GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrAALinearizingConvexPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                                    const GrPipelineBuilder*,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkPath& path,
-                                                    const GrStrokeInfo& stroke,
-                                                    bool antiAlias) const {
-    if (!antiAlias) {
+bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    if (!args.fAntiAlias) {
         return false;
     }
-    if (path.isInverseFillType()) {
+    if (args.fPath->isInverseFillType()) {
         return false;
     }
-    if (!path.isConvex()) {
+    if (!args.fPath->isConvex()) {
         return false;
     }
-    if (stroke.getStyle() == SkStrokeRec::kStroke_Style) {
-        return viewMatrix.isSimilarity() && stroke.getWidth() >= 1.0f && 
-                stroke.getWidth() <= kMaxStrokeWidth && !stroke.isDashed() && 
-                SkPathPriv::LastVerbIsClose(path) && stroke.getJoin() != SkPaint::Join::kRound_Join;
+    if (args.fStroke->getStyle() == SkStrokeRec::kStroke_Style) {
+        return args.fViewMatrix->isSimilarity() && args.fStroke->getWidth() >= 1.0f && 
+                args.fStroke->getWidth() <= kMaxStrokeWidth && !args.fStroke->isDashed() && 
+                SkPathPriv::LastVerbIsClose(*args.fPath) &&
+                args.fStroke->getJoin() != SkPaint::Join::kRound_Join;
     }
-    return stroke.getStyle() == SkStrokeRec::kFill_Style;
+    return args.fStroke->getStyle() == SkStrokeRec::kFill_Style;
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator
@@ -303,26 +299,21 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-bool GrAALinearizingConvexPathRenderer::onDrawPath(GrDrawTarget* target,
-                                                   GrPipelineBuilder* pipelineBuilder,
-                                                   GrColor color,
-                                                   const SkMatrix& vm,
-                                                   const SkPath& path,
-                                                   const GrStrokeInfo& stroke,
-                                                   bool antiAlias) {
-    if (path.isEmpty()) {
+bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    if (args.fPath->isEmpty()) {
         return true;
     }
     AAFlatteningConvexPathBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fViewMatrix = vm;
-    geometry.fPath = path;
-    geometry.fStrokeWidth = stroke.isFillStyle() ? -1.0f : stroke.getWidth();
-    geometry.fJoin = stroke.isFillStyle() ? SkPaint::Join::kMiter_Join : stroke.getJoin();
-    geometry.fMiterLimit = stroke.getMiter();
+    geometry.fColor = args.fColor;
+    geometry.fViewMatrix = *args.fViewMatrix;
+    geometry.fPath = *args.fPath;
+    geometry.fStrokeWidth = args.fStroke->isFillStyle() ? -1.0f : args.fStroke->getWidth();
+    geometry.fJoin = args.fStroke->isFillStyle() ? SkPaint::Join::kMiter_Join :
+                                                   args.fStroke->getJoin();
+    geometry.fMiterLimit = args.fStroke->getMiter();
 
     SkAutoTUnref<GrBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
-    target->drawBatch(*pipelineBuilder, batch);
+    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
 }

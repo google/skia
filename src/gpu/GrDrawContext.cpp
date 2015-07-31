@@ -1183,7 +1183,16 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
         return;
     }
 
-    pr->drawPath(target, pipelineBuilder, color, viewMatrix, *pathPtr, *strokeInfoPtr, useCoverageAA);
+    GrPathRenderer::DrawPathArgs args;
+    args.fTarget = target;
+    args.fResourceProvider = fContext->resourceProvider();
+    args.fPipelineBuilder = pipelineBuilder;
+    args.fColor = color;
+    args.fViewMatrix = &viewMatrix;
+    args.fPath = pathPtr;
+    args.fStroke = strokeInfoPtr;
+    args.fAntiAlias = useCoverageAA;
+    pr->drawPath(args);
 }
 
 bool GrDrawContext::prepareToDraw(GrRenderTarget* rt) {

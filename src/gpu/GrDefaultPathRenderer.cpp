@@ -702,42 +702,28 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     return true;
 }
 
-bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                        const GrPipelineBuilder* pipelineBuilder,
-                                        const SkMatrix& viewMatrix,
-                                        const SkPath& path,
-                                        const GrStrokeInfo& stroke,
-                                        bool antiAlias) const {
+bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // this class can draw any path with any fill but doesn't do any anti-aliasing.
-    return !antiAlias && (stroke.isFillStyle() || IsStrokeHairlineOrEquivalent(stroke,
-                                                                               viewMatrix,
-                                                                               NULL));
+    return !args.fAntiAlias && (args.fStroke->isFillStyle() ||
+                                IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix,
+                                                             NULL));
 }
 
-bool GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
-                                       GrPipelineBuilder* pipelineBuilder,
-                                       GrColor color,
-                                       const SkMatrix& viewMatrix,
-                                       const SkPath& path,
-                                       const GrStrokeInfo& stroke,
-                                       bool antiAlias) {
-    return this->internalDrawPath(target,
-                                  pipelineBuilder,
-                                  color,
-                                  viewMatrix,
-                                  path,
-                                  stroke,
+bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    return this->internalDrawPath(args.fTarget,
+                                  args.fPipelineBuilder,
+                                  args.fColor,
+                                  *args.fViewMatrix,
+                                  *args.fPath,
+                                  *args.fStroke,
                                   false);
 }
 
-void GrDefaultPathRenderer::onStencilPath(GrDrawTarget* target,
-                                          GrPipelineBuilder* pipelineBuilder,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPath& path,
-                                          const GrStrokeInfo& stroke) {
-    SkASSERT(SkPath::kInverseEvenOdd_FillType != path.getFillType());
-    SkASSERT(SkPath::kInverseWinding_FillType != path.getFillType());
-    this->internalDrawPath(target, pipelineBuilder, GrColor_WHITE, viewMatrix, path, stroke, true);
+void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
+    SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
+    SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
+    this->internalDrawPath(args.fTarget, args.fPipelineBuilder, GrColor_WHITE, *args.fViewMatrix,
+                           *args.fPath, *args.fStroke, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

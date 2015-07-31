@@ -616,22 +616,17 @@ static void add_line(const SkPoint p[2],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
-                                           const GrPipelineBuilder* pipelineBuilder,
-                                           const SkMatrix& viewMatrix,
-                                           const SkPath& path,
-                                           const GrStrokeInfo& stroke,
-                                           bool antiAlias) const {
-    if (!antiAlias) {
+bool GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    if (!args.fAntiAlias) {
         return false;
     }
 
-    if (!IsStrokeHairlineOrEquivalent(stroke, viewMatrix, NULL)) {
+    if (!IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix, NULL)) {
         return false;
     }
 
-    if (SkPath::kLine_SegmentMask == path.getSegmentMasks() ||
-        target->caps()->shaderCaps()->shaderDerivativeSupport()) {
+    if (SkPath::kLine_SegmentMask == args.fPath->getSegmentMasks() ||
+        args.fTarget->caps()->shaderCaps()->shaderDerivativeSupport()) {
         return true;
     }
     return false;
@@ -974,20 +969,14 @@ static GrBatch* create_hairline_batch(GrColor color,
     return AAHairlineBatch::Create(geometry);
 }
 
-bool GrAAHairLinePathRenderer::onDrawPath(GrDrawTarget* target,
-                                          GrPipelineBuilder* pipelineBuilder,
-                                          GrColor color,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPath& path,
-                                          const GrStrokeInfo& stroke,
-                                          bool) {
+bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkIRect devClipBounds;
-    pipelineBuilder->clip().getConservativeBounds(pipelineBuilder->getRenderTarget(),
-                                                  &devClipBounds);
+    args.fPipelineBuilder->clip().getConservativeBounds(args.fPipelineBuilder->getRenderTarget(),
+                                                        &devClipBounds);
 
-    SkAutoTUnref<GrBatch> batch(create_hairline_batch(color, viewMatrix, path, stroke,
-                                                      devClipBounds));
-    target->drawBatch(*pipelineBuilder, batch);
+    SkAutoTUnref<GrBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, *args.fPath,
+                                                      *args.fStroke, devClipBounds));
+    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
 }

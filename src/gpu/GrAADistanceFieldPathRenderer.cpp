@@ -62,10 +62,7 @@ void GrAADistanceFieldPathRenderer::HandleEviction(GrBatchAtlas::AtlasID id, voi
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer(GrContext* context)
-    : fContext(context)
-    , fAtlas(NULL) {
-}
+GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer() : fAtlas(NULL) {}
 
 GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
     PathDataList::Iter iter;
@@ -84,33 +81,28 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrAADistanceFieldPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                                const GrPipelineBuilder* pipelineBuilder,
-                                                const SkMatrix& viewMatrix,
-                                                const SkPath& path,
-                                                const GrStrokeInfo& stroke,
-                                                bool antiAlias) const {
+bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     
     // TODO: Support inverse fill
     // TODO: Support strokes
-    if (!target->caps()->shaderCaps()->shaderDerivativeSupport() || !antiAlias 
-        || path.isInverseFillType() || path.isVolatile() || !stroke.isFillStyle()) {
+    if (!args.fTarget->caps()->shaderCaps()->shaderDerivativeSupport() || !args.fAntiAlias ||
+        args.fPath->isInverseFillType() || args.fPath->isVolatile() ||
+        !args.fStroke->isFillStyle()) {
         return false;
     }
 
     // currently don't support perspective
-    if (viewMatrix.hasPerspective()) {
+    if (args.fViewMatrix->hasPerspective()) {
         return false;
     }
     
     // only support paths smaller than 64x64, scaled to less than 256x256
     // the goal is to accelerate rendering of lots of small paths that may be scaling
-    SkScalar maxScale = viewMatrix.getMaxScale();
-    const SkRect& bounds = path.getBounds();
+    SkScalar maxScale = args.fViewMatrix->getMaxScale();
+    const SkRect& bounds = args.fPath->getBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
     return maxDim < 64.f && maxDim * maxScale < 256.f;
 }
-
 
 GrPathRenderer::StencilSupport
 GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
@@ -537,7 +529,7 @@ private:
     PathDataList* fPathList;
 };
 
-static GrBatchAtlas* create_atlas(GrContext* context, GrBatchAtlas::EvictionFunc func, void* data) {
+static GrBatchAtlas* create_atlas(GrTextureProvider* provider, GrBatchAtlas::EvictionFunc func, void* data) {
     GrBatchAtlas* atlas;
     // Create a new atlas
     GrSurfaceDesc desc;
@@ -548,7 +540,7 @@ static GrBatchAtlas* create_atlas(GrContext* context, GrBatchAtlas::EvictionFunc
 
     // We don't want to flush the context so we claim we're in the middle of flushing so as to
     // guarantee we do not recieve a texture with pending IO
-    GrTexture* texture = context->textureProvider()->refScratchTexture(
+    GrTexture* texture = provider->refScratchTexture(
         desc, GrTextureProvider::kApprox_ScratchTexMatch, true);
     if (texture) {
         atlas = SkNEW_ARGS(GrBatchAtlas, (texture, NUM_PLOTS_X, NUM_PLOTS_Y));
@@ -559,35 +551,28 @@ static GrBatchAtlas* create_atlas(GrContext* context, GrBatchAtlas::EvictionFunc
     return atlas;
 }
 
-bool GrAADistanceFieldPathRenderer::onDrawPath(GrDrawTarget* target,
-                                               GrPipelineBuilder* pipelineBuilder,
-                                               GrColor color,
-                                               const SkMatrix& viewMatrix,
-                                               const SkPath& path,
-                                               const GrStrokeInfo& stroke,
-                                               bool antiAlias) {
+bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     // we've already bailed on inverse filled paths, so this is safe
-    if (path.isEmpty()) {
+    if (args.fPath->isEmpty()) {
         return true;
     }
 
-    SkASSERT(fContext);
-
     if (!fAtlas) {
-        fAtlas = create_atlas(fContext, &GrAADistanceFieldPathRenderer::HandleEviction,
-                              (void*)this);
+        fAtlas = create_atlas(args.fResourceProvider,
+                              &GrAADistanceFieldPathRenderer::HandleEviction, (void*)this);
         if (!fAtlas) {
             return false;
         }
     }
 
-    AADistanceFieldPathBatch::Geometry geometry(stroke);
-    geometry.fPath = path;
-    geometry.fAntiAlias = antiAlias;
+    AADistanceFieldPathBatch::Geometry geometry(*args.fStroke);
+    geometry.fPath = *args.fPath;
+    geometry.fAntiAlias = args.fAntiAlias;
 
-    SkAutoTUnref<GrBatch> batch(AADistanceFieldPathBatch::Create(geometry, color, viewMatrix,
-                                                                 fAtlas, &fPathCache, &fPathList));
-    target->drawBatch(*pipelineBuilder, batch);
+    SkAutoTUnref<GrBatch> batch(AADistanceFieldPathBatch::Create(geometry, args.fColor,
+                                                                 *args.fViewMatrix, fAtlas,
+                                                                 &fPathCache, &fPathList));
+    args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
 }
@@ -644,8 +629,8 @@ BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
     if (context->uniqueID() != gTestStruct.fContextID) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
-        gTestStruct.fAtlas = create_atlas(context, &PathTestStruct::HandleEviction,
-                                          (void*)&gTestStruct);
+        gTestStruct.fAtlas = create_atlas(context->resourceProvider(),
+                                          &PathTestStruct::HandleEviction, (void*)&gTestStruct);
     }
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

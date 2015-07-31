@@ -23,6 +23,7 @@ public:
     void init(GrContext*, GrDrawTarget*);
 
     GrDrawTarget* target() { return fDrawTarget.get(); }
+    GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
 private:
     SkAutoTUnref<GrDrawTarget>              fDrawTarget;
