@@ -53,7 +53,10 @@ private:
     bool     fFatal;
 };
 
-enum SinkType { kGPU_SinkType, kVector_SinkType, kRaster_SinkType };
+struct SinkFlags {
+    enum { kNull, kGPU, kVector, kRaster } type;
+    enum { kDirect, kIndirect } approach;
+};
 
 struct Src {
     // All Srcs must be thread safe.
@@ -62,7 +65,7 @@ struct Src {
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
     virtual void modifyGrContextOptions(GrContextOptions* options) const {}
-    virtual bool veto(SinkType) const { return false; }
+    virtual bool veto(SinkFlags) const { return false; }
 };
 
 struct Sink {
@@ -75,6 +78,8 @@ struct Sink {
 
     // File extension for the content draw() outputs, e.g. "png", "pdf".
     virtual const char* fileExtension() const  = 0;
+
+    virtual SinkFlags flags() const = 0;
 };
 
 enum { kAnyThread_Enclave, kGPU_Enclave };
@@ -114,7 +119,7 @@ public:
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
-    bool veto(SinkType) const override;
+    bool veto(SinkFlags) const override;
 private:
     Path                   fPath;
     Mode                   fMode;
@@ -132,7 +137,7 @@ public:
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
-    bool veto(SinkType) const override;
+    bool veto(SinkFlags) const override;
 private:
     Path fPath;
     const int  fDivisor;
@@ -158,6 +163,7 @@ public:
     Error draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return ""; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kNull, SinkFlags::kDirect }; }
 };
 
 
@@ -168,6 +174,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override;
     const char* fileExtension() const override { return "png"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
 private:
     GrContextFactory::GLContextType fContextType;
     GrGLStandard                    fGpuAPI;
@@ -183,6 +190,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "pdf"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
 class XPSSink : public Sink {
@@ -192,6 +200,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "xps"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
 class RasterSink : public Sink {
@@ -201,6 +210,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "png"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
 private:
     SkColorType    fColorType;
 };
@@ -212,6 +222,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "skp"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
 class SVGSink : public Sink {
@@ -221,6 +232,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override { return kAnyThread_Enclave; }
     const char* fileExtension() const override { return "svg"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
 
@@ -231,6 +243,11 @@ public:
     explicit Via(Sink* sink) : fSink(sink) {}
     const char* fileExtension() const override { return fSink->fileExtension(); }
     int               enclave() const override { return fSink->enclave(); }
+    SinkFlags flags() const override {
+        SinkFlags flags = fSink->flags();
+        flags.approach = SinkFlags::kIndirect;
+        return flags;
+    }
 protected:
     SkAutoTDelete<Sink> fSink;
 };

@@ -172,8 +172,6 @@ struct TaggedSrc : public SkAutoTDelete<Src> {
 
 struct TaggedSink : public SkAutoTDelete<Sink> {
     const char* tag;
-    const char* options;
-    SinkType type;
 };
 
 static const bool kMemcpyOK = true;
@@ -358,14 +356,9 @@ static void push_sink(const char* tag, Sink* s) {
         exit(1);
     }
 
-    SinkType type = kRaster_SinkType;
-    if (sink->enclave() == kGPU_Enclave) { type = kGPU_SinkType; }
-    if (stream.bytesWritten() > 0) { type = kVector_SinkType; }
-
     TaggedSink& ts = gSinks.push_back();
     ts.reset(sink.detach());
     ts.tag = tag;
-    ts.type = type;
 }
 
 static bool gpu_supported() {
@@ -501,7 +494,7 @@ struct Task {
         //   - the Src vetoes the Sink;
         //   - this Src / Sink combination is on the blacklist;
         //   - it's a dry run.
-        SkString note(task->src->veto(task->sink.type) ? " (veto)" : "");
+        SkString note(task->src->veto(task->sink->flags()) ? " (veto)" : "");
         SkString whyBlacklisted = is_blacklisted(task->sink.tag, task->src.tag,
                                                  task->src.options, name.c_str());
         if (!whyBlacklisted.isEmpty()) {

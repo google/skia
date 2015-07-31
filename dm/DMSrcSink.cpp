@@ -71,11 +71,12 @@ CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, float scale)
     , fScale(scale)
 {}
 
-bool CodecSrc::veto(SinkType type) const {
-    // No need to test decoding to non-raster backend.
+bool CodecSrc::veto(SinkFlags flags) const {
+    // No need to test decoding to non-raster or indirect backend.
     // TODO: Once we implement GPU paths (e.g. JPEG YUV), we should use a deferred decode to
     // let the GPU handle it.
-    return type != kRaster_SinkType;
+    return flags.type != SinkFlags::kRaster
+        || flags.approach != SinkFlags::kDirect;
 }
 
 Error CodecSrc::draw(SkCanvas* canvas) const {
@@ -460,10 +461,11 @@ Name CodecSrc::name() const {
 
 ImageSrc::ImageSrc(Path path, int divisor) : fPath(path), fDivisor(divisor) {}
 
-bool ImageSrc::veto(SinkType type) const {
-    // No need to test decoding to non-raster backend.
+bool ImageSrc::veto(SinkFlags flags) const {
+    // No need to test decoding to non-raster or indirect backend.
     // TODO: Instead, use lazy decoding to allow the GPU to handle cases like YUV.
-    return type != kRaster_SinkType;
+    return flags.type != SinkFlags::kRaster
+        || flags.approach != SinkFlags::kDirect;
 }
 
 Error ImageSrc::draw(SkCanvas* canvas) const {
