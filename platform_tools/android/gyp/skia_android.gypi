@@ -86,9 +86,17 @@
             '<(android_base)/apps/sample_app/src/main/java/com/skia/SkiaSampleActivity.java',
             '<(android_base)/apps/sample_app/src/main/java/com/skia/SkiaSampleRenderer.java',
             '<(android_base)/apps/sample_app/src/main/java/com/skia/SkiaSampleView.java',
+            '<(android_base)/apps/sample_app/src/main/libs/<(android_arch)/libSampleApp.so',
+          ],
+          'conditions': [
+            [ 'skia_shared_lib', {
+              'inputs': [
+                '<(android_base)/apps/sample_app/src/main/libs/<(android_arch)/libskia_android.so',
+              ],
+            }],
           ],
           'outputs': [
-            '<(android_base)/apps/sample_app/build',
+            '<(android_base)/apps/sample_app/build/outputs/apk/sample_app-arm-debug.apk',
           ],
           'action': [
             '<(android_base)/apps/gradlew',
@@ -141,9 +149,17 @@
           'inputs': [
             '<(android_base)/apps/visualbench/src/main/AndroidManifest.xml',
             '<(android_base)/apps/visualbench/src/main/java/com/skia/VisualBenchActivity.java',
+            '<(android_base)/apps/visualbench/src/main/libs/<(android_arch)/libvisualbench.so',
+          ],
+          'conditions': [
+            [ 'skia_shared_lib', {
+              'inputs': [
+                '<(android_base)/apps/visualbench/src/main/libs/<(android_arch)/libskia_android.so',
+              ],
+            }],
           ],
           'outputs': [
-            '<(android_base)/apps/visualbench/build',
+            '<(android_base)/apps/visualbench/build/outputs/apk/visualbench-arm-debug.apk',
           ],
           'action': [
             '<(android_base)/apps/gradlew',
