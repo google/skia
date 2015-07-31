@@ -16,7 +16,7 @@
 
 const char* GrGLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
 static const char* declared_color_output_name() { return "fsColorOut"; }
-static const char* dual_source_output_name() { return "dualSourceOut"; }
+static const char* declared_secondary_color_output_name() { return "fsSecondaryColorOut"; }
 
 static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
@@ -240,8 +240,19 @@ void GrGLFragmentShaderBuilder::enableCustomOutput() {
 void GrGLFragmentShaderBuilder::enableSecondaryOutput() {
     SkASSERT(!fHasSecondaryOutput);
     fHasSecondaryOutput = true;
-    fOutputs.push_back().set(kVec4f_GrSLType, GrGLShaderVar::kOut_TypeModifier,
-                             dual_source_output_name());
+    if (kGLES_GrGLStandard == fProgramBuilder->gpu()->ctxInfo().standard()) {
+        this->addFeature(1 << kBlendFuncExtended_GLSLPrivateFeature, "GL_EXT_blend_func_extended");
+    }
+
+    // If the primary output is declared, we must declare also the secondary output
+    // and vice versa, since it is not allowed to use a built-in gl_FragColor and a custom
+    // output. The condition also co-incides with the condition in whici GLES SL 2.0
+    // requires the built-in gl_SecondaryFragColorEXT, where as 3.0 requires a custom output.
+    const GrGLSLCaps& caps = *fProgramBuilder->gpu()->glCaps().glslCaps();
+    if (caps.mustDeclareFragmentShaderOutput()) {
+        fOutputs.push_back().set(kVec4f_GrSLType, GrGLShaderVar::kOut_TypeModifier,
+                                 declared_secondary_color_output_name());
+    }
 }
 
 const char* GrGLFragmentShaderBuilder::getPrimaryColorOutputName() const {
@@ -249,7 +260,9 @@ const char* GrGLFragmentShaderBuilder::getPrimaryColorOutputName() const {
 }
 
 const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
-    return dual_source_output_name();
+    const GrGLSLCaps& caps = *fProgramBuilder->gpu()->glCaps().glslCaps();
+    return caps.mustDeclareFragmentShaderOutput() ? declared_secondary_color_output_name()
+                                                  : "gl_SecondaryFragColorEXT";
 }
 
 bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
@@ -270,11 +283,13 @@ bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
 }
 
 void GrGLFragmentShaderBuilder::bindFragmentShaderLocations(GrGLuint programID) {
-    if (fHasCustomColorOutput && fProgramBuilder->gpu()->glCaps().bindFragDataLocationSupport()) {
+    const GrGLCaps& caps = fProgramBuilder->gpu()->glCaps();
+    if (fHasCustomColorOutput && caps.bindFragDataLocationSupport()) {
         GL_CALL(BindFragDataLocation(programID, 0, declared_color_output_name()));
     }
-    if (fHasSecondaryOutput) {
-        GL_CALL(BindFragDataLocationIndexed(programID, 0, 1, dual_source_output_name()));
+    if (fHasSecondaryOutput && caps.glslCaps()->mustDeclareFragmentShaderOutput()) {
+        GL_CALL(BindFragDataLocationIndexed(programID, 0, 1,
+                                            declared_secondary_color_output_name()));
     }
 }
 

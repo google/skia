@@ -390,12 +390,21 @@ bool GrGLInterface::validate() const {
     }
 
     // Dual source blending
-    if (kGL_GrGLStandard == fStandard &&
-        (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_blend_func_extended"))) {
-        if (NULL == fFunctions.fBindFragDataLocationIndexed) {
-            RETURN_FALSE_INTERFACE
+    if (kGL_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_blend_func_extended")) {
+            if (NULL == fFunctions.fBindFragDataLocationIndexed) {
+                RETURN_FALSE_INTERFACE
+            }
+        }
+    } else {
+        if (glVer >= GR_GL_VER(3,0) && fExtensions.has("GL_EXT_blend_func_extended")) {
+            if (NULL == fFunctions.fBindFragDataLocation ||
+                NULL == fFunctions.fBindFragDataLocationIndexed) {
+                RETURN_FALSE_INTERFACE
+            }
         }
     }
+
 
     // glGetStringi was added in version 3.0 of both desktop and ES.
     if (glVer >= GR_GL_VER(3, 0)) {

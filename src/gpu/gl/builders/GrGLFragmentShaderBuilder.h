@@ -131,7 +131,8 @@ private:
     enum GLSLPrivateFeature {
         kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1,
         kBlendEquationAdvanced_GLSLPrivateFeature,
-        kLastGLSLPrivateFeature = kBlendEquationAdvanced_GLSLPrivateFeature
+        kBlendFuncExtended_GLSLPrivateFeature,
+        kLastGLSLPrivateFeature = kBlendFuncExtended_GLSLPrivateFeature
     };
 
     // Interpretation of DstReadKey when generating code

@@ -294,8 +294,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMultisampleDisableSupport = ctxInfo.hasExtension("GL_EXT_multisample_compatibility");
     }
 
-    if (kGL_GrGLStandard == standard && version >= GR_GL_VER(3, 0)) {
-        fBindFragDataLocationSupport = true;
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(3, 0)) {
+            fBindFragDataLocationSupport = true;
+        }
+    } else {
+        if (version >= GR_GL_VER(3, 0) && ctxInfo.hasExtension("GL_EXT_blend_func_extended")) {
+            fBindFragDataLocationSupport = true;
+        }
     }
 
     /**************************************************************************
@@ -318,6 +324,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
     }
     else {
+        glslCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
+
         glslCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
     }

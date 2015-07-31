@@ -497,6 +497,11 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(BindTexture);
     GET_PROC_SUFFIX(BindVertexArray, OES);
 
+    if (version >= GR_GL_VER(3,0) && extensions.has("GL_EXT_blend_func_extended")) {
+        GET_PROC_SUFFIX(BindFragDataLocation, EXT);
+        GET_PROC_SUFFIX(BindFragDataLocationIndexed, EXT);
+    }
+
     if (extensions.has("GL_KHR_blend_equation_advanced")) {
         GET_PROC_SUFFIX(BlendBarrier, KHR);
     } else if (extensions.has("GL_NV_blend_equation_advanced")) {
