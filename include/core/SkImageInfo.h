@@ -299,17 +299,13 @@ public:
 
     SkDEBUGCODE(void validate() const;)
 
-#ifdef SK_SUPPORT_LEGACY_PUBLIC_IMAGEINFO_FIELDS
-public:
-#else
 private:
-#endif
     int                 fWidth;
     int                 fHeight;
     SkColorType         fColorType;
     SkAlphaType         fAlphaType;
+    SkColorProfileType  fProfileType;
 
-private:
     SkImageInfo(int width, int height, SkColorType ct, SkAlphaType at, SkColorProfileType pt)
         : fWidth(width)
         , fHeight(height)
@@ -317,8 +313,6 @@ private:
         , fAlphaType(at)
         , fProfileType(pt)
     {}
-
-    SkColorProfileType  fProfileType;
 };
 
 #endif
