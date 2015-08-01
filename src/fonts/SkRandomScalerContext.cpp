@@ -63,7 +63,7 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
     // Here we will change the mask format of the glyph
     // NOTE this is being overridden by the base class
     SkMask::Format format;
-    switch (glyph->getGlyphID() % 4) {
+    switch (glyph->getGlyphID() % 3) {
         case 0:
             format = SkMask::kLCD16_Format;
             break;
@@ -72,9 +72,6 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
             break;
         case 2:
             format = SkMask::kARGB32_Format;
-            break;
-        case 3:
-            format = SkMask::kBW_Format;
             break;
     }
 
@@ -135,7 +132,7 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
 
 void SkRandomScalerContext::generateImage(const SkGlyph& glyph) {
     SkMask::Format format = (SkMask::Format)glyph.fMaskFormat;
-    switch (glyph.getGlyphID() % 4) {
+    switch (glyph.getGlyphID() % 3) {
         case 0:
             format = SkMask::kLCD16_Format;
             break;
@@ -144,9 +141,6 @@ void SkRandomScalerContext::generateImage(const SkGlyph& glyph) {
             break;
         case 2:
             format = SkMask::kARGB32_Format;
-            break;
-        case 3:
-            format = SkMask::kBW_Format;
             break;
     }
     const_cast<SkGlyph&>(glyph).fMaskFormat = format;

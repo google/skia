@@ -49,34 +49,14 @@ protected:
 
         SkRect bounds;
         paint.measureText(text, strlen(text), &bounds);
+
+        SkScalar yOffset = bounds.height();
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
 
         // A8
-        const char* bigtext1 = "The quick brown fox";
-        const char* bigtext2 = "jumps over the lazy dog.";
-        paint.setTextSize(160);
         paint.setSubpixelText(false);
         paint.setLCDRenderText(false);
-        paint.measureText(bigtext1, strlen(bigtext1), &bounds);
-        SkScalar offset = bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, bigtext1, paint, 0, offset);
-
-        paint.measureText(bigtext2, strlen(bigtext2), &bounds);
-        offset += bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, bigtext2, paint, 0, offset);
-
-        // color emoji
-        SkAutoTUnref<SkTypeface> origEmoji;
-        sk_tool_utils::emoji_typeface(&origEmoji);
-        if (origEmoji) {
-            const char* emojiText = sk_tool_utils::emoji_sample_text();
-            paint.measureText(emojiText, strlen(emojiText), &bounds);
-            offset += bounds.height();
-            SkAutoTUnref<SkTypeface> randomEmoji(SkNEW_ARGS(SkRandomTypeface, (orig, paint,
-                                                                               false)));
-            paint.setTypeface(randomEmoji);
-            sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, offset);
-        }
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset - 32);
 
         // build
         fBlob.reset(builder.build());
@@ -108,9 +88,9 @@ protected:
 
             SkCanvas* c = surface->getCanvas();
 
-            int stride = SkScalarCeilToInt(fBlob->bounds().height());
-            int yOffset = stride / 8;
-            for (int i = 0; i < 1; i++) {
+            int stride = SkScalarCeilToInt(fBlob->bounds().height() / 2) + 10;
+            int yOffset = stride;
+            for (int i = 0; i < 10; i++) {
                 // fiddle the canvas to force regen of textblobs
                 canvas->rotate(i % 2 ? 0.0f : -0.05f);
                 canvas->drawTextBlob(fBlob, 10.0f, SkIntToScalar(yOffset), paint);
@@ -139,8 +119,8 @@ protected:
 private:
     SkAutoTUnref<const SkTextBlob> fBlob;
 
-    static const int kWidth = 2000;
-    static const int kHeight = 1600;
+    static const int kWidth = 1000;
+    static const int kHeight = 1000;
 
     typedef GM INHERITED;
 };
