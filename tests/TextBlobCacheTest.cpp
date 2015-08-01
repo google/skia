@@ -156,9 +156,9 @@ DEF_GPUTEST(TextBlobCache, reporter, factory) {
 
 DEF_GPUTEST(TextBlobAbnormal, reporter, factory) {
 #ifdef SK_BUILD_FOR_ANDROID
-    text_blob_cache_inner(reporter, factory, 32, 32, 1, false);
+    text_blob_cache_inner(reporter, factory, 256, 256, 30, false);
 #else
-    text_blob_cache_inner(reporter, factory, 256, 256, 1, false);
+    text_blob_cache_inner(reporter, factory, 512, 256, 30, false);
 #endif
 }
 #endif
