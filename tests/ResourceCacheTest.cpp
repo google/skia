@@ -1239,6 +1239,8 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
 
 static void test_custom_data(skiatest::Reporter* reporter) {
     GrUniqueKey key1, key2;
+    make_unique_key<0>(&key1, 1);
+    make_unique_key<0>(&key2, 2);
     int foo = 4132;
     key1.setCustomData(SkData::NewWithCopy(&foo, sizeof(foo)));
     REPORTER_ASSERT(reporter, *(int*) key1.getCustomData()->data() == 4132);
