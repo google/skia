@@ -183,7 +183,7 @@ private:
         // generate vertex local coords
         if (this->hasLocalRect()) {
             LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-            return GrDefaultGeoProcFactory::Create(color, coverage, localCoords);
+            return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
         } else {
             LocalCoords localCoords(LocalCoords::kUsePosition_Type,
                                     this->hasLocalMatrix() ? &this->localMatrix() : NULL);

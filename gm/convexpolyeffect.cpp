@@ -147,6 +147,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        using namespace GrDefaultGeoProcFactory;
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             this->drawGpuOnlyMessage(canvas);
@@ -157,10 +158,11 @@ protected:
             return;
         }
 
-        static const GrColor color = 0xff000000;
+        Color color(0xff000000);
+        Coverage coverage(Coverage::kSolid_Type);
+        LocalCoords localCoords(LocalCoords::kUnused_Type);
         SkAutoTUnref<const GrGeometryProcessor> gp(
-                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType, color,
-                                                false, false));
+                GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I()));
 
         SkScalar y = 0;
         for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);
@@ -191,7 +193,7 @@ protected:
                 pipelineBuilder.setRenderTarget(rt);
 
                 ConvexPolyTestBatch::Geometry geometry;
-                geometry.fColor = color;
+                geometry.fColor = color.fColor;
                 geometry.fBounds = p.getBounds();
 
                 SkAutoTUnref<GrBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
@@ -240,7 +242,7 @@ protected:
                 pipelineBuilder.setRenderTarget(rt);
 
                 ConvexPolyTestBatch::Geometry geometry;
-                geometry.fColor = color;
+                geometry.fColor = color.fColor;
                 geometry.fBounds = rect;
 
                 SkAutoTUnref<GrBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));

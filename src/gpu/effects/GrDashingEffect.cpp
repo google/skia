@@ -300,30 +300,28 @@ public:
 
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         int instanceCount = fGeoData.count();
-
-        SkMatrix invert;
-        if (this->usesLocalCoords() && !this->viewMatrix().invert(&invert)) {
-            SkDebugf("Failed to invert\n");
-            return;
-        }
-
         SkPaint::Cap cap = this->cap();
-
-        SkAutoTUnref<const GrGeometryProcessor> gp;
-
         bool isRoundCap = SkPaint::kRound_Cap == cap;
         DashCap capType = isRoundCap ? kRound_DashCap : kNonRound_DashCap;
+
+        SkAutoTUnref<const GrGeometryProcessor> gp;
         if (this->fullDash()) {
-            gp.reset(create_dash_gp(this->color(), this->aaMode(), capType, invert,
+            gp.reset(create_dash_gp(this->color(), this->aaMode(), capType, this->viewMatrix(),
                                     this->usesLocalCoords()));
         } else {
             // Set up the vertex data for the line and start/end dashes
-            gp.reset(GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
-                                                     this->color(),
-                                                     this->usesLocalCoords(),
-                                                     this->coverageIgnored(),
-                                                     SkMatrix::I(),
-                                                     invert));
+            using namespace GrDefaultGeoProcFactory;
+            Color color(this->color());
+            Coverage coverage(this->coverageIgnored() ? Coverage::kNone_Type :
+                                                        Coverage::kSolid_Type);
+            LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
+                                                              LocalCoords::kUnused_Type);
+            gp.reset(CreateForDeviceSpace(color, coverage, localCoords, this->viewMatrix()));
+        }
+
+        if (!gp) {
+            SkDebugf("Could not create GrGeometryProcessor\n");
+            return;
         }
 
         batchTarget->initDraw(gp, pipeline);
@@ -1209,15 +1207,19 @@ GrGeometryProcessor* DashingLineEffect::TestCreate(GrProcessorTestData* d) {
 static GrGeometryProcessor* create_dash_gp(GrColor color,
                                            DashAAMode dashAAMode,
                                            DashCap cap,
-                                           const SkMatrix& localMatrix,
+                                           const SkMatrix& viewMatrix,
                                            bool usesLocalCoords) {
+    SkMatrix invert;
+    if (usesLocalCoords && !viewMatrix.invert(&invert)) {
+        SkDebugf("Failed to invert\n");
+        return NULL;
+    }
+
     switch (cap) {
         case kRound_DashCap:
-            return DashingCircleEffect::Create(color, dashAAMode, localMatrix, usesLocalCoords);
+            return DashingCircleEffect::Create(color, dashAAMode, invert, usesLocalCoords);
         case kNonRound_DashCap:
-            return DashingLineEffect::Create(color, dashAAMode, localMatrix, usesLocalCoords);
-        default:
-            SkFAIL("Unexpected dashed cap.");
+            return DashingLineEffect::Create(color, dashAAMode, invert, usesLocalCoords);
     }
     return NULL;
 }

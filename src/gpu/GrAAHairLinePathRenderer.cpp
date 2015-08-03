@@ -807,18 +807,18 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
         toSrc = &invert;
     }
 
-    // Setup geometry processors for worst case
-    uint32_t gpFlags = GrDefaultGeoProcFactory::kPosition_GPType |
-                       GrDefaultGeoProcFactory::kCoverage_GPType;
+    SkAutoTUnref<const GrGeometryProcessor> lineGP;
+    {
+        using namespace GrDefaultGeoProcFactory;
 
-    SkAutoTUnref<const GrGeometryProcessor> lineGP(
-            GrDefaultGeoProcFactory::Create(gpFlags,
-                                            this->color(),
-                                            this->usesLocalCoords(),
-                                            this->coverageIgnored(),
-                                            *geometryProcessorViewM,
-                                            *geometryProcessorLocalM,
-                                            this->coverage()));
+        Color color(this->color());
+        Coverage coverage(Coverage::kAttribute_Type);
+        LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
+                                                          LocalCoords::kUnused_Type);
+        localCoords.fMatrix = geometryProcessorLocalM;
+        lineGP.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
+                                                     *geometryProcessorViewM));
+    }
 
     SkAutoTUnref<const GrGeometryProcessor> quadGP(
             GrQuadEffect::Create(this->color(),
