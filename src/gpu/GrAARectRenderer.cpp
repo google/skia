@@ -32,20 +32,25 @@ static void set_inset_fan(SkPoint* pts, size_t stride,
 }
 
 static const GrGeometryProcessor* create_fill_rect_gp(bool tweakAlphaForCoverage,
-                                                      const SkMatrix& localMatrix,
+                                                      const SkMatrix& viewMatrix,
                                                       bool usesLocalCoords,
                                                       bool coverageIgnored) {
-    uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
-    const GrGeometryProcessor* gp;
-    if (tweakAlphaForCoverage) {
-        gp = GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords, coverageIgnored,
-                                             SkMatrix::I(), localMatrix);
+    using namespace GrDefaultGeoProcFactory;
+
+    Color color(Color::kAttribute_Type);
+    Coverage::Type coverageType;
+    // TODO remove coverage if coverage is ignored
+    /*if (coverageIgnored) {
+        coverageType = Coverage::kNone_Type;
+    } else*/ if (tweakAlphaForCoverage) {
+        coverageType = Coverage::kSolid_Type;
     } else {
-        flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
-        gp = GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords, coverageIgnored,
-                                             SkMatrix::I(), localMatrix);
+        coverageType = Coverage::kAttribute_Type;
     }
-    return gp;
+    Coverage coverage(coverageType);
+    LocalCoords localCoords(usesLocalCoords ? LocalCoords::kUsePosition_Type :
+                                              LocalCoords::kUnused_Type);
+    return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
@@ -92,16 +97,14 @@ public:
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
-        SkMatrix localMatrix;
-        if (this->usesLocalCoords() && !this->viewMatrix().invert(&localMatrix)) {
-            SkDebugf("Cannot invert\n");
-            return;
-        }
-
         SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_rect_gp(canTweakAlphaForCoverage,
-                                                                       localMatrix,
+                                                                       this->viewMatrix(),
                                                                        this->usesLocalCoords(),
                                                                        this->coverageIgnored()));
+        if (!gp) {
+            SkDebugf("Couldn't create GrGeometryProcessor\n");
+            return;
+        }
 
         batchTarget->initDraw(gp, pipeline);
 
@@ -444,18 +447,14 @@ public:
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
-        // Local matrix is ignored if we don't have local coords.  If we have localcoords we only
-        // batch with identical view matrices
-        SkMatrix localMatrix;
-        if (this->usesLocalCoords() && !this->viewMatrix().invert(&localMatrix)) {
-            SkDebugf("Cannot invert\n");
-            return;
-        }
-
         SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_rect_gp(canTweakAlphaForCoverage,
-                                                                       localMatrix,
+                                                                       this->viewMatrix(),
                                                                        this->usesLocalCoords(),
                                                                        this->coverageIgnored()));
+        if (!gp) {
+            SkDebugf("Couldn't create GrGeometryProcessor\n");
+            return;
+        }
 
         batchTarget->initDraw(gp, pipeline);
 

@@ -93,16 +93,25 @@ static void extract_verts(const GrAAConvexTessellator& tess,
 }
 
 static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
-                                                 const SkMatrix& localMatrix,
+                                                 const SkMatrix& viewMatrix,
                                                  bool usesLocalCoords,
                                                  bool coverageIgnored) {
-    uint32_t flags = GrDefaultGeoProcFactory::kColor_GPType;
-    if (!tweakAlphaForCoverage) {
-        flags |= GrDefaultGeoProcFactory::kCoverage_GPType;
-    }
+    using namespace GrDefaultGeoProcFactory;
 
-    return GrDefaultGeoProcFactory::Create(flags, GrColor_WHITE, usesLocalCoords, coverageIgnored,
-                                           SkMatrix::I(), localMatrix);
+    Color color(Color::kAttribute_Type);
+    Coverage::Type coverageType;
+    // TODO remove coverage if coverage is ignored
+    /*if (coverageIgnored) {
+        coverageType = Coverage::kNone_Type;
+    } else*/ if (tweakAlphaForCoverage) {
+        coverageType = Coverage::kSolid_Type;
+    } else {
+        coverageType = Coverage::kAttribute_Type;
+    }
+    Coverage coverage(coverageType);
+    LocalCoords localCoords(usesLocalCoords ? LocalCoords::kUsePosition_Type :
+                                              LocalCoords::kUnused_Type);
+    return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
 class AAFlatteningConvexPathBatch : public GrBatch {
@@ -178,17 +187,15 @@ public:
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
-        SkMatrix invert;
-        if (this->usesLocalCoords() && !this->viewMatrix().invert(&invert)) {
-            SkDebugf("Could not invert viewmatrix\n");
+        // Setup GrGeometryProcessor
+        SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_gp(canTweakAlphaForCoverage,
+                                                                  this->viewMatrix(),
+                                                                  this->usesLocalCoords(),
+                                                                  this->coverageIgnored()));
+        if (!gp) {
+            SkDebugf("Couldn't create a GrGeometryProcessor\n");
             return;
         }
-
-        // Setup GrGeometryProcessor
-        SkAutoTUnref<const GrGeometryProcessor> gp(
-                                                create_fill_gp(canTweakAlphaForCoverage, invert,
-                                                               this->usesLocalCoords(),
-                                                               this->coverageIgnored()));
 
         batchTarget->initDraw(gp, pipeline);
 
