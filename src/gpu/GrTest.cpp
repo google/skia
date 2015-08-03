@@ -12,6 +12,7 @@
 #include "GrContextOptions.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrResourceCache.h"
+#include "GrTextBlobCache.h"
 #include "SkString.h"
 
 void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
@@ -28,6 +29,10 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
     tar->init(this, fDrawingMgr.fDrawTarget);
+}
+
+void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
+    fTextBlobCache->setBudget(bytes);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

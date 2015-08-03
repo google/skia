@@ -23,7 +23,8 @@ public:
     GrTextBlobCache(PFOverBudgetCB cb, void* data)
         : fPool(kPreAllocSize, kMinGrowthSize)
         , fCallback(cb)
-        , fData(data) {
+        , fData(data)
+        , fBudget(kDefaultBudget) {
         SkASSERT(cb && data);
     }
     ~GrTextBlobCache();
@@ -81,34 +82,7 @@ public:
         fCache.add(blob);
         fBlobList.addToHead(blob);
 
-        // If we are overbudget, then unref until we are below budget again
-        if (fPool.size() > kBudget) {
-            BitmapBlobList::Iter iter;
-            iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
-            GrAtlasTextBlob* lruBlob = iter.get();
-            SkASSERT(lruBlob);
-            while (fPool.size() > kBudget && (lruBlob = iter.get()) && lruBlob != blob) {
-                fCache.remove(lruBlob->fKey);
-
-                // Backup the iterator before removing and unrefing the blob
-                iter.prev();
-                fBlobList.remove(lruBlob);
-                lruBlob->unref();
-            }
-
-            // If we break out of the loop with lruBlob == blob, then we haven't purged enough
-            // use the call back and try to free some more.  If we are still overbudget after this,
-            // then this single textblob is over our budget
-            if (lruBlob == blob) {
-                (*fCallback)(fData);
-            }
-
-#ifdef SK_DEBUG
-            if (fPool.size() > kBudget) {
-                SkDebugf("Single textblob is larger than our whole budget");
-            }
-#endif
-        }
+        this->checkPurge(blob);
     }
 
     void makeMRU(GrAtlasTextBlob* blob) {
@@ -130,19 +104,56 @@ public:
         }
     }
 
+    void setBudget(size_t budget) {
+        fBudget = budget;
+        this->checkPurge();
+    }
+
 private:
     typedef SkTInternalLList<GrAtlasTextBlob> BitmapBlobList;
+
+    void checkPurge(GrAtlasTextBlob* blob = NULL) {
+        // If we are overbudget, then unref until we are below budget again
+        if (fPool.size() > fBudget) {
+            BitmapBlobList::Iter iter;
+            iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
+            GrAtlasTextBlob* lruBlob = iter.get();
+            SkASSERT(lruBlob);
+            while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
+                fCache.remove(lruBlob->fKey);
+
+                // Backup the iterator before removing and unrefing the blob
+                iter.prev();
+                fBlobList.remove(lruBlob);
+                lruBlob->unref();
+            }
+
+            // If we break out of the loop with lruBlob == blob, then we haven't purged enough
+            // use the call back and try to free some more.  If we are still overbudget after this,
+            // then this single textblob is over our budget
+            if (blob && lruBlob == blob) {
+                (*fCallback)(fData);
+            }
+
+#ifdef SPEW_BUDGET_MESSAGE
+            if (fPool.size() > fBudget) {
+                SkDebugf("Single textblob is larger than our whole budget");
+            }
+#endif
+        }
+    }
 
     // Budget was chosen to be ~4 megabytes.  The min alloc and pre alloc sizes in the pool are
     // based off of the largest cached textblob I have seen in the skps(a couple of kilobytes).
     static const int kPreAllocSize = 1 << 17;
     static const int kMinGrowthSize = 1 << 17;
-    static const int kBudget = 1 << 22;
+    static const int kDefaultBudget = 1 << 22;
     BitmapBlobList fBlobList;
     SkTDynamicHash<GrAtlasTextBlob, GrAtlasTextBlob::Key> fCache;
     GrMemoryPool fPool;
     PFOverBudgetCB fCallback;
     void* fData;
+    size_t fBudget;
 };
 
 #endif

@@ -353,6 +353,10 @@ public:
     void dumpGpuStats(SkString*) const;
     void printGpuStats() const;
 
+    /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.
+        this is for testing only */
+    void setTextBlobCacheLimit_ForTesting(size_t bytes);
+
 private:
     GrGpu*                          fGpu;
     const GrCaps*                   fCaps;
