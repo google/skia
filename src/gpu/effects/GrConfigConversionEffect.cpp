@@ -105,8 +105,11 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrProcessorDataManager* procD
     , fSwapRedAndBlue(swapRedAndBlue)
     , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
-    SkASSERT(kRGBA_8888_GrPixelConfig == texture->config() ||
-             kBGRA_8888_GrPixelConfig == texture->config());
+    // We expect to get here with non-BGRA/RGBA only if we're doing not doing a premul/unpremul
+    // conversion.
+    SkASSERT((kRGBA_8888_GrPixelConfig == texture->config() ||
+              kBGRA_8888_GrPixelConfig == texture->config()) ||
+              kNone_PMConversion == pmConversion);
     // Why did we pollute our texture cache instead of using a GrSingleTextureEffect?
     SkASSERT(swapRedAndBlue || kNone_PMConversion != pmConversion);
 }
