@@ -7,6 +7,8 @@ SkPaint
 -   [ShShader](#ShShader) - gradients and patterns
 -   [SkMaskFilter](#SkMaskFilter) - modifications to the alpha mask
 -   [SkColorFilter](#SkColorFilter) - modify the source color before applying the
+-   [SkPathEffect](#SkPathEffect) - modify to the geometry before it
+    generates an alpha mask.
 
 Anytime you draw something in Skia, and want to specify what color it
 is, or how it blends with the background, or what style or font to
@@ -513,3 +515,231 @@ SkColorFilter
 
     <a href="https://fiddle.skia.org/c/0d3d339543afa1b10c60f9826f264c3f">
     <img src="https://fiddle.skia.org/i/0d3d339543afa1b10c60f9826f264c3f_raster.png"></a>
+
+
+<span id="SkPathEffect"></span>
+
+SkPathEffect
+------------
+
+*   SkPath2DPathEffect: Stamp the specified path to fill the shape,
+    using the matrix to define the latice.
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            SkScalar scale = 10.0f;
+            SkPath path;
+            static const int8_t pts[] = { 2, 2, 1, 3, 0, 3, 2, 1, 3, 1,
+                 4, 0, 4, 1, 5, 1, 4, 2, 4, 3, 2, 5, 2, 4, 3, 3, 2, 3 };
+            path.moveTo(2 * scale, 3 * scale);
+            for (size_t i = 0 ; i < sizeof(pts)/sizeof(pts[0]); i += 2) {
+                path.lineTo(pts[i] * scale, pts[i + 1] * scale);
+            }
+            path.close();
+            SkMatrix matrix = SkMatrix::MakeScale(4 * scale);
+            SkAutoTUnref<SkPathEffect> pathEffect(
+                    SkPath2DPathEffect::Create(matrix, path));
+            SkPaint paint;
+            paint.setPathEffect(pathEffect);
+            paint.setAntiAlias(true);
+            canvas->clear(SK_ColorWHITE);
+            SkRect bounds;
+            (void)canvas->getClipBounds(&bounds);
+            bounds.outset(2 * scale, 2 * scale);
+            canvas->drawRect(bounds, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/aae271e4f0178455f0e128981d714d73"><img src="https://fiddle.skia.org/i/aae271e4f0178455f0e128981d714d73_raster.png" alt=""></a>
+
+*   SkLine2DPathEffect: a special case of SkPath2DPathEffect where the
+    path is a straight line to be stroked, not a path to be filled.
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            SkPaint paint;
+            SkMatrix lattice;
+            lattice.setScale(8.0f, 8.0f);
+            lattice.preRotate(30.0f);
+            SkAutoTUnref<SkPathEffect> pe(
+                SkLine2DPathEffect::Create(0.0f, lattice));
+            paint.setPathEffect(pe);
+            paint.setAntiAlias(true);
+            SkRect bounds;
+            (void)canvas->getClipBounds(&bounds);
+            bounds.outset(8.0f, 8.0f);
+            canvas->clear(SK_ColorWHITE);
+            canvas->drawRect(bounds, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/3f49502145886920f95d43912e0f550d"><img src="https://fiddle.skia.org/i/3f49502145886920f95d43912e0f550d_raster.png" alt=""></a>
+
+*   SkPath1DPathEffect: create dash-like effects by replicating the specified path along the drawn path.
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            SkPaint paint;
+            SkPath path;
+            path.addOval(SkRect::MakeWH(16.0f, 6.0f));
+            SkAutoTUnref<SkPathEffect> pe(
+                SkPath1DPathEffect::Create(
+                    path, 32.0f, 0.0f, SkPath1DPathEffect::kRotate_Style));
+            paint.setPathEffect(pe);
+            paint.setAntiAlias(true);
+            canvas->clear(SK_ColorWHITE);
+            canvas->drawCircle(128.0f, 128.0f, 122.0f, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/756a8cdb9458c05f6c1c7c398d979dac"><img src="https://fiddle.skia.org/i/756a8cdb9458c05f6c1c7c398d979dac_raster.png" alt=""></a>
+
+*   SkArcToPathEffect
+
+	The following few examples use this function:
+
+    <!--?prettify lang=cc?-->
+
+        SkPath star() {
+            const SkScalar R = 115.2f, C = 128.0f;
+            SkPath path;
+            path.moveTo(C + R, C);
+            for (int i = 1; i < 8; ++i) {
+                SkScalar a = 2.6927937f * i;
+                path.lineTo(C + R * cos(a), C + R * sin(a));
+            }
+            return path;
+        }
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            SkPaint paint;
+            SkAutoTUnref<SkPathEffect> pe(
+                SkArcToPathEffect::Create(8.0f));
+            paint.setPathEffect(pe);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setAntiAlias(true);
+            canvas->clear(SK_ColorWHITE);
+            SkPath path(star());
+            canvas->drawPath(path, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/1cc2a1363dd0e96954e084f7ca29aa5f"><img src="https://fiddle.skia.org/i/1cc2a1363dd0e96954e084f7ca29aa5f_raster.png" alt=""></a>
+
+*   SkCornerPathEffect: a path effect that can turn sharp corners into
+    various treatments (e.g. rounded corners).
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            SkPaint paint;
+            SkAutoTUnref<SkPathEffect> pe(
+                SkCornerPathEffect::Create(32.0f));
+            paint.setPathEffect(pe);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setAntiAlias(true);
+            canvas->clear(SK_ColorWHITE);
+            const SkScalar R = 115.2f;
+            SkPath path(star());
+            canvas->drawPath(path, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/272c7c17e295747338200ab62e2051e7"><img src="https://fiddle.skia.org/i/272c7c17e295747338200ab62e2051e7_raster.png" alt=""></a>
+
+*   SkDashPathEffect:  a path effect that implements dashing.
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            const SkScalar intervals[] = { 10.0f, 5.0f, 2.0f, 5.0f };
+            size_t count  = sizeof(intervals) / sizeof(intervals[0]);
+            SkAutoTUnref<SkPathEffect> pe(
+                SkDashPathEffect::Create(intervals, count, 0.0f));
+            SkPaint paint;
+            paint.setPathEffect(pe);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(2.0f);
+            paint.setAntiAlias(true);
+            canvas->clear(SK_ColorWHITE);
+            SkPath path(star());
+            canvas->drawPath(path, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/d221ced999a80ac23870d0301ffeedad"><img src="https://fiddle.skia.org/i/d221ced999a80ac23870d0301ffeedad_raster.png" alt=""></a>
+
+*   SkDiscretePathEffect: This path effect chops a path into discrete
+    segments, and randomly displaces them.
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            SkAutoTUnref<SkPathEffect> pe(
+                SkDiscretePathEffect::Create(10.0f, 4.0f));
+            SkPaint paint;
+            paint.setPathEffect(pe);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(2.0f);
+            paint.setAntiAlias(true);
+            canvas->clear(SK_ColorWHITE);
+            SkPath path(star());
+            canvas->drawPath(path, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/af2f177438b376ca45cfffc29cc0177a"><img src="https://fiddle.skia.org/i/af2f177438b376ca45cfffc29cc0177a_raster.png" alt=""></a>
+
+*   SkComposePathEffect: a pathEffect whose effect is to apply
+    first the inner pathEffect and the the outer pathEffect (i.e.
+    outer(inner(path))).
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            SkAutoTUnref<SkPathEffect> pe0(
+                SkDiscretePathEffect::Create(10.0f, 4.0f));
+            const SkScalar intervals[] = { 10.0f, 5.0f, 2.0f, 5.0f };
+            size_t count  = sizeof(intervals) / sizeof(intervals[0]);
+            SkAutoTUnref<SkPathEffect> pe1(
+                SkDashPathEffect::Create(intervals, count, 0.0f));
+            SkAutoTUnref<SkPathEffect> pe(
+                SkComposePathEffect::Create(pe1, pe0));
+            SkPaint paint;
+            paint.setPathEffect(pe);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(2.0f);
+            paint.setAntiAlias(true);
+            canvas->clear(SK_ColorWHITE);
+            SkPath path(star());
+            canvas->drawPath(path, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/39a644161da79e8b5e49c193adac7173"><img src="https://fiddle.skia.org/i/39a644161da79e8b5e49c193adac7173_raster.png" alt=""></a>
+
+*    SkSumPathEffect: a pathEffect whose effect is to apply two effects,
+     in sequence (i.e. first(path) + second(path)).
+
+    <!--?prettify lang=cc?-->
+
+        void draw(SkCanvas* canvas) {
+            SkAutoTUnref<SkPathEffect> pe0(
+                SkDiscretePathEffect::Create(10.0f, 4.0f));
+            SkAutoTUnref<SkPathEffect> pe1(
+                SkDiscretePathEffect::Create(10.0f, 4.0f, 1245u));
+            SkAutoTUnref<SkPathEffect> pe(
+                SkSumPathEffect::Create(pe1, pe0));
+            SkPaint paint;
+            paint.setPathEffect(pe);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(2.0f);
+            paint.setAntiAlias(true);
+            canvas->clear(SK_ColorWHITE);
+            SkPath path(star());
+            canvas->drawPath(path, paint);
+        }
+
+    <a href="https://fiddle.skia.org/c/e5f7861072893bd08c305a076bf32958"><img src="https://fiddle.skia.org/i/e5f7861072893bd08c305a076bf32958_raster.png" alt=""></a>
+
+<!--
+    <a href="https://fiddle.skia.org/c/"><img src="https://fiddle.skia.org/i/_raster.png" alt=""></a>
+-->
+
