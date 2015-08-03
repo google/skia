@@ -106,7 +106,7 @@ protected:
     void drawBitmapRect(const SkDraw& dummy1, const SkBitmap& dummy2,
                         const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint,
-                        SK_VIRTUAL_CONSTRAINT_TYPE flags) override {
+                        SkCanvas::SrcRectConstraint flags) override {
         before();
         INHERITED::drawBitmapRect(dummy1, dummy2, srcOrNull, dst, paint, flags);
         after();

@@ -82,10 +82,10 @@ protected:
     void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                           const SkRect& dst,
                           const SkPaint* paint,
-                          SK_VIRTUAL_CONSTRAINT_TYPE) override {}
+                          SkCanvas::SrcRectConstraint) override {}
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override {}
-    void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*
-                         SRC_RECT_CONSTRAINT_PARAM(constraint)) override {}
+    void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
+                         SkCanvas::SrcRectConstraint) override {}
     void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                           const SkRect& dst, const SkPaint* paint = NULL) override {}
     void onDrawSprite(const SkBitmap& bitmap, int left, int top,
