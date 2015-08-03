@@ -180,19 +180,7 @@ public:
      */
     static void Rewind(SkAutoTUnref<SkPathRef>* pathRef);
 
-    virtual ~SkPathRef() {
-        SkDEBUGCODE(this->validate();)
-        sk_free(fPoints);
-
-        SkDEBUGCODE(fPoints = NULL;)
-        SkDEBUGCODE(fVerbs = NULL;)
-        SkDEBUGCODE(fVerbCnt = 0x9999999;)
-        SkDEBUGCODE(fPointCnt = 0xAAAAAAA;)
-        SkDEBUGCODE(fPointCnt = 0xBBBBBBB;)
-        SkDEBUGCODE(fGenerationID = 0xEEEEEEEE;)
-        SkDEBUGCODE(fEditorsAttached = 0x7777777;)
-    }
-
+    virtual ~SkPathRef();
     int countPoints() const { SkDEBUGCODE(this->validate();) return fPointCnt; }
     int countVerbs() const { SkDEBUGCODE(this->validate();) return fVerbCnt; }
     int countWeights() const { SkDEBUGCODE(this->validate();) return fConicWeights.count(); }
@@ -250,6 +238,13 @@ public:
      * contents but different genIDs.
      */
     uint32_t genID() const;
+
+    struct GenIDChangeListener {
+        virtual ~GenIDChangeListener() {}
+        virtual void onChange() = 0;
+    };
+
+    void addGenIDChangeListener(GenIDChangeListener* listener);
 
     SkDEBUGCODE(void validate() const;)
 
@@ -422,6 +417,8 @@ private:
         return fPoints;
     }
 
+    void callGenIDChangeListeners();
+
     enum {
         kMinSize = 256,
     };
@@ -445,6 +442,8 @@ private:
     };
     mutable uint32_t    fGenerationID;
     SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
+
+    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
 
     friend class PathRefTest_Private;
     typedef SkRefCnt INHERITED;

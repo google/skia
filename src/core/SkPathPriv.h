@@ -59,6 +59,10 @@ public:
         int count = path.countVerbs();
         return count >= 1 && path.fPathRef->verbs()[~(count - 1)] == SkPath::Verb::kClose_Verb;
     }
+
+    static void AddGenIDChangeListener(const SkPath& path, SkPathRef::GenIDChangeListener* listener) {
+        path.fPathRef->addGenIDChangeListener(listener);
+    }
 };
 
 #endif
