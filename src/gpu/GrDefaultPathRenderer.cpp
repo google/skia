@@ -250,19 +250,14 @@ public:
     }
 
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
-        SkAutoTUnref<const GrGeometryProcessor> gp;
-        {
-            using namespace GrDefaultGeoProcFactory;
-            Color color(this->color());
-            Coverage coverage(this->coverage());
-            if (this->coverageIgnored()) {
-                coverage.fType = Coverage::kNone_Type;
-            }
-            LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
-                                                              LocalCoords::kUnused_Type);
-            gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
-                                                     this->viewMatrix()));
-        }
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
+                                                this->color(),
+                                                this->usesLocalCoords(),
+                                                this->coverageIgnored(),
+                                                this->viewMatrix(),
+                                                SkMatrix::I(),
+                                                this->coverage()));
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));

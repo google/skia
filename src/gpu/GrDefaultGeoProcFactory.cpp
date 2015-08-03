@@ -258,6 +258,22 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
                                   GrRandomCoverage(d->fRandom));
 }
 
+const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(uint32_t gpTypeFlags,
+                                                           GrColor color,
+                                                           bool localCoordsWillBeRead,
+                                                           bool coverageWillBeIgnored,
+                                                           const SkMatrix& viewMatrix,
+                                                           const SkMatrix& localMatrix,
+                                                           uint8_t coverage) {
+    return DefaultGeoProc::Create(gpTypeFlags,
+                                  color,
+                                  viewMatrix,
+                                  localMatrix,
+                                  localCoordsWillBeRead,
+                                  coverageWillBeIgnored,
+                                  coverage);
+}
+
 const GrGeometryProcessor* GrDefaultGeoProcFactory::Create(const Color& color,
                                                            const Coverage& coverage,
                                                            const LocalCoords& localCoords,
@@ -286,19 +302,17 @@ const GrGeometryProcessor* GrDefaultGeoProcFactory::CreateForDeviceSpace(
                                                                      const Coverage& coverage,
                                                                      const LocalCoords& localCoords,
                                                                      const SkMatrix& viewMatrix) {
+    SkASSERT(LocalCoords::kUsePosition_Type == localCoords.fType);
     SkMatrix invert = SkMatrix::I();
-    if (LocalCoords::kUnused_Type != localCoords.fType) {
-        SkASSERT(LocalCoords::kUsePosition_Type == localCoords.fType);
-        if (!viewMatrix.isIdentity() && !viewMatrix.invert(&invert)) {
-            SkDebugf("Could not invert\n");
-            return NULL;
-        }
+    if (!viewMatrix.isIdentity() && !viewMatrix.invert(&invert)) {
+        SkDebugf("Could not invert\n");
+        return NULL;
+    }
 
-        if (localCoords.hasLocalMatrix()) {
-            invert.preConcat(*localCoords.fMatrix);
-        }
+    if (localCoords.hasLocalMatrix()) {
+        invert.preConcat(*localCoords.fMatrix);
     }
 
     LocalCoords inverted(LocalCoords::kUsePosition_Type, &invert);
-    return Create(color, coverage, inverted, SkMatrix::I());
+    return Create(color, coverage, inverted);
 }

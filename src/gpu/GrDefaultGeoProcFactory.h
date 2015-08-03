@@ -127,7 +127,7 @@ namespace GrDefaultGeoProcFactory {
     const GrGeometryProcessor* Create(const Color&,
                                       const Coverage&,
                                       const LocalCoords&,
-                                      const SkMatrix& viewMatrix);
+                                      const SkMatrix& viewMatrix = SkMatrix::I());
 
     /*
      * Use this factory to create a GrGeometryProcessor that expects a device space vertex position
@@ -138,6 +138,15 @@ namespace GrDefaultGeoProcFactory {
                                                     const Coverage&,
                                                     const LocalCoords&,
                                                     const SkMatrix& viewMatrix);
+
+    // TODO deprecate this
+    const GrGeometryProcessor* Create(uint32_t gpTypeFlags,
+                                      GrColor,
+                                      bool localCoordsWillBeRead,
+                                      bool coverageWillBeIgnored,
+                                      const SkMatrix& viewMatrix = SkMatrix::I(),
+                                      const SkMatrix& localMatrix = SkMatrix::I(),
+                                      uint8_t coverage = 0xff);
 
     inline size_t DefaultVertexStride() { return sizeof(PositionAttr); }
 };

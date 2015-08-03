@@ -288,17 +288,13 @@ public:
     }
 
     void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
-        SkAutoTUnref<const GrGeometryProcessor> gp;
-        {
-            using namespace GrDefaultGeoProcFactory;
-            Color color(this->color());
-            Coverage coverage(this->coverageIgnored() ? Coverage::kSolid_Type :
-                                                        Coverage::kNone_Type);
-            LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
-                                                              LocalCoords::kUnused_Type);
-            gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
-                                                     this->viewMatrix()));
-        }
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+                GrDefaultGeoProcFactory::Create(GrDefaultGeoProcFactory::kPosition_GPType,
+                                                this->color(),
+                                                this->usesLocalCoords(),
+                                                this->coverageIgnored(),
+                                                this->viewMatrix(),
+                                                SkMatrix::I()));
 
         batchTarget->initDraw(gp, pipeline);
 
@@ -564,26 +560,23 @@ static const GrGeometryProcessor* set_vertex_attributes(bool hasLocalCoords,
                                                         GrColor color,
                                                         const SkMatrix& viewMatrix,
                                                         bool coverageIgnored) {
-    using namespace GrDefaultGeoProcFactory;
     *texOffset = -1;
     *colorOffset = -1;
-    Color gpColor(color);
-    if (hasColors) {
-        gpColor.fType = Color::kAttribute_Type;
-    }
-
-    Coverage coverage(coverageIgnored ? Coverage::kNone_Type : Coverage::kSolid_Type);
-    LocalCoords localCoords(hasLocalCoords ? LocalCoords::kHasExplicit_Type :
-                                             LocalCoords::kUsePosition_Type);
+    uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
     if (hasLocalCoords && hasColors) {
         *colorOffset = sizeof(SkPoint);
         *texOffset = sizeof(SkPoint) + sizeof(GrColor);
+        flags |= GrDefaultGeoProcFactory::kColor_GPType |
+                 GrDefaultGeoProcFactory::kLocalCoord_GPType;
     } else if (hasLocalCoords) {
         *texOffset = sizeof(SkPoint);
+        flags |= GrDefaultGeoProcFactory::kLocalCoord_GPType;
     } else if (hasColors) {
         *colorOffset = sizeof(SkPoint);
+        flags |= GrDefaultGeoProcFactory::kColor_GPType;
     }
-    return GrDefaultGeoProcFactory::Create(gpColor, coverage, localCoords, viewMatrix);
+    return GrDefaultGeoProcFactory::Create(flags, color, hasLocalCoords, coverageIgnored,
+                                           viewMatrix, SkMatrix::I());
 }
 
 class DrawVerticesBatch : public GrBatch {

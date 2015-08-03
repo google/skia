@@ -1404,24 +1404,11 @@ public:
         }
 
         LOG("got %d pts, %d contours\n", maxPts, contourCnt);
-        SkAutoTUnref<const GrGeometryProcessor> gp;
-        {
-            using namespace GrDefaultGeoProcFactory;
-
-            Color color(fColor);
-            LocalCoords localCoords(fPipelineInfo.readsLocalCoords() ?
-                                    LocalCoords::kUsePosition_Type :
-                                    LocalCoords::kUnused_Type);
-            Coverage::Type coverageType;
-            if (fPipelineInfo.readsCoverage()) {
-                coverageType = Coverage::kSolid_Type;
-            } else {
-                coverageType = Coverage::kNone_Type;
-            }
-            Coverage coverage(coverageType);
-            gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
-                                                     fViewMatrix));
-        }
+        uint32_t flags = GrDefaultGeoProcFactory::kPosition_GPType;
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+            GrDefaultGeoProcFactory::Create(flags, fColor, fPipelineInfo.readsLocalCoords(),
+                                            !fPipelineInfo.readsCoverage(), fViewMatrix,
+                                            SkMatrix::I()));
         batchTarget->initDraw(gp, pipeline);
 
         SkAutoTDeleteArray<Vertex*> contours(SkNEW_ARRAY(Vertex *, contourCnt));
