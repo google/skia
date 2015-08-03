@@ -237,11 +237,12 @@ void SkAndroidSDKCanvas::onDrawImage(const SkImage* image,
 }
 
 void SkAndroidSDKCanvas::onDrawImageRect(const SkImage* image,
-                                                  const SkRect* in,
-                                                  const SkRect& out,
-                                                  const SkPaint* paint) {
+                                         const SkRect* in,
+                                         const SkRect& out,
+                                         const SkPaint* paint
+                                         SrcRectConstraint constraint) {
     FILTER_PTR(paint);
-    fProxyTarget->drawImageRect(image, in, out, filteredPaint);
+    fProxyTarget->drawImageRect(image, in, out, filteredPaint, constraint);
 }
 
 void SkAndroidSDKCanvas::onDrawPicture(const SkPicture* picture,

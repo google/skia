@@ -72,8 +72,8 @@ protected:
                      const SkPaint& paint) override;
 
     void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override;
-    void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*)
-        override;
+    void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
+                         SrcRectConstraint) override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*);
 
     // PASS THROUGH
