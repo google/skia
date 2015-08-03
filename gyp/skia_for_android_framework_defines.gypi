@@ -13,7 +13,6 @@
     # If these become 'permanent', they should be moved into common_variables.gypi
     #
     'skia_for_android_framework_defines': [
-      'SK_SUPPORT_LEGACY_GETDEVICE',
       'SK_SUPPORT_LEGACY_UNBALANCED_PIXELREF_LOCKCOUNT',
       # Needed until we fix skbug.com/2440.
       'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
