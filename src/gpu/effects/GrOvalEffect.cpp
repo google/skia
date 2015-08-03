@@ -285,8 +285,9 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
     const EllipseEffect& ee = args.fFp.cast<EllipseEffect>();
     const char *ellipseName;
     // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
+    // The last two terms can underflow on mediump, so we use highp.
     fEllipseUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                         kVec4f_GrSLType, kHigh_GrSLPrecision,
                                          "ellipse",
                                          &ellipseName);
 

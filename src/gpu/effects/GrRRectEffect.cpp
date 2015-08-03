@@ -509,16 +509,18 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     // fragments near the other three edges will get the correct AA. Fragments in the interior of
     // the rrect will have a (0,0) vector at all four corners. So long as the radii > 0.5 they will
     // correctly produce an alpha value of 1 at all four corners. We take the min of all the alphas.
+    //
     // The code below is a simplified version of the above that performs maxs on the vector
     // components before computing distances and alpha values so that only one distance computation
     // need be computed to determine the min alpha.
     fsBuilder->codeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
     fsBuilder->codeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
+    // The uniforms with the inv squared radii are highp to prevent underflow.
     switch (erre.getRRect().getType()) {
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
             fInvRadiiSqdUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                      kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                      kVec2f_GrSLType, kHigh_GrSLPrecision,
                                                       "invRadiiXY",
                                                       &invRadiiXYSqdName);
             fsBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
@@ -529,7 +531,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         case SkRRect::kNinePatch_Type: {
             const char *invRadiiLTRBSqdName;
             fInvRadiiSqdUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                      kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                      kVec4f_GrSLType, kHigh_GrSLPrecision,
                                                       "invRadiiLTRB",
                                                       &invRadiiLTRBSqdName);
             fsBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
