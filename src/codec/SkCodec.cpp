@@ -140,22 +140,3 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     return this->getPixels(info, pixels, rowBytes, NULL, NULL, NULL);
 }
 
-SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo, const Options* options,
-        SkPMColor ctable[], int* ctableCount) {
-
-    // Set options.
-    Options optsStorage;
-    if (NULL == options) {
-        options = &optsStorage;
-    }
-
-    return this->onGetScanlineDecoder(dstInfo, *options, ctable, ctableCount);
-}
-
-SkScanlineDecoder* SkCodec::getScanlineDecoder(const SkImageInfo& dstInfo) {
-    SkASSERT(kIndex_8_SkColorType != dstInfo.colorType());
-    if (kIndex_8_SkColorType == dstInfo.colorType()) {
-        return NULL;
-    }
-    return this->getScanlineDecoder(dstInfo, NULL, NULL, NULL);
-}

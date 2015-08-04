@@ -389,12 +389,46 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
  */
 class SkJpegScanlineDecoder : public SkScanlineDecoder {
 public:
-    SkJpegScanlineDecoder(const SkImageInfo& dstInfo, SkJpegCodec* codec,
-            const SkCodec::Options& opts)
-        : INHERITED(dstInfo)
+    SkJpegScanlineDecoder(const SkImageInfo& srcInfo, SkJpegCodec* codec)
+        : INHERITED(srcInfo)
         , fCodec(codec)
-        , fOpts(opts)
+        , fOpts()
     {}
+
+    SkCodec::Result onStart(const SkImageInfo& dstInfo, const SkCodec::Options& options,
+                            SkPMColor ctable[], int* ctableCount) override {
+
+        // Rewind the stream if needed
+        if (!fCodec->handleRewind()) {
+            return SkCodec::kCouldNotRewind;
+        }
+
+        // Set the jump location for libjpeg errors
+        if (setjmp(fCodec->fDecoderMgr->getJmpBuf())) {
+            SkCodecPrintf("setjmp: Error from libjpeg\n");
+            return SkCodec::kInvalidInput;
+        }
+
+        // Check if we can decode to the requested destination and set the output color space
+        if (!fCodec->setOutputColorSpace(dstInfo)) {
+            return SkCodec::kInvalidConversion;
+        }
+
+        // Perform the necessary scaling
+        if (!fCodec->scaleToDimensions(dstInfo.width(), dstInfo.height())) {
+            return SkCodec::kInvalidScale;
+        }
+
+        // Now, given valid output dimensions, we can start the decompress
+        if (!turbo_jpeg_start_decompress(fCodec->fDecoderMgr->dinfo())) {
+            SkCodecPrintf("start decompress failed\n");
+            return SkCodec::kInvalidInput;
+        }
+
+        fOpts = options;
+
+        return SkCodec::kSuccess;
+    }
 
     virtual ~SkJpegScanlineDecoder() {
         if (setjmp(fCodec->fDecoderMgr->getJmpBuf())) {
@@ -464,53 +498,18 @@ public:
 
 private:
     SkAutoTDelete<SkJpegCodec> fCodec;
-    const SkCodec::Options&    fOpts;
+    SkCodec::Options           fOpts;
 
     typedef SkScanlineDecoder INHERITED;
 };
 
-SkScanlineDecoder* SkJpegCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
-        const Options& options, SkPMColor ctable[], int* ctableCount) {
-
-    // Rewind the stream if needed
-    if (!this->handleRewind()) {
-        SkCodecPrintf("Could not rewind\n");
-        return NULL;
-    }
-
-    // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
-        SkCodecPrintf("setjmp: Error from libjpeg\n");
-        return NULL;
-    }
-
-    SkStream* stream = this->stream()->duplicate();
-    if (!stream) {
-        return NULL;
-    }
+SkScanlineDecoder* SkJpegCodec::NewSDFromStream(SkStream* stream) {
     SkAutoTDelete<SkJpegCodec> codec(static_cast<SkJpegCodec*>(SkJpegCodec::NewFromStream(stream)));
     if (!codec) {
         return NULL;
     }
 
-    // Check if we can decode to the requested destination and set the output color space
-    if (!codec->setOutputColorSpace(dstInfo)) {
-        SkCodecPrintf("Cannot convert to output type\n");
-        return NULL;
-    }
-
-    // Perform the necessary scaling
-    if (!codec->scaleToDimensions(dstInfo.width(), dstInfo.height())) {
-        SkCodecPrintf("Cannot scale to output dimensions\n");
-        return NULL;
-    }
-
-    // Now, given valid output dimensions, we can start the decompress
-    if (!turbo_jpeg_start_decompress(codec->fDecoderMgr->dinfo())) {
-        SkCodecPrintf("start decompress failed\n");
-        return NULL;
-    }
-
+    const SkImageInfo& srcInfo = codec->getInfo();
     // Return the new scanline decoder
-    return SkNEW_ARGS(SkJpegScanlineDecoder, (dstInfo, codec.detach(), options));
+    return SkNEW_ARGS(SkJpegScanlineDecoder, (srcInfo, codec.detach()));
 }

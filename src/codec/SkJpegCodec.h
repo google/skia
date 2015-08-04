@@ -18,6 +18,8 @@ extern "C" {
     #include "jpeglib.h"
 }
 
+class SkScanlineDecoder;
+
 /*
  *
  * This class implements the decoding for jpeg images
@@ -39,6 +41,13 @@ public:
      */
     static SkCodec* NewFromStream(SkStream*);
 
+    /*
+     * Assumes IsJpeg was called and returned true
+     * Creates a jpeg scanline decoder
+     * Takes ownership of the stream
+     */
+    static SkScanlineDecoder* NewSDFromStream(SkStream*);
+
 protected:
 
     /*
@@ -55,9 +64,6 @@ protected:
     SkEncodedFormat onGetEncodedFormat() const override {
         return kJPEG_SkEncodedFormat;
     }
-
-    SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo, const Options& options,
-            SkPMColor ctable[], int* ctableCount) override;
 
 private:
 

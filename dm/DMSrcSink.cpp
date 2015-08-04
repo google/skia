@@ -159,11 +159,13 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             break;
         }
         case kScanline_Mode: {
-            SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(codec->getScanlineDecoder(
-                    decodeInfo, NULL, colorPtr, colorCountPtr));
-            if (NULL == scanlineDecoder) {
+            SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
+                    SkScanlineDecoder::NewFromData(encoded));
+            if (NULL == scanlineDecoder || SkCodec::kSuccess !=
+                    scanlineDecoder->start(decodeInfo, NULL, colorPtr, colorCountPtr)) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }
+
             const SkCodec::Result result = scanlineDecoder->getScanlines(
                     bitmap.getAddr(0, 0), decodeInfo.height(), bitmap.rowBytes());
             switch (result) {
@@ -222,8 +224,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     const int y = row * subsetHeight;
                     //create scanline decoder for each subset
                     SkAutoTDelete<SkScanlineDecoder> subsetScanlineDecoder(
-                            codec->getScanlineDecoder(decodeInfo, NULL, colorPtr, colorCountPtr));
-                    if (NULL == subsetScanlineDecoder) {
+                            SkScanlineDecoder::NewFromData(encoded));
+                    if (NULL == subsetScanlineDecoder || SkCodec::kSuccess !=
+                            subsetScanlineDecoder->start(
+                            decodeInfo, NULL, colorPtr, colorCountPtr))
+                    {
                         if (x == 0 && y == 0) {
                             //first try, image may not be compatible
                             return Error::Nonfatal("Cannot use scanline decoder for all images");
@@ -289,9 +294,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             const int numStripes = (height + stripeHeight - 1) / stripeHeight;
 
             // Decode odd stripes
-            SkAutoTDelete<SkScanlineDecoder> decoder(
-                    codec->getScanlineDecoder(decodeInfo, NULL, colorPtr, colorCountPtr));
-            if (NULL == decoder) {
+            SkAutoTDelete<SkScanlineDecoder> decoder(SkScanlineDecoder::NewFromData(encoded));
+            if (NULL == decoder || SkCodec::kSuccess !=
+                    decoder->start(decodeInfo, NULL, colorPtr, colorCountPtr)) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }
             for (int i = 0; i < numStripes; i += 2) {
@@ -323,9 +328,10 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             // Decode even stripes
-            decoder.reset(codec->getScanlineDecoder(decodeInfo, NULL, colorPtr, colorCountPtr));
-            if (NULL == decoder) {
-                return "Failed to create second scanline decoder.";
+            const SkCodec::Result startResult = decoder->start(decodeInfo, NULL, colorPtr,
+                                                               colorCountPtr);
+            if (SkCodec::kSuccess != startResult) {
+                return "Failed to restart scanline decoder with same parameters.";
             }
             for (int i = 0; i < numStripes; i += 2) {
                 // Read a stripe

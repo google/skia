@@ -95,17 +95,14 @@ static void check(skiatest::Reporter* r,
     // verify that re-decoding gives the same result.
     compare_to_good_digest(r, digest, bm);
 
-    SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(codec->getScanlineDecoder(info));
+    stream.reset(resource(path));
+    SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
+            SkScanlineDecoder::NewFromStream(stream.detach()));
     if (supportsScanlineDecoding) {
         bm.eraseColor(SK_ColorYELLOW);
         REPORTER_ASSERT(r, scanlineDecoder);
 
-        // Regular decodes should not be affected by creating a scanline decoder
-        result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
-        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
-        compare_to_good_digest(r, digest, bm);
-
-        bm.eraseColor(SK_ColorYELLOW);
+        REPORTER_ASSERT(r, scanlineDecoder->start(info) == SkCodec::kSuccess);
 
         for (int y = 0; y < info.height(); y++) {
             result = scanlineDecoder->getScanlines(bm.getAddr(0, y), 1, 0);

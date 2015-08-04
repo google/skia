@@ -513,9 +513,10 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
         int colorCount;
         const SkImageInfo info = codec->getInfo().makeColorType(colorType);
         SkAutoTDeleteArray<uint8_t> row(SkNEW_ARRAY(uint8_t, info.minRowBytes()));
-        SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(codec->getScanlineDecoder(info, NULL,
-                colors, &colorCount));
-        if (NULL == scanlineDecoder) {
+        SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(SkScanlineDecoder::NewFromData(encoded));
+        if (NULL == scanlineDecoder || scanlineDecoder->start(info, NULL,
+                colors, &colorCount) != SkCodec::kSuccess)
+        {
             SkDebugf("Could not create scanline decoder for %s with color type %s.  "
                     "Skipping bench.\n", path.c_str(), get_color_name(colorType));
             return false;

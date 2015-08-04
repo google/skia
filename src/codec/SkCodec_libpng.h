@@ -23,9 +23,11 @@ class SkStream;
 
 class SkPngCodec : public SkCodec {
 public:
-    // Assumes IsPng was called and returned true.
-    static SkCodec* NewFromStream(SkStream*);
     static bool IsPng(SkStream*);
+
+    // Assume IsPng was called and returned true.
+    static SkCodec* NewFromStream(SkStream*);
+    static SkScanlineDecoder* NewSDFromStream(SkStream*);
 
     virtual ~SkPngCodec();
 
@@ -33,8 +35,6 @@ protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
             override;
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
-    SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo, const Options& options,
-                                            SkPMColor ctable[], int* ctableCount) override;
     bool onReallyHasAlpha() const override { return fReallyHasAlpha; }
 private:
     png_structp                 fPng_ptr;

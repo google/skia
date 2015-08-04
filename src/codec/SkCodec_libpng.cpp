@@ -594,13 +594,40 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
 
 class SkPngScanlineDecoder : public SkScanlineDecoder {
 public:
-    SkPngScanlineDecoder(const SkImageInfo& dstInfo, SkPngCodec* codec)
-        : INHERITED(dstInfo)
+    SkPngScanlineDecoder(const SkImageInfo& srcInfo, SkPngCodec* codec)
+        : INHERITED(srcInfo)
         , fCodec(codec)
         , fHasAlpha(false)
+    {}
+
+    SkCodec::Result onStart(const SkImageInfo& dstInfo,
+                            const SkCodec::Options& options,
+                            SkPMColor ctable[], int* ctableCount) override
     {
+        if (!fCodec->handleRewind()) {
+            return SkCodec::kCouldNotRewind;
+        }
+
+        if (!conversion_possible(dstInfo, this->getInfo())) {
+            return SkCodec::kInvalidConversion;
+        }
+
+        // Check to see if scaling was requested.
+        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+            return SkCodec::kInvalidScale;
+        }
+
+        const SkCodec::Result result = fCodec->initializeSwizzler(dstInfo, options, ctable,
+                                                                  ctableCount);
+        if (result != SkCodec::kSuccess) {
+            return result;
+        }
+
+        fHasAlpha = false;
         fStorage.reset(dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig));
         fSrcRow = static_cast<uint8_t*>(fStorage.get());
+
+        return SkCodec::kSuccess;
     }
 
     SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
@@ -648,24 +675,60 @@ private:
 
 class SkPngInterlacedScanlineDecoder : public SkScanlineDecoder {
 public:
-    SkPngInterlacedScanlineDecoder(const SkImageInfo& dstInfo, SkPngCodec* codec)
-        : INHERITED(dstInfo)
+    SkPngInterlacedScanlineDecoder(const SkImageInfo& srcInfo, SkPngCodec* codec)
+        : INHERITED(srcInfo)
         , fCodec(codec)
         , fHasAlpha(false)
         , fCurrentRow(0)
-        , fHeight(dstInfo.height())
-    {
-        fSrcRowBytes = dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig);
-        fGarbageRow.reset(fSrcRowBytes);
-        fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
-    }
+        , fHeight(srcInfo.height())
+        , fCanSkipRewind(false)
+    {}
 
-    SkCodec::Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
-        //rewind stream if have previously called onGetScanlines, 
-        //since we need entire progressive image to get scanlines
+    SkCodec::Result onStart(const SkImageInfo& dstInfo,
+                            const SkCodec::Options& options,
+                            SkPMColor ctable[], int* ctableCount) override
+    {
         if (!fCodec->handleRewind()) {
             return SkCodec::kCouldNotRewind;
         }
+
+        if (!conversion_possible(dstInfo, this->getInfo())) {
+            return SkCodec::kInvalidConversion;
+        }
+
+        // Check to see if scaling was requested.
+        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+            return SkCodec::kInvalidScale;
+        }
+
+        const SkCodec::Result result = fCodec->initializeSwizzler(dstInfo, options, ctable,
+                                                                  ctableCount);
+        if (result != SkCodec::kSuccess) {
+            return result;
+        }
+
+        fHasAlpha = false;
+        fCurrentRow = 0;
+        fHeight = dstInfo.height();
+        fSrcRowBytes = dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig);
+        fGarbageRow.reset(fSrcRowBytes);
+        fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
+        fCanSkipRewind = true;
+
+        return SkCodec::kSuccess;
+    }
+
+    SkCodec::Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
+        // rewind stream if have previously called onGetScanlines,
+        // since we need entire progressive image to get scanlines
+        if (fCanSkipRewind) {
+            // We already rewound in onStart, so there is no reason to rewind.
+            // Next time onGetScanlines is called, we will need to rewind.
+            fCanSkipRewind = false;
+        } else if (!fCodec->handleRewind()) {
+            return SkCodec::kCouldNotRewind;
+        }
+
         if (setjmp(png_jmpbuf(fCodec->fPng_ptr))) {
             SkCodecPrintf("setjmp long jump!\n");
             return SkCodec::kInvalidInput;
@@ -718,42 +781,34 @@ private:
     size_t                      fSrcRowBytes;
     SkAutoMalloc                fGarbageRow;
     uint8_t*                    fGarbageRowPtr;
+    // FIXME: This imitates behavior in SkCodec::rewindIfNeeded. That function
+    // is called whenever some action is taken that reads the stream and
+    // therefore the next call will require a rewind. So it modifies a boolean
+    // to note that the *next* time it is called a rewind is needed.
+    // SkPngInterlacedScanlineDecoder has an extra wrinkle - calling onStart
+    // followed by onGetScanlines does *not* require a rewind. Since
+    // rewindIfNeeded does not have this flexibility, we need to add another
+    // layer.
+    bool                        fCanSkipRewind;
 
     typedef SkScanlineDecoder INHERITED;
 };
 
-
-SkScanlineDecoder* SkPngCodec::onGetScanlineDecoder(const SkImageInfo& dstInfo,
-        const Options& options, SkPMColor ctable[], int* ctableCount) {
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        SkCodecPrintf("no conversion possible\n");
-        return NULL;
-    }
-    // Check to see if scaling was requested.
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-        return NULL;
-    }
-    // Create a new SkPngCodec, to be owned by the scanline decoder.
-    SkStream* stream = this->stream()->duplicate();
-    if (!stream) {
-        return NULL;
-    }
+SkScanlineDecoder* SkPngCodec::NewSDFromStream(SkStream* stream) {
     SkAutoTDelete<SkPngCodec> codec (static_cast<SkPngCodec*>(SkPngCodec::NewFromStream(stream)));
     if (!codec) {
         return NULL;
     }
 
-    if (codec->initializeSwizzler(dstInfo, options, ctable, ctableCount) != kSuccess) {
-        SkCodecPrintf("failed to initialize the swizzler.\n");
-        return NULL;
-    }
-
+    codec->fNumberPasses = png_set_interlace_handling(codec->fPng_ptr);
     SkASSERT(codec->fNumberPasses != INVALID_NUMBER_PASSES);
+
+    const SkImageInfo& srcInfo = codec->getInfo();
     if (codec->fNumberPasses > 1) {
         // interlaced image
-        return SkNEW_ARGS(SkPngInterlacedScanlineDecoder, (dstInfo, codec.detach()));
+        return SkNEW_ARGS(SkPngInterlacedScanlineDecoder, (srcInfo, codec.detach()));
     }
 
-    return SkNEW_ARGS(SkPngScanlineDecoder, (dstInfo, codec.detach()));
+    return SkNEW_ARGS(SkPngScanlineDecoder, (srcInfo, codec.detach()));
 }
 

@@ -17,7 +17,6 @@
 #include "SkTypes.h"
 
 class SkData;
-class SkScanlineDecoder;
 
 /**
  *  Abstraction layer directly on top of an image codec.
@@ -202,37 +201,6 @@ public:
     Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
-     *  Create a new object which can be used to decode individual scanlines.
-     *
-     *  The returned object has its own state, independent of the SkCodec, or any
-     *  previously spawned SkScanlineDecoders. At creation, it will be ready to
-     *  return the first scanline.
-     *
-     *  @param dstInfo Info of the destination. If the dimensions do not match
-     *      those of getInfo, this implies a scale.
-     *  @param options Contains decoding options, including if memory is zero
-     *      initialized.
-     *  @param ctable A pointer to a color table.  When dstInfo.colorType() is
-     *      kIndex8, this should be non-NULL and have enough storage for 256
-     *      colors.  The color table will be populated after decoding the palette.
-     *  @param ctableCount A pointer to the size of the color table.  When
-     *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
-     *      be modified to the true size of the color table (<= 256) after
-     *      decoding the palette.
-     *  @return New SkScanlineDecoder, or NULL on failure.
-     *
-     *  NOTE: This requires duplicating the SkStream.
-     */
-    SkScanlineDecoder* getScanlineDecoder(const SkImageInfo& dstInfo, const Options* options,
-                                          SkPMColor ctable[], int* ctableCount);
-
-    /**
-     *  Simplified version of getScanlineDecoder() that asserts that info is NOT
-     *  kIndex8_SkColorType and uses the default Options.
-     */
-    SkScanlineDecoder* getScanlineDecoder(const SkImageInfo& dstInfo);
-
-    /**
      *  Some images may initially report that they have alpha due to the format
      *  of the encoded data, but then never use any colors which have alpha
      *  less than 100%. This function can be called *after* decoding to
@@ -261,30 +229,6 @@ protected:
     virtual bool onGetValidSubset(SkIRect* /* desiredSubset */) const {
         // By default, subsets are not supported.
         return false;
-    }
-
-    /**
-     *  Override if your codec supports scanline decoding.
-     *
-     *  @param dstInfo Info of the destination. If the dimensions do not match
-     *      those of getInfo, this implies a scale.
-     *  @param options Contains decoding options, including if memory is zero
-     *      initialized.
-     *  @param ctable A pointer to a color table.  When dstInfo.colorType() is
-     *      kIndex8, this should be non-NULL and have enough storage for 256
-     *      colors.  The color table will be populated after decoding the palette.
-     *  @param ctableCount A pointer to the size of the color table.  When
-     *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
-     *      be modified to the true size of the color table (<= 256) after
-     *      decoding the palette.
-     *  @return New SkScanlineDecoder on success, NULL otherwise. The caller is
-     *      responsible for deleting the returned object.
-     */
-    virtual SkScanlineDecoder* onGetScanlineDecoder(const SkImageInfo& dstInfo,
-                                                    const Options& options,
-                                                    SkPMColor ctable[],
-                                                    int* ctableCount) {
-        return NULL;
     }
 
     virtual bool onReallyHasAlpha() const { return false; }
