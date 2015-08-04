@@ -42,8 +42,6 @@ public:
 
     const char* name() const override { return "Arithmetic"; }
 
-    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     float k1() const { return fK1; }
@@ -53,6 +51,8 @@ public:
     bool enforcePMColor() const { return fEnforcePMColor; }
 
 private:
+    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;

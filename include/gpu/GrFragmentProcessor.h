@@ -26,10 +26,6 @@ public:
         : INHERITED()
         , fUsesLocalCoords(false) {}
 
-    /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const = 0;
-
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrFragmentProcessor; caller is responsible for deleting
         the object. */
@@ -39,7 +35,22 @@ public:
         in generated shader code. */
     virtual const char* name() const = 0;
 
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+        this->onGetGLProcessorKey(caps, b);
+        for (int i = 0; i < fChildProcessors.count(); ++i) {
+            fChildProcessors[i]->getGLProcessorKey(caps, b);
+        }
+    }
+
     int numTransforms() const { return fCoordTransforms.count(); }
+
+    int numTransformsIncludeChildProcs() const {
+        int numTransforms = fCoordTransforms.count();
+        for (int i = 0; i < fChildProcessors.count(); ++i) {
+            numTransforms += fChildProcessors[i]->numTransformsIncludeChildProcs();
+        }
+        return numTransforms;
+    }
 
     /** Returns the coordinate transformation at index. index must be valid according to
         numTransforms(). */
@@ -47,6 +58,22 @@ public:
 
     const SkTArray<const GrCoordTransform*, true>& coordTransforms() const {
         return fCoordTransforms;
+    }
+
+    int numChildProcessors() const { return fChildProcessors.count(); }
+
+    GrFragmentProcessor* childProcessor(int index) const { return fChildProcessors[index]; }
+
+    const SkTArray<GrFragmentProcessor*, false>& childProcessors() const {
+        return fChildProcessors;
+    }
+
+    int numTexturesIncludeChildProcs() const {
+        int numTextures = this->numTextures();
+        for (int i = 0; i < fChildProcessors.count(); ++i) {
+            numTextures += fChildProcessors[i]->numTexturesIncludeChildProcs();
+        }
+        return numTextures;
     }
 
     /** Do any of the coordtransforms for this processor require local coords? */
@@ -98,11 +125,24 @@ protected:
     void addCoordTransform(const GrCoordTransform*);
 
     /**
+     * FragmentProcessor subclasses call this to register any child FragmentProcessors they have.
+     * This is for processors whose shader code will be composed of nested processors whose output
+     * colors will be combined somehow to produce its output color.  Registering these child
+     * processors will allow the ProgramBuilder to automatically add their transformed coords and
+     * texture accesses and mangle their uniform and output color names and
+     */
+    void registerChildProcessor(GrFragmentProcessor* child);
+
+    /**
      * Subclass implements this to support getConstantColorComponents(...).
      */
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
 
 private:
+    /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const = 0;
+
     /**
      * Subclass implements this to support isEqual(). It will only be called if it is known that
      * the two processors are of the same subclass (i.e. they return the same object from
@@ -115,6 +155,7 @@ private:
 
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     bool                                         fUsesLocalCoords;
+    SkTArray<GrFragmentProcessor*, false>        fChildProcessors;
 
     typedef GrProcessor INHERITED;
 };

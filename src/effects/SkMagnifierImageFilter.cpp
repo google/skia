@@ -47,8 +47,6 @@ public:
 
     const char* name() const override { return "Magnifier"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkRect& bounds() const { return fBounds; }    // Bounds of source image.
@@ -84,6 +82,8 @@ private:
         , fYInvInset(yInvInset) {
         this->initClassID<GrMagnifierEffect>();
     }
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -190,7 +190,7 @@ void GrGLMagnifierEffect::setData(const GrGLProgramDataManager& pdman,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrMagnifierEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void GrMagnifierEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                           GrProcessorKeyBuilder* b) const {
     GrGLMagnifierEffect::GenKey(*this, caps, b);
 }

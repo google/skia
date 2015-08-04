@@ -146,7 +146,7 @@ GrFragmentProcessor* GrConfigConversionEffect::TestCreate(GrProcessorTestData* d
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrConfigConversionEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void GrConfigConversionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                                  GrProcessorKeyBuilder* b) const {
     GrGLConfigConversionEffect::GenKey(*this, caps, b);
 }

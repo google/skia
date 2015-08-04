@@ -255,7 +255,7 @@ GrTextureDomainEffect::~GrTextureDomainEffect() {
 
 }
 
-void GrTextureDomainEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void GrTextureDomainEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GrGLTextureDomainEffect::GenKey(*this, caps, b);
 }

@@ -487,7 +487,7 @@ GrCustomXferFP::GrCustomXferFP(GrProcessorDataManager*, SkXfermode::Mode mode, G
     this->addTextureAccess(&fBackgroundAccess);
 }
 
-void GrCustomXferFP::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrCustomXferFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXferFP::GenKey(*this, caps, b);
 }
 

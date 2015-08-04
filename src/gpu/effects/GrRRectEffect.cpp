@@ -49,8 +49,6 @@ public:
 
     const char* name() const override { return "CircularRRect"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkRRect& getRRect() const { return fRRect; }
@@ -61,6 +59,8 @@ public:
 
 private:
     CircularRRectEffect(GrPrimitiveEdgeType, uint32_t circularCornerFlags, const SkRRect&);
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
@@ -361,7 +361,7 @@ void GLCircularRRectEffect::setData(const GrGLProgramDataManager& pdman,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CircularRRectEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void CircularRRectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GLCircularRRectEffect::GenKey(*this, caps, b);
 }
@@ -380,8 +380,6 @@ public:
 
     const char* name() const override { return "EllipticalRRect"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkRRect& getRRect() const { return fRRect; }
@@ -390,6 +388,8 @@ public:
 
 private:
     EllipticalRRectEffect(GrPrimitiveEdgeType, const SkRRect&);
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
@@ -609,7 +609,7 @@ void GLEllipticalRRectEffect::setData(const GrGLProgramDataManager& pdman,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EllipticalRRectEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void EllipticalRRectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GLEllipticalRRectEffect::GenKey(*this, caps, b);
 }

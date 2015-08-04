@@ -102,11 +102,6 @@ public:
         typedef GrGLFragmentProcessor INHERITED;
     };
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, caps, b);
-    }
-
     GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
@@ -129,6 +124,11 @@ private:
         this->addTextureAccess(&fUAccess);
         this->addCoordTransform(&fVTransform);
         this->addTextureAccess(&fVAccess);
+    }
+
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {

@@ -155,7 +155,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrProcessorDataManager* pro
 GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {
 }
 
-void GrMatrixConvolutionEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void GrMatrixConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
 }

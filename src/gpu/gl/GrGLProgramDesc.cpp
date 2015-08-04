@@ -115,7 +115,9 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     for (int s = 0; s < pipeline.numFragmentStages(); ++s) {
         const GrPendingFragmentStage& fps = pipeline.getFragmentStage(s);
         const GrFragmentProcessor& fp = *fps.processor();
+
         fp.getGLProcessorKey(*gpu->glCaps().glslCaps(), &b);
+
         //**** use glslCaps here?
         if (!get_meta_key(fp, gpu->glCaps(), primProc.getTransformKey(fp.coordTransforms()), &b)) {
             glDesc->key().reset();

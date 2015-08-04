@@ -468,11 +468,6 @@ public:
 
     const char* name() const override { return "Radial Gradient"; }
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GrGLRadialGradient::GenKey(*this, caps, b);
-    }
-
     GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GrGLRadialGradient, (*this));
     }
@@ -485,6 +480,11 @@ private:
                      SkShader::TileMode tm)
         : INHERITED(ctx, procDataManager, shader, matrix, tm) {
         this->initClassID<GrRadialGradient>();
+    }
+
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override {
+        GrGLRadialGradient::GenKey(*this, caps, b);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;

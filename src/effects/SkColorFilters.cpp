@@ -147,11 +147,6 @@ public:
         return true;
     }
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, caps, b);
-    }
-
     GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
@@ -218,6 +213,11 @@ private:
         : fMode(mode),
           fColor(color) {
         this->initClassID<ModeColorFilterEffect>();
+    }
+
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
     bool onIsEqual(const GrFragmentProcessor& other) const override {

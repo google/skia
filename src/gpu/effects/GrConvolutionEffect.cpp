@@ -194,7 +194,7 @@ GrConvolutionEffect::GrConvolutionEffect(GrProcessorDataManager* procDataManager
 GrConvolutionEffect::~GrConvolutionEffect() {
 }
 
-void GrConvolutionEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void GrConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                         GrProcessorKeyBuilder* b) const {
     GrGLConvolutionEffect::GenKey(*this, caps, b);
 }

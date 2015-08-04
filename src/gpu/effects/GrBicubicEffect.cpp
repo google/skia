@@ -152,7 +152,7 @@ GrBicubicEffect::GrBicubicEffect(GrProcessorDataManager* procDataManager,
 GrBicubicEffect::~GrBicubicEffect() {
 }
 
-void GrBicubicEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void GrBicubicEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                         GrProcessorKeyBuilder* b) const {
     GrGLBicubicEffect::GenKey(*this, caps, b);
 }

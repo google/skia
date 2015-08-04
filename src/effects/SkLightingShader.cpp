@@ -227,7 +227,7 @@ public:
 
     GrGLFragmentProcessor* createGLInstance() const override { return SkNEW(LightingGLFP); }
 
-    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         LightingGLFP::GenKey(*this, caps, b);
     }
 

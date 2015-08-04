@@ -527,11 +527,6 @@ public:
 
     const char* name() const override { return "PerlinNoise"; }
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GrGLPerlinNoise::GenKey(*this, caps, b);
-    }
-
     GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GrGLPerlinNoise, (*this));
     }
@@ -546,6 +541,11 @@ public:
     uint8_t alpha() const { return fAlpha; }
 
 private:
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override {
+        GrGLPerlinNoise::GenKey(*this, caps, b);
+    }
+
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const GrPerlinNoiseEffect& s = sBase.cast<GrPerlinNoiseEffect>();
         return fType == s.fType &&

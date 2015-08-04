@@ -394,11 +394,6 @@ public:
 
     const char* name() const override { return "Color Matrix"; }
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, caps, b);
-    }
-
     GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GLProcessor, (*this));
     }
@@ -469,6 +464,11 @@ public:
 private:
     ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {
         this->initClassID<ColorMatrixEffect>();
+    }
+
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
     bool onIsEqual(const GrFragmentProcessor& s) const override {

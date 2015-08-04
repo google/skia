@@ -63,8 +63,6 @@ public:
 
     const char* name() const override { return "Convolution"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     enum {
@@ -99,6 +97,8 @@ private:
                         float gaussianSigma,
                         bool useBounds,
                         float bounds[2]);
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 

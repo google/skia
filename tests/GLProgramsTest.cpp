@@ -65,11 +65,6 @@ public:
 
     const char* name() const override { return "Big Ole Key"; }
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLBigKeyProcessor::GenKey(*this, caps, b);
-    }
-
     GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GLBigKeyProcessor, (*this));
     }
@@ -77,6 +72,10 @@ public:
 private:
     BigKeyProcessor() {
         this->initClassID<BigKeyProcessor>();
+    }
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override {
+        GLBigKeyProcessor::GenKey(*this, caps, b);
     }
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override { }

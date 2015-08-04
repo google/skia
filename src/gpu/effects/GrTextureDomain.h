@@ -169,8 +169,6 @@ public:
 
     const char* name() const override { return "TextureDomain"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     const GrTextureDomain& textureDomain() const { return fTextureDomain; }
@@ -186,6 +184,8 @@ private:
                           GrTextureDomain::Mode,
                           GrTextureParams::FilterMode,
                           GrCoordSet);
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 

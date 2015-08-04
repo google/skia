@@ -344,11 +344,6 @@ public:
 
     virtual ~GrDisplacementMapEffect();
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GrGLDisplacementMapEffect::GenKey(*this, caps, b);
-    }
-
     GrGLFragmentProcessor* createGLInstance() const override {
         return SkNEW_ARGS(GrGLDisplacementMapEffect, (*this));
     }
@@ -363,6 +358,11 @@ public:
     const GrTextureDomain& domain() const { return fDomain; }
 
 private:
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override {
+        GrGLDisplacementMapEffect::GenKey(*this, caps, b);
+    }
+
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;

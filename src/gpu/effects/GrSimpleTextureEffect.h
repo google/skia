@@ -53,8 +53,6 @@ public:
 
     const char* name() const override { return "SimpleTexture"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
 private:
@@ -75,6 +73,8 @@ private:
         : GrSingleTextureEffect(procDataManager, texture, matrix, params, coordSet) {
         this->initClassID<GrSimpleTextureEffect>();
     }
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override { return true; }
 

@@ -25,8 +25,6 @@ public:
 
     const char* name() const override { return "Dither"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
 private:
@@ -34,6 +32,8 @@ private:
         this->initClassID<DitherEffect>();
         this->setWillReadFragmentPosition();
     }
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     // All dither effects are equal
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
@@ -92,7 +92,7 @@ void GLDitherEffect::emitCode(EmitArgs& args) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void DitherEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void DitherEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const {
     GLDitherEffect::GenKey(*this, caps, b);
 }

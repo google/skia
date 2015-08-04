@@ -23,8 +23,6 @@ public:
 
     const char* name() const override { return "Circle"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkPoint& getCenter() const { return fCenter; }
@@ -34,6 +32,8 @@ public:
 
 private:
     CircleEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -170,7 +170,7 @@ void GLCircleEffect::setData(const GrGLProgramDataManager& pdman, const GrProces
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CircleEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void CircleEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const {
     GLCircleEffect::GenKey(*this, caps, b);
 }
@@ -190,8 +190,6 @@ public:
 
     const char* name() const override { return "Ellipse"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     const SkPoint& getCenter() const { return fCenter; }
@@ -201,6 +199,8 @@ public:
 
 private:
     EllipseEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
+
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -345,7 +345,7 @@ void GLEllipseEffect::setData(const GrGLProgramDataManager& pdman, const GrProce
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EllipseEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void EllipseEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const {
     GLEllipseEffect::GenKey(*this, caps, b);
 }

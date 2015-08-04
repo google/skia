@@ -60,9 +60,6 @@ public:
         this->initClassID<DCFP>();
     }
 
-    void getGLProcessorKey(const GrGLSLCaps& caps,
-                            GrProcessorKeyBuilder* b) const override {}
-
     GrGLFragmentProcessor* createGLInstance() const override {
         class DCGLFP : public GrGLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
@@ -89,6 +86,9 @@ public:
     }
 
 private:
+    void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                             GrProcessorKeyBuilder* b) const override {}
+
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
     GrCoordTransform fDeviceTransform;

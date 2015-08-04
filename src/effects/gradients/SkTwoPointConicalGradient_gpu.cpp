@@ -72,8 +72,6 @@ public:
         return "Two-Point Conical Gradient Edge Touching";
     }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
@@ -82,6 +80,8 @@ public:
     SkScalar radius() const { return fRadius0; }
 
 private:
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const Edge2PtConicalEffect& s = sBase.cast<Edge2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
@@ -168,7 +168,7 @@ private:
 
 };
 
-void Edge2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void Edge2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
     GLEdge2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -385,14 +385,14 @@ public:
         return "Two-Point Conical Gradient Focal Outside";
     }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     bool isFlipped() const { return fIsFlipped; }
     SkScalar focal() const { return fFocalX; }
 
 private:
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const FocalOutside2PtConicalEffect& s = sBase.cast<FocalOutside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
@@ -450,7 +450,7 @@ private:
 
 };
 
-void FocalOutside2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void FocalOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GLFocalOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -601,8 +601,6 @@ public:
         return "Two-Point Conical Gradient Focal Inside";
     }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     SkScalar focal() const { return fFocalX; }
@@ -610,6 +608,8 @@ public:
     typedef GLFocalInside2PtConicalEffect GLProcessor;
 
 private:
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const FocalInside2PtConicalEffect& s = sBase.cast<FocalInside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
@@ -661,7 +661,7 @@ private:
 
 };
 
-void FocalInside2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void FocalInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                GrProcessorKeyBuilder* b) const {
     GLFocalInside2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -837,9 +837,6 @@ public:
 
     const char* name() const override { return "Two-Point Conical Gradient Inside"; }
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     SkScalar centerX() const { return fInfo.fCenterEnd.fX; }
@@ -849,6 +846,9 @@ public:
     SkScalar C() const { return fInfo.fC; }
 
 private:
+    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override;
+
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const CircleInside2PtConicalEffect& s = sBase.cast<CircleInside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
@@ -908,7 +908,7 @@ private:
 
 };
 
-void CircleInside2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void CircleInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GLCircleInside2PtConicalEffect::GenKey(*this, caps, b);
 }
@@ -1053,8 +1053,6 @@ public:
 
     const char* name() const override { return "Two-Point Conical Gradient Outside"; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
-
     GrGLFragmentProcessor* createGLInstance() const override;
 
     SkScalar centerX() const { return fInfo.fCenterEnd.fX; }
@@ -1066,6 +1064,8 @@ public:
     bool isFlipped() const { return fIsFlipped; }
 
 private:
+    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const CircleOutside2PtConicalEffect& s = sBase.cast<CircleOutside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
@@ -1139,7 +1139,7 @@ private:
 
 };
 
-void CircleOutside2PtConicalEffect::getGLProcessorKey(const GrGLSLCaps& caps,
+void CircleOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                                       GrProcessorKeyBuilder* b) const {
     GLCircleOutside2PtConicalEffect::GenKey(*this, caps, b);
 }

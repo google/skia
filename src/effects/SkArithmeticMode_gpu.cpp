@@ -112,7 +112,7 @@ GrArithmeticFP::GrArithmeticFP(GrProcessorDataManager*, float k1, float k2, floa
     this->addTextureAccess(&fBackgroundAccess);
 }
 
-void GrArithmeticFP::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrArithmeticFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLArithmeticFP::GenKey(*this, caps, b);
 }
 
