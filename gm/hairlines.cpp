@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkPath.h"
 #include "SkTArray.h"
 
 namespace skiagm {

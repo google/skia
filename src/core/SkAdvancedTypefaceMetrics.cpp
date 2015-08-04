@@ -16,7 +16,7 @@
 
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
 // forward declare structs needed for getAdvanceData() template for freetype
-struct FT_FaceRec;
+struct FT_FaceRec_;
 typedef struct FT_FaceRec_* FT_Face;
 #endif
 

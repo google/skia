@@ -9,6 +9,7 @@
 #include "SkObjectParser.h"
 #include "SkData.h"
 #include "SkFontDescriptor.h"
+#include "SkPath.h"
 #include "SkRRect.h"
 #include "SkShader.h"
 #include "SkStream.h"

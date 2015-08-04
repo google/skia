@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkColor_DEFINED
 #define SkColor_DEFINED
 
 #include "SkScalar.h"
+#include "SkTypes.h"
 
 /** \file SkColor.h
 

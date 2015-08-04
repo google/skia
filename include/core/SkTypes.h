@@ -145,6 +145,7 @@ inline void operator delete(void* p) {
     #define SK_TO_STRING_PUREVIRT()
     #define SK_TO_STRING_OVERRIDE()
 #else
+    class SkString;
     // the 'toString' helper functions convert Sk* objects to human-readable
     // form in developer mode
     #define SK_TO_STRING_NONVIRT() void toString(SkString* str) const;

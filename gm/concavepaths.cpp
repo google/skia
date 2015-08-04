@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkPath.h"
 
 #define WIDTH 400
 #define HEIGHT 600

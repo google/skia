@@ -9,7 +9,6 @@
 #include "SkAntiRun.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
-#include "SkCoreBlitters.h"
 #include "SkFilterShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"

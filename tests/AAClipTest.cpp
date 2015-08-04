@@ -10,6 +10,7 @@
 #include "SkMask.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkRRect.h"
 #include "Test.h"
 
 static bool operator==(const SkMask& a, const SkMask& b) {

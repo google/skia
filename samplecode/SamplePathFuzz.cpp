@@ -14,6 +14,7 @@
 #include "SkColor.h"
 #include "SkTDArray.h"
 #include "SkRandom.h"
+#include "SkRRect.h"
 
 enum RandomAddPath {
     kMoveToPath,

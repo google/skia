@@ -11,6 +11,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkDeferredCanvas.h"
 #include "SkGradientShader.h"
+#include "SkPath.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 #include "Test.h"

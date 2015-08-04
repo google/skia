@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkImageDecoder.h"
+#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkTime.h"

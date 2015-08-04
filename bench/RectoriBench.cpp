@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkLayerDrawLooper.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkRandom.h"
 
 // This bench replicates a problematic use case of a draw looper used

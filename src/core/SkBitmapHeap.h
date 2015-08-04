@@ -1,18 +1,19 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef SkBitmapHeap_DEFINED
 #define SkBitmapHeap_DEFINED
 
+#include "SkAtomics.h"
 #include "SkBitmap.h"
-#include "SkFlattenable.h"
+#include "SkPoint.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
-#include "SkAtomics.h"
+#include "SkTypes.h"
 
 /**
  * SkBitmapHeapEntry provides users of SkBitmapHeap (using internal storage) with a means to...

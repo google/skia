@@ -7,8 +7,13 @@
 
 #include "SkColorFilter.h"
 #include "SkReadBuffer.h"
+#include "SkRefCnt.h"
 #include "SkString.h"
+#include "SkTDArray.h"
+#include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
+
+class GrFragmentProcessor;
 
 bool SkColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) const {
     return false;

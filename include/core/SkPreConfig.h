@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+// IWYU pragma: private, include "SkTypes.h"
+
 #ifndef SkPreConfig_DEFINED
 #define SkPreConfig_DEFINED
 
