@@ -215,7 +215,6 @@
     'skia_static_initializers%': '<(skia_static_initializers)',
     'ios_sdk_version%': '6.0',
     'skia_win_debuggers_path%': '<(skia_win_debuggers_path)',
-    'skia_run_pdfviewer_in_gm%': 0,
     'skia_disable_inlining%': 0,
     'skia_moz2d%': 0,
     'skia_is_bot%': '<!(python -c "import os; print os.environ.get(\'CHROME_HEADLESS\', 0)")',

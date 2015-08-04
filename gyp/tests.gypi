@@ -18,10 +18,6 @@
     '../src/pipe/utils',
     '../src/utils',
     '../src/utils/debugger',
-
-    # Needed for TDStackNesterTest.
-    '../experimental/PdfViewer',
-    '../experimental/PdfViewer/src',
   ],
   'dependencies': [
     'experimental.gyp:experimental',
@@ -52,7 +48,6 @@
     '../src/utils/debugger/SkObjectParser.h',
     '../src/utils/debugger/SkObjectParser.cpp',
     '../src/pipe/utils/SamplePipeControllers.cpp',
-    '../experimental/PdfViewer/src/SkTDStackNester.h',
   ],
   'sources!': [
     '../tests/SkpSkGrTest.cpp',

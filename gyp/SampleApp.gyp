@@ -7,10 +7,6 @@
   'includes': [
     'apptype_console.gypi',
   ],
-  'variables': {
-    #manually set sample_pdf_file_viewer to 1 to have the PdfViewer in SampleApp
-    'sample_pdf_file_viewer%': 0,
-  },
   'targets': [
     {
       'target_name': 'SampleApp',
@@ -162,21 +158,7 @@
         'views_animated.gyp:views_animated',
         'xml.gyp:xml',
       ],
-     'conditions' : [
-       [ 'sample_pdf_file_viewer == 1', {
-         'defines': [
-           'SAMPLE_PDF_FILE_VIEWER',
-         ],
-         'dependencies': [
-           'pdfviewer_lib.gyp:pdfviewer_lib',
-         ],
-         'include_dirs' : [
-           '../experimental/PdfViewer/inc',
-         ],
-         'sources': [
-           '../samplecode/SamplePdfFileViewer.cpp',
-         ]
-       }],
+      'conditions' : [
         [ 'skia_os == "win"', {
           'sources!': [
             # require UNIX functions

@@ -48,7 +48,6 @@ VALID_TARGETS := \
                  lua_pictures \
                  most \
                  pathops_unittest \
-                 pdfviewer \
                  SampleApp \
                  SampleApp_APK \
                  skhello \

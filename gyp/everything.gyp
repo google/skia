@@ -25,7 +25,6 @@
         }, {
           'dependencies': [
             'debugger.gyp:debugger',
-            'pdfviewer.gyp:pdfviewer',
             #'v8.gyp:SkV8Example',
           ],
         }],
