@@ -845,6 +845,21 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
+
+    {
+        GrUniqueKey key2;
+        make_unique_key<0>(&key2, 0);
+        SkAutoTUnref<TestResource> d(SkNEW_ARGS(TestResource, (context->getGpu())));
+        int foo = 4132;
+        SkAutoTUnref<SkData> data(SkData::NewWithCopy(&foo, sizeof(foo)));
+        key2.setCustomData(data.get());
+        d->resourcePriv().setUniqueKey(key2);
+    }
+
+    GrUniqueKey key3;
+    make_unique_key<0>(&key3, 0);
+    SkAutoTUnref<GrGpuResource> d2(cache->findAndRefUniqueResource(key3));
+    REPORTER_ASSERT(reporter, *(int*) d2->getUniqueKey().getCustomData()->data() == 4132);
 }
 
 static void test_purge_invalidated(skiatest::Reporter* reporter) {
@@ -1223,6 +1238,21 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_custom_data(skiatest::Reporter* reporter) {
+    GrUniqueKey key1, key2;
+    make_unique_key<0>(&key1, 1);
+    make_unique_key<0>(&key2, 2);
+    int foo = 4132;
+    SkAutoTUnref<SkData> data(SkData::NewWithCopy(&foo, sizeof(foo)));
+    key1.setCustomData(data.get());
+    REPORTER_ASSERT(reporter, *(int*) key1.getCustomData()->data() == 4132);
+    REPORTER_ASSERT(reporter, key2.getCustomData() == nullptr);
+
+    // Test that copying a key also takes a ref on its custom data.
+    GrUniqueKey key3 = key1;
+    REPORTER_ASSERT(reporter, *(int*) key3.getCustomData()->data() == 4132);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST(ResourceCache, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
@@ -1262,6 +1292,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
     test_timestamp_wrap(reporter);
     test_flush(reporter);
     test_large_resource_count(reporter);
+    test_custom_data(reporter);
 }
 
 #endif

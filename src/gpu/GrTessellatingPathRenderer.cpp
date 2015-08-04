@@ -13,6 +13,8 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
 #include "GrVertices.h"
+#include "GrResourceCache.h"
+#include "GrResourceProvider.h"
 #include "SkChunkAlloc.h"
 #include "SkGeometry.h"
 
@@ -538,12 +540,13 @@ Vertex* generate_cubic_points(const SkPoint& p0,
 // Stage 1: convert the input path to a set of linear contours (linked list of Vertices).
 
 void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                      Vertex** contours, SkChunkAlloc& alloc) {
+                      Vertex** contours, SkChunkAlloc& alloc, bool *isLinear) {
 
     SkScalar toleranceSqd = tolerance * tolerance;
 
     SkPoint pts[4];
     bool done = false;
+    *isLinear = true;
     SkPath::Iter iter(path, false);
     Vertex* prev = NULL;
     Vertex* head = NULL;
@@ -571,6 +574,7 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                                                      toleranceSqd, prev, &head, pointsLeft, alloc);
                     quadPts += 2;
                 }
+                *isLinear = false;
                 break;
             }
             case SkPath::kMove_Verb:
@@ -590,12 +594,14 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                 int pointsLeft = GrPathUtils::quadraticPointCount(pts, tolerance);
                 prev = generate_quadratic_points(pts[0], pts[1], pts[2], toleranceSqd, prev,
                                                  &head, pointsLeft, alloc);
+                *isLinear = false;
                 break;
             }
             case SkPath::kCubic_Verb: {
                 int pointsLeft = GrPathUtils::cubicPointCount(pts, tolerance);
                 prev = generate_cubic_points(pts[0], pts[1], pts[2], pts[3],
                                 toleranceSqd, prev, &head, pointsLeft, alloc);
+                *isLinear = false;
                 break;
             }
             case SkPath::kClose_Verb:
@@ -1329,6 +1335,25 @@ SkPoint* polys_to_triangles(Poly* polys, SkPath::FillType fillType, SkPoint* dat
     return d;
 }
 
+struct TessInfo {
+    SkScalar  fTolerance;
+    int       fCount;
+};
+
+bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
+    if (!vertexBuffer) {
+        return false;
+    }
+    const SkData* data = vertexBuffer->getUniqueKey().getCustomData();
+    SkASSERT(data);
+    const TessInfo* info = static_cast<const TessInfo*>(data->data());
+    if (info->fTolerance == 0 || info->fTolerance < 3.0f * tol) {
+        *actualCount = info->fCount;
+        return true;
+    }
+    return false;
+}
+
 };
 
 GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
@@ -1341,6 +1366,22 @@ GrPathRenderer::StencilSupport GrTessellatingPathRenderer::onGetStencilSupport(
                                                             const GrStrokeInfo&) const {
     return GrPathRenderer::kNoSupport_StencilSupport;
 }
+
+namespace {
+
+// When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
+class PathInvalidator : public SkPathRef::GenIDChangeListener {
+public:
+    explicit PathInvalidator(const GrUniqueKey& key) : fMsg(key) {}
+private:
+    GrUniqueKeyInvalidatedMessage fMsg;
+
+    void onChange() override {
+        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
+    }
+};
+
+}  // namespace
 
 bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This path renderer can draw all fill styles, but does not do antialiasing. It can do convex
@@ -1377,7 +1418,9 @@ public:
         fPipelineInfo = init;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    int tessellate(GrUniqueKey* key,
+                   GrResourceProvider* resourceProvider,
+                   SkAutoTUnref<GrVertexBuffer>& vertexBuffer) {
         SkRect pathBounds = fPath.getBounds();
         Comparator c;
         if (pathBounds.width() > pathBounds.height()) {
@@ -1392,11 +1435,11 @@ public:
         int contourCnt;
         int maxPts = GrPathUtils::worstCasePointCount(fPath, &contourCnt, tol);
         if (maxPts <= 0) {
-            return;
+            return 0;
         }
         if (maxPts > ((int)SK_MaxU16 + 1)) {
             SkDebugf("Path not rendered, too many verts (%d)\n", maxPts);
-            return;
+            return 0;
         }
         SkPath::FillType fillType = fPath.getFillType();
         if (SkPath::IsInverseFillType(fillType)) {
@@ -1404,6 +1447,84 @@ public:
         }
 
         LOG("got %d pts, %d contours\n", maxPts, contourCnt);
+        SkAutoTDeleteArray<Vertex*> contours(SkNEW_ARRAY(Vertex *, contourCnt));
+
+        // For the initial size of the chunk allocator, estimate based on the point count:
+        // one vertex per point for the initial passes, plus two for the vertices in the
+        // resulting Polys, since the same point may end up in two Polys.  Assume minimal
+        // connectivity of one Edge per Vertex (will grow for intersections).
+        SkChunkAlloc alloc(maxPts * (3 * sizeof(Vertex) + sizeof(Edge)));
+        bool isLinear;
+        path_to_contours(fPath, tol, fClipBounds, contours.get(), alloc, &isLinear);
+        Poly* polys;
+        polys = contours_to_polys(contours.get(), contourCnt, c, alloc);
+        int count = 0;
+        for (Poly* poly = polys; poly; poly = poly->fNext) {
+            if (apply_fill_type(fillType, poly->fWinding) && poly->fCount >= 3) {
+                count += (poly->fCount - 2) * (WIREFRAME ? 6 : 3);
+            }
+        }
+        if (0 == count) {
+            return 0;
+        }
+
+        size_t size = count * sizeof(SkPoint);
+        if (!vertexBuffer.get() || vertexBuffer->gpuMemorySize() < size) {
+            vertexBuffer.reset(resourceProvider->createVertexBuffer(
+                size, GrResourceProvider::kStatic_BufferUsage, 0));
+        }
+        if (!vertexBuffer.get()) {
+            SkDebugf("Could not allocate vertices\n");
+            return 0;
+        }
+        SkPoint* verts = static_cast<SkPoint*>(vertexBuffer->map());
+        LOG("emitting %d verts\n", count);
+        SkPoint* end = polys_to_triangles(polys, fillType, verts);
+        vertexBuffer->unmap();
+        int actualCount = static_cast<int>(end - verts);
+        LOG("actual count: %d\n", actualCount);
+        SkASSERT(actualCount <= count);
+
+        if (!fPath.isVolatile()) {
+            TessInfo info;
+            info.fTolerance = isLinear ? 0 : tol;
+            info.fCount = actualCount;
+            SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
+            key->setCustomData(data.get());
+            resourceProvider->assignUniqueKeyToResource(*key, vertexBuffer.get());
+            SkPathPriv::AddGenIDChangeListener(fPath, SkNEW(PathInvalidator(*key)));
+        }
+        return actualCount;
+    }
+
+    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+        // construct a cache key from the path's genID and the view matrix
+        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+        GrUniqueKey key;
+        int clipBoundsSize32 =
+            fPath.isInverseFillType() ? sizeof(fClipBounds) / sizeof(uint32_t) : 0;
+        GrUniqueKey::Builder builder(&key, kDomain, 2 + clipBoundsSize32);
+        builder[0] = fPath.getGenerationID();
+        builder[1] = fPath.getFillType();
+        // For inverse fills, the tessellation is dependent on clip bounds.
+        if (fPath.isInverseFillType()) {
+            memcpy(&builder[2], &fClipBounds, sizeof(fClipBounds));
+        }
+        builder.finish();
+        GrResourceProvider* rp = batchTarget->resourceProvider();
+        SkAutoTUnref<GrVertexBuffer> vertexBuffer(rp->findAndRefTByUniqueKey<GrVertexBuffer>(key));
+        int actualCount;
+        SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(
+            screenSpaceTol, fViewMatrix, fPath.getBounds());
+        if (!cache_match(vertexBuffer.get(), tol, &actualCount)) {
+            actualCount = tessellate(&key, rp, vertexBuffer);
+        }
+
+        if (actualCount == 0) {
+            return;
+        }
+
         SkAutoTUnref<const GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -1422,53 +1543,15 @@ public:
             gp.reset(GrDefaultGeoProcFactory::Create(color, coverage, localCoords,
                                                      fViewMatrix));
         }
+
         batchTarget->initDraw(gp, pipeline);
-
-        SkAutoTDeleteArray<Vertex*> contours(SkNEW_ARRAY(Vertex *, contourCnt));
-
-        // For the initial size of the chunk allocator, estimate based on the point count:
-        // one vertex per point for the initial passes, plus two for the vertices in the
-        // resulting Polys, since the same point may end up in two Polys.  Assume minimal
-        // connectivity of one Edge per Vertex (will grow for intersections).
-        SkChunkAlloc alloc(maxPts * (3 * sizeof(Vertex) + sizeof(Edge)));
-        path_to_contours(fPath, tol, fClipBounds, contours.get(), alloc);
-        Poly* polys;
-        polys = contours_to_polys(contours.get(), contourCnt, c, alloc);
-        int count = 0;
-        for (Poly* poly = polys; poly; poly = poly->fNext) {
-            if (apply_fill_type(fillType, poly->fWinding) && poly->fCount >= 3) {
-                count += (poly->fCount - 2) * (WIREFRAME ? 6 : 3);
-            }
-        }
-        if (0 == count) {
-            return;
-        }
-
-        size_t stride = gp->getVertexStride();
-        SkASSERT(stride == sizeof(SkPoint));
-        const GrVertexBuffer* vertexBuffer;
-        int firstVertex;
-        SkPoint* verts = static_cast<SkPoint*>(
-            batchTarget->makeVertSpace(stride, count, &vertexBuffer, &firstVertex));
-        if (!verts) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
-        }
-
-        LOG("emitting %d verts\n", count);
-        SkPoint* end = polys_to_triangles(polys, fillType, verts);
-        int actualCount = static_cast<int>(end - verts);
-        LOG("actual count: %d\n", actualCount);
-        SkASSERT(actualCount <= count);
+        SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
         GrPrimitiveType primitiveType = WIREFRAME ? kLines_GrPrimitiveType
                                                   : kTriangles_GrPrimitiveType;
         GrVertices vertices;
-        vertices.init(primitiveType, vertexBuffer, firstVertex, actualCount);
+        vertices.init(primitiveType, vertexBuffer.get(), 0, actualCount);
         batchTarget->draw(vertices);
-
-        batchTarget->putBackVertices((size_t)(count - actualCount), stride);
-        return;
     }
 
     bool onCombineIfPossible(GrBatch*) override {
