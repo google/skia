@@ -17,9 +17,9 @@ static inline void adjust_for_offset(SkIPoint16* loc, const SkIPoint16& offset) 
     loc->fY += offset.fY;
 }
 
-static GrBatchAtlas::AtlasID create_id(int index, int generation) {
-    // Generation ID can roll over because we only check for equality
+static GrBatchAtlas::AtlasID create_id(uint32_t index, uint64_t generation) {
     SkASSERT(index < (1 << 16));
+    SkASSERT(generation < ((uint64_t)1 << 48));
     return generation << 16 | index;
 }
 
@@ -40,8 +40,8 @@ public:
     // monotonically incrementing number which is bumped every time the cpu backing store is
     // wiped, or when the plot itself is evicted from the atlas(ie, there is continuity in genID()
     // across atlas spills)
-    int index() const { return fIndex; }
-    int genID() const { return fGenID; }
+    uint32_t index() const { return fIndex; }
+    uint64_t genID() const { return fGenID; }
     GrBatchAtlas::AtlasID id() { return fID; }
 
     GrTexture* texture() const { return fTexture; }
@@ -121,8 +121,8 @@ public:
         SkDEBUGCODE(fDirty = false;)
     }
 
-    int x() const { return fX; }
-    int y() const { return fY; }
+    uint32_t x() const { return fX; }
+    uint32_t y() const { return fY; }
 
 private:
     BatchPlot()
@@ -153,7 +153,7 @@ private:
         delete fRects;
     }
 
-    void init(GrBatchAtlas* atlas, GrTexture* texture, int index, uint32_t generation,
+    void init(GrBatchAtlas* atlas, GrTexture* texture, int index, uint64_t generation,
               int offX, int offY, int width, int height, size_t bpp) {
         fIndex = index;
         fGenID = generation;
@@ -176,13 +176,13 @@ private:
     BatchToken fLastUse;
 
     uint32_t fIndex;
-    uint32_t fGenID;
+    uint64_t fGenID;
     GrBatchAtlas::AtlasID fID;
     unsigned char* fData;
-    int fWidth;
-    int fHeight;
-    int fX;
-    int fY;
+    uint32_t fWidth;
+    uint32_t fHeight;
+    uint32_t fX;
+    uint32_t fY;
     GrTexture* fTexture;
     GrRectanizer* fRects;
     GrBatchAtlas* fAtlas;
@@ -226,8 +226,8 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
     , fPlotHeight(texture->height() / numPlotsY)
     , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
     SkASSERT(fNumPlotsX * fNumPlotsY <= BulkUseTokenUpdater::kMaxPlots);
-    SkASSERT(fPlotWidth * fNumPlotsX == texture->width());
-    SkASSERT(fPlotHeight * fNumPlotsY == texture->height());
+    SkASSERT(fPlotWidth * fNumPlotsX == static_cast<uint32_t>(texture->width()));
+    SkASSERT(fPlotHeight * fNumPlotsY == static_cast<uint32_t>(texture->height()));
 
     // We currently do not support compressed atlases...
     SkASSERT(!GrPixelConfigIsCompressed(texture->desc().fConfig));
@@ -239,7 +239,7 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
     SkAutoTUnref<BatchPlot>* currPlot = fPlotArray;
     for (int y = fNumPlotsY - 1, r = 0; y >= 0; --y, ++r) {
         for (int x = fNumPlotsX - 1, c = 0; x >= 0; --x, ++c) {
-            int id = r * fNumPlotsX + c;
+            uint32_t id = r * fNumPlotsX + c;
             currPlot->reset(SkNEW(BatchPlot));
             (*currPlot)->init(this, texture, id, 1, x, y, fPlotWidth, fPlotHeight, fBPP);
 
@@ -287,7 +287,9 @@ inline void GrBatchAtlas::updatePlot(GrBatchTarget* batchTarget, AtlasID* id, Ba
 bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
                               int width, int height, const void* image, SkIPoint16* loc) {
     // We should already have a texture, TODO clean this up
-    SkASSERT(fTexture && width <= fPlotWidth && height <= fPlotHeight);
+    SkASSERT(fTexture &&
+             static_cast<uint32_t>(width) <= fPlotWidth &&
+             static_cast<uint32_t>(height) <= fPlotHeight);
 
     // now look through all allocated plots for one we can share, in Most Recently Refed order
     GrBatchPlotList::Iter plotIter;
@@ -331,7 +333,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
     int index = plot->index();
     int x = plot->x();
     int y = plot->y();
-    int generation = plot->genID();
+    uint64_t generation = plot->genID();
 
     this->processEviction(plot->id());
     fPlotList.remove(plot);
@@ -352,14 +354,14 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrBatchTarget* batchTarget,
 }
 
 bool GrBatchAtlas::hasID(AtlasID id) {
-    int index = GetIndexFromID(id);
+    uint32_t index = GetIndexFromID(id);
     SkASSERT(index < fNumPlotsX * fNumPlotsY);
     return fPlotArray[index]->genID() == GetGenerationFromID(id);
 }
 
 void GrBatchAtlas::setLastUseToken(AtlasID id, BatchToken batchToken) {
     SkASSERT(this->hasID(id));
-    int index = GetIndexFromID(id);
+    uint32_t index = GetIndexFromID(id);
     SkASSERT(index < fNumPlotsX * fNumPlotsY);
     this->makeMRU(fPlotArray[index]);
     fPlotArray[index]->setLastUseToken(batchToken);

@@ -109,6 +109,19 @@ private:
                     , fGlyphStartIndex(0)
                     , fGlyphEndIndex(0)
                     , fDrawAsDistanceFields(false) {}
+                SubRunInfo(const SubRunInfo& that)
+                    : fBulkUseToken(that.fBulkUseToken)
+                    , fStrike(SkSafeRef(that.fStrike.get()))
+                    , fAtlasGeneration(that.fAtlasGeneration)
+                    , fVertexStartIndex(that.fVertexStartIndex)
+                    , fVertexEndIndex(that.fVertexEndIndex)
+                    , fGlyphStartIndex(that.fGlyphStartIndex)
+                    , fGlyphEndIndex(that.fGlyphEndIndex)
+                    , fTextRatio(that.fTextRatio)
+                    , fMaskFormat(that.fMaskFormat)
+                    , fDrawAsDistanceFields(that.fDrawAsDistanceFields)
+                    , fUseLCDText(that.fUseLCDText) {
+                }
                 // Distance field text cannot draw coloremoji, and so has to fall back.  However,
                 // though the distance field text and the coloremoji may share the same run, they
                 // will have different descriptors.  If fOverrideDescriptor is non-NULL, then it
@@ -117,6 +130,7 @@ private:
                 // significantly, and then the subrun could just have a refed pointer to the
                 // correct descriptor.
                 GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
+                SkAutoTUnref<GrBatchTextStrike> fStrike;
                 uint64_t fAtlasGeneration;
                 size_t fVertexStartIndex;
                 size_t fVertexEndIndex;
@@ -130,8 +144,9 @@ private:
 
             SubRunInfo& push_back() {
                 // Forward glyph / vertex information to seed the new sub run
-                SubRunInfo& prevSubRun = fSubRunInfo.back();
                 SubRunInfo& newSubRun = fSubRunInfo.push_back();
+                SubRunInfo& prevSubRun = fSubRunInfo.fromBack(1);
+
                 newSubRun.fGlyphStartIndex = prevSubRun.fGlyphEndIndex;
                 newSubRun.fGlyphEndIndex = prevSubRun.fGlyphEndIndex;
 
@@ -140,7 +155,6 @@ private:
                 return newSubRun;
             }
             static const int kMinSubRuns = 1;
-            SkAutoTUnref<GrBatchTextStrike> fStrike;
             SkAutoTUnref<SkTypeface> fTypeface;
             SkRect fVertexBounds;
             SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;
@@ -259,13 +273,13 @@ private:
     BitmapTextBlob* setupDFBlob(int glyphCount, const SkPaint& origPaint,
                                 const SkMatrix& viewMatrix, SkGlyphCache** cache,
                                 SkPaint* dfPaint, SkScalar* textRatio);
-    void bmpAppendGlyph(BitmapTextBlob*, int runIndex, GrGlyph::PackedID, int left, int top,
+    void bmpAppendGlyph(BitmapTextBlob*, int runIndex, const SkGlyph&, int left, int top,
                         GrColor color, GrFontScaler*, const SkIRect& clipRect);
-    bool dfAppendGlyph(BitmapTextBlob*, int runIndex, GrGlyph::PackedID, SkScalar sx, SkScalar sy,
+    bool dfAppendGlyph(BitmapTextBlob*, int runIndex, const SkGlyph&, SkScalar sx, SkScalar sy,
                        GrColor color, GrFontScaler*, const SkIRect& clipRect, SkScalar textRatio,
                        const SkMatrix& viewMatrix);
-    inline void appendGlyphPath(BitmapTextBlob* blob, GrGlyph* glyph,
-                                GrFontScaler* scaler, SkScalar x, SkScalar y);
+    inline void appendGlyphPath(BitmapTextBlob*, GrGlyph*, GrFontScaler*, const SkGlyph&,
+                                SkScalar x, SkScalar y);
     inline void appendGlyphCommon(BitmapTextBlob*, Run*, Run::SubRunInfo*,
                                   const SkRect& positions, GrColor color,
                                   size_t vertexStride, bool useVertexColor,
