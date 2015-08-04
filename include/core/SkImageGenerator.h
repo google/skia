@@ -14,6 +14,9 @@
 class SkBitmap;
 class SkData;
 class SkImageGenerator;
+class SkMatrix;
+class SkPaint;
+class SkPicture;
 
 /**
  *  Takes ownership of SkImageGenerator.  If this method fails for
@@ -125,6 +128,14 @@ public:
      *  the caller is still responsible for managing their ownership of the data.
      */
     static SkImageGenerator* NewFromEncoded(SkData*);
+
+    /** Return a new image generator backed by the specified picture.  If the size is empty or
+     *  the picture is NULL, this returns NULL.
+     *  The optional matrix and paint arguments are passed to drawPicture() at rasterization
+     *  time.
+     */
+    static SkImageGenerator* NewFromPicture(const SkISize&, const SkPicture*, const SkMatrix*,
+                                            const SkPaint*);
 
 protected:
     SkImageGenerator(const SkImageInfo& info) : fInfo(info) {}

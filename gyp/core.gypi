@@ -150,6 +150,7 @@
         '<(skia_src_path)/core/SkPictureData.h',
         '<(skia_src_path)/core/SkPictureFlat.cpp',
         '<(skia_src_path)/core/SkPictureFlat.h',
+        '<(skia_src_path)/core/SkPictureImageGenerator.cpp',
         '<(skia_src_path)/core/SkPicturePlayback.cpp',
         '<(skia_src_path)/core/SkPicturePlayback.h',
         '<(skia_src_path)/core/SkPictureRecord.cpp',
