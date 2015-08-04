@@ -14,8 +14,6 @@
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE4.h"
 #include "SkLazyPtr.h"
-#include "SkMorphology_opts.h"
-#include "SkMorphology_opts_SSE2.h"
 #include "SkRTConf.h"
 
 #if defined(_MSC_VER) && defined(_WIN64)
@@ -293,24 +291,4 @@ SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
 
 SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkColorType, SkMask::Format, RowFlags) {
     return NULL;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
-    if (!supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        return NULL;
-    }
-    switch (type) {
-        case kDilateX_SkMorphologyProcType:
-            return SkDilateX_SSE2;
-        case kDilateY_SkMorphologyProcType:
-            return SkDilateY_SSE2;
-        case kErodeX_SkMorphologyProcType:
-            return SkErodeX_SSE2;
-        case kErodeY_SkMorphologyProcType:
-            return SkErodeY_SSE2;
-        default:
-            return NULL;
-    }
 }

@@ -9,6 +9,7 @@
 
 #define SK_OPTS_NS sse2
 #include "SkBlurImageFilter_opts.h"
+#include "SkMorphologyImageFilter_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
@@ -18,9 +19,13 @@ namespace SkOpts {
         memset32        = sse2::memset32;
         create_xfermode = SkCreate4pxXfermode;
 
-        static const auto x = sse2::kX, y = sse2::kY;
-        box_blur_xx = sse2::box_blur<x,x>;
-        box_blur_xy = sse2::box_blur<x,y>;
-        box_blur_yx = sse2::box_blur<y,x>;
+        box_blur_xx = sse2::box_blur_xx;
+        box_blur_xy = sse2::box_blur_xy;
+        box_blur_yx = sse2::box_blur_yx;
+
+        dilate_x = sse2::dilate_x;
+        dilate_y = sse2::dilate_y;
+         erode_x = sse2::erode_x;
+         erode_y = sse2::erode_y;
     }
 }

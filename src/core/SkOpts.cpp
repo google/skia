@@ -11,6 +11,7 @@
 #define SK_OPTS_NS portable
 #include "SkBlurImageFilter_opts.h"
 #include "SkFloatingPoint_opts.h"
+#include "SkMorphologyImageFilter_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
@@ -36,10 +37,14 @@ namespace SkOpts {
     decltype(memset32)               memset32 = portable::memset32;
     decltype(create_xfermode) create_xfermode = SkCreate4pxXfermode;
 
-    static const auto x = portable::kX, y = portable::kY;
-    decltype(box_blur_xx) box_blur_xx = portable::box_blur<x,x>;
-    decltype(box_blur_xy) box_blur_xy = portable::box_blur<x,y>;
-    decltype(box_blur_yx) box_blur_yx = portable::box_blur<y,x>;
+    decltype(box_blur_xx) box_blur_xx = portable::box_blur_xx;
+    decltype(box_blur_xy) box_blur_xy = portable::box_blur_xy;
+    decltype(box_blur_yx) box_blur_yx = portable::box_blur_yx;
+
+    decltype(dilate_x) dilate_x = portable::dilate_x;
+    decltype(dilate_y) dilate_y = portable::dilate_y;
+    decltype( erode_x)  erode_x = portable::erode_x;
+    decltype( erode_y)  erode_y = portable::erode_y;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_sse2();

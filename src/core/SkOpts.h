@@ -33,6 +33,9 @@ namespace SkOpts {
 
     typedef void (*BoxBlur)(const SkPMColor*, int, SkPMColor*, int, int, int, int, int);
     extern BoxBlur box_blur_xx, box_blur_xy, box_blur_yx;
+
+    typedef void (*Morph)(const SkPMColor*, SkPMColor*, int, int, int, int, int);
+    extern Morph dilate_x, dilate_y, erode_x, erode_y;
 }
 
 #endif//SkOpts_DEFINED

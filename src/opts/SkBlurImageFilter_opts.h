@@ -13,10 +13,10 @@
 
 namespace SK_OPTS_NS {
 
-enum Direction { kX, kY };
+enum class BlurDirection { kX, kY };
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-template<Direction srcDirection, Direction dstDirection>
+template<BlurDirection srcDirection, BlurDirection dstDirection>
 void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
               int leftOffset, int rightOffset, int width, int height) {
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
@@ -57,10 +57,10 @@ void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSiz
     };
 #endif
     const int rightBorder = SkMin32(rightOffset + 1, width);
-    const int srcStrideX = srcDirection == kX ? 1 : srcStride;
-    const int dstStrideX = dstDirection == kX ? 1 : height;
-    const int srcStrideY = srcDirection == kX ? srcStride : 1;
-    const int dstStrideY = dstDirection == kX ? width : 1;
+    const int srcStrideX = srcDirection == BlurDirection::kX ? 1 : srcStride;
+    const int dstStrideX = dstDirection == BlurDirection::kX ? 1 : height;
+    const int srcStrideY = srcDirection == BlurDirection::kX ? srcStride : 1;
+    const int dstStrideY = dstDirection == BlurDirection::kX ? width : 1;
     const __m128i scale = _mm_set1_epi32((1 << 24) / kernelSize);
     const __m128i half = _mm_set1_epi32(1 << 23);
     for (int y = 0; y < height; ++y) {
@@ -93,7 +93,7 @@ void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSiz
                 sum = _mm_add_epi32(sum, expand(r));
             }
             sptr += srcStrideX;
-            if (srcDirection == kY) {
+            if (srcDirection == BlurDirection::kY) {
                 // TODO(mtklein): experiment with moving this prefetch forward
                 _mm_prefetch(reinterpret_cast<const char*>(sptr + (rightOffset + 1) * srcStrideX),
                              _MM_HINT_T0);
@@ -108,12 +108,12 @@ void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSiz
 #elif defined(SK_ARM_HAS_NEON)
 
 // Fast path for kernel sizes between 2 and 127, working on two rows at a time.
-template<Direction srcDirection, Direction dstDirection>
+template<BlurDirection srcDirection, BlurDirection dstDirection>
 void box_blur_double(const SkPMColor** src, int srcStride, SkPMColor** dst, int kernelSize,
                      int leftOffset, int rightOffset, int width, int* height) {
     // Load 2 pixels from adjacent rows.
     auto load_2_pixels = [&](const SkPMColor* s) {
-        if (srcDirection == kX) {
+        if (srcDirection == BlurDirection::kX) {
             // 10% faster by adding these 2 prefetches
             SK_PREFETCH(s + 16);
             SK_PREFETCH(s + 16 + srcStride);
@@ -125,10 +125,10 @@ void box_blur_double(const SkPMColor** src, int srcStride, SkPMColor** dst, int 
         }
     };
     const int rightBorder = SkMin32(rightOffset + 1, width);
-    const int srcStrideX = srcDirection == kX ? 1 : srcStride;
-    const int dstStrideX = dstDirection == kX ? 1 : *height;
-    const int srcStrideY = srcDirection == kX ? srcStride : 1;
-    const int dstStrideY = dstDirection == kX ? width : 1;
+    const int srcStrideX = srcDirection == BlurDirection::kX ? 1 : srcStride;
+    const int dstStrideX = dstDirection == BlurDirection::kX ? 1 : *height;
+    const int srcStrideY = srcDirection == BlurDirection::kX ? srcStride : 1;
+    const int dstStrideY = dstDirection == BlurDirection::kX ? width : 1;
     const uint16x8_t scale = vdupq_n_u16((1 << 15) / kernelSize);
 
     for (; *height >= 2; *height -= 2) {
@@ -145,7 +145,7 @@ void box_blur_double(const SkPMColor** src, int srcStride, SkPMColor** dst, int 
             // val = (sum * scale * 2 + 0x8000) >> 16
             uint16x8_t resultPixels = vreinterpretq_u16_s16(vqrdmulhq_s16(
                 vreinterpretq_s16_u16(sum), vreinterpretq_s16_u16(scale)));
-            if (dstDirection == kX) {
+            if (dstDirection == BlurDirection::kX) {
                 uint32x2_t px2 = vreinterpret_u32_u8(vmovn_u16(resultPixels));
                 vst1_lane_u32(dptr +     0, px2, 0);
                 vst1_lane_u32(dptr + width, px2, 1);
@@ -167,7 +167,7 @@ void box_blur_double(const SkPMColor** src, int srcStride, SkPMColor** dst, int 
     }
 }
 
-template<Direction srcDirection, Direction dstDirection>
+template<BlurDirection srcDirection, BlurDirection dstDirection>
 void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
               int leftOffset, int rightOffset, int width, int height) {
     // ARGB -> 0A0R 0G0B
@@ -175,10 +175,10 @@ void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSiz
         return vget_low_u16(vmovl_u8(vreinterpret_u8_u32(vdup_n_u32(p))));
     };
     const int rightBorder = SkMin32(rightOffset + 1, width);
-    const int srcStrideX = srcDirection == kX ? 1 : srcStride;
-    const int dstStrideX = dstDirection == kX ? 1 : height;
-    const int srcStrideY = srcDirection == kX ? srcStride : 1;
-    const int dstStrideY = dstDirection == kX ? width : 1;
+    const int srcStrideX = srcDirection == BlurDirection::kX ? 1 : srcStride;
+    const int dstStrideX = dstDirection == BlurDirection::kX ? 1 : height;
+    const int srcStrideY = srcDirection == BlurDirection::kX ? srcStride : 1;
+    const int dstStrideY = dstDirection == BlurDirection::kX ? width : 1;
     const uint32x4_t scale = vdupq_n_u32((1 << 24) / kernelSize);
     const uint32x4_t half = vdupq_n_u32(1 << 23);
 
@@ -222,7 +222,7 @@ void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSiz
                 sum = vaddw_u16(sum, expand(*r));
             }
             sptr += srcStrideX;
-            if (srcDirection == kX) {
+            if (srcDirection == BlurDirection::kX) {
                 SK_PREFETCH(sptr + (rightOffset + 16) * srcStrideX);
             }
             dptr += dstStrideX;
@@ -234,14 +234,14 @@ void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSiz
 
 #else  // Neither NEON nor >=SSE2.
 
-template<Direction srcDirection, Direction dstDirection>
+template<BlurDirection srcDirection, BlurDirection dstDirection>
 static void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
                      int leftOffset, int rightOffset, int width, int height) {
     int rightBorder = SkMin32(rightOffset + 1, width);
-    int srcStrideX = srcDirection == kX ? 1 : srcStride;
-    int dstStrideX = dstDirection == kX ? 1 : height;
-    int srcStrideY = srcDirection == kX ? srcStride : 1;
-    int dstStrideY = dstDirection == kX ? width : 1;
+    int srcStrideX = srcDirection == BlurDirection::kX ? 1 : srcStride;
+    int dstStrideX = dstDirection == BlurDirection::kX ? 1 : height;
+    int srcStrideY = srcDirection == BlurDirection::kX ? srcStride : 1;
+    int dstStrideY = dstDirection == BlurDirection::kX ? width : 1;
     uint32_t scale = (1 << 24) / kernelSize;
     uint32_t half = 1 << 23;
     for (int y = 0; y < height; ++y) {
@@ -277,7 +277,7 @@ static void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int ke
                 sumB += SkGetPackedB32(r);
             }
             sptr += srcStrideX;
-            if (srcDirection == kY) {
+            if (srcDirection == BlurDirection::kY) {
                 SK_PREFETCH(sptr + (rightOffset + 1) * srcStrideX);
             }
             dptr += dstStrideX;
@@ -288,6 +288,10 @@ static void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int ke
 }
 
 #endif
+
+static auto box_blur_xx = &box_blur<BlurDirection::kX, BlurDirection::kX>,
+            box_blur_xy = &box_blur<BlurDirection::kX, BlurDirection::kY>,
+            box_blur_yx = &box_blur<BlurDirection::kY, BlurDirection::kX>;
 
 }  // namespace SK_OPTS_NS
 

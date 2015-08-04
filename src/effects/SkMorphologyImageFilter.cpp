@@ -8,10 +8,10 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkOpts.h"
 #include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkRect.h"
-#include "SkMorphology_opts.h"
+#include "SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrDrawContext.h"
@@ -33,86 +33,6 @@ void SkMorphologyImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeInt(fRadius.fWidth);
     buffer.writeInt(fRadius.fHeight);
-}
-
-enum MorphDirection {
-    kX, kY
-};
-
-template<MorphDirection direction>
-static void erode(const SkPMColor* src, SkPMColor* dst,
-                  int radius, int width, int height,
-                  int srcStride, int dstStride)
-{
-    const int srcStrideX = direction == kX ? 1 : srcStride;
-    const int dstStrideX = direction == kX ? 1 : dstStride;
-    const int srcStrideY = direction == kX ? srcStride : 1;
-    const int dstStrideY = direction == kX ? dstStride : 1;
-    radius = SkMin32(radius, width - 1);
-    const SkPMColor* upperSrc = src + radius * srcStrideX;
-    for (int x = 0; x < width; ++x) {
-        const SkPMColor* lp = src;
-        const SkPMColor* up = upperSrc;
-        SkPMColor* dptr = dst;
-        for (int y = 0; y < height; ++y) {
-            int minB = 255, minG = 255, minR = 255, minA = 255;
-            for (const SkPMColor* p = lp; p <= up; p += srcStrideX) {
-                int b = SkGetPackedB32(*p);
-                int g = SkGetPackedG32(*p);
-                int r = SkGetPackedR32(*p);
-                int a = SkGetPackedA32(*p);
-                if (b < minB) minB = b;
-                if (g < minG) minG = g;
-                if (r < minR) minR = r;
-                if (a < minA) minA = a;
-            }
-            *dptr = SkPackARGB32(minA, minR, minG, minB);
-            dptr += dstStrideY;
-            lp += srcStrideY;
-            up += srcStrideY;
-        }
-        if (x >= radius) src += srcStrideX;
-        if (x + radius < width - 1) upperSrc += srcStrideX;
-        dst += dstStrideX;
-    }
-}
-
-template<MorphDirection direction>
-static void dilate(const SkPMColor* src, SkPMColor* dst,
-                   int radius, int width, int height,
-                   int srcStride, int dstStride)
-{
-    const int srcStrideX = direction == kX ? 1 : srcStride;
-    const int dstStrideX = direction == kX ? 1 : dstStride;
-    const int srcStrideY = direction == kX ? srcStride : 1;
-    const int dstStrideY = direction == kX ? dstStride : 1;
-    radius = SkMin32(radius, width - 1);
-    const SkPMColor* upperSrc = src + radius * srcStrideX;
-    for (int x = 0; x < width; ++x) {
-        const SkPMColor* lp = src;
-        const SkPMColor* up = upperSrc;
-        SkPMColor* dptr = dst;
-        for (int y = 0; y < height; ++y) {
-            int maxB = 0, maxG = 0, maxR = 0, maxA = 0;
-            for (const SkPMColor* p = lp; p <= up; p += srcStrideX) {
-                int b = SkGetPackedB32(*p);
-                int g = SkGetPackedG32(*p);
-                int r = SkGetPackedR32(*p);
-                int a = SkGetPackedA32(*p);
-                if (b > maxB) maxB = b;
-                if (g > maxG) maxG = g;
-                if (r > maxR) maxR = r;
-                if (a > maxA) maxA = a;
-            }
-            *dptr = SkPackARGB32(maxA, maxR, maxG, maxB);
-            dptr += dstStrideY;
-            lp += srcStrideY;
-            up += srcStrideY;
-        }
-        if (x >= radius) src += srcStrideX;
-        if (x + radius < width - 1) upperSrc += srcStrideX;
-        dst += dstStrideX;
-    }
 }
 
 static void callProcX(SkMorphologyImageFilter::Proc procX, const SkBitmap& src, SkBitmap* dst, int radiusX, const SkIRect& bounds)
@@ -203,29 +123,15 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
 bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
                                        const SkBitmap& source, const Context& ctx,
                                        SkBitmap* dst, SkIPoint* offset) const {
-    Proc erodeXProc = SkMorphologyGetPlatformProc(kErodeX_SkMorphologyProcType);
-    if (!erodeXProc) {
-        erodeXProc = erode<kX>;
-    }
-    Proc erodeYProc = SkMorphologyGetPlatformProc(kErodeY_SkMorphologyProcType);
-    if (!erodeYProc) {
-        erodeYProc = erode<kY>;
-    }
-    return this->filterImageGeneric(erodeXProc, erodeYProc, proxy, source, ctx, dst, offset);
+    return this->filterImageGeneric(SkOpts::erode_x, SkOpts::erode_y,
+                                    proxy, source, ctx, dst, offset);
 }
 
 bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
                                         const SkBitmap& source, const Context& ctx,
                                         SkBitmap* dst, SkIPoint* offset) const {
-    Proc dilateXProc = SkMorphologyGetPlatformProc(kDilateX_SkMorphologyProcType);
-    if (!dilateXProc) {
-        dilateXProc = dilate<kX>;
-    }
-    Proc dilateYProc = SkMorphologyGetPlatformProc(kDilateY_SkMorphologyProcType);
-    if (!dilateYProc) {
-        dilateYProc = dilate<kY>;
-    }
-    return this->filterImageGeneric(dilateXProc, dilateYProc, proxy, source, ctx, dst, offset);
+    return this->filterImageGeneric(SkOpts::dilate_x, SkOpts::dilate_y,
+                                    proxy, source, ctx, dst, offset);
 }
 
 void SkMorphologyImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
@@ -714,7 +620,7 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
                                                     SkIPoint* offset) const {
     SkBitmap input = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (this->getInput(0) && 
+    if (this->getInput(0) &&
         !this->getInput(0)->getInputResultGPU(proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
