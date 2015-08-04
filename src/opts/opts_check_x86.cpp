@@ -13,8 +13,6 @@
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE4.h"
-#include "SkBlurImage_opts_SSE2.h"
-#include "SkBlurImage_opts_SSE4.h"
 #include "SkLazyPtr.h"
 #include "SkMorphology_opts.h"
 #include "SkMorphology_opts_SSE2.h"
@@ -315,18 +313,4 @@ SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType t
         default:
             return NULL;
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
-                               SkBoxBlurProc* boxBlurXY,
-                               SkBoxBlurProc* boxBlurYX) {
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE41)) {
-        return SkBoxBlurGetPlatformProcs_SSE4(boxBlurX, boxBlurXY, boxBlurYX);
-    }
-    else if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        return SkBoxBlurGetPlatformProcs_SSE2(boxBlurX, boxBlurXY, boxBlurYX);
-    }
-    return false;
 }

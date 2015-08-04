@@ -30,6 +30,9 @@ namespace SkOpts {
 
     // May return nullptr if we haven't specialized the given Mode.
     extern SkXfermode* (*create_xfermode)(const ProcCoeff&, SkXfermode::Mode);
+
+    typedef void (*BoxBlur)(const SkPMColor*, int, SkPMColor*, int, int, int, int, int);
+    extern BoxBlur box_blur_xx, box_blur_xy, box_blur_yx;
 }
 
 #endif//SkOpts_DEFINED

@@ -7,6 +7,8 @@
 
 #include "SkOnce.h"
 #include "SkOpts.h"
+#define SK_OPTS_NS portable
+#include "SkBlurImageFilter_opts.h"
 #include "SkXfermode_opts.h"
 
 #if defined(SK_CPU_X86)
@@ -46,6 +48,11 @@ namespace SkOpts {
     decltype(memset16)               memset16 = portable::memsetT<uint16_t>;
     decltype(memset32)               memset32 = portable::memsetT<uint32_t>;
     decltype(create_xfermode) create_xfermode = SkCreate4pxXfermode;
+
+    static const auto x = portable::kX, y = portable::kY;
+    decltype(box_blur_xx) box_blur_xx = portable::box_blur<x,x>;
+    decltype(box_blur_xy) box_blur_xy = portable::box_blur<x,y>;
+    decltype(box_blur_yx) box_blur_yx = portable::box_blur<y,x>;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_sse2();

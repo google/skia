@@ -12,9 +12,7 @@
 #include "SkPMFloat.h"
 #include "SkXfermode_proccoeff.h"
 
-// This file is possibly included into multiple .cpp files.
-// Each gets its own independent instantiation by wrapping in an anonymous namespace.
-namespace {
+namespace /* TODO: SK_OPTS_NS */ {
 
 // Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
 #define XFERMODE(Name) static Sk4px SK_VECTORCALL Name(Sk4px s, Sk4px d)
@@ -316,6 +314,6 @@ static SkXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode::Mode mo
     return nullptr;
 }
 
-} // namespace
+} // namespace SK_NS_OPTS
 
 #endif//Sk4pxXfermode_DEFINED
