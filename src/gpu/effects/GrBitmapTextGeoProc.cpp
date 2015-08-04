@@ -28,18 +28,19 @@ public:
         // emit attributes
         vsBuilder->emitAttributes(cte);
 
+        // compute numbers to be hardcoded to convert texture coordinates from int to float
+        SkASSERT(cte.numTextures() == 1);
+        GrTexture* atlas = cte.textureAccess(0).getTexture();
+        SkASSERT(atlas);
+        SkScalar recipWidth = 1.0f / atlas->width();
+        SkScalar recipHeight = 1.0f / atlas->height();
+
         GrGLVertToFrag v(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &v);
-        // this is only used with text, so our texture bounds always match the glyph atlas
-        if (cte.maskFormat() == kA8_GrMaskFormat) {
-            vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_A8_RECIP_WIDTH ", "
-                                   GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", v.vsOut(),
-                                   cte.inTextureCoords()->fName);
-        } else {
-            vsBuilder->codeAppendf("%s = vec2(" GR_FONT_ATLAS_RECIP_WIDTH ", "
-                                   GR_FONT_ATLAS_RECIP_HEIGHT ")*%s;", v.vsOut(),
-                                   cte.inTextureCoords()->fName);
-        }
+        vsBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", v.vsOut(),
+                               SK_FLT_DECIMAL_DIG, recipWidth,
+                               SK_FLT_DECIMAL_DIG, recipHeight,
+                               cte.inTextureCoords()->fName);
 
         // Setup pass through color
         if (!cte.colorIgnored()) {
@@ -102,6 +103,13 @@ public:
         key |= gp.colorIgnored() ? 0x2 : 0x0;
         key |= gp.maskFormat() << 3;
         b->add32(key);
+
+        // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
+        SkASSERT(gp.numTextures() == 1);
+        GrTexture* atlas = gp.textureAccess(0).getTexture();
+        SkASSERT(atlas);
+        b->add32(atlas->width());
+        b->add32(atlas->height());
     }
 
 private:
