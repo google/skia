@@ -10,7 +10,6 @@
 #define GrResourceKey_DEFINED
 
 #include "GrTypes.h"
-#include "SkData.h"
 #include "SkOnce.h"
 #include "SkTemplates.h"
 
@@ -238,7 +237,6 @@ public:
 
     GrUniqueKey& operator=(const GrUniqueKey& that) {
         this->INHERITED::operator=(that);
-        this->setCustomData(that.getCustomData());
         return *this;
     }
 
@@ -246,14 +244,6 @@ public:
         return this->INHERITED::operator==(that);
     }
     bool operator!=(const GrUniqueKey& that) const { return !(*this == that); }
-
-    void setCustomData(const SkData* data) {
-        SkSafeRef(data);
-        fData.reset(data);
-    }
-    const SkData* getCustomData() const {
-        return fData.get();
-    }
 
     class Builder : public INHERITED::Builder {
     public:
@@ -278,9 +268,6 @@ public:
             return SkToInt((innerKey.dataSize() >> 2) + 1);
         }
     };
-
-private:
-    SkAutoTUnref<const SkData> fData;
 };
 
 /**

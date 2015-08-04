@@ -3715,21 +3715,6 @@ static void test_dump(skiatest::Reporter* reporter) {
                                             "path.lineTo(3, 4);\n");
 }
 
-namespace {
-
-class ChangeListener : public SkPathRef::GenIDChangeListener {
-public:
-    ChangeListener(bool *changed) : fChanged(changed) { *fChanged = false; }
-    virtual ~ChangeListener() {}
-    void onChange() override {
-        *fChanged = true;
-    }
-private:
-    bool* fChanged;
-};
-
-}
-
 class PathTest_Private {
 public:
     static void TestPathTo(skiatest::Reporter* reporter) {
@@ -3748,50 +3733,6 @@ public:
         p.reversePathTo(q);
         SkRect reverseExpected = {-4, -4, 8, 8};
         REPORTER_ASSERT(reporter, p.getBounds() == reverseExpected);
-    }
-
-    static void TestPathrefListeners(skiatest::Reporter* reporter) {
-        SkPath p;
-
-        bool changed = false;
-        p.moveTo(0, 0);
-
-        // Check that listener is notified on moveTo().
-
-        SkPathPriv::AddGenIDChangeListener(p, SkNEW(ChangeListener(&changed)));
-        REPORTER_ASSERT(reporter, !changed);
-        p.moveTo(10, 0);
-        REPORTER_ASSERT(reporter, changed);
-
-        // Check that listener is notified on lineTo().
-        SkPathPriv::AddGenIDChangeListener(p, SkNEW(ChangeListener(&changed)));
-        REPORTER_ASSERT(reporter, !changed);
-        p.lineTo(20, 0);
-        REPORTER_ASSERT(reporter, changed);
-
-        // Check that listener is notified on reset().
-        SkPathPriv::AddGenIDChangeListener(p, SkNEW(ChangeListener(&changed)));
-        REPORTER_ASSERT(reporter, !changed);
-        p.reset();
-        REPORTER_ASSERT(reporter, changed);
-
-        p.moveTo(0, 0);
-
-        // Check that listener is notified on rewind().
-        SkPathPriv::AddGenIDChangeListener(p, SkNEW(ChangeListener(&changed)));
-        REPORTER_ASSERT(reporter, !changed);
-        p.rewind();
-        REPORTER_ASSERT(reporter, changed);
-
-        // Check that listener is notified when pathref is deleted.
-        {
-            SkPath q;
-            q.moveTo(10, 10);
-            SkPathPriv::AddGenIDChangeListener(q, SkNEW(ChangeListener(&changed)));
-            REPORTER_ASSERT(reporter, !changed);
-        }
-        // q went out of scope.
-        REPORTER_ASSERT(reporter, changed);
     }
 };
 
@@ -3939,7 +3880,6 @@ DEF_TEST(Paths, reporter) {
     test_contains(reporter);
     PathTest_Private::TestPathTo(reporter);
     PathRefTest_Private::TestPathRef(reporter);
-    PathTest_Private::TestPathrefListeners(reporter);
     test_dump(reporter);
     test_path_crbug389050(reporter);
     test_path_crbugskia2820(reporter);
