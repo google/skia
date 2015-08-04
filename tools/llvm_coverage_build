@@ -1,0 +1,29 @@
+#!/bin/bash
+# Copyright (c) 2015 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Build Skia for use with LLVM's coverage tools.
+#
+# $ tools/llvm_coverage_build [any other flags to pass to make...]
+#
+# This script assumes the use of Clang 3.6. Earlier versions do not support
+# the flags we use in the build, and 3.7+ hit asserts during compilation.
+#
+set -e
+
+export CC="${CC:-$(which clang)}"
+export CXX="${CXX:-$(which clang++)}"
+
+if [[ -z "${CC}" ]] || [[ -z "${CXX}" ]]; then
+  echo "Couldn't find Clang on this machine!"
+  exit 1
+fi
+
+echo "CC=$CC"
+echo "CXX=$CXX"
+$CC --version
+
+export GYP_DEFINES="skia_clang_build=1"
+export BUILDTYPE=Coverage
+make $@
