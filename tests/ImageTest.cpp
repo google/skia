@@ -249,3 +249,65 @@ DEF_TEST(image_newfrombitmap, reporter) {
         REPORTER_ASSERT(reporter, peekSuccess == rec[i].fExpectPeekSuccess);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#if SK_SUPPORT_GPU
+
+static SkImage* make_gpu_image(GrContext* ctx, const SkImageInfo& info, SkColor color) {
+    const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, budgeted, info, 0));
+    surface->getCanvas()->drawColor(color);
+    return surface->newImageSnapshot();
+}
+
+#include "SkBitmapCache.h"
+
+/*
+ *  This tests the caching (and preemptive purge) of the raster equivalent of a gpu-image.
+ *  We cache it for performance when drawing into a raster surface.
+ *
+ *  A cleaner test would know if each drawImage call triggered a read-back from the gpu,
+ *  but we don't have that facility (at the moment) so we use a little internal knowledge
+ *  of *how* the raster version is cached, and look for that.
+ */
+DEF_GPUTEST(SkImage_Gpu2Cpu, reporter, factory) {
+    GrContext* ctx = factory->get(GrContextFactory::kNative_GLContextType);
+    if (!ctx) {
+        REPORTER_ASSERT(reporter, false);
+        return;
+    }
+
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
+    SkAutoTUnref<SkImage> image(make_gpu_image(ctx, info, SK_ColorRED));
+    const uint32_t uniqueID = image->uniqueID();
+
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+
+    // now we can test drawing a gpu-backed image into a cpu-backed surface
+
+    {
+        SkBitmap cachedBitmap;
+        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(uniqueID, &cachedBitmap));
+    }
+
+    surface->getCanvas()->drawImage(image, 0, 0);
+    {
+        SkBitmap cachedBitmap;
+        if (SkBitmapCache::Find(uniqueID, &cachedBitmap)) {
+            REPORTER_ASSERT(reporter, cachedBitmap.getGenerationID() == uniqueID);
+            REPORTER_ASSERT(reporter, cachedBitmap.isImmutable());
+            REPORTER_ASSERT(reporter, cachedBitmap.getPixels());
+        } else {
+            // unexpected, but not really a bug, since the cache is global and this test may be
+            // run w/ other threads competing for its budget.
+            SkDebugf("SkImage_Gpu2Cpu : cachedBitmap was already purged\n");
+        }
+    }
+
+    image.reset(nullptr);
+    {
+        SkBitmap cachedBitmap;
+        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(uniqueID, &cachedBitmap));
+    }
+}
+#endif

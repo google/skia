@@ -142,6 +142,20 @@ bool SkBitmapCache::Add(SkPixelRef* pr, const SkIRect& subset, const SkBitmap& r
     }
 }
 
+bool SkBitmapCache::Find(uint32_t genID, SkBitmap* result, SkResourceCache* localCache) {
+    BitmapKey key(genID, SK_Scalar1, SK_Scalar1, SkIRect::MakeEmpty());
+
+    return CHECK_LOCAL(localCache, find, Find, key, BitmapRec::Finder, result);
+}
+
+void SkBitmapCache::Add(uint32_t genID, const SkBitmap& result, SkResourceCache* localCache) {
+    SkASSERT(result.isImmutable());
+
+    BitmapRec* rec = SkNEW_ARGS(BitmapRec, (genID, 1, 1, SkIRect::MakeEmpty(), result));
+
+    CHECK_LOCAL(localCache, add, Add, rec);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 

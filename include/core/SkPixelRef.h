@@ -379,6 +379,9 @@ private:
     friend class SkBitmap;  // only for cloneGenID
     void cloneGenID(const SkPixelRef&);
 
+    void setImmutableWithID(uint32_t genID);
+    friend class SkImage_Gpu;
+
     typedef SkRefCnt INHERITED;
 };
 

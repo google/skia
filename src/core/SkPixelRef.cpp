@@ -356,6 +356,18 @@ void SkPixelRef::changeAlphaType(SkAlphaType at) {
 void SkPixelRef::setImmutable() {
     fMutability = kImmutable;
 }
+
+void SkPixelRef::setImmutableWithID(uint32_t genID) {
+    /*
+     *  We are forcing the genID to match an external value. The caller must ensure that this
+     *  value does not conflict with other content.
+     *
+     *  One use is to force this pixelref's id to match an SkImage's id
+     */
+    fMutability = kImmutable;
+    fTaggedGenID.store(genID);
+}
+
 void SkPixelRef::setTemporarilyImmutable() {
     SkASSERT(fMutability != kImmutable);
     fMutability = kTemporarilyImmutable;

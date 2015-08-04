@@ -52,6 +52,10 @@ public:
      */
     static bool Add(SkPixelRef*, const SkIRect& subset, const SkBitmap& result,
                     SkResourceCache* localCache = NULL);
+
+    static bool Find(uint32_t genID, SkBitmap* result, SkResourceCache* localCache = NULL);
+    // todo: eliminate the need to specify ID, since it should == the bitmap's
+    static void Add(uint32_t genID, const SkBitmap&, SkResourceCache* localCache = NULL);
 };
 
 class SkMipMapCache {

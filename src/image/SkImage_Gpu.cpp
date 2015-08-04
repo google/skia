@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapCache.h"
 #include "SkImage_Gpu.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
-
+#include "SkPixelRef.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
                          int sampleCountForNewSurfaces, SkSurface::Budgeted budgeted)
@@ -21,6 +22,12 @@ SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrText
     , fAlphaType(at)
     , fBudgeted(budgeted)
     {}
+
+SkImage_Gpu::~SkImage_Gpu() {
+    if (fAddedRasterVersionToCache.load()) {
+        SkNotifyBitmapGenIDIsStale(this->uniqueID());
+    }
+}
 
 SkSurface* SkImage_Gpu::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
     GrTexture* tex = this->getTexture();
@@ -49,6 +56,13 @@ SkShader* SkImage_Gpu::onNewShader(SkShader::TileMode tileX, SkShader::TileMode 
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
+    if (SkBitmapCache::Find(this->uniqueID(), dst)) {
+        SkASSERT(dst->getGenerationID() == this->uniqueID());
+        SkASSERT(dst->isImmutable());
+        SkASSERT(dst->getPixels());
+        return true;
+    }
+
     SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     if (!dst->tryAllocPixels(SkImageInfo::MakeN32(this->width(), this->height(), at))) {
         return false;
@@ -57,6 +71,10 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
                               dst->getPixels(), dst->rowBytes())) {
         return false;
     }
+
+    dst->pixelRef()->setImmutableWithID(this->uniqueID());
+    SkBitmapCache::Add(this->uniqueID(), *dst);
+    fAddedRasterVersionToCache.store(true);
     return true;
 }
 
