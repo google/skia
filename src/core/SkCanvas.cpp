@@ -2744,19 +2744,6 @@ void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, con
 
 void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                              const SkPaint* paint) {
-    if (!paint || paint->canComputeFastBounds()) {
-        SkRect bounds = picture->cullRect();
-        if (paint) {
-            paint->computeFastBounds(bounds, &bounds);
-        }
-        if (matrix) {
-            matrix->mapRect(&bounds);
-        }
-        if (this->quickReject(bounds)) {
-            return;
-        }
-    }
-
     SkBaseDevice* device = this->getTopDevice();
     if (device) {
         // Canvas has to first give the device the opportunity to render
