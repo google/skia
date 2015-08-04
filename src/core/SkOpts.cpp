@@ -7,8 +7,11 @@
 
 #include "SkOnce.h"
 #include "SkOpts.h"
+
 #define SK_OPTS_NS portable
 #include "SkBlurImageFilter_opts.h"
+#include "SkFloatingPoint_opts.h"
+#include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
 #if defined(SK_CPU_X86)
@@ -23,30 +26,14 @@
     #include <cpu-features.h>
 #endif
 
-namespace portable {  // This helps identify methods from this file when debugging / profiling.
-
-static float rsqrt(float x) {
-    // Get initial estimate.
-    int i = *SkTCast<int*>(&x);
-    i = 0x5F1FFFF9 - (i>>1);
-    float estimate = *SkTCast<float*>(&i);
-
-    // One step of Newton's method to refine.
-    const float estimate_sq = estimate*estimate;
-    estimate *= 0.703952253f*(2.38924456f-x*estimate_sq);
-    return estimate;
-}
-
-template <typename T>
-static void memsetT(T dst[], T val, int n) { while (n --> 0) { *dst++ = val; } }
-
-}  // namespace portable
-
 namespace SkOpts {
     // Define default function pointer values here...
+    // If our global compile options are set high enough, these 'portable' defaults might
+    // even be CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
+    // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
     decltype(rsqrt)                     rsqrt = portable::rsqrt;
-    decltype(memset16)               memset16 = portable::memsetT<uint16_t>;
-    decltype(memset32)               memset32 = portable::memsetT<uint32_t>;
+    decltype(memset16)               memset16 = portable::memset16;
+    decltype(memset32)               memset32 = portable::memset32;
     decltype(create_xfermode) create_xfermode = SkCreate4pxXfermode;
 
     static const auto x = portable::kX, y = portable::kY;

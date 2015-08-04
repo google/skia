@@ -6,6 +6,7 @@
  */
 
 #include "SkOpts.h"
+
 #define SK_OPTS_NS sse41
 #include "SkBlurImageFilter_opts.h"
 
