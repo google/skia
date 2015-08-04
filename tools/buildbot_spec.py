@@ -41,7 +41,7 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def gyp_defines(builder_dict):
   gyp_defs = {}
 
-  # skia_arch_type.
+  # skia_arch_width.
   if builder_dict['role'] == builder_name_schema.BUILDER_ROLE_BUILD:
     arch = builder_dict['target_arch']
   elif builder_dict['role'] == builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
@@ -49,17 +49,20 @@ def gyp_defines(builder_dict):
   else:
     arch = builder_dict['arch']
 
-  arch_types = {
-    'x86':      'x86',
-    'x86_64':   'x86_64',
-    'Arm7':     'arm',
-    'Arm64':    'arm64',
-    'Mips':     'mips32',
-    'Mips64':   'mips64',
-    'MipsDSP2': 'mips32',
+  #TODO(scroggo + mtklein): when safe, only set skia_arch_type.
+  arch_widths_and_types = {
+    'x86':      ('32', 'x86'),
+    'x86_64':   ('64', 'x86_64'),
+    'Arm7':     ('32', 'arm'),
+    'Arm64':    ('64', 'arm64'),
+    'Mips':     ('32', 'mips'),
+    'Mips64':   ('64', 'mips'),
+    'MipsDSP2': ('32', 'mips'),
   }
-  if arch in arch_types:
-    gyp_defs['skia_arch_type']  = arch_types[arch]
+  if arch in arch_widths_and_types:
+    skia_arch_width, skia_arch_type = arch_widths_and_types[arch]
+    gyp_defs['skia_arch_width'] = skia_arch_width
+    gyp_defs['skia_arch_type']  = skia_arch_type
 
   # housekeeper: build shared lib.
   if builder_dict['role'] == builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
@@ -304,6 +307,7 @@ def self_test():
         'Test-ChromeOS-GCC-Link-CPU-AVX-x86_64-Debug',
         'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
         'Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
+        'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage',
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD',
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
         'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
