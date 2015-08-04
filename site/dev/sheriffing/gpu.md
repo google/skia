@@ -56,4 +56,5 @@ If you need to swap shifts with someone (because you are out sick or on vacation
 <a name="tips"></a>
 Tips for Wrangers
 -----------------
-Add your tips here!
+
+Please see [this](https://docs.google.com/a/google.com/document/d/1Q1A5T5js4MdqvD0EKjCgNbUBJfRBMPKR3OZAkc-2Tvc/edit?usp=sharing) doc.
