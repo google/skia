@@ -217,14 +217,14 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         return false;
     }
 
-#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
+#ifdef SHADER_AA_FILL_RECT
     if (strokeWidth >= 0) {
 #endif
         if (!combinedMatrix.preservesAxisAlignment()) {
             return false;
         }
 
-#if defined(SHADER_AA_FILL_RECT) || !defined(IGNORE_ROT_AA_RECT_OPT)
+#ifdef SHADER_AA_FILL_RECT
     } else {
         if (!combinedMatrix.preservesRightAngles()) {
             return false;
