@@ -1489,7 +1489,8 @@ public:
             TessInfo info;
             info.fTolerance = isLinear ? 0 : tol;
             info.fCount = actualCount;
-            key->setCustomData(SkData::NewWithCopy(&info, sizeof(info)));
+            SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
+            key->setCustomData(data.get());
             resourceProvider->assignUniqueKeyToResource(*key, vertexBuffer.get());
             SkPathPriv::AddGenIDChangeListener(fPath, SkNEW(PathInvalidator(*key)));
         }
