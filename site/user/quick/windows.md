@@ -45,10 +45,16 @@ files.
 
 You can generate the Visual Studio projects by running gyp_skia, as follows:
 
+    (setup GYP_GENERATORS, see just below)
     cd %SKIA_CHECKOUT_DIR%
     python gyp_skia
 
-This will produce Visual Studio projects in the `%SKIA_CHECKOUT_DIR%\out` directory.
+If you like to develop from a fully-integrated Visual Studio, set
+GYP_GENERATORS=ninja,msvs-ninja before running gyp_skia to generate
+Visual-Studio-compatible project files that still ultimately build using ninja,
+or set it to msvs to use Visual Studio's own (slower) build system.  If you are
+comfortable with and prefer running ninja yourself, GYP_GENERATORS=ninja is
+considerably faster than the other two options.
 
 Build and run tests from the command line
 -----------------------------------------
