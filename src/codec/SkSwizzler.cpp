@@ -43,10 +43,12 @@ static SkSwizzler::ResultAlpha swizzle_bit_to_grayscale(
 
     // Finish the remaining bits
     width &= 7;
-    U8CPU currByte = src[i];
-    for (int j = 0; j < width; j++) {
-        dst[j] = ((currByte >> 7) & 1) ? GRAYSCALE_WHITE : GRAYSCALE_BLACK;
-        currByte <<= 1;
+    if (width > 0) {
+        U8CPU currByte = src[i];
+        for (int j = 0; j < width; j++) {
+            dst[j] = ((currByte >> 7) & 1) ? GRAYSCALE_WHITE : GRAYSCALE_BLACK;
+            currByte <<= 1;
+        }
     }
     return SkSwizzler::kOpaque_ResultAlpha;
 }
@@ -72,10 +74,12 @@ static SkSwizzler::ResultAlpha swizzle_bit_to_index(
 
     // Finish the remaining bits
     width &= 7;
-    U8CPU currByte = src[i];
-    for (int j = 0; j < width; j++) {
-        dst[j] = ((currByte >> 7) & 1);
-        currByte <<= 1;
+    if (width > 0) {
+        U8CPU currByte = src[i];
+        for (int j = 0; j < width; j++) {
+            dst[j] = ((currByte >> 7) & 1);
+            currByte <<= 1;
+        }
     }
     return SkSwizzler::kOpaque_ResultAlpha;
 }
@@ -98,10 +102,12 @@ static SkSwizzler::ResultAlpha swizzle_bit_to_n32(
 
     // Finish the remaining bits
     width &= 7;
-    U8CPU currByte = src[i];
-    for (int j = 0; j < width; j++) {
-        dst[j] = ((currByte >> 7) & 1) ? SK_ColorWHITE : SK_ColorBLACK;
-        currByte <<= 1;
+    if (width > 0) {
+        U8CPU currByte = src[i];
+        for (int j = 0; j < width; j++) {
+            dst[j] = ((currByte >> 7) & 1) ? SK_ColorWHITE : SK_ColorBLACK;
+            currByte <<= 1;
+        }
     }
     return SkSwizzler::kOpaque_ResultAlpha;
 }
