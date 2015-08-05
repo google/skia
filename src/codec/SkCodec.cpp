@@ -133,10 +133,5 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
 }
 
 SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-    SkASSERT(kIndex_8_SkColorType != info.colorType());
-    if (kIndex_8_SkColorType == info.colorType()) {
-        return kInvalidConversion;
-    }
     return this->getPixels(info, pixels, rowBytes, NULL, NULL, NULL);
 }
-

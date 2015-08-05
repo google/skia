@@ -152,7 +152,7 @@ static void check(skiatest::Reporter* r,
 
 DEF_TEST(Codec, r) {
     // WBMP
-    check(r, "mandrill.wbmp", SkISize::Make(512, 512), false, false);
+    check(r, "mandrill.wbmp", SkISize::Make(512, 512), true, false);
 
     // WEBP
     check(r, "baby_tux.webp", SkISize::Make(386, 395), false, true);
@@ -288,4 +288,39 @@ DEF_TEST(Codec_Empty, r) {
     test_empty(r, "empty_images/zero-height.png");
     test_empty(r, "empty_images/zero-width.wbmp");
     test_empty(r, "empty_images/zero-height.wbmp");
+}
+
+static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
+    SkAutoTDelete<SkStream> stream(resource(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    SkAutoTDelete<SkScanlineDecoder> decoder(SkScanlineDecoder::NewFromStream(
+        stream.detach()));
+    
+    // This should return kSuccess because kIndex8 is supported.
+    SkPMColor colorStorage[256];
+    int colorCount;
+    SkCodec::Result result = decoder->start(
+        decoder->getInfo().makeColorType(kIndex_8_SkColorType), NULL, colorStorage, &colorCount);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    // The rest of the test is uninteresting if kIndex8 is not supported
+    if (SkCodec::kSuccess != result) {
+        return;
+    }
+
+    // This should return kInvalidParameters because, in kIndex_8 mode, we must pass in a valid
+    // colorPtr and a valid colorCountPtr.
+    result = decoder->start(
+        decoder->getInfo().makeColorType(kIndex_8_SkColorType), NULL, NULL, NULL);
+    REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
+    result = decoder->start(
+        decoder->getInfo().makeColorType(kIndex_8_SkColorType));
+    REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
+}
+
+DEF_TEST(Codec_Params, r) {
+    test_invalid_parameters(r, "index8.png");
+    test_invalid_parameters(r, "mandrill.wbmp");
 }

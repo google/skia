@@ -7,6 +7,7 @@
 
 #include "SkScanlineDecoder.h"
 #include "SkCodec_libpng.h"
+#include "SkCodec_wbmp.h"
 #include "SkCodecPriv.h"
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #include "SkJpegCodec.h"
@@ -22,6 +23,7 @@ static const DecoderProc gDecoderProcs[] = {
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     { SkJpegCodec::IsJpeg, SkJpegCodec::NewSDFromStream },
 #endif
+    { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewSDFromStream },
 };
 
 SkScanlineDecoder* SkScanlineDecoder::NewFromStream(SkStream* stream) {
@@ -66,6 +68,19 @@ SkScanlineDecoder* SkScanlineDecoder::NewFromData(SkData* data) {
 
 SkCodec::Result SkScanlineDecoder::start(const SkImageInfo& dstInfo,
         const SkCodec::Options* options, SkPMColor ctable[], int* ctableCount) {
+    // Ensure that valid color ptrs are passed in for kIndex8 color type
+    if (kIndex_8_SkColorType == dstInfo.colorType()) {
+        if (NULL == ctable || NULL == ctableCount) {
+            return SkCodec::kInvalidParameters;
+        }
+    } else {
+        if (ctableCount) {
+            *ctableCount = 0;
+        }
+        ctableCount = NULL;
+        ctable = NULL;
+    }
+
     // Set options.
     SkCodec::Options optsStorage;
     if (NULL == options) {
@@ -83,10 +98,6 @@ SkCodec::Result SkScanlineDecoder::start(const SkImageInfo& dstInfo,
 }
 
 SkCodec::Result SkScanlineDecoder::start(const SkImageInfo& dstInfo) {
-    SkASSERT(kIndex_8_SkColorType != dstInfo.colorType());
-    if (kIndex_8_SkColorType == dstInfo.colorType()) {
-        return SkCodec::kInvalidConversion;
-    }
     return this->start(dstInfo, NULL, NULL, NULL);
 }
 

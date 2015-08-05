@@ -471,7 +471,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     copy_color_table(requestedInfo, fColorTable, ctable, ctableCount);
 
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
-    const SkPMColor* colors = fColorTable ? fColorTable->readColors() : NULL;
+    const SkPMColor* colors = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo,
             options.fZeroInitialized));
     if (!fSwizzler) {

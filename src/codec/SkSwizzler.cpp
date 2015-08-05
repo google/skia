@@ -19,6 +19,93 @@ SkSwizzler::ResultAlpha SkSwizzler::GetResult(uint8_t zeroAlpha,
     return (((uint16_t) maxAlpha) << 8) | zeroAlpha;
 }
 
+// kBit
+// These routines exclusively choose between white and black
+
+#define GRAYSCALE_BLACK 0
+#define GRAYSCALE_WHITE 0xFF
+
+static SkSwizzler::ResultAlpha swizzle_bit_to_grayscale(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int /*bitsPerPixel*/, const SkPMColor* /*ctable*/) {
+    uint8_t* SK_RESTRICT dst = (uint8_t*) dstRow;
+
+    // Determine how many full bytes are in the row
+    int bytesInRow = width >> 3;
+    int i;
+    for (i = 0; i < bytesInRow; i++) {
+        U8CPU currByte = src[i];
+        for (int j = 0; j < 8; j++) {
+            dst[j] = ((currByte >> (7 - j)) & 1) ? GRAYSCALE_WHITE : GRAYSCALE_BLACK;
+        }
+        dst += 8;
+    }
+
+    // Finish the remaining bits
+    width &= 7;
+    U8CPU currByte = src[i];
+    for (int j = 0; j < width; j++) {
+        dst[j] = ((currByte >> 7) & 1) ? GRAYSCALE_WHITE : GRAYSCALE_BLACK;
+        currByte <<= 1;
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+#undef GRAYSCALE_BLACK
+#undef GRAYSCALE_WHITE
+
+static SkSwizzler::ResultAlpha swizzle_bit_to_index(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int /*bitsPerPixel*/, const SkPMColor* /*ctable*/) {
+    uint8_t* SK_RESTRICT dst = (uint8_t*) dstRow;
+
+    // Determine how many full bytes are in the row
+    int bytesInRow = width >> 3;
+    int i;
+    for (i = 0; i < bytesInRow; i++) {
+        U8CPU currByte = src[i];
+        for (int j = 0; j < 8; j++) {
+            dst[j] = (currByte >> (7 - j)) & 1;
+        }
+        dst += 8;
+    }
+
+    // Finish the remaining bits
+    width &= 7;
+    U8CPU currByte = src[i];
+    for (int j = 0; j < width; j++) {
+        dst[j] = ((currByte >> 7) & 1);
+        currByte <<= 1;
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+static SkSwizzler::ResultAlpha swizzle_bit_to_n32(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int /*bitsPerPixel*/, const SkPMColor* /*ctable*/) {
+    SkPMColor* SK_RESTRICT dst = (SkPMColor*) dstRow;
+
+    // Determine how many full bytes are in the row
+    int bytesInRow = width >> 3;
+    int i;
+    for (i = 0; i < bytesInRow; i++) {
+        U8CPU currByte = src[i];
+        for (int j = 0; j < 8; j++) {
+            dst[j] = ((currByte >> (7 - j)) & 1) ? SK_ColorWHITE : SK_ColorBLACK;
+        }
+        dst += 8;
+    }
+
+    // Finish the remaining bits
+    width &= 7;
+    U8CPU currByte = src[i];
+    for (int j = 0; j < width; j++) {
+        dst[j] = ((currByte >> 7) & 1) ? SK_ColorWHITE : SK_ColorBLACK;
+        currByte <<= 1;
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
 // kIndex1, kIndex2, kIndex4
 
 static SkSwizzler::ResultAlpha swizzle_small_index_to_index(
@@ -284,6 +371,21 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
     }
     RowProc proc = NULL;
     switch (sc) {
+        case kBit:
+            switch (info.colorType()) {
+                case kN32_SkColorType:
+                    proc = &swizzle_bit_to_n32;
+                    break;
+                case kIndex_8_SkColorType:
+                    proc = &swizzle_bit_to_index;
+                    break;
+                case kGray_8_SkColorType:
+                    proc = &swizzle_bit_to_grayscale;
+                    break;
+                default:
+                    break;
+            }
+            break;
         case kIndex1:
         case kIndex2:
         case kIndex4:

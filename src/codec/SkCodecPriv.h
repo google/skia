@@ -31,6 +31,13 @@
     SkSwizzler::GetResult(zeroAlpha, maxAlpha);
 
 /*
+ * If there is a color table, get a pointer to the colors, otherwise return NULL
+ */
+static const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
+     return NULL != colorTable ? colorTable->readColors() : NULL;
+}
+
+/*
  *
  * Copy the codec color table back to the client when kIndex8 color type is requested
  *

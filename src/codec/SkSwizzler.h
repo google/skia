@@ -19,6 +19,7 @@ public:
      */
     enum SrcConfig {
         kUnknown,  // Invalid type.
+        kBit,      // A single bit to distinguish between white and black
         kGray,
         kIndex1,
         kIndex2,
@@ -76,6 +77,7 @@ public:
      */
     static int BitsPerPixel(SrcConfig sc) {
         switch (sc) {
+            case kBit:
             case kIndex1:
                 return 1;
             case kIndex2:
