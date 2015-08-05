@@ -10,6 +10,7 @@
 #ifndef SkTemplates_DEFINED
 #define SkTemplates_DEFINED
 
+#include "../private/SkTLogic.h"
 #include "SkMath.h"
 #include "SkTypes.h"
 #include <limits.h>
@@ -27,16 +28,22 @@
  */
 template<typename T> inline void sk_ignore_unused_variable(const T&) { }
 
-/**
- *  SkTIsConst<T>::value is true if the type T is const.
- *  The type T is constrained not to be an array or reference type.
- */
-template <typename T> struct SkTIsConst {
-    static T* t;
-    static uint16_t test(const volatile void*);
-    static uint32_t test(volatile void *);
-    static const bool value = (sizeof(uint16_t) == sizeof(test(t)));
-};
+namespace skstd {
+
+template <typename T> inline remove_reference_t<T>&& move(T&& t) {
+  return static_cast<remove_reference_t<T>&&>(t);
+}
+
+template <typename T> inline T&& forward(remove_reference_t<T>& t) /*noexcept*/ {
+    return static_cast<T&&>(t);
+}
+template <typename T> inline T&& forward(remove_reference_t<T>&& t) /*noexcept*/ {
+    static_assert(!is_lvalue_reference<T>::value,
+                  "Forwarding an rvalue reference as an lvalue reference is not allowed.");
+    return static_cast<T&&>(t);
+}
+
+}  // namespace skstd
 
 ///@{
 /** SkTConstType<T, CONST>::type will be 'const T' if CONST is true, 'T' otherwise. */

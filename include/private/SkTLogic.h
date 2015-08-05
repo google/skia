@@ -18,6 +18,8 @@
 #ifndef SkTLogic_DEFINED
 #define SkTLogic_DEFINED
 
+#include <stdint.h>
+
 /** Represents a templated integer constant.
  *  Pre-C++11 version of std::integral_constant.
  */
@@ -107,5 +109,30 @@ class HasType_##type {                                                  \
 public:                                                                 \
     static const bool value = sizeof(func<T>(NULL)) == sizeof(uint8_t); \
 }
+
+namespace skstd {
+
+/** SkTRemoveReference<T>::type is the type of T with any top-level lvalue or rvalue removed. */
+template <typename T> struct remove_reference { typedef T type; };
+template <typename T> struct remove_reference<T&> { typedef T type; };
+template <typename T> struct remove_reference<T&&> { typedef T type; };
+template <typename T> using remove_reference_t = typename remove_reference<T>::type;
+
+/** SkTIsLValueReference<T>::value is true if the type T is an lvalue reference. */
+template <typename T> struct is_lvalue_reference : SkFalse {};
+template <typename T> struct is_lvalue_reference<T&> : SkTrue {};
+
+}  // namespace skstd
+
+/**
+ *  SkTIsConst<T>::value is true if the type T is const.
+ *  The type T is constrained not to be an array or reference type.
+ */
+template <typename T> struct SkTIsConst {
+    static T* t;
+    static uint16_t test(const volatile void*);
+    static uint32_t test(volatile void *);
+    static const bool value = (sizeof(uint16_t) == sizeof(test(t)));
+};
 
 #endif

@@ -35,13 +35,10 @@ public:
 
     R operator()(Args... args) const {
         SkASSERT(fFunction.get());
-        return fFunction->call(Forward(args)...);
+        return fFunction->call(skstd::forward<Args>(args)...);
     }
 
 private:
-    // ~= std::forward.  This moves its argument if possible, falling back to a copy if not.
-    template <typename T> static T&& Forward(T& v) { return (T&&)v; }
-
     struct Interface {
         virtual ~Interface() {}
         virtual R call(Args...) const = 0;
@@ -53,7 +50,7 @@ private:
     public:
         LambdaImpl(const Fn& fn) : fFn(fn) {}
 
-        R call(Args... args) const override { return fFn(Forward(args)...); }
+        R call(Args... args) const override { return fFn(skstd::forward<Args>(args)...); }
         Interface* clone() const override { return SkNEW_ARGS(LambdaImpl<Fn>, (fFn)); }
     private:
         Fn fFn;
@@ -63,7 +60,7 @@ private:
     public:
         FnPtrImpl(R (*fn)(Args...)) : fFn(fn) {}
 
-        R call(Args... args) const override { return fFn(Forward(args)...); }
+        R call(Args... args) const override { return fFn(skstd::forward<Args>(args)...); }
         Interface* clone() const override { return SkNEW_ARGS(FnPtrImpl, (fFn)); }
     private:
         R (*fFn)(Args...);
