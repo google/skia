@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrStrokeInfo.h"
 #include "GrTestUtils.h"
 #include "SkMatrix.h"
-#include "SkPathEffect.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 
@@ -218,42 +216,19 @@ const SkPath& TestPathConvex(SkRandom* random) {
     return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
 }
 
-static void randomize_stroke_rec(SkStrokeRec* rec, SkRandom* random) {
-    bool strokeAndFill = random->nextBool();
-    SkScalar strokeWidth = random->nextBool() ? 0.f : 1.f;
-    rec->setStrokeStyle(strokeWidth, strokeAndFill);
-
-    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::kCapCount));
-    SkPaint::Join join = SkPaint::Join(random->nextULessThan(SkPaint::kJoinCount));
-    SkScalar miterLimit = random->nextRangeScalar(1.f, 5.f);
-    rec->setStrokeParams(cap, join, miterLimit);
-}
-
 SkStrokeRec TestStrokeRec(SkRandom* random) {
     SkStrokeRec::InitStyle style =
             SkStrokeRec::InitStyle(random->nextULessThan(SkStrokeRec::kFill_InitStyle + 1));
     SkStrokeRec rec(style);
-    randomize_stroke_rec(&rec, random);
-    return rec;
-}
+    bool strokeAndFill = random->nextBool();
+    SkScalar strokeWidth = random->nextBool() ? 0.f : 1.f;
+    rec.setStrokeStyle(strokeWidth, strokeAndFill);
 
-GrStrokeInfo TestStrokeInfo(SkRandom* random) {
-    SkStrokeRec::InitStyle style =
-            SkStrokeRec::InitStyle(random->nextULessThan(SkStrokeRec::kFill_InitStyle + 1));
-    GrStrokeInfo strokeInfo(style);
-    randomize_stroke_rec(&strokeInfo, random);
-    SkPathEffect::DashInfo dashInfo;
-    dashInfo.fCount = random->nextRangeU(1, 100);
-    dashInfo.fIntervals = SkNEW_ARRAY(SkScalar, dashInfo.fCount);
-    SkScalar sum = 0;
-    for (int i = 0; i < dashInfo.fCount; i++) {
-        dashInfo.fIntervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
-                                                         SkDoubleToScalar(10.0));
-        sum += dashInfo.fIntervals[i];
-    }
-    dashInfo.fPhase = random->nextRangeScalar(0, sum);
-    strokeInfo.setDashInfo(dashInfo);
-    return strokeInfo;
+    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::kCapCount));
+    SkPaint::Join join = SkPaint::Join(random->nextULessThan(SkPaint::kJoinCount));
+    SkScalar miterLimit = random->nextRangeScalar(1.f, 5.f);
+    rec.setStrokeParams(cap, join, miterLimit);
+    return rec;
 }
 
 };

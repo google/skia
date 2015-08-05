@@ -16,7 +16,6 @@
 #include "SkRandom.h"
 #include "SkStrokeRec.h"
 
-class GrStrokeInfo;
 class SkMatrix;
 class SkPath;
 class SkRRect;
@@ -36,7 +35,6 @@ const SkRRect& TestRRectSimple(SkRandom*);
 const SkPath& TestPath(SkRandom*);
 const SkPath& TestPathConvex(SkRandom*);
 SkStrokeRec TestStrokeRec(SkRandom*);
-GrStrokeInfo TestStrokeInfo(SkRandom*);
 
 }
 
