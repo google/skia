@@ -529,30 +529,6 @@ private:
     PathDataList* fPathList;
 };
 
-static GrBatchAtlas* create_atlas(GrResourceProvider* provider, GrBatchAtlas::EvictionFunc func,
-                                  void* data) {
-    GrBatchAtlas* atlas;
-    // Create a new atlas
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fWidth = ATLAS_TEXTURE_WIDTH;
-    desc.fHeight = ATLAS_TEXTURE_HEIGHT;
-    desc.fConfig = kAlpha_8_GrPixelConfig;
-
-    // We don't want to flush the context so we claim we're in the middle of flushing so as to
-    // guarantee we do not recieve a texture with pending IO
-    // TODO: Determine how to avoid having to do this. (http://skbug.com/4156)
-    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    GrTexture* texture = provider->createApproxTexture(desc, kFlags);
-    if (texture) {
-        atlas = SkNEW_ARGS(GrBatchAtlas, (texture, NUM_PLOTS_X, NUM_PLOTS_Y));
-    } else {
-        return NULL;
-    }
-    atlas->registerEvictionCallback(func, data);
-    return atlas;
-}
-
 bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     // we've already bailed on inverse filled paths, so this is safe
     if (args.fPath->isEmpty()) {
@@ -560,8 +536,11 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     if (!fAtlas) {
-        fAtlas = create_atlas(args.fResourceProvider,
-                              &GrAADistanceFieldPathRenderer::HandleEviction, (void*)this);
+        fAtlas = args.fResourceProvider->createAtlas(kAlpha_8_GrPixelConfig,
+                                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
+                                                     NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                     &GrAADistanceFieldPathRenderer::HandleEviction,
+                                                     (void*)this);
         if (!fAtlas) {
             return false;
         }
@@ -631,8 +610,12 @@ BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
     if (context->uniqueID() != gTestStruct.fContextID) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
-        gTestStruct.fAtlas = create_atlas(context->resourceProvider(),
-                                          &PathTestStruct::HandleEviction, (void*)&gTestStruct);
+        gTestStruct.fAtlas =
+                context->resourceProvider()->createAtlas(kAlpha_8_GrPixelConfig,
+                                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
+                                                     NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                     &PathTestStruct::HandleEviction,
+                                                     (void*)&gTestStruct);
     }
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

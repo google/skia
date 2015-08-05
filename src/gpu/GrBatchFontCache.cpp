@@ -18,49 +18,25 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static GrBatchAtlas* make_atlas(GrContext* context, GrPixelConfig config,
-                                int textureWidth, int textureHeight,
-                                int numPlotsX, int numPlotsY) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fWidth = textureWidth;
-    desc.fHeight = textureHeight;
-    desc.fConfig = config;
-
-    // We don't want to flush the context so we claim we're in the middle of flushing so as to
-    // guarantee we do not recieve a texture with pending IO
-    // TODO: Determine how to avoid having to do this. (http://skbug.com/4156)
-    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    GrTexture* texture = context->resourceProvider()->createApproxTexture(desc, kFlags);
-    if (!texture) {
-        return NULL;
-    }
-    return SkNEW_ARGS(GrBatchAtlas, (texture, numPlotsX, numPlotsY));
-}
-
 bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (!fAtlases[index]) {
         GrPixelConfig config = MaskFormatToPixelConfig(format);
-        if (kA8_GrMaskFormat == format) {
-            fAtlases[index] = make_atlas(fContext, config,
-                                         GR_FONT_ATLAS_A8_TEXTURE_WIDTH,
-                                         GR_FONT_ATLAS_TEXTURE_HEIGHT,
-                                         GR_FONT_ATLAS_A8_NUM_PLOTS_X,
-                                         GR_FONT_ATLAS_NUM_PLOTS_Y);
-        } else {
-            fAtlases[index] = make_atlas(fContext, config,
-                                         GR_FONT_ATLAS_TEXTURE_WIDTH,
-                                         GR_FONT_ATLAS_TEXTURE_HEIGHT,
-                                         GR_FONT_ATLAS_NUM_PLOTS_X,
-                                         GR_FONT_ATLAS_NUM_PLOTS_Y);
-        }
+        int width = GR_FONT_ATLAS_TEXTURE_WIDTH;
+        int height = GR_FONT_ATLAS_TEXTURE_HEIGHT;
+        int numPlotsX = GR_FONT_ATLAS_NUM_PLOTS_X;
+        int numPlotsY = GR_FONT_ATLAS_NUM_PLOTS_Y;
 
-        // Atlas creation can fail
-        if (fAtlases[index]) {
-            fAtlases[index]->registerEvictionCallback(&GrBatchFontCache::HandleEviction,
-                                                      (void*)this);
-        } else {
+        if (kA8_GrMaskFormat == format) {
+            width = GR_FONT_ATLAS_A8_TEXTURE_WIDTH;
+            numPlotsX = GR_FONT_ATLAS_A8_NUM_PLOTS_X;
+        }
+        fAtlases[index] =
+                fContext->resourceProvider()->createAtlas(config, width, height,
+                                                          numPlotsX, numPlotsY,
+                                                          &GrBatchFontCache::HandleEviction,
+                                                          (void*)this);
+        if (!fAtlases[index]) {
             return false;
         }
     }

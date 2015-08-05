@@ -8,10 +8,12 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
+#include "GrBatchAtlas.h"
 #include "GrIndexBuffer.h"
 #include "GrTextureProvider.h"
 #include "GrPathRange.h"
 
+class GrBatchAtlas;
 class GrIndexBuffer;
 class GrPath;
 class GrStrokeInfo;
@@ -112,6 +114,25 @@ public:
         SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
         return this->internalCreateApproxTexture(desc, flags);
     }
+
+    /**  Returns a GrBatchAtlas. This function can be called anywhere, but the returned atlas should
+     *   only be used inside of GrBatch::generateGeometry
+     *   @param GrPixelConfig    The pixel config which this atlas will store
+     *   @param width            width in pixels of the atlas
+     *   @param height           height in pixels of the atlas
+     *   @param numPlotsX        The number of plots the atlas should be broken up into in the X
+     *                           direction
+     *   @param numPlotsY        The number of plots the atlas should be broken up into in the Y
+     *                           direction
+     *   @param func             An eviction function which will be called whenever the atlas has to
+     *                           evict data
+     *   @param data             User supplied data which will be passed into func whenver an
+     *                           eviction occurs
+     *
+     *   @return                 An initialized GrBatchAtlas, or NULL if creation fails
+     */
+    GrBatchAtlas* createAtlas(GrPixelConfig, int width, int height, int numPlotsX, int numPlotsY,
+                              GrBatchAtlas::EvictionFunc func, void* data);
 
 private:
     const GrIndexBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
