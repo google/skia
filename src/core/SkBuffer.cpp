@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -5,9 +6,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkBuffer.h"
 
-#include <string.h>
+#include "SkBuffer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

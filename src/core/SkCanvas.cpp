@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasPriv.h"
-#include "SkClipStack.h"
+#include "SkBitmapDevice.h"
 #include "SkColorFilter.h"
-#include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
@@ -20,6 +18,7 @@
 #include "SkMetaData.h"
 #include "SkNinePatchIter.h"
 #include "SkPaintPriv.h"
+#include "SkPathOps.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkRasterClip.h"
@@ -27,12 +26,12 @@
 #include "SkRRect.h"
 #include "SkSmallAllocator.h"
 #include "SkSurface_Base.h"
+#include "SkTemplates.h"
 #include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
-
-#include <new>
+#include "SkUtils.h"
 
 #if SK_SUPPORT_GPU
 #include "GrRenderTarget.h"

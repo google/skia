@@ -5,11 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapFilter.h"
+#include "SkErrorInternals.h"
+#include "SkConvolver.h"
+#include "SkBitmapProcState.h"
+#include "SkBitmap.h"
+#include "SkColor.h"
+#include "SkColorPriv.h"
+#include "SkConvolver.h"
+#include "SkUnPreMultiply.h"
+#include "SkShader.h"
 #include "SkRTConf.h"
-#include "SkTypes.h"
-
-#include <string.h>
+#include "SkMath.h"
 
 // These are the per-scanline callbacks that are used when we must resort to
 // resampling an image as it is blitted.  Typically these are used only when

@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "Resources.h"
-#include "SkPath.h"
 #include "SkTypeface.h"
 
 class SkJSCanvas {

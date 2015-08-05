@@ -10,7 +10,6 @@
 
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
-#include "SkPath.h"
 #include "SkTLList.h"
 
 static SkBitmap make_bmp(int w, int h) {

@@ -10,7 +10,6 @@
 #include "SkDevice.h"
 #include "SkImageEncoder.h"
 #include "SkImage_Base.h"
-#include "SkPath.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "SkUtils.h"

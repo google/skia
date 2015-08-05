@@ -11,9 +11,6 @@
 #include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPicture.h"
-#include "SkTDArray.h"
-
-class SkSurface;
 
 /**
  * Runs an SkPicture as a benchmark by repeatedly drawing it scaled inside a device clip.

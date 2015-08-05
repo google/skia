@@ -7,12 +7,10 @@
 
 #include "SkBitmapScaler.h"
 #include "SkBitmapFilter.h"
-#include "SkConvolver.h"
-#include "SkImageInfo.h"
-#include "SkPixmap.h"
 #include "SkRect.h"
-#include "SkScalar.h"
 #include "SkTArray.h"
+#include "SkErrorInternals.h"
+#include "SkConvolver.h"
 
 // SkResizeFilter ----------------------------------------------------------------
 

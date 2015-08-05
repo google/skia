@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
-#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkTArray.h"
 

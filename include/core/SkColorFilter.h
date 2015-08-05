@@ -13,10 +13,10 @@
 #include "SkTDArray.h"
 #include "SkXfermode.h"
 
-class GrContext;
-class GrFragmentProcessor;
-class GrProcessorDataManager;
 class SkBitmap;
+class GrProcessor;
+class GrContext;
+class GrProcessorDataManager;
 
 /**
  *  ColorFilters are optional objects in the drawing pipeline. When present in

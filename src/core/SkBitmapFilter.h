@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2013 Google Inc.
  *
@@ -5,12 +6,11 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkBitmapFilter_DEFINED
 #define SkBitmapFilter_DEFINED
 
-#include "SkFixed.h"
 #include "SkMath.h"
-#include "SkScalar.h"
 
 // size of the precomputed bitmap filter tables for high quality filtering.
 // Used to precompute the shape of the filter kernel.

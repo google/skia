@@ -9,7 +9,6 @@
 #include "SkDeferredCanvas.h"
 
 #include "SkChunkAlloc.h"
-#include "SkClipStack.h"
 #include "SkColorFilter.h"
 #include "SkDevice.h"
 #include "SkDrawFilter.h"

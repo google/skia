@@ -7,7 +7,10 @@
  */
 
 #include "SkBitmapHeap.h"
+
 #include "SkBitmap.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkTSearch.h"
 
 SkBitmapHeapEntry::SkBitmapHeapEntry()

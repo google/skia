@@ -12,7 +12,6 @@
 #include "SkImageGeneratorPriv.h"
 #include "SkMatrixUtils.h"
 #include "SkPaint.h"
-#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkSurface.h"

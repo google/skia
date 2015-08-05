@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
-#include "SkPath.h"
 
 static void make_bm(SkBitmap* bm) {
     bm->allocN32Pixels(60, 60);

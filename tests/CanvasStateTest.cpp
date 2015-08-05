@@ -302,7 +302,6 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
 }
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-#include "SkClipStack.h"
 DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
     const int WIDTH = 100;
     const int HEIGHT = 100;

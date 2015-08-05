@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkPath.h"
 #include "SkShader.h"
 
 static void test4(SkCanvas* canvas) {

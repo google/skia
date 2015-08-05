@@ -9,7 +9,6 @@
 #define SkCachedData_DEFINED
 
 #include "SkMutex.h"
-#include "SkTypes.h"
 
 class SkDiscardableMemory;
 

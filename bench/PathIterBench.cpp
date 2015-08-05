@@ -10,7 +10,6 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkPaint.h"
-#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkString.h"

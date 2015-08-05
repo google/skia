@@ -6,12 +6,11 @@
  */
 
 #include "gm.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
-#include "SkLayerDrawLooper.h"
-#include "SkPath.h"
 #include "SkRandom.h"
+#include "SkLayerDrawLooper.h"
+#include "SkBlurMaskFilter.h"
 
 static SkRect inset(const SkRect& r) {
     SkRect rect = r;

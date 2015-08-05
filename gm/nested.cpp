@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRRect.h"
 

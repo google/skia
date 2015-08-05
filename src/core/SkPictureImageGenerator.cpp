@@ -11,7 +11,6 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
-#include "SkTLazy.h"
 
 class SkPictureImageGenerator : SkImageGenerator {
 public:

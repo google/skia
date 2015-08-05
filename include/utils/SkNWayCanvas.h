@@ -10,7 +10,6 @@
 #define SkNWayCanvas_DEFINED
 
 #include "SkCanvas.h"
-#include "SkTDArray.h"
 
 class SK_API SkNWayCanvas : public SkCanvas {
 public:

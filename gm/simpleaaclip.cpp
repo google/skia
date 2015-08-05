@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+
 #include "gm.h"
-#include "SkAAClip.h"
 #include "SkCanvas.h"
-#include "SkPath.h"
+#include "SkAAClip.h"
 
 namespace skiagm {
 

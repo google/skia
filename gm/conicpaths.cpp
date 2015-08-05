@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
-#include "SkPath.h"
 #include "SkTArray.h"
 
 class ConicPathsGM : public skiagm::GM {

@@ -1,14 +1,13 @@
+
 /*
  * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "gm.h"
 
 #include "SkColorPriv.h"
-#include "SkPath.h"
 #include "SkShader.h"
 
 namespace skiagm {

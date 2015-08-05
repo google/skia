@@ -6,9 +6,8 @@
  */
 
 #include "gm.h"
-#include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
-#include "SkPath.h"
+#include "SkBlurMaskFilter.h"
 
 namespace skiagm {
 

@@ -8,12 +8,11 @@
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkBlurDrawLooper.h"
-#include "SkCanvas.h"
-#include "SkEmbossMaskFilter.h"
 #include "SkLayerDrawLooper.h"
+#include "SkEmbossMaskFilter.h"
+#include "SkCanvas.h"
 #include "SkMath.h"
 #include "SkPaint.h"
-#include "SkPath.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU

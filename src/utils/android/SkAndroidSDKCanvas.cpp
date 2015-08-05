@@ -8,10 +8,8 @@
 #include "SkAndroidSDKCanvas.h"
 
 #include "SkColorFilter.h"
-#include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkShader.h"
-#include "SkTLazy.h"
 
 namespace {
 

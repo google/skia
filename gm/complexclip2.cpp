@@ -10,8 +10,6 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkRandom.h"
-#include "SkRect.h"
-#include "SkRRect.h"
 
 namespace skiagm {
 

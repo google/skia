@@ -12,11 +12,10 @@
 
 #include "SkCanvas.h"
 #include "SkDrawCommand.h"
-#include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPicture.h"
-#include "SkString.h"
 #include "SkTArray.h"
+#include "SkString.h"
 
 class SkNWayCanvas;
 

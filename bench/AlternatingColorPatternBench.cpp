@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPaint.h"
-#include "SkPath.h"
 #include "SkString.h"
 
 enum ColorPattern {

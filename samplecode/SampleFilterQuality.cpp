@@ -12,7 +12,6 @@
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkInterpolator.h"
-#include "SkPath.h"
 #include "SkSurface.h"
 #include "SkRandom.h"
 #include "SkTime.h"

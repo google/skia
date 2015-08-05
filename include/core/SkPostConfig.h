@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-// IWYU pragma: private, include "SkTypes.h"
-
 #ifndef SkPostConfig_DEFINED
 #define SkPostConfig_DEFINED
 

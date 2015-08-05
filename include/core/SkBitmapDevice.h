@@ -9,28 +9,7 @@
 #ifndef SkBitmapDevice_DEFINED
 #define SkBitmapDevice_DEFINED
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
 #include "SkDevice.h"
-#include "SkImageFilter.h"
-#include "SkImageInfo.h"
-#include "SkRect.h"
-#include "SkScalar.h"
-#include "SkSize.h"
-#include "SkSurfaceProps.h"
-#include "SkTypes.h"
-
-class SkDraw;
-class SkMatrix;
-class SkPaint;
-class SkPath;
-class SkPixelRef;
-class SkPixmap;
-class SkRRect;
-class SkSurface;
-class SkXfermode;
-struct SkPoint;
 
 ///////////////////////////////////////////////////////////////////////////////
 class SK_API SkBitmapDevice : public SkBaseDevice {

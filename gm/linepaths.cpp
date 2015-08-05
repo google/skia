@@ -4,10 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "gm.h"
 #include "SkCanvas.h"
-#include "SkPath.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 

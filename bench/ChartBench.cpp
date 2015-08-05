@@ -8,9 +8,7 @@
 #include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
-#include "SkPath.h"
 #include "SkRandom.h"
-#include "SkTDArray.h"
 
 /**
  * This is a conversion of samplecode/SampleChart.cpp into a bench. It sure would be nice to be able

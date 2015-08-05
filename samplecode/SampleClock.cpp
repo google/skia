@@ -7,7 +7,6 @@
 #include "SampleCode.h"
 
 #include "SkCanvas.h"
-#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRRect.h"
 #include "SkTime.h"

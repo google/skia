@@ -6,6 +6,7 @@
  */
 
 #include "SkCachedData.h"
+#include "SkRefCnt.h"
 #include "SkDiscardableMemory.h"
 
 //#define TRACK_CACHEDDATA_LIFETIME

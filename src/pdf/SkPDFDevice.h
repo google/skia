@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2011 Google Inc.
  *
@@ -5,13 +6,13 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
+#include "SkDevice.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkClipStack.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicture.h"

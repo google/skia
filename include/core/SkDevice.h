@@ -9,12 +9,12 @@
 #define SkDevice_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkImageFilter.h"
 #include "SkSurfaceProps.h"
 
-class SkBitmap;
 class SkClipStack;
 class SkDraw;
 class SkDrawFilter;

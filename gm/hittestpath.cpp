@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkCullPoints.h"
-#include "SkPath.h"
 #include "SkRandom.h"
 
 static void test_hittest(SkCanvas* canvas, const SkPath& path) {

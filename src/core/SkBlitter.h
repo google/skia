@@ -9,16 +9,14 @@
 #define SkBlitter_DEFINED
 
 #include "SkBitmapProcShader.h"
-#include "SkColor.h"
-#include "SkRect.h"
+#include "SkMask.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkPixmap.h"
+#include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkTypes.h"
-
-class SkMatrix;
-class SkPaint;
-class SkPixmap;
-struct SkMask;
+#include "SkSmallAllocator.h"
 
 /** SkBlitter and its subclasses are responsible for actually writing pixels
     into memory. Besides efficiency, they handle clipping and antialiasing.

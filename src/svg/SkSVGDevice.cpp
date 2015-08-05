@@ -10,7 +10,6 @@
 #include "SkBase64.h"
 #include "SkBitmap.h"
 #include "SkChecksum.h"
-#include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDraw.h"
 #include "SkImageEncoder.h"

@@ -6,10 +6,9 @@
  */
 
 #include "SampleCode.h"
+#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkView.h"
 
 static void makebm(SkBitmap* bm, int w, int h) {
     bm->allocN32Pixels(w, h);
