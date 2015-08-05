@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
+#include "SkPath.h"
 
 class BlursGM : public skiagm::GM {
 public:

@@ -19,6 +19,7 @@
 #include "SkMatrix22.h"
 #include "SkMutex.h"
 #include "SkOTUtils.h"
+#include "SkPath.h"
 #include "SkScalerContext.h"
 #include "SkStream.h"
 #include "SkString.h"

@@ -7,10 +7,10 @@
 
 #include "SkAnnotation.h"
 #include "SkData.h"
+#include "SkPaint.h"
+#include "SkPoint.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkPoint.h"
-#include "SkStream.h"
 
 SkAnnotation::SkAnnotation(const char key[], SkData* value) : fKey(key) {
     if (NULL == value) {

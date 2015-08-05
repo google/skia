@@ -8,6 +8,7 @@
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkView.h"
 

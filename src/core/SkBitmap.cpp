@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -6,23 +5,22 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-#include "SkDither.h"
-#include "SkFlattenable.h"
-#include "SkImagePriv.h"
+#include "SkData.h"
+#include "SkFilterQuality.h"
 #include "SkMallocPixelRef.h"
 #include "SkMask.h"
-#include "SkPackBits.h"
+#include "SkMath.h"
 #include "SkPixelRef.h"
 #include "SkReadBuffer.h"
+#include "SkRect.h"
+#include "SkScalar.h"
 #include "SkUnPreMultiply.h"
-#include "SkUtils.h"
-#include "SkValidationUtils.h"
 #include "SkWriteBuffer.h"
-#include <new>
+
+#include <string.h>
 
 static bool reset_return_false(SkBitmap* bm) {
     bm->reset();
@@ -749,9 +747,6 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkCanvas.h"
-#include "SkPaint.h"
-
 bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
     const SkColorType srcCT = this->colorType();
 
@@ -1221,6 +1216,7 @@ void SkBitmap::validate() const {
 #endif
 
 #ifndef SK_IGNORE_TO_STRING
+#include "SkString.h"
 void SkBitmap::toString(SkString* str) const {
 
     static const char* gColorTypeNames[kLastEnum_SkColorType + 1] = {

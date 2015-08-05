@@ -11,6 +11,7 @@
 #include "SkBlitter.h"
 #include "SkDraw.h"
 #include "SkCachedData.h"
+#include "SkPath.h"
 #include "SkRasterClip.h"
 #include "SkRRect.h"
 #include "SkTypes.h"

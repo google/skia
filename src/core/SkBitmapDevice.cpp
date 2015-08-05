@@ -8,10 +8,16 @@
 #include "SkBitmapDevice.h"
 #include "SkConfig8888.h"
 #include "SkDraw.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkPath.h"
 #include "SkPixelRef.h"
-#include "SkRasterClip.h"
+#include "SkPixmap.h"
 #include "SkShader.h"
 #include "SkSurface.h"
+#include "SkXfermode.h"
+
+class SkColorTable;
 
 #define CHECK_FOR_ANNOTATION(paint) \
     do { if (paint.getAnnotation()) { return; } } while (0)

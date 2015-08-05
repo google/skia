@@ -8,9 +8,9 @@
 #ifndef SkBBHFactory_DEFINED
 #define SkBBHFactory_DEFINED
 
-#include "SkRect.h"
-
+#include "SkTypes.h"
 class SkBBoxHierarchy;
+struct SkRect;
 
 class SK_API SkBBHFactory {
 public:

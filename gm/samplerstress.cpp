@@ -6,9 +6,10 @@
  */
 
 #include "gm.h"
-#include "SkCanvas.h"
-#include "SkShader.h"
 #include "SkBlurMaskFilter.h"
+#include "SkCanvas.h"
+#include "SkPath.h"
+#include "SkShader.h"
 
 namespace skiagm {
 

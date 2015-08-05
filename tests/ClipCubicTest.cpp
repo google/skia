@@ -9,6 +9,7 @@
 #include "SkCubicClipper.h"
 #include "SkGeometry.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "Test.h"
 
 // Currently the supersampler blitter uses int16_t for its index into an array

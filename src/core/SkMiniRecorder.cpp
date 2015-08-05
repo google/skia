@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkTLazy.h"
 #include "SkLazyPtr.h"
 #include "SkMiniRecorder.h"
 #include "SkPicture.h"

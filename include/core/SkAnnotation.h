@@ -10,12 +10,11 @@
 
 #include "SkRefCnt.h"
 #include "SkString.h"
+#include "SkTypes.h"
 
 class SkData;
 class SkReadBuffer;
 class SkWriteBuffer;
-class SkStream;
-class SkWStream;
 struct SkPoint;
 
 /**

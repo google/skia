@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkPath.h"
 
 DEF_SIMPLE_GM(PlusMergesAA, canvas, 256, 256) {
     SkPaint p;

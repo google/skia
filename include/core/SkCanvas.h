@@ -11,31 +11,31 @@
 #include "SkTypes.h"
 #include "SkBitmap.h"
 #include "SkDeque.h"
-#include "SkClipStack.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
-#include "SkPath.h"
 #include "SkRegion.h"
 #include "SkSurfaceProps.h"
 #include "SkXfermode.h"
 
+class GrContext;
+class GrRenderTarget;
 class SkBaseDevice;
 class SkCanvasClipVisitor;
+class SkClipStack;
 class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
 class SkImage;
+class SkImageFilter;
 class SkMetaData;
+class SkPath;
 class SkPicture;
+class SkPixmap;
 class SkRRect;
 struct SkRSXform;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
-class GrContext;
-class GrRenderTarget;
-
-class SkCanvasState;
 
 /** \class SkCanvas
 

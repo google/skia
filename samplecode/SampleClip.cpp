@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkDevice.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkRandom.h"
 
 #define W   150

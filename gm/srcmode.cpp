@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkPath.h"
 #include "SkSurface.h"
 
 #if SK_SUPPORT_GPU

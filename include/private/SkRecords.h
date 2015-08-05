@@ -11,7 +11,10 @@
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkMatrix.h"
+#include "SkPath.h"
 #include "SkPicture.h"
+#include "SkRect.h"
+#include "SkRRect.h"
 #include "SkRSXform.h"
 #include "SkTextBlob.h"
 
