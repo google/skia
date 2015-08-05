@@ -823,9 +823,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fMagnify = false;
 
     fSaveToPdf = false;
-
-    fTransitionNext = 6;
-    fTransitionPrev = 2;
+    fSaveToSKP = false;
 
     int sinkID = this->getSinkID();
     fAppMenu = new SkOSMenu;
@@ -888,16 +886,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu->assignKeyEquivalentToItem(itemID, 'z');
     itemID = fAppMenu->appendSwitch("Magnify", "Magnify" , sinkID, fMagnify);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'm');
-    itemID =fAppMenu->appendList("Transition-Next", "Transition-Next", sinkID,
-                                fTransitionNext, "Up", "Up and Right", "Right",
-                                "Down and Right", "Down", "Down and Left",
-                                "Left", "Up and Left", NULL);
-    fAppMenu->assignKeyEquivalentToItem(itemID, 'j');
-    itemID =fAppMenu->appendList("Transition-Prev", "Transition-Prev", sinkID,
-                                fTransitionPrev, "Up", "Up and Right", "Right",
-                                "Down and Right", "Down", "Down and Left",
-                                "Left", "Up and Left", NULL);
-    fAppMenu->assignKeyEquivalentToItem(itemID, 'k');
+
     itemID = fAppMenu->appendAction("Save to PDF", sinkID);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'e');
 
@@ -1259,6 +1248,12 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     if (kPicture_DeviceType == fDeviceType) {
         SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
 
+        if (fSaveToSKP) {
+            SkFILEWStream stream("sample_app.skp");
+            picture->serialize(&stream);
+            fSaveToSKP = false;
+        }
+
         if (true) {
             if (true) {
                 SkImageInfo info;
@@ -1496,9 +1491,8 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         SkOSMenu::FindListIndex(evt, "Hinting", &fHintingState) ||
         SkOSMenu::FindSwitchState(evt, "Clip", &fUseClip) ||
         SkOSMenu::FindSwitchState(evt, "Zoomer", &fShowZoomer) ||
-        SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify) ||
-        SkOSMenu::FindListIndex(evt, "Transition-Next", &fTransitionNext) ||
-        SkOSMenu::FindListIndex(evt, "Transition-Prev", &fTransitionPrev)) {
+        SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify))
+    {
         this->inval(NULL);
         this->updateTitle();
         return true;
@@ -1652,6 +1646,10 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             fPerspAnim = !fPerspAnim;
             this->inval(NULL);
             this->updateTitle();
+            return true;
+        case 'K':
+            fSaveToSKP = true;
+            this->inval(NULL);
             return true;
 #if SK_SUPPORT_GPU
         case 'p':

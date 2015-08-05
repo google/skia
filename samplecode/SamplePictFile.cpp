@@ -32,6 +32,18 @@
 
 #include "SkGlyphCache.h"
 
+#include "SkDrawFilter.h"
+class SkCounterDrawFilter : public SkDrawFilter {
+public:
+    SkCounterDrawFilter(int count) : fCount(count) {}
+
+    bool filter(SkPaint*, Type t) override {
+        return --fCount >= 0;
+    }
+
+    int fCount;
+};
+
 class PictFileView : public SampleView {
 public:
     PictFileView(const char name[] = NULL)
@@ -41,6 +53,7 @@ public:
         for (int i = 0; i < kBBoxTypeCount; ++i) {
             fPictures[i] = NULL;
         }
+        fCount = 0;
     }
 
     virtual ~PictFileView() {
@@ -76,6 +89,15 @@ protected:
             SampleCode::TitleR(evt, name.c_str());
             return true;
         }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            switch (uni) {
+                case 'n': fCount += 1; this->inval(nullptr); return true;
+                case 'p': fCount -= 1; this->inval(nullptr); return true;
+                case 's': fCount =  0; this->inval(nullptr); return true;
+                default: break;
+            }
+        }
         return this->INHERITED::onQuery(evt);
     }
 
@@ -99,7 +121,12 @@ protected:
             *picture = LoadPicture(fFilename.c_str(), fBBox);
         }
         if (*picture) {
+            SkCounterDrawFilter filter(fCount);
+            if (fCount > 0) {
+                canvas->setDrawFilter(&filter);
+            }
             canvas->drawPicture(*picture);
+            canvas->setDrawFilter(NULL);
         }
 
 #ifdef SK_GLYPHCACHE_TRACK_HASH_STATS
@@ -121,6 +148,7 @@ private:
     SkPicture*  fPictures[kBBoxTypeCount];
     BBoxType    fBBox;
     SkSize      fTileSize;
+    int         fCount;
 
     SkPicture* LoadPicture(const char path[], BBoxType bbox) {
         SkAutoTUnref<SkPicture> pic;

@@ -174,6 +174,7 @@ private:
     DeviceManager* fDevManager;
 
     bool fSaveToPdf;
+    bool fSaveToSKP;
     SkAutoTUnref<SkDocument> fPDFDocument;
 
     bool fUseClip;
@@ -217,9 +218,6 @@ private:
     SkOSMenu* fAppMenu; // We pass ownership to SkWindow, when we call addMenu
     //Stores slide specific settings
     SkOSMenu* fSlideMenu; // We pass ownership to SkWindow, when we call addMenu
-
-    int fTransitionNext;
-    int fTransitionPrev;
 
     void loadView(SkView*);
     void updateTitle();
