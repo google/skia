@@ -25,7 +25,7 @@ public:
     const GrFragmentProcessor* processor() const { return fProc.get(); }
 
     bool operator==(const GrStagedProcessor& that) const {
-        return this->processor() == that.processor();
+        return this->processor()->isEqual(*that.processor());
     }
 
     bool operator!=(const GrStagedProcessor& that) const { return !(*this == that); }
