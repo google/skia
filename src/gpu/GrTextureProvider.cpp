@@ -61,14 +61,14 @@ GrTexture* GrTextureProvider::internalCreateApproxTexture(const GrSurfaceDesc& d
 }
 
 GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
-                                                uint32_t scratchFlags) {
+                                                uint32_t flags) {
     SkASSERT(!this->isAbandoned());
     SkASSERT(!GrPixelConfigIsCompressed(inDesc.fConfig));
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
 
     if (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
-        if (!(kExact_ScratchTextureFlag & scratchFlags)) {
+        if (!(kExact_ScratchTextureFlag & flags)) {
             // bin by pow2 with a reasonable min
             const int minSize = SkTMin(16, fGpu->caps()->minTextureSize());
             GrSurfaceDesc* wdesc = desc.writable();
@@ -79,7 +79,7 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
         GrScratchKey key;
         GrTexturePriv::ComputeScratchKey(*desc, &key);
         uint32_t scratchFlags = 0;
-        if (kNoPendingIO_ScratchTextureFlag & scratchFlags) {
+        if (kNoPendingIO_ScratchTextureFlag & flags) {
             scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
         } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
             // If it is not a render target then it will most likely be populated by
@@ -97,7 +97,7 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
         }
     }
 
-    if (!(kNoCreate_ScratchTextureFlag & scratchFlags)) {
+    if (!(kNoCreate_ScratchTextureFlag & flags)) {
         return fGpu->createTexture(*desc, true, NULL, 0);
     }
 
