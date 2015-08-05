@@ -89,6 +89,35 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
     }
 }
 
+void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
+                                           const char* localCoords,
+                                           const TransformsIn& tin,
+                                           TransformsOut* tout) {
+    GrGLVertexBuilder* vb = pb->getVertexShaderBuilder();
+    tout->push_back_n(tin.count());
+    for (int i = 0; i < tin.count(); i++) {
+        const ProcCoords& coordTransforms = tin[i];
+        for (int t = 0; t < coordTransforms.count(); t++) {
+            GrSLType varyingType = kVec2f_GrSLType;
+
+            // Device coords aren't supported
+            SkASSERT(kDevice_GrCoordSet != coordTransforms[t]->sourceCoords());
+            GrSLPrecision precision = coordTransforms[t]->precision();
+
+            SkString strVaryingName("MatrixCoord");
+            strVaryingName.appendf("_%i_%i", i, t);
+
+            GrGLVertToFrag v(varyingType);
+            pb->addVarying(strVaryingName.c_str(), &v, precision);
+            vb->codeAppendf("%s = %s;", v.vsOut(), localCoords);
+
+            SkNEW_APPEND_TO_TARRAY(&(*tout)[i],
+                                   GrGLProcessor::TransformedCoords,
+                                   (SkString(v.fsIn()), varyingType));
+        }
+    }
+}
+
 void GrGLGeometryProcessor::setupPosition(GrGLGPBuilder* pb,
                                           GrGPArgs* gpArgs,
                                           const char* posName) {

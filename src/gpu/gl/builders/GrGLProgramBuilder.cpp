@@ -197,12 +197,15 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
     int totalTextures = primProc.numTextures();
     const int maxTextureUnits = fGpu->glCaps().maxFragmentTextureUnits();
-    SkSTArray<8, GrGLProcessor::TransformedCoordsArray> outCoords;
+
     for (int i = 0; i < this->pipeline().numFragmentStages(); i++) {
         const GrFragmentProcessor* processor = this->pipeline().getFragmentStage(i).processor();
-        SkSTArray<2, const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
 
-        append_gr_fp_coord_transforms(processor, &procCoords);
+        if (!primProc.hasTransformedLocalCoords()) {
+            SkSTArray<2, const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
+
+            append_gr_fp_coord_transforms(processor, &procCoords);
+        }
 
         totalTextures += processor->numTexturesIncludeChildProcs();
         if (totalTextures >= maxTextureUnits) {

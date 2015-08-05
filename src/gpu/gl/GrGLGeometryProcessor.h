@@ -41,7 +41,7 @@ public:
     }
 
 protected:
-    // A helper for subclasses which don't have an explicit local matrix
+    // Emit a uniform matrix for each coord transform.
     void emitTransforms(GrGLGPBuilder* gp,
                         const GrShaderVar& posVar,
                         const char* localCoords,
@@ -50,12 +50,19 @@ protected:
         this->emitTransforms(gp, posVar, localCoords, SkMatrix::I(), tin, tout);
     }
 
+    // Emit pre-transformed coords as a vertex attribute per coord-transform.
     void emitTransforms(GrGLGPBuilder*,
                         const GrShaderVar& posVar,
                         const char* localCoords,
                         const SkMatrix& localMatrix,
                         const TransformsIn&,
                         TransformsOut*);
+
+    // caller has emitted transforms via attributes
+    void emitTransforms(GrGLGPBuilder*,
+                        const char* localCoords,
+                        const TransformsIn& tin,
+                        TransformsOut* tout);
 
     struct GrGPArgs {
         // The variable used by a GP to store its position. It can be
