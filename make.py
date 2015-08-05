@@ -17,7 +17,7 @@ import os
 import shutil
 import sys
 
-BUILDTYPE = 'Debug'
+BUILDTYPE = os.environ.get('BUILDTYPE', 'Debug')
 
 # special targets
 TARGET_ALL     = 'all'
