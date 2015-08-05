@@ -21,6 +21,7 @@ SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrText
     , fSampleCountForNewSurfaces(sampleCountForNewSurfaces)
     , fAlphaType(at)
     , fBudgeted(budgeted)
+    , fAddedRasterVersionToCache(false)
     {}
 
 SkImage_Gpu::~SkImage_Gpu() {
