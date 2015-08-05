@@ -296,32 +296,13 @@
             ],
           }],
           [ '"mips" in skia_arch_type', {
-            'cflags': [
-              '-EL',
-            ],
+            'cflags': [ '-EL' ],
             'conditions': [
               [ 'mips_arch_variant == "mips32r2"', {
-                'cflags': [
-                  '-march=mips32r2',
-                ],
+                'cflags': [ '-march=mips32r2' ],
                 'conditions': [
-                  [ 'mips_dsp == 1', {
-                    'cflags': [
-                      '-mdsp',
-                    ],
-                    'defines': [
-                      'SK_MIPS_HAS_DSP',
-                    ],
-                  }],
-                  [ 'mips_dsp == 2', {
-                    'cflags': [
-                      '-mdspr2',
-                    ],
-                    'defines': [
-                      'SK_MIPS_HAS_DSP',
-                      'SK_MIPS_HAS_DSPR2',
-                    ],
-                  }],
+                  [ 'mips_dsp == 1', { 'cflags': [ '-mdsp'   ] }],
+                  [ 'mips_dsp == 2', { 'cflags': [ '-mdspr2' ] }],
                 ],
               }],
             ],
