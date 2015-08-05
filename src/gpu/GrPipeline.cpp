@@ -87,20 +87,20 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
 
     // Copy Stages from PipelineBuilder to Pipeline
     for (int i = firstColorStageIdx; i < pipelineBuilder.numColorFragmentStages(); ++i) {
-        SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
-                               GrPendingFragmentStage,
-                               (pipelineBuilder.fColorStages[i]));
-        usesLocalCoords = usesLocalCoords ||
-                          pipelineBuilder.fColorStages[i].processor()->usesLocalCoords();
+        const GrFragmentStage& fps = pipelineBuilder.fColorStages[i];
+        const GrFragmentProcessor* fp = fps.processor();
+        SkNEW_APPEND_TO_TARRAY(&fFragmentStages, GrPendingFragmentStage, (fps));
+        usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
+        fp->gatherCoordTransforms(&fCoordTransforms);
     }
 
     fNumColorStages = fFragmentStages.count();
     for (int i = firstCoverageStageIdx; i < pipelineBuilder.numCoverageFragmentStages(); ++i) {
-        SkNEW_APPEND_TO_TARRAY(&fFragmentStages,
-                               GrPendingFragmentStage,
-                               (pipelineBuilder.fCoverageStages[i]));
-        usesLocalCoords = usesLocalCoords ||
-                          pipelineBuilder.fCoverageStages[i].processor()->usesLocalCoords();
+        const GrFragmentStage& fps = pipelineBuilder.fCoverageStages[i];
+        const GrFragmentProcessor* fp = fps.processor();
+        SkNEW_APPEND_TO_TARRAY(&fFragmentStages, GrPendingFragmentStage, (fps));
+        usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
+        fp->gatherCoordTransforms(&fCoordTransforms);
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
@@ -152,7 +152,7 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrPipeline::isEqual(const GrPipeline& that) const {
+bool GrPipeline::isEqual(const GrPipeline& that, bool ignoreCoordTransforms) const {
     // If we point to the same pipeline, then we are necessarily equal
     if (this == &that) {
         return true;
@@ -172,11 +172,9 @@ bool GrPipeline::isEqual(const GrPipeline& that) const {
         return false;
     }
 
-    // The program desc comparison should have already assured that the stage counts match.
-    SkASSERT(this->numFragmentStages() == that.numFragmentStages());
     for (int i = 0; i < this->numFragmentStages(); i++) {
-
-        if (this->getFragmentStage(i) != that.getFragmentStage(i)) {
+        if (!this->getFragmentStage(i).processor()->isEqual(*that.getFragmentStage(i).processor(),
+                                                            ignoreCoordTransforms)) {
             return false;
         }
     }

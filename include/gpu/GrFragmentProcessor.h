@@ -60,6 +60,15 @@ public:
         return fCoordTransforms;
     }
 
+    /** Gather the coord transforms into an array. We use preorder traversal */
+    void gatherCoordTransforms(SkTArray<const GrCoordTransform*, true>* outTransforms) const {
+        SkASSERT(outTransforms);
+        outTransforms->push_back_n(fCoordTransforms.count(), fCoordTransforms.begin());
+        for (int i = 0; i < fChildProcessors.count(); ++i) {
+            fChildProcessors[i]->gatherCoordTransforms(outTransforms);
+        }
+    }
+
     int numChildProcessors() const { return fChildProcessors.count(); }
 
     GrFragmentProcessor* childProcessor(int index) const { return fChildProcessors[index]; }
@@ -85,10 +94,16 @@ public:
 
         A return value of true from isEqual() should not be used to test whether the processor would
         generate the same shader code. To test for identical code generation use getGLProcessorKey*/
-    bool isEqual(const GrFragmentProcessor& that) const {
+    bool isEqual(const GrFragmentProcessor& that, bool ignoreCoordTransforms) const {
         if (this->classID() != that.classID() ||
-            !this->hasSameTransforms(that) ||
             !this->hasSameTextureAccesses(that)) {
+            return false;
+        }
+        if (ignoreCoordTransforms) {
+            if (this->numTransforms() != that.numTransforms()) {
+                return false;
+            }
+        } else if (!this->hasSameTransforms(that)) {
             return false;
         }
         return this->onIsEqual(that);

@@ -37,9 +37,12 @@ public:
                const GrXferProcessor::DstTexture*);
 
     /*
-     * Returns true if these pipelines are equivalent.
+     * Returns true if these pipelines are equivalent.  Coord transforms may be applied either on
+     * the GPU or the CPU. When we apply them on the CPU then the matrices need not agree in order
+     * to combine draws. Therefore we take a param that indicates whether coord transforms should be
+     * compared."
      */
-    bool isEqual(const GrPipeline& that) const;
+    bool isEqual(const GrPipeline& that, bool ignoreCoordTransforms = false) const;
 
     /// @}
 
@@ -100,6 +103,10 @@ public:
         return fInfoForPrimitiveProcessor;
     }
 
+    const SkTArray<const GrCoordTransform*, true>& coordTransforms() const {
+        return fCoordTransforms;
+    }
+
 private:
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
@@ -141,7 +148,9 @@ private:
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;
 
-    GrProgramDesc fDesc;
+    SkSTArray<8, const GrCoordTransform*, true> fCoordTransforms;
+    int                                 fNumCoordTransforms;
+    GrProgramDesc                       fDesc;
 
     typedef SkRefCnt INHERITED;
 };
