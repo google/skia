@@ -211,6 +211,8 @@
       '<(skia_src_path)/gpu/GrSoftwarePathRenderer.h',
       '<(skia_src_path)/gpu/GrSurfacePriv.h',
       '<(skia_src_path)/gpu/GrSurface.cpp',
+      '<(skia_src_path)/gpu/GrStrokeRectBatch.cpp',
+      '<(skia_src_path)/gpu/GrStrokeRectBatch.h',
       '<(skia_src_path)/gpu/GrTextBlobCache.cpp',
       '<(skia_src_path)/gpu/GrTextBlobCache.h',
       '<(skia_src_path)/gpu/GrTextContext.cpp',
