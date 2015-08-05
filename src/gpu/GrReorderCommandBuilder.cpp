@@ -24,12 +24,18 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
     static const int kMaxLookback = 10;
     int i = 0;
     batch->setPipeline(state->getPipeline());
+    GrRenderTarget* rt = state->getPipeline()->getRenderTarget();
     if (!this->cmdBuffer()->empty()) {
         GrTargetCommands::CmdBuffer::ReverseIter reverseIter(*this->cmdBuffer());
 
         do {
             if (Cmd::kDrawBatch_CmdType == reverseIter->type()) {
                 DrawBatch* previous = static_cast<DrawBatch*>(reverseIter.get());
+
+                // We cannot continue to search backwards if the render target changes
+                if (previous->fBatch->pipeline()->getRenderTarget() != rt) {
+                    break;
+                }
 
                 if (previous->fBatch->combineIfPossible(batch)) {
                     return NULL;
