@@ -1384,9 +1384,10 @@ private:
 }  // namespace
 
 bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // This path renderer can draw all fill styles, but does not do antialiasing. It can do convex
-    // and concave paths, but we'll leave the convex ones to simpler algorithms.
-    return args.fStroke->isFillStyle() && !args.fAntiAlias && !args.fPath->isConvex();
+    // This path renderer can draw all fill styles, all stroke styles except hairlines, but does
+    // not do antialiasing. It can do convex and concave paths, but we'll leave the convex ones to
+    // simpler algorithms.
+    return !args.fStroke->isHairlineStyle() && !args.fAntiAlias && !args.fPath->isConvex();
 }
 
 class TessellatingPathBatch : public GrBatch {
@@ -1394,9 +1395,10 @@ public:
 
     static GrBatch* Create(const GrColor& color,
                            const SkPath& path,
+                           const GrStrokeInfo& stroke,
                            const SkMatrix& viewMatrix,
                            SkRect clipBounds) {
-        return SkNEW_ARGS(TessellatingPathBatch, (color, path, viewMatrix, clipBounds));
+        return SkNEW_ARGS(TessellatingPathBatch, (color, path, stroke, viewMatrix, clipBounds));
     }
 
     const char* name() const override { return "TessellatingPathBatch"; }
@@ -1421,7 +1423,23 @@ public:
     int tessellate(GrUniqueKey* key,
                    GrResourceProvider* resourceProvider,
                    SkAutoTUnref<GrVertexBuffer>& vertexBuffer) {
-        SkRect pathBounds = fPath.getBounds();
+        SkPath path;
+        GrStrokeInfo stroke(fStroke);
+        if (stroke.isDashed()) {
+            if (!stroke.applyDashToPath(&path, &stroke, fPath)) {
+                return 0;
+            }
+        } else {
+            path = fPath;
+        }
+        if (!stroke.isFillStyle()) {
+            stroke.setResScale(SkScalarAbs(fViewMatrix.getMaxScale()));
+            if (!stroke.applyToPath(&path, path)) {
+                return 0;
+            }
+            stroke.setFillStyle();
+        }
+        SkRect pathBounds = path.getBounds();
         Comparator c;
         if (pathBounds.width() > pathBounds.height()) {
             c.sweep_lt = sweep_lt_horiz;
@@ -1433,7 +1451,7 @@ public:
         SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(screenSpaceTol, fViewMatrix, pathBounds);
         int contourCnt;
-        int maxPts = GrPathUtils::worstCasePointCount(fPath, &contourCnt, tol);
+        int maxPts = GrPathUtils::worstCasePointCount(path, &contourCnt, tol);
         if (maxPts <= 0) {
             return 0;
         }
@@ -1441,7 +1459,7 @@ public:
             SkDebugf("Path not rendered, too many verts (%d)\n", maxPts);
             return 0;
         }
-        SkPath::FillType fillType = fPath.getFillType();
+        SkPath::FillType fillType = path.getFillType();
         if (SkPath::IsInverseFillType(fillType)) {
             contourCnt++;
         }
@@ -1455,7 +1473,7 @@ public:
         // connectivity of one Edge per Vertex (will grow for intersections).
         SkChunkAlloc alloc(maxPts * (3 * sizeof(Vertex) + sizeof(Edge)));
         bool isLinear;
-        path_to_contours(fPath, tol, fClipBounds, contours.get(), alloc, &isLinear);
+        path_to_contours(path, tol, fClipBounds, contours.get(), alloc, &isLinear);
         Poly* polys;
         polys = contours_to_polys(contours.get(), contourCnt, c, alloc);
         int count = 0;
@@ -1503,13 +1521,15 @@ public:
         GrUniqueKey key;
         int clipBoundsSize32 =
             fPath.isInverseFillType() ? sizeof(fClipBounds) / sizeof(uint32_t) : 0;
-        GrUniqueKey::Builder builder(&key, kDomain, 2 + clipBoundsSize32);
+        int strokeDataSize32 = fStroke.computeUniqueKeyFragmentData32Cnt();
+        GrUniqueKey::Builder builder(&key, kDomain, 2 + clipBoundsSize32 + strokeDataSize32);
         builder[0] = fPath.getGenerationID();
         builder[1] = fPath.getFillType();
         // For inverse fills, the tessellation is dependent on clip bounds.
         if (fPath.isInverseFillType()) {
             memcpy(&builder[2], &fClipBounds, sizeof(fClipBounds));
         }
+        fStroke.asUniqueKeyFragment(&builder[2 + clipBoundsSize32]);
         builder.finish();
         GrResourceProvider* rp = batchTarget->resourceProvider();
         SkAutoTUnref<GrVertexBuffer> vertexBuffer(rp->findAndRefTByUniqueKey<GrVertexBuffer>(key));
@@ -1561,10 +1581,12 @@ public:
 private:
     TessellatingPathBatch(const GrColor& color,
                           const SkPath& path,
+                          const GrStrokeInfo& stroke,
                           const SkMatrix& viewMatrix,
                           const SkRect& clipBounds)
       : fColor(color)
       , fPath(path)
+      , fStroke(stroke)
       , fViewMatrix(viewMatrix)
       , fClipBounds(clipBounds) {
         this->initClassID<TessellatingPathBatch>();
@@ -1575,6 +1597,7 @@ private:
 
     GrColor        fColor;
     SkPath         fPath;
+    GrStrokeInfo   fStroke;
     SkMatrix       fViewMatrix;
     SkRect         fClipBounds; // in source space
     GrPipelineInfo fPipelineInfo;
@@ -1596,7 +1619,8 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     vmi.mapRect(&clipBounds);
     SkAutoTUnref<GrBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fPath,
-                                                              *args.fViewMatrix, clipBounds));
+                                                              *args.fStroke, *args.fViewMatrix,
+                                                              clipBounds));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
@@ -1617,7 +1641,8 @@ BATCH_TEST_DEFINE(TesselatingPathBatch) {
         SkFAIL("Cannot invert matrix\n");
     }
     vmi.mapRect(&clipBounds);
-    return TessellatingPathBatch::Create(color, path, viewMatrix, clipBounds);
+    GrStrokeInfo strokeInfo = GrTest::TestStrokeInfo(random);
+    return TessellatingPathBatch::Create(color, path, strokeInfo, viewMatrix, clipBounds);
 }
 
 #endif
