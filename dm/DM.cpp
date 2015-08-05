@@ -846,7 +846,6 @@ int dm_main() {
 
 #if !defined(SK_BUILD_FOR_IOS)
 int main(int argc, char** argv) {
-    SkASSERT(false);
     SkCommandLineFlags::Parse(argc, argv);
     return dm_main();
 }
