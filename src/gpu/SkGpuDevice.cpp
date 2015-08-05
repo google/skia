@@ -488,25 +488,14 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     bool usePath = doStroke && width > 0 &&
                    (paint.getStrokeJoin() == SkPaint::kRound_Join ||
                     (paint.getStrokeJoin() == SkPaint::kBevel_Join && rect.isEmpty()));
-    // another two reasons we might need to call drawPath...
 
-    if (paint.getMaskFilter()) {
+    // a few other reasons we might need to call drawPath...
+    if (paint.getMaskFilter() ||
+        paint.getStyle() == SkPaint::kStrokeAndFill_Style) { // we can't both stroke and fill rects
         usePath = true;
     }
 
     if (!usePath && paint.isAntiAlias() && !draw.fMatrix->rectStaysRect()) {
-#ifdef SHADER_AA_FILL_RECT
-        if (doStroke) {
-#endif
-            usePath = true;
-#ifdef SHADER_AA_FILL_RECT
-        } else {
-            usePath = !draw.fMatrix->preservesRightAngles();
-        }
-#endif
-    }
-    // until we can both stroke and fill rectangles
-    if (paint.getStyle() == SkPaint::kStrokeAndFill_Style) {
         usePath = true;
     }
 

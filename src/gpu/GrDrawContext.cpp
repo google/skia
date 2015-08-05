@@ -213,24 +213,10 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
                              SkScalar strokeWidth,
                              const SkMatrix& combinedMatrix,
                              GrColor color) {
-    if (pipelineBuilder->getRenderTarget()->isUnifiedMultisampled()) {
+    if (pipelineBuilder->getRenderTarget()->isUnifiedMultisampled() ||
+        !combinedMatrix.preservesAxisAlignment()) {
         return false;
     }
-
-#ifdef SHADER_AA_FILL_RECT
-    if (strokeWidth >= 0) {
-#endif
-        if (!combinedMatrix.preservesAxisAlignment()) {
-            return false;
-        }
-
-#ifdef SHADER_AA_FILL_RECT
-    } else {
-        if (!combinedMatrix.preservesRightAngles()) {
-            return false;
-        }
-    }
-#endif
 
     combinedMatrix.mapRect(devBoundRect, rect);
     if (!combinedMatrix.rectStaysRect()) {
