@@ -158,13 +158,4 @@ static inline float sk_float_rsqrt(const float x) {
 #endif
 }
 
-// This is the number of significant digits we can print in a string such that when we read that
-// string back we get the floating point number we expect.  The minimum value C requires is 6, but
-// most compilers support 9
-#ifdef FLT_DECIMAL_DIG
-#define SK_FLT_DECIMAL_DIG FLT_DECIMAL_DIG
-#else
-#define SK_FLT_DECIMAL_DIG 9
-#endif
-
 #endif
