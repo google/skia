@@ -13,12 +13,6 @@
 struct SK_API SkPoint3 {
     SkScalar fX, fY, fZ;
 
-#ifdef SK_LEGACY_SKPOINT3_CTORS
-    // TODO: remove these - they are needed for Chromium staging
-    SkPoint3() {}
-    SkPoint3(SkScalar x, SkScalar y, SkScalar z) : fX(x), fY(y), fZ(z) {}
-#endif
-
     static SkPoint3 Make(SkScalar x, SkScalar y, SkScalar z) {
         SkPoint3 pt;
         pt.set(x, y, z);

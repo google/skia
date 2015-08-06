@@ -14,7 +14,6 @@
     #
     'skia_for_chromium_defines': [
       'SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS',
-      'SK_LEGACY_SKPOINT3_CTORS',
     ],
   },
 }

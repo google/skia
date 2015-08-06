@@ -11,14 +11,9 @@
 #include "SkImageFilter.h"
 #include "SkColor.h"
 
-#ifdef SK_LEGACY_SKPOINT3_CTORS
-// TODO: remove this. Chromium relies on having this included here
-#include "SkPoint3.h"
-#else
-struct SkPoint3;
-#endif
 
 class SkLight;
+struct SkPoint3;
 
 class SK_API SkLightingImageFilter : public SkImageFilter {
 public:
