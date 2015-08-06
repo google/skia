@@ -244,7 +244,8 @@ GrStrokeInfo TestStrokeInfo(SkRandom* random) {
     randomize_stroke_rec(&strokeInfo, random);
     SkPathEffect::DashInfo dashInfo;
     dashInfo.fCount = random->nextRangeU(1, 50) * 2;
-    dashInfo.fIntervals = SkNEW_ARRAY(SkScalar, dashInfo.fCount);
+    SkAutoTDeleteArray<SkScalar> intervals(SkNEW_ARRAY(SkScalar, dashInfo.fCount));
+    dashInfo.fIntervals = intervals.get();
     SkScalar sum = 0;
     for (int i = 0; i < dashInfo.fCount; i++) {
         dashInfo.fIntervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
