@@ -82,16 +82,22 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
 }
 
 static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+    if (dst.profileType() != src.profileType()) {
+        return false;
+    }
     switch (dst.colorType()) {
         // Both byte orders are supported.
         case kBGRA_8888_SkColorType:
         case kRGBA_8888_SkColorType:
             break;
+        case kRGB_565_SkColorType:
+            if (src.alphaType() == kOpaque_SkAlphaType
+                && dst.alphaType() == kOpaque_SkAlphaType)
+            {
+                return true;
+            }
         default:
             return false;
-    }
-    if (dst.profileType() != src.profileType()) {
-        return false;
     }
     if (dst.alphaType() == src.alphaType()) {
         return true;
@@ -115,6 +121,8 @@ static WEBP_CSP_MODE webp_decode_mode(SkColorType ct, bool premultiply) {
             return premultiply ? MODE_bgrA : MODE_BGRA;
         case kRGBA_8888_SkColorType:
             return premultiply ? MODE_rgbA : MODE_RGBA;
+        case kRGB_565_SkColorType:
+            return MODE_RGB_565;
         default:
             return MODE_LAST;
     }
