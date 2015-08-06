@@ -188,7 +188,7 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             const SkRect* src = get_rect_ptr(reader);   // may be null
             const SkRect& dst = reader->skipT<SkRect>();     // required
             SkCanvas::SrcRectConstraint constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
-            canvas->drawBitmapRect(bitmap, src, dst, paint, constraint);
+            canvas->legacy_drawBitmapRect(bitmap, src, dst, paint, constraint);
         } break;
         case DRAW_BITMAP_MATRIX: {
             const SkPaint* paint = fPictureData->getPaint(reader);
@@ -260,7 +260,7 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
                 // newer op-code stores the constraint explicitly
                 constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
             }
-            canvas->drawImageRect(image, src, dst, paint, constraint);
+            canvas->legacy_drawImageRect(image, src, dst, paint, constraint);
         } break;
         case DRAW_OVAL: {
             const SkPaint& paint = *fPictureData->getPaint(reader);

@@ -37,6 +37,9 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
+//#define SK_SUPPORT_LEGACY_SIMPLE_DRAWIMAGERECT
+//#define SK_SUPPORT_LEGACY_SRCPTR_DRAWIMAGERECT
+
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -819,20 +822,28 @@ public:
      *  @param paint      The paint used to draw the image, or NULL
      *  @param constraint Control the tradeoff between speed and exactness w.r.t. the src-rect.
      */
+    void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    // variant that takes src SkIRect
+    void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
+    // variant that assumes src == image-bounds
+#ifdef SK_SUPPORT_LEGACY_SIMPLE_DRAWIMAGERECT
+    void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint = NULL);
+#else
+    void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
+                       SrcRectConstraint = kStrict_SrcRectConstraint);
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_SRCPTR_DRAWIMAGERECT
     void drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                        const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
 
     void drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst) {
         this->drawImageRect(image, src, dst, NULL, kStrict_SrcRectConstraint);
     }
-
-    void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint = NULL) {
-        // With no src-rect, the constraint value is ignored, so we just use the default.
-        this->drawImageRect(image, NULL, dst, paint, kStrict_SrcRectConstraint);
-    }
-
-    void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
-                       const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
+#endif
 
     /**
      *  Draw the image stretched differentially to fit into dst.
@@ -881,15 +892,22 @@ public:
      *  @param paint      The paint used to draw the bitmap, or NULL
      *  @param constraint Control the tradeoff between speed and exactness w.r.t. the src-rect.
      */
-    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
                         const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
-
-    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint = NULL) {
-        this->drawBitmapRect(bitmap, NULL, dst, paint, kStrict_SrcRectConstraint);
-    }
-
+    // variant where src is SkIRect
     void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
                         const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
+#ifdef SK_SUPPORT_LEGACY_SIMPLE_DRAWIMAGERECT
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint = NULL);
+#else
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
+                       SrcRectConstraint = kStrict_SrcRectConstraint);
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_SRCPTR_DRAWIMAGERECT
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                        const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
+#endif
 
     /**
      *  Draw the bitmap stretched differentially to fit into dst.
@@ -1208,6 +1226,14 @@ public:
     static bool Internal_Private_GetIgnoreSaveLayerBounds();
     static void Internal_Private_SetTreatSpriteAsBitmap(bool);
     static bool Internal_Private_GetTreatSpriteAsBitmap();
+
+    // TEMP helpers until we switch virtual over to const& for src-rect
+    void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                              const SkPaint* paint,
+                              SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                               const SkPaint* paint,
+                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
 protected:
     // default impl defers to getDevice()->newSurface(info)

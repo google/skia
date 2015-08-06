@@ -43,7 +43,7 @@ static inline void draw_replacement_bitmap(GrCachedLayer* layer, SkCanvas* canva
 
         canvas->save();
         canvas->setMatrix(SkMatrix::I());
-        canvas->drawBitmapRect(bm, &src, dst, layer->paint(), SkCanvas::kStrict_SrcRectConstraint);
+        canvas->drawBitmapRect(bm, src, dst, layer->paint(), SkCanvas::kStrict_SrcRectConstraint);
         canvas->restore();
     } else {
         canvas->drawSprite(bm,

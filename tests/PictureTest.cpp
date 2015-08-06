@@ -690,7 +690,7 @@ DEF_TEST(PictureRecorder_replay, reporter) {
         make_bm(&bm, 10, 10, SK_ColorRED, true);
 
         r.offset(5.0f, 5.0f);
-        canvas->drawBitmapRect(bm, r);
+        canvas->drawBitmapRect(bm, r, nullptr);
 
         SkAutoTUnref<SkPicture> final(recorder.endRecording());
         REPORTER_ASSERT(reporter, final->willPlayBackBitmaps());
@@ -1167,7 +1167,7 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
 
     // Don't care what these record, as long as they're legal.
     canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
-    canvas->drawBitmapRect(bitmap, &rect, rect, &paint, SkCanvas::kStrict_SrcRectConstraint);
+    canvas->drawBitmapRect(bitmap, rect, rect, &paint, SkCanvas::kStrict_SrcRectConstraint);
     canvas->drawBitmapNine(bitmap, irect, rect, &paint);
     canvas->drawSprite(bitmap, 1, 1);
 }

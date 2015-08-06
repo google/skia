@@ -162,10 +162,6 @@ static const SkRect& AsRect(const sk_rect_t& crect) {
     return reinterpret_cast<const SkRect&>(crect);
 }
 
-static const SkRect* AsRect(const sk_rect_t* crect) {
-    return reinterpret_cast<const SkRect*>(crect);
-}
-
 static const SkPath& AsPath(const sk_path_t& cpath) {
     return reinterpret_cast<const SkPath&>(cpath);
 }
@@ -399,7 +395,16 @@ void sk_canvas_draw_image(sk_canvas_t* ccanvas, const sk_image_t* cimage, float 
 void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage,
                                const sk_rect_t* csrcR, const sk_rect_t* cdstR,
                                const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->drawImageRect(AsImage(cimage), AsRect(csrcR), AsRect(*cdstR), AsPaint(cpaint));
+    SkCanvas* canvas = AsCanvas(ccanvas);
+    const SkImage* image = AsImage(cimage);
+    const SkRect& dst = AsRect(*cdstR);
+    const SkPaint* paint = AsPaint(cpaint);
+
+    if (csrcR) {
+        canvas->drawImageRect(image, AsRect(*csrcR), dst, paint);
+    } else {
+        canvas->drawImageRect(image, dst, paint);
+    }
 }
 
 void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,

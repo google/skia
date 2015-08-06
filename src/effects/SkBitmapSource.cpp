@@ -84,7 +84,7 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context&
     paint.setFilterQuality(
         fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height() ?
                kNone_SkFilterQuality : fFilterQuality);
-    canvas.drawBitmapRect(fBitmap, &fSrcRect, dstRect, &paint, SkCanvas::kStrict_SrcRectConstraint);
+    canvas.drawBitmapRect(fBitmap, fSrcRect, dstRect, &paint, SkCanvas::kStrict_SrcRectConstraint);
 
     *result = device.get()->accessBitmap(false);
     offset->fX = dstIRect.fLeft;

@@ -50,7 +50,7 @@ static void show_bm(SkCanvas* canvas, int width, int height, SkColor colors[2]) 
 
     r.offset(SkIntToScalar(150), 0);
     // exercises bitmapshader
-    canvas->drawBitmapRect(bm, NULL, r, NULL);
+    canvas->drawBitmapRect(bm, r, nullptr);
     canvas->drawRect(r, paint);
 }
 

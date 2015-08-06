@@ -325,7 +325,7 @@ DEF_TEST(RecordDraw_drawImage, r){
     {
         SkRecord record;
         SkRecorder recorder(&record, 10, 10);
-        recorder.drawImageRect(image, 0, SkRect::MakeWH(10, 10));
+        recorder.drawImageRect(image, SkRect::MakeWH(10, 10), nullptr);
         SkRecordDraw(record, &canvas, NULL, NULL, 0, NULL, 0);
     }
     REPORTER_ASSERT(r, canvas.fDrawImageRectCalled);

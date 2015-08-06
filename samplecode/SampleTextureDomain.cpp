@@ -53,7 +53,7 @@ protected:
         // the constrained texture domain.
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(5, 5, 305, 305);
-        canvas->drawBitmapRect(fBM, &srcRect, dstRect, &paint, SkCanvas::kStrict_SrcRectConstraint);
+        canvas->drawBitmapRect(fBM, srcRect, dstRect, &paint, SkCanvas::kStrict_SrcRectConstraint);
 
         // Test that bitmap draws across separate devices also respect
         // the constrainted texture domain.
@@ -64,14 +64,14 @@ protected:
 
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(1, 1, 3, 3);
-        surface->getCanvas()->drawBitmapRect(fBM, &srcRect, dstRect, &paint,
+        surface->getCanvas()->drawBitmapRect(fBM, srcRect, dstRect, &paint,
                                              SkCanvas::kStrict_SrcRectConstraint);
 
         SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
 
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(405, 5, 305, 305);
-        canvas->drawImageRect(image, &srcRect, dstRect, &paint);
+        canvas->drawImageRect(image, srcRect, dstRect, &paint);
 
         // Test that bitmap blurring using a subrect
         // renders correctly
@@ -83,7 +83,7 @@ protected:
             SkBlurMaskFilter::kHighQuality_BlurFlag |
             SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
         paint.setMaskFilter(mf)->unref();
-        canvas->drawImageRect(image, &srcRect, dstRect, &paint);
+        canvas->drawImageRect(image, srcRect, dstRect, &paint);
 
         // Blur and a rotation + NULL src rect
         // This should not trigger the texture domain code

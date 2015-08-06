@@ -17,13 +17,13 @@
 #endif
 
 static void draw_bitmap_rect(SkCanvas* canvas, const SkBitmap& bitmap, const SkImage*,
-                             const SkRect* src, const SkRect& dst,
+                             const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
     canvas->drawBitmapRect(bitmap, src, dst, paint, constraint);
 }
 
 static void draw_image_rect(SkCanvas* canvas, const SkBitmap&, const SkImage* image,
-                            const SkRect* src, const SkRect& dst,
+                            const SkRect& src, const SkRect& dst,
                             const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
     canvas->drawImageRect(image, src, dst, paint, constraint);
 }
@@ -35,7 +35,7 @@ enum BleedTest {
 
 const struct {
     const char* fName;
-    void (*fDraw)(SkCanvas*, const SkBitmap&, const SkImage*, const SkRect*, const SkRect&,
+    void (*fDraw)(SkCanvas*, const SkBitmap&, const SkImage*, const SkRect&, const SkRect&,
                   const SkPaint*, SkCanvas::SrcRectConstraint);
 } gBleedRec[] = {
     { "bleed",          draw_bitmap_rect },
@@ -144,7 +144,7 @@ protected:
         SkPaint paint;
         paint.setFilterQuality(filter);
 
-        gBleedRec[fBT].fDraw(canvas, fBitmapSmall, fImageSmall, &src, dst, &paint, constraint);
+        gBleedRec[fBT].fDraw(canvas, fBitmapSmall, fImageSmall, src, dst, &paint, constraint);
     }
 
     // Draw almost all of the large bitmap
@@ -159,7 +159,7 @@ protected:
         SkPaint paint;
         paint.setFilterQuality(filter);
 
-        gBleedRec[fBT].fDraw(canvas, fBitmapBig, fImageBig, &src, dst, &paint, constraint);
+        gBleedRec[fBT].fDraw(canvas, fBitmapBig, fImageBig, src, dst, &paint, constraint);
     }
 
     // Draw ~1/4 of the large bitmap
@@ -174,7 +174,7 @@ protected:
         SkPaint paint;
         paint.setFilterQuality(filter);
 
-        gBleedRec[fBT].fDraw(canvas, fBitmapBig, fImageBig, &src, dst, &paint, constraint);
+        gBleedRec[fBT].fDraw(canvas, fBitmapBig, fImageBig, src, dst, &paint, constraint);
     }
 
     // Draw the center of the small bitmap with a mask filter
@@ -192,7 +192,7 @@ protected:
                                          SkBlurMask::ConvertRadiusToSigma(3));
         paint.setMaskFilter(mf)->unref();
 
-        gBleedRec[fBT].fDraw(canvas, fBitmapSmall, fImageSmall, &src, dst, &paint, constraint);
+        gBleedRec[fBT].fDraw(canvas, fBitmapSmall, fImageSmall, src, dst, &paint, constraint);
     }
 
     void onDraw(SkCanvas* canvas) override {

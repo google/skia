@@ -69,9 +69,7 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
         }
         OwnDeviceCanvas canvas(dev);
 
-        SkRect r = SkRect::MakeWH(SkIntToScalar(src.width()),
-                                  SkIntToScalar(src.height()));
-        canvas.drawBitmapRect(tmp, r);
+        canvas.drawBitmapRect(tmp, SkRect::MakeIWH(src.width(), src.height()), nullptr);
         *result = dev->accessBitmap(false);
     }
     return true;

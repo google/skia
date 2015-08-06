@@ -152,10 +152,7 @@ protected:
         static const int kPadY = 40;
         SkPaint paint;
         paint.setAlpha(0x20);
-        canvas->drawBitmapRect(fLargeBitmap, NULL,
-                               SkRect::MakeWH(gSize * SK_Scalar1,
-                                              gSize * SK_Scalar1),
-                               &paint);
+        canvas->drawBitmapRect(fLargeBitmap, SkRect::MakeIWH(gSize, gSize), &paint);
         canvas->translate(SK_Scalar1 * kPadX / 2,
                           SK_Scalar1 * kPadY / 2);
         SkPaint blackPaint;

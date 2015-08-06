@@ -43,7 +43,7 @@ static void test_bitmaprect(SkCanvas* canvas) {
     SkScalar scale = 0.472560018f;
     canvas->save();
     canvas->scale(scale, scale);
-    canvas->drawBitmapRect(bm, SkRect::MakeXYWH(100, 100, 128, 128));
+    canvas->drawBitmapRect(bm, SkRect::MakeXYWH(100, 100, 128, 128), nullptr);
     canvas->restore();
 
     canvas->scale(-1, 1);

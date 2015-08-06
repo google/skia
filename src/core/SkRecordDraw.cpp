@@ -89,16 +89,16 @@ DRAW(ClipRegion, clipRegion(r.region, r.op));
 DRAW(DrawBitmap, drawBitmap(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
 DRAW(DrawBitmapNine, drawBitmapNine(r.bitmap.shallowCopy(), r.center, r.dst, r.paint));
 DRAW(DrawBitmapRect,
-        drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
+        legacy_drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
                              SkCanvas::kStrict_SrcRectConstraint));
 DRAW(DrawBitmapRectFast,
-        drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
+        legacy_drawBitmapRect(r.bitmap.shallowCopy(), r.src, r.dst, r.paint,
                        SkCanvas::kFast_SrcRectConstraint));
 DRAW(DrawBitmapRectFixedSize,
-        drawBitmapRect(r.bitmap.shallowCopy(), &r.src, r.dst, &r.paint, r.constraint));
+        legacy_drawBitmapRect(r.bitmap.shallowCopy(), &r.src, r.dst, &r.paint, r.constraint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image, r.left, r.top, r.paint));
-DRAW(DrawImageRect, drawImageRect(r.image, r.src, r.dst, r.paint, r.constraint));
+DRAW(DrawImageRect, legacy_drawImageRect(r.image, r.src, r.dst, r.paint, r.constraint));
 DRAW(DrawImageNine, drawImageNine(r.image, r.center, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));

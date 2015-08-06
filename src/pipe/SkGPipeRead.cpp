@@ -650,7 +650,7 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
     const SkRect* dst = skip<SkRect>(reader);
     const SkBitmap* bitmap = holder.getBitmap();
     if (state->shouldDraw()) {
-        canvas->drawBitmapRect(*bitmap, src, *dst, hasPaint ? &state->paint() : NULL, constraint);
+        canvas->legacy_drawBitmapRect(*bitmap, src, *dst, hasPaint ? &state->paint() : NULL, constraint);
     }
 }
 
@@ -692,7 +692,7 @@ static void drawImageRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32
 
     const SkImage* image = state->getImage(slot);
     if (state->shouldDraw()) {
-        canvas->drawImageRect(image, src, *dst, hasPaint ? &state->paint() : NULL, constraint);
+        canvas->legacy_drawImageRect(image, src, *dst, hasPaint ? &state->paint() : NULL, constraint);
     }
 }
 

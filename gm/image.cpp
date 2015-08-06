@@ -92,10 +92,10 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
     dst3.set(0, 400, 65, 465);
     dst4.set(0, 480, 65, 545);
 
-    canvas->drawImageRect(imgR, &src1, dst1, usePaint ? &paint : NULL);
-    canvas->drawImageRect(imgG, &src2, dst2, usePaint ? &paint : NULL);
-    canvas->drawImageRect(imgR, &src3, dst3, usePaint ? &paint : NULL);
-    canvas->drawImageRect(imgG, NULL, dst4, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgR, src1, dst1, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgG, src2, dst2, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgR, src3, dst3, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgG, dst4, usePaint ? &paint : NULL);
 
     imgG->unref();
     imgR->unref();
@@ -241,7 +241,7 @@ protected:
         if (subset) {
             srcR.set(*subset);
         }
-        canvas->drawImageRect(image, subset ? &srcR : NULL, dstR, &paint);
+        canvas->legacy_drawImageRect(image, subset ? &srcR : NULL, dstR, &paint);
         canvas->translate(newW + 20.0f, 0);
 
         // image method

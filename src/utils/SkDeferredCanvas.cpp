@@ -872,7 +872,7 @@ void SkDeferredCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* sr
     }
 
     AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
-    this->drawingCanvas()->drawBitmapRect(bitmap, src, dst, paint, (SrcRectConstraint)constraint);
+    this->drawingCanvas()->legacy_drawBitmapRect(bitmap, src, dst, paint, (SrcRectConstraint)constraint);
     this->recordedDrawCommand();
 }
 
@@ -900,7 +900,7 @@ void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, 
     }
     
     AutoImmediateDrawIfNeeded autoDraw(*this, image, paint);
-    this->drawingCanvas()->drawImageRect(image, src, dst, paint, constraint);
+    this->drawingCanvas()->legacy_drawImageRect(image, src, dst, paint, constraint);
     this->recordedDrawCommand();
 }
 

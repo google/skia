@@ -534,7 +534,7 @@ static int lcanvas_drawImageRect(lua_State* L) {
     lua2rect(L, 4, &dstR);
 
     SkPaint paint;
-    canvas->drawImageRect(image, srcRPtr, dstR, lua2OptionalPaint(L, 5, &paint));
+    canvas->legacy_drawImageRect(image, srcRPtr, dstR, lua2OptionalPaint(L, 5, &paint));
     return 0;
 }
 

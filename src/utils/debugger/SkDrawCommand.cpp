@@ -131,7 +131,7 @@ void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRec
                                   yScale * input.height());
 
     canvas->clear(0xFFFFFFFF);
-    canvas->drawBitmapRect(input, dst);
+    canvas->drawBitmapRect(input, dst, nullptr);
 
     if (srcRect) {
         SkRect r = SkRect::MakeLTRB(srcRect->fLeft * xScale + SK_Scalar1,
@@ -352,7 +352,7 @@ SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const S
 }
 
 void SkDrawBitmapRectCommand::execute(SkCanvas* canvas) const {
-    canvas->drawBitmapRect(fBitmap, this->srcRect(), fDst, fPaintPtr, fConstraint);
+    canvas->legacy_drawBitmapRect(fBitmap, this->srcRect(), fDst, fPaintPtr, fConstraint);
 }
 
 bool SkDrawBitmapRectCommand::render(SkCanvas* canvas) const {
@@ -405,7 +405,7 @@ SkDrawImageRectCommand::SkDrawImageRectCommand(const SkImage* image, const SkRec
 }
 
 void SkDrawImageRectCommand::execute(SkCanvas* canvas) const {
-    canvas->drawImageRect(fImage, fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(), fConstraint);
+    canvas->legacy_drawImageRect(fImage, fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(), fConstraint);
 }
 
 bool SkDrawImageRectCommand::render(SkCanvas* canvas) const {
