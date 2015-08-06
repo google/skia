@@ -17,10 +17,6 @@
 #include "GrGpu.h"
 #include "GrTessellatingPathRenderer.h"
 
-#ifndef GR_TESSELLATING_PATH_RENDERING
-#define GR_TESSELLATING_PATH_RENDERING 1
-#endif
-
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
     chain->addPathRenderer(SkNEW(GrDashLinePathRenderer))->unref();
 
@@ -28,9 +24,7 @@ void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain
                                                                    *ctx->caps())) {
         chain->addPathRenderer(pr)->unref();
     }
-#if GR_TESSELLATING_PATH_RENDERING
-    chain->addPathRenderer(new GrTessellatingPathRenderer)->unref();
-#endif
+    chain->addPathRenderer(SkNEW(GrTessellatingPathRenderer))->unref();
     if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create()) {
         chain->addPathRenderer(pr)->unref();
     }
