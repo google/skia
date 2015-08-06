@@ -419,6 +419,8 @@ static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
     switch (dst.colorType()) {
         case kN32_SkColorType:
             return true;
+        case kRGB_565_SkColorType:
+            return src.alphaType() == kOpaque_SkAlphaType;
         default:
             return dst.colorType() == src.colorType();
     }

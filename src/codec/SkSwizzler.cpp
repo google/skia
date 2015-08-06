@@ -209,6 +209,20 @@ static SkSwizzler::ResultAlpha swizzle_index_to_n32_skipZ(
     return COMPUTE_RESULT_ALPHA;
 }
 
+static SkSwizzler::ResultAlpha swizzle_index_to_565(
+      void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+      int bytesPerPixel, const SkPMColor ctable[]) {
+    // FIXME: Support dithering? Requires knowing y, which I think is a bigger
+    // change.
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    for (int x = 0; x < width; x++) {
+        dst[x] = SkPixel32ToPixel16(ctable[*src]);
+        src += bytesPerPixel;
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+
 #undef A32_MASK_IN_PLACE
 
 // kGray
@@ -228,6 +242,18 @@ static SkSwizzler::ResultAlpha swizzle_gray_to_gray(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
         int bytesPerPixel, const SkPMColor ctable[]) {
     memcpy(dstRow, src, width);
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+static SkSwizzler::ResultAlpha swizzle_gray_to_565(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+        int bytesPerPixel, const SkPMColor ctable[]) {
+    // FIXME: Support dithering?
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    for (int x = 0; x < width; x++) {
+        dst[x] = SkPack888ToRGB16(src[0], src[0], src[0]);
+        src += bytesPerPixel;
+    }
     return SkSwizzler::kOpaque_ResultAlpha;
 }
 
@@ -277,7 +303,7 @@ static SkSwizzler::ResultAlpha swizzle_bgra_to_n32_premul(
     return COMPUTE_RESULT_ALPHA;
 }
 
-// n32
+// kRGBX
 static SkSwizzler::ResultAlpha swizzle_rgbx_to_n32(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
         int bytesPerPixel, const SkPMColor ctable[]) {
@@ -290,6 +316,20 @@ static SkSwizzler::ResultAlpha swizzle_rgbx_to_n32(
     return SkSwizzler::kOpaque_ResultAlpha;
 }
 
+static SkSwizzler::ResultAlpha swizzle_rgbx_to_565(
+       void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
+       int bytesPerPixel, const SkPMColor ctable[]) {
+    // FIXME: Support dithering?
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    for (int x = 0; x < width; x++) {
+        dst[x] = SkPack888ToRGB16(src[0], src[1], src[2]);
+        src += bytesPerPixel;
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+
+// kRGBA
 static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_premul(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int width,
         int bytesPerPixel, const SkPMColor ctable[]) {
@@ -418,6 +458,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                         break;
                     }
                     break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_index_to_565;
+                    break;
                 case kIndex_8_SkColorType:
                     proc = &swizzle_index_to_index;
                     break;
@@ -432,6 +475,10 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                     break;
                 case kGray_8_SkColorType:
                     proc = &swizzle_gray_to_gray;
+                    break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_gray_to_565;
+                    break;
                 default:
                     break;
             }
@@ -470,6 +517,8 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                 case kN32_SkColorType:
                     proc = &swizzle_rgbx_to_n32;
                     break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_rgbx_to_565;
                 default:
                     break;
             }
