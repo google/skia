@@ -397,24 +397,11 @@ static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
         return false;
     }
 
-    // Check for supported alpha types
-    if (src.alphaType() != dst.alphaType()) {
-        if (kOpaque_SkAlphaType == src.alphaType()) {
-            // If the source is opaque, we must decode to opaque
-            return false;
-        }
-
-        // The source is not opaque
-        switch (dst.alphaType()) {
-            case kPremul_SkAlphaType:
-            case kUnpremul_SkAlphaType:
-                // The source is not opaque, so either of these is okay
-                break;
-            default:
-                // We cannot decode a non-opaque image to opaque (or unknown)
-                return false;
-        }
+    // Ensure the alpha type is valid
+    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
+        return false;
     }
+
     // Check for supported color types
     switch (dst.colorType()) {
         case kN32_SkColorType:
