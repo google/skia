@@ -12,5 +12,6 @@
   ],
   'defines': [
     'HAVE_CONFIG_H',
+    'WEBP_SWAP_16BIT_CSP',
   ],
 }
