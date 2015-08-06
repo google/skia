@@ -33,7 +33,8 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
         
         canvas->save();
         canvas->concat(matrix);
-        canvas->drawImageRect(atlas, &tex[i], tex[i].makeOffset(-tex[i].x(), -tex[i].y()), paint);
+        canvas->drawImageRect(atlas, &tex[i], tex[i].makeOffset(-tex[i].x(), -tex[i].y()), paint,
+                              SkCanvas::kFast_SrcRectConstraint);
         canvas->restore();
     }
 }
