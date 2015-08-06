@@ -96,9 +96,8 @@ private:
                      int count,
                      const GrStencilSettings&,
                      const PipelineInfo&) override;
-    void onClear(const SkIRect* rect,
+    void onClear(const SkIRect& rect,
                  GrColor color,
-                 bool canIgnoreRect,
                  GrRenderTarget* renderTarget) override;
     void onCopySurface(GrSurface* dst,
                        GrSurface* src,

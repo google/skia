@@ -252,8 +252,6 @@ public:
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
-    bool fullClearIsFree() const { return fFullClearIsFree; }
-
     bool bindFragDataLocationSupport() const { return fBindFragDataLocationSupport; }
 
     /**
@@ -380,7 +378,6 @@ private:
     bool fMultisampleDisableSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
-    bool fFullClearIsFree : 1;
     bool fBindFragDataLocationSupport : 1;
     bool fSRGBWriteControl : 1;
     bool fRGBA8888PixelsOpsAreSlow : 1;

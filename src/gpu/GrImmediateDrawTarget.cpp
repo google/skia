@@ -49,9 +49,9 @@ void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch,
     pipeline->~GrPipeline();
 }
 
-void GrImmediateDrawTarget::onClear(const SkIRect* rect, GrColor color,
-                                    bool canIgnoreRect, GrRenderTarget* renderTarget) {
-    this->getGpu()->clear(rect, color, canIgnoreRect, renderTarget);
+void GrImmediateDrawTarget::onClear(const SkIRect& rect, GrColor color,
+                                    GrRenderTarget* renderTarget) {
+    this->getGpu()->clear(rect, color, renderTarget);
 }
 
 void GrImmediateDrawTarget::onCopySurface(GrSurface* dst,

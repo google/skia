@@ -91,7 +91,7 @@ void GrTargetCommands::Clear::execute(GrGpu* gpu) {
     if (GrColor_ILLEGAL == fColor) {
         gpu->discard(this->renderTarget());
     } else {
-        gpu->clear(&fRect, fColor, fCanIgnoreRect, this->renderTarget());
+        gpu->clear(fRect, fColor, this->renderTarget());
     }
 }
 

@@ -309,14 +309,25 @@ void GrDrawTarget::clear(const SkIRect* rect,
                          GrColor color,
                          bool canIgnoreRect,
                          GrRenderTarget* renderTarget) {
+    SkIRect rtRect = SkIRect::MakeWH(renderTarget->width(), renderTarget->height());
+    SkIRect clippedRect;
+    if (!rect ||
+        (canIgnoreRect && this->caps()->fullClearIsFree()) ||
+        rect->contains(rtRect)) {
+        rect = &rtRect;
+    } else {
+        clippedRect = *rect;
+        if (!clippedRect.intersect(rtRect)) {
+            return;
+        }
+        rect = &clippedRect;
+    }
+
     if (fCaps->useDrawInsteadOfClear()) {
         // This works around a driver bug with clear by drawing a rect instead.
         // The driver will ignore a clear if it is the only thing rendered to a
         // target before the target is read.
-        SkIRect rtRect = SkIRect::MakeWH(renderTarget->width(), renderTarget->height());
-        if (NULL == rect || canIgnoreRect || rect->contains(rtRect)) {
-            rect = &rtRect;
-            // We first issue a discard() since that may help tilers.
+        if (rect == &rtRect) {
             this->discard(renderTarget);
         }
 
@@ -325,7 +336,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
 
         this->drawSimpleRect(pipelineBuilder, color, SkMatrix::I(), *rect);
     } else {       
-        this->onClear(rect, color, canIgnoreRect, renderTarget);
+        this->onClear(*rect, color, renderTarget);
     }
 }
 

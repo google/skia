@@ -47,7 +47,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMultisampleDisableSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
-    fFullClearIsFree = false;
     fBindFragDataLocationSupport = false;
     fSRGBWriteControl = false;
     fRGBA8888PixelsOpsAreSlow = false;
@@ -1143,7 +1142,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Multisample disable support: %s\n", (fMultisampleDisableSupport ? "YES" : "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
-    r.appendf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
     r.appendf("SRGB write contol: %s\n", (fSRGBWriteControl ? "YES" : "NO"));
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow? "YES" : "NO"));
     r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow? "YES" : "NO"));

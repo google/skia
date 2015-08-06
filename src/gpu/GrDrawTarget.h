@@ -271,8 +271,7 @@ private:
                              const GrStencilSettings&,
                              const PipelineInfo&) = 0;
 
-    virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
-                         GrRenderTarget* renderTarget) = 0;
+    virtual void onClear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget) = 0;
 
     /** The subclass's copy surface implementation. It should assume that any clipping has already
         been performed on the rect and point and that the GrGpu supports the copy. */

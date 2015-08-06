@@ -249,11 +249,9 @@ public:
                      size_t rowBytes);
 
     /**
-     * Clear the passed in render target. Ignores the draw state and clip. Clears the whole thing if
-     * rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire render target
-     * can be optionally cleared.
+     * Clear the passed in render target. Ignores the draw state and clip.
      */
-    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,GrRenderTarget* renderTarget);
+    void clear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget);
 
 
     void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* renderTarget);
@@ -450,8 +448,7 @@ private:
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
-    virtual void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
-                         bool canIgnoreRect) = 0;
+    virtual void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) = 0;
 
 
     // Overridden by backend specific classes to perform a clear of the stencil clip bits.  This is

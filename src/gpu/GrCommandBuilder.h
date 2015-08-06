@@ -49,9 +49,8 @@ public:
                                  int,
                                  const GrStencilSettings&,
                                  const GrDrawTarget::PipelineInfo&) = 0;
-    virtual Cmd* recordClear(const SkIRect* rect,
+    virtual Cmd* recordClear(const SkIRect& rect,
                              GrColor,
-                             bool canIgnoreRect,
                              GrRenderTarget*);
     virtual Cmd* recordCopySurface(GrSurface* dst,
                                    GrSurface* src,

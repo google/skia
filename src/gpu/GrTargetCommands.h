@@ -183,7 +183,6 @@ private:
 
         SkIRect fRect;
         GrColor fColor;
-        bool    fCanIgnoreRect;
 
     private:
         GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;

@@ -18,28 +18,16 @@ GrCommandBuilder* GrCommandBuilder::Create(GrGpu* gpu, bool reorder) {
     }
 }
 
-GrTargetCommands::Cmd* GrCommandBuilder::recordClear(const SkIRect* rect,
+GrTargetCommands::Cmd* GrCommandBuilder::recordClear(const SkIRect& rect,
                                                      GrColor color,
-                                                     bool canIgnoreRect,
                                                      GrRenderTarget* renderTarget) {
     SkASSERT(renderTarget);
-
-    SkIRect r;
-    if (NULL == rect) {
-        // We could do something smart and remove previous draws and clears to
-        // the current render target. If we get that smart we have to make sure
-        // those draws aren't read before this clear (render-to-texture).
-        r.setLTRB(0, 0, renderTarget->width(), renderTarget->height());
-        rect = &r;
-    }
-
-    SkASSERT(canIgnoreRect || (rect->fLeft <= rect->fRight && rect->fTop <= rect->fBottom));
+    SkASSERT(rect.fLeft <= rect.fRight && rect.fTop <= rect.fBottom);
 
     Clear* clr = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), Clear, (renderTarget));
     GrColorIsPMAssert(color);
     clr->fColor = color;
-    clr->fRect = *rect;
-    clr->fCanIgnoreRect = canIgnoreRect;
+    clr->fRect = rect;
     return clr;
 }
 

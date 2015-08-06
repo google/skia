@@ -1569,33 +1569,14 @@ void GrGLGpu::disableScissor() {
     }
 }
 
-void GrGLGpu::onClear(GrRenderTarget* target, const SkIRect* rect, GrColor color,
-                      bool canIgnoreRect) {
+void GrGLGpu::onClear(GrRenderTarget* target, const SkIRect& rect, GrColor color) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
-    if (canIgnoreRect && this->glCaps().fullClearIsFree()) {
-        rect = NULL;
-    }
-
-    SkIRect clippedRect;
-    if (rect) {
-        // flushScissor expects rect to be clipped to the target.
-        clippedRect = *rect;
-        SkIRect rtRect = SkIRect::MakeWH(target->width(), target->height());
-        if (clippedRect.intersect(rtRect)) {
-            rect = &clippedRect;
-        } else {
-            return;
-        }
-    }
-
-    this->flushRenderTarget(glRT, rect);
+    this->flushRenderTarget(glRT, &rect);
     GrScissorState scissorState;
-    if (rect) {
-        scissorState.set(*rect);
-    }
+    scissorState.set(rect);
     this->flushScissor(scissorState, glRT->getViewport(), glRT->origin());
 
     GrGLfloat r, g, b, a;

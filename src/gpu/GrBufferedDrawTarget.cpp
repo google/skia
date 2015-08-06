@@ -80,9 +80,9 @@ void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
-void GrBufferedDrawTarget::onClear(const SkIRect* rect, GrColor color,
-                                  bool canIgnoreRect, GrRenderTarget* renderTarget) {
-    GrTargetCommands::Cmd* cmd = fCommands->recordClear(rect, color, canIgnoreRect, renderTarget);
+void GrBufferedDrawTarget::onClear(const SkIRect& rect, GrColor color,
+                                   GrRenderTarget* renderTarget) {
+    GrTargetCommands::Cmd* cmd = fCommands->recordClear(rect, color, renderTarget);
     this->recordTraceMarkersIfNecessary(cmd);
 }
 

@@ -202,8 +202,7 @@ private:
 
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override { return NULL; }
 
-    void onClear(GrRenderTarget*, const SkIRect* rect, GrColor color,
-                         bool canIgnoreRect) override {}
+    void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override {}
 
     void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override {}
 
