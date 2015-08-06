@@ -92,6 +92,7 @@
       'include_dirs': [
           '../include/private',
           '../src/core',
+          '../src/utils',
       ],
       'sources': [ '<@(ssse3_sources)' ],
       'conditions': [
@@ -112,6 +113,7 @@
       'include_dirs': [
           '../include/private',
           '../src/core',
+          '../src/utils',
       ],
       'sources': [ '<@(sse41_sources)' ],
       'conditions': [

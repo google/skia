@@ -11,6 +11,7 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkFloatingPoint_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkTextureCompressor_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
@@ -29,5 +30,8 @@ namespace SkOpts {
         dilate_y = neon::dilate_y;
          erode_x = neon::erode_x;
          erode_y = neon::erode_y;
+
+        texture_compressor    = neon::texture_compressor;
+        fill_block_dimensions = neon::fill_block_dimensions;
     }
 }

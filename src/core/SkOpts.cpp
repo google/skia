@@ -12,6 +12,7 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkFloatingPoint_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkTextureCompressor_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
@@ -45,6 +46,9 @@ namespace SkOpts {
     decltype(dilate_y) dilate_y = portable::dilate_y;
     decltype( erode_x)  erode_x = portable::erode_x;
     decltype( erode_y)  erode_y = portable::erode_y;
+
+    decltype(texture_compressor)       texture_compressor = portable::texture_compressor;
+    decltype(fill_block_dimensions) fill_block_dimensions = portable::fill_block_dimensions;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_sse2();

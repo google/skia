@@ -8,6 +8,7 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
+#include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkXfermode.h"
 
@@ -36,6 +37,12 @@ namespace SkOpts {
 
     typedef void (*Morph)(const SkPMColor*, SkPMColor*, int, int, int, int, int);
     extern Morph dilate_x, dilate_y, erode_x, erode_y;
+
+    typedef bool (*TextureCompressor)(uint8_t* dst, const uint8_t* src,
+                                      int width, int height, size_t rowBytes);
+    extern TextureCompressor (*texture_compressor)(SkColorType, SkTextureCompressor::Format);
+    extern bool (*fill_block_dimensions)(SkTextureCompressor::Format, int* x, int* y);
+
 }
 
 #endif//SkOpts_DEFINED

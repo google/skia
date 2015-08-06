@@ -14,8 +14,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkData.h"
 #include "SkEndian.h"
-
-#include "SkTextureCompression_opts.h"
+#include "SkOpts.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
 #  include "etc1.h"
@@ -40,7 +39,7 @@ void GetBlockDimensions(Format format, int* dimX, int* dimY, bool matchSpec) {
         return;
     }
 
-    if (!matchSpec && SkTextureCompressorGetPlatformDims(format, dimX, dimY)) {
+    if (!matchSpec && SkOpts::fill_block_dimensions(format, dimX, dimY)) {
         return;
     }
 
@@ -77,7 +76,7 @@ int GetCompressedDataSize(Format fmt, int width, int height) {
     GetBlockDimensions(fmt, &dimX, &dimY, true);
 
     int encodedBlockSize = 0;
-            
+
     switch (fmt) {
         // These formats are 64 bits per 4x4 block.
         case kLATC_Format:
@@ -120,54 +119,26 @@ int GetCompressedDataSize(Format fmt, int width, int height) {
 }
 
 bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcColorType,
-                            int width, int height, size_t rowBytes, Format format, bool opt) {
-    CompressionProc proc = NULL;
-    if (opt) {
-        proc = SkTextureCompressorGetPlatformProc(srcColorType, format);
+                            int width, int height, size_t rowBytes, Format format) {
+    SkOpts::TextureCompressor proc = SkOpts::texture_compressor(srcColorType, format);
+    if (proc && proc(dst, src, width, height, rowBytes)) {
+        return true;
     }
 
-    if (NULL == proc) {
-        switch (srcColorType) {
-            case kAlpha_8_SkColorType:
-            {
-                switch (format) {
-                    case kLATC_Format:
-                        proc = CompressA8ToLATC;
-                        break;
-                    case kR11_EAC_Format:
-                        proc = CompressA8ToR11EAC;
-                        break;
-                    case kASTC_12x12_Format:
-                        proc = CompressA8To12x12ASTC;
-                        break;
-                    default:
-                        // Do nothing...
-                        break;
-                }
-            }
+    switch (srcColorType) {
+        case kAlpha_8_SkColorType:
+            if (format == kLATC_Format)       { proc = CompressA8ToLATC;      }
+            if (format == kR11_EAC_Format)    { proc = CompressA8ToR11EAC;    }
+            if (format == kASTC_12x12_Format) { proc = CompressA8To12x12ASTC; }
             break;
-
-            case kRGB_565_SkColorType:
-            {
-                switch (format) {
-                    case kETC1_Format:
-                        proc = compress_etc1_565;
-                        break;
-                    default:
-                        // Do nothing...
-                        break;
-                }
-            }
+        case kRGB_565_SkColorType:
+            if (format == kETC1_Format) { proc = compress_etc1_565; }
             break;
-
-            default:
-                // Do nothing...
-                break;
-        }
+        default:
+            break;
     }
-
-    if (proc) {
-        return proc(dst, src, width, height, rowBytes);
+    if (proc && proc(dst, src, width, height, rowBytes)) {
+        return true;
     }
 
     return false;
