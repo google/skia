@@ -622,6 +622,19 @@ static void test_snap_alphatype(skiatest::Reporter* reporter, GrContextFactory* 
     }
 }
 
+static void test_backend_cow(skiatest::Reporter* reporter, SkSurface* surface,
+                             SkSurface::BackendHandleAccess mode,
+                             GrBackendObject (*func)(SkSurface*, SkSurface::BackendHandleAccess)) {
+    GrBackendObject obj1 = func(surface, mode);
+    SkAutoTUnref<SkImage> snap1(surface->newImageSnapshot());
+
+    GrBackendObject obj2 = func(surface, mode);
+    SkAutoTUnref<SkImage> snap2(surface->newImageSnapshot());
+
+    // If the access mode triggers CoW, then the backend objects should reflect it.
+    REPORTER_ASSERT(reporter, (obj1 == obj2) == (snap1 == snap2));
+}
+
 static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType surfaceType,
                                    GrContext* context) {
     // Verify that the right canvas commands trigger a copy on write
@@ -700,6 +713,28 @@ static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType sur
         testPaint))
     EXPECT_COPY_ON_WRITE(drawTextOnPath(testText.c_str(), testText.size(), testPath, NULL, \
         testPaint))
+
+    const SkSurface::BackendHandleAccess accessModes[] = {
+        SkSurface::kFlushRead_BackendHandleAccess,
+        SkSurface::kFlushWrite_BackendHandleAccess,
+        SkSurface::kDiscardWrite_BackendHandleAccess,
+    };
+
+    for (auto access : accessModes) {
+        test_backend_cow(reporter, surface, access,
+                          [](SkSurface* s, SkSurface::BackendHandleAccess a) -> GrBackendObject {
+            return s->getTextureHandle(a);
+        });
+
+        test_backend_cow(reporter, surface, access,
+                          [](SkSurface* s, SkSurface::BackendHandleAccess a) -> GrBackendObject {
+            GrBackendObject result;
+            if (!s->getRenderTargetHandle(&result, a)) {
+                return 0;
+            }
+            return result;
+        });
+    }
 }
 
 static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter,

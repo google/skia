@@ -28,7 +28,6 @@ SkSurface_Gpu::~SkSurface_Gpu() {
 
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
                                                       SkSurface::BackendHandleAccess access) {
-    GrRenderTarget* rt = surface->getDevice()->accessRenderTarget();
     switch (access) {
         case SkSurface::kFlushRead_BackendHandleAccess:
             break;
@@ -40,6 +39,9 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
             surface->getDevice()->accessBitmap(false).notifyPixelsChanged();
             break;
     }
+
+    // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
+    GrRenderTarget* rt = surface->getDevice()->accessRenderTarget();
     rt->prepareForExternalIO();
     return rt;
 }
