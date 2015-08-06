@@ -15,6 +15,29 @@
 #include "SkRSXform.h"
 #include "SkSurface.h"
 
+typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, const SkRSXform[], const SkRect[],
+                              const SkColor[], int, const SkRect*, const SkPaint*);
+
+static void draw_atlas(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
+                       const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
+                       const SkPaint* paint) {
+    canvas->drawAtlas(atlas, xform, tex, colors, count, SkXfermode::kModulate_Mode, cull, paint);
+}
+
+static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
+                           const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
+                           const SkPaint* paint) {
+    for (int i = 0; i < count; ++i) {
+        SkMatrix matrix;
+        matrix.setRSXform(xform[i]);
+        
+        canvas->save();
+        canvas->concat(matrix);
+        canvas->drawImageRect(atlas, &tex[i], tex[i].makeOffset(-tex[i].x(), -tex[i].y()), paint);
+        canvas->restore();
+    }
+}
+
 static SkImage* make_atlas(int atlasSize, int cellSize) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
@@ -101,6 +124,8 @@ class DrawAtlasDrawable : public SkDrawable {
         }
     };
 
+    DrawAtlasProc fProc;
+
     enum {
         N = 256,
     };
@@ -112,7 +137,9 @@ class DrawAtlasDrawable : public SkDrawable {
     bool        fUseColors;
 
 public:
-    DrawAtlasDrawable(const SkRect& r) : fBounds(r), fUseColors(false) {
+    DrawAtlasDrawable(DrawAtlasProc proc, const SkRect& r)
+        : fProc(proc), fBounds(r), fUseColors(false)
+    {
         SkRandom rand;
         fAtlas.reset(make_atlas(kAtlasSize, kCellSize));
         const SkScalar kMaxSpeed = 5;
@@ -159,8 +186,7 @@ protected:
 
         const SkRect cull = this->getBounds();
         const SkColor* colorsPtr = fUseColors ? colors : NULL;
-        canvas->drawAtlas(fAtlas, xform, fTex, colorsPtr, N, SkXfermode::kModulate_Mode,
-                          &cull, &paint);
+        fProc(canvas, fAtlas, xform, fTex, colorsPtr, N, &cull, &paint);
     }
     
     SkRect onGetBounds() override {
@@ -175,11 +201,12 @@ private:
 };
 
 class DrawAtlasView : public SampleView {
-    DrawAtlasDrawable* fDrawable;
+    const char*         fName;
+    DrawAtlasDrawable*  fDrawable;
 
 public:
-    DrawAtlasView() {
-        fDrawable = new DrawAtlasDrawable(SkRect::MakeWH(640, 480));
+    DrawAtlasView(const char name[], DrawAtlasProc proc) : fName(name) {
+        fDrawable = new DrawAtlasDrawable(proc, SkRect::MakeWH(640, 480));
     }
 
     ~DrawAtlasView() override {
@@ -189,7 +216,7 @@ public:
 protected:
     bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "DrawAtlas");
+            SampleCode::TitleR(evt, fName);
             return true;
         }
         SkUnichar uni;
@@ -222,5 +249,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new DrawAtlasView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new DrawAtlasView("DrawAtlas", draw_atlas); )
+DEF_SAMPLE( return new DrawAtlasView("DrawAtlasSim", draw_atlas_sim); )
