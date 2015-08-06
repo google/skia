@@ -708,7 +708,7 @@ public:
         fBatch.fCoverage = fGeoData[0].fCoverage;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override;
+    void generateGeometry(GrBatchTarget* batchTarget) override;
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
@@ -787,7 +787,7 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) {
+void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {
@@ -860,7 +860,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
     if (lineCount) {
         SkAutoTUnref<const GrIndexBuffer> linesIndexBuffer(
             ref_lines_index_buffer(batchTarget->resourceProvider()));
-        batchTarget->initDraw(lineGP, pipeline);
+        batchTarget->initDraw(lineGP, this->pipeline());
 
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
@@ -922,7 +922,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
         }
 
         if (quadCount > 0) {
-            batchTarget->initDraw(quadGP, pipeline);
+            batchTarget->initDraw(quadGP, this->pipeline());
 
             {
                 GrVertices verts;
@@ -935,7 +935,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipel
         }
 
         if (conicCount > 0) {
-            batchTarget->initDraw(conicGP, pipeline);
+            batchTarget->initDraw(conicGP, this->pipeline());
 
             {
                 GrVertices verts;

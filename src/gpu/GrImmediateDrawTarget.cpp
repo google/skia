@@ -39,7 +39,7 @@ void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch,
 
     fBatchTarget.resetNumberOfDraws();
 
-    batch->generateGeometry(&fBatchTarget, pipeline);
+    batch->generateGeometry(&fBatchTarget);
     batch->setNumberOfDraws(fBatchTarget.numberOfDraws());
 
     fBatchTarget.preFlush();

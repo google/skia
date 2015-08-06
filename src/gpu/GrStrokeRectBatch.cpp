@@ -66,7 +66,7 @@ static void init_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScal
 }
 
 
-void GrStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) {
+void GrStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
     SkAutoTUnref<const GrGeometryProcessor> gp;
     {
         using namespace GrDefaultGeoProcFactory;
@@ -79,7 +79,7 @@ void GrStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget, const GrPip
                                                     this->viewMatrix()));
     }
 
-    batchTarget->initDraw(gp, pipeline);
+    batchTarget->initDraw(gp, this->pipeline());
 
     size_t vertexStride = gp->getVertexStride();
 

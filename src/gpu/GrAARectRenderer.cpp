@@ -94,7 +94,7 @@ public:
         fBatch.fCanTweakAlphaForCoverage = init.canTweakAlphaForCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_rect_gp(canTweakAlphaForCoverage,
@@ -106,7 +106,7 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(canTweakAlphaForCoverage ?
@@ -444,7 +444,7 @@ public:
         fBatch.fCanTweakAlphaForCoverage = init.canTweakAlphaForCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_rect_gp(canTweakAlphaForCoverage,
@@ -456,7 +456,7 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
 

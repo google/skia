@@ -62,7 +62,7 @@ public:
 
     virtual bool onCombineIfPossible(GrBatch*) = 0;
 
-    virtual void generateGeometry(GrBatchTarget*, const GrPipeline*) = 0;
+    virtual void generateGeometry(GrBatchTarget*) = 0;
 
     const SkRect& bounds() const { return fBounds; }
 

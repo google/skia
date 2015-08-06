@@ -167,7 +167,7 @@ public:
         int fInstancesToFlush;
     };
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         int instanceCount = fGeoData.count();
 
         SkMatrix invert;
@@ -191,7 +191,7 @@ public:
                                                    flags,
                                                    this->usesLocalCoords()));
 
-        batchTarget->initDraw(dfProcessor, pipeline);
+        batchTarget->initDraw(dfProcessor, this->pipeline());
 
         FlushInfo flushInfo;
 
@@ -244,7 +244,7 @@ public:
                 args.fPathData = SkNEW(PathData);
                 if (!this->addPathToAtlas(batchTarget,
                                           dfProcessor,
-                                          pipeline,
+                                          this->pipeline(),
                                           &flushInfo,
                                           atlas,
                                           args.fPathData,
@@ -266,7 +266,7 @@ public:
             SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
             this->writePathVertices(batchTarget,
                                     atlas,
-                                    pipeline,
+                                    this->pipeline(),
                                     dfProcessor,
                                     positions,
                                     vertexStride,

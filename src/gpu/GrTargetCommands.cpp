@@ -27,7 +27,7 @@ void GrTargetCommands::flush(GrBufferedDrawTarget* bufferedDrawTarget) {
         if (Cmd::kDrawBatch_CmdType == genIter->type()) {
             DrawBatch* db = reinterpret_cast<DrawBatch*>(genIter.get());
             fBatchTarget.resetNumberOfDraws();
-            db->fBatch->generateGeometry(&fBatchTarget, db->fState->getPipeline());
+            db->fBatch->generateGeometry(&fBatchTarget);
             db->fBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
         }
     }

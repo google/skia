@@ -38,7 +38,7 @@ public:
 
     void initBatchTracker(const GrPipelineInfo& init) override;
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override;
+    void generateGeometry(GrBatchTarget* batchTarget) override;
 
 private:
     GrStrokeRectBatch(const Geometry& geometry, bool snapToPixelCenters);

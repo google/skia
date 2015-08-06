@@ -56,7 +56,7 @@ private:
         return &fGeometry;
     }
 
-    void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void onGenerateGeometry(GrBatchTarget* batchTarget) override {
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
         QuadHelper helper;

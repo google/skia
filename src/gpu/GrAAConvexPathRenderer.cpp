@@ -777,7 +777,7 @@ public:
         fBatch.fCanTweakAlphaForCoverage = init.canTweakAlphaForCoverage();
     }
 
-    void generateGeometryLinesOnly(GrBatchTarget* batchTarget, const GrPipeline* pipeline) {
+    void generateGeometryLinesOnly(GrBatchTarget* batchTarget) {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
@@ -790,7 +790,7 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -842,10 +842,10 @@ public:
         }
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
 #ifndef SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS
         if (this->linesOnly()) {
-            this->generateGeometryLinesOnly(batchTarget, pipeline);
+            this->generateGeometryLinesOnly(batchTarget);
             return;
         }
 #endif
@@ -862,7 +862,7 @@ public:
         SkAutoTUnref<GrGeometryProcessor> quadProcessor(
                 QuadEdgeEffect::Create(this->color(), invert, this->usesLocalCoords()));
 
-        batchTarget->initDraw(quadProcessor, pipeline);
+        batchTarget->initDraw(quadProcessor, this->pipeline());
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {

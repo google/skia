@@ -446,14 +446,14 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         int colorOffset = -1, texOffset = -1;
         SkAutoTUnref<const GrGeometryProcessor> gp(
                 set_vertex_attributes(this->hasLocalCoords(), this->hasColors(), &colorOffset,
                                       &texOffset, this->color(), this->viewMatrix(),
                                       this->coverageIgnored()));
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
 

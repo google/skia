@@ -1497,7 +1497,7 @@ public:
         return actualCount;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         // construct a cache key from the path's genID and the view matrix
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
@@ -1544,7 +1544,7 @@ public:
                                                      fViewMatrix));
         }
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
         SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
         GrPrimitiveType primitiveType = WIREFRAME ? kLines_GrPrimitiveType

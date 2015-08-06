@@ -54,14 +54,14 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         SkAutoTUnref<const GrGeometryProcessor> gp(this->createRectGP());
         if (!gp) {
             SkDebugf("Could not create GrGeometryProcessor\n");
             return;
         }
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();

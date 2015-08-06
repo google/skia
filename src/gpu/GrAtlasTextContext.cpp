@@ -1535,7 +1535,7 @@ public:
         int fVertexOffset;
     };
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
         // TODO actually only invert if we don't have RGBA
         SkMatrix localMatrix;
@@ -1575,7 +1575,7 @@ public:
                                   get_vertex_stride_df(maskFormat, isLCD) :
                                   get_vertex_stride(maskFormat)));
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         int glyphCount = this->numGlyphs();
         const GrVertexBuffer* vertexBuffer;
@@ -1692,7 +1692,7 @@ public:
                             !strike->addGlyphToAtlas(batchTarget, glyph, scaler, skGlyph,
                                                      maskFormat)) {
                             this->flush(batchTarget, &flushInfo);
-                            batchTarget->initDraw(gp, pipeline);
+                            batchTarget->initDraw(gp, this->pipeline());
                             brokenRun = glyphIdx > 0;
 
                             SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(batchTarget,

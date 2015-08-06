@@ -298,7 +298,7 @@ public:
         bool fHasEndRect;
     };
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         int instanceCount = fGeoData.count();
         SkPaint::Cap cap = this->cap();
         bool isRoundCap = SkPaint::kRound_Cap == cap;
@@ -324,7 +324,7 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         // useAA here means Edge AA or MSAA
         bool useAA = this->aaMode() != kBW_DashAAMode;

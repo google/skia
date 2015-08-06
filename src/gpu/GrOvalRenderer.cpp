@@ -664,7 +664,7 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -676,7 +676,7 @@ public:
                                                                       invert,
                                                                       this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -882,7 +882,7 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -894,7 +894,7 @@ public:
                                                                        invert,
                                                                        this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         QuadHelper helper;
@@ -1149,14 +1149,14 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(this->color(),
                                                                          this->viewMatrix(),
                                                                          this->mode(),
                                                                          this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -1500,7 +1500,7 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1514,7 +1514,7 @@ public:
                                                                       invert,
                                                                       this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -1676,7 +1676,7 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1690,7 +1690,7 @@ public:
                                                                        invert,
                                                                        this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();

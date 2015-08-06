@@ -249,7 +249,7 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         SkAutoTUnref<const GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -267,7 +267,7 @@ public:
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
 

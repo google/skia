@@ -46,10 +46,10 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
-        batchTarget->initDraw(fGeometryProcessor, pipeline);
+    void generateGeometry(GrBatchTarget* batchTarget) override {
+        batchTarget->initDraw(fGeometryProcessor, this->pipeline());
 
-        this->onGenerateGeometry(batchTarget, pipeline);
+        this->onGenerateGeometry(batchTarget);
     }
 
 protected:
@@ -69,7 +69,7 @@ private:
         return false;
     }
 
-    virtual void onGenerateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) = 0;
+    virtual void onGenerateGeometry(GrBatchTarget* batchTarget) = 0;
 
     struct BatchTracker {
         GrColor fColor;

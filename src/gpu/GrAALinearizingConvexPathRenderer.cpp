@@ -184,7 +184,7 @@ public:
         batchTarget->draw(info);
     }
     
-    void generateGeometry(GrBatchTarget* batchTarget, const GrPipeline* pipeline) override {
+    void generateGeometry(GrBatchTarget* batchTarget) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
@@ -197,7 +197,7 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, pipeline);
+        batchTarget->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -226,7 +226,7 @@ public:
             if (indexCount + currentIndices > UINT16_MAX) {
                 // if we added the current instance, we would overflow the indices we can store in a 
                 // uint16_t. Draw what we've got so far and reset.
-                draw(batchTarget, pipeline, vertexCount, vertexStride, vertices, indexCount, 
+                draw(batchTarget, this->pipeline(), vertexCount, vertexStride, vertices, indexCount, 
                         indices);
                 vertexCount = 0;
                 indexCount = 0;
@@ -246,7 +246,8 @@ public:
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        draw(batchTarget, pipeline, vertexCount, vertexStride, vertices, indexCount, indices);
+        draw(batchTarget, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
+             indices);
         free(vertices);
         free(indices);
     }
