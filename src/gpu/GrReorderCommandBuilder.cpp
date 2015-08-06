@@ -47,6 +47,11 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
             } else if (Cmd::kClear_CmdType == reverseIter->type()) {
                 Clear* previous = static_cast<Clear*>(reverseIter.get());
 
+                // We cannot continue to search backwards if the render target changes
+                if (previous->renderTarget() != rt) {
+                    break;
+                }
+
                 // We set the color to illegal if we are doing a discard.
                 // If we can ignore the rect, then we do a full clear
                 if (previous->fColor == GrColor_ILLEGAL ||
