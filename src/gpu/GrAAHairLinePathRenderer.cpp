@@ -7,7 +7,6 @@
 
 #include "GrAAHairLinePathRenderer.h"
 
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
@@ -22,6 +21,8 @@
 #include "SkGeometry.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
+
+#include "batches/GrBatch.h"
 
 #include "effects/GrBezierEffect.h"
 

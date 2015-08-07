@@ -9,7 +9,6 @@
 #include "GrContext.h"
 
 #include "GrAARectRenderer.h"
-#include "GrBatch.h"
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
@@ -47,6 +46,8 @@
 #include "SkTLazy.h"
 #include "SkTLS.h"
 #include "SkTraceEvent.h"
+
+#include "batches/GrBatch.h"
 
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrDashingEffect.h"

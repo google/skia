@@ -9,19 +9,20 @@
 #include "GrDrawTarget.h"
 
 #include "GrAARectRenderer.h"
-#include "GrBatch.h"
 #include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPipeline.h"
 #include "GrMemoryPool.h"
-#include "GrRectBatch.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
+
+#include "batches/GrBatch.h"
+#include "batches/GrRectBatch.h"
 
 #include "SkStrokeRec.h"
 

@@ -7,7 +7,6 @@
 
 #include "GrOvalRenderer.h"
 
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrDrawTarget.h"
@@ -20,6 +19,7 @@
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
+#include "batches/GrBatch.h"
 #include "effects/GrRRectEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"

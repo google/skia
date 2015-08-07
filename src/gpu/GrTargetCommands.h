@@ -8,7 +8,6 @@
 #ifndef GrTargetCommands_DEFINED
 #define GrTargetCommands_DEFINED
 
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
@@ -19,8 +18,9 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
-class GrBufferedDrawTarget;
+#include "batches/GrBatch.h"
 
+class GrBufferedDrawTarget;
 
 class GrTargetCommands : ::SkNoncopyable {
 public:

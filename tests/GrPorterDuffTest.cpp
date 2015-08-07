@@ -10,12 +10,12 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrBatch.h"
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "GrXferProcessor.h"
+#include "batches/GrBatch.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "gl/GrGLCaps.h"
 

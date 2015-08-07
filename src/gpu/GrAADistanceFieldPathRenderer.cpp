@@ -8,7 +8,6 @@
 
 #include "GrAADistanceFieldPathRenderer.h"
 
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrContext.h"
@@ -18,6 +17,7 @@
 #include "GrSWMaskHelper.h"
 #include "GrTexturePriv.h"
 #include "GrVertexBuffer.h"
+#include "batches/GrBatch.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
 #include "SkDistanceFieldGen.h"

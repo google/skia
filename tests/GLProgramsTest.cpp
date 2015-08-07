@@ -13,7 +13,6 @@
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "GrAutoLocaleSetter.h"
-#include "GrBatch.h"
 #include "GrBatchTest.h"
 #include "GrContextFactory.h"
 #include "GrInvariantOutput.h"
@@ -24,8 +23,12 @@
 #include "SkChecksum.h"
 #include "SkRandom.h"
 #include "Test.h"
+
+#include "batches/GrBatch.h"
+
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
+
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLPathRendering.h"
 #include "gl/builders/GrGLProgramBuilder.h"

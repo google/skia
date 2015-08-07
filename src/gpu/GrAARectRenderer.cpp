@@ -6,7 +6,6 @@
  */
 
 #include "GrAARectRenderer.h"
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrContext.h"
@@ -19,6 +18,7 @@
 #include "GrTestUtils.h"
 #include "GrVertexBuffer.h"
 #include "SkColorPriv.h"
+#include "batches/GrBatch.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"

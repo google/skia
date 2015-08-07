@@ -7,12 +7,13 @@
 
 #include "GrImmediateDrawTarget.h"
 
-#include "GrBatch.h"
 #include "GrGpu.h"
 #include "GrPipeline.h"
 #include "GrRenderTarget.h"
 #include "SkRect.h"
 #include "SkTypes.h"
+
+#include "batches/GrBatch.h"
 
 GrImmediateDrawTarget::GrImmediateDrawTarget(GrContext* context)
     : INHERITED(context)

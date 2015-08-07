@@ -9,7 +9,6 @@
 #include "GrAALinearizingConvexPathRenderer.h"
 
 #include "GrAAConvexTessellator.h"
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrContext.h"
@@ -24,6 +23,7 @@
 #include "SkString.h"
 #include "SkTraceEvent.h"
 #include "SkPathPriv.h"
+#include "batches/GrBatch.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"

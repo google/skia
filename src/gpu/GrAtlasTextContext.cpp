@@ -6,7 +6,6 @@
  */
 #include "GrAtlasTextContext.h"
 
-#include "GrBatch.h"
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
@@ -37,6 +36,8 @@
 #include "SkStrokeRec.h"
 #include "SkTextBlob.h"
 #include "SkTextMapStateProc.h"
+
+#include "batches/GrBatch.h"
 
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"

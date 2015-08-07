@@ -8,7 +8,6 @@
 
 #include "GrAARectRenderer.h"
 #include "GrAtlasTextContext.h"
-#include "GrBatch.h"
 #include "GrBatchTest.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -17,8 +16,10 @@
 #include "GrPathRenderer.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
-#include "GrStrokeRectBatch.h"
 #include "GrStencilAndCoverTextContext.h"
+
+#include "batches/GrBatch.h"
+#include "batches/GrStrokeRectBatch.h"
 
 #include "SkGr.h"
 #include "SkRSXform.h"

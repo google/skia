@@ -7,7 +7,6 @@
 
 #include "GrDefaultPathRenderer.h"
 
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrContext.h"
@@ -20,6 +19,8 @@
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
+
+#include "batches/GrBatch.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
                                              bool stencilWrapOpsSupport)

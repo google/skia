@@ -7,7 +7,6 @@
 
 #include "GrDashingEffect.h"
 
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
@@ -21,6 +20,7 @@
 #include "GrStrokeInfo.h"
 #include "GrVertexBuffer.h"
 #include "SkGr.h"
+#include "batches/GrBatch.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"

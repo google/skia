@@ -8,11 +8,12 @@
 #include "GrPipeline.h"
 
 #include "GrCaps.h"
-#include "GrBatch.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
 #include "GrXferProcessor.h"
+
+#include "batches/GrBatch.h"
 
 GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
                        const GrProcOptInfo& colorPOI,

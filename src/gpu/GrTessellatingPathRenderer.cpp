@@ -7,7 +7,6 @@
 
 #include "GrTessellatingPathRenderer.h"
 
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -17,6 +16,8 @@
 #include "GrResourceProvider.h"
 #include "SkChunkAlloc.h"
 #include "SkGeometry.h"
+
+#include "batches/GrBatch.h"
 
 #include <stdio.h>
 
