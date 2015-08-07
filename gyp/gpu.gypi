@@ -106,8 +106,6 @@
       '<(skia_src_path)/gpu/GrDefaultGeoProcFactory.h',
       '<(skia_src_path)/gpu/GrDefaultPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrDefaultPathRenderer.h',
-      '<(skia_src_path)/gpu/GrDrawAtlasBatch.cpp',
-      '<(skia_src_path)/gpu/GrDrawAtlasBatch.h',
       '<(skia_src_path)/gpu/GrDrawContext.cpp',
       '<(skia_src_path)/gpu/GrDrawTarget.cpp',
       '<(skia_src_path)/gpu/GrDrawTarget.h',
