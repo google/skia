@@ -43,7 +43,13 @@ public:
             kXferBarrier_CmdType       = 9,
         };
 
-        Cmd(CmdType type) : fMarkerID(-1), fType(type) {}
+        Cmd(CmdType type)
+            : fMarkerID(-1)
+            , fType(type)
+#if GR_BATCH_SPEW
+            , fUniqueID(GenID(&gUniqueID))
+#endif
+{}
         virtual ~Cmd() {}
 
         virtual void execute(GrGpu*) = 0;
@@ -54,10 +60,21 @@ public:
         bool isTraced() const { return -1 != fMarkerID; }
         void setMarkerID(int markerID) { SkASSERT(-1 == fMarkerID); fMarkerID = markerID; }
         int markerID() const { return fMarkerID; }
+        GrBATCH_SPEW(uint32_t uniqueID() const { return fUniqueID;} )
 
     private:
+        // TODO move this to a common header so it can be shared with GrBatch
+        static uint32_t GenID(int32_t* idCounter) {
+            uint32_t id = static_cast<uint32_t>(sk_atomic_inc(idCounter)) + 1;
+            if (!id) {
+                SkFAIL("This should never wrap\n");
+            }
+            return id;
+        }
         int              fMarkerID;
         CmdType          fType;
+        GrBATCH_SPEW(uint32_t fUniqueID);
+        GrBATCH_SPEW(static int32_t gUniqueID;)
     };
 
     void reset();

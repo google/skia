@@ -36,10 +36,24 @@ struct GrInitInvariantOutput;
  * the draw, ie whether or not the GrBatch is allowed to tweak alpha for coverage, then this
  * information will be communicated to the GrBatch prior to geometry generation.
  */
+#define GR_BATCH_SPEW 0
+#if GR_BATCH_SPEW
+    #define GrBATCH_INFO(...) SkDebugf(__VA_ARGS__)
+    #define GrBATCH_SPEW(code) code
+#else
+    #define GrBATCH_SPEW(code)
+    #define GrBATCH_INFO(...)
+#endif
 
 class GrBatch : public GrNonAtomicRef {
 public:
-    GrBatch() : fClassID(kIllegalBatchClassID), fNumberOfDraws(0) { SkDEBUGCODE(fUsed = false;) }
+    GrBatch()
+        : fClassID(kIllegalBatchID)
+        , fNumberOfDraws(0)
+#if GR_BATCH_SPEW
+        , fUniqueID(GenID(&gCurrBatchUniqueID))
+#endif
+        { SkDEBUGCODE(fUsed = false;) }
     virtual ~GrBatch() {}
 
     virtual const char* name() const = 0;
@@ -86,7 +100,7 @@ public:
     template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
     template <typename T> T* cast() { return static_cast<T*>(this); }
 
-    uint32_t classID() const { SkASSERT(kIllegalBatchClassID != fClassID); return fClassID; }
+    uint32_t classID() const { SkASSERT(kIllegalBatchID != fClassID); return fClassID; }
 
     // TODO no GrPrimitiveProcessors yet read fragment position
     bool willReadFragmentPosition() const { return false; }
@@ -96,9 +110,13 @@ public:
     const GrPipeline* pipeline() const { return fPipeline; }
     void setPipeline(const GrPipeline* pipeline) { fPipeline.reset(SkRef(pipeline)); }
 
+#if GR_BATCH_SPEW
+    uint32_t uniqueID() const { return fUniqueID; }
+#endif
+
 protected:
     template <typename PROC_SUBCLASS> void initClassID() {
-         static uint32_t kClassID = GenClassID();
+         static uint32_t kClassID = GenID(&gCurrBatchClassID);
          fClassID = kClassID;
     }
 
@@ -152,11 +170,11 @@ protected:
     SkRect fBounds;
 
 private:
-    static uint32_t GenClassID() {
+    static uint32_t GenID(int32_t* idCounter) {
         // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
         // atomic inc returns the old value not the incremented value. So we add
         // 1 to the returned value.
-        uint32_t id = static_cast<uint32_t>(sk_atomic_inc(&gCurrBatchClassID)) + 1;
+        uint32_t id = static_cast<uint32_t>(sk_atomic_inc(idCounter)) + 1;
         if (!id) {
             SkFAIL("This should never wrap as it should only be called once for each GrBatch "
                    "subclass.");
@@ -165,12 +183,16 @@ private:
     }
 
     enum {
-        kIllegalBatchClassID = 0,
+        kIllegalBatchID = 0,
     };
     SkAutoTUnref<const GrPipeline> fPipeline;
     static int32_t gCurrBatchClassID;
     int fNumberOfDraws;
     SkDEBUGCODE(bool fUsed;)
+#if GR_BATCH_SPEW
+    static int32_t gCurrBatchUniqueID;
+    uint32_t fUniqueID;
+#endif
 
     typedef SkRefCnt INHERITED;
 };

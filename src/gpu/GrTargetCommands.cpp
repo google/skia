@@ -9,12 +9,15 @@
 
 #include "GrBufferedDrawTarget.h"
 
+GrBATCH_SPEW(int32_t GrTargetCommands::Cmd::gUniqueID = 0;)
+
 void GrTargetCommands::reset() {
     fCmdBuffer.reset();
     fBatchTarget.reset();
 }
 
 void GrTargetCommands::flush(GrBufferedDrawTarget* bufferedDrawTarget) {
+    GrBATCH_INFO("Flushing\n");
     if (fCmdBuffer.empty()) {
         return;
     }

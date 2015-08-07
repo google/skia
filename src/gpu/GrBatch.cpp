@@ -36,7 +36,9 @@ public:
 };
 }
 
-int32_t GrBatch::gCurrBatchClassID = GrBatch::kIllegalBatchClassID;
+int32_t GrBatch::gCurrBatchClassID = GrBatch::kIllegalBatchID;
+
+GrBATCH_SPEW(int32_t GrBatch::gCurrBatchUniqueID = GrBatch::kIllegalBatchID;)
 
 void* GrBatch::operator new(size_t size) {
     return MemoryPoolAccessor().pool()->allocate(size);

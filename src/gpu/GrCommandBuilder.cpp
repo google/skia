@@ -28,6 +28,7 @@ GrTargetCommands::Cmd* GrCommandBuilder::recordClear(const SkIRect& rect,
     GrColorIsPMAssert(color);
     clr->fColor = color;
     clr->fRect = rect;
+    GrBATCH_INFO("Recording clear %d\n", clr->uniqueID());
     return clr;
 }
 
@@ -41,6 +42,7 @@ GrTargetCommands::Cmd* GrCommandBuilder::recordClearStencilClip(const SkIRect& r
                                                      (renderTarget));
     clr->fRect = rect;
     clr->fInsideClip = insideClip;
+    GrBATCH_INFO("Recording clear stencil clip %d\n", clr->uniqueID());
     return clr;
 }
 
@@ -49,6 +51,7 @@ GrTargetCommands::Cmd* GrCommandBuilder::recordDiscard(GrRenderTarget* renderTar
 
     Clear* clr = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), Clear, (renderTarget));
     clr->fColor = GrColor_ILLEGAL;
+    GrBATCH_INFO("Recording discard %d\n", clr->uniqueID());
     return clr;
 }
 
@@ -59,6 +62,7 @@ GrTargetCommands::Cmd* GrCommandBuilder::recordCopySurface(GrSurface* dst,
     CopySurface* cs = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), CopySurface, (dst, src));
     cs->fSrcRect = srcRect;
     cs->fDstPoint = dstPoint;
+    GrBATCH_INFO("Recording copysurface %d\n", cs->uniqueID());
     return cs;
 }
 
@@ -75,5 +79,6 @@ GrCommandBuilder::recordXferBarrierIfNecessary(const GrPipeline& pipeline,
 
     XferBarrier* xb = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), XferBarrier, (rt));
     xb->fBarrierType = barrierType;
+    GrBATCH_INFO("Recording xfer barrier %d\n", xb->uniqueID());
     return xb;
 }
