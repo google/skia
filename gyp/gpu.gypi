@@ -223,6 +223,8 @@
       # Batches
       '<(skia_src_path)/gpu/batches/GrBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrBatch.h',
+      '<(skia_src_path)/gpu/batches/GrDrawAtlasBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrDrawAtlasBatch.h',
       '<(skia_src_path)/gpu/batches/GrRectBatch.h',
       '<(skia_src_path)/gpu/batches/GrRectBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrStrokeRectBatch.cpp',
