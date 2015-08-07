@@ -106,12 +106,12 @@ public:
         fB = new B();
     }
     virtual void setValues(int v) {
-        fVoidStar = reinterpret_cast<void*>(v);
+        fVoidStar = reinterpret_cast<void*>(static_cast<intptr_t>(v));
         this->INHERITED::setValues(v);
         fB->setValues(v);
     }
     virtual bool checkValues(int v) {
-        return fVoidStar == reinterpret_cast<void*>(v) &&
+        return fVoidStar == reinterpret_cast<void*>(static_cast<intptr_t>(v)) &&
                fB->checkValues(v) &&
                this->INHERITED::checkValues(v);
     }

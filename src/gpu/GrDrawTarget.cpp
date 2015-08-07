@@ -256,7 +256,8 @@ void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
     SkASSERT(pathRange);
     SkASSERT(indices);
-    SkASSERT(0 == reinterpret_cast<long>(indices) % GrPathRange::PathIndexSizeInBytes(indexType));
+    SkASSERT(0 == reinterpret_cast<intptr_t>(indices) %
+             GrPathRange::PathIndexSizeInBytes(indexType));
     SkASSERT(transformValues);
 
     // Setup clip

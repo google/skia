@@ -4,6 +4,9 @@
 # found in the LICENSE file.
 
 {
+  'variables': {
+    'skia_warnings_as_errors': 0,
+  },
   'targets': [
   {
     # Only used by win, down below.

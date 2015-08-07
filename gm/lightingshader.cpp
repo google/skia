@@ -38,7 +38,7 @@ static SkBitmap make_hemi_normalmap(int texSize) {
                 locY = 0.0f;
                 locZ = 0.0f;
             }
-            locZ = sqrt(1.0f - locZ);
+            locZ = sqrtf(1.0f - locZ);
             unsigned char r = static_cast<unsigned char>((0.5f * locX + 0.5f) * 255);
             unsigned char g = static_cast<unsigned char>((-0.5f * locY + 0.5f) * 255);
             unsigned char b = static_cast<unsigned char>((0.5f * locZ + 0.5f) * 255);
