@@ -20,7 +20,7 @@
         '<!@(python find.py ../gm "*.c*")',
 
         # Files needed by particular GMs
-        '../src/gpu/GrTestBatch.h',
+        '../src/gpu/batches/GrTestBatch.h',
         '../src/utils/debugger/SkDrawCommand.h',
         '../src/utils/debugger/SkDrawCommand.cpp',
         '../src/utils/debugger/SkDebugCanvas.h',

@@ -17,11 +17,12 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
-#include "GrTestBatch.h"
 #include "SkColorPriv.h"
 #include "SkDevice.h"
 #include "SkGeometry.h"
 #include "SkTLList.h"
+
+#include "batches/GrTestBatch.h"
 
 #include "effects/GrConvexPolyEffect.h"
 

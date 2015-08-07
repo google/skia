@@ -16,10 +16,11 @@
 #include "GrContext.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
-#include "GrTestBatch.h"
 #include "SkColorPriv.h"
 #include "SkDevice.h"
 #include "SkGeometry.h"
+
+#include "batches/GrTestBatch.h"
 
 #include "effects/GrBezierEffect.h"
 
