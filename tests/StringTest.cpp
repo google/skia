@@ -156,7 +156,7 @@ DEF_TEST(String, reporter) {
         { SK_Scalar1,   "1" },
         { -SK_Scalar1,  "-1" },
         { SK_Scalar1/2, "0.5" },
-  #ifdef SK_BUILD_FOR_WIN
+  #if defined(SK_BUILD_FOR_WIN) && (_MSC_VER < 1900) 
         { 3.4028234e38f,   "3.4028235e+038" },
         { -3.4028234e38f, "-3.4028235e+038" },
   #else
@@ -168,8 +168,9 @@ DEF_TEST(String, reporter) {
         a.reset();
         a.appendScalar(gRec[i].fValue);
         REPORTER_ASSERT(reporter, a.size() <= SkStrAppendScalar_MaxSize);
-//        SkDebugf(" received <%s> expected <%s>\n", a.c_str(), gRec[i].fString);
-        REPORTER_ASSERT(reporter, a.equals(gRec[i].fString));
+        if (!a.equals(gRec[i].fString)) {
+            ERRORF(reporter, "received <%s> expected <%s>\n", a.c_str(), gRec[i].fString);
+        }
     }
 
     REPORTER_ASSERT(reporter, SkStringPrintf("%i", 0).equals("0"));
