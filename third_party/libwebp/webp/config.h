@@ -14,14 +14,14 @@
 // file, which replaces the checks in endian_inl.h to decide whether we have
 // particular builtins.
 
-#ifdef __builtin_bswap64
+#ifdef __builtin_bswap64(x)
     #define HAVE_BUILTIN_BSWAP64
 #endif
 
-#ifdef __builtin_bswap32
+#ifdef __builtin_bswap32(x)
     #define HAVE_BUILTIN_BSWAP32
 #endif
 
-#ifdef __builtin_bswap16
+#ifdef __builtin_bswap16(x)
     #define HAVE_BUILTIN_BSWAP16
 #endif
