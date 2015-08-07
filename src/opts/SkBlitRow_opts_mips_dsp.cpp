@@ -753,12 +753,9 @@ static void S32A_D565_Blend_mips_dsp(uint16_t* SK_RESTRICT dst,
         if (sc) {
             uint16_t dc = *dst;
             unsigned dst_scale = 255 - SkMulDiv255Round(SkGetPackedA32(sc), alpha);
-            unsigned dr = SkMulS16(SkPacked32ToR16(sc), alpha) +
-                          SkMulS16(SkGetPackedR16(dc), dst_scale);
-            unsigned dg = SkMulS16(SkPacked32ToG16(sc), alpha) +
-                          SkMulS16(SkGetPackedG16(dc), dst_scale);
-            unsigned db = SkMulS16(SkPacked32ToB16(sc), alpha) +
-                          SkMulS16(SkGetPackedB16(dc), dst_scale);
+            unsigned dr = (SkPacked32ToR16(sc) * alpha) + (SkGetPackedR16(dc) * dst_scale);
+            unsigned dg = (SkPacked32ToG16(sc) * alpha) + (SkGetPackedG16(dc) * dst_scale);
+            unsigned db = (SkPacked32ToB16(sc) * alpha) + (SkGetPackedB16(dc) * dst_scale);
             *dst = SkPackRGB16(SkDiv255Round(dr), SkDiv255Round(dg), SkDiv255Round(db));
         }
         dst += 1;

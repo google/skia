@@ -172,12 +172,6 @@
         #else
             #define SK_ARM_ARCH 3
         #endif
-
-        #if defined(__thumb2__) && (SK_ARM_ARCH >= 6) \
-                || !defined(__thumb__) && ((SK_ARM_ARCH > 5) || defined(__ARM_ARCH_5E__) \
-                || defined(__ARM_ARCH_5TE__) || defined(__ARM_ARCH_5TEJ__))
-            #define SK_ARM_HAS_EDSP
-        #endif
     #endif
 #endif
 

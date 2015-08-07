@@ -157,34 +157,6 @@ template <typename T> inline bool SkIsPow2(T value) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  SkMulS16(a, b) multiplies a * b, but requires that a and b are both int16_t.
- *  With this requirement, we can generate faster instructions on some
- *  architectures.
- */
-#ifdef SK_ARM_HAS_EDSP
-    static inline int32_t SkMulS16(S16CPU x, S16CPU y) {
-        SkASSERT((int16_t)x == x);
-        SkASSERT((int16_t)y == y);
-        int32_t product;
-        asm("smulbb %0, %1, %2 \n"
-            : "=r"(product)
-            : "r"(x), "r"(y)
-            );
-        return product;
-    }
-#else
-    #ifdef SK_DEBUG
-        static inline int32_t SkMulS16(S16CPU x, S16CPU y) {
-            SkASSERT((int16_t)x == x);
-            SkASSERT((int16_t)y == y);
-            return x * y;
-        }
-    #else
-        #define SkMulS16(x, y)  ((x) * (y))
-    #endif
-#endif
-
-/**
  *  Return a*b/((1 << shift) - 1), rounding any fractional bits.
  *  Only valid if a and b are unsigned and <= 32767 and shift is > 0 and <= 8
  */
@@ -192,7 +164,7 @@ static inline unsigned SkMul16ShiftRound(U16CPU a, U16CPU b, int shift) {
     SkASSERT(a <= 32767);
     SkASSERT(b <= 32767);
     SkASSERT(shift > 0 && shift <= 8);
-    unsigned prod = SkMulS16(a, b) + (1 << (shift - 1));
+    unsigned prod = a*b + (1 << (shift - 1));
     return (prod + (prod >> shift)) >> shift;
 }
 
@@ -203,7 +175,7 @@ static inline unsigned SkMul16ShiftRound(U16CPU a, U16CPU b, int shift) {
 static inline U8CPU SkMulDiv255Round(U16CPU a, U16CPU b) {
     SkASSERT(a <= 32767);
     SkASSERT(b <= 32767);
-    unsigned prod = SkMulS16(a, b) + 128;
+    unsigned prod = a*b + 128;
     return (prod + (prod >> 8)) >> 8;
 }
 

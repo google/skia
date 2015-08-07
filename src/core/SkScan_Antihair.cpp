@@ -34,7 +34,7 @@
 static inline int SmallDot6Scale(int value, int dot6) {
     SkASSERT((int16_t)value == value);
     SkASSERT((unsigned)dot6 <= 64);
-    return SkMulS16(value, dot6) >> 6;
+    return (value * dot6) >> 6;
 }
 
 //#define TEST_GAMMA
@@ -155,19 +155,19 @@ class Horish_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
     SkFixed drawCap(int x, SkFixed fy, SkFixed dy, int mod64) override {
         fy += SK_Fixed1/2;
-        
+
         int lower_y = fy >> 16;
         uint8_t  a = (uint8_t)(fy >> 8);
         unsigned a0 = SmallDot6Scale(255 - a, mod64);
         unsigned a1 = SmallDot6Scale(a, mod64);
         this->getBlitter()->blitAntiV2(x, lower_y - 1, a0, a1);
-        
+
         return fy + dy - SK_Fixed1/2;
     }
-    
+
     SkFixed drawLine(int x, int stopx, SkFixed fy, SkFixed dy) override {
         SkASSERT(x < stopx);
-        
+
         fy += SK_Fixed1/2;
         SkBlitter* blitter = this->getBlitter();
         do {
@@ -176,7 +176,7 @@ public:
             blitter->blitAntiV2(x, lower_y - 1, 255 - a, a);
             fy += dy;
         } while (++x < stopx);
-        
+
         return fy - SK_Fixed1/2;
     }
 };
@@ -226,15 +226,15 @@ class Vertish_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
     SkFixed drawCap(int y, SkFixed fx, SkFixed dx, int mod64) override {
         fx += SK_Fixed1/2;
-        
+
         int x = fx >> 16;
         uint8_t a = (uint8_t)(fx >> 8);
         this->getBlitter()->blitAntiH2(x - 1, y,
                                        SmallDot6Scale(255 - a, mod64), SmallDot6Scale(a, mod64));
-        
+
         return fx + dx - SK_Fixed1/2;
     }
-    
+
     SkFixed drawLine(int y, int stopy, SkFixed fx, SkFixed dx) override {
         SkASSERT(y < stopy);
         fx += SK_Fixed1/2;
@@ -244,7 +244,7 @@ public:
             this->getBlitter()->blitAntiH2(x - 1, y, 255 - a, a);
             fx += dx;
         } while (++y < stopy);
-        
+
         return fx - SK_Fixed1/2;
     }
 };
@@ -540,7 +540,7 @@ void SkScan::AntiHairLineRgn(const SkPoint array[], int arrayCount, const SkRegi
         clipBounds.set(clip->getBounds());
         /*  We perform integral clipping later on, but we do a scalar clip first
          to ensure that our coordinates are expressible in fixed/integers.
-         
+
          antialiased hairlines can draw up to 1/2 of a pixel outside of
          their bounds, so we need to outset the clip before calling the
          clipper. To make the numerics safer, we outset by a whole pixel,
