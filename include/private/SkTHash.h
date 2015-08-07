@@ -35,6 +35,9 @@ public:
     // How many entries are in the table?
     int count() const { return fCount; }
 
+    // Approximately how many bytes of memory do we use beyond sizeof(*this)?
+    size_t approxBytesUsed() const { return fCapacity * sizeof(Slot); }
+
     // !!!!!!!!!!!!!!!!!                 CAUTION                   !!!!!!!!!!!!!!!!!
     // set(), find() and foreach() all allow mutable access to table entries.
     // If you change an entry so that it no longer has the same key, all hell
@@ -199,6 +202,9 @@ public:
     // How many key/value pairs are in the table?
     int count() const { return fTable.count(); }
 
+    // Approximately how many bytes of memory do we use beyond sizeof(*this)?
+    size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
+
     // N.B. The pointers returned by set() and find() are valid only until the next call to set().
 
     // Set key to val in the table, replacing any previous value with the same key.
@@ -258,6 +264,9 @@ public:
 
     // How many items are in the set?
     int count() const { return fTable.count(); }
+
+    // Approximately how many bytes of memory do we use beyond sizeof(*this)?
+    size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
 
     // Copy an item into the set.
     void add(const T& item) { fTable.set(item); }

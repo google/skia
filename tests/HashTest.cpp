@@ -23,6 +23,8 @@ DEF_TEST(HashMap, r) {
     map.set(3, 4.0);
     REPORTER_ASSERT(r, map.count() == 1);
 
+    REPORTER_ASSERT(r, map.approxBytesUsed() > 0);
+
     double* found = map.find(3);
     REPORTER_ASSERT(r, found);
     REPORTER_ASSERT(r, *found == 4.0);
