@@ -19,6 +19,9 @@
 #include "../../GrPendingFragmentStage.h"
 #include "../../GrPipeline.h"
 
+// Enough precision to represent 1 / 2048 accurately in printf
+#define GR_SIGNIFICANT_POW2_DECIMAL_DIG 11
+
 /*
  * This is the base class for a series of interfaces.  This base class *MUST* remain abstract with
  * NO data members because it is used in multiple interface inheritance.

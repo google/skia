@@ -31,15 +31,15 @@ public:
         // compute numbers to be hardcoded to convert texture coordinates from int to float
         SkASSERT(cte.numTextures() == 1);
         GrTexture* atlas = cte.textureAccess(0).getTexture();
-        SkASSERT(atlas);
+        SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
         SkScalar recipWidth = 1.0f / atlas->width();
         SkScalar recipHeight = 1.0f / atlas->height();
 
         GrGLVertToFrag v(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &v);
         vsBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", v.vsOut(),
-                               SK_FLT_DECIMAL_DIG, recipWidth,
-                               SK_FLT_DECIMAL_DIG, recipHeight,
+                               GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,
+                               GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipHeight,
                                cte.inTextureCoords()->fName);
 
         // Setup pass through color
