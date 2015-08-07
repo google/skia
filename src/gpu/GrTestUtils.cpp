@@ -248,6 +248,9 @@ GrStrokeInfo TestStrokeInfo(SkRandom* random) {
     dashInfo.fIntervals = intervals.get();
     SkScalar sum = 0;
     for (int i = 0; i < dashInfo.fCount; i++) {
+    #if defined(SK_BUILD_FOR_IOS)
+        SkDebugf("&dashInfo.fIntervals[%d] = %p\n", i, &dashInfo.fIntervals[i]);
+    #endif
         dashInfo.fIntervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
                                                          SkDoubleToScalar(10.0));
         sum += dashInfo.fIntervals[i];
