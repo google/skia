@@ -23,12 +23,18 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
     // Experimentally we have found that most batching occurs within the first 10 comparisons.
     static const int kMaxLookback = 10;
     int i = 0;
+    GrRenderTarget* rt = state->getPipeline()->getRenderTarget();
     if (!this->cmdBuffer()->empty()) {
         GrTargetCommands::CmdBuffer::ReverseIter reverseIter(*this->cmdBuffer());
 
         do {
             if (Cmd::kDrawBatch_CmdType == reverseIter->type()) {
                 DrawBatch* previous = static_cast<DrawBatch*>(reverseIter.get());
+
+                // We can't batch across render target changes
+                if (previous->fState->getPipeline()->getRenderTarget() != rt) {
+                    break;
+                }
 
                 if (previous->fState->getPipeline()->isEqual(*state->getPipeline()) &&
                     previous->fBatch->combineIfPossible(batch)) {
@@ -40,6 +46,11 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
                 }
             } else if (Cmd::kClear_CmdType == reverseIter->type()) {
                 Clear* previous = static_cast<Clear*>(reverseIter.get());
+
+                // We can't batch across render target changes
+                if (previous->renderTarget() != rt) {
+                    break;
+                }
 
                 // We set the color to illegal if we are doing a discard.
                 // If we can ignore the rect, then we do a full clear
