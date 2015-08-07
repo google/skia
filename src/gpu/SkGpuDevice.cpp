@@ -1665,59 +1665,38 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void append_quad_indices(uint16_t indices[], int quadIndex) {
-    int i = quadIndex * 4;
-    indices[0] = i + 0; indices[1] = i + 1; indices[2] = i + 2;
-    indices[3] = i + 2; indices[4] = i + 3; indices[5] = i + 0;
-}
-
-void SkGpuDevice::drawAtlas(const SkDraw& d, const SkImage* atlas, const SkRSXform xform[],
+void SkGpuDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRSXform xform[],
                             const SkRect texRect[], const SkColor colors[], int count,
                             SkXfermode::Mode mode, const SkPaint& paint) {
     if (paint.isAntiAlias()) {
-        this->INHERITED::drawAtlas(d, atlas, xform, texRect, colors, count, mode, paint);
+        this->INHERITED::drawAtlas(draw, atlas, xform, texRect, colors, count, mode, paint);
         return;
     }
 
+    CHECK_SHOULD_DRAW(draw);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawText", fContext);
+    
     SkPaint p(paint);
     p.setShader(atlas->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode))->unref();
 
-    const int vertCount = count * 4;
-    const int indexCount = count * 6;
-    SkAutoTMalloc<SkPoint> vertStorage(vertCount * 2);
-    SkPoint* verts = vertStorage.get();
-    SkPoint* texs = verts + vertCount;
-    SkAutoTMalloc<uint16_t> indexStorage(indexCount);
-    uint16_t* indices = indexStorage.get();
-    SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
-
-    for (int i = 0; i < count; ++i) {
-        xform[i].toQuad(texRect[i].width(), texRect[i].height(), verts);
-        texRect[i].toQuad(texs);
-        append_quad_indices(indices, i);
-        verts += 4;
-        texs += 4;
-        indices += 6;
+    GrPaint grPaint;
+    if (!SkPaint2GrPaint(this->context(), fRenderTarget, p, *draw.fMatrix, !colors, &grPaint)) {
+        return;
     }
-
-    SkAutoTMalloc<SkColor> colorStorage;
-    SkColor* vertCols = NULL;
+    
+    SkDEBUGCODE(this->validate();)
+    
+#if 0
     if (colors) {
-        colorStorage.reset(vertCount);
-        vertCols = colorStorage.get();
-
-        for (int i = 0; i < count; ++i) {
-             vertCols[0] = vertCols[1] = vertCols[2] = vertCols[3] = colors[i];
-             vertCols += 4;
+        if (SkXfermode::kModulate_Mode != mode) {
+            SkDebugf("Unsupported vertex-color/texture xfer mode.\n");
+            return;
         }
     }
-
-    verts = vertStorage.get();
-    texs = verts + vertCount;
-    vertCols = colorStorage.get();
-    indices = indexStorage.get();
-    this->drawVertices(d, SkCanvas::kTriangles_VertexMode, vertCount, verts, texs, vertCols, xfer,
-                       indices, indexCount, p);
+#endif
+    
+    fDrawContext->drawAtlas(fRenderTarget, fClip, grPaint, *draw.fMatrix,
+                            count, xform, texRect, colors);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -10,6 +10,7 @@
 #include "GrAtlasTextContext.h"
 #include "GrBatch.h"
 #include "GrBatchTest.h"
+#include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawContext.h"
 #include "GrOvalRenderer.h"
@@ -18,6 +19,9 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStrokeRectBatch.h"
 #include "GrStencilAndCoverTextContext.h"
+
+#include "SkGr.h"
+#include "SkRSXform.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fContext)
 #define RETURN_IF_ABANDONED        if (!fDrawTarget) { return; }
@@ -685,6 +689,246 @@ void GrDrawContext::drawVertices(GrRenderTarget* rt,
                                                           indexCount, colors, texCoords,
                                                           bounds));
 
+    fDrawTarget->drawBatch(pipelineBuilder, batch);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class DrawAtlasBatch : public GrBatch {
+public:
+    struct Geometry {
+        GrColor fColor;
+        SkTDArray<SkPoint> fPositions;
+        SkTDArray<GrColor> fColors;
+        SkTDArray<SkPoint> fLocalCoords;
+    };
+    
+    static GrBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
+                           const SkPoint* positions, int vertexCount,
+                           const GrColor* colors, const SkPoint* localCoords,
+                           const SkRect& bounds) {
+        return SkNEW_ARGS(DrawAtlasBatch, (geometry, viewMatrix, positions,
+                                           vertexCount, colors, localCoords, bounds));
+    }
+    
+    const char* name() const override { return "DrawAtlasBatch"; }
+    
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+        // When this is called on a batch, there is only one geometry bundle
+        if (this->hasColors()) {
+            out->setUnknownFourComponents();
+        } else {
+            out->setKnownFourComponents(fGeoData[0].fColor);
+        }
+    }
+    
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        out->setKnownSingleComponent(0xff);
+    }
+    
+    void initBatchTracker(const GrPipelineInfo& init) override {
+        // Handle any color overrides
+        if (!init.readsColor()) {
+            fGeoData[0].fColor = GrColor_ILLEGAL;
+        }
+        init.getOverrideColorIfSet(&fGeoData[0].fColor);
+        
+        // setup batch properties
+        fColorIgnored = !init.readsColor();
+        fColor = fGeoData[0].fColor;
+        SkASSERT(init.readsLocalCoords());
+        fCoverageIgnored = !init.readsCoverage();
+    }
+    
+    void generateGeometry(GrBatchTarget* batchTarget) override {
+        int colorOffset = -1, texOffset = -1;
+        // Setup geometry processor
+        SkAutoTUnref<const GrGeometryProcessor> gp(
+                                set_vertex_attributes(true, this->hasColors(), &colorOffset,
+                                                      &texOffset, this->color(), this->viewMatrix(),
+                                                      this->coverageIgnored()));
+        
+        batchTarget->initDraw(gp, this->pipeline());
+        
+        int instanceCount = fGeoData.count();
+        size_t vertexStride = gp->getVertexStride();
+        SkASSERT(vertexStride == sizeof(SkPoint) + sizeof(SkPoint)
+                 + (this->hasColors() ? sizeof(GrColor) : 0));
+        
+        QuadHelper helper;
+        int numQuads = this->vertexCount()/4;
+        void* verts = helper.init(batchTarget, vertexStride, numQuads);
+        if (!verts) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+        
+        int vertexOffset = 0;
+        for (int i = 0; i < instanceCount; i++) {
+            const Geometry& args = fGeoData[i];
+            
+            for (int j = 0; j < args.fPositions.count(); ++j) {
+                *((SkPoint*)verts) = args.fPositions[j];
+                if (this->hasColors()) {
+                    *(GrColor*)((intptr_t)verts + colorOffset) = args.fColors[j];
+                }
+                *(SkPoint*)((intptr_t)verts + texOffset) = args.fLocalCoords[j];
+                verts = (void*)((intptr_t)verts + vertexStride);
+                vertexOffset++;
+            }
+        }
+        helper.issueDraw(batchTarget);
+    }
+    
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+    
+private:
+    DrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix,
+                   const SkPoint* positions, int vertexCount,
+                   const GrColor* colors, const SkPoint* localCoords, const SkRect& bounds) {
+        this->initClassID<DrawVerticesBatch>();
+        SkASSERT(positions);
+        SkASSERT(localCoords);
+        
+        fViewMatrix = viewMatrix;
+        Geometry& installedGeo = fGeoData.push_back(geometry);
+        
+        installedGeo.fPositions.append(vertexCount, positions);
+        
+        if (colors) {
+            installedGeo.fColors.append(vertexCount, colors);
+            fHasColors = true;
+        } else {
+            fHasColors = false;
+        }
+        
+        installedGeo.fLocalCoords.append(vertexCount, localCoords);
+        fVertexCount = vertexCount;
+        
+        this->setBounds(bounds);
+    }
+    
+    GrColor color() const { return fColor; }
+    bool colorIgnored() const { return fColorIgnored; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    bool hasColors() const { return fHasColors; }
+    int vertexCount() const { return fVertexCount; }
+    bool coverageIgnored() const { return fCoverageIgnored; }
+    
+    bool onCombineIfPossible(GrBatch* t) override {
+        if (!this->pipeline()->isEqual(*t->pipeline())) {
+            return false;
+        }
+        
+        DrawAtlasBatch* that = t->cast<DrawAtlasBatch>();
+        
+        // We currently use a uniform viewmatrix for this batch
+        if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+            return false;
+        }
+        
+        if (this->hasColors() != that->hasColors()) {
+            return false;
+        }
+        
+        if (!this->hasColors() && this->color() != that->color()) {
+            return false;
+        }
+        
+        if (this->color() != that->color()) {
+            fColor = GrColor_ILLEGAL;
+        }
+        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
+        fVertexCount += that->vertexCount();
+        
+        this->joinBounds(that->bounds());
+        return true;
+    }
+    
+    SkSTArray<1, Geometry, true> fGeoData;
+    
+    SkMatrix fViewMatrix;
+    GrColor  fColor;
+    int      fVertexCount;
+    bool     fColorIgnored;
+    bool     fCoverageIgnored;
+    bool     fHasColors;
+};
+
+void GrDrawContext::drawAtlas(GrRenderTarget* rt,
+                              const GrClip& clip,
+                              const GrPaint& paint,
+                              const SkMatrix& viewMatrix,
+                              int spriteCount,
+                              const SkRSXform xform[],
+                              const SkRect texRect[],
+                              const SkColor colors[]) {
+    RETURN_IF_ABANDONED
+    AutoCheckFlush acf(fContext);
+    if (!this->prepareToDraw(rt)) {
+        return;
+    }
+    
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    
+    // now build the renderable geometry
+    const int vertCount = spriteCount * 4;
+    SkAutoTMalloc<SkPoint> vertStorage(vertCount * 2);
+    SkPoint* verts = vertStorage.get();
+    SkPoint* texs = verts + vertCount;
+    
+    for (int i = 0; i < spriteCount; ++i) {
+        xform[i].toQuad(texRect[i].width(), texRect[i].height(), verts);
+        texRect[i].toQuad(texs);
+        verts += 4;
+        texs += 4;
+    }
+    
+    // TODO clients should give us bounds
+    SkRect bounds;
+    if (!bounds.setBoundsCheck(vertStorage.get(), vertCount)) {
+        SkDebugf("drawAtlas call empty bounds\n");
+        return;
+    }
+    
+    viewMatrix.mapRect(&bounds);
+    
+    // If we don't have AA then we outset for a half pixel in each direction to account for
+    // snapping
+    if (!paint.isAntiAlias()) {
+        bounds.outset(0.5f, 0.5f);
+    }
+    
+    SkAutoTMalloc<GrColor> colorStorage;
+    GrColor* vertCols = NULL;
+    if (colors) {
+        colorStorage.reset(vertCount);
+        vertCols = colorStorage.get();
+        
+        int paintAlpha = GrColorUnpackA(paint.getColor());
+
+        // need to convert byte order and from non-PM to PM
+        for (int i = 0; i < spriteCount; ++i) {
+            SkColor color = colors[i];
+            if (paintAlpha != 255) {
+                color = SkColorSetA(color, SkMulDiv255Round(SkColorGetA(color), paintAlpha));
+            }
+            GrColor grColor = SkColor2GrColor(color);
+            
+            vertCols[0] = vertCols[1] = vertCols[2] = vertCols[3] = grColor;
+            vertCols += 4;
+        }
+    }
+    
+    verts = vertStorage.get();
+    texs = verts + vertCount;
+    vertCols = colorStorage.get();
+    
+    DrawAtlasBatch::Geometry geometry;
+    geometry.fColor = paint.getColor();
+    SkAutoTUnref<GrBatch> batch(DrawAtlasBatch::Create(geometry, viewMatrix, verts, vertCount,
+                                                       vertCols, texs, bounds));
+    
     fDrawTarget->drawBatch(pipelineBuilder, batch);
 }
 

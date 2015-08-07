@@ -33,6 +33,7 @@ class SkPath;
 struct SkPoint;
 struct SkRect;
 class SkRRect;
+struct SkRSXform;
 class SkTextBlob;
 
 /*
@@ -221,6 +222,26 @@ public:
                       const uint16_t indices[],
                       int indexCount);
 
+    /**
+     * Draws textured sprites from an atlas with a paint.
+     *
+     * @param   paint           describes how to color pixels.
+     * @param   viewMatrix      transformation matrix
+     * @param   spriteCount     number of sprites.
+     * @param   xform           array of compressed transformation data, required.
+     * @param   texRect         array of texture rectangles used to access the paint.
+     * @param   colors          optional array of per-sprite colors, supercedes
+     *                          the paint's color field.
+     */
+    void drawAtlas(GrRenderTarget*,
+                   const GrClip&,
+                   const GrPaint& paint,
+                   const SkMatrix& viewMatrix,
+                   int spriteCount,
+                   const SkRSXform xform[],
+                   const SkRect texRect[],
+                   const SkColor colors[]);
+    
     /**
      * Draws an oval.
      *
