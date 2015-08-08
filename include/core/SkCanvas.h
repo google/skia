@@ -37,9 +37,6 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
-//#define SK_SUPPORT_LEGACY_SIMPLE_DRAWIMAGERECT
-//#define SK_SUPPORT_LEGACY_SRCPTR_DRAWIMAGERECT
-
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -829,21 +826,8 @@ public:
     void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
                        const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
     // variant that assumes src == image-bounds
-#ifdef SK_SUPPORT_LEGACY_SIMPLE_DRAWIMAGERECT
-    void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint = NULL);
-#else
     void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
                        SrcRectConstraint = kStrict_SrcRectConstraint);
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_SRCPTR_DRAWIMAGERECT
-    void drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                       const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
-
-    void drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst) {
-        this->drawImageRect(image, src, dst, NULL, kStrict_SrcRectConstraint);
-    }
-#endif
 
     /**
      *  Draw the image stretched differentially to fit into dst.
@@ -897,17 +881,8 @@ public:
     // variant where src is SkIRect
     void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
                         const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
-#ifdef SK_SUPPORT_LEGACY_SIMPLE_DRAWIMAGERECT
-    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint = NULL);
-#else
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
                        SrcRectConstraint = kStrict_SrcRectConstraint);
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_SRCPTR_DRAWIMAGERECT
-    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                        const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
-#endif
 
     /**
      *  Draw the bitmap stretched differentially to fit into dst.

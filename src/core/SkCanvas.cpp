@@ -1846,23 +1846,6 @@ void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkP
     this->onDrawImage(image, x, y, paint);
 }
 
-#ifdef SK_SUPPORT_LEGACY_SRCPTR_DRAWIMAGERECT
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                             const SkPaint* paint, SrcRectConstraint constraint) {
-    if (dst.isEmpty()) {
-        return;
-    }
-    this->onDrawImageRect(image, src, dst, paint, constraint);
-}
-void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                              const SkPaint* paint, SrcRectConstraint constraint) {
-    if (bitmap.drawsNothing() || dst.isEmpty()) {
-        return;
-    }
-    this->onDrawBitmapRect(bitmap, src, dst, paint, constraint);
-}
-#endif
-
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
     if (dst.isEmpty() || src.isEmpty()) {
@@ -1876,17 +1859,11 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const Sk
     this->drawImageRect(image, SkRect::Make(isrc), dst, paint, constraint);
 }
 
-#ifdef SK_SUPPORT_LEGACY_SIMPLE_DRAWIMAGERECT
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint) {
-    this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint);
-}
-#else
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
                              SrcRectConstraint constraint) {
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
                         constraint);
 }
-#endif
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
@@ -1919,17 +1896,11 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const
     this->drawBitmapRect(bitmap, SkRect::Make(isrc), dst, paint, constraint);
 }
 
-#ifdef SK_SUPPORT_LEGACY_SIMPLE_DRAWIMAGERECT
-void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint) {
-    this->drawBitmapRect(bitmap, SkRect::MakeIWH(bitmap.width(), bitmap.height()), dst, paint);
-}
-#else
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
                               SrcRectConstraint constraint) {
     this->drawBitmapRect(bitmap, SkRect::MakeIWH(bitmap.width(), bitmap.height()), dst, paint,
                          constraint);
 }
-#endif
 
 void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                               const SkPaint* paint) {
