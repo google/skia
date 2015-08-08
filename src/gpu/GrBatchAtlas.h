@@ -24,7 +24,7 @@ public:
     typedef uint64_t BatchToken;
     // An AtlasID is an opaque handle which callers can use to determine if the atlas contains
     // a specific piece of data
-    typedef uint32_t AtlasID;
+    typedef uint64_t AtlasID;
     static const uint32_t kInvalidAtlasID = 0;
     static const uint64_t kInvalidAtlasGeneration = 0;
 
@@ -67,6 +67,11 @@ public:
     class BulkUseTokenUpdater {
     public:
         BulkUseTokenUpdater() : fPlotAlreadyUpdated(0) {}
+        BulkUseTokenUpdater(const BulkUseTokenUpdater& that)
+        : fPlotsToUpdate(that.fPlotsToUpdate)
+        , fPlotAlreadyUpdated(that.fPlotAlreadyUpdated) {
+        }
+
         void add(AtlasID id) {
             int index = GrBatchAtlas::GetIndexFromID(id);
             if (!this->find(index)) {
@@ -107,12 +112,13 @@ public:
     }
 
 private:
-    static int GetIndexFromID(AtlasID id) {
+    static uint32_t GetIndexFromID(AtlasID id) {
         return id & 0xffff;
     }
 
-    static int GetGenerationFromID(AtlasID id) {
-        return (id >> 16) & 0xffff;
+    // top 48 bits are reserved for the generation ID
+    static uint64_t GetGenerationFromID(AtlasID id) {
+        return (id >> 16) & 0xffffffffffff;
     }
 
     inline void updatePlot(GrBatchTarget*, AtlasID*, BatchPlot*);
@@ -122,10 +128,10 @@ private:
     inline void processEviction(AtlasID);
 
     GrTexture* fTexture;
-    int fNumPlotsX;
-    int fNumPlotsY;
-    int fPlotWidth;
-    int fPlotHeight;
+    uint32_t fNumPlotsX;
+    uint32_t fNumPlotsY;
+    uint32_t fPlotWidth;
+    uint32_t fPlotHeight;
     size_t fBPP;
     uint64_t fAtlasGeneration;
 
