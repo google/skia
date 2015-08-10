@@ -15,7 +15,9 @@ static bool intersect(const Left& a, const Right& b) {
            a.fTop < b.fBottom && b.fTop < a.fBottom;
 }
 
-GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, GrBatch* batch) {
+GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(const State* state,
+                                                                const GrPipelineOptimizations& opts,
+                                                                GrBatch* batch) {
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw
     // 2) intersect with something
@@ -23,7 +25,7 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
     // Experimentally we have found that most batching occurs within the first 10 comparisons.
     static const int kMaxLookback = 10;
     int i = 0;
-    batch->setPipeline(state->getPipeline());
+    batch->setPipeline(state->getPipeline(), opts);
     GrRenderTarget* rt = state->getPipeline()->getRenderTarget();
 
     GrBATCH_INFO("Re-Recording (%s, B%u)\n"
@@ -33,17 +35,17 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(State* state, Gr
                  batch->uniqueID(), rt,
                  batch->bounds().fLeft, batch->bounds().fRight,
                  batch->bounds().fTop, batch->bounds().fBottom);
-#if GR_BATCH_SPEW
-    SkDebugf("\tColorStages:\n");
-    for (int i = 0; i < state->getPipeline()->numColorFragmentStages(); i++) {
-        SkDebugf("\t\t%s\n", state->getPipeline()->getColorStage(i).processor()->name());
+    if (GR_BATCH_SPEW) {
+        SkDebugf("\tColorStages:\n");
+        for (int i = 0; i < state->getPipeline()->numColorFragmentStages(); i++) {
+            SkDebugf("\t\t%s\n", state->getPipeline()->getColorStage(i).processor()->name());
+        }
+        SkDebugf("\tCoverageStages:\n");
+        for (int i = 0; i < state->getPipeline()->numCoverageFragmentStages(); i++) {
+            SkDebugf("\t\t%s\n", state->getPipeline()->getCoverageStage(i).processor()->name());
+        }
+        SkDebugf("\tXP: %s\n", state->getPipeline()->getXferProcessor()->name());
     }
-    SkDebugf("\tCoverageStages:\n");
-    for (int i = 0; i < state->getPipeline()->numCoverageFragmentStages(); i++) {
-        SkDebugf("\t\t%s\n", state->getPipeline()->getCoverageStage(i).processor()->name());
-    }
-    SkDebugf("\tXP: %s\n", state->getPipeline()->getXferProcessor()->name());
-#endif
     GrBATCH_INFO("\tOutcome:\n");
     if (!this->cmdBuffer()->empty()) {
         GrTargetCommands::CmdBuffer::ReverseIter reverseIter(*this->cmdBuffer());

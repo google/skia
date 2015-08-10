@@ -28,7 +28,7 @@ public:
                                         bool insideClip,
                                         GrRenderTarget* renderTarget);
     virtual Cmd* recordDiscard(GrRenderTarget*);
-    virtual Cmd* recordDrawBatch(State*, GrBatch*) = 0;
+    virtual Cmd* recordDrawBatch(const State*, const GrPipelineOptimizations&, GrBatch*) = 0;
     virtual Cmd* recordStencilPath(const GrPipelineBuilder&,
                                    const GrPathProcessor*,
                                    const GrPath*,

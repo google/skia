@@ -60,12 +60,6 @@ public:
     virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
     virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
 
-    /*
-     * initBatchTracker is a hook for the some additional overrides / optimization possibilities
-     * from the GrXferProcessor.
-     */
-    virtual void initBatchTracker(const GrPipelineOptimizations&) = 0;
-
     bool combineIfPossible(GrBatch* that) {
         if (this->classID() != that->classID()) {
             return false;
@@ -108,7 +102,11 @@ public:
     SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
     const GrPipeline* pipeline() const { return fPipeline; }
-    void setPipeline(const GrPipeline* pipeline) { fPipeline.reset(SkRef(pipeline)); }
+
+    void setPipeline(const GrPipeline* pipeline, const GrPipelineOptimizations& optimizations) {
+        fPipeline.reset(SkRef(pipeline));
+        this->initBatchTracker(optimizations);
+    }
 
 #if GR_BATCH_SPEW
     uint32_t uniqueID() const { return fUniqueID; }
@@ -170,6 +168,13 @@ protected:
     SkRect fBounds;
 
 private:
+    /*
+     * initBatchTracker is a hook for the some additional overrides / optimization possibilities
+     * from the GrXferProcessor.
+     */
+    virtual void initBatchTracker(const GrPipelineOptimizations&) = 0;
+
+
     static uint32_t GenID(int32_t* idCounter) {
         // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
         // atomic inc returns the old value not the incremented value. So we add

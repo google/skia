@@ -34,7 +34,7 @@ void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch,
         return;
     }
 
-    GrTargetCommands::Cmd* cmd = fCommands->recordDrawBatch(state, batch);
+    GrTargetCommands::Cmd* cmd = fCommands->recordDrawBatch(state, opts, batch);
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
@@ -189,8 +189,6 @@ GrBufferedDrawTarget::setupPipelineAndShouldDraw(GrBatch* batch,
         this->unallocState(state);
         return NULL;
     }
-
-    batch->initBatchTracker(*opts);
 
     if (fPrevState && !fPrevState->fPrimitiveProcessor.get() &&
         fPrevState->getPipeline()->isEqual(*state->getPipeline())) {

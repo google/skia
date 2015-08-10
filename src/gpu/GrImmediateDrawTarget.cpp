@@ -37,8 +37,6 @@ void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch,
         return;
     }
 
-    batch->initBatchTracker(opts);
-
     fBatchTarget.resetNumberOfDraws();
 
     batch->generateGeometry(&fBatchTarget);

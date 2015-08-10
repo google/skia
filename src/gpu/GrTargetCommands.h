@@ -241,7 +241,7 @@ private:
     };
 
     struct DrawBatch : public Cmd {
-        DrawBatch(State* state, GrBatch* batch, GrBatchTarget* batchTarget)
+        DrawBatch(const State* state, GrBatch* batch, GrBatchTarget* batchTarget)
             : Cmd(kDrawBatch_CmdType)
             , fState(SkRef(state))
             , fBatch(SkRef(batch))
@@ -251,8 +251,8 @@ private:
 
         void execute(GrGpu*) override;
 
-        SkAutoTUnref<State>    fState;
-        SkAutoTUnref<GrBatch>  fBatch;
+        SkAutoTUnref<const State>   fState;
+        SkAutoTUnref<GrBatch>       fBatch;
 
     private:
         GrBatchTarget*         fBatchTarget;

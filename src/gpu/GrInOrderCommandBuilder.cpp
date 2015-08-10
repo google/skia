@@ -25,9 +25,11 @@ static bool path_fill_type_is_winding(const GrStencilSettings& pathStencilSettin
     return isWinding;
 }
 
-GrTargetCommands::Cmd* GrInOrderCommandBuilder::recordDrawBatch(State* state, GrBatch* batch) {
+GrTargetCommands::Cmd* GrInOrderCommandBuilder::recordDrawBatch(const State* state,
+                                                                const GrPipelineOptimizations& opts,
+                                                                GrBatch* batch) {
     // Check if there is a Batch Draw we can batch with
-    batch->setPipeline(state->getPipeline());
+    batch->setPipeline(state->getPipeline(), opts);
     GrBATCH_INFO("In-Recording (%s, %u)\n", batch->name(), batch->uniqueID());
     if (!this->cmdBuffer()->empty() &&
         Cmd::kDrawBatch_CmdType == this->cmdBuffer()->back().type()) {
