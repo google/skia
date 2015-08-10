@@ -39,7 +39,7 @@
         'android_variant%': "mips64",
       }],
       [ 'android_buildtype == "Release"', {
-        'android_apk_suffix': "release-unsigned.apk",
+        'android_apk_suffix': "release.apk",
       }, {
         'android_apk_suffix': "debug.apk",
       }],

@@ -10,6 +10,7 @@ android {
         targetSdkVersion 19
         versionCode 1
         versionName "1.0"
+        signingConfig signingConfigs.debug
     }
 
     sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call

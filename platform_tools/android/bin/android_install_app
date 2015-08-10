@@ -56,7 +56,7 @@ fi
 
 if [[ "$BUILDTYPE" == "Release" ]];
 then
-    apk_suffix="release-unsigned.apk"
+    apk_suffix="release.apk"
 else
     apk_suffix="debug.apk"
 fi
