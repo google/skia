@@ -21,6 +21,7 @@ BATCH_TEST_EXTERN(DefaultPathBatch);
 BATCH_TEST_EXTERN(CircleBatch);
 BATCH_TEST_EXTERN(DIEllipseBatch);
 BATCH_TEST_EXTERN(EllipseBatch);
+BATCH_TEST_EXTERN(GrDrawAtlasBatch);
 BATCH_TEST_EXTERN(GrStrokeRectBatch);
 BATCH_TEST_EXTERN(RRectBatch);
 BATCH_TEST_EXTERN(TesselatingPathBatch);
@@ -38,6 +39,7 @@ static BatchTestFunc gTestBatches[] = {
     BATCH_TEST_ENTRY(CircleBatch),
     BATCH_TEST_ENTRY(DIEllipseBatch),
     BATCH_TEST_ENTRY(EllipseBatch),
+    BATCH_TEST_ENTRY(GrDrawAtlasBatch),
     BATCH_TEST_ENTRY(GrStrokeRectBatch),
     BATCH_TEST_ENTRY(RRectBatch),
     BATCH_TEST_ENTRY(TesselatingPathBatch),
