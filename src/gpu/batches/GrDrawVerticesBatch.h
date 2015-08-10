@@ -15,7 +15,6 @@
 #include "SkRect.h"
 #include "SkTDArray.h"
 
-class GrBatch;
 class GrBatchTarget;
 struct GrInitInvariantOutput;
 

@@ -221,6 +221,10 @@
       '<(skia_src_path)/gpu/GrXferProcessor.cpp',
       
       # Batches
+      '<(skia_src_path)/gpu/batches/GrAAFillRectBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrAAFillRectBatch.h',
+      '<(skia_src_path)/gpu/batches/GrAAStrokeRectBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrAAStrokeRectBatch.h',
       '<(skia_src_path)/gpu/batches/GrBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawAtlasBatch.cpp',
