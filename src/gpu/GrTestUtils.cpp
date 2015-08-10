@@ -244,19 +244,16 @@ GrStrokeInfo TestStrokeInfo(SkRandom* random) {
     randomize_stroke_rec(&strokeInfo, random);
     SkPathEffect::DashInfo dashInfo;
     dashInfo.fCount = random->nextRangeU(1, 50) * 2;
-    SkAutoTMalloc<SkScalar> intervals(dashInfo.fCount);
-    dashInfo.fIntervals = intervals.get();
+    dashInfo.fIntervals = SkNEW_ARRAY(SkScalar, dashInfo.fCount);
     SkScalar sum = 0;
     for (int i = 0; i < dashInfo.fCount; i++) {
-    #if defined(SK_BUILD_FOR_IOS)
-        SkDebugf("&dashInfo.fIntervals[%d] = %p\n", i, &dashInfo.fIntervals[i]);
-    #endif
         dashInfo.fIntervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
                                                          SkDoubleToScalar(10.0));
         sum += dashInfo.fIntervals[i];
     }
     dashInfo.fPhase = random->nextRangeScalar(0, sum);
     strokeInfo.setDashInfo(dashInfo);
+    SkDELETE(dashInfo.fIntervals);
     return strokeInfo;
 }
 
