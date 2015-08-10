@@ -201,12 +201,16 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     if (objNumMap.addObject(docCatalog.get())) {
         docCatalog->addResources(&objNumMap, substitutes);
     }
-    size_t baseOffset = SkToOffT(stream->bytesWritten());
+    size_t baseOffset = stream->bytesWritten();
     emit_pdf_header(stream);
     SkTDArray<int32_t> offsets;
     for (int i = 0; i < objNumMap.objects().count(); ++i) {
         SkPDFObject* object = objNumMap.objects()[i];
-        offsets.push(SkToS32(stream->bytesWritten() - baseOffset));
+        size_t offset = stream->bytesWritten();
+        // This assert checks that size(pdf_header) > 0 and that
+        // the output stream correctly reports bytesWritten().
+        SkASSERT(offset > baseOffset);
+        offsets.push(SkToS32(offset - baseOffset));
         SkASSERT(object == substitutes.getSubstitute(object));
         SkASSERT(objNumMap.getObjectNumber(object) == i + 1);
         stream->writeDecAsText(i + 1);
