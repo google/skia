@@ -382,16 +382,7 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
     SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
              SkTextBlob::kHorizontal_Positioning == run.positioning());
 
-    SkPaint paint;
-    run.font().applyToPaint(&paint);
-    const SkRect fontBounds = paint.getFontBounds();
-    if (fontBounds.isEmpty()) {
-        // Empty font bounds are likely a font bug.  TightBounds has a better chance of
-        // producing useful results in this case.
-        return TightRunBounds(run);
-    }
-
-    // Compute the glyph position bbox.
+    // First, compute the glyph position bbox.
     SkRect bounds;
     switch (run.positioning()) {
     case SkTextBlob::kHorizontal_Positioning: {
@@ -419,6 +410,9 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
     }
 
     // Expand by typeface glyph bounds.
+    SkPaint paint;
+    run.font().applyToPaint(&paint);
+    const SkRect fontBounds = paint.getFontBounds();
     bounds.fLeft   += fontBounds.left();
     bounds.fTop    += fontBounds.top();
     bounds.fRight  += fontBounds.right();
