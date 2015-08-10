@@ -656,6 +656,19 @@ static bool is_nested_rects(const SkMatrix& viewMatrix,
     return allEq || allGoE1;
 }
 
+void GrDrawContext::drawBatch(GrRenderTarget* rt, const GrClip& clip,
+                              const GrPaint& paint, GrBatch* batch) {
+    RETURN_IF_ABANDONED
+
+    AutoCheckFlush acf(fContext);
+    if (!this->prepareToDraw(rt)) {
+        return;
+    }
+
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    fDrawTarget->drawBatch(pipelineBuilder, batch);
+}
+
 void GrDrawContext::drawPath(GrRenderTarget* rt,
                              const GrClip& clip,
                              const GrPaint& paint,

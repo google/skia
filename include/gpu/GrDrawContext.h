@@ -259,6 +259,14 @@ public:
                   const GrStrokeInfo& strokeInfo);
 
 
+    /**
+     * Draws a batch
+     *
+     * @param paint    describes how to color pixels.
+     * @param batch    the batch to draw
+     */
+    void drawBatch(GrRenderTarget*, const GrClip&, const GrPaint&, GrBatch*);
+
 private:
     friend class GrAtlasTextContext; // for access to drawBatch
     friend class GrContext; // for ctor
