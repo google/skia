@@ -253,7 +253,7 @@ GrStrokeInfo TestStrokeInfo(SkRandom* random) {
     }
     dashInfo.fPhase = random->nextRangeScalar(0, sum);
     strokeInfo.setDashInfo(dashInfo);
-    SkDELETE(dashInfo.fIntervals);
+    SkDELETE_ARRAY(dashInfo.fIntervals);
     return strokeInfo;
 }
 
