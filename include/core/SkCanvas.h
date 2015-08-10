@@ -332,6 +332,9 @@ public:
         @return The value to pass to restoreToCount() to balance this save()
     */
     int saveLayer(const SkRect* bounds, const SkPaint* paint);
+    int saveLayer(const SkRect& bounds, const SkPaint* paint) {
+        return this->saveLayer(&bounds, paint);
+    }
 
     /** DEPRECATED - use saveLayer(const SkRect*, const SkPaint*) instead.
 

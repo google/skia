@@ -134,6 +134,12 @@ public:
         SkDEBUGCODE(this->validate();)
     }
 
+    static SkRRect MakeRect(const SkRect& r) {
+        SkRRect rr;
+        rr.setRect(r);
+        return rr;
+    }
+    
     /**
      * Set this RR to match the supplied oval. All x radii will equal half the
      * width and all y radii will equal half the height.

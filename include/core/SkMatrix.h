@@ -369,6 +369,11 @@ public:
         @return true if the matrix can be represented by the rectangle mapping.
     */
     bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf);
+    static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
+        SkMatrix m;
+        m.setRectToRect(src, dst, stf);
+        return m;
+    }
 
     /** Set the matrix such that the specified src points would map to the
         specified dst points. count must be within [0..4].
