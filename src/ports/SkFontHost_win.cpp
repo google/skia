@@ -1223,11 +1223,6 @@ static void rgb_to_lcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const Sk
     }
 }
 
-static inline unsigned clamp255(unsigned x) {
-    SkASSERT(x <= 256);
-    return x - (x >> 8);
-}
-
 void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
     SkASSERT(fDDC);
 
