@@ -22,7 +22,7 @@
 #include "GrVertexBuffer.h"
 
 #include "batches/GrBatch.h"
-#include "batches/GrRectBatch.h"
+#include "batches/GrRectBatchFactory.h"
 
 #include "SkStrokeRec.h"
 
@@ -294,8 +294,8 @@ void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
                               const SkRect& rect,
                               const SkRect* localRect,
                               const SkMatrix* localMatrix) {
-   SkAutoTUnref<GrBatch> batch(GrRectBatch::Create(color, viewMatrix, rect, localRect,
-                                                   localMatrix));
+   SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::Create(color, viewMatrix, rect, localRect,
+                                                          localMatrix));
    this->drawBatch(pipelineBuilder, batch);
 }
 
