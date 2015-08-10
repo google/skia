@@ -20,7 +20,7 @@
 #include "batches/GrBatch.h"
 #include "batches/GrDrawAtlasBatch.h"
 #include "batches/GrDrawVerticesBatch.h"
-#include "batches/GrStrokeRectBatch.h"
+#include "batches/GrRectBatchFactory.h"
 
 #include "SkGr.h"
 #include "SkRSXform.h"
@@ -329,15 +329,10 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
     }
 
     if (width >= 0) {
-        GrStrokeRectBatch::Geometry geometry;
-        geometry.fViewMatrix = viewMatrix;
-        geometry.fColor = color;
-        geometry.fRect = rect;
-        geometry.fStrokeWidth = width;
-
         // Non-AA hairlines are snapped to pixel centers to make which pixels are hit deterministic
         bool snapToPixelCenters = (0 == width && !rt->isUnifiedMultisampled());
-        SkAutoTUnref<GrBatch> batch(GrStrokeRectBatch::Create(geometry, snapToPixelCenters));
+        SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::CreateStrokeBW(color, viewMatrix, rect,
+                                                                       width, snapToPixelCenters));
 
         // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
         // hairline rects. We jam all the vertices to pixel centers to avoid this, but not when MSAA

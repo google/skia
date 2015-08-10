@@ -294,8 +294,8 @@ void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
                               const SkRect& rect,
                               const SkRect* localRect,
                               const SkMatrix* localMatrix) {
-   SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::Create(color, viewMatrix, rect, localRect,
-                                                          localMatrix));
+   SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect, localRect,
+                                                                localMatrix));
    this->drawBatch(pipelineBuilder, batch);
 }
 

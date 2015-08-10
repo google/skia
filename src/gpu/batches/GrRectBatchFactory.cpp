@@ -8,14 +8,15 @@
 #include "GrRectBatchFactory.h"
 
 #include "GrRectBatch.h"
+#include "GrStrokeRectBatch.h"
 
 namespace GrRectBatchFactory {
 
-GrBatch* Create(GrColor color,
-                const SkMatrix& viewMatrix,
-                const SkRect& rect,
-                const SkRect* localRect,
-                const SkMatrix* localMatrix) {
+GrBatch* CreateFillBW(GrColor color,
+                      const SkMatrix& viewMatrix,
+                      const SkRect& rect,
+                      const SkRect* localRect,
+                      const SkMatrix* localMatrix) {
     GrRectBatch::Geometry geometry;
     geometry.fColor = color;
     geometry.fViewMatrix = viewMatrix;
@@ -36,6 +37,19 @@ GrBatch* Create(GrColor color,
     }
 
     return GrRectBatch::Create(geometry);
+}
+
+GrBatch* CreateStrokeBW(GrColor color,
+                        const SkMatrix& viewMatrix,
+                        const SkRect& rect,
+                        SkScalar strokeWidth,
+                        bool snapToPixelCenters) {
+    GrStrokeRectBatch::Geometry geometry;
+    geometry.fColor = color;
+    geometry.fViewMatrix = viewMatrix;
+    geometry.fRect = rect;
+    geometry.fStrokeWidth = strokeWidth;
+    return GrStrokeRectBatch::Create(geometry, snapToPixelCenters);
 }
 
 };

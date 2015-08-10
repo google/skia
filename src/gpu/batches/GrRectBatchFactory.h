@@ -20,11 +20,17 @@ struct SkRect;
  */
 namespace GrRectBatchFactory {
 
-GrBatch* Create(GrColor color,
-                const SkMatrix& viewMatrix,
-                const SkRect& rect,
-                const SkRect* localRect,
-                const SkMatrix* localMatrix);
+GrBatch* CreateFillBW(GrColor color,
+                      const SkMatrix& viewMatrix,
+                      const SkRect& rect,
+                      const SkRect* localRect,
+                      const SkMatrix* localMatrix);
+
+GrBatch* CreateStrokeBW(GrColor color,
+                        const SkMatrix& viewMatrix,
+                        const SkRect& rect,
+                        SkScalar strokeWidth,
+                        bool snapToPixelCenters);
 
 };
 
