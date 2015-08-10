@@ -8,6 +8,7 @@
 #include "SkOpts.h"
 
 #define SK_OPTS_NS neon
+#include "SkBlitMask_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkFloatingPoint_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
@@ -33,5 +34,7 @@ namespace SkOpts {
 
         texture_compressor    = neon::texture_compressor;
         fill_block_dimensions = neon::fill_block_dimensions;
+
+        blit_mask_d32_a8 = neon::blit_mask_d32_a8;
     }
 }

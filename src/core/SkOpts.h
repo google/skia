@@ -43,6 +43,7 @@ namespace SkOpts {
     extern TextureCompressor (*texture_compressor)(SkColorType, SkTextureCompressor::Format);
     extern bool (*fill_block_dimensions)(SkTextureCompressor::Format, int* x, int* y);
 
+    extern void (*blit_mask_d32_a8)(SkPMColor*, size_t, const SkAlpha*, size_t, SkColor, int, int);
 }
 
 #endif//SkOpts_DEFINED

@@ -8,68 +8,7 @@
 #include "SkBlitMask.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
-
-static void D32_A8_Color(void* SK_RESTRICT dst, size_t dstRB,
-                         const void* SK_RESTRICT maskPtr, size_t maskRB,
-                         SkColor color, int width, int height) {
-    SkPMColor pmc = SkPreMultiplyColor(color);
-    size_t dstOffset = dstRB - (width << 2);
-    size_t maskOffset = maskRB - width;
-    SkPMColor* SK_RESTRICT device = (SkPMColor *)dst;
-    const uint8_t* SK_RESTRICT mask = (const uint8_t*)maskPtr;
-
-    do {
-        int w = width;
-        do {
-            unsigned aa = *mask++;
-            *device = SkBlendARGB32(pmc, *device, aa);
-            device += 1;
-        } while (--w != 0);
-        device = (uint32_t*)((char*)device + dstOffset);
-        mask += maskOffset;
-    } while (--height != 0);
-}
-
-static void D32_A8_Opaque(void* SK_RESTRICT dst, size_t dstRB,
-                          const void* SK_RESTRICT maskPtr, size_t maskRB,
-                          SkColor color, int width, int height) {
-    SkPMColor pmc = SkPreMultiplyColor(color);
-    SkPMColor* SK_RESTRICT device = (SkPMColor*)dst;
-    const uint8_t* SK_RESTRICT mask = (const uint8_t*)maskPtr;
-
-    maskRB -= width;
-    dstRB -= (width << 2);
-    do {
-        int w = width;
-        do {
-            unsigned aa = *mask++;
-            *device = SkAlphaMulQ(pmc, SkAlpha255To256(aa)) + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
-            device += 1;
-        } while (--w != 0);
-        device = (uint32_t*)((char*)device + dstRB);
-        mask += maskRB;
-    } while (--height != 0);
-}
-
-static void D32_A8_Black(void* SK_RESTRICT dst, size_t dstRB,
-                         const void* SK_RESTRICT maskPtr, size_t maskRB,
-                         SkColor, int width, int height) {
-    SkPMColor* SK_RESTRICT device = (SkPMColor*)dst;
-    const uint8_t* SK_RESTRICT mask = (const uint8_t*)maskPtr;
-
-    maskRB -= width;
-    dstRB -= (width << 2);
-    do {
-        int w = width;
-        do {
-            unsigned aa = *mask++;
-            *device = (aa << SK_A32_SHIFT) + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
-            device += 1;
-        } while (--w != 0);
-        device = (uint32_t*)((char*)device + dstRB);
-        mask += maskRB;
-    } while (--height != 0);
-}
+#include "SkOpts.h"
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::BlitLCD16RowFactory(bool isOpaque) {
     BlitLCD16RowProc proc = PlatformBlitRowProcs16(isOpaque);
@@ -112,51 +51,25 @@ static void D32_LCD16_Proc(void* SK_RESTRICT dst, size_t dstRB,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBlitMask::ColorProc D32_A8_Factory(SkColor color) {
-    if (SK_ColorBLACK == color) {
-        return D32_A8_Black;
-    } else if (0xFF == SkColorGetA(color)) {
-        return D32_A8_Opaque;
-    } else {
-        return D32_A8_Color;
-    }
-}
-
-SkBlitMask::ColorProc SkBlitMask::ColorFactory(SkColorType ct,
-                                               SkMask::Format format,
-                                               SkColor color) {
-    ColorProc proc = PlatformColorProcs(ct, format, color);
-    if (proc) {
-        return proc;
-    }
-
-    switch (ct) {
-        case kN32_SkColorType:
-            switch (format) {
-                case SkMask::kA8_Format:
-                    return D32_A8_Factory(color);
-                case SkMask::kLCD16_Format:
-                    return D32_LCD16_Proc;
-                default:
-                    break;
-            }
-            break;
-        default:
-            break;
-    }
-    return NULL;
-}
-
 bool SkBlitMask::BlitColor(const SkPixmap& device, const SkMask& mask,
                            const SkIRect& clip, SkColor color) {
-    ColorProc proc = ColorFactory(device.colorType(), mask.fFormat, color);
-    if (proc) {
-        int x = clip.fLeft;
-        int y = clip.fTop;
-        proc(device.writable_addr32(x, y), device.rowBytes(), mask.getAddr(x, y),
-             mask.fRowBytes, color, clip.width(), clip.height());
+    int x = clip.fLeft, y = clip.fTop;
+
+    if (device.colorType() == kN32_SkColorType && mask.fFormat == SkMask::kA8_Format) {
+        SkOpts::blit_mask_d32_a8(device.writable_addr32(x,y), device.rowBytes(),
+                                 (const SkAlpha*)mask.getAddr(x,y), mask.fRowBytes,
+                                 color, clip.width(), clip.height());
         return true;
     }
+
+    if (device.colorType() == kN32_SkColorType && mask.fFormat == SkMask::kLCD16_Format) {
+        // TODO: Is this reachable code?  Seems like no.
+        D32_LCD16_Proc(device.writable_addr32(x,y), device.rowBytes(),
+                       mask.getAddr(x,y), mask.fRowBytes,
+                       color, clip.width(), clip.height());
+        return true;
+    }
+
     return false;
 }
 

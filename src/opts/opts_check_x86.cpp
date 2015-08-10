@@ -252,30 +252,6 @@ SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkColorType dstCT,
-                                                     SkMask::Format maskFormat,
-                                                     SkColor color) {
-    if (SkMask::kA8_Format != maskFormat) {
-        return NULL;
-    }
-
-    ColorProc proc = NULL;
-    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        switch (dstCT) {
-            case kN32_SkColorType:
-                // The SSE2 version is not (yet) faster for black, so we check
-                // for that.
-                if (SK_ColorBLACK != color) {
-                    proc = SkARGB32_A8_BlitMask_SSE2;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-    return proc;
-}
-
 SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         if (isOpaque) {

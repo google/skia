@@ -8,6 +8,7 @@
 #include "SkOpts.h"
 
 #define SK_OPTS_NS sse2
+#include "SkBlitMask_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkUtils_opts.h"
@@ -27,5 +28,7 @@ namespace SkOpts {
         dilate_y = sse2::dilate_y;
          erode_x = sse2::erode_x;
          erode_y = sse2::erode_y;
+
+        blit_mask_d32_a8 = sse2::blit_mask_d32_a8;
     }
 }

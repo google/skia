@@ -48,18 +48,6 @@ public:
                             const SkPMColor* src, int width);
 
     /**
-     *  Public entry-point to return a blitmask ColorProc.
-     *  May return NULL if config or format are not supported.
-     */
-    static ColorProc ColorFactory(SkColorType, SkMask::Format, SkColor);
-
-    /**
-     *  Return either platform specific optimized blitmask ColorProc,
-     *  or NULL if no optimized routine is available.
-     */
-    static ColorProc PlatformColorProcs(SkColorType, SkMask::Format, SkColor);
-
-    /**
      *  Public entry-point to return a blitcolor BlitLCD16RowProc.
      */
     static BlitLCD16RowProc BlitLCD16RowFactory(bool isOpaque);

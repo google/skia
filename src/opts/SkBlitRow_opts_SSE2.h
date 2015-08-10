@@ -25,10 +25,6 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
 void Color32A_D565_SSE2(uint16_t dst[], SkPMColor src, int count, int x,
                         int y);
 
-void SkARGB32_A8_BlitMask_SSE2(void* device, size_t dstRB, const void* mask,
-                               size_t maskRB, SkColor color,
-                               int width, int height);
-
 void SkBlitLCD16Row_SSE2(SkPMColor dst[], const uint16_t src[],
                          SkColor color, int width, SkPMColor);
 void SkBlitLCD16OpaqueRow_SSE2(SkPMColor dst[], const uint16_t src[],
