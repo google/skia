@@ -29,12 +29,17 @@ class GrPipelineBuilder;
  */
 class GrPipeline : public GrNonAtomicRef {
 public:
-    GrPipeline(const GrPipelineBuilder&,
-               const GrProcOptInfo& colorPOI,
-               const GrProcOptInfo& coveragePOI,
-               const GrCaps&,
-               const GrScissorState&,
-               const GrXferProcessor::DstTexture*);
+    /** Creates a pipeline into a pre-allocated buffer */
+    static GrPipeline* CreateAt(void* memory,
+                                const GrPipelineBuilder& pb,
+                                const GrProcOptInfo& colorPOI,
+                                const GrProcOptInfo& coveragePOI,
+                                const GrCaps& caps,
+                                const GrScissorState& scissor,
+                                const GrXferProcessor::DstTexture* dst) {
+        return SkNEW_PLACEMENT_ARGS(memory, GrPipeline, (pb, colorPOI, coveragePOI, caps, scissor,
+                                                         dst));
+    }
 
     /*
      * Returns true if these pipelines are equivalent.  Coord transforms may be applied either on
@@ -108,6 +113,13 @@ public:
     }
 
 private:
+    GrPipeline(const GrPipelineBuilder&,
+               const GrProcOptInfo& colorPOI,
+               const GrProcOptInfo& coveragePOI,
+               const GrCaps&,
+               const GrScissorState&,
+               const GrXferProcessor::DstTexture*);
+
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */
@@ -149,7 +161,6 @@ private:
     int                                 fNumColorStages;
 
     SkSTArray<8, const GrCoordTransform*, true> fCoordTransforms;
-    int                                 fNumCoordTransforms;
     GrProgramDesc                       fDesc;
 
     typedef SkRefCnt INHERITED;
