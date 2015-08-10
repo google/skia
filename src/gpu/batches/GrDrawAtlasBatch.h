@@ -44,7 +44,7 @@ public:
         out->setKnownSingleComponent(0xff);
     }
     
-    void initBatchTracker(const GrPipelineInfo& init) override;
+    void initBatchTracker(const GrPipelineOptimizations&) override;
     void generateGeometry(GrBatchTarget* batchTarget) override;
     
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

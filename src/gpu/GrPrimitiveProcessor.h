@@ -73,32 +73,38 @@ struct GrInitInvariantOutput;
 
 /*
  * This class allows the GrPipeline to communicate information about the pipeline to a
- * GrPrimitiveProcessor that will be used in conjunction with the GrPipeline.
+ * GrBatch which should be forwarded to the GrPrimitiveProcessor(s) created by the batch.
+ * These are not properly part of the pipeline because they assume the specific inputs
+ * that the batch provided when it created the pipeline. Identical pipelines may be
+ * created by different batches with different input assumptions and therefore different
+ * computed optimizations. It is the batch-specific optimizations that allow the pipelines
+ * to be equal.
  */
-class GrPipelineInfo {
+class GrPipelineOptimizations {
 public:
     /** Does the pipeline require the GrPrimitiveProcessor's color? */
-    bool readsColor() const { return SkToBool(kReadsColor_GrPipelineInfoFlag & fFlags); }
+    bool readsColor() const { return SkToBool(kReadsColor_GrPipelineOptimizationsFlag & fFlags); }
 
     /** Does the pipeline require the GrPrimitiveProcessor's coverage? */
-    bool readsCoverage() const { return SkToBool(kReadsCoverage_GrPipelineInfoFlag & fFlags); }
+    bool readsCoverage() const { return
+        SkToBool(kReadsCoverage_GrPipelineOptimizationsFlag & fFlags); }
 
     /** Does the pipeline require access to (implicit or explicit) local coordinates? */
     bool readsLocalCoords() const {
-        return SkToBool(kReadsLocalCoords_GrPipelineInfoFlag & fFlags);
+        return SkToBool(kReadsLocalCoords_GrPipelineOptimizationsFlag & fFlags);
     }
 
     /** Does the pipeline allow the GrPrimitiveProcessor to combine color and coverage into one
         color output ? */
     bool canTweakAlphaForCoverage() const {
-        return SkToBool(kCanTweakAlphaForCoverage_GrPipelineInfoFlag & fFlags);
+        return SkToBool(kCanTweakAlphaForCoverage_GrPipelineOptimizationsFlag & fFlags);
     }
 
     /** Does the pipeline require the GrPrimitiveProcessor to specify a specific color (and if
         so get the color)? */
     bool getOverrideColorIfSet(GrColor* overrideColor) const {
-        if (SkToBool(kUseOverrideColor_GrPipelineInfoFlag & fFlags)) {
-            SkASSERT(SkToBool(kReadsColor_GrPipelineInfoFlag & fFlags));
+        if (SkToBool(kUseOverrideColor_GrPipelineOptimizationsFlag & fFlags)) {
+            SkASSERT(SkToBool(kReadsColor_GrPipelineOptimizationsFlag & fFlags));
             if (overrideColor) {
                 *overrideColor = fOverrideColor;
             }
@@ -110,21 +116,21 @@ public:
 private:
     enum {
         // If this is not set the primitive processor need not produce a color output
-        kReadsColor_GrPipelineInfoFlag                  = 0x1,
+        kReadsColor_GrPipelineOptimizationsFlag                  = 0x1,
 
         // If this is not set the primitive processor need not produce a coverage output
-        kReadsCoverage_GrPipelineInfoFlag               = 0x2,
+        kReadsCoverage_GrPipelineOptimizationsFlag               = 0x2,
 
         // If this is not set the primitive processor need not produce local coordinates
-        kReadsLocalCoords_GrPipelineInfoFlag            = 0x4,
+        kReadsLocalCoords_GrPipelineOptimizationsFlag            = 0x4,
 
         // If this flag is set then the primitive processor may produce color*coverage as
         // its color output (and not output a separate coverage).
-        kCanTweakAlphaForCoverage_GrPipelineInfoFlag    = 0x8,
+        kCanTweakAlphaForCoverage_GrPipelineOptimizationsFlag    = 0x8,
 
         // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
         // output color. If not set fOverrideColor is to be ignored.
-        kUseOverrideColor_GrPipelineInfoFlag            = 0x10,
+        kUseOverrideColor_GrPipelineOptimizationsFlag            = 0x10,
     };
 
     uint32_t    fFlags;
@@ -151,7 +157,7 @@ enum GrGPInput {
  */
 class GrPrimitiveProcessor : public GrProcessor {
 public:
-    virtual void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const = 0;
+    virtual void initBatchTracker(GrBatchTracker*, const GrPipelineOptimizations&) const = 0;
 
     virtual bool canMakeEqual(const GrBatchTracker& mine,
                               const GrPrimitiveProcessor& that,

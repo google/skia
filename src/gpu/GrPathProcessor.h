@@ -29,7 +29,7 @@ public:
         return SkNEW_ARGS(GrPathProcessor, (color, viewMatrix, localMatrix));
     }
 
-    void initBatchTracker(GrBatchTracker*, const GrPipelineInfo&) const override;
+    void initBatchTracker(GrBatchTracker*, const GrPipelineOptimizations&) const override;
 
     bool canMakeEqual(const GrBatchTracker& mine,
                       const GrPrimitiveProcessor& that,

@@ -107,21 +107,25 @@ GrPipeline::GrPipeline(const GrPipelineBuilder& pipelineBuilder,
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
     fInfoForPrimitiveProcessor.fFlags = 0;
     if (!SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag)) {
-        fInfoForPrimitiveProcessor.fFlags |= GrPipelineInfo::kReadsColor_GrPipelineInfoFlag;
+        fInfoForPrimitiveProcessor.fFlags |=
+            GrPipelineOptimizations::kReadsColor_GrPipelineOptimizationsFlag;
     }
     if (GrColor_ILLEGAL != overrideColor) {
-        fInfoForPrimitiveProcessor.fFlags |= GrPipelineInfo::kUseOverrideColor_GrPipelineInfoFlag;
+        fInfoForPrimitiveProcessor.fFlags |=
+            GrPipelineOptimizations::kUseOverrideColor_GrPipelineOptimizationsFlag;
         fInfoForPrimitiveProcessor.fOverrideColor = overrideColor;
     }
     if (!SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag)) {
-        fInfoForPrimitiveProcessor.fFlags |= GrPipelineInfo::kReadsCoverage_GrPipelineInfoFlag;
+        fInfoForPrimitiveProcessor.fFlags |=
+            GrPipelineOptimizations::kReadsCoverage_GrPipelineOptimizationsFlag;
     }
     if (usesLocalCoords) {
-        fInfoForPrimitiveProcessor.fFlags |= GrPipelineInfo::kReadsLocalCoords_GrPipelineInfoFlag;
+        fInfoForPrimitiveProcessor.fFlags |=
+            GrPipelineOptimizations::kReadsLocalCoords_GrPipelineOptimizationsFlag;
     }
     if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
        fInfoForPrimitiveProcessor.fFlags |=
-           GrPipelineInfo::kCanTweakAlphaForCoverage_GrPipelineInfoFlag; 
+           GrPipelineOptimizations::kCanTweakAlphaForCoverage_GrPipelineOptimizationsFlag; 
     }
 }
 

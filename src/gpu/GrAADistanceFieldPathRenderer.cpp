@@ -147,17 +147,17 @@ public:
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) override {
+    void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
-        if (!init.readsColor()) {
+        if (!opt.readsColor()) {
             fBatch.fColor = GrColor_ILLEGAL;
         }
-        init.getOverrideColorIfSet(&fBatch.fColor);
+        opt.getOverrideColorIfSet(&fBatch.fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !init.readsColor();
-        fBatch.fUsesLocalCoords = init.readsLocalCoords();
-        fBatch.fCoverageIgnored = !init.readsCoverage();
+        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
+        fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
     struct FlushInfo {

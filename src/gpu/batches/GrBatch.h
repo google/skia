@@ -64,7 +64,7 @@ public:
      * initBatchTracker is a hook for the some additional overrides / optimization possibilities
      * from the GrXferProcessor.
      */
-    virtual void initBatchTracker(const GrPipelineInfo& init) = 0;
+    virtual void initBatchTracker(const GrPipelineOptimizations&) = 0;
 
     bool combineIfPossible(GrBatch* that) {
         if (this->classID() != that->classID()) {

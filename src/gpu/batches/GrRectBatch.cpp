@@ -11,7 +11,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPrimitiveProcessor.h"
 
-void GrRectBatch::initBatchTracker(const GrPipelineInfo& init) {
+void GrRectBatch::initBatchTracker(const GrPipelineOptimizations& init) {
     // Handle any color overrides
     if (!init.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;

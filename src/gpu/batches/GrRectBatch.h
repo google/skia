@@ -42,7 +42,7 @@ public:
         out->setKnownSingleComponent(0xff);
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) override;
+    void initBatchTracker(const GrPipelineOptimizations&) override;
 
     void generateGeometry(GrBatchTarget* batchTarget) override;
 

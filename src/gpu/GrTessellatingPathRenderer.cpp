@@ -1413,13 +1413,13 @@ public:
         out->setUnknownSingleComponent();
     }
 
-    void initBatchTracker(const GrPipelineInfo& init) override {
+    void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
-        if (!init.readsColor()) {
+        if (!opt.readsColor()) {
             fColor = GrColor_ILLEGAL;
         }
-        init.getOverrideColorIfSet(&fColor);
-        fPipelineInfo = init;
+        opt.getOverrideColorIfSet(&fColor);
+        fPipelineInfo = opt;
     }
 
     int tessellate(GrUniqueKey* key,
@@ -1607,12 +1607,12 @@ private:
         viewMatrix.mapRect(&fBounds);
     }
 
-    GrColor        fColor;
-    SkPath         fPath;
-    GrStrokeInfo   fStroke;
-    SkMatrix       fViewMatrix;
-    SkRect         fClipBounds; // in source space
-    GrPipelineInfo fPipelineInfo;
+    GrColor                 fColor;
+    SkPath                  fPath;
+    GrStrokeInfo            fStroke;
+    SkMatrix                fViewMatrix;
+    SkRect                  fClipBounds; // in source space
+    GrPipelineOptimizations fPipelineInfo;
 };
 
 bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {

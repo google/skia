@@ -43,20 +43,20 @@ static const GrGeometryProcessor* create_stroke_rect_gp(bool tweakAlphaForCovera
 }
 
 
-void GrAAStrokeRectBatch::initBatchTracker(const GrPipelineInfo& init) {
+void GrAAStrokeRectBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     // Handle any color overrides
-    if (!init.readsColor()) {
+    if (!opt.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    init.getOverrideColorIfSet(&fGeoData[0].fColor);
+    opt.getOverrideColorIfSet(&fGeoData[0].fColor);
 
     // setup batch properties
-    fBatch.fColorIgnored = !init.readsColor();
+    fBatch.fColorIgnored = !opt.readsColor();
     fBatch.fColor = fGeoData[0].fColor;
-    fBatch.fUsesLocalCoords = init.readsLocalCoords();
-    fBatch.fCoverageIgnored = !init.readsCoverage();
+    fBatch.fUsesLocalCoords = opt.readsLocalCoords();
+    fBatch.fCoverageIgnored = !opt.readsCoverage();
     fBatch.fMiterStroke = fGeoData[0].fMiterStroke;
-    fBatch.fCanTweakAlphaForCoverage = init.canTweakAlphaForCoverage();
+    fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
 }
 
 void GrAAStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {

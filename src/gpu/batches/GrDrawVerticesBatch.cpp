@@ -93,18 +93,18 @@ void GrDrawVerticesBatch::getInvariantOutputCoverage(GrInitInvariantOutput* out)
     out->setKnownSingleComponent(0xff);
 }
 
-void GrDrawVerticesBatch::initBatchTracker(const GrPipelineInfo& init) {
+void GrDrawVerticesBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     // Handle any color overrides
-    if (!init.readsColor()) {
+    if (!opt.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    init.getOverrideColorIfSet(&fGeoData[0].fColor);
+    opt.getOverrideColorIfSet(&fGeoData[0].fColor);
 
     // setup batch properties
-    fBatch.fColorIgnored = !init.readsColor();
+    fBatch.fColorIgnored = !opt.readsColor();
     fBatch.fColor = fGeoData[0].fColor;
-    fBatch.fUsesLocalCoords = init.readsLocalCoords();
-    fBatch.fCoverageIgnored = !init.readsCoverage();
+    fBatch.fUsesLocalCoords = opt.readsLocalCoords();
+    fBatch.fCoverageIgnored = !opt.readsCoverage();
 }
 
 void GrDrawVerticesBatch::generateGeometry(GrBatchTarget* batchTarget) {

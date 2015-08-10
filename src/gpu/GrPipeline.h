@@ -104,7 +104,7 @@ public:
 
     bool readsFragPosition() const { return fReadsFragPosition; }
 
-    const GrPipelineInfo& infoForPrimitiveProcessor() const {
+    const GrPipelineOptimizations& infoForPrimitiveProcessor() const {
         return fInfoForPrimitiveProcessor;
     }
 
@@ -155,7 +155,7 @@ private:
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
     bool                                fReadsFragPosition;
-    GrPipelineInfo                      fInfoForPrimitiveProcessor;
+    GrPipelineOptimizations                      fInfoForPrimitiveProcessor;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;

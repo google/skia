@@ -9,19 +9,19 @@
 #include "GrBatchTest.h"
 #include "SkRandom.h"
 
-void GrDrawAtlasBatch::initBatchTracker(const GrPipelineInfo& init) {
+void GrDrawAtlasBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     // Handle any color overrides
-    if (!init.readsColor()) {
+    if (!opt.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    init.getOverrideColorIfSet(&fGeoData[0].fColor);
+    opt.getOverrideColorIfSet(&fGeoData[0].fColor);
     
     // setup batch properties
-    fColorIgnored = !init.readsColor();
+    fColorIgnored = !opt.readsColor();
     fColor = fGeoData[0].fColor;
     // We'd like to assert this, but we can't because of GLPrograms test
     //SkASSERT(init.readsLocalCoords());
-    fCoverageIgnored = !init.readsCoverage();
+    fCoverageIgnored = !opt.readsCoverage();
 }
 
 static const GrGeometryProcessor* set_vertex_attributes(bool hasLocalCoords,
