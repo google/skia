@@ -18,7 +18,6 @@
 #include "SkPathEffect.h"
 #include "SkTypes.h"
 
-class GrAARectRenderer;
 class GrBatchFontCache;
 class GrCaps;
 struct GrContextOptions;

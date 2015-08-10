@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "GrAARectRenderer.h"
 #include "GrAtlasTextContext.h"
 #include "GrBatchTest.h"
 #include "GrColor.h"
@@ -308,23 +307,14 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
                                            width, viewMatrix, color);
 
     if (doAA) {
+        SkAutoTUnref<GrBatch> batch;
         if (width >= 0) {
-            GrAARectRenderer::StrokeAARect(fDrawTarget,
-                                           pipelineBuilder,
-                                           color,
-                                           viewMatrix,
-                                           rect,
-                                           devBoundRect,
-                                           *strokeInfo);
+            batch.reset(GrRectBatchFactory::CreateStrokeAA(color, viewMatrix, rect, devBoundRect,
+                                                           *strokeInfo));
         } else {
-            // filled AA rect
-            GrAARectRenderer::FillAARect(fDrawTarget,
-                                         pipelineBuilder,
-                                         color,
-                                         viewMatrix,
-                                         rect,
-                                         devBoundRect);
+            batch.reset(GrRectBatchFactory::CreateFillAA(color, viewMatrix, rect, devBoundRect));
         }
+        fDrawTarget->drawBatch(pipelineBuilder, batch);
         return;
     }
 
@@ -702,8 +692,10 @@ void GrDrawContext::drawPath(GrRenderTarget* rt,
             SkRect rects[2];
 
             if (is_nested_rects(viewMatrix, path, strokeInfo, rects)) {
-                GrAARectRenderer::FillAANestedRects(fDrawTarget, pipelineBuilder, color,
-                                                    viewMatrix, rects);
+                SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::CreateFillNestedRectsAA(color,
+                                                                                        viewMatrix,
+                                                                                        rects));
+                fDrawTarget->drawBatch(pipelineBuilder, batch);
                 return;
             }
         }

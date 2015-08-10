@@ -65,8 +65,6 @@
       '<(skia_src_path)/gpu/GrAAConvexTessellator.h',
       '<(skia_src_path)/gpu/GrAADistanceFieldPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrAADistanceFieldPathRenderer.h',
-      '<(skia_src_path)/gpu/GrAARectRenderer.cpp',
-      '<(skia_src_path)/gpu/GrAARectRenderer.h',
       '<(skia_src_path)/gpu/GrAddPathRenderers_default.cpp',
       '<(skia_src_path)/gpu/GrAutoLocaleSetter.h',
       '<(skia_src_path)/gpu/GrAllocator.h',

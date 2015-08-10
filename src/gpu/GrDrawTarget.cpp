@@ -8,7 +8,6 @@
 
 #include "GrDrawTarget.h"
 
-#include "GrAARectRenderer.h"
 #include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrPath.h"
@@ -304,7 +303,8 @@ void GrDrawTarget::drawAARect(const GrPipelineBuilder& pipelineBuilder,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkRect& devRect) {
-   GrAARectRenderer::FillAARect(this, pipelineBuilder, color, viewMatrix, rect, devRect);
+    SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::CreateFillAA(color, viewMatrix, rect, devRect));
+    this->drawBatch(pipelineBuilder, batch);
 }
 
 void GrDrawTarget::clear(const SkIRect* rect,

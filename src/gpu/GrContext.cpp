@@ -8,7 +8,6 @@
 
 #include "GrContext.h"
 
-#include "GrAARectRenderer.h"
 #include "GrBatchFontCache.h"
 #include "GrBatchTarget.h"
 #include "GrBatchTest.h"
