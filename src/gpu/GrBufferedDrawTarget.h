@@ -113,9 +113,11 @@ private:
     bool isIssued(uint32_t drawID) override { return drawID != fDrawID; }
 
     State* SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(const GrPrimitiveProcessor*,
-                                                            const GrDrawTarget::PipelineInfo&);
+                                                            const GrDrawTarget::PipelineInfo&,
+                                                            GrPipelineOptimizations* opts);
     State* SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(GrBatch*,
-                                                            const GrDrawTarget::PipelineInfo&);
+                                                            const GrDrawTarget::PipelineInfo&,
+                                                            GrPipelineOptimizations* opts);
 
     // TODO: Use a single allocator for commands and records
     enum {

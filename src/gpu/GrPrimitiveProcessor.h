@@ -83,28 +83,28 @@ struct GrInitInvariantOutput;
 class GrPipelineOptimizations {
 public:
     /** Does the pipeline require the GrPrimitiveProcessor's color? */
-    bool readsColor() const { return SkToBool(kReadsColor_GrPipelineOptimizationsFlag & fFlags); }
+    bool readsColor() const { return SkToBool(kReadsColor_Flag & fFlags); }
 
     /** Does the pipeline require the GrPrimitiveProcessor's coverage? */
     bool readsCoverage() const { return
-        SkToBool(kReadsCoverage_GrPipelineOptimizationsFlag & fFlags); }
+        SkToBool(kReadsCoverage_Flag & fFlags); }
 
     /** Does the pipeline require access to (implicit or explicit) local coordinates? */
     bool readsLocalCoords() const {
-        return SkToBool(kReadsLocalCoords_GrPipelineOptimizationsFlag & fFlags);
+        return SkToBool(kReadsLocalCoords_Flag & fFlags);
     }
 
     /** Does the pipeline allow the GrPrimitiveProcessor to combine color and coverage into one
         color output ? */
     bool canTweakAlphaForCoverage() const {
-        return SkToBool(kCanTweakAlphaForCoverage_GrPipelineOptimizationsFlag & fFlags);
+        return SkToBool(kCanTweakAlphaForCoverage_Flag & fFlags);
     }
 
     /** Does the pipeline require the GrPrimitiveProcessor to specify a specific color (and if
         so get the color)? */
     bool getOverrideColorIfSet(GrColor* overrideColor) const {
-        if (SkToBool(kUseOverrideColor_GrPipelineOptimizationsFlag & fFlags)) {
-            SkASSERT(SkToBool(kReadsColor_GrPipelineOptimizationsFlag & fFlags));
+        if (SkToBool(kUseOverrideColor_Flag & fFlags)) {
+            SkASSERT(SkToBool(kReadsColor_Flag & fFlags));
             if (overrideColor) {
                 *overrideColor = fOverrideColor;
             }
@@ -116,21 +116,21 @@ public:
 private:
     enum {
         // If this is not set the primitive processor need not produce a color output
-        kReadsColor_GrPipelineOptimizationsFlag                  = 0x1,
+        kReadsColor_Flag                = 0x1,
 
         // If this is not set the primitive processor need not produce a coverage output
-        kReadsCoverage_GrPipelineOptimizationsFlag               = 0x2,
+        kReadsCoverage_Flag             = 0x2,
 
         // If this is not set the primitive processor need not produce local coordinates
-        kReadsLocalCoords_GrPipelineOptimizationsFlag            = 0x4,
+        kReadsLocalCoords_Flag          = 0x4,
 
         // If this flag is set then the primitive processor may produce color*coverage as
         // its color output (and not output a separate coverage).
-        kCanTweakAlphaForCoverage_GrPipelineOptimizationsFlag    = 0x8,
+        kCanTweakAlphaForCoverage_Flag  = 0x8,
 
         // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
         // output color. If not set fOverrideColor is to be ignored.
-        kUseOverrideColor_GrPipelineOptimizationsFlag            = 0x10,
+        kUseOverrideColor_Flag          = 0x10,
     };
 
     uint32_t    fFlags;

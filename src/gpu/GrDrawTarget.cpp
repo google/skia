@@ -459,13 +459,15 @@ void GrDrawTarget::copySurface(GrSurface* dst,
 }
 
 const GrPipeline* GrDrawTarget::setupPipeline(const PipelineInfo& pipelineInfo,
-                                              void* pipelineAddr) {
+                                              void* pipelineAddr,
+                                              GrPipelineOptimizations* optimizations) {
     return GrPipeline::CreateAt(pipelineAddr, *pipelineInfo.fPipelineBuilder,
                                               pipelineInfo.fColorPOI,
                                               pipelineInfo.fCoveragePOI,
                                               *this->caps(),
                                               *pipelineInfo.fScissor,
-                                              &pipelineInfo.fDstTexture);
+                                              &pipelineInfo.fDstTexture,
+                                              optimizations);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

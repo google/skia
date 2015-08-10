@@ -239,12 +239,13 @@ protected:
 
         const GrPipelineBuilder*    fPipelineBuilder;
         GrScissorState*             fScissor;
-        GrProcOptInfo               fColorPOI; 
-        GrProcOptInfo               fCoveragePOI; 
+        GrProcOptInfo               fColorPOI;
+        GrProcOptInfo               fCoveragePOI;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
-    const GrPipeline* setupPipeline(const PipelineInfo& pipelineInfo, void* pipelineAddr);
+    const GrPipeline* setupPipeline(const PipelineInfo&, void* pipelineAddr,
+                                    GrPipelineOptimizations*);
 
 private:
     virtual void onReset() = 0;

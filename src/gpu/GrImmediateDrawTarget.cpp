@@ -27,8 +27,9 @@ GrImmediateDrawTarget::~GrImmediateDrawTarget() {
 
 void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch,
                                         const PipelineInfo& pipelineInfo) {
+    GrPipelineOptimizations opts;
     SkAlignedSStorage<sizeof(GrPipeline)> pipelineStorage;
-    bool shouldDraw = this->setupPipelineAndShouldDraw(pipelineStorage.get(), pipelineInfo);
+    bool shouldDraw = this->setupPipelineAndShouldDraw(pipelineStorage.get(), pipelineInfo, &opts);
     GrPipeline* pipeline = reinterpret_cast<GrPipeline*>(pipelineStorage.get());
 
     if (!shouldDraw) {
@@ -36,7 +37,7 @@ void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch,
         return;
     }
 
-    batch->initBatchTracker(pipeline->infoForPrimitiveProcessor());
+    batch->initBatchTracker(opts);
 
     fBatchTarget.resetNumberOfDraws();
 
@@ -86,8 +87,9 @@ void GrImmediateDrawTarget::onFlush() {
 
 bool
 GrImmediateDrawTarget::setupPipelineAndShouldDraw(void* pipelineAddr,
-                                                  const GrDrawTarget::PipelineInfo& pipelineInfo) {
-    const GrPipeline* pipeline = this->setupPipeline(pipelineInfo, pipelineAddr);
+                                                  const GrDrawTarget::PipelineInfo& pipelineInfo,
+                                                  GrPipelineOptimizations* opts) {
+    const GrPipeline* pipeline = this->setupPipeline(pipelineInfo, pipelineAddr, opts);
 
     if (pipeline->mustSkip()) {
         return false;

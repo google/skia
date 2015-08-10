@@ -28,7 +28,8 @@ GrBufferedDrawTarget::~GrBufferedDrawTarget() {
 
 void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch,
                                        const PipelineInfo& pipelineInfo) {
-    State* state = this->setupPipelineAndShouldDraw(batch, pipelineInfo);
+    GrPipelineOptimizations opts;
+    State* state = this->setupPipelineAndShouldDraw(batch, pipelineInfo, &opts);
     if (!state) {
         return;
     }
@@ -52,7 +53,8 @@ void GrBufferedDrawTarget::onDrawPath(const GrPathProcessor* pathProc,
                                       const GrPath* path,
                                       const GrStencilSettings& stencilSettings,
                                       const PipelineInfo& pipelineInfo) {
-    State* state = this->setupPipelineAndShouldDraw(pathProc, pipelineInfo);
+    GrPipelineOptimizations opts;
+    State* state = this->setupPipelineAndShouldDraw(pathProc, pipelineInfo, &opts);
     if (!state) {
         return;
     }
@@ -69,7 +71,8 @@ void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
                                        int count,
                                        const GrStencilSettings& stencilSettings,
                                        const PipelineInfo& pipelineInfo) {
-    State* state = this->setupPipelineAndShouldDraw(pathProc, pipelineInfo);
+    GrPipelineOptimizations opts;
+    State* state = this->setupPipelineAndShouldDraw(pathProc, pipelineInfo, &opts);
     if (!state) {
         return;
     }
@@ -148,17 +151,17 @@ void GrBufferedDrawTarget::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* 
 
 GrTargetCommands::State*
 GrBufferedDrawTarget::setupPipelineAndShouldDraw(const GrPrimitiveProcessor* primProc,
-                                                 const GrDrawTarget::PipelineInfo& pipelineInfo) {
+                                                 const GrDrawTarget::PipelineInfo& pipelineInfo,
+                                                 GrPipelineOptimizations* opts) {
     State* state = this->allocState(primProc);
-    this->setupPipeline(pipelineInfo, state->pipelineLocation());
+    this->setupPipeline(pipelineInfo, state->pipelineLocation(), opts);
 
     if (state->getPipeline()->mustSkip()) {
         this->unallocState(state);
         return NULL;
     }
 
-    state->fPrimitiveProcessor->initBatchTracker(
-        &state->fBatchTracker, state->getPipeline()->infoForPrimitiveProcessor());
+    state->fPrimitiveProcessor->initBatchTracker(&state->fBatchTracker, *opts);
 
     if (fPrevState && fPrevState->fPrimitiveProcessor.get() &&
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
@@ -177,16 +180,17 @@ GrBufferedDrawTarget::setupPipelineAndShouldDraw(const GrPrimitiveProcessor* pri
 
 GrTargetCommands::State*
 GrBufferedDrawTarget::setupPipelineAndShouldDraw(GrBatch* batch,
-                                                 const GrDrawTarget::PipelineInfo& pipelineInfo) {
+                                                 const GrDrawTarget::PipelineInfo& pipelineInfo,
+                                                 GrPipelineOptimizations* opts) {
     State* state = this->allocState();
-    this->setupPipeline(pipelineInfo, state->pipelineLocation());
+    this->setupPipeline(pipelineInfo, state->pipelineLocation(), opts);
 
     if (state->getPipeline()->mustSkip()) {
         this->unallocState(state);
         return NULL;
     }
 
-    batch->initBatchTracker(state->getPipeline()->infoForPrimitiveProcessor());
+    batch->initBatchTracker(*opts);
 
     if (fPrevState && !fPrevState->fPrimitiveProcessor.get() &&
         fPrevState->getPipeline()->isEqual(*state->getPipeline())) {

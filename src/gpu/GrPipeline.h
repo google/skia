@@ -31,15 +31,13 @@ class GrPipeline : public GrNonAtomicRef {
 public:
     /** Creates a pipeline into a pre-allocated buffer */
     static GrPipeline* CreateAt(void* memory,
-                                const GrPipelineBuilder& pb,
+                                const GrPipelineBuilder&,
                                 const GrProcOptInfo& colorPOI,
                                 const GrProcOptInfo& coveragePOI,
-                                const GrCaps& caps,
-                                const GrScissorState& scissor,
-                                const GrXferProcessor::DstTexture* dst) {
-        return SkNEW_PLACEMENT_ARGS(memory, GrPipeline, (pb, colorPOI, coveragePOI, caps, scissor,
-                                                         dst));
-    }
+                                const GrCaps&,
+                                const GrScissorState&,
+                                const GrXferProcessor::DstTexture*,
+                                GrPipelineOptimizations*);
 
     /*
      * Returns true if these pipelines are equivalent.  Coord transforms may be applied either on
@@ -104,21 +102,12 @@ public:
 
     bool readsFragPosition() const { return fReadsFragPosition; }
 
-    const GrPipelineOptimizations& infoForPrimitiveProcessor() const {
-        return fInfoForPrimitiveProcessor;
-    }
-
     const SkTArray<const GrCoordTransform*, true>& coordTransforms() const {
         return fCoordTransforms;
     }
 
 private:
-    GrPipeline(const GrPipelineBuilder&,
-               const GrProcOptInfo& colorPOI,
-               const GrProcOptInfo& coveragePOI,
-               const GrCaps&,
-               const GrScissorState&,
-               const GrXferProcessor::DstTexture*);
+    GrPipeline() { /** Initialized in factory function*/ }
 
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
@@ -155,7 +144,6 @@ private:
     ProgramXferProcessor                fXferProcessor;
     FragmentStageArray                  fFragmentStages;
     bool                                fReadsFragPosition;
-    GrPipelineOptimizations                      fInfoForPrimitiveProcessor;
 
     // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
     int                                 fNumColorStages;
