@@ -9,6 +9,8 @@
 #include "SkStream.h"
 #include "Test.h"
 
+#if SK_SUPPORT_PDF
+
 static void run_test(SkWStream* out, SkXfermode::Mode mode, U8CPU alpha) {
     SkAutoTUnref<SkDocument> pdfDoc(SkDocument::CreatePDF(out));
     SkCanvas* c = pdfDoc->beginPage(612.0f, 792.0f);
@@ -44,3 +46,4 @@ DEF_TEST(SkPDF_OpaqueSrcModeToSrcOver, r) {
     REPORTER_ASSERT(r, srcMode.getOffset() > srcOverMode.getOffset());
     // The two PDFs should not be equal because they have a non-opaque alpha.
 }
+#endif  // SK_SUPPORT_PDF

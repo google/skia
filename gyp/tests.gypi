@@ -37,6 +37,10 @@
         '-ldl',
       ],
     }],
+    [ 'not skia_pdf', {
+      'dependencies!': [ 'pdf.gyp:pdf' ],
+      'dependencies': [ 'pdf.gyp:nopdf' ],
+    }],
   ],
   'sources': [
     '../tests/Test.h',

@@ -6,6 +6,13 @@
 {
   'targets': [
     {
+      'target_name': 'nopdf',
+      'type': 'static_library',
+      'dependencies': [ 'skia_lib.gyp:skia_lib', ],
+      'sources': [ '<(skia_src_path)/doc/SkDocument_PDF_None.cpp', ],
+      'defines': [ 'SK_SUPPORT_PDF=0', ],
+    },
+    {
       'target_name': 'pdf',
       'product_name': 'skia_pdf',
       'type': 'static_library',
@@ -46,6 +53,7 @@
         ],
       ],
       'direct_dependent_settings': {
+        'defines': [ 'SK_SUPPORT_PDF=1', ],
         'include_dirs': [
           '../include/core',  # SkDocument.h
         ],

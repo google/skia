@@ -11,6 +11,8 @@
 #include "SkStream.h"
 #include "Test.h"
 
+#if SK_SUPPORT_PDF
+
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {
     SkAutoDataUnref data(stream.copyToData());
@@ -178,3 +180,4 @@ endbfrange\n";
     REPORTER_ASSERT(reporter, stream_equals(buffer2, 0, expectedResult2,
                                             buffer2.getOffset()));
 }
+#endif  // SK_SUPPORT_PDF

@@ -9,6 +9,8 @@
 #include "SkRandom.h"
 #include "Test.h"
 
+#if SK_SUPPORT_PDF
+
 DEF_TEST(SkDeflateWStream, r) {
     SkRandom random(123456);
     for (int i = 0; i < 50; ++i) {
@@ -70,3 +72,4 @@ DEF_TEST(SkDeflateWStream, r) {
         }
     }
 }
+#endif  // SK_SUPPORT_PDF

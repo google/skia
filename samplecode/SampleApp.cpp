@@ -1171,8 +1171,10 @@ void SampleWindow::onDraw(SkCanvas* canvas) {
 
 void SampleWindow::saveToPdf()
 {
+#if SK_SUPPORT_PDF
     fSaveToPdf = true;
     this->inval(NULL);
+#endif  // SK_SUPPORT_PDF
 }
 
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {

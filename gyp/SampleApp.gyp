@@ -253,6 +253,10 @@
             'gputest.gyp:skgputest',
           ],
         }],
+        [ 'not skia_pdf', {
+          'dependencies!': [ 'pdf.gyp:pdf' ],
+          'dependencies': [ 'pdf.gyp:nopdf' ],
+        }],
       ],
     },
   ],

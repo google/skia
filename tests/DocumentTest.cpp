@@ -1,9 +1,16 @@
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #include "Test.h"
 
 #include "SkCanvas.h"
 #include "SkDocument.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
+#if SK_SUPPORT_PDF
 
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
@@ -103,3 +110,4 @@ DEF_TEST(document_tests, reporter) {
     test_file(reporter);
     test_close(reporter);
 }
+#endif  // SK_SUPPORT_PDF

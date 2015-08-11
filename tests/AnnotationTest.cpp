@@ -12,6 +12,8 @@
 #include "SkStream.h"
 #include "Test.h"
 
+#if SK_SUPPORT_PDF
+
 /** Returns true if data (may contain null characters) contains needle (null
  *  terminated). */
 static bool ContainsString(const char* data, size_t dataSize, const char* needle) {
@@ -74,3 +76,4 @@ DEF_TEST(Annotation_NamedDestination, reporter) {
     REPORTER_ASSERT(reporter,
         ContainsString(rawOutput, out->size(), "/example "));
 }
+#endif  // SK_SUPPORT_PDF
