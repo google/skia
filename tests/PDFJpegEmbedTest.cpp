@@ -14,8 +14,6 @@
 #include "Resources.h"
 #include "Test.h"
 
-#if SK_SUPPORT_PDF
-
 // Returned bitmap is lazy.  Only lazy bitmaps hold onto the original data.
 static SkBitmap bitmap_from_data(SkData* data) {
     SkASSERT(data);
@@ -127,4 +125,3 @@ DEF_TEST(JpegIdentification, r) {
         }
     }
 }
-#endif  // SK_SUPPORT_PDF

@@ -15,8 +15,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_PDF
-
 namespace {
 
 // SkPixelRef which fails to lock, as a lazy pixel ref might if its pixels
@@ -60,4 +58,3 @@ DEF_TEST(PDFInvalidBitmap, reporter) {
 
     // This test passes if it does not crash.
 }
-#endif  // SK_SUPPORT_PDF

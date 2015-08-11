@@ -22,8 +22,6 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#if SK_SUPPORT_PDF
-
 #define DUMMY_TEXT "DCT compessed stream."
 
 namespace {
@@ -415,4 +413,3 @@ DEF_TEST(PDFImageFilter, reporter) {
     // Filter was used in rendering; should be visited.
     REPORTER_ASSERT(reporter, filter->visited());
 }
-#endif  // SK_SUPPORT_PDF

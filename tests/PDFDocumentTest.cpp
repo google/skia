@@ -10,7 +10,6 @@
 #include "SkDocument.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
-#if SK_SUPPORT_PDF
 
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
@@ -104,10 +103,10 @@ static void test_close(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(document_tests, reporter) {
+    REQUIRE_PDF_DOCUMENT(document_tests, reporter);
     test_empty(reporter);
     test_abort(reporter);
     test_abortWithFile(reporter);
     test_file(reporter);
     test_close(reporter);
 }
-#endif  // SK_SUPPORT_PDF

@@ -570,6 +570,12 @@ static void TestPdfDevice(skiatest::Reporter* reporter,
     SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&outStream));
 #if SK_SUPPORT_PDF
     REPORTER_ASSERT(reporter, doc);
+#else
+    REPORTER_ASSERT(reporter, !doc);
+#endif  // SK_SUPPORT_PDF
+    if (!doc) {
+        return;
+    }
     SkCanvas* canvas = doc->beginPage(SkIntToScalar(d.fWidth),
                                       SkIntToScalar(d.fHeight));
     REPORTER_ASSERT(reporter, canvas);
@@ -577,9 +583,6 @@ static void TestPdfDevice(skiatest::Reporter* reporter,
     testStep->draw(canvas, d, reporter);
 
     REPORTER_ASSERT(reporter, doc->close());
-#else
-    REPORTER_ASSERT(reporter, !doc);
-#endif  // SK_SUPPORT_PDF
 }
 
 // The following class groups static functions that need to access

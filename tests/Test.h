@@ -102,4 +102,16 @@ typedef SkTRegistry<Test> TestRegistry;
             skiatest::Test(#name, true, test_##name));               \
     void test_##name(skiatest::Reporter* reporter, GrContextFactory* factory)
 
+#define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                             \
+    do {                                                                      \
+        SkDynamicMemoryWStream testStream;                                    \
+        SkAutoTUnref<SkDocument> testDoc(SkDocument::CreatePDF(&testStream)); \
+        if (!testDoc) {                                                       \
+            if ((REPORTER) && (REPORTER)->verbose()) {                        \
+                SkDebugf("PDF disabled; %s test skipped.", #TEST_NAME);       \
+            }                                                                 \
+            return;                                                           \
+        }                                                                     \
+    } while (false)
+
 #endif

@@ -40,6 +40,7 @@
     [ 'not skia_pdf', {
       'dependencies!': [ 'pdf.gyp:pdf' ],
       'dependencies': [ 'pdf.gyp:nopdf' ],
+      'sources!': [ '<!@(python find.py ../tests "PDF*.c*")', ],
     }],
   ],
   'sources': [
