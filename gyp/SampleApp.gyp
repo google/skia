@@ -22,6 +22,7 @@
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../src/pipe/utils', # For TiledPipeController
         '../src/utils/debugger',
+        '../tools',
       ],
       'includes': [
         'gmslides.gypi',
@@ -154,6 +155,7 @@
         'skia_lib.gyp:skia_lib',
         'tools.gyp:resources',
         'tools.gyp:sk_tool_utils',
+        'tools.gyp:timer',
         'views.gyp:views',
         'views_animated.gyp:views_animated',
         'xml.gyp:xml',

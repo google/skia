@@ -1313,8 +1313,9 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     // Do this after presentGL and other finishing, rather than in afterChild
-    if (fMeasureFPS && fMeasureFPS_StartTime) {
-        fMeasureFPS_Time += SkTime::GetMSecs() - fMeasureFPS_StartTime;
+    if (fMeasureFPS) {
+        fTimer.end();
+        fMeasureFPS_Time += fTimer.fWall;
     }
 }
 
@@ -1351,9 +1352,8 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     }
 
     if (fMeasureFPS) {
-        if (SampleView::SetRepeatDraw(child, FPS_REPEAT_COUNT)) {
-            fMeasureFPS_StartTime = SkTime::GetMSecs();
-        }
+        (void)SampleView::SetRepeatDraw(child, FPS_REPEAT_COUNT);
+        fTimer.start();
     } else {
         (void)SampleView::SetRepeatDraw(child, 1);
     }
@@ -1935,7 +1935,7 @@ void SampleWindow::updateTitle() {
     }
 
     if (fMeasureFPS) {
-        title.appendf(" %8.3f ms", fMeasureFPS_Time / (float)FPS_REPEAT_COUNT);
+        title.appendf(" %8.4f ms", fMeasureFPS_Time / (float)FPS_REPEAT_COUNT);
     }
 
     SkView* view = curr_view(this);
