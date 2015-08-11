@@ -183,18 +183,22 @@
         '../third_party/externals/jpeg/jutils.c',
       ],
       'conditions': [
-        [ 'arm_neon == 1 and skia_clang_build == 0',
-          {
-            'sources' : [
-              '../third_party/externals/jpeg/armv6_idct.S',
-              '../third_party/externals/jpeg/jsimd_arm_neon.S',
-              '../third_party/externals/jpeg/jsimd_neon.c',
-            ],
-            'defines' : [
-              'NV_ARM_NEON',
-            ],
-          },
-        ],
+        # FIXME (msarett):
+        # Turn off Arm NEON optimizations to avoid namespace conflicts when
+        # compiling libjpeg and libjpeg-turbo.  This is a temporary step in the
+        # plan to replace libjpeg with libjpeg-turbo.
+        #[ 'arm_neon == 1 and skia_clang_build == 0',
+        #  {
+        #    'sources' : [
+        #      '../third_party/externals/jpeg/armv6_idct.S',
+        #      '../third_party/externals/jpeg/jsimd_arm_neon.S',
+        #      '../third_party/externals/jpeg/jsimd_neon.c',
+        #    ],
+        #    'defines' : [
+        #      'NV_ARM_NEON',
+        #    ],
+        #  },
+        #],
         [ '"mips" in skia_arch_type and mips_dsp == 2',
           {
             'sources' : [

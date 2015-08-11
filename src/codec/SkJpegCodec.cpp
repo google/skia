@@ -111,7 +111,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
     decoderMgr->init();
 
     // Read the jpeg header
-    if (JPEG_HEADER_OK != turbo_jpeg_read_header(decoderMgr->dinfo(), true)) {
+    if (JPEG_HEADER_OK != chromium_jpeg_read_header(decoderMgr->dinfo(), true)) {
         return decoderMgr->returnFalse("read_header");
     }
 
@@ -183,7 +183,7 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
     dinfo.num_components = 0;
     dinfo.scale_num = num;
     dinfo.scale_denom = denom;
-    turbo_jpeg_calc_output_dimensions(&dinfo);
+    chromium_jpeg_calc_output_dimensions(&dinfo);
 
     // Return the calculated output dimensions for the given scale
     return SkISize::Make(dinfo.output_width, dinfo.output_height);
@@ -279,7 +279,7 @@ bool SkJpegCodec::scaleToDimensions(uint32_t dstWidth, uint32_t dstHeight) {
     // libjpeg-turbo can scale to 1/8, 1/4, 3/8, 1/2, 5/8, 3/4, 7/8, and 1/1
     fDecoderMgr->dinfo()->scale_denom = 8;
     fDecoderMgr->dinfo()->scale_num = 8;
-    turbo_jpeg_calc_output_dimensions(fDecoderMgr->dinfo());
+    chromium_jpeg_calc_output_dimensions(fDecoderMgr->dinfo());
     while (fDecoderMgr->dinfo()->output_width != dstWidth ||
             fDecoderMgr->dinfo()->output_height != dstHeight) {
 
@@ -292,7 +292,7 @@ bool SkJpegCodec::scaleToDimensions(uint32_t dstWidth, uint32_t dstHeight) {
 
         // Try the next scale
         fDecoderMgr->dinfo()->scale_num -= 1;
-        turbo_jpeg_calc_output_dimensions(fDecoderMgr->dinfo());
+        chromium_jpeg_calc_output_dimensions(fDecoderMgr->dinfo());
     }
     return true;
 }
@@ -332,7 +332,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     // Now, given valid output dimensions, we can start the decompress
-    if (!turbo_jpeg_start_decompress(dinfo)) {
+    if (!chromium_jpeg_start_decompress(dinfo)) {
         return fDecoderMgr->returnFailure("startDecompress", kInvalidInput);
     }
 
@@ -345,7 +345,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     JSAMPLE* dstRow = (JSAMPLE*) dst;
     for (uint32_t y = 0; y < dstHeight; y++) {
         // Read rows of the image
-        uint32_t rowsDecoded = turbo_jpeg_read_scanlines(dinfo, &dstRow, 1);
+        uint32_t rowsDecoded = chromium_jpeg_read_scanlines(dinfo, &dstRow, 1);
 
         // If we cannot read enough rows, assume the input is incomplete
         if (rowsDecoded != 1) {
@@ -367,7 +367,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
             dinfo->output_scanline = dstHeight;
 
             // Finish the decode and indicate that the input was incomplete.
-            turbo_jpeg_finish_decompress(dinfo);
+            chromium_jpeg_finish_decompress(dinfo);
             return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
         }
 
@@ -379,7 +379,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         // Move to the next row
         dstRow = SkTAddOffset<JSAMPLE>(dstRow, dstRowBytes);
     }
-    turbo_jpeg_finish_decompress(dinfo);
+    chromium_jpeg_finish_decompress(dinfo);
 
     return kSuccess;
 }
@@ -420,7 +420,7 @@ public:
         }
 
         // Now, given valid output dimensions, we can start the decompress
-        if (!turbo_jpeg_start_decompress(fCodec->fDecoderMgr->dinfo())) {
+        if (!chromium_jpeg_start_decompress(fCodec->fDecoderMgr->dinfo())) {
             SkCodecPrintf("start decompress failed\n");
             return SkCodec::kInvalidInput;
         }
@@ -439,7 +439,7 @@ public:
         // We may not have decoded the entire image.  Prevent libjpeg-turbo from failing on a
         // partial decode.
         fCodec->fDecoderMgr->dinfo()->output_scanline = fCodec->getInfo().height();
-        turbo_jpeg_finish_decompress(fCodec->fDecoderMgr->dinfo());
+        chromium_jpeg_finish_decompress(fCodec->fDecoderMgr->dinfo());
     }
 
     SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
@@ -453,7 +453,7 @@ public:
         for (int y = 0; y < count; y++) {
             // Read row of the image
             uint32_t rowsDecoded =
-                    turbo_jpeg_read_scanlines(fCodec->fDecoderMgr->dinfo(), &dstRow, 1);
+                    chromium_jpeg_read_scanlines(fCodec->fDecoderMgr->dinfo(), &dstRow, 1);
             if (rowsDecoded != 1) {
                 if (SkCodec::kNo_ZeroInitialized == fOpts.fZeroInitialized ||
                         kN32_SkColorType == this->dstInfo().colorType()) {
@@ -477,11 +477,13 @@ public:
     }
 
 #ifndef TURBO_HAS_SKIP
-#define turbo_jpeg_skip_scanlines(dinfo, count)                              \
+// TODO (msarett): Make this a member function and avoid reallocating the
+//                 memory buffer on each call to skip.
+#define chromium_jpeg_skip_scanlines(dinfo, count)                           \
     SkAutoMalloc storage(dinfo->output_width * dinfo->out_color_components); \
     uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());              \
     for (int y = 0; y < count; y++) {                                        \
-        turbo_jpeg_read_scanlines(dinfo, &storagePtr, 1);                    \
+        chromium_jpeg_read_scanlines(dinfo, &storagePtr, 1);                 \
     }
 #endif
 
@@ -491,10 +493,14 @@ public:
             return fCodec->fDecoderMgr->returnFailure("setjmp", SkCodec::kInvalidInput);
         }
 
-        turbo_jpeg_skip_scanlines(fCodec->fDecoderMgr->dinfo(), count);
+        chromium_jpeg_skip_scanlines(fCodec->fDecoderMgr->dinfo(), count);
 
         return SkCodec::kSuccess;
     }
+
+#ifndef TURBO_HAS_SKIP
+#undef chromium_jpeg_skip_scanlines
+#endif
 
 private:
     SkAutoTDelete<SkJpegCodec> fCodec;
