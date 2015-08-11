@@ -33,10 +33,10 @@
           'target_name': 'libjpeg',
           'type': 'none',
           'dependencies': [
-            'libjpeg-turbo.gyp:*',
+            'libjpeg-turbo.gyp:libjpeg-turbo',
           ],
           'export_dependent_settings': [
-            'libjpeg-turbo.gyp:*',
+            'libjpeg-turbo.gyp:libjpeg-turbo',
           ],
         },
       ],
