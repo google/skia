@@ -15,35 +15,31 @@
 
 #include "batches/GrBatch.h"
 
-GrPipeline* GrPipeline::CreateAt(void* memory,
-                                 const GrPipelineBuilder& builder,
-                                 const GrProcOptInfo& colorPOI,
-                                 const GrProcOptInfo& coveragePOI,
-                                 const GrCaps& caps,
-                                 const GrScissorState& scissor,
-                                 const GrXferProcessor::DstTexture* dst,
+GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrPipelineOptimizations* opts) {
     GrPipeline* pipeline = SkNEW_PLACEMENT(memory, GrPipeline);
+    const GrPipelineBuilder& builder = *args.fPipelineBuilder;
 
     // Create XferProcessor from DS's XPFactory
     SkAutoTUnref<GrXferProcessor> xferProcessor(
-        builder.getXPFactory()->createXferProcessor(
-            colorPOI, coveragePOI, builder.hasMixedSamples(), dst, caps));
+        builder.getXPFactory()->createXferProcessor(args.fColorPOI, args.fCoveragePOI,
+                                                    builder.hasMixedSamples(), &args.fDstTexture,
+                                                    *args.fCaps));
 
     GrColor overrideColor = GrColor_ILLEGAL;
-    if (colorPOI.firstEffectiveStageIndex() != 0) {
-        overrideColor = colorPOI.inputColorToEffectiveStage();
+    if (args.fColorPOI.firstEffectiveStageIndex() != 0) {
+        overrideColor = args.fColorPOI.inputColorToEffectiveStage();
     }
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
     if (xferProcessor) {
         pipeline->fXferProcessor.reset(xferProcessor.get());
 
-        optFlags = xferProcessor->getOptimizations(colorPOI,
-                                                   coveragePOI,
+        optFlags = xferProcessor->getOptimizations(args.fColorPOI,
+                                                   args.fCoveragePOI,
                                                    builder.getStencil().doesWrite(),
                                                    &overrideColor,
-                                                   caps);
+                                                   *args.fCaps);
     }
 
     // No need to have an override color if it isn't even going to be used.
@@ -55,16 +51,13 @@ GrPipeline* GrPipeline::CreateAt(void* memory,
     // so we must check the draw type. In cases where we will skip drawing we simply return a
     // null GrPipeline.
     if (!xferProcessor || (GrXferProcessor::kSkipDraw_OptFlag & optFlags)) {
-        // Set the fields that don't default init and return. The lack of a render target will
-        // indicate that this can be skipped.
-        pipeline->fFlags = 0;
-        pipeline->fDrawFace = GrPipelineBuilder::kInvalid_DrawFace;
-        return pipeline;
+        pipeline->~GrPipeline();
+        return nullptr;
     }
 
     pipeline->fRenderTarget.reset(builder.fRenderTarget.get());
     SkASSERT(pipeline->fRenderTarget);
-    pipeline->fScissorState = scissor;
+    pipeline->fScissorState = *args.fScissor;
     pipeline->fStencilSettings = builder.getStencil();
     pipeline->fDrawFace = builder.getDrawFace();
 
@@ -79,13 +72,13 @@ GrPipeline* GrPipeline::CreateAt(void* memory,
         pipeline->fFlags |= kSnapVertices_Flag;
     }
 
-    int firstColorStageIdx = colorPOI.firstEffectiveStageIndex();
+    int firstColorStageIdx = args.fColorPOI.firstEffectiveStageIndex();
 
     // TODO: Once we can handle single or four channel input into coverage stages then we can use
     // GrPipelineBuilder's coverageProcInfo (like color above) to set this initial information.
     int firstCoverageStageIdx = 0;
 
-    pipeline->adjustProgramFromOptimizations(builder, optFlags, colorPOI, coveragePOI,
+    pipeline->adjustProgramFromOptimizations(builder, optFlags, args.fColorPOI, args.fCoveragePOI,
                                              &firstColorStageIdx, &firstCoverageStageIdx);
 
     bool usesLocalCoords = false;

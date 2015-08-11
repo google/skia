@@ -25,16 +25,13 @@ GrImmediateDrawTarget::~GrImmediateDrawTarget() {
     this->reset();
 }
 
-void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch,
-                                        const PipelineInfo& pipelineInfo) {
-    GrPipelineOptimizations opts;
-    SkAlignedSStorage<sizeof(GrPipeline)> pipelineStorage;
-    bool shouldDraw = this->setupPipelineAndShouldDraw(pipelineStorage.get(), pipelineInfo, &opts);
-    GrPipeline* pipeline = reinterpret_cast<GrPipeline*>(pipelineStorage.get());
+void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch) {
+    const GrXferProcessor& xp = *batch->pipeline()->getXferProcessor();
+    GrRenderTarget* rt = batch->pipeline()->getRenderTarget();
 
-    if (!shouldDraw) {
-        pipeline->~GrPipeline();
-        return;
+    GrXferBarrierType barrierType;
+    if (xp.willNeedXferBarrier(rt, *this->caps(), &barrierType)) {
+        this->getGpu()->xferBarrier(rt, barrierType);
     }
 
     fBatchTarget.resetNumberOfDraws();
@@ -45,8 +42,6 @@ void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch,
     fBatchTarget.preFlush();
     fBatchTarget.flushNext(batch->numberOfDraws());
     fBatchTarget.postFlush();
-
-    pipeline->~GrPipeline();
 }
 
 void GrImmediateDrawTarget::onClear(const SkIRect& rect, GrColor color,
@@ -81,28 +76,4 @@ void GrImmediateDrawTarget::onReset() {
 
 void GrImmediateDrawTarget::onFlush() {
     ++fDrawID;
-}
-
-bool
-GrImmediateDrawTarget::setupPipelineAndShouldDraw(void* pipelineAddr,
-                                                  const GrDrawTarget::PipelineInfo& pipelineInfo,
-                                                  GrPipelineOptimizations* opts) {
-    const GrPipeline* pipeline = this->setupPipeline(pipelineInfo, pipelineAddr, opts);
-
-    if (pipeline->mustSkip()) {
-        return false;
-    }
-
-    this->recordXferBarrierIfNecessary(pipeline);
-    return true;
-}
-
-void GrImmediateDrawTarget::recordXferBarrierIfNecessary(const GrPipeline* pipeline) {
-    const GrXferProcessor& xp = *pipeline->getXferProcessor();
-    GrRenderTarget* rt = pipeline->getRenderTarget();
-
-    GrXferBarrierType barrierType;
-    if (xp.willNeedXferBarrier(rt, *this->caps(), &barrierType)) {
-        this->getGpu()->xferBarrier(rt, barrierType);
-    }
 }

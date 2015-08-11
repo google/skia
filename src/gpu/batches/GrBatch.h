@@ -47,14 +47,8 @@ struct GrInitInvariantOutput;
 
 class GrBatch : public GrNonAtomicRef {
 public:
-    GrBatch()
-        : fClassID(kIllegalBatchID)
-        , fNumberOfDraws(0)
-#if GR_BATCH_SPEW
-        , fUniqueID(GenID(&gCurrBatchUniqueID))
-#endif
-        { SkDEBUGCODE(fUsed = false;) }
-    virtual ~GrBatch() {}
+    GrBatch();
+    ~GrBatch() override;
 
     virtual const char* name() const = 0;
     virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
@@ -101,12 +95,12 @@ public:
 
     SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
-    const GrPipeline* pipeline() const { return fPipeline; }
-
-    void setPipeline(const GrPipeline* pipeline, const GrPipelineOptimizations& optimizations) {
-        fPipeline.reset(SkRef(pipeline));
-        this->initBatchTracker(optimizations);
+    const GrPipeline* pipeline() const {
+        SkASSERT(fPipelineInstalled);
+        return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
     }
+
+    bool installPipeline(const GrPipeline::CreateArgs&);
 
 #if GR_BATCH_SPEW
     uint32_t uniqueID() const { return fUniqueID; }
@@ -190,15 +184,15 @@ private:
     enum {
         kIllegalBatchID = 0,
     };
-    SkAutoTUnref<const GrPipeline> fPipeline;
-    static int32_t gCurrBatchClassID;
-    int fNumberOfDraws;
-    SkDEBUGCODE(bool fUsed;)
+    SkAlignedSTStorage<1, GrPipeline>   fPipelineStorage;
+    int                                 fNumberOfDraws;
+    SkDEBUGCODE(bool                    fUsed;)
+    bool                                fPipelineInstalled;
 #if GR_BATCH_SPEW
+    uint32_t                            fUniqueID;
     static int32_t gCurrBatchUniqueID;
-    uint32_t fUniqueID;
 #endif
-
+    static int32_t gCurrBatchClassID;
     typedef SkRefCnt INHERITED;
 };
 

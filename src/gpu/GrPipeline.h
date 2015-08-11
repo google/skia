@@ -29,15 +29,17 @@ class GrPipelineBuilder;
  */
 class GrPipeline : public GrNonAtomicRef {
 public:
+    struct CreateArgs {
+        const GrPipelineBuilder*    fPipelineBuilder;
+        const GrCaps*               fCaps;
+        GrProcOptInfo               fColorPOI;
+        GrProcOptInfo               fCoveragePOI;
+        const GrScissorState*       fScissor;
+        GrXferProcessor::DstTexture fDstTexture;
+    };
+
     /** Creates a pipeline into a pre-allocated buffer */
-    static GrPipeline* CreateAt(void* memory,
-                                const GrPipelineBuilder&,
-                                const GrProcOptInfo& colorPOI,
-                                const GrProcOptInfo& coveragePOI,
-                                const GrCaps&,
-                                const GrScissorState&,
-                                const GrXferProcessor::DstTexture*,
-                                GrPipelineOptimizations*);
+    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineOptimizations*);
 
     /*
      * Returns true if these pipelines are equivalent.  Coord transforms may be applied either on
@@ -87,8 +89,6 @@ public:
     bool isDitherState() const { return SkToBool(fFlags & kDither_Flag); }
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
-    // Skip any draws that refer to this pipeline (they should be a no-op).
-    bool mustSkip() const { return NULL == this->getRenderTarget(); }
 
     /**
      * Gets whether the target is drawing clockwise, counterclockwise,

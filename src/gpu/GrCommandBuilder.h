@@ -14,8 +14,8 @@ class GrBufferedDrawTarget;
 
 class GrCommandBuilder : ::SkNoncopyable {
 public:
-    typedef GrTargetCommands::Cmd Cmd;
-    typedef GrTargetCommands::State State;
+    typedef GrTargetCommands::Cmd               Cmd;
+    typedef GrTargetCommands::StateForPathDraw  State;
 
     static GrCommandBuilder* Create(GrGpu* gpu, bool reorder);
 
@@ -28,7 +28,7 @@ public:
                                         bool insideClip,
                                         GrRenderTarget* renderTarget);
     virtual Cmd* recordDiscard(GrRenderTarget*);
-    virtual Cmd* recordDrawBatch(const State*, const GrPipelineOptimizations&, GrBatch*) = 0;
+    virtual Cmd* recordDrawBatch(GrBatch*) = 0;
     virtual Cmd* recordStencilPath(const GrPipelineBuilder&,
                                    const GrPathProcessor*,
                                    const GrPath*,

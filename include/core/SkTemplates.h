@@ -549,6 +549,7 @@ public:
      * memory. Use placement new for types that require a cons.
      */
     void* get() { return fStorage.get(); }
+    const void* get() const { return fStorage.get(); }
 private:
     SkAlignedSStorage<sizeof(T)*N> fStorage;
 };

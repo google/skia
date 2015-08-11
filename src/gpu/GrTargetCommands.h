@@ -22,6 +22,9 @@
 
 class GrBufferedDrawTarget;
 
+// TODO: Convert all commands into GrBatch and remove this class. Xferbarrier will just become a
+// batch blocker (when there is overlap) and the xp is responsible for issuing any barrier calls
+// on the backend.
 class GrTargetCommands : ::SkNoncopyable {
 public:
     GrTargetCommands(GrGpu* gpu)
@@ -33,14 +36,13 @@ public:
     public:
         enum CmdType {
             kStencilPath_CmdType       = 1,
-            kSetState_CmdType          = 2,
-            kClear_CmdType             = 3,
-            kClearStencil_CmdType      = 4,
-            kCopySurface_CmdType       = 5,
-            kDrawPath_CmdType          = 6,
-            kDrawPaths_CmdType         = 7,
-            kDrawBatch_CmdType         = 8,
-            kXferBarrier_CmdType       = 9,
+            kClear_CmdType             = 2,
+            kClearStencil_CmdType      = 3,
+            kCopySurface_CmdType       = 4,
+            kDrawPath_CmdType          = 5,
+            kDrawPaths_CmdType         = 6,
+            kDrawBatch_CmdType         = 7,
+            kXferBarrier_CmdType       = 8,
         };
 
         Cmd(CmdType type)
@@ -90,13 +92,13 @@ private:
     void recordXferBarrierIfNecessary(const GrPipeline&, GrBufferedDrawTarget*);
 
     // TODO: This can be just a pipeline once paths are in batch, and it should live elsewhere
-    struct State : public SkNVRefCnt<State> {
+    struct StateForPathDraw : public SkNVRefCnt<StateForPathDraw> {
         // TODO get rid of the prim proc parameter when we use batch everywhere
-        State(const GrPrimitiveProcessor* primProc = NULL)
+        StateForPathDraw(const GrPrimitiveProcessor* primProc = NULL)
             : fPrimitiveProcessor(primProc)
             , fCompiled(false) {}
 
-        ~State() { reinterpret_cast<GrPipeline*>(fPipeline.get())->~GrPipeline(); }
+        ~StateForPathDraw() { reinterpret_cast<GrPipeline*>(fPipeline.get())->~GrPipeline(); }
 
         // This function is only for getting the location in memory where we will create our
         // pipeline object.
@@ -131,7 +133,7 @@ private:
         bool                                    fCompiled;
     };
     // TODO remove this when State is just a pipeline
-    friend SkNVRefCnt<State>;
+    friend SkNVRefCnt<StateForPathDraw>;
 
     struct StencilPath : public Cmd {
         StencilPath(const GrPath* path, GrRenderTarget* rt)
@@ -153,7 +155,7 @@ private:
     };
 
     struct DrawPath : public Cmd {
-        DrawPath(State* state, const GrPath* path)
+        DrawPath(StateForPathDraw* state, const GrPath* path)
             : Cmd(kDrawPath_CmdType)
             , fState(SkRef(state))
             , fPath(path) {}
@@ -162,14 +164,14 @@ private:
 
         void execute(GrGpu*) override;
 
-        SkAutoTUnref<State>     fState;
-        GrStencilSettings       fStencilSettings;
+        SkAutoTUnref<StateForPathDraw>  fState;
+        GrStencilSettings               fStencilSettings;
     private:
         GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
     };
 
     struct DrawPaths : public Cmd {
-        DrawPaths(State* state, const GrPathRange* pathRange)
+        DrawPaths(StateForPathDraw* state, const GrPathRange* pathRange)
             : Cmd(kDrawPaths_CmdType)
             , fState(SkRef(state))
             , fPathRange(pathRange) {}
@@ -178,7 +180,7 @@ private:
 
         void execute(GrGpu*) override;
 
-        SkAutoTUnref<State>             fState;
+        SkAutoTUnref<StateForPathDraw>  fState;
         char*                           fIndices;
         GrDrawTarget::PathIndexType     fIndexType;
         float*                          fTransforms;
@@ -241,20 +243,17 @@ private:
     };
 
     struct DrawBatch : public Cmd {
-        DrawBatch(const State* state, GrBatch* batch, GrBatchTarget* batchTarget)
+        DrawBatch(GrBatch* batch, GrBatchTarget* batchTarget)
             : Cmd(kDrawBatch_CmdType)
-            , fState(SkRef(state))
             , fBatch(SkRef(batch))
             , fBatchTarget(batchTarget) {
             SkASSERT(!batch->isUsed());
         }
 
+        GrBatch* batch() { return fBatch; }
         void execute(GrGpu*) override;
-
-        SkAutoTUnref<const State>   fState;
-        SkAutoTUnref<GrBatch>       fBatch;
-
     private:
+        SkAutoTUnref<GrBatch>  fBatch;
         GrBatchTarget*         fBatchTarget;
     };
 

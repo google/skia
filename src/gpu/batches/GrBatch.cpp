@@ -48,6 +48,23 @@ void GrBatch::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
 
+GrBatch::GrBatch()
+    : fClassID(kIllegalBatchID)
+    , fNumberOfDraws(0)
+    , fPipelineInstalled(false)
+#if GR_BATCH_SPEW
+    , fUniqueID(GenID(&gCurrBatchUniqueID))
+#endif
+{
+    SkDEBUGCODE(fUsed = false;)
+}
+
+GrBatch::~GrBatch() {
+    if (fPipelineInstalled) {
+        this->pipeline()->~GrPipeline();
+    }
+}
+
 void* GrBatch::InstancedHelper::init(GrBatchTarget* batchTarget, GrPrimitiveType primType,
                                      size_t vertexStride, const GrIndexBuffer* indexBuffer,
                                      int verticesPerInstance, int indicesPerInstance,
@@ -84,4 +101,15 @@ void* GrBatch::QuadHelper::init(GrBatchTarget* batchTarget, size_t vertexStride,
     }
     return this->INHERITED::init(batchTarget, kTriangles_GrPrimitiveType, vertexStride,
                                  quadIndexBuffer, kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
+}
+
+bool GrBatch::installPipeline(const GrPipeline::CreateArgs& args) {
+    GrPipelineOptimizations opts;
+    void* location = fPipelineStorage.get();
+    if (!GrPipeline::CreateAt(location, args, &opts)) {
+        return false;
+    }
+    this->initBatchTracker(opts);
+    fPipelineInstalled = true;
+    return true;
 }

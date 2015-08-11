@@ -16,6 +16,7 @@
 #include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
 #include "GrPipelineBuilder.h"
+#include "GrPipeline.h"
 #include "GrTraceMarker.h"
 #include "GrVertexBuffer.h"
 #include "GrXferProcessor.h"
@@ -33,7 +34,6 @@ class GrClip;
 class GrCaps;
 class GrPath;
 class GrPathRange;
-class GrPipeline;
 
 class GrDrawTarget : public SkRefCnt {
 public:
@@ -200,11 +200,31 @@ public:
 
     bool programUnitTest(GrContext* owner, int maxStages);
 
+    struct PipelineInfo {
+        PipelineInfo(const GrPipelineBuilder* pipelineBuilder, const GrScissorState* scissor,
+                     const GrPrimitiveProcessor* primProc,
+                     const SkRect* devBounds, GrDrawTarget* target);
+
+        PipelineInfo(const GrPipelineBuilder* pipelineBuilder, const GrScissorState* scissor,
+                     const GrBatch* batch, const SkRect* devBounds,
+                     GrDrawTarget* target);
+
+        bool valid() const { return SkToBool(fArgs.fPipelineBuilder); }
+
+        const GrPipeline::CreateArgs& pipelineCreateArgs() const {
+            SkASSERT(this->valid());
+            return fArgs;
+        }
+
+        bool willColorBlendWithDst(const GrPrimitiveProcessor* primProc) const {
+            SkASSERT(this->valid());
+            return fArgs.fPipelineBuilder->willColorBlendWithDst(primProc);
+        }
+    private:
+        GrPipeline::CreateArgs      fArgs;
+    };
+
 protected:
-    friend class GrCommandBuilder; // for PipelineInfo
-    friend class GrInOrderCommandBuilder; // for PipelineInfo
-    friend class GrReorderCommandBuilder; // for PipelineInfo
-    friend class GrTargetCommands; // for PipelineInfo
 
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
@@ -220,39 +240,12 @@ protected:
                                  GrXferProcessor::DstTexture*,
                                  const SkRect* drawBounds);
 
-    struct PipelineInfo {
-        PipelineInfo(const GrPipelineBuilder& pipelineBuilder, GrScissorState* scissor,
-                     const GrPrimitiveProcessor* primProc,
-                     const SkRect* devBounds, GrDrawTarget* target);
-
-        PipelineInfo(const GrPipelineBuilder& pipelineBuilder, GrScissorState* scissor,
-                     const GrBatch* batch, const SkRect* devBounds,
-                     GrDrawTarget* target);
-
-        bool willColorBlendWithDst(const GrPrimitiveProcessor* primProc) const {
-            return fPipelineBuilder->willColorBlendWithDst(primProc);
-        }
-    private:
-        friend class GrDrawTarget;
-
-        bool mustSkipDraw() const { return (NULL == fPipelineBuilder); }
-
-        const GrPipelineBuilder*    fPipelineBuilder;
-        GrScissorState*             fScissor;
-        GrProcOptInfo               fColorPOI;
-        GrProcOptInfo               fCoveragePOI;
-        GrXferProcessor::DstTexture fDstTexture;
-    };
-
-    const GrPipeline* setupPipeline(const PipelineInfo&, void* pipelineAddr,
-                                    GrPipelineOptimizations*);
-
 private:
     virtual void onReset() = 0;
 
     virtual void onFlush() = 0;
 
-    virtual void onDrawBatch(GrBatch*, const PipelineInfo&) = 0;
+    virtual void onDrawBatch(GrBatch*) = 0;
     virtual void onStencilPath(const GrPipelineBuilder&,
                                const GrPathProcessor*,
                                const GrPath*,

@@ -26,15 +26,11 @@ GrBufferedDrawTarget::~GrBufferedDrawTarget() {
     this->reset();
 }
 
-void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch,
-                                       const PipelineInfo& pipelineInfo) {
-    GrPipelineOptimizations opts;
-    State* state = this->setupPipelineAndShouldDraw(batch, pipelineInfo, &opts);
-    if (!state) {
-        return;
-    }
+void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch) {
+    this->recordTraceMarkersIfNecessary(
+        fCommands->recordXferBarrierIfNecessary(*batch->pipeline(), *this->caps()));
 
-    GrTargetCommands::Cmd* cmd = fCommands->recordDrawBatch(state, opts, batch);
+    GrTargetCommands::Cmd* cmd = fCommands->recordDrawBatch(batch);
     this->recordTraceMarkersIfNecessary(cmd);
 }
 
@@ -54,7 +50,7 @@ void GrBufferedDrawTarget::onDrawPath(const GrPathProcessor* pathProc,
                                       const GrStencilSettings& stencilSettings,
                                       const PipelineInfo& pipelineInfo) {
     GrPipelineOptimizations opts;
-    State* state = this->setupPipelineAndShouldDraw(pathProc, pipelineInfo, &opts);
+    StateForPathDraw* state = this->createStateForPathDraw(pathProc, pipelineInfo, &opts);
     if (!state) {
         return;
     }
@@ -72,7 +68,7 @@ void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
                                        const GrStencilSettings& stencilSettings,
                                        const PipelineInfo& pipelineInfo) {
     GrPipelineOptimizations opts;
-    State* state = this->setupPipelineAndShouldDraw(pathProc, pipelineInfo, &opts);
+    StateForPathDraw* state = this->createStateForPathDraw(pathProc, pipelineInfo, &opts);
     if (!state) {
         return;
     }
@@ -149,14 +145,12 @@ void GrBufferedDrawTarget::recordTraceMarkersIfNecessary(GrTargetCommands::Cmd* 
     }
 }
 
-GrTargetCommands::State*
-GrBufferedDrawTarget::setupPipelineAndShouldDraw(const GrPrimitiveProcessor* primProc,
-                                                 const GrDrawTarget::PipelineInfo& pipelineInfo,
-                                                 GrPipelineOptimizations* opts) {
-    State* state = this->allocState(primProc);
-    this->setupPipeline(pipelineInfo, state->pipelineLocation(), opts);
-
-    if (state->getPipeline()->mustSkip()) {
+GrTargetCommands::StateForPathDraw*
+GrBufferedDrawTarget::createStateForPathDraw(const GrPrimitiveProcessor* primProc,
+                                             const GrDrawTarget::PipelineInfo& pipelineInfo,
+                                             GrPipelineOptimizations* opts) {
+    StateForPathDraw* state = this->allocState(primProc);
+    if (!GrPipeline::CreateAt(state->pipelineLocation(), pipelineInfo.pipelineCreateArgs(), opts)) {
         this->unallocState(state);
         return NULL;
     }
@@ -167,30 +161,6 @@ GrBufferedDrawTarget::setupPipelineAndShouldDraw(const GrPrimitiveProcessor* pri
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
                                                       *state->fPrimitiveProcessor,
                                                       state->fBatchTracker) &&
-        fPrevState->getPipeline()->isEqual(*state->getPipeline())) {
-        this->unallocState(state);
-    } else {
-        fPrevState.reset(state);
-    }
-
-    this->recordTraceMarkersIfNecessary(
-            fCommands->recordXferBarrierIfNecessary(*fPrevState->getPipeline(), *this->caps()));
-    return fPrevState;
-}
-
-GrTargetCommands::State*
-GrBufferedDrawTarget::setupPipelineAndShouldDraw(GrBatch* batch,
-                                                 const GrDrawTarget::PipelineInfo& pipelineInfo,
-                                                 GrPipelineOptimizations* opts) {
-    State* state = this->allocState();
-    this->setupPipeline(pipelineInfo, state->pipelineLocation(), opts);
-
-    if (state->getPipeline()->mustSkip()) {
-        this->unallocState(state);
-        return NULL;
-    }
-
-    if (fPrevState && !fPrevState->fPrimitiveProcessor.get() &&
         fPrevState->getPipeline()->isEqual(*state->getPipeline())) {
         this->unallocState(state);
     } else {

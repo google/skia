@@ -61,14 +61,15 @@ private:
     friend class GrInOrderCommandBuilder;
     friend class GrTargetCommands;
 
-    typedef GrTargetCommands::State State;
+    typedef GrTargetCommands::StateForPathDraw StateForPathDraw;
 
-    State* allocState(const GrPrimitiveProcessor* primProc = NULL) {
-        void* allocation = fPipelineBuffer.alloc(sizeof(State), SkChunkAlloc::kThrow_AllocFailType);
-        return SkNEW_PLACEMENT_ARGS(allocation, State, (primProc));
+    StateForPathDraw* allocState(const GrPrimitiveProcessor* primProc = NULL) {
+        void* allocation = fPipelineBuffer.alloc(sizeof(StateForPathDraw),
+                                                 SkChunkAlloc::kThrow_AllocFailType);
+        return SkNEW_PLACEMENT_ARGS(allocation, StateForPathDraw, (primProc));
     }
 
-    void unallocState(State* state) {
+    void unallocState(StateForPathDraw* state) {
         state->unref();
         fPipelineBuffer.unalloc(state);
     }
@@ -77,7 +78,7 @@ private:
     void onFlush() override;
 
     // overrides from GrDrawTarget
-    void onDrawBatch(GrBatch*, const PipelineInfo&) override;
+    void onDrawBatch(GrBatch*) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,
@@ -112,18 +113,16 @@ private:
     }
     bool isIssued(uint32_t drawID) override { return drawID != fDrawID; }
 
-    State* SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(const GrPrimitiveProcessor*,
-                                                            const GrDrawTarget::PipelineInfo&,
-                                                            GrPipelineOptimizations* opts);
-    State* SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(GrBatch*,
-                                                            const GrDrawTarget::PipelineInfo&,
-                                                            GrPipelineOptimizations* opts);
+    StateForPathDraw* SK_WARN_UNUSED_RESULT createStateForPathDraw(
+        const GrPrimitiveProcessor*,
+        const GrDrawTarget::PipelineInfo&,
+        GrPipelineOptimizations* opts);
 
     // TODO: Use a single allocator for commands and records
     enum {
         kPathIdxBufferMinReserve     = 2 * 64,  // 64 uint16_t's
         kPathXformBufferMinReserve   = 2 * 64,  // 64 two-float transforms
-        kPipelineBufferMinReserve    = 32 * sizeof(State),
+        kPipelineBufferMinReserve    = 32 * sizeof(StateForPathDraw),
     };
 
     // every 100 flushes we should reset our fPipelineBuffer to prevent us from holding at a
@@ -136,7 +135,7 @@ private:
     SkChunkAlloc                        fPathTransformBuffer;
     SkChunkAlloc                        fPipelineBuffer;
     uint32_t                            fDrawID;
-    SkAutoTUnref<State>                 fPrevState;
+    SkAutoTUnref<StateForPathDraw>      fPrevState;
 
     typedef GrClipTarget INHERITED;
 };

@@ -15,9 +15,7 @@ static bool intersect(const Left& a, const Right& b) {
            a.fTop < b.fBottom && b.fTop < a.fBottom;
 }
 
-GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(const State* state,
-                                                                const GrPipelineOptimizations& opts,
-                                                                GrBatch* batch) {
+GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrBatch* batch) {
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw
     // 2) intersect with something
@@ -25,8 +23,8 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(const State* sta
     // Experimentally we have found that most batching occurs within the first 10 comparisons.
     static const int kMaxLookback = 10;
     int i = 0;
-    batch->setPipeline(state->getPipeline(), opts);
-    GrRenderTarget* rt = state->getPipeline()->getRenderTarget();
+
+    GrRenderTarget* rt = batch->pipeline()->getRenderTarget();
 
     GrBATCH_INFO("Re-Recording (%s, B%u)\n"
                  "\tRenderTarget %p\n"
@@ -37,14 +35,14 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(const State* sta
                  batch->bounds().fTop, batch->bounds().fBottom);
     if (GR_BATCH_SPEW) {
         SkDebugf("\tColorStages:\n");
-        for (int i = 0; i < state->getPipeline()->numColorFragmentStages(); i++) {
-            SkDebugf("\t\t%s\n", state->getPipeline()->getColorStage(i).processor()->name());
+        for (int i = 0; i < batch->pipeline()->numColorFragmentStages(); i++) {
+            SkDebugf("\t\t%s\n", batch->pipeline()->getColorStage(i).processor()->name());
         }
         SkDebugf("\tCoverageStages:\n");
-        for (int i = 0; i < state->getPipeline()->numCoverageFragmentStages(); i++) {
-            SkDebugf("\t\t%s\n", state->getPipeline()->getCoverageStage(i).processor()->name());
+        for (int i = 0; i < batch->pipeline()->numCoverageFragmentStages(); i++) {
+            SkDebugf("\t\t%s\n", batch->pipeline()->getCoverageStage(i).processor()->name());
         }
-        SkDebugf("\tXP: %s\n", state->getPipeline()->getXferProcessor()->name());
+        SkDebugf("\tXP: %s\n", batch->pipeline()->getXferProcessor()->name());
     }
     GrBATCH_INFO("\tOutcome:\n");
     if (!this->cmdBuffer()->empty()) {
@@ -54,19 +52,19 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(const State* sta
             if (Cmd::kDrawBatch_CmdType == reverseIter->type()) {
                 DrawBatch* previous = static_cast<DrawBatch*>(reverseIter.get());
 
-                if (previous->fBatch->pipeline()->getRenderTarget() != rt) {
+                if (previous->batch()->pipeline()->getRenderTarget() != rt) {
                     GrBATCH_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
                                  previous->fBatch->name(), previous->fBatch->uniqueID());
                     break;
                 }
                 // We cannot continue to search backwards if the render target changes
-                if (previous->fBatch->combineIfPossible(batch)) {
+                if (previous->batch()->combineIfPossible(batch)) {
                     GrBATCH_INFO("\t\tCombining with (%s, B%u)\n",
                                  previous->fBatch->name(), previous->fBatch->uniqueID());
                     return NULL;
                 }
 
-                if (intersect(previous->fBatch->bounds(), batch->bounds())) {
+                if (intersect(previous->batch()->bounds(), batch->bounds())) {
                     GrBATCH_INFO("\t\tIntersects with (%s, B%u)\n",
                                  previous->fBatch->name(), previous->fBatch->uniqueID());
                     break;
@@ -106,6 +104,5 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(const State* sta
     }
 #endif
 
-    return GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), DrawBatch, (state, batch,
-                                                                    this->batchTarget()));
+    return GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), DrawBatch, (batch, this->batchTarget()));
 }

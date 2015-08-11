@@ -17,7 +17,6 @@
  */
 class GrImmediateDrawTarget : public GrClipTarget {
 public:
-
     /**
      * Creates a GrImmediateDrawTarget
      *
@@ -38,7 +37,7 @@ private:
     void onFlush() override;
 
     // overrides from GrDrawTarget
-    void onDrawBatch(GrBatch*, const PipelineInfo&) override;
+    void onDrawBatch(GrBatch*) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,
@@ -72,12 +71,6 @@ private:
                        const SkIPoint& dstPoint) override;
 
     bool isIssued(uint32_t drawID) override { return drawID != fDrawID; }
-
-    bool SK_WARN_UNUSED_RESULT setupPipelineAndShouldDraw(void* pipelineAddr,
-                                                          const GrDrawTarget::PipelineInfo&,
-                                                          GrPipelineOptimizations* opts);
-
-    void recordXferBarrierIfNecessary(const GrPipeline*);
 
     GrBatchTarget fBatchTarget;
     uint32_t fDrawID;
