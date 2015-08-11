@@ -14,7 +14,7 @@
 #include "SkLazyPtr.h"
 #include "SkRect.h"
 #include "SkString.h"
-#include "SkWeakRefCnt.h"
+#include "../private/SkWeakRefCnt.h"
 
 class SkDescriptor;
 class SkFontData;
