@@ -9,6 +9,7 @@
 #define SkPicture_DEFINED
 
 #include "SkImageDecoder.h"
+#include "SkLazyPtr.h"
 #include "SkRefCnt.h"
 #include "SkTypes.h"
 

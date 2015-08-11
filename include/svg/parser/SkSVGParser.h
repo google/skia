@@ -12,6 +12,7 @@
 
 #include "SkMatrix.h"
 #include "SkTDict.h"
+#include "SkTDStack.h"
 #include "SkSVGPaintState.h"
 #include "SkSVGTypes.h"
 #include "SkStream.h"
