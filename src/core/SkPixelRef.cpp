@@ -200,6 +200,8 @@ bool SkPixelRef::lockPixelsInsideMutex() {
         validate_pixels_ctable(fInfo, fRec.fColorTable);
         return true;
     }
+    // no pixels, so we failed (somehow)
+    --fLockCount;
     return false;
 }
 
