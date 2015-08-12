@@ -175,7 +175,7 @@ private:
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
                                 caps)) {
             return false;
