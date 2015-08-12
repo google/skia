@@ -40,18 +40,7 @@ void GrTargetCommands::flush(GrBufferedDrawTarget* bufferedDrawTarget) {
     CmdBuffer::Iter iter(fCmdBuffer);
 
     while (iter.next()) {
-        GrGpuTraceMarker newMarker("", -1);
-        SkString traceString;
-        if (iter->isTraced()) {
-            traceString = bufferedDrawTarget->getCmdString(iter->markerID());
-            newMarker.fMarker = traceString.c_str();
-            gpu->addGpuTraceMarker(&newMarker);
-        }
-
         iter->execute(gpu);
-        if (iter->isTraced()) {
-            gpu->removeGpuTraceMarker(&newMarker);
-        }
     }
 
     fBatchTarget.postFlush();

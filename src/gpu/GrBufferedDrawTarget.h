@@ -105,12 +105,6 @@ private:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    // Records any trace markers for a command
-    void recordTraceMarkersIfNecessary(GrTargetCommands::Cmd*);
-    SkString getCmdString(int index) const {
-        SkASSERT(index < fGpuCmdMarkers.count());
-        return fGpuCmdMarkers[index].toString();
-    }
     bool isIssued(uint32_t drawID) override { return drawID != fDrawID; }
 
     StateForPathDraw* SK_WARN_UNUSED_RESULT createStateForPathDraw(
@@ -130,7 +124,6 @@ private:
     static const int kPipelineBufferHighWaterMark = 100;
 
     SkAutoTDelete<GrCommandBuilder>     fCommands;
-    SkTArray<GrTraceMarkerSet, false>   fGpuCmdMarkers;
     SkChunkAlloc                        fPathIndexBuffer;
     SkChunkAlloc                        fPathTransformBuffer;
     SkChunkAlloc                        fPipelineBuffer;

@@ -46,22 +46,17 @@ public:
         };
 
         Cmd(CmdType type)
-            : fMarkerID(-1)
-            , fType(type)
+            : fType(type)
 #if GR_BATCH_SPEW
             , fUniqueID(GenID(&gUniqueID))
 #endif
-{}
+        {}
         virtual ~Cmd() {}
 
         virtual void execute(GrGpu*) = 0;
 
         CmdType type() const { return fType; }
 
-        // trace markers
-        bool isTraced() const { return -1 != fMarkerID; }
-        void setMarkerID(int markerID) { SkASSERT(-1 == fMarkerID); fMarkerID = markerID; }
-        int markerID() const { return fMarkerID; }
         GrBATCH_SPEW(uint32_t uniqueID() const { return fUniqueID;} )
 
     private:
@@ -73,7 +68,6 @@ public:
             }
             return id;
         }
-        int              fMarkerID;
         CmdType          fType;
         GrBATCH_SPEW(uint32_t fUniqueID);
         GrBATCH_SPEW(static int32_t gUniqueID;)
