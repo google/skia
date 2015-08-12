@@ -349,8 +349,8 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 
 #include "GrTextureAccess.h"
-#include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
+#include "effects/GrSimpleTextureEffect.h"
 
 bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
                                              const SkMatrix& viewM,
@@ -382,41 +382,10 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
     // we check the matrix scale factors to determine how to interpret the filter quality setting.
     // This completely ignores the complexity of the drawVertices case where explicit local coords
     // are provided by the caller.
-    bool useBicubic = false;
-    GrTextureParams::FilterMode textureFilterMode;
-    switch(paint.getFilterQuality()) {
-        case kNone_SkFilterQuality:
-            textureFilterMode = GrTextureParams::kNone_FilterMode;
-            break;
-        case kLow_SkFilterQuality:
-            textureFilterMode = GrTextureParams::kBilerp_FilterMode;
-            break;
-        case kMedium_SkFilterQuality: {
-            SkMatrix matrix;
-            matrix.setConcat(viewM, this->getLocalMatrix());
-            if (matrix.getMinScale() < SK_Scalar1) {
-                textureFilterMode = GrTextureParams::kMipMap_FilterMode;
-            } else {
-                // Don't trigger MIP level generation unnecessarily.
-                textureFilterMode = GrTextureParams::kBilerp_FilterMode;
-            }
-            break;
-        }
-        case kHigh_SkFilterQuality: {
-            SkMatrix matrix;
-            matrix.setConcat(viewM, this->getLocalMatrix());
-            useBicubic = GrBicubicEffect::ShouldUseBicubic(matrix, &textureFilterMode);
-            break;
-        }
-        default:
-            SkErrorInternals::SetError( kInvalidPaint_SkError,
-                                        "Sorry, I don't understand the filtering "
-                                        "mode you asked for.  Falling back to "
-                                        "MIPMaps.");
-            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
-            break;
-
-    }
+    bool doBicubic;
+    GrTextureParams::FilterMode textureFilterMode =
+            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewM, this->getLocalMatrix(),
+                                            &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
     SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fRawBitmap, &params));
 
@@ -430,7 +399,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
                                                 SkColor2GrColor(paint.getColor()) :
                                                 SkColor2GrColorJustAlpha(paint.getColor());
 
-    if (useBicubic) {
+    if (doBicubic) {
         *fp = GrBicubicEffect::Create(procDataManager, texture, matrix, tm);
     } else {
         *fp = GrSimpleTextureEffect::Create(procDataManager, texture, matrix, params);

@@ -1034,39 +1034,10 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     viewM.preConcat(m);
 
     GrTextureParams params;
-    SkFilterQuality paintFilterQuality = paint.getFilterQuality();
-    GrTextureParams::FilterMode textureFilterMode;
-
-    bool doBicubic = false;
-
-    switch(paintFilterQuality) {
-        case kNone_SkFilterQuality:
-            textureFilterMode = GrTextureParams::kNone_FilterMode;
-            break;
-        case kLow_SkFilterQuality:
-            textureFilterMode = GrTextureParams::kBilerp_FilterMode;
-            break;
-        case kMedium_SkFilterQuality:
-            if (viewM.getMinScale() < SK_Scalar1) {
-                textureFilterMode = GrTextureParams::kMipMap_FilterMode;
-            } else {
-                // Don't trigger MIP level generation unnecessarily.
-                textureFilterMode = GrTextureParams::kBilerp_FilterMode;
-            }
-            break;
-        case kHigh_SkFilterQuality:
-            // Minification can look bad with the bicubic effect.
-            doBicubic =
-                GrBicubicEffect::ShouldUseBicubic(viewM, &textureFilterMode);
-            break;
-        default:
-            SkErrorInternals::SetError( kInvalidPaint_SkError,
-                                        "Sorry, I don't understand the filtering "
-                                        "mode you asked for.  Falling back to "
-                                        "MIPMaps.");
-            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
-            break;
-    }
+    bool doBicubic;
+    GrTextureParams::FilterMode textureFilterMode =
+            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewM, SkMatrix::I(),
+                                            &doBicubic);
 
     int tileFilterPad;
     if (doBicubic) {

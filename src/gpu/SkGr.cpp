@@ -21,6 +21,7 @@
 #include "SkResourceCache.h"
 #include "SkTextureCompressor.h"
 #include "SkYUVPlanesCache.h"
+#include "effects/GrBicubicEffect.h"
 #include "effects/GrDitherEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrYUVtoRGBEffect.h"
@@ -834,4 +835,46 @@ void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque, SkBitmap
     const SkImageInfo info = GrMakeInfoFromTexture(src, w, h, isOpaque);
     dst->setInfo(info);
     dst->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, src)))->unref();
+}
+
+GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
+                                                            const SkMatrix& viewM,
+                                                            const SkMatrix& localM,
+                                                            bool* doBicubic) {
+    *doBicubic = false;
+    GrTextureParams::FilterMode textureFilterMode;
+    switch (paintFilterQuality) {
+        case kNone_SkFilterQuality:
+            textureFilterMode = GrTextureParams::kNone_FilterMode;
+            break;
+        case kLow_SkFilterQuality:
+            textureFilterMode = GrTextureParams::kBilerp_FilterMode;
+            break;
+        case kMedium_SkFilterQuality: {
+            SkMatrix matrix;
+            matrix.setConcat(viewM, localM);
+            if (matrix.getMinScale() < SK_Scalar1) {
+                textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            } else {
+                // Don't trigger MIP level generation unnecessarily.
+                textureFilterMode = GrTextureParams::kBilerp_FilterMode;
+            }
+            break;
+        }
+        case kHigh_SkFilterQuality: {
+            SkMatrix matrix;
+            matrix.setConcat(viewM, localM);
+            *doBicubic = GrBicubicEffect::ShouldUseBicubic(matrix, &textureFilterMode);
+            break;
+        }
+        default:
+            SkErrorInternals::SetError( kInvalidPaint_SkError,
+                                        "Sorry, I don't understand the filtering "
+                                        "mode you asked for.  Falling back to "
+                                        "MIPMaps.");
+            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            break;
+
+    }
+    return textureFilterMode;
 }

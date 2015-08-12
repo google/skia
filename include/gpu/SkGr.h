@@ -14,8 +14,9 @@
 #include <stddef.h>
 
 // Gr headers
-#include "GrTypes.h"
 #include "GrContext.h"
+#include "GrTextureAccess.h"
+#include "GrTypes.h"
 
 // skia headers
 #include "SkBitmap.h"
@@ -95,6 +96,11 @@ SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque);
 
 // Using the dreaded SkGrPixelRef ...
 void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque, SkBitmap* dst);
+
+GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
+                                                            const SkMatrix& viewM,
+                                                            const SkMatrix& localM,
+                                                            bool* doBicubic);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Classes
