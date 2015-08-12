@@ -20,7 +20,7 @@
       'variables': { 'skia_pdf_use_sfntly%': 1, },
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'skflate.gyp:skflate',
+        'zlib.gyp:zlib',
       ],
       'includes': [
         'pdf.gypi',
