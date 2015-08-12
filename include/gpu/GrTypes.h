@@ -126,7 +126,11 @@ static inline int GrNextPow2(int n) {
  */
 enum GrBackend {
     kOpenGL_GrBackend,
+    kVulkan_GrBackend,
+
+    kLast_GrBackend = kVulkan_GrBackend
 };
+const int kBackendCount = kLast_GrBackend + 1;
 
 /**
  * Backend-specific 3D context handle

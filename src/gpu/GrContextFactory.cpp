@@ -76,7 +76,11 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
 
     glCtx->makeCurrent();
     GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glInterface.get());
+#ifdef SK_VULKAN
+    grCtx.reset(GrContext::Create(kVulkan_GrBackend, p3dctx, fGlobalOptions));
+#else
     grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, fGlobalOptions));
+#endif
     if (!grCtx.get()) {
         return NULL;
     }

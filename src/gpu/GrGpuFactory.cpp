@@ -13,8 +13,13 @@
 #include "gl/GrGLConfig.h"
 #include "gl/GrGLGpu.h"
 
-static const int kMaxNumBackends = 4;
-static CreateGpuProc gGpuFactories[kMaxNumBackends] = {GrGLGpu::Create, NULL, NULL, NULL};
+static CreateGpuProc gGpuFactories[kBackendCount] = { GrGLGpu::Create, NULL };
+
+#ifdef SK_VULKAN
+extern GrGpu* vk_gpu_create(GrBackendContext backendContext, const GrContextOptions& options,
+                            GrContext* context);
+GrGpuFactoryRegistrar gVkGpuFactoryProc(kVulkan_GrBackend, vk_gpu_create);
+#endif
 
 GrGpuFactoryRegistrar::GrGpuFactoryRegistrar(int i, CreateGpuProc proc) {
     gGpuFactories[i] = proc;
@@ -24,7 +29,7 @@ GrGpu* GrGpu::Create(GrBackend backend,
                      GrBackendContext backendContext,
                      const GrContextOptions& options,
                      GrContext* context) {
-    SkASSERT((int)backend < kMaxNumBackends);
+    SkASSERT((int)backend < kBackendCount);
     if (!gGpuFactories[backend]) {
         return NULL;
     }
