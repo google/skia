@@ -12,6 +12,13 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 
+// This file may be included multiple times by .cpp files with different flags, leading
+// to different definitions.  Usually that doesn't matter because it's all inlined, but
+// in Debug modes the compilers may not inline everything.  So wrap everything in an
+// anonymous namespace to give each includer their own silo of this code (or the linker
+// will probably pick one randomly for us, which is rarely correct).
+namespace {
+
 // 1, 2 or 4 SkPMColors, generally vectorized.
 class Sk4px : public Sk16b {
 public:
@@ -218,6 +225,8 @@ public:
 private:
     typedef Sk16b INHERITED;
 };
+
+}  // namespace
 
 #ifdef SKNX_NO_SIMD
     #include "../opts/Sk4px_none.h"

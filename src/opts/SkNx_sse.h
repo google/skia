@@ -10,6 +10,9 @@
 
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
 
+namespace {  // See SkNx.h
+
+
 template <>
 class SkNf<2, float> {
 public:
@@ -309,5 +312,7 @@ public:
 
     __m128i fVec;
 };
+
+}  // namespace
 
 #endif//SkNx_sse_DEFINED

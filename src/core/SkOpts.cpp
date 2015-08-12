@@ -37,7 +37,7 @@ namespace SkOpts {
     decltype(rsqrt)                     rsqrt = portable::rsqrt;
     decltype(memset16)               memset16 = portable::memset16;
     decltype(memset32)               memset32 = portable::memset32;
-    decltype(create_xfermode) create_xfermode = portable::create_xfermode;
+    decltype(create_xfermode) create_xfermode = SkCreate4pxXfermode;
 
     decltype(box_blur_xx) box_blur_xx = portable::box_blur_xx;
     decltype(box_blur_xy) box_blur_xy = portable::box_blur_xy;

@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
-SK_ALWAYS_INLINE SkPMFloat::SkPMFloat(SkPMColor c) {
+namespace { // See SkPMFloat.h
+
+inline SkPMFloat::SkPMFloat(SkPMColor c) {
     SkPMColorAssert(c);
     uint8x8_t   fix8    = (uint8x8_t)vdup_n_u32(c);
     uint16x8_t  fix8_16 = vmovl_u8(fix8);
@@ -14,7 +16,7 @@ SK_ALWAYS_INLINE SkPMFloat::SkPMFloat(SkPMColor c) {
     SkASSERT(this->isValid());
 }
 
-SK_ALWAYS_INLINE SkPMColor SkPMFloat::round() const {
+inline SkPMColor SkPMFloat::round() const {
     // vcvt_u32_f32 truncates, so we round manually by adding a half before converting.
     float32x4_t rounded = vmlaq_f32(vdupq_n_f32(0.5f), fVec, vdupq_n_f32(255));
     uint32x4_t  fix8_32 = vcvtq_u32_f32(rounded);
@@ -25,7 +27,9 @@ SK_ALWAYS_INLINE SkPMColor SkPMFloat::round() const {
     return c;
 }
 
-SK_ALWAYS_INLINE Sk4f SkPMFloat::alphas() const {
+inline Sk4f SkPMFloat::alphas() const {
     static_assert(SK_A32_SHIFT == 24, "Assuming little-endian.");
     return vdupq_lane_f32(vget_high_f32(fVec), 1);  // Duplicate high lane of high half i.e. lane 3.
 }
+
+}  // namespace

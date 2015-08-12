@@ -8,6 +8,8 @@
 #ifndef SkNx_neon_DEFINED
 #define SkNx_neon_DEFINED
 
+namespace {  // See SkNx.h
+
 // Well, this is absurd.  The shifts require compile-time constant arguments.
 
 #define SHIFT8(op, v, bits) switch(bits) { \
@@ -380,5 +382,7 @@ public:
 #undef SHIFT32
 #undef SHIFT16
 #undef SHIFT8
+
+}  // namespace
 
 #endif//SkNx_neon_DEFINED

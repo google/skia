@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
-SK_ALWAYS_INLINE SkPMFloat::SkPMFloat(SkPMColor c) {
+namespace {  // See SkPMFloat.h
+
+inline SkPMFloat::SkPMFloat(SkPMColor c) {
     float inv255 = 1.0f/255;
     *this = SkPMFloat::FromARGB(SkGetPackedA32(c) * inv255,
                                 SkGetPackedR32(c) * inv255,
@@ -14,7 +16,7 @@ SK_ALWAYS_INLINE SkPMFloat::SkPMFloat(SkPMColor c) {
     SkASSERT(this->isValid());
 }
 
-SK_ALWAYS_INLINE SkPMColor SkPMFloat::round() const {
+inline SkPMColor SkPMFloat::round() const {
     float a = this->a(),
           r = this->r(),
           g = this->g(),
@@ -28,6 +30,8 @@ SK_ALWAYS_INLINE SkPMColor SkPMFloat::round() const {
     return c;
 }
 
-SK_ALWAYS_INLINE Sk4f SkPMFloat::alphas() const {
+inline Sk4f SkPMFloat::alphas() const {
     return Sk4f(this->a());
 }
+
+}  // namespace
