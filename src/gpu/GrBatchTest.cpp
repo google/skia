@@ -14,6 +14,7 @@
 BATCH_TEST_EXTERN(AAConvexPathBatch);
 BATCH_TEST_EXTERN(AADistanceFieldPathBatch);
 BATCH_TEST_EXTERN(AAFillRectBatch);
+BATCH_TEST_EXTERN(AAFillRectBatchLocalMatrix);
 BATCH_TEST_EXTERN(AAHairlineBatch);
 BATCH_TEST_EXTERN(AAStrokeRectBatch);
 BATCH_TEST_EXTERN(DashBatch);
@@ -32,6 +33,7 @@ static BatchTestFunc gTestBatches[] = {
     BATCH_TEST_ENTRY(AAConvexPathBatch),
     BATCH_TEST_ENTRY(AADistanceFieldPathBatch),
     BATCH_TEST_ENTRY(AAFillRectBatch),
+    BATCH_TEST_ENTRY(AAFillRectBatchLocalMatrix),
     BATCH_TEST_ENTRY(AAHairlineBatch),
     BATCH_TEST_ENTRY(AAStrokeRectBatch),
     BATCH_TEST_ENTRY(DashBatch),

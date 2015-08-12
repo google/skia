@@ -24,42 +24,30 @@ static void set_inset_fan(SkPoint* pts, size_t stride,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
 
-static const GrGeometryProcessor* create_fill_rect_gp(bool tweakAlphaForCoverage,
-                                                      const SkMatrix& viewMatrix,
-                                                      bool usesLocalCoords,
-                                                      bool coverageIgnored) {
-    using namespace GrDefaultGeoProcFactory;
-
-    Color color(Color::kAttribute_Type);
-    Coverage::Type coverageType;
-    // TODO remove coverage if coverage is ignored
-    /*if (coverageIgnored) {
-        coverageType = Coverage::kNone_Type;
-    } else*/ if (tweakAlphaForCoverage) {
-        coverageType = Coverage::kSolid_Type;
-    } else {
-        coverageType = Coverage::kAttribute_Type;
-    }
-    Coverage coverage(coverageType);
-    LocalCoords localCoords(usesLocalCoords ? LocalCoords::kUsePosition_Type :
-                                              LocalCoords::kUnused_Type);
-    return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
-}
-
+/*
+ * AAFillRectBatch is templated to optionally allow the insertion of an additional
+ * attribute for explicit local coordinates.
+ * To use this template, an implementation must define the following static functions:
+ *     A Geometry struct
+ *
+ *     bool CanCombineLocalCoords(const SkMatrix& mine, const SkMatrix& theirs,
+ *                                bool usesLocalCoords)
+ *
+ *     GrDefaultGeoProcFactory::LocalCoords::Type LocalCoordsType()
+ *
+ *     bool StrideCheck(size_t vertexStride, bool canTweakAlphaForCoverage,
+ *                      bool usesLocalCoords)
+ *
+ *     void FillInAttributes(intptr_t startVertex, size_t vertexStride,
+ *                           SkPoint* fan0Position, const Geometry&)
+ */
+template <typename Base>
 class AAFillRectBatch : public GrBatch {
 public:
-    struct Geometry {
-        GrColor fColor;
-        SkMatrix fViewMatrix;
-        SkRect fRect;
-        SkRect fDevRect;
-    };
+    typedef typename Base::Geometry Geometry;
 
-    static GrBatch* Create(GrColor color,
-                           const SkMatrix& viewMatrix,
-                           const SkRect& rect,
-                           const SkRect& devRect) {
-        return SkNEW_ARGS(AAFillRectBatch, (color, viewMatrix, rect, devRect));
+    static AAFillRectBatch* Create() {
+        return SkNEW(AAFillRectBatch);
     }
 
     const char* name() const override { return "AAFillRectBatch"; }
@@ -91,10 +79,11 @@ public:
     void generateGeometry(GrBatchTarget* batchTarget) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
-        SkAutoTUnref<const GrGeometryProcessor> gp(create_fill_rect_gp(canTweakAlphaForCoverage,
-                                                                       this->viewMatrix(),
-                                                                       this->usesLocalCoords(),
-                                                                       this->coverageIgnored()));
+        SkAutoTUnref<const GrGeometryProcessor> gp(CreateFillRectGP(canTweakAlphaForCoverage,
+                                                                    this->viewMatrix(),
+                                                                    this->usesLocalCoords(),
+                                                                    Base::LocalCoordsType(),
+                                                                    this->coverageIgnored()));
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -103,9 +92,8 @@ public:
         batchTarget->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
-        SkASSERT(canTweakAlphaForCoverage ?
-                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
-                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
+        SkASSERT(Base::StrideCheck(vertexStride, canTweakAlphaForCoverage,
+                                   this->usesLocalCoords()));
         int instanceCount = fGeoData.count();
 
         SkAutoTUnref<const GrIndexBuffer> indexBuffer(this->getIndexBuffer(
@@ -120,14 +108,10 @@ public:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            const Geometry& args = fGeoData[i];
             this->generateAAFillRectGeometry(vertices,
                                              i * kVertsPerAAFillRect * vertexStride,
                                              vertexStride,
-                                             args.fColor,
-                                             args.fViewMatrix,
-                                             args.fRect,
-                                             args.fDevRect,
+                                             fGeoData[i],
                                              canTweakAlphaForCoverage);
         }
         helper.issueDraw(batchTarget);
@@ -135,17 +119,22 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
-    AAFillRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                      const SkRect& devRect) {
-        this->initClassID<AAFillRectBatch>();
-        Geometry& geometry = fGeoData.push_back();
-        geometry.fRect = rect;
-        geometry.fViewMatrix = viewMatrix;
-        geometry.fDevRect = devRect;
-        geometry.fColor = color;
+    // to avoid even the initial copy of the struct, we have a getter for the first item which
+    // is used to seed the batch with its initial geometry.  After seeding, the client should call
+    // init() so the Batch can initialize itself
+    Geometry* geometry() { return &fGeoData[0]; }
+    void init() {
+        const Geometry& geo = fGeoData[0];
+        this->setBounds(geo.fDevRect);
+    }
 
-        this->setBounds(geometry.fDevRect);
+
+private:
+    AAFillRectBatch() {
+        this->initClassID<AAFillRectBatch<Base>>();
+
+        // Push back an initial geometry
+        fGeoData.push_back();
     }
 
     static const int kNumAAFillRectsInIndexBuffer = 256;
@@ -182,12 +171,8 @@ private:
         }
 
         AAFillRectBatch* that = t->cast<AAFillRectBatch>();
-
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
-        // local coords then we won't be able to batch.  We could actually upload the viewmatrix
-        // using vertex attributes in these cases, but haven't investigated that
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (!Base::CanCombineLocalCoords(this->viewMatrix(), that->viewMatrix(),
+                                         this->usesLocalCoords())) {
             return false;
         }
 
@@ -209,27 +194,24 @@ private:
     void generateAAFillRectGeometry(void* vertices,
                                     size_t offset,
                                     size_t vertexStride,
-                                    GrColor color,
-                                    const SkMatrix& viewMatrix,
-                                    const SkRect& rect,
-                                    const SkRect& devRect,
+                                    const Geometry& args,
                                     bool tweakAlphaForCoverage) const {
         intptr_t verts = reinterpret_cast<intptr_t>(vertices) + offset;
 
         SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
         SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
 
-        SkScalar inset = SkMinScalar(devRect.width(), SK_Scalar1);
-        inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
+        SkScalar inset = SkMinScalar(args.fDevRect.width(), SK_Scalar1);
+        inset = SK_ScalarHalf * SkMinScalar(inset, args.fDevRect.height());
 
-        if (viewMatrix.rectStaysRect()) {
-            set_inset_fan(fan0Pos, vertexStride, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
-            set_inset_fan(fan1Pos, vertexStride, devRect, inset,  inset);
+        if (args.fViewMatrix.rectStaysRect()) {
+            set_inset_fan(fan0Pos, vertexStride, args.fDevRect, -SK_ScalarHalf, -SK_ScalarHalf);
+            set_inset_fan(fan1Pos, vertexStride, args.fDevRect, inset,  inset);
         } else {
             // compute transformed (1, 0) and (0, 1) vectors
             SkVector vec[2] = {
-              { viewMatrix[SkMatrix::kMScaleX], viewMatrix[SkMatrix::kMSkewY] },
-              { viewMatrix[SkMatrix::kMSkewX],  viewMatrix[SkMatrix::kMScaleY] }
+              { args.fViewMatrix[SkMatrix::kMScaleX], args.fViewMatrix[SkMatrix::kMSkewY] },
+              { args.fViewMatrix[SkMatrix::kMSkewX],  args.fViewMatrix[SkMatrix::kMScaleY] }
             };
 
             vec[0].normalize();
@@ -238,9 +220,9 @@ private:
             vec[1].scale(SK_ScalarHalf);
 
             // create the rotated rect
-            fan0Pos->setRectFan(rect.fLeft, rect.fTop,
-                                rect.fRight, rect.fBottom, vertexStride);
-            viewMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
+            fan0Pos->setRectFan(args.fRect.fLeft, args.fRect.fTop,
+                                args.fRect.fRight, args.fRect.fBottom, vertexStride);
+            args.fViewMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
 
             // Now create the inset points and then outset the original
             // rotated points
@@ -263,6 +245,8 @@ private:
             *((SkPoint*)((intptr_t)fan0Pos + 3 * vertexStride)) += vec[0] - vec[1];
         }
 
+        Base::FillInAttributes(verts, vertexStride, fan0Pos, args);
+
         // Make verts point to vertex color and then set all the color and coverage vertex attrs
         // values.
         verts += sizeof(SkPoint);
@@ -270,7 +254,7 @@ private:
             if (tweakAlphaForCoverage) {
                 *reinterpret_cast<GrColor*>(verts + i * vertexStride) = 0;
             } else {
-                *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
+                *reinterpret_cast<GrColor*>(verts + i * vertexStride) = args.fColor;
                 *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 0;
             }
         }
@@ -286,16 +270,45 @@ private:
         verts += 4 * vertexStride;
 
         float innerCoverage = GrNormalizeByteToFloat(scale);
-        GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
+        GrColor scaledColor = (0xff == scale) ? args.fColor : SkAlphaMulQ(args.fColor, scale);
 
         for (int i = 0; i < 4; ++i) {
             if (tweakAlphaForCoverage) {
                 *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
             } else {
-                *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
+                *reinterpret_cast<GrColor*>(verts + i * vertexStride) = args.fColor;
                 *reinterpret_cast<float*>(verts + i * vertexStride +
                                           sizeof(GrColor)) = innerCoverage;
             }
+        }
+    }
+
+    static const GrGeometryProcessor* CreateFillRectGP(
+                                         bool tweakAlphaForCoverage,
+                                         const SkMatrix& viewMatrix,
+                                         bool usesLocalCoords,
+                                         GrDefaultGeoProcFactory::LocalCoords::Type localCoordsType,
+                                         bool coverageIgnored) {
+        using namespace GrDefaultGeoProcFactory;
+
+        Color color(Color::kAttribute_Type);
+        Coverage::Type coverageType;
+        // TODO remove coverage if coverage is ignored
+        /*if (coverageIgnored) {
+            coverageType = Coverage::kNone_Type;
+        } else*/ if (tweakAlphaForCoverage) {
+            coverageType = Coverage::kSolid_Type;
+        } else {
+            coverageType = Coverage::kAttribute_Type;
+        }
+        Coverage coverage(coverageType);
+
+        // We assume the caller has inverted the viewmatrix
+        LocalCoords localCoords(usesLocalCoords ? localCoordsType : LocalCoords::kUnused_Type);
+        if (LocalCoords::kHasExplicit_Type == localCoordsType) {
+            return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
+        } else {
+            return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
         }
     }
 
@@ -311,13 +324,112 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
+class AAFillRectBatchNoLocalMatrixImp {
+public:
+    struct Geometry {
+        SkMatrix fViewMatrix;
+        SkRect fRect;
+        SkRect fDevRect;
+        GrColor fColor;
+    };
+
+    inline static bool CanCombineLocalCoords(const SkMatrix& mine, const SkMatrix& theirs,
+                                             bool usesLocalCoords) {
+        // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
+        // local coords then we won't be able to batch.  We could actually upload the viewmatrix
+        // using vertex attributes in these cases, but haven't investigated that
+        return !usesLocalCoords || mine.cheapEqualTo(theirs);
+    }
+
+    inline static GrDefaultGeoProcFactory::LocalCoords::Type LocalCoordsType() {
+        return GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type;
+    }
+
+    inline static bool StrideCheck(size_t vertexStride, bool canTweakAlphaForCoverage,
+                                   bool usesLocalCoords) {
+        return canTweakAlphaForCoverage ?
+                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
+                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr);
+    }
+
+    inline static void FillInAttributes(intptr_t, size_t, SkPoint*, const Geometry&) {}
+};
+
+class AAFillRectBatchLocalMatrixImp {
+public:
+    struct Geometry {
+        SkMatrix fViewMatrix;
+        SkMatrix fLocalMatrix;
+        SkRect fRect;
+        SkRect fDevRect;
+        GrColor fColor;
+    };
+
+    inline static bool CanCombineLocalCoords(const SkMatrix& mine, const SkMatrix& theirs,
+                                             bool usesLocalCoords) {
+        return true;
+    }
+
+    inline static GrDefaultGeoProcFactory::LocalCoords::Type LocalCoordsType() {
+        return GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type;
+    }
+
+    inline static bool StrideCheck(size_t vertexStride, bool canTweakAlphaForCoverage,
+                                   bool usesLocalCoords) {
+        // Whomever created us should not have done so if there are no local coords
+        SkASSERT(usesLocalCoords);
+        return canTweakAlphaForCoverage ?
+                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
+                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordCoverage);
+    }
+
+    inline static void FillInAttributes(intptr_t vertices, size_t vertexStride,
+                                        SkPoint* fan0Pos, const Geometry& args) {
+        SkMatrix invViewMatrix;
+        if (!args.fViewMatrix.invert(&invViewMatrix)) {
+            SkASSERT(false);
+            invViewMatrix = SkMatrix::I();
+        }
+        SkMatrix localCoordMatrix;
+        localCoordMatrix.setConcat(args.fLocalMatrix, invViewMatrix);
+        SkPoint* fan0Loc = reinterpret_cast<SkPoint*>(vertices + vertexStride - sizeof(SkPoint));
+        localCoordMatrix.mapPointsWithStride(fan0Loc, fan0Pos, vertexStride, 8);
+    }
+};
+
+typedef AAFillRectBatch<AAFillRectBatchNoLocalMatrixImp> AAFillRectBatchNoLocalMatrix;
+typedef AAFillRectBatch<AAFillRectBatchLocalMatrixImp> AAFillRectBatchLocalMatrix;
+
 namespace GrAAFillRectBatch {
 
 GrBatch* Create(GrColor color,
                 const SkMatrix& viewMatrix,
                 const SkRect& rect,
                 const SkRect& devRect) {
-    return AAFillRectBatch::Create(color, viewMatrix, rect, devRect);
+    AAFillRectBatchNoLocalMatrix* batch = AAFillRectBatchNoLocalMatrix::Create();
+    AAFillRectBatchNoLocalMatrix::Geometry& geo = *batch->geometry();
+    geo.fColor = color;
+    geo.fViewMatrix = viewMatrix;
+    geo.fRect = rect;
+    geo.fDevRect = devRect;
+    batch->init();
+    return batch;
+}
+
+GrBatch* Create(GrColor color,
+                const SkMatrix& viewMatrix,
+                const SkMatrix& localMatrix,
+                const SkRect& rect,
+                const SkRect& devRect) {
+    AAFillRectBatchLocalMatrix* batch = AAFillRectBatchLocalMatrix::Create();
+    AAFillRectBatchLocalMatrix::Geometry& geo = *batch->geometry();
+    geo.fColor = color;
+    geo.fViewMatrix = viewMatrix;
+    geo.fLocalMatrix = localMatrix;
+    geo.fRect = rect;
+    geo.fDevRect = devRect;
+    batch->init();
+    return batch;
 }
 
 };
@@ -329,11 +441,26 @@ GrBatch* Create(GrColor color,
 #include "GrBatchTest.h"
 
 BATCH_TEST_DEFINE(AAFillRectBatch) {
-    GrColor color = GrRandomColor(random);
-    SkMatrix viewMatrix = GrTest::TestMatrix(random);
-    SkRect rect = GrTest::TestRect(random);
-    SkRect devRect = GrTest::TestRect(random);
-    return AAFillRectBatch::Create(color, viewMatrix, rect, devRect);
+    AAFillRectBatchNoLocalMatrix* batch = AAFillRectBatchNoLocalMatrix::Create();
+    AAFillRectBatchNoLocalMatrix::Geometry& geo = *batch->geometry();
+    geo.fColor = GrRandomColor(random);
+    geo.fViewMatrix = GrTest::TestMatrix(random);
+    geo.fRect = GrTest::TestRect(random);
+    geo.fDevRect = GrTest::TestRect(random);
+    batch->init();
+    return batch;
+}
+
+BATCH_TEST_DEFINE(AAFillRectBatchLocalMatrix) {
+    AAFillRectBatchLocalMatrix* batch = AAFillRectBatchLocalMatrix::Create();
+    AAFillRectBatchLocalMatrix::Geometry& geo = *batch->geometry();
+    geo.fColor = GrRandomColor(random);
+    geo.fViewMatrix = GrTest::TestMatrix(random);
+    geo.fLocalMatrix = GrTest::TestMatrix(random);
+    geo.fRect = GrTest::TestRect(random);
+    geo.fDevRect = GrTest::TestRect(random);
+    batch->init();
+    return batch;
 }
 
 #endif
