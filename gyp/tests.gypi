@@ -42,6 +42,11 @@
       'dependencies': [ 'pdf.gyp:nopdf' ],
       'sources!': [ '<!@(python find.py ../tests "PDF*.c*")', ],
     }],
+    [ 'skia_gpu_extra_tests_path', {
+      'sources': [
+        '<!@(python find.py <(skia_gpu_extra_tests_path) "*.c*")',
+      ],
+    }],
   ],
   'sources': [
     '../tests/Test.h',
