@@ -552,9 +552,7 @@ private:
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    bool onWillNeedXferBarrier(const GrRenderTarget* rt,
-                               const GrCaps& caps,
-                               GrXferBarrierType* outBarrierType) const override;
+    GrXferBarrierType onXferBarrier(const GrRenderTarget*, const GrCaps&) const override;
 
     void onGetBlendInfo(BlendInfo*) const override;
 
@@ -757,14 +755,11 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrProcOptInfo& colo
     return flags;
 }
 
-bool CustomXP::onWillNeedXferBarrier(const GrRenderTarget* rt,
-                                     const GrCaps& caps,
-                                     GrXferBarrierType* outBarrierType) const {
+GrXferBarrierType CustomXP::onXferBarrier(const GrRenderTarget* rt, const GrCaps& caps) const {
     if (this->hasHWBlendEquation() && !caps.advancedCoherentBlendEquationSupport()) {
-        *outBarrierType = kBlend_GrXferBarrierType;
-        return true;
+        return kBlend_GrXferBarrierType;
     }
-    return false;
+    return kNone_GrXferBarrierType;
 }
 
 void CustomXP::onGetBlendInfo(BlendInfo* blendInfo) const {

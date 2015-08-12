@@ -389,8 +389,9 @@ private:
         this->setBounds(devBounds);
     }
 
-    bool onCombineIfPossible(GrBatch* t) override {
-        if (!this->pipeline()->isEqual(*t->pipeline())) {
+    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
+                                    caps)) {
             return false;
         }
 

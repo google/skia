@@ -78,7 +78,7 @@ private:
     bool miterStroke() const { return fBatch.fMiterStroke; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
-    bool onCombineIfPossible(GrBatch* t) override;
+    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
 
     void generateAAStrokeRectGeometry(void* vertices,
                                       size_t offset,

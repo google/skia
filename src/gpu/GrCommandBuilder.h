@@ -28,7 +28,7 @@ public:
                                         bool insideClip,
                                         GrRenderTarget* renderTarget);
     virtual Cmd* recordDiscard(GrRenderTarget*);
-    virtual Cmd* recordDrawBatch(GrBatch*) = 0;
+    virtual Cmd* recordDrawBatch(GrBatch*, const GrCaps&) = 0;
     virtual Cmd* recordStencilPath(const GrPipelineBuilder&,
                                    const GrPathProcessor*,
                                    const GrPath*,
@@ -56,7 +56,6 @@ public:
                                    GrSurface* src,
                                    const SkIRect& srcRect,
                                    const SkIPoint& dstPoint);
-    virtual Cmd* recordXferBarrierIfNecessary(const GrPipeline&, const GrCaps&);
 
 protected:
     typedef GrTargetCommands::DrawBatch DrawBatch;
@@ -66,7 +65,6 @@ protected:
     typedef GrTargetCommands::Clear Clear;
     typedef GrTargetCommands::ClearStencilClip ClearStencilClip;
     typedef GrTargetCommands::CopySurface CopySurface;
-    typedef GrTargetCommands::XferBarrier XferBarrier;
 
     GrCommandBuilder(GrGpu* gpu) : fCommands(gpu) {}
 

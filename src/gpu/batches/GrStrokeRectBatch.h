@@ -50,10 +50,11 @@ private:
     bool hairline() const { return fBatch.fHairline; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
-    bool onCombineIfPossible(GrBatch* t) override {
-        //if (!this->pipeline()->isEqual(*t->pipeline())) {
-        //    return false;
-        //}
+    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override {
+        // if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(),
+        //     t->bounds(), caps)) {
+        //     return false;
+        // }
         // GrStrokeRectBatch* that = t->cast<StrokeRectBatch>();
 
         // NonAA stroke rects cannot batch right now

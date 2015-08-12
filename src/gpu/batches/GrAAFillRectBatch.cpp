@@ -130,7 +130,6 @@ public:
                                              args.fDevRect,
                                              canTweakAlphaForCoverage);
         }
-
         helper.issueDraw(batchTarget);
     }
 
@@ -176,8 +175,9 @@ private:
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
-    bool onCombineIfPossible(GrBatch* t) override {
-        if (!this->pipeline()->isEqual(*t->pipeline())) {
+    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
+                                caps)) {
             return false;
         }
 

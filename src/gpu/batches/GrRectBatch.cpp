@@ -80,8 +80,9 @@ void GrRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
     helper.issueDraw(batchTarget);
 }
 
-bool GrRectBatch::onCombineIfPossible(GrBatch* t) {
-    if (!this->pipeline()->isEqual(*t->pipeline())) {
+bool GrRectBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
+                                caps)) {
         return false;
     }
 

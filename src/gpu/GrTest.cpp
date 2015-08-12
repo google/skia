@@ -175,10 +175,10 @@ public:
         return false;
     }
 
-    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
-
 private:
     void onResetContext(uint32_t resetBits) override {}
+
+    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
                                const void* srcData, size_t rowBytes) override {

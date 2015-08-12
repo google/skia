@@ -203,8 +203,9 @@ const GrIndexBuffer* GrAAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* res
     }
 }
 
-bool GrAAStrokeRectBatch::onCombineIfPossible(GrBatch* t) {
-    if (!this->pipeline()->isEqual(*t->pipeline())) {
+bool GrAAStrokeRectBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
+                                caps)) {
         return false;
     }
 

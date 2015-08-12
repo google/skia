@@ -1576,9 +1576,7 @@ public:
         batchTarget->draw(vertices);
     }
 
-    bool onCombineIfPossible(GrBatch*) override {
-        return false;
-    }
+    bool onCombineIfPossible(GrBatch*, const GrCaps&) override { return false; }
 
 private:
     TessellatingPathBatch(const GrColor& color,

@@ -3062,6 +3062,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
 }
 
 void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
+    SkASSERT(type);
     switch (type) {
         case kTexture_GrXferBarrierType: {
             GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
@@ -3080,6 +3081,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
                      this->caps()->blendEquationSupport());
             GL_CALL(BlendBarrier());
             return;
+        default: break; // placate compiler warnings that kNone not handled
     }
 }
 

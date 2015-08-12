@@ -54,15 +54,13 @@ public:
     virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
     virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
 
-    bool combineIfPossible(GrBatch* that) {
+    bool combineIfPossible(GrBatch* that, const GrCaps& caps) {
         if (this->classID() != that->classID()) {
             return false;
         }
 
-        return this->onCombineIfPossible(that);
+        return this->onCombineIfPossible(that, caps);
     }
-
-    virtual bool onCombineIfPossible(GrBatch*) = 0;
 
     virtual void generateGeometry(GrBatchTarget*) = 0;
 
@@ -162,6 +160,8 @@ protected:
     SkRect fBounds;
 
 private:
+    virtual bool onCombineIfPossible(GrBatch*, const GrCaps& caps) = 0;
+
     /*
      * initBatchTracker is a hook for the some additional overrides / optimization possibilities
      * from the GrXferProcessor.

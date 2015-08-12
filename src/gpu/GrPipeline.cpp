@@ -150,28 +150,26 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrPipeline::isEqual(const GrPipeline& that, bool ignoreCoordTransforms) const {
-    // If we point to the same pipeline, then we are necessarily equal
-    if (this == &that) {
-        return true;
-    }
+bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
+                          bool ignoreCoordTransforms) {
+    SkASSERT(&a != &b);
 
-    if (this->getRenderTarget() != that.getRenderTarget() ||
-        this->fFragmentStages.count() != that.fFragmentStages.count() ||
-        this->fNumColorStages != that.fNumColorStages ||
-        this->fScissorState != that.fScissorState ||
-        this->fFlags != that.fFlags ||
-        this->fStencilSettings != that.fStencilSettings ||
-        this->fDrawFace != that.fDrawFace) {
+    if (a.getRenderTarget() != b.getRenderTarget() ||
+        a.fFragmentStages.count() != b.fFragmentStages.count() ||
+        a.fNumColorStages != b.fNumColorStages ||
+        a.fScissorState != b.fScissorState ||
+        a.fFlags != b.fFlags ||
+        a.fStencilSettings != b.fStencilSettings ||
+        a.fDrawFace != b.fDrawFace) {
         return false;
     }
 
-    if (!this->getXferProcessor()->isEqual(*that.getXferProcessor())) {
+    if (!a.getXferProcessor()->isEqual(*b.getXferProcessor())) {
         return false;
     }
 
-    for (int i = 0; i < this->numFragmentStages(); i++) {
-        if (!this->getFragmentStage(i).processor()->isEqual(*that.getFragmentStage(i).processor(),
+    for (int i = 0; i < a.numFragmentStages(); i++) {
+        if (!a.getFragmentStage(i).processor()->isEqual(*b.getFragmentStage(i).processor(),
                                                             ignoreCoordTransforms)) {
             return false;
         }

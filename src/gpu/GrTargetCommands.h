@@ -22,9 +22,7 @@
 
 class GrBufferedDrawTarget;
 
-// TODO: Convert all commands into GrBatch and remove this class. Xferbarrier will just become a
-// batch blocker (when there is overlap) and the xp is responsible for issuing any barrier calls
-// on the backend.
+// TODO: Convert all commands into GrBatch and remove this class.
 class GrTargetCommands : ::SkNoncopyable {
 public:
     GrTargetCommands(GrGpu* gpu)
@@ -42,7 +40,6 @@ public:
             kDrawPath_CmdType          = 5,
             kDrawPaths_CmdType         = 6,
             kDrawBatch_CmdType         = 7,
-            kXferBarrier_CmdType       = 8,
         };
 
         Cmd(CmdType type)
@@ -82,8 +79,6 @@ private:
     friend class GrReorderCommandBuilder;
 
     typedef GrGpu::DrawArgs DrawArgs;
-
-    void recordXferBarrierIfNecessary(const GrPipeline&, GrBufferedDrawTarget*);
 
     // TODO: This can be just a pipeline once paths are in batch, and it should live elsewhere
     struct StateForPathDraw : public SkNVRefCnt<StateForPathDraw> {
@@ -249,20 +244,6 @@ private:
     private:
         SkAutoTUnref<GrBatch>  fBatch;
         GrBatchTarget*         fBatchTarget;
-    };
-
-    struct XferBarrier : public Cmd {
-        XferBarrier(GrRenderTarget* rt)
-            : Cmd(kXferBarrier_CmdType)
-            , fRenderTarget(rt) {
-        }
-
-        void execute(GrGpu*) override;
-
-        GrXferBarrierType   fBarrierType;
-
-    private:
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
     };
 
     static const int kCmdBufferInitialSizeInBytes = 8 * 1024;

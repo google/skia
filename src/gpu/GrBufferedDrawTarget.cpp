@@ -27,8 +27,7 @@ GrBufferedDrawTarget::~GrBufferedDrawTarget() {
 }
 
 void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch) {
-    fCommands->recordXferBarrierIfNecessary(*batch->pipeline(), *this->caps());
-    fCommands->recordDrawBatch(batch);
+    fCommands->recordDrawBatch(batch, *this->caps());
 }
 
 void GrBufferedDrawTarget::onStencilPath(const GrPipelineBuilder& pipelineBuilder,
@@ -131,12 +130,11 @@ GrBufferedDrawTarget::createStateForPathDraw(const GrPrimitiveProcessor* primPro
         fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
                                                       *state->fPrimitiveProcessor,
                                                       state->fBatchTracker) &&
-        fPrevState->getPipeline()->isEqual(*state->getPipeline())) {
+        GrPipeline::AreEqual(*fPrevState->getPipeline(), *state->getPipeline(), false)) {
         this->unallocState(state);
     } else {
         fPrevState.reset(state);
     }
 
-    fCommands->recordXferBarrierIfNecessary(*fPrevState->getPipeline(), *this->caps());
     return fPrevState;
 }

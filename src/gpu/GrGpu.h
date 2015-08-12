@@ -299,9 +299,6 @@ public:
                              const SkIRect& srcRect,
                              const SkIPoint& dstPoint) = 0;
 
-    // Called before certain draws in order to guarantee coherent results from dst reads.
-    virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
-
     struct DrawArgs {
         DrawArgs(const GrPrimitiveProcessor* primProc,
                  const GrPipeline* pipeline,
@@ -431,6 +428,9 @@ private:
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
     virtual void onResetContext(uint32_t resetBits) = 0;
+
+    // Called before certain draws in order to guarantee coherent results from dst reads.
+    virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
     // overridden by backend-specific derived class to create objects.
     // Texture size and sample size will have already been validated in base class before

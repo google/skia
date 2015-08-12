@@ -15,7 +15,8 @@ static bool intersect(const Left& a, const Right& b) {
            a.fTop < b.fBottom && b.fTop < a.fBottom;
 }
 
-GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrBatch* batch) {
+GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrBatch* batch,
+                                                                const GrCaps& caps) {
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw
     // 2) intersect with something
@@ -58,7 +59,7 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrBatch* batch) 
                     break;
                 }
                 // We cannot continue to search backwards if the render target changes
-                if (previous->batch()->combineIfPossible(batch)) {
+                if (previous->batch()->combineIfPossible(batch, caps)) {
                     GrBATCH_INFO("\t\tCombining with (%s, B%u)\n",
                                  previous->fBatch->name(), previous->fBatch->uniqueID());
                     return NULL;

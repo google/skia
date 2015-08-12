@@ -66,7 +66,7 @@ private:
     virtual Geometry* geoData(int index) = 0;
     virtual const Geometry* geoData(int index) const = 0;
 
-    bool onCombineIfPossible(GrBatch* t) override {
+    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override {
         return false;
     }
 

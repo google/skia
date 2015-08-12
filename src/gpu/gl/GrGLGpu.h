@@ -96,8 +96,6 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint) override;
 
-    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
-
     void buildProgramDesc(GrProgramDesc*,
                           const GrPrimitiveProcessor&,
                           const GrPipeline&,
@@ -117,6 +115,8 @@ private:
 
     // GrGpu overrides
     void onResetContext(uint32_t resetBits) override;
+
+    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
                                const void* srcData, size_t rowBytes) override;

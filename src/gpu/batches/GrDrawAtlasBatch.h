@@ -56,7 +56,7 @@ private:
     int quadCount() const { return fQuadCount; }
     bool coverageIgnored() const { return fCoverageIgnored; }
     
-    bool onCombineIfPossible(GrBatch* t) override;
+    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
     SkSTArray<1, Geometry, true> fGeoData;
     
     SkMatrix fViewMatrix;

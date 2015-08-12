@@ -66,7 +66,7 @@ private:
     bool hasLocalMatrix() const { return fGeoData[0].fHasLocalMatrix; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
-    bool onCombineIfPossible(GrBatch* t) override;
+    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
 
     const GrGeometryProcessor* createRectGP();
 

@@ -156,8 +156,9 @@ GrDrawAtlasBatch::GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& vie
     this->setBounds(bounds);
 }
  
-bool GrDrawAtlasBatch::onCombineIfPossible(GrBatch* t) {
-    if (!this->pipeline()->isEqual(*t->pipeline())) {
+bool GrDrawAtlasBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
+                                caps)) {
         return false;
     }
     

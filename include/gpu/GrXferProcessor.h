@@ -25,9 +25,12 @@ class GrProcOptInfo;
  * required after a pixel has been written, before it can be safely read again.
  */
 enum GrXferBarrierType {
-    kTexture_GrXferBarrierType, //<! Required when a shader reads and renders to the same texture.
-    kBlend_GrXferBarrierType,   //<! Required by certain blend extensions.
+    kNone_GrXferBarrierType = 0, //<! No barrier is required
+    kTexture_GrXferBarrierType,  //<! Required when a shader reads and renders to the same texture.
+    kBlend_GrXferBarrierType,    //<! Required by certain blend extensions.
 };
+/** Should be able to treat kNone as false in boolean expressions */
+GR_STATIC_ASSERT(SkToBool(kNone_GrXferBarrierType) == false);
 
 /**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
@@ -148,9 +151,7 @@ public:
      * Returns whether this XP will require an Xfer barrier on the given rt. If true, outBarrierType
      * is updated to contain the type of barrier needed.
      */
-    bool willNeedXferBarrier(const GrRenderTarget* rt,
-                             const GrCaps& caps,
-                             GrXferBarrierType* outBarrierType) const;
+    GrXferBarrierType xferBarrierType(const GrRenderTarget* rt, const GrCaps& caps) const;
 
     struct BlendInfo {
         void reset() {
@@ -256,13 +257,12 @@ private:
                                      GrProcessorKeyBuilder* b) const = 0;
 
     /**
-     * If not using a texture barrier, retrieves whether the subclass will require a different type
-     * of barrier.
+     * Determines the type of barrier (if any) required by the subclass. Note that the possibility
+     * that a kTexture type barrier is required is handled by the base class and need not be
+     * considered by subclass overrides of this function.
      */
-    virtual bool onWillNeedXferBarrier(const GrRenderTarget*,
-                                       const GrCaps&,
-                                       GrXferBarrierType* outBarrierType SK_UNUSED) const {
-        return false;
+    virtual GrXferBarrierType onXferBarrier(const GrRenderTarget*, const GrCaps&) const {
+        return kNone_GrXferBarrierType;
     }
 
     /**

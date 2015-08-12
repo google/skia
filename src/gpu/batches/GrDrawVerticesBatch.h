@@ -75,7 +75,7 @@ private:
     int indexCount() const { return fBatch.fIndexCount; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
-    bool onCombineIfPossible(GrBatch* t) override;
+    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
 
     struct BatchTracker {
         GrPrimitiveType fPrimitiveType;

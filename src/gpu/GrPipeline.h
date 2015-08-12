@@ -29,6 +29,9 @@ class GrPipelineBuilder;
  */
 class GrPipeline : public GrNonAtomicRef {
 public:
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Creation
+
     struct CreateArgs {
         const GrPipelineBuilder*    fPipelineBuilder;
         const GrCaps*               fCaps;
@@ -41,13 +44,39 @@ public:
     /** Creates a pipeline into a pre-allocated buffer */
     static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineOptimizations*);
 
-    /*
+    /// @}
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// @name Comparisons
+
+    /**
      * Returns true if these pipelines are equivalent.  Coord transforms may be applied either on
      * the GPU or the CPU. When we apply them on the CPU then the matrices need not agree in order
      * to combine draws. Therefore we take a param that indicates whether coord transforms should be
      * compared."
      */
-    bool isEqual(const GrPipeline& that, bool ignoreCoordTransforms = false) const;
+    static bool AreEqual(const GrPipeline& a, const GrPipeline& b, bool ignoreCoordTransforms);
+
+    /**
+     * Allows a GrBatch subclass to determine whether two GrBatches can combine. This is a stricter
+     * test than isEqual because it also considers blend barriers when the two batches' bounds
+     * overlap
+     */
+    static bool CanCombine(const GrPipeline& a, const SkRect& aBounds,
+                           const GrPipeline& b, const SkRect& bBounds,
+                           const GrCaps& caps,
+                           bool ignoreCoordTransforms = false)  {
+        if (!AreEqual(a, b, ignoreCoordTransforms)) {
+            return false;
+        }
+        if (a.xferBarrierType(caps)) {
+            return aBounds.fRight <= bBounds.fLeft ||
+                   aBounds.fBottom <= bBounds.fTop ||
+                   bBounds.fRight <= aBounds.fLeft ||
+                   bBounds.fBottom <= aBounds.fTop;
+        }
+        return true;
+    }
 
     /// @}
 
@@ -89,6 +118,10 @@ public:
     bool isDitherState() const { return SkToBool(fFlags & kDither_Flag); }
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
+
+    GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
+        return fXferProcessor->xferBarrierType(fRenderTarget.get(), caps);
+    }
 
     /**
      * Gets whether the target is drawing clockwise, counterclockwise,

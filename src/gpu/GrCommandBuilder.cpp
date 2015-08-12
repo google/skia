@@ -65,20 +65,3 @@ GrTargetCommands::Cmd* GrCommandBuilder::recordCopySurface(GrSurface* dst,
     GrBATCH_INFO("Recording copysurface %d\n", cs->uniqueID());
     return cs;
 }
-
-GrTargetCommands::Cmd*
-GrCommandBuilder::recordXferBarrierIfNecessary(const GrPipeline& pipeline,
-                                               const GrCaps& caps) {
-    const GrXferProcessor& xp = *pipeline.getXferProcessor();
-    GrRenderTarget* rt = pipeline.getRenderTarget();
-
-    GrXferBarrierType barrierType;
-    if (!xp.willNeedXferBarrier(rt, caps, &barrierType)) {
-        return NULL;
-    }
-
-    XferBarrier* xb = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), XferBarrier, (rt));
-    xb->fBarrierType = barrierType;
-    GrBATCH_INFO("Recording xfer barrier %d\n", xb->uniqueID());
-    return xb;
-}

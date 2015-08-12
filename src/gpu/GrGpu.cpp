@@ -14,6 +14,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
+#include "GrPipeline.h"
 #include "GrResourceCache.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
@@ -381,6 +382,10 @@ void GrGpu::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
 
 void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
     this->handleDirtyContext();
+    if (GrXferBarrierType barrierType = args.fPipeline->xferBarrierType(*this->caps())) {
+        this->xferBarrier(args.fPipeline->getRenderTarget(), barrierType);
+    }
+
     GrVertices::Iterator iter;
     const GrNonInstancedVertices* verts = iter.init(vertices);
     do {

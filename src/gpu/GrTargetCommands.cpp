@@ -75,7 +75,7 @@ void GrTargetCommands::DrawPaths::execute(GrGpu* gpu) {
                                     fTransformType, fCount);
 }
 
-void GrTargetCommands::DrawBatch::execute(GrGpu*) {
+void GrTargetCommands::DrawBatch::execute(GrGpu* gpu) {
     fBatchTarget->flushNext(fBatch->numberOfDraws());
 }
 
@@ -93,8 +93,4 @@ void GrTargetCommands::ClearStencilClip::execute(GrGpu* gpu) {
 
 void GrTargetCommands::CopySurface::execute(GrGpu* gpu) {
     gpu->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
-}
-
-void GrTargetCommands::XferBarrier::execute(GrGpu* gpu) {
-    gpu->xferBarrier(fRenderTarget.get(), fBarrierType);
 }

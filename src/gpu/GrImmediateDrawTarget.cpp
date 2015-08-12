@@ -26,14 +26,6 @@ GrImmediateDrawTarget::~GrImmediateDrawTarget() {
 }
 
 void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch) {
-    const GrXferProcessor& xp = *batch->pipeline()->getXferProcessor();
-    GrRenderTarget* rt = batch->pipeline()->getRenderTarget();
-
-    GrXferBarrierType barrierType;
-    if (xp.willNeedXferBarrier(rt, *this->caps(), &barrierType)) {
-        this->getGpu()->xferBarrier(rt, barrierType);
-    }
-
     fBatchTarget.resetNumberOfDraws();
 
     batch->generateGeometry(&fBatchTarget);
