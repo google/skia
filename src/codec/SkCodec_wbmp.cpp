@@ -120,6 +120,10 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
         return kInvalidScale;
     }
 
+    if (!valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
+        return SkCodec::kInvalidConversion;
+    }
+
     // Prepare a color table if necessary
     setup_color_table(info.colorType(), ctable, ctableCount);
 
@@ -198,6 +202,10 @@ public:
         }
         if (dstInfo.dimensions() != this->getInfo().dimensions()) {
             return SkCodec::kInvalidScale;
+        }
+
+        if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
+            return SkCodec::kInvalidConversion;
         }
 
         // Fill in the color table

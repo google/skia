@@ -42,6 +42,26 @@ static void compare_to_good_digest(skiatest::Reporter* r, const SkMD5::Digest& g
     REPORTER_ASSERT(r, digest == goodDigest);
 }
 
+/**
+ *  Test decoding an SkCodec to a particular SkImageInfo.
+ *
+ *  Calling getPixels(info) should return expectedResult, and if goodDigest is non NULL,
+ *  the resulting decode should match.
+ */
+static void test_info(skiatest::Reporter* r, SkCodec* codec, const SkImageInfo& info,
+                      SkCodec::Result expectedResult, const SkMD5::Digest* goodDigest) {
+    SkBitmap bm;
+    bm.allocPixels(info);
+    SkAutoLockPixels autoLockPixels(bm);
+
+    SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT(r, result == expectedResult);
+
+    if (goodDigest) {
+        compare_to_good_digest(r, *goodDigest, bm);
+    }
+}
+
 SkIRect generate_random_subset(SkRandom* rand, int w, int h) {
     SkIRect rect;
     do {
@@ -86,14 +106,32 @@ static void check(skiatest::Reporter* r,
     SkMD5::Digest digest;
     md5(bm, &digest);
 
-    bm.eraseColor(SK_ColorYELLOW);
-
-    result =
-        codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
-
-    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
     // verify that re-decoding gives the same result.
-    compare_to_good_digest(r, digest, bm);
+    test_info(r, codec, info, SkCodec::kSuccess, &digest);
+
+    {
+        // Check alpha type conversions
+        if (info.alphaType() == kOpaque_SkAlphaType) {
+            test_info(r, codec, info.makeAlphaType(kUnpremul_SkAlphaType),
+                      SkCodec::kInvalidConversion, NULL);
+            test_info(r, codec, info.makeAlphaType(kPremul_SkAlphaType),
+                      SkCodec::kInvalidConversion, NULL);
+        } else {
+            // Decoding to opaque should fail
+            test_info(r, codec, info.makeAlphaType(kOpaque_SkAlphaType),
+                      SkCodec::kInvalidConversion, NULL);
+            SkAlphaType otherAt = info.alphaType();
+            if (kPremul_SkAlphaType == otherAt) {
+                otherAt = kUnpremul_SkAlphaType;
+            } else {
+                otherAt = kPremul_SkAlphaType;
+            }
+            // The other non-opaque alpha type should always succeed, but not match.
+            test_info(r, codec, info.makeAlphaType(otherAt), SkCodec::kSuccess, NULL);
+        }
+    }
+
+    // Scanline decoding follows.
 
     stream.reset(resource(path));
     SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
