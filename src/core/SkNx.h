@@ -17,13 +17,6 @@
 #include <math.h>
 #define REQUIRE(x) static_assert(x, #x)
 
-// This file may be included multiple times by .cpp files with different flags, leading
-// to different definitions.  Usually that doesn't matter because it's all inlined, but
-// in Debug modes the compilers may not inline everything.  So wrap everything in an
-// anonymous namespace to give each includer their own silo of this code (or the linker
-// will probably pick one randomly for us, which is rarely correct).
-namespace {
-
 // The default implementations just fall back on a pair of size N/2.
 
 template <int N, typename T>
@@ -251,8 +244,6 @@ protected:
 
     T fVal;
 };
-
-}  // namespace
 
 // Include platform specific specializations if available.
 #ifndef SKNX_NO_SIMD

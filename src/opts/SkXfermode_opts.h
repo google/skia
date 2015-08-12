@@ -12,7 +12,7 @@
 #include "SkPMFloat.h"
 #include "SkXfermode_proccoeff.h"
 
-namespace /* TODO: SK_OPTS_NS */ {
+namespace SK_OPTS_NS {
 
 // Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
 #define XFERMODE(Name) static Sk4px SK_VECTORCALL Name(Sk4px s, Sk4px d)
@@ -274,7 +274,7 @@ private:
     typedef SkProcCoeffXfermode INHERITED;
 };
 
-static SkXfermode* SkCreate4pxXfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
+static SkXfermode* create_xfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
     switch (mode) {
     #define CASE(Mode) case SkXfermode::k##Mode##_Mode: \
         return SkNEW_ARGS(Sk4pxXfermode, (rec, mode, &Mode, &xfer_aa<Mode>))

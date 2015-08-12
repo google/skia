@@ -5,42 +5,46 @@
  * found in the LICENSE file.
  */
 
-namespace { // See Sk4px.h
+SK_ALWAYS_INLINE Sk4px Sk4px::DupPMColor(SkPMColor px) { return Sk16b(_mm_set1_epi32(px)); }
 
-inline Sk4px Sk4px::DupPMColor(SkPMColor px) { return Sk16b(_mm_set1_epi32(px)); }
-
-inline Sk4px Sk4px::Load4(const SkPMColor px[4]) {
+SK_ALWAYS_INLINE Sk4px Sk4px::Load4(const SkPMColor px[4]) {
     return Sk16b(_mm_loadu_si128((const __m128i*)px));
 }
-inline Sk4px Sk4px::Load2(const SkPMColor px[2]) {
+SK_ALWAYS_INLINE Sk4px Sk4px::Load2(const SkPMColor px[2]) {
     return Sk16b(_mm_loadl_epi64((const __m128i*)px));
 }
-inline Sk4px Sk4px::Load1(const SkPMColor px[1]) { return Sk16b(_mm_cvtsi32_si128(*px)); }
+SK_ALWAYS_INLINE Sk4px Sk4px::Load1(const SkPMColor px[1]) { return Sk16b(_mm_cvtsi32_si128(*px)); }
 
-inline void Sk4px::store4(SkPMColor px[4]) const { _mm_storeu_si128((__m128i*)px, this->fVec); }
-inline void Sk4px::store2(SkPMColor px[2]) const { _mm_storel_epi64((__m128i*)px, this->fVec); }
-inline void Sk4px::store1(SkPMColor px[1]) const { *px = _mm_cvtsi128_si32(this->fVec); }
+SK_ALWAYS_INLINE void Sk4px::store4(SkPMColor px[4]) const {
+    _mm_storeu_si128((__m128i*)px, this->fVec);
+}
+SK_ALWAYS_INLINE void Sk4px::store2(SkPMColor px[2]) const {
+    _mm_storel_epi64((__m128i*)px, this->fVec);
+}
+SK_ALWAYS_INLINE void Sk4px::store1(SkPMColor px[1]) const {
+    *px = _mm_cvtsi128_si32(this->fVec);
+}
 
-inline Sk4px::Wide Sk4px::widenLo() const {
+SK_ALWAYS_INLINE Sk4px::Wide Sk4px::widenLo() const {
     return Sk16h(_mm_unpacklo_epi8(this->fVec, _mm_setzero_si128()),
                  _mm_unpackhi_epi8(this->fVec, _mm_setzero_si128()));
 }
 
-inline Sk4px::Wide Sk4px::widenHi() const {
+SK_ALWAYS_INLINE Sk4px::Wide Sk4px::widenHi() const {
     return Sk16h(_mm_unpacklo_epi8(_mm_setzero_si128(), this->fVec),
                  _mm_unpackhi_epi8(_mm_setzero_si128(), this->fVec));
 }
 
-inline Sk4px::Wide Sk4px::widenLoHi() const {
+SK_ALWAYS_INLINE Sk4px::Wide Sk4px::widenLoHi() const {
     return Sk16h(_mm_unpacklo_epi8(this->fVec, this->fVec),
                  _mm_unpackhi_epi8(this->fVec, this->fVec));
 }
 
-inline Sk4px::Wide Sk4px::mulWiden(const Sk16b& other) const {
+SK_ALWAYS_INLINE Sk4px::Wide Sk4px::mulWiden(const Sk16b& other) const {
     return this->widenLo() * Sk4px(other).widenLo();
 }
 
-inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
+SK_ALWAYS_INLINE Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
     Sk4px::Wide r = (*this + other) >> 8;
     return Sk4px(_mm_packus_epi16(r.fLo.fVec, r.fHi.fVec));
 }
@@ -49,19 +53,19 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
 // These are safe on x86, often with no speed penalty.
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
-    inline Sk4px Sk4px::alphas() const {
+    SK_ALWAYS_INLINE Sk4px Sk4px::alphas() const {
         static_assert(SK_A32_SHIFT == 24, "Intel's always little-endian.");
         __m128i splat = _mm_set_epi8(15,15,15,15, 11,11,11,11, 7,7,7,7, 3,3,3,3);
         return Sk16b(_mm_shuffle_epi8(this->fVec, splat));
     }
 
-    inline Sk4px Sk4px::Load4Alphas(const SkAlpha a[4]) {
+    SK_ALWAYS_INLINE Sk4px Sk4px::Load4Alphas(const SkAlpha a[4]) {
         uint32_t as = *(const uint32_t*)a;
         __m128i splat = _mm_set_epi8(3,3,3,3, 2,2,2,2, 1,1,1,1, 0,0,0,0);
         return Sk16b(_mm_shuffle_epi8(_mm_cvtsi32_si128(as), splat));
     }
 #else
-    inline Sk4px Sk4px::alphas() const {
+    SK_ALWAYS_INLINE Sk4px Sk4px::alphas() const {
         static_assert(SK_A32_SHIFT == 24, "Intel's always little-endian.");
         __m128i as = _mm_srli_epi32(this->fVec, 24);   // ___3 ___2 ___1 ___0
         as = _mm_or_si128(as, _mm_slli_si128(as, 1));  // __33 __22 __11 __00
@@ -69,7 +73,7 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
         return Sk16b(as);
     }
 
-    inline Sk4px Sk4px::Load4Alphas(const SkAlpha a[4]) {
+    SK_ALWAYS_INLINE Sk4px Sk4px::Load4Alphas(const SkAlpha a[4]) {
         __m128i as = _mm_cvtsi32_si128(*(const uint32_t*)a);  // ____ ____ ____ 3210
         as = _mm_unpacklo_epi8 (as, _mm_setzero_si128());     // ____ ____ _3_2 _1_0
         as = _mm_unpacklo_epi16(as, _mm_setzero_si128());     // ___3 ___2 ___1 ___0
@@ -79,21 +83,21 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
     }
 #endif
 
-inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
+SK_ALWAYS_INLINE Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
     uint32_t as = *(const uint16_t*)a;   // Aa -> Aa00
     return Load4Alphas((const SkAlpha*)&as);
 }
 
-inline Sk4px Sk4px::zeroColors() const {
+SK_ALWAYS_INLINE Sk4px Sk4px::zeroColors() const {
     return Sk16b(_mm_and_si128(_mm_set1_epi32(0xFF << SK_A32_SHIFT), this->fVec));
 }
 
-inline Sk4px Sk4px::zeroAlphas() const {
+SK_ALWAYS_INLINE Sk4px Sk4px::zeroAlphas() const {
     // andnot(a,b) == ~a & b
     return Sk16b(_mm_andnot_si128(_mm_set1_epi32(0xFF << SK_A32_SHIFT), this->fVec));
 }
 
-static inline __m128i widen_low_half_to_8888(__m128i v) {
+static SK_ALWAYS_INLINE __m128i widen_low_half_to_8888(__m128i v) {
     // RGB565 format:   |R....|G.....|B....|
     //           Bit:  16    11      5     0
 
@@ -119,7 +123,7 @@ static inline __m128i widen_low_half_to_8888(__m128i v) {
                         _mm_set1_epi32(0xFF << SK_A32_SHIFT))));
 }
 
-static inline __m128i narrow_to_565(__m128i w) {
+static SK_ALWAYS_INLINE __m128i narrow_to_565(__m128i w) {
     // Extract out top RGB 565 bits of each pixel, with no rounding.
     auto r5 = _mm_and_si128(_mm_set1_epi32(31), _mm_srli_epi32(w, SK_R32_SHIFT + 3)),
          g6 = _mm_and_si128(_mm_set1_epi32(63), _mm_srli_epi32(w, SK_G32_SHIFT + 2)),
@@ -143,29 +147,27 @@ static inline __m128i narrow_to_565(__m128i w) {
     return v;
 }
 
-inline Sk4px Sk4px::Load4(const SkPMColor16 src[4]) {
+SK_ALWAYS_INLINE Sk4px Sk4px::Load4(const SkPMColor16 src[4]) {
     return Sk16b(widen_low_half_to_8888(_mm_loadl_epi64((const __m128i*)src)));
 }
-inline Sk4px Sk4px::Load2(const SkPMColor16 src[2]) {
+SK_ALWAYS_INLINE Sk4px Sk4px::Load2(const SkPMColor16 src[2]) {
     auto src2 = ((uint32_t)src[0]      )
               | ((uint32_t)src[1] << 16);
     return Sk16b(widen_low_half_to_8888(_mm_cvtsi32_si128(src2)));
 }
-inline Sk4px Sk4px::Load1(const SkPMColor16 src[1]) {
+SK_ALWAYS_INLINE Sk4px Sk4px::Load1(const SkPMColor16 src[1]) {
     return Sk16b(widen_low_half_to_8888(_mm_insert_epi16(_mm_setzero_si128(), src[0], 0)));
 }
 
-inline void Sk4px::store4(SkPMColor16 dst[4]) const {
+SK_ALWAYS_INLINE void Sk4px::store4(SkPMColor16 dst[4]) const {
     _mm_storel_epi64((__m128i*)dst, narrow_to_565(this->fVec));
 }
-inline void Sk4px::store2(SkPMColor16 dst[2]) const {
+SK_ALWAYS_INLINE void Sk4px::store2(SkPMColor16 dst[2]) const {
     uint32_t dst2 = _mm_cvtsi128_si32(narrow_to_565(this->fVec));
     dst[0] = dst2;
     dst[1] = dst2 >> 16;
 }
-inline void Sk4px::store1(SkPMColor16 dst[1]) const {
+SK_ALWAYS_INLINE void Sk4px::store1(SkPMColor16 dst[1]) const {
     uint32_t dst2 = _mm_cvtsi128_si32(narrow_to_565(this->fVec));
     dst[0] = dst2;
 }
-
-}  // namespace

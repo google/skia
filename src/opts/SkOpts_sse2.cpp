@@ -18,7 +18,7 @@ namespace SkOpts {
     void Init_sse2() {
         memset16        = sse2::memset16;
         memset32        = sse2::memset32;
-        create_xfermode = SkCreate4pxXfermode;
+        create_xfermode = sse2::create_xfermode;
 
         box_blur_xx = sse2::box_blur_xx;
         box_blur_xy = sse2::box_blur_xy;
