@@ -21,9 +21,6 @@
 #include "batches/GrDrawVerticesBatch.h"
 #include "batches/GrRectBatchFactory.h"
 
-#include "SkGr.h"
-#include "SkRSXform.h"
-
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fContext)
 #define RETURN_IF_ABANDONED        if (!fDrawTarget) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (!fDrawTarget) { return false; }
@@ -420,63 +417,10 @@ void GrDrawContext::drawAtlas(GrRenderTarget* rt,
     
     GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     
-    // now build the renderable geometry
-    const int vertCount = spriteCount * 4;
-    SkAutoTMalloc<SkPoint> vertStorage(vertCount * 2);
-    SkPoint* verts = vertStorage.get();
-    SkPoint* texs = verts + vertCount;
-    
-    for (int i = 0; i < spriteCount; ++i) {
-        xform[i].toQuad(texRect[i].width(), texRect[i].height(), verts);
-        texRect[i].toQuad(texs);
-        verts += 4;
-        texs += 4;
-    }
-    
-    // TODO clients should give us bounds
-    SkRect bounds;
-    if (!bounds.setBoundsCheck(vertStorage.get(), vertCount)) {
-        SkDebugf("drawAtlas call empty bounds\n");
-        return;
-    }
-    
-    viewMatrix.mapRect(&bounds);
-    
-    // If we don't have AA then we outset for a half pixel in each direction to account for
-    // snapping
-    if (!paint.isAntiAlias()) {
-        bounds.outset(0.5f, 0.5f);
-    }
-    
-    SkAutoTMalloc<GrColor> colorStorage;
-    GrColor* vertCols = NULL;
-    if (colors) {
-        colorStorage.reset(vertCount);
-        vertCols = colorStorage.get();
-        
-        int paintAlpha = GrColorUnpackA(paint.getColor());
-
-        // need to convert byte order and from non-PM to PM
-        for (int i = 0; i < spriteCount; ++i) {
-            SkColor color = colors[i];
-            if (paintAlpha != 255) {
-                color = SkColorSetA(color, SkMulDiv255Round(SkColorGetA(color), paintAlpha));
-            }
-            GrColor grColor = SkColor2GrColor(color);
-            
-            vertCols[0] = vertCols[1] = vertCols[2] = vertCols[3] = grColor;
-            vertCols += 4;
-        }
-    }
-    
-    verts = vertStorage.get();
-    texs = verts + vertCount;
-    vertCols = colorStorage.get();
-    
     GrDrawAtlasBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
-    SkAutoTUnref<GrBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, verts, vertCount,
-                                                         vertCols, texs, bounds));
+    SkAutoTUnref<GrBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount,
+                                                         xform, texRect, colors));
     
     fDrawTarget->drawBatch(pipelineBuilder, batch);
 }

@@ -15,18 +15,14 @@
 class GrDrawAtlasBatch : public GrBatch {
 public:
     struct Geometry {
-        GrColor fColor;
-        SkTDArray<SkPoint> fPositions;
-        SkTDArray<GrColor> fColors;
-        SkTDArray<SkPoint> fLocalCoords;
+        GrColor                 fColor;
+        SkTArray<uint8_t, true> fVerts;
     };
     
-    static GrBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
-                           const SkPoint* positions, int vertexCount,
-                           const GrColor* colors, const SkPoint* localCoords,
-                           const SkRect& bounds) {
-        return SkNEW_ARGS(GrDrawAtlasBatch, (geometry, viewMatrix, positions,
-                                           vertexCount, colors, localCoords, bounds));
+    static GrBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix, int spriteCount,
+                           const SkRSXform* xforms, const SkRect* rects, const SkColor* colors) {
+        return SkNEW_ARGS(GrDrawAtlasBatch, (geometry, viewMatrix, spriteCount,
+                                             xforms, rects, colors));
     }
     
     const char* name() const override { return "DrawAtlasBatch"; }
@@ -50,15 +46,14 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
     
 private:
-    GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix,
-                     const SkPoint* positions, int vertexCount,
-                     const GrColor* colors, const SkPoint* localCoords, const SkRect& bounds);
+    GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix, int spriteCount,
+                     const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
     
     GrColor color() const { return fColor; }
     bool colorIgnored() const { return fColorIgnored; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool hasColors() const { return fHasColors; }
-    int vertexCount() const { return fVertexCount; }
+    int quadCount() const { return fQuadCount; }
     bool coverageIgnored() const { return fCoverageIgnored; }
     
     bool onCombineIfPossible(GrBatch* t) override;
@@ -66,7 +61,7 @@ private:
     
     SkMatrix fViewMatrix;
     GrColor  fColor;
-    int      fVertexCount;
+    int      fQuadCount;
     bool     fColorIgnored;
     bool     fCoverageIgnored;
     bool     fHasColors;
