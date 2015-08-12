@@ -24,6 +24,26 @@ static void set_inset_fan(SkPoint* pts, size_t stride,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
 
+static const int kNumAAFillRectsInIndexBuffer = 256;
+static const int kVertsPerAAFillRect = 8;
+static const int kIndicesPerAAFillRect = 30;
+
+const GrIndexBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
+    GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
+
+    static const uint16_t gFillAARectIdx[] = {
+        0, 1, 5, 5, 4, 0,
+        1, 2, 6, 6, 5, 1,
+        2, 3, 7, 7, 6, 2,
+        3, 0, 4, 4, 7, 3,
+        4, 5, 6, 6, 7, 4,
+    };
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gFillAARectIdx) == kIndicesPerAAFillRect);
+    return resourceProvider->findOrCreateInstancedIndexBuffer(gFillAARectIdx,
+        kIndicesPerAAFillRect, kNumAAFillRectsInIndexBuffer, kVertsPerAAFillRect,
+        gAAFillRectIndexBufferKey);
+}
+
 /*
  * AAFillRectBatch is templated to optionally allow the insertion of an additional
  * attribute for explicit local coordinates.
@@ -96,7 +116,7 @@ public:
                                    this->usesLocalCoords()));
         int instanceCount = fGeoData.count();
 
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(this->getIndexBuffer(
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(get_index_buffer(
             batchTarget->resourceProvider()));
         InstancedHelper helper;
         void* vertices = helper.init(batchTarget, kTriangles_GrPrimitiveType, vertexStride,
@@ -135,26 +155,6 @@ private:
 
         // Push back an initial geometry
         fGeoData.push_back();
-    }
-
-    static const int kNumAAFillRectsInIndexBuffer = 256;
-    static const int kVertsPerAAFillRect = 8;
-    static const int kIndicesPerAAFillRect = 30;
-
-    const GrIndexBuffer* getIndexBuffer(GrResourceProvider* resourceProvider) {
-        GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
-
-        static const uint16_t gFillAARectIdx[] = {
-            0, 1, 5, 5, 4, 0,
-            1, 2, 6, 6, 5, 1,
-            2, 3, 7, 7, 6, 2,
-            3, 0, 4, 4, 7, 3,
-            4, 5, 6, 6, 7, 4,
-        };
-        GR_STATIC_ASSERT(SK_ARRAY_COUNT(gFillAARectIdx) == kIndicesPerAAFillRect);
-        return resourceProvider->findOrCreateInstancedIndexBuffer(gFillAARectIdx,
-            kIndicesPerAAFillRect, kNumAAFillRectsInIndexBuffer, kVertsPerAAFillRect,
-            gAAFillRectIndexBufferKey);
     }
 
     GrColor color() const { return fBatch.fColor; }
@@ -304,10 +304,11 @@ private:
         Coverage coverage(coverageType);
 
         // We assume the caller has inverted the viewmatrix
-        LocalCoords localCoords(usesLocalCoords ? localCoordsType : LocalCoords::kUnused_Type);
         if (LocalCoords::kHasExplicit_Type == localCoordsType) {
+            LocalCoords localCoords(localCoordsType);
             return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
         } else {
+            LocalCoords localCoords(usesLocalCoords ? localCoordsType : LocalCoords::kUnused_Type);
             return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
         }
     }
@@ -377,7 +378,6 @@ public:
     inline static bool StrideCheck(size_t vertexStride, bool canTweakAlphaForCoverage,
                                    bool usesLocalCoords) {
         // Whomever created us should not have done so if there are no local coords
-        SkASSERT(usesLocalCoords);
         return canTweakAlphaForCoverage ?
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordCoverage);
