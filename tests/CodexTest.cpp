@@ -266,7 +266,7 @@ DEF_TEST(Codec_Dimensions, r) {
     test_dimensions(r, "randPixels.jpg");
 }
 
-static void test_empty(skiatest::Reporter* r, const char path[]) {
+static void test_invalid(skiatest::Reporter* r, const char path[]) {
     SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
         SkDebugf("Missing resource '%s'\n", path);
@@ -278,16 +278,18 @@ static void test_empty(skiatest::Reporter* r, const char path[]) {
 
 DEF_TEST(Codec_Empty, r) {
     // Test images that should not be able to create a codec
-    test_empty(r, "empty_images/zero-dims.gif");
-    test_empty(r, "empty_images/zero-embedded.ico");
-    test_empty(r, "empty_images/zero-width.bmp");
-    test_empty(r, "empty_images/zero-height.bmp");
-    test_empty(r, "empty_images/zero-width.jpg");
-    test_empty(r, "empty_images/zero-height.jpg");
-    test_empty(r, "empty_images/zero-width.png");
-    test_empty(r, "empty_images/zero-height.png");
-    test_empty(r, "empty_images/zero-width.wbmp");
-    test_empty(r, "empty_images/zero-height.wbmp");
+    test_invalid(r, "empty_images/zero-dims.gif");
+    test_invalid(r, "empty_images/zero-embedded.ico");
+    test_invalid(r, "empty_images/zero-width.bmp");
+    test_invalid(r, "empty_images/zero-height.bmp");
+    test_invalid(r, "empty_images/zero-width.jpg");
+    test_invalid(r, "empty_images/zero-height.jpg");
+    test_invalid(r, "empty_images/zero-width.png");
+    test_invalid(r, "empty_images/zero-height.png");
+    test_invalid(r, "empty_images/zero-width.wbmp");
+    test_invalid(r, "empty_images/zero-height.wbmp");
+    // This image is an ico with an embedded mask-bmp.  This is illegal.
+    test_invalid(r, "invalid_images/mask-bmp-ico.ico");
 }
 
 static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {

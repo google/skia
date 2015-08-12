@@ -56,6 +56,15 @@ private:
     bool initializeStreamBuffer();
 
     /*
+     * Before signalling kIncompleteInput, we should attempt to load the
+     * stream buffer with additional data.
+     *
+     * @return the number of bytes remaining in the stream buffer after
+     *         attempting to read more bytes from the stream
+     */
+    size_t checkForMoreData();
+
+    /*
      * Set an RLE pixel using the color table
      */
     void setPixel(void* dst, size_t dstRowBytes,

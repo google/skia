@@ -478,6 +478,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
             case kBitMask_BmpInputFormat:
                 // Bmp-in-Ico must be standard mode
                 if (inIco) {
+                    SkCodecPrintf("Error: Icos may not use bit mask format.\n");
                     return false;
                 }
                 // Skip to the start of the pixel array.
@@ -493,9 +494,10 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 return true;
             case kRLE_BmpInputFormat:
                 // Bmp-in-Ico must be standard mode
-                if (inIco) {
-                    return false;
-                }
+                // When inIco is true, this line cannot be reached, since we
+                // require that RLE Bmps have a valid number of totalBytes, and
+                // Icos skip the header that contains totalBytes.
+                SkASSERT(!inIco);
                 *codecOut = SkNEW_ARGS(SkBmpRLECodec, (
                         imageInfo, stream, bitsPerPixel, numColors,
                         bytesPerColor, offset - bytesRead, rowOrder, RLEBytes));
@@ -553,7 +555,7 @@ void* SkBmpCodec::getDstStartRow(void* dst, size_t dstRowBytes, int32_t y) const
  */
 uint32_t SkBmpCodec::computeNumColors(uint32_t numColors) {
     // Zero is a default for maxColors
-    // Also set fNumColors to maxColors when it is too large
+    // Also set numColors to maxColors when it is too large
     uint32_t maxColors = 1 << fBitsPerPixel;
     if (numColors == 0 || numColors >= maxColors) {
         return maxColors;

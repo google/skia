@@ -183,6 +183,41 @@ bool SkBmpRLECodec::initializeStreamBuffer() {
 }
 
 /*
+ * Before signalling kIncompleteInput, we should attempt to load the
+ * stream buffer with additional data.
+ *
+ * @return the number of bytes remaining in the stream buffer after
+ *         attempting to read more bytes from the stream
+ */
+size_t SkBmpRLECodec::checkForMoreData() {
+    const size_t remainingBytes = fRLEBytes - fCurrRLEByte;
+    uint8_t* buffer = fStreamBuffer.get();
+
+    // We will be reusing the same buffer, starting over from the beginning.
+    // Move any remaining bytes to the start of the buffer.
+    // We use memmove() instead of memcpy() because there is risk that the dst
+    // and src memory will overlap in corrupt images.
+    memmove(buffer, SkTAddOffset<uint8_t>(buffer, fCurrRLEByte), remainingBytes);
+
+    // Adjust the buffer ptr to the start of the unfilled data.
+    buffer += remainingBytes;
+
+    // Try to read additional bytes from the stream.  There are fCurrRLEByte
+    // bytes of additional space remaining in the buffer, assuming that we
+    // have already copied remainingBytes to the start of the buffer.
+    size_t additionalBytes = this->stream()->read(buffer, fCurrRLEByte);
+
+    // Update counters and return the number of bytes we currently have
+    // available.  We are at the start of the buffer again.
+    fCurrRLEByte = 0;
+    // If we were unable to fill the buffer, fRLEBytes is no longer equal to
+    // the size of the buffer.  There will be unused space at the end.  This
+    // should be fine, given that there are no more bytes in the stream.
+    fRLEBytes = remainingBytes + additionalBytes;
+    return fRLEBytes;
+}
+
+/*
  * Set an RLE pixel using the color table
  */
 void SkBmpRLECodec::setPixel(void* dst, size_t dstRowBytes,
@@ -287,8 +322,10 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
 
         // Every entry takes at least two bytes
         if ((int) fRLEBytes - fCurrRLEByte < 2) {
-            SkCodecPrintf("Warning: incomplete RLE input.\n");
-            return kIncompleteInput;
+            SkCodecPrintf("Warning: might be incomplete RLE input.\n");
+            if (this->checkForMoreData() < 2) {
+                return kIncompleteInput;
+            }
         }
 
         // Read the next two bytes.  These bytes have different meanings
@@ -310,8 +347,10 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
                 case RLE_DELTA: {
                     // Two bytes are needed to specify delta
                     if ((int) fRLEBytes - fCurrRLEByte < 2) {
-                        SkCodecPrintf("Warning: incomplete RLE input\n");
-                        return kIncompleteInput;
+                        SkCodecPrintf("Warning: might be incomplete RLE input.\n");
+                        if (this->checkForMoreData() < 2) {
+                            return kIncompleteInput;
+                        }
                     }
                     // Modify x and y
                     const uint8_t dx = fStreamBuffer.get()[fCurrRLEByte++];
@@ -319,8 +358,8 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
                     x += dx;
                     y += dy;
                     if (x > width || y > height) {
-                        SkCodecPrintf("Warning: invalid RLE input 1.\n");
-                        return kIncompleteInput;
+                        SkCodecPrintf("Warning: invalid RLE input.\n");
+                        return kInvalidInput;
                     }
                     break;
                 }
@@ -333,12 +372,18 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
                     const size_t rowBytes = compute_row_bytes(numPixels,
                             this->bitsPerPixel());
                     // Abort if setting numPixels moves us off the edge of the
-                    // image.  Also abort if there are not enough bytes
+                    // image.
+                    if (x + numPixels > width) {
+                        SkCodecPrintf("Warning: invalid RLE input.\n");
+                        return kInvalidInput;
+                    }
+                    // Also abort if there are not enough bytes
                     // remaining in the stream to set numPixels.
-                    if (x + numPixels > width ||
-                            (int) fRLEBytes - fCurrRLEByte < SkAlign2(rowBytes)) {
-                        SkCodecPrintf("Warning: invalid RLE input 2.\n");
-                        return kIncompleteInput;
+                    if ((int) fRLEBytes - fCurrRLEByte < SkAlign2(rowBytes)) {
+                        SkCodecPrintf("Warning: might be incomplete RLE input.\n");
+                        if (this->checkForMoreData() < SkAlign2(rowBytes)) {
+                            return kIncompleteInput;
+                        }
                     }
                     // Set numPixels number of pixels
                     while (numPixels > 0) {
@@ -394,8 +439,10 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
                 // There are two more required bytes to finish encoding the
                 // color.
                 if ((int) fRLEBytes - fCurrRLEByte < 2) {
-                    SkCodecPrintf("Warning: incomplete RLE input\n");
-                    return kIncompleteInput;
+                    SkCodecPrintf("Warning: might be incomplete RLE input.\n");
+                    if (this->checkForMoreData() < 2) {
+                        return kIncompleteInput;
+                    }
                 }
 
                 // Fill the pixels up to endX with the specified color
