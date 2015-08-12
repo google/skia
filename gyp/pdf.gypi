@@ -11,9 +11,6 @@
 #
 {
     'sources': [
-        # TODO(halcanary): Move to <(skia_src_path)/pdf.
-        '<(skia_src_path)/core/SkFlate.cpp',
-
         '<(skia_src_path)/doc/SkDocument_PDF.cpp',
         '<(skia_src_path)/pdf/SkJpegInfo.cpp',
         '<(skia_src_path)/pdf/SkJpegInfo.h',
