@@ -13,7 +13,6 @@
 
 class GrGpuTraceMarker {
 public:
-    GrGpuTraceMarker() {};
     GrGpuTraceMarker(const char* marker, int idCounter) : fMarker(marker), fID(idCounter) {}
 
     bool operator<(const GrGpuTraceMarker& rhs) const {

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,16 +5,12 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef SkTLazy_DEFINED
 #define SkTLazy_DEFINED
 
+#include "SkTemplates.h"
 #include "SkTypes.h"
 #include <new>
-
-template <typename T> class SkTLazy;
-template <typename T> void* operator new(size_t, SkTLazy<T>* lazy);
 
 /**
  *  Efficient way to defer allocating/initializing a class until it is needed
@@ -27,13 +22,13 @@ public:
 
     explicit SkTLazy(const T* src) : fPtr(NULL) {
         if (src) {
-            fPtr = new (fStorage) T(*src);
+            fPtr = new (fStorage.get()) T(*src);
         }
     }
 
     SkTLazy(const SkTLazy<T>& src) : fPtr(NULL) {
         if (src.isValid()) {
-            fPtr = new (fStorage) T(*src->get());
+            fPtr = new (fStorage.get()) T(*src->get());
         } else {
             fPtr = NULL;
         }
@@ -46,16 +41,16 @@ public:
     }
 
     /**
-     *  Return a pointer to a default-initialized instance of the class. If a
-     *  previous instance had been initialized (either from init() or set()) it
-     *  will first be destroyed, so that a freshly initialized instance is
-     *  always returned.
+     *  Return a pointer to an instance of the class initialized with 'args'.
+     *  If a previous instance had been initialized (either from init() or
+     *  set()) it will first be destroyed, so that a freshly initialized
+     *  instance is always returned.
      */
-    T* init() {
+    template <typename... Args> T* init(Args&&... args) {
         if (this->isValid()) {
             fPtr->~T();
         }
-        fPtr = new (SkTCast<T*>(fStorage)) T;
+        fPtr = new (SkTCast<T*>(fStorage.get())) T(skstd::forward<Args>(args)...);
         return fPtr;
     }
 
@@ -69,7 +64,7 @@ public:
         if (this->isValid()) {
             *fPtr = src;
         } else {
-            fPtr = new (SkTCast<T*>(fStorage)) T(src);
+            fPtr = new (SkTCast<T*>(fStorage.get())) T(src);
         }
         return fPtr;
     }
@@ -103,26 +98,9 @@ public:
     T* getMaybeNull() const { return fPtr; }
 
 private:
-    friend void* operator new<T>(size_t, SkTLazy* lazy);
-
-    T*   fPtr; // NULL or fStorage
-    char fStorage[sizeof(T)];
+    T* fPtr; // NULL or fStorage
+    SkAlignedSTStorage<1, T> fStorage;
 };
-
-// Use the below macro (SkNEW_IN_TLAZY) rather than calling this directly
-template <typename T> void* operator new(size_t, SkTLazy<T>* lazy) {
-    SkASSERT(!lazy->isValid());
-    lazy->fPtr = reinterpret_cast<T*>(lazy->fStorage);
-    return lazy->fPtr;
-}
-
-// Skia doesn't use C++ exceptions but it may be compiled with them enabled. Having an op delete
-// to match the op new silences warnings about missing op delete when a constructor throws an
-// exception.
-template <typename T> void operator delete(void*, SkTLazy<T>*) { SK_CRASH(); }
-
-// Use this to construct a T inside an SkTLazy using a non-default constructor.
-#define SkNEW_IN_TLAZY(tlazy_ptr, type_name, args) (new (tlazy_ptr) type_name args)
 
 /**
  * A helper built on top of SkTLazy to do copy-on-first-write. The object is initialized

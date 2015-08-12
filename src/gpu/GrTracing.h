@@ -12,6 +12,7 @@
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
 #include "GrTraceMarker.h"
+#include "SkTLazy.h"
 #include "SkTraceEvent.h"
 
 /**
@@ -28,9 +29,7 @@ public:
     }
 
     void initialize(const char* marker_str, int* marker_counter) {
-        GrGpuTraceMarker* traceMarker = fTraceMarker.init();
-        traceMarker->fMarker = marker_str;
-        traceMarker->fID = *marker_counter;
+        GrGpuTraceMarker* traceMarker = fTraceMarker.init(marker_str, *marker_counter);
         fTarget->addGpuTraceMarker(traceMarker);
     }
 
@@ -50,9 +49,7 @@ public:
     }
 
     void initialize(const char* marker_str, int* marker_counter) {
-        GrGpuTraceMarker* traceMarker = fTraceMarker.init();
-        traceMarker->fMarker = marker_str;
-        traceMarker->fID = *marker_counter;
+        GrGpuTraceMarker* traceMarker = fTraceMarker.init(marker_str, *marker_counter);
         fContext->addGpuTraceMarker(traceMarker);
     }
 
