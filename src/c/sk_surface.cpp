@@ -556,6 +556,86 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
     return (sk_shader_t*)s;
 }
 
+static const SkPoint& to_skpoint(const sk_point_t& p) {
+    return reinterpret_cast<const SkPoint&>(p);
+}
+
+sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
+                                           float radius,
+                                           const sk_color_t colors[],
+                                           const float colorPos[],
+                                           int colorCount,
+                                           sk_shader_tilemode_t cmode,
+                                           const sk_matrix_t* cmatrix) {
+    SkShader::TileMode mode;
+    if (!from_c_tilemode(cmode, &mode)) {
+        return NULL;
+    }
+    SkMatrix matrix;
+    if (cmatrix) {
+        from_c_matrix(cmatrix, &matrix);
+    } else {
+        matrix.setIdentity();
+    }
+    SkPoint center = to_skpoint(*ccenter);
+    SkShader* s = SkGradientShader::CreateRadial(
+            center, (SkScalar)radius,
+            reinterpret_cast<const SkColor*>(colors),
+            reinterpret_cast<const SkScalar*>(colorPos),
+            colorCount, mode, 0, &matrix);
+    return (sk_shader_t*)s;
+}
+
+sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
+                                          const sk_color_t colors[],
+                                          const float colorPos[],
+                                          int colorCount,
+                                          const sk_matrix_t* cmatrix) {
+    SkMatrix matrix;
+    if (cmatrix) {
+        from_c_matrix(cmatrix, &matrix);
+    } else {
+        matrix.setIdentity();
+    }
+    SkShader* s = SkGradientShader::CreateSweep(
+            (SkScalar)(ccenter->x),
+            (SkScalar)(ccenter->y),
+            reinterpret_cast<const SkColor*>(colors),
+            reinterpret_cast<const SkScalar*>(colorPos),
+            colorCount, 0, &matrix);
+    return (sk_shader_t*)s;
+}
+
+sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
+                                                      float startRadius,
+                                                      const sk_point_t* end,
+                                                      float endRadius,
+                                                      const sk_color_t colors[],
+                                                      const float colorPos[],
+                                                      int colorCount,
+                                                      sk_shader_tilemode_t cmode,
+                                                      const sk_matrix_t* cmatrix) {
+    SkShader::TileMode mode;
+    if (!from_c_tilemode(cmode, &mode)) {
+        return NULL;
+    }
+    SkMatrix matrix;
+    if (cmatrix) {
+        from_c_matrix(cmatrix, &matrix);
+    } else {
+        matrix.setIdentity();
+    }
+    SkPoint skstart = to_skpoint(*start);
+    SkPoint skend = to_skpoint(*end);
+    SkShader* s = SkGradientShader::CreateTwoPointConical(
+            skstart, (SkScalar)startRadius,
+            skend, (SkScalar)endRadius,
+            reinterpret_cast<const SkColor*>(colors),
+            reinterpret_cast<const SkScalar*>(colorPos),
+            colorCount, mode, 0, &matrix);
+    return (sk_shader_t*)s;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../../include/effects/SkBlurMaskFilter.h"
