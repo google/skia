@@ -20,6 +20,7 @@
       ],
       'include_dirs': [
         '../include/animator',
+        '../include/private',
         '../src/utils',
       ],
       'sources': [
