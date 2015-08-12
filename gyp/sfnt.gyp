@@ -13,6 +13,7 @@
         'core.gyp:*',
       ],
       'include_dirs': [
+        '../src/core',
         '../src/sfnt',
       ],
       'sources': [
