@@ -62,6 +62,16 @@
           ],
         },
       }],
+      [ 'skia_vulkan', {
+        'defines': [
+          'SK_VULKAN',
+        ],
+        'direct_dependent_settings': {
+          'defines': [
+            'SK_VULKAN',
+          ],
+        },
+      }],
       [ 'skia_win_debuggers_path and skia_os == "win"',
         {
           'defines': [
