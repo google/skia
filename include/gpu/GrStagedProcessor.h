@@ -8,8 +8,9 @@
 #ifndef GrStagedProcessorStage_DEFINED
 #define GrStagedProcessorStage_DEFINED
 
-#include "GrFragmentProcessor.h"
 #include "SkRefCnt.h"
+
+class GrFragmentProcessor;
 
 /**
  * Wraps a GrFragmentProcessor, basically a copyable SkAutoTUnref

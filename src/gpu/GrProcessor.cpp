@@ -135,17 +135,34 @@ void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     SkDEBUGCODE(transform->setInProcessor();)
 }
 
-void GrFragmentProcessor::registerChildProcessor(GrFragmentProcessor* child) {
-    fChildProcessors.push_back(child);
+int GrFragmentProcessor::registerChildProcessor(const GrFragmentProcessor* child) {
+    // Append the child's transforms to our transforms array and the child's textures array to our
+    // textures array
+    if (!child->fCoordTransforms.empty()) {
+        fCoordTransforms.push_back_n(child->fCoordTransforms.count(),
+                                     child->fCoordTransforms.begin());
+    }
+    if (!child->fTextureAccesses.empty()) {
+        fTextureAccesses.push_back_n(child->fTextureAccesses.count(),
+                                     child->fTextureAccesses.begin());
+    }
+
+    int index = fChildProcessors.count();
+    fChildProcessors.push_back(GrFragmentStage(child));
+
+    if (child->willReadFragmentPosition())
+        this->setWillReadFragmentPosition();
+
+    return index;
 }
 
 bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) const {
-    if (fCoordTransforms.count() != that.fCoordTransforms.count()) {
+    if (this->numTransforms() != that.numTransforms()) {
         return false;
     }
-    int count = fCoordTransforms.count();
+    int count = this->numTransforms();
     for (int i = 0; i < count; ++i) {
-        if (*fCoordTransforms[i] != *that.fCoordTransforms[i]) {
+        if (this->coordTransform(i) != that.coordTransform(i)) {
             return false;
         }
     }

@@ -9,6 +9,7 @@
 #define GrFragmentProcessor_DEFINED
 
 #include "GrProcessor.h"
+#include "GrStagedProcessor.h"
 
 class GrCoordTransform;
 class GrGLSLCaps;
@@ -38,19 +39,11 @@ public:
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
         this->onGetGLProcessorKey(caps, b);
         for (int i = 0; i < fChildProcessors.count(); ++i) {
-            fChildProcessors[i]->getGLProcessorKey(caps, b);
+            fChildProcessors[i].processor()->getGLProcessorKey(caps, b);
         }
     }
 
     int numTransforms() const { return fCoordTransforms.count(); }
-
-    int numTransformsIncludeChildProcs() const {
-        int numTransforms = fCoordTransforms.count();
-        for (int i = 0; i < fChildProcessors.count(); ++i) {
-            numTransforms += fChildProcessors[i]->numTransformsIncludeChildProcs();
-        }
-        return numTransforms;
-    }
 
     /** Returns the coordinate transformation at index. index must be valid according to
         numTransforms(). */
@@ -60,29 +53,16 @@ public:
         return fCoordTransforms;
     }
 
-    /** Gather the coord transforms into an array. We use preorder traversal */
     void gatherCoordTransforms(SkTArray<const GrCoordTransform*, true>* outTransforms) const {
-        SkASSERT(outTransforms);
-        outTransforms->push_back_n(fCoordTransforms.count(), fCoordTransforms.begin());
-        for (int i = 0; i < fChildProcessors.count(); ++i) {
-            fChildProcessors[i]->gatherCoordTransforms(outTransforms);
+        if (!fCoordTransforms.empty()) {
+            outTransforms->push_back_n(fCoordTransforms.count(), fCoordTransforms.begin());
         }
     }
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
-    GrFragmentProcessor* childProcessor(int index) const { return fChildProcessors[index]; }
-
-    const SkTArray<GrFragmentProcessor*, false>& childProcessors() const {
-        return fChildProcessors;
-    }
-
-    int numTexturesIncludeChildProcs() const {
-        int numTextures = this->numTextures();
-        for (int i = 0; i < fChildProcessors.count(); ++i) {
-            numTextures += fChildProcessors[i]->numTexturesIncludeChildProcs();
-        }
-        return numTextures;
+    const GrFragmentProcessor& childProcessor(int index) const {
+        return *fChildProcessors[index].processor();
     }
 
     /** Do any of the coordtransforms for this processor require local coords? */
@@ -140,13 +120,14 @@ protected:
     void addCoordTransform(const GrCoordTransform*);
 
     /**
-     * FragmentProcessor subclasses call this to register any child FragmentProcessors they have.
+     * FragmentProcessor subclasses call this from their constructor to register any child
+     * FragmentProcessors they have.
      * This is for processors whose shader code will be composed of nested processors whose output
      * colors will be combined somehow to produce its output color.  Registering these child
-     * processors will allow the ProgramBuilder to automatically add their transformed coords and
-     * texture accesses and mangle their uniform and output color names and
+     * processors will allow the ProgramBuilder to automatically handle their transformed coords and
+     * texture accesses and mangle their uniform and output color names.
      */
-    void registerChildProcessor(GrFragmentProcessor* child);
+    int registerChildProcessor(const GrFragmentProcessor* child);
 
     /**
      * Subclass implements this to support getConstantColorComponents(...).
@@ -168,9 +149,16 @@ private:
 
     bool hasSameTransforms(const GrFragmentProcessor&) const;
 
-    SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
     bool                                         fUsesLocalCoords;
-    SkTArray<GrFragmentProcessor*, false>        fChildProcessors;
+
+    /**
+     * This stores the transforms of this proc, followed by all the transforms of this proc's
+     * children. In other words, each proc stores all the transforms of its subtree.
+     * The same goes for fTextureAccesses with textures.
+     */
+    SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
+
+    SkTArray<GrFragmentStage, false>             fChildProcessors;
 
     typedef GrProcessor INHERITED;
 };

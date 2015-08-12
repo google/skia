@@ -118,6 +118,7 @@ protected:
     }
 
     uint32_t fClassID;
+    SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
 
 private:
     static uint32_t GenClassID() {
@@ -137,7 +138,6 @@ private:
     };
     static int32_t gCurrProcessorClassID;
 
-    SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
     bool                                         fWillReadFragmentPosition;
 
     typedef GrProgramElement INHERITED;

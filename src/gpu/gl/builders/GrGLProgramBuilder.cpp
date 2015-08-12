@@ -179,18 +179,6 @@ const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
     return fGpu->ctxInfo();
 }
 
-static void append_gr_fp_coord_transforms(const GrFragmentProcessor* processor,
-                                          SkTArray<const GrCoordTransform*, true>* procCoords) {
-    // add the coord transforms of this processor
-    for (int i = 0; i < processor->numTransforms(); ++i) {
-        procCoords->push_back(&processor->coordTransform(i));
-    }
-    // recursively add the coord transforms of this processor's child processors
-    for (int i = 0; i < processor->numChildProcessors(); ++i) {
-        append_gr_fp_coord_transforms(processor->childProcessor(i), procCoords);
-    }
-}
-
 bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {
     // First we loop over all of the installed processors and collect coord transforms.  These will
     // be sent to the GrGLPrimitiveProcessor in its emitCode function
@@ -203,11 +191,10 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
 
         if (!primProc.hasTransformedLocalCoords()) {
             SkSTArray<2, const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
-
-            append_gr_fp_coord_transforms(processor, &procCoords);
+            processor->gatherCoordTransforms(&procCoords);
         }
 
-        totalTextures += processor->numTexturesIncludeChildProcs();
+        totalTextures += processor->numTextures();
         if (totalTextures >= maxTextureUnits) {
             GrCapsDebugf(fGpu->caps(), "Program would use too many texture units\n");
             return false;
@@ -298,7 +285,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
     const GrFragmentProcessor& fp = *fs.processor();
     ifp->fGLProc.reset(fp.createGLInstance());
 
-    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(fp.numTexturesIncludeChildProcs());
+    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(fp.numTextures());
     this->emitSamplers(fp, &samplers, ifp);
 
     GrGLFragmentProcessor::EmitArgs args(this, fp, outColor, inColor, fOutCoords[index], samplers);

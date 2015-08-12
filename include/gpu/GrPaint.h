@@ -15,6 +15,7 @@
 #include "GrProcessorDataManager.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
+#include "GrFragmentProcessor.h"
 
 #include "SkRegion.h"
 #include "SkXfermode.h"
