@@ -12,6 +12,8 @@
 {
     'sources': [
         '<(skia_src_path)/doc/SkDocument_PDF.cpp',
+        '<(skia_src_path)/pdf/SkDeflate.cpp',
+        '<(skia_src_path)/pdf/SkDeflate.h',
         '<(skia_src_path)/pdf/SkJpegInfo.cpp',
         '<(skia_src_path)/pdf/SkJpegInfo.h',
         '<(skia_src_path)/pdf/SkPDFBitmap.cpp',

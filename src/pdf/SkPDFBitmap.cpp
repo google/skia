@@ -7,7 +7,7 @@
 
 #include "SkColorPriv.h"
 #include "SkData.h"
-#include "SkFlate.h"
+#include "SkDeflate.h"
 #include "SkImageGenerator.h"
 #include "SkJpegInfo.h"
 #include "SkPDFBitmap.h"

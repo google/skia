@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkFlate.h"
+#include "SkDeflate.h"
 #include "SkRandom.h"
 #include "Test.h"
 

@@ -9,7 +9,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDocument.h"
-#include "SkFlate.h"
+#include "SkDeflate.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"

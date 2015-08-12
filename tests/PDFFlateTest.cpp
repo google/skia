@@ -6,7 +6,7 @@
  */
 
 #include "SkData.h"
-#include "SkFlate.h"
+#include "SkDeflate.h"
 #include "SkStream.h"
 #include "Test.h"
 
