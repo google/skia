@@ -83,16 +83,20 @@ SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)
 
 SkCodec::~SkCodec() {}
 
-SkCodec::RewindState SkCodec::rewindIfNeeded() {
+bool SkCodec::rewindIfNeeded() {
     // Store the value of fNeedsRewind so we can update it. Next read will
     // require a rewind.
     const bool needsRewind = fNeedsRewind;
     fNeedsRewind = true;
     if (!needsRewind) {
-        return kNoRewindNecessary_RewindState;
+        return true;
     }
-    return fStream->rewind() ? kRewound_RewindState
-                             : kCouldNotRewind_RewindState;
+
+    if (!fStream->rewind()) {
+        return false;
+    }
+
+    return this->onRewind();
 }
 
 SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,

@@ -533,19 +533,8 @@ SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
     , fRowOrder(rowOrder)
 {}
 
-/*
- * Rewinds the image stream if necessary
- */
-bool SkBmpCodec::handleRewind(bool inIco) {
-    SkCodec::RewindState rewindState = this->rewindIfNeeded();
-    if (rewindState == kCouldNotRewind_RewindState) {
-        return false;
-    } else if (rewindState == kRewound_RewindState) {
-        if (!SkBmpCodec::ReadHeader(this->stream(), inIco, NULL)) {
-            return false;
-        }
-    }
-    return true;
+bool SkBmpCodec::onRewind() {
+    return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), NULL);
 }
 
 /*

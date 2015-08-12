@@ -64,6 +64,8 @@ protected:
         return kGIF_SkEncodedFormat;
     }
 
+    bool onRewind() override;
+
 private:
 
     /*

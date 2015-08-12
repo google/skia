@@ -233,26 +233,27 @@ protected:
 
     virtual bool onReallyHasAlpha() const { return false; }
 
-    enum RewindState {
-        kRewound_RewindState,
-        kNoRewindNecessary_RewindState,
-        kCouldNotRewind_RewindState
-    };
     /**
      *  If the stream was previously read, attempt to rewind.
-     *  @returns:
-     *      kRewound if the stream needed to be rewound, and the
-     *               rewind succeeded.
-     *      kNoRewindNecessary if the stream did not need to be
-     *                         rewound.
-     *      kCouldNotRewind if the stream needed to be rewound, and
-     *                      rewind failed.
+     *
+     *  If the stream needed to be rewound, call onRewind.
+     *  @returns true if the codec is at the right position and can be used.
+     *      false if there was a failure to rewind.
      *
      *  Subclasses MUST call this function before reading the stream (e.g. in
      *  onGetPixels). If it returns false, onGetPixels should return
      *  kCouldNotRewind.
      */
-    RewindState SK_WARN_UNUSED_RESULT rewindIfNeeded();
+    bool SK_WARN_UNUSED_RESULT rewindIfNeeded();
+
+    /**
+     *  Called by rewindIfNeeded, if the stream needed to be rewound.
+     *
+     *  Subclasses should do any set up needed after a rewind.
+     */
+    virtual bool onRewind() {
+        return true;
+    }
 
     /**
      * Get method for the input stream

@@ -66,7 +66,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         const Options& opts,
                                         SkPMColor* inputColorPtr,
                                         int* inputColorCount) {
-    if (!this->handleRewind(fInIco)) {
+    if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
     if (opts.fSubset) {

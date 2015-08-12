@@ -63,10 +63,18 @@ protected:
      */
     static bool ReadHeader(SkStream*, bool inIco, SkCodec** codecOut);
 
+    bool onRewind() override;
+
     /*
-     * Rewinds the image stream if necessary
+     * Returns whether this BMP is part of an ICO image.
      */
-    bool handleRewind(bool inIco);
+    bool inIco() const {
+        return this->onInIco();
+    }
+
+    virtual bool onInIco() const {
+        return false;
+    }
 
     /*
      * Get the destination row to start filling from

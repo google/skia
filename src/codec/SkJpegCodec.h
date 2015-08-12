@@ -65,6 +65,8 @@ protected:
         return kJPEG_SkEncodedFormat;
     }
 
+    bool onRewind() override;
+
 private:
 
     /*
@@ -99,11 +101,6 @@ private:
      *                   takes ownership
      */
     SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr);
-
-    /*
-     * Handles rewinding the input stream if it is necessary
-     */
-    bool handleRewind();
 
     /*
      * Checks if the conversion between the input image and the requested output

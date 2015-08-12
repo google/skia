@@ -471,32 +471,23 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
 }
 
 
-bool SkPngCodec::handleRewind() {
-    switch (this->rewindIfNeeded()) {
-        case kNoRewindNecessary_RewindState:
-            return true;
-        case kCouldNotRewind_RewindState:
-            return false;
-        case kRewound_RewindState: {
-            // This sets fPng_ptr and fInfo_ptr to NULL. If read_header
-            // succeeds, they will be repopulated, and if it fails, they will
-            // remain NULL. Any future accesses to fPng_ptr and fInfo_ptr will
-            // come through this function which will rewind and again attempt
-            // to reinitialize them.
-            this->destroyReadStruct();
-            png_structp png_ptr;
-            png_infop info_ptr;
-            if (read_header(this->stream(), &png_ptr, &info_ptr, NULL, NULL)) {
-                fPng_ptr = png_ptr;
-                fInfo_ptr = info_ptr;
-                return true;
-            }
-            return false;
-        }
-        default:
-            SkASSERT(false);
-            return false;
+bool SkPngCodec::onRewind() {
+    // This sets fPng_ptr and fInfo_ptr to NULL. If read_header
+    // succeeds, they will be repopulated, and if it fails, they will
+    // remain NULL. Any future accesses to fPng_ptr and fInfo_ptr will
+    // come through this function which will rewind and again attempt
+    // to reinitialize them.
+    this->destroyReadStruct();
+
+    png_structp png_ptr;
+    png_infop info_ptr;
+    if (!read_header(this->stream(), &png_ptr, &info_ptr, NULL, NULL)) {
+        return false;
     }
+
+    fPng_ptr = png_ptr;
+    fInfo_ptr = info_ptr;
+    return true;
 }
 
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
@@ -512,7 +503,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
         return kInvalidScale;
     }
-    if (!this->handleRewind()) {
+    if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
 
@@ -593,7 +584,7 @@ public:
                             const SkCodec::Options& options,
                             SkPMColor ctable[], int* ctableCount) override
     {
-        if (!fCodec->handleRewind()) {
+        if (!fCodec->rewindIfNeeded()) {
             return SkCodec::kCouldNotRewind;
         }
 
@@ -677,7 +668,7 @@ public:
                             const SkCodec::Options& options,
                             SkPMColor ctable[], int* ctableCount) override
     {
-        if (!fCodec->handleRewind()) {
+        if (!fCodec->rewindIfNeeded()) {
             return SkCodec::kCouldNotRewind;
         }
 
@@ -714,7 +705,7 @@ public:
             // We already rewound in onStart, so there is no reason to rewind.
             // Next time onGetScanlines is called, we will need to rewind.
             fCanSkipRewind = false;
-        } else if (!fCodec->handleRewind()) {
+        } else if (!fCodec->rewindIfNeeded()) {
             return SkCodec::kCouldNotRewind;
         }
 

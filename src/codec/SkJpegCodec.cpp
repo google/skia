@@ -189,28 +189,14 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
     return SkISize::Make(dinfo.output_width, dinfo.output_height);
 }
 
-/*
- * Handles rewinding the input stream if it is necessary
- */
-bool SkJpegCodec::handleRewind() {
-    switch(this->rewindIfNeeded()) {
-        case kCouldNotRewind_RewindState:
-            return fDecoderMgr->returnFalse("could not rewind");
-        case kRewound_RewindState: {
-            JpegDecoderMgr* decoderMgr = NULL;
-            if (!ReadHeader(this->stream(), NULL, &decoderMgr)) {
-                return fDecoderMgr->returnFalse("could not rewind");
-            }
-            SkASSERT(NULL != decoderMgr);
-            fDecoderMgr.reset(decoderMgr);
-            return true;
-        }
-        case kNoRewindNecessary_RewindState:
-            return true;
-        default:
-            SkASSERT(false);
-            return false;
+bool SkJpegCodec::onRewind() {
+    JpegDecoderMgr* decoderMgr = NULL;
+    if (!ReadHeader(this->stream(), NULL, &decoderMgr)) {
+        return fDecoderMgr->returnFalse("could not rewind");
     }
+    SkASSERT(NULL != decoderMgr);
+    fDecoderMgr.reset(decoderMgr);
+    return true;
 }
 
 /*
@@ -304,7 +290,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
                                          void* dst, size_t dstRowBytes,
                                          const Options& options, SkPMColor*, int*) {
     // Rewind the stream if needed
-    if (!this->handleRewind()) {
+    if (!this->rewindIfNeeded()) {
         return fDecoderMgr->returnFailure("could not rewind stream", kCouldNotRewind);
     }
 
@@ -399,7 +385,7 @@ public:
                             SkPMColor ctable[], int* ctableCount) override {
 
         // Rewind the stream if needed
-        if (!fCodec->handleRewind()) {
+        if (!fCodec->rewindIfNeeded()) {
             return SkCodec::kCouldNotRewind;
         }
 

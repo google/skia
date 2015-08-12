@@ -234,6 +234,17 @@ static bool conversion_possible(const SkImageInfo& dst,
     }
 }
 
+bool SkGifCodec::onRewind() {
+    GifFileType* gifOut = NULL;
+    if (!ReadHeader(this->stream(), NULL, &gifOut)) {
+        return false;
+    }
+
+    SkASSERT(NULL != gifOut);
+    fGif.reset(gifOut);
+    return true;
+}
+
 /*
  * Initiates the gif decode
  */
@@ -243,17 +254,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         SkPMColor* inputColorPtr,
                                         int* inputColorCount) {
     // Rewind if necessary
-    SkCodec::RewindState rewindState = this->rewindIfNeeded();
-    if (rewindState == kCouldNotRewind_RewindState) {
+    if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
-    } else if (rewindState == kRewound_RewindState) {
-        GifFileType* gifOut = NULL;
-        if (!ReadHeader(this->stream(), NULL, &gifOut)) {
-            return kCouldNotRewind;
-        } else {
-            SkASSERT(NULL != gifOut);
-            fGif.reset(gifOut);
-        }
     }
 
     // Check for valid input parameters

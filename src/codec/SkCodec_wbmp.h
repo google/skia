@@ -33,13 +33,8 @@ protected:
     SkEncodedFormat onGetEncodedFormat() const override;
     Result onGetPixels(const SkImageInfo&, void*, size_t,
                        const Options&, SkPMColor[], int*) override;
+    bool onRewind() override;
 private:
-
-    /*
-     * Calls rewindIfNeeded and returns true if the decoder can continue
-     */
-    bool handleRewind();
-
     /*
      * Returns a swizzler on success, NULL on failure
      */

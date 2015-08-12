@@ -45,6 +45,9 @@ protected:
                        size_t dstRowBytes, const Options&, SkPMColor*,
                        int*) override;
 
+    bool onInIco() const override {
+        return fInIco;
+    }
 private:
 
     /*

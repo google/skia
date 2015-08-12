@@ -66,16 +66,8 @@ static bool read_header(SkStream* stream, SkISize* size) {
     return true;
 }
 
-bool SkWbmpCodec::handleRewind() {
-    SkCodec::RewindState rewindState = this->rewindIfNeeded();
-    if (rewindState == kCouldNotRewind_RewindState) {
-        return false;
-    } else if (rewindState == kRewound_RewindState) {
-        if (!read_header(this->stream(), NULL)) {
-            return false;
-        }
-    }
-    return true;
+bool SkWbmpCodec::onRewind() {
+    return read_header(this->stream(), NULL);
 }
 
 SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
@@ -117,7 +109,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
                                          const Options& options,
                                          SkPMColor ctable[],
                                          int* ctableCount) {
-    if (!this->handleRewind()) {
+    if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
     if (options.fSubset) {
@@ -197,7 +189,7 @@ public:
     SkCodec::Result onStart(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorTable[],
             int* inputColorCount) {
-        if (!fCodec->handleRewind()) {
+        if (!fCodec->rewindIfNeeded()) {
             return SkCodec::kCouldNotRewind;
         }
         if (options.fSubset) {

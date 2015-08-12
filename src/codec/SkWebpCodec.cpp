@@ -153,16 +153,8 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, SkPMColor*, int*) {
-    switch (this->rewindIfNeeded()) {
-        case kCouldNotRewind_RewindState:
-            return kCouldNotRewind;
-        case kRewound_RewindState:
-            // Rewound to the beginning. Since creation only does a peek, the stream is at the
-            // correct position.
-            break;
-        case kNoRewindNecessary_RewindState:
-            // Already at the right spot for decoding.
-            break;
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
     }
 
     if (!conversion_possible(dstInfo, this->getInfo())) {

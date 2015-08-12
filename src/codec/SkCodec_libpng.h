@@ -35,6 +35,7 @@ protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
             override;
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
+    bool onRewind() override;
     bool onReallyHasAlpha() const override { return fReallyHasAlpha; }
 private:
     png_structp                 fPng_ptr;
@@ -56,8 +57,6 @@ private:
     Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,
                               SkPMColor*, int* ctableCount);
 
-    // Calls rewindIfNeeded and returns true if the decoder can continue.
-    bool handleRewind();
     bool decodePalette(bool premultiply, int* ctableCount);
     void destroyReadStruct();
 
