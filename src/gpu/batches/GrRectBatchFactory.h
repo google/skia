@@ -8,6 +8,7 @@
 #ifndef GrRectBatchFactory_DEFINED
 #define GrRectBatchFactory_DEFINED
 
+#include "GrAAFillRectBatch.h"
 #include "GrColor.h"
 
 class GrBatch;
@@ -26,10 +27,12 @@ GrBatch* CreateFillBW(GrColor color,
                       const SkRect* localRect,
                       const SkMatrix* localMatrix);
 
-GrBatch* CreateFillAA(GrColor color,
+static GrBatch* CreateFillAA(GrColor color,
                       const SkMatrix& viewMatrix,
                       const SkRect& rect,
-                      const SkRect& devRect);
+                      const SkRect& devRect) {
+    return GrAAFillRectBatch::Create(color, viewMatrix, rect, devRect);
+}
 
 GrBatch* CreateStrokeBW(GrColor color,
                         const SkMatrix& viewMatrix,

@@ -59,19 +59,6 @@ GrBatch* CreateFillBW(GrColor color,
     return GrRectBatch::Create(geometry);
 }
 
-GrBatch* CreateFillAA(GrColor color,
-                      const SkMatrix& viewMatrix,
-                      const SkRect& rect,
-                      const SkRect& devRect) {
-    GrAAFillRectBatch::Geometry geometry;
-    geometry.fRect = rect;
-    geometry.fViewMatrix = viewMatrix;
-    geometry.fDevRect = devRect;
-    geometry.fColor = color;
-
-    return GrAAFillRectBatch::Create(geometry);
-}
-
 GrBatch* CreateStrokeBW(GrColor color,
                         const SkMatrix& viewMatrix,
                         const SkRect& rect,
