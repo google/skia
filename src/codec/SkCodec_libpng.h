@@ -37,7 +37,6 @@ protected:
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
     bool onRewind() override;
     bool onReallyHasAlpha() const override { return fReallyHasAlpha; }
-
 private:
     png_structp                 fPng_ptr;
     png_infop                   fInfo_ptr;
@@ -52,6 +51,7 @@ private:
     int                         fBitDepth;
 
     SkPngCodec(const SkImageInfo&, SkStream*, png_structp, png_infop, int);
+
 
     // Helper to set up swizzler and color table. Also calls png_read_update_info.
     Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,
