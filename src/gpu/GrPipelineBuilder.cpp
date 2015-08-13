@@ -133,14 +133,6 @@ GrPipelineBuilder::~GrPipelineBuilder() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrPipelineBuilder::willColorBlendWithDst(const GrPrimitiveProcessor* pp) const {
-    this->calcColorInvariantOutput(pp);
-    
-    GrXPFactory::InvariantBlendedColor blendedColor;
-    fXPFactory->getInvariantBlendedColor(fColorProcInfo, &blendedColor);
-    return blendedColor.fWillBlendWithDst;
-}
-
 void GrPipelineBuilder::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
     fColorProcInfo.calcColorWithPrimProc(pp, fColorStages.begin(), this->numColorFragmentStages());
     fColorProcInfoValid = false;

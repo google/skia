@@ -45,7 +45,7 @@ public:
                          GrDrawTarget::PathTransformType ,
                          int,
                          const GrStencilSettings&,
-                         const GrDrawTarget::PipelineInfo&) override {
+                         const GrPipelineOptimizations&) override {
         SkFAIL("Unsupported\n");
         return NULL;
     }

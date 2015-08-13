@@ -120,6 +120,13 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
         opts->fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag; 
     }
+
+    GrXPFactory::InvariantBlendedColor blendedColor;
+    builder.fXPFactory->getInvariantBlendedColor(args.fColorPOI, &blendedColor);
+    if (blendedColor.fWillBlendWithDst) {
+        opts->fFlags |= GrPipelineOptimizations::kWillColorBlendWithDst_Flag;
+    }
+
     return pipeline;
 }
 

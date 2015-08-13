@@ -113,6 +113,19 @@ public:
         return false;
     }
 
+    /**
+     * Returns true if the pipeline's color output will be affected by the existing render target
+     * destination pixel values (meaning we need to be careful with overlapping draws). Note that we
+     * can conflate coverage and color, so the destination color may still bleed into pixels that
+     * have partial coverage, even if this function returns false.
+     *
+     * The above comment seems incorrect for the use case. This funciton is used to turn two
+     * overlapping draws into a single draw (really to stencil multiple paths and do a single
+     * cover). It seems that what really matters is whether the dst is read for color OR for
+     * coverage.
+     */
+    bool willColorBlendWithDst() const { return SkToBool(kWillColorBlendWithDst_Flag & fFlags); }
+
 private:
     enum {
         // If this is not set the primitive processor need not produce a color output
@@ -131,6 +144,8 @@ private:
         // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
         // output color. If not set fOverrideColor is to be ignored.
         kUseOverrideColor_Flag          = 0x10,
+
+        kWillColorBlendWithDst_Flag     = 0x20,
     };
 
     uint32_t    fFlags;

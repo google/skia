@@ -78,7 +78,7 @@ GrInOrderCommandBuilder::recordDrawPaths(State* state,
                                          GrDrawTarget::PathTransformType transformType,
                                          int count,
                                          const GrStencilSettings& stencilSettings,
-                                         const GrDrawTarget::PipelineInfo& pipelineInfo) {
+                                         const GrPipelineOptimizations& opts) {
     SkASSERT(pathRange);
     SkASSERT(indexValues);
     SkASSERT(transformValues);
@@ -105,7 +105,7 @@ GrInOrderCommandBuilder::recordDrawPaths(State* state,
             stencilSettings == previous->fStencilSettings &&
             path_fill_type_is_winding(stencilSettings) &&
             previous->fState == state &&
-            !pipelineInfo.willColorBlendWithDst(pathProc)) {
+            !opts.willColorBlendWithDst()) {
 
             const int indexBytes = GrPathRange::PathIndexSizeInBytes(indexType);
             const int xformSize = GrPathRendering::PathTransformSize(transformType);

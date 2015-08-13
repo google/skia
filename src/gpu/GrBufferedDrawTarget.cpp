@@ -66,7 +66,7 @@ void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
     }
     fCommands->recordDrawPaths(state, this, pathProc, pathRange, indices, indexType,
                                transformValues, transformType, count, stencilSettings,
-                               pipelineInfo);
+                               opts);
 }
 
 void GrBufferedDrawTarget::onClear(const SkIRect& rect, GrColor color,

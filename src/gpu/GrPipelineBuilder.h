@@ -161,14 +161,6 @@ public:
     ////
 
     /**
-     * Returns true if this pipeline's color output will be affected by the existing render target
-     * destination pixel values (meaning we need to be careful with overlapping draws). Note that we
-     * can conflate coverage and color, so the destination color may still bleed into pixels that
-     * have partial coverage, even if this function returns false.
-     */
-    bool willColorBlendWithDst(const GrPrimitiveProcessor*) const;
-
-    /**
      * Installs a GrXPFactory. This object controls how src color, fractional pixel coverage,
      * and the dst color are blended.
      */
@@ -430,7 +422,6 @@ private:
     //
     // canUseFracCoveragePrimProc() - Called in regular skia draw, caches results but only for a
     //                                specific color and coverage.  May be called multiple times
-    // willColorBlendWithDst() - only called by Nvpr, does not cache results
     // GrOptDrawState constructor - never caches results
 
     /**

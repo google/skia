@@ -216,10 +216,6 @@ public:
             return fArgs;
         }
 
-        bool willColorBlendWithDst(const GrPrimitiveProcessor* primProc) const {
-            SkASSERT(this->valid());
-            return fArgs.fPipelineBuilder->willColorBlendWithDst(primProc);
-        }
     private:
         GrPipeline::CreateArgs      fArgs;
     };

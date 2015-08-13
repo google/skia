@@ -37,7 +37,7 @@ public:
                          GrDrawTarget::PathTransformType ,
                          int,
                          const GrStencilSettings&,
-                         const GrDrawTarget::PipelineInfo&) override;
+                         const GrPipelineOptimizations&) override;
 
 private:
     typedef GrCommandBuilder INHERITED;

@@ -48,7 +48,7 @@ public:
                                  GrDrawTarget::PathTransformType ,
                                  int,
                                  const GrStencilSettings&,
-                                 const GrDrawTarget::PipelineInfo&) = 0;
+                                 const GrPipelineOptimizations&) = 0;
     virtual Cmd* recordClear(const SkIRect& rect,
                              GrColor,
                              GrRenderTarget*);
