@@ -36,7 +36,6 @@ class GrTexture;
 class SK_API SkPixelRef : public SkRefCnt {
 public:
     explicit SkPixelRef(const SkImageInfo&);
-    SkPixelRef(const SkImageInfo&, SkBaseMutex* mutex);
     virtual ~SkPixelRef();
 
     const SkImageInfo& info() const {
@@ -319,7 +318,7 @@ protected:
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.
     */
-    SkBaseMutex* mutex() const { return fMutex; }
+    SkBaseMutex* mutex() const { return &fMutex; }
 
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.
@@ -327,7 +326,7 @@ protected:
     void setPreLocked(void*, size_t rowBytes, SkColorTable*);
 
 private:
-    SkBaseMutex*    fMutex; // must remain in scope for the life of this object
+    mutable SkMutex fMutex;
 
     // mostly const. fInfo.fAlpahType can be changed at runtime.
     const SkImageInfo fInfo;
@@ -364,8 +363,6 @@ private:
 
     void needsNewGenID();
     void callGenIDChangeListeners();
-
-    void setMutex(SkBaseMutex* mutex);
 
     void setTemporarilyImmutable();
     void restoreMutability();

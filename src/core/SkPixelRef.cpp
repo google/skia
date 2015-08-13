@@ -13,52 +13,6 @@
 //#define SK_SUPPORT_LEGACY_UNBALANCED_PIXELREF_LOCKCOUNT
 //#define SK_TRACE_PIXELREF_LIFETIME
 
-#ifdef SK_BUILD_FOR_WIN32
-    // We don't have SK_BASE_MUTEX_INIT on Windows.
-
-    // must be a power-of-2. undef to just use 1 mutex
-    #define PIXELREF_MUTEX_RING_COUNT       32
-    static SkBaseMutex gPixelRefMutexRing[PIXELREF_MUTEX_RING_COUNT];
-
-#else
-    static SkBaseMutex gPixelRefMutexRing[] = {
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-        SK_BASE_MUTEX_INIT, SK_BASE_MUTEX_INIT,
-    };
-    // must be a power-of-2. undef to just use 1 mutex
-    #define PIXELREF_MUTEX_RING_COUNT SK_ARRAY_COUNT(gPixelRefMutexRing)
-
-#endif
-
-static SkBaseMutex* get_default_mutex() {
-    static int32_t gPixelRefMutexRingIndex;
-
-    SkASSERT(SkIsPow2(PIXELREF_MUTEX_RING_COUNT));
-
-    // atomic_inc might be overkill here. It may be fine if once in a while
-    // we hit a race-condition and two subsequent calls get the same index...
-    int index = sk_atomic_inc(&gPixelRefMutexRingIndex);
-    return &gPixelRefMutexRing[index & (PIXELREF_MUTEX_RING_COUNT - 1)];
-}
-
-///////////////////////////////////////////////////////////////////////////////
 #include "SkNextID.h"
 
 uint32_t SkNextID::ImageID() {
@@ -72,13 +26,6 @@ uint32_t SkNextID::ImageID() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void SkPixelRef::setMutex(SkBaseMutex* mutex) {
-    if (NULL == mutex) {
-        mutex = get_default_mutex();
-    }
-    fMutex = mutex;
-}
 
 // just need a > 0 value, so pick a funny one to aid in debugging
 #define SKPIXELREF_PRELOCKED_LOCKCOUNT     123456789
@@ -103,26 +50,6 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info)
 #ifdef SK_TRACE_PIXELREF_LIFETIME
     SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
 #endif
-    this->setMutex(NULL);
-    fRec.zero();
-    fLockCount = 0;
-    this->needsNewGenID();
-    fMutability = kMutable;
-    fPreLocked = false;
-    fAddedToCache.store(false);
-}
-
-
-SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex)
-    : fInfo(validate_info(info))
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    , fStableID(SkNextID::ImageID())
-#endif
-{
-#ifdef SK_TRACE_PIXELREF_LIFETIME
-    SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
-#endif
-    this->setMutex(mutex);
     fRec.zero();
     fLockCount = 0;
     this->needsNewGenID();
@@ -186,7 +113,7 @@ void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctabl
 
 // Increments fLockCount only on success
 bool SkPixelRef::lockPixelsInsideMutex() {
-    fMutex->assertHeld();
+    fMutex.assertHeld();
 
     if (1 == ++fLockCount) {
         SkASSERT(fRec.isZero());
@@ -212,7 +139,7 @@ bool SkPixelRef::lockPixels() {
 
     if (!fPreLocked) {
         TRACE_EVENT_BEGIN0("skia", "SkPixelRef::lockPixelsMutex");
-        SkAutoMutexAcquire  ac(*fMutex);
+        SkAutoMutexAcquire  ac(fMutex);
         TRACE_EVENT_END0("skia", "SkPixelRef::lockPixelsMutex");
         SkDEBUGCODE(int oldCount = fLockCount;)
         bool success = this->lockPixelsInsideMutex();
@@ -245,7 +172,7 @@ void SkPixelRef::unlockPixels() {
     SkASSERT(!fPreLocked || SKPIXELREF_PRELOCKED_LOCKCOUNT == fLockCount);
 
     if (!fPreLocked) {
-        SkAutoMutexAcquire  ac(*fMutex);
+        SkAutoMutexAcquire  ac(fMutex);
 
         SkASSERT(fLockCount > 0);
         if (0 == --fLockCount) {
@@ -278,7 +205,7 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
         result->fRowBytes = fRec.fRowBytes;
         result->fSize.set(fInfo.width(), fInfo.height());
     } else {
-        SkAutoMutexAcquire  ac(*fMutex);
+        SkAutoMutexAcquire  ac(fMutex);
         if (!this->onRequestLock(request, result)) {
             return false;
         }

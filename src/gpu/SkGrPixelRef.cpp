@@ -17,12 +17,8 @@
 #include "SkGr.h"
 #include "SkRect.h"
 
-// since we call lockPixels recursively on fBitmap, we need a distinct mutex,
-// to avoid deadlock with the default one provided by SkPixelRef.
-SK_DECLARE_STATIC_MUTEX(gROLockPixelsPixelRefMutex);
-
 SkROLockPixelsPixelRef::SkROLockPixelsPixelRef(const SkImageInfo& info)
-    : INHERITED(info, &gROLockPixelsPixelRefMutex) {}
+    : INHERITED(info) {}
 
 SkROLockPixelsPixelRef::~SkROLockPixelsPixelRef() {}
 
@@ -91,7 +87,7 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
     // a larger TODO to remove SkGrPixelRef entirely.
     context->copySurface(dst->asRenderTarget(), texture, srcRect, SkIPoint::Make(0,0),
                          GrContext::kFlushWrites_PixelOp);
-  
+
     SkImageInfo info = SkImageInfo::Make(desc.fWidth, desc.fHeight, dstCT, kPremul_SkAlphaType,
                                          dstPT);
     SkGrPixelRef* pixelRef = SkNEW_ARGS(SkGrPixelRef, (info, dst));
