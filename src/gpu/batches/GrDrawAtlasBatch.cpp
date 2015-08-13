@@ -236,7 +236,7 @@ BATCH_TEST_DEFINE(GrDrawAtlasBatch) {
     
     SkTArray<SkRSXform> xforms(spriteCount);
     SkTArray<SkRect> texRects(spriteCount);
-    SkTArray<GrColor> colors(spriteCount);
+    SkTArray<GrColor> colors;
     
     bool hasColors = random->nextBool();
     
