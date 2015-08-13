@@ -6,11 +6,11 @@
  */
 
 #include "SkImageGenerator.h"
-
 #include "SkCanvas.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkSurface.h"
 #include "SkTLazy.h"
 
 class SkPictureImageGenerator : SkImageGenerator {
@@ -21,6 +21,9 @@ public:
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
                      int* ctableCount) override;
+#if SK_SUPPORT_GPU
+    GrTexture* onGenerateTexture(GrContext*, SkImageUsageType) override;
+#endif
 
 private:
     SkPictureImageGenerator(const SkISize&, const SkPicture*, const SkMatrix*, const SkPaint*);
@@ -79,3 +82,28 @@ SkImageGenerator* SkImageGenerator::NewFromPicture(const SkISize& size, const Sk
                                                    const SkMatrix* matrix, const SkPaint* paint) {
     return SkPictureImageGenerator::Create(size, picture, matrix, paint);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+#include "GrTexture.h"
+
+GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, SkImageUsageType usage) {
+    //
+    // TODO: respect the usage, by possibly creating a different (pow2) surface
+    //
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx,
+                                                               SkSurface::kYes_Budgeted,
+                                                               this->getInfo()));
+    if (!surface.get()) {
+        return nullptr;
+    }
+    surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
+    surface->getCanvas()->drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    if (!image.get()) {
+        return nullptr;
+    }
+    return SkSafeRef(image->getTexture());
+}
+#endif

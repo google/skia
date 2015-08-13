@@ -6,6 +6,12 @@
  */
 
 #include "SkImageGenerator.h"
+#include "SkNextID.h"
+
+SkImageGenerator::SkImageGenerator(const SkImageInfo& info)
+    : fInfo(info)
+    , fUniqueID(SkNextID::ImageID())
+{}
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                  SkPMColor ctable[], int* ctableCount) {
@@ -96,6 +102,13 @@ bool SkImageGenerator::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t
         *colorSpace = kJPEG_SkYUVColorSpace;
     }
     return this->onGetYUV8Planes(sizes, planes, rowBytes);
+}
+
+GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, SkImageUsageType usage) {
+    if (!ctx) {
+        return nullptr;
+    }
+    return this->onGenerateTexture(ctx, usage);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

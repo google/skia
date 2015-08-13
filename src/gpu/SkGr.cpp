@@ -143,7 +143,7 @@ static bool make_stretched_key(const GrUniqueKey& origKey, const Stretch& stretc
         uint32_t width = SkToU16(stretch.fWidth);
         uint32_t height = SkToU16(stretch.fHeight);
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(stretchedKey, origKey, kDomain, 3);
+        GrUniqueKey::Builder builder(stretchedKey, origKey, kDomain, 2);
         builder[0] = stretch.fType;
         builder[1] = width | (height << 16);
         builder.finish();
@@ -153,20 +153,53 @@ static bool make_stretched_key(const GrUniqueKey& origKey, const Stretch& stretc
     return false;
 }
 
-static void make_unstretched_key(const SkBitmap& bitmap, GrUniqueKey* key) {
-    // Our id includes the offset, width, and height so that bitmaps created by extractSubset()
-    // are unique.
-    uint32_t genID = bitmap.getGenerationID();
-    SkIPoint origin = bitmap.pixelRefOrigin();
-    uint32_t width = SkToU16(bitmap.width());
-    uint32_t height = SkToU16(bitmap.height());
+static void make_unstretched_key(GrUniqueKey* key, uint32_t imageID,
+                                 U16CPU width, U16CPU height, SkIPoint origin) {
+    SkASSERT((uint16_t)width == width);
+    SkASSERT((uint16_t)height == height);
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(key, kDomain, 4);
-    builder[0] = genID;
+    builder[0] = imageID;
     builder[1] = origin.fX;
     builder[2] = origin.fY;
     builder[3] = width | (height << 16);
+}
+
+void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID,
+                          U16CPU width, U16CPU height, SkIPoint origin,
+                          const GrCaps& caps, SkImageUsageType usage) {
+    const Stretch::Type stretches[] = {
+        Stretch::kNone_Type,        // kUntiled_SkImageUsageType
+        Stretch::kNearest_Type,     // kTiled_Unfiltered_SkImageUsageType
+        Stretch::kBilerp_Type,      // kTiled_Filtered_SkImageUsageType
+    };
+
+    const bool isPow2 = SkIsPow2(width) && SkIsPow2(height);
+    const bool needToStretch = !isPow2 &&
+                               usage != kUntiled_SkImageUsageType &&
+                               !caps.npotTextureTileSupport();
+
+    if (needToStretch) {
+        GrUniqueKey tmpKey;
+        make_unstretched_key(&tmpKey, imageID, width, height, origin);
+
+        Stretch stretch;
+        stretch.fType = stretches[usage];
+        stretch.fWidth = SkNextPow2(width);
+        stretch.fHeight = SkNextPow2(height);
+        if (!make_stretched_key(tmpKey, stretch, key)) {
+            goto UNSTRETCHED;
+        }
+    } else {
+        UNSTRETCHED:
+        make_unstretched_key(key, imageID, width, height, origin);
+    }
+}
+
+static void make_unstretched_key(const SkBitmap& bitmap, GrUniqueKey* key) {
+    make_unstretched_key(key, bitmap.getGenerationID(), bitmap.width(), bitmap.height(),
+                         bitmap.pixelRefOrigin());
 }
 
 static void make_bitmap_keys(const SkBitmap& bitmap,
@@ -649,6 +682,31 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
 
     return NULL;
 }
+
+// TODO: make this be the canonical signature, and turn the version that takes GrTextureParams*
+//       into a wrapper that contains the inverse of these tables.
+GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
+                                    const SkBitmap& bitmap,
+                                    SkImageUsageType usage) {
+    // Just need a params that will trigger the correct cache key / etc, since the usage doesn't
+    // tell us the specifics about filter level or specific tiling.
+
+    const SkShader::TileMode tiles[] = {
+        SkShader::kClamp_TileMode,      // kUntiled_SkImageUsageType
+        SkShader::kRepeat_TileMode,     // kTiled_Unfiltered_SkImageUsageType
+        SkShader::kRepeat_TileMode,     // kTiled_Filtered_SkImageUsageType
+    };
+
+    const GrTextureParams::FilterMode filters[] = {
+        GrTextureParams::kNone_FilterMode,      // kUntiled_SkImageUsageType
+        GrTextureParams::kNone_FilterMode,      // kTiled_Unfiltered_SkImageUsageType
+        GrTextureParams::kBilerp_FilterMode,    // kTiled_Filtered_SkImageUsageType
+    };
+
+    GrTextureParams params(tiles[usage], filters[usage]);
+    return GrRefCachedBitmapTexture(ctx, bitmap, &params);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // alphatype is ignore for now, but if GrPixelConfig is expanded to encompass

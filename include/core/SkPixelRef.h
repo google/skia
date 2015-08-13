@@ -381,6 +381,7 @@ private:
 
     void setImmutableWithID(uint32_t genID);
     friend class SkImage_Gpu;
+    friend class SkImageCacherator;
 
     typedef SkRefCnt INHERITED;
 };

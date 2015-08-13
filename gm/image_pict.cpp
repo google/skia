@@ -8,10 +8,14 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkImageCacherator.h"
 #include "SkPictureRecorder.h"
+#include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrTexture.h"
+#include "../src/image/SkImage_Gpu.h"
 #endif
 
 static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
@@ -93,4 +97,90 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ImagePictGM; )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+class ImageCacheratorGM : public skiagm::GM {
+    SkAutoTUnref<SkPicture>         fPicture;
+    SkAutoTDelete<SkImageCacherator> fCache;
+
+public:
+    ImageCacheratorGM() {}
+
+protected:
+    SkString onShortName() override {
+        return SkString("image-cacherator");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(850, 450);
+    }
+
+    void onOnceBeforeDraw() override {
+        const SkRect bounds = SkRect::MakeXYWH(100, 100, 100, 100);
+        SkPictureRecorder recorder;
+        draw_something(recorder.beginRecording(bounds), bounds);
+        fPicture.reset(recorder.endRecording());
+
+        // extract enough just for the oval.
+        const SkISize size = SkISize::Make(100, 100);
+
+        SkMatrix matrix;
+        matrix.setTranslate(-100, -100);
+        fCache.reset(new SkImageCacherator(SkImageGenerator::NewFromPicture(size,
+                                                                            fPicture,
+                                                                            &matrix,
+                                                                            nullptr)));
+    }
+
+    void drawSet(SkCanvas* canvas) const {
+        SkMatrix matrix = SkMatrix::MakeTrans(-100, -100);
+        canvas->drawPicture(fPicture, &matrix, nullptr);
+
+        {
+            SkBitmap bitmap;
+            fCache->lockAsBitmap(&bitmap);
+            canvas->drawBitmap(bitmap, 150, 0);
+        }
+#if SK_SUPPORT_GPU
+        {
+            SkAutoTUnref<GrTexture> texture(fCache->lockAsTexture(canvas->getGrContext(),
+                                                                   kUntiled_SkImageUsageType));
+            if (!texture) {
+                return;
+            }
+            // No API to draw a GrTexture directly, so we cheat and create a private image subclass
+            SkAutoTUnref<SkImage> image(new SkImage_Gpu(100, 100, fCache->generator()->uniqueID(),
+                                                        kPremul_SkAlphaType, texture, 0,
+                                                        SkSurface::kNo_Budgeted));
+            canvas->drawImage(image, 300, 0);
+        }
+#endif
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->translate(20, 20);
+
+        this->drawSet(canvas);
+
+        canvas->save();
+        canvas->translate(0, 130);
+        canvas->scale(0.25f, 0.25f);
+        this->drawSet(canvas);
+        canvas->restore();
+
+        canvas->save();
+        canvas->translate(0, 200);
+        canvas->scale(2, 2);
+        this->drawSet(canvas);
+        canvas->restore();
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new ImageCacheratorGM; )
+
+
 

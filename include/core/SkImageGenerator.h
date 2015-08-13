@@ -11,8 +11,10 @@
 #include "SkColor.h"
 #include "SkImageInfo.h"
 
+class GrContext;
 class SkBitmap;
 class SkData;
+class GrTexture;
 class SkImageGenerator;
 class SkMatrix;
 class SkPaint;
@@ -55,6 +57,8 @@ public:
      *  will call the image generator's destructor.
      */
     virtual ~SkImageGenerator() { }
+
+    uint32_t uniqueID() const { return fUniqueID; }
 
     /**
      *  Return a ref to the encoded (i.e. compressed) representation,
@@ -123,6 +127,30 @@ public:
                        SkYUVColorSpace* colorSpace);
 
     /**
+     *  If the generator can natively/efficiently return its pixels as a GPU image (backed by a
+     *  texture) this will return that image. If not, this will return NULL.
+     *
+     *  Regarding the GrContext parameter:
+     *
+     *  The caller may pass NULL for the context. In that case the generator may assume that its
+     *  internal context is current. If it has no internal context, then it should just return
+     *  null.
+     *
+     *  If the caller passes a non-null context, then the generator should only succeed if:
+     *  - it has no intrinsic context, and will use the caller's
+     *  - its internal context is the same
+     *  - it can somehow convert its texture into one that is valid for the provided context.
+     *
+     *  Regarding the SkImageUsageType parameter:
+     *
+     *  If the context (the provided one or the generator's intrinsic one) determines that to
+     *  support the specified usage, it must return a different sized texture (from the generator's
+     *  native size) it may, so the caller must inspect the texture's width/height
+     *  (unless kUntiled_SkImageUsedType was specified).
+     */
+    GrTexture* generateTexture(GrContext*, SkImageUsageType);
+
+    /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
      *  the caller is still responsible for managing their ownership of the data.
@@ -138,7 +166,7 @@ public:
                                             const SkPaint*);
 
 protected:
-    SkImageGenerator(const SkImageInfo& info) : fInfo(info) {}
+    SkImageGenerator(const SkImageInfo& info);
 
     virtual SkData* onRefEncodedData();
 
@@ -148,8 +176,11 @@ protected:
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace);
 
+    virtual GrTexture* onGenerateTexture(GrContext*, SkImageUsageType) { return nullptr; }
+
 private:
     const SkImageInfo fInfo;
+    const uint32_t fUniqueID;
 
     // This is our default impl, which may be different on different platforms.
     // It is called from NewFromEncoded() after it has checked for any runtime factory.
