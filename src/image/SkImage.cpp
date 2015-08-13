@@ -279,6 +279,14 @@ bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) con
     return true;
 }
 
+SkImage* SkImage::NewFromPicture(const SkPicture* picture, const SkISize& dimensions,
+                                 const SkMatrix* matrix, const SkPaint* paint) {
+    if (!picture) {
+        return nullptr;
+    }
+    return NewFromGenerator(SkImageGenerator::NewFromPicture(dimensions, picture, matrix, paint));
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU

@@ -20,6 +20,7 @@ class SkCanvas;
 class SkColorTable;
 class SkImageGenerator;
 class SkPaint;
+class SkPicture;
 class SkString;
 class SkSurface;
 class SkSurfaceProps;
@@ -140,6 +141,11 @@ public:
                                            const GrBackendObject yuvTextureHandles[3],
                                            const SkISize yuvSizes[3],
                                            GrSurfaceOrigin);
+
+    static SkImage* NewFromPicture(const SkPicture*, const SkISize& dimensions,
+                                   const SkMatrix*, const SkPaint*);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
