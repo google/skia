@@ -300,3 +300,15 @@ void GrGLFragmentShaderBuilder::addVarying(GrGLVarying* v, GrSLPrecision fsPrec)
     }
     fInputs.push_back().set(v->fType, GrGLShaderVar::kVaryingIn_TypeModifier, v->fFsIn, fsPrec);
 }
+
+void GrGLFragmentBuilder::onBeforeChildProcEmitCode() {
+    fSubstageIndices.back()++;
+    fSubstageIndices.push_back(0);
+    fMangleString.append(this->getMangleStringThisLevel());
+}
+
+void GrGLFragmentBuilder::onAfterChildProcEmitCode() {
+    fSubstageIndices.pop_back();
+    int removeAt = fMangleString.findLastOf('_');
+    fMangleString.remove(removeAt, fMangleString.size() - removeAt);
+}

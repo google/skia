@@ -150,8 +150,9 @@ int GrFragmentProcessor::registerChildProcessor(const GrFragmentProcessor* child
     int index = fChildProcessors.count();
     fChildProcessors.push_back(GrFragmentStage(child));
 
-    if (child->willReadFragmentPosition())
+    if (child->willReadFragmentPosition()) {
         this->setWillReadFragmentPosition();
+    }
 
     return index;
 }

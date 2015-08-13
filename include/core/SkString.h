@@ -39,6 +39,12 @@ static int SkStrFind(const char string[], const char substring[]) {
     return SkToS32(first - &string[0]);
 }
 
+static int SkStrFindLastOf(const char string[], const char subchar) {
+    const char* last = strrchr(string, subchar);
+    if (NULL == last) return -1;
+    return SkToS32(last - &string[0]);
+}
+
 static bool SkStrContains(const char string[], const char substring[]) {
     SkASSERT(string);
     SkASSERT(substring);
@@ -151,6 +157,9 @@ public:
     }
     int find(const char substring[]) const {
         return SkStrFind(fRec->data(), substring);
+    }
+    int findLastOf(const char subchar) const {
+        return SkStrFindLastOf(fRec->data(), subchar);
     }
 
     friend bool operator==(const SkString& a, const SkString& b) {
