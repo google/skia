@@ -11,6 +11,7 @@
 #include "SkColorTable.h"
 #include "SkBitmap.h"
 #include "SkMath.h"
+#include "SkScaledCodec.h"
 #include "SkScanlineDecoder.h"
 #include "SkSize.h"
 #include "SkStream.h"
@@ -462,7 +463,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo,
-            options.fZeroInitialized));
+                    options.fZeroInitialized, this->getInfo()));
     if (!fSwizzler) {
         // FIXME: CreateSwizzler could fail for another reason.
         return kUnimplemented;
@@ -582,8 +583,7 @@ public:
 
     SkCodec::Result onStart(const SkImageInfo& dstInfo,
                             const SkCodec::Options& options,
-                            SkPMColor ctable[], int* ctableCount) override
-    {
+                            SkPMColor ctable[], int* ctableCount) override {
         if (!fCodec->rewindIfNeeded()) {
             return SkCodec::kCouldNotRewind;
         }
@@ -594,7 +594,9 @@ public:
 
         // Check to see if scaling was requested.
         if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-            return SkCodec::kInvalidScale;
+            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
+                return SkCodec::kInvalidScale;   
+            }
         }
 
         const SkCodec::Result result = fCodec->initializeSwizzler(dstInfo, options, ctable,
@@ -604,7 +606,7 @@ public:
         }
 
         fHasAlpha = false;
-        fStorage.reset(dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig));
+        fStorage.reset(this->getInfo().width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig));
         fSrcRow = static_cast<uint8_t*>(fStorage.get());
 
         return SkCodec::kSuccess;
@@ -643,6 +645,11 @@ public:
 
     bool onReallyHasAlpha() const override { return fHasAlpha; }
 
+    SkEncodedFormat onGetEncodedFormat() const override { 
+        return kPNG_SkEncodedFormat;
+    }
+
+
 private:
     SkAutoTDelete<SkPngCodec>   fCodec;
     bool                        fHasAlpha;
@@ -673,12 +680,14 @@ public:
         }
 
         if (!conversion_possible(dstInfo, this->getInfo())) {
-            return SkCodec::kInvalidConversion;
+            return SkCodec::kInvalidConversion;    
         }
 
         // Check to see if scaling was requested.
         if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-            return SkCodec::kInvalidScale;
+            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
+                return SkCodec::kInvalidScale;
+            }
         }
 
         const SkCodec::Result result = fCodec->initializeSwizzler(dstInfo, options, ctable,
@@ -690,7 +699,7 @@ public:
         fHasAlpha = false;
         fCurrentRow = 0;
         fHeight = dstInfo.height();
-        fSrcRowBytes = dstInfo.width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig);
+        fSrcRowBytes = this->getInfo().width() * SkSwizzler::BytesPerPixel(fCodec->fSrcConfig);
         fGarbageRow.reset(fSrcRowBytes);
         fGarbageRowPtr = static_cast<uint8_t*>(fGarbageRow.get());
         fCanSkipRewind = true;
@@ -752,6 +761,14 @@ public:
     }
 
     bool onReallyHasAlpha() const override { return fHasAlpha; }
+
+    bool onRequiresPostYSampling() override {
+        return true;
+    }
+
+    SkEncodedFormat onGetEncodedFormat() const override { 
+        return kPNG_SkEncodedFormat;
+    }
 
 private:
     SkAutoTDelete<SkPngCodec>   fCodec;

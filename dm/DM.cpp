@@ -212,7 +212,12 @@ static void push_codec_srcs(Path path) {
     // TODO (msarett): Add more scaling tests as we implement more flexible scaling.
     // TODO (msarett): Implement scaling tests for SkImageDecoder in order to compare with these
     //                 tests.  SkImageDecoder supports downscales by integer factors.
-    const float scales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
+    // SkJpegCodec natively supports scaling to: 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875
+    // 0.1, 0.16, 0.2 etc allow us to test SkScaledCodec with sampleSize 10, 6, 5, etc
+    // 0.4, 0.7 etc allow to test what happens when the client requests a scale that
+    // does not exactly match a sampleSize or native scaling capability
+    const float scales[] = { 0.1f, 0.125f, 0.166f, 0.2f, 0.25f, 0.333f, 0.375f, 0.4f, 0.5f, 0.6f,
+                             0.625f, 0.750f, 0.8f, 0.875f, 1.0f };
 
     for (float scale : scales) {
         if (scale != 1.0f && (path.endsWith(".webp") || path.endsWith(".WEBP"))) {
