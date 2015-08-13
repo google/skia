@@ -9,6 +9,7 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
+#include "SkScaledCodec.h"
 #include "SkStream.h"
 #include "SkCodec_wbmp.h"
 
@@ -80,8 +81,8 @@ SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
         case kIndex_8_SkColorType:
         case kN32_SkColorType:
         case kGray_8_SkColorType:
-            return SkSwizzler::CreateSwizzler(
-                    SkSwizzler::kBit, ctable, info, opts.fZeroInitialized);
+            return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info, opts.fZeroInitialized, 
+                                              this->getInfo());
         default:
             return NULL;
     }
@@ -201,7 +202,9 @@ public:
             return SkCodec::kUnimplemented;
         }
         if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-            return SkCodec::kInvalidScale;
+            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
+                return SkCodec::kInvalidScale;
+            }
         }
 
         if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
@@ -220,10 +223,14 @@ public:
         fSwizzler.reset(fCodec->initializeSwizzler(dstInfo,
                 get_color_ptr(fColorTable.get()), options));
         if (NULL == fSwizzler.get()) {
-            return SkCodec::kInvalidInput;
+            return SkCodec::kInvalidConversion;
         }
 
         return SkCodec::kSuccess;
+    }
+
+    SkEncodedFormat onGetEncodedFormat() const {
+        return kWBMP_SkEncodedFormat;
     }
 
 private:
