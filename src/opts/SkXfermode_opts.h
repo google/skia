@@ -110,7 +110,7 @@ XFERMODE(Lighten) {
 #undef XFERMODE
 
 // Some xfermodes use math like divide or sqrt that's best done in floats 1 pixel at a time.
-#define XFERMODE(Name) static SkPMFloat SK_VECTORCALL Name(SkPMFloat s, SkPMFloat d)
+#define XFERMODE(Name) static SkPMFloat SK_VECTORCALL Name(SkPMFloat d, SkPMFloat s)
 
 XFERMODE(ColorDodge) {
     auto sa = s.alphas(),
@@ -257,13 +257,13 @@ public:
 
 private:
     inline SkPMColor xfer32(SkPMColor dst, SkPMColor src) const {
-        return fProcF(SkPMFloat(src), SkPMFloat(dst)).round();
+        return fProcF(SkPMFloat(dst), SkPMFloat(src)).round();
     }
 
     inline SkPMColor xfer32(SkPMColor dst, SkPMColor src, SkAlpha aa) const {
         SkPMFloat s(src),
                   d(dst),
-                  b(fProcF(s,d));
+                  b(fProcF(d,s));
         // We do aa in full float precision before going back down to bytes, because we can!
         SkPMFloat a = Sk4f(aa) * Sk4f(1.0f/255);
         b = b*a + d*(Sk4f(1)-a);
