@@ -50,8 +50,6 @@ void GrBatch::operator delete(void* target) {
 
 GrBatch::GrBatch()
     : fClassID(kIllegalBatchID)
-    , fNumberOfDraws(0)
-    , fPipelineInstalled(false)
 #if GR_BATCH_SPEW
     , fUniqueID(GenID(&gCurrBatchUniqueID))
 #endif
@@ -59,13 +57,34 @@ GrBatch::GrBatch()
     SkDEBUGCODE(fUsed = false;)
 }
 
-GrBatch::~GrBatch() {
+GrBatch::~GrBatch() {}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrDrawBatch::GrDrawBatch() : fPipelineInstalled(false) { }
+
+GrDrawBatch::~GrDrawBatch() {
     if (fPipelineInstalled) {
         this->pipeline()->~GrPipeline();
     }
 }
 
-void* GrBatch::InstancedHelper::init(GrBatchTarget* batchTarget, GrPrimitiveType primType,
+bool GrDrawBatch::installPipeline(const GrPipeline::CreateArgs& args) {
+    GrPipelineOptimizations opts;
+    void* location = fPipelineStorage.get();
+    if (!GrPipeline::CreateAt(location, args, &opts)) {
+        return false;
+    }
+    this->initBatchTracker(opts);
+    fPipelineInstalled = true;
+    return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrVertexBatch::GrVertexBatch() : fNumberOfDraws(0) {}
+
+void* GrVertexBatch::InstancedHelper::init(GrBatchTarget* batchTarget, GrPrimitiveType primType,
                                      size_t vertexStride, const GrIndexBuffer* indexBuffer,
                                      int verticesPerInstance, int indicesPerInstance,
                                      int instancesToDraw) {
@@ -92,7 +111,8 @@ void* GrBatch::InstancedHelper::init(GrBatchTarget* batchTarget, GrPrimitiveType
     return vertices;
 }
 
-void* GrBatch::QuadHelper::init(GrBatchTarget* batchTarget, size_t vertexStride, int quadsToDraw) {
+void* GrVertexBatch::QuadHelper::init(GrBatchTarget* batchTarget, size_t vertexStride,
+                                      int quadsToDraw) {
     SkAutoTUnref<const GrIndexBuffer> quadIndexBuffer(
         batchTarget->resourceProvider()->refQuadIndexBuffer());
     if (!quadIndexBuffer) {
@@ -101,15 +121,4 @@ void* GrBatch::QuadHelper::init(GrBatchTarget* batchTarget, size_t vertexStride,
     }
     return this->INHERITED::init(batchTarget, kTriangles_GrPrimitiveType, vertexStride,
                                  quadIndexBuffer, kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
-}
-
-bool GrBatch::installPipeline(const GrPipeline::CreateArgs& args) {
-    GrPipelineOptimizations opts;
-    void* location = fPipelineStorage.get();
-    if (!GrPipeline::CreateAt(location, args, &opts)) {
-        return false;
-    }
-    this->initBatchTracker(opts);
-    fPipelineInstalled = true;
-    return true;
 }

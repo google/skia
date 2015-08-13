@@ -12,7 +12,7 @@
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 
-class GrStrokeRectBatch : public GrBatch {
+class GrStrokeRectBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -21,7 +21,7 @@ public:
         SkScalar fStrokeWidth;
     };
 
-    static GrBatch* Create(const Geometry& geometry, bool snapToPixelCenters) {
+    static GrDrawBatch* Create(const Geometry& geometry, bool snapToPixelCenters) {
         return SkNEW_ARGS(GrStrokeRectBatch, (geometry, snapToPixelCenters));
     }
 

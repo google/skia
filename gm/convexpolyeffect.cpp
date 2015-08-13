@@ -36,7 +36,7 @@ public:
 
     const char* name() const override { return "ConvexPolyTestBatch"; }
 
-    static GrBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo) {
+    static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo) {
         return SkNEW_ARGS(ConvexPolyTestBatch, (gp, geo));
     }
 
@@ -197,7 +197,7 @@ protected:
                 geometry.fColor = color.fColor;
                 geometry.fBounds = p.getBounds();
 
-                SkAutoTUnref<GrBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
+                SkAutoTUnref<GrDrawBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
 
                 tt.target()->drawBatch(pipelineBuilder, batch);
 
@@ -246,7 +246,7 @@ protected:
                 geometry.fColor = color.fColor;
                 geometry.fBounds = rect;
 
-                SkAutoTUnref<GrBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
+                SkAutoTUnref<GrDrawBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
 
                 tt.target()->drawBatch(pipelineBuilder, batch);
 

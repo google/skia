@@ -18,6 +18,7 @@
 #include "GrBatchTest.h"
 #endif
 
+class GrDrawBatch;
 class GrDrawContext;
 class GrDrawTarget;
 class GrPipelineBuilder;
@@ -75,10 +76,10 @@ private:
                                 const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                                 SkScalar y);
-    inline GrBatch* createBatch(GrAtlasTextBlob*, const PerSubRunInfo&,
-                                int glyphCount, int run, int subRun,
-                                GrColor, SkScalar transX, SkScalar transY,
-                                const SkPaint&);
+    inline GrDrawBatch* createBatch(GrAtlasTextBlob*, const PerSubRunInfo&,
+                                    int glyphCount, int run, int subRun,
+                                    GrColor, SkScalar transX, SkScalar transY,
+                                    const SkPaint&);
     inline void flushRun(GrPipelineBuilder*, GrAtlasTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
     inline void flushBigGlyphs(GrAtlasTextBlob* cacheBlob, GrRenderTarget*,
@@ -186,7 +187,7 @@ private:
     friend class TextBatch;
 
 #ifdef GR_TEST_UTILS
-    BATCH_TEST_FRIEND(TextBlobBatch);
+    DRAW_BATCH_TEST_FRIEND(TextBlobBatch);
 #endif
 
     typedef GrTextContext INHERITED;

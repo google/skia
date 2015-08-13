@@ -18,7 +18,7 @@
 class GrBatchTarget;
 struct GrInitInvariantOutput;
 
-class GrDrawVerticesBatch : public GrBatch {
+class GrDrawVerticesBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -28,12 +28,12 @@ public:
         SkTDArray<SkPoint> fLocalCoords;
     };
 
-    static GrBatch* Create(const Geometry& geometry, GrPrimitiveType primitiveType,
-                           const SkMatrix& viewMatrix,
-                           const SkPoint* positions, int vertexCount,
-                           const uint16_t* indices, int indexCount,
-                           const GrColor* colors, const SkPoint* localCoords,
-                           const SkRect& bounds) {
+    static GrDrawBatch* Create(const Geometry& geometry, GrPrimitiveType primitiveType,
+                               const SkMatrix& viewMatrix,
+                               const SkPoint* positions, int vertexCount,
+                               const uint16_t* indices, int indexCount,
+                               const GrColor* colors, const SkPoint* localCoords,
+                               const SkRect& bounds) {
         return SkNEW_ARGS(GrDrawVerticesBatch, (geometry, primitiveType, viewMatrix, positions,
                                                 vertexCount, indices, indexCount, colors,
                                                 localCoords, bounds));

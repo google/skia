@@ -670,7 +670,7 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
     return true;
 }
 
-class AAHairlineBatch : public GrBatch {
+class AAHairlineBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -680,7 +680,7 @@ public:
         SkIRect fDevClipBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
+    static GrDrawBatch* Create(const Geometry& geometry) {
         return SkNEW_ARGS(AAHairlineBatch, (geometry));
     }
 
@@ -732,12 +732,12 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        AAHairlineBatch* that = t->cast<AAHairlineBatch>();
+
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        AAHairlineBatch* that = t->cast<AAHairlineBatch>();
 
         if (this->viewMatrix().hasPerspective() != that->viewMatrix().hasPerspective()) {
             return false;
@@ -950,11 +950,11 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
     }
 }
 
-static GrBatch* create_hairline_batch(GrColor color,
-                                      const SkMatrix& viewMatrix,
-                                      const SkPath& path,
-                                      const GrStrokeInfo& stroke,
-                                      const SkIRect& devClipBounds) {
+static GrDrawBatch* create_hairline_batch(GrColor color,
+                                          const SkMatrix& viewMatrix,
+                                          const SkPath& path,
+                                          const GrStrokeInfo& stroke,
+                                          const SkIRect& devClipBounds) {
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
     if (GrPathRenderer::IsStrokeHairlineOrEquivalent(stroke, viewMatrix, &hairlineCoverage)) {
@@ -976,8 +976,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fPipelineBuilder->clip().getConservativeBounds(args.fPipelineBuilder->getRenderTarget(),
                                                         &devClipBounds);
 
-    SkAutoTUnref<GrBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, *args.fPath,
-                                                      *args.fStroke, devClipBounds));
+    SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, *args.fPath,
+                                                          *args.fStroke, devClipBounds));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
@@ -987,7 +987,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(AAHairlineBatch) {
+DRAW_BATCH_TEST_DEFINE(AAHairlineBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrStrokeInfo stroke(SkStrokeRec::kHairline_InitStyle);

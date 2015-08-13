@@ -25,14 +25,17 @@ GrImmediateDrawTarget::~GrImmediateDrawTarget() {
     this->reset();
 }
 
-void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch) {
+void GrImmediateDrawTarget::onDrawBatch(GrDrawBatch* batch) {
     fBatchTarget.resetNumberOfDraws();
 
-    batch->generateGeometry(&fBatchTarget);
-    batch->setNumberOfDraws(fBatchTarget.numberOfDraws());
+    // TODO: encapsulate the specialization of GrVertexBatch in GrVertexBatch so that we can
+    // remove this cast. Currently all GrDrawBatches are in fact GrVertexBatch.
+    GrVertexBatch* vertexBatch = static_cast<GrVertexBatch*>(batch);
+    vertexBatch->generateGeometry(&fBatchTarget);
+    vertexBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
 
     fBatchTarget.preFlush();
-    fBatchTarget.flushNext(batch->numberOfDraws());
+    fBatchTarget.flushNext(vertexBatch->numberOfDraws());
     fBatchTarget.postFlush();
 }
 

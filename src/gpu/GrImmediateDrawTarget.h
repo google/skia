@@ -37,7 +37,7 @@ private:
     void onFlush() override;
 
     // overrides from GrDrawTarget
-    void onDrawBatch(GrBatch*) override;
+    void onDrawBatch(GrDrawBatch*) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,

@@ -15,7 +15,7 @@ static bool intersect(const Left& a, const Right& b) {
            a.fTop < b.fBottom && b.fTop < a.fBottom;
 }
 
-GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrBatch* batch,
+GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrDrawBatch* batch,
                                                                 const GrCaps& caps) {
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw

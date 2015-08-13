@@ -204,12 +204,12 @@ const GrIndexBuffer* GrAAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* res
 }
 
 bool GrAAStrokeRectBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
-    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                caps)) {
+    GrAAStrokeRectBatch* that = t->cast<GrAAStrokeRectBatch>();
+
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                that->bounds(), caps)) {
         return false;
     }
-
-    GrAAStrokeRectBatch* that = t->cast<GrAAStrokeRectBatch>();
 
     // TODO batch across miterstroke changes
     if (this->miterStroke() != that->miterStroke()) {
@@ -356,7 +356,7 @@ void GrAAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
 
 #include "GrBatchTest.h"
 
-BATCH_TEST_DEFINE(AAStrokeRectBatch) {
+DRAW_BATCH_TEST_DEFINE(AAStrokeRectBatch) {
     bool miterStroke = random->nextBool();
 
     // Create mock stroke rect

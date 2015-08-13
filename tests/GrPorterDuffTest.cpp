@@ -898,7 +898,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 }
 
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    class : public GrBatch {
+    class : public GrVertexBatch {
         void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
             out->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
         }

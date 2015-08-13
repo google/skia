@@ -243,7 +243,7 @@ static GrGeometryProcessor* create_dash_gp(GrColor,
                                            const SkMatrix& localMatrix,
                                            bool usesLocalCoords);
 
-class DashBatch : public GrBatch {
+class DashBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -257,8 +257,8 @@ public:
         SkScalar fPerpendicularScale;
     };
 
-    static GrBatch* Create(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode,
-                           bool fullDash) {
+    static GrDrawBatch* Create(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode,
+                               bool fullDash) {
         return SkNEW_ARGS(DashBatch, (geometry, cap, aaMode, fullDash));
     }
 
@@ -618,12 +618,11 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        DashBatch* that = t->cast<DashBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        DashBatch* that = t->cast<DashBatch>();
 
         if (this->aaMode() != that->aaMode()) {
             return false;
@@ -677,8 +676,8 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-static GrBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const SkPoint pts[2],
-                             bool useAA, const GrStrokeInfo& strokeInfo, bool msaaRT) {
+static GrDrawBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const SkPoint pts[2],
+                                 bool useAA, const GrStrokeInfo& strokeInfo, bool msaaRT) {
     const SkScalar* intervals = strokeInfo.getDashIntervals();
     SkScalar phase = strokeInfo.getDashPhase();
 
@@ -734,7 +733,7 @@ bool GrDashingEffect::DrawDashLine(GrDrawTarget* target,
                                    const GrPipelineBuilder& pipelineBuilder, GrColor color,
                                    const SkMatrix& viewMatrix, const SkPoint pts[2],
                                    bool useAA, const GrStrokeInfo& strokeInfo) {
-    SkAutoTUnref<GrBatch> batch(
+    SkAutoTUnref<GrDrawBatch> batch(
             create_batch(color, viewMatrix, pts, useAA, strokeInfo,
                          pipelineBuilder.getRenderTarget()->isUnifiedMultisampled()));
     if (!batch) {
@@ -1229,7 +1228,7 @@ static GrGeometryProcessor* create_dash_gp(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(DashBatch) {
+DRAW_BATCH_TEST_DEFINE(DashBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     bool useAA = random->nextBool();

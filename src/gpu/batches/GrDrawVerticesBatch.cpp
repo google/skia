@@ -184,12 +184,12 @@ void GrDrawVerticesBatch::generateGeometry(GrBatchTarget* batchTarget) {
 }
 
 bool GrDrawVerticesBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
-    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                caps)) {
+    GrDrawVerticesBatch* that = t->cast<GrDrawVerticesBatch>();
+
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                that->bounds(), caps)) {
         return false;
     }
-
-    GrDrawVerticesBatch* that = t->cast<GrDrawVerticesBatch>();
 
     if (!this->batchablePrimitiveType() || this->primitiveType() != that->primitiveType()) {
         return false;
@@ -295,7 +295,7 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
     }
 }
 
-BATCH_TEST_DEFINE(VerticesBatch) {
+DRAW_BATCH_TEST_DEFINE(VerticesBatch) {
     GrPrimitiveType type = GrPrimitiveType(random->nextULessThan(kLast_GrPrimitiveType + 1));
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 

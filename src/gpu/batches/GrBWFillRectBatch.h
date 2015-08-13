@@ -10,12 +10,12 @@
 
 #include "GrColor.h"
 
-class GrBatch;
+class GrDrawBatch;
 class SkMatrix;
 struct SkRect;
 
 namespace GrBWFillRectBatch {
-GrBatch* Create(GrColor color,
+GrDrawBatch* Create(GrColor color,
                 const SkMatrix& viewMatrix,
                 const SkRect& rect,
                 const SkRect* localRect,

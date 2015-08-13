@@ -157,13 +157,13 @@ GrDrawAtlasBatch::GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& vie
 }
  
 bool GrDrawAtlasBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
-    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                caps)) {
+    GrDrawAtlasBatch* that = t->cast<GrDrawAtlasBatch>();
+
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                that->bounds(), caps)) {
         return false;
     }
-    
-    GrDrawAtlasBatch* that = t->cast<GrDrawAtlasBatch>();
-    
+
     // We currently use a uniform viewmatrix for this batch
     if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
         return false;
@@ -231,7 +231,7 @@ static void randomize_params(uint32_t count, SkRandom* random,
     }
 }
 
-BATCH_TEST_DEFINE(GrDrawAtlasBatch) {
+DRAW_BATCH_TEST_DEFINE(GrDrawAtlasBatch) {
     uint32_t spriteCount = random->nextRangeU(1, 100);
     
     SkTArray<SkRSXform> xforms(spriteCount);

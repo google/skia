@@ -22,7 +22,7 @@ class SkStrokeRec;
  */
 namespace GrRectBatchFactory {
 
-inline GrBatch* CreateFillBW(GrColor color,
+inline GrDrawBatch* CreateFillBW(GrColor color,
                              const SkMatrix& viewMatrix,
                              const SkRect& rect,
                              const SkRect* localRect,
@@ -30,29 +30,29 @@ inline GrBatch* CreateFillBW(GrColor color,
     return GrBWFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
 }
 
-inline GrBatch* CreateFillAA(GrColor color,
-                             const SkMatrix& viewMatrix,
-                             const SkRect& rect,
-                             const SkRect& devRect) {
+inline GrDrawBatch* CreateFillAA(GrColor color,
+                                 const SkMatrix& viewMatrix,
+                                 const SkRect& rect,
+                                 const SkRect& devRect) {
     return GrAAFillRectBatch::Create(color, viewMatrix, rect, devRect);
 }
 
-GrBatch* CreateStrokeBW(GrColor color,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& rect,
-                        SkScalar strokeWidth,
-                        bool snapToPixelCenters);
+GrDrawBatch* CreateStrokeBW(GrColor color,
+                            const SkMatrix& viewMatrix,
+                            const SkRect& rect,
+                            SkScalar strokeWidth,
+                            bool snapToPixelCenters);
 
-GrBatch* CreateStrokeAA(GrColor,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& rect,
-                        const SkRect& devRect,
-                        const SkStrokeRec& stroke);
+GrDrawBatch* CreateStrokeAA(GrColor,
+                            const SkMatrix& viewMatrix,
+                            const SkRect& rect,
+                            const SkRect& devRect,
+                            const SkStrokeRec& stroke);
 
 // First rect is outer; second rect is inner
-GrBatch* CreateFillNestedRectsAA(GrColor,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect rects[2]);
+GrDrawBatch* CreateFillNestedRectsAA(GrColor,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRect rects[2]);
 
 };
 

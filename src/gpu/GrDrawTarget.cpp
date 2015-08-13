@@ -125,7 +125,7 @@ void GrDrawTarget::flush() {
     this->reset();
 }
 
-void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrBatch* batch) {
+void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch) {
     // TODO some kind of checkdraw, but not at this level
 
     // Setup clip
@@ -295,8 +295,8 @@ void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
                               const SkRect& rect,
                               const SkRect* localRect,
                               const SkMatrix* localMatrix) {
-   SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect, localRect,
-                                                                localMatrix));
+   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect,
+                                                                    localRect, localMatrix));
    this->drawBatch(pipelineBuilder, batch);
 }
 
@@ -305,7 +305,8 @@ void GrDrawTarget::drawAARect(const GrPipelineBuilder& pipelineBuilder,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkRect& devRect) {
-    SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::CreateFillAA(color, viewMatrix, rect, devRect));
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillAA(color, viewMatrix, rect,
+                                                                     devRect));
     this->drawBatch(pipelineBuilder, batch);
 }
 
@@ -480,7 +481,7 @@ GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder* pipelineBuilde
 
 GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder* pipelineBuilder,
                                          const GrScissorState* scissor,
-                                         const GrBatch* batch,
+                                         const GrDrawBatch* batch,
                                          const SkRect* devBounds,
                                          GrDrawTarget* target) {
     fArgs.fPipelineBuilder = pipelineBuilder;

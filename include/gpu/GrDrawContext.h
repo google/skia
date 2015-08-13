@@ -12,9 +12,9 @@
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 
-class GrBatch;
 class GrClip;
 class GrContext;
+class GrDrawBatch;
 class GrDrawTarget;
 class GrPaint;
 class GrPathProcessor;
@@ -265,7 +265,7 @@ public:
      * @param paint    describes how to color pixels.
      * @param batch    the batch to draw
      */
-    void drawBatch(GrRenderTarget*, const GrClip&, const GrPaint&, GrBatch*);
+    void drawBatch(GrRenderTarget*, const GrClip&, const GrPaint&, GrDrawBatch*);
 
 private:
     friend class GrAtlasTextContext; // for access to drawBatch
@@ -288,7 +288,7 @@ private:
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
     // the drawTarget.
-    void drawBatch(GrPipelineBuilder* pipelineBuilder, GrBatch* batch);
+    void drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* batch);
 
     GrContext*          fContext;     // owning context -> no ref
     GrDrawTarget*       fDrawTarget;

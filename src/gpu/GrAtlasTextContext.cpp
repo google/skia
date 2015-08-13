@@ -1432,7 +1432,7 @@ inline void GrAtlasTextContext::appendGlyphCommon(GrAtlasTextBlob* blob, Run* ru
     subRun->fVertexEndIndex += vertexStride * kVerticesPerGlyph;
 }
 
-class TextBatch : public GrBatch {
+class TextBatch : public GrVertexBatch {
 public:
     typedef GrAtlasTextContext::DistanceAdjustTable DistanceAdjustTable;
     typedef GrAtlasTextBlob Blob;
@@ -1893,12 +1893,11 @@ private:
     int numGlyphs() const { return fBatch.fNumGlyphs; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        TextBatch* that = t->cast<TextBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        TextBatch* that = t->cast<TextBatch>();
 
         if (fMaskType != that->fMaskType) {
             return false;
@@ -2087,7 +2086,7 @@ void GrAtlasTextContext::flushRunAsPaths(GrRenderTarget* rt, const SkTextBlob::R
     }
 }
 
-inline GrBatch*
+inline GrDrawBatch*
 GrAtlasTextContext::createBatch(GrAtlasTextBlob* cacheBlob, const PerSubRunInfo& info,
                                 int glyphCount, int run, int subRun,
                                 GrColor color, SkScalar transX, SkScalar transY,
@@ -2140,9 +2139,9 @@ inline void GrAtlasTextContext::flushRun(GrPipelineBuilder* pipelineBuilder,
             continue;
         }
 
-        SkAutoTUnref<GrBatch> batch(this->createBatch(cacheBlob, info, glyphCount, run,
-                                                      subRun, color, transX, transY,
-                                                      skPaint));
+        SkAutoTUnref<GrDrawBatch> batch(this->createBatch(cacheBlob, info, glyphCount, run,
+                                                          subRun, color, transX, transY,
+                                                          skPaint));
         fDrawContext->drawBatch(pipelineBuilder, batch);
     }
 }
@@ -2227,7 +2226,7 @@ void GrAtlasTextContext::flush(GrAtlasTextBlob* cacheBlob,
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(TextBlobBatch) {
+DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     static uint32_t gContextID = SK_InvalidGenID;
     static GrAtlasTextContext* gTextContext = NULL;
     static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);

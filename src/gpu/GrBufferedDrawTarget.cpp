@@ -26,7 +26,7 @@ GrBufferedDrawTarget::~GrBufferedDrawTarget() {
     this->reset();
 }
 
-void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch) {
+void GrBufferedDrawTarget::onDrawBatch(GrDrawBatch* batch) {
     fCommands->recordDrawBatch(batch, *this->caps());
 }
 

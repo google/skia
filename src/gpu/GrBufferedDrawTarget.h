@@ -78,7 +78,7 @@ private:
     void onFlush() override;
 
     // overrides from GrDrawTarget
-    void onDrawBatch(GrBatch*) override;
+    void onDrawBatch(GrDrawBatch*) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,
@@ -109,7 +109,7 @@ private:
 
     StateForPathDraw* SK_WARN_UNUSED_RESULT createStateForPathDraw(
         const GrPrimitiveProcessor*,
-        const GrDrawTarget::PipelineInfo&,
+        const PipelineInfo&,
         GrPipelineOptimizations* opts);
 
     // TODO: Use a single allocator for commands and records

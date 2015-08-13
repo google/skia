@@ -62,7 +62,7 @@ const GrIndexBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
  *                           SkPoint* fan0Position, const Geometry&)
  */
 template <typename Base>
-class AAFillRectBatch : public GrBatch {
+class AAFillRectBatch : public GrVertexBatch {
 public:
     typedef typename Base::Geometry Geometry;
 
@@ -165,12 +165,12 @@ private:
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                caps)) {
+        AAFillRectBatch* that = t->cast<AAFillRectBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
 
-        AAFillRectBatch* that = t->cast<AAFillRectBatch>();
         if (!Base::CanCombineLocalCoords(this->viewMatrix(), that->viewMatrix(),
                                          this->usesLocalCoords())) {
             return false;
@@ -399,10 +399,10 @@ typedef AAFillRectBatch<AAFillRectBatchLocalMatrixImp> AAFillRectBatchLocalMatri
 
 namespace GrAAFillRectBatch {
 
-GrBatch* Create(GrColor color,
-                const SkMatrix& viewMatrix,
-                const SkRect& rect,
-                const SkRect& devRect) {
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect& devRect) {
     AAFillRectBatchNoLocalMatrix* batch = AAFillRectBatchNoLocalMatrix::Create();
     AAFillRectBatchNoLocalMatrix::Geometry& geo = *batch->geometry();
     geo.fColor = color;
@@ -412,11 +412,11 @@ GrBatch* Create(GrColor color,
     return batch;
 }
 
-GrBatch* Create(GrColor color,
-                const SkMatrix& viewMatrix,
-                const SkMatrix& localMatrix,
-                const SkRect& rect,
-                const SkRect& devRect) {
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkMatrix& localMatrix,
+                    const SkRect& rect,
+                    const SkRect& devRect) {
     AAFillRectBatchLocalMatrix* batch = AAFillRectBatchLocalMatrix::Create();
     AAFillRectBatchLocalMatrix::Geometry& geo = *batch->geometry();
     geo.fColor = color;
@@ -435,7 +435,7 @@ GrBatch* Create(GrColor color,
 
 #include "GrBatchTest.h"
 
-BATCH_TEST_DEFINE(AAFillRectBatch) {
+DRAW_BATCH_TEST_DEFINE(AAFillRectBatch) {
     AAFillRectBatchNoLocalMatrix* batch = AAFillRectBatchNoLocalMatrix::Create();
     AAFillRectBatchNoLocalMatrix::Geometry& geo = *batch->geometry();
     geo.fColor = GrRandomColor(random);
@@ -445,7 +445,7 @@ BATCH_TEST_DEFINE(AAFillRectBatch) {
     return batch;
 }
 
-BATCH_TEST_DEFINE(AAFillRectBatchLocalMatrix) {
+DRAW_BATCH_TEST_DEFINE(AAFillRectBatchLocalMatrix) {
     AAFillRectBatchLocalMatrix* batch = AAFillRectBatchLocalMatrix::Create();
     AAFillRectBatchLocalMatrix::Geometry& geo = *batch->geometry();
     geo.fColor = GrRandomColor(random);

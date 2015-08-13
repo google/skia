@@ -11,7 +11,7 @@
 
 #include "batches/GrBatch.h"
 
-void GrProcOptInfo::calcColorWithBatch(const GrBatch* batch,
+void GrProcOptInfo::calcColorWithBatch(const GrDrawBatch* batch,
                                        const GrFragmentStage* stages,
                                        int stageCount) {
     GrInitInvariantOutput out;
@@ -20,7 +20,7 @@ void GrProcOptInfo::calcColorWithBatch(const GrBatch* batch,
     this->internalCalc(stages, stageCount, batch->willReadFragmentPosition());
 }
 
-void GrProcOptInfo::calcCoverageWithBatch(const GrBatch* batch,
+void GrProcOptInfo::calcCoverageWithBatch(const GrDrawBatch* batch,
                                           const GrFragmentStage* stages,
                                           int stageCount) {
     GrInitInvariantOutput out;

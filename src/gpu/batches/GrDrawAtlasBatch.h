@@ -12,15 +12,16 @@
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 
-class GrDrawAtlasBatch : public GrBatch {
+class GrDrawAtlasBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor                 fColor;
         SkTArray<uint8_t, true> fVerts;
     };
     
-    static GrBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix, int spriteCount,
-                           const SkRSXform* xforms, const SkRect* rects, const SkColor* colors) {
+    static GrDrawBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
+                               int spriteCount, const SkRSXform* xforms, const SkRect* rects,
+                               const SkColor* colors) {
         return SkNEW_ARGS(GrDrawAtlasBatch, (geometry, viewMatrix, spriteCount,
                                              xforms, rects, colors));
     }

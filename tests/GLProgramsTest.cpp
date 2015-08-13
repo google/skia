@@ -238,7 +238,7 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
         pipelineBuilder.setRenderTarget(rt.get());
         pipelineBuilder.setClip(clip);
 
-        SkAutoTUnref<GrBatch> batch(GrRandomBatch(&random, context));
+        SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
 
         GrProcessorDataManager procDataManager;

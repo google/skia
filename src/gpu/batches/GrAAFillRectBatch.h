@@ -10,21 +10,21 @@
 
 #include "GrColor.h"
 
-class GrBatch;
+class GrDrawBatch;
 class SkMatrix;
 struct SkRect;
 
 namespace GrAAFillRectBatch {
-GrBatch* Create(GrColor color,
-                const SkMatrix& viewMatrix,
-                const SkRect& rect,
-                const SkRect& devRect);
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect& devRect);
 
-GrBatch* Create(GrColor color,
-                const SkMatrix& viewMatrix,
-                const SkMatrix& localMatrix,
-                const SkRect& rect,
-                const SkRect& devRect);
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkMatrix& localMatrix,
+                    const SkRect& rect,
+                    const SkRect& devRect);
 };
 
 #endif

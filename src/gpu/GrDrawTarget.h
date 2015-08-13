@@ -34,6 +34,7 @@ class GrClip;
 class GrCaps;
 class GrPath;
 class GrPathRange;
+class GrDrawBatch;
 
 class GrDrawTarget : public SkRefCnt {
 public:
@@ -66,7 +67,7 @@ public:
      */
     const GrCaps* caps() const { return fCaps; }
 
-    void drawBatch(const GrPipelineBuilder&, GrBatch*);
+    void drawBatch(const GrPipelineBuilder&, GrDrawBatch*);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
@@ -206,7 +207,7 @@ public:
                      const SkRect* devBounds, GrDrawTarget* target);
 
         PipelineInfo(const GrPipelineBuilder* pipelineBuilder, const GrScissorState* scissor,
-                     const GrBatch* batch, const SkRect* devBounds,
+                     const GrDrawBatch* batch, const SkRect* devBounds,
                      GrDrawTarget* target);
 
         bool valid() const { return SkToBool(fArgs.fPipelineBuilder); }
@@ -241,7 +242,7 @@ private:
 
     virtual void onFlush() = 0;
 
-    virtual void onDrawBatch(GrBatch*) = 0;
+    virtual void onDrawBatch(GrDrawBatch*) = 0;
     virtual void onStencilPath(const GrPipelineBuilder&,
                                const GrPathProcessor*,
                                const GrPath*,

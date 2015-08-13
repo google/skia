@@ -109,7 +109,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 // padding around path bounds to allow for antialiased pixels
 static const SkScalar kAntiAliasPad = 1.0f;
 
-class AADistanceFieldPathBatch : public GrBatch {
+class AADistanceFieldPathBatch : public GrVertexBatch {
 public:
     typedef GrAADistanceFieldPathRenderer::PathData PathData;
     typedef SkTDynamicHash<PathData, PathData::Key> PathCache;
@@ -123,8 +123,8 @@ public:
         PathData* fPathData;
     };
 
-    static GrBatch* Create(const Geometry& geometry, GrColor color, const SkMatrix& viewMatrix,
-                           GrBatchAtlas* atlas, PathCache* pathCache, PathDataList* pathList) {
+    static GrDrawBatch* Create(const Geometry& geometry, GrColor color, const SkMatrix& viewMatrix,
+                               GrBatchAtlas* atlas, PathCache* pathCache, PathDataList* pathList) {
         return SkNEW_ARGS(AADistanceFieldPathBatch, (geometry, color, viewMatrix,
                                                      atlas, pathCache, pathList));
     }
@@ -485,12 +485,11 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        AADistanceFieldPathBatch* that = t->cast<AADistanceFieldPathBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        AADistanceFieldPathBatch* that = t->cast<AADistanceFieldPathBatch>();
 
         // TODO we could actually probably do a bunch of this work on the CPU, ie map viewMatrix,
         // maybe upload color via attribute
@@ -543,9 +542,9 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     geometry.fPath = *args.fPath;
     geometry.fAntiAlias = args.fAntiAlias;
 
-    SkAutoTUnref<GrBatch> batch(AADistanceFieldPathBatch::Create(geometry, args.fColor,
-                                                                 *args.fViewMatrix, fAtlas,
-                                                                 &fPathCache, &fPathList));
+    SkAutoTUnref<GrDrawBatch> batch(AADistanceFieldPathBatch::Create(geometry, args.fColor,
+                                                                     *args.fViewMatrix, fAtlas,
+                                                                     &fPathCache, &fPathList));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
@@ -597,7 +596,7 @@ struct PathTestStruct {
     PathDataList fPathList;
 };
 
-BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
+DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
     static PathTestStruct gTestStruct;
 
     if (context->uniqueID() != gTestStruct.fContextID) {

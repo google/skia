@@ -14,7 +14,7 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 
-class GrAAStrokeRectBatch : public GrBatch {
+class GrAAStrokeRectBatch : public GrVertexBatch {
 public:
     // TODO support AA rotated stroke rects by copying around view matrices
     struct Geometry {
@@ -25,7 +25,7 @@ public:
         bool fMiterStroke;
     };
 
-    static GrBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix) {
+    static GrDrawBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix) {
         return SkNEW_ARGS(GrAAStrokeRectBatch, (geometry, viewMatrix));
     }
 

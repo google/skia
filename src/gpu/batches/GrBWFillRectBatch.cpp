@@ -17,7 +17,7 @@ class GrBatchTarget;
 class SkMatrix;
 struct SkRect;
 
-class BWFillRectBatch : public GrBatch {
+class BWFillRectBatch : public GrVertexBatch {
 public:
     struct Geometry {
         SkMatrix fViewMatrix;
@@ -29,7 +29,7 @@ public:
         bool fHasLocalMatrix;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
+    static GrDrawBatch* Create(const Geometry& geometry) {
         return SkNEW_ARGS(BWFillRectBatch, (geometry));
     }
 
@@ -134,12 +134,11 @@ private:
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        BWFillRectBatch* that = t->cast<BWFillRectBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        BWFillRectBatch* that = t->cast<BWFillRectBatch>();
 
         if (this->hasLocalRect() != that->hasLocalRect()) {
             return false;
@@ -210,11 +209,11 @@ private:
 };
 
 namespace GrBWFillRectBatch {
-GrBatch* Create(GrColor color,
-                const SkMatrix& viewMatrix,
-                const SkRect& rect,
-                const SkRect* localRect,
-                const SkMatrix* localMatrix) {
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect* localRect,
+                    const SkMatrix* localMatrix) {
     BWFillRectBatch::Geometry geometry;
     geometry.fColor = color;
     geometry.fViewMatrix = viewMatrix;
@@ -244,7 +243,7 @@ GrBatch* Create(GrColor color,
 
 #include "GrBatchTest.h"
 
-BATCH_TEST_DEFINE(RectBatch) {
+DRAW_BATCH_TEST_DEFINE(RectBatch) {
     BWFillRectBatch::Geometry geometry;
     geometry.fColor = GrRandomColor(random);
 

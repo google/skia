@@ -304,7 +304,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
                                            width, viewMatrix, color);
 
     if (doAA) {
-        SkAutoTUnref<GrBatch> batch;
+        SkAutoTUnref<GrDrawBatch> batch;
         if (width >= 0) {
             batch.reset(GrRectBatchFactory::CreateStrokeAA(color, viewMatrix, rect, devBoundRect,
                                                            *strokeInfo));
@@ -318,8 +318,8 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
     if (width >= 0) {
         // Non-AA hairlines are snapped to pixel centers to make which pixels are hit deterministic
         bool snapToPixelCenters = (0 == width && !rt->isUnifiedMultisampled());
-        SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::CreateStrokeBW(color, viewMatrix, rect,
-                                                                       width, snapToPixelCenters));
+        SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateStrokeBW(
+                                        color, viewMatrix, rect, width, snapToPixelCenters));
 
         // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
         // hairline rects. We jam all the vertices to pixel centers to avoid this, but not when MSAA
@@ -391,10 +391,10 @@ void GrDrawContext::drawVertices(GrRenderTarget* rt,
 
     GrDrawVerticesBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
-    SkAutoTUnref<GrBatch> batch(GrDrawVerticesBatch::Create(geometry, primitiveType, viewMatrix,
-                                                            positions, vertexCount, indices,
-                                                            indexCount, colors, texCoords,
-                                                            bounds));
+    SkAutoTUnref<GrDrawBatch> batch(GrDrawVerticesBatch::Create(geometry, primitiveType, viewMatrix,
+                                                                positions, vertexCount, indices,
+                                                                indexCount, colors, texCoords,
+                                                                bounds));
 
     fDrawTarget->drawBatch(pipelineBuilder, batch);
 }
@@ -419,8 +419,8 @@ void GrDrawContext::drawAtlas(GrRenderTarget* rt,
     
     GrDrawAtlasBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
-    SkAutoTUnref<GrBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount,
-                                                         xform, texRect, colors));
+    SkAutoTUnref<GrDrawBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount,
+                                                             xform, texRect, colors));
     
     fDrawTarget->drawBatch(pipelineBuilder, batch);
 }
@@ -601,7 +601,7 @@ static bool is_nested_rects(const SkMatrix& viewMatrix,
 }
 
 void GrDrawContext::drawBatch(GrRenderTarget* rt, const GrClip& clip,
-                              const GrPaint& paint, GrBatch* batch) {
+                              const GrPaint& paint, GrDrawBatch* batch) {
     RETURN_IF_ABANDONED
 
     AutoCheckFlush acf(fContext);
@@ -649,9 +649,8 @@ void GrDrawContext::drawPath(GrRenderTarget* rt,
             SkRect rects[2];
 
             if (is_nested_rects(viewMatrix, path, strokeInfo, rects)) {
-                SkAutoTUnref<GrBatch> batch(GrRectBatchFactory::CreateFillNestedRectsAA(color,
-                                                                                        viewMatrix,
-                                                                                        rects));
+                SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillNestedRectsAA(
+                    color, viewMatrix, rects));
                 fDrawTarget->drawBatch(pipelineBuilder, batch);
                 return;
             }
@@ -772,6 +771,6 @@ bool GrDrawContext::prepareToDraw(GrRenderTarget* rt) {
     return true;
 }
 
-void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrBatch* batch) {
+void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* batch) {
     fDrawTarget->drawBatch(*pipelineBuilder, batch);
 }

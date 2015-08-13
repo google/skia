@@ -114,7 +114,7 @@ static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
     return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAFlatteningConvexPathBatch : public GrBatch {
+class AAFlatteningConvexPathBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -125,7 +125,7 @@ public:
         SkScalar fMiterLimit;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
+    static GrDrawBatch* Create(const Geometry& geometry) {
         return SkNEW_ARGS(AAFlatteningConvexPathBatch, (geometry));
     }
 
@@ -265,12 +265,11 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        AAFlatteningConvexPathBatch* that = t->cast<AAFlatteningConvexPathBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        AAFlatteningConvexPathBatch* that = t->cast<AAFlatteningConvexPathBatch>();
 
         SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
         if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
@@ -321,7 +320,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                    args.fStroke->getJoin();
     geometry.fMiterLimit = args.fStroke->getMiter();
 
-    SkAutoTUnref<GrBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
+    SkAutoTUnref<GrDrawBatch> batch(AAFlatteningConvexPathBatch::Create(geometry));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
@@ -331,7 +330,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(AAFlatteningConvexPathBatch) {
+DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathBatch) {
     AAFlatteningConvexPathBatch::Geometry geometry;
     geometry.fColor = GrRandomColor(random);
     geometry.fViewMatrix = GrTest::TestMatrixInvertible(random);

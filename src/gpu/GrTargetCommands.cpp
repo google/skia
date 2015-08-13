@@ -30,8 +30,12 @@ void GrTargetCommands::flush(GrBufferedDrawTarget* bufferedDrawTarget) {
         if (Cmd::kDrawBatch_CmdType == genIter->type()) {
             DrawBatch* db = reinterpret_cast<DrawBatch*>(genIter.get());
             fBatchTarget.resetNumberOfDraws();
-            db->batch()->generateGeometry(&fBatchTarget);
-            db->batch()->setNumberOfDraws(fBatchTarget.numberOfDraws());
+            // TODO: encapsulate the specialization of GrVertexBatch in GrVertexBatch so that we can
+            // remove this cast. Currently all GrDrawBatches are in fact GrVertexBatch.
+            GrVertexBatch* vertexBatch = static_cast<GrVertexBatch*>(db->batch());
+
+            vertexBatch->generateGeometry(&fBatchTarget);
+            vertexBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
         }
     }
 
@@ -76,7 +80,10 @@ void GrTargetCommands::DrawPaths::execute(GrGpu* gpu) {
 }
 
 void GrTargetCommands::DrawBatch::execute(GrGpu* gpu) {
-    fBatchTarget->flushNext(fBatch->numberOfDraws());
+    // TODO: encapsulate the specialization of GrVertexBatch in GrVertexBatch so that we can
+    // remove this cast. Currently all GrDrawBatches are in fact GrVertexBatch.
+    const GrVertexBatch* vertexBatch = static_cast<const GrVertexBatch*>(fBatch.get());
+    fBatchTarget->flushNext(vertexBatch->numberOfDraws());
 }
 
 void GrTargetCommands::Clear::execute(GrGpu* gpu) {

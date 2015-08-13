@@ -232,19 +232,19 @@ private:
     };
 
     struct DrawBatch : public Cmd {
-        DrawBatch(GrBatch* batch, GrBatchTarget* batchTarget)
+        DrawBatch(GrDrawBatch* batch, GrBatchTarget* batchTarget)
             : Cmd(kDrawBatch_CmdType)
             , fBatch(SkRef(batch))
             , fBatchTarget(batchTarget) {
             SkASSERT(!batch->isUsed());
         }
 
-        GrBatch* batch() { return fBatch; }
+        GrDrawBatch* batch() { return fBatch; }
         void execute(GrGpu*) override;
 
     private:
-        SkAutoTUnref<GrBatch>  fBatch;
-        GrBatchTarget*         fBatchTarget;
+        SkAutoTUnref<GrDrawBatch>   fBatch;
+        GrBatchTarget*              fBatchTarget;
     };
 
     static const int kCmdBufferInitialSizeInBytes = 8 * 1024;

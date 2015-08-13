@@ -128,7 +128,7 @@ void GrStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(GrStrokeRectBatch) {
+DRAW_BATCH_TEST_DEFINE(GrStrokeRectBatch) {
     GrStrokeRectBatch::Geometry geometry;
     geometry.fViewMatrix = GrTest::TestMatrix(random);
     geometry.fColor = GrRandomColor(random);

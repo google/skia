@@ -209,7 +209,7 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
     }
 }
 
-class DefaultPathBatch : public GrBatch {
+class DefaultPathBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -217,8 +217,9 @@ public:
         SkScalar fTolerance;
     };
 
-    static GrBatch* Create(const Geometry& geometry, uint8_t coverage, const SkMatrix& viewMatrix,
-                           bool isHairline, const SkRect& devBounds) {
+    static GrDrawBatch* Create(const Geometry& geometry, uint8_t coverage,
+                               const SkMatrix& viewMatrix, bool isHairline,
+                               const SkRect& devBounds) {
         return SkNEW_ARGS(DefaultPathBatch, (geometry, coverage, viewMatrix, isHairline,
                                              devBounds));
     }
@@ -387,12 +388,11 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        DefaultPathBatch* that = t->cast<DefaultPathBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                     that->bounds(), caps)) {
             return false;
         }
-
-        DefaultPathBatch* that = t->cast<DefaultPathBatch>();
 
         if (this->color() != that->color()) {
             return false;
@@ -697,8 +697,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             geometry.fPath = path;
             geometry.fTolerance = srcSpaceTol;
 
-            SkAutoTUnref<GrBatch> batch(DefaultPathBatch::Create(geometry, newCoverage, viewMatrix,
-                                                                 isHairline, devBounds));
+            SkAutoTUnref<GrDrawBatch> batch(DefaultPathBatch::Create(geometry, newCoverage,
+                                                                     viewMatrix, isHairline,
+                                                                     devBounds));
 
             target->drawBatch(*pipelineBuilder, batch);
         }
@@ -734,7 +735,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(DefaultPathBatch) {
+DRAW_BATCH_TEST_DEFINE(DefaultPathBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
 

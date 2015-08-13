@@ -24,7 +24,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-class GrBatch;
+class GrDrawBatch;
 class GrCaps;
 class GrPaint;
 class GrTexture;
@@ -400,12 +400,12 @@ public:
         return fCoverageProcInfo;
     }
 
-    const GrProcOptInfo& colorProcInfo(const GrBatch* batch) const {
+    const GrProcOptInfo& colorProcInfo(const GrDrawBatch* batch) const {
         this->calcColorInvariantOutput(batch);
         return fColorProcInfo;
     }
 
-    const GrProcOptInfo& coverageProcInfo(const GrBatch* batch) const {
+    const GrProcOptInfo& coverageProcInfo(const GrDrawBatch* batch) const {
         this->calcCoverageInvariantOutput(batch);
         return fCoverageProcInfo;
     }
@@ -434,8 +434,8 @@ private:
     /**
      * GrBatch provides the initial seed for these loops based off of its initial geometry data
      */
-    void calcColorInvariantOutput(const GrBatch*) const;
-    void calcCoverageInvariantOutput(const GrBatch*) const;
+    void calcColorInvariantOutput(const GrDrawBatch*) const;
+    void calcCoverageInvariantOutput(const GrDrawBatch*) const;
 
     /**
      * If fColorProcInfoValid is false, function calculates the invariant output for the color

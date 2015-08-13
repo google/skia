@@ -145,12 +145,12 @@ void GrPipelineBuilder::calcCoverageInvariantOutput(const GrPrimitiveProcessor* 
     fCoverageProcInfoValid = false;
 }
 
-void GrPipelineBuilder::calcColorInvariantOutput(const GrBatch* batch) const {
+void GrPipelineBuilder::calcColorInvariantOutput(const GrDrawBatch* batch) const {
     fColorProcInfo.calcColorWithBatch(batch, fColorStages.begin(), this->numColorFragmentStages());
     fColorProcInfoValid = false;
 }
 
-void GrPipelineBuilder::calcCoverageInvariantOutput(const GrBatch* batch) const {
+void GrPipelineBuilder::calcCoverageInvariantOutput(const GrDrawBatch* batch) const {
     fCoverageProcInfo.calcCoverageWithBatch(batch, fCoverageStages.begin(),
                                             this->numCoverageFragmentStages());
     fCoverageProcInfoValid = false;

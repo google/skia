@@ -17,7 +17,7 @@ public:
 
     GrInOrderCommandBuilder(GrGpu* gpu) : INHERITED(gpu) { }
 
-    Cmd* recordDrawBatch(GrBatch*, const GrCaps&) override;
+    Cmd* recordDrawBatch(GrDrawBatch*, const GrCaps&) override;
     Cmd* recordStencilPath(const GrPipelineBuilder&,
                            const GrPathProcessor*,
                            const GrPath*,

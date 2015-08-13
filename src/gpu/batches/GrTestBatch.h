@@ -16,7 +16,7 @@
  * A simple batch only for testing purposes which actually doesn't batch at all, but can fit into
  * the batch pipeline and generate arbitrary geometry
  */
-class GrTestBatch : public GrBatch {
+class GrTestBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;

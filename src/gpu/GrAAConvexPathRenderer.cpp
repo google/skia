@@ -739,7 +739,7 @@ static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
     return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAConvexPathBatch : public GrBatch {
+class AAConvexPathBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -747,7 +747,7 @@ public:
         SkPath fPath;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
+    static GrDrawBatch* Create(const Geometry& geometry) {
         return SkNEW_ARGS(AAConvexPathBatch, (geometry));
     }
 
@@ -941,12 +941,11 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        AAConvexPathBatch* that = t->cast<AAConvexPathBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        AAConvexPathBatch* that = t->cast<AAConvexPathBatch>();
 
         if (this->color() != that->color()) {
             return false;
@@ -1002,7 +1001,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     geometry.fViewMatrix = *args.fViewMatrix;
     geometry.fPath = *args.fPath;
 
-    SkAutoTUnref<GrBatch> batch(AAConvexPathBatch::Create(geometry));
+    SkAutoTUnref<GrDrawBatch> batch(AAConvexPathBatch::Create(geometry));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
@@ -1013,7 +1012,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(AAConvexPathBatch) {
+DRAW_BATCH_TEST_DEFINE(AAConvexPathBatch) {
     AAConvexPathBatch::Geometry geometry;
     geometry.fColor = GrRandomColor(random);
     geometry.fViewMatrix = GrTest::TestMatrixInvertible(random);

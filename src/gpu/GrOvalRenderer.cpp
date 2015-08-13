@@ -625,7 +625,7 @@ bool GrOvalRenderer::DrawOval(GrDrawTarget* target,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class CircleBatch : public GrBatch {
+class CircleBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -636,7 +636,9 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry) { return SkNEW_ARGS(CircleBatch, (geometry)); }
+    static GrDrawBatch* Create(const Geometry& geometry) {
+        return SkNEW_ARGS(CircleBatch, (geometry));
+    }
 
     const char* name() const override { return "CircleBatch"; }
 
@@ -734,12 +736,11 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        CircleBatch* that = t->cast<CircleBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        CircleBatch* that = t->cast<CircleBatch>();
 
         // TODO use vertex color to avoid breaking batches
         if (this->color() != that->color()) {
@@ -777,11 +778,11 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-static GrBatch* create_circle_batch(GrColor color,
-                                    const SkMatrix& viewMatrix,
-                                    bool useCoverageAA,
-                                    const SkRect& circle,
-                                    const SkStrokeRec& stroke) {
+static GrDrawBatch* create_circle_batch(GrColor color,
+                                        const SkMatrix& viewMatrix,
+                                        bool useCoverageAA,
+                                        const SkRect& circle,
+                                        const SkStrokeRec& stroke) {
     SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
     viewMatrix.mapPoints(&center, 1);
     SkScalar radius = viewMatrix.mapRadius(SkScalarHalf(circle.width()));
@@ -834,14 +835,14 @@ void GrOvalRenderer::DrawCircle(GrDrawTarget* target,
                                 bool useCoverageAA,
                                 const SkRect& circle,
                                 const SkStrokeRec& stroke) {
-    SkAutoTUnref<GrBatch> batch(create_circle_batch(color, viewMatrix, useCoverageAA, circle,
-                                                    stroke));
+    SkAutoTUnref<GrDrawBatch> batch(create_circle_batch(color, viewMatrix, useCoverageAA, circle,
+                                                        stroke));
     target->drawBatch(pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EllipseBatch : public GrBatch {
+class EllipseBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -854,7 +855,7 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
+    static GrDrawBatch* Create(const Geometry& geometry) {
         return SkNEW_ARGS(EllipseBatch, (geometry));
     }
 
@@ -958,12 +959,12 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        EllipseBatch* that = t->cast<EllipseBatch>();
+
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        EllipseBatch* that = t->cast<EllipseBatch>();
 
         // TODO use vertex color to avoid breaking batches
         if (this->color() != that->color()) {
@@ -1001,11 +1002,11 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-static GrBatch* create_ellipse_batch(GrColor color,
-                                     const SkMatrix& viewMatrix,
-                                     bool useCoverageAA,
-                                     const SkRect& ellipse,
-                                     const SkStrokeRec& stroke) {
+static GrDrawBatch* create_ellipse_batch(GrColor color,
+                                         const SkMatrix& viewMatrix,
+                                         bool useCoverageAA,
+                                         const SkRect& ellipse,
+                                         const SkStrokeRec& stroke) {
 #ifdef SK_DEBUG
     {
         // we should have checked for this previously
@@ -1095,8 +1096,8 @@ bool GrOvalRenderer::DrawEllipse(GrDrawTarget* target,
                                  bool useCoverageAA,
                                  const SkRect& ellipse,
                                  const SkStrokeRec& stroke) {
-    SkAutoTUnref<GrBatch> batch(create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                                     stroke));
+    SkAutoTUnref<GrDrawBatch> batch(create_ellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
+                                                         stroke));
     if (!batch) {
         return false;
     }
@@ -1107,7 +1108,7 @@ bool GrOvalRenderer::DrawEllipse(GrDrawTarget* target,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class DIEllipseBatch : public GrBatch {
+class DIEllipseBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -1122,7 +1123,7 @@ public:
         SkRect fBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry, const SkRect& bounds) {
+    static GrDrawBatch* Create(const Geometry& geometry, const SkRect& bounds) {
         return SkNEW_ARGS(DIEllipseBatch, (geometry, bounds));
     }
 
@@ -1217,12 +1218,11 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        DIEllipseBatch* that = t->cast<DIEllipseBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        DIEllipseBatch* that = t->cast<DIEllipseBatch>();
 
         // TODO use vertex color to avoid breaking batches
         if (this->color() != that->color()) {
@@ -1260,11 +1260,11 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-static GrBatch* create_diellipse_batch(GrColor color,
-                                       const SkMatrix& viewMatrix,
-                                       bool useCoverageAA,
-                                       const SkRect& ellipse,
-                                       const SkStrokeRec& stroke) {
+static GrDrawBatch* create_diellipse_batch(GrColor color,
+                                           const SkMatrix& viewMatrix,
+                                           bool useCoverageAA,
+                                           const SkRect& ellipse,
+                                           const SkStrokeRec& stroke) {
     SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
     SkScalar xRadius = SkScalarHalf(ellipse.width());
     SkScalar yRadius = SkScalarHalf(ellipse.height());
@@ -1345,8 +1345,8 @@ bool GrOvalRenderer::DrawDIEllipse(GrDrawTarget* target,
                                    bool useCoverageAA,
                                    const SkRect& ellipse,
                                    const SkStrokeRec& stroke) {
-    SkAutoTUnref<GrBatch> batch(create_diellipse_batch(color, viewMatrix, useCoverageAA, ellipse,
-                                                       stroke));
+    SkAutoTUnref<GrDrawBatch> batch(create_diellipse_batch(color, viewMatrix, useCoverageAA,
+                                                           ellipse, stroke));
     if (!batch) {
         return false;
     }
@@ -1463,7 +1463,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class RRectCircleRendererBatch : public GrBatch {
+class RRectCircleRendererBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -1474,7 +1474,7 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
+    static GrDrawBatch* Create(const Geometry& geometry) {
         return SkNEW_ARGS(RRectCircleRendererBatch, (geometry));
     }
 
@@ -1595,12 +1595,11 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        RRectCircleRendererBatch* that = t->cast<RRectCircleRendererBatch>();
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        RRectCircleRendererBatch* that = t->cast<RRectCircleRendererBatch>();
 
         // TODO use vertex color to avoid breaking batches
         if (this->color() != that->color()) {
@@ -1638,7 +1637,7 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-class RRectEllipseRendererBatch : public GrBatch {
+class RRectEllipseRendererBatch : public GrVertexBatch {
 public:
     struct Geometry {
         GrColor fColor;
@@ -1651,7 +1650,7 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrBatch* Create(const Geometry& geometry) {
+    static GrDrawBatch* Create(const Geometry& geometry) {
         return SkNEW_ARGS(RRectEllipseRendererBatch, (geometry));
     }
 
@@ -1782,12 +1781,12 @@ private:
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *t->pipeline(), t->bounds(),
-                                    caps)) {
+        RRectEllipseRendererBatch* that = t->cast<RRectEllipseRendererBatch>();
+
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
-
-        RRectEllipseRendererBatch* that = t->cast<RRectEllipseRendererBatch>();
 
         // TODO use vertex color to avoid breaking batches
         if (this->color() != that->color()) {
@@ -1825,10 +1824,10 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-static GrBatch* create_rrect_batch(GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRRect& rrect,
-                                   const SkStrokeRec& stroke) {
+static GrDrawBatch* create_rrect_batch(GrColor color,
+                                       const SkMatrix& viewMatrix,
+                                       const SkRRect& rrect,
+                                       const SkStrokeRec& stroke) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
@@ -1997,7 +1996,7 @@ bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
         return false;
     }
 
-    SkAutoTUnref<GrBatch> batch(create_rrect_batch(color, viewMatrix, rrect, stroke));
+    SkAutoTUnref<GrDrawBatch> batch(create_rrect_batch(color, viewMatrix, rrect, stroke));
     if (!batch) {
         return false;
     }
@@ -2010,7 +2009,7 @@ bool GrOvalRenderer::DrawRRect(GrDrawTarget* target,
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(CircleBatch) {
+DRAW_BATCH_TEST_DEFINE(CircleBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     bool useCoverageAA = random->nextBool();
@@ -2019,7 +2018,7 @@ BATCH_TEST_DEFINE(CircleBatch) {
                                GrTest::TestStrokeRec(random));
 }
 
-BATCH_TEST_DEFINE(EllipseBatch) {
+DRAW_BATCH_TEST_DEFINE(EllipseBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     SkRect ellipse = GrTest::TestSquare(random);
@@ -2027,7 +2026,7 @@ BATCH_TEST_DEFINE(EllipseBatch) {
                                 GrTest::TestStrokeRec(random));
 }
 
-BATCH_TEST_DEFINE(DIEllipseBatch) {
+DRAW_BATCH_TEST_DEFINE(DIEllipseBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     bool useCoverageAA = random->nextBool();
@@ -2036,7 +2035,7 @@ BATCH_TEST_DEFINE(DIEllipseBatch) {
                                   GrTest::TestStrokeRec(random));
 }
 
-BATCH_TEST_DEFINE(RRectBatch) {
+DRAW_BATCH_TEST_DEFINE(RRectBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);

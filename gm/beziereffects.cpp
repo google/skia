@@ -38,8 +38,8 @@ public:
 
     const char* name() const override { return "BezierCubicOrConicTestBatch"; }
 
-    static GrBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
-                           const SkScalar klmEqs[9], SkScalar sign) {
+    static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
+                               const SkScalar klmEqs[9], SkScalar sign) {
         return SkNEW_ARGS(BezierCubicOrConicTestBatch, (gp, geo, klmEqs, sign));
     }
 
@@ -228,7 +228,7 @@ protected:
                     geometry.fColor = color;
                     geometry.fBounds = bounds;
 
-                    SkAutoTUnref<GrBatch> batch(
+                    SkAutoTUnref<GrDrawBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, klmSigns[c]));
 
                     tt.target()->drawBatch(pipelineBuilder, batch);
@@ -373,7 +373,7 @@ protected:
                     geometry.fColor = color;
                     geometry.fBounds = bounds;
 
-                    SkAutoTUnref<GrBatch> batch(
+                    SkAutoTUnref<GrDrawBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, 1.f));
 
                     tt.target()->drawBatch(pipelineBuilder, batch);
@@ -438,8 +438,8 @@ public:
 
     const char* name() const override { return "BezierQuadTestBatch"; }
 
-    static GrBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
-                           const GrPathUtils::QuadUVMatrix& devToUV) {
+    static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
+                               const GrPathUtils::QuadUVMatrix& devToUV) {
         return SkNEW_ARGS(BezierQuadTestBatch, (gp, geo, devToUV));
     }
 
@@ -613,7 +613,8 @@ protected:
                     geometry.fColor = color;
                     geometry.fBounds = bounds;
 
-                    SkAutoTUnref<GrBatch> batch(BezierQuadTestBatch::Create(gp, geometry, DevToUV));
+                    SkAutoTUnref<GrDrawBatch> batch(BezierQuadTestBatch::Create(gp, geometry,
+                                                                                DevToUV));
 
                     tt.target()->drawBatch(pipelineBuilder, batch);
                 }

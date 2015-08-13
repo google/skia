@@ -1384,14 +1384,14 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
            !args.fAntiAlias && !args.fPath->isConvex();
 }
 
-class TessellatingPathBatch : public GrBatch {
+class TessellatingPathBatch : public GrVertexBatch {
 public:
 
-    static GrBatch* Create(const GrColor& color,
-                           const SkPath& path,
-                           const GrStrokeInfo& stroke,
-                           const SkMatrix& viewMatrix,
-                           SkRect clipBounds) {
+    static GrDrawBatch* Create(const GrColor& color,
+                               const SkPath& path,
+                               const GrStrokeInfo& stroke,
+                               const SkMatrix& viewMatrix,
+                               SkRect clipBounds) {
         return SkNEW_ARGS(TessellatingPathBatch, (color, path, stroke, viewMatrix, clipBounds));
     }
 
@@ -1620,9 +1620,9 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
     vmi.mapRect(&clipBounds);
-    SkAutoTUnref<GrBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fPath,
-                                                              *args.fStroke, *args.fViewMatrix,
-                                                              clipBounds));
+    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fColor, *args.fPath,
+                                                                  *args.fStroke, *args.fViewMatrix,
+                                                                  clipBounds));
     args.fTarget->drawBatch(*args.fPipelineBuilder, batch);
 
     return true;
@@ -1632,7 +1632,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-BATCH_TEST_DEFINE(TesselatingPathBatch) {
+DRAW_BATCH_TEST_DEFINE(TesselatingPathBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);

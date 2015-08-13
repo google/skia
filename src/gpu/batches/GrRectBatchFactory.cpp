@@ -12,12 +12,12 @@
 
 #include "SkStrokeRec.h"
 
-static GrBatch* create_stroke_aa_batch(GrColor color,
-                                       const SkMatrix& viewMatrix,
-                                       const SkRect& devOutside,
-                                       const SkRect& devOutsideAssist,
-                                       const SkRect& devInside,
-                                       bool miterStroke) {
+static GrDrawBatch* create_stroke_aa_batch(GrColor color,
+                                           const SkMatrix& viewMatrix,
+                                           const SkRect& devOutside,
+                                           const SkRect& devOutsideAssist,
+                                           const SkRect& devInside,
+                                           bool miterStroke) {
     GrAAStrokeRectBatch::Geometry geometry;
     geometry.fColor = color;
     geometry.fDevOutside = devOutside;
@@ -30,12 +30,11 @@ static GrBatch* create_stroke_aa_batch(GrColor color,
 
 namespace GrRectBatchFactory {
 
-
-GrBatch* CreateStrokeBW(GrColor color,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& rect,
-                        SkScalar strokeWidth,
-                        bool snapToPixelCenters) {
+GrDrawBatch* CreateStrokeBW(GrColor color,
+                            const SkMatrix& viewMatrix,
+                            const SkRect& rect,
+                            SkScalar strokeWidth,
+                            bool snapToPixelCenters) {
     GrStrokeRectBatch::Geometry geometry;
     geometry.fColor = color;
     geometry.fViewMatrix = viewMatrix;
@@ -44,11 +43,11 @@ GrBatch* CreateStrokeBW(GrColor color,
     return GrStrokeRectBatch::Create(geometry, snapToPixelCenters);
 }
 
-GrBatch* CreateStrokeAA(GrColor color,
-                        const SkMatrix& viewMatrix,
-                        const SkRect& rect,
-                        const SkRect& devRect,
-                        const SkStrokeRec& stroke) {
+GrDrawBatch* CreateStrokeAA(GrColor color,
+                            const SkMatrix& viewMatrix,
+                            const SkRect& rect,
+                            const SkRect& devRect,
+                            const SkStrokeRec& stroke) {
     SkVector devStrokeSize;
     SkScalar width = stroke.getWidth();
     if (width > 0) {
@@ -103,9 +102,9 @@ GrBatch* CreateStrokeAA(GrColor color,
                                   miterStroke);
 }
 
-GrBatch* CreateFillNestedRectsAA(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect rects[2]) {
+GrDrawBatch* CreateFillNestedRectsAA(GrColor color,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[0].isEmpty() && !rects[1].isEmpty());
 
