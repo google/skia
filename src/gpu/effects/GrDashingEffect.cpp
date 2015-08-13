@@ -20,7 +20,7 @@
 #include "GrStrokeInfo.h"
 #include "GrVertexBuffer.h"
 #include "SkGr.h"
-#include "batches/GrBatch.h"
+#include "batches/GrVertexBatch.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"

@@ -9,7 +9,7 @@
 
 #include "GrGeometryProcessor.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrDrawBatch.h"
 
 void GrProcOptInfo::calcColorWithBatch(const GrDrawBatch* batch,
                                        const GrFragmentStage* stages,

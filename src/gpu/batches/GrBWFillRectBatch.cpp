@@ -7,11 +7,11 @@
 
 #include "GrBWFillRectBatch.h"
 
-#include "GrBatch.h"
 #include "GrBatchTarget.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPrimitiveProcessor.h"
+#include "GrVertexBatch.h"
 
 class GrBatchTarget;
 class SkMatrix;

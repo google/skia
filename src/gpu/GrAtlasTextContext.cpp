@@ -36,7 +36,7 @@
 #include "SkTextBlob.h"
 #include "SkTextMapStateProc.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrVertexBatch.h"
 
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"

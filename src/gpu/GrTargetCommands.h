@@ -18,7 +18,7 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrDrawBatch.h"
 
 class GrBufferedDrawTarget;
 

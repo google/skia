@@ -227,6 +227,8 @@
       '<(skia_src_path)/gpu/batches/GrBWFillRectBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrBatch.h',
+      '<(skia_src_path)/gpu/batches/GrDrawBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrDrawBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawAtlasBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrDrawAtlasBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawVerticesBatch.cpp',
@@ -235,6 +237,8 @@
       '<(skia_src_path)/gpu/batches/GrRectBatchFactory.cpp',
       '<(skia_src_path)/gpu/batches/GrStrokeRectBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrStrokeRectBatch.h',
+      '<(skia_src_path)/gpu/batches/GrVertexBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrVertexBatch.h',
 
       '<(skia_src_path)/gpu/effects/Gr1DKernelEffect.h',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.cpp',

@@ -8,9 +8,9 @@
 #ifndef GrStrokeRectBatch_DEFINED
 #define GrStrokeRectBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrVertexBatch.h"
 
 class GrStrokeRectBatch : public GrVertexBatch {
 public:

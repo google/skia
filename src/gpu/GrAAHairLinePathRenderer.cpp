@@ -22,7 +22,7 @@
 #include "SkStroke.h"
 #include "SkTemplates.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrVertexBatch.h"
 
 #include "effects/GrBezierEffect.h"
 

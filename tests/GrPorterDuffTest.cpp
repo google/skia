@@ -15,7 +15,7 @@
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "GrXferProcessor.h"
-#include "batches/GrBatch.h"
+#include "batches/GrVertexBatch.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "gl/GrGLCaps.h"
 

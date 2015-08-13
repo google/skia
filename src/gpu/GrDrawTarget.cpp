@@ -20,7 +20,7 @@
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
 
 #include "SkStrokeRec.h"

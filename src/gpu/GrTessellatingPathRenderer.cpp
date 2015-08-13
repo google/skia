@@ -17,7 +17,7 @@
 #include "SkChunkAlloc.h"
 #include "SkGeometry.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrVertexBatch.h"
 
 #include <stdio.h>
 

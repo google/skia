@@ -20,7 +20,7 @@
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrVertexBatch.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
                                              bool stencilWrapOpsSupport)

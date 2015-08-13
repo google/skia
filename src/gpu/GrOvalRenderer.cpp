@@ -19,7 +19,7 @@
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
-#include "batches/GrBatch.h"
+#include "batches/GrVertexBatch.h"
 #include "effects/GrRRectEffect.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"

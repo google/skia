@@ -24,7 +24,7 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrDrawBatch.h"
 
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"

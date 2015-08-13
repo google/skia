@@ -8,9 +8,9 @@
 #ifndef GrAAStrokeRectBatch_DEFINED
 #define GrAAStrokeRectBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrColor.h"
 #include "GrTypes.h"
+#include "GrVertexBatch.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 

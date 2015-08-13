@@ -8,9 +8,9 @@
 #ifndef GrDrawVerticesBatch_DEFINED
 #define GrDrawVerticesBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrColor.h"
 #include "GrTypes.h"
+#include "GrVertexBatch.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkTDArray.h"

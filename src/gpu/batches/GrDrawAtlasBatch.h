@@ -8,9 +8,9 @@
 #ifndef GrDrawAtlasBatch_DEFINED
 #define GrDrawAtlasBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrVertexBatch.h"
 
 class GrDrawAtlasBatch : public GrVertexBatch {
 public:

@@ -7,12 +7,12 @@
 
 #include "GrAAFillRectBatch.h"
 
-#include "GrBatch.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
 #include "GrTypes.h"
+#include "GrVertexBatch.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 

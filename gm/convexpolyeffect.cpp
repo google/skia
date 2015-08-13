@@ -23,6 +23,7 @@
 #include "SkTLList.h"
 
 #include "batches/GrTestBatch.h"
+#include "batches/GrVertexBatch.h"
 
 #include "effects/GrConvexPolyEffect.h"
 

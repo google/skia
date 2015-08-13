@@ -9,6 +9,9 @@
 
 #include "GrBufferedDrawTarget.h"
 
+#include "batches/GrDrawBatch.h"
+#include "batches/GrVertexBatch.h"
+
 GrBATCH_SPEW(int32_t GrTargetCommands::Cmd::gUniqueID = 0;)
 
 void GrTargetCommands::reset() {

@@ -17,7 +17,7 @@
 #include "GrSWMaskHelper.h"
 #include "GrTexturePriv.h"
 #include "GrVertexBuffer.h"
-#include "batches/GrBatch.h"
+#include "batches/GrVertexBatch.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
 #include "SkDistanceFieldGen.h"
