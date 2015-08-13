@@ -7,9 +7,7 @@
 
 #include "GrRectBatchFactory.h"
 
-#include "GrAAFillRectBatch.h"
 #include "GrAAStrokeRectBatch.h"
-#include "GrRectBatch.h"
 #include "GrStrokeRectBatch.h"
 
 #include "SkStrokeRec.h"
@@ -32,32 +30,6 @@ static GrBatch* create_stroke_aa_batch(GrColor color,
 
 namespace GrRectBatchFactory {
 
-GrBatch* CreateFillBW(GrColor color,
-                      const SkMatrix& viewMatrix,
-                      const SkRect& rect,
-                      const SkRect* localRect,
-                      const SkMatrix* localMatrix) {
-    GrRectBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fViewMatrix = viewMatrix;
-    geometry.fRect = rect;
-
-    if (localRect) {
-        geometry.fHasLocalRect = true;
-        geometry.fLocalRect = *localRect;
-    } else {
-        geometry.fHasLocalRect = false;
-    }
-
-    if (localMatrix) {
-        geometry.fHasLocalMatrix = true;
-        geometry.fLocalMatrix = *localMatrix;
-    } else {
-        geometry.fHasLocalMatrix = false;
-    }
-
-    return GrRectBatch::Create(geometry);
-}
 
 GrBatch* CreateStrokeBW(GrColor color,
                         const SkMatrix& viewMatrix,

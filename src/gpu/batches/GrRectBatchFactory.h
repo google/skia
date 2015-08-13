@@ -9,6 +9,7 @@
 #define GrRectBatchFactory_DEFINED
 
 #include "GrAAFillRectBatch.h"
+#include "GrBWFillRectBatch.h"
 #include "GrColor.h"
 
 class GrBatch;
@@ -21,16 +22,18 @@ class SkStrokeRec;
  */
 namespace GrRectBatchFactory {
 
-GrBatch* CreateFillBW(GrColor color,
-                      const SkMatrix& viewMatrix,
-                      const SkRect& rect,
-                      const SkRect* localRect,
-                      const SkMatrix* localMatrix);
+inline GrBatch* CreateFillBW(GrColor color,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rect,
+                             const SkRect* localRect,
+                             const SkMatrix* localMatrix) {
+    return GrBWFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
+}
 
-static GrBatch* CreateFillAA(GrColor color,
-                      const SkMatrix& viewMatrix,
-                      const SkRect& rect,
-                      const SkRect& devRect) {
+inline GrBatch* CreateFillAA(GrColor color,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rect,
+                             const SkRect& devRect) {
     return GrAAFillRectBatch::Create(color, viewMatrix, rect, devRect);
 }
 
