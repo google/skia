@@ -17,7 +17,6 @@
 
 GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrPipelineOptimizations* opts) {
-    GrPipeline* pipeline = SkNEW_PLACEMENT(memory, GrPipeline);
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
 
     // Create XferProcessor from DS's XPFactory
@@ -25,6 +24,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         builder.getXPFactory()->createXferProcessor(args.fColorPOI, args.fCoveragePOI,
                                                     builder.hasMixedSamples(), &args.fDstTexture,
                                                     *args.fCaps));
+    if (!xferProcessor) {
+        return nullptr;
+    }
 
     GrColor overrideColor = GrColor_ILLEGAL;
     if (args.fColorPOI.firstEffectiveStageIndex() != 0) {
@@ -32,14 +34,18 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
-    if (xferProcessor) {
-        pipeline->fXferProcessor.reset(xferProcessor.get());
 
-        optFlags = xferProcessor->getOptimizations(args.fColorPOI,
-                                                   args.fCoveragePOI,
-                                                   builder.getStencil().doesWrite(),
-                                                   &overrideColor,
-                                                   *args.fCaps);
+    optFlags = xferProcessor->getOptimizations(args.fColorPOI,
+                                                args.fCoveragePOI,
+                                                builder.getStencil().doesWrite(),
+                                                &overrideColor,
+                                                *args.fCaps);
+
+    // When path rendering the stencil settings are not always set on the GrPipelineBuilder
+    // so we must check the draw type. In cases where we will skip drawing we simply return a
+    // null GrPipeline.
+    if (GrXferProcessor::kSkipDraw_OptFlag & optFlags) {
+        return nullptr;
     }
 
     // No need to have an override color if it isn't even going to be used.
@@ -47,13 +53,8 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         overrideColor = GrColor_ILLEGAL;
     }
 
-    // When path rendering the stencil settings are not always set on the GrPipelineBuilder
-    // so we must check the draw type. In cases where we will skip drawing we simply return a
-    // null GrPipeline.
-    if (!xferProcessor || (GrXferProcessor::kSkipDraw_OptFlag & optFlags)) {
-        pipeline->~GrPipeline();
-        return nullptr;
-    }
+    GrPipeline* pipeline = SkNEW_PLACEMENT(memory, GrPipeline);
+    pipeline->fXferProcessor.reset(xferProcessor.get());
 
     pipeline->fRenderTarget.reset(builder.fRenderTarget.get());
     SkASSERT(pipeline->fRenderTarget);
