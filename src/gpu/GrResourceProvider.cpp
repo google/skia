@@ -106,7 +106,7 @@ GrIndexBuffer* GrResourceProvider::createIndexBuffer(size_t size, BufferUsage us
         } else {
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
         }
-        GrGpuResource* resource = this->cache()->findAndRefScratchResource(key, scratchFlags);
+        GrGpuResource* resource = this->cache()->findAndRefScratchResource(key, size, scratchFlags);
         if (resource) {
             return static_cast<GrIndexBuffer*>(resource);
         }
@@ -135,7 +135,7 @@ GrVertexBuffer* GrResourceProvider::createVertexBuffer(size_t size, BufferUsage 
         } else {
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
         }
-        GrGpuResource* resource = this->cache()->findAndRefScratchResource(key, scratchFlags);
+        GrGpuResource* resource = this->cache()->findAndRefScratchResource(key, size, scratchFlags);
         if (resource) {
             return static_cast<GrVertexBuffer*>(resource);
         }

@@ -86,7 +86,9 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
             // writePixels() which will trigger a flush if the texture has pending IO.
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
         }
-        GrGpuResource* resource = fCache->findAndRefScratchResource(key, scratchFlags);
+        GrGpuResource* resource = fCache->findAndRefScratchResource(key,
+                                                                   GrSurface::WorseCaseSize(*desc),
+                                                                   scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
             GrRenderTarget* rt = surface->asRenderTarget();

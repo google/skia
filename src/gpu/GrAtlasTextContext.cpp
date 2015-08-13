@@ -14,7 +14,6 @@
 #include "GrDrawContext.h"
 #include "GrDrawTarget.h"
 #include "GrFontScaler.h"
-#include "GrIndexBuffer.h"
 #include "GrResourceProvider.h"
 #include "GrStrokeInfo.h"
 #include "GrTextBlobCache.h"

@@ -42,8 +42,12 @@ size_t GrTexture::onGpuMemorySize() const {
     if (this->texturePriv().hasMipMaps()) {
         // We don't have to worry about the mipmaps being a different size than
         // we'd expect because we never change fDesc.fWidth/fHeight.
-        textureSize *= 2;
+        textureSize += textureSize/3;
     }
+
+    SkASSERT(!SkToBool(fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
+    SkASSERT(textureSize <= WorseCaseSize(fDesc));
+
     return textureSize;
 }
 

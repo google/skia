@@ -126,7 +126,9 @@ public:
     /**
      * Find a resource that matches a scratch key.
      */
-    GrGpuResource* findAndRefScratchResource(const GrScratchKey& scratchKey, uint32_t flags = 0);
+    GrGpuResource* findAndRefScratchResource(const GrScratchKey& scratchKey,
+                                             size_t resourceSize,
+                                             uint32_t flags);
     
 #ifdef SK_DEBUG
     // This is not particularly fast and only used for validation, so debug only.
@@ -205,6 +207,10 @@ private:
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
     bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
+
+    bool wouldFit(size_t bytes) {
+        return fBudgetedBytes+bytes <= fMaxBytes && fBudgetedCount+1 <= fMaxCount;    
+    }
 
     uint32_t getNextTimestamp();
 

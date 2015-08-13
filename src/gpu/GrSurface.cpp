@@ -13,6 +13,35 @@
 #include "SkImageEncoder.h"
 #include <stdio.h>
 
+size_t GrSurface::WorseCaseSize(const GrSurfaceDesc& desc) {
+    size_t size;
+
+    bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    if (isRenderTarget) {
+        // We own one color value for each MSAA sample.
+        int colorValuesPerPixel = SkTMax(1, desc.fSampleCnt);
+        if (desc.fSampleCnt) {
+            // Worse case, we own the resolve buffer so that is one more sample per pixel.
+            colorValuesPerPixel += 1;
+        }
+        SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
+        SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
+        size_t colorBytes = GrBytesPerPixel(desc.fConfig);
+        SkASSERT(colorBytes > 0);
+        size = colorValuesPerPixel * desc.fWidth * desc.fHeight * colorBytes;
+    } else {
+        if (GrPixelConfigIsCompressed(desc.fConfig)) {
+            size = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
+        } else {
+            size = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+        }
+
+        size += size/3;  // in case we have to mipmap
+    }
+
+    return size;
+}
+
 template<typename T> static bool adjust_params(int surfaceWidth,
                                                int surfaceHeight,
                                                size_t bpp,

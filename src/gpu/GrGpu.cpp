@@ -79,7 +79,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
         return NULL;
     }
 
-    // We currently not support multisampled textures
+    // We currently do not support multisampled textures
     if (!isRT && desc.fSampleCnt > 0) {
         return NULL;
     }

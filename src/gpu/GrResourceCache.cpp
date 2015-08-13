@@ -246,6 +246,7 @@ private:
 };
 
 GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& scratchKey,
+                                                          size_t resourceSize,
                                                           uint32_t flags) {
     SkASSERT(scratchKey.isValid());
 
@@ -259,8 +260,11 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
         } else if (flags & kRequireNoPendingIO_ScratchFlag) {
             return NULL;
         }
-        // TODO: fail here when kPrefer is specified, we didn't find a resource without pending io,
-        // but there is still space in our budget for the resource.
+        if (this->wouldFit(resourceSize)) {
+            // kPrefer is specified, we didn't find a resource without pending io,
+            // but there is still space in our budget for the resource.
+            return NULL;
+        }
     }
     resource = fScratchMap.find(scratchKey, AvailableForScratchUse(false));
     if (resource) {
