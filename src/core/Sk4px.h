@@ -110,6 +110,8 @@ public:
     // fn should take an Sk4px (4 src pixels) and return an Sk4px (4 dst pixels).
     template <typename Fn, typename Dst>
     static void MapSrc(int n, Dst* dst, const SkPMColor* src, const Fn& fn) {
+        SkASSERT(dst);
+        SkASSERT(src);
         // This looks a bit odd, but it helps loop-invariant hoisting across different calls to fn.
         // Basically, we need to make sure we keep things inside a single loop.
         while (n > 0) {
@@ -140,6 +142,8 @@ public:
     // As above, but with dst4' = fn(dst4, src4).
     template <typename Fn, typename Dst>
     static void MapDstSrc(int n, Dst* dst, const SkPMColor* src, const Fn& fn) {
+        SkASSERT(dst);
+        SkASSERT(src);
         while (n > 0) {
             if (n >= 8) {
                 Sk4px dst0 = fn(Load4(dst+0), Load4(src+0)),
@@ -168,6 +172,8 @@ public:
     // As above, but with dst4' = fn(dst4, alpha4).
     template <typename Fn, typename Dst>
     static void MapDstAlpha(int n, Dst* dst, const SkAlpha* a, const Fn& fn) {
+        SkASSERT(dst);
+        SkASSERT(a);
         while (n > 0) {
             if (n >= 8) {
                 Sk4px dst0 = fn(Load4(dst+0), Load4Alphas(a+0)),
@@ -197,6 +203,9 @@ public:
     template <typename Fn, typename Dst>
     static void MapDstSrcAlpha(int n, Dst* dst, const SkPMColor* src, const SkAlpha* a,
                                const Fn& fn) {
+        SkASSERT(dst);
+        SkASSERT(src);
+        SkASSERT(a);
         while (n > 0) {
             if (n >= 8) {
                 Sk4px dst0 = fn(Load4(dst+0), Load4(src+0), Load4Alphas(a+0)),
