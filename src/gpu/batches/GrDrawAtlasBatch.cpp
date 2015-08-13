@@ -251,7 +251,7 @@ DRAW_BATCH_TEST_DEFINE(GrDrawAtlasBatch) {
     GrDrawAtlasBatch::Geometry geometry;
     geometry.fColor = GrRandomColor(random);
     return GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount, xforms.begin(),
-                                    texRects.begin(), colors.begin());
+                                    texRects.begin(), hasColors ? colors.begin() : nullptr);
 }
 
 #endif
