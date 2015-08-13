@@ -27,7 +27,6 @@
 #include "SkScanlineDecoder.h"
 #include "SkStream.h"
 #include "SkXMLWriter.h"
-#include "SkScaledCodec.h"
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
@@ -85,13 +84,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromData(encoded));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (NULL == codec.get()) {
-        // scaledCodec not supported, try normal codec
-        codec.reset(SkCodec::NewFromData(encoded));
-        if (NULL == codec.get()) {
-            return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
-        }
+        return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
     // Choose the color type to decode to
@@ -451,16 +446,13 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize CodecSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromData(encoded));
-    if (NULL == codec) {
-        // scaledCodec not supported, try regular codec
-        codec.reset(SkCodec::NewFromData(encoded));
-        if (NULL == codec) {
-            return SkISize::Make(0, 0);
-        }
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    if (NULL != codec) {
+        SkISize size = codec->getScaledDimensions(fScale);
+        return size;
+    } else {
+        return SkISize::Make(0, 0);
     }
-    SkISize size = codec->getScaledDimensions(fScale);
-    return size;
 }
 
 Name CodecSrc::name() const {

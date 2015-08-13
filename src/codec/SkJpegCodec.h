@@ -110,13 +110,19 @@ private:
     bool setOutputColorSpace(const SkImageInfo& dst);
 
     /*
-     * Checks if we can natively scale to the requested dimensions and natively scales the 
-     * dimensions if possible
+     * Checks if we can scale to the requested dimensions and scales the dimensions
+     * if possible
      */
-    bool nativelyScaleToDimensions(uint32_t width, uint32_t height); 
+    bool scaleToDimensions(uint32_t width, uint32_t height);
+
+    /*
+     * Create the swizzler based on the encoded format
+     */
+    void initializeSwizzler(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+            const Options& options);
 
     SkAutoTDelete<JpegDecoderMgr> fDecoderMgr;
-    
+
     friend class SkJpegScanlineDecoder;
 
     typedef SkCodec INHERITED;

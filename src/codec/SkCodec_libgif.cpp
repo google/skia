@@ -444,12 +444,11 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                     // Create the subset swizzler
                     swizzler.reset(SkSwizzler::CreateSwizzler(
                             SkSwizzler::kIndex, colorTable, subsetDstInfo,
-                            zeroInit, this->getInfo()));
+                            zeroInit));
                 } else {
                     // Create the fully dimensional swizzler
                     swizzler.reset(SkSwizzler::CreateSwizzler(
-                            SkSwizzler::kIndex, colorTable, dstInfo, 
-                            zeroInit, this->getInfo()));
+                            SkSwizzler::kIndex, colorTable, dstInfo, zeroInit));
                 }
 
                 // Stores output from dgiflib and input to the swizzler

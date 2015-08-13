@@ -237,7 +237,7 @@ bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo,
 
     // Create swizzler
     fSwizzler.reset(SkSwizzler::CreateSwizzler(config,
-            colorPtr, dstInfo, opts.fZeroInitialized, this->getInfo()));
+            colorPtr, dstInfo, opts.fZeroInitialized));
 
     if (NULL == fSwizzler.get()) {
         return false;
