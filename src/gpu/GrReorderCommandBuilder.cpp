@@ -55,19 +55,19 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrBatch* batch,
 
                 if (previous->batch()->pipeline()->getRenderTarget() != rt) {
                     GrBATCH_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
-                                 previous->fBatch->name(), previous->fBatch->uniqueID());
+                                 previous->batch()->name(), previous->batch()->uniqueID());
                     break;
                 }
                 // We cannot continue to search backwards if the render target changes
                 if (previous->batch()->combineIfPossible(batch, caps)) {
                     GrBATCH_INFO("\t\tCombining with (%s, B%u)\n",
-                                 previous->fBatch->name(), previous->fBatch->uniqueID());
+                                 previous->batch()->name(), previous->batch()->uniqueID());
                     return NULL;
                 }
 
                 if (intersect(previous->batch()->bounds(), batch->bounds())) {
                     GrBATCH_INFO("\t\tIntersects with (%s, B%u)\n",
-                                 previous->fBatch->name(), previous->fBatch->uniqueID());
+                                 previous->batch()->name(), previous->batch()->uniqueID());
                     break;
                 }
             } else if (Cmd::kClear_CmdType == reverseIter->type()) {

@@ -33,7 +33,7 @@ GrTargetCommands::Cmd* GrInOrderCommandBuilder::recordDrawBatch(GrBatch* batch,
         DrawBatch* previous = static_cast<DrawBatch*>(&this->cmdBuffer()->back());
         if (previous->batch()->combineIfPossible(batch, caps)) {
             GrBATCH_INFO("\tBatching with (%s, %u)\n",
-                         previous->fBatch->name(), previous->fBatch->uniqueID());
+                         previous->batch()->name(), previous->batch()->uniqueID());
             return NULL;
         }
     }

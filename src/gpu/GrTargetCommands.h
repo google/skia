@@ -241,6 +241,7 @@ private:
 
         GrBatch* batch() { return fBatch; }
         void execute(GrGpu*) override;
+
     private:
         SkAutoTUnref<GrBatch>  fBatch;
         GrBatchTarget*         fBatchTarget;
