@@ -59,14 +59,6 @@ bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     }
 }
 
-GrPathRenderer::StencilSupport
-GrStencilAndCoverPathRenderer::onGetStencilSupport(const GrDrawTarget*,
-                                                   const GrPipelineBuilder*,
-                                                   const SkPath&,
-                                                   const GrStrokeInfo&) const {
-    return GrPathRenderer::kStencilOnly_StencilSupport;
-}
-
 static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const SkPath& skPath,
                            const GrStrokeInfo& stroke) {
     GrUniqueKey key;

@@ -679,7 +679,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    return (args.fTarget->caps()->shaderCaps()->shaderDerivativeSupport() && args.fAntiAlias &&
+    return (args.fShaderCaps->shaderDerivativeSupport() && args.fAntiAlias &&
             args.fStroke->isFillStyle() && !args.fPath->isInverseFillType() &&
             args.fPath->isConvex());
 }

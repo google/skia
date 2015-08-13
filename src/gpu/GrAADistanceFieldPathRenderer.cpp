@@ -85,7 +85,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     
     // TODO: Support inverse fill
     // TODO: Support strokes
-    if (!args.fTarget->caps()->shaderCaps()->shaderDerivativeSupport() || !args.fAntiAlias ||
+    if (!args.fShaderCaps->shaderDerivativeSupport() || !args.fAntiAlias ||
         args.fPath->isInverseFillType() || args.fPath->isVolatile() ||
         !args.fStroke->isFillStyle()) {
         return false;
@@ -102,14 +102,6 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     const SkRect& bounds = args.fPath->getBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
     return maxDim < 64.f && maxDim * maxScale < 256.f;
-}
-
-GrPathRenderer::StencilSupport
-GrAADistanceFieldPathRenderer::onGetStencilSupport(const GrDrawTarget*,
-                                                   const GrPipelineBuilder*,
-                                                   const SkPath&,
-                                                   const GrStrokeInfo&) const {
-    return GrPathRenderer::kNoSupport_StencilSupport;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

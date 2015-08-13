@@ -22,14 +22,6 @@ bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     return true;
 }
 
-GrPathRenderer::StencilSupport
-GrSoftwarePathRenderer::onGetStencilSupport(const GrDrawTarget*,
-                                            const GrPipelineBuilder*,
-                                            const SkPath&,
-                                            const GrStrokeInfo&) const {
-    return GrPathRenderer::kNoSupport_StencilSupport;
-}
-
 namespace {
 
 ////////////////////////////////////////////////////////////////////////////////

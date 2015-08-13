@@ -169,10 +169,7 @@ static inline bool single_pass_path(const SkPath& path, const SkStrokeRec& strok
 }
 
 GrPathRenderer::StencilSupport
-GrDefaultPathRenderer::onGetStencilSupport(const GrDrawTarget*,
-                                           const GrPipelineBuilder*,
-                                           const SkPath& path,
-                                           const GrStrokeInfo& stroke) const {
+GrDefaultPathRenderer::onGetStencilSupport(const SkPath& path, const GrStrokeInfo& stroke) const {
     if (single_pass_path(path, stroke)) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {

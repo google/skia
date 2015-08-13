@@ -1360,14 +1360,6 @@ bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
 GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
 }
 
-GrPathRenderer::StencilSupport GrTessellatingPathRenderer::onGetStencilSupport(
-                                                            const GrDrawTarget*,
-                                                            const GrPipelineBuilder*,
-                                                            const SkPath&,
-                                                            const GrStrokeInfo&) const {
-    return GrPathRenderer::kNoSupport_StencilSupport;
-}
-
 namespace {
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.

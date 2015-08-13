@@ -61,7 +61,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
 
     for (int i = 0; i < fChain.count(); ++i) {
         GrPathRenderer::CanDrawPathArgs args;
-        args.fTarget = target;
+        args.fShaderCaps = target->caps()->shaderCaps();
         args.fPipelineBuilder = pipelineBuilder;
         args.fViewMatrix = &viewMatrix;
         args.fPath = &path;
@@ -70,7 +70,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
         if (fChain[i]->canDrawPath(args)) {
             if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
                 GrPathRenderer::StencilSupport support =
-                    fChain[i]->getStencilSupport(target, pipelineBuilder, path, stroke);
+                                                       fChain[i]->getStencilSupport(path, stroke);
                 if (support < minStencilSupport) {
                     continue;
                 } else if (stencilSupport) {
