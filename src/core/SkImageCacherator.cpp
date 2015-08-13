@@ -19,10 +19,17 @@
 #include "SkGrPriv.h"
 #endif
 
+SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen) {
+    if (!gen) {
+        return nullptr;
+    }
+    return SkNEW_ARGS(SkImageCacherator, (gen));
+}
+
 SkImageCacherator::SkImageCacherator(SkImageGenerator* gen) : fGenerator(gen) {}
 
 SkImageCacherator::~SkImageCacherator() {
-    delete fGenerator;
+    SkDELETE(fGenerator);
 }
 
 static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {

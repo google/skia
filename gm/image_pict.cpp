@@ -128,10 +128,8 @@ protected:
 
         SkMatrix matrix;
         matrix.setTranslate(-100, -100);
-        fCache.reset(new SkImageCacherator(SkImageGenerator::NewFromPicture(size,
-                                                                            fPicture,
-                                                                            &matrix,
-                                                                            nullptr)));
+        auto gen = SkImageGenerator::NewFromPicture(size, fPicture, &matrix, nullptr);
+        fCache.reset(SkImageCacherator::NewFromGenerator(gen));
     }
 
     void drawSet(SkCanvas* canvas) const {

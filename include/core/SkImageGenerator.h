@@ -144,9 +144,9 @@ public:
      *  Regarding the SkImageUsageType parameter:
      *
      *  If the context (the provided one or the generator's intrinsic one) determines that to
-     *  support the specified usage, it must return a different sized texture (from the generator's
-     *  native size) it may, so the caller must inspect the texture's width/height
-     *  (unless kUntiled_SkImageUsedType was specified).
+     *  support the specified usage, it must return a different sized texture it may,
+     *  so the caller must inspect the texture's width/height and compare them to the generator's
+     *  getInfo() width/height.
      */
     GrTexture* generateTexture(GrContext*, SkImageUsageType);
 

@@ -19,7 +19,8 @@ class SkBitmap;
 class SkImageCacherator {
 public:
     // Takes ownership of the generator
-    SkImageCacherator(SkImageGenerator* gen);
+    static SkImageCacherator* NewFromGenerator(SkImageGenerator*);
+
     ~SkImageCacherator();
 
     const SkImageInfo& info() const { return fGenerator->getInfo(); }
@@ -28,8 +29,6 @@ public:
     /**
      *  On success (true), bitmap will point to the pixels for this generator. If this returns
      *  false, the bitmap will be reset to empty.
-     *
-     *  The cached bitmap is valid until it goes out of scope.
      */
     bool lockAsBitmap(SkBitmap*);
 
@@ -37,11 +36,13 @@ public:
      *  Returns a ref() on the texture produced by this generator. The caller must call unref()
      *  when it is done. Will return NULL on failure.
      *
-     *  The cached texture is valid until it is unref'd.
+     *  The caller is responsible for calling texture->unref() when they are done.
      */
     GrTexture* lockAsTexture(GrContext*, SkImageUsageType);
 
 private:
+    SkImageCacherator(SkImageGenerator* gen);
+
     bool tryLockAsBitmap(SkBitmap*);
     GrTexture* tryLockAsTexture(GrContext*, SkImageUsageType);
 
