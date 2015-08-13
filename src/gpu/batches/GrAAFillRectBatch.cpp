@@ -220,9 +220,8 @@ private:
             vec[1].scale(SK_ScalarHalf);
 
             // create the rotated rect
-            fan0Pos->setRectFan(args.fRect.fLeft, args.fRect.fTop,
-                                args.fRect.fRight, args.fRect.fBottom, vertexStride);
-            args.fViewMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
+            fan0Pos->setRectFan(args.fDevRect.fLeft, args.fDevRect.fTop,
+                                args.fDevRect.fRight, args.fDevRect.fBottom, vertexStride);
 
             // Now create the inset points and then outset the original
             // rotated points
@@ -329,7 +328,6 @@ class AAFillRectBatchNoLocalMatrixImp {
 public:
     struct Geometry {
         SkMatrix fViewMatrix;
-        SkRect fRect;
         SkRect fDevRect;
         GrColor fColor;
     };
@@ -361,7 +359,6 @@ public:
     struct Geometry {
         SkMatrix fViewMatrix;
         SkMatrix fLocalMatrix;
-        SkRect fRect;
         SkRect fDevRect;
         GrColor fColor;
     };
@@ -410,7 +407,6 @@ GrBatch* Create(GrColor color,
     AAFillRectBatchNoLocalMatrix::Geometry& geo = *batch->geometry();
     geo.fColor = color;
     geo.fViewMatrix = viewMatrix;
-    geo.fRect = rect;
     geo.fDevRect = devRect;
     batch->init();
     return batch;
@@ -426,7 +422,6 @@ GrBatch* Create(GrColor color,
     geo.fColor = color;
     geo.fViewMatrix = viewMatrix;
     geo.fLocalMatrix = localMatrix;
-    geo.fRect = rect;
     geo.fDevRect = devRect;
     batch->init();
     return batch;
@@ -445,7 +440,6 @@ BATCH_TEST_DEFINE(AAFillRectBatch) {
     AAFillRectBatchNoLocalMatrix::Geometry& geo = *batch->geometry();
     geo.fColor = GrRandomColor(random);
     geo.fViewMatrix = GrTest::TestMatrix(random);
-    geo.fRect = GrTest::TestRect(random);
     geo.fDevRect = GrTest::TestRect(random);
     batch->init();
     return batch;
@@ -457,7 +451,6 @@ BATCH_TEST_DEFINE(AAFillRectBatchLocalMatrix) {
     geo.fColor = GrRandomColor(random);
     geo.fViewMatrix = GrTest::TestMatrix(random);
     geo.fLocalMatrix = GrTest::TestMatrix(random);
-    geo.fRect = GrTest::TestRect(random);
     geo.fDevRect = GrTest::TestRect(random);
     batch->init();
     return batch;
