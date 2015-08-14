@@ -53,6 +53,35 @@ static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
 }
 
 /*
+ * Most of our codecs support the same conversions:
+ * - profileType must be the same
+ * - opaque only to opaque (and 565 only if opaque)
+ * - premul to unpremul and vice versa
+ * - always support N32
+ * - otherwise match the src color type
+ */
+static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+    if (dst.profileType() != src.profileType()) {
+        return false;
+    }
+
+    // Ensure the alpha type is valid
+    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
+        return false;
+    }
+
+    // Check for supported color types
+    switch (dst.colorType()) {
+        case kN32_SkColorType:
+            return true;
+        case kRGB_565_SkColorType:
+            return src.alphaType() == kOpaque_SkAlphaType;
+        default:
+            return dst.colorType() == src.colorType();
+    }
+}
+
+/*
  * If there is a color table, get a pointer to the colors, otherwise return NULL
  */
 static const SkPMColor* get_color_ptr(SkColorTable* colorTable) {

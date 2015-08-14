@@ -397,6 +397,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     iBuffer.free();
 
     // Additionally, 32 bit bmp-in-icos use the alpha channel.
+    // FIXME (msarett): Don't all bmp-in-icos use the alpha channel?
     // And, RLE inputs may skip pixels, leaving them as transparent.  This
     // is uncommon, but we cannot be certain that an RLE bmp will be opaque.
     if ((inIco && 32 == bitsPerPixel) || (kRLE_BmpInputFormat == inputFormat)) {

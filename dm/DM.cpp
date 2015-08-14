@@ -13,6 +13,7 @@
 #include "ProcStats.h"
 #include "SkBBHFactory.h"
 #include "SkChecksum.h"
+#include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkFontMgr.h"
 #include "SkForceLinking.h"

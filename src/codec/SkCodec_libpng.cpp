@@ -392,28 +392,6 @@ void SkPngCodec::destroyReadStruct() {
 // Getting the pixels
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
-    // TODO: Support other conversions
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
-
-    // Ensure the alpha type is valid
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
-        return false;
-    }
-
-    // Check for supported color types
-    switch (dst.colorType()) {
-        case kN32_SkColorType:
-            return true;
-        case kRGB_565_SkColorType:
-            return src.alphaType() == kOpaque_SkAlphaType;
-        default:
-            return dst.colorType() == src.colorType();
-    }
-}
-
 SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
                                                const Options& options,
                                                SkPMColor ctable[],

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCodecPriv.h"
 #include "SkWebpCodec.h"
 #include "SkTemplates.h"
 
@@ -81,29 +82,27 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     return NULL;
 }
 
-static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+// This version is slightly different from SkCodecPriv's version of conversion_possible. It
+// supports both byte orders for 8888.
+static bool webp_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
     if (dst.profileType() != src.profileType()) {
         return false;
     }
+
+    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
+        return false;
+    }
+
     switch (dst.colorType()) {
         // Both byte orders are supported.
         case kBGRA_8888_SkColorType:
         case kRGBA_8888_SkColorType:
-            break;
+            return true;
         case kRGB_565_SkColorType:
-            if (src.alphaType() == kOpaque_SkAlphaType
-                && dst.alphaType() == kOpaque_SkAlphaType)
-            {
-                return true;
-            }
+            return src.alphaType() == kOpaque_SkAlphaType;
         default:
             return false;
     }
-    if (dst.alphaType() == src.alphaType()) {
-        return true;
-    }
-    return kPremul_SkAlphaType == dst.alphaType() &&
-            kUnpremul_SkAlphaType == src.alphaType();
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
@@ -157,7 +156,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         return kCouldNotRewind;
     }
 
-    if (!conversion_possible(dstInfo, this->getInfo())) {
+    if (!webp_conversion_possible(dstInfo, this->getInfo())) {
         return kInvalidConversion;
     }
 

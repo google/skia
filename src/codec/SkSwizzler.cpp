@@ -114,6 +114,34 @@ static SkSwizzler::ResultAlpha swizzle_bit_to_n32(
     return SkSwizzler::kOpaque_ResultAlpha;
 }
 
+#define RGB565_BLACK 0
+#define RGB565_WHITE 0xFFFF
+
+static SkSwizzler::ResultAlpha swizzle_bit_to_565(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
+        int deltaSrc, int offset, const SkPMColor* /*ctable*/) {
+    uint16_t* SK_RESTRICT dst = (uint16_t*) dstRow;
+
+    // increment src by byte offset and bitIndex by bit offset
+    src += offset / 8;
+    int bitIndex = offset % 8;
+    uint8_t currByte = *src;
+
+    dst[0] = ((currByte >> (7 - bitIndex)) & 1) ? RGB565_WHITE : RGB565_BLACK;
+
+    for (int x = 1; x < dstWidth; x++) {
+        int bitOffset = bitIndex + deltaSrc;
+        bitIndex = bitOffset % 8;
+        currByte = *(src += bitOffset / 8);
+        dst[x] = ((currByte >> (7 - bitIndex)) & 1) ? RGB565_WHITE : RGB565_BLACK;
+    }
+
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+#undef RGB565_BLACK
+#undef RGB565_WHITE
+
 // kIndex1, kIndex2, kIndex4
 
 static SkSwizzler::ResultAlpha swizzle_small_index_to_index(
@@ -138,6 +166,29 @@ static SkSwizzler::ResultAlpha swizzle_small_index_to_index(
         }
     }
     return COMPUTE_RESULT_ALPHA;
+}
+
+static SkSwizzler::ResultAlpha swizzle_small_index_to_565(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
+        int bitsPerPixel, int offset, const SkPMColor ctable[]) {
+
+    src += offset;
+    uint16_t* SK_RESTRICT dst = (uint16_t*) dstRow;
+    const uint32_t pixelsPerByte = 8 / bitsPerPixel;
+    const size_t rowBytes = compute_row_bytes_ppb(dstWidth, pixelsPerByte);
+    const uint8_t mask = (1 << bitsPerPixel) - 1;
+    int x = 0;
+    for (uint32_t byte = 0; byte < rowBytes; byte++) {
+        uint8_t pixelData = src[byte];
+        for (uint32_t p = 0; p < pixelsPerByte && x < dstWidth; p++) {
+            uint8_t index = (pixelData >> (8 - bitsPerPixel)) & mask;
+            uint16_t c = SkPixel32ToPixel16(ctable[index]);
+            dst[x] = c;
+            pixelData <<= bitsPerPixel;
+            x++;
+        }
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
 }
 
 static SkSwizzler::ResultAlpha swizzle_small_index_to_n32(
@@ -301,6 +352,19 @@ static SkSwizzler::ResultAlpha swizzle_bgrx_to_n32(
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     for (int x = 0; x < dstWidth; x++) {
         dst[x] = SkPackARGB32NoCheck(0xFF, src[2], src[1], src[0]);
+        src += deltaSrc;
+    }
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+static SkSwizzler::ResultAlpha swizzle_bgrx_to_565(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
+        int deltaSrc, int offset, const SkPMColor ctable[]) {
+    // FIXME: Support dithering?
+    src += offset;
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    for (int x = 0; x < dstWidth; x++) {
+        dst[x] = SkPack888ToRGB16(src[2], src[1], src[0]);
         src += deltaSrc;
     }
     return SkSwizzler::kOpaque_ResultAlpha;
@@ -470,6 +534,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                 case kIndex_8_SkColorType:
                     proc = &swizzle_bit_to_index;
                     break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_bit_to_565;
+                    break;
                 case kGray_8_SkColorType:
                     proc = &swizzle_bit_to_grayscale;
                     break;
@@ -483,6 +550,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
                     proc = &swizzle_small_index_to_n32;
+                    break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_small_index_to_565;
                     break;
                 case kIndex_8_SkColorType:
                     proc = &swizzle_small_index_to_index;
@@ -533,6 +603,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
                     proc = &swizzle_bgrx_to_n32;
+                    break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_bgrx_to_565;
                     break;
                 default:
                     break;

@@ -78,7 +78,8 @@ static void check(skiatest::Reporter* r,
                   const char path[],
                   SkISize size,
                   bool supportsScanlineDecoding,
-                  bool supportsSubsetDecoding) {
+                  bool supportsSubsetDecoding,
+                  bool supports565 = true) {
     SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
         SkDebugf("Missing resource '%s'\n", path);
@@ -96,6 +97,15 @@ static void check(skiatest::Reporter* r,
     // decodes to all possible destination color types.
     SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     REPORTER_ASSERT(r, info.dimensions() == size);
+
+    {
+        // Test decoding to 565
+        SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
+        SkCodec::Result expected = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
+                SkCodec::kSuccess : SkCodec::kInvalidConversion;
+        test_info(r, codec, info565, expected, NULL);
+    }
+
     SkBitmap bm;
     bm.allocPixels(info);
     SkAutoLockPixels autoLockPixels(bm);
@@ -213,7 +223,7 @@ DEF_TEST(Codec, r) {
     check(r, "randPixels.gif", SkISize::Make(8, 8), false, false);
 
     // JPG
-    check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false);
+    check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false, false);
     check(r, "color_wheel.jpg", SkISize::Make(128, 128), true, false);
     check(r, "grayscale.jpg", SkISize::Make(128, 128), true, false);
     check(r, "mandrill_512_q075.jpg", SkISize::Make(512, 512), true, false);

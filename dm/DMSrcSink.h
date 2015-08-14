@@ -13,7 +13,6 @@
 #include "SkBBoxHierarchy.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkCodec.h"
 #include "SkData.h"
 #include "SkGPipe.h"
 #include "SkPicture.h"

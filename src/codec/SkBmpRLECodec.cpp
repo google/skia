@@ -12,35 +12,6 @@
 #include "SkStream.h"
 
 /*
- * Checks if the conversion between the input image and the requested output
- * image has been implemented
- */
-static bool conversion_possible(const SkImageInfo& dst,
-                                const SkImageInfo& src) {
-    // Ensure that the profile type is unchanged
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
-
-    // Ensure the alpha type is valid
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
-        return false;
-    }
-
-    // Check for supported color types
-    switch (dst.colorType()) {
-        // Allow output to kN32 from any type of input
-        case kN32_SkColorType:
-            return true;
-        // Allow output to kIndex_8 from compatible inputs
-        case kIndex_8_SkColorType:
-            return kIndex_8_SkColorType == src.colorType();
-        default:
-            return false;
-    }
-}
-
-/*
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
@@ -240,6 +211,11 @@ void SkBmpRLECodec::setPixel(void* dst, size_t dstRowBytes,
             dstRow[x] = fColorTable->operator[](index);
             break;
         }
+        case kRGB_565_SkColorType: {
+            uint16_t* dstRow = SkTAddOffset<uint16_t>(dst, row * (int) dstRowBytes);
+            dstRow[x] = SkPixel32ToPixel16(fColorTable->operator[](index));
+            break;
+        }
         default:
             // This case should not be reached.  We should catch an invalid
             // color type when we check that the conversion is possible.
@@ -270,6 +246,11 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
             SkPMColor* dstRow = SkTAddOffset<SkPMColor>((SkPMColor*) dst,
                     row * (int) dstRowBytes);
             dstRow[x] = SkPackARGB32NoCheck(0xFF, red, green, blue);
+            break;
+        }
+        case kRGB_565_SkColorType: {
+            uint16_t* dstRow = SkTAddOffset<uint16_t>(dst, row * (int) dstRowBytes);
+            dstRow[x] = SkPack888ToRGB16(red, green, blue);
             break;
         }
         default:

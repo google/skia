@@ -73,13 +73,11 @@ bool SkWbmpCodec::onRewind() {
 
 SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
         const SkPMColor* ctable, const Options& opts) {
-    // TODO (msarett): Reenable support for 565 if it is desired
-    //                 skbug.com/3683
-
     // Create the swizzler based on the desired color type
     switch (info.colorType()) {
         case kIndex_8_SkColorType:
         case kN32_SkColorType:
+        case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
             return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info, opts.fZeroInitialized, 
                                               this->getInfo());

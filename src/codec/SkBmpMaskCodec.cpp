@@ -10,33 +10,6 @@
 #include "SkColorPriv.h"
 
 /*
- * Checks if the conversion between the input image and the requested output
- * image has been implemented
- */
-static bool conversion_possible(const SkImageInfo& dst,
-                                const SkImageInfo& src) {
-    // Ensure that the profile type is unchanged
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
-
-    // Ensure the alpha type is valid
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
-        return false;
-    }
-
-    // Check for supported color types
-    switch (dst.colorType()) {
-        // Allow output to kN32
-        case kN32_SkColorType:
-            return true;
-        default:
-            return false;
-    }
-}
-
-
-/*
  * Creates an instance of the decoder
  */
 SkBmpMaskCodec::SkBmpMaskCodec(const SkImageInfo& info, SkStream* stream,

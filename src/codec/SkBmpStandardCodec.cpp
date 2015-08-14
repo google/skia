@@ -12,35 +12,6 @@
 #include "SkStream.h"
 
 /*
- * Checks if the conversion between the input image and the requested output
- * image has been implemented
- */
-static bool conversion_possible(const SkImageInfo& dst,
-                                const SkImageInfo& src) {
-    // Ensure that the profile type is unchanged
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
-
-    // Ensure the alpha type is valid
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
-        return false;
-    }
-
-    // Check for supported color types
-    switch (dst.colorType()) {
-        // Allow output to kN32 from any type of input
-        case kN32_SkColorType:
-            return true;
-        // Allow output to kIndex_8 from compatible inputs
-        case kIndex_8_SkColorType:
-            return kIndex_8_SkColorType == src.colorType();
-        default:
-            return false;
-    }
-}
-
-/*
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
@@ -323,6 +294,11 @@ SkCodec::Result SkBmpStandardCodec::decode(const SkImageInfo& dstInfo,
 
     // Finally, apply the AND mask for bmp-in-ico images
     if (fInIco) {
+        // BMP in ICO have transparency, so this cannot be 565, and this mask
+        // prevents us from using kIndex8. The below code depends on the output
+        // being an SkPMColor.
+        SkASSERT(dstInfo.colorType() == kN32_SkColorType);
+
         // The AND mask is always 1 bit per pixel
         const size_t rowBytes = SkAlign4(compute_row_bytes(width, 1));
 

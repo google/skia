@@ -210,30 +210,6 @@ SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream,
     , fGif(gif)
 {}
 
-/*
- * Checks if the conversion between the input image and the requested output
- * image has been implemented
- */
-static bool conversion_possible(const SkImageInfo& dst,
-                                const SkImageInfo& src) {
-    // Ensure that the profile type is unchanged
-    if (dst.profileType() != src.profileType()) {
-        return false;
-    }
-
-    // Check for supported color and alpha types
-    switch (dst.colorType()) {
-        case kN32_SkColorType:
-            return kPremul_SkAlphaType == dst.alphaType() ||
-                    kUnpremul_SkAlphaType == dst.alphaType();
-        case kIndex_8_SkColorType:
-            return kPremul_SkAlphaType == dst.alphaType() ||
-                    kUnpremul_SkAlphaType == dst.alphaType();
-        default:
-            return false;
-    }
-}
-
 bool SkGifCodec::onRewind() {
     GifFileType* gifOut = NULL;
     if (!ReadHeader(this->stream(), NULL, &gifOut)) {

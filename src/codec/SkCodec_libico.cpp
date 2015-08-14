@@ -176,6 +176,17 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     }
     SkImageInfo info = codecs->operator[](maxIndex)->getInfo();
 
+    // ICOs contain an alpha mask after the image which means we cannot
+    // guarantee that an image is opaque, even if the sub-codec thinks it
+    // is.
+    // FIXME (msarett): The BMP decoder depends on the alpha type in order
+    // to decode correctly, otherwise it could report kUnpremul and we would
+    // not have to correct it here. Is there a better way?
+    // FIXME (msarett): This is only true for BMP in ICO - could a PNG in ICO
+    // be opaque? Is it okay that we missed out on the opportunity to mark
+    // such an image as opaque?
+    info = info.makeAlphaType(kUnpremul_SkAlphaType);
+
     // Note that stream is owned by the embedded codec, the ico does not need
     // direct access to the stream.
     return SkNEW_ARGS(SkIcoCodec, (info, codecs.detach()));
@@ -233,17 +244,24 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         // Subsets are not supported.
         return kUnimplemented;
     }
+
+    if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
+        return kInvalidConversion;
+    }
+
     // We return invalid scale if there is no candidate image with matching
     // dimensions.
     Result result = kInvalidScale;
     for (int32_t i = 0; i < fEmbeddedCodecs->count(); i++) {
+        SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](i);
         // If the dimensions match, try to decode
-        if (dstInfo.dimensions() ==
-                fEmbeddedCodecs->operator[](i)->getInfo().dimensions()) {
+        if (dstInfo.dimensions() == embeddedCodec->getInfo().dimensions()) {
 
             // Perform the decode
-            result = fEmbeddedCodecs->operator[](i)->getPixels(dstInfo,
-                    dst, dstRowBytes, &opts, ct, ptr);
+            // FIXME: (msarett): ICO is considered non-opaque, even if the embedded BMP
+            // incorrectly claims it has no alpha.
+            SkImageInfo info = dstInfo.makeAlphaType(embeddedCodec->getInfo().alphaType());
+            result = embeddedCodec->getPixels(info, dst, dstRowBytes, &opts, ct, ptr);
 
             // On a fatal error, keep trying to find an image to decode
             if (kInvalidConversion == result || kInvalidInput == result ||
