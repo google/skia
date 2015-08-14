@@ -441,24 +441,20 @@ GrDrawBatch* Create(GrColor color,
 #include "GrBatchTest.h"
 
 DRAW_BATCH_TEST_DEFINE(AAFillRectBatch) {
-    AAFillRectBatchNoLocalMatrix* batch = AAFillRectBatchNoLocalMatrix::Create();
-    AAFillRectBatchNoLocalMatrix::Geometry& geo = *batch->geometry();
-    geo.fColor = GrRandomColor(random);
-    geo.fViewMatrix = GrTest::TestMatrix(random);
-    geo.fDevRect = GrTest::TestRect(random);
-    batch->init();
-    return batch;
+    GrColor color = GrRandomColor(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    SkRect rect = GrTest::TestRect(random);
+    SkRect devRect = GrTest::TestRect(random);
+    return GrAAFillRectBatch::Create(color, viewMatrix, rect, devRect);
 }
 
 DRAW_BATCH_TEST_DEFINE(AAFillRectBatchLocalMatrix) {
-    AAFillRectBatchLocalMatrix* batch = AAFillRectBatchLocalMatrix::Create();
-    AAFillRectBatchLocalMatrix::Geometry& geo = *batch->geometry();
-    geo.fColor = GrRandomColor(random);
-    geo.fViewMatrix = GrTest::TestMatrix(random);
-    geo.fLocalMatrix = GrTest::TestMatrix(random);
-    geo.fDevRect = GrTest::TestRect(random);
-    batch->init();
-    return batch;
+    GrColor color = GrRandomColor(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    SkMatrix localMatrix = GrTest::TestMatrix(random);
+    SkRect rect = GrTest::TestRect(random);
+    SkRect devRect = GrTest::TestRect(random);
+    return GrAAFillRectBatch::Create(color, viewMatrix, localMatrix, rect, devRect);
 }
 
 #endif
