@@ -138,6 +138,12 @@ def get_args(bot):
     blacklist.extend('gpu image subset _ msaa image subset _'.split(' '))
     blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
 
+  # the 32-bit GCE bots run out of memory in DM when running these large images
+  if 'x86' in bot and not 'x86-64' in bot:
+    blacklist.extend('_ image _ interlaced1.png'.split(' '))
+    blacklist.extend('_ image _ interlaced2.png'.split(' '))
+    blacklist.extend('_ image _ interlaced3.png'.split(' '))
+
   if blacklist:
     args.append('--blacklist')
     args.extend(blacklist)
