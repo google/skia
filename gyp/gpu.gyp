@@ -112,7 +112,10 @@
         [ 'skia_gpu_extra_dependency_path', {
           'dependencies' : [
               '<(skia_gpu_extra_dependency_path):*',
-          ]
+          ],
+          'export_dependent_settings': [
+            '<(skia_gpu_extra_dependency_path):*',
+          ],
         }],
         [ 'skia_chrome_utils', {
           'sources': [
