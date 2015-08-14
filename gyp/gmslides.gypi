@@ -34,35 +34,5 @@
         '../gm/techtalk1.cpp',
       ],
     }],
-    # TODO: Several GMs are known to cause particular problems on Android, so
-    # we disable them on Android.  See http://skbug.com/2326
-    [ 'skia_os == "android"', {
-      'sources!': [
-        # TODO(borenet): Causes assertion failure on Nexus S.
-        # See http://skbug.com/705
-        '../gm/bitmapcopy.cpp',
-
-        # SOME of the bitmaprect tests are disabled on Android; see
-        # ../gm/bitmaprect.cpp
-
-        # We skip GPU tests in this GM; see
-        # ../gm/deviceproperties.cpp
-
-        # TODO(bsalomon): Hangs on Xoom and Nexus S. See http://skbug.com/637
-        '../gm/drawbitmaprect.cpp',
-
-        # TODO(epoger): Crashes on Nexus 10. See http://skbug.com/2313
-        '../gm/imagefilterscropexpand.cpp',
-
-        # TODO(borenet): Causes Nexus S to reboot. See http://skbug.com/665
-        '../gm/shadertext.cpp',
-        '../gm/shadertext2.cpp',
-        '../gm/shadertext3.cpp',
-
-        # TODO(reed): Allocates more memory than Android devices are capable of
-        # fulfilling. See http://skbug.com/1978
-        '../gm/verylargebitmap.cpp',
-      ],
-    }],
   ],
 }
