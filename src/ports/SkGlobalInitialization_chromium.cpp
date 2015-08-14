@@ -143,3 +143,7 @@ SK_DECLARE_STATIC_ONCE(once);
 void SkFlattenable::InitializeFlattenablesIfNeeded() {
     SkOnce(&once, SkPrivateEffectInitializer::Init);
 }
+
+#if defined(SK_BUILD_FOR_WIN32) && SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE2
+    #error "This double checks that Chromium is always built with SSE2+ on Windows."
+#endif
