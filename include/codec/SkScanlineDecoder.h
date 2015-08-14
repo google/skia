@@ -46,18 +46,6 @@ public:
     virtual ~SkScanlineDecoder() {}
 
     /**
-     *  Return a size that approximately supports the desired scale factor.
-     *  The codec may not be able to scale efficiently to the exact scale
-     *  factor requested, so return a size that approximates that scale.
-     *  The returned value is the codec's suggestion for the closest valid
-     *  scale that it can natively support
-     *  FIXME: share this with SkCodec
-     */
-    SkISize getScaledDimensions(float desiredScale) {
-        return this->onGetScaledDimensions(desiredScale);
-    }
-
-    /**
      *  Returns the default info, corresponding to the encoded data.
      */
     const SkImageInfo& getInfo() { return fSrcInfo; }
@@ -147,43 +135,13 @@ public:
         return this->onReallyHasAlpha();
     }
 
-    /**
-     *  Format of the encoded data.
-     */
-    SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
-
-    /**
-     * returns true if the image must be scaled, in the y direction, after reading, not during.
-     * To scale afterwards, we first decode every line and then sample the lines we want afterwards.
-     * An example is interlaced pngs, where calling getScanlines once (regardless of the count
-     * used) needs to read the entire image, therefore it is inefficient to call
-     * getScanlines more than once. Instead, it should only ever be called with all the
-     * rows needed.
-     */
-    bool requiresPostYSampling() {
-        return this->onRequiresPostYSampling();
-    }
-
 protected:
     SkScanlineDecoder(const SkImageInfo& srcInfo)
         : fSrcInfo(srcInfo)
         , fDstInfo()
         , fCurrScanline(0) {}
 
-    virtual SkISize onGetScaledDimensions(float /* desiredScale */) {
-        // By default, scaling is not supported.
-        return this->getInfo().dimensions();
-    }
-
-    virtual SkEncodedFormat onGetEncodedFormat() const = 0;
-
     virtual bool onReallyHasAlpha() const { return false; }
-
-    /**
-     * returns true if the image type is hard to sample and must be scaled after reading, not during
-     * An example is interlaced pngs, where the entire image must be read for each decode
-     */
-    virtual bool onRequiresPostYSampling() { return false; }
 
     const SkImageInfo& dstInfo() const { return fDstInfo; }
 

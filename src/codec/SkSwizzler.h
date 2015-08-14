@@ -117,22 +117,16 @@ public:
     /**
      *  Create a new SkSwizzler.
      *  @param SrcConfig Description of the format of the source.
-     *  @param dstInfo describes the destination.
+     *  @param SkImageInfo dimensions() describe both the src and the dst.
+     *              Other fields describe the dst.
      *  @param ZeroInitialized Whether dst is zero-initialized. The
                                implementation may choose to skip writing zeroes
      *                         if set to kYes_ZeroInitialized.
-     *  @param srcInfo is the info of the source. Used to calculate the width samplesize.
-     *                  Width sampling is supported by the swizzler, by skipping pixels when 
-                        swizzling the row. Height sampling is not supported by the swizzler, 
-                        but is implemented in SkScaledCodec.
-                        Sampling in Y can be done by a client with a scanline decoder, 
-                        but sampling in X allows the swizzler to skip swizzling pixels and
-                        reading from and writing to memory.
      *  @return A new SkSwizzler or NULL on failure.
      */
     static SkSwizzler* CreateSwizzler(SrcConfig, const SkPMColor* ctable,
-                                      const SkImageInfo& dstInfo, SkCodec::ZeroInitialized, 
-                                      const SkImageInfo& srcInfo);
+                                      const SkImageInfo&, SkCodec::ZeroInitialized);
+
     /**
      * Fill the remainder of the destination with a single color
      *
@@ -187,16 +181,14 @@ private:
      *  Method for converting raw data to Skia pixels.
      *  @param dstRow Row in which to write the resulting pixels.
      *  @param src Row of src data, in format specified by SrcConfig
-     *  @param dstWidth Width in pixels of the destination
+     *  @param width Width in pixels
      *  @param deltaSrc if bitsPerPixel % 8 == 0, deltaSrc is bytesPerPixel
      *                  else, deltaSrc is bitsPerPixel
      *  @param ctable Colors (used for kIndex source).
-     *  @param offset The offset before the first pixel to sample.
-                        Is in bytes or bits based on what deltaSrc is in.
      */
     typedef ResultAlpha (*RowProc)(void* SK_RESTRICT dstRow,
                                    const uint8_t* SK_RESTRICT src,
-                                   int dstWidth, int deltaSrc, int offset,
+                                   int width, int deltaSrc,
                                    const SkPMColor ctable[]);
 
     const RowProc       fRowProc;
@@ -207,10 +199,9 @@ private:
                                           //     deltaSrc is bitsPerPixel
     const SkImageInfo   fDstInfo;
     int                 fCurrY;
-    const int           fX0;              // first X coord to sample
-    const int           fSampleX;         // step between X samples
 
-    SkSwizzler(RowProc proc, const SkPMColor* ctable, int deltaSrc, const SkImageInfo& info, 
-               int sampleX);
+    SkSwizzler(RowProc proc, const SkPMColor* ctable, int deltaSrc,
+               const SkImageInfo& info);
+
 };
 #endif // SkSwizzler_DEFINED
