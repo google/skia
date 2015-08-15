@@ -41,7 +41,7 @@ public:
     FatBits() {
         fAA = false;
         fStyle = kHair_Style;
-        fGrid = true;
+        fGrid = false;
         fShowSkeleton = true;
         fUseGPU = false;
         fUseClip = false;
@@ -376,15 +376,20 @@ public:
 };
 
 class DrawLineView : public SampleView {
+    enum {
+        kZoom = 96
+    };
+
     FatBits fFB;
     SkPoint fPts[3];
     bool    fIsRect;
 public:
     DrawLineView() {
-        fFB.setWHZ(24, 16, 48);
-        fPts[0].set(48, 48);
-        fPts[1].set(48 * 5, 48 * 4);
-        fPts[2].set(48 * 2, 48 * 6);
+        fFB.setWHZ(24, 16, kZoom);
+        fPts[0].set(1, 1);
+        fPts[1].set(5, 4);
+        fPts[2].set(2, 6);
+        SkMatrix::MakeScale(kZoom, kZoom).mapPoints(fPts, 3);
         fIsRect = false;
     }
 
