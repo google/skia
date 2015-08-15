@@ -1121,7 +1121,7 @@ typedef void (*ShowLCDProc)(SkCanvas*, SkScalar, SkScalar, SkColor, SkScalar, Sk
  *  Like drawBitmapRect but we manually draw each pixels in RGB
  */
 static void show_lcd_grid(SkCanvas* canvas, const SkBitmap& bitmap,
-                          const SkIRect& origSrc, const SkRect& dst) {
+                          const SkIRect& origSrc, const SkRect& dst, ShowLCDProc proc) {
     SkIRect src;
     if (!src.intersect(origSrc, bitmap.bounds())) {
         return;
@@ -1132,11 +1132,6 @@ static void show_lcd_grid(SkCanvas* canvas, const SkBitmap& bitmap,
     SkAutoCanvasRestore acr(canvas, true);
     canvas->translate(dst.left(), dst.top());
     canvas->scale(sx, sy);
-
-    ShowLCDProc proc = show_lcd_box;
-    if (true) {
-        proc = show_lcd_circle;
-    }
 
     for (int y = 0; y < src.height(); ++y) {
         for (int x = 0; x < src.width(); ++x) {
@@ -1173,10 +1168,16 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
     // Clear the background behind our zoomed in view
     paint.setColor(SK_ColorWHITE);
     canvas->drawRect(dest, paint);
-    if (fFatBitsScale < kMaxFatBitsScale) {
-        canvas->drawBitmapRect(bitmap, src, dest, NULL);
-    } else {
-        show_lcd_grid(canvas, bitmap, src, dest);
+    switch (fFatBitsScale) {
+        case kMaxFatBitsScale:
+            show_lcd_grid(canvas, bitmap, src, dest, show_lcd_box);
+            break;
+        case kMaxFatBitsScale - 1:
+            show_lcd_grid(canvas, bitmap, src, dest, show_lcd_circle);
+            break;
+        default:
+            canvas->drawBitmapRect(bitmap, src, dest, NULL);
+            break;
     }
 
     paint.setColor(SK_ColorBLACK);
