@@ -44,6 +44,9 @@
 class GrContext;
 #endif
 
+// Should be 3x + 1
+#define kMaxFatBitsScale    28
+
 extern SampleView* CreateSamplePictFileView(const char filename[]);
 
 class PictFileFactory : public SkViewFactory {
@@ -634,31 +637,27 @@ bool SampleWindow::sendAnimatePulse() {
     return false;
 }
 
-void SampleWindow::setZoomCenter(float x, float y)
-{
+void SampleWindow::setZoomCenter(float x, float y) {
     fZoomCenterX = x;
     fZoomCenterY = y;
 }
 
-bool SampleWindow::zoomIn()
-{
+bool SampleWindow::zoomIn() {
     // Arbitrarily decided
-    if (fFatBitsScale == 25) return false;
+    if (fFatBitsScale == kMaxFatBitsScale) return false;
     fFatBitsScale++;
     this->inval(NULL);
     return true;
 }
 
-bool SampleWindow::zoomOut()
-{
+bool SampleWindow::zoomOut() {
     if (fFatBitsScale == 1) return false;
     fFatBitsScale--;
     this->inval(NULL);
     return true;
 }
 
-void SampleWindow::updatePointer(int x, int y)
-{
+void SampleWindow::updatePointer(int x, int y) {
     fMouseX = x;
     fMouseY = y;
     if (fShowZoomer) {
@@ -1079,89 +1078,162 @@ void SampleWindow::magnify(SkCanvas* canvas) {
     canvas->restoreToCount(count);
 }
 
-void SampleWindow::showZoomer(SkCanvas* canvas) {
-        int count = canvas->save();
-        canvas->resetMatrix();
-        // Ensure the mouse position is on screen.
-        int width = SkScalarRoundToInt(this->width());
-        int height = SkScalarRoundToInt(this->height());
-        if (fMouseX >= width) fMouseX = width - 1;
-        else if (fMouseX < 0) fMouseX = 0;
-        if (fMouseY >= height) fMouseY = height - 1;
-        else if (fMouseY < 0) fMouseY = 0;
+static SkPaint& set_color_ref(SkPaint& paint, SkColor c) {
+    paint.setColor(c);
+    return paint;
+}
 
-        SkBitmap bitmap = capture_bitmap(canvas);
-        bitmap.lockPixels();
+static void show_lcd_box(SkCanvas* canvas, SkScalar x, SkScalar y, SkColor c,
+                         SkScalar sx, SkScalar sy) {
+    const SkScalar w = (1 - 1/sx) / 3;
+    SkPaint paint;
+    SkRect r = SkRect::MakeXYWH(x, y, w, 1 - 1/sy);
+    canvas->drawRect(r, set_color_ref(paint, SkColorSetRGB(SkColorGetR(c), 0, 0)));
+    r.offset(w, 0);
+    canvas->drawRect(r, set_color_ref(paint, SkColorSetRGB(0, SkColorGetG(c), 0)));
+    r.offset(w, 0);
+    canvas->drawRect(r, set_color_ref(paint, SkColorSetRGB(0, 0, SkColorGetB(c))));
+}
 
-        // Find the size of the zoomed in view, forced to be odd, so the examined pixel is in the middle.
-        int zoomedWidth = (width >> 1) | 1;
-        int zoomedHeight = (height >> 1) | 1;
-        SkIRect src;
-        src.set(0, 0, zoomedWidth / fFatBitsScale, zoomedHeight / fFatBitsScale);
-        src.offset(fMouseX - (src.width()>>1), fMouseY - (src.height()>>1));
-        SkRect dest;
-        dest.set(0, 0, SkIntToScalar(zoomedWidth), SkIntToScalar(zoomedHeight));
-        dest.offset(SkIntToScalar(width - zoomedWidth), SkIntToScalar(height - zoomedHeight));
-        SkPaint paint;
-        // Clear the background behind our zoomed in view
-        paint.setColor(SK_ColorWHITE);
-        canvas->drawRect(dest, paint);
-        canvas->drawBitmapRect(bitmap, src, dest, NULL);
-        paint.setColor(SK_ColorBLACK);
-        paint.setStyle(SkPaint::kStroke_Style);
-        // Draw a border around the pixel in the middle
-        SkRect originalPixel;
-        originalPixel.set(SkIntToScalar(fMouseX), SkIntToScalar(fMouseY), SkIntToScalar(fMouseX + 1), SkIntToScalar(fMouseY + 1));
-        SkMatrix matrix;
-        SkRect scalarSrc;
-        scalarSrc.set(src);
-        SkColor color = bitmap.getColor(fMouseX, fMouseY);
-        if (matrix.setRectToRect(scalarSrc, dest, SkMatrix::kFill_ScaleToFit)) {
-            SkRect pixel;
-            matrix.mapRect(&pixel, originalPixel);
-            // TODO Perhaps measure the values and make the outline white if it's "dark"
-            if (color == SK_ColorBLACK) {
-                paint.setColor(SK_ColorWHITE);
-            }
-            canvas->drawRect(pixel, paint);
+static void show_lcd_circle(SkCanvas* canvas, SkScalar x, SkScalar y, SkColor c,
+                            SkScalar, SkScalar) {
+    const SkRect r = SkRect::MakeXYWH(x, y, 1, 1);
+    const SkScalar cx = x + 0.5f;
+    const SkScalar cy = y + 0.5f;
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    SkPath path;
+    path.addArc(r, 0, 120); path.lineTo(cx, cy);
+    canvas->drawPath(path, set_color_ref(paint, SkColorSetRGB(SkColorGetR(c), 0, 0)));
+
+    path.reset(); path.addArc(r, 120, 120); path.lineTo(cx, cy);
+    canvas->drawPath(path, set_color_ref(paint, SkColorSetRGB(0, SkColorGetG(c), 0)));
+
+    path.reset(); path.addArc(r, 240, 120); path.lineTo(cx, cy);
+    canvas->drawPath(path, set_color_ref(paint, SkColorSetRGB(0, 0, SkColorGetB(c))));
+}
+
+typedef void (*ShowLCDProc)(SkCanvas*, SkScalar, SkScalar, SkColor, SkScalar, SkScalar);
+
+/*
+ *  Like drawBitmapRect but we manually draw each pixels in RGB
+ */
+static void show_lcd_grid(SkCanvas* canvas, const SkBitmap& bitmap,
+                          const SkIRect& origSrc, const SkRect& dst) {
+    SkIRect src;
+    if (!src.intersect(origSrc, bitmap.bounds())) {
+        return;
+    }
+    const SkScalar sx = dst.width() / src.width();
+    const SkScalar sy = dst.height() / src.height();
+
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->translate(dst.left(), dst.top());
+    canvas->scale(sx, sy);
+
+    ShowLCDProc proc = show_lcd_box;
+    if (true) {
+        proc = show_lcd_circle;
+    }
+
+    for (int y = 0; y < src.height(); ++y) {
+        for (int x = 0; x < src.width(); ++x) {
+            proc(canvas, SkIntToScalar(x), SkIntToScalar(y),
+                 bitmap.getColor(src.left() + x, src.top() + y), sx, sy);
         }
-        paint.setColor(SK_ColorBLACK);
-        // Draw a border around the destination rectangle
-        canvas->drawRect(dest, paint);
-        paint.setStyle(SkPaint::kStrokeAndFill_Style);
-        // Identify the pixel and its color on screen
-        paint.setTypeface(fTypeface);
-        paint.setAntiAlias(true);
-        SkScalar lineHeight = paint.getFontMetrics(NULL);
-        SkString string;
-        string.appendf("(%i, %i)", fMouseX, fMouseY);
-        SkScalar left = dest.fLeft + SkIntToScalar(3);
-        SkScalar i = SK_Scalar1;
-        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
-        // Alpha
-        i += SK_Scalar1;
-        string.reset();
-        string.appendf("A: %X", SkColorGetA(color));
-        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
-        // Red
-        i += SK_Scalar1;
-        string.reset();
-        string.appendf("R: %X", SkColorGetR(color));
-        paint.setColor(SK_ColorRED);
-        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
-        // Green
-        i += SK_Scalar1;
-        string.reset();
-        string.appendf("G: %X", SkColorGetG(color));
-        paint.setColor(SK_ColorGREEN);
-        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
-        // Blue
-        i += SK_Scalar1;
-        string.reset();
-        string.appendf("B: %X", SkColorGetB(color));
-        paint.setColor(SK_ColorBLUE);
-        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
-        canvas->restoreToCount(count);
+    }
+}
+
+void SampleWindow::showZoomer(SkCanvas* canvas) {
+    int count = canvas->save();
+    canvas->resetMatrix();
+    // Ensure the mouse position is on screen.
+    int width = SkScalarRoundToInt(this->width());
+    int height = SkScalarRoundToInt(this->height());
+    if (fMouseX >= width) fMouseX = width - 1;
+    else if (fMouseX < 0) fMouseX = 0;
+    if (fMouseY >= height) fMouseY = height - 1;
+    else if (fMouseY < 0) fMouseY = 0;
+
+    SkBitmap bitmap = capture_bitmap(canvas);
+    bitmap.lockPixels();
+
+    // Find the size of the zoomed in view, forced to be odd, so the examined pixel is in the middle.
+    int zoomedWidth = (width >> 1) | 1;
+    int zoomedHeight = (height >> 1) | 1;
+    SkIRect src;
+    src.set(0, 0, zoomedWidth / fFatBitsScale, zoomedHeight / fFatBitsScale);
+    src.offset(fMouseX - (src.width()>>1), fMouseY - (src.height()>>1));
+    SkRect dest;
+    dest.set(0, 0, SkIntToScalar(zoomedWidth), SkIntToScalar(zoomedHeight));
+    dest.offset(SkIntToScalar(width - zoomedWidth), SkIntToScalar(height - zoomedHeight));
+    SkPaint paint;
+    // Clear the background behind our zoomed in view
+    paint.setColor(SK_ColorWHITE);
+    canvas->drawRect(dest, paint);
+    if (fFatBitsScale < kMaxFatBitsScale) {
+        canvas->drawBitmapRect(bitmap, src, dest, NULL);
+    } else {
+        show_lcd_grid(canvas, bitmap, src, dest);
+    }
+
+    paint.setColor(SK_ColorBLACK);
+    paint.setStyle(SkPaint::kStroke_Style);
+    // Draw a border around the pixel in the middle
+    SkRect originalPixel;
+    originalPixel.set(SkIntToScalar(fMouseX), SkIntToScalar(fMouseY), SkIntToScalar(fMouseX + 1), SkIntToScalar(fMouseY + 1));
+    SkMatrix matrix;
+    SkRect scalarSrc;
+    scalarSrc.set(src);
+    SkColor color = bitmap.getColor(fMouseX, fMouseY);
+    if (matrix.setRectToRect(scalarSrc, dest, SkMatrix::kFill_ScaleToFit)) {
+        SkRect pixel;
+        matrix.mapRect(&pixel, originalPixel);
+        // TODO Perhaps measure the values and make the outline white if it's "dark"
+        if (color == SK_ColorBLACK) {
+            paint.setColor(SK_ColorWHITE);
+        }
+        canvas->drawRect(pixel, paint);
+    }
+    paint.setColor(SK_ColorBLACK);
+    // Draw a border around the destination rectangle
+    canvas->drawRect(dest, paint);
+    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    // Identify the pixel and its color on screen
+    paint.setTypeface(fTypeface);
+    paint.setAntiAlias(true);
+    SkScalar lineHeight = paint.getFontMetrics(NULL);
+    SkString string;
+    string.appendf("(%i, %i)", fMouseX, fMouseY);
+    SkScalar left = dest.fLeft + SkIntToScalar(3);
+    SkScalar i = SK_Scalar1;
+    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    // Alpha
+    i += SK_Scalar1;
+    string.reset();
+    string.appendf("A: %X", SkColorGetA(color));
+    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    // Red
+    i += SK_Scalar1;
+    string.reset();
+    string.appendf("R: %X", SkColorGetR(color));
+    paint.setColor(SK_ColorRED);
+    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    // Green
+    i += SK_Scalar1;
+    string.reset();
+    string.appendf("G: %X", SkColorGetG(color));
+    paint.setColor(SK_ColorGREEN);
+    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    // Blue
+    i += SK_Scalar1;
+    string.reset();
+    string.appendf("B: %X", SkColorGetB(color));
+    paint.setColor(SK_ColorBLUE);
+    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    canvas->restoreToCount(count);
 }
 
 void SampleWindow::onDraw(SkCanvas* canvas) {
