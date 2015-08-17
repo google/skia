@@ -250,12 +250,15 @@ private:
         // Make verts point to vertex color and then set all the color and coverage vertex attrs
         // values.
         verts += sizeof(SkPoint);
+
+        // The coverage offset is always the last vertex attribute
+        intptr_t coverageOffset = vertexStride - sizeof(GrColor) - sizeof(SkPoint);
         for (int i = 0; i < 4; ++i) {
             if (tweakAlphaForCoverage) {
                 *reinterpret_cast<GrColor*>(verts + i * vertexStride) = 0;
             } else {
                 *reinterpret_cast<GrColor*>(verts + i * vertexStride) = args.fColor;
-                *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 0;
+                *reinterpret_cast<float*>(verts + i * vertexStride + coverageOffset) = 0;
             }
         }
 
@@ -278,7 +281,7 @@ private:
             } else {
                 *reinterpret_cast<GrColor*>(verts + i * vertexStride) = args.fColor;
                 *reinterpret_cast<float*>(verts + i * vertexStride +
-                                          sizeof(GrColor)) = innerCoverage;
+                                          coverageOffset) = innerCoverage;
             }
         }
     }
@@ -392,7 +395,7 @@ public:
         }
         SkMatrix localCoordMatrix;
         localCoordMatrix.setConcat(args.fLocalMatrix, invViewMatrix);
-        SkPoint* fan0Loc = reinterpret_cast<SkPoint*>(vertices + vertexStride - sizeof(SkPoint));
+        SkPoint* fan0Loc = reinterpret_cast<SkPoint*>(vertices + sizeof(SkPoint) + sizeof(GrColor));
         localCoordMatrix.mapPointsWithStride(fan0Loc, fan0Pos, vertexStride, 8);
     }
 };

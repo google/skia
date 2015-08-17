@@ -39,6 +39,7 @@
 #include "SkUtils.h"
 #include "SkVertState.h"
 #include "SkXfermode.h"
+#include "batches/GrRectBatchFactory.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrDashingEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -918,6 +919,82 @@ static bool needs_texture_domain(const SkBitmap& bitmap,
     return needsTextureDomain;
 }
 
+static void draw_aa_bitmap(GrDrawContext* drawContext, GrContext* context,
+                           GrRenderTarget* renderTarget, const GrClip& clip,
+                           const SkMatrix& viewMatrix, const SkMatrix& srcRectToDstRect,
+                           const SkPaint& paint, const SkBitmap* bitmapPtr, const SkSize& dstSize) {
+    SkShader::TileMode tm[] = {
+        SkShader::kClamp_TileMode,
+        SkShader::kClamp_TileMode,
+    };
+
+    bool doBicubic;
+    GrTextureParams::FilterMode textureFilterMode =
+            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewMatrix,
+                                            srcRectToDstRect,
+                                            &doBicubic);
+
+    // Setup texture to wrap bitmap
+    GrTextureParams params(tm, textureFilterMode);
+    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, *bitmapPtr, &params));
+
+    if (!texture) {
+        SkErrorInternals::SetError(kInternalError_SkError,
+                                   "Couldn't convert bitmap to texture.");
+        return;
+    }
+
+    // Setup paint
+    GrColor paintColor = (kAlpha_8_SkColorType == bitmapPtr->colorType()) ?
+                         SkColor2GrColor(paint.getColor()) :
+                         SkColor2GrColorJustAlpha(paint.getColor());
+
+    GrPaint grPaint;
+
+    // Create and insert texture effect
+    SkAutoTUnref<const GrFragmentProcessor> fp;
+    if (doBicubic) {
+        fp.reset(GrBicubicEffect::Create(grPaint.getProcessorDataManager(), texture,
+                                         SkMatrix::I(),
+                                         tm));
+    } else {
+        fp.reset(GrSimpleTextureEffect::Create(grPaint.getProcessorDataManager(), texture,
+                                               SkMatrix::I(), params));
+    }
+
+    // The bitmap read has to be first
+    grPaint.addColorProcessor(fp);
+    if (!SkPaint2GrPaintNoShader(context, renderTarget, paint, SkColor2GrColor(paint.getColor()),
+                                 false, &grPaint)) {
+        return;
+    }
+
+    grPaint.setColor(paintColor);
+
+    // Setup dst rect and final matrix
+    SkRect dstRect = {0, 0, dstSize.fWidth, dstSize.fHeight};
+
+    SkRect devRect;
+    viewMatrix.mapRect(&devRect, dstRect);
+
+    SkMatrix matrix;
+    matrix.setIDiv(bitmapPtr->width(), bitmapPtr->height());
+
+    SkMatrix dstRectToSrcRect;
+    if (!srcRectToDstRect.invert(&dstRectToSrcRect)) {
+        return;
+    }
+    matrix.preConcat(dstRectToSrcRect);
+
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillAA(grPaint.getColor(),
+                                                                     viewMatrix,
+                                                                     matrix,
+                                                                     dstRect,
+                                                                     devRect));
+
+    drawContext->drawBatch(renderTarget, clip, grPaint, batch);
+}
+
 void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                    const SkBitmap& bitmap,
                                    const SkRect* srcRectPtr,
@@ -987,11 +1064,11 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
         // through drawRect, which supports mask filters.
         SkBitmap        tmp;    // subset of bitmap, if necessary
         const SkBitmap* bitmapPtr = &bitmap;
-        SkMatrix localM;
+        SkMatrix srcRectToDstRect;
         if (srcRectPtr) {
-            localM.setTranslate(-srcRectPtr->fLeft, -srcRectPtr->fTop);
-            localM.postScale(dstSize.fWidth / srcRectPtr->width(),
-                             dstSize.fHeight / srcRectPtr->height());
+            srcRectToDstRect.setTranslate(-srcRectPtr->fLeft, -srcRectPtr->fTop);
+            srcRectToDstRect.postScale(dstSize.fWidth / srcRectPtr->width(),
+                                       dstSize.fHeight / srcRectPtr->height());
             // In bleed mode we position and trim the bitmap based on the src rect which is
             // already accounted for in 'm' and 'srcRect'. In clamp mode we need to chop out
             // the desired portion of the bitmap and then update 'm' and 'srcRect' to
@@ -1010,17 +1087,25 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                 srcRect.offset(-offset.fX, -offset.fY);
 
                 // The source rect has changed so update the matrix
-                localM.preTranslate(offset.fX, offset.fY);
+                srcRectToDstRect.preTranslate(offset.fX, offset.fY);
             }
         } else {
-            localM.reset();
+            srcRectToDstRect.reset();
         }
 
-        SkPaint paintWithShader(paint);
-        paintWithShader.setShader(SkShader::CreateBitmapShader(*bitmapPtr,
-            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &localM))->unref();
-        SkRect dstRect = {0, 0, dstSize.fWidth, dstSize.fHeight};
-        this->drawRect(draw, dstRect, paintWithShader);
+        // If we have a maskfilter then we can't batch, so we take a slow path.  However, we fast
+        // path the case where we are drawing an AA rect so we can batch many drawImageRect calls
+        if (paint.getMaskFilter()) {
+            SkPaint paintWithShader(paint);
+            paintWithShader.setShader(SkShader::CreateBitmapShader(*bitmapPtr,
+                                      SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                      &srcRectToDstRect))->unref();
+            SkRect dstRect = {0, 0, dstSize.fWidth, dstSize.fHeight};
+            this->drawRect(draw, dstRect, paintWithShader);
+        } else {
+            draw_aa_bitmap(fDrawContext, fContext, fRenderTarget, fClip, *draw.fMatrix,
+                           srcRectToDstRect, paint, bitmapPtr, dstSize);
+        }
 
         return;
     }

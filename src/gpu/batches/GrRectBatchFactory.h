@@ -23,10 +23,10 @@ class SkStrokeRec;
 namespace GrRectBatchFactory {
 
 inline GrDrawBatch* CreateFillBW(GrColor color,
-                             const SkMatrix& viewMatrix,
-                             const SkRect& rect,
-                             const SkRect* localRect,
-                             const SkMatrix* localMatrix) {
+                                 const SkMatrix& viewMatrix,
+                                 const SkRect& rect,
+                                 const SkRect* localRect,
+                                 const SkMatrix* localMatrix) {
     return GrBWFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
 }
 
@@ -35,6 +35,14 @@ inline GrDrawBatch* CreateFillAA(GrColor color,
                                  const SkRect& rect,
                                  const SkRect& devRect) {
     return GrAAFillRectBatch::Create(color, viewMatrix, rect, devRect);
+}
+
+inline GrDrawBatch* CreateFillAA(GrColor color,
+                                 const SkMatrix& viewMatrix,
+                                 const SkMatrix& localMatrix,
+                                 const SkRect& rect,
+                                 const SkRect& devRect) {
+    return GrAAFillRectBatch::Create(color, viewMatrix, localMatrix, rect, devRect);
 }
 
 GrDrawBatch* CreateStrokeBW(GrColor color,
