@@ -1032,34 +1032,12 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     // anti-aliased edges, we work around that for now by drawing directly
     // if the image size exceeds maximum texture size.
     int maxTextureSize = fContext->caps()->maxTextureSize();
-    bool directDraw = fRenderTarget->isUnifiedMultisampled() ||
-                      !paint.isAntiAlias() ||
-                      bitmap.width() > maxTextureSize ||
-                      bitmap.height() > maxTextureSize;
+    bool drawAA = !fRenderTarget->isUnifiedMultisampled() &&
+                  paint.isAntiAlias() &&
+                  bitmap.width() <= maxTextureSize &&
+                  bitmap.height() <= maxTextureSize;
 
-    // we check whether dst rect are pixel aligned
-    if (!directDraw) {
-        bool staysRect = draw.fMatrix->rectStaysRect();
-
-        if (staysRect) {
-            SkRect rect;
-            SkRect dstRect = SkRect::MakeXYWH(0, 0, dstSize.fWidth, dstSize.fHeight);
-            draw.fMatrix->mapRect(&rect, dstRect);
-            const SkScalar *scalars = rect.asScalars();
-            bool isDstPixelAligned = true;
-            for (int i = 0; i < 4; i++) {
-                if (!SkScalarIsInt(scalars[i])) {
-                    isDstPixelAligned = false;
-                    break;
-                }
-            }
-
-            if (isDstPixelAligned)
-                directDraw = true;
-        }
-    }
-
-    if (paint.getMaskFilter() || !directDraw) {
+    if (paint.getMaskFilter() || drawAA) {
         // Convert the bitmap to a shader so that the rect can be drawn
         // through drawRect, which supports mask filters.
         SkBitmap        tmp;    // subset of bitmap, if necessary
