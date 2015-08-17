@@ -11,7 +11,7 @@
         'codec.gyp:codec',
         'core.gyp:core',
         'effects.gyp:effects',
-        'gpu.gyp:skgpu'
+        'gpu.gyp:skgpu',
         'images.gyp:images',
         'opts.gyp:opts',
         'pdf.gyp:pdf',
