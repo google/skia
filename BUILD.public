@@ -1,0 +1,129 @@
+# Description:
+#   Skia graphics library.
+#
+#   Definitions for Google BUILD file.
+
+exports_files(["BUILD.public"])
+
+# Platform-independent SRCS
+SRCS = glob(
+    [
+        "google/*.cpp",
+        "src/c/*.cpp",
+        "src/core/*.cpp",
+        "src/device/*.cpp",
+        "src/doc/*.cpp",
+        "src/effects/*.cpp",
+        "src/effects/gradients/*.cpp",
+        "src/image/*.cpp",
+        "src/images/*.cpp",
+        "src/lazy/*.cpp",
+        "src/pathops/*.cpp",
+        "src/pdf/*.cpp",
+        "src/pipe/*.cpp",
+        "src/sfnt/*.cpp",
+        "src/utils/*.cpp",
+        "src/gpu/*.cpp",
+        "src/gpu/effects/*.cpp",
+        "src/gpu/gl/*.cpp",
+        "src/gpu/gl/builders/*.cpp",
+        "src/gpu/gl/debug/*.cpp",
+        "src/gpu/gl/glx/*.cpp",
+        "src/opts/opts_check_x86.cpp",
+        "src/opts/*SSE2*.cpp",
+        "src/opts/SkTextureCompression_opts_none.cpp",
+
+        # TODO(mtklein): might be more maintainable with a blacklist instead?
+        "src/ports/SkBarriers_x86.cpp",
+        "src/ports/SkDebug_stdio.cpp",
+        "src/ports/SkDiscardableMemory_none.cpp",
+        "src/ports/SkFontHost_linux.cpp",
+        "src/ports/SkFontHost_FreeType.cpp",
+        "src/ports/SkFontHost_FreeType_common.cpp",
+        "src/ports/SkGlobalInitialization_default.cpp",
+        "src/ports/SkImageGenerator_skia.cpp",
+        "src/ports/SkMemory_malloc.cpp",
+        "src/ports/SkMutex_pthread.h",
+        "src/ports/SkOSFile_posix.cpp",
+        "src/ports/SkOSFile_stdio.cpp",
+        "src/ports/SkTLS_pthread.cpp",
+        "src/ports/SkTime_Unix.cpp",
+
+	# Third Party
+        "third_party/etc1/*.cpp",
+        "third_party/ktx/*.cpp",
+    ],
+    exclude = [
+        "src/pdf/SkPDFFont.cpp",  # Wrapped by google/SkPDFFont_sfntly.cpp
+        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
+        "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+        # TODO(mtklein): files below here probably want upstream fixes
+        "src/utils/SkThreadUtils_pthread_mach.cpp",  # Mac-only.  Move to ports?
+  	# Non-Mac-non-Linux.  Move to ports?
+        "src/utils/SkThreadUtils_pthread_other.cpp",
+        "src/utils/SkThreadUtils_win.cpp",  # Windows-only.  Move to ports?
+        "src/doc/*_XPS.cpp",
+
+        # TODO(melanielc): These don't compile. Maybe remove them?
+        "src/pathops/SkConicLineIntersection.cpp",
+        "src/pathops/SkPathOpsPostSect.cpp",
+    ],
+)
+
+HDRS = glob(
+    [
+        "include/**/*.h",
+    ],
+)
+
+# Includes needed by Skia implementation.  Not public includes.
+INCLUDES = [
+    "include/animator",
+    "include/c",
+    "include/codec",
+    "include/config",
+    "include/core",
+    "include/device",
+    "include/effects",
+    "include/gpu",
+    "include/images",
+    "include/pathops",
+    "include/pdf",
+    "include/pipe",
+    "include/ports",
+    "include/private",
+    "include/utils",
+    "include/views",
+    "include/xml",
+    "src/core",
+    "src/doc",
+    "src/gpu",
+    "src/image",
+    "src/lazy",
+    "src/opts",
+    "src/pdf",
+    "src/ports",
+    "src/sfnt",
+    "src/utils",
+    "third_party/etc1",
+    "third_party/ktx",
+]
+
+COPTS = [
+    "-Wno-deprecated-declarations",  # Internal use of deprecated methods. :(
+    "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
+]
+
+DEFINES = [
+    # It'd be nice for fastbuild, dbg -> SK_DEBUG, opt -> SK_RELEASE.
+    "SK_RELEASE",
+    # Chrome DEFINES.
+    "SK_USE_FLOATBITS",
+    "SK_USE_FREETYPE_EMBOLDEN",
+    # Turn on a few Google3-specific build fixes.
+    "GOOGLE3",
+    "SK_BUILD_FOR_UNIX",
+    "SK_SAMPLES_FOR_X",
+]
+
+LINKOPTS = ["-ldl"]
