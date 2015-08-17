@@ -7,6 +7,7 @@
 
 #include "GrStrokeRectBatch.h"
 #include "GrBatchTest.h"
+#include "GrBatchFlushState.h"
 #include "SkRandom.h"
 
 GrStrokeRectBatch::GrStrokeRectBatch(const Geometry& geometry, bool snapToPixelCenters) {
@@ -65,8 +66,7 @@ static void init_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScal
     verts[9] = verts[1];
 }
 
-
-void GrStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
+void GrStrokeRectBatch::onPrepareDraws(Target* target) {
     SkAutoTUnref<const GrGeometryProcessor> gp;
     {
         using namespace GrDefaultGeoProcFactory;
@@ -79,7 +79,7 @@ void GrStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
                                                     this->viewMatrix()));
     }
 
-    batchTarget->initDraw(gp, this->pipeline());
+    target->initDraw(gp, this->pipeline());
 
     size_t vertexStride = gp->getVertexStride();
 
@@ -95,8 +95,7 @@ void GrStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
     const GrVertexBuffer* vertexBuffer;
     int firstVertex;
 
-    void* verts = batchTarget->makeVertSpace(vertexStride, vertexCount,
-                                                &vertexBuffer, &firstVertex);
+    void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
 
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
@@ -123,7 +122,7 @@ void GrStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
 
     GrVertices vertices;
     vertices.init(primType, vertexBuffer, firstVertex, vertexCount);
-    batchTarget->draw(vertices);
+    target->draw(vertices);
 }
 
 #ifdef GR_TEST_UTILS

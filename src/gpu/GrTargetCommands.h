@@ -8,27 +8,23 @@
 #ifndef GrTargetCommands_DEFINED
 #define GrTargetCommands_DEFINED
 
-#include "GrBatchTarget.h"
 #include "GrDrawTarget.h"
-#include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPendingProgramElement.h"
+#include "GrPrimitiveProcessor.h"
 #include "GrRenderTarget.h"
 #include "GrTRecorder.h"
-#include "SkRect.h"
-#include "SkTypes.h"
 
 #include "batches/GrDrawBatch.h"
+#include "SkRect.h"
 
-class GrBufferedDrawTarget;
+class GrResourceProvider;
+class GrBatchFlushState;
 
 // TODO: Convert all commands into GrBatch and remove this class.
 class GrTargetCommands : ::SkNoncopyable {
 public:
-    GrTargetCommands(GrGpu* gpu)
-        : fCmdBuffer(kCmdBufferInitialSizeInBytes)
-        , fBatchTarget(gpu) {
-    }
+    GrTargetCommands() : fCmdBuffer(kCmdBufferInitialSizeInBytes), fLastFlushToken(0) {}
 
     class Cmd : ::SkNoncopyable {
     public:
@@ -50,7 +46,7 @@ public:
         {}
         virtual ~Cmd() {}
 
-        virtual void execute(GrGpu*) = 0;
+        virtual void execute(GrBatchFlushState*) = 0;
 
         CmdType type() const { return fType; }
 
@@ -71,7 +67,7 @@ public:
     };
 
     void reset();
-    void flush(GrBufferedDrawTarget*);
+    void flush(GrGpu*, GrResourceProvider*);
 
 private:
     friend class GrCommandBuilder;
@@ -132,7 +128,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrGpu*) override;
+        void execute(GrBatchFlushState*) override;
 
         SkMatrix                                                fViewMatrix;
         bool                                                    fUseHWAA;
@@ -151,7 +147,7 @@ private:
 
         const GrPath* path() const { return fPath.get(); }
 
-        void execute(GrGpu*) override;
+        void execute(GrBatchFlushState*) override;
 
         SkAutoTUnref<StateForPathDraw>  fState;
         GrStencilSettings               fStencilSettings;
@@ -167,7 +163,7 @@ private:
 
         const GrPathRange* pathRange() const { return fPathRange.get();  }
 
-        void execute(GrGpu*) override;
+        void execute(GrBatchFlushState*) override;
 
         SkAutoTUnref<StateForPathDraw>  fState;
         char*                           fIndices;
@@ -187,7 +183,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrGpu*) override;
+        void execute(GrBatchFlushState*) override;
 
         SkIRect fRect;
         GrColor fColor;
@@ -202,7 +198,7 @@ private:
 
         GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
 
-        void execute(GrGpu*) override;
+        void execute(GrBatchFlushState*) override;
 
         SkIRect fRect;
         bool    fInsideClip;
@@ -221,7 +217,7 @@ private:
         GrSurface* dst() const { return fDst.get(); }
         GrSurface* src() const { return fSrc.get(); }
 
-        void execute(GrGpu*) override;
+        void execute(GrBatchFlushState*) override;
 
         SkIPoint    fDstPoint;
         SkIRect     fSrcRect;
@@ -232,19 +228,17 @@ private:
     };
 
     struct DrawBatch : public Cmd {
-        DrawBatch(GrDrawBatch* batch, GrBatchTarget* batchTarget)
+        DrawBatch(GrDrawBatch* batch)
             : Cmd(kDrawBatch_CmdType)
-            , fBatch(SkRef(batch))
-            , fBatchTarget(batchTarget) {
+            , fBatch(SkRef(batch)){
             SkASSERT(!batch->isUsed());
         }
 
         GrDrawBatch* batch() { return fBatch; }
-        void execute(GrGpu*) override;
+        void execute(GrBatchFlushState*) override;
 
     private:
         SkAutoTUnref<GrDrawBatch>   fBatch;
-        GrBatchTarget*              fBatchTarget;
     };
 
     static const int kCmdBufferInitialSizeInBytes = 8 * 1024;
@@ -253,11 +247,9 @@ private:
     typedef GrTRecorder<Cmd, TCmdAlign> CmdBuffer;
 
     CmdBuffer* cmdBuffer() { return &fCmdBuffer; }
-    GrBatchTarget* batchTarget() { return &fBatchTarget; }
 
     CmdBuffer                           fCmdBuffer;
-    GrBatchTarget                       fBatchTarget;
+    GrBatchToken                        fLastFlushToken;
 };
 
 #endif
-

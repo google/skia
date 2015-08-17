@@ -7,7 +7,7 @@
 #include "GrAtlasTextContext.h"
 
 #include "GrBatchFontCache.h"
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrBlurUtils.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -1535,7 +1535,7 @@ public:
         int fVertexOffset;
     };
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
         // TODO actually only invert if we don't have RGBA
         SkMatrix localMatrix;
@@ -1575,17 +1575,17 @@ public:
                                   get_vertex_stride_df(maskFormat, isLCD) :
                                   get_vertex_stride(maskFormat)));
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         int glyphCount = this->numGlyphs();
         const GrVertexBuffer* vertexBuffer;
 
-        void* vertices = batchTarget->makeVertSpace(vertexStride,
-                                                    glyphCount * kVerticesPerGlyph,
-                                                    &vertexBuffer,
-                                                    &flushInfo.fVertexOffset);
+        void* vertices = target->makeVertexSpace(vertexStride,
+                                                 glyphCount * kVerticesPerGlyph,
+                                                 &vertexBuffer,
+                                                 &flushInfo.fVertexOffset);
         flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
-        flushInfo.fIndexBuffer.reset(batchTarget->resourceProvider()->refQuadIndexBuffer());
+        flushInfo.fIndexBuffer.reset(target->resourceProvider()->refQuadIndexBuffer());
         if (!vertices || !flushInfo.fVertexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1689,13 +1689,12 @@ public:
                         //SkASSERT(glyph->fMaskFormat == this->maskFormat());
 
                         if (!fFontCache->hasGlyph(glyph) &&
-                            !strike->addGlyphToAtlas(batchTarget, glyph, scaler, skGlyph,
-                                                     maskFormat)) {
-                            this->flush(batchTarget, &flushInfo);
-                            batchTarget->initDraw(gp, this->pipeline());
+                            !strike->addGlyphToAtlas(target, glyph, scaler, skGlyph, maskFormat)) {
+                            this->flush(target, &flushInfo);
+                            target->initDraw(gp, this->pipeline());
                             brokenRun = glyphIdx > 0;
 
-                            SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(batchTarget,
+                            SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(target,
                                                                                 glyph,
                                                                                 scaler,
                                                                                 skGlyph,
@@ -1703,7 +1702,7 @@ public:
                             SkASSERT(success);
                         }
                         fFontCache->addGlyphToBulkAndSetUseToken(&info.fBulkUseToken, glyph,
-                                                                 batchTarget->currentToken());
+                                                                 target->currentToken());
 
                         // Texture coords are the last vertex attribute so we get a pointer to the
                         // first one and then map with stride in regenerateTextureCoords
@@ -1747,9 +1746,7 @@ public:
 
                 // set use tokens for all of the glyphs in our subrun.  This is only valid if we
                 // have a valid atlas generation
-                fFontCache->setUseTokenBulk(info.fBulkUseToken,
-                                            batchTarget->currentToken(),
-                                            maskFormat);
+                fFontCache->setUseTokenBulk(info.fBulkUseToken, target->currentToken(), maskFormat);
             }
 
             // now copy all vertices
@@ -1762,7 +1759,7 @@ public:
         if (cache) {
             SkGlyphCache::AttachCache(cache);
         }
-        this->flush(batchTarget, &flushInfo);
+        this->flush(target, &flushInfo);
     }
 
     // to avoid even the initial copy of the struct, we have a getter for the first item which
@@ -1875,14 +1872,14 @@ private:
         }
     }
 
-    void flush(GrBatchTarget* batchTarget, FlushInfo* flushInfo) {
+    void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) {
         GrVertices vertices;
         int maxGlyphsPerDraw = flushInfo->fIndexBuffer->maxQuads();
         vertices.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
                                flushInfo->fIndexBuffer, flushInfo->fVertexOffset,
                                kVerticesPerGlyph, kIndicesPerGlyph, flushInfo->fGlyphsToFlush,
                                maxGlyphsPerDraw);
-        batchTarget->draw(vertices);
+        target->draw(vertices);
         flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
         flushInfo->fGlyphsToFlush = 0;
     }

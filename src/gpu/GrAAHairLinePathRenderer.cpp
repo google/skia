@@ -7,7 +7,7 @@
 
 #include "GrAAHairLinePathRenderer.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -709,11 +709,11 @@ public:
         fBatch.fCoverage = fGeoData[0].fCoverage;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override;
-
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
+    void onPrepareDraws(Target*) override;
+
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
@@ -789,7 +789,7 @@ private:
     SkSTArray<1, Geometry, true> fGeoData;
 };
 
-void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
+void AAHairlineBatch::onPrepareDraws(Target* target) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {
@@ -826,7 +826,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
             GrQuadEffect::Create(this->color(),
                                  *geometryProcessorViewM,
                                  kHairlineAA_GrProcessorEdgeType,
-                                 batchTarget->caps(),
+                                 target->caps(),
                                  *geometryProcessorLocalM,
                                  this->usesLocalCoords(),
                                  this->coverage()));
@@ -835,7 +835,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
             GrConicEffect::Create(this->color(),
                                   *geometryProcessorViewM,
                                   kHairlineAA_GrProcessorEdgeType,
-                                  batchTarget->caps(),
+                                  target->caps(),
                                   *geometryProcessorLocalM,
                                   this->usesLocalCoords(),
                                   this->coverage()));
@@ -861,8 +861,8 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
     // do lines first
     if (lineCount) {
         SkAutoTUnref<const GrIndexBuffer> linesIndexBuffer(
-            ref_lines_index_buffer(batchTarget->resourceProvider()));
-        batchTarget->initDraw(lineGP, this->pipeline());
+            ref_lines_index_buffer(target->resourceProvider()));
+        target->initDraw(lineGP, this->pipeline());
 
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
@@ -870,7 +870,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
         size_t vertexStride = lineGP->getVertexStride();
         int vertexCount = kLineSegNumVertices * lineCount;
         LineVertex* verts = reinterpret_cast<LineVertex*>(
-            batchTarget->makeVertSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex));
+            target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex));
 
         if (!verts|| !linesIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -888,7 +888,7 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
             vertices.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer,
                                    firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, lineCount,
                                    kLineSegsNumInIdxBuffer);
-            batchTarget->draw(vertices);
+            target->draw(vertices);
         }
     }
 
@@ -897,12 +897,12 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
         int firstVertex;
 
         SkAutoTUnref<const GrIndexBuffer> quadsIndexBuffer(
-            ref_quads_index_buffer(batchTarget->resourceProvider()));
+            ref_quads_index_buffer(target->resourceProvider()));
 
         size_t vertexStride = sizeof(BezierVertex);
         int vertexCount = kQuadNumVertices * quadCount + kQuadNumVertices * conicCount;
-        void *vertices = batchTarget->makeVertSpace(vertexStride, vertexCount,
-                                                    &vertexBuffer, &firstVertex);
+        void *vertices = target->makeVertexSpace(vertexStride, vertexCount,
+                                                 &vertexBuffer, &firstVertex);
 
         if (!vertices || !quadsIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -924,27 +924,27 @@ void AAHairlineBatch::generateGeometry(GrBatchTarget* batchTarget) {
         }
 
         if (quadCount > 0) {
-            batchTarget->initDraw(quadGP, this->pipeline());
+            target->initDraw(quadGP, this->pipeline());
 
             {
                 GrVertices verts;
                 verts.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
                                     firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
                                     kQuadsNumInIdxBuffer);
-                batchTarget->draw(verts);
+                target->draw(verts);
                 firstVertex += quadCount * kQuadNumVertices;
            }
         }
 
         if (conicCount > 0) {
-            batchTarget->initDraw(conicGP, this->pipeline());
+            target->initDraw(conicGP, this->pipeline());
 
             {
                 GrVertices verts;
                 verts.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
                                     firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
                                     kQuadsNumInIdxBuffer);
-                batchTarget->draw(verts);
+                target->draw(verts);
             }
         }
     }

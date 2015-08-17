@@ -7,6 +7,7 @@
 
 #include "GrAAFillRectBatch.h"
 
+#include "GrBatchFlushState.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrResourceKey.h"
@@ -96,7 +97,7 @@ public:
         fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         SkAutoTUnref<const GrGeometryProcessor> gp(CreateFillRectGP(canTweakAlphaForCoverage,
@@ -109,17 +110,16 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(Base::StrideCheck(vertexStride, canTweakAlphaForCoverage,
                                    this->usesLocalCoords()));
         int instanceCount = fGeoData.count();
 
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(get_index_buffer(
-            batchTarget->resourceProvider()));
+        SkAutoTUnref<const GrIndexBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
         InstancedHelper helper;
-        void* vertices = helper.init(batchTarget, kTriangles_GrPrimitiveType, vertexStride,
+        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
                                      indexBuffer, kVertsPerAAFillRect, kIndicesPerAAFillRect,
                                      instanceCount);
         if (!vertices || !indexBuffer) {
@@ -134,7 +134,7 @@ public:
                                              fGeoData[i],
                                              canTweakAlphaForCoverage);
         }
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

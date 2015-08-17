@@ -9,7 +9,7 @@
 #include "GrAAConvexPathRenderer.h"
 
 #include "GrAAConvexTessellator.h"
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -777,7 +777,7 @@ public:
         fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
     }
 
-    void generateGeometryLinesOnly(GrBatchTarget* batchTarget) {
+    void prepareLinesOnlyDraws(Target* target) {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
@@ -790,7 +790,7 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -814,8 +814,8 @@ public:
             const GrVertexBuffer* vertexBuffer;
             int firstVertex;
 
-            void* verts = batchTarget->makeVertSpace(vertexStride, tess.numPts(),
-                                                     &vertexBuffer, &firstVertex);
+            void* verts = target->makeVertexSpace(vertexStride, tess.numPts(), &vertexBuffer,
+                                                  &firstVertex);
             if (!verts) {
                 SkDebugf("Could not allocate vertices\n");
                 return;
@@ -824,8 +824,7 @@ public:
             const GrIndexBuffer* indexBuffer;
             int firstIndex;
 
-            uint16_t* idxs = batchTarget->makeIndexSpace(tess.numIndices(),
-                                                        &indexBuffer, &firstIndex);
+            uint16_t* idxs = target->makeIndexSpace(tess.numIndices(), &indexBuffer, &firstIndex);
             if (!idxs) {
                 SkDebugf("Could not allocate indices\n");
                 return;
@@ -838,14 +837,14 @@ public:
                              vertexBuffer, indexBuffer,
                              firstVertex, firstIndex,
                              tess.numPts(), tess.numIndices());
-            batchTarget->draw(info);
+            target->draw(info);
         }
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
 #ifndef SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS
         if (this->linesOnly()) {
-            this->generateGeometryLinesOnly(batchTarget);
+            this->prepareLinesOnlyDraws(target);
             return;
         }
 #endif
@@ -862,7 +861,7 @@ public:
         SkAutoTUnref<GrGeometryProcessor> quadProcessor(
                 QuadEdgeEffect::Create(this->color(), invert, this->usesLocalCoords()));
 
-        batchTarget->initDraw(quadProcessor, this->pipeline());
+        target->initDraw(quadProcessor, this->pipeline());
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
@@ -895,7 +894,7 @@ public:
             int firstVertex;
 
             size_t vertexStride = quadProcessor->getVertexStride();
-            QuadVertex* verts = reinterpret_cast<QuadVertex*>(batchTarget->makeVertSpace(
+            QuadVertex* verts = reinterpret_cast<QuadVertex*>(target->makeVertexSpace(
                 vertexStride, vertexCount, &vertexBuffer, &firstVertex));
 
             if (!verts) {
@@ -906,7 +905,7 @@ public:
             const GrIndexBuffer* indexBuffer;
             int firstIndex;
 
-            uint16_t *idxs = batchTarget->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
+            uint16_t *idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
             if (!idxs) {
                 SkDebugf("Could not allocate indices\n");
                 return;
@@ -921,7 +920,7 @@ public:
                 const Draw& draw = draws[i];
                 vertices.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
                                      firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
-                batchTarget->draw(vertices);
+                target->draw(vertices);
                 firstVertex += draw.fVertexCnt;
                 firstIndex += draw.fIndexCnt;
             }

@@ -7,13 +7,13 @@
 
 #include "GrBWFillRectBatch.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrVertexBatch.h"
 
-class GrBatchTarget;
+class GrBatchFlushState;
 class SkMatrix;
 struct SkRect;
 
@@ -58,14 +58,14 @@ public:
         fBatch.fCoverageIgnored = !init.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         SkAutoTUnref<const GrGeometryProcessor> gp(this->createRectGP());
         if (!gp) {
             SkDebugf("Could not create GrGeometryProcessor\n");
             return;
         }
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -73,7 +73,7 @@ public:
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
         QuadHelper helper;
-        void* vertices = helper.init(batchTarget, vertexStride, instanceCount);
+        void* vertices = helper.init(target, vertexStride, instanceCount);
 
         if (!vertices) {
             return;
@@ -110,7 +110,7 @@ public:
             }
         }
 
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

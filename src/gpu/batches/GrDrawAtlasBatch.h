@@ -42,11 +42,12 @@ public:
     }
     
     void initBatchTracker(const GrPipelineOptimizations&) override;
-    void generateGeometry(GrBatchTarget* batchTarget) override;
     
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
     
 private:
+    void onPrepareDraws(Target*) override;
+
     GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix, int spriteCount,
                      const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
     

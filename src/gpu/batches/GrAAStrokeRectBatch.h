@@ -14,6 +14,8 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 
+class GrResourceProvider;
+
 class GrAAStrokeRectBatch : public GrVertexBatch {
 public:
     // TODO support AA rotated stroke rects by copying around view matrices
@@ -42,11 +44,11 @@ public:
 
     void initBatchTracker(const GrPipelineOptimizations&) override;
 
-    void generateGeometry(GrBatchTarget* batchTarget) override;
-
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
+    void onPrepareDraws(Target*) override;
+
     GrAAStrokeRectBatch(const Geometry& geometry, const SkMatrix& viewMatrix)  {
         this->initClassID<GrAAStrokeRectBatch>();
         fBatch.fViewMatrix = viewMatrix;

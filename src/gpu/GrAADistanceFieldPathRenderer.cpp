@@ -8,7 +8,7 @@
 
 #include "GrAADistanceFieldPathRenderer.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrPipelineBuilder.h"
@@ -159,7 +159,7 @@ public:
         int fInstancesToFlush;
     };
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         int instanceCount = fGeoData.count();
 
         SkMatrix invert;
@@ -183,7 +183,7 @@ public:
                                                    flags,
                                                    this->usesLocalCoords()));
 
-        batchTarget->initDraw(dfProcessor, this->pipeline());
+        target->initDraw(dfProcessor, this->pipeline());
 
         FlushInfo flushInfo;
 
@@ -192,12 +192,12 @@ public:
         SkASSERT(vertexStride == 2 * sizeof(SkPoint));
 
         const GrVertexBuffer* vertexBuffer;
-        void* vertices = batchTarget->makeVertSpace(vertexStride,
-                                                    kVerticesPerQuad * instanceCount,
-                                                    &vertexBuffer,
-                                                    &flushInfo.fVertexOffset);
+        void* vertices = target->makeVertexSpace(vertexStride,
+                                                 kVerticesPerQuad * instanceCount,
+                                                 &vertexBuffer,
+                                                 &flushInfo.fVertexOffset);
         flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
-        flushInfo.fIndexBuffer.reset(batchTarget->resourceProvider()->refQuadIndexBuffer());
+        flushInfo.fIndexBuffer.reset(target->resourceProvider()->refQuadIndexBuffer());
         if (!vertices || !flushInfo.fIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -234,7 +234,7 @@ public:
                 }
                 SkScalar scale = desiredDimension/maxDim;
                 args.fPathData = SkNEW(PathData);
-                if (!this->addPathToAtlas(batchTarget,
+                if (!this->addPathToAtlas(target,
                                           dfProcessor,
                                           this->pipeline(),
                                           &flushInfo,
@@ -250,13 +250,13 @@ public:
                 }
             }
 
-            atlas->setLastUseToken(args.fPathData->fID, batchTarget->currentToken());
+            atlas->setLastUseToken(args.fPathData->fID, target->currentToken());
 
             // Now set vertices
             intptr_t offset = reinterpret_cast<intptr_t>(vertices);
             offset += i * kVerticesPerQuad * vertexStride;
             SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
-            this->writePathVertices(batchTarget,
+            this->writePathVertices(target,
                                     atlas,
                                     this->pipeline(),
                                     dfProcessor,
@@ -268,7 +268,7 @@ public:
             flushInfo.fInstancesToFlush++;
         }
 
-        this->flush(batchTarget, &flushInfo);
+        this->flush(target, &flushInfo);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -292,7 +292,7 @@ private:
         viewMatrix.mapRect(&fBounds);
     }
 
-    bool addPathToAtlas(GrBatchTarget* batchTarget,
+    bool addPathToAtlas(GrVertexBatch::Target* target,
                         const GrGeometryProcessor* dfProcessor,
                         const GrPipeline* pipeline,
                         FlushInfo* flushInfo,
@@ -388,13 +388,13 @@ private:
         // add to atlas
         SkIPoint16 atlasLocation;
         GrBatchAtlas::AtlasID id;
-        bool success = atlas->addToAtlas(&id, batchTarget, width, height, dfStorage.get(),
+        bool success = atlas->addToAtlas(&id, target, width, height, dfStorage.get(),
                                          &atlasLocation);
         if (!success) {
-            this->flush(batchTarget, flushInfo);
-            batchTarget->initDraw(dfProcessor, pipeline);
+            this->flush(target, flushInfo);
+            target->initDraw(dfProcessor, pipeline);
 
-            SkDEBUGCODE(success =) atlas->addToAtlas(&id, batchTarget, width, height,
+            SkDEBUGCODE(success =) atlas->addToAtlas(&id, target, width, height,
                                                      dfStorage.get(), &atlasLocation);
             SkASSERT(success);
 
@@ -428,7 +428,7 @@ private:
         return true;
     }
 
-    void writePathVertices(GrBatchTarget* target,
+    void writePathVertices(GrDrawBatch::Target* target,
                            GrBatchAtlas* atlas,
                            const GrPipeline* pipeline,
                            const GrGeometryProcessor* gp,
@@ -469,13 +469,13 @@ private:
                                   vertexStride);
     }
 
-    void flush(GrBatchTarget* batchTarget, FlushInfo* flushInfo) {
+    void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) {
         GrVertices vertices;
         int maxInstancesPerDraw = flushInfo->fIndexBuffer->maxQuads();
         vertices.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
             flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
             kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
-        batchTarget->draw(vertices);
+        target->draw(vertices);
         flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
         flushInfo->fInstancesToFlush = 0;
     }

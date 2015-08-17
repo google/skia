@@ -38,7 +38,7 @@ GrTargetCommands::Cmd* GrInOrderCommandBuilder::recordDrawBatch(GrDrawBatch* bat
         }
     }
 
-    return GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), DrawBatch, (batch, this->batchTarget()));
+    return GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), DrawBatch, (batch));
 }
 
 GrTargetCommands::Cmd*

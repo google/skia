@@ -18,7 +18,6 @@
 
 GrImmediateDrawTarget::GrImmediateDrawTarget(GrContext* context)
     : INHERITED(context)
-    , fBatchTarget(this->getGpu())
     , fDrawID(0) {
 }
 
@@ -27,17 +26,18 @@ GrImmediateDrawTarget::~GrImmediateDrawTarget() {
 }
 
 void GrImmediateDrawTarget::onDrawBatch(GrDrawBatch* batch) {
-    fBatchTarget.resetNumberOfDraws();
 
+#if 0
     // TODO: encapsulate the specialization of GrVertexBatch in GrVertexBatch so that we can
     // remove this cast. Currently all GrDrawBatches are in fact GrVertexBatch.
     GrVertexBatch* vertexBatch = static_cast<GrVertexBatch*>(batch);
-    vertexBatch->generateGeometry(&fBatchTarget);
+    vertexBatch->prepareDraws(&fBatchTarget);
     vertexBatch->setNumberOfDraws(fBatchTarget.numberOfDraws());
 
     fBatchTarget.preFlush();
     fBatchTarget.flushNext(vertexBatch->numberOfDraws());
     fBatchTarget.postFlush();
+#endif
 }
 
 void GrImmediateDrawTarget::onClear(const SkIRect& rect, GrColor color,
@@ -66,9 +66,7 @@ void GrImmediateDrawTarget::discard(GrRenderTarget* renderTarget) {
     this->getGpu()->discard(renderTarget);
 }
 
-void GrImmediateDrawTarget::onReset() {
-    fBatchTarget.reset();
-}
+void GrImmediateDrawTarget::onReset() {}
 
 void GrImmediateDrawTarget::onFlush() {
     ++fDrawID;

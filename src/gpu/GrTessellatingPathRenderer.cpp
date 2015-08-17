@@ -7,7 +7,7 @@
 
 #include "GrTessellatingPathRenderer.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
@@ -1509,7 +1509,7 @@ public:
         return actualCount;
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         // construct a cache key from the path's genID and the view matrix
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
@@ -1525,7 +1525,7 @@ public:
         }
         fStroke.asUniqueKeyFragment(&builder[2 + clipBoundsSize32]);
         builder.finish();
-        GrResourceProvider* rp = batchTarget->resourceProvider();
+        GrResourceProvider* rp = target->resourceProvider();
         SkAutoTUnref<GrVertexBuffer> vertexBuffer(rp->findAndRefTByUniqueKey<GrVertexBuffer>(key));
         int actualCount;
         SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
@@ -1558,14 +1558,14 @@ public:
                                                      fViewMatrix));
         }
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
         SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
         GrPrimitiveType primitiveType = WIREFRAME ? kLines_GrPrimitiveType
                                                   : kTriangles_GrPrimitiveType;
         GrVertices vertices;
         vertices.init(primitiveType, vertexBuffer.get(), 0, actualCount);
-        batchTarget->draw(vertices);
+        target->draw(vertices);
     }
 
     bool onCombineIfPossible(GrBatch*, const GrCaps&) override { return false; }

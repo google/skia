@@ -15,7 +15,7 @@
 #include "SkRect.h"
 #include "SkTDArray.h"
 
-class GrBatchTarget;
+class GrBatchFlushState;
 struct GrInitInvariantOutput;
 
 class GrDrawVerticesBatch : public GrVertexBatch {
@@ -47,11 +47,11 @@ public:
 
     void initBatchTracker(const GrPipelineOptimizations&) override;
 
-    void generateGeometry(GrBatchTarget* batchTarget) override;
-
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
+    void onPrepareDraws(Target*) override;
+
     GrDrawVerticesBatch(const Geometry& geometry, GrPrimitiveType primitiveType,
                         const SkMatrix& viewMatrix,
                         const SkPoint* positions, int vertexCount,

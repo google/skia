@@ -7,7 +7,7 @@
 
 #include "GrDashingEffect.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrGeometryProcessor.h"
@@ -298,7 +298,7 @@ public:
         bool fHasEndRect;
     };
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         int instanceCount = fGeoData.count();
         SkPaint::Cap cap = this->cap();
         bool isRoundCap = SkPaint::kRound_Cap == cap;
@@ -324,7 +324,7 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         // useAA here means Edge AA or MSAA
         bool useAA = this->aaMode() != kBW_DashAAMode;
@@ -529,7 +529,7 @@ public:
         }
 
         QuadHelper helper;
-        void* vertices = helper.init(batchTarget, gp->getVertexStride(), totalRectCount);
+        void* vertices = helper.init(target, gp->getVertexStride(), totalRectCount);
         if (!vertices) {
             return;
         }
@@ -591,7 +591,7 @@ public:
             rectIndex++;
         }
         SkASSERT(0 == (curVIdx % 4) && (curVIdx / 4) == totalRectCount);
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

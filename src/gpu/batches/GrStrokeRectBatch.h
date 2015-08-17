@@ -38,9 +38,9 @@ public:
 
     void initBatchTracker(const GrPipelineOptimizations&) override;
 
-    void generateGeometry(GrBatchTarget* batchTarget) override;
-
 private:
+    void onPrepareDraws(Target*) override;
+
     GrStrokeRectBatch(const Geometry& geometry, bool snapToPixelCenters);
 
     GrColor color() const { return fBatch.fColor; }

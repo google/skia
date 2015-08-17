@@ -9,7 +9,7 @@
 #include "GrContext.h"
 
 #include "GrBatchFontCache.h"
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrBufferedDrawTarget.h"
 #include "GrCaps.h"

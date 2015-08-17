@@ -12,7 +12,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrContext.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
@@ -71,11 +71,11 @@ private:
         return &fGeometry;
     }
 
-    void onGenerateGeometry(GrBatchTarget* batchTarget) override {
+    void generateGeometry(Target* target) override {
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
-        Vertex* verts = reinterpret_cast<Vertex*>(helper.init(batchTarget, vertexStride, 1));
+        Vertex* verts = reinterpret_cast<Vertex*>(helper.init(target, vertexStride, 1));
         if (!verts) {
             return;
         }
@@ -88,7 +88,7 @@ private:
             verts[v].fKLM[1] = eval_line(verts[v].fPosition, fKlmEqs + 3, fSign);
             verts[v].fKLM[2] = eval_line(verts[v].fPosition, fKlmEqs + 6, 1.f);
         }
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     Geometry fGeometry;
@@ -467,11 +467,11 @@ private:
         return &fGeometry;
     }
 
-    void onGenerateGeometry(GrBatchTarget* batchTarget) override {
+    void generateGeometry(Target* target) override {
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
-        Vertex* verts = reinterpret_cast<Vertex*>(helper.init(batchTarget, vertexStride, 1));
+        Vertex* verts = reinterpret_cast<Vertex*>(helper.init(target, vertexStride, 1));
         if (!verts) {
             return;
         }
@@ -479,7 +479,7 @@ private:
                                       fGeometry.fBounds.fRight, fGeometry.fBounds.fBottom,
                                       sizeof(Vertex));
         fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     Geometry fGeometry;

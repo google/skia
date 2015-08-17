@@ -7,7 +7,7 @@
 
 #include "GrDrawVerticesBatch.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrInvariantOutput.h"
 #include "GrDefaultGeoProcFactory.h"
 
@@ -107,14 +107,14 @@ void GrDrawVerticesBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     fBatch.fCoverageIgnored = !opt.readsCoverage();
 }
 
-void GrDrawVerticesBatch::generateGeometry(GrBatchTarget* batchTarget) {
+void GrDrawVerticesBatch::onPrepareDraws(Target* target) {
     int colorOffset = -1, texOffset = -1;
     SkAutoTUnref<const GrGeometryProcessor> gp(
             set_vertex_attributes(this->hasLocalCoords(), this->hasColors(), &colorOffset,
                                   &texOffset, this->color(), this->viewMatrix(),
                                   this->coverageIgnored()));
 
-    batchTarget->initDraw(gp, this->pipeline());
+    target->initDraw(gp, this->pipeline());
 
     size_t vertexStride = gp->getVertexStride();
 
@@ -126,8 +126,8 @@ void GrDrawVerticesBatch::generateGeometry(GrBatchTarget* batchTarget) {
     const GrVertexBuffer* vertexBuffer;
     int firstVertex;
 
-    void* verts = batchTarget->makeVertSpace(vertexStride, this->vertexCount(),
-                                             &vertexBuffer, &firstVertex);
+    void* verts = target->makeVertexSpace(vertexStride, this->vertexCount(),
+                                          &vertexBuffer, &firstVertex);
 
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
@@ -139,7 +139,7 @@ void GrDrawVerticesBatch::generateGeometry(GrBatchTarget* batchTarget) {
 
     uint16_t* indices = NULL;
     if (this->hasIndices()) {
-        indices = batchTarget->makeIndexSpace(this->indexCount(), &indexBuffer, &firstIndex);
+        indices = target->makeIndexSpace(this->indexCount(), &indexBuffer, &firstIndex);
 
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
@@ -180,7 +180,7 @@ void GrDrawVerticesBatch::generateGeometry(GrBatchTarget* batchTarget) {
     } else {
         vertices.init(this->primitiveType(), vertexBuffer, firstVertex, this->vertexCount());
     }
-    batchTarget->draw(vertices);
+    target->draw(vertices);
 }
 
 bool GrDrawVerticesBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {

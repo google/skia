@@ -7,6 +7,7 @@
 
 #include "GrAAStrokeRectBatch.h"
 
+#include "GrBatchFlushState.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
@@ -59,7 +60,7 @@ void GrAAStrokeRectBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
 }
 
-void GrAAStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
+void GrAAStrokeRectBatch::onPrepareDraws(Target* target) {
     bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
     SkAutoTUnref<const GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,
@@ -71,7 +72,7 @@ void GrAAStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
         return;
     }
 
-    batchTarget->initDraw(gp, this->pipeline());
+    target->initDraw(gp, this->pipeline());
 
     size_t vertexStride = gp->getVertexStride();
 
@@ -85,9 +86,9 @@ void GrAAStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
     int instanceCount = fGeoData.count();
 
     const SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-        GetIndexBuffer(batchTarget->resourceProvider(), this->miterStroke()));
+        GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
     InstancedHelper helper;
-    void* vertices = helper.init(batchTarget, kTriangles_GrPrimitiveType, vertexStride,
+    void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
                                  indexBuffer, verticesPerInstance,  indicesPerInstance,
                                  instanceCount);
     if (!vertices || !indexBuffer) {
@@ -109,7 +110,7 @@ void GrAAStrokeRectBatch::generateGeometry(GrBatchTarget* batchTarget) {
                                            args.fMiterStroke,
                                            canTweakAlphaForCoverage);
     }
-    helper.issueDraw(batchTarget);
+    helper.recordDraw(target);
 }
 
 const GrIndexBuffer* GrAAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,

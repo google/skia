@@ -14,10 +14,32 @@
 struct GrInitInvariantOutput;
 
 /**
+ * GrDrawBatches are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
+ * and draws are determined and scheduled. They are issued in the draw phase. GrBatchToken is used
+ * to sequence the uploads relative to each other and to draws.
+ **/
+
+typedef uint64_t GrBatchToken;
+
+class GrBatchUploader : public SkRefCnt {
+public:
+    class TextureUploader;
+
+    GrBatchUploader(GrBatchToken lastUploadToken) : fLastUploadToken(lastUploadToken) {}
+    GrBatchToken lastUploadToken() const { return fLastUploadToken; }
+    virtual void upload(TextureUploader*)=0;
+
+private:
+    GrBatchToken fLastUploadToken;
+};
+
+/**
  * Base class for GrBatches that draw. These batches have a GrPipeline installed by GrDrawTarget.
  */
 class GrDrawBatch : public GrBatch {
 public:
+    class Target;
+
     GrDrawBatch();
     ~GrDrawBatch() override;
 
@@ -41,8 +63,12 @@ private:
      */
     virtual void initBatchTracker(const GrPipelineOptimizations&) = 0;
 
-    SkAlignedSTStorage<1, GrPipeline>   fPipelineStorage;
-    bool                                fPipelineInstalled;
+protected:
+    SkTArray<SkAutoTUnref<GrBatchUploader>, true>   fInlineUploads;
+
+private:
+    SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;
+    bool                                            fPipelineInstalled;
     typedef GrBatch INHERITED;
 };
 

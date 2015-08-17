@@ -173,7 +173,7 @@ void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
     }
 }
 
-bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* glyph,
+bool GrBatchTextStrike::addGlyphToAtlas(GrDrawBatch::Target* target, GrGlyph* glyph,
                                         GrFontScaler* scaler, const SkGlyph& skGlyph,
                                         GrMaskFormat expectedMaskFormat) {
     SkASSERT(glyph);
@@ -200,7 +200,7 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrBatchTarget* batchTarget, GrGlyph* gly
         }
     }
 
-    bool success = fBatchFontCache->addToAtlas(this, &glyph->fID, batchTarget, expectedMaskFormat,
+    bool success = fBatchFontCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
                                                glyph->width(), glyph->height(),
                                                storage.get(), &glyph->fAtlasLocation);
     if (success) {

@@ -7,7 +7,7 @@
 
 #include "GrOvalRenderer.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrDrawTarget.h"
 #include "GrGeometryProcessor.h"
@@ -666,7 +666,7 @@ public:
         fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -678,13 +678,13 @@ public:
                                                                       invert,
                                                                       this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(CircleVertex));
         QuadHelper helper;
-        CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(batchTarget, vertexStride,
+        CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(target, vertexStride,
                                                                           instanceCount));
         if (!verts) {
             return;
@@ -722,7 +722,7 @@ public:
 
             verts += kVerticesPerQuad;
         }
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -884,7 +884,7 @@ public:
         fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -896,14 +896,14 @@ public:
                                                                        invert,
                                                                        this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         QuadHelper helper;
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(EllipseVertex));
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-            helper.init(batchTarget, vertexStride, instanceCount));
+            helper.init(target, vertexStride, instanceCount));
         if (!verts) {
             return;
         }
@@ -945,7 +945,7 @@ public:
 
             verts += kVerticesPerQuad;
         }
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1152,21 +1152,21 @@ public:
         fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(this->color(),
                                                                          this->viewMatrix(),
                                                                          this->mode(),
                                                                          this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(DIEllipseVertex));
         QuadHelper helper;
         DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(
-            helper.init(batchTarget, vertexStride, instanceCount));
+            helper.init(target, vertexStride, instanceCount));
         if (!verts) {
             return;
         }
@@ -1204,7 +1204,7 @@ public:
 
             verts += kVerticesPerQuad;
         }
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1503,7 +1503,7 @@ public:
         fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1517,7 +1517,7 @@ public:
                                                                       invert,
                                                                       this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -1526,10 +1526,10 @@ public:
         // drop out the middle quad if we're stroked
         int indicesPerInstance = this->stroke() ? kIndicesPerStrokeRRect : kIndicesPerRRect;
         SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            ref_rrect_index_buffer(this->stroke(), batchTarget->resourceProvider()));
+            ref_rrect_index_buffer(this->stroke(), target->resourceProvider()));
 
         InstancedHelper helper;
-        CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(batchTarget,
+        CircleVertex* verts = reinterpret_cast<CircleVertex*>(helper.init(target,
             kTriangles_GrPrimitiveType, vertexStride, indexBuffer, kVertsPerRRect,
             indicesPerInstance, instanceCount));
         if (!verts || !indexBuffer) {
@@ -1581,7 +1581,7 @@ public:
             }
         }
 
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -1679,7 +1679,7 @@ public:
         fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1693,7 +1693,7 @@ public:
                                                                        invert,
                                                                        this->usesLocalCoords()));
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -1702,11 +1702,11 @@ public:
         // drop out the middle quad if we're stroked
         int indicesPerInstance = this->stroke() ? kIndicesPerStrokeRRect : kIndicesPerRRect;
         SkAutoTUnref<const GrIndexBuffer> indexBuffer(
-            ref_rrect_index_buffer(this->stroke(), batchTarget->resourceProvider()));
+            ref_rrect_index_buffer(this->stroke(), target->resourceProvider()));
 
         InstancedHelper helper;
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-            helper.init(batchTarget, kTriangles_GrPrimitiveType, vertexStride, indexBuffer,
+            helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer,
             kVertsPerRRect, indicesPerInstance, instanceCount));
         if (!verts || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -1767,7 +1767,7 @@ public:
                 verts++;
             }
         }
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

@@ -7,7 +7,7 @@
 
 #include "GrDefaultPathRenderer.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -248,7 +248,7 @@ public:
         fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         SkAutoTUnref<const GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -266,7 +266,7 @@ public:
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         int instanceCount = fGeoData.count();
 
@@ -313,8 +313,8 @@ public:
         const GrVertexBuffer* vertexBuffer;
         int firstVertex;
 
-        void* verts = batchTarget->makeVertSpace(vertexStride, maxVertices,
-                                                 &vertexBuffer, &firstVertex);
+        void* verts = target->makeVertexSpace(vertexStride, maxVertices,
+                                              &vertexBuffer, &firstVertex);
 
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -326,7 +326,7 @@ public:
 
         void* indices = NULL;
         if (isIndexed) {
-            indices = batchTarget->makeIndexSpace(maxIndices, &indexBuffer, &firstIndex);
+            indices = target->makeIndexSpace(maxIndices, &indexBuffer, &firstIndex);
 
             if (!indices) {
                 SkDebugf("Could not allocate indices\n");
@@ -366,11 +366,11 @@ public:
         } else {
             vertices.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
-        batchTarget->draw(vertices);
+        target->draw(vertices);
 
         // put back reserves
-        batchTarget->putBackIndices((size_t)(maxIndices - indexOffset));
-        batchTarget->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
+        target->putBackIndices((size_t)(maxIndices - indexOffset));
+        target->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

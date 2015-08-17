@@ -9,7 +9,7 @@
 #include "GrAALinearizingConvexPathRenderer.h"
 
 #include "GrAAConvexTessellator.h"
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -155,7 +155,7 @@ public:
         fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
     }
 
-    void draw(GrBatchTarget* batchTarget, const GrPipeline* pipeline, int vertexCount, 
+    void draw(GrVertexBatch::Target* target, const GrPipeline* pipeline, int vertexCount, 
             size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) {
         if (vertexCount == 0 || indexCount == 0) {
             return;
@@ -163,8 +163,8 @@ public:
         const GrVertexBuffer* vertexBuffer;
         GrVertices info;
         int firstVertex;
-        void* verts = batchTarget->makeVertSpace(vertexStride, vertexCount, &vertexBuffer, 
-                &firstVertex);
+        void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, 
+                                              &firstVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -173,7 +173,7 @@ public:
 
         const GrIndexBuffer* indexBuffer;
         int firstIndex;
-        uint16_t* idxs = batchTarget->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
+        uint16_t* idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
         if (!idxs) {
             SkDebugf("Could not allocate indices\n");
             return;
@@ -181,10 +181,10 @@ public:
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
         info.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex, 
                 firstIndex, vertexCount, indexCount);
-        batchTarget->draw(info);
+        target->draw(info);
     }
     
-    void generateGeometry(GrBatchTarget* batchTarget) override {
+    void onPrepareDraws(Target* target) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
@@ -197,7 +197,7 @@ public:
             return;
         }
 
-        batchTarget->initDraw(gp, this->pipeline());
+        target->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
 
@@ -226,8 +226,8 @@ public:
             if (indexCount + currentIndices > UINT16_MAX) {
                 // if we added the current instance, we would overflow the indices we can store in a 
                 // uint16_t. Draw what we've got so far and reset.
-                draw(batchTarget, this->pipeline(), vertexCount, vertexStride, vertices, indexCount, 
-                        indices);
+                draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount, 
+                     indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -246,7 +246,7 @@ public:
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        draw(batchTarget, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
+        draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
              indices);
         free(vertices);
         free(indices);

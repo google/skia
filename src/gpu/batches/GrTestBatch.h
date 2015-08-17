@@ -8,7 +8,7 @@
 #ifndef GrTestBatch_DEFINED
 #define GrTestBatch_DEFINED
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrGeometryProcessor.h"
 #include "GrVertexBuffer.h"
 
@@ -49,12 +49,6 @@ public:
         fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
-    void generateGeometry(GrBatchTarget* batchTarget) override {
-        batchTarget->initDraw(fGeometryProcessor, this->pipeline());
-
-        this->onGenerateGeometry(batchTarget);
-    }
-
 protected:
     GrTestBatch(const GrGeometryProcessor* gp, const SkRect& bounds) {
         fGeometryProcessor.reset(SkRef(gp));
@@ -65,6 +59,11 @@ protected:
     const GrGeometryProcessor* geometryProcessor() const { return fGeometryProcessor; }
 
 private:
+    void onPrepareDraws(Target* target) override {
+        target->initDraw(fGeometryProcessor, this->pipeline());
+        this->generateGeometry(target);
+    }
+
     virtual Geometry* geoData(int index) = 0;
     virtual const Geometry* geoData(int index) const = 0;
 
@@ -72,7 +71,7 @@ private:
         return false;
     }
 
-    virtual void onGenerateGeometry(GrBatchTarget* batchTarget) = 0;
+    virtual void generateGeometry(Target*) = 0;
 
     struct BatchTracker {
         GrColor fColor;

@@ -6,24 +6,28 @@
  */
 
 #include "GrVertexBatch.h"
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrResourceProvider.h"
 
-GrVertexBatch::GrVertexBatch() : fNumberOfDraws(0) {}
+GrVertexBatch::GrVertexBatch() : fDrawArrays(1) {}
 
-void* GrVertexBatch::InstancedHelper::init(GrBatchTarget* batchTarget, GrPrimitiveType primType,
-                                     size_t vertexStride, const GrIndexBuffer* indexBuffer,
-                                     int verticesPerInstance, int indicesPerInstance,
-                                     int instancesToDraw) {
-    SkASSERT(batchTarget);
+void GrVertexBatch::prepareDraws(GrBatchFlushState* state) {
+    Target target(state, this);
+    this->onPrepareDraws(&target);
+}
+
+void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primType,
+                                           size_t vertexStride, const GrIndexBuffer* indexBuffer,
+                                           int verticesPerInstance, int indicesPerInstance,
+                                           int instancesToDraw) {
+    SkASSERT(target);
     if (!indexBuffer) {
         return NULL;
     }
     const GrVertexBuffer* vertexBuffer;
     int firstVertex;
     int vertexCount = verticesPerInstance * instancesToDraw;
-    void* vertices = batchTarget->makeVertSpace(vertexStride, vertexCount,
-                                                &vertexBuffer, &firstVertex);
+    void* vertices = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
     if (!vertices) {
         SkDebugf("Vertices could not be allocated for instanced rendering.");
         return NULL;
@@ -38,14 +42,45 @@ void* GrVertexBatch::InstancedHelper::init(GrBatchTarget* batchTarget, GrPrimiti
     return vertices;
 }
 
-void* GrVertexBatch::QuadHelper::init(GrBatchTarget* batchTarget, size_t vertexStride,
+void GrVertexBatch::InstancedHelper::recordDraw(Target* target) {
+    SkASSERT(fVertices.instanceCount());
+    target->draw(fVertices);
+}
+
+void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
                                       int quadsToDraw) {
     SkAutoTUnref<const GrIndexBuffer> quadIndexBuffer(
-        batchTarget->resourceProvider()->refQuadIndexBuffer());
+        target->resourceProvider()->refQuadIndexBuffer());
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
         return NULL;
     }
-    return this->INHERITED::init(batchTarget, kTriangles_GrPrimitiveType, vertexStride,
+    return this->INHERITED::init(target, kTriangles_GrPrimitiveType, vertexStride,
                                  quadIndexBuffer, kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
+}
+
+void GrVertexBatch::issueDraws(GrBatchFlushState* state) {
+    int uploadCnt = fInlineUploads.count();
+    int currUpload = 0;
+
+    // Iterate of all the drawArrays. Before issuing the draws in each array, perform any inline
+    // uploads.
+    for (SkTLList<DrawArray>::Iter da(fDrawArrays); da.get(); da.next()) {
+        state->advanceLastFlushedToken();
+        while (currUpload < uploadCnt &&
+               fInlineUploads[currUpload]->lastUploadToken() <= state->lastFlushedToken()) {
+            fInlineUploads[currUpload++]->upload(state->uploader());
+        }
+        const GrVertexBatch::DrawArray& drawArray = *da.get();
+        GrProgramDesc desc;
+        const GrPipeline* pipeline = this->pipeline();
+        const GrPrimitiveProcessor* primProc = drawArray.fPrimitiveProcessor.get();
+        state->gpu()->buildProgramDesc(&desc, *primProc, *pipeline, fBatchTracker);
+        GrGpu::DrawArgs args(primProc, pipeline, &desc, &fBatchTracker);
+
+        int drawCount = drawArray.fDraws.count();
+        for (int i = 0; i < drawCount; i++) {
+            state->gpu()->draw(args,  drawArray.fDraws[i]);
+        }
+    }
 }

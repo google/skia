@@ -10,6 +10,8 @@
 
 #include "GrTargetCommands.h"
 
+class GrGpu;
+class GrResourceProvider;
 class GrBufferedDrawTarget;
 
 class GrCommandBuilder : ::SkNoncopyable {
@@ -22,7 +24,7 @@ public:
     virtual ~GrCommandBuilder() {}
 
     void reset() { fCommands.reset(); }
-    void flush(GrBufferedDrawTarget* bufferedDrawTarget) { fCommands.flush(bufferedDrawTarget); }
+    void flush(GrGpu* gpu, GrResourceProvider* rp) { fCommands.flush(gpu, rp); }
 
     virtual Cmd* recordClearStencilClip(const SkIRect& rect,
                                         bool insideClip,
@@ -66,11 +68,9 @@ protected:
     typedef GrTargetCommands::ClearStencilClip ClearStencilClip;
     typedef GrTargetCommands::CopySurface CopySurface;
 
-    GrCommandBuilder(GrGpu* gpu) : fCommands(gpu) {}
+    GrCommandBuilder() {}
 
     GrTargetCommands::CmdBuffer* cmdBuffer() { return fCommands.cmdBuffer(); }
-    GrBatchTarget* batchTarget() { return fCommands.batchTarget(); }
-
 private:
     GrTargetCommands fCommands;
 

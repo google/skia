@@ -10,7 +10,7 @@
 
 #include "GrDrawTarget.h"
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 
 /**
  * A debug GrDrawTarget which immediately flushes every command it receives
@@ -72,7 +72,6 @@ private:
 
     bool isIssued(uint32_t drawID) override { return drawID != fDrawID; }
 
-    GrBatchTarget fBatchTarget;
     uint32_t fDrawID;
 
     typedef GrClipTarget INHERITED;

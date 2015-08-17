@@ -16,7 +16,6 @@
 #include "SkVarAlloc.h"
 
 class GrBatchFontCache;
-class GrBatchTarget;
 class GrGpu;
 
 /**
@@ -59,7 +58,7 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrBatchTarget*, GrGlyph*, GrFontScaler*, const SkGlyph&,
+    bool addGlyphToAtlas(GrDrawBatch::Target*, GrGlyph*, GrFontScaler*, const SkGlyph&,
                          GrMaskFormat expectedMaskFormat);
 
     // testing
@@ -134,30 +133,30 @@ public:
     }
 
     // To ensure the GrBatchAtlas does not evict the Glyph Mask from its texture backing store,
-    // the client must pass in the currentToken from the GrBatchTarget along with the GrGlyph.
+    // the client must pass in the current batch token along with the GrGlyph.
     // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
     void addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater* updater,
-                                      GrGlyph* glyph, GrBatchAtlas::BatchToken token) {
+                                      GrGlyph* glyph, GrBatchToken token) {
         SkASSERT(glyph);
         updater->add(glyph->fID);
         this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
     }
 
     void setUseTokenBulk(const GrBatchAtlas::BulkUseTokenUpdater& updater,
-                         GrBatchAtlas::BatchToken token,
+                         GrBatchToken token,
                          GrMaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
 
     // add to texture atlas that matches this format
     bool addToAtlas(GrBatchTextStrike* strike, GrBatchAtlas::AtlasID* id,
-                    GrBatchTarget* batchTarget,
+                    GrDrawBatch::Target* target,
                     GrMaskFormat format, int width, int height, const void* image,
                     SkIPoint16* loc) {
         fPreserveStrike = strike;
-        return this->getAtlas(format)->addToAtlas(id, batchTarget, width, height, image, loc);
+        return this->getAtlas(format)->addToAtlas(id, target, width, height, image, loc);
     }
 
     // Some clients may wish to verify the integrity of the texture backing store of the

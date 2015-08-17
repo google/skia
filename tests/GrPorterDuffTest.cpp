@@ -911,7 +911,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
         const char* name() const override { return "Test LCD Text Batch"; }
         void initBatchTracker(const GrPipelineOptimizations&) override {}
         bool onCombineIfPossible(GrBatch*, const GrCaps&) override  { return false; }
-        void generateGeometry(GrBatchTarget*) override {}
+        void onPrepareDraws(Target*) override {};
 
     } testLCDCoverageBatch;
 

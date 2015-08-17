@@ -103,7 +103,7 @@ void GrBufferedDrawTarget::onReset() {
 }
 
 void GrBufferedDrawTarget::onFlush() {
-    fCommands->flush(this);
+    fCommands->flush(this->getGpu(), this->getContext()->resourceProvider());
     ++fDrawID;
 }
 

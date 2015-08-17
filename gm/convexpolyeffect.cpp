@@ -12,7 +12,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrBatchTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
@@ -58,11 +58,11 @@ private:
         return &fGeometry;
     }
 
-    void onGenerateGeometry(GrBatchTarget* batchTarget) override {
+    void generateGeometry(Target* target) override {
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
         QuadHelper helper;
-        SkPoint* verts = reinterpret_cast<SkPoint*>(helper.init(batchTarget, vertexStride, 1));
+        SkPoint* verts = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         if (!verts) {
             return;
         }
@@ -72,7 +72,7 @@ private:
         fGeometry.fBounds.outset(5.f, 5.f);
         fGeometry.fBounds.toQuad(verts);
 
-        helper.issueDraw(batchTarget);
+        helper.recordDraw(target);
     }
 
     Geometry fGeometry;

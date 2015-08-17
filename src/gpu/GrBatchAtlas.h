@@ -9,19 +9,18 @@
 #define GrBatchAtlas_DEFINED
 
 #include "GrTexture.h"
+#include "batches/GrDrawBatch.h"
 #include "SkPoint.h"
 #include "SkTDArray.h"
 #include "SkTInternalLList.h"
 
 class BatchPlot;
-class GrBatchTarget;
 class GrRectanizer;
 
 typedef SkTInternalLList<BatchPlot> GrBatchPlotList;
 
 class GrBatchAtlas {
 public:
-    typedef uint64_t BatchToken;
     // An AtlasID is an opaque handle which callers can use to determine if the atlas contains
     // a specific piece of data
     typedef uint64_t AtlasID;
@@ -43,7 +42,7 @@ public:
     // NOTE: If the client intends to refer to the atlas, they should immediately call 'setUseToken'
     // with the currentToken from the batch target, otherwise the next call to addToAtlas might
     // cause an eviction
-    bool addToAtlas(AtlasID*, GrBatchTarget*, int width, int height, const void* image,
+    bool addToAtlas(AtlasID*, GrDrawBatch::Target*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
     GrTexture* getTexture() const { return fTexture; }
@@ -52,7 +51,7 @@ public:
     bool hasID(AtlasID id);
 
     // To ensure the atlas does not evict a given entry, the client must set the last use token
-    void setLastUseToken(AtlasID id, BatchToken batchToken);
+    void setLastUseToken(AtlasID id, GrBatchToken batchToken);
     void registerEvictionCallback(EvictionFunc func, void* userData) {
         EvictionData* data = fEvictionCallbacks.append();
         data->fFunc = func;
@@ -104,7 +103,7 @@ public:
         friend class GrBatchAtlas;
     };
 
-    void setLastUseTokenBulk(const BulkUseTokenUpdater& reffer, BatchToken);
+    void setLastUseTokenBulk(const BulkUseTokenUpdater& reffer, GrBatchToken);
 
     static const int kGlyphMaxDim = 256;
     static bool GlyphTooLargeForAtlas(int width, int height) {
@@ -121,7 +120,7 @@ private:
         return (id >> 16) & 0xffffffffffff;
     }
 
-    inline void updatePlot(GrBatchTarget*, AtlasID*, BatchPlot*);
+    inline void updatePlot(GrDrawBatch::Target*, AtlasID*, BatchPlot*);
 
     inline void makeMRU(BatchPlot* plot);
 

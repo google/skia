@@ -6,6 +6,7 @@
  */
 
 #include "GrDrawAtlasBatch.h"
+#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "SkGr.h"
 #include "SkRandom.h"
@@ -41,14 +42,14 @@ static const GrGeometryProcessor* set_vertex_attributes(bool hasColors,
     return GrDefaultGeoProcFactory::Create(gpColor, coverage, localCoords, viewMatrix);
 }
 
-void GrDrawAtlasBatch::generateGeometry(GrBatchTarget* batchTarget) {
+void GrDrawAtlasBatch::onPrepareDraws(Target* target) {
     // Setup geometry processor
     SkAutoTUnref<const GrGeometryProcessor> gp(set_vertex_attributes(this->hasColors(),
                                                                      this->color(),
                                                                      this->viewMatrix(),
                                                                      this->coverageIgnored()));
     
-    batchTarget->initDraw(gp, this->pipeline());
+    target->initDraw(gp, this->pipeline());
     
     int instanceCount = fGeoData.count();
     size_t vertexStride = gp->getVertexStride();
@@ -57,7 +58,7 @@ void GrDrawAtlasBatch::generateGeometry(GrBatchTarget* batchTarget) {
     
     QuadHelper helper;
     int numQuads = this->quadCount();
-    void* verts = helper.init(batchTarget, vertexStride, numQuads);
+    void* verts = helper.init(target, vertexStride, numQuads);
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return;
@@ -71,7 +72,7 @@ void GrDrawAtlasBatch::generateGeometry(GrBatchTarget* batchTarget) {
         memcpy(vertPtr, args.fVerts.begin(), allocSize);
         vertPtr += allocSize;
     }
-    helper.issueDraw(batchTarget);
+    helper.recordDraw(target);
 }
 
 GrDrawAtlasBatch::GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix,
