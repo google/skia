@@ -157,8 +157,6 @@ static void testOne(skiatest::Reporter* reporter, int iIndex) {
         double cubicT = i[0][0];
         SkDPoint prev = cubic.ptAtT(cubicT * 2 - 1);
         SkDPoint sect = cubic.ptAtT(cubicT);
-        double left[3] = { line.isLeft(prev), line.isLeft(sect), line.isLeft(cubic[3]) };
-        SkDebugf("cubic=(%1.9g, %1.9g, %1.9g)\n", left[0], left[1], left[2]);
         SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", prev.fX, prev.fY, sect.fX, sect.fY);
         SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", sect.fX, sect.fY, cubic[3].fX, cubic[3].fY);
         SkDPoint prevL = line.ptAtT(i[1][0] - 0.0000007);
