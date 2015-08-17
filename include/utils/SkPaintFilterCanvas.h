@@ -16,7 +16,16 @@
 */
 class SK_API SkPaintFilterCanvas : public SkNWayCanvas {
 public:
+    /**
+     * DEPRECATED: use the variant below.
+     */
     SkPaintFilterCanvas(int width, int height);
+
+    /**
+     * The new SkPaintFilterCanvas is configured for forwarding to the
+     * specified canvas.  Also copies the target canvas matrix and clip bounds.
+     */
+    SkPaintFilterCanvas(SkCanvas* canvas);
 
     enum Type {
         kPaint_Type,
