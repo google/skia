@@ -12,7 +12,6 @@
 
 source gbash.sh || exit
 DEFINE_string skia_rev "" "Git hash of Skia revision to clone, default LKGR."
-gbash::init_google "$@"
 
 set -x -e
 
@@ -49,8 +48,8 @@ rsync -avzJ \
   --include=/dm \
   --include=/gm \
   --include=/include \
-  --exclude=/src/animator \
   --include=/src \
+  --exclude=/src/animator \
   --include=/tests \
   --include=/third_party \
   --include=/tools \
@@ -81,16 +80,11 @@ echo BUILD >> .git/info/exclude
 g4 revert README.google
 g4 revert BUILD
 
-# Use google3 version of OWNERS.
+# Use google3 version of OWNERS, README.google, and BUILD.
 find . \
-  -name OWNERS \
+  \( -name OWNERS -o -name README.google -o -name BUILD \) \
   -exec git update-index --skip-worktree \{\} \; \
   -execdir g4 revert \{\} \;
-
-# Tell git to ignore these files that have Windows line endings, because Piper
-# will always change them to Unix line endings.
-git update-index --skip-worktree make.bat
-git update-index --skip-worktree make.py
 
 # Tell git to ignore files left out of the rsync (i.e. "deleted" files).
 git status --porcelain | \
