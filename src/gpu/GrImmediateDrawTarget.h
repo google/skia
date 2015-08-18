@@ -57,10 +57,6 @@ private:
                      const PipelineInfo&) override {
         SkFAIL("Only batch implemented\n");
     }
-    void onCopySurface(GrSurface* dst,
-                       GrSurface* src,
-                       const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override;
 
     bool isIssued(uint32_t drawID) override { return drawID != fDrawID; }
 

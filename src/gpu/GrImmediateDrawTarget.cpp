@@ -40,13 +40,6 @@ void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch) {
 #endif
 }
 
-void GrImmediateDrawTarget::onCopySurface(GrSurface* dst,
-                                          GrSurface* src,
-                                          const SkIRect& srcRect,
-                                          const SkIPoint& dstPoint) {
-    this->getGpu()->copySurface(dst, src, srcRect, dstPoint);
-}
-
 void GrImmediateDrawTarget::onReset() {}
 
 void GrImmediateDrawTarget::onFlush() {

@@ -17,14 +17,3 @@ GrCommandBuilder* GrCommandBuilder::Create(GrGpu* gpu, bool reorder) {
         return SkNEW(GrInOrderCommandBuilder);
     }
 }
-
-GrTargetCommands::Cmd* GrCommandBuilder::recordCopySurface(GrSurface* dst,
-                                                           GrSurface* src,
-                                                           const SkIRect& srcRect,
-                                                           const SkIPoint& dstPoint) {
-    CopySurface* cs = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), CopySurface, (dst, src));
-    cs->fSrcRect = srcRect;
-    cs->fDstPoint = dstPoint;
-    GrBATCH_INFO("Recording copysurface %d\n", cs->uniqueID());
-    return cs;
-}

@@ -228,6 +228,8 @@
       '<(skia_src_path)/gpu/batches/GrBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrBatch.h',
       '<(skia_src_path)/gpu/batches/GrClearBatch.h',
+      '<(skia_src_path)/gpu/batches/GrCopySurfaceBatch.cpp',
+      '<(skia_src_path)/gpu/batches/GrCopySurfaceBatch.h',
       '<(skia_src_path)/gpu/batches/GrDiscardBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrDrawBatch.h',

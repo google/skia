@@ -47,17 +47,12 @@ public:
                                  int,
                                  const GrStencilSettings&,
                                  const GrPipelineOptimizations&) = 0;
-    virtual Cmd* recordCopySurface(GrSurface* dst,
-                                   GrSurface* src,
-                                   const SkIRect& srcRect,
-                                   const SkIPoint& dstPoint);
 
 protected:
     typedef GrTargetCommands::DrawBatch DrawBatch;
     typedef GrTargetCommands::StencilPath StencilPath;
     typedef GrTargetCommands::DrawPath DrawPath;
     typedef GrTargetCommands::DrawPaths DrawPaths;
-    typedef GrTargetCommands::CopySurface CopySurface;
 
     GrCommandBuilder() {}
 

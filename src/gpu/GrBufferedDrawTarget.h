@@ -91,10 +91,6 @@ private:
                      int count,
                      const GrStencilSettings&,
                      const PipelineInfo&) override;
-    void onCopySurface(GrSurface* dst,
-                       GrSurface* src,
-                       const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override;
 
     bool isIssued(uint32_t drawID) override { return drawID != fDrawID; }
 

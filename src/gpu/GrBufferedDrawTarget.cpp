@@ -89,13 +89,6 @@ void GrBufferedDrawTarget::onFlush() {
     ++fDrawID;
 }
 
-void GrBufferedDrawTarget::onCopySurface(GrSurface* dst,
-                                         GrSurface* src,
-                                         const SkIRect& srcRect,
-                                         const SkIPoint& dstPoint) {
-    fCommands->recordCopySurface(dst, src, srcRect, dstPoint);
-}
-
 GrTargetCommands::StateForPathDraw*
 GrBufferedDrawTarget::createStateForPathDraw(const GrPrimitiveProcessor* primProc,
                                              const GrDrawTarget::PipelineInfo& pipelineInfo,

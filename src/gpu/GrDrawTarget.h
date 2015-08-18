@@ -262,13 +262,6 @@ private:
                              const GrStencilSettings&,
                              const PipelineInfo&) = 0;
 
-    /** The subclass's copy surface implementation. It should assume that any clipping has already
-        been performed on the rect and point and that the GrGpu supports the copy. */
-    virtual void onCopySurface(GrSurface* dst,
-                               GrSurface* src,
-                               const SkIRect& srcRect,
-                               const SkIPoint& dstPoint) = 0;
-
     // Check to see if this set of draw commands has been sent out
     virtual bool       isIssued(uint32_t drawID) { return true; }
     void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
