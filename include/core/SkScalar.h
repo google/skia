@@ -9,7 +9,7 @@
 #define SkScalar_DEFINED
 
 #include "SkFixed.h"
-#include "SkFloatingPoint.h"
+#include "../private/SkFloatingPoint.h"
 
 // TODO: move this sort of check into SkPostConfig.h
 #define SK_SCALAR_IS_DOUBLE 0
