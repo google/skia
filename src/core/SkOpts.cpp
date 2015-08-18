@@ -11,6 +11,7 @@
 #define SK_OPTS_NS portable
 #include "SkBlitMask_opts.h"
 #include "SkBlurImageFilter_opts.h"
+#include "SkColorCubeFilter_opts.h"
 #include "SkFloatingPoint_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkTextureCompressor_opts.h"
@@ -38,6 +39,7 @@ namespace SkOpts {
     decltype(memset16)               memset16 = portable::memset16;
     decltype(memset32)               memset32 = portable::memset32;
     decltype(create_xfermode) create_xfermode = SkCreate4pxXfermode;
+    decltype(color_cube_filter_span) color_cube_filter_span = portable::color_cube_filter_span;
 
     decltype(box_blur_xx) box_blur_xx = portable::box_blur_xx;
     decltype(box_blur_xy) box_blur_xy = portable::box_blur_xy;

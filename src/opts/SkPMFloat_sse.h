@@ -38,4 +38,29 @@ inline Sk4f SkPMFloat::alphas() const {
     return _mm_shuffle_ps(fVec, fVec, 0xff);  // Read as 11 11 11 11, copying lane 3 to all lanes.
 }
 
+inline SkPMFloat SkPMFloat::FromBGRx(SkColor c) {
+    __m128i fix8 = _mm_cvtsi32_si128((int)c);
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    const char _ = ~0;  // Zero these bytes.
+    __m128i fix8_32 = _mm_shuffle_epi8(fix8,
+    #if defined(SK_PMCOLOR_IS_BGRA)
+            _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, _,_,_,_)
+    #else
+            _mm_setr_epi8(2,_,_,_, 1,_,_,_, 0,_,_,_, _,_,_,_)
+    #endif
+    );
+#else
+    __m128i fix8_16 = _mm_unpacklo_epi8 (fix8   , _mm_setzero_si128()),
+            fix8_32 = _mm_unpacklo_epi16(fix8_16, _mm_setzero_si128());
+    #if defined(SK_PMCOLOR_IS_RGBA)
+        fix8_32 = _mm_shuffle_epi32(fix8_32, 0xC6);  // C6 == 11 00 01 10, i.e swap lanes 0 and 2.
+    #endif
+#endif
+    fix8_32 = _mm_or_si128(fix8_32, _mm_set_epi32(0xFF,0,0,0));  // Force alpha to 1.
+
+    SkPMFloat pmf = Sk4f(_mm_mul_ps(_mm_cvtepi32_ps(fix8_32), _mm_set1_ps(1.0f/255)));
+    SkASSERT(pmf.isValid());
+    return pmf;
+}
+
 }  // namespace

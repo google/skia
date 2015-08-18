@@ -34,4 +34,14 @@ inline Sk4f SkPMFloat::alphas() const {
     return Sk4f(this->a());
 }
 
+inline SkPMFloat SkPMFloat::FromBGRx(SkColor c) {
+  float inv255 = 1.0f / 255;
+  SkPMFloat pmf = SkPMFloat::FromARGB(1.0f,
+                                      SkGetPackedR32(c) * inv255,
+                                      SkGetPackedG32(c) * inv255,
+                                      SkGetPackedB32(c) * inv255);
+  SkASSERT(pmf.isValid());
+  return pmf;
+}
+
 }  // namespace

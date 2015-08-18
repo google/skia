@@ -8,6 +8,7 @@
 #include "SkColorCubeFilter.h"
 #include "SkColorPriv.h"
 #include "SkOnce.h"
+#include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
@@ -128,36 +129,9 @@ void SkColorCubeFilter::filterSpan(const SkPMColor src[], int count, SkPMColor d
     const SkScalar* colorToScalar;
     fCache.getProcessingLuts(&colorToIndex, &colorToFactors, &colorToScalar);
 
-    const int dim = fCache.cubeDimension();
-    SkColor* colorCube = (SkColor*)fCubeData->data();
-    for (int i = 0; i < count; ++i) {
-        SkColor inputColor = SkUnPreMultiply::PMColorToColor(src[i]);
-        uint8_t r = SkColorGetR(inputColor);
-        uint8_t g = SkColorGetG(inputColor);
-        uint8_t b = SkColorGetB(inputColor);
-        uint8_t a = SkColorGetA(inputColor);
-        SkScalar rOut(0), gOut(0), bOut(0);
-        for (int x = 0; x < 2; ++x) {
-            for (int y = 0; y < 2; ++y) {
-                for (int z = 0; z < 2; ++z) {
-                    SkColor lutColor = colorCube[colorToIndex[x][r] +
-                                                (colorToIndex[y][g] +
-                                                 colorToIndex[z][b] * dim) * dim];
-                    SkScalar factor = colorToFactors[x][r] *
-                                      colorToFactors[y][g] *
-                                      colorToFactors[z][b];
-                    rOut += colorToScalar[SkColorGetR(lutColor)] * factor;
-                    gOut += colorToScalar[SkColorGetG(lutColor)] * factor;
-                    bOut += colorToScalar[SkColorGetB(lutColor)] * factor;
-                }
-            }
-        }
-        const SkScalar aOut = SkIntToScalar(a);
-        dst[i] = SkPackARGB32(a,
-            SkScalarRoundToInt(rOut * aOut),
-            SkScalarRoundToInt(gOut * aOut),
-            SkScalarRoundToInt(bOut * aOut));
-    }
+    SkOpts::color_cube_filter_span(src, count, dst, colorToIndex,
+                                   colorToFactors, fCache.cubeDimension(),
+                                   (SkColor*)fCubeData->data());
 }
 
 SkFlattenable* SkColorCubeFilter::CreateProc(SkReadBuffer& buffer) {
