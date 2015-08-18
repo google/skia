@@ -950,3 +950,25 @@ SkStreamRewindable* SkStreamRewindableFromSkStream(SkStream* stream) {
     return tempStream.detachAsStream();  // returns a SkBlockMemoryStream,
                                          // cheaper than copying to SkData
 }
+
+bool SkStreamCopy(SkWStream* out, SkStream* input) {
+    const char* base = static_cast<const char*>(input->getMemoryBase());
+    if (base && input->hasPosition() && input->hasLength()) {
+        // Shortcut that avoids the while loop.
+        size_t position = input->getPosition();
+        size_t length = input->getLength();
+        SkASSERT(length >= position);
+        return out->write(&base[position], length - position);
+    }
+    char scratch[4096];
+    size_t count;
+    while (true) {
+        count = input->read(scratch, sizeof(scratch));
+        if (0 == count) {
+            return true;
+        }
+        if (!out->write(scratch, count)) {
+            return false;
+        }
+    }
+}

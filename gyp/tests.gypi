@@ -27,6 +27,7 @@
     'tools.gyp:picture_utils',
     'tools.gyp:resources',
     'tools.gyp:sk_tool_utils',
+    'zlib.gyp:zlib',
   ],
   'conditions': [
     [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "android"]', {
@@ -38,7 +39,7 @@
       ],
     }],
     [ 'not skia_pdf', {
-      'dependencies!': [ 'pdf.gyp:pdf' ],
+      'dependencies!': [ 'pdf.gyp:pdf', 'zlib.gyp:zlib' ],
       'dependencies': [ 'pdf.gyp:nopdf' ],
       'sources!': [ '<!@(python find.py ../tests "PDF*.c*")', ],
     }],

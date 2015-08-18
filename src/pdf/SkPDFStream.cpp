@@ -29,9 +29,9 @@ void SkPDFStream::emitObject(SkWStream* stream,
     if (fState == kUnused_State) {
         fState = kNoCompression_State;
         SkDynamicMemoryWStream compressedData;
-
-        SkAssertResult(
-                SkFlate::Deflate(fDataStream.get(), &compressedData));
+        SkDeflateWStream deflateWStream(&compressedData);
+        SkAssertResult(SkStreamCopy(&deflateWStream, fDataStream.get()));
+        deflateWStream.finalize();
         SkAssertResult(fDataStream->rewind());
         if (compressedData.getOffset() < this->dataSize()) {
             SkAutoTDelete<SkStream> compressed(

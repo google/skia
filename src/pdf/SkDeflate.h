@@ -13,36 +13,6 @@
 #include "SkTypes.h"
 
 #include "SkStream.h"
-class SkData;
-
-/** \class SkFlate
-    A class to provide access to the flate compression algorithm.
-*/
-class SkFlate {
-public:
-    /**
-     *  Use the flate compression algorithm to compress the data in src,
-     *  putting the result into dst.  Returns false if an error occurs.
-     */
-    static bool Deflate(SkStream* src, SkWStream* dst);
-
-    /**
-     *  Use the flate compression algorithm to compress the data in src,
-     *  putting the result into dst.  Returns false if an error occurs.
-     */
-    static bool Deflate(const void* src, size_t len, SkWStream* dst);
-
-    /**
-     *  Use the flate compression algorithm to compress the data,
-     *  putting the result into dst.  Returns false if an error occurs.
-     */
-    static bool Deflate(const SkData*, SkWStream* dst);
-
-    /** Use the flate compression algorithm to decompress the data in src,
-        putting the result into dst.  Returns false if an error occurs.
-     */
-    static bool Inflate(SkStream* src, SkWStream* dst);
-};
 
 /**
   * Wrap a stream in this class to compress the information written to

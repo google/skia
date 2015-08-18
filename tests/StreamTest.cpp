@@ -11,6 +11,7 @@
 #include "SkOSFile.h"
 #include "SkRandom.h"
 #include "SkStream.h"
+#include "SkStreamPriv.h"
 #include "Test.h"
 
 #ifndef SK_BUILD_FOR_WIN
@@ -334,4 +335,61 @@ DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
         expectedPtr[i] = valueSource.nextU() & 0xFF;
     }
     stream_peek_test(rep, asset, expected);
+}
+
+namespace {
+class DumbStream : public SkStream {
+public:
+    DumbStream(const uint8_t* data, size_t n)
+        : fData(data), fCount(n), fIdx(0) {}
+    size_t read(void* buffer, size_t size) override {
+        size_t c = SkTMin(fCount - fIdx, size);
+        if (c) {
+            memcpy(buffer, &fData[fIdx], size);
+            fIdx += c;
+        }
+        return c;
+    }
+    bool isAtEnd() const override {
+        return fCount > fIdx;
+    }
+ private:
+    const uint8_t* fData;
+    size_t fCount, fIdx;
+};
+}  // namespace
+
+static void stream_copy_test(skiatest::Reporter* reporter,
+                             const void* srcData,
+                             size_t N,
+                             SkStream* stream) {
+    SkDynamicMemoryWStream tgt;
+    if (!SkStreamCopy(&tgt, stream)) {
+        ERRORF(reporter, "SkStreamCopy failed");
+        return;
+    }
+    SkAutoTUnref<SkData> data(tgt.copyToData());
+    tgt.reset();
+    if (data->size() != N) {
+        ERRORF(reporter, "SkStreamCopy incorrect size");
+        return;
+    }
+    if (0 != memcmp(data->data(), srcData, N)) {
+        ERRORF(reporter, "SkStreamCopy bad copy");
+    }
+}
+
+DEF_TEST(StreamCopy, reporter) {
+    SkRandom random(123456);
+    static const size_t N = 10000;
+    uint8_t src[N];
+    for (size_t j = 0; j < N; ++j) {
+        src[j] = random.nextU() & 0xff;
+    }
+    // SkStreamCopy had two code paths; this test both.
+    DumbStream dumbStream(src, N);
+    stream_copy_test(reporter, src, N, &dumbStream);
+    SkMemoryStream smartStream(src, N);
+    stream_copy_test(reporter, src, N, &smartStream);
+
 }

@@ -9,6 +9,98 @@
 #include "SkRandom.h"
 #include "Test.h"
 
+namespace {
+
+#ifdef ZLIB_INCLUDE
+    #include ZLIB_INCLUDE
+#else
+    #include "zlib.h"
+#endif
+
+// Different zlib implementations use different T.
+// We've seen size_t and unsigned.
+template <typename T> void* skia_alloc_func(void*, T items, T size) {
+    return sk_calloc_throw(SkToSizeT(items) * SkToSizeT(size));
+}
+
+void skia_free_func(void*, void* address) { sk_free(address); }
+
+/**
+ *  Use the un-deflate compression algorithm to decompress the data in src,
+ *  returning the result.  Returns NULL if an error occurs.
+ */
+SkStreamAsset* stream_inflate(SkStream* src) {
+    SkDynamicMemoryWStream decompressedDynamicMemoryWStream;
+    SkWStream* dst = &decompressedDynamicMemoryWStream;
+
+    static const size_t kBufferSize = 1024;
+    uint8_t inputBuffer[kBufferSize];
+    uint8_t outputBuffer[kBufferSize];
+    z_stream flateData;
+    flateData.zalloc = &skia_alloc_func;
+    flateData.zfree = &skia_free_func;
+    flateData.opaque = NULL;
+    flateData.next_in = NULL;
+    flateData.avail_in = 0;
+    flateData.next_out = outputBuffer;
+    flateData.avail_out = kBufferSize;
+    int rc;
+    rc = inflateInit(&flateData);
+    if (rc != Z_OK)
+        return nullptr;
+
+    uint8_t* input = (uint8_t*)src->getMemoryBase();
+    size_t inputLength = src->getLength();
+    if (input == NULL || inputLength == 0) {
+        input = NULL;
+        flateData.next_in = inputBuffer;
+        flateData.avail_in = 0;
+    } else {
+        flateData.next_in = input;
+        flateData.avail_in = SkToUInt(inputLength);
+    }
+
+    rc = Z_OK;
+    while (true) {
+        if (flateData.avail_out < kBufferSize) {
+            if (!dst->write(outputBuffer, kBufferSize - flateData.avail_out)) {
+                rc = Z_BUF_ERROR;
+                break;
+            }
+            flateData.next_out = outputBuffer;
+            flateData.avail_out = kBufferSize;
+        }
+        if (rc != Z_OK)
+            break;
+        if (flateData.avail_in == 0) {
+            if (input != NULL)
+                break;
+            size_t read = src->read(&inputBuffer, kBufferSize);
+            if (read == 0)
+                break;
+            flateData.next_in = inputBuffer;
+            flateData.avail_in = SkToUInt(read);
+        }
+        rc = inflate(&flateData, Z_NO_FLUSH);
+    }
+    while (rc == Z_OK) {
+        rc = inflate(&flateData, Z_FINISH);
+        if (flateData.avail_out < kBufferSize) {
+            if (!dst->write(outputBuffer, kBufferSize - flateData.avail_out))
+                return nullptr;
+            flateData.next_out = outputBuffer;
+            flateData.avail_out = kBufferSize;
+        }
+    }
+
+    inflateEnd(&flateData);
+    if (rc != Z_STREAM_END) {
+        return nullptr;
+    }
+    return decompressedDynamicMemoryWStream.detachAsStream();
+}
+}  // namespace
+
 DEF_TEST(SkDeflateWStream, r) {
     SkRandom random(123456);
     for (int i = 0; i < 50; ++i) {
@@ -34,13 +126,7 @@ DEF_TEST(SkDeflateWStream, r) {
         }
         SkAutoTDelete<SkStreamAsset> compressed(
                 dynamicMemoryWStream.detachAsStream());
-
-        SkDynamicMemoryWStream decompressedDynamicMemoryWStream;
-        SkAssertResult(SkFlate::Inflate(compressed,
-                                        &decompressedDynamicMemoryWStream));
-
-        SkAutoTDelete<SkStreamAsset> decompressed(
-                decompressedDynamicMemoryWStream.detachAsStream());
+        SkAutoTDelete<SkStreamAsset> decompressed(stream_inflate(compressed));
 
         if (decompressed->getLength() != size) {
             ERRORF(r, "Decompression failed to get right size [%d]."

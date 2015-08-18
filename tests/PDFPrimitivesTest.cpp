@@ -99,12 +99,14 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
         SkAutoTUnref<SkPDFStream> stream(new SkPDFStream(streamData2.get()));
 
         SkDynamicMemoryWStream compressedByteStream;
-        SkFlate::Deflate(streamData2.get(), &compressedByteStream);
-        SkAutoDataUnref compressedData(compressedByteStream.copyToData());
+        SkDeflateWStream deflateWStream(&compressedByteStream);
+        deflateWStream.write(streamBytes2, strlen(streamBytes2));
+        deflateWStream.finalize();
 
         SkDynamicMemoryWStream expected;
         expected.writeText("<</Filter /FlateDecode\n/Length 116>> stream\n");
-        expected.write(compressedData->data(), compressedData->size());
+        compressedByteStream.writeToStream(&expected);
+        compressedByteStream.reset();
         expected.writeText("\nendstream");
         SkAutoDataUnref expectedResultData2(expected.copyToData());
         SkString result = emit_to_string(*stream);
