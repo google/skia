@@ -129,6 +129,33 @@ bool GrProcessor::hasSameTextureAccesses(const GrProcessor& that) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
+                                  bool ignoreCoordTransforms) const {
+    if (this->classID() != that.classID() ||
+        !this->hasSameTextureAccesses(that)) {
+        return false;
+    }
+    if (ignoreCoordTransforms) {
+        if (this->numTransforms() != that.numTransforms()) {
+            return false;
+        }
+    } else if (!this->hasSameTransforms(that)) {
+        return false;
+    }
+    if (!this->onIsEqual(that)) {
+        return false;
+    }
+    if (this->numChildProcessors() != that.numChildProcessors()) {
+        return false;
+    }
+    for (int i = 0; i < this->numChildProcessors(); ++i) {
+        if (!this->childProcessor(i).isEqual(that.childProcessor(i), ignoreCoordTransforms)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
     fUsesLocalCoords = fUsesLocalCoords || transform->sourceCoords() == kLocal_GrCoordSet;

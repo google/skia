@@ -74,20 +74,7 @@ public:
 
         A return value of true from isEqual() should not be used to test whether the processor would
         generate the same shader code. To test for identical code generation use getGLProcessorKey*/
-    bool isEqual(const GrFragmentProcessor& that, bool ignoreCoordTransforms) const {
-        if (this->classID() != that.classID() ||
-            !this->hasSameTextureAccesses(that)) {
-            return false;
-        }
-        if (ignoreCoordTransforms) {
-            if (this->numTransforms() != that.numTransforms()) {
-                return false;
-            }
-        } else if (!this->hasSameTransforms(that)) {
-            return false;
-        }
-        return this->onIsEqual(that);
-    }
+    bool isEqual(const GrFragmentProcessor& that, bool ignoreCoordTransforms) const;
 
     /**
      * This function is used to perform optimizations. When called the invarientOuput param
@@ -131,6 +118,9 @@ protected:
 
     /**
      * Subclass implements this to support getConstantColorComponents(...).
+     *
+     * Note: it's up to the subclass implementation to do any recursive call to compute the child
+     * procs' output invariants; computeInvariantOutput will not be recursive.
      */
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
 
