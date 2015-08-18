@@ -11,7 +11,7 @@
 
 GrVertexBatch::GrVertexBatch() : fDrawArrays(1) {}
 
-void GrVertexBatch::prepareDraws(GrBatchFlushState* state) {
+void GrVertexBatch::onPrepare(GrBatchFlushState* state) {
     Target target(state, this);
     this->onPrepareDraws(&target);
 }
@@ -59,7 +59,7 @@ void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
                                  quadIndexBuffer, kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
 }
 
-void GrVertexBatch::issueDraws(GrBatchFlushState* state) {
+void GrVertexBatch::onDraw(GrBatchFlushState* state) {
     int uploadCnt = fInlineUploads.count();
     int currUpload = 0;
 

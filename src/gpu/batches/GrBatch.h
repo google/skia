@@ -12,8 +12,10 @@
 #include "GrNonAtomicRef.h"
 
 #include "SkRect.h"
+#include "SkString.h"
 
 class GrCaps;
+class GrBatchFlushState;
 
 /**
  * GrBatch is the base class for all Ganesh deferred geometry generators.  To facilitate
@@ -79,6 +81,20 @@ public:
 #endif
     SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
+    /** Called prior to drawing. The batch should perform any resource creation necessary to
+        to quickly issue its draw when draw is called. */
+    void prepare(GrBatchFlushState* state) { this->onPrepare(state); }
+
+    /** Issues the batches commands to GrGpu. */
+    void draw(GrBatchFlushState* state) { this->onDraw(state); }
+
+    /** Used to block batching across render target changes. Remove this once we store
+        GrBatches for different RTs in different targets. */
+    virtual uint32_t renderTargetUniqueID() const = 0;
+
+    /** Used for spewing information about batches when debugging. */
+    virtual SkString dumpInfo() const = 0;
+
 protected:
     template <typename PROC_SUBCLASS> void initClassID() {
          static uint32_t kClassID = GenID(&gCurrBatchClassID);
@@ -97,6 +113,9 @@ protected:
 
 private:
     virtual bool onCombineIfPossible(GrBatch*, const GrCaps& caps) = 0;
+
+    virtual void onPrepare(GrBatchFlushState*) = 0;
+    virtual void onDraw(GrBatchFlushState*) = 0;
 
     static uint32_t GenID(int32_t* idCounter) {
         // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The

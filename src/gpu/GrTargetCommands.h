@@ -15,7 +15,8 @@
 #include "GrRenderTarget.h"
 #include "GrTRecorder.h"
 
-#include "batches/GrDrawBatch.h"
+#include "batches/GrBatch.h"
+
 #include "SkRect.h"
 
 class GrResourceProvider;
@@ -30,12 +31,11 @@ public:
     public:
         enum CmdType {
             kStencilPath_CmdType       = 1,
-            kClear_CmdType             = 2,
-            kClearStencil_CmdType      = 3,
-            kCopySurface_CmdType       = 4,
-            kDrawPath_CmdType          = 5,
-            kDrawPaths_CmdType         = 6,
-            kDrawBatch_CmdType         = 7,
+            kClearStencil_CmdType      = 2,
+            kCopySurface_CmdType       = 3,
+            kDrawPath_CmdType          = 4,
+            kDrawPaths_CmdType         = 5,
+            kDrawBatch_CmdType         = 6,
         };
 
         Cmd(CmdType type)
@@ -177,21 +177,6 @@ private:
         GrPendingIOResource<const GrPathRange, kRead_GrIOType> fPathRange;
     };
 
-    // This is also used to record a discard by setting the color to GrColor_ILLEGAL
-    struct Clear : public Cmd {
-        Clear(GrRenderTarget* rt) : Cmd(kClear_CmdType), fRenderTarget(rt) {}
-
-        GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
-
-        void execute(GrBatchFlushState*) override;
-
-        SkIRect fRect;
-        GrColor fColor;
-
-    private:
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
-    };
-
     // This command is ONLY used by the clip mask manager to clear the stencil clip bits
     struct ClearStencilClip : public Cmd {
         ClearStencilClip(GrRenderTarget* rt) : Cmd(kClearStencil_CmdType), fRenderTarget(rt) {}
@@ -228,17 +213,17 @@ private:
     };
 
     struct DrawBatch : public Cmd {
-        DrawBatch(GrDrawBatch* batch)
+        DrawBatch(GrBatch* batch)
             : Cmd(kDrawBatch_CmdType)
             , fBatch(SkRef(batch)){
             SkASSERT(!batch->isUsed());
         }
 
-        GrDrawBatch* batch() { return fBatch; }
+        GrBatch* batch() { return fBatch; }
         void execute(GrBatchFlushState*) override;
 
     private:
-        SkAutoTUnref<GrDrawBatch>   fBatch;
+        SkAutoTUnref<GrBatch>   fBatch;
     };
 
     static const int kCmdBufferInitialSizeInBytes = 8 * 1024;

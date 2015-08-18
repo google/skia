@@ -26,9 +26,6 @@ public:
 
     GrVertexBatch();
 
-    void prepareDraws(GrBatchFlushState* state);
-    void issueDraws(GrBatchFlushState* state);
-
 protected:
     /** Helper for rendering instances using an instanced index index buffer. This class creates the
         space for the vertices and flushes the draws to the batch target. */
@@ -65,6 +62,9 @@ protected:
     };
 
 private:
+    void onPrepare(GrBatchFlushState* state) final;
+    void onDraw(GrBatchFlushState* state) final;
+
     virtual void onPrepareDraws(Target*) = 0;
 
     // A set of contiguous draws with no inline uploads between them that all use the same

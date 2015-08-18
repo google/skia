@@ -30,14 +30,12 @@ public:
                           bool insideClip,
                           GrRenderTarget* renderTarget) override;
 
-    void discard(GrRenderTarget*) override;
-
 private:
     void onReset() override;
     void onFlush() override;
 
     // overrides from GrDrawTarget
-    void onDrawBatch(GrDrawBatch*) override;
+    void onDrawBatch(GrBatch*) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,
@@ -62,9 +60,6 @@ private:
                      const PipelineInfo&) override {
         SkFAIL("Only batch implemented\n");
     }
-    void onClear(const SkIRect& rect,
-                 GrColor color,
-                 GrRenderTarget* renderTarget) override;
     void onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,

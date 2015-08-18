@@ -56,6 +56,25 @@ public:
     // TODO no GrPrimitiveProcessors yet read fragment position
     bool willReadFragmentPosition() const { return false; }
 
+    uint32_t renderTargetUniqueID() const final {
+        SkASSERT(fPipelineInstalled);
+        return this->pipeline()->getRenderTarget()->getUniqueID();
+    }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        string.append("ColorStages:\n");
+        for (int i = 0; i < this->pipeline()->numColorFragmentStages(); i++) {
+            string.appendf("\t\t%s\n", this->pipeline()->getColorStage(i).processor()->name());
+        }
+        string.append("CoverageStages:\n");
+        for (int i = 0; i < this->pipeline()->numCoverageFragmentStages(); i++) {
+            string.appendf("\t%s\n", this->pipeline()->getCoverageStage(i).processor()->name());
+        }
+        string.appendf("XP: %s\n", this->pipeline()->getXferProcessor()->name());
+        return string;
+    }
+
 private:
     /**
      * initBatchTracker is a hook for the some additional overrides / optimization possibilities

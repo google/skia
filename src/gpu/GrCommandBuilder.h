@@ -29,8 +29,7 @@ public:
     virtual Cmd* recordClearStencilClip(const SkIRect& rect,
                                         bool insideClip,
                                         GrRenderTarget* renderTarget);
-    virtual Cmd* recordDiscard(GrRenderTarget*);
-    virtual Cmd* recordDrawBatch(GrDrawBatch*, const GrCaps&) = 0;
+    virtual Cmd* recordDrawBatch(GrBatch*, const GrCaps&) = 0;
     virtual Cmd* recordStencilPath(const GrPipelineBuilder&,
                                    const GrPathProcessor*,
                                    const GrPath*,
@@ -51,9 +50,6 @@ public:
                                  int,
                                  const GrStencilSettings&,
                                  const GrPipelineOptimizations&) = 0;
-    virtual Cmd* recordClear(const SkIRect& rect,
-                             GrColor,
-                             GrRenderTarget*);
     virtual Cmd* recordCopySurface(GrSurface* dst,
                                    GrSurface* src,
                                    const SkIRect& srcRect,
@@ -64,7 +60,6 @@ protected:
     typedef GrTargetCommands::StencilPath StencilPath;
     typedef GrTargetCommands::DrawPath DrawPath;
     typedef GrTargetCommands::DrawPaths DrawPaths;
-    typedef GrTargetCommands::Clear Clear;
     typedef GrTargetCommands::ClearStencilClip ClearStencilClip;
     typedef GrTargetCommands::CopySurface CopySurface;
 

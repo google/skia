@@ -25,7 +25,7 @@ GrImmediateDrawTarget::~GrImmediateDrawTarget() {
     this->reset();
 }
 
-void GrImmediateDrawTarget::onDrawBatch(GrDrawBatch* batch) {
+void GrImmediateDrawTarget::onDrawBatch(GrBatch* batch) {
 
 #if 0
     // TODO: encapsulate the specialization of GrVertexBatch in GrVertexBatch so that we can
@@ -40,11 +40,6 @@ void GrImmediateDrawTarget::onDrawBatch(GrDrawBatch* batch) {
 #endif
 }
 
-void GrImmediateDrawTarget::onClear(const SkIRect& rect, GrColor color,
-                                    GrRenderTarget* renderTarget) {
-    this->getGpu()->clear(rect, color, renderTarget);
-}
-
 void GrImmediateDrawTarget::onCopySurface(GrSurface* dst,
                                           GrSurface* src,
                                           const SkIRect& srcRect,
@@ -56,14 +51,6 @@ void GrImmediateDrawTarget::clearStencilClip(const SkIRect& rect,
                                              bool insideClip,
                                              GrRenderTarget* renderTarget) {
     this->getGpu()->clearStencilClip(rect, insideClip, renderTarget);
-}
-
-void GrImmediateDrawTarget::discard(GrRenderTarget* renderTarget) {
-    if (!this->caps()->discardRenderTargetSupport()) {
-        return;
-    }
-
-    this->getGpu()->discard(renderTarget);
 }
 
 void GrImmediateDrawTarget::onReset() {}

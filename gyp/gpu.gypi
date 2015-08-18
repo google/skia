@@ -227,6 +227,8 @@
       '<(skia_src_path)/gpu/batches/GrBWFillRectBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrBatch.h',
+      '<(skia_src_path)/gpu/batches/GrClearBatch.h',
+      '<(skia_src_path)/gpu/batches/GrDiscardBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrDrawBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawAtlasBatch.cpp',

@@ -6,6 +6,7 @@
  */
 
 #include "GrReorderCommandBuilder.h"
+#include "SkStringUtils.h"
 
 template <class Left, class Right>
 static bool intersect(const Left& a, const Right& b) {
@@ -15,7 +16,7 @@ static bool intersect(const Left& a, const Right& b) {
            a.fTop < b.fBottom && b.fTop < a.fBottom;
 }
 
-GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrDrawBatch* batch,
+GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrBatch* batch,
                                                                 const GrCaps& caps) {
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw
@@ -25,26 +26,13 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrDrawBatch* bat
     static const int kMaxLookback = 10;
     int i = 0;
 
-    GrRenderTarget* rt = batch->pipeline()->getRenderTarget();
-
     GrBATCH_INFO("Re-Recording (%s, B%u)\n"
-                 "\tRenderTarget %p\n"
                  "\tBounds (%f, %f, %f, %f)\n",
                  batch->name(),
-                 batch->uniqueID(), rt,
+                 batch->uniqueID(),
                  batch->bounds().fLeft, batch->bounds().fRight,
                  batch->bounds().fTop, batch->bounds().fBottom);
-    if (GR_BATCH_SPEW) {
-        SkDebugf("\tColorStages:\n");
-        for (int i = 0; i < batch->pipeline()->numColorFragmentStages(); i++) {
-            SkDebugf("\t\t%s\n", batch->pipeline()->getColorStage(i).processor()->name());
-        }
-        SkDebugf("\tCoverageStages:\n");
-        for (int i = 0; i < batch->pipeline()->numCoverageFragmentStages(); i++) {
-            SkDebugf("\t\t%s\n", batch->pipeline()->getCoverageStage(i).processor()->name());
-        }
-        SkDebugf("\tXP: %s\n", batch->pipeline()->getXferProcessor()->name());
-    }
+    GrBATCH_INFO(SkTabString(batch->dumpInfo(), 1).c_str());
     GrBATCH_INFO("\tOutcome:\n");
     if (!this->cmdBuffer()->empty()) {
         GrTargetCommands::CmdBuffer::ReverseIter reverseIter(*this->cmdBuffer());
@@ -53,7 +41,7 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrDrawBatch* bat
             if (Cmd::kDrawBatch_CmdType == reverseIter->type()) {
                 DrawBatch* previous = static_cast<DrawBatch*>(reverseIter.get());
 
-                if (previous->batch()->pipeline()->getRenderTarget() != rt) {
+                if (previous->batch()->renderTargetUniqueID() != batch->renderTargetUniqueID()) {
                     GrBATCH_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
                                  previous->batch()->name(), previous->batch()->uniqueID());
                     break;
@@ -70,24 +58,9 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrDrawBatch* bat
                                  previous->batch()->name(), previous->batch()->uniqueID());
                     break;
                 }
-            } else if (Cmd::kClear_CmdType == reverseIter->type()) {
-                Clear* previous = static_cast<Clear*>(reverseIter.get());
-
-                // We cannot continue to search backwards if the render target changes
-                if (previous->renderTarget() != rt) {
-                    GrBATCH_INFO("\t\tBreaking because of Clear's Rendertarget change\n");
-                    break;
-                }
-
-                // We set the color to illegal if we are doing a discard.
-                if (previous->fColor == GrColor_ILLEGAL ||
-                    intersect(batch->bounds(), previous->fRect)) {
-                    GrBATCH_INFO("\t\tBreaking because of Clear intersection\n");
-                    break;
-                }
             } else {
                 GrBATCH_INFO("\t\tBreaking because of other %08x\n", reverseIter->type());
-                // TODO temporary until we can navigate the other types of commands
+                // TODO temporary until we only have batches.
                 break;
             }
         } while (reverseIter.previous() && ++i < kMaxLookback);

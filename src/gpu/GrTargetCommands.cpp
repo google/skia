@@ -30,11 +30,7 @@ void GrTargetCommands::flush(GrGpu* gpu, GrResourceProvider* resourceProvider) {
     while (genIter.next()) {
         if (Cmd::kDrawBatch_CmdType == genIter->type()) {
             DrawBatch* db = reinterpret_cast<DrawBatch*>(genIter.get());
-            // TODO: encapsulate the specialization of GrVertexBatch in GrVertexBatch so that we can
-            // remove this cast. Currently all GrDrawBatches are in fact GrVertexBatch.
-            GrVertexBatch* vertexBatch = static_cast<GrVertexBatch*>(db->batch());
-
-            vertexBatch->prepareDraws(&flushState);
+            db->batch()->prepare(&flushState);
         }
     }
 
@@ -77,19 +73,7 @@ void GrTargetCommands::DrawPaths::execute(GrBatchFlushState* state) {
 }
 
 void GrTargetCommands::DrawBatch::execute(GrBatchFlushState* state) {
-    // TODO: encapsulate the specialization of GrVertexBatch in GrVertexBatch so that we can
-    // remove this cast. Currently all GrDrawBatches are in fact GrVertexBatch.
-    GrVertexBatch* vertexBatch = static_cast<GrVertexBatch*>(fBatch.get());
-    vertexBatch->issueDraws(state);
-}
-
-
-void GrTargetCommands::Clear::execute(GrBatchFlushState* state) {
-    if (GrColor_ILLEGAL == fColor) {
-        state->gpu()->discard(this->renderTarget());
-    } else {
-        state->gpu()->clear(fRect, fColor, this->renderTarget());
-    }
+    fBatch->draw(state);
 }
 
 void GrTargetCommands::ClearStencilClip::execute(GrBatchFlushState* state) {

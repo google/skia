@@ -34,8 +34,6 @@ public:
                           bool insideClip,
                           GrRenderTarget* renderTarget) override;
 
-    void discard(GrRenderTarget*) override;
-
 protected:
     void appendIndicesAndTransforms(const void* indexValues, PathIndexType indexType, 
                                     const float* transformValues, PathTransformType transformType,
@@ -78,7 +76,7 @@ private:
     void onFlush() override;
 
     // overrides from GrDrawTarget
-    void onDrawBatch(GrDrawBatch*) override;
+    void onDrawBatch(GrBatch*) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,
@@ -97,9 +95,6 @@ private:
                      int count,
                      const GrStencilSettings&,
                      const PipelineInfo&) override;
-    void onClear(const SkIRect& rect,
-                 GrColor color,
-                 GrRenderTarget* renderTarget) override;
     void onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,

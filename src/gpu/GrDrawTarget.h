@@ -30,6 +30,7 @@
 #include "SkTypes.h"
 #include "SkXfermode.h"
 
+class GrBatch;
 class GrClip;
 class GrCaps;
 class GrPath;
@@ -155,10 +156,8 @@ public:
                bool canIgnoreRect,
                GrRenderTarget* renderTarget);
 
-    /**
-     * Discards the contents render target.
-     **/
-    virtual void discard(GrRenderTarget*) = 0;
+    /** Discards the contents render target. */
+    void discard(GrRenderTarget*);
 
     /**
      * Called at start and end of gpu trace marking
@@ -242,7 +241,7 @@ private:
 
     virtual void onFlush() = 0;
 
-    virtual void onDrawBatch(GrDrawBatch*) = 0;
+    virtual void onDrawBatch(GrBatch*) = 0;
     virtual void onStencilPath(const GrPipelineBuilder&,
                                const GrPathProcessor*,
                                const GrPath*,
@@ -261,8 +260,6 @@ private:
                              int count,
                              const GrStencilSettings&,
                              const PipelineInfo&) = 0;
-
-    virtual void onClear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget) = 0;
 
     /** The subclass's copy surface implementation. It should assume that any clipping has already
         been performed on the rect and point and that the GrGpu supports the copy. */

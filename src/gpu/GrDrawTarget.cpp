@@ -20,6 +20,8 @@
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
 
+#include "batches/GrClearBatch.h"
+#include "batches/GrDiscardBatch.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
 
@@ -340,8 +342,18 @@ void GrDrawTarget::clear(const SkIRect* rect,
         pipelineBuilder.setRenderTarget(renderTarget);
 
         this->drawSimpleRect(pipelineBuilder, color, SkMatrix::I(), *rect);
-    } else {       
-        this->onClear(*rect, color, renderTarget);
+    } else {
+        GrBatch* batch = SkNEW_ARGS(GrClearBatch, (*rect, color, renderTarget));
+        this->onDrawBatch(batch);
+        batch->unref();
+    }
+}
+
+void GrDrawTarget::discard(GrRenderTarget* renderTarget) {
+    if (this->caps()->discardRenderTargetSupport()) {
+        GrBatch* batch = SkNEW_ARGS(GrDiscardBatch, (renderTarget));
+        this->onDrawBatch(batch);
+        batch->unref();
     }
 }
 

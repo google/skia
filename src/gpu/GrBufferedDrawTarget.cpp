@@ -26,7 +26,7 @@ GrBufferedDrawTarget::~GrBufferedDrawTarget() {
     this->reset();
 }
 
-void GrBufferedDrawTarget::onDrawBatch(GrDrawBatch* batch) {
+void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch) {
     fCommands->recordDrawBatch(batch, *this->caps());
 }
 
@@ -69,22 +69,10 @@ void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
                                opts);
 }
 
-void GrBufferedDrawTarget::onClear(const SkIRect& rect, GrColor color,
-                                   GrRenderTarget* renderTarget) {
-    fCommands->recordClear(rect, color, renderTarget);
-}
-
 void GrBufferedDrawTarget::clearStencilClip(const SkIRect& rect,
                                             bool insideClip,
                                             GrRenderTarget* renderTarget) {
     fCommands->recordClearStencilClip(rect, insideClip, renderTarget);
-}
-
-void GrBufferedDrawTarget::discard(GrRenderTarget* renderTarget) {
-    if (!this->caps()->discardRenderTargetSupport()) {
-        return;
-    }
-    fCommands->recordDiscard(renderTarget);
 }
 
 void GrBufferedDrawTarget::onReset() {

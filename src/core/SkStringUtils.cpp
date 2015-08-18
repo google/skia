@@ -35,3 +35,29 @@ void SkAppendScalar(SkString* str, SkScalar value, SkScalarAsStringType asType) 
     }
 }
 
+SkString SkTabString(const SkString& string, int tabCnt) {
+    if (tabCnt <= 0) {
+        return string;
+    }
+    SkString tabs;
+    for (int i = 0; i < tabCnt; ++i) {
+        tabs.append("\t");
+    }
+    SkString result;
+    static const char newline[] = "\n";
+    const char* input = string.c_str();
+    int nextNL = SkStrFind(input, newline);
+    while (nextNL >= 0) {
+        if (nextNL > 0) {
+            result.append(tabs);
+        }
+        result.append(input, nextNL + 1);
+        input += nextNL + 1;
+        nextNL = SkStrFind(input, newline);
+    }
+    if (*input != '\0') {
+        result.append(tabs);
+    }
+    result.append(input);
+    return result;
+}

@@ -18,20 +18,6 @@ GrCommandBuilder* GrCommandBuilder::Create(GrGpu* gpu, bool reorder) {
     }
 }
 
-GrTargetCommands::Cmd* GrCommandBuilder::recordClear(const SkIRect& rect,
-                                                     GrColor color,
-                                                     GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-    SkASSERT(rect.fLeft <= rect.fRight && rect.fTop <= rect.fBottom);
-
-    Clear* clr = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), Clear, (renderTarget));
-    GrColorIsPMAssert(color);
-    clr->fColor = color;
-    clr->fRect = rect;
-    GrBATCH_INFO("Recording clear %d\n", clr->uniqueID());
-    return clr;
-}
-
 GrTargetCommands::Cmd* GrCommandBuilder::recordClearStencilClip(const SkIRect& rect,
                                                                 bool insideClip,
                                                                 GrRenderTarget* renderTarget) {
@@ -43,15 +29,6 @@ GrTargetCommands::Cmd* GrCommandBuilder::recordClearStencilClip(const SkIRect& r
     clr->fRect = rect;
     clr->fInsideClip = insideClip;
     GrBATCH_INFO("Recording clear stencil clip %d\n", clr->uniqueID());
-    return clr;
-}
-
-GrTargetCommands::Cmd* GrCommandBuilder::recordDiscard(GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-
-    Clear* clr = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), Clear, (renderTarget));
-    clr->fColor = GrColor_ILLEGAL;
-    GrBATCH_INFO("Recording discard %d\n", clr->uniqueID());
     return clr;
 }
 
