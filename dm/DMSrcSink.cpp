@@ -120,6 +120,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     if (size == decodeInfo.dimensions() && 1.0f != fScale) {
         return Error::Nonfatal("Test without scaling is uninteresting.");
     }
+
+    // Visually inspecting very small output images is not necessary.  We will
+    // cover these cases in unit testing.
+    if ((size.width() <= 10 || size.height() <= 10) && 1.0f != fScale) {
+        return Error::Nonfatal("Scaling very small images is uninteresting.");
+    }
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
     // Construct a color table for the decode if necessary

@@ -55,6 +55,17 @@ public:
      *  scale that it can natively support
      */
     SkISize getScaledDimensions(float desiredScale) const {
+        // Negative and zero scales are errors.
+        SkASSERT(desiredScale > 0.0f);
+        if (desiredScale <= 0.0f) {
+            return SkISize::Make(0, 0);
+        }
+
+        // Upscaling is not supported. Return the original size if the client
+        // requests an upscale.
+        if (desiredScale >= 1.0f) {
+            return this->getInfo().dimensions();
+        }
         return this->onGetScaledDimensions(desiredScale);
     }
 

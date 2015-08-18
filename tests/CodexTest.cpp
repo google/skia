@@ -10,6 +10,7 @@
 #include "SkCodec.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
+#include "SkScaledCodec.h"
 #include "SkScanlineDecoder.h"
 #include "Test.h"
 
@@ -281,17 +282,19 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromStream(stream.detach()));
     if (!codec) {
         ERRORF(r, "Unable to create codec '%s'", path);
         return;
     }
 
     // Check that the decode is successful for a variety of scales
-    for (float scale = -0.05f; scale < 2.0f; scale += 0.05f) {
+    for (float scale = 0.05f; scale < 2.0f; scale += 0.05f) {
         // Scale the output dimensions
         SkISize scaledDims = codec->getScaledDimensions(scale);
-        SkImageInfo scaledInfo = codec->getInfo().makeWH(scaledDims.width(), scaledDims.height());
+        SkImageInfo scaledInfo = codec->getInfo()
+                .makeWH(scaledDims.width(), scaledDims.height())
+                .makeColorType(kN32_SkColorType);
 
         // Set up for the decode
         size_t rowBytes = scaledDims.width() * sizeof(SkPMColor);
@@ -312,6 +315,21 @@ DEF_TEST(Codec_Dimensions, r) {
     test_dimensions(r, "grayscale.jpg");
     test_dimensions(r, "mandrill_512_q075.jpg");
     test_dimensions(r, "randPixels.jpg");
+
+    // Decoding small images with very large scaling factors is a potential
+    // source of bugs and crashes.  We disable these tests in Gold because
+    // tiny images are not very useful to look at.
+    // Here we make sure that we do not crash or access illegal memory when
+    // performing scaled decodes on small images.
+    test_dimensions(r, "1x1.png");
+    test_dimensions(r, "2x2.png");
+    test_dimensions(r, "3x3.png");
+    test_dimensions(r, "3x1.png");
+    test_dimensions(r, "1x1.png");
+    test_dimensions(r, "16x1.png");
+    test_dimensions(r, "1x16.png");
+    test_dimensions(r, "mandrill_16.png");
+
 }
 
 static void test_invalid(skiatest::Reporter* r, const char path[]) {
