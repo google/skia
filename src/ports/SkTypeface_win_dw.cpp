@@ -20,6 +20,7 @@
 #include "SkOTTable_hhea.h"
 #include "SkOTTable_OS_2.h"
 #include "SkOTTable_post.h"
+#include "SkOTUtils.h"
 #include "SkScalerContext.h"
 #include "SkScalerContext_win_dw.h"
 #include "SkTypeface_win_dw.h"
@@ -169,10 +170,14 @@ private:
 };
 
 SkTypeface::LocalizedStrings* DWriteFontTypeface::onCreateFamilyNameIterator() const {
-    SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-    HRNM(fDWriteFontFamily->GetFamilyNames(&familyNames), "Could not obtain family names.");
-
-    return new LocalizedStrings_IDWriteLocalizedStrings(familyNames.release());
+    SkTypeface::LocalizedStrings* nameIter =
+        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
+    if (NULL == nameIter) {
+        SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
+        HRNM(fDWriteFontFamily->GetFamilyNames(&familyNames), "Could not obtain family names.");
+        nameIter = new LocalizedStrings_IDWriteLocalizedStrings(familyNames.release());
+    }
+    return nameIter;
 }
 
 int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
