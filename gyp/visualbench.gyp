@@ -39,6 +39,7 @@
       'dependencies': [
         'etc1.gyp:libetc1',
         'flags.gyp:flags',
+        'jsoncpp.gyp:jsoncpp',
         'gputest.gyp:skgputest',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:proc_stats',

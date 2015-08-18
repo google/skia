@@ -36,6 +36,9 @@ DEFINE_int32(msaa, 0, "Number of msaa samples.");
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 DEFINE_string(key, "", "");  // dummy to enable gm tests that have platform-specific names
+DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
+DEFINE_string(properties, "",
+              "Space-separated key/value pairs to add to JSON identifying this run.");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) {
@@ -53,7 +56,8 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     , fFlushes(1)
     , fLoops(1)
     , fState(kPreWarmLoops_State)
-    , fBenchmark(NULL) {
+    , fBenchmark(NULL)
+    , fResults(SkNEW(ResultsWriter)) {
     SkCommandLineFlags::Parse(argc, argv);
 
     this->setTitle();
@@ -63,6 +67,19 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
 
     // Print header
     SkDebugf("curr/maxrss\tloops\tflushes\tmin\tmedian\tmean\tmax\tstddev\tbench\n");
+
+    // setup json logging if required
+    if (!FLAGS_outResultsFile.isEmpty()) {
+        fResults.reset(SkNEW(NanoJSONResultsWriter(FLAGS_outResultsFile[0])));
+    }
+
+    if (1 == FLAGS_properties.count() % 2) {
+        SkDebugf("ERROR: --properties must be passed with an even number of arguments.\n");
+    } else {
+        for (int i = 1; i < FLAGS_properties.count(); i += 2) {
+            fResults->property(FLAGS_properties[i - 1], FLAGS_properties[i]);
+        }
+    }
 }
 
 VisualBench::~VisualBench() {
@@ -136,14 +153,28 @@ inline void VisualBench::renderFrame(SkCanvas* canvas) {
 void VisualBench::printStats() {
     const SkTArray<double>& measurements = fRecords.back().fMeasurements;
     const char* shortName = fBenchmark->getUniqueName();
+
+    // update log
+    // Note: We currently log only the minimum.  It would be interesting to log more information
+    SkString configName;
+    if (FLAGS_msaa > 0) {
+        configName.appendf("msaa_%d", FLAGS_msaa);
+    } else {
+        configName.appendf("gpu");
+    }
+    fResults->config(configName.c_str());
+    fResults->configOption("name", fBenchmark->getUniqueName());
+    SkASSERT(measurements.count());
+    Stats stats(measurements);
+    fResults->metric("min_ms",    stats.min);
+
+    // Print output
     if (FLAGS_verbose) {
         for (int i = 0; i < measurements.count(); i++) {
             SkDebugf("%s  ", HUMANIZE(measurements[i]));
         }
         SkDebugf("%s\n", shortName);
     } else {
-        SkASSERT(measurements.count());
-        Stats stats(measurements);
         const double stdDevPercent = 100 * sqrt(stats.var) / stats.mean;
         SkDebugf("%4d/%-4dMB\t%d\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\n",
                  sk_tools::getCurrResidentSetSizeMB(),
@@ -172,6 +203,10 @@ bool VisualBench::advanceRecordIfNecessary(SkCanvas* canvas) {
     canvas->clear(0xffffffff);
     fBenchmark->preDraw();
     fRecords.push_back();
+
+    // Log bench name
+    fResults->bench(fBenchmark->getUniqueName(), fBenchmark->getSize().fX,
+                    fBenchmark->getSize().fY);
     return true;
 }
 

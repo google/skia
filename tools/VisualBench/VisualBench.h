@@ -11,6 +11,7 @@
 
 #include "SkWindow.h"
 
+#include "ResultsWriter.h"
 #include "SkPicture.h"
 #include "SkString.h"
 #include "SkSurface.h"
@@ -106,6 +107,7 @@ private:
     SkAutoTUnref<GrRenderTarget> fRenderTarget;
     AttachmentInfo fAttachmentInfo;
     SkAutoTUnref<const GrGLInterface> fInterface;
+    SkAutoTDelete<ResultsWriter> fResults;
 
     typedef SkOSWindow INHERITED;
 };
