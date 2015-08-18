@@ -94,7 +94,6 @@
       'sources': [
         '../third_party/externals/png/png.c',
         '../third_party/externals/png/pngerror.c',
-        '../third_party/externals/png/pnggccrd.c',
         '../third_party/externals/png/pngget.c',
         '../third_party/externals/png/pngmem.c',
         '../third_party/externals/png/pngpread.c',
@@ -104,12 +103,27 @@
         '../third_party/externals/png/pngrutil.c',
         '../third_party/externals/png/pngset.c',
         '../third_party/externals/png/pngtrans.c',
-        '../third_party/externals/png/pngvcrd.c',
         '../third_party/externals/png/pngwio.c',
         '../third_party/externals/png/pngwrite.c',
         '../third_party/externals/png/pngwtran.c',
         '../third_party/externals/png/pngwutil.c',
       ],
+      # TODO (msarett): Enable testing of Arm NEON opts.
+      # Currently we cannot compile because there is a namespace conflict with
+      # skia/third_party/externals/libpng.
+      #'conditions': [
+      #  [ '("arm" in skia_arch_type) and (arm_version >= 7) and \
+      #     (arm_neon == 1 or arm_neon_optional == 1)', {
+      #    'sources': [
+      #      '../third_party/externals/png/arm/arm_init.c',
+      #      '../third_party/externals/png/arm/filter_neon.S',
+      #      '../third_party/externals/png/arm/filter_neon_intrinsics.c',
+      #    ],
+      #    'cflags': [
+      #      '-DPNG_ARM_NEON_OPT=2',
+      #    ],
+      #  }],
+      #],
       'include_dirs': [
         '../third_party/externals/png',
       ],
