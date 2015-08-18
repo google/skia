@@ -148,7 +148,7 @@ public:
      *  so the caller must inspect the texture's width/height and compare them to the generator's
      *  getInfo() width/height.
      */
-    GrTexture* generateTexture(GrContext*, SkImageUsageType);
+    GrTexture* generateTexture(GrContext*, SkImageUsageType, const SkIRect* subset = nullptr);
 
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
@@ -176,7 +176,9 @@ protected:
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace);
 
-    virtual GrTexture* onGenerateTexture(GrContext*, SkImageUsageType) { return nullptr; }
+    virtual GrTexture* onGenerateTexture(GrContext*, SkImageUsageType, const SkIRect*) {
+        return nullptr;
+    }
 
 private:
     const SkImageInfo fInfo;

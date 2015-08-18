@@ -8,6 +8,8 @@
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkImageCacherator.h"
+#include "SkMallocPixelRef.h"
+#include "SkNextID.h"
 #include "SkPixelRef.h"
 
 #if SK_SUPPORT_GPU
@@ -19,14 +21,43 @@
 #include "SkGrPriv.h"
 #endif
 
-SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen) {
+SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
+                                                       const SkIRect* subset) {
     if (!gen) {
         return nullptr;
     }
-    return SkNEW_ARGS(SkImageCacherator, (gen));
+    const SkImageInfo& info = gen->getInfo();
+    if (info.isEmpty()) {
+        return nullptr;
+    }
+
+    uint32_t uniqueID = gen->uniqueID();
+    const SkIRect bounds = SkIRect::MakeWH(info.width(), info.height());
+    if (subset) {
+        if (!bounds.contains(*subset)) {
+            return nullptr;
+        }
+        if (*subset != bounds) {
+            // we need a different uniqueID since we really are a subset of the raw generator
+            uniqueID = SkNextID::ImageID();
+        }
+    } else {
+        subset = &bounds;
+    }
+
+    return SkNEW_ARGS(SkImageCacherator, (gen,
+                                          gen->getInfo().makeWH(subset->width(), subset->height()),
+                                          SkIPoint::Make(subset->x(), subset->y()),
+                                          uniqueID));
 }
 
-SkImageCacherator::SkImageCacherator(SkImageGenerator* gen) : fGenerator(gen) {}
+SkImageCacherator::SkImageCacherator(SkImageGenerator* gen, const SkImageInfo& info,
+                                     const SkIPoint& origin, uint32_t uniqueID)
+    : fGenerator(gen)
+    , fInfo(info)
+    , fOrigin(origin)
+    , fUniqueID(uniqueID)
+{}
 
 SkImageCacherator::~SkImageCacherator() {
     SkDELETE(fGenerator);
@@ -39,12 +70,34 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
     return true;
 }
 
-static bool generate_bitmap(SkImageGenerator* generator, SkBitmap* bitmap) {
-    if (!bitmap->tryAllocPixels(generator->getInfo()) ||
-        !generator->getPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes()))
-    {
-        bitmap->reset();
+static bool generate_bitmap(SkBitmap* bitmap, const SkImageInfo& info, const SkIPoint& origin,
+                            SkImageGenerator* generator) {
+    const size_t rowBytes = info.minRowBytes();
+    if (!bitmap->tryAllocPixels(info, rowBytes)) {
         return false;
+    }
+    SkASSERT(bitmap->rowBytes() == rowBytes);
+
+    const SkImageInfo& genInfo = generator->getInfo();
+    if (info.dimensions() == genInfo.dimensions()) {
+        SkASSERT(origin.x() == 0 && origin.y() == 0);
+        // fast-case, no copy needed
+        if (!generator->getPixels(bitmap->info(), bitmap->getPixels(), rowBytes)) {
+            bitmap->reset();
+            return false;
+        }
+    } else {
+        // need to handle subsetting
+        SkBitmap full;
+        if (!full.tryAllocPixels(genInfo)) {
+            return false;
+        }
+        if (!generator->getPixels(full.info(), full.getPixels(), full.rowBytes())) {
+            bitmap->reset();
+            return false;
+        }
+        full.readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(),
+                        origin.x(), origin.y());
     }
     return true;
 }
@@ -52,52 +105,49 @@ static bool generate_bitmap(SkImageGenerator* generator, SkBitmap* bitmap) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap) {
-    const uint32_t uniqueID = fGenerator->uniqueID();
-
-    if (SkBitmapCache::Find(uniqueID, bitmap)) {
-        return check_output_bitmap(*bitmap, uniqueID);
+    if (SkBitmapCache::Find(fUniqueID, bitmap)) {
+        return check_output_bitmap(*bitmap, fUniqueID);
     }
-    if (!generate_bitmap(fGenerator, bitmap)) {
+    if (!generate_bitmap(bitmap, fInfo, fOrigin, fGenerator)) {
         return false;
     }
 
-    bitmap->pixelRef()->setImmutableWithID(uniqueID);
-    SkBitmapCache::Add(uniqueID, *bitmap);
+    bitmap->pixelRef()->setImmutableWithID(fUniqueID);
+    SkBitmapCache::Add(fUniqueID, *bitmap);
     return true;
 }
 
 bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap) {
-    const uint32_t uniqueID = fGenerator->uniqueID();
-
     if (this->tryLockAsBitmap(bitmap)) {
-        return check_output_bitmap(*bitmap, uniqueID);
+        return check_output_bitmap(*bitmap, fUniqueID);
     }
 
 #if SK_SUPPORT_GPU
     // Try to get a texture and read it back to raster (and then cache that with our ID)
 
-    SkAutoTUnref<GrTexture> tex(fGenerator->generateTexture(nullptr, kUntiled_SkImageUsageType));
+    SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
+    SkAutoTUnref<GrTexture> tex(fGenerator->generateTexture(nullptr, kUntiled_SkImageUsageType,
+                                                            &subset));
     if (!tex) {
         bitmap->reset();
         return false;
     }
 
-    const SkImageInfo& info = this->info();
-    if (!bitmap->tryAllocPixels(info)) {
+    if (!bitmap->tryAllocPixels(fInfo)) {
         bitmap->reset();
         return false;
     }
 
     const uint32_t pixelOpsFlags = 0;
-    if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(), SkImageInfo2GrPixelConfig(info),
+    if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(), SkImageInfo2GrPixelConfig(fInfo),
                          bitmap->getPixels(), bitmap->rowBytes(), pixelOpsFlags)) {
         bitmap->reset();
         return false;
     }
 
-    bitmap->pixelRef()->setImmutableWithID(uniqueID);
-    SkBitmapCache::Add(uniqueID, *bitmap);
-    return check_output_bitmap(*bitmap, uniqueID);
+    bitmap->pixelRef()->setImmutableWithID(fUniqueID);
+    SkBitmapCache::Add(fUniqueID, *bitmap);
+    return check_output_bitmap(*bitmap, fUniqueID);
 #else
     return false;
 #endif
@@ -107,18 +157,16 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap) {
 
 GrTexture* SkImageCacherator::tryLockAsTexture(GrContext* ctx, SkImageUsageType usage) {
 #if SK_SUPPORT_GPU
-    const uint32_t uniqueID = fGenerator->uniqueID();
-    const SkImageInfo& info = this->info();
-
     GrUniqueKey key;
-    GrMakeKeyFromImageID(&key, uniqueID, info.width(), info.height(), SkIPoint::Make(0, 0),
+    GrMakeKeyFromImageID(&key, fUniqueID, fInfo.width(), fInfo.height(), SkIPoint::Make(0, 0),
                          *ctx->caps(), usage);
     GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key);
     if (tex) {
         return tex; // we got a cache hit!
     }
 
-    tex = fGenerator->generateTexture(ctx, usage);
+    SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
+    tex = fGenerator->generateTexture(ctx, usage, &subset);
     if (tex) {
         tex->resourcePriv().setUniqueKey(key);
     }
@@ -140,7 +188,7 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usa
     // Try to get a bitmap and then upload/cache it as a texture
 
     SkBitmap bitmap;
-    if (!generate_bitmap(fGenerator, &bitmap)) {
+    if (!generate_bitmap(&bitmap, fInfo, fOrigin, fGenerator)) {
         return nullptr;
     }
     return GrRefCachedBitmapTexture(ctx, bitmap, usage);

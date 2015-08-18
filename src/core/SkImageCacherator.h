@@ -19,12 +19,12 @@ class SkBitmap;
 class SkImageCacherator {
 public:
     // Takes ownership of the generator
-    static SkImageCacherator* NewFromGenerator(SkImageGenerator*);
+    static SkImageCacherator* NewFromGenerator(SkImageGenerator*, const SkIRect* subset = nullptr);
 
     ~SkImageCacherator();
 
-    const SkImageInfo& info() const { return fGenerator->getInfo(); }
-    SkImageGenerator* generator() const { return fGenerator; }
+    const SkImageInfo& info() const { return fInfo; }
+    uint32_t uniqueID() const { return fUniqueID; }
 
     /**
      *  On success (true), bitmap will point to the pixels for this generator. If this returns
@@ -41,12 +41,15 @@ public:
     GrTexture* lockAsTexture(GrContext*, SkImageUsageType);
 
 private:
-    SkImageCacherator(SkImageGenerator* gen);
+    SkImageCacherator(SkImageGenerator*, const SkImageInfo&, const SkIPoint&, uint32_t uniqueID);
 
     bool tryLockAsBitmap(SkBitmap*);
     GrTexture* tryLockAsTexture(GrContext*, SkImageUsageType);
 
-    SkImageGenerator* fGenerator;
+    SkImageGenerator*   fGenerator;
+    const SkImageInfo   fInfo;
+    const SkIPoint      fOrigin;
+    const uint32_t      fUniqueID;
 };
 
 #endif

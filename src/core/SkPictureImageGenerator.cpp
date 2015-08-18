@@ -22,7 +22,7 @@ protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
                      int* ctableCount) override;
 #if SK_SUPPORT_GPU
-    GrTexture* onGenerateTexture(GrContext*, SkImageUsageType) override;
+    GrTexture* onGenerateTexture(GrContext*, SkImageUsageType, const SkIRect*) override;
 #endif
 
 private:
@@ -88,18 +88,27 @@ SkImageGenerator* SkImageGenerator::NewFromPicture(const SkISize& size, const Sk
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
 
-GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, SkImageUsageType usage) {
+GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, SkImageUsageType usage,
+                                                      const SkIRect* subset) {
+    const SkImageInfo& info = this->getInfo();
+    SkImageInfo surfaceInfo = subset ? info.makeWH(subset->width(), subset->height()) : info;
+
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface
     //
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx,
                                                                SkSurface::kYes_Budgeted,
-                                                               this->getInfo()));
+                                                               surfaceInfo));
     if (!surface.get()) {
         return nullptr;
     }
+
+    SkMatrix matrix = fMatrix;
+    if (subset) {
+        matrix.postTranslate(-subset->x(), -subset->y());
+    }
     surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
-    surface->getCanvas()->drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
+    surface->getCanvas()->drawPicture(fPicture, &matrix, fPaint.getMaybeNull());
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
     if (!image.get()) {
         return nullptr;
