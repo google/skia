@@ -198,8 +198,14 @@ void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkR
         localM.preTranslate(-tex[i].left(), -tex[i].top());
 
         SkPaint pnt(paint);
-        pnt.setShader(atlas->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-                                       &localM))->unref();
+        SkAutoTUnref<SkShader> shader(atlas->newShader(SkShader::kClamp_TileMode,
+                                                       SkShader::kClamp_TileMode,
+                                                       &localM));
+        if (!shader) {
+            break;
+        }
+        pnt.setShader(shader);
+
         if (colors && colors[i] != SK_ColorWHITE) {
             SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(colors[i], mode));
             pnt.setColorFilter(cf);
