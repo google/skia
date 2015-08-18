@@ -10,7 +10,7 @@ namespace {  // See SkPMFloat.h
 inline SkPMFloat::SkPMFloat(SkPMColor c) {
     SkPMColorAssert(c);
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
-    const int _ = 255;  // Zero these bytes.
+    const char _ = ~0;  // Zero these bytes.
     __m128i fix8    = _mm_cvtsi32_si128((int)c),
             fix8_32 = _mm_shuffle_epi8(fix8, _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, 3,_,_,_));
 #else

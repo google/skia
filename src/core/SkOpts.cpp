@@ -54,7 +54,6 @@ namespace SkOpts {
     decltype(blit_mask_d32_a8) blit_mask_d32_a8 = portable::blit_mask_d32_a8;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
-    void Init_sse2();
     void Init_ssse3();
     void Init_sse41();
     void Init_neon();
@@ -65,12 +64,9 @@ namespace SkOpts {
     #if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
         uint32_t abcd[] = {0,0,0,0};
         cpuid(abcd);
-        if (abcd[3] & (1<<26)) { Init_sse2(); }
         if (abcd[2] & (1<< 9)) { Init_ssse3(); }
         if (abcd[2] & (1<<19)) { Init_sse41(); }
-    #elif defined(SK_ARM_HAS_NEON)
-        Init_neon();
-    #elif defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID)
+    #elif !defined(SK_ARM_HAS_NEON) && defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID)
         if (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) { Init_neon(); }
     #endif
     }

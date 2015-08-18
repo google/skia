@@ -43,7 +43,6 @@
             '<(skia_src_path)/opts/SkBitmapProcState_opts_SSE2.cpp',
             '<(skia_src_path)/opts/SkBlitRow_opts_SSE2.cpp',
             '<(skia_src_path)/opts/opts_check_x86.cpp',
-            '<(skia_src_path)/opts/SkOpts_sse2.cpp',
         ],
         'ssse3_sources': [
             '<(skia_src_path)/opts/SkBitmapProcState_opts_SSSE3.cpp',
