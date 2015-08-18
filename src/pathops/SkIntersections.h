@@ -188,6 +188,7 @@ public:
     }
 
     void setMax(int max) {
+        SkASSERT(max <= (int) SK_ARRAY_COUNT(fPt));
         fMax = max;
     }
 
@@ -286,9 +287,9 @@ private:
     void cleanUpParallelLines(bool parallel);
     void computePoints(const SkDLine& line, int used);
 
-    SkDPoint fPt[10];  // FIXME: since scans store points as SkPoint, this should also
+    SkDPoint fPt[12];  // FIXME: since scans store points as SkPoint, this should also
     SkDPoint fPt2[2];  // used by nearly same to store alternate intersection point
-    double fT[2][10];
+    double fT[2][12];
     uint16_t fIsCoincident[2];  // bit set for each curve's coincident T
     bool fNearlySame[2];  // true if end points nearly match
     unsigned char fUsed;

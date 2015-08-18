@@ -5153,13 +5153,25 @@ static void cubics45u(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
 }
 
+static void fuzz38(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.moveTo(100.34f, 303.312f);
+    path.lineTo(-1e+08, 303.312f);
+    path.lineTo(102, 310.156f);
+    path.lineTo(100.34f, 310.156f);
+    path.lineTo(100.34f, 303.312f);
+    path.close();
+    testPathOpCheck(reporter, path, pathB, kUnion_SkPathOp, filename, FLAGS_runFail);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = loops63i;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 #define TEST(name) { name, #name }
 
 static struct TestDesc tests[] = {
+    TEST(fuzz38),
     TEST(cubics44d),
     TEST(cubics45u),
     TEST(loops61i),

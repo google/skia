@@ -48,6 +48,14 @@ SkDVector SkDConic::dxdyAtT(double t) const {
         conic_eval_tan(&fPts[0].fX, fWeight, t),
         conic_eval_tan(&fPts[0].fY, fWeight, t)
     };
+    if (result.fX == 0 && result.fY == 0) {
+        if (zero_or_one(t)) {
+            result = fPts[2] - fPts[0];
+        } else {
+            // incomplete
+            SkDebugf("!k");
+        }
+    }
     return result;
 }
 

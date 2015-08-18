@@ -161,6 +161,14 @@ SkDVector SkDQuad::dxdyAtT(double t) const {
     double c = t;
     SkDVector result = { a * fPts[0].fX + b * fPts[1].fX + c * fPts[2].fX,
             a * fPts[0].fY + b * fPts[1].fY + c * fPts[2].fY };
+    if (result.fX == 0 && result.fY == 0) {
+        if (zero_or_one(t)) {
+            result = fPts[2] - fPts[0];
+        } else {
+            // incomplete
+            SkDebugf("!q");
+        }
+    }
     return result;
 }
 

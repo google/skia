@@ -12,11 +12,16 @@ void SkIntersections::cleanUpParallelLines(bool parallel) {
         removeOne(1);
     }
     if (fUsed == 2 && !parallel) {
-        bool startMatch = fT[0][0] == 0 || fT[1][0] == 0 || fT[1][0] == 1;
-        bool endMatch = fT[0][1] == 1 || fT[1][1] == 0 || fT[1][1] == 1;
+        bool startMatch = fT[0][0] == 0 || zero_or_one(fT[1][0]);
+        bool endMatch = fT[0][1] == 1 || zero_or_one(fT[1][1]);
         if ((!startMatch && !endMatch) || approximately_equal(fT[0][0], fT[0][1])) {
             SkASSERT(startMatch || endMatch);
-            removeOne(endMatch);
+            if (startMatch && endMatch && (fT[0][0] != 0 || !zero_or_one(fT[1][0]))
+                    && fT[0][1] == 1 && zero_or_one(fT[1][1])) {
+                removeOne(0);
+            } else {
+                removeOne(endMatch);
+            }
         }
     }
     if (fUsed == 2) {

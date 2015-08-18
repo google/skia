@@ -474,6 +474,19 @@ static double derivative_at_t(const double* src, double t) {
 // OPTIMIZE? compute t^2, t(1-t), and (1-t)^2 and pass them to another version of derivative at t?
 SkDVector SkDCubic::dxdyAtT(double t) const {
     SkDVector result = { derivative_at_t(&fPts[0].fX, t), derivative_at_t(&fPts[0].fY, t) };
+    if (result.fX == 0 && result.fY == 0) {
+        if (t == 0) {
+            result = fPts[2] - fPts[0];
+        } else if (t == 1) {
+            result = fPts[3] - fPts[1];
+        } else {
+            // incomplete
+            SkDebugf("!c");
+        }
+        if (result.fX == 0 && result.fY == 0 && zero_or_one(t)) {
+            result = fPts[3] - fPts[0];
+        }
+    }
     return result;
 }
 
