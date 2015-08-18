@@ -63,10 +63,6 @@ SRCS = glob(
         "src/utils/SkThreadUtils_pthread_other.cpp",
         "src/utils/SkThreadUtils_win.cpp",  # Windows-only.  Move to ports?
         "src/doc/*_XPS.cpp",
-
-        # TODO(melanielc): These don't compile. Maybe remove them?
-        "src/pathops/SkConicLineIntersection.cpp",
-        "src/pathops/SkPathOpsPostSect.cpp",
     ],
 )
 
