@@ -124,7 +124,7 @@ void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* na
             // Names containing "__" are reserved.
             out->append("x");
         }
-        out->appendf("_Stage%d", fStageIndex);
+        out->appendf("_Stage%d%s", fStageIndex, fFS.getMangleString().c_str());
     }
 }
 

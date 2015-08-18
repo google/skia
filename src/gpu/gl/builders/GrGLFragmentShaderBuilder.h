@@ -77,6 +77,37 @@ public:
         return ret;
     }
 
+    /* This class is like AutoStageAdvance but used for the child procs of a fragment proc.
+     * Before a proc calls emitCode on one of its children, it should instantiate this
+     * class inside its own scope. This which will update a state in GrGLFragmentBuilder that tracks
+     *  which proc in the tree is about to emit code (it does so by calling GrGLFragmentBuilder::
+     * onBeforeChildProcEmitCode() in the constructor).
+     *
+     * After the child proc emitCode is called, the parent proc should end the scope so the
+     * AutoFragmentChildProcAdvance destructor is called, which will again update a state in
+     * GrGLFragmentShaderBuilder notifying it that the child proc's code has been emitted (it does
+     * so by calling GrGLFragmentBuilder::onAfterChildProcEmitCode()).
+     */
+    class AutoFragmentChildProcAdvance {
+        typedef GrGLProcessor::TransformedCoordsArray TransformedCoordsArray;
+        typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
+    public:
+        AutoFragmentChildProcAdvance(int childProcIndex,
+                                     GrGLFPBuilder* builder,
+                                     const GrFragmentProcessor& fp,
+                                     const char* outputColor,
+                                     const TransformedCoordsArray& coords,
+                                     const TextureSamplerArray& samplers,
+                                     const GrFragmentProcessor** childFp,
+                                     SkString* childOutputColor,
+                                     TransformedCoordsArray* childCoords,
+                                     TextureSamplerArray* childSamplers);
+
+        ~AutoFragmentChildProcAdvance();
+    private:
+        GrGLFragmentBuilder* fFsb;
+    };
+
 private:
     /*
      * State that tracks which child proc in the proc tree is currently emitting code.  This is

@@ -152,8 +152,26 @@ private:
     bool                                         fUsesLocalCoords;
 
     /**
-     * This stores the transforms of this proc, followed by all the transforms of this proc's
-     * children. In other words, each proc stores all the transforms of its subtree.
+     * fCoordTransforms stores the transforms of this proc, followed by all the transforms of this
+     * proc's children. In other words, each proc stores all the transforms of its subtree as if
+     * they were collected using preorder traversal.
+     *
+     * Example:
+     * Suppose we have frag proc A, who has two children B and D. B has a child C, and D has
+     * two children E and F. Suppose procs A, B, C, D, E, F have 1, 2, 1, 1, 3, 2 transforms
+     * respectively. The following shows what the fCoordTransforms array of each proc would contain:
+     *
+     *                                   (A)
+     *                        [a1,b1,b2,c1,d1,e1,e2,e3,f1,f2]
+     *                                  /    \
+     *                                /        \
+     *                            (B)           (D)
+     *                        [b1,b2,c1]   [d1,e1,e2,e3,f1,f2]
+     *                          /             /    \
+     *                        /             /        \
+     *                      (C)          (E)          (F)
+     *                     [c1]      [e1,e2,e3]      [f1,f2]
+     *
      * The same goes for fTextureAccesses with textures.
      */
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
