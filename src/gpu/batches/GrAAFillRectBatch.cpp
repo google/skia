@@ -7,13 +7,12 @@
 
 #include "GrAAFillRectBatch.h"
 
-#include "GrBatchFlushState.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
+#include "GrTInstanceBatch.h"
 #include "GrTypes.h"
-#include "GrVertexBatch.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 
@@ -44,123 +43,6 @@ const GrIndexBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
         kIndicesPerAAFillRect, kNumAAFillRectsInIndexBuffer, kVertsPerAAFillRect,
         gAAFillRectIndexBufferKey);
 }
-
-/*
- * AAFillRectBatch is templated to optionally allow the insertion of an additional
- * attribute for explicit local coordinates.
- * To use this template, an implementation must define the following static functions:
- *     A Geometry struct
- *
- *     bool CanCombine(const Geometry& mine, const Geometry& theirs,
- *                     const GrPipelineOptimizations&)
- *
- *     const GrGeometryProcessor* CreateGP(const Geometry& seedGeometry,
- *                                         const GrPipelineOptimizations& opts)
- *
- *     Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
- *               const GrPipelineOptimizations& opts)
- */
-template <typename Base>
-class AAFillRectBatch : public GrVertexBatch {
-public:
-    typedef typename Base::Geometry Geometry;
-
-    static AAFillRectBatch* Create() {
-        return SkNEW(AAFillRectBatch);
-    }
-
-    const char* name() const override { return "AAFillRectBatch"; }
-
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
-    }
-
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
-        fOpts = opt;
-    }
-
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    // to avoid even the initial copy of the struct, we have a getter for the first item which
-    // is used to seed the batch with its initial geometry.  After seeding, the client should call
-    // init() so the Batch can initialize itself
-    Geometry* geometry() { return &fGeoData[0]; }
-    void init() {
-        const Geometry& geo = fGeoData[0];
-        this->setBounds(geo.fDevRect);
-    }
-
-private:
-    AAFillRectBatch() {
-        this->initClassID<AAFillRectBatch<Base>>();
-
-        // Push back an initial geometry
-        fGeoData.push_back();
-    }
-
-    void onPrepareDraws(Target* target) override {
-        SkAutoTUnref<const GrGeometryProcessor> gp(Base::CreateGP(this->seedGeometry(), fOpts));
-        if (!gp) {
-            SkDebugf("Couldn't create GrGeometryProcessor\n");
-            return;
-        }
-
-        target->initDraw(gp, this->pipeline());
-
-        size_t vertexStride = gp->getVertexStride();
-        int instanceCount = fGeoData.count();
-
-        SkAutoTUnref<const GrIndexBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
-        InstancedHelper helper;
-        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer, kVertsPerAAFillRect, kIndicesPerAAFillRect,
-                                     instanceCount);
-        if (!vertices || !indexBuffer) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
-        }
-
-        for (int i = 0; i < instanceCount; i++) {
-            intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
-                             i * kVertsPerAAFillRect * vertexStride;
-            Base::Tesselate(verts, vertexStride, fGeoData[i], fOpts);
-        }
-        helper.recordDraw(target);
-    }
-
-    const Geometry& seedGeometry() const { return fGeoData[0]; }
-
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        AAFillRectBatch* that = t->cast<AAFillRectBatch>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
-            return false;
-        }
-
-        if (!Base::CanCombine(this->seedGeometry(), that->seedGeometry(), fOpts)) {
-            return false;
-        }
-
-        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
-        // not tweaking
-        if (fOpts.canTweakAlphaForCoverage() && !that->fOpts.canTweakAlphaForCoverage()) {
-            fOpts = that->fOpts;
-        }
-
-        fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
-        this->joinBounds(that->bounds());
-        return true;
-    }
-
-    GrPipelineOptimizations fOpts;
-    SkSTArray<1, Geometry, true> fGeoData;
-};
 
 static const GrGeometryProcessor* create_fill_rect_gp(
                                        const SkMatrix& viewMatrix,
@@ -299,7 +181,18 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
     }
 }
 
-class AAFillRectBatchNoLocalMatrixImp {
+// Common functions
+class AAFillRectBatchBase {
+public:
+    static const int kVertsPerInstance = kVertsPerAAFillRect;
+    static const int kIndicesPerInstance = kIndicesPerAAFillRect;
+
+    inline static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* rp) {
+        return get_index_buffer(rp);
+    }
+};
+
+class AAFillRectBatchNoLocalMatrixImp : public AAFillRectBatchBase {
 public:
     struct Geometry {
         SkMatrix fViewMatrix;
@@ -307,6 +200,8 @@ public:
         SkRect fDevRect;
         GrColor fColor;
     };
+
+    inline static const char* Name() { return "AAFillRectBatchNoLocalMatrix"; }
 
     inline static bool CanCombine(const Geometry& mine, const Geometry& theirs,
                                   const GrPipelineOptimizations& opts) {
@@ -337,7 +232,7 @@ public:
     }
 };
 
-class AAFillRectBatchLocalMatrixImp {
+class AAFillRectBatchLocalMatrixImp : public AAFillRectBatchBase {
 public:
     struct Geometry {
         SkMatrix fViewMatrix;
@@ -346,6 +241,8 @@ public:
         SkRect fDevRect;
         GrColor fColor;
     };
+
+    inline static const char* Name() { return "AAFillRectBatchLocalMatrix"; }
 
     inline static bool CanCombine(const Geometry& mine, const Geometry& theirs,
                                   const GrPipelineOptimizations&) {
@@ -374,8 +271,8 @@ public:
     }
 };
 
-typedef AAFillRectBatch<AAFillRectBatchNoLocalMatrixImp> AAFillRectBatchNoLocalMatrix;
-typedef AAFillRectBatch<AAFillRectBatchLocalMatrixImp> AAFillRectBatchLocalMatrix;
+typedef GrTInstanceBatch<AAFillRectBatchNoLocalMatrixImp> AAFillRectBatchNoLocalMatrix;
+typedef GrTInstanceBatch<AAFillRectBatchLocalMatrixImp> AAFillRectBatchLocalMatrix;
 
 namespace GrAAFillRectBatch {
 
