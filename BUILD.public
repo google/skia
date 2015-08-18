@@ -8,6 +8,7 @@ exports_files(["BUILD.public"])
 # Platform-independent SRCS
 SRCS = glob(
     [
+        "include/private/*.h",
         "google/*.cpp",
         "src/c/*.cpp",
         "src/core/*.cpp",
@@ -31,6 +32,7 @@ SRCS = glob(
         "src/gpu/gl/glx/*.cpp",
         "src/opts/opts_check_x86.cpp",
         "src/opts/*SSE2*.cpp",
+        "src/opts/*sse2*.cpp",
         "src/opts/SkTextureCompression_opts_none.cpp",
 
         # TODO(mtklein): might be more maintainable with a blacklist instead?
@@ -49,7 +51,7 @@ SRCS = glob(
         "src/ports/SkTLS_pthread.cpp",
         "src/ports/SkTime_Unix.cpp",
 
-	# Third Party
+        # Third Party
         "third_party/etc1/*.cpp",
         "third_party/ktx/*.cpp",
     ],
@@ -59,10 +61,25 @@ SRCS = glob(
         "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
         # TODO(mtklein): files below here probably want upstream fixes
         "src/utils/SkThreadUtils_pthread_mach.cpp",  # Mac-only.  Move to ports?
-  	# Non-Mac-non-Linux.  Move to ports?
+        # Non-Mac-non-Linux.  Move to ports?
         "src/utils/SkThreadUtils_pthread_other.cpp",
         "src/utils/SkThreadUtils_win.cpp",  # Windows-only.  Move to ports?
-        "src/doc/*_XPS.cpp",
+        "src/doc/*_XPS.cpp",  # Windows-only.
+        "src/doc/SkDocument_PDF_None.cpp",  # We use SkDocument_PDF.cpp.
+    ],
+)
+
+SRCS_SSSE3 = glob(
+    [
+        "src/opts/*SSSE3*.cpp",
+        "src/opts/*ssse3*.cpp",
+    ],
+)
+
+SRCS_SSE4 = glob(
+    [
+        "src/opts/*SSE4*.cpp",
+        "src/opts/*sse4*.cpp",
     ],
 )
 
@@ -70,11 +87,14 @@ HDRS = glob(
     [
         "include/**/*.h",
     ],
+    exclude = [
+        "include/animator/*.h",
+        "include/private/*.h",
+    ],
 )
 
 # Includes needed by Skia implementation.  Not public includes.
 INCLUDES = [
-    "include/animator",
     "include/c",
     "include/codec",
     "include/config",
