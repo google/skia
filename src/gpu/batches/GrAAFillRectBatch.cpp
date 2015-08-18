@@ -51,16 +51,14 @@ const GrIndexBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
  * To use this template, an implementation must define the following static functions:
  *     A Geometry struct
  *
- *     bool CanCombineLocalCoords(const SkMatrix& mine, const SkMatrix& theirs,
- *                                bool usesLocalCoords)
+ *     bool CanCombine(const Geometry& mine, const Geometry& theirs,
+ *                     const GrPipelineOptimizations&)
  *
- *     GrDefaultGeoProcFactory::LocalCoords::Type LocalCoordsType()
+ *     const GrGeometryProcessor* CreateGP(const Geometry& seedGeometry,
+ *                                         const GrPipelineOptimizations& opts)
  *
- *     bool StrideCheck(size_t vertexStride, bool canTweakAlphaForCoverage,
- *                      bool usesLocalCoords)
- *
- *     void FillInAttributes(intptr_t startVertex, size_t vertexStride,
- *                           SkPoint* fan0Position, const Geometry&)
+ *     Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
+ *               const GrPipelineOptimizations& opts)
  */
 template <typename Base>
 class AAFillRectBatch : public GrVertexBatch {
@@ -83,18 +81,8 @@ public:
     }
 
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
-        // Handle any color overrides
-        if (!opt.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
-        }
         opt.getOverrideColorIfSet(&fGeoData[0].fColor);
-
-        // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
-        fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
+        fOpts = opt;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -116,21 +104,8 @@ private:
         fGeoData.push_back();
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
-    bool colorIgnored() const { return fBatch.fColorIgnored; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
-
     void onPrepareDraws(Target* target) override {
-        bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
-
-        SkAutoTUnref<const GrGeometryProcessor> gp(CreateFillRectGP(canTweakAlphaForCoverage,
-                                                                    this->viewMatrix(),
-                                                                    this->usesLocalCoords(),
-                                                                    Base::LocalCoordsType(),
-                                                                    this->coverageIgnored()));
+        SkAutoTUnref<const GrGeometryProcessor> gp(Base::CreateGP(this->seedGeometry(), fOpts));
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -139,8 +114,6 @@ private:
         target->initDraw(gp, this->pipeline());
 
         size_t vertexStride = gp->getVertexStride();
-        SkASSERT(Base::StrideCheck(vertexStride, canTweakAlphaForCoverage,
-                                   this->usesLocalCoords()));
         int instanceCount = fGeoData.count();
 
         SkAutoTUnref<const GrIndexBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
@@ -154,14 +127,14 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            this->generateAAFillRectGeometry(vertices,
-                                             i * kVertsPerAAFillRect * vertexStride,
-                                             vertexStride,
-                                             fGeoData[i],
-                                             canTweakAlphaForCoverage);
+            intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
+                             i * kVertsPerAAFillRect * vertexStride;
+            Base::Tesselate(verts, vertexStride, fGeoData[i], fOpts);
         }
         helper.recordDraw(target);
     }
+
+    const Geometry& seedGeometry() const { return fGeoData[0]; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         AAFillRectBatch* that = t->cast<AAFillRectBatch>();
@@ -170,19 +143,14 @@ private:
             return false;
         }
 
-        if (!Base::CanCombineLocalCoords(this->viewMatrix(), that->viewMatrix(),
-                                         this->usesLocalCoords())) {
+        if (!Base::CanCombine(this->seedGeometry(), that->seedGeometry(), fOpts)) {
             return false;
-        }
-
-        if (this->color() != that->color()) {
-            fBatch.fColor = GrColor_ILLEGAL;
         }
 
         // In the event of two batches, one who can tweak, one who cannot, we just fall back to
         // not tweaking
-        if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
-            fBatch.fCanTweakAlphaForCoverage = false;
+        if (fOpts.canTweakAlphaForCoverage() && !that->fOpts.canTweakAlphaForCoverage()) {
+            fOpts = that->fOpts;
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
@@ -190,142 +158,146 @@ private:
         return true;
     }
 
-    void generateAAFillRectGeometry(void* vertices,
-                                    size_t offset,
-                                    size_t vertexStride,
-                                    const Geometry& args,
-                                    bool tweakAlphaForCoverage) const {
-        intptr_t verts = reinterpret_cast<intptr_t>(vertices) + offset;
-
-        SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
-        SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
-
-        SkScalar inset = SkMinScalar(args.fDevRect.width(), SK_Scalar1);
-        inset = SK_ScalarHalf * SkMinScalar(inset, args.fDevRect.height());
-
-        if (args.fViewMatrix.rectStaysRect()) {
-            set_inset_fan(fan0Pos, vertexStride, args.fDevRect, -SK_ScalarHalf, -SK_ScalarHalf);
-            set_inset_fan(fan1Pos, vertexStride, args.fDevRect, inset,  inset);
-        } else {
-            // compute transformed (1, 0) and (0, 1) vectors
-            SkVector vec[2] = {
-              { args.fViewMatrix[SkMatrix::kMScaleX], args.fViewMatrix[SkMatrix::kMSkewY] },
-              { args.fViewMatrix[SkMatrix::kMSkewX],  args.fViewMatrix[SkMatrix::kMScaleY] }
-            };
-
-            vec[0].normalize();
-            vec[0].scale(SK_ScalarHalf);
-            vec[1].normalize();
-            vec[1].scale(SK_ScalarHalf);
-
-            // create the rotated rect
-            fan0Pos->setRectFan(args.fRect.fLeft, args.fRect.fTop,
-                                args.fRect.fRight, args.fRect.fBottom, vertexStride);
-            args.fViewMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
-
-            // Now create the inset points and then outset the original
-            // rotated points
-
-            // TL
-            *((SkPoint*)((intptr_t)fan1Pos + 0 * vertexStride)) =
-                *((SkPoint*)((intptr_t)fan0Pos + 0 * vertexStride)) + vec[0] + vec[1];
-            *((SkPoint*)((intptr_t)fan0Pos + 0 * vertexStride)) -= vec[0] + vec[1];
-            // BL
-            *((SkPoint*)((intptr_t)fan1Pos + 1 * vertexStride)) =
-                *((SkPoint*)((intptr_t)fan0Pos + 1 * vertexStride)) + vec[0] - vec[1];
-            *((SkPoint*)((intptr_t)fan0Pos + 1 * vertexStride)) -= vec[0] - vec[1];
-            // BR
-            *((SkPoint*)((intptr_t)fan1Pos + 2 * vertexStride)) =
-                *((SkPoint*)((intptr_t)fan0Pos + 2 * vertexStride)) - vec[0] - vec[1];
-            *((SkPoint*)((intptr_t)fan0Pos + 2 * vertexStride)) += vec[0] + vec[1];
-            // TR
-            *((SkPoint*)((intptr_t)fan1Pos + 3 * vertexStride)) =
-                *((SkPoint*)((intptr_t)fan0Pos + 3 * vertexStride)) - vec[0] + vec[1];
-            *((SkPoint*)((intptr_t)fan0Pos + 3 * vertexStride)) += vec[0] - vec[1];
-        }
-
-        Base::FillInAttributes(verts, vertexStride, fan0Pos, args);
-
-        // Make verts point to vertex color and then set all the color and coverage vertex attrs
-        // values.
-        verts += sizeof(SkPoint);
-
-        // The coverage offset is always the last vertex attribute
-        intptr_t coverageOffset = vertexStride - sizeof(GrColor) - sizeof(SkPoint);
-        for (int i = 0; i < 4; ++i) {
-            if (tweakAlphaForCoverage) {
-                *reinterpret_cast<GrColor*>(verts + i * vertexStride) = 0;
-            } else {
-                *reinterpret_cast<GrColor*>(verts + i * vertexStride) = args.fColor;
-                *reinterpret_cast<float*>(verts + i * vertexStride + coverageOffset) = 0;
-            }
-        }
-
-        int scale;
-        if (inset < SK_ScalarHalf) {
-            scale = SkScalarFloorToInt(512.0f * inset / (inset + SK_ScalarHalf));
-            SkASSERT(scale >= 0 && scale <= 255);
-        } else {
-            scale = 0xff;
-        }
-
-        verts += 4 * vertexStride;
-
-        float innerCoverage = GrNormalizeByteToFloat(scale);
-        GrColor scaledColor = (0xff == scale) ? args.fColor : SkAlphaMulQ(args.fColor, scale);
-
-        for (int i = 0; i < 4; ++i) {
-            if (tweakAlphaForCoverage) {
-                *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
-            } else {
-                *reinterpret_cast<GrColor*>(verts + i * vertexStride) = args.fColor;
-                *reinterpret_cast<float*>(verts + i * vertexStride +
-                                          coverageOffset) = innerCoverage;
-            }
-        }
-    }
-
-    static const GrGeometryProcessor* CreateFillRectGP(
-                                         bool tweakAlphaForCoverage,
-                                         const SkMatrix& viewMatrix,
-                                         bool usesLocalCoords,
-                                         GrDefaultGeoProcFactory::LocalCoords::Type localCoordsType,
-                                         bool coverageIgnored) {
-        using namespace GrDefaultGeoProcFactory;
-
-        Color color(Color::kAttribute_Type);
-        Coverage::Type coverageType;
-        // TODO remove coverage if coverage is ignored
-        /*if (coverageIgnored) {
-            coverageType = Coverage::kNone_Type;
-        } else*/ if (tweakAlphaForCoverage) {
-            coverageType = Coverage::kSolid_Type;
-        } else {
-            coverageType = Coverage::kAttribute_Type;
-        }
-        Coverage coverage(coverageType);
-
-        // We assume the caller has inverted the viewmatrix
-        if (LocalCoords::kHasExplicit_Type == localCoordsType) {
-            LocalCoords localCoords(localCoordsType);
-            return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
-        } else {
-            LocalCoords localCoords(usesLocalCoords ? localCoordsType : LocalCoords::kUnused_Type);
-            return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
-        }
-    }
-
-    struct BatchTracker {
-        GrColor fColor;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        bool fCanTweakAlphaForCoverage;
-    };
-
-    BatchTracker fBatch;
+    GrPipelineOptimizations fOpts;
     SkSTArray<1, Geometry, true> fGeoData;
 };
+
+static const GrGeometryProcessor* create_fill_rect_gp(
+                                       const SkMatrix& viewMatrix,
+                                       const GrPipelineOptimizations& opts,
+                                       GrDefaultGeoProcFactory::LocalCoords::Type localCoordsType) {
+    using namespace GrDefaultGeoProcFactory;
+
+    Color color(Color::kAttribute_Type);
+    Coverage::Type coverageType;
+    // TODO remove coverage if coverage is ignored
+    /*if (coverageIgnored) {
+        coverageType = Coverage::kNone_Type;
+    } else*/ if (opts.canTweakAlphaForCoverage()) {
+        coverageType = Coverage::kSolid_Type;
+    } else {
+        coverageType = Coverage::kAttribute_Type;
+    }
+    Coverage coverage(coverageType);
+
+    // We assume the caller has inverted the viewmatrix
+    if (LocalCoords::kHasExplicit_Type == localCoordsType) {
+        LocalCoords localCoords(localCoordsType);
+        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
+    } else {
+        LocalCoords localCoords(opts.readsLocalCoords() ? localCoordsType :
+                                                          LocalCoords::kUnused_Type);
+        return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
+    }
+}
+
+static void generate_aa_fill_rect_geometry(intptr_t verts,
+                                           size_t vertexStride,
+                                           GrColor color,
+                                           const SkMatrix& viewMatrix,
+                                           const SkRect& rect,
+                                           const SkRect& devRect,
+                                           const GrPipelineOptimizations& opts,
+                                           const SkMatrix* localMatrix) {
+    SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
+    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
+
+    SkScalar inset = SkMinScalar(devRect.width(), SK_Scalar1);
+    inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
+
+    if (viewMatrix.rectStaysRect()) {
+        set_inset_fan(fan0Pos, vertexStride, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
+        set_inset_fan(fan1Pos, vertexStride, devRect, inset,  inset);
+    } else {
+        // compute transformed (1, 0) and (0, 1) vectors
+        SkVector vec[2] = {
+          { viewMatrix[SkMatrix::kMScaleX], viewMatrix[SkMatrix::kMSkewY] },
+          { viewMatrix[SkMatrix::kMSkewX],  viewMatrix[SkMatrix::kMScaleY] }
+        };
+
+        vec[0].normalize();
+        vec[0].scale(SK_ScalarHalf);
+        vec[1].normalize();
+        vec[1].scale(SK_ScalarHalf);
+
+        // create the rotated rect
+        fan0Pos->setRectFan(rect.fLeft, rect.fTop,
+                            rect.fRight, rect.fBottom, vertexStride);
+        viewMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
+
+        // Now create the inset points and then outset the original
+        // rotated points
+
+        // TL
+        *((SkPoint*)((intptr_t)fan1Pos + 0 * vertexStride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 0 * vertexStride)) + vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 0 * vertexStride)) -= vec[0] + vec[1];
+        // BL
+        *((SkPoint*)((intptr_t)fan1Pos + 1 * vertexStride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 1 * vertexStride)) + vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 1 * vertexStride)) -= vec[0] - vec[1];
+        // BR
+        *((SkPoint*)((intptr_t)fan1Pos + 2 * vertexStride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 2 * vertexStride)) - vec[0] - vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 2 * vertexStride)) += vec[0] + vec[1];
+        // TR
+        *((SkPoint*)((intptr_t)fan1Pos + 3 * vertexStride)) =
+            *((SkPoint*)((intptr_t)fan0Pos + 3 * vertexStride)) - vec[0] + vec[1];
+        *((SkPoint*)((intptr_t)fan0Pos + 3 * vertexStride)) += vec[0] - vec[1];
+    }
+
+    if (localMatrix) {
+        SkMatrix invViewMatrix;
+        if (!viewMatrix.invert(&invViewMatrix)) {
+            SkASSERT(false);
+            invViewMatrix = SkMatrix::I();
+        }
+        SkMatrix localCoordMatrix;
+        localCoordMatrix.setConcat(*localMatrix, invViewMatrix);
+        SkPoint* fan0Loc = reinterpret_cast<SkPoint*>(verts + sizeof(SkPoint) + sizeof(GrColor));
+        localCoordMatrix.mapPointsWithStride(fan0Loc, fan0Pos, vertexStride, 8);
+    }
+
+    bool tweakAlphaForCoverage = opts.canTweakAlphaForCoverage();
+
+    // Make verts point to vertex color and then set all the color and coverage vertex attrs
+    // values.
+    verts += sizeof(SkPoint);
+
+    // The coverage offset is always the last vertex attribute
+    intptr_t coverageOffset = vertexStride - sizeof(GrColor) - sizeof(SkPoint);
+    for (int i = 0; i < 4; ++i) {
+        if (tweakAlphaForCoverage) {
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = 0;
+        } else {
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
+            *reinterpret_cast<float*>(verts + i * vertexStride + coverageOffset) = 0;
+        }
+    }
+
+    int scale;
+    if (inset < SK_ScalarHalf) {
+        scale = SkScalarFloorToInt(512.0f * inset / (inset + SK_ScalarHalf));
+        SkASSERT(scale >= 0 && scale <= 255);
+    } else {
+        scale = 0xff;
+    }
+
+    verts += 4 * vertexStride;
+
+    float innerCoverage = GrNormalizeByteToFloat(scale);
+    GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
+
+    for (int i = 0; i < 4; ++i) {
+        if (tweakAlphaForCoverage) {
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
+        } else {
+            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
+            *reinterpret_cast<float*>(verts + i * vertexStride +
+                                      coverageOffset) = innerCoverage;
+        }
+    }
+}
 
 class AAFillRectBatchNoLocalMatrixImp {
 public:
@@ -336,26 +308,33 @@ public:
         GrColor fColor;
     };
 
-    inline static bool CanCombineLocalCoords(const SkMatrix& mine, const SkMatrix& theirs,
-                                             bool usesLocalCoords) {
+    inline static bool CanCombine(const Geometry& mine, const Geometry& theirs,
+                                  const GrPipelineOptimizations& opts) {
         // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
         // local coords then we won't be able to batch.  We could actually upload the viewmatrix
         // using vertex attributes in these cases, but haven't investigated that
-        return !usesLocalCoords || mine.cheapEqualTo(theirs);
+        return !opts.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
     }
 
-    inline static GrDefaultGeoProcFactory::LocalCoords::Type LocalCoordsType() {
-        return GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type;
+    inline static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+                                                      const GrPipelineOptimizations& opts) {
+        const GrGeometryProcessor* gp =
+                create_fill_rect_gp(geo.fViewMatrix, opts,
+                                    GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
+
+        SkASSERT(opts.canTweakAlphaForCoverage() ?
+                 gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
+                 gp->getVertexStride() ==
+                         sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
+        return gp;
     }
 
-    inline static bool StrideCheck(size_t vertexStride, bool canTweakAlphaForCoverage,
-                                   bool usesLocalCoords) {
-        return canTweakAlphaForCoverage ?
-                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
-                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr);
+    inline static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
+                                 const GrPipelineOptimizations& opts) {
+        generate_aa_fill_rect_geometry(vertices, vertexStride,
+                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
+                                       NULL);
     }
-
-    inline static void FillInAttributes(intptr_t, size_t, SkPoint*, const Geometry&) {}
 };
 
 class AAFillRectBatchLocalMatrixImp {
@@ -368,34 +347,30 @@ public:
         GrColor fColor;
     };
 
-    inline static bool CanCombineLocalCoords(const SkMatrix& mine, const SkMatrix& theirs,
-                                             bool usesLocalCoords) {
+    inline static bool CanCombine(const Geometry& mine, const Geometry& theirs,
+                                  const GrPipelineOptimizations&) {
         return true;
     }
 
-    inline static GrDefaultGeoProcFactory::LocalCoords::Type LocalCoordsType() {
-        return GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type;
+    inline static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+                                                      const GrPipelineOptimizations& opts) {
+        const GrGeometryProcessor* gp =
+                create_fill_rect_gp(geo.fViewMatrix, opts,
+                                    GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
+
+        SkASSERT(opts.canTweakAlphaForCoverage() ?
+                 gp->getVertexStride() ==
+                         sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
+                 gp->getVertexStride() ==
+                         sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordCoverage));
+        return gp;
     }
 
-    inline static bool StrideCheck(size_t vertexStride, bool canTweakAlphaForCoverage,
-                                   bool usesLocalCoords) {
-        // Whomever created us should not have done so if there are no local coords
-        return canTweakAlphaForCoverage ?
-                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
-                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordCoverage);
-    }
-
-    inline static void FillInAttributes(intptr_t vertices, size_t vertexStride,
-                                        SkPoint* fan0Pos, const Geometry& args) {
-        SkMatrix invViewMatrix;
-        if (!args.fViewMatrix.invert(&invViewMatrix)) {
-            SkASSERT(false);
-            invViewMatrix = SkMatrix::I();
-        }
-        SkMatrix localCoordMatrix;
-        localCoordMatrix.setConcat(args.fLocalMatrix, invViewMatrix);
-        SkPoint* fan0Loc = reinterpret_cast<SkPoint*>(vertices + sizeof(SkPoint) + sizeof(GrColor));
-        localCoordMatrix.mapPointsWithStride(fan0Loc, fan0Pos, vertexStride, 8);
+    inline static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
+                                 const GrPipelineOptimizations& opts) {
+        generate_aa_fill_rect_geometry(vertices, vertexStride,
+                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
+                                       &geo.fLocalMatrix);
     }
 };
 
