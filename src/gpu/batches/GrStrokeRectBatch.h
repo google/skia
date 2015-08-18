@@ -36,10 +36,9 @@ public:
         out->setKnownSingleComponent(0xff);
     }
 
-    void initBatchTracker(const GrPipelineOptimizations&) override;
-
 private:
     void onPrepareDraws(Target*) override;
+    void initBatchTracker(const GrPipelineOptimizations&) override;
 
     GrStrokeRectBatch(const Geometry& geometry, bool snapToPixelCenters);
 

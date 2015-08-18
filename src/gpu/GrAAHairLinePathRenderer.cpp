@@ -694,6 +694,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -711,7 +712,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     void onPrepareDraws(Target*) override;
 
     typedef SkTArray<SkPoint, true> PtArray;

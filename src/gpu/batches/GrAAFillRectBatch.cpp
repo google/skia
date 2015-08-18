@@ -97,6 +97,32 @@ public:
         fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
     }
 
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+
+    // to avoid even the initial copy of the struct, we have a getter for the first item which
+    // is used to seed the batch with its initial geometry.  After seeding, the client should call
+    // init() so the Batch can initialize itself
+    Geometry* geometry() { return &fGeoData[0]; }
+    void init() {
+        const Geometry& geo = fGeoData[0];
+        this->setBounds(geo.fDevRect);
+    }
+
+private:
+    AAFillRectBatch() {
+        this->initClassID<AAFillRectBatch<Base>>();
+
+        // Push back an initial geometry
+        fGeoData.push_back();
+    }
+
+    GrColor color() const { return fBatch.fColor; }
+    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
+    bool colorIgnored() const { return fBatch.fColorIgnored; }
+    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
+    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+
     void onPrepareDraws(Target* target) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
@@ -136,33 +162,6 @@ public:
         }
         helper.recordDraw(target);
     }
-
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-    // to avoid even the initial copy of the struct, we have a getter for the first item which
-    // is used to seed the batch with its initial geometry.  After seeding, the client should call
-    // init() so the Batch can initialize itself
-    Geometry* geometry() { return &fGeoData[0]; }
-    void init() {
-        const Geometry& geo = fGeoData[0];
-        this->setBounds(geo.fDevRect);
-    }
-
-
-private:
-    AAFillRectBatch() {
-        this->initClassID<AAFillRectBatch<Base>>();
-
-        // Push back an initial geometry
-        fGeoData.push_back();
-    }
-
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
-    bool colorIgnored() const { return fBatch.fColorIgnored; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         AAFillRectBatch* that = t->cast<AAFillRectBatch>();

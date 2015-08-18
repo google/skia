@@ -43,7 +43,6 @@ static const GrGeometryProcessor* create_stroke_rect_gp(bool tweakAlphaForCovera
     return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-
 void GrAAStrokeRectBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     // Handle any color overrides
     if (!opt.readsColor()) {

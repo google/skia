@@ -651,6 +651,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -727,7 +728,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     CircleBatch(const Geometry& geometry) {
         this->initClassID<CircleBatch>();
         fGeoData.push_back(geometry);
@@ -869,6 +869,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsCoverage()) {
@@ -950,7 +951,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     EllipseBatch(const Geometry& geometry) {
         this->initClassID<EllipseBatch>();
         fGeoData.push_back(geometry);
@@ -1137,6 +1137,8 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
+
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -1209,7 +1211,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     DIEllipseBatch(const Geometry& geometry, const SkRect& bounds) {
         this->initClassID<DIEllipseBatch>();
         fGeoData.push_back(geometry);
@@ -1488,6 +1489,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -1586,7 +1588,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     RRectCircleRendererBatch(const Geometry& geometry) {
         this->initClassID<RRectCircleRendererBatch>();
         fGeoData.push_back(geometry);
@@ -1664,6 +1665,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -1772,7 +1774,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     RRectEllipseRendererBatch(const Geometry& geometry) {
         this->initClassID<RRectEllipseRendererBatch>();
         fGeoData.push_back(geometry);

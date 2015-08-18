@@ -1488,6 +1488,28 @@ public:
         return batch;
     }
 
+    // to avoid even the initial copy of the struct, we have a getter for the first item which
+    // is used to seed the batch with its initial geometry.  After seeding, the client should call
+    // init() so the Batch can initialize itself
+    Geometry& geometry() { return fGeoData[0]; }
+
+    void init() {
+        const Geometry& geo = fGeoData[0];
+        fBatch.fColor = geo.fColor;
+        fBatch.fViewMatrix = geo.fBlob->fViewMatrix;
+
+        // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
+        // into device space
+        const Run& run = geo.fBlob->fRuns[geo.fRun];
+        if (run.fSubRunInfo[geo.fSubRun].fDrawAsDistanceFields) {
+            SkRect bounds = run.fVertexBounds;
+            fBatch.fViewMatrix.mapRect(&bounds);
+            this->setBounds(bounds);
+        } else {
+            this->setBounds(run.fVertexBounds);
+        }
+    }
+
     const char* name() const override { return "TextBatch"; }
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
@@ -1514,6 +1536,7 @@ public:
         }
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -1762,28 +1785,6 @@ public:
         this->flush(target, &flushInfo);
     }
 
-    // to avoid even the initial copy of the struct, we have a getter for the first item which
-    // is used to seed the batch with its initial geometry.  After seeding, the client should call
-    // init() so the Batch can initialize itself
-    Geometry& geometry() { return fGeoData[0]; }
-    void init() {
-        const Geometry& geo = fGeoData[0];
-        fBatch.fColor = geo.fColor;
-        fBatch.fViewMatrix = geo.fBlob->fViewMatrix;
-
-        // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
-        // into device space
-        const Run& run = geo.fBlob->fRuns[geo.fRun];
-        if (run.fSubRunInfo[geo.fSubRun].fDrawAsDistanceFields) {
-            SkRect bounds = run.fVertexBounds;
-            fBatch.fViewMatrix.mapRect(&bounds);
-            this->setBounds(bounds);
-        } else {
-            this->setBounds(run.fVertexBounds);
-        }
-    }
-
-private:
     TextBatch() {} // initialized in factory functions.
 
     ~TextBatch() {

@@ -45,12 +45,11 @@ public:
 
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override;
 
-    void initBatchTracker(const GrPipelineOptimizations&) override;
-
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
     void onPrepareDraws(Target*) override;
+    void initBatchTracker(const GrPipelineOptimizations&) override;
 
     GrDrawVerticesBatch(const Geometry& geometry, GrPrimitiveType primitiveType,
                         const SkMatrix& viewMatrix,

@@ -44,6 +44,26 @@ public:
         out->setKnownSingleComponent(0xff);
     }
 
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+
+private:
+    BWFillRectBatch(const Geometry& geometry) {
+        this->initClassID<BWFillRectBatch>();
+        fGeoData.push_back(geometry);
+
+        fBounds = geometry.fRect;
+        geometry.fViewMatrix.mapRect(&fBounds);
+    }
+
+    GrColor color() const { return fBatch.fColor; }
+    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    bool colorIgnored() const { return fBatch.fColorIgnored; }
+    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
+    const SkMatrix& localMatrix() const { return fGeoData[0].fLocalMatrix; }
+    bool hasLocalRect() const { return fGeoData[0].fHasLocalRect; }
+    bool hasLocalMatrix() const { return fGeoData[0].fHasLocalMatrix; }
+    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+
     void initBatchTracker(const GrPipelineOptimizations& init) override {
         // Handle any color overrides
         if (!init.readsColor()) {
@@ -112,26 +132,6 @@ public:
 
         helper.recordDraw(target);
     }
-
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-private:
-    BWFillRectBatch(const Geometry& geometry) {
-        this->initClassID<BWFillRectBatch>();
-        fGeoData.push_back(geometry);
-
-        fBounds = geometry.fRect;
-        geometry.fViewMatrix.mapRect(&fBounds);
-    }
-
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool colorIgnored() const { return fBatch.fColorIgnored; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    const SkMatrix& localMatrix() const { return fGeoData[0].fLocalMatrix; }
-    bool hasLocalRect() const { return fGeoData[0].fHasLocalRect; }
-    bool hasLocalMatrix() const { return fGeoData[0].fHasLocalMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
         BWFillRectBatch* that = t->cast<BWFillRectBatch>();

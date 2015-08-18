@@ -139,6 +139,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -273,7 +274,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     AADistanceFieldPathBatch(const Geometry& geometry, GrColor color, const SkMatrix& viewMatrix,
                              GrBatchAtlas* atlas,
                              PathCache* pathCache, PathDataList* pathList) {

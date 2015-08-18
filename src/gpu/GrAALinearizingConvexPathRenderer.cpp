@@ -139,6 +139,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -254,7 +255,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     AAFlatteningConvexPathBatch(const Geometry& geometry) {
         this->initClassID<AAFlatteningConvexPathBatch>();
         fGeoData.push_back(geometry);

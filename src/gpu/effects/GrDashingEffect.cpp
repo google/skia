@@ -272,6 +272,29 @@ public:
         out->setUnknownSingleComponent();
     }
 
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+
+private:
+    DashBatch(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode, bool fullDash) {
+        this->initClassID<DashBatch>();
+        fGeoData.push_back(geometry);
+
+        fBatch.fAAMode = aaMode;
+        fBatch.fCap = cap;
+        fBatch.fFullDash = fullDash;
+
+        // compute bounds
+        SkScalar halfStrokeWidth = 0.5f * geometry.fSrcStrokeWidth;
+        SkScalar xBloat = SkPaint::kButt_Cap == cap ? 0 : halfStrokeWidth;
+        fBounds.set(geometry.fPtsRot[0], geometry.fPtsRot[1]);
+        fBounds.outset(xBloat, halfStrokeWidth);
+
+        // Note, we actually create the combined matrix here, and save the work
+        SkMatrix& combinedMatrix = fGeoData[0].fSrcRotInv;
+        combinedMatrix.postConcat(geometry.fViewMatrix);
+        combinedMatrix.mapRect(&fBounds);
+    }
+
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -592,29 +615,6 @@ public:
         }
         SkASSERT(0 == (curVIdx % 4) && (curVIdx / 4) == totalRectCount);
         helper.recordDraw(target);
-    }
-
-    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-
-private:
-    DashBatch(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode, bool fullDash) {
-        this->initClassID<DashBatch>();
-        fGeoData.push_back(geometry);
-
-        fBatch.fAAMode = aaMode;
-        fBatch.fCap = cap;
-        fBatch.fFullDash = fullDash;
-
-        // compute bounds
-        SkScalar halfStrokeWidth = 0.5f * geometry.fSrcStrokeWidth;
-        SkScalar xBloat = SkPaint::kButt_Cap == cap ? 0 : halfStrokeWidth;
-        fBounds.set(geometry.fPtsRot[0], geometry.fPtsRot[1]);
-        fBounds.outset(xBloat, halfStrokeWidth);
-
-        // Note, we actually create the combined matrix here, and save the work
-        SkMatrix& combinedMatrix = fGeoData[0].fSrcRotInv;
-        combinedMatrix.postConcat(geometry.fViewMatrix);
-        combinedMatrix.mapRect(&fBounds);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {

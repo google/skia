@@ -1405,6 +1405,7 @@ public:
         out->setUnknownSingleComponent();
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -1570,7 +1571,6 @@ public:
 
     bool onCombineIfPossible(GrBatch*, const GrCaps&) override { return false; }
 
-private:
     TessellatingPathBatch(const GrColor& color,
                           const SkPath& path,
                           const GrStrokeInfo& stroke,

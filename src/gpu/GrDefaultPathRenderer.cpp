@@ -234,6 +234,7 @@ public:
         out->setKnownSingleComponent(this->coverage());
     }
 
+private:
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
         // Handle any color overrides
         if (!opt.readsColor()) {
@@ -375,7 +376,6 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
     DefaultPathBatch(const Geometry& geometry, uint8_t coverage, const SkMatrix& viewMatrix,
                      bool isHairline, const SkRect& devBounds) {
         this->initClassID<DefaultPathBatch>();

@@ -40,17 +40,17 @@ public:
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         out->setKnownSingleComponent(0xff);
     }
-    
-    void initBatchTracker(const GrPipelineOptimizations&) override;
-    
+
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
-    
+
 private:
     void onPrepareDraws(Target*) override;
 
+    void initBatchTracker(const GrPipelineOptimizations&) override;
+
     GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix, int spriteCount,
                      const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
-    
+
     GrColor color() const { return fColor; }
     bool colorIgnored() const { return fColorIgnored; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
