@@ -57,7 +57,7 @@ SkString SkTabString(const SkString& string, int tabCnt) {
     }
     if (*input != '\0') {
         result.append(tabs);
+        result.append(input);
     }
-    result.append(input);
     return result;
 }

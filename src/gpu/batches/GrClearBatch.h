@@ -52,4 +52,40 @@ private:
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
 };
 
+class GrClearStencilClipBatch final : public GrBatch {
+public:
+    GrClearStencilClipBatch(const SkIRect& rect, bool insideClip, GrRenderTarget* rt)
+        : fRect(rect)
+        , fInsideClip(insideClip)
+        , fRenderTarget(rt) {
+        this->initClassID<GrClearStencilClipBatch>();
+        fBounds = SkRect::Make(rect);
+    }
+
+    const char* name() const override { return "ClearStencilClip"; }
+
+    uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        string.printf("Rect [L: %d, T: %d, R: %d, B: %d], IC: %d, RT: 0x%p",
+                      fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom, fInsideClip,
+                      fRenderTarget.get());
+        return string;
+    }
+
+private:
+    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
+
+    void onPrepare(GrBatchFlushState*) override {}
+
+    void onDraw(GrBatchFlushState* state) override {
+        state->gpu()->clearStencilClip(fRect, fInsideClip, fRenderTarget.get());
+    }
+
+    SkIRect                                                 fRect;
+    bool                                                    fInsideClip;
+    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+};
+
 #endif

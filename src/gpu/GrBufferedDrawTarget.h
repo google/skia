@@ -30,10 +30,6 @@ public:
 
     ~GrBufferedDrawTarget() override;
 
-    void clearStencilClip(const SkIRect& rect,
-                          bool insideClip,
-                          GrRenderTarget* renderTarget) override;
-
 protected:
     void appendIndicesAndTransforms(const void* indexValues, PathIndexType indexType, 
                                     const float* transformValues, PathTransformType transformType,
@@ -55,6 +51,8 @@ protected:
         }
     }
 
+    void onDrawBatch(GrBatch*) override;
+
 private:
     friend class GrInOrderCommandBuilder;
     friend class GrTargetCommands;
@@ -75,8 +73,6 @@ private:
     void onReset() override;
     void onFlush() override;
 
-    // overrides from GrDrawTarget
-    void onDrawBatch(GrBatch*) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,

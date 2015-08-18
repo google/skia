@@ -47,12 +47,6 @@ void GrImmediateDrawTarget::onCopySurface(GrSurface* dst,
     this->getGpu()->copySurface(dst, src, srcRect, dstPoint);
 }
 
-void GrImmediateDrawTarget::clearStencilClip(const SkIRect& rect,
-                                             bool insideClip,
-                                             GrRenderTarget* renderTarget) {
-    this->getGpu()->clearStencilClip(rect, insideClip, renderTarget);
-}
-
 void GrImmediateDrawTarget::onReset() {}
 
 void GrImmediateDrawTarget::onFlush() {

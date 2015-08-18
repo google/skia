@@ -76,10 +76,6 @@ void GrTargetCommands::DrawBatch::execute(GrBatchFlushState* state) {
     fBatch->draw(state);
 }
 
-void GrTargetCommands::ClearStencilClip::execute(GrBatchFlushState* state) {
-    state->gpu()->clearStencilClip(fRect, fInsideClip, this->renderTarget());
-}
-
 void GrTargetCommands::CopySurface::execute(GrBatchFlushState* state) {
     state->gpu()->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
 }

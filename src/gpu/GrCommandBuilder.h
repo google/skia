@@ -26,9 +26,6 @@ public:
     void reset() { fCommands.reset(); }
     void flush(GrGpu* gpu, GrResourceProvider* rp) { fCommands.flush(gpu, rp); }
 
-    virtual Cmd* recordClearStencilClip(const SkIRect& rect,
-                                        bool insideClip,
-                                        GrRenderTarget* renderTarget);
     virtual Cmd* recordDrawBatch(GrBatch*, const GrCaps&) = 0;
     virtual Cmd* recordStencilPath(const GrPipelineBuilder&,
                                    const GrPathProcessor*,
@@ -60,7 +57,6 @@ protected:
     typedef GrTargetCommands::StencilPath StencilPath;
     typedef GrTargetCommands::DrawPath DrawPath;
     typedef GrTargetCommands::DrawPaths DrawPaths;
-    typedef GrTargetCommands::ClearStencilClip ClearStencilClip;
     typedef GrTargetCommands::CopySurface CopySurface;
 
     GrCommandBuilder() {}

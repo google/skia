@@ -26,16 +26,13 @@ public:
 
     ~GrImmediateDrawTarget() override;
 
-    void clearStencilClip(const SkIRect& rect,
-                          bool insideClip,
-                          GrRenderTarget* renderTarget) override;
+protected:
+    void onDrawBatch(GrBatch*) override;
 
 private:
     void onReset() override;
     void onFlush() override;
 
-    // overrides from GrDrawTarget
-    void onDrawBatch(GrBatch*) override;
     void onStencilPath(const GrPipelineBuilder&,
                        const GrPathProcessor*,
                        const GrPath*,

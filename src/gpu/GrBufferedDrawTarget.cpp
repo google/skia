@@ -69,12 +69,6 @@ void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
                                opts);
 }
 
-void GrBufferedDrawTarget::clearStencilClip(const SkIRect& rect,
-                                            bool insideClip,
-                                            GrRenderTarget* renderTarget) {
-    fCommands->recordClearStencilClip(rect, insideClip, renderTarget);
-}
-
 void GrBufferedDrawTarget::onReset() {
     fCommands->reset();
     fPathIndexBuffer.rewind();

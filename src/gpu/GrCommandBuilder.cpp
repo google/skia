@@ -18,20 +18,6 @@ GrCommandBuilder* GrCommandBuilder::Create(GrGpu* gpu, bool reorder) {
     }
 }
 
-GrTargetCommands::Cmd* GrCommandBuilder::recordClearStencilClip(const SkIRect& rect,
-                                                                bool insideClip,
-                                                                GrRenderTarget* renderTarget) {
-    SkASSERT(renderTarget);
-
-    ClearStencilClip* clr = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(),
-                                                     ClearStencilClip,
-                                                     (renderTarget));
-    clr->fRect = rect;
-    clr->fInsideClip = insideClip;
-    GrBATCH_INFO("Recording clear stencil clip %d\n", clr->uniqueID());
-    return clr;
-}
-
 GrTargetCommands::Cmd* GrCommandBuilder::recordCopySurface(GrSurface* dst,
                                                            GrSurface* src,
                                                            const SkIRect& srcRect,

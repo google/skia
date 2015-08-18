@@ -31,11 +31,10 @@ public:
     public:
         enum CmdType {
             kStencilPath_CmdType       = 1,
-            kClearStencil_CmdType      = 2,
-            kCopySurface_CmdType       = 3,
-            kDrawPath_CmdType          = 4,
-            kDrawPaths_CmdType         = 5,
-            kDrawBatch_CmdType         = 6,
+            kCopySurface_CmdType       = 2,
+            kDrawPath_CmdType          = 3,
+            kDrawPaths_CmdType         = 4,
+            kDrawBatch_CmdType         = 5,
         };
 
         Cmd(CmdType type)
@@ -175,21 +174,6 @@ private:
 
     private:
         GrPendingIOResource<const GrPathRange, kRead_GrIOType> fPathRange;
-    };
-
-    // This command is ONLY used by the clip mask manager to clear the stencil clip bits
-    struct ClearStencilClip : public Cmd {
-        ClearStencilClip(GrRenderTarget* rt) : Cmd(kClearStencil_CmdType), fRenderTarget(rt) {}
-
-        GrRenderTarget* renderTarget() const { return fRenderTarget.get(); }
-
-        void execute(GrBatchFlushState*) override;
-
-        SkIRect fRect;
-        bool    fInsideClip;
-
-    private:
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
     };
 
     struct CopySurface : public Cmd {

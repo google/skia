@@ -532,3 +532,9 @@ void GrClipTarget::purgeResources() {
     // get rid of them all.
     fClipMaskManager->purgeResources();
 };
+
+void GrClipTarget::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) {
+    GrBatch* batch = SkNEW_ARGS(GrClearStencilClipBatch, (rect, insideClip, rt));
+    this->onDrawBatch(batch);
+    batch->unref();
+}

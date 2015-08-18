@@ -236,12 +236,13 @@ protected:
                                  GrXferProcessor::DstTexture*,
                                  const SkRect* drawBounds);
 
+    virtual void onDrawBatch(GrBatch*) = 0;
+
 private:
     virtual void onReset() = 0;
 
     virtual void onFlush() = 0;
 
-    virtual void onDrawBatch(GrBatch*) = 0;
     virtual void onStencilPath(const GrPipelineBuilder&,
                                const GrPathProcessor*,
                                const GrPath*,
@@ -311,7 +312,7 @@ public:
      * is free to clear the remaining bits to zero if masked clears are more
      * expensive than clearing all bits.
      */
-    virtual void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* = NULL) = 0;
+    void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
     /**
      * Release any resources that are cached but not currently in use. This
