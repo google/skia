@@ -13,7 +13,7 @@
 
 namespace SkOpts {
     void Init_ssse3() {
-        create_xfermode = SkCreate4pxXfermode;
+        create_xfermode = sk_ssse3::create_xfermode;
         blit_mask_d32_a8 = sk_ssse3::blit_mask_d32_a8;
         color_cube_filter_span = sk_ssse3::color_cube_filter_span;
     }

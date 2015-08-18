@@ -38,7 +38,7 @@ namespace SkOpts {
     decltype(rsqrt)                     rsqrt = sk_default::rsqrt;
     decltype(memset16)               memset16 = sk_default::memset16;
     decltype(memset32)               memset32 = sk_default::memset32;
-    decltype(create_xfermode) create_xfermode = SkCreate4pxXfermode;
+    decltype(create_xfermode) create_xfermode = sk_default::create_xfermode;
     decltype(color_cube_filter_span) color_cube_filter_span = sk_default::color_cube_filter_span;
 
     decltype(box_blur_xx) box_blur_xx = sk_default::box_blur_xx;

@@ -22,7 +22,7 @@ namespace SkOpts {
         rsqrt           = sk_neon::rsqrt;
         memset16        = sk_neon::memset16;
         memset32        = sk_neon::memset32;
-        create_xfermode = SkCreate4pxXfermode;
+        create_xfermode = sk_neon::create_xfermode;
 
         box_blur_xx = sk_neon::box_blur_xx;
         box_blur_xy = sk_neon::box_blur_xy;
