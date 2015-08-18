@@ -80,6 +80,8 @@ public:
         return fChildProcessors[index];
     }
 
+    void emitChild(int childIndex, const char* inputColor, SkString* outputColor, EmitArgs& args);
+
 protected:
     /** A GrGLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
     the same stage key; this function reads data from a GrFragmentProcessor and uploads any
