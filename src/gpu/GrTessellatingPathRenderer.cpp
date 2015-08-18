@@ -1417,7 +1417,8 @@ private:
 
     int tessellate(GrUniqueKey* key,
                    GrResourceProvider* resourceProvider,
-                   SkAutoTUnref<GrVertexBuffer>& vertexBuffer) {
+                   SkAutoTUnref<GrVertexBuffer>& vertexBuffer,
+                   bool canMapVB) {
         SkPath path;
         GrStrokeInfo stroke(fStroke);
         if (stroke.isDashed()) {
@@ -1490,13 +1491,23 @@ private:
             SkDebugf("Could not allocate vertices\n");
             return 0;
         }
-        SkPoint* verts = static_cast<SkPoint*>(vertexBuffer->map());
-        LOG("emitting %d verts\n", count);
+        SkPoint* verts;
+        if (canMapVB) {
+            verts = static_cast<SkPoint*>(vertexBuffer->map());
+        } else {
+            verts = SkNEW_ARRAY(SkPoint, count);
+        }
         SkPoint* end = polys_to_triangles(polys, fillType, verts);
-        vertexBuffer->unmap();
         int actualCount = static_cast<int>(end - verts);
         LOG("actual count: %d\n", actualCount);
         SkASSERT(actualCount <= count);
+        if (canMapVB) {
+            vertexBuffer->unmap();
+        } else {
+            vertexBuffer->updateData(verts, actualCount * sizeof(SkPoint));
+            SkDELETE_ARRAY(verts);
+        }
+
 
         if (!fPath.isVolatile()) {
             TessInfo info;
@@ -1533,7 +1544,8 @@ private:
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(
             screenSpaceTol, fViewMatrix, fPath.getBounds());
         if (!cache_match(vertexBuffer.get(), tol, &actualCount)) {
-            actualCount = tessellate(&key, rp, vertexBuffer);
+            bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
+            actualCount = tessellate(&key, rp, vertexBuffer, canMapVB);
         }
 
         if (actualCount == 0) {
