@@ -18,14 +18,6 @@ public:
     GrReorderCommandBuilder() : INHERITED() {}
 
     Cmd* recordDrawBatch(GrBatch*, const GrCaps&) override;
-    Cmd* recordStencilPath(const GrPipelineBuilder&,
-                           const GrPathProcessor*,
-                           const GrPath*,
-                           const GrScissorState&,
-                           const GrStencilSettings&) override {
-        SkFAIL("Unsupported\n");
-        return NULL;
-    }
 
     Cmd* recordDrawPath(State*,
                         const GrPathProcessor*,

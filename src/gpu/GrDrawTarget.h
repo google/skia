@@ -243,11 +243,6 @@ private:
 
     virtual void onFlush() = 0;
 
-    virtual void onStencilPath(const GrPipelineBuilder&,
-                               const GrPathProcessor*,
-                               const GrPath*,
-                               const GrScissorState&,
-                               const GrStencilSettings&) = 0;
     virtual void onDrawPath(const GrPathProcessor*,
                             const GrPath*,
                             const GrStencilSettings&,

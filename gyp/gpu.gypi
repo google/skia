@@ -241,6 +241,7 @@
       '<(skia_src_path)/gpu/batches/GrRectBatchFactory.cpp',
       '<(skia_src_path)/gpu/batches/GrStrokeRectBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrStrokeRectBatch.h',
+      '<(skia_src_path)/gpu/batches/GrStencilPathBatch.h',
       '<(skia_src_path)/gpu/batches/GrTInstanceBatch.h',
       '<(skia_src_path)/gpu/batches/GrVertexBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrVertexBatch.h',

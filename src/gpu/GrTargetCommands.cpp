@@ -43,12 +43,6 @@ void GrTargetCommands::flush(GrGpu* gpu, GrResourceProvider* resourceProvider) {
     fLastFlushToken = flushState.lastFlushedToken();
 }
 
-void GrTargetCommands::StencilPath::execute(GrBatchFlushState* state) {
-    GrPathRendering::StencilPathArgs args(fUseHWAA, fRenderTarget.get(), &fViewMatrix, &fScissor,
-                                          &fStencil);
-    state->gpu()->pathRendering()->stencilPath(args, this->path());
-}
-
 void GrTargetCommands::DrawPath::execute(GrBatchFlushState* state) {
     if (!fState->fCompiled) {
         state->gpu()->buildProgramDesc(&fState->fDesc, *fState->fPrimitiveProcessor,

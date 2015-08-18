@@ -25,6 +25,7 @@
 #include "batches/GrDiscardBatch.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
+#include "batches/GrStencilPathBatch.h"
 
 #include "SkStrokeRec.h"
 
@@ -212,7 +213,13 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
-    this->onStencilPath(pipelineBuilder, pathProc, path, scissorState, stencilSettings);
+    GrBatch* batch = GrStencilPathBatch::Create(pathProc->viewMatrix(),
+                                                pipelineBuilder.isHWAntialias(),
+                                                stencilSettings, scissorState,
+                                                pipelineBuilder.getRenderTarget(),
+                                                path);
+    this->onDrawBatch(batch);
+    batch->unref();
 }
 
 void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,

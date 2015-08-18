@@ -73,11 +73,6 @@ private:
     void onReset() override;
     void onFlush() override;
 
-    void onStencilPath(const GrPipelineBuilder&,
-                       const GrPathProcessor*,
-                       const GrPath*,
-                       const GrScissorState&,
-                       const GrStencilSettings&) override;
     void onDrawPath(const GrPathProcessor*,
                     const GrPath*,
                     const GrStencilSettings&,

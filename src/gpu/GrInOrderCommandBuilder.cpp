@@ -42,22 +42,6 @@ GrTargetCommands::Cmd* GrInOrderCommandBuilder::recordDrawBatch(GrBatch* batch,
 }
 
 GrTargetCommands::Cmd*
-GrInOrderCommandBuilder::recordStencilPath(const GrPipelineBuilder& pipelineBuilder,
-                                           const GrPathProcessor* pathProc,
-                                           const GrPath* path,
-                                           const GrScissorState& scissorState,
-                                           const GrStencilSettings& stencilSettings) {
-    StencilPath* sp = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), StencilPath,
-                                               (path, pipelineBuilder.getRenderTarget()));
-
-    sp->fScissor = scissorState;
-    sp->fUseHWAA = pipelineBuilder.isHWAntialias();
-    sp->fViewMatrix = pathProc->viewMatrix();
-    sp->fStencil = stencilSettings;
-    return sp;
-}
-
-GrTargetCommands::Cmd*
 GrInOrderCommandBuilder::recordDrawPath(State* state,
                                         const GrPathProcessor* pathProc,
                                         const GrPath* path,

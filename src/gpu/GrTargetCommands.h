@@ -30,7 +30,6 @@ public:
     class Cmd : ::SkNoncopyable {
     public:
         enum CmdType {
-            kStencilPath_CmdType       = 1,
             kDrawPath_CmdType          = 2,
             kDrawPaths_CmdType         = 3,
             kDrawBatch_CmdType         = 4,
@@ -117,25 +116,6 @@ private:
     };
     // TODO remove this when State is just a pipeline
     friend SkNVRefCnt<StateForPathDraw>;
-
-    struct StencilPath : public Cmd {
-        StencilPath(const GrPath* path, GrRenderTarget* rt)
-            : Cmd(kStencilPath_CmdType)
-            , fRenderTarget(rt)
-            , fPath(path) {}
-
-        const GrPath* path() const { return fPath.get(); }
-
-        void execute(GrBatchFlushState*) override;
-
-        SkMatrix                                                fViewMatrix;
-        bool                                                    fUseHWAA;
-        GrStencilSettings                                       fStencil;
-        GrScissorState                                          fScissor;
-    private:
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
-        GrPendingIOResource<const GrPath, kRead_GrIOType>       fPath;
-    };
 
     struct DrawPath : public Cmd {
         DrawPath(StateForPathDraw* state, const GrPath* path)

@@ -27,11 +27,6 @@ public:
     void flush(GrGpu* gpu, GrResourceProvider* rp) { fCommands.flush(gpu, rp); }
 
     virtual Cmd* recordDrawBatch(GrBatch*, const GrCaps&) = 0;
-    virtual Cmd* recordStencilPath(const GrPipelineBuilder&,
-                                   const GrPathProcessor*,
-                                   const GrPath*,
-                                   const GrScissorState&,
-                                   const GrStencilSettings&) = 0;
     virtual Cmd* recordDrawPath(State*,
                                 const GrPathProcessor*,
                                 const GrPath*,
@@ -50,7 +45,6 @@ public:
 
 protected:
     typedef GrTargetCommands::DrawBatch DrawBatch;
-    typedef GrTargetCommands::StencilPath StencilPath;
     typedef GrTargetCommands::DrawPath DrawPath;
     typedef GrTargetCommands::DrawPaths DrawPaths;
 

@@ -18,11 +18,6 @@ public:
     GrInOrderCommandBuilder() : INHERITED() { }
 
     Cmd* recordDrawBatch(GrBatch*, const GrCaps&) override;
-    Cmd* recordStencilPath(const GrPipelineBuilder&,
-                           const GrPathProcessor*,
-                           const GrPath*,
-                           const GrScissorState&,
-                           const GrStencilSettings&) override;
     Cmd* recordDrawPath(State*,
                         const GrPathProcessor*,
                         const GrPath*,
