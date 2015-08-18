@@ -96,8 +96,7 @@ private:
 
     // A helper for drawing BitmapText in a run of distance fields
     inline void fallbackDrawPosText(GrAtlasTextBlob*, int runIndex,
-                                    GrRenderTarget*, const GrClip&,
-                                    const GrPaint&,
+                                    GrRenderTarget*, const GrClip&, GrColor color,
                                     const SkPaint&, const SkMatrix& viewMatrix,
                                     const SkTDArray<char>& fallbackTxt,
                                     const SkTDArray<SkScalar>& fallbackPos,
@@ -136,14 +135,14 @@ private:
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     inline SkGlyphCache* setupCache(Run*, const SkPaint&, const SkMatrix* viewMatrix, bool noGamma);
     static inline bool MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
-                                          const GrAtlasTextBlob&, const SkPaint&,
+                                          const GrAtlasTextBlob&, const SkPaint&, GrColor,
                                           const SkMaskFilter::BlurRec&,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
     void regenerateTextBlob(GrAtlasTextBlob* bmp, const SkPaint& skPaint, GrColor,
                             const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                             SkDrawFilter* drawFilter, const SkIRect& clipRect, GrRenderTarget*,
-                            const GrClip&, const GrPaint&);
+                            const GrClip&);
     inline static bool HasLCD(const SkTextBlob*);
     inline void initDistanceFieldPaint(GrAtlasTextBlob*, SkPaint*, SkScalar* textRatio,
                                        const SkMatrix&);

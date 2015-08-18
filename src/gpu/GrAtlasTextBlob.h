@@ -184,7 +184,7 @@ struct GrAtlasTextBlob : public SkRefCnt {
     SkTArray<BigGlyph> fBigGlyphs;
     Key fKey;
     SkMatrix fViewMatrix;
-    SkColor fPaintColor;
+    GrColor fPaintColor;
     SkScalar fX;
     SkScalar fY;
 
