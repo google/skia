@@ -53,7 +53,7 @@ static int get_scaled_dimension(int srcDimension, int sampleSize) {
     return srcDimension / sampleSize;
 }
 
-static SkISize best_scaled_dimensions(const SkISize& origDims, const SkISize& nativeDims, 
+static SkISize best_scaled_dimensions(const SkISize& origDims, const SkISize& nativeDims,
                                       const SkISize& scaledCodecDims, float desiredScale) {
     if (nativeDims == scaledCodecDims) {
         // does not matter which to return if equal. Return here to skip below calculations
@@ -65,18 +65,24 @@ static SkISize best_scaled_dimensions(const SkISize& origDims, const SkISize& na
     // calculate difference between native dimensions and ideal dimensions
     float nativeWDiff = SkTAbs(idealWidth - nativeDims.width());
     float nativeHDiff = SkTAbs(idealHeight - nativeDims.height());
-    float nativeDiff = (nativeWDiff + nativeHDiff) / 2;
+    float nativeDiff = nativeWDiff + nativeHDiff;
+
+    // Native scaling is preferred to sampling.  If we can scale natively to
+    // within one of the ideal value, we should choose to scale natively.
+    if (nativeWDiff < 1.0f && nativeHDiff < 1.0f) {
+        return nativeDims;
+    }
 
     // calculate difference between scaledCodec dimensions and ideal dimensions
     float scaledCodecWDiff = SkTAbs(idealWidth - scaledCodecDims.width());
     float scaledCodecHDiff = SkTAbs(idealHeight - scaledCodecDims.height());
-    float scaledCodecDiff = (scaledCodecWDiff + scaledCodecHDiff) / 2;
+    float scaledCodecDiff = scaledCodecWDiff + scaledCodecHDiff;
 
     // return dimensions closest to ideal dimensions.
     // If the differences are equal, return nativeDims, as native scaling is more efficient.
     return nativeDiff > scaledCodecDiff ? scaledCodecDims : nativeDims;
+}
 
-} 
 /*
  * Return a valid set of output dimensions for this decoder, given an input scale
  */
@@ -98,7 +104,7 @@ SkISize SkScaledCodec::onGetScaledDimensions(float desiredScale) const {
     // Return the calculated output dimensions for the given scale
     scaledCodecDimensions = SkISize::Make(scaledWidth, scaledHeight);
 
-    return best_scaled_dimensions(this->getInfo().dimensions(), nativeDimensions, 
+    return best_scaled_dimensions(this->getInfo().dimensions(), nativeDimensions,
                                   scaledCodecDimensions, desiredScale);
 }
 
