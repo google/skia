@@ -185,7 +185,15 @@ public:
             fpb->codeAppendf("%s = vec4(result.rgb, diffuseColor.a);", args.fOutputColor);
         }
 
-        void setData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {
+        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
+                           GrProcessorKeyBuilder* b) {
+//            const LightingFP& lightingFP = proc.cast<LightingFP>();
+            // only one shader generated currently
+            b->add32(0x0);
+        }
+
+    protected:
+        void onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {
             const LightingFP& lightingFP = proc.cast<LightingFP>();
 
             const SkVector3& lightDir = lightingFP.lightDir();
@@ -207,13 +215,6 @@ public:
             }
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
-                           GrProcessorKeyBuilder* b) {
-//            const LightingFP& lightingFP = proc.cast<LightingFP>();
-            // only one shader generated currently
-            b->add32(0x0);
-        }
-
     private:
         SkVector3 fLightDir;
         GrGLProgramDataManager::UniformHandle fLightDirUni;
@@ -224,8 +225,6 @@ public:
         SkColor3f fAmbientColor;
         GrGLProgramDataManager::UniformHandle fAmbientColorUni;
     };
-
-    GrGLFragmentProcessor* createGLInstance() const override { return SkNEW(LightingGLFP); }
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         LightingGLFP::GenKey(*this, caps, b);
@@ -242,6 +241,8 @@ public:
     const SkColor3f& ambientColor() const { return fAmbientColor; }
 
 private:
+    GrGLFragmentProcessor* onCreateGLInstance() const override { return SkNEW(LightingGLFP); }
+
     bool onIsEqual(const GrFragmentProcessor& proc) const override { 
         const LightingFP& lightingFP = proc.cast<LightingFP>();
         return fDeviceTransform == lightingFP.fDeviceTransform &&

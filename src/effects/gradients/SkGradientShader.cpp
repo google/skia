@@ -940,7 +940,7 @@ static inline void set_mul_color_uni(const GrGLProgramDataManager& pdman,
                    a);
 }
 
-void GrGLGradientEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLGradientEffect::onSetData(const GrGLProgramDataManager& pdman,
                                  const GrProcessor& processor) {
 
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();

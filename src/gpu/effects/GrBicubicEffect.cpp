@@ -25,13 +25,14 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
-
     static inline void GenKey(const GrProcessor& effect, const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrTextureDomain& domain = effect.cast<GrBicubicEffect>().domain();
         b->add32(GrTextureDomain::GLDomain::DomainKey(domain));
     }
+
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -104,7 +105,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                            GrGLSLExpr4(args.fInputColor)).c_str());
 }
 
-void GrGLBicubicEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLBicubicEffect::onSetData(const GrGLProgramDataManager& pdman,
                                 const GrProcessor& processor) {
     const GrBicubicEffect& bicubicEffect = processor.cast<GrBicubicEffect>();
     const GrTexture& texture = *processor.texture(0);
@@ -157,7 +158,7 @@ void GrBicubicEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLBicubicEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrBicubicEffect::createGLInstance() const  {
+GrGLFragmentProcessor* GrBicubicEffect::onCreateGLInstance() const  {
     return SkNEW_ARGS(GrGLBicubicEffect, (*this));
 }
 

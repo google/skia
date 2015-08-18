@@ -26,14 +26,14 @@ public:
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
 private:
     AARectEffect(GrPrimitiveEdgeType edgeType, const SkRect& rect)
         : fRect(rect), fEdgeType(edgeType) {
         this->initClassID<AARectEffect>();
         this->setWillReadFragmentPosition();
     }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const AARectEffect& aare = other.cast<AARectEffect>();
@@ -85,7 +85,8 @@ public:
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLProgramDataManager::UniformHandle fRectUniform;
@@ -136,7 +137,7 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
                            (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLAARectEffect::setData(const GrGLProgramDataManager& pdman, const GrProcessor& processor) {
+void GLAARectEffect::onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& processor) {
     const AARectEffect& aare = processor.cast<AARectEffect>();
     const SkRect& rect = aare.getRect();
     if (rect != fPrevRect) {
@@ -156,7 +157,7 @@ void AARectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBui
     GLAARectEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* AARectEffect::createGLInstance() const  {
+GrGLFragmentProcessor* AARectEffect::onCreateGLInstance() const  {
     return SkNEW_ARGS(GLAARectEffect, (*this));
 }
 
@@ -170,7 +171,8 @@ public:
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLProgramDataManager::UniformHandle fEdgeUniform;
@@ -219,7 +221,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
                            (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GrGLConvexPolyEffect::setData(const GrGLProgramDataManager& pdman, const GrProcessor& effect) {
+void GrGLConvexPolyEffect::onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& effect) {
     const GrConvexPolyEffect& cpe = effect.cast<GrConvexPolyEffect>();
     size_t byteSize = 3 * cpe.getEdgeCount() * sizeof(SkScalar);
     if (0 != memcmp(fPrevEdges, cpe.getEdges(), byteSize)) {
@@ -307,7 +309,7 @@ void GrConvexPolyEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLConvexPolyEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrConvexPolyEffect::createGLInstance() const  {
+GrGLFragmentProcessor* GrConvexPolyEffect::onCreateGLInstance() const  {
     return SkNEW_ARGS(GrGLConvexPolyEffect, (*this));
 }
 

@@ -310,8 +310,10 @@ public:
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
     const GrTextureDomain::GLDomain& glDomain() const { return fGLDomain; }
+
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     SkDisplacementMapEffect::ChannelSelectorType fXChannelSelector;
@@ -344,10 +346,6 @@ public:
 
     virtual ~GrDisplacementMapEffect();
 
-    GrGLFragmentProcessor* createGLInstance() const override {
-        return SkNEW_ARGS(GrGLDisplacementMapEffect, (*this));
-    }
-
     SkDisplacementMapEffect::ChannelSelectorType xChannelSelector() const
         { return fXChannelSelector; }
     SkDisplacementMapEffect::ChannelSelectorType yChannelSelector() const
@@ -358,6 +356,10 @@ public:
     const GrTextureDomain& domain() const { return fDomain; }
 
 private:
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
+        return SkNEW_ARGS(GrGLDisplacementMapEffect, (*this));
+    }
+
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override {
         GrGLDisplacementMapEffect::GenKey(*this, caps, b);
@@ -621,7 +623,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppend(";\n");
 }
 
-void GrGLDisplacementMapEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLDisplacementMapEffect::onSetData(const GrGLProgramDataManager& pdman,
                                         const GrProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
     GrTexture* colorTex = displacementMap.texture(1);

@@ -60,7 +60,7 @@ public:
         this->initClassID<DCFP>();
     }
 
-    GrGLFragmentProcessor* createGLInstance() const override {
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
         class DCGLFP : public GrGLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 GrGLFragmentBuilder* fpb = args.fBuilder->getFragmentShaderBuilder();
@@ -74,7 +74,7 @@ public:
                                     "%s = color * %s;",
                                     args.fOutputColor, GrGLSLExpr4(args.fInputColor).c_str());
             }
-            void setData(const GrGLProgramDataManager&, const GrProcessor&) override {}
+            void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override {}
         };
         return SkNEW(DCGLFP);
     }

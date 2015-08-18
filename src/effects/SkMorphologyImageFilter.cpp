@@ -224,8 +224,6 @@ public:
 
     const char* name() const override { return "Morphology"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
 protected:
 
     MorphologyType fType;
@@ -233,6 +231,8 @@ protected:
     float fRange[2];
 
 private:
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
+
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
@@ -258,7 +258,8 @@ public:
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
@@ -359,7 +360,7 @@ void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
     b->add32(key);
 }
 
-void GrGLMorphologyEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLMorphologyEffect::onSetData(const GrGLProgramDataManager& pdman,
                                    const GrProcessor& proc) {
     const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
     GrTexture& texture = *m.texture(0);
@@ -423,7 +424,7 @@ void GrMorphologyEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessor
     GrGLMorphologyEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrMorphologyEffect::createGLInstance() const {
+GrGLFragmentProcessor* GrMorphologyEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GrGLMorphologyEffect, (*this));
 }
 bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

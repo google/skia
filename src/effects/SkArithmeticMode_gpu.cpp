@@ -77,16 +77,17 @@ public:
                             fEnforcePMColor);
     }
 
-    void setData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {
-        const GrArithmeticFP& arith = proc.cast<GrArithmeticFP>();
-        pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
-        fEnforcePMColor = arith.enforcePMColor();
-    }
-
     static void GenKey(const GrProcessor& proc, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) {
         const GrArithmeticFP& arith = proc.cast<GrArithmeticFP>();
         uint32_t key = arith.enforcePMColor() ? 1 : 0;
         b->add32(key);
+    }
+
+protected:
+    void onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {
+        const GrArithmeticFP& arith = proc.cast<GrArithmeticFP>();
+        pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
+        fEnforcePMColor = arith.enforcePMColor();
     }
 
 private:
@@ -116,7 +117,7 @@ void GrArithmeticFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
     GLArithmeticFP::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrArithmeticFP::createGLInstance() const {
+GrGLFragmentProcessor* GrArithmeticFP::onCreateGLInstance() const {
     return SkNEW_ARGS(GLArithmeticFP, (*this));
 }
 

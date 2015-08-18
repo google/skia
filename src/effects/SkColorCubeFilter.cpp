@@ -168,7 +168,6 @@ public:
 
     const char* name() const override { return "ColorCube"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
     int colorCubeSize() const { return fColorCubeAccess.getTexture()->width(); }
 
 
@@ -183,7 +182,8 @@ public:
 
         static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
-        void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    protected:
+        void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
     private:
         GrGLProgramDataManager::UniformHandle fColorCubeSizeUni;
@@ -195,6 +195,8 @@ public:
 private:
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override;
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -220,7 +222,7 @@ void GrColorCubeEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorK
     GLProcessor::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrColorCubeEffect::createGLInstance() const {
+GrGLFragmentProcessor* GrColorCubeEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GLProcessor, (*this));
 }
 
@@ -289,7 +291,7 @@ void GrColorCubeEffect::GLProcessor::emitCode(EmitArgs& args) {
                            cubeIdx, nonZeroAlpha, args.fInputColor);
 }
 
-void GrColorCubeEffect::GLProcessor::setData(const GrGLProgramDataManager& pdman,
+void GrColorCubeEffect::GLProcessor::onSetData(const GrGLProgramDataManager& pdman,
                                              const GrProcessor& proc) {
     const GrColorCubeEffect& colorCube = proc.cast<GrColorCubeEffect>();
     SkScalar size = SkIntToScalar(colorCube.colorCubeSize());

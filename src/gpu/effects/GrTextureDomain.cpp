@@ -176,9 +176,10 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
-
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrTextureDomain::GLDomain         fGLDomain;
@@ -198,7 +199,7 @@ void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
                             args.fInputColor);
 }
 
-void GrGLTextureDomainEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLTextureDomainEffect::onSetData(const GrGLProgramDataManager& pdman,
                                       const GrProcessor& processor) {
     const GrTextureDomainEffect& textureDomainEffect = processor.cast<GrTextureDomainEffect>();
     const GrTextureDomain& domain = textureDomainEffect.textureDomain();
@@ -260,7 +261,7 @@ void GrTextureDomainEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLTextureDomainEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrTextureDomainEffect::createGLInstance() const  {
+GrGLFragmentProcessor* GrTextureDomainEffect::onCreateGLInstance() const  {
     return SkNEW_ARGS(GrGLTextureDomainEffect, (*this));
 }
 

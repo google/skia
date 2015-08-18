@@ -611,8 +611,6 @@ public:
 
     const char* name() const override { return "RectBlur"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
     /**
      * Create a simple filter effect with custom bicubic coefficients.
      */
@@ -641,6 +639,8 @@ public:
     float getSigma() const { return fSigma; }
 
 private:
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
+
     GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blur_profile);
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
@@ -667,7 +667,8 @@ public:
     GrGLRectBlurEffect(const GrProcessor&) {}
     virtual void emitCode(EmitArgs&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -736,7 +737,7 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppendf("\t%s = src * final;\n", args.fOutputColor );
 }
 
-void GrGLRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLRectBlurEffect::onSetData(const GrGLProgramDataManager& pdman,
                                  const GrProcessor& proc) {
     const GrRectBlurEffect& rbe = proc.cast<GrRectBlurEffect>();
     SkRect rect = rbe.getRect();
@@ -800,7 +801,7 @@ void GrRectBlurEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLRectBlurEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrRectBlurEffect::createGLInstance() const {
+GrGLFragmentProcessor* GrRectBlurEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GrGLRectBlurEffect, (*this));
 }
 
@@ -880,9 +881,9 @@ public:
     const SkRRect& getRRect() const { return fRRect; }
     float getSigma() const { return fSigma; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
 private:
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
+
     GrRRectBlurEffect(float sigma, const SkRRect&, GrTexture* profileTexture);
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
@@ -1014,7 +1015,8 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLProgramDataManager::UniformHandle fProxyRectUniform;
@@ -1077,7 +1079,7 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppend(";\n");
 }
 
-void GrGLRRectBlurEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLRRectBlurEffect::onSetData(const GrGLProgramDataManager& pdman,
                                   const GrProcessor& proc) {
     const GrRRectBlurEffect& brre = proc.cast<GrRRectBlurEffect>();
     SkRRect rrect = brre.getRRect();
@@ -1099,7 +1101,7 @@ void GrRRectBlurEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorK
     GrGLRRectBlurEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrRRectBlurEffect::createGLInstance() const {
+GrGLFragmentProcessor* GrRRectBlurEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GrGLRRectBlurEffect, (*this));
 }
 

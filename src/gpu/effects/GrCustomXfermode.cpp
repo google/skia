@@ -459,8 +459,6 @@ public:
         emit_custom_xfermode_code(mode, fsBuilder, args.fOutputColor, args.fInputColor, dstColor);
     }
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override {}
-
     static void GenKey(const GrFragmentProcessor& proc, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         // The background may come from the dst or from a texture.
         uint32_t key = proc.numTextures();
@@ -468,6 +466,9 @@ public:
         key |= proc.cast<GrCustomXferFP>().mode() << 1;
         b->add32(key);
     }
+
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override {}
 
 private:
     typedef GrGLFragmentProcessor INHERITED;
@@ -491,7 +492,7 @@ void GrCustomXferFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
     GLCustomXferFP::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrCustomXferFP::createGLInstance() const {
+GrGLFragmentProcessor* GrCustomXferFP::onCreateGLInstance() const {
     return SkNEW_ARGS(GLCustomXferFP, (*this));
 }
 
@@ -625,7 +626,7 @@ private:
 
     void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

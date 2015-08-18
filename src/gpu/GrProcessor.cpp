@@ -13,6 +13,7 @@
 #include "GrMemoryPool.h"
 #include "GrXferProcessor.h"
 #include "SkSpinlock.h"
+#include "gl/GrGLFragmentProcessor.h"
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
@@ -154,6 +155,15 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
         }
     }
     return true;
+}
+
+GrGLFragmentProcessor* GrFragmentProcessor::createGLInstance() const {
+    GrGLFragmentProcessor* glFragProc = this->onCreateGLInstance();
+    glFragProc->fChildProcessors.push_back_n(fChildProcessors.count());
+    for (int i = 0; i < fChildProcessors.count(); ++i) {
+        glFragProc->fChildProcessors[i] = fChildProcessors[i].processor()->createGLInstance();
+    }
+    return glFragProc;
 }
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {

@@ -151,7 +151,7 @@ void GrConfigConversionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLConfigConversionEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrConfigConversionEffect::createGLInstance() const {
+GrGLFragmentProcessor* GrConfigConversionEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GrGLConfigConversionEffect, (*this));
 }
 

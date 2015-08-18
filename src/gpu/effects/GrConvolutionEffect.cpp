@@ -19,9 +19,10 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    void setData(const GrGLProgramDataManager& pdman, const GrProcessor&) override;
-
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+
+protected:
+    void onSetData(const GrGLProgramDataManager& pdman, const GrProcessor&) override;
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
@@ -99,7 +100,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppend(modulate.c_str());
 }
 
-void GrGLConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLConvolutionEffect::onSetData(const GrGLProgramDataManager& pdman,
                                     const GrProcessor& processor) {
     const GrConvolutionEffect& conv = processor.cast<GrConvolutionEffect>();
     GrTexture& texture = *conv.texture(0);
@@ -199,7 +200,7 @@ void GrConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLConvolutionEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrConvolutionEffect::createGLInstance() const  {
+GrGLFragmentProcessor* GrConvolutionEffect::onCreateGLInstance() const  {
     return SkNEW_ARGS(GrGLConvolutionEffect, (*this));
 }
 

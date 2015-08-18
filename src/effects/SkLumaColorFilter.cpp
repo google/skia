@@ -65,10 +65,6 @@ public:
 
     const char* name() const override { return "Luminance-to-Alpha"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override {
-        return SkNEW_ARGS(GLProcessor, (*this));
-    }
-
     class GLProcessor : public GrGLFragmentProcessor {
     public:
         GLProcessor(const GrProcessor&) {}
@@ -98,6 +94,10 @@ public:
 private:
     LumaColorFilterEffect() {
         this->initClassID<LumaColorFilterEffect>();
+    }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
+        return SkNEW_ARGS(GLProcessor, (*this));
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

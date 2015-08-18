@@ -107,7 +107,7 @@ void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
     int numProcessors = fFragmentProcessors->fProcs.count();
     for (int e = 0; e < numProcessors; ++e) {
         const GrPendingFragmentStage& stage = pipeline.getFragmentStage(e);
-        const GrProcessor& processor = *stage.processor();
+        const GrFragmentProcessor& processor = *stage.processor();
         fFragmentProcessors->fProcs[e]->fGLProc->setData(fProgramDataManager, processor);
         this->setTransformData(primProc,
                                stage,

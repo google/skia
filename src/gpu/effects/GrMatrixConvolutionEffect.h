@@ -65,8 +65,6 @@ public:
 
     const char* name() const override { return "MatrixConvolution"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
 private:
     GrMatrixConvolutionEffect(GrProcessorDataManager*,
                               GrTexture*,
@@ -78,6 +76,8 @@ private:
                               const SkIPoint& kernelOffset,
                               GrTextureDomain::Mode tileMode,
                               bool convolveAlpha);
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 

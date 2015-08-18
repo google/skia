@@ -147,10 +147,6 @@ public:
         return true;
     }
 
-    GrGLFragmentProcessor* createGLInstance() const override {
-        return SkNEW_ARGS(GLProcessor, (*this));
-    }
-
     const char* name() const override { return "ModeColorFilterEffect"; }
 
     SkXfermode::Mode mode() const { return fMode; }
@@ -190,7 +186,8 @@ public:
             b->add32(colorModeFilter.mode());
         }
 
-        virtual void setData(const GrGLProgramDataManager& pdman,
+    protected:
+        virtual void onSetData(const GrGLProgramDataManager& pdman,
                              const GrProcessor& fp) override {
             if (fFilterColorUni.isValid()) {
                 const ModeColorFilterEffect& colorModeFilter = fp.cast<ModeColorFilterEffect>();
@@ -213,6 +210,10 @@ private:
         : fMode(mode),
           fColor(color) {
         this->initClassID<ModeColorFilterEffect>();
+    }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
+        return SkNEW_ARGS(GLProcessor, (*this));
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

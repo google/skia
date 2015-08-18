@@ -69,10 +69,10 @@ public:
 
     const SkScalar* getEdges() const { return fEdges; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
 private:
     GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[]);
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 

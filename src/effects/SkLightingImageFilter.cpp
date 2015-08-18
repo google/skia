@@ -533,11 +533,11 @@ public:
 
     const char* name() const override { return "DiffuseLighting"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
     SkScalar kd() const { return fKD; }
 
 private:
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
+
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
@@ -577,7 +577,7 @@ public:
 
     const char* name() const override { return "SpecularLighting"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
@@ -1517,12 +1517,12 @@ public:
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
-    /**
-     * Subclasses of GrGLLightingEffect must call INHERITED::setData();
-     */
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
-
 protected:
+    /**
+     * Subclasses of GrGLLightingEffect must call INHERITED::onSetData();
+     */
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+
     virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) = 0;
 
 private:
@@ -1540,7 +1540,9 @@ class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLDiffuseLightingEffect(const GrProcessor&);
     void emitLightFunc(GrGLFPBuilder*, SkString* funcName) override;
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1554,7 +1556,9 @@ class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLSpecularLightingEffect(const GrProcessor&);
     void emitLightFunc(GrGLFPBuilder*, SkString* funcName) override;
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1617,7 +1621,7 @@ void GrDiffuseLightingEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLDiffuseLightingEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrDiffuseLightingEffect::createGLInstance() const {
+GrGLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GrGLDiffuseLightingEffect, (*this));
 }
 
@@ -1743,7 +1747,7 @@ void GrGLLightingEffect::GenKey(const GrProcessor& proc,
     b->add32(lighting.boundaryMode() << 2 | lighting.light()->type());
 }
 
-void GrGLLightingEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLLightingEffect::onSetData(const GrGLProgramDataManager& pdman,
                                  const GrProcessor& proc) {
     const GrLightingEffect& lighting = proc.cast<GrLightingEffect>();
     GrTexture* texture = lighting.texture(0);
@@ -1784,9 +1788,9 @@ void GrGLDiffuseLightingEffect::emitLightFunc(GrGLFPBuilder* builder, SkString* 
                                                       funcName);
 }
 
-void GrGLDiffuseLightingEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLDiffuseLightingEffect::onSetData(const GrGLProgramDataManager& pdman,
                                         const GrProcessor& proc) {
-    INHERITED::setData(pdman, proc);
+    INHERITED::onSetData(pdman, proc);
     const GrDiffuseLightingEffect& diffuse = proc.cast<GrDiffuseLightingEffect>();
     pdman.set1f(fKDUni, diffuse.kd());
 }
@@ -1819,7 +1823,7 @@ void GrSpecularLightingEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLSpecularLightingEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrSpecularLightingEffect::createGLInstance() const {
+GrGLFragmentProcessor* GrSpecularLightingEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GrGLSpecularLightingEffect, (*this));
 }
 
@@ -1876,9 +1880,9 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLFPBuilder* builder, SkString*
                                                       funcName);
 }
 
-void GrGLSpecularLightingEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLSpecularLightingEffect::onSetData(const GrGLProgramDataManager& pdman,
                                          const GrProcessor& effect) {
-    INHERITED::setData(pdman, effect);
+    INHERITED::onSetData(pdman, effect);
     const GrSpecularLightingEffect& spec = effect.cast<GrSpecularLightingEffect>();
     pdman.set1f(fKSUni, spec.ks());
     pdman.set1f(fShininessUni, spec.shininess());

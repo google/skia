@@ -18,7 +18,11 @@ class GrGLFragmentProcessor {
 public:
     GrGLFragmentProcessor() {}
 
-    virtual ~GrGLFragmentProcessor() {}
+    virtual ~GrGLFragmentProcessor() {
+        for (int i = 0; i < fChildProcessors.count(); ++i) {
+            SkDELETE(fChildProcessors[i]);
+        }
+    }
 
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProcessor::TransformedCoordsArray TransformedCoordsArray;
@@ -66,17 +70,29 @@ public:
 
     virtual void emitCode(EmitArgs&) = 0;
 
-    /** A GrGLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
-        the same stage key; this function reads data from a GrFragmentProcessor and uploads any
-        uniform variables required by the shaders created in emitCode(). The GrFragmentProcessor
-        parameter is guaranteed to be of the same type that created this GrGLFragmentProcessor and
-        to have an identical processor key as the one that created this GrGLFragmentProcessor.  */
-    // TODO update this to pass in GrFragmentProcessor
-    virtual void setData(const GrGLProgramDataManager&, const GrProcessor&) {}
+    void setData(const GrGLProgramDataManager& pdman, const GrFragmentProcessor& processor);
 
     static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
+    int numChildProcessors() const { return fChildProcessors.count(); }
+
+    GrGLFragmentProcessor* childProcessor(int index) const {
+        return fChildProcessors[index];
+    }
+
+protected:
+    /** A GrGLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
+    the same stage key; this function reads data from a GrFragmentProcessor and uploads any
+    uniform variables required by the shaders created in emitCode(). The GrFragmentProcessor
+    parameter is guaranteed to be of the same type that created this GrGLFragmentProcessor and
+    to have an identical processor key as the one that created this GrGLFragmentProcessor.  */
+    // TODO update this to pass in GrFragmentProcessor
+    virtual void onSetData(const GrGLProgramDataManager&, const GrProcessor&) {}
+
 private:
+    SkTArray<GrGLFragmentProcessor*, true> fChildProcessors;
+
+    friend class GrFragmentProcessor;
     typedef GrGLProcessor INHERITED;
 };
 

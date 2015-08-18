@@ -80,7 +80,8 @@ public:
             fsBuilder->codeAppendf(".r,\n\t\t1.0) * %s;\n", yuvMatrix);
         }
 
-        virtual void setData(const GrGLProgramDataManager& pdman,
+    protected:
+        virtual void onSetData(const GrGLProgramDataManager& pdman,
                              const GrProcessor& processor) override {
             const YUVtoRGBEffect& yuvEffect = processor.cast<YUVtoRGBEffect>();
             switch (yuvEffect.getColorSpace()) {
@@ -102,10 +103,6 @@ public:
         typedef GrGLFragmentProcessor INHERITED;
     };
 
-    GrGLFragmentProcessor* createGLInstance() const override {
-        return SkNEW_ARGS(GLProcessor, (*this));
-    }
-
 private:
     YUVtoRGBEffect(GrProcessorDataManager*, GrTexture* yTexture, GrTexture* uTexture,
                    GrTexture* vTexture, const SkMatrix yuvMatrix[3],
@@ -124,6 +121,10 @@ private:
         this->addTextureAccess(&fUAccess);
         this->addCoordTransform(&fVTransform);
         this->addTextureAccess(&fVAccess);
+    }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
+        return SkNEW_ARGS(GLProcessor, (*this));
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

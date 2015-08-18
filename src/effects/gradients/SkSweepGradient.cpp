@@ -214,10 +214,6 @@ public:
 
     const char* name() const override { return "Sweep Gradient"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override {
-        return SkNEW_ARGS(GrGLSweepGradient, (*this));
-    }
-
 private:
     GrSweepGradient(GrContext* ctx,
                     GrProcessorDataManager* procDataManager,
@@ -225,6 +221,10 @@ private:
                     const SkMatrix& matrix)
     : INHERITED(ctx, procDataManager, shader, matrix, SkShader::kClamp_TileMode) {
         this->initClassID<GrSweepGradient>();
+    }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
+        return SkNEW_ARGS(GrGLSweepGradient, (*this));
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

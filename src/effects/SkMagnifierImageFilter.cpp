@@ -47,8 +47,6 @@ public:
 
     const char* name() const override { return "Magnifier"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
     const SkRect& bounds() const { return fBounds; }    // Bounds of source image.
     // Offset to apply to zoomed pixels, (srcRect position / texture size).
     float x_offset() const { return fXOffset; }
@@ -83,6 +81,8 @@ private:
         this->initClassID<GrMagnifierEffect>();
     }
 
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
+
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
@@ -111,7 +111,8 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     UniformHandle       fOffsetVar;
@@ -178,7 +179,7 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppend(modulate.c_str());
 }
 
-void GrGLMagnifierEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLMagnifierEffect::onSetData(const GrGLProgramDataManager& pdman,
                                   const GrProcessor& effect) {
     const GrMagnifierEffect& zoom = effect.cast<GrMagnifierEffect>();
     pdman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
@@ -195,7 +196,7 @@ void GrMagnifierEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLMagnifierEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrMagnifierEffect::createGLInstance() const {
+GrGLFragmentProcessor* GrMagnifierEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GrGLMagnifierEffect, (*this));
 }
 

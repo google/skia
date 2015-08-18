@@ -348,12 +348,12 @@ public:
 
     const char* name() const override { return "ColorTable"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
     const GrTextureStripAtlas* atlas() const { return fAtlas; }
     int atlasRow() const { return fRow; }
 
 private:
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
+
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
@@ -381,9 +381,10 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
-
     static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
+
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     UniformHandle fRGBAYValuesUni;
@@ -393,7 +394,7 @@ private:
 GLColorTableEffect::GLColorTableEffect(const GrProcessor&) {
 }
 
-void GLColorTableEffect::setData(const GrGLProgramDataManager& pdm, const GrProcessor& proc) {
+void GLColorTableEffect::onSetData(const GrGLProgramDataManager& pdm, const GrProcessor& proc) {
     // The textures are organized in a strip where the rows are ordered a, r, g, b.
     float rgbaYValues[4];
     const ColorTableEffect& cte = proc.cast<ColorTableEffect>();
@@ -505,7 +506,7 @@ void ColorTableEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLColorTableEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* ColorTableEffect::createGLInstance() const {
+GrGLFragmentProcessor* ColorTableEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GLColorTableEffect, (*this));
 }
 

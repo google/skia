@@ -34,7 +34,8 @@ public:
         }
     }
 
-    void setData(const GrGLProgramDataManager& pdm, const GrProcessor& processor) override {
+protected:
+    void onSetData(const GrGLProgramDataManager& pdm, const GrProcessor& processor) override {
         GrColor color = processor.cast<GrConstColorProcessor>().color();
         // We use the "illegal" color value as an uninit sentinel. However, ut isn't inherently
         // illegal to use this processor with unpremul colors. So we correctly handle the case
@@ -89,7 +90,7 @@ void GrConstColorProcessor::onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKe
     b->add32(fMode);
 }
 
-GrGLFragmentProcessor* GrConstColorProcessor::createGLInstance() const  {
+GrGLFragmentProcessor* GrConstColorProcessor::onCreateGLInstance() const  {
     return SkNEW(GLConstColorProcessor);
 }
 

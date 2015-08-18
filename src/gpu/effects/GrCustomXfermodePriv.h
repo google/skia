@@ -29,14 +29,14 @@ class GrCustomXferFP : public GrFragmentProcessor {
 public:
     GrCustomXferFP(GrProcessorDataManager*, SkXfermode::Mode mode, GrTexture* background);
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
     const char* name() const override { return "Custom Xfermode"; }
 
     SkXfermode::Mode mode() const { return fMode; }
     const GrTextureAccess&  backgroundAccess() const { return fBackgroundAccess; }
 
 private:
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
+
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override; 

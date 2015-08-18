@@ -36,8 +36,6 @@ public:
 
     const char* name() const override { return "Color"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
     GrColor color() const { return fColor; }
 
     InputMode inputMode() const { return fMode; }
@@ -46,6 +44,8 @@ private:
     GrConstColorProcessor(GrColor color, InputMode mode) : fColor(color), fMode(mode) {
         this->initClassID<GrConstColorProcessor>();
     }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 

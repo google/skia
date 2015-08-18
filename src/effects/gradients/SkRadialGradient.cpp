@@ -468,10 +468,6 @@ public:
 
     const char* name() const override { return "Radial Gradient"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override {
-        return SkNEW_ARGS(GrGLRadialGradient, (*this));
-    }
-
 private:
     GrRadialGradient(GrContext* ctx,
                      GrProcessorDataManager* procDataManager,
@@ -480,6 +476,10 @@ private:
                      SkShader::TileMode tm)
         : INHERITED(ctx, procDataManager, shader, matrix, tm) {
         this->initClassID<GrRadialGradient>();
+    }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
+        return SkNEW_ARGS(GrGLRadialGradient, (*this));
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

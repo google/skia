@@ -16,7 +16,8 @@ public:
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
@@ -110,7 +111,7 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
     b->add32(GrTextureDomain::GLDomain::DomainKey(m.domain()));
 }
 
-void GrGLMatrixConvolutionEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLMatrixConvolutionEffect::onSetData(const GrGLProgramDataManager& pdman,
                                           const GrProcessor& processor) {
     const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
     GrTexture& texture = *conv.texture(0);
@@ -160,7 +161,7 @@ void GrMatrixConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrMatrixConvolutionEffect::createGLInstance() const  {
+GrGLFragmentProcessor* GrMatrixConvolutionEffect::onCreateGLInstance() const  {
     return SkNEW_ARGS(GrGLMatrixConvolutionEffect, (*this));
 }
 

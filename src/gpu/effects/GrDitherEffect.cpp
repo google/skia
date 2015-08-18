@@ -25,13 +25,13 @@ public:
 
     const char* name() const override { return "Dither"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
 private:
     DitherEffect() {
         this->initClassID<DitherEffect>();
         this->setWillReadFragmentPosition();
     }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -97,7 +97,7 @@ void DitherEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLDitherEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* DitherEffect::createGLInstance() const  {
+GrGLFragmentProcessor* DitherEffect::onCreateGLInstance() const  {
     return SkNEW_ARGS(GLDitherEffect, (*this));
 }
 

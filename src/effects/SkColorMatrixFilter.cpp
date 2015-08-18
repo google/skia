@@ -394,11 +394,6 @@ public:
 
     const char* name() const override { return "Color Matrix"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override {
-        return SkNEW_ARGS(GLProcessor, (*this));
-    }
-
-
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     class GLProcessor : public GrGLFragmentProcessor {
@@ -435,7 +430,8 @@ public:
             fsBuilder->codeAppendf("\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);
         }
 
-        virtual void setData(const GrGLProgramDataManager& uniManager,
+    protected:
+        virtual void onSetData(const GrGLProgramDataManager& uniManager,
                              const GrProcessor& proc) override {
             const ColorMatrixEffect& cme = proc.cast<ColorMatrixEffect>();
             const float* m = cme.fMatrix.fMat;
@@ -464,6 +460,10 @@ public:
 private:
     ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {
         this->initClassID<ColorMatrixEffect>();
+    }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
+        return SkNEW_ARGS(GLProcessor, (*this));
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

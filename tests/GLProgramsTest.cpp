@@ -68,7 +68,7 @@ public:
 
     const char* name() const override { return "Big Ole Key"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override {
+    GrGLFragmentProcessor* onCreateGLInstance() const override {
         return SkNEW_ARGS(GLBigKeyProcessor, (*this));
     }
 

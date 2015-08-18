@@ -81,8 +81,6 @@ public:
     float innerThreshold() const { return fInnerThreshold; }
     float outerThreshold() const { return fOuterThreshold; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
 private:
     AlphaThresholdEffect(GrProcessorDataManager*,
                          GrTexture* texture,
@@ -105,6 +103,8 @@ private:
         this->addCoordTransform(&fMaskCoordTransform);
         this->addTextureAccess(&fMaskTextureAccess);
     }
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -130,7 +130,8 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 private:
 
@@ -186,7 +187,7 @@ void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
                            (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr4("color")).c_str());
 }
 
-void GrGLAlphaThresholdEffect::setData(const GrGLProgramDataManager& pdman,
+void GrGLAlphaThresholdEffect::onSetData(const GrGLProgramDataManager& pdman,
                                        const GrProcessor& proc) {
     const AlphaThresholdEffect& alpha_threshold = proc.cast<AlphaThresholdEffect>();
     pdman.set1f(fInnerThresholdVar, alpha_threshold.innerThreshold());
@@ -213,7 +214,7 @@ void AlphaThresholdEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLAlphaThresholdEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* AlphaThresholdEffect::createGLInstance() const {
+GrGLFragmentProcessor* AlphaThresholdEffect::onCreateGLInstance() const {
     return SkNEW_ARGS(GrGLAlphaThresholdEffect, (*this));
 }
 

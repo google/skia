@@ -399,7 +399,8 @@ public:
     GrGLGradientEffect();
     virtual ~GrGLGradientEffect();
 
-    void setData(const GrGLProgramDataManager&, const GrProcessor&) override;
+protected:
+    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
 
 protected:
     /**

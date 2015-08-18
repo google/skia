@@ -38,8 +38,6 @@ public:
 
     const char* name() const override { return "Config Conversion"; }
 
-    GrGLFragmentProcessor* createGLInstance() const override;
-
     bool swapsRedAndBlue() const { return fSwapRedAndBlue; }
     PMConversion  pmConversion() const { return fPMConversion; }
 
@@ -58,6 +56,8 @@ private:
                              bool swapRedAndBlue,
                              PMConversion pmConversion,
                              const SkMatrix& matrix);
+
+    GrGLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 

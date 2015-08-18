@@ -27,10 +27,7 @@ public:
         : INHERITED()
         , fUsesLocalCoords(false) {}
 
-    /** Returns a new instance of the appropriate *GL* implementation class
-        for the given GrFragmentProcessor; caller is responsible for deleting
-        the object. */
-    virtual GrGLFragmentProcessor* createGLInstance() const = 0;
+    GrGLFragmentProcessor* createGLInstance() const;
 
     /** Human-meaningful string to identify this GrFragmentProcessor; may be embedded
         in generated shader code. */
@@ -125,6 +122,11 @@ protected:
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
 
 private:
+    /** Returns a new instance of the appropriate *GL* implementation class
+        for the given GrFragmentProcessor; caller is responsible for deleting
+        the object. */
+    virtual GrGLFragmentProcessor* onCreateGLInstance() const = 0;
+
     /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const = 0;

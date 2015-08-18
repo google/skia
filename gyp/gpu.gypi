@@ -307,6 +307,8 @@
       '<(skia_src_path)/gpu/gl/GrGLGpu.h',
       '<(skia_src_path)/gpu/gl/GrGLGpuProgramCache.cpp',
       '<(skia_src_path)/gpu/gl/GrGLExtensions.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLFragmentProcessor.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLFragmentProcessor.h',
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.h',
       '<(skia_src_path)/gpu/gl/GrGLInterface.cpp',
