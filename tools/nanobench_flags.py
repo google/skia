@@ -63,8 +63,6 @@ def get_args(bot):
     match.append('~desk_carsvg')
   if 'HD2000' in bot:
     match.extend(['~gradient', '~etc1bitmap'])  # skia:2895
-  if 'Nexus7' in bot:
-    match = ['skp']  # skia:2774
   if 'NexusPlayer' in bot:
     match.append('~desk_unicodetable')
 

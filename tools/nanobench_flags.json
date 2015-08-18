@@ -30,7 +30,9 @@
     "msaa4", 
     "nvprmsaa4", 
     "--match", 
-    "skp"
+    "~blurroundrect", 
+    "~patch_grid", 
+    "~desk_carsvg"
   ], 
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": [
     "--scales", 
