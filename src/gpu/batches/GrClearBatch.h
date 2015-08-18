@@ -27,7 +27,7 @@ public:
 
     uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
 
-    SkString dumpInfo() const {
+    SkString dumpInfo() const override {
         SkString string;
         string.printf("Color: 0x%08x, Rect [L: %d, T: %d, R: %d, B: %d], RT: 0x%p",
                       fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,

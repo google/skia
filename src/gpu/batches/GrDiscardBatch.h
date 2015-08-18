@@ -25,7 +25,7 @@ public:
 
     uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
 
-    SkString dumpInfo() const {
+    SkString dumpInfo() const override {
         SkString string;
         string.printf("RT: 0x%p", fRenderTarget.get());
         return string;
