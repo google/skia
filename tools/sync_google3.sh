@@ -25,7 +25,7 @@ if [ -z "${GOOGLE3}" ]; then
   GOOGLE3="/google/src/cloud/${USER}/${CLIENT_NAME}/google3"
 fi
 cd "${GOOGLE3}/third_party/skia/HEAD"
-${MY_DIR}/git_clone_to_google3.sh --skia-rev "${LKGR}"
+${MY_DIR}/git_clone_to_google3.sh --skia_rev "${LKGR}"
 
 # Update README.google.
 sed --in-place "s/^Version: .*/Version: ${LKGR}/" README.google
