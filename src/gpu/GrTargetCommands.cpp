@@ -75,7 +75,3 @@ void GrTargetCommands::DrawPaths::execute(GrBatchFlushState* state) {
 void GrTargetCommands::DrawBatch::execute(GrBatchFlushState* state) {
     fBatch->draw(state);
 }
-
-void GrTargetCommands::CopySurface::execute(GrBatchFlushState* state) {
-    state->gpu()->copySurface(this->dst(), this->src(), fSrcRect, fDstPoint);
-}

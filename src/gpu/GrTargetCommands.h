@@ -31,10 +31,9 @@ public:
     public:
         enum CmdType {
             kStencilPath_CmdType       = 1,
-            kCopySurface_CmdType       = 2,
-            kDrawPath_CmdType          = 3,
-            kDrawPaths_CmdType         = 4,
-            kDrawBatch_CmdType         = 5,
+            kDrawPath_CmdType          = 2,
+            kDrawPaths_CmdType         = 3,
+            kDrawBatch_CmdType         = 4,
         };
 
         Cmd(CmdType type)
@@ -174,26 +173,6 @@ private:
 
     private:
         GrPendingIOResource<const GrPathRange, kRead_GrIOType> fPathRange;
-    };
-
-    struct CopySurface : public Cmd {
-        CopySurface(GrSurface* dst, GrSurface* src)
-            : Cmd(kCopySurface_CmdType)
-            , fDst(dst)
-            , fSrc(src) {
-        }
-
-        GrSurface* dst() const { return fDst.get(); }
-        GrSurface* src() const { return fSrc.get(); }
-
-        void execute(GrBatchFlushState*) override;
-
-        SkIPoint    fDstPoint;
-        SkIRect     fSrcRect;
-
-    private:
-        GrPendingIOResource<GrSurface, kWrite_GrIOType> fDst;
-        GrPendingIOResource<GrSurface, kRead_GrIOType> fSrc;
     };
 
     struct DrawBatch : public Cmd {
