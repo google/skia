@@ -7,13 +7,13 @@
 
 #include "SkOpts.h"
 
-#define SK_OPTS_NS sse41
+#define SK_OPTS_NS sk_sse41
 #include "SkBlurImageFilter_opts.h"
 
 namespace SkOpts {
     void Init_sse41() {
-        box_blur_xx = sse41::box_blur_xx;
-        box_blur_xy = sse41::box_blur_xy;
-        box_blur_yx = sse41::box_blur_yx;
+        box_blur_xx = sk_sse41::box_blur_xx;
+        box_blur_xy = sk_sse41::box_blur_xy;
+        box_blur_yx = sk_sse41::box_blur_yx;
     }
 }

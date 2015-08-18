@@ -7,7 +7,7 @@
 
 #include "SkOpts.h"
 
-#define SK_OPTS_NS neon
+#define SK_OPTS_NS sk_neon
 #include "SkBlitMask_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
@@ -19,25 +19,25 @@
 
 namespace SkOpts {
     void Init_neon() {
-        rsqrt           = neon::rsqrt;
-        memset16        = neon::memset16;
-        memset32        = neon::memset32;
+        rsqrt           = sk_neon::rsqrt;
+        memset16        = sk_neon::memset16;
+        memset32        = sk_neon::memset32;
         create_xfermode = SkCreate4pxXfermode;
 
-        box_blur_xx = neon::box_blur_xx;
-        box_blur_xy = neon::box_blur_xy;
-        box_blur_yx = neon::box_blur_yx;
+        box_blur_xx = sk_neon::box_blur_xx;
+        box_blur_xy = sk_neon::box_blur_xy;
+        box_blur_yx = sk_neon::box_blur_yx;
 
-        dilate_x = neon::dilate_x;
-        dilate_y = neon::dilate_y;
-         erode_x = neon::erode_x;
-         erode_y = neon::erode_y;
+        dilate_x = sk_neon::dilate_x;
+        dilate_y = sk_neon::dilate_y;
+         erode_x = sk_neon::erode_x;
+         erode_y = sk_neon::erode_y;
 
-        texture_compressor    = neon::texture_compressor;
-        fill_block_dimensions = neon::fill_block_dimensions;
+        texture_compressor    = sk_neon::texture_compressor;
+        fill_block_dimensions = sk_neon::fill_block_dimensions;
 
-        blit_mask_d32_a8 = neon::blit_mask_d32_a8;
+        blit_mask_d32_a8 = sk_neon::blit_mask_d32_a8;
 
-        color_cube_filter_span = neon::color_cube_filter_span;
+        color_cube_filter_span = sk_neon::color_cube_filter_span;
     }
 }

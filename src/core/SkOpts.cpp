@@ -8,7 +8,7 @@
 #include "SkOnce.h"
 #include "SkOpts.h"
 
-#define SK_OPTS_NS portable
+#define SK_OPTS_NS sk_default
 #include "SkBlitMask_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
@@ -32,28 +32,28 @@
 
 namespace SkOpts {
     // Define default function pointer values here...
-    // If our global compile options are set high enough, these 'portable' defaults might
-    // even be CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
+    // If our global compile options are set high enough, these defaults might even be
+    // CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
     // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
-    decltype(rsqrt)                     rsqrt = portable::rsqrt;
-    decltype(memset16)               memset16 = portable::memset16;
-    decltype(memset32)               memset32 = portable::memset32;
+    decltype(rsqrt)                     rsqrt = sk_default::rsqrt;
+    decltype(memset16)               memset16 = sk_default::memset16;
+    decltype(memset32)               memset32 = sk_default::memset32;
     decltype(create_xfermode) create_xfermode = SkCreate4pxXfermode;
-    decltype(color_cube_filter_span) color_cube_filter_span = portable::color_cube_filter_span;
+    decltype(color_cube_filter_span) color_cube_filter_span = sk_default::color_cube_filter_span;
 
-    decltype(box_blur_xx) box_blur_xx = portable::box_blur_xx;
-    decltype(box_blur_xy) box_blur_xy = portable::box_blur_xy;
-    decltype(box_blur_yx) box_blur_yx = portable::box_blur_yx;
+    decltype(box_blur_xx) box_blur_xx = sk_default::box_blur_xx;
+    decltype(box_blur_xy) box_blur_xy = sk_default::box_blur_xy;
+    decltype(box_blur_yx) box_blur_yx = sk_default::box_blur_yx;
 
-    decltype(dilate_x) dilate_x = portable::dilate_x;
-    decltype(dilate_y) dilate_y = portable::dilate_y;
-    decltype( erode_x)  erode_x = portable::erode_x;
-    decltype( erode_y)  erode_y = portable::erode_y;
+    decltype(dilate_x) dilate_x = sk_default::dilate_x;
+    decltype(dilate_y) dilate_y = sk_default::dilate_y;
+    decltype( erode_x)  erode_x = sk_default::erode_x;
+    decltype( erode_y)  erode_y = sk_default::erode_y;
 
-    decltype(texture_compressor)       texture_compressor = portable::texture_compressor;
-    decltype(fill_block_dimensions) fill_block_dimensions = portable::fill_block_dimensions;
+    decltype(texture_compressor)       texture_compressor = sk_default::texture_compressor;
+    decltype(fill_block_dimensions) fill_block_dimensions = sk_default::fill_block_dimensions;
 
-    decltype(blit_mask_d32_a8) blit_mask_d32_a8 = portable::blit_mask_d32_a8;
+    decltype(blit_mask_d32_a8) blit_mask_d32_a8 = sk_default::blit_mask_d32_a8;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
