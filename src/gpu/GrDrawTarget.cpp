@@ -24,6 +24,7 @@
 #include "batches/GrCopySurfaceBatch.h"
 #include "batches/GrDiscardBatch.h"
 #include "batches/GrDrawBatch.h"
+#include "batches/GrDrawPathBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrStencilPathBatch.h"
 
@@ -130,8 +131,6 @@ void GrDrawTarget::flush() {
 }
 
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch) {
-    // TODO some kind of checkdraw, but not at this level
-
     // Setup clip
     GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
@@ -147,6 +146,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBat
 
     GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, batch, &bounds,
                                             this);
+
     if (!pipelineInfo.valid()) {
         return;
     }
@@ -226,34 +226,44 @@ void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
                             const GrPathProcessor* pathProc,
                             const GrPath* path,
                             GrPathRendering::FillType fill) {
-    // TODO: extract portions of checkDraw that are relevant to path rendering.
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
-    SkRect devBounds = path->getBounds();
-    pathProc->viewMatrix().mapRect(&devBounds);
+    GrDrawPathBatch* batch = GrDrawPathBatch::Create(pathProc, path);
 
-    // Setup clip
+    // This looks like drawBatch() but there is an added wrinkle that stencil settings get inserted
+    // after setupClip() but before onDrawBatch(). TODO: Figure out a better model for handling
+    // stencil settings WRT interactions between pipeline(builder), clipmaskmanager, and batches.
+
     GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, &devBounds)) {
-       return;
+    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, &batch->bounds())) {
+        return;
     }
 
-    // set stencil settings for path
+    // Ensure the render target has a stencil buffer and get the stencil settings.
     GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
+    batch->setStencilSettings(stencilSettings);
 
-    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, pathProc, &devBounds,
-                                            this);
+    // Don't compute a bounding box for dst copy texture, we'll opt
+    // instead for it to just copy the entire dst. Realistically this is a moot
+    // point, because any context that supports NV_path_rendering will also
+    // support NV_blend_equation_advanced.
+    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, batch, NULL, this);
+
     if (!pipelineInfo.valid()) {
         return;
     }
+    if (!batch->installPipeline(pipelineInfo.pipelineCreateArgs())) {
+        return;
+    }
 
-    this->onDrawPath(pathProc, path, stencilSettings, pipelineInfo);
+    this->onDrawBatch(batch);
+    batch->unref();
 }
 
 void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,

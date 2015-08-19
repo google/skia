@@ -27,10 +27,6 @@ public:
     void flush(GrGpu* gpu, GrResourceProvider* rp) { fCommands.flush(gpu, rp); }
 
     virtual Cmd* recordDrawBatch(GrBatch*, const GrCaps&) = 0;
-    virtual Cmd* recordDrawPath(State*,
-                                const GrPathProcessor*,
-                                const GrPath*,
-                                const GrStencilSettings&) = 0;
     virtual Cmd* recordDrawPaths(State*,
                                  GrBufferedDrawTarget*,
                                  const GrPathProcessor*,

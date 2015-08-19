@@ -30,18 +30,6 @@ void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch) {
     fCommands->recordDrawBatch(batch, *this->caps());
 }
 
-void GrBufferedDrawTarget::onDrawPath(const GrPathProcessor* pathProc,
-                                      const GrPath* path,
-                                      const GrStencilSettings& stencilSettings,
-                                      const PipelineInfo& pipelineInfo) {
-    GrPipelineOptimizations opts;
-    StateForPathDraw* state = this->createStateForPathDraw(pathProc, pipelineInfo, &opts);
-    if (!state) {
-        return;
-    }
-    fCommands->recordDrawPath(state, pathProc, path, stencilSettings);
-}
-
 void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
                                        const GrPathRange* pathRange,
                                        const void* indices,

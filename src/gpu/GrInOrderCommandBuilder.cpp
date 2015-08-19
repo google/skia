@@ -42,16 +42,6 @@ GrTargetCommands::Cmd* GrInOrderCommandBuilder::recordDrawBatch(GrBatch* batch,
 }
 
 GrTargetCommands::Cmd*
-GrInOrderCommandBuilder::recordDrawPath(State* state,
-                                        const GrPathProcessor* pathProc,
-                                        const GrPath* path,
-                                        const GrStencilSettings& stencilSettings) {
-    DrawPath* dp = GrNEW_APPEND_TO_RECORDER(*this->cmdBuffer(), DrawPath, (state, path));
-    dp->fStencilSettings = stencilSettings;
-    return dp;
-}
-
-GrTargetCommands::Cmd*
 GrInOrderCommandBuilder::recordDrawPaths(State* state,
                                          GrBufferedDrawTarget* bufferedDrawTarget,
                                          const GrPathProcessor* pathProc,

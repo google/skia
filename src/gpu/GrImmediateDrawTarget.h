@@ -33,12 +33,6 @@ private:
     void onReset() override;
     void onFlush() override;
 
-    void onDrawPath(const GrPathProcessor*,
-                    const GrPath*,
-                    const GrStencilSettings&,
-                    const PipelineInfo&) override {
-        SkFAIL("Only batch implemented\n");
-    }
     void onDrawPaths(const GrPathProcessor*,
                      const GrPathRange*,
                      const void* indices,

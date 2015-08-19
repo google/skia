@@ -243,10 +243,6 @@ private:
 
     virtual void onFlush() = 0;
 
-    virtual void onDrawPath(const GrPathProcessor*,
-                            const GrPath*,
-                            const GrStencilSettings&,
-                            const PipelineInfo&) = 0;
     virtual void onDrawPaths(const GrPathProcessor*,
                              const GrPathRange*,
                              const void* indices,

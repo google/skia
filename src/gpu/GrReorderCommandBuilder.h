@@ -19,14 +19,6 @@ public:
 
     Cmd* recordDrawBatch(GrBatch*, const GrCaps&) override;
 
-    Cmd* recordDrawPath(State*,
-                        const GrPathProcessor*,
-                        const GrPath*,
-                        const GrStencilSettings&) override {
-        SkFAIL("Unsupported\n");
-        return NULL;
-    }
-
     Cmd* recordDrawPaths(State*,
                          GrBufferedDrawTarget*,
                          const GrPathProcessor*,
