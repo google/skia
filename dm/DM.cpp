@@ -28,12 +28,6 @@
 #include "Timer.h"
 #include "sk_tool_utils.h"
 
-#ifdef SKIA_PNG_PREFIXED
-    // this must proceed png.h
-    #include "pngprefix.h"
-#endif
-#include "png.h"
-
 DEFINE_string(src, "tests gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
@@ -473,66 +467,6 @@ static void gather_sinks() {
     }
 }
 
-static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
-    // Covert whatever we've been passed to RGBA, to make unpremultiplying each row for PNG easy.
-    {
-        SkBitmap n32;
-        if (!bitmap.copyTo(&n32, kRGBA_8888_SkColorType)) {
-            return false;
-        }
-        bitmap = n32;
-    }
-
-    FILE* f = fopen(path, "w");
-    if (!f) { return false; }
-
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!png) {
-        fclose(f);
-        return false;
-    }
-
-    png_infop info = png_create_info_struct(png);
-    if (!info) {
-        png_destroy_write_struct(&png, &info);
-        fclose(f);
-        return false;
-    }
-
-    png_text text[2];
-    text[0].key = (png_charp)"Author";
-    text[0].text = (png_charp)"DM dump_png()";
-    text[0].compression = PNG_TEXT_COMPRESSION_NONE;
-    text[1].key = (png_charp)"Description";
-    text[1].text = (png_charp)md5;
-    text[1].compression = PNG_TEXT_COMPRESSION_NONE;
-    png_set_text(png, info, text, 2);
-
-    png_init_io(png, f);
-    png_set_IHDR(png, info, (png_uint_32)bitmap.width(), (png_uint_32)bitmap.height(), 8,
-                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    png_write_info(png, info);
-
-    SkAutoLockPixels alp(bitmap);
-    SkAutoSTMalloc<1024, uint32_t> row(bitmap.width());
-    for (int j = 0; j < bitmap.height(); j++) {
-        // Convert the row to unpremultiplied RGBA uint32_t.
-        const SkPMColor* pm = bitmap.getAddr32(0,j);
-        for (int i = 0; i < bitmap.width(); i++) {
-            row[i] = SkUnPreMultiply::UnPreMultiplyPreservingByteOrder(pm[i]);
-        }
-
-        png_bytep row_ptr = (png_bytep)row.get();
-        png_write_rows(png, &row_ptr, 1);
-    }
-    png_write_end(png, info);
-
-    png_destroy_write_struct(&png, &info);
-    fclose(f);
-    return true;
-}
-
 static bool match(const char* needle, const char* haystack) {
     return 0 == strcmp("_", needle) || NULL != strstr(haystack, needle);
 }
@@ -702,17 +636,27 @@ struct Task {
             path.append(ext);
         }
 
+        SkFILEWStream file(path.c_str());
+        if (!file.isValid()) {
+            fail(SkStringPrintf("Can't open %s for writing.\n", path.c_str()));
+            return;
+        }
+
         if (bitmap) {
-            if (!dump_png(*bitmap, path.c_str(), result.md5.c_str())) {
+            // We can't encode A8 bitmaps as PNGs.  Convert them to 8888 first.
+            SkBitmap converted;
+            if (bitmap->info().colorType() == kAlpha_8_SkColorType) {
+                if (!bitmap->copyTo(&converted, kN32_SkColorType)) {
+                    fail("Can't convert A8 to 8888.\n");
+                    return;
+                }
+                bitmap = &converted;
+            }
+            if (!SkImageEncoder::EncodeStream(&file, *bitmap, SkImageEncoder::kPNG_Type, 100)) {
                 fail(SkStringPrintf("Can't encode PNG to %s.\n", path.c_str()));
                 return;
             }
         } else {
-            SkFILEWStream file(path.c_str());
-            if (!file.isValid()) {
-                fail(SkStringPrintf("Can't open %s for writing.\n", path.c_str()));
-                return;
-            }
             if (!file.writeStream(data, len)) {
                 fail(SkStringPrintf("Can't write to %s.\n", path.c_str()));
                 return;
