@@ -381,15 +381,15 @@ static void stream_copy_test(skiatest::Reporter* reporter,
 
 DEF_TEST(StreamCopy, reporter) {
     SkRandom random(123456);
-    static const size_t N = 10000;
-    uint8_t src[N];
-    for (size_t j = 0; j < N; ++j) {
+    static const int N = 10000;
+    SkAutoTMalloc<uint8_t> src((size_t)N);
+    for (int j = 0; j < N; ++j) {
         src[j] = random.nextU() & 0xff;
     }
     // SkStreamCopy had two code paths; this test both.
-    DumbStream dumbStream(src, N);
+    DumbStream dumbStream(src.get(), (size_t)N);
     stream_copy_test(reporter, src, N, &dumbStream);
-    SkMemoryStream smartStream(src, N);
+    SkMemoryStream smartStream(src.get(), (size_t)N);
     stream_copy_test(reporter, src, N, &smartStream);
 
 }
