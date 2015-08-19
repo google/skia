@@ -29,7 +29,7 @@ public:
 
     const char* name() const override { return "StencilPath"; }
 
-    uint32_t renderTargetUniqueID() const { return fRenderTarget.get()->getUniqueID(); }
+    uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
 
     SkString dumpInfo() const override {
         SkString string;
