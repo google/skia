@@ -71,8 +71,7 @@ static void test_analysis(skiatest::Reporter* reporter) {
         SkShader* shader = SkShader::CreateBitmapShader(bitmap, SkShader::kClamp_TileMode,
                                                         SkShader::kClamp_TileMode);
         paint.setShader(shader)->unref();
-        REPORTER_ASSERT(reporter,
-                        shader->asABitmap(NULL, NULL, NULL) == SkShader::kDefault_BitmapType);
+        REPORTER_ASSERT(reporter, shader->isABitmap());
 
         canvas->drawRect(SkRect::MakeWH(10, 10), paint);
     }

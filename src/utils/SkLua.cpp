@@ -1200,23 +1200,20 @@ static int lshader_isOpaque(lua_State* L) {
     return shader && shader->isOpaque();
 }
 
-static int lshader_asABitmap(lua_State* L) {
+static int lshader_isABitmap(lua_State* L) {
     SkShader* shader = get_ref<SkShader>(L, 1);
     if (shader) {
         SkBitmap bm;
         SkMatrix matrix;
         SkShader::TileMode modes[2];
-        switch (shader->asABitmap(&bm, &matrix, modes)) {
-            case SkShader::kDefault_BitmapType:
-                lua_newtable(L);
-                setfield_number(L, "genID", bm.pixelRef() ? bm.pixelRef()->getGenerationID() : 0);
-                setfield_number(L, "width", bm.width());
-                setfield_number(L, "height", bm.height());
-                setfield_string(L, "tileX", mode2string(modes[0]));
-                setfield_string(L, "tileY", mode2string(modes[1]));
-                return 1;
-            default:
-                break;
+        if (shader->isABitmap(&bm, &matrix, modes)) {
+            lua_newtable(L);
+            setfield_number(L, "genID", bm.pixelRef() ? bm.pixelRef()->getGenerationID() : 0);
+            setfield_number(L, "width", bm.width());
+            setfield_number(L, "height", bm.height());
+            setfield_string(L, "tileX", mode2string(modes[0]));
+            setfield_string(L, "tileY", mode2string(modes[1]));
+            return 1;
         }
     }
     return 0;
@@ -1260,7 +1257,7 @@ static int lshader_gc(lua_State* L) {
 
 static const struct luaL_Reg gSkShader_Methods[] = {
     { "isOpaque",       lshader_isOpaque },
-    { "asABitmap",      lshader_asABitmap },
+    { "isABitmap",      lshader_isABitmap },
     { "asAGradient",    lshader_asAGradient },
     { "__gc",           lshader_gc },
     { NULL, NULL }

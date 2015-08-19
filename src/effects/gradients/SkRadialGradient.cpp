@@ -225,23 +225,6 @@ void SkRadialGradient::RadialGradientContext::shadeSpan16(int x, int y, uint16_t
     }
 }
 
-SkShader::BitmapType SkRadialGradient::asABitmap(SkBitmap* bitmap,
-    SkMatrix* matrix, SkShader::TileMode* xy) const {
-    if (bitmap) {
-        this->getGradientTableBitmap(bitmap);
-    }
-    if (matrix) {
-        matrix->setScale(SkIntToScalar(kCache32Count),
-                         SkIntToScalar(kCache32Count));
-        matrix->preConcat(fPtsToUnit);
-    }
-    if (xy) {
-        xy[0] = fTileMode;
-        xy[1] = kClamp_TileMode;
-    }
-    return kRadial_BitmapType;
-}
-
 SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
     if (info) {
         commonAsAGradient(info);

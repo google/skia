@@ -1071,33 +1071,24 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkBitmap outTexture;
     SkMatrix outMatrix;
     SkShader::TileMode xy[2];
-    SkShader::BitmapType bitmapType = shader->asABitmap(&outTexture,
-                                                        &outMatrix,
-                                                        xy);
-    switch (bitmapType) {
-        case SkShader::kDefault_BitmapType: {
-            //TODO: outMatrix??
-            SkMatrix localMatrix = shader->getLocalMatrix();
-            if (parentTransform) {
-                localMatrix.preConcat(*parentTransform);
-            }
-
-            SkTScopedComPtr<IXpsOMTileBrush> tileBrush;
-            HR(this->createXpsImageBrush(outTexture,
-                                         localMatrix,
-                                         xy,
-                                         skPaint.getAlpha(),
-                                         &tileBrush));
-
-            HRM(tileBrush->QueryInterface<IXpsOMBrush>(brush), "QI failed.");
-
-            return S_OK;
+    if (shader->isABitmap(&outTexture, &outMatrix, xy)) {
+        //TODO: outMatrix??
+        SkMatrix localMatrix = shader->getLocalMatrix();
+        if (parentTransform) {
+            localMatrix.preConcat(*parentTransform);
         }
-        default:
-            break;
-    }
 
-    HR(this->createXpsSolidColorBrush(skPaint.getColor(), 0xFF, brush));
+        SkTScopedComPtr<IXpsOMTileBrush> tileBrush;
+        HR(this->createXpsImageBrush(outTexture,
+                                     localMatrix,
+                                     xy,
+                                     skPaint.getAlpha(),
+                                     &tileBrush));
+
+        HRM(tileBrush->QueryInterface<IXpsOMBrush>(brush), "QI failed.");
+    } else {
+        HR(this->createXpsSolidColorBrush(skPaint.getColor(), 0xFF, brush));
+    }
     return S_OK;
 }
 

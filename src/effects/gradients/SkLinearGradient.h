@@ -28,7 +28,6 @@ public:
         typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
     };
 
-    BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
     GradientType asAGradient(GradientInfo* info) const override;
     bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
                              const SkMatrix*, GrColor*, GrProcessorDataManager*,

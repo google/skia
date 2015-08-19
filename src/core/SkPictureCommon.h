@@ -59,8 +59,7 @@ struct SkBitmapHunter {
         const SkPaint* paint = AsPtr(r.paint);
         if (paint) {
             const SkShader* shader = paint->getShader();
-            if (shader &&
-                shader->asABitmap(nullptr, nullptr, nullptr) == SkShader::kDefault_BitmapType) {
+            if (shader && shader->isABitmap()) {
                 return true;
             }
         }

@@ -22,21 +22,6 @@ SkSweepGradient::SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor& des
     fTileMode = SkShader::kClamp_TileMode;
 }
 
-SkShader::BitmapType SkSweepGradient::asABitmap(SkBitmap* bitmap,
-    SkMatrix* matrix, SkShader::TileMode* xy) const {
-    if (bitmap) {
-        this->getGradientTableBitmap(bitmap);
-    }
-    if (matrix) {
-        *matrix = fPtsToUnit;
-    }
-    if (xy) {
-        xy[0] = fTileMode;
-        xy[1] = kClamp_TileMode;
-    }
-    return kSweep_BitmapType;
-}
-
 SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
     if (info) {
         commonAsAGradient(info);

@@ -1110,10 +1110,10 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
     fType = shader.asAGradient(&fInfo);
 
     if (fType == SkShader::kNone_GradientType) {
-        SkShader::BitmapType bitmapType;
         SkMatrix matrix;
-        bitmapType = shader.asABitmap(&fImage, &matrix, fImageTileModes);
-        if (bitmapType != SkShader::kDefault_BitmapType) {
+        if (shader.isABitmap(&fImage, &matrix, fImageTileModes)) {
+            SkASSERT(matrix.isIdentity());
+        } else {
             // Generic fallback for unsupported shaders:
             //  * allocate a bbox-sized bitmap
             //  * shade the whole area
@@ -1153,8 +1153,6 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
 
             fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
             fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
-        } else {
-            SkASSERT(matrix.isIdentity());
         }
         fPixelGeneration = fImage.getGenerationID();
     } else {

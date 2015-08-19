@@ -261,22 +261,6 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
     }
 }
 
-SkShader::BitmapType SkLinearGradient::asABitmap(SkBitmap* bitmap,
-                                                SkMatrix* matrix,
-                                                TileMode xy[]) const {
-    if (bitmap) {
-        this->getGradientTableBitmap(bitmap);
-    }
-    if (matrix) {
-        matrix->preConcat(fPtsToUnit);
-    }
-    if (xy) {
-        xy[0] = fTileMode;
-        xy[1] = kClamp_TileMode;
-    }
-    return kLinear_BitmapType;
-}
-
 SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
     if (info) {
         commonAsAGradient(info);

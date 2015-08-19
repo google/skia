@@ -223,6 +223,11 @@ public:
         return (flags & kHasSpan16_Flag) != 0;
     }
 
+#ifdef SK_SUPPORT_LEGACY_SHADERBITMAPTYPE
+public:
+#else
+protected:
+#endif
     /**
      Gives method bitmap should be read to implement a shader.
      Also determines number and interpretation of "extra" parameters returned
@@ -231,30 +236,6 @@ public:
     enum BitmapType {
         kNone_BitmapType,   //<! Shader is not represented as a bitmap
         kDefault_BitmapType,//<! Access bitmap using local coords transformed
-                            //   by matrix. No extras
-        kRadial_BitmapType, //<! Access bitmap by transforming local coordinates
-                            //   by the matrix and taking the distance of result
-                            //   from  (0,0) as bitmap column. Bitmap is 1 pixel
-                            //   tall. No extras
-        kSweep_BitmapType,  //<! Access bitmap by transforming local coordinates
-                            //   by the matrix and taking the angle of result
-                            //   to (0,0) as bitmap x coord, where angle = 0 is
-                            //   bitmap left edge of bitmap = 2pi is the
-                            //   right edge. Bitmap is 1 pixel tall. No extras
-        kTwoPointConical_BitmapType,
-                            //<! Matrix transforms to space where (0,0) is
-                            //   the center of the starting circle.  The second
-                            //   circle will be centered (x, 0) where x  may be
-                            //   0.
-                            //   Three extra parameters are returned:
-                            //      0: x-offset of second circle center
-                            //         to first.
-                            //      1: radius of first circle
-                            //      2: the second radius minus the first radius
-        kLinear_BitmapType, //<! Access bitmap using local coords transformed
-                            //   by matrix. No extras
-
-       kLast_BitmapType = kLinear_BitmapType
     };
     /** Optional methods for shaders that can pretend to be a bitmap/texture
         to play along with opengl. Default just returns kNone_BitmapType and
@@ -273,6 +254,14 @@ public:
     */
     virtual BitmapType asABitmap(SkBitmap* outTexture, SkMatrix* outMatrix,
                          TileMode xy[2]) const;
+
+public:
+    bool isABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode xy[2]) const {
+        return this->asABitmap(bitmap, matrix, xy) == kDefault_BitmapType;
+    }
+    bool isABitmap() const {
+        return this->isABitmap(nullptr, nullptr, nullptr);
+    }
 
     /**
      *  If the shader subclass can be represented as a gradient, asAGradient

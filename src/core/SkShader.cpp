@@ -325,12 +325,6 @@ void SkColorShader::ColorShaderContext::shadeSpanAlpha(int x, int y, uint8_t alp
     memset(alpha, SkGetPackedA32(fPMColor), count);
 }
 
-// if we had a asAColor method, that would be more efficient...
-SkShader::BitmapType SkColorShader::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
-                                              TileMode modes[]) const {
-    return kNone_BitmapType;
-}
-
 SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
     if (info) {
         if (info->fColors && info->fColorCount >= 1) {

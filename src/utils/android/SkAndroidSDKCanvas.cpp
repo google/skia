@@ -23,7 +23,7 @@ void CheckShader(SkPaint* paint) {
         return;
     }
 
-    if (shader->asABitmap(NULL, NULL, NULL) == SkShader::kDefault_BitmapType) {
+    if (shader->isABitmap()) {
         return;
     }
     if (shader->asACompose(NULL)) {
