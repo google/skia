@@ -131,7 +131,7 @@ void SkColorCubeFilter::filterSpan(const SkPMColor src[], int count, SkPMColor d
 
     SkOpts::color_cube_filter_span(src, count, dst, colorToIndex,
                                    colorToFactors, fCache.cubeDimension(),
-                                   (SkColor*)fCubeData->data());
+                                   (const SkColor*)fCubeData->data());
 }
 
 SkFlattenable* SkColorCubeFilter::CreateProc(SkReadBuffer& buffer) {

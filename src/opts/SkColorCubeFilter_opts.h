@@ -70,7 +70,7 @@ void color_cube_filter_span(const SkPMColor src[],
         }
 
         if (a != 255) {
-            color = color * Sk4f(((float)a) / 255);
+            color = color * Sk4f(a * 1.0f/255);
         }
 
         dst[i] = color.round();
