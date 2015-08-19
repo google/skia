@@ -11,6 +11,7 @@
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPrimitiveProcessor.h"
+#include "GrQuad.h"
 #include "GrResourceProvider.h"
 #include "GrTInstanceBatch.h"
 #include "GrVertexBatch.h"

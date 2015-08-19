@@ -163,6 +163,7 @@
       '<(skia_src_path)/gpu/GrProcOptInfo.cpp',
       '<(skia_src_path)/gpu/GrProcOptInfo.h',
       '<(skia_src_path)/gpu/GrGpuResourceRef.cpp',
+      '<(skia_src_path)/gpu/GrQuad.h',
       '<(skia_src_path)/gpu/GrRecordReplaceDraw.cpp',
       '<(skia_src_path)/gpu/GrRecordReplaceDraw.h',
       '<(skia_src_path)/gpu/GrRectanizer.h',
