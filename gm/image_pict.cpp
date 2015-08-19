@@ -199,7 +199,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(850, 450);
+        return SkISize::Make(960, 450);
     }
 
     void onOnceBeforeDraw() override {
@@ -240,6 +240,14 @@ protected:
         SkAutoTUnref<GrTexture> texture(cache->lockAsTexture(canvas->getGrContext(),
                                                              kUntiled_SkImageUsageType));
         if (!texture) {
+            // show placeholder if we have no texture
+            SkPaint paint;
+            paint.setStyle(SkPaint::kStroke_Style);
+            SkRect r = SkRect::MakeXYWH(x, y, SkIntToScalar(cache->info().width()),
+                                        SkIntToScalar(cache->info().width()));
+            canvas->drawRect(r, paint);
+            canvas->drawLine(r.left(), r.top(), r.right(), r.bottom(), paint);
+            canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
             return;
         }
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
