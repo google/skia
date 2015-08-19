@@ -12,7 +12,8 @@
 #include "SkFlattenable.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
-#include "SkTemplates.h"
+#include "SkTArray.h"
+#include "SkTDArray.h"
 #include "SkWriter32.h"
 
 // These macros help with packing and unpacking a single byte value and
@@ -40,7 +41,7 @@ public:
     const SkTDArray<const SkImage* >& getImageRefs() const {
         return fImageRefs;
     }
-    
+
     SkData* opData(bool deepCopy) const {
         this->validate(fWriter.bytesWritten(), 0);
 

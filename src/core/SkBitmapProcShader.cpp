@@ -1,20 +1,21 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkBitmapProcShader.h"
+#include "SkBitmapProcState.h"
 #include "SkColorPriv.h"
+#include "SkErrorInternals.h"
+#include "SkPixelRef.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkPixelRef.h"
-#include "SkErrorInternals.h"
-#include "SkBitmapProcShader.h"
 
 #if SK_SUPPORT_GPU
-#include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrBicubicEffect.h"
+#include "effects/GrSimpleTextureEffect.h"
 #endif
 
 SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src, TileMode tmx, TileMode tmy,

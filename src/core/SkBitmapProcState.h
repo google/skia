@@ -14,6 +14,7 @@
 #include "SkMatrix.h"
 #include "SkMipMap.h"
 #include "SkPaint.h"
+#include "SkTemplates.h"
 
 typedef SkFixed3232    SkFractionalInt;
 #define SkScalarToFractionalInt(x)  SkScalarToFixed3232(x)

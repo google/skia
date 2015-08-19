@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkRefCnt_DEFINED
 #define SkRefCnt_DEFINED
 
 #include "SkAtomics.h"
-#include "SkTemplates.h"
+#include "SkTypes.h"
 
 /** \class SkRefCntBase
 

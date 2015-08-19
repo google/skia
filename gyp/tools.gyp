@@ -164,6 +164,16 @@
       'dependencies': [
         'skia_lib.gyp:skia_lib',
       ],
+      'xcode_settings': {
+        'conditions': [
+          [ 'skia_osx_deployment_target==""', {
+            'MACOSX_DEPLOYMENT_TARGET': '10.7', # -mmacos-version-min, passed in env to ld.
+          }, {
+            'MACOSX_DEPLOYMENT_TARGET': '<(skia_osx_deployment_target)',
+          }],
+        ],
+        'CLANG_CXX_LIBRARY': 'libc++',
+      },
     },
     {
       'target_name': 'skpdiff',

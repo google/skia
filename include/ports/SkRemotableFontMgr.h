@@ -8,9 +8,9 @@
 #ifndef SkRemotableFontMgr_DEFINED
 #define SkRemotableFontMgr_DEFINED
 
+#include "../private/SkTemplates.h"
 #include "SkFontStyle.h"
 #include "SkRefCnt.h"
-#include "SkTemplates.h"
 #include "SkTypes.h"
 
 class SkDataTable;

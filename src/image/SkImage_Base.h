@@ -11,6 +11,8 @@
 #include "SkImage.h"
 #include "SkSurface.h"
 
+#include <new>
+
 enum {
     kNeedNewImageUniqueID = 0
 };

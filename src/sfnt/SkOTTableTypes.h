@@ -8,7 +8,6 @@
 #ifndef SkOTTableTypes_DEFINED
 #define SkOTTableTypes_DEFINED
 
-#include "SkTemplates.h"
 #include "SkTypes.h"
 #include "SkEndian.h"
 

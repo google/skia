@@ -8,10 +8,10 @@
 #ifndef SkScanlineDecoder_DEFINED
 #define SkScanlineDecoder_DEFINED
 
-#include "SkTypes.h"
+#include "../private/SkTemplates.h"
 #include "SkCodec.h"
-#include "SkTemplates.h"
 #include "SkImageInfo.h"
+#include "SkTypes.h"
 
 class SkScanlineDecoder : public SkNoncopyable {
 public:

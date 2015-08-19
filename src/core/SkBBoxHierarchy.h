@@ -11,7 +11,6 @@
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
-#include "SkTemplates.h"
 
 /**
  * Interface for a spatial data structure that stores axis-aligned bounding
@@ -36,7 +35,6 @@ public:
 
     // Get the root bound.
     virtual SkRect getRootBound() const = 0;
-
 
 private:
     typedef SkRefCnt INHERITED;

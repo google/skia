@@ -13,6 +13,7 @@
         'core.gyp:*',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/core',
         '../src/sfnt',
       ],

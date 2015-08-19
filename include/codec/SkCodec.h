@@ -8,12 +8,12 @@
 #ifndef SkCodec_DEFINED
 #define SkCodec_DEFINED
 
+#include "../private/SkTemplates.h"
 #include "SkColor.h"
 #include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
 #include "SkStream.h"
-#include "SkTemplates.h"
 #include "SkTypes.h"
 
 class SkData;

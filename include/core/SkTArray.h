@@ -8,9 +8,10 @@
 #ifndef SkTArray_DEFINED
 #define SkTArray_DEFINED
 
-#include <new>
+#include "../private/SkTemplates.h"
 #include "SkTypes.h"
-#include "SkTemplates.h"
+
+#include <new>
 
 template <typename T, bool MEM_COPY = false> class SkTArray;
 

@@ -9,7 +9,7 @@
 #define GrDefaultPathRenderer_DEFINED
 
 #include "GrPathRenderer.h"
-#include "SkTemplates.h"
+#include "SkTypes.h"
 
 /**
  *  Subclass that renders the path using the stencil buffer to resolve fill rules

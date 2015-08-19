@@ -8,8 +8,8 @@
 #ifndef SkDWrite_DEFINED
 #define SkDWrite_DEFINED
 
-#include "SkTemplates.h"
 #include "SkFontStyle.h"
+#include "SkTemplates.h"
 
 #include <dwrite.h>
 #include <winsdkver.h>

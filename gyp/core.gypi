@@ -329,7 +329,6 @@
         '<(skia_include_path)/core/SkTInternalLList.h',
         '<(skia_include_path)/core/SkTRegistry.h',
         '<(skia_include_path)/core/SkTSearch.h',
-        '<(skia_include_path)/core/SkTemplates.h',
         '<(skia_include_path)/core/SkTextBlob.h',
         '<(skia_include_path)/core/SkTime.h',
         '<(skia_include_path)/core/SkTLazy.h',
@@ -339,6 +338,7 @@
         '<(skia_include_path)/core/SkUtils.h',
         '<(skia_include_path)/core/SkWriter32.h',
         '<(skia_include_path)/core/SkXfermode.h',
+        '<(skia_include_path)/private/SkTemplates.h',
 
         # Lazy decoding:
         '<(skia_src_path)/lazy/SkCachingPixelRef.cpp',

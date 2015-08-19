@@ -15,7 +15,6 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
-#include "SkTemplates.h"
 #include "SkTSearch.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;

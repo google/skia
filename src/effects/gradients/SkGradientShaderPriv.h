@@ -16,7 +16,6 @@
 #include "SkWriteBuffer.h"
 #include "SkMallocPixelRef.h"
 #include "SkUtils.h"
-#include "SkTemplates.h"
 #include "SkShader.h"
 #include "SkOnce.h"
 

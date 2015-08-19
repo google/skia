@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkAutoCo_DEFINED
 #define SkAutoCo_DEFINED
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include "SkTemplates.h"
+#include "SkTypes.h"
 
 /**
  * An instance of this class initializes COM on creation

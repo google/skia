@@ -9,7 +9,7 @@
 #define SkTLList_DEFINED
 
 #include "SkTInternalLList.h"
-#include "SkTemplates.h"
+#include "SkTypes.h"
 
 template <typename T> class SkTLList;
 template <typename T>

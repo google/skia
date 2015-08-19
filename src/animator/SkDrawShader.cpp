@@ -11,7 +11,6 @@
 #include "SkDrawBitmap.h"
 #include "SkDrawMatrix.h"
 #include "SkDrawPaint.h"
-#include "SkTemplates.h"
 
 #if SK_USE_CONDENSED_INFO == 0
 
@@ -72,11 +71,8 @@ SkShader* SkDrawBitmapShader::getShader() {
     //
     // oops, bitmapshader no longer takes filterBitmap, but deduces it at
     // draw-time from the paint
-    SkShader* shader  = SkShader::CreateBitmapShader(image->fBitmap,
-                                                    (SkShader::TileMode) tileMode,
-                                                    (SkShader::TileMode) tileMode,
-                                                    getMatrix());
-    SkAutoTDelete<SkShader> autoDel(shader);
-    (void)autoDel.detach();
-    return shader;
+    return SkShader::CreateBitmapShader(image->fBitmap,
+                                        (SkShader::TileMode) tileMode,
+                                        (SkShader::TileMode) tileMode,
+                                        getMatrix());
 }

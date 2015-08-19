@@ -11,8 +11,9 @@
 #define SkBitmapProcShader_DEFINED
 
 #include "SkShader.h"
-#include "SkBitmapProcState.h"
 #include "SkSmallAllocator.h"
+
+struct SkBitmapProcState;
 
 class SkBitmapProcShader : public SkShader {
 public:

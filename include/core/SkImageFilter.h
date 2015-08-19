@@ -8,12 +8,12 @@
 #ifndef SkImageFilter_DEFINED
 #define SkImageFilter_DEFINED
 
+#include "../private/SkTemplates.h"
 #include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkSurfaceProps.h"
-#include "SkTemplates.h"
 
 class GrFragmentProcessor;
 class GrProcessorDataManager;

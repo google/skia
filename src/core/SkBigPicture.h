@@ -8,8 +8,9 @@
 #ifndef SkBigPicture_DEFINED
 #define SkBigPicture_DEFINED
 
-#include "SkPicture.h"
 #include "SkLazyPtr.h"
+#include "SkPicture.h"
+#include "SkTemplates.h"
 
 class SkBBoxHierarchy;
 class SkRecord;

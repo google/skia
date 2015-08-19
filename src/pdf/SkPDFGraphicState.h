@@ -12,7 +12,6 @@
 
 #include "SkPaint.h"
 #include "SkPDFTypes.h"
-#include "SkTemplates.h"
 #include "SkChecksum.h"
 
 class SkPDFCanon;
