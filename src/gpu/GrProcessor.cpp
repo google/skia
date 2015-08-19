@@ -166,10 +166,24 @@ GrGLFragmentProcessor* GrFragmentProcessor::createGLInstance() const {
     return glFragProc;
 }
 
+void GrFragmentProcessor::addTextureAccess(const GrTextureAccess* textureAccess) {
+    // Can't add texture accesses after registering any children since their texture accesses have
+    // already been bubbled up into our fTextureAccesses array
+    SkASSERT(fChildProcessors.empty());
+
+    INHERITED::addTextureAccess(textureAccess);
+    fNumTexturesExclChildren++;
+}
+
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
+    // Can't add transforms after registering any children since their transforms have already been
+    // bubbled up into our fCoordTransforms array
+    SkASSERT(fChildProcessors.empty());
+
     fCoordTransforms.push_back(transform);
     fUsesLocalCoords = fUsesLocalCoords || transform->sourceCoords() == kLocal_GrCoordSet;
     SkDEBUGCODE(transform->setInProcessor();)
+    fNumTransformsExclChildren++;
 }
 
 int GrFragmentProcessor::registerChildProcessor(const GrFragmentProcessor* child) {

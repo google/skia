@@ -101,7 +101,7 @@ protected:
      * GrTextureAccess is typically a member field of the GrProcessor subclass. This must only be
      * called from the constructor because GrProcessors are immutable.
      */
-    void addTextureAccess(const GrTextureAccess* textureAccess);
+    virtual void addTextureAccess(const GrTextureAccess* textureAccess);
 
     bool hasSameTextureAccesses(const GrProcessor&) const;
 

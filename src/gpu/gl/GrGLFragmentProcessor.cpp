@@ -32,8 +32,8 @@ void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
 
     /*
      * We now want to find the subset of coords and samplers that belong to the child and its
-     * descendants and put that into childCoords and childSamplers. To do so, we must do a
-     * backwards linear search on coords and samplers.
+     * descendants and put that into childCoords and childSamplers. To do so, we'll do a forwards
+     * linear search.
      *
      * Explanation:
      * Each GrFragmentProcessor has a copy of all the transforms and textures of itself and
@@ -53,23 +53,20 @@ void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
      *                      (C)          (E)          (F)
      *                     [c1]      [e1,e2,e3]      [f1,f2]
      *
-     * So if we're inside proc A's emitCode, and A is about to call emitCode on proc B, we want the
-     * EmitArgs that's passed onto B to only contain its and its descendants' coords. The
+     * So if we're inside proc A's emitCode, and A is about to call emitCode on proc D, we want the
+     * EmitArgs that's passed onto D to only contain its and its descendants' coords. The
      * EmitArgs given to A would contain the transforms [a1,b1,b2,c1,d1,e1,e2,e3,f1,f2], and we want
-     * to extract the subset [b1,b2,c1] to pass on to B. We can do this with a backwards linear
-     * search since we know that D's subtree has 6 transforms and B's subtree has 3 transforms (by
-     * calling D.numTextures() and B.numTextures()), so we know the start of B's transforms is 9
-     * from the end of A's transforms.  We cannot do this with a forwards linear search since we
-     * don't know how many transforms belong to A (A.numTextures() will return 10, not 1), so
-     * we wouldn't know how many transforms to initially skip in A's array if using a forward linear
-     * search.
+     * to extract the subset [d1,e1,e2,e3,f1,f2] to pass on to D. We can do this with a linear
+     * search since we know that A has 1 transform (using A.numTransformsExclChildren()), and B's
+     * subtree has 3 transforms (using B.numTransforms()), so we know the start of D's transforms is
+     * 4 after the start of A's transforms.
      * Textures work the same way as transforms.
      */
-    int firstCoordAt = args.fFp.numTransforms();
-    int firstSamplerAt = args.fFp.numTextures();
-    for (int i = args.fFp.numChildProcessors() - 1; i >= childIndex; --i) {
-        firstCoordAt -= args.fFp.childProcessor(i).numTransforms();
-        firstSamplerAt -= args.fFp.childProcessor(i).numTextures();
+    int firstCoordAt = args.fFp.numTransformsExclChildren();
+    int firstSamplerAt = args.fFp.numTexturesExclChildren();
+    for (int i = 0; i < childIndex; ++i) {
+        firstCoordAt += args.fFp.childProcessor(i).numTransforms();
+        firstSamplerAt += args.fFp.childProcessor(i).numTextures();
     }
     TransformedCoordsArray childCoords;
     TextureSamplerArray childSamplers;

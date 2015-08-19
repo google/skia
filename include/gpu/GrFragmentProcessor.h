@@ -25,7 +25,9 @@ class GrFragmentProcessor : public GrProcessor {
 public:
     GrFragmentProcessor()
         : INHERITED()
-        , fUsesLocalCoords(false) {}
+        , fUsesLocalCoords(false)
+        , fNumTexturesExclChildren(0)
+        , fNumTransformsExclChildren(0) {}
 
     GrGLFragmentProcessor* createGLInstance() const;
 
@@ -39,6 +41,10 @@ public:
             fChildProcessors[i].processor()->getGLProcessorKey(caps, b);
         }
     }
+
+    int numTexturesExclChildren() const { return fNumTexturesExclChildren; }
+
+    int numTransformsExclChildren() const { return fNumTransformsExclChildren; }
 
     int numTransforms() const { return fCoordTransforms.count(); }
 
@@ -84,6 +90,8 @@ public:
     void computeInvariantOutput(GrInvariantOutput* inout) const;
 
 protected:
+    void addTextureAccess(const GrTextureAccess* textureAccess) override;
+
     /**
      * Fragment Processor subclasses call this from their constructor to register coordinate
      * transformations. Coord transforms provide a mechanism for a processor to receive coordinates
@@ -105,7 +113,8 @@ protected:
 
     /**
      * FragmentProcessor subclasses call this from their constructor to register any child
-     * FragmentProcessors they have.
+     * FragmentProcessors they have. This must be called AFTER all texture accesses and coord
+     * transforms have been added.
      * This is for processors whose shader code will be composed of nested processors whose output
      * colors will be combined somehow to produce its output color.  Registering these child
      * processors will allow the ProgramBuilder to automatically handle their transformed coords and
@@ -167,6 +176,9 @@ private:
      * The same goes for fTextureAccesses with textures.
      */
     SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
+
+    int                                          fNumTexturesExclChildren;
+    int                                          fNumTransformsExclChildren;
 
     SkTArray<GrFragmentStage, false>             fChildProcessors;
 
