@@ -31,10 +31,6 @@ public:
 
     GrGLFragmentProcessor* createGLInstance() const;
 
-    /** Human-meaningful string to identify this GrFragmentProcessor; may be embedded
-        in generated shader code. */
-    virtual const char* name() const = 0;
-
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
         this->onGetGLProcessorKey(caps, b);
         for (int i = 0; i < fChildProcessors.count(); ++i) {
@@ -99,11 +95,11 @@ protected:
      * fragment the matrix will be applied to the local coordinate that maps to the fragment.
      *
      * When the transformation has perspective, the transformed coordinates will have
-     * 3 components. Otherwise they'll have 2. 
+     * 3 components. Otherwise they'll have 2.
      *
      * This must only be called from the constructor because GrProcessors are immutable. The
      * processor subclass manages the lifetime of the transformations (this function only stores a
-     * pointer). The GrCoordTransform is typically a member field of the GrProcessor subclass. 
+     * pointer). The GrCoordTransform is typically a member field of the GrProcessor subclass.
      *
      * A processor subclass that has multiple methods of construction should always add its coord
      * transforms in a consistent order. The non-virtual implementation of isEqual() automatically
