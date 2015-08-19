@@ -1011,7 +1011,7 @@ SkPDFFont* SkPDFType0Font::getFontSubset(const SkPDFGlyphSet* subset) {
 #ifdef SK_DEBUG
 void SkPDFType0Font::emitObject(SkWStream* stream,
                                 const SkPDFObjNumMap& objNumMap,
-                                const SkPDFSubstituteMap& substitutes) {
+                                const SkPDFSubstituteMap& substitutes) const {
     SkASSERT(fPopulated);
     return INHERITED::emitObject(stream, objNumMap, substitutes);
 }

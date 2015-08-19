@@ -18,9 +18,9 @@ public:
     virtual bool multiByteGlyphs() const { return true; }
     virtual SkPDFFont* getFontSubset(const SkPDFGlyphSet* usage);
 #ifdef SK_DEBUG
-    virtual void emitObject(SkWStream*,
-                            const SkPDFObjNumMap&,
-                            const SkPDFSubstituteMap&);
+    void emitObject(SkWStream*,
+                    const SkPDFObjNumMap&,
+                    const SkPDFSubstituteMap&) const override;
 #endif
 
 private:

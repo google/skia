@@ -260,7 +260,7 @@ SkPDFUnion SkPDFUnion::Object(SkPDFObject* ptr) {
 #if 0  // Enable if needed.
 void SkPDFAtom::emitObject(SkWStream* stream,
                            const SkPDFObjNumMap& objNumMap,
-                           const SkPDFSubstituteMap& substitutes) {
+                           const SkPDFSubstituteMap& substitutes) const {
     fValue.emitObject(stream, objNumMap, substitutes);
 }
 void SkPDFAtom::addResources(SkPDFObjNumMap* map,
@@ -284,8 +284,8 @@ int SkPDFArray::size() const { return fValues.count(); }
 void SkPDFArray::reserve(int length) { fValues.setReserve(length); }
 
 void SkPDFArray::emitObject(SkWStream* stream,
-                             const SkPDFObjNumMap& objNumMap,
-                             const SkPDFSubstituteMap& substitutes) {
+                            const SkPDFObjNumMap& objNumMap,
+                            const SkPDFSubstituteMap& substitutes) const {
     stream->writeText("[");
     for (int i = 0; i < fValues.count(); i++) {
         fValues[i].emitObject(stream, objNumMap, substitutes);
@@ -353,7 +353,7 @@ SkPDFDict::SkPDFDict(const char type[]) { this->insertName("Type", type); }
 
 void SkPDFDict::emitObject(SkWStream* stream,
                            const SkPDFObjNumMap& objNumMap,
-                           const SkPDFSubstituteMap& substitutes) {
+                           const SkPDFSubstituteMap& substitutes) const {
     stream->writeText("<<");
     for (int i = 0; i < fRecords.count(); i++) {
         fRecords[i].fKey.emitObject(stream, objNumMap, substitutes);

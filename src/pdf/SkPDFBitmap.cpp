@@ -249,7 +249,7 @@ public:
     ~PDFAlphaBitmap() {}
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
-                    const SkPDFSubstituteMap&) override;
+                    const SkPDFSubstituteMap&) const override;
 
 private:
     const SkBitmap fBitmap;
@@ -257,7 +257,7 @@ private:
 
 void PDFAlphaBitmap::emitObject(SkWStream* stream,
                                 const SkPDFObjNumMap& objNumMap,
-                                const SkPDFSubstituteMap& substitutes) {
+                                const SkPDFSubstituteMap& substitutes) const {
     SkAutoLockPixels autoLockPixels(fBitmap);
     SkASSERT(fBitmap.colorType() != kIndex_8_SkColorType ||
              fBitmap.getColorTable());
@@ -293,7 +293,7 @@ public:
     const SkAutoTUnref<SkPDFObject> fSMask;
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
-                    const SkPDFSubstituteMap&) override;
+                    const SkPDFSubstituteMap&) const override;
     void addResources(SkPDFObjNumMap*,
                       const SkPDFSubstituteMap&) const override;
     PDFDefaultBitmap(const SkBitmap& bm, SkPDFObject* smask)
@@ -345,7 +345,7 @@ static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
 
 void PDFDefaultBitmap::emitObject(SkWStream* stream,
                                   const SkPDFObjNumMap& objNumMap,
-                                  const SkPDFSubstituteMap& substitutes) {
+                                  const SkPDFSubstituteMap& substitutes) const {
     SkAutoLockPixels autoLockPixels(fBitmap);
     SkASSERT(fBitmap.colorType() != kIndex_8_SkColorType ||
              fBitmap.getColorTable());
@@ -407,12 +407,12 @@ public:
         : SkPDFBitmap(bm), fData(SkRef(data)), fIsYUV(isYUV) {}
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
-                    const SkPDFSubstituteMap&) override;
+                    const SkPDFSubstituteMap&) const override;
 };
 
 void PDFJpegBitmap::emitObject(SkWStream* stream,
                                const SkPDFObjNumMap& objNumMap,
-                               const SkPDFSubstituteMap& substituteMap) {
+                               const SkPDFSubstituteMap& substituteMap) const {
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
     pdfDict.insertInt("Width", fBitmap.width());

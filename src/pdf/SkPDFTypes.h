@@ -40,7 +40,7 @@ public:
     // TODO(halcanary): make this method const
     virtual void emitObject(SkWStream* stream,
                             const SkPDFObjNumMap& objNumMap,
-                            const SkPDFSubstituteMap& substitutes) = 0;
+                            const SkPDFSubstituteMap& substitutes) const = 0;
 
     /**
      *  Adds all transitive dependencies of this object to the
@@ -200,7 +200,7 @@ public:
     // The SkPDFObject interface.
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& substitutes) override;
+                    const SkPDFSubstituteMap& substitutes) const override;
     void addResources(SkPDFObjNumMap*,
                       const SkPDFSubstituteMap&) const override;
 
@@ -255,7 +255,7 @@ public:
     // The SkPDFObject interface.
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& substitutes) override;
+                    const SkPDFSubstituteMap& substitutes) const override;
     void addResources(SkPDFObjNumMap*,
                       const SkPDFSubstituteMap&) const override;
 

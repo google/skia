@@ -195,9 +195,10 @@ SkPDFDict* SkPDFGraphicState::GetNoSMaskGraphicState() {
     return SkRef(noSMaskGraphicState.get());
 }
 
-void SkPDFGraphicState::emitObject(SkWStream* stream,
-                                   const SkPDFObjNumMap& objNumMap,
-                                   const SkPDFSubstituteMap& substitutes) {
+void SkPDFGraphicState::emitObject(
+        SkWStream* stream,
+        const SkPDFObjNumMap& objNumMap,
+        const SkPDFSubstituteMap& substitutes) const {
     SkAutoTUnref<SkPDFDict> dict(SkNEW_ARGS(SkPDFDict, ("ExtGState")));
     dict->insertName("Type", "ExtGState");
 
