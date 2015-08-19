@@ -6,7 +6,6 @@
  */
 
 #include "GrBitmapTextGeoProc.h"
-#include "GrFontAtlasSizes.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "gl/GrGLFragmentProcessor.h"

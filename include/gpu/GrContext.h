@@ -18,6 +18,7 @@
 #include "SkPathEffect.h"
 #include "SkTypes.h"
 
+struct GrBatchAtlasConfig;
 class GrBatchFontCache;
 class GrCaps;
 struct GrContextOptions;
@@ -355,6 +356,10 @@ public:
     /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.
         this is for testing only */
     void setTextBlobCacheLimit_ForTesting(size_t bytes);
+
+    /** Specify the sizes of the GrAtlasTextContext atlases.  The configs pointer below should be
+        to an array of 3 entries */
+    void setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs);
 
 private:
     GrGpu*                          fGpu;

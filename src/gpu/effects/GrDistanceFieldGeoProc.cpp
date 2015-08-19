@@ -6,7 +6,6 @@
  */
 
 #include "GrDistanceFieldGeoProc.h"
-#include "GrFontAtlasSizes.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 

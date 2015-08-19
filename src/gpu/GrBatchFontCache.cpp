@@ -7,7 +7,6 @@
 
 #include "GrBatchFontCache.h"
 #include "GrContext.h"
-#include "GrFontAtlasSizes.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
 #include "GrResourceProvider.h"
@@ -22,15 +21,11 @@ bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (!fAtlases[index]) {
         GrPixelConfig config = MaskFormatToPixelConfig(format);
-        int width = GR_FONT_ATLAS_TEXTURE_WIDTH;
-        int height = GR_FONT_ATLAS_TEXTURE_HEIGHT;
-        int numPlotsX = GR_FONT_ATLAS_NUM_PLOTS_X;
-        int numPlotsY = GR_FONT_ATLAS_NUM_PLOTS_Y;
+        int width = fAtlasConfigs[index].fWidth;
+        int height = fAtlasConfigs[index].fHeight;
+        int numPlotsX = fAtlasConfigs[index].numPlotsX();
+        int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        if (kA8_GrMaskFormat == format) {
-            width = GR_FONT_ATLAS_A8_TEXTURE_WIDTH;
-            numPlotsX = GR_FONT_ATLAS_A8_NUM_PLOTS_X;
-        }
         fAtlases[index] =
                 fContext->resourceProvider()->createAtlas(config, width, height,
                                                           numPlotsX, numPlotsY,
@@ -49,6 +44,22 @@ GrBatchFontCache::GrBatchFontCache(GrContext* context)
     for (int i = 0; i < kMaskFormatCount; ++i) {
         fAtlases[i] = NULL;
     }
+
+    // setup default atlas configs
+    fAtlasConfigs[kA8_GrMaskFormat].fWidth = 2048;
+    fAtlasConfigs[kA8_GrMaskFormat].fHeight = 2048;
+    fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = 512;
+    fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = 256;
+
+    fAtlasConfigs[kA565_GrMaskFormat].fWidth = 1024;
+    fAtlasConfigs[kA565_GrMaskFormat].fHeight = 2048;
+    fAtlasConfigs[kA565_GrMaskFormat].fPlotWidth = 256;
+    fAtlasConfigs[kA565_GrMaskFormat].fPlotHeight = 256;
+
+    fAtlasConfigs[kARGB_GrMaskFormat].fWidth = 1024;
+    fAtlasConfigs[kARGB_GrMaskFormat].fHeight = 2048;
+    fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = 256;
+    fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = 256;
 }
 
 GrBatchFontCache::~GrBatchFontCache() {
@@ -112,6 +123,18 @@ void GrBatchFontCache::dump() const {
         }
     }
     ++gDumpCount;
+}
+
+void GrBatchFontCache::setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]) {
+    // delete any old atlases, this should be safe to do as long as we are not in the middle of a
+    // flush
+    for (int i = 0; i < kMaskFormatCount; i++) {
+        if (fAtlases[i]) {
+            SkDELETE(fAtlases[i]);
+            fAtlases[i] = NULL;
+        }
+    }
+    memcpy(fAtlasConfigs, configs, sizeof(fAtlasConfigs));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

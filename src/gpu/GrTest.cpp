@@ -8,6 +8,7 @@
 
 #include "GrTest.h"
 
+#include "GrBatchFontCache.h"
 #include "GrBufferedDrawTarget.h"
 #include "GrContextOptions.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -33,6 +34,10 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
 
 void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
     fTextBlobCache->setBudget(bytes);
+}
+
+void GrContext::setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs) {
+    fBatchFontCache->setAtlasSizes_ForTesting(configs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -166,7 +166,11 @@ public:
         return this->getAtlas(format)->atlasGeneration();
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Functions intended debug only
     void dump() const;
+
+    void setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]);
 
 private:
     static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format) {
@@ -213,6 +217,7 @@ private:
     SkTDynamicHash<GrBatchTextStrike, GrFontDescKey> fCache;
     GrBatchAtlas* fAtlases[kMaskFormatCount];
     GrBatchTextStrike* fPreserveStrike;
+    GrBatchAtlasConfig fAtlasConfigs[kMaskFormatCount];
 };
 
 #endif

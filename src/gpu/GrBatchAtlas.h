@@ -19,6 +19,15 @@ class GrRectanizer;
 
 typedef SkTInternalLList<BatchPlot> GrBatchPlotList;
 
+struct GrBatchAtlasConfig {
+    int numPlotsX() const { return fWidth / fPlotWidth; }
+    int numPlotsY() const { return fHeight / fPlotWidth; }
+    int fWidth;
+    int fHeight;
+    int fPlotWidth;
+    int fPlotHeight;
+};
+
 class GrBatchAtlas {
 public:
     // An AtlasID is an opaque handle which callers can use to determine if the atlas contains
