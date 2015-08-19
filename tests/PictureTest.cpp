@@ -1247,7 +1247,7 @@ struct CountingBBH : public SkBBoxHierarchy {
 
     CountingBBH(const SkRect& bound) : searchCalls(0), rootBound(bound) {}
 
-    void search(const SkRect& query, SkTDArray<unsigned>* results) const override {
+    void search(const SkRect& query, SkTDArray<int>* results) const override {
         this->searchCalls++;
     }
 

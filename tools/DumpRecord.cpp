@@ -105,7 +105,7 @@ void DumpRecord(const SkRecord& record,
                   SkCanvas* canvas,
                   bool timeWithCommand) {
     Dumper dumper(canvas, record.count(), timeWithCommand);
-    for (unsigned i = 0; i < record.count(); i++) {
+    for (int i = 0; i < record.count(); i++) {
         record.visit<void>(i, dumper);
     }
 }

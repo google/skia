@@ -30,7 +30,7 @@ public:
     int count() const { return fHistogram[T::kType]; }
 
     void apply(const SkRecord& record) {
-        for (unsigned i = 0; i < record.count(); i++) {
+        for (int i = 0; i < record.count(); i++) {
             record.visit<void>(i, *this);
         }
     }

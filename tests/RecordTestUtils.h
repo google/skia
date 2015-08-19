@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef RecordTestUtils_DEFINED
 #define RecordTestUtils_DEFINED
 
@@ -20,7 +27,7 @@ struct ReadAs {
 
 // Assert that the ith command in record is of type T, and return it.
 template <typename T>
-static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, unsigned index) {
+static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, int index) {
     ReadAs<T> reader;
     record.visit<void>(index, reader);
     REPORTER_ASSERT(r, T::kType == reader.type);
@@ -36,7 +43,7 @@ template <typename DrawT> struct MatchType {
 template <typename DrawT> int count_instances_of_type(const SkRecord& record) {
     MatchType<DrawT> matcher;
     int counter = 0;
-    for (unsigned i = 0; i < record.count(); i++) {
+    for (int i = 0; i < record.count(); i++) {
         counter += record.visit<int>(i, matcher);
     }
     return counter;
@@ -44,7 +51,7 @@ template <typename DrawT> int count_instances_of_type(const SkRecord& record) {
 
 template <typename DrawT> int find_first_instances_of_type(const SkRecord& record) {
     MatchType<DrawT> matcher;
-    for (unsigned i = 0; i < record.count(); i++) {
+    for (int i = 0; i < record.count(); i++) {
         if (record.visit<int>(i, matcher)) {
             return i;
         }

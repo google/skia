@@ -108,7 +108,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
         pic.reset(recorder.endRecording());
     }
 
-    unsigned key[1] = { 0 };
+    int key[1] = { 0 };
 
     SkPaint paint;
     GrLayerCache* layerCache = context->getLayerCache();
@@ -149,7 +149,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
     }
 }
 
-DEF_GPUTEST(RecordReplaceDraw, r, factory) { 
+DEF_GPUTEST(RecordReplaceDraw, r, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
         if (!GrContextFactory::IsRenderingGLContext(glType)) {

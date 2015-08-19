@@ -43,8 +43,8 @@ void SkBigPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
 }
 
 void SkBigPicture::partialPlayback(SkCanvas* canvas,
-                                   unsigned start,
-                                   unsigned stop,
+                                   int start,
+                                   int stop,
                                    const SkMatrix& initialCTM) const {
     SkASSERT(canvas);
     SkRecordPartialDraw(*fRecord,
@@ -86,7 +86,7 @@ SkBigPicture::Analysis::Analysis(const SkRecord& record) {
     SkPathCounter  path;
 
     bool hasText = false, hasBitmap = false;
-    for (unsigned i = 0; i < record.count(); i++) {
+    for (int i = 0; i < record.count(); i++) {
         hasText   = hasText   || record.visit<bool>(i,   text);
         hasBitmap = hasBitmap || record.visit<bool>(i, bitmap);
         record.visit<void>(i, path);

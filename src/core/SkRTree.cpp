@@ -161,13 +161,13 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
     return this->bulkLoad(branches, level + 1);
 }
 
-void SkRTree::search(const SkRect& query, SkTDArray<unsigned>* results) const {
+void SkRTree::search(const SkRect& query, SkTDArray<int>* results) const {
     if (fCount > 0 && SkRect::Intersects(fRoot.fBounds, query)) {
         this->search(fRoot.fSubtree, query, results);
     }
 }
 
-void SkRTree::search(Node* node, const SkRect& query, SkTDArray<unsigned>* results) const {
+void SkRTree::search(Node* node, const SkRect& query, SkTDArray<int>* results) const {
     for (int i = 0; i < node->fNumChildren; ++i) {
         if (SkRect::Intersects(node->fChildren[i].fBounds, query)) {
             if (0 == node->fLevel) {

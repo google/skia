@@ -27,7 +27,7 @@ public:
     int area() const { return fArea; }
 
     void apply(const SkRecord& record) {
-        for (unsigned i = 0; i < record.count(); i++) {
+        for (int i = 0; i < record.count(); i++) {
             record.visit<void>(i, *this);
         }
     }
@@ -45,7 +45,7 @@ struct Stretch {
     }
 
     void apply(SkRecord* record) {
-        for (unsigned i = 0; i < record->count(); i++) {
+        for (int i = 0; i < record->count(); i++) {
             record->mutate<void>(i, *this);
         }
     }

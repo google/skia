@@ -36,7 +36,7 @@ void SkRecordDraw(const SkRecord&, SkCanvas*, SkPicture const* const drawablePic
 // the initialCTM parameter must set to just the replay matrix.
 void SkRecordPartialDraw(const SkRecord&, SkCanvas*,
                          SkPicture const* const drawablePicts[], int drawableCount,
-                         unsigned start, unsigned stop, const SkMatrix& initialCTM);
+                         int start, int stop, const SkMatrix& initialCTM);
 
 namespace SkRecords {
 

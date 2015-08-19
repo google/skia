@@ -30,14 +30,14 @@ public:
     /**
      * Populate results with the indices of bounding boxes interesecting that query.
      */
-    virtual void search(const SkRect& query, SkTDArray<unsigned>* results) const = 0;
+    virtual void search(const SkRect& query, SkTDArray<int>* results) const = 0;
 
     virtual size_t bytesUsed() const = 0;
 
     // Get the root bound.
     virtual SkRect getRootBound() const = 0;
 
-    
+
 private:
     typedef SkRefCnt INHERITED;
 };

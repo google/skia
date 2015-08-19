@@ -63,7 +63,7 @@ public:
                 const SkBigPicture* picture,
                 const SkMatrix& initialMatrix,
                 SkPicture::AbortCallback* callback,
-                const unsigned* opIndices, int numIndices)
+                const int* opIndices, int numIndices)
         : INHERITED(canvas, drawablePicts, NULL, drawableCount)
         , fCanvas(canvas)
         , fLayerCache(layerCache)
@@ -154,7 +154,7 @@ public:
 
         // For a saveLayer command, check if it can be replaced by a drawBitmap
         // call and, if so, draw it and then update the current op index accordingly.
-        unsigned startOffset;
+        int startOffset;
         if (fOps.count()) {
             startOffset = fOps[fIndex];
         } else {
@@ -199,12 +199,12 @@ private:
     const SkMatrix            fInitialMatrix;
     SkPicture::AbortCallback* fCallback;
 
-    SkTDArray<unsigned>       fOps;
+    SkTDArray<int>            fOps;
     int                       fIndex;
     int                       fNumReplaced;
 
     // The op code indices of all the enclosing drawPicture and saveLayer calls
-    SkTDArray<unsigned>       fOpIndexStack;
+    SkTDArray<int>            fOpIndexStack;
 
     typedef Draw INHERITED;
 };

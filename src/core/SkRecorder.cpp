@@ -245,7 +245,7 @@ void SkRecorder::onDrawText(const void* text, size_t byteLength,
 
 void SkRecorder::onDrawPosText(const void* text, size_t byteLength,
                                const SkPoint pos[], const SkPaint& paint) {
-    const unsigned points = paint.countText(text, byteLength);
+    const int points = paint.countText(text, byteLength);
     APPEND(DrawPosText,
            paint,
            this->copy((const char*)text, byteLength),
@@ -255,7 +255,7 @@ void SkRecorder::onDrawPosText(const void* text, size_t byteLength,
 
 void SkRecorder::onDrawPosTextH(const void* text, size_t byteLength,
                                 const SkScalar xpos[], SkScalar constY, const SkPaint& paint) {
-    const unsigned points = paint.countText(text, byteLength);
+    const int points = paint.countText(text, byteLength);
     APPEND(DrawPosTextH,
            paint,
            this->copy((const char*)text, byteLength),

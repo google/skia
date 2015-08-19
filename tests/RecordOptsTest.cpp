@@ -43,7 +43,7 @@ DEF_TEST(RecordOpts_SingleNoopSaveRestore, r) {
     recorder.restore();
 
     SkRecordNoopSaveRestores(&record);
-    for (unsigned i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
         assert_type<SkRecords::NoOp>(r, record, i);
     }
 }
@@ -66,7 +66,7 @@ DEF_TEST(RecordOpts_NoopSaveRestores, r) {
     recorder.restore();
 
     SkRecordNoopSaveRestores(&record);
-    for (unsigned index = 0; index < record.count(); index++) {
+    for (int index = 0; index < record.count(); index++) {
         assert_type<SkRecords::NoOp>(r, record, index);
     }
 }
@@ -102,7 +102,7 @@ DEF_TEST(RecordOpts_SaveSaveLayerRestoreRestore, r) {
 
 static void assert_savelayer_restore(skiatest::Reporter* r,
                                      SkRecord* record,
-                                     unsigned i,
+                                     int i,
                                      bool shouldBeNoOped) {
     SkRecordNoopSaveLayerDrawRestores(record);
     if (shouldBeNoOped) {
@@ -175,7 +175,7 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
 
 static void assert_merge_svg_opacity_and_filter_layers(skiatest::Reporter* r,
                                                        SkRecord* record,
-                                                       unsigned i,
+                                                       int i,
                                                        bool shouldBeNoOped) {
     SkRecordMergeSvgOpacityAndFilterLayers(record);
     if (shouldBeNoOped) {

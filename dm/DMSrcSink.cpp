@@ -1060,7 +1060,7 @@ Error ViaSingletonPictures::draw(
             macroCanvas,
             drawables ? *drawables : empty,
         };
-        for (unsigned i = 0; i < skr.count(); i++) {
+        for (int i = 0; i < skr.count(); i++) {
             skr.visit<void>(i, drawsAsSingletonPictures);
         }
         SkAutoTUnref<SkPicture> macroPic(macroRec.endRecordingAsPicture());

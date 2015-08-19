@@ -79,7 +79,7 @@ protected:
     void onDraw(const int loops, SkCanvas* canvas) override {
         SkRandom rand;
         for (int i = 0; i < loops; ++i) {
-            SkTDArray<unsigned> hits;
+            SkTDArray<int> hits;
             SkRect query;
             query.fLeft   = rand.nextRangeF(0, GENERATE_EXTENTS);
             query.fTop    = rand.nextRangeF(0, GENERATE_EXTENTS);

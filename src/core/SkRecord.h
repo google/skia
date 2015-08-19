@@ -40,14 +40,14 @@ public:
     ~SkRecord();
 
     // Returns the number of canvas commands in this SkRecord.
-    unsigned count() const { return fCount; }
+    int count() const { return fCount; }
 
     // Visit the i-th canvas command with a functor matching this interface:
     //   template <typename T>
     //   R operator()(const T& record) { ... }
     // This operator() must be defined for at least all SkRecords::*.
     template <typename R, typename F>
-    R visit(unsigned i, F& f) const {
+    R visit(int i, F& f) const {
         SkASSERT(i < this->count());
         return fRecords[i].visit<R>(f);
     }
@@ -57,7 +57,7 @@ public:
     //   R operator()(T* record) { ... }
     // This operator() must be defined for at least all SkRecords::*.
     template <typename R, typename F>
-    R mutate(unsigned i, F& f) {
+    R mutate(int i, F& f) {
         SkASSERT(i < this->count());
         return fRecords[i].mutate<R>(f);
     }
@@ -85,7 +85,7 @@ public:
     // You are expected to placement new an object of type T onto this pointer.
     // References to the original command are invalidated.
     template <typename T>
-    T* replace(unsigned i) {
+    T* replace(int i) {
         SkASSERT(i < this->count());
 
         Destroyer destroyer;
@@ -98,7 +98,7 @@ public:
     // You are expected to placement new an object of type T onto this pointer.
     // You must show proof that you've already adopted the existing command.
     template <typename T, typename Existing>
-    T* replace(unsigned i, const SkRecords::Adopted<Existing>& proofOfAdoption) {
+    T* replace(int i, const SkRecords::Adopted<Existing>& proofOfAdoption) {
         SkASSERT(i < this->count());
 
         SkASSERT(Existing::kType == fRecords[i].type());
@@ -186,7 +186,7 @@ private:
 
     // fRecords needs to be a data structure that can append fixed length data, and need to
     // support efficient random access and forward iteration.  (It doesn't need to be contiguous.)
-    unsigned fCount, fReserved;
+    int fCount, fReserved;
     SkAutoSTMalloc<kInlineRecords, Record> fRecords;
 
     // fAlloc needs to be a data structure which can append variable length data in contiguous

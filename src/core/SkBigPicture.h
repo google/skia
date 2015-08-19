@@ -52,8 +52,8 @@ public:
 
 // Used by GrLayerHoister
     void partialPlayback(SkCanvas*,
-                         unsigned start,
-                         unsigned stop,
+                         int start,
+                         int stop,
                          const SkMatrix& initialCTM) const;
 // Used by GrRecordReplaceDraw
     const SkBBoxHierarchy* bbh() const { return fBBH; }

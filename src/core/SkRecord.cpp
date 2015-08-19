@@ -9,7 +9,7 @@
 
 SkRecord::~SkRecord() {
     Destroyer destroyer;
-    for (unsigned i = 0; i < this->count(); i++) {
+    for (int i = 0; i < this->count(); i++) {
         this->mutate<void>(i, destroyer);
     }
 }

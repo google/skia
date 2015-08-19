@@ -1,3 +1,10 @@
+/*
+ * Copyright 2015 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef SkRecordPattern_DEFINED
 #define SkRecordPattern_DEFINED
 
@@ -109,14 +116,14 @@ class Cons {
 public:
     // If this pattern matches the SkRecord starting at i,
     // return the index just past the end of the pattern, otherwise return 0.
-    SK_ALWAYS_INLINE unsigned match(SkRecord* record, unsigned i) {
+    SK_ALWAYS_INLINE int match(SkRecord* record, int i) {
         i = this->matchHead(&fHead, record, i);
         return i == 0 ? 0 : fTail.match(record, i);
     }
 
     // Starting from *end, walk through the SkRecord to find the first span matching this pattern.
     // If there is no such span, return false.  If there is, return true and set [*begin, *end).
-    SK_ALWAYS_INLINE bool search(SkRecord* record, unsigned* begin, unsigned* end) {
+    SK_ALWAYS_INLINE bool search(SkRecord* record, int* begin, int* end) {
         for (*begin = *end; *begin < record->count(); ++(*begin)) {
             *end = this->match(record, *begin);
             if (*end != 0) {
@@ -137,7 +144,7 @@ public:
 private:
     // If head isn't a Star, try to match at i once.
     template <typename T>
-    unsigned matchHead(T*, SkRecord* record, unsigned i) {
+    int matchHead(T*, SkRecord* record, int i) {
         if (i < record->count()) {
             if (record->mutate<bool>(i, fHead)) {
                 return i+1;
@@ -148,7 +155,7 @@ private:
 
     // If head is a Star, walk i until it doesn't match.
     template <typename T>
-    unsigned matchHead(Star<T>*, SkRecord* record, unsigned i) {
+    int matchHead(Star<T>*, SkRecord* record, int i) {
         while (i < record->count()) {
             if (!record->mutate<bool>(i, fHead)) {
                 return i;
@@ -168,7 +175,7 @@ private:
 // Nil is the end of every pattern Cons chain.
 struct Nil {
     // Bottoms out recursion down the fTail chain.  Just return whatever i the front decided on.
-    unsigned match(SkRecord*, unsigned i) { return i; }
+    int match(SkRecord*, int i) { return i; }
 };
 
 // These Pattern# types are syntax sugar over Cons and Nil, just to help eliminate some of the

@@ -29,7 +29,7 @@ void SkRecordDraw(const SkRecord& record,
             query.setEmpty();
         }
 
-        SkTDArray<unsigned> ops;
+        SkTDArray<int> ops;
         bbh->search(query, &ops);
 
         SkRecords::Draw draw(canvas, drawablePicts, drawables, drawableCount);
@@ -45,7 +45,7 @@ void SkRecordDraw(const SkRecord& record,
     } else {
         // Draw all ops.
         SkRecords::Draw draw(canvas, drawablePicts, drawables, drawableCount);
-        for (unsigned i = 0; i < record.count(); i++) {
+        for (int i = 0; i < record.count(); i++) {
             if (callback && callback->abort()) {
                 return;
             }
@@ -59,13 +59,13 @@ void SkRecordDraw(const SkRecord& record,
 
 void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
                          SkPicture const* const drawablePicts[], int drawableCount,
-                         unsigned start, unsigned stop,
+                         int start, int stop,
                          const SkMatrix& initialCTM) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     stop = SkTMin(stop, record.count());
     SkRecords::Draw draw(canvas, drawablePicts, NULL, drawableCount, &initialCTM);
-    for (unsigned i = start; i < stop; i++) {
+    for (int i = start; i < stop; i++) {
         record.visit<void>(i, draw);
     }
 }
@@ -161,7 +161,7 @@ public:
         fCurrentClipBounds = fCullRect;
     }
 
-    void setCurrentOp(unsigned currentOp) { fCurrentOp = currentOp; }
+    void setCurrentOp(int currentOp) { fCurrentOp = currentOp; }
 
     void cleanUp(SkBBoxHierarchy* bbh) {
         // If we have any lingering unpaired Saves, simulate restores to make
@@ -190,9 +190,9 @@ public:
     // In this file, SkRect are in local coordinates, Bounds are translated back to identity space.
     typedef SkRect Bounds;
 
-    unsigned currentOp() const { return fCurrentOp; }
+    int currentOp() const { return fCurrentOp; }
     const SkMatrix& ctm() const { return *fCTM; }
-    const Bounds& getBounds(unsigned index) const { return fBounds[index]; }
+    const Bounds& getBounds(int index) const { return fBounds[index]; }
 
     // Adjust rect for all paints that may affect its geometry, then map it to identity space.
     Bounds adjustAndMap(SkRect rect, const SkPaint* paint) const {
@@ -574,7 +574,7 @@ private:
         return true;
     }
 
-    const unsigned fNumRecords;
+    const int fNumRecords;
 
     // We do not guarantee anything for operations outside of the cull rect
     const SkRect fCullRect;
@@ -585,13 +585,13 @@ private:
     // We walk fCurrentOp through the SkRecord, as we go using updateCTM()
     // and updateClipBounds() to maintain the exact CTM (fCTM) and conservative
     // identity-space bounds of the current clip (fCurrentClipBounds).
-    unsigned fCurrentOp;
+    int fCurrentOp;
     const SkMatrix* fCTM;
     Bounds fCurrentClipBounds;
 
     // Used to track the bounds of Save/Restore blocks and the control ops inside them.
     SkTDArray<SaveBounds> fSaveStack;
-    SkTDArray<unsigned>   fControlIndices;
+    SkTDArray<int>   fControlIndices;
 };
 
 // SkRecord visitor to gather saveLayer/restore information.
@@ -605,7 +605,7 @@ public:
         , fFillBounds(cullRect, record)
     {}
 
-    void setCurrentOp(unsigned currentOp) { fFillBounds.setCurrentOp(currentOp); }
+    void setCurrentOp(int currentOp) { fFillBounds.setCurrentOp(currentOp); }
 
     void cleanUp(SkBBoxHierarchy* bbh) {
         // fFillBounds must perform its cleanUp first so that all the bounding
@@ -696,10 +696,10 @@ private:
 
             // Store 'saveLayer ops from enclosing picture' + drawPict op + 'ops from sub-picture'
             dst.fKeySize = fSaveLayerOpStack.count() + src.fKeySize + 1;
-            dst.fKey = SkNEW_ARRAY(unsigned, dst.fKeySize);
-            memcpy(dst.fKey, fSaveLayerOpStack.begin(), fSaveLayerOpStack.count() * sizeof(unsigned));
+            dst.fKey = SkNEW_ARRAY(int, dst.fKeySize);
+            memcpy(dst.fKey, fSaveLayerOpStack.begin(), fSaveLayerOpStack.count() * sizeof(int));
             dst.fKey[fSaveLayerOpStack.count()] = fFillBounds.currentOp();
-            memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(unsigned));
+            memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(int));
         }
     }
 
@@ -773,8 +773,8 @@ private:
         block.fIsNested = fSaveLayersInStack > 0;
 
         block.fKeySize = fSaveLayerOpStack.count();
-        block.fKey = SkNEW_ARRAY(unsigned, block.fKeySize);
-        memcpy(block.fKey, fSaveLayerOpStack.begin(), block.fKeySize * sizeof(unsigned));
+        block.fKey = SkNEW_ARRAY(int, block.fKeySize);
+        memcpy(block.fKey, fSaveLayerOpStack.begin(), block.fKeySize * sizeof(int));
 
         fSaveLayerOpStack.pop();
     }
@@ -783,7 +783,7 @@ private:
     int                      fSaveLayersInStack;
     SkTDArray<SaveLayerInfo> fSaveLayerStack;
     // The op code indices of all the currently active saveLayers
-    SkTDArray<unsigned>      fSaveLayerOpStack;
+    SkTDArray<int>           fSaveLayerOpStack;
     SkLayerInfo*             fAccelData;
     const SkBigPicture::SnapshotArray* fPictList;
 
@@ -795,7 +795,7 @@ private:
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHierarchy* bbh) {
     SkRecords::FillBounds visitor(cullRect, record);
 
-    for (unsigned curOp = 0; curOp < record.count(); curOp++) {
+    for (int curOp = 0; curOp < record.count(); curOp++) {
         visitor.setCurrentOp(curOp);
         record.visit<void>(curOp, visitor);
     }
@@ -808,7 +808,7 @@ void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
                            SkLayerInfo* data) {
     SkRecords::CollectLayers visitor(cullRect, record, pictList, data);
 
-    for (unsigned curOp = 0; curOp < record.count(); curOp++) {
+    for (int curOp = 0; curOp < record.count(); curOp++) {
         visitor.setCurrentOp(curOp);
         record.visit<void>(curOp, visitor);
     }
