@@ -233,6 +233,7 @@ void VisualBench::preWarm(State nextState) {
 
 void VisualBench::draw(SkCanvas* canvas) {
     if (!this->advanceRecordIfNecessary(canvas)) {
+        SkDebugf("Exiting VisualBench successfully\n");
         this->closeWindow();
         return;
     }
