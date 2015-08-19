@@ -234,7 +234,7 @@ void create_hemi_normal_map(SkBitmap* bm, const SkIRect& dst) {
             if (tmp >= 1.0f) {
                 norm.set(0.0f, 0.0f, 1.0f);
             } else {
-                norm.fZ = sqrt(1.0f - tmp);
+                norm.fZ = sqrtf(1.0f - tmp);
             }
 
             norm_to_rgb(bm, x, y, norm);
