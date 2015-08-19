@@ -28,16 +28,31 @@ public:
     // Release lock for exclusive use.
     void release();
 
+    // Fail if exclusive is not held.
+#ifdef SK_DEBUG
+    void assertHeld() const;
+#else
+    void assertHeld() const {}
+#endif
+
     // Acquire lock for shared use.
     void acquireShared();
 
     // Release lock for shared use.
     void releaseShared();
 
+    // Fail if shared lock not held.
+#ifdef SK_DEBUG
+    void assertHeldShared() const;
+#else
+    void assertHeldShared() const {}
+#endif
+
 private:
     SkAtomic<int32_t> fQueueCounts;
     SkSemaphore fSharedQueue;
     SkSemaphore fExclusiveQueue;
 };
+
 
 #endif // SkSharedLock_DEFINED

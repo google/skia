@@ -13,8 +13,10 @@
 DEF_TEST(SkSharedMutexBasic, r) {
     SkSharedMutex sm;
     sm.acquire();
+    sm.assertHeld();
     sm.release();
     sm.acquireShared();
+    sm.assertHeldShared();
     sm.releaseShared();
 }
 
@@ -30,6 +32,7 @@ DEF_TEST(SkSharedMutexMultiThreaded, r) {
         if (threadIndex % 4 != 0) {
             for (int c = 0; c < 100000; ++c) {
                 sm.acquireShared();
+                sm.assertHeldShared();
                 int v = shared[0];
                 for (int i = 1; i < kSharedSize; ++i) {
                     REPORTER_ASSERT(r, v == shared[i]);
@@ -39,6 +42,7 @@ DEF_TEST(SkSharedMutexMultiThreaded, r) {
         } else {
             for (int c = 0; c < 100000; ++c) {
                 sm.acquire();
+                sm.assertHeld();
                 value += 1;
                 for (int i = 0; i < kSharedSize; ++i) {
                     shared[i] = value;
