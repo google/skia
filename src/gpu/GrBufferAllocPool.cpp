@@ -46,9 +46,9 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
     : fBlocks(8) {
 
     fGpu = SkRef(gpu);
-
+    fCpuData = nullptr;
     fBufferType = bufferType;
-    fBufferPtr = NULL;
+    fBufferPtr = nullptr;
     fMinBlockSize = SkTMax(GrBufferAllocPool_MIN_BLOCK_SIZE, blockSize);
 
     fBytesInUse = 0;
@@ -72,6 +72,7 @@ void GrBufferAllocPool::deleteBlocks() {
 GrBufferAllocPool::~GrBufferAllocPool() {
     VALIDATE();
     this->deleteBlocks();
+    sk_free(fCpuData);
     fGpu->unref();
 }
 
@@ -79,9 +80,10 @@ void GrBufferAllocPool::reset() {
     VALIDATE();
     fBytesInUse = 0;
     this->deleteBlocks();
-    // we may have created a large cpu mirror of a large VB. Reset the size
-    // to match our minimum.
-    fCpuData.reset(fMinBlockSize);
+
+    // we may have created a large cpu mirror of a large VB. Reset the size to match our minimum.
+    this->resetCpuData(fMinBlockSize);
+
     VALIDATE();
 }
 
@@ -96,7 +98,7 @@ void GrBufferAllocPool::unmap() {
             size_t flushSize = block.fBuffer->gpuMemorySize() - block.fBytesFree;
             this->flushCpuData(fBlocks.back(), flushSize);
         }
-        fBufferPtr = NULL;
+        fBufferPtr = nullptr;
     }
     VALIDATE();
 }
@@ -110,7 +112,7 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
             GrGeometryBuffer* buf = fBlocks.back().fBuffer;
             SkASSERT(buf->mapPtr() == fBufferPtr);
         } else {
-            SkASSERT(fCpuData.get() == fBufferPtr);
+            SkASSERT(fCpuData == fBufferPtr);
         }
     } else {
         SkASSERT(fBlocks.empty() || !fBlocks.back().fBuffer->isMapped());
@@ -175,7 +177,7 @@ void* GrBufferAllocPool::makeSpace(size_t size,
     // size.
 
     if (!this->createBlock(size)) {
-        return NULL;
+        return nullptr;
     }
     SkASSERT(fBufferPtr);
 
@@ -226,7 +228,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     BufferBlock& block = fBlocks.push_back();
 
     block.fBuffer = this->getBuffer(size);
-    if (NULL == block.fBuffer) {
+    if (!block.fBuffer) {
         fBlocks.pop_back();
         return false;
     }
@@ -240,10 +242,10 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
         } else {
             this->flushCpuData(prev, prev.fBuffer->gpuMemorySize() - prev.fBytesFree);
         }
-        fBufferPtr = NULL;
+        fBufferPtr = nullptr;
     }
 
-    SkASSERT(NULL == fBufferPtr);
+    SkASSERT(!fBufferPtr);
 
     // If the buffer is CPU-backed we map it because it is free to do so and saves a copy.
     // Otherwise when buffer mapping is supported we map if the buffer size is greater than the
@@ -257,8 +259,8 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
         fBufferPtr = block.fBuffer->map();
     }
 
-    if (NULL == fBufferPtr) {
-        fBufferPtr = fCpuData.reset(block.fBytesFree);
+    if (!fBufferPtr) {
+        fBufferPtr = this->resetCpuData(block.fBytesFree);
     }
 
     VALIDATE(true);
@@ -274,14 +276,29 @@ void GrBufferAllocPool::destroyBlock() {
     SkASSERT(!block.fBuffer->isMapped());
     block.fBuffer->unref();
     fBlocks.pop_back();
-    fBufferPtr = NULL;
+    fBufferPtr = nullptr;
 }
+
+void* GrBufferAllocPool::resetCpuData(size_t newSize) {
+    sk_free(fCpuData);
+    if (newSize) {
+        if (fGpu->caps()->mustClearUploadedBufferData()) {
+            fCpuData = sk_calloc(newSize);
+        } else {
+            fCpuData = sk_malloc_throw(newSize);
+        }
+    } else {
+        fCpuData = nullptr;
+    }
+    return fCpuData;
+}
+
 
 void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize) {
     GrGeometryBuffer* buffer = block.fBuffer;
     SkASSERT(buffer);
     SkASSERT(!buffer->isMapped());
-    SkASSERT(fCpuData.get() == fBufferPtr);
+    SkASSERT(fCpuData == fBufferPtr);
     SkASSERT(flushSize <= buffer->gpuMemorySize());
     VALIDATE(true);
 
@@ -329,7 +346,7 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
     SkASSERT(startVertex);
 
     size_t offset = 0; // assign to suppress warning
-    const GrGeometryBuffer* geomBuffer = NULL; // assign to suppress warning
+    const GrGeometryBuffer* geomBuffer = nullptr; // assign to suppress warning
     void* ptr = INHERITED::makeSpace(vertexSize * vertexCount,
                                      vertexSize,
                                      &geomBuffer,
@@ -356,7 +373,7 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
     SkASSERT(startIndex);
 
     size_t offset = 0; // assign to suppress warning
-    const GrGeometryBuffer* geomBuffer = NULL; // assign to suppress warning
+    const GrGeometryBuffer* geomBuffer = nullptr; // assign to suppress warning
     void* ptr = INHERITED::makeSpace(indexCount * sizeof(uint16_t),
                                      sizeof(uint16_t),
                                      &geomBuffer,
@@ -367,5 +384,3 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
     *startIndex = static_cast<int>(offset / sizeof(uint16_t));
     return ptr;
 }
-
-

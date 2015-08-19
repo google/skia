@@ -107,10 +107,10 @@ private:
     void destroyBlock();
     void deleteBlocks();
     void flushCpuData(const BufferBlock& block, size_t flushSize);
+    void* resetCpuData(size_t newSize);
 #ifdef SK_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
 #endif
-
     size_t                          fBytesInUse;
 
     GrGpu*                          fGpu;
@@ -118,7 +118,7 @@ private:
     BufferType                      fBufferType;
 
     SkTArray<BufferBlock>           fBlocks;
-    SkAutoMalloc                    fCpuData;
+    void*                           fCpuData;
     void*                           fBufferPtr;
     size_t                          fGeometryBufferMapThreshold;
 };

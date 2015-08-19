@@ -471,6 +471,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fUseDrawInsteadOfPartialRenderTargetWrite = true;
     }
 
+    if (kChromium_GrGLDriver == ctxInfo.driver()) {
+        fMustClearUploadedBufferData = true;
+    }
+
     if (kGL_GrGLStandard == standard) {
         // ARB allows mixed size FBO attachments, EXT does not.
         if (ctxInfo.version() >= GR_GL_VER(3, 0) ||
