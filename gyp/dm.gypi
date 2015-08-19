@@ -22,6 +22,7 @@
     'etc1.gyp:libetc1',
     'flags.gyp:flags',
     'jsoncpp.gyp:jsoncpp',
+    'libpng.gyp:libpng_static',
     'skia_lib.gyp:skia_lib',
     'svg.gyp:svg',
     'tools.gyp:crash_handler',
