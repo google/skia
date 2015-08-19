@@ -29,11 +29,11 @@ public:
         return string;
     }
 
-    virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const {
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         fPrimitiveProcessor->getInvariantOutputColor(out);
     }
 
-    virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
         fPrimitiveProcessor->getInvariantOutputCoverage(out);
     }
 
@@ -49,7 +49,7 @@ private:
         this->initClassID<GrDrawPathBatch>();
     }
 
-    virtual void initBatchTracker(const GrPipelineOptimizations& opts) {
+    void initBatchTracker(const GrPipelineOptimizations& opts) override {
         fPrimitiveProcessor->initBatchTracker(this->tracker(), opts);
     }
 
