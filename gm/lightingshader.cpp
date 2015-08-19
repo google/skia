@@ -19,7 +19,7 @@ static SkBitmap make_checkerboard(int texSize) {
     sk_tool_utils::draw_checkerboard(&canvas,
                                      sk_tool_utils::color_to_565(0x0),
                                      sk_tool_utils::color_to_565(0xFF804020),
-                                     2);
+                                     8);
     return bitmap;
 }
 
@@ -58,10 +58,13 @@ public:
     LightingShaderGM() {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
 
-        fLight.fColor = SkColor3f::Make(1.0f, 1.0f, 1.0f);
-        fLight.fDirection = SkVector3::Make(0.0f, 0.0f, 1.0f);
+        SkLightingShader::Lights::Builder builder;
 
-        fAmbient = SkColor3f::Make(0.1f, 0.1f, 0.1f);
+        builder.add(SkLight(SkColor3f::Make(1.0f, 1.0f, 1.0f),
+                            SkVector3::Make(1.0f, 0.0f, 0.0f)));
+        builder.add(SkLight(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+
+        fLights.reset(builder.finish());
     }
 
 protected:
@@ -98,11 +101,16 @@ protected:
         SkMatrix matrix;
         matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
     
+        const SkMatrix& ctm = canvas->getTotalMatrix();
+
+        // TODO: correctly pull out the pure rotation
+        SkVector invNormRotation = { ctm[SkMatrix::kMScaleX], ctm[SkMatrix::kMSkewY] };
+
         SkAutoTUnref<SkShader> fShader(SkLightingShader::Create(
                                                         fDiffuse,
                                                         fNormalMaps[mapType],
-                                                        fLight, fAmbient,
-                                                        &matrix));
+                                                        fLights,
+                                                        invNormRotation, &matrix, &matrix));
 
         SkPaint paint;
         paint.setShader(fShader);
@@ -111,17 +119,56 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRect r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
-        this->drawRect(canvas, r, kHemi_NormalMap);
+        SkMatrix m;
+        SkRect r;
 
-        r.offset(kGMSize - kTexSize, 0);
-        this->drawRect(canvas, r, kFrustum_NormalMap);
+        {
+            r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
+            this->drawRect(canvas, r, kHemi_NormalMap);
 
-        r.offset(0, kGMSize - kTexSize);
-        this->drawRect(canvas, r, kTetra_NormalMap);
+            canvas->save();
+            m.setRotate(45.0f, r.centerX(), r.centerY());
+            m.postTranslate(kGMSize/2.0f - kTexSize/2.0f, 0.0f);
+            canvas->setMatrix(m);
+            this->drawRect(canvas, r, kHemi_NormalMap);
+            canvas->restore();
+        }
 
-        r.offset(kTexSize - kGMSize, 0);
-        this->drawRect(canvas, r, kHemi_NormalMap);
+        {
+            r.offset(kGMSize - kTexSize, 0);
+            this->drawRect(canvas, r, kFrustum_NormalMap);
+
+            canvas->save();
+            m.setRotate(45.0f, r.centerX(), r.centerY());
+            m.postTranslate(0.0f, kGMSize/2.0f - kTexSize/2.0f);
+            canvas->setMatrix(m);
+            this->drawRect(canvas, r, kFrustum_NormalMap);
+            canvas->restore();
+        }
+
+        {
+            r.offset(0, kGMSize - kTexSize);
+            this->drawRect(canvas, r, kTetra_NormalMap);
+
+            canvas->save();
+            m.setRotate(45.0f, r.centerX(), r.centerY());
+            m.postTranslate(-kGMSize/2.0f + kTexSize/2.0f, 0.0f);
+            canvas->setMatrix(m);
+            this->drawRect(canvas, r, kTetra_NormalMap);
+            canvas->restore();
+        }
+
+        {
+            r.offset(kTexSize - kGMSize, 0);
+            this->drawRect(canvas, r, kHemi_NormalMap);
+
+            canvas->save();
+            m.setRotate(45.0f, r.centerX(), r.centerY());
+            m.postTranslate(0.0f, -kGMSize/2.0f + kTexSize/2.0f);
+            canvas->setMatrix(m);
+            this->drawRect(canvas, r, kHemi_NormalMap);
+            canvas->restore();
+        }
     }
 
 private:
@@ -131,8 +178,7 @@ private:
     SkBitmap                fDiffuse;
     SkBitmap                fNormalMaps[kNormalMapCount];
 
-    SkLightingShader::Light fLight;
-    SkColor3f               fAmbient;
+    SkAutoTUnref<const SkLightingShader::Lights>  fLights;
 
     typedef GM INHERITED;
 };

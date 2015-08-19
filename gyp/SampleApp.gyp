@@ -84,7 +84,7 @@
         '../samplecode/SampleLayerMask.cpp',
         '../samplecode/SampleLayers.cpp',
         '../samplecode/SampleLCD.cpp',
-	'../samplecode/SampleLighting.cpp',
+        '../samplecode/SampleLighting.cpp',
         '../samplecode/SampleLines.cpp',
         '../samplecode/SampleLua.cpp',
         '../samplecode/SampleManyRects.cpp',
@@ -245,9 +245,9 @@
             'android_deps.gyp:Android_SampleApp',
           ],
         }],
-	[ 'skia_os == "chromeos"', {
-	  'sources!': [
-	    '../samplecode/SampleLighting.cpp',  #doesn't compile due to gpu dependencies
+        [ 'skia_os == "chromeos"', {
+          'sources!': [
+            '../samplecode/SampleLighting.cpp',  #doesn't compile due to gpu dependencies
           ],
         }],
         [ 'skia_gpu == 1', {

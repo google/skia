@@ -37,7 +37,7 @@
 #include "SkLayerRasterizer.h"
 #include "SkLerpXfermode.h"
 #include "SkLightingImageFilter.h"
-#include "../effects/SkLightingShader.h"
+#include "SkLightingShader.h"
 #include "SkLocalMatrixShader.h"
 #include "SkLumaColorFilter.h"
 #include "SkMagnifierImageFilter.h"
