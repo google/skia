@@ -49,7 +49,9 @@ private:
     , fStencil(stencil)
     , fScissor(scissor)
     , fRenderTarget(renderTarget)
-    , fPath(path) {}
+    , fPath(path) {
+        this->initClassID<GrStencilPathBatch>();
+    }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
 
