@@ -50,8 +50,11 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
         return false;
     }
     if (args.fStroke->getStyle() == SkStrokeRec::kStroke_Style) {
-        return args.fViewMatrix->isSimilarity() && args.fStroke->getWidth() >= 1.0f && 
-                args.fStroke->getWidth() <= kMaxStrokeWidth && !args.fStroke->isDashed() && 
+        if (!args.fViewMatrix->isSimilarity()) {
+            return false;
+        }
+        SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * args.fStroke->getWidth();
+        return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth && !args.fStroke->isDashed() && 
                 SkPathPriv::LastVerbIsClose(*args.fPath) &&
                 args.fStroke->getJoin() != SkPaint::Join::kRound_Join;
     }
