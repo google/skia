@@ -23,7 +23,6 @@ class GrRenderTarget;
 
 class SkCanvas;
 class SkData;
-class SkDeferredCanvas;
 class SkDocument;
 class SkEvent;
 class SkTypeface;
@@ -41,7 +40,6 @@ public:
         kANGLE_DeviceType,
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
-        kDeferred_DeviceType,
         kDeviceTypeCnt
     };
 
@@ -162,8 +160,6 @@ private:
     int fCurrIndex;
 
     SkPictureRecorder fRecorder;
-    SkAutoTDelete<SkSurface> fDeferredSurface;
-    SkAutoTDelete<SkDeferredCanvas> fDeferredCanvas;
     SkAutoTDelete<SkCanvas> fFlagsFilterCanvas;
     SkPath fClipPath;
 

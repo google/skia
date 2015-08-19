@@ -15,7 +15,6 @@
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkDocument.h"
 #include "SkGPipe.h"
@@ -188,7 +187,6 @@ public:
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
             case kPicture_DeviceType:    // fallthrough
-            case kDeferred_DeviceType:    // fallthrough
             case kGPU_DeviceType:
                 // all these guys use the native backend
                 fBackend = kNativeGL_BackEndType;
@@ -216,7 +214,6 @@ public:
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
             case kPicture_DeviceType:   // fallthrough
-            case kDeferred_DeviceType:  // fallthrough
             case kGPU_DeviceType:
                 // all these guys use the native interface
                 glInterface.reset(GrGLCreateNativeInterface());
@@ -674,7 +671,6 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
         SampleWindow::kANGLE_DeviceType,
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
-        SampleWindow::kDeferred_DeviceType,
         SampleWindow::kRaster_DeviceType,
     };
     SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gCT) == SampleWindow::kDeviceTypeCnt, array_size_mismatch);
@@ -830,7 +826,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     int itemID;
 
     itemID =fAppMenu->appendList("Device Type", "Device Type", sinkID, 0,
-                                "Raster", "Picture", "OpenGL", "Deferred",
+                                "Raster", "Picture", "OpenGL",
 #if SK_ANGLE
                                 "ANGLE",
 #endif
@@ -1264,12 +1260,6 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
         canvas = fPDFDocument->beginPage(this->width(), this->height());
     } else if (kPicture_DeviceType == fDeviceType) {
         canvas = fRecorder.beginRecording(9999, 9999, NULL, 0);
-    } else if (kDeferred_DeviceType == fDeviceType) {
-        fDeferredSurface.reset(canvas->newSurface(canvas->imageInfo()));
-        if (fDeferredSurface.get()) {
-            fDeferredCanvas.reset(SkDeferredCanvas::Create(fDeferredSurface));
-            canvas = fDeferredCanvas;
-        }
     } else {
         canvas = this->INHERITED::beforeChildren(canvas);
     }
@@ -1376,13 +1366,6 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         } else {
             picture->playback(orig);
         }
-    } else if (kDeferred_DeviceType == fDeviceType) {
-        SkAutoTUnref<SkImage> image(fDeferredCanvas->newImageSnapshot());
-        if (image) {
-            orig->drawImage(image, 0, 0, NULL);
-        }
-        fDeferredCanvas.reset(NULL);
-        fDeferredSurface.reset(NULL);
     }
 
     // Do this after presentGL and other finishing, rather than in afterChild
@@ -1949,7 +1932,6 @@ static const char* gDeviceTypePrefix[] = {
     "angle: ",
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
-    "deferred: ",
 };
 SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gDeviceTypePrefix) == SampleWindow::kDeviceTypeCnt,
                   array_size_mismatch);

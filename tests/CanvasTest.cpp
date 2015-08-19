@@ -46,7 +46,6 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
-#include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkDocument.h"
 #include "SkMatrix.h"
@@ -70,12 +69,6 @@ static const int kWidth = 2, kHeight = 2;
 static void createBitmap(SkBitmap* bm, SkColor color) {
     bm->allocN32Pixels(kWidth, kHeight);
     bm->eraseColor(color);
-}
-
-static SkSurface* createSurface(SkColor color) {
-    SkSurface* surface = SkSurface::NewRasterN32Premul(kWidth, kHeight);
-    surface->getCanvas()->clear(color);
-    return surface;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -239,16 +232,8 @@ static void test_clipstack(skiatest::Reporter* reporter) {
 static const char* const kDefaultAssertMessageFormat = "%s";
 static const char* const kCanvasDrawAssertMessageFormat =
     "Drawing test step %s with SkCanvas";
-static const char* const kDeferredDrawAssertMessageFormat =
-    "Drawing test step %s with SkDeferredCanvas";
 static const char* const kNWayDrawAssertMessageFormat =
     "Drawing test step %s with SkNWayCanvas";
-static const char* const kDeferredPreFlushAssertMessageFormat =
-    "test step %s, SkDeferredCanvas state consistency before flush";
-static const char* const kDeferredPostFlushPlaybackAssertMessageFormat =
-    "test step %s, SkDeferredCanvas playback canvas state consistency after flush";
-static const char* const kDeferredPostSilentFlushPlaybackAssertMessageFormat =
-    "test step %s, SkDeferredCanvas playback canvas state consistency after silent flush";
 static const char* const kNWayStateAssertMessageFormat =
     "test step %s, SkNWayCanvas state consistency";
 static const char* const kNWayIndirect1StateAssertMessageFormat =
@@ -586,49 +571,6 @@ static void TestPdfDevice(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, doc->close());
 }
 
-// The following class groups static functions that need to access
-// the privates members of SkDeferredCanvas
-class SkDeferredCanvasTester {
-public:
-    static void TestDeferredCanvasStateConsistency(
-        skiatest::Reporter* reporter,
-        const TestData& d,
-        CanvasTestStep* testStep,
-        const SkCanvas& referenceCanvas, bool silent) {
-
-        SkAutoTUnref<SkSurface> surface(createSurface(0xFFFFFFFF));
-        SkAutoTUnref<SkDeferredCanvas> deferredCanvas(SkDeferredCanvas::Create(surface.get()));
-
-        testStep->setAssertMessageFormat(kDeferredDrawAssertMessageFormat);
-        testStep->draw(deferredCanvas, d, reporter);
-        testStep->setAssertMessageFormat(kDeferredPreFlushAssertMessageFormat);
-        AssertCanvasStatesEqual(reporter, d, deferredCanvas, &referenceCanvas, testStep);
-
-        if (silent) {
-            deferredCanvas->silentFlush();
-        } else {
-            deferredCanvas->flush();
-        }
-
-        testStep->setAssertMessageFormat(
-            silent ? kDeferredPostSilentFlushPlaybackAssertMessageFormat :
-            kDeferredPostFlushPlaybackAssertMessageFormat);
-        AssertCanvasStatesEqual(reporter, d, deferredCanvas->immediateCanvas(),
-                                &referenceCanvas, testStep);
-
-        // Verified that deferred canvas state is not affected by flushing
-        // pending draw operations
-
-        // The following test code is commented out because it currently fails.
-        // Issue: http://code.google.com/p/skia/issues/detail?id=496
-        /*
-        testStep->setAssertMessageFormat(kDeferredPostFlushAssertMessageFormat);
-        AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
-            testStep);
-        */
-    }
-};
-
 // unused
 static void TestNWayCanvasStateConsistency(
     skiatest::Reporter* reporter,
@@ -674,10 +616,6 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter, const Tes
     SkCanvas referenceCanvas(referenceStore);
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, d, reporter);
-
-    SkDeferredCanvasTester::TestDeferredCanvasStateConsistency(reporter, d, testStep, referenceCanvas, false);
-
-    SkDeferredCanvasTester::TestDeferredCanvasStateConsistency(reporter, d, testStep, referenceCanvas, true);
 
     // The following test code is disabled because SkNWayCanvas does not
     // report correct clipping and device bounds information

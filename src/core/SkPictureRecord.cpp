@@ -209,9 +209,6 @@ static DrawType peek_op_and_size(SkWriter32* writer, size_t offset, uint32_t* si
 #endif//SK_DEBUG
 
 void SkPictureRecord::willRestore() {
-    // FIXME: SkDeferredCanvas needs to be refactored to respect
-    // save/restore balancing so that the following test can be
-    // turned on permanently.
 #if 0
     SkASSERT(fRestoreOffsetStack.count() > 1);
 #endif

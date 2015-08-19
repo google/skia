@@ -10,7 +10,6 @@
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
-#include "SkDeferredCanvas.h"
 #include "SkDocument.h"
 #include "SkError.h"
 #include "SkFunction.h"
@@ -874,32 +873,8 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
         SkGPipeWriter pipe;
-        const uint32_t kFlags = 0; // We mirror SkDeferredCanvas, which doesn't use any flags.
+        const uint32_t kFlags = 0;
         return src.draw(pipe.startRecording(&controller, kFlags, size.width(), size.height()));
-    });
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-Error ViaDeferred::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    // We draw via a deferred canvas into a surface that's compatible with the original canvas,
-    // then snap that surface as an image and draw it into the original canvas.
-    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) -> Error {
-        SkAutoTUnref<SkSurface> surface(canvas->newSurface(canvas->imageInfo()));
-        if (!surface.get()) {
-            return "can't make surface for deferred canvas";
-        }
-        SkAutoTDelete<SkDeferredCanvas> defcan(SkDeferredCanvas::Create(surface));
-        Error err = src.draw(defcan);
-        if (!err.isEmpty()) {
-            return err;
-        }
-        SkAutoTUnref<SkImage> image(defcan->newImageSnapshot());
-        if (!image) {
-            return "failed to create deferred image snapshot";
-        }
-        canvas->drawImage(image, 0, 0, NULL);
-        return "";
     });
 }
 
