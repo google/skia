@@ -175,5 +175,39 @@
         },
       ],
     },
+    {
+      'target_name': 'VisualBenchTest_APK',
+      'type': 'none',
+      'dependencies': [
+        'VisualBench_APK',
+      ],
+      'actions': [
+        {
+          'action_name': 'SkiaVisualBench_apk',
+          'inputs': [
+            '<(android_base)/apps/visualbench/src/main/AndroidManifest.xml',
+            '<(android_base)/apps/visualbench/src/main/java/com/skia/VisualBenchActivity.java',
+            '<(android_base)/apps/visualbench/src/main/java/com/skia/VisualBenchTestActivity.java',
+            '<(android_base)/apps/visualbench/src/main/libs/<(android_arch)/libvisualbench.so',
+          ],
+          'conditions': [
+            [ 'skia_shared_lib', {
+              'inputs': [
+                '<(android_base)/apps/visualbench/src/main/libs/<(android_arch)/libskia_android.so',
+              ],
+            }],
+          ],
+          'outputs': [
+            '<(android_base)/apps/visualbench/build/outputs/apk/visualbench-<(android_variant)-debug-androidTest-unaligned.apk',
+          ],
+          'action': [
+            '<(android_base)/apps/gradlew',
+            ':visualbench:assemble<(android_variant)DebugAndroidTest',
+            '-p<(android_base)/apps/visualbench',
+            '-PsuppressNativeBuild',
+          ],
+        },
+      ],
+    },
   ],
 }
