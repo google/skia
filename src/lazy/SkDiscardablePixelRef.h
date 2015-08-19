@@ -21,6 +21,9 @@
 class SkDiscardablePixelRef : public SkPixelRef {
 public:
     
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const override {
+        return fDiscardableMemory;
+    }
 
 protected:
     ~SkDiscardablePixelRef();

@@ -14,7 +14,6 @@
 
 class SkCachedData;
 class SkDiscardableMemory;
-class SkMipMap;
 
 /**
  *  Cache object for bitmaps (with possible scale in X Y as part of the key).
@@ -78,6 +77,10 @@ public:
         virtual const Key& getKey() const = 0;
         virtual size_t bytesUsed() const = 0;
 
+        // for memory usage diagnostics
+        virtual const char* getCategory() const = 0;
+        virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
+
         // for SkTDynamicHash::Traits
         static uint32_t Hash(const Key& key) { return key.hash(); }
         static const Key& GetKey(const Rec& rec) { return rec.getKey(); }
@@ -133,6 +136,10 @@ public:
     static bool Find(const Key& key, FindVisitor, void* context);
     static void Add(Rec*);
 
+    typedef void (*Visitor)(const Rec&, void* context);
+    // Call the visitor for every Rec in the cache.
+    static void VisitAll(Visitor, void* context);
+
     static size_t GetTotalBytesUsed();
     static size_t GetTotalByteLimit();
     static size_t SetTotalByteLimit(size_t newLimit);
@@ -142,6 +149,8 @@ public:
     static size_t GetEffectiveSingleAllocationByteLimit();
 
     static void PurgeAll();
+
+    static void TestDumpMemoryStatistics();
 
     /**
      *  Returns the DiscardableFactory used by the global cache, or NULL.
@@ -194,6 +203,7 @@ public:
      */
     bool find(const Key&, FindVisitor, void* context);
     void add(Rec*);
+    void visitAll(Visitor, void* context);
 
     size_t getTotalBytesUsed() const { return fTotalBytesUsed; }
     size_t getTotalByteLimit() const { return fTotalByteLimit; }

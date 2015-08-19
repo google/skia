@@ -31,6 +31,10 @@ public:
     bool testing_only_isLocked() const { return fIsLocked; }
     bool testing_only_isInCache() const { return fInCache; }
 
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const {
+        return kDiscardableMemory_StorageType == fStorageType ? fStorage.fDM : nullptr;
+    }
+
 protected:
     // called when fData changes. could be NULL.
     virtual void onDataChange(void* oldData, void* newData) {}

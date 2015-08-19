@@ -104,8 +104,12 @@ SkUnichar SkGlyphCache::glyphToUnichar(uint16_t glyphID) {
     return fScalerContext->glyphIDToChar(glyphID);
 }
 
-unsigned SkGlyphCache::getGlyphCount() {
+unsigned SkGlyphCache::getGlyphCount() const {
     return fScalerContext->getGlyphCount();
+}
+
+int SkGlyphCache::countCachedGlyphs() const {
+    return fGlyphMap.count();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -402,18 +406,39 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     get_globals().attachCacheToHead(cache);
 }
 
+static void dump_visitor(const SkGlyphCache& cache, void* context) {
+    int* counter = (int*)context;
+    int index = *counter;
+    *counter += 1;
+
+    const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
+
+    SkDebugf("[%3d] ID %3d, glyphs %3d, size %g, scale %g, skew %g, [%g %g %g %g]\n",
+             index, rec.fFontID, cache.countCachedGlyphs(),
+             rec.fTextSize, rec.fPreScaleX, rec.fPreSkewX,
+             rec.fPost2x2[0][0], rec.fPost2x2[0][1], rec.fPost2x2[1][0], rec.fPost2x2[1][1]);
+}
+
 void SkGlyphCache::Dump() {
+    SkDebugf("GlyphCache [     used    budget ]\n");
+    SkDebugf("    bytes  [ %8zu  %8zu ]\n",
+             SkGraphics::GetFontCacheUsed(), SkGraphics::GetFontCacheLimit());
+    SkDebugf("    count  [ %8zu  %8zu ]\n",
+             SkGraphics::GetFontCacheCountUsed(), SkGraphics::GetFontCacheCountLimit());
+
+    int counter = 0;
+    SkGlyphCache::VisitAll(dump_visitor, &counter);
+}
+
+void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
     SkGlyphCache_Globals& globals = get_globals();
     AutoAcquire           ac(globals.fLock);
     SkGlyphCache*         cache;
 
     globals.validate();
 
-    SkDebugf("SkGlyphCache strikes:%d memory:%d\n",
-             globals.getCacheCountUsed(), (int)globals.getTotalMemoryUsed());
-
     for (cache = globals.internalGetHead(); cache != NULL; cache = cache->fNext) {
-        cache->dump();
+        visitor(*cache, context);
     }
 }
 

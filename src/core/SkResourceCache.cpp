@@ -347,6 +347,18 @@ void SkResourceCache::purgeSharedID(uint64_t sharedID) {
 #endif
 }
 
+void SkResourceCache::visitAll(Visitor visitor, void* context) {
+    // go backwards, just like purgeAsNeeded, just to make the code similar.
+    // could iterate either direction and still be correct.
+    Rec* rec = fTail;
+    while (rec) {
+        visitor(*rec, context);
+        rec = rec->fPrev;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 size_t SkResourceCache::setTotalByteLimit(size_t newLimit) {
     size_t prevLimit = fTotalByteLimit;
     fTotalByteLimit = newLimit;
@@ -608,6 +620,11 @@ void SkResourceCache::Add(Rec* rec) {
     get_cache()->add(rec);
 }
 
+void SkResourceCache::VisitAll(Visitor visitor, void* context) {
+    SkAutoMutexAcquire am(gMutex);
+    get_cache()->visitAll(visitor, context);
+}
+
 void SkResourceCache::PostPurgeSharedID(uint64_t sharedID) {
     if (sharedID) {
         SkMessageBus<PurgeSharedIDMessage>::Post(PurgeSharedIDMessage(sharedID));
@@ -644,3 +661,13 @@ void SkGraphics::PurgeResourceCache() {
     return SkResourceCache::PurgeAll();
 }
 
+/////////////
+
+static void dump_visitor(const SkResourceCache::Rec& rec, void*) {
+    SkDebugf("RC: %12s bytes %9lu  discardable %p\n",
+             rec.getCategory(), rec.bytesUsed(), rec.diagnostic_only_getDiscardable());
+}
+
+void SkResourceCache::TestDumpMemoryStatistics() {
+    VisitAll(dump_visitor, nullptr);
+}

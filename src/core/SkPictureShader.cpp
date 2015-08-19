@@ -75,6 +75,8 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
     size_t bytesUsed() const override {
         return sizeof(fKey) + sizeof(SkShader) + fBitmapBytes;
     }
+    const char* getCategory() const override { return "bitmap-shader"; }
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return nullptr; }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextShader) {
         const BitmapShaderRec& rec = static_cast<const BitmapShaderRec&>(baseRec);

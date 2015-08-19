@@ -66,7 +66,10 @@ public:
 
     /** Returns the number of glyphs for this strike.
     */
-    unsigned getGlyphCount();
+    unsigned getGlyphCount() const;
+
+    /** Return the number of glyphs currently cached. */
+    int countCachedGlyphs() const;
 
     /** Return the image associated with the glyph. If it has not been generated this will
         trigger that.
@@ -137,6 +140,9 @@ public:
     }
 
     static void Dump();
+
+    typedef void (*Visitor)(const SkGlyphCache&, void* context);
+    static void VisitAll(Visitor, void* context);
 
 #ifdef SK_DEBUG
     void validate() const;

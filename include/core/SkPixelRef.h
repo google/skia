@@ -24,6 +24,7 @@ class SkData;
 struct SkIRect;
 
 class GrTexture;
+class SkDiscardableMemory;
 
 /** \class SkPixelRef
 
@@ -261,6 +262,8 @@ public:
     void notifyAddedToCache() {
         fAddedToCache.store(true);
     }
+
+    virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
 
 protected:
     /**

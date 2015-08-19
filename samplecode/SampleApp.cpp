@@ -1473,9 +1473,18 @@ bool SampleWindow::previousSample() {
     return true;
 }
 
+#include "SkResourceCache.h"
+#include "SkGlyphCache.h"
 bool SampleWindow::nextSample() {
     fCurrIndex = (fCurrIndex + 1) % fSamples.count();
     this->loadView((*fSamples[fCurrIndex])());
+
+    if (false) {
+        SkResourceCache::TestDumpMemoryStatistics();
+        SkGlyphCache::Dump();
+        SkDebugf("\n");
+    }
+
     return true;
 }
 

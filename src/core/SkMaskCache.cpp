@@ -53,6 +53,10 @@ struct RRectBlurRec : public SkResourceCache::Rec {
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override { return sizeof(*this) + fValue.fData->size(); }
+    const char* getCategory() const override { return "rrect-blur"; }
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const override {
+        return fValue.fData->diagnostic_only_getDiscardable();
+    }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextData) {
         const RRectBlurRec& rec = static_cast<const RRectBlurRec&>(baseRec);
@@ -144,6 +148,10 @@ struct RectsBlurRec : public SkResourceCache::Rec {
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override { return sizeof(*this) + fValue.fData->size(); }
+    const char* getCategory() const override { return "rects-blur"; }
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const override {
+        return fValue.fData->diagnostic_only_getDiscardable();
+    }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextData) {
         const RectsBlurRec& rec = static_cast<const RectsBlurRec&>(baseRec);
