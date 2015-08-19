@@ -11,21 +11,6 @@
 #include "SkCanvas.h"
 #include "SkImageDecoder.h"
 #include "SkLightingShader.h"
-#include "SkPoint3.h"
-
-static const SkLightingShader::Lights* create_lights(SkScalar angle, SkScalar blue) {
-
-    const SkVector3 dir = SkVector3::Make(SkScalarSin(angle)*SkScalarSin(SK_ScalarPI*0.25f),
-                                          SkScalarCos(angle)*SkScalarSin(SK_ScalarPI*0.25f),
-                                          SkScalarCos(SK_ScalarPI*0.25f));
-
-    SkLightingShader::Lights::Builder builder;
-
-    builder.add(SkLight(SkColor3f::Make(1.0f, 1.0f, blue), dir));
-    builder.add(SkLight(SkColor3f::Make(0.1f, 0.1f, 0.1f)));
-
-    return builder.finish();
-}
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +21,7 @@ public:
     SkBitmap               fNormalBitmap;
     SkScalar               fLightAngle;
     SkScalar               fColorFactor;
+    SkColor3f              fAmbientColor;
 
     LightingView() {
         SkString diffusePath = GetResourcePath("brickwork-texture.jpg");
@@ -46,11 +32,16 @@ public:
         fLightAngle = 0.0f;
         fColorFactor = 0.0f;
 
-        SkAutoTUnref<const SkLightingShader::Lights> lights(create_lights(fLightAngle, 1.0f));
+        SkLightingShader::Light light;
+        light.fColor = SkColor3f::Make(1.0f, 1.0f, 1.0f);
+        light.fDirection.fX = SkScalarSin(fLightAngle)*SkScalarSin(SK_ScalarPI*0.25f);
+        light.fDirection.fY = SkScalarCos(fLightAngle)*SkScalarSin(SK_ScalarPI*0.25f);
+        light.fDirection.fZ = SkScalarCos(SK_ScalarPI*0.25f);
+
+        fAmbientColor = SkColor3f::Make(0.1f, 0.1f, 0.1f);
 
         fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
-                                               lights, SkVector::Make(1.0f, 0.0f),
-                                               nullptr, nullptr));
+                                               light, fAmbientColor, nullptr));
     }
 
     virtual ~LightingView() {}
@@ -72,12 +63,14 @@ protected:
             fColorFactor = 0.0f;
         }
 
-        SkAutoTUnref<const SkLightingShader::Lights> lights(create_lights(fLightAngle,
-                                                                          fColorFactor));
+        SkLightingShader::Light light;
+        light.fColor = SkColor3f::Make(1.0f, 1.0f, fColorFactor);
+        light.fDirection.fX = SkScalarSin(fLightAngle)*SkScalarSin(SK_ScalarPI*0.25f);
+        light.fDirection.fY = SkScalarCos(fLightAngle)*SkScalarSin(SK_ScalarPI*0.25f);
+        light.fDirection.fZ = SkScalarCos(SK_ScalarPI*0.25f);
 
         fShader.reset(SkLightingShader::Create(fDiffuseBitmap, fNormalBitmap,
-                                               lights, SkVector::Make(1.0f, 0.0f),
-                                               nullptr, nullptr));
+                                               light, fAmbientColor, nullptr));
 
         SkPaint paint;
         paint.setShader(fShader);

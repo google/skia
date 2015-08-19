@@ -10,57 +10,15 @@
 #ifndef SkLightingShader_DEFINED
 #define SkLightingShader_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkLight.h"
+#include "SkPoint3.h"
 #include "SkShader.h"
-#include "SkTDArray.h"
-
-class SkBitmap;
-class SkMatrix;
 
 class SK_API SkLightingShader {
 public:
-    class Lights  : public SkRefCnt {
-    public:
-        class Builder {
-        public:
-            Builder(const SkLight lights[], int numLights)
-                : fLights(SkNEW_ARGS(Lights, (lights, numLights))) {
-            }
-
-            Builder() : fLights(SkNEW(Lights)) { }
-    
-            // TODO: limit the number of lights here or just ignore those
-            // above some maximum?
-            void add(const SkLight& light) {
-                if (fLights) {
-                    *fLights->fLights.push() = light;
-                }
-            }
-
-            const Lights* finish() {
-                return fLights.detach();
-            }
-
-        private:
-            SkAutoTUnref<Lights> fLights;
-        };
-
-        int numLights() const {
-            return fLights.count();
-        }
-
-        const SkLight& light(int index) const {
-            return fLights[index];
-        }
-
-    private:
-        Lights() {}
-        Lights(const SkLight lights[], int numLights) : fLights(lights, numLights) {}
-
-        SkTDArray<SkLight> fLights;
-
-        typedef SkRefCnt INHERITED;
+    struct Light {
+        SkVector3   fDirection;       // direction towards the light (+Z is out of the screen).
+                                      // If degenerate, it will be replaced with (0, 0, 1).
+        SkColor3f   fColor;           // linear (unpremul) color. Range is 0..1 in each channel.
     };
 
     /** Returns a shader that lights the diffuse and normal maps with a single light.
@@ -92,8 +50,8 @@ public:
         (127, 127, 0).
     */
     static SkShader* Create(const SkBitmap& diffuse, const SkBitmap& normal,
-                            const Lights* lights, const SkVector& invNormRotation,
-                            const SkMatrix* diffLocalMatrix, const SkMatrix* normLocalMatrix);
+                            const SkLightingShader::Light& light, const SkColor3f& ambient,
+                            const SkMatrix* localMatrix);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };

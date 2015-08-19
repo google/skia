@@ -91,22 +91,6 @@ struct SK_API SkPoint3 {
         return v;
     }
 
-    /** Add v's coordinates to the point's
-    */
-    void operator+=(const SkPoint3& v) {
-        fX += v.fX;
-        fY += v.fY;
-        fZ += v.fZ;
-    }
-
-    /** Subtract v's coordinates from the point's
-    */
-    void operator-=(const SkPoint3& v) {
-        fX -= v.fX;
-        fY -= v.fY;
-        fZ -= v.fZ;
-    }
-
     /** Returns the dot product of a and b, treating them as 3D vectors
     */
     static SkScalar DotProduct(const SkPoint3& a, const SkPoint3& b) {
