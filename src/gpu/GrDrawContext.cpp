@@ -204,35 +204,6 @@ void GrDrawContext::drawPaint(GrRenderTarget* rt,
     }
 }
 
-static inline bool is_irect(const SkRect& r) {
-  return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&
-         SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
-}
-
-static bool apply_aa_to_rect(GrDrawTarget* target,
-                             GrPipelineBuilder* pipelineBuilder,
-                             SkRect* devBoundRect,
-                             const SkRect& rect,
-                             SkScalar strokeWidth,
-                             const SkMatrix& combinedMatrix,
-                             GrColor color) {
-    if (pipelineBuilder->getRenderTarget()->isUnifiedMultisampled() ||
-        !combinedMatrix.preservesAxisAlignment()) {
-        return false;
-    }
-
-    combinedMatrix.mapRect(devBoundRect, rect);
-    if (!combinedMatrix.rectStaysRect()) {
-        return true;
-    }
-
-    if (strokeWidth < 0) {
-        return !is_irect(*devBoundRect);
-    }
-
-    return true;
-}
-
 static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& point) {
     return point.fX >= rect.fLeft && point.fX <= rect.fRight &&
            point.fY >= rect.fTop && point.fY <= rect.fBottom;
@@ -297,13 +268,18 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
     }
 
     GrColor color = paint.getColor();
-    SkRect devBoundRect;
     bool needAA = paint.isAntiAlias() &&
                   !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
-    bool doAA = needAA && apply_aa_to_rect(fDrawTarget, &pipelineBuilder, &devBoundRect, rect,
-                                           width, viewMatrix, color);
 
-    if (doAA) {
+    // The fill path can handle rotation but not skew
+    // The stroke path needs the rect to remain axis aligned (no rotation or skew)
+    // None of our draw rect calls can handle perspective yet
+    SkASSERT(!viewMatrix.hasPerspective());
+    bool canApplyAA = width >=0 ? viewMatrix.rectStaysRect() : viewMatrix.preservesRightAngles();
+
+    if (needAA && canApplyAA) {
+        SkRect devBoundRect;
+        viewMatrix.mapRect(&devBoundRect, rect);
         SkAutoTUnref<GrDrawBatch> batch;
         if (width >= 0) {
             batch.reset(GrRectBatchFactory::CreateStrokeAA(color, viewMatrix, rect, devBoundRect,
