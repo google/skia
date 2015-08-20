@@ -68,7 +68,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         canvas->save();
-        canvas->translate(-2, 20);
+        canvas->translate(-2, 120);
         drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 80, 150));
         canvas->translate(0, 170);
         drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 80, 100));
@@ -76,6 +76,16 @@ protected:
         drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 30, 150));
         canvas->translate(0, 170);
         drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 10, 150));
+        canvas->restore();
+        canvas->save();
+        canvas->translate(20, -2);
+        drawOne(canvas, fFlipped, SkRect::MakeLTRB(0, 0, 150, 80));
+        canvas->translate(170, 0);
+        drawOne(canvas, fFlipped, SkRect::MakeLTRB(0, 0, 100, 80));
+        canvas->translate(170, 0);
+        drawOne(canvas, fFlipped, SkRect::MakeLTRB(0, 0, 150, 30));
+        canvas->translate(170, 0);
+        drawOne(canvas, fFlipped, SkRect::MakeLTRB(0, 0, 150, 10));
         canvas->restore();
     }
 
@@ -97,9 +107,18 @@ protected:
         fPath.cubicTo( 11.608591683531916f, 87.33115f, -0.010765133872116195f, 109.16448333333332f,
                 -0.013089005235602302f, 131);
         fPath.close();
+        fFlipped = fPath;
+        SkMatrix matrix;
+        matrix.reset();
+        matrix.setScaleX(0);
+        matrix.setScaleY(0);
+        matrix.setSkewX(1);
+        matrix.setSkewY(1);
+        fFlipped.transform(matrix);
     }
 
     SkPath fPath;
+    SkPath fFlipped;
 private:
     typedef skiagm::GM INHERITED;
 };
