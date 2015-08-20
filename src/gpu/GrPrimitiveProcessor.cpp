@@ -37,9 +37,10 @@ enum MatrixType {
 };
 
 uint32_t
-GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, true>& coords) const {
+GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, true>& coords,
+                                      int numCoords) const {
     uint32_t totalKey = 0;
-    for (int t = 0; t < coords.count(); ++t) {
+    for (int t = 0; t < numCoords; ++t) {
         uint32_t key = 0;
         const GrCoordTransform* coordTransform = coords[t];
         if (coordTransform->getMatrix().hasPerspective()) {

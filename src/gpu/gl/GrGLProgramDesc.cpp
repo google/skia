@@ -61,6 +61,8 @@ static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
  * which must be different for every GrProcessor subclass. It can fail if an effect uses too many
  * textures, transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share
  * this function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
+ *
+ * TODO: A better name for this function  would be "compute" instead of "get".
  */
 static bool get_meta_key(const GrProcessor& proc,
                          const GrGLCaps& caps,
@@ -84,6 +86,26 @@ static bool get_meta_key(const GrProcessor& proc,
     key[0] = (textureKey << 16 | transformKey);
     key[1] = (classID << 16 | SkToU16(processorKeySize));
     return true;
+}
+
+/*
+ * TODO: A better name for this function  would be "compute" instead of "get".
+ */
+static bool get_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
+                                        const GrFragmentProcessor& fp,
+                                        const GrGLCaps& caps,
+                                        GrProcessorKeyBuilder* b) {
+    for (int i = 0; i < fp.numChildProcessors(); ++i) {
+        if (!get_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), caps, b)) {
+            return false;
+        }
+    }
+
+    fp.getGLProcessorKey(*caps.glslCaps(), b);
+
+    //**** use glslCaps here?
+    return get_meta_key(fp, caps, primProc.getTransformKey(fp.coordTransforms(),
+                                                           fp.numTransformsExclChildren()), b);
 }
 
 bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
@@ -115,11 +137,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     for (int s = 0; s < pipeline.numFragmentStages(); ++s) {
         const GrPendingFragmentStage& fps = pipeline.getFragmentStage(s);
         const GrFragmentProcessor& fp = *fps.processor();
-
-        fp.getGLProcessorKey(*gpu->glCaps().glslCaps(), &b);
-
-        //**** use glslCaps here?
-        if (!get_meta_key(fp, gpu->glCaps(), primProc.getTransformKey(fp.coordTransforms()), &b)) {
+        if (!get_frag_proc_and_meta_keys(primProc, fp, gpu->glCaps(), &b)) {
             glDesc->key().reset();
             return false;
         }

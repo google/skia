@@ -220,13 +220,19 @@ public:
     size_t getVertexStride() const { return fVertexStride; }
 
     /**
-     * Gets a transformKey from an array of coord transforms
+     * Computes a transformKey from an array of coord transforms. Will only look at the first
+     * <numCoords> transforms in the array.
+     *
+     * TODO: A better name for this function  would be "compute" instead of "get".
      */
-    uint32_t getTransformKey(const SkTArray<const GrCoordTransform*, true>&) const;
+    uint32_t getTransformKey(const SkTArray<const GrCoordTransform*, true>& coords,
+                             int numCoords) const;
 
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry
      * processor's GL backend implementation.
+     *
+     * TODO: A better name for this function  would be "compute" instead of "get".
      */
     virtual void getGLProcessorKey(const GrBatchTracker& bt,
                                    const GrGLSLCaps& caps,
