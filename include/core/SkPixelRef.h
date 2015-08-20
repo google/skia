@@ -265,6 +265,11 @@ public:
 
     virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
 
+    /**
+     *  Returns true if the pixels are generated on-the-fly (when required).
+     */
+    bool isLazyGenerated() const { return this->onIsLazyGenerated(); }
+
 protected:
     /**
      *  On success, returns true and fills out the LockRec for the pixels. On
@@ -317,6 +322,8 @@ protected:
     virtual size_t getAllocatedSizeInBytes() const;
 
     virtual bool onRequestLock(const LockRequest&, LockResult*);
+
+    virtual bool onIsLazyGenerated() const { return false; }
 
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.

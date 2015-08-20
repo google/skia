@@ -287,6 +287,10 @@ SkImage* SkImage::NewFromPicture(const SkPicture* picture, const SkISize& dimens
     return NewFromGenerator(SkImageGenerator::NewFromPicture(dimensions, picture, matrix, paint));
 }
 
+bool SkImage::isLazyGenerated() const {
+    return as_IB(this)->onIsLazyGenerated();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU

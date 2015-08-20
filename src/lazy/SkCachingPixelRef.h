@@ -50,6 +50,8 @@ protected:
         return fImageGenerator->refEncodedData();
     }
 
+    bool onIsLazyGenerated() const override { return true; }
+
 private:
     SkImageGenerator* const fImageGenerator;
     bool                    fErrorInDecoding;

@@ -60,7 +60,7 @@ public:
 
     virtual SkShader* onNewShader(SkShader::TileMode,
                                   SkShader::TileMode,
-                                  const SkMatrix* localMatrix) const { return NULL; };
+                                  const SkMatrix* localMatrix) const { return NULL; }
 
     // newWidth > 0, newHeight > 0, subset either NULL or a proper subset of this bounds
     virtual SkImage* onNewImage(int newWidth, int newHeight, const SkIRect* subset,
@@ -68,6 +68,8 @@ public:
     virtual SkData* onRefEncoded() const { return NULL; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
+
+    virtual bool onIsLazyGenerated() const { return false; }
 
 private:
     const SkSurfaceProps fProps;

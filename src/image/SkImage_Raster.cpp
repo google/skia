@@ -93,6 +93,10 @@ public:
         SkASSERT(fBitmap.isImmutable());
     }
 
+    bool onIsLazyGenerated() const override {
+        return fBitmap.pixelRef() && fBitmap.pixelRef()->isLazyGenerated();
+    }
+
 private:
     SkImage_Raster() : INHERITED(0, 0, kNeedNewImageUniqueID, NULL) {
         fBitmap.setImmutable();

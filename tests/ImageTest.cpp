@@ -229,10 +229,11 @@ DEF_TEST(image_newfrombitmap, reporter) {
         void (*fMakeProc)(SkBitmap*);
         bool fExpectPeekSuccess;
         bool fExpectSharedID;
+        bool fExpectLazy;
     } rec[] = {
-        { make_bitmap_lazy,         false,  true  },
-        { make_bitmap_mutable,      true,   false },
-        { make_bitmap_immutable,    true,   true  },
+        { make_bitmap_lazy,         false,  true,  true  },
+        { make_bitmap_mutable,      true,   false, false },
+        { make_bitmap_immutable,    true,   true,  false },
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
@@ -247,6 +248,9 @@ DEF_TEST(image_newfrombitmap, reporter) {
 
         const bool peekSuccess = image->peekPixels(&pmap);
         REPORTER_ASSERT(reporter, peekSuccess == rec[i].fExpectPeekSuccess);
+
+        const bool lazy = image->isLazyGenerated();
+        REPORTER_ASSERT(reporter, lazy == rec[i].fExpectLazy);
     }
 }
 

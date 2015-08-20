@@ -36,6 +36,8 @@ protected:
         return fGenerator->refEncodedData();
     }
 
+    bool onIsLazyGenerated() const override { return true; }
+
 private:
     SkImageGenerator* const fGenerator;
     SkDiscardableMemory::Factory* const fDMFactory;

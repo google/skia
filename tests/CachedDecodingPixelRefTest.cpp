@@ -326,6 +326,7 @@ DEF_TEST(Image_NewFromGenerator, r) {
         }
         REPORTER_ASSERT(r, TestImageGenerator::Width() == image->width());
         REPORTER_ASSERT(r, TestImageGenerator::Height() == image->height());
+        REPORTER_ASSERT(r, image->isLazyGenerated());
 
         SkBitmap bitmap;
         bitmap.allocN32Pixels(TestImageGenerator::Width(), TestImageGenerator::Height());

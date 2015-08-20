@@ -288,6 +288,12 @@ public:
      */
     bool asLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
     
+    /**
+     *  Returns true if the image is backed by an image-generator or other src that creates
+     *  (and caches) its pixels / texture on-demand.
+     */
+    bool isLazyGenerated() const;
+
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
 
