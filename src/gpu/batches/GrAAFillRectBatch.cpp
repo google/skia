@@ -187,13 +187,8 @@ public:
     static const int kVertsPerInstance = kVertsPerAAFillRect;
     static const int kIndicesPerInstance = kIndicesPerAAFillRect;
 
-    static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* rp) {
+    inline static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* rp) {
         return get_index_buffer(rp);
-    }
-
-    template <class Geometry>
-    static void SetBounds(const Geometry& geo, SkRect* outBounds) {
-        *outBounds = geo.fDevRect;
     }
 };
 
@@ -206,18 +201,18 @@ public:
         GrColor fColor;
     };
 
-    static const char* Name() { return "AAFillRectBatchNoLocalMatrix"; }
+    inline static const char* Name() { return "AAFillRectBatchNoLocalMatrix"; }
 
-    static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrPipelineOptimizations& opts) {
+    inline static bool CanCombine(const Geometry& mine, const Geometry& theirs,
+                                  const GrPipelineOptimizations& opts) {
         // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
         // local coords then we won't be able to batch.  We could actually upload the viewmatrix
         // using vertex attributes in these cases, but haven't investigated that
         return !opts.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
     }
 
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrPipelineOptimizations& opts) {
+    inline static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+                                                      const GrPipelineOptimizations& opts) {
         const GrGeometryProcessor* gp =
                 create_fill_rect_gp(geo.fViewMatrix, opts,
                                     GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
@@ -229,8 +224,8 @@ public:
         return gp;
     }
 
-    static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrPipelineOptimizations& opts) {
+    inline static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
+                                 const GrPipelineOptimizations& opts) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
                                        geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
                                        NULL);
@@ -247,15 +242,15 @@ public:
         GrColor fColor;
     };
 
-    static const char* Name() { return "AAFillRectBatchLocalMatrix"; }
+    inline static const char* Name() { return "AAFillRectBatchLocalMatrix"; }
 
-    static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrPipelineOptimizations&) {
+    inline static bool CanCombine(const Geometry& mine, const Geometry& theirs,
+                                  const GrPipelineOptimizations&) {
         return true;
     }
 
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrPipelineOptimizations& opts) {
+    inline static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+                                                      const GrPipelineOptimizations& opts) {
         const GrGeometryProcessor* gp =
                 create_fill_rect_gp(geo.fViewMatrix, opts,
                                     GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
@@ -268,8 +263,8 @@ public:
         return gp;
     }
 
-    static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrPipelineOptimizations& opts) {
+    inline static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
+                                 const GrPipelineOptimizations& opts) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
                                        geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
                                        &geo.fLocalMatrix);

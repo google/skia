@@ -22,8 +22,6 @@
  *
  *     const char* Name()
  *
- *     void SetBounds(const Geometry& seedGeometry, SkRect* outBounds)
- *
  *     bool CanCombine(const Geometry& mine, const Geometry& theirs,
  *                     const GrPipelineOptimizations&)
  *
@@ -68,7 +66,7 @@ public:
     Geometry* geometry() { return &fGeoData[0]; }
     void init() {
         const Geometry& geo = fGeoData[0];
-        Impl::SetBounds(geo, &fBounds);
+        this->setBounds(geo.fDevRect);
     }
 
 private:
