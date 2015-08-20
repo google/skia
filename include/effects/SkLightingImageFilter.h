@@ -12,7 +12,7 @@
 #include "SkColor.h"
 
 
-class SkLight;
+class SkImageFilterLight;
 struct SkPoint3;
 
 class SK_API SkLightingImageFilter : public SkImageFilter {
@@ -42,17 +42,17 @@ public:
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
-    SkLightingImageFilter(SkLight* light,
+    SkLightingImageFilter(SkImageFilterLight* light,
                           SkScalar surfaceScale,
                           SkImageFilter* input,
                           const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
-    const SkLight* light() const { return fLight.get(); }
+    const SkImageFilterLight* light() const { return fLight.get(); }
     SkScalar surfaceScale() const { return fSurfaceScale; }
 
 private:
     typedef SkImageFilter INHERITED;
-    SkAutoTUnref<SkLight> fLight;
+    SkAutoTUnref<SkImageFilterLight> fLight;
     SkScalar fSurfaceScale;
 };
 

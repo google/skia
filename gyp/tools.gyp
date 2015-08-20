@@ -101,6 +101,7 @@
       ],
       'include_dirs': [
         '../src/fonts',
+        '../src/core',
       ],
       'dependencies': [
         'resources',
