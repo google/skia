@@ -20,6 +20,7 @@
 #include "SkTInternalLList.h"
 #include "SkTMultiMap.h"
 
+class GrCaps;
 class SkString;
 
 /**
@@ -47,7 +48,7 @@ class SkString;
  */
 class GrResourceCache {
 public:
-    GrResourceCache();
+    GrResourceCache(const GrCaps* caps);
     ~GrResourceCache();
 
     // Default maximum number of budgeted resources in the cache.
@@ -298,6 +299,8 @@ private:
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because
     // we're in the midst of converting it to purgeable status.
     SkDEBUGCODE(GrGpuResource*          fNewlyPurgeableResourceForValidation;)
+
+    bool                                fPreferVRAMUseOverFlushes;
 };
 
 class GrResourceCache::ResourceAccess {

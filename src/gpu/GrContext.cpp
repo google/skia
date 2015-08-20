@@ -182,7 +182,7 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
 
 void GrContext::initCommon() {
     fCaps = SkRef(fGpu->caps());
-    fResourceCache = SkNEW(GrResourceCache);
+    fResourceCache = SkNEW_ARGS(GrResourceCache, (fCaps));
     fResourceCache->setOverBudgetCallback(OverBudgetCB, this);
     fResourceProvider = SkNEW_ARGS(GrResourceProvider, (fGpu, fResourceCache));
 

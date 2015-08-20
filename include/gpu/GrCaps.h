@@ -133,6 +133,8 @@ public:
         return fUseDrawInsteadOfPartialRenderTargetWrite;
     }
 
+    bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
+
     /**
      * Indicates the capabilities of the fixed function blend unit.
      */
@@ -248,6 +250,9 @@ protected:
     // Driver workaround
     bool fUseDrawInsteadOfClear                      : 1;
     bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
+
+    // ANGLE workaround
+    bool fPreferVRAMUseOverFlushes                   : 1;
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqBlacklist;

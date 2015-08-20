@@ -471,6 +471,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fUseDrawInsteadOfPartialRenderTargetWrite = true;
     }
 
+#ifdef SK_BUILD_FOR_WIN
+    // On ANGLE deferring flushes can lead to GPU starvation
+    fPreferVRAMUseOverFlushes = !isANGLE;
+#endif
+
     if (kChromium_GrGLDriver == ctxInfo.driver()) {
         fMustClearUploadedBufferData = true;
     }
@@ -1147,8 +1152,8 @@ SkString GrGLCaps::dump() const {
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("SRGB write contol: %s\n", (fSRGBWriteControl ? "YES" : "NO"));
-    r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow? "YES" : "NO"));
-    r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow? "YES" : "NO"));
+    r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
+    r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
     return r;
 }
 
