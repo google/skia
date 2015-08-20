@@ -49,7 +49,6 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     const SkImageFilterLight* light() const { return fLight.get(); }
     SkScalar surfaceScale() const { return fSurfaceScale; }
-    bool affectsTransparentBlack() const override { return true; }
 
 private:
     typedef SkImageFilter INHERITED;

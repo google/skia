@@ -2063,16 +2063,6 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect
     return !rec.isHairlineStyle();
 }
 
-bool SkPaint::canComputeFastBounds() const {
-    if (this->getLooper()) {
-        return this->getLooper()->canComputeFastBounds(*this);
-    }
-    if (this->getImageFilter() && !this->getImageFilter()->canComputeFastBounds()) {
-        return false;
-    }
-    return !this->getRasterizer();
-}
-
 const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
                                            SkRect* storage,
                                            Style style) const {

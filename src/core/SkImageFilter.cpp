@@ -284,23 +284,6 @@ void SkImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
     }
 }
 
-bool SkImageFilter::canComputeFastBounds() const {
-    if (this->affectsTransparentBlack()) {
-        return false;
-    }
-    for (int i = 0; i < fInputCount; i++) {
-        SkImageFilter* input = this->getInput(i);
-        if (input && !input->canComputeFastBounds()) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool SkImageFilter::affectsTransparentBlack() const {
-    return false;
-}
-
 bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const Context&,
                                   SkBitmap*, SkIPoint*) const {
     return false;

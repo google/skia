@@ -45,7 +45,7 @@ static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
 
 static SkImageFilter* make_mode_blue(SkImageFilter* input = NULL) {
     SkAutoTUnref<SkColorFilter> filter(
-        SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrc_Mode));
+        SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
@@ -118,12 +118,6 @@ protected:
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(0.5f, blur));
             paint.setImageFilter(brightness);
             drawClippedRect(canvas, r, paint, 3);
-            canvas->translate(FILTER_WIDTH + MARGIN, 0);
-        }
-        {
-            SkAutoTUnref<SkImageFilter> blue(make_mode_blue());
-            paint.setImageFilter(blue.get());
-            drawClippedRect(canvas, r, paint, 5);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
     }

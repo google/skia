@@ -29,7 +29,6 @@ protected:
                                SkBitmap* result, SkIPoint* loc) const override;
 
     bool onIsColorFilterNode(SkColorFilter**) const override;
-    bool affectsTransparentBlack() const override;
 
 private:
     SkColorFilterImageFilter(SkColorFilter* cf,
