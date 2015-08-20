@@ -60,11 +60,11 @@ public:
 
 protected:
 
-    SkString onShortName() {
+    SkString onShortName() override {
         return SkString("clippedcubic2");
     }
 
-    SkISize onISize() { return SkISize::Make(1240, 390); }
+    SkISize onISize() override { return SkISize::Make(1240, 390); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->save();
