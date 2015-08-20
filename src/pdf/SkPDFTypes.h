@@ -11,6 +11,7 @@
 
 #include "SkRefCnt.h"
 #include "SkScalar.h"
+#include "SkStream.h"
 #include "SkString.h"
 #include "SkTDArray.h"
 #include "SkTHash.h"
@@ -19,7 +20,6 @@
 class SkPDFObjNumMap;
 class SkPDFObject;
 class SkPDFSubstituteMap;
-class SkWStream;
 
 /** \class SkPDFObject
 
@@ -30,8 +30,6 @@ class SkWStream;
 */
 class SkPDFObject : public SkRefCnt {
 public:
-    
-
     /** Subclasses must implement this method to print the object to the
      *  PDF file.
      *  @param catalog  The object catalog to use.
@@ -77,7 +75,7 @@ public:
 
     static SkPDFUnion Int(int32_t);
 
-    static SkPDFUnion Int(size_t);
+    static SkPDFUnion Int(size_t v) { return SkPDFUnion::Int(SkToS32(v)); }
 
     static SkPDFUnion Bool(bool);
 
@@ -188,8 +186,6 @@ private:
 */
 class SkPDFArray : public SkPDFObject {
 public:
-    
-
     static const int kMaxLen = 8191;
 
     /** Create a PDF array. Maximum length is 8191.
@@ -239,8 +235,6 @@ private:
 */
 class SkPDFDict : public SkPDFObject {
 public:
-    
-
     /** Create a PDF dictionary. Maximum number of entries is 4095.
      */
     SkPDFDict();
@@ -290,6 +284,12 @@ public:
      */
     void clear();
 
+    /** Emit the dictionary, without the "<<" and ">>".
+     */
+    void emitAll(SkWStream* stream,
+                 const SkPDFObjNumMap& objNumMap,
+                 const SkPDFSubstituteMap& substitutes) const;
+
 private:
     struct Record {
         SkPDFUnion fKey;
@@ -300,6 +300,33 @@ private:
 
     void set(SkPDFUnion&& name, SkPDFUnion&& value);
 
+    typedef SkPDFObject INHERITED;
+};
+
+/** \class SkPDFSharedStream
+
+    This class takes an asset and assumes that it is backed by
+    long-lived shared data (for example, an open file
+    descriptor). That is: no memory savings can be made by holding on
+    to a compressed version instead.
+ */
+class SkPDFSharedStream : public SkPDFObject {
+public:
+    // Takes ownership of asset.
+    SkPDFSharedStream(SkStreamAsset* data)
+        : fAsset(data), fDict(SkNEW(SkPDFDict)) {
+        SkASSERT(data);
+    }
+    SkPDFDict* dict() { return fDict; }
+    void emitObject(SkWStream*,
+                    const SkPDFObjNumMap&,
+                    const SkPDFSubstituteMap&) const override;
+    void addResources(SkPDFObjNumMap*,
+                      const SkPDFSubstituteMap&) const override;
+
+private:
+    SkAutoTDelete<SkStreamAsset> fAsset;
+    SkAutoTUnref<SkPDFDict> fDict;
     typedef SkPDFObject INHERITED;
 };
 

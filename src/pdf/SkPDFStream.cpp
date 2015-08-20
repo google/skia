@@ -20,7 +20,7 @@ void SkPDFStream::emitObject(SkWStream* stream,
                              const SkPDFSubstituteMap& substitutes) const {
     SkASSERT(fCompressedData);
     this->INHERITED::emitObject(stream, objNumMap, substitutes);
-    // Note: emitObject isn't marked const, but could be in the future
+    // duplicate (a cheap operation) preserves const on fCompressedData.
     SkAutoTDelete<SkStreamRewindable> dup(fCompressedData->duplicate());
     SkASSERT(dup);
     SkASSERT(dup->hasLength());
