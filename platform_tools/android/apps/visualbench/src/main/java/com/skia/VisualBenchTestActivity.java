@@ -29,7 +29,7 @@ public class VisualBenchTestActivity extends ActivityUnitTestCase<VisualBenchAct
         String pkg = getInstrumentation().getTargetContext().getPackageName();
         Intent intent = new Intent(getInstrumentation().getTargetContext(),
                                    VisualBenchActivity.class);
-        intent.putExtra("cmdLineFlags", "");
+        intent.putExtra("cmdLineFlags", "--outResultsFile /sdcard/skia_results/visualbench.json");
         mActivity = launchActivityWithIntent(pkg, VisualBenchActivity.class, intent);
 
         assertNotNull("mActivity is null", mActivity);
