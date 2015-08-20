@@ -30,6 +30,18 @@ private:
 
 SkPaintFilterCanvas::SkPaintFilterCanvas(int width, int height) : INHERITED(width, height) { }
 
+SkPaintFilterCanvas::SkPaintFilterCanvas(SkCanvas *canvas)
+    : INHERITED(canvas->imageInfo().width(), canvas->imageInfo().height()) {
+
+    // Transfer matrix & clip state before adding the target canvas.
+    SkIRect devClip;
+    canvas->getClipDeviceBounds(&devClip);
+    this->clipRect(SkRect::Make(devClip));
+    this->setMatrix(canvas->getTotalMatrix());
+
+    this->addCanvas(canvas);
+}
+
 void SkPaintFilterCanvas::onDrawPaint(const SkPaint& paint) {
     AutoPaintFilter apf(this, kPaint_Type, paint);
     this->INHERITED::onDrawPaint(*apf.paint());

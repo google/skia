@@ -52,6 +52,7 @@
 #include "SkMatrix.h"
 #include "SkNWayCanvas.h"
 #include "SkPaint.h"
+#include "SkPaintFilterCanvas.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPictureRecord.h"
@@ -773,4 +774,39 @@ DEF_TEST(Canvas_ClipEmptyPath, reporter) {
     path.moveTo(7, 7);
     canvas.clipPath(path);  // should not assert here
     canvas.restore();
+}
+
+namespace {
+
+class MockFilterCanvas : public SkPaintFilterCanvas {
+public:
+    MockFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) { }
+
+protected:
+    void onFilterPaint(SkPaint *paint, Type type) const override { }
+
+private:
+    typedef SkPaintFilterCanvas INHERITED;
+};
+
+} // anonymous namespace
+
+// SkPaintFilterCanvas should inherit the initial target canvas state.
+DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
+    SkCanvas canvas(100, 100);
+    canvas.clipRect(SkRect::MakeXYWH(12.7f, 12.7f, 75, 75));
+    canvas.scale(0.5f, 0.75f);
+
+    SkRect clip1, clip2;
+
+    MockFilterCanvas filterCanvas(&canvas);
+    REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
+    REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
+    REPORTER_ASSERT(reporter, clip1 == clip2);
+
+    filterCanvas.clipRect(SkRect::MakeXYWH(30.5f, 30.7f, 100, 100));
+    filterCanvas.scale(0.75f, 0.5f);
+    REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
+    REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
+    REPORTER_ASSERT(reporter, clip1 == clip2);
 }
