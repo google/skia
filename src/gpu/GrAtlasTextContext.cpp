@@ -103,8 +103,8 @@ GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
     , fDistanceAdjustTable(SkNEW(DistanceAdjustTable)) {
     // We overallocate vertices in our textblobs based on the assumption that A8 has the greatest
     // vertexStride
-    SK_COMPILE_ASSERT(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
-                      vertex_attribute_changed);
+    static_assert(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
+                  "vertex_attribute_changed");
     fCurrStrike = NULL;
     fCache = context->getTextBlobCache();
 }

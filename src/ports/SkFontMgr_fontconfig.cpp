@@ -301,7 +301,7 @@ static int map_ranges(int val, MapRanges const ranges[], int rangesCount) {
 }
 
 template<int n> struct SkTFixed {
-    SK_COMPILE_ASSERT(-32768 <= n && n <= 32767, SkTFixed_n_not_in_range);
+    static_assert(-32768 <= n && n <= 32767, "SkTFixed_n_not_in_range");
     static const SkFixed value = static_cast<SkFixed>(n << 16);
 };
 

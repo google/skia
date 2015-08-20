@@ -144,7 +144,7 @@ struct SkOTTableHead {
 
 
 #include <stddef.h>
-SK_COMPILE_ASSERT(offsetof(SkOTTableHead, glyphDataFormat) == 52, SkOTTableHead_glyphDataFormat_not_at_52);
-SK_COMPILE_ASSERT(sizeof(SkOTTableHead) == 54, sizeof_SkOTTableHead_not_54);
+static_assert(offsetof(SkOTTableHead, glyphDataFormat) == 52, "SkOTTableHead_glyphDataFormat_not_at_52");
+static_assert(sizeof(SkOTTableHead) == 54, "sizeof_SkOTTableHead_not_54");
 
 #endif

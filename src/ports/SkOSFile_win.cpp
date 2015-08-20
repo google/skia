@@ -128,7 +128,7 @@ struct SkOSFileIterData {
     HANDLE fHandle;
     uint16_t* fPath16;
 };
-SK_COMPILE_ASSERT(sizeof(SkOSFileIterData) <= SkOSFile::Iter::kStorageSize, not_enough_space);
+static_assert(sizeof(SkOSFileIterData) <= SkOSFile::Iter::kStorageSize, "not_enough_space");
 
 static uint16_t* concat_to_16(const char src[], const char suffix[]) {
     size_t  i, len = strlen(src);

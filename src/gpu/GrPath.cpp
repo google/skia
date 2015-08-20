@@ -18,8 +18,8 @@ inline static bool compute_key_for_line_path(const SkPath& path, const GrStrokeI
     if (!path.isLine(pts)) {
         return false;
     }
-    SK_COMPILE_ASSERT((sizeof(pts) % sizeof(uint32_t)) == 0 && sizeof(pts) > sizeof(uint32_t),
-                      pts_needs_padding);
+    static_assert((sizeof(pts) % sizeof(uint32_t)) == 0 && sizeof(pts) > sizeof(uint32_t),
+                  "pts_needs_padding");
 
     const int kBaseData32Cnt = 1 + sizeof(pts) / sizeof(uint32_t);
     int strokeDataCnt = stroke.computeUniqueKeyFragmentData32Cnt();
@@ -39,8 +39,8 @@ inline static bool compute_key_for_oval_path(const SkPath& path, const GrStrokeI
     if (!path.isOval(&rect)) {
         return false;
     }
-    SK_COMPILE_ASSERT((sizeof(rect) % sizeof(uint32_t)) == 0 && sizeof(rect) > sizeof(uint32_t),
-                      rect_needs_padding);
+    static_assert((sizeof(rect) % sizeof(uint32_t)) == 0 && sizeof(rect) > sizeof(uint32_t),
+                  "rect_needs_padding");
 
     const int kBaseData32Cnt = 1 + sizeof(rect) / sizeof(uint32_t);
     int strokeDataCnt = stroke.computeUniqueKeyFragmentData32Cnt();
@@ -69,8 +69,8 @@ inline static bool compute_key_for_simple_path(const SkPath& path, const GrStrok
     }
 
     // If somebody goes wild with the constant, it might cause an overflow.
-    SK_COMPILE_ASSERT(kSimpleVolatilePathVerbLimit <= 100,
-                      big_simple_volatile_path_verb_limit_may_cause_overflow);
+    static_assert(kSimpleVolatilePathVerbLimit <= 100,
+                  "big_simple_volatile_path_verb_limit_may_cause_overflow");
 
     const int pointCnt = path.countPoints();
     if (pointCnt < 0) {
@@ -121,8 +121,8 @@ inline static bool compute_key_for_simple_path(const SkPath& path, const GrStrok
     path.getVerbs(reinterpret_cast<uint8_t*>(&builder[i]), verbCnt);
     i += verbData32Cnt;
 
-    SK_COMPILE_ASSERT(((sizeof(SkPoint) % sizeof(uint32_t)) == 0) &&
-                      sizeof(SkPoint) > sizeof(uint32_t), skpoint_array_needs_padding);
+    static_assert(((sizeof(SkPoint) % sizeof(uint32_t)) == 0) && sizeof(SkPoint) > sizeof(uint32_t),
+                  "skpoint_array_needs_padding");
 
     // Here we assume getPoints does a memcpy, so that we do not need to worry about the alignment.
     path.getPoints(reinterpret_cast<SkPoint*>(&builder[i]), pointCnt);

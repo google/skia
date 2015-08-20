@@ -158,7 +158,7 @@ private:
     SkPDFUnion& operator=(const SkPDFUnion&) = delete;
     SkPDFUnion(const SkPDFUnion&) = delete;
 };
-SK_COMPILE_ASSERT(sizeof(SkString) == sizeof(void*), SkString_size);
+static_assert(sizeof(SkString) == sizeof(void*), "SkString_size");
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -48,15 +48,15 @@
  */
 bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* paint,
                                            ShaderOverrideOpacity overrideOpacity) const {
-    SK_COMPILE_ASSERT((int)SkPaintPriv::kNone_ShaderOverrideOpacity ==
-                      (int)kNone_ShaderOverrideOpacity,
-                      need_matching_enums0);
-    SK_COMPILE_ASSERT((int)SkPaintPriv::kOpaque_ShaderOverrideOpacity ==
-                      (int)kOpaque_ShaderOverrideOpacity,
-                      need_matching_enums1);
-    SK_COMPILE_ASSERT((int)SkPaintPriv::kNotOpaque_ShaderOverrideOpacity ==
-                      (int)kNotOpaque_ShaderOverrideOpacity,
-                      need_matching_enums2);
+    static_assert((int)SkPaintPriv::kNone_ShaderOverrideOpacity ==
+                  (int)kNone_ShaderOverrideOpacity,
+                  "need_matching_enums0");
+    static_assert((int)SkPaintPriv::kOpaque_ShaderOverrideOpacity ==
+                  (int)kOpaque_ShaderOverrideOpacity,
+                  "need_matching_enums1");
+    static_assert((int)SkPaintPriv::kNotOpaque_ShaderOverrideOpacity ==
+                  (int)kNotOpaque_ShaderOverrideOpacity,
+                  "need_matching_enums2");
 
     const SkISize size = this->getBaseLayerSize();
     const SkRect bounds = SkRect::MakeIWH(size.width(), size.height());
@@ -2791,7 +2791,7 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkCanvas::LayerIter::LayerIter(SkCanvas* canvas, bool skipEmptyClips) {
-    SK_COMPILE_ASSERT(sizeof(fStorage) >= sizeof(SkDrawIter), fStorage_too_small);
+    static_assert(sizeof(fStorage) >= sizeof(SkDrawIter), "fStorage_too_small");
 
     SkASSERT(canvas);
 

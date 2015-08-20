@@ -21,10 +21,10 @@ enum {
 // largest seen for normal quads : 11
 static const int kRecursiveLimits[] = { 5*3, 26*3, 11*3, 11*3 }; // 3x limits seen in practice
 
-SK_COMPILE_ASSERT(0 == kTangent_RecursiveLimit, cubic_stroke_relies_on_tangent_equalling_zero);
-SK_COMPILE_ASSERT(1 == kCubic_RecursiveLimit, cubic_stroke_relies_on_cubic_equalling_one);
-SK_COMPILE_ASSERT(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
-        recursive_limits_mismatch);
+static_assert(0 == kTangent_RecursiveLimit, "cubic_stroke_relies_on_tangent_equalling_zero");
+static_assert(1 == kCubic_RecursiveLimit, "cubic_stroke_relies_on_cubic_equalling_one");
+static_assert(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
+              "recursive_limits_mismatch");
 
 #ifdef SK_DEBUG
     int gMaxRecursion[SK_ARRAY_COUNT(kRecursiveLimits)] = { 0 };
@@ -544,9 +544,9 @@ SkPathStroker::ReductionType SkPathStroker::CheckCubicLinear(const SkPoint cubic
         SkScalar t = tValues[index];
         SkEvalCubicAt(cubic, t, &reduction[index], NULL, NULL);
     }
-    SK_COMPILE_ASSERT(kQuad_ReductionType + 1 == kDegenerate_ReductionType, enum_out_of_whack);
-    SK_COMPILE_ASSERT(kQuad_ReductionType + 2 == kDegenerate2_ReductionType, enum_out_of_whack);
-    SK_COMPILE_ASSERT(kQuad_ReductionType + 3 == kDegenerate3_ReductionType, enum_out_of_whack);
+    static_assert(kQuad_ReductionType + 1 == kDegenerate_ReductionType, "enum_out_of_whack");
+    static_assert(kQuad_ReductionType + 2 == kDegenerate2_ReductionType, "enum_out_of_whack");
+    static_assert(kQuad_ReductionType + 3 == kDegenerate3_ReductionType, "enum_out_of_whack");
 
     return (ReductionType) (kQuad_ReductionType + count);
 }

@@ -1855,7 +1855,7 @@ ReturnInfo:
 //Length of GUID representation from create_id, including NULL terminator.
 #define BASE64_GUID_ID_LEN SK_ARRAY_COUNT(BASE64_GUID_ID)
 
-SK_COMPILE_ASSERT(BASE64_GUID_ID_LEN < LF_FACESIZE, GUID_longer_than_facesize);
+static_assert(BASE64_GUID_ID_LEN < LF_FACESIZE, "GUID_longer_than_facesize");
 
 /**
    NameID 6 Postscript names cannot have the character '/'.

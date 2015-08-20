@@ -50,6 +50,6 @@ private:
     struct Block;
     Block* fBlock;
 };
-SK_COMPILE_ASSERT(sizeof(SkVarAlloc) <= 32, SkVarAllocSize);
+static_assert(sizeof(SkVarAlloc) <= 32, "SkVarAllocSize");
 
 #endif//SkVarAlloc_DEFINED

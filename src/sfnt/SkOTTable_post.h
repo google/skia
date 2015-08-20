@@ -46,7 +46,7 @@ struct SkOTTablePostScript {
 
 
 #include <stddef.h>
-SK_COMPILE_ASSERT(offsetof(SkOTTablePostScript, maxMemType1) == 28, SkOTTablePostScript_maxMemType1_not_at_28);
-SK_COMPILE_ASSERT(sizeof(SkOTTablePostScript) == 32, sizeof_SkOTTablePostScript_not_32);
+static_assert(offsetof(SkOTTablePostScript, maxMemType1) == 28, "SkOTTablePostScript_maxMemType1_not_at_28");
+static_assert(sizeof(SkOTTablePostScript) == 32, "sizeof_SkOTTablePostScript_not_32");
 
 #endif

@@ -46,7 +46,7 @@ public:
         // The cast relies on ConvolutionFixed being a short, implying that on
         // the platforms we care about all (16) bits will fit into
         // the mantissa of a (32-bit) float.
-        SK_COMPILE_ASSERT(sizeof(ConvolutionFixed) == 2, ConvolutionFixed_type_should_fit_in_float_mantissa);
+        static_assert(sizeof(ConvolutionFixed) == 2, "ConvolutionFixed_type_should_fit_in_float_mantissa");
         float raw = static_cast<float>(x);
         return ldexpf(raw, -kShiftBits);
     }

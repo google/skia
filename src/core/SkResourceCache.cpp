@@ -36,9 +36,9 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t lengt
     static const int kHashedLocal32s = kSharedIDLocal32s + (sizeof(fNamespace) >> 2);
     static const int kLocal32s = kUnhashedLocal32s + kHashedLocal32s;
 
-    SK_COMPILE_ASSERT(sizeof(Key) == (kLocal32s << 2), unaccounted_key_locals);
-    SK_COMPILE_ASSERT(sizeof(Key) == offsetof(Key, fNamespace) + sizeof(fNamespace),
-                      namespace_field_must_be_last);
+    static_assert(sizeof(Key) == (kLocal32s << 2), "unaccounted_key_locals");
+    static_assert(sizeof(Key) == offsetof(Key, fNamespace) + sizeof(fNamespace),
+                 "namespace_field_must_be_last");
 
     fCount32 = SkToS32(kLocal32s + (length >> 2));
     fSharedID_lo = (uint32_t)sharedID;

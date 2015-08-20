@@ -39,7 +39,7 @@ template <typename D, typename S> struct SkTOutOfRange_LT_MinD {
     typedef S source_type;
     static bool apply(S s) {
         typedef typename SkTHasMoreDigits<S, D>::type precondition;
-        SK_COMPILE_ASSERT(precondition::value, SkTOutOfRange_LT_MinD__minS_gt_minD);
+        static_assert(precondition::value, "SkTOutOfRange_LT_MinD__minS_gt_minD");
 
         return s < static_cast<S>((std::numeric_limits<D>::min)());
     }
@@ -62,7 +62,7 @@ template <typename D, typename S> struct SkTOutOfRange_GT_MaxD {
     typedef S source_type;
     static bool apply(S s) {
         typedef typename SkTHasMoreDigits<S, D>::type precondition;
-        SK_COMPILE_ASSERT(precondition::value, SkTOutOfRange_GT_MaxD__maxS_lt_maxD);
+        static_assert(precondition::value, "SkTOutOfRange_GT_MaxD__maxS_lt_maxD");
 
         return s > static_cast<S>((std::numeric_limits<D>::max)());
     }
@@ -200,8 +200,8 @@ template<typename D, typename S> struct SkTFitsIn {
 
 /** Returns true if the integer source value 's' will fit in the integer destination type 'D'. */
 template <typename D, typename S> inline bool SkTFitsIn(S s) {
-    SK_COMPILE_ASSERT(std::numeric_limits<S>::is_integer, SkTFitsIn_source_must_be_integer);
-    SK_COMPILE_ASSERT(std::numeric_limits<D>::is_integer, SkTFitsIn_destination_must_be_integer);
+    static_assert(std::numeric_limits<S>::is_integer, "SkTFitsIn_source_must_be_integer");
+    static_assert(std::numeric_limits<D>::is_integer, "SkTFitsIn_destination_must_be_integer");
 
     return !sktfitsin::Private::SkTFitsIn<D, S>::type::OutOfRange(s);
 }

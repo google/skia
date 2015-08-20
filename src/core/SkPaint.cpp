@@ -2429,8 +2429,8 @@ bool SkPaint::nothingToDraw() const {
 uint32_t SkPaint::getHash() const {
     // We're going to hash 10 pointers and 7 32-bit values, finishing up with fBitfields,
     // so fBitfields should be 10 pointers and 6 32-bit values from the start.
-    SK_COMPILE_ASSERT(offsetof(SkPaint, fBitfields) == 10 * sizeof(void*) + 6 * sizeof(uint32_t),
-                      SkPaint_notPackedTightly);
+    static_assert(offsetof(SkPaint, fBitfields) == 10 * sizeof(void*) + 6 * sizeof(uint32_t),
+                  "SkPaint_notPackedTightly");
     return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(this),
                                offsetof(SkPaint, fBitfields) + sizeof(fBitfields));
 }

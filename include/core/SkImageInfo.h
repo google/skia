@@ -112,8 +112,8 @@ static int SkColorTypeBytesPerPixel(SkColorType ct) {
         1,  // kIndex_8
         1,  // kGray_8
     };
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gSize) == (size_t)(kLastEnum_SkColorType + 1),
-                      size_mismatch_with_SkColorType_enum);
+    static_assert(SK_ARRAY_COUNT(gSize) == (size_t)(kLastEnum_SkColorType + 1),
+                  "size_mismatch_with_SkColorType_enum");
 
     SkASSERT((size_t)ct < SK_ARRAY_COUNT(gSize));
     return gSize[ct];

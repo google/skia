@@ -576,9 +576,9 @@ struct SkOTTableName {
 #pragma pack(pop)
 
 
-SK_COMPILE_ASSERT(sizeof(SkOTTableName) == 6, sizeof_SkOTTableName_not_6);
-SK_COMPILE_ASSERT(sizeof(SkOTTableName::Format1Ext) == 2, sizeof_SkOTTableNameF1_not_2);
-SK_COMPILE_ASSERT(sizeof(SkOTTableName::Format1Ext::LangTagRecord) == 4, sizeof_SkOTTableNameLangTagRecord_not_4);
-SK_COMPILE_ASSERT(sizeof(SkOTTableName::Record) == 12, sizeof_SkOTTableNameRecord_not_12);
+static_assert(sizeof(SkOTTableName) == 6, "sizeof_SkOTTableName_not_6");
+static_assert(sizeof(SkOTTableName::Format1Ext) == 2, "sizeof_SkOTTableNameF1_not_2");
+static_assert(sizeof(SkOTTableName::Format1Ext::LangTagRecord) == 4, "sizeof_SkOTTableNameLangTagRecord_not_4");
+static_assert(sizeof(SkOTTableName::Record) == 12, "sizeof_SkOTTableNameRecord_not_12");
 
 #endif

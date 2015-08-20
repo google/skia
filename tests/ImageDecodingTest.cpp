@@ -358,8 +358,8 @@ static const SkColor kExpectedPixels[] = {
     0xffb07222, 0xff2e23f8, 0xfff089d9, 0xffb35738,
     0xffa86022, 0xff3340fe, 0xff95fe71, 0xff6a71df
 };
-SK_COMPILE_ASSERT((kExpectedWidth * kExpectedHeight)
-                  == SK_ARRAY_COUNT(kExpectedPixels), array_size_mismatch);
+static_assert((kExpectedWidth * kExpectedHeight) == SK_ARRAY_COUNT(kExpectedPixels),
+              "array_size_mismatch");
 
 DEF_TEST(WebP, reporter) {
     const unsigned char encodedWebP[] = {

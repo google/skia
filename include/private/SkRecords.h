@@ -247,7 +247,7 @@ struct RegionOpAndAA {
     SkRegion::Op op : 31;  // This really only needs to be 3, but there's no win today to do so.
     unsigned     aa :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.
 };
-SK_COMPILE_ASSERT(sizeof(RegionOpAndAA) == 4, RegionOpAndAASize);
+static_assert(sizeof(RegionOpAndAA) == 4, "RegionOpAndAASize");
 
 RECORD3(ClipPath,   SkIRect, devBounds, PreCachedPath,  path, RegionOpAndAA, opAA);
 RECORD3(ClipRRect,  SkIRect, devBounds, SkRRect,       rrect, RegionOpAndAA, opAA);

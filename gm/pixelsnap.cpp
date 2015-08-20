@@ -23,7 +23,7 @@ protected:
     static const int kSubPixelSteps = 8;
     static const int kLabelTextSize = 9;
 
-    SK_COMPILE_ASSERT(kSubPixelSteps < 99, label_offset_too_small);
+    static_assert(kSubPixelSteps < 99, "label_offset_too_small");
     static const int kLabelOffsetX = 2 * kLabelTextSize + kLabelPad;
     static const int kLabelOffsetY = kLabelTextSize + kLabelPad;
 

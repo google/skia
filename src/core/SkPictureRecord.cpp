@@ -105,8 +105,7 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         1,  // DRAW_IMAGE_RECT - right after op code
     };
 
-    SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
-                      need_to_be_in_sync);
+    static_assert(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1, "need_to_be_in_sync");
     SkASSERT((unsigned)op <= (unsigned)LAST_DRAWTYPE_ENUM);
 
     int overflow = 0;

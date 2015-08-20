@@ -966,7 +966,7 @@ const char* SkXfermode::ModeName(Mode mode) {
         "Multiply", "Hue", "Saturation", "Color",  "Luminosity"
     };
     return gModeStrings[mode];
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gModeStrings) == kLastMode + 1, mode_count);
+    static_assert(SK_ARRAY_COUNT(gModeStrings) == kLastMode + 1, "mode_count");
 }
 
 #ifndef SK_IGNORE_TO_STRING

@@ -50,7 +50,7 @@ struct SkOTTableHorizontalHeader {
 
 
 #include <stddef.h>
-SK_COMPILE_ASSERT(offsetof(SkOTTableHorizontalHeader, numberOfHMetrics) == 34, SkOTTableHorizontalHeader_numberOfHMetrics_not_at_34);
-SK_COMPILE_ASSERT(sizeof(SkOTTableHorizontalHeader) == 36, sizeof_SkOTTableHorizontalHeader_not_36);
+static_assert(offsetof(SkOTTableHorizontalHeader, numberOfHMetrics) == 34, "SkOTTableHorizontalHeader_numberOfHMetrics_not_at_34");
+static_assert(sizeof(SkOTTableHorizontalHeader) == 36, "sizeof_SkOTTableHorizontalHeader_not_36");
 
 #endif

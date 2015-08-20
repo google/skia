@@ -106,8 +106,8 @@ struct SkImageFilter::Cache::Key {
     Key(const uint32_t uniqueID, const SkMatrix& matrix, const SkIRect& clipBounds, uint32_t srcGenID)
       : fUniqueID(uniqueID), fMatrix(matrix), fClipBounds(clipBounds), fSrcGenID(srcGenID) {
         // Assert that Key is tightly-packed, since it is hashed.
-        SK_COMPILE_ASSERT(sizeof(Key) == sizeof(uint32_t) + sizeof(SkMatrix) + sizeof(SkIRect) +
-                                         sizeof(uint32_t), image_filter_key_tight_packing);
+        static_assert(sizeof(Key) == sizeof(uint32_t) + sizeof(SkMatrix) + sizeof(SkIRect) +
+                                     sizeof(uint32_t), "image_filter_key_tight_packing");
         fMatrix.getType();  // force initialization of type, so hashes match
     }
     uint32_t fUniqueID;

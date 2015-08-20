@@ -154,20 +154,6 @@ inline void operator delete(void* p) {
     #define SK_TO_STRING_OVERRIDE() void toString(SkString* str) const override;
 #endif
 
-template <bool>
-struct SkCompileAssert {
-};
-
-// Uses static_cast<bool>(expr) instead of bool(expr) due to
-// https://connect.microsoft.com/VisualStudio/feedback/details/832915
-
-// The extra parentheses in SkCompileAssert<(...)> are a work around for
-// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57771
-// which was fixed in gcc 4.8.2.
-#define SK_COMPILE_ASSERT(expr, msg) \
-    typedef SkCompileAssert<(static_cast<bool>(expr))> \
-            msg[static_cast<bool>(expr) ? 1 : -1] SK_UNUSED
-
 /*
  *  Usage:  SK_MACRO_CONCAT(a, b)   to construct the symbol ab
  *
@@ -209,7 +195,7 @@ struct SkCompileAssert {
  * Take a look at SkAutoFree and SkAutoMalloc in this file for examples.
  */
 #define SK_REQUIRE_LOCAL_VAR(classname) \
-    SK_COMPILE_ASSERT(false, missing_name_for_##classname)
+    static_assert(false, "missing name for " #classname)
 
 ///////////////////////////////////////////////////////////////////////
 

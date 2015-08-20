@@ -73,9 +73,9 @@ private:
     SkAutoTUnref<SkTypeface> fTypeface;
     SkScalar                 fSkewX;
 
-    SK_COMPILE_ASSERT(SkPaint::kFull_Hinting < 4, insufficient_hinting_bits);
+    static_assert(SkPaint::kFull_Hinting < 4, "insufficient_hinting_bits");
     uint32_t                 fHinting : 2;
-    SK_COMPILE_ASSERT((kFlagsMask & 0xffff) == kFlagsMask, insufficient_flags_bits);
+    static_assert((kFlagsMask & 0xffff) == kFlagsMask, "insufficient_flags_bits");
     uint32_t                 fFlags : 16;
 
     typedef SkNoncopyable INHERITED;
@@ -87,7 +87,7 @@ struct RunFontStorageEquivalent {
     SkScalar fSkewX;
     uint32_t fFlags;
 };
-SK_COMPILE_ASSERT(sizeof(RunFont) == sizeof(RunFontStorageEquivalent), runfont_should_stay_packed);
+static_assert(sizeof(RunFont) == sizeof(RunFontStorageEquivalent), "runfont_should_stay_packed");
 
 } // anonymous namespace
 

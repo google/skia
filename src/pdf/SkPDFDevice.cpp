@@ -353,17 +353,12 @@ static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
 // enums so region_op_to_pathops_op can do a straight passthrough cast.
 // If these are failing, it may be necessary to make region_op_to_pathops_op
 // do more.
-SK_COMPILE_ASSERT(SkRegion::kDifference_Op == (int)kDifference_SkPathOp,
-                  region_pathop_mismatch);
-SK_COMPILE_ASSERT(SkRegion::kIntersect_Op == (int)kIntersect_SkPathOp,
-                  region_pathop_mismatch);
-SK_COMPILE_ASSERT(SkRegion::kUnion_Op == (int)kUnion_SkPathOp,
-                  region_pathop_mismatch);
-SK_COMPILE_ASSERT(SkRegion::kXOR_Op == (int)kXOR_SkPathOp,
-                  region_pathop_mismatch);
-SK_COMPILE_ASSERT(SkRegion::kReverseDifference_Op ==
-                  (int)kReverseDifference_SkPathOp,
-                  region_pathop_mismatch);
+static_assert(SkRegion::kDifference_Op == (int)kDifference_SkPathOp, "region_pathop_mismatch");
+static_assert(SkRegion::kIntersect_Op == (int)kIntersect_SkPathOp, "region_pathop_mismatch");
+static_assert(SkRegion::kUnion_Op == (int)kUnion_SkPathOp, "region_pathop_mismatch");
+static_assert(SkRegion::kXOR_Op == (int)kXOR_SkPathOp, "region_pathop_mismatch");
+static_assert(SkRegion::kReverseDifference_Op == (int)kReverseDifference_SkPathOp,
+              "region_pathop_mismatch");
 
 static SkPathOp region_op_to_pathops_op(SkRegion::Op op) {
     SkASSERT(op >= 0);
@@ -559,11 +554,9 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
             currentEntry()->fTextScaleX = state.fTextScaleX;
         }
         if (state.fTextFill != currentEntry()->fTextFill) {
-            SK_COMPILE_ASSERT(SkPaint::kFill_Style == 0, enum_must_match_value);
-            SK_COMPILE_ASSERT(SkPaint::kStroke_Style == 1,
-                              enum_must_match_value);
-            SK_COMPILE_ASSERT(SkPaint::kStrokeAndFill_Style == 2,
-                              enum_must_match_value);
+            static_assert(SkPaint::kFill_Style == 0, "enum_must_match_value");
+            static_assert(SkPaint::kStroke_Style == 1, "enum_must_match_value");
+            static_assert(SkPaint::kStrokeAndFill_Style == 2, "enum_must_match_value");
             fContentStream->writeDecAsText(state.fTextFill);
             fContentStream->writeText(" Tr\n");
             currentEntry()->fTextFill = state.fTextFill;

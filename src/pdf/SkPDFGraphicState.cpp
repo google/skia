@@ -210,17 +210,17 @@ void SkPDFGraphicState::emitObject(
     SkPaint::Join strokeJoin = (SkPaint::Join)fStrokeJoin;
     SkXfermode::Mode xferMode = (SkXfermode::Mode)fMode;
 
-    SK_COMPILE_ASSERT(SkPaint::kButt_Cap == 0, paint_cap_mismatch);
-    SK_COMPILE_ASSERT(SkPaint::kRound_Cap == 1, paint_cap_mismatch);
-    SK_COMPILE_ASSERT(SkPaint::kSquare_Cap == 2, paint_cap_mismatch);
-    SK_COMPILE_ASSERT(SkPaint::kCapCount == 3, paint_cap_mismatch);
+    static_assert(SkPaint::kButt_Cap == 0, "paint_cap_mismatch");
+    static_assert(SkPaint::kRound_Cap == 1, "paint_cap_mismatch");
+    static_assert(SkPaint::kSquare_Cap == 2, "paint_cap_mismatch");
+    static_assert(SkPaint::kCapCount == 3, "paint_cap_mismatch");
     SkASSERT(strokeCap >= 0 && strokeCap <= 2);
     dict->insertInt("LC", strokeCap);
 
-    SK_COMPILE_ASSERT(SkPaint::kMiter_Join == 0, paint_join_mismatch);
-    SK_COMPILE_ASSERT(SkPaint::kRound_Join == 1, paint_join_mismatch);
-    SK_COMPILE_ASSERT(SkPaint::kBevel_Join == 2, paint_join_mismatch);
-    SK_COMPILE_ASSERT(SkPaint::kJoinCount == 3, paint_join_mismatch);
+    static_assert(SkPaint::kMiter_Join == 0, "paint_join_mismatch");
+    static_assert(SkPaint::kRound_Join == 1, "paint_join_mismatch");
+    static_assert(SkPaint::kBevel_Join == 2, "paint_join_mismatch");
+    static_assert(SkPaint::kJoinCount == 3, "paint_join_mismatch");
     SkASSERT(strokeJoin >= 0 && strokeJoin <= 2);
     dict->insertInt("LJ", strokeJoin);
 

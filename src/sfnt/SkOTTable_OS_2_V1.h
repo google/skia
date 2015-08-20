@@ -513,6 +513,6 @@ struct SkOTTableOS2_V1 {
 #pragma pack(pop)
 
 
-SK_COMPILE_ASSERT(sizeof(SkOTTableOS2_V1) == 86, sizeof_SkOTTableOS2_V1_not_86);
+static_assert(sizeof(SkOTTableOS2_V1) == 86, "sizeof_SkOTTableOS2_V1_not_86");
 
 #endif

@@ -44,7 +44,7 @@ struct SkOTTableMaximumProfile_TT {
 
 
 #include <stddef.h>
-SK_COMPILE_ASSERT(offsetof(SkOTTableMaximumProfile_TT, maxComponentDepth) == 30, SkOTTableMaximumProfile_TT_maxComponentDepth_not_at_30);
-SK_COMPILE_ASSERT(sizeof(SkOTTableMaximumProfile_TT) == 32, sizeof_SkOTTableMaximumProfile_TT_not_32);
+static_assert(offsetof(SkOTTableMaximumProfile_TT, maxComponentDepth) == 30, "SkOTTableMaximumProfile_TT_maxComponentDepth_not_at_30");
+static_assert(sizeof(SkOTTableMaximumProfile_TT) == 32, "sizeof_SkOTTableMaximumProfile_TT_not_32");
 
 #endif

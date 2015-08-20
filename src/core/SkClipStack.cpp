@@ -862,11 +862,11 @@ void SkClipStack::Element::dump() const {
         "rrect",
         "path"
     };
-    SK_COMPILE_ASSERT(0 == kEmpty_Type, type_str);
-    SK_COMPILE_ASSERT(1 == kRect_Type, type_str);
-    SK_COMPILE_ASSERT(2 == kRRect_Type, type_str);
-    SK_COMPILE_ASSERT(3 == kPath_Type, type_str);
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(kTypeStrings) == kTypeCnt, type_str);
+    static_assert(0 == kEmpty_Type, "type_str");
+    static_assert(1 == kRect_Type, "type_str");
+    static_assert(2 == kRRect_Type, "type_str");
+    static_assert(3 == kPath_Type, "type_str");
+    static_assert(SK_ARRAY_COUNT(kTypeStrings) == kTypeCnt, "type_str");
 
     static const char* kOpStrings[] = {
         "difference",
@@ -876,13 +876,13 @@ void SkClipStack::Element::dump() const {
         "reverse-difference",
         "replace",
     };
-    SK_COMPILE_ASSERT(0 == SkRegion::kDifference_Op, op_str);
-    SK_COMPILE_ASSERT(1 == SkRegion::kIntersect_Op, op_str);
-    SK_COMPILE_ASSERT(2 == SkRegion::kUnion_Op, op_str);
-    SK_COMPILE_ASSERT(3 == SkRegion::kXOR_Op, op_str);
-    SK_COMPILE_ASSERT(4 == SkRegion::kReverseDifference_Op, op_str);
-    SK_COMPILE_ASSERT(5 == SkRegion::kReplace_Op, op_str);
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(kOpStrings) == SkRegion::kOpCnt, op_str);
+    static_assert(0 == SkRegion::kDifference_Op, "op_str");
+    static_assert(1 == SkRegion::kIntersect_Op, "op_str");
+    static_assert(2 == SkRegion::kUnion_Op, "op_str");
+    static_assert(3 == SkRegion::kXOR_Op, "op_str");
+    static_assert(4 == SkRegion::kReverseDifference_Op, "op_str");
+    static_assert(5 == SkRegion::kReplace_Op, "op_str");
+    static_assert(SK_ARRAY_COUNT(kOpStrings) == SkRegion::kOpCnt, "op_str");
 
     SkDebugf("Type: %s, Op: %s, AA: %s, Save Count: %d\n", kTypeStrings[fType],
              kOpStrings[fOp], (fDoAA ? "yes" : "no"), fSaveCount);

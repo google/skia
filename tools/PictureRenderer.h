@@ -71,11 +71,12 @@ public:
         kMaskFilter_DrawFilterFlag = 0x80000, // toggles on/off mask filters (e.g., blurs)
     };
 
-    SK_COMPILE_ASSERT(!(kMaskFilter_DrawFilterFlag & SkPaint::kAllFlags), maskfilter_flag_must_be_greater);
-    SK_COMPILE_ASSERT(!(kHinting_DrawFilterFlag & SkPaint::kAllFlags),
-            hinting_flag_must_be_greater);
-    SK_COMPILE_ASSERT(!(kSlightHinting_DrawFilterFlag & SkPaint::kAllFlags),
-            slight_hinting_flag_must_be_greater);
+    static_assert(!(kMaskFilter_DrawFilterFlag & SkPaint::kAllFlags),
+                  "maskfilter_flag_must_be_greater");
+    static_assert(!(kHinting_DrawFilterFlag & SkPaint::kAllFlags),
+                  "hinting_flag_must_be_greater");
+    static_assert(!(kSlightHinting_DrawFilterFlag & SkPaint::kAllFlags),
+                  "slight_hinting_flag_must_be_greater");
 
     /**
      * Called with each new SkPicture to render.

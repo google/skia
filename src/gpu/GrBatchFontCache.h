@@ -179,7 +179,7 @@ private:
             kRGB_565_GrPixelConfig,
             kSkia8888_GrPixelConfig
         };
-        SK_COMPILE_ASSERT(SK_ARRAY_COUNT(kPixelConfigs) == kMaskFormatCount, array_size_mismatch);
+        static_assert(SK_ARRAY_COUNT(kPixelConfigs) == kMaskFormatCount, "array_size_mismatch");
 
         return kPixelConfigs[format];
     }
@@ -191,7 +191,7 @@ private:
             kA565_GrMaskFormat,
             kARGB_GrMaskFormat,
         };
-        SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, array_size_mismatch);
+        static_assert(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, "array_size_mismatch");
 
         SkASSERT(sAtlasIndices[format] < kMaskFormatCount);
         return sAtlasIndices[format];

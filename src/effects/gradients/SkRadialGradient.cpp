@@ -13,7 +13,7 @@
 #define kSQRT_TABLE_BITS    11
 #define kSQRT_TABLE_SIZE    (1 << kSQRT_TABLE_BITS)
 
-SK_COMPILE_ASSERT(sizeof(gSqrt8Table) == kSQRT_TABLE_SIZE, SqrtTableSizesMatch);
+static_assert(sizeof(gSqrt8Table) == kSQRT_TABLE_SIZE, "SqrtTableSizesMatch");
 
 #if 0
 

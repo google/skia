@@ -603,8 +603,7 @@ static size_t get_subset_font_stream(const char* fontName,
         unsigned char* subsetFont = NULL;
         // sfntly requires unsigned int* to be passed in, as far as we know,
         // unsigned int is equivalent to uint32_t on all platforms.
-        SK_COMPILE_ASSERT(sizeof(unsigned int) == sizeof(uint32_t),
-                          unsigned_int_not_32_bits);
+        static_assert(sizeof(unsigned int) == sizeof(uint32_t), "unsigned_int_not_32_bits");
         int subsetFontSize = SfntlyWrapper::SubsetFont(fontName,
                                                        originalFont.begin(),
                                                        fontSize,

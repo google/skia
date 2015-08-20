@@ -505,10 +505,10 @@ public:
      *  kInverseEvenOdd_FillType -> true
      */
     static bool IsInverseFillType(FillType fill) {
-        SK_COMPILE_ASSERT(0 == kWinding_FillType, fill_type_mismatch);
-        SK_COMPILE_ASSERT(1 == kEvenOdd_FillType, fill_type_mismatch);
-        SK_COMPILE_ASSERT(2 == kInverseWinding_FillType, fill_type_mismatch);
-        SK_COMPILE_ASSERT(3 == kInverseEvenOdd_FillType, fill_type_mismatch);
+        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
+        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
+        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
+        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
         return (fill & 2) != 0;
     }
 
@@ -521,10 +521,10 @@ public:
      *  kInverseEvenOdd_FillType -> kEvenOdd_FillType
      */
     static FillType ConvertToNonInverseFillType(FillType fill) {
-        SK_COMPILE_ASSERT(0 == kWinding_FillType, fill_type_mismatch);
-        SK_COMPILE_ASSERT(1 == kEvenOdd_FillType, fill_type_mismatch);
-        SK_COMPILE_ASSERT(2 == kInverseWinding_FillType, fill_type_mismatch);
-        SK_COMPILE_ASSERT(3 == kInverseEvenOdd_FillType, fill_type_mismatch);
+        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
+        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
+        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
+        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
         return (FillType)(fill & 1);
     }
 

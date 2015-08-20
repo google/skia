@@ -42,11 +42,11 @@ struct SkOTTableOS2 {
 #pragma pack(pop)
 
 
-SK_COMPILE_ASSERT(sizeof(SkOTTableOS2::Version::VA) == 68, sizeof_SkOTTableOS2__VA_not_68);
-SK_COMPILE_ASSERT(sizeof(SkOTTableOS2::Version::V0) == 78, sizeof_SkOTTableOS2__V0_not_78);
-SK_COMPILE_ASSERT(sizeof(SkOTTableOS2::Version::V1) == 86, sizeof_SkOTTableOS2__V1_not_86);
-SK_COMPILE_ASSERT(sizeof(SkOTTableOS2::Version::V2) == 96, sizeof_SkOTTableOS2__V2_not_96);
-SK_COMPILE_ASSERT(sizeof(SkOTTableOS2::Version::V3) == 96, sizeof_SkOTTableOS2__V3_not_96);
-SK_COMPILE_ASSERT(sizeof(SkOTTableOS2::Version::V4) == 96, sizeof_SkOTTableOS2__V4_not_96);
+static_assert(sizeof(SkOTTableOS2::Version::VA) == 68, "sizeof_SkOTTableOS2__VA_not_68");
+static_assert(sizeof(SkOTTableOS2::Version::V0) == 78, "sizeof_SkOTTableOS2__V0_not_78");
+static_assert(sizeof(SkOTTableOS2::Version::V1) == 86, "sizeof_SkOTTableOS2__V1_not_86");
+static_assert(sizeof(SkOTTableOS2::Version::V2) == 96, "sizeof_SkOTTableOS2__V2_not_96");
+static_assert(sizeof(SkOTTableOS2::Version::V3) == 96, "sizeof_SkOTTableOS2__V3_not_96");
+static_assert(sizeof(SkOTTableOS2::Version::V4) == 96, "sizeof_SkOTTableOS2__V4_not_96");
 
 #endif

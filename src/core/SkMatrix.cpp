@@ -1592,13 +1592,13 @@ struct PODMatrix {
 
     const SkMatrix& asSkMatrix() const { return *reinterpret_cast<const SkMatrix*>(this); }
 };
-SK_COMPILE_ASSERT(sizeof(PODMatrix) == sizeof(SkMatrix), PODMatrixSizeMismatch);
+static_assert(sizeof(PODMatrix) == sizeof(SkMatrix), "PODMatrixSizeMismatch");
 
 }  // namespace
 
 const SkMatrix& SkMatrix::I() {
-    SK_COMPILE_ASSERT(offsetof(SkMatrix, fMat)      == offsetof(PODMatrix, matrix),   BadfMat);
-    SK_COMPILE_ASSERT(offsetof(SkMatrix, fTypeMask) == offsetof(PODMatrix, typemask), BadfTypeMask);
+    static_assert(offsetof(SkMatrix, fMat)      == offsetof(PODMatrix, matrix),   "BadfMat");
+    static_assert(offsetof(SkMatrix, fTypeMask) == offsetof(PODMatrix, typemask), "BadfTypeMask");
 
     static const PODMatrix identity = { {SK_Scalar1, 0, 0,
                                          0, SK_Scalar1, 0,
@@ -1609,8 +1609,8 @@ const SkMatrix& SkMatrix::I() {
 }
 
 const SkMatrix& SkMatrix::InvalidMatrix() {
-    SK_COMPILE_ASSERT(offsetof(SkMatrix, fMat)      == offsetof(PODMatrix, matrix),   BadfMat);
-    SK_COMPILE_ASSERT(offsetof(SkMatrix, fTypeMask) == offsetof(PODMatrix, typemask), BadfTypeMask);
+    static_assert(offsetof(SkMatrix, fMat)      == offsetof(PODMatrix, matrix),   "BadfMat");
+    static_assert(offsetof(SkMatrix, fTypeMask) == offsetof(PODMatrix, typemask), "BadfTypeMask");
 
     static const PODMatrix invalid =
         { {SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,

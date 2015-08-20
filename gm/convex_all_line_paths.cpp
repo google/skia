@@ -163,7 +163,7 @@ protected:
             SK_ARRAY_COUNT(gPoints9),
             SK_ARRAY_COUNT(gPoints10),
         };
-        SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gSizes) == SK_ARRAY_COUNT(gPoints), array_mismatch);
+        static_assert(SK_ARRAY_COUNT(gSizes) == SK_ARRAY_COUNT(gPoints), "array_mismatch");
 
         SkAutoTDeleteArray<SkPoint> data(NULL);
         const SkPoint* points;

@@ -153,7 +153,7 @@ void SkDropShadowImageFilter::toString(SkString* str) const {
         "kDrawShadowAndForeground", "kDrawShadowOnly"
     };
 
-    SK_COMPILE_ASSERT(kShadowModeCount == SK_ARRAY_COUNT(gModeStrings), enum_mismatch);
+    static_assert(kShadowModeCount == SK_ARRAY_COUNT(gModeStrings), "enum_mismatch");
 
     str->appendf(" mode: %s", gModeStrings[fShadowMode]);
 

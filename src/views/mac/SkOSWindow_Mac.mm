@@ -16,7 +16,7 @@
 #import  "SkEventNotifier.h"
 #define  kINVAL_NSVIEW_EventType "inval-nsview"
 
-SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
+static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
 
 SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd) {
     fInvalEventIsPending = false;

@@ -598,8 +598,8 @@ static const struct TilingInfo gTilingInfo[] = {
     { "1/1x1/16" , SK_Scalar1        , SK_Scalar1 / 16    }, // kRel_1x16_Tiling
     { "1/16x1/1" , SK_Scalar1 / 16   , SK_Scalar1         }, // kRel_16x1_Tiling
 };
-SK_COMPILE_ASSERT((SK_ARRAY_COUNT(gTilingInfo) == kLast_TilingMode_Enum),
-                  Incomplete_tiling_labels);
+static_assert((SK_ARRAY_COUNT(gTilingInfo) == kLast_TilingMode_Enum),
+              "Incomplete_tiling_labels");
 
 SkSize SampleWindow::tileSize() const {
     SkASSERT((TilingMode)fTilingMode < kLast_TilingMode_Enum);
@@ -673,7 +673,7 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
 #endif // SK_SUPPORT_GPU
         SampleWindow::kRaster_DeviceType,
     };
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gCT) == SampleWindow::kDeviceTypeCnt, array_size_mismatch);
+    static_assert(SK_ARRAY_COUNT(gCT) == SampleWindow::kDeviceTypeCnt, "array_size_mismatch");
     return gCT[ct];
 }
 
@@ -1942,8 +1942,8 @@ static const char* gDeviceTypePrefix[] = {
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU
 };
-SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gDeviceTypePrefix) == SampleWindow::kDeviceTypeCnt,
-                  array_size_mismatch);
+static_assert(SK_ARRAY_COUNT(gDeviceTypePrefix) == SampleWindow::kDeviceTypeCnt,
+              "array_size_mismatch");
 
 static const char* trystate_str(SkOSMenu::TriState state,
                                 const char trueStr[], const char falseStr[]) {

@@ -660,8 +660,8 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc,
 
     // The jump between dst configs in the table
     static const int gProcDstConfigSpan = 5;
-    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gProcChoosers) == 5 * gProcDstConfigSpan,
-                      gProcs_has_the_wrong_number_of_entries);
+    static_assert(SK_ARRAY_COUNT(gProcChoosers) == 5 * gProcDstConfigSpan,
+                  "gProcs_has_the_wrong_number_of_entries");
 
     fCTable = ctable;
 
