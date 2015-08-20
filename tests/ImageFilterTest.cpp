@@ -30,6 +30,7 @@
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkRectShaderImageFilter.h"
+#include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 #include "Test.h"
@@ -1157,6 +1158,58 @@ DEF_TEST(PartialCropRect, reporter) {
     REPORTER_ASSERT(reporter, offset.fY == 0);
     REPORTER_ASSERT(reporter, result.width() == 20);
     REPORTER_ASSERT(reporter, result.height() == 30);
+}
+
+DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
+
+    SkPoint3 location = SkPoint3::Make(0, 0, SK_Scalar1);
+    SkAutoTUnref<SkImageFilter> lighting(SkLightingImageFilter::CreatePointLitDiffuse(
+          location, SK_ColorGREEN, 0, 0));
+    REPORTER_ASSERT(reporter, !lighting->canComputeFastBounds());
+
+    SkAutoTUnref<SkImageFilter> gray(make_grayscale(nullptr, nullptr));
+    REPORTER_ASSERT(reporter, gray->canComputeFastBounds());
+    {
+        SkColorFilter* grayCF;
+        REPORTER_ASSERT(reporter, gray->asAColorFilter(&grayCF));
+        REPORTER_ASSERT(reporter, !grayCF->affectsTransparentBlack());
+        grayCF->unref();
+    }
+    REPORTER_ASSERT(reporter, gray->canComputeFastBounds());
+
+    SkAutoTUnref<SkImageFilter> grayBlur(SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1, gray.get()));
+    REPORTER_ASSERT(reporter, grayBlur->canComputeFastBounds());
+
+    SkScalar greenMatrix[20] = { 0, 0, 0, 0, 0,
+                                 0, 0, 0, 0, 1,
+                                 0, 0, 0, 0, 0,
+                                 0, 0, 0, 0, 1 };
+    SkAutoTUnref<SkColorFilter> greenCF(SkColorMatrixFilter::Create(greenMatrix));
+    SkAutoTUnref<SkImageFilter> green(SkColorFilterImageFilter::Create(greenCF));
+
+    REPORTER_ASSERT(reporter, greenCF->affectsTransparentBlack());
+    REPORTER_ASSERT(reporter, !green->canComputeFastBounds());
+
+    SkAutoTUnref<SkImageFilter> greenBlur(SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1, green.get()));
+    REPORTER_ASSERT(reporter, !greenBlur->canComputeFastBounds());
+
+    uint8_t allOne[256], identity[256];
+    for (int i = 0; i < 256; ++i) {
+        identity[i] = i;
+        allOne[i] = 255;
+    }
+
+    SkAutoTUnref<SkColorFilter> identityCF(
+        SkTableColorFilter::CreateARGB(identity, identity, identity, allOne));
+    SkAutoTUnref<SkImageFilter> identityFilter(SkColorFilterImageFilter::Create(identityCF.get()));
+    REPORTER_ASSERT(reporter, !identityCF->affectsTransparentBlack());
+    REPORTER_ASSERT(reporter, identityFilter->canComputeFastBounds());
+
+    SkAutoTUnref<SkColorFilter> forceOpaqueCF(
+        SkTableColorFilter::CreateARGB(allOne, identity, identity, identity));
+    SkAutoTUnref<SkImageFilter> forceOpaque(SkColorFilterImageFilter::Create(forceOpaqueCF.get()));
+    REPORTER_ASSERT(reporter, forceOpaqueCF->affectsTransparentBlack());
+    REPORTER_ASSERT(reporter, !forceOpaque->canComputeFastBounds());
 }
 
 #if SK_SUPPORT_GPU

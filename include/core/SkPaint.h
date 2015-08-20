@@ -9,7 +9,6 @@
 #define SkPaint_DEFINED
 
 #include "SkColor.h"
-#include "SkDrawLooper.h"
 #include "SkFilterQuality.h"
 #include "SkMatrix.h"
 #include "SkXfermode.h"
@@ -20,6 +19,7 @@ class SkAutoGlyphCache;
 class SkColorFilter;
 class SkData;
 class SkDescriptor;
+class SkDrawLooper;
 class SkReadBuffer;
 class SkWriteBuffer;
 class SkGlyph;
@@ -909,12 +909,7 @@ public:
      bounds (i.e. there is nothing complex like a patheffect that would make
      the bounds computation expensive.
      */
-    bool canComputeFastBounds() const {
-        if (this->getLooper()) {
-            return this->getLooper()->canComputeFastBounds(*this);
-        }
-        return !this->getRasterizer();
-    }
+    bool canComputeFastBounds() const;
 
     /** Only call this if canComputeFastBounds() returned true. This takes a
      raw rectangle (the raw bounds of a shape), and adjusts it for stylistic

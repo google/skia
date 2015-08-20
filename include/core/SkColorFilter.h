@@ -140,6 +140,10 @@ public:
         return false;
     }
 
+    bool affectsTransparentBlack() const {
+        return this->filterColor(0) != 0;
+    }
+
     SK_TO_STRING_PUREVIRT()
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
