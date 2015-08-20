@@ -178,6 +178,7 @@ public:
     bool asAColorFilter(SkColorFilter** filterPtr) const {
         return this->countInputs() > 0 &&
                NULL == this->getInput(0) &&
+               !this->affectsTransparentBlack() &&
                this->isColorFilterNode(filterPtr);
     }
 
@@ -213,6 +214,9 @@ public:
 
     // Default impl returns union of all input bounds.
     virtual void computeFastBounds(const SkRect&, SkRect*) const;
+
+    // Can this filter DAG compute the resulting bounds of an object-space rectangle?
+    bool canComputeFastBounds() const;
 
     /**
      * Create an SkMatrixImageFilter, which transforms its input by the given matrix.
@@ -361,6 +365,14 @@ protected:
      */
     virtual bool asFragmentProcessor(GrFragmentProcessor**, GrProcessorDataManager*, GrTexture*,
                                      const SkMatrix&, const SkIRect& bounds) const;
+
+    /**
+     * Returns true if this filter can cause transparent black pixels to become
+     * visible (ie., alpha > 0). The default implementation returns false. This
+     * function is non-recursive, i.e., only queries this filter and not its
+     * inputs.
+     */
+    virtual bool affectsTransparentBlack() const;
 
 private:
     friend class SkGraphics;

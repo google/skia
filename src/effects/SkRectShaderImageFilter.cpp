@@ -79,6 +79,10 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
     return true;
 }
 
+bool SkRectShaderImageFilter::affectsTransparentBlack() const {
+    return true;
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkRectShaderImageFilter::toString(SkString* str) const {
     str->appendf("SkRectShaderImageFilter: (");

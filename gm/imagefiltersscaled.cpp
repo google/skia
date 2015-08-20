@@ -131,6 +131,7 @@ protected:
                 paint.setAntiAlias(true);
                 canvas->save();
                 canvas->scale(scales[j].fX, scales[j].fY);
+                canvas->clipRect(r);
                 if (5 == i) {
                     canvas->translate(SkIntToScalar(-32), 0);
                 } else if (6 == i) {
