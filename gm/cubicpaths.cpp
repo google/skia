@@ -53,6 +53,58 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+
+class ClippedCubic2GM : public skiagm::GM {
+public:
+    ClippedCubic2GM() {}
+
+protected:
+
+    SkString onShortName() {
+        return SkString("clippedcubic2");
+    }
+
+    SkISize onISize() { return SkISize::Make(1240, 390); }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->save();
+        canvas->translate(-2, 20);
+        drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 80, 150));
+        canvas->translate(0, 170);
+        drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 80, 100));
+        canvas->translate(0, 170);
+        drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 30, 150));
+        canvas->translate(0, 170);
+        drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 10, 150));
+        canvas->restore();
+    }
+
+    void drawOne(SkCanvas* canvas, const SkPath& path, const SkRect& clip) {
+        SkPaint framePaint, fillPaint;
+        framePaint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRect(clip, framePaint);
+        canvas->drawPath(path, framePaint);
+        canvas->save();
+        canvas->clipRect(clip);
+        canvas->drawPath(path, fillPaint);
+        canvas->restore();
+    }
+
+    void onOnceBeforeDraw() override {
+        fPath.moveTo(69.7030518991886f, 0);
+        fPath.cubicTo( 69.7030518991886f, 21.831149999999997f,
+                58.08369508178456f, 43.66448333333333f, 34.8449814469765f, 65.5f);
+        fPath.cubicTo( 11.608591683531916f, 87.33115f, -0.010765133872116195f, 109.16448333333332f,
+                -0.013089005235602302f, 131);
+        fPath.close();
+    }
+
+    SkPath fPath;
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+
 class CubicPathGM : public skiagm::GM {
 public:
     CubicPathGM() {}
@@ -347,3 +399,4 @@ private:
 DEF_GM( return new CubicPathGM; )
 DEF_GM( return new CubicClosePathGM; )
 DEF_GM( return new ClippedCubicGM; )
+DEF_GM( return new ClippedCubic2GM; )
