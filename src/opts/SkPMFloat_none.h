@@ -34,7 +34,8 @@ inline Sk4f SkPMFloat::alphas() const {
     return Sk4f(this->a());
 }
 
-inline SkPMFloat SkPMFloat::FromBGRx(SkColor c) {
+inline SkPMFloat SkPMFloat::FromOpaqueColor(SkColor c) {
+  SkASSERT(SkColorGetA(c) == 0xFF);
   float inv255 = 1.0f / 255;
   SkPMFloat pmf = SkPMFloat::FromARGB(1.0f,
                                       SkColorGetR(c) * inv255,

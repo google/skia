@@ -61,10 +61,10 @@ void color_cube_filter_span(const SkPMColor src[],
             const SkColor lutColor10 = colorCube[ix + i10];
             const SkColor lutColor11 = colorCube[ix + i11];
 
-            Sk4f  sum = SkPMFloat::FromBGRx(lutColor00) * g0b0;
-            sum = sum + SkPMFloat::FromBGRx(lutColor01) * g0b1;
-            sum = sum + SkPMFloat::FromBGRx(lutColor10) * g1b0;
-            sum = sum + SkPMFloat::FromBGRx(lutColor11) * g1b1;
+            Sk4f  sum = SkPMFloat::FromOpaqueColor(lutColor00) * g0b0;
+            sum = sum + SkPMFloat::FromOpaqueColor(lutColor01) * g0b1;
+            sum = sum + SkPMFloat::FromOpaqueColor(lutColor10) * g1b0;
+            sum = sum + SkPMFloat::FromOpaqueColor(lutColor11) * g1b1;
 
             color = color + sum * Sk4f((float)colorToFactors[x][r]);
         }
