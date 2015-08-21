@@ -2118,11 +2118,11 @@ void set_gl_stencil(const GrGLInterface* gl,
         // supported.
         GR_GL_CALL(gl, StencilFunc(glFunc, ref, mask));
         GR_GL_CALL(gl, StencilMask(writeMask));
-        GR_GL_CALL(gl, StencilOp(glFailOp, glPassOp, glPassOp));
+        GR_GL_CALL(gl, StencilOp(glFailOp, GR_GL_KEEP, glPassOp));
     } else {
         GR_GL_CALL(gl, StencilFuncSeparate(glFace, glFunc, ref, mask));
         GR_GL_CALL(gl, StencilMaskSeparate(glFace, writeMask));
-        GR_GL_CALL(gl, StencilOpSeparate(glFace, glFailOp, glPassOp, glPassOp));
+        GR_GL_CALL(gl, StencilOpSeparate(glFace, glFailOp, GR_GL_KEEP, glPassOp));
     }
 }
 }

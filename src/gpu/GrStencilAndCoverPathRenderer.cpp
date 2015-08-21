@@ -102,7 +102,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     if (path.isInverseFillType()) {
         GR_STATIC_CONST_SAME_STENCIL(kInvertedStencilPass,
-            kZero_StencilOp,
+            kKeep_StencilOp,
             kZero_StencilOp,
             // We know our rect will hit pixels outside the clip and the user bits will be 0
             // outside the clip. So we can't just fill where the user bits are 0. We also need to
@@ -141,7 +141,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,
-            kZero_StencilOp,
+            kKeep_StencilOp,
             kNotEqual_StencilFunc,
             0xffff,
             0x0000,

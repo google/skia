@@ -435,7 +435,7 @@ void GrStencilAndCoverTextContext::flush() {
 
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
                                      kZero_StencilOp,
-                                     kZero_StencilOp,
+                                     kKeep_StencilOp,
                                      kNotEqual_StencilFunc,
                                      0xffff,
                                      0x0000,
