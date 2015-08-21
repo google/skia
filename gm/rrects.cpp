@@ -120,10 +120,10 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            tt.target()->drawSimpleRect(pipelineBuilder,
-                                                        0xff000000,
-                                                        SkMatrix::I(),
-                                                        bounds);
+                            tt.target()->drawBWRect(pipelineBuilder,
+                                                    0xff000000,
+                                                    SkMatrix::I(),
+                                                    bounds);
                         } else {
                             drew = false;
                         }

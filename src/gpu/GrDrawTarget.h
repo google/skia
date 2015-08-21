@@ -123,21 +123,31 @@ public:
     void drawBWRect(const GrPipelineBuilder& pipelineBuilder,
                     GrColor color,
                     const SkMatrix& viewMatrix,
+                    const SkRect& rect);
+
+    void drawBWRect(const GrPipelineBuilder& pipelineBuilder,
+                    GrColor color,
+                    const SkMatrix& viewMatrix,
                     const SkRect& rect,
-                    const SkRect* localRect,
-                    const SkMatrix* localMatrix);
+                    const SkMatrix& localMatrix);
+
+    void drawBWRect(const GrPipelineBuilder& pipelineBuilder,
+                    GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect& localRect);
 
     /**
      * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
     void drawSimpleRect(const GrPipelineBuilder& ds, GrColor color, const SkMatrix& viewM,
                         const SkRect& rect) {
-        this->drawBWRect(ds, color, viewM, rect, NULL, NULL);
+        this->drawBWRect(ds, color, viewM, rect);
     }
     void drawSimpleRect(const GrPipelineBuilder& ds, GrColor color, const SkMatrix& viewM,
                         const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
-        this->drawBWRect(ds, color, viewM, rect, NULL, NULL);
+        this->drawBWRect(ds, color, viewM, rect);
     }
 
     void drawAARect(const GrPipelineBuilder& pipelineBuilder,

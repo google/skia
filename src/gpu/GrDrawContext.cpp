@@ -199,8 +199,7 @@ void GrDrawContext::drawPaint(GrRenderTarget* rt,
                                 paint->getColor(),
                                 SkMatrix::I(),
                                 r,
-                                NULL,
-                                &localMatrix);
+                                localMatrix);
     }
 }
 
@@ -305,7 +304,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
         fDrawTarget->drawBatch(pipelineBuilder, batch);
     } else {
         // filled BW rect
-        fDrawTarget->drawSimpleRect(pipelineBuilder, color, viewMatrix, rect);
+        fDrawTarget->drawBWRect(pipelineBuilder, color, viewMatrix, rect);
     }
 }
 
@@ -314,8 +313,7 @@ void GrDrawContext::drawNonAARectToRect(GrRenderTarget* rt,
                                         const GrPaint& paint,
                                         const SkMatrix& viewMatrix,
                                         const SkRect& rectToDraw,
-                                        const SkRect& localRect,
-                                        const SkMatrix* localMatrix) {
+                                        const SkRect& localRect) {
     RETURN_IF_ABANDONED
     AutoCheckFlush acf(fContext);
     if (!this->prepareToDraw(rt)) {
@@ -327,7 +325,26 @@ void GrDrawContext::drawNonAARectToRect(GrRenderTarget* rt,
                             paint.getColor(),
                             viewMatrix,
                             rectToDraw,
-                            &localRect,
+                            localRect);
+}
+
+void GrDrawContext::drawNonAARectWithLocalMatrix(GrRenderTarget* rt,
+                                                 const GrClip& clip,
+                                                 const GrPaint& paint,
+                                                 const SkMatrix& viewMatrix,
+                                                 const SkRect& rectToDraw,
+                                                 const SkMatrix& localMatrix) {
+    RETURN_IF_ABANDONED
+    AutoCheckFlush acf(fContext);
+    if (!this->prepareToDraw(rt)) {
+        return;
+    }
+
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    fDrawTarget->drawBWRect(pipelineBuilder,
+                            paint.getColor(),
+                            viewMatrix,
+                            rectToDraw,
                             localMatrix);
 }
 

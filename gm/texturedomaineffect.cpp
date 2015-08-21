@@ -130,10 +130,10 @@ protected:
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorProcessor(fp);
 
-                    tt.target()->drawSimpleRect(pipelineBuilder,
-                                                GrColor_WHITE,
-                                                viewMatrix,
-                                                renderRect);
+                    tt.target()->drawBWRect(pipelineBuilder,
+                                            GrColor_WHITE,
+                                            viewMatrix,
+                                            renderRect);
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

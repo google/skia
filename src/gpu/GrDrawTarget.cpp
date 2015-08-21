@@ -312,13 +312,32 @@ void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,
 void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,
-                              const SkRect& rect,
-                              const SkRect* localRect,
-                              const SkMatrix* localMatrix) {
+                              const SkRect& rect) {
    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect,
-                                                                    localRect, localMatrix));
+                                                                    nullptr, nullptr));
    this->drawBatch(pipelineBuilder, batch);
 }
+
+void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
+                              GrColor color,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& rect,
+                              const SkMatrix& localMatrix) {
+   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect,
+                                                                    nullptr, &localMatrix));
+   this->drawBatch(pipelineBuilder, batch);
+}
+
+void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
+                              GrColor color,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& rect,
+                              const SkRect& localRect) {
+   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect,
+                                                                    &localRect, nullptr));
+   this->drawBatch(pipelineBuilder, batch);
+}
+
 
 void GrDrawTarget::drawAARect(const GrPipelineBuilder& pipelineBuilder,
                               GrColor color,
