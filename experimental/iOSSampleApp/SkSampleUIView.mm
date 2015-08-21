@@ -161,7 +161,7 @@ public:
             desc.fStencilBits = info.fStencilBits;
 
             SkSafeUnref(fCurRenderTarget);
-            fCurRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
+            fCurRenderTarget = fCurContext->textureProvider()->wrapBackendRenderTarget(desc);
         }
 #endif
     }
