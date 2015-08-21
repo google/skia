@@ -135,7 +135,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     if (this->getInput(0) && 
         !this->getInput(0)->getInputResultGPU(proxy, src, ctx, &background, &backgroundOffset)) {
-        return this->onFilterImage(proxy, src, ctx, result, offset);
+        return false;
     }
 
     GrTexture* backgroundTex = background.getTexture();
@@ -148,7 +148,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
     if (this->getInput(1) && 
         !this->getInput(1)->getInputResultGPU(proxy, src, ctx, &foreground, &foregroundOffset)) {
-        return this->onFilterImage(proxy, src, ctx, result, offset);
+        return false;
     }
     GrTexture* foregroundTex = foreground.getTexture();
     GrContext* context = foregroundTex->getContext();
