@@ -8,6 +8,8 @@
 #include "gm.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkDashPathEffect.h"
+#include "SkParsePath.h"
 
 #define W   400
 #define H   400
@@ -69,6 +71,76 @@ protected:
                 canvas->drawRoundRect(r, r.width()/4, r.height()/4, paint);
                 rnd_rect(&r, &paint, rand);
             }
+        }
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+/* See
+   https://code.google.com/p/chromium/issues/detail?id=422974          and
+   http://jsfiddle.net/1xnku3sg/2/
+ */
+class ZeroLenStrokesGM : public skiagm::GM {
+    SkPath fMoveHfPath, fMoveZfPath, fDashedfPath, fRefPath[4];
+protected:
+    void onOnceBeforeDraw() override {
+
+        SkAssertResult(SkParsePath::FromSVGString("M0,0h0M10,0h0M20,0h0", &fMoveHfPath));
+        SkAssertResult(SkParsePath::FromSVGString("M0,0zM10,0zM20,0z", &fMoveZfPath));
+        SkAssertResult(SkParsePath::FromSVGString("M0,0h25", &fDashedfPath));
+
+        for (int i = 0; i < 3; ++i) {
+            fRefPath[0].addCircle(i * 10.f, 0, 5);
+            fRefPath[1].addCircle(i * 10.f, 0, 10);
+            fRefPath[2].addRect(i * 10.f - 4, -2, i * 10.f + 4, 6);
+            fRefPath[3].addRect(i * 10.f - 10, -10, i * 10.f + 10, 10);
+        }
+    }
+
+    SkString onShortName() override {
+        return SkString("zeroPath");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(W, H*2);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint fillPaint, strokePaint, dashPaint;
+        fillPaint.setAntiAlias(true);
+        strokePaint = fillPaint;
+        strokePaint.setStyle(SkPaint::kStroke_Style);
+        for (int i = 0; i < 2; ++i) {
+            fillPaint.setAlpha(255);
+            strokePaint.setAlpha(255);
+            strokePaint.setStrokeWidth(i ? 8.f : 10.f);
+            strokePaint.setStrokeCap(i ? SkPaint::kSquare_Cap : SkPaint::kRound_Cap);
+            canvas->save();
+            canvas->translate(10 + i * 100.f, 10);
+            canvas->drawPath(fMoveHfPath, strokePaint);
+            canvas->translate(0, 20);
+            canvas->drawPath(fMoveZfPath, strokePaint);
+            dashPaint = strokePaint;
+            const SkScalar intervals[] = { 0, 10 };
+            dashPaint.setPathEffect(SkDashPathEffect::Create(intervals, 2, 0))->unref();
+            SkPath fillPath;
+            dashPaint.getFillPath(fDashedfPath, &fillPath);
+            canvas->translate(0, 20);
+            canvas->drawPath(fDashedfPath, dashPaint);
+            canvas->translate(0, 20);
+            canvas->drawPath(fRefPath[i * 2], fillPaint);
+            strokePaint.setStrokeWidth(20);
+            strokePaint.setAlpha(127);
+            canvas->translate(0, 50);
+            canvas->drawPath(fMoveHfPath, strokePaint);
+            canvas->translate(0, 30);
+            canvas->drawPath(fMoveZfPath, strokePaint);
+            canvas->translate(0, 30);
+            fillPaint.setAlpha(127);
+            canvas->drawPath(fRefPath[1 + i * 2], fillPaint);
+            canvas->restore();
         }
     }
 
@@ -278,3 +350,5 @@ static skiagm::GMRegistry R0(F0);
 static skiagm::GMRegistry R1(F1);
 static skiagm::GMRegistry R2(F2);
 static skiagm::GMRegistry R3(F3);
+
+DEF_GM(return SkNEW(ZeroLenStrokesGM);)

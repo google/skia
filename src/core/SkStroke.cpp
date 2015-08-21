@@ -121,6 +121,9 @@ public:
                   SkScalar radius, SkScalar miterLimit, SkPaint::Cap,
                   SkPaint::Join, SkScalar resScale);
 
+    bool hasOnlyMoveTo() const { return 0 == fSegmentCount; }
+    SkPoint moveToPt() const { return fFirstPt; }
+
     void moveTo(const SkPoint&);
     void lineTo(const SkPoint&);
     void quadTo(const SkPoint&, const SkPoint&);
@@ -242,7 +245,14 @@ bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
     SkScalar    prevY = fPrevPt.fY;
 
     if (!set_normal_unitnormal(fPrevPt, currPt, fRadius, normal, unitNormal)) {
-        return false;
+        if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper) {
+            return false;
+        }
+        /* Square caps and round caps draw even if the segment length is zero.
+           Since the zero length segment has no direction, set the orientation
+           to upright as the default orientation */
+        normal->set(fRadius, 0);
+        unitNormal->set(1, 0);
     }
 
     if (fSegmentCount == 0) {
@@ -356,7 +366,8 @@ void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
 }
 
 void SkPathStroker::lineTo(const SkPoint& currPt) {
-    if (SkPath::IsLineDegenerate(fPrevPt, currPt, false)) {
+    if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper
+            && SkPath::IsLineDegenerate(fPrevPt, currPt, false)) {
         return;
     }
     SkVector    normal, unitNormal;
@@ -1334,6 +1345,14 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                 lastSegment = SkPath::kCubic_Verb;
                 break;
             case SkPath::kClose_Verb:
+                if (stroker.hasOnlyMoveTo() && SkPaint::kButt_Cap != this->getCap()) {
+                    /* If the stroke consists of a moveTo followed by a close, treat it
+                       as if it were followed by a zero-length line. Lines without length
+                       can have square and round end caps. */
+                    stroker.lineTo(stroker.moveToPt());
+                    lastSegment = SkPath::kLine_Verb;
+                    break;
+                }
                 stroker.close(lastSegment == SkPath::kLine_Verb);
                 break;
             case SkPath::kDone_Verb:

@@ -272,7 +272,7 @@ bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         while (distance < length) {
             SkASSERT(dlen >= 0);
             addedSegment = false;
-            if (is_even(index) && dlen > 0 && !skipFirstSegment) {
+            if (is_even(index) && !skipFirstSegment) {
                 addedSegment = true;
                 ++segCount;
 
