@@ -6,6 +6,7 @@
  */
 
 #include "sk_tool_utils.h"
+
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
@@ -24,6 +25,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
+#include "GrTest.h"
 
 struct TextBlobWrapper {
     // This class assumes it 'owns' the textblob it wraps, and thus does not need to take a ref
@@ -51,13 +53,21 @@ static const int kHeight = 768;
 
 // This test hammers the GPU textblobcache and font atlas
 static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContextFactory* factory,
-                                  int maxTotalText, int maxGlyphID, int maxFamilies, bool normal) {
+                                  int maxTotalText, int maxGlyphID, int maxFamilies, bool normal,
+                                  bool stressTest) {
     // setup surface
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
 
     // We don't typically actually draw with this unittest
     GrContext* ctx = factory->get(GrContextFactory::kNull_GLContextType);
+
+    // configure our context for maximum stressing of cache and atlas
+    if (stressTest) {
+        GrTest::SetupAlwaysEvictAtlas(ctx);
+        ctx->setTextBlobCacheLimit_ForTesting(0);
+    }
+
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info,
                                                                0, &props));
@@ -151,14 +161,18 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContextFactory
 }
 
 DEF_GPUTEST(TextBlobCache, reporter, factory) {
-    text_blob_cache_inner(reporter, factory, 4096, 256, 30, true);
+    text_blob_cache_inner(reporter, factory, 1024, 256, 30, true, false);
+}
+
+DEF_GPUTEST(TextBlobStressCache, reporter, factory) {
+    text_blob_cache_inner(reporter, factory, 256, 256, 10, true, true);
 }
 
 DEF_GPUTEST(TextBlobAbnormal, reporter, factory) {
-#ifdef SK_BUILD_FOR_ANDROID
-    text_blob_cache_inner(reporter, factory, 256, 256, 30, false);
-#else
-    text_blob_cache_inner(reporter, factory, 512, 256, 30, false);
-#endif
+    text_blob_cache_inner(reporter, factory, 256, 256, 10, false, false);
+}
+
+DEF_GPUTEST(TextBlobStressAbnormal, reporter, factory) {
+    text_blob_cache_inner(reporter, factory, 256, 256, 10, false, true);
 }
 #endif

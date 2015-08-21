@@ -117,8 +117,7 @@ private:
         if (fPool.size() > fBudget) {
             BitmapBlobList::Iter iter;
             iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
-            GrAtlasTextBlob* lruBlob = iter.get();
-            SkASSERT(lruBlob);
+            GrAtlasTextBlob* lruBlob = NULL;
             while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
                 fCache.remove(lruBlob->fKey);
 

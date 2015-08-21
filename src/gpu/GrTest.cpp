@@ -8,6 +8,7 @@
 
 #include "GrTest.h"
 
+#include "GrBatchAtlas.h"
 #include "GrBatchFontCache.h"
 #include "GrBufferedDrawTarget.h"
 #include "GrContextOptions.h"
@@ -15,6 +16,31 @@
 #include "GrResourceCache.h"
 #include "GrTextBlobCache.h"
 #include "SkString.h"
+
+namespace GrTest {
+void SetupAlwaysEvictAtlas(GrContext* context) {
+    // These sizes were selected because they allow each atlas to hold a single plot and will thus
+    // stress the atlas
+    int dim = GrBatchAtlas::kGlyphMaxDim;
+    GrBatchAtlasConfig configs[3];
+    configs[kA8_GrMaskFormat].fWidth = dim;
+    configs[kA8_GrMaskFormat].fHeight = dim;
+    configs[kA8_GrMaskFormat].fPlotWidth = dim;
+    configs[kA8_GrMaskFormat].fPlotHeight = dim;
+
+    configs[kA565_GrMaskFormat].fWidth = dim;
+    configs[kA565_GrMaskFormat].fHeight = dim;
+    configs[kA565_GrMaskFormat].fPlotWidth = dim;
+    configs[kA565_GrMaskFormat].fPlotHeight = dim;
+
+    configs[kARGB_GrMaskFormat].fWidth = dim;
+    configs[kARGB_GrMaskFormat].fHeight = dim;
+    configs[kARGB_GrMaskFormat].fPlotWidth = dim;
+    configs[kARGB_GrMaskFormat].fPlotHeight = dim;
+
+    context->setTextContextAtlasSizes_ForTesting(configs);
+}
+};
 
 void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
     SkASSERT(!fContext);
