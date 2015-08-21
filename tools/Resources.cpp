@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
@@ -28,6 +29,12 @@ bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     SkString resourcePath = GetResourcePath(resource);
     SkAutoTUnref<SkData> resourceData(SkData::NewFromFileName(resourcePath.c_str()));
     return resourceData && SkInstallDiscardablePixelRef(resourceData, dst);
+}
+
+SkImage* GetResourceAsImage(const char* resource) {
+    SkString path = GetResourcePath(resource);
+    SkAutoTUnref<SkData> resourceData(SkData::NewFromFileName(path.c_str()));
+    return SkImage::NewFromEncoded(resourceData);
 }
 
 SkStreamAsset* GetResourceAsStream(const char* resource) {

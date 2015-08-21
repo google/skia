@@ -7,13 +7,14 @@
 
 #include "Resources.h"
 #include "SkData.h"
+#include "SkImage.h"
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-static void draw_bitmap(SkCanvas* canvas, const char* resource, int x, int y) {
-    SkBitmap bitmap;
-    if (GetResourceAsBitmap(resource, &bitmap)) {
-        canvas->drawBitmap(bitmap, SkIntToScalar(x), SkIntToScalar(y));
+static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
+    SkAutoTUnref<SkImage> image(GetResourceAsImage(resource));
+    if (image) {
+        canvas->drawImage(image, SkIntToScalar(x), SkIntToScalar(y));
     } else {
         SkDebugf("\nCould not decode file '%s'. Did you forget"
                  " to set the resourcePath?\n", resource);
@@ -31,10 +32,10 @@ static void draw_bitmap(SkCanvas* canvas, const char* resource, int x, int y) {
  */
 DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
     sk_tool_utils::draw_checkerboard(canvas);
-    draw_bitmap(canvas, "color_wheel.png", 0, 0);  // top left
-    draw_bitmap(canvas, "color_wheel.gif", 128, 0);  // top right
-    draw_bitmap(canvas, "color_wheel.webp", 0, 128);  // bottom left
-    draw_bitmap(canvas, "color_wheel.jpg", 128, 128);  // bottom right
+    draw_image(canvas, "color_wheel.png", 0, 0);  // top left
+    draw_image(canvas, "color_wheel.gif", 128, 0);  // top right
+    draw_image(canvas, "color_wheel.webp", 0, 128);  // bottom left
+    draw_image(canvas, "color_wheel.jpg", 128, 128);  // bottom right
 }
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
