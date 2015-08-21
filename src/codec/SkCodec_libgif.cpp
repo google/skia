@@ -59,11 +59,7 @@ static int32_t read_bytes_callback(GifFileType* fileType, GifByteType* out,
  * Open the gif file
  */
 static GifFileType* open_gif(SkStream* stream) {
-#if GIFLIB_MAJOR < 5
-    return DGifOpen(stream, read_bytes_callback);
-#else
     return DGifOpen(stream, read_bytes_callback, NULL);
-#endif
 }
 
  /*
@@ -84,11 +80,7 @@ void SkGifCodec::CloseGif(GifFileType* gif) {
  */
 void SkGifCodec::FreeExtension(SavedImage* image) {
     if (NULL != image->ExtensionBlocks) {
-#if GIFLIB_MAJOR < 5
-        FreeExtension(image);
-#else
         GifFreeExtensions(&image->ExtensionBlockCount, &image->ExtensionBlocks);
-#endif
     }
 }
 
@@ -254,9 +246,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     saveExt.ExtensionBlocks = NULL;
     saveExt.ExtensionBlockCount = 0;
     GifByteType* extData;
-#if GIFLIB_MAJOR >= 5
     int32_t extFunction;
-#endif
 
     // We will loop over components of gif images until we find an image.  Once
     // we find an image, we will decode and return it.  While many gif files
@@ -505,13 +495,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
             // such as transparency or animation.
             case EXTENSION_RECORD_TYPE:
                 // Read extension data
-#if GIFLIB_MAJOR < 5
-                if (GIF_ERROR ==
-                        DGifGetExtension(fGif, &saveExt.Function, &extData)) {
-#else
                 if (GIF_ERROR ==
                         DGifGetExtension(fGif, &extFunction, &extData)) {
-#endif
                     return gif_error("Could not get extension.\n",
                             kIncompleteInput);
                 }
@@ -519,15 +504,10 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 // Create an extension block with our data
                 while (NULL != extData) {
                     // Add a single block
-#if GIFLIB_MAJOR < 5
-                    if (GIF_ERROR == AddExtensionBlock(&saveExt, extData[0],
-                            &extData[1])) {
-#else
                     if (GIF_ERROR ==
                             GifAddExtensionBlock(&saveExt.ExtensionBlockCount,
                             &saveExt.ExtensionBlocks, extFunction, extData[0],
                             &extData[1])) {
-#endif
                         return gif_error("Could not add extension block.\n",
                                 kIncompleteInput);
                     }
@@ -536,9 +516,6 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                         return gif_error("Could not get next extension.\n",
                                 kIncompleteInput);
                     }
-#if GIFLIB_MAJOR < 5
-                    saveExt.Function = 0;
-#endif
                 }
                 break;
 
