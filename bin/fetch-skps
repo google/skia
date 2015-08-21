@@ -1,4 +1,16 @@
 #!/bin/sh
+# Instructions for authenticating.
+#
+# Install the utilities you need:
+#   curl https://sdk.cloud.google.com | bash
+#
+# Authenticate
+#   gcloud auth login
+#
+# Follow instructions on web page.
+#
+# Set Project
+#   gcloud config set project google.com:skia-buildbots
 
 # Copies the latest bot-generated SKP set to ./skps.
 
