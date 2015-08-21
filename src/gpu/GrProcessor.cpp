@@ -205,6 +205,10 @@ int GrFragmentProcessor::registerChildProcessor(const GrFragmentProcessor* child
         this->setWillReadFragmentPosition();
     }
 
+    if (child->usesLocalCoords()) {
+        fUsesLocalCoords = true;
+    }
+
     return index;
 }
 
