@@ -91,11 +91,6 @@ public:
         fHWGeometryState.notifyIndexBufferDelete(id);
     }
 
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
-                     const SkIRect& srcRect,
-                     const SkIPoint& dstPoint) override;
-
     void buildProgramDesc(GrProgramDesc*,
                           const GrPrimitiveProcessor&,
                           const GrPipeline&,
@@ -151,6 +146,11 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target) override;
 
     void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override;
+
+    bool onCopySurface(GrSurface* dst,
+                       GrSurface* src,
+                       const SkIRect& srcRect,
+                       const SkIPoint& dstPoint) override;
 
     void clearStencil(GrRenderTarget*) override;
 
