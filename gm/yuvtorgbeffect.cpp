@@ -124,10 +124,10 @@ protected:
                     viewMatrix.setTranslate(x, y);
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorProcessor(fp);
-                    tt.target()->drawBWRect(pipelineBuilder,
-                                            GrColor_WHITE,
-                                            viewMatrix,
-                                            renderRect);
+                    tt.target()->drawNonAARect(pipelineBuilder,
+                                               GrColor_WHITE,
+                                               viewMatrix,
+                                               renderRect);
                 }
                 x += renderRect.width() + kTestPad;
             }

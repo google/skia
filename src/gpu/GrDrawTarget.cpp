@@ -309,32 +309,32 @@ void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,
                       transformType, count, stencilSettings, pipelineInfo);
 }
 
-void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
+void GrDrawTarget::drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect) {
-   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect,
-                                                                    nullptr, nullptr));
+   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect,
+                                                                       nullptr, nullptr));
    this->drawBatch(pipelineBuilder, batch);
 }
 
-void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
+void GrDrawTarget::drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkMatrix& localMatrix) {
-   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect,
-                                                                    nullptr, &localMatrix));
+   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect,
+                                                                       nullptr, &localMatrix));
    this->drawBatch(pipelineBuilder, batch);
 }
 
-void GrDrawTarget::drawBWRect(const GrPipelineBuilder& pipelineBuilder,
+void GrDrawTarget::drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkRect& localRect) {
-   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillBW(color, viewMatrix, rect,
-                                                                    &localRect, nullptr));
+   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect,
+                                                                       &localRect, nullptr));
    this->drawBatch(pipelineBuilder, batch);
 }
 
@@ -344,7 +344,7 @@ void GrDrawTarget::drawAARect(const GrPipelineBuilder& pipelineBuilder,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkRect& devRect) {
-    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillAA(color, viewMatrix, rect,
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateAAFill(color, viewMatrix, rect,
                                                                      devRect));
     this->drawBatch(pipelineBuilder, batch);
 }
@@ -378,7 +378,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
         GrPipelineBuilder pipelineBuilder;
         pipelineBuilder.setRenderTarget(renderTarget);
 
-        this->drawSimpleRect(pipelineBuilder, color, SkMatrix::I(), *rect);
+        this->drawNonAARect(pipelineBuilder, color, SkMatrix::I(), *rect);
     } else {
         GrBatch* batch = SkNEW_ARGS(GrClearBatch, (*rect, color, renderTarget));
         this->onDrawBatch(batch);

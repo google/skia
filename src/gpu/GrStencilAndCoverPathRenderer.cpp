@@ -137,7 +137,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             }
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
-        args.fTarget->drawBWRect(*pipelineBuilder, args.fColor, viewM, bounds, invert);
+        args.fTarget->drawNonAARect(*pipelineBuilder, args.fColor, viewM, bounds, invert);
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,

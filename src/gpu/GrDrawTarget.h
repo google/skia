@@ -120,34 +120,29 @@ public:
      *                    that rectangle before it is input to GrCoordTransforms that read local
      *                    coordinates
      */
-    void drawBWRect(const GrPipelineBuilder& pipelineBuilder,
-                    GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect);
+    void drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
+                       GrColor color,
+                       const SkMatrix& viewMatrix,
+                       const SkRect& rect);
 
-    void drawBWRect(const GrPipelineBuilder& pipelineBuilder,
-                    GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkMatrix& localMatrix);
+    void drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
+                       GrColor color,
+                       const SkMatrix& viewMatrix,
+                       const SkRect& rect,
+                       const SkMatrix& localMatrix);
 
-    void drawBWRect(const GrPipelineBuilder& pipelineBuilder,
-                    GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect& localRect);
+    void drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
+                       GrColor color,
+                       const SkMatrix& viewMatrix,
+                       const SkRect& rect,
+                       const SkRect& localRect);
 
-    /**
-     * Helper for drawRect when the caller doesn't need separate local rects or matrices.
-     */
-    void drawSimpleRect(const GrPipelineBuilder& ds, GrColor color, const SkMatrix& viewM,
-                        const SkRect& rect) {
-        this->drawBWRect(ds, color, viewM, rect);
-    }
-    void drawSimpleRect(const GrPipelineBuilder& ds, GrColor color, const SkMatrix& viewM,
-                        const SkIRect& irect) {
+    void drawNonAARect(const GrPipelineBuilder& ds,
+                       GrColor color,
+                       const SkMatrix& viewM,
+                       const SkIRect& irect) {
         SkRect rect = SkRect::Make(irect);
-        this->drawBWRect(ds, color, viewM, rect);
+        this->drawNonAARect(ds, color, viewM, rect);
     }
 
     void drawAARect(const GrPipelineBuilder& pipelineBuilder,

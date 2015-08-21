@@ -686,7 +686,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            target->drawBWRect(*pipelineBuilder, color, viewM, bounds, localMatrix);
+            target->drawNonAARect(*pipelineBuilder, color, viewM, bounds, localMatrix);
         } else {
             if (passCount > 1) {
                 pipelineBuilder->setDisableColorXPFactory();

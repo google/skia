@@ -410,8 +410,8 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
                 fClipTarget->drawAARect(*pipelineBuilder, color, viewMatrix,
                                         element->getRect(), devRect);
             } else {
-                fClipTarget->drawBWRect(*pipelineBuilder, color, viewMatrix,
-                                        element->getRect());
+                fClipTarget->drawNonAARect(*pipelineBuilder, color, viewMatrix,
+                                           element->getRect());
             }
             return true;
         default: {
@@ -497,10 +497,10 @@ void GrClipMaskManager::mergeMask(GrPipelineBuilder* pipelineBuilder,
                                       GrTextureParams::kNone_FilterMode))->unref();
 
     // The color passed in here does not matter since the coverageSetOpXP won't read it.
-    fClipTarget->drawBWRect(*pipelineBuilder,
-                            GrColor_WHITE,
-                            SkMatrix::I(),
-                            SkRect::Make(dstBound));
+    fClipTarget->drawNonAARect(*pipelineBuilder,
+                               GrColor_WHITE,
+                               SkMatrix::I(),
+                               SkRect::Make(dstBound));
 }
 
 GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
@@ -690,8 +690,8 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                 backgroundPipelineBuilder.setStencil(kDrawOutsideElement);
 
                 // The color passed in here does not matter since the coverageSetOpXP won't read it.
-                fClipTarget->drawSimpleRect(backgroundPipelineBuilder, GrColor_WHITE, translate,
-                                            clipSpaceIBounds);
+                fClipTarget->drawNonAARect(backgroundPipelineBuilder, GrColor_WHITE, translate,
+                                           clipSpaceIBounds);
             }
         } else {
             GrPipelineBuilder pipelineBuilder;
@@ -827,10 +827,10 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                     *pipelineBuilder.stencil() = gDrawToStencil;
 
                     // We need this AGP until everything is in GrBatch
-                    fClipTarget->drawBWRect(pipelineBuilder,
-                                            GrColor_WHITE,
-                                            viewMatrix,
-                                            element->getRect());
+                    fClipTarget->drawNonAARect(pipelineBuilder,
+                                               GrColor_WHITE,
+                                               viewMatrix,
+                                               element->getRect());
                 } else {
                     if (!clipPath.isEmpty()) {
                         if (canRenderDirectToStencil) {
@@ -869,10 +869,10 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 if (canDrawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
                         // We need this AGP until everything is in GrBatch
-                        fClipTarget->drawBWRect(pipelineBuilder,
-                                                GrColor_WHITE,
-                                                viewMatrix,
-                                                element->getRect());
+                        fClipTarget->drawNonAARect(pipelineBuilder,
+                                                   GrColor_WHITE,
+                                                   viewMatrix,
+                                                   element->getRect());
                     } else {
                         GrPathRenderer::DrawPathArgs args;
                         args.fTarget = fClipTarget;
@@ -888,10 +888,10 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
-                    fClipTarget->drawBWRect(pipelineBuilder,
-                                            GrColor_WHITE,
-                                            viewMatrix,
-                                            SkRect::Make(clipSpaceIBounds));
+                    fClipTarget->drawNonAARect(pipelineBuilder,
+                                               GrColor_WHITE,
+                                               viewMatrix,
+                                               SkRect::Make(clipSpaceIBounds));
                 }
             }
         }

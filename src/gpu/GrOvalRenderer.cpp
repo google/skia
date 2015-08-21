@@ -1458,7 +1458,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawBWRect(pipelineBuilder, color, SkMatrix::I(), bounds, invert);
+    target->drawNonAARect(pipelineBuilder, color, SkMatrix::I(), bounds, invert);
     return true;
 }
 

@@ -986,7 +986,7 @@ static void draw_aa_bitmap(GrDrawContext* drawContext, GrContext* context,
     }
     matrix.preConcat(dstRectToSrcRect);
 
-    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateFillAA(grPaint.getColor(),
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateAAFill(grPaint.getColor(),
                                                                      viewMatrix,
                                                                      matrix,
                                                                      dstRect,

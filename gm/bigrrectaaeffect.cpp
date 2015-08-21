@@ -85,10 +85,10 @@ protected:
                         bounds.outset(2.f, 2.f);
                         bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                        tt.target()->drawBWRect(pipelineBuilder,
-                                                0xff000000,
-                                                SkMatrix::I(),
-                                                bounds);
+                        tt.target()->drawNonAARect(pipelineBuilder,
+                                                   0xff000000,
+                                                   SkMatrix::I(),
+                                                   bounds);
                     }
                 canvas->restore();
                 x = x + kDrawOffset;

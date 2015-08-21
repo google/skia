@@ -115,10 +115,10 @@ protected:
                     GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
                     pipelineBuilder.addColorProcessor(fp);
 
-                    tt.target()->drawBWRect(pipelineBuilder,
-                                            grPaint.getColor(),
-                                            viewMatrix,
-                                            renderRect);
+                    tt.target()->drawNonAARect(pipelineBuilder,
+                                               grPaint.getColor(),
+                                               viewMatrix,
+                                               renderRect);
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

@@ -22,22 +22,22 @@ class SkStrokeRec;
  */
 namespace GrRectBatchFactory {
 
-inline GrDrawBatch* CreateFillBW(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& rect,
-                                 const SkRect* localRect,
-                                 const SkMatrix* localMatrix) {
+inline GrDrawBatch* CreateNonAAFill(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkRect* localRect,
+                                    const SkMatrix* localMatrix) {
     return GrBWFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
 }
 
-inline GrDrawBatch* CreateFillAA(GrColor color,
+inline GrDrawBatch* CreateAAFill(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkRect& rect,
                                  const SkRect& devRect) {
     return GrAAFillRectBatch::Create(color, viewMatrix, rect, devRect);
 }
 
-inline GrDrawBatch* CreateFillAA(GrColor color,
+inline GrDrawBatch* CreateAAFill(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix,
                                  const SkRect& rect,
@@ -45,20 +45,20 @@ inline GrDrawBatch* CreateFillAA(GrColor color,
     return GrAAFillRectBatch::Create(color, viewMatrix, localMatrix, rect, devRect);
 }
 
-GrDrawBatch* CreateStrokeBW(GrColor color,
-                            const SkMatrix& viewMatrix,
-                            const SkRect& rect,
-                            SkScalar strokeWidth,
-                            bool snapToPixelCenters);
+GrDrawBatch* CreateNonAAStroke(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkRect& rect,
+                               SkScalar strokeWidth,
+                               bool snapToPixelCenters);
 
-GrDrawBatch* CreateStrokeAA(GrColor,
+GrDrawBatch* CreateAAStroke(GrColor,
                             const SkMatrix& viewMatrix,
                             const SkRect& rect,
                             const SkRect& devRect,
                             const SkStrokeRec& stroke);
 
 // First rect is outer; second rect is inner
-GrDrawBatch* CreateFillNestedRectsAA(GrColor,
+GrDrawBatch* CreateAAFillNestedRects(GrColor,
                                      const SkMatrix& viewMatrix,
                                      const SkRect rects[2]);
 

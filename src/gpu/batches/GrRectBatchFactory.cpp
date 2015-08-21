@@ -30,7 +30,7 @@ static GrDrawBatch* create_stroke_aa_batch(GrColor color,
 
 namespace GrRectBatchFactory {
 
-GrDrawBatch* CreateStrokeBW(GrColor color,
+GrDrawBatch* CreateNonAAStroke(GrColor color,
                             const SkMatrix& viewMatrix,
                             const SkRect& rect,
                             SkScalar strokeWidth,
@@ -43,7 +43,7 @@ GrDrawBatch* CreateStrokeBW(GrColor color,
     return GrStrokeRectBatch::Create(geometry, snapToPixelCenters);
 }
 
-GrDrawBatch* CreateStrokeAA(GrColor color,
+GrDrawBatch* CreateAAStroke(GrColor color,
                             const SkMatrix& viewMatrix,
                             const SkRect& rect,
                             const SkRect& devRect,
@@ -82,7 +82,7 @@ GrDrawBatch* CreateStrokeAA(GrColor color,
     }
 
     if (spare <= 0 && miterStroke) {
-        return CreateFillAA(color, viewMatrix, devOutside, devOutside);
+        return CreateAAFill(color, viewMatrix, devOutside, devOutside);
     }
 
     SkRect devInside(devRect);
@@ -102,7 +102,7 @@ GrDrawBatch* CreateStrokeAA(GrColor color,
                                   miterStroke);
 }
 
-GrDrawBatch* CreateFillNestedRectsAA(GrColor color,
+GrDrawBatch* CreateAAFillNestedRects(GrColor color,
                                      const SkMatrix& viewMatrix,
                                      const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());
@@ -113,7 +113,7 @@ GrDrawBatch* CreateFillNestedRectsAA(GrColor color,
     viewMatrix.mapRect(&devInside, rects[1]);
 
     if (devInside.isEmpty()) {
-        return CreateFillAA(color, viewMatrix, devOutside, devOutside);
+        return CreateAAFill(color, viewMatrix, devOutside, devOutside);
     }
 
     return create_stroke_aa_batch(color, viewMatrix, devOutside, devOutside, devInside, true);
