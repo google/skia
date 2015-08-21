@@ -16,10 +16,10 @@ struct SkRect;
 
 namespace GrBWFillRectBatch {
 GrDrawBatch* Create(GrColor color,
-                const SkMatrix& viewMatrix,
-                const SkRect& rect,
-                const SkRect* localRect,
-                const SkMatrix* localMatrix);
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect* localRect,
+                    const SkMatrix* localMatrix);
 };
 
 #endif

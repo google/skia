@@ -22,6 +22,10 @@
  *
  *     const char* Name()
  *
+ *     void InvariantOutputCoverage(GrInitInvariantOutput* out)
+ *
+ *     void SetBounds(const Geometry& seedGeometry, SkRect* outBounds)
+ *
  *     bool CanCombine(const Geometry& mine, const Geometry& theirs,
  *                     const GrPipelineOptimizations&)
  *
@@ -50,7 +54,7 @@ public:
     }
 
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        Impl::InitInvariantOutputCoverage(out);
     }
 
     void initBatchTracker(const GrPipelineOptimizations& opt) override {
@@ -66,7 +70,7 @@ public:
     Geometry* geometry() { return &fGeoData[0]; }
     void init() {
         const Geometry& geo = fGeoData[0];
-        this->setBounds(geo.fDevRect);
+        Impl::SetBounds(geo, &fBounds);
     }
 
 private:

@@ -187,8 +187,17 @@ public:
     static const int kVertsPerInstance = kVertsPerAAFillRect;
     static const int kIndicesPerInstance = kIndicesPerAAFillRect;
 
-    inline static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* rp) {
+    static void InitInvariantOutputCoverage(GrInitInvariantOutput* out) {
+        out->setUnknownSingleComponent();
+    }
+
+    static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* rp) {
         return get_index_buffer(rp);
+    }
+
+    template <class Geometry>
+    static void SetBounds(const Geometry& geo, SkRect* outBounds) {
+        *outBounds = geo.fDevRect;
     }
 };
 
@@ -201,18 +210,18 @@ public:
         GrColor fColor;
     };
 
-    inline static const char* Name() { return "AAFillRectBatchNoLocalMatrix"; }
+    static const char* Name() { return "AAFillRectBatchNoLocalMatrix"; }
 
-    inline static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                                  const GrPipelineOptimizations& opts) {
+    static bool CanCombine(const Geometry& mine, const Geometry& theirs,
+                           const GrPipelineOptimizations& opts) {
         // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
         // local coords then we won't be able to batch.  We could actually upload the viewmatrix
         // using vertex attributes in these cases, but haven't investigated that
         return !opts.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
     }
 
-    inline static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                                      const GrPipelineOptimizations& opts) {
+    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+                                               const GrPipelineOptimizations& opts) {
         const GrGeometryProcessor* gp =
                 create_fill_rect_gp(geo.fViewMatrix, opts,
                                     GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
@@ -224,8 +233,8 @@ public:
         return gp;
     }
 
-    inline static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                                 const GrPipelineOptimizations& opts) {
+    static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
+                          const GrPipelineOptimizations& opts) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
                                        geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
                                        NULL);
@@ -242,15 +251,15 @@ public:
         GrColor fColor;
     };
 
-    inline static const char* Name() { return "AAFillRectBatchLocalMatrix"; }
+    static const char* Name() { return "AAFillRectBatchLocalMatrix"; }
 
-    inline static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                                  const GrPipelineOptimizations&) {
+    static bool CanCombine(const Geometry& mine, const Geometry& theirs,
+                           const GrPipelineOptimizations&) {
         return true;
     }
 
-    inline static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                                      const GrPipelineOptimizations& opts) {
+    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
+                                               const GrPipelineOptimizations& opts) {
         const GrGeometryProcessor* gp =
                 create_fill_rect_gp(geo.fViewMatrix, opts,
                                     GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
@@ -263,8 +272,8 @@ public:
         return gp;
     }
 
-    inline static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                                 const GrPipelineOptimizations& opts) {
+    static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
+                          const GrPipelineOptimizations& opts) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
                                        geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
                                        &geo.fLocalMatrix);
