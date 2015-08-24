@@ -13,6 +13,8 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
+class SkPrivateEffectInitializer;
+
 /*
  *  Flattening is straight-forward:
  *      1. call getFactory() so we have a function-ptr to recreate the subclass
@@ -47,7 +49,7 @@ class SkWriteBuffer;
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)    \
     private:                                                                \
     static SkFlattenable* CreateProc(SkReadBuffer&);                        \
-    friend class SkPrivateEffectInitializer;                                \
+    friend class ::SkPrivateEffectInitializer;                              \
     public:                                                                 \
     Factory getFactory() const override { return CreateProc; }
 
