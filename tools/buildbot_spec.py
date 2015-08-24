@@ -162,6 +162,13 @@ def get_extra_env_vars(builder_dict):
   elif builder_dict.get('compiler') == 'Clang':
     env['CC'] = '/usr/bin/clang'
     env['CXX'] = '/usr/bin/clang++'
+
+  # Force Debug mode for Appurify bots so that we don't have to sign the test
+  # APK.
+  # TODO(borenet): Remove this once able.
+  if builder_dict.get('extra_config') == 'Appurify':
+    env['BUILDTYPE'] = CONFIG_DEBUG
+
   return env
 
 
@@ -176,7 +183,10 @@ def build_targets_from_builder_dict(builder_dict):
       t.append('nanobench')
     return t
   elif builder_dict['role'] == builder_name_schema.BUILDER_ROLE_PERF:
-    return ['nanobench']
+    if builder_dict.get('extra_config') == 'Appurify':
+      return ['VisualBenchTest_APK']
+    else:
+      return ['nanobench']
   else:
     return ['most']
 
@@ -300,10 +310,12 @@ def self_test():
         'Build-Ubuntu-GCC-x86_64-Release-Mesa',
         'Housekeeper-PerCommit',
         'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
+        'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Release-Appurify',
         'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
         'Test-ChromeOS-GCC-Link-CPU-AVX-x86_64-Debug',
         'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
         'Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
+        'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage',
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD',
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
         'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
