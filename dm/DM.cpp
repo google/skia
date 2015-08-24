@@ -493,7 +493,7 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
     }
 
     // We don't need bitmap anymore.  Might as well drop our ref.
-    bitmap = SkBitmap();
+    bitmap.reset();
 
     FILE* f = fopen(path, "w");
     if (!f) { return false; }
