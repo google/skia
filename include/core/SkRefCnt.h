@@ -57,7 +57,15 @@ public:
     /** Increment the reference count. Must be balanced by a call to unref().
     */
     void ref() const {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        // Android employs some special subclasses that enable the fRefCnt to
+        // go to zero, but not below, prior to reusing the object.  This breaks
+        // the use of unique() on such objects and as such should be removed
+        // once the Android code is fixed.
+        SkASSERT(fRefCnt >= 0);
+#else
         SkASSERT(fRefCnt > 0);
+#endif
         (void)sk_atomic_fetch_add(&fRefCnt, +1, sk_memory_order_relaxed);  // No barrier required.
     }
 
