@@ -20,10 +20,16 @@ class SkObjectParser {
 public:
 
     /**
-        Returns a string about a bitmaps bounds and colortype.
+        Returns a string about a bitmap's bounds and colortype.
         @param bitmap  SkBitmap
     */
     static SkString* BitmapToString(const SkBitmap& bitmap);
+
+    /**
+        Returns a string about a image
+        @param image   SkImage
+    */
+    static SkString* ImageToString(const SkImage* image);
 
     /**
         Returns a string representation of a boolean.

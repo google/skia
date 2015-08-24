@@ -9,6 +9,7 @@
 #include "SkObjectParser.h"
 #include "SkData.h"
 #include "SkFontDescriptor.h"
+#include "SkImage.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkShader.h"
@@ -56,6 +57,29 @@ SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
     mBitmap->appendS32(bitmap.getGenerationID());
 
     return mBitmap;
+}
+
+SkString* SkObjectParser::ImageToString(const SkImage* image) {
+    SkString* str = new SkString("SkImage: ");
+    if (!image) {
+        return str;
+    }
+
+    str->append("W: ");
+    str->appendS32(image->width());
+    str->append(" H: ");
+    str->appendS32(image->height());
+
+    if (image->isOpaque()) {
+        str->append(" opaque");
+    } else {
+        str->append(" not-opaque");
+    }
+
+    str->append(" uniqueID: ");
+    str->appendS32(image->uniqueID());
+
+    return str;
 }
 
 SkString* SkObjectParser::BoolToString(bool doAA) {

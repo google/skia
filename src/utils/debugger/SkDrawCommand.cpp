@@ -402,6 +402,16 @@ SkDrawImageRectCommand::SkDrawImageRectCommand(const SkImage* image, const SkRec
     if (paint) {
         fPaint.set(*paint);
     }
+
+    fInfo.push(SkObjectParser::ImageToString(image));
+    if (src) {
+        fInfo.push(SkObjectParser::RectToString(*src, "Src: "));
+    }
+    fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
+    if (paint) {
+        fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
+    fInfo.push(SkObjectParser::IntToString(fConstraint, "Constraint: "));
 }
 
 void SkDrawImageRectCommand::execute(SkCanvas* canvas) const {
