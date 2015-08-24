@@ -34,7 +34,7 @@
       'conditions': [
         [ '"x86" in skia_arch_type and skia_os != "ios"', {
           'cflags': [ '-msse2' ],
-          'dependencies': [ 'opts_ssse3', 'opts_sse41' ],
+          'dependencies': [ 'opts_ssse3', 'opts_sse41', 'opts_sse42', 'opts_avx', 'opts_avx2' ],
           'sources': [ '<@(sse2_sources)' ],
         }],
 
@@ -126,6 +126,60 @@
         [ 'skia_os == "mac"', {
           'xcode_settings': { 'GCC_ENABLE_SSE41_EXTENSIONS': 'YES' },
         }],
+      ],
+    },
+    {
+      'target_name': 'opts_sse42',
+      'product_name': 'skia_opts_sse42',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [ 'core.gyp:*' ],
+      'include_dirs': [
+          '../include/private',
+          '../src/core',
+          '../src/utils',
+      ],
+      'sources': [ '<@(sse42_sources)' ],
+      'conditions': [
+        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=42' ], }],
+        [ 'not skia_android_framework', { 'cflags': [ '-msse4.2' ], }],
+        [ 'skia_os == "mac"', { 'xcode_settings': { 'GCC_ENABLE_SSE42_EXTENSIONS': 'YES' }, }],
+      ],
+    },
+    {
+      'target_name': 'opts_avx',
+      'product_name': 'skia_opts_avx',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [ 'core.gyp:*' ],
+      'include_dirs': [
+          '../include/private',
+          '../src/core',
+          '../src/utils',
+      ],
+      'sources': [ '<@(avx_sources)' ],
+      'conditions': [
+        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=51' ], }],
+        [ 'not skia_android_framework', { 'cflags': [ '-mavx' ], }],
+        [ 'skia_os == "mac"', { 'xcode_settings': { 'OTHER_CFLAGS': [ '-mavx' ] }, }],
+      ],
+    },
+    {
+      'target_name': 'opts_avx2',
+      'product_name': 'skia_opts_avx2',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'dependencies': [ 'core.gyp:*' ],
+      'include_dirs': [
+          '../include/private',
+          '../src/core',
+          '../src/utils',
+      ],
+      'sources': [ '<@(avx2_sources)' ],
+      'conditions': [
+        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=52' ], }],
+        [ 'not skia_android_framework', { 'cflags': [ '-mavx2' ], }],
+        [ 'skia_os == "mac"', { 'xcode_settings': { 'OTHER_CFLAGS': [ '-mavx2' ] }, }],
       ],
     },
     {

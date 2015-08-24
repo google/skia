@@ -114,12 +114,18 @@
 #define SK_CPU_SSE_LEVEL_SSSE3    31
 #define SK_CPU_SSE_LEVEL_SSE41    41
 #define SK_CPU_SSE_LEVEL_SSE42    42
+#define SK_CPU_SSE_LEVEL_AVX      51
+#define SK_CPU_SSE_LEVEL_AVX2     52
 
 // Are we in GCC?
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
     // available SSE level.
-    #if defined(__SSE4_2__)
+    #if defined(__AVX2__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX2
+    #elif defined(__AVX__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX
+    #elif defined(__SSE4_2__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE42
     #elif defined(__SSE4_1__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE41
@@ -136,9 +142,13 @@
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
     // available SSE level. 64-bit intel guarantees at least SSE2 support.
-    #if defined(_M_X64) || defined(_M_AMD64)
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
-    #elif defined (_M_IX86_FP)
+    #if defined(__AVX2__)
+        #define SK_CPU_SSE_LEVEL        SK_CPU_SSE_LEVEL_AVX2
+    #elif defined(__AVX__)
+        #define SK_CPU_SSE_LEVEL        SK_CPU_SSE_LEVEL_AVX
+    #elif defined(_M_X64) || defined(_M_AMD64)
+        #define SK_CPU_SSE_LEVEL        SK_CPU_SSE_LEVEL_SSE2
+    #elif defined(_M_IX86_FP)
         #if _M_IX86_FP >= 2
             #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
         #elif _M_IX86_FP == 1

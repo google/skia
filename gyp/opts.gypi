@@ -52,4 +52,10 @@
             '<(skia_src_path)/opts/SkBlitRow_opts_SSE4.cpp',
             '<(skia_src_path)/opts/SkOpts_sse41.cpp',
         ],
+        'sse42_sources': [
+        ],
+        'avx_sources': [
+        ],
+        'avx2_sources': [
+        ],
 }
