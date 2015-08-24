@@ -69,14 +69,12 @@ public:
     const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrFragmentStage, (effect));
-        fColorProcInfoValid = false;
         return effect;
     }
 
     const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* effect) {
         SkASSERT(effect);
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrFragmentStage, (effect));
-        fCoverageProcInfoValid = false;
         return effect;
     }
 
@@ -437,18 +435,6 @@ private:
     void calcColorInvariantOutput(const GrDrawBatch*) const;
     void calcCoverageInvariantOutput(const GrDrawBatch*) const;
 
-    /**
-     * If fColorProcInfoValid is false, function calculates the invariant output for the color
-     * processors and results are stored in fColorProcInfo.
-     */
-    void calcColorInvariantOutput(GrColor) const;
-
-    /**
-     * If fCoverageProcInfoValid is false, function calculates the invariant output for the coverage
-     * processors and results are stored in fCoverageProcInfo.
-     */
-    void calcCoverageInvariantOutput(GrColor) const;
-
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
     SkDEBUGCODE(mutable int fBlockEffectRemovalCnt;)
@@ -467,10 +453,6 @@ private:
 
     mutable GrProcOptInfo fColorProcInfo;
     mutable GrProcOptInfo fCoverageProcInfo;
-    mutable bool fColorProcInfoValid;
-    mutable bool fCoverageProcInfoValid;
-    mutable GrColor fColorCache;
-    mutable GrColor fCoverageCache;
 
     friend class GrPipeline;
 };
