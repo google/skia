@@ -16,8 +16,6 @@
  */
 class GrQuad {
 public:
-    GrQuad() {}
-
     GrQuad(const GrQuad& that) {
         *this = that;
     }
@@ -50,11 +48,6 @@ public:
 
     const SkPoint* points() const {
         return fPoints;
-    }
-
-    const SkPoint& point(int i) const {
-        SkASSERT(i < kNumPoints);
-        return fPoints[i];
     }
 
 private:
