@@ -2716,10 +2716,10 @@ bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
     return true;
 }
 
-bool GrGLGpu::copySurface(GrSurface* dst,
-                          GrSurface* src,
-                          const SkIRect& srcRect,
-                          const SkIPoint& dstPoint) {
+bool GrGLGpu::onCopySurface(GrSurface* dst,
+                            GrSurface* src,
+                            const SkIRect& srcRect,
+                            const SkIPoint& dstPoint) {
     if (src->asTexture() && dst->asRenderTarget()) {
         this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
         return true;

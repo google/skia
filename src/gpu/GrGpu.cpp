@@ -232,6 +232,15 @@ void GrGpu::clearStencilClip(const SkIRect& rect,
     this->onClearStencilClip(renderTarget, rect, insideClip);
 }
 
+bool GrGpu::copySurface(GrSurface* dst,
+                        GrSurface* src,
+                        const SkIRect& srcRect,
+                        const SkIPoint& dstPoint) {
+    SkASSERT(dst && src);
+    this->handleDirtyContext();
+    return this->onCopySurface(dst, src, srcRect, dstPoint);
+}
+
 bool GrGpu::readPixels(GrRenderTarget* target,
                        int left, int top, int width, int height,
                        GrPixelConfig config, void* buffer,
