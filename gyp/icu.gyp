@@ -63,9 +63,23 @@
             'msvs_disabled_warnings': [4005, 4068, 4244, 4355, 4996, 4267],
             'msvs_settings': {
               'VCCLCompilerTool': {
-                'RuntimeTypeInfo': 'true',
-                'AdditionalOptions!': [ '/GR-' ],
-                'AdditionalOptions': [ '/EHsc', '/GR', '/w', ],
+                'AdditionalOptions': [ '/EHsc', ],
+              },
+            },
+            'configurations': {
+              'Debug': {
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                    'RuntimeTypeInfo': 'true', # /GR
+                  },
+                },
+              },
+              'Release': {
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                    'RuntimeTypeInfo': 'true', # /GR
+                  },
+                },
               },
             },
             'all_dependent_settings': {

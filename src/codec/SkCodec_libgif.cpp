@@ -67,11 +67,7 @@ static GifFileType* open_gif(SkStream* stream) {
  * It is used in a SkAutoTCallIProc template
  */
 void SkGifCodec::CloseGif(GifFileType* gif) {
-#if GIFLIB_MAJOR < 5 || (GIFLIB_MAJOR == 5 && GIFLIB_MINOR == 0)
-    DGifCloseFile(gif);
-#else
     DGifCloseFile(gif, NULL);
-#endif
 }
 
 /*
