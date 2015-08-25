@@ -168,7 +168,7 @@ public:
             fLightDir.fX = 10000.0f;
             fLightColor.fX = 0.0f;
             fAmbientColor.fX = 0.0f;
-            fInvNormRotation.fX = 0.0f;
+            fInvNormRotation.set(0.0f, 0.0f);
         }
 
         void emitCode(EmitArgs& args) override {
