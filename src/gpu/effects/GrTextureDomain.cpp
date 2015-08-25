@@ -146,7 +146,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLProgramDataManager& pdman,
                                         GrSurfaceOrigin textureOrigin) {
     SkASSERT(textureDomain.mode() == fMode);
     if (kIgnore_Mode != textureDomain.mode()) {
-        GrGLfloat values[4] = {
+        GrGLfloat values[kPrevDomainCount] = {
             SkScalarToFloat(textureDomain.domain().left()),
             SkScalarToFloat(textureDomain.domain().top()),
             SkScalarToFloat(textureDomain.domain().right()),
@@ -160,9 +160,9 @@ void GrTextureDomain::GLDomain::setData(const GrGLProgramDataManager& pdman,
             // of elements so that values = (l, t, r, b).
             SkTSwap(values[1], values[3]);
         }
-        if (0 != memcmp(values, fPrevDomain, 4 * sizeof(GrGLfloat))) {
+        if (0 != memcmp(values, fPrevDomain, kPrevDomainCount * sizeof(GrGLfloat))) {
             pdman.set4fv(fDomainUni, 1, values);
-            memcpy(fPrevDomain, values, 4 * sizeof(GrGLfloat));
+            memcpy(fPrevDomain, values, kPrevDomainCount * sizeof(GrGLfloat));
         }
     }
 }

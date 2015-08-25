@@ -95,7 +95,9 @@ public:
     class GLDomain {
     public:
         GLDomain() {
-            fPrevDomain[0] = SK_FloatNaN;
+            for (int i = 0; i < kPrevDomainCount; i++) {
+                fPrevDomain[i] = SK_FloatNaN;
+            }
             SkDEBUGCODE(fMode = (Mode) -1;)
         }
 
@@ -137,10 +139,11 @@ public:
         }
 
     private:
+        static const int kPrevDomainCount = 4;
         SkDEBUGCODE(Mode                      fMode;)
         GrGLProgramDataManager::UniformHandle fDomainUni;
         SkString                              fDomainName;
-        GrGLfloat                             fPrevDomain[4];
+        GrGLfloat                             fPrevDomain[kPrevDomainCount];
     };
 
 protected:
