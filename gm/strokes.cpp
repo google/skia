@@ -266,60 +266,6 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-// Test stroking for curves that produce degenerate tangents when t is 0 or 1 (see bug 4191)
-class Strokes5GM : public skiagm::GM {
-public:
-    Strokes5GM() {}
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("zero_control_stroke");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H*2);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkPaint p;
-        p.setColor(SK_ColorRED);
-        p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(40);
-        p.setStrokeCap(SkPaint::kButt_Cap);
-
-        SkPath path;
-        path.moveTo(157.474f,111.753f);
-        path.cubicTo(128.5f,111.5f,35.5f,29.5f,35.5f,29.5f);
-        canvas->drawPath(path, p);
-        path.reset();
-        path.moveTo(250, 50);
-        path.quadTo(280, 80, 280, 80);
-        canvas->drawPath(path, p);
-        path.reset();
-        path.moveTo(150, 50);
-        path.conicTo(180, 80, 180, 80, 0.707f);
-        canvas->drawPath(path, p);
-
-        path.reset();
-        path.moveTo(157.474f,311.753f);
-        path.cubicTo(157.474f,311.753f,85.5f,229.5f,35.5f,229.5f);
-        canvas->drawPath(path, p);
-        path.reset();
-        path.moveTo(280, 250);
-        path.quadTo(280, 250, 310, 280);
-        canvas->drawPath(path, p);
-        path.reset();
-        path.moveTo(180, 250);
-        path.conicTo(180, 250, 210, 280, 0.707f);
-        canvas->drawPath(path, p);
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -327,10 +273,8 @@ static skiagm::GM* F0(void*) { return new StrokesGM; }
 static skiagm::GM* F1(void*) { return new Strokes2GM; }
 static skiagm::GM* F2(void*) { return new Strokes3GM; }
 static skiagm::GM* F3(void*) { return new Strokes4GM; }
-static skiagm::GM* F4(void*) { return new Strokes5GM; }
 
 static skiagm::GMRegistry R0(F0);
 static skiagm::GMRegistry R1(F1);
 static skiagm::GMRegistry R2(F2);
 static skiagm::GMRegistry R3(F3);
-static skiagm::GMRegistry R4(F4);

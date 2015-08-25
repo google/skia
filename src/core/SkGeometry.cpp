@@ -130,6 +130,13 @@ static SkScalar eval_quad(const SkScalar src[], SkScalar t) {
 #endif
 }
 
+static SkScalar eval_quad_derivative(const SkScalar src[], SkScalar t) {
+    SkScalar A = src[4] - 2 * src[2] + src[0];
+    SkScalar B = src[2] - src[0];
+
+    return 2 * SkScalarMulAdd(A, t, B);
+}
+
 void SkQuadToCoeff(const SkPoint pts[3], SkPoint coeff[3]) {
     Sk2s p0 = from_point(pts[0]);
     Sk2s p1 = from_point(pts[1]);
@@ -150,7 +157,8 @@ void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tange
         pt->set(eval_quad(&src[0].fX, t), eval_quad(&src[0].fY, t));
     }
     if (tangent) {
-        *tangent = SkEvalQuadTangentAt(src, t);
+        tangent->set(eval_quad_derivative(&src[0].fX, t),
+                     eval_quad_derivative(&src[0].fY, t));
     }
 }
 
@@ -171,12 +179,6 @@ SkPoint SkEvalQuadAt(const SkPoint src[3], SkScalar t) {
 }
 
 SkVector SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t) {
-    // The derivative equation is 2(b - a +(a - 2b +c)t). This returns a
-    // zero tangent vector when t is 0 or 1, and the control point is equal
-    // to the end point. In this case, use the quad end points to compute the tangent.
-    if ((t == 0 && src[0] == src[1]) || (t == 1 && src[1] == src[2])) {
-        return src[2] - src[0];
-    }
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
@@ -396,22 +398,8 @@ void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* loc,
         loc->set(eval_cubic(&src[0].fX, t), eval_cubic(&src[0].fY, t));
     }
     if (tangent) {
-        // The derivative equation returns a zero tangent vector when t is 0 or 1, and the
-        // adjacent control point is equal to the end point. In this case, use the
-        // next control point or the end points to compute the tangent.
-        if ((t == 0 && src[0] == src[1]) || (t == 1 && src[2] == src[3])) {
-            if (t == 0) {
-                *tangent = src[2] - src[0];
-            } else {
-                *tangent = src[3] - src[1];
-            }
-            if (!tangent->fX && !tangent->fY) {
-                *tangent = src[3] - src[0];
-            }
-        } else {
-            tangent->set(eval_cubic_derivative(&src[0].fX, t),
-                         eval_cubic_derivative(&src[0].fY, t));
-        }
+        tangent->set(eval_cubic_derivative(&src[0].fX, t),
+                     eval_cubic_derivative(&src[0].fY, t));
     }
     if (curvature) {
         curvature->set(eval_cubic_2ndDerivative(&src[0].fX, t),
@@ -1188,6 +1176,12 @@ static void conic_deriv_coeff(const SkScalar src[],
     coeff[2] = wP10;
 }
 
+static SkScalar conic_eval_tan(const SkScalar coord[], SkScalar w, SkScalar t) {
+    SkScalar coeff[3];
+    conic_deriv_coeff(coord, w, coeff);
+    return t * (t * coeff[0] + coeff[1]) + coeff[2];
+}
+
 static bool conic_find_extrema(const SkScalar src[], SkScalar w, SkScalar* t) {
     SkScalar coeff[3];
     conic_deriv_coeff(src, w, coeff);
@@ -1238,7 +1232,8 @@ void SkConic::evalAt(SkScalar t, SkPoint* pt, SkVector* tangent) const {
                 conic_eval_pos(&fPts[0].fY, fW, t));
     }
     if (tangent) {
-        *tangent = evalTangentAt(t);
+        tangent->set(conic_eval_tan(&fPts[0].fX, fW, t),
+                     conic_eval_tan(&fPts[0].fY, fW, t));
     }
 }
 
@@ -1296,12 +1291,6 @@ SkPoint SkConic::evalAt(SkScalar t) const {
 }
 
 SkVector SkConic::evalTangentAt(SkScalar t) const {
-    // The derivative equation returns a zero tangent vector when t is 0 or 1,
-    // and the control point is equal to the end point.
-    // In this case, use the conic endpoints to compute the tangent.
-    if ((t == 0 && fPts[0] == fPts[1]) || (t == 1 && fPts[1] == fPts[2])) {
-        return fPts[2] - fPts[0];
-    }
     Sk2s p0 = from_point(fPts[0]);
     Sk2s p1 = from_point(fPts[1]);
     Sk2s p2 = from_point(fPts[2]);
