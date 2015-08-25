@@ -1586,33 +1586,34 @@ bool SkMatrix::getMinMaxScales(SkScalar scaleFactors[2]) const {
 
 namespace {
 
-struct PODMatrix {
+// SkMatrix is C++11 POD (trivial and standard-layout), but not aggregate (it has private fields).
+struct AggregateMatrix {
     SkScalar matrix[9];
     uint32_t typemask;
 
     const SkMatrix& asSkMatrix() const { return *reinterpret_cast<const SkMatrix*>(this); }
 };
-static_assert(sizeof(PODMatrix) == sizeof(SkMatrix), "PODMatrixSizeMismatch");
+static_assert(sizeof(AggregateMatrix) == sizeof(SkMatrix), "AggregateMatrix size mismatch.");
 
 }  // namespace
 
 const SkMatrix& SkMatrix::I() {
-    static_assert(offsetof(SkMatrix, fMat)      == offsetof(PODMatrix, matrix),   "BadfMat");
-    static_assert(offsetof(SkMatrix, fTypeMask) == offsetof(PODMatrix, typemask), "BadfTypeMask");
+    static_assert(offsetof(SkMatrix,fMat)      == offsetof(AggregateMatrix,matrix),   "fMat");
+    static_assert(offsetof(SkMatrix,fTypeMask) == offsetof(AggregateMatrix,typemask), "fTypeMask");
 
-    static const PODMatrix identity = { {SK_Scalar1, 0, 0,
-                                         0, SK_Scalar1, 0,
-                                         0, 0, SK_Scalar1 },
-                                       kIdentity_Mask | kRectStaysRect_Mask};
+    static const AggregateMatrix identity = { {SK_Scalar1, 0, 0,
+                                               0, SK_Scalar1, 0,
+                                               0, 0, SK_Scalar1 },
+                                             kIdentity_Mask | kRectStaysRect_Mask};
     SkASSERT(identity.asSkMatrix().isIdentity());
     return identity.asSkMatrix();
 }
 
 const SkMatrix& SkMatrix::InvalidMatrix() {
-    static_assert(offsetof(SkMatrix, fMat)      == offsetof(PODMatrix, matrix),   "BadfMat");
-    static_assert(offsetof(SkMatrix, fTypeMask) == offsetof(PODMatrix, typemask), "BadfTypeMask");
+    static_assert(offsetof(SkMatrix,fMat)      == offsetof(AggregateMatrix,matrix),   "fMat");
+    static_assert(offsetof(SkMatrix,fTypeMask) == offsetof(AggregateMatrix,typemask), "fTypeMask");
 
-    static const PODMatrix invalid =
+    static const AggregateMatrix invalid =
         { {SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
            SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
            SK_ScalarMax, SK_ScalarMax, SK_ScalarMax },

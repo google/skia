@@ -43,6 +43,8 @@ template <typename T> inline T&& forward(remove_reference_t<T>&& t) /*noexcept*/
     return static_cast<T&&>(t);
 }
 
+template <typename T> add_rvalue_reference_t<T> declval();
+
 }  // namespace skstd
 
 ///@{

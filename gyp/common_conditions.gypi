@@ -228,7 +228,6 @@
           '-std=c++11',
           '-fno-rtti',
           '-Wnon-virtual-dtor',
-          '-Wno-invalid-offsetof',  # GCC <4.6 is old-school strict about what is POD.
         ],
         'conditions': [
           [ 'skia_fast', { 'cflags': [ '<@(skia_fast_flags)' ] }],
@@ -498,7 +497,6 @@
           'GCC_INLINES_ARE_PRIVATE_EXTERN':            'NO',   # -fvisibility-inlines-hidden
           'GCC_CW_ASM_SYNTAX':                         'NO',   # remove -fasm-blocks
           'GCC_ENABLE_PASCAL_STRINGS':                 'NO',   # remove -mpascal-strings
-          'GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO':     'NO',   # -Wno-invalid-offsetof
           'WARNING_CFLAGS': [
             '-Wall',
             '-Wextra',
@@ -546,7 +544,6 @@
           'IPHONEOS_DEPLOYMENT_TARGET': '<(ios_sdk_version)',
           'SDKROOT': 'iphoneos',
           'TARGETED_DEVICE_FAMILY': '1,2',
-          'GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO': 'NO',   # -Wno-invalid-offsetof
           'OTHER_CPLUSPLUSFLAGS': [
             '-std=c++0x',
             '-fvisibility=hidden',

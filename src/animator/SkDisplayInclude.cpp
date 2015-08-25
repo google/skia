@@ -11,13 +11,6 @@
 #include "SkAnimateMaker.h"
 #include "SkAnimator.h"
 
-#if 0
-#undef SK_MEMBER
-#define SK_MEMBER(_member, _type) \
-    { #_member, SK_OFFSETOF(BASE_CLASS::_A, _member), SkType_##_type, \
-    sizeof(((BASE_CLASS::_A*) 0)->_member) / sizeof(SkScalar) }
-#endif
-
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkInclude::fInfo[] = {

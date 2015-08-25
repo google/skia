@@ -104,13 +104,18 @@ struct SkMemberInfo {
 //  static bool SetValue(void* value, const char* name, SkDisplayTypes , int count);
 };
 
+#ifndef SK_OFFSETOF
+    // This is offsetof for types which are not standard layout.
+    #define SK_OFFSETOF(type, field) (size_t)((char*)&(((type*)1024)->field) - (char*)1024)
+#endif
+
 #define SK_MEMBER(_member, _type) \
     { #_member, SK_OFFSETOF(BASE_CLASS, _member), SkType_##_type, \
-    sizeof(((BASE_CLASS*) 1)->_member) / sizeof(SkScalar) }
+    sizeof(skstd::declval<BASE_CLASS>()._member) / sizeof(SkScalar) }
 
 #define SK_MEMBER_ALIAS(_member, _alias, _type) \
     { #_member, SK_OFFSETOF(BASE_CLASS, _alias), SkType_##_type, \
-    sizeof(((BASE_CLASS*) 1)->_alias) / sizeof(SkScalar) }
+    sizeof(skstd::declval<BASE_CLASS>()._alias) / sizeof(SkScalar) }
 
 #define SK_MEMBER_ARRAY(_member, _type) \
     { #_member, SK_OFFSETOF(BASE_CLASS, _member), SkType_Array, \

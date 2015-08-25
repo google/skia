@@ -112,15 +112,38 @@ public:                                                                 \
 
 namespace skstd {
 
-/** SkTRemoveReference<T>::type is the type of T with any top-level lvalue or rvalue removed. */
-template <typename T> struct remove_reference { typedef T type; };
-template <typename T> struct remove_reference<T&> { typedef T type; };
-template <typename T> struct remove_reference<T&&> { typedef T type; };
+template <typename T> struct remove_const { using type = T; };
+template <typename T> struct remove_const<const T> { using type = T; };
+template <typename T> using remove_const_t = typename remove_const<T>::type;
+
+template <typename T> struct remove_volatile { using type = T; };
+template <typename T> struct remove_volatile<volatile T> { using type = T; };
+template <typename T> using remove_volatile_t = typename remove_volatile<T>::type;
+
+template <typename T> struct remove_cv { using type = remove_volatile_t<remove_const_t<T>>; };
+template <typename T> using remove_cv_t = typename remove_cv<T>::type;
+
+template <typename T> struct remove_reference { using type = T; };
+template <typename T> struct remove_reference<T&> { using type = T; };
+template <typename T> struct remove_reference<T&&> { using type = T; };
 template <typename T> using remove_reference_t = typename remove_reference<T>::type;
 
-/** SkTIsLValueReference<T>::value is true if the type T is an lvalue reference. */
+template <typename T, typename U> struct is_same : SkFalse {};
+template <typename T> struct is_same<T, T> : SkTrue {};
+
+template <typename T> struct is_void : is_same<void, remove_cv_t<T>> {};
+
+template <typename T> struct is_reference : SkFalse {};
+template <typename T> struct is_reference<T&> : SkTrue {};
+template <typename T> struct is_reference<T&&> : SkTrue {};
+
 template <typename T> struct is_lvalue_reference : SkFalse {};
 template <typename T> struct is_lvalue_reference<T&> : SkTrue {};
+
+template <typename T> struct add_rvalue_reference {
+    using type = typename SkTIf_c<is_void<T>::value || is_reference<T>::value, T, T&&>::type;
+};
+template <typename T> using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
 
 }  // namespace skstd
 
