@@ -96,12 +96,8 @@
       ],
       'sources': [ '<@(ssse3_sources)' ],
       'conditions': [
-        [ 'skia_os == "win"', {
-            'defines' : [ 'SK_CPU_SSE_LEVEL=31' ],
-        }],
-        [ 'not skia_android_framework', {
-          'cflags': [ '-mssse3' ],
-        }],
+        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=31' ] }],
+        [ 'not skia_android_framework', { 'cflags': [ '-mssse3' ] }],
       ],
     },
     {
@@ -116,16 +112,10 @@
           '../src/utils',
       ],
       'sources': [ '<@(sse41_sources)' ],
+      'xcode_settings': { 'GCC_ENABLE_SSE41_EXTENSIONS': 'YES' },
       'conditions': [
-        [ 'skia_os == "win"', {
-            'defines' : [ 'SK_CPU_SSE_LEVEL=41' ],
-        }],
-        [ 'not skia_android_framework', {
-          'cflags': [ '-msse4.1' ],
-        }],
-        [ 'skia_os == "mac"', {
-          'xcode_settings': { 'GCC_ENABLE_SSE41_EXTENSIONS': 'YES' },
-        }],
+        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=41' ] }],
+        [ 'not skia_android_framework', { 'cflags': [ '-msse4.1' ] }],
       ],
     },
     {
@@ -140,10 +130,10 @@
           '../src/utils',
       ],
       'sources': [ '<@(sse42_sources)' ],
+      'xcode_settings': { 'GCC_ENABLE_SSE42_EXTENSIONS': 'YES' },
       'conditions': [
-        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=42' ], }],
-        [ 'not skia_android_framework', { 'cflags': [ '-msse4.2' ], }],
-        [ 'skia_os == "mac"', { 'xcode_settings': { 'GCC_ENABLE_SSE42_EXTENSIONS': 'YES' }, }],
+        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=42' ] }],
+        [ 'not skia_android_framework', { 'cflags': [ '-msse4.2' ] }],
       ],
     },
     {
@@ -158,10 +148,10 @@
           '../src/utils',
       ],
       'sources': [ '<@(avx_sources)' ],
+      'msvs_settings': { 'VCCLCompilerTool': { 'EnableEnhancedInstructionSet': '3' } },
+      'xcode_settings': { 'OTHER_CFLAGS': [ '-mavx' ] },
       'conditions': [
-        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=51' ], }],
-        [ 'not skia_android_framework', { 'cflags': [ '-mavx' ], }],
-        [ 'skia_os == "mac"', { 'xcode_settings': { 'OTHER_CFLAGS': [ '-mavx' ] }, }],
+        [ 'not skia_android_framework', { 'cflags': [ '-mavx' ] }],
       ],
     },
     {
@@ -176,10 +166,10 @@
           '../src/utils',
       ],
       'sources': [ '<@(avx2_sources)' ],
+      'msvs_settings': { 'VCCLCompilerTool': { 'EnableEnhancedInstructionSet': '5' } },
+      'xcode_settings': { 'OTHER_CFLAGS': [ '-mavx2' ] },
       'conditions': [
-        [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=52' ], }],
-        [ 'not skia_android_framework', { 'cflags': [ '-mavx2' ], }],
-        [ 'skia_os == "mac"', { 'xcode_settings': { 'OTHER_CFLAGS': [ '-mavx2' ] }, }],
+        [ 'not skia_android_framework', { 'cflags': [ '-mavx2' ] }],
       ],
     },
     {
