@@ -495,7 +495,7 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
     // We don't need bitmap anymore.  Might as well drop our ref.
     bitmap.reset();
 
-    FILE* f = fopen(path, "w");
+    FILE* f = fopen(path, "wb");
     if (!f) { return false; }
 
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
