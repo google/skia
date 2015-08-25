@@ -105,6 +105,67 @@ static void test_conic(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_quad_tangents(skiatest::Reporter* reporter) {
+    SkPoint pts[] = {
+        {10, 20}, {10, 20}, {20, 30},
+        {10, 20}, {15, 25}, {20, 30},
+        {10, 20}, {20, 30}, {20, 30},
+    };
+    int count = (int) SK_ARRAY_COUNT(pts) / 3;
+    for (int index = 0; index < count; ++index) {
+        SkConic conic(&pts[index * 3], 0.707f);
+        SkVector start = SkEvalQuadTangentAt(&pts[index * 3], 0);
+        SkVector mid = SkEvalQuadTangentAt(&pts[index * 3], .5f);
+        SkVector end = SkEvalQuadTangentAt(&pts[index * 3], 1);
+        REPORTER_ASSERT(reporter, start.fX && start.fY);
+        REPORTER_ASSERT(reporter, mid.fX && mid.fY);
+        REPORTER_ASSERT(reporter, end.fX && end.fY);
+        REPORTER_ASSERT(reporter, SkScalarNearlyZero(start.cross(mid)));
+        REPORTER_ASSERT(reporter, SkScalarNearlyZero(mid.cross(end)));
+    }
+}
+
+static void test_conic_tangents(skiatest::Reporter* reporter) {
+    SkPoint pts[] = {
+        { 10, 20}, {10, 20}, {20, 30},
+        { 10, 20}, {15, 25}, {20, 30},
+        { 10, 20}, {20, 30}, {20, 30}
+    };
+    int count = (int) SK_ARRAY_COUNT(pts) / 3;
+    for (int index = 0; index < count; ++index) {
+        SkConic conic(&pts[index * 3], 0.707f);
+        SkVector start = conic.evalTangentAt(0);
+        SkVector mid = conic.evalTangentAt(.5f);
+        SkVector end = conic.evalTangentAt(1);
+        REPORTER_ASSERT(reporter, start.fX && start.fY);
+        REPORTER_ASSERT(reporter, mid.fX && mid.fY);
+        REPORTER_ASSERT(reporter, end.fX && end.fY);
+        REPORTER_ASSERT(reporter, SkScalarNearlyZero(start.cross(mid)));
+        REPORTER_ASSERT(reporter, SkScalarNearlyZero(mid.cross(end)));
+    }
+}
+
+static void test_cubic_tangents(skiatest::Reporter* reporter) {
+    SkPoint pts[] = {
+        { 10, 20}, {10, 20}, {20, 30}, {30, 40},
+        { 10, 20}, {15, 25}, {20, 30}, {30, 40},
+        { 10, 20}, {20, 30}, {30, 40}, {30, 40},
+    };
+    int count = (int) SK_ARRAY_COUNT(pts) / 4;
+    for (int index = 0; index < count; ++index) {
+        SkConic conic(&pts[index * 3], 0.707f);
+        SkVector start, mid, end;
+        SkEvalCubicAt(&pts[index * 4], 0, NULL, &start, NULL);
+        SkEvalCubicAt(&pts[index * 4], .5f, NULL, &mid, NULL);
+        SkEvalCubicAt(&pts[index * 4], 1, NULL, &end, NULL);
+        REPORTER_ASSERT(reporter, start.fX && start.fY);
+        REPORTER_ASSERT(reporter, mid.fX && mid.fY);
+        REPORTER_ASSERT(reporter, end.fX && end.fY);
+        REPORTER_ASSERT(reporter, SkScalarNearlyZero(start.cross(mid)));
+        REPORTER_ASSERT(reporter, SkScalarNearlyZero(mid.cross(end)));
+    }
+}
+
 DEF_TEST(Geometry, reporter) {
     SkPoint pts[3], dst[5];
 
@@ -129,4 +190,7 @@ DEF_TEST(Geometry, reporter) {
     testChopCubic(reporter);
     test_evalquadat(reporter);
     test_conic(reporter);
+    test_cubic_tangents(reporter);
+    test_quad_tangents(reporter);
+    test_conic_tangents(reporter);
 }
