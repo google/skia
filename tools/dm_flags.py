@@ -170,6 +170,7 @@ def get_args(bot):
 
   if 'GalaxyS4' in bot:  # skia:4079
     match.append('~imagefiltersclipped')
+    match.append('~scaled_tilemodes_npot')
 
   if match:
     args.append('--match')
