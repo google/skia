@@ -135,13 +135,17 @@ struct GrAtlasTextBlob : public SkRefCnt {
     };
 
     struct BigGlyph {
-        BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy)
+        BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool applyVM)
             : fPath(path)
             , fVx(vx)
-            , fVy(vy) {}
+            , fVy(vy)
+            , fScale(scale)
+            , fApplyVM(applyVM) {}
         SkPath fPath;
         SkScalar fVx;
         SkScalar fVy;
+        SkScalar fScale;
+        bool fApplyVM;
     };
 
     struct Key {
