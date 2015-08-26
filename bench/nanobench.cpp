@@ -41,6 +41,8 @@
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
 
+#include <stdlib.h>
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     #include "nanobenchAndroid.h"
 #endif

@@ -20,6 +20,8 @@
 #include "SkTArray.h"
 #include "TimerData.h"
 
+#include <stdlib.h>
+
 /**
  * Base class for writing picture bench results.
  */

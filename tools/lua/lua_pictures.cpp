@@ -17,6 +17,8 @@
 #include "SkOSFile.h"
 #include "SkImageDecoder.h"
 
+#include <stdlib.h>
+
 extern "C" {
     #include "lua.h"
     #include "lualib.h"

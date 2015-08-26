@@ -1479,7 +1479,7 @@ void SkOpSegment::setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
     int deltaSum = SpanSign(start, end);
     *maxWinding = *sumMiWinding;
     *sumWinding = *sumMiWinding -= deltaSum;
-    SkASSERT(!DEBUG_LIMIT_WIND_SUM || abs(*sumWinding) <= DEBUG_LIMIT_WIND_SUM);
+    SkASSERT(!DEBUG_LIMIT_WIND_SUM || SkTAbs(*sumWinding) <= DEBUG_LIMIT_WIND_SUM);
 }
 
 void SkOpSegment::setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sumMiWinding,
@@ -1498,8 +1498,8 @@ void SkOpSegment::setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
         *oppMaxWinding = *sumSuWinding;
         *oppSumWinding = *sumSuWinding -= oppDeltaSum;
     }
-    SkASSERT(!DEBUG_LIMIT_WIND_SUM || abs(*sumWinding) <= DEBUG_LIMIT_WIND_SUM);
-    SkASSERT(!DEBUG_LIMIT_WIND_SUM || abs(*oppSumWinding) <= DEBUG_LIMIT_WIND_SUM);
+    SkASSERT(!DEBUG_LIMIT_WIND_SUM || SkTAbs(*sumWinding) <= DEBUG_LIMIT_WIND_SUM);
+    SkASSERT(!DEBUG_LIMIT_WIND_SUM || SkTAbs(*oppSumWinding) <= DEBUG_LIMIT_WIND_SUM);
 }
 
 void SkOpSegment::sortAngles() {
@@ -1774,8 +1774,8 @@ int SkOpSegment::updateWindingReverse(const SkOpAngle* angle) {
 bool SkOpSegment::UseInnerWinding(int outerWinding, int innerWinding) {
     SkASSERT(outerWinding != SK_MaxS32);
     SkASSERT(innerWinding != SK_MaxS32);
-    int absOut = abs(outerWinding);
-    int absIn = abs(innerWinding);
+    int absOut = SkTAbs(outerWinding);
+    int absIn = SkTAbs(innerWinding);
     bool result = absOut == absIn ? outerWinding < 0 : absOut < absIn;
     return result;
 }

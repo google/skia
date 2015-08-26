@@ -809,7 +809,7 @@ bool SkOpAngle::midToSide(const SkOpAngle* rh, bool* inside) const {
 }
 
 bool SkOpAngle::oppositePlanes(const SkOpAngle* rh) const {
-    int startSpan = abs(rh->fSectorStart - fSectorStart);
+    int startSpan = SkTAbs(rh->fSectorStart - fSectorStart);
     return startSpan >= 8;
 }
 

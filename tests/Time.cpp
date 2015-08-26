@@ -44,7 +44,7 @@ DEF_TEST(Time_GetDateTime, r) {
 
     // The westernmost timezone is -12:00.
     // The easternmost timezone is +14:00.
-    REPORTER_ASSERT(r, abs(SkToInt(dateTime.fTimeZoneMinutes)) <= 14 * 60);
+    REPORTER_ASSERT(r, SkTAbs(SkToInt(dateTime.fTimeZoneMinutes)) <= 14 * 60);
 
     SkString timeStamp;
     dateTime.toISO8601(&timeStamp);

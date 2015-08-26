@@ -17,6 +17,8 @@
 #include "SkTDArray.h"
 #include "SkTSearch.h"
 
+#include <stdlib.h>
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 /**

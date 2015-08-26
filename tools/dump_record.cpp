@@ -17,6 +17,8 @@
 #include "DumpRecord.h"
 #include "LazyDecodeBitmap.h"
 
+#include <stdlib.h>
+
 DEFINE_string2(skps, r, "", ".SKPs to dump.");
 DEFINE_string(match, "", "The usual filters on file names to dump.");
 DEFINE_bool2(optimize, O, false, "Run SkRecordOptimize before dumping.");

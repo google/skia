@@ -16,6 +16,8 @@
 #include "SkRTConf.h"
 #include "SkStream.h"
 
+#include <stdlib.h>
+
 #ifdef SK_BUILD_FOR_MAC
 #include <sys/sysctl.h>
 #endif

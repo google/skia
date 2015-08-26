@@ -8,6 +8,8 @@
 #include "SkRTConf.h"
 #include "SkOSFile.h"
 
+#include <stdlib.h>
+
 SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
 
     SkFILE *fp = sk_fopen(configFileLocation(), kRead_SkFILE_Flag);

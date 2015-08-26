@@ -10,6 +10,8 @@
 #include "SkString.h"
 #include "SkTSort.h"
 
+#include <stdlib.h>
+
 static const int N = 1000;
 
 static void rand_proc(int array[N]) {

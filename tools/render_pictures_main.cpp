@@ -25,6 +25,8 @@
 #include "PictureRenderingFlags.h"
 #include "picture_utils.h"
 
+#include <stdlib.h>
+
 // Flags used by this file, alphabetically:
 DEFINE_bool(bench_record, false, "If true, drop into an infinite loop of recording the picture.");
 DECLARE_bool(deferImageDecoding);
@@ -219,8 +221,8 @@ static inline int getByte(uint32_t value, int index) {
 }
 
 static int MaxByteDiff(uint32_t v1, uint32_t v2) {
-    return SkMax32(SkMax32(abs(getByte(v1, 0) - getByte(v2, 0)), abs(getByte(v1, 1) - getByte(v2, 1))),
-                   SkMax32(abs(getByte(v1, 2) - getByte(v2, 2)), abs(getByte(v1, 3) - getByte(v2, 3))));
+    return SkMax32(SkMax32(SkTAbs(getByte(v1, 0) - getByte(v2, 0)), SkTAbs(getByte(v1, 1) - getByte(v2, 1))),
+                   SkMax32(SkTAbs(getByte(v1, 2) - getByte(v2, 2)), SkTAbs(getByte(v1, 3) - getByte(v2, 3))));
 }
 
 class AutoRestoreBbhType {

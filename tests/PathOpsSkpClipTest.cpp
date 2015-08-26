@@ -32,6 +32,8 @@
 #include "SkTemplates.h"
 #include "SkTime.h"
 
+#include <stdlib.h>
+
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 /* add local exceptions here */

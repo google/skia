@@ -9,6 +9,8 @@
 #include "SkTSort.h"
 #include "Test.h"
 
+#include <stdlib.h>
+
 extern "C" {
     static int compare_int(const void* a, const void* b) {
         return *(const int*)a - *(const int*)b;

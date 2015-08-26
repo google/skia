@@ -11,6 +11,8 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
+
+#include <stdlib.h>
 #include <stdio.h>
 
 __SK_FORCE_IMAGE_DECODER_LINKING;

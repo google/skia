@@ -23,7 +23,6 @@
 #endif
 // IWYU pragma: end_exports
 
-#include <stdlib.h>
 #include <string.h>
 
 /** \file SkTypes.h

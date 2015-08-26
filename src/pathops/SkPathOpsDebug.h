@@ -9,6 +9,8 @@
 
 #include "SkPathOps.h"
 #include "SkTypes.h"
+
+#include <stdlib.h>
 #include <stdio.h>
 
 #ifdef SK_RELEASE

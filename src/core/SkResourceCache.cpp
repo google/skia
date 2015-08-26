@@ -13,6 +13,7 @@
 #include "SkResourceCache.h"
 
 #include <stddef.h>
+#include <stdlib.h>
 
 DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage)
 

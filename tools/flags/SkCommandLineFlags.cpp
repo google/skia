@@ -9,6 +9,8 @@
 #include "SkTDArray.h"
 #include "SkTSort.h"
 
+#include <stdlib.h>
+
 DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
 
 template <typename T> static void ignore_result(const T&) {}

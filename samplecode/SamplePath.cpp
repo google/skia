@@ -26,6 +26,8 @@
 
 #include "SkGeometry.h"
 
+#include <stdlib.h>
+
 // http://code.google.com/p/skia/issues/detail?id=32
 static void test_cubic() {
     SkPoint src[4] = {

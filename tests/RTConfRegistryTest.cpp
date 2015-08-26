@@ -8,6 +8,8 @@
 #include "SkRTConf.h"
 #include "Test.h"
 
+#include <stdlib.h>
+
 // Friended proxy for SkRTConfRegistry::parse()
 template <typename T>
 bool test_rt_conf_parse(SkRTConfRegistry* reg, const char* key, T* value) {

@@ -16,6 +16,8 @@
 #include "SkScalar.h"
 #include "SkStream.h"
 
+#include <stdlib.h>
+
 // Flags used by this file, alphabetically:
 DEFINE_int32(blue, 128, "Value of blue color channel in image, 0-255.");
 DEFINE_int32(border, 4, "Width of the black border around the image.");

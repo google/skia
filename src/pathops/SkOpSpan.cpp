@@ -369,7 +369,7 @@ void SkOpSpan::setOppSum(int oppSum) {
         this->globalState()->setWindingFailed();
         return;
     }
-    SkASSERT(!DEBUG_LIMIT_WIND_SUM || abs(oppSum) <= DEBUG_LIMIT_WIND_SUM);
+    SkASSERT(!DEBUG_LIMIT_WIND_SUM || SkTAbs(oppSum) <= DEBUG_LIMIT_WIND_SUM);
     fOppSum = oppSum;
 }
 
@@ -379,6 +379,6 @@ void SkOpSpan::setWindSum(int windSum) {
         this->globalState()->setWindingFailed();
         return;
     }
-    SkASSERT(!DEBUG_LIMIT_WIND_SUM || abs(windSum) <= DEBUG_LIMIT_WIND_SUM);
+    SkASSERT(!DEBUG_LIMIT_WIND_SUM || SkTAbs(windSum) <= DEBUG_LIMIT_WIND_SUM);
     fWindSum = windSum;
 }

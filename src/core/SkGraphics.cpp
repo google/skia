@@ -28,6 +28,8 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
+#include <stdlib.h>
+
 void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
     if (major) {
         *major = SKIA_VERSION_MAJOR;

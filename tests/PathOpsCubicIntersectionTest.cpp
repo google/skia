@@ -12,6 +12,8 @@
 #include "SkReduceOrder.h"
 #include "Test.h"
 
+#include <stdlib.h>
+
 const int firstCubicIntersectionTest = 9;
 
 static void standardTestCases(skiatest::Reporter* reporter) {

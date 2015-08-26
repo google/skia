@@ -19,6 +19,8 @@
 #include "SkImageDecoder.h"
 #include "SkString.h"
 
+#include <stdlib.h>
+
 // Alphabetized list of flags used by this file or bench_ and render_pictures.
 DEFINE_string(bbh, "none", "bbhType [width height]: Set the bounding box hierarchy type to "
               "be used. Accepted values are: none, rtree, grid. "

@@ -11,6 +11,8 @@
 #include "SkData.h"
 #include "SkOSFile.h"
 
+#include <stdlib.h>
+
 extern "C" {
     #include "lua.h"
     #include "lualib.h"

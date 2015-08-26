@@ -8,6 +8,7 @@
 #include "SkRegionPriv.h"
 #include "SkBlitter.h"
 #include "SkScan.h"
+#include "SkTSort.h"
 #include "SkTDArray.h"
 #include "SkPath.h"
 
@@ -476,11 +477,11 @@ static int extract_path(Edge* edge, Edge* stop, SkPath* path) {
     return count;
 }
 
-#include "SkTSearch.h"
-
-static int EdgeProc(const Edge* a, const Edge* b) {
-    return (a->fX == b->fX) ? a->top() - b->top() : a->fX - b->fX;
-}
+struct EdgeLT {
+    bool operator()(const Edge& a, const Edge& b) const {
+        return (a.fX == b.fX) ? a.top() < b.top() : a.fX < b.fX;
+    }
+};
 
 bool SkRegion::getBoundaryPath(SkPath* path) const {
     // path could safely be NULL if we're empty, but the caller shouldn't
@@ -508,13 +509,13 @@ bool SkRegion::getBoundaryPath(SkPath* path) const {
         edge[0].set(r.fLeft, r.fBottom, r.fTop);
         edge[1].set(r.fRight, r.fTop, r.fBottom);
     }
-    qsort(edges.begin(), edges.count(), sizeof(Edge), SkCastForQSort(EdgeProc));
 
     int count = edges.count();
     Edge* start = edges.begin();
     Edge* stop = start + count;
-    Edge* e;
+    SkTQSort<Edge>(start, stop - 1, EdgeLT());
 
+    Edge* e;
     for (e = start; e != stop; e++) {
         find_link(e, stop);
     }

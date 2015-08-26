@@ -9,6 +9,8 @@
 #include "SkEventTracer.h"
 #include "SkLazyPtr.h"
 
+#include <stdlib.h>
+
 class SkDefaultEventTracer : public SkEventTracer {
     SkEventTracer::Handle
         addTraceEvent(char phase,

@@ -34,6 +34,8 @@
 #endif
 #include "png.h"
 
+#include <stdlib.h>
+
 DEFINE_string(src, "tests gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "

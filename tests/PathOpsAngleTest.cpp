@@ -51,7 +51,7 @@ DEF_TEST(PathOpsAngleFindCrossEpsilon, reporter) {
                     float p2 = SkDoubleToScalar(line[1].fY * test.fX);
                     int p1Bits = SkFloatAs2sCompliment(p1);
                     int p2Bits = SkFloatAs2sCompliment(p2);
-                    int epsilon = abs(p1Bits - p2Bits);
+                    int epsilon = SkTAbs(p1Bits - p2Bits);
                     if (maxEpsilon < epsilon) {
                         SkDebugf("line={{0, 0}, {%1.7g, %1.7g}} t=%1.7g pt={%1.7g, %1.7g}"
                             " epsilon=%d\n",
@@ -104,7 +104,7 @@ DEF_TEST(PathOpsAngleFindQuadEpsilon, reporter) {
         float p2 = SkDoubleToScalar(line[1].fY * last.fX);
         int p1Bits = SkFloatAs2sCompliment(p1);
         int p2Bits = SkFloatAs2sCompliment(p2);
-        int epsilon = abs(p1Bits - p2Bits);
+        int epsilon = SkTAbs(p1Bits - p2Bits);
         if (maxEpsilon < epsilon) {
             SkDebugf("line={{0, 0}, {%1.7g, %1.7g}} t=%1.7g/%1.7g/%1.7g moveT=%1.7g"
                     " pt={%1.7g, %1.7g} epsilon=%d\n",

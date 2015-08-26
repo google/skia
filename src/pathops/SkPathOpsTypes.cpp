@@ -160,7 +160,7 @@ int UlpsDistance(float a, float b) {
         return a == b ? 0 : SK_MaxS32;
     }
     // Find the difference in ULPs.
-    return abs(floatIntA.fSignBitInt - floatIntB.fSignBitInt);
+    return SkTAbs(floatIntA.fSignBitInt - floatIntB.fSignBitInt);
 }
 
 // cube root approximation using bit hack for 64-bit float

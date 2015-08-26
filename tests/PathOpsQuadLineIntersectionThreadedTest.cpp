@@ -91,7 +91,7 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
         SkDPoint xy = quad.ptAtT(tIndex / 4.0);
         for (int h = -2; h <= 2; ++h) {
             for (int v = -2; v <= 2; ++v) {
-                if (h == v && abs(h) != 1) {
+                if (h == v && SkTAbs(h) != 1) {
                     continue;
                 }
                 double x = xy.fX;
