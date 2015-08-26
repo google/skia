@@ -22,20 +22,6 @@ GrPipelineBuilder::GrPipelineBuilder()
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
-GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
-    fProcDataManager.reset(SkNEW_ARGS(GrProcessorDataManager, (*that.processorDataManager())));
-    fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));
-    fFlags = that.fFlags;
-    fStencilSettings = that.fStencilSettings;
-    fDrawFace = that.fDrawFace;
-    fXPFactory.reset(SkRef(that.getXPFactory()));
-    fColorStages = that.fColorStages;
-    fCoverageStages = that.fCoverageStages;
-    fClip = that.fClip;
-
-    return *this;
-}
-
 GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
@@ -43,15 +29,12 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
     fProcDataManager.reset(
          const_cast<GrProcessorDataManager*>(SkRef(paint.processorDataManager())));
 
-    fColorStages.reset();
-    fCoverageStages.reset();
-
-    for (int i = 0; i < paint.numColorStages(); ++i) {
-        fColorStages.push_back(paint.getColorStage(i));
+    for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
+        fColorFragmentProcessors.push_back(SkRef(paint.getColorFragmentProcessor(i)));
     }
 
-    for (int i = 0; i < paint.numCoverageStages(); ++i) {
-        fCoverageStages.push_back(paint.getCoverageStage(i));
+    for (int i = 0; i < paint.numCoverageFragmentProcessors(); ++i) {
+        fCoverageFragmentProcessors.push_back(SkRef(paint.getCoverageFragmentProcessor(i)));
     }
 
     fXPFactory.reset(SkRef(paint.getXPFactory()));
@@ -82,21 +65,26 @@ bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
 void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
                                                          const GrPipelineBuilder* pipelineBuilder) {
     if (fPipelineBuilder) {
-        int m = fPipelineBuilder->numColorFragmentStages() - fColorEffectCnt;
+        int m = fPipelineBuilder->numColorFragmentProcessors() - fColorEffectCnt;
         SkASSERT(m >= 0);
-        fPipelineBuilder->fColorStages.pop_back_n(m);
+        for (int i = 0; i < m; ++i) {
+            fPipelineBuilder->fColorFragmentProcessors.fromBack(i)->unref();
+        }
+        fPipelineBuilder->fColorFragmentProcessors.pop_back_n(m);
 
-        int n = fPipelineBuilder->numCoverageFragmentStages() - fCoverageEffectCnt;
+        int n = fPipelineBuilder->numCoverageFragmentProcessors() - fCoverageEffectCnt;
         SkASSERT(n >= 0);
-        fPipelineBuilder->fCoverageStages.pop_back_n(n);
-
+        for (int i = 0; i < n; ++i) {
+            fPipelineBuilder->fCoverageFragmentProcessors.fromBack(i)->unref();
+        }
+        fPipelineBuilder->fCoverageFragmentProcessors.pop_back_n(n);
         SkDEBUGCODE(--fPipelineBuilder->fBlockEffectRemovalCnt;)
         fPipelineBuilder->getProcessorDataManager()->restoreToSaveMarker(/*fSaveMarker*/);
     }
     fPipelineBuilder = const_cast<GrPipelineBuilder*>(pipelineBuilder);
     if (NULL != pipelineBuilder) {
-        fColorEffectCnt = pipelineBuilder->numColorFragmentStages();
-        fCoverageEffectCnt = pipelineBuilder->numCoverageFragmentStages();
+        fColorEffectCnt = pipelineBuilder->numColorFragmentProcessors();
+        fCoverageEffectCnt = pipelineBuilder->numCoverageFragmentProcessors();
         SkDEBUGCODE(++pipelineBuilder->fBlockEffectRemovalCnt;)
         fSaveMarker = pipelineBuilder->processorDataManager()->currentSaveMarker();
     }
@@ -106,25 +94,33 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
 
 GrPipelineBuilder::~GrPipelineBuilder() {
     SkASSERT(0 == fBlockEffectRemovalCnt);
+    for (int i = 0; i < fColorFragmentProcessors.count(); ++i) {
+        fColorFragmentProcessors[i]->unref();
+    }
+    for (int i = 0; i < fCoverageFragmentProcessors.count(); ++i) {
+        fCoverageFragmentProcessors[i]->unref();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrPipelineBuilder::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
-    fColorProcInfo.calcColorWithPrimProc(pp, fColorStages.begin(), this->numColorFragmentStages());
+    fColorProcInfo.calcColorWithPrimProc(pp, fColorFragmentProcessors.begin(),
+                                         this->numColorFragmentProcessors());
+
 }
 
 void GrPipelineBuilder::calcCoverageInvariantOutput(const GrPrimitiveProcessor* pp) const {
-    fCoverageProcInfo.calcCoverageWithPrimProc(pp, fCoverageStages.begin(),
-                                            this->numCoverageFragmentStages());
+    fCoverageProcInfo.calcCoverageWithPrimProc(pp, fCoverageFragmentProcessors.begin(),
+                                               this->numCoverageFragmentProcessors());
 }
 
 void GrPipelineBuilder::calcColorInvariantOutput(const GrDrawBatch* batch) const {
-    fColorProcInfo.calcColorWithBatch(batch, fColorStages.begin(), this->numColorFragmentStages());
+    fColorProcInfo.calcColorWithBatch(batch, fColorFragmentProcessors.begin(),
+                                      this->numColorFragmentProcessors());
 }
 
 void GrPipelineBuilder::calcCoverageInvariantOutput(const GrDrawBatch* batch) const {
-    fCoverageProcInfo.calcCoverageWithBatch(batch, fCoverageStages.begin(),
-                                            this->numCoverageFragmentStages());
+    fCoverageProcInfo.calcCoverageWithBatch(batch, fCoverageFragmentProcessors.begin(),
+                                            this->numCoverageFragmentProcessors());
 }
-

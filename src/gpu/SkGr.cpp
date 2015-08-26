@@ -469,7 +469,7 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
         yuvToRgbProcessor(GrYUVtoRGBEffect::Create(paint.getProcessorDataManager(), yuvTextures[0],
                                                    yuvTextures[1], yuvTextures[2],
                                                    yuvInfo.fSize, yuvInfo.fColorSpace));
-    paint.addColorProcessor(yuvToRgbProcessor);
+    paint.addColorFragmentProcessor(yuvToRgbProcessor);
     SkRect r = SkRect::MakeWH(SkIntToScalar(yuvInfo.fSize[0].fWidth),
                               SkIntToScalar(yuvInfo.fSize[0].fHeight));
 
@@ -810,7 +810,7 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
             if (colorFilter->asFragmentProcessors(context, grPaint->getProcessorDataManager(),
                                                   &array)) {
                 for (int i = 0; i < array.count(); ++i) {
-                    grPaint->addColorProcessor(array[i]);
+                    grPaint->addColorFragmentProcessor(array[i]);
                     array[i]->unref();
                 }
             }
@@ -820,7 +820,7 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
 #ifndef SK_IGNORE_GPU_DITHER
     // If the dither flag is set, then we need to see if the underlying context
     // supports it. If not, then install a dither effect.
-    if (skPaint.isDither() && grPaint->numColorStages() > 0) {
+    if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0) {
         // What are we rendering into?
         SkASSERT(rt);
 
@@ -832,7 +832,7 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
             // not going to be dithered by the GPU.
             SkAutoTUnref<GrFragmentProcessor> fp(GrDitherEffect::Create());
             if (fp.get()) {
-                grPaint->addColorProcessor(fp);
+                grPaint->addColorFragmentProcessor(fp);
                 grPaint->setDither(false);
             }
         }
@@ -863,7 +863,7 @@ bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPa
             return false;
         }
         if (fp) {
-            grPaint->addColorProcessor(fp)->unref();
+            grPaint->addColorFragmentProcessor(fp)->unref();
             constantColor = false;
         }
     }

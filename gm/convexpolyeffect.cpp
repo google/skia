@@ -191,7 +191,7 @@ protected:
                 }
 
                 GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.addCoverageProcessor(fp);
+                pipelineBuilder.addCoverageFragmentProcessor(fp);
                 pipelineBuilder.setRenderTarget(rt);
 
                 ConvexPolyTestBatch::Geometry geometry;
@@ -240,7 +240,7 @@ protected:
                 }
 
                 GrPipelineBuilder pipelineBuilder;
-                pipelineBuilder.addCoverageProcessor(fp);
+                pipelineBuilder.addCoverageFragmentProcessor(fp);
                 pipelineBuilder.setRenderTarget(rt);
 
                 ConvexPolyTestBatch::Geometry geometry;
