@@ -48,6 +48,21 @@ static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
     }
 }
 
+// For a while willPlayBackBitmaps() ignored SkImages and just looked for SkBitmaps.
+static void test_images_are_found_by_willPlayBackBitmaps(skiatest::Reporter* reporter) {
+    // We just need _some_ SkImage.
+    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(SkBitmap()));
+
+    SkPictureRecorder recorder;
+    {
+        auto canvas = recorder.beginRecording(100,100);
+        canvas->drawImage(image, 0,0);
+    }
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
+    REPORTER_ASSERT(reporter, picture->willPlayBackBitmaps());
+}
+
 /* Hit a few SkPicture::Analysis cases not handled elsewhere. */
 static void test_analysis(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
@@ -1149,6 +1164,7 @@ DEF_TEST(Picture, reporter) {
     test_gpu_veto(reporter);
 #endif
     test_has_text(reporter);
+    test_images_are_found_by_willPlayBackBitmaps(reporter);
     test_analysis(reporter);
     test_bitmap_with_encoded_data(reporter);
     test_clip_bound_opt(reporter);

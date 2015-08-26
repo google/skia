@@ -7,7 +7,7 @@
 
 // Some shared code used by both SkBigPicture and SkMiniPicture.
 //   SkTextHunter   -- SkRecord visitor that returns true when the op draws text.
-//   SkBitmapHunter -- SkRecord visitor that returns true when the op draws a bitmap.
+//   SkBitmapHunter -- SkRecord visitor that returns true when the op draws a bitmap or image.
 //   SkPathCounter  -- SkRecord visitor that counts paths that draw slowly on the GPU.
 
 #include "SkPathEffect.h"
@@ -26,10 +26,17 @@ struct SkTextHunter {
 };
 
 
+// N.B. This name is slightly historical: hunting season is now open for SkImages too.
 struct SkBitmapHunter {
-    // Helpers.  These create HasMember_bitmap and HasMember_paint.
+    // Helpers.  These let us detect the presence of struct members with particular names.
     SK_CREATE_MEMBER_DETECTOR(bitmap);
+    SK_CREATE_MEMBER_DETECTOR(image);
     SK_CREATE_MEMBER_DETECTOR(paint);
+
+    template <typename T>
+    struct HasMember_bitmap_or_image {
+        static const bool value = HasMember_bitmap<T>::value || HasMember_image<T>::value;
+    };
 
     // Some ops have a paint, some have an optional paint.  Either way, get back a pointer.
     static const SkPaint* AsPtr(const SkPaint& p) { return &p; }
@@ -37,7 +44,7 @@ struct SkBitmapHunter {
 
     // Main entry for visitor:
     // If the op is a DrawPicture, recurse.
-    // If the op has a bitmap directly, return true.
+    // If the op has a bitmap or image directly, return true.
     // If the op has a paint and the paint has a bitmap, return true.
     // Otherwise, return false.
     bool operator()(const SkRecords::DrawPicture& op) { return op.picture->willPlayBackBitmaps(); }
@@ -47,11 +54,15 @@ struct SkBitmapHunter {
 
     // If the op has a bitmap, of course we're going to play back bitmaps.
     template <typename T>
-    static SK_WHEN(HasMember_bitmap<T>, bool) CheckBitmap(const T&) { return true; }
+    static SK_WHEN(HasMember_bitmap_or_image<T>, bool) CheckBitmap(const T&) {
+        return true;
+    }
 
     // If not, look for one in its paint (if it has a paint).
     template <typename T>
-    static SK_WHEN(!HasMember_bitmap<T>, bool) CheckBitmap(const T& r) { return CheckPaint(r); }
+    static SK_WHEN(!HasMember_bitmap_or_image<T>, bool) CheckBitmap(const T& r) {
+        return CheckPaint(r);
+    }
 
     // If we have a paint, dig down into the effects looking for a bitmap.
     template <typename T>
