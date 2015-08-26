@@ -52,9 +52,16 @@ static const GrGeometryProcessor* create_gp(const SkMatrix& viewMatrix,
     Color color(Color::kAttribute_Type);
     Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
 
-    // if we have a local rect, then we apply the localMatrix directly to the localRect to
-    // generate vertex local coords
-    if (hasExplicitLocalCoords) {
+    // If we have perspective on the viewMatrix then we won't map on the CPU, nor will we map
+    // the local rect on the cpu (in case the localMatrix also has perspective).
+    // Otherwise, if we have a local rect, then we apply the localMatrix directly to the localRect
+    // to generate vertex local coords
+    if (viewMatrix.hasPerspective()) {
+        LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type :
+                                                         LocalCoords::kUsePosition_Type,
+                                localMatrix);
+        return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, viewMatrix);
+    } else if (hasExplicitLocalCoords) {
         LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
         return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
     } else {
@@ -69,24 +76,25 @@ static void tesselate(intptr_t vertices,
                       GrColor color,
                       const SkMatrix& viewMatrix,
                       const SkRect& rect,
-                      const SkRect* localRect,
-                      const SkMatrix* localMatrix) {
+                      const GrQuad* localQuad) {
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
 
     positions->setRectFan(rect.fLeft, rect.fTop,
                           rect.fRight, rect.fBottom, vertexStride);
-    viewMatrix.mapPointsWithStride(positions, vertexStride, BWFillRectBatchBase::kVertsPerInstance);
 
+    if (!viewMatrix.hasPerspective()) {
+        viewMatrix.mapPointsWithStride(positions, vertexStride,
+                                       BWFillRectBatchBase::kVertsPerInstance);
+    }
+
+    // Setup local coords
     // TODO we should only do this if local coords are being read
-    if (localRect) {
+    if (localQuad) {
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
-        SkPoint* coords = reinterpret_cast<SkPoint*>(vertices + kLocalOffset);
-        coords->setRectFan(localRect->fLeft, localRect->fTop,
-                           localRect->fRight, localRect->fBottom,
-                           vertexStride);
-        if (localMatrix) {
-            localMatrix->mapPointsWithStride(coords, vertexStride,
-                                             BWFillRectBatchBase::kVertsPerInstance);
+        for (int i = 0; i < BWFillRectBatchBase::kVertsPerInstance; i++) {
+            SkPoint* coords = reinterpret_cast<SkPoint*>(vertices + kLocalOffset +
+                              i * vertexStride);
+            *coords = localQuad->point(i);
         }
     }
 
@@ -103,6 +111,7 @@ public:
     struct Geometry {
         SkMatrix fViewMatrix;
         SkRect fRect;
+        GrQuad fLocalQuad;
         GrColor fColor;
     };
 
@@ -110,82 +119,13 @@ public:
 
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
                            const GrPipelineOptimizations& opts) {
-        // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
-        // local coords then we won't be able to batch.  We could actually upload the viewmatrix
-        // using vertex attributes in these cases, but haven't investigated that
-        return !opts.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
-    }
-
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrPipelineOptimizations& opts) {
-        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, opts.readsCoverage(), false,
-                                                  NULL);
-
-        SkASSERT(gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
-        return gp;
-    }
-
-    static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrPipelineOptimizations& opts) {
-        tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, NULL, NULL);
-    }
-};
-
-class BWFillRectBatchLocalMatrixImp : public BWFillRectBatchBase {
-public:
-    struct Geometry {
-        SkMatrix fViewMatrix;
-        SkMatrix fLocalMatrix;
-        SkRect fRect;
-        GrColor fColor;
-    };
-
-    static const char* Name() { return "BWFillRectBatchLocalMatrix"; }
-
-    static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrPipelineOptimizations& opts) {
-        // if we read local coords then we have to have the same viewmatrix and localmatrix
-        return !opts.readsLocalCoords() ||
-               (mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix) &&
-                mine.fLocalMatrix.cheapEqualTo(theirs.fLocalMatrix));
-    }
-
-    static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrPipelineOptimizations& opts) {
-        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, opts.readsCoverage(), false,
-                                                  &geo.fLocalMatrix);
-
-        SkASSERT(gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
-        return gp;
-    }
-
-    static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrPipelineOptimizations& opts) {
-        tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, NULL,
-                  &geo.fLocalMatrix);
-    }
-};
-
-class BWFillRectBatchLocalRectImp : public BWFillRectBatchBase {
-public:
-    struct Geometry {
-        SkMatrix fViewMatrix;
-        SkRect fRect;
-        SkRect fLocalRect;
-        GrColor fColor;
-    };
-
-    static const char* Name() { return "BWFillRectBatchLocalRect"; }
-
-    static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrPipelineOptimizations& opts) {
         return true;
     }
 
     static const GrGeometryProcessor* CreateGP(const Geometry& geo,
                                                const GrPipelineOptimizations& opts) {
         const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, opts.readsCoverage(), true,
-                                                  NULL);
+                                                  nullptr);
 
         SkASSERT(gp->getVertexStride() ==
                 sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr));
@@ -194,12 +134,12 @@ public:
 
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
                           const GrPipelineOptimizations& opts) {
-        tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, &geo.fLocalRect,
-                  NULL);
+        tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, &geo.fLocalQuad);
     }
 };
 
-class BWFillRectBatchLocalMatrixLocalRectImp : public BWFillRectBatchBase {
+// We handle perspective in the local matrix or viewmatrix with special batches
+class BWFillRectBatchPerspectiveImp : public BWFillRectBatchBase {
 public:
     struct Geometry {
         SkMatrix fViewMatrix;
@@ -207,36 +147,45 @@ public:
         SkRect fRect;
         SkRect fLocalRect;
         GrColor fColor;
+        bool fHasLocalMatrix;
+        bool fHasLocalRect;
     };
 
-    static const char* Name() { return "BWFillRectBatchLocalMatrixLocalRect"; }
+    static const char* Name() { return "BWFillRectBatchPerspective"; }
 
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
                            const GrPipelineOptimizations& opts) {
-        return true;
+        // We could batch across perspective vm changes if we really wanted to
+        return mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix) &&
+               (!mine.fHasLocalMatrix || mine.fLocalMatrix.cheapEqualTo(theirs.fLocalMatrix));
     }
 
     static const GrGeometryProcessor* CreateGP(const Geometry& geo,
                                                const GrPipelineOptimizations& opts) {
-        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, opts.readsCoverage(), true,
-                                                  NULL);
+        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, opts.readsCoverage(),
+                                                  geo.fHasLocalRect,
+                                                  geo.fHasLocalMatrix ? &geo.fLocalMatrix :
+                                                                        nullptr);
 
-        SkASSERT(gp->getVertexStride() ==
-                sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr));
+        SkASSERT(geo.fHasLocalRect ?
+             gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
+             gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
         return gp;
     }
 
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
                           const GrPipelineOptimizations& opts) {
-        tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, &geo.fLocalRect,
-                  &geo.fLocalMatrix);
+        if (geo.fHasLocalRect) {
+            GrQuad quad(geo.fLocalRect);
+            tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, &quad);
+        } else {
+            tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, nullptr);
+        }
     }
 };
 
 typedef GrTInstanceBatch<BWFillRectBatchNoLocalMatrixImp> BWFillRectBatchSimple;
-typedef GrTInstanceBatch<BWFillRectBatchLocalMatrixImp> BWFillRectBatchLocalMatrix;
-typedef GrTInstanceBatch<BWFillRectBatchLocalRectImp> BWFillRectBatchLocalRect;
-typedef GrTInstanceBatch<BWFillRectBatchLocalMatrixLocalRectImp> BWFillRectBatchLocalMatrixLocalRect;
+typedef GrTInstanceBatch<BWFillRectBatchPerspectiveImp> BWFillRectBatchPerspective;
 
 namespace GrBWFillRectBatch {
 GrDrawBatch* Create(GrColor color,
@@ -244,41 +193,45 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& rect,
                     const SkRect* localRect,
                     const SkMatrix* localMatrix) {
-    // TODO bubble these up as separate calls
-    if (localRect && localMatrix) {
-        BWFillRectBatchLocalMatrixLocalRect* batch = BWFillRectBatchLocalMatrixLocalRect::Create();
-        BWFillRectBatchLocalMatrixLocalRect::Geometry& geo = *batch->geometry();
-        geo.fColor = color;
-        geo.fViewMatrix = viewMatrix;
-        geo.fLocalMatrix = *localMatrix;
-        geo.fRect = rect;
-        geo.fLocalRect = *localRect;
-        batch->init();
-        return batch;
-    } else if (localRect) {
-        BWFillRectBatchLocalRect* batch = BWFillRectBatchLocalRect::Create();
-        BWFillRectBatchLocalRect::Geometry& geo = *batch->geometry();
+
+    /* Perspective has to be handled in a slow path for now */
+    if (viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective())) {
+        BWFillRectBatchPerspective* batch = BWFillRectBatchPerspective::Create();
+        BWFillRectBatchPerspective::Geometry& geo = *batch->geometry();
+
         geo.fColor = color;
         geo.fViewMatrix = viewMatrix;
         geo.fRect = rect;
-        geo.fLocalRect = *localRect;
-        batch->init();
-        return batch;
-    } else if (localMatrix) {
-        BWFillRectBatchLocalMatrix* batch = BWFillRectBatchLocalMatrix::Create();
-        BWFillRectBatchLocalMatrix::Geometry& geo = *batch->geometry();
-        geo.fColor = color;
-        geo.fViewMatrix = viewMatrix;
-        geo.fLocalMatrix = *localMatrix;
-        geo.fRect = rect;
+        geo.fHasLocalRect = SkToBool(localRect);
+        geo.fHasLocalMatrix = SkToBool(localMatrix);
+        if (localMatrix) {
+            geo.fLocalMatrix = *localMatrix;
+        }
+        if (localRect) {
+            geo.fLocalRect = *localRect;
+        }
+
         batch->init();
         return batch;
     } else {
+        // TODO bubble these up as separate calls
         BWFillRectBatchSimple* batch = BWFillRectBatchSimple::Create();
         BWFillRectBatchSimple::Geometry& geo = *batch->geometry();
+
         geo.fColor = color;
         geo.fViewMatrix = viewMatrix;
         geo.fRect = rect;
+
+        if (localRect && localMatrix) {
+            geo.fLocalQuad.setFromMappedRect(*localRect, *localMatrix);
+        } else if (localRect) {
+            geo.fLocalQuad.set(*localRect);
+        } else if (localMatrix) {
+            geo.fLocalQuad.setFromMappedRect(rect, *localMatrix);
+        } else {
+            geo.fLocalQuad.set(rect);
+        }
+
         batch->init();
         return batch;
     }
