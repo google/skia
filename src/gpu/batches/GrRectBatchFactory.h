@@ -9,8 +9,8 @@
 #define GrRectBatchFactory_DEFINED
 
 #include "GrAAFillRectBatch.h"
-#include "GrBWFillRectBatch.h"
 #include "GrColor.h"
+#include "GrNonAAFillRectBatch.h"
 
 class GrBatch;
 class SkMatrix;
@@ -27,7 +27,7 @@ inline GrDrawBatch* CreateNonAAFill(GrColor color,
                                     const SkRect& rect,
                                     const SkRect* localRect,
                                     const SkMatrix* localMatrix) {
-    return GrBWFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
+    return GrNonAAFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
 }
 
 inline GrDrawBatch* CreateAAFill(GrColor color,

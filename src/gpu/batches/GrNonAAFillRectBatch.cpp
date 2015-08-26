@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrBWFillRectBatch.h"
+#include "GrNonAAFillRectBatch.h"
 
 #include "GrBatchFlushState.h"
 #include "GrColor.h"
@@ -17,7 +17,7 @@
 #include "GrVertexBatch.h"
 
 // Common functions
-class BWFillRectBatchBase {
+class NonAAFillRectBatchBase {
 public:
     static const int kVertsPerInstance = 4;
     static const int kIndicesPerInstance = 6;
@@ -84,14 +84,14 @@ static void tesselate(intptr_t vertices,
 
     if (!viewMatrix.hasPerspective()) {
         viewMatrix.mapPointsWithStride(positions, vertexStride,
-                                       BWFillRectBatchBase::kVertsPerInstance);
+                                       NonAAFillRectBatchBase::kVertsPerInstance);
     }
 
     // Setup local coords
     // TODO we should only do this if local coords are being read
     if (localQuad) {
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
-        for (int i = 0; i < BWFillRectBatchBase::kVertsPerInstance; i++) {
+        for (int i = 0; i < NonAAFillRectBatchBase::kVertsPerInstance; i++) {
             SkPoint* coords = reinterpret_cast<SkPoint*>(vertices + kLocalOffset +
                               i * vertexStride);
             *coords = localQuad->point(i);
@@ -106,7 +106,7 @@ static void tesselate(intptr_t vertices,
     }
 }
 
-class BWFillRectBatchNoLocalMatrixImp : public BWFillRectBatchBase {
+class NonAAFillRectBatchImp : public NonAAFillRectBatchBase {
 public:
     struct Geometry {
         SkMatrix fViewMatrix;
@@ -115,7 +115,7 @@ public:
         GrColor fColor;
     };
 
-    static const char* Name() { return "BWFillRectBatchNoLocalMatrix"; }
+    static const char* Name() { return "NonAAFillRectBatch"; }
 
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
                            const GrPipelineOptimizations& opts) {
@@ -139,7 +139,7 @@ public:
 };
 
 // We handle perspective in the local matrix or viewmatrix with special batches
-class BWFillRectBatchPerspectiveImp : public BWFillRectBatchBase {
+class NonAAFillRectBatchPerspectiveImp : public NonAAFillRectBatchBase {
 public:
     struct Geometry {
         SkMatrix fViewMatrix;
@@ -151,7 +151,7 @@ public:
         bool fHasLocalRect;
     };
 
-    static const char* Name() { return "BWFillRectBatchPerspective"; }
+    static const char* Name() { return "NonAAFillRectBatchPerspective"; }
 
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
                            const GrPipelineOptimizations& opts) {
@@ -184,10 +184,10 @@ public:
     }
 };
 
-typedef GrTInstanceBatch<BWFillRectBatchNoLocalMatrixImp> BWFillRectBatchSimple;
-typedef GrTInstanceBatch<BWFillRectBatchPerspectiveImp> BWFillRectBatchPerspective;
+typedef GrTInstanceBatch<NonAAFillRectBatchImp> NonAAFillRectBatchSimple;
+typedef GrTInstanceBatch<NonAAFillRectBatchPerspectiveImp> NonAAFillRectBatchPerspective;
 
-namespace GrBWFillRectBatch {
+namespace GrNonAAFillRectBatch {
 GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
@@ -196,8 +196,8 @@ GrDrawBatch* Create(GrColor color,
 
     /* Perspective has to be handled in a slow path for now */
     if (viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective())) {
-        BWFillRectBatchPerspective* batch = BWFillRectBatchPerspective::Create();
-        BWFillRectBatchPerspective::Geometry& geo = *batch->geometry();
+        NonAAFillRectBatchPerspective* batch = NonAAFillRectBatchPerspective::Create();
+        NonAAFillRectBatchPerspective::Geometry& geo = *batch->geometry();
 
         geo.fColor = color;
         geo.fViewMatrix = viewMatrix;
@@ -215,8 +215,8 @@ GrDrawBatch* Create(GrColor color,
         return batch;
     } else {
         // TODO bubble these up as separate calls
-        BWFillRectBatchSimple* batch = BWFillRectBatchSimple::Create();
-        BWFillRectBatchSimple::Geometry& geo = *batch->geometry();
+        NonAAFillRectBatchSimple* batch = NonAAFillRectBatchSimple::Create();
+        NonAAFillRectBatchSimple::Geometry& geo = *batch->geometry();
 
         geo.fColor = color;
         geo.fViewMatrix = viewMatrix;
@@ -253,8 +253,9 @@ DRAW_BATCH_TEST_DEFINE(RectBatch) {
 
     bool hasLocalRect = random->nextBool();
     bool hasLocalMatrix = random->nextBool();
-    return GrBWFillRectBatch::Create(color, viewMatrix, rect, hasLocalRect ? &localRect : nullptr,
-                                     hasLocalMatrix ? &localMatrix : nullptr);
+    return GrNonAAFillRectBatch::Create(color, viewMatrix, rect,
+                                        hasLocalRect ? &localRect : nullptr,
+                                        hasLocalMatrix ? &localMatrix : nullptr);
 }
 
 #endif
