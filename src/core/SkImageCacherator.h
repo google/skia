@@ -9,6 +9,8 @@
 #define SkImageCacherator_DEFINED
 
 #include "SkImageGenerator.h"
+#include "SkMutex.h"
+#include "SkTemplates.h"
 
 class GrContext;
 class SkBitmap;
@@ -20,8 +22,6 @@ class SkImageCacherator {
 public:
     // Takes ownership of the generator
     static SkImageCacherator* NewFromGenerator(SkImageGenerator*, const SkIRect* subset = nullptr);
-
-    ~SkImageCacherator();
 
     const SkImageInfo& info() const { return fInfo; }
     uint32_t uniqueID() const { return fUniqueID; }
@@ -40,13 +40,34 @@ public:
      */
     GrTexture* lockAsTexture(GrContext*, SkImageUsageType);
 
+    /**
+     *  If the underlying src naturally is represented by an encoded blob (in SkData), this returns
+     *  a ref to that data. If not, it returns null.
+     */
+    SkData* refEncoded();
+
 private:
     SkImageCacherator(SkImageGenerator*, const SkImageInfo&, const SkIPoint&, uint32_t uniqueID);
 
+    bool generateBitmap(SkBitmap*);
     bool tryLockAsBitmap(SkBitmap*);
-    GrTexture* tryLockAsTexture(GrContext*, SkImageUsageType);
 
-    SkImageGenerator*   fGenerator;
+    class ScopedGenerator {
+        SkImageCacherator* fCacher;
+    public:
+        ScopedGenerator(SkImageCacherator* cacher) : fCacher(cacher) {
+            fCacher->fMutexForGenerator.acquire();
+        }
+        ~ScopedGenerator() {
+            fCacher->fMutexForGenerator.release();
+        }
+        SkImageGenerator* operator->() const { return fCacher->fNotThreadSafeGenerator; }
+        operator SkImageGenerator*() const { return fCacher->fNotThreadSafeGenerator; }
+    };
+
+    SkMutex                         fMutexForGenerator;
+    SkAutoTDelete<SkImageGenerator> fNotThreadSafeGenerator;
+
     const SkImageInfo   fInfo;
     const SkIPoint      fOrigin;
     const uint32_t      fUniqueID;
