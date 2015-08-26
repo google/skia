@@ -96,10 +96,12 @@ protected:
             fName.append("_pos");
         }
         fName.appendf("_%s", fontQualityName(fPaint));
-        if (SK_ColorBLACK != fPaint.getColor()) {
-            fName.appendf("_%02X", fPaint.getAlpha());
-        } else {
+        if (SK_ColorBLACK == fPaint.getColor()) {
             fName.append("_BK");
+        } else if (SK_ColorWHITE == fPaint.getColor()) {
+            fName.append("_WT");
+        } else {
+            fName.appendf("_%02X", fPaint.getAlpha());
         }
 
         if (fDoColorEmoji) {
@@ -152,18 +154,22 @@ private:
 
 #define STR     "Hamburgefons"
 
+DEF_BENCH( return new TextBench(STR, 16, 0xFFFFFFFF, kBW); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kBW); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFFFF0000, kBW); )
 DEF_BENCH( return new TextBench(STR, 16, 0x88FF0000, kBW); )
 
+DEF_BENCH( return new TextBench(STR, 16, 0xFFFFFFFF, kAA); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kAA); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFFFF0000, kAA); )
 DEF_BENCH( return new TextBench(STR, 16, 0x88FF0000, kAA); )
 
+DEF_BENCH( return new TextBench(STR, 16, 0xFFFFFFFF, kLCD); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kLCD); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFFFF0000, kLCD); )
 DEF_BENCH( return new TextBench(STR, 16, 0x88FF0000, kLCD); )
 
+DEF_BENCH( return new TextBench(STR, 16, 0xFFFFFFFF, kBW, true); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kBW, true); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFFFF0000, kBW, true); )
 DEF_BENCH( return new TextBench(STR, 16, 0x88FF0000, kBW, true); )
