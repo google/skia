@@ -314,7 +314,12 @@ static void seg_to(const SkPoint pts[], int segType,
     SkASSERT(startT <= stopT);
 
     if (startT == stopT) {
-        return; // should we report this, to undo a moveTo?
+        /* if the dash as a zero-length on segment, add a corresponding zero-length line.
+           The stroke code will add end caps to zero length lines as appropriate */
+        SkPoint lastPt;
+        SkAssertResult(dst->getLastPt(&lastPt));
+        dst->lineTo(lastPt);
+        return;
     }
 
     SkPoint tmp0[7], tmp1[7];
@@ -568,7 +573,7 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     if (stopD > length) {
         stopD = length;
     }
-    if (startD >= stopD) {
+    if (startD > stopD) {
         return false;
     }
 
