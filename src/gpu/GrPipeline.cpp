@@ -29,8 +29,8 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     GrColor overrideColor = GrColor_ILLEGAL;
-    if (args.fColorPOI.firstEffectiveProcessorIndex() != 0) {
-        overrideColor = args.fColorPOI.inputColorToFirstEffectiveProccesor();
+    if (args.fColorPOI.firstEffectiveStageIndex() != 0) {
+        overrideColor = args.fColorPOI.inputColorToEffectiveStage();
     }
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
@@ -73,36 +73,31 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         pipeline->fFlags |= kSnapVertices_Flag;
     }
 
-    int firstColorProcessorIdx = args.fColorPOI.firstEffectiveProcessorIndex();
+    int firstColorStageIdx = args.fColorPOI.firstEffectiveStageIndex();
 
-    // TODO: Once we can handle single or four channel input into coverage GrFragmentProcessors
-    // then we can use GrPipelineBuilder's coverageProcInfo (like color above) to set this initial
-    // information.
-    int firstCoverageProcessorIdx = 0;
+    // TODO: Once we can handle single or four channel input into coverage stages then we can use
+    // GrPipelineBuilder's coverageProcInfo (like color above) to set this initial information.
+    int firstCoverageStageIdx = 0;
 
     pipeline->adjustProgramFromOptimizations(builder, optFlags, args.fColorPOI, args.fCoveragePOI,
-                                             &firstColorProcessorIdx, &firstCoverageProcessorIdx);
+                                             &firstColorStageIdx, &firstCoverageStageIdx);
 
     bool usesLocalCoords = false;
 
-    // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline
-    pipeline->fNumColorProcessors = builder.numColorFragmentProcessors() - firstColorProcessorIdx;
-    int numTotalProcessors = pipeline->fNumColorProcessors +
-                             builder.numCoverageFragmentProcessors() - firstCoverageProcessorIdx;
-    pipeline->fFragmentProcessors.reset(numTotalProcessors);
-    int currFPIdx = 0;
-    for (int i = firstColorProcessorIdx; i < builder.numColorFragmentProcessors();
-         ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = builder.getColorFragmentProcessor(i);
-        pipeline->fFragmentProcessors[currFPIdx].reset(fp);
+    // Copy Stages from PipelineBuilder to Pipeline
+    for (int i = firstColorStageIdx; i < builder.numColorFragmentStages(); ++i) {
+        const GrFragmentStage& fps = builder.fColorStages[i];
+        const GrFragmentProcessor* fp = fps.processor();
+        SkNEW_APPEND_TO_TARRAY(&pipeline->fFragmentStages, GrPendingFragmentStage, (fps));
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
         fp->gatherCoordTransforms(&pipeline->fCoordTransforms);
     }
 
-    for (int i = firstCoverageProcessorIdx; i < builder.numCoverageFragmentProcessors();
-         ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = builder.getCoverageFragmentProcessor(i);
-        pipeline->fFragmentProcessors[currFPIdx].reset(fp);
+    pipeline->fNumColorStages = pipeline->fFragmentStages.count();
+    for (int i = firstCoverageStageIdx; i < builder.numCoverageFragmentStages(); ++i) {
+        const GrFragmentStage& fps = builder.fCoverageStages[i];
+        const GrFragmentProcessor* fp = fps.processor();
+        SkNEW_APPEND_TO_TARRAY(&pipeline->fFragmentStages, GrPendingFragmentStage, (fps));
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
         fp->gatherCoordTransforms(&pipeline->fCoordTransforms);
     }
@@ -139,13 +134,13 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
                                                 GrXferProcessor::OptFlags flags,
                                                 const GrProcOptInfo& colorPOI,
                                                 const GrProcOptInfo& coveragePOI,
-                                                int* firstColorProcessorIdx,
-                                                int* firstCoverageProcessorIdx) {
+                                                int* firstColorStageIdx,
+                                                int* firstCoverageStageIdx) {
     fReadsFragPosition = fXferProcessor->willReadFragmentPosition();
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
-        *firstColorProcessorIdx = pipelineBuilder.numColorFragmentProcessors();
+        *firstColorStageIdx = pipelineBuilder.numColorFragmentStages();
     } else {
         if (coveragePOI.readsFragPosition()) {
             fReadsFragPosition = true;
@@ -153,7 +148,7 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
     }
 
     if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
-        *firstCoverageProcessorIdx = pipelineBuilder.numCoverageFragmentProcessors();
+        *firstCoverageStageIdx = pipelineBuilder.numCoverageFragmentStages();
     } else {
         if (coveragePOI.readsFragPosition()) {
             fReadsFragPosition = true;
@@ -168,8 +163,8 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
     SkASSERT(&a != &b);
 
     if (a.getRenderTarget() != b.getRenderTarget() ||
-        a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
-        a.fNumColorProcessors != b.fNumColorProcessors ||
+        a.fFragmentStages.count() != b.fFragmentStages.count() ||
+        a.fNumColorStages != b.fNumColorStages ||
         a.fScissorState != b.fScissorState ||
         a.fFlags != b.fFlags ||
         a.fStencilSettings != b.fStencilSettings ||
@@ -181,8 +176,9 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
         return false;
     }
 
-    for (int i = 0; i < a.numFragmentProcessors(); i++) {
-        if (!a.getFragmentProcessor(i).isEqual(b.getFragmentProcessor(i), ignoreCoordTransforms)) {
+    for (int i = 0; i < a.numFragmentStages(); i++) {
+        if (!a.getFragmentStage(i).processor()->isEqual(*b.getFragmentStage(i).processor(),
+                                                            ignoreCoordTransforms)) {
             return false;
         }
     }

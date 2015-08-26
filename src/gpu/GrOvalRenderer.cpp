@@ -1423,7 +1423,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
             return false;
         }
         arfps.set(&pipelineBuilder);
-        arfps.addCoverageFragmentProcessor(fp)->unref();
+        arfps.addCoverageProcessor(fp)->unref();
     }
 
     SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
@@ -1453,7 +1453,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
         return false;
     }
 
-    arfps.addCoverageFragmentProcessor(effect)->unref();
+    arfps.addCoverageProcessor(effect)->unref();
     SkRect bounds = outer->getBounds();
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);

@@ -9,6 +9,7 @@
 #define GrFragmentProcessor_DEFINED
 
 #include "GrProcessor.h"
+#include "GrStagedProcessor.h"
 
 class GrCoordTransform;
 class GrGLSLCaps;
@@ -28,14 +29,12 @@ public:
         , fNumTexturesExclChildren(0)
         , fNumTransformsExclChildren(0) {}
 
-    ~GrFragmentProcessor() override;
-
     GrGLFragmentProcessor* createGLInstance() const;
 
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
         this->onGetGLProcessorKey(caps, b);
         for (int i = 0; i < fChildProcessors.count(); ++i) {
-            fChildProcessors[i]->getGLProcessorKey(caps, b);
+            fChildProcessors[i].processor()->getGLProcessorKey(caps, b);
         }
     }
 
@@ -61,7 +60,9 @@ public:
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
-    const GrFragmentProcessor& childProcessor(int index) const { return *fChildProcessors[index]; }
+    const GrFragmentProcessor& childProcessor(int index) const {
+        return *fChildProcessors[index].processor();
+    }
 
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return fUsesLocalCoords; }
@@ -175,9 +176,7 @@ private:
     int                                          fNumTexturesExclChildren;
     int                                          fNumTransformsExclChildren;
 
-    // TODO: These must convert their processors to pending-execution refs when the parent is
-    // converted (do this automatically in GrProgramElement?).
-    SkTArray<const GrFragmentProcessor*, true>   fChildProcessors;
+    SkTArray<GrFragmentStage, false>             fChildProcessors;
 
     typedef GrProcessor INHERITED;
 };

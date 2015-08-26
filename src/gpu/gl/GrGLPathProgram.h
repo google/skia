@@ -34,7 +34,7 @@ protected:
 private:
     void didSetData() override;
     virtual void setTransformData(const GrPrimitiveProcessor&,
-                                  const GrFragmentProcessor&,
+                                  const GrPendingFragmentStage&,
                                   int index,
                                   GrGLInstalledFragProc*) override;
     void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&) override;

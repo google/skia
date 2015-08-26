@@ -427,7 +427,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             if (!drawContext) {
                 return false;
             }
-            paint.addColorFragmentProcessor(fp);
+            paint.addColorProcessor(fp);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
             drawContext->drawRect(renderTarget, GrClip::WideOpen(), paint, matrix, rect, NULL);
 
@@ -532,7 +532,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                     GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
             }
             if (fp) {
-                paint.addColorFragmentProcessor(fp);
+                paint.addColorProcessor(fp);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 GrDrawContext* drawContext = this->drawContext();
                 drawContext->drawRect(temp->asRenderTarget(), GrClip::WideOpen(), paint,

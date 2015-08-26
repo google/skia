@@ -25,33 +25,32 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+    this->addColorProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
                                                           matrix))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+    this->addCoverageProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
                                                              matrix))->unref();
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& params) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
+    this->addColorProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
                                                           params))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                           const SkMatrix& matrix,
                                           const GrTextureParams& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
+    this->addCoverageProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
                                                              params))->unref();
 }
 
 bool GrPaint::isConstantBlendedColor(GrColor* color) const {
     GrProcOptInfo colorProcInfo;
-    colorProcInfo.calcWithInitialValues(fColorFragmentProcessors.begin(),
-                                        this->numColorFragmentProcessors(), fColor,
+    colorProcInfo.calcWithInitialValues(fColorStages.begin(), this->numColorStages(), fColor,
                                         kRGBA_GrColorComponentFlags, false);
 
     GrXPFactory::InvariantBlendedColor blendedColor;

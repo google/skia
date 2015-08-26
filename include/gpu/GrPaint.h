@@ -11,6 +11,7 @@
 #define GrPaint_DEFINED
 
 #include "GrColor.h"
+#include "GrStagedProcessor.h"
 #include "GrProcessorDataManager.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -43,7 +44,7 @@ public:
 
     GrPaint(const GrPaint& paint) { *this = paint; }
 
-    ~GrPaint() { this->resetFragmentProcessors();  }
+    ~GrPaint() {}
 
     /**
      * The initial color of the drawn primitive. Defaults to solid white.
@@ -77,18 +78,18 @@ public:
     /**
      * Appends an additional color processor to the color computation.
      */
-    const GrFragmentProcessor* addColorFragmentProcessor(const GrFragmentProcessor* fp) {
+    const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* fp) {
         SkASSERT(fp);
-        fColorFragmentProcessors.push_back(SkRef(fp));
+        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrFragmentStage, (fp));
         return fp;
     }
 
     /**
      * Appends an additional coverage processor to the coverage computation.
      */
-    const GrFragmentProcessor* addCoverageFragmentProcessor(const GrFragmentProcessor* fp) {
+    const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* fp) {
         SkASSERT(fp);
-        fCoverageFragmentProcessors.push_back(SkRef(fp));
+        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrFragmentStage, (fp));
         return fp;
     }
 
@@ -101,10 +102,9 @@ public:
     void addColorTextureProcessor(GrTexture*, const SkMatrix&, const GrTextureParams&);
     void addCoverageTextureProcessor(GrTexture*, const SkMatrix&, const GrTextureParams&);
 
-    int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
-    int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }
-    int numTotalFragmentProcessors() const { return this->numColorFragmentProcessors() +
-                                              this->numCoverageFragmentProcessors(); }
+    int numColorStages() const { return fColorStages.count(); }
+    int numCoverageStages() const { return fCoverageStages.count(); }
+    int numTotalStages() const { return this->numColorStages() + this->numCoverageStages(); }
 
     const GrXPFactory* getXPFactory() const {
         if (!fXPFactory) {
@@ -113,27 +113,17 @@ public:
         return fXPFactory.get();
     }
 
-    const GrFragmentProcessor* getColorFragmentProcessor(int i) const {
-        return fColorFragmentProcessors[i];
-    }
-    const GrFragmentProcessor* getCoverageFragmentProcessor(int i) const {
-        return fCoverageFragmentProcessors[i];
-    }
+    const GrFragmentStage& getColorStage(int s) const { return fColorStages[s]; }
+    const GrFragmentStage& getCoverageStage(int s) const { return fCoverageStages[s]; }
 
     GrPaint& operator=(const GrPaint& paint) {
         fAntiAlias = paint.fAntiAlias;
         fDither = paint.fDither;
 
         fColor = paint.fColor;
-        this->resetFragmentProcessors();
-        fColorFragmentProcessors = paint.fColorFragmentProcessors;
-        fCoverageFragmentProcessors = paint.fCoverageFragmentProcessors;
-        for (int i = 0; i < fColorFragmentProcessors.count(); ++i) {
-            fColorFragmentProcessors[i]->ref();
-        }
-        for (int i = 0; i < fColorFragmentProcessors.count(); ++i) {
-            fColorFragmentProcessors[i]->ref();
-        }
+
+        fColorStages = paint.fColorStages;
+        fCoverageStages = paint.fCoverageStages;
 
         fXPFactory.reset(SkRef(paint.getXPFactory()));
         fProcDataManager.reset(SkNEW_ARGS(GrProcessorDataManager, (*paint.processorDataManager())));
@@ -154,26 +144,15 @@ public:
     const GrProcessorDataManager* processorDataManager() const { return fProcDataManager.get(); }
 
 private:
-    void resetFragmentProcessors() {
-        for (int i = 0; i < fColorFragmentProcessors.count(); ++i) {
-            fColorFragmentProcessors[i]->unref();
-        }
-        for (int i = 0; i < fCoverageFragmentProcessors.count(); ++i) {
-            fCoverageFragmentProcessors[i]->unref();
-        }
-        fColorFragmentProcessors.reset();
-        fCoverageFragmentProcessors.reset();
-    }
+    mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
+    SkSTArray<4, GrFragmentStage>        fColorStages;
+    SkSTArray<2, GrFragmentStage>        fCoverageStages;
 
-    mutable SkAutoTUnref<const GrXPFactory>         fXPFactory;
-    SkSTArray<4, const GrFragmentProcessor*, true>  fColorFragmentProcessors;
-    SkSTArray<2, const GrFragmentProcessor*, true>  fCoverageFragmentProcessors;
+    bool                                 fAntiAlias;
+    bool                                 fDither;
 
-    bool                                            fAntiAlias;
-    bool                                            fDither;
-
-    GrColor                                         fColor;
-    SkAutoTUnref<GrProcessorDataManager>            fProcDataManager;
+    GrColor                              fColor;
+    SkAutoTUnref<GrProcessorDataManager> fProcDataManager;
 };
 
 #endif

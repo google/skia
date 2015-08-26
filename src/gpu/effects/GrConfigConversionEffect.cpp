@@ -232,7 +232,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                            (paint3.getProcessorDataManager(), tempTex, false, *pmToUPMRule,
                             SkMatrix::I())));
 
-        paint1.addColorFragmentProcessor(pmToUPM1);
+        paint1.addColorProcessor(pmToUPM1);
 
 
         GrDrawContext* readDrawContext = context->drawContext();
@@ -250,7 +250,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
-        paint2.addColorFragmentProcessor(upmToPM);
+        paint2.addColorProcessor(upmToPM);
 
         GrDrawContext* tempDrawContext = context->drawContext();
         if (!tempDrawContext) {
@@ -264,7 +264,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                                              kDstRect,
                                              kSrcRect);
 
-        paint3.addColorFragmentProcessor(pmToUPM2);
+        paint3.addColorProcessor(pmToUPM2);
 
         readDrawContext = context->drawContext();
         if (!readDrawContext) {

@@ -130,12 +130,6 @@ bool GrProcessor::hasSameTextureAccesses(const GrProcessor& that) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor::~GrFragmentProcessor() {
-    for (int i = 0; i < fChildProcessors.count(); ++i) {
-        fChildProcessors[i]->unref();
-    }
-}
-
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
                                   bool ignoreCoordTransforms) const {
     if (this->classID() != that.classID() ||
@@ -167,7 +161,7 @@ GrGLFragmentProcessor* GrFragmentProcessor::createGLInstance() const {
     GrGLFragmentProcessor* glFragProc = this->onCreateGLInstance();
     glFragProc->fChildProcessors.push_back_n(fChildProcessors.count());
     for (int i = 0; i < fChildProcessors.count(); ++i) {
-        glFragProc->fChildProcessors[i] = fChildProcessors[i]->createGLInstance();
+        glFragProc->fChildProcessors[i] = fChildProcessors[i].processor()->createGLInstance();
     }
     return glFragProc;
 }
@@ -205,7 +199,7 @@ int GrFragmentProcessor::registerChildProcessor(const GrFragmentProcessor* child
     }
 
     int index = fChildProcessors.count();
-    fChildProcessors.push_back(SkRef(child));
+    fChildProcessors.push_back(GrFragmentStage(child));
 
     if (child->willReadFragmentPosition()) {
         this->setWillReadFragmentPosition();

@@ -859,7 +859,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
         return false;
     }
 
-    grp->addCoverageFragmentProcessor(fp);
+    grp->addCoverageProcessor(fp);
 
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
@@ -1135,7 +1135,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrTextureProvider* texProvid
         return false;
     }
 
-    grp->addCoverageFragmentProcessor(fp);
+    grp->addCoverageProcessor(fp);
 
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
@@ -1211,8 +1211,8 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
         SkMatrix matrix;
         matrix.setIDiv(src->width(), src->height());
         // Blend pathTexture over blurTexture.
-        paint.addCoverageFragmentProcessor(
-            GrSimpleTextureEffect::Create(paint.getProcessorDataManager(), src, matrix))->unref();
+        paint.addCoverageProcessor(GrSimpleTextureEffect::Create(paint.getProcessorDataManager(),
+                                                                 src, matrix))->unref();
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);

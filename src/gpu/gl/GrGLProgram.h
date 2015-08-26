@@ -115,7 +115,7 @@ protected:
     void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&,
                          SkTArray<const GrTextureAccess*>* textureBindings);
     virtual void setTransformData(const GrPrimitiveProcessor&,
-                                  const GrFragmentProcessor&,
+                                  const GrPendingFragmentStage&,
                                   int index,
                                   GrGLInstalledFragProc*);
 

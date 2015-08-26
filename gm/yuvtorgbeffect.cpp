@@ -123,7 +123,7 @@ protected:
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
                     pipelineBuilder.setRenderTarget(rt);
-                    pipelineBuilder.addColorFragmentProcessor(fp);
+                    pipelineBuilder.addColorProcessor(fp);
                     tt.target()->drawNonAARect(pipelineBuilder,
                                                GrColor_WHITE,
                                                viewMatrix,

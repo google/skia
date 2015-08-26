@@ -186,15 +186,15 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     int totalTextures = primProc.numTextures();
     const int maxTextureUnits = fGpu->glCaps().maxFragmentTextureUnits();
 
-    for (int i = 0; i < this->pipeline().numFragmentProcessors(); i++) {
-        const GrFragmentProcessor& processor = this->pipeline().getFragmentProcessor(i);
+    for (int i = 0; i < this->pipeline().numFragmentStages(); i++) {
+        const GrFragmentProcessor* processor = this->pipeline().getFragmentStage(i).processor();
 
         if (!primProc.hasTransformedLocalCoords()) {
-            SkTArray<const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
-            processor.gatherCoordTransforms(&procCoords);
+            SkSTArray<2, const GrCoordTransform*, true>& procCoords = fCoordTransforms.push_back();
+            processor->gatherCoordTransforms(&procCoords);
         }
 
-        totalTextures += processor.numTextures();
+        totalTextures += processor->numTextures();
         if (totalTextures >= maxTextureUnits) {
             GrCapsDebugf(fGpu->caps(), "Program would use too many texture units\n");
             return false;
@@ -204,9 +204,9 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     this->emitAndInstallProc(primProc, inputColor, inputCoverage);
 
     fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
-    int numProcs = this->pipeline().numFragmentProcessors();
-    this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentProcessors(), inputColor);
-    this->emitAndInstallFragProcs(this->pipeline().numColorFragmentProcessors(), numProcs,
+    int numProcs = this->pipeline().numFragmentStages();
+    this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentStages(), inputColor);
+    this->emitAndInstallFragProcs(this->pipeline().numColorFragmentStages(), numProcs,
                                   inputCoverage);
     this->emitAndInstallXferProc(*this->pipeline().getXferProcessor(), *inputColor, *inputCoverage);
     return true;
@@ -215,10 +215,10 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
 void GrGLProgramBuilder::emitAndInstallFragProcs(int procOffset,
                                                  int numProcs,
                                                  GrGLSLExpr4* inOut) {
-    for (int i = procOffset; i < numProcs; ++i) {
+    for (int e = procOffset; e < numProcs; ++e) {
         GrGLSLExpr4 output;
-        const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
-        this->emitAndInstallProc(fp, i, *inOut, &output);
+        const GrPendingFragmentStage& stage = this->pipeline().getFragmentStage(e);
+        this->emitAndInstallProc(stage, e, *inOut, &output);
         *inOut = output;
     }
 }
@@ -239,7 +239,7 @@ void GrGLProgramBuilder::nameExpression(GrGLSLExpr4* output, const char* baseNam
 
 // TODO Processors cannot output zeros because an empty string is all 1s
 // the fix is to allow effects to take the GrGLSLExpr4 directly
-void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
+void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& proc,
                                             int index,
                                             const GrGLSLExpr4& input,
                                             GrGLSLExpr4* output) {
@@ -249,10 +249,10 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
 
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
-    openBrace.printf("{ // Stage %d, %s\n", fStageIndex, fp.name());
+    openBrace.printf("{ // Stage %d, %s\n", fStageIndex, proc.name());
     fFS.codeAppend(openBrace.c_str());
 
-    this->emitAndInstallProc(fp, index, output->c_str(), input.isOnes() ? NULL : input.c_str());
+    this->emitAndInstallProc(proc, index, output->c_str(), input.isOnes() ? NULL : input.c_str());
 
     fFS.codeAppend("}");
 }
@@ -276,12 +276,13 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& proc,
     fFS.codeAppend("}");
 }
 
-void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
+void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
                                             int index,
                                             const char* outColor,
                                             const char* inColor) {
     GrGLInstalledFragProc* ifp = SkNEW(GrGLInstalledFragProc);
 
+    const GrFragmentProcessor& fp = *fs.processor();
     ifp->fGLProc.reset(fp.createGLInstance());
 
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(fp.numTextures());
@@ -500,7 +501,7 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
 
 GrGLInstalledFragProcs::~GrGLInstalledFragProcs() {
     int numProcs = fProcs.count();
-    for (int i = 0; i < numProcs; ++i) {
-        SkDELETE(fProcs[i]);
+    for (int e = 0; e < numProcs; ++e) {
+        SkDELETE(fProcs[e]);
     }
 }

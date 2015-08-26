@@ -46,7 +46,7 @@ void setup_drawstate_aaclip(const GrPipelineBuilder& pipelineBuilder,
 
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
     // This could be a long-lived effect that is cached with the alpha-mask.
-    arfps->addCoverageFragmentProcessor(
+    arfps->addCoverageProcessor(
         GrTextureDomainEffect::Create(arfps->getProcessorDataManager(),
                                       result,
                                       mat,
@@ -200,7 +200,7 @@ bool GrClipMaskManager::installClipEffects(
                     break;
             }
             if (fp) {
-                arfps->addCoverageFragmentProcessor(fp);
+                arfps->addCoverageProcessor(fp);
             } else {
                 failed = true;
                 break;
@@ -488,7 +488,7 @@ void GrClipMaskManager::mergeMask(GrPipelineBuilder* pipelineBuilder,
     SkMatrix sampleM;
     sampleM.setIDiv(srcMask->width(), srcMask->height());
 
-    pipelineBuilder->addCoverageFragmentProcessor(
+    pipelineBuilder->addCoverageProcessor(
         GrTextureDomainEffect::Create(pipelineBuilder->getProcessorDataManager(),
                                       srcMask,
                                       sampleM,

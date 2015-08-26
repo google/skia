@@ -963,7 +963,7 @@ static void draw_aa_bitmap(GrDrawContext* drawContext, GrContext* context,
     }
 
     // The bitmap read has to be first
-    grPaint.addColorFragmentProcessor(fp);
+    grPaint.addColorProcessor(fp);
     if (!SkPaint2GrPaintNoShader(context, renderTarget, paint, SkColor2GrColor(paint.getColor()),
                                  false, &grPaint)) {
         return;
@@ -1305,7 +1305,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                                SkMatrix::I(), params));
     }
 
-    grPaint.addColorFragmentProcessor(fp);
+    grPaint.addColorProcessor(fp);
     bool alphaOnly = !(kAlpha_8_SkColorType == bitmap.colorType());
     GrColor paintColor = (alphaOnly) ? SkColor2GrColorJustAlpha(paint.getColor()) :
                                        SkColor2GrColor(paint.getColor());

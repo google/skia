@@ -354,7 +354,7 @@ void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
     GrPaint paint;
     GrFragmentProcessor* fp = this->getFragmentProcessor(paint.getProcessorDataManager(), src,
                                                          matrix, bounds, boundaryMode);
-    paint.addColorFragmentProcessor(fp)->unref();
+    paint.addColorProcessor(fp)->unref();
     drawContext->drawNonAARectToRect(dst->asRenderTarget(), clip, paint, SkMatrix::I(),
                                      dstRect, srcRect);
 }
