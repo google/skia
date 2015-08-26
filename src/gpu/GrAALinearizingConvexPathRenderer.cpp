@@ -54,7 +54,7 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
             return false;
         }
         SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * args.fStroke->getWidth();
-        return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth && !args.fStroke->isDashed() && 
+        return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth && !args.fStroke->isDashed() &&
                 SkPathPriv::LastVerbIsClose(*args.fPath) &&
                 args.fStroke->getJoin() != SkPaint::Join::kRound_Join;
     }
@@ -85,7 +85,7 @@ static void extract_verts(const GrAAConvexTessellator& tess,
             *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
         } else {
             *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
-            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 
+            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) =
                     tess.coverage(i);
         }
     }
@@ -159,7 +159,7 @@ private:
         fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
     }
 
-    void draw(GrVertexBatch::Target* target, const GrPipeline* pipeline, int vertexCount, 
+    void draw(GrVertexBatch::Target* target, const GrPipeline* pipeline, int vertexCount,
             size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) {
         if (vertexCount == 0 || indexCount == 0) {
             return;
@@ -167,7 +167,7 @@ private:
         const GrVertexBuffer* vertexBuffer;
         GrVertices info;
         int firstVertex;
-        void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, 
+        void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -183,11 +183,11 @@ private:
             return;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        info.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex, 
+        info.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
                 firstIndex, vertexCount, indexCount);
         target->draw(info);
     }
-    
+
     void onPrepareDraws(Target* target) override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
@@ -215,8 +215,8 @@ private:
         int indexCount = 0;
         int maxVertices = DEFAULT_BUFFER_SIZE;
         int maxIndices = DEFAULT_BUFFER_SIZE;
-        uint8_t* vertices = (uint8_t*) malloc(maxVertices * vertexStride);
-        uint16_t* indices = (uint16_t*) malloc(maxIndices * sizeof(uint16_t));
+        uint8_t* vertices = (uint8_t*) sk_malloc_throw(maxVertices * vertexStride);
+        uint16_t* indices = (uint16_t*) sk_malloc_throw(maxIndices * sizeof(uint16_t));
         for (int i = 0; i < instanceCount; i++) {
             Geometry& args = fGeoData[i];
             GrAAConvexTessellator tess(args.fStrokeWidth, args.fJoin, args.fMiterLimit);
@@ -228,9 +228,9 @@ private:
             int currentIndices = tess.numIndices();
             SkASSERT(currentIndices <= UINT16_MAX);
             if (indexCount + currentIndices > UINT16_MAX) {
-                // if we added the current instance, we would overflow the indices we can store in a 
+                // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount, 
+                draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
                      indices);
                 vertexCount = 0;
                 indexCount = 0;
@@ -238,22 +238,22 @@ private:
             int currentVertices = tess.numPts();
             if (vertexCount + currentVertices > maxVertices) {
                 maxVertices = SkTMax(vertexCount + currentVertices, maxVertices * 2);
-                vertices = (uint8_t*) realloc(vertices, maxVertices * vertexStride);
+                vertices = (uint8_t*) sk_realloc_throw(vertices, maxVertices * vertexStride);
             }
             if (indexCount + currentIndices > maxIndices) {
                 maxIndices = SkTMax(indexCount + currentIndices, maxIndices * 2);
-                indices = (uint16_t*) realloc(indices, maxIndices * sizeof(uint16_t));
+                indices = (uint16_t*) sk_realloc_throw(indices, maxIndices * sizeof(uint16_t));
             }
 
-            extract_verts(tess, vertices + vertexStride * vertexCount, vertexStride, args.fColor, 
+            extract_verts(tess, vertices + vertexStride * vertexCount, vertexStride, args.fColor,
                     vertexCount, indices + indexCount, canTweakAlphaForCoverage);
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
         draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
              indices);
-        free(vertices);
-        free(indices);
+        sk_free(vertices);
+        sk_free(indices);
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

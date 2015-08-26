@@ -193,7 +193,7 @@ char* SkRegion::toString() {
     }
     // 4 ints, up to 10 digits each plus sign, 3 commas, '(', ')', SkRegion() and '\0'
     const int max = (count*((11*4)+5))+11+1;
-    char* result = (char*)malloc(max);
+    char* result = (char*)sk_malloc_throw(max);
     if (result == NULL) {
         return NULL;
     }
