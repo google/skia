@@ -93,11 +93,10 @@ SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
     if (kGL_GrGLStandard == forcedGpuAPI) {
         return NULL;
     }
-    IOSGLContext* ctx = SkNEW(IOSGLContext);
+    IOSGLContext* ctx = new IOSGLContext;
     if (!ctx->isValid()) {
-        SkDELETE(ctx);
+        delete ctx;
         return NULL;
     }
     return ctx;
 }
-
