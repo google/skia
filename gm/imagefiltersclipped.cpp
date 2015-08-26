@@ -12,9 +12,11 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkGradientShader.h"
+#include "SkLightingImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
+#include "SkPoint3.h"
 #include "SkRectShaderImageFilter.h"
 #include "SkScalar.h"
 #include "gm.h"
@@ -95,6 +97,7 @@ protected:
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
         SkMatrix resizeMatrix;
         resizeMatrix.setScale(RESIZE_FACTOR_X, RESIZE_FACTOR_Y);
+        SkPoint3 pointLocation = SkPoint3::Make(32, 32, SkIntToScalar(10));
 
         SkImageFilter* filters[] = {
             SkBlurImageFilter::Create(SkIntToScalar(12), SkIntToScalar(12)),
@@ -110,6 +113,8 @@ protected:
             SkErodeImageFilter::Create(2, 2, checkerboard.get()),
             SkOffsetImageFilter::Create(SkIntToScalar(-16), SkIntToScalar(32)),
             SkImageFilter::CreateMatrixFilter(resizeMatrix, kNone_SkFilterQuality),
+            SkLightingImageFilter::CreatePointLitDiffuse(pointLocation, SK_ColorWHITE, SK_Scalar1, SkIntToScalar(2), checkerboard.get()),
+
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));

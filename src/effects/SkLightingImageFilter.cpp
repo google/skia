@@ -1207,7 +1207,9 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    SkAutoTUnref<SkImageFilterLight> transformedLight(light()->transform(ctx.ctm()));
+    SkMatrix matrix(ctx.ctm());
+    matrix.postTranslate(SkIntToScalar(-srcOffset.x()), SkIntToScalar(-srcOffset.y()));
+    SkAutoTUnref<SkImageFilterLight> transformedLight(light()->transform(matrix));
 
     DiffuseLightingType lightingType(fKD);
     offset->fX = bounds.left();
@@ -1351,8 +1353,10 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
     SpecularLightingType lightingType(fKS, fShininess);
     offset->fX = bounds.left();
     offset->fY = bounds.top();
+    SkMatrix matrix(ctx.ctm());
+    matrix.postTranslate(SkIntToScalar(-srcOffset.x()), SkIntToScalar(-srcOffset.y()));
+    SkAutoTUnref<SkImageFilterLight> transformedLight(light()->transform(matrix));
     bounds.offset(-srcOffset);
-    SkAutoTUnref<SkImageFilterLight> transformedLight(light()->transform(ctx.ctm()));
     switch (transformedLight->type()) {
         case SkImageFilterLight::kDistant_LightType:
             lightBitmap<SpecularLightingType, SkDistantLight>(lightingType,
