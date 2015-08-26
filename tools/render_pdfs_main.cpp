@@ -115,7 +115,7 @@ public:
 static SkWStream* open_stream(const SkString& outputDir,
                               const SkString& inputFilename) {
     if (outputDir.isEmpty()) {
-        return SkNEW(NullWStream);
+        return new NullWStream;
     }
 
     SkString outputPath;
@@ -123,8 +123,7 @@ static SkWStream* open_stream(const SkString& outputDir,
         return NULL;
     }
 
-    SkAutoTDelete<SkFILEWStream> stream(
-            SkNEW_ARGS(SkFILEWStream, (outputPath.c_str())));
+    SkAutoTDelete<SkFILEWStream> stream(new SkFILEWStream(outputPath.c_str()));
     if (!stream.get() ||  !stream->isValid()) {
         SkDebugf("Could not write to file %s\n", outputPath.c_str());
         return NULL;

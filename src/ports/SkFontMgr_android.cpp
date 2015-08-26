@@ -204,33 +204,27 @@ public:
                 // TODO: warn on defaulted axis?
             }
 
-            SkDEBUGCODE (
-                // Check for axis specified, but not matched in font.
-                for (int i = 0; i < fontFile.fAxes.count(); ++i) {
-                    SkFourByteTag skTag = fontFile.fAxes[i].fTag;
-                    bool found = false;
-                    for (int j = 0; j < axisDefinitions.count(); ++j) {
-                        if (skTag == axisDefinitions[j].fTag) {
-                            found = true;
-                            break;
+            SkDEBUGCODE(
+                    // Check for axis specified, but not matched in font.
+                    for (int i = 0; i < fontFile.fAxes.count(); ++i) {
+                        SkFourByteTag skTag = fontFile.fAxes[i].fTag;
+                        bool found = false;
+                        for (int j = 0; j < axisDefinitions.count(); ++j) {
+                            if (skTag == axisDefinitions[j].fTag) {
+                                found = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!found) {
-                        SkDEBUGF(("Requested font axis not found: %s '%c%c%c%c'\n",
-                                  familyName.c_str(),
-                                  (skTag >> 24) & 0xFF,
-                                  (skTag >> 16) & 0xFF,
-                                  (skTag >>  8) & 0xFF,
-                                  (skTag      ) & 0xFF));
-                    }
-                }
-            )
+                        if (!found) {
+                            SkDEBUGF(("Requested font axis not found: %s '%c%c%c%c'\n",
+                                      familyName.c_str(), (skTag >> 24) & 0xFF,
+                                      (skTag >> 16) & 0xFF, (skTag >> 8) & 0xFF, (skTag)&0xFF));
+                        }
+                    })
 
-            fStyles.push_back().reset(SkNEW_ARGS(SkTypeface_AndroidSystem,
-                                                 (pathName, ttcIndex,
-                                                  axisValues.get(), axisDefinitions.count(),
-                                                  style, isFixedWidth, familyName,
-                                                  lang, variant)));
+                    fStyles.push_back().reset(new SkTypeface_AndroidSystem(
+                            pathName, ttcIndex, axisValues.get(), axisDefinitions.count(), style,
+                            isFixedWidth, familyName, lang, variant));
         }
     }
 
@@ -476,7 +470,7 @@ protected:
             return NULL;
         }
         SkFontData* data(new SkFontData(stream.detach(), ttcIndex, NULL, 0));
-        return SkNEW_ARGS(SkTypeface_AndroidStream, (data, style, isFixedPitch, name));
+        return new SkTypeface_AndroidStream(data, style, isFixedPitch, name);
     }
 
     SkTypeface* onCreateFromFontData(SkFontData* data) const override {
@@ -487,7 +481,7 @@ protected:
         if (!fScanner.scanFont(stream, data->getIndex(), &name, &style, &isFixedPitch, NULL)) {
             return NULL;
         }
-        return SkNEW_ARGS(SkTypeface_AndroidStream, (data, style, isFixedPitch, name));
+        return new SkTypeface_AndroidStream(data, style, isFixedPitch, name);
     }
 
 
@@ -531,17 +525,16 @@ private:
                 }
             }
 
-            SkFontStyleSet_Android* newSet =
-                SkNEW_ARGS(SkFontStyleSet_Android, (family, fScanner));
+            SkFontStyleSet_Android* newSet = new SkFontStyleSet_Android(family, fScanner);
             if (0 == newSet->count()) {
-                SkDELETE(newSet);
+                delete newSet;
                 continue;
             }
             fFontStyleSets.push_back().reset(newSet);
 
             for (int j = 0; j < family.fNames.count(); j++) {
                 NameToFamily* nextEntry = nameToFamily->append();
-                SkNEW_PLACEMENT_ARGS(&nextEntry->name, SkString, (family.fNames[j]));
+                new (&nextEntry->name) SkString(family.fNames[j]);
                 nextEntry->styleSet = newSet;
             }
         }
@@ -591,5 +584,5 @@ SkFontMgr* SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom) {
                   custom->fFallbackFontsXml));
     }
 
-    return SkNEW_ARGS(SkFontMgr_Android, (custom));
+    return new SkFontMgr_Android(custom);
 }

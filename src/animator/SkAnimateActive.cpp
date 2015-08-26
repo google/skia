@@ -31,7 +31,7 @@ void SkActive::init()
     fState.setCount(animators);
     int index;
     for (index = 0; index < animators; index++)
-        fInterpolators[index] = SkNEW(SkOperandInterpolator);
+        fInterpolators[index] = new SkOperandInterpolator;
     initState(&fApply, 0);
 //  for (index = 0; index < animators; index++)
 //      fState[index].bumpSave();
@@ -65,7 +65,7 @@ void SkActive::append(SkApply* apply) {
     fInterpolators.setCount(total);
     memset(&fInterpolators.begin()[oldCount], 0, newCount * sizeof(SkOperandInterpolator*));
     for (index = oldCount; index < total; index++)
-        fInterpolators[index] = SkNEW(SkOperandInterpolator);
+        fInterpolators[index] = new SkOperandInterpolator;
     fAnimators.setCount(total);
     memcpy(&fAnimators[oldCount], animates.begin(), sizeof(fAnimators[0]) *
         newCount);

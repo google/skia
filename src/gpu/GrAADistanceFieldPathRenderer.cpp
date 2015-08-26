@@ -53,7 +53,7 @@ void GrAADistanceFieldPathRenderer::HandleEviction(GrBatchAtlas::AtlasID id, voi
         if (id == pathData->fID) {
             dfpr->fPathCache.remove(pathData->fKey);
             dfpr->fPathList.remove(pathData);
-            SkDELETE(pathData);
+            delete pathData;
 #ifdef DF_PATH_TRACKING
             ++g_NumFreedPaths;
 #endif
@@ -71,9 +71,9 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
     while ((pathData = iter.get())) {
         iter.next();
         fPathList.remove(pathData);
-        SkDELETE(pathData);
+        delete pathData;
     }
-    SkDELETE(fAtlas);
+    delete fAtlas;
 
 #ifdef DF_PATH_TRACKING
     SkDebugf("Cached paths: %d, freed paths: %d\n", g_NumCachedPaths, g_NumFreedPaths);
@@ -125,8 +125,8 @@ public:
 
     static GrDrawBatch* Create(const Geometry& geometry, GrColor color, const SkMatrix& viewMatrix,
                                GrBatchAtlas* atlas, PathCache* pathCache, PathDataList* pathList) {
-        return SkNEW_ARGS(AADistanceFieldPathBatch, (geometry, color, viewMatrix,
-                                                     atlas, pathCache, pathList));
+        return new AADistanceFieldPathBatch(geometry, color, viewMatrix, atlas, pathCache,
+                                            pathList);
     }
 
     const char* name() const override { return "AADistanceFieldPathBatch"; }
@@ -231,10 +231,10 @@ private:
                 if (args.fPathData) {
                     fPathCache->remove(args.fPathData->fKey);
                     fPathList->remove(args.fPathData);
-                    SkDELETE(args.fPathData);
+                    delete args.fPathData;
                 }
                 SkScalar scale = desiredDimension/maxDim;
-                args.fPathData = SkNEW(PathData);
+                args.fPathData = new PathData;
                 if (!this->addPathToAtlas(target,
                                           dfProcessor,
                                           this->pipeline(),
@@ -568,9 +568,9 @@ struct PathTestStruct {
         while ((pathData = iter.get())) {
             iter.next();
             fPathList.remove(pathData);
-            SkDELETE(pathData);
+            delete pathData;
         }
-        SkDELETE(fAtlas);
+        delete fAtlas;
         fPathCache.reset();
     }
 
@@ -585,7 +585,7 @@ struct PathTestStruct {
             if (id == pathData->fID) {
                 dfpr->fPathCache.remove(pathData->fKey);
                 dfpr->fPathList.remove(pathData);
-                SkDELETE(pathData);
+                delete pathData;
             }
         }
     }

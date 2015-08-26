@@ -189,7 +189,7 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
         *ctableCount = colorCount;
     }
 
-    fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorStorage, colorCount)));
+    fColorTable.reset(new SkColorTable(colorStorage, colorCount));
     return true;
 }
 
@@ -356,8 +356,7 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
     SkImageInfo imageInfo;
     int bitDepth;
     if (read_header(stream, &png_ptr, &info_ptr, &imageInfo, &bitDepth)) {
-        return SkNEW_ARGS(SkPngCodec, (imageInfo, streamDeleter.detach(), 
-                png_ptr, info_ptr, bitDepth));
+        return new SkPngCodec(imageInfo, streamDeleter.detach(), png_ptr, info_ptr, bitDepth);
     }
     return NULL;
 }
@@ -781,9 +780,9 @@ SkScanlineDecoder* SkPngCodec::NewSDFromStream(SkStream* stream) {
     const SkImageInfo& srcInfo = codec->getInfo();
     if (codec->fNumberPasses > 1) {
         // interlaced image
-        return SkNEW_ARGS(SkPngInterlacedScanlineDecoder, (srcInfo, codec.detach()));
+        return new SkPngInterlacedScanlineDecoder(srcInfo, codec.detach());
     }
 
-    return SkNEW_ARGS(SkPngScanlineDecoder, (srcInfo, codec.detach()));
+    return new SkPngScanlineDecoder(srcInfo, codec.detach());
 }
 

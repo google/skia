@@ -27,14 +27,14 @@ SkCodec* SkScaledCodec::NewFromStream(SkStream* stream) {
     }
 
     // wrap in new SkScaledCodec
-    return SkNEW_ARGS(SkScaledCodec, (scanlineDecoder.detach()));
+    return new SkScaledCodec(scanlineDecoder.detach());
 }
 
 SkCodec* SkScaledCodec::NewFromData(SkData* data) {
     if (!data) {
         return NULL;
     }
-    return NewFromStream(SkNEW_ARGS(SkMemoryStream, (data)));
+    return NewFromStream(new SkMemoryStream(data));
 }
 
 SkScaledCodec::SkScaledCodec(SkScanlineDecoder* scanlineDecoder)

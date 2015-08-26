@@ -201,7 +201,7 @@ void GrConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrConvolutionEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GrGLConvolutionEffect, (*this));
+    return new GrGLConvolutionEffect(*this);
 }
 
 bool GrConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

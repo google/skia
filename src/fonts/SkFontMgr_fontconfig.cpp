@@ -180,7 +180,7 @@ static SkFontStyle make_fontconfig_style(FcPattern* match) {
 
 SkFontStyleSet_FC::SkFontStyleSet_FC(FcPattern** matches, int count) {
     fRecCount = count;
-    fRecs = SkNEW_ARRAY(Rec, count);
+    fRecs = new Rec[count];
     for (int i = 0; i < count; ++i) {
         fRecs[i].fStyleName.set(get_name(matches[i], FC_STYLE));
         fRecs[i].fFileName.set(get_name(matches[i], FC_FILE));
@@ -188,9 +188,7 @@ SkFontStyleSet_FC::SkFontStyleSet_FC(FcPattern** matches, int count) {
     }
 }
 
-SkFontStyleSet_FC::~SkFontStyleSet_FC() {
-    SkDELETE_ARRAY(fRecs);
-}
+SkFontStyleSet_FC::~SkFontStyleSet_FC() { delete[] fRecs; }
 
 void SkFontStyleSet_FC::getStyle(int index, SkFontStyle* style,
                                  SkString* styleName) {
@@ -277,9 +275,8 @@ protected:
             }
         }
 
-        SkFontStyleSet_FC* sset = SkNEW_ARGS(SkFontStyleSet_FC,
-                                             (trimmedMatches.begin(),
-                                              trimmedMatches.count()));
+        SkFontStyleSet_FC* sset =
+                new SkFontStyleSet_FC(trimmedMatches.begin(), trimmedMatches.count());
         return sset;
     }
 
@@ -330,5 +327,5 @@ protected:
 
 SkFontMgr* SkFontMgr::Factory() {
     SkFontConfigInterface* fci = RefFCI();
-    return fci ? SkNEW_ARGS(SkFontMgr_fontconfig, (fci)) : NULL;
+    return fci ? new SkFontMgr_fontconfig(fci) : NULL;
 }

@@ -135,13 +135,9 @@ protected:
 
 class SkFactoryPlayback {
 public:
-    SkFactoryPlayback(int count) : fCount(count) {
-        fArray = SkNEW_ARRAY(SkFlattenable::Factory, count);
-    }
+    SkFactoryPlayback(int count) : fCount(count) { fArray = new SkFlattenable::Factory[count]; }
 
-    ~SkFactoryPlayback() {
-        SkDELETE_ARRAY(fArray);
-    }
+    ~SkFactoryPlayback() { delete[] fArray; }
 
     SkFlattenable::Factory* base() const { return fArray; }
 

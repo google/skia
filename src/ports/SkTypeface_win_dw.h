@@ -78,9 +78,8 @@ public:
                                       IDWriteFontFileLoader* fontFileLoader = NULL,
                                       IDWriteFontCollectionLoader* fontCollectionLoader = NULL) {
         SkFontID fontID = SkTypefaceCache::NewFontID();
-        return SkNEW_ARGS(DWriteFontTypeface, (get_style(font), fontID,
-                                               factory, fontFace, font, fontFamily,
-                                               fontFileLoader, fontCollectionLoader));
+        return new DWriteFontTypeface(get_style(font), fontID, factory, fontFace, font, fontFamily,
+                                      fontFileLoader, fontCollectionLoader);
     }
 
 protected:

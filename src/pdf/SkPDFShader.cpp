@@ -518,8 +518,7 @@ SkPDFObject* SkPDFShader::GetPDFShader(SkPDFCanon* canon,
                                        const SkMatrix& matrix,
                                        const SkIRect& surfaceBBox,
                                        SkScalar rasterScale) {
-    SkAutoTDelete<SkPDFShader::State> state(
-            SkNEW_ARGS(State, (shader, matrix, surfaceBBox, rasterScale)));
+    SkAutoTDelete<SkPDFShader::State> state(new State(shader, matrix, surfaceBBox, rasterScale));
     return get_pdf_shader_by_state(canon, dpi, &state);
 }
 
@@ -625,7 +624,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
             create_smask_graphic_state(canon, dpi, state));
 
     SkPDFAlphaFunctionShader* alphaFunctionShader =
-            SkNEW_ARGS(SkPDFAlphaFunctionShader, (autoState->detach()));
+            new SkPDFAlphaFunctionShader(autoState->detach());
 
     SkAutoTUnref<SkPDFDict> resourceDict(
             get_gradient_resource_dict(colorShader.get(), alphaGs.get()));
@@ -680,7 +679,7 @@ static bool split_perspective(const SkMatrix in, SkMatrix* affine,
 
 namespace {
 SkPDFObject* create_range_object() {
-    SkPDFArray* range = SkNEW(SkPDFArray);
+    SkPDFArray* range = new SkPDFArray;
     range->reserve(6);
     range->appendInt(0);
     range->appendInt(1);
@@ -701,7 +700,7 @@ static SkPDFStream* make_ps_function(const SkString& psCode,
                                      SkPDFArray* domain) {
     SkAutoDataUnref funcData(
             SkData::NewWithCopy(psCode.c_str(), psCode.size()));
-    SkPDFStream* result = SkNEW_ARGS(SkPDFStream, (funcData.get()));
+    SkPDFStream* result = new SkPDFStream(funcData.get());
     result->insertInt("FunctionType", 4);
     result->insertObject("Domain", SkRef(domain));
     result->insertObject("Range", SkRef(rangeObject.get()));
@@ -814,8 +813,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
             make_ps_function(functionCode, domain.get()));
     pdfShader->insertObjRef("Function", function.detach());
 
-    SkPDFFunctionShader* pdfFunctionShader =
-            SkNEW_ARGS(SkPDFFunctionShader, (autoState->detach()));
+    SkPDFFunctionShader* pdfFunctionShader = new SkPDFFunctionShader(autoState->detach());
 
     pdfFunctionShader->insertInt("PatternType", 2);
     pdfFunctionShader->insertObject("Matrix",
@@ -1028,8 +1026,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
     // Put the canvas into the pattern stream (fContent).
     SkAutoTDelete<SkStreamAsset> content(patternDevice->content());
 
-    SkPDFImageShader* imageShader =
-            SkNEW_ARGS(SkPDFImageShader, (autoState->detach()));
+    SkPDFImageShader* imageShader = new SkPDFImageShader(autoState->detach());
     imageShader->setData(content.get());
 
     SkAutoTUnref<SkPDFDict> resourceDict(

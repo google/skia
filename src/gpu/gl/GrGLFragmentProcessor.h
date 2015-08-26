@@ -20,7 +20,7 @@ public:
 
     virtual ~GrGLFragmentProcessor() {
         for (int i = 0; i < fChildProcessors.count(); ++i) {
-            SkDELETE(fChildProcessors[i]);
+            delete fChildProcessors[i];
         }
     }
 

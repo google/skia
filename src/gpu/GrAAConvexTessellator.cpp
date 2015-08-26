@@ -408,7 +408,7 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
 
 GrAAConvexTessellator::Ring* GrAAConvexTessellator::getNextRing(Ring* lastRing) {
 #if GR_AA_CONVEX_TESSELLATOR_VIZ
-    Ring* ring = *fRings.push() = SkNEW(Ring);
+    Ring* ring = *fRings.push() = new Ring;
     ring->setReserve(fInitialRing.numPts());
     ring->rewind();
     return ring;

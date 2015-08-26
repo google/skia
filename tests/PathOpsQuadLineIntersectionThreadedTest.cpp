@@ -116,8 +116,8 @@ DEF_TEST(PathOpsQuadLineIntersectionThreaded, reporter) {
     for (int a = 0; a < 16; ++a) {
         for (int b = 0 ; b < 16; ++b) {
             for (int c = 0 ; c < 16; ++c) {
-                    *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
-                            (&testQuadLineIntersectMain, a, b, c, 0, &testRunner));
+                *testRunner.fRunnables.append() = new PathOpsThreadedRunnable(
+                        &testQuadLineIntersectMain, a, b, c, 0, &testRunner);
             }
             if (!reporter->allowExtendedTest()) goto finish;
         }

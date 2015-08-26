@@ -64,4 +64,4 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return SkNEW_ARGS(RegionContainBench, (sect_proc, "sect")); )
+DEF_BENCH(return new RegionContainBench(sect_proc, "sect");)

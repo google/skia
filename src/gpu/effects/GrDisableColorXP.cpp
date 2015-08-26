@@ -17,9 +17,7 @@
  */
 class DisableColorXP : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create() {
-        return SkNEW(DisableColorXP);
-    }
+    static GrXferProcessor* Create() { return new DisableColorXP; }
 
     ~DisableColorXP() override {};
 
@@ -83,9 +81,7 @@ void DisableColorXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
     GLDisableColorXP::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* DisableColorXP::createGLInstance() const {
-    return SkNEW_ARGS(GLDisableColorXP, (*this));
-}
+GrGLXferProcessor* DisableColorXP::createGLInstance() const { return new GLDisableColorXP(*this); }
 
 void DisableColorXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
     blendInfo->fWriteColor = false;

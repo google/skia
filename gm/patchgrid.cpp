@@ -156,6 +156,5 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM(return SkNEW(SkPatchGridGM); )
-
+DEF_GM(return new SkPatchGridGM;)
 }

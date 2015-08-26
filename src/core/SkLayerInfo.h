@@ -19,7 +19,11 @@ public:
     class BlockInfo {
     public:
         BlockInfo() : fPicture(NULL), fPaint(NULL), fKey(NULL), fKeySize(0) {}
-        ~BlockInfo() { SkSafeUnref(fPicture); SkDELETE(fPaint); SkDELETE_ARRAY(fKey); }
+        ~BlockInfo() {
+            SkSafeUnref(fPicture);
+            delete fPaint;
+            delete[] fKey;
+        }
 
         // The picture owning the layer. If the owning picture is the top-most
         // one (i.e., the picture for which this SkLayerInfo was created) then

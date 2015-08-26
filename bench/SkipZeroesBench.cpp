@@ -113,5 +113,5 @@ private:
 };
 
 // Enable the true version once the feature is checked in.
-DEF_BENCH( return SkNEW_ARGS(SkipZeroesBench, ("arrow.png", true)));
-DEF_BENCH( return SkNEW_ARGS(SkipZeroesBench, ("arrow.png", false)));
+DEF_BENCH(return new SkipZeroesBench("arrow.png", true));
+DEF_BENCH(return new SkipZeroesBench("arrow.png", false));

@@ -25,11 +25,10 @@ public:
         class Builder {
         public:
             Builder(const SkLight lights[], int numLights)
-                : fLights(SkNEW_ARGS(Lights, (lights, numLights))) {
-            }
+                : fLights(new Lights(lights, numLights)) {}
 
-            Builder() : fLights(SkNEW(Lights)) { }
-    
+            Builder() : fLights(new Lights) {}
+
             // TODO: limit the number of lights here or just ignore those
             // above some maximum?
             void add(const SkLight& light) {

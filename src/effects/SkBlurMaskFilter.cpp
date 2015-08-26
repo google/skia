@@ -133,7 +133,7 @@ SkMaskFilter* SkBlurMaskFilter::Create(SkBlurStyle style, SkScalar sigma, uint32
     if (flags > SkBlurMaskFilter::kAll_BlurFlag) {
         return NULL;
     }
-    return SkNEW_ARGS(SkBlurMaskFilterImpl, (sigma, style, flags));
+    return new SkBlurMaskFilterImpl(sigma, style, flags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -632,7 +632,7 @@ public:
         if (!createdBlurProfileTexture) {
            return NULL;
         }
-        return SkNEW_ARGS(GrRectBlurEffect, (rect, sigma, blurProfileTexture));
+        return new GrRectBlurEffect(rect, sigma, blurProfileTexture);
     }
 
     const SkRect& getRect() const { return fRect; }
@@ -802,7 +802,7 @@ void GrRectBlurEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrRectBlurEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GrGLRectBlurEffect, (*this));
+    return new GrGLRectBlurEffect(*this);
 }
 
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -972,7 +972,7 @@ GrFragmentProcessor* GrRRectBlurEffect::Create(GrTextureProvider* texProvider, f
         }
         texProvider->assignUniqueKeyToTexture(key, blurNinePatchTexture);
     }
-    return SkNEW_ARGS(GrRRectBlurEffect, (sigma, rrect, blurNinePatchTexture));
+    return new GrRRectBlurEffect(sigma, rrect, blurNinePatchTexture);
 }
 
 void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -1102,7 +1102,7 @@ void GrRRectBlurEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorK
 }
 
 GrGLFragmentProcessor* GrRRectBlurEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GrGLRRectBlurEffect, (*this));
+    return new GrGLRRectBlurEffect(*this);
 }
 
 bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrTextureProvider* texProvider,

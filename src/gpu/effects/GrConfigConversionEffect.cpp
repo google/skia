@@ -136,12 +136,9 @@ GrFragmentProcessor* GrConfigConversionEffect::TestCreate(GrProcessorTestData* d
     } else {
         swapRB = d->fRandom->nextBool();
     }
-    return SkNEW_ARGS(GrConfigConversionEffect,
-                                      (d->fProcDataManager,
-                                       d->fTextures[GrProcessorUnitTest::kSkiaPMTextureIdx],
-                                       swapRB,
-                                       pmConv,
-                                       GrTest::TestMatrix(d->fRandom)));
+    return new GrConfigConversionEffect(d->fProcDataManager,
+                                        d->fTextures[GrProcessorUnitTest::kSkiaPMTextureIdx],
+                                        swapRB, pmConv, GrTest::TestMatrix(d->fRandom));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -152,7 +149,7 @@ void GrConfigConversionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrConfigConversionEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GrGLConfigConversionEffect, (*this));
+    return new GrGLConfigConversionEffect(*this);
 }
 
 
@@ -219,18 +216,12 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         GrPaint paint1;
         GrPaint paint2;
         GrPaint paint3;
-        SkAutoTUnref<GrFragmentProcessor> pmToUPM1(
-                SkNEW_ARGS(GrConfigConversionEffect,
-                           (paint1.getProcessorDataManager(), dataTex, false, *pmToUPMRule,
-                            SkMatrix::I())));
-        SkAutoTUnref<GrFragmentProcessor> upmToPM(
-                SkNEW_ARGS(GrConfigConversionEffect,
-                           (paint2.getProcessorDataManager(), readTex, false, *upmToPMRule,
-                            SkMatrix::I())));
-        SkAutoTUnref<GrFragmentProcessor> pmToUPM2(
-                SkNEW_ARGS(GrConfigConversionEffect,
-                           (paint3.getProcessorDataManager(), tempTex, false, *pmToUPMRule,
-                            SkMatrix::I())));
+        SkAutoTUnref<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
+                paint1.getProcessorDataManager(), dataTex, false, *pmToUPMRule, SkMatrix::I()));
+        SkAutoTUnref<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
+                paint2.getProcessorDataManager(), readTex, false, *upmToPMRule, SkMatrix::I()));
+        SkAutoTUnref<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(
+                paint3.getProcessorDataManager(), tempTex, false, *pmToUPMRule, SkMatrix::I()));
 
         paint1.addColorProcessor(pmToUPM1);
 
@@ -314,10 +305,7 @@ const GrFragmentProcessor* GrConfigConversionEffect::Create(GrProcessorDataManag
             // The PM conversions assume colors are 0..255
             return NULL;
         }
-        return SkNEW_ARGS(GrConfigConversionEffect, (procDataManager,
-                                                     texture,
-                                                     swapRedAndBlue,
-                                                     pmConversion,
-                                                     matrix));
+        return new GrConfigConversionEffect(procDataManager, texture, swapRedAndBlue, pmConversion,
+                                            matrix);
     }
 }

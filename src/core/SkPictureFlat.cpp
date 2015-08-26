@@ -29,11 +29,11 @@ void SkTypefacePlayback::reset(const SkRefCntSet* rec) {
         SkASSERT(fArray[i]);
         fArray[i]->unref();
     }
-    SkDELETE_ARRAY(fArray);
+    delete[] fArray;
 
     if (rec!= NULL && rec->count() > 0) {
         fCount = rec->count();
-        fArray = SkNEW_ARRAY(SkRefCnt*, fCount);
+        fArray = new SkRefCnt* [fCount];
         rec->copyToArray(fArray);
         for (int i = 0; i < fCount; i++) {
             fArray[i]->ref();
@@ -48,7 +48,7 @@ void SkTypefacePlayback::setCount(int count) {
     this->reset(NULL);
 
     fCount = count;
-    fArray = SkNEW_ARRAY(SkRefCnt*, count);
+    fArray = new SkRefCnt* [count];
     sk_bzero(fArray, count * sizeof(SkRefCnt*));
 }
 

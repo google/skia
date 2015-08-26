@@ -103,17 +103,17 @@ static SkPaint paint_maker() {
     return paint;
 }
 
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (line_path_maker(), paint_maker(), "line_1", 1)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (quad_path_maker(), paint_maker(), "quad_1", 1)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (conic_path_maker(), paint_maker(), "conic_1", 1)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (cubic_path_maker(), paint_maker(), "cubic_1", 1)); )
+DEF_BENCH(return new StrokeBench(line_path_maker(), paint_maker(), "line_1", 1);)
+DEF_BENCH(return new StrokeBench(quad_path_maker(), paint_maker(), "quad_1", 1);)
+DEF_BENCH(return new StrokeBench(conic_path_maker(), paint_maker(), "conic_1", 1);)
+DEF_BENCH(return new StrokeBench(cubic_path_maker(), paint_maker(), "cubic_1", 1);)
 
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (line_path_maker(), paint_maker(), "line_4", 4)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (quad_path_maker(), paint_maker(), "quad_4", 4)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (conic_path_maker(), paint_maker(), "conic_4", 4)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (cubic_path_maker(), paint_maker(), "cubic_4", 4)); )
+DEF_BENCH(return new StrokeBench(line_path_maker(), paint_maker(), "line_4", 4);)
+DEF_BENCH(return new StrokeBench(quad_path_maker(), paint_maker(), "quad_4", 4);)
+DEF_BENCH(return new StrokeBench(conic_path_maker(), paint_maker(), "conic_4", 4);)
+DEF_BENCH(return new StrokeBench(cubic_path_maker(), paint_maker(), "cubic_4", 4);)
 
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (line_path_maker(), paint_maker(), "line_.25", .25f)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (quad_path_maker(), paint_maker(), "quad_.25", .25f)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (conic_path_maker(), paint_maker(), "conic_.25", .25f)); )
-DEF_BENCH( return SkNEW_ARGS(StrokeBench, (cubic_path_maker(), paint_maker(), "cubic_.25", .25f)); )
+DEF_BENCH(return new StrokeBench(line_path_maker(), paint_maker(), "line_.25", .25f);)
+DEF_BENCH(return new StrokeBench(quad_path_maker(), paint_maker(), "quad_.25", .25f);)
+DEF_BENCH(return new StrokeBench(conic_path_maker(), paint_maker(), "conic_.25", .25f);)
+DEF_BENCH(return new StrokeBench(cubic_path_maker(), paint_maker(), "cubic_.25", .25f);)

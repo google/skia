@@ -129,7 +129,7 @@ public:
     };
 
     static GrDrawBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(AAFlatteningConvexPathBatch, (geometry));
+        return new AAFlatteningConvexPathBatch(geometry);
     }
 
     const char* name() const override { return "AAConvexBatch"; }

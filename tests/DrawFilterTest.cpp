@@ -28,8 +28,7 @@ static void test_saverestore(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
     SkCanvas* canvas = surface->getCanvas();
 
-
-    SkAutoTUnref<TestFilter> df(SkNEW(TestFilter));
+    SkAutoTUnref<TestFilter> df(new TestFilter);
 
     REPORTER_ASSERT(reporter, NULL == canvas->getDrawFilter());
 

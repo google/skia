@@ -51,7 +51,7 @@ private:
 GrFragmentProcessor* CircleEffect::Create(GrPrimitiveEdgeType edgeType, const SkPoint& center,
                                           SkScalar radius) {
     SkASSERT(radius >= 0);
-    return SkNEW_ARGS(CircleEffect, (edgeType, center, radius));
+    return new CircleEffect(edgeType, center, radius);
 }
 
 void CircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -177,7 +177,7 @@ void CircleEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* CircleEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GLCircleEffect, (*this));
+    return new GLCircleEffect(*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -221,7 +221,7 @@ GrFragmentProcessor* EllipseEffect::Create(GrPrimitiveEdgeType edgeType,
                                            SkScalar rx,
                                            SkScalar ry) {
     SkASSERT(rx >= 0 && ry >= 0);
-    return SkNEW_ARGS(EllipseEffect, (edgeType, center, rx, ry));
+    return new EllipseEffect(edgeType, center, rx, ry);
 }
 
 void EllipseEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -353,7 +353,7 @@ void EllipseEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* EllipseEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GLEllipseEffect, (*this));
+    return new GLEllipseEffect(*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////

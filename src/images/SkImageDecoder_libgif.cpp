@@ -365,7 +365,7 @@ SkImageDecoder::Result SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
                     fillIndex = 0;  // If not, fix it.
                 }
 
-                SkAutoTUnref<SkColorTable> ctable(SkNEW_ARGS(SkColorTable, (colorPtr, colorCount)));
+                SkAutoTUnref<SkColorTable> ctable(new SkColorTable(colorPtr, colorCount));
                 if (!this->allocPixelRef(bm, ctable)) {
                     return error_return(*bm, "allocPixelRef");
                 }
@@ -524,7 +524,7 @@ static bool is_gif(SkStreamRewindable* stream) {
 
 static SkImageDecoder* sk_libgif_dfactory(SkStreamRewindable* stream) {
     if (is_gif(stream)) {
-        return SkNEW(SkGIFImageDecoder);
+        return new SkGIFImageDecoder;
     }
     return NULL;
 }

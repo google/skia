@@ -108,7 +108,7 @@ void SkGradientBitmapCache::add(const void* buffer, size_t len, const SkBitmap& 
         fEntryCount -= 1;
     }
 
-    Entry* entry = SkNEW_ARGS(Entry, (buffer, len, bm));
+    Entry* entry = new Entry(buffer, len, bm);
     this->attachToHead(entry);
     fEntryCount += 1;
 }

@@ -98,8 +98,7 @@ SkFontDescriptor::SkFontDescriptor(SkStream* stream) {
     if (length > 0) {
         SkAutoTUnref<SkData> data(SkData::NewUninitialized(length));
         if (stream->read(data->writable_data(), length) == length) {
-            fFontData.reset(new SkFontData(SkNEW_ARGS(SkMemoryStream, (data)), index,
-                                           axis, axisCount));
+            fFontData.reset(new SkFontData(new SkMemoryStream(data), index, axis, axisCount));
         }
     }
 }

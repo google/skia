@@ -188,9 +188,9 @@ GrGLFuncPtr WinGLContext::onPlatformGetProcAddress(const char* name) const {
 } // anonymous namespace
 
 SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
-    WinGLContext* ctx = SkNEW_ARGS(WinGLContext, (forcedGpuAPI));
+    WinGLContext* ctx = new WinGLContext(forcedGpuAPI);
     if (!ctx->isValid()) {
-        SkDELETE(ctx);
+        delete ctx;
         return NULL;
     }
     return ctx;

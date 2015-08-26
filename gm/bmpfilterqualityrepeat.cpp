@@ -77,4 +77,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(BmpFilterQualityRepeat); )
+DEF_GM(return new BmpFilterQualityRepeat;)

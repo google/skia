@@ -309,7 +309,7 @@ DEFINE_ENCODER_CREATOR(KTXImageEncoder);
 
 static SkImageDecoder* sk_libktx_dfactory(SkStreamRewindable* stream) {
     if (SkKTXFile::is_ktx(stream)) {
-        return SkNEW(SkKTXImageDecoder);
+        return new SkKTXImageDecoder;
     }
     return NULL;
 }
@@ -322,7 +322,7 @@ static SkImageDecoder::Format get_format_ktx(SkStreamRewindable* stream) {
 }
 
 SkImageEncoder* sk_libktx_efactory(SkImageEncoder::Type t) {
-    return (SkImageEncoder::kKTX_Type == t) ? SkNEW(SkKTXImageEncoder) : NULL;
+    return (SkImageEncoder::kKTX_Type == t) ? new SkKTXImageEncoder : NULL;
 }
 
 static SkImageDecoder_DecodeReg gReg(sk_libktx_dfactory);

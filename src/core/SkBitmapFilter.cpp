@@ -20,17 +20,17 @@ SK_CONF_DECLARE(const char *, c_bitmapFilter, "bitmap.filter", "mitchell", "Whic
 
 SkBitmapFilter *SkBitmapFilter::Allocate() {
     if (!strcmp(c_bitmapFilter, "mitchell")) {
-        return SkNEW_ARGS(SkMitchellFilter,(1.f/3.f,1.f/3.f));
+        return new SkMitchellFilter(1.f / 3.f, 1.f / 3.f);
     } else if (!strcmp(c_bitmapFilter, "lanczos")) {
-        return SkNEW(SkLanczosFilter);
+        return new SkLanczosFilter;
     } else if (!strcmp(c_bitmapFilter, "hamming")) {
-        return SkNEW(SkHammingFilter);
+        return new SkHammingFilter;
     } else if (!strcmp(c_bitmapFilter, "gaussian")) {
-        return SkNEW_ARGS(SkGaussianFilter,(2));
+        return new SkGaussianFilter(2);
     } else if (!strcmp(c_bitmapFilter, "triangle")) {
-        return SkNEW(SkTriangleFilter);
+        return new SkTriangleFilter;
     } else if (!strcmp(c_bitmapFilter, "box")) {
-        return SkNEW(SkBoxFilter);
+        return new SkBoxFilter;
     } else {
         SkDEBUGFAIL("Unknown filter type");
     }

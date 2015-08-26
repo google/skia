@@ -256,7 +256,7 @@ SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable* stream) {
     SkImageDecoder* decoder = image_decoder_from_stream(stream);
     if (NULL == decoder) {
         // If no image decoder specific to the stream exists, use SkImageDecoder_WIC.
-        return SkNEW(SkImageDecoder_WIC);
+        return new SkImageDecoder_WIC;
     } else {
         return decoder;
     }
@@ -447,7 +447,7 @@ static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
         default:
             return NULL;
     }
-    return SkNEW_ARGS(SkImageEncoder_WIC, (t));
+    return new SkImageEncoder_WIC(t);
 }
 
 static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_wic_factory);

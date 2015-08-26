@@ -44,8 +44,7 @@ SkMallocPixelRef* SkMallocPixelRef::NewDirect(const SkImageInfo& info,
     if (!is_valid(info, ctable)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkMallocPixelRef,
-                      (info, addr, rowBytes, ctable, NULL, NULL));
+    return new SkMallocPixelRef(info, addr, rowBytes, ctable, NULL, NULL);
 }
 
 
@@ -84,9 +83,7 @@ SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
         return NULL;
     }
 
-    return SkNEW_ARGS(SkMallocPixelRef,
-                      (info, addr, rowBytes, ctable,
-                       sk_free_releaseproc, NULL));
+    return new SkMallocPixelRef(info, addr, rowBytes, ctable, sk_free_releaseproc, NULL);
 }
 
 SkMallocPixelRef* SkMallocPixelRef::NewWithProc(const SkImageInfo& info,
@@ -98,8 +95,7 @@ SkMallocPixelRef* SkMallocPixelRef::NewWithProc(const SkImageInfo& info,
     if (!is_valid(info, ctable)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkMallocPixelRef,
-                      (info, addr, rowBytes, ctable, proc, context));
+    return new SkMallocPixelRef(info, addr, rowBytes, ctable, proc, context);
 }
 
 static void sk_data_releaseproc(void*, void* dataPtr) {
@@ -119,10 +115,9 @@ SkMallocPixelRef* SkMallocPixelRef::NewWithData(const SkImageInfo& info,
         return NULL;
     }
     data->ref();
-    SkMallocPixelRef* pr
-        = SkNEW_ARGS(SkMallocPixelRef,
-                     (info, const_cast<void*>(data->data()), rowBytes, ctable,
-                      sk_data_releaseproc, static_cast<void*>(data)));
+    SkMallocPixelRef* pr =
+            new SkMallocPixelRef(info, const_cast<void*>(data->data()), rowBytes, ctable,
+                                 sk_data_releaseproc, static_cast<void*>(data));
     SkASSERT(pr != NULL);
     // We rely on the immutability of the pixels to make the
     // const_cast okay.

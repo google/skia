@@ -175,7 +175,7 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-DEF_GM( return SkNEW(PointSnapGM); )
-DEF_GM( return SkNEW(LineSnapGM); )
-DEF_GM( return SkNEW(RectSnapGM); )
-DEF_GM( return SkNEW(ComboSnapGM); )
+DEF_GM(return new PointSnapGM;)
+DEF_GM(return new LineSnapGM;)
+DEF_GM(return new RectSnapGM;)
+DEF_GM(return new ComboSnapGM;)

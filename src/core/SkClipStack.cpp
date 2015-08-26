@@ -711,7 +711,7 @@ void SkClipStack::pushElement(const Element& element) {
             prior = (Element*) fDeque.back();
         }
     }
-    Element* newElement = SkNEW_PLACEMENT_ARGS(fDeque.push_back(), Element, (element));
+    Element* newElement = new (fDeque.push_back()) Element(element);
     newElement->updateBoundAndGenID(prior);
 }
 

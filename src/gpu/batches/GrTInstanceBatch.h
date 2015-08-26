@@ -42,9 +42,7 @@ class GrTInstanceBatch : public GrVertexBatch {
 public:
     typedef typename Impl::Geometry Geometry;
 
-    static GrTInstanceBatch* Create() {
-        return SkNEW(GrTInstanceBatch);
-    }
+    static GrTInstanceBatch* Create() { return new GrTInstanceBatch; }
 
     const char* name() const override { return Impl::Name(); }
 

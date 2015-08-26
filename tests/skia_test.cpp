@@ -104,7 +104,7 @@ public:
       }
       fStatus->endTest(fTest.name, !reporter.fError, elapsed,
                        reporter.fTestCount);
-      SkDELETE(this);
+      delete this;
   }
 
 private:
@@ -189,7 +189,7 @@ int test_main() {
         } else if (test.needsGpu) {
             gpuTests.push_back(&test);
         } else {
-            cpuTests.add(SkNEW_ARGS(SkTestRunnable, (test, &status)));
+            cpuTests.add(new SkTestRunnable(test, &status));
         }
     }
 
@@ -203,8 +203,7 @@ int test_main() {
 
     // Run GPU tests on this thread.
     for (int i = 0; i < gpuTests.count(); i++) {
-        SkNEW_ARGS(SkTestRunnable, (*gpuTests[i], &status, grContextFactoryPtr))
-                ->run();
+        (new SkTestRunnable(*gpuTests[i], &status, grContextFactoryPtr))->run();
     }
 
     // Block until threaded tests finish.

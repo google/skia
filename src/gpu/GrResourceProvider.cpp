@@ -37,7 +37,7 @@ const GrIndexBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16
     uint16_t* data = (uint16_t*) buffer->map();
     bool useTempData = (NULL == data);
     if (useTempData) {
-        data = SkNEW_ARRAY(uint16_t, reps * patternSize);
+        data = new uint16_t[reps * patternSize];
     }
     for (int i = 0; i < reps; ++i) {
         int baseIdx = i * patternSize;
@@ -51,7 +51,7 @@ const GrIndexBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16
             buffer->unref();
             return NULL;
         }
-        SkDELETE_ARRAY(data);
+        delete[] data;
     } else {
         buffer->unmap();
     }
@@ -161,5 +161,5 @@ GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
     if (!texture) {
         return NULL;
     }
-    return SkNEW_ARGS(GrBatchAtlas, (texture, numPlotsX, numPlotsY));
+    return new GrBatchAtlas(texture, numPlotsX, numPlotsY);
 }

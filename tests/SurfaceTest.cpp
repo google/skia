@@ -86,7 +86,7 @@ static void test_empty_image(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, NULL == SkImage::NewRasterCopy(info, NULL, 0));
     REPORTER_ASSERT(reporter, NULL == SkImage::NewRasterData(info, NULL, 0));
     REPORTER_ASSERT(reporter, NULL == SkImage::NewFromRaster(info, NULL, 0, NULL, NULL));
-    REPORTER_ASSERT(reporter, NULL == SkImage::NewFromGenerator(SkNEW(EmptyGenerator)));
+    REPORTER_ASSERT(reporter, NULL == SkImage::NewFromGenerator(new EmptyGenerator));
 }
 
 static void test_empty_surface(skiatest::Reporter* reporter, GrContext* ctx) {

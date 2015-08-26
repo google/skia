@@ -58,7 +58,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         return NULL;
     }
 
-    GrGLInterface* interface = SkNEW(GrGLInterface());
+    GrGLInterface* interface = new GrGLInterface();
     GrGLInterface::Functions* functions = &interface->fFunctions;
 
     GET_PROC(ActiveTexture);
@@ -487,7 +487,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         return NULL;
     }
 
-    GrGLInterface* interface = SkNEW(GrGLInterface);
+    GrGLInterface* interface = new GrGLInterface;
     GrGLInterface::Functions* functions = &interface->fFunctions;
 
     GET_PROC(ActiveTexture);

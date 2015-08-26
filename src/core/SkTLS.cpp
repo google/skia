@@ -50,7 +50,7 @@ void SkTLS::Destructor(void* ptr) {
     SkTLSRec* rec = (SkTLSRec*)ptr;
     do {
         SkTLSRec* next = rec->fNext;
-        SkDELETE(rec);
+        delete rec;
         rec = next;
     } while (rec);
 }
@@ -121,7 +121,7 @@ void SkTLS::Delete(CreateProc createProc) {
                 // we have a new head of our chain
                 SkTLS::PlatformSetSpecific(next);
             }
-            SkDELETE(curr);
+            delete curr;
             break;
         }
         prev = curr;

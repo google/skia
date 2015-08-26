@@ -479,7 +479,7 @@ SkFontStyleSet* SkFontMgr_DirectWrite::onCreateStyleSet(int index) const {
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
     HRNM(fFontCollection->GetFontFamily(index, &fontFamily), "Could not get requested family.");
 
-    return SkNEW_ARGS(SkFontStyleSet_DirectWrite, (this, fontFamily.get()));
+    return new SkFontStyleSet_DirectWrite(this, fontFamily.get());
 }
 
 SkFontStyleSet* SkFontMgr_DirectWrite::onMatchFamily(const char familyName[]) const {
@@ -914,7 +914,7 @@ SkTypeface* SkFontMgr_DirectWrite::onCreateFromStream(SkStreamAsset* stream, int
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onCreateFromData(SkData* data, int ttcIndex) const {
-    return this->createFromStream(SkNEW_ARGS(SkMemoryStream, (data)), ttcIndex);
+    return this->createFromStream(new SkMemoryStream(data), ttcIndex);
 }
 
 SkTypeface* SkFontMgr_DirectWrite::onCreateFromFile(const char path[], int ttcIndex) const {
@@ -1092,8 +1092,7 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory) {
         };
     }
 
-    return SkNEW_ARGS(SkFontMgr_DirectWrite, (factory, sysFontCollection.get(),
-                                              localeName, localeNameLen));
+    return new SkFontMgr_DirectWrite(factory, sysFontCollection.get(), localeName, localeNameLen);
 }
 
 #include "SkFontMgr_indirect.h"
@@ -1102,5 +1101,5 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr* proxy) {
     if (impl.get() == NULL) {
         return NULL;
     }
-    return SkNEW_ARGS(SkFontMgr_Indirect, (impl.get(), proxy));
+    return new SkFontMgr_Indirect(impl.get(), proxy);
 }

@@ -21,9 +21,10 @@ public:
     SkFunction() {}
 
     template <typename Fn>
-    SkFunction(const Fn& fn) : fFunction(SkNEW_ARGS(LambdaImpl<Fn>, (fn))) {}
+    SkFunction(const Fn& fn)
+        : fFunction(new LambdaImpl<Fn>(fn)) {}
 
-    SkFunction(R (*fn)(Args...)) : fFunction(SkNEW_ARGS(FnPtrImpl, (fn))) {}
+    SkFunction(R (*fn)(Args...)) : fFunction(new FnPtrImpl(fn)) {}
 
     SkFunction(const SkFunction& other) { *this = other; }
     SkFunction& operator=(const SkFunction& other) {
@@ -51,7 +52,8 @@ private:
         LambdaImpl(const Fn& fn) : fFn(fn) {}
 
         R call(Args... args) const override { return fFn(skstd::forward<Args>(args)...); }
-        Interface* clone() const override { return SkNEW_ARGS(LambdaImpl<Fn>, (fFn)); }
+        Interface* clone() const override { return new LambdaImpl<Fn>(fFn); }
+
     private:
         Fn fFn;
     };
@@ -61,7 +63,8 @@ private:
         FnPtrImpl(R (*fn)(Args...)) : fFn(fn) {}
 
         R call(Args... args) const override { return fFn(skstd::forward<Args>(args)...); }
-        Interface* clone() const override { return SkNEW_ARGS(FnPtrImpl, (fFn)); }
+        Interface* clone() const override { return new FnPtrImpl(fFn); }
+
     private:
         R (*fFn)(Args...);
     };

@@ -290,7 +290,7 @@ public:
         if (!res.fClip.isEmpty()) {
             // The clip is in device space. Apply it via a <g> wrapper to avoid local transform
             // interference.
-            fClipGroup.reset(SkNEW_ARGS(AutoElement, ("g", fWriter)));
+            fClipGroup.reset(new AutoElement("g", fWriter));
             fClipGroup->addAttribute("clip-path",res.fClip);
         }
 
@@ -566,13 +566,13 @@ SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkXMLWriter* writer) {
         return NULL;
     }
 
-    return SkNEW_ARGS(SkSVGDevice, (size, writer));
+    return new SkSVGDevice(size, writer);
 }
 
 SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
     : INHERITED(SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fWriter(writer)
-    , fResourceBucket(SkNEW(ResourceBucket)) {
+    , fResourceBucket(new ResourceBucket) {
     SkASSERT(writer);
 
     fLegacyBitmap.setInfo(SkImageInfo::MakeUnknown(size.width(), size.height()));
@@ -580,7 +580,7 @@ SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
     fWriter->writeHeader();
 
     // The root <svg> tag gets closed by the destructor.
-    fRootElement.reset(SkNEW_ARGS(AutoElement, ("svg", fWriter)));
+    fRootElement.reset(new AutoElement("svg", fWriter));
 
     fRootElement->addAttribute("xmlns", "http://www.w3.org/2000/svg");
     fRootElement->addAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");

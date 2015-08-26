@@ -89,8 +89,7 @@
 #define LOG(...)
 #endif
 
-#define ALLOC_NEW(Type, args, alloc) \
-    SkNEW_PLACEMENT_ARGS(alloc.allocThrow(sizeof(Type)), Type, args)
+#define ALLOC_NEW(Type, args, alloc) new (alloc.allocThrow(sizeof(Type))) Type args
 
 namespace {
 
@@ -1392,7 +1391,7 @@ public:
                                const GrStrokeInfo& stroke,
                                const SkMatrix& viewMatrix,
                                SkRect clipBounds) {
-        return SkNEW_ARGS(TessellatingPathBatch, (color, path, stroke, viewMatrix, clipBounds));
+        return new TessellatingPathBatch(color, path, stroke, viewMatrix, clipBounds);
     }
 
     const char* name() const override { return "TessellatingPathBatch"; }
@@ -1461,7 +1460,7 @@ private:
         }
 
         LOG("got %d pts, %d contours\n", maxPts, contourCnt);
-        SkAutoTDeleteArray<Vertex*> contours(SkNEW_ARRAY(Vertex *, contourCnt));
+        SkAutoTDeleteArray<Vertex*> contours(new Vertex* [contourCnt]);
 
         // For the initial size of the chunk allocator, estimate based on the point count:
         // one vertex per point for the initial passes, plus two for the vertices in the
@@ -1495,7 +1494,7 @@ private:
         if (canMapVB) {
             verts = static_cast<SkPoint*>(vertexBuffer->map());
         } else {
-            verts = SkNEW_ARRAY(SkPoint, count);
+            verts = new SkPoint[count];
         }
         SkPoint* end = polys_to_triangles(polys, fillType, verts);
         int actualCount = static_cast<int>(end - verts);
@@ -1505,7 +1504,7 @@ private:
             vertexBuffer->unmap();
         } else {
             vertexBuffer->updateData(verts, actualCount * sizeof(SkPoint));
-            SkDELETE_ARRAY(verts);
+            delete[] verts;
         }
 
 
@@ -1516,7 +1515,7 @@ private:
             SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
             key->setCustomData(data.get());
             resourceProvider->assignUniqueKeyToResource(*key, vertexBuffer.get());
-            SkPathPriv::AddGenIDChangeListener(fPath, SkNEW(PathInvalidator(*key)));
+            SkPathPriv::AddGenIDChangeListener(fPath, new PathInvalidator(*key));
         }
         return actualCount;
     }

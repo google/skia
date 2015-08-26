@@ -50,15 +50,15 @@ public:
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
                                        float lum, uint32_t flags, bool usesLocalCoords) {
-        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex, params, lum,
-                                                         flags, usesLocalCoords));
+        return new GrDistanceFieldA8TextGeoProc(color, viewMatrix, tex, params, lum, flags,
+                                                usesLocalCoords);
     }
 #else
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix,
                                        GrTexture* tex, const GrTextureParams& params,
                                        uint32_t flags, bool usesLocalCoords) {
-        return SkNEW_ARGS(GrDistanceFieldA8TextGeoProc, (color, viewMatrix, tex,  params, flags,
-                                                         usesLocalCoords));
+        return new GrDistanceFieldA8TextGeoProc(color, viewMatrix, tex, params, flags,
+                                                usesLocalCoords);
     }
 #endif
 
@@ -123,8 +123,8 @@ public:
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, GrTexture* tex,
                                        const GrTextureParams& params,
                                        uint32_t flags, bool usesLocalCoords) {
-        return SkNEW_ARGS(GrDistanceFieldPathGeoProc, (color, viewMatrix, tex, params, flags,
-                                                       usesLocalCoords));
+        return new GrDistanceFieldPathGeoProc(color, viewMatrix, tex, params, flags,
+                                              usesLocalCoords);
     }
 
     virtual ~GrDistanceFieldPathGeoProc() {}
@@ -194,8 +194,8 @@ public:
                                        GrTexture* tex, const GrTextureParams& params,
                                        DistanceAdjust distanceAdjust, uint32_t flags,
                                        bool usesLocalCoords) {
-        return SkNEW_ARGS(GrDistanceFieldLCDTextGeoProc,
-                          (color, viewMatrix, tex, params, distanceAdjust, flags, usesLocalCoords));
+        return new GrDistanceFieldLCDTextGeoProc(color, viewMatrix, tex, params, distanceAdjust,
+                                                 flags, usesLocalCoords);
     }
 
     virtual ~GrDistanceFieldLCDTextGeoProc() {}

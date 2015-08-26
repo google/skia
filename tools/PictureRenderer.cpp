@@ -131,7 +131,7 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
         case kBitmap_DeviceType: {
             SkBitmap bitmap;
             sk_tools::setup_bitmap(&bitmap, width, height);
-            canvas.reset(SkNEW_ARGS(SkCanvas, (bitmap)));
+            canvas.reset(new SkCanvas(bitmap));
         }
         break;
 #if SK_SUPPORT_GPU
@@ -165,7 +165,7 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
             if (!device) {
                 return NULL;
             }
-            canvas.reset(SkNEW_ARGS(SkCanvas, (device)));
+            canvas.reset(new SkCanvas(device));
             break;
         }
 #endif
@@ -179,7 +179,7 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
             canvas->setAllowSoftClip(false);
         }
 
-        canvas.reset(SkNEW_ARGS(FlagsFilterCanvas, (canvas.get(), fDrawFilters)));
+        canvas.reset(new FlagsFilterCanvas(canvas.get(), fDrawFilters));
     }
 
     this->scaleToScaleFactor(canvas);
@@ -408,7 +408,7 @@ bool PipePictureRenderer::render(SkBitmap** out) {
     writer.endRecording();
     fCanvas->flush();
     if (out) {
-        *out = SkNEW(SkBitmap);
+        *out = new SkBitmap;
         setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()),
                            SkScalarCeilToInt(fPicture->cullRect().height()));
         fCanvas->readPixels(*out, 0, 0);
@@ -453,7 +453,7 @@ bool SimplePictureRenderer::render(SkBitmap** out) {
     }
     fCanvas->flush();
     if (out) {
-        *out = SkNEW(SkBitmap);
+        *out = new SkBitmap;
         setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()),
                            SkScalarCeilToInt(fPicture->cullRect().height()));
         fCanvas->readPixels(*out, 0, 0);
@@ -694,7 +694,7 @@ bool TiledPictureRenderer::render(SkBitmap** out) {
 
     SkBitmap bitmap;
     if (out) {
-        *out = SkNEW(SkBitmap);
+        *out = new SkBitmap;
         setup_bitmap(*out, SkScalarCeilToInt(fPicture->cullRect().width()),
                            SkScalarCeilToInt(fPicture->cullRect().height()));
         setup_bitmap(&bitmap, fTileWidth, fTileHeight);
@@ -794,7 +794,7 @@ SkString TiledPictureRenderer::getConfigNameInternal() {
 
 void PlaybackCreationRenderer::setup() {
     SkAutoTDelete<SkBBHFactory> factory(this->getFactory());
-    fRecorder.reset(SkNEW(SkPictureRecorder));
+    fRecorder.reset(new SkPictureRecorder);
     SkCanvas* canvas = fRecorder->beginRecording(SkIntToScalar(this->getViewWidth()),
                                                  SkIntToScalar(this->getViewHeight()),
                                                  factory.get(),
@@ -821,7 +821,7 @@ SkBBHFactory* PictureRenderer::getFactory() {
         case kNone_BBoxHierarchyType:
             return NULL;
         case kRTree_BBoxHierarchyType:
-            return SkNEW(SkRTreeFactory);
+            return new SkRTreeFactory;
     }
     SkASSERT(0); // invalid bbhType
     return NULL;

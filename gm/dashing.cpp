@@ -474,10 +474,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return SkNEW(DashingGM);)
-DEF_GM(return SkNEW(Dashing2GM);)
-DEF_GM(return SkNEW(Dashing3GM);)
-DEF_GM(return SkNEW(Dashing4GM);)
-DEF_GM(return SkNEW_ARGS(Dashing5GM, (true));)
-DEF_GM(return SkNEW_ARGS(Dashing5GM, (false));)
-
+DEF_GM(return new DashingGM;)
+DEF_GM(return new Dashing2GM;)
+DEF_GM(return new Dashing3GM;)
+DEF_GM(return new Dashing4GM;)
+DEF_GM(return new Dashing5GM(true);)
+DEF_GM(return new Dashing5GM(false);)

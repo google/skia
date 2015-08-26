@@ -124,7 +124,7 @@ SkShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMo
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
         return SkShader::CreateEmptyShader();
     }
-    return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy, localMatrix, tile));
+    return new SkPictureShader(picture, tmx, tmy, localMatrix, tile);
 }
 
 SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
@@ -250,7 +250,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
         tileShader.reset(CreateBitmapShader(bm, fTmx, fTmy, &shaderMatrix));
 
-        SkResourceCache::Add(SkNEW_ARGS(BitmapShaderRec, (key, tileShader.get(), bm.getSize())));
+        SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get(), bm.getSize()));
     }
 
     return tileShader.detach();
@@ -272,8 +272,7 @@ SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void*
 
 SkShader::Context* SkPictureShader::PictureShaderContext::Create(void* storage,
                    const SkPictureShader& shader, const ContextRec& rec, SkShader* bitmapShader) {
-    PictureShaderContext* ctx = SkNEW_PLACEMENT_ARGS(storage, PictureShaderContext,
-                                                     (shader, rec, bitmapShader));
+    PictureShaderContext* ctx = new (storage) PictureShaderContext(shader, rec, bitmapShader);
     if (NULL == ctx->fBitmapShaderContext) {
         ctx->~PictureShaderContext();
         ctx = NULL;

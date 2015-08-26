@@ -107,7 +107,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContextFactory
             if (normal) {
                 paint.setTypeface(orig);
             } else {
-                SkAutoTUnref<SkTypeface> typeface(SkNEW_ARGS(SkRandomTypeface, (orig, paint, true)));
+                SkAutoTUnref<SkTypeface> typeface(new SkRandomTypeface(orig, paint, true));
                 paint.setTypeface(typeface);
             }
 

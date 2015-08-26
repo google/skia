@@ -26,9 +26,7 @@ public:
                                     FailImageFilter::GetFlattenableType());
         }
     };
-    static FailImageFilter* Create() {
-        return SkNEW(FailImageFilter);
-    }
+    static FailImageFilter* Create() { return new FailImageFilter; }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
@@ -70,7 +68,7 @@ public:
         }
     };
     static IdentityImageFilter* Create(SkImageFilter* input = NULL) {
-        return SkNEW_ARGS(IdentityImageFilter, (input));
+        return new IdentityImageFilter(input);
     }
 
     SK_TO_STRING_OVERRIDE()

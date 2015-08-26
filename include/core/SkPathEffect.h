@@ -185,7 +185,7 @@ public:
         and decremented in the destructor.
     */
     static SkComposePathEffect* Create(SkPathEffect* outer, SkPathEffect* inner) {
-        return SkNEW_ARGS(SkComposePathEffect, (outer, inner));
+        return new SkComposePathEffect(outer, inner);
     }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
@@ -222,7 +222,7 @@ public:
         and decremented in the destructor.
     */
     static SkSumPathEffect* Create(SkPathEffect* first, SkPathEffect* second) {
-        return SkNEW_ARGS(SkSumPathEffect, (first, second));
+        return new SkSumPathEffect(first, second);
     }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,

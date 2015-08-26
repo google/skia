@@ -597,7 +597,7 @@ public:
                 return NULL;
             }
         }
-        return SkNEW_PLACEMENT_ARGS(storage, Sk3DShaderContext, (*this, rec, proxyContext));
+        return new (storage) Sk3DShaderContext(*this, rec, proxyContext);
     }
 
     class Sk3DShaderContext : public SkShader::Context {
@@ -726,7 +726,7 @@ private:
 
 SkFlattenable* Sk3DShader::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkShader> shader(buffer.readShader());
-    return SkNEW_ARGS(Sk3DShader, (shader));
+    return new Sk3DShader(shader);
 }
 
 class Sk3DBlitter : public SkBlitter {
@@ -800,7 +800,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (origPaint.getMaskFilter() != NULL &&
             origPaint.getMaskFilter()->getFormat() == SkMask::k3D_Format) {
-        shader3D = SkNEW_ARGS(Sk3DShader, (shader));
+        shader3D = new Sk3DShader(shader);
         // we know we haven't initialized lazyPaint yet, so just do it
         paint.writable()->setShader(shader3D)->unref();
         shader = shader3D;
@@ -837,7 +837,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     if (NULL == shader) {
         if (mode) {
             // xfermodes (and filters) require shaders for our current blitters
-            shader = SkNEW_ARGS(SkColorShader, (paint->getColor()));
+            shader = new SkColorShader(paint->getColor());
             paint.writable()->setShader(shader)->unref();
             paint.writable()->setAlpha(0xFF);
         } else if (cf) {
@@ -852,7 +852,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (cf) {
         SkASSERT(shader);
-        shader = SkNEW_ARGS(SkFilterShader, (shader, cf));
+        shader = new SkFilterShader(shader, cf);
         paint.writable()->setShader(shader)->unref();
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.
@@ -970,7 +970,7 @@ bool SkShaderBlitter::resetShaderContext(const SkShader::ContextRec& rec) {
     if (NULL == ctx) {
         // Need a valid context in fShaderContext's storage, so we can later (or our caller) call
         // the in-place destructor.
-        SkNEW_PLACEMENT_ARGS(fShaderContext, SkZeroShaderContext, (*fShader, rec));
+        new (fShaderContext) SkZeroShaderContext(*fShader, rec);
         return false;
     }
     return true;

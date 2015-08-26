@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
 #ifdef SAMPLE_PDF_FILE_VIEWER
 
 #include "SampleCode.h"
@@ -40,7 +42,7 @@ private:
             return NULL;
         }
 
-        SkPicture* pic = SkNEW(SkPicture);
+        SkPicture* pic = new SkPicture;
         SkCanvas* canvas = pic->beginRecording((int) renderer->MediaBox(0).width(),
                                                (int) renderer->MediaBox(0).height());
         renderer->renderPage(0, canvas, renderer->MediaBox(0));

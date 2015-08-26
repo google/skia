@@ -22,11 +22,11 @@ SkPatchGrid::SkPatchGrid(int rows, int cols, VertexType flags, SkXfermode* xfer)
 }
 
 SkPatchGrid::~SkPatchGrid() {
-    SkDELETE_ARRAY(fCornerPts);
-    SkDELETE_ARRAY(fCornerColors);
-    SkDELETE_ARRAY(fTexCoords);
-    SkDELETE_ARRAY(fHrzCtrlPts);
-    SkDELETE_ARRAY(fVrtCtrlPts);
+    delete[] fCornerPts;
+    delete[] fCornerColors;
+    delete[] fTexCoords;
+    delete[] fHrzCtrlPts;
+    delete[] fVrtCtrlPts;
 }
 
 bool SkPatchGrid::setPatch(int x, int y, const SkPoint cubics[12], const SkColor colors[4],
@@ -120,38 +120,38 @@ bool SkPatchGrid::getPatch(int x, int y, SkPoint cubics[12], SkColor colors[4],
 }
 
 void SkPatchGrid::reset(int rows, int cols, VertexType flags, SkXfermode* xMode) {
-    SkDELETE_ARRAY(fCornerPts);
-    SkDELETE_ARRAY(fCornerColors);
-    SkDELETE_ARRAY(fTexCoords);
-    SkDELETE_ARRAY(fHrzCtrlPts);
-    SkDELETE_ARRAY(fVrtCtrlPts);
-    
+    delete[] fCornerPts;
+    delete[] fCornerColors;
+    delete[] fTexCoords;
+    delete[] fHrzCtrlPts;
+    delete[] fVrtCtrlPts;
+
     fCols = cols;
     fRows = rows;
     fModeFlags = flags;
     fXferMode = xMode;
-    
-    fCornerPts = SkNEW_ARRAY(SkPoint, (fRows + 1) * (fCols + 1));
-    fHrzCtrlPts = SkNEW_ARRAY(SkPoint, (fRows + 1) * fCols * 2);
-    fVrtCtrlPts = SkNEW_ARRAY(SkPoint, fRows * 2 * (fCols + 1));
+
+    fCornerPts = new SkPoint[(fRows + 1) * (fCols + 1)];
+    fHrzCtrlPts = new SkPoint[(fRows + 1) * fCols * 2];
+    fVrtCtrlPts = new SkPoint[fRows * 2 * (fCols + 1)];
     memset(fCornerPts, 0, (fRows + 1) * (fCols + 1) * sizeof(SkPoint));
     memset(fHrzCtrlPts, 0, (fRows + 1) * fCols * 2 * sizeof(SkPoint));
     memset(fVrtCtrlPts, 0, fRows * 2 * (fCols + 1) * sizeof(SkPoint));
     
     if (fModeFlags & kColors_VertexType) {
-        fCornerColors = SkNEW_ARRAY(SkColor, (fRows + 1) * (fCols + 1));
+        fCornerColors = new SkColor[(fRows + 1) * (fCols + 1)];
         memset(fCornerColors, 0, (fRows + 1) * (fCols + 1) * sizeof(SkColor));
     }
     
     if (fModeFlags & kTexs_VertexType) {
-        fTexCoords = SkNEW_ARRAY(SkPoint, (fRows + 1) * (fCols + 1));
+        fTexCoords = new SkPoint[(fRows + 1) * (fCols + 1)];
         memset(fTexCoords, 0, (fRows + 1) * (fCols + 1) * sizeof(SkPoint));
     }
 }
 
 void SkPatchGrid::draw(SkCanvas* canvas, SkPaint& paint) {
-    int* maxCols = SkNEW_ARRAY(int, fCols);
-    int* maxRows = SkNEW_ARRAY(int, fRows);
+    int* maxCols = new int[fCols];
+    int* maxRows = new int[fRows];
     memset(maxCols, 0, fCols * sizeof(int));
     memset(maxRows, 0, fRows * sizeof(int));
     
@@ -184,6 +184,6 @@ void SkPatchGrid::draw(SkCanvas* canvas, SkPaint& paint) {
             }
         }
     }
-    SkDELETE_ARRAY(maxCols);
-    SkDELETE_ARRAY(maxRows);
+    delete[] maxCols;
+    delete[] maxRows;
 }

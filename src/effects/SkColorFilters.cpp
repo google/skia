@@ -134,7 +134,7 @@ public:
 //            SkDebugf("Failing to create color filter for mode %d\n", mode);
             return NULL;
         }
-        return SkNEW_ARGS(ModeColorFilterEffect, (c, mode));
+        return new ModeColorFilterEffect(c, mode);
     }
 
     bool willUseFilterColor() const {
@@ -212,9 +212,7 @@ private:
         this->initClassID<ModeColorFilterEffect>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
-        return SkNEW_ARGS(GLProcessor, (*this));
-    }
+    GrGLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override {
@@ -438,11 +436,11 @@ SkColorFilter* SkColorFilter::CreateModeFilter(SkColor color, SkXfermode::Mode m
 
     switch (mode) {
         case SkXfermode::kSrc_Mode:
-            return SkNEW_ARGS(Src_SkModeColorFilter, (color));
+            return new Src_SkModeColorFilter(color);
         case SkXfermode::kSrcOver_Mode:
-            return SkNEW_ARGS(SrcOver_SkModeColorFilter, (color));
+            return new SrcOver_SkModeColorFilter(color);
         default:
-            return SkNEW_ARGS(SkModeColorFilter, (color, mode));
+            return new SkModeColorFilter(color, mode);
     }
 }
 

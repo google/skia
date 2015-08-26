@@ -27,9 +27,7 @@ SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style ) = NULL
 
 class SkEmptyTypeface : public SkTypeface {
 public:
-    static SkEmptyTypeface* Create() {
-        return SkNEW(SkEmptyTypeface);
-    }
+    static SkEmptyTypeface* Create() { return new SkEmptyTypeface; }
 protected:
     SkEmptyTypeface() : SkTypeface(SkFontStyle(), 0, true) { }
 
@@ -59,7 +57,7 @@ protected:
         familyName->reset();
     }
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
-        return SkNEW(EmptyLocalizedStrings);
+        return new EmptyLocalizedStrings;
     };
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
@@ -330,7 +328,7 @@ struct SkTypeface::BoundsComputer {
     BoundsComputer(const SkTypeface& tf) : fTypeface(tf) {}
 
     SkRect* operator()() const {
-        SkRect* rect = SkNEW(SkRect);
+        SkRect* rect = new SkRect;
         if (!fTypeface.onComputeBounds(rect)) {
             rect->setEmpty();
         }

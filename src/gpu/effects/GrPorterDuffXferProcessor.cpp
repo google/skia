@@ -420,7 +420,7 @@ void PorterDuffXferProcessor::onGetGLProcessorKey(const GrGLSLCaps&,
 }
 
 GrGLXferProcessor* PorterDuffXferProcessor::createGLInstance() const {
-    return SkNEW(GLPorterDuffXferProcessor);
+    return new GLPorterDuffXferProcessor;
 }
 
 GrXferProcessor::OptFlags
@@ -518,7 +518,7 @@ void ShaderPDXferProcessor::onGetGLProcessorKey(const GrGLSLCaps&,
 }
 
 GrGLXferProcessor* ShaderPDXferProcessor::createGLInstance() const {
-    return SkNEW(GLShaderPDXferProcessor);
+    return new GLShaderPDXferProcessor;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -611,7 +611,7 @@ GrXferProcessor* PDLCDXferProcessor::Create(SkXfermode::Mode xfermode,
     uint8_t alpha = GrColorUnpackA(blendConstant);
     blendConstant |= (0xff << GrColor_SHIFT_A);
 
-    return SkNEW_ARGS(PDLCDXferProcessor, (blendConstant, alpha));
+    return new PDLCDXferProcessor(blendConstant, alpha);
 }
 
 PDLCDXferProcessor::~PDLCDXferProcessor() {
@@ -623,7 +623,7 @@ void PDLCDXferProcessor::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLXferProcessor* PDLCDXferProcessor::createGLInstance() const {
-    return SkNEW_ARGS(GLPDLCDXferProcessor, (*this));
+    return new GLPDLCDXferProcessor(*this);
 }
 
 GrXferProcessor::OptFlags
@@ -691,11 +691,11 @@ GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
 
     BlendFormula blendFormula = get_blend_formula(colorPOI, covPOI, hasMixedSamples, fXfermode);
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
-        return SkNEW_ARGS(ShaderPDXferProcessor, (dstTexture, hasMixedSamples, fXfermode));
+        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fXfermode);
     }
 
     SkASSERT(!dstTexture || !dstTexture->texture());
-    return SkNEW_ARGS(PorterDuffXferProcessor, (blendFormula));
+    return new PorterDuffXferProcessor(blendFormula);
 }
 
 bool GrPorterDuffXPFactory::supportsRGBCoverage(GrColor /*knownColor*/,

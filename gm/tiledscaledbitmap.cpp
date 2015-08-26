@@ -79,6 +79,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return SkNEW(TiledScaledBitmapGM);)
-
+DEF_GM(return new TiledScaledBitmapGM;)
 }

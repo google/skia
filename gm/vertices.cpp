@@ -123,5 +123,5 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW_ARGS(VerticesGM, (0xFF)); )
-DEF_GM( return SkNEW_ARGS(VerticesGM, (0x80)); )
+DEF_GM(return new VerticesGM(0xFF);)
+DEF_GM(return new VerticesGM(0x80);)

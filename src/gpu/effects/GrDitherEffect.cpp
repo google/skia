@@ -98,7 +98,7 @@ void DitherEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* DitherEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GLDitherEffect, (*this));
+    return new GLDitherEffect(*this);
 }
 
 GrFragmentProcessor* GrDitherEffect::Create() { return DitherEffect::Create(); }

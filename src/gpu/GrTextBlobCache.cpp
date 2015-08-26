@@ -27,7 +27,7 @@ GrAtlasTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount, size_
     sk_bzero(allocation, size);
 #endif
 
-    GrAtlasTextBlob* cacheBlob = SkNEW_PLACEMENT(allocation, GrAtlasTextBlob);
+    GrAtlasTextBlob* cacheBlob = new (allocation) GrAtlasTextBlob;
 #ifdef CACHE_SANITY_CHECK
     cacheBlob->fSize = size;
 #endif
@@ -39,7 +39,7 @@ GrAtlasTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount, size_
 
     // Initialize runs
     for (int i = 0; i < runCount; i++) {
-        SkNEW_PLACEMENT(&cacheBlob->fRuns[i], GrAtlasTextBlob::Run);
+        new (&cacheBlob->fRuns[i]) GrAtlasTextBlob::Run;
     }
     cacheBlob->fRunCount = runCount;
     cacheBlob->fPool = &fPool;

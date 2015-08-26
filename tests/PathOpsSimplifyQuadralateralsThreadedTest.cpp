@@ -82,8 +82,8 @@ DEF_TEST(PathOpsSimplifyQuadralateralsThreaded, reporter) {
         for (int b = a ; b < 16; ++b) {
             for (int c = b ; c < 16; ++c) {
                 for (int d = c; d < 16; ++d) {
-                    *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
-                            (&testSimplifyQuadralateralsMain, a, b, c, d, &testRunner));
+                    *testRunner.fRunnables.append() = new PathOpsThreadedRunnable(
+                            &testSimplifyQuadralateralsMain, a, b, c, d, &testRunner);
                 }
                 if (!reporter->allowExtendedTest()) goto finish;
             }

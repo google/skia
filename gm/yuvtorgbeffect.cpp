@@ -140,7 +140,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return SkNEW(YUVtoRGBEffect); )
+DEF_GM(return new YUVtoRGBEffect;)
 }
 
 #endif

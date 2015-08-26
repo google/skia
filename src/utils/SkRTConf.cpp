@@ -46,8 +46,8 @@ SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
             continue;
         }
 
-        SkString* key = SkNEW_ARGS(SkString,(keyptr));
-        SkString* val = SkNEW_ARGS(SkString,(valptr));
+        SkString *key = new SkString(keyptr);
+        SkString *val = new SkString(valptr);
 
         fConfigFileKeys.append(1, &key);
         fConfigFileValues.append(1, &val);
@@ -64,8 +64,8 @@ SkRTConfRegistry::~SkRTConfRegistry() {
     }
 
     for (int i = 0 ; i < fConfigFileKeys.count() ; i++) {
-        SkDELETE(fConfigFileKeys[i]);
-        SkDELETE(fConfigFileValues[i]);
+        delete fConfigFileKeys[i];
+        delete fConfigFileValues[i];
     }
 }
 

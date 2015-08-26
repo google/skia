@@ -20,12 +20,12 @@ SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRe
         flags = 0x0;
     }
     CropRect cropRect(rect, flags);
-    return s ? SkNEW_ARGS(SkRectShaderImageFilter, (s, &cropRect)) : NULL;
+    return s ? new SkRectShaderImageFilter(s, &cropRect) : NULL;
 }
 
 SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const CropRect* cropRect) {
     SkASSERT(s);
-    return s ? SkNEW_ARGS(SkRectShaderImageFilter, (s, cropRect)) : NULL;
+    return s ? new SkRectShaderImageFilter(s, cropRect) : NULL;
 }
 
 SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cropRect)

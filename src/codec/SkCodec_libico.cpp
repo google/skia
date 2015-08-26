@@ -41,8 +41,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     static const uint32_t kIcoDirEntryBytes = 16;
 
     // Read the directory header
-    SkAutoTDeleteArray<uint8_t> dirBuffer(
-            SkNEW_ARRAY(uint8_t, kIcoDirectoryBytes));
+    SkAutoTDeleteArray<uint8_t> dirBuffer(new uint8_t[kIcoDirectoryBytes]);
     if (inputStream.get()->read(dirBuffer.get(), kIcoDirectoryBytes) !=
             kIcoDirectoryBytes) {
         SkCodecPrintf("Error: unable to read ico directory header.\n");
@@ -57,8 +56,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     }
 
     // Ensure that we can read all of indicated directory entries
-    SkAutoTDeleteArray<uint8_t> entryBuffer(
-            SkNEW_ARRAY(uint8_t, numImages*kIcoDirEntryBytes));
+    SkAutoTDeleteArray<uint8_t> entryBuffer(new uint8_t[numImages * kIcoDirEntryBytes]);
     if (inputStream.get()->read(entryBuffer.get(), numImages*kIcoDirEntryBytes) !=
             numImages*kIcoDirEntryBytes) {
         SkCodecPrintf("Error: unable to read ico directory entries.\n");
@@ -72,7 +70,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         uint32_t offset;
         uint32_t size;
     };
-    SkAutoTDeleteArray<Entry> directoryEntries(SkNEW_ARRAY(Entry, numImages));
+    SkAutoTDeleteArray<Entry> directoryEntries(new Entry[numImages]);
 
     // Iterate over directory entries
     for (uint32_t i = 0; i < numImages; i++) {
@@ -111,7 +109,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     // Now will construct a candidate codec for each of the embedded images
     uint32_t bytesRead = kIcoDirectoryBytes + numImages * kIcoDirEntryBytes;
     SkAutoTDelete<SkTArray<SkAutoTDelete<SkCodec>, true>> codecs(
-            SkNEW_ARGS((SkTArray<SkAutoTDelete<SkCodec>, true>), (numImages)));
+            new (SkTArray<SkAutoTDelete<SkCodec>, true>)(numImages));
     for (uint32_t i = 0; i < numImages; i++) {
         uint32_t offset = directoryEntries.get()[i].offset;
         uint32_t size = directoryEntries.get()[i].size;
@@ -137,8 +135,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
             SkCodecPrintf("Warning: could not create embedded stream.\n");
             break;
         }
-        SkAutoTDelete<SkMemoryStream>
-                embeddedStream(SkNEW_ARGS(SkMemoryStream, (data.get())));
+        SkAutoTDelete<SkMemoryStream> embeddedStream(new SkMemoryStream(data.get()));
         bytesRead += size;
 
         // Check if the embedded codec is bmp or png and create the codec
@@ -189,7 +186,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 
     // Note that stream is owned by the embedded codec, the ico does not need
     // direct access to the stream.
-    return SkNEW_ARGS(SkIcoCodec, (info, codecs.detach()));
+    return new SkIcoCodec(info, codecs.detach());
 }
 
 /*

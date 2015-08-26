@@ -28,13 +28,8 @@ public:
                                        const float* kernel,
                                        bool useBounds,
                                        float bounds[2]) {
-        return SkNEW_ARGS(GrConvolutionEffect, (procDataManager,
-                                                tex,
-                                                dir,
-                                                halfWidth,
-                                                kernel,
-                                                useBounds,
-                                                bounds));
+        return new GrConvolutionEffect(procDataManager, tex, dir, halfWidth, kernel, useBounds,
+                                       bounds);
     }
 
     /// Convolve with a Gaussian kernel
@@ -45,13 +40,8 @@ public:
                                                float gaussianSigma,
                                                bool useBounds,
                                                float bounds[2]) {
-        return SkNEW_ARGS(GrConvolutionEffect, (procDataManager,
-                                                tex,
-                                                dir,
-                                                halfWidth,
-                                                gaussianSigma,
-                                                useBounds,
-                                                bounds));
+        return new GrConvolutionEffect(procDataManager, tex, dir, halfWidth, gaussianSigma,
+                                       useBounds, bounds);
     }
 
     virtual ~GrConvolutionEffect();

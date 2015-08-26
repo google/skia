@@ -146,7 +146,7 @@ private:
 
         // AtlasEntry proper
         AtlasEntry() : fAtlas(NULL) {}
-        ~AtlasEntry() { SkDELETE(fAtlas); }
+        ~AtlasEntry() { delete fAtlas; }
         Desc fDesc;
         GrTextureStripAtlas* fAtlas;
     };

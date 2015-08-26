@@ -17,9 +17,7 @@
 
 namespace {
 
-SkGlyphCache_Globals* create_globals() {
-    return SkNEW(SkGlyphCache_Globals);
-}
+SkGlyphCache_Globals* create_globals() { return new SkGlyphCache_Globals; }
 
 }  // namespace
 
@@ -55,13 +53,9 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkSca
 }
 
 SkGlyphCache::~SkGlyphCache() {
-    fGlyphMap.foreach(
-        [](SkGlyph* g) {
-            SkDELETE(g->fPath);
-        }
-    );
+    fGlyphMap.foreach ([](SkGlyph* g) { delete g->fPath; });
     SkDescriptor::Free(fDesc);
-    SkDELETE(fScalerContext);
+    delete fScalerContext;
     this->invokeAndRemoveAuxProcs();
 }
 
@@ -221,7 +215,7 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
     if (glyph.fWidth) {
         if (glyph.fPath == NULL) {
-            const_cast<SkGlyph&>(glyph).fPath = SkNEW(SkPath);
+            const_cast<SkGlyph&>(glyph).fPath = new SkPath;
             fScalerContext->getPath(glyph, glyph.fPath);
             fMemoryUsed += sizeof(SkPath) +
                     glyph.fPath->countPoints() * sizeof(SkPoint);
@@ -279,7 +273,7 @@ void SkGlyphCache::setAuxProc(void (*proc)(void*), void* data) {
         rec = rec->fNext;
     }
     // not found, create a new rec
-    rec = SkNEW(AuxProcRec);
+    rec = new AuxProcRec;
     rec->fProc = proc;
     rec->fData = data;
     rec->fNext = fAuxProcList;
@@ -291,7 +285,7 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
     while (rec) {
         rec->fProc(rec->fData);
         AuxProcRec* next = rec->fNext;
-        SkDELETE(rec);
+        delete rec;
         rec = next;
     }
 }
@@ -387,7 +381,7 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
             ctx = typeface->createScalerContext(desc, false);
             SkASSERT(ctx);
         }
-        cache = SkNEW_ARGS(SkGlyphCache, (typeface, desc, ctx));
+        cache = new SkGlyphCache(typeface, desc, ctx);
     }
 
     AutoValidate av(cache);
@@ -502,7 +496,7 @@ size_t SkGlyphCache_Globals::internalPurge(size_t minBytesNeeded) {
         countFreed += 1;
 
         this->internalDetachCache(cache);
-        SkDELETE(cache);
+        delete cache;
         cache = prev;
     }
 

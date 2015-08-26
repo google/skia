@@ -41,7 +41,7 @@ GrMaskFormat GrFontScaler::getMaskFormat() const {
 
 const GrFontDescKey* GrFontScaler::getKey() {
     if (NULL == fKey) {
-        fKey = SkNEW_ARGS(GrFontDescKey, (fStrike->getDescriptor()));
+        fKey = new GrFontDescKey(fStrike->getDescriptor());
     }
     return fKey;
 }

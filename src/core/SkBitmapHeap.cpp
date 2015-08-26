@@ -227,7 +227,7 @@ int SkBitmapHeap::findInLookupTable(const LookupEntry& indexEntry, SkBitmapHeapE
     if (index < 0) {
         // insert ourselves into the bitmapIndex
         index = ~index;
-        *fLookupTable.insert(index) = SkNEW_ARGS(LookupEntry, (indexEntry));
+        *fLookupTable.insert(index) = new LookupEntry(indexEntry);
     } else if (entry != NULL) {
         // populate the entry if needed
         *entry = fStorage[fLookupTable[index]->fStorageSlot];
@@ -264,7 +264,7 @@ int SkBitmapHeap::removeEntryFromLookupTable(LookupEntry* entry) {
     // a new entry to the lookup table.
     SkASSERT(count == fLookupTable.count());
     fBytesAllocated -= fStorage[entry->fStorageSlot]->fBytesAllocated;
-    SkDELETE(fLookupTable[index]);
+    delete fLookupTable[index];
     fLookupTable.remove(index);
     return index;
 }
@@ -317,7 +317,7 @@ int32_t SkBitmapHeap::insert(const SkBitmap& originalBitmap) {
             fUnusedSlots.pop(&slot);
             entry = fStorage[slot];
         } else {
-            entry = SkNEW(SkBitmapHeapEntry);
+            entry = new SkBitmapHeapEntry;
             fStorage.append(1, &entry);
             entry->fSlot = fStorage.count() - 1;
             fBytesAllocated += sizeof(SkBitmapHeapEntry);
@@ -335,14 +335,14 @@ int32_t SkBitmapHeap::insert(const SkBitmap& originalBitmap) {
     // if the copy failed then we must abort
     if (!copySucceeded) {
         // delete the index
-        SkDELETE(fLookupTable[searchIndex]);
+        delete fLookupTable[searchIndex];
         fLookupTable.remove(searchIndex);
         // If entry is the last slot in storage, it is safe to delete it.
         if (fStorage.count() - 1 == entry->fSlot) {
             // free the slot
             fStorage.remove(entry->fSlot);
             fBytesAllocated -= sizeof(SkBitmapHeapEntry);
-            SkDELETE(entry);
+            delete entry;
         } else {
             fUnusedSlots.push(entry->fSlot);
         }

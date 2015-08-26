@@ -57,7 +57,7 @@ public:
         if (radiusX < 0 || radiusY < 0) {
             return NULL;
         }
-        return SkNEW_ARGS(SkDilateImageFilter, (radiusX, radiusY, input, cropRect));
+        return new SkDilateImageFilter(radiusX, radiusY, input, cropRect);
     }
 
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
@@ -85,7 +85,7 @@ public:
         if (radiusX < 0 || radiusY < 0) {
             return NULL;
         }
-        return SkNEW_ARGS(SkErodeImageFilter, (radiusX, radiusY, input, cropRect));
+        return new SkErodeImageFilter(radiusX, radiusY, input, cropRect);
     }
 
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,

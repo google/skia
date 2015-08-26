@@ -44,10 +44,10 @@ void PictureBenchmark::setTimersToShow(bool wall,
 Timer* PictureBenchmark::setupTimer(bool useGLTimer) {
 #if SK_SUPPORT_GPU
     if (useGLTimer && fRenderer != NULL && fRenderer->isUsingGpuDevice()) {
-        return SkNEW_ARGS(Timer, (fRenderer->getGLContext()));
+        return new Timer(fRenderer->getGLContext());
     }
 #endif
-    return SkNEW_ARGS(Timer, (NULL));
+    return new Timer(NULL);
 }
 
 PictureRenderer* PictureBenchmark::setRenderer(sk_tools::PictureRenderer* renderer) {

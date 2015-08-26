@@ -72,7 +72,7 @@ SkCodec* SkCodec::NewFromData(SkData* data) {
     if (!data) {
         return NULL;
     }
-    return NewFromStream(SkNEW_ARGS(SkMemoryStream, (data)));
+    return NewFromStream(new SkMemoryStream(data));
 }
 
 SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)

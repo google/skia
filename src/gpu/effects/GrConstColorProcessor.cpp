@@ -91,7 +91,7 @@ void GrConstColorProcessor::onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKe
 }
 
 GrGLFragmentProcessor* GrConstColorProcessor::onCreateGLInstance() const  {
-    return SkNEW(GLConstColorProcessor);
+    return new GLConstColorProcessor;
 }
 
 bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {

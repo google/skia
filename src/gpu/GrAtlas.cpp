@@ -33,7 +33,7 @@ GrPlot::GrPlot()
 }
 
 GrPlot::~GrPlot() {
-    SkDELETE_ARRAY(fPlotData);
+    delete[] fPlotData;
     fPlotData = NULL;
     delete fRects;
 }
@@ -67,7 +67,7 @@ bool GrPlot::addSubImage(int width, int height, const void* image, SkIPoint16* l
     int plotWidth = fRects->width();
     int plotHeight = fRects->height();
     if (fBatchUploads && NULL == fPlotData && 0.0f == percentFull) {
-        fPlotData = SkNEW_ARRAY(unsigned char, fBytesPerPixel*plotWidth*plotHeight);
+        fPlotData = new unsigned char[fBytesPerPixel * plotWidth * plotHeight];
         memset(fPlotData, 0, fBytesPerPixel*plotWidth*plotHeight);
     }
 
@@ -138,7 +138,7 @@ GrAtlas::GrAtlas(GrGpu* gpu, GrPixelConfig config, GrSurfaceFlags flags,
 
     // set up allocated plots
     size_t bpp = GrBytesPerPixel(fPixelConfig);
-    fPlotArray = SkNEW_ARRAY(GrPlot, (fNumPlotsX*fNumPlotsY));
+    fPlotArray = new GrPlot[(fNumPlotsX * fNumPlotsY)];
 
     GrPlot* currPlot = fPlotArray;
     for (int y = numPlotsY-1; y >= 0; --y) {
@@ -154,7 +154,7 @@ GrAtlas::GrAtlas(GrGpu* gpu, GrPixelConfig config, GrSurfaceFlags flags,
 
 GrAtlas::~GrAtlas() {
     SkSafeUnref(fTexture);
-    SkDELETE_ARRAY(fPlotArray);
+    delete[] fPlotArray;
 
     fGpu->unref();
 #if FONT_CACHE_STATS

@@ -38,7 +38,7 @@ public:
     */
     static SkDashPathEffect* Create(const SkScalar intervals[], int count,
                                     SkScalar phase) {
-        return SkNEW_ARGS(SkDashPathEffect, (intervals, count, phase));
+        return new SkDashPathEffect(intervals, count, phase);
     }
     virtual ~SkDashPathEffect();
 

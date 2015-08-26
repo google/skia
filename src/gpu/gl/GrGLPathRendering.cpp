@@ -82,12 +82,12 @@ void GrGLPathRendering::resetContext() {
 }
 
 GrPath* GrGLPathRendering::createPath(const SkPath& inPath, const GrStrokeInfo& stroke) {
-    return SkNEW_ARGS(GrGLPath, (this->gpu(), inPath, stroke));
+    return new GrGLPath(this->gpu(), inPath, stroke);
 }
 
 GrPathRange* GrGLPathRendering::createPathRange(GrPathRange::PathGenerator* pathGenerator,
                                                 const GrStrokeInfo& stroke) {
-    return SkNEW_ARGS(GrGLPathRange, (this->gpu(), pathGenerator, stroke));
+    return new GrGLPathRange(this->gpu(), pathGenerator, stroke);
 }
 
 void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath* path) {
@@ -240,7 +240,7 @@ GrGLuint GrGLPathRendering::genPaths(GrGLsizei range) {
         static const int range = 65536;
         GrGLuint firstName;
         GL_CALL_RET(firstName, GenPaths(range));
-        fPathNameAllocator.reset(SkNEW_ARGS(GrGLNameAllocator, (firstName, firstName + range)));
+        fPathNameAllocator.reset(new GrGLNameAllocator(firstName, firstName + range));
     }
 
     // When allocating names one at a time, pull from a client-side pool of

@@ -83,7 +83,7 @@ size_t SkLinearGradient::contextSize() const {
 }
 
 SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return SkNEW_PLACEMENT_ARGS(storage, LinearGradientContext, (*this, rec));
+    return new (storage) LinearGradientContext(*this, rec);
 }
 
 SkLinearGradient::LinearGradientContext::LinearGradientContext(
@@ -472,7 +472,7 @@ public:
                                        const SkLinearGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm) {
-        return SkNEW_ARGS(GrLinearGradient, (ctx, procDataManager, shader, matrix, tm));
+        return new GrLinearGradient(ctx, procDataManager, shader, matrix, tm);
     }
 
     virtual ~GrLinearGradient() { }
@@ -490,7 +490,7 @@ private:
     }
 
     GrGLFragmentProcessor* onCreateGLInstance() const override {
-        return SkNEW_ARGS(GrGLLinearGradient, (*this));
+        return new GrGLLinearGradient(*this);
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

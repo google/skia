@@ -79,10 +79,8 @@ private:
 // factory creation entry point. This entry point is used by the GrGLDebug
 // object to instantiate the various objects
 // all globally unique IDs
-#define GR_DEFINE_CREATOR(className)                        \
-    public:                                                 \
-    static GrFakeRefObj *create ## className() {            \
-        return SkNEW(className);                            \
-    }
+#define GR_DEFINE_CREATOR(className) \
+public:                              \
+    static GrFakeRefObj *create##className() { return new className; }
 
 #endif // GrFakeRefObj_DEFINED

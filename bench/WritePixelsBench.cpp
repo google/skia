@@ -71,5 +71,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (kRGBA_8888_SkColorType, kPremul_SkAlphaType)); )
-DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (kRGBA_8888_SkColorType, kUnpremul_SkAlphaType)); )
+DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType);)
+DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);)

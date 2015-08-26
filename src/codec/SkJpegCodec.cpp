@@ -101,7 +101,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         JpegDecoderMgr** decoderMgrOut) {
 
     // Create a JpegDecoderMgr to own all of the decompress information
-    SkAutoTDelete<JpegDecoderMgr> decoderMgr(SkNEW_ARGS(JpegDecoderMgr, (stream)));
+    SkAutoTDelete<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
     // libjpeg errors will be caught and reported here
     if (setjmp(decoderMgr->getJmpBuf())) {
@@ -123,7 +123,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         // Create image info object and the codec
         const SkImageInfo& imageInfo = SkImageInfo::Make(decoderMgr->dinfo()->image_width,
                 decoderMgr->dinfo()->image_height, colorType, kOpaque_SkAlphaType);
-        *codecOut = SkNEW_ARGS(SkJpegCodec, (imageInfo, stream, decoderMgr.detach()));
+        *codecOut = new SkJpegCodec(imageInfo, stream, decoderMgr.detach());
     } else {
         SkASSERT(NULL != decoderMgrOut);
         *decoderMgrOut = decoderMgr.detach();
@@ -586,5 +586,5 @@ SkScanlineDecoder* SkJpegCodec::NewSDFromStream(SkStream* stream) {
     const SkImageInfo& srcInfo = codec->getInfo();
 
     // Return the new scanline decoder
-    return SkNEW_ARGS(SkJpegScanlineDecoder, (srcInfo, codec.detach()));
+    return new SkJpegScanlineDecoder(srcInfo, codec.detach());
 }

@@ -105,9 +105,7 @@ SkOneShotDiscardablePixelRef::SkOneShotDiscardablePixelRef(const SkImageInfo& in
     fFirstTime = true;
 }
 
-SkOneShotDiscardablePixelRef::~SkOneShotDiscardablePixelRef() {
-    SkDELETE(fDM);
-}
+SkOneShotDiscardablePixelRef::~SkOneShotDiscardablePixelRef() { delete fDM; }
 
 bool SkOneShotDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     if (fFirstTime) {
@@ -176,8 +174,7 @@ bool SkResourceCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap, SkColo
     }
 
     SkImageInfo info = bitmap->info();
-    bitmap->setPixelRef(SkNEW_ARGS(SkOneShotDiscardablePixelRef,
-                                   (info, dm, bitmap->rowBytes())))->unref();
+    bitmap->setPixelRef(new SkOneShotDiscardablePixelRef(info, dm, bitmap->rowBytes()))->unref();
     bitmap->lockPixels();
     return bitmap->readyToDraw();
 }
@@ -186,7 +183,7 @@ SkResourceCache::SkResourceCache(DiscardableFactory factory) {
     this->init();
     fDiscardableFactory = factory;
 
-    fAllocator = SkNEW_ARGS(SkResourceCacheDiscardableAllocator, (factory));
+    fAllocator = new SkResourceCacheDiscardableAllocator(factory);
 }
 
 SkResourceCache::SkResourceCache(size_t byteLimit) {
@@ -200,7 +197,7 @@ SkResourceCache::~SkResourceCache() {
     Rec* rec = fHead;
     while (rec) {
         Rec* next = rec->fNext;
-        SkDELETE(rec);
+        delete rec;
         rec = next;
     }
     delete fHash;
@@ -243,7 +240,7 @@ void SkResourceCache::add(Rec* rec) {
     // See if we already have this key (racy inserts, etc.)
     Rec* existing = fHash->find(rec->getKey());
     if (existing) {
-        SkDELETE(rec);
+        delete rec;
         return;
     }
 
@@ -280,7 +277,7 @@ void SkResourceCache::remove(Rec* rec) {
                  bytesStr.c_str(), rec, rec->getHash(), totalStr.c_str(), fCount);
     }
 
-    SkDELETE(rec);
+    delete rec;
 }
 
 void SkResourceCache::purgeAsNeeded(bool forcePurge) {
@@ -374,9 +371,9 @@ SkCachedData* SkResourceCache::newCachedData(size_t bytes) {
 
     if (fDiscardableFactory) {
         SkDiscardableMemory* dm = fDiscardableFactory(bytes);
-        return dm ? SkNEW_ARGS(SkCachedData, (bytes, dm)) : NULL;
+        return dm ? new SkCachedData(bytes, dm) : NULL;
     } else {
-        return SkNEW_ARGS(SkCachedData, (sk_malloc_throw(bytes), bytes));
+        return new SkCachedData(sk_malloc_throw(bytes), bytes);
     }
 }
 
@@ -537,7 +534,7 @@ static void cleanup_gResourceCache() {
     // makes this unsafe to delete when the main process atexit()s.
     // SkLazyPtr does the same sort of thing.
 #if SK_DEVELOPER
-    SkDELETE(gResourceCache);
+    delete gResourceCache;
 #endif
 }
 
@@ -547,9 +544,9 @@ static SkResourceCache* get_cache() {
     gMutex.assertHeld();
     if (NULL == gResourceCache) {
 #ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
-        gResourceCache = SkNEW_ARGS(SkResourceCache, (SkDiscardableMemory::Create));
+        gResourceCache = new SkResourceCache(SkDiscardableMemory::Create);
 #else
-        gResourceCache = SkNEW_ARGS(SkResourceCache, (SK_DEFAULT_IMAGE_CACHE_LIMIT));
+        gResourceCache = new SkResourceCache(SK_DEFAULT_IMAGE_CACHE_LIMIT);
 #endif
         atexit(cleanup_gResourceCache);
     }

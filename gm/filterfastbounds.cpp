@@ -321,6 +321,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return SkNEW(ImageFilterFastBoundGM);)
-
+DEF_GM(return new ImageFilterFastBoundGM;)
 }

@@ -168,5 +168,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(TextBlobTransforms); )
+DEF_GM(return new TextBlobTransforms;)
 }

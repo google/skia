@@ -104,12 +104,10 @@ struct SkOSFileIterData {
 };
 static_assert(sizeof(SkOSFileIterData) <= SkOSFile::Iter::kStorageSize, "not_enough_space");
 
-SkOSFile::Iter::Iter() {
-    SkNEW_PLACEMENT(fSelf.get(), SkOSFileIterData);
-}
+SkOSFile::Iter::Iter() { new (fSelf.get()) SkOSFileIterData; }
 
 SkOSFile::Iter::Iter(const char path[], const char suffix[]) {
-    SkNEW_PLACEMENT(fSelf.get(), SkOSFileIterData);
+    new (fSelf.get()) SkOSFileIterData;
     this->reset(path, suffix);
 }
 

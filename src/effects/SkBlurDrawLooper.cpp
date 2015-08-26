@@ -103,7 +103,7 @@ bool SkBlurDrawLooper::asABlurShadow(BlurShadowRec* rec) const {
 ////////////////////////////////////////////////////////////////////////////////////////
 
 SkDrawLooper::Context* SkBlurDrawLooper::createContext(SkCanvas*, void* storage) const {
-    return SkNEW_PLACEMENT_ARGS(storage, BlurDrawLooperContext, (this));
+    return new (storage) BlurDrawLooperContext(this);
 }
 
 SkBlurDrawLooper::BlurDrawLooperContext::BlurDrawLooperContext(

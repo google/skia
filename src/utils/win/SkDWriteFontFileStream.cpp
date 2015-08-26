@@ -85,7 +85,7 @@ bool SkDWriteFontFileStream::rewind() {
 }
 
 SkDWriteFontFileStream* SkDWriteFontFileStream::duplicate() const {
-    return SkNEW_ARGS(SkDWriteFontFileStream, (fFontFileStream.get()));
+    return new SkDWriteFontFileStream(fFontFileStream.get());
 }
 
 size_t SkDWriteFontFileStream::getPosition() const {

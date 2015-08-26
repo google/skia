@@ -29,7 +29,7 @@ public:
     static const int kInputModeCnt = kLastInputMode + 1;
 
     static GrFragmentProcessor* Create(GrColor color, InputMode mode) {
-        return SkNEW_ARGS(GrConstColorProcessor, (color, mode));
+        return new GrConstColorProcessor(color, mode);
     }
 
     ~GrConstColorProcessor() override {}

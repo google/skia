@@ -26,12 +26,10 @@ public:
     virtual ~SkAnnotation();
 
     static SkAnnotation* Create(const char key[], SkData* value) {
-        return SkNEW_ARGS(SkAnnotation, (key, value));
+        return new SkAnnotation(key, value);
     }
 
-    static SkAnnotation* Create(SkReadBuffer& buffer) {
-        return SkNEW_ARGS(SkAnnotation, (buffer));
-    }
+    static SkAnnotation* Create(SkReadBuffer& buffer) { return new SkAnnotation(buffer); }
 
     /**
      *  Return the data for the specified key, or NULL.

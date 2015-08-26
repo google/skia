@@ -105,7 +105,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW(AAClipGM); )
+DEF_GM(return new AAClipGM;)
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +118,7 @@ static SkCanvas* make_canvas(const SkBitmap& bm) {
                                             (SkPMColor*)bm.getPixels(),
                                             bm.rowBytes());
     } else {
-        return SkNEW_ARGS(SkCanvas, (bm));
+        return new SkCanvas(bm);
     }
 }
 
@@ -190,7 +190,7 @@ private:
 };
 
 #if 0 // Disabled pending fix from reed@
-DEF_GM( return SkNEW(CGImageGM); )
+DEF_GM( return new CGImageGM; )
 #endif
 #endif
 
@@ -260,5 +260,4 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return SkNEW(ClipCubicGM); )
-
+DEF_GM(return new ClipCubicGM;)

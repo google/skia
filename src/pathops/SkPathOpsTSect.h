@@ -349,8 +349,8 @@ void SkTCoincident<TCurve, OppCurve>::setPerp(const TCurve& c1, double t,
 
 template<typename TCurve, typename OppCurve>
 void SkTSpan<TCurve, OppCurve>::addBounded(SkTSpan<OppCurve, TCurve>* span, SkChunkAlloc* heap) {
-    SkTSpanBounded<OppCurve, TCurve>* bounded = SkNEW_PLACEMENT(heap->allocThrow(
-            sizeof(SkTSpanBounded<OppCurve, TCurve>)), (SkTSpanBounded<OppCurve, TCurve>));
+    SkTSpanBounded<OppCurve, TCurve>* bounded = new (heap->allocThrow(
+            sizeof(SkTSpanBounded<OppCurve, TCurve>)))(SkTSpanBounded<OppCurve, TCurve>);
     bounded->fBounded = span;
     bounded->fNext = fBounded;
     fBounded = bounded;
@@ -829,8 +829,8 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::addOne() {
         result->reset();
         fDeleted = result->fNext;
     } else {
-        result = SkNEW_PLACEMENT(fHeap.allocThrow(sizeof(SkTSpan<TCurve, OppCurve>)),
-                (SkTSpan<TCurve, OppCurve>));
+        result = new (fHeap.allocThrow(sizeof(SkTSpan<TCurve, OppCurve>)))(
+                SkTSpan<TCurve, OppCurve>);
         result->fBounded = NULL;
 #if DEBUG_T_SECT
         ++fDebugAllocatedCount;

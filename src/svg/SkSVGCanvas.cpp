@@ -13,5 +13,5 @@ SkCanvas* SkSVGCanvas::Create(const SkRect& bounds, SkXMLWriter* writer) {
     SkISize size = bounds.roundOut().size();
     SkAutoTUnref<SkBaseDevice> device(SkSVGDevice::Create(size, writer));
 
-    return SkNEW_ARGS(SkCanvas, (device));
+    return new SkCanvas(device);
 }

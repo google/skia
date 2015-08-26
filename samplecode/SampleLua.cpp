@@ -41,9 +41,7 @@ class LuaView : public SampleView {
 public:
     LuaView() : fLua(NULL) {}
 
-    virtual ~LuaView() {
-        SkDELETE(fLua);
-    }
+    virtual ~LuaView() { delete fLua; }
 
     void setImageFilename(lua_State* L) {
         SkString str = GetResourcePath("mandrill_256.png");
@@ -59,7 +57,7 @@ public:
 
     lua_State* ensureLua() {
         if (NULL == fLua) {
-            fLua = SkNEW(SkLua);
+            fLua = new SkLua;
 
             SkString str = GetResourcePath(LUA_FILENAME);
             SkData* data = SkData::NewFromFileName(str.c_str());

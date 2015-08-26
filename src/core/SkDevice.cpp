@@ -30,9 +30,7 @@ SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps)
     fMetaData = NULL;
 }
 
-SkBaseDevice::~SkBaseDevice() {
-    SkDELETE(fMetaData);
-}
+SkBaseDevice::~SkBaseDevice() { delete fMetaData; }
 
 SkMetaData& SkBaseDevice::getMetaData() {
     // metadata users are rare, so we lazily allocate it. If that changes we

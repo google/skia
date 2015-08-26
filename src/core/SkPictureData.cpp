@@ -52,7 +52,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
     const SkTDArray<const SkPicture* >& pictures = record.getPictureRefs();
     fPictureCount = pictures.count();
     if (fPictureCount > 0) {
-        fPictureRefs = SkNEW_ARRAY(const SkPicture*, fPictureCount);
+        fPictureRefs = new const SkPicture* [fPictureCount];
         for (int i = 0; i < fPictureCount; i++) {
             fPictureRefs[i] = pictures[i];
             fPictureRefs[i]->ref();
@@ -63,7 +63,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
     const SkTDArray<const SkTextBlob*>& blobs = record.getTextBlobRefs();
     fTextBlobCount = blobs.count();
     if (fTextBlobCount > 0) {
-        fTextBlobRefs = SkNEW_ARRAY(const SkTextBlob*, fTextBlobCount);
+        fTextBlobRefs = new const SkTextBlob* [fTextBlobCount];
         for (int i = 0; i < fTextBlobCount; ++i) {
             fTextBlobRefs[i] = SkRef(blobs[i]);
         }
@@ -72,7 +72,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
     const SkTDArray<const SkImage*>& imgs = record.getImageRefs();
     fImageCount = imgs.count();
     if (fImageCount > 0) {
-        fImageRefs = SkNEW_ARRAY(const SkImage*, fImageCount);
+        fImageRefs = new const SkImage* [fImageCount];
         for (int i = 0; i < fImageCount; ++i) {
             fImageRefs[i] = SkRef(imgs[i]);
         }
@@ -96,19 +96,19 @@ SkPictureData::~SkPictureData() {
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
     }
-    SkDELETE_ARRAY(fPictureRefs);
+    delete[] fPictureRefs;
 
     for (int i = 0; i < fTextBlobCount; i++) {
         fTextBlobRefs[i]->unref();
     }
-    SkDELETE_ARRAY(fTextBlobRefs);
+    delete[] fTextBlobRefs;
 
     for (int i = 0; i < fImageCount; i++) {
         fImageRefs[i]->unref();
     }
-    SkDELETE_ARRAY(fImageRefs);
+    delete[] fImageRefs;
 
-    SkDELETE(fFactoryPlayback);
+    delete fFactoryPlayback;
 }
 
 bool SkPictureData::containsBitmaps() const {
@@ -364,7 +364,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         case SK_PICT_FACTORY_TAG: {
             SkASSERT(!haveBuffer);
             size = stream->readU32();
-            fFactoryPlayback = SkNEW_ARGS(SkFactoryPlayback, (size));
+            fFactoryPlayback = new SkFactoryPlayback(size);
             for (size_t i = 0; i < size; i++) {
                 SkString str;
                 const size_t len = stream->readPackedUInt();
@@ -391,7 +391,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         } break;
         case SK_PICT_PICTURE_TAG: {
             fPictureCount = 0;
-            fPictureRefs = SkNEW_ARRAY(const SkPicture*, size);
+            fPictureRefs = new const SkPicture* [size];
             for (uint32_t i = 0; i < size; i++) {
                 fPictureRefs[i] = SkPicture::CreateFromStream(stream, proc, topLevelTFPlayback);
                 if (!fPictureRefs[i]) {
@@ -474,7 +474,7 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
         return true;
     }
     *outCount = inCount;
-    *array = SkNEW_ARRAY(const T*, *outCount);
+    *array = new const T* [*outCount];
     bool success = true;
     int i = 0;
     for (; i < *outCount; i++) {
@@ -490,7 +490,7 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
             (*array)[j]->unref();
         }
         // Delete the array
-        SkDELETE_ARRAY(*array);
+        delete[] * array;
         *array = NULL;
         *outCount = 0;
         return false;
@@ -565,7 +565,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
                                                const SkPictInfo& info,
                                                SkPicture::InstallPixelRefProc proc,
                                                SkTypefacePlayback* topLevelTFPlayback) {
-    SkAutoTDelete<SkPictureData> data(SkNEW_ARGS(SkPictureData, (info)));
+    SkAutoTDelete<SkPictureData> data(new SkPictureData(info));
     if (!topLevelTFPlayback) {
         topLevelTFPlayback = &data->fTFPlayback;
     }
@@ -578,7 +578,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
 
 SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
                                                const SkPictInfo& info) {
-    SkAutoTDelete<SkPictureData> data(SkNEW_ARGS(SkPictureData, (info)));
+    SkAutoTDelete<SkPictureData> data(new SkPictureData(info));
     buffer.setVersion(info.fVersion);
 
     if (!data->parseBuffer(buffer)) {

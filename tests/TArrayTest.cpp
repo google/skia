@@ -61,12 +61,12 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
 namespace {
 SkTArray<int>* make() {
     typedef SkTArray<int> IntArray;
-    return SkNEW(IntArray);
+    return new IntArray;
 }
 
 template <int N> SkTArray<int>* make_s() {
     typedef SkSTArray<N, int> IntArray;
-    return SkNEW(IntArray);
+    return new IntArray;
 }
 }
 
@@ -97,14 +97,14 @@ static void test_swap(skiatest::Reporter* reporter) {
                     for (int i = 0; i < kSizes[dataSizeB]; ++i) {
                         REPORTER_ASSERT(reporter, curr++ == (*a)[i]);
                     }
-                    SkDELETE(b);
+                    delete b;
 
                     a->swap(a);
                     curr = kSizes[dataSizeA];
                     for (int i = 0; i < kSizes[dataSizeB]; ++i) {
                         REPORTER_ASSERT(reporter, curr++ == (*a)[i]);
                     }
-                    SkDELETE(a);
+                    delete a;
                 }
             }
         }

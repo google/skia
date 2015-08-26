@@ -274,7 +274,7 @@ public:
         T*  iter = fArray;
         T*  stop = fArray + fCount;
         while (iter < stop) {
-            SkDELETE (*iter);
+            delete *iter;
             iter += 1;
         }
         this->reset();

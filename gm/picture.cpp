@@ -81,4 +81,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW(PictureGM); )
+DEF_GM(return new PictureGM;)

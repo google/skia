@@ -79,7 +79,7 @@ SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, vo
     }
 
     void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
-    SkBitmapProcState* state = SkNEW_PLACEMENT(stateStorage, SkBitmapProcState);
+    SkBitmapProcState* state = new (stateStorage) SkBitmapProcState;
 
     SkASSERT(state);
     state->fTileModeX = fTileModeX;
@@ -90,7 +90,7 @@ SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, vo
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, BitmapProcShaderContext, (*this, rec, state));
+    return new (storage) BitmapProcShaderContext(*this, rec, state);
 }
 
 size_t SkBitmapProcShader::contextSize() const {
@@ -302,19 +302,19 @@ SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
     SkColor color;
     if (src.isNull() || bitmap_is_too_big(src)) {
         if (NULL == allocator) {
-            shader = SkNEW(SkEmptyShader);
+            shader = new SkEmptyShader;
         } else {
             shader = allocator->createT<SkEmptyShader>();
         }
     } else if (can_use_color_shader(src, &color)) {
         if (NULL == allocator) {
-            shader = SkNEW_ARGS(SkColorShader, (color));
+            shader = new SkColorShader(color);
         } else {
             shader = allocator->createT<SkColorShader>(color);
         }
     } else {
         if (NULL == allocator) {
-            shader = SkNEW_ARGS(SkBitmapProcShader, (src, tmx, tmy, localMatrix));
+            shader = new SkBitmapProcShader(src, tmx, tmy, localMatrix);
         } else {
             shader = allocator->createT<SkBitmapProcShader>(src, tmx, tmy, localMatrix);
         }

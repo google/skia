@@ -92,4 +92,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return SkNEW_ARGS(VertBench, ()); )
+DEF_BENCH(return new VertBench();)

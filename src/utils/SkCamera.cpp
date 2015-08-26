@@ -291,13 +291,13 @@ Sk3DView::~Sk3DView() {
     Rec* rec = fRec;
     while (rec != &fInitialRec) {
         Rec* next = rec->fNext;
-        SkDELETE(rec);
+        delete rec;
         rec = next;
     }
 }
 
 void Sk3DView::save() {
-    Rec* rec = SkNEW(Rec);
+    Rec* rec = new Rec;
     rec->fNext = fRec;
     rec->fMatrix = fRec->fMatrix;
     fRec = rec;
@@ -306,7 +306,7 @@ void Sk3DView::save() {
 void Sk3DView::restore() {
     SkASSERT(fRec != &fInitialRec);
     Rec* next = fRec->fNext;
-    SkDELETE(fRec);
+    delete fRec;
     fRec = next;
 }
 

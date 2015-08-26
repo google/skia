@@ -110,9 +110,9 @@ SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
     if (kGLES_GrGLStandard == forcedGpuAPI) {
         return NULL;
     }
-    MacGLContext* ctx = SkNEW(MacGLContext);
+    MacGLContext* ctx = new MacGLContext;
     if (!ctx->isValid()) {
-        SkDELETE(ctx);
+        delete ctx;
         return NULL;
     }
     return ctx;

@@ -22,7 +22,7 @@ public:
         if (scale > SK_Scalar1 || scale <= 0) {
             return NULL;
         }
-        return SkNEW_ARGS(SkDownSampleImageFilter, (scale, input));
+        return new SkDownSampleImageFilter(scale, input);
     }
 
     SK_TO_STRING_OVERRIDE()

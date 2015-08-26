@@ -24,16 +24,16 @@ public:
 
     BufferObj(GrGLuint id) : fID(id), fDataPtr(NULL), fSize(0), fMapped(false) {
     }
-    ~BufferObj() { SkDELETE_ARRAY(fDataPtr); }
+    ~BufferObj() { delete[] fDataPtr; }
 
     void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
         if (fDataPtr) {
             SkASSERT(0 != fSize);
-            SkDELETE_ARRAY(fDataPtr);
+            delete[] fDataPtr;
         }
 
         fSize = size;
-        fDataPtr = SkNEW_ARRAY(char, size);
+        fDataPtr = new char[size];
     }
 
     GrGLuint id() const          { return fID; }
@@ -82,14 +82,14 @@ public:
         if (kFreeListEnd == fFreeListHead) {
             // no free slots - create a new one
             id = fBuffers.count();
-            buffer = SkNEW_ARGS(BufferObj, (id));
+            buffer = new BufferObj(id);
             *fBuffers.append() = buffer;
         } else {
             // grab the head of the free list and advance the head to the next free slot.
             id = static_cast<GrGLuint>(fFreeListHead);
             fFreeListHead = reinterpret_cast<intptr_t>(fBuffers[id]);
 
-            buffer = SkNEW_ARGS(BufferObj, (id));
+            buffer = new BufferObj(id);
             fBuffers[id] = buffer;
         }
 
@@ -100,7 +100,7 @@ public:
         SkASSERT(fBuffers.count() > 0);
 
         GrGLuint id = buffer->id();
-        SkDELETE(buffer);
+        delete buffer;
 
         fBuffers[id] = reinterpret_cast<BufferObj*>(fFreeListHead);
         fFreeListHead = id;
@@ -141,8 +141,8 @@ public:
         , fCurrShaderID(0) {}
 
 private:
-    static void* Create() { return SkNEW(ThreadContext ); }
-    static void Delete(void* context) { SkDELETE(reinterpret_cast<ThreadContext *>(context)); }
+    static void* Create() { return new ThreadContext; }
+    static void Delete(void* context) { delete reinterpret_cast<ThreadContext*>(context); }
 };
 
 // Functions not declared in GrGLBogusInterface.h (not common with the Debug GL interface).
@@ -343,7 +343,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetBufferParameteriv(GrGLenum target, GrGLenu
 } // end anonymous namespace
 
 const GrGLInterface* GrGLCreateNullInterface() {
-    GrGLInterface* interface = SkNEW(GrGLInterface);
+    GrGLInterface* interface = new GrGLInterface;
 
     interface->fStandard = kGL_GrGLStandard;
 

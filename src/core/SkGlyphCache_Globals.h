@@ -37,7 +37,7 @@ public:
         SkGlyphCache* cache = fHead;
         while (cache) {
             SkGlyphCache* next = cache->fNext;
-            SkDELETE(cache);
+            delete cache;
             cache = next;
         }
     }

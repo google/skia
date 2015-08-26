@@ -173,7 +173,7 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     }
     GrGLContext* glContext = GrGLContext::Create(glInterface, options);
     if (glContext) {
-        return SkNEW_ARGS(GrGLGpu, (glContext, context));
+        return new GrGLGpu(glContext, context);
     }
     return NULL;
 }
@@ -207,7 +207,7 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
         SkDebugf("%s", this->glCaps().dump().c_str());
     }
 
-    fProgramCache = SkNEW_ARGS(ProgramCache, (this));
+    fProgramCache = new ProgramCache(this);
 
     SkASSERT(this->glCaps().maxVertexAttributes() >= GrGeometryProcessor::kMaxVertexAttribs);
 
@@ -449,9 +449,9 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
                                              idDesc.fTextureID, &rtIDDesc)) {
             return NULL;
         }
-        texture = SkNEW_ARGS(GrGLTextureRenderTarget, (this, surfDesc, idDesc, rtIDDesc));
+        texture = new GrGLTextureRenderTarget(this, surfDesc, idDesc, rtIDDesc);
     } else {
-        texture = SkNEW_ARGS(GrGLTexture, (this, surfDesc, idDesc));
+        texture = new GrGLTexture(this, surfDesc, idDesc);
     }
     if (NULL == texture) {
         return NULL;
@@ -484,7 +484,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     desc.fSampleCnt = SkTMin(wrapDesc.fSampleCnt, this->caps()->maxSampleCount());
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin, true);
 
-    GrRenderTarget* tgt = SkNEW_ARGS(GrGLRenderTarget, (this, desc, idDesc));
+    GrRenderTarget* tgt = new GrGLRenderTarget(this, desc, idDesc);
     if (wrapDesc.fStencilBits) {
         GrGLStencilAttachment::IDDesc sbDesc;
         GrGLStencilAttachment::Format format;
@@ -492,13 +492,8 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
         format.fPacked = false;
         format.fStencilBits = wrapDesc.fStencilBits;
         format.fTotalBits = wrapDesc.fStencilBits;
-        GrGLStencilAttachment* sb = SkNEW_ARGS(GrGLStencilAttachment,
-                                           (this,
-                                            sbDesc,
-                                            desc.fWidth,
-                                            desc.fHeight,
-                                            desc.fSampleCnt,
-                                            format));
+        GrGLStencilAttachment* sb = new GrGLStencilAttachment(
+                this, sbDesc, desc.fWidth, desc.fHeight, desc.fSampleCnt, format);
         tgt->renderTargetPriv().didAttachStencilAttachment(sb);
         sb->unref();
     }
@@ -1083,9 +1078,9 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             GL_CALL(DeleteTextures(1, &idDesc.fTextureID));
             return return_null_texture();
         }
-        tex = SkNEW_ARGS(GrGLTextureRenderTarget, (this, desc, idDesc, rtIDDesc));
+        tex = new GrGLTextureRenderTarget(this, desc, idDesc, rtIDDesc);
     } else {
-        tex = SkNEW_ARGS(GrGLTexture, (this, desc, idDesc));
+        tex = new GrGLTexture(this, desc, idDesc);
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
@@ -1143,7 +1138,7 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
     }
 
     GrGLTexture* tex;
-    tex = SkNEW_ARGS(GrGLTexture, (this, desc, idDesc));
+    tex = new GrGLTexture(this, desc, idDesc);
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
     SkDebugf("--- new compressed texture [%d] size=(%d %d) config=%d\n",
@@ -1223,8 +1218,8 @@ bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int wid
             // whatever sizes GL gives us. In that case we query for the size.
             GrGLStencilAttachment::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), &format);
-            SkAutoTUnref<GrGLStencilAttachment> sb(SkNEW_ARGS(GrGLStencilAttachment,
-                                                  (this, sbDesc, width, height, samples, format)));
+            SkAutoTUnref<GrGLStencilAttachment> sb(
+                    new GrGLStencilAttachment(this, sbDesc, width, height, samples, format));
             if (this->attachStencilAttachmentToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
                 rt->renderTargetPriv().didAttachStencilAttachment(sb);
@@ -1366,7 +1361,7 @@ GrVertexBuffer* GrGLGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
 
     if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && desc.fDynamic) {
         desc.fID = 0;
-        GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer, (this, desc));
+        GrGLVertexBuffer* vertexBuffer = new GrGLVertexBuffer(this, desc);
         return vertexBuffer;
     } else {
         GL_CALL(GenBuffers(1, &desc.fID));
@@ -1384,7 +1379,7 @@ GrVertexBuffer* GrGLGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
                 this->notifyVertexBufferDelete(desc.fID);
                 return NULL;
             }
-            GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer, (this, desc));
+            GrGLVertexBuffer* vertexBuffer = new GrGLVertexBuffer(this, desc);
             return vertexBuffer;
         }
         return NULL;
@@ -1398,7 +1393,7 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
 
     if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && desc.fDynamic) {
         desc.fID = 0;
-        GrIndexBuffer* indexBuffer = SkNEW_ARGS(GrGLIndexBuffer, (this, desc));
+        GrIndexBuffer* indexBuffer = new GrGLIndexBuffer(this, desc);
         return indexBuffer;
     } else {
         GL_CALL(GenBuffers(1, &desc.fID));
@@ -1416,7 +1411,7 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
                 this->notifyIndexBufferDelete(desc.fID);
                 return NULL;
             }
-            GrIndexBuffer* indexBuffer = SkNEW_ARGS(GrGLIndexBuffer, (this, desc));
+            GrIndexBuffer* indexBuffer = new GrGLIndexBuffer(this, desc);
             return indexBuffer;
         }
         return NULL;
@@ -3182,7 +3177,7 @@ GrGLAttribArrayState* GrGLGpu::HWGeometryState::internalBind(GrGLGpu* gpu,
             GrGLuint arrayID;
             GR_GL_CALL(gpu->glInterface(), GenVertexArrays(1, &arrayID));
             int attrCount = gpu->glCaps().maxVertexAttributes();
-            fVBOVertexArray = SkNEW_ARGS(GrGLVertexArray, (arrayID, attrCount));
+            fVBOVertexArray = new GrGLVertexArray(arrayID, attrCount);
         }
         if (ibufferID) {
             attribState = fVBOVertexArray->bindWithIndexBuffer(gpu, *ibufferID);

@@ -217,10 +217,10 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
         data->fVertexCount = (lodX + 1) * (lodY + 1);
     }
     data->fIndexCount = lodX * lodY * 6;
-    
-    data->fPoints = SkNEW_ARRAY(SkPoint, data->fVertexCount);
-    data->fIndices = SkNEW_ARRAY(uint16_t, data->fIndexCount);
-    
+
+    data->fPoints = new SkPoint[data->fVertexCount];
+    data->fIndices = new uint16_t[data->fIndexCount];
+
     // if colors is not null then create array for colors
     SkPMColor colorsPM[kNumCorners];
     if (colors) {
@@ -228,12 +228,12 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
         for (int i = 0; i < kNumCorners; i++) {
             colorsPM[i] = SkPreMultiplyColor(colors[i]);
         }
-        data->fColors = SkNEW_ARRAY(uint32_t, data->fVertexCount);
+        data->fColors = new uint32_t[data->fVertexCount];
     }
     
     // if texture coordinates are not null then create array for them
     if (texCoords) {
-        data->fTexCoords = SkNEW_ARRAY(SkPoint, data->fVertexCount);
+        data->fTexCoords = new SkPoint[data->fVertexCount];
     }
     
     SkPoint pts[kNumPtsCubic];

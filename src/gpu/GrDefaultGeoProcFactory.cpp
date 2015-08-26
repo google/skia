@@ -33,13 +33,8 @@ public:
                                        bool localCoordsWillBeRead,
                                        bool coverageWillBeIgnored,
                                        uint8_t coverage) {
-        return SkNEW_ARGS(DefaultGeoProc, (gpTypeFlags,
-                                           color,
-                                           viewMatrix,
-                                           localMatrix,
-                                           coverage,
-                                           localCoordsWillBeRead,
-                                           coverageWillBeIgnored));
+        return new DefaultGeoProc(gpTypeFlags, color, viewMatrix, localMatrix, coverage,
+                                  localCoordsWillBeRead, coverageWillBeIgnored);
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -188,7 +183,7 @@ public:
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override {
-        return SkNEW_ARGS(GLProcessor, (*this, bt));
+        return new GLProcessor(*this, bt);
     }
 
 private:

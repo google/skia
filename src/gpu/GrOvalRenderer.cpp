@@ -72,7 +72,7 @@ class CircleEdgeEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(GrColor color, bool stroke, const SkMatrix& localMatrix,
                                        bool usesLocalCoords) {
-        return SkNEW_ARGS(CircleEdgeEffect, (color, stroke, localMatrix, usesLocalCoords));
+        return new CircleEdgeEffect(color, stroke, localMatrix, usesLocalCoords);
     }
 
     const Attribute* inPosition() const { return fInPosition; }
@@ -173,7 +173,7 @@ public:
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override {
-        return SkNEW_ARGS(GLProcessor, (*this, bt));
+        return new GLProcessor(*this, bt);
     }
 
 private:
@@ -224,7 +224,7 @@ class EllipseEdgeEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Create(GrColor color, bool stroke, const SkMatrix& localMatrix,
                                        bool usesLocalCoords) {
-        return SkNEW_ARGS(EllipseEdgeEffect, (color, stroke, localMatrix, usesLocalCoords));
+        return new EllipseEdgeEffect(color, stroke, localMatrix, usesLocalCoords);
     }
 
     virtual ~EllipseEdgeEffect() {}
@@ -349,7 +349,7 @@ public:
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override {
-        return SkNEW_ARGS(GLProcessor, (*this, bt));
+        return new GLProcessor(*this, bt);
     }
 
 private:
@@ -406,7 +406,7 @@ public:
 
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& viewMatrix, Mode mode,
                                        bool usesLocalCoords) {
-        return SkNEW_ARGS(DIEllipseEdgeEffect, (color, viewMatrix, mode, usesLocalCoords));
+        return new DIEllipseEdgeEffect(color, viewMatrix, mode, usesLocalCoords);
     }
 
     virtual ~DIEllipseEdgeEffect() {}
@@ -549,7 +549,7 @@ public:
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override {
-        return SkNEW_ARGS(GLProcessor, (*this, bt));
+        return new GLProcessor(*this, bt);
     }
 
 private:
@@ -636,9 +636,7 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(CircleBatch, (geometry));
-    }
+    static GrDrawBatch* Create(const Geometry& geometry) { return new CircleBatch(geometry); }
 
     const char* name() const override { return "CircleBatch"; }
 
@@ -855,9 +853,7 @@ public:
         SkRect fDevBounds;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(EllipseBatch, (geometry));
-    }
+    static GrDrawBatch* Create(const Geometry& geometry) { return new EllipseBatch(geometry); }
 
     const char* name() const override { return "EllipseBatch"; }
 
@@ -1124,7 +1120,7 @@ public:
     };
 
     static GrDrawBatch* Create(const Geometry& geometry, const SkRect& bounds) {
-        return SkNEW_ARGS(DIEllipseBatch, (geometry, bounds));
+        return new DIEllipseBatch(geometry, bounds);
     }
 
     const char* name() const override { return "DIEllipseBatch"; }
@@ -1476,7 +1472,7 @@ public:
     };
 
     static GrDrawBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(RRectCircleRendererBatch, (geometry));
+        return new RRectCircleRendererBatch(geometry);
     }
 
     const char* name() const override { return "RRectCircleBatch"; }
@@ -1652,7 +1648,7 @@ public:
     };
 
     static GrDrawBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(RRectEllipseRendererBatch, (geometry));
+        return new RRectEllipseRendererBatch(geometry);
     }
 
     const char* name() const override { return "RRectEllipseRendererBatch"; }

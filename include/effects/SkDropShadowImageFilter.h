@@ -25,8 +25,8 @@ public:
                                            ShadowMode shadowMode,
                                            SkImageFilter* input = NULL,
                                            const CropRect* cropRect = NULL) {
-        return SkNEW_ARGS(SkDropShadowImageFilter, (dx, dy, sigmaX, sigmaY, color,
-                                                    shadowMode, input, cropRect));
+        return new SkDropShadowImageFilter(dx, dy, sigmaX, sigmaY, color, shadowMode, input,
+                                           cropRect);
     }
 
     void computeFastBounds(const SkRect&, SkRect*) const override;

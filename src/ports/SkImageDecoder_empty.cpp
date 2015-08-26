@@ -49,7 +49,7 @@ bool SkImageDecoder::buildTileIndex(SkStreamRewindable*, int *width, int *height
 
 bool SkImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
                                       int* /*width*/, int* /*height*/) {
-    SkDELETE(stream);
+    delete stream;
     return false;
 }
 

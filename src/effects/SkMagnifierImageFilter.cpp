@@ -32,15 +32,8 @@ public:
                                        float yInvZoom,
                                        float xInvInset,
                                        float yInvInset) {
-        return SkNEW_ARGS(GrMagnifierEffect, (procDataManager,
-                                              texture,
-                                              bounds,
-                                              xOffset,
-                                              yOffset,
-                                              xInvZoom,
-                                              yInvZoom,
-                                              xInvInset,
-                                              yInvInset));
+        return new GrMagnifierEffect(procDataManager, texture, bounds, xOffset, yOffset, xInvZoom,
+                                     yInvZoom, xInvInset, yInvInset);
     }
 
     virtual ~GrMagnifierEffect() {};
@@ -197,7 +190,7 @@ void GrMagnifierEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrMagnifierEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GrGLMagnifierEffect, (*this));
+    return new GrGLMagnifierEffect(*this);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
@@ -258,7 +251,7 @@ SkImageFilter* SkMagnifierImageFilter::Create(const SkRect& srcRect, SkScalar in
     if (srcRect.fLeft < 0 || srcRect.fTop < 0) {
         return NULL;
     }
-    return SkNEW_ARGS(SkMagnifierImageFilter, (srcRect, inset, input));
+    return new SkMagnifierImageFilter(srcRect, inset, input);
 }
 
 

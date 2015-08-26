@@ -50,7 +50,7 @@ size_t SkSweepGradient::contextSize() const {
 }
 
 SkShader::Context* SkSweepGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return SkNEW_PLACEMENT_ARGS(storage, SweepGradientContext, (*this, rec));
+    return new (storage) SweepGradientContext(*this, rec);
 }
 
 SkSweepGradient::SweepGradientContext::SweepGradientContext(
@@ -193,7 +193,7 @@ class GrSweepGradient : public GrGradientEffect {
 public:
     static GrFragmentProcessor* Create(GrContext* ctx, GrProcessorDataManager* procDataManager,
                                        const SkSweepGradient& shader, const SkMatrix& m) {
-        return SkNEW_ARGS(GrSweepGradient, (ctx, procDataManager, shader, m));
+        return new GrSweepGradient(ctx, procDataManager, shader, m);
     }
     virtual ~GrSweepGradient() { }
 
@@ -209,7 +209,7 @@ private:
     }
 
     GrGLFragmentProcessor* onCreateGLInstance() const override {
-        return SkNEW_ARGS(GrGLSweepGradient, (*this));
+        return new GrGLSweepGradient(*this);
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

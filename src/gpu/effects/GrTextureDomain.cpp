@@ -227,14 +227,8 @@ GrFragmentProcessor* GrTextureDomainEffect::Create(GrProcessorDataManager* procD
         (GrTextureDomain::kClamp_Mode == mode && domain.contains(kFullRect))) {
         return GrSimpleTextureEffect::Create(procDataManager, texture, matrix, filterMode);
     } else {
-
-        return SkNEW_ARGS(GrTextureDomainEffect, (procDataManager,
-                                                  texture,
-                                                  matrix,
-                                                  domain,
-                                                  mode,
-                                                  filterMode,
-                                                  coordSet));
+        return new GrTextureDomainEffect(procDataManager, texture, matrix, domain, mode, filterMode,
+                                         coordSet);
     }
 }
 
@@ -262,7 +256,7 @@ void GrTextureDomainEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrTextureDomainEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GrGLTextureDomainEffect, (*this));
+    return new GrGLTextureDomainEffect(*this);
 }
 
 bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

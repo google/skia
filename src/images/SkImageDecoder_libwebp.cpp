@@ -657,7 +657,7 @@ static SkImageDecoder* sk_libwebp_dfactory(SkStreamRewindable* stream) {
     }
 
     // Magic matches, call decoder
-    return SkNEW(SkWEBPImageDecoder);
+    return new SkWEBPImageDecoder;
 }
 
 static SkImageDecoder::Format get_format_webp(SkStreamRewindable* stream) {
@@ -669,7 +669,7 @@ static SkImageDecoder::Format get_format_webp(SkStreamRewindable* stream) {
 }
 
 static SkImageEncoder* sk_libwebp_efactory(SkImageEncoder::Type t) {
-      return (SkImageEncoder::kWEBP_Type == t) ? SkNEW(SkWEBPImageEncoder) : NULL;
+    return (SkImageEncoder::kWEBP_Type == t) ? new SkWEBPImageEncoder : NULL;
 }
 
 static SkImageDecoder_DecodeReg gDReg(sk_libwebp_dfactory);

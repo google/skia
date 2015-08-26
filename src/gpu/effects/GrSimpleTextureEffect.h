@@ -27,8 +27,8 @@ public:
                                        GrTexture* tex,
                                        const SkMatrix& matrix,
                                        GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return SkNEW_ARGS(GrSimpleTextureEffect, (procDataManager, tex, matrix,
-                                                  GrTextureParams::kNone_FilterMode, coordSet));
+        return new GrSimpleTextureEffect(procDataManager, tex, matrix,
+                                         GrTextureParams::kNone_FilterMode, coordSet);
     }
 
     /* clamp mode */
@@ -37,8 +37,7 @@ public:
                                        const SkMatrix& matrix,
                                        GrTextureParams::FilterMode filterMode,
                                        GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return SkNEW_ARGS(GrSimpleTextureEffect, (procDataManager, tex, matrix, filterMode,
-                                                  coordSet));
+        return new GrSimpleTextureEffect(procDataManager, tex, matrix, filterMode, coordSet);
     }
 
     static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
@@ -46,7 +45,7 @@ public:
                                        const SkMatrix& matrix,
                                        const GrTextureParams& p,
                                        GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return SkNEW_ARGS(GrSimpleTextureEffect, (procDataManager, tex, matrix, p, coordSet));
+        return new GrSimpleTextureEffect(procDataManager, tex, matrix, p, coordSet);
     }
 
     virtual ~GrSimpleTextureEffect() {}

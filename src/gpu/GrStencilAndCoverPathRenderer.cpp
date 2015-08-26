@@ -35,7 +35,7 @@ static GrPathRendering::FillType convert_skpath_filltype(SkPath::FillType fill) 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
     if (caps.shaderCaps()->pathRenderingSupport()) {
-        return SkNEW_ARGS(GrStencilAndCoverPathRenderer, (resourceProvider));
+        return new GrStencilAndCoverPathRenderer(resourceProvider);
     } else {
         return NULL;
     }

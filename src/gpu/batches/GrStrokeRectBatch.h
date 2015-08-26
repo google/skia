@@ -22,7 +22,7 @@ public:
     };
 
     static GrDrawBatch* Create(const Geometry& geometry, bool snapToPixelCenters) {
-        return SkNEW_ARGS(GrStrokeRectBatch, (geometry, snapToPixelCenters));
+        return new GrStrokeRectBatch(geometry, snapToPixelCenters);
     }
 
     const char* name() const override { return "GrStrokeRectBatch"; }

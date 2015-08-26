@@ -22,16 +22,16 @@ public:
     
 
     BufferObj(GrGLuint id) : fID(id), fDataPtr(NULL), fSize(0), fMapped(false) {}
-    ~BufferObj() { SkDELETE_ARRAY(fDataPtr); }
+    ~BufferObj() { delete[] fDataPtr; }
 
     void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
         if (fDataPtr) {
             SkASSERT(0 != fSize);
-            SkDELETE_ARRAY(fDataPtr);
+            delete[] fDataPtr;
         }
 
         fSize = size;
-        fDataPtr = SkNEW_ARRAY(char, size);
+        fDataPtr = new char[size];
     }
 
     GrGLuint id() const          { return fID; }
@@ -80,14 +80,14 @@ public:
         if (kFreeListEnd == fFreeListHead) {
             // no free slots - create a new one
             id = fBuffers.count();
-            buffer = SkNEW_ARGS(BufferObj, (id));
+            buffer = new BufferObj(id);
             *fBuffers.append() = buffer;
         } else {
             // grab the head of the free list and advance the head to the next free slot.
             id = static_cast<GrGLuint>(fFreeListHead);
             fFreeListHead = reinterpret_cast<intptr_t>(fBuffers[id]);
 
-            buffer = SkNEW_ARGS(BufferObj, (id));
+            buffer = new BufferObj(id);
             fBuffers[id] = buffer;
         }
 
@@ -98,7 +98,7 @@ public:
         SkASSERT(fBuffers.count() > 0);
 
         GrGLuint id = buffer->id();
-        SkDELETE(buffer);
+        delete buffer;
 
         fBuffers[id] = reinterpret_cast<BufferObj*>(fFreeListHead);
         fFreeListHead = id;
@@ -346,7 +346,7 @@ public:
 } // end anonymous namespace
 
 static GrGLInterface* create_null_interface(State* state) {
-    GrGLInterface* interface = SkNEW_ARGS(NullInterface, (state));
+    GrGLInterface* interface = new NullInterface(state);
 
     interface->fStandard = kGL_GrGLStandard;
 
@@ -498,7 +498,7 @@ static GrGLInterface* create_null_interface(State* state) {
 //////////////////////////////////////////////////////////////////////////////
 
 static void* create_tls() {
-    State** current = SkNEW(State*);
+    State** current = new State*;
     *current = NULL;
     return current;
 }
@@ -508,7 +508,7 @@ static void delete_tls(void* ctx) {
     if (*current) {
         (*current)->unref();
     }
-    SkDELETE(current);
+    delete current;
 }
 
 static State* current_context() {
@@ -536,16 +536,16 @@ SkNullGLContext* SkNullGLContext::Create(GrGLStandard forcedGpuAPI) {
     if (kGLES_GrGLStandard == forcedGpuAPI) {
         return NULL;
     }
-    SkNullGLContext* ctx = SkNEW(SkNullGLContext);
+    SkNullGLContext* ctx = new SkNullGLContext;
     if (!ctx->isValid()) {
-        SkDELETE(ctx);
+        delete ctx;
         return NULL;
     }
     return ctx;
 }
 
 SkNullGLContext::SkNullGLContext() {
-    fState = SkNEW(ContextState);
+    fState = new ContextState;
     GrGLInterface* interface = create_null_interface(fState);
     this->init(interface);
 #if GR_GL_PER_GL_FUNC_CALLBACK

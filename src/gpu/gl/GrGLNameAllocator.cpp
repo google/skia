@@ -319,10 +319,10 @@ public:
             return this->takeRef();
         }
 
-        SparseNameRange* left = SkNEW_ARGS(ContiguousNameRange, (fFirst, name));
+        SparseNameRange* left = new ContiguousNameRange(fFirst, name);
         SparseNameRange* right = this->takeRef();
         fFirst = name + 1;
-        return SkNEW_ARGS(SparseNameTree, (left, right));
+        return new SparseNameTree(left, right);
     }
 };
 
@@ -338,7 +338,7 @@ GrGLNameAllocator::~GrGLNameAllocator() {
 
 GrGLuint GrGLNameAllocator::allocateName() {
     if (NULL == fAllocatedNames.get()) {
-        fAllocatedNames.reset(SkNEW_ARGS(ContiguousNameRange, (fFirstName, fFirstName + 1)));
+        fAllocatedNames.reset(new ContiguousNameRange(fFirstName, fFirstName + 1));
         return fFirstName;
     }
 

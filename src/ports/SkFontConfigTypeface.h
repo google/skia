@@ -21,12 +21,12 @@ public:
     static FontConfigTypeface* Create(const SkFontStyle& style,
                                       const SkFontConfigInterface::FontIdentity& fi,
                                       const SkString& familyName) {
-        return SkNEW_ARGS(FontConfigTypeface, (style, fi, familyName));
+        return new FontConfigTypeface(style, fi, familyName);
     }
 
     static FontConfigTypeface* Create(const SkFontStyle& style, bool fixedWidth,
                                       SkStreamAsset* localStream) {
-        return SkNEW_ARGS(FontConfigTypeface, (style, fixedWidth, localStream));
+        return new FontConfigTypeface(style, fixedWidth, localStream);
     }
 
     const SkFontConfigInterface::FontIdentity& getIdentity() const {

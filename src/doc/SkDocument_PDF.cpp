@@ -63,11 +63,11 @@ static void perform_font_subsetting(
 
 static SkPDFObject* create_pdf_page_content(const SkPDFDevice* pageDevice) {
     SkAutoTDelete<SkStreamAsset> content(pageDevice->content());
-    return SkNEW_ARGS(SkPDFStream, (content.get()));
+    return new SkPDFStream(content.get());
 }
 
 static SkPDFDict* create_pdf_page(const SkPDFDevice* pageDevice) {
-    SkAutoTUnref<SkPDFDict> page(SkNEW_ARGS(SkPDFDict, ("Page")));
+    SkAutoTUnref<SkPDFDict> page(new SkPDFDict("Page"));
     page->insertObject("Resources", pageDevice->createResourceDict());
     page->insertObject("MediaBox", pageDevice->copyMediaBox());
     if (SkPDFArray* annots = pageDevice->getAnnotations()) {
@@ -162,7 +162,7 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
 
     SkTDArray<SkPDFDict*> pages;
-    SkAutoTUnref<SkPDFDict> dests(SkNEW(SkPDFDict));
+    SkAutoTUnref<SkPDFDict> dests(new SkPDFDict);
 
     for (int i = 0; i < pageDevices.count(); i++) {
         SkASSERT(pageDevices[i]);
@@ -174,7 +174,7 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
     }
 
     SkTDArray<SkPDFDict*> pageTree;
-    SkAutoTUnref<SkPDFDict> docCatalog(SkNEW_ARGS(SkPDFDict, ("Catalog")));
+    SkAutoTUnref<SkPDFDict> docCatalog(new SkPDFDict("Catalog"));
 
     SkPDFDict* pageTreeRoot;
     generate_page_tree(pages, &pageTree, &pageTreeRoot);
@@ -308,7 +308,7 @@ protected:
                 SkScalarRoundToInt(width), SkScalarRoundToInt(height));
         SkAutoTUnref<SkPDFDevice> device(
                 SkPDFDevice::Create(pageSize, fRasterDpi, &fCanon));
-        fCanvas.reset(SkNEW_ARGS(SkCanvas, (device.get())));
+        fCanvas.reset(new SkCanvas(device.get()));
         fPageDevices.push(device.detach());
         fCanvas->clipRect(trimBox);
         fCanvas->translate(trimBox.x(), trimBox.y());
@@ -345,15 +345,15 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDocument* SkDocument::CreatePDF(SkWStream* stream, SkScalar dpi) {
-    return stream ? SkNEW_ARGS(SkDocument_PDF, (stream, NULL, dpi)) : NULL;
+    return stream ? new SkDocument_PDF(stream, NULL, dpi) : NULL;
 }
 
 SkDocument* SkDocument::CreatePDF(const char path[], SkScalar dpi) {
-    SkFILEWStream* stream = SkNEW_ARGS(SkFILEWStream, (path));
+    SkFILEWStream* stream = new SkFILEWStream(path);
     if (!stream->isValid()) {
-        SkDELETE(stream);
+        delete stream;
         return NULL;
     }
-    auto delete_wstream = [](SkWStream* stream, bool) { SkDELETE(stream); };
-    return SkNEW_ARGS(SkDocument_PDF, (stream, delete_wstream, dpi));
+    auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
+    return new SkDocument_PDF(stream, delete_wstream, dpi);
 }

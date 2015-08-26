@@ -57,20 +57,20 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     , fLoops(1)
     , fState(kPreWarmLoops_State)
     , fBenchmark(NULL)
-    , fResults(SkNEW(ResultsWriter)) {
+    , fResults(new ResultsWriter) {
     SkCommandLineFlags::Parse(argc, argv);
 
     this->setTitle();
     this->setupBackend();
 
-    fBenchmarkStream.reset(SkNEW(VisualBenchmarkStream));
+    fBenchmarkStream.reset(new VisualBenchmarkStream);
 
     // Print header
     SkDebugf("curr/maxrss\tloops\tflushes\tmin\tmedian\tmean\tmax\tstddev\tbench\n");
 
     // setup json logging if required
     if (!FLAGS_outResultsFile.isEmpty()) {
-        fResults.reset(SkNEW(NanoJSONResultsWriter(FLAGS_outResultsFile[0])));
+        fResults.reset(new NanoJSONResultsWriter(FLAGS_outResultsFile[0]));
     }
 
     if (1 == FLAGS_properties.count() % 2) {

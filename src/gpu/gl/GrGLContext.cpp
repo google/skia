@@ -60,7 +60,7 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
 
     args.fContextOptions = &options;
 
-    return SkNEW_ARGS(GrGLContext, (args));
+    return new GrGLContext(args);
 }
 
 GrGLContextInfo::GrGLContextInfo(const ConstructorArgs& args) {
@@ -72,5 +72,5 @@ GrGLContextInfo::GrGLContextInfo(const ConstructorArgs& args) {
     fDriver = args.fDriver;
     fDriverVersion = args.fDriverVersion;
 
-    fGLCaps.reset(SkNEW_ARGS(GrGLCaps, (*args.fContextOptions, *this, fInterface)));
+    fGLCaps.reset(new GrGLCaps(*args.fContextOptions, *this, fInterface));
 }

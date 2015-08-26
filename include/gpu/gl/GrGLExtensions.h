@@ -21,7 +21,7 @@ struct GrGLInterface;
  */
 class SK_API GrGLExtensions {
 public:
-    GrGLExtensions() : fInitialized(false), fStrings(SkNEW(SkTArray<SkString>)) {}
+    GrGLExtensions() : fInitialized(false), fStrings(new SkTArray<SkString>) {}
 
     GrGLExtensions(const GrGLExtensions&);
 

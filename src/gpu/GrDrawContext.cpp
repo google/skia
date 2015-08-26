@@ -46,7 +46,7 @@ GrDrawContext::GrDrawContext(GrContext* context,
 
 GrDrawContext::~GrDrawContext() {
     SkSafeUnref(fDrawTarget);
-    SkDELETE(fTextContext);
+    delete fTextContext;
 }
 
 void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,

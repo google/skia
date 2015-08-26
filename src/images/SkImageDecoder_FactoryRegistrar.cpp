@@ -31,7 +31,7 @@ SkImageDecoder* image_decoder_from_stream(SkStreamRewindable* stream) {
         // if we are given a stream that does not support rewinding.
         if (!rewindSuceeded) {
             SkDEBUGF(("Unable to rewind the image stream."));
-            SkDELETE(codec);
+            delete codec;
             return NULL;
         }
 

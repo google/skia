@@ -40,7 +40,7 @@ protected:
         if (NULL == orig) {
             orig = SkTypeface::RefDefault();
         }
-        fColorType = SkNEW_ARGS(SkGTypeface, (orig, paint));
+        fColorType = new SkGTypeface(orig, paint);
         orig->unref();
     }
 
@@ -70,4 +70,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW(ColorTypeGM); )
+DEF_GM(return new ColorTypeGM;)

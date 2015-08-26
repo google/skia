@@ -53,7 +53,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         overrideColor = GrColor_ILLEGAL;
     }
 
-    GrPipeline* pipeline = SkNEW_PLACEMENT(memory, GrPipeline);
+    GrPipeline* pipeline = new (memory) GrPipeline;
     pipeline->fXferProcessor.reset(xferProcessor.get());
 
     pipeline->fRenderTarget.reset(builder.fRenderTarget.get());

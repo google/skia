@@ -46,7 +46,7 @@ static bool is_bmp(SkStreamRewindable* stream) {
 
 static SkImageDecoder* sk_libbmp_dfactory(SkStreamRewindable* stream) {
     if (is_bmp(stream)) {
-        return SkNEW(SkBMPImageDecoder);
+        return new SkBMPImageDecoder;
     }
     return NULL;
 }

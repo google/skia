@@ -58,7 +58,7 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
 bool SkBmpMaskCodec::initializeSwizzler(const SkImageInfo& dstInfo) {
     // Allocate space for a row buffer
     const size_t rowBytes = SkAlign4(compute_row_bytes(dstInfo.width(), this->bitsPerPixel()));
-    fSrcBuffer.reset(SkNEW_ARRAY(uint8_t, rowBytes));
+    fSrcBuffer.reset(new uint8_t[rowBytes]);
 
     // Create the swizzler
     fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(

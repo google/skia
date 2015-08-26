@@ -45,7 +45,7 @@ public:
         --fRefCnt;
         if (0 == fRefCnt) {
             if (0 == fPendingExecutions) {
-                SkDELETE(this);
+                delete this;
                 return;
             } else {
                 this->removeRefs();
@@ -96,7 +96,7 @@ private:
         --fPendingExecutions;
         if (0 == fPendingExecutions) {
             if (0 == fRefCnt) {
-                SkDELETE(this);
+                delete this;
                 return;
             } else {
                 this->pendingIOComplete();

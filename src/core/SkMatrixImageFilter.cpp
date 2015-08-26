@@ -26,7 +26,7 @@ SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
 SkMatrixImageFilter* SkMatrixImageFilter::Create(const SkMatrix& transform,
                                                  SkFilterQuality filterQuality,
                                                  SkImageFilter* input) {
-    return SkNEW_ARGS(SkMatrixImageFilter, (transform, filterQuality, input));
+    return new SkMatrixImageFilter(transform, filterQuality, input);
 }
 
 SkFlattenable* SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {

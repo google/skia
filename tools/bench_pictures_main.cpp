@@ -431,13 +431,9 @@ int tool_main(int argc, char** argv) {
     SkAutoTDelete<PictureJSONResultsWriter> jsonWriter;
     if (FLAGS_jsonLog.count() == 1) {
         SkASSERT(FLAGS_builderName.count() == 1 && FLAGS_gitHash.count() == 1);
-        jsonWriter.reset(SkNEW(PictureJSONResultsWriter(
-                        FLAGS_jsonLog[0],
-                        FLAGS_builderName[0],
-                        FLAGS_buildNumber,
-                        FLAGS_timestamp,
-                        FLAGS_gitHash[0],
-                        FLAGS_gitNumber)));
+        jsonWriter.reset(new PictureJSONResultsWriter(FLAGS_jsonLog[0], FLAGS_builderName[0],
+                                                      FLAGS_buildNumber, FLAGS_timestamp,
+                                                      FLAGS_gitHash[0], FLAGS_gitNumber));
         gWriter.add(jsonWriter.get());
     }
 

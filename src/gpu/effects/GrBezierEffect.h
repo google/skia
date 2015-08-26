@@ -70,20 +70,18 @@ public:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrConicEffect, (color, viewMatrix, coverage,
-                                                  kFillAA_GrProcessorEdgeType,
-                                                  localMatrix, usesLocalCoords));
+                return new GrConicEffect(color, viewMatrix, coverage, kFillAA_GrProcessorEdgeType,
+                                         localMatrix, usesLocalCoords);
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrConicEffect, (color, viewMatrix, coverage,
-                                                  kHairlineAA_GrProcessorEdgeType,
-                                                  localMatrix, usesLocalCoords));
+                return new GrConicEffect(color, viewMatrix, coverage,
+                                         kHairlineAA_GrProcessorEdgeType, localMatrix,
+                                         usesLocalCoords);
             case kFillBW_GrProcessorEdgeType:
-                return SkNEW_ARGS(GrConicEffect, (color, viewMatrix, coverage,
-                                                  kFillBW_GrProcessorEdgeType,
-                                                  localMatrix, usesLocalCoords));
+                return new GrConicEffect(color, viewMatrix, coverage, kFillBW_GrProcessorEdgeType,
+                                         localMatrix, usesLocalCoords);
             default:
                 return NULL;
         }
@@ -155,20 +153,18 @@ public:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrQuadEffect, (color, viewMatrix, coverage,
-                                                 kFillAA_GrProcessorEdgeType,
-                                                 localMatrix, usesLocalCoords));
+                return new GrQuadEffect(color, viewMatrix, coverage, kFillAA_GrProcessorEdgeType,
+                                        localMatrix, usesLocalCoords);
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrQuadEffect, (color, viewMatrix, coverage,
-                                                 kHairlineAA_GrProcessorEdgeType,
-                                                 localMatrix, usesLocalCoords));
+                return new GrQuadEffect(color, viewMatrix, coverage,
+                                        kHairlineAA_GrProcessorEdgeType, localMatrix,
+                                        usesLocalCoords);
             case kFillBW_GrProcessorEdgeType:
-                return SkNEW_ARGS(GrQuadEffect, (color, viewMatrix, coverage,
-                                                 kFillBW_GrProcessorEdgeType,
-                                                 localMatrix, usesLocalCoords));
+                return new GrQuadEffect(color, viewMatrix, coverage, kFillBW_GrProcessorEdgeType,
+                                        localMatrix, usesLocalCoords);
             default:
                 return NULL;
         }
@@ -239,16 +235,14 @@ public:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrCubicEffect, (color, viewMatrix, kFillAA_GrProcessorEdgeType));
+                return new GrCubicEffect(color, viewMatrix, kFillAA_GrProcessorEdgeType);
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return NULL;
                 }
-                return SkNEW_ARGS(GrCubicEffect, (color, viewMatrix,
-                                                  kHairlineAA_GrProcessorEdgeType));
+                return new GrCubicEffect(color, viewMatrix, kHairlineAA_GrProcessorEdgeType);
             case kFillBW_GrProcessorEdgeType:
-                return SkNEW_ARGS(GrCubicEffect, (color, viewMatrix,
-                                                  kFillBW_GrProcessorEdgeType));
+                return new GrCubicEffect(color, viewMatrix, kFillBW_GrProcessorEdgeType);
             default:
                 return NULL;
         }

@@ -70,7 +70,7 @@ GrBatchFontCache::~GrBatchFontCache() {
         ++iter;
     }
     for (int i = 0; i < kMaskFormatCount; ++i) {
-        SkDELETE(fAtlases[i]);
+        delete fAtlases[i];
     }
 }
 
@@ -83,7 +83,7 @@ void GrBatchFontCache::freeAll() {
     }
     fCache.rewind();
     for (int i = 0; i < kMaskFormatCount; ++i) {
-        SkDELETE(fAtlases[i]);
+        delete fAtlases[i];
         fAtlases[i] = NULL;
     }
 }
@@ -130,7 +130,7 @@ void GrBatchFontCache::setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs
     // flush
     for (int i = 0; i < kMaskFormatCount; i++) {
         if (fAtlases[i]) {
-            SkDELETE(fAtlases[i]);
+            delete fAtlases[i];
             fAtlases[i] = NULL;
         }
     }

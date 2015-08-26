@@ -389,7 +389,7 @@ SkColorFilter* SkColorMatrixFilter::newComposed(const SkColorFilter* innerFilter
 class ColorMatrixEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create(const SkColorMatrix& matrix) {
-        return SkNEW_ARGS(ColorMatrixEffect, (matrix));
+        return new ColorMatrixEffect(matrix);
     }
 
     const char* name() const override { return "Color Matrix"; }
@@ -462,9 +462,7 @@ private:
         this->initClassID<ColorMatrixEffect>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
-        return SkNEW_ARGS(GLProcessor, (*this));
-    }
+    GrGLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override {

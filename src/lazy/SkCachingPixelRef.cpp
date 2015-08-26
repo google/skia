@@ -17,11 +17,10 @@ bool SkCachingPixelRef::Install(SkImageGenerator* generator,
     }
     const SkImageInfo info = generator->getInfo();
     if (!dst->setInfo(info)) {
-        SkDELETE(generator);
+        delete generator;
         return false;
     }
-    SkAutoTUnref<SkCachingPixelRef> ref(SkNEW_ARGS(SkCachingPixelRef,
-                                           (info, generator, dst->rowBytes())));
+    SkAutoTUnref<SkCachingPixelRef> ref(new SkCachingPixelRef(info, generator, dst->rowBytes()));
     dst->setPixelRef(ref);
     return true;
 }
@@ -36,7 +35,7 @@ SkCachingPixelRef::SkCachingPixelRef(const SkImageInfo& info,
     SkASSERT(fImageGenerator != NULL);
 }
 SkCachingPixelRef::~SkCachingPixelRef() {
-    SkDELETE(fImageGenerator);
+    delete fImageGenerator;
     // Assert always unlock before unref.
 }
 

@@ -148,7 +148,7 @@ SkMasks* SkMasks::CreateMasks(InputMasks masks, uint32_t bitsPerPixel) {
     const MaskInfo blue = process_mask(masks.blue, bitsPerPixel);
     const MaskInfo alpha = process_mask(masks.alpha, bitsPerPixel);
 
-    return SkNEW_ARGS(SkMasks, (red, green, blue, alpha));
+    return new SkMasks(red, green, blue, alpha);
 }
 
 

@@ -14,7 +14,7 @@ public:
 };
 
 SkImageGenerator* SkImageGeneratorUtils::NewEmpty(const SkImageInfo& info) {
-    return SkNEW_ARGS(GeneratorFromEmpty, (info));
+    return new GeneratorFromEmpty(info);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ private:
 };
 
 SkImageGenerator* SkImageGeneratorUtils::NewFromBitmap(const SkBitmap& bm) {
-    return SkNEW_ARGS(GeneratorFromBitmap, (bm));
+    return new GeneratorFromBitmap(bm);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ SkImageGenerator* SkImageGeneratorUtils::NewFromTexture(GrContext* ctx, GrTextur
         }
         const SkAlphaType at = kPremul_SkAlphaType; // take isOpaque from caller?
         SkImageInfo info = SkImageInfo::Make(desc.fWidth, desc.fHeight, ct, at, cpt);
-        return SkNEW_ARGS(GeneratorFromTexture, (ctx, tex, info));
+        return new GeneratorFromTexture(ctx, tex, info);
     }
 #endif
     return nullptr;
@@ -126,7 +126,7 @@ SkImageGenerator* SkImageGeneratorUtils::NewFromImage(const SkImage* image) {
         const SkColorType ct = kN32_SkColorType;
         const SkAlphaType at = image->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
         const SkImageInfo info = SkImageInfo::Make(image->width(), image->height(), ct, at);
-        return SkNEW_ARGS(GeneratorFromImage, (image, info));
+        return new GeneratorFromImage(image, info);
     }
     return nullptr;
 }

@@ -70,6 +70,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(TextBlobUseAfterGpuFree); )
+DEF_GM(return new TextBlobUseAfterGpuFree;)
 }
 #endif

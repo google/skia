@@ -263,7 +263,7 @@ public:
     public:
         virtual ~LocalizedStrings() { }
         virtual bool next(LocalizedString* localizedString) = 0;
-        void unref() { SkDELETE(this); }
+        void unref() { delete this; }
     };
     /**
      *  Returns an iterator which will attempt to enumerate all of the

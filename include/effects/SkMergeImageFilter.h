@@ -21,12 +21,12 @@ public:
                                       const CropRect* cropRect = NULL) {
         SkImageFilter* inputs[2] = { first, second };
         SkXfermode::Mode modes[2] = { mode, mode };
-        return SkNEW_ARGS(SkMergeImageFilter, (inputs, 2, modes, cropRect));
+        return new SkMergeImageFilter(inputs, 2, modes, cropRect);
     }
     static SkMergeImageFilter* Create(SkImageFilter* filters[], int count,
                                       const SkXfermode::Mode modes[] = NULL,
                                       const CropRect* cropRect = NULL) {
-        return SkNEW_ARGS(SkMergeImageFilter, (filters, count, modes, cropRect));
+        return new SkMergeImageFilter(filters, count, modes, cropRect);
     }
 
     SK_TO_STRING_OVERRIDE()

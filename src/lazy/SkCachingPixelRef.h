@@ -35,8 +35,8 @@ public:
      *
      *  If Install fails or when the SkCachingPixelRef that is
      *  installed into destination is destroyed, it will call
-     *  SkDELETE() on the generator.  Therefore, generator should be
-     *  allocated with SkNEW() or SkNEW_ARGS().
+     *  `delete` on the generator.  Therefore, generator should be
+     *  allocated with `new`.
      */
     static bool Install(SkImageGenerator* gen, SkBitmap* dst);
 

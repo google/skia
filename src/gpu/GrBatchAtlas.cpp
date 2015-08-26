@@ -234,13 +234,13 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
 
     // set up allocated plots
     fBPP = GrBytesPerPixel(texture->desc().fConfig);
-    fPlotArray = SkNEW_ARRAY(SkAutoTUnref<BatchPlot>, (fNumPlotsX * fNumPlotsY));
+    fPlotArray = new SkAutoTUnref<BatchPlot>[(fNumPlotsX * fNumPlotsY)];
 
     SkAutoTUnref<BatchPlot>* currPlot = fPlotArray;
     for (int y = fNumPlotsY - 1, r = 0; y >= 0; --y, ++r) {
         for (int x = fNumPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t id = r * fNumPlotsX + c;
-            currPlot->reset(SkNEW(BatchPlot));
+            currPlot->reset(new BatchPlot);
             (*currPlot)->init(this, texture, id, 1, x, y, fPlotWidth, fPlotHeight, fBPP);
 
             // build LRU list
@@ -252,7 +252,7 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
 
 GrBatchAtlas::~GrBatchAtlas() {
     SkSafeUnref(fTexture);
-    SkDELETE_ARRAY(fPlotArray);
+    delete[] fPlotArray;
 }
 
 void GrBatchAtlas::processEviction(AtlasID id) {
@@ -278,7 +278,7 @@ inline void GrBatchAtlas::updatePlot(GrDrawBatch::Target* target, AtlasID* id, B
     // This new update will piggy back on that previously scheduled update.
     if (target->hasTokenBeenFlushed(plot->lastUploadToken())) {
         plot->setLastUploadToken(target->asapToken());
-        SkAutoTUnref<GrPlotUploader> uploader(SkNEW_ARGS(GrPlotUploader, (plot)));
+        SkAutoTUnref<GrPlotUploader> uploader(new GrPlotUploader(plot));
         target->upload(uploader);
     }
     *id = plot->id();
@@ -338,14 +338,14 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* batchTarget,
     this->processEviction(plot->id());
     fPlotList.remove(plot);
     SkAutoTUnref<BatchPlot>& newPlot = fPlotArray[plot->index()];
-    newPlot.reset(SkNEW(BatchPlot));
+    newPlot.reset(new BatchPlot);
     newPlot->init(this, fTexture, index, ++generation, x, y, fPlotWidth, fPlotHeight, fBPP);
 
     fPlotList.addToHead(newPlot.get());
     SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, loc, fBPP * width);
     SkASSERT(verify);
     newPlot->setLastUploadToken(batchTarget->currentToken());
-    SkAutoTUnref<GrPlotUploader> uploader(SkNEW_ARGS(GrPlotUploader, (newPlot)));
+    SkAutoTUnref<GrPlotUploader> uploader(new GrPlotUploader(newPlot));
     batchTarget->upload(uploader);
     *id = newPlot->id();
     plot->unref();

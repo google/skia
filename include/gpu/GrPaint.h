@@ -126,7 +126,7 @@ public:
         fCoverageStages = paint.fCoverageStages;
 
         fXPFactory.reset(SkRef(paint.getXPFactory()));
-        fProcDataManager.reset(SkNEW_ARGS(GrProcessorDataManager, (*paint.processorDataManager())));
+        fProcDataManager.reset(new GrProcessorDataManager(*paint.processorDataManager()));
 
         return *this;
     }

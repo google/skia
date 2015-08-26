@@ -28,7 +28,7 @@ SkDiffContext::SkDiffContext() {
 
 SkDiffContext::~SkDiffContext() {
     if (fDiffers) {
-        SkDELETE_ARRAY(fDiffers);
+        delete[] fDiffers;
     }
 }
 
@@ -57,14 +57,14 @@ void SkDiffContext::setLongNames(const bool useLongNames) {
 void SkDiffContext::setDiffers(const SkTDArray<SkImageDiffer*>& differs) {
     // Delete whatever the last array of differs was
     if (fDiffers) {
-        SkDELETE_ARRAY(fDiffers);
+        delete[] fDiffers;
         fDiffers = NULL;
         fDifferCount = 0;
     }
 
     // Copy over the new differs
     fDifferCount = differs.count();
-    fDiffers = SkNEW_ARRAY(SkImageDiffer*, fDifferCount);
+    fDiffers = new SkImageDiffer* [fDifferCount];
     differs.copy(fDiffers);
 }
 

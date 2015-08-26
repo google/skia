@@ -58,7 +58,7 @@ GrGLGpu::ProgramCache::ProgramCache(GrGLGpu* gpu)
 
 GrGLGpu::ProgramCache::~ProgramCache() {
     for (int i = 0; i < fCount; ++i){
-        SkDELETE(fEntries[i]);
+        delete fEntries[i];
     }
     // dump stats
 #ifdef PROGRAM_CACHE_STATS
@@ -80,7 +80,7 @@ void GrGLGpu::ProgramCache::abandon() {
     for (int i = 0; i < fCount; ++i) {
         SkASSERT(fEntries[i]->fProgram.get());
         fEntries[i]->fProgram->abandon();
-        SkDELETE(fEntries[i]);
+        delete fEntries[i];
     }
     fCount = 0;
 }
@@ -131,7 +131,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
         }
         int purgeIdx = 0;
         if (fCount < kMaxEntries) {
-            entry = SkNEW(Entry);
+            entry = new Entry;
             purgeIdx = fCount++;
             fEntries[purgeIdx] = entry;
         } else {

@@ -103,6 +103,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(BigTileImageFilterGM); )
-
+DEF_GM(return new BigTileImageFilterGM;)
 }

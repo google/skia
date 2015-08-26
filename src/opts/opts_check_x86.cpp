@@ -76,7 +76,7 @@ int* get_SIMD_level() {
     int cpu_info[4] = { 0, 0, 0, 0 };
     getcpuid(1, cpu_info);
 
-    int* level = SkNEW(int);
+    int* level = new int;
 
     if ((cpu_info[2] & (1<<20)) != 0) {
         *level = SK_CPU_SSE_LEVEL_SSE42;

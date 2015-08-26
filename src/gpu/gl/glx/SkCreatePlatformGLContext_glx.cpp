@@ -332,9 +332,9 @@ GrGLFuncPtr GLXGLContext::onPlatformGetProcAddress(const char* procName) const {
 } // anonymous namespace
 
 SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
-    GLXGLContext* ctx = SkNEW_ARGS(GLXGLContext, (forcedGpuAPI));
+    GLXGLContext *ctx = new GLXGLContext(forcedGpuAPI);
     if (!ctx->isValid()) {
-        SkDELETE(ctx);
+        delete ctx;
         return NULL;
     }
     return ctx;

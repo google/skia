@@ -313,10 +313,7 @@ private:
 class SkPDFSharedStream : public SkPDFObject {
 public:
     // Takes ownership of asset.
-    SkPDFSharedStream(SkStreamAsset* data)
-        : fAsset(data), fDict(SkNEW(SkPDFDict)) {
-        SkASSERT(data);
-    }
+    SkPDFSharedStream(SkStreamAsset* data) : fAsset(data), fDict(new SkPDFDict) { SkASSERT(data); }
     SkPDFDict* dict() { return fDict; }
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,

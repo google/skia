@@ -262,7 +262,7 @@ public:
      */
     static bool CreateBoolFlag(const char* name, const char* shortName, bool* pBool,
                                bool defaultValue, const char* helpString) {
-        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, shortName, kBool_FlagType, helpString));
+        SkFlagInfo* info = new SkFlagInfo(name, shortName, kBool_FlagType, helpString);
         info->fBoolValue = pBool;
         *info->fBoolValue = info->fDefaultBool = defaultValue;
         return true;
@@ -283,7 +283,7 @@ public:
      */
     static bool CreateIntFlag(const char* name, int32_t* pInt,
                               int32_t defaultValue, const char* helpString) {
-        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, NULL, kInt_FlagType, helpString));
+        SkFlagInfo* info = new SkFlagInfo(name, NULL, kInt_FlagType, helpString);
         info->fIntValue = pInt;
         *info->fIntValue = info->fDefaultInt = defaultValue;
         return true;
@@ -294,7 +294,7 @@ public:
      */
     static bool CreateDoubleFlag(const char* name, double* pDouble,
                                  double defaultValue, const char* helpString) {
-        SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, NULL, kDouble_FlagType, helpString));
+        SkFlagInfo* info = new SkFlagInfo(name, NULL, kDouble_FlagType, helpString);
         info->fDoubleValue = pDouble;
         *info->fDoubleValue = info->fDefaultDouble = defaultValue;
         return true;

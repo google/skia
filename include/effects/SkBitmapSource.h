@@ -13,13 +13,11 @@
 
 class SK_API SkBitmapSource : public SkImageFilter {
 public:
-    static SkBitmapSource* Create(const SkBitmap& bitmap) {
-        return SkNEW_ARGS(SkBitmapSource, (bitmap));
-    }
+    static SkBitmapSource* Create(const SkBitmap& bitmap) { return new SkBitmapSource(bitmap); }
     static SkBitmapSource* Create(const SkBitmap& bitmap,
                                   const SkRect& srcRect, const SkRect& dstRect,
                                   SkFilterQuality filterQuality = kHigh_SkFilterQuality) {
-        return SkNEW_ARGS(SkBitmapSource, (bitmap, srcRect, dstRect, filterQuality));
+        return new SkBitmapSource(bitmap, srcRect, dstRect, filterQuality);
     }
     void computeFastBounds(const SkRect& src, SkRect* dst) const override;
 

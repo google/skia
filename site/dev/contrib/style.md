@@ -385,23 +385,6 @@ Method calls within method calls should be prefixed with dereference of the
 <!--?prettify?-->
 ~~~~
 this->method();
-Memory Management
-~~~~
-
-All memory allocation should be routed through SkNEW and its variants. These are
-#defined in SkPostConfig.h, but the correct way to get access to the config
-system is to #include SkTypes.h, which will allow external users of the library
-to provide a custom memory manager or other adaptations.
-
-<!--?prettify?-->
-~~~~
-SkNEW(type_name)
-SkNEW_ARGS(type_name, args)
-SkNEW_ARRAY(type_name, count)
-SkNEW_PLACEMENT(buf, type_name)
-SkNEW_PLACEMENT_ARGS(buf, type_name, args)
-SkDELETE(obj)
-SkDELETE_ARRAY(array)
 ~~~~
 
 Comparisons

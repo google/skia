@@ -80,7 +80,7 @@ SkFlattenable* MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
     skiatest::Reporter* reporter = (skiatest::Reporter*)buffer.readFunctionPtr();
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
-    return SkNEW_ARGS(MatrixTestImageFilter, (reporter, matrix));
+    return new MatrixTestImageFilter(reporter, matrix);
 }
 
 #ifndef SK_IGNORE_TO_STRING

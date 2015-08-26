@@ -14,7 +14,7 @@
 #include "SkString.h"
 
 SkEmbossMaskFilter* SkEmbossMaskFilter::Create(SkScalar blurSigma, const Light& light) {
-    return SkNEW_ARGS(SkEmbossMaskFilter, (blurSigma, light));
+    return new SkEmbossMaskFilter(blurSigma, light);
 }
 
 static inline int pin2byte(int n) {

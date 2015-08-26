@@ -160,7 +160,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW(VariedTextGM(false, false)); )
-DEF_GM( return SkNEW(VariedTextGM(true, false)); )
-DEF_GM( return SkNEW(VariedTextGM(false, true)); )
-DEF_GM( return SkNEW(VariedTextGM(true, true)); )
+DEF_GM(return new VariedTextGM(false, false);)
+DEF_GM(return new VariedTextGM(true, false);)
+DEF_GM(return new VariedTextGM(false, true);)
+DEF_GM(return new VariedTextGM(true, true);)

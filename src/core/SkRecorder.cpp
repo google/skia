@@ -27,7 +27,7 @@ SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
     for (int i = 0; i < count; ++i) {
         pics[i] = fArray[i]->newPictureSnapshot();
     }
-    return SkNEW_ARGS(SkBigPicture::SnapshotArray, (pics.detach(), count));
+    return new SkBigPicture::SnapshotArray(pics.detach(), count);
 }
 
 void SkDrawableList::append(SkDrawable* drawable) {
@@ -66,9 +66,11 @@ void SkRecorder::forgetRecord() {
 }
 
 // To make appending to fRecord a little less verbose.
-#define APPEND(T, ...)                                    \
-        if (fMiniRecorder) { this->flushMiniRecorder(); } \
-        SkNEW_PLACEMENT_ARGS(fRecord->append<SkRecords::T>(), SkRecords::T, (__VA_ARGS__))
+#define APPEND(T, ...)             \
+    if (fMiniRecorder) {           \
+        this->flushMiniRecorder(); \
+    }                              \
+    new (fRecord->append<SkRecords::T>()) SkRecords::T(__VA_ARGS__)
 
 #define TRY_MINIRECORDER(method, ...)                       \
     if (fMiniRecorder && fMiniRecorder->method(__VA_ARGS__)) { return; }
@@ -83,7 +85,7 @@ T* SkRecorder::copy(const T* src) {
     if (NULL == src) {
         return NULL;
     }
-    return SkNEW_PLACEMENT_ARGS(fRecord->alloc<T>(), T, (*src));
+    return new (fRecord->alloc<T>()) T(*src);
 }
 
 // This copy() is for arrays.
@@ -95,7 +97,7 @@ T* SkRecorder::copy(const T src[], size_t count) {
     }
     T* dst = fRecord->alloc<T>(count);
     for (size_t i = 0; i < count; i++) {
-        SkNEW_PLACEMENT_ARGS(dst + i, T, (src[i]));
+        new (dst + i) T(src[i]);
     }
     return dst;
 }
@@ -157,7 +159,7 @@ void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const 
 
 void SkRecorder::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     if (!fDrawableList) {
-        fDrawableList.reset(SkNEW(SkDrawableList));
+        fDrawableList.reset(new SkDrawableList);
     }
     fDrawableList->append(drawable);
     APPEND(DrawDrawable, this->copy(matrix), drawable->getBounds(), fDrawableList->count() - 1);

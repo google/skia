@@ -21,7 +21,7 @@ SkTileImageFilter* SkTileImageFilter::Create(const SkRect& srcRect, const SkRect
     if (!SkIsValidRect(srcRect) || !SkIsValidRect(dstRect)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkTileImageFilter, (srcRect, dstRect, input));
+    return new SkTileImageFilter(srcRect, dstRect, input);
 }
 
 bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,

@@ -329,13 +329,13 @@ public:
                 } break;
             case SkType_String: {
                 SkDisplayString* boxedValue = (SkDisplayString*) displayable;
-                operand->fString = SkNEW_ARGS(SkString, (boxedValue->value));
+                operand->fString = new SkString(boxedValue->value);
                 } break;
             default: {
                 const char* id;
                 bool success = fEngine->getMaker().findKey(displayable, &id);
                 SkASSERT(success);
-                operand->fString = SkNEW_ARGS(SkString, (id));
+                operand->fString = new SkString(id);
             }
         }
         return true;

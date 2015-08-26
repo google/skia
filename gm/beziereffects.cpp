@@ -40,7 +40,7 @@ public:
 
     static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
                                const SkScalar klmEqs[9], SkScalar sign) {
-        return SkNEW_ARGS(BezierCubicOrConicTestBatch, (gp, geo, klmEqs, sign));
+        return new BezierCubicOrConicTestBatch(gp, geo, klmEqs, sign);
     }
 
 private:
@@ -440,7 +440,7 @@ public:
 
     static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo,
                                const GrPathUtils::QuadUVMatrix& devToUV) {
-        return SkNEW_ARGS(BezierQuadTestBatch, (gp, geo, devToUV));
+        return new BezierQuadTestBatch(gp, geo, devToUV);
     }
 
 private:
@@ -631,10 +631,9 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return SkNEW(BezierCubicEffects); )
-DEF_GM( return SkNEW(BezierConicEffects); )
-DEF_GM( return SkNEW(BezierQuadEffects); )
-
+DEF_GM(return new BezierCubicEffects;)
+DEF_GM(return new BezierConicEffects;)
+DEF_GM(return new BezierQuadEffects;)
 }
 
 #endif

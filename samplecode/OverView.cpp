@@ -119,7 +119,7 @@ private:
 };
 
 SkView* create_overview(int count, const SkViewFactory* factories[]) {
-    return SkNEW_ARGS(OverView, (count, factories));
+    return new OverView(count, factories);
 }
 
 bool is_overview(SkView* view) {

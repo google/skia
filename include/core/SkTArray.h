@@ -32,18 +32,18 @@ inline void copyAndDelete(SkTArray<T, true>* self, char* newMemArray) {
 
 template<typename T>
 inline void copy(SkTArray<T, false>* self, int dst, int src) {
-    SkNEW_PLACEMENT_ARGS(&self->fItemArray[dst], T, (self->fItemArray[src]));
+    new (&self->fItemArray[dst]) T(self->fItemArray[src]);
 }
 template<typename T>
 inline void copy(SkTArray<T, false>* self, const T* array) {
     for (int i = 0; i < self->fCount; ++i) {
-        SkNEW_PLACEMENT_ARGS(self->fItemArray + i, T, (array[i]));
+        new (self->fItemArray + i) T(array[i]);
     }
 }
 template<typename T>
 inline void copyAndDelete(SkTArray<T, false>* self, char* newMemArray) {
     for (int i = 0; i < self->fCount; ++i) {
-        SkNEW_PLACEMENT_ARGS(newMemArray + sizeof(T) * i, T, (self->fItemArray[i]));
+        new (newMemArray + sizeof(T) * i) T(self->fItemArray[i]);
         self->fItemArray[i].~T();
     }
 }
@@ -135,7 +135,7 @@ public:
         this->checkRealloc(n);
         fCount = n;
         for (int i = 0; i < fCount; ++i) {
-            SkNEW_PLACEMENT(fItemArray + i, T);
+            new (fItemArray + i) T;
         }
     }
 
@@ -180,7 +180,7 @@ public:
      */
     T& push_back() {
         T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
-        SkNEW_PLACEMENT(newT, T);
+        new (newT) T;
         return *newT;
     }
 
@@ -189,7 +189,7 @@ public:
      */
     T& push_back(const T& t) {
         T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
-        SkNEW_PLACEMENT_ARGS(newT, T, (t));
+        new (newT) T(t);
         return *newT;
     }
 
@@ -202,7 +202,7 @@ public:
         SkASSERT(n >= 0);
         T* newTs = reinterpret_cast<T*>(this->push_back_raw(n));
         for (int i = 0; i < n; ++i) {
-            SkNEW_PLACEMENT(newTs + i, T);
+            new (newTs + i) T;
         }
         return newTs;
     }
@@ -215,7 +215,7 @@ public:
         SkASSERT(n >= 0);
         T* newTs = reinterpret_cast<T*>(this->push_back_raw(n));
         for (int i = 0; i < n; ++i) {
-            SkNEW_PLACEMENT_ARGS(newTs[i], T, (t));
+            new (newTs[i]) T(t);
         }
         return newTs;
     }
@@ -228,7 +228,7 @@ public:
         SkASSERT(n >= 0);
         this->checkRealloc(n);
         for (int i = 0; i < n; ++i) {
-            SkNEW_PLACEMENT_ARGS(fItemArray + fCount + i, T, (t[i]));
+            new (fItemArray + fCount + i) T(t[i]);
         }
         fCount += n;
         return fItemArray + fCount - n;

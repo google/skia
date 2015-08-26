@@ -680,9 +680,7 @@ public:
         SkIRect fDevClipBounds;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(AAHairlineBatch, (geometry));
-    }
+    static GrDrawBatch* Create(const Geometry& geometry) { return new AAHairlineBatch(geometry); }
 
     const char* name() const override { return "AAHairlineBatch"; }
 

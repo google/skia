@@ -82,9 +82,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW_ARGS(BitmapSourceGM, ("none", kNone_SkFilterQuality) );   )
-DEF_GM( return SkNEW_ARGS(BitmapSourceGM, ("low",  kLow_SkFilterQuality) );    )
-DEF_GM( return SkNEW_ARGS(BitmapSourceGM, ("med",  kMedium_SkFilterQuality) ); )
-DEF_GM( return SkNEW_ARGS(BitmapSourceGM, ("high", kHigh_SkFilterQuality) );   )
-
+DEF_GM(return new BitmapSourceGM("none", kNone_SkFilterQuality);)
+DEF_GM(return new BitmapSourceGM("low", kLow_SkFilterQuality);)
+DEF_GM(return new BitmapSourceGM("med", kMedium_SkFilterQuality);)
+DEF_GM(return new BitmapSourceGM("high", kHigh_SkFilterQuality);)
 }

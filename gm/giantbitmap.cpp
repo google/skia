@@ -66,9 +66,7 @@ public:
         fDoRotate = doRotate;
     }
 
-    virtual ~GiantBitmapGM() {
-        SkDELETE(fBM);
-    }
+    virtual ~GiantBitmapGM() { delete fBM; }
 
 protected:
 

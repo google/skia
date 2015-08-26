@@ -245,7 +245,7 @@ static GrTexture* create_texture_for_bmp(GrContext* ctx,
                                          size_t rowBytes) {
     GrTexture* result = ctx->textureProvider()->createTexture(desc, true, pixels, rowBytes);
     if (result && optionalKey.isValid()) {
-        BitmapInvalidator* listener = SkNEW_ARGS(BitmapInvalidator, (optionalKey));
+        BitmapInvalidator* listener = new BitmapInvalidator(optionalKey);
         pixelRefForInvalidationNotification->addGenIDChangeListener(listener);
         ctx->textureProvider()->assignUniqueKeyToTexture(optionalKey, result);
     }
@@ -892,7 +892,7 @@ SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque) {
 void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque, SkBitmap* dst) {
     const SkImageInfo info = GrMakeInfoFromTexture(src, w, h, isOpaque);
     dst->setInfo(info);
-    dst->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, src)))->unref();
+    dst->setPixelRef(new SkGrPixelRef(info, src))->unref();
 }
 
 GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,

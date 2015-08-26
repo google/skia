@@ -159,7 +159,7 @@ SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
     if (!CheckAlphaTypeAndGetFlags(NULL, init, &flags)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkGpuDevice, (rt, width, height, props, flags));
+    return new SkGpuDevice(rt, width, height, props, flags);
 }
 
 SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgeted,
@@ -175,7 +175,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgete
         return NULL;
     }
 
-    return SkNEW_ARGS(SkGpuDevice, (rt, info.width(), info.height(), props, flags));
+    return new SkGpuDevice(rt, info.width(), info.height(), props, flags);
 }
 
 SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
@@ -192,7 +192,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
 
     SkAlphaType at = fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     SkImageInfo info = rt->surfacePriv().info(at).makeWH(width, height);
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, rt));
+    SkPixelRef* pr = new SkGrPixelRef(info, rt);
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
@@ -370,7 +370,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
                                                                    kPremul_SkAlphaType);
     SkASSERT(info == fLegacyBitmap.info());
 #endif
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (fLegacyBitmap.info(), fRenderTarget));
+    SkPixelRef* pr = new SkGrPixelRef(fLegacyBitmap.info(), fRenderTarget);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
     fDrawContext.reset(SkRef(fRenderTarget->getContext()->drawContext(&this->surfaceProps())));
@@ -668,7 +668,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
 static SkBitmap wrap_texture(GrTexture* texture, int width, int height) {
     SkBitmap result;
     result.setInfo(SkImageInfo::MakeN32Premul(width, height));
-    result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (result.info(), texture)))->unref();
+    result.setPixelRef(new SkGrPixelRef(result.info(), texture))->unref();
     return result;
 }
 
@@ -1630,7 +1630,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         //number of indices for lines per triangle with kLines
         indexCount = triangleCount * 6;
 
-        outAlloc.reset(SkNEW_ARRAY(uint16_t, indexCount));
+        outAlloc.reset(new uint16_t[indexCount]);
         outIndices = outAlloc.get();
         uint16_t* auxIndices = outAlloc.get();
         int i = 0;

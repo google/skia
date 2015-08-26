@@ -21,7 +21,7 @@ class SkArithmeticMode_scalar : public SkXfermode {
 public:
     static SkArithmeticMode_scalar* Create(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
                                            bool enforcePMColor) {
-        return SkNEW_ARGS(SkArithmeticMode_scalar, (k1, k2, k3, k4, enforcePMColor));
+        return new SkArithmeticMode_scalar(k1, k2, k3, k4, enforcePMColor);
     }
 
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
@@ -217,15 +217,15 @@ SkXfermode* SkArithmeticMode::Create(SkScalar k1, SkScalar k2,
         int32_t i3 = toDot8(k3);
         int32_t i4 = toDot8(k4);
         if (i1) {
-            return SkNEW_ARGS(SkArithmeticMode_quad, (i1, i2, i3, i4));
+            return new SkArithmeticMode_quad  (i1, i2, i3, i4);
         }
         if (0 == i2) {
-            return SkNEW_ARGS(SkArithmeticMode_dst, (i3, i4));
+            return new SkArithmeticMode_dst  (i3, i4);
         }
         if (0 == i3) {
-            return SkNEW_ARGS(SkArithmeticMode_src, (i2, i4));
+            return new SkArithmeticMode_src  (i2, i4);
         }
-        return SkNEW_ARGS(SkArithmeticMode_linear, (i2, i3, i4));
+        return new SkArithmeticMode_linear  (i2, i3, i4);
 #endif
     }
     return SkArithmeticMode_scalar::Create(k1, k2, k3, k4, enforcePMColor);

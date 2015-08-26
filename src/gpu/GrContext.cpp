@@ -64,9 +64,9 @@ void GrContext::DrawingMgr::init(GrContext* context) {
     fContext = context;
 
 #ifdef IMMEDIATE_MODE
-    fDrawTarget = SkNEW_ARGS(GrImmediateDrawTarget, (context));
+    fDrawTarget = new GrImmediateDrawTarget(context);
 #else
-    fDrawTarget = SkNEW_ARGS(GrBufferedDrawTarget, (context));
+    fDrawTarget = new GrBufferedDrawTarget(context);
 #endif    
 }
 
@@ -122,7 +122,7 @@ GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceP
     SkASSERT(props.pixelGeometry() < kNumPixelGeometries);
     if (!fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()]) {
         fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()] =
-                SkNEW_ARGS(GrDrawContext, (fContext, fDrawTarget, props));
+                new GrDrawContext(fContext, fDrawTarget, props);
     }
 
     return fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()]; 
@@ -138,7 +138,7 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext)
 
 GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
                              const GrContextOptions& options) {
-    GrContext* context = SkNEW(GrContext);
+    GrContext* context = new GrContext;
 
     if (context->init(backend, backendContext, options)) {
         return context;
@@ -182,20 +182,20 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
 
 void GrContext::initCommon() {
     fCaps = SkRef(fGpu->caps());
-    fResourceCache = SkNEW_ARGS(GrResourceCache, (fCaps));
+    fResourceCache = new GrResourceCache(fCaps);
     fResourceCache->setOverBudgetCallback(OverBudgetCB, this);
-    fResourceProvider = SkNEW_ARGS(GrResourceProvider, (fGpu, fResourceCache));
+    fResourceProvider = new GrResourceProvider(fGpu, fResourceCache);
 
-    fLayerCache.reset(SkNEW_ARGS(GrLayerCache, (this)));
+    fLayerCache.reset(new GrLayerCache(this));
 
     fDidTestPMConversions = false;
 
     fDrawingMgr.init(this);
 
     // GrBatchFontCache will eventually replace GrFontCache
-    fBatchFontCache = SkNEW_ARGS(GrBatchFontCache, (this));
+    fBatchFontCache = new GrBatchFontCache(this);
 
-    fTextBlobCache.reset(SkNEW_ARGS(GrTextBlobCache, (TextBlobCacheOverBudgetCB, this)));
+    fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this));
 }
 
 GrContext::~GrContext() {
@@ -212,9 +212,9 @@ GrContext::~GrContext() {
         (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
     }
 
-    SkDELETE(fResourceProvider);
-    SkDELETE(fResourceCache);
-    SkDELETE(fBatchFontCache);
+    delete fResourceProvider;
+    delete fResourceCache;
+    delete fBatchFontCache;
 
     fGpu->unref();
     fCaps->unref();
@@ -645,7 +645,7 @@ GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
                                            GrPathRendererChain::StencilSupport* stencilSupport) {
 
     if (!fPathRendererChain) {
-        fPathRendererChain = SkNEW_ARGS(GrPathRendererChain, (this));
+        fPathRendererChain = new GrPathRendererChain(this);
     }
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(target,
@@ -658,7 +658,7 @@ GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
 
     if (!pr && allowSW) {
         if (!fSoftwarePathRenderer) {
-            fSoftwarePathRenderer = SkNEW_ARGS(GrSoftwarePathRenderer, (this));
+            fSoftwarePathRenderer = new GrSoftwarePathRenderer(this);
         }
         pr = fSoftwarePathRenderer;
     }

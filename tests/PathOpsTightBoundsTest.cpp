@@ -39,8 +39,8 @@ DEF_TEST(PathOpsTightBoundsLines, reporter) {
     int outerCount = reporter->allowExtendedTest() ? 100 : 1;
     for (int index = 0; index < outerCount; ++index) {
         for (int idx2 = 0; idx2 < 10; ++idx2) {
-            *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
-                    (&testTightBoundsLines, 0, 0, 0, 0, &testRunner));
+            *testRunner.fRunnables.append() =
+                    new PathOpsThreadedRunnable(&testTightBoundsLines, 0, 0, 0, 0, &testRunner);
         }
     }
     testRunner.render();
@@ -114,8 +114,8 @@ DEF_TEST(PathOpsTightBoundsQuads, reporter) {
     int outerCount = reporter->allowExtendedTest() ? 100 : 1;
     for (int index = 0; index < outerCount; ++index) {
         for (int idx2 = 0; idx2 < 10; ++idx2) {
-            *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
-                    (&testTightBoundsQuads, 0, 0, 0, 0, &testRunner));
+            *testRunner.fRunnables.append() =
+                    new PathOpsThreadedRunnable(&testTightBoundsQuads, 0, 0, 0, 0, &testRunner);
         }
     }
     testRunner.render();

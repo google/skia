@@ -124,7 +124,7 @@ void android_main(struct android_app* state) {
         }
 
         if (kDestroyRequested_State == visualBenchState.fState) {
-            SkDELETE(visualBenchState.fWindow);
+            delete visualBenchState.fWindow;
             visualBenchState.fWindow = NULL;
             application_term();
             ANativeActivity_finish(state->activity);

@@ -204,7 +204,7 @@ SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
     if (common.unflatten(buffer, inputCount)) {
         fCropRect = common.cropRect();
         fInputCount = common.inputCount();
-        fInputs = SkNEW_ARRAY(SkImageFilter*, fInputCount);
+        fInputs = new SkImageFilter* [fInputCount];
         common.detachInputs(fInputs);
         for (int i = 0; i < fInputCount; ++i) {
             if (NULL == fInputs[i] || fInputs[i]->usesSrcInput()) {
@@ -444,7 +444,7 @@ SkImageFilter* SkImageFilter::CreateMatrixFilter(const SkMatrix& matrix,
 void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
     result->setInfo(info);
-    result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
+    result->setPixelRef(new SkGrPixelRef(info, texture))->unref();
 }
 
 bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
@@ -465,7 +465,7 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
                     return false;
                 }
                 SkAutoTUnref<GrTexture> resultTex(GrRefCachedBitmapTexture(context, *result, NULL));
-                result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, resultTex)))->unref();
+                result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
             }
             return true;
         } else {
@@ -567,7 +567,7 @@ SkImageFilter::Cache* CreateCache() {
 } // namespace
 
 SkImageFilter::Cache* SkImageFilter::Cache::Create(size_t maxBytes) {
-    return SkNEW_ARGS(CacheImpl, (maxBytes));
+    return new CacheImpl(maxBytes);
 }
 
 SK_DECLARE_STATIC_LAZY_PTR(SkImageFilter::Cache, cache, CreateCache);

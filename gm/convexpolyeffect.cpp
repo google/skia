@@ -38,7 +38,7 @@ public:
     const char* name() const override { return "ConvexPolyTestBatch"; }
 
     static GrDrawBatch* Create(const GrGeometryProcessor* gp, const Geometry& geo) {
-        return SkNEW_ARGS(ConvexPolyTestBatch, (gp, geo));
+        return new ConvexPolyTestBatch(gp, geo);
     }
 
 private:
@@ -275,7 +275,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return SkNEW(ConvexPolyEffect); )
+DEF_GM(return new ConvexPolyEffect;)
 }
 
 #endif

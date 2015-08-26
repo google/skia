@@ -34,7 +34,7 @@ static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkDiscardableMemoryPool> pool(
         SkDiscardableMemoryPool::Create(10 * 1000, NULL));
     SkBitmap bm;
-    bool success = SkInstallDiscardablePixelRef(SkNEW(FailureImageGenerator), NULL, &bm, pool);
+    bool success = SkInstallDiscardablePixelRef(new FailureImageGenerator, NULL, &bm, pool);
     REPORTER_ASSERT(reporter, success);
     // now our bitmap has a pixelref, but we know it will fail to lock
 

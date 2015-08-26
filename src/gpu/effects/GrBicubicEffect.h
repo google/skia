@@ -41,9 +41,8 @@ public:
             return Create(procDataManager, tex, coefficients,
                           GrCoordTransform::MakeDivByTextureWHMatrix(tex), kTileModes);
         } else {
-            return SkNEW_ARGS(GrBicubicEffect, (procDataManager, tex, coefficients,
-                                                GrCoordTransform::MakeDivByTextureWHMatrix(tex),
-                                                *domain));
+            return new GrBicubicEffect(procDataManager, tex, coefficients,
+                                       GrCoordTransform::MakeDivByTextureWHMatrix(tex), *domain);
         }
     }
 
@@ -63,7 +62,7 @@ public:
     static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
                                        const SkScalar coefficients[16], const SkMatrix& matrix,
                                        const SkShader::TileMode tileModes[2]) {
-        return SkNEW_ARGS(GrBicubicEffect, (procDataManager, tex, coefficients, matrix, tileModes));
+        return new GrBicubicEffect(procDataManager, tex, coefficients, matrix, tileModes);
     }
 
     /**
@@ -71,8 +70,7 @@ public:
      */
     static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
                                        const SkMatrix& matrix, const SkRect& domain) {
-        return SkNEW_ARGS(GrBicubicEffect, (procDataManager, tex, gMitchellCoefficients, matrix,
-                                            domain));
+        return new GrBicubicEffect(procDataManager, tex, gMitchellCoefficients, matrix, domain);
     }
 
     /**

@@ -109,7 +109,7 @@ DEF_TEST(Image_NewRasterCopy, reporter) {
     const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
     const SkPMColor blue =  SkPackARGB32(0xFF, 0, 0, 0xFF);
     SkPMColor colors[] = { red, green, blue, 0 };
-    SkAutoTUnref<SkColorTable> ctable(SkNEW_ARGS(SkColorTable, (colors, SK_ARRAY_COUNT(colors))));
+    SkAutoTUnref<SkColorTable> ctable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
     // The colortable made a copy, so we can trash the original colors
     memset(colors, 0xFF, sizeof(colors));
 

@@ -25,10 +25,7 @@ struct SkLayerRasterizer_Rec {
     SkVector    fOffset;
 };
 
-SkLayerRasterizer::SkLayerRasterizer()
-    : fLayers(SkNEW_ARGS(SkDeque, (sizeof(SkLayerRasterizer_Rec))))
-{
-}
+SkLayerRasterizer::SkLayerRasterizer() : fLayers(new SkDeque(sizeof(SkLayerRasterizer_Rec))) {}
 
 SkLayerRasterizer::SkLayerRasterizer(SkDeque* layers) : fLayers(layers)
 {
@@ -42,7 +39,7 @@ static void clean_up_layers(SkDeque* layers) {
     while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != NULL)
         rec->fPaint.~SkPaint();
 
-    SkDELETE(layers);
+    delete layers;
 }
 
 SkLayerRasterizer::~SkLayerRasterizer() {
@@ -149,17 +146,17 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
 }
 
 SkFlattenable* SkLayerRasterizer::CreateProc(SkReadBuffer& buffer) {
-    return SkNEW_ARGS(SkLayerRasterizer, (ReadLayers(buffer)));
+    return new SkLayerRasterizer(ReadLayers(buffer));
 }
 
 SkDeque* SkLayerRasterizer::ReadLayers(SkReadBuffer& buffer) {
     int count = buffer.readInt();
 
-    SkDeque* layers = SkNEW_ARGS(SkDeque, (sizeof(SkLayerRasterizer_Rec)));
+    SkDeque* layers = new SkDeque(sizeof(SkLayerRasterizer_Rec));
     for (int i = 0; i < count; i++) {
         SkLayerRasterizer_Rec* rec = (SkLayerRasterizer_Rec*)layers->push_back();
 
-        SkNEW_PLACEMENT(&rec->fPaint, SkPaint);
+        new (&rec->fPaint) SkPaint;
         buffer.readPaint(&rec->fPaint);
         buffer.readPoint(&rec->fOffset);
     }
@@ -181,10 +178,7 @@ void SkLayerRasterizer::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-SkLayerRasterizer::Builder::Builder()
-        : fLayers(SkNEW_ARGS(SkDeque, (sizeof(SkLayerRasterizer_Rec))))
-{
-}
+SkLayerRasterizer::Builder::Builder() : fLayers(new SkDeque(sizeof(SkLayerRasterizer_Rec))) {}
 
 SkLayerRasterizer::Builder::~Builder()
 {
@@ -198,7 +192,7 @@ void SkLayerRasterizer::Builder::addLayer(const SkPaint& paint, SkScalar dx,
     SkASSERT(fLayers);
     SkLayerRasterizer_Rec* rec = (SkLayerRasterizer_Rec*)fLayers->push_back();
 
-    SkNEW_PLACEMENT_ARGS(&rec->fPaint, SkPaint, (paint));
+    new (&rec->fPaint) SkPaint(paint);
     rec->fOffset.set(dx, dy);
 }
 
@@ -206,9 +200,9 @@ SkLayerRasterizer* SkLayerRasterizer::Builder::detachRasterizer() {
     SkLayerRasterizer* rasterizer;
     if (0 == fLayers->count()) {
         rasterizer = NULL;
-        SkDELETE(fLayers);
+        delete fLayers;
     } else {
-        rasterizer = SkNEW_ARGS(SkLayerRasterizer, (fLayers));
+        rasterizer = new SkLayerRasterizer(fLayers);
     }
     fLayers = NULL;
     return rasterizer;
@@ -218,18 +212,18 @@ SkLayerRasterizer* SkLayerRasterizer::Builder::snapshotRasterizer() const {
     if (0 == fLayers->count()) {
         return NULL;
     }
-    SkDeque* layers = SkNEW_ARGS(SkDeque, (sizeof(SkLayerRasterizer_Rec), fLayers->count()));
+    SkDeque* layers = new SkDeque(sizeof(SkLayerRasterizer_Rec), fLayers->count());
     SkDeque::F2BIter                iter(*fLayers);
     const SkLayerRasterizer_Rec*    recOrig;
     SkDEBUGCODE(int                 count = 0;)
     while ((recOrig = static_cast<SkLayerRasterizer_Rec*>(iter.next())) != NULL) {
         SkDEBUGCODE(count++);
         SkLayerRasterizer_Rec* recCopy = static_cast<SkLayerRasterizer_Rec*>(layers->push_back());
-        SkNEW_PLACEMENT_ARGS(&recCopy->fPaint, SkPaint, (recOrig->fPaint));
+        new (&recCopy->fPaint) SkPaint(recOrig->fPaint);
         recCopy->fOffset = recOrig->fOffset;
     }
     SkASSERT(fLayers->count() == count);
     SkASSERT(layers->count() == count);
-    SkLayerRasterizer* rasterizer = SkNEW_ARGS(SkLayerRasterizer, (layers));
+    SkLayerRasterizer* rasterizer = new SkLayerRasterizer(layers);
     return rasterizer;
 }

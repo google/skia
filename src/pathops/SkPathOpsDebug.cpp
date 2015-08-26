@@ -75,13 +75,9 @@ void SkPathOpsDebug::WindingPrintf(int wind) {
 
 
 #if DEBUG_SHOW_TEST_NAME
-void* SkPathOpsDebug::CreateNameStr() {
-    return SkNEW_ARRAY(char, DEBUG_FILENAME_STRING_LENGTH);
-}
+void* SkPathOpsDebug::CreateNameStr() { return new char[DEBUG_FILENAME_STRING_LENGTH]; }
 
-void SkPathOpsDebug::DeleteNameStr(void* v) {
-    SkDELETE_ARRAY(reinterpret_cast<char* >(v));
-}
+void SkPathOpsDebug::DeleteNameStr(void* v) { delete[] reinterpret_cast<char*>(v); }
 
 void SkPathOpsDebug::BumpTestName(char* test) {
     char* num = test + strlen(test);

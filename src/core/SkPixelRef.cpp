@@ -243,7 +243,7 @@ uint32_t SkPixelRef::getGenerationID() const {
 void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
     if (NULL == listener || !this->genIDIsUnique()) {
         // No point in tracking this if we're not going to call it.
-        SkDELETE(listener);
+        delete listener;
         return;
     }
     *fGenIDChangeListeners.append() = listener;

@@ -63,7 +63,7 @@ public:
                                        const SkTwoPointConicalGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm) {
-        return SkNEW_ARGS(Edge2PtConicalEffect, (ctx, procDataManager, shader, matrix, tm));
+        return new Edge2PtConicalEffect(ctx, procDataManager, shader, matrix, tm);
     }
 
     virtual ~Edge2PtConicalEffect() {}
@@ -175,7 +175,7 @@ void Edge2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* Edge2PtConicalEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLEdge2PtConicalEffect, (*this));
+    return new GLEdge2PtConicalEffect(*this);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Edge2PtConicalEffect);
@@ -376,8 +376,7 @@ public:
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm,
                                        SkScalar focalX) {
-        return SkNEW_ARGS(FocalOutside2PtConicalEffect, (ctx, procDataManager, shader, matrix, tm,
-                                                         focalX));
+        return new FocalOutside2PtConicalEffect(ctx, procDataManager, shader, matrix, tm, focalX);
     }
 
     virtual ~FocalOutside2PtConicalEffect() { }
@@ -458,7 +457,7 @@ void FocalOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* FocalOutside2PtConicalEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLFocalOutside2PtConicalEffect, (*this));
+    return new GLFocalOutside2PtConicalEffect(*this);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(FocalOutside2PtConicalEffect);
@@ -593,8 +592,7 @@ public:
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm,
                                        SkScalar focalX) {
-        return SkNEW_ARGS(FocalInside2PtConicalEffect, (ctx, procDataManager, shader, matrix, tm,
-                                                        focalX));
+        return new FocalInside2PtConicalEffect(ctx, procDataManager, shader, matrix, tm, focalX);
     }
 
     virtual ~FocalInside2PtConicalEffect() {}
@@ -670,7 +668,7 @@ void FocalInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* FocalInside2PtConicalEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLFocalInside2PtConicalEffect, (*this));
+    return new GLFocalInside2PtConicalEffect(*this);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(FocalInside2PtConicalEffect);
@@ -832,8 +830,7 @@ public:
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm,
                                        const CircleConicalInfo& info) {
-        return SkNEW_ARGS(CircleInside2PtConicalEffect, (ctx, procDataManager, shader, matrix, tm,
-                                                         info));
+        return new CircleInside2PtConicalEffect(ctx, procDataManager, shader, matrix, tm, info);
     }
 
     virtual ~CircleInside2PtConicalEffect() {}
@@ -918,7 +915,7 @@ void CircleInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* CircleInside2PtConicalEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLCircleInside2PtConicalEffect, (*this));
+    return new GLCircleInside2PtConicalEffect(*this);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleInside2PtConicalEffect);
@@ -1049,8 +1046,7 @@ public:
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm,
                                        const CircleConicalInfo& info) {
-        return SkNEW_ARGS(CircleOutside2PtConicalEffect, (ctx, procDataManager, shader, matrix,
-                                                          tm, info));
+        return new CircleOutside2PtConicalEffect(ctx, procDataManager, shader, matrix, tm, info);
     }
 
     virtual ~CircleOutside2PtConicalEffect() {}
@@ -1150,7 +1146,7 @@ void CircleOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* CircleOutside2PtConicalEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLCircleOutside2PtConicalEffect, (*this));
+    return new GLCircleOutside2PtConicalEffect(*this);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleOutside2PtConicalEffect);

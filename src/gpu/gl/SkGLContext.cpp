@@ -105,7 +105,7 @@ void SkGLContext::testAbandon() {
 }
 
 SkGLContext::GLFenceSync* SkGLContext::GLFenceSync::CreateIfSupported(const SkGLContext* ctx) {
-    SkAutoTDelete<GLFenceSync> ret(SkNEW(GLFenceSync));
+    SkAutoTDelete<GLFenceSync> ret(new GLFenceSync);
 
     if (kGL_GrGLStandard == ctx->gl()->fStandard) {
         const GrGLubyte* versionStr;

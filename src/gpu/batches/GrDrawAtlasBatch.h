@@ -22,8 +22,7 @@ public:
     static GrDrawBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
                                int spriteCount, const SkRSXform* xforms, const SkRect* rects,
                                const SkColor* colors) {
-        return SkNEW_ARGS(GrDrawAtlasBatch, (geometry, viewMatrix, spriteCount,
-                                             xforms, rects, colors));
+        return new GrDrawAtlasBatch(geometry, viewMatrix, spriteCount, xforms, rects, colors);
     }
     
     const char* name() const override { return "DrawAtlasBatch"; }

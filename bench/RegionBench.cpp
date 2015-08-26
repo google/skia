@@ -121,12 +121,12 @@ private:
 
 #define SMALL   16
 
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, union_proc, "union")); )
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, sect_proc, "intersect")); )
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, diff_proc, "difference")); )
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, diffrect_proc, "differencerect")); )
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, diffrectbig_proc, "differencerectbig")); )
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, containsrect_proc, "containsrect")); )
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, sectsrgn_proc, "intersectsrgn")); )
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, sectsrect_proc, "intersectsrect")); )
-DEF_BENCH( return SkNEW_ARGS(RegionBench, (SMALL, containsxy_proc, "containsxy")); )
+DEF_BENCH(return new RegionBench(SMALL, union_proc, "union");)
+DEF_BENCH(return new RegionBench(SMALL, sect_proc, "intersect");)
+DEF_BENCH(return new RegionBench(SMALL, diff_proc, "difference");)
+DEF_BENCH(return new RegionBench(SMALL, diffrect_proc, "differencerect");)
+DEF_BENCH(return new RegionBench(SMALL, diffrectbig_proc, "differencerectbig");)
+DEF_BENCH(return new RegionBench(SMALL, containsrect_proc, "containsrect");)
+DEF_BENCH(return new RegionBench(SMALL, sectsrgn_proc, "intersectsrgn");)
+DEF_BENCH(return new RegionBench(SMALL, sectsrect_proc, "intersectsrect");)
+DEF_BENCH(return new RegionBench(SMALL, containsxy_proc, "containsxy");)

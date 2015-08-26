@@ -28,16 +28,8 @@ public:
                                        const SkIPoint& kernelOffset,
                                        GrTextureDomain::Mode tileMode,
                                        bool convolveAlpha) {
-        return SkNEW_ARGS(GrMatrixConvolutionEffect, (procDataManager,
-                                                      texture,
-                                                      bounds,
-                                                      kernelSize,
-                                                      kernel,
-                                                      gain,
-                                                      bias,
-                                                      kernelOffset,
-                                                      tileMode,
-                                                      convolveAlpha));
+        return new GrMatrixConvolutionEffect(procDataManager, texture, bounds, kernelSize, kernel,
+                                             gain, bias, kernelOffset, tileMode, convolveAlpha);
     }
 
     static GrFragmentProcessor* CreateGaussian(GrProcessorDataManager*,

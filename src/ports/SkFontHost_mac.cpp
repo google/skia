@@ -2198,9 +2198,8 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName, CTFontDescriptorRef 
     bool isFixedPitch;
     (void)computeStyleBits(ctFont, &isFixedPitch);
 
-    face = SkNEW_ARGS(SkTypeface_Mac, (ctFont.detach(), NULL,
-                                       cacheRequest.fStyle, isFixedPitch,
-                                       skFamilyName.c_str(), false));
+    face = new SkTypeface_Mac(ctFont.detach(), NULL, cacheRequest.fStyle, isFixedPitch,
+                              skFamilyName.c_str(), false);
     SkTypefaceCache::Add(face, face->fontStyle());
     return face;
 }
@@ -2298,7 +2297,7 @@ class SkFontMgr_Mac : public SkFontMgr {
 
         AutoCFRelease<CTFontDescriptorRef> desc(
                                 CTFontDescriptorCreateWithAttributes(cfAttr));
-        return SkNEW_ARGS(SkFontStyleSet_Mac, (cfFamilyName, desc));
+        return new SkFontStyleSet_Mac(cfFamilyName, desc);
     }
 
 public:
@@ -2488,6 +2487,4 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFontMgr* SkFontMgr::Factory() {
-    return SkNEW(SkFontMgr_Mac);
-}
+SkFontMgr* SkFontMgr::Factory() { return new SkFontMgr_Mac; }

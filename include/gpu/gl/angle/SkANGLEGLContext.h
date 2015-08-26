@@ -20,9 +20,9 @@ public:
         if (kGL_GrGLStandard == forcedGpuAPI) {
             return NULL;
         }
-        SkANGLEGLContext* ctx = SkNEW(SkANGLEGLContext);
+        SkANGLEGLContext* ctx = new SkANGLEGLContext;
         if (!ctx->isValid()) {
-            SkDELETE(ctx);
+            delete ctx;
             return NULL;
         }
         return ctx;

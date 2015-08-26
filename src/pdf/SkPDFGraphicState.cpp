@@ -140,8 +140,7 @@ SkPDFObject* create_invert_function() {
     SkAutoTUnref<SkData> psInvertStream(
             SkData::NewWithoutCopy(psInvert, strlen(psInvert)));
 
-    SkPDFStream* invertFunction = SkNEW_ARGS(
-            SkPDFStream, (psInvertStream.get()));
+    SkPDFStream* invertFunction = new SkPDFStream(psInvertStream.get());
     invertFunction->insertInt("FunctionType", 4);
     invertFunction->insertObject("Domain", SkRef(domainAndRange.get()));
     invertFunction->insertObject("Range", domainAndRange.detach());
@@ -199,7 +198,7 @@ void SkPDFGraphicState::emitObject(
         SkWStream* stream,
         const SkPDFObjNumMap& objNumMap,
         const SkPDFSubstituteMap& substitutes) const {
-    SkAutoTUnref<SkPDFDict> dict(SkNEW_ARGS(SkPDFDict, ("ExtGState")));
+    SkAutoTUnref<SkPDFDict> dict(new SkPDFDict("ExtGState"));
     dict->insertName("Type", "ExtGState");
 
     SkScalar alpha = SkIntToScalar(fAlpha) / 0xFF;

@@ -164,7 +164,7 @@ public:
 
 SkpSkGrThreadedTestRunner::~SkpSkGrThreadedTestRunner() {
     for (int index = 0; index < fRunnables.count(); index++) {
-        SkDELETE(fRunnables[index]);
+        delete fRunnables[index];
     }
 }
 
@@ -477,7 +477,7 @@ void TestResult::testOne() {
         }
     }
 finish:
-    SkDELETE(pic);
+    delete pic;
 }
 
 static SkString makeStatusString(int dirNo) {
@@ -705,8 +705,8 @@ DEF_TEST(SkpSkGrThreaded, reporter) {
                     goto skipOver;
                 }
             }
-            *testRunner.fRunnables.append() = SkNEW_ARGS(SkpSkGrThreadedRunnable,
-                    (&testSkGrMain, dirIndex, filename.c_str(), &testRunner));
+            *testRunner.fRunnables.append() = new SkpSkGrThreadedRunnable(
+                    &testSkGrMain, dirIndex, filename.c_str(), &testRunner);
     skipOver:
             ;
         }

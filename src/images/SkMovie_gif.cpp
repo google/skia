@@ -443,7 +443,7 @@ SkMovie* Factory(SkStreamRewindable* stream) {
                 memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0) {
             // must rewind here, since our construct wants to re-read the data
             stream->rewind();
-            return SkNEW_ARGS(SkGIFMovie, (stream));
+            return new SkGIFMovie(stream);
         }
     }
     return NULL;

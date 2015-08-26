@@ -138,7 +138,7 @@ private:
 template <typename T> class SkAutoTDelete : SkNoncopyable {
 public:
     SkAutoTDelete(T* obj = NULL) : fObj(obj) {}
-    ~SkAutoTDelete() { SkDELETE(fObj); }
+    ~SkAutoTDelete() { delete fObj; }
 
     T* get() const { return fObj; }
     operator T*() const { return fObj; }
@@ -147,7 +147,7 @@ public:
 
     void reset(T* obj) {
         if (fObj != obj) {
-            SkDELETE(fObj);
+            delete fObj;
             fObj = obj;
         }
     }
@@ -156,7 +156,7 @@ public:
      *  Delete the owned object, setting the internal pointer to NULL.
      */
     void free() {
-        SkDELETE(fObj);
+        delete fObj;
         fObj = NULL;
     }
 
@@ -200,15 +200,18 @@ private:
 template <typename T> class SkAutoTDeleteArray : SkNoncopyable {
 public:
     SkAutoTDeleteArray(T array[]) : fArray(array) {}
-    ~SkAutoTDeleteArray() { SkDELETE_ARRAY(fArray); }
+    ~SkAutoTDeleteArray() { delete[] fArray; }
 
     T*      get() const { return fArray; }
-    void    free() { SkDELETE_ARRAY(fArray); fArray = NULL; }
+    void free() {
+        delete[] fArray;
+        fArray = NULL;
+    }
     T*      detach() { T* array = fArray; fArray = NULL; return array; }
 
     void reset(T array[]) {
         if (fArray != array) {
-            SkDELETE_ARRAY(fArray);
+            delete[] fArray;
             fArray = array;
         }
     }
@@ -231,7 +234,7 @@ public:
         SkASSERT(count >= 0);
         fArray = NULL;
         if (count) {
-            fArray = SkNEW_ARRAY(T, count);
+            fArray = new T[count];
         }
         SkDEBUGCODE(fCount = count;)
     }
@@ -239,18 +242,16 @@ public:
     /** Reallocates given a new count. Reallocation occurs even if new count equals old count.
      */
     void reset(int count) {
-        SkDELETE_ARRAY(fArray);
+        delete[] fArray;
         SkASSERT(count >= 0);
         fArray = NULL;
         if (count) {
-            fArray = SkNEW_ARRAY(T, count);
+            fArray = new T[count];
         }
         SkDEBUGCODE(fCount = count;)
     }
 
-    ~SkAutoTArray() {
-        SkDELETE_ARRAY(fArray);
-    }
+    ~SkAutoTArray() { delete[] fArray; }
 
     /** Return the array of T elements. Will be NULL if count == 0
      */
@@ -329,7 +330,7 @@ public:
         iter = fArray;
         T* stop = fArray + count;
         while (iter < stop) {
-            SkNEW_PLACEMENT(iter++, T);
+            new (iter++) T;
         }
     }
 
@@ -499,7 +500,7 @@ template <typename T> void SkInPlaceDeleteCheck(T* obj, void* storage) {
     if (storage == obj) {
         obj->~T();
     } else {
-        SkDELETE(obj);
+        delete obj;
     }
 }
 
@@ -512,12 +513,12 @@ template <typename T> void SkInPlaceDeleteCheck(T* obj, void* storage) {
  *      SkInPlaceDeleteCheck(obj, storage);
  */
 template <typename T> T* SkInPlaceNewCheck(void* storage, size_t size) {
-    return (sizeof(T) <= size) ? new (storage) T : SkNEW(T);
+    return (sizeof(T) <= size) ? new (storage) T : new T;
 }
 
 template <typename T, typename A1, typename A2, typename A3>
 T* SkInPlaceNewCheck(void* storage, size_t size, const A1& a1, const A2& a2, const A3& a3) {
-    return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3) : SkNEW_ARGS(T, (a1, a2, a3));
+    return (sizeof(T) <= size) ? new (storage) T(a1, a2, a3) : new T(a1, a2, a3);
 }
 
 /**

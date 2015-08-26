@@ -310,6 +310,6 @@ DEF_TEST(RWBuffer, reporter) {
         check_alphabet_buffer(reporter, readers[i]);
         check_alphabet_stream(reporter, streams[i]);
         readers[i]->unref();
-        SkDELETE(streams[i]);
+        delete streams[i];
     }
 }

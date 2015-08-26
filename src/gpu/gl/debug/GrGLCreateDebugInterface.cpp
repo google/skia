@@ -836,7 +836,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 const GrGLInterface* GrGLCreateDebugInterface() {
-    GrGLInterface* interface = SkNEW(GrDebugGLInterface);
+    GrGLInterface *interface = new GrDebugGLInterface;
 
     interface->fStandard = kGL_GrGLStandard;
 

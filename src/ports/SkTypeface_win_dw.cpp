@@ -239,11 +239,11 @@ SkStreamAsset* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
                                              &fontFileStream),
          "Could not create font file stream.");
 
-    return SkNEW_ARGS(SkDWriteFontFileStream, (fontFileStream.get()));
+    return new SkDWriteFontFileStream(fontFileStream.get());
 }
 
 SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    return SkNEW_ARGS(SkScalerContext_DW, (const_cast<DWriteFontTypeface*>(this), desc));
+    return new SkScalerContext_DW(const_cast<DWriteFontTypeface*>(this), desc);
 }
 
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {

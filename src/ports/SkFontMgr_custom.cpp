@@ -296,8 +296,8 @@ protected:
         SkFontStyle style;
         SkString name;
         if (fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedPitch, NULL)) {
-            return SkNEW_ARGS(SkTypeface_Stream, (style, isFixedPitch, false, name,
-                                                  stream.detach(), ttcIndex));
+            return new SkTypeface_Stream(style, isFixedPitch, false, name, stream.detach(),
+                                         ttcIndex);
         } else {
             return NULL;
         }
@@ -353,7 +353,7 @@ public:
         if (families->empty()) {
             SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
             families->push_back().reset(family);
-            family->appendTypeface(SkNEW(SkTypeface_Empty));
+            family->appendTypeface(new SkTypeface_Empty);
         }
     }
 
@@ -400,13 +400,9 @@ private:
                     continue;
                 }
 
-                SkTypeface_Custom* tf = SkNEW_ARGS(SkTypeface_File, (
-                                                    style,
-                                                    isFixedPitch,
-                                                    true,  // system-font (cannot delete)
-                                                    realname,
-                                                    filename.c_str(),
-                                                    faceIndex));
+                SkTypeface_Custom* tf = new SkTypeface_File(style, isFixedPitch,
+                                                            true,  // system-font (cannot delete)
+                                                            realname, filename.c_str(), faceIndex);
 
                 SkFontStyleSet_Custom* addTo = find_family(*families, realname.c_str());
                 if (NULL == addTo) {
@@ -454,7 +450,7 @@ public:
         if (families->empty()) {
             SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
             families->push_back().reset(family);
-            family->appendTypeface(SkNEW(SkTypeface_Empty));
+            family->appendTypeface(new SkTypeface_Empty);
         }
     }
 
@@ -491,13 +487,9 @@ private:
                 return;
             }
 
-            SkTypeface_Custom* tf = SkNEW_ARGS(SkTypeface_Stream, (
-                                                style,
-                                                isFixedPitch,
-                                                true,  // system-font (cannot delete)
-                                                realname,
-                                                stream.detach(),
-                                                faceIndex));
+            SkTypeface_Custom* tf =
+                    new SkTypeface_Stream(style, isFixedPitch, true,  // system-font (cannot delete)
+                                          realname, stream.detach(), faceIndex);
 
             SkFontStyleSet_Custom* addTo = find_family(*families, realname.c_str());
             if (NULL == addTo) {

@@ -514,7 +514,7 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
         SkPMColor colors[256];
         int colorCount;
         const SkImageInfo info = codec->getInfo().makeColorType(colorType);
-        SkAutoTDeleteArray<uint8_t> row(SkNEW_ARRAY(uint8_t, info.minRowBytes()));
+        SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
         SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(SkScanlineDecoder::NewFromData(encoded));
         if (NULL == scanlineDecoder || scanlineDecoder->start(info, NULL,
                 colors, &colorCount) != SkCodec::kSuccess)
@@ -553,7 +553,7 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
 }
 
 static void cleanup_run(Target* target) {
-    SkDELETE(target);
+    delete target;
 #if SK_SUPPORT_GPU
     if (FLAGS_abandonGpuContext) {
         gGrFactory->abandonContexts();
@@ -676,7 +676,7 @@ public:
             if (gm->runAsBench()) {
                 fSourceType = "gm";
                 fBenchType  = "micro";
-                return SkNEW_ARGS(GMBench, (gm.detach()));
+                return new GMBench(gm.detach());
             }
         }
 
@@ -692,7 +692,7 @@ public:
             fBenchType  = "recording";
             fSKPBytes = static_cast<double>(SkPictureUtils::ApproximateBytesUsed(pic));
             fSKPOps   = pic->approximateOpCount();
-            return SkNEW_ARGS(RecordingBench, (name.c_str(), pic.get(), FLAGS_bbh));
+            return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh);
         }
 
         // Then once each for each scale as SKPBenches (playback).
@@ -720,10 +720,8 @@ public:
                     SkString name = SkOSPath::Basename(path.c_str());
                     fSourceType = "skp";
                     fBenchType = "playback";
-                    return SkNEW_ARGS(SKPBench,
-                                      (name.c_str(), pic.get(), fClip, fScales[fCurrentScale],
-                                       fUseMPDs[fCurrentUseMPD++], FLAGS_loopSKP));
-
+                    return new SKPBench(name.c_str(), pic.get(), fClip, fScales[fCurrentScale],
+                                        fUseMPDs[fCurrentUseMPD++], FLAGS_loopSKP);
                 }
                 fCurrentUseMPD = 0;
                 fCurrentSKP++;
@@ -746,8 +744,8 @@ public:
                 SkString name = SkOSPath::Basename(path.c_str());
                 SkAutoTUnref<SKPAnimationBench::Animation> animation(
                     SKPAnimationBench::CreateZoomAnimation(fZoomMax, fZoomPeriodMs));
-                return SkNEW_ARGS(SKPAnimationBench, (name.c_str(), pic.get(), fClip, animation,
-                                                      FLAGS_loopSKP));
+                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, animation,
+                                             FLAGS_loopSKP);
             }
         }
 
@@ -944,7 +942,7 @@ int nanobench_main() {
 #if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
     grContextOpts.fDrawPathToCompressedTexture = FLAGS_gpuCompressAlphaMasks;
-    gGrFactory.reset(SkNEW_ARGS(GrContextFactory, (grContextOpts)));
+    gGrFactory.reset(new GrContextFactory(grContextOpts));
 #endif
 
     if (FLAGS_veryVerbose) {
@@ -982,9 +980,9 @@ int nanobench_main() {
         }
     }
 
-    SkAutoTDelete<ResultsWriter> log(SkNEW(ResultsWriter));
+    SkAutoTDelete<ResultsWriter> log(new ResultsWriter);
     if (!FLAGS_outResultsFile.isEmpty()) {
-        log.reset(SkNEW(NanoJSONResultsWriter(FLAGS_outResultsFile[0])));
+        log.reset(new NanoJSONResultsWriter(FLAGS_outResultsFile[0]));
     }
 
     if (1 == FLAGS_properties.count() % 2) {

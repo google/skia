@@ -99,4 +99,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(skiagm::ASTCBitmapGM); )
+DEF_GM(return new skiagm::ASTCBitmapGM;)

@@ -97,10 +97,10 @@ DEF_TEST(BitmapCache_add_rect, reporter) {
 
     SkAutoTDelete<SkResourceCache> cache;
     if (factory) {
-        cache.reset(SkNEW_ARGS(SkResourceCache, (factory)));
+        cache.reset(new SkResourceCache(factory));
     } else {
         const size_t byteLimit = 100 * 1024;
-        cache.reset(SkNEW_ARGS(SkResourceCache, (byteLimit)));
+        cache.reset(new SkResourceCache(byteLimit));
     }
     SkBitmap cachedBitmap;
     make_bitmap(&cachedBitmap, SkImageInfo::MakeN32Premul(5, 5), allocator);
@@ -243,10 +243,10 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     
     SkAutoTDelete<SkResourceCache> cache;
     if (factory) {
-        cache.reset(SkNEW_ARGS(SkResourceCache, (factory)));
+        cache.reset(new SkResourceCache(factory));
     } else {
         const size_t byteLimit = 100 * 1024;
-        cache.reset(SkNEW_ARGS(SkResourceCache, (byteLimit)));
+        cache.reset(new SkResourceCache(byteLimit));
     }
     SkBitmap cachedBitmap;
     make_bitmap(&cachedBitmap, SkImageInfo::MakeN32Premul(5, 5), allocator);

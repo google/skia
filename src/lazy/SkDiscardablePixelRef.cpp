@@ -33,9 +33,9 @@ SkDiscardablePixelRef::~SkDiscardablePixelRef() {
         fDiscardableMemory->unlock();
         fDiscardableMemoryIsLocked = false;
     }
-    SkDELETE(fDiscardableMemory);
+    delete fDiscardableMemory;
     SkSafeUnref(fDMFactory);
-    SkDELETE(fGenerator);
+    delete fGenerator;
 }
 
 bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
@@ -47,7 +47,7 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
             rec->fRowBytes = fRowBytes;
             return true;
         }
-        SkDELETE(fDiscardableMemory);
+        delete fDiscardableMemory;
         fDiscardableMemory = NULL;
         fDiscardableMemoryIsLocked = false;
     }
@@ -74,7 +74,7 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     if (!fGenerator->getPixels(info, pixels, fRowBytes, colors, &colorCount)) {
         fDiscardableMemory->unlock();
         fDiscardableMemoryIsLocked = false;
-        SkDELETE(fDiscardableMemory);
+        delete fDiscardableMemory;
         fDiscardableMemory = NULL;
         return false;
     }
@@ -85,7 +85,7 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     // could move it into the block, but then again perhaps it is small enough that this doesn't
     // really matter.
     if (colorCount > 0) {
-        fCTable.reset(SkNEW_ARGS(SkColorTable, (colors, colorCount)));
+        fCTable.reset(new SkColorTable(colors, colorCount));
     } else {
         fCTable.reset(NULL);
     }
@@ -137,8 +137,7 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, const SkIRect* su
         return dst->tryAllocPixels();
     }
     SkAutoTUnref<SkDiscardablePixelRef> ref(
-        SkNEW_ARGS(SkDiscardablePixelRef,
-                   (prInfo, autoGenerator.detach(), dst->rowBytes(), factory)));
+            new SkDiscardablePixelRef(prInfo, autoGenerator.detach(), dst->rowBytes(), factory));
     dst->setPixelRef(ref, origin.x(), origin.y());
     return true;
 }

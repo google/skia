@@ -63,7 +63,7 @@ public:
         if (NULL == buf) {
             return NULL;
         }
-        SkNEW_PLACEMENT(buf, T);
+        new (buf) T;
         return static_cast<T*>(buf);
     }
 
@@ -72,7 +72,7 @@ public:
         if (NULL == buf) {
             return NULL;
         }
-        SkNEW_PLACEMENT_ARGS(buf, T, (a1));
+        new (buf) T(a1);
         return static_cast<T*>(buf);
     }
 
@@ -82,7 +82,7 @@ public:
         if (NULL == buf) {
             return NULL;
         }
-        SkNEW_PLACEMENT_ARGS(buf, T, (a1, a2));
+        new (buf) T(a1, a2);
         return static_cast<T*>(buf);
     }
 
@@ -92,7 +92,7 @@ public:
         if (NULL == buf) {
             return NULL;
         }
-        SkNEW_PLACEMENT_ARGS(buf, T, (a1, a2, a3));
+        new (buf) T(a1, a2, a3);
         return static_cast<T*>(buf);
     }
 
@@ -102,7 +102,7 @@ public:
         if (NULL == buf) {
             return NULL;
         }
-        SkNEW_PLACEMENT_ARGS(buf, T, (a1, a2, a3, a4));
+        new (buf) T(a1, a2, a3, a4);
         return static_cast<T*>(buf);
     }
 

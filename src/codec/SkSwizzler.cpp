@@ -689,8 +689,8 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
     // get sampleX based on srcInfo and dstInfo dimensions
     int sampleX;
     SkScaledCodec::ComputeSampleSize(dstInfo, srcInfo, &sampleX, NULL);
-    
-    return SkNEW_ARGS(SkSwizzler, (proc, ctable, deltaSrc, dstInfo, sampleX));
+
+    return new SkSwizzler(proc, ctable, deltaSrc, dstInfo, sampleX);
 }
 
 SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable,

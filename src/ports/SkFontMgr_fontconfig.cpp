@@ -65,8 +65,8 @@ namespace {
 SK_DECLARE_STATIC_MUTEX(gFCMutex);
 
 #ifdef SK_DEBUG
-    void *CreateThreadFcLocked() { return SkNEW_ARGS(bool, (false)); }
-    void DeleteThreadFcLocked(void* v) { SkDELETE(static_cast<bool*>(v)); }
+void* CreateThreadFcLocked() { return new bool(false); }
+void DeleteThreadFcLocked(void* v) { delete static_cast<bool*>(v); }
 #   define THREAD_FC_LOCKED \
         static_cast<bool*>(SkTLS::Get(CreateThreadFcLocked, DeleteThreadFcLocked))
 #endif
@@ -416,7 +416,7 @@ class SkTypeface_fontconfig : public SkTypeface_FreeType {
 public:
     /** @param pattern takes ownership of the reference. */
     static SkTypeface_fontconfig* Create(FcPattern* pattern) {
-        return SkNEW_ARGS(SkTypeface_fontconfig, (pattern));
+        return new SkTypeface_fontconfig(pattern);
     }
     mutable SkAutoFcPattern fPattern;
 
@@ -725,7 +725,7 @@ protected:
             }
         }
 
-        return SkNEW_ARGS(StyleSet, (this, matches.detach()));
+        return new StyleSet(this, matches.detach());
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
@@ -830,12 +830,12 @@ protected:
             return NULL;
         }
 
-        return SkNEW_ARGS(SkTypeface_stream, (new SkFontData(stream.detach(), ttcIndex, NULL, 0),
-                                              style, isFixedWidth));
+        return new SkTypeface_stream(new SkFontData(stream.detach(), ttcIndex, NULL, 0), style,
+                                     isFixedWidth);
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
-        return this->createFromStream(SkNEW_ARGS(SkMemoryStream, (data)), ttcIndex);
+        return this->createFromStream(new SkMemoryStream(data), ttcIndex);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
@@ -856,7 +856,7 @@ protected:
             return NULL;
         }
 
-        return SkNEW_ARGS(SkTypeface_stream, (fontData, style, isFixedWidth));
+        return new SkTypeface_stream(fontData, style, isFixedWidth);
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],

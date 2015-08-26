@@ -81,7 +81,7 @@ GrFragmentProcessor* CircularRRectEffect::Create(GrPrimitiveEdgeType edgeType,
     if (kFillAA_GrProcessorEdgeType != edgeType && kInverseFillAA_GrProcessorEdgeType != edgeType) {
         return NULL;
     }
-    return SkNEW_ARGS(CircularRRectEffect, (edgeType, circularCornerFlags, rrect));
+    return new CircularRRectEffect(edgeType, circularCornerFlags, rrect);
 }
 
 void CircularRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -368,7 +368,7 @@ void CircularRRectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* CircularRRectEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GLCircularRRectEffect, (*this));
+    return new GLCircularRRectEffect(*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -409,7 +409,7 @@ EllipticalRRectEffect::Create(GrPrimitiveEdgeType edgeType, const SkRRect& rrect
     if (kFillAA_GrProcessorEdgeType != edgeType && kInverseFillAA_GrProcessorEdgeType != edgeType) {
         return NULL;
     }
-    return SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrect));
+    return new EllipticalRRectEffect(edgeType, rrect);
 }
 
 void EllipticalRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -617,7 +617,7 @@ void EllipticalRRectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* EllipticalRRectEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GLEllipticalRRectEffect, (*this));
+    return new GLEllipticalRRectEffect(*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////

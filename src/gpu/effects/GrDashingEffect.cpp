@@ -259,7 +259,7 @@ public:
 
     static GrDrawBatch* Create(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode,
                                bool fullDash) {
-        return SkNEW_ARGS(DashBatch, (geometry, cap, aaMode, fullDash));
+        return new DashBatch(geometry, cap, aaMode, fullDash);
     }
 
     const char* name() const override { return "DashBatch"; }
@@ -929,7 +929,7 @@ GrGeometryProcessor* DashingCircleEffect::Create(GrColor color,
                                                  DashAAMode aaMode,
                                                  const SkMatrix& localMatrix,
                                                  bool usesLocalCoords) {
-    return SkNEW_ARGS(DashingCircleEffect, (color, aaMode, localMatrix, usesLocalCoords));
+    return new DashingCircleEffect(color, aaMode, localMatrix, usesLocalCoords);
 }
 
 void DashingCircleEffect::getGLProcessorKey(const GrBatchTracker& bt,
@@ -940,7 +940,7 @@ void DashingCircleEffect::getGLProcessorKey(const GrBatchTracker& bt,
 
 GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrBatchTracker& bt,
                                                               const GrGLSLCaps&) const {
-    return SkNEW_ARGS(GLDashingCircleEffect, (*this, bt));
+    return new GLDashingCircleEffect(*this, bt);
 }
 
 DashingCircleEffect::DashingCircleEffect(GrColor color,
@@ -1165,7 +1165,7 @@ GrGeometryProcessor* DashingLineEffect::Create(GrColor color,
                                                DashAAMode aaMode,
                                                const SkMatrix& localMatrix,
                                                bool usesLocalCoords) {
-    return SkNEW_ARGS(DashingLineEffect, (color, aaMode, localMatrix, usesLocalCoords));
+    return new DashingLineEffect(color, aaMode, localMatrix, usesLocalCoords);
 }
 
 void DashingLineEffect::getGLProcessorKey(const GrBatchTracker& bt,
@@ -1176,7 +1176,7 @@ void DashingLineEffect::getGLProcessorKey(const GrBatchTracker& bt,
 
 GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker& bt,
                                                             const GrGLSLCaps&) const {
-    return SkNEW_ARGS(GLDashingLineEffect, (*this, bt));
+    return new GLDashingLineEffect(*this, bt);
 }
 
 DashingLineEffect::DashingLineEffect(GrColor color,

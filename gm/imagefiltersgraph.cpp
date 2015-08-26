@@ -34,7 +34,7 @@ public:
         }
     };
     static SkImageFilter* Create(SkScalar dx, SkScalar dy, SkImageFilter* input) {
-        return SkNEW_ARGS(SimpleOffsetFilter, (dx, dy, input));
+        return new SimpleOffsetFilter(dx, dy, input);
     }
 
     virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,

@@ -99,8 +99,7 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
 GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
                                        GrDrawContext* drawContext,
                                        const SkSurfaceProps& surfaceProps)
-    : INHERITED(context, drawContext, surfaceProps)
-    , fDistanceAdjustTable(SkNEW(DistanceAdjustTable)) {
+    : INHERITED(context, drawContext, surfaceProps), fDistanceAdjustTable(new DistanceAdjustTable) {
     // We overallocate vertices in our textblobs based on the assumption that A8 has the greatest
     // vertexStride
     static_assert(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
@@ -161,7 +160,7 @@ void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable() {
         &width, &height);
 
     SkASSERT(kExpectedDistanceAdjustTableSize == height);
-    fTable = SkNEW_ARRAY(SkScalar, height);
+    fTable = new SkScalar[height];
 
     SkAutoTArray<uint8_t> data((int)size);
     SkScalerContext::GetGammaLUTData(contrast, paintGamma, deviceGamma, data.get());
@@ -194,7 +193,7 @@ void GrAtlasTextContext::DistanceAdjustTable::buildDistanceAdjustTable() {
 GrAtlasTextContext* GrAtlasTextContext::Create(GrContext* context,
                                                GrDrawContext* drawContext,
                                                const SkSurfaceProps& surfaceProps) {
-    return SkNEW_ARGS(GrAtlasTextContext, (context, drawContext, surfaceProps));
+    return new GrAtlasTextContext(context, drawContext, surfaceProps);
 }
 
 bool GrAtlasTextContext::canDraw(const GrRenderTarget*,
@@ -680,7 +679,7 @@ inline void GrAtlasTextContext::fallbackDrawPosText(GrAtlasTextBlob* blob,
     Run& run = blob->fRuns[runIndex];
     // Push back a new subrun to fill and set the override descriptor
     run.push_back();
-    run.fOverrideDescriptor.reset(SkNEW(SkAutoDescriptor));
+    run.fOverrideDescriptor.reset(new SkAutoDescriptor);
     skPaint.getScalerContextDescriptor(run.fOverrideDescriptor,
                                        fSurfaceProps, &viewMatrix, false);
     SkGlyphCache* cache = SkGlyphCache::DetachCache(run.fTypeface,
@@ -1371,7 +1370,7 @@ inline void GrAtlasTextContext::appendGlyphPath(GrAtlasTextBlob* blob, GrGlyph* 
             return;
         }
 
-        glyph->fPath = SkNEW_ARGS(SkPath, (*glyphPath));
+        glyph->fPath = new SkPath(*glyphPath);
     }
     blob->fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y, scale, applyVM));
 }
@@ -1456,7 +1455,7 @@ public:
 
     static TextBatch* CreateBitmap(GrMaskFormat maskFormat, int glyphCount,
                                    GrBatchFontCache* fontCache) {
-        TextBatch* batch = SkNEW(TextBatch);
+        TextBatch* batch = new TextBatch;
 
         batch->initClassID<TextBatch>();
         batch->fFontCache = fontCache;
@@ -1483,7 +1482,7 @@ public:
                                           DistanceAdjustTable* distanceAdjustTable,
                                           SkColor filteredColor, bool isLCD,
                                           bool useBGR) {
-        TextBatch* batch = SkNEW(TextBatch);
+        TextBatch* batch = new TextBatch;
         batch->initClassID<TextBatch>();
         batch->fFontCache = fontCache;
         batch->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
@@ -2237,7 +2236,7 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
 
     if (context->uniqueID() != gContextID) {
         gContextID = context->uniqueID();
-        SkDELETE(gTextContext);
+        delete gTextContext;
 
         // We don't yet test the fall back to paths in the GrTextContext base class.  This is mostly
         // because we don't really want to have a gpu device here.

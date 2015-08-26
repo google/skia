@@ -207,13 +207,13 @@ public:
 
     static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
                                        Direction dir, int radius, MorphologyType type) {
-        return SkNEW_ARGS(GrMorphologyEffect, (procDataManager, tex, dir, radius, type));
+        return new GrMorphologyEffect(procDataManager, tex, dir, radius, type);
     }
 
     static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
                                        Direction dir, int radius, MorphologyType type,
                                        float bounds[2]) {
-        return SkNEW_ARGS(GrMorphologyEffect, (procDataManager, tex, dir, radius, type, bounds));
+        return new GrMorphologyEffect(procDataManager, tex, dir, radius, type, bounds);
     }
 
     virtual ~GrMorphologyEffect();
@@ -425,7 +425,7 @@ void GrMorphologyEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessor
 }
 
 GrGLFragmentProcessor* GrMorphologyEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GrGLMorphologyEffect, (*this));
+    return new GrGLMorphologyEffect(*this);
 }
 bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMorphologyEffect& s = sBase.cast<GrMorphologyEffect>();

@@ -18,12 +18,9 @@ GrGLPathProgramBuilder::GrGLPathProgramBuilder(GrGLGpu* gpu, const DrawArgs& arg
 }
 
 GrGLProgram* GrGLPathProgramBuilder::createProgram(GrGLuint programID) {
-    return SkNEW_ARGS(GrGLPathProgram, (fGpu, this->desc(), fUniformHandles, programID,
-                                        fUniforms,
-                                        fSeparableVaryingInfos,
-                                        fGeometryProcessor,
-                                        fXferProcessor, fFragmentProcessors.get(),
-                                        &fSamplerUniforms));
+    return new GrGLPathProgram(fGpu, this->desc(), fUniformHandles, programID, fUniforms,
+                               fSeparableVaryingInfos, fGeometryProcessor, fXferProcessor,
+                               fFragmentProcessors.get(), &fSamplerUniforms);
 }
 
 GrGLProgramBuilder::SeparableVaryingHandle GrGLPathProgramBuilder::addSeparableVarying(

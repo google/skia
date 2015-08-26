@@ -1,3 +1,9 @@
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #include "Benchmark.h"
 #include "SkColorPriv.h"
 #include "SkRandom.h"
@@ -74,8 +80,8 @@ private:
 };
 
 #define COMMA ,
-DEF_BENCH( return SkNEW(FourByteInterpBench<true COMMA true>); )
-DEF_BENCH( return SkNEW(FourByteInterpBench<true COMMA false>); )
-DEF_BENCH( return SkNEW(FourByteInterpBench<false COMMA true>); )
-DEF_BENCH( return SkNEW(FourByteInterpBench<false COMMA false>); )
+DEF_BENCH(return (new FourByteInterpBench<true COMMA true>);)
+DEF_BENCH(return (new FourByteInterpBench<true COMMA false>);)
+DEF_BENCH(return (new FourByteInterpBench<false COMMA true>);)
+DEF_BENCH(return (new FourByteInterpBench<false COMMA false>);)
 #undef COMMA

@@ -202,7 +202,7 @@ The (*still experimental*) SkSVG canvas writes into an SVG document.
                void(*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream svgStream(path);
-        SkAutoTDelete<SkXMLWriter> xmlWriter(SkNEW_ARGS(SkXMLStreamWriter, (&svgStream)));
+        SkAutoTDelete<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&svgStream));
         SkAutoTUnref<SkCanvas> svgCanvas(SkSVGCanvas::Create(
                 SkRect::MakeWH(SkIntToScalar(src.size().width()),
                                SkIntToScalar(src.size().height())),

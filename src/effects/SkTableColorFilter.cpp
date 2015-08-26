@@ -42,9 +42,7 @@ public:
         }
     }
 
-    virtual ~SkTable_ColorFilter() {
-        SkDELETE(fBitmap);
-    }
+    virtual ~SkTable_ColorFilter() { delete fBitmap; }
 
     bool asComponentTable(SkBitmap* table) const override;
     SkColorFilter* newComposed(const SkColorFilter* inner) const override;
@@ -259,7 +257,7 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
 bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
     if (table) {
         if (NULL == fBitmap) {
-            SkBitmap* bmp = SkNEW(SkBitmap);
+            SkBitmap* bmp = new SkBitmap;
             bmp->allocPixels(SkImageInfo::MakeA8(256, 4));
             uint8_t* bitmapPixels = bmp->getAddr8(0, 0);
             int offset = 0;
@@ -482,7 +480,7 @@ GrFragmentProcessor* ColorTableEffect::Create(GrContext* context, SkBitmap bitma
         texture.reset(SkRef(atlas->getTexture()));
     }
 
-    return SkNEW_ARGS(ColorTableEffect, (texture, atlas, row, flags));
+    return new ColorTableEffect(texture, atlas, row, flags);
 }
 
 ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row,
@@ -507,7 +505,7 @@ void ColorTableEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* ColorTableEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLColorTableEffect, (*this));
+    return new GLColorTableEffect(*this);
 }
 
 bool ColorTableEffect::onIsEqual(const GrFragmentProcessor& other) const {
@@ -607,14 +605,14 @@ bool SkTable_ColorFilter::asFragmentProcessors(GrContext* context,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkColorFilter* SkTableColorFilter::Create(const uint8_t table[256]) {
-    return SkNEW_ARGS(SkTable_ColorFilter, (table, table, table, table));
+    return new SkTable_ColorFilter(table, table, table, table);
 }
 
 SkColorFilter* SkTableColorFilter::CreateARGB(const uint8_t tableA[256],
                                               const uint8_t tableR[256],
                                               const uint8_t tableG[256],
                                               const uint8_t tableB[256]) {
-    return SkNEW_ARGS(SkTable_ColorFilter, (tableA, tableR, tableG, tableB));
+    return new SkTable_ColorFilter(tableA, tableR, tableG, tableB);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkTableColorFilter)

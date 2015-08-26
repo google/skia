@@ -121,6 +121,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(TileImageFilterGM); )
-
+DEF_GM(return new TileImageFilterGM;)
 }

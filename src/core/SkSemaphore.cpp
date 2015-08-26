@@ -55,8 +55,8 @@
     };
 #endif
 
-SkSemaphore::SkSemaphore() : fCount(0), fOSSemaphore(SkNEW(OSSemaphore)) {}
-SkSemaphore::~SkSemaphore() { SkDELETE(fOSSemaphore); }
+    SkSemaphore::SkSemaphore() : fCount(0), fOSSemaphore(new OSSemaphore) {}
+    SkSemaphore::~SkSemaphore() { delete fOSSemaphore; }
 
 void SkSemaphore::signal(int n) {
     SkASSERT(n >= 0);

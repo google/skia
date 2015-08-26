@@ -80,9 +80,8 @@ DEF_TEST(PathOpsSimplifyDegeneratesThreaded, reporter) {
                 int cx = c & 0x03;
                 int cy = c >> 2;
                 bool abcIsATriangle = (bx - ax) * (cy - ay) != (by - ay) * (cx - ax);
-                *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
-                        (&testSimplifyDegeneratesMain, a, b, c, abcIsATriangle,
-                        &testRunner));
+                *testRunner.fRunnables.append() = new PathOpsThreadedRunnable(
+                        &testSimplifyDegeneratesMain, a, b, c, abcIsATriangle, &testRunner);
             }
             if (!reporter->allowExtendedTest()) goto finish;
         }

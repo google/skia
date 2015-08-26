@@ -384,7 +384,7 @@ private:
 SkFlattenable* DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     bool visited = buffer.readBool();
-    return SkNEW_ARGS(DummyImageFilter, (visited));
+    return new DummyImageFilter(visited);
 }
 
 #ifndef SK_IGNORE_TO_STRING

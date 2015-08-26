@@ -134,7 +134,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     int maxColors = 256;
     if (kIndex_8_SkColorType == decodeInfo.colorType()) {
         SkPMColor colors[256];
-        colorTable.reset(SkNEW_ARGS(SkColorTable, (colors, maxColors)));
+        colorTable.reset(new SkColorTable(colors, maxColors));
         colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
         colorCountPtr = &maxColors;
     }
@@ -220,7 +220,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         largestSubsetDecodeInfo.width(), largestSubsetDecodeInfo.height());
             }
             const size_t rowBytes = decodeInfo.minRowBytes();
-            char* buffer = SkNEW_ARRAY(char, largestSubsetDecodeInfo.height() * rowBytes);
+            char* buffer = new char[largestSubsetDecodeInfo.height() * rowBytes];
             SkAutoTDeleteArray<char> lineDeleter(buffer);
             for (int col = 0; col < divisor; col++) {
                 //currentSubsetWidth may be larger than subsetWidth for rightmost subsets
@@ -767,7 +767,7 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 SVGSink::SVGSink() {}
 
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    SkAutoTDelete<SkXMLWriter> xmlWriter(SkNEW_ARGS(SkXMLStreamWriter, (dst)));
+    SkAutoTDelete<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
     SkAutoTUnref<SkCanvas> canvas(SkSVGCanvas::Create(
         SkRect::MakeWH(SkIntToScalar(src.size().width()), SkIntToScalar(src.size().height())),
         xmlWriter));

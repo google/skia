@@ -44,7 +44,7 @@ protected:
         if (NULL == orig) {
             orig.reset(SkTypeface::RefDefault());
         }
-        SkAutoTUnref<SkTypeface> random(SkNEW_ARGS(SkRandomTypeface, (orig, paint, false)));
+        SkAutoTUnref<SkTypeface> random(new SkRandomTypeface(orig, paint, false));
         paint.setTypeface(random);
 
         SkRect bounds;
@@ -74,8 +74,7 @@ protected:
             const char* emojiText = sk_tool_utils::emoji_sample_text();
             paint.measureText(emojiText, strlen(emojiText), &bounds);
             offset += bounds.height();
-            SkAutoTUnref<SkTypeface> randomEmoji(SkNEW_ARGS(SkRandomTypeface, (orig, paint,
-                                                                               false)));
+            SkAutoTUnref<SkTypeface> randomEmoji(new SkRandomTypeface(orig, paint, false));
             paint.setTypeface(randomEmoji);
             sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, offset);
         }
@@ -149,6 +148,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(TextBlobRandomFont); )
+DEF_GM(return new TextBlobRandomFont;)
 }
 #endif

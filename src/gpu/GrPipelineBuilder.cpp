@@ -16,14 +16,12 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 GrPipelineBuilder::GrPipelineBuilder()
-    : fProcDataManager(SkNEW(GrProcessorDataManager))
-    , fFlags(0x0)
-    , fDrawFace(kBoth_DrawFace) {
+    : fProcDataManager(new GrProcessorDataManager), fFlags(0x0), fDrawFace(kBoth_DrawFace) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
 GrPipelineBuilder& GrPipelineBuilder::operator=(const GrPipelineBuilder& that) {
-    fProcDataManager.reset(SkNEW_ARGS(GrProcessorDataManager, (*that.processorDataManager())));
+    fProcDataManager.reset(new GrProcessorDataManager(*that.processorDataManager()));
     fRenderTarget.reset(SkSafeRef(that.fRenderTarget.get()));
     fFlags = that.fFlags;
     fStencilSettings = that.fStencilSettings;

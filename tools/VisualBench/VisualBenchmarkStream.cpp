@@ -93,7 +93,7 @@ Benchmark* VisualBenchmarkStream::innerNext() {
         if (gm->runAsBench()) {
             fSourceType = "gm";
             fBenchType  = "micro";
-            return SkNEW_ARGS(GMBench, (gm.detach()));
+            return new GMBench(gm.detach());
         }
     }
 
@@ -108,7 +108,7 @@ Benchmark* VisualBenchmarkStream::innerNext() {
         SkString name = SkOSPath::Basename(path.c_str());
         fSourceType = "skp";
         fBenchType = "playback";
-        return SkNEW_ARGS(VisualSKPBench, (name.c_str(), pic.get()));
+        return new VisualSKPBench(name.c_str(), pic.get());
     }
 
     return NULL;

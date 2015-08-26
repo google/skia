@@ -14,7 +14,7 @@ namespace {
 
 struct CreateIntFromFloat {
     CreateIntFromFloat(float val) : fVal(val) {}
-    int* operator()() const { return SkNEW_ARGS(int, ((int)fVal)); }
+    int* operator()() const { return new int((int)fVal); }
     float fVal;
 };
 
@@ -24,7 +24,7 @@ void custom_destroy(int* ptr) { *ptr = 99; }
 } // namespace
 
 DEF_TEST(LazyPtr, r) {
-    // Basic usage: calls SkNEW(int).
+    // Basic usage: calls new int.
     SkLazyPtr<int> lazy;
     int* ptr = lazy.get();
     REPORTER_ASSERT(r, ptr);
@@ -48,7 +48,7 @@ DEF_TEST(LazyPtr, r) {
     REPORTER_ASSERT(r, ptr);
     REPORTER_ASSERT(r, 99 == *ptr);
     // Since custom_destroy didn't actually delete ptr, we do now.
-    SkDELETE(ptr);
+    delete ptr;
 }
 
 DEF_TEST(LazyPtr_Threaded, r) {

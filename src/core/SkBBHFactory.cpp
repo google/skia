@@ -12,5 +12,5 @@
 
 SkBBoxHierarchy* SkRTreeFactory::operator()(const SkRect& bounds) const {
     SkScalar aspectRatio = bounds.width() / bounds.height();
-    return SkNEW_ARGS(SkRTree, (aspectRatio));
+    return new SkRTree(aspectRatio);
 }

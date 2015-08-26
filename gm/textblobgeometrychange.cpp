@@ -77,5 +77,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(TextBlobGeometryChange); )
+DEF_GM(return new TextBlobGeometryChange;)
 }

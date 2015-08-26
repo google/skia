@@ -158,7 +158,7 @@ static bool ref_ft_library() {
 
     if (0 == gFTCount) {
         SkASSERT(NULL == gFTLibrary);
-        gFTLibrary = SkNEW(FreeTypeLibrary);
+        gFTLibrary = new FreeTypeLibrary;
     }
     ++gFTCount;
     return gFTLibrary->library();
@@ -172,7 +172,7 @@ static void unref_ft_library() {
     --gFTCount;
     if (0 == gFTCount) {
         SkASSERT(NULL != gFTLibrary);
-        SkDELETE(gFTLibrary);
+        delete gFTLibrary;
         SkDEBUGCODE(gFTLibrary = NULL;)
     }
 }
@@ -319,7 +319,7 @@ static FT_Face ref_ft_face(const SkTypeface* typeface) {
     }
 
     // this passes ownership of stream to the rec
-    rec = SkNEW_ARGS(SkFaceRec, (data->detachStream(), fontID));
+    rec = new SkFaceRec(data->detachStream(), fontID);
 
     FT_Open_Args args;
     memset(&args, 0, sizeof(args));
@@ -336,7 +336,7 @@ static FT_Face ref_ft_face(const SkTypeface* typeface) {
     FT_Error err = FT_Open_Face(gFTLibrary->library(), &args, data->getIndex(), &rec->fFace);
     if (err) {
         SkDEBUGF(("ERROR: unable to open font '%x'\n", fontID));
-        SkDELETE(rec);
+        delete rec;
         return NULL;
     }
     SkASSERT(rec->fFace);
@@ -374,7 +374,7 @@ static void unref_ft_face(FT_Face face) {
                     gFaceRecHead = next;
                 }
                 FT_Done_Face(face);
-                SkDELETE(rec);
+                delete rec;
             }
             return;
         }
@@ -662,11 +662,10 @@ static bool isAxisAligned(const SkScalerContext::Rec& rec) {
 
 SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(
                                                const SkDescriptor* desc) const {
-    SkScalerContext_FreeType* c = SkNEW_ARGS(SkScalerContext_FreeType,
-                                        (const_cast<SkTypeface_FreeType*>(this),
-                                         desc));
+    SkScalerContext_FreeType* c =
+            new SkScalerContext_FreeType(const_cast<SkTypeface_FreeType*>(this), desc);
     if (!c->success()) {
-        SkDELETE(c);
+        delete c;
         c = NULL;
     }
     return c;

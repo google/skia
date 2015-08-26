@@ -250,9 +250,9 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
         if (NULL == dm) {
             return NULL;
         }
-        mipmap = SkNEW_ARGS(SkMipMap, (storageSize, dm));
+        mipmap = new SkMipMap(storageSize, dm);
     } else {
-        mipmap = SkNEW_ARGS(SkMipMap, (sk_malloc_throw(storageSize), storageSize));
+        mipmap = new SkMipMap(sk_malloc_throw(storageSize), storageSize);
     }
 
     // init

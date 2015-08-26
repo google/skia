@@ -26,7 +26,7 @@ public:
     static GrPathProcessor* Create(GrColor color,
                                    const SkMatrix& viewMatrix = SkMatrix::I(),
                                    const SkMatrix& localMatrix = SkMatrix::I()) {
-        return SkNEW_ARGS(GrPathProcessor, (color, viewMatrix, localMatrix));
+        return new GrPathProcessor(color, viewMatrix, localMatrix);
     }
 
     void initBatchTracker(GrBatchTracker*, const GrPipelineOptimizations&) const override;

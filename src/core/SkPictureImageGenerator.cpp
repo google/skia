@@ -41,7 +41,7 @@ SkImageGenerator* SkPictureImageGenerator::Create(const SkISize& size, const SkP
         return nullptr;
     }
 
-    return SkNEW_ARGS(SkPictureImageGenerator, (size, picture, matrix, paint));
+    return new SkPictureImageGenerator(size, picture, matrix, paint);
 }
 
 SkPictureImageGenerator::SkPictureImageGenerator(const SkISize& size, const SkPicture* picture,

@@ -366,7 +366,7 @@ const SkDOM::Node* SkDOM::copy(const SkDOM& dom, const SkDOM::Node* node)
 
 SkXMLParser* SkDOM::beginParsing() {
     SkASSERT(!fParser);
-    fParser.reset(SkNEW_ARGS(SkDOMParser, (&fAlloc)));
+    fParser.reset(new SkDOMParser(&fAlloc));
 
     return fParser.get();
 }

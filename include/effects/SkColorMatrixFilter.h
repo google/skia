@@ -14,10 +14,10 @@
 class SK_API SkColorMatrixFilter : public SkColorFilter {
 public:
     static SkColorMatrixFilter* Create(const SkColorMatrix& cm) {
-        return SkNEW_ARGS(SkColorMatrixFilter, (cm));
+        return new SkColorMatrixFilter(cm);
     }
     static SkColorMatrixFilter* Create(const SkScalar array[20]) {
-        return SkNEW_ARGS(SkColorMatrixFilter, (array));
+        return new SkColorMatrixFilter(array);
     }
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;

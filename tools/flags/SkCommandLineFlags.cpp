@@ -18,7 +18,7 @@ template <typename T> static void ignore_result(const T&) {}
 bool SkFlagInfo::CreateStringFlag(const char* name, const char* shortName,
                                   SkCommandLineFlags::StringArray* pStrings,
                                   const char* defaultValue, const char* helpString) {
-    SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, shortName, kString_FlagType, helpString));
+    SkFlagInfo* info = new SkFlagInfo(name, shortName, kString_FlagType, helpString);
     info->fDefaultString.set(defaultValue);
 
     info->fStrings = pStrings;
@@ -334,7 +334,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
     gHead = NULL;
     while (flag != NULL) {
         SkFlagInfo* next = flag->next();
-        SkDELETE(flag);
+        delete flag;
         flag = next;
     }
     if (helpPrinted) {

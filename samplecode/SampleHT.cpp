@@ -61,8 +61,8 @@ public:
     void spawnAnimation(SkMSec now) {
         this->setTime(now);
 
-        SkDELETE(fInterp);
-        fInterp = SkNEW_ARGS(SkInterpolator, (5, 3));
+        delete fInterp;
+        fInterp = new SkInterpolator(5, 3);
         SkScalar values[5];
         color_to_floats(fColor, values); values[4] = 0;
         fInterp->setKeyFrame(0, now, values);
@@ -101,7 +101,7 @@ public:
 
             switch (res) {
                 case SkInterpolator::kFreezeEnd_Result:
-                    SkDELETE(fInterp);
+                    delete fInterp;
                     fInterp = NULL;
                     break;
                 default:

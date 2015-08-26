@@ -47,7 +47,7 @@ protected:
         if (NULL == orig) {
             orig = SkTypeface::RefDefault();
         }
-        fColorType = SkNEW_ARGS(SkGTypeface, (orig, paint));
+        fColorType = new SkGTypeface(orig, paint);
         orig->unref();
 
         fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,

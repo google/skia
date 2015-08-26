@@ -28,7 +28,7 @@ public:
     };
 
     static GrDrawBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix) {
-        return SkNEW_ARGS(GrAAStrokeRectBatch, (geometry, viewMatrix));
+        return new GrAAStrokeRectBatch(geometry, viewMatrix);
     }
 
     const char* name() const override { return "AAStrokeRect"; }

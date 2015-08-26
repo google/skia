@@ -55,7 +55,7 @@ DEF_TEST(KtxReadWrite, reporter) {
     SkAutoDataUnref encodedData(SkImageEncoder::EncodeData(bm8888, SkImageEncoder::kKTX_Type, 0));
     REPORTER_ASSERT(reporter, encodedData);
 
-    SkAutoTDelete<SkMemoryStream> stream(SkNEW_ARGS(SkMemoryStream, (encodedData)));
+    SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encodedData));
     REPORTER_ASSERT(reporter, stream);
 
     SkBitmap decodedBitmap;
@@ -107,8 +107,7 @@ DEF_TEST(KtxReadUnpremul, reporter) {
         0xFF, 0xFF, 0xFF, 0x80, // Pixel 3
         0xFF, 0xFF, 0xFF, 0x80};// Pixel 4
 
-    SkAutoTDelete<SkMemoryStream> stream(
-        SkNEW_ARGS(SkMemoryStream, (kHalfWhiteKTX, sizeof(kHalfWhiteKTX))));
+    SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(kHalfWhiteKTX, sizeof(kHalfWhiteKTX)));
     REPORTER_ASSERT(reporter, stream);
 
     SkBitmap decodedBitmap;

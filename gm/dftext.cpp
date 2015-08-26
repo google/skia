@@ -215,4 +215,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW(DFTextGM); )
+DEF_GM(return new DFTextGM;)

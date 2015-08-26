@@ -103,5 +103,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return SkNEW(TallStretchedBitmapsGM);)
-
+DEF_GM(return new TallStretchedBitmapsGM;)

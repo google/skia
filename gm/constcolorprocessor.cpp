@@ -192,7 +192,7 @@ private:
 const SkScalar ConstColorProcessor::kPad = 10.f;
 const SkScalar ConstColorProcessor::kRectSize = 20.f;
 
-DEF_GM( return SkNEW(ConstColorProcessor); )
+DEF_GM(return new ConstColorProcessor;)
 }
 
 #endif

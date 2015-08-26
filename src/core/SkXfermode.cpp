@@ -1006,7 +1006,7 @@ SkXfermode* create_mode(int iMode) {
     if (auto xfermode = SkOpts::create_xfermode(rec, mode)) {
         return xfermode;
     }
-    return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
+    return new SkProcCoeffXfermode(rec, mode);
 }
 }  // namespace
 

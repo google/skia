@@ -170,6 +170,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(ImageLightingGM); )
-
+DEF_GM(return new ImageLightingGM;)
 }

@@ -34,8 +34,7 @@ public:
     static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, float k1, float k2,
                                        float k3, float k4, bool enforcePMColor,
                                        GrTexture* background) {
-        return SkNEW_ARGS(GrArithmeticFP, (procDataManager, k1, k2, k3, k4, enforcePMColor,
-                                           background));
+        return new GrArithmeticFP(procDataManager, k1, k2, k3, k4, enforcePMColor, background);
     }
 
     ~GrArithmeticFP() override {};
@@ -76,7 +75,7 @@ private:
 class GrArithmeticXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(float k1, float k2, float k3, float k4, bool enforcePMColor) {
-        return SkNEW_ARGS(GrArithmeticXPFactory, (k1, k2, k3, k4, enforcePMColor));
+        return new GrArithmeticXPFactory(k1, k2, k3, k4, enforcePMColor);
     }
 
     bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const override {

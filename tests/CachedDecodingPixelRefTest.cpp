@@ -239,8 +239,7 @@ static void check_pixelref(TestImageGenerator::TestType type,
                            PixelRefType pixelRefType,
                            SkDiscardableMemory::Factory* factory) {
     SkASSERT((pixelRefType >= 0) && (pixelRefType <= kLast_PixelRefType));
-    SkAutoTDelete<SkImageGenerator> gen(SkNEW_ARGS(TestImageGenerator,
-                                                   (type, reporter)));
+    SkAutoTDelete<SkImageGenerator> gen(new TestImageGenerator(type, reporter));
     REPORTER_ASSERT(reporter, gen.get() != NULL);
     SkBitmap lazy;
     bool success;
@@ -317,7 +316,7 @@ DEF_TEST(Image_NewFromGenerator, r) {
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(testTypes); ++i) {
         TestImageGenerator::TestType test = testTypes[i];
-        SkImageGenerator* gen = SkNEW_ARGS(TestImageGenerator, (test, r));
+        SkImageGenerator* gen = new TestImageGenerator(test, r);
         SkAutoTUnref<SkImage> image(SkImage::NewFromGenerator(gen));
         if (NULL == image.get()) {
             ERRORF(r, "SkImage::NewFromGenerator unexpecedly failed ["

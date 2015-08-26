@@ -99,8 +99,8 @@ DEF_TEST(PathOpsOpLoopsThreaded, reporter) {
         for (int b = a + 1; b < 7; ++b) {
             for (int c = 0 ; c < 6; ++c) {
                 for (int d = c + 1; d < 7; ++d) {
-                    *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
-                            (&testOpLoopsMain, a, b, c, d, &testRunner));
+                    *testRunner.fRunnables.append() =
+                            new PathOpsThreadedRunnable(&testOpLoopsMain, a, b, c, d, &testRunner);
                 }
             }
             if (!reporter->allowExtendedTest()) goto finish;

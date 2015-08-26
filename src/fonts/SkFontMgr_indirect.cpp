@@ -178,11 +178,11 @@ SkFontStyleSet* SkFontMgr_Indirect::onCreateStyleSet(int index) const {
     if (NULL == set) {
         return NULL;
     }
-    return SkNEW_ARGS(SkStyleSet_Indirect, (this, index, set));
+    return new SkStyleSet_Indirect(this, index, set);
 }
 
 SkFontStyleSet* SkFontMgr_Indirect::onMatchFamily(const char familyName[]) const {
-    return SkNEW_ARGS(SkStyleSet_Indirect, (this, -1, fProxy->matchName(familyName)));
+    return new SkStyleSet_Indirect(this, -1, fProxy->matchName(familyName));
 }
 
 SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& id) const {

@@ -179,7 +179,7 @@ public:
 
     ~BitmapInfo() {
         SkASSERT(0 == fToBeDrawnCount);
-        SkDELETE(fBitmap);
+        delete fBitmap;
     }
 
     void addDraws(int drawsToAdd) {

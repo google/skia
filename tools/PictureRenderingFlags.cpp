@@ -110,7 +110,7 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
     if (FLAGS_mode.count() >= 1) {
         mode = FLAGS_mode[0];
         if (0 == strcmp(mode, "record")) {
-            renderer.reset(SkNEW_ARGS(sk_tools::RecordPictureRenderer, RENDERER_ARGS));
+            renderer.reset(new sk_tools::RecordPictureRenderer RENDERER_ARGS);
         } else if (0 == strcmp(mode, "tile") || 0 == strcmp(mode, "pow2tile")
                    || 0 == strcmp(mode, "copyTile")) {
             useTiles = true;
@@ -134,10 +134,10 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
 
             heightString = FLAGS_mode[2];
         } else if (0 == strcmp(mode, "playbackCreation") && kBench_PictureTool == tool) {
-            renderer.reset(SkNEW_ARGS(sk_tools::PlaybackCreationRenderer, RENDERER_ARGS));
+            renderer.reset(new sk_tools::PlaybackCreationRenderer RENDERER_ARGS);
         // undocumented
         } else if (0 == strcmp(mode, "rerecord") && kRender_PictureTool == tool) {
-            renderer.reset(SkNEW_ARGS(sk_tools::RecordPictureRenderer, RENDERER_ARGS));
+            renderer.reset(new sk_tools::RecordPictureRenderer RENDERER_ARGS);
         } else if (0 == strcmp(mode, "simple")) {
             // Allow 'mode' to be set to 'simple', but do not create a renderer, so we can
             // ensure that pipe does not override a mode besides simple. The renderer will
@@ -175,12 +175,12 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
                 x = y = 4;
             }
 #if SK_SUPPORT_GPU
-            tiledRenderer.reset(SkNEW_ARGS(sk_tools::CopyTilesRenderer, (grContextOpts, x, y)));
+            tiledRenderer.reset(new sk_tools::CopyTilesRenderer(grContextOpts, x, y));
 #else
-            tiledRenderer.reset(SkNEW_ARGS(sk_tools::CopyTilesRenderer, (x, y)));
+            tiledRenderer.reset(new sk_tools::CopyTilesRenderer(x, y));
 #endif
         } else {
-            tiledRenderer.reset(SkNEW_ARGS(sk_tools::TiledPictureRenderer, RENDERER_ARGS));
+            tiledRenderer.reset(new sk_tools::TiledPictureRenderer RENDERER_ARGS);
         }
 
         if (isPowerOf2Mode) {
@@ -241,12 +241,12 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
                 error.printf("Pipe is incompatible with other modes.\n");
                 return NULL;
             }
-            renderer.reset(SkNEW_ARGS(sk_tools::PipePictureRenderer, RENDERER_ARGS));
+            renderer.reset(new sk_tools::PipePictureRenderer RENDERER_ARGS);
         }
     }
 
     if (NULL == renderer) {
-        renderer.reset(SkNEW_ARGS(sk_tools::SimplePictureRenderer, RENDERER_ARGS));
+        renderer.reset(new sk_tools::SimplePictureRenderer RENDERER_ARGS);
     }
 
     if (FLAGS_viewport.count() > 0) {

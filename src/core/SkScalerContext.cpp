@@ -870,8 +870,7 @@ SkScalerContext* SkTypeface::createScalerContext(const SkDescriptor* desc,
     SkScalerContext* c = this->onCreateScalerContext(desc);
 
     if (!c && !allowFailure) {
-        c = SkNEW_ARGS(SkScalerContext_Empty,
-                       (const_cast<SkTypeface*>(this), desc));
+        c = new SkScalerContext_Empty(const_cast<SkTypeface*>(this), desc);
     }
     return c;
 }

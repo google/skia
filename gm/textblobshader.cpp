@@ -109,4 +109,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW_ARGS(TextBlobShaderGM, ("Blobber")); )
+DEF_GM(return new TextBlobShaderGM("Blobber");)

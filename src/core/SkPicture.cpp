@@ -169,7 +169,7 @@ SkPictureData* SkPicture::backport() const {
     rec.beginRecording();
         this->playback(&rec);
     rec.endRecording();
-    return SkNEW_ARGS(SkPictureData, (rec, info, false/*deep copy ops?*/));
+    return new SkPictureData(rec, info, false /*deep copy ops?*/);
 }
 
 void SkPicture::serialize(SkWStream* stream, SkPixelSerializer* pixelSerializer) const {

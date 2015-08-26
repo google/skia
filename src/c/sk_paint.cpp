@@ -42,13 +42,9 @@ const struct {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_paint_t* sk_paint_new() {
-    return (sk_paint_t*)SkNEW(SkPaint);
-}
+sk_paint_t* sk_paint_new() { return (sk_paint_t*)new SkPaint; }
 
-void sk_paint_delete(sk_paint_t* cpaint) {
-    SkDELETE(AsPaint(cpaint));
-}
+void sk_paint_delete(sk_paint_t* cpaint) { delete AsPaint(cpaint); }
 
 bool sk_paint_is_antialias(const sk_paint_t* cpaint) {
     return AsPaint(*cpaint).isAntiAlias();

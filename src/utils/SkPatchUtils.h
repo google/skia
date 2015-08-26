@@ -35,10 +35,10 @@ public:
         , fIndices(NULL) { }
         
         ~VertexData() {
-            SkDELETE_ARRAY(fPoints);
-            SkDELETE_ARRAY(fTexCoords);
-            SkDELETE_ARRAY(fColors);
-            SkDELETE_ARRAY(fIndices);
+            delete[] fPoints;
+            delete[] fTexCoords;
+            delete[] fColors;
+            delete[] fIndices;
         }
     };
     

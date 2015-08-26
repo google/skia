@@ -62,7 +62,7 @@ private:
     StateForPathDraw* allocState(const GrPrimitiveProcessor* primProc = NULL) {
         void* allocation = fPipelineBuffer.alloc(sizeof(StateForPathDraw),
                                                  SkChunkAlloc::kThrow_AllocFailType);
-        return SkNEW_PLACEMENT_ARGS(allocation, StateForPathDraw, (primProc));
+        return new (allocation) StateForPathDraw(primProc);
     }
 
     void unallocState(StateForPathDraw* state) {

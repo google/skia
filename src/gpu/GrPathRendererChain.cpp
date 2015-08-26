@@ -89,7 +89,6 @@ void GrPathRendererChain::init() {
     bool twoSided = caps->twoSidedStencilSupport();
     bool wrapOp = caps->stencilWrapOpsSupport();
     GrPathRenderer::AddPathRenderers(fOwner, this);
-    this->addPathRenderer(SkNEW_ARGS(GrDefaultPathRenderer,
-                                     (twoSided, wrapOp)))->unref();
+    this->addPathRenderer(new GrDefaultPathRenderer(twoSided, wrapOp))->unref();
     fInit = true;
 }

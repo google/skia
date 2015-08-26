@@ -178,8 +178,7 @@ SkDiscardableMemory* DiscardableMemoryPool::create(size_t bytes) {
     if (NULL == addr) {
         return NULL;
     }
-    PoolDiscardableMemory* dm = SkNEW_ARGS(PoolDiscardableMemory,
-                                             (this, addr, bytes));
+    PoolDiscardableMemory* dm = new PoolDiscardableMemory(this, addr, bytes);
     SkAutoMutexAcquire autoMutexAcquire(fMutex);
     fList.addToHead(dm);
     fUsed += bytes;
@@ -257,7 +256,7 @@ SkDiscardableMemoryPool* create_global_pool() {
 }  // namespace
 
 SkDiscardableMemoryPool* SkDiscardableMemoryPool::Create(size_t size, SkBaseMutex* mutex) {
-    return SkNEW_ARGS(DiscardableMemoryPool, (size, mutex));
+    return new DiscardableMemoryPool(size, mutex);
 }
 
 SK_DECLARE_STATIC_LAZY_PTR(SkDiscardableMemoryPool, global, create_global_pool);

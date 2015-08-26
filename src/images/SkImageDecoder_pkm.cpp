@@ -111,7 +111,7 @@ static bool is_pkm(SkStreamRewindable* stream) {
 
 static SkImageDecoder* sk_libpkm_dfactory(SkStreamRewindable* stream) {
     if (is_pkm(stream)) {
-        return SkNEW(SkPKMImageDecoder);
+        return new SkPKMImageDecoder;
     }
     return NULL;
 }

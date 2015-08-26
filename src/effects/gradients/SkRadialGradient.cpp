@@ -160,7 +160,7 @@ size_t SkRadialGradient::contextSize() const {
 }
 
 SkShader::Context* SkRadialGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return SkNEW_PLACEMENT_ARGS(storage, RadialGradientContext, (*this, rec));
+    return new (storage) RadialGradientContext(*this, rec);
 }
 
 SkRadialGradient::RadialGradientContext::RadialGradientContext(
@@ -444,7 +444,7 @@ public:
                                        const SkRadialGradient& shader,
                                        const SkMatrix& matrix,
                                        SkShader::TileMode tm) {
-        return SkNEW_ARGS(GrRadialGradient, (ctx, procDataManager, shader, matrix, tm));
+        return new GrRadialGradient(ctx, procDataManager, shader, matrix, tm);
     }
 
     virtual ~GrRadialGradient() { }
@@ -462,7 +462,7 @@ private:
     }
 
     GrGLFragmentProcessor* onCreateGLInstance() const override {
-        return SkNEW_ARGS(GrGLRadialGradient, (*this));
+        return new GrGLRadialGradient(*this);
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

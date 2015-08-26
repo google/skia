@@ -1919,7 +1919,7 @@ public:
 
 protected:
     Context* onCreateContext(const ContextRec& rec, void* storage) const override {
-        return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, rec));
+        return new (storage) TriColorShaderContext(*this, rec);
     }
 
 private:
@@ -2076,7 +2076,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                 xmode = SkXfermode::Create(SkXfermode::kModulate_Mode);
                 releaseMode = true;
             }
-            composeShader.reset(SkNEW_ARGS(SkComposeShader, (&triShader, shader, xmode)));
+            composeShader.reset(new SkComposeShader(&triShader, shader, xmode));
             p.setShader(composeShader);
             if (releaseMode) {
                 xmode->unref();

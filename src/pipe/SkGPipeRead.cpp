@@ -150,7 +150,7 @@ public:
         SkASSERT(shouldFlattenBitmaps(fFlags));
         SkBitmap* bm;
         if(fBitmaps.count() == index) {
-            bm = SkNEW(SkBitmap);
+            bm = new SkBitmap;
             *fBitmaps.append() = bm;
         } else {
             bm = fBitmaps[index];

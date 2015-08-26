@@ -273,7 +273,7 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
 
     if (!success || ((FLAGS_validate || FLAGS_writeWholeImage) && bitmap == NULL)) {
         SkDebugf("Failed to draw the picture.\n");
-        SkDELETE(bitmap);
+        delete bitmap;
         return false;
     }
 
@@ -290,10 +290,9 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
             arbbh.set(referenceRenderer, sk_tools::PictureRenderer::kNone_BBoxHierarchyType);
         } else {
 #if SK_SUPPORT_GPU
-            referenceRenderer = SkNEW_ARGS(sk_tools::SimplePictureRenderer,
-                                           (renderer.getGrContextOptions()));
+            referenceRenderer = new sk_tools::SimplePictureRenderer(renderer.getGrContextOptions());
 #else
-            referenceRenderer = SkNEW(sk_tools::SimplePictureRenderer);
+            referenceRenderer = new sk_tools::SimplePictureRenderer;
 #endif
         }
         SkAutoTUnref<sk_tools::PictureRenderer> aurReferenceRenderer(referenceRenderer);
@@ -303,23 +302,23 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
 
         if (!success || NULL == referenceBitmap || NULL == referenceBitmap->getPixels()) {
             SkDebugf("Failed to draw the reference picture.\n");
-            SkDELETE(bitmap);
-            SkDELETE(referenceBitmap);
+            delete bitmap;
+            delete referenceBitmap;
             return false;
         }
 
         if (success && (bitmap->width() != referenceBitmap->width())) {
             SkDebugf("Expected image width: %i, actual image width %i.\n",
                      referenceBitmap->width(), bitmap->width());
-            SkDELETE(bitmap);
-            SkDELETE(referenceBitmap);
+            delete bitmap;
+            delete referenceBitmap;
             return false;
         }
         if (success && (bitmap->height() != referenceBitmap->height())) {
             SkDebugf("Expected image height: %i, actual image height %i",
                      referenceBitmap->height(), bitmap->height());
-            SkDELETE(bitmap);
-            SkDELETE(referenceBitmap);
+            delete bitmap;
+            delete referenceBitmap;
             return false;
         }
 
@@ -336,13 +335,13 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
                              x, y, FLAGS_maxComponentDiff,
                              *referenceBitmap->getAddr32(x, y),
                              *bitmap->getAddr32(x, y));
-                    SkDELETE(bitmap);
-                    SkDELETE(referenceBitmap);
+                    delete bitmap;
+                    delete referenceBitmap;
                     return false;
                 }
             }
         }
-        SkDELETE(referenceBitmap);
+        delete referenceBitmap;
 
         for (int i = 1; i <= 255; ++i) {
             if(diffs[i] > 0) {
@@ -373,7 +372,7 @@ static bool render_picture(const SkString& inputPath, const SkString* writePath,
             success &= sk_tools::write_bitmap_to_disk(*bitmap, *writePath, NULL, outputFilename);
         }
     }
-    SkDELETE(bitmap);
+    delete bitmap;
 
     return success;
 }

@@ -186,7 +186,7 @@ static bool is_astc(SkStreamRewindable* stream) {
 
 static SkImageDecoder* sk_libastc_dfactory(SkStreamRewindable* stream) {
     if (is_astc(stream)) {
-        return SkNEW(SkASTCImageDecoder);
+        return new SkASTCImageDecoder;
     }
     return NULL;
 }

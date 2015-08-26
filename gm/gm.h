@@ -24,13 +24,11 @@ struct GrContextOptions;
     static skiagm::GMRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
 // See colorwheel.cpp for example usage.
-#define DEF_SIMPLE_GM(NAME, CANVAS, W, H)                               \
-    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas* CANVAS);           \
-    DEF_GM( return SkNEW_ARGS(skiagm::SimpleGM,                         \
-                              (SkString(#NAME),                         \
-                               SK_MACRO_CONCAT(NAME, _GM),              \
-                               SkISize::Make(W, H))); )                 \
-    void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas* CANVAS)
+#define DEF_SIMPLE_GM(NAME, CANVAS, W, H)                                           \
+    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS);                      \
+    DEF_GM(return new skiagm::SimpleGM(SkString(#NAME), SK_MACRO_CONCAT(NAME, _GM), \
+                                       SkISize::Make(W, H));)                       \
+    void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS)
 
 namespace skiagm {
 

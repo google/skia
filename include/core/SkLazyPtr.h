@@ -13,12 +13,12 @@
  *  Example usage:
  *
  *  Foo* GetSingletonFoo() {
- *      SK_DECLARE_STATIC_LAZY_PTR(Foo, singleton);  // Created with SkNEW, destroyed with SkDELETE.
+ *      SK_DECLARE_STATIC_LAZY_PTR(Foo, singleton);  // Created with new, destroyed with delete.
  *      return singleton.get();
  *  }
  *
  *  These macros take an optional T* (*Create)() and void (*Destroy)(T*) at the end.
- *  If not given, we'll use SkNEW and SkDELETE.
+ *  If not given, we'll use new and delete.
  *  These options are most useful when T doesn't have a public constructor or destructor.
  *  Create comes first, so you may use a custom Create with a default Destroy, but not vice versa.
  *
@@ -86,8 +86,14 @@ static P try_cas(P* dst, P ptr) {
     }
 }
 
-template <typename T> T* sk_new() { return SkNEW(T); }
-template <typename T> void sk_delete(T* ptr) { SkDELETE(ptr); }
+template <typename T>
+T* sk_new() {
+    return new T;
+}
+template <typename T>
+void sk_delete(T* ptr) {
+    delete ptr;
+}
 
 // We're basing these implementations here on this article:
 //   http://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/
@@ -128,7 +134,10 @@ private:
     T* fPtr;
 };
 
-template <typename T> T* sk_new_arg(int i) { return SkNEW_ARGS(T, (i)); }
+template <typename T>
+T* sk_new_arg(int i) {
+    return new T(i);
+}
 
 // This has no constructor and must be zero-initalized (the macro above does this).
 template <typename T, int N, T* (*Create)(int) = sk_new_arg<T>, void (*Destroy)(T*) = sk_delete<T> >
@@ -162,7 +171,7 @@ public:
 
     T* get() const {
         T* ptr = Private::consume_load(&fPtr);
-        return ptr ? ptr : Private::try_cas<T*, Destroy>(&fPtr, SkNEW(T));
+        return ptr ? ptr : Private::try_cas<T*, Destroy>(&fPtr, new T);
     }
 
     template <typename Create>

@@ -163,5 +163,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(MixedTextBlobsGM); )
+DEF_GM(return new MixedTextBlobsGM;)
 }

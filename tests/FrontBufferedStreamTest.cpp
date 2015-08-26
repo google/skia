@@ -54,7 +54,7 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
     // NOTE: For this and other tests in this file, we cheat and continue to refer to the
     // wrapped stream, but that's okay because we know the wrapping stream has not been
     // deleted yet (and we only call const methods in it).
-    SkMemoryStream* memStream = SkNEW_ARGS(SkMemoryStream, (gAbcs, strlen(gAbcs), false));
+    SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
 
     SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
     test_hasLength(reporter, *bufferedStream.get(), *memStream);
@@ -82,7 +82,7 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
 }
 
 static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t bufferSize) {
-    SkMemoryStream* memStream = SkNEW_ARGS(SkMemoryStream, (gAbcs, strlen(gAbcs), false));
+    SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
     SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
     test_hasLength(reporter, *bufferedStream.get(), *memStream);
 
@@ -101,7 +101,7 @@ static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t buf
 }
 
 static void test_skipping(skiatest::Reporter* reporter, size_t bufferSize) {
-    SkMemoryStream* memStream = SkNEW_ARGS(SkMemoryStream, (gAbcs, strlen(gAbcs), false));
+    SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
     SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
     test_hasLength(reporter, *bufferedStream.get(), *memStream);
 
@@ -152,7 +152,8 @@ private:
 // does not invalidate the buffer.
 static void test_read_beyond_buffer(skiatest::Reporter* reporter, size_t bufferSize) {
     // Use a stream that behaves like Android's stream.
-    AndroidLikeMemoryStream* memStream = SkNEW_ARGS(AndroidLikeMemoryStream, ((void*)gAbcs, bufferSize, false));
+    AndroidLikeMemoryStream* memStream =
+            new AndroidLikeMemoryStream((void*)gAbcs, bufferSize, false);
 
     // Create a buffer that matches the length of the stream.
     SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
@@ -200,7 +201,8 @@ private:
 static void test_length_combos(skiatest::Reporter* reporter, size_t bufferSize) {
     for (int hasLen = 0; hasLen <= 1; hasLen++) {
         for (int hasPos = 0; hasPos <= 1; hasPos++) {
-            LengthOptionalStream* stream = SkNEW_ARGS(LengthOptionalStream, (SkToBool(hasLen), SkToBool(hasPos)));
+            LengthOptionalStream* stream =
+                    new LengthOptionalStream(SkToBool(hasLen), SkToBool(hasPos));
             SkAutoTDelete<SkStream> buffered(SkFrontBufferedStream::Create(stream, bufferSize));
             test_hasLength(reporter, *buffered.get(), *stream);
         }
@@ -209,7 +211,7 @@ static void test_length_combos(skiatest::Reporter* reporter, size_t bufferSize) 
 
 // Test using a stream with an initial offset.
 static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize) {
-    SkMemoryStream* memStream = SkNEW_ARGS(SkMemoryStream, (gAbcs, strlen(gAbcs), false));
+    SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
 
     // Skip a few characters into the memStream, so that bufferedStream represents an offset into
     // the stream it wraps.
@@ -286,7 +288,7 @@ private:
 };
 
 DEF_TEST(ShortFrontBufferedStream, reporter) {
-    FailingStream* failingStream = SkNEW(FailingStream);
+    FailingStream* failingStream = new FailingStream;
     SkAutoTDelete<SkStreamRewindable> stream(SkFrontBufferedStream::Create(failingStream, 64));
     SkBitmap bm;
     // The return value of DecodeStream is not important. We are just using DecodeStream because

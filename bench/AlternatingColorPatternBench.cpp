@@ -169,33 +169,32 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kWhite_ColorPattern, kWhite_ColorPattern,
-                              kPath_DrawType)); )
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kBlue_ColorPattern, kBlue_ColorPattern,
-                              kPath_DrawType)); )
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kWhite_ColorPattern, kBlue_ColorPattern,
-                              kPath_DrawType)); )
+DEF_BENCH(return new AlternatingColorPatternBench(kWhite_ColorPattern,
+                                                  kWhite_ColorPattern,
+                                                  kPath_DrawType);)
+DEF_BENCH(return new AlternatingColorPatternBench(kBlue_ColorPattern,
+                                                  kBlue_ColorPattern,
+                                                  kPath_DrawType);)
+DEF_BENCH(return new AlternatingColorPatternBench(kWhite_ColorPattern,
+                                                  kBlue_ColorPattern,
+                                                  kPath_DrawType);)
 
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kOpaqueBitmap_ColorPattern, kOpaqueBitmap_ColorPattern,
-                              kPath_DrawType)); )
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kAlphaBitmap_ColorPattern, kAlphaBitmap_ColorPattern,
-                              kPath_DrawType)); )
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kOpaqueBitmap_ColorPattern, kAlphaBitmap_ColorPattern,
-                              kPath_DrawType)); )
+DEF_BENCH(return new AlternatingColorPatternBench(kOpaqueBitmap_ColorPattern,
+                                                  kOpaqueBitmap_ColorPattern,
+                                                  kPath_DrawType);)
+DEF_BENCH(return new AlternatingColorPatternBench(kAlphaBitmap_ColorPattern,
+                                                  kAlphaBitmap_ColorPattern,
+                                                  kPath_DrawType);)
+DEF_BENCH(return new AlternatingColorPatternBench(kOpaqueBitmap_ColorPattern,
+                                                  kAlphaBitmap_ColorPattern,
+                                                  kPath_DrawType);)
 
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kOpaqueBitmap_ColorPattern, kOpaqueBitmap_ColorPattern,
-                              kRect_DrawType)); )
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kAlphaBitmap_ColorPattern, kAlphaBitmap_ColorPattern,
-                              kRect_DrawType)); )
-DEF_BENCH( return SkNEW_ARGS(AlternatingColorPatternBench,
-                             (kOpaqueBitmap_ColorPattern, kAlphaBitmap_ColorPattern,
-                              kRect_DrawType)); )
-
+DEF_BENCH(return new AlternatingColorPatternBench(kOpaqueBitmap_ColorPattern,
+                                                  kOpaqueBitmap_ColorPattern,
+                                                  kRect_DrawType);)
+DEF_BENCH(return new AlternatingColorPatternBench(kAlphaBitmap_ColorPattern,
+                                                  kAlphaBitmap_ColorPattern,
+                                                  kRect_DrawType);)
+DEF_BENCH(return new AlternatingColorPatternBench(kOpaqueBitmap_ColorPattern,
+                                                  kAlphaBitmap_ColorPattern,
+                                                  kRect_DrawType);)

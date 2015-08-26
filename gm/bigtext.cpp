@@ -52,4 +52,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW(BigTextGM); )
+DEF_GM(return new BigTextGM;)

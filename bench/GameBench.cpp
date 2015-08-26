@@ -308,27 +308,18 @@ private:
 };
 
 // Partial clear
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kScale_Type,
-                                            GameBench::kPartial_Clear)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kTranslate_Type,
-                                            GameBench::kPartial_Clear)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kTranslate_Type,
-                                            GameBench::kPartial_Clear, true)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kRotate_Type,
-                                            GameBench::kPartial_Clear)); )
+DEF_BENCH(return new GameBench(GameBench::kScale_Type, GameBench::kPartial_Clear);)
+DEF_BENCH(return new GameBench(GameBench::kTranslate_Type, GameBench::kPartial_Clear);)
+DEF_BENCH(return new GameBench(GameBench::kTranslate_Type, GameBench::kPartial_Clear, true);)
+DEF_BENCH(return new GameBench(GameBench::kRotate_Type, GameBench::kPartial_Clear);)
 
 // Full clear
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kScale_Type,
-                                            GameBench::kFull_Clear)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kTranslate_Type,
-                                            GameBench::kFull_Clear)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kTranslate_Type,
-                                            GameBench::kFull_Clear, true)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kRotate_Type,
-                                            GameBench::kFull_Clear)); )
+DEF_BENCH(return new GameBench(GameBench::kScale_Type, GameBench::kFull_Clear);)
+DEF_BENCH(return new GameBench(GameBench::kTranslate_Type, GameBench::kFull_Clear);)
+DEF_BENCH(return new GameBench(GameBench::kTranslate_Type, GameBench::kFull_Clear, true);)
+DEF_BENCH(return new GameBench(GameBench::kRotate_Type, GameBench::kFull_Clear);)
 
 // Atlased
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kTranslate_Type,
-                                            GameBench::kFull_Clear, false, true)); )
-DEF_BENCH( return SkNEW_ARGS(GameBench, (GameBench::kTranslate_Type,
-                                            GameBench::kFull_Clear, false, true, true)); )
+DEF_BENCH(return new GameBench(GameBench::kTranslate_Type, GameBench::kFull_Clear, false, true);)
+DEF_BENCH(return new GameBench(
+                         GameBench::kTranslate_Type, GameBench::kFull_Clear, false, true, true);)

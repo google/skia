@@ -69,7 +69,7 @@ SkStreamRewindable* SkFrontBufferedStream::Create(SkStream* stream, size_t buffe
     if (NULL == stream) {
         return NULL;
     }
-    return SkNEW_ARGS(FrontBufferedStream, (stream, bufferSize));
+    return new FrontBufferedStream(stream, bufferSize);
 }
 
 FrontBufferedStream::FrontBufferedStream(SkStream* stream, size_t bufferSize)

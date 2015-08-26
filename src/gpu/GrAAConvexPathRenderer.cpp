@@ -528,7 +528,7 @@ public:
 
     static GrGeometryProcessor* Create(GrColor color, const SkMatrix& localMatrix,
                                        bool usesLocalCoords) {
-        return SkNEW_ARGS(QuadEdgeEffect, (color, localMatrix, usesLocalCoords));
+        return new QuadEdgeEffect(color, localMatrix, usesLocalCoords);
     }
 
     virtual ~QuadEdgeEffect() {}
@@ -642,7 +642,7 @@ public:
 
     virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
                                                      const GrGLSLCaps&) const override {
-        return SkNEW_ARGS(GLProcessor, (*this, bt));
+        return new GLProcessor(*this, bt);
     }
 
 private:
@@ -747,9 +747,7 @@ public:
         SkPath fPath;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry) {
-        return SkNEW_ARGS(AAConvexPathBatch, (geometry));
-    }
+    static GrDrawBatch* Create(const Geometry& geometry) { return new AAConvexPathBatch(geometry); }
 
     const char* name() const override { return "AAConvexBatch"; }
 

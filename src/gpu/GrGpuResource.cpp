@@ -109,7 +109,7 @@ void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
 void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
     if (this->wasDestroyed()) {
         // We've already been removed from the cache. Goodbye cruel world!
-        SkDELETE(this);
+        delete this;
         return;
     }
 

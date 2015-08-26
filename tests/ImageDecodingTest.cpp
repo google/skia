@@ -742,8 +742,7 @@ DEF_TEST(ImageDecoding_JpegOverwrite, r) {
     pixels[pixelCount] = sentinal;  // This value should not be changed.
 
     SkAutoTUnref<SingleAllocator> allocator(
-            SkNEW_ARGS(SingleAllocator,
-                       ((void*)pixels.get(), sizeof(uint16_t) * pixelCount)));
+            new SingleAllocator((void*)pixels.get(), sizeof(uint16_t) * pixelCount));
     decoder->setAllocator(allocator);
     decoder->setSampleSize(2);
     SkBitmap bitmap;

@@ -98,4 +98,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW(StrokeTextGM); )
+DEF_GM(return new StrokeTextGM;)

@@ -210,9 +210,7 @@ public:
         fImageHeight = 0;
     }
 
-    virtual ~SkJPEGImageDecoder() {
-        SkDELETE(fImageIndex);
-    }
+    virtual ~SkJPEGImageDecoder() { delete fImageIndex; }
 #endif
 
     Format getFormat() const override {
@@ -943,8 +941,7 @@ bool SkJPEGImageDecoder::onDecodeYUV8Planes(SkStream* stream, SkISize componentS
 
 #ifdef SK_BUILD_FOR_ANDROID
 bool SkJPEGImageDecoder::onBuildTileIndex(SkStreamRewindable* stream, int *width, int *height) {
-
-    SkAutoTDelete<SkJPEGImageIndex> imageIndex(SkNEW_ARGS(SkJPEGImageIndex, (stream, this)));
+    SkAutoTDelete<SkJPEGImageIndex> imageIndex(new SkJPEGImageIndex(stream, this));
 
     skjpeg_error_mgr sk_err;
     set_error_mgr(imageIndex->cinfo(), &sk_err);
@@ -1000,7 +997,7 @@ bool SkJPEGImageDecoder::onBuildTileIndex(SkStreamRewindable* stream, int *width
         *height = fImageHeight;
     }
 
-    SkDELETE(fImageIndex);
+    delete fImageIndex;
     fImageIndex = imageIndex.detach();
 
     return true;
@@ -1437,7 +1434,7 @@ static bool is_jpeg(SkStreamRewindable* stream) {
 
 static SkImageDecoder* sk_libjpeg_dfactory(SkStreamRewindable* stream) {
     if (is_jpeg(stream)) {
-        return SkNEW(SkJPEGImageDecoder);
+        return new SkJPEGImageDecoder;
     }
     return NULL;
 }
@@ -1450,7 +1447,7 @@ static SkImageDecoder::Format get_format_jpeg(SkStreamRewindable* stream) {
 }
 
 static SkImageEncoder* sk_libjpeg_efactory(SkImageEncoder::Type t) {
-    return (SkImageEncoder::kJPEG_Type == t) ? SkNEW(SkJPEGImageEncoder) : NULL;
+    return (SkImageEncoder::kJPEG_Type == t) ? new SkJPEGImageEncoder : NULL;
 }
 
 static SkImageDecoder_DecodeReg gDReg(sk_libjpeg_dfactory);

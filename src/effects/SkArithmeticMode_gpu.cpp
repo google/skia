@@ -118,7 +118,7 @@ void GrArithmeticFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
 }
 
 GrGLFragmentProcessor* GrArithmeticFP::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLArithmeticFP, (*this));
+    return new GLArithmeticFP(*this);
 }
 
 bool GrArithmeticFP::onIsEqual(const GrFragmentProcessor& fpBase) const {
@@ -144,8 +144,7 @@ GrFragmentProcessor* GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
     float k4 = d->fRandom->nextF();
     bool enforcePMColor = d->fRandom->nextBool();
 
-    return SkNEW_ARGS(GrArithmeticFP, (d->fProcDataManager, k1, k2, k3, k4, enforcePMColor,
-                                       d->fTextures[0]));
+    return new GrArithmeticFP(d->fProcDataManager, k1, k2, k3, k4, enforcePMColor, d->fTextures[0]);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticFP);
@@ -256,9 +255,7 @@ void ArithmeticXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBui
     GLArithmeticXP::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* ArithmeticXP::createGLInstance() const {
-    return SkNEW_ARGS(GLArithmeticXP, (*this));
-}
+GrGLXferProcessor* ArithmeticXP::createGLInstance() const { return new GLArithmeticXP(*this); }
 
 GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                            const GrProcOptInfo& coveragePOI,
@@ -282,8 +279,7 @@ GrArithmeticXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                              const GrProcOptInfo& coveragePOI,
                                              bool hasMixedSamples,
                                              const DstTexture* dstTexture) const {
-    return SkNEW_ARGS(ArithmeticXP, (dstTexture, hasMixedSamples, fK1, fK2, fK3, fK4,
-                                     fEnforcePMColor));
+    return new ArithmeticXP(dstTexture, hasMixedSamples, fK1, fK2, fK3, fK4, fEnforcePMColor);
 }
 
 

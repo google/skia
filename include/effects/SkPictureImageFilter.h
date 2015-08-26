@@ -17,7 +17,7 @@ public:
      *  Refs the passed-in picture.
      */
     static SkPictureImageFilter* Create(const SkPicture* picture) {
-        return SkNEW_ARGS(SkPictureImageFilter, (picture));
+        return new SkPictureImageFilter(picture);
     }
 
     /**
@@ -25,9 +25,8 @@ public:
      *  the picture is drawn. (No scaling is implied by the dest rect; only the CTM is applied.)
      */
     static SkPictureImageFilter* Create(const SkPicture* picture, const SkRect& cropRect) {
-        return SkNEW_ARGS(SkPictureImageFilter, (picture, cropRect,
-                                                 kDeviceSpace_PictureResolution,
-                                                 kLow_SkFilterQuality));
+        return new SkPictureImageFilter(picture, cropRect, kDeviceSpace_PictureResolution,
+                                        kLow_SkFilterQuality);
     }
 
     /**
@@ -40,8 +39,8 @@ public:
     static SkPictureImageFilter* CreateForLocalSpace(const SkPicture* picture,
                                                      const SkRect& cropRect,
                                                      SkFilterQuality filterQuality) {
-        return SkNEW_ARGS(SkPictureImageFilter, (picture, cropRect,
-                                                 kLocalSpace_PictureResolution, filterQuality));
+        return new SkPictureImageFilter(picture, cropRect, kLocalSpace_PictureResolution,
+                                        filterQuality);
     }
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureImageFilter)

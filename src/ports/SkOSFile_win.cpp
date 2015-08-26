@@ -155,12 +155,10 @@ static uint16_t* concat_to_16(const char src[], const char suffix[]) {
     return dst;
 }
 
-SkOSFile::Iter::Iter() {
-    SkNEW_PLACEMENT(fSelf.get(), SkOSFileIterData);
-}
+SkOSFile::Iter::Iter() { new (fSelf.get()) SkOSFileIterData; }
 
 SkOSFile::Iter::Iter(const char path[], const char suffix[]) {
-    SkNEW_PLACEMENT(fSelf.get(), SkOSFileIterData);
+    new (fSelf.get()) SkOSFileIterData;
     this->reset(path, suffix);
 }
 

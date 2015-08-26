@@ -23,9 +23,9 @@ public:
         if (kGLES_GrGLStandard == forcedGpuAPI) {
             return NULL;
         }
-        SkMesaGLContext* ctx = SkNEW(SkMesaGLContext);
+        SkMesaGLContext* ctx = new SkMesaGLContext;
         if (!ctx->isValid()) {
-            SkDELETE(ctx);
+            delete ctx;
             return NULL;
         }
         return ctx;

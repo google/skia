@@ -261,7 +261,7 @@ public:
     }
 
     static TestResource* CreateScratch(GrGpu* gpu, SimulatedProperty property, bool cached = true) {
-        return SkNEW_ARGS(TestResource, (gpu, property, cached, kScratchConstructor));
+        return new TestResource(gpu, property, cached, kScratchConstructor);
     }
 
     ~TestResource() {
@@ -342,10 +342,10 @@ static void test_no_key(skiatest::Reporter* reporter) {
     GrResourceCache* cache = mock.cache();
 
     // Create a bunch of resources with no keys
-    TestResource* a = SkNEW_ARGS(TestResource, (context->getGpu()));
-    TestResource* b = SkNEW_ARGS(TestResource, (context->getGpu()));
-    TestResource* c = SkNEW_ARGS(TestResource, (context->getGpu()));
-    TestResource* d = SkNEW_ARGS(TestResource, (context->getGpu()));
+    TestResource* a = new TestResource(context->getGpu());
+    TestResource* b = new TestResource(context->getGpu());
+    TestResource* c = new TestResource(context->getGpu());
+    TestResource* d = new TestResource(context->getGpu());
     a->setSize(11);
     b->setSize(12);
     c->setSize(13);
@@ -404,14 +404,13 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     TestResource* scratch =
             TestResource::CreateScratch(context->getGpu(), TestResource::kB_SimulatedProperty);
     scratch->setSize(10);
-    TestResource* unique = SkNEW_ARGS(TestResource, (context->getGpu()));
+    TestResource* unique = new TestResource(context->getGpu());
     unique->setSize(11);
     unique->resourcePriv().setUniqueKey(uniqueKey);
-    TestResource* wrapped = SkNEW_ARGS(TestResource,
-                                       (context->getGpu(), GrGpuResource::kBorrowed_LifeCycle));
+    TestResource* wrapped = new TestResource(context->getGpu(), GrGpuResource::kBorrowed_LifeCycle);
     wrapped->setSize(12);
-    TestResource* unbudgeted = SkNEW_ARGS(TestResource,
-                                          (context->getGpu(), GrGpuResource::kUncached_LifeCycle));
+    TestResource* unbudgeted =
+            new TestResource(context->getGpu(), GrGpuResource::kUncached_LifeCycle);
     unbudgeted->setSize(13);
 
     // Make sure we can't add a unique key to the wrapped resource
@@ -446,7 +445,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
                               unbudgeted->gpuMemorySize() == cache->getResourceBytes());
 
     // Now try freeing the budgeted resources first
-    wrapped = SkNEW_ARGS(TestResource, (context->getGpu(), GrGpuResource::kBorrowed_LifeCycle));
+    wrapped = new TestResource(context->getGpu(), GrGpuResource::kBorrowed_LifeCycle);
     scratch->setSize(12);
     unique->unref();
     cache->purgeAllUnlocked();
@@ -499,7 +498,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 10 == cache->getBudgetedResourceBytes());
 
-    unique = SkNEW_ARGS(TestResource, (context->getGpu()));
+    unique = new TestResource(context->getGpu());
     unique->setSize(11);
     unique->resourcePriv().setUniqueKey(uniqueKey);
     unique->unref();
@@ -509,8 +508,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
 
     size_t large = 2 * cache->getResourceBytes();
-    unbudgeted = SkNEW_ARGS(TestResource,
-                            (context->getGpu(), large, GrGpuResource::kUncached_LifeCycle));
+    unbudgeted = new TestResource(context->getGpu(), large, GrGpuResource::kUncached_LifeCycle);
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 + large == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
@@ -522,8 +520,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
 
-    wrapped = SkNEW_ARGS(TestResource,
-                         (context->getGpu(), large, GrGpuResource::kBorrowed_LifeCycle));
+    wrapped = new TestResource(context->getGpu(), large, GrGpuResource::kBorrowed_LifeCycle);
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 + large == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
@@ -775,7 +772,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     make_unique_key<0>(&key, 0);
     
     // Create two resources that we will attempt to register with the same unique key.
-    TestResource* a = SkNEW_ARGS(TestResource, (context->getGpu()));
+    TestResource* a = new TestResource(context->getGpu());
     a->setSize(11);
     
     // Set key on resource a.
@@ -792,7 +789,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
 
     // Create resource b and set the same key. It should replace a's unique key cache entry.
-    TestResource* b = SkNEW_ARGS(TestResource, (context->getGpu()));
+    TestResource* b = new TestResource(context->getGpu());
     b->setSize(12);
     b->resourcePriv().setUniqueKey(key);
     REPORTER_ASSERT(reporter, b == cache->findAndRefUniqueResource(key));
@@ -812,7 +809,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     // Now replace b with c, but make sure c can start with one unique key and change it to b's key.
     // Also make b be unreffed when replacement occurs.
     b->unref();
-    TestResource* c = SkNEW_ARGS(TestResource, (context->getGpu()));
+    TestResource* c = new TestResource(context->getGpu());
     GrUniqueKey differentKey;
     make_unique_key<0>(&differentKey, 1);
     c->setSize(13);
@@ -849,7 +846,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     {
         GrUniqueKey key2;
         make_unique_key<0>(&key2, 0);
-        SkAutoTUnref<TestResource> d(SkNEW_ARGS(TestResource, (context->getGpu())));
+        SkAutoTUnref<TestResource> d(new TestResource(context->getGpu()));
         int foo = 4132;
         SkAutoTUnref<SkData> data(SkData::NewWithCopy(&foo, sizeof(foo)));
         key2.setCustomData(data.get());
@@ -873,8 +870,8 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     make_unique_key<0>(&key3, 3);
     
     // Add three resources to the cache. Only c is usable as scratch.
-    TestResource* a = SkNEW_ARGS(TestResource, (context->getGpu()));
-    TestResource* b = SkNEW_ARGS(TestResource, (context->getGpu()));
+    TestResource* a = new TestResource(context->getGpu());
+    TestResource* b = new TestResource(context->getGpu());
     TestResource* c = TestResource::CreateScratch(context->getGpu(),
                                                   TestResource::kA_SimulatedProperty);
     a->resourcePriv().setUniqueKey(key1);
@@ -939,9 +936,8 @@ static void test_cache_chained_purge(skiatest::Reporter* reporter) {
     make_unique_key<0>(&key1, 1);
     make_unique_key<0>(&key2, 2);
 
-
-    TestResource* a = SkNEW_ARGS(TestResource, (context->getGpu()));
-    TestResource* b = SkNEW_ARGS(TestResource, (context->getGpu()));
+    TestResource* a = new TestResource(context->getGpu());
+    TestResource* b = new TestResource(context->getGpu());
     a->resourcePriv().setUniqueKey(key1);
     b->resourcePriv().setUniqueKey(key2);
 
@@ -978,11 +974,11 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
         GrContext* context = mock.context();
         GrResourceCache* cache = mock.cache();
 
-        TestResource* a = SkNEW_ARGS(TestResource, (context->getGpu()));
+        TestResource* a = new TestResource(context->getGpu());
         a->resourcePriv().setUniqueKey(key1);
         a->unref();
 
-        TestResource* b = SkNEW_ARGS(TestResource, (context->getGpu()));
+        TestResource* b = new TestResource(context->getGpu());
         b->resourcePriv().setUniqueKey(key2);
         b->unref();
 
@@ -1007,12 +1003,12 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
         GrContext* context = mock.context();
         GrResourceCache* cache = mock.cache();
 
-        TestResource* a = SkNEW_ARGS(TestResource, (context->getGpu()));
+        TestResource* a = new TestResource(context->getGpu());
         a->setSize(100);
         a->resourcePriv().setUniqueKey(key1);
         a->unref();
 
-        TestResource* b = SkNEW_ARGS(TestResource, (context->getGpu()));
+        TestResource* b = new TestResource(context->getGpu());
         b->setSize(100);
         b->resourcePriv().setUniqueKey(key2);
         b->unref();
@@ -1061,7 +1057,7 @@ static void test_timestamp_wrap(skiatest::Reporter* reporter) {
             GrUniqueKey key;
             make_unique_key<0>(&key, j);
 
-            TestResource* r = SkNEW_ARGS(TestResource, (context->getGpu()));
+            TestResource* r = new TestResource(context->getGpu());
             r->resourcePriv().setUniqueKey(key);
             if (random.nextU() % kLockedFreq) {
                 // Make this is purgeable.
@@ -1110,7 +1106,7 @@ static void test_flush(skiatest::Reporter* reporter) {
     {
         // Insert a resource and send a flush notification kFlushCount times.
         for (int i = 0; i < kFlushCount; ++i) {
-            TestResource* r = SkNEW_ARGS(TestResource, (context->getGpu()));
+            TestResource* r = new TestResource(context->getGpu());
             GrUniqueKey k;
             make_unique_key<1>(&k, i);
             r->resourcePriv().setUniqueKey(k);
@@ -1141,7 +1137,7 @@ static void test_flush(skiatest::Reporter* reporter) {
     {
         GrGpuResource* refedResources[kFlushCount >> 1];
         for (int i = 0; i < kFlushCount; ++i) {
-            TestResource* r = SkNEW_ARGS(TestResource, (context->getGpu()));
+            TestResource* r = new TestResource(context->getGpu());
             GrUniqueKey k;
             make_unique_key<1>(&k, i);
             r->resourcePriv().setUniqueKey(k);
@@ -1196,12 +1192,12 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
 
         TestResource* resource;
 
-        resource = SkNEW_ARGS(TestResource, (context->getGpu()));
+        resource = new TestResource(context->getGpu());
         resource->resourcePriv().setUniqueKey(key1);
         resource->setSize(1);
         resource->unref();
 
-        resource = SkNEW_ARGS(TestResource, (context->getGpu()));
+        resource = new TestResource(context->getGpu());
         resource->resourcePriv().setUniqueKey(key2);
         resource->setSize(1);
         resource->unref();

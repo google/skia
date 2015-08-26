@@ -13,7 +13,7 @@
 
 class GrAAHairLinePathRenderer : public GrPathRenderer {
 public:
-    static GrPathRenderer* Create()  { return SkNEW(GrAAHairLinePathRenderer); }
+    static GrPathRenderer* Create() { return new GrAAHairLinePathRenderer; }
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;

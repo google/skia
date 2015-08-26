@@ -31,7 +31,7 @@ static int find_string(const SkTArray<SkString>& strings, const char ext[]) {
     return idx;
 }
 
-GrGLExtensions::GrGLExtensions(const GrGLExtensions& that) : fStrings(SkNEW(SkTArray<SkString>)) {
+GrGLExtensions::GrGLExtensions(const GrGLExtensions& that) : fStrings(new SkTArray<SkString>) {
     *this = that;
 }
 
@@ -112,7 +112,7 @@ bool GrGLExtensions::remove(const char ext[]) {
         // This is not terribly effecient but we really only expect this function to be called at
         // most a handful of times when our test programs start.
         SkAutoTDelete< SkTArray<SkString> > oldStrings(fStrings.detach());
-        fStrings.reset(SkNEW(SkTArray<SkString>(oldStrings->count() - 1)));
+        fStrings.reset(new SkTArray<SkString>(oldStrings->count() - 1));
         fStrings->push_back_n(idx, &oldStrings->front());
         fStrings->push_back_n(oldStrings->count() - idx - 1, &(*oldStrings)[idx] + 1);
         return true;

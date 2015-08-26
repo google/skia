@@ -221,9 +221,9 @@ bool SkScriptRuntime::executeTokens(unsigned char* opCode) {
             break;
         case SkScriptEngine2::kAddString:
 //            if (fTrackString.find(operand[1].fString) < 0) {
-//                operand[1].fString = SkNEW_ARGS(SkString, (*operand[1].fString));
-//                track(operand[1].fString);
-//            }
+            //                operand[1].fString = new SkString  (*operand[1].fString);
+            //                track(operand[1].fString);
+            //            }
             operand[0].fString->append(*operand[1].fString);
             break;
         case SkScriptEngine2::kBitAndInt:

@@ -436,7 +436,7 @@ GrFragmentProcessor* GrCustomXfermode::CreateFP(GrProcessorDataManager* procData
     if (!GrCustomXfermode::IsSupportedMode(mode)) {
         return NULL;
     } else {
-        return SkNEW_ARGS(GrCustomXferFP, (procDataManager, mode, background));
+        return new GrCustomXferFP(procDataManager, mode, background);
     }
 }
 
@@ -493,7 +493,7 @@ void GrCustomXferFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
 }
 
 GrGLFragmentProcessor* GrCustomXferFP::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLCustomXferFP, (*this));
+    return new GLCustomXferFP(*this);
 }
 
 bool GrCustomXferFP::onIsEqual(const GrFragmentProcessor& other) const {
@@ -509,8 +509,8 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCustomXferFP);
 GrFragmentProcessor* GrCustomXferFP::TestCreate(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 
-    return SkNEW_ARGS(GrCustomXferFP, (d->fProcDataManager, static_cast<SkXfermode::Mode>(mode),
-                                       d->fTextures[0]));
+    return new GrCustomXferFP(d->fProcDataManager, static_cast<SkXfermode::Mode>(mode),
+                              d->fTextures[0]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -571,7 +571,7 @@ GrXPFactory* GrCustomXfermode::CreateXPFactory(SkXfermode::Mode mode) {
     if (!GrCustomXfermode::IsSupportedMode(mode)) {
         return NULL;
     } else {
-        return SkNEW_ARGS(GrCustomXPFactory, (mode));
+        return new GrCustomXPFactory(mode);
     }
 }
 
@@ -637,7 +637,7 @@ void CustomXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder
 
 GrGLXferProcessor* CustomXP::createGLInstance() const {
     SkASSERT(this->willReadDstColor() != this->hasHWBlendEquation());
-    return SkNEW_ARGS(GLCustomXP, (*this));
+    return new GLCustomXP(*this);
 }
 
 bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
@@ -786,9 +786,9 @@ GrCustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                          const DstTexture* dstTexture) const {
     if (can_use_hw_blend_equation(fHWBlendEquation, coveragePOI, caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
-        return SkNEW_ARGS(CustomXP, (fMode, fHWBlendEquation));
+        return new CustomXP(fMode, fHWBlendEquation);
     }
-    return SkNEW_ARGS(CustomXP, (dstTexture, hasMixedSamples, fMode));
+    return new CustomXP(dstTexture, hasMixedSamples, fMode);
 }
 
 bool GrCustomXPFactory::willReadDstColor(const GrCaps& caps,
@@ -809,6 +809,6 @@ GrXPFactory* GrCustomXPFactory::TestCreate(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU(SkXfermode::kLastCoeffMode + 1,
                                       SkXfermode::kLastSeparableMode);
 
-    return SkNEW_ARGS(GrCustomXPFactory, (static_cast<SkXfermode::Mode>(mode)));
+    return new GrCustomXPFactory(static_cast<SkXfermode::Mode>(mode));
 }
 

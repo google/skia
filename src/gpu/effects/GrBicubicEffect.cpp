@@ -159,7 +159,7 @@ void GrBicubicEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrBicubicEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GrGLBicubicEffect, (*this));
+    return new GrGLBicubicEffect(*this);
 }
 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

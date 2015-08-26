@@ -132,7 +132,7 @@ SkColorFilter* SkColorFilter::CreateComposeFilter(SkColorFilter* outer, SkColorF
     if (count > SK_MAX_COMPOSE_COLORFILTER_COUNT) {
         return NULL;
     }
-    return SkNEW_ARGS(SkComposeColorFilter, (outer, inner, count));
+    return new SkComposeColorFilter(outer, inner, count);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)

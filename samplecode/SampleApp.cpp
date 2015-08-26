@@ -1275,9 +1275,8 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
         fSubpixelState != SkOSMenu::kMixedState ||
         fHintingState > 0 ||
         fFilterQualityIndex > 0) {
-
-        canvas = SkNEW_ARGS(FlagsFilterCanvas, (canvas, fLCDState, fAAState, fSubpixelState,
-                                                fHintingState, fFilterQualityIndex));
+        canvas = new FlagsFilterCanvas(canvas, fLCDState, fAAState, fSubpixelState, fHintingState,
+                                       fFilterQualityIndex);
         fFlagsFilterCanvas.reset(canvas);
     }
 
@@ -1671,10 +1670,10 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             break;
         case 'B':
-            post_event_to_sink(SkNEW_ARGS(SkEvent, ("PictFileView::toggleBBox")), curr_view(this));
+            post_event_to_sink(new SkEvent("PictFileView::toggleBBox"), curr_view(this));
             // Cannot call updateTitle() synchronously, because the toggleBBox event is still in
             // the queue.
-            post_event_to_sink(SkNEW_ARGS(SkEvent, (gUpdateWindowTitleEvtName)), this);
+            post_event_to_sink(new SkEvent(gUpdateWindowTitleEvtName), this);
             this->inval(NULL);
             break;
         case 'D':

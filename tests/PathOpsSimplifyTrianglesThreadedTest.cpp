@@ -90,8 +90,8 @@ DEF_TEST(PathOpsSimplifyTrianglesThreaded, reporter) {
                 if ((bx - ax) * (cy - ay) == (by - ay) * (cx - ax)) {
                     continue;
                 }
-                *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
-                        (&testSimplifyTrianglesMain, a, b, c, 0, &testRunner));
+                *testRunner.fRunnables.append() = new PathOpsThreadedRunnable(
+                        &testSimplifyTrianglesMain, a, b, c, 0, &testRunner);
             }
             if (!reporter->allowExtendedTest()) goto finish;
         }

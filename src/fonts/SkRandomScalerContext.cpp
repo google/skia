@@ -43,9 +43,7 @@ SkRandomScalerContext::SkRandomScalerContext(SkRandomTypeface* face, const SkDes
     fProxy = face->proxy()->createScalerContext(desc);
 }
 
-SkRandomScalerContext::~SkRandomScalerContext() {
-    SkDELETE(fProxy);
-}
+SkRandomScalerContext::~SkRandomScalerContext() { delete fProxy; }
 
 unsigned SkRandomScalerContext::generateGlyphCount() {
     return fProxy->getGlyphCount();
@@ -201,7 +199,7 @@ SkRandomTypeface::~SkRandomTypeface() {
 
 SkScalerContext* SkRandomTypeface::onCreateScalerContext(
                                             const SkDescriptor* desc) const {
-    return SkNEW_ARGS(SkRandomScalerContext, (const_cast<SkRandomTypeface*>(this), desc, fFakeIt));
+    return new SkRandomScalerContext(const_cast<SkRandomTypeface*>(this), desc, fFakeIt);
 }
 
 void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {

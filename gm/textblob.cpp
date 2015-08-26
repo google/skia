@@ -186,4 +186,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW_ARGS(TextBlobGM, ("hamburgefons")); )
+DEF_GM(return new TextBlobGM("hamburgefons");)

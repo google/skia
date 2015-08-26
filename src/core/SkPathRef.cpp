@@ -18,7 +18,7 @@ SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
     if ((*pathRef)->unique()) {
         (*pathRef)->incReserve(incReserveVerbs, incReservePoints);
     } else {
-        SkPathRef* copy = SkNEW(SkPathRef);
+        SkPathRef* copy = new SkPathRef;
         copy->copy(**pathRef, incReserveVerbs, incReservePoints);
         pathRef->reset(copy);
     }
@@ -46,7 +46,7 @@ SkPathRef::~SkPathRef() {
 
 // As a template argument, this must have external linkage.
 SkPathRef* sk_create_empty_pathref() {
-    SkPathRef* empty = SkNEW(SkPathRef);
+    SkPathRef* empty = new SkPathRef;
     empty->computeBounds();   // Avoids races later to be the first to do this.
     return empty;
 }
@@ -71,7 +71,7 @@ void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
     }
 
     if (!(*dst)->unique()) {
-        dst->reset(SkNEW(SkPathRef));
+        dst->reset(new SkPathRef);
     }
 
     if (*dst != &src) {
@@ -123,13 +123,13 @@ void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
 }
 
 SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
-    SkPathRef* ref = SkNEW(SkPathRef);
+    SkPathRef* ref = new SkPathRef;
     bool isOval;
     uint8_t segmentMask;
 
     int32_t packed;
     if (!buffer->readS32(&packed)) {
-        SkDELETE(ref);
+        delete ref;
         return NULL;
     }
 
@@ -142,7 +142,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
         !buffer->readS32(&verbCount) ||
         !buffer->readS32(&pointCount) ||
         !buffer->readS32(&conicCount)) {
-        SkDELETE(ref);
+        delete ref;
         return NULL;
     }
 
@@ -155,7 +155,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
         !buffer->read(ref->fPoints, pointCount * sizeof(SkPoint)) ||
         !buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar)) ||
         !buffer->read(&ref->fBounds, sizeof(SkRect))) {
-        SkDELETE(ref);
+        delete ref;
         return NULL;
     }
     ref->fBoundsIsDirty = false;
@@ -182,7 +182,7 @@ void SkPathRef::Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
     } else {
         int oldVCnt = (*pathRef)->countVerbs();
         int oldPCnt = (*pathRef)->countPoints();
-        pathRef->reset(SkNEW(SkPathRef));
+        pathRef->reset(new SkPathRef);
         (*pathRef)->resetToSize(0, 0, 0, oldVCnt, oldPCnt);
     }
 }
@@ -444,7 +444,7 @@ uint32_t SkPathRef::genID() const {
 
 void SkPathRef::addGenIDChangeListener(GenIDChangeListener* listener) {
     if (NULL == listener || this == empty.get()) {
-        SkDELETE(listener);
+        delete listener;
         return;
     }
     *fGenIDChangeListeners.append() = listener;

@@ -179,7 +179,7 @@ class GrPipeline;
 class MockGpu : public GrGpu {
 public:
     MockGpu(GrContext* context, const GrContextOptions& options) : INHERITED(context) {
-        fCaps.reset(SkNEW_ARGS(GrCaps, (options)));
+        fCaps.reset(new GrCaps(options));
     }
     ~MockGpu() override {}
 
@@ -281,7 +281,7 @@ private:
 };
 
 GrContext* GrContext::CreateMockContext() {
-    GrContext* context = SkNEW(GrContext);
+    GrContext* context = new GrContext;
 
     context->initMockContext();
     return context;
@@ -291,7 +291,7 @@ void GrContext::initMockContext() {
     GrContextOptions options;
     options.fGeometryBufferMapThreshold = 0;
     SkASSERT(NULL == fGpu);
-    fGpu = SkNEW_ARGS(MockGpu, (this, options));
+    fGpu = new MockGpu(this, options);
     SkASSERT(fGpu);
     this->initCommon();
 

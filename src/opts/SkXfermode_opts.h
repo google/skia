@@ -280,8 +280,9 @@ namespace SK_OPTS_NS {
 
 static SkXfermode* create_xfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
     switch (mode) {
-    #define CASE(Mode) case SkXfermode::k##Mode##_Mode: \
-        return SkNEW_ARGS(Sk4pxXfermode, (rec, mode, &Mode, &xfer_aa<Mode>))
+#define CASE(Mode)                   \
+    case SkXfermode::k##Mode##_Mode: \
+        return new Sk4pxXfermode(rec, mode, &Mode, &xfer_aa<Mode>)
         CASE(Clear);
         CASE(Src);
         CASE(Dst);
@@ -306,8 +307,9 @@ static SkXfermode* create_xfermode(const ProcCoeff& rec, SkXfermode::Mode mode) 
         CASE(Lighten);
     #undef CASE
 
-    #define CASE(Mode) case SkXfermode::k##Mode##_Mode: \
-        return SkNEW_ARGS(SkPMFloatXfermode, (rec, mode, &Mode))
+#define CASE(Mode)                   \
+    case SkXfermode::k##Mode##_Mode: \
+        return new SkPMFloatXfermode(rec, mode, &Mode)
         CASE(ColorDodge);
         CASE(ColorBurn);
         CASE(SoftLight);

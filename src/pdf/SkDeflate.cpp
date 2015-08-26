@@ -65,8 +65,7 @@ struct SkDeflateWStream::Impl {
     z_stream fZStream;
 };
 
-SkDeflateWStream::SkDeflateWStream(SkWStream* out)
-    : fImpl(SkNEW(SkDeflateWStream::Impl)) {
+SkDeflateWStream::SkDeflateWStream(SkWStream* out) : fImpl(new SkDeflateWStream::Impl) {
     fImpl->fOut = out;
     fImpl->fInBufferIndex = 0;
     if (!fImpl->fOut) {

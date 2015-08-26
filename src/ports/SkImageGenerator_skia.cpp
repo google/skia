@@ -49,8 +49,8 @@ protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                      SkPMColor ctableEntries[], int* ctableCount) override {
         SkMemoryStream stream(fData->data(), fData->size(), false);
-        SkAutoTUnref<BareMemoryAllocator> allocator(SkNEW_ARGS(BareMemoryAllocator,
-                                                               (info, pixels, rowBytes)));
+        SkAutoTUnref<BareMemoryAllocator> allocator(
+                new BareMemoryAllocator(info, pixels, rowBytes));
         fDecoder->setAllocator(allocator);
         fDecoder->setRequireUnpremultipliedColors(kUnpremul_SkAlphaType == info.alphaType());
 
@@ -97,9 +97,9 @@ SkImageGenerator* SkImageGenerator::NewFromEncodedImpl(SkData* data) {
     SkBitmap bm;
     stream.rewind();
     if (!decoder->decode(&stream, &bm, kUnknown_SkColorType, SkImageDecoder::kDecodeBounds_Mode)) {
-        SkDELETE(decoder);
+        delete decoder;
         return NULL;
     }
 
-    return SkNEW_ARGS(SkImageDecoderGenerator, (bm.info(), decoder, data));
+    return new SkImageDecoderGenerator(bm.info(), decoder, data);
 }

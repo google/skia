@@ -40,7 +40,7 @@ SkFont* SkFont::Create(SkTypeface* face, SkScalar size, SkScalar scaleX, SkScala
         return NULL;
     }
     flags &= kAllFlags;
-    return SkNEW_ARGS(SkFont, (face, size, scaleX, skewX, mt, flags));
+    return new SkFont(face, size, scaleX, skewX, mt, flags);
 }
 
 SkFont* SkFont::Create(SkTypeface* face, SkScalar size, MaskType mt, uint32_t flags) {

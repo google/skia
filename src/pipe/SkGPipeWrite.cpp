@@ -437,15 +437,16 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 #define FLATTENABLES_TO_KEEP 10
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
-                             SkWriter32* writer, uint32_t flags,
-                             uint32_t width, uint32_t height)
+                             SkWriter32* writer,
+                             uint32_t flags,
+                             uint32_t width,
+                             uint32_t height)
     : SkCanvas(width, height)
-    , fFactorySet(is_cross_process(flags) ? SkNEW(SkNamedFactorySet) : NULL)
+    , fFactorySet(is_cross_process(flags) ? new SkNamedFactorySet : NULL)
     , fWriter(*writer)
     , fFlags(flags)
     , fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet, is_cross_process(flags))
-    , fFlatDictionary(&fFlattenableHeap)
-{
+    , fFlatDictionary(&fFlattenableHeap) {
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
@@ -458,11 +459,10 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     }
 
     if (shouldFlattenBitmaps(flags)) {
-        fBitmapShuttle.reset(SkNEW_ARGS(BitmapShuttle, (this)));
-        fBitmapHeap = SkNEW_ARGS(SkBitmapHeap, (fBitmapShuttle.get(), BITMAPS_TO_KEEP));
+        fBitmapShuttle.reset(new BitmapShuttle(this));
+        fBitmapHeap = new SkBitmapHeap(fBitmapShuttle.get(), BITMAPS_TO_KEEP);
     } else {
-        fBitmapHeap = SkNEW_ARGS(SkBitmapHeap,
-                                 (BITMAPS_TO_KEEP, controller->numberOfReaders()));
+        fBitmapHeap = new SkBitmapHeap(BITMAPS_TO_KEEP, controller->numberOfReaders());
         if (this->needOpBytes(sizeof(void*))) {
             this->writeOp(kShareBitmapHeap_DrawOp);
             fWriter.writePtr(static_cast<void*>(fBitmapHeap));
@@ -470,7 +470,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     }
     fFlattenableHeap.setBitmapStorage(fBitmapHeap);
 
-    fImageHeap = SkNEW(SkImageHeap);
+    fImageHeap = new SkImageHeap;
     if (this->needOpBytes(sizeof(void*))) {
         this->writeOp(kShareImageHeap_DrawOp);
         fWriter.writePtr(static_cast<void*>(fImageHeap));
@@ -1399,7 +1399,7 @@ SkCanvas* SkGPipeWriter::startRecording(SkGPipeController* controller, uint32_t 
                                         uint32_t width, uint32_t height) {
     if (NULL == fCanvas) {
         fWriter.reset(NULL, 0);
-        fCanvas = SkNEW_ARGS(SkGPipeCanvas, (controller, &fWriter, flags, width, height));
+        fCanvas = new SkGPipeCanvas(controller, &fWriter, flags, width, height);
     }
     controller->setCanvas(fCanvas);
     return fCanvas;

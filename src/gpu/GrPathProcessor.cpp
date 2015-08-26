@@ -84,5 +84,5 @@ void GrPathProcessor::getGLProcessorKey(const GrBatchTracker& bt,
 GrGLPrimitiveProcessor* GrPathProcessor::createGLInstance(const GrBatchTracker& bt,
                                                           const GrGLSLCaps& caps) const {
     SkASSERT(caps.pathRenderingSupport());
-    return SkNEW_ARGS(GrGLPathProcessor, (*this, bt));
+    return new GrGLPathProcessor(*this, bt);
 }

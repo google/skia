@@ -432,7 +432,7 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
                 if (dc) {
                     HGLRC glrc = create_gl_context(dc, extensions, contextType);
                     if (glrc) {
-                        return SkNEW_ARGS(SkWGLPbufferContext, (pbuf, dc, glrc));
+                        return new SkWGLPbufferContext(pbuf, dc, glrc);
                     }
                     extensions.releasePbufferDC(pbuf, dc);
                 }

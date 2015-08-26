@@ -654,7 +654,7 @@ static void test_newraster(skiatest::Reporter* reporter) {
         }
         addr = (const SkPMColor*)((const char*)addr + rowBytes);
     }
-    SkDELETE(canvas);
+    delete canvas;
 
     // now try a deliberately bad info
     info = info.makeWH(-1, info.height());
@@ -672,7 +672,7 @@ static void test_newraster(skiatest::Reporter* reporter) {
     info = SkImageInfo::MakeN32Premul(0, 0);
     canvas = SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes);
     REPORTER_ASSERT(reporter, canvas);
-    SkDELETE(canvas);
+    delete canvas;
 }
 
 DEF_TEST(Canvas, reporter) {

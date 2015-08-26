@@ -456,7 +456,7 @@ DEF_TEST(Jpeg, reporter) {
 
 DEF_TEST(Jpeg_YUV, reporter) {
     size_t len = sizeof(goodJpegImage);
-    SkMemoryStream* stream = SkNEW_ARGS(SkMemoryStream, (goodJpegImage, len));
+    SkMemoryStream* stream = new SkMemoryStream(goodJpegImage, len);
 
     SkBitmap bitmap;
     SkDecodingImageGenerator::Options opts;

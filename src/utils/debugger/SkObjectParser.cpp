@@ -201,7 +201,7 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
 
     if (boundStr) {
         mPath->append(*boundStr);
-        SkDELETE(boundStr);
+        delete boundStr;
     }
 
     return mPath;

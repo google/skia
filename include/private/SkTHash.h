@@ -29,7 +29,7 @@ public:
     // Clear the table.
     void reset() {
         this->~SkTHashTable();
-        SkNEW_PLACEMENT(this, SkTHashTable);
+        new (this) SkTHashTable;
     }
 
     // How many entries are in the table?

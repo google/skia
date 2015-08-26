@@ -17,7 +17,7 @@ public:
     const SkRect& getRect() const { return fRect; }
 
     static GrFragmentProcessor* Create(GrPrimitiveEdgeType edgeType, const SkRect& rect) {
-        return SkNEW_ARGS(AARectEffect, (edgeType, rect));
+        return new AARectEffect(edgeType, rect);
     }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
@@ -158,7 +158,7 @@ void AARectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBui
 }
 
 GrGLFragmentProcessor* AARectEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GLAARectEffect, (*this));
+    return new GLAARectEffect(*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -310,7 +310,7 @@ void GrConvexPolyEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrConvexPolyEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GrGLConvexPolyEffect, (*this));
+    return new GrGLConvexPolyEffect(*this);
 }
 
 GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[])

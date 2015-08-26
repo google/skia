@@ -85,9 +85,7 @@ public:
         return kPNG_Format;
     }
 
-    virtual ~SkPNGImageDecoder() {
-        SkDELETE(fImageIndex);
-    }
+    virtual ~SkPNGImageDecoder() { delete fImageIndex; }
 
 protected:
 #ifdef SK_BUILD_FOR_ANDROID
@@ -723,7 +721,7 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
         *colorPtr++ = lastColor;
     }
 
-    *colorTablep = SkNEW_ARGS(SkColorTable, (colorStorage, colorCount));
+    *colorTablep = new SkColorTable(colorStorage, colorCount);
     *reallyHasAlphap = reallyHasAlpha;
     return true;
 }
@@ -755,9 +753,9 @@ bool SkPNGImageDecoder::onBuildTileIndex(SkStreamRewindable* sk_stream, int *wid
     png_build_index(png_ptr);
 
     if (fImageIndex) {
-        SkDELETE(fImageIndex);
+        delete fImageIndex;
     }
-    fImageIndex = SkNEW_ARGS(SkPNGImageIndex, (streamDeleter.detach(), png_ptr, info_ptr));
+    fImageIndex = new SkPNGImageIndex(streamDeleter.detach(), png_ptr, info_ptr);
 
     return true;
 }
@@ -1271,7 +1269,7 @@ static bool is_png(SkStreamRewindable* stream) {
 
 SkImageDecoder* sk_libpng_dfactory(SkStreamRewindable* stream) {
     if (is_png(stream)) {
-        return SkNEW(SkPNGImageDecoder);
+        return new SkPNGImageDecoder;
     }
     return NULL;
 }
@@ -1284,7 +1282,7 @@ static SkImageDecoder::Format get_format_png(SkStreamRewindable* stream) {
 }
 
 SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type t) {
-    return (SkImageEncoder::kPNG_Type == t) ? SkNEW(SkPNGImageEncoder) : NULL;
+    return (SkImageEncoder::kPNG_Type == t) ? new SkPNGImageEncoder : NULL;
 }
 
 static SkImageDecoder_DecodeReg gDReg(sk_libpng_dfactory);

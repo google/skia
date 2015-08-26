@@ -170,7 +170,7 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
         // use kPremul directly even when kUnpremul is supported.
         const SkImageInfo& imageInfo = SkImageInfo::Make(width, height,
                 kIndex_8_SkColorType, kPremul_SkAlphaType);
-        *codecOut = SkNEW_ARGS(SkGifCodec, (imageInfo, streamDeleter.detach(), gif.detach()));
+        *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach());
     } else {
         SkASSERT(NULL != gifOut);
         streamDeleter.detach();
@@ -415,8 +415,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 }
 
                 // Stores output from dgiflib and input to the swizzler
-                SkAutoTDeleteArray<uint8_t>
-                        buffer(SkNEW_ARRAY(uint8_t, innerWidth));
+                SkAutoTDeleteArray<uint8_t> buffer(new uint8_t[innerWidth]);
 
                 // Check the interlace flag and iterate over rows of the input
                 if (fGif->Image.Interlace) {

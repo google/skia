@@ -152,7 +152,7 @@ void GrBitmapTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
 GrGLPrimitiveProcessor*
 GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt,
                                       const GrGLSLCaps& caps) const {
-    return SkNEW_ARGS(GrGLBitmapTextGeoProc, (*this, bt));
+    return new GrGLBitmapTextGeoProc(*this, bt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

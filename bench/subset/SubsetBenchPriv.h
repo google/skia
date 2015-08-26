@@ -40,7 +40,7 @@ static const char* get_color_name(SkColorType colorType) {
 static inline void alloc_pixels(SkBitmap* bitmap, const SkImageInfo& info, SkPMColor* colors,
         int colorCount) {
     if (kIndex_8_SkColorType == info.colorType()) {
-        SkAutoTUnref<SkColorTable> colorTable(SkNEW_ARGS(SkColorTable, (colors, colorCount)));
+        SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colors, colorCount));
         bitmap->allocPixels(info, NULL, colorTable);
     } else {
         bitmap->allocPixels(info);

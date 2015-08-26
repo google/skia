@@ -682,7 +682,7 @@ void SkBlurMask::ComputeBlurProfile(SkScalar sigma, uint8_t **profile_out) {
     int size = SkScalarCeilToInt(6*sigma);
 
     int center = size >> 1;
-    uint8_t *profile = SkNEW_ARRAY(uint8_t, size);
+    uint8_t* profile = new uint8_t[size];
 
     float invr = 1.f/(2*sigma);
 

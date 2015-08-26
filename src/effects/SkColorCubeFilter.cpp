@@ -51,7 +51,7 @@ SkColorFilter* SkColorCubeFilter::Create(SkData* cubeData, int cubeDimension) {
         return NULL;
     }
 
-    return SkNEW_ARGS(SkColorCubeFilter, (cubeData, cubeDimension));
+    return new SkColorCubeFilter(cubeData, cubeDimension);
 }
 
 SkColorCubeFilter::SkColorCubeFilter(SkData* cubeData, int cubeDimension)
@@ -161,7 +161,7 @@ void SkColorCubeFilter::toString(SkString* str) const {
 class GrColorCubeEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create(GrTexture* colorCube) {
-        return (NULL != colorCube) ? SkNEW_ARGS(GrColorCubeEffect, (colorCube)) : NULL;
+        return (NULL != colorCube) ? new GrColorCubeEffect(colorCube) : NULL;
     }
 
     virtual ~GrColorCubeEffect();
@@ -223,7 +223,7 @@ void GrColorCubeEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorK
 }
 
 GrGLFragmentProcessor* GrColorCubeEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GLProcessor, (*this));
+    return new GLProcessor(*this);
 }
 
 void GrColorCubeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {

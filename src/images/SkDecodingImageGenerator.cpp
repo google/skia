@@ -257,9 +257,8 @@ SkImageGenerator* CreateDecodingImageGenerator(
         return NULL;
     }
 
-    return SkNEW_ARGS(DecodingImageGenerator,
-                      (data, autoStream.detach(), info.makeAlphaType(newAlphaType),
-                       opts.fSampleSize, opts.fDitherImage));
+    return new DecodingImageGenerator(data, autoStream.detach(), info.makeAlphaType(newAlphaType),
+                                      opts.fSampleSize, opts.fDitherImage);
 }
 
 }  // namespace
@@ -273,7 +272,7 @@ SkImageGenerator* SkDecodingImageGenerator::Create(
     if (NULL == data) {
         return NULL;
     }
-    SkStreamRewindable* stream = SkNEW_ARGS(SkMemoryStream, (data));
+    SkStreamRewindable* stream = new SkMemoryStream(data);
     SkASSERT(stream != NULL);
     return CreateDecodingImageGenerator(data, stream, opts);
 }

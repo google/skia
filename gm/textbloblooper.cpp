@@ -255,5 +255,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(TextBlobLooperGM); )
+DEF_GM(return new TextBlobLooperGM;)
 }

@@ -185,6 +185,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(LightingShaderGM); )
-
+DEF_GM(return new LightingShaderGM;)
 }

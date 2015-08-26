@@ -85,5 +85,5 @@ SkCachedData* SkYUVPlanesCache::FindAndRef(uint32_t genID, Info* info,
 void SkYUVPlanesCache::Add(uint32_t genID, SkCachedData* data, Info* info,
                            SkResourceCache* localCache) {
     YUVPlanesKey key(genID);
-    return CHECK_LOCAL(localCache, add, Add, SkNEW_ARGS(YUVPlanesRec, (key, data, info)));
+    return CHECK_LOCAL(localCache, add, Add, new YUVPlanesRec(key, data, info));
 }

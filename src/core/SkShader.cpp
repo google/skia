@@ -224,13 +224,9 @@ SkShader* SkShader::refAsALocalMatrixShader(SkMatrix*) const {
     return NULL;
 }
 
-SkShader* SkShader::CreateEmptyShader() {
-    return SkNEW(SkEmptyShader);
-}
+SkShader* SkShader::CreateEmptyShader() { return new SkEmptyShader; }
 
-SkShader* SkShader::CreateColorShader(SkColor color) {
-    return SkNEW_ARGS(SkColorShader, (color));
-}
+SkShader* SkShader::CreateColorShader(SkColor color) { return new SkColorShader(color); }
 
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                        const SkMatrix* localMatrix) {
@@ -264,7 +260,7 @@ bool SkColorShader::isOpaque() const {
 }
 
 SkFlattenable* SkColorShader::CreateProc(SkReadBuffer& buffer) {
-    return SkNEW_ARGS(SkColorShader, (buffer.readColor()));
+    return new SkColorShader(buffer.readColor());
 }
 
 void SkColorShader::flatten(SkWriteBuffer& buffer) const {
@@ -280,7 +276,7 @@ uint8_t SkColorShader::ColorShaderContext::getSpan16Alpha() const {
 }
 
 SkShader::Context* SkColorShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    return SkNEW_PLACEMENT_ARGS(storage, ColorShaderContext, (*this, rec));
+    return new (storage) ColorShaderContext(*this, rec);
 }
 
 SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shader,

@@ -1,3 +1,9 @@
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #include "SkCanvas.h"
 #include "SkCGUtils.h"
 #include "SkGraphics.h"
@@ -23,15 +29,14 @@ static SkPicture* LoadPicture(const char path[]) {
     SkBitmap bm;
     if (SkImageDecoder::DecodeFile(path, &bm)) {
         bm.setImmutable();
-        pic = SkNEW(SkPicture);
+        pic = new SkPicture;
         SkCanvas* can = pic->beginRecording(bm.width(), bm.height());
         can->drawBitmap(bm, 0, 0, NULL);
         pic->endRecording();
     } else {
         SkFILEStream stream(path);
         if (stream.isValid()) {
-            pic = SkNEW_ARGS(SkPicture,
-                             (&stream, NULL, &SkImageDecoder::DecodeStream));
+            pic = new SkPicture(&stream, NULL, &SkImageDecoder::DecodeStream);
         }
 
         if (false) { // re-record
@@ -247,7 +252,7 @@ void application_init() {
         canvas.divName(filename, false);
         SkPicture* pic = LoadPicture(path.c_str());
         pic->draw(&canvas);
-        SkDELETE(pic);
+        delete pic;
     }
     SkDebugf("\n</div>\n\n");
 
@@ -261,7 +266,7 @@ void application_init() {
         canvas.divName(filename, true);
         SkPicture* pic = LoadPicture(path.c_str());
         pic->draw(&canvas);
-        SkDELETE(pic);
+        delete pic;
     }
     SkDebugf("];\n\n");
 

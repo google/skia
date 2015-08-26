@@ -50,7 +50,7 @@ private:
 SkFlattenable* DCShader::CreateProc(SkReadBuffer& buf) {
     SkMatrix matrix;
     buf.readMatrix(&matrix);
-    return SkNEW_ARGS(DCShader, (matrix));
+    return new DCShader(matrix);
 }
 
 class DCFP : public GrFragmentProcessor {
@@ -76,7 +76,7 @@ public:
             }
             void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override {}
         };
-        return SkNEW(DCGLFP);
+        return new DCGLFP;
     }
 
     const char* name() const override { return "DCFP"; }
@@ -98,7 +98,7 @@ bool DCShader::asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMat
                                    const SkMatrix* localMatrix, GrColor* color,
                                    GrProcessorDataManager* procDataManager,
                                    GrFragmentProcessor** fp) const {
-    *fp = SkNEW_ARGS(DCFP, (procDataManager, fDeviceMatrix));
+    *fp = new DCFP(procDataManager, fDeviceMatrix);
     *color = GrColorPackA4(paint.getAlpha());
     return true;
 }
@@ -111,7 +111,7 @@ public:
 
     ~DCShaderGM() override {
         for (int i = 0; i < fPrims.count(); ++i) {
-            SkDELETE(fPrims[i]);
+            delete fPrims[i];
         }
     }
 
@@ -212,15 +212,15 @@ protected:
             virtual const char* text() const { return "Hello, Skia!"; }
         };
 
-        fPrims.push_back(SkNEW(Rect));
-        fPrims.push_back(SkNEW(Circle));
-        fPrims.push_back(SkNEW(RRect));
-        fPrims.push_back(SkNEW(DRRect));
-        fPrims.push_back(SkNEW(Path));
-        fPrims.push_back(SkNEW(Points(SkCanvas::kPoints_PointMode)));
-        fPrims.push_back(SkNEW(Points(SkCanvas::kLines_PointMode)));
-        fPrims.push_back(SkNEW(Points(SkCanvas::kPolygon_PointMode)));
-        fPrims.push_back(SkNEW(Text));
+        fPrims.push_back(new Rect);
+        fPrims.push_back(new Circle);
+        fPrims.push_back(new RRect);
+        fPrims.push_back(new DRRect);
+        fPrims.push_back(new Path);
+        fPrims.push_back(new Points(SkCanvas::kPoints_PointMode));
+        fPrims.push_back(new Points(SkCanvas::kLines_PointMode));
+        fPrims.push_back(new Points(SkCanvas::kPolygon_PointMode));
+        fPrims.push_back(new Text);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -253,7 +253,7 @@ protected:
             for (int i = 0; i < fPrims.count(); ++i) {
                 for (int j = 0; j < devMats.count(); ++j) {
                     for (int k = 0; k < viewMats.count(); ++k) {
-                        paint.setShader(SkNEW_ARGS(DCShader, (devMats[j])))->unref();
+                        paint.setShader(new DCShader(devMats[j]))->unref();
                         paint.setAntiAlias(SkToBool(aa));
                         canvas->save();
                         canvas->concat(viewMats[k]);
@@ -291,6 +291,6 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return SkNEW(DCShaderGM); )
+DEF_GM(return new DCShaderGM;)
 }
 #endif

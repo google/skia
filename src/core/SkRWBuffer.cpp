@@ -229,9 +229,7 @@ void SkRWBuffer::validate() const {
 }
 #endif
 
-SkROBuffer* SkRWBuffer::newRBufferSnapshot() const {
-    return SkNEW_ARGS(SkROBuffer, (fHead, fTotalUsed));
-}
+SkROBuffer* SkRWBuffer::newRBufferSnapshot() const { return new SkROBuffer(fHead, fTotalUsed); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -305,9 +303,7 @@ public:
         return fBuffer->size() == fGlobalOffset;
     }
 
-    SkStreamAsset* duplicate() const override {
-        return SkNEW_ARGS(SkROBufferStreamAsset, (fBuffer));
-    }
+    SkStreamAsset* duplicate() const override { return new SkROBufferStreamAsset(fBuffer); }
 
     size_t getPosition() const override {
         return fGlobalOffset;
@@ -349,5 +345,5 @@ private:
 
 SkStreamAsset* SkRWBuffer::newStreamSnapshot() const {
     SkAutoTUnref<SkROBuffer> buffer(this->newRBufferSnapshot());
-    return SkNEW_ARGS(SkROBufferStreamAsset, (buffer));
+    return new SkROBufferStreamAsset(buffer);
 }

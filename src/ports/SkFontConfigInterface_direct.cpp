@@ -133,7 +133,7 @@ SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface(SkBase
     SkAutoMutexAcquire ac(mutex);
     static SkFontConfigInterfaceDirect* singleton = NULL;
     if (singleton == NULL) {
-        singleton = SkNEW(SkFontConfigInterfaceDirect);
+        singleton = new SkFontConfigInterfaceDirect;
     }
     return singleton;
 }
@@ -733,9 +733,7 @@ bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
             }
         }
 
-        SkFontStyleSet_FC* sset = SkNEW_ARGS(SkFontStyleSet_FC,
-                                             (trimmedMatches.begin(),
-                                              trimmedMatches.count()));
+        SkFontStyleSet_FC* sset = new SkFontStyleSet_FC                                               (trimmedMatches.begin(),                                               trimmedMatches.count());
 #endif
     return false;
 }

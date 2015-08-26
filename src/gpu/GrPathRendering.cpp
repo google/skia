@@ -63,7 +63,7 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     }
 
     if (desc) {
-        SkAutoTUnref<GlyphGenerator> generator(SkNEW_ARGS(GlyphGenerator, (*typeface, *desc)));
+        SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, *desc));
         return this->createPathRange(generator, stroke);
     }
 
@@ -81,6 +81,6 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     genericDesc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     genericDesc->computeChecksum();
 
-    SkAutoTUnref<GlyphGenerator> generator(SkNEW_ARGS(GlyphGenerator, (*typeface, *genericDesc)));
+    SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, *genericDesc));
     return this->createPathRange(generator, stroke);
 }

@@ -102,4 +102,4 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return SkNEW_ARGS(RectoriBench, ()); )
+DEF_BENCH(return new RectoriBench();)

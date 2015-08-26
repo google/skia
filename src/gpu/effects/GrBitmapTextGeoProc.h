@@ -24,8 +24,7 @@ public:
     static GrGeometryProcessor* Create(GrColor color, GrTexture* tex, const GrTextureParams& p,
                                        GrMaskFormat format, const SkMatrix& localMatrix,
                                        bool usesLocalCoords) {
-        return SkNEW_ARGS(GrBitmapTextGeoProc, (color, tex, p, format, localMatrix,
-                usesLocalCoords));
+        return new GrBitmapTextGeoProc(color, tex, p, format, localMatrix, usesLocalCoords);
     }
 
     virtual ~GrBitmapTextGeoProc() {}

@@ -60,4 +60,4 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return SkNEW_ARGS(FSRectBench, ()); )
+DEF_BENCH(return new FSRectBench();)

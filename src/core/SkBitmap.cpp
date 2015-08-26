@@ -1145,7 +1145,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
 
     SkAutoTUnref<SkColorTable> ctable;
     if (buffer->readBool()) {
-        ctable.reset(SkNEW_ARGS(SkColorTable, (*buffer)));
+        ctable.reset(new SkColorTable(*buffer));
 
         unsigned char maxIndex = ctable->count() ? ctable->count()-1 : 0;
         for (uint64_t i = 0; i < ramSize; ++i) {

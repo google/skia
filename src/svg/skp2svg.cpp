@@ -45,17 +45,17 @@ int tool_main(int argc, char** argv) {
 
     SkAutoTDelete<SkWStream> outStream;
     if (FLAGS_output.count() > 0) {
-        SkFILEWStream* fileStream = SkNEW_ARGS(SkFILEWStream, (FLAGS_output[0]));
+        SkFILEWStream* fileStream = new SkFILEWStream(FLAGS_output[0]);
         if (!fileStream->isValid()) {
             SkDebugf("Couldn't open output file for writing: %s\n", FLAGS_output[0]);
             return kIOError;
         }
         outStream.reset(fileStream);
     } else {
-        outStream.reset(SkNEW(SkDebugWStream));
+        outStream.reset(new SkDebugWStream);
     }
 
-    SkAutoTDelete<SkXMLWriter> xmlWriter(SkNEW_ARGS(SkXMLStreamWriter, (outStream.get())));
+    SkAutoTDelete<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(outStream.get()));
     SkAutoTUnref<SkCanvas> svgCanvas(SkSVGCanvas::Create(pic->cullRect(), xmlWriter.get()));
 
     pic->playback(svgCanvas);

@@ -31,14 +31,14 @@ SkLayerDrawLooper::~SkLayerDrawLooper() {
     Rec* rec = fRecs;
     while (rec) {
         Rec* next = rec->fNext;
-        SkDELETE(rec);
+        delete rec;
         rec = next;
     }
 }
 
 SkLayerDrawLooper::Context* SkLayerDrawLooper::createContext(SkCanvas* canvas, void* storage) const {
     canvas->save();
-    return SkNEW_PLACEMENT_ARGS(storage, LayerDrawLooperContext, (this));
+    return new (storage) LayerDrawLooperContext(this);
 }
 
 static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
@@ -302,7 +302,7 @@ SkLayerDrawLooper::Builder::~Builder() {
     Rec* rec = fRecs;
     while (rec) {
         Rec* next = rec->fNext;
-        SkDELETE(rec);
+        delete rec;
         rec = next;
     }
 }
@@ -310,7 +310,7 @@ SkLayerDrawLooper::Builder::~Builder() {
 SkPaint* SkLayerDrawLooper::Builder::addLayer(const LayerInfo& info) {
     fCount += 1;
 
-    Rec* rec = SkNEW(Rec);
+    Rec* rec = new Rec;
     rec->fNext = fRecs;
     rec->fInfo = info;
     fRecs = rec;
@@ -331,7 +331,7 @@ void SkLayerDrawLooper::Builder::addLayer(SkScalar dx, SkScalar dy) {
 SkPaint* SkLayerDrawLooper::Builder::addLayerOnTop(const LayerInfo& info) {
     fCount += 1;
 
-    Rec* rec = SkNEW(Rec);
+    Rec* rec = new Rec;
     rec->fNext = NULL;
     rec->fInfo = info;
     if (NULL == fRecs) {
@@ -346,7 +346,7 @@ SkPaint* SkLayerDrawLooper::Builder::addLayerOnTop(const LayerInfo& info) {
 }
 
 SkLayerDrawLooper* SkLayerDrawLooper::Builder::detachLooper() {
-    SkLayerDrawLooper* looper = SkNEW(SkLayerDrawLooper);
+    SkLayerDrawLooper* looper = new SkLayerDrawLooper;
     looper->fCount = fCount;
     looper->fRecs = fRecs;
 

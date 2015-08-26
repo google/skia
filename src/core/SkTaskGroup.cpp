@@ -111,7 +111,7 @@ private:
             threads = sk_num_cores();
         }
         for (int i = 0; i < threads; i++) {
-            fThreads.push(SkNEW_ARGS(SkThread, (&ThreadPool::Loop, this)));
+            fThreads.push(new SkThread(&ThreadPool::Loop, this));
             fThreads.top()->start();
         }
     }
@@ -204,13 +204,11 @@ ThreadPool* ThreadPool::gGlobal = NULL;
 SkTaskGroup::Enabler::Enabler(int threads) {
     SkASSERT(ThreadPool::gGlobal == NULL);
     if (threads != 0) {
-        ThreadPool::gGlobal = SkNEW_ARGS(ThreadPool, (threads));
+        ThreadPool::gGlobal = new ThreadPool(threads);
     }
 }
 
-SkTaskGroup::Enabler::~Enabler() {
-    SkDELETE(ThreadPool::gGlobal);
-}
+SkTaskGroup::Enabler::~Enabler() { delete ThreadPool::gGlobal; }
 
 SkTaskGroup::SkTaskGroup() : fPending(0) {}
 

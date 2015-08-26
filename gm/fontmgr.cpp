@@ -300,12 +300,12 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(FontMgrGM); )
-DEF_GM( return SkNEW(FontMgrMatchGM); )
-DEF_GM( return SkNEW(FontMgrBoundsGM(1.0, 0)); )
-DEF_GM( return SkNEW(FontMgrBoundsGM(0.75, 0)); )
-DEF_GM( return SkNEW(FontMgrBoundsGM(1.0, -0.25)); )
+DEF_GM(return new FontMgrGM;)
+DEF_GM(return new FontMgrMatchGM;)
+DEF_GM(return new FontMgrBoundsGM(1.0, 0);)
+DEF_GM(return new FontMgrBoundsGM(0.75, 0);)
+DEF_GM(return new FontMgrBoundsGM(1.0, -0.25);)
 
 #ifdef SK_BUILD_FOR_WIN
-    DEF_GM( return SkNEW_ARGS(FontMgrGM, (SkFontMgr_New_DirectWrite())); )
+DEF_GM(return new FontMgrGM(SkFontMgr_New_DirectWrite());)
 #endif

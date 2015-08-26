@@ -43,7 +43,7 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
                                               SkScalar innerThreshold,
                                               SkScalar outerThreshold,
                                               SkImageFilter* input) {
-    return SkNEW_ARGS(SkAlphaThresholdFilterImpl, (region, innerThreshold, outerThreshold, input));
+    return new SkAlphaThresholdFilterImpl(region, innerThreshold, outerThreshold, input);
 }
 
 #if SK_SUPPORT_GPU
@@ -67,11 +67,8 @@ public:
                                        GrTexture* maskTexture,
                                        float innerThreshold,
                                        float outerThreshold) {
-        return SkNEW_ARGS(AlphaThresholdEffect, (procDataManager,
-                                                 texture,
-                                                 maskTexture,
-                                                 innerThreshold,
-                                                 outerThreshold));
+        return new AlphaThresholdEffect(procDataManager, texture, maskTexture, innerThreshold,
+                                        outerThreshold);
     }
 
     virtual ~AlphaThresholdEffect() {};
@@ -215,7 +212,7 @@ void AlphaThresholdEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* AlphaThresholdEffect::onCreateGLInstance() const {
-    return SkNEW_ARGS(GrGLAlphaThresholdEffect, (*this));
+    return new GrGLAlphaThresholdEffect(*this);
 }
 
 bool AlphaThresholdEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

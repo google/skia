@@ -43,7 +43,7 @@ public:
         if (n <= 0 || n > kMaxEdges || kHairlineAA_GrProcessorEdgeType == edgeType) {
             return NULL;
         }
-        return SkNEW_ARGS(GrConvexPolyEffect, (edgeType, n, edges));
+        return new GrConvexPolyEffect(edgeType, n, edges);
     }
 
     /**

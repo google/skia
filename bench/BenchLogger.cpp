@@ -14,12 +14,12 @@ BenchLogger::BenchLogger()
 
 BenchLogger::~BenchLogger() {
     if (fFileStream) {
-        SkDELETE(fFileStream);
+        delete fFileStream;
     }
 }
 
 bool BenchLogger::SetLogFile(const char *file) {
-    fFileStream = SkNEW_ARGS(SkFILEWStream, (file));
+    fFileStream = new SkFILEWStream(file);
     return fFileStream->isValid();
 }
 

@@ -200,7 +200,7 @@ private:
     bool initAtlas(GrMaskFormat);
 
     GrBatchTextStrike* generateStrike(GrFontScaler* scaler) {
-        GrBatchTextStrike* strike = SkNEW_ARGS(GrBatchTextStrike, (this, scaler->getKey()));
+        GrBatchTextStrike* strike = new GrBatchTextStrike(this, scaler->getKey());
         fCache.add(strike);
         return strike;
     }

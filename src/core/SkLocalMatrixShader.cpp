@@ -66,5 +66,5 @@ SkShader* SkShader::CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& loc
         proxy = otherProxy.get();
     }
 
-    return SkNEW_ARGS(SkLocalMatrixShader, (proxy, *lm));
+    return new SkLocalMatrixShader(proxy, *lm);
 }

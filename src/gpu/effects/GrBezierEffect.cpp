@@ -194,7 +194,7 @@ void GrConicEffect::getGLProcessorKey(const GrBatchTracker& bt,
 
 GrGLPrimitiveProcessor* GrConicEffect::createGLInstance(const GrBatchTracker& bt,
                                                         const GrGLSLCaps&) const {
-    return SkNEW_ARGS(GrGLConicEffect, (*this, bt));
+    return new GrGLConicEffect(*this, bt);
 }
 
 GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
@@ -402,7 +402,7 @@ void GrQuadEffect::getGLProcessorKey(const GrBatchTracker& bt,
 
 GrGLPrimitiveProcessor* GrQuadEffect::createGLInstance(const GrBatchTracker& bt,
                                                        const GrGLSLCaps&) const {
-    return SkNEW_ARGS(GrGLQuadEffect, (*this, bt));
+    return new GrGLQuadEffect(*this, bt);
 }
 
 GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
@@ -626,7 +626,7 @@ void GrCubicEffect::getGLProcessorKey(const GrBatchTracker& bt,
 
 GrGLPrimitiveProcessor* GrCubicEffect::createGLInstance(const GrBatchTracker& bt,
                                                         const GrGLSLCaps&) const {
-    return SkNEW_ARGS(GrGLCubicEffect, (*this, bt));
+    return new GrGLCubicEffect(*this, bt);
 }
 
 GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,

@@ -93,7 +93,7 @@ public:
         SkASSERT(0 < gStaticRefCount);
 
         if (NULL == gObj) {
-            gObj = SkNEW(GrDebugGL);
+            gObj = new GrDebugGL;
         }
 
         return gObj;
@@ -109,7 +109,7 @@ public:
         SkASSERT(gStaticRefCount > 0);
         gStaticRefCount--;
         if (0 == gStaticRefCount) {
-            SkDELETE(gObj);
+            delete gObj;
             gObj = NULL;
         }
     }

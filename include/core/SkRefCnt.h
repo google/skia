@@ -109,7 +109,7 @@ private:
      */
     virtual void internal_dispose() const {
         this->internal_dispose_restore_refcnt_to_1();
-        SkDELETE(this);
+        delete this;
     }
 
     // The following friends are those which override internal_dispose()
@@ -242,8 +242,8 @@ public:
     void    ref() const { (void)sk_atomic_fetch_add(&fRefCnt, +1, sk_memory_order_relaxed); }
     void  unref() const {
         if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
-            SkDEBUGCODE(fRefCnt = 1;)   // restore the 1 for our destructor's assert
-            SkDELETE((const Derived*)this);
+            SkDEBUGCODE(fRefCnt = 1;)  // restore the 1 for our destructor's assert
+                    delete (const Derived*)this;
         }
     }
     void  deref() const { this->unref(); }

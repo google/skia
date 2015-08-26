@@ -52,8 +52,8 @@ private:
      */
     void release() {
         fResource->release();
-        if (fResource->isPurgeable()) {            
-            SkDELETE(fResource);
+        if (fResource->isPurgeable()) {
+            delete fResource;
         }
     }
 
@@ -62,8 +62,8 @@ private:
      */
     void abandon() {
         fResource->abandon();
-        if (fResource->isPurgeable()) {            
-            SkDELETE(fResource);
+        if (fResource->isPurgeable()) {
+            delete fResource;
         }
     }
 

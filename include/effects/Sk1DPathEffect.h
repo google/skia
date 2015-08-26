@@ -58,7 +58,7 @@ public:
     */
     static SkPath1DPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase,
                                       Style style) {
-        return SkNEW_ARGS(SkPath1DPathEffect, (path, advance, phase, style));
+        return new SkPath1DPathEffect(path, advance, phase, style);
     }
 
     virtual bool filterPath(SkPath*, const SkPath&,

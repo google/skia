@@ -63,7 +63,7 @@ void SubsetTranslateBench::onDraw(const int n, SkCanvas* canvas) {
             SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
                     SkScanlineDecoder::NewFromStream(fStream->duplicate()));
             const SkImageInfo info = scanlineDecoder->getInfo().makeColorType(fColorType);
-            SkAutoTDeleteArray<uint8_t> row(SkNEW_ARRAY(uint8_t, info.minRowBytes()));
+            SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
             scanlineDecoder->start(info, NULL, colors, &colorCount);
 
             SkBitmap bitmap;
@@ -94,7 +94,7 @@ void SubsetTranslateBench::onDraw(const int n, SkCanvas* canvas) {
         // We create a color table here to satisfy allocPixels() when the output
         // type is kIndex8.  It's okay that this is uninitialized since we never
         // use it.
-        SkColorTable* colorTable = SkNEW_ARGS(SkColorTable, (colors, 0));
+        SkColorTable* colorTable = new SkColorTable(colors, 0);
         for (int count = 0; count < n; count++) {
             int width, height;
             SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(fStream));

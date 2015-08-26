@@ -321,7 +321,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
             SkASSERT(false);
             return NULL;
     }
-    return SkNEW_ARGS(SkMaskSwizzler, (info, masks, proc));
+    return new SkMaskSwizzler(info, masks, proc);
 }
 
 /*

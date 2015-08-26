@@ -162,7 +162,7 @@ void GrMatrixConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrMatrixConvolutionEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GrGLMatrixConvolutionEffect, (*this));
+    return new GrGLMatrixConvolutionEffect(*this);
 }
 
 bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -216,16 +216,8 @@ GrMatrixConvolutionEffect::CreateGaussian(GrProcessorDataManager* procDataManage
     for (int i = 0; i < width * height; ++i) {
         kernel[i] *= scale;
     }
-    return SkNEW_ARGS(GrMatrixConvolutionEffect, (procDataManager,
-                                                  texture,
-                                                  bounds,
-                                                  kernelSize,
-                                                  kernel,
-                                                  gain,
-                                                  bias,
-                                                  kernelOffset,
-                                                  tileMode,
-                                                  convolveAlpha));
+    return new GrMatrixConvolutionEffect(procDataManager, texture, bounds, kernelSize, kernel, gain,
+                                         bias, kernelOffset, tileMode, convolveAlpha);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);

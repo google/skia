@@ -105,9 +105,7 @@ SkSurface_Raster::SkSurface_Raster(SkPixelRef* pr, const SkSurfaceProps* props)
     }
 }
 
-SkCanvas* SkSurface_Raster::onNewCanvas() {
-    return SkNEW_ARGS(SkCanvas, (fBitmap, this->props()));
-}
+SkCanvas* SkSurface_Raster::onNewCanvas() { return new SkCanvas(fBitmap, this->props()); }
 
 SkSurface* SkSurface_Raster::onNewSurface(const SkImageInfo& info) {
     return SkSurface::NewRaster(info, &this->props());
@@ -174,7 +172,7 @@ SkSurface* SkSurface::NewRasterDirectReleaseProc(const SkImageInfo& info, void* 
         return NULL;
     }
 
-    return SkNEW_ARGS(SkSurface_Raster, (info, pixels, rb, releaseProc, context, props));
+    return new SkSurface_Raster(info, pixels, rb, releaseProc, context, props);
 }
 
 SkSurface* SkSurface::NewRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes,
@@ -191,5 +189,5 @@ SkSurface* SkSurface::NewRaster(const SkImageInfo& info, const SkSurfaceProps* p
     if (NULL == pr.get()) {
         return NULL;
     }
-    return SkNEW_ARGS(SkSurface_Raster, (pr, props));
+    return new SkSurface_Raster(pr, props);
 }

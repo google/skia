@@ -160,7 +160,7 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     }
     SkImageInfo info = SkImageInfo::Make(size.width(), size.height(),
             kGray_8_SkColorType, kOpaque_SkAlphaType);
-    return SkNEW_ARGS(SkWbmpCodec, (info, streamDeleter.detach()));
+    return new SkWbmpCodec(info, streamDeleter.detach());
 }
 
 class SkWbmpScanlineDecoder : public SkScanlineDecoder {
@@ -214,7 +214,7 @@ public:
 
         // Copy the color table to a pointer that can be owned by the scanline decoder
         if (kIndex_8_SkColorType == dstInfo.colorType()) {
-            fColorTable.reset(SkNEW_ARGS(SkColorTable, (inputColorTable, 2)));
+            fColorTable.reset(new SkColorTable(inputColorTable, 2));
         }
 
         // Initialize the swizzler
@@ -248,5 +248,5 @@ SkScanlineDecoder* SkWbmpCodec::NewSDFromStream(SkStream* stream) {
     }
 
     // Return the new scanline decoder
-    return SkNEW_ARGS(SkWbmpScanlineDecoder, (codec.detach()));
+    return new SkWbmpScanlineDecoder(codec.detach());
 }

@@ -91,7 +91,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 
         // Read the color table from the stream
         colorBytes = fNumColors * fBytesPerColor;
-        SkAutoTDeleteArray<uint8_t> cBuffer(SkNEW_ARRAY(uint8_t, colorBytes));
+        SkAutoTDeleteArray<uint8_t> cBuffer(new uint8_t[colorBytes]);
         if (stream()->read(cBuffer.get(), colorBytes) != colorBytes) {
             SkCodecPrintf("Error: unable to read color table.\n");
             return false;
@@ -139,7 +139,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         // Set the color table
-        fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorTable, maxColors)));
+        fColorTable.reset(new SkColorTable(colorTable, maxColors));
     }
 
     // Bmp-in-Ico files do not use an offset to indicate where the pixel data
@@ -171,7 +171,7 @@ bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo,
                                             const Options& opts) {
     // Allocate space for a row buffer
     const size_t rowBytes = SkAlign4(compute_row_bytes(dstInfo.width(), this->bitsPerPixel()));
-    fSrcBuffer.reset(SkNEW_ARRAY(uint8_t, rowBytes));
+    fSrcBuffer.reset(new uint8_t[rowBytes]);
 
     // Get swizzler configuration
     SkSwizzler::SrcConfig config;

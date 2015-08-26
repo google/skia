@@ -173,8 +173,7 @@ SkDisplacementMapEffect* SkDisplacementMapEffect::Create(ChannelSelectorType xCh
     }
 
     SkImageFilter* inputs[2] = { displacement, color };
-    return SkNEW_ARGS(SkDisplacementMapEffect, (xChannelSelector, yChannelSelector, scale,
-                                                inputs, cropRect));
+    return new SkDisplacementMapEffect(xChannelSelector, yChannelSelector, scale, inputs, cropRect);
 }
 
 SkDisplacementMapEffect::SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
@@ -334,14 +333,9 @@ public:
             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector, SkVector scale,
             GrTexture* displacement, const SkMatrix& offsetMatrix, GrTexture* color,
             const SkISize& colorDimensions) {
-        return SkNEW_ARGS(GrDisplacementMapEffect, (procDataManager,
-                                                    xChannelSelector,
-                                                    yChannelSelector,
-                                                    scale,
-                                                    displacement,
-                                                    offsetMatrix,
-                                                    color,
-                                                    colorDimensions));
+        return new GrDisplacementMapEffect(procDataManager, xChannelSelector, yChannelSelector,
+                                           scale, displacement, offsetMatrix, color,
+                                           colorDimensions);
     }
 
     virtual ~GrDisplacementMapEffect();
@@ -357,7 +351,7 @@ public:
 
 private:
     GrGLFragmentProcessor* onCreateGLInstance() const override {
-        return SkNEW_ARGS(GrGLDisplacementMapEffect, (*this));
+        return new GrGLDisplacementMapEffect(*this);
     }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

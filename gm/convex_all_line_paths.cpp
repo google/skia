@@ -211,7 +211,7 @@ protected:
                 break;
             }
 
-            data.reset(SkNEW_ARRAY(SkPoint, numPts));
+            data.reset(new SkPoint[numPts]);
 
             create_ngon(numPts, data.get(), width, height);
             points = data.get();
@@ -317,6 +317,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(ConvexLineOnlyPathsGM); )
-
+DEF_GM(return new ConvexLineOnlyPathsGM;)
 }

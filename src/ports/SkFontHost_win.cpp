@@ -2277,10 +2277,9 @@ size_t LogFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
 }
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    SkScalerContext_GDI* ctx = SkNEW_ARGS(SkScalerContext_GDI,
-                                                (const_cast<LogFontTypeface*>(this), desc));
+    SkScalerContext_GDI* ctx = new SkScalerContext_GDI(const_cast<LogFontTypeface*>(this), desc);
     if (!ctx->isValid()) {
-        SkDELETE(ctx);
+        delete ctx;
         ctx = NULL;
     }
     return ctx;
@@ -2442,7 +2441,7 @@ protected:
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
         SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
-        return SkNEW_ARGS(SkFontStyleSetGDI, (fLogFontArray[index].elfLogFont.lfFaceName));
+        return new SkFontStyleSetGDI(fLogFontArray[index].elfLogFont.lfFaceName);
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
@@ -2451,7 +2450,7 @@ protected:
         }
         LOGFONT lf;
         logfont_for_name(familyName, &lf);
-        return SkNEW_ARGS(SkFontStyleSetGDI, (lf.lfFaceName));
+        return new SkFontStyleSetGDI(lf.lfFaceName);
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
@@ -2482,7 +2481,7 @@ protected:
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
         // could be in base impl
-        return this->createFromStream(SkNEW_ARGS(SkMemoryStream, (data)));
+        return this->createFromStream(new SkMemoryStream(data));
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
@@ -2511,6 +2510,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFontMgr* SkFontMgr_New_GDI() {
-    return SkNEW(SkFontMgrGDI);
-}
+SkFontMgr* SkFontMgr_New_GDI() { return new SkFontMgrGDI; }

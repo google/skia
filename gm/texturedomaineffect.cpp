@@ -155,7 +155,7 @@ private:
 const SkScalar TextureDomainEffect::kDrawPad = 10.f;
 const SkScalar TextureDomainEffect::kTestPad = 10.f;
 
-DEF_GM( return SkNEW(TextureDomainEffect); )
+DEF_GM(return new TextureDomainEffect;)
 }
 
 #endif

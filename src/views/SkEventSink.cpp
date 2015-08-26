@@ -148,7 +148,7 @@ void SkEventSink::addListenerID(SkEventSinkID id)
         count = prev->countListners();
     }
 
-    SkListenersTagList* next = SkNEW_ARGS(SkListenersTagList, (count + 1));
+    SkListenersTagList* next = new SkListenersTagList(count + 1);
 
     if (prev)
     {
@@ -209,7 +209,7 @@ void SkEventSink::postToListeners(const SkEvent& evt, SkMSec delay) {
         const SkEventSinkID* iter = list->fIDs;
         const SkEventSinkID* stop = iter + list->countListners();
         while (iter < stop) {
-            SkEvent* copy = SkNEW_ARGS(SkEvent, (evt));
+            SkEvent* copy = new SkEvent(evt);
             copy->setTargetID(*iter++)->postDelay(delay);
         }
     }

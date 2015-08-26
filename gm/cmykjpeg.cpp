@@ -38,7 +38,7 @@ protected:
             stream.rewind();
             codec->setDitherImage(dither);
             codec->decode(&stream, &fBitmap, kN32_SkColorType, SkImageDecoder::kDecodePixels_Mode);
-            SkDELETE(codec);
+            delete codec;
         }
     }
 

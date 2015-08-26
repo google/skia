@@ -40,14 +40,14 @@ public:
         if (list) {
             // The new ValueList entry is inserted as the second element in the
             // linked list, and it will contain the value of the first element.
-            ValueList* newEntry = SkNEW_ARGS(ValueList, (list->fValue));
+            ValueList* newEntry = new ValueList(list->fValue);
             newEntry->fNext = list->fNext;
             // The existing first ValueList entry is updated to contain the
             // inserted value.
             list->fNext = newEntry;
             list->fValue = value;
         } else {
-            fHash.add(SkNEW_ARGS(ValueList, (value)));
+            fHash.add(new ValueList(value));
         }
 
         ++fCount;
@@ -68,13 +68,13 @@ public:
             ValueList* next = list->fNext;
             list->fValue = next->fValue;
             list->fNext = next->fNext;
-            SkDELETE(next);
+            delete next;
         } else if (prev) {
             prev->fNext = NULL;
-            SkDELETE(list);
+            delete list;
         } else {
             fHash.remove(key);
-            SkDELETE(list);
+            delete list;
         }
 
         --fCount;

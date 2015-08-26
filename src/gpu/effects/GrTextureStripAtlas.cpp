@@ -27,7 +27,7 @@ GrTextureStripAtlas::Hash* GrTextureStripAtlas::gAtlasCache = NULL;
 GrTextureStripAtlas::Hash* GrTextureStripAtlas::GetCache() {
 
     if (NULL == gAtlasCache) {
-        gAtlasCache = SkNEW(Hash);
+        gAtlasCache = new Hash;
     }
 
     return gAtlasCache;
@@ -43,10 +43,10 @@ void GrTextureStripAtlas::CleanUp(const GrContext*, void* info) {
     GetCache()->remove(entry->fDesc);
 
     // remove the actual entry
-    SkDELETE(entry);
+    delete entry;
 
     if (0 == GetCache()->count()) {
-        SkDELETE(gAtlasCache);
+        delete gAtlasCache;
         gAtlasCache = NULL;
     }
 }
@@ -54,9 +54,9 @@ void GrTextureStripAtlas::CleanUp(const GrContext*, void* info) {
 GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::Desc& desc) {
     AtlasEntry* entry = GetCache()->find(desc);
     if (NULL == entry) {
-        entry = SkNEW(AtlasEntry);
+        entry = new AtlasEntry;
 
-        entry->fAtlas = SkNEW_ARGS(GrTextureStripAtlas, (desc));
+        entry->fAtlas = new GrTextureStripAtlas(desc);
         entry->fDesc = desc;
 
         desc.fContext->addCleanUp(CleanUp, entry);
@@ -73,7 +73,7 @@ GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)
     , fDesc(desc)
     , fNumRows(desc.fHeight / desc.fRowHeight)
     , fTexture(NULL)
-    , fRows(SkNEW_ARRAY(AtlasRow, fNumRows))
+    , fRows(new AtlasRow[fNumRows])
     , fLRUFront(NULL)
     , fLRUBack(NULL) {
     SkASSERT(fNumRows * fDesc.fRowHeight == fDesc.fHeight);
@@ -82,9 +82,7 @@ GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)
     VALIDATE;
 }
 
-GrTextureStripAtlas::~GrTextureStripAtlas() {
-    SkDELETE_ARRAY(fRows);
-}
+GrTextureStripAtlas::~GrTextureStripAtlas() { delete[] fRows; }
 
 int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
     VALIDATE;

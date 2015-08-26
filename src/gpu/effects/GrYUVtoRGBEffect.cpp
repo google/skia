@@ -40,8 +40,8 @@ public:
              (sizes[2].fHeight != sizes[0].fHeight)) ?
             GrTextureParams::kBilerp_FilterMode :
             GrTextureParams::kNone_FilterMode;
-        return SkNEW_ARGS(YUVtoRGBEffect, (procDataManager, yTexture, uTexture, vTexture, yuvMatrix,
-                                           uvFilterMode, colorSpace));
+        return new YUVtoRGBEffect(procDataManager, yTexture, uTexture, vTexture, yuvMatrix,
+                                  uvFilterMode, colorSpace);
     }
 
     const char* name() const override { return "YUV to RGB"; }
@@ -123,9 +123,7 @@ private:
         this->addTextureAccess(&fVAccess);
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
-        return SkNEW_ARGS(GLProcessor, (*this));
-    }
+    GrGLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override {

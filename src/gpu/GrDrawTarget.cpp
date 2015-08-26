@@ -380,7 +380,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
 
         this->drawNonAARect(pipelineBuilder, color, SkMatrix::I(), *rect);
     } else {
-        GrBatch* batch = SkNEW_ARGS(GrClearBatch, (*rect, color, renderTarget));
+        GrBatch* batch = new GrClearBatch(*rect, color, renderTarget);
         this->onDrawBatch(batch);
         batch->unref();
     }
@@ -388,7 +388,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
 
 void GrDrawTarget::discard(GrRenderTarget* renderTarget) {
     if (this->caps()->discardRenderTargetSupport()) {
-        GrBatch* batch = SkNEW_ARGS(GrDiscardBatch, (renderTarget));
+        GrBatch* batch = new GrDiscardBatch(renderTarget);
         this->onDrawBatch(batch);
         batch->unref();
     }
@@ -484,7 +484,7 @@ GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder* pipelineBuilde
 GrClipTarget::GrClipTarget(GrContext* context)
     : INHERITED(context->getGpu(), context->resourceProvider())
     , fContext(context) {
-    fClipMaskManager.reset(SkNEW_ARGS(GrClipMaskManager, (this)));
+    fClipMaskManager.reset(new GrClipMaskManager(this));
 }
 
 
@@ -507,7 +507,7 @@ void GrClipTarget::purgeResources() {
 };
 
 void GrClipTarget::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) {
-    GrBatch* batch = SkNEW_ARGS(GrClearStencilClipBatch, (rect, insideClip, rt));
+    GrBatch* batch = new GrClearStencilClipBatch(rect, insideClip, rt);
     this->onDrawBatch(batch);
     batch->unref();
 }

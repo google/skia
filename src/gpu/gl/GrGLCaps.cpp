@@ -54,7 +54,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
 
     fReadPixelsSupportedCache.reset();
 
-    fShaderCaps.reset(SkNEW_ARGS(GrGLSLCaps, (contextOptions)));
+    fShaderCaps.reset(new GrGLSLCaps(contextOptions));
 
     this->init(contextOptions, ctxInfo, glInterface);
 }

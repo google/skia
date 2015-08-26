@@ -169,7 +169,7 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return SkNEW(ImageFromYUVTextures); )
+DEF_GM(return new ImageFromYUVTextures;)
 }
 
 #endif

@@ -20,7 +20,7 @@ public:
         if (!SkScalarIsFinite(dx) || !SkScalarIsFinite(dy)) {
             return NULL;
         }
-        return SkNEW_ARGS(SkOffsetImageFilter, (dx, dy, input, cropRect));
+        return new SkOffsetImageFilter(dx, dy, input, cropRect);
     }
     void computeFastBounds(const SkRect& src, SkRect* dst) const override;
     SK_TO_STRING_OVERRIDE()

@@ -60,7 +60,7 @@ SkFlattenable* SkComposeShader::CreateProc(SkReadBuffer& buffer) {
     if (!shaderA.get() || !shaderB.get()) {
         return NULL;
     }
-    return SkNEW_ARGS(SkComposeShader, (shaderA, shaderB, mode));
+    return new SkComposeShader(shaderA, shaderB, mode);
 }
 
 void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
@@ -102,7 +102,7 @@ SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void*
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, ComposeShaderContext, (*this, rec, contextA, contextB));
+    return new (storage) ComposeShaderContext(*this, rec, contextA, contextB);
 }
 
 SkComposeShader::ComposeShaderContext::ComposeShaderContext(

@@ -18,7 +18,7 @@
 class CoverageSetOpXP : public GrXferProcessor {
 public:
     static GrXferProcessor* Create(SkRegion::Op regionOp, bool invertCoverage) {
-        return SkNEW_ARGS(CoverageSetOpXP, (regionOp, invertCoverage));
+        return new CoverageSetOpXP(regionOp, invertCoverage);
     }
 
     ~CoverageSetOpXP() override;
@@ -102,7 +102,7 @@ void CoverageSetOpXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKey
 }
 
 GrGLXferProcessor* CoverageSetOpXP::createGLInstance() const {
-    return SkNEW_ARGS(GLCoverageSetOpXP, (*this));
+    return new GLCoverageSetOpXP(*this);
 }
 
 GrXferProcessor::OptFlags

@@ -35,7 +35,7 @@ void SkMultiPictureDraw::DrawData::init(SkCanvas* canvas, const SkPicture* pictu
         fMatrix.setIdentity();
     }
     if (paint) {
-        fPaint = SkNEW_ARGS(SkPaint, (*paint));
+        fPaint = new SkPaint(*paint);
     } else {
         fPaint = NULL;
     }
@@ -45,7 +45,7 @@ void SkMultiPictureDraw::DrawData::Reset(SkTDArray<DrawData>& data) {
     for (int i = 0; i < data.count(); ++i) {
         data[i].fPicture->unref();
         data[i].fCanvas->unref();
-        SkDELETE(data[i].fPaint);
+        delete data[i].fPaint;
     }
     data.rewind();
 }

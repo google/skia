@@ -72,7 +72,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return SkNEW(InternalLinksGM); }
+static GM* MyFactory(void*) { return new InternalLinksGM; }
 static GMRegistry reg(MyFactory);
 
 }

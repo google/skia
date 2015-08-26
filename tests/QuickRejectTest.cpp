@@ -17,7 +17,7 @@ class TestLooper : public SkDrawLooper {
 public:
 
     SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const override {
-        return SkNEW_PLACEMENT(storage, TestDrawLooperContext);
+        return new (storage) TestDrawLooperContext;
     }
 
     size_t contextSize() const override { return sizeof(TestDrawLooperContext); }
@@ -49,7 +49,7 @@ private:
     };
 };
 
-SkFlattenable* TestLooper::CreateProc(SkReadBuffer&) { return SkNEW(TestLooper); }
+SkFlattenable* TestLooper::CreateProc(SkReadBuffer&) { return new TestLooper; }
 
 static void test_drawBitmap(skiatest::Reporter* reporter) {
     SkBitmap src;

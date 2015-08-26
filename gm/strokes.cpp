@@ -407,4 +407,4 @@ static skiagm::GMRegistry R2(F2);
 static skiagm::GMRegistry R3(F3);
 static skiagm::GMRegistry R4(F4);
 
-DEF_GM( return SkNEW(ZeroLenStrokesGM); )
+DEF_GM( return new ZeroLenStrokesGM; )

@@ -3577,7 +3577,7 @@ public:
     static void TestPathRef(skiatest::Reporter* reporter) {
         static const int kRepeatCnt = 10;
 
-        SkAutoTUnref<SkPathRef> pathRef(SkNEW(SkPathRef));
+        SkAutoTUnref<SkPathRef> pathRef(new SkPathRef);
 
         SkPathRef::Editor ed(&pathRef);
 
@@ -3758,19 +3758,19 @@ public:
 
         // Check that listener is notified on moveTo().
 
-        SkPathPriv::AddGenIDChangeListener(p, SkNEW(ChangeListener(&changed)));
+        SkPathPriv::AddGenIDChangeListener(p, new ChangeListener(&changed));
         REPORTER_ASSERT(reporter, !changed);
         p.moveTo(10, 0);
         REPORTER_ASSERT(reporter, changed);
 
         // Check that listener is notified on lineTo().
-        SkPathPriv::AddGenIDChangeListener(p, SkNEW(ChangeListener(&changed)));
+        SkPathPriv::AddGenIDChangeListener(p, new ChangeListener(&changed));
         REPORTER_ASSERT(reporter, !changed);
         p.lineTo(20, 0);
         REPORTER_ASSERT(reporter, changed);
 
         // Check that listener is notified on reset().
-        SkPathPriv::AddGenIDChangeListener(p, SkNEW(ChangeListener(&changed)));
+        SkPathPriv::AddGenIDChangeListener(p, new ChangeListener(&changed));
         REPORTER_ASSERT(reporter, !changed);
         p.reset();
         REPORTER_ASSERT(reporter, changed);
@@ -3778,7 +3778,7 @@ public:
         p.moveTo(0, 0);
 
         // Check that listener is notified on rewind().
-        SkPathPriv::AddGenIDChangeListener(p, SkNEW(ChangeListener(&changed)));
+        SkPathPriv::AddGenIDChangeListener(p, new ChangeListener(&changed));
         REPORTER_ASSERT(reporter, !changed);
         p.rewind();
         REPORTER_ASSERT(reporter, changed);
@@ -3787,7 +3787,7 @@ public:
         {
             SkPath q;
             q.moveTo(10, 10);
-            SkPathPriv::AddGenIDChangeListener(q, SkNEW(ChangeListener(&changed)));
+            SkPathPriv::AddGenIDChangeListener(q, new ChangeListener(&changed));
             REPORTER_ASSERT(reporter, !changed);
         }
         // q went out of scope.

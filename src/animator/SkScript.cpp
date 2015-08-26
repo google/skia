@@ -1356,7 +1356,7 @@ bool SkScriptEngine::processOp() {
             break;
         case kAddString:
             if (fTrackString.find(operand1.fString) < 0) {
-                operand1.fString = SkNEW_ARGS(SkString, (*operand1.fString));
+                operand1.fString = new SkString(*operand1.fString);
                 track(operand1.fString);
             }
             operand1.fString->append(*operand2.fString);

@@ -35,7 +35,7 @@ public:
         SkASSERT(fRefCnt > 0);
         --fRefCnt;
         if (0 == fRefCnt) {
-            SkDELETE(this);
+            delete this;
             return;
         }
     }

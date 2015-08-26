@@ -57,7 +57,7 @@ SkCachedData::~SkCachedData() {
             sk_free(fStorage.fMalloc);
             break;
         case kDiscardableMemory_StorageType:
-            SkDELETE(fStorage.fDM);
+            delete fStorage.fDM;
             break;
     }
     dec();
@@ -88,7 +88,7 @@ void SkCachedData::internalRef(bool fromCache) const {
 void SkCachedData::internalUnref(bool fromCache) const {
     if (AutoMutexWritable(this)->inMutexUnref(fromCache)) {
         // can't delete inside doInternalUnref, since it is locking a mutex (which we own)
-        SkDELETE(this);
+        delete this;
     }
 }
 

@@ -113,8 +113,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     // Bmps embedded in Icos skip the first Bmp header
     if (!inIco) {
         // Read the first header and the size of the second header
-        SkAutoTDeleteArray<uint8_t> hBuffer(
-                SkNEW_ARRAY(uint8_t, kBmpHeaderBytesPlusFour));
+        SkAutoTDeleteArray<uint8_t> hBuffer(new uint8_t[kBmpHeaderBytesPlusFour]);
         if (stream->read(hBuffer.get(), kBmpHeaderBytesPlusFour) !=
                 kBmpHeaderBytesPlusFour) {
             SkCodecPrintf("Error: unable to read first bitmap header.\n");
@@ -148,8 +147,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
         offset = 0;
 
         // Read the size of the second header
-        SkAutoTDeleteArray<uint8_t> hBuffer(
-                SkNEW_ARRAY(uint8_t, 4));
+        SkAutoTDeleteArray<uint8_t> hBuffer(new uint8_t[4]);
         if (stream->read(hBuffer.get(), 4) != 4) {
             SkCodecPrintf("Error: unable to read size of second bitmap header.\n");
             return false;
@@ -165,8 +163,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     const uint32_t infoBytesRemaining = infoBytes - 4;
 
     // Read the second header
-    SkAutoTDeleteArray<uint8_t> iBuffer(
-            SkNEW_ARRAY(uint8_t, infoBytesRemaining));
+    SkAutoTDeleteArray<uint8_t> iBuffer(new uint8_t[infoBytesRemaining]);
     if (stream->read(iBuffer.get(), infoBytesRemaining) != infoBytesRemaining) {
         SkCodecPrintf("Error: unable to read second bitmap header.\n");
         return false;
@@ -313,8 +310,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
             switch (headerType) {
                 case kInfoV1_BmpHeaderType: {
                     // The V1 header stores the bit masks after the header
-                    SkAutoTDeleteArray<uint8_t> mBuffer(
-                            SkNEW_ARRAY(uint8_t, kBmpMaskBytes));
+                    SkAutoTDeleteArray<uint8_t> mBuffer(new uint8_t[kBmpMaskBytes]);
                     if (stream->read(mBuffer.get(), kBmpMaskBytes) !=
                             kBmpMaskBytes) {
                         SkCodecPrintf("Error: unable to read bit inputMasks.\n");
@@ -472,9 +468,9 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
         // Return the codec
         switch (inputFormat) {
             case kStandard_BmpInputFormat:
-                *codecOut = SkNEW_ARGS(SkBmpStandardCodec, (imageInfo, stream,
-                        bitsPerPixel, numColors, bytesPerColor,
-                        offset - bytesRead, rowOrder, inIco));
+                *codecOut =
+                        new SkBmpStandardCodec(imageInfo, stream, bitsPerPixel, numColors,
+                                               bytesPerColor, offset - bytesRead, rowOrder, inIco);
                 return true;
             case kBitMask_BmpInputFormat:
                 // Bmp-in-Ico must be standard mode
@@ -490,8 +486,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     return false;
                 }
 
-                *codecOut = SkNEW_ARGS(SkBmpMaskCodec, (imageInfo, stream,
-                        bitsPerPixel, masks.detach(), rowOrder));
+                *codecOut = new SkBmpMaskCodec(imageInfo, stream, bitsPerPixel, masks.detach(),
+                                               rowOrder);
                 return true;
             case kRLE_BmpInputFormat:
                 // Bmp-in-Ico must be standard mode
@@ -499,9 +495,9 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 // require that RLE Bmps have a valid number of totalBytes, and
                 // Icos skip the header that contains totalBytes.
                 SkASSERT(!inIco);
-                *codecOut = SkNEW_ARGS(SkBmpRLECodec, (
-                        imageInfo, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder, RLEBytes));
+                *codecOut =
+                        new SkBmpRLECodec(imageInfo, stream, bitsPerPixel, numColors, bytesPerColor,
+                                          offset - bytesRead, rowOrder, RLEBytes);
                 return true;
             default:
                 SkASSERT(false);

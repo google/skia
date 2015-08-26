@@ -725,7 +725,7 @@ void SkDebuggerGUI::setupDirectoryWidget(const QString& path) {
 void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fFileName = fileName;
     fLoading = true;
-    SkAutoTDelete<SkStream> stream(SkNEW_ARGS(SkFILEStream, (fileName.c_str())));
+    SkAutoTDelete<SkStream> stream(new SkFILEStream(fileName.c_str()));
 
     SkPicture* picture = SkPicture::CreateFromStream(stream);
 

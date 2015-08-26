@@ -46,7 +46,7 @@ public:
 
     void populateCache() {
         for (int i = 0; i < CACHE_COUNT; ++i) {
-            fCache.add(SkNEW_ARGS(TestRec, (TestKey(i), i)));
+            fCache.add(new TestRec(TestKey(i), i));
         }
     }
 

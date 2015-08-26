@@ -236,7 +236,7 @@ SkEGLFenceSync* SkEGLFenceSync::CreateIfSupported(EGLDisplay display) {
     if (!display || !supports_egl_extension(display, "EGL_KHR_fence_sync")) {
         return NULL;
     }
-    return SkNEW_ARGS(SkEGLFenceSync, (display));
+    return new SkEGLFenceSync(display);
 }
 
 SkPlatformGpuFence SkEGLFenceSync::insertFence() const {
@@ -259,9 +259,9 @@ void SkEGLFenceSync::deleteFence(SkPlatformGpuFence platformFence) const {
 } // anonymous namespace
 
 SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
-    EGLGLContext* ctx = SkNEW_ARGS(EGLGLContext, (forcedGpuAPI));
+    EGLGLContext* ctx = new EGLGLContext(forcedGpuAPI);
     if (!ctx->isValid()) {
-        SkDELETE(ctx);
+        delete ctx;
         return NULL;
     }
     return ctx;

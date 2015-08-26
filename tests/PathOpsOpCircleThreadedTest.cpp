@@ -70,8 +70,8 @@ DEF_TEST(PathOpsOpCircleThreaded, reporter) {
         for (int b = a + 1; b < 7; ++b) {
             for (int c = 0 ; c < 6; ++c) {
                 for (int d = 0; d < 2; ++d) {
-                    *testRunner.fRunnables.append() = SkNEW_ARGS(PathOpsThreadedRunnable,
-                            (&testOpCirclesMain, a, b, c, d, &testRunner));
+                    *testRunner.fRunnables.append() = new PathOpsThreadedRunnable(
+                            &testOpCirclesMain, a, b, c, d, &testRunner);
                 }
             }
             if (!reporter->allowExtendedTest()) goto finish;

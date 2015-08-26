@@ -314,7 +314,7 @@ void PDFDefaultBitmap::addResources(
 }
 
 static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
-    SkPDFArray* result = SkNEW(SkPDFArray);
+    SkPDFArray* result = new SkPDFArray;
     result->reserve(4);
     result->appendName("Indexed");
     result->appendName("DeviceRGB");
@@ -457,7 +457,7 @@ SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon, const SkBitmap& bitmap) {
         SkJFIFInfo info;
         if (data && SkIsJFIF(data, &info)) {
             bool yuv = info.fType == SkJFIFInfo::kYCbCr;
-            SkPDFBitmap* pdfBitmap = SkNEW_ARGS(PDFJpegBitmap, (bm, data, yuv));
+            SkPDFBitmap* pdfBitmap = new PDFJpegBitmap(bm, data, yuv);
             canon->addBitmap(pdfBitmap);
             return pdfBitmap;
         }
@@ -465,9 +465,9 @@ SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon, const SkBitmap& bitmap) {
 
     SkPDFObject* smask = NULL;
     if (!bm.isOpaque() && !SkBitmap::ComputeIsOpaque(bm)) {
-        smask = SkNEW_ARGS(PDFAlphaBitmap, (bm));
+        smask = new PDFAlphaBitmap(bm);
     }
-    SkPDFBitmap* pdfBitmap = SkNEW_ARGS(PDFDefaultBitmap, (bm, smask));
+    SkPDFBitmap* pdfBitmap = new PDFDefaultBitmap(bm, smask);
     canon->addBitmap(pdfBitmap);
     return pdfBitmap;
 }

@@ -28,9 +28,7 @@ GrTextContext::GrTextContext(GrContext* context, GrDrawContext* drawContext,
     , fDrawContext(drawContext) {
 }
 
-GrTextContext::~GrTextContext() {
-    SkDELETE(fFallbackTextContext);
-}
+GrTextContext::~GrTextContext() { delete fFallbackTextContext; }
 
 void GrTextContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& paint,
                              const SkPaint& skPaint, const SkMatrix& viewMatrix,
@@ -236,7 +234,7 @@ void GrTextContext::drawPosTextAsPath(GrRenderTarget* rt,
     }
 }
 
-//*** change to output positions?
+// *** change to output positions?
 int GrTextContext::MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
                                 const char text[], size_t byteLength, SkVector* stopVector) {
     SkFixed     x = 0, y = 0;
@@ -274,7 +272,7 @@ GrFontScaler* GrTextContext::GetGrFontScaler(SkGlyphCache* cache) {
         scaler = (GrFontScaler*)auxData;
     }
     if (NULL == scaler) {
-        scaler = SkNEW_ARGS(GrFontScaler, (cache));
+        scaler = new GrFontScaler(cache);
         cache->setAuxProc(GlyphCacheAuxProc, scaler);
     }
 

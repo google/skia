@@ -167,7 +167,7 @@ private:
     // refcnted and malloced
     struct DistanceAdjustTable : public SkNVRefCnt<DistanceAdjustTable> {
         DistanceAdjustTable() { this->buildDistanceAdjustTable(); }
-        ~DistanceAdjustTable() { SkDELETE_ARRAY(fTable); }
+        ~DistanceAdjustTable() { delete[] fTable; }
 
         const SkScalar& operator[] (int i) const {
             return fTable[i];

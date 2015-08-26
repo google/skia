@@ -45,10 +45,8 @@ SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
         subset = &bounds;
     }
 
-    return SkNEW_ARGS(SkImageCacherator, (gen,
-                                          gen->getInfo().makeWH(subset->width(), subset->height()),
-                                          SkIPoint::Make(subset->x(), subset->y()),
-                                          uniqueID));
+    return new SkImageCacherator(gen, gen->getInfo().makeWH(subset->width(), subset->height()),
+                                 SkIPoint::Make(subset->x(), subset->y()), uniqueID);
 }
 
 SkImageCacherator::SkImageCacherator(SkImageGenerator* gen, const SkImageInfo& info,
@@ -59,9 +57,7 @@ SkImageCacherator::SkImageCacherator(SkImageGenerator* gen, const SkImageInfo& i
     , fUniqueID(uniqueID)
 {}
 
-SkImageCacherator::~SkImageCacherator() {
-    SkDELETE(fGenerator);
-}
+SkImageCacherator::~SkImageCacherator() { delete fGenerator; }
 
 static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
     SkASSERT(bitmap.getGenerationID() == expectedID);

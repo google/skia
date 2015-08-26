@@ -687,7 +687,7 @@ private:
             dst.fPreMat = src.fPreMat;
             dst.fPreMat.postConcat(fFillBounds.ctm());
             if (src.fPaint) {
-                dst.fPaint = SkNEW_ARGS(SkPaint, (*src.fPaint));
+                dst.fPaint = new SkPaint(*src.fPaint);
             }
             dst.fSaveLayerOpID = src.fSaveLayerOpID;
             dst.fRestoreOpID = src.fRestoreOpID;
@@ -696,7 +696,7 @@ private:
 
             // Store 'saveLayer ops from enclosing picture' + drawPict op + 'ops from sub-picture'
             dst.fKeySize = fSaveLayerOpStack.count() + src.fKeySize + 1;
-            dst.fKey = SkNEW_ARRAY(int, dst.fKeySize);
+            dst.fKey = new int[dst.fKeySize];
             memcpy(dst.fKey, fSaveLayerOpStack.begin(), fSaveLayerOpStack.count() * sizeof(int));
             dst.fKey[fSaveLayerOpStack.count()] = fFillBounds.currentOp();
             memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(int));
@@ -763,7 +763,7 @@ private:
         block.fLocalMat = fFillBounds.ctm();
         block.fPreMat = SkMatrix::I();
         if (sli.fPaint) {
-            block.fPaint = SkNEW_ARGS(SkPaint, (*sli.fPaint));
+            block.fPaint = new SkPaint(*sli.fPaint);
         }
 
         block.fSrcBounds = sli.fBounds;
@@ -773,7 +773,7 @@ private:
         block.fIsNested = fSaveLayersInStack > 0;
 
         block.fKeySize = fSaveLayerOpStack.count();
-        block.fKey = SkNEW_ARRAY(int, block.fKeySize);
+        block.fKey = new int[block.fKeySize];
         memcpy(block.fKey, fSaveLayerOpStack.begin(), block.fKeySize * sizeof(int));
 
         fSaveLayerOpStack.pop();

@@ -466,7 +466,7 @@ public:
         HRNM(loader->CreateStreamFromKey(id.fKey, id.fKeySize, &fontFileStream),
              "Could not create font file stream.");
 
-        return SkNEW_ARGS(SkDWriteFontFileStream, (fontFileStream.get()));
+        return new SkDWriteFontFileStream(fontFileStream.get());
     }
 
 private:
@@ -502,6 +502,5 @@ SkRemotableFontMgr* SkRemotableFontMgr_New_DirectWrite() {
         };
     }
 
-    return SkNEW_ARGS(SkRemotableFontMgr_DirectWrite, (sysFontCollection.get(),
-                                                       localeName, localeNameLen));
+    return new SkRemotableFontMgr_DirectWrite(sysFontCollection.get(), localeName, localeNameLen);
 }

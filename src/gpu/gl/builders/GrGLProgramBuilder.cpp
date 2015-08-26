@@ -55,9 +55,9 @@ GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const DrawArgs& arg
         SkASSERT(gpu->glCaps().shaderCaps()->pathRenderingSupport() &&
                  !args.fPrimitiveProcessor->willUseGeoShader() &&
                  args.fPrimitiveProcessor->numAttribs() == 0);
-        return SkNEW_ARGS(GrGLPathProgramBuilder, (gpu, args));
+        return new GrGLPathProgramBuilder(gpu, args);
     } else {
-        return SkNEW_ARGS(GrGLProgramBuilder, (gpu, args));
+        return new GrGLProgramBuilder(gpu, args);
     }
 }
 
@@ -203,7 +203,7 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
 
     this->emitAndInstallProc(primProc, inputColor, inputCoverage);
 
-    fFragmentProcessors.reset(SkNEW(GrGLInstalledFragProcs));
+    fFragmentProcessors.reset(new GrGLInstalledFragProcs);
     int numProcs = this->pipeline().numFragmentStages();
     this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentStages(), inputColor);
     this->emitAndInstallFragProcs(this->pipeline().numColorFragmentStages(), numProcs,
@@ -280,7 +280,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPendingFragmentStage& fs,
                                             int index,
                                             const char* outColor,
                                             const char* inColor) {
-    GrGLInstalledFragProc* ifp = SkNEW(GrGLInstalledFragProc);
+    GrGLInstalledFragProc* ifp = new GrGLInstalledFragProc;
 
     const GrFragmentProcessor& fp = *fs.processor();
     ifp->fGLProc.reset(fp.createGLInstance());
@@ -301,7 +301,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
                                             const char* outColor,
                                             const char* outCoverage) {
     SkASSERT(!fGeometryProcessor);
-    fGeometryProcessor = SkNEW(GrGLInstalledGeoProc);
+    fGeometryProcessor = new GrGLInstalledGeoProc;
 
     const GrBatchTracker& bt = this->batchTracker();
     fGeometryProcessor->fGLProc.reset(gp.createGLInstance(bt, *fGpu->glCaps().glslCaps()));
@@ -325,7 +325,7 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     AutoStageAdvance adv(this);
 
     SkASSERT(!fXferProcessor);
-    fXferProcessor = SkNEW(GrGLInstalledXferProc);
+    fXferProcessor = new GrGLInstalledXferProc;
 
     fXferProcessor->fGLProc.reset(xp.createGLInstance());
 
@@ -492,9 +492,9 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 }
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return SkNEW_ARGS(GrGLProgram, (fGpu, this->desc(), fUniformHandles, programID, fUniforms,
-                                    fGeometryProcessor, fXferProcessor, fFragmentProcessors.get(),
-                                    &fSamplerUniforms));
+    return new GrGLProgram(fGpu, this->desc(), fUniformHandles, programID, fUniforms,
+                           fGeometryProcessor, fXferProcessor, fFragmentProcessors.get(),
+                           &fSamplerUniforms);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -502,6 +502,6 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
 GrGLInstalledFragProcs::~GrGLInstalledFragProcs() {
     int numProcs = fProcs.count();
     for (int e = 0; e < numProcs; ++e) {
-        SkDELETE(fProcs[e]);
+        delete fProcs[e];
     }
 }

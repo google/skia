@@ -194,7 +194,7 @@ private:
             // no bbox playback necessary
             return pic.detach();
         case kRTree_BBoxType:
-            factory.reset(SkNEW(SkRTreeFactory));
+            factory.reset(new SkRTreeFactory);
             break;
         default:
             SkASSERT(false);

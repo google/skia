@@ -291,7 +291,7 @@ public:
     const SkVector& invNormRotation() const { return fInvNormRotation; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override { return SkNEW(LightingGLFP); }
+    GrGLFragmentProcessor* onCreateGLInstance() const override { return new LightingGLFP; }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override { 
         const LightingFP& lightingFP = proc.cast<LightingFP>();
@@ -393,10 +393,8 @@ bool SkLightingShaderImpl::asFragmentProcessor(GrContext* context, const SkPaint
         return false;
     }
 
-
-    *fp = SkNEW_ARGS(LightingFP, (pdm, diffuseTexture, normalTexture,
-                                  diffM, normM, diffParams, normParams, fLights,
-                                  fInvNormRotation));
+    *fp = new LightingFP(pdm, diffuseTexture, normalTexture, diffM, normM, diffParams, normParams,
+                         fLights, fInvNormRotation);
 
     *color = GrColorPackA4(paint.getAlpha());
     return true;
@@ -615,9 +613,8 @@ SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     SkAutoTUnref<const SkLightingShader::Lights> lights(builder.finish());
 
-    return SkNEW_ARGS(SkLightingShaderImpl, (diffuse, normal, lights,
-                                             SkVector::Make(1.0f, 0.0f),
-                                             &diffLocalM, &normLocalM));
+    return new SkLightingShaderImpl(diffuse, normal, lights, SkVector::Make(1.0f, 0.0f),
+                                    &diffLocalM, &normLocalM);
 }
 
 void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
@@ -672,7 +669,7 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
     }
 
     void* diffuseStateStorage = (char*)storage + sizeof(LightingShaderContext);
-    SkBitmapProcState* diffuseState = SkNEW_PLACEMENT(diffuseStateStorage, SkBitmapProcState);
+    SkBitmapProcState* diffuseState = new (diffuseStateStorage) SkBitmapProcState;
     SkASSERT(diffuseState);
 
     diffuseState->fTileModeX = SkShader::kClamp_TileMode;
@@ -684,7 +681,7 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
     }
 
     void* normalStateStorage = (char*)storage + sizeof(LightingShaderContext) + sizeof(SkBitmapProcState);
-    SkBitmapProcState* normalState = SkNEW_PLACEMENT(normalStateStorage, SkBitmapProcState);
+    SkBitmapProcState* normalState = new (normalStateStorage) SkBitmapProcState;
     SkASSERT(normalState);
 
     normalState->fTileModeX = SkShader::kClamp_TileMode;
@@ -696,8 +693,7 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, LightingShaderContext, (*this, rec,
-                                                                 diffuseState, normalState));
+    return new (storage) LightingShaderContext(*this, rec, diffuseState, normalState);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -725,8 +721,8 @@ SkShader* SkLightingShader::Create(const SkBitmap& diffuse, const SkBitmap& norm
 
     SkASSERT(SkScalarNearlyEqual(invNormRotation.lengthSqd(), SK_Scalar1));
 
-    return SkNEW_ARGS(SkLightingShaderImpl, (diffuse, normal, lights,
-                                             invNormRotation, diffLocalM, normLocalM));
+    return new SkLightingShaderImpl(diffuse, normal, lights, invNormRotation, diffLocalM,
+                                    normLocalM);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

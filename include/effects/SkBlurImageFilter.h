@@ -17,7 +17,7 @@ public:
                                      SkScalar sigmaY,
                                      SkImageFilter* input = NULL,
                                      const CropRect* cropRect = NULL) {
-        return SkNEW_ARGS(SkBlurImageFilter, (sigmaX, sigmaY, input, cropRect));
+        return new SkBlurImageFilter(sigmaX, sigmaY, input, cropRect);
     }
 
     void computeFastBounds(const SkRect&, SkRect*) const override;

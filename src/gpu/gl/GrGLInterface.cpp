@@ -75,7 +75,7 @@ GrGLInterface::GrGLInterface() {
 GrGLInterface* GrGLInterface::NewClone(const GrGLInterface* interface) {
     SkASSERT(interface);
 
-    GrGLInterface* clone = SkNEW(GrGLInterface);
+    GrGLInterface* clone = new GrGLInterface;
     clone->fStandard = interface->fStandard;
     clone->fExtensions = interface->fExtensions;
     clone->fFunctions = interface->fFunctions;

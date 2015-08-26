@@ -48,5 +48,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return SkNEW_ARGS(FontScalerBench, (false)); )
-DEF_BENCH( return SkNEW_ARGS(FontScalerBench, (true)); )
+DEF_BENCH(return new FontScalerBench(false);)
+DEF_BENCH(return new FontScalerBench(true);)

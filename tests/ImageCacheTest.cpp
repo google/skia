@@ -50,7 +50,7 @@ static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache, boo
         REPORTER_ASSERT(reporter, !cache.find(key, TestingRec::Visitor, &value));
         REPORTER_ASSERT(reporter, -1 == value);
 
-        cache.add(SkNEW_ARGS(TestingRec, (key, i)));
+        cache.add(new TestingRec(key, i));
 
         REPORTER_ASSERT(reporter, cache.find(key, TestingRec::Visitor, &value));
         REPORTER_ASSERT(reporter, i == value);
@@ -60,7 +60,7 @@ static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache, boo
         // stress test, should trigger purges
         for (int i = 0; i < COUNT * 100; ++i) {
             TestingKey key(i);
-            cache.add(SkNEW_ARGS(TestingRec, (key, i)));
+            cache.add(new TestingRec(key, i));
         }
     }
 
@@ -75,8 +75,8 @@ static void test_cache(skiatest::Reporter* reporter, SkResourceCache& cache, boo
 
 static void test_cache_purge_shared_id(skiatest::Reporter* reporter, SkResourceCache& cache) {
     for (int i = 0; i < COUNT; ++i) {
-        TestingKey key(i, i & 1);   // every other key will have a 1 for its sharedID        
-        cache.add(SkNEW_ARGS(TestingRec, (key, i)));
+        TestingKey key(i, i & 1);   // every other key will have a 1 for its sharedID
+        cache.add(new TestingRec(key, i));
     }
 
     // Ensure that everyone is present
@@ -143,8 +143,8 @@ DEF_TEST(ImageCache_doubleAdd, r) {
 
     TestingKey key(1);
 
-    cache.add(SkNEW_ARGS(TestingRec, (key, 2)));
-    cache.add(SkNEW_ARGS(TestingRec, (key, 3)));
+    cache.add(new TestingRec(key, 2));
+    cache.add(new TestingRec(key, 3));
 
     // Lookup can return either value.
     intptr_t value = -1;

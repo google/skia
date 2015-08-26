@@ -76,10 +76,10 @@ protected:
         SkASSERT(NULL == fRectanizer.get());
 
         if (kPow2_RectanizerType == fRectanizerType) {
-            fRectanizer.reset(SkNEW_ARGS(GrRectanizerPow2, (kWidth, kHeight)));
+            fRectanizer.reset(new GrRectanizerPow2(kWidth, kHeight));
         } else {
             SkASSERT(kSkyline_RectanizerType == fRectanizerType);
-            fRectanizer.reset(SkNEW_ARGS(GrRectanizerSkyline, (kWidth, kHeight)));
+            fRectanizer.reset(new GrRectanizerSkyline(kWidth, kHeight));
         }
     }
 

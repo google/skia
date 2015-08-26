@@ -493,4 +493,4 @@ private:
 
 // Disabled this benchmark: it takes 15x longer than any other benchmark
 // and is probably not giving us important information.
-// DEF_BENCH(return SkNEW(ScrollGmailBench));
+// DEF_BENCH(return new ScrollGmailBench);

@@ -18,7 +18,7 @@ SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity
 
 // As a template argument, this must have external linkage.
 SkRemotableFontIdentitySet* sk_remotable_font_identity_set_new() {
-    return SkNEW(SkRemotableFontIdentitySet);
+    return new SkRemotableFontIdentitySet;
 }
 
 SK_DECLARE_STATIC_LAZY_PTR(SkRemotableFontIdentitySet, empty, sk_remotable_font_identity_set_new);

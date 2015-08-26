@@ -66,7 +66,7 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
     // When we think this works...
 //    flags |= SkCanvas::kConservativeRasterClip_InitFlag;
 
-    return SkNEW_ARGS(SkCanvas, (fDevice, flags));
+    return new SkCanvas(fDevice, flags);
 }
 
 SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
@@ -84,9 +84,8 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
     SkImage* image = NULL;
     GrTexture* tex = fDevice->accessRenderTarget()->asTexture();
     if (tex) {
-        image = SkNEW_ARGS(SkImage_Gpu,
-                           (info.width(), info.height(), kNeedNewImageUniqueID, info.alphaType(),
-                            tex, sampleCount, budgeted));
+        image = new SkImage_Gpu(info.width(), info.height(), kNeedNewImageUniqueID,
+                                info.alphaType(), tex, sampleCount, budgeted);
     }
     if (image) {
         as_IB(image)->initWithProps(this->props());
@@ -123,7 +122,7 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurf
     if (!device) {
         return NULL;
     }
-    return SkNEW_ARGS(SkSurface_Gpu, (device));
+    return new SkSurface_Gpu(device);
 }
 
 SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const SkImageInfo& info,
@@ -133,7 +132,7 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const S
     if (!device) {
         return NULL;
     }
-    return SkNEW_ARGS(SkSurface_Gpu, (device));
+    return new SkSurface_Gpu(device);
 }
 
 SkSurface* SkSurface::NewFromBackendTexture(GrContext* context, const GrBackendTextureDesc& desc,
@@ -154,7 +153,7 @@ SkSurface* SkSurface::NewFromBackendTexture(GrContext* context, const GrBackendT
     if (!device) {
         return NULL;
     }
-    return SkNEW_ARGS(SkSurface_Gpu, (device));
+    return new SkSurface_Gpu(device);
 }
 
 SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext* context,
@@ -172,7 +171,7 @@ SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext* context,
     if (!device) {
         return NULL;
     }
-    return SkNEW_ARGS(SkSurface_Gpu, (device));
+    return new SkSurface_Gpu(device);
 }
 
 #endif

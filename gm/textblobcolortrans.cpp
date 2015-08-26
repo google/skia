@@ -97,5 +97,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(TextBlobColorTrans); )
+DEF_GM(return new TextBlobColorTrans;)
 }

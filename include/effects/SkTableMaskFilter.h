@@ -30,19 +30,19 @@ public:
     static void MakeClipTable(uint8_t table[256], uint8_t min, uint8_t max);
 
     static SkTableMaskFilter* Create(const uint8_t table[256]) {
-        return SkNEW_ARGS(SkTableMaskFilter, (table));
+        return new SkTableMaskFilter(table);
     }
 
     static SkTableMaskFilter* CreateGamma(SkScalar gamma) {
         uint8_t table[256];
         MakeGammaTable(table, gamma);
-        return SkNEW_ARGS(SkTableMaskFilter, (table));
+        return new SkTableMaskFilter(table);
     }
 
     static SkTableMaskFilter* CreateClip(uint8_t min, uint8_t max) {
         uint8_t table[256];
         MakeClipTable(table, min, max);
-        return SkNEW_ARGS(SkTableMaskFilter, (table));
+        return new SkTableMaskFilter(table);
     }
 
     SkMask::Format getFormat() const override;

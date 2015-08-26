@@ -191,7 +191,7 @@ SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, siz
 
     // Here we actually make a copy of the caller's pixel data
     SkAutoDataUnref data(SkData::NewWithCopy(pixels, size));
-    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, ctable, NULL));
+    return new SkImage_Raster(info, data, rowBytes, ctable, NULL);
 }
 
 
@@ -207,7 +207,7 @@ SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t ro
     }
 
     SkColorTable* ctable = NULL;
-    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, ctable, NULL));
+    return new SkImage_Raster(info, data, rowBytes, ctable, NULL);
 }
 
 SkImage* SkImage::NewFromRaster(const SkImageInfo& info, const void* pixels, size_t rowBytes,
@@ -219,7 +219,7 @@ SkImage* SkImage::NewFromRaster(const SkImageInfo& info, const void* pixels, siz
 
     SkColorTable* ctable = NULL;
     SkAutoDataUnref data(SkData::NewWithProc(pixels, size, proc, ctx));
-    return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes, ctable, NULL));
+    return new SkImage_Raster(info, data, rowBytes, ctable, NULL);
 }
 
 SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
@@ -231,7 +231,7 @@ SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* s
         return NULL;
     }
 
-    return SkNEW_ARGS(SkImage_Raster, (bitmap, NULL));
+    return new SkImage_Raster(bitmap, NULL);
 }
 
 SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
@@ -240,7 +240,7 @@ SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
     if (!SkImage_Raster::ValidArgs(info, rowBytes, NULL, NULL)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkImage_Raster, (info, pr, pixelRefOrigin, rowBytes, props));
+    return new SkImage_Raster(info, pr, pixelRefOrigin, rowBytes, props);
 }
 
 SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, const SkSurfaceProps* props,
@@ -265,7 +265,7 @@ SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, const SkSurfaceProps* pr
             as_IB(image)->initWithProps(*props);
         }
     } else {
-        image = SkNEW_ARGS(SkImage_Raster, (bm, props));
+        image = new SkImage_Raster(bm, props);
     }
     return image;
 }

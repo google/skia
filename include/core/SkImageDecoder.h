@@ -442,10 +442,8 @@ public:
 
 // This macro defines the global creation entry point for each decoder. Each
 // decoder implementation that registers with the decoder factory must call it.
-#define DEFINE_DECODER_CREATOR(codec)           \
-    SkImageDecoder *Create ## codec () {        \
-        return SkNEW( Sk ## codec );            \
-    }
+#define DEFINE_DECODER_CREATOR(codec) \
+    SkImageDecoder* Create##codec() { return new Sk##codec; }
 
 // All the decoders known by Skia. Note that, depending on the compiler settings,
 // not all of these will be available

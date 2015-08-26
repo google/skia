@@ -41,7 +41,7 @@ SkDeviceProfile* SkDeviceProfile::Create(float gammaExp,
                                          float contrast,
                                          LCDConfig config,
                                          FontHintLevel level) {
-    return SkNEW_ARGS(SkDeviceProfile, (gammaExp, contrast, config, level));
+    return new SkDeviceProfile(gammaExp, contrast, config, level);
 }
 
 SK_DECLARE_STATIC_MUTEX(gMutex);

@@ -219,10 +219,10 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(skiagm::ETC1Bitmap_PKM_GM); )
-DEF_GM( return SkNEW(skiagm::ETC1Bitmap_KTX_GM); )
-DEF_GM( return SkNEW(skiagm::ETC1Bitmap_R11_KTX_GM); )
+DEF_GM(return new skiagm::ETC1Bitmap_PKM_GM;)
+DEF_GM(return new skiagm::ETC1Bitmap_KTX_GM;)
+DEF_GM(return new skiagm::ETC1Bitmap_R11_KTX_GM;)
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
-DEF_GM( return SkNEW(skiagm::ETC1Bitmap_NPOT_GM); )
+DEF_GM(return new skiagm::ETC1Bitmap_NPOT_GM;)
 #endif  // SK_IGNORE_ETC1_SUPPORT

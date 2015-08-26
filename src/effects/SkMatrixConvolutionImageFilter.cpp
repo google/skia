@@ -39,7 +39,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     fTileMode(tileMode),
     fConvolveAlpha(convolveAlpha) {
     size_t size = (size_t) sk_64_mul(fKernelSize.width(), fKernelSize.height());
-    fKernel = SkNEW_ARRAY(SkScalar, size);
+    fKernel = new SkScalar[size];
     memcpy(fKernel, kernel, size * sizeof(SkScalar));
     SkASSERT(kernelSize.fWidth >= 1 && kernelSize.fHeight >= 1);
     SkASSERT(kernelOffset.fX >= 0 && kernelOffset.fX < kernelSize.fWidth);
@@ -69,9 +69,8 @@ SkMatrixConvolutionImageFilter* SkMatrixConvolutionImageFilter::Create(
         (kernelOffset.fY < 0) || (kernelOffset.fY >= kernelSize.fHeight)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize, kernel, gain, bias,
-                                                       kernelOffset, tileMode, convolveAlpha,
-                                                       input, cropRect));
+    return new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain, bias, kernelOffset,
+                                              tileMode, convolveAlpha, input, cropRect);
 }
 
 SkFlattenable* SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) {

@@ -462,13 +462,13 @@ bool SkAnimatorScript::Unbox(void* m, SkScriptValue* scriptValue) {
             } break;
         case SkType_String: {
             SkDisplayString* boxedValue = (SkDisplayString*) displayable;
-            scriptValue->fOperand.fString = SkNEW_ARGS(SkString, (boxedValue->value));
+            scriptValue->fOperand.fString = new SkString(boxedValue->value);
             } break;
         default: {
             const char* id = NULL;
             SkDEBUGCODE(bool success = ) maker->findKey(displayable, &id);
             SkASSERT(success);
-            scriptValue->fOperand.fString = SkNEW_ARGS(SkString, (id));
+            scriptValue->fOperand.fString = new SkString(id);
             type = SkType_String;
         }
     }

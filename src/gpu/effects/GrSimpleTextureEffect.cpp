@@ -43,7 +43,7 @@ void GrSimpleTextureEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLFragmentProcessor* GrSimpleTextureEffect::onCreateGLInstance() const  {
-    return SkNEW_ARGS(GrGLSimpleTextureEffect, (*this));
+    return new GrGLSimpleTextureEffect(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

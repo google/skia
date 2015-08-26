@@ -103,7 +103,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    return SkNEW_ARGS(SkBitmapDevice, (bitmap, surfaceProps));
+    return new SkBitmapDevice(bitmap, surfaceProps);
 }
 
 SkImageInfo SkBitmapDevice::imageInfo() const {

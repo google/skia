@@ -91,7 +91,7 @@ void SkMaskCache::Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
                       const SkRRect& rrect, const SkMask& mask, SkCachedData* data,
                       SkResourceCache* localCache) {
     RRectBlurKey key(sigma, rrect, style, quality);
-    return CHECK_LOCAL(localCache, add, Add, SkNEW_ARGS(RRectBlurRec, (key, mask, data)));
+    return CHECK_LOCAL(localCache, add, Add, new RRectBlurRec(key, mask, data));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -187,5 +187,5 @@ void SkMaskCache::Add(SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
                       const SkRect rects[], int count, const SkMask& mask, SkCachedData* data,
                       SkResourceCache* localCache) {
     RectsBlurKey key(sigma, style, quality, rects, count);
-    return CHECK_LOCAL(localCache, add, Add, SkNEW_ARGS(RectsBlurRec, (key, mask, data)));
+    return CHECK_LOCAL(localCache, add, Add, new RectsBlurRec(key, mask, data));
 }

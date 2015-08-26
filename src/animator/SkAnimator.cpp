@@ -46,9 +46,7 @@ SkAnimator::SkAnimator() : fMaker(NULL) {
     initialize();
 }
 
-SkAnimator::~SkAnimator() {
-    SkDELETE(fMaker);
-}
+SkAnimator::~SkAnimator() { delete fMaker; }
 
 void SkAnimator::addExtras(SkExtras* extras) {
     *fMaker->fExtras.append() = extras;
@@ -386,8 +384,8 @@ const char* SkAnimator::getURIBase() {
 }
 
 void SkAnimator::initialize() {
-    SkDELETE(fMaker);
-    fMaker = SkNEW_ARGS(SkAnimateMaker, (this, NULL, NULL));
+    delete fMaker;
+    fMaker = new SkAnimateMaker(this, NULL, NULL);
     decodeMemory(gMathPrimer, sizeof(gMathPrimer)-1);
 #ifdef SK_BUILD_FOR_ANDROID
     InitializeSkExtraPathEffects(this);

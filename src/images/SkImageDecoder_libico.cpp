@@ -435,7 +435,7 @@ static bool is_ico(SkStreamRewindable* stream) {
 
 static SkImageDecoder* sk_libico_dfactory(SkStreamRewindable* stream) {
     if (is_ico(stream)) {
-        return SkNEW(SkICOImageDecoder);
+        return new SkICOImageDecoder;
     }
     return NULL;
 }

@@ -247,8 +247,8 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
             unrefCopy.reset(tex);
         }
         const SkImageInfo info = bm.info();
-        return SkNEW_ARGS(SkImage_Gpu, (info.width(), info.height(), bm.getGenerationID(),
-                                        info.alphaType(), tex, 0, SkSurface::kNo_Budgeted));
+        return new SkImage_Gpu(info.width(), info.height(), bm.getGenerationID(), info.alphaType(),
+                               tex, 0, SkSurface::kNo_Budgeted);
     }
 #endif
 

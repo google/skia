@@ -149,9 +149,7 @@ static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextur
     }
 
     const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
-    return SkNEW_ARGS(SkImage_Gpu,
-                      (desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, tex, 0, budgeted));
-
+    return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, tex, 0, budgeted);
 }
 
 SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc, SkAlphaType at,
@@ -184,8 +182,8 @@ SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc&
 
     const SkSurface::Budgeted budgeted = SkSurface::kYes_Budgeted;
     const int sampleCount = 0;  // todo: make this an explicit parameter to newSurface()?
-    return SkNEW_ARGS(SkImage_Gpu, (desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                    at, dst, sampleCount, budgeted));
+    return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, dst, sampleCount,
+                           budgeted);
 }
 
 SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorSpace,
@@ -258,8 +256,8 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     GrDrawContext* drawContext = ctx->drawContext();
     drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(), rect);
     ctx->flushSurfaceWrites(dst);
-    return SkNEW_ARGS(SkImage_Gpu, (dstDesc.fWidth, dstDesc.fHeight, kNeedNewImageUniqueID,
-                                    kOpaque_SkAlphaType, dst, 0, budgeted));
+    return new SkImage_Gpu(dstDesc.fWidth, dstDesc.fHeight, kNeedNewImageUniqueID,
+                           kOpaque_SkAlphaType, dst, 0, budgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

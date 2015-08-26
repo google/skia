@@ -15,19 +15,22 @@
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
-SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info, SkStream* stream,
-                             uint16_t bitsPerPixel, uint32_t numColors,
-                             uint32_t bytesPerColor, uint32_t offset,
-                             SkBmpCodec::RowOrder rowOrder, size_t RLEBytes)
+SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info,
+                             SkStream* stream,
+                             uint16_t bitsPerPixel,
+                             uint32_t numColors,
+                             uint32_t bytesPerColor,
+                             uint32_t offset,
+                             SkBmpCodec::RowOrder rowOrder,
+                             size_t RLEBytes)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fColorTable(NULL)
     , fNumColors(this->computeNumColors(numColors))
     , fBytesPerColor(bytesPerColor)
     , fOffset(offset)
-    , fStreamBuffer(SkNEW_ARRAY(uint8_t, RLEBytes))
+    , fStreamBuffer(new uint8_t[RLEBytes])
     , fRLEBytes(RLEBytes)
-    , fCurrRLEByte(0)
-{}
+    , fCurrRLEByte(0) {}
 
 /*
  * Initiates the bitmap decode
@@ -92,7 +95,7 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
 
         // Read the color table from the stream
         colorBytes = fNumColors * fBytesPerColor;
-        SkAutoTDeleteArray<uint8_t> cBuffer(SkNEW_ARRAY(uint8_t, colorBytes));
+        SkAutoTDeleteArray<uint8_t> cBuffer(new uint8_t[colorBytes]);
         if (stream()->read(cBuffer.get(), colorBytes) != colorBytes) {
             SkCodecPrintf("Error: unable to read color table.\n");
             return false;
@@ -115,7 +118,7 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         // Set the color table
-        fColorTable.reset(SkNEW_ARGS(SkColorTable, (colorTable, maxColors)));
+        fColorTable.reset(new SkColorTable(colorTable, maxColors));
     }
 
     // Check that we have not read past the pixel array offset

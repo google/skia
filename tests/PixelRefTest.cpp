@@ -73,7 +73,7 @@ DEF_TEST(PixelRef_GenIDChange, r) {
 
     // Register a listener.
     int count = 0;
-    pixelRef->addGenIDChangeListener(SkNEW_ARGS(TestListener, (&count)));
+    pixelRef->addGenIDChangeListener(new TestListener(&count));
     REPORTER_ASSERT(r, 0 == count);
 
     // No one has looked at our pixelRef's generation ID, so invalidating it doesn't make sense.
@@ -90,7 +90,7 @@ DEF_TEST(PixelRef_GenIDChange, r) {
 
     // Force the generation ID to be recalculated, then add a listener.
     REPORTER_ASSERT(r, 0 != pixelRef->getGenerationID());
-    pixelRef->addGenIDChangeListener(SkNEW_ARGS(TestListener, (&count)));
+    pixelRef->addGenIDChangeListener(new TestListener(&count));
     pixelRef->notifyPixelsChanged();
     REPORTER_ASSERT(r, 1 == count);
 

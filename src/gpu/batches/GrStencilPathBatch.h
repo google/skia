@@ -23,8 +23,7 @@ public:
                            const GrScissorState& scissor,
                            GrRenderTarget* renderTarget,
                            const GrPath* path) {
-        return SkNEW_ARGS(GrStencilPathBatch, (viewMatrix, useHWAA, stencil, scissor, renderTarget,
-                                               path));
+        return new GrStencilPathBatch(viewMatrix, useHWAA, stencil, scissor, renderTarget, path);
     }
 
     const char* name() const override { return "StencilPath"; }

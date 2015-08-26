@@ -86,7 +86,7 @@ public:
             fIDMatrix.fInitialMat.getType(); // force initialization of type so hashes match
 
             if (copyKey) {
-                int* tempKey = SkNEW_ARRAY(int, keySize);
+                int* tempKey = new int[keySize];
                 memcpy(tempKey, key, keySize*sizeof(int));
                 fKey = tempKey;
             } else {
@@ -100,7 +100,7 @@ public:
 
         ~Key() {
             if (fFreeKey) {
-                SkDELETE_ARRAY(fKey);
+                delete[] fKey;
             }
         }
 
@@ -143,10 +143,14 @@ public:
     static uint32_t Hash(const Key& key) { return key.hash(); }
 
     // GrCachedLayer proper
-    GrCachedLayer(uint32_t pictureID, int start, int stop,
-                  const SkIRect& srcIR, const SkIRect& dstIR,
+    GrCachedLayer(uint32_t pictureID,
+                  int start,
+                  int stop,
+                  const SkIRect& srcIR,
+                  const SkIRect& dstIR,
                   const SkMatrix& ctm,
-                  const int* key, int keySize,
+                  const int* key,
+                  int keySize,
                   const SkPaint* paint)
         : fKey(pictureID, ctm, key, keySize, true)
         , fStart(start)
@@ -154,7 +158,7 @@ public:
         , fSrcIR(srcIR)
         , fDstIR(dstIR)
         , fOffset(SkIPoint::Make(0, 0))
-        , fPaint(paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL)
+        , fPaint(paint ? new SkPaint(*paint) : NULL)
         , fFilter(NULL)
         , fTexture(NULL)
         , fRect(SkIRect::MakeEmpty())
@@ -174,7 +178,7 @@ public:
     ~GrCachedLayer() {
         SkSafeUnref(fTexture);
         SkSafeUnref(fFilter);
-        SkDELETE(fPaint);
+        delete fPaint;
     }
 
     uint32_t pictureID() const { return fKey.pictureID(); }

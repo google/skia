@@ -390,9 +390,7 @@ bool SkMemoryStream::rewind() {
     return true;
 }
 
-SkMemoryStream* SkMemoryStream::duplicate() const {
-    return SkNEW_ARGS(SkMemoryStream, (fData));
-}
+SkMemoryStream* SkMemoryStream::duplicate() const { return new SkMemoryStream(fData); }
 
 size_t SkMemoryStream::getPosition() const {
     return fOffset;
@@ -687,8 +685,11 @@ public:
 class SkBlockMemoryStream : public SkStreamAsset {
 public:
     SkBlockMemoryStream(SkDynamicMemoryWStream::Block* head, size_t size)
-        : fBlockMemory(SkNEW_ARGS(SkBlockMemoryRefCnt, (head))), fCurrent(head)
-        , fSize(size) , fOffset(0), fCurrentOffset(0) { }
+        : fBlockMemory(new SkBlockMemoryRefCnt(head))
+        , fCurrent(head)
+        , fSize(size)
+        , fOffset(0)
+        , fCurrentOffset(0) {}
 
     SkBlockMemoryStream(SkBlockMemoryRefCnt* headRef, size_t size)
         : fBlockMemory(SkRef(headRef)), fCurrent(fBlockMemory->fHead)
@@ -753,7 +754,7 @@ public:
     }
 
     SkBlockMemoryStream* duplicate() const override {
-        return SkNEW_ARGS(SkBlockMemoryStream, (fBlockMemory.get(), fSize));
+        return new SkBlockMemoryStream(fBlockMemory.get(), fSize);
     }
 
     size_t getPosition() const override {
@@ -810,11 +811,11 @@ private:
 
 SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
     if (fCopy) {
-        SkMemoryStream* stream = SkNEW_ARGS(SkMemoryStream, (fCopy));
+        SkMemoryStream* stream = new SkMemoryStream(fCopy);
         this->reset();
         return stream;
     }
-    SkBlockMemoryStream* stream = SkNEW_ARGS(SkBlockMemoryStream, (fHead, fBytesWritten));
+    SkBlockMemoryStream* stream = new SkBlockMemoryStream(fHead, fBytesWritten);
     fHead = 0;
     this->reset();
     return stream;
@@ -861,14 +862,14 @@ static SkData* mmap_filename(const char path[]) {
 SkStreamAsset* SkStream::NewFromFile(const char path[]) {
     SkAutoTUnref<SkData> data(mmap_filename(path));
     if (data.get()) {
-        return SkNEW_ARGS(SkMemoryStream, (data.get()));
+        return new SkMemoryStream(data.get());
     }
 
     // If we get here, then our attempt at using mmap failed, so try normal
     // file access.
-    SkFILEStream* stream = SkNEW_ARGS(SkFILEStream, (path));
+    SkFILEStream* stream = new SkFILEStream(path);
     if (!stream->isValid()) {
-        SkDELETE(stream);
+        delete stream;
         stream = NULL;
     }
     return stream;
@@ -938,7 +939,7 @@ SkStreamRewindable* SkStreamRewindableFromSkStream(SkStream* stream) {
             length -= stream->getPosition();
         }
         SkAutoTUnref<SkData> data(SkData::NewFromStream(stream, length));
-        return SkNEW_ARGS(SkMemoryStream, (data.get()));
+        return new SkMemoryStream(data.get());
     }
     SkDynamicMemoryWStream tempStream;
     const size_t bufferSize = 4096;

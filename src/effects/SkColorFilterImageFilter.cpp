@@ -28,11 +28,11 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
         SkAutoUnref autoUnref(inputCF);
         SkAutoTUnref<SkColorFilter> newCF(SkColorFilter::CreateComposeFilter(cf, inputCF));
         if (newCF) {
-            return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0), cropRect));
+            return new SkColorFilterImageFilter(newCF, input->getInput(0), cropRect);
         }
     }
 
-    return SkNEW_ARGS(SkColorFilterImageFilter, (cf, input, cropRect));
+    return new SkColorFilterImageFilter(cf, input, cropRect);
 }
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,

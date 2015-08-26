@@ -12,8 +12,8 @@
 
 GrCommandBuilder* GrCommandBuilder::Create(GrGpu* gpu, bool reorder) {
     if (reorder) {
-        return SkNEW(GrReorderCommandBuilder);
+        return new GrReorderCommandBuilder;
     } else {
-        return SkNEW(GrInOrderCommandBuilder);
+        return new GrInOrderCommandBuilder;
     }
 }

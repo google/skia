@@ -184,8 +184,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW_ARGS(TextBlobMixedSizes, (false)); )
+DEF_GM( return new TextBlobMixedSizes(false); )
 #if SK_SUPPORT_GPU
-DEF_GM( return SkNEW_ARGS(TextBlobMixedSizes, (true)); )
+DEF_GM( return new TextBlobMixedSizes(true); )
 #endif
 }

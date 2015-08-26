@@ -258,7 +258,10 @@ static SkSurface* create_compat_surface(SkCanvas* canvas, int width, int height)
 class ComposeStep {
 public:
     ComposeStep() : fSurf(NULL), fX(0.0f), fY(0.0f), fPaint(NULL) { }
-    ~ComposeStep() { SkSafeUnref(fSurf);  SkDELETE(fPaint); }
+    ~ComposeStep() {
+        SkSafeUnref(fSurf);
+        delete fPaint;
+    }
 
     SkSurface* fSurf;
     SkScalar   fX;
@@ -415,7 +418,7 @@ static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
 
             step.fX = SkIntToScalar(x*kTileWidth);
             step.fY = SkIntToScalar(y*kTileHeight);
-            step.fPaint = SkNEW(SkPaint);
+            step.fPaint = new SkPaint;
             step.fPaint->setColorFilter(
                 SkColorFilter::CreateModeFilter(colors[x][y], SkXfermode::kModulate_Mode))->unref();
 
@@ -540,33 +543,33 @@ namespace skiagm {
         typedef GM INHERITED;
     };
 
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kNoClipSingle_Content,
-                                                MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRectClipMulti_Content,
-                                                MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRRectClipMulti_Content,
-                                                MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kPathClipMulti_Content,
-                                                MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kInvPathClipMulti_Content,
-                                                MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kSierpinski_Content,
-                                                MultiPictureDraw::kSimple_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kBigLayer_Content,
-                                                MultiPictureDraw::kSimple_Layout));)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kNoClipSingle_Content,
+                                       MultiPictureDraw::kSimple_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kRectClipMulti_Content,
+                                       MultiPictureDraw::kSimple_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kRRectClipMulti_Content,
+                                       MultiPictureDraw::kSimple_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kPathClipMulti_Content,
+                                       MultiPictureDraw::kSimple_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kInvPathClipMulti_Content,
+                                       MultiPictureDraw::kSimple_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kSierpinski_Content,
+                                       MultiPictureDraw::kSimple_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kBigLayer_Content,
+                                       MultiPictureDraw::kSimple_Layout);)
 
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kNoClipSingle_Content,
-                                                MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRectClipMulti_Content,
-                                                MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kRRectClipMulti_Content,
-                                                MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kPathClipMulti_Content,
-                                                MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kInvPathClipMulti_Content,
-                                                MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kSierpinski_Content,
-                                                MultiPictureDraw::kTiled_Layout));)
-    DEF_GM(return SkNEW_ARGS(MultiPictureDraw, (MultiPictureDraw::kBigLayer_Content,
-                                                MultiPictureDraw::kTiled_Layout));)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kNoClipSingle_Content,
+                                       MultiPictureDraw::kTiled_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kRectClipMulti_Content,
+                                       MultiPictureDraw::kTiled_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kRRectClipMulti_Content,
+                                       MultiPictureDraw::kTiled_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kPathClipMulti_Content,
+                                       MultiPictureDraw::kTiled_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kInvPathClipMulti_Content,
+                                       MultiPictureDraw::kTiled_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kSierpinski_Content,
+                                       MultiPictureDraw::kTiled_Layout);)
+    DEF_GM(return new MultiPictureDraw(MultiPictureDraw::kBigLayer_Content,
+                                       MultiPictureDraw::kTiled_Layout);)
 }

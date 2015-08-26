@@ -65,14 +65,14 @@ public:
     static SkPDFDevice* Create(SkISize pageSize,
                                SkScalar rasterDpi,
                                SkPDFCanon* canon) {
-        return SkNEW_ARGS(SkPDFDevice, (pageSize, rasterDpi, canon, true));
+        return new SkPDFDevice(pageSize, rasterDpi, canon, true);
     }
 
     /** Create a PDF drawing context without fipping the y-axis. */
     static SkPDFDevice* CreateUnflipped(SkISize pageSize,
                                         SkScalar rasterDpi,
                                         SkPDFCanon* canon) {
-        return SkNEW_ARGS(SkPDFDevice, (pageSize, rasterDpi, canon, false));
+        return new SkPDFDevice(pageSize, rasterDpi, canon, false);
     }
 
     virtual ~SkPDFDevice();

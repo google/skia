@@ -245,7 +245,7 @@ void GrDistanceFieldA8TextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
 GrGLPrimitiveProcessor*
 GrDistanceFieldA8TextGeoProc::createGLInstance(const GrBatchTracker& bt,
                                                const GrGLSLCaps&) const {
-    return SkNEW_ARGS(GrGLDistanceFieldA8TextGeoProc, (*this, bt));
+    return new GrGLDistanceFieldA8TextGeoProc(*this, bt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -468,7 +468,7 @@ void GrDistanceFieldPathGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
 
 GrGLPrimitiveProcessor*
 GrDistanceFieldPathGeoProc::createGLInstance(const GrBatchTracker& bt, const GrGLSLCaps&) const {
-    return SkNEW_ARGS(GrGLDistanceFieldPathGeoProc, (*this, bt));
+    return new GrGLDistanceFieldPathGeoProc(*this, bt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -741,7 +741,7 @@ void GrDistanceFieldLCDTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
 GrGLPrimitiveProcessor*
 GrDistanceFieldLCDTextGeoProc::createGLInstance(const GrBatchTracker& bt,
                                                 const GrGLSLCaps&) const {
-    return SkNEW_ARGS(GrGLDistanceFieldLCDTextGeoProc, (*this, bt));
+    return new GrGLDistanceFieldLCDTextGeoProc(*this, bt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

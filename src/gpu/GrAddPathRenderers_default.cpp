@@ -18,17 +18,17 @@
 #include "GrTessellatingPathRenderer.h"
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
-    chain->addPathRenderer(SkNEW(GrDashLinePathRenderer))->unref();
+    chain->addPathRenderer(new GrDashLinePathRenderer)->unref();
 
     if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx->resourceProvider(),
                                                                    *ctx->caps())) {
         chain->addPathRenderer(pr)->unref();
     }
-    chain->addPathRenderer(SkNEW(GrTessellatingPathRenderer))->unref();
+    chain->addPathRenderer(new GrTessellatingPathRenderer)->unref();
     if (GrPathRenderer* pr = GrAAHairLinePathRenderer::Create()) {
         chain->addPathRenderer(pr)->unref();
     }
-    chain->addPathRenderer(SkNEW(GrAAConvexPathRenderer))->unref();
-    chain->addPathRenderer(SkNEW(GrAALinearizingConvexPathRenderer))->unref();
-    chain->addPathRenderer(SkNEW(GrAADistanceFieldPathRenderer))->unref();
+    chain->addPathRenderer(new GrAAConvexPathRenderer)->unref();
+    chain->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
+    chain->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
 }

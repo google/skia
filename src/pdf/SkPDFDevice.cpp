@@ -697,10 +697,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFDevice::SkPDFDevice(SkISize pageSize,
-                         SkScalar rasterDpi,
-                         SkPDFCanon* canon,
-                         bool flip)
+SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFCanon* canon, bool flip)
     : INHERITED(SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fPageSize(pageSize)
     , fContentSize(pageSize)
@@ -710,7 +707,7 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize,
     , fLastMarginContentEntry(NULL)
     , fDrawingArea(kContent_DrawingArea)
     , fClipStack(NULL)
-    , fFontGlyphUsage(SkNEW(SkPDFGlyphSetMap))
+    , fFontGlyphUsage(new SkPDFGlyphSetMap)
     , fRasterDpi(rasterDpi)
     , fCanon(canon) {
     SkASSERT(pageSize.width() > 0);
@@ -741,7 +738,7 @@ void SkPDFDevice::init() {
     fLastMarginContentEntry = NULL;
     fDrawingArea = kContent_DrawingArea;
     if (fFontGlyphUsage.get() == NULL) {
-        fFontGlyphUsage.reset(SkNEW(SkPDFGlyphSetMap));
+        fFontGlyphUsage.reset(new SkPDFGlyphSetMap);
     }
 }
 
@@ -896,17 +893,17 @@ static SkPath transform_and_clip_path(const SkDraw& d,
 }
 
 static SkPDFDict* create_link_annotation(const SkRect& translatedRect) {
-    SkAutoTUnref<SkPDFDict> annotation(SkNEW_ARGS(SkPDFDict, ("Annot")));
+    SkAutoTUnref<SkPDFDict> annotation(new SkPDFDict("Annot"));
     annotation->insertName("Subtype", "Link");
 
-    SkAutoTUnref<SkPDFArray> border(SkNEW(SkPDFArray));
+    SkAutoTUnref<SkPDFArray> border(new SkPDFArray);
     border->reserve(3);
     border->appendInt(0);  // Horizontal corner radius.
     border->appendInt(0);  // Vertical corner radius.
     border->appendInt(0);  // Width, 0 = no border.
     annotation->insertObject("Border", border.detach());
 
-    SkAutoTUnref<SkPDFArray> rect(SkNEW(SkPDFArray));
+    SkAutoTUnref<SkPDFArray> rect(new SkPDFArray);
     rect->reserve(4);
     rect->appendScalar(translatedRect.fLeft);
     rect->appendScalar(translatedRect.fTop);
@@ -922,7 +919,7 @@ static SkPDFDict* create_link_to_url(SkData* urlData, const SkRect& r) {
 
     SkString url(static_cast<const char *>(urlData->data()),
                  urlData->size() - 1);
-    SkAutoTUnref<SkPDFDict> action(SkNEW_ARGS(SkPDFDict, ("Action")));
+    SkAutoTUnref<SkPDFDict> action(new SkPDFDict("Action"));
     action->insertName("S", "URI");
     action->insertString("URI", url);
     annotation->insertObject("A", action.detach());
@@ -1434,7 +1431,7 @@ const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
 SkPDFArray* SkPDFDevice::copyMediaBox() const {
     // should this be a singleton?
 
-    SkAutoTUnref<SkPDFArray> mediaBox(SkNEW(SkPDFArray));
+    SkAutoTUnref<SkPDFArray> mediaBox(new SkPDFArray);
     mediaBox->reserve(4);
     mediaBox->appendInt(0);
     mediaBox->appendInt(0);
@@ -1579,9 +1576,7 @@ bool SkPDFDevice::handlePointAnnotation(const SkPoint* points, size_t count,
         for (size_t i = 0; i < count; i++) {
             SkPoint translatedPoint;
             transform.mapXY(points[i].x(), points[i].y(), &translatedPoint);
-            fNamedDestinations.push(
-                    SkNEW_ARGS(NamedDestination, (nameData, translatedPoint)));
-
+            fNamedDestinations.push(new NamedDestination(nameData, translatedPoint));
         }
         return true;
     }
@@ -1590,7 +1585,7 @@ bool SkPDFDevice::handlePointAnnotation(const SkPoint* points, size_t count,
 
 void SkPDFDevice::addAnnotation(SkPDFDict* annotation) {
     if (NULL == fAnnotations) {
-        fAnnotations = SkNEW(SkPDFArray);
+        fAnnotations = new SkPDFArray;
     }
     fAnnotations->appendObject(annotation);
 }
@@ -1600,7 +1595,7 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     int nDest = fNamedDestinations.count();
     for (int i = 0; i < nDest; i++) {
         NamedDestination* dest = fNamedDestinations[i];
-        SkAutoTUnref<SkPDFArray> pdfDest(SkNEW(SkPDFArray));
+        SkAutoTUnref<SkPDFArray> pdfDest(new SkPDFArray);
         pdfDest->reserve(5);
         pdfDest->appendObjRef(SkRef(page));
         pdfDest->appendName("XYZ");
@@ -1613,7 +1608,7 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
 }
 
 SkPDFFormXObject* SkPDFDevice::createFormXObjectFromDevice() {
-    SkPDFFormXObject* xobject = SkNEW_ARGS(SkPDFFormXObject, (this));
+    SkPDFFormXObject* xobject = new SkPDFFormXObject(this);
     // We always draw the form xobjects that we create back into the device, so
     // we simply preserve the font usage instead of pulling it out and merging
     // it back in later.

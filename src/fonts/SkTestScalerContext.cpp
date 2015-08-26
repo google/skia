@@ -35,9 +35,9 @@ SkTestFont::SkTestFont(const SkTestFontData& fontData)
 
 SkTestFont::~SkTestFont() {
     for (unsigned index = 0; index < fCharCodesCount; ++index) {
-        SkDELETE(fPaths[index]);
+        delete fPaths[index];
     }
-    SkDELETE_ARRAY(fPaths);
+    delete[] fPaths;
 }
 
 #ifdef SK_DEBUG
@@ -78,9 +78,9 @@ int SkTestFont::codeToIndex(SkUnichar charCode) const {
 }
 
 void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
-    fPaths = SkNEW_ARRAY(SkPath*, fCharCodesCount);
+    fPaths = new SkPath* [fCharCodesCount];
     for (unsigned index = 0; index < fCharCodesCount; ++index) {
-        SkPath* path = SkNEW(SkPath);
+        SkPath* path = new SkPath;
         SkPath::Verb verb;
         while ((verb = (SkPath::Verb) *verbs++) != SkPath::kDone_Verb) {
             switch (verb) {
@@ -280,5 +280,5 @@ private:
 };
 
 SkScalerContext* SkTestTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    return SkNEW_ARGS(SkTestScalerContext, (const_cast<SkTestTypeface*>(this), desc));
+    return new SkTestScalerContext(const_cast<SkTestTypeface*>(this), desc);
 }

@@ -1511,13 +1511,13 @@ static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma
     gMaskGammaCacheMutex.assertHeld();
     if (0 == contrast && SK_Scalar1 == paintGamma && SK_Scalar1 == deviceGamma) {
         if (NULL == gLinearMaskGamma) {
-            gLinearMaskGamma = SkNEW(SkMaskGamma);
+            gLinearMaskGamma = new SkMaskGamma;
         }
         return *gLinearMaskGamma;
     }
     if (gContrast != contrast || gPaintGamma != paintGamma || gDeviceGamma != deviceGamma) {
         SkSafeUnref(gMaskGamma);
-        gMaskGamma = SkNEW_ARGS(SkMaskGamma, (contrast, paintGamma, deviceGamma));
+        gMaskGamma = new SkMaskGamma(contrast, paintGamma, deviceGamma);
         gContrast = contrast;
         gPaintGamma = paintGamma;
         gDeviceGamma = deviceGamma;

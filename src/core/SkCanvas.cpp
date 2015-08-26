@@ -203,7 +203,7 @@ struct DeviceCM {
             device->onAttachToCanvas(canvas);
         }
         fDevice = device;
-        fPaint = paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL;
+        fPaint = paint ? new SkPaint(*paint) : NULL;
     }
 
     ~DeviceCM() {
@@ -211,7 +211,7 @@ struct DeviceCM {
             fDevice->onDetachFromCanvas();
             fDevice->unref();
         }
-        SkDELETE(fPaint);
+        delete fPaint;
     }
 
     void reset(const SkIRect& bounds) {
@@ -304,7 +304,7 @@ public:
     }
     ~MCRec() {
         SkSafeUnref(fFilter);
-        SkDELETE(fLayer);
+        delete fLayer;
         dec_rec();
     }
 
@@ -604,7 +604,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     fSaveCount = 1;
     fMetaData = NULL;
 
-    fClipStack.reset(SkNEW(SkClipStack));
+    fClipStack.reset(new SkClipStack);
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
@@ -664,8 +664,8 @@ SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
 {
     inc_canvas();
 
-    this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice,
-                          (SkIRect::MakeWH(width, height), fProps)), kDefault_InitFlags)->unref();
+    this->init(new SkNoPixelsBitmapDevice(SkIRect::MakeWH(width, height), fProps),
+               kDefault_InitFlags)->unref();
 }
 
 SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
@@ -674,7 +674,7 @@ SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
 {
     inc_canvas();
 
-    this->init(SkNEW_ARGS(SkNoPixelsBitmapDevice, (bounds, fProps)), flags)->unref();
+    this->init(new SkNoPixelsBitmapDevice(bounds, fProps), flags)->unref();
 }
 
 SkCanvas::SkCanvas(SkBaseDevice* device)
@@ -701,7 +701,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
 {
     inc_canvas();
 
-    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap, fProps)));
+    SkAutoTUnref<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
     this->init(device, kDefault_InitFlags);
 }
 
@@ -711,7 +711,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
 {
     inc_canvas();
 
-    SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap, fProps)));
+    SkAutoTUnref<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
     this->init(device, kDefault_InitFlags);
 }
 
@@ -721,7 +721,7 @@ SkCanvas::~SkCanvas() {
 
     this->internalRestore();    // restore the last, since we're going away
 
-    SkDELETE(fMetaData);
+    delete fMetaData;
 
     dec_canvas();
 }
@@ -1135,8 +1135,8 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     }
 
     device->setOrigin(ir.fLeft, ir.fTop);
-    DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, paint, this, fConservativeRasterClip,
-                                            forceSpriteOnRestore));
+    DeviceCM* layer =
+            new DeviceCM(device, paint, this, fConservativeRasterClip, forceSpriteOnRestore);
     device->unref();
 
     layer->fNext = fMCRec->fTopLayer;
@@ -1188,7 +1188,7 @@ void SkCanvas::internalRestore() {
                                      layer->fPaint, layer->fDeviceIsBitmapDevice);
             // reset this, since internalDrawDevice will have set it to true
             fDeviceCMDirty = true;
-            SkDELETE(layer);
+            delete layer;
         } else {
             // we're at the root
             SkASSERT(layer == (void*)fDeviceCMStorage);
@@ -2876,7 +2876,7 @@ SkCanvas* SkCanvas::NewRasterDirect(const SkImageInfo& info, void* pixels, size_
     if (!bitmap.installPixels(info, pixels, rowBytes)) {
         return NULL;
     }
-    return SkNEW_ARGS(SkCanvas, (bitmap));
+    return new SkCanvas(bitmap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

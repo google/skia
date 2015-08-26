@@ -35,7 +35,7 @@ static SkShader* make_shader(SkXfermode::Mode mode) {
 
     SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
 
-    return SkNEW_ARGS(SkComposeShader, (shaderA, shaderB, xfer));
+    return new SkComposeShader(shaderA, shaderB, xfer);
 }
 
 class ComposeShaderGM : public skiagm::GM {

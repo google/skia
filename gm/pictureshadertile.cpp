@@ -155,4 +155,4 @@ private:
     typedef GM INHERITED;
 };
 
-DEF_GM( return SkNEW(PictureShaderTileGM); )
+DEF_GM(return new PictureShaderTileGM;)

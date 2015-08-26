@@ -34,9 +34,8 @@ public:
                                const uint16_t* indices, int indexCount,
                                const GrColor* colors, const SkPoint* localCoords,
                                const SkRect& bounds) {
-        return SkNEW_ARGS(GrDrawVerticesBatch, (geometry, primitiveType, viewMatrix, positions,
-                                                vertexCount, indices, indexCount, colors,
-                                                localCoords, bounds));
+        return new GrDrawVerticesBatch(geometry, primitiveType, viewMatrix, positions, vertexCount,
+                                       indices, indexCount, colors, localCoords, bounds);
     }
 
     const char* name() const override { return "DrawVerticesBatch"; }

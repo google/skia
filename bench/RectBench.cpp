@@ -249,40 +249,35 @@ private:
     kMaskType _type;
 };
 
+DEF_BENCH(return new RectBench(1);)
+DEF_BENCH(return new RectBench(1, 4);)
+DEF_BENCH(return new RectBench(3);)
+DEF_BENCH(return new RectBench(3, 4);)
+DEF_BENCH(return new OvalBench(1);)
+DEF_BENCH(return new OvalBench(3);)
+DEF_BENCH(return new OvalBench(1, 4);)
+DEF_BENCH(return new OvalBench(3, 4);)
+DEF_BENCH(return new RRectBench(1);)
+DEF_BENCH(return new RRectBench(1, 4);)
+DEF_BENCH(return new RRectBench(3);)
+DEF_BENCH(return new RRectBench(3, 4);)
+DEF_BENCH(return new PointsBench(SkCanvas::kPoints_PointMode, "points");)
+DEF_BENCH(return new PointsBench(SkCanvas::kLines_PointMode, "lines");)
+DEF_BENCH(return new PointsBench(SkCanvas::kPolygon_PointMode, "polygon");)
 
-DEF_BENCH( return SkNEW_ARGS(RectBench, (1)); )
-DEF_BENCH( return SkNEW_ARGS(RectBench, (1, 4)); )
-DEF_BENCH( return SkNEW_ARGS(RectBench, (3)); )
-DEF_BENCH( return SkNEW_ARGS(RectBench, (3, 4)); )
-DEF_BENCH( return SkNEW_ARGS(OvalBench, (1)); )
-DEF_BENCH( return SkNEW_ARGS(OvalBench, (3)); )
-DEF_BENCH( return SkNEW_ARGS(OvalBench, (1, 4)); )
-DEF_BENCH( return SkNEW_ARGS(OvalBench, (3, 4)); )
-DEF_BENCH( return SkNEW_ARGS(RRectBench, (1)); )
-DEF_BENCH( return SkNEW_ARGS(RRectBench, (1, 4)); )
-DEF_BENCH( return SkNEW_ARGS(RRectBench, (3)); )
-DEF_BENCH( return SkNEW_ARGS(RRectBench, (3, 4)); )
-DEF_BENCH( return SkNEW_ARGS(PointsBench, (SkCanvas::kPoints_PointMode, "points")); )
-DEF_BENCH( return SkNEW_ARGS(PointsBench, (SkCanvas::kLines_PointMode, "lines")); )
-DEF_BENCH( return SkNEW_ARGS(PointsBench, (SkCanvas::kPolygon_PointMode, "polygon")); )
-
-DEF_BENCH( return SkNEW_ARGS(SrcModeRectBench, ()); )
+DEF_BENCH(return new SrcModeRectBench();)
 
 /* init the blitmask bench
  */
-DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
-                      (SkCanvas::kPoints_PointMode,
-                      BlitMaskBench::kMaskOpaque, "maskopaque")
-                      ); )
-DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
-                      (SkCanvas::kPoints_PointMode,
-                      BlitMaskBench::kMaskBlack, "maskblack")
-                      ); )
-DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
-                      (SkCanvas::kPoints_PointMode,
-                      BlitMaskBench::kMaskColor, "maskcolor")
-                      ); )
-DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
-                     (SkCanvas::kPoints_PointMode,
-                     BlitMaskBench::KMaskShader, "maskshader")
-                     ); )
+DEF_BENCH(return new BlitMaskBench(SkCanvas::kPoints_PointMode,
+                                   BlitMaskBench::kMaskOpaque,
+                                   "maskopaque");)
+DEF_BENCH(return new BlitMaskBench(SkCanvas::kPoints_PointMode,
+                                   BlitMaskBench::kMaskBlack,
+                                   "maskblack");)
+DEF_BENCH(return new BlitMaskBench(SkCanvas::kPoints_PointMode,
+                                   BlitMaskBench::kMaskColor,
+                                   "maskcolor");)
+DEF_BENCH(return new BlitMaskBench(SkCanvas::kPoints_PointMode,
+                                   BlitMaskBench::KMaskShader,
+                                   "maskshader");)

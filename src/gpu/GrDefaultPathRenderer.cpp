@@ -220,8 +220,7 @@ public:
     static GrDrawBatch* Create(const Geometry& geometry, uint8_t coverage,
                                const SkMatrix& viewMatrix, bool isHairline,
                                const SkRect& devBounds) {
-        return SkNEW_ARGS(DefaultPathBatch, (geometry, coverage, viewMatrix, isHairline,
-                                             devBounds));
+        return new DefaultPathBatch(geometry, coverage, viewMatrix, isHairline, devBounds);
     }
 
     const char* name() const override { return "DefaultPathBatch"; }

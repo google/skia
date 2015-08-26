@@ -71,5 +71,5 @@ private:
 
 SKPAnimationBench::Animation* SKPAnimationBench::CreateZoomAnimation(SkScalar zoomMax,
                                                                      double zoomPeriodMs) {
-    return SkNEW_ARGS(ZoomAnimation, (zoomMax, zoomPeriodMs));
+    return new ZoomAnimation(zoomMax, zoomPeriodMs);
 }

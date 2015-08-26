@@ -87,7 +87,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(DiscardGM); )
+DEF_GM(return new DiscardGM;)
 
 } // end namespace
 

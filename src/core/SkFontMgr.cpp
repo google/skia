@@ -29,9 +29,7 @@ public:
     }
 };
 
-SkFontStyleSet* SkFontStyleSet::CreateEmpty() {
-    return SkNEW(SkEmptyFontStyleSet);
-}
+SkFontStyleSet* SkFontStyleSet::CreateEmpty() { return new SkEmptyFontStyleSet; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +68,7 @@ protected:
         return NULL;
     }
     SkTypeface* onCreateFromStream(SkStreamAsset* stream, int) const override {
-        SkDELETE(stream);
+        delete stream;
         return NULL;
     }
     SkTypeface* onCreateFromFile(const char[], int) const override {
@@ -163,7 +161,7 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
 // As a template argument this must have external linkage.
 SkFontMgr* sk_fontmgr_create_default() {
     SkFontMgr* fm = SkFontMgr::Factory();
-    return fm ? fm : SkNEW(SkEmptyFontMgr);
+    return fm ? fm : new SkEmptyFontMgr;
 }
 
 SK_DECLARE_STATIC_LAZY_PTR(SkFontMgr, singleton, sk_fontmgr_create_default);

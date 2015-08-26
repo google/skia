@@ -33,8 +33,8 @@ GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(GrContext* context,
 GrStencilAndCoverTextContext*
 GrStencilAndCoverTextContext::Create(GrContext* context, GrDrawContext* drawContext,
                                      const SkSurfaceProps& surfaceProps) {
-    GrStencilAndCoverTextContext* textContext = SkNEW_ARGS(GrStencilAndCoverTextContext,
-                                                           (context, drawContext, surfaceProps));
+    GrStencilAndCoverTextContext* textContext =
+            new GrStencilAndCoverTextContext(context, drawContext, surfaceProps);
     textContext->fFallbackTextContext = GrAtlasTextContext::Create(context, drawContext, surfaceProps);
 
     return textContext;

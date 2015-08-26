@@ -57,7 +57,7 @@ void SkBigPicture::partialPlayback(SkCanvas* canvas,
 }
 
 const SkBigPicture::Analysis& SkBigPicture::analysis() const {
-    auto create = [&]() { return SkNEW_ARGS(Analysis, (*fRecord)); };
+    auto create = [&]() { return new Analysis(*fRecord); };
     return *fAnalysis.get(create);
 }
 

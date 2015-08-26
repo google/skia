@@ -25,9 +25,7 @@ public:
                    float destWidth, float destHeight,
                    const SkRect& destSubset,
                    const SkConvolutionProcs& convolveProcs);
-    ~SkResizeFilter() {
-        SkDELETE( fBitmapFilter );
-    }
+    ~SkResizeFilter() { delete fBitmapFilter; }
 
     // Returns the filled filter values.
     const SkConvolutionFilter1D& xFilter() { return fXFilter; }
@@ -70,23 +68,23 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
 
     switch(method) {
         case SkBitmapScaler::RESIZE_BOX:
-            fBitmapFilter = SkNEW(SkBoxFilter);
+            fBitmapFilter = new SkBoxFilter;
             break;
         case SkBitmapScaler::RESIZE_TRIANGLE:
-            fBitmapFilter = SkNEW(SkTriangleFilter);
+            fBitmapFilter = new SkTriangleFilter;
             break;
         case SkBitmapScaler::RESIZE_MITCHELL:
-            fBitmapFilter = SkNEW_ARGS(SkMitchellFilter, (1.f/3.f, 1.f/3.f));
+            fBitmapFilter = new SkMitchellFilter(1.f / 3.f, 1.f / 3.f);
             break;
         case SkBitmapScaler::RESIZE_HAMMING:
-            fBitmapFilter = SkNEW(SkHammingFilter);
+            fBitmapFilter = new SkHammingFilter;
             break;
         case SkBitmapScaler::RESIZE_LANCZOS3:
-            fBitmapFilter = SkNEW(SkLanczosFilter);
+            fBitmapFilter = new SkLanczosFilter;
             break;
         default:
             // NOTREACHED:
-            fBitmapFilter = SkNEW_ARGS(SkMitchellFilter, (1.f/3.f, 1.f/3.f));
+            fBitmapFilter = new SkMitchellFilter(1.f / 3.f, 1.f / 3.f);
             break;
     }
 

@@ -13,9 +13,7 @@ GrClipMaskCache::GrClipMaskCache(GrResourceProvider* resourceProvider)
     , fResourceProvider(resourceProvider) {
     // We need an initial frame to capture the clip state prior to
     // any pushes
-    SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
+    new (fStack.push_back()) GrClipStackFrame;
 }
 
-void GrClipMaskCache::push() {
-    SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
-}
+void GrClipMaskCache::push() { new (fStack.push_back()) GrClipStackFrame; }

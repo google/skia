@@ -18,7 +18,7 @@ class GrDrawPathBatch final : public GrDrawBatch {
 public:
     // This must return the concrete type because we install the stencil settings late :(
     static GrDrawPathBatch* Create(const GrPathProcessor* primProc, const GrPath* path) {
-        return SkNEW_ARGS(GrDrawPathBatch, (primProc, path));
+        return new GrDrawPathBatch(primProc, path);
     }
 
     const char* name() const override { return "DrawPath"; }

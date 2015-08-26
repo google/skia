@@ -18,7 +18,7 @@ public:
         if (kGLES_GrGLStandard == forcedGpuAPI) {
             return NULL;
         }
-        return SkNEW(SkDebugGLContext);
+        return new SkDebugGLContext;
     }
 private:
     void onPlatformMakeCurrent() const override {}

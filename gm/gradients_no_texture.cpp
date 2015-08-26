@@ -128,15 +128,15 @@ struct ColorPos {
 
     ColorPos() : fColors(NULL), fPos(NULL), fCount(0) {}
     ~ColorPos() {
-        SkDELETE_ARRAY(fColors);
-        SkDELETE_ARRAY(fPos);
+        delete[] fColors;
+        delete[] fPos;
     }
 
     void construct(const SkColor colors[], const SkScalar pos[], int count) {
-        fColors = SkNEW_ARRAY(SkColor, count);
+        fColors = new SkColor[count];
         memcpy(fColors, colors, count * sizeof(SkColor));
         if (pos) {
-            fPos = SkNEW_ARRAY(SkScalar, count);
+            fPos = new SkScalar[count];
             memcpy(fPos, pos, count * sizeof(SkScalar));
             fPos[0] = 0;
             fPos[count - 1] = 1;
@@ -248,5 +248,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return SkNEW(GradientsNoTextureGM));
-DEF_GM( return SkNEW(GradientsManyColorsGM));
+DEF_GM(return new GradientsNoTextureGM);
+DEF_GM(return new GradientsManyColorsGM);
