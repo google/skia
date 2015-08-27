@@ -14,7 +14,7 @@
 static const GrGLint gBOGUS_SIZE = 16;
 
 SkMesaGLContext::SkMesaGLContext()
-    : fContext(static_cast<Context>(nullptr))
+    : fContext(static_cast<Context>(0))
     , fImage(nullptr) {
     GR_STATIC_ASSERT(sizeof(Context) == sizeof(OSMesaContext));
 
@@ -79,7 +79,7 @@ void SkMesaGLContext::destroyGLContext() {
 
     if (fContext) {
         OSMesaDestroyContext((OSMesaContext)fContext);
-        fContext = static_cast<Context>(nullptr);
+        fContext = static_cast<Context>(0);
     }
 }
 
