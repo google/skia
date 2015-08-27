@@ -126,6 +126,8 @@ protected:
     virtual void onComputeInvariantOutput(GrInvariantOutput* inout) const = 0;
 
 private:
+    void notifyRefCntIsZero() const final;
+
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrFragmentProcessor; caller is responsible for deleting
         the object. */

@@ -14,14 +14,32 @@
 class GrGpuResourceRef;
 
 /**
- * Base class for GrProcessor. GrDrawState uses this to manage
- * transitioning a GrProcessor from being owned by a client to being scheduled for execution. It
- * converts resources owned by the effect from being ref'ed to having pending reads/writes.
+ * Base class for GrProcessor. This exists to manage transitioning a GrProcessor from being owned by
+ * a client to being scheduled for execution. While a GrProcessor is ref'ed by drawing code its
+ * GrGpu resources must also be ref'ed to prevent incorrectly recycling them through the cache.
+ * However, once the GrProcessor is baked into a GrPipeline and the drawing code has stopped ref'ing
+ * it, it's internal resources can be recycled in some cases.
  *
- * All GrGpuResource objects owned by a GrProgramElement or derived classes (either directly or
- * indirectly) must be wrapped in a GrGpuResourceRef and registered with the GrProgramElement using
- * addGpuResource(). This allows the regular refs to be converted to pending IO events
- * when the program element is scheduled for deferred execution.
+ * We track this using two types of refs on GrProgramElement. A regular ref is owned by any client
+ * that may continue to issue draws that use the GrProgramElement. The GrPipeline owns "pending
+ * executions" instead of refs. A pending execution is cleared by ~GrPipeline().
+ *
+ * While a GrProgramElement is ref'ed any resources it owns are also ref'ed. However, once it gets
+ * into the state where it has pending executions AND no refs then it converts its ownership of
+ * its GrGpuResources from refs to pending IOs. The pending IOs allow the cache to track when it is
+ * safe to recycle a resource even though we still have buffered GrBatches that read or write to the
+ * the resource.
+ *
+ * To make this work all GrGpuResource objects owned by a GrProgramElement or derived classes
+ * (either directly or indirectly) must be wrapped in a GrGpuResourceRef and registered with the
+ * GrProgramElement using addGpuResource(). This allows the regular refs to be converted to pending
+ * IO events when the program element is scheduled for deferred execution.
+ *
+ * Moreover, a GrProgramElement that in turn owns other GrProgramElements must convert its ownership
+ * of its children to pending executions when its ref count reaches zero so that the GrGpuResources
+ * owned by the children GrProgramElements are correctly converted from ownership by ref to
+ * ownership by pending IO. Any GrProgramElement hierarchy is managed by subclasses which must
+ * implement notifyRefCntIsZero() in order to convert refs of children to pending executions.
  */
 class GrProgramElement : public SkNoncopyable {
 public:
@@ -44,6 +62,7 @@ public:
         this->validate();
         --fRefCnt;
         if (0 == fRefCnt) {
+            this->notifyRefCntIsZero();
             if (0 == fPendingExecutions) {
                 delete this;
                 return;
@@ -78,9 +97,6 @@ protected:
         fGpuResources.push_back(res);
     }
 
-private:
-    static uint32_t CreateUniqueID();
-
     void addPendingExecution() const {
         this->validate();
         SkASSERT(fRefCnt > 0);
@@ -104,6 +120,13 @@ private:
         }
         this->validate();
     }
+
+private:
+    /** This will be called when the ref cnt is zero. The object may or may not have pending
+        executions. */
+    virtual void notifyRefCntIsZero() const = 0;
+
+    static uint32_t CreateUniqueID();
 
     void removeRefs() const;
     void addPendingIOs() const;

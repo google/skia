@@ -131,8 +131,10 @@ bool GrProcessor::hasSameTextureAccesses(const GrProcessor& that) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrFragmentProcessor::~GrFragmentProcessor() {
+    // If we got here then our ref count must have reached zero, so we will have converted refs
+    // to pending executions for all children.
     for (int i = 0; i < fChildProcessors.count(); ++i) {
-        fChildProcessors[i]->unref();
+        fChildProcessors[i]->completedExecution();
     }
 }
 
@@ -216,6 +218,14 @@ int GrFragmentProcessor::registerChildProcessor(const GrFragmentProcessor* child
     }
 
     return index;
+}
+
+void GrFragmentProcessor::notifyRefCntIsZero() const {
+    // See comment above GrProgramElement for a detailed explanation of why we do this.
+    for (int i = 0; i < fChildProcessors.count(); ++i) {
+        fChildProcessors[i]->addPendingExecution();
+        fChildProcessors[i]->unref();
+    }
 }
 
 bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) const {

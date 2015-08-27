@@ -243,6 +243,8 @@ protected:
     GrXferProcessor(const DstTexture*, bool willReadDstColor, bool hasMixedSamples);
 
 private:
+    void notifyRefCntIsZero() const final {}
+
     virtual OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
                                         const GrProcOptInfo& coveragePOI,
                                         bool doesStencilWrite,

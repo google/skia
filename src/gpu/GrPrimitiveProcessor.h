@@ -264,6 +264,7 @@ protected:
     size_t fVertexStride;
 
 private:
+    void notifyRefCntIsZero() const final {};
     virtual bool hasExplicitLocalCoords() const = 0;
 
     bool fIsPathRendering;
