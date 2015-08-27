@@ -103,6 +103,7 @@ public:
     // May be incorrect by +-1, but is always exactly correct when *this or o is 0 or 255.
     Sk4px approxMulDiv255(const Sk16b& o) const {
         // (x*y + x) / 256 meets these criteria.  (As of course does (x*y + y) / 256 by symmetry.)
+        // FYI: (x*y + 255) / 256 also meets these criteria.  In my brief testing, it was slower.
         return this->widenLo().addNarrowHi(*this * o);
     }
 
