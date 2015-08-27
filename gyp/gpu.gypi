@@ -432,6 +432,11 @@
       '<(skia_include_path)/gpu/gl/angle/SkANGLEGLContext.h',
       '<(skia_src_path)/gpu/gl/angle/SkANGLEGLContext.cpp',
     ],
+    'skgpu_command_buffer_gl_sources': [
+      # Sk files
+      '<(skia_include_path)/gpu/gl/command_buffer/SkCommandBufferGLContext.h',
+      '<(skia_src_path)/gpu/gl/command_buffer/SkCommandBufferGLContext.cpp',
+    ],
     'skgpu_debug_gl_sources': [
       '<(skia_src_path)/gpu/gl/debug/GrGLCreateDebugInterface.cpp',
       '<(skia_src_path)/gpu/gl/debug/GrFakeRefObj.h',

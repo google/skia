@@ -42,6 +42,11 @@ static const char kGpuAPINameGLES[] = "gles";
 #else
 #define ANGLE_CONFIG_STRING ""
 #endif
+#if SK_COMMAND_BUFFER
+#define COMMAND_BUFFER_CONFIG_STRING "|commandbuffer"
+#else
+#define COMMAND_BUFFER_CONFIG_STRING ""
+#endif
 #if SK_MESA
 #define MESA_CONFIG_STRING "|mesa"
 #else
@@ -51,7 +56,7 @@ static const char kGpuAPINameGLES[] = "gles";
 // Although this config does not support all the same options as gm, the names should be kept
 // consistent.
 DEFINE_string(config, "8888", "["
-              "8888" GPU_CONFIG_STRING ANGLE_CONFIG_STRING MESA_CONFIG_STRING
+              "8888" GPU_CONFIG_STRING ANGLE_CONFIG_STRING COMMAND_BUFFER_CONFIG_STRING MESA_CONFIG_STRING
               "]: Use the corresponding config.");
 
 DEFINE_bool(deferImageDecoding, false, "Defer decoding until drawing images. "
@@ -312,6 +317,11 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
 #if SK_ANGLE
         else if (0 == strcmp(FLAGS_config[0], "angle")) {
             deviceType = sk_tools::PictureRenderer::kAngle_DeviceType;
+        }
+#endif
+#if SK_COMMAND_BUFFER
+        else if (0 == strcmp(FLAGS_config[0], "commandbuffer")) {
+            deviceType = sk_tools::PictureRenderer::kCommandBuffer_DeviceType;
         }
 #endif
 #if SK_MESA

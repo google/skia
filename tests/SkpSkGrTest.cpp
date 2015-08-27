@@ -260,6 +260,7 @@ static SkString make_png_name(const char* filename) {
 typedef GrContextFactory::GLContextType GLContextType;
 #ifdef SK_BUILD_FOR_WIN
 static const GLContextType kAngle = GrContextFactory::kANGLE_GLContextType;
+static const GLContextType kCommandBuffer = GrContextFactory::kCommandBuffer_GLContextType;
 #else
 static const GLContextType kNative = GrContextFactory::kNative_GLContextType;
 #endif

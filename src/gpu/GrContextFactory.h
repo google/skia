@@ -34,6 +34,9 @@ public:
 #if SK_ANGLE
       kANGLE_GLContextType,
 #endif
+#if SK_COMMAND_BUFFER
+      kCommandBuffer_GLContextType,
+#endif
 #if SK_MESA
       kMESA_GLContextType,
 #endif
@@ -67,6 +70,10 @@ public:
 #if SK_ANGLE
             case kANGLE_GLContextType:
                 return "angle";
+#endif
+#if SK_COMMAND_BUFFER
+            case kCommandBuffer_GLContextType:
+                return "commandbuffer";
 #endif
 #if SK_MESA
             case kMESA_GLContextType:

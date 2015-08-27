@@ -139,6 +139,10 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
         case kAngle_DeviceType:
             // fall through
 #endif
+#if SK_COMMAND_BUFFER
+        case kCommandBuffer_DeviceType:
+            // fall through
+#endif
 #if SK_MESA
         case kMesa_DeviceType:
             // fall through

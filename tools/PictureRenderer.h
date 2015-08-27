@@ -45,6 +45,9 @@ public:
 #if SK_ANGLE
         kAngle_DeviceType,
 #endif
+#if SK_COMMAND_BUFFER
+        kCommandBuffer_DeviceType,
+#endif
 #if SK_MESA
         kMesa_DeviceType,
 #endif
@@ -196,6 +199,11 @@ public:
                 glContextType = GrContextFactory::kANGLE_GLContextType;
                 break;
 #endif
+#if SK_COMMAND_BUFFER
+            case kCommandBuffer_DeviceType:
+                glContextType = GrContextFactory::kCommandBuffer_GLContextType;
+                break;
+#endif
 #if SK_MESA
             case kMesa_DeviceType:
                 glContextType = GrContextFactory::kMESA_GLContextType;
@@ -288,6 +296,11 @@ public:
                 config.append("_angle");
                 break;
 #endif
+#if SK_COMMAND_BUFFER
+            case kCommandBuffer_DeviceType:
+                config.append("_commandbuffer");
+                break;
+#endif
 #if SK_MESA
             case kMesa_DeviceType:
                 config.append("_mesa");
@@ -337,6 +350,11 @@ public:
                 result["config"] = "angle";
                 break;
 #endif
+#if SK_COMMAND_BUFFER
+            case kCommandBuffer_DeviceType:
+                result["config"] = "commandbuffer";
+                break;
+#endif
 #if SK_MESA
             case kMesa_DeviceType:
                 result["config"] = "mesa";
@@ -358,6 +376,10 @@ public:
                 // fall through
 #if SK_ANGLE
             case kAngle_DeviceType:
+                // fall through
+#endif
+#if SK_COMMAND_BUFFER
+            case kCommandBuffer_DeviceType:
                 // fall through
 #endif
 #if SK_MESA
@@ -382,6 +404,11 @@ public:
 #if SK_ANGLE
             case kAngle_DeviceType:
                 glContextType = GrContextFactory::kANGLE_GLContextType;
+                break;
+#endif
+#if SK_COMMAND_BUFFER
+            case kCommandBuffer_DeviceType:
+                glContextType = GrContextFactory::kCommandBuffer_GLContextType;
                 break;
 #endif
 #if SK_MESA

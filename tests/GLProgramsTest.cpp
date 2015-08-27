@@ -295,6 +295,13 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
                 maxStages = 2;
             }
 #endif
+#if SK_COMMAND_BUFFER
+            // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
+            // TODO(hendrikw): This only needs to happen with the ANGLE comand buffer backend.
+            if (type == GrContextFactory::kCommandBuffer_GLContextType) {
+                maxStages = 2;
+            }
+#endif
             GrTestTarget target;
             context->getTestTarget(&target);
             REPORTER_ASSERT(reporter, target.target()->programUnitTest(context, maxStages));

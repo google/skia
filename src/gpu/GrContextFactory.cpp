@@ -11,6 +11,9 @@
 #if SK_ANGLE
     #include "gl/angle/SkANGLEGLContext.h"
 #endif
+#if SK_COMMAND_BUFFER
+    #include "gl/command_buffer/SkCommandBufferGLContext.h"
+#endif
 #include "gl/debug/SkDebugGLContext.h"
 #if SK_MESA
     #include "gl/mesa/SkMesaGLContext.h"
@@ -41,6 +44,11 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
 #ifdef SK_ANGLE
         case kANGLE_GLContextType:
             glCtx.reset(SkANGLEGLContext::Create(forcedGpuAPI));
+            break;
+#endif
+#ifdef SK_COMMAND_BUFFER
+        case kCommandBuffer_GLContextType:
+            glCtx.reset(SkCommandBufferGLContext::Create(forcedGpuAPI));
             break;
 #endif
 #ifdef SK_MESA

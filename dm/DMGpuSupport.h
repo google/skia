@@ -64,12 +64,13 @@ public:
 
     typedef int GLContextType;
 
-    static const GLContextType kANGLE_GLContextType  = 0,
-                               kDebug_GLContextType  = 0,
-                               kMESA_GLContextType   = 0,
-                               kNVPR_GLContextType   = 0,
-                               kNative_GLContextType = 0,
-                               kNull_GLContextType   = 0;
+    static const GLContextType kANGLE_GLContextType         = 0,
+                               kCommandBuffer_GLContextType = 0,
+                               kDebug_GLContextType         = 0,
+                               kMESA_GLContextType          = 0,
+                               kNVPR_GLContextType          = 0,
+                               kNative_GLContextType        = 0,
+                               kNull_GLContextType          = 0;
     static const int kGLContextTypeCnt = 1;
     void destroyContexts() {}
 

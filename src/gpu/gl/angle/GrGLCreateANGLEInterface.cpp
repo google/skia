@@ -12,7 +12,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "EGL/egl.h"
+#include <EGL/egl.h>
 
 static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
     GrGLFuncPtr proc = (GrGLFuncPtr) GetProcAddress((HMODULE)ctx, name);

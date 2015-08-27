@@ -443,6 +443,9 @@ static void create_configs(SkTDArray<Config>* configs) {
 #ifdef SK_ANGLE
         GPU_CONFIG(angle, kANGLE_GLContextType, 0, false)
 #endif
+#ifdef SK_COMMAND_BUFFER
+        GPU_CONFIG(commandbuffer, kCommandBuffer_GLContextType, 0, false)
+#endif
 #if SK_MESA
         GPU_CONFIG(mesa, kMESA_GLContextType, 0, false)
 #endif

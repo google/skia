@@ -39,6 +39,9 @@ public:
 #if SK_ANGLE
         kANGLE_DeviceType,
 #endif // SK_ANGLE
+#if SK_COMMAND_BUFFER
+        kCommandBuffer_DeviceType,
+#endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
         kDeviceTypeCnt
     };
@@ -50,6 +53,9 @@ public:
     #if SK_ANGLE
             case kANGLE_DeviceType:
     #endif // SK_ANGLE
+    #if SK_COMMAND_BUFFER
+            case kCommandBuffer_DeviceType:
+    #endif // SK_COMMAND_BUFFER
                 return true;
             default:
                 return false;

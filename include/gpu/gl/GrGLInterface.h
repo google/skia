@@ -57,6 +57,13 @@ const GrGLInterface* GrGLCreateMesaInterface();
 const GrGLInterface* GrGLCreateANGLEInterface();
 #endif
 
+#if SK_COMMAND_BUFFER
+/**
+ * Creates a GrGLInterface for a Command Buffer context.
+ */
+const GrGLInterface* GrGLCreateCommandBufferInterface();
+#endif
+
 /**
  * Creates a null GrGLInterface that doesn't draw anything. Used for measuring
  * CPU overhead.
