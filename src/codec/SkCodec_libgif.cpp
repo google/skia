@@ -21,8 +21,9 @@ bool SkGifCodec::IsGif(SkStream* stream) {
     char buf[GIF_STAMP_LEN];
     if (stream->read(buf, GIF_STAMP_LEN) == GIF_STAMP_LEN) {
         if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
-                memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
-                memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0) {
+            memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
+            memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0)
+        {
             return true;
         }
     }
@@ -39,8 +40,7 @@ static void gif_warning(const char* msg) {
 /*
  * Error function
  */
-static SkCodec::Result gif_error(const char* msg,
-        SkCodec::Result result = SkCodec::kInvalidInput) {
+static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCodec::kInvalidInput) {
     SkCodecPrintf("Gif Error: %s\n", msg);
     return result;
 }
@@ -49,8 +49,7 @@ static SkCodec::Result gif_error(const char* msg,
 /*
  * Read function that will be passed to gif_lib
  */
-static int32_t read_bytes_callback(GifFileType* fileType, GifByteType* out,
-        int32_t size) {
+static int32_t read_bytes_callback(GifFileType* fileType, GifByteType* out, int32_t size) {
     SkStream* stream = (SkStream*) fileType->UserData;
     return (int32_t) stream->read(out, size);
 }
@@ -96,8 +95,7 @@ static uint32_t find_trans_index(const SavedImage& image) {
         // graphics control extension is always four bytes.  The fourth byte
         // is the transparent index (if it exists), so we need at least four
         // bytes.
-        if (GRAPHICS_EXT_FUNC_CODE == extBlock.Function &&
-                extBlock.ByteCount >= 4) {
+        if (GRAPHICS_EXT_FUNC_CODE == extBlock.Function && extBlock.ByteCount >= 4) {
 
             // Check the transparent color flag which indicates whether a
             // transparent index exists.  It is the least significant bit of
@@ -169,7 +167,7 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
         // kPremul because we support kPremul, and it is more efficient to
         // use kPremul directly even when kUnpremul is supported.
         const SkImageInfo& imageInfo = SkImageInfo::Make(width, height,
-                kIndex_8_SkColorType, kPremul_SkAlphaType);
+                                                         kIndex_8_SkColorType, kPremul_SkAlphaType);
         *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach());
     } else {
         SkASSERT(nullptr != gifOut);
@@ -192,8 +190,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     return nullptr;
 }
 
-SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream,
-                       GifFileType* gif)
+SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif)
     : INHERITED(srcInfo, stream)
     , fGif(gif)
 {}
@@ -231,8 +228,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
         return gif_error("Scaling not supported.\n", kInvalidScale);
     }
     if (!conversion_possible(dstInfo, this->getInfo())) {
-        return gif_error("Cannot convert input type to output type.\n",
-                kInvalidConversion);
+        return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
     }
 
     // Use this as a container to hold information about any gif extension
@@ -260,8 +256,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
             case IMAGE_DESC_RECORD_TYPE: {
                 // Read the image descriptor
                 if (GIF_ERROR == DGifGetImageDesc(fGif)) {
-                    return gif_error("DGifGetImageDesc failed.\n",
-                            kInvalidInput);
+                    return gif_error("DGifGetImageDesc failed.\n", kInvalidInput);
                 }
 
                 // If reading the image descriptor is successful, the image
@@ -277,8 +272,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 int32_t innerHeight = desc.Height;
                 // Fail on non-positive dimensions
                 if (innerWidth <= 0 || innerHeight <= 0) {
-                    return gif_error("Invalid dimensions for inner image.\n",
-                            kInvalidInput);
+                    return gif_error("Invalid dimensions for inner image.\n", kInvalidInput);
                 }
                 // Treat the following cases as warnings and try to fix
                 if (innerWidth > width) {
@@ -327,8 +321,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 }
                 if (nullptr != colorMap) {
                     colorCount = colorMap->ColorCount;
-                    SkASSERT(colorCount ==
-                            (unsigned) (1 << (colorMap->BitsPerPixel)));
+                    SkASSERT(colorCount == (unsigned) (1 << (colorMap->BitsPerPixel)));
                     SkASSERT(colorCount <= 256);
                     for (uint32_t i = 0; i < colorCount; i++) {
                         colorTable[i] = SkPackARGB32(0xFF,
@@ -384,24 +377,21 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 if (innerWidth < width || innerHeight < height) {
 
                     // Modify the destination info
-                    const SkImageInfo subsetDstInfo =
-                            dstInfo.makeWH(innerWidth, innerHeight);
+                    const SkImageInfo subsetDstInfo = dstInfo.makeWH(innerWidth, innerHeight);
 
                     // Fill the destination with the fill color
                     // FIXME: This may not be the behavior that we want for
                     //        animated gifs where we draw on top of the
                     //        previous frame.
                     if (!skipBackground) {
-                        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height,
-                                fillIndex, colorTable);
+                        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, fillIndex, colorTable);
                     }
 
                     // Modify the dst pointer
-                    const int32_t dstBytesPerPixel =
-                            SkColorTypeBytesPerPixel(dstColorType);
+                    const int32_t dstBytesPerPixel = SkColorTypeBytesPerPixel(dstColorType);
                     dst = SkTAddOffset<void*>(dst,
-                            dstRowBytes * imageTop +
-                            dstBytesPerPixel * imageLeft);
+                                              dstRowBytes * imageTop +
+                                              dstBytesPerPixel * imageLeft);
 
                     // Create the subset swizzler
                     swizzler.reset(SkSwizzler::CreateSwizzler(
@@ -424,14 +414,13 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                     // the rearranging.
                     SkGifInterlaceIter iter(innerHeight);
                     for (int32_t y = 0; y < innerHeight; y++) {
-                        if (GIF_ERROR == DGifGetLine(fGif, buffer.get(),
-                                innerWidth)) {
+                        if (GIF_ERROR == DGifGetLine(fGif, buffer.get(), innerWidth)) {
                             // Recover from error by filling remainder of image
                             if (!skipBackground) {
                                 memset(buffer.get(), fillIndex, innerWidth);
                                 for (; y < innerHeight; y++) {
                                     void* dstRow = SkTAddOffset<void>(dst,
-                                            dstRowBytes * iter.nextY());
+                                                                      dstRowBytes * iter.nextY());
                                     swizzler->swizzle(dstRow, buffer.get());
                                 }
                             }
@@ -439,19 +428,17 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                     "Could not decode line %d of %d.\n",
                                     y, height - 1).c_str(), kIncompleteInput);
                         }
-                        void* dstRow = SkTAddOffset<void>(
-                                dst, dstRowBytes * iter.nextY());
+                        void* dstRow = SkTAddOffset<void>(dst, dstRowBytes * iter.nextY());
                         swizzler->swizzle(dstRow, buffer.get());
                     }
                 } else {
                     // Standard mode
                     void* dstRow = dst;
                     for (int32_t y = 0; y < innerHeight; y++) {
-                        if (GIF_ERROR == DGifGetLine(fGif, buffer.get(),
-                                innerWidth)) {
+                        if (GIF_ERROR == DGifGetLine(fGif, buffer.get(), innerWidth)) {
                             if (!skipBackground) {
                                 SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes,
-                                        innerHeight - y, fillIndex, colorTable);
+                                                 innerHeight - y, fillIndex, colorTable);
                             }
                             return gif_error(SkStringPrintf(
                                     "Could not decode line %d of %d.\n",
@@ -490,26 +477,22 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
             // such as transparency or animation.
             case EXTENSION_RECORD_TYPE:
                 // Read extension data
-                if (GIF_ERROR ==
-                        DGifGetExtension(fGif, &extFunction, &extData)) {
-                    return gif_error("Could not get extension.\n",
-                            kIncompleteInput);
+                if (GIF_ERROR == DGifGetExtension(fGif, &extFunction, &extData)) {
+                    return gif_error("Could not get extension.\n", kIncompleteInput);
                 }
 
                 // Create an extension block with our data
                 while (nullptr != extData) {
                     // Add a single block
-                    if (GIF_ERROR ==
-                            GifAddExtensionBlock(&saveExt.ExtensionBlockCount,
-                            &saveExt.ExtensionBlocks, extFunction, extData[0],
-                            &extData[1])) {
-                        return gif_error("Could not add extension block.\n",
-                                kIncompleteInput);
+                    if (GIF_ERROR == GifAddExtensionBlock(&saveExt.ExtensionBlockCount,
+                                                          &saveExt.ExtensionBlocks,
+                                                          extFunction, extData[0], &extData[1]))
+                    {
+                        return gif_error("Could not add extension block.\n", kIncompleteInput);
                     }
                     // Move to the next block
                     if (GIF_ERROR == DGifGetExtensionNext(fGif, &extData)) {
-                        return gif_error("Could not get next extension.\n",
-                                kIncompleteInput);
+                        return gif_error("Could not get next extension.\n", kIncompleteInput);
                     }
                 }
                 break;
@@ -526,6 +509,5 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
     } while (TERMINATE_RECORD_TYPE != recordType);
 
-    return gif_error("Could not find any images to decode in gif file.\n",
-            kInvalidInput);
+    return gif_error("Could not find any images to decode in gif file.\n", kInvalidInput);
 }

@@ -209,8 +209,7 @@ void SkBmpRLECodec::setPixel(void* dst, size_t dstRowBytes,
     // Set the pixel based on destination color type
     switch (dstInfo.colorType()) {
         case kN32_SkColorType: {
-            SkPMColor* dstRow = SkTAddOffset<SkPMColor>((SkPMColor*) dst,
-                    row * (int) dstRowBytes);
+            SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst, row * (int) dstRowBytes);
             dstRow[x] = fColorTable->operator[](index);
             break;
         }
@@ -246,8 +245,7 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
     // Set the pixel based on destination color type
     switch (dstInfo.colorType()) {
         case kN32_SkColorType: {
-            SkPMColor* dstRow = SkTAddOffset<SkPMColor>((SkPMColor*) dst,
-                    row * (int) dstRowBytes);
+            SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst, row * (int) dstRowBytes);
             dstRow[x] = SkPackARGB32NoCheck(0xFF, red, green, blue);
             break;
         }
@@ -434,8 +432,7 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
                 uint8_t green = fStreamBuffer.get()[fCurrRLEByte++];
                 uint8_t red = fStreamBuffer.get()[fCurrRLEByte++];
                 while (x < endX) {
-                    setRGBPixel(dst, dstRowBytes, dstInfo, x++, y, red,
-                            green, blue);
+                    setRGBPixel(dst, dstRowBytes, dstInfo, x++, y, red, green, blue);
                 }
             } else {
                 // In RLE8 or RLE4, the second byte read gives the index in the
@@ -451,8 +448,7 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
 
                 // Set the indicated number of pixels
                 for (int which = 0; x < endX; x++) {
-                    setPixel(dst, dstRowBytes, dstInfo, x, y,
-                            indices[which]);
+                    setPixel(dst, dstRowBytes, dstInfo, x, y, indices[which]);
                     which = !which;
                 }
             }
