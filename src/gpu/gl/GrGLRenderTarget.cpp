@@ -40,7 +40,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
 
     // We own one color value for each MSAA sample.
     int colorValuesPerPixel = SkTMax(1, fDesc.fSampleCnt);
-    if (fTexFBOID != fRTFBOID) {
+    if (fTexFBOID != kUnresolvableFBOID && fTexFBOID != fRTFBOID) {
         // If we own the resolve buffer then that is one more sample per pixel.
         colorValuesPerPixel += 1;
     } else if (fTexFBOID != 0) {
