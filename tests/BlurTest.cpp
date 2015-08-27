@@ -171,7 +171,7 @@ static void ground_truth_2d(int width, int height,
 
     memset(src.fImage, 0xff, src.computeTotalImageSize());
 
-    dst.fImage = NULL;
+    dst.fImage = nullptr;
     SkBlurMask::BlurGroundTruth(sigma, &dst, src, kNormal_SkBlurStyle);
 
     int midX = dst.fBounds.centerX();
@@ -281,7 +281,7 @@ static bool gpu_blur_path(GrContextFactory* factory, const SkPath& path,
                           int* result, int resultCount) {
 
     GrContext* grContext = factory->get(GrContextFactory::kNative_GLContextType);
-    if (NULL == grContext) {
+    if (nullptr == grContext) {
         return false;
     }
 
@@ -292,7 +292,7 @@ static bool gpu_blur_path(GrContextFactory* factory, const SkPath& path,
     desc.fHeight = 30;
     desc.fSampleCnt = 0;
 
-    SkAutoTUnref<GrTexture> texture(grContext->createTexture(desc, false, NULL, 0));
+    SkAutoTUnref<GrTexture> texture(grContext->createTexture(desc, false, nullptr, 0));
     SkAutoTUnref<SkGpuDevice> device(new SkGpuDevice  (grContext, texture.get()));
     SkCanvas canvas(device.get());
 
@@ -430,7 +430,7 @@ static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
     const bool expectSuccess = sigma > 0 &&
                                0 == (flags & SkBlurDrawLooper::kIgnoreTransform_BlurFlag);
 
-    if (NULL == lp.get()) {
+    if (nullptr == lp.get()) {
         REPORTER_ASSERT(reporter, sigma <= 0);
     } else {
         SkDrawLooper::BlurShadowRec rec;
@@ -526,7 +526,7 @@ static void test_asABlur(skiatest::Reporter* reporter) {
                 const SkBlurQuality quality = blurMaskFilterFlags_as_quality(flags);
 
                 SkAutoTUnref<SkMaskFilter> mf(SkBlurMaskFilter::Create(style, sigma, flags));
-                if (NULL == mf.get()) {
+                if (nullptr == mf.get()) {
                     REPORTER_ASSERT(reporter, sigma <= 0);
                 } else {
                     REPORTER_ASSERT(reporter, sigma > 0);

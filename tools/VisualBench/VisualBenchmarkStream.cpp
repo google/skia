@@ -13,7 +13,7 @@
 #include "SkStream.h"
 #include "VisualSKPBench.h"
 
-DEFINE_string2(match, m, NULL,
+DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
                "Multiple matches may be separated by spaces.\n"
                "~ causes a matching bench to always be skipped\n"
@@ -27,8 +27,8 @@ DEFINE_string(skps, "skps", "Directory to read skps from.");
 VisualBenchmarkStream::VisualBenchmarkStream()
     : fBenches(BenchRegistry::Head())
     , fGMs(skiagm::GMRegistry::Head())
-    , fSourceType(NULL)
-    , fBenchType(NULL)
+    , fSourceType(nullptr)
+    , fBenchType(nullptr)
     , fCurrentSKP(0) {
     for (int i = 0; i < FLAGS_skps.count(); i++) {
         if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
@@ -51,13 +51,13 @@ bool VisualBenchmarkStream::ReadPicture(const char* path, SkAutoTUnref<SkPicture
     }
 
     SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
-    if (stream.get() == NULL) {
+    if (stream.get() == nullptr) {
         SkDebugf("Could not read %s.\n", path);
         return false;
     }
 
     pic->reset(SkPicture::CreateFromStream(stream.get()));
-    if (pic->get() == NULL) {
+    if (pic->get() == nullptr) {
         SkDebugf("Could not read %s as an SkPicture.\n", path);
         return false;
     }
@@ -77,7 +77,7 @@ Benchmark* VisualBenchmarkStream::next() {
 
 Benchmark* VisualBenchmarkStream::innerNext() {
     while (fBenches) {
-        Benchmark* bench = fBenches->factory()(NULL);
+        Benchmark* bench = fBenches->factory()(nullptr);
         fBenches = fBenches->next();
         if (bench->isVisual()) {
             fSourceType = "bench";
@@ -88,7 +88,7 @@ Benchmark* VisualBenchmarkStream::innerNext() {
     }
 
     while (fGMs) {
-        SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(NULL));
+        SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(nullptr));
         fGMs = fGMs->next();
         if (gm->runAsBench()) {
             fSourceType = "gm";
@@ -111,5 +111,5 @@ Benchmark* VisualBenchmarkStream::innerNext() {
         return new VisualSKPBench(name.c_str(), pic.get());
     }
 
-    return NULL;
+    return nullptr;
 }

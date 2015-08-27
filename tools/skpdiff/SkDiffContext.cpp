@@ -22,7 +22,7 @@
 #include "skpdiff_util.h"
 
 SkDiffContext::SkDiffContext() {
-    fDiffers = NULL;
+    fDiffers = nullptr;
     fDifferCount = 0;
 }
 
@@ -58,7 +58,7 @@ void SkDiffContext::setDiffers(const SkTDArray<SkImageDiffer*>& differs) {
     // Delete whatever the last array of differs was
     if (fDiffers) {
         delete[] fDiffers;
-        fDiffers = NULL;
+        fDiffers = nullptr;
         fDifferCount = 0;
     }
 

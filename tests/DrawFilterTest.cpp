@@ -30,14 +30,14 @@ static void test_saverestore(skiatest::Reporter* reporter) {
 
     SkAutoTUnref<TestFilter> df(new TestFilter);
 
-    REPORTER_ASSERT(reporter, NULL == canvas->getDrawFilter());
+    REPORTER_ASSERT(reporter, nullptr == canvas->getDrawFilter());
 
     canvas->save();
     canvas->setDrawFilter(df);
-    REPORTER_ASSERT(reporter, NULL != canvas->getDrawFilter());
+    REPORTER_ASSERT(reporter, nullptr != canvas->getDrawFilter());
     canvas->restore();
 
-    REPORTER_ASSERT(reporter, NULL == canvas->getDrawFilter());
+    REPORTER_ASSERT(reporter, nullptr == canvas->getDrawFilter());
 }
 
 DEF_TEST(DrawFilter, reporter) {

@@ -34,7 +34,7 @@ static void reduced_stack_walker(const SkClipStack& stack,
     int numAAElements = 0;
     while ((kUnknown_InitialState == *initialState)) {
         const Element* element = iter.prev();
-        if (NULL == element) {
+        if (nullptr == element) {
             *initialState = GrReducedClip::kAllIn_InitialState;
             break;
         }

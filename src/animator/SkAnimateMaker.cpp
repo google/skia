@@ -28,8 +28,8 @@ class DefaultTimeline : public SkAnimator::Timeline {
 } gDefaultTimeline;
 
 SkAnimateMaker::SkAnimateMaker(SkAnimator* animator, SkCanvas* canvas, SkPaint* paint)
-    : fActiveEvent(NULL), fAdjustedStart(0), fCanvas(canvas), fEnableTime(0),
-        fHostEventSinkID(0), fMinimumInterval((SkMSec) -1), fPaint(paint), fParentMaker(NULL),
+    : fActiveEvent(nullptr), fAdjustedStart(0), fCanvas(canvas), fEnableTime(0),
+        fHostEventSinkID(0), fMinimumInterval((SkMSec) -1), fPaint(paint), fParentMaker(nullptr),
         fTimeline(&gDefaultTimeline), fInInclude(false), fInMovie(false),
         fFirstScriptError(false), fLoaded(false), fIDs(256), fAnimator(animator)
 {
@@ -66,8 +66,8 @@ void SkAnimateMaker::clearExtraPropertyCallBack(SkDisplayTypes type) {
     for (SkExtras** extraPtr = fExtras.begin(); extraPtr < end; extraPtr++) {
         SkExtras* extra = *extraPtr;
         if (extra->definesType(type)) {
-            extra->fExtraCallBack = NULL;
-            extra->fExtraStorage = NULL;
+            extra->fExtraCallBack = nullptr;
+            extra->fExtraStorage = nullptr;
             break;
         }
     }
@@ -84,7 +84,7 @@ SkDisplayable* SkAnimateMaker::createInstance(const char name[], size_t len) {
     SkDisplayTypes type = SkDisplayType::GetType(this, name, len );
     if ((int)type >= 0)
         return SkDisplayType::CreateInstance(this, type);
-    return NULL;
+    return nullptr;
 }
 
 // differs from SkAnimator::decodeStream in that it does not reset error state
@@ -181,7 +181,7 @@ void SkAnimateMaker::dump(const char* match) {
         SkTDict<SkDisplayable*>::Iter iter(fIDs);
         const char* name;
         SkDisplayable* result;
-        while ((name = iter.next(&result)) != NULL) {
+        while ((name = iter.next(&result)) != nullptr) {
             if (strcmp(match,name) == 0)
                 result->dump(this);
         }
@@ -213,7 +213,7 @@ SkAnimator* SkAnimateMaker::getRoot()
     SkAnimateMaker* maker = this;
     while (maker->fParentMaker)
         maker = maker->fParentMaker;
-    return maker == this ? NULL : maker->fAnimator;
+    return maker == this ? nullptr : maker->fAnimator;
 }
 #endif
 
@@ -235,8 +235,8 @@ void SkAnimateMaker::loadMovies() {
         SkASSERT(displayable->getType() == SkType_Movie);
         SkDisplayMovie* movie = (SkDisplayMovie*) displayable;
         SkAnimateMaker* movieMaker = movie->fMovie.fMaker;
-        movieMaker->fEvents.doEvent(*movieMaker, SkDisplayEvent::kOnload, NULL);
-        movieMaker->fEvents.removeEvent(SkDisplayEvent::kOnload, NULL);
+        movieMaker->fEvents.doEvent(*movieMaker, SkDisplayEvent::kOnload, nullptr);
+        movieMaker->fEvents.removeEvent(SkDisplayEvent::kOnload, nullptr);
         movieMaker->loadMovies();
     }
 }
@@ -271,14 +271,14 @@ void SkAnimateMaker::reset() {
 }
 
 void SkAnimateMaker::removeActive(SkActive* active) {
-    if (active == NULL)
+    if (active == nullptr)
         return;
     fDisplayList.remove(active);
 }
 
 bool SkAnimateMaker::resolveID(SkDisplayable* displayable, SkDisplayable* original) {
     SkString newID;
-    bool success = computeID(original, NULL, &newID);
+    bool success = computeID(original, nullptr, &newID);
     if (success)
         setID(displayable, newID);
     return success;

@@ -64,7 +64,7 @@ public:
      *
      * @param removedCount A pointer that receives the size of the contiguous
                            range that was removed.
-     * @return The resulting SparseNameRange after the removal (or NULL if it
+     * @return The resulting SparseNameRange after the removal (or nullptr if it
      *         became empty). Note that this call is destructive, so the
      *         original SparseNameRange will no longer be valid afterward. The
      *         caller must always update its pointer with the new
@@ -100,7 +100,7 @@ public:
      *
      * @param name The name to free. Not-allocated names are silently ignored
      *             the same way they are in the OpenGL spec.
-     * @return The resulting SparseNameRange after the free (or NULL if it
+     * @return The resulting SparseNameRange after the free (or nullptr if it
      *         became empty). Note that this call is destructive, so the
      *         original SparseNameRange will no longer be valid afterward. The
      *         caller must always update its pointer with the new
@@ -146,7 +146,7 @@ public:
             GrGLuint removedCount;
             fRight.reset(fRight->removeLeftmostContiguousRange(&removedCount));
             *outName = fLeft->appendNames(1 + removedCount);
-            if (NULL == fRight.get()) {
+            if (nullptr == fRight.get()) {
                 return fLeft.detach();
             }
             this->updateStats();
@@ -162,7 +162,7 @@ public:
 
     SparseNameRange* SK_WARN_UNUSED_RESULT removeLeftmostContiguousRange(GrGLuint* removedCount) override {
         fLeft.reset(fLeft->removeLeftmostContiguousRange(removedCount));
-        if (NULL == fLeft) {
+        if (nullptr == fLeft) {
             return fRight.detach();
         }
         this->updateStats();
@@ -188,7 +188,7 @@ public:
     SparseNameRange* SK_WARN_UNUSED_RESULT free(GrGLuint name) override {
         if (name < fLeft->end()) {
             fLeft.reset(fLeft->free(name));
-            if (NULL == fLeft) {
+            if (nullptr == fLeft) {
                 // fLeft became empty after the free.
                 return fRight.detach();
             }
@@ -196,7 +196,7 @@ public:
             return this->rebalance();
         } else {
             fRight.reset(fRight->free(name));
-            if (NULL == fRight) {
+            if (nullptr == fRight) {
                 // fRight became empty after the free.
                 return fLeft.detach();
             }
@@ -287,7 +287,7 @@ public:
 
     SparseNameRange* SK_WARN_UNUSED_RESULT removeLeftmostContiguousRange(GrGLuint* removedCount) override {
         *removedCount = fEnd - fFirst;
-        return NULL;
+        return nullptr;
     }
 
     GrGLuint appendNames(GrGLuint count) override {
@@ -311,7 +311,7 @@ public:
 
         if (fFirst == name) {
             ++fFirst;
-            return (fEnd == fFirst) ? NULL : this->takeRef();
+            return (fEnd == fFirst) ? nullptr : this->takeRef();
         }
 
         if (fEnd == name + 1) {
@@ -337,7 +337,7 @@ GrGLNameAllocator::~GrGLNameAllocator() {
 }
 
 GrGLuint GrGLNameAllocator::allocateName() {
-    if (NULL == fAllocatedNames.get()) {
+    if (nullptr == fAllocatedNames.get()) {
         fAllocatedNames.reset(new ContiguousNameRange(fFirstName, fFirstName + 1));
         return fFirstName;
     }

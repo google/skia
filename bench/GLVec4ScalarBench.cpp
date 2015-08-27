@@ -246,7 +246,7 @@ void GLVec4ScalarBench::setupSingleVbo(const GrGLInterface* gl, const SkMatrix* 
 void GLVec4ScalarBench::setup(const GrGLContext* ctx) {
     const GrGLInterface* gl = ctx->interface();
     if (!gl) {
-        SkFAIL("GL interface is NULL in setup()!\n");
+        SkFAIL("GL interface is nullptr in setup()!\n");
     }
     fFboTextureId = SetupFramebuffer(gl, kScreenWidth, kScreenHeight);
 

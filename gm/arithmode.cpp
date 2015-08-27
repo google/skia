@@ -31,7 +31,7 @@ static SkBitmap make_src() {
         SK_ColorTRANSPARENT, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
     };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                                  SkShader::kClamp_TileMode);
     paint.setShader(s)->unref();
     canvas.drawPaint(paint);
@@ -47,7 +47,7 @@ static SkBitmap make_dst() {
         SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN,
         sk_tool_utils::color_to_565(SK_ColorGRAY)
     };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                                  SkShader::kClamp_TileMode);
     paint.setShader(s)->unref();
     canvas.drawPaint(paint);
@@ -105,13 +105,13 @@ protected:
         SkScalar gap = SkIntToScalar(src.width() + 20);
         while (k < stop) {
             SkScalar x = 0;
-            canvas->drawBitmap(src, x, y, NULL);
+            canvas->drawBitmap(src, x, y, nullptr);
             x += gap;
-            canvas->drawBitmap(dst, x, y, NULL);
+            canvas->drawBitmap(dst, x, y, nullptr);
             x += gap;
             SkRect rect = SkRect::MakeXYWH(x, y, SkIntToScalar(WW), SkIntToScalar(HH));
-            canvas->saveLayer(&rect, NULL);
-            canvas->drawBitmap(dst, x, y, NULL);
+            canvas->saveLayer(&rect, nullptr);
+            canvas->drawBitmap(dst, x, y, nullptr);
             SkXfermode* xfer = SkArithmeticMode::Create(k[0], k[1], k[2], k[3]);
             SkPaint paint;
             paint.setXfermode(xfer)->unref();

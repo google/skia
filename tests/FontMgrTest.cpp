@@ -14,7 +14,7 @@
 #include "SkPaint.h"
 static void test_font(skiatest::Reporter* reporter) {
     uint32_t flags = 0;
-    SkAutoTUnref<SkFont> font(SkFont::Create(NULL, 24, SkFont::kA8_MaskType, flags));
+    SkAutoTUnref<SkFont> font(SkFont::Create(nullptr, 24, SkFont::kA8_MaskType, flags));
 
     REPORTER_ASSERT(reporter, font->getTypeface());
     REPORTER_ASSERT(reporter, 24 == font->getSize());
@@ -61,7 +61,7 @@ static void test_alias_names(skiatest::Reporter* reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(inNames); ++i) {
         SkAutoTUnref<SkTypeface> first(SkTypeface::CreateFromName(inNames[i],
                                                           SkTypeface::kNormal));
-        if (NULL == first.get()) {
+        if (nullptr == first.get()) {
             continue;
         }
         for (int j = 0; j < 10; ++j) {

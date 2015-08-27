@@ -213,14 +213,14 @@ GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     GrFragmentProcessor* fp;
     GrColor paintColor;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
                                                &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
 GLEdge2PtConicalEffect::GLEdge2PtConicalEffect(const GrProcessor&)
-    : fVSVaryingName(NULL)
-    , fFSVaryingName(NULL)
+    : fVSVaryingName(nullptr)
+    , fFSVaryingName(nullptr)
     , fCachedRadius(-SK_ScalarMax)
     , fCachedDiffRadius(-SK_ScalarMax) {}
 
@@ -493,15 +493,15 @@ GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(GrProcessorTestDat
     GrColor paintColor;
     GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
                                                &paintColor, d->fProcDataManager,
                                                &effect));
     return effect;
 }
 
 GLFocalOutside2PtConicalEffect::GLFocalOutside2PtConicalEffect(const GrProcessor& processor)
-    : fVSVaryingName(NULL)
-    , fFSVaryingName(NULL)
+    : fVSVaryingName(nullptr)
+    , fFSVaryingName(nullptr)
     , fCachedFocal(SK_ScalarMax) {
     const FocalOutside2PtConicalEffect& data = processor.cast<FocalOutside2PtConicalEffect>();
     fIsFlipped = data.isFlipped();
@@ -705,14 +705,14 @@ GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(GrProcessorTestData
     GrColor paintColor;
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
                                                &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
 GLFocalInside2PtConicalEffect::GLFocalInside2PtConicalEffect(const GrProcessor&)
-    : fVSVaryingName(NULL)
-    , fFSVaryingName(NULL)
+    : fVSVaryingName(nullptr)
+    , fFSVaryingName(nullptr)
     , fCachedFocal(SK_ScalarMax) {}
 
 void GLFocalInside2PtConicalEffect::emitCode(EmitArgs& args) {
@@ -952,14 +952,14 @@ CircleInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     GrColor paintColor;
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
                                                &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
 GLCircleInside2PtConicalEffect::GLCircleInside2PtConicalEffect(const GrProcessor& processor)
-    : fVSVaryingName(NULL)
-    , fFSVaryingName(NULL)
+    : fVSVaryingName(nullptr)
+    , fFSVaryingName(nullptr)
     , fCachedCenterX(SK_ScalarMax)
     , fCachedCenterY(SK_ScalarMax)
     , fCachedA(SK_ScalarMax)
@@ -1183,14 +1183,14 @@ GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(GrProcessorTestDa
     GrColor paintColor;
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
                                                &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
 GLCircleOutside2PtConicalEffect::GLCircleOutside2PtConicalEffect(const GrProcessor& processor)
-    : fVSVaryingName(NULL)
-    , fFSVaryingName(NULL)
+    : fVSVaryingName(nullptr)
+    , fFSVaryingName(nullptr)
     , fCachedCenterX(SK_ScalarMax)
     , fCachedCenterY(SK_ScalarMax)
     , fCachedA(SK_ScalarMax)
@@ -1301,12 +1301,12 @@ GrFragmentProcessor* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
                                                         const SkMatrix* localMatrix) {
     SkMatrix matrix;
     if (!shader.getLocalMatrix().invert(&matrix)) {
-        return NULL;
+        return nullptr;
     }
     if (localMatrix) {
         SkMatrix inv;
         if (!localMatrix->invert(&inv)) {
-            return NULL;
+            return nullptr;
         }
         matrix.postConcat(inv);
     }

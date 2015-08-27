@@ -87,10 +87,10 @@ public:
         // at least once before first draw (after init)
         virtual void windowSizeChanged(SampleWindow* win) = 0;
 
-        // return the GrContext backing gpu devices (NULL if not built with GPU support)
+        // return the GrContext backing gpu devices (nullptr if not built with GPU support)
         virtual GrContext* getGrContext() = 0;
 
-        // return the GrRenderTarget backing gpu devices (NULL if not built with GPU support)
+        // return the GrRenderTarget backing gpu devices (nullptr if not built with GPU support)
         virtual GrRenderTarget* getGrRenderTarget() = 0;
     private:
         typedef SkRefCnt INHERITED;
@@ -100,11 +100,11 @@ public:
     virtual ~SampleWindow();
 
     SkSurface* createSurface() override {
-        SkSurface* surface = NULL;
+        SkSurface* surface = nullptr;
         if (fDevManager) {
             surface = fDevManager->createSurface(fDeviceType, this);
         }
-        if (NULL == surface) {
+        if (nullptr == surface) {
             surface = this->INHERITED::createSurface();
         }
         return surface;

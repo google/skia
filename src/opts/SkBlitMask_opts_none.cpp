@@ -8,11 +8,11 @@
 #include "SkBlitMask.h"
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
-    return NULL;
+    return nullptr;
 }
 
 SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkColorType dstCT,
                                                  SkMask::Format maskFormat,
                                                  RowFlags flags) {
-    return NULL;
+    return nullptr;
 }

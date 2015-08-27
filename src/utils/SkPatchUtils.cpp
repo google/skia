@@ -191,7 +191,7 @@ void SkPatchUtils::getRightCubic(const SkPoint cubics[12], SkPoint points[4]) {
 
 bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint cubics[12],
                    const SkColor colors[4], const SkPoint texCoords[4], int lodX, int lodY) {
-    if (lodX < 1 || lodY < 1 || NULL == cubics || NULL == data) {
+    if (lodX < 1 || lodY < 1 || nullptr == cubics || nullptr == data) {
         return false;
     }
 

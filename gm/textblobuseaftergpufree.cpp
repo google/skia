@@ -31,7 +31,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // This GM exists to test a specific feature of the GPU backend.
-        if (NULL == canvas->getGrContext()) {
+        if (nullptr == canvas->getGrContext()) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }

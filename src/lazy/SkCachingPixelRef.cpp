@@ -11,8 +11,8 @@
 
 bool SkCachingPixelRef::Install(SkImageGenerator* generator,
                                 SkBitmap* dst) {
-    SkASSERT(dst != NULL);
-    if (NULL == generator) {
+    SkASSERT(dst != nullptr);
+    if (nullptr == generator) {
         return false;
     }
     const SkImageInfo info = generator->getInfo();
@@ -32,7 +32,7 @@ SkCachingPixelRef::SkCachingPixelRef(const SkImageInfo& info,
     , fImageGenerator(generator)
     , fErrorInDecoding(false)
     , fRowBytes(rowBytes) {
-    SkASSERT(fImageGenerator != NULL);
+    SkASSERT(fImageGenerator != nullptr);
 }
 SkCachingPixelRef::~SkCachingPixelRef() {
     delete fImageGenerator;
@@ -62,9 +62,9 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
 
     // Now bitmap should contain a concrete PixelRef of the decoded image.
     void* pixels = fLockedBitmap.getPixels();
-    SkASSERT(pixels != NULL);
+    SkASSERT(pixels != nullptr);
     rec->fPixels = pixels;
-    rec->fColorTable = NULL;
+    rec->fColorTable = nullptr;
     rec->fRowBytes = fLockedBitmap.rowBytes();
     return true;
 }

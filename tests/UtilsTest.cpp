@@ -35,8 +35,8 @@ static void test_autounref(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, &obj == tmp.detach());
     REPORTER_ASSERT(reporter, obj.unique());
-    REPORTER_ASSERT(reporter, NULL == tmp.detach());
-    REPORTER_ASSERT(reporter, NULL == tmp.get());
+    REPORTER_ASSERT(reporter, nullptr == tmp.detach());
+    REPORTER_ASSERT(reporter, nullptr == tmp.get());
 
     obj.ref();
     REPORTER_ASSERT(reporter, !obj.unique());

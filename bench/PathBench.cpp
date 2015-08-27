@@ -224,9 +224,9 @@ protected:
     void createData(int minVerbs,
                     int maxVerbs,
                     bool allowMoves = true,
-                    SkRect* bounds = NULL) {
+                    SkRect* bounds = nullptr) {
         SkRect tempBounds;
-        if (NULL == bounds) {
+        if (nullptr == bounds) {
             tempBounds.setXYWH(0, 0, SK_Scalar1, SK_Scalar1);
             bounds = &tempBounds;
         }
@@ -711,7 +711,7 @@ protected:
             if (fZeroRad) {
                 make_arb_round_rect(&temp, r, 0, 0);
 
-                SkASSERT(temp.isRect(NULL));
+                SkASSERT(temp.isRect(nullptr));
             } else {
                 make_arb_round_rect(&temp, r, r.width() / 10, r.height() / 15);
             }
@@ -851,7 +851,7 @@ public:
         } else {
             for (int i = 0; i < loops; ++i) {
                 for (int j = 0; j < 1000; ++j) {
-                    fRQ.evalAt(0.4f, &fDst[0].fPts[0], NULL);
+                    fRQ.evalAt(0.4f, &fDst[0].fPts[0], nullptr);
                 }
             }
         }
@@ -876,7 +876,7 @@ public:
         } else {
             for (int i = 0; i < loops; ++i) {
                 for (int j = 0; j < 1000; ++j) {
-                    fRQ.evalAt(0.4f, NULL, &fDst[0].fPts[0]);
+                    fRQ.evalAt(0.4f, nullptr, &fDst[0].fPts[0]);
                 }
             }
         }

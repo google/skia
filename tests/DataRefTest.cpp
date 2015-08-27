@@ -33,10 +33,10 @@ static void test_datatable_is_empty(skiatest::Reporter* reporter,
 
 static void test_emptytable(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkDataTable> table0(SkDataTable::NewEmpty());
-    SkAutoTUnref<SkDataTable> table1(SkDataTable::NewCopyArrays(NULL, NULL, 0));
-    SkAutoTUnref<SkDataTable> table2(SkDataTable::NewCopyArray(NULL, 0, 0));
-    SkAutoTUnref<SkDataTable> table3(SkDataTable::NewArrayProc(NULL, 0, 0,
-                                                               NULL, NULL));
+    SkAutoTUnref<SkDataTable> table1(SkDataTable::NewCopyArrays(nullptr, nullptr, 0));
+    SkAutoTUnref<SkDataTable> table2(SkDataTable::NewCopyArray(nullptr, 0, 0));
+    SkAutoTUnref<SkDataTable> table3(SkDataTable::NewArrayProc(nullptr, 0, 0,
+                                                               nullptr, nullptr));
 
     test_datatable_is_empty(reporter, table0);
     test_datatable_is_empty(reporter, table1);
@@ -122,7 +122,7 @@ static void test_globaltable(skiatest::Reporter* reporter) {
     int count = SK_ARRAY_COUNT(gData);
 
     SkAutoTUnref<SkDataTable> table(SkDataTable::NewArrayProc(gData,
-                                          sizeof(gData[0]), count, NULL, NULL));
+                                          sizeof(gData[0]), count, nullptr, nullptr));
 
     REPORTER_ASSERT(reporter, table->count() == count);
     for (int i = 0; i < count; ++i) {
@@ -168,7 +168,7 @@ static void test_cstring(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, r0->equals(r1));
 
-    SkAutoTUnref<SkData> r2(SkData::NewWithCString(NULL));
+    SkAutoTUnref<SkData> r2(SkData::NewWithCString(nullptr));
     REPORTER_ASSERT(reporter, 1 == r2->size());
     REPORTER_ASSERT(reporter, 0 == *r2->bytes());
 }
@@ -193,13 +193,13 @@ static void test_files(skiatest::Reporter* reporter) {
 
     SkFILE* file = sk_fopen(path.c_str(), kRead_SkFILE_Flag);
     SkAutoTUnref<SkData> r1(SkData::NewFromFILE(file));
-    REPORTER_ASSERT(reporter, r1.get() != NULL);
+    REPORTER_ASSERT(reporter, r1.get() != nullptr);
     REPORTER_ASSERT(reporter, r1->size() == 26);
     REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r1->data()), s, 26) == 0);
 
     int fd = sk_fileno(file);
     SkAutoTUnref<SkData> r2(SkData::NewFromFD(fd));
-    REPORTER_ASSERT(reporter, r2.get() != NULL);
+    REPORTER_ASSERT(reporter, r2.get() != nullptr);
     REPORTER_ASSERT(reporter, r2->size() == 26);
     REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r2->data()), s, 26) == 0);
 }

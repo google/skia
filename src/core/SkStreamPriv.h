@@ -31,7 +31,7 @@ size_t SkCopyStreamToStorage(SkAutoMalloc* storage, SkStream* stream);
  *  @param stream SkStream to be copied into data.
  *  @return SkData* The resulting SkData after the copy. This data
  *      will have a ref count of one upon return and belongs to the
- *      caller. Returns NULL on failure.
+ *      caller. Returns nullptr on failure.
  */
 SkData *SkCopyStreamToData(SkStream* stream);
 

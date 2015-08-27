@@ -58,7 +58,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         SkRect  r;
         r.set(SkIntToScalar(20), SkIntToScalar(20), SkIntToScalar(120), SkIntToScalar(120));
-        canvas->saveLayer(&r, NULL);
+        canvas->saveLayer(&r, nullptr);
         canvas->drawColor(SK_ColorRED);
         drawMask(canvas, r);
         canvas->restore();

@@ -16,7 +16,7 @@
 #include <memory>
 
 bool are_buffers_equal(SkData* skdata1, SkData* skdata2) {
-    if ((NULL == skdata1) || (NULL == skdata2)) {
+    if ((nullptr == skdata1) || (nullptr == skdata2)) {
         return false;
     }
     if (skdata1->size() != skdata2->size()) {
@@ -39,7 +39,7 @@ bool get_bitmap(SkData* fileBits, DiffResource& resource, SkImageDecoder::Mode m
     // In debug, the DLL will automatically be unloaded when this is deleted,
     // but that shouldn't be a problem in release mode.
     std::unique_ptr<SkImageDecoder> codec(SkImageDecoder::Factory(&stream));
-    if (NULL == codec) {
+    if (nullptr == codec) {
         SkDebugf("ERROR: no codec found for <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;
         return false;

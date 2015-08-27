@@ -22,7 +22,7 @@ SkImageDecoder::SkImageDecoder() {}
 SkImageDecoder::~SkImageDecoder() {}
 
 SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable*) {
-    return NULL;
+    return nullptr;
 }
 
 void SkImageDecoder::copyFieldsToOther(SkImageDecoder* ) {}
@@ -67,15 +67,15 @@ SkImageDecoder::Format SkImageDecoder::GetStreamFormat(SkStreamRewindable*) {
 }
 
 const char* SkImageDecoder::GetFormatName(Format) {
-    return NULL;
+    return nullptr;
 }
 
 SkImageDecoder::Peeker* SkImageDecoder::setPeeker(Peeker*) {
-    return NULL;
+    return nullptr;
 }
 
 SkBitmap::Allocator* SkImageDecoder::setAllocator(SkBitmap::Allocator*) {
-    return NULL;
+    return nullptr;
 }
 
 void SkImageDecoder::setSampleSize(int) {}
@@ -94,7 +94,7 @@ bool SkImageDecoder::allocPixelRef(SkBitmap*, SkColorTable*) const {
 // Empty implementation for SkMovie.
 
 SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
-    return NULL;
+    return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
 // Empty implementations for SkImageEncoder.
 
 SkImageEncoder* SkImageEncoder::Create(Type t) {
-    return NULL;
+    return nullptr;
 }
 
 bool SkImageEncoder::EncodeFile(const char file[], const SkBitmap&, Type, int quality) {
@@ -114,7 +114,7 @@ bool SkImageEncoder::EncodeStream(SkWStream*, const SkBitmap&, SkImageEncoder::T
 }
 
 SkData* SkImageEncoder::EncodeData(const SkBitmap&, Type, int quality) {
-    return NULL;
+    return nullptr;
 }
 
 bool SkImageEncoder::encodeStream(SkWStream*, const SkBitmap&, int) {
@@ -122,7 +122,7 @@ bool SkImageEncoder::encodeStream(SkWStream*, const SkBitmap&, int) {
 }
 
 SkData* SkImageEncoder::encodeData(const SkBitmap&, int) {
-    return NULL;
+    return nullptr;
 }
 
 bool SkImageEncoder::encodeFile(const char file[], const SkBitmap& bm, int quality) {

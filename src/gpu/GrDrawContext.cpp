@@ -24,7 +24,7 @@
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fContext)
 #define RETURN_IF_ABANDONED        if (!fDrawTarget) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (!fDrawTarget) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (!fDrawTarget) { return NULL; }
+#define RETURN_NULL_IF_ABANDONED   if (!fDrawTarget) { return nullptr; }
 
 class AutoCheckFlush {
 public:
@@ -40,7 +40,7 @@ GrDrawContext::GrDrawContext(GrContext* context,
                              const SkSurfaceProps& surfaceProps)
     : fContext(context)
     , fDrawTarget(SkRef(drawTarget))
-    , fTextContext(NULL)
+    , fTextContext(nullptr)
     , fSurfaceProps(surfaceProps) {
 }
 
@@ -230,7 +230,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
 
     GrPipelineBuilder pipelineBuilder(paint, rt, clip);
 
-    SkScalar width = NULL == strokeInfo ? -1 : strokeInfo->getWidth();
+    SkScalar width = nullptr == strokeInfo ? -1 : strokeInfo->getWidth();
 
     // Check if this is a full RT draw and can be replaced with a clear. We don't bother checking
     // cases where the RT is fully inside a stroke.
@@ -259,7 +259,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isConstantBlendedColor(&clearColor)) {
-                    fDrawTarget->clear(NULL, clearColor, true, rt);
+                    fDrawTarget->clear(nullptr, clearColor, true, rt);
                     return;
                 }
             }
@@ -699,7 +699,7 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
                                                     *strokeInfoPtr, false, type);
 
     GrStrokeInfo dashlessStrokeInfo(strokeInfo, false);
-    if (NULL == pr && strokeInfo.isDashed()) {
+    if (nullptr == pr && strokeInfo.isDashed()) {
         // It didn't work above, so try again with dashed stroke converted to a dashless stroke.
         if (!strokeInfo.applyDashToPath(tmpPath.init(), &dashlessStrokeInfo, *pathPtr)) {
             return;
@@ -713,8 +713,8 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
                                        false, type);
     }
 
-    if (NULL == pr) {
-        if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*strokeInfoPtr, viewMatrix, NULL) &&
+    if (nullptr == pr) {
+        if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*strokeInfoPtr, viewMatrix, nullptr) &&
             !strokeInfoPtr->isFillStyle()) {
             // It didn't work above, so try again with stroke converted to a fill.
             if (!tmpPath.isValid()) {
@@ -737,7 +737,7 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
                                        true, type);
     }
 
-    if (NULL == pr) {
+    if (nullptr == pr) {
 #ifdef SK_DEBUG
         SkDebugf("Unable to find path renderer compatible with path.\n");
 #endif

@@ -137,16 +137,16 @@ void SkDebuggerGUI::run(const SkPicture* pict,
                         sk_tools::PictureRenderer* renderer,
                         int repeats) {
     SkASSERT(pict);
-    if (NULL == pict) {
+    if (nullptr == pict) {
         return;
     }
 
-    SkASSERT(renderer != NULL);
-    if (NULL == renderer) {
+    SkASSERT(renderer != nullptr);
+    if (nullptr == renderer) {
         return;
     }
 
-    renderer->init(pict, NULL, NULL, NULL, false, false);
+    renderer->init(pict, nullptr, nullptr, nullptr, false, false);
 
     renderer->setup();
     renderer->render();
@@ -181,7 +181,7 @@ void SkDebuggerGUI::actionProfile() {
 
     SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream,
                                         &SkImageDecoder::DecodeMemory)); // , fSkipCommands));
-    if (NULL == picture.get()) {
+    if (nullptr == picture.get()) {
         return;
     }
 }
@@ -729,7 +729,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     SkPicture* picture = SkPicture::CreateFromStream(stream);
 
-    if (NULL == picture) {
+    if (nullptr == picture) {
         QMessageBox::critical(this, "Error loading file", "Couldn't read file, sorry.");
         return;
     }
@@ -755,7 +755,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     this->setupListWidget();
     this->setupComboBox();
-    this->setupOverviewText(NULL, 0.0, 1);
+    this->setupOverviewText(nullptr, 0.0, 1);
     fInspectorWidget.setDisabled(false);
     fViewStateFrame.setDisabled(false);
     fSettingsWidget.setDisabled(false);

@@ -68,7 +68,7 @@ static bool read_header(SkStream* stream, SkISize* size) {
 }
 
 bool SkWbmpCodec::onRewind() {
-    return read_header(this->stream(), NULL);
+    return read_header(this->stream(), nullptr);
 }
 
 SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
@@ -82,7 +82,7 @@ SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
             return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info, opts.fZeroInitialized, 
                                               this->getInfo());
         default:
-            return NULL;
+            return nullptr;
     }
 }
 
@@ -129,7 +129,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
 
     // Initialize the swizzler
     SkAutoTDelete<SkSwizzler> swizzler(this->initializeSwizzler(info, ctable, options));
-    if (NULL == swizzler.get()) {
+    if (nullptr == swizzler.get()) {
         return kInvalidConversion;
     }
 
@@ -149,14 +149,14 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
 }
 
 bool SkWbmpCodec::IsWbmp(SkStream* stream) {
-    return read_header(stream, NULL);
+    return read_header(stream, nullptr);
 }
 
 SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     SkAutoTDelete<SkStream> streamDeleter(stream);
     SkISize size;
     if (!read_header(stream, &size)) {
-        return NULL;
+        return nullptr;
     }
     SkImageInfo info = SkImageInfo::Make(size.width(), size.height(),
             kGray_8_SkColorType, kOpaque_SkAlphaType);
@@ -171,8 +171,8 @@ public:
     SkWbmpScanlineDecoder(SkWbmpCodec* codec)
         : INHERITED(codec->getInfo())
         , fCodec(codec)
-        , fColorTable(NULL)
-        , fSwizzler(NULL)
+        , fColorTable(nullptr)
+        , fSwizzler(nullptr)
         , fSrcBuffer(codec->fSrcRowBytes)
     {}
 
@@ -220,7 +220,7 @@ public:
         // Initialize the swizzler
         fSwizzler.reset(fCodec->initializeSwizzler(dstInfo,
                 get_color_ptr(fColorTable.get()), options));
-        if (NULL == fSwizzler.get()) {
+        if (nullptr == fSwizzler.get()) {
             return SkCodec::kInvalidConversion;
         }
 
@@ -244,7 +244,7 @@ SkScanlineDecoder* SkWbmpCodec::NewSDFromStream(SkStream* stream) {
     SkAutoTDelete<SkWbmpCodec> codec(static_cast<SkWbmpCodec*>(
             SkWbmpCodec::NewFromStream(stream)));
     if (!codec) {
-        return NULL;
+        return nullptr;
     }
 
     // Return the new scanline decoder

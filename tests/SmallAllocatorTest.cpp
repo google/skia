@@ -32,7 +32,7 @@ template<uint32_t kMaxObjects, size_t kBytes> void test_allocator(skiatest::Repo
         SkSmallAllocator<kMaxObjects, kBytes> alloc;
         for (uint32_t i = 0; i < kMaxObjects; ++i) {
             CountingClass* c = alloc.template createT<CountingClass>();
-            REPORTER_ASSERT(reporter, c != NULL);
+            REPORTER_ASSERT(reporter, c != nullptr);
             REPORTER_ASSERT(reporter, CountingClass::GetCount() == static_cast<int>(i+1));
         }
     }
@@ -78,6 +78,6 @@ DEF_TEST(SmallAllocator_pointer, reporter) {
     SkSmallAllocator<1, 8> alloc;
     Dummy d;
     DummyContainer* container = alloc.createT<DummyContainer>(&d);
-    REPORTER_ASSERT(reporter, container != NULL);
+    REPORTER_ASSERT(reporter, container != nullptr);
     REPORTER_ASSERT(reporter, container->getDummy() == &d);
 }

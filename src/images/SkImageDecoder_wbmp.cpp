@@ -158,7 +158,7 @@ static SkImageDecoder* sk_wbmp_dfactory(SkStreamRewindable* stream) {
     if (head.init(stream)) {
         return new SkWBMPImageDecoder;
     }
-    return NULL;
+    return nullptr;
 }
 
 static SkImageDecoder::Format get_format_wbmp(SkStreamRewindable* stream) {

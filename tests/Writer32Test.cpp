@@ -31,8 +31,8 @@ static void test_string_null(skiatest::Reporter* reporter) {
     uint8_t storage[8];
     SkWriter32 writer(storage, sizeof(storage));
 
-    // Can we write NULL?
-    writer.writeString(NULL);
+    // Can we write nullptr?
+    writer.writeString(nullptr);
     const int32_t expected[] = { 0x0, 0x0 };
     check_contents(reporter, writer, expected, sizeof(expected));
 }
@@ -241,7 +241,7 @@ DEF_TEST(Writer32_contiguous, reporter) {
     writer.reset(storage, sizeof(storage));
     // This write is small enough to fit in storage, so it's contiguous.
     test1(reporter, &writer);
-    REPORTER_ASSERT(reporter, writer.contiguousArray() != NULL);
+    REPORTER_ASSERT(reporter, writer.contiguousArray() != nullptr);
 
     // Everything other aspect of contiguous/non-contiguous is an
     // implementation detail, not part of the public contract for

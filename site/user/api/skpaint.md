@@ -99,8 +99,8 @@ assign a SkShader to the paint.
     SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
     SkShader* shader =
             SkGradientShader::CreateLinear(
-                     points, colors, NULL, 2,
-                     SkShader::kClamp_TileMode, 0, NULL);
+                     points, colors, nullptr, 2,
+                     SkShader::kClamp_TileMode, 0, nullptr);
     SkPaint paint;
     paint.setShader(shader);
     shader->unref();
@@ -201,8 +201,8 @@ with a vertical alpha gradient.
         SK_ColorMAGENTA};
     SkAutoTUnref<SkShader> srcShader(
         SkGradientShader::CreateLinear(
-                srcPoints, srcColors, NULL, 2,
-                SkShader::kClamp_TileMode, 0, NULL));
+                srcPoints, srcColors, nullptr, 2,
+                SkShader::kClamp_TileMode, 0, nullptr));
     src.setShader(srcShader);
 
     SkPoint dstPoints[2] = {
@@ -214,8 +214,8 @@ with a vertical alpha gradient.
         SK_ColorCYAN};
     SkAutoTUnref<SkShader> dstShader(
         SkGradientShader::CreateLinear(
-                dstPoints, dstColors, NULL, 2,
-                SkShader::kClamp_TileMode, 0, NULL));
+                dstPoints, dstColors, nullptr, 2,
+                SkShader::kClamp_TileMode, 0, nullptr));
     dst.setShader(dstShader);
     canvas->clear(SK_ColorWHITE);
     size_t N = sizeof(modes) / sizeof(modes[0]);
@@ -228,7 +228,7 @@ with a vertical alpha gradient.
         canvas->drawText(desc, strlen(desc), 68.0f, 30.0f, text);
         canvas->clipRect(SkRect::MakeWH(64.0f, 64.0f));
         canvas->drawColor(SK_ColorLTGRAY);
-        (void)canvas->saveLayer(NULL, NULL);
+        (void)canvas->saveLayer(nullptr, nullptr);
         canvas->clear(SK_ColorTRANSPARENT);
         canvas->drawPaint(dst);
         src.setXfermodeMode(modes[i]);
@@ -275,7 +275,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
         SkShader* shader =
                 SkGradientShader::CreateRadial(
                         SkPoint::Make(128.0f, 128.0f), 180.0f,
-                        colors, NULL, 2, SkShader::kClamp_TileMode, 0, NULL);
+                        colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr);
         SkPaint paint;
         paint.setShader(shader);
         shader->unref();
@@ -293,7 +293,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
                 SkGradientShader::CreateTwoPointConical(
                          SkPoint::Make(128.0f, 128.0f), 128.0f,
                          SkPoint::Make(128.0f, 16.0f), 16.0f,
-                         colors, NULL, 2, SkShader::kClamp_TileMode, 0, NULL);
+                         colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr);
         SkPaint paint;
         paint.setShader(shader);
         shader->unref();
@@ -311,7 +311,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
             SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW, SK_ColorCYAN};
         SkShader* shader =
                 SkGradientShader::CreateSweep(
-                    128.0f, 128.0f, colors, NULL, 4, 0, NULL);
+                    128.0f, 128.0f, colors, nullptr, 4, 0, nullptr);
         SkPaint paint;
         paint.setShader(shader);
         shader->unref();
@@ -326,7 +326,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
 
         canvas->clear(SK_ColorWHITE);
         SkShader* shader = SkPerlinNoiseShader::CreateFractalNoise(
-                 0.05f, 0.05f, 4, 0.0f, NULL);
+                 0.05f, 0.05f, 4, 0.0f, nullptr);
         SkPaint paint;
         paint.setShader(shader);
         shader->unref();
@@ -341,7 +341,7 @@ Several shaders are defined (besides the linear gradient already mentioned):
 
         canvas->clear(SK_ColorWHITE);
         SkShader* shader = SkPerlinNoiseShader::CreateTurbulence(
-                 0.05f, 0.05f, 4, 0.0f, NULL);
+                 0.05f, 0.05f, 4, 0.0f, nullptr);
         SkPaint paint;
         paint.setShader(shader);
         shader->unref();
@@ -358,9 +358,9 @@ Several shaders are defined (besides the linear gradient already mentioned):
         SkShader* shader1 =
                 SkGradientShader::CreateRadial(
                     SkPoint::Make(128.0f, 128.0f), 180.0f,
-                    colors, NULL, 2, SkShader::kClamp_TileMode, 0, NULL);
+                    colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr);
         SkShader* shader2 = SkPerlinNoiseShader::CreateTurbulence(
-                 0.025f, 0.025f, 2, 0.0f, NULL);
+                 0.025f, 0.025f, 2, 0.0f, nullptr);
         SkShader* shader =
             new SkComposeShader(shader1, shader2);
         SkPaint paint;
@@ -507,7 +507,7 @@ SkColorFilter
             int x = (i - 96) * 255 / 64;
             ct[i] = x < 0 ? 0 : x > 255 ? 255 : x;
         }
-        SkColorFilter* cf = SkTableColorFilter::CreateARGB(NULL, ct, ct, ct);
+        SkColorFilter* cf = SkTableColorFilter::CreateARGB(nullptr, ct, ct, ct);
         SkPaint paint;
         paint.setColorFilter(cf);
         cf->unref();

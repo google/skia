@@ -74,7 +74,7 @@ protected:
             SkAutoTUnref<SkTileImageFilter> tif2(SkTileImageFilter::Create(
                             SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
                             SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
-                            NULL));
+                            nullptr));
             p2.setImageFilter(tif2);
 
             canvas->translate(320, 320);

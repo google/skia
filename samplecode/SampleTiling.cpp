@@ -97,9 +97,9 @@ protected:
         SkScalar x = SkIntToScalar(10);
 
         SkPictureRecorder recorder;
-        SkCanvas* textCanvas = NULL;
-        if (NULL == fTextPicture) {
-            textCanvas = recorder.beginRecording(1000, 1000, NULL, 0);
+        SkCanvas* textCanvas = nullptr;
+        if (nullptr == fTextPicture) {
+            textCanvas = recorder.beginRecording(1000, 1000, nullptr, 0);
         }
 
         if (textCanvas) {
@@ -153,7 +153,7 @@ protected:
         }
 
         if (textCanvas) {
-            SkASSERT(NULL == fTextPicture);
+            SkASSERT(nullptr == fTextPicture);
             fTextPicture.reset(recorder.endRecording());
         }
 

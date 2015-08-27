@@ -68,26 +68,26 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (NULL == rt) {
+        if (nullptr == rt) {
             return;
         }
         GrContext* context = rt->getContext();
-        if (NULL == context) {
+        if (nullptr == context) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }
 
         GrTestTarget tt;
         context->getTestTarget(&tt);
-        if (NULL == tt.target()) {
+        if (nullptr == tt.target()) {
             SkDEBUGFAIL("Couldn't get Gr test target.");
             return;
         }
 
         SkAutoTUnref<GrTexture> texture[3];
-        texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0], NULL));
-        texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1], NULL));
-        texture[2].reset(GrRefCachedBitmapTexture(context, fBmp[2], NULL));
+        texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0], nullptr));
+        texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1], nullptr));
+        texture[2].reset(GrRefCachedBitmapTexture(context, fBmp[2], nullptr));
 
         if (!texture[0] || !texture[1] || !texture[2]) {
             return;

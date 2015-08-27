@@ -111,7 +111,7 @@ static SkAnimTimer gAnimTimer;
 
 static const char* skip_until(const char* str, const char* skip) {
     if (!str) {
-        return NULL;
+        return nullptr;
     }
     return strstr(str, skip);
 }
@@ -119,7 +119,7 @@ static const char* skip_until(const char* str, const char* skip) {
 static const char* skip_past(const char* str, const char* skip) {
     const char* found = skip_until(str, skip);
     if (!found) {
-        return NULL;
+        return nullptr;
     }
     return found + strlen(skip);
 }
@@ -162,9 +162,9 @@ public:
 
     DefaultDeviceManager() {
 #if SK_SUPPORT_GPU
-        fCurContext = NULL;
-        fCurIntf = NULL;
-        fCurRenderTarget = NULL;
+        fCurContext = nullptr;
+        fCurIntf = nullptr;
+        fCurRenderTarget = nullptr;
         fMSAASampleCount = 0;
 #endif
         fBackend = kNone_BackEndType;
@@ -209,7 +209,7 @@ public:
         }
         fMSAASampleCount = msaaSampleCount;
 
-        SkASSERT(NULL == fCurIntf);
+        SkASSERT(nullptr == fCurIntf);
         SkAutoTUnref<const GrGLInterface> glInterface;
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
@@ -232,15 +232,15 @@ public:
         // when the driver doesn't support NVPR.
         fCurIntf = GrGLInterfaceRemoveNVPR(glInterface.get());
 
-        SkASSERT(NULL == fCurContext);
+        SkASSERT(nullptr == fCurContext);
         fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
 
-        if (NULL == fCurContext || NULL == fCurIntf) {
+        if (nullptr == fCurContext || nullptr == fCurIntf) {
             // We need some context and interface to see results
             SkSafeUnref(fCurContext);
             SkSafeUnref(fCurIntf);
-            fCurContext = NULL;
-            fCurIntf = NULL;
+            fCurContext = nullptr;
+            fCurIntf = nullptr;
             SkDebugf("Failed to setup 3D");
 
             win->detach();
@@ -256,14 +256,14 @@ public:
             // in case we have outstanding refs to this guy (lua?)
             fCurContext->abandonContext();
             fCurContext->unref();
-            fCurContext = NULL;
+            fCurContext = nullptr;
         }
 
         SkSafeUnref(fCurIntf);
-        fCurIntf = NULL;
+        fCurIntf = nullptr;
 
         SkSafeUnref(fCurRenderTarget);
-        fCurRenderTarget = NULL;
+        fCurRenderTarget = nullptr;
 #endif
         win->detach();
         fBackend = kNone_BackEndType;
@@ -276,7 +276,7 @@ public:
             return SkSurface::NewRenderTargetDirect(fCurRenderTarget, &props);
         }
 #endif
-        return NULL;
+        return nullptr;
     }
 
     void publishCanvas(SampleWindow::DeviceType dType,
@@ -318,7 +318,7 @@ public:
 #if SK_SUPPORT_GPU
         return fCurContext;
 #else
-        return NULL;
+        return nullptr;
 #endif
     }
 
@@ -326,7 +326,7 @@ public:
 #if SK_SUPPORT_GPU
         return fCurRenderTarget;
 #else
-        return NULL;
+        return nullptr;
 #endif
     }
 
@@ -371,7 +371,7 @@ SkGMSampleViewFactory::SkGMSampleViewFactory(GMFactoryFunc func)
 }
 
 SkView* SkGMSampleViewFactory::operator() () const {
-    skiagm::GM* gm = fFunc(NULL);
+    skiagm::GM* gm = fFunc(nullptr);
     gm->setMode(skiagm::GM::kSample_Mode);
     return new GMSampleView(gm);
 }
@@ -442,7 +442,7 @@ struct HintingState {
     const char* label;
 };
 static HintingState gHintingStates[] = {
-    {SkPaint::kNo_Hinting, "Mixed", NULL },
+    {SkPaint::kNo_Hinting, "Mixed", nullptr },
     {SkPaint::kNo_Hinting, "None", "H0 " },
     {SkPaint::kSlight_Hinting, "Slight", "Hs " },
     {SkPaint::kNormal_Hinting, "Normal", "Hn " },
@@ -455,7 +455,7 @@ struct FilterQualityState {
     const char*     fLabel;
 };
 static FilterQualityState gFilterQualityStates[] = {
-    { kNone_SkFilterQuality,   "Mixed",    NULL    },
+    { kNone_SkFilterQuality,   "Mixed",    nullptr    },
     { kNone_SkFilterQuality,   "None",     "F0 "   },
     { kLow_SkFilterQuality,    "Low",      "F1 "   },
     { kMedium_SkFilterQuality, "Medium",   "F2 "   },
@@ -643,14 +643,14 @@ bool SampleWindow::zoomIn() {
     // Arbitrarily decided
     if (fFatBitsScale == kMaxFatBitsScale) return false;
     fFatBitsScale++;
-    this->inval(NULL);
+    this->inval(nullptr);
     return true;
 }
 
 bool SampleWindow::zoomOut() {
     if (fFatBitsScale == 1) return false;
     fFatBitsScale--;
-    this->inval(NULL);
+    this->inval(nullptr);
     return true;
 }
 
@@ -658,7 +658,7 @@ void SampleWindow::updatePointer(int x, int y) {
     fMouseX = x;
     fMouseY = y;
     if (fShowZoomer) {
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -704,7 +704,7 @@ DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
     : INHERITED(hwnd)
-    , fDevManager(NULL) {
+    , fDevManager(nullptr) {
 
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -745,7 +745,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     if (FLAGS_sort) {
         // Sort samples, so foo.skp and foo.pdf are consecutive and we can quickly spot where
         // skp -> pdf -> png fails.
-        SkTQSort(fSamples.begin(), fSamples.end() ? fSamples.end() - 1 : NULL, compareSampleTitle);
+        SkTQSort(fSamples.begin(), fSamples.end() ? fSamples.end() - 1 : nullptr, compareSampleTitle);
     }
 
     if (!FLAGS_slide.isEmpty()) {
@@ -809,7 +809,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fMouseX = fMouseY = 0;
     fFatBitsScale = 8;
-    fTypeface = SkTypeface::CreateFromTypeface(NULL, SkTypeface::kBold);
+    fTypeface = SkTypeface::CreateFromTypeface(nullptr, SkTypeface::kBold);
     fShowZoomer = false;
 
     fZoomLevel = 0;
@@ -830,7 +830,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 #if SK_ANGLE
                                 "ANGLE",
 #endif
-                                NULL);
+                                nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'd');
     itemID = fAppMenu->appendTriState("AA", "AA", sinkID, fAAState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'b');
@@ -842,7 +842,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                   gFilterQualityStates[2].fName,
                                   gFilterQualityStates[3].fName,
                                   gFilterQualityStates[4].fName,
-                                  NULL);
+                                  nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'n');
     itemID = fAppMenu->appendTriState("Subpixel", "Subpixel", sinkID, fSubpixelState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 's');
@@ -852,7 +852,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                   gHintingStates[2].name,
                                   gHintingStates[3].name,
                                   gHintingStates[4].name,
-                                  NULL);
+                                  nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'h');
 
     fUsePipeMenuItemID = fAppMenu->appendTriState("Pipe", "Pipe" , sinkID,
@@ -866,7 +866,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                  gTilingInfo[kRel_4x4_Tiling].label,
                                  gTilingInfo[kRel_1x16_Tiling].label,
                                  gTilingInfo[kRel_16x1_Tiling].label,
-                                 NULL);
+                                 nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 't');
 
     itemID = fAppMenu->appendSwitch("Slide Show", "Slide Show" , sinkID, false);
@@ -894,7 +894,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     this->loadView((*fSamples[fCurrIndex])());
 
-    if (NULL == devManager) {
+    if (nullptr == devManager) {
         fDevManager = new DefaultDeviceManager();
     } else {
         devManager->ref();
@@ -999,7 +999,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
                 tileCanvas->translate(-x, -y);
                 tileCanvas->clear(0);
                 this->INHERITED::draw(tileCanvas);
-                surface->draw(canvas, x, y, NULL);
+                surface->draw(canvas, x, y, nullptr);
             }
         }
 
@@ -1028,7 +1028,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
     }
 
     if (this->sendAnimatePulse()) {
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
     // do this last
@@ -1172,7 +1172,7 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
             show_lcd_grid(canvas, bitmap, src, dest, show_lcd_circle);
             break;
         default:
-            canvas->drawBitmapRect(bitmap, src, dest, NULL);
+            canvas->drawBitmapRect(bitmap, src, dest, nullptr);
             break;
     }
 
@@ -1201,7 +1201,7 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
     // Identify the pixel and its color on screen
     paint.setTypeface(fTypeface);
     paint.setAntiAlias(true);
-    SkScalar lineHeight = paint.getFontMetrics(NULL);
+    SkScalar lineHeight = paint.getFontMetrics(nullptr);
     SkString string;
     string.appendf("(%i, %i)", fMouseX, fMouseY);
     SkScalar left = dest.fLeft + SkIntToScalar(3);
@@ -1242,7 +1242,7 @@ void SampleWindow::saveToPdf()
 {
 #if SK_SUPPORT_PDF
     fSaveToPdf = true;
-    this->inval(NULL);
+    this->inval(nullptr);
 #endif  // SK_SUPPORT_PDF
 }
 
@@ -1259,7 +1259,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
         fPDFDocument.reset(SkDocument::CreatePDF(name.c_str()));
         canvas = fPDFDocument->beginPage(this->width(), this->height());
     } else if (kPicture_DeviceType == fDeviceType) {
-        canvas = fRecorder.beginRecording(9999, 9999, NULL, 0);
+        canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
     } else {
         canvas = this->INHERITED::beforeChildren(canvas);
     }
@@ -1284,15 +1284,15 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
 }
 #include "SkMultiPictureDraw.h"
 void SampleWindow::afterChildren(SkCanvas* orig) {
-    fFlagsFilterCanvas.reset(NULL);
+    fFlagsFilterCanvas.reset(nullptr);
 
     if (fSaveToPdf) {
         fSaveToPdf = false;
         fPDFDocument->endPage();
-        fPDFDocument.reset(NULL);
+        fPDFDocument.reset(nullptr);
         // We took over the draw calls in order to create the PDF, so we need
         // to redraw.
-        this->inval(NULL);
+        this->inval(nullptr);
         return;
     }
 
@@ -1340,7 +1340,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
                             c->translate(SkIntToScalar(-x * n.width()),
                                          SkIntToScalar(-y * n.height()));
                             c->concat(orig->getTotalMatrix());
-                            md.add(c, picture, NULL, NULL);
+                            md.add(c, picture, nullptr, nullptr);
                             index++;
                         }
                     }
@@ -1359,7 +1359,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             SkAutoDataUnref data(ostream.copyToData());
             SkMemoryStream istream(data->data(), data->size());
             SkAutoTUnref<SkPicture> pict(SkPicture::CreateFromStream(&istream));
-            if (pict.get() != NULL) {
+            if (pict.get() != nullptr) {
                 orig->drawPicture(pict.get());
             }
         } else {
@@ -1413,7 +1413,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         (void)SampleView::SetRepeatDraw(child, 1);
     }
     if (fPerspAnim || fRotate) {
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -1464,7 +1464,7 @@ void SampleWindow::updateMatrix(){
     this->setLocalMatrix(m);
 
     this->updateTitle();
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 bool SampleWindow::previousSample() {
     fCurrIndex = (fCurrIndex - 1 + fSamples.count()) % fSamples.count();
@@ -1528,7 +1528,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         return true;
     }
     if (isInvalEvent(evt)) {
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
     int selected = -1;
@@ -1543,10 +1543,10 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
 #endif
         (void)SampleView::SetUsePipe(curr_view(this), fPipeState);
         this->updateTitle();
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
-    if (SkOSMenu::FindSwitchState(evt, "Slide Show", NULL)) {
+    if (SkOSMenu::FindSwitchState(evt, "Slide Show", nullptr)) {
         this->toggleSlideshow();
         return true;
     }
@@ -1559,7 +1559,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         SkOSMenu::FindSwitchState(evt, "Zoomer", &fShowZoomer) ||
         SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify))
     {
-        this->inval(NULL);
+        this->inval(nullptr);
         this->updateTitle();
         return true;
     }
@@ -1567,16 +1567,16 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         if (SampleView::IsSampleView(curr_view(this))) {
             ((SampleView*)curr_view(this))->onTileSizeChanged(this->tileSize());
         }
-        this->inval(NULL);
+        this->inval(nullptr);
         this->updateTitle();
         return true;
     }
-    if (SkOSMenu::FindSwitchState(evt, "Flip X", NULL)) {
+    if (SkOSMenu::FindSwitchState(evt, "Flip X", nullptr)) {
         fFlipAxis ^= kFlipAxis_X;
         this->updateMatrix();
         return true;
     }
-    if (SkOSMenu::FindSwitchState(evt, "Flip Y", NULL)) {
+    if (SkOSMenu::FindSwitchState(evt, "Flip Y", nullptr)) {
         fFlipAxis ^= kFlipAxis_Y;
         this->updateMatrix();
         return true;
@@ -1607,7 +1607,7 @@ bool SampleWindow::onQuery(SkEvent* query) {
         return curr_view(this)->doQuery(&evt);
     }
     if (query->isType("ignore-window-bitmap")) {
-        query->setFast32(this->getGrContext() != NULL);
+        query->setFast32(this->getGrContext() != nullptr);
         return true;
     }
     return this->INHERITED::onQuery(query);
@@ -1652,7 +1652,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             fScrollTestX += dx;
             fScrollTestY += dy;
         }
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -1660,13 +1660,13 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 27:    // ESC
             gAnimTimer.stop();
             if (this->sendAnimatePulse()) {
-                this->inval(NULL);
+                this->inval(nullptr);
             }
             break;
         case ' ':
             gAnimTimer.togglePauseResume();
             if (this->sendAnimatePulse()) {
-                this->inval(NULL);
+                this->inval(nullptr);
             }
             break;
         case 'B':
@@ -1674,7 +1674,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             // Cannot call updateTitle() synchronously, because the toggleBBox event is still in
             // the queue.
             post_event_to_sink(new SkEvent(gUpdateWindowTitleEvtName), this);
-            this->inval(NULL);
+            this->inval(nullptr);
             break;
         case 'D':
             toggleDistanceFieldFonts();
@@ -1685,17 +1685,17 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'F':
             FLAGS_portableFonts ^= true;
-            this->inval(NULL);
+            this->inval(nullptr);
             break;
         case 'g':
             fRequestGrabImage = true;
-            this->inval(NULL);
+            this->inval(nullptr);
             break;
         case 'G':
             gShowGMBounds = !gShowGMBounds;
             post_event_to_sink(GMSampleView::NewShowSizeEvt(gShowGMBounds),
                             curr_view(this));
-            this->inval(NULL);
+            this->inval(nullptr);
             break;
         case 'i':
             this->zoomIn();
@@ -1705,17 +1705,17 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'r':
             fRotate = !fRotate;
-            this->inval(NULL);
+            this->inval(nullptr);
             this->updateTitle();
             return true;
         case 'k':
             fPerspAnim = !fPerspAnim;
-            this->inval(NULL);
+            this->inval(nullptr);
             this->updateTitle();
             return true;
         case 'K':
             fSaveToSKP = true;
-            this->inval(NULL);
+            this->inval(nullptr);
             return true;
 #if SK_SUPPORT_GPU
         case 'p':
@@ -1723,7 +1723,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
                 GrContext* grContext = this->getGrContext();
                 if (grContext) {
                     size_t cacheBytes;
-                    grContext->getResourceCacheUsage(NULL, &cacheBytes);
+                    grContext->getResourceCacheUsage(nullptr, &cacheBytes);
                     grContext->freeGpuResources();
                     SkDebugf("Purged %d bytes from the GPU resource cache.\n", cacheBytes);
                 }
@@ -1753,7 +1753,7 @@ void SampleWindow::setDeviceType(DeviceType type) {
     fDevManager->setUpBackend(this, fMSAASampleCount);
 
     this->updateTitle();
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 
 void SampleWindow::toggleSlideshow() {
@@ -1765,13 +1765,13 @@ void SampleWindow::toggleSlideshow() {
 void SampleWindow::toggleRendering() {
     this->setDeviceType(cycle_devicetype(fDeviceType));
     this->updateTitle();
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 
 void SampleWindow::toggleFPS() {
     fMeasureFPS = !fMeasureFPS;
     this->updateTitle();
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 
 void SampleWindow::toggleDistanceFieldFonts() {
@@ -1780,7 +1780,7 @@ void SampleWindow::toggleDistanceFieldFonts() {
     this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
 
     this->updateTitle();
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 
 #include "SkDumpCanvas.h"
@@ -1847,7 +1847,7 @@ bool SampleWindow::onDispatchClick(int x, int y, Click::State state,
     }
     else if (fMagnify) {
         //it's only necessary to update the drawing if there's a click
-        this->inval(NULL);
+        this->inval(nullptr);
         return false; //prevent dragging while magnify is enabled
     } else {
         // capture control+option, and trigger debugger
@@ -1951,7 +1951,7 @@ static const char* trystate_str(SkOSMenu::TriState state,
     } else if (SkOSMenu::kOffState == state) {
         return falseStr;
     }
-    return NULL;
+    return nullptr;
 }
 
 bool SampleWindow::getRawTitle(SkString* title) {
@@ -1989,8 +1989,8 @@ void SampleWindow::updateTitle() {
     title.prepend(trystate_str(fAAState, "AA ", "aa "));
     title.prepend(gFilterQualityStates[fFilterQualityIndex].fLabel);
     title.prepend(trystate_str(fSubpixelState, "S ", "s "));
-    title.prepend(fFlipAxis & kFlipAxis_X ? "X " : NULL);
-    title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : NULL);
+    title.prepend(fFlipAxis & kFlipAxis_X ? "X " : nullptr);
+    title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : nullptr);
     title.prepend(gHintingStates[fHintingState].label);
 
     if (fZoomLevel) {
@@ -2141,7 +2141,7 @@ private:
 };
 
 SimplePC::SimplePC(SkCanvas* target) : fReader(target) {
-    fBlock = NULL;
+    fBlock = nullptr;
     fBlockSize = fBytesWritten = 0;
     fStatus = SkGPipeReader::kDone_Status;
     fTotalWritten = 0;
@@ -2157,7 +2157,7 @@ SimplePC::~SimplePC() {
 #ifdef  PIPE_FILE
         //File is open in append mode
         FILE* f = fopen(FILE_PATH, "ab");
-        SkASSERT(f != NULL);
+        SkASSERT(f != nullptr);
         fwrite((const char*)fBlock + fBytesWritten, 1, bytes, f);
         fclose(f);
 #endif
@@ -2341,7 +2341,7 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     if (false) { // avoid bit rot, suppress warning
         test();
     }
-    return new SampleWindow(hwnd, argc, argv, NULL);
+    return new SampleWindow(hwnd, argc, argv, nullptr);
 }
 
 // FIXME: this should be in a header

@@ -74,7 +74,7 @@ protected:
         uint32_t glyphIDsCount) const override;
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
-        return NULL;
+        return nullptr;
     }
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;

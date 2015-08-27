@@ -22,5 +22,5 @@ SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
 SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkColorType dstCT,
                                                  SkMask::Format maskFormat,
                                                  RowFlags flags) {
-    return NULL;
+    return nullptr;
 }

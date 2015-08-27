@@ -165,7 +165,7 @@ protected:
             // since we prepended this matrix already, we blit using identity
             inputCanvas->resetMatrix();
             SkImage* image = surface->newImageSnapshot();
-            inputCanvas->drawImage(image, 0, 0, NULL);
+            inputCanvas->drawImage(image, 0, 0, nullptr);
             image->unref();
         }
 #endif

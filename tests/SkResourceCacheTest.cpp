@@ -142,7 +142,7 @@ static void check_data(skiatest::Reporter* reporter, const SkCachedData* data,
                        int refcnt, CachedState cacheState, LockedState lockedState) {
     REPORTER_ASSERT(reporter, data->testing_only_getRefCnt() == refcnt);
     REPORTER_ASSERT(reporter, data->testing_only_isInCache() == (kInCache == cacheState));
-    bool isLocked = (data->data() != NULL);
+    bool isLocked = (data->data() != nullptr);
     REPORTER_ASSERT(reporter, isLocked == (lockedState == kLocked));
 }
 
@@ -154,7 +154,7 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     src.setImmutable();
 
     const SkMipMap* mipmap = SkMipMapCache::FindAndRef(src, cache);
-    REPORTER_ASSERT(reporter, NULL == mipmap);
+    REPORTER_ASSERT(reporter, nullptr == mipmap);
 
     mipmap = SkMipMapCache::AddAndRef(src, cache);
     REPORTER_ASSERT(reporter, mipmap);

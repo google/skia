@@ -67,7 +67,7 @@ protected:
         SkPoint pts[] = {{0, 0}, {SkIntToScalar(width), SkIntToScalar(height)}};
         SkColor colors[] = {0x00000000, 0xFFFFFFFF};
         SkPaint paint;
-        paint.setShader(SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+        paint.setShader(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
                                                        SkShader::kClamp_TileMode))->unref();
         canvas.drawRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), paint);
         return SkImage::NewFromBitmap(bm);

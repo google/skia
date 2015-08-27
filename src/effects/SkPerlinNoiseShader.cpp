@@ -272,7 +272,7 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
   , fBaseFrequencyY(baseFrequencyY)
   , fNumOctaves(numOctaves > 255 ? 255 : numOctaves/*[0,255] octaves allowed*/)
   , fSeed(seed)
-  , fTileSize(NULL == tileSize ? SkISize::Make(0, 0) : *tileSize)
+  , fTileSize(nullptr == tileSize ? SkISize::Make(0, 0) : *tileSize)
   , fStitchTiles(!fTileSize.isEmpty())
 {
     SkASSERT(numOctaves >= 0 && numOctaves < 256);
@@ -297,7 +297,7 @@ SkFlattenable* SkPerlinNoiseShader::CreateProc(SkReadBuffer& buffer) {
         case kTurbulence_Type:
             return SkPerlinNoiseShader::CreateTubulence(freqX, freqY, octaves, seed, &tileSize);
         default:
-            return NULL;
+            return nullptr;
     }
 }
 
@@ -607,16 +607,16 @@ GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* d) {
 
     SkShader* shader = d->fRandom->nextBool() ?
         SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed,
-                                                stitchTiles ? &tileSize : NULL) :
+                                                stitchTiles ? &tileSize : nullptr) :
         SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed,
-                                             stitchTiles ? &tileSize : NULL);
+                                             stitchTiles ? &tileSize : nullptr);
 
     SkPaint paint;
     GrColor paintColor;
     GrFragmentProcessor* effect;
     GrPaint grPaint;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
                                                &paintColor, grPaint.getProcessorDataManager(),
                                                &effect));
 
@@ -644,7 +644,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
                                     "alpha");
     const char* alphaUni = args.fBuilder->getUniformCStr(fAlphaUni);
 
-    const char* stitchDataUni = NULL;
+    const char* stitchDataUni = nullptr;
     if (fStitchTiles) {
         fStitchDataUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
@@ -966,9 +966,9 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
     SkPerlinNoiseShader::PaintingData* paintingData =
             new PaintingData(fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, matrix);
     SkAutoTUnref<GrTexture> permutationsTexture(
-        GrRefCachedBitmapTexture(context, paintingData->getPermutationsBitmap(), NULL));
+        GrRefCachedBitmapTexture(context, paintingData->getPermutationsBitmap(), nullptr));
     SkAutoTUnref<GrTexture> noiseTexture(
-        GrRefCachedBitmapTexture(context, paintingData->getNoiseBitmap(), NULL));
+        GrRefCachedBitmapTexture(context, paintingData->getNoiseBitmap(), nullptr));
 
     SkMatrix m = viewM;
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);
@@ -983,7 +983,7 @@ bool SkPerlinNoiseShader::asFragmentProcessor(GrContext* context, const SkPaint&
                                           m, paint.getAlpha());
     } else {
         delete paintingData;
-        *fp = NULL;
+        *fp = nullptr;
     }
     return true;
 }

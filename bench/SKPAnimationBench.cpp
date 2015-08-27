@@ -34,7 +34,7 @@ void SKPAnimationBench::drawPicture() {
         SkMatrix trans = SkMatrix::MakeTrans(-1.f * this->tileRects()[j].fLeft,
                                              -1.f * this->tileRects()[j].fTop);
         fAnimation->preConcatFrameMatrix(fAnimationTimer.fWall, fDevBounds, &trans);
-        this->surfaces()[j]->getCanvas()->drawPicture(this->picture(), &trans, NULL);
+        this->surfaces()[j]->getCanvas()->drawPicture(this->picture(), &trans, nullptr);
     }
 
     for (int j = 0; j < this->tileRects().count(); ++j) {

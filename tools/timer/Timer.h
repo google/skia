@@ -35,7 +35,7 @@ class SkGLContext;
  */
 class Timer {
 public:
-    explicit Timer(SkGLContext* gl = NULL);
+    explicit Timer(SkGLContext* gl = nullptr);
 
     void start();
     void truncatedEnd();

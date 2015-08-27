@@ -40,17 +40,17 @@ protected:
     void onOnceBeforeDraw() override {
         SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};
         SkPoint pts[] = { SkPoint::Make(0, 0), SkPoint::Make(kRectSize, kRectSize) };
-        fShader.reset(SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
+        fShader.reset(SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                        SkShader::kClamp_TileMode));
     }
 
     void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (NULL == rt) {
+        if (nullptr == rt) {
             return;
         }
         GrContext* context = rt->getContext();
-        if (NULL == context) {
+        if (nullptr == context) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }
@@ -92,7 +92,7 @@ protected:
 
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    if (NULL == tt.target()) {
+                    if (nullptr == tt.target()) {
                         SkDEBUGFAIL("Couldn't get Gr test target.");
                         return;
                     }

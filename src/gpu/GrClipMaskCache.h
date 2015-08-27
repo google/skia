@@ -92,7 +92,7 @@ public:
 
         if (fStack.empty()) {
             SkASSERT(false);
-            return NULL;
+            return nullptr;
         }
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
@@ -104,7 +104,7 @@ public:
 
         if (fStack.empty()) {
             SkASSERT(false);
-            return NULL;
+            return nullptr;
         }
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
@@ -135,7 +135,7 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        if (NULL == back->fLastMask) {
+        if (nullptr == back->fLastMask) {
             return -1;
         }
 
@@ -151,7 +151,7 @@ public:
 
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
-        if (NULL == back->fLastMask) {
+        if (nullptr == back->fLastMask) {
             return -1;
         }
 
@@ -175,7 +175,7 @@ public:
     void purgeResources() {
         SkDeque::F2BIter iter(fStack);
         for (GrClipStackFrame* frame = (GrClipStackFrame*) iter.next();
-                frame != NULL;
+                frame != nullptr;
                 frame = (GrClipStackFrame*) iter.next()) {
             frame->reset();
         }
@@ -208,7 +208,7 @@ private:
 
             GrSurfaceDesc desc;
 
-            fLastMask.reset(NULL);
+            fLastMask.reset(nullptr);
             fLastBound.setEmpty();
         }
 

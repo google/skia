@@ -101,6 +101,6 @@ VertState::Proc VertState::chooseProc(SkCanvas::VertexMode mode) {
         case SkCanvas::kTriangleFan_VertexMode:
             return fIndices ? TriangleFanX : TriangleFan;
         default:
-            return NULL;
+            return nullptr;
     }
 }

@@ -23,7 +23,7 @@ class SkipZeroesBench : public Benchmark {
 public:
     SkipZeroesBench(const char* filename, bool skipZeroes)
     : fName("SkipZeroes_")
-    , fDecoder(NULL)
+    , fDecoder(nullptr)
     , fFilename(filename)
     , fStream()
     , fSkipZeroes(skipZeroes)

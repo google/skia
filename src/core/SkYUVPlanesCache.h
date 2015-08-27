@@ -35,16 +35,16 @@ public:
     /**
      * On success, return a ref to the SkCachedData that holds the pixels.
      *
-     * On failure, return NULL.
+     * On failure, return nullptr.
      */
     static SkCachedData* FindAndRef(uint32_t genID, Info* info,
-                                    SkResourceCache* localCache = NULL);
+                                    SkResourceCache* localCache = nullptr);
 
     /**
      * Add a pixelRef ID and its YUV planes data to the cache.
      */
     static void Add(uint32_t genID, SkCachedData* data, Info* info,
-                    SkResourceCache* localCache = NULL);
+                    SkResourceCache* localCache = nullptr);
 };
 
 #endif

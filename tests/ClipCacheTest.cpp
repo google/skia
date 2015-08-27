@@ -33,7 +33,7 @@ static GrTexture* create_texture(GrContext* context) {
     // We are initializing the texture with zeros here
     GrTexture* texture = context->textureProvider()->createTexture(desc, false, textureData, 0);
     if (!texture) {
-        return NULL;
+        return nullptr;
     }
 
     return texture;
@@ -52,7 +52,7 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     desc.fWidth     = kXSize;
     desc.fHeight    = kYSize;
 
-    GrTexture* texture = context->textureProvider()->createTexture(desc, false, NULL, 0);
+    GrTexture* texture = context->textureProvider()->createTexture(desc, false, nullptr, 0);
     if (!texture) {
         return;
     }
@@ -117,7 +117,7 @@ static void check_state(skiatest::Reporter* reporter,
 static void check_empty_state(skiatest::Reporter* reporter,
                               const GrClipMaskCache& cache) {
     REPORTER_ASSERT(reporter, SkClipStack::kInvalidGenID == cache.getLastClipGenID());
-    REPORTER_ASSERT(reporter, NULL == cache.getLastMask());
+    REPORTER_ASSERT(reporter, nullptr == cache.getLastMask());
 
     SkIRect emptyBound;
     emptyBound.setEmpty();
@@ -156,7 +156,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     GrTexture* texture1 = cache.getLastMask();
     REPORTER_ASSERT(reporter, texture1);
-    if (NULL == texture1) {
+    if (nullptr == texture1) {
         return;
     }
 
@@ -179,7 +179,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     GrTexture* texture2 = cache.getLastMask();
     REPORTER_ASSERT(reporter, texture2);
-    if (NULL == texture2) {
+    if (nullptr == texture2) {
         return;
     }
 
@@ -219,7 +219,7 @@ DEF_GPUTEST(ClipCache, reporter, factory) {
             continue;
         }
         GrContext* context = factory->get(glType);
-        if (NULL == context) {
+        if (nullptr == context) {
             continue;
         }
 

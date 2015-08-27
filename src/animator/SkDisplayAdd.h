@@ -36,7 +36,7 @@ protected:
         Mode mode;
         int32_t offset;
         SkADrawable* use;
-        SkADrawable* where;  // if NULL, offset becomes index
+        SkADrawable* where;  // if nullptr, offset becomes index
 //  } A;
 private:
     typedef SkADrawable INHERITED;

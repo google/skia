@@ -297,7 +297,7 @@ static void compute_pos_tan(const SkPoint pts[], int segType,
             }
         } break;
         case kCubic_SegType:
-            SkEvalCubicAt(pts, t, pos, tangent, NULL);
+            SkEvalCubicAt(pts, t, pos, tangent, nullptr);
             if (tangent) {
                 tangent->normalize();
             }
@@ -402,7 +402,7 @@ static void seg_to(const SkPoint pts[], int segType,
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPathMeasure::SkPathMeasure() {
-    fPath = NULL;
+    fPath = nullptr;
     fLength = -1;   // signal we need to compute it
     fForceClosed = false;
     fFirstPtIndex = -1;
@@ -435,7 +435,7 @@ void SkPathMeasure::setPath(const SkPath* path, bool forceClosed) {
 }
 
 SkScalar SkPathMeasure::getLength() {
-    if (fPath == NULL) {
+    if (fPath == nullptr) {
         return 0;
     }
     if (fLength < 0) {
@@ -452,7 +452,7 @@ int SkTKSearch(const T base[], int count, const K& key) {
         return ~0;
     }
     
-    SkASSERT(base != NULL); // base may be NULL if count is zero
+    SkASSERT(base != nullptr); // base may be nullptr if count is zero
     
     int lo = 0;
     int hi = count - 1;
@@ -511,7 +511,7 @@ const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
 
 bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
                               SkVector* tangent) {
-    if (NULL == fPath) {
+    if (nullptr == fPath) {
         return false;
     }
 
@@ -538,7 +538,7 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
 
 bool SkPathMeasure::getMatrix(SkScalar distance, SkMatrix* matrix,
                               MatrixFlags flags) {
-    if (NULL == fPath) {
+    if (nullptr == fPath) {
         return false;
     }
 
@@ -584,7 +584,7 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     SkASSERT(seg <= stopSeg);
 
     if (startWithMoveTo) {
-        compute_pos_tan(&fPts[seg->fPtIndex], seg->fType, startT, &p, NULL);
+        compute_pos_tan(&fPts[seg->fPtIndex], seg->fType, startT, &p, nullptr);
         dst->moveTo(p);
     }
 

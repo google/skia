@@ -96,7 +96,7 @@ public:
         static const int kRows = 3;
         static const int kCols = 4;
         
-        fGrid.reset(kRows, kCols, SkPatchGrid::kColors_VertexType, NULL);
+        fGrid.reset(kRows, kCols, SkPatchGrid::kColors_VertexType, nullptr);
         for (int i = 0; i < kRows; i++) {
             for (int j = 0; j < kCols; j++) {
                 SkPoint points[12];
@@ -131,13 +131,13 @@ public:
                 
                 switch (fVertexMode) {
                     case kNone_VertexMode:
-                        fGrid.setPatch(j, i, points, NULL, NULL);
+                        fGrid.setPatch(j, i, points, nullptr, nullptr);
                         break;
                     case kColors_VertexMode:
-                        fGrid.setPatch(j, i, points, colors, NULL);
+                        fGrid.setPatch(j, i, points, colors, nullptr);
                         break;
                     case kTexCoords_VertexMode:
-                        fGrid.setPatch(j, i, points, NULL, texs);
+                        fGrid.setPatch(j, i, points, nullptr, texs);
                         break;
                     case kBoth_VertexMode:
                         fGrid.setPatch(j, i, points, colors, texs);
@@ -157,7 +157,7 @@ public:
         };
         const SkPoint pts[] = { { 200.f / 4.f, 0.f }, { 3.f * 200.f / 4, 200.f } };
         
-        return SkGradientShader::CreateLinear(pts, colors, NULL,
+        return SkGradientShader::CreateLinear(pts, colors, nullptr,
                                               SK_ARRAY_COUNT(colors),
                                               SkShader::kMirror_TileMode);
     }
@@ -208,7 +208,7 @@ protected:
                 fPaint.setShader(createShader())->unref();
                 break;
             default:
-                fPaint.setShader(NULL);
+                fPaint.setShader(nullptr);
                 break;
         }
         this->setupPaint(&fPaint);

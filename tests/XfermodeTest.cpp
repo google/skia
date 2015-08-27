@@ -35,7 +35,7 @@ static void test_asMode(skiatest::Reporter* reporter) {
 }
 
 static void test_IsMode(skiatest::Reporter* reporter) {
-    REPORTER_ASSERT(reporter, SkXfermode::IsMode(NULL,
+    REPORTER_ASSERT(reporter, SkXfermode::IsMode(nullptr,
                                                  SkXfermode::kSrcOver_Mode));
 
     for (int i = 0; i <= SkXfermode::kLastMode; ++i) {
@@ -46,7 +46,7 @@ static void test_IsMode(skiatest::Reporter* reporter) {
         SkSafeUnref(xfer);
 
         if (SkXfermode::kSrcOver_Mode != mode) {
-            REPORTER_ASSERT(reporter, !SkXfermode::IsMode(NULL, mode));
+            REPORTER_ASSERT(reporter, !SkXfermode::IsMode(nullptr, mode));
         }
     }
 }

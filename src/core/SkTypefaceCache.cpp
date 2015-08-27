@@ -45,7 +45,7 @@ SkTypeface* SkTypefaceCache::findByProcAndRef(FindProc proc, void* ctx) const {
         }
         curr += 1;
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkTypefaceCache::purge(int numToPurge) {
@@ -113,6 +113,6 @@ static bool DumpProc(SkTypeface* face, const SkFontStyle& s, void* ctx) {
 void SkTypefaceCache::Dump() {
 #ifdef SK_DEBUG
     SkAutoMutexAcquire ama(gMutex);
-    (void)Get().findByProcAndRef(DumpProc, NULL);
+    (void)Get().findByProcAndRef(DumpProc, nullptr);
 #endif
 }

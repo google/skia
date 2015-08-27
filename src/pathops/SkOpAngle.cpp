@@ -349,7 +349,7 @@ bool SkOpAngle::computeSector() {
             goto recomputeSector;
         } while (!oSpan->final() && (oSpan = oSpan->upCast()->next()));
         checkEnd = stepUp ? !checkEnd->final()
-                ? checkEnd->upCast()->next() : NULL
+                ? checkEnd->upCast()->next() : nullptr
                 : checkEnd->prev();
     } while (checkEnd);
 recomputeSector:
@@ -659,7 +659,7 @@ void SkOpAngle::insert(SkOpAngle* angle) {
         }
         return;
     }
-    bool singleton = NULL == fNext;
+    bool singleton = nullptr == fNext;
     if (singleton) {
         fNext = this;
     }
@@ -703,7 +703,7 @@ void SkOpAngle::insert(SkOpAngle* angle) {
 SkOpSpanBase* SkOpAngle::lastMarked() const {
     if (fLastMarked) {
         if (fLastMarked->chased()) {
-            return NULL;
+            return nullptr;
         }
         fLastMarked->setChased(true);
     }
@@ -759,7 +759,7 @@ bool SkOpAngle::merge(SkOpAngle* angle) {
     } while (working != angle);
     do {
         SkOpAngle* next = working->fNext;
-        working->fNext = NULL;
+        working->fNext = nullptr;
         insert(working);
         working = next;
     } while (working != angle);
@@ -877,7 +877,7 @@ void SkOpAngle::set(SkOpSpanBase* start, SkOpSpanBase* end) {
     fStart = start;
     fComputedEnd = fEnd = end;
     SkASSERT(start != end);
-    fNext = NULL;
+    fNext = nullptr;
     fComputeSector = fComputedSector = fCheckCoincidence = false;
     setSpans();
     setSector();
@@ -929,7 +929,7 @@ void SkOpAngle::setCurveHullSweep() {
 
 void SkOpAngle::setSpans() {
     fUnorderable = false;
-    fLastMarked = NULL;
+    fLastMarked = nullptr;
     if (!fStart) {
         fUnorderable = true;
         return;

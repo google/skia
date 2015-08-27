@@ -15,7 +15,7 @@
 static void SI8_D16_nofilter_DX_mips_dsp(const SkBitmapProcState& s,
                                          const uint32_t* SK_RESTRICT xy,
                                          int count, uint16_t* SK_RESTRICT colors) {
-    SkASSERT(count > 0 && colors != NULL);
+    SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
     const uint16_t* SK_RESTRICT table = s.fPixmap.ctable()->read16BitCache();
@@ -147,7 +147,7 @@ static void SI8_D16_nofilter_DX_mips_dsp(const SkBitmapProcState& s,
 static void SI8_opaque_D32_nofilter_DX_mips_dsp(const SkBitmapProcState& s,
                                                 const uint32_t* SK_RESTRICT xy,
                                                 int count, SkPMColor* SK_RESTRICT colors) {
-    SkASSERT(count > 0 && colors != NULL);
+    SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
     const SkPMColor* SK_RESTRICT table = s.fPixmap.ctable()->readColors();
@@ -380,10 +380,10 @@ void SkBitmapProcState::platformProcs() {
         case kIndex_8_SkColorType:
             if (justDx && kNone_SkFilterQuality == fFilterLevel) {
                 fSampleProc16 = SI8_D16_nofilter_DX_mips_dsp;
-                fShaderProc16 = NULL;
+                fShaderProc16 = nullptr;
                 if (isOpaque) {
                     fSampleProc32 = SI8_opaque_D32_nofilter_DX_mips_dsp;
-                    fShaderProc32 = NULL;
+                    fShaderProc32 = nullptr;
                 }
             }
             break;

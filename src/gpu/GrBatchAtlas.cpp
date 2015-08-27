@@ -131,14 +131,14 @@ private:
         , fIndex(-1)
         , fGenID(-1)
         , fID(0)
-        , fData(NULL)
+        , fData(nullptr)
         , fWidth(0)
         , fHeight(0)
         , fX(0)
         , fY(0)
-        , fTexture(NULL)
-        , fRects(NULL)
-        , fAtlas(NULL)
+        , fTexture(nullptr)
+        , fRects(nullptr)
+        , fAtlas(nullptr)
         , fBytesPerPixel(1)
     #ifdef SK_DEBUG
         , fDirty(false)
@@ -149,7 +149,7 @@ private:
 
     ~BatchPlot() {
         sk_free(fData);
-        fData = NULL;
+        fData = nullptr;
         delete fRects;
     }
 
@@ -166,7 +166,7 @@ private:
         fAtlas = atlas;
         fOffset.set(offX * width, offY * height);
         fBytesPerPixel = bpp;
-        fData = NULL;
+        fData = nullptr;
         fDirtyRect.setEmpty();
         SkDEBUGCODE(fDirty = false;)
         fTexture = texture;

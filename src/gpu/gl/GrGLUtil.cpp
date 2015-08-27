@@ -63,8 +63,8 @@ void GrGLCheckErr(const GrGLInterface* gl,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLStandard GrGLGetStandardInUseFromString(const char* versionString) {
-    if (NULL == versionString) {
-        SkDebugf("NULL GL version string.");
+    if (nullptr == versionString) {
+        SkDebugf("nullptr GL version string.");
         return kNone_GrGLStandard;
     }
 
@@ -165,8 +165,8 @@ void GrGLGetDriverInfo(GrGLStandard standard,
 }
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
-    if (NULL == versionString) {
-        SkDebugf("NULL GL version string.");
+    if (nullptr == versionString) {
+        SkDebugf("nullptr GL version string.");
         return GR_GL_INVALID_VER;
     }
 
@@ -200,8 +200,8 @@ GrGLVersion GrGLGetVersionFromString(const char* versionString) {
 }
 
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
-    if (NULL == versionString) {
-        SkDebugf("NULL GLSL version string.");
+    if (nullptr == versionString) {
+        SkDebugf("nullptr GLSL version string.");
         return GR_GLSL_INVALID_VER;
     }
 

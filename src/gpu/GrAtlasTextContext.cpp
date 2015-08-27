@@ -104,7 +104,7 @@ GrAtlasTextContext::GrAtlasTextContext(GrContext* context,
     // vertexStride
     static_assert(kGrayTextVASize >= kColorTextVASize && kGrayTextVASize >= kLCDTextVASize,
                   "vertex_attribute_changed");
-    fCurrStrike = NULL;
+    fCurrStrike = nullptr;
     fCache = context->getTextBlobCache();
 }
 
@@ -537,7 +537,7 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
             subRun.fUseLCDText = runPaint.isLCDRenderText();
             subRun.fDrawAsDistanceFields = true;
 
-            SkGlyphCache* cache = this->setupCache(&cacheBlob->fRuns[run], dfPaint, NULL, true);
+            SkGlyphCache* cache = this->setupCache(&cacheBlob->fRuns[run], dfPaint, nullptr, true);
 
             SkTDArray<char> fallbackTxt;
             SkTDArray<SkScalar> fallbackPos;
@@ -704,7 +704,7 @@ GrAtlasTextContext::setupDFBlob(int glyphCount, const SkPaint& origPaint,
     subRun.fUseLCDText = origPaint.isLCDRenderText();
     subRun.fDrawAsDistanceFields = true;
 
-    *cache = this->setupCache(&blob->fRuns[0], *dfPaint, NULL, true);
+    *cache = this->setupCache(&blob->fRuns[0], *dfPaint, nullptr, true);
     return blob;
 }
 
@@ -823,14 +823,14 @@ void GrAtlasTextContext::internalDrawBMPText(GrAtlasTextBlob* blob, int runIndex
                                              const SkMatrix& viewMatrix,
                                              const char text[], size_t byteLength,
                                              SkScalar x, SkScalar y, const SkIRect& clipRect) {
-    SkASSERT(byteLength == 0 || text != NULL);
+    SkASSERT(byteLength == 0 || text != nullptr);
 
     // nothing to draw
-    if (text == NULL || byteLength == 0) {
+    if (text == nullptr || byteLength == 0) {
         return;
     }
 
-    fCurrStrike = NULL;
+    fCurrStrike = nullptr;
     SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
 
     // Get GrFontScaler from cache
@@ -912,15 +912,15 @@ void GrAtlasTextContext::internalDrawBMPPosText(GrAtlasTextBlob* blob, int runIn
                                                 const char text[], size_t byteLength,
                                                 const SkScalar pos[], int scalarsPerPosition,
                                                 const SkPoint& offset, const SkIRect& clipRect) {
-    SkASSERT(byteLength == 0 || text != NULL);
+    SkASSERT(byteLength == 0 || text != nullptr);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
     // nothing to draw
-    if (text == NULL || byteLength == 0) {
+    if (text == nullptr || byteLength == 0) {
         return;
     }
 
-    fCurrStrike = NULL;
+    fCurrStrike = nullptr;
     SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
 
     // Get GrFontScaler from cache
@@ -1069,16 +1069,16 @@ void GrAtlasTextContext::internalDrawDFText(GrAtlasTextBlob* blob, int runIndex,
                                             SkTDArray<SkScalar>* fallbackPos,
                                             SkPoint* offset,
                                             const SkPaint& origPaint) {
-    SkASSERT(byteLength == 0 || text != NULL);
+    SkASSERT(byteLength == 0 || text != nullptr);
 
     // nothing to draw
-    if (text == NULL || byteLength == 0) {
+    if (text == nullptr || byteLength == 0) {
         return;
     }
 
     SkDrawCacheProc glyphCacheProc = origPaint.getDrawCacheProc();
     SkAutoDescriptor desc;
-    origPaint.getScalerContextDescriptor(&desc, fSurfaceProps, NULL, true);
+    origPaint.getScalerContextDescriptor(&desc, fSurfaceProps, nullptr, true);
     SkGlyphCache* origPaintCache = SkGlyphCache::DetachCache(origPaint.getTypeface(),
                                                              desc.getDesc());
 
@@ -1143,15 +1143,15 @@ void GrAtlasTextContext::internalDrawDFPosText(GrAtlasTextBlob* blob, int runInd
                                                SkTDArray<char>* fallbackTxt,
                                                SkTDArray<SkScalar>* fallbackPos) {
 
-    SkASSERT(byteLength == 0 || text != NULL);
+    SkASSERT(byteLength == 0 || text != nullptr);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
     // nothing to draw
-    if (text == NULL || byteLength == 0) {
+    if (text == nullptr || byteLength == 0) {
         return;
     }
 
-    fCurrStrike = NULL;
+    fCurrStrike = nullptr;
 
     SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
     GrFontScaler* fontScaler = GetGrFontScaler(cache);
@@ -1364,7 +1364,7 @@ inline void GrAtlasTextContext::appendGlyphPath(GrAtlasTextBlob* blob, GrGlyph* 
                                                 GrFontScaler* scaler, const SkGlyph& skGlyph,
                                                 SkScalar x, SkScalar y, SkScalar scale,
                                                 bool applyVM) {
-    if (NULL == glyph->fPath) {
+    if (nullptr == glyph->fPath) {
         const SkPath* glyphPath = scaler->getGlyphPath(skGlyph);
         if (!glyphPath) {
             return;
@@ -1624,10 +1624,10 @@ private:
 
         // We cache some values to avoid going to the glyphcache for the same fontScaler twice
         // in a row
-        const SkDescriptor* desc = NULL;
-        SkGlyphCache* cache = NULL;
-        GrFontScaler* scaler = NULL;
-        SkTypeface* typeface = NULL;
+        const SkDescriptor* desc = nullptr;
+        SkGlyphCache* cache = nullptr;
+        GrFontScaler* scaler = nullptr;
+        SkTypeface* typeface = nullptr;
 
         for (int i = 0; i < fGeoCount; i++) {
             Geometry& args = fGeoData[i];
@@ -1668,7 +1668,7 @@ private:
                 // it.  These ids will still be valid as long as we hold the ref.  When we are done
                 // updating our cache of the GrGlyph*s, we drop our ref on the old strike
                 bool regenerateGlyphs = false;
-                GrBatchTextStrike* strike = NULL;
+                GrBatchTextStrike* strike = nullptr;
                 if (regenerateTextureCoords) {
                     info.fBulkUseToken.reset();
 
@@ -2231,7 +2231,7 @@ void GrAtlasTextContext::flush(GrAtlasTextBlob* cacheBlob,
 
 DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     static uint32_t gContextID = SK_InvalidGenID;
-    static GrAtlasTextContext* gTextContext = NULL;
+    static GrAtlasTextContext* gTextContext = nullptr;
     static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
 
     if (context->uniqueID() != gContextID) {
@@ -2253,9 +2253,9 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     desc.fHeight = 1024;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = 0;
-    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc, true, NULL, 0));
+    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc, true, nullptr, 0));
     SkASSERT(texture);
-    SkASSERT(NULL != texture->asRenderTarget());
+    SkASSERT(nullptr != texture->asRenderTarget());
     GrRenderTarget* rt = texture->asRenderTarget();
 
     // Setup dummy SkPaint / GrPaint

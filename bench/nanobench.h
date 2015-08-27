@@ -78,7 +78,7 @@ struct Target {
 
     SkCanvas* getCanvas() const {
         if (!surface.get()) {
-            return NULL;
+            return nullptr;
         }
         return surface->getCanvas();
     }

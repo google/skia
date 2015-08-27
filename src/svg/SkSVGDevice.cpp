@@ -38,7 +38,7 @@ static SkScalar svg_opacity(SkColor color) {
 
 // Keep in sync with SkPaint::Cap
 static const char* cap_map[]  = {
-    NULL,    // kButt_Cap (default)
+    nullptr,    // kButt_Cap (default)
     "round", // kRound_Cap
     "square" // kSquare_Cap
 };
@@ -51,7 +51,7 @@ static const char* svg_cap(SkPaint::Cap cap) {
 
 // Keep in sync with SkPaint::Join
 static const char* join_map[] = {
-    NULL,    // kMiter_Join (default)
+    nullptr,    // kMiter_Join (default)
     "round", // kRound_Join
     "bevel"  // kBevel_Join
 };
@@ -64,7 +64,7 @@ static const char* svg_join(SkPaint::Join join) {
 
 // Keep in sync with SkPaint::Align
 static const char* text_align_map[] = {
-    NULL,     // kLeft_Align (default)
+    nullptr,     // kLeft_Align (default)
     "middle", // kCenter_Align
     "end"     // kRight_Align
 };
@@ -115,7 +115,7 @@ struct Resources {
 class SVGTextBuilder : SkNoncopyable {
 public:
     SVGTextBuilder(const void* text, size_t byteLen, const SkPaint& paint, const SkPoint& offset,
-                   unsigned scalarsPerPos, const SkScalar pos[] = NULL)
+                   unsigned scalarsPerPos, const SkScalar pos[] = nullptr)
         : fOffset(offset)
         , fScalarsPerPos(scalarsPerPos)
         , fPos(pos)
@@ -277,7 +277,7 @@ class SkSVGDevice::AutoElement : ::SkNoncopyable {
 public:
     AutoElement(const char name[], SkXMLWriter* writer)
         : fWriter(writer)
-        , fResourceBucket(NULL) {
+        , fResourceBucket(nullptr) {
         fWriter->startElement(name);
     }
 
@@ -563,7 +563,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
 
 SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkXMLWriter* writer) {
     if (!writer) {
-        return NULL;
+        return nullptr;
     }
 
     return new SkSVGDevice(size, writer);
@@ -670,7 +670,7 @@ void SkSVGDevice::drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm,
         return;
     }
 
-    size_t b64Size = SkBase64::Encode(pngData->data(), pngData->size(), NULL);
+    size_t b64Size = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
     SkAutoTMalloc<char> b64Data(b64Size);
     SkBase64::Encode(pngData->data(), pngData->size(), b64Data.get());
 

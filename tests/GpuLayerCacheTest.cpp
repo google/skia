@@ -46,7 +46,7 @@ static void create_layers(skiatest::Reporter* reporter,
                                                         SkIRect::MakeEmpty(),
                                                         SkMatrix::I(),
                                                         indices, 1,
-                                                        NULL);
+                                                        nullptr);
         REPORTER_ASSERT(reporter, layer);
         GrCachedLayer* temp = TestingAccess::Find(cache, picture.uniqueID(), SkMatrix::I(),
                                                   indices, 1);
@@ -57,8 +57,8 @@ static void create_layers(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, picture.uniqueID() == layer->pictureID());
         REPORTER_ASSERT(reporter, layer->start() == idOffset + i + 1);
         REPORTER_ASSERT(reporter, layer->stop() == idOffset + i + 2);
-        REPORTER_ASSERT(reporter, NULL == layer->texture());
-        REPORTER_ASSERT(reporter, NULL == layer->paint());
+        REPORTER_ASSERT(reporter, nullptr == layer->texture());
+        REPORTER_ASSERT(reporter, nullptr == layer->paint());
         REPORTER_ASSERT(reporter, !layer->isAtlased());
     }
 }
@@ -106,7 +106,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
 
         GrContext* context = factory->get(glCtxType);
 
-        if (NULL == context) {
+        if (nullptr == context) {
             continue;
         }
 
@@ -169,7 +169,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
             } else {
 #endif
                 // The final layer should not be atlased.
-                REPORTER_ASSERT(reporter, NULL == layer->texture());
+                REPORTER_ASSERT(reporter, nullptr == layer->texture());
                 REPORTER_ASSERT(reporter, !layer->isAtlased());
 #if GR_CACHE_HOISTED_LAYERS
             }
@@ -207,12 +207,12 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
                 // The one that was never atlased should still be around
                 REPORTER_ASSERT(reporter, layer);
 
-                REPORTER_ASSERT(reporter, NULL == layer->texture());
+                REPORTER_ASSERT(reporter, nullptr == layer->texture());
                 REPORTER_ASSERT(reporter, !layer->isAtlased());
 #if GR_CACHE_HOISTED_LAYERS
             } else {
                 // The one bumped out of the atlas (i.e., 0) should be gone
-                REPORTER_ASSERT(reporter, NULL == layer);
+                REPORTER_ASSERT(reporter, nullptr == layer);
             }
 #endif
         }
@@ -242,7 +242,7 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
         // but should eliminate the free-floating layers.
         create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
 
-        picture.reset(NULL);
+        picture.reset(nullptr);
         cache.processDeletedPictures();
 
         REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);

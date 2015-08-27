@@ -155,7 +155,7 @@ size_t SkUTF8_FromUnichar(SkUnichar uni, char utf8[]) {
         *--utf8 = (char)(~(0xFF >> count) | uni);
     }
 
-    SkASSERT(utf8 == NULL || orig == SkUTF8_ToUnichar(utf8));
+    SkASSERT(utf8 == nullptr || orig == SkUTF8_ToUnichar(utf8));
     return count;
 }
 
@@ -260,14 +260,14 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
         return 0;
     }
 
-    SkASSERT(utf16 != NULL);
+    SkASSERT(utf16 != nullptr);
 
     const uint16_t* stop = utf16 + numberOf16BitValues;
     size_t          size = 0;
 
-    if (utf8 == NULL) {    // just count
+    if (utf8 == nullptr) {    // just count
         while (utf16 < stop) {
-            size += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&utf16), NULL);
+            size += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&utf16), nullptr);
         }
     } else {
         char* start = utf8;

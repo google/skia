@@ -152,7 +152,7 @@ public:
      */
     SkPDFArray* copyMediaBox() const;
 
-    /** Get the annotations from this page, or NULL if there are none.
+    /** Get the annotations from this page, or nullptr if there are none.
      */
     SkPDFArray* getAnnotations() const { return fAnnotations; }
 
@@ -247,7 +247,7 @@ private:
                                  bool invertClip);
 
     // If the paint or clip is such that we shouldn't draw anything, this
-    // returns NULL and does not create a content entry.
+    // returns nullptr and does not create a content entry.
     // setUpContentEntry and finishContentEntry can be used directly, but
     // the preferred method is to use the ScopedContentEntry helper class.
     ContentEntry* setUpContentEntry(const SkClipStack* clipStack,
@@ -288,7 +288,7 @@ private:
 
     bool handleInversePath(const SkDraw& d, const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable,
-                           const SkMatrix* prePathMatrix = NULL);
+                           const SkMatrix* prePathMatrix = nullptr);
     bool handlePointAnnotation(const SkPoint* points, size_t count,
                                const SkMatrix& matrix, SkAnnotation* annot);
     void addAnnotation(SkPDFDict*);

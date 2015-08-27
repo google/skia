@@ -42,7 +42,7 @@ protected:
     void onEndPage() override {
         SkASSERT(fCanvas.get());
         fCanvas->flush();
-        fCanvas.reset(NULL);
+        fCanvas.reset(nullptr);
         fDevice.endSheet();
     }
 
@@ -63,7 +63,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDocument* SkDocument::CreateXPS(SkWStream* stream, SkScalar dpi) {
-    return stream ? new SkDocument_XPS(stream, NULL, dpi) : NULL;
+    return stream ? new SkDocument_XPS(stream, nullptr, dpi) : nullptr;
 }
 
 static void delete_wstream(SkWStream* stream, bool aborted) { delete stream; }
@@ -71,7 +71,7 @@ static void delete_wstream(SkWStream* stream, bool aborted) { delete stream; }
 SkDocument* SkDocument::CreateXPS(const char path[], SkScalar dpi) {
     SkAutoTDelete<SkFILEWStream> stream(new SkFILEWStream(path));
     if (!stream->isValid()) {
-        return NULL;
+        return nullptr;
     }
     return new SkDocument_XPS(stream.detach(), delete_wstream, dpi);
 }

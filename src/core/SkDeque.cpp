@@ -20,20 +20,20 @@ struct SkDeque::Block {
     const char* start() const { return (const char*)(this + 1); }
 
     void init(size_t size) {
-        fNext   = fPrev = NULL;
-        fBegin  = fEnd = NULL;
+        fNext   = fPrev = nullptr;
+        fBegin  = fEnd = nullptr;
         fStop   = (char*)this + size;
     }
 };
 
 SkDeque::SkDeque(size_t elemSize, int allocCount)
         : fElemSize(elemSize)
-        , fInitialStorage(NULL)
+        , fInitialStorage(nullptr)
         , fCount(0)
         , fAllocCount(allocCount) {
     SkASSERT(allocCount >= 1);
-    fFrontBlock = fBackBlock = NULL;
-    fFront = fBack = NULL;
+    fFrontBlock = fBackBlock = nullptr;
+    fFront = fBack = nullptr;
 }
 
 SkDeque::SkDeque(size_t elemSize, void* storage, size_t storageSize, int allocCount)
@@ -41,17 +41,17 @@ SkDeque::SkDeque(size_t elemSize, void* storage, size_t storageSize, int allocCo
         , fInitialStorage(storage)
         , fCount(0)
         , fAllocCount(allocCount) {
-    SkASSERT(storageSize == 0 || storage != NULL);
+    SkASSERT(storageSize == 0 || storage != nullptr);
     SkASSERT(allocCount >= 1);
 
     if (storageSize >= sizeof(Block) + elemSize) {
         fFrontBlock = (Block*)storage;
         fFrontBlock->init(storageSize);
     } else {
-        fFrontBlock = NULL;
+        fFrontBlock = nullptr;
     }
     fBackBlock = fFrontBlock;
-    fFront = fBack = NULL;
+    fFront = fBack = nullptr;
 }
 
 SkDeque::~SkDeque() {
@@ -70,7 +70,7 @@ SkDeque::~SkDeque() {
 void* SkDeque::push_front() {
     fCount += 1;
 
-    if (NULL == fFrontBlock) {
+    if (nullptr == fFrontBlock) {
         fFrontBlock = this->allocateBlock(fAllocCount);
         fBackBlock = fFrontBlock;     // update our linklist
     }
@@ -78,7 +78,7 @@ void* SkDeque::push_front() {
     Block*  first = fFrontBlock;
     char*   begin;
 
-    if (NULL == first->fBegin) {
+    if (nullptr == first->fBegin) {
     INIT_CHUNK:
         first->fEnd = first->fStop;
         begin = first->fStop - fElemSize;
@@ -96,8 +96,8 @@ void* SkDeque::push_front() {
 
     first->fBegin = begin;
 
-    if (NULL == fFront) {
-        SkASSERT(NULL == fBack);
+    if (nullptr == fFront) {
+        SkASSERT(nullptr == fBack);
         fFront = fBack = begin;
     } else {
         SkASSERT(fBack);
@@ -110,7 +110,7 @@ void* SkDeque::push_front() {
 void* SkDeque::push_back() {
     fCount += 1;
 
-    if (NULL == fBackBlock) {
+    if (nullptr == fBackBlock) {
         fBackBlock = this->allocateBlock(fAllocCount);
         fFrontBlock = fBackBlock; // update our linklist
     }
@@ -118,7 +118,7 @@ void* SkDeque::push_back() {
     Block*  last = fBackBlock;
     char*   end;
 
-    if (NULL == last->fBegin) {
+    if (nullptr == last->fBegin) {
     INIT_CHUNK:
         last->fBegin = last->start();
         end = last->fBegin + fElemSize;
@@ -137,8 +137,8 @@ void* SkDeque::push_back() {
     last->fEnd = end;
     end -= fElemSize;
 
-    if (NULL == fBack) {
-        SkASSERT(NULL == fFront);
+    if (nullptr == fBack) {
+        SkASSERT(nullptr == fFront);
         fFront = fBack = end;
     } else {
         SkASSERT(fFront);
@@ -154,14 +154,14 @@ void SkDeque::pop_front() {
 
     Block*  first = fFrontBlock;
 
-    SkASSERT(first != NULL);
+    SkASSERT(first != nullptr);
 
-    if (first->fBegin == NULL) {  // we were marked empty from before
+    if (first->fBegin == nullptr) {  // we were marked empty from before
         first = first->fNext;
-        first->fPrev = NULL;
+        first->fPrev = nullptr;
         this->freeBlock(fFrontBlock);
         fFrontBlock = first;
-        SkASSERT(first != NULL);    // else we popped too far
+        SkASSERT(first != nullptr);    // else we popped too far
     }
 
     char* begin = first->fBegin + fElemSize;
@@ -172,9 +172,9 @@ void SkDeque::pop_front() {
         SkASSERT(first->fBegin);
         fFront = first->fBegin;
     } else {
-        first->fBegin = first->fEnd = NULL;  // mark as empty
-        if (NULL == first->fNext) {
-            fFront = fBack = NULL;
+        first->fBegin = first->fEnd = nullptr;  // mark as empty
+        if (nullptr == first->fNext) {
+            fFront = fBack = nullptr;
         } else {
             SkASSERT(first->fNext->fBegin);
             fFront = first->fNext->fBegin;
@@ -188,14 +188,14 @@ void SkDeque::pop_back() {
 
     Block* last = fBackBlock;
 
-    SkASSERT(last != NULL);
+    SkASSERT(last != nullptr);
 
-    if (last->fEnd == NULL) {  // we were marked empty from before
+    if (last->fEnd == nullptr) {  // we were marked empty from before
         last = last->fPrev;
-        last->fNext = NULL;
+        last->fNext = nullptr;
         this->freeBlock(fBackBlock);
         fBackBlock = last;
-        SkASSERT(last != NULL);  // else we popped too far
+        SkASSERT(last != nullptr);  // else we popped too far
     }
 
     char* end = last->fEnd - fElemSize;
@@ -206,9 +206,9 @@ void SkDeque::pop_back() {
         SkASSERT(last->fEnd);
         fBack = last->fEnd - fElemSize;
     } else {
-        last->fBegin = last->fEnd = NULL;    // mark as empty
-        if (NULL == last->fPrev) {
-            fFront = fBack = NULL;
+        last->fBegin = last->fEnd = nullptr;    // mark as empty
+        if (nullptr == last->fPrev) {
+            fFront = fBack = nullptr;
         } else {
             SkASSERT(last->fPrev->fEnd);
             fBack = last->fPrev->fEnd - fElemSize;
@@ -238,7 +238,7 @@ void SkDeque::freeBlock(Block* block) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDeque::Iter::Iter() : fCurBlock(NULL), fPos(NULL), fElemSize(0) {}
+SkDeque::Iter::Iter() : fCurBlock(nullptr), fPos(nullptr), fElemSize(0) {}
 
 SkDeque::Iter::Iter(const SkDeque& d, IterStart startLoc) {
     this->reset(d, startLoc);
@@ -255,8 +255,8 @@ void* SkDeque::Iter::next() {
         if (next == fCurBlock->fEnd) { // exhausted this chunk, move to next
             do {
                 fCurBlock = fCurBlock->fNext;
-            } while (fCurBlock != NULL && fCurBlock->fBegin == NULL);
-            next = fCurBlock ? fCurBlock->fBegin : NULL;
+            } while (fCurBlock != nullptr && fCurBlock->fBegin == nullptr);
+            next = fCurBlock ? fCurBlock->fBegin : nullptr;
         }
         fPos = next;
     }
@@ -274,8 +274,8 @@ void* SkDeque::Iter::prev() {
         if (prev < fCurBlock->fBegin) { // exhausted this chunk, move to prior
             do {
                 fCurBlock = fCurBlock->fPrev;
-            } while (fCurBlock != NULL && fCurBlock->fEnd == NULL);
-            prev = fCurBlock ? fCurBlock->fEnd - fElemSize : NULL;
+            } while (fCurBlock != nullptr && fCurBlock->fEnd == nullptr);
+            prev = fCurBlock ? fCurBlock->fEnd - fElemSize : nullptr;
         }
         fPos = prev;
     }
@@ -286,23 +286,23 @@ void* SkDeque::Iter::prev() {
 // of the doubly linked list until a non-empty one is found. The fPos
 // member is then set to the first (or last) element in the block. If
 // there are no elements in the deque both fCurBlock and fPos will come
-// out of this routine NULL.
+// out of this routine nullptr.
 void SkDeque::Iter::reset(const SkDeque& d, IterStart startLoc) {
     fElemSize = d.fElemSize;
 
     if (kFront_IterStart == startLoc) {
         // initialize the iterator to start at the front
         fCurBlock = d.fFrontBlock;
-        while (fCurBlock && NULL == fCurBlock->fBegin) {
+        while (fCurBlock && nullptr == fCurBlock->fBegin) {
             fCurBlock = fCurBlock->fNext;
         }
-        fPos = fCurBlock ? fCurBlock->fBegin : NULL;
+        fPos = fCurBlock ? fCurBlock->fBegin : nullptr;
     } else {
         // initialize the iterator to start at the back
         fCurBlock = d.fBackBlock;
-        while (fCurBlock && NULL == fCurBlock->fEnd) {
+        while (fCurBlock && nullptr == fCurBlock->fEnd) {
             fCurBlock = fCurBlock->fPrev;
         }
-        fPos = fCurBlock ? fCurBlock->fEnd - fElemSize : NULL;
+        fPos = fCurBlock ? fCurBlock->fEnd - fElemSize : nullptr;
     }
 }

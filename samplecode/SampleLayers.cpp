@@ -30,7 +30,7 @@
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkColor colors[] = { 0, SK_ColorWHITE };
     SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode,
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode,
                                                  0, &localMatrix);
 
     paint->setShader(s)->unref();
@@ -70,11 +70,11 @@ static void test_fade(SkCanvas* canvas) {
     canvas->clipRect(r);
 
     r.fBottom = SkIntToScalar(20);
-    canvas->saveLayer(&r, NULL);
+    canvas->saveLayer(&r, nullptr);
 
     r.fTop = SkIntToScalar(80);
     r.fBottom = SkIntToScalar(100);
-    canvas->saveLayer(&r, NULL);
+    canvas->saveLayer(&r, nullptr);
 
     // now draw the "content"
 
@@ -215,7 +215,7 @@ protected:
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        this->inval(NULL);
+        this->inval(nullptr);
 
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
@@ -225,7 +225,7 @@ protected:
     }
 
     virtual bool handleKey(SkKey) {
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 

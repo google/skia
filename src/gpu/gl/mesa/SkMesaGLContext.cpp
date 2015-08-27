@@ -14,16 +14,16 @@
 static const GrGLint gBOGUS_SIZE = 16;
 
 SkMesaGLContext::SkMesaGLContext()
-    : fContext(static_cast<Context>(NULL))
-    , fImage(NULL) {
+    : fContext(static_cast<Context>(nullptr))
+    , fImage(nullptr) {
     GR_STATIC_ASSERT(sizeof(Context) == sizeof(OSMesaContext));
 
     /* Create an RGBA-mode context */
 #if OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 305
     /* specify Z, stencil, accum sizes */
-    fContext = (Context)OSMesaCreateContextExt(OSMESA_BGRA, 0, 0, 0, NULL);
+    fContext = (Context)OSMesaCreateContextExt(OSMESA_BGRA, 0, 0, 0, nullptr);
 #else
-    fContext = (Context)OSMesaCreateContext(OSMESA_BGRA, NULL);
+    fContext = (Context)OSMesaCreateContext(OSMESA_BGRA, nullptr);
 #endif
     if (!fContext) {
         SkDebugf("OSMesaCreateContext failed!\n");
@@ -51,7 +51,7 @@ SkMesaGLContext::SkMesaGLContext()
     }
 
     SkAutoTUnref<const GrGLInterface> gl(GrGLCreateMesaInterface());
-    if (NULL == gl.get()) {
+    if (nullptr == gl.get()) {
         SkDebugf("Could not create GL interface!\n");
         this->destroyGLContext();
         return;
@@ -74,12 +74,12 @@ SkMesaGLContext::~SkMesaGLContext() {
 void SkMesaGLContext::destroyGLContext() {
     if (fImage) {
         sk_free(fImage);
-        fImage = NULL;
+        fImage = nullptr;
     }
 
     if (fContext) {
         OSMesaDestroyContext((OSMesaContext)fContext);
-        fContext = static_cast<Context>(NULL);
+        fContext = static_cast<Context>(nullptr);
     }
 }
 

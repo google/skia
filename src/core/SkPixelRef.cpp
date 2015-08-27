@@ -95,7 +95,7 @@ static void validate_pixels_ctable(const SkImageInfo& info, const SkColorTable* 
     if (kIndex_8_SkColorType == info.colorType()) {
         SkASSERT(ctable);
     } else {
-        SkASSERT(NULL == ctable);
+        SkASSERT(nullptr == ctable);
     }
 }
 
@@ -198,8 +198,8 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
     }
 
     if (fPreLocked) {
-        result->fUnlockProc = NULL;
-        result->fUnlockContext = NULL;
+        result->fUnlockProc = nullptr;
+        result->fUnlockContext = nullptr;
         result->fCTable = fRec.fColorTable;
         result->fPixels = fRec.fPixels;
         result->fRowBytes = fRec.fRowBytes;
@@ -241,7 +241,7 @@ uint32_t SkPixelRef::getGenerationID() const {
 }
 
 void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (NULL == listener || !this->genIDIsUnique()) {
+    if (nullptr == listener || !this->genIDIsUnique()) {
         // No point in tracking this if we're not going to call it.
         delete listener;
         return;
@@ -320,7 +320,7 @@ bool SkPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
 void SkPixelRef::onNotifyPixelsChanged() { }
 
 SkData* SkPixelRef::onRefEncodedData() {
-    return NULL;
+    return nullptr;
 }
 
 bool SkPixelRef::onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],

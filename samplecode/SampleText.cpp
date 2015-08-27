@@ -148,7 +148,7 @@ protected:
         {
             SkRect r;
             r.set(0, 0, SkIntToScalar(1000), SkIntToScalar(20));
-       //     canvas->saveLayer(&r, NULL, SkCanvas::kHasAlphaLayer_SaveFlag);
+       //     canvas->saveLayer(&r, nullptr, SkCanvas::kHasAlphaLayer_SaveFlag);
         }
 
         SkPaint paint;
@@ -188,7 +188,7 @@ protected:
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               unsigned modi) override {
         fClickX = x;
-        this->inval(NULL);
+        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 

@@ -161,7 +161,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         draw_pass(canvas, kCheckerboard_Pass);
-        canvas->saveLayer(NULL, NULL);
+        canvas->saveLayer(nullptr, nullptr);
 
         canvas->translate(kMargin, kMargin);
         draw_pass(canvas, kBackground_Pass);

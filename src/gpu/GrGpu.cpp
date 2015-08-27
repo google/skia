@@ -71,30 +71,30 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
     GrSurfaceDesc desc = origDesc;
 
     if (!this->caps()->isConfigTexturable(desc.fConfig)) {
-        return NULL;
+        return nullptr;
     }
 
     bool isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (isRT && !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
-        return NULL;
+        return nullptr;
     }
 
     // We currently do not support multisampled textures
     if (!isRT && desc.fSampleCnt > 0) {
-        return NULL;
+        return nullptr;
     }
 
-    GrTexture *tex = NULL;
+    GrTexture *tex = nullptr;
 
     if (isRT) {
         int maxRTSize = this->caps()->maxRenderTargetSize();
         if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
-            return NULL;
+            return nullptr;
         }
     } else {
         int maxSize = this->caps()->maxTextureSize();
         if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -114,7 +114,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
 
         if (!this->caps()->npotTextureTileSupport() &&
             (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
-            return NULL;
+            return nullptr;
         }
 
         this->handleDirtyContext();
@@ -136,7 +136,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
 }
 
 bool GrGpu::attachStencilAttachmentToRenderTarget(GrRenderTarget* rt) {
-    SkASSERT(NULL == rt->renderTargetPriv().getStencilAttachment());
+    SkASSERT(nullptr == rt->renderTargetPriv().getStencilAttachment());
     GrUniqueKey sbKey;
 
     int width = rt->width();
@@ -180,14 +180,14 @@ bool GrGpu::attachStencilAttachmentToRenderTarget(GrRenderTarget* rt) {
 GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
     this->handleDirtyContext();
     GrTexture* tex = this->onWrapBackendTexture(desc, ownership);
-    if (NULL == tex) {
-        return NULL;
+    if (nullptr == tex) {
+        return nullptr;
     }
     // TODO: defer this and attach dynamically
     GrRenderTarget* tgt = tex->asRenderTarget();
     if (tgt && !this->attachStencilAttachmentToRenderTarget(tgt)) {
         tex->unref();
-        return NULL;
+        return nullptr;
     } else {
         return tex;
     }

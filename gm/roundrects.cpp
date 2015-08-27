@@ -282,7 +282,7 @@ protected:
             canvas->drawRect(rect, rectPaint);
             canvas->drawRRect(circleRect, fPaints[i]);
 
-            fPaints[i].setShader(NULL);
+            fPaints[i].setShader(nullptr);
 
             canvas->restore();
         }

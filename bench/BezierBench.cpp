@@ -64,7 +64,7 @@ public:
         fJoin = j;
         fProc = proc;
         fWidth = SkIntToScalar(w);
-        fName.printf("draw_stroke_bezier_%s_%s_%s_%g", proc(NULL, 0), gCapName[c], gJoinName[j], w);
+        fName.printf("draw_stroke_bezier_%s_%s_%s_%g", proc(nullptr, 0), gCapName[c], gJoinName[j], w);
 
         fRec.fQuad.moveTo(20, 20);
         fRec.fQuad.quadTo(60, 20, 60, 60);

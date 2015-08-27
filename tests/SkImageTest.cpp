@@ -33,7 +33,7 @@ DEF_TEST(SkImageFromBitmap_extractSubset, reporter) {
     tgt.allocN32Pixels(gWidth, gHeight);
     SkCanvas canvas(tgt);
     canvas.clear(SK_ColorTRANSPARENT);
-    canvas.drawImage(image, 0, 0, NULL);
+    canvas.drawImage(image, 0, 0, nullptr);
 
     uint32_t pixel = 0;
     SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);

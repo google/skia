@@ -65,9 +65,9 @@ static const char* as_blend_mode(SkXfermode::Mode mode) {
         // TODO(vandebo): Figure out if we can support more of these modes.
         case SkXfermode::kXor_Mode:
         case SkXfermode::kPlus_Mode:
-            return NULL;
+            return nullptr;
     }
-    return NULL;
+    return nullptr;
 }
 
 // If a SkXfermode is unsupported in PDF, this function returns

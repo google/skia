@@ -116,24 +116,24 @@ public:
     /**
      * Retrieves the bitmap from the specified slot in the heap
      *
-     * @return  The bitmap located at that slot or NULL if external storage is being used.
+     * @return  The bitmap located at that slot or nullptr if external storage is being used.
      */
     SkBitmap* getBitmap(int32_t slot) const override {
-        SkASSERT(fExternalStorage == NULL);
+        SkASSERT(fExternalStorage == nullptr);
         SkBitmapHeapEntry* entry = getEntry(slot);
         if (entry) {
             return &entry->fBitmap;
         }
-        return NULL;
+        return nullptr;
     }
 
     /**
      * Retrieves the bitmap from the specified slot in the heap
      *
-     * @return  The bitmap located at that slot or NULL if external storage is being used.
+     * @return  The bitmap located at that slot or nullptr if external storage is being used.
      */
     void releaseRef(int32_t slot) override {
-        SkASSERT(fExternalStorage == NULL);
+        SkASSERT(fExternalStorage == nullptr);
         if (fOwnerCount != IGNORE_OWNERS) {
             SkBitmapHeapEntry* entry = getEntry(slot);
             if (entry) {
@@ -158,12 +158,12 @@ public:
      * Retrieves an entry from the heap at a given slot.
      *
      * @param slot  the slot in the heap where a bitmap was stored.
-     * @return  a SkBitmapHeapEntry that wraps the bitmap or NULL if external storage is used.
+     * @return  a SkBitmapHeapEntry that wraps the bitmap or nullptr if external storage is used.
      */
     SkBitmapHeapEntry* getEntry(int32_t slot) const {
         SkASSERT(slot <= fStorage.count());
-        if (fExternalStorage != NULL) {
-            return NULL;
+        if (fExternalStorage != nullptr) {
+            return nullptr;
         }
         return fStorage[slot];
     }
@@ -172,7 +172,7 @@ public:
      * Returns a count of the number of items currently in the heap
      */
     int count() const {
-        SkASSERT(fExternalStorage != NULL ||
+        SkASSERT(fExternalStorage != nullptr ||
                  fStorage.count() - fUnusedSlots.count() == fLookupTable.count());
         return fLookupTable.count();
     }
@@ -215,8 +215,8 @@ private:
         , fPixelOrigin(bm.pixelRefOrigin())
         , fWidth(bm.width())
         , fHeight(bm.height())
-        , fMoreRecentlyUsed(NULL)
-        , fLessRecentlyUsed(NULL){}
+        , fMoreRecentlyUsed(nullptr)
+        , fLessRecentlyUsed(nullptr){}
 
         const uint32_t fGenerationId; // SkPixelRef GenerationID.
         const SkIPoint fPixelOrigin;
@@ -260,7 +260,7 @@ private:
     /**
      * Remove a LookupEntry from the LRU, in preparation for either deleting or appending as most
      * recent. Points the LookupEntry's old neighbors at each other, and sets fLeastRecentlyUsed
-     * (if there is still an entry left). Sets LookupEntry's fMoreRecentlyUsed to NULL and leaves
+     * (if there is still an entry left). Sets LookupEntry's fMoreRecentlyUsed to nullptr and leaves
      * its fLessRecentlyUsed unmodified.
      */
     void removeFromLRU(LookupEntry* entry);

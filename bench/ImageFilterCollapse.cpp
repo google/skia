@@ -22,7 +22,7 @@
 
 class BaseImageFilterCollapseBench : public Benchmark {
 public:
-    BaseImageFilterCollapseBench(): fImageFilter(NULL) {}
+    BaseImageFilterCollapseBench(): fImageFilter(nullptr) {}
     ~BaseImageFilterCollapseBench() {
         SkSafeUnref(fImageFilter);
     }
@@ -30,10 +30,10 @@ public:
 protected:
     void doPreDraw(SkColorFilter* colorFilters[], int nFilters) {
         // Create a chain of ImageFilters from colorFilters
-        fImageFilter = NULL;
+        fImageFilter = nullptr;
         for(int i = nFilters; i --> 0;) {
             SkAutoTUnref<SkImageFilter> filter(
-                        SkColorFilterImageFilter::Create(colorFilters[i], fImageFilter, NULL)
+                        SkColorFilterImageFilter::Create(colorFilters[i], fImageFilter, nullptr)
             );
             SkRefCnt_SafeAssign(fImageFilter, filter.get());
         }
@@ -67,7 +67,7 @@ private:
             SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
         };
         SkAutoTUnref<SkShader> shader(SkGradientShader::CreateLinear(
-                    pts, colors, NULL, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode
+                    pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode
         ));
         paint.setShader(shader);
         canvas.drawPaint(paint);

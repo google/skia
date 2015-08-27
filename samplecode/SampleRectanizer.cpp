@@ -127,7 +127,7 @@ protected:
         str.printf("Press \'h\' to toggle rects");
         canvas->drawText(str.c_str(), str.size(), 50, kHeight + 150, blackBigFont);
 
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 private:

@@ -193,7 +193,7 @@ public:
 
     struct Attribute {
         Attribute()
-            : fName(NULL)
+            : fName(nullptr)
             , fType(kFloat_GrVertexAttribType)
             , fOffset(0) {}
         Attribute(const char* name, GrVertexAttribType type,

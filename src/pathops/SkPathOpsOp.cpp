@@ -19,7 +19,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
         *startPtr = span->ptT()->prev()->span();
         SkOpSegment* segment = (*startPtr)->segment();
         bool done = true;
-        *endPtr = NULL;
+        *endPtr = nullptr;
         if (SkOpAngle* last = segment->activeAngle(*startPtr, startPtr, endPtr, &done)) {
             *startPtr = last->start();
             *endPtr = last->end();
@@ -48,7 +48,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
                 SkTSwap<int>(sumMiWinding, sumSuWinding);
             }
         }
-        SkOpSegment* first = NULL;
+        SkOpSegment* first = nullptr;
         const SkOpAngle* firstAngle = angle;
         while ((angle = angle->next()) != firstAngle) {
             segment = angle->segment();
@@ -81,7 +81,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
             return first;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
@@ -304,5 +304,5 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
 }
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
-    return OpDebug(one, two, op, result, true  SkDEBUGPARAMS(NULL));
+    return OpDebug(one, two, op, result, true  SkDEBUGPARAMS(nullptr));
 }

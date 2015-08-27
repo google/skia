@@ -68,10 +68,10 @@ protected:
     }
 
     void buildRgn(SkAAClip* clip, SkRegion::Op op) {
-        clip->setPath(fBasePath, NULL, true);
+        clip->setPath(fBasePath, nullptr, true);
 
         SkAAClip clip2;
-        clip2.setPath(fRectPath, NULL, true);
+        clip2.setPath(fRectPath, nullptr, true);
         clip->op(clip2, op);
     }
 

@@ -105,7 +105,7 @@ size_t SkMemberInfo::getSize(const SkDisplayable* displayable) const {
             break;
         case SkType_Array: {
             SkDisplayTypes type;
-            if (displayable == NULL)
+            if (displayable == nullptr)
                 return sizeof(int);
             if (displayable->getType() == SkType_Array) {
                 SkDisplayArray* dispArray = (SkDisplayArray*) displayable;
@@ -191,9 +191,9 @@ bool SkMemberInfo::setValue(SkAnimateMaker& maker, SkTDOperandArray* arrayStorag
     SkDisplayTypes type = getType();
     SkAnimatorScript engine(maker, displayable, type);
     if (arrayStorage)
-        displayable = NULL;
+        displayable = nullptr;
     bool success = true;
-    void* untypedStorage = NULL;
+    void* untypedStorage = nullptr;
     if (displayable && fType != SkType_MemberProperty && fType != SkType_MemberFunction)
         untypedStorage = (SkTDOperandArray*) memberData(displayable);
 
@@ -201,7 +201,7 @@ bool SkMemberInfo::setValue(SkAnimateMaker& maker, SkTDOperandArray* arrayStorag
         // for both SpiderMonkey and SkiaScript, substitute any #xyz or #xxyyzz first
             // it's enough to expand the colors into 0xFFxxyyzz
         const char* poundPos;
-        while ((poundPos = strchr(valueStr.c_str(), '#')) != NULL) {
+        while ((poundPos = strchr(valueStr.c_str(), '#')) != nullptr) {
             size_t offset = poundPos - valueStr.c_str();
             if (valueStr.size() - offset < 4)
                 break;
@@ -258,7 +258,7 @@ scriptCommon: {
             SkASSERT(success);
             if (scriptValue.fType == SkType_Displayable) {
                 if (type == SkType_String) {
-                    const char* charPtr = NULL;
+                    const char* charPtr = nullptr;
                     maker.findKey(scriptValue.fOperand.fDisplayable, &charPtr);
                     scriptValue.fOperand.fString = new SkString(charPtr);
                     scriptValue.fType = SkType_String;
@@ -358,7 +358,7 @@ bool SkMemberInfo::writeValue(SkDisplayable* displayable, SkTDOperandArray* arra
     SkScriptValue& scriptValue) const
 {
     SkOperand* storage = untypedStorage ? (SkOperand*) untypedStorage : arrayStorage ?
-        arrayStorage->begin() : NULL;
+        arrayStorage->begin() : nullptr;
     if (storage)
         storage += storageOffset;
     SkDisplayTypes type = getType();
@@ -386,7 +386,7 @@ bool SkMemberInfo::writeValue(SkDisplayable* displayable, SkTDOperandArray* arra
     } else if (fType == SkType_MemberFunction) {
         SkASSERT(scriptValue.fType == SkType_Array);
         if (displayable)
-            displayable->executeFunction(displayable, this, scriptValue.fOperand.fArray, NULL);
+            displayable->executeFunction(displayable, this, scriptValue.fOperand.fArray, nullptr);
         else {
             int count = scriptValue.fOperand.fArray->count();
     //      SkASSERT(maxStorage == 0 || count == maxStorage);
@@ -426,7 +426,7 @@ bool SkMemberInfo::writeValue(SkDisplayable* displayable, SkTDOperandArray* arra
         SkTypedArray* array = scriptValue.fOperand.fArray;
         SkASSERT(scriptValue.fType == SkType_Int || scriptValue.fType == SkType_ARGB ||
             scriptValue.fType == SkType_Array);
-        SkASSERT(scriptValue.fType != SkType_Array || (array != NULL &&
+        SkASSERT(scriptValue.fType != SkType_Array || (array != nullptr &&
             array->getType() == SkType_Int));
         int numberOfColors = scriptValue.fType == SkType_Array ? array->count() : 1;
         int numberOfComponents = numberOfColors * 4;
@@ -442,7 +442,7 @@ bool SkMemberInfo::writeValue(SkDisplayable* displayable, SkTDOperandArray* arra
             storage[3].fScalar = SkIntToScalar(SkColorGetB(color));
             storage += 4;
         }
-    } else if (SkDisplayType::IsStruct(NULL /* !!! maker*/, type)) {
+    } else if (SkDisplayType::IsStruct(nullptr /* !!! maker*/, type)) {
         if (scriptValue.fType != SkType_Array)
             return true;    // error
         SkASSERT(sizeof(SkScalar) == sizeof(SkOperand)); // !!! no 64 bit pointer support yet
@@ -486,17 +486,17 @@ const SkMemberInfo* SkMemberInfo::Find(const SkMemberInfo info[], int count, int
     if (info->fType == SkType_BaseClassInfo) {
         const SkMemberInfo* inherited = (SkMemberInfo*) info->fName;
         const SkMemberInfo* result = SkMemberInfo::Find(inherited, info->fCount, index);
-        if (result != NULL)
+        if (result != nullptr)
             return result;
         if (--count == 0)
-            return NULL;
+            return nullptr;
         info++;
     }
     SkASSERT(info->fName);
     SkASSERT(info->fType != SkType_BaseClassInfo);
     if (*index >= count) {
         *index -= count;
-        return NULL;
+        return nullptr;
     }
     return &info[*index];
 }
@@ -507,17 +507,17 @@ const SkMemberInfo* SkMemberInfo::Find(const SkMemberInfo info[], int count, con
     if (info->fType == SkType_BaseClassInfo) {
         const SkMemberInfo* inherited = (SkMemberInfo*) info->fName;
         const SkMemberInfo* result = SkMemberInfo::Find(inherited, info->fCount, matchPtr);
-        if (result != NULL)
+        if (result != nullptr)
             return result;
         if (--count == 0)
-            return NULL;
+            return nullptr;
         info++;
     }
     SkASSERT(info->fName);
     SkASSERT(info->fType != SkType_BaseClassInfo);
     int index = SkStrSearch(&info->fName, count, match, sizeof(*info));
     if (index < 0 || index >= count)
-        return NULL;
+        return nullptr;
     return &info[index];
 }
 

@@ -84,7 +84,7 @@ SkCodec* SkBmpCodec::NewFromIco(SkStream* stream) {
 /*
  * Read enough of the stream to initialize the SkBmpCodec. Returns a bool
  * representing success or failure. If it returned true, and codecOut was
- * not NULL, it will be set to a new SkBmpCodec.
+ * not nullptr, it will be set to a new SkBmpCodec.
  * Does *not* take ownership of the passed in SkStream.
  */
 bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
@@ -441,7 +441,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     // Check that input bit masks are valid and create the masks object
     SkAutoTDelete<SkMasks>
             masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
-    if (NULL == masks) {
+    if (nullptr == masks) {
         SkCodecPrintf("Error: invalid input masks.\n");
         return false;
     }
@@ -514,7 +514,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
  */
 SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
     SkAutoTDelete<SkStream> streamDeleter(stream);
-    SkCodec* codec = NULL;
+    SkCodec* codec = nullptr;
     if (ReadHeader(stream, inIco, &codec)) {
         // codec has taken ownership of stream, so we do not need to
         // delete it.
@@ -522,7 +522,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
         streamDeleter.detach();
         return codec;
     }
-    return NULL;
+    return nullptr;
 }
 
 SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
@@ -533,7 +533,7 @@ SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
 {}
 
 bool SkBmpCodec::onRewind() {
-    return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), NULL);
+    return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr);
 }
 
 /*

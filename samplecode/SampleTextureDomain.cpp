@@ -85,11 +85,11 @@ protected:
         paint.setMaskFilter(mf)->unref();
         canvas->drawImageRect(image, srcRect, dstRect, &paint);
 
-        // Blur and a rotation + NULL src rect
+        // Blur and a rotation + nullptr src rect
         // This should not trigger the texture domain code
         // but it will test a code path in SkGpuDevice::drawBitmap
         // that handles blurs with rects transformed to non-
-        // orthogonal rects. It also tests the NULL src rect handling
+        // orthogonal rects. It also tests the nullptr src rect handling
         mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                       SkBlurMask::ConvertRadiusToSigma(5),
                                       SkBlurMaskFilter::kHighQuality_BlurFlag);

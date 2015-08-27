@@ -27,7 +27,7 @@ SkTDMemberInfoArray gUnknowns;
 SkTDIntArray gUnknownsCounts;
 
 static void AddInfo(SkDisplayTypes type, const SkMemberInfo* info, int infoCount) {
-    SkASSERT(gInfos[type] == NULL);
+    SkASSERT(gInfos[type] == nullptr);
     gInfos[type] = info;
     gInfosCounts[type] = infoCount;
     *gInfosTypeIDs.append() = type;
@@ -111,7 +111,7 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
     int index, infoCount;
     for (index = 0; index < kTypeNamesSize; index++) {
         const SkMemberInfo* info = GetMembers(maker, gTypeNames[index].fType, &infoCount);
-        if (info == NULL)
+        if (info == nullptr)
             continue;
         AddInfo(gTypeNames[index].fType, info, infoCount);
     }
@@ -131,7 +131,7 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
                 int typeIndex = 0;
                 for (; typeIndex < kNumberOfTypes; typeIndex++) {
                     const SkMemberInfo* temp = SkDisplayType::GetMembers(
-                        maker, (SkDisplayTypes) typeIndex, NULL);
+                        maker, (SkDisplayTypes) typeIndex, nullptr);
                     if (temp == info)
                         break;
                 }
@@ -160,7 +160,7 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
     int unknown = 1;
     for (index = 0; index < gInfos.count(); index++) {
         const SkMemberInfo* info = gInfos[index];
-        if (info == NULL)
+        if (info == nullptr)
             continue;
         char scratch[64];
         bool drawPrefix, displayPrefix;
@@ -183,7 +183,7 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
     unknown = 1;
     for (index = 0; index < gInfos.count(); index++) {
         const SkMemberInfo* info = gInfos[index];
-        if (info == NULL)
+        if (info == nullptr)
             continue;
         char scratch[64];
         bool drawPrefix, displayPrefix;
@@ -229,7 +229,7 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
     unknown = 1;
     for (index = 0; index < gInfosCounts.count(); index++) {
         const SkMemberInfo* info = gInfos[index];
-        if (info == NULL)
+        if (info == nullptr)
             continue;
         typeIDCount++;
         char scratch[64];
@@ -251,7 +251,7 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
     written = 0;
     for (index = 0; index < gInfosCounts.count(); index++) {
         const SkMemberInfo* info = gInfos[index];
-        if (info == NULL)
+        if (info == nullptr)
             continue;
         if (written > 0)
                 putc(',', condensed);

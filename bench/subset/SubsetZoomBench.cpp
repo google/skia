@@ -64,7 +64,7 @@ void SubsetZoomBench::onDraw(const int n, SkCanvas* canvas) {
                     SkScanlineDecoder::NewFromStream(fStream->duplicate()));
             const SkImageInfo info = scanlineDecoder->getInfo().makeColorType(fColorType);
             SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-            scanlineDecoder->start(info, NULL, colors, &colorCount);
+            scanlineDecoder->start(info, nullptr, colors, &colorCount);
 
             const int centerX = info.width() / 2;
             const int centerY = info.height() / 2;

@@ -41,24 +41,24 @@ namespace DM {
 GMSrc::GMSrc(skiagm::GMRegistry::Factory factory) : fFactory(factory) {}
 
 Error GMSrc::draw(SkCanvas* canvas) const {
-    SkAutoTDelete<skiagm::GM> gm(fFactory(NULL));
+    SkAutoTDelete<skiagm::GM> gm(fFactory(nullptr));
     canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);
     return "";
 }
 
 SkISize GMSrc::size() const {
-    SkAutoTDelete<skiagm::GM> gm(fFactory(NULL));
+    SkAutoTDelete<skiagm::GM> gm(fFactory(nullptr));
     return gm->getISize();
 }
 
 Name GMSrc::name() const {
-    SkAutoTDelete<skiagm::GM> gm(fFactory(NULL));
+    SkAutoTDelete<skiagm::GM> gm(fFactory(nullptr));
     return gm->getName();
 }
 
 void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
-    SkAutoTDelete<skiagm::GM> gm(fFactory(NULL));
+    SkAutoTDelete<skiagm::GM> gm(fFactory(nullptr));
     gm->modifyGrContextOptions(options);
 }
 
@@ -85,10 +85,10 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
     SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromData(encoded));
-    if (NULL == codec.get()) {
+    if (nullptr == codec.get()) {
         // scaledCodec not supported, try normal codec
         codec.reset(SkCodec::NewFromData(encoded));
-        if (NULL == codec.get()) {
+        if (nullptr == codec.get()) {
             return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
         }
     }
@@ -128,9 +128,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
     // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(NULL);
-    SkPMColor* colorPtr = NULL;
-    int* colorCountPtr = NULL;
+    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    SkPMColor* colorPtr = nullptr;
+    int* colorCountPtr = nullptr;
     int maxColors = 256;
     if (kIndex_8_SkColorType == decodeInfo.colorType()) {
         SkPMColor colors[256];
@@ -145,14 +145,14 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     }
 
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(decodeInfo, NULL, colorTable.get())) {
+    if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
 
     switch (fMode) {
         case kNormal_Mode: {
-            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), NULL,
+            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), nullptr,
                     colorPtr, colorCountPtr)) {
                 case SkCodec::kSuccess:
                     // We consider incomplete to be valid, since we should still decode what is
@@ -171,8 +171,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         case kScanline_Mode: {
             SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
                     SkScanlineDecoder::NewFromData(encoded));
-            if (NULL == scanlineDecoder || SkCodec::kSuccess !=
-                    scanlineDecoder->start(decodeInfo, NULL, colorPtr, colorCountPtr)) {
+            if (nullptr == scanlineDecoder || SkCodec::kSuccess !=
+                    scanlineDecoder->start(decodeInfo, nullptr, colorPtr, colorCountPtr)) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }
 
@@ -215,7 +215,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             SkImageInfo largestSubsetDecodeInfo =
                     decodeInfo.makeWH(subsetWidth + extraX, subsetHeight + extraY);
             SkBitmap largestSubsetBm;
-            if (!largestSubsetBm.tryAllocPixels(largestSubsetDecodeInfo, NULL, colorTable.get())) {
+            if (!largestSubsetBm.tryAllocPixels(largestSubsetDecodeInfo, nullptr, colorTable.get())) {
                 return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
                         largestSubsetDecodeInfo.width(), largestSubsetDecodeInfo.height());
             }
@@ -235,15 +235,15 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     //create scanline decoder for each subset
                     SkAutoTDelete<SkScanlineDecoder> subsetScanlineDecoder(
                             SkScanlineDecoder::NewFromData(encoded));
-                    if (NULL == subsetScanlineDecoder || SkCodec::kSuccess !=
+                    if (nullptr == subsetScanlineDecoder || SkCodec::kSuccess !=
                             subsetScanlineDecoder->start(
-                            decodeInfo, NULL, colorPtr, colorCountPtr))
+                            decodeInfo, nullptr, colorPtr, colorCountPtr))
                     {
                         if (x == 0 && y == 0) {
                             //first try, image may not be compatible
                             return Error::Nonfatal("Cannot use scanline decoder for all images");
                         } else {
-                            return "Error scanline decoder is NULL";
+                            return "Error scanline decoder is nullptr";
                         }
                     }
                     //skip to first line of subset
@@ -305,8 +305,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
             // Decode odd stripes
             SkAutoTDelete<SkScanlineDecoder> decoder(SkScanlineDecoder::NewFromData(encoded));
-            if (NULL == decoder || SkCodec::kSuccess !=
-                    decoder->start(decodeInfo, NULL, colorPtr, colorCountPtr)) {
+            if (nullptr == decoder || SkCodec::kSuccess !=
+                    decoder->start(decodeInfo, nullptr, colorPtr, colorCountPtr)) {
                 return Error::Nonfatal("Cannot use scanline decoder for all images");
             }
             for (int i = 0; i < numStripes; i += 2) {
@@ -338,7 +338,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             // Decode even stripes
-            const SkCodec::Result startResult = decoder->start(decodeInfo, NULL, colorPtr,
+            const SkCodec::Result startResult = decoder->start(decodeInfo, nullptr, colorPtr,
                                                                colorCountPtr);
             if (SkCodec::kSuccess != startResult) {
                 return "Failed to restart scanline decoder with same parameters.";
@@ -412,7 +412,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                                    SkScalarRoundToInt(preScaleH * fScale));
                     size_t rowBytes = decodeInfo.minRowBytes();
                     if (!subsetBm.installPixels(decodeInfo, pixels, rowBytes, colorTable.get(),
-                                                NULL, NULL)) {
+                                                nullptr, nullptr)) {
                         return SkStringPrintf("could not install pixels for %s.", fPath.c_str());
                     }
                     const SkCodec::Result result = codec->getPixels(decodeInfo, pixels, rowBytes,
@@ -457,10 +457,10 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 SkISize CodecSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromData(encoded));
-    if (NULL == codec) {
+    if (nullptr == codec) {
         // scaledCodec not supported, try regular codec
         codec.reset(SkCodec::NewFromData(encoded));
-        if (NULL == codec) {
+        if (nullptr == codec) {
             return SkISize::Make(0, 0);
         }
     }
@@ -504,7 +504,7 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
             // Do not draw a bitmap with alpha to a destination without alpha.
             return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
         }
-        encoded.reset((SkData*)NULL);  // Might as well drop this when we're done with it.
+        encoded.reset((SkData*)nullptr);  // Might as well drop this when we're done with it.
         canvas->drawBitmap(bitmap, 0,0);
         return "";
     }
@@ -582,7 +582,7 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
     if (!pic) {
         return SkStringPrintf("Couldn't decode %s as a picture.", fPath.c_str());
     }
-    stream.reset((SkStream*)NULL);  // Might as well drop this when we're done with it.
+    stream.reset((SkStream*)nullptr);  // Might as well drop this when we're done with it.
 
     canvas->clipRect(kSKPViewport);
     canvas->drawPicture(pic);
@@ -649,7 +649,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         return "Could not create a surface.";
     }
     if (FLAGS_preAbandonGpuContext) {
-        SkSetErrorCallback(&PreAbandonGpuContextErrorHandler, NULL);
+        SkSetErrorCallback(&PreAbandonGpuContextErrorHandler, nullptr);
         factory.abandonContexts();
     }
     SkCanvas* canvas = surface->getCanvas();
@@ -694,7 +694,7 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
                 SkCanvas* canvas =
                         doc->beginPage(SkIntToScalar(w), SkIntToScalar(h));
                 if (!canvas) {
-                    return "SkDocument::beginPage(w,h) returned NULL";
+                    return "SkDocument::beginPage(w,h) returned nullptr";
                 }
                 canvas->clipRect(letter);
                 canvas->translate(-letter.width() * x, -letter.height() * y);
@@ -709,7 +709,7 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
         SkCanvas* canvas =
                 doc->beginPage(SkIntToScalar(width), SkIntToScalar(height));
         if (!canvas) {
-            return "SkDocument::beginPage(w,h) returned NULL";
+            return "SkDocument::beginPage(w,h) returned nullptr";
         }
         Error err = src.draw(canvas);
         if (!err.isEmpty()) {
@@ -729,7 +729,7 @@ PDFSink::PDFSink() {}
 Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
     SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(dst));
     if (!doc) {
-        return "SkDocument::CreatePDF() returned NULL";
+        return "SkDocument::CreatePDF() returned nullptr";
     }
     return draw_skdocument(src, doc.get(), dst);
 }
@@ -741,7 +741,7 @@ XPSSink::XPSSink() {}
 Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
     SkAutoTUnref<SkDocument> doc(SkDocument::CreateXPS(dst));
     if (!doc) {
-        return "SkDocument::CreateXPS() returned NULL";
+        return "SkDocument::CreateXPS() returned nullptr";
     }
     return draw_skdocument(src, doc.get(), dst);
 }

@@ -151,7 +151,7 @@ void SkCachedData::inMutexLock() {
                 SkASSERT(ptr);
                 this->setData(ptr);
             } else {
-                this->setData(NULL);   // signal failure to lock, contents are gone
+                this->setData(nullptr);   // signal failure to lock, contents are gone
             }
             break;
     }
@@ -173,7 +173,7 @@ void SkCachedData::inMutexUnlock() {
             }
             break;
     }
-    this->setData(NULL);   // signal that we're in an unlocked state
+    this->setData(nullptr);   // signal that we're in an unlocked state
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,7 +192,7 @@ void SkCachedData::validate() const {
         }
     } else {
         SkASSERT((fInCache && 1 == fRefCnt) || (0 == fRefCnt));
-        SkASSERT(NULL == fData);
+        SkASSERT(nullptr == fData);
     }
 }
 #endif

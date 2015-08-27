@@ -44,7 +44,7 @@ void FixWinding(SkPath* path) {
     }
     SkChunkAlloc allocator(4096);
     SkOpContourHead contourHead;
-    SkOpGlobalState globalState(NULL, &contourHead  SkDEBUGPARAMS(NULL));
+    SkOpGlobalState globalState(nullptr, &contourHead  SkDEBUGPARAMS(nullptr));
     SkOpEdgeBuilder builder(*path, &contourHead, &allocator, &globalState);
     builder.finish(&allocator);
     SkASSERT(contourHead.next());

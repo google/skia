@@ -15,7 +15,7 @@ static void make_bm(SkBitmap* bm, int width, int height, SkColor colors[2]) {
     SkCanvas canvas(*bm);
     SkPoint center = {SkIntToScalar(width)/2, SkIntToScalar(height)/2};
     SkScalar radius = 40;
-    SkShader* shader = SkGradientShader::CreateRadial(center, radius, colors, NULL, 2,
+    SkShader* shader = SkGradientShader::CreateRadial(center, radius, colors, nullptr, 2,
                                                       SkShader::kMirror_TileMode);
     SkPaint paint;
     paint.setShader(shader)->unref();
@@ -39,13 +39,13 @@ static void show_bm(SkCanvas* canvas, int width, int height, SkColor colors[2]) 
 
     canvas->save();
     canvas->clipRect(r);
-    canvas->drawBitmap(bm, 0, 0, NULL);
+    canvas->drawBitmap(bm, 0, 0, nullptr);
     canvas->restore();
     canvas->drawRect(r, paint);
 
     r.offset(SkIntToScalar(150), 0);
     // exercises extract bitmap, but not shader
-    canvas->drawBitmapRect(bm, ir, r, NULL);
+    canvas->drawBitmapRect(bm, ir, r, nullptr);
     canvas->drawRect(r, paint);
 
     r.offset(SkIntToScalar(150), 0);

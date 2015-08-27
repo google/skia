@@ -18,10 +18,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypefacePlayback::SkTypefacePlayback() : fCount(0), fArray(NULL) {}
+SkTypefacePlayback::SkTypefacePlayback() : fCount(0), fArray(nullptr) {}
 
 SkTypefacePlayback::~SkTypefacePlayback() {
-    this->reset(NULL);
+    this->reset(nullptr);
 }
 
 void SkTypefacePlayback::reset(const SkRefCntSet* rec) {
@@ -31,7 +31,7 @@ void SkTypefacePlayback::reset(const SkRefCntSet* rec) {
     }
     delete[] fArray;
 
-    if (rec!= NULL && rec->count() > 0) {
+    if (rec!= nullptr && rec->count() > 0) {
         fCount = rec->count();
         fArray = new SkRefCnt* [fCount];
         rec->copyToArray(fArray);
@@ -40,12 +40,12 @@ void SkTypefacePlayback::reset(const SkRefCntSet* rec) {
         }
     } else {
         fCount = 0;
-        fArray = NULL;
+        fArray = nullptr;
     }
 }
 
 void SkTypefacePlayback::setCount(int count) {
-    this->reset(NULL);
+    this->reset(nullptr);
 
     fCount = count;
     fArray = new SkRefCnt* [count];
@@ -61,10 +61,10 @@ SkRefCnt* SkTypefacePlayback::set(int index, SkRefCnt* obj) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlatController::SkFlatController(uint32_t writeBufferFlags)
-: fBitmapHeap(NULL)
-, fTypefaceSet(NULL)
-, fTypefacePlayback(NULL)
-, fFactorySet(NULL)
+: fBitmapHeap(nullptr)
+, fTypefaceSet(nullptr)
+, fTypefacePlayback(nullptr)
+, fFactorySet(nullptr)
 , fWriteBufferFlags(writeBufferFlags) {}
 
 SkFlatController::~SkFlatController() {

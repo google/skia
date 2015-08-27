@@ -642,7 +642,7 @@ const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetString(GrGLenum name) {
             return (const GrGLubyte*)"The Debug (Non-)Renderer";
         default:
             SkFAIL("Unexpected name passed to GetString");
-            return NULL;
+            return nullptr;
    }
 }
 
@@ -652,11 +652,11 @@ const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetStringi(GrGLenum name, GrGLuint i)
             if (static_cast<size_t>(i) <= SK_ARRAY_COUNT(kExtensions)) {
                 return (const GrGLubyte*) kExtensions[i];
             } else {
-                return NULL;
+                return nullptr;
             }
         default:
             SkFAIL("Unexpected name passed to GetStringi");
-            return NULL;
+            return nullptr;
     }
 }
 

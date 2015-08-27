@@ -39,7 +39,7 @@ static SkBitmap load_bitmap() {
     SkBitmap bm;
     SkString pngFilename = GetResourcePath("mandrill_512.png");
     SkAutoDataUnref data(SkData::NewFromFileName(pngFilename.c_str()));
-    if (data.get() != NULL) {
+    if (data.get() != nullptr) {
         SkInstallDiscardablePixelRef(data, &bm);
     }
     return bm;
@@ -63,14 +63,14 @@ public:
 
         SkPictureRecorder recorder;
 
-        recorder.beginRecording(100, 100, NULL, 0);
+        recorder.beginRecording(100, 100, nullptr, 0);
         fSubPicture = recorder.endRecording();
 
-        SkCanvas* canvas = recorder.beginRecording(100, 100, NULL, 0);
+        SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        canvas->drawBitmap(fBitmap, 0, 0, NULL);
+        canvas->drawBitmap(fBitmap, 0, 0, nullptr);
 
         drawCircle(canvas, 50, SK_ColorBLACK);
         canvas->drawPicture(fSubPicture);
@@ -108,7 +108,7 @@ protected:
 
         canvas->save();
         canvas->scale(0.5f, 0.5f);
-        canvas->drawBitmap(fBitmap, 0, 0, NULL);
+        canvas->drawBitmap(fBitmap, 0, 0, nullptr);
         canvas->restore();
 
         paint.setAntiAlias(true);
@@ -127,7 +127,7 @@ protected:
         this->drawSomething(canvas);
 
         SkPictureRecorder recorder;
-        this->drawSomething(recorder.beginRecording(100, 100, NULL, 0));
+        this->drawSomething(recorder.beginRecording(100, 100, nullptr, 0));
         SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         canvas->save();
@@ -161,7 +161,7 @@ private:
 
     bool onEvent(const SkEvent& evt) override {
         if (evt.isType(INVAL_ALL_TYPE)) {
-            this->inval(NULL);
+            this->inval(nullptr);
             return true;
         }
         return this->INHERITED::onEvent(evt);

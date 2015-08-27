@@ -130,7 +130,7 @@ void GrLayerHoister::FindLayersToAtlas(GrContext* context,
     GrLayerCache* layerCache = context->getLayerCache();
     layerCache->processDeletedPictures();
 
-    const SkBigPicture::AccelData* topLevelData = NULL;
+    const SkBigPicture::AccelData* topLevelData = nullptr;
     if (const SkBigPicture* bp = topLevelPicture->asSkBigPicture()) {
         topLevelData = bp->accelData();
     }
@@ -188,7 +188,7 @@ void GrLayerHoister::FindLayersToHoist(GrContext* context,
 
     layerCache->processDeletedPictures();
 
-    const SkBigPicture::AccelData* topLevelData = NULL;
+    const SkBigPicture::AccelData* topLevelData = nullptr;
     if (const SkBigPicture* bp = topLevelPicture->asSkBigPicture()) {
         topLevelData = bp->accelData();
     }

@@ -71,7 +71,7 @@ protected:
 
     void onDraw(const int loops, SkCanvas* canvas) override {
         SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
-        if (NULL == context) {
+        if (nullptr == context) {
             return;
         }
         // Set the cache budget to be very large so no purging occurs.

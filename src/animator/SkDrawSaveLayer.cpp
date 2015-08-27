@@ -24,7 +24,7 @@ const SkMemberInfo SkSaveLayer::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkSaveLayer);
 
-SkSaveLayer::SkSaveLayer() : paint(NULL), bounds(NULL) {
+SkSaveLayer::SkSaveLayer() : paint(nullptr), bounds(nullptr) {
 }
 
 SkSaveLayer::~SkSaveLayer(){

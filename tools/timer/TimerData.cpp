@@ -19,7 +19,7 @@ TimerData::TimerData(int maxNumTimings)
     , fGpuTimes(maxNumTimings) {}
 
 bool TimerData::appendTimes(Timer* timer) {
-    SkASSERT(timer != NULL);
+    SkASSERT(timer != nullptr);
     if (fCurrTiming >= fMaxNumTimings) {
         return false;
     }

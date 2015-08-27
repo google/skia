@@ -41,7 +41,7 @@ static inline void alloc_pixels(SkBitmap* bitmap, const SkImageInfo& info, SkPMC
         int colorCount) {
     if (kIndex_8_SkColorType == info.colorType()) {
         SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colors, colorCount));
-        bitmap->allocPixels(info, NULL, colorTable);
+        bitmap->allocPixels(info, nullptr, colorTable);
     } else {
         bitmap->allocPixels(info);
     }

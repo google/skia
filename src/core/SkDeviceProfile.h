@@ -52,7 +52,7 @@ public:
 
     /**
      *  Returns the global default profile, that is used if no global profile is
-     *  specified with SetGlobal(), or if NULL is specified to SetGlobal().
+     *  specified with SetGlobal(), or if nullptr is specified to SetGlobal().
      *  The references count is *not* incremented, and the caller should not
      *  call unref().
      */
@@ -69,7 +69,7 @@ public:
      *  Make the specified profile be the global value for all subsequently
      *  instantiated devices. Does not affect any existing devices.
      *  Increments the reference count on the profile.
-     *  Specify NULL for the "identity" profile (where there is no gamma or
+     *  Specify nullptr for the "identity" profile (where there is no gamma or
      *  contrast correction).
      */
     static void SetGlobal(SkDeviceProfile*);

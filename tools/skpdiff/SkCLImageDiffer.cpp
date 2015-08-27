@@ -60,15 +60,15 @@ bool SkCLImageDiffer::loadKernelStream(SkStream* stream, const char name[], cl_k
 bool SkCLImageDiffer::loadKernelSource(const char source[], const char name[], cl_kernel* kernel) {
     // Build the kernel source
     size_t sourceLen = strlen(source);
-    cl_program program = clCreateProgramWithSource(fContext, 1, &source, &sourceLen, NULL);
-    cl_int programErr = clBuildProgram(program, 1, &fDevice, "", NULL, NULL);
+    cl_program program = clCreateProgramWithSource(fContext, 1, &source, &sourceLen, nullptr);
+    cl_int programErr = clBuildProgram(program, 1, &fDevice, "", nullptr, nullptr);
     if (CL_SUCCESS != programErr) {
         SkDebugf("Program creation failed: %s\n", cl_error_to_string(programErr));
 
         // Attempt to get information about why the build failed
         char buildLog[4096];
         clGetProgramBuildInfo(program, fDevice, CL_PROGRAM_BUILD_LOG, sizeof(buildLog),
-                              buildLog, NULL);
+                              buildLog, nullptr);
         SkDebugf("Build log: %s\n", buildLog);
 
         return false;

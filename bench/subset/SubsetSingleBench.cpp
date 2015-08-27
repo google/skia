@@ -68,7 +68,7 @@ void SubsetSingleBench::onDraw(const int n, SkCanvas* canvas) {
                     SkScanlineDecoder::NewFromStream(fStream->duplicate()));
             const SkImageInfo info = scanlineDecoder->getInfo().makeColorType(fColorType);
             SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-            scanlineDecoder->start(info, NULL, colors, &colorCount);
+            scanlineDecoder->start(info, nullptr, colors, &colorCount);
 
             SkBitmap bitmap;
             SkImageInfo subsetInfo = info.makeWH(fSubsetWidth, fSubsetHeight);

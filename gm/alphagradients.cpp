@@ -28,12 +28,12 @@ protected:
         SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fBottom } };
         SkPaint paint;
         uint32_t flags = doPreMul ? SkGradientShader::kInterpolateColorsInPremul_Flag : 0;
-        SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2,
-                                                     SkShader::kClamp_TileMode, flags, NULL);
+        SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
+                                                     SkShader::kClamp_TileMode, flags, nullptr);
         paint.setShader(s)->unref();
         canvas->drawRect(r, paint);
 
-        paint.setShader(NULL);
+        paint.setShader(nullptr);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect(r, paint);
     }

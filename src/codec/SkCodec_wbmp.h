@@ -36,7 +36,7 @@ protected:
     bool onRewind() override;
 private:
     /*
-     * Returns a swizzler on success, NULL on failure
+     * Returns a swizzler on success, nullptr on failure
      */
     SkSwizzler* initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
                                    const Options& opts);

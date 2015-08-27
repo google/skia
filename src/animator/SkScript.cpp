@@ -386,7 +386,7 @@ bool SkScriptEngine::evaluateDotParam(const char*& script, bool suppressed,
         const char* field, size_t fieldLength) {
     void* object;
     if (suppressed)
-        object = NULL;
+        object = nullptr;
     else {
         if (fTypeStack.top() != kObject) {
             fError = kDotOperatorExpectsObject;
@@ -492,7 +492,7 @@ bool SkScriptEngine::functionParams(const char** scriptPtr, SkTDArray<SkScriptVa
     SkBool suppressed = fSuppressStack.top().fSuppress;
     do {
         SkScriptValue value;
-        bool success = innerScript(scriptPtr, suppressed ? NULL : &value);
+        bool success = innerScript(scriptPtr, suppressed ? nullptr : &value);
         if (success == false) {
             fError = kErrorInFunctionParameters;
             return false;
@@ -559,7 +559,7 @@ bool SkScriptEngine::innerScript(const char** scriptPtr, SkScriptValue* value) {
                             if (convertTo(tokenInfo->getType(), &tokenValue) == false)
                                 return false;
                         }
-                        tokenInfo->writeValue(fDisplayable, NULL, 0, 0,
+                        tokenInfo->writeValue(fDisplayable, nullptr, 0, 0,
                             (void*) ((char*) fInfo->memberData(fDisplayable) + tokenInfo->fOffset + fArrayOffset),
                             tokenInfo->getType(), tokenValue);
                     }
@@ -635,7 +635,7 @@ bool SkScriptEngine::innerScript(const char** scriptPtr, SkScriptValue* value) {
             }
             script += 2;
             script = SkParse::FindHex(script, (uint32_t*)&operand.fS32);
-            if (script == NULL) {
+            if (script == nullptr) {
                 fError = kExpectedHex;
                 return false;
             }
@@ -711,7 +711,7 @@ scalarCommon:
         if (ch ==  '.') {
             if (fTokenLength == 0) {
                 SkScriptValue scriptValue;
-                SkDEBUGCODE(scriptValue.fOperand.fObject = NULL);
+                SkDEBUGCODE(scriptValue.fOperand.fObject = nullptr);
                 int tokenLength = token_length(++script);
                 const char* token = script;
                 script += tokenLength;
@@ -880,7 +880,7 @@ bool SkScriptEngine::handleArrayIndexer(const char** scriptPtr, bool suppressed)
     *fBraceStack.push() = kArrayBrace;
     SkOpType saveType = fReturnType;
     fReturnType = kInt;
-    bool success = innerScript(scriptPtr, suppressed == false ? &scriptValue : NULL);
+    bool success = innerScript(scriptPtr, suppressed == false ? &scriptValue : nullptr);
     if (success == false)
         return false;
     fReturnType = saveType;
@@ -1037,7 +1037,7 @@ bool SkScriptEngine::handleProperty(bool suppressed) {
             success = (*callBack->fPropertyCallBack)(fToken, fTokenLength,
                 callBack->fUserStorage, &callbackResult);
             if (success) {
-                if (callbackResult.fType == SkType_String && callbackResult.fOperand.fString == NULL) {
+                if (callbackResult.fType == SkType_String && callbackResult.fOperand.fString == nullptr) {
                     callbackResult.fOperand.fString = new SkString(fToken, fTokenLength);
                     track(callbackResult.fOperand.fString);
                 }
@@ -1317,7 +1317,7 @@ bool SkScriptEngine::processOp() {
         if ((type1 & attributes->fLeftType) == 0 || type1 != type2) {
             if (type1 == kString) {
                 const char* result = SkParse::FindScalar(operand1.fString->c_str(), &operand1.fScalar);
-                if (result == NULL) {
+                if (result == nullptr) {
                     fError = kExpectedNumber;
                     return false;
                 }
@@ -1332,7 +1332,7 @@ bool SkScriptEngine::processOp() {
     if ((type2 & attributes->fRightType) == 0 || type1 != type2) {
         if (type2 == kString) {
             const char* result = SkParse::FindScalar(operand2.fString->c_str(), &operand2.fScalar);
-            if (result == NULL) {
+            if (result == nullptr) {
                 fError = kExpectedNumber;
                 return false;
             }
@@ -1487,7 +1487,7 @@ void SkScriptEngine::unboxCallBack(_unboxCallBack func, void* userStorage) {
 
 bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, SkScriptValue* value ) {
     SkASSERT(value);
-    if (SkDisplayType::IsEnum(NULL /* fMaker */, toType))
+    if (SkDisplayType::IsEnum(nullptr /* fMaker */, toType))
         toType = SkType_Int;
     if (toType == SkType_Point || toType == SkType_3D_Point)
         toType = SkType_Float;
@@ -1509,7 +1509,7 @@ bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, Sk
                     success = false;
                     break; // error
                 }
-                success = SkParse::FindS32(operand.fString->c_str(), &operand.fS32) != NULL;
+                success = SkParse::FindS32(operand.fString->c_str(), &operand.fS32) != nullptr;
             }
             break;
         case SkType_Float:
@@ -1525,7 +1525,7 @@ bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, Sk
                     success = false;
                     break; // error
                 }
-                success = SkParse::FindScalar(operand.fString->c_str(), &operand.fScalar) != NULL;
+                success = SkParse::FindScalar(operand.fString->c_str(), &operand.fScalar) != nullptr;
             }
             break;
         case SkType_String: {
@@ -1595,9 +1595,9 @@ SkDisplayTypes SkScriptEngine::ToDisplayType(SkOpType type) {
 }
 
 SkScriptEngine::SkOpType SkScriptEngine::ToOpType(SkDisplayTypes type) {
-    if (SkDisplayType::IsDisplayable(NULL /* fMaker */, type))
+    if (SkDisplayType::IsDisplayable(nullptr /* fMaker */, type))
         return (SkOpType) kObject;
-    if (SkDisplayType::IsEnum(NULL /* fMaker */, type))
+    if (SkDisplayType::IsEnum(nullptr /* fMaker */, type))
         return kInt;
     switch (type) {
         case SkType_ARGB:
@@ -1647,7 +1647,7 @@ bool SkScriptEngine::ValueToString(SkScriptValue value, SkString* string) {
 #include "SkFloatingPoint.h"
 
 #define DEF_SCALAR_ANSWER   0
-#define DEF_STRING_ANSWER   NULL
+#define DEF_STRING_ANSWER   nullptr
 
 #define testInt(expression) { #expression, SkType_Int, expression, DEF_SCALAR_ANSWER, DEF_STRING_ANSWER }
     #define testScalar(expression) { #expression, SkType_Float, 0, (float) expression, DEF_STRING_ANSWER }

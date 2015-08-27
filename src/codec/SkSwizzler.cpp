@@ -517,13 +517,13 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        SkCodec::ZeroInitialized zeroInit, 
                                        const SkImageInfo& srcInfo) {
     if (dstInfo.colorType() == kUnknown_SkColorType || kUnknown == sc) {
-        return NULL;
+        return nullptr;
     }
     if ((kIndex == sc || kIndex4 == sc || kIndex2 == sc || kIndex1 == sc)
-            && NULL == ctable) {
-        return NULL;
+            && nullptr == ctable) {
+        return nullptr;
     }
-    RowProc proc = NULL;
+    RowProc proc = nullptr;
 
     switch (sc) {
         case kBit:
@@ -679,8 +679,8 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
         default:
             break;
     }
-    if (NULL == proc) {
-        return NULL;
+    if (nullptr == proc) {
+        return nullptr;
     }
 
     // Store deltaSrc in bytes if it is an even multiple, otherwise use bits
@@ -688,7 +688,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
 
     // get sampleX based on srcInfo and dstInfo dimensions
     int sampleX;
-    SkScaledCodec::ComputeSampleSize(dstInfo, srcInfo, &sampleX, NULL);
+    SkScaledCodec::ComputeSampleSize(dstInfo, srcInfo, &sampleX, nullptr);
 
     return new SkSwizzler(proc, ctable, deltaSrc, dstInfo, sampleX);
 }
@@ -707,13 +707,13 @@ SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable,
 }
 
 SkSwizzler::ResultAlpha SkSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
-    SkASSERT(NULL != dst && NULL != src);
+    SkASSERT(nullptr != dst && nullptr != src);
     return fRowProc(dst, src, fDstInfo.width(), fSampleX * fDeltaSrc, fX0 * fDeltaSrc, fColorTable);
 }
 
 void SkSwizzler::Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstRowBytes,
         uint32_t numRows, uint32_t colorOrIndex, const SkPMColor* colorTable) {
-    SkASSERT(dstStartRow != NULL);
+    SkASSERT(dstStartRow != nullptr);
     SkASSERT(numRows <= (uint32_t) dstInfo.height());
 
     // Calculate bytes to fill.  We use getSafeSize since the last row may not be padded.
@@ -724,7 +724,7 @@ void SkSwizzler::Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstR
         case kN32_SkColorType:
             // Assume input is an index if we have a color table
             uint32_t color;
-            if (NULL != colorTable) {
+            if (nullptr != colorTable) {
                 SkASSERT(colorOrIndex == (uint8_t) colorOrIndex);
                 color = colorTable[colorOrIndex];
             // Otherwise, assume the input is a color

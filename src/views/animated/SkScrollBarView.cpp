@@ -89,7 +89,7 @@ void SkScrollBarView::setTotal(unsigned total)
     SkAnimator::DifferenceType    diff = fAnim.draw(canvas, &paint, SkTime::GetMSecs());
 
     if (diff == SkAnimator::kDifferent)
-        this->inval(NULL);
+        this->inval(nullptr);
     else if (diff == SkAnimator::kPartiallyDifferent)
     {
         SkRect    bounds;
@@ -102,7 +102,7 @@ void SkScrollBarView::setTotal(unsigned total)
 {
     if (evt.isType(SK_EventType_Inval))
     {
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
     if (evt.isType("recommendDim"))

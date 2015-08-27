@@ -11,17 +11,17 @@
 #include "SkThreadUtils_win.h"
 
 SkThread_WinData::SkThread_WinData(SkThread::entryPointProc entryPoint, void* data)
-    : fHandle(NULL)
+    : fHandle(nullptr)
     , fParam(data)
     , fThreadId(0)
     , fEntryPoint(entryPoint)
     , fStarted(false)
 {
     fCancelEvent = CreateEvent(
-        NULL,  // default security attributes
+        nullptr,  // default security attributes
         false, //auto reset
         false, //not signaled
-        NULL); //no name
+        nullptr); //no name
 }
 
 SkThread_WinData::~SkThread_WinData() {
@@ -44,12 +44,12 @@ SkThread::SkThread(entryPointProc entryPoint, void* data) {
     SkThread_WinData* winData = new SkThread_WinData(entryPoint, data);
     fData = winData;
 
-    if (NULL == winData->fCancelEvent) {
+    if (nullptr == winData->fCancelEvent) {
         return;
     }
 
     winData->fHandle = CreateThread(
-        NULL,                   // default security attributes
+        nullptr,                   // default security attributes
         0,                      // use default stack size
         thread_start,           // thread function name (proxy)
         winData,                // argument to thread function (proxy args)
@@ -58,10 +58,10 @@ SkThread::SkThread(entryPointProc entryPoint, void* data) {
 }
 
 SkThread::~SkThread() {
-    if (fData != NULL) {
+    if (fData != nullptr) {
         SkThread_WinData* winData = static_cast<SkThread_WinData*>(fData);
         // If created thread but start was never called, kill the thread.
-        if (winData->fHandle != NULL && !winData->fStarted) {
+        if (winData->fHandle != nullptr && !winData->fStarted) {
             if (SetEvent(winData->fCancelEvent) != 0) {
                 if (this->start()) {
                     this->join();
@@ -77,7 +77,7 @@ SkThread::~SkThread() {
 
 bool SkThread::start() {
     SkThread_WinData* winData = static_cast<SkThread_WinData*>(fData);
-    if (NULL == winData->fHandle) {
+    if (nullptr == winData->fHandle) {
         return false;
     }
 
@@ -90,7 +90,7 @@ bool SkThread::start() {
 
 void SkThread::join() {
     SkThread_WinData* winData = static_cast<SkThread_WinData*>(fData);
-    if (NULL == winData->fHandle || !winData->fStarted) {
+    if (nullptr == winData->fHandle || !winData->fStarted) {
         return;
     }
 
@@ -119,7 +119,7 @@ static unsigned int nth_set_bit(unsigned int n, DWORD_PTR mask) {
 
 bool SkThread::setProcessorAffinity(unsigned int processor) {
     SkThread_WinData* winData = static_cast<SkThread_WinData*>(fData);
-    if (NULL == winData->fHandle) {
+    if (nullptr == winData->fHandle) {
         return false;
     }
 

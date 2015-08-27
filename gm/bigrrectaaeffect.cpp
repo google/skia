@@ -32,7 +32,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        GrContext* context = rt ? rt->getContext() : NULL;
+        GrContext* context = rt ? rt->getContext() : nullptr;
         if (!context) {
             this->drawGpuOnlyMessage(canvas);
             return;
@@ -66,7 +66,7 @@ protected:
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    if (NULL == tt.target()) {
+                    if (nullptr == tt.target()) {
                         SkDEBUGFAIL("Couldn't get Gr test target.");
                         return;
                     }

@@ -18,7 +18,7 @@ static void sk_tls_make_key() {
 
 void* SkTLS::PlatformGetSpecific(bool forceCreateTheSlot) {
     // should we use forceCreateTheSlot to potentially skip calling pthread_once
-    // and just return NULL if we've never been called with
+    // and just return nullptr if we've never been called with
     // forceCreateTheSlot==true ?
 
     (void)pthread_once(&gSkTLSKey_Once, sk_tls_make_key);

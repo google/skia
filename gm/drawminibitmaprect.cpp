@@ -16,7 +16,7 @@
 static SkImage* makebm(SkCanvas* caller, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     SkAutoTUnref<SkSurface> surface(caller->newSurface(info));
-    if (NULL == surface) {
+    if (nullptr == surface) {
         surface.reset(SkSurface::NewRaster(info));
     }
     SkCanvas* canvas = surface->getCanvas();
@@ -79,7 +79,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(gSize, gSize); }
 
     void onDraw(SkCanvas* canvas) override {
-        if (NULL == fImage) {
+        if (nullptr == fImage) {
             fImage.reset(makebm(canvas, gSurfaceSize, gSurfaceSize));
         }
 

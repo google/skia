@@ -91,7 +91,7 @@ public:
         *filterOffset = filter.fOffset;
         *filterLength = filter.fTrimmedLength;
         if (filter.fTrimmedLength == 0) {
-            return NULL;
+            return nullptr;
         }
         return &fFilterValues[filter.fDataLocation];
     }
@@ -102,7 +102,7 @@ public:
   // |specifiedFilterLength| may be different if leading/trailing zeros of the
   // original floating point form were clipped.
   // There will be |filterLength| values in the return array.
-  // Returns NULL if the filter is 0-length (for instance when all floating
+  // Returns nullptr if the filter is 0-length (for instance when all floating
   // point values passed to AddFilter were clipped to 0).
     SK_API const ConvolutionFixed* GetSingleFilter(int* specifiedFilterLength,
         int* filterOffset,

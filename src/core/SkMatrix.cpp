@@ -858,7 +858,7 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
                 // translate only
                 inv->setTranslate(-fMat[kMTransX], -fMat[kMTransY]);
             }
-        } else {    // inv is NULL, just check if we're invertible
+        } else {    // inv is nullptr, just check if we're invertible
             if (!fMat[kMScaleX] || !fMat[kMScaleY]) {
                 invertible = false;
             }
@@ -878,7 +878,7 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
     SkMatrix* tmp = inv;
 
     SkMatrix storage;
-    if (applyingInPlace || NULL == tmp) {
+    if (applyingInPlace || nullptr == tmp) {
         tmp = &storage;     // we either need to avoid trampling memory or have no memory
     }
 

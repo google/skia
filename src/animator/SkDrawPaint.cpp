@@ -64,7 +64,7 @@ const SkMemberInfo SkDrawPaint::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawPaint);
 
-SkDrawPaint::SkDrawPaint() : antiAlias(-1), color(NULL), fakeBold(-1), filterBitmap(-1),
+SkDrawPaint::SkDrawPaint() : antiAlias(-1), color(nullptr), fakeBold(-1), filterBitmap(-1),
     linearText(-1), maskFilter((SkDrawMaskFilter*) -1), pathEffect((SkDrawPathEffect*) -1),
     shader((SkDrawShader*) -1), strikeThru(-1), stroke(-1),
     strokeCap((SkPaint::Cap) -1), strokeJoin((SkPaint::Join) -1), strokeMiter(SK_ScalarNaN),
@@ -98,7 +98,7 @@ bool SkDrawPaint::add(SkAnimateMaker* maker, SkDisplayable* child) {
 
 SkDisplayable* SkDrawPaint::deepCopy(SkAnimateMaker* maker) {
     SkDrawColor* tempColor = color;
-    color = NULL;
+    color = nullptr;
     SkDrawPaint* copy = (SkDrawPaint*) INHERITED::deepCopy(maker);
     color = tempColor;
     tempColor = (SkDrawColor*) color->deepCopy(maker);
@@ -148,7 +148,7 @@ void SkDrawPaint::dump(SkAnimateMaker* maker) {
 void SkDrawPaint::executeFunction(SkDisplayable* target, int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* scriptValue) {
-        if (scriptValue == NULL)
+        if (scriptValue == nullptr)
             return;
     SkASSERT(target == this);
     switch (index) {
@@ -213,7 +213,7 @@ bool SkDrawPaint::resolveIDs(SkAnimateMaker& maker, SkDisplayable* origDisp, SkA
 void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (antiAlias != -1)
         paint->setAntiAlias(SkToBool(antiAlias));
-    if (color != NULL)
+    if (color != nullptr)
         paint->setColor(color->getColor());
     if (fakeBold != -1)
         paint->setFakeBoldText(SkToBool(fakeBold));
@@ -226,16 +226,16 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
         paint->setStyle((SkPaint::Style) style);
     if (linearText != -1)
         paint->setLinearText(SkToBool(linearText));
-    if (maskFilter == NULL)
-        paint->setMaskFilter(NULL);
+    if (maskFilter == nullptr)
+        paint->setMaskFilter(nullptr);
     else if (maskFilter != (SkDrawMaskFilter*) -1)
         SkSafeUnref(paint->setMaskFilter(maskFilter->getMaskFilter()));
-    if (pathEffect == NULL)
-        paint->setPathEffect(NULL);
+    if (pathEffect == nullptr)
+        paint->setPathEffect(nullptr);
     else if (pathEffect != (SkDrawPathEffect*) -1)
         SkSafeUnref(paint->setPathEffect(pathEffect->getPathEffect()));
-    if (shader == NULL)
-        paint->setShader(NULL);
+    if (shader == nullptr)
+        paint->setShader(nullptr);
     else if (shader != (SkDrawShader*) -1)
         SkSafeUnref(paint->setShader(shader->getShader()));
     if (strikeThru != -1)
@@ -256,8 +256,8 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
         paint->setTextSize(textSize);
     if (SkScalarIsNaN(textSkewX) == false)
         paint->setTextSkewX(textSkewX);
-    if (typeface == NULL)
-        paint->setTypeface(NULL);
+    if (typeface == nullptr)
+        paint->setTypeface(nullptr);
     else if (typeface != (SkDrawTypeface*) -1)
         SkSafeUnref(paint->setTypeface(typeface->getTypeface()));
     if (underline != -1)

@@ -66,7 +66,7 @@ protected:
         SkPaint p;
         p.setImageFilter(filter);
 
-        canvas->saveLayer(NULL, &p);
+        canvas->saveLayer(nullptr, &p);
         canvas->restore();
     }
 

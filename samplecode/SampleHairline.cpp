@@ -197,8 +197,8 @@ protected:
 
     void show_bitmaps(SkCanvas* canvas, const SkBitmap& b0, const SkBitmap& b1,
                       const SkIRect& inset) {
-        canvas->drawBitmap(b0, 0, 0, NULL);
-        canvas->drawBitmap(b1, SkIntToScalar(b0.width()), 0, NULL);
+        canvas->drawBitmap(b0, 0, 0, nullptr);
+        canvas->drawBitmap(b1, SkIntToScalar(b0.width()), 0, nullptr);
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -219,7 +219,7 @@ protected:
 
         bm2.eraseColor(SK_ColorTRANSPARENT);
         gProcs[fProcIndex].fProc(&c2, paint, bm);
-        canvas->drawBitmap(bm2, SkIntToScalar(10), SkIntToScalar(10), NULL);
+        canvas->drawBitmap(bm2, SkIntToScalar(10), SkIntToScalar(10), nullptr);
     }
 
     bool onAnimate(const SkAnimTimer&) override {
@@ -233,7 +233,7 @@ protected:
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fDoAA = !fDoAA;
-        this->inval(NULL);
+        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 

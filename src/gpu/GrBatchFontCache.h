@@ -33,7 +33,7 @@ public:
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                              GrFontScaler* scaler) {
         GrGlyph* glyph = fCache.find(packed);
-        if (NULL == glyph) {
+        if (nullptr == glyph) {
             glyph = this->generateGlyph(skGlyph, packed, scaler);
         }
         return glyph;
@@ -46,7 +46,7 @@ public:
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                              GrMaskFormat expectedMaskFormat, GrFontScaler* scaler) {
         GrGlyph* glyph = fCache.find(packed);
-        if (NULL == glyph) {
+        if (nullptr == glyph) {
             glyph = this->generateGlyph(skGlyph, packed, scaler);
             glyph->fMaskFormat = expectedMaskFormat;
         }
@@ -109,7 +109,7 @@ public:
     // interactions with the cache since the strike was received.
     inline GrBatchTextStrike* getStrike(GrFontScaler* scaler) {
         GrBatchTextStrike* strike = fCache.find(*(scaler->getKey()));
-        if (NULL == strike) {
+        if (nullptr == strike) {
             strike = this->generateStrike(scaler);
         }
         return strike;
@@ -117,14 +117,14 @@ public:
 
     void freeAll();
 
-    // if getTexture returns NULL, the client must not try to use other functions on the
+    // if getTexture returns nullptr, the client must not try to use other functions on the
     // GrBatchFontCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas.
     GrTexture* getTexture(GrMaskFormat format) {
         if (this->initAtlas(format)) {
             return this->getAtlas(format)->getTexture();
         }
-        return NULL;
+        return nullptr;
     }
 
     bool hasGlyph(GrGlyph* glyph) {

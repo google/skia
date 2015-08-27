@@ -92,7 +92,7 @@ static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
 static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
                       const SkRect* cullRect, SkScalar intervalLength,
                       SkPath* dstPath) {
-    if (NULL == cullRect) {
+    if (nullptr == cullRect) {
         return false;
     }
 

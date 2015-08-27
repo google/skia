@@ -8,6 +8,6 @@
 #include "SkFontMgr.h"
 
 SkFontMgr* SkFontMgr::Factory() {
-    // Always return NULL, an empty SkFontMgr will be used.
-    return NULL;
+    // Always return nullptr, an empty SkFontMgr will be used.
+    return nullptr;
 }

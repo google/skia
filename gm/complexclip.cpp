@@ -115,7 +115,7 @@ protected:
             boundPaint.setColor(SK_ColorRED);
             boundPaint.setStyle(SkPaint::kStroke_Style);
             canvas->drawRect(bounds, boundPaint);
-            canvas->saveLayer(&bounds, NULL);
+            canvas->saveLayer(&bounds, nullptr);
         }
 
         for (int invBits = 0; invBits < 4; ++invBits) {

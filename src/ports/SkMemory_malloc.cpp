@@ -19,8 +19,8 @@ static inline void sk_out_of_memory(size_t size) {
 }
 
 static inline void* throw_on_failure(size_t size, void* p) {
-    if (size > 0 && p == NULL) {
-        // If we've got a NULL here, the only reason we should have failed is running out of RAM.
+    if (size > 0 && p == nullptr) {
+        // If we've got a nullptr here, the only reason we should have failed is running out of RAM.
         sk_out_of_memory(size);
     }
     return p;

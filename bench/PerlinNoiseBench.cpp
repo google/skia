@@ -43,9 +43,9 @@ private:
               bool stitchTiles) {
         SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
             SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                    seed, stitchTiles ? &fSize : NULL) :
+                                                    seed, stitchTiles ? &fSize : nullptr) :
             SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                 seed, stitchTiles ? &fSize : NULL);
+                                                 seed, stitchTiles ? &fSize : nullptr);
         SkPaint paint;
         paint.setShader(shader)->unref();
 

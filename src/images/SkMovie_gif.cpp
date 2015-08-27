@@ -48,15 +48,15 @@ SkGIFMovie::SkGIFMovie(SkStream* stream)
 #if GIFLIB_MAJOR < 5
     fGIF = DGifOpen( stream, Decode );
 #else
-    fGIF = DGifOpen( stream, Decode, NULL );
+    fGIF = DGifOpen( stream, Decode, nullptr );
 #endif
-    if (NULL == fGIF)
+    if (nullptr == fGIF)
         return;
 
     if (DGifSlurp(fGIF) != GIF_OK)
     {
-        DGifCloseFile(fGIF, NULL);
-        fGIF = NULL;
+        DGifCloseFile(fGIF, nullptr);
+        fGIF = nullptr;
     }
     fCurrIndex = -1;
     fLastDrawIndex = -1;
@@ -66,7 +66,7 @@ SkGIFMovie::SkGIFMovie(SkStream* stream)
 SkGIFMovie::~SkGIFMovie()
 {
     if (fGIF)
-        DGifCloseFile(fGIF, NULL);
+        DGifCloseFile(fGIF, nullptr);
 }
 
 static SkMSec savedimage_duration(const SavedImage* image)
@@ -85,7 +85,7 @@ static SkMSec savedimage_duration(const SavedImage* image)
 
 bool SkGIFMovie::onGetInfo(Info* info)
 {
-    if (NULL == fGIF)
+    if (nullptr == fGIF)
         return false;
 
     SkMSec dur = 0;
@@ -101,7 +101,7 @@ bool SkGIFMovie::onGetInfo(Info* info)
 
 bool SkGIFMovie::onSetTime(SkMSec time)
 {
-    if (NULL == fGIF)
+    if (nullptr == fGIF)
         return false;
 
     SkMSec dur = 0;
@@ -239,12 +239,12 @@ static void drawFrame(SkBitmap* bm, const SavedImage* frame, const ColorMapObjec
         }
     }
 
-    if (frame->ImageDesc.ColorMap != NULL) {
+    if (frame->ImageDesc.ColorMap != nullptr) {
         // use local color table
         cmap = frame->ImageDesc.ColorMap;
     }
 
-    if (cmap == NULL || cmap->ColorCount != (1 << cmap->BitsPerPixel)) {
+    if (cmap == nullptr || cmap->ColorCount != (1 << cmap->BitsPerPixel)) {
         SkDEBUGFAIL("bad colortable setup");
         return;
     }
@@ -345,7 +345,7 @@ static void disposeFrameIfNeeded(SkBitmap* bm, const SavedImage* cur, const Save
 bool SkGIFMovie::onGetBitmap(SkBitmap* bm)
 {
     const GifFileType* gif = fGIF;
-    if (NULL == gif)
+    if (nullptr == gif)
         return false;
 
     if (gif->ImageCount < 1) {
@@ -392,7 +392,7 @@ bool SkGIFMovie::onGetBitmap(SkBitmap* bm)
     }
 
     SkColor bgColor = SkPackARGB32(0, 0, 0, 0);
-    if (gif->SColorMap != NULL) {
+    if (gif->SColorMap != nullptr) {
         const GifColorType& col = gif->SColorMap->Colors[fGIF->SBackGroundColor];
         bgColor = SkColorSetARGB(0xFF, col.Red, col.Green, col.Blue);
     }
@@ -404,7 +404,7 @@ bool SkGIFMovie::onGetBitmap(SkBitmap* bm)
             bool trans;
             int disposal;
             getTransparencyAndDisposalMethod(cur, &trans, &disposal);
-            if (!trans && gif->SColorMap != NULL) {
+            if (!trans && gif->SColorMap != nullptr) {
                 fPaintingColor = bgColor;
             } else {
                 fPaintingColor = SkColorSetARGB(0, 0, 0, 0);
@@ -446,7 +446,7 @@ SkMovie* Factory(SkStreamRewindable* stream) {
             return new SkGIFMovie(stream);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 static SkTRegistry<SkMovie*(*)(SkStreamRewindable*)> gReg(Factory);

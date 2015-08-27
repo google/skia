@@ -41,7 +41,7 @@ protected:
             for (SkScalar x = bounds.left(); x < bounds.right(); x += tile_size) {
                 canvas->save();
                 canvas->clipRect(SkRect::MakeXYWH(x, y, tile_size, tile_size));
-                canvas->saveLayer(NULL, &paint);
+                canvas->saveLayer(nullptr, &paint);
                 const char* str[] = {
                     "The quick",
                     "brown fox",

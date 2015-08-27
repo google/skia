@@ -18,7 +18,7 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     if (kUnknown_SkColorType == info.colorType()) {
         return false;
     }
-    if (NULL == pixels) {
+    if (nullptr == pixels) {
         return false;
     }
     if (rowBytes < info.minRowBytes()) {
@@ -26,15 +26,15 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     }
 
     if (kIndex_8_SkColorType == info.colorType()) {
-        if (NULL == ctable || NULL == ctableCount) {
+        if (nullptr == ctable || nullptr == ctableCount) {
             return false;
         }
     } else {
         if (ctableCount) {
             *ctableCount = 0;
         }
-        ctableCount = NULL;
-        ctable = NULL;
+        ctableCount = nullptr;
+        ctable = nullptr;
     }
 
     const bool success = this->onGetPixels(info, pixels, rowBytes, ctable, ctableCount);
@@ -49,7 +49,7 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     if (kIndex_8_SkColorType == info.colorType()) {
         return false;
     }
-    return this->getPixels(info, pixels, rowBytes, NULL, NULL);
+    return this->getPixels(info, pixels, rowBytes, nullptr, nullptr);
 }
 
 bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
@@ -62,9 +62,9 @@ bool SkImageGenerator::getYUV8Planes(SkISize sizes[3], void* planes[3], size_t r
         ((planes[0]) && (planes[1]) && (planes[2]) &&
          (0  != rowBytes[0]) && (0  != rowBytes[1]) && (0  != rowBytes[2]));
     bool isValidWithoutPlanes =
-        ((NULL == planes) ||
-         ((NULL == planes[0]) && (NULL == planes[1]) && (NULL == planes[2]))) &&
-        ((NULL == rowBytes) ||
+        ((nullptr == planes) ||
+         ((nullptr == planes[0]) && (nullptr == planes[1]) && (nullptr == planes[2]))) &&
+        ((nullptr == rowBytes) ||
          ((0 == rowBytes[0]) && (0 == rowBytes[1]) && (0 == rowBytes[2])));
 
     // Either we have all planes and rowBytes information or we have none of it
@@ -115,7 +115,7 @@ GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, SkImageUsageType us
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 SkData* SkImageGenerator::onRefEncodedData() {
-    return NULL;
+    return nullptr;
 }
 
 bool SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst, size_t rb,
@@ -138,8 +138,8 @@ SkGraphics::SetImageGeneratorFromEncodedFactory(ImageGeneratorFromEncodedFactory
 }
 
 SkImageGenerator* SkImageGenerator::NewFromEncoded(SkData* data) {
-    if (NULL == data) {
-        return NULL;
+    if (nullptr == data) {
+        return nullptr;
     }
     if (gFactory) {
         if (SkImageGenerator* generator = gFactory(data)) {

@@ -20,7 +20,7 @@ public:
         SkTextBlobBuilder builder;
 
         // empty run set
-        RunBuilderTest(reporter, builder, NULL, 0, NULL, 0);
+        RunBuilderTest(reporter, builder, nullptr, 0, nullptr, 0);
 
         RunDef set1[] = {
             { 128, SkTextBlob::kDefault_Positioning, 100, 100 },
@@ -206,7 +206,7 @@ private:
 
     static void AddRun(const SkPaint& font, int count, SkTextBlob::GlyphPositioning pos,
                        const SkPoint& offset, SkTextBlobBuilder& builder,
-                       const SkRect* bounds = NULL) {
+                       const SkRect* bounds = nullptr) {
         switch (pos) {
         case SkTextBlob::kDefault_Positioning: {
             const SkTextBlobBuilder::RunBuffer& rb = builder.allocRun(font, count, offset.x(),

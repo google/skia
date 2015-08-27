@@ -172,8 +172,8 @@ public:
         : fBitmap(bitmap)
         , fGenID(genID)
         , fBytesAllocated(0)
-        , fMoreRecentlyUsed(NULL)
-        , fLessRecentlyUsed(NULL)
+        , fMoreRecentlyUsed(nullptr)
+        , fLessRecentlyUsed(nullptr)
         , fToBeDrawnCount(toBeDrawnCount)
     {}
 

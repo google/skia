@@ -76,7 +76,7 @@ class SkTestRunnable : public SkRunnable {
 public:
     SkTestRunnable(const Test& test,
                    Status* status,
-                   GrContextFactory* grContextFactory = NULL)
+                   GrContextFactory* grContextFactory = nullptr)
         : fTest(test), fStatus(status), fGrContextFactory(grContextFactory) {}
 
   virtual void run() {
@@ -193,7 +193,7 @@ int test_main() {
         }
     }
 
-    GrContextFactory* grContextFactoryPtr = NULL;
+    GrContextFactory* grContextFactoryPtr = nullptr;
 #if SK_SUPPORT_GPU
     // Give GPU tests a context factory if that makes sense on this machine.
     GrContextFactory grContextFactory;

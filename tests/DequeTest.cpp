@@ -13,8 +13,8 @@ static void assert_count(skiatest::Reporter* reporter, const SkDeque& deq, int c
         REPORTER_ASSERT(reporter, deq.empty());
         REPORTER_ASSERT(reporter, 0 == deq.count());
         REPORTER_ASSERT(reporter, sizeof(int) == deq.elemSize());
-        REPORTER_ASSERT(reporter, NULL == deq.front());
-        REPORTER_ASSERT(reporter, NULL == deq.back());
+        REPORTER_ASSERT(reporter, nullptr == deq.front());
+        REPORTER_ASSERT(reporter, nullptr == deq.back());
     } else {
         REPORTER_ASSERT(reporter, !deq.empty());
         REPORTER_ASSERT(reporter, count == deq.count());

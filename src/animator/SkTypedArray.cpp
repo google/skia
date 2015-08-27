@@ -29,18 +29,18 @@ bool SkTypedArray::getIndex(int index, SkOperand* operand) {
 SkDS32Array::SkDS32Array()
 {
     fReserve = fCount = 0;
-    fArray = NULL;
+    fArray = nullptr;
 #ifdef SK_DEBUG
-    fData = NULL;
+    fData = nullptr;
 #endif
 }
 
 SkDS32Array::SkDS32Array(const SkDS32Array& src)
 {
     fReserve = fCount = 0;
-    fArray = NULL;
+    fArray = nullptr;
 #ifdef SK_DEBUG
-    fData = NULL;
+    fData = nullptr;
 #endif
     SkDS32Array tmp(src.fArray, src.fCount);
     this->swap(tmp);
@@ -51,9 +51,9 @@ SkDS32Array::SkDS32Array(const int32_t src[], U16CPU count)
     SkASSERT(src || count == 0);
 
     fReserve = fCount = 0;
-    fArray = NULL;
+    fArray = nullptr;
 #ifdef SK_DEBUG
-    fData = NULL;
+    fData = nullptr;
 #endif
     if (count)
     {
@@ -105,7 +105,7 @@ int32_t* SkDS32Array::append(U16CPU count, const int32_t* src)
     unsigned oldCount = fCount;
     if (count)
     {
-        SkASSERT(src == NULL || fArray == NULL ||
+        SkASSERT(src == nullptr || fArray == nullptr ||
                 src + count <= fArray || fArray + count <= src);
 
         this->growBy(count);

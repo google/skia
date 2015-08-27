@@ -23,7 +23,7 @@ typedef GrGLProgramDataManager::UniformHandle UniformHandle;
 
 struct GrGLGpu::ProgramCache::Entry {
     
-    Entry() : fProgram(NULL), fLRUStamp(0) {}
+    Entry() : fProgram(nullptr), fLRUStamp(0) {}
 
     SkAutoTUnref<GrGLProgram>   fProgram;
     unsigned int                fLRUStamp;
@@ -52,7 +52,7 @@ GrGLGpu::ProgramCache::ProgramCache(GrGLGpu* gpu)
 #endif
 {
     for (int i = 0; i < 1 << kHashBits; ++i) {
-        fHashTable[i] = NULL;
+        fHashTable[i] = nullptr;
     }
 }
 
@@ -95,7 +95,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
     ++fTotalRequests;
 #endif
 
-    Entry* entry = NULL;
+    Entry* entry = nullptr;
 
     uint32_t hashIdx = args.fDesc->getChecksum();
     hashIdx ^= hashIdx >> 16;
@@ -110,7 +110,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
     }
 
     int entryIdx;
-    if (NULL == entry) {
+    if (nullptr == entry) {
         entryIdx = this->search(*args.fDesc);
         if (entryIdx >= 0) {
             entry = fEntries[entryIdx];
@@ -120,14 +120,14 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
         }
     }
 
-    if (NULL == entry) {
+    if (nullptr == entry) {
         // We have a cache miss
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
         GrGLProgram* program = GrGLProgramBuilder::CreateProgram(args, fGpu);
-        if (NULL == program) {
-            return NULL;
+        if (nullptr == program) {
+            return nullptr;
         }
         int purgeIdx = 0;
         if (fCount < kMaxEntries) {
@@ -145,7 +145,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const DrawArgs& args) {
             entry = fEntries[purgeIdx];
             int purgedHashIdx = entry->fProgram->getDesc().getChecksum() & ((1 << kHashBits) - 1);
             if (fHashTable[purgedHashIdx] == entry) {
-                fHashTable[purgedHashIdx] = NULL;
+                fHashTable[purgedHashIdx] = nullptr;
             }
         }
         SkASSERT(fEntries[purgeIdx] == entry);

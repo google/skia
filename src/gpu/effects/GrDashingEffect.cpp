@@ -103,7 +103,7 @@ static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
 
 // calculates the rotation needed to aligned pts to the x axis with pts[0] < pts[1]
 // Stores the rotation matrix in rotMatrix, and the mapped points in ptsRot
-static void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2] = NULL) {
+static void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2] = nullptr) {
     SkVector vec = pts[1] - pts[0];
     SkScalar mag = vec.length();
     SkScalar inv = mag ? SkScalarInvert(mag) : 0;
@@ -695,7 +695,7 @@ static GrDrawBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, cons
         align_to_x_axis(pts, &rotMatrix, geometry.fPtsRot);
         if(!rotMatrix.invert(&geometry.fSrcRotInv)) {
             SkDebugf("Failed to create invertible rotation matrix!\n");
-            return NULL;
+            return nullptr;
         }
     } else {
         geometry.fSrcRotInv.reset();
@@ -1212,7 +1212,7 @@ static GrGeometryProcessor* create_dash_gp(GrColor color,
     SkMatrix invert;
     if (usesLocalCoords && !viewMatrix.invert(&invert)) {
         SkDebugf("Failed to invert\n");
-        return NULL;
+        return nullptr;
     }
 
     switch (cap) {
@@ -1221,7 +1221,7 @@ static GrGeometryProcessor* create_dash_gp(GrColor color,
         case kNonRound_DashCap:
             return DashingLineEffect::Create(color, dashAAMode, invert, usesLocalCoords);
     }
-    return NULL;
+    return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

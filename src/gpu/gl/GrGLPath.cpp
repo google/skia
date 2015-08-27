@@ -166,7 +166,7 @@ void GrGLPath::InitPathObject(GrGLGpu* gpu,
         GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, pathCommands.count(), &pathCommands[0],
                    pathCoords.count(), GR_GL_FLOAT, &pathCoords[0]));
     } else {
-        GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, 0, NULL, 0, GR_GL_FLOAT, NULL));
+        GR_GL_CALL(gpu->glInterface(), PathCommands(pathID, 0, nullptr, 0, GR_GL_FLOAT, nullptr));
     }
 
     if (stroke.needToApply()) {

@@ -17,8 +17,8 @@ static void post_SkEvent_event() {
     evt.type = SDL_USEREVENT;
     evt.user.type = SDL_USEREVENT;
     evt.user.code = 0;
-    evt.user.data1 = NULL;
-    evt.user.data2 = NULL;
+    evt.user.data1 = nullptr;
+    evt.user.data2 = nullptr;
     SDL_PushEvent(&evt);
 }
 
@@ -52,11 +52,11 @@ SkOSWindow::SkOSWindow(void* screen) {
     uint32_t amask = SK_A32_MASK << SK_A32_SHIFT;
 
     if (fScreen->flags & SDL_OPENGL) {
-        fSurface = NULL;
+        fSurface = nullptr;
         fGLCanvas = new SkGLCanvas;
         fGLCanvas->setViewport(fScreen->w, fScreen->h);
     } else {
-        fGLCanvas = NULL;
+        fGLCanvas = nullptr;
         fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, fScreen->w, fScreen->h,
                                         32, rmask, gmask, bmask, amask);
     }
@@ -102,7 +102,7 @@ void SkOSWindow::doDraw() {
             SDL_UnlockSurface(fSurface);
         }
 
-        int result = SDL_BlitSurface(fSurface, NULL, fScreen, NULL);
+        int result = SDL_BlitSurface(fSurface, nullptr, fScreen, nullptr);
         if (result) {
             SkDebugf("------- SDL_BlitSurface returned %d\n", result);
         }
@@ -200,7 +200,7 @@ void SkOSWindow::onHandleInval(const SkIRect& r) {
 }
 
 void SkOSWindow::onSetTitle(const char title[]) {
-    SDL_WM_SetCaption(title, NULL);
+    SDL_WM_SetCaption(title, nullptr);
 }
 
 void SkOSWindow::onAddMenu(const SkOSMenu* sk_menu) {}
@@ -220,7 +220,7 @@ static Uint32 timer_callback(Uint32 interval) {
 
 void SkEvent::SignalQueueTimer(SkMSec delay)
 {
-    SDL_SetTimer(0, NULL);
+    SDL_SetTimer(0, nullptr);
     if (delay) {
         SDL_SetTimer(delay, timer_callback);
     }

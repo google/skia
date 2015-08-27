@@ -74,12 +74,12 @@ private:
      * Returns a bool representing success or failure.
      *
      * @param codecOut
-     * If this returns true, and codecOut was not NULL,
+     * If this returns true, and codecOut was not nullptr,
      * codecOut will be set to a new SkJpegCodec.
      *
      * @param decoderMgrOut
-     * If this returns true, and codecOut was NULL,
-     * decoderMgrOut must be non-NULL and decoderMgrOut will be set to a new
+     * If this returns true, and codecOut was nullptr,
+     * decoderMgrOut must be non-nullptr and decoderMgrOut will be set to a new
      * JpegDecoderMgr pointer.
      *
      * @param stream

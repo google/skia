@@ -197,7 +197,7 @@ void SkColorMatrixFilter::initState(const SkScalar* SK_RESTRICT src) {
                    array[SkColorMatrix::kB_Trans]) {
             fProc = shiftIs16 ? Add16 : Add;
         } else {
-            fProc = NULL;   // identity
+            fProc = nullptr;   // identity
         }
     }
 
@@ -262,7 +262,7 @@ static Sk4f clamp_0_1(const Sk4f& value) {
 
 void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     Proc proc = fProc;
-    if (NULL == proc) {
+    if (nullptr == proc) {
         if (src != dst) {
             memcpy(dst, src, count * sizeof(SkPMColor));
         }
@@ -360,7 +360,7 @@ SkFlattenable* SkColorMatrixFilter::CreateProc(SkReadBuffer& buffer) {
     if (buffer.readScalarArray(matrix.fMat, 20)) {
         return Create(matrix);
     }
-    return NULL;
+    return nullptr;
 }
 
 bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
@@ -377,7 +377,7 @@ SkColorFilter* SkColorMatrixFilter::newComposed(const SkColorFilter* innerFilter
         SkColorMatrix::SetConcat(concat, fMatrix.fMat, innerMatrix);
         return SkColorMatrixFilter::Create(concat);
     }
-    return NULL;
+    return nullptr;
 }
 
 #if SK_SUPPORT_GPU
@@ -411,7 +411,7 @@ public:
                                                 kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                 "ColorMatrixVector");
 
-            if (NULL == args.fInputColor) {
+            if (nullptr == args.fInputColor) {
                 // could optimize this case, but we aren't for now.
                 args.fInputColor = "vec4(1)";
             }
@@ -542,7 +542,7 @@ bool SkColorMatrixFilter::asFragmentProcessors(GrContext*, GrProcessorDataManage
             *array->append() = frag;
         } else {
             frag->unref();
-            SkDEBUGCODE(frag = NULL;)
+            SkDEBUGCODE(frag = nullptr;)
         }
         return true;
     }

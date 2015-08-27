@@ -170,16 +170,16 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
     }
 }
 
-// Test that setting an SkMemoryStream to a NULL data does not result in a crash when calling
+// Test that setting an SkMemoryStream to a nullptr data does not result in a crash when calling
 // methods that access fData.
 static void TestDereferencingData(SkMemoryStream* memStream) {
-    memStream->read(NULL, 0);
+    memStream->read(nullptr, 0);
     memStream->getMemoryBase();
     SkAutoDataUnref data(memStream->copyToData());
 }
 
 static void TestNullData() {
-    SkData* nullData = NULL;
+    SkData* nullData = nullptr;
     SkMemoryStream memStream(nullData);
     TestDereferencingData(&memStream);
 
@@ -241,9 +241,9 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
                                                const SkStream& original,
                                                size_t bufferSize) {
     SkStream* dupe = original.duplicate();
-    REPORTER_ASSERT(r, dupe != NULL);
+    REPORTER_ASSERT(r, dupe != nullptr);
     SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(dupe, bufferSize));
-    REPORTER_ASSERT(r, bufferedStream != NULL);
+    REPORTER_ASSERT(r, bufferedStream != nullptr);
     test_peeking_stream(r, bufferedStream, bufferSize);
 }
 

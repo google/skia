@@ -27,10 +27,10 @@ SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
         if (movie) {
             return movie;
         }
-        // we must rewind only if we got NULL, since we gave the stream to the
+        // we must rewind only if we got nullptr, since we gave the stream to the
         // movie, who may have already started reading from it
         stream->rewind();
         curr = curr->next();
     }
-    return NULL;
+    return nullptr;
 }

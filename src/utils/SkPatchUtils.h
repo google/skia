@@ -29,10 +29,10 @@ public:
         VertexData()
         : fVertexCount(0)
         , fIndexCount(0)
-        , fPoints(NULL)
-        , fTexCoords(NULL)
-        , fColors(NULL)
-        , fIndices(NULL) { }
+        , fPoints(nullptr)
+        , fTexCoords(nullptr)
+        , fColors(nullptr)
+        , fIndices(nullptr) { }
         
         ~VertexData() {
             delete[] fPoints;

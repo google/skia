@@ -38,12 +38,12 @@ protected:
      * Returns a bool representing success or failure.
      *
      * @param codecOut
-     * If it returned true, and codecOut was not NULL,
+     * If it returned true, and codecOut was not nullptr,
      * codecOut will be set to a new SkGifCodec.
      *
      * @param gifOut
-     * If it returned true, and codecOut was NULL,
-     * gifOut must be non-NULL and gifOut will be set to a new
+     * If it returned true, and codecOut was nullptr,
+     * gifOut must be non-nullptr and gifOut will be set to a new
      * GifFileType pointer.
      *
      * @param stream

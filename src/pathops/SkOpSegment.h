@@ -222,7 +222,7 @@ public:
     }
 
     SkOpSegment* isSimple(SkOpSpanBase** end, int* step) {
-        return nextChase(end, step, NULL, NULL);
+        return nextChase(end, step, nullptr, nullptr);
     }
 
     bool isVertical() const {

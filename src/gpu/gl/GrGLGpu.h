@@ -254,7 +254,7 @@ private:
     void setScratchTextureUnit();
 
     // bounds is region that may be modified and therefore has to be resolved.
-    // NULL means whole target. Can be an empty rect.
+    // nullptr means whole target. Can be an empty rect.
     void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
     void flushStencil(const GrStencilSettings&);
@@ -339,7 +339,7 @@ private:
      */
     class HWGeometryState {
     public:
-        HWGeometryState() { fVBOVertexArray = NULL; this->invalidate(); }
+        HWGeometryState() { fVBOVertexArray = nullptr; this->invalidate(); }
 
         ~HWGeometryState() { delete fVBOVertexArray; }
 
@@ -418,7 +418,7 @@ private:
         /**
          * Binds the vertex array object that should be used to render from the vertex buffer.
          * The vertex array is bound and its attrib array state object is returned. The vertex
-         * buffer is bound. The index buffer (if non-NULL) is bound to the vertex array. The
+         * buffer is bound. The index buffer (if non-nullptr) is bound to the vertex array. The
          * returned GrGLAttribArrayState should be used to set vertex attribute arrays.
          */
         GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGLGpu* gpu,

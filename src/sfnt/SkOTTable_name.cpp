@@ -31,7 +31,7 @@ static SkUnichar SkUTF16BE_NextUnichar(const uint16_t** srcPtr) {
 }
 
 static void SkStringFromUTF16BE(const uint16_t* utf16be, size_t length, SkString& utf8) {
-    SkASSERT(utf16be != NULL);
+    SkASSERT(utf16be != nullptr);
 
     utf8.reset();
     size_t numberOf16BitValues = length / 2;

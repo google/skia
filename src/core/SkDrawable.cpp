@@ -76,7 +76,7 @@ SkPicture* SkDrawable::onNewPictureSnapshot() {
     SkPictureRecorder recorder;
 
     const SkRect bounds = this->getBounds();
-    SkCanvas* canvas = recorder.beginRecording(bounds, NULL, 0);
+    SkCanvas* canvas = recorder.beginRecording(bounds, nullptr, 0);
     this->draw(canvas);
     if (false) {
         draw_bbox(canvas, bounds);

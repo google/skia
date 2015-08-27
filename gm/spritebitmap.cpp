@@ -23,7 +23,7 @@ static void make_bm(SkBitmap* bm) {
 }
 
 static void draw_2_bitmaps(SkCanvas* canvas, const SkBitmap& bm, bool doClip,
-                           int dx, int dy, SkImageFilter* filter = NULL) {
+                           int dx, int dy, SkImageFilter* filter = nullptr) {
     SkAutoCanvasRestore acr(canvas, true);
     SkPaint paint;
 

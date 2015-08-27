@@ -198,7 +198,7 @@ protected:
                 canvas->save();
                 canvas->clipRect(clipR);
 
-                const SkRect* clipPtr = doclip ? &clipR : NULL;
+                const SkRect* clipPtr = doclip ? &clipR : nullptr;
 
                 show(canvas, path, paint, clipPtr, clipR.fTop, clipR.centerY());
                 show(canvas, path, paint, clipPtr, clipR.centerY(), clipR.fBottom);

@@ -100,7 +100,7 @@ public:
         // Either get the texture directly from the bitmap, or else use the cache and
         // remember to unref it.
         if (GrTexture* bmpTexture = bitmap.getTexture()) {
-            fTexture.reset(NULL);
+            fTexture.reset(nullptr);
             return bmpTexture;
         } else {
             fTexture.reset(GrRefCachedBitmapTexture(context, bitmap, params));
@@ -153,11 +153,11 @@ SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, const SkSurfaceProps* props
 SkGpuDevice* SkGpuDevice::Create(GrRenderTarget* rt, int width, int height,
                                  const SkSurfaceProps* props, InitContents init) {
     if (!rt || rt->wasDestroyed()) {
-        return NULL;
+        return nullptr;
     }
     unsigned flags;
-    if (!CheckAlphaTypeAndGetFlags(NULL, init, &flags)) {
-        return NULL;
+    if (!CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
+        return nullptr;
     }
     return new SkGpuDevice(rt, width, height, props, flags);
 }
@@ -167,12 +167,12 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgete
                                  const SkSurfaceProps* props, InitContents init) {
     unsigned flags;
     if (!CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
-        return NULL;
+        return nullptr;
     }
 
     SkAutoTUnref<GrRenderTarget> rt(CreateRenderTarget(context, budgeted, info,  sampleCount));
-    if (NULL == rt) {
-        return NULL;
+    if (nullptr == rt) {
+        return nullptr;
     }
 
     return new SkGpuDevice(rt, info.width(), info.height(), props, flags);
@@ -182,7 +182,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
                          const SkSurfaceProps* props, unsigned flags)
     : INHERITED(SkSurfacePropsCopyOrDefault(props))
 {
-    fDrawProcs = NULL;
+    fDrawProcs = nullptr;
 
     fContext = SkRef(rt->getContext());
     fNeedClear = SkToBool(flags & kNeedClear_Flag);
@@ -203,11 +203,11 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::B
                                                 const SkImageInfo& origInfo, int sampleCount) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
-        return NULL;
+        return nullptr;
     }
 
     if (!context) {
-        return NULL;
+        return nullptr;
     }
 
     SkColorType ct = origInfo.colorType();
@@ -230,11 +230,11 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::B
     desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
     GrTexture* texture = context->textureProvider()->createTexture(
-        desc, SkToBool(budgeted), NULL, 0);
-    if (NULL == texture) {
-        return NULL;
+        desc, SkToBool(budgeted), nullptr, 0);
+    if (nullptr == texture) {
+        return nullptr;
     }
-    SkASSERT(NULL != texture->asRenderTarget());
+    SkASSERT(nullptr != texture->asRenderTarget());
     return texture->asRenderTarget();
 }
 
@@ -310,7 +310,7 @@ void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
 void SkGpuDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
     fClip.reset();
-    fClipStack.reset(NULL);
+    fClipStack.reset(nullptr);
 }
 
 // call this every draw call, to ensure that the context reflects our state,
@@ -349,7 +349,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     SkAutoTUnref<GrRenderTarget> newRT(CreateRenderTarget(
         fRenderTarget->getContext(), budgeted, this->imageInfo(), fRenderTarget->desc().fSampleCnt));
 
-    if (NULL == newRT) {
+    if (nullptr == newRT) {
         return;
     }
 
@@ -464,9 +464,9 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
                                gPointMode2PrimtiveType[mode],
                                SkToS32(count),
                                (SkPoint*)pts,
-                               NULL,
-                               NULL,
-                               NULL,
+                               nullptr,
+                               nullptr,
+                               nullptr,
                                0);
 }
 
@@ -511,7 +511,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
         SkPath path;
         path.setIsVolatile(true);
         path.addRect(rect);
-        this->drawPath(draw, path, paint, NULL, true);
+        this->drawPath(draw, path, paint, nullptr, true);
         return;
     }
 
@@ -587,7 +587,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rect);
-        this->drawPath(draw, path, paint, NULL, true);
+        this->drawPath(draw, path, paint, nullptr, true);
         return;
     }
 
@@ -608,7 +608,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
             return;
         }
 
-        if (NULL == paint.getMaskFilter() && NULL == paint.getPathEffect()) {
+        if (nullptr == paint.getMaskFilter() && nullptr == paint.getPathEffect()) {
             fDrawContext->drawDRRect(fRenderTarget, fClip, grPaint, *draw.fMatrix, outer, inner);
             return;
         }
@@ -620,7 +620,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    this->drawPath(draw, path, paint, NULL, true);
+    this->drawPath(draw, path, paint, nullptr, true);
 }
 
 
@@ -649,7 +649,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
         SkPath path;
         path.setIsVolatile(true);
         path.addOval(oval);
-        this->drawPath(draw, path, paint, NULL, true);
+        this->drawPath(draw, path, paint, nullptr, true);
         return;
     }
 
@@ -719,7 +719,7 @@ static void determine_clipped_src_rect(const GrRenderTarget* rt,
                                        const SkBitmap& bitmap,
                                        const SkRect* srcRectPtr,
                                        SkIRect* clippedSrcIRect) {
-    clip.getConservativeBounds(rt, clippedSrcIRect, NULL);
+    clip.getConservativeBounds(rt, clippedSrcIRect, nullptr);
     SkMatrix inv;
     if (!viewMatrix.invert(&inv)) {
         clippedSrcIRect->setEmpty();
@@ -780,7 +780,7 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
     // a texture
     size_t bmpSize = bitmap.getSize();
     size_t cacheSize;
-    fContext->getResourceCacheLimits(NULL, &cacheSize);
+    fContext->getResourceCacheLimits(nullptr, &cacheSize);
     if (bmpSize < cacheSize / 2) {
         return false;
     }
@@ -805,7 +805,7 @@ void SkGpuDevice::drawBitmap(const SkDraw& origDraw,
         concat.setConcat(*draw->fMatrix, m);
         draw.writable()->fMatrix = &concat;
     }
-    this->drawBitmapCommon(*draw, bitmap, NULL, NULL, paint, SkCanvas::kStrict_SrcRectConstraint);
+    this->drawBitmapCommon(*draw, bitmap, nullptr, nullptr, paint, SkCanvas::kStrict_SrcRectConstraint);
 }
 
 // This method outsets 'iRect' by 'outset' all around and then clamps its extents to
@@ -1007,7 +1007,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     SkSize dstSize;
     // If there is no src rect, or the src rect contains the entire bitmap then we're effectively
     // in the (easier) bleed case, so update flags.
-    if (NULL == srcRectPtr) {
+    if (nullptr == srcRectPtr) {
         SkScalar w = SkIntToScalar(bitmap.width());
         SkScalar h = SkIntToScalar(bitmap.height());
         dstSize.fWidth = w;
@@ -1246,7 +1246,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
     GrTexture* texture;
     AutoBitmapTexture abt(fContext, bitmap, &params, &texture);
-    if (NULL == texture) {
+    if (nullptr == texture) {
         return;
     }
 
@@ -1350,7 +1350,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     GrTexture* texture;
     // draw sprite uses the default texture params
-    AutoBitmapTexture abt(fContext, bitmap, NULL, &texture);
+    AutoBitmapTexture abt(fContext, bitmap, nullptr, &texture);
     if (!texture) {
         return;
     }
@@ -1462,7 +1462,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
 
     GrRenderTarget* devRT = dev->accessRenderTarget();
     GrTexture* devTex;
-    if (NULL == (devTex = devRT->asTexture())) {
+    if (nullptr == (devTex = devRT->asTexture())) {
         return;
     }
 
@@ -1537,7 +1537,7 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
     GrTexture* texture;
     // We assume here that the filter will not attempt to tile the src. Otherwise, this cache lookup
     // must be pushed upstack.
-    AutoBitmapTexture abt(fContext, src, NULL, &texture);
+    AutoBitmapTexture abt(fContext, src, nullptr, &texture);
     if (!texture) {
         return false;
     }
@@ -1592,14 +1592,14 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawVertices", fContext);
 
     const uint16_t* outIndices;
-    SkAutoTDeleteArray<uint16_t> outAlloc(NULL);
+    SkAutoTDeleteArray<uint16_t> outAlloc(nullptr);
     GrPrimitiveType primType;
     GrPaint grPaint;
 
-    // If both textures and vertex-colors are NULL, strokes hairlines with the paint's color.
-    if ((NULL == texs || NULL == paint.getShader()) && NULL == colors) {
+    // If both textures and vertex-colors are nullptr, strokes hairlines with the paint's color.
+    if ((nullptr == texs || nullptr == paint.getShader()) && nullptr == colors) {
 
-        texs = NULL;
+        texs = nullptr;
 
         SkPaint copy(paint);
         copy.setStyle(SkPaint::kStroke_Style);
@@ -1607,13 +1607,13 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
         // we ignore the shader if texs is null.
         if (!SkPaint2GrPaintNoShader(this->context(), fRenderTarget, copy,
-                                     SkColor2GrColor(copy.getColor()), NULL == colors, &grPaint)) {
+                                     SkColor2GrColor(copy.getColor()), nullptr == colors, &grPaint)) {
             return;
         }
 
         primType = kLines_GrPrimitiveType;
         int triangleCount = 0;
-        int n = (NULL == indices) ? vertexCount : indexCount;
+        int n = (nullptr == indices) ? vertexCount : indexCount;
         switch (vmode) {
             case SkCanvas::kTriangles_VertexMode:
                 triangleCount = n / 3;
@@ -1647,15 +1647,15 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         outIndices = indices;
         primType = gVertexMode2PrimitiveType[vmode];
 
-        if (NULL == texs || NULL == paint.getShader()) {
+        if (nullptr == texs || nullptr == paint.getShader()) {
             if (!SkPaint2GrPaintNoShader(this->context(), fRenderTarget, paint,
                                          SkColor2GrColor(paint.getColor()),
-                                         NULL == colors, &grPaint)) {
+                                         nullptr == colors, &grPaint)) {
                 return;
             }
         } else {
             if (!SkPaint2GrPaint(this->context(), fRenderTarget, paint, *draw.fMatrix,
-                                 NULL == colors, &grPaint)) {
+                                 nullptr == colors, &grPaint)) {
                 return;
             }
         }
@@ -1822,7 +1822,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "---- failed to create gpu device texture [%d %d]\n",
                                     cinfo.fInfo.width(), cinfo.fInfo.height());
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1841,7 +1841,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
         return false;
     }
 
-    const SkBigPicture::AccelData* data = NULL;
+    const SkBigPicture::AccelData* data = nullptr;
     if (const SkBigPicture* bp = mainPicture->asSkBigPicture()) {
         data = bp->accelData();
     }
@@ -1887,7 +1887,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     // Render the entire picture using new layers
     GrRecordReplaceDraw(mainPicture, mainCanvas, fContext->getLayerCache(),
-                        initialMatrix, NULL);
+                        initialMatrix, nullptr);
 
     GrLayerHoister::UnlockLayers(fContext, needRendering);
     GrLayerHoister::UnlockLayers(fContext, recycled);

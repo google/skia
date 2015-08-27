@@ -98,7 +98,7 @@ protected:
                                         SkIntToScalar(fBitmap.height()));
         SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap.width() * 2),
                                         SkIntToScalar(fBitmap.height() * 2));
-        SkAutoTUnref<SkImageFilter> tile(SkTileImageFilter::Create(srcRect, dstRect, NULL));
+        SkAutoTUnref<SkImageFilter> tile(SkTileImageFilter::Create(srcRect, dstRect, nullptr));
         SkAutoTUnref<SkColorFilter> cf(SkColorMatrixFilter::Create(matrix));
 
         SkAutoTUnref<SkImageFilter> cfif(SkColorFilterImageFilter::Create(cf, tile.get()));

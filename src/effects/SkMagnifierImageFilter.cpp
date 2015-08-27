@@ -245,11 +245,11 @@ SkImageFilter* SkMagnifierImageFilter::Create(const SkRect& srcRect, SkScalar in
                                               SkImageFilter* input) {
 
     if (!SkScalarIsFinite(inset) || !SkIsValidRect(srcRect)) {
-        return NULL;
+        return nullptr;
     }
     // Negative numbers in src rect are not supported
     if (srcRect.fLeft < 0 || srcRect.fTop < 0) {
-        return NULL;
+        return nullptr;
     }
     return new SkMagnifierImageFilter(srcRect, inset, input);
 }

@@ -31,10 +31,10 @@ static void D32_LCD16_Proc(void* SK_RESTRICT dst, size_t dstRB,
     const uint16_t* srcRow = (const uint16_t*)mask;
     SkPMColor       opaqueDst;
 
-    SkBlitMask::BlitLCD16RowProc proc = NULL;
+    SkBlitMask::BlitLCD16RowProc proc = nullptr;
     bool isOpaque = (0xFF == SkColorGetA(color));
     proc = SkBlitMask::BlitLCD16RowFactory(isOpaque);
-    SkASSERT(proc != NULL);
+    SkASSERT(proc != nullptr);
 
     if (isOpaque) {
         opaqueDst = SkPreMultiplyColor(color);
@@ -283,8 +283,8 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkColorType ct,
 
     static const RowProc gProcs[] = {
         // need X coordinate to handle BW
-        false ? (RowProc)BW_RowProc_Blend : NULL, // suppress unused warning
-        false ? (RowProc)BW_RowProc_Opaque : NULL, // suppress unused warning
+        false ? (RowProc)BW_RowProc_Blend : nullptr, // suppress unused warning
+        false ? (RowProc)BW_RowProc_Opaque : nullptr, // suppress unused warning
         (RowProc)A8_RowProc_Blend,      (RowProc)A8_RowProc_Opaque,
         (RowProc)LCD16_RowProc_Blend,   (RowProc)LCD16_RowProc_Opaque,
     };
@@ -297,7 +297,7 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkColorType ct,
                 case SkMask::kA8_Format:    index = 2; break;
                 case SkMask::kLCD16_Format: index = 4; break;
                 default:
-                    return NULL;
+                    return nullptr;
             }
             if (flags & kSrcIsOpaque_RowFlag) {
                 index |= 1;
@@ -307,5 +307,5 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkColorType ct,
         default:
             break;
     }
-    return NULL;
+    return nullptr;
 }

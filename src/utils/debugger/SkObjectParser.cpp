@@ -151,7 +151,7 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
     mPath->append(gConvexityStrings[path.getConvexity()]);
     mPath->append(", ");
 
-    if (path.isRect(NULL)) {
+    if (path.isRect(nullptr)) {
         mPath->append("isRect, ");
     } else {
         mPath->append("isNotRect, ");
@@ -235,7 +235,7 @@ SkString* SkObjectParser::RectToString(const SkRect& rect, const char* title) {
 
     SkString* mRect = new SkString;
 
-    if (NULL == title) {
+    if (nullptr == title) {
         mRect->append("SkRect: ");
     } else {
         mRect->append(title);
@@ -256,7 +256,7 @@ SkString* SkObjectParser::RRectToString(const SkRRect& rrect, const char* title)
 
     SkString* mRRect = new SkString;
 
-    if (NULL == title) {
+    if (nullptr == title) {
         mRRect->append("SkRRect (");
         if (rrect.isEmpty()) {
             mRRect->append("empty");
@@ -358,7 +358,7 @@ SkString* SkObjectParser::TextToString(const void* text, size_t byteLength,
             decodedText->append("UTF-16: ");
             size_t sizeNeeded = SkUTF16_ToUTF8((uint16_t*)text,
                                                 SkToS32(byteLength / 2),
-                                                NULL);
+                                                nullptr);
             SkAutoSTMalloc<0x100, char> utf8(sizeNeeded);
             SkUTF16_ToUTF8((uint16_t*)text, SkToS32(byteLength / 2), utf8);
             decodedText->append(utf8, sizeNeeded);

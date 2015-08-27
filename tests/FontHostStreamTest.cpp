@@ -91,7 +91,7 @@ DEF_TEST(FontHostStream, reporter) {
 
         SkTypeface* origTypeface = paint.getTypeface();
         SkAutoTUnref<SkTypeface> aur;
-        if (NULL == origTypeface) {
+        if (nullptr == origTypeface) {
             origTypeface = aur.reset(SkTypeface::RefDefault());
         }
 

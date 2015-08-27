@@ -15,7 +15,7 @@
  * function that compares two Ts and returns true if the first is higher priority than the second.
  *
  * Optionally objects may know their index into the priority queue. The queue will update the index
- * as the objects move through the queue. This is enabled by using a non-NULL function for INDEX.
+ * as the objects move through the queue. This is enabled by using a non-nullptr function for INDEX.
  * When an INDEX function is provided random deletes from the queue are allowed using remove().
  * Additionally, the * priority is allowed to change as long as priorityDidChange() is called
  * afterwards. In debug builds the index will be set to -1 before an element is removed from the
@@ -23,7 +23,7 @@
  */
 template <typename T,
           bool (*LESS)(const T&, const T&),
-          int* (*INDEX)(const T&) = (int* (*)(const T&))NULL>
+          int* (*INDEX)(const T&) = (int* (*)(const T&))nullptr>
 class SkTDPQueue : public SkNoncopyable {
 public:
     SkTDPQueue() {}
@@ -62,9 +62,9 @@ public:
         this->validate();
     }
 
-    /** Random access removal. This requires that the INDEX function is non-NULL. */
+    /** Random access removal. This requires that the INDEX function is non-nullptr. */
     void remove(T entry) {
-        SkASSERT(NULL != INDEX);
+        SkASSERT(nullptr != INDEX);
         int index = *INDEX(entry);
         SkASSERT(index >= 0 && index < fArray.count());
         this->validate();
@@ -84,7 +84,7 @@ public:
         item's priority is changed to maintain correct ordering. Changing the priority is only
         allowed if an INDEX function is provided. */
     void priorityDidChange(T entry) {
-        SkASSERT(NULL != INDEX);
+        SkASSERT(nullptr != INDEX);
         int index = *INDEX(entry);
         SkASSERT(index >= 0 && index < fArray.count());
         this->validate(index);

@@ -73,18 +73,18 @@ protected:
 
         for (unsigned j = 0; j < 4; ++j) {
             for (unsigned i = 0; i < SK_ARRAY_COUNT(samples); ++i) {
-                const SkImageFilter::CropRect* cr = j & 0x02 ? &cropRect : NULL;
+                const SkImageFilter::CropRect* cr = j & 0x02 ? &cropRect : nullptr;
                 if (j & 0x01) {
                     paint.setImageFilter(SkErodeImageFilter::Create(
                         samples[i].fRadiusX,
                         samples[i].fRadiusY,
-                        NULL,
+                        nullptr,
                         cr))->unref();
                 } else {
                     paint.setImageFilter(SkDilateImageFilter::Create(
                         samples[i].fRadiusX,
                         samples[i].fRadiusY,
-                        NULL,
+                        nullptr,
                         cr))->unref();
                 }
                 drawClippedBitmap(canvas, paint, i * 140, j * 140);

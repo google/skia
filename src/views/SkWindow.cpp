@@ -16,7 +16,7 @@
 
 SkWindow::SkWindow()
     : fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
-    , fFocusView(NULL)
+    , fFocusView(nullptr)
 {
     fClicks.reset();
     fWaitingOnInval = false;
@@ -37,7 +37,7 @@ SkSurface* SkWindow::createSurface() {
 void SkWindow::setMatrix(const SkMatrix& matrix) {
     if (fMatrix != matrix) {
         fMatrix = matrix;
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -67,7 +67,7 @@ void SkWindow::resize(int width, int height, SkColorType ct) {
                                               ct, kPremul_SkAlphaType));
 
         this->setSize(SkIntToScalar(width), SkIntToScalar(height));
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -146,7 +146,7 @@ bool SkWindow::handleChar(SkUnichar uni) {
         return true;
 
     SkView* focus = this->getFocusView();
-    if (focus == NULL)
+    if (focus == nullptr)
         focus = this;
 
     SkEvent evt(SK_EventType_Unichar);
@@ -164,7 +164,7 @@ bool SkWindow::handleKey(SkKey key) {
     // send an event to the focus-view
     {
         SkView* focus = this->getFocusView();
-        if (focus == NULL)
+        if (focus == nullptr)
             focus = this;
 
         SkEvent evt(SK_EventType_Key);
@@ -174,8 +174,8 @@ bool SkWindow::handleKey(SkKey key) {
     }
 
     if (key == kUp_SkKey || key == kDown_SkKey) {
-        if (this->moveFocus(key == kUp_SkKey ? kPrev_FocusDirection : kNext_FocusDirection) == NULL)
-            this->onSetFocusView(NULL);
+        if (this->moveFocus(key == kUp_SkKey ? kPrev_FocusDirection : kNext_FocusDirection) == nullptr)
+            this->onSetFocusView(nullptr);
         return true;
     }
     return false;
@@ -191,7 +191,7 @@ bool SkWindow::handleKeyUp(SkKey key) {
     //send an event to the focus-view
     {
         SkView* focus = this->getFocusView();
-        if (focus == NULL)
+        if (focus == nullptr)
             focus = this;
 
         //should this one be the same?
@@ -209,7 +209,7 @@ void SkWindow::addMenu(SkOSMenu* menu) {
 }
 
 void SkWindow::setTitle(const char title[]) {
-    if (NULL == title) {
+    if (nullptr == title) {
         title = "";
     }
     fTitle.set(title);

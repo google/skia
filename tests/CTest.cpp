@@ -16,7 +16,7 @@
 static void shader_test(skiatest::Reporter* reporter) {
     sk_imageinfo_t info =
         {64, 64, sk_colortype_get_default_8888(), PREMUL_SK_ALPHATYPE};
-    sk_surface_t* surface  = sk_surface_new_raster(&info, NULL);
+    sk_surface_t* surface  = sk_surface_new_raster(&info, nullptr);
     sk_canvas_t* canvas = sk_surface_get_canvas(surface);
     sk_paint_t* paint = sk_paint_new();
 
@@ -30,21 +30,21 @@ static void shader_test(skiatest::Reporter* reporter) {
     sk_shader_t* shader;
 
     shader = sk_shader_new_radial_gradient(
-            &point, 1.0f, colors, NULL, 2, tilemode, NULL);
-    REPORTER_ASSERT(reporter, shader != NULL);
+            &point, 1.0f, colors, nullptr, 2, tilemode, nullptr);
+    REPORTER_ASSERT(reporter, shader != nullptr);
     sk_paint_set_shader(paint, shader);
     sk_shader_unref(shader);
     sk_canvas_draw_paint(canvas, paint);
 
-    shader = sk_shader_new_sweep_gradient(&point, colors, NULL, 2, NULL);
-    REPORTER_ASSERT(reporter, shader != NULL);
+    shader = sk_shader_new_sweep_gradient(&point, colors, nullptr, 2, nullptr);
+    REPORTER_ASSERT(reporter, shader != nullptr);
     sk_paint_set_shader(paint, shader);
     sk_shader_unref(shader);
     sk_canvas_draw_paint(canvas, paint);
 
     shader = sk_shader_new_two_point_conical_gradient(
-            &point, 10.0f,  &point2, 50.0f, colors, NULL, 2, tilemode, NULL);
-    REPORTER_ASSERT(reporter, shader != NULL);
+            &point, 10.0f,  &point2, 50.0f, colors, nullptr, 2, tilemode, nullptr);
+    REPORTER_ASSERT(reporter, shader != nullptr);
     sk_paint_set_shader(paint, shader);
     sk_shader_unref(shader);
     sk_canvas_draw_paint(canvas, paint);

@@ -35,8 +35,8 @@ protected:
     SkDS32Array(const int32_t src[], U16CPU count);
     SkDS32Array& operator=(const SkDS32Array& src);
     friend int operator==(const SkDS32Array& a, const SkDS32Array& b);
-    int32_t* append() { return this->append(1, NULL); }
-    int32_t* append(U16CPU count, const int32_t* src = NULL);
+    int32_t* append() { return this->append(1, nullptr); }
+    int32_t* append(U16CPU count, const int32_t* src = nullptr);
 
     int32_t* appendClear()
     {
@@ -65,9 +65,9 @@ public:
         if (fArray)
         {
             sk_free(fArray);
-            fArray = NULL;
+            fArray = nullptr;
 #ifdef SK_DEBUG
-            fData = NULL;
+            fData = nullptr;
 #endif
             fReserve = fCount = 0;
         }
@@ -104,7 +104,7 @@ protected:
 
 template <typename T> class SkTDS32Array : public SkDS32Array {
 public:
-    SkTDS32Array() { SkDEBUGCODE(fTData=NULL); SkASSERT(sizeof(T) == sizeof(int32_t)); }
+    SkTDS32Array() { SkDEBUGCODE(fTData=nullptr); SkASSERT(sizeof(T) == sizeof(int32_t)); }
     SkTDS32Array(const SkTDS32Array<T>& src) : SkDS32Array(src) {}
     ~SkTDS32Array() { sk_free(fArray); }
     T&  operator[](int index) const { SYNC(); SkASSERT((unsigned)index < fCount); return ((T*) fArray)[index]; }
@@ -114,12 +114,12 @@ public:
         return operator==((const SkDS32Array&) a, (const SkDS32Array&) b); }
     T* append() { return (T*) SkDS32Array::append(); }
     T* appendClear() { return (T*) SkDS32Array::appendClear(); }
-    T* append(U16CPU count, const T* src = NULL) { return (T*) SkDS32Array::append(count, (const int32_t*) src); }
+    T* append(U16CPU count, const T* src = nullptr) { return (T*) SkDS32Array::append(count, (const int32_t*) src); }
     T*  begin() const { SYNC(); return (T*) fArray; }
-    T*  end() const { return (T*) (fArray ? fArray + fCount : NULL); }
+    T*  end() const { return (T*) (fArray ? fArray + fCount : nullptr); }
     int find(const T& elem) const { return SkDS32Array::find((const int32_t&) elem); }
-    T* insert(U16CPU index) { return this->insert(index, 1, NULL); }
-    T* insert(U16CPU index, U16CPU count, const T* src = NULL) {
+    T* insert(U16CPU index) { return this->insert(index, 1, nullptr); }
+    T* insert(U16CPU index, U16CPU count, const T* src = nullptr) {
         return (T*) SkDS32Array::insert(index, count, (const int32_t*) src); }
     int rfind(const T& elem) const { return SkDS32Array::rfind((const int32_t&) elem); }
     T*          push() { return this->append(); }

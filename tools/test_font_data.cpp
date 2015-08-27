@@ -8514,59 +8514,59 @@ const SkPaint::FontMetrics TimesNewRomankBoldItalicMetrics = {
 static SkTestFontData gTestFonts[] = {
     {    CourierNewkNormalPoints, CourierNewkNormalVerbs, CourierNewkNormalCharCodes,
          CourierNewkNormalCharCodesCount, CourierNewkNormalWidths,
-         CourierNewkNormalMetrics, "Courier New", SkTypeface::kNormal, NULL
+         CourierNewkNormalMetrics, "Courier New", SkTypeface::kNormal, nullptr
     },
     {    CourierNewkBoldPoints, CourierNewkBoldVerbs, CourierNewkBoldCharCodes,
          CourierNewkBoldCharCodesCount, CourierNewkBoldWidths,
-         CourierNewkBoldMetrics, "Courier New", SkTypeface::kBold, NULL
+         CourierNewkBoldMetrics, "Courier New", SkTypeface::kBold, nullptr
     },
     {    CourierNewkItalicPoints, CourierNewkItalicVerbs, CourierNewkItalicCharCodes,
          CourierNewkItalicCharCodesCount, CourierNewkItalicWidths,
-         CourierNewkItalicMetrics, "Courier New", SkTypeface::kItalic, NULL
+         CourierNewkItalicMetrics, "Courier New", SkTypeface::kItalic, nullptr
     },
     {    CourierNewkBoldItalicPoints, CourierNewkBoldItalicVerbs, CourierNewkBoldItalicCharCodes,
          CourierNewkBoldItalicCharCodesCount, CourierNewkBoldItalicWidths,
-         CourierNewkBoldItalicMetrics, "Courier New", SkTypeface::kBoldItalic, NULL
+         CourierNewkBoldItalicMetrics, "Courier New", SkTypeface::kBoldItalic, nullptr
     },
     {    LiberationSanskNormalPoints, LiberationSanskNormalVerbs, LiberationSanskNormalCharCodes,
          LiberationSanskNormalCharCodesCount, LiberationSanskNormalWidths,
-         LiberationSanskNormalMetrics, "Liberation Sans", SkTypeface::kNormal, NULL
+         LiberationSanskNormalMetrics, "Liberation Sans", SkTypeface::kNormal, nullptr
     },
     {    LiberationSanskBoldPoints, LiberationSanskBoldVerbs, LiberationSanskBoldCharCodes,
          LiberationSanskBoldCharCodesCount, LiberationSanskBoldWidths,
-         LiberationSanskBoldMetrics, "Liberation Sans", SkTypeface::kBold, NULL
+         LiberationSanskBoldMetrics, "Liberation Sans", SkTypeface::kBold, nullptr
     },
     {    LiberationSanskItalicPoints, LiberationSanskItalicVerbs, LiberationSanskItalicCharCodes,
          LiberationSanskItalicCharCodesCount, LiberationSanskItalicWidths,
-         LiberationSanskItalicMetrics, "Liberation Sans", SkTypeface::kItalic, NULL
+         LiberationSanskItalicMetrics, "Liberation Sans", SkTypeface::kItalic, nullptr
     },
     {    LiberationSanskBoldItalicPoints, LiberationSanskBoldItalicVerbs, LiberationSanskBoldItalicCharCodes,
          LiberationSanskBoldItalicCharCodesCount, LiberationSanskBoldItalicWidths,
-         LiberationSanskBoldItalicMetrics, "Liberation Sans", SkTypeface::kBoldItalic, NULL
+         LiberationSanskBoldItalicMetrics, "Liberation Sans", SkTypeface::kBoldItalic, nullptr
     },
     {    HiraginoMaruGothicProkNormalPoints, HiraginoMaruGothicProkNormalVerbs, HiraginoMaruGothicProkNormalCharCodes,
          HiraginoMaruGothicProkNormalCharCodesCount, HiraginoMaruGothicProkNormalWidths,
-         HiraginoMaruGothicProkNormalMetrics, "Hiragino Maru Gothic Pro", SkTypeface::kNormal, NULL
+         HiraginoMaruGothicProkNormalMetrics, "Hiragino Maru Gothic Pro", SkTypeface::kNormal, nullptr
     },
     {    PapyruskNormalPoints, PapyruskNormalVerbs, PapyruskNormalCharCodes,
          PapyruskNormalCharCodesCount, PapyruskNormalWidths,
-         PapyruskNormalMetrics, "Papyrus", SkTypeface::kNormal, NULL
+         PapyruskNormalMetrics, "Papyrus", SkTypeface::kNormal, nullptr
     },
     {    TimesNewRomankNormalPoints, TimesNewRomankNormalVerbs, TimesNewRomankNormalCharCodes,
          TimesNewRomankNormalCharCodesCount, TimesNewRomankNormalWidths,
-         TimesNewRomankNormalMetrics, "Times New Roman", SkTypeface::kNormal, NULL
+         TimesNewRomankNormalMetrics, "Times New Roman", SkTypeface::kNormal, nullptr
     },
     {    TimesNewRomankBoldPoints, TimesNewRomankBoldVerbs, TimesNewRomankBoldCharCodes,
          TimesNewRomankBoldCharCodesCount, TimesNewRomankBoldWidths,
-         TimesNewRomankBoldMetrics, "Times New Roman", SkTypeface::kBold, NULL
+         TimesNewRomankBoldMetrics, "Times New Roman", SkTypeface::kBold, nullptr
     },
     {    TimesNewRomankItalicPoints, TimesNewRomankItalicVerbs, TimesNewRomankItalicCharCodes,
          TimesNewRomankItalicCharCodesCount, TimesNewRomankItalicWidths,
-         TimesNewRomankItalicMetrics, "Times New Roman", SkTypeface::kItalic, NULL
+         TimesNewRomankItalicMetrics, "Times New Roman", SkTypeface::kItalic, nullptr
     },
     {    TimesNewRomankBoldItalicPoints, TimesNewRomankBoldItalicVerbs, TimesNewRomankBoldItalicCharCodes,
          TimesNewRomankBoldItalicCharCodesCount, TimesNewRomankBoldItalicWidths,
-         TimesNewRomankBoldItalicMetrics, "Times New Roman", SkTypeface::kBoldItalic, NULL
+         TimesNewRomankBoldItalicMetrics, "Times New Roman", SkTypeface::kBoldItalic, nullptr
     },
 };
 

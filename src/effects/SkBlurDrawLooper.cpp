@@ -36,7 +36,7 @@ void SkBlurDrawLooper::initEffects() {
 
         fBlur = SkBlurMaskFilter::Create(kNormal_SkBlurStyle, fSigma, flags);
     } else {
-        fBlur = NULL;
+        fBlur = nullptr;
     }
 
     if (fBlurFlags & kOverrideColor_BlurFlag) {
@@ -47,7 +47,7 @@ void SkBlurDrawLooper::initEffects() {
         fColorFilter = SkColorFilter::CreateModeFilter(opaqueColor,
                                                        SkXfermode::kSrcIn_Mode);
     } else {
-        fColorFilter = NULL;
+        fColorFilter = nullptr;
     }
 }
 

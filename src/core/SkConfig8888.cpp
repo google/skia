@@ -237,9 +237,9 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
             return false;
         }
 
-        const SkPMColor* table = NULL;
+        const SkPMColor* table = nullptr;
         if (kIndex_8_SkColorType == srcInfo.colorType()) {
-            if (NULL == ctable) {
+            if (nullptr == ctable) {
                 return false;
             }
             table = ctable->readColors();
@@ -276,11 +276,11 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
     // TODO: switch the allocation of tmpDst to call sk_calloc_throw
     {
         SkBitmap bm;
-        if (!bm.installPixels(srcInfo, const_cast<void*>(srcPixels), srcRB, ctable, NULL, NULL)) {
+        if (!bm.installPixels(srcInfo, const_cast<void*>(srcPixels), srcRB, ctable, nullptr, nullptr)) {
             return false;
         }
         SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterDirect(dstInfo, dstPixels, dstRB));
-        if (NULL == canvas.get()) {
+        if (nullptr == canvas.get()) {
             return false;
         }
 

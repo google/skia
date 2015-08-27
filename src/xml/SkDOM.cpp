@@ -24,15 +24,15 @@ bool SkXMLParser::parse(const SkDOM& dom, const SkDOMNode* node)
     SkDOM::AttrIter iter(dom, node);
     const char*     name, *value;
 
-    while ((name = iter.next(&value)) != NULL)
+    while ((name = iter.next(&value)) != nullptr)
         if (this->addAttribute(name, value))
             return false;
 
-    if ((node = dom.getFirstChild(node)) != NULL)
+    if ((node = dom.getFirstChild(node)) != nullptr)
         do {
             if (!this->parse(dom, node))
                 return false;
-        } while ((node = dom.getNextSibling(node)) != NULL);
+        } while ((node = dom.getNextSibling(node)) != nullptr);
 
     return !this->endElement(elemName);
 }
@@ -66,7 +66,7 @@ struct SkDOMNode {
 
 #define kMinChunkSize   512
 
-SkDOM::SkDOM() : fAlloc(kMinChunkSize), fRoot(NULL)
+SkDOM::SkDOM() : fAlloc(kMinChunkSize), fRoot(nullptr)
 {
 }
 
@@ -86,7 +86,7 @@ const SkDOM::Node* SkDOM::getFirstChild(const Node* node, const char name[]) con
 
     if (name)
     {
-        for (; child != NULL; child = child->fNextSibling)
+        for (; child != nullptr; child = child->fNextSibling)
             if (!strcmp(name, child->fName))
                 break;
     }
@@ -99,7 +99,7 @@ const SkDOM::Node* SkDOM::getNextSibling(const Node* node, const char name[]) co
     const Node* sibling = node->fNextSibling;
     if (name)
     {
-        for (; sibling != NULL; sibling = sibling->fNextSibling)
+        for (; sibling != nullptr; sibling = sibling->fNextSibling)
             if (!strcmp(name, sibling->fName))
                 break;
     }
@@ -130,22 +130,22 @@ const char* SkDOM::findAttr(const Node* node, const char name[]) const
             return attr->fValue;
         attr += 1;
     }
-    return NULL;
+    return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 const SkDOM::Attr* SkDOM::getFirstAttr(const Node* node) const
 {
-    return node->fAttrCount ? node->attrs() : NULL;
+    return node->fAttrCount ? node->attrs() : nullptr;
 }
 
 const SkDOM::Attr* SkDOM::getNextAttr(const Node* node, const Attr* attr) const
 {
     SkASSERT(node);
-    if (attr == NULL)
-        return NULL;
-    return (attr - node->attrs() + 1) < node->fAttrCount ? attr + 1 : NULL;
+    if (attr == nullptr)
+        return nullptr;
+    return (attr - node->attrs() + 1) < node->fAttrCount ? attr + 1 : nullptr;
 }
 
 const char* SkDOM::getAttrName(const Node* node, const Attr* attr) const
@@ -173,7 +173,7 @@ SkDOM::AttrIter::AttrIter(const SkDOM&, const SkDOM::Node* node)
 
 const char* SkDOM::AttrIter::next(const char** value)
 {
-    const char* name = NULL;
+    const char* name = nullptr;
 
     if (fAttr < fStop)
     {
@@ -204,7 +204,7 @@ public:
     SkDOMParser(SkChunkAlloc* chunk) : SkXMLParser(&fParserError), fAlloc(chunk)
     {
         fAlloc->reset();
-        fRoot = NULL;
+        fRoot = nullptr;
         fLevel = 0;
         fNeedToFlush = true;
     }
@@ -222,13 +222,13 @@ protected:
                                                         SkChunkAlloc::kThrow_AllocFailType);
 
         node->fName = fElemName;
-        node->fFirstChild = NULL;
+        node->fFirstChild = nullptr;
         node->fAttrCount = SkToU16(attrCount);
         node->fType = fElemType;
 
-        if (fRoot == NULL)
+        if (fRoot == nullptr)
         {
-            node->fNextSibling = NULL;
+            node->fNextSibling = nullptr;
             fRoot = node;
         }
         else    // this adds siblings in reverse order. gets corrected in onEndElement()
@@ -268,7 +268,7 @@ protected:
         fParentStack.pop(&parent);
 
         SkDOM::Node* child = parent->fFirstChild;
-        SkDOM::Node* prev = NULL;
+        SkDOM::Node* prev = nullptr;
         while (child)
         {
             SkDOM::Node* next = child->fNextSibling;
@@ -317,9 +317,9 @@ const SkDOM::Node* SkDOM::build(const char doc[], size_t len)
     if (!parser.parse(doc, len))
     {
         SkDEBUGCODE(SkDebugf("xml parse error, line %d\n", parser.fParserError.getLineNumber());)
-        fRoot = NULL;
+        fRoot = nullptr;
         fAlloc.reset();
-        return NULL;
+        return nullptr;
     }
     fRoot = parser.getRoot();
     return fRoot;
@@ -341,14 +341,14 @@ static void walk_dom(const SkDOM& dom, const SkDOM::Node* node, SkXMLParser* par
     SkDOM::AttrIter iter(dom, node);
     const char*     name;
     const char*     value;
-    while ((name = iter.next(&value)) != NULL)
+    while ((name = iter.next(&value)) != nullptr)
         parser->addAttribute(name, value);
 
-    node = dom.getFirstChild(node, NULL);
+    node = dom.getFirstChild(node, nullptr);
     while (node)
     {
         walk_dom(dom, node, parser);
-        node = dom.getNextSibling(node, NULL);
+        node = dom.getNextSibling(node, nullptr);
     }
 
     parser->endElement(elem);
@@ -468,7 +468,7 @@ bool SkDOM::hasBool(const Node* node, const char name[], bool target) const
 
 void SkDOM::dump(const Node* node, int level) const
 {
-    if (node == NULL)
+    if (node == nullptr)
         node = this->getRootNode();
 
     SkDebugWStream debugStream;
@@ -493,7 +493,7 @@ void SkDOM::UnitTest()
 
     SkDOM   dom;
 
-    SkASSERT(dom.getRootNode() == NULL);
+    SkASSERT(dom.getRootNode() == nullptr);
 
     const Node* root = dom.build(gDoc, sizeof(gDoc) - 1);
     SkASSERT(root && dom.getRootNode() == root);
@@ -503,7 +503,7 @@ void SkDOM::UnitTest()
     v = dom.findAttr(root, "b");
     SkASSERT(v && !strcmp(v, "2"));
     v = dom.findAttr(root, "c");
-    SkASSERT(v == NULL);
+    SkASSERT(v == nullptr);
 
     SkASSERT(dom.getFirstChild(root, "elem1"));
     SkASSERT(!dom.getFirstChild(root, "subelem1"));

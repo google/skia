@@ -115,7 +115,7 @@ void GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
                            const SkString& basePath,
                            const char* fontsXml,
                            const char* fallbackFontsXml,
-                           const char* langFallbackFontsDir = NULL);
+                           const char* langFallbackFontsDir = nullptr);
 
 } // SkFontMgr_Android_Parser namespace
 

@@ -17,7 +17,7 @@ class SkTable_ColorFilter : public SkColorFilter {
 public:
     SkTable_ColorFilter(const uint8_t tableA[], const uint8_t tableR[],
                         const uint8_t tableG[], const uint8_t tableB[]) {
-        fBitmap = NULL;
+        fBitmap = nullptr;
         fFlags = 0;
 
         uint8_t* dst = fStorage;
@@ -215,10 +215,10 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     uint8_t packedStorage[5*256];
     size_t packedSize = buffer.getArrayCount();
     if (!buffer.validate(packedSize <= sizeof(packedStorage))) {
-        return NULL;
+        return nullptr;
     }
     if (!buffer.readByteArray(packedStorage, packedSize)) {
-        return NULL;
+        return nullptr;
     }
 
     uint8_t unpackedStorage[4*256];
@@ -226,13 +226,13 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
                               unpackedStorage, sizeof(unpackedStorage));
     // now check that we got the size we expected
     if (!buffer.validate(unpackedSize == count*256)) {
-        return NULL;
+        return nullptr;
     }
 
-    const uint8_t* a = NULL;
-    const uint8_t* r = NULL;
-    const uint8_t* g = NULL;
-    const uint8_t* b = NULL;
+    const uint8_t* a = nullptr;
+    const uint8_t* r = nullptr;
+    const uint8_t* g = nullptr;
+    const uint8_t* b = nullptr;
     const uint8_t* ptr = unpackedStorage;
 
     if (flags & kA_Flag) {
@@ -256,7 +256,7 @@ SkFlattenable* SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
 
 bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
     if (table) {
-        if (NULL == fBitmap) {
+        if (nullptr == fBitmap) {
             SkBitmap* bmp = new SkBitmap;
             bmp->allocPixels(SkImageInfo::MakeA8(256, 4));
             uint8_t* bitmapPixels = bmp->getAddr8(0, 0);
@@ -290,12 +290,12 @@ static void combine_tables(uint8_t res[256], const uint8_t outer[256], const uin
 SkColorFilter* SkTable_ColorFilter::newComposed(const SkColorFilter* innerFilter) const {
     SkBitmap innerBM;
     if (!innerFilter->asComponentTable(&innerBM)) {
-        return NULL;
+        return nullptr;
     }
 
     innerBM.lockPixels();
-    if (NULL == innerBM.getPixels()) {
-        return NULL;
+    if (nullptr == innerBM.getPixels()) {
+        return nullptr;
     }
 
     const uint8_t* table = fStorage;
@@ -419,7 +419,7 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
     GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    if (NULL == args.fInputColor) {
+    if (nullptr == args.fInputColor) {
         // the input color is solid white (all ones).
         static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;
         fsBuilder->codeAppendf("\t\tvec4 coord = vec4(%f, %f, %f, %f);\n",
@@ -473,9 +473,9 @@ GrFragmentProcessor* ColorTableEffect::Create(GrContext* context, SkBitmap bitma
     int row = atlas->lockRow(bitmap);
     SkAutoTUnref<GrTexture> texture;
     if (-1 == row) {
-        atlas = NULL;
-        // Passing params=NULL because this effect does no tiling or filtering.
-        texture.reset(GrRefCachedBitmapTexture(context, bitmap, NULL));
+        atlas = nullptr;
+        // Passing params=nullptr because this effect does no tiling or filtering.
+        texture.reset(GrRefCachedBitmapTexture(context, bitmap, nullptr));
     } else {
         texture.reset(SkRef(atlas->getTexture()));
     }
@@ -557,10 +557,10 @@ GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) {
         }
     }
     SkAutoTUnref<SkColorFilter> filter(SkTableColorFilter::CreateARGB(
-        (flags & (1 << 0)) ? luts[0] : NULL,
-        (flags & (1 << 1)) ? luts[1] : NULL,
-        (flags & (1 << 2)) ? luts[2] : NULL,
-        (flags & (1 << 3)) ? luts[3] : NULL
+        (flags & (1 << 0)) ? luts[0] : nullptr,
+        (flags & (1 << 1)) ? luts[1] : nullptr,
+        (flags & (1 << 2)) ? luts[2] : nullptr,
+        (flags & (1 << 3)) ? luts[3] : nullptr
     ));
 
     SkTDArray<GrFragmentProcessor*> array;
@@ -568,7 +568,7 @@ GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) {
         SkASSERT(1 == array.count());   // TableColorFilter only returns 1
         return array[0];
     }
-    return NULL;
+    return nullptr;
 }
 
 bool SkTable_ColorFilter::asFragmentProcessors(GrContext* context,
@@ -583,7 +583,7 @@ bool SkTable_ColorFilter::asFragmentProcessors(GrContext* context,
             *array->append() = frag;
         } else {
             frag->unref();
-            SkDEBUGCODE(frag = NULL;)
+            SkDEBUGCODE(frag = nullptr;)
         }
         return true;
     }

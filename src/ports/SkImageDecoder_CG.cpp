@@ -41,7 +41,7 @@ static CGDataProviderRef SkStreamToDataProvider(SkStream* stream) {
 static CGImageSourceRef SkStreamToCGImageSource(SkStream* stream) {
     CGDataProviderRef data = SkStreamToDataProvider(stream);
     if (!data) {
-        return NULL;
+        return nullptr;
     }
     CGImageSourceRef imageSrc = CGImageSourceCreateWithDataProvider(data, 0);
     CGDataProviderRelease(data);
@@ -134,13 +134,13 @@ static bool colorspace_is_sRGB(CGColorSpaceRef cs) {
 SkImageDecoder::Result SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     CGImageSourceRef imageSrc = SkStreamToCGImageSource(stream);
 
-    if (NULL == imageSrc) {
+    if (nullptr == imageSrc) {
         return kFailure;
     }
     SkAutoTCallVProc<const void, CFRelease> arsrc(imageSrc);
 
-    CGImageRef image = CGImageSourceCreateImageAtIndex(imageSrc, 0, NULL);
-    if (NULL == image) {
+    CGImageRef image = CGImageSourceCreateImageAtIndex(imageSrc, 0, nullptr);
+    if (nullptr == image) {
         return kFailure;
     }
     SkAutoTCallVProc<CGImage, CGImageRelease> arimage(image);
@@ -173,7 +173,7 @@ SkImageDecoder::Result SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* b
         return kSuccess;
     }
 
-    if (!this->allocPixelRef(bm, NULL)) {
+    if (!this->allocPixelRef(bm, nullptr)) {
         return kFailure;
     }
 
@@ -219,7 +219,7 @@ extern SkImageDecoder* image_decoder_from_stream(SkStreamRewindable*);
 
 SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable* stream) {
     SkImageDecoder* decoder = image_decoder_from_stream(stream);
-    if (NULL == decoder) {
+    if (nullptr == decoder) {
         // If no image decoder specific to the stream exists, use SkImageDecoder_CG.
         return new SkImageDecoder_CG;
     } else {
@@ -230,7 +230,7 @@ SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable* stream) {
 /////////////////////////////////////////////////////////////////////////
 
 SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
-    return NULL;
+    return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -256,12 +256,12 @@ static CGDataConsumerRef SkStreamToCGDataConsumer(SkWStream* stream) {
 static CGImageDestinationRef SkStreamToImageDestination(SkWStream* stream,
                                                         CFStringRef type) {
     CGDataConsumerRef consumer = SkStreamToCGDataConsumer(stream);
-    if (NULL == consumer) {
-        return NULL;
+    if (nullptr == consumer) {
+        return nullptr;
     }
     SkAutoTCallVProc<const void, CFRelease> arconsumer(consumer);
 
-    return CGImageDestinationCreateWithDataConsumer(consumer, type, 1, NULL);
+    return CGImageDestinationCreateWithDataConsumer(consumer, type, 1, nullptr);
 }
 
 class SkImageEncoder_CG : public SkImageEncoder {
@@ -316,18 +316,18 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
     }
 
     CGImageDestinationRef dst = SkStreamToImageDestination(stream, type);
-    if (NULL == dst) {
+    if (nullptr == dst) {
         return false;
     }
     SkAutoTCallVProc<const void, CFRelease> ardst(dst);
 
     CGImageRef image = SkCreateCGImageRef(*bmPtr);
-    if (NULL == image) {
+    if (nullptr == image) {
         return false;
     }
     SkAutoTCallVProc<CGImage, CGImageRelease> agimage(image);
 
-    CGImageDestinationAddImage(dst, image, NULL);
+    CGImageDestinationAddImage(dst, image, nullptr);
     return CGImageDestinationFinalize(dst);
 }
 
@@ -342,7 +342,7 @@ static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
         case SkImageEncoder::kPNG_Type:
             break;
         default:
-            return NULL;
+            return nullptr;
     }
     return new SkImageEncoder_CG(t);
 }
@@ -388,13 +388,13 @@ static SkImageDecoder::Format UTType_to_Format(const CFStringRef uttype) {
 static SkImageDecoder::Format get_format_cg(SkStreamRewindable* stream) {
     CGImageSourceRef imageSrc = SkStreamToCGImageSource(stream);
 
-    if (NULL == imageSrc) {
+    if (nullptr == imageSrc) {
         return SkImageDecoder::kUnknown_Format;
     }
 
     SkAutoTCallVProc<const void, CFRelease> arsrc(imageSrc);
     const CFStringRef name = CGImageSourceGetType(imageSrc);
-    if (NULL == name) {
+    if (nullptr == name) {
         return SkImageDecoder::kUnknown_Format;
     }
     return UTType_to_Format(name);

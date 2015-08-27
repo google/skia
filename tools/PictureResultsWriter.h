@@ -104,7 +104,7 @@ private:
 class PictureResultsLoggerWriter : public PictureResultsWriter {
 private:
     void logProgress(const char str[]) {
-        if(fLogger != NULL) {
+        if(fLogger != nullptr) {
             fLogger->logProgress(str);
         }
     }

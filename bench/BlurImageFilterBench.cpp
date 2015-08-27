@@ -51,9 +51,9 @@ protected:
                                                 SkIntToScalar(fCheckerboard.height()));
         const SkImageFilter::CropRect cropRect =
                                         SkImageFilter::CropRect(bmpRect.makeInset(10.f, 10.f));
-        const SkImageFilter::CropRect* crop = fIsCropped ? &cropRect : NULL;
+        const SkImageFilter::CropRect* crop = fIsCropped ? &cropRect : nullptr;
 
-        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY, NULL, crop))->unref();
+        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY, nullptr, crop))->unref();
 
         for (int i = 0; i < loops; i++) {
             canvas->drawBitmap(fCheckerboard, kX, kY, &paint);

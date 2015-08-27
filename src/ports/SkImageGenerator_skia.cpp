@@ -28,7 +28,7 @@ protected:
         {
             return false;
         }
-        return bm->installPixels(bmi, fMemory, fRowBytes, ctable, NULL, NULL);
+        return bm->installPixels(bmi, fMemory, fRowBytes, ctable, nullptr, nullptr);
     }
 };
 
@@ -67,7 +67,7 @@ protected:
             SkASSERT(ctableEntries);
 
             SkColorTable* ctable = bm.getColorTable();
-            if (NULL == ctable) {
+            if (nullptr == ctable) {
                 return false;
             }
             const int count = ctable->count();
@@ -90,15 +90,15 @@ private:
 SkImageGenerator* SkImageGenerator::NewFromEncodedImpl(SkData* data) {
     SkMemoryStream stream(data->data(), data->size(), false);
     SkImageDecoder* decoder = SkImageDecoder::Factory(&stream);
-    if (NULL == decoder) {
-        return NULL;
+    if (nullptr == decoder) {
+        return nullptr;
     }
 
     SkBitmap bm;
     stream.rewind();
     if (!decoder->decode(&stream, &bm, kUnknown_SkColorType, SkImageDecoder::kDecodeBounds_Mode)) {
         delete decoder;
-        return NULL;
+        return nullptr;
     }
 
     return new SkImageDecoderGenerator(bm.info(), decoder, data);

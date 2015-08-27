@@ -122,14 +122,14 @@ private:
      * dimensions exactly matching the layer size.
      */
     SkCanvas* possiblyCreateTempCanvas(SkCanvas* baseCanvas, int w, int h) {
-        SkCanvas* tempCanvas = NULL;
+        SkCanvas* tempCanvas = nullptr;
 #if SK_SUPPORT_GPU
         GrContext* context = baseCanvas->getGrContext();
         SkImageInfo baseInfo = baseCanvas->imageInfo();
         SkImageInfo info = SkImageInfo::Make(w, h, baseInfo.colorType(), baseInfo.alphaType(),
                                              baseInfo.profileType());
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted,
-                                        info, 0, NULL));
+                                        info, 0, nullptr));
         if (surface) {
             tempCanvas = SkRef(surface->getCanvas());
         }
@@ -147,8 +147,8 @@ private:
         SkRect r = SkRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h));
 
         SkCanvas* modeCanvas;
-        if (NULL == layerCanvas) {
-            canvas->saveLayer(&r, NULL);
+        if (nullptr == layerCanvas) {
+            canvas->saveLayer(&r, nullptr);
             modeCanvas = canvas;
         } else {
             modeCanvas = layerCanvas;
@@ -159,9 +159,9 @@ private:
         bgPaint.setShader(fBGShader);
         modeCanvas->drawRect(r, bgPaint);
         modeCanvas->drawRect(r, modePaint);
-        modeCanvas = NULL;
+        modeCanvas = nullptr;
 
-        if (NULL == layerCanvas) {
+        if (nullptr == layerCanvas) {
             canvas->restore();
         } else {
             SkAutoROCanvasPixels ropixels(layerCanvas);
@@ -205,7 +205,7 @@ private:
         bmpPaint.setShader(SkGradientShader::CreateRadial(kCenter,
                                                           3 * SkIntToScalar(kSize) / 4,
                                                           kColors,
-                                                          NULL,
+                                                          nullptr,
                                                           SK_ARRAY_COUNT(kColors),
                                                           SkShader::kRepeat_TileMode))->unref();
 

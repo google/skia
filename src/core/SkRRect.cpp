@@ -359,7 +359,7 @@ static bool matrix_only_scale_and_translate(const SkMatrix& matrix) {
 }
 
 bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
-    if (NULL == dst) {
+    if (nullptr == dst) {
         return false;
     }
 

@@ -116,7 +116,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         return decoderMgr->returnFalse("read_header");
     }
 
-    if (NULL != codecOut) {
+    if (nullptr != codecOut) {
         // Recommend the color type to decode to
         const SkColorType colorType = decoderMgr->getColorType();
 
@@ -125,7 +125,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
                 decoderMgr->dinfo()->image_height, colorType, kOpaque_SkAlphaType);
         *codecOut = new SkJpegCodec(imageInfo, stream, decoderMgr.detach());
     } else {
-        SkASSERT(NULL != decoderMgrOut);
+        SkASSERT(nullptr != decoderMgrOut);
         *decoderMgrOut = decoderMgr.detach();
     }
     return true;
@@ -133,14 +133,14 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
 
 SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
     SkAutoTDelete<SkStream> streamDeleter(stream);
-    SkCodec* codec = NULL;
-    if (ReadHeader(stream,  &codec, NULL)) {
+    SkCodec* codec = nullptr;
+    if (ReadHeader(stream,  &codec, nullptr)) {
         // Codec has taken ownership of the stream, we do not need to delete it
         SkASSERT(codec);
         streamDeleter.detach();
         return codec;
     }
-    return NULL;
+    return nullptr;
 }
 
 SkJpegCodec::SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream,
@@ -199,11 +199,11 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
 }
 
 bool SkJpegCodec::onRewind() {
-    JpegDecoderMgr* decoderMgr = NULL;
-    if (!ReadHeader(this->stream(), NULL, &decoderMgr)) {
+    JpegDecoderMgr* decoderMgr = nullptr;
+    if (!ReadHeader(this->stream(), nullptr, &decoderMgr)) {
         return fDecoderMgr->returnFalse("could not rewind");
     }
-    SkASSERT(NULL != decoderMgr);
+    SkASSERT(nullptr != decoderMgr);
     fDecoderMgr.reset(decoderMgr);
     return true;
 }
@@ -358,7 +358,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
             if (kNo_ZeroInitialized == options.fZeroInitialized ||
                     kN32_SkColorType == dstInfo.colorType()) {
                 SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, dstHeight - y,
-                        SK_ColorBLACK, NULL);
+                        SK_ColorBLACK, nullptr);
             }
 
             // Prevent libjpeg from failing on incomplete decode
@@ -425,7 +425,7 @@ public:
                 SkASSERT(false);
         }
 
-        fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, NULL, info, options.fZeroInitialized, 
+        fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, info, options.fZeroInitialized, 
                                                    this->getInfo()));
         if (!fSwizzler) {
             // FIXME: CreateSwizzler could fail for another reason.
@@ -469,8 +469,8 @@ public:
             fStorage.reset(get_row_bytes(fCodec->fDecoderMgr->dinfo()));
             fSrcRow = static_cast<uint8_t*>(fStorage.get());
         } else {
-            fSrcRow = NULL;
-            fSwizzler.reset(NULL);
+            fSrcRow = nullptr;
+            fSwizzler.reset(nullptr);
         }
 
         // Now, given valid output dimensions, we can start the decompress
@@ -519,7 +519,7 @@ public:
                 if (SkCodec::kNo_ZeroInitialized == fOpts.fZeroInitialized ||
                         kN32_SkColorType == this->dstInfo().colorType()) {
                     SkSwizzler::Fill(dstRow, this->dstInfo(), rowBytes,
-                            count - y, SK_ColorBLACK, NULL);
+                            count - y, SK_ColorBLACK, nullptr);
                 }
                 fCodec->fDecoderMgr->dinfo()->output_scanline = this->dstInfo().height();
                 return SkCodec::kIncompleteInput;
@@ -580,7 +580,7 @@ private:
 SkScanlineDecoder* SkJpegCodec::NewSDFromStream(SkStream* stream) {
     SkAutoTDelete<SkJpegCodec> codec(static_cast<SkJpegCodec*>(SkJpegCodec::NewFromStream(stream)));
     if (!codec) {
-        return NULL;
+        return nullptr;
     }
 
     const SkImageInfo& srcInfo = codec->getInfo();

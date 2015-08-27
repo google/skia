@@ -28,17 +28,17 @@ static const DecoderProc gDecoderProcs[] = {
 
 SkScanlineDecoder* SkScanlineDecoder::NewFromStream(SkStream* stream) {
     if (!stream) {
-        return NULL;
+        return nullptr;
     }
 
     SkAutoTDelete<SkStream> streamDeleter(stream);
 
-    SkAutoTDelete<SkScanlineDecoder> codec(NULL);
+    SkAutoTDelete<SkScanlineDecoder> codec(nullptr);
     for (uint32_t i = 0; i < SK_ARRAY_COUNT(gDecoderProcs); i++) {
         DecoderProc proc = gDecoderProcs[i];
         const bool correctFormat = proc.IsFormat(stream);
         if (!stream->rewind()) {
-            return NULL;
+            return nullptr;
         }
         if (correctFormat) {
             codec.reset(proc.NewFromStream(streamDeleter.detach()));
@@ -52,7 +52,7 @@ SkScanlineDecoder* SkScanlineDecoder::NewFromStream(SkStream* stream) {
     const int32_t maxSize = 1 << 27;
     if (codec && codec->getInfo().width() * codec->getInfo().height() > maxSize) {
         SkCodecPrintf("Error: Image size too large, cannot decode.\n");
-        return NULL;
+        return nullptr;
     } else {
         return codec.detach();
     }
@@ -60,7 +60,7 @@ SkScanlineDecoder* SkScanlineDecoder::NewFromStream(SkStream* stream) {
 
 SkScanlineDecoder* SkScanlineDecoder::NewFromData(SkData* data) {
     if (!data) {
-        return NULL;
+        return nullptr;
     }
     return NewFromStream(new SkMemoryStream(data));
 }
@@ -70,20 +70,20 @@ SkCodec::Result SkScanlineDecoder::start(const SkImageInfo& dstInfo,
         const SkCodec::Options* options, SkPMColor ctable[], int* ctableCount) {
     // Ensure that valid color ptrs are passed in for kIndex8 color type
     if (kIndex_8_SkColorType == dstInfo.colorType()) {
-        if (NULL == ctable || NULL == ctableCount) {
+        if (nullptr == ctable || nullptr == ctableCount) {
             return SkCodec::kInvalidParameters;
         }
     } else {
         if (ctableCount) {
             *ctableCount = 0;
         }
-        ctableCount = NULL;
-        ctable = NULL;
+        ctableCount = nullptr;
+        ctable = nullptr;
     }
 
     // Set options.
     SkCodec::Options optsStorage;
-    if (NULL == options) {
+    if (nullptr == options) {
         options = &optsStorage;
     }
 
@@ -98,6 +98,6 @@ SkCodec::Result SkScanlineDecoder::start(const SkImageInfo& dstInfo,
 }
 
 SkCodec::Result SkScanlineDecoder::start(const SkImageInfo& dstInfo) {
-    return this->start(dstInfo, NULL, NULL, NULL);
+    return this->start(dstInfo, nullptr, nullptr, nullptr);
 }
 

@@ -121,12 +121,12 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (NULL == rt) {
+        if (nullptr == rt) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }
         GrContext* context = rt->getContext();
-        if (NULL == context) {
+        if (nullptr == context) {
             return;
         }
 
@@ -159,7 +159,7 @@ protected:
                 {   // scope to contain GrTestTarget
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    if (NULL == tt.target()) {
+                    if (nullptr == tt.target()) {
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
@@ -269,12 +269,12 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (NULL == rt) {
+        if (nullptr == rt) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }
         GrContext* context = rt->getContext();
-        if (NULL == context) {
+        if (nullptr == context) {
             return;
         }
 
@@ -307,7 +307,7 @@ protected:
                 {   // scope to contain GrTestTarget
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    if (NULL == tt.target()) {
+                    if (nullptr == tt.target()) {
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
@@ -512,12 +512,12 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (NULL == rt) {
+        if (nullptr == rt) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }
         GrContext* context = rt->getContext();
-        if (NULL == context) {
+        if (nullptr == context) {
             return;
         }
 
@@ -548,7 +548,7 @@ protected:
                 {   // scope to contain GrTestTarget
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    if (NULL == tt.target()) {
+                    if (nullptr == tt.target()) {
                         continue;
                     }
                     GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;

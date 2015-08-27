@@ -467,7 +467,7 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
 }
 
 void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
-    if (NULL == metrics) {
+    if (nullptr == metrics) {
         return;
     }
 
@@ -734,8 +734,8 @@ void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
     //It may not be needed, it appears that DirectWrite only hints at em size.
     HRVM(fTypeface->fDWriteFontFace->GetGlyphRunOutline(SkScalarToFloat(fTextSizeRender),
                                        &glyphId,
-                                       NULL, //advances
-                                       NULL, //offsets
+                                       nullptr, //advances
+                                       nullptr, //offsets
                                        1, //num glyphs
                                        FALSE, //sideways
                                        FALSE, //rtl

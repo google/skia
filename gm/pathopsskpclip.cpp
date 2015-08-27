@@ -34,7 +34,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPictureRecorder recorder;
-        SkCanvas* rec = recorder.beginRecording(1200, 900, NULL, 0);
+        SkCanvas* rec = recorder.beginRecording(1200, 900, nullptr, 0);
         SkPath p;
         SkRect r = {
             SkIntToScalar(100),

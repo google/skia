@@ -135,7 +135,7 @@ protected:
      * Argument expr is a simple expression or a parenthesized expression. */
     // TODO: make explicit once effects input Exprs.
     GrGLSLExpr(const char expr[]) {
-        if (NULL == expr) {  // TODO: remove this once effects input Exprs.
+        if (nullptr == expr) {  // TODO: remove this once effects input Exprs.
             fType = kOnes_ExprType;
         } else {
             fType = kFullExpr_ExprType;

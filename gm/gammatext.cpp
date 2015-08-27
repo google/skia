@@ -14,7 +14,7 @@
 static SkShader* make_heatGradient(const SkPoint pts[2]) {
     const SkColor bw[] = { SK_ColorBLACK, SK_ColorWHITE };
 
-    return SkGradientShader::CreateLinear(pts, bw, NULL,
+    return SkGradientShader::CreateLinear(pts, bw, nullptr,
                                           SK_ARRAY_COUNT(bw),
                                           SkShader::kClamp_TileMode);
 }
@@ -106,7 +106,7 @@ static SkShader* make_gradient(SkColor c) {
     SkColor colors[2];
     colors[0] = c;
     colors[1] = SkColorSetA(c, 0);
-    return SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 static void set_face(SkPaint* paint) {
@@ -118,7 +118,7 @@ static void draw_pair(SkCanvas* canvas, SkPaint* paint, SkShader* shader) {
     const char text[] = "Now is the time for all good";
     const size_t len = strlen(text);
     
-    paint->setShader(NULL);
+    paint->setShader(nullptr);
     canvas->drawText(text, len, 10, 20, *paint);
     paint->setShader(SkShader::CreateColorShader(paint->getColor()))->unref();
     canvas->drawText(text, len, 10, 40, *paint);
@@ -134,7 +134,7 @@ public:
     GammaShaderTextGM() {
         const SkColor colors[] = { SK_ColorBLACK, SK_ColorRED, SK_ColorBLUE };
         for (size_t i = 0; i < SK_ARRAY_COUNT(fShaders); ++i) {
-            fShaders[i] = NULL;
+            fShaders[i] = nullptr;
             fColors[i] = colors[i];
         }
     }

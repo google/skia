@@ -638,7 +638,7 @@ SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer,
                                SkTBlitterAllocator* allocator) {
 
     if ((width % 4) != 0 || (height % 4) != 0) {
-        return NULL;
+        return nullptr;
     }
 
     // Memset the output buffer to an encoding that decodes to zero. We must do this

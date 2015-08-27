@@ -64,7 +64,7 @@ void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     stop = SkTMin(stop, record.count());
-    SkRecords::Draw draw(canvas, drawablePicts, NULL, drawableCount, &initialCTM);
+    SkRecords::Draw draw(canvas, drawablePicts, nullptr, drawableCount, &initialCTM);
     for (int i = start; i < stop; i++) {
         record.visit<void>(i, draw);
     }
@@ -123,10 +123,10 @@ template <> void Draw::draw(const DrawDrawable& r) {
     SkASSERT(r.index >= 0);
     SkASSERT(r.index < fDrawableCount);
     if (fDrawables) {
-        SkASSERT(NULL == fDrawablePicts);
+        SkASSERT(nullptr == fDrawablePicts);
         fCanvas->drawDrawable(fDrawables[r.index], r.matrix);
     } else {
-        fCanvas->drawPicture(fDrawablePicts[r.index], r.matrix, NULL);
+        fCanvas->drawPicture(fDrawablePicts[r.index], r.matrix, nullptr);
     }
 }
 
@@ -280,7 +280,7 @@ private:
 
     // The bounds of these ops must be calculated when we hit the Restore
     // from the bounds of the ops in the same Save block.
-    void trackBounds(const Save&)          { this->pushSaveBlock(NULL); }
+    void trackBounds(const Save&)          { this->pushSaveBlock(nullptr); }
     void trackBounds(const SaveLayer& op)  { this->pushSaveBlock(op.paint); }
     void trackBounds(const Restore&) { fBounds[fCurrentOp] = this->popSaveBlock(); }
 
@@ -324,7 +324,7 @@ private:
             // https://crbug.com/401593
             SkXfermode* xfermode = paint->getXfermode();
             SkXfermode::Mode mode;
-            // SrcOver is ok, and is also the common case with a NULL xfermode.
+            // SrcOver is ok, and is also the common case with a nullptr xfermode.
             // So we should make that the fast path and bypass the mode extraction
             // and test.
             if (xfermode && xfermode->asMode(&mode)) {
@@ -525,7 +525,7 @@ private:
     }
 
     Bounds bounds(const DrawDrawable& op) const {
-        return this->adjustAndMap(op.worstCaseBounds, NULL);
+        return this->adjustAndMap(op.worstCaseBounds, nullptr);
     }
 
     static void AdjustTextForFontMetrics(SkRect* rect, const SkPaint& paint) {
@@ -644,14 +644,14 @@ private:
     template <typename T> void trackSaveLayers(const T& op) {
         /* most ops aren't involved in saveLayers */
     }
-    void trackSaveLayers(const Save& s) { this->pushSaveLayerInfo(false, NULL, NULL); }
+    void trackSaveLayers(const Save& s) { this->pushSaveLayerInfo(false, nullptr, nullptr); }
     void trackSaveLayers(const SaveLayer& sl) { this->pushSaveLayerInfo(true, sl.bounds, sl.paint); }
     void trackSaveLayers(const Restore& r) { this->popSaveLayerInfo(); }
 
     void trackSaveLayersForPicture(const SkPicture* picture, const SkPaint* paint) {
         // For sub-pictures, we wrap their layer information within the parent
         // picture's rendering hierarchy
-        const SkLayerInfo* childData = NULL;
+        const SkLayerInfo* childData = nullptr;
         if (const SkBigPicture* bp = picture->asSkBigPicture()) {
             childData = static_cast<const SkLayerInfo*>(bp->accelData());
         }
@@ -677,7 +677,7 @@ private:
 
             SkLayerInfo::BlockInfo& dst = fAccelData->addBlock();
 
-            // If src.fPicture is NULL the layer is in dp.picture; otherwise
+            // If src.fPicture is nullptr the layer is in dp.picture; otherwise
             // it belongs to a sub-picture.
             dst.fPicture = src.fPicture ? src.fPicture : picture;
             dst.fPicture->ref();
@@ -710,7 +710,7 @@ private:
     void trackSaveLayers(const DrawDrawable& dp) {
         SkASSERT(fPictList);
         SkASSERT(dp.index >= 0 && dp.index < fPictList->count());
-        const SkPaint* paint = NULL;    // drawables don't get a side-car paint
+        const SkPaint* paint = nullptr;    // drawables don't get a side-car paint
         this->trackSaveLayersForPicture(fPictList->begin()[dp.index], paint);
     }
 
@@ -757,7 +757,7 @@ private:
 
         SkLayerInfo::BlockInfo& block = fAccelData->addBlock();
 
-        SkASSERT(NULL == block.fPicture);  // This layer is in the top-most picture
+        SkASSERT(nullptr == block.fPicture);  // This layer is in the top-most picture
 
         block.fBounds = fFillBounds.getBounds(sli.fStartIndex);
         block.fLocalMat = fFillBounds.ctm();

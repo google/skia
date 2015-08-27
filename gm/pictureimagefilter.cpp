@@ -24,7 +24,7 @@ protected:
 
     void makePicture() {
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(100, 100, NULL, 0);
+        SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
         canvas->clear(SK_ColorBLACK);
         SkPaint paint;
         paint.setAntiAlias(true);

@@ -38,7 +38,7 @@ public:
         @param outputColor  A predefined vec4 in the FS in which the stage should place its output
                             color (or coverage).
         @param inputColor   A vec4 that holds the input color to the stage in the FS. This may be
-                            NULL in which case the implied input is solid white (all ones).
+                            nullptr in which case the implied input is solid white (all ones).
                             TODO: Better system for communicating optimization info (e.g. input
                             color is solid white, trans black, known to be opaque, etc.) that allows
                             the processor to communicate back similar known info about its output.

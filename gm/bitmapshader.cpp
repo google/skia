@@ -84,7 +84,7 @@ protected:
             canvas->translate(0, 25);
 
             // clear the shader, colorized by a solid color with a bitmap mask
-            paint.setShader(NULL);
+            paint.setShader(nullptr);
             paint.setColor(SK_ColorGREEN);
             canvas->drawBitmap(fMask, 0, 0, &paint);
             canvas->drawBitmap(fMask, 30, 0, &paint);

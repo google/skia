@@ -21,15 +21,15 @@ bool SkMeshIndices::init(SkPoint tex[], uint16_t indices[],
                          int texW, int texH, int rows, int cols) {
     if (rows < 2 || cols < 2) {
         sk_free(fStorage);
-        fStorage = NULL;
-        fTex = NULL;
-        fIndices = NULL;
+        fStorage = nullptr;
+        fTex = nullptr;
+        fIndices = nullptr;
         fTexCount = fIndexCount = 0;
         return false;
     }
 
     sk_free(fStorage);
-    fStorage = NULL;
+    fStorage = nullptr;
 
     fTexCount = rows * cols;
     rows -= 1;
@@ -96,7 +96,7 @@ void SkMeshUtils::Draw(SkCanvas* canvas, const SkBitmap& bitmap,
                                          SkShader::kClamp_TileMode,
                                          SkShader::kClamp_TileMode))->unref();
         canvas->drawVertices(SkCanvas::kTriangles_VertexMode,
-                             rows * cols, verts, idx.tex(), colors, NULL,
+                             rows * cols, verts, idx.tex(), colors, nullptr,
                              idx.indices(), idx.indexCount(), p);
     }
 }

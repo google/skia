@@ -78,14 +78,14 @@ DEF_TEST(CachedData, reporter) {
         const size_t size = 100;
 
         // test with client as last owner
-        SkCachedData* data = test_locking(reporter, size, useDiscardable ? pool.get() : NULL);
+        SkCachedData* data = test_locking(reporter, size, useDiscardable ? pool.get() : nullptr);
         check_data(reporter, data, 2, kInCache, kLocked);
         data->detachFromCacheAndUnref();
         check_data(reporter, data, 1, kNotInCache, kLocked);
         data->unref();
 
         // test with cache as last owner
-        data = test_locking(reporter, size, useDiscardable ? pool.get() : NULL);
+        data = test_locking(reporter, size, useDiscardable ? pool.get() : nullptr);
         check_data(reporter, data, 2, kInCache, kLocked);
         data->unref();
         check_data(reporter, data, 1, kInCache, kUnlocked);

@@ -32,7 +32,7 @@ struct Catalog {
 }  // namespace
 
 template <typename T>
-static SkString emit_to_string(T& obj, Catalog* catPtr = NULL) {
+static SkString emit_to_string(T& obj, Catalog* catPtr = nullptr) {
     Catalog catalog;
     SkDynamicMemoryWStream buffer;
     if (!catPtr) {
@@ -364,7 +364,7 @@ namespace {
 
 class DummyImageFilter : public SkImageFilter {
 public:
-    DummyImageFilter(bool visited = false) : SkImageFilter(0, NULL), fVisited(visited) {}
+    DummyImageFilter(bool visited = false) : SkImageFilter(0, nullptr), fVisited(visited) {}
     ~DummyImageFilter() override {}
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const override {

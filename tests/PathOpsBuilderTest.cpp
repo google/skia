@@ -31,7 +31,7 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     bool closed;
     SkPath::Direction dir;
-    REPORTER_ASSERT(reporter, result.isRect(NULL, &closed, &dir));
+    REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
     int pixelDiff = comparePaths(reporter, __FUNCTION__, rectPath, result);
@@ -42,7 +42,7 @@ DEF_TEST(PathOpsBuilder, reporter) {
     rectPath.addRect(0, 1, 2, 3, SkPath::kCCW_Direction);
     builder.add(rectPath, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, result.isRect(NULL, &closed, &dir));
+    REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
     REPORTER_ASSERT(reporter, rectPath == result);
@@ -58,7 +58,7 @@ DEF_TEST(PathOpsBuilder, reporter) {
     builder.add(rect2, kUnion_SkPathOp);
     builder.add(rect3, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, result.isRect(NULL, &closed, &dir));
+    REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     SkRect expected;
     expected.set(0, 1, 5, 3);

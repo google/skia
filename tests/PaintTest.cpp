@@ -294,7 +294,7 @@ DEF_TEST(Paint_MoreFlattening, r) {
     paint.setTextScaleX(1.0f);  // Default value, ignored.
     paint.setTextSize(19);
     paint.setXfermode(SkXfermode::Create(SkXfermode::kModulate_Mode))->unref();
-    paint.setLooper(NULL);  // Default value, ignored.
+    paint.setLooper(nullptr);  // Default value, ignored.
 
     SkWriteBuffer writer;
     paint.flatten(writer);
@@ -333,7 +333,7 @@ DEF_TEST(Paint_getHash, r) {
     // SkTypeface is the first field we hash, so test it specially.
     paint.setTypeface(SkTypeface::RefDefault())->unref();
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
-    paint.setTypeface(NULL);
+    paint.setTypeface(nullptr);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 
     // This is part of fBitfields, the last field we hash.

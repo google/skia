@@ -17,7 +17,7 @@
  *  the generator.  If it succeeds, it will modify destination
  *  bitmap.
  *
- *  If generator is NULL, will safely return false.
+ *  If generator is nullptr, will safely return false.
  *
  *  If this fails or when the SkDiscardablePixelRef that is
  *  installed into destination is destroyed, it will call
@@ -27,8 +27,8 @@
  *  @param destination Upon success, this bitmap will be
  *  configured and have a pixelref installed.
  *
- *  @param factory If not NULL, this object will be used as a
- *  source of discardable memory when decoding.  If NULL, then
+ *  @param factory If not nullptr, this object will be used as a
+ *  source of discardable memory when decoding.  If nullptr, then
  *  SkDiscardableMemory::Create() will be called.
  *
  *  @return true iff successful.

@@ -17,7 +17,7 @@ static SkShader* make_shader() {
     };
     const SkPoint pts[] = { { 100.f / 4.f, 0.f }, { 3.f * 100.f / 4.f, 100.f } };
     
-    return SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                           SkShader::kMirror_TileMode);
 }
 
@@ -124,20 +124,20 @@ protected:
                 canvas->translate(x * 350.0f, y * 350.0f);
                 switch (x) {
                     case 0:
-                        canvas->drawPatch(cubics, NULL, NULL, xfer, paint);
+                        canvas->drawPatch(cubics, nullptr, nullptr, xfer, paint);
                         break;
                     case 1:
-                        canvas->drawPatch(cubics, colors, NULL, xfer, paint);
+                        canvas->drawPatch(cubics, colors, nullptr, xfer, paint);
                         break;
                     case 2:
                         paint.setShader(shader);
-                        canvas->drawPatch(cubics, NULL, texCoords, xfer, paint);
-                        paint.setShader(NULL);
+                        canvas->drawPatch(cubics, nullptr, texCoords, xfer, paint);
+                        paint.setShader(nullptr);
                         break;
                     case 3:
                         paint.setShader(shader);
                         canvas->drawPatch(cubics, colors, texCoords, xfer, paint);
-                        paint.setShader(NULL);
+                        paint.setShader(nullptr);
                         break;
                     default:
                         break;

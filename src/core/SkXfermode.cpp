@@ -666,7 +666,7 @@ bool SkXfermode::asXPFactory(GrXPFactory**) const {
 #include "effects/GrPorterDuffXferProcessor.h"
 
 bool SkXfermode::AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
-    if (NULL == xfermode) {
+    if (nullptr == xfermode) {
         if (xpf) {
             *xpf = GrPorterDuffXPFactory::Create(kSrcOver_Mode);
         }
@@ -691,7 +691,7 @@ void SkXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                         const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
-    if (NULL == aa) {
+    if (nullptr == aa) {
         for (int i = count - 1; i >= 0; --i) {
             dst[i] = this->xferColor(src[i], dst[i]);
         }
@@ -715,7 +715,7 @@ void SkXfermode::xfer16(uint16_t* dst,
                         const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
-    if (NULL == aa) {
+    if (nullptr == aa) {
         for (int i = count - 1; i >= 0; --i) {
             SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
             dst[i] = SkPixel32ToPixel16_ToU16(this->xferColor(src[i], dstC));
@@ -740,7 +740,7 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
                         const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
-    if (NULL == aa) {
+    if (nullptr == aa) {
         for (int i = count - 1; i >= 0; --i) {
             SkPMColor res = this->xferColor(src[i], (dst[i] << SK_A32_SHIFT));
             dst[i] = SkToU8(SkGetPackedA32(res));
@@ -775,7 +775,7 @@ bool SkXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) const {
 SkFlattenable* SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
     uint32_t mode32 = buffer.read32();
     if (!buffer.validate(mode32 < SK_ARRAY_COUNT(gProcCoeffs))) {
-        return NULL;
+        return nullptr;
     }
     return SkXfermode::Create((SkXfermode::Mode)mode32);
 }
@@ -840,7 +840,7 @@ void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
     SkXfermodeProc proc = fProc;
 
     if (proc) {
-        if (NULL == aa) {
+        if (nullptr == aa) {
             for (int i = count - 1; i >= 0; --i) {
                 dst[i] = proc(src[i], dst[i]);
             }
@@ -868,7 +868,7 @@ void SkProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
     SkXfermodeProc proc = fProc;
 
     if (proc) {
-        if (NULL == aa) {
+        if (nullptr == aa) {
             for (int i = count - 1; i >= 0; --i) {
                 SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
                 dst[i] = SkPixel32ToPixel16_ToU16(proc(src[i], dstC));
@@ -897,7 +897,7 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
     SkXfermodeProc proc = fProc;
 
     if (proc) {
-        if (NULL == aa) {
+        if (nullptr == aa) {
             for (int i = count - 1; i >= 0; --i) {
                 SkPMColor res = proc(src[i], dst[i] << SK_A32_SHIFT);
                 dst[i] = SkToU8(SkGetPackedA32(res));
@@ -1017,20 +1017,20 @@ SkXfermode* SkXfermode::Create(Mode mode) {
 
     if ((unsigned)mode >= kModeCount) {
         // report error
-        return NULL;
+        return nullptr;
     }
 
-    // Skia's "default" mode is srcover. NULL in SkPaint is interpreted as srcover
-    // so we can just return NULL from the factory.
+    // Skia's "default" mode is srcover. nullptr in SkPaint is interpreted as srcover
+    // so we can just return nullptr from the factory.
     if (kSrcOver_Mode == mode) {
-        return NULL;
+        return nullptr;
     }
 
     return SkSafeRef(cached[mode]);
 }
 
 SkXfermodeProc SkXfermode::GetProc(Mode mode) {
-    SkXfermodeProc  proc = NULL;
+    SkXfermodeProc  proc = nullptr;
     if ((unsigned)mode < kModeCount) {
         proc = gProcCoeffs[mode].fProc;
     }
@@ -1062,7 +1062,7 @@ bool SkXfermode::ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst) {
 }
 
 bool SkXfermode::AsMode(const SkXfermode* xfer, Mode* mode) {
-    if (NULL == xfer) {
+    if (nullptr == xfer) {
         if (mode) {
             *mode = kSrcOver_Mode;
         }
@@ -1081,7 +1081,7 @@ bool SkXfermode::IsMode(const SkXfermode* xfer, Mode mode) {
 }
 
 bool SkXfermode::SupportsCoverageAsAlpha(const SkXfermode* xfer) {
-    // if xfer is NULL we treat it as srcOver which always supports coverageAsAlpha
+    // if xfer is nullptr we treat it as srcOver which always supports coverageAsAlpha
     if (!xfer) {
         return true;
     }
@@ -1090,7 +1090,7 @@ bool SkXfermode::SupportsCoverageAsAlpha(const SkXfermode* xfer) {
 }
 
 bool SkXfermode::IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType) {
-    // if xfer is NULL we treat it as srcOver which is opaque if our src is opaque
+    // if xfer is nullptr we treat it as srcOver which is opaque if our src is opaque
     if (!xfer) {
         return SkXfermode::kOpaque_SrcColorOpacity == opacityType;
     }

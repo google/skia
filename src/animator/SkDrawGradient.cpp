@@ -127,7 +127,7 @@ void SkDrawLinearGradient::dump(SkAnimateMaker* maker) {
 
 SkShader* SkDrawLinearGradient::getShader() {
     if (addPrelude() == 0 || points.count() != 4)
-        return NULL;
+        return nullptr;
     SkShader* shader = SkGradientShader::CreateLinear((SkPoint*)points.begin(),
         fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode,
         0, getMatrix());
@@ -162,7 +162,7 @@ void SkDrawRadialGradient::dump(SkAnimateMaker* maker) {
 
 SkShader* SkDrawRadialGradient::getShader() {
     if (addPrelude() == 0)
-        return NULL;
+        return nullptr;
     SkShader* shader = SkGradientShader::CreateRadial(center,
         radius, fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode,
         0, getMatrix());

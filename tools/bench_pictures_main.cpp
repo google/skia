@@ -195,7 +195,7 @@ static bool run_single_benchmark(const SkString& inputPath,
     }
     SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream, proc));
 
-    if (NULL == picture.get()) {
+    if (nullptr == picture.get()) {
         SkString err;
         err.printf("Could not read an SkPicture from %s\n", inputPath.c_str());
         gLogger.logError(err);
@@ -337,13 +337,13 @@ static void setup_benchmark(sk_tools::PictureBenchmark* benchmark) {
         gLogger.logError(errorString);
     }
 
-    if (NULL == renderer.get()) {
+    if (nullptr == renderer.get()) {
         exit(-1);
     }
 
     if (FLAGS_timeIndividualTiles) {
         sk_tools::TiledPictureRenderer* tiledRenderer = renderer->getTiledRenderer();
-        if (NULL == tiledRenderer) {
+        if (nullptr == tiledRenderer) {
             gLogger.logError("--timeIndividualTiles requires tiled rendering.\n");
             exit(-1);
         }

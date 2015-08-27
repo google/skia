@@ -299,21 +299,21 @@ private:
 SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkPixmap& source, const SkPaint& paint,
                                             SkTBlitterAllocator* allocator) {
 
-    SkASSERT(allocator != NULL);
+    SkASSERT(allocator != nullptr);
 
-    if (paint.getMaskFilter() != NULL) { // may add cases for this
-        return NULL;
+    if (paint.getMaskFilter() != nullptr) { // may add cases for this
+        return nullptr;
     }
-    if (paint.getXfermode() != NULL) { // may add cases for this
-        return NULL;
+    if (paint.getXfermode() != nullptr) { // may add cases for this
+        return nullptr;
     }
-    if (paint.getColorFilter() != NULL) { // may add cases for this
-        return NULL;
+    if (paint.getColorFilter() != nullptr) { // may add cases for this
+        return nullptr;
     }
 
     const SkAlphaType at = source.alphaType();
 
-    SkSpriteBlitter* blitter = NULL;
+    SkSpriteBlitter* blitter = nullptr;
     unsigned alpha = paint.getAlpha();
 
     switch (source.colorType()) {

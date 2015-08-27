@@ -49,7 +49,7 @@ protected:
 
     void draw(SkCanvas* canvas, int x, int y, const SkIPoint& kernelOffset,
               SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha,
-              const SkImageFilter::CropRect* cropRect = NULL) {
+              const SkImageFilter::CropRect* cropRect = nullptr) {
         SkScalar kernel[9] = {
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
             SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
@@ -66,7 +66,7 @@ protected:
                                                    kernelOffset,
                                                    tileMode,
                                                    convolveAlpha,
-                                                   NULL,
+                                                   nullptr,
                                                    cropRect));
         paint.setImageFilter(filter);
         canvas->save();

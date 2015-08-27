@@ -81,7 +81,7 @@ public:
 
     SkOpContour* appendContour(SkChunkAlloc* allocator) {
         SkOpContour* contour = SkOpTAllocator<SkOpContour>::New(allocator);
-        contour->setNext(NULL);
+        contour->setNext(nullptr);
         SkOpContour* prev = this;
         SkOpContour* next;
         while ((next = prev->next())) {
@@ -129,23 +129,23 @@ public:
 #endif
 
     const SkOpAngle* debugAngle(int id) const {
-        return SkDEBUGRELEASE(this->globalState()->debugAngle(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugAngle(id), nullptr);
     }
 
     SkOpContour* debugContour(int id) {
-        return SkDEBUGRELEASE(this->globalState()->debugContour(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugContour(id), nullptr);
     }
 
     const SkOpPtT* debugPtT(int id) const {
-        return SkDEBUGRELEASE(this->globalState()->debugPtT(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugPtT(id), nullptr);
     }
 
     const SkOpSegment* debugSegment(int id) const {
-        return SkDEBUGRELEASE(this->globalState()->debugSegment(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugSegment(id), nullptr);
     }
 
     const SkOpSpanBase* debugSpan(int id) const {
-        return SkDEBUGRELEASE(this->globalState()->debugSpan(id), NULL);
+        return SkDEBUGRELEASE(this->globalState()->debugSpan(id), nullptr);
     }
 
     SkOpGlobalState* globalState() const {
@@ -155,7 +155,7 @@ public:
     void debugValidate() const {
 #if DEBUG_VALIDATE
         const SkOpSegment* segment = &fHead;
-        const SkOpSegment* prior = NULL;
+        const SkOpSegment* prior = nullptr;
         do {
             segment->debugValidate();
             SkASSERT(segment->prev() == prior);
@@ -302,7 +302,7 @@ public:
             SkASSERT(fCount == 0);
             return;
         }
-        SkASSERT(contour->fNext == NULL);
+        SkASSERT(contour->fNext == nullptr);
         SkOpContour* prev = this;
         SkOpContour* next;
         while ((next = prev->next()) != contour) {
@@ -310,12 +310,12 @@ public:
             prev = next;
         }
         SkASSERT(prev);
-        prev->setNext(NULL);
+        prev->setNext(nullptr);
     }
 
     void reset() {
-        fTail = NULL;
-        fNext = NULL;
+        fTail = nullptr;
+        fNext = nullptr;
         fCount = 0;
         fDone = false;
         fTopsFound = false;

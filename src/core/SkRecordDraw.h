@@ -45,7 +45,7 @@ class Draw : SkNoncopyable {
 public:
     explicit Draw(SkCanvas* canvas, SkPicture const* const drawablePicts[],
                   SkDrawable* const drawables[], int drawableCount,
-                  const SkMatrix* initialCTM = NULL)
+                  const SkMatrix* initialCTM = nullptr)
         : fInitialCTM(initialCTM ? *initialCTM : canvas->getTotalMatrix())
         , fCanvas(canvas)
         , fDrawablePicts(drawablePicts)

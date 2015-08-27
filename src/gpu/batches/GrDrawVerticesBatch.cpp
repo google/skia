@@ -134,10 +134,10 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) {
         return;
     }
 
-    const GrIndexBuffer* indexBuffer = NULL;
+    const GrIndexBuffer* indexBuffer = nullptr;
     int firstIndex = 0;
 
-    uint16_t* indices = NULL;
+    uint16_t* indices = nullptr;
     if (this->hasIndices()) {
         indices = target->makeIndexSpace(this->indexCount(), &indexBuffer, &firstIndex);
 

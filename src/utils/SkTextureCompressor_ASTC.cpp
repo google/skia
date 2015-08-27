@@ -1175,7 +1175,7 @@ struct ASTCDecompressionData {
     // in the maximum encoding that will fit the number of color values that
     // we need. Returns false on error. (See section C.2.22 of the spec)
     bool getColorValueEncoding(int *nBits, int *nTrits, int *nQuints) const {
-        if (NULL == nBits || NULL == nTrits || NULL == nQuints) {
+        if (nullptr == nBits || nullptr == nTrits || nullptr == nQuints) {
             return false;
         }
 
@@ -2057,7 +2057,7 @@ bool CompressA8To12x12ASTC(uint8_t* dst, const uint8_t* src,
 SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer,
                              SkTBlitterAllocator* allocator) {
     if ((width % 12) != 0 || (height % 12) != 0) {
-        return NULL;
+        return nullptr;
     }
 
     // Memset the output buffer to an encoding that decodes to zero. We must do this

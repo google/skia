@@ -327,7 +327,7 @@ static int written_index(const FontDesc& fontDesc) {
 }
 
 static void generate_fonts() {
-    FILE* out = NULL;
+    FILE* out = nullptr;
     for (int index = 0; index < gFontsCount; ++index) {
         FontDesc& fontDesc = gFonts[index];
         if ((index & 3) == 0) {
@@ -391,7 +391,7 @@ static void generate_index(const char* defaultName) {
         fprintf(out,
                 "    {    %sPoints, %sVerbs, %sCharCodes,\n"
                 "         %sCharCodesCount, %sWidths,\n"
-                "         %sMetrics, \"Toy %s\", SkTypeface::k%s, NULL\n"
+                "         %sMetrics, \"Toy %s\", SkTypeface::k%s, nullptr\n"
                 "    },\n",
                 strip, strip, strip, strip, strip, strip, name, gStyleName[writ.fStyle]);
     }

@@ -17,7 +17,7 @@ static void r0(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))))->unref();
     rastBuilder->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
-    p.setMaskFilter(NULL);
+    p.setMaskFilter(nullptr);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -68,7 +68,7 @@ static void r4(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p, SK_Scalar1*3/2, SK_Scalar1*3/2);
 
-    p.setXfermode(NULL);
+    p.setXfermode(nullptr);
     rastBuilder->addLayer(p);
 }
 
@@ -119,8 +119,8 @@ static void r8(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
-    p.setPathEffect(NULL);
-    p.setXfermode(NULL);
+    p.setPathEffect(nullptr);
+    p.setXfermode(nullptr);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -136,8 +136,8 @@ static void r9(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
-    p.setPathEffect(NULL);
-    p.setXfermode(NULL);
+    p.setPathEffect(nullptr);
+    p.setXfermode(nullptr);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -199,7 +199,7 @@ protected:
         for (int i = 0; i < static_cast<int>(SK_ARRAY_COUNT(gRastProcs)); i++) {
             apply_shader(&paint, i);
 
-            //  paint.setMaskFilter(NULL);
+            //  paint.setMaskFilter(nullptr);
             //  paint.setColor(SK_ColorBLACK);
 
             canvas->drawText(str.c_str(), str.size(), x, y, paint);

@@ -114,7 +114,7 @@ protected:
 
         for (int i = 0; i < loops; i++) {
             uint32_t idx = r.nextRangeU(0, kMaxObjects-1);
-            if (NULL == objects[idx].get()) {
+            if (nullptr == objects[idx].get()) {
                 objects[idx].reset(new B);
             } else {
                 objects[idx].free();

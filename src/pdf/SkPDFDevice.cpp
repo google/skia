@@ -43,7 +43,7 @@
 static void replace_srcmode_on_opaque_paint(SkPaint* paint) {
     if (kSrcOver_SkXfermodeInterpretation
         == SkInterpretXfermode(*paint, false)) {
-        paint->setXfermode(NULL);
+        paint->setXfermode(nullptr);
     }
 }
 
@@ -86,7 +86,7 @@ static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
 
     SkMatrix ident;
     ident.reset();
-    SkAutoGlyphCache autoCache(paint, NULL, &ident);
+    SkAutoGlyphCache autoCache(paint, nullptr, &ident);
     SkGlyphCache* cache = autoCache.getCache();
 
     const char* start = reinterpret_cast<const char*>(glyphs);
@@ -126,7 +126,7 @@ static int force_glyph_encoding(const SkPaint& paint, const void* text,
                                 const uint16_t** glyphIDs) {
     // Make sure we have a glyph id encoding.
     if (paint.getTextEncoding() != SkPaint::kGlyphID_TextEncoding) {
-        int numGlyphs = paint.textToGlyphs(text, len, NULL);
+        int numGlyphs = paint.textToGlyphs(text, len, nullptr);
         storage->reset(numGlyphs);
         paint.textToGlyphs(text, len, storage->get());
         *glyphIDs = storage->get();
@@ -204,10 +204,10 @@ struct GraphicStateEntry {
     int fGraphicStateIndex;
 
     // We may change the font (i.e. for Type1 support) within a
-    // ContentEntry.  This is the one currently in effect, or NULL if none.
+    // ContentEntry.  This is the one currently in effect, or nullptr if none.
     SkPDFFont* fFont;
     // In PDF, text size has no default value. It is only valid if fFont is
-    // not NULL.
+    // not nullptr.
     SkScalar fTextSize;
 };
 
@@ -216,7 +216,7 @@ GraphicStateEntry::GraphicStateEntry() : fColor(SK_ColorBLACK),
                                          fTextFill(SkPaint::kFill_Style),
                                          fShaderIndex(-1),
                                          fGraphicStateIndex(-1),
-                                         fFont(NULL),
+                                         fFont(nullptr),
                                          fTextSize(SK_ScalarNaN) {
     fMatrix.reset();
 }
@@ -309,7 +309,7 @@ static void skip_clip_stack_prefix(const SkClipStack& prefix,
         }
     }
 
-    SkASSERT(prefixEntry == NULL);
+    SkASSERT(prefixEntry == nullptr);
 }
 
 static void emit_clip(SkPath* clipPath, SkRect* clipRect,
@@ -444,7 +444,7 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
 #ifdef SK_PDF_USE_PATHOPS_CLIPPING
     SkPath clipPath;
     if (get_clip_stack_path(transform, clipStack, clipRegion, &clipPath)) {
-        emit_clip(&clipPath, NULL, fContentStream);
+        emit_clip(&clipPath, nullptr, fContentStream);
         return;
     }
 #endif
@@ -474,7 +474,7 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     if (needRegion) {
         SkPath clipPath;
         SkAssertResult(clipRegion.getBoundaryPath(&clipPath));
-        emit_clip(&clipPath, NULL, fContentStream);
+        emit_clip(&clipPath, nullptr, fContentStream);
     } else {
         skip_clip_stack_prefix(fEntries[0].fClipStack, clipStack, &iter);
         const SkClipStack::Element* clipEntry;
@@ -484,14 +484,14 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
                 case SkClipStack::Element::kRect_Type: {
                     SkRect translatedClip;
                     transform.mapRect(&translatedClip, clipEntry->getRect());
-                    emit_clip(NULL, &translatedClip, fContentStream);
+                    emit_clip(nullptr, &translatedClip, fContentStream);
                     break;
                 }
                 default: {
                     SkPath translatedPath;
                     clipEntry->asPath(&translatedPath);
                     translatedPath.transform(transform, &translatedPath);
-                    emit_clip(&translatedPath, NULL, fContentStream);
+                    emit_clip(&translatedPath, nullptr, fContentStream);
                     break;
                 }
             }
@@ -572,13 +572,13 @@ static bool not_supported_for_layers(const SkPaint& layerPaint) {
     // to improve quality and file size (http://skbug.com/3043)
 
     // TODO: should we return true if there is a colorfilter?
-    return layerPaint.getImageFilter() != NULL;
+    return layerPaint.getImageFilter() != nullptr;
 }
 
 SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     if (cinfo.fForImageFilter ||
         (layerPaint && not_supported_for_layers(*layerPaint))) {
-        return NULL;
+        return nullptr;
     }
     SkISize size = SkISize::Make(cinfo.fInfo.width(), cinfo.fInfo.height());
     return SkPDFDevice::Create(size, fRasterDpi, fCanon);
@@ -594,9 +594,9 @@ struct ContentEntry {
     // So we manually destruct the object.
     ~ContentEntry() {
         ContentEntry* val = fNext.detach();
-        while (val != NULL) {
+        while (val != nullptr) {
             ContentEntry* valNext = val->fNext.detach();
-            // When the destructor is called, fNext is NULL and exits.
+            // When the destructor is called, fNext is nullptr and exits.
             delete val;
             val = valNext;
         }
@@ -610,18 +610,18 @@ public:
     ScopedContentEntry(SkPDFDevice* device, const SkDraw& draw,
                        const SkPaint& paint, bool hasText = false)
         : fDevice(device),
-          fContentEntry(NULL),
+          fContentEntry(nullptr),
           fXfermode(SkXfermode::kSrcOver_Mode),
-          fDstFormXObject(NULL) {
+          fDstFormXObject(nullptr) {
         init(draw.fClipStack, *draw.fClip, *draw.fMatrix, paint, hasText);
     }
     ScopedContentEntry(SkPDFDevice* device, const SkClipStack* clipStack,
                        const SkRegion& clipRegion, const SkMatrix& matrix,
                        const SkPaint& paint, bool hasText = false)
         : fDevice(device),
-          fContentEntry(NULL),
+          fContentEntry(nullptr),
           fXfermode(SkXfermode::kSrcOver_Mode),
-          fDstFormXObject(NULL) {
+          fDstFormXObject(nullptr) {
         init(clipStack, clipRegion, matrix, paint, hasText);
     }
 
@@ -629,7 +629,7 @@ public:
         if (fContentEntry) {
             SkPath* shape = &fShape;
             if (shape->isEmpty()) {
-                shape = NULL;
+                shape = nullptr;
             }
             fDevice->finishContentEntry(fXfermode, fDstFormXObject, shape);
         }
@@ -702,11 +702,11 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFCanon* canon
     , fPageSize(pageSize)
     , fContentSize(pageSize)
     , fExistingClipRegion(SkIRect::MakeSize(pageSize))
-    , fAnnotations(NULL)
-    , fLastContentEntry(NULL)
-    , fLastMarginContentEntry(NULL)
+    , fAnnotations(nullptr)
+    , fLastContentEntry(nullptr)
+    , fLastMarginContentEntry(nullptr)
     , fDrawingArea(kContent_DrawingArea)
-    , fClipStack(NULL)
+    , fClipStack(nullptr)
     , fFontGlyphUsage(new SkPDFGlyphSetMap)
     , fRasterDpi(rasterDpi)
     , fCanon(canon) {
@@ -731,13 +731,13 @@ SkPDFDevice::~SkPDFDevice() {
 }
 
 void SkPDFDevice::init() {
-    fAnnotations = NULL;
+    fAnnotations = nullptr;
     fContentEntries.free();
-    fLastContentEntry = NULL;
+    fLastContentEntry = nullptr;
     fMarginContentEntries.free();
-    fLastMarginContentEntry = NULL;
+    fLastMarginContentEntry = nullptr;
     fDrawingArea = kContent_DrawingArea;
-    if (fFontGlyphUsage.get() == NULL) {
+    if (fFontGlyphUsage.get() == nullptr) {
         fFontGlyphUsage.reset(new SkPDFGlyphSetMap);
     }
 }
@@ -946,7 +946,7 @@ static SkPDFDict* create_rect_annotation(const SkRect& r,
     if (linkToName) {
         return create_link_named_dest(linkToName, r);
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkPDFDevice::drawRect(const SkDraw& d,
@@ -963,7 +963,7 @@ void SkPDFDevice::drawRect(const SkDraw& d,
         }
         SkPath path;
         path.addRect(r);
-        drawPath(d, path, paint, NULL, true);
+        drawPath(d, path, paint, nullptr, true);
         return;
     }
 
@@ -996,7 +996,7 @@ void SkPDFDevice::drawRRect(const SkDraw& draw,
     replace_srcmode_on_opaque_paint(&paint);
     SkPath  path;
     path.addRRect(rrect);
-    this->drawPath(draw, path, paint, NULL, true);
+    this->drawPath(draw, path, paint, nullptr, true);
 }
 
 void SkPDFDevice::drawOval(const SkDraw& draw,
@@ -1006,7 +1006,7 @@ void SkPDFDevice::drawOval(const SkDraw& draw,
     replace_srcmode_on_opaque_paint(&paint);
     SkPath  path;
     path.addOval(oval);
-    this->drawPath(draw, path, paint, NULL, true);
+    this->drawPath(draw, path, paint, nullptr, true);
 }
 
 void SkPDFDevice::drawPath(const SkDraw& d,
@@ -1043,14 +1043,14 @@ void SkPDFDevice::drawPath(const SkDraw& d,
         bool fill = paint.getFillPath(origPath, pathPtr);
 
         SkPaint noEffectPaint(paint);
-        noEffectPaint.setPathEffect(NULL);
+        noEffectPaint.setPathEffect(nullptr);
         if (fill) {
             noEffectPaint.setStyle(SkPaint::kFill_Style);
         } else {
             noEffectPaint.setStyle(SkPaint::kStroke_Style);
             noEffectPaint.setStrokeWidth(0);
         }
-        drawPath(d, *pathPtr, noEffectPaint, NULL, true);
+        drawPath(d, *pathPtr, noEffectPaint, nullptr, true);
         return;
     }
 
@@ -1154,7 +1154,7 @@ void SkPDFDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
 
     SkMatrix transform = matrix;
     transform.postConcat(*d.fMatrix);
-    this->internalDrawBitmap(transform, d.fClipStack, *d.fClip, bitmap, NULL,
+    this->internalDrawBitmap(transform, d.fClipStack, *d.fClip, bitmap, nullptr,
                              paint);
 }
 
@@ -1171,7 +1171,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    this->internalDrawBitmap(matrix, d.fClipStack, *d.fClip, bitmap, NULL,
+    this->internalDrawBitmap(matrix, d.fClipStack, *d.fClip, bitmap, nullptr,
                              paint);
 }
 
@@ -1215,8 +1215,8 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
 
-    NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
-    if (paint.getMaskFilter() != NULL) {
+    NOT_IMPLEMENTED(paint.getMaskFilter() != nullptr, false);
+    if (paint.getMaskFilter() != nullptr) {
         // Don't pretend we support drawing MaskFilters, it makes for artifacts
         // making text unreadable (e.g. same text twice when using CSS shadows).
         return;
@@ -1228,7 +1228,7 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     }
 
     SkGlyphStorage storage(0);
-    const uint16_t* glyphIDs = NULL;
+    const uint16_t* glyphIDs = nullptr;
     int numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
@@ -1267,8 +1267,8 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
 
-    NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
-    if (paint.getMaskFilter() != NULL) {
+    NOT_IMPLEMENTED(paint.getMaskFilter() != nullptr, false);
+    if (paint.getMaskFilter() != nullptr) {
         // Don't pretend we support drawing MaskFilters, it makes for artifacts
         // making text unreadable (e.g. same text twice when using CSS shadows).
         return;
@@ -1281,7 +1281,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
     }
 
     SkGlyphStorage storage(0);
-    const uint16_t* glyphIDs = NULL;
+    const uint16_t* glyphIDs = nullptr;
     size_t numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
@@ -1374,7 +1374,7 @@ void SkPDFDevice::onAttachToCanvas(SkCanvas* canvas) {
 void SkPDFDevice::onDetachFromCanvas() {
     INHERITED::onDetachFromCanvas();
 
-    fClipStack = NULL;
+    fClipStack = nullptr;
 }
 
 SkSurface* SkPDFDevice::newSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
@@ -1451,7 +1451,7 @@ void SkPDFDevice::copyContentEntriesToData(ContentEntry* entry,
     // TODO(ctguil): For margins, I'm not sure fExistingClipStack/Region is the
     // right thing to pass here.
     GraphicStackState gsState(fExistingClipStack, fExistingClipRegion, data);
-    while (entry != NULL) {
+    while (entry != nullptr) {
         SkPoint translation;
         translation.iset(this->getOrigin());
         translation.negate();
@@ -1485,7 +1485,7 @@ void SkPDFDevice::writeContent(SkWStream* out) const {
     if (fPageSize != fContentSize) {
         SkRect r = SkRect::MakeWH(SkIntToScalar(this->width()),
                                   SkIntToScalar(this->height()));
-        emit_clip(NULL, &r, out);
+        emit_clip(nullptr, &r, out);
     }
 
     SkPDFDevice::copyContentEntriesToData(fContentEntries.get(), out);
@@ -1525,7 +1525,7 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
             // To be consistent with the raster output, hairline strokes
             // are rendered as non-inverted.
             modifiedPath.toggleInverseFillType();
-            drawPath(d, modifiedPath, paint, NULL, true);
+            drawPath(d, modifiedPath, paint, nullptr, true);
             return true;
         }
     }
@@ -1584,7 +1584,7 @@ bool SkPDFDevice::handlePointAnnotation(const SkPoint* points, size_t count,
 }
 
 void SkPDFDevice::addAnnotation(SkPDFDict* annotation) {
-    if (NULL == fAnnotations) {
+    if (nullptr == fAnnotations) {
         fAnnotations = new SkPDFArray;
     }
     fAnnotations->appendObject(annotation);
@@ -1653,14 +1653,14 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
                                              const SkPaint& paint,
                                              bool hasText,
                                              SkPDFFormXObject** dst) {
-    *dst = NULL;
+    *dst = nullptr;
     if (clipRegion.isEmpty()) {
-        return NULL;
+        return nullptr;
     }
 
     // The clip stack can come from an SkDraw where it is technically optional.
     SkClipStack synthesizedClipStack;
-    if (clipStack == NULL) {
+    if (clipStack == nullptr) {
         if (clipRegion == fExistingClipRegion) {
             clipStack = &fExistingClipStack;
         } else {
@@ -1699,7 +1699,7 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
                    xfermode != SkXfermode::kSrcOut_Mode) {
             // Except for Src and SrcOut, if there isn't anything already there,
             // then we're done.
-            return NULL;
+            return nullptr;
         }
     }
     // TODO(vandebo): Figure out how/if we can handle the following modes:
@@ -1707,7 +1707,7 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
 
     // Dst xfer mode doesn't draw source at all.
     if (xfermode == SkXfermode::kDst_Mode) {
-        return NULL;
+        return nullptr;
     }
 
     ContentEntry* entry;
@@ -1798,7 +1798,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
         // If there is shape, then an empty source with Src, SrcIn, SrcOut,
         // DstIn, DstAtop or Modulate reduces to Clear and DstOut or SrcAtop
         // reduces to Dst.
-        if (shape == NULL || xfermode == SkXfermode::kDstOut_Mode ||
+        if (shape == nullptr || xfermode == SkXfermode::kDstOut_Mode ||
                 xfermode == SkXfermode::kSrcATop_Mode) {
             ScopedContentEntry content(this, &fExistingClipStack,
                                        fExistingClipRegion, identity,
@@ -1827,7 +1827,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
     } else {
         SkAutoTUnref<SkPDFFormXObject> dstMaskStorage;
         SkPDFFormXObject* dstMask = srcFormXObject.get();
-        if (shape != NULL) {
+        if (shape != nullptr) {
             // Draw shape into a form-xobject.
             SkDraw d;
             d.fMatrix = &identity;
@@ -1836,7 +1836,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
             SkPaint filledPaint;
             filledPaint.setColor(SK_ColorBLACK);
             filledPaint.setStyle(SkPaint::kFill_Style);
-            this->drawPath(d, *shape, filledPaint, NULL, true);
+            this->drawPath(d, *shape, filledPaint, nullptr, true);
 
             dstMaskStorage.reset(createFormXObjectFromDevice());
             dstMask = dstMaskStorage.get();
@@ -1915,9 +1915,9 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         const SkPaint& paint,
         bool hasText,
         GraphicStateEntry* entry) {
-    NOT_IMPLEMENTED(paint.getPathEffect() != NULL, false);
-    NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
-    NOT_IMPLEMENTED(paint.getColorFilter() != NULL, false);
+    NOT_IMPLEMENTED(paint.getPathEffect() != nullptr, false);
+    NOT_IMPLEMENTED(paint.getMaskFilter() != nullptr, false);
+    NOT_IMPLEMENTED(paint.getColorFilter() != nullptr, false);
 
     entry->fMatrix = matrix;
     entry->fClipStack = clipStack;
@@ -1967,7 +1967,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
             SkShader::GradientInfo gradientInfo;
             SkColor gradientColor;
             gradientInfo.fColors = &gradientColor;
-            gradientInfo.fColorOffsets = NULL;
+            gradientInfo.fColorOffsets = nullptr;
             gradientInfo.fColorCount = 1;
             if (shader->asAGradient(&gradientInfo) ==
                     SkShader::kColor_GradientType) {
@@ -2025,7 +2025,7 @@ int SkPDFDevice::addXObjectResource(SkPDFObject* xObject) {
 void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
                              ContentEntry* contentEntry) {
     SkTypeface* typeface = paint.getTypeface();
-    if (contentEntry->fState.fFont == NULL ||
+    if (contentEntry->fState.fFont == nullptr ||
             contentEntry->fState.fTextSize != paint.getTextSize() ||
             !contentEntry->fState.fFont->hasGlyph(glyphID)) {
         int fontIndex = getFontResourceIndex(typeface, glyphID);
@@ -2080,7 +2080,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
             subsetBitmap = &tmpSubsetBitmap;
             *subsetBitmap = origBitmap;
         }
-        srcRect = NULL;
+        srcRect = nullptr;
 
         // Transform the bitmap in the new space, without taking into
         // account the initial transform.
@@ -2156,7 +2156,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
                                   SkScalarCeilToInt(bounds.width()),
                                   SkScalarCeilToInt(bounds.height())));
         clipRegion = &perspectiveBounds;
-        srcRect = NULL;
+        srcRect = nullptr;
         bitmap = &perspectiveBitmap;
     }
 

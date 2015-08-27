@@ -28,17 +28,17 @@ struct SkVarAlloc::Block {
 
 SkVarAlloc::SkVarAlloc(size_t minLgSize)
     : fBytesAllocated(0)
-    , fByte(NULL)
+    , fByte(nullptr)
     , fRemaining(0)
     , fLgSize(minLgSize)
-    , fBlock(NULL) {}
+    , fBlock(nullptr) {}
 
 SkVarAlloc::SkVarAlloc(size_t minLgSize, char* storage, size_t len)
     : fBytesAllocated(0)
     , fByte(storage)
     , fRemaining(len)
     , fLgSize(minLgSize)
-    , fBlock(NULL) {}
+    , fBlock(nullptr) {}
 
 SkVarAlloc::~SkVarAlloc() {
     Block* b = fBlock;

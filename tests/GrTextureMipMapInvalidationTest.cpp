@@ -29,12 +29,12 @@ DEF_GPUTEST(GrTextureMipMapInvalidationTest, reporter, factory) {
         desc.fWidth = 256;
         desc.fHeight = 256;
         desc.fSampleCnt = 0;
-        GrSurface* texRT1 = context->textureProvider()->createTexture(desc, false, NULL, 0);
-        GrSurface* texRT2 = context->textureProvider()->createTexture(desc, false, NULL, 0);
-        REPORTER_ASSERT(reporter, NULL != texRT1);
-        REPORTER_ASSERT(reporter, NULL != texRT2);
+        GrSurface* texRT1 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+        GrSurface* texRT2 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+        REPORTER_ASSERT(reporter, nullptr != texRT1);
+        REPORTER_ASSERT(reporter, nullptr != texRT2);
         GrTexture* tex = texRT1->asTexture();
-        REPORTER_ASSERT(reporter, NULL != tex);
+        REPORTER_ASSERT(reporter, nullptr != tex);
         SkBitmap bitmap;
         GrWrapTextureInBitmap(tex, 256, 256, false, &bitmap);
 

@@ -72,7 +72,7 @@ bool SkMatrixImageFilter::onFilterImage(Proxy* proxy,
     dstRect.roundOut(&dstBounds);
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstBounds.width(), dstBounds.height()));
-    if (NULL == device.get()) {
+    if (nullptr == device.get()) {
         return false;
     }
 

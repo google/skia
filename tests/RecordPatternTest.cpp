@@ -35,9 +35,9 @@ DEF_TEST(RecordPattern_Simple, r) {
 
     recorder.restore();
     REPORTER_ASSERT(r, pattern.match(&record, 0));
-    REPORTER_ASSERT(r, pattern.first<Save>()      != NULL);
-    REPORTER_ASSERT(r, pattern.second<ClipRect>() != NULL);
-    REPORTER_ASSERT(r, pattern.third<Restore>()   != NULL);
+    REPORTER_ASSERT(r, pattern.first<Save>()      != nullptr);
+    REPORTER_ASSERT(r, pattern.second<ClipRect>() != nullptr);
+    REPORTER_ASSERT(r, pattern.third<Restore>()   != nullptr);
 }
 
 DEF_TEST(RecordPattern_StartingIndex, r) {
@@ -146,7 +146,7 @@ DEF_TEST(RecordPattern_SaveLayerIsNotADraw, r) {
 
     SkRecord record;
     SkRecorder recorder(&record, 1920, 1200);
-    recorder.saveLayer(NULL, NULL);
+    recorder.saveLayer(nullptr, nullptr);
 
     REPORTER_ASSERT(r, !pattern.match(&record, 0));
 }

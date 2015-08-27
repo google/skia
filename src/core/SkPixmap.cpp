@@ -12,7 +12,7 @@
 #include "SkUtils.h"
 
 void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* ctx) {
-    SkASSERT(pm.addr() != NULL);
+    SkASSERT(pm.addr() != nullptr);
 
     this->unlock();
     fPixmap = pm;
@@ -24,8 +24,8 @@ void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkPixmap::reset() {
-    fPixels = NULL;
-    fCTable = NULL;
+    fPixels = nullptr;
+    fCTable = nullptr;
     fRowBytes = 0;
     fInfo = SkImageInfo::MakeUnknown();
 }
@@ -43,7 +43,7 @@ void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes,
 bool SkPixmap::reset(const SkMask& src) {
     if (SkMask::kA8_Format == src.fFormat) {
         this->reset(SkImageInfo::MakeA8(src.fBounds.width(), src.fBounds.height()),
-                    src.fImage, src.fRowBytes, NULL);
+                    src.fImage, src.fRowBytes, nullptr);
         return true;
     }
     this->reset();
@@ -62,7 +62,7 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fLeft) < static_cast<unsigned>(this->width()));
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
-    const void* pixels = NULL;
+    const void* pixels = nullptr;
     if (fPixels) {
         const size_t bpp = fInfo.bytesPerPixel();
         pixels = (const uint8_t*)fPixels + r.fTop * fRowBytes + r.fLeft * bpp;
@@ -76,7 +76,7 @@ bool SkPixmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, 
     if (kUnknown_SkColorType == requestedDstInfo.colorType()) {
         return false;
     }
-    if (NULL == dstPixels || dstRB < requestedDstInfo.minRowBytes()) {
+    if (nullptr == dstPixels || dstRB < requestedDstInfo.minRowBytes()) {
         return false;
     }
     if (0 == requestedDstInfo.width() || 0 == requestedDstInfo.height()) {
@@ -116,7 +116,7 @@ static uint16_t pack_8888_to_4444(unsigned a, unsigned r, unsigned g, unsigned b
 }
 
 bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
-    if (NULL == fPixels) {
+    if (nullptr == fPixels) {
         return false;
     }
     SkIRect area;
@@ -207,7 +207,7 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkAutoPixmapStorage::SkAutoPixmapStorage() : fStorage(NULL) {}
+SkAutoPixmapStorage::SkAutoPixmapStorage() : fStorage(nullptr) {}
 
 SkAutoPixmapStorage::~SkAutoPixmapStorage() {
     this->freeStorage();
@@ -222,7 +222,7 @@ bool SkAutoPixmapStorage::tryAlloc(const SkImageInfo& info) {
         return false;
     }
     void* pixels = sk_malloc_flags(size, 0);
-    if (NULL == pixels) {
+    if (nullptr == pixels) {
         return false;
     }
     this->reset(info, pixels, rb);

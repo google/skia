@@ -36,7 +36,7 @@ protected:
         paint.setFakeBoldText(true);
         const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
         const SkPoint pts[] = {{0, 0}, {kWidth, kHeight}};
-        SkAutoTUnref<SkShader> grad(SkGradientShader::CreateLinear(pts, colors, NULL,
+        SkAutoTUnref<SkShader> grad(SkGradientShader::CreateLinear(pts, colors, nullptr,
                                                                    SK_ARRAY_COUNT(colors),
                                                                    SkShader::kMirror_TileMode));
         paint.setShader(grad);

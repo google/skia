@@ -27,7 +27,7 @@ void skia_free_func(void*, void* address) { sk_free(address); }
 
 /**
  *  Use the un-deflate compression algorithm to decompress the data in src,
- *  returning the result.  Returns NULL if an error occurs.
+ *  returning the result.  Returns nullptr if an error occurs.
  */
 SkStreamAsset* stream_inflate(SkStream* src) {
     SkDynamicMemoryWStream decompressedDynamicMemoryWStream;
@@ -39,8 +39,8 @@ SkStreamAsset* stream_inflate(SkStream* src) {
     z_stream flateData;
     flateData.zalloc = &skia_alloc_func;
     flateData.zfree = &skia_free_func;
-    flateData.opaque = NULL;
-    flateData.next_in = NULL;
+    flateData.opaque = nullptr;
+    flateData.next_in = nullptr;
     flateData.avail_in = 0;
     flateData.next_out = outputBuffer;
     flateData.avail_out = kBufferSize;
@@ -51,8 +51,8 @@ SkStreamAsset* stream_inflate(SkStream* src) {
 
     uint8_t* input = (uint8_t*)src->getMemoryBase();
     size_t inputLength = src->getLength();
-    if (input == NULL || inputLength == 0) {
-        input = NULL;
+    if (input == nullptr || inputLength == 0) {
+        input = nullptr;
         flateData.next_in = inputBuffer;
         flateData.avail_in = 0;
     } else {
@@ -73,7 +73,7 @@ SkStreamAsset* stream_inflate(SkStream* src) {
         if (rc != Z_OK)
             break;
         if (flateData.avail_in == 0) {
-            if (input != NULL)
+            if (input != nullptr)
                 break;
             size_t read = src->read(&inputBuffer, kBufferSize);
             if (read == 0)

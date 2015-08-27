@@ -36,7 +36,7 @@ public:
     }
 
 protected:
-    // called when fData changes. could be NULL.
+    // called when fData changes. could be nullptr.
     virtual void onDataChange(void* oldData, void* newData) {}
 
 private:
@@ -93,7 +93,7 @@ public:
      *  ref's the data (typically from a find(key, visitor) call).
      *
      *  Thus the data will always be "locked" when a non-cache has a ref on it (whether or not
-     *  the lock succeeded to recover the memory -- check data() to see if it is NULL).
+     *  the lock succeeded to recover the memory -- check data() to see if it is nullptr).
      */
 
     /*

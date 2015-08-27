@@ -443,7 +443,7 @@ static void writePict(const SkBitmap& bitmap, const char* outDir, const char* pn
 }
 
 void TestResult::testOne() {
-    SkPicture* pic = NULL;
+    SkPicture* pic = nullptr;
     {
     #if DEBUG_SHOW_TEST_NAME
         if (fTestStep == kCompareBits) {
@@ -533,8 +533,8 @@ DEFINE_string2(match, m, "PathOpsSkpClipThreaded",
         "^ and $ requires an exact match\n"
         "If a test does not match any list entry,\n"
         "it is skipped unless some list entry starts with ~");
-DEFINE_string2(dir, d, NULL, "range of directories (e.g., 1-100)");
-DEFINE_string2(skp, s, NULL, "skp to test");
+DEFINE_string2(dir, d, nullptr, "range of directories (e.g., 1-100)");
+DEFINE_string2(skp, s, nullptr, "skp to test");
 DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
 DEFINE_int32(testIndex, 0, "override local test index (PathOpsSkpClipOneOff only).");
 DEFINE_bool2(verbose, v, false, "enable verbose output.");
@@ -614,7 +614,7 @@ public:
         while (fNames && ++fIndex < fNames->count()) {
             return (*fNames)[fIndex];
         }
-        return NULL;
+        return nullptr;
     }
 
     void set(const SkCommandLineFlags::StringArray& names) {
@@ -705,7 +705,7 @@ bool Less(const SortByName& a, const SortByName& b) {
 
 static bool doOneDir(TestState* state, bool threaded) {
     int dirNo = state->fResult.fDirNo;
-    SkString dirName = get_in_path(dirNo, NULL);
+    SkString dirName = get_in_path(dirNo, nullptr);
     if (!dirName.size()) {
         return false;
     }
@@ -912,7 +912,7 @@ DEF_TEST(PathOpsSkpClipUberThreaded) {
     int dirNo;
     gDirs.reset();
     while ((dirNo = gDirs.next()) > 0) {
-        SkString dirName = get_in_path(dirNo, NULL);
+        SkString dirName = get_in_path(dirNo, nullptr);
         if (!dirName.size()) {
             continue;
         }
@@ -943,7 +943,7 @@ DEF_TEST(PathOpsSkpClipUberThreaded) {
     }
     testRunner.render();
     SkAutoTDeleteArray<SkTDArray<TestResult> > results(new SkTDArray<TestResult>[dirCount]);
-    if (!buildTests(results.get(), NULL)) {
+    if (!buildTests(results.get(), nullptr)) {
         return;
     }
     SkTDArray<TestResult> allResults;
@@ -1042,10 +1042,10 @@ public:
         if (fReg) {
             TestRegistry::Factory fact = fReg->factory();
             fReg = fReg->next();
-            Test* test = fact(NULL);
+            Test* test = fact(nullptr);
             return test;
         }
-        return NULL;
+        return nullptr;
     }
 
 private:
@@ -1096,7 +1096,7 @@ int tool_main(int argc, char** argv) {
     SkDebugf("%s", header.c_str());
     Iter iter;
     Test* test;
-    while ((test = iter.next()) != NULL) {
+    while ((test = iter.next()) != nullptr) {
         SkAutoTDelete<Test> owned(test);
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
             test->run();

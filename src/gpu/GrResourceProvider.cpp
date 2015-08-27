@@ -32,10 +32,10 @@ const GrIndexBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16
     GrIndexBuffer* buffer = this->createIndexBuffer(bufferSize, kStatic_BufferUsage,
                                                     kNoPendingIO_Flag);
     if (!buffer) {
-        return NULL;
+        return nullptr;
     }
     uint16_t* data = (uint16_t*) buffer->map();
-    bool useTempData = (NULL == data);
+    bool useTempData = (nullptr == data);
     if (useTempData) {
         data = new uint16_t[reps * patternSize];
     }
@@ -49,7 +49,7 @@ const GrIndexBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16
     if (useTempData) {
         if (!buffer->updateData(data, bufferSize)) {
             buffer->unref();
-            return NULL;
+            return nullptr;
         }
         delete[] data;
     } else {
@@ -88,7 +88,7 @@ GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf, const SkDesc
 GrIndexBuffer* GrResourceProvider::createIndexBuffer(size_t size, BufferUsage usage,
                                                      uint32_t flags) {
     if (this->isAbandoned()) {
-        return NULL;
+        return nullptr;
     }
 
     bool noPendingIO = SkToBool(flags & kNoPendingIO_Flag);
@@ -117,7 +117,7 @@ GrIndexBuffer* GrResourceProvider::createIndexBuffer(size_t size, BufferUsage us
 GrVertexBuffer* GrResourceProvider::createVertexBuffer(size_t size, BufferUsage usage,
                                                        uint32_t flags) {
     if (this->isAbandoned()) {
-        return NULL;
+        return nullptr;
     }
 
     bool noPendingIO = SkToBool(flags & kNoPendingIO_Flag);
@@ -159,7 +159,7 @@ GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
     GrTexture* texture = this->createApproxTexture(desc, kFlags);
     if (!texture) {
-        return NULL;
+        return nullptr;
     }
     return new GrBatchAtlas(texture, numPlotsX, numPlotsY);
 }

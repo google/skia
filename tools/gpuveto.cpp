@@ -45,7 +45,7 @@ int tool_main(int argc, char** argv) {
     SkPicture::InstallPixelRefProc proc = &sk_tools::LazyDecodeBitmap;
 
     SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream, proc));
-    if (NULL == picture.get()) {
+    if (nullptr == picture.get()) {
         if (!FLAGS_quiet) {
             SkDebugf("Could not read the SkPicture\n");
         }
@@ -57,10 +57,10 @@ int tool_main(int argc, char** argv) {
     SkPictureRecorder recorder;
     picture->playback(recorder.beginRecording(picture->cullRect().width(), 
                                               picture->cullRect().height(), 
-                                              NULL, 0));
+                                              nullptr, 0));
     SkAutoTUnref<SkPicture> recorded(recorder.endRecording());
 
-    if (recorded->suitableForGpuRasterization(NULL)) {
+    if (recorded->suitableForGpuRasterization(nullptr)) {
         SkDebugf("suitable\n");
     } else {
         SkDebugf("unsuitable\n");

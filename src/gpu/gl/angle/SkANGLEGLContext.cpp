@@ -80,7 +80,7 @@ SkANGLEGLContext::SkANGLEGLContext()
         EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL_NONE
     };
-    fContext = eglCreateContext(fDisplay, surfaceConfig, NULL, contextAttribs);
+    fContext = eglCreateContext(fDisplay, surfaceConfig, nullptr, contextAttribs);
 
 
     static const EGLint surfaceAttribs[] = {
@@ -94,7 +94,7 @@ SkANGLEGLContext::SkANGLEGLContext()
     eglMakeCurrent(fDisplay, fSurface, fSurface, fContext);
 
     SkAutoTUnref<const GrGLInterface> gl(GrGLCreateANGLEInterface());
-    if (NULL == gl.get()) {
+    if (nullptr == gl.get()) {
         SkDebugf("Could not create ANGLE GL interface!\n");
         this->destroyGLContext();
         return;

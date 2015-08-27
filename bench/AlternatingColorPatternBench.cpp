@@ -95,7 +95,7 @@ public:
 
 
     AlternatingColorPatternBench(ColorPattern pattern1, ColorPattern pattern2, DrawType drawType)
-        : fBmShader(NULL) {
+        : fBmShader(nullptr) {
         fPattern1 = gColorPatterns[pattern1];
         fPattern2 = gColorPatterns[pattern2];
         fName.printf("colorPattern_%s_%s_%s",
@@ -137,10 +137,10 @@ protected:
                 }
                 if (0 == count % 2) {
                     fColors[count]  = fPattern1.fColor;
-                    fShaders[count] = fPattern1.fIsBitmap ? fBmShader : NULL;
+                    fShaders[count] = fPattern1.fIsBitmap ? fBmShader : nullptr;
                 } else {
                     fColors[count]  = fPattern2.fColor;
-                    fShaders[count] = fPattern2.fIsBitmap ? fBmShader : NULL;
+                    fShaders[count] = fPattern2.fIsBitmap ? fBmShader : nullptr;
                 }
                 ++count;
             }

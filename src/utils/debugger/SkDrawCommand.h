@@ -250,7 +250,7 @@ public:
 
     void setPaint(const SkPaint& paint) { fPaint = paint; fPaintPtr = &fPaint; }
 
-    const SkRect* srcRect() const { return fSrc.isEmpty() ? NULL : &fSrc; }
+    const SkRect* srcRect() const { return fSrc.isEmpty() ? nullptr : &fSrc; }
     void setSrcRect(const SkRect& src) { fSrc = src; }
 
     const SkRect& dstRect() const { return fDst; }

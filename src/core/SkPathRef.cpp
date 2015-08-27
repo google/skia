@@ -35,8 +35,8 @@ SkPathRef::~SkPathRef() {
     SkDEBUGCODE(this->validate();)
     sk_free(fPoints);
 
-    SkDEBUGCODE(fPoints = NULL;)
-    SkDEBUGCODE(fVerbs = NULL;)
+    SkDEBUGCODE(fPoints = nullptr;)
+    SkDEBUGCODE(fVerbs = nullptr;)
     SkDEBUGCODE(fVerbCnt = 0x9999999;)
     SkDEBUGCODE(fPointCnt = 0xAAAAAAA;)
     SkDEBUGCODE(fPointCnt = 0xBBBBBBB;)
@@ -130,7 +130,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
     int32_t packed;
     if (!buffer->readS32(&packed)) {
         delete ref;
-        return NULL;
+        return nullptr;
     }
 
     ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
@@ -143,7 +143,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
         !buffer->readS32(&pointCount) ||
         !buffer->readS32(&conicCount)) {
         delete ref;
-        return NULL;
+        return nullptr;
     }
 
     ref->resetToSize(verbCount, pointCount, conicCount);
@@ -156,7 +156,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
         !buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar)) ||
         !buffer->read(&ref->fBounds, sizeof(SkRect))) {
         delete ref;
-        return NULL;
+        return nullptr;
     }
     ref->fBoundsIsDirty = false;
 
@@ -443,7 +443,7 @@ uint32_t SkPathRef::genID() const {
 }
 
 void SkPathRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (NULL == listener || this == empty.get()) {
+    if (nullptr == listener || this == empty.get()) {
         delete listener;
         return;
     }
@@ -465,11 +465,11 @@ void SkPathRef::validate() const {
     this->INHERITED::validate();
     SkASSERT(static_cast<ptrdiff_t>(fFreeSpace) >= 0);
     SkASSERT(reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) >= 0);
-    SkASSERT((NULL == fPoints) == (NULL == fVerbs));
-    SkASSERT(!(NULL == fPoints && 0 != fFreeSpace));
-    SkASSERT(!(NULL == fPoints && 0 != fFreeSpace));
-    SkASSERT(!(NULL == fPoints && fPointCnt));
-    SkASSERT(!(NULL == fVerbs && fVerbCnt));
+    SkASSERT((nullptr == fPoints) == (nullptr == fVerbs));
+    SkASSERT(!(nullptr == fPoints && 0 != fFreeSpace));
+    SkASSERT(!(nullptr == fPoints && 0 != fFreeSpace));
+    SkASSERT(!(nullptr == fPoints && fPointCnt));
+    SkASSERT(!(nullptr == fVerbs && fVerbCnt));
     SkASSERT(this->currSize() ==
                 fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt);
 

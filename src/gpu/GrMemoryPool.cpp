@@ -25,8 +25,8 @@ GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
 
     fHead = CreateBlock(fPreallocSize);
     fTail = fHead;
-    fHead->fNext = NULL;
-    fHead->fPrev = NULL;
+    fHead->fNext = nullptr;
+    fHead->fPrev = nullptr;
     VALIDATE;
 };
 
@@ -48,8 +48,8 @@ void* GrMemoryPool::allocate(size_t size) {
         BlockHeader* block = CreateBlock(blockSize);
 
         block->fPrev = fTail;
-        block->fNext = NULL;
-        SkASSERT(NULL == fTail->fNext);
+        block->fNext = nullptr;
+        SkASSERT(nullptr == fTail->fNext);
         fTail->fNext = block;
         fTail = block;
         fSize += block->fSize;
@@ -117,7 +117,7 @@ GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t size) {
     block->fLiveCount = 0;
     block->fFreeSize = size;
     block->fCurrPtr = reinterpret_cast<intptr_t>(block) + kHeaderSize;
-    block->fPrevPtr = 0; // gcc warns on assigning NULL to an intptr_t.
+    block->fPrevPtr = 0; // gcc warns on assigning nullptr to an intptr_t.
     block->fSize = paddedSize;
     return block;
 }
@@ -129,7 +129,7 @@ void GrMemoryPool::DeleteBlock(BlockHeader* block) {
 void GrMemoryPool::validate() {
 #ifdef SK_DEBUG
     BlockHeader* block = fHead;
-    BlockHeader* prev = NULL;
+    BlockHeader* prev = nullptr;
     SkASSERT(block);
     int allocCount = 0;
     do {

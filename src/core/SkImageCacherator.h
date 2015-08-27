@@ -34,7 +34,7 @@ public:
 
     /**
      *  Returns a ref() on the texture produced by this generator. The caller must call unref()
-     *  when it is done. Will return NULL on failure.
+     *  when it is done. Will return nullptr on failure.
      *
      *  The caller is responsible for calling texture->unref() when they are done.
      */

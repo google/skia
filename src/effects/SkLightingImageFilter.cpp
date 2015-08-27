@@ -754,7 +754,7 @@ public:
         return new GrGLDistantLight;
 #else
         SkDEBUGFAIL("Should not call in GPU-less build");
-        return NULL;
+        return nullptr;
 #endif
     }
     bool requiresFragmentPosition() const override { return false; }
@@ -813,7 +813,7 @@ public:
         return new GrGLPointLight;
 #else
         SkDEBUGFAIL("Should not call in GPU-less build");
-        return NULL;
+        return nullptr;
 #endif
     }
     bool requiresFragmentPosition() const override { return true; }
@@ -927,7 +927,7 @@ public:
         return new GrGLSpotLight;
 #else
         SkDEBUGFAIL("Should not call in GPU-less build");
-        return NULL;
+        return nullptr;
 #endif
     }
     bool requiresFragmentPosition() const override { return true; }
@@ -1039,7 +1039,7 @@ void SkImageFilterLight::flattenLight(SkWriteBuffer& buffer) const {
         default:
             SkDEBUGFAIL("Unknown LightType.");
             buffer.validate(false);
-            return NULL;
+            return nullptr;
     }
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -1137,16 +1137,16 @@ SkImageFilter* SkDiffuseLightingImageFilter::Create(SkImageFilterLight* light,
                                                     SkScalar kd,
                                                     SkImageFilter* input,
                                                     const CropRect* cropRect) {
-    if (NULL == light) {
-        return NULL;
+    if (nullptr == light) {
+        return nullptr;
     }
     if (!SkScalarIsFinite(surfaceScale) || !SkScalarIsFinite(kd)) {
-        return NULL;
+        return nullptr;
     }
     // According to the spec, kd can be any non-negative number :
     // http://www.w3.org/TR/SVG/filters.html#feDiffuseLightingElement
     if (kd < 0) {
-        return NULL;
+        return nullptr;
     }
     return new SkDiffuseLightingImageFilter(light, surfaceScale, kd, input, cropRect);
 }
@@ -1275,16 +1275,16 @@ SkImageFilter* SkSpecularLightingImageFilter::Create(SkImageFilterLight* light,
                                                      SkScalar shininess,
                                                      SkImageFilter* input,
                                                      const CropRect* cropRect) {
-    if (NULL == light) {
-        return NULL;
+    if (nullptr == light) {
+        return nullptr;
     }
     if (!SkScalarIsFinite(surfaceScale) || !SkScalarIsFinite(ks) || !SkScalarIsFinite(shininess)) {
-        return NULL;
+        return nullptr;
     }
     // According to the spec, ks can be any non-negative number :
     // http://www.w3.org/TR/SVG/filters.html#feSpecularLightingElement
     if (ks < 0) {
-        return NULL;
+        return nullptr;
     }
     return new SkSpecularLightingImageFilter(light, surfaceScale, ks, shininess, input, cropRect);
 }
@@ -1433,7 +1433,7 @@ SkImageFilterLight* create_random_light(SkRandom* random) {
         }
         default:
             SkFAIL("Unexpected value.");
-            return NULL;
+            return nullptr;
     }
 }
 

@@ -29,7 +29,7 @@ public:
     class State;
 
     /** Get the PDF shader for the passed SkShader. If the SkShader is
-     *  invalid in some way, returns NULL. The reference count of
+     *  invalid in some way, returns nullptr. The reference count of
      *  the object is incremented and it is the caller's responsibility to
      *  unreference it when done.  This is needed to accommodate the weak
      *  reference pattern used when the returned object is new and has no

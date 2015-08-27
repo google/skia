@@ -39,9 +39,9 @@ protected:
         SkISize tileSize = SkISize::Make(fSize.width() / 2, fSize.height() / 2);
         SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
             SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                   seed, stitchTiles ? &tileSize : NULL) :
+                                                   seed, stitchTiles ? &tileSize : nullptr) :
             SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                seed, stitchTiles ? &tileSize : NULL);
+                                                seed, stitchTiles ? &tileSize : nullptr);
         SkPaint paint;
         paint.setShader(shader)->unref();
         if (stitchTiles) {
@@ -112,9 +112,9 @@ protected:
               bool stitchTiles) {
         SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
         SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                seed, stitchTiles ? &fSize : NULL) :
+                                                seed, stitchTiles ? &fSize : nullptr) :
         SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
-                                              seed, stitchTiles ? &fSize : NULL);
+                                              seed, stitchTiles ? &fSize : nullptr);
         paint->setShader(shader)->unref();
     }
 

@@ -33,7 +33,7 @@ int tool_main(int argc, char** argv) {
     SkLua L;
 
     for (int i = 1; i < argc; ++i) {
-        SkData* data = NULL;
+        SkData* data = nullptr;
         const void* ptr;
         size_t len;
 

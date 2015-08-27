@@ -55,7 +55,7 @@ protected:
             SkRect r = SkRect::MakeWH(w, h);
             canvas->drawRect(r, p);
 
-            canvas->saveLayer(&r, NULL);
+            canvas->saveLayer(&r, nullptr);
 
             p.setShader(fDst);
             canvas->drawRect(r, p);
@@ -67,8 +67,8 @@ protected:
 
             r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
             p.setStyle(SkPaint::kStroke_Style);
-            p.setShader(NULL);
-            p.setXfermode(NULL);
+            p.setShader(nullptr);
+            p.setXfermode(nullptr);
             canvas->drawRect(r, p);
 
             canvas->restore();

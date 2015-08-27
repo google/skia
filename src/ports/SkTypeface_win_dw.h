@@ -41,8 +41,8 @@ private:
                        IDWriteFontFace* fontFace,
                        IDWriteFont* font,
                        IDWriteFontFamily* fontFamily,
-                       IDWriteFontFileLoader* fontFileLoader = NULL,
-                       IDWriteFontCollectionLoader* fontCollectionLoader = NULL)
+                       IDWriteFontFileLoader* fontFileLoader = nullptr,
+                       IDWriteFontCollectionLoader* fontCollectionLoader = nullptr)
         : SkTypeface(style, fontID, false)
         , fFactory(SkRefComPtr(factory))
         , fDWriteFontCollectionLoader(SkSafeRefComPtr(fontCollectionLoader))
@@ -53,9 +53,9 @@ private:
     {
 #if SK_HAS_DWRITE_1_H
         if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace1))) {
-            // IUnknown::QueryInterface states that if it fails, punk will be set to NULL.
+            // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
-            SK_ALWAYSBREAK(NULL == fDWriteFontFace1.get());
+            SK_ALWAYSBREAK(nullptr == fDWriteFontFace1.get());
         }
 #endif
     }
@@ -75,8 +75,8 @@ public:
                                       IDWriteFontFace* fontFace,
                                       IDWriteFont* font,
                                       IDWriteFontFamily* fontFamily,
-                                      IDWriteFontFileLoader* fontFileLoader = NULL,
-                                      IDWriteFontCollectionLoader* fontCollectionLoader = NULL) {
+                                      IDWriteFontFileLoader* fontFileLoader = nullptr,
+                                      IDWriteFontCollectionLoader* fontCollectionLoader = nullptr) {
         SkFontID fontID = SkTypefaceCache::NewFontID();
         return new DWriteFontTypeface(get_style(font), fontID, factory, fontFace, font, fontFamily,
                                       fontFileLoader, fontCollectionLoader);

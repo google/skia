@@ -10,5 +10,5 @@
 #include "SkTypes.h"
 
 SkFontMgr* SkFontMgr::Factory() {
-    return SkFontMgr_New_FontConfig(NULL);
+    return SkFontMgr_New_FontConfig(nullptr);
 }

@@ -41,18 +41,18 @@ public:
     static GrFragmentProcessor* Create(GrPrimitiveEdgeType edgeType, int n,
                                        const SkScalar edges[]) {
         if (n <= 0 || n > kMaxEdges || kHairlineAA_GrProcessorEdgeType == edgeType) {
-            return NULL;
+            return nullptr;
         }
         return new GrConvexPolyEffect(edgeType, n, edges);
     }
 
     /**
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
-     * inverse filled, or has too many edges, this will return NULL. If offset is non-NULL, then
+     * inverse filled, or has too many edges, this will return nullptr. If offset is non-nullptr, then
      * the path is translated by the vector.
      */
     static GrFragmentProcessor* Create(GrPrimitiveEdgeType, const SkPath&,
-                                       const SkVector* offset = NULL);
+                                       const SkVector* offset = nullptr);
 
     /**
      * Creates an effect that fills inside the rect with AA edges..

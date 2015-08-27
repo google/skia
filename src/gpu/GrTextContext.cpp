@@ -22,7 +22,7 @@
 
 GrTextContext::GrTextContext(GrContext* context, GrDrawContext* drawContext,
                              const SkSurfaceProps& surfaceProps)
-    : fFallbackTextContext(NULL)
+    : fFallbackTextContext(nullptr)
     , fContext(context)
     , fSurfaceProps(surfaceProps)
     , fDrawContext(drawContext) {
@@ -200,10 +200,10 @@ void GrTextContext::drawPosTextAsPath(GrRenderTarget* rt,
 
     // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
     paint.setStyle(SkPaint::kFill_Style);
-    paint.setPathEffect(NULL);
+    paint.setPathEffect(nullptr);
 
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
-    SkAutoGlyphCache    autoCache(paint, &fSurfaceProps, NULL);
+    SkAutoGlyphCache    autoCache(paint, &fSurfaceProps, nullptr);
     SkGlyphCache*       cache = autoCache.getCache();
 
     const char*        stop = text + byteLength;
@@ -266,12 +266,12 @@ static void GlyphCacheAuxProc(void* data) {
 
 GrFontScaler* GrTextContext::GetGrFontScaler(SkGlyphCache* cache) {
     void* auxData;
-    GrFontScaler* scaler = NULL;
+    GrFontScaler* scaler = nullptr;
 
     if (cache->getAuxProcData(GlyphCacheAuxProc, &auxData)) {
         scaler = (GrFontScaler*)auxData;
     }
-    if (NULL == scaler) {
+    if (nullptr == scaler) {
         scaler = new GrFontScaler(cache);
         cache->setAuxProc(GlyphCacheAuxProc, scaler);
     }

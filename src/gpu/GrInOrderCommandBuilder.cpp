@@ -34,7 +34,7 @@ GrTargetCommands::Cmd* GrInOrderCommandBuilder::recordDrawBatch(GrBatch* batch,
         if (previous->batch()->combineIfPossible(batch, caps)) {
             GrBATCH_INFO("\tBatching with (%s, %u)\n",
                          previous->batch()->name(), previous->batch()->uniqueID());
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -88,7 +88,7 @@ GrInOrderCommandBuilder::recordDrawPaths(State* state,
                  &previous->fTransforms[previous->fCount * xformSize] == savedTransforms)) {
                 // Combine this DrawPaths call with the one previous.
                 previous->fCount += count;
-                return NULL;
+                return nullptr;
             }
         }
     }

@@ -45,14 +45,14 @@ public:
     virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const = 0;
 
     virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const {
-        return NULL;
+        return nullptr;
     }
 
     // Default impl calls onDraw
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY) const;
     
-    virtual GrTexture* getTexture() const { return NULL; }
+    virtual GrTexture* getTexture() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
@@ -60,12 +60,12 @@ public:
 
     virtual SkShader* onNewShader(SkShader::TileMode,
                                   SkShader::TileMode,
-                                  const SkMatrix* localMatrix) const { return NULL; }
+                                  const SkMatrix* localMatrix) const { return nullptr; }
 
-    // newWidth > 0, newHeight > 0, subset either NULL or a proper subset of this bounds
+    // newWidth > 0, newHeight > 0, subset either nullptr or a proper subset of this bounds
     virtual SkImage* onNewImage(int newWidth, int newHeight, const SkIRect* subset,
                                 SkFilterQuality) const;
-    virtual SkData* onRefEncoded() const { return NULL; }
+    virtual SkData* onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
 

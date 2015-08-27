@@ -87,7 +87,7 @@ static bool init_device_and_context(cl::Device* device, cl::Context* context) {
 
     // Create a CL context and check for all errors
     cl_int contextErr = CL_SUCCESS;
-    *context = cl::Context(deviceList, NULL, error_notify, NULL, &contextErr);
+    *context = cl::Context(deviceList, nullptr, error_notify, nullptr, &contextErr);
     if (contextErr != CL_SUCCESS) {
         SkDebugf("Context creation failed: %s\n", cl_error_to_string(contextErr));
         return false;
@@ -118,7 +118,7 @@ SkDifferentPixelsMetric gDiffPixel;
 SkPMetric gPDiff;
 
 // A null terminated array of pointer to every differ declared above
-SkImageDiffer* gDiffers[] = { &gDiffPixel, &gPDiff, NULL };
+SkImageDiffer* gDiffers[] = { &gDiffPixel, &gPDiff, nullptr };
 
 int tool_main(int argc, char * argv[]);
 int tool_main(int argc, char * argv[]) {

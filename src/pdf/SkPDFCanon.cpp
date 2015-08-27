@@ -41,7 +41,7 @@ T* find_item(const SkTDArray<T*>& ptrArray, const U& object) {
             return ptrArray[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ SkPDFFont* SkPDFCanon::findFont(uint32_t fontID,
                                 SkPDFFont** relatedFontPtr) const {
     SkASSERT(relatedFontPtr);
 
-    SkPDFFont* relatedFont = NULL;
+    SkPDFFont* relatedFont = nullptr;
     for (int i = 0; i < fFontRecords.count(); ++i) {
         SkPDFFont::Match match = SkPDFFont::IsMatch(
                 fFontRecords[i].fFont, fFontRecords[i].fFontID,
@@ -62,8 +62,8 @@ SkPDFFont* SkPDFCanon::findFont(uint32_t fontID,
             relatedFont = fFontRecords[i].fFont;
         }
     }
-    *relatedFontPtr = relatedFont;  // May still be NULL.
-    return NULL;
+    *relatedFontPtr = relatedFont;  // May still be nullptr.
+    return nullptr;
 }
 
 void SkPDFCanon::addFont(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID) {
@@ -109,7 +109,7 @@ void SkPDFCanon::addImageShader(SkPDFImageShader* pdfShader) {
 const SkPDFGraphicState* SkPDFCanon::findGraphicState(
         const SkPDFGraphicState& key) const {
     const WrapGS* ptr = fGraphicStateRecords.find(WrapGS(&key));
-    return ptr ? ptr->fPtr : NULL;
+    return ptr ? ptr->fPtr : nullptr;
 }
 
 void SkPDFCanon::addGraphicState(const SkPDFGraphicState* state) {

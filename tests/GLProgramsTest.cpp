@@ -127,7 +127,7 @@ static GrRenderTarget* random_render_target(GrTextureProvider* textureProvider, 
             textureProvider->assignUniqueKeyToTexture(key, texture);
         }
     }
-    return texture ? texture->asRenderTarget() : NULL;
+    return texture ? texture->asRenderTarget() : nullptr;
 }
 
 static void set_random_xpf(GrPipelineBuilder* pipelineBuilder, GrProcessorTestData* d) {
@@ -202,13 +202,13 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     SkAutoTUnref<GrTexture> dummyTexture1(
-        context->textureProvider()->createTexture(dummyDesc, false, NULL, 0));
+        context->textureProvider()->createTexture(dummyDesc, false, nullptr, 0));
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
     SkAutoTUnref<GrTexture> dummyTexture2(
-        context->textureProvider()->createTexture(dummyDesc, false, NULL, 0));
+        context->textureProvider()->createTexture(dummyDesc, false, nullptr, 0));
 
     if (!dummyTexture1 || ! dummyTexture2) {
         SkDebugf("Could not allocate dummy textures");

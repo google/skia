@@ -37,7 +37,7 @@ GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resour
     if (caps.shaderCaps()->pathRenderingSupport()) {
         return new GrStencilAndCoverPathRenderer(resourceProvider);
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 

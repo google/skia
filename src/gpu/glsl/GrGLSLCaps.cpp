@@ -17,8 +17,8 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
     fBindlessTextureSupport = false;
-    fFBFetchColorName = NULL;
-    fFBFetchExtensionString = NULL;
+    fFBFetchColorName = nullptr;
+    fFBFetchExtensionString = nullptr;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 

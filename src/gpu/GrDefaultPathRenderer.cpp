@@ -321,10 +321,10 @@ private:
             return;
         }
 
-        const GrIndexBuffer* indexBuffer = NULL;
+        const GrIndexBuffer* indexBuffer = nullptr;
         int firstIndex = 0;
 
-        void* indices = NULL;
+        void* indices = nullptr;
         if (isIndexed) {
             indices = target->makeIndexSpace(maxIndices, &indexBuffer, &firstIndex);
 
@@ -569,7 +569,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
         } else {
-            passes[0] = NULL;
+            passes[0] = nullptr;
         }
         lastPassIsBounds = false;
         drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
@@ -579,7 +579,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
             } else {
-                passes[0] = NULL;
+                passes[0] = nullptr;
             }
             drawFace[0] = GrPipelineBuilder::kBoth_DrawFace;
             lastPassIsBounds = false;
@@ -710,7 +710,7 @@ bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // this class can draw any path with any fill but doesn't do any anti-aliasing.
     return !args.fAntiAlias && (args.fStroke->isFillStyle() ||
                                 IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix,
-                                                             NULL));
+                                                             nullptr));
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {

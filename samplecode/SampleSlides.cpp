@@ -93,7 +93,7 @@ static const PE_Proc gPE[] = { hair_pe, hair2_pe, stroke_pe, dash_pe, one_d_pe }
 
 static void fill_pe(SkPaint* paint) {
     paint->setStyle(SkPaint::kFill_Style);
-    paint->setPathEffect(NULL);
+    paint->setPathEffect(nullptr);
 }
 
 static void discrete_pe(SkPaint* paint) {
@@ -171,10 +171,10 @@ static const SkScalar gPos2[] = {
 };
 
 static const GradData gGradData[] = {
-{ 2, gColors, NULL },
+{ 2, gColors, nullptr },
 { 2, gColors, gPos0 },
 { 2, gColors, gPos1 },
-{ 5, gColors, NULL },
+{ 5, gColors, nullptr },
 { 5, gColors, gPos2 }
 };
 
@@ -290,7 +290,7 @@ static void textonpath_slide(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kFill_Style);
 
     paint.setTextSize(50);
-    canvas->drawTextOnPath(text, len, path, NULL, paint);
+    canvas->drawTextOnPath(text, len, path, nullptr, paint);
 
     paint.setColor(SK_ColorRED);
     matrix.setScale(-SK_Scalar1, SK_Scalar1);
@@ -327,7 +327,7 @@ static SkShader* make_shader1(const SkIPoint& size) {
     SkPoint pts[] = { { 0, 0 },
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
-    return SkGradientShader::CreateLinear(pts, colors, NULL,
+    return SkGradientShader::CreateLinear(pts, colors, nullptr,
                                           SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode);
 }
 
@@ -338,7 +338,7 @@ public:
     SkPoint*                fVerts;
     SkPoint*                fTexs;
 
-    Rec() : fCount(0), fVerts(NULL), fTexs(NULL) {}
+    Rec() : fCount(0), fVerts(nullptr), fTexs(nullptr) {}
     ~Rec() { delete[] fVerts; delete[] fTexs; }
 };
 
@@ -443,24 +443,24 @@ static void mesh_slide(SkCanvas* canvas) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
         canvas->save();
 
-        paint.setShader(NULL);
+        paint.setShader(nullptr);
         canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
                              fRecs[i].fVerts, fRecs[i].fTexs,
-                             NULL, NULL, NULL, 0, paint);
+                             nullptr, nullptr, nullptr, 0, paint);
 
         canvas->translate(SkIntToScalar(210), 0);
 
         paint.setShader(fShader0);
         canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
                              fRecs[i].fVerts, fRecs[i].fTexs,
-                             NULL, NULL, NULL, 0, paint);
+                             nullptr, nullptr, nullptr, 0, paint);
 
         canvas->translate(SkIntToScalar(210), 0);
 
         paint.setShader(fShader1);
         canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
                              fRecs[i].fVerts, fRecs[i].fTexs,
-                             NULL, NULL, NULL, 0, paint);
+                             nullptr, nullptr, nullptr, 0, paint);
         canvas->restore();
 
         canvas->translate(0, SkIntToScalar(250));
@@ -475,7 +475,7 @@ static void r0(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
                                              SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))))->unref();
     rastBuilder->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
-    p.setMaskFilter(NULL);
+    p.setMaskFilter(nullptr);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -530,7 +530,7 @@ static void r4(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p, SK_Scalar1*3/2, SK_Scalar1*3/2);
 
-    p.setXfermode(NULL);
+    p.setXfermode(nullptr);
     rastBuilder->addLayer(p);
 }
 
@@ -585,8 +585,8 @@ static void r8(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
-    p.setPathEffect(NULL);
-    p.setXfermode(NULL);
+    p.setPathEffect(nullptr);
+    p.setXfermode(nullptr);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -603,8 +603,8 @@ static void r9(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
-    p.setPathEffect(NULL);
-    p.setXfermode(NULL);
+    p.setPathEffect(nullptr);
+    p.setXfermode(nullptr);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -713,8 +713,8 @@ protected:
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         this->init();
         fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
-        this->inval(NULL);
-        return NULL;
+        this->inval(nullptr);
+        return nullptr;
     }
 
 private:

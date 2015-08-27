@@ -36,7 +36,7 @@ DEF_TEST(String, reporter) {
     SkString    a;
     SkString    b((size_t)0);
     SkString    c("");
-    SkString    d(NULL, 0);
+    SkString    d(nullptr, 0);
 
     REPORTER_ASSERT(reporter, a.isEmpty());
     REPORTER_ASSERT(reporter, a == b && a == c && a == d);

@@ -46,7 +46,7 @@ static SkShader* make_shader1(const SkIPoint& size) {
     SkPoint pts[] = { { 0, 0 },
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
-    return SkGradientShader::CreateLinear(pts, colors, NULL,
+    return SkGradientShader::CreateLinear(pts, colors, nullptr,
                     SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode);
 }
 
@@ -95,24 +95,24 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
             canvas->save();
 
-            paint.setShader(NULL);
+            paint.setShader(nullptr);
             canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
                                  fRecs[i].fVerts, fRecs[i].fTexs,
-                                 NULL, NULL, NULL, 0, paint);
+                                 nullptr, nullptr, nullptr, 0, paint);
 
             canvas->translate(SkIntToScalar(250), 0);
 
             paint.setShader(fShader0);
             canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
                                  fRecs[i].fVerts, fRecs[i].fTexs,
-                                 NULL, NULL, NULL, 0, paint);
+                                 nullptr, nullptr, nullptr, 0, paint);
 
             canvas->translate(SkIntToScalar(250), 0);
 
             paint.setShader(fShader1);
             canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
                                  fRecs[i].fVerts, fRecs[i].fTexs,
-                                 NULL, NULL, NULL, 0, paint);
+                                 nullptr, nullptr, nullptr, 0, paint);
             canvas->restore();
 
             canvas->translate(0, SkIntToScalar(250));
@@ -126,7 +126,7 @@ protected:
     bool onClick(Click* click) override {
     //    fCurrX = click->fICurr.fX;
     //    fCurrY = click->fICurr.fY;
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -137,7 +137,7 @@ private:
         SkPoint*                fVerts;
         SkPoint*                fTexs;
 
-        Rec() : fCount(0), fVerts(NULL), fTexs(NULL) {}
+        Rec() : fCount(0), fVerts(nullptr), fTexs(nullptr) {}
         ~Rec() { delete[] fVerts; delete[] fTexs; }
     };
 

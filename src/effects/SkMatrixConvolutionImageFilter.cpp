@@ -57,17 +57,17 @@ SkMatrixConvolutionImageFilter* SkMatrixConvolutionImageFilter::Create(
     SkImageFilter* input,
     const CropRect* cropRect) {
     if (kernelSize.width() < 1 || kernelSize.height() < 1) {
-        return NULL;
+        return nullptr;
     }
     if (gMaxKernelSize / kernelSize.fWidth < kernelSize.fHeight) {
-        return NULL;
+        return nullptr;
     }
     if (!kernel) {
-        return NULL;
+        return nullptr;
     }
     if ((kernelOffset.fX < 0) || (kernelOffset.fX >= kernelSize.fWidth) ||
         (kernelOffset.fY < 0) || (kernelOffset.fY >= kernelSize.fHeight)) {
-        return NULL;
+        return nullptr;
     }
     return new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain, bias, kernelOffset,
                                               tileMode, convolveAlpha, input, cropRect);
@@ -82,11 +82,11 @@ SkFlattenable* SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) 
 
     const int64_t kernelArea = sk_64_mul(kernelSize.width(), kernelSize.height());
     if (!buffer.validate(kernelArea == count)) {
-        return NULL;
+        return nullptr;
     }
     SkAutoSTArray<16, SkScalar> kernel(count);
     if (!buffer.readScalarArray(kernel.get(), count)) {
-        return NULL;
+        return nullptr;
     }
     SkScalar gain = buffer.readScalar();
     SkScalar bias = buffer.readScalar();

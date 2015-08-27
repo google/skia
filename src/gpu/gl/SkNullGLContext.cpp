@@ -21,7 +21,7 @@ class BufferObj {
 public:
     
 
-    BufferObj(GrGLuint id) : fID(id), fDataPtr(NULL), fSize(0), fMapped(false) {}
+    BufferObj(GrGLuint id) : fID(id), fDataPtr(nullptr), fSize(0), fMapped(false) {}
     ~BufferObj() { delete[] fDataPtr; }
 
     void allocate(GrGLsizeiptr size, const GrGLchar* dataPtr) {
@@ -56,11 +56,11 @@ public:
     BufferManager() : fFreeListHead(kFreeListEnd) {}
 
     ~BufferManager() {
-        // NULL out the entries that are really free list links rather than ptrs before deleting.
+        // nullptr out the entries that are really free list links rather than ptrs before deleting.
         intptr_t curr = fFreeListHead;
         while (kFreeListEnd != curr) {
             intptr_t next = reinterpret_cast<intptr_t>(fBuffers[SkToS32(curr)]);
-            fBuffers[SkToS32(curr)] = NULL;
+            fBuffers[SkToS32(curr)] = nullptr;
             curr = next;
         }
 
@@ -254,7 +254,7 @@ GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBufferRange(GrGLenum target, GrGLintptr o
         buffer->setMapped(true);
         return buffer->dataPtr();
     }
-    return NULL;
+    return nullptr;
 }
 
 GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) {
@@ -277,7 +277,7 @@ GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) 
     }
 
     SkASSERT(false);
-    return NULL;            // no buffer bound to target
+    return nullptr;            // no buffer bound to target
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLFlushMappedBufferRange(GrGLenum target,
@@ -499,7 +499,7 @@ static GrGLInterface* create_null_interface(State* state) {
 
 static void* create_tls() {
     State** current = new State*;
-    *current = NULL;
+    *current = nullptr;
     return current;
 }
 
@@ -534,12 +534,12 @@ static void set_current_context_from_interface(const GrGLInterface* interface) {
 
 SkNullGLContext* SkNullGLContext::Create(GrGLStandard forcedGpuAPI) {
     if (kGLES_GrGLStandard == forcedGpuAPI) {
-        return NULL;
+        return nullptr;
     }
     SkNullGLContext* ctx = new SkNullGLContext;
     if (!ctx->isValid()) {
         delete ctx;
-        return NULL;
+        return nullptr;
     }
     return ctx;
 }

@@ -193,15 +193,15 @@ static const int H = 33;
 
 static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
                               SkColorType ct) {
-    SkColorTable* ctable = NULL;
+    SkColorTable* ctable = nullptr;
     if (kIndex_8_SkColorType == ct) {
         ctable = init_ctable();
     }
 
     srcOpaque->allocPixels(SkImageInfo::Make(W, H, ct, kOpaque_SkAlphaType),
-                           NULL, ctable);
+                           nullptr, ctable);
     srcPremul->allocPixels(SkImageInfo::Make(W, H, ct, kPremul_SkAlphaType),
-                           NULL, ctable);
+                           nullptr, ctable);
     SkSafeUnref(ctable);
     init_src(*srcOpaque);
     init_src(*srcPremul);
@@ -248,8 +248,8 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
                     SkAutoLockPixels alp0(subset);
                     SkAutoLockPixels alp1(copy);
                     // they should both have, or both not-have, a colortable
-                    bool hasCT = subset.getColorTable() != NULL;
-                    REPORTER_ASSERT(reporter, (copy.getColorTable() != NULL) == hasCT);
+                    bool hasCT = subset.getColorTable() != nullptr;
+                    REPORTER_ASSERT(reporter, (copy.getColorTable() != nullptr) == hasCT);
                 }
             }
         }
@@ -376,7 +376,7 @@ DEF_TEST(BitmapCopy, reporter) {
 
             // Create bitmap to act as source for copies and subsets.
             SkBitmap src, subset;
-            SkColorTable* ct = NULL;
+            SkColorTable* ct = nullptr;
             if (kIndex_8_SkColorType == src.colorType()) {
                 ct = init_ctable();
             }

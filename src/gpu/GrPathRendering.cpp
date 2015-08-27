@@ -57,9 +57,9 @@ private:
 GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
                                            const SkDescriptor* desc,
                                            const GrStrokeInfo& stroke) {
-    if (NULL == typeface) {
+    if (nullptr == typeface) {
         typeface = SkTypeface::GetDefaultTypeface();
-        SkASSERT(NULL != typeface);
+        SkASSERT(nullptr != typeface);
     }
 
     if (desc) {

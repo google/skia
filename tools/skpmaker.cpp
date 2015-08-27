@@ -32,7 +32,7 @@ DEFINE_string(writePath, "", "Filepath to write the SKP into.");
 static void make_skp(SkScalar width, SkScalar height, SkScalar border, SkColor color,
                      const char *writePath) {
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(width, height, NULL, 0);
+    SkCanvas* canvas = recorder.beginRecording(width, height, nullptr, 0);
     SkPaint paint;
     paint.setStyle(SkPaint::kFill_Style);
     paint.setColor(SK_ColorBLACK);

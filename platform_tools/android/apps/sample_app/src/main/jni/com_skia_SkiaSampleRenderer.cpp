@@ -29,11 +29,11 @@ struct ActivityGlue {
     jmethodID m_setSlideList;
     jmethodID m_addToDownloads;
     ActivityGlue() {
-        m_env = NULL;
-        m_obj = NULL;
-        m_setTitle = NULL;
-        m_setSlideList = NULL;
-        m_addToDownloads = NULL;
+        m_env = nullptr;
+        m_obj = nullptr;
+        m_setTitle = nullptr;
+        m_setSlideList = nullptr;
+        m_addToDownloads = nullptr;
     }
 } gActivityGlue;
 
@@ -44,11 +44,11 @@ struct WindowGlue {
     jmethodID m_startTimer;
     jmethodID m_getMSAASampleCount;
     WindowGlue() {
-        m_obj = NULL;
-        m_inval = NULL;
-        m_queueSkEvent = NULL;
-        m_startTimer = NULL;
-        m_getMSAASampleCount = NULL;
+        m_obj = nullptr;
+        m_inval = nullptr;
+        m_queueSkEvent = nullptr;
+        m_startTimer = nullptr;
+        m_getMSAASampleCount = nullptr;
     }
 } gWindowGlue;
 
@@ -70,7 +70,7 @@ bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int /*msaaSampleCount*/
     if (!env || !gWindowGlue.m_getMSAASampleCount || !gWindowGlue.m_obj) {
         return false;
     }
-    if (env->IsSameObject(gWindowGlue.m_obj, NULL)) {
+    if (env->IsSameObject(gWindowGlue.m_obj, nullptr)) {
         SkDebugf("ERROR: The JNI WeakRef to the Window is invalid");
         return false;
     }
@@ -99,7 +99,7 @@ void SkOSWindow::onSetTitle(const char title[])
     if (!env) {
         return;
     }
-    if (env->IsSameObject(gActivityGlue.m_obj, NULL)) {
+    if (env->IsSameObject(gActivityGlue.m_obj, nullptr)) {
         SkDebugf("ERROR: The JNI WeakRef to the Activity is invalid");
         return;
     }
@@ -115,7 +115,7 @@ void SkOSWindow::onHandleInval(const SkIRect& rect)
     if (!env || !gWindowGlue.m_inval || !gWindowGlue.m_obj) {
         return;
     }
-    if (env->IsSameObject(gWindowGlue.m_obj, NULL)) {
+    if (env->IsSameObject(gWindowGlue.m_obj, nullptr)) {
         SkDebugf("ERROR: The JNI WeakRef to the Window is invalid");
         return;
     }
@@ -129,7 +129,7 @@ void SkOSWindow::onPDFSaved(const char title[], const char desc[],
     if (!env || !gActivityGlue.m_addToDownloads || !gActivityGlue.m_obj) {
         return;
     }
-    if (env->IsSameObject(gActivityGlue.m_obj, NULL)) {
+    if (env->IsSameObject(gActivityGlue.m_obj, nullptr)) {
         SkDebugf("ERROR: The JNI WeakRef to the Activity is invalid");
         return;
     }
@@ -156,7 +156,7 @@ void SkEvent::SignalQueueTimer(SkMSec ms)
     if (!env || !gWindowGlue.m_startTimer || !gWindowGlue.m_obj || !ms) {
         return;
     }
-    if (env->IsSameObject(gWindowGlue.m_obj, NULL)) {
+    if (env->IsSameObject(gWindowGlue.m_obj, nullptr)) {
         SkDebugf("ERROR: The JNI WeakRef to the Window is invalid");
         return;
     }
@@ -170,7 +170,7 @@ void SkEvent::SignalNonEmptyQueue()
     if (!env || !gWindowGlue.m_queueSkEvent || !gWindowGlue.m_obj) {
         return;
     }
-    if (env->IsSameObject(gWindowGlue.m_obj, NULL)) {
+    if (env->IsSameObject(gWindowGlue.m_obj, nullptr)) {
         SkDebugf("ERROR: The JNI WeakRef to the Window is invalid");
         return;
     }
@@ -234,7 +234,7 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
     if (gWindow) {
         SkDebugf("The sample window already exists.");
     } else {
-        gWindow = new SampleWindow(NULL, args.count(), const_cast<char**>(args.begin()), NULL);
+        gWindow = new SampleWindow(nullptr, args.count(), const_cast<char**>(args.begin()), nullptr);
     }
 
     // cleanup the command line flags
@@ -256,15 +256,15 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_term(JNIEnv* env,
         jobject thiz)
 {
     delete gWindow;
-    gWindow = NULL;
+    gWindow = nullptr;
     application_term();
     if (gWindowGlue.m_obj) {
         env->DeleteWeakGlobalRef(gWindowGlue.m_obj);
-        gWindowGlue.m_obj = NULL;
+        gWindowGlue.m_obj = nullptr;
     }
     if (gActivityGlue.m_obj) {
         env->DeleteWeakGlobalRef(gActivityGlue.m_obj);
-        gActivityGlue.m_obj = NULL;
+        gActivityGlue.m_obj = nullptr;
     }
 }
 
@@ -272,7 +272,7 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_draw(
         JNIEnv* env, jobject thiz)
 {
     if (!gWindow) return;
-    gWindow->update(NULL);
+    gWindow->update(nullptr);
 }
 
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_updateSize(JNIEnv* env,

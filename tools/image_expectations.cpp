@@ -122,12 +122,12 @@ namespace sk_tools {
     // ImageResultsAndExpectations class...
 
     bool ImageResultsAndExpectations::readExpectationsFile(const char *jsonPath) {
-        if (NULL == jsonPath) {
+        if (nullptr == jsonPath) {
             SkDebugf("JSON expectations filename not specified\n");
             return false;
         }
         SkFILE* filePtr = sk_fopen(jsonPath, kRead_SkFILE_Flag);
-        if (NULL == filePtr) {
+        if (nullptr == filePtr) {
             SkDebugf("JSON expectations file '%s' does not exist\n", jsonPath);
             return false;
         }
@@ -188,7 +188,7 @@ namespace sk_tools {
         actualImage[kJsonKey_Image_ComparisonResult] = comparisonResult;
 
         // Add this actual result to our collection.
-        if (NULL == tileNumber) {
+        if (nullptr == tileNumber) {
             fActualResults[sourceName][kJsonKey_Source_WholeImage] = actualImage;
         } else {
             fActualResults[sourceName][kJsonKey_Source_TiledImages][*tileNumber] = actualImage;
@@ -210,7 +210,7 @@ namespace sk_tools {
         }
 
         Json::Value expectedImage;
-        if (NULL == tileNumber) {
+        if (nullptr == tileNumber) {
             expectedImage = fExpectedResults[sourceName][kJsonKey_Source_WholeImage];
         } else {
             expectedImage = fExpectedResults[sourceName][kJsonKey_Source_TiledImages][*tileNumber];
@@ -242,7 +242,7 @@ namespace sk_tools {
     /*static*/ bool ImageResultsAndExpectations::Parse(SkFILE *filePtr,
                                                        Json::Value *jsonRoot) {
         SkAutoDataUnref dataRef(SkData::NewFromFILE(filePtr));
-        if (NULL == dataRef.get()) {
+        if (nullptr == dataRef.get()) {
             return false;
         }
 

@@ -10,12 +10,12 @@
 
 DEF_TEST(DiscardableMemoryPool, reporter) {
     SkAutoTUnref<SkDiscardableMemoryPool> pool(
-        SkDiscardableMemoryPool::Create(1, NULL));
+        SkDiscardableMemoryPool::Create(1, nullptr));
     pool->setRAMBudget(3);
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
 
     SkAutoTDelete<SkDiscardableMemory> dm1(pool->create(100));
-    REPORTER_ASSERT(reporter, dm1->data() != NULL);
+    REPORTER_ASSERT(reporter, dm1->data() != nullptr);
     REPORTER_ASSERT(reporter, 100 == pool->getRAMUsed());
     dm1->unlock();
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());

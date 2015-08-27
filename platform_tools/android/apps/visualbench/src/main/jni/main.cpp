@@ -22,7 +22,7 @@ enum State {
 };
 
 struct VisualBenchState {
-    VisualBenchState() : fApp(NULL), fWindow(NULL), fState(kInit_State) {}
+    VisualBenchState() : fApp(nullptr), fWindow(nullptr), fState(kInit_State) {}
     struct android_app* fApp;
     SkOSWindow* fWindow;
     SkTArray<SkString> fFlags;
@@ -34,7 +34,7 @@ static void handle_cmd(struct android_app* app, int32_t cmd) {
     switch (cmd) {
         case APP_CMD_INIT_WINDOW:
             // The window is being shown, get it ready.
-            if (state->fApp->window != NULL && kInit_State == state->fState) {
+            if (state->fApp->window != nullptr && kInit_State == state->fState) {
                 // drain any events that occurred before |window| was assigned.
                 while (SkEvent::ProcessEvent());
 
@@ -102,9 +102,9 @@ void android_main(struct android_app* state) {
         struct android_poll_source* source;
 
         // We loop until all events are read, then continue to draw the next frame of animation.
-        while ((ident=ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0) {
+        while ((ident=ALooper_pollAll(0, nullptr, &events, (void**)&source)) >= 0) {
             // Process this event.
-            if (source != NULL) {
+            if (source != nullptr) {
                 source->process(state, source);
             }
 
@@ -119,13 +119,13 @@ void android_main(struct android_app* state) {
             if (visualBenchState.fWindow->destroyRequested()) {
                 visualBenchState.fState = kDestroyRequested_State;
             } else {
-                visualBenchState.fWindow->update(NULL);
+                visualBenchState.fWindow->update(nullptr);
             }
         }
 
         if (kDestroyRequested_State == visualBenchState.fState) {
             delete visualBenchState.fWindow;
-            visualBenchState.fWindow = NULL;
+            visualBenchState.fWindow = nullptr;
             application_term();
             ANativeActivity_finish(state->activity);
             visualBenchState.fState = kFinished_State;

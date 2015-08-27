@@ -21,8 +21,8 @@ static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
 class FontCacheGM : public skiagm::GM {
 public:
     FontCacheGM() {
-        fTypefaces[0] = NULL;
-        fTypefaces[1] = NULL;
+        fTypefaces[0] = nullptr;
+        fTypefaces[1] = nullptr;
     }
 
     virtual ~FontCacheGM() {

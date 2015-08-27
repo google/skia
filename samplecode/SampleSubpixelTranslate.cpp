@@ -27,7 +27,7 @@ public:
       : fHorizontalVelocity(horizontalVelocity),
         fVerticalVelocity(verticalVelocity) {
       SkString resourcePath = GetResourcePath(imageFilename);
-      SkImageDecoder* codec = NULL;
+      SkImageDecoder* codec = nullptr;
       SkFILEStream stream(resourcePath.c_str());
       if (stream.isValid()) {
           codec = SkImageDecoder::Factory(&stream);
@@ -109,7 +109,7 @@ protected:
 
         fCurPos.fX += fHorizontalVelocity;
         fCurPos.fY += fVerticalVelocity;
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 private:

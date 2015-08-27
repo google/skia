@@ -23,7 +23,7 @@
 GrGLBufferImpl::GrGLBufferImpl(GrGLGpu* gpu, const Desc& desc, GrGLenum bufferType)
     : fDesc(desc)
     , fBufferType(bufferType)
-    , fMapPtr(NULL) {
+    , fMapPtr(nullptr) {
     if (0 == desc.fID) {
         if (gpu->caps()->mustClearUploadedBufferData()) {
             fCPUData = sk_calloc_throw(desc.fSizeInBytes);
@@ -32,7 +32,7 @@ GrGLBufferImpl::GrGLBufferImpl(GrGLGpu* gpu, const Desc& desc, GrGLenum bufferTy
         }
         fGLSizeInBytes = 0;
     } else {
-        fCPUData = NULL;
+        fCPUData = nullptr;
         // We assume that the GL buffer was created at the desc's size initially.
         fGLSizeInBytes = fDesc.fSizeInBytes;
     }
@@ -44,7 +44,7 @@ void GrGLBufferImpl::release(GrGLGpu* gpu) {
     // make sure we've not been abandoned or already released
     if (fCPUData) {
         sk_free(fCPUData);
-        fCPUData = NULL;
+        fCPUData = nullptr;
     } else if (fDesc.fID) {
         GL_CALL(gpu, DeleteBuffers(1, &fDesc.fID));
         if (GR_GL_ARRAY_BUFFER == fBufferType) {
@@ -56,16 +56,16 @@ void GrGLBufferImpl::release(GrGLGpu* gpu) {
         fDesc.fID = 0;
         fGLSizeInBytes = 0;
     }
-    fMapPtr = NULL;
+    fMapPtr = nullptr;
     VALIDATE();
 }
 
 void GrGLBufferImpl::abandon() {
     fDesc.fID = 0;
     fGLSizeInBytes = 0;
-    fMapPtr = NULL;
+    fMapPtr = nullptr;
     sk_free(fCPUData);
-    fCPUData = NULL;
+    fCPUData = nullptr;
     VALIDATE();
 }
 
@@ -89,14 +89,14 @@ void* GrGLBufferImpl::map(GrGLGpu* gpu) {
         switch (gpu->glCaps().mapBufferType()) {
             case GrGLCaps::kNone_MapBufferType:
                 VALIDATE();
-                return NULL;
+                return nullptr;
             case GrGLCaps::kMapBuffer_MapBufferType:
                 this->bind(gpu);
                 // Let driver know it can discard the old data
                 if (GR_GL_USE_BUFFER_DATA_NULL_HINT || fDesc.fSizeInBytes != fGLSizeInBytes) {
                     fGLSizeInBytes = fDesc.fSizeInBytes;
                     GL_CALL(gpu,
-                            BufferData(fBufferType, fGLSizeInBytes, NULL,
+                            BufferData(fBufferType, fGLSizeInBytes, nullptr,
                                        fDesc.fDynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
                 }
                 GR_GL_CALL_RET(gpu->glInterface(), fMapPtr,
@@ -108,7 +108,7 @@ void* GrGLBufferImpl::map(GrGLGpu* gpu) {
                 if (fDesc.fSizeInBytes != fGLSizeInBytes) {
                     fGLSizeInBytes = fDesc.fSizeInBytes;
                     GL_CALL(gpu,
-                            BufferData(fBufferType, fGLSizeInBytes, NULL,
+                            BufferData(fBufferType, fGLSizeInBytes, nullptr,
                                        fDesc.fDynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
                 }
                 static const GrGLbitfield kAccess = GR_GL_MAP_INVALIDATE_BUFFER_BIT |
@@ -124,7 +124,7 @@ void* GrGLBufferImpl::map(GrGLGpu* gpu) {
                 if (fDesc.fSizeInBytes != fGLSizeInBytes) {
                     fGLSizeInBytes = fDesc.fSizeInBytes;
                     GL_CALL(gpu,
-                            BufferData(fBufferType, fGLSizeInBytes, NULL,
+                            BufferData(fBufferType, fGLSizeInBytes, nullptr,
                                        fDesc.fDynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
                 }
                 GR_GL_CALL_RET(gpu->glInterface(),
@@ -156,7 +156,7 @@ void GrGLBufferImpl::unmap(GrGLGpu* gpu) {
                 break;
         }
     }
-    fMapPtr = NULL;
+    fMapPtr = nullptr;
 }
 
 bool GrGLBufferImpl::isMapped() const {
@@ -182,19 +182,19 @@ bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInB
         GL_CALL(gpu, BufferData(fBufferType, (GrGLsizeiptr) srcSizeInBytes, src, usage));
     } else {
         // Before we call glBufferSubData we give the driver a hint using
-        // glBufferData with NULL. This makes the old buffer contents
+        // glBufferData with nullptr. This makes the old buffer contents
         // inaccessible to future draws. The GPU may still be processing
         // draws that reference the old contents. With this hint it can
         // assign a different allocation for the new contents to avoid
         // flushing the gpu past draws consuming the old contents.
         fGLSizeInBytes = fDesc.fSizeInBytes;
-        GL_CALL(gpu, BufferData(fBufferType, fGLSizeInBytes, NULL, usage));
+        GL_CALL(gpu, BufferData(fBufferType, fGLSizeInBytes, nullptr, usage));
         GL_CALL(gpu, BufferSubData(fBufferType, 0, (GrGLsizeiptr) srcSizeInBytes, src));
     }
 #else
     // Note that we're cheating on the size here. Currently no methods
     // allow a partial update that preserves contents of non-updated
-    // portions of the buffer (map() does a glBufferData(..size, NULL..))
+    // portions of the buffer (map() does a glBufferData(..size, nullptr..))
     bool doSubData = false;
 #if GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND
     static int N = 0;
@@ -209,7 +209,7 @@ bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInB
         // exactly matches the buffer size into a glBufferData. So we tack 1
         // extra byte onto the glBufferData.
         fGLSizeInBytes = srcSizeInBytes + 1;
-        GL_CALL(gpu, BufferData(fBufferType, fGLSizeInBytes, NULL, usage));
+        GL_CALL(gpu, BufferData(fBufferType, fGLSizeInBytes, nullptr, usage));
         GL_CALL(gpu, BufferSubData(fBufferType, 0, srcSizeInBytes, src));
     } else {
         fGLSizeInBytes = srcSizeInBytes;
@@ -223,7 +223,7 @@ void GrGLBufferImpl::validate() const {
     SkASSERT(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
     // The following assert isn't valid when the buffer has been abandoned:
     // SkASSERT((0 == fDesc.fID) == (fCPUData));
-    SkASSERT(NULL == fCPUData || 0 == fGLSizeInBytes);
-    SkASSERT(NULL == fMapPtr || fCPUData || fGLSizeInBytes == fDesc.fSizeInBytes);
-    SkASSERT(NULL == fCPUData || NULL == fMapPtr || fCPUData == fMapPtr);
+    SkASSERT(nullptr == fCPUData || 0 == fGLSizeInBytes);
+    SkASSERT(nullptr == fMapPtr || fCPUData || fGLSizeInBytes == fDesc.fSizeInBytes);
+    SkASSERT(nullptr == fCPUData || nullptr == fMapPtr || fCPUData == fMapPtr);
 }

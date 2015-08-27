@@ -226,7 +226,7 @@ GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
         gp = GrConicEffect::Create(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
                                    edgeType, *d->fCaps,
                                    GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
-    } while (NULL == gp);
+    } while (nullptr == gp);
     return gp;
 }
 
@@ -435,7 +435,7 @@ GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
                                   edgeType, *d->fCaps,
                                   GrTest::TestMatrix(d->fRandom),
                                   d->fRandom->nextBool());
-    } while (NULL == gp);
+    } while (nullptr == gp);
     return gp;
 }
 
@@ -653,7 +653,7 @@ GrGeometryProcessor* GrCubicEffect::TestCreate(GrProcessorTestData* d) {
                         d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
         gp = GrCubicEffect::Create(GrRandomColor(d->fRandom),
                                    GrTest::TestMatrix(d->fRandom), edgeType, *d->fCaps);
-    } while (NULL == gp);
+    } while (nullptr == gp);
     return gp;
 }
 

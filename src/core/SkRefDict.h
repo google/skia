@@ -22,15 +22,15 @@ public:
     ~SkRefDict();
 
     /**
-     *  Return the data associated with name[], or NULL if no matching entry
+     *  Return the data associated with name[], or nullptr if no matching entry
      *  is found. The reference-count of the entry is not affected.
      */
     SkRefCnt* find(const char name[]) const;
 
     /**
-     *  If data is NULL, remove (if present) the entry matching name and call
+     *  If data is nullptr, remove (if present) the entry matching name and call
      *  prev_data->unref() on the data for the matching entry.
-     *  If data is not-NULL, replace the existing entry matching name and
+     *  If data is not-nullptr, replace the existing entry matching name and
      *  call (prev_data->unref()), or add a new one. In either case,
      *  data->ref() is called.
      */
@@ -39,7 +39,7 @@ public:
     /**
      *  Remove the matching entry (if found) and unref its data.
      */
-    void remove(const char name[]) { this->set(name, NULL); }
+    void remove(const char name[]) { this->set(name, nullptr); }
 
     /**
      *  Remove all entries, and unref() their associated data.

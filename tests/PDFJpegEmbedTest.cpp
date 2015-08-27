@@ -46,7 +46,7 @@ static SkData* load_resource(
         SkDebugf("\n%s: Resource '%s' can not be found.\n",
                  test, filename);
     }
-    return data;  // May return NULL.
+    return data;  // May return nullptr.
 }
 
 /**
@@ -70,9 +70,9 @@ DEF_TEST(PDFJpegEmbedTest, r) {
     canvas->clear(SK_ColorLTGRAY);
 
     SkBitmap bm1(bitmap_from_data(mandrillData));
-    canvas->drawBitmap(bm1, 65.0, 0.0, NULL);
+    canvas->drawBitmap(bm1, 65.0, 0.0, nullptr);
     SkBitmap bm2(bitmap_from_data(cmykData));
-    canvas->drawBitmap(bm2, 0.0, 512.0, NULL);
+    canvas->drawBitmap(bm2, 0.0, 512.0, nullptr);
 
     canvas->flush();
     document->endPage();

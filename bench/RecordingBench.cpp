@@ -37,7 +37,7 @@ void RecordingBench::onDraw(const int loops, SkCanvas*) {
                    | SkPictureRecorder::kPlaybackDrawPicture_RecordFlag;
     for (int i = 0; i < loops; i++) {
         SkPictureRecorder recorder;
-        fSrc->playback(recorder.beginRecording(w, h, fUseBBH ? &factory : NULL, flags));
+        fSrc->playback(recorder.beginRecording(w, h, fUseBBH ? &factory : nullptr, flags));
         SkSafeUnref(recorder.endRecording());
     }
 }

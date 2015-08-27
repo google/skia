@@ -21,12 +21,12 @@ public:
 
     static SkMesaGLContext* Create(GrGLStandard forcedGpuAPI) {
         if (kGLES_GrGLStandard == forcedGpuAPI) {
-            return NULL;
+            return nullptr;
         }
         SkMesaGLContext* ctx = new SkMesaGLContext;
         if (!ctx->isValid()) {
             delete ctx;
-            return NULL;
+            return nullptr;
         }
         return ctx;
     }

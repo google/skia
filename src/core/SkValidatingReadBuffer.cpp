@@ -111,7 +111,7 @@ void* SkValidatingReadBuffer::readEncodedString(size_t* length, SkPaint::TextEnc
     this->validate(encodingType == encoding);
     *length = this->readInt();
     const void* ptr = this->skip(SkAlign4(*length));
-    void* data = NULL;
+    void* data = nullptr;
     if (!fError) {
         data = sk_malloc_throw(*length);
         memcpy(data, ptr, *length);
@@ -214,7 +214,7 @@ uint32_t SkValidatingReadBuffer::getArrayCount() {
 
 SkTypeface* SkValidatingReadBuffer::readTypeface() {
     // TODO: Implement this (securely) when needed
-    return NULL;
+    return nullptr;
 }
 
 bool SkValidatingReadBuffer::validateAvailable(size_t size) {
@@ -225,24 +225,24 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
     SkString name;
     this->readString(&name);
     if (fError) {
-        return NULL;
+        return nullptr;
     }
 
     // Is this the type we wanted ?
     const char* cname = name.c_str();
     SkFlattenable::Type baseType;
     if (!SkFlattenable::NameToType(cname, &baseType) || (baseType != type)) {
-        return NULL;
+        return nullptr;
     }
 
     SkFlattenable::Factory factory = SkFlattenable::NameToFactory(cname);
-    if (NULL == factory) {
-        return NULL; // writer failed to give us the flattenable
+    if (nullptr == factory) {
+        return nullptr; // writer failed to give us the flattenable
     }
 
     // if we get here, factory may still be null, but if that is the case, the
     // failure was ours, not the writer.
-    SkFlattenable* obj = NULL;
+    SkFlattenable* obj = nullptr;
     uint32_t sizeRecorded = this->readUInt();
     if (factory) {
         size_t offset = fReader.offset();
@@ -253,7 +253,7 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
         if (fError) {
             // we could try to fix up the offset...
             SkSafeUnref(obj);
-            obj = NULL;
+            obj = nullptr;
         }
     } else {
         // we must skip the remaining data

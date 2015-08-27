@@ -1046,13 +1046,13 @@ static GrDrawBatch* create_ellipse_batch(GrColor color,
         // we only handle thick strokes for near-circular ellipses
         if (scaledStroke.length() > SK_ScalarHalf &&
             (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
-            return NULL;
+            return nullptr;
         }
 
         // we don't handle it if curvature of the stroke is less than curvature of the ellipse
         if (scaledStroke.fX*(yRadius*yRadius) < (scaledStroke.fY*scaledStroke.fY)*xRadius ||
             scaledStroke.fY*(xRadius*xRadius) < (scaledStroke.fX*scaledStroke.fX)*yRadius) {
-            return NULL;
+            return nullptr;
         }
 
         // this is legit only if scale & translation (which should be the case at the moment)
@@ -1286,13 +1286,13 @@ static GrDrawBatch* create_diellipse_batch(GrColor color,
         // we only handle thick strokes for near-circular ellipses
         if (strokeWidth > SK_ScalarHalf &&
             (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
-            return NULL;
+            return nullptr;
         }
 
         // we don't handle it if curvature of the stroke is less than curvature of the ellipse
         if (strokeWidth*(yRadius*yRadius) < (strokeWidth*strokeWidth)*xRadius ||
             strokeWidth*(xRadius*xRadius) < (strokeWidth*strokeWidth)*yRadius) {
-            return NULL;
+            return nullptr;
         }
 
         // set inner radius (if needed)
@@ -1415,7 +1415,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
                 kInverseFillBW_GrProcessorEdgeType;
         // TODO this needs to be a geometry processor
         GrFragmentProcessor* fp = GrRRectEffect::Create(edgeType, *inner);
-        if (NULL == fp) {
+        if (nullptr == fp) {
             return false;
         }
         arfps.set(&pipelineBuilder);
@@ -1437,7 +1437,7 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
     GrPrimitiveEdgeType edgeType = applyAA ? kFillAA_GrProcessorEdgeType :
                                              kFillBW_GrProcessorEdgeType;
     GrFragmentProcessor* effect = GrRRectEffect::Create(edgeType, *outer);
-    if (NULL == effect) {
+    if (nullptr == effect) {
         return false;
     }
     if (!arfps.isSet()) {
@@ -1863,7 +1863,7 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
 
         // if half of strokewidth is greater than radius, we don't handle that right now
         if (SK_ScalarHalf*scaledStroke.fX > xRadius || SK_ScalarHalf*scaledStroke.fY > yRadius) {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -1873,7 +1873,7 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
     // We could consider falling back to rect rendering here, since a tiny radius is
     // indistinguishable from a square corner.
     if (!isStrokeOnly && (SK_ScalarHalf > xRadius || SK_ScalarHalf > yRadius)) {
-        return NULL;
+        return nullptr;
     }
 
     // if the corners are circles, use the circle renderer
@@ -1931,13 +1931,13 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
             // we only handle thick strokes for near-circular ellipses
             if (scaledStroke.length() > SK_ScalarHalf &&
                 (SK_ScalarHalf*xRadius > yRadius || SK_ScalarHalf*yRadius > xRadius)) {
-                return NULL;
+                return nullptr;
             }
 
             // we don't handle it if curvature of the stroke is less than curvature of the ellipse
             if (scaledStroke.fX*(yRadius*yRadius) < (scaledStroke.fY*scaledStroke.fY)*xRadius ||
                 scaledStroke.fY*(xRadius*xRadius) < (scaledStroke.fX*scaledStroke.fX)*yRadius) {
-                return NULL;
+                return nullptr;
             }
 
             // this is legit only if scale & translation (which should be the case at the moment)

@@ -58,7 +58,7 @@ SkFlattenable* SkComposeShader::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkShader> shaderB(buffer.readShader());
     SkAutoTUnref<SkXfermode> mode(buffer.readXfermode());
     if (!shaderA.get() || !shaderB.get()) {
-        return NULL;
+        return nullptr;
     }
     return new SkComposeShader(shaderA, shaderB, mode);
 }
@@ -99,7 +99,7 @@ SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void*
     if (!contextA || !contextB) {
         safe_call_destructor(contextA);
         safe_call_destructor(contextB);
-        return NULL;
+        return nullptr;
     }
 
     return new (storage) ComposeShaderContext(*this, rec, contextA, contextB);
@@ -143,7 +143,7 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 
     SkPMColor   tmp[TMP_COLOR_COUNT];
 
-    if (NULL == mode) {   // implied SRC_OVER
+    if (nullptr == mode) {   // implied SRC_OVER
         // TODO: when we have a good test-case, should use SkBlitRow::Proc32
         // for these loops
         do {
@@ -179,7 +179,7 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 
             shaderContextA->shadeSpan(x, y, result, n);
             shaderContextB->shadeSpan(x, y, tmp, n);
-            mode->xfer32(result, tmp, n, NULL);
+            mode->xfer32(result, tmp, n, nullptr);
 
             if (256 != scale) {
                 for (int i = 0; i < n; i++) {

@@ -29,7 +29,7 @@ struct SkTagList {
     SkTagList(U8CPU tag) : fTag(SkToU8(tag))
     {
         SkASSERT(tag < kSkTagListCount);
-        fNext       = NULL;
+        fNext       = nullptr;
         fExtra16    = 0;
         fExtra8     = 0;
     }

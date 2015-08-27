@@ -57,7 +57,7 @@ class BmpDecoderCallback {
   /**
    * This is called once for an image. It is passed the width and height and
    * should return the address of a buffer that is large enough to store
-   * all of the resulting pixels (widht * height * 3 bytes). If it returns NULL,
+   * all of the resulting pixels (widht * height * 3 bytes). If it returns nullptr,
    * then the decoder will abort, but return true, as the caller has received
    * valid dimensions.
    */

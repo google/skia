@@ -126,7 +126,7 @@ SkDrawColor::SkDrawColor() : fDirty(false) {
 }
 
 bool SkDrawColor::add() {
-    if (fPaint->color != NULL)
+    if (fPaint->color != nullptr)
         return true; // error (probably color in paint as attribute as well)
     fPaint->color = this;
     fPaint->fOwnsColor = true;
@@ -211,7 +211,7 @@ void SkDrawColor::onEndElement(SkAnimateMaker&) {
 }
 
 bool SkDrawColor::setParent(SkDisplayable* parent) {
-    SkASSERT(parent != NULL);
+    SkASSERT(parent != nullptr);
     if (parent->getType() == SkType_DrawLinearGradient || parent->getType() == SkType_DrawRadialGradient)
         return false;
     if (parent->isPaint() == false)

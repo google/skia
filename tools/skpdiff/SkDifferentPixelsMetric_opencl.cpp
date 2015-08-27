@@ -72,7 +72,7 @@ bool SkDifferentPixelsMetric::diff(SkBitmap* baseline, SkBitmap* test, bool comp
     static const int kZero = 0;
     // We know OpenCL won't write to it because we use CL_MEM_COPY_HOST_PTR
     resultsBuffer = clCreateBuffer(fContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-                                   sizeof(int), (int*)&kZero, NULL);
+                                   sizeof(int), (int*)&kZero, nullptr);
 
     // Set all kernel arguments
     cl_int setArgErr = clSetKernelArg(fKernel, 0, sizeof(cl_mem), &baselineImage);
@@ -87,8 +87,8 @@ bool SkDifferentPixelsMetric::diff(SkBitmap* baseline, SkBitmap* test, bool comp
     cl_event event;
     const size_t workSize[] = { baseline->width(), baseline->height() };
     cl_int enqueueErr;
-    enqueueErr = clEnqueueNDRangeKernel(fCommandQueue, fKernel, 2, NULL, workSize,
-                                        NULL, 0, NULL, &event);
+    enqueueErr = clEnqueueNDRangeKernel(fCommandQueue, fKernel, 2, nullptr, workSize,
+                                        nullptr, 0, nullptr, &event);
     if (CL_SUCCESS != enqueueErr) {
         SkDebugf("Enqueue failed: %s\n", cl_error_to_string(enqueueErr));
         return false;
@@ -99,7 +99,7 @@ bool SkDifferentPixelsMetric::diff(SkBitmap* baseline, SkBitmap* test, bool comp
 
     // Immediate read back the results
     clEnqueueReadBuffer(fCommandQueue, resultsBuffer, CL_TRUE, 0,
-                        sizeof(int), &result->poiCount, 0, NULL, NULL);
+                        sizeof(int), &result->poiCount, 0, nullptr, nullptr);
     result->result *= (double)result->poiCount;
     result->result = (1.0 - result->result);
 

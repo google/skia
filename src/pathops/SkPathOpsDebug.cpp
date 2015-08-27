@@ -163,7 +163,7 @@ SkDCubic SkDQuad::debugToCubic() const {
 #include "SkOpSegment.h"
 
 SkOpAngle* SkOpSegment::debugLastAngle() {
-    SkOpAngle* result = NULL;
+    SkOpAngle* result = nullptr;
     SkOpSpan* span = this->head();
     do {
         if (span->toAngle()) {
@@ -414,7 +414,7 @@ void SkOpSegment::debugValidate() const {
 #if DEBUG_VALIDATE
     const SkOpSpanBase* span = &fHead;
     double lastT = -1;
-    const SkOpSpanBase* prev = NULL;
+    const SkOpSpanBase* prev = nullptr;
     int count = 0;
     int done = 0;
     do {
@@ -645,7 +645,7 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
     SkPath::RawIter iter(path);
 #define SUPPORT_RECT_CONTOUR_DETECTION 0
 #if SUPPORT_RECT_CONTOUR_DETECTION
-    int rectCount = path.isRectContours() ? path.rectContours(NULL, NULL) : 0;
+    int rectCount = path.isRectContours() ? path.rectContours(nullptr, nullptr) : 0;
     if (rectCount > 0) {
         SkTDArray<SkRect> rects;
         SkTDArray<SkPath::Direction> directions;

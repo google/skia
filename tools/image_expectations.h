@@ -171,10 +171,10 @@ namespace sk_tools {
          * @param sourceName name of the source file that generated this result
          * @param fileName relative path to the image output file on local disk
          * @param digest description of the image's contents
-         * @param tileNumber if not NULL, pointer to tile number
+         * @param tileNumber if not nullptr, pointer to tile number
          */
         void add(const char *sourceName, const char *fileName, ImageDigest &digest,
-                 const int *tileNumber=NULL);
+                 const int *tileNumber=nullptr);
 
         /**
          * Adds a key/value pair to the descriptions dict within the summary of results.
@@ -195,12 +195,12 @@ namespace sk_tools {
          * Returns the Expectation for this test.
          *
          * @param sourceName name of the source file that generated this result
-         * @param tileNumber if not NULL, pointer to tile number
+         * @param tileNumber if not nullptr, pointer to tile number
          *
          * TODO(stephana): To make this work for GMs, we will need to add parameters for
          * config, and maybe renderMode/builder?
          */
-        Expectation getExpectation(const char *sourceName, const int *tileNumber=NULL);
+        Expectation getExpectation(const char *sourceName, const int *tileNumber=nullptr);
 
         /**
          * Writes the summary (as constructed so far) to a file.

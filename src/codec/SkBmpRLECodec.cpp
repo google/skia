@@ -24,7 +24,7 @@ SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info,
                              SkBmpCodec::RowOrder rowOrder,
                              size_t RLEBytes)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
-    , fColorTable(NULL)
+    , fColorTable(nullptr)
     , fNumColors(this->computeNumColors(numColors))
     , fBytesPerColor(bytesPerColor)
     , fOffset(offset)
@@ -57,7 +57,7 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     // Create the color table if necessary and prepare the stream for decode
-    // Note that if it is non-NULL, inputColorCount will be modified
+    // Note that if it is non-nullptr, inputColorCount will be modified
     if (!this->createColorTable(inputColorCount)) {
         SkCodecPrintf("Error: could not create color table.\n");
         return kInvalidInput;
@@ -86,7 +86,7 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
     if (this->bitsPerPixel() <= 8) {
         // Inform the caller of the number of colors
         uint32_t maxColors = 1 << this->bitsPerPixel();
-        if (NULL != numColors) {
+        if (nullptr != numColors) {
             // We set the number of colors to maxColors in order to ensure
             // safe memory accesses.  Otherwise, an invalid pixel could
             // access memory outside of our color table array.
@@ -291,7 +291,7 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
     // type that makes sense for the destination format.
     SkASSERT(kN32_SkColorType == dstInfo.colorType());
     if (kNo_ZeroInitialized == opts.fZeroInitialized) {
-        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, SK_ColorTRANSPARENT, NULL);
+        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, SK_ColorTRANSPARENT, nullptr);
     }
 
     while (true) {

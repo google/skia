@@ -63,7 +63,7 @@ void SkAnimate::dump(SkAnimateMaker* maker) {
 #endif
 
 bool SkAnimate::resolveCommon(SkAnimateMaker& maker) {
-    if (fTarget == NULL) // if NULL, recall onEndElement after apply closes and sets target to scope
+    if (fTarget == nullptr) // if nullptr, recall onEndElement after apply closes and sets target to scope
         return false;
     INHERITED::onEndElement(maker);
     return maker.hasError() == false;
@@ -71,16 +71,16 @@ bool SkAnimate::resolveCommon(SkAnimateMaker& maker) {
 
 void SkAnimate::onEndElement(SkAnimateMaker& maker) {
     bool resolved = resolveCommon(maker);
-    if (resolved && fFieldInfo == NULL) {
+    if (resolved && fFieldInfo == nullptr) {
         maker.setErrorNoun(field);
         maker.setErrorCode(SkDisplayXMLParserError::kFieldNotInTarget);
     }
-    if (resolved == false || fFieldInfo == NULL)
+    if (resolved == false || fFieldInfo == nullptr)
         return;
     SkDisplayTypes outType = fFieldInfo->getType();
     if (fHasValues) {
         SkASSERT(to.size() > 0);
-        fFieldInfo->setValue(maker, &fValues, 0, 0, NULL, outType, to);
+        fFieldInfo->setValue(maker, &fValues, 0, 0, nullptr, outType, to);
         SkASSERT(0);
         // !!! this needs to set fComponents
         return;

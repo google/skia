@@ -26,7 +26,7 @@ const SkMemberInfo SkTextOnPath::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkTextOnPath);
 
-SkTextOnPath::SkTextOnPath() : offset(0), path(NULL), text(NULL) {
+SkTextOnPath::SkTextOnPath() : offset(0), path(nullptr), text(nullptr) {
 }
 
 bool SkTextOnPath::draw(SkAnimateMaker& maker) {

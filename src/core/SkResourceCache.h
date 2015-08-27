@@ -79,7 +79,7 @@ public:
 
         // for memory usage diagnostics
         virtual const char* getCategory() const = 0;
-        virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
+        virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
 
         // for SkTDynamicHash::Traits
         static uint32_t Hash(const Key& key) { return key.hash(); }
@@ -115,7 +115,7 @@ public:
 
     /**
      *  Returns a locked/pinned SkDiscardableMemory instance for the specified
-     *  number of bytes, or NULL on failure.
+     *  number of bytes, or nullptr on failure.
      */
     typedef SkDiscardableMemory* (*DiscardableFactory)(size_t bytes);
 
@@ -153,13 +153,13 @@ public:
     static void TestDumpMemoryStatistics();
 
     /**
-     *  Returns the DiscardableFactory used by the global cache, or NULL.
+     *  Returns the DiscardableFactory used by the global cache, or nullptr.
      */
     static DiscardableFactory GetDiscardableFactory();
 
     /**
      * Use this allocator for bitmaps, so they can use ashmem when available.
-     * Returns NULL if the ResourceCache has not been initialized with a DiscardableFactory.
+     * Returns nullptr if the ResourceCache has not been initialized with a DiscardableFactory.
      */
     static SkBitmap::Allocator* GetAllocator();
 
@@ -250,7 +250,7 @@ private:
     Hash*   fHash;
 
     DiscardableFactory  fDiscardableFactory;
-    // the allocator is NULL or one that matches discardables
+    // the allocator is nullptr or one that matches discardables
     SkBitmap::Allocator* fAllocator;
 
     size_t  fTotalBytesUsed;

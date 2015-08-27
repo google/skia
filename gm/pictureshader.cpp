@@ -33,7 +33,7 @@ public:
     void onOnceBeforeDraw() override {
        // Build the picture.
         SkPictureRecorder recorder;
-        SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize, NULL, 0);
+        SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize, nullptr, 0);
         this->drawTile(pictureCanvas);
         fPicture.reset(recorder.endRecording());
 
@@ -150,12 +150,9 @@ private:
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
         canvas->drawRect(SkRect::MakeXYWH(fSceneSize * 1.1f, 0, fSceneSize, fSceneSize), paint);
 
-        SkAutoTUnref<SkShader> pictureShader(SkShader::CreatePictureShader(
-                    fPicture,
-                    kTileConfigs[tileMode].tmx,
-                    kTileConfigs[tileMode].tmy,
-                    &localMatrix,
-                    NULL));
+        SkAutoTUnref<SkShader> pictureShader(
+                SkShader::CreatePictureShader(fPicture, kTileConfigs[tileMode].tmx,
+                                              kTileConfigs[tileMode].tmy, &localMatrix, nullptr));
         paint.setShader(pictureShader.get());
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
 
@@ -200,12 +197,9 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     c->drawLine(20, 20, 80, 80, p);
 
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-    SkAutoTUnref<SkShader> shader(SkShader::CreatePictureShader(
-	      picture.get(),
-	      SkShader::kRepeat_TileMode,
-	      SkShader::kRepeat_TileMode,
-	      NULL,
-	      NULL));
+    SkAutoTUnref<SkShader> shader(
+            SkShader::CreatePictureShader(picture.get(), SkShader::kRepeat_TileMode,
+                                          SkShader::kRepeat_TileMode, nullptr, nullptr));
 
     p.setColor(sk_tool_utils::color_to_565(0xFF8BC34A));  // green
     canvas->drawPaint(p);

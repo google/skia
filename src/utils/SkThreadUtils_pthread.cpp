@@ -14,8 +14,8 @@
 #include <signal.h>
 
 PThreadEvent::PThreadEvent() : fConditionFlag(false) {
-    pthread_cond_init(&fCondition, NULL);
-    pthread_mutex_init(&fConditionMutex, NULL);
+    pthread_cond_init(&fCondition, nullptr);
+    pthread_mutex_init(&fConditionMutex, nullptr);
 }
 PThreadEvent::~PThreadEvent() {
     pthread_mutex_destroy(&fConditionMutex);
@@ -65,7 +65,7 @@ static void* thread_start(void* arg) {
     if (!pthreadData->fCanceled.isTriggered()) {
         pthreadData->fEntryPoint(pthreadData->fParam);
     }
-    return NULL;
+    return nullptr;
 }
 
 SkThread::SkThread(entryPointProc entryPoint, void* data) {
@@ -81,7 +81,7 @@ SkThread::SkThread(entryPointProc entryPoint, void* data) {
 }
 
 SkThread::~SkThread() {
-    if (fData != NULL) {
+    if (fData != nullptr) {
         SkThread_PThreadData* pthreadData = static_cast<SkThread_PThreadData*>(fData);
         // If created thread but start was never called, kill the thread.
         if (pthreadData->fValidPThread && !pthreadData->fStarted.isTriggered()) {
@@ -113,5 +113,5 @@ void SkThread::join() {
         return;
     }
 
-    pthread_join(pthreadData->fPThread, NULL);
+    pthread_join(pthreadData->fPThread, nullptr);
 }

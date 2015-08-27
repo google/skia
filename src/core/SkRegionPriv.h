@@ -142,7 +142,7 @@ public:
     /**
      *  Return the scanline that contains the Y value. This requires that the Y
      *  value is already known to be contained within the bounds of the region,
-     *  and so this routine never returns NULL.
+     *  and so this routine never returns nullptr.
      *
      *  It returns the beginning of the scanline, starting with its Bottom value.
      */

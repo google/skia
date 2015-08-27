@@ -130,7 +130,7 @@ SkColorFilter* SkColorFilter::CreateComposeFilter(SkColorFilter* outer, SkColorF
 
     int count = inner->privateComposedFilterCount() + outer->privateComposedFilterCount();
     if (count > SK_MAX_COMPOSE_COLORFILTER_COUNT) {
-        return NULL;
+        return nullptr;
     }
     return new SkComposeColorFilter(outer, inner, count);
 }

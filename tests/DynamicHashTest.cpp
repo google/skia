@@ -100,14 +100,14 @@ DEF_TEST(DynamicHash_lookup, reporter) {
     ASSERT(hash.countCollisions(9) == 2);
 
     // We can find our data right?
-    ASSERT(hash.find(1) != NULL);
+    ASSERT(hash.find(1) != nullptr);
     ASSERT(hash.find(1)->value == 2.0);
-    ASSERT(hash.find(5) != NULL);
+    ASSERT(hash.find(5) != nullptr);
     ASSERT(hash.find(5)->value == 3.0);
 
     // These aren't in the hash.
-    ASSERT(hash.find(2) == NULL);
-    ASSERT(hash.find(9) == NULL);
+    ASSERT(hash.find(2) == nullptr);
+    ASSERT(hash.find(9) == nullptr);
 }
 
 DEF_TEST(DynamicHash_remove, reporter) {
@@ -123,16 +123,16 @@ DEF_TEST(DynamicHash_remove, reporter) {
     hash.remove(1);
     // a should be marked deleted, and b should still be findable.
 
-    ASSERT(hash.find(1) == NULL);
-    ASSERT(hash.find(5) != NULL);
+    ASSERT(hash.find(1) == nullptr);
+    ASSERT(hash.find(5) != nullptr);
     ASSERT(hash.find(5)->value == 3.0);
 
     // This will go in the same slot as 'a' did before.
     ASSERT(hash.countCollisions(9) == 0);
     hash.add(&c);
-    ASSERT(hash.find(9) != NULL);
+    ASSERT(hash.find(9) != nullptr);
     ASSERT(hash.find(9)->value == 4.0);
-    ASSERT(hash.find(5) != NULL);
+    ASSERT(hash.find(5) != nullptr);
     ASSERT(hash.find(5)->value == 3.0);
 }
 
@@ -161,7 +161,7 @@ template<typename T> static void TestIter(skiatest::Reporter* reporter) {
     for (T iter(&hash); !iter.done(); ++iter) {
         int key = (*iter).key;
         keys[count] = key;
-        ASSERT(hash.find(key) != NULL);
+        ASSERT(hash.find(key) != nullptr);
         ++count;
     }
     ASSERT(3 == count);
@@ -177,7 +177,7 @@ template<typename T> static void TestIter(skiatest::Reporter* reporter) {
         int key = (*iter).key;
         keys[count] = key;
         ASSERT(key != 1);
-        ASSERT(hash.find(key) != NULL);
+        ASSERT(hash.find(key) != nullptr);
         ++count;
     }
     ASSERT(2 == count);
@@ -215,8 +215,8 @@ static void TestResetOrRewind(skiatest::Reporter* reporter, bool testReset) {
     ASSERT(hash.count() == 2);
     ASSERT(hash.capacity() == 4);
 
-    ASSERT(hash.find(1) != NULL);
-    ASSERT(hash.find(2) != NULL);
+    ASSERT(hash.find(1) != nullptr);
+    ASSERT(hash.find(2) != nullptr);
 }
 
 DEF_TEST(DynamicHash_reset, reporter) {

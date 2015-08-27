@@ -21,7 +21,7 @@ SkDocument::~SkDocument() {
 SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
                                 const SkRect* content) {
     if (width <= 0 || height <= 0) {
-        return NULL;
+        return nullptr;
     }
 
     SkRect outer = SkRect::MakeWH(width, height);
@@ -29,7 +29,7 @@ SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
     if (content) {
         inner = *content;
         if (!inner.intersect(outer)) {
-            return NULL;
+            return nullptr;
         }
     } else {
         inner = outer;
@@ -44,11 +44,11 @@ SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
                 this->endPage();
                 break;
             case kClosed_State:
-                return NULL;
+                return nullptr;
         }
     }
     SkDEBUGFAIL("never get here");
-    return NULL;
+    return nullptr;
 }
 
 void SkDocument::endPage() {
@@ -68,9 +68,9 @@ bool SkDocument::close() {
                 if (fDoneProc) {
                     fDoneProc(fStream, false);
                 }
-                // we don't own the stream, but we mark it NULL since we can
+                // we don't own the stream, but we mark it nullptr since we can
                 // no longer write to it.
-                fStream = NULL;
+                fStream = nullptr;
                 return success;
             }
             case kInPage_State:
@@ -89,7 +89,7 @@ void SkDocument::abort() {
     if (fDoneProc) {
         fDoneProc(fStream, true);
     }
-    // we don't own the stream, but we mark it NULL since we can
+    // we don't own the stream, but we mark it nullptr since we can
     // no longer write to it.
-    fStream = NULL;
+    fStream = nullptr;
 }

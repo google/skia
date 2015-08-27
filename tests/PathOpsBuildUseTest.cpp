@@ -2431,5 +2431,5 @@ DEF_TEST(PathOpsBuildUse, reporter) {
 #if DEBUG_SHOW_TEST_NAME
     strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
 #endif
-    RunTestSet(reporter, tests, testCount, firstTest, NULL, stopTest, runReverse);
+    RunTestSet(reporter, tests, testCount, firstTest, nullptr, stopTest, runReverse);
 }

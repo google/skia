@@ -55,8 +55,8 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
             glCtx.reset(SkDebugGLContext::Create(forcedGpuAPI));
             break;
     }
-    if (NULL == glCtx.get()) {
-        return NULL;
+    if (nullptr == glCtx.get()) {
+        return nullptr;
     }
 
     SkASSERT(glCtx->isValid());
@@ -66,11 +66,11 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
     if (kNVPR_GLContextType != type) {
         glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface));
         if (!glInterface) {
-            return NULL;
+            return nullptr;
         }
     } else {
         if (!glInterface->hasExtension("GL_NV_path_rendering")) {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -82,7 +82,7 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
     grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, fGlobalOptions));
 #endif
     if (!grCtx.get()) {
-        return NULL;
+        return nullptr;
     }
     // Warn if path rendering support is not available for the NVPR type.
     if (kNVPR_GLContextType == type) {

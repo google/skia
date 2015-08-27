@@ -31,7 +31,7 @@ public:
 
 protected:
     void onDataChange(void* oldData, void* newData) override {
-        fLevels = (Level*)newData; // could be NULL
+        fLevels = (Level*)newData; // could be nullptr
     }
 
 private:

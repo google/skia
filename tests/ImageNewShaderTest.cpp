@@ -153,7 +153,7 @@ DEF_GPUTEST(ImageNewShader_GPU, reporter, factory) {
 
         GrContext* context = factory->get(glCtxType);
 
-        if (NULL == context) {
+        if (nullptr == context) {
             continue;
         }
 

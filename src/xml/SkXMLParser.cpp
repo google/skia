@@ -51,7 +51,7 @@ void SkXMLParserError::reset() {
 
 ////////////////
 
-SkXMLParser::SkXMLParser(SkXMLParserError* parserError) : fParser(NULL), fError(parserError)
+SkXMLParser::SkXMLParser(SkXMLParserError* parserError) : fParser(nullptr), fError(parserError)
 {
 }
 

@@ -215,7 +215,7 @@ static void test_clipVisitor(skiatest::Reporter* reporter, SkCanvas* canvas) {
 static void test_clipstack(skiatest::Reporter* reporter) {
     // The clipstack is refcounted, and needs to be able to out-live the canvas if a client has
     // ref'd it.
-    const SkClipStack* cs = NULL;
+    const SkClipStack* cs = nullptr;
     {
         SkCanvas canvas(10, 10);
         cs = SkRef(canvas.getClipStack());
@@ -356,7 +356,7 @@ TEST_STEP(SaveMatrixClip, SaveMatrixClipStep);
 static void SaveLayerStep(SkCanvas* canvas, const TestData& d,
                           skiatest::Reporter* reporter, CanvasTestStep* testStep) {
     int saveCount = canvas->getSaveCount();
-    canvas->saveLayer(NULL, NULL);
+    canvas->saveLayer(nullptr, nullptr);
     canvas->restore();
     REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
         testStep->assertMessage());
@@ -366,7 +366,7 @@ TEST_STEP(SaveLayer, SaveLayerStep);
 static void BoundedSaveLayerStep(SkCanvas* canvas, const TestData& d,
                                  skiatest::Reporter* reporter, CanvasTestStep* testStep) {
     int saveCount = canvas->getSaveCount();
-    canvas->saveLayer(&d.fRect, NULL);
+    canvas->saveLayer(&d.fRect, nullptr);
     canvas->restore();
     REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
         testStep->assertMessage());
@@ -376,7 +376,7 @@ TEST_STEP(BoundedSaveLayer, BoundedSaveLayerStep);
 static void PaintSaveLayerStep(SkCanvas* canvas, const TestData& d,
                                skiatest::Reporter* reporter, CanvasTestStep* testStep) {
     int saveCount = canvas->getSaveCount();
-    canvas->saveLayer(NULL, &d.fPaint);
+    canvas->saveLayer(nullptr, &d.fPaint);
     canvas->restore();
     REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
         testStep->assertMessage());
@@ -418,7 +418,7 @@ static void DrawVerticesShaderTestStep(SkCanvas* canvas, const TestData& d,
         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     paint.setShader(shader)->unref();
     canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, pts, pts,
-                         NULL, NULL, NULL, 0, paint);
+                         nullptr, nullptr, nullptr, 0, paint);
 }
 // NYI: issue 240.
 TEST_STEP_NO_PDF(DrawVerticesShader, DrawVerticesShaderTestStep);
@@ -427,7 +427,7 @@ static void DrawPictureTestStep(SkCanvas* canvas, const TestData& d,
                                 skiatest::Reporter*, CanvasTestStep*) {
     SkPictureRecorder recorder;
     SkCanvas* testCanvas = recorder.beginRecording(SkIntToScalar(d.fWidth), SkIntToScalar(d.fHeight),
-                                                   NULL, 0);
+                                                   nullptr, 0);
     testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
     testCanvas->clipRect(d.fRect);
     testCanvas->drawRect(d.fRect, d.fPaint);
@@ -658,15 +658,15 @@ static void test_newraster(skiatest::Reporter* reporter) {
 
     // now try a deliberately bad info
     info = info.makeWH(-1, info.height());
-    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
+    REPORTER_ASSERT(reporter, nullptr == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
 
     // too big
     info = info.makeWH(1 << 30, 1 << 30);
-    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
+    REPORTER_ASSERT(reporter, nullptr == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
 
     // not a valid pixel type
     info = SkImageInfo::Make(10, 10, kUnknown_SkColorType, info.alphaType());
-    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
+    REPORTER_ASSERT(reporter, nullptr == SkCanvas::NewRasterDirect(info, baseAddr, minRowBytes));
 
     // We should succeed with a zero-sized valid info
     info = SkImageInfo::MakeN32Premul(0, 0);
@@ -696,7 +696,7 @@ DEF_TEST(Canvas_SaveState, reporter) {
     REPORTER_ASSERT(reporter, 1 == n);
     REPORTER_ASSERT(reporter, 2 == canvas.getSaveCount());
 
-    n = canvas.saveLayer(NULL, NULL);
+    n = canvas.saveLayer(nullptr, nullptr);
     REPORTER_ASSERT(reporter, 2 == n);
     REPORTER_ASSERT(reporter, 3 == canvas.getSaveCount());
     

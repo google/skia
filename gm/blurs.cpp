@@ -56,7 +56,7 @@ protected:
                                            flags);
                     paint.setMaskFilter(mf)->unref();
                 } else {
-                    paint.setMaskFilter(NULL);
+                    paint.setMaskFilter(nullptr);
                 }
                 canvas->drawCircle(SkIntToScalar(200 + gRecs[i].fCx*100),
                                    SkIntToScalar(200 + gRecs[i].fCy*100),
@@ -75,7 +75,7 @@ protected:
                 canvas->drawText("Hamburgefons Style", 18, x, y, paint);
                 canvas->drawText("Hamburgefons Style", 18,
                                  x, y + SkIntToScalar(50), paint);
-                paint.setMaskFilter(NULL);
+                paint.setMaskFilter(nullptr);
                 paint.setColor(SK_ColorWHITE);
                 x -= SkIntToScalar(2);
                 y -= SkIntToScalar(2);

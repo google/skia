@@ -27,7 +27,7 @@ static SkShader* MakeLinear() {
                                           SK_ARRAY_COUNT(kColors), SkShader::kClamp_TileMode);
 }
 
-static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
+static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
     SkScalar matrix[20];
     memset(matrix, 0, 20 * sizeof(SkScalar));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
@@ -38,7 +38,7 @@ static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
-static SkImageFilter* make_blur(float amount, SkImageFilter* input = NULL) {
+static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {
     return SkBlurImageFilter::Create(amount, amount, input);
 }
 
@@ -98,14 +98,14 @@ protected:
                     }
 
                     if (SkToBool(makeBlur) && SkToBool(makeGray)) {
-                        SkAutoTUnref<SkImageFilter> grayScale(make_grayscale(NULL));
+                        SkAutoTUnref<SkImageFilter> grayScale(make_grayscale(nullptr));
                         SkAutoTUnref<SkImageFilter> blur(make_blur(3.0f, grayScale));
                         shaderPaint.setImageFilter(blur);
                     } else if (SkToBool(makeBlur)) {
-                        SkAutoTUnref<SkImageFilter> blur(make_blur(3.0f, NULL));
+                        SkAutoTUnref<SkImageFilter> blur(make_blur(3.0f, nullptr));
                         shaderPaint.setImageFilter(blur);
                     } else if (SkToBool(makeGray)) {
-                        SkAutoTUnref<SkImageFilter> grayScale(make_grayscale(NULL));
+                        SkAutoTUnref<SkImageFilter> grayScale(make_grayscale(nullptr));
                         shaderPaint.setImageFilter(grayScale);
                     }
                     shaderPaint.setTextSize(30);

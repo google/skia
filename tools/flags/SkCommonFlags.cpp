@@ -26,7 +26,7 @@ DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
 
 DEFINE_string(images, "", "Directory of images to decode.");
 
-DEFINE_string2(match, m, NULL,
+DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of GM name to run.\n"
                "Multiple matches may be separated by spaces.\n"
                "~ causes a matching GM to always be skipped\n"

@@ -5528,11 +5528,11 @@ DEF_TEST(PathOpsOp, reporter) {
     strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
 #endif
     if (runSubTests && runSubTestsFirst) {
-        RunTestSet(reporter, subTests, subTestCount, firstSubTest, NULL, stopTest, runReverse);
+        RunTestSet(reporter, subTests, subTestCount, firstSubTest, nullptr, stopTest, runReverse);
     }
     RunTestSet(reporter, tests, testCount, firstTest, skipTest, stopTest, runReverse);
     if (runSubTests && !runSubTestsFirst) {
-        RunTestSet(reporter, subTests, subTestCount, firstSubTest, NULL, stopTest, runReverse);
+        RunTestSet(reporter, subTests, subTestCount, firstSubTest, nullptr, stopTest, runReverse);
     }
 }
 
@@ -5743,5 +5743,5 @@ DEF_TEST(PathOpsFailOp, reporter) {
 #if DEBUG_SHOW_TEST_NAME
     strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
 #endif
-    RunTestSet(reporter, failTests, failTestCount, NULL, NULL, NULL, false);
+    RunTestSet(reporter, failTests, failTestCount, nullptr, nullptr, nullptr, false);
 }

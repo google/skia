@@ -24,21 +24,21 @@ void check_text_node(skiatest::Reporter* reporter,
                      const SkPoint& offset,
                      unsigned scalarsPerPos,
                      const char* expected) {
-    if (root == NULL) {
+    if (root == nullptr) {
         ERRORF(reporter, "root element not found.");
         return;
     }
 
     const SkDOM::Node* textElem = dom.getFirstChild(root, "text");
-    if (textElem == NULL) {
+    if (textElem == nullptr) {
         ERRORF(reporter, "<text> element not found.");
         return;
     }
     REPORTER_ASSERT(reporter, dom.getType(textElem) == SkDOM::kElement_Type);
 
     const SkDOM::Node* textNode= dom.getFirstChild(textElem);
-    REPORTER_ASSERT(reporter, textNode != NULL);
-    if (textNode != NULL) {
+    REPORTER_ASSERT(reporter, textNode != nullptr);
+    if (textNode != nullptr) {
         REPORTER_ASSERT(reporter, dom.getType(textNode) == SkDOM::kText_Type);
         REPORTER_ASSERT(reporter, strcmp(expected, dom.getName(textNode)) == 0);
     }
@@ -46,8 +46,8 @@ void check_text_node(skiatest::Reporter* reporter,
     int textLen = SkToInt(strlen(expected));
 
     const char* x = dom.findAttr(textElem, "x");
-    REPORTER_ASSERT(reporter, x != NULL);
-    if (x != NULL) {
+    REPORTER_ASSERT(reporter, x != nullptr);
+    if (x != nullptr) {
         int xposCount = (scalarsPerPos < 1) ? 1 : textLen;
         REPORTER_ASSERT(reporter, SkParse::Count(x) == xposCount);
 
@@ -63,8 +63,8 @@ void check_text_node(skiatest::Reporter* reporter,
     }
 
     const char* y = dom.findAttr(textElem, "y");
-    REPORTER_ASSERT(reporter, y != NULL);
-    if (y != NULL) {
+    REPORTER_ASSERT(reporter, y != nullptr);
+    if (y != nullptr) {
         int yposCount = (scalarsPerPos < 2) ? 1 : textLen;
         REPORTER_ASSERT(reporter, SkParse::Count(y) == yposCount);
 

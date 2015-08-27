@@ -12,7 +12,7 @@ SkFlattenable* SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     buffer.readMatrix(&lm);
     SkAutoTUnref<SkShader> shader(buffer.readShader());
     if (!shader.get()) {
-        return NULL;
+        return nullptr;
     }
     return SkShader::CreateLocalMatrixShader(shader, lm);
 }
@@ -48,8 +48,8 @@ void SkLocalMatrixShader::toString(SkString* str) const {
 #endif
 
 SkShader* SkShader::CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix) {
-    if (NULL == proxy) {
-        return NULL;
+    if (nullptr == proxy) {
+        return nullptr;
     }
 
     if (localMatrix.isIdentity()) {

@@ -30,7 +30,7 @@ struct SkChunkAlloc::Block {
     }
 
     void reset() {
-        fNext = NULL;
+        fNext = nullptr;
         fFreeSize = this->blockSize();
         fFreePtr = this->startOfData();
     }
@@ -60,7 +60,7 @@ SkChunkAlloc::SkChunkAlloc(size_t minSize) {
         minSize = MIN_CHUNKALLOC_BLOCK_SIZE;
     }
 
-    fBlock = NULL;
+    fBlock = nullptr;
     fMinSize = minSize;
     fChunkSize = fMinSize;
     fTotalCapacity = 0;
@@ -75,7 +75,7 @@ SkChunkAlloc::~SkChunkAlloc() {
 
 void SkChunkAlloc::reset() {
     Block::FreeChain(fBlock);
-    fBlock = NULL;
+    fBlock = nullptr;
     fChunkSize = fMinSize;  // reset to our initial minSize
     fTotalCapacity = 0;
     fTotalUsed = 0;
@@ -142,7 +142,7 @@ SkChunkAlloc::Block* SkChunkAlloc::addBlockIfNecessary(size_t bytes, AllocFailTy
     if (!fBlock || bytes > fBlock->fFreeSize) {
         Block* block = this->newBlock(bytes, ftype);
         if (!block) {
-            return NULL;
+            return nullptr;
         }
 #ifdef SK_DEBUG
         if (fBlock) {
@@ -164,7 +164,7 @@ void* SkChunkAlloc::alloc(size_t bytes, AllocFailType ftype) {
 
     Block* block = this->addBlockIfNecessary(bytes, ftype);
     if (!block) {
-        return NULL;
+        return nullptr;
     }
 
     char* ptr = block->fFreePtr;

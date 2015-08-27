@@ -18,7 +18,7 @@ class ColorCubeBench : public Benchmark {
 public:
     ColorCubeBench()
      : fCubeDimension(0)
-     , fCubeData(NULL) {
+     , fCubeData(nullptr) {
         fSize = SkISize::Make(2880, 1800); // 2014 Macbook Pro resolution
     }
 
@@ -54,7 +54,7 @@ private:
             };
         static const SkColor colors[] = { SK_ColorYELLOW, SK_ColorBLUE };
         return SkGradientShader::CreateLinear(
-            pts, colors, NULL, 2, SkShader::kRepeat_TileMode, 0, &SkMatrix::I());
+            pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0, &SkMatrix::I());
     }
 
     void make_bitmap() {

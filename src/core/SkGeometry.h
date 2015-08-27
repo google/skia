@@ -39,7 +39,7 @@ SkPoint SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t);
 /** Set pt to the point on the src quadratic specified by t. t must be
     0 <= t <= 1.0
 */
-void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tangent = NULL);
+void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tangent = nullptr);
 
 /**
  *  output is : eval(t) == coeff[0] * t^2 + coeff[1] * t + coeff[2]
@@ -164,7 +164,7 @@ int SkChopCubicAtInflections(const SkPoint src[4], SkPoint dst[10]);
 
 int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]);
 int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
-                              SkScalar tValues[3] = NULL);
+                              SkScalar tValues[3] = nullptr);
 
 bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar y, SkPoint dst[7]);
 bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar x, SkPoint dst[7]);
@@ -239,7 +239,7 @@ struct SkConic {
      *  tangent value's length is arbitrary, and only its direction should
      *  be used.
      */
-    void evalAt(SkScalar t, SkPoint* pos, SkVector* tangent = NULL) const;
+    void evalAt(SkScalar t, SkPoint* pos, SkVector* tangent = nullptr) const;
     void chopAt(SkScalar t, SkConic dst[2]) const;
     void chop(SkConic dst[2]) const;
 

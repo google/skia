@@ -63,8 +63,8 @@ private:
 };
 
 GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI)
-    : fContext(NULL)
-    , fDisplay(NULL)
+    : fContext(nullptr)
+    , fDisplay(nullptr)
     , fPixmap(0)
     , fGlxPixmap(0) {
 
@@ -270,7 +270,7 @@ GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI)
     }
 
     SkAutoTUnref<const GrGLInterface> gl(GrGLCreateNativeInterface());
-    if (NULL == gl.get()) {
+    if (nullptr == gl.get()) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();
         return;
@@ -297,7 +297,7 @@ void GLXGLContext::destroyGLContext() {
 
         if (fContext) {
             glXDestroyContext(fDisplay, fContext);
-            fContext = NULL;
+            fContext = nullptr;
         }
 
         if (fGlxPixmap) {
@@ -311,7 +311,7 @@ void GLXGLContext::destroyGLContext() {
         }
 
         XCloseDisplay(fDisplay);
-        fDisplay = NULL;
+        fDisplay = nullptr;
     }
 }
 
@@ -335,7 +335,7 @@ SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
     GLXGLContext *ctx = new GLXGLContext(forcedGpuAPI);
     if (!ctx->isValid()) {
         delete ctx;
-        return NULL;
+        return nullptr;
     }
     return ctx;
 }

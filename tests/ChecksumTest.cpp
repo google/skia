@@ -32,8 +32,8 @@ DEF_TEST(Checksum, r) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(kAlgorithms); ++i) {
         const algorithmProc algorithm = kAlgorithms[i];
 
-        // Hash of NULL is always 0.
-        ASSERT(algorithm(NULL, 0) == 0);
+        // Hash of nullptr is always 0.
+        ASSERT(algorithm(nullptr, 0) == 0);
 
         const uint32_t hash = algorithm(data, kBytes);
         // Should be deterministic.

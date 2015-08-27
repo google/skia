@@ -17,7 +17,7 @@ DEF_TEST(SkBase64, reporter) {
 
     for (int offset = 0; offset < 6; ++offset) {
         size_t length = 256 - offset;
-        size_t encodeLength = SkBase64::Encode(all + offset, length, NULL);
+        size_t encodeLength = SkBase64::Encode(all + offset, length, nullptr);
         SkAutoTMalloc<char> src(encodeLength + 1);
         SkBase64::Encode(all + offset, length, src.get());
         src[SkToInt(encodeLength)] = '\0';

@@ -28,7 +28,7 @@ const SkMemberInfo SkGroup::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkGroup);
 
-SkGroup::SkGroup() : fParentList(NULL), fOriginal(NULL) {
+SkGroup::SkGroup() : fParentList(nullptr), fOriginal(nullptr) {
 }
 
 SkGroup::~SkGroup() {
@@ -55,7 +55,7 @@ bool SkGroup::addChild(SkAnimateMaker& , SkDisplayable* child) {
     *fChildren.append() = (SkADrawable*) child;
     if (child->isGroup()) {
         SkGroup* groupie = (SkGroup*) child;
-        SkASSERT(groupie->fParentList == NULL);
+        SkASSERT(groupie->fParentList == nullptr);
         groupie->fParentList = &fChildren;
     }
     return true;

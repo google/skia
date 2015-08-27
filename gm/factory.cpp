@@ -37,7 +37,7 @@ protected:
             SkAutoTUnref<SkDiscardableMemoryPool> pool(
                 SkDiscardableMemoryPool::Create(1));
             SkAssertResult(SkInstallDiscardablePixelRef(SkImageGenerator::NewFromEncoded(data),
-                                                        NULL, &fBitmap, pool));
+                                                        nullptr, &fBitmap, pool));
         }
     }
 

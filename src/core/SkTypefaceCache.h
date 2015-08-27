@@ -44,7 +44,7 @@ public:
     /**
      *  Iterate through the cache, calling proc(typeface, ctx) with each
      *  typeface. If proc returns true, then we return that typeface (this
-     *  ref()s the typeface). If it never returns true, we return NULL.
+     *  ref()s the typeface). If it never returns true, we return nullptr.
      */
     SkTypeface* findByProcAndRef(FindProc proc, void* ctx) const;
 

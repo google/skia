@@ -74,7 +74,7 @@ static float force_as_float(skiatest::Reporter* reporter, float value) {
     // even the pair of memcpy calls are not sufficient, since those seem to
     // be no-op'd, so we add a runtime tests (just like get_value) to force
     // the compiler to give us an actual float.
-    if (NULL == reporter) {
+    if (nullptr == reporter) {
         storage = ~storage;
     }
     memcpy(&value, &storage, 4);

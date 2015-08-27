@@ -600,11 +600,11 @@ PDLCDXferProcessor::PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha)
 GrXferProcessor* PDLCDXferProcessor::Create(SkXfermode::Mode xfermode,
                                             const GrProcOptInfo& colorPOI) {
     if (SkXfermode::kSrcOver_Mode != xfermode) {
-        return NULL;
+        return nullptr;
     }
 
     if (kRGBA_GrColorComponentFlags != colorPOI.validFlags()) {
-        return NULL;
+        return nullptr;
     }
 
     GrColor blendConstant = GrUnPreMulColor(colorPOI.color());
@@ -673,7 +673,7 @@ GrXPFactory* GrPorterDuffXPFactory::Create(SkXfermode::Mode xfermode) {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gFactories) == SkXfermode::kLastCoeffMode + 1);
 
     if (xfermode < 0 || xfermode > SkXfermode::kLastCoeffMode) {
-        return NULL;
+        return nullptr;
     }
     return SkRef(gFactories[xfermode]);
 }

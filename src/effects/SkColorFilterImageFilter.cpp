@@ -17,8 +17,8 @@
 
 SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
         SkImageFilter* input, const CropRect* cropRect) {
-    if (NULL == cf) {
-        return NULL;
+    if (nullptr == cf) {
+        return nullptr;
     }
 
     SkColorFilter* inputCF;
@@ -71,7 +71,7 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
     }
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-    if (NULL == device.get()) {
+    if (nullptr == device.get()) {
         return false;
     }
     SkCanvas canvas(device.get());

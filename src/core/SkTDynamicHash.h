@@ -22,7 +22,7 @@ template <typename T,
           int kGrowPercent = 75>  // Larger -> more memory efficient, but slower.
 class SkTDynamicHash {
 public:
-    SkTDynamicHash() : fCount(0), fDeleted(0), fCapacity(0), fArray(NULL) {
+    SkTDynamicHash() : fCount(0), fDeleted(0), fCapacity(0), fArray(nullptr) {
         SkASSERT(this->validate());
     }
 
@@ -86,14 +86,14 @@ public:
 
     int count() const { return fCount; }
 
-    // Return the entry with this key if we have it, otherwise NULL.
+    // Return the entry with this key if we have it, otherwise nullptr.
     T* find(const Key& key) const {
         int index = this->firstIndex(key);
         for (int round = 0; round < fCapacity; round++) {
             SkASSERT(index >= 0 && index < fCapacity);
             T* candidate = fArray[index];
             if (Empty() == candidate) {
-                return NULL;
+                return nullptr;
             }
             if (Deleted() != candidate && GetKey(*candidate) == key) {
                 return candidate;
@@ -101,12 +101,12 @@ public:
             index = this->nextIndex(index, round);
         }
         SkASSERT(fCapacity == 0);
-        return NULL;
+        return nullptr;
     }
 
     // Add an entry with this key.  We require that no entry with newEntry's key is already present.
     void add(T* newEntry) {
-        SkASSERT(NULL == this->find(GetKey(*newEntry)));
+        SkASSERT(nullptr == this->find(GetKey(*newEntry)));
         this->maybeGrow();
         this->innerAdd(newEntry);
         SkASSERT(this->validate());
@@ -132,7 +132,7 @@ public:
         fDeleted = 0; 
         fCapacity = 0; 
         sk_free(fArray); 
-        fArray = NULL; 
+        fArray = nullptr; 
     }
 
 protected:
@@ -157,7 +157,7 @@ protected:
 
 private:
     // We have two special values to indicate an empty or deleted entry.
-    static T* Empty()   { return reinterpret_cast<T*>(0); }  // i.e. NULL
+    static T* Empty()   { return reinterpret_cast<T*>(0); }  // i.e. nullptr
     static T* Deleted() { return reinterpret_cast<T*>(1); }  // Also an invalid pointer.
 
     bool validate() const {

@@ -14,7 +14,7 @@ SkView::SkView(uint32_t flags) : fFlags(SkToU8(flags))
 {
     fWidth = fHeight = 0;
     fLoc.set(0, 0);
-    fParent = fFirstChild = fNextSibling = fPrevSibling = NULL;
+    fParent = fFirstChild = fNextSibling = fPrevSibling = nullptr;
     fMatrix.setIdentity();
     fContainsFocus = 0;
 }
@@ -31,13 +31,13 @@ void SkView::setFlags(uint32_t flags)
     uint32_t diff = fFlags ^ flags;
 
     if (diff & kVisible_Mask)
-        this->inval(NULL);
+        this->inval(nullptr);
 
     fFlags = SkToU8(flags);
 
     if (diff & kVisible_Mask)
     {
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -67,10 +67,10 @@ void SkView::setSize(SkScalar width, SkScalar height)
 
     if (fWidth != width || fHeight != height)
     {
-        this->inval(NULL);
+        this->inval(nullptr);
         fWidth = width;
         fHeight = height;
-        this->inval(NULL);
+        this->inval(nullptr);
         this->onSizeChange();
         this->invokeLayout();
     }
@@ -80,9 +80,9 @@ void SkView::setLoc(SkScalar x, SkScalar y)
 {
     if (fLoc.fX != x || fLoc.fY != y)
     {
-        this->inval(NULL);
+        this->inval(nullptr);
         fLoc.set(x, y);
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -94,9 +94,9 @@ void SkView::offset(SkScalar dx, SkScalar dy)
 
 void SkView::setLocalMatrix(const SkMatrix& matrix)
 {
-    this->inval(NULL);
+    this->inval(nullptr);
     fMatrix = matrix;
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 
 void SkView::draw(SkCanvas* canvas)
@@ -136,7 +136,7 @@ void SkView::draw(SkCanvas* canvas)
 
         SkCanvas* childCanvas = this->beforeChildren(canvas);
 
-        while ((child = iter.next()) != NULL)
+        while ((child = iter.next()) != nullptr)
             child->draw(childCanvas);
 
         this->afterChildren(canvas);
@@ -165,7 +165,7 @@ void SkView::inval(SkRect* rect) {
         }
 
         SkView* parent = view->fParent;
-        if (parent == NULL) {
+        if (parent == nullptr) {
             return;
         }
 
@@ -185,18 +185,18 @@ bool SkView::setFocusView(SkView* fv)
     do {
         if (view->onSetFocusView(fv))
             return true;
-    } while ((view = view->fParent) != NULL);
+    } while ((view = view->fParent) != nullptr);
     return false;
 }
 
 SkView* SkView::getFocusView() const
 {
-    SkView*            focus = NULL;
+    SkView*            focus = nullptr;
     const SkView*    view = this;
     do {
         if (view->onGetFocusView(&focus))
             break;
-    } while ((view = view->fParent) != NULL);
+    } while ((view = view->fParent) != nullptr);
     return focus;
 }
 
@@ -222,30 +222,30 @@ SkView* SkView::acceptFocus(FocusDirection dir)
 
         B2FIter    iter(this);
         SkView*    child, *focus;
-        while ((child = iter.next()) != NULL)
-            if ((focus = child->acceptFocus(dir)) != NULL)
+        while ((child = iter.next()) != nullptr)
+            if ((focus = child->acceptFocus(dir)) != nullptr)
                 return focus;
     }
     else // prev
     {
         F2BIter    iter(this);
         SkView*    child, *focus;
-        while ((child = iter.next()) != NULL)
-            if ((focus = child->acceptFocus(dir)) != NULL)
+        while ((child = iter.next()) != nullptr)
+            if ((focus = child->acceptFocus(dir)) != nullptr)
                 return focus;
 
         if (this->acceptFocus())
             return this;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 SkView* SkView::moveFocus(FocusDirection dir)
 {
     SkView* focus = this->getFocusView();
 
-    if (focus == NULL)
+    if (focus == nullptr)
     {    // start with the root
         focus = this;
         while (focus->fParent)
@@ -267,19 +267,19 @@ SkView* SkView::moveFocus(FocusDirection dir)
             while (child != parent->fFirstChild)
             {
     FIRST_CHILD:
-                if ((focus = child->acceptFocus(dir)) != NULL)
+                if ((focus = child->acceptFocus(dir)) != nullptr)
                     return focus;
                 child = child->fNextSibling;
             }
     NEXT_SIB:
             child = parent->fNextSibling;
             parent = parent->fParent;
-        } while (parent != NULL);
+        } while (parent != nullptr);
     }
     else    // prevfocus
     {
         parent = focus->fParent;
-        if (parent == NULL)    // we're the root
+        if (parent == nullptr)    // we're the root
             return focus->acceptFocus(dir);
         else
         {
@@ -289,7 +289,7 @@ SkView* SkView::moveFocus(FocusDirection dir)
                 while (child != parent->fFirstChild)
                 {
                     child = child->fPrevSibling;
-                    if ((focus = child->acceptFocus(dir)) != NULL)
+                    if ((focus = child->acceptFocus(dir)) != nullptr)
                         return focus;
                 }
                 if (parent->acceptFocus())
@@ -300,12 +300,12 @@ SkView* SkView::moveFocus(FocusDirection dir)
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkView::onFocusChange(bool gainFocusP)
 {
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -314,9 +314,9 @@ SkView::Click::Click(SkView* target)
 {
     SkASSERT(target);
     fTargetID = target->getSinkID();
-    fType = NULL;
+    fType = nullptr;
     fWeOwnTheType = false;
-    fOwner = NULL;
+    fOwner = nullptr;
 }
 
 SkView::Click::~Click()
@@ -331,7 +331,7 @@ void SkView::Click::resetType()
         sk_free(fType);
         fWeOwnTheType = false;
     }
-    fType = NULL;
+    fType = nullptr;
 }
 
 bool SkView::Click::isType(const char type[]) const
@@ -341,9 +341,9 @@ bool SkView::Click::isType(const char type[]) const
     if (type == t)
         return true;
 
-    if (type == NULL)
+    if (type == nullptr)
         type = "";
-    if (t == NULL)
+    if (t == nullptr)
         t = "";
     return !strcmp(t, type);
 }
@@ -371,14 +371,14 @@ void SkView::Click::copyType(const char type[])
 
 SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y, unsigned modi) {
     if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
-        return NULL;
+        return nullptr;
     }
 
     if (this->onSendClickToChildren(x, y, modi)) {
         F2BIter    iter(this);
         SkView*    child;
 
-        while ((child = iter.next()) != NULL)
+        while ((child = iter.next()) != nullptr)
         {
             SkPoint p;
             if (!child->globalToLocal(x, y, &p)) {
@@ -401,7 +401,7 @@ void SkView::DoClickDown(Click* click, int x, int y, unsigned modi)
     SkASSERT(click);
 
     SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
-    if (NULL == target) {
+    if (nullptr == target) {
         return;
     }
 
@@ -425,7 +425,7 @@ void SkView::DoClickMoved(Click* click, int x, int y, unsigned modi)
     SkASSERT(click);
 
     SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
-    if (NULL == target) {
+    if (nullptr == target) {
         return;
     }
 
@@ -449,7 +449,7 @@ void SkView::DoClickUp(Click* click, int x, int y, unsigned modi)
     SkASSERT(click);
 
     SkView* target = (SkView*)SkEventSink::FindSink(click->fTargetID);
-    if (NULL == target) {
+    if (nullptr == target) {
         return;
     }
 
@@ -493,7 +493,7 @@ bool SkView::onSendClickToChildren(SkScalar x, SkScalar y, unsigned modi) {
 }
 
 SkView::Click* SkView::onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) {
-    return NULL;
+    return nullptr;
 }
 
 bool SkView::onClick(Click*) {
@@ -517,17 +517,17 @@ void SkView::getLocalBounds(SkRect* bounds) const {
 
 void SkView::detachFromParent_NoLayout() {
     this->validate();
-    if (fParent == NULL) {
+    if (fParent == nullptr) {
         return;
     }
 
     if (fContainsFocus) {
-        (void)this->setFocusView(NULL);
+        (void)this->setFocusView(nullptr);
     }
 
-    this->inval(NULL);
+    this->inval(nullptr);
 
-    SkView* next = NULL;
+    SkView* next = nullptr;
 
     if (fNextSibling != this) {   // do we have any siblings
         fNextSibling->fPrevSibling = fPrevSibling;
@@ -539,7 +539,7 @@ void SkView::detachFromParent_NoLayout() {
         fParent->fFirstChild = next;
     }
 
-    fParent = fNextSibling = fPrevSibling = NULL;
+    fParent = fNextSibling = fPrevSibling = nullptr;
 
     this->validate();
     this->unref();
@@ -559,13 +559,13 @@ SkView* SkView::attachChildToBack(SkView* child) {
     this->validate();
     SkASSERT(child != this);
 
-    if (child == NULL || fFirstChild == child)
+    if (child == nullptr || fFirstChild == child)
         goto DONE;
 
     child->ref();
     child->detachFromParent_NoLayout();
 
-    if (fFirstChild == NULL) {
+    if (fFirstChild == nullptr) {
         child->fNextSibling = child;
         child->fPrevSibling = child;
     } else {
@@ -577,7 +577,7 @@ SkView* SkView::attachChildToBack(SkView* child) {
 
     fFirstChild = child;
     child->fParent = this;
-    child->inval(NULL);
+    child->inval(nullptr);
 
     this->validate();
     this->invokeLayout();
@@ -589,13 +589,13 @@ SkView* SkView::attachChildToFront(SkView* child) {
     this->validate();
     SkASSERT(child != this);
 
-    if (child == NULL || (fFirstChild && fFirstChild->fPrevSibling == child))
+    if (child == nullptr || (fFirstChild && fFirstChild->fPrevSibling == child))
         goto DONE;
 
     child->ref();
     child->detachFromParent_NoLayout();
 
-    if (fFirstChild == NULL) {
+    if (fFirstChild == nullptr) {
         fFirstChild = child;
         child->fNextSibling = child;
         child->fPrevSibling = child;
@@ -607,7 +607,7 @@ SkView* SkView::attachChildToFront(SkView* child) {
     }
 
     child->fParent = this;
-    child->inval(NULL);
+    child->inval(nullptr);
 
     this->validate();
     this->invokeLayout();
@@ -699,7 +699,7 @@ void SkView::postInflate(const SkTDict<SkView*>& dict) {
 
     B2FIter    iter(this);
     SkView*    child;
-    while ((child = iter.next()) != NULL)
+    while ((child = iter.next()) != nullptr)
         child->postInflate(dict);
 }
 
@@ -714,7 +714,7 @@ SkView* SkView::sendEventToParents(const SkEvent& evt) {
         }
         parent = parent->fParent;
     }
-    return NULL;
+    return nullptr;
 }
 
 SkView* SkView::sendQueryToParents(SkEvent* evt) {
@@ -726,15 +726,15 @@ SkView* SkView::sendQueryToParents(SkEvent* evt) {
         }
         parent = parent->fParent;
     }
-    return NULL;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 
 SkView::F2BIter::F2BIter(const SkView* parent) {
-    fFirstChild = parent ? parent->fFirstChild : NULL;
-    fChild = fFirstChild ? fFirstChild->fPrevSibling : NULL;
+    fFirstChild = parent ? parent->fFirstChild : nullptr;
+    fChild = fFirstChild ? fFirstChild->fPrevSibling : nullptr;
 }
 
 SkView* SkView::F2BIter::next() {
@@ -742,7 +742,7 @@ SkView* SkView::F2BIter::next() {
 
     if (fChild) {
         if (fChild == fFirstChild) {
-            fChild = NULL;
+            fChild = nullptr;
         } else {
             fChild = fChild->fPrevSibling;
         }
@@ -751,7 +751,7 @@ SkView* SkView::F2BIter::next() {
 }
 
 SkView::B2FIter::B2FIter(const SkView* parent) {
-    fFirstChild = parent ? parent->fFirstChild : NULL;
+    fFirstChild = parent ? parent->fFirstChild : nullptr;
     fChild = fFirstChild;
 }
 
@@ -761,7 +761,7 @@ SkView* SkView::B2FIter::next() {
     if (fChild) {
         SkView* next = fChild->fNextSibling;
         if (next == fFirstChild)
-            next = NULL;
+            next = nullptr;
         fChild = next;
     }
     return curr;
@@ -778,8 +778,8 @@ void SkView::validate() const {
         SkASSERT(fNextSibling);
         SkASSERT(fPrevSibling);
     } else {
-        bool nextNull = NULL == fNextSibling;
-        bool prevNull = NULL == fNextSibling;
+        bool nextNull = nullptr == fNextSibling;
+        bool prevNull = nullptr == fNextSibling;
         SkASSERT(nextNull == prevNull);
     }
 }
@@ -812,7 +812,7 @@ static void dumpview(const SkView* view, int level, bool recurse)
         SkView*            child;
         bool            noChildren = true;
 
-        while ((child = iter.next()) != NULL)
+        while ((child = iter.next()) != nullptr)
         {
             if (noChildren)
                 SkDebugf(">\n");

@@ -12,7 +12,7 @@
 #include "SkString.h"
 #include "SkTime.h"
 
-DEFINE_string2(tmpDir, t, NULL, "Temp directory to use.");
+DEFINE_string2(tmpDir, t, nullptr, "Temp directory to use.");
 
 void skiatest::Reporter::bumpTestCount() {}
 
@@ -33,6 +33,6 @@ SkString skiatest::Failure::toString() const {
 }
 
 SkString skiatest::GetTmpDir() {
-    const char* tmpDir = FLAGS_tmpDir.isEmpty() ? NULL : FLAGS_tmpDir[0];
+    const char* tmpDir = FLAGS_tmpDir.isEmpty() ? nullptr : FLAGS_tmpDir[0];
     return SkString(tmpDir);
 }

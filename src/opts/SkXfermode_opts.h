@@ -201,7 +201,7 @@ public:
         , fAAProc4(aaproc4) {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
-        if (NULL == aa) {
+        if (nullptr == aa) {
             Sk4px::MapDstSrc(n, dst, src, [&](const Sk4px& dst4, const Sk4px& src4) {
                 return fProc4(src4, dst4);
             });
@@ -214,7 +214,7 @@ public:
     }
 
     void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
-        if (NULL == aa) {
+        if (nullptr == aa) {
             Sk4px::MapDstSrc(n, dst, src, [&](const Sk4px& dst4, const Sk4px& src4) {
                 return fProc4(src4, dst4);
             });

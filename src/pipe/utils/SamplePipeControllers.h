@@ -16,7 +16,7 @@ class SkMatrix;
 
 class PipeController : public SkGPipeController {
 public:
-    PipeController(SkCanvas* target, SkPicture::InstallPixelRefProc proc = NULL);
+    PipeController(SkCanvas* target, SkPicture::InstallPixelRefProc proc = nullptr);
     virtual ~PipeController();
     void* requestBlock(size_t minRequest, size_t* actual) override;
     void notifyWritten(size_t bytes) override;
@@ -34,8 +34,8 @@ private:
 
 class TiledPipeController : public PipeController {
 public:
-    TiledPipeController(const SkBitmap&, SkPicture::InstallPixelRefProc proc = NULL,
-                        const SkMatrix* initialMatrix = NULL);
+    TiledPipeController(const SkBitmap&, SkPicture::InstallPixelRefProc proc = nullptr,
+                        const SkMatrix* initialMatrix = nullptr);
     virtual ~TiledPipeController() {};
     void notifyWritten(size_t bytes) override;
     int numberOfReaders() const override { return NumberOfTiles; }

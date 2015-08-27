@@ -32,14 +32,14 @@ static void usage() {
 
 // Is the supplied paint simply a color?
 static bool is_simple(const SkPaint& p) {
-    return NULL == p.getPathEffect() &&
-           NULL == p.getShader() &&
-           NULL == p.getXfermode() &&
-           NULL == p.getMaskFilter() &&
-           NULL == p.getColorFilter() &&
-           NULL == p.getRasterizer() &&
-           NULL == p.getLooper() &&
-           NULL == p.getImageFilter();
+    return nullptr == p.getPathEffect() &&
+           nullptr == p.getShader() &&
+           nullptr == p.getXfermode() &&
+           nullptr == p.getMaskFilter() &&
+           nullptr == p.getColorFilter() &&
+           nullptr == p.getRasterizer() &&
+           nullptr == p.getLooper() &&
+           nullptr == p.getImageFilter();
 }
 
 
@@ -71,8 +71,8 @@ static bool check_0(SkDebugCanvas* canvas, int curCommand) {
     SkColor dbmrColor = dbmrPaint->getColor() | 0xFF000000;       // force opaque
 
     // If either operation lacks a paint then the collapse is trivial
-    return NULL == saveLayerPaint ||
-           NULL == dbmrPaint ||
+    return nullptr == saveLayerPaint ||
+           nullptr == dbmrPaint ||
            (is_simple(*saveLayerPaint) && dbmrColor == layerColor);
 }
 
@@ -83,13 +83,13 @@ static void apply_0(SkDebugCanvas* canvas, int curCommand) {
         (SkSaveLayerCommand*) canvas->getDrawCommandAt(curCommand);
     const SkPaint* saveLayerPaint = saveLayer->paint();
 
-    // if (NULL == saveLayerPaint) the dbmr's paint doesn't need to be changed
+    // if (nullptr == saveLayerPaint) the dbmr's paint doesn't need to be changed
     if (saveLayerPaint) {
         SkDrawBitmapRectCommand* dbmr =
             (SkDrawBitmapRectCommand*) canvas->getDrawCommandAt(curCommand+1);
         SkPaint* dbmrPaint = dbmr->paint();
 
-        if (NULL == dbmrPaint) {
+        if (nullptr == dbmrPaint) {
             // if the DBMR doesn't have a paint just use the saveLayer's
             dbmr->setPaint(*saveLayerPaint);
         } else if (saveLayerPaint) {
@@ -149,8 +149,8 @@ static bool check_1(SkDebugCanvas* canvas, int curCommand) {
     // If either operation lacks a paint then the collapse is trivial
     SkColor layerColor = saveLayerPaint->getColor() | 0xFF000000; // force opaque
 
-    return NULL == saveLayerPaint ||
-           NULL == dbmrPaint ||
+    return nullptr == saveLayerPaint ||
+           nullptr == dbmrPaint ||
            (is_simple(*saveLayerPaint) && dbmrPaint->getColor() == layerColor);
 }
 
@@ -161,13 +161,13 @@ static void apply_1(SkDebugCanvas* canvas, int curCommand) {
         (SkSaveLayerCommand*) canvas->getDrawCommandAt(curCommand);
     const SkPaint* saveLayerPaint = saveLayer->paint();
 
-    // if (NULL == saveLayerPaint) the dbmr's paint doesn't need to be changed
+    // if (nullptr == saveLayerPaint) the dbmr's paint doesn't need to be changed
     if (saveLayerPaint) {
         SkDrawBitmapRectCommand* dbmr =
             (SkDrawBitmapRectCommand*) canvas->getDrawCommandAt(curCommand+3);
         SkPaint* dbmrPaint = dbmr->paint();
 
-        if (NULL == dbmrPaint) {
+        if (nullptr == dbmrPaint) {
             dbmr->setPaint(*saveLayerPaint);
         } else {
             SkColor newColor = SkColorSetA(dbmrPaint->getColor(),
@@ -367,7 +367,7 @@ static bool check_7(SkDebugCanvas* canvas, int curCommand) {
     }
 
     // The src->dest mapping needs to be 1-to-1
-    if (NULL == dbmr->srcRect()) {
+    if (nullptr == dbmr->srcRect()) {
         if (dbmr->bitmap().width() != dbmr->dstRect().width() ||
             dbmr->bitmap().height() != dbmr->dstRect().height()) {
             return false;
@@ -393,7 +393,7 @@ static bool check_7(SkDebugCanvas* canvas, int curCommand) {
 
     SkPaint* dbmrPaint = dbmr->paint();
 
-    if (NULL == dbmrPaint) {
+    if (nullptr == dbmrPaint) {
         return true;
     }
 
@@ -514,7 +514,7 @@ static bool check_8(SkDebugCanvas* canvas, int curCommand) {
     }
 
     // The src->dest mapping needs to be 1-to-1
-    if (NULL == dbmr->srcRect()) {
+    if (nullptr == dbmr->srcRect()) {
         if (dbmr->bitmap().width() != dbmr->dstRect().width() ||
             dbmr->bitmap().height() != dbmr->dstRect().height()) {
             return false;
@@ -629,7 +629,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
         inPicture.reset(SkPicture::CreateFromStream(&inStream));
     }
 
-    if (NULL == inPicture.get()) {
+    if (nullptr == inPicture.get()) {
         SkDebugf("Could not read file %s\n", inFile.c_str());
         return -1;
     }
@@ -680,7 +680,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(inPicture->cullRect().width(),
                                                    inPicture->cullRect().height(),
-                                                   NULL, 0);
+                                                   nullptr, 0);
         debugCanvas.draw(canvas);
         SkAutoTUnref<SkPicture> outPicture(recorder.endRecording());
 

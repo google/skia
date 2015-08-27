@@ -26,16 +26,16 @@ void CheckShader(SkPaint* paint) {
     if (shader->isABitmap()) {
         return;
     }
-    if (shader->asACompose(NULL)) {
+    if (shader->asACompose(nullptr)) {
         return;
     }
-    SkShader::GradientType gtype = shader->asAGradient(NULL);
+    SkShader::GradientType gtype = shader->asAGradient(nullptr);
     if (gtype == SkShader::kLinear_GradientType ||
         gtype == SkShader::kRadial_GradientType ||
         gtype == SkShader::kSweep_GradientType) {
         return;
     }
-    paint->setShader(NULL);
+    paint->setShader(nullptr);
 }
 
 void Filter(SkPaint* paint) {
@@ -48,7 +48,7 @@ void Filter(SkPaint* paint) {
     SkXfermode::Mode mode;
     SkXfermode::AsMode(paint->getXfermode(), &mode);
     if (mode > SkXfermode::kLighten_Mode) {
-        paint->setXfermode(NULL);
+        paint->setXfermode(nullptr);
     }
 
     // Force bilinear scaling or none
@@ -70,22 +70,22 @@ void Filter(SkPaint* paint) {
             paint->setColorFilter(
                 SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcOver_Mode));
         } else if (!isMode && !cf->asColorMatrix(srcColorMatrix)) {
-            paint->setColorFilter(NULL);
+            paint->setColorFilter(nullptr);
         }
     }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkPathEffect* pe = paint->getPathEffect();
     if (pe && !pe->exposedInAndroidJavaAPI()) {
-        paint->setPathEffect(NULL);
+        paint->setPathEffect(nullptr);
     }
 #endif
 
     // TODO: Android doesn't support all the flags that can be passed to
     // blur filters; we need plumbing to get them out.
 
-    paint->setImageFilter(NULL);
-    paint->setLooper(NULL);
+    paint->setImageFilter(nullptr);
+    paint->setLooper(nullptr);
 };
 
 }  // namespace
@@ -103,7 +103,7 @@ void Filter(SkPaint* paint) {
     }
 
 
-SkAndroidSDKCanvas::SkAndroidSDKCanvas() : fProxyTarget(NULL) { }
+SkAndroidSDKCanvas::SkAndroidSDKCanvas() : fProxyTarget(nullptr) { }
 
 void SkAndroidSDKCanvas::reset(SkCanvas* newTarget) { fProxyTarget = newTarget; }
 
@@ -292,7 +292,7 @@ bool SkAndroidSDKCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
     SkASSERT(pmap);
     SkImageInfo info;
     size_t rowBytes; 
-    const void* addr = fProxyTarget->accessTopLayerPixels(&info, &rowBytes, NULL);
+    const void* addr = fProxyTarget->accessTopLayerPixels(&info, &rowBytes, nullptr);
     if (addr) {
         pmap->reset(info, addr, rowBytes);
         return true;

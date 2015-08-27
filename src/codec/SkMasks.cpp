@@ -139,7 +139,7 @@ SkMasks* SkMasks::CreateMasks(InputMasks masks, uint32_t bitsPerPixel) {
     if (((masks.red & masks.green) | (masks.red & masks.blue) |
             (masks.red & masks.alpha) | (masks.green & masks.blue) |
             (masks.green & masks.alpha) | (masks.blue & masks.alpha)) != 0) {
-        return NULL;
+        return nullptr;
     }
 
     // Collect information about the masks

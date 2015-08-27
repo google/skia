@@ -40,5 +40,5 @@ DEF_TEST(IndexedPngOverflow, reporter) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(SkImageInfo::MakeN32Premul(20, 1)));
     SkCanvas* canvas = surface->getCanvas();
     SkRect destRect = SkRect::MakeXYWH(0, 0, 20, 1);
-    canvas->drawBitmapRect(image, destRect, NULL);
+    canvas->drawBitmapRect(image, destRect, nullptr);
 }

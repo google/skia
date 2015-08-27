@@ -39,7 +39,7 @@ template<uint16_t N> struct SkTEndianSwap16 {
     low two bytes of each value in the array.
 */
 static inline void SkEndianSwap16s(uint16_t array[], int count) {
-    SkASSERT(count == 0 || array != NULL);
+    SkASSERT(count == 0 || array != nullptr);
 
     while (--count >= 0) {
         *array = SkEndianSwap16(*array);
@@ -68,7 +68,7 @@ template<uint32_t N> struct SkTEndianSwap32 {
     bytes of each value in the array.
 */
 static inline void SkEndianSwap32s(uint32_t array[], int count) {
-    SkASSERT(count == 0 || array != NULL);
+    SkASSERT(count == 0 || array != nullptr);
 
     while (--count >= 0) {
         *array = SkEndianSwap32(*array);
@@ -104,7 +104,7 @@ template<uint64_t N> struct SkTEndianSwap64 {
     bytes of each value in the array.
 */
 static inline void SkEndianSwap64s(uint64_t array[], int count) {
-    SkASSERT(count == 0 || array != NULL);
+    SkASSERT(count == 0 || array != nullptr);
 
     while (--count >= 0) {
         *array = SkEndianSwap64(*array);

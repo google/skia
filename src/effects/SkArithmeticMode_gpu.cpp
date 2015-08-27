@@ -27,7 +27,7 @@ static void add_arithmetic_code(GrGLFragmentBuilder* fsBuilder,
                                 const char* kUni,
                                 bool enforcePMColor) {
     // We don't try to optimize for this case at all
-    if (NULL == inputColor) {
+    if (nullptr == inputColor) {
         fsBuilder->codeAppend("const vec4 src = vec4(1);");
     } else {
         fsBuilder->codeAppendf("vec4 src = %s;", inputColor);

@@ -68,7 +68,7 @@ public:
         static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
 
         virtual void emitCode(EmitArgs& args) override {
-            if (NULL == args.fInputColor) {
+            if (nullptr == args.fInputColor) {
                 args.fInputColor = "vec4(1)";
             }
 
@@ -117,7 +117,7 @@ bool SkLumaColorFilter::asFragmentProcessors(GrContext*, GrProcessorDataManager*
             *array->append() = frag;
         } else {
             frag->unref();
-            SkDEBUGCODE(frag = NULL;)
+            SkDEBUGCODE(frag = nullptr;)
         }
         return true;
     }

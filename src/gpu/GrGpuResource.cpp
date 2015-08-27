@@ -40,7 +40,7 @@ void GrGpuResource::release() {
     SkASSERT(fGpu);
     this->onRelease();
     get_resource_cache(fGpu)->resourceAccess().removeResource(this);
-    fGpu = NULL;
+    fGpu = nullptr;
     fGpuMemorySize = 0;
 }
 
@@ -48,7 +48,7 @@ void GrGpuResource::abandon() {
     SkASSERT(fGpu);
     this->onAbandon();
     get_resource_cache(fGpu)->resourceAccess().removeResource(this);
-    fGpu = NULL;
+    fGpu = nullptr;
     fGpuMemorySize = 0;
 }
 
@@ -62,7 +62,7 @@ const GrContext* GrGpuResource::getContext() const {
     if (fGpu) {
         return fGpu->getContext();
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -70,7 +70,7 @@ GrContext* GrGpuResource::getContext() {
     if (fGpu) {
         return fGpu->getContext();
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 

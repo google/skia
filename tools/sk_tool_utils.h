@@ -68,7 +68,7 @@ namespace sk_tool_utils {
     /**
      * Sets the paint to use a platform-independent text renderer
      */
-    void set_portable_typeface(SkPaint* paint, const char* name = NULL,
+    void set_portable_typeface(SkPaint* paint, const char* name = nullptr,
                                SkTypeface::Style style = SkTypeface::kNormal);
 
     /**

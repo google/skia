@@ -192,11 +192,11 @@ GrTexture* GaussianBlur(GrContext* context,
         tempTexture = temp2.get();
     }
 
-    if (NULL == dstTexture || NULL == tempTexture) {
-        return NULL;
+    if (nullptr == dstTexture || nullptr == tempTexture) {
+        return nullptr;
     }
 
-    GrDrawContext* srcDrawContext = NULL;
+    GrDrawContext* srcDrawContext = nullptr;
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         GrPaint paint;
@@ -226,7 +226,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
         GrDrawContext* dstDrawContext = context->drawContext();
         if (!dstDrawContext) {
-            return NULL;
+            return nullptr;
         }
         dstDrawContext->drawNonAARectToRect(dstTexture->asRenderTarget(), clip, paint,
                                             SkMatrix::I(), dstRect, srcRect);
@@ -249,7 +249,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
         GrDrawContext* dstDrawContext = context->drawContext();
         if (!dstDrawContext) {
-            return NULL;
+            return nullptr;
         }
         convolve_gaussian_2d(dstDrawContext, dstTexture->asRenderTarget(), clip, srcRect, dstRect,
                              srcTexture, radiusX, radiusY, sigmaX, sigmaY, cropToRect, srcIRect);
@@ -266,7 +266,7 @@ GrTexture* GaussianBlur(GrContext* context,
                 if (!srcDrawContext) {
                     srcDrawContext = context->drawContext();
                     if (!srcDrawContext) {
-                        return NULL;
+                        return nullptr;
                     }        
                 }
 
@@ -280,7 +280,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
             GrDrawContext* dstDrawContext = context->drawContext();
             if (!dstDrawContext) {
-                return NULL;
+                return nullptr;
             }
             convolve_gaussian(dstDrawContext, dstTexture->asRenderTarget(), clip, srcRect, dstRect,
                               srcTexture, Gr1DKernelEffect::kX_Direction, radiusX, sigmaX,
@@ -298,7 +298,7 @@ GrTexture* GaussianBlur(GrContext* context,
                 if (!srcDrawContext) {
                     srcDrawContext = context->drawContext();
                     if (!srcDrawContext) {
-                        return NULL;
+                        return nullptr;
                     }        
                 }
 
@@ -313,7 +313,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
             GrDrawContext* dstDrawContext = context->drawContext();
             if (!dstDrawContext) {
-                return NULL;
+                return nullptr;
             }
             convolve_gaussian(dstDrawContext, dstTexture->asRenderTarget(), clip, srcRect,
                               dstRect, srcTexture, Gr1DKernelEffect::kY_Direction, radiusY, sigmaY,
@@ -350,7 +350,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
         GrDrawContext* dstDrawContext = context->drawContext();
         if (!dstDrawContext) {
-            return NULL;
+            return nullptr;
         }
         dstDrawContext->drawNonAARectToRect(dstTexture->asRenderTarget(), clip, paint,
                                             SkMatrix::I(), dstRect, srcRect);

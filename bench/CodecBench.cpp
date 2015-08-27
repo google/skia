@@ -72,7 +72,7 @@ void CodecBench::onDraw(const int n, SkCanvas* canvas) {
         const SkCodec::Result result =
 #endif
         codec->getPixels(fInfo, fPixelStorage.get(), fInfo.minRowBytes(),
-                         NULL, colorTable, &colorCount);
+                         nullptr, colorTable, &colorCount);
         SkASSERT(result == SkCodec::kSuccess
                  || result == SkCodec::kIncompleteInput);
     }

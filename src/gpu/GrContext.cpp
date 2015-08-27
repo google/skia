@@ -55,7 +55,7 @@
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define RETURN_IF_ABANDONED if (fDrawingMgr.abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED if (fDrawingMgr.abandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED if (fDrawingMgr.abandoned()) { return NULL; }
+#define RETURN_NULL_IF_ABANDONED if (fDrawingMgr.abandoned()) { return nullptr; }
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ void GrContext::DrawingMgr::flush() {
 
 GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceProps) { 
     if (this->abandoned()) {
-        return NULL;
+        return nullptr;
     }
 
     const SkSurfaceProps props(SkSurfacePropsCopyOrDefault(surfaceProps));
@@ -144,7 +144,7 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
         return context;
     } else {
         context->unref();
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -158,13 +158,13 @@ static int32_t next_id() {
 }
 
 GrContext::GrContext() : fUniqueID(next_id()) {
-    fGpu = NULL;
-    fCaps = NULL;
-    fResourceCache = NULL;
-    fResourceProvider = NULL;
-    fPathRendererChain = NULL;
-    fSoftwarePathRenderer = NULL;
-    fBatchFontCache = NULL;
+    fGpu = nullptr;
+    fCaps = nullptr;
+    fResourceCache = nullptr;
+    fResourceProvider = nullptr;
+    fPathRendererChain = nullptr;
+    fSoftwarePathRenderer = nullptr;
+    fBatchFontCache = nullptr;
     fFlushToReduceCacheSize = false;
 }
 
@@ -308,7 +308,7 @@ void GrContext::flush(int flagsBitfield) {
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
                           const void* inPixels, size_t outRowBytes, void* outPixels) {
     SkSrcPixelInfo srcPI;
-    if (!GrPixelConfig2ColorAndProfileType(srcConfig, &srcPI.fColorType, NULL)) {
+    if (!GrPixelConfig2ColorAndProfileType(srcConfig, &srcPI.fColorType, nullptr)) {
         return false;
     }
     srcPI.fAlphaType = kUnpremul_SkAlphaType;
@@ -385,7 +385,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             // If premultiplying was the only reason for the draw, fall back to a straight write.
             if (!fp) {
                 if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
-                    tempTexture.reset(NULL);
+                    tempTexture.reset(nullptr);
                 }
             } else {
                 applyPremulToSrc = false;
@@ -429,7 +429,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             }
             paint.addColorFragmentProcessor(fp);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-            drawContext->drawRect(renderTarget, GrClip::WideOpen(), paint, matrix, rect, NULL);
+            drawContext->drawRect(renderTarget, GrClip::WideOpen(), paint, matrix, rect, nullptr);
 
             if (kFlushWrites_PixelOp & pixelOpsFlags) {
                 this->flushSurfaceWrites(surface);
@@ -523,7 +523,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 } else if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
                     // We only wanted to do the draw in order to perform the unpremul so don't
                     // bother.
-                    temp.reset(NULL);
+                    temp.reset(nullptr);
                 }
             }
             if (!fp && temp) {
@@ -536,7 +536,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 GrDrawContext* drawContext = this->drawContext();
                 drawContext->drawRect(temp->asRenderTarget(), GrClip::WideOpen(), paint,
-                                      SkMatrix::I(), rect, NULL);
+                                      SkMatrix::I(), rect, nullptr);
                 surfaceToRead.reset(SkRef(temp.get()));
                 left = 0;
                 top = 0;
@@ -564,7 +564,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     // Perform umpremul conversion if we weren't able to perform it as a draw.
     if (unpremul) {
         SkDstPixelInfo dstPI;
-        if (!GrPixelConfig2ColorAndProfileType(dstConfig, &dstPI.fColorType, NULL)) {
+        if (!GrPixelConfig2ColorAndProfileType(dstConfig, &dstPI.fColorType, nullptr)) {
             return false;
         }
         dstPI.fAlphaType = kUnpremul_SkAlphaType;
@@ -708,7 +708,7 @@ const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrProcessorDataManager
         return GrConfigConversionEffect::Create(procDataManager, texture, swapRAndB, pmToUPM,
                                                 matrix);
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -726,7 +726,7 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrProcessorDataManager
         return GrConfigConversionEffect::Create(procDataManager, texture, swapRAndB, upmToPM,
                                                 matrix);
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 

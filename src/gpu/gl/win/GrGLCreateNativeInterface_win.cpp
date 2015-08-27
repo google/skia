@@ -42,7 +42,7 @@ public:
         if ((proc = (GrGLFuncPtr) wglGetProcAddress(name))) {
             return proc;
         }
-        return NULL;
+        return nullptr;
     }
 
 private:
@@ -62,18 +62,18 @@ static GrGLFuncPtr win_get_gl_proc(void* ctx, const char name[]) {
  * Otherwise, a springboard would be needed that hides the calling convention.
  */
 const GrGLInterface* GrGLCreateNativeInterface() {
-    if (NULL == wglGetCurrentContext()) {
-        return NULL;
+    if (nullptr == wglGetCurrentContext()) {
+        return nullptr;
     }
 
     GLProcGetter getter;
     if (!getter.isInitialized()) {
-        return NULL;
+        return nullptr;
     }
 
     GrGLGetStringProc getString = (GrGLGetStringProc)getter.getProc("glGetString");
-    if (NULL == getString) {
-        return NULL;
+    if (nullptr == getString) {
+        return nullptr;
     }
     const char* verStr = reinterpret_cast<const char*>(getString(GR_GL_VERSION));
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
@@ -83,5 +83,5 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     } else if (kGL_GrGLStandard == standard) {
         return GrGLAssembleGLInterface(&getter, win_get_gl_proc);
     }
-    return NULL;
+    return nullptr;
 }

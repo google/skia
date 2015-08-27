@@ -92,7 +92,7 @@ public:
         // someone should admit to actually using this class
         SkASSERT(0 < gStaticRefCount);
 
-        if (NULL == gObj) {
+        if (nullptr == gObj) {
             gObj = new GrDebugGL;
         }
 
@@ -110,7 +110,7 @@ public:
         gStaticRefCount--;
         if (0 == gStaticRefCount) {
             delete gObj;
-            gObj = NULL;
+            gObj = nullptr;
         }
     }
 

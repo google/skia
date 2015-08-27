@@ -19,7 +19,7 @@ struct SkPixelInfo {
 
     static bool CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes,
-                           SkColorTable* srcCTable = NULL);
+                           SkColorTable* srcCTable = nullptr);
 };
 
 struct SkDstPixelInfo : SkPixelInfo {

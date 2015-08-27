@@ -48,7 +48,7 @@ protected:
             : INHERITED(style, SkTypefaceCache::NewFontID(), false)
             , fIdentity(fi)
             , fFamilyName(familyName)
-            , fLocalStream(NULL) {}
+            , fLocalStream(nullptr) {}
 
     FontConfigTypeface(const SkFontStyle& style, bool fixedWidth, SkStreamAsset* localStream)
             : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth)

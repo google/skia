@@ -20,7 +20,7 @@ template <typename T,
           typename HashTraits=T>
 class SkTMultiMap {
     struct ValueList {
-        explicit ValueList(T* value) : fValue(value), fNext(NULL) {}
+        explicit ValueList(T* value) : fValue(value), fNext(nullptr) {}
 
         static const Key& GetKey(const ValueList& e) { return HashTraits::GetKey(*e.fValue); }
         static uint32_t Hash(const Key& key) { return HashTraits::Hash(key); }
@@ -58,7 +58,7 @@ public:
         // Since we expect the caller to be fully aware of what is stored, just
         // assert that the caller removes an existing value.
         SkASSERT(list);
-        ValueList* prev = NULL;
+        ValueList* prev = nullptr;
         while (list->fValue != value) {
             prev = list;
             list = list->fNext;
@@ -70,7 +70,7 @@ public:
             list->fNext = next->fNext;
             delete next;
         } else if (prev) {
-            prev->fNext = NULL;
+            prev->fNext = nullptr;
             delete list;
         } else {
             fHash.remove(key);
@@ -85,7 +85,7 @@ public:
         if (list) {
             return list->fValue;
         }
-        return NULL;
+        return nullptr;
     }
 
     template<class FindPredicate>
@@ -97,7 +97,7 @@ public:
             }
             list = list->fNext;
         }
-        return NULL;
+        return nullptr;
     }
 
     int count() const { return fCount; }

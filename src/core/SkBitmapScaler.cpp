@@ -251,7 +251,7 @@ static SkBitmapScaler::ResizeMethod ResizeMethodToAlgorithmMethod(
 bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeMethod method,
                             float destWidth, float destHeight,
                             SkBitmap::Allocator* allocator) {
-    if (NULL == source.addr() || source.colorType() != kN32_SkColorType ||
+    if (nullptr == source.addr() || source.colorType() != kN32_SkColorType ||
         source.width() < 1 || source.height() < 1)
     {
         return false;
@@ -263,7 +263,7 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeM
         return false;
     }
 
-    SkConvolutionProcs convolveProcs= { 0, NULL, NULL, NULL, NULL };
+    SkConvolutionProcs convolveProcs= { 0, nullptr, nullptr, nullptr, nullptr };
     PlatformConvolutionProcs(&convolveProcs);
 
     SkRect destSubset = { 0, 0, destWidth, destHeight };
@@ -293,7 +293,7 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeM
     result.setInfo(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
                                       SkScalarCeilToInt(destSubset.height()),
                                       source.alphaType()));
-    result.allocPixels(allocator, NULL);
+    result.allocPixels(allocator, nullptr);
     if (!result.readyToDraw()) {
       return false;
     }

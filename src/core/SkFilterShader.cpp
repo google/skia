@@ -30,7 +30,7 @@ SkFlattenable* SkFilterShader::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkShader> shader(buffer.readShader());
     SkAutoTUnref<SkColorFilter> filter(buffer.readColorFilter());
     if (!shader.get() || !filter.get()) {
-        return NULL;
+        return nullptr;
     }
     return new SkFilterShader(shader, filter);
 }
@@ -59,8 +59,8 @@ uint32_t SkFilterShader::FilterShaderContext::getFlags() const {
 SkShader::Context* SkFilterShader::onCreateContext(const ContextRec& rec, void* storage) const {
     char* shaderContextStorage = (char*)storage + sizeof(FilterShaderContext);
     SkShader::Context* shaderContext = fShader->createContext(rec, shaderContextStorage);
-    if (NULL == shaderContext) {
-        return NULL;
+    if (nullptr == shaderContext) {
+        return nullptr;
     }
     return new (storage) FilterShaderContext(*this, shaderContext, rec);
 }

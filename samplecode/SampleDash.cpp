@@ -73,7 +73,7 @@ protected:
             SkDashPathEffect dash(interval, len, 0);
             paint.setPathEffect(&dash);
             canvas->drawLine(x0, y0, x1, y0, paint);
-            paint.setPathEffect(NULL);
+            paint.setPathEffect(nullptr);
 
             y0 += paint.getStrokeWidth() * 3;
         }

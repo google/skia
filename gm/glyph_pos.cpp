@@ -138,7 +138,7 @@ protected:
 
         if (drawRef) {
             SkScalar widths[sizeof(kText) - 1];
-            paint.getTextWidths(kText, sizeof(kText) - 1, widths, NULL);
+            paint.getTextWidths(kText, sizeof(kText) - 1, widths, nullptr);
 
             paint.setStrokeWidth(0.0f);
             paint.setStyle(SkPaint::kStroke_Style);

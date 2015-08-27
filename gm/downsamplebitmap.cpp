@@ -171,7 +171,7 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       int fSize;
 
       void make_bitmap() override {
-          SkImageDecoder* codec = NULL;
+          SkImageDecoder* codec = nullptr;
           SkString resourcePath = GetResourcePath(fFilename.c_str());
           SkFILEStream stream(resourcePath.c_str());
           if (stream.isValid()) {
@@ -219,20 +219,20 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkScalar x = 4;
         SkScalar y = 4;
-        canvas->drawBitmap(fBM, x, y, NULL);
+        canvas->drawBitmap(fBM, x, y, nullptr);
         y += fBM.height() + 4;
 
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(fBM, NULL));
+        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(fBM, nullptr));
 
         SkMipMap::Level level;
         SkScalar scale = 0.5f;
         while (mm->extractLevel(scale, &level)) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(level.fWidth, level.fHeight);
             SkBitmap bm;
-            bm.installPixels(info, level.fPixels, level.fRowBytes, NULL,
+            bm.installPixels(info, level.fPixels, level.fRowBytes, nullptr,
                              &release_mipmap, (void*)(SkRef(mm.get())));
             bm.setImmutable();
-            canvas->drawBitmap(bm, x, y, NULL);
+            canvas->drawBitmap(bm, x, y, nullptr);
             y += bm.height() + 4;
             scale /= 2;
             if (info.width() == 1 || info.height() == 1) {

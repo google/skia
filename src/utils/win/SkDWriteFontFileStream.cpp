@@ -20,8 +20,8 @@
 SkDWriteFontFileStream::SkDWriteFontFileStream(IDWriteFontFileStream* fontFileStream)
     : fFontFileStream(SkRefComPtr(fontFileStream))
     , fPos(0)
-    , fLockedMemory(NULL)
-    , fFragmentLock(NULL) {
+    , fLockedMemory(nullptr)
+    , fFragmentLock(nullptr) {
 }
 
 SkDWriteFontFileStream::~SkDWriteFontFileStream() {
@@ -33,7 +33,7 @@ SkDWriteFontFileStream::~SkDWriteFontFileStream() {
 size_t SkDWriteFontFileStream::read(void* buffer, size_t size) {
     HRESULT hr = S_OK;
 
-    if (NULL == buffer) {
+    if (nullptr == buffer) {
         size_t fileSize = this->getLength();
 
         if (fPos + size > fileSize) {
@@ -137,7 +137,7 @@ HRESULT SkDWriteFontFileStreamWrapper::Create(SkStreamAsset* stream,
                                               SkDWriteFontFileStreamWrapper** streamFontFileStream)
 {
     *streamFontFileStream = new SkDWriteFontFileStreamWrapper(stream);
-    if (NULL == streamFontFileStream) {
+    if (nullptr == streamFontFileStream) {
         return E_OUTOFMEMORY;
     }
     return S_OK;
@@ -153,7 +153,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::QueryInterface(REFIID i
         AddRef();
         return S_OK;
     } else {
-        *ppvObject = NULL;
+        *ppvObject = nullptr;
         return E_NOINTERFACE;
     }
 }
@@ -180,8 +180,8 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
     UINT64 fileSize;
     this->GetFileSize(&fileSize);
     if (fileOffset > fileSize || fragmentSize > fileSize - fileOffset) {
-        *fragmentStart = NULL;
-        *fragmentContext = NULL;
+        *fragmentStart = nullptr;
+        *fragmentContext = nullptr;
         return E_FAIL;
     }
 
@@ -192,14 +192,14 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::ReadFileFragment(
     const void* data = fStream->getMemoryBase();
     if (data) {
         *fragmentStart = static_cast<BYTE const*>(data) + static_cast<size_t>(fileOffset);
-        *fragmentContext = NULL;
+        *fragmentContext = nullptr;
 
     } else {
         // May be called from multiple threads.
         SkAutoMutexAcquire ama(fStreamMutex);
 
-        *fragmentStart = NULL;
-        *fragmentContext = NULL;
+        *fragmentStart = nullptr;
+        *fragmentContext = nullptr;
 
         if (!fStream->seek(static_cast<size_t>(fileOffset))) {
             return E_FAIL;

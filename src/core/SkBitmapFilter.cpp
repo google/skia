@@ -35,6 +35,6 @@ SkBitmapFilter *SkBitmapFilter::Allocate() {
         SkDEBUGFAIL("Unknown filter type");
     }
 
-    return NULL;
+    return nullptr;
 }
 

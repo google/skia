@@ -16,7 +16,7 @@
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
                          int sampleCountForNewSurfaces, SkSurface::Budgeted budgeted)
-    : INHERITED(w, h, uniqueID, NULL)
+    : INHERITED(w, h, uniqueID, nullptr)
     , fTexture(SkRef(tex))
     , fSampleCountForNewSurfaces(sampleCountForNewSurfaces)
     , fAlphaType(at)
@@ -36,7 +36,7 @@ SkSurface* SkImage_Gpu::onNewSurface(const SkImageInfo& info, const SkSurfacePro
     GrContext* ctx = tex->getContext();
     if (!ctx) {
         // the texture may have been abandoned, so we have to check
-        return NULL;
+        return nullptr;
     }
     // TODO: Change signature of onNewSurface to take a budgeted param.
     const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
@@ -138,11 +138,11 @@ static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextur
                                            SkImage::TextureReleaseProc releaseProc,
                                            SkImage::ReleaseContext releaseCtx) {
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
-        return NULL;
+        return nullptr;
     }
     SkAutoTUnref<GrTexture> tex(ctx->textureProvider()->wrapBackendTexture(desc, ownership));
     if (!tex) {
-        return NULL;
+        return nullptr;
     }
     if (releaseProc) {
         tex->setRelease(releaseProc, releaseCtx);
@@ -159,25 +159,25 @@ SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& des
 
 SkImage* SkImage::NewFromAdoptedTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
                                         SkAlphaType at) {
-    return new_wrapped_texture_common(ctx, desc, at, kAdopt_GrWrapOwnership, NULL, NULL);
+    return new_wrapped_texture_common(ctx, desc, at, kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
 SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc& desc,
                                      SkAlphaType at) {
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
-        return NULL;
+        return nullptr;
     }
 
     SkAutoTUnref<GrTexture> src(ctx->textureProvider()->wrapBackendTexture(
         desc, kBorrow_GrWrapOwnership));
     if (!src) {
-        return NULL;
+        return nullptr;
     }
 
     const bool isBudgeted = true;
     SkAutoTUnref<GrTexture> dst(GrDeepCopyTexture(src, isBudgeted));
     if (!dst) {
-        return NULL;
+        return nullptr;
     }
 
     const SkSurface::Budgeted budgeted = SkSurface::kYes_Budgeted;
@@ -195,7 +195,7 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     if (yuvSizes[0].fWidth <= 0 || yuvSizes[0].fHeight <= 0 ||
         yuvSizes[1].fWidth <= 0 || yuvSizes[1].fHeight <= 0 ||
         yuvSizes[2].fWidth <= 0 || yuvSizes[2].fHeight <= 0) {
-        return NULL;
+        return nullptr;
     }
     static const GrPixelConfig kConfig = kAlpha_8_GrPixelConfig;
     GrBackendTextureDesc yDesc;
@@ -229,7 +229,7 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     SkAutoTUnref<GrTexture> vTex(ctx->textureProvider()->wrapBackendTexture(
         vDesc, kBorrow_GrWrapOwnership));
     if (!yTex || !uTex || !vTex) {
-        return NULL;
+        return nullptr;
     }
 
     GrSurfaceDesc dstDesc;
@@ -243,7 +243,7 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
 
     SkAutoTUnref<GrTexture> dst(ctx->textureProvider()->createTexture(dstDesc, true));
     if (!dst) {
-        return NULL;
+        return nullptr;
     }
 
     GrPaint paint;
@@ -267,9 +267,9 @@ GrTexture* GrDeepCopyTexture(GrTexture* src, bool budgeted) {
     GrContext* ctx = src->getContext();
 
     GrSurfaceDesc desc = src->desc();
-    GrTexture* dst = ctx->textureProvider()->createTexture(desc, budgeted, NULL, 0);
+    GrTexture* dst = ctx->textureProvider()->createTexture(desc, budgeted, nullptr, 0);
     if (!dst) {
-        return NULL;
+        return nullptr;
     }
     
     const SkIRect srcR = SkIRect::MakeWH(desc.fWidth, desc.fHeight);

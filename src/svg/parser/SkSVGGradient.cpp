@@ -33,7 +33,7 @@ void SkSVGGradient::translate(SkSVGParser& parser, bool defState) {
     bool addedFirst = false;
     bool addedLast = false;
     SkString offsets("[");
-    SkString* lastOffset = NULL;
+    SkString* lastOffset = nullptr;
     for (SkSVGElement** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
         SkASSERT((*ptr)->getType() == SkSVGType_Stop);
         SkSVGStop* stop = (SkSVGStop*) *ptr;

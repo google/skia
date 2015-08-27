@@ -34,14 +34,14 @@ const SkMemberInfo SkAdd::fInfo[] = {
 DEFINE_GET_MEMBER(SkAdd);
 
 SkAdd::SkAdd() : mode(kMode_indirect),
-    offset(SK_MaxS32), use(NULL), where(NULL) {
+    offset(SK_MaxS32), use(nullptr), where(nullptr) {
 }
 
 SkDisplayable* SkAdd::deepCopy(SkAnimateMaker* maker) {
     SkADrawable* saveUse = use;
     SkADrawable* saveWhere = where;
-    use = NULL;
-    where = NULL;
+    use = nullptr;
+    where = nullptr;
     SkAdd* copy = (SkAdd*) INHERITED::deepCopy(maker);
     copy->use = use = saveUse;
     copy->where = where = saveWhere;
@@ -80,20 +80,20 @@ bool SkAdd::enable(SkAnimateMaker& maker ) {
     SkDisplayList& displayList = maker.fDisplayList;
     SkTDDrawableArray* parentList = displayList.getDrawList();
     if (type == SkType_Add) {
-        if (use == NULL) // not set in apply yet
+        if (use == nullptr) // not set in apply yet
             return true;
     }
     bool skipAddToParent = true;
     SkASSERT(type != SkType_Replace || where);
     SkTDDrawableArray* grandList SK_INIT_TO_AVOID_WARNING;
-    SkGroup* parentGroup = NULL;
-    SkGroup* thisGroup = NULL;
+    SkGroup* parentGroup = nullptr;
+    SkGroup* thisGroup = nullptr;
     int index = where ? displayList.findGroup(where, &parentList, &parentGroup,
         &thisGroup, &grandList) : 0;
     if (index < 0)
         return true;
     int max = parentList->count();
-    if (where == NULL && type == SkType_Move)
+    if (where == nullptr && type == SkType_Move)
         index = max;
     if (offset != SK_MaxS32) {
         index += offset;
@@ -102,15 +102,15 @@ bool SkAdd::enable(SkAnimateMaker& maker ) {
             return true;    // caller should not add
         }
     }
-    if (offset < 0 && where == NULL)
+    if (offset < 0 && where == nullptr)
         index += max + 1;
     switch (type) {
         case SkType_Add:
-            if (offset == SK_MaxS32 && where == NULL) {
+            if (offset == SK_MaxS32 && where == nullptr) {
                 if (use->isDrawable()) {
                     skipAddToParent = mode == kMode_immediate;
                     if (skipAddToParent) {
-                        if (where == NULL) {
+                        if (where == nullptr) {
                             SkTDDrawableArray* useParentList;
                             index = displayList.findGroup(this, &useParentList, &parentGroup,
                                 &thisGroup, &grandList);
@@ -194,7 +194,7 @@ void SkAdd::initialize() {
 
 bool SkAdd::isDrawable() const {
     return getType() == SkType_Add && mode == kMode_indirect && offset == SK_MaxS32 &&
-        where == NULL && use != NULL && use->isDrawable();
+        where == nullptr && use != nullptr && use->isDrawable();
 }
 
 //SkDisplayable* SkAdd::resolveTarget(SkAnimateMaker& maker) {

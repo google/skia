@@ -18,7 +18,7 @@ struct SkBitmapProcState;
 class SkBitmapProcShader : public SkShader {
 public:
     SkBitmapProcShader(const SkBitmap& src, TileMode tx, TileMode ty,
-                       const SkMatrix* localMatrix = NULL);
+                       const SkMatrix* localMatrix = nullptr);
 
     // overrides from SkShader
     bool isOpaque() const override;
@@ -72,7 +72,7 @@ private:
 // yet found a situation where the size below isn't big enough.
 typedef SkSmallAllocator<3, 1152> SkTBlitterAllocator;
 
-// If alloc is non-NULL, it will be used to allocate the returned SkShader, and MUST outlive
+// If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.
 SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode, SkShader::TileMode,
                                const SkMatrix* localMatrix, SkTBlitterAllocator* alloc);

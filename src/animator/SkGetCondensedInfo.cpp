@@ -53,7 +53,7 @@ static int _searchByType(SkDisplayTypes type) {
 const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* , SkDisplayTypes type, int* infoCountPtr) {
     int lookup = _searchByType(type);
     if (lookup < 0)
-        return NULL;
+        return nullptr;
     if (infoCountPtr)
         *infoCountPtr = gInfoCounts[lookup];
     return gInfoTables[lookup];
@@ -72,10 +72,10 @@ static const SkMemberInfo* _lookup(int lookup, const char** matchPtr) {
     if (info->fType == SkType_BaseClassInfo) {
         int baseTypeLookup = info->fOffset;
         const SkMemberInfo* result = _lookup(baseTypeLookup, matchPtr);
-        if (result != NULL)
+        if (result != nullptr)
             return result;
         if (--count == 0)
-            return NULL;
+            return nullptr;
         info++;
     }
     SkASSERT(info->fType != SkType_BaseClassInfo);
@@ -83,7 +83,7 @@ static const SkMemberInfo* _lookup(int lookup, const char** matchPtr) {
     const char* strings = gInfoNames[lookup];
     int index = _searchByName(&info->fName, count, strings, match);
     if (index < 0)
-        return NULL;
+        return nullptr;
     return &info[index];
 }
 
@@ -93,16 +93,16 @@ const SkMemberInfo* SkMemberInfo::Find(SkDisplayTypes type, int* index) {
     if (info->fType == SkType_BaseClassInfo) {
         int baseTypeLookup = info->fOffset;
         const SkMemberInfo* result = Find(baseTypeLookup, index);
-        if (result != NULL)
+        if (result != nullptr)
             return result;
         if (--count == 0)
-            return NULL;
+            return nullptr;
         info++;
     }
     SkASSERT(info->fType != SkType_BaseClassInfo);
     if (*index >= count) {
         *index -= count;
-        return NULL;
+        return nullptr;
     }
     return &info[index];
 }

@@ -10,7 +10,7 @@
 #include "SkStream.h"
 
 BenchLogger::BenchLogger()
-: fFileStream(NULL) {}
+: fFileStream(nullptr) {}
 
 BenchLogger::~BenchLogger() {
     if (fFileStream) {

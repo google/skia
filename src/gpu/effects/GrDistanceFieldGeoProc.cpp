@@ -45,7 +45,7 @@ public:
 
 #ifdef SK_GAMMA_APPLY_TO_A8
         // adjust based on gamma
-        const char* distanceAdjustUniName = NULL;
+        const char* distanceAdjustUniName = nullptr;
         // width, height, 1/(3*width)
         fDistanceAdjustUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
             kFloat_GrSLType, kDefault_GrSLPrecision,
@@ -222,7 +222,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
     , fDistanceAdjust(distanceAdjust)
 #endif
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInColor(NULL)
+    , fInColor(nullptr)
     , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     this->initClassID<GrDistanceFieldA8TextGeoProc>();
@@ -322,7 +322,7 @@ public:
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, dfTexEffect.inPosition()->fName,
                              args.fTransformsIn, args.fTransformsOut);
 
-        const char* textureSizeUniName = NULL;
+        const char* textureSizeUniName = nullptr;
         fTextureSizeUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                               kVec2f_GrSLType, kDefault_GrSLPrecision,
                                               "TextureSize", &textureSizeUniName);
@@ -446,7 +446,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
     , fViewMatrix(viewMatrix)
     , fTextureAccess(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInColor(NULL)
+    , fInColor(nullptr)
     , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     this->initClassID<GrDistanceFieldPathGeoProc>();
@@ -606,7 +606,7 @@ public:
            "vec3(" SK_DistanceFieldMultiplier ")*(distance - vec3(" SK_DistanceFieldThreshold"));");
 
         // adjust width based on gamma
-        const char* distanceAdjustUniName = NULL;
+        const char* distanceAdjustUniName = nullptr;
         fDistanceAdjustUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
             kVec3f_GrSLType, kDefault_GrSLPrecision,
             "DistanceAdjust", &distanceAdjustUniName);

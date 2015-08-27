@@ -920,7 +920,7 @@ void blitmask_d565_opaque_mips(int width, int height, uint16_t* device,
 
 const SkBlitRow::Proc16 platform_565_procs_mips_dsp[] = {
     // no dither
-    NULL,
+    nullptr,
     S32_D565_Blend_mips_dsp,
     S32A_D565_Opaque_mips_dsp,
     S32A_D565_Blend_mips_dsp,
@@ -929,14 +929,14 @@ const SkBlitRow::Proc16 platform_565_procs_mips_dsp[] = {
     S32_D565_Opaque_Dither_mips_dsp,
     S32_D565_Blend_Dither_mips_dsp,
     S32A_D565_Opaque_Dither_mips_dsp,
-    NULL,
+    nullptr,
 };
 
 static const SkBlitRow::Proc32 platform_32_procs_mips_dsp[] = {
-    NULL,   // S32_Opaque,
+    nullptr,   // S32_Opaque,
     S32_Blend_BlitRow32_mips_dsp,   // S32_Blend,
-    NULL,   // S32A_Opaque,
-    NULL,   // S32A_Blend,
+    nullptr,   // S32A_Opaque,
+    nullptr,   // S32A_Blend,
 };
 
 SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
@@ -944,7 +944,7 @@ SkBlitRow::Proc16 SkBlitRow::PlatformFactory565(unsigned flags) {
 }
 
 SkBlitRow::ColorProc16 SkBlitRow::PlatformColorFactory565(unsigned flags) {
-    return NULL;
+    return nullptr;
 }
 
 SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {

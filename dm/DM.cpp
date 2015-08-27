@@ -212,7 +212,7 @@ static void push_codec_srcs(Path path) {
         return;
     }
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
-    if (NULL == codec.get()) {
+    if (nullptr == codec.get()) {
         SkDebugf("Couldn't create codec for %s.", path.c_str());
         return;
     }
@@ -418,17 +418,17 @@ static Sink* create_sink(const char* tag) {
         SINK("xps",  XPSSink);
     }
 #undef SINK
-    return NULL;
+    return nullptr;
 }
 
 static Sink* create_via(const char* tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (0 == strcmp(t, tag)) { return new via(__VA_ARGS__); }
-    VIA("twice",     ViaTwice,         wrapped);
-    VIA("pipe",      ViaPipe,          wrapped);
-    VIA("serialize", ViaSerialization, wrapped);
-    VIA("2ndpic",    ViaSecondPicture, wrapped);
+    VIA("twice",     ViaTwice,             wrapped);
+    VIA("pipe",      ViaPipe,              wrapped);
+    VIA("serialize", ViaSerialization,     wrapped);
+    VIA("2ndpic",    ViaSecondPicture,     wrapped);
     VIA("sp",        ViaSingletonPictures, wrapped);
-    VIA("tiles",     ViaTiles, 256, 256,               NULL, wrapped);
+    VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 
     if (FLAGS_matrix.count() == 4) {
@@ -447,7 +447,7 @@ static Sink* create_via(const char* tag, Sink* wrapped) {
 #endif
 
 #undef VIA
-    return NULL;
+    return nullptr;
 }
 
 static void gather_sinks() {
@@ -456,14 +456,14 @@ static void gather_sinks() {
         SkTArray<SkString> parts;
         SkStrSplit(config, "-", &parts);
 
-        Sink* sink = NULL;
+        Sink* sink = nullptr;
         for (int i = parts.count(); i-- > 0;) {
             const char* part = parts[i].c_str();
-            Sink* next = (sink == NULL) ? create_sink(part) : create_via(part, sink);
-            if (next == NULL) {
+            Sink* next = (sink == nullptr) ? create_sink(part) : create_via(part, sink);
+            if (next == nullptr) {
                 SkDebugf("Skipping %s: Don't understand '%s'.\n", config, part);
                 delete sink;
-                sink = NULL;
+                sink = nullptr;
                 break;
             }
             sink = next;
@@ -539,7 +539,7 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
 }
 
 static bool match(const char* needle, const char* haystack) {
-    return 0 == strcmp("_", needle) || NULL != strstr(haystack, needle);
+    return 0 == strcmp("_", needle) || nullptr != strstr(haystack, needle);
 }
 
 static ImplicitString is_blacklisted(const char* sink, const char* src,
@@ -648,10 +648,10 @@ struct Task {
             if (!FLAGS_writePath.isEmpty()) {
                 const char* ext = task->sink->fileExtension();
                 if (data->getLength()) {
-                    WriteToDisk(*task, md5, ext, data, data->getLength(), NULL);
+                    WriteToDisk(*task, md5, ext, data, data->getLength(), nullptr);
                     SkASSERT(bitmap.drawsNothing());
                 } else if (!bitmap.drawsNothing()) {
-                    WriteToDisk(*task, md5, ext, NULL, 0, &bitmap);
+                    WriteToDisk(*task, md5, ext, nullptr, 0, &bitmap);
                 }
             }
         }
@@ -838,7 +838,7 @@ static SkTypeface* create_from_name(const char familyName[], SkTypeface::Style s
             && !strncmp(familyName, PORTABLE_FONT_PREFIX, sizeof(PORTABLE_FONT_PREFIX) - 1)) {
         return sk_tool_utils::create_portable_typeface(familyName, style);
     }
-    return NULL;
+    return nullptr;
 }
 
 #undef PORTABLE_FONT_PREFIX

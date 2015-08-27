@@ -14,7 +14,7 @@ static bool gMyFactoryWasCalled;
 
 static SkImageGenerator* my_factory(SkData*) {
     gMyFactoryWasCalled = true;
-    return NULL;
+    return nullptr;
 }
 
 static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
@@ -27,14 +27,14 @@ static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !gMyFactoryWasCalled);
 
     gen = SkImageGenerator::NewFromEncoded(data);
-    REPORTER_ASSERT(reporter, NULL == gen);
+    REPORTER_ASSERT(reporter, nullptr == gen);
     REPORTER_ASSERT(reporter, !gMyFactoryWasCalled);
 
     // Test is racy, in that it hopes no other thread is changing this global...
     SkGraphics::ImageGeneratorFromEncodedFactory prev =
                                     SkGraphics::SetImageGeneratorFromEncodedFactory(my_factory);
     gen = SkImageGenerator::NewFromEncoded(data);
-    REPORTER_ASSERT(reporter, NULL == gen);
+    REPORTER_ASSERT(reporter, nullptr == gen);
     REPORTER_ASSERT(reporter, gMyFactoryWasCalled);
     SkGraphics::SetImageGeneratorFromEncodedFactory(prev);
 }
@@ -50,16 +50,16 @@ DEF_TEST(ImageGenerator, reporter) {
     sizes[0] = SkISize::Make(200, 200);
     sizes[1] = SkISize::Make(100, 100);
     sizes[2] = SkISize::Make( 50,  50);
-    void*   planes[3] = { NULL };
+    void*   planes[3] = { nullptr };
     size_t  rowBytes[3] = { 0 };
     SkYUVColorSpace colorSpace;
 
     // Check that the YUV decoding API does not cause any crashes
-    ig.getYUV8Planes(sizes, NULL, NULL, &colorSpace);
-    ig.getYUV8Planes(sizes, NULL, NULL, NULL);
-    ig.getYUV8Planes(sizes, planes, NULL, NULL);
-    ig.getYUV8Planes(sizes, NULL, rowBytes, NULL);
-    ig.getYUV8Planes(sizes, planes, rowBytes, NULL);
+    ig.getYUV8Planes(sizes, nullptr, nullptr, &colorSpace);
+    ig.getYUV8Planes(sizes, nullptr, nullptr, nullptr);
+    ig.getYUV8Planes(sizes, planes, nullptr, nullptr);
+    ig.getYUV8Planes(sizes, nullptr, rowBytes, nullptr);
+    ig.getYUV8Planes(sizes, planes, rowBytes, nullptr);
     ig.getYUV8Planes(sizes, planes, rowBytes, &colorSpace);
 
     int dummy;

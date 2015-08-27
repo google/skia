@@ -80,7 +80,7 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
         fPipelineBuilder->getProcessorDataManager()->restoreToSaveMarker(/*fSaveMarker*/);
     }
     fPipelineBuilder = const_cast<GrPipelineBuilder*>(pipelineBuilder);
-    if (NULL != pipelineBuilder) {
+    if (nullptr != pipelineBuilder) {
         fColorEffectCnt = pipelineBuilder->numColorFragmentProcessors();
         fCoverageEffectCnt = pipelineBuilder->numCoverageFragmentProcessors();
         SkDEBUGCODE(++pipelineBuilder->fBlockEffectRemovalCnt;)

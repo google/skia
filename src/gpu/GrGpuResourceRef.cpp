@@ -8,13 +8,13 @@
 #include "GrGpuResourceRef.h"
 
 GrGpuResourceRef::GrGpuResourceRef() {
-    fResource = NULL;
+    fResource = nullptr;
     fOwnRef = false;
     fPendingIO = false;
 }
 
 GrGpuResourceRef::GrGpuResourceRef(GrGpuResource* resource, GrIOType ioType) {
-    fResource = NULL;
+    fResource = nullptr;
     fOwnRef = false;
     fPendingIO = false;
     this->setResource(resource, ioType);
@@ -47,7 +47,7 @@ void GrGpuResourceRef::reset() {
     if (fOwnRef) {
         fResource->unref();
         fOwnRef = false;
-        fResource = NULL;
+        fResource = nullptr;
     }
 }
 
@@ -55,8 +55,8 @@ void GrGpuResourceRef::setResource(GrGpuResource* resource, GrIOType ioType) {
     SkASSERT(!fPendingIO);
     SkASSERT(SkToBool(fResource) == fOwnRef);
     SkSafeUnref(fResource);
-    if (NULL == resource) {
-        fResource = NULL;
+    if (nullptr == resource) {
+        fResource = nullptr;
         fOwnRef = false;
     } else {
         fResource = resource;

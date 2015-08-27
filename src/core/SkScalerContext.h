@@ -113,7 +113,7 @@ struct SkScalerContextRec {
      *  The 'total' matrix is also (optionally) available. This is useful in cases where the
      *  underlying library will not be used, often when working directly with font data.
      *
-     *  The parameters 'scale' and 'remaining' are required, the other pointers may be NULL.
+     *  The parameters 'scale' and 'remaining' are required, the other pointers may be nullptr.
      *
      *  @param preMatrixScale the kind of scale to extract from the total matrix.
      *  @param scale the scale extracted from the total matrix (both values positive).
@@ -124,9 +124,9 @@ struct SkScalerContextRec {
      */
     void computeMatrices(PreMatrixScale preMatrixScale,
                          SkVector* scale, SkMatrix* remaining,
-                         SkMatrix* remainingWithoutRotation = NULL,
-                         SkMatrix* remainingRotation = NULL,
-                         SkMatrix* total = NULL);
+                         SkMatrix* remainingWithoutRotation = nullptr,
+                         SkMatrix* remainingRotation = nullptr,
+                         SkMatrix* total = nullptr);
 
     inline SkPaint::Hinting getHinting() const;
     inline void setHinting(SkPaint::Hinting);
@@ -319,7 +319,7 @@ private:
                          SkPath* devPath, SkMatrix* fillToDevMatrix);
 
     // returns the right context from our link-list for this char. If no match
-    // is found it returns NULL. If a match is found then the glyphID param is
+    // is found it returns nullptr. If a match is found then the glyphID param is
     // set to the glyphID that maps to the provided char.
     SkScalerContext* getContextFromChar(SkUnichar uni, uint16_t* glyphID);
 

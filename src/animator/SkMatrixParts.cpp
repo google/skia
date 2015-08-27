@@ -13,7 +13,7 @@
 #include "SkDrawRectangle.h"
 #include "SkDrawPath.h"
 
-SkMatrixPart::SkMatrixPart() : fMatrix(NULL) {
+SkMatrixPart::SkMatrixPart() : fMatrix(nullptr) {
 }
 
 void SkMatrixPart::dirty() {
@@ -25,7 +25,7 @@ SkDisplayable* SkMatrixPart::getParent() const {
 }
 
 bool SkMatrixPart::setParent(SkDisplayable* parent) {
-    SkASSERT(parent != NULL);
+    SkASSERT(parent != nullptr);
     if (parent->isMatrix() == false)
         return true;
     fMatrix = (SkDrawMatrix*) parent;
@@ -131,14 +131,14 @@ const SkMemberInfo SkFromPath::fInfo[] = {
 DEFINE_GET_MEMBER(SkFromPath);
 
 SkFromPath::SkFromPath() :
-    mode(0), offset(0), path(NULL) {
+    mode(0), offset(0), path(nullptr) {
 }
 
 SkFromPath::~SkFromPath() {
 }
 
 bool SkFromPath::add() {
-    if (path == NULL)
+    if (path == nullptr)
         return true;
     static const uint8_t gFlags[] = {
         SkPathMeasure::kGetPosAndTan_MatrixFlag,    // normal
@@ -167,14 +167,14 @@ const SkMemberInfo SkRectToRect::fInfo[] = {
 DEFINE_GET_MEMBER(SkRectToRect);
 
 SkRectToRect::SkRectToRect() :
-    source(NULL), destination(NULL) {
+    source(nullptr), destination(nullptr) {
 }
 
 SkRectToRect::~SkRectToRect() {
 }
 
 bool SkRectToRect::add() {
-    if (source == NULL || destination == NULL)
+    if (source == nullptr || destination == nullptr)
         return true;
     SkMatrix temp;
     temp.setRectToRect(source->fRect, destination->fRect,
@@ -208,10 +208,10 @@ void SkRectToRect::dump(SkAnimateMaker* maker) {
 #endif
 
 const SkMemberInfo* SkRectToRect::preferredChild(SkDisplayTypes ) {
-    if (source == NULL)
+    if (source == nullptr)
         return getMember("source"); // !!! cwap! need to refer to member through enum like kScope instead
     else {
-        SkASSERT(destination == NULL);
+        SkASSERT(destination == nullptr);
         return getMember("destination");
     }
 }
@@ -228,7 +228,7 @@ const SkMemberInfo SkPolyToPoly::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkPolyToPoly);
 
-SkPolyToPoly::SkPolyToPoly() : source(NULL), destination(NULL) {
+SkPolyToPoly::SkPolyToPoly() : source(nullptr), destination(nullptr) {
 }
 
 SkPolyToPoly::~SkPolyToPoly() {
@@ -283,10 +283,10 @@ void SkPolyToPoly::onEndElement(SkAnimateMaker& ) {
 }
 
 const SkMemberInfo* SkPolyToPoly::preferredChild(SkDisplayTypes ) {
-    if (source == NULL)
+    if (source == nullptr)
         return getMember("source"); // !!! cwap! need to refer to member through enum like kScope instead
     else {
-        SkASSERT(destination == NULL);
+        SkASSERT(destination == nullptr);
         return getMember("destination");
     }
 }

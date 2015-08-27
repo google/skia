@@ -79,7 +79,7 @@ static SkScalar compute_children_limit(SkView* parent, GetSizeProc sizeProc, int
     SkScalar        limit = 0;
     int                n = 0, flex = 0;
 
-    while ((child = iter.next()) != NULL)
+    while ((child = iter.next()) != nullptr)
     {
         n += 1;
         if (child->getFlags() & flexMask)
@@ -145,7 +145,7 @@ void SkStackViewLayout::onLayoutChildren(SkView* parent)
     }
     crossLimit += (parent->*crossGetSizeP)();
     if (fAlign != kStretch_Align)
-        crossSetSizeP = NULL;
+        crossSetSizeP = nullptr;
 
     int            childCount, flexCount;
     SkScalar    childLimit = compute_children_limit(parent, mainGetSizeP, &childCount, flexMask, &flexCount);
@@ -164,7 +164,7 @@ void SkStackViewLayout::onLayoutChildren(SkView* parent)
     if (flexCount > 0 && parentLimit > childLimit)
         flexAmount = (parentLimit - childLimit) / flexCount;
 
-    while ((child = iter.next()) != NULL)
+    while ((child = iter.next()) != nullptr)
     {
         if (fRound)
             pos = SkScalarRoundToScalar(pos);
@@ -258,7 +258,7 @@ void SkFillViewLayout::onLayoutChildren(SkView* parent)
     SkView::B2FIter    iter(parent);
     SkView*            child;
 
-    while ((child = iter.next()) != NULL)
+    while ((child = iter.next()) != nullptr)
     {
         child->setLoc(fMargin.fLeft, fMargin.fTop);
         child->setSize(    parent->width() - fMargin.fRight - fMargin.fLeft,

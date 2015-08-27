@@ -46,7 +46,7 @@ static void compare_to_good_digest(skiatest::Reporter* r, const SkMD5::Digest& g
 /**
  *  Test decoding an SkCodec to a particular SkImageInfo.
  *
- *  Calling getPixels(info) should return expectedResult, and if goodDigest is non NULL,
+ *  Calling getPixels(info) should return expectedResult, and if goodDigest is non nullptr,
  *  the resulting decode should match.
  */
 static void test_info(skiatest::Reporter* r, SkCodec* codec, const SkImageInfo& info,
@@ -104,14 +104,14 @@ static void check(skiatest::Reporter* r,
         SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
         SkCodec::Result expected = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
                 SkCodec::kSuccess : SkCodec::kInvalidConversion;
-        test_info(r, codec, info565, expected, NULL);
+        test_info(r, codec, info565, expected, nullptr);
     }
 
     SkBitmap bm;
     bm.allocPixels(info);
     SkAutoLockPixels autoLockPixels(bm);
     SkCodec::Result result =
-        codec->getPixels(info, bm.getPixels(), bm.rowBytes(), NULL, NULL, NULL);
+        codec->getPixels(info, bm.getPixels(), bm.rowBytes(), nullptr, nullptr, nullptr);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
     SkMD5::Digest digest;
@@ -124,13 +124,13 @@ static void check(skiatest::Reporter* r,
         // Check alpha type conversions
         if (info.alphaType() == kOpaque_SkAlphaType) {
             test_info(r, codec, info.makeAlphaType(kUnpremul_SkAlphaType),
-                      SkCodec::kInvalidConversion, NULL);
+                      SkCodec::kInvalidConversion, nullptr);
             test_info(r, codec, info.makeAlphaType(kPremul_SkAlphaType),
-                      SkCodec::kInvalidConversion, NULL);
+                      SkCodec::kInvalidConversion, nullptr);
         } else {
             // Decoding to opaque should fail
             test_info(r, codec, info.makeAlphaType(kOpaque_SkAlphaType),
-                      SkCodec::kInvalidConversion, NULL);
+                      SkCodec::kInvalidConversion, nullptr);
             SkAlphaType otherAt = info.alphaType();
             if (kPremul_SkAlphaType == otherAt) {
                 otherAt = kUnpremul_SkAlphaType;
@@ -138,7 +138,7 @@ static void check(skiatest::Reporter* r,
                 otherAt = kPremul_SkAlphaType;
             }
             // The other non-opaque alpha type should always succeed, but not match.
-            test_info(r, codec, info.makeAlphaType(otherAt), SkCodec::kSuccess, NULL);
+            test_info(r, codec, info.makeAlphaType(otherAt), SkCodec::kSuccess, nullptr);
         }
     }
 
@@ -185,7 +185,7 @@ static void check(skiatest::Reporter* r,
         SkBitmap bm;
         bm.allocPixels(subsetInfo);
         const SkCodec::Result result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes(),
-                                                        &opts, NULL, NULL);
+                                                        &opts, nullptr, nullptr);
 
         if (supportsSubsetDecoding) {
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
@@ -302,7 +302,7 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         SkAutoTMalloc<SkPMColor> pixels(totalBytes);
 
         SkCodec::Result result =
-                codec->getPixels(scaledInfo, pixels.get(), rowBytes, NULL, NULL, NULL);
+                codec->getPixels(scaledInfo, pixels.get(), rowBytes, nullptr, nullptr, nullptr);
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     }
 }
@@ -339,7 +339,7 @@ static void test_invalid(skiatest::Reporter* r, const char path[]) {
         return;
     }
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
-    REPORTER_ASSERT(r, NULL == codec);
+    REPORTER_ASSERT(r, nullptr == codec);
 }
 
 DEF_TEST(Codec_Empty, r) {
@@ -371,7 +371,7 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
     SkPMColor colorStorage[256];
     int colorCount;
     SkCodec::Result result = decoder->start(
-        decoder->getInfo().makeColorType(kIndex_8_SkColorType), NULL, colorStorage, &colorCount);
+        decoder->getInfo().makeColorType(kIndex_8_SkColorType), nullptr, colorStorage, &colorCount);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     // The rest of the test is uninteresting if kIndex8 is not supported
     if (SkCodec::kSuccess != result) {
@@ -381,7 +381,7 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
     // This should return kInvalidParameters because, in kIndex_8 mode, we must pass in a valid
     // colorPtr and a valid colorCountPtr.
     result = decoder->start(
-        decoder->getInfo().makeColorType(kIndex_8_SkColorType), NULL, NULL, NULL);
+        decoder->getInfo().makeColorType(kIndex_8_SkColorType), nullptr, nullptr, nullptr);
     REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
     result = decoder->start(
         decoder->getInfo().makeColorType(kIndex_8_SkColorType));

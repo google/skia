@@ -169,7 +169,7 @@ protected:
                         clip->getBounds(&bounds);
                         bounds.outset(2, 2);
                         bounds.offset(x, y);
-                        canvas->saveLayer(&bounds, NULL);
+                        canvas->saveLayer(&bounds, nullptr);
                     } else {
                         canvas->save();
                     }
@@ -192,7 +192,7 @@ protected:
                         clip->getBounds(&bounds);
                         bounds.outset(2, 2);
                         bounds.offset(x, y);
-                        canvas->saveLayer(&bounds, NULL);
+                        canvas->saveLayer(&bounds, nullptr);
                     } else {
                         canvas->save();
                     }

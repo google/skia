@@ -13,7 +13,7 @@
 static SkShader* make_grad(SkScalar w, SkScalar h) {
     SkColor colors[] = { 0xFF000000, 0xFF333333 };
     SkPoint pts[] = { { 0, 0 }, { w, h } };
-    return SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
                                           SkShader::kClamp_TileMode);
 }
 

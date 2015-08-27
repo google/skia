@@ -20,7 +20,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
                              SkMatrix::kScale_Mask)) == 0);
     SkASSERT(s.fInvKy == 0);
-    SkASSERT(count > 0 && colors != NULL);
+    SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
 

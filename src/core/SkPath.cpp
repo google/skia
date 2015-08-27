@@ -137,7 +137,7 @@ void SkPath::resetFields() {
     fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
 
     // We don't touch Android's fSourcePath.  It's used to track texture garbage collection, so we
-    // don't want to muck with it if it's been set to something non-NULL.
+    // don't want to muck with it if it's been set to something non-nullptr.
 }
 
 SkPath::SkPath(const SkPath& that)
@@ -385,7 +385,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
     int corners = 0;
     SkPoint first, last;
     const SkPoint* pts = *ptsPtr;
-    const SkPoint* savePts = NULL;
+    const SkPoint* savePts = nullptr;
     first.set(0, 0);
     last.set(0, 0);
     int firstDirection = 0;
@@ -531,7 +531,7 @@ bool SkPath::isNestedFillRects(SkRect rects[2], Direction dirs[2]) const {
     const SkPoint* pts = fPathRef->points();
     const SkPoint* first = pts;
     Direction testDirs[2];
-    if (!isRectContour(true, &currVerb, &pts, NULL, &testDirs[0])) {
+    if (!isRectContour(true, &currVerb, &pts, nullptr, &testDirs[0])) {
         return false;
     }
     const SkPoint* last = pts;
@@ -1434,7 +1434,7 @@ static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
 
 void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
     SkDEBUGCODE(this->validate();)
-    if (dst == NULL) {
+    if (dst == nullptr) {
         dst = (SkPath*)this;
     }
 
@@ -1522,15 +1522,15 @@ enum SegmentState {
 
 SkPath::Iter::Iter() {
 #ifdef SK_DEBUG
-    fPts = NULL;
-    fConicWeights = NULL;
+    fPts = nullptr;
+    fConicWeights = nullptr;
     fMoveTo.fX = fMoveTo.fY = fLastPt.fX = fLastPt.fY = 0;
     fForceClose = fCloseLine = false;
     fSegmentState = kEmptyContour_SegmentState;
 #endif
     // need to init enough to make next() harmlessly return kDone_Verb
-    fVerbs = NULL;
-    fVerbStop = NULL;
+    fVerbs = nullptr;
+    fVerbStop = nullptr;
     fNeedClose = false;
 }
 
@@ -1551,7 +1551,7 @@ void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
 }
 
 bool SkPath::Iter::isClosedContour() const {
-    if (fVerbs == NULL || fVerbs == fVerbStop) {
+    if (fVerbs == nullptr || fVerbs == fVerbStop) {
         return false;
     }
     if (fForceClose) {
@@ -1617,7 +1617,7 @@ void SkPath::Iter::consumeDegenerateSegments(bool exact) {
     // forward before the next move is seen
     const uint8_t* lastMoveVerb = 0;
     const SkPoint* lastMovePt = 0;
-    const SkScalar* lastMoveWeight = NULL;
+    const SkScalar* lastMoveWeight = nullptr;
     SkPoint lastPt = fLastPt;
     while (fVerbs != fVerbStop) {
         unsigned verb = *(fVerbs - 1); // fVerbs is one beyond the current verb
@@ -1776,12 +1776,12 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
 
 SkPath::RawIter::RawIter() {
 #ifdef SK_DEBUG
-    fPts = NULL;
-    fConicWeights = NULL;
+    fPts = nullptr;
+    fConicWeights = nullptr;
 #endif
     // need to init enough to make next() harmlessly return kDone_Verb
-    fVerbs = NULL;
-    fVerbStop = NULL;
+    fVerbs = nullptr;
+    fVerbStop = nullptr;
 }
 
 SkPath::RawIter::RawIter(const SkPath& path) {
@@ -1850,7 +1850,7 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
 size_t SkPath::writeToMemory(void* storage) const {
     SkDEBUGCODE(this->validate();)
 
-    if (NULL == storage) {
+    if (nullptr == storage) {
         const int byteCount = sizeof(int32_t) + fPathRef->writeSize();
         return SkAlign4(byteCount);
     }
@@ -1913,7 +1913,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         buffer.skipToAlign4();
         sizeRead = buffer.pos();
     } else if (pathRef) {
-        // If the buffer is not valid, pathRef should be NULL
+        // If the buffer is not valid, pathRef should be nullptr
         sk_throw();
     }
     return sizeRead;
@@ -2006,11 +2006,11 @@ void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
 }
 
 void SkPath::dump() const {
-    this->dump(NULL, false, false);
+    this->dump(nullptr, false, false);
 }
 
 void SkPath::dumpHex() const {
-    this->dump(NULL, false, true);
+    this->dump(nullptr, false, true);
 }
 
 #ifdef SK_DEBUG

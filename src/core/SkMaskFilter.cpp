@@ -222,11 +222,11 @@ bool SkMaskFilter::filterRRect(const SkRRect& devRRect, const SkMatrix& matrix,
     // cannot be used, return false to allow our caller to recover and perform
     // the drawing another way.
     NinePatch patch;
-    patch.fMask.fImage = NULL;
+    patch.fMask.fImage = nullptr;
     if (kTrue_FilterReturn != this->filterRRectToNine(devRRect, matrix,
                                                       clip.getBounds(),
                                                       &patch)) {
-        SkASSERT(NULL == patch.fMask.fImage);
+        SkASSERT(nullptr == patch.fMask.fImage);
         return false;
     }
     draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter, true, clip, blitter);
@@ -246,7 +246,7 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 
         switch (this->filterRectsToNine(rects, rectCount, matrix, clip.getBounds(), &patch)) {
             case kFalse_FilterReturn:
-                SkASSERT(NULL == patch.fMask.fImage);
+                SkASSERT(nullptr == patch.fMask.fImage);
                 return false;
 
             case kTrue_FilterReturn:
@@ -255,7 +255,7 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                 return true;
 
             case kUnimplemented_FilterReturn:
-                SkASSERT(NULL == patch.fMask.fImage);
+                SkASSERT(nullptr == patch.fMask.fImage);
                 // fall through
                 break;
         }
@@ -270,7 +270,7 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);
 
-    if (!this->filterMask(&dstM, srcM, matrix, NULL)) {
+    if (!this->filterMask(&dstM, srcM, matrix, nullptr)) {
         return false;
     }
     SkAutoMaskFreeImage autoDst(dstM.fImage);
@@ -351,7 +351,7 @@ bool SkMaskFilter::filterMaskGPU(GrTexture* src,
 void SkMaskFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
     SkMask  srcM, dstM;
 
-    srcM.fImage = NULL;
+    srcM.fImage = nullptr;
     srcM.fBounds = src.roundOut();
     srcM.fRowBytes = 0;
     srcM.fFormat = SkMask::kA8_Format;

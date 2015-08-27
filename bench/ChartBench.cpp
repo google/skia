@@ -29,7 +29,7 @@ static void gen_data(SkScalar yAvg, SkScalar ySpread, int count,
 
 // Generates a path to stroke along the top of each plot and a fill path for the area below each
 // plot. The fill path is bounded below by the bottomData plot points or a horizontal line at
-// yBase if bottomData == NULL.
+// yBase if bottomData == nullptr.
 // The plots are animated by rotating the data points by leftShift.
 static void gen_paths(const SkTDArray<SkScalar>& topData,
                       const SkTDArray<SkScalar>* bottomData,
@@ -40,7 +40,7 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
     plot->rewind();
     fill->rewind();
     plot->incReserve(topData.count());
-    if (NULL == bottomData) {
+    if (nullptr == bottomData) {
         fill->incReserve(topData.count() + 2);
     } else {
         fill->incReserve(2 * topData.count());
@@ -149,7 +149,7 @@ protected:
             fillPaint.setAntiAlias(fAA);
             fillPaint.setStyle(SkPaint::kFill_Style);
 
-            SkTDArray<SkScalar>* prevData = NULL;
+            SkTDArray<SkScalar>* prevData = nullptr;
             for (int i = 0; i < kNumGraphs; ++i) {
                 gen_paths(fData[i],
                           prevData,

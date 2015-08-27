@@ -328,7 +328,7 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                     continue;
                 }
                 GrContext* context = factory->get(type);
-                if (NULL == context) {
+                if (nullptr == context) {
                     continue;
                 }
                 GrSurfaceDesc desc;

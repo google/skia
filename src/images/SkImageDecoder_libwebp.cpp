@@ -137,7 +137,7 @@ class AutoTimeMillis {
 public:
     AutoTimeMillis(const char label[]) :
         fLabel(label) {
-        if (NULL == fLabel) {
+        if (nullptr == fLabel) {
             fLabel = "";
         }
         fNow = SkTime::GetMSecs();
@@ -196,8 +196,8 @@ static WEBP_CSP_MODE webp_decode_mode(const SkBitmap* decodedBitmap, bool premul
 // Incremental WebP image decoding. Reads input buffer of 64K size iteratively
 // and decodes this block to appropriate color-space as per config object.
 static bool webp_idecode(SkStream* stream, WebPDecoderConfig* config) {
-    WebPIDecoder* idec = WebPIDecode(NULL, 0, config);
-    if (NULL == idec) {
+    WebPIDecoder* idec = WebPIDecode(nullptr, 0, config);
+    if (nullptr == idec) {
         WebPFreeDecBuffer(&config->output);
         return false;
     }
@@ -210,7 +210,7 @@ static bool webp_idecode(SkStream* stream, WebPDecoderConfig* config) {
             SkTMin(stream->getLength(), WEBP_IDECODE_BUFFER_SZ) : WEBP_IDECODE_BUFFER_SZ;
     SkAutoMalloc srcStorage(readBufferSize);
     unsigned char* input = (uint8_t*)srcStorage.get();
-    if (NULL == input) {
+    if (nullptr == input) {
         WebPIDelete(idec);
         WebPFreeDecBuffer(&config->output);
         return false;
@@ -374,7 +374,7 @@ bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
         }
         // alloc from native heap if it is a temp bitmap. (prevent GC)
         bool allocResult = (bitmap == decodedBitmap)
-                               ? allocPixelRef(bitmap, NULL)
+                               ? allocPixelRef(bitmap, nullptr)
                                : bitmap->tryAllocPixels();
         if (!allocResult) {
             return return_false(*decodedBitmap, "allocPixelRef");
@@ -425,7 +425,7 @@ SkImageDecoder::Result SkWEBPImageDecoder::onDecode(SkStream* stream, SkBitmap* 
         return kSuccess;
     }
 
-    if (!this->allocPixelRef(decodedBitmap, NULL)) {
+    if (!this->allocPixelRef(decodedBitmap, nullptr)) {
         return return_failure(*decodedBitmap, "allocPixelRef");
     }
 
@@ -571,7 +571,7 @@ static ScanlineImporter ChooseImporter(SkColorType ct, bool  hasAlpha, int*  bpp
             *bpp = 3;
             return Index8_To_RGB;
         default:
-            return NULL;
+            return nullptr;
     }
 }
 
@@ -594,7 +594,7 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
     const bool hasAlpha = !bm.isOpaque();
     int bpp = -1;
     const ScanlineImporter scanline_import = ChooseImporter(bm.colorType(), hasAlpha, &bpp);
-    if (NULL == scanline_import) {
+    if (nullptr == scanline_import) {
         return false;
     }
     if (-1 == bpp) {
@@ -602,7 +602,7 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
     }
 
     SkAutoLockPixels alp(bm);
-    if (NULL == bm.getPixels()) {
+    if (nullptr == bm.getPixels()) {
         return false;
     }
 
@@ -618,7 +618,7 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
     pic.writer = stream_writer;
     pic.custom_ptr = (void*)stream;
 
-    const SkPMColor* colors = bm.getColorTable() ? bm.getColorTable()->readColors() : NULL;
+    const SkPMColor* colors = bm.getColorTable() ? bm.getColorTable()->readColors() : nullptr;
     const uint8_t* src = (uint8_t*)bm.getPixels();
     const int rgbStride = pic.width * bpp;
 
@@ -653,7 +653,7 @@ DEFINE_ENCODER_CREATOR(WEBPImageEncoder);
 static SkImageDecoder* sk_libwebp_dfactory(SkStreamRewindable* stream) {
     int width, height, hasAlpha;
     if (!webp_parse_header(stream, &width, &height, &hasAlpha)) {
-        return NULL;
+        return nullptr;
     }
 
     // Magic matches, call decoder
@@ -669,7 +669,7 @@ static SkImageDecoder::Format get_format_webp(SkStreamRewindable* stream) {
 }
 
 static SkImageEncoder* sk_libwebp_efactory(SkImageEncoder::Type t) {
-    return (SkImageEncoder::kWEBP_Type == t) ? new SkWEBPImageEncoder : NULL;
+    return (SkImageEncoder::kWEBP_Type == t) ? new SkWEBPImageEncoder : nullptr;
 }
 
 static SkImageDecoder_DecodeReg gDReg(sk_libwebp_dfactory);

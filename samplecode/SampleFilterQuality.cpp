@@ -59,7 +59,7 @@ static SkImage* zoom_up(SkImage* orig) {
     canvas->scale(S, S);
     canvas->translate(-SkScalarHalf(orig->width()) * (S - D) / S,
                       -SkScalarHalf(orig->height()) * (S - D) / S);
-    canvas->drawImage(orig, 0, 0, NULL);
+    canvas->drawImage(orig, 0, 0, nullptr);
     
     if (S > 3) {
         SkPaint paint;
@@ -165,11 +165,11 @@ protected:
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
-                case '1': fAngle.inc(-ANGLE_DELTA); this->inval(NULL); return true;
-                case '2': fAngle.inc( ANGLE_DELTA); this->inval(NULL); return true;
-                case '3': fScale.inc(-SCALE_DELTA); this->inval(NULL); return true;
-                case '4': fScale.inc( SCALE_DELTA); this->inval(NULL); return true;
-                case '5': fShowFatBits = !fShowFatBits; this->inval(NULL); return true;
+                case '1': fAngle.inc(-ANGLE_DELTA); this->inval(nullptr); return true;
+                case '2': fAngle.inc( ANGLE_DELTA); this->inval(nullptr); return true;
+                case '3': fScale.inc(-SCALE_DELTA); this->inval(nullptr); return true;
+                case '4': fScale.inc( SCALE_DELTA); this->inval(nullptr); return true;
+                case '5': fShowFatBits = !fShowFatBits; this->inval(nullptr); return true;
                 default: break;
             }
         }
@@ -283,7 +283,7 @@ protected:
     }
 
     virtual bool handleKey(SkKey key) {
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 

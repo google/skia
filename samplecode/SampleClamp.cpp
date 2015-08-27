@@ -16,7 +16,7 @@
 static SkShader* make_linear() {
     SkPoint pts[] = { 0, 0, SK_Scalar1/500, SK_Scalar1/500 };
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
-    return SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
                                           SkShader::kClamp_TileMode);
 }
 

@@ -38,6 +38,6 @@ void SkTime::GetDateTime(DateTime* dt)
 SkMSec SkTime::GetMSecs()
 {
     struct timeval tv;
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, nullptr);
     return (SkMSec) (tv.tv_sec * 1000 + tv.tv_usec / 1000 ); // microseconds to milliseconds
 }

@@ -318,7 +318,7 @@ protected:
     void onEndPage() override {
         SkASSERT(fCanvas.get());
         fCanvas->flush();
-        fCanvas.reset(NULL);
+        fCanvas.reset(nullptr);
     }
 
     bool onClose(SkWStream* stream) override {
@@ -345,14 +345,14 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDocument* SkDocument::CreatePDF(SkWStream* stream, SkScalar dpi) {
-    return stream ? new SkDocument_PDF(stream, NULL, dpi) : NULL;
+    return stream ? new SkDocument_PDF(stream, nullptr, dpi) : nullptr;
 }
 
 SkDocument* SkDocument::CreatePDF(const char path[], SkScalar dpi) {
     SkFILEWStream* stream = new SkFILEWStream(path);
     if (!stream->isValid()) {
         delete stream;
-        return NULL;
+        return nullptr;
     }
     auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
     return new SkDocument_PDF(stream, delete_wstream, dpi);

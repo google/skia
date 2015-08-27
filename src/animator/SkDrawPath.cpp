@@ -34,7 +34,7 @@ DEFINE_GET_MEMBER(SkDrawPath);
 
 SkDrawPath::SkDrawPath()
 {
-    fParent = NULL;
+    fParent = nullptr;
     fLength = SK_ScalarNaN;
     fChildHasID = false;
     fDirty = false;

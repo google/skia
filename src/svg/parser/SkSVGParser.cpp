@@ -38,14 +38,14 @@ static int gGeneratedMatrixID = 0;
 SkSVGParser::SkSVGParser(SkXMLParserError* errHandler) :
     SkXMLParser(errHandler),
     fHead(&fEmptyPaint), fIDs(256),
-        fXMLWriter(&fStream), fCurrElement(NULL), fInSVG(false), fSuppressPaint(false) {
+        fXMLWriter(&fStream), fCurrElement(nullptr), fInSVG(false), fSuppressPaint(false) {
     fLastTransform.reset();
     fEmptyPaint.f_fill.set("black");
     fEmptyPaint.f_stroke.set("none");
     fEmptyPaint.f_strokeMiterlimit.set("4");
     fEmptyPaint.f_fillRule.set("winding");
     fEmptyPaint.f_opacity.set("1");
-    fEmptyPaint.fNext = NULL;
+    fEmptyPaint.fNext = nullptr;
     for (int index = SkSVGPaint::kInitial + 1; index < SkSVGPaint::kTerminal; index++) {
         SkString* initial = fEmptyPaint[index];
         if (initial->size() == 0)
@@ -129,7 +129,7 @@ bool SkSVGParser::isStrokeAndFill(  SkSVGPaint** strokeState, SkSVGPaint** fillS
     bool fill = false;
     bool strokeSet = false;
     bool fillSet = false;
-    while (walking != NULL) {
+    while (walking != nullptr) {
         if (strokeSet == false && walking->f_stroke.size() > 0) {
             stroke = walking->f_stroke.equals("none") == false;
             *strokeState = walking;
@@ -150,7 +150,7 @@ bool SkSVGParser::onAddAttribute(const char name[], const char value[]) {
 }
 
 bool SkSVGParser::onAddAttributeLen(const char name[], const char value[], size_t len) {
-    if (fCurrElement == NULL)    // this signals we should ignore attributes for this element
+    if (fCurrElement == nullptr)    // this signals we should ignore attributes for this element
         return true;
     if (fCurrElement->fIsDef == false && fCurrElement->fIsNotDef == false)
         return false; // also an ignored element
@@ -202,7 +202,7 @@ bool SkSVGParser::onStartElementLen(const char name[], size_t len) {
         type = SkSVGType_G;
 //        return true;
     }
-    SkSVGElement* parent = fParents.count() > 0 ? fParents.top() : NULL;
+    SkSVGElement* parent = fParents.count() > 0 ? fParents.top() : nullptr;
     SkSVGElement* element = CreateElement(type, parent);
     bool result = false;
     if (parent) {
@@ -237,7 +237,7 @@ void SkSVGParser::translate(SkSVGElement* element, bool isDef) {
         (element->fIsDef == false && isDef && element->fIsNotDef)) {
         isFlushable = false;
     }
-    SkSVGPaint* strokeState = NULL, * fillState = NULL;
+    SkSVGPaint* strokeState = nullptr, * fillState = nullptr;
     if (isFlushable)
         element->fPaintState.setSave(*this);
     if (isFlushable && isStrokeAndFill(&strokeState, &fillState)) {
@@ -288,7 +288,7 @@ void SkSVGParser::translateMatrix(SkString& string, SkString* stringID) {
     SkASSERT(strncmp(str, "matrix(", 7) == 0);
     str += 6;
     const char* strEnd = strrchr(str, ')');
-    SkASSERT(strEnd != NULL);
+    SkASSERT(strEnd != nullptr);
     SkString mat(str, strEnd - str);
     ConvertToArray(mat);
     const char* elems[6];
@@ -305,7 +305,7 @@ void SkSVGParser::translateMatrix(SkString& string, SkString* stringID) {
     string.reset();
     for (int index = 0; index < 6; index++) {
         const char* end = strchr(elems[index], ',');
-        if (end == NULL)
+        if (end == nullptr)
             end= strchr(elems[index], ']');
         string.append(elems[index], end - elems[index] + 1);
     }
@@ -356,7 +356,7 @@ undoLastComma:
 #define CASE_NEW(type) case SkSVGType_##type : created = new SkSVG##type(); break
 
 SkSVGElement* SkSVGParser::CreateElement(SkSVGTypes type, SkSVGElement* parent) {
-    SkSVGElement* created = NULL;
+    SkSVGElement* created = nullptr;
     switch (type) {
         CASE_NEW(Circle);
         CASE_NEW(ClipPath);
@@ -383,7 +383,7 @@ SkSVGElement* SkSVGParser::CreateElement(SkSVGTypes type, SkSVGElement* parent) 
         CASE_NEW(Use);
         default:
             SkASSERT(0);
-            return NULL;
+            return nullptr;
     }
     created->fParent = parent;
     bool isDef = created->fIsDef = created->isDef();

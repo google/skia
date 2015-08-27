@@ -213,25 +213,25 @@ private:
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle lifeCycle,
                                const void* srcData, size_t rowBytes) override {
-        return NULL;
+        return nullptr;
     }
 
     GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, GrGpuResource::LifeCycle,
                                          const void* srcData) override {
-        return NULL;
+        return nullptr;
     }
 
     GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&,
-                                    GrWrapOwnership) override { return NULL; }
+                                    GrWrapOwnership) override { return nullptr; }
 
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override {
-        return NULL;
+        return nullptr;
     }
 
-    GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override { return NULL; }
+    GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) override { return nullptr; }
 
-    GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override { return NULL; }
+    GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override { return nullptr; }
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override {}
 
@@ -290,7 +290,7 @@ GrContext* GrContext::CreateMockContext() {
 void GrContext::initMockContext() {
     GrContextOptions options;
     options.fGeometryBufferMapThreshold = 0;
-    SkASSERT(NULL == fGpu);
+    SkASSERT(nullptr == fGpu);
     fGpu = new MockGpu(this, options);
     SkASSERT(fGpu);
     this->initCommon();

@@ -17,7 +17,7 @@ static SkShader* make_shader0(int w, int h) {
         SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
     };
-    return SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors),
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                           SkShader::kClamp_TileMode);
 }
 static void make_bm0(SkBitmap* bm) {
@@ -37,7 +37,7 @@ static SkShader* make_shader1(int w, int h) {
     SkColor colors[] = {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
     };
-    return SkGradientShader::CreateRadial(SkPoint::Make(cx, cy), cx, colors, NULL,
+    return SkGradientShader::CreateRadial(SkPoint::Make(cx, cy), cx, colors, nullptr,
                                           SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
 }
 static void make_bm1(SkBitmap* bm) {
@@ -74,7 +74,7 @@ static void make_table2(uint8_t table[]) {
 }
 
 static SkColorFilter* make_null_cf() {
-    return NULL;
+    return nullptr;
 }
 
 static SkColorFilter* make_cf0() {
@@ -93,7 +93,7 @@ static SkColorFilter* make_cf3() {
     uint8_t table0[256]; make_table0(table0);
     uint8_t table1[256]; make_table1(table1);
     uint8_t table2[256]; make_table2(table2);
-    return SkTableColorFilter::CreateARGB(NULL, table0, table1, table2);
+    return SkTableColorFilter::CreateARGB(nullptr, table0, table1, table2);
 }
 
 class TableColorFilterGM : public skiagm::GM {
@@ -159,12 +159,12 @@ protected:
                 canvas->drawBitmap(bm, x, y, &paint);
             }
 
-            paint.setColorFilter(NULL);
+            paint.setColorFilter(nullptr);
 
             for (unsigned i = 0; i < SK_ARRAY_COUNT(gColorFilterMakers); ++i) {
                 SkAutoTUnref<SkColorFilter> colorFilter1(gColorFilterMakers[i]());
                 SkAutoTUnref<SkImageFilter> imageFilter1(SkColorFilterImageFilter::Create(
-                            colorFilter1, NULL, NULL));
+                            colorFilter1, nullptr, nullptr));
 
                 // Move down to the next line and draw it
                 // each draw being at xOffset of the previous one
@@ -173,7 +173,7 @@ protected:
                 for (unsigned j = 1; j < SK_ARRAY_COUNT(gColorFilterMakers); ++j) {
                     SkAutoTUnref<SkColorFilter> colorFilter2(gColorFilterMakers[j]());
                     SkAutoTUnref<SkImageFilter> imageFilter2(SkColorFilterImageFilter::Create(
-                                colorFilter2, imageFilter1, NULL));
+                                colorFilter2, imageFilter1, nullptr));
                     paint.setImageFilter(imageFilter2);
                     canvas->drawBitmap(bm, x, y, &paint);
                     x += xOffset;

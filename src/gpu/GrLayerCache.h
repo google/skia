@@ -158,11 +158,11 @@ public:
         , fSrcIR(srcIR)
         , fDstIR(dstIR)
         , fOffset(SkIPoint::Make(0, 0))
-        , fPaint(paint ? new SkPaint(*paint) : NULL)
-        , fFilter(NULL)
-        , fTexture(NULL)
+        , fPaint(paint ? new SkPaint(*paint) : nullptr)
+        , fFilter(nullptr)
+        , fTexture(nullptr)
         , fRect(SkIRect::MakeEmpty())
-        , fPlot(NULL)
+        , fPlot(nullptr)
         , fUses(0)
         , fLocked(false) {
         SkASSERT(SK_InvalidGenID != pictureID);
@@ -170,7 +170,7 @@ public:
         if (fPaint) {
             if (fPaint->getImageFilter()) {
                 fFilter = SkSafeRef(fPaint->getImageFilter());
-                fPaint->setImageFilter(NULL);
+                fPaint->setImageFilter(nullptr);
             }
         }
     }
@@ -207,7 +207,7 @@ public:
     const SkIPoint& offset() const { return fOffset; }
 
     void setPlot(GrPlot* plot) {
-        SkASSERT(NULL == plot || NULL == fPlot);
+        SkASSERT(nullptr == plot || nullptr == fPlot);
         fPlot = plot;
     }
     GrPlot* plot() { return fPlot; }
@@ -237,7 +237,7 @@ private:
     SkIPoint        fOffset;
 
     // The paint used when dropping the layer down into the owning canvas.
-    // Can be NULL. This class makes a copy for itself.
+    // Can be nullptr. This class makes a copy for itself.
     SkPaint*  fPaint;
 
     // The imagefilter that needs to be applied to the layer prior to it being
@@ -250,11 +250,11 @@ private:
 
     // For both atlased and non-atlased layers 'fRect' contains the  bound of
     // the layer in whichever texture it resides. It is empty when 'fTexture'
-    // is NULL.
+    // is nullptr.
     SkIRect         fRect;
 
     // For atlased layers, fPlot stores the atlas plot in which the layer rests.
-    // It is always NULL for non-atlased layers.
+    // It is always nullptr for non-atlased layers.
     GrPlot*         fPlot;
 
     // The number of actively hoisted layers using this cached image (e.g.,

@@ -76,7 +76,7 @@ SkColorTable::SkColorTable(SkReadBuffer& buffer) {
         SkDEBUGCODE(success =) buffer.readColorArray(fColors, fCount);
     } else {
         fCount = 0;
-        fColors = NULL;
+        fColors = nullptr;
     }
 #ifdef SK_DEBUG
     SkASSERT((unsigned)fCount <= 256);

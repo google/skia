@@ -82,10 +82,10 @@ static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
 }
 
 /*
- * If there is a color table, get a pointer to the colors, otherwise return NULL
+ * If there is a color table, get a pointer to the colors, otherwise return nullptr
  */
 static const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
-     return NULL != colorTable ? colorTable->readColors() : NULL;
+     return nullptr != colorTable ? colorTable->readColors() : nullptr;
 }
 
 /*
@@ -95,9 +95,9 @@ static const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
 static inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* colorTable,
         SkPMColor* inputColorPtr, int* inputColorCount) {
     if (kIndex_8_SkColorType == dstInfo.colorType()) {
-        SkASSERT(NULL != inputColorPtr);
-        SkASSERT(NULL != inputColorCount);
-        SkASSERT(NULL != colorTable);
+        SkASSERT(nullptr != inputColorPtr);
+        SkASSERT(nullptr != inputColorCount);
+        SkASSERT(nullptr != colorTable);
         memcpy(inputColorPtr, colorTable->readColors(), *inputColorCount * 4);
     }
 }

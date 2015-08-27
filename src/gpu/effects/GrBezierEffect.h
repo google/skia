@@ -68,13 +68,13 @@ public:
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
-                    return NULL;
+                    return nullptr;
                 }
                 return new GrConicEffect(color, viewMatrix, coverage, kFillAA_GrProcessorEdgeType,
                                          localMatrix, usesLocalCoords);
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
-                    return NULL;
+                    return nullptr;
                 }
                 return new GrConicEffect(color, viewMatrix, coverage,
                                          kHairlineAA_GrProcessorEdgeType, localMatrix,
@@ -83,7 +83,7 @@ public:
                 return new GrConicEffect(color, viewMatrix, coverage, kFillBW_GrProcessorEdgeType,
                                          localMatrix, usesLocalCoords);
             default:
-                return NULL;
+                return nullptr;
         }
     }
 
@@ -151,13 +151,13 @@ public:
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
-                    return NULL;
+                    return nullptr;
                 }
                 return new GrQuadEffect(color, viewMatrix, coverage, kFillAA_GrProcessorEdgeType,
                                         localMatrix, usesLocalCoords);
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
-                    return NULL;
+                    return nullptr;
                 }
                 return new GrQuadEffect(color, viewMatrix, coverage,
                                         kHairlineAA_GrProcessorEdgeType, localMatrix,
@@ -166,7 +166,7 @@ public:
                 return new GrQuadEffect(color, viewMatrix, coverage, kFillBW_GrProcessorEdgeType,
                                         localMatrix, usesLocalCoords);
             default:
-                return NULL;
+                return nullptr;
         }
     }
 
@@ -233,18 +233,18 @@ public:
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
-                    return NULL;
+                    return nullptr;
                 }
                 return new GrCubicEffect(color, viewMatrix, kFillAA_GrProcessorEdgeType);
             case kHairlineAA_GrProcessorEdgeType:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
-                    return NULL;
+                    return nullptr;
                 }
                 return new GrCubicEffect(color, viewMatrix, kHairlineAA_GrProcessorEdgeType);
             case kFillBW_GrProcessorEdgeType:
                 return new GrCubicEffect(color, viewMatrix, kFillBW_GrProcessorEdgeType);
             default:
-                return NULL;
+                return nullptr;
         }
     }
 

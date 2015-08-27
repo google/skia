@@ -12,11 +12,11 @@
 #include "SkInterpolator.h"
 #include "SkTime.h"
 
-SkProgressView::SkProgressView(uint32_t flags) : SkView(flags), fOnShader(NULL), fOffShader(NULL)
+SkProgressView::SkProgressView(uint32_t flags) : SkView(flags), fOnShader(nullptr), fOffShader(nullptr)
 {
     fValue = 0;
     fMax = 0;
-    fInterp = NULL;
+    fInterp = nullptr;
     fDoInterp = false;
 }
 
@@ -33,7 +33,7 @@ void SkProgressView::setMax(U16CPU max)
     {
         fMax = SkToU16(max);
         if (fValue > 0)
-            this->inval(NULL);
+            this->inval(nullptr);
     }
 }
 
@@ -52,7 +52,7 @@ void SkProgressView::setValue(U16CPU value)
             fInterp->setKeyFrame(1, SkTime::GetMSecs() + 333, &x);
         }
         fValue = SkToU16(value);
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -69,12 +69,12 @@ void SkProgressView::onDraw(SkCanvas* canvas)
         if (fInterp->timeToValues(SkTime::GetMSecs(), &x) == SkInterpolator::kFreezeEnd_Result)
         {
             delete fInterp;
-            fInterp = NULL;
+            fInterp = nullptr;
         }
         percent = (SkFixed)x;    // now its 16.8
         percent = SkMax32(0, SkMin32(percent, fMax << 8));    // now its pinned
         percent = SkFixedDiv(percent, fMax << 8);    // now its 0.16
-        this->inval(NULL);
+        this->inval(nullptr);
     }
     else
     {
@@ -112,7 +112,7 @@ static SkShader* inflate_shader(const char file[])
 
     return SkImageDecoder::DecodeFile(file, &bm) ?
             SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode) :
-            NULL;
+            nullptr;
 }
 
 void SkProgressView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
@@ -121,12 +121,12 @@ void SkProgressView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 
     const char* s;
 
-    SkASSERT(fOnShader == NULL);
-    SkASSERT(fOffShader == NULL);
+    SkASSERT(fOnShader == nullptr);
+    SkASSERT(fOffShader == nullptr);
 
-    if ((s = dom.findAttr(node, "src-on")) != NULL)
+    if ((s = dom.findAttr(node, "src-on")) != nullptr)
         fOnShader = inflate_shader(s);
-    if ((s = dom.findAttr(node, "src-off")) != NULL)
+    if ((s = dom.findAttr(node, "src-off")) != nullptr)
         fOffShader = inflate_shader(s);
     (void)dom.findBool(node, "do-interp", &fDoInterp);
 }

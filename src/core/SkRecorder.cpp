@@ -21,7 +21,7 @@ SkDrawableList::~SkDrawableList() {
 SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
     const int count = fArray.count();
     if (0 == count) {
-        return NULL;
+        return nullptr;
     }
     SkAutoTMalloc<const SkPicture*> pics(count);
     for (int i = 0; i < count; ++i) {
@@ -60,9 +60,9 @@ void SkRecorder::reset(SkRecord* record, const SkRect& bounds,
 }
 
 void SkRecorder::forgetRecord() {
-    fDrawableList.reset(NULL);
+    fDrawableList.reset(nullptr);
     fApproxBytesUsedBySubPictures = 0;
-    fRecord = NULL;
+    fRecord = nullptr;
 }
 
 // To make appending to fRecord a little less verbose.
@@ -82,8 +82,8 @@ void SkRecorder::forgetRecord() {
 // (For most types we just pass by value and let copy constructors do their thing.)
 template <typename T>
 T* SkRecorder::copy(const T* src) {
-    if (NULL == src) {
-        return NULL;
+    if (nullptr == src) {
+        return nullptr;
     }
     return new (fRecord->alloc<T>()) T(*src);
 }
@@ -92,8 +92,8 @@ T* SkRecorder::copy(const T* src) {
 // It will work with POD or non-POD, though currently we only use it for POD.
 template <typename T>
 T* SkRecorder::copy(const T src[], size_t count) {
-    if (NULL == src) {
-        return NULL;
+    if (nullptr == src) {
+        return nullptr;
     }
     T* dst = fRecord->alloc<T>(count);
     for (size_t i = 0; i < count; i++) {
@@ -107,8 +107,8 @@ T* SkRecorder::copy(const T src[], size_t count) {
 // but I found no corresponding speedup for other arrays.
 template <>
 char* SkRecorder::copy(const char src[], size_t count) {
-    if (NULL == src) {
-        return NULL;
+    if (nullptr == src) {
+        return nullptr;
     }
     char* dst = fRecord->alloc<char>(count);
     memcpy(dst, src, count);
@@ -302,8 +302,8 @@ void SkRecorder::onDrawVertices(VertexMode vmode,
                          vmode,
                          vertexCount,
                          this->copy(vertices, vertexCount),
-                         texs ? this->copy(texs, vertexCount) : NULL,
-                         colors ? this->copy(colors, vertexCount) : NULL,
+                         texs ? this->copy(texs, vertexCount) : nullptr,
+                         colors ? this->copy(colors, vertexCount) : nullptr,
                          xmode,
                          this->copy(indices, indexCount),
                          indexCount);
@@ -312,9 +312,9 @@ void SkRecorder::onDrawVertices(VertexMode vmode,
 void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
     APPEND(DrawPatch, paint,
-           cubics ? this->copy(cubics, SkPatchUtils::kNumCtrlPts) : NULL,
-           colors ? this->copy(colors, SkPatchUtils::kNumCorners) : NULL,
-           texCoords ? this->copy(texCoords, SkPatchUtils::kNumCorners) : NULL,
+           cubics ? this->copy(cubics, SkPatchUtils::kNumCtrlPts) : nullptr,
+           colors ? this->copy(colors, SkPatchUtils::kNumCorners) : nullptr,
+           texCoords ? this->copy(texCoords, SkPatchUtils::kNumCorners) : nullptr,
            xmode);
 }
 

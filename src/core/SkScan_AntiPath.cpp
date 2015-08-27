@@ -686,7 +686,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     SkScanClipper   clipper(blitter, clipRgn, ir);
     const SkIRect*  clipRect = clipper.getClipRect();
 
-    if (clipper.getBlitter() == NULL) { // clipped out
+    if (clipper.getBlitter() == nullptr) { // clipped out
         if (isInverse) {
             blitter->blitRegion(*clipRgn);
         }
@@ -700,7 +700,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         sk_blit_above(blitter, ir, *clipRgn);
     }
 
-    SkIRect superRect, *superClipRect = NULL;
+    SkIRect superRect, *superClipRect = nullptr;
 
     if (clipRect) {
         superRect.set(  clipRect->fLeft << SHIFT, clipRect->fTop << SHIFT,

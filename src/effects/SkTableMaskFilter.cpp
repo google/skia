@@ -33,7 +33,7 @@ bool SkTableMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     dst->fBounds = src.fBounds;
     dst->fRowBytes = SkAlign4(dst->fBounds.width());
     dst->fFormat = SkMask::kA8_Format;
-    dst->fImage = NULL;
+    dst->fImage = nullptr;
 
     if (src.fImage) {
         dst->fImage = SkMask::AllocImage(dst->computeImageSize());
@@ -77,7 +77,7 @@ void SkTableMaskFilter::flatten(SkWriteBuffer& wb) const {
 SkFlattenable* SkTableMaskFilter::CreateProc(SkReadBuffer& buffer) {
     uint8_t table[256];
     if (!buffer.readByteArray(table, 256)) {
-        return NULL;
+        return nullptr;
     }
     return Create(table);
 }

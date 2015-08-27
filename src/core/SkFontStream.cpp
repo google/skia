@@ -101,7 +101,7 @@ static int count_tables(SkStream* stream, int ttcIndex, size_t* offsetToDir) {
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SfntHeader {
-    SfntHeader() : fCount(0), fDir(NULL) {}
+    SfntHeader() : fCount(0), fDir(nullptr) {}
     ~SfntHeader() { sk_free(fDir); }
 
     /** If it returns true, then fCount and fDir are properly initialized.

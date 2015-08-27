@@ -41,7 +41,7 @@ SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
             continue;
         }
 
-        char *valptr = strtok(NULL, sep);
+        char *valptr = strtok(nullptr, sep);
         if (!valptr) {
             continue;
         }
@@ -240,7 +240,7 @@ static inline void str_replace(char *s, char search, char replace) {
 }
 
 template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
-    const char *str = NULL;
+    const char *str = nullptr;
 
     for (int i = fConfigFileKeys.count() - 1 ; i >= 0; i--) {
         if (fConfigFileKeys[i]->equals(name)) {
@@ -301,7 +301,7 @@ template <typename T> void SkRTConfRegistry::set(const char *name,
         }
         return;
     }
-    SkASSERT(confArray != NULL);
+    SkASSERT(confArray != nullptr);
     for (SkRTConfBase **confBase = confArray->begin(); confBase != confArray->end(); confBase++) {
         // static_cast here is okay because there's only one kind of child class.
         SkRTConf<T> *concrete = static_cast<SkRTConf<T> *>(*confBase);

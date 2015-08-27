@@ -102,7 +102,7 @@ class BlurRectSeparableBench: public BlurRectBench {
 
 public:
     BlurRectSeparableBench(SkScalar rad) : INHERITED(rad) {
-        fSrcMask.fImage = NULL;
+        fSrcMask.fImage = nullptr;
     }
 
     ~BlurRectSeparableBench() {
@@ -144,7 +144,7 @@ protected:
 
     void makeBlurryRect(const SkRect&) override {
         SkMask mask;
-        mask.fImage = NULL;
+        mask.fImage = nullptr;
         SkBlurMask::BoxBlur(&mask, fSrcMask, SkBlurMask::ConvertRadiusToSigma(this->radius()),
                             kNormal_SkBlurStyle, kHigh_SkBlurQuality);
         SkMask::FreeImage(mask.fImage);
@@ -171,7 +171,7 @@ protected:
 
     void makeBlurryRect(const SkRect&) override {
         SkMask mask;
-        mask.fImage = NULL;
+        mask.fImage = nullptr;
         SkBlurMask::BlurGroundTruth(SkBlurMask::ConvertRadiusToSigma(this->radius()),
                                     &mask, fSrcMask, kNormal_SkBlurStyle);
         SkMask::FreeImage(mask.fImage);

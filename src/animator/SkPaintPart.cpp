@@ -12,7 +12,7 @@
 #include "SkDump.h"
 #endif
 
-SkPaintPart::SkPaintPart() : fPaint(NULL) {
+SkPaintPart::SkPaintPart() : fPaint(nullptr) {
 }
 
 SkDisplayable* SkPaintPart::getParent() const {
@@ -20,7 +20,7 @@ SkDisplayable* SkPaintPart::getParent() const {
 }
 
 bool SkPaintPart::setParent(SkDisplayable* parent) {
-    SkASSERT(parent != NULL);
+    SkASSERT(parent != nullptr);
     if (parent->isPaint() == false)
         return true;
     fPaint = (SkDrawPaint*) parent;
@@ -38,7 +38,7 @@ bool SkDrawMaskFilter::add() {
 }
 
 SkMaskFilter* SkDrawMaskFilter::getMaskFilter() {
-    return NULL;
+    return nullptr;
 }
 
 
@@ -51,18 +51,18 @@ bool SkDrawPathEffect::add() {
         fPaint->fOwnsPathEffect = true;
         return false;
     }
-    fPaint->add(NULL, this);
+    fPaint->add(nullptr, this);
     return false;
 }
 
 SkPathEffect* SkDrawPathEffect::getPathEffect() {
-    return NULL;
+    return nullptr;
 }
 
 
 // SkDrawShader
 SkShader* SkDrawShader::getShader() {
-    return NULL;
+    return nullptr;
 }
 
 

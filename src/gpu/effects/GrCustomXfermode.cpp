@@ -298,7 +298,7 @@ static void emit_custom_xfermode_code(SkXfermode::Mode mode,
                                       const char* inputColor,
                                       const char* dstColor) {
     // We don't try to optimize for this case at all
-    if (NULL == inputColor) {
+    if (nullptr == inputColor) {
         fsBuilder->codeAppendf("const vec4 ones = vec4(1);");
         inputColor = "ones";
     }
@@ -434,7 +434,7 @@ static void emit_custom_xfermode_code(SkXfermode::Mode mode,
 GrFragmentProcessor* GrCustomXfermode::CreateFP(GrProcessorDataManager* procDataManager,
                                                 SkXfermode::Mode mode, GrTexture* background) {
     if (!GrCustomXfermode::IsSupportedMode(mode)) {
-        return NULL;
+        return nullptr;
     } else {
         return new GrCustomXferFP(procDataManager, mode, background);
     }
@@ -569,7 +569,7 @@ private:
 
 GrXPFactory* GrCustomXfermode::CreateXPFactory(SkXfermode::Mode mode) {
     if (!GrCustomXfermode::IsSupportedMode(mode)) {
-        return NULL;
+        return nullptr;
     } else {
         return new GrCustomXPFactory(mode);
     }

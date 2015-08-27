@@ -37,7 +37,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         GrContext* context = canvas->getGrContext();
-        if (NULL == context) {
+        if (nullptr == context) {
             return;
         }
 
@@ -47,7 +47,7 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
         SkSurface* surface = SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info);
 
-        if (NULL == surface) {
+        if (nullptr == surface) {
             return;
         }
 
@@ -73,7 +73,7 @@ protected:
                       surface->getCanvas()->drawPaint(paint);
                       break;
               }
-              surface->draw(canvas, 10.f*x, 10.f*y, NULL);
+              surface->draw(canvas, 10.f*x, 10.f*y, nullptr);
             }
         }
 

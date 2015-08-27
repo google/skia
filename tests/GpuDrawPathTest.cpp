@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
@@ -48,7 +50,7 @@ DEF_GPUTEST(GpuDrawPath, reporter, factory) {
         GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
 
         GrContext* grContext = factory->get(glType);
-        if (NULL == grContext) {
+        if (nullptr == grContext) {
             continue;
         }
         static const int sampleCounts[] = { 0, 4, 16 };
@@ -58,7 +60,7 @@ DEF_GPUTEST(GpuDrawPath, reporter, factory) {
             
             SkAutoTUnref<SkSurface> surface(
                 SkSurface::NewRenderTarget(grContext, SkSurface::kNo_Budgeted, info,
-                                           sampleCounts[i], NULL));
+                                           sampleCounts[i], nullptr));
             test_drawPathEmpty(reporter, surface->getCanvas());
         }
     }

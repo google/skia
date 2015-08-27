@@ -56,7 +56,7 @@ namespace SkTextureCompressor {
 
     // Returns an SkData holding a blob of compressed data that corresponds
     // to the pixmap. If the pixmap colorType cannot be compressed using the
-    // associated format, then we return NULL. The caller is responsible for
+    // associated format, then we return nullptr. The caller is responsible for
     // calling unref() on the returned data.
     SkData* CompressBitmapToFormat(const SkPixmap&, Format format);
 

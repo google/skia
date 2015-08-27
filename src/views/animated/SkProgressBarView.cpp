@@ -35,7 +35,7 @@ void SkProgressBarView::changeProgress(int diff)
     SkAnimator::DifferenceType    diff = fAnim.draw(canvas, &paint, SkTime::GetMSecs());
 
     if (diff == SkAnimator::kDifferent)
-        this->inval(NULL);
+        this->inval(nullptr);
     else if (diff == SkAnimator::kPartiallyDifferent)
     {
         SkRect    bounds;
@@ -48,7 +48,7 @@ void SkProgressBarView::changeProgress(int diff)
 {
     if (evt.isType(SK_EventType_Inval))
     {
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
     if (evt.isType("recommendDim"))

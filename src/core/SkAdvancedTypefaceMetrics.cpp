@@ -148,7 +148,7 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
 
     SkAutoTDelete<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> > result;
     SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* curRange;
-    SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* prevRange = NULL;
+    SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* prevRange = nullptr;
     Data lastAdvance = kInvalidAdvance;
     int repeatedAdvances = 0;
     int wildCardsInRun = 0;
@@ -168,7 +168,7 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
     for (int gId = firstIndex; gId <= lastIndex; gId++) {
         Data advance = kInvalidAdvance;
         if (gId < lastIndex) {
-            // Get glyph id only when subset is NULL, or the id is in subset.
+            // Get glyph id only when subset is nullptr, or the id is in subset.
             SkASSERT(!subsetGlyphIDs || (subsetIndex < subsetGlyphIDsLength &&
                     static_cast<uint32_t>(gId) <= subsetGlyphIDs[subsetIndex]));
             if (!subsetGlyphIDs ||

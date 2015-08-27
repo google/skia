@@ -144,7 +144,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
     // bottom to top iteration
     {
-        const SkClipStack::Element* element = NULL;
+        const SkClipStack::Element* element = nullptr;
 
         SkClipStack::B2TIter iter(stack);
         int i;
@@ -159,7 +159,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
     // top to bottom iteration
     {
-        const SkClipStack::Element* element = NULL;
+        const SkClipStack::Element* element = nullptr;
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
         int i;
@@ -174,7 +174,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
     // skipToTopmost
     {
-        const SkClipStack::Element* element = NULL;
+        const SkClipStack::Element* element = nullptr;
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
 
@@ -383,7 +383,7 @@ static int count(const SkClipStack& stack) {
 
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
 
-    const SkClipStack::Element* element = NULL;
+    const SkClipStack::Element* element = nullptr;
     int count = 0;
 
     for (element = iter.prev(); element; element = iter.prev(), ++count) {
@@ -964,7 +964,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         int32_t reducedGenID;
         GrReducedClip::InitialState initial;
         SkIRect tBounds(inflatedIBounds);
-        SkIRect* tightBounds = r.nextBool() ? &tBounds : NULL;
+        SkIRect* tightBounds = r.nextBool() ? &tBounds : nullptr;
         GrReducedClip::ReduceClipStack(stack,
                                        inflatedIBounds,
                                        &reducedClips,
@@ -1129,7 +1129,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
                                            &reducedClips,
                                            &reducedGenID,
                                            &initial,
-                                           testCases[i].tighterBounds.isEmpty() ? NULL : &tightBounds);
+                                           testCases[i].tighterBounds.isEmpty() ? nullptr : &tightBounds);
 
             REPORTER_ASSERT(reporter, reducedClips.count() == testCases[i].reducedClipCount);
             SkASSERT(reducedClips.count() == testCases[i].reducedClipCount);

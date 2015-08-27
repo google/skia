@@ -34,7 +34,7 @@ public:
         void reset(const SkROBuffer*);
 
         /**
-         *  Return the current continuous block of memory, or NULL if the iterator is exhausted
+         *  Return the current continuous block of memory, or nullptr if the iterator is exhausted
          */
         const void* data() const;
 

@@ -45,7 +45,7 @@ DecodingBench::DecodingBench(SkString path, SkColorType colorType)
     // Ensure that we can create a decoder.
     SkAutoTDelete<SkStreamRewindable> stream(new SkMemoryStream(fData));
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
-    SkASSERT(decoder != NULL);
+    SkASSERT(decoder != nullptr);
 #endif
 }
 

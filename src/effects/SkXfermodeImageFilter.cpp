@@ -77,7 +77,7 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-    if (NULL == device.get()) {
+    if (nullptr == device.get()) {
         return false;
     }
     SkCanvas canvas(device);
@@ -123,7 +123,7 @@ void SkXfermodeImageFilter::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 
 bool SkXfermodeImageFilter::canFilterImageGPU() const {
-    return fMode && fMode->asFragmentProcessor(NULL, NULL, NULL) && !cropRectIsSet();
+    return fMode && fMode->asFragmentProcessor(nullptr, nullptr, nullptr) && !cropRectIsSet();
 }
 
 bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
@@ -139,7 +139,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     }
 
     GrTexture* backgroundTex = background.getTexture();
-    if (NULL == backgroundTex) {
+    if (nullptr == backgroundTex) {
         SkASSERT(false);
         return false;
     }
@@ -153,7 +153,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     GrTexture* foregroundTex = foreground.getTexture();
     GrContext* context = foregroundTex->getContext();
 
-    GrFragmentProcessor* xferProcessor = NULL;
+    GrFragmentProcessor* xferProcessor = nullptr;
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;

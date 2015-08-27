@@ -79,7 +79,7 @@ static const PE_Proc gPE[] = { hair_pe, hair2_pe, stroke_pe, dash_pe, one_d_pe }
 
 static void fill_pe(SkPaint* paint) {
     paint->setStyle(SkPaint::kFill_Style);
-    paint->setPathEffect(NULL);
+    paint->setPathEffect(nullptr);
 }
 
 static void discrete_pe(SkPaint* paint) {

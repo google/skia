@@ -50,7 +50,7 @@ GrTargetCommands::Cmd* GrReorderCommandBuilder::recordDrawBatch(GrBatch* batch,
                 if (previous->batch()->combineIfPossible(batch, caps)) {
                     GrBATCH_INFO("\t\tCombining with (%s, B%u)\n",
                                  previous->batch()->name(), previous->batch()->uniqueID());
-                    return NULL;
+                    return nullptr;
                 }
 
                 if (intersect(previous->batch()->bounds(), batch->bounds())) {

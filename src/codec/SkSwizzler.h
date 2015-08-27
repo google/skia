@@ -128,7 +128,7 @@ public:
                         Sampling in Y can be done by a client with a scanline decoder, 
                         but sampling in X allows the swizzler to skip swizzling pixels and
                         reading from and writing to memory.
-     *  @return A new SkSwizzler or NULL on failure.
+     *  @return A new SkSwizzler or nullptr on failure.
      */
     static SkSwizzler* CreateSwizzler(SrcConfig, const SkPMColor* ctable,
                                       const SkImageInfo& dstInfo, SkCodec::ZeroInitialized, 
@@ -149,13 +149,13 @@ public:
      * index.
      *
      * If dstInfo.colorType() is kN32, colorOrIndex is treated differently depending on
-     * whether colorTable is NULL:
+     * whether colorTable is nullptr:
      *
-     * A NULL colorTable means colorOrIndex is treated as an SkPMColor (premul or
+     * A nullptr colorTable means colorOrIndex is treated as an SkPMColor (premul or
      * unpremul, depending on dstInfo.alphaType()). Each 4-byte pixel will be set to
      * colorOrIndex.
 
-     * A non-NULL colorTable means colorOrIndex is treated as a uint8_t index into
+     * A non-nullptr colorTable means colorOrIndex is treated as a uint8_t index into
      * the colorTable. i.e. each 4-byte pixel will be set to
      * colorTable[(uint8_t) colorOrIndex].
      *

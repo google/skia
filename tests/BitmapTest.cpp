@@ -16,17 +16,17 @@ static void test_peekpixels(skiatest::Reporter* reporter) {
     SkBitmap bm;
 
     // empty should return false
-    REPORTER_ASSERT(reporter, !bm.peekPixels(NULL));
+    REPORTER_ASSERT(reporter, !bm.peekPixels(nullptr));
     REPORTER_ASSERT(reporter, !bm.peekPixels(&pmap));
 
     // no pixels should return false
     bm.setInfo(SkImageInfo::MakeN32Premul(10, 10));
-    REPORTER_ASSERT(reporter, !bm.peekPixels(NULL));
+    REPORTER_ASSERT(reporter, !bm.peekPixels(nullptr));
     REPORTER_ASSERT(reporter, !bm.peekPixels(&pmap));
 
     // real pixels should return true
     bm.allocPixels(info);
-    REPORTER_ASSERT(reporter, bm.peekPixels(NULL));
+    REPORTER_ASSERT(reporter, bm.peekPixels(nullptr));
     REPORTER_ASSERT(reporter, bm.peekPixels(&pmap));
     REPORTER_ASSERT(reporter, pmap.info() == bm.info());
     REPORTER_ASSERT(reporter, pmap.addr() == bm.getPixels());
@@ -43,7 +43,7 @@ static void test_bigalloc(skiatest::Reporter* reporter) {
     SkBitmap bm;
     REPORTER_ASSERT(reporter, !bm.tryAllocPixels(info));
 
-    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, info.minRowBytes(), NULL);
+    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, info.minRowBytes(), nullptr);
     REPORTER_ASSERT(reporter, !pr);
 }
 

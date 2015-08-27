@@ -73,7 +73,7 @@ bool path_needs_SW_renderer(GrContext* context,
                                          GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
 
-    return NULL == context->getPathRenderer(gpu, &pipelineBuilder, viewMatrix, *path, stroke,
+    return nullptr == context->getPathRenderer(gpu, &pipelineBuilder, viewMatrix, *path, stroke,
                                             false, type);
 }
 }
@@ -210,7 +210,7 @@ bool GrClipMaskManager::installClipEffects(
     }
 
     if (failed) {
-        arfps->set(NULL);
+        arfps->set(nullptr);
     }
     return !failed;
 }
@@ -298,7 +298,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
                                                     devBounds))) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
-            if (NULL == devBounds ||
+            if (nullptr == devBounds ||
                 !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
                 scissorState->set(scissorSpaceIBounds);
             }
@@ -309,7 +309,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
 
     // If MSAA is enabled we can do everything in the stencil buffer.
     if (0 == rt->numColorSamples() && requiresAA) {
-        GrTexture* result = NULL;
+        GrTexture* result = nullptr;
 
         // The top-left of the mask corresponds to the top-left corner of the bounds.
         SkVector clipToMaskOffset = {
@@ -422,14 +422,14 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
                 path.toggleInverseFillType();
             }
             GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
-            if (NULL == pr) {
+            if (nullptr == pr) {
                 GrPathRendererChain::DrawType type;
                 type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
                 pr = this->getContext()->getPathRenderer(fClipTarget, pipelineBuilder, viewMatrix,
                                                          path, stroke, false, type);
             }
-            if (NULL == pr) {
+            if (nullptr == pr) {
                 return false;
             }
             GrPathRenderer::DrawPathArgs args;
@@ -518,12 +518,12 @@ GrTexture* GrClipMaskManager::createTempMask(int width, int height) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Return the texture currently in the cache if it exists. Otherwise, return NULL
+// Return the texture currently in the cache if it exists. Otherwise, return nullptr
 GrTexture* GrClipMaskManager::getCachedMaskTexture(int32_t elementsGenID,
                                                    const SkIRect& clipSpaceIBounds) {
     bool cached = fAACache.canReuse(elementsGenID, clipSpaceIBounds);
     if (!cached) {
-        return NULL;
+        return nullptr;
     }
 
     return fAACache.getLastMask();
@@ -531,7 +531,7 @@ GrTexture* GrClipMaskManager::getCachedMaskTexture(int32_t elementsGenID,
 
 ////////////////////////////////////////////////////////////////////////////////
 // Allocate a texture in the texture cache. This function returns the texture
-// allocated (or NULL on error).
+// allocated (or nullptr on error).
 GrTexture* GrClipMaskManager::allocMaskTexture(int32_t elementsGenID,
                                                const SkIRect& clipSpaceIBounds,
                                                bool willUpload) {
@@ -572,9 +572,9 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 
     // There's no texture in the cache. Let's try to allocate it then.
     result = this->allocMaskTexture(elementsGenID, clipSpaceIBounds, false);
-    if (NULL == result) {
+    if (nullptr == result) {
         fAACache.reset();
-        return NULL;
+        return nullptr;
     }
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
@@ -609,7 +609,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
             GrPipelineBuilder pipelineBuilder;
 
             pipelineBuilder.setClip(clip);
-            GrPathRenderer* pr = NULL;
+            GrPathRenderer* pr = nullptr;
             bool useTemp = !this->canStencilAndDrawElement(&pipelineBuilder, result, &pr, element);
             GrTexture* dst;
             // This is the bounds of the clip element in the space of the alpha-mask. The temporary
@@ -632,7 +632,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                                     maskSpaceIBounds.fBottom));
                     if (!temp) {
                         fAACache.reset();
-                        return NULL;
+                        return nullptr;
                     }
                 }
                 dst = temp;
@@ -659,7 +659,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 
             if (!this->drawElement(&pipelineBuilder, translate, dst, element, pr)) {
                 fAACache.reset();
-                return NULL;
+                return nullptr;
             }
 
             if (useTemp) {
@@ -720,7 +720,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
     SkASSERT(rt);
 
     GrStencilAttachment* stencilAttachment = rt->renderTargetPriv().attachStencilAttachment();
-    if (NULL == stencilAttachment) {
+    if (nullptr == stencilAttachment) {
         return false;
     }
 
@@ -774,7 +774,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
             SkRegion::Op op = element->getOp();
 
-            GrPathRenderer* pr = NULL;
+            GrPathRenderer* pr = nullptr;
             SkPath clipPath;
             if (Element::kRect_Type == element->getType()) {
                 stencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
@@ -793,7 +793,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                                                          false,
                                                          GrPathRendererChain::kStencilOnly_DrawType,
                                                          &stencilSupport);
-                if (NULL == pr) {
+                if (nullptr == pr) {
                     return false;
                 }
             }
@@ -1135,9 +1135,9 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
 
     // Allocate clip mask texture
     result = this->allocMaskTexture(elementsGenID, clipSpaceIBounds, true);
-    if (NULL == result) {
+    if (nullptr == result) {
         fAACache.reset();
-        return NULL;
+        return nullptr;
     }
     helper.toTexture(result);
 

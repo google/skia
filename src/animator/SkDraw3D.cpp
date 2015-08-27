@@ -44,7 +44,7 @@ const SkMemberInfo Sk3D_Camera::fInfo[] = {
 
 DEFINE_GET_MEMBER(Sk3D_Camera);
 
-Sk3D_Camera::Sk3D_Camera() : hackWidth(0), hackHeight(0), patch(NULL) {
+Sk3D_Camera::Sk3D_Camera() : hackWidth(0), hackHeight(0), patch(nullptr) {
 }
 
 Sk3D_Camera::~Sk3D_Camera() {

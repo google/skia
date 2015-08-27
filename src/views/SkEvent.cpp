@@ -11,14 +11,14 @@
 
 void SkEvent::initialize(const char* type, size_t typeLen,
                          SkEventSinkID targetID) {
-    fType = NULL;
+    fType = nullptr;
     setType(type, typeLen);
     f32 = 0;
     fTargetID = targetID;
-    fTargetProc = NULL;
+    fTargetProc = nullptr;
 #ifdef SK_DEBUG
     fTime = 0;
-    fNextEvent = NULL;
+    fNextEvent = nullptr;
 #endif
 }
 
@@ -128,7 +128,7 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
         this->setType(name);
 
     const char* value;
-    if ((value = dom.findAttr(node, "fast32")) != NULL)
+    if ((value = dom.findAttr(node, "fast32")) != nullptr)
     {
         int32_t n;
         if (SkParse::FindS32(value, &n))
@@ -144,25 +144,25 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
         }
 
         name = dom.findAttr(node, "name");
-        if (name == NULL)
+        if (name == nullptr)
         {
             SkDEBUGCODE(SkDebugf("SkEvent::inflate missing required \"name\" attribute in <data> subelement\n");)
             continue;
         }
 
-        if ((value = dom.findAttr(node, "s32")) != NULL)
+        if ((value = dom.findAttr(node, "s32")) != nullptr)
         {
             int32_t n;
             if (SkParse::FindS32(value, &n))
                 this->setS32(name, n);
         }
-        else if ((value = dom.findAttr(node, "scalar")) != NULL)
+        else if ((value = dom.findAttr(node, "scalar")) != nullptr)
         {
             SkScalar x;
             if (SkParse::FindScalar(value, &x))
                 this->setScalar(name, x);
         }
-        else if ((value = dom.findAttr(node, "string")) != NULL)
+        else if ((value = dom.findAttr(node, "string")) != nullptr)
             this->setString(name, value);
 #ifdef SK_DEBUG
         else
@@ -194,7 +194,7 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
         int                 count;
         const char*         name;
 
-        while ((name = iter.next(&mtype, &count)) != NULL)
+        while ((name = iter.next(&mtype, &count)) != nullptr)
         {
             SkASSERT(count > 0);
 
@@ -209,7 +209,7 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
                 break;
             case SkMetaData::kScalar_Type:
                 {
-                    const SkScalar* values = md.findScalars(name, &count, NULL);
+                    const SkScalar* values = md.findScalars(name, &count, nullptr);
                     SkDebugf("%f", SkScalarToFloat(values[0]));
                     for (int i = 1; i < count; i++)
                         SkDebugf(", %f", SkScalarToFloat(values[i]));
@@ -271,9 +271,9 @@ void SkEvent::inflate(const SkDOM& dom, const SkDOM::Node* node)
 class SkEvent_Globals {
 public:
     SkEvent_Globals() {
-        fEventQHead = NULL;
-        fEventQTail = NULL;
-        fDelayQHead = NULL;
+        fEventQHead = nullptr;
+        fEventQTail = nullptr;
+        fDelayQHead = nullptr;
         SkDEBUGCODE(fEventCounter = 0;)
     }
 
@@ -338,14 +338,14 @@ bool SkEvent::Enqueue(SkEvent* evt) {
 
     SkASSERT(evt);
 
-    bool wasEmpty = globals.fEventQHead == NULL;
+    bool wasEmpty = globals.fEventQHead == nullptr;
 
     if (globals.fEventQTail)
         globals.fEventQTail->fNextEvent = evt;
     globals.fEventQTail = evt;
-    if (globals.fEventQHead == NULL)
+    if (globals.fEventQHead == nullptr)
         globals.fEventQHead = evt;
-    evt->fNextEvent = NULL;
+    evt->fNextEvent = nullptr;
 
     SkDEBUGCODE(++globals.fEventCounter);
 
@@ -361,8 +361,8 @@ SkEvent* SkEvent::Dequeue() {
         SkDEBUGCODE(--globals.fEventCounter);
 
         globals.fEventQHead = evt->fNextEvent;
-        if (globals.fEventQHead == NULL) {
-            globals.fEventQTail = NULL;
+        if (globals.fEventQHead == nullptr) {
+            globals.fEventQTail = nullptr;
         }
     }
     globals.fEventMutex.release();
@@ -374,7 +374,7 @@ bool SkEvent::QHasEvents() {
     SkEvent_Globals& globals = getGlobals();
 
     // this is not thread accurate, need a semaphore for that
-    return globals.fEventQHead != NULL;
+    return globals.fEventQHead != nullptr;
 }
 
 #ifdef SK_TRACE_EVENTS
@@ -386,7 +386,7 @@ SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time) {
     //  gEventMutex acquired by caller
 
     SkEvent* curr = globals.fDelayQHead;
-    SkEvent* prev = NULL;
+    SkEvent* prev = nullptr;
 
     while (curr) {
         if (SkMSec_LT(time, curr->fTime)) {
@@ -398,7 +398,7 @@ SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time) {
 
     evt->fTime = time;
     evt->fNextEvent = curr;
-    if (prev == NULL) {
+    if (prev == nullptr) {
         globals.fDelayQHead = evt;
     } else {
         prev->fNextEvent = evt;

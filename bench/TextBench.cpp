@@ -57,7 +57,7 @@ public:
         , fFQ(fq)
         , fDoPos(doPos)
         , fDoColorEmoji(doColorEmoji)
-        , fPos(NULL) {
+        , fPos(nullptr) {
         fPaint.setAntiAlias(kBW != fq);
         fPaint.setLCDRenderText(kLCD == fq);
         fPaint.setTextSize(SkIntToScalar(ps));

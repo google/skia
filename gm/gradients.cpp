@@ -31,10 +31,10 @@ static const SkColor  gColorClamp[] = {
 };
 
 static const GradData gGradData[] = {
-    { 2, gColors, NULL },
+    { 2, gColors, nullptr },
     { 2, gColors, gPos0 },
     { 2, gColors, gPos1 },
-    { 5, gColors, NULL },
+    { 5, gColors, nullptr },
     { 5, gColors, gPos2 },
     { 4, gColorClamp, gPosClamp }
 };
@@ -311,7 +311,7 @@ protected:
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         SkShader* shader = SkGradientShader::CreateRadial(
             SkPoint(center),
-            SkIntToScalar(200), gColors, NULL, 5,
+            SkIntToScalar(200), gColors, nullptr, 5,
             SkShader::kClamp_TileMode);
         paint.setShader(shader);
         canvas->drawRect(r, paint);
@@ -401,18 +401,18 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(flags); i++) {
             SkAutoTUnref<SkShader> sweep(
                     SkGradientShader::CreateSweep(cx, cy, sweep_colors,
-                                                  NULL, SK_ARRAY_COUNT(sweep_colors),
-                                                  flags[i], NULL));
+                                                  nullptr, SK_ARRAY_COUNT(sweep_colors),
+                                                  flags[i], nullptr));
             SkAutoTUnref<SkShader> radial1(
                     SkGradientShader::CreateRadial(center, radius, colors1,
-                                                   NULL, SK_ARRAY_COUNT(colors1),
+                                                   nullptr, SK_ARRAY_COUNT(colors1),
                                                    SkShader::kClamp_TileMode,
-                                                   flags[i], NULL));
+                                                   flags[i], nullptr));
             SkAutoTUnref<SkShader> radial2(
                     SkGradientShader::CreateRadial(center, radius, colors2,
-                                                   NULL, SK_ARRAY_COUNT(colors2),
+                                                   nullptr, SK_ARRAY_COUNT(colors2),
                                                    SkShader::kClamp_TileMode,
-                                                   flags[i], NULL));
+                                                   flags[i], nullptr));
             paint1.setShader(sweep);
             paint2.setShader(radial1);
             paint3.setShader(radial2);
@@ -445,7 +445,7 @@ protected:
         const SkPoint center = { 0, 0 };
         const SkScalar kRadius = 3000;
         const SkColor gColors[] = { 0xFFFFFFFF, 0xFF000000 };
-        fShader.reset(SkGradientShader::CreateRadial(center, kRadius, gColors, NULL, 2,
+        fShader.reset(SkGradientShader::CreateRadial(center, kRadius, gColors, nullptr, 2,
                                                      SkShader::kClamp_TileMode));
     }
 

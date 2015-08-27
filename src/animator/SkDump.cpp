@@ -56,7 +56,7 @@ bool SkDump::enable(SkAnimateMaker& maker ) {
 }
 
 bool SkDump::evaluate(SkAnimateMaker &maker) {
-    SkAnimatorScript scriptEngine(maker, NULL, SkType_Int);
+    SkAnimatorScript scriptEngine(maker, nullptr, SkType_Int);
     SkScriptValue value;
     const char* cScript = script.c_str();
     bool success = scriptEngine.evaluateScript(&cScript, &value);
@@ -91,7 +91,7 @@ void SkDump::GetEnumString(SkDisplayTypes type, int index, SkString* result) {
     const char* str  = map.fValues;
     while (--index >= 0) {
         str = strchr(str, '|');
-        if (str == NULL) {
+        if (str == nullptr) {
             result->reset();
             result->appendS32(badEnum);
             return;
@@ -99,7 +99,7 @@ void SkDump::GetEnumString(SkDisplayTypes type, int index, SkString* result) {
         str += 1;
     }
     const char* end = strchr(str, '|');
-    if (end == NULL)
+    if (end == nullptr)
         end = str + strlen(str);
     result->set(str, end - str);
 }

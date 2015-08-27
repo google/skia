@@ -31,7 +31,7 @@ void* GrGLIndexBuffer::onMap() {
     if (!this->wasDestroyed()) {
         return fImpl.map(this->getGpuGL());
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 

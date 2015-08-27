@@ -22,7 +22,7 @@ int SkStrSearch(const char*const* base, int count, const char target[],
     if (count <= 0)
         return ~0;
 
-    SkASSERT(base != NULL);
+    SkASSERT(base != nullptr);
 
     int lo = 0;
     int hi = count - 1;

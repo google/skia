@@ -395,7 +395,7 @@ AddTraceEvent(
     unsigned char flags) {
   return TRACE_EVENT_API_ADD_TRACE_EVENT(
       phase, category_group_enabled, name, id,
-      kZeroNumArgs, NULL, NULL, NULL, flags);
+      kZeroNumArgs, nullptr, nullptr, nullptr, flags);
 }
 
 template<class ARG1_TYPE>
@@ -444,7 +444,7 @@ AddTraceEvent(
 class TRACE_EVENT_API_CLASS_EXPORT ScopedTracer {
  public:
   // Note: members of data_ intentionally left uninitialized. See Initialize.
-  ScopedTracer() : p_data_(NULL) {}
+  ScopedTracer() : p_data_(nullptr) {}
 
   ~ScopedTracer() {
     if (p_data_ && *data_.category_group_enabled)

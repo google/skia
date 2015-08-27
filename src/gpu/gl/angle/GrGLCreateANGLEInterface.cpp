@@ -24,15 +24,15 @@ static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
 
 const GrGLInterface* GrGLCreateANGLEInterface() {
 
-    static HMODULE ghANGLELib = NULL;
+    static HMODULE ghANGLELib = nullptr;
 
-    if (NULL == ghANGLELib) {
+    if (nullptr == ghANGLELib) {
         // We load the ANGLE library and never let it go
         ghANGLELib = LoadLibrary("libGLESv2.dll");
     }
-    if (NULL == ghANGLELib) {
+    if (nullptr == ghANGLELib) {
         // We can't setup the interface correctly w/o the DLL
-        return NULL;
+        return nullptr;
     }
 
     return GrGLAssembleGLESInterface(ghANGLELib, angle_get_gl_proc);

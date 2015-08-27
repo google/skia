@@ -117,7 +117,7 @@ public:
 
     /** Find a matching cache entry, and call proc() with it. If none is found create a new one.
         If the proc() returns true, detach the cache and return it, otherwise leave it and return
-        NULL.
+        nullptr.
     */
     static SkGlyphCache* VisitCache(SkTypeface*, const SkDescriptor* desc,
                                     bool (*proc)(const SkGlyphCache*, void*),
@@ -136,7 +136,7 @@ public:
         win is that different thread will never block each other while a strike is being used.
     */
     static SkGlyphCache* DetachCache(SkTypeface* typeface, const SkDescriptor* desc) {
-        return VisitCache(typeface, desc, DetachProc, NULL);
+        return VisitCache(typeface, desc, DetachProc, nullptr);
     }
 
     static void Dump();
@@ -163,7 +163,7 @@ public:
             }
         }
         void forget() {
-            fCache = NULL;
+            fCache = nullptr;
         }
     private:
         const SkGlyphCache* fCache;
@@ -249,7 +249,7 @@ public:
     void release() {
         if (fCache) {
             SkGlyphCache::AttachCache(fCache);
-            fCache = NULL;
+            fCache = nullptr;
         }
     }
 
@@ -263,10 +263,10 @@ protected:
     SkAutoGlyphCacheBase(const SkPaint& /*paint*/,
                          const SkSurfaceProps* /*surfaceProps*/,
                          const SkMatrix* /*matrix*/) {
-        fCache = NULL;
+        fCache = nullptr;
     }
     SkAutoGlyphCacheBase() {
-        fCache = NULL;
+        fCache = nullptr;
     }
     ~SkAutoGlyphCacheBase() {
         if (fCache) {

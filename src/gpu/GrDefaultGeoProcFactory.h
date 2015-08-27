@@ -107,11 +107,11 @@ namespace GrDefaultGeoProcFactory {
             kHasExplicit_Type,
             kHasTransformed_Type,
         };
-        LocalCoords(Type type) : fType(type), fMatrix(NULL) {}
+        LocalCoords(Type type) : fType(type), fMatrix(nullptr) {}
         LocalCoords(Type type, const SkMatrix* matrix) : fType(type), fMatrix(matrix) {
             SkASSERT(kUnused_Type != type);
         }
-        bool hasLocalMatrix() const { return NULL != fMatrix; }
+        bool hasLocalMatrix() const { return nullptr != fMatrix; }
 
         Type fType;
         const SkMatrix* fMatrix;

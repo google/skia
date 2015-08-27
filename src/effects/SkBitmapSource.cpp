@@ -43,7 +43,7 @@ SkFlattenable* SkBitmapSource::CreateProc(SkReadBuffer& buffer) {
     buffer.readRect(&dst);
     SkBitmap bitmap;
     if (!buffer.readBitmap(&bitmap)) {
-        return NULL;
+        return nullptr;
     }
     return SkBitmapSource::Create(bitmap, src, dst, filterQuality);
 }
@@ -69,7 +69,7 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context&
 
     const SkIRect dstIRect = dstRect.roundOut();
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstIRect.width(), dstIRect.height()));
-    if (NULL == device.get()) {
+    if (nullptr == device.get()) {
         return false;
     }
 

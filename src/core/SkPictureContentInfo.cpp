@@ -45,7 +45,7 @@ bool SkPictureContentInfo::suitableForGpuRasterization(GrContext* context, const
 }
 
 void SkPictureContentInfo::onDrawPoints(size_t count, const SkPaint& paint) {
-    if (paint.getPathEffect() != NULL) {
+    if (paint.getPathEffect() != nullptr) {
         SkPathEffect::DashInfo info;
         SkPathEffect::DashType dashType = paint.getPathEffect()->asADash(&info);
         if (2 == count && SkPaint::kRound_Cap != paint.getStrokeCap() &&

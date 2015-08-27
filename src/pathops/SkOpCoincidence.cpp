@@ -217,7 +217,7 @@ bool SkOpCoincidence::addMissing(SkChunkAlloc* allocator) {
     }
     bool result;
     fTop = outer;
-    fHead = NULL;
+    fHead = nullptr;
     do {
     // addifmissing can modify the list that this is walking
     // maybe save head so that walker can iterate over old data unperturbed
@@ -467,7 +467,7 @@ bool SkOpCoincidence::apply() {
 
 void SkOpCoincidence::detach(SkCoincidentSpans* remove) {
     SkCoincidentSpans* coin = fHead;
-    SkCoincidentSpans* prev = NULL;
+    SkCoincidentSpans* prev = nullptr;
     SkCoincidentSpans* next;
     do {
         next = coin->fNext;
@@ -505,7 +505,7 @@ bool SkOpCoincidence::expand() {
                 expanded = true;
             }
         }
-        SkOpSpanBase* next = end->final() ? NULL : end->upCast()->next();
+        SkOpSpanBase* next = end->final() ? nullptr : end->upCast()->next();
         if (next && (oppPtT = next->contains(oppSegment))) {
             double midT = (end->t() + next->t()) / 2;
             if (segment->isClose(midT, oppSegment)) {
@@ -519,7 +519,7 @@ bool SkOpCoincidence::expand() {
 }
 
 void SkOpCoincidence::findOverlaps(SkOpCoincidence* overlaps, SkChunkAlloc* allocator) const {
-    overlaps->fHead = overlaps->fTop = NULL;
+    overlaps->fHead = overlaps->fTop = nullptr;
     SkDEBUGCODE_(overlaps->debugSetGlobalState(fDebugState));
     SkCoincidentSpans* outer = fHead;
     while (outer) {

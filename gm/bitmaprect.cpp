@@ -23,7 +23,7 @@ static void make_bitmap(SkBitmap* bitmap) {
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { 64, 64 } };
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
-    paint.setShader(SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+    paint.setShader(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
                                                    SkShader::kClamp_TileMode))->unref();
     canvas.drawCircle(32, 32, 32, paint);
 }

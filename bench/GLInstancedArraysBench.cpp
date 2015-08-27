@@ -172,7 +172,7 @@ static void setup_matrices(int numQuads, Func f) {
 const GrGLContext* GLCpuPosInstancedArraysBench::onGetGLContext(const GrGLContext* ctx) {
     // We only care about gpus with drawArraysInstanced support
     if (!ctx->interface()->fFunctions.fDrawArraysInstanced) {
-        return NULL;
+        return nullptr;
     }
     return ctx;
 }

@@ -22,7 +22,7 @@ public:
         }
         if (JpegSegment::StandAloneMarker(fMarker)) {
             fLength = 0;
-            fBuffer = NULL;
+            fBuffer = nullptr;
             return true;
         }
         if (!this->readBigendianUint16(&fLength) || fLength < 2) {

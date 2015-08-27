@@ -94,7 +94,7 @@ namespace {
 
 class CopyCounter {
 public:
-    CopyCounter() : fID(0), fCounter(NULL) {}
+    CopyCounter() : fID(0), fCounter(nullptr) {}
 
     CopyCounter(uint32_t id, uint32_t* counter) : fID(id), fCounter(counter) {}
 

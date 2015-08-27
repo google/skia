@@ -622,7 +622,7 @@ bool GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
         return false;
     }
 
-    if (!IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix, NULL)) {
+    if (!IsStrokeHairlineOrEquivalent(*args.fStroke, *args.fViewMatrix, nullptr)) {
         return false;
     }
 
@@ -798,8 +798,8 @@ void AAHairlineBatch::onPrepareDraws(Target* target) {
     bool hasPerspective = this->viewMatrix().hasPerspective();
     const SkMatrix* geometryProcessorViewM = &SkMatrix::I();
     const SkMatrix* geometryProcessorLocalM = &invert;
-    const SkMatrix* toDevice = NULL;
-    const SkMatrix* toSrc = NULL;
+    const SkMatrix* toDevice = nullptr;
+    const SkMatrix* toSrc = nullptr;
     if (hasPerspective) {
         geometryProcessorViewM = &this->viewMatrix();
         geometryProcessorLocalM = &SkMatrix::I();

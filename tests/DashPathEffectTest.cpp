@@ -19,8 +19,8 @@ DEF_TEST(DashPathEffectTest_crbug_348821, r) {
     SkScalar phase = SK_ScalarInfinity;  // Used to force the bad fInitialDashLength = -1 path.
     SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, count, phase));
 
-    // NULL -> refuses to work with flattening framework.
-    REPORTER_ASSERT(r, dash->getFactory() != NULL);
+    // nullptr -> refuses to work with flattening framework.
+    REPORTER_ASSERT(r, dash->getFactory() != nullptr);
 
     SkWriteBuffer buffer;
     buffer.writeFlattenable(dash);

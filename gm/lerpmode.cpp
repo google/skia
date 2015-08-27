@@ -18,7 +18,7 @@ static void show_circlelayers(SkCanvas* canvas, SkXfermode* mode) {
     r.fRight = bounds.centerX();
     canvas->drawRect(r, paint);
 
-    canvas->saveLayer(&bounds, NULL);
+    canvas->saveLayer(&bounds, nullptr);
 
     paint.setColor(0x80FF0000);
     r = bounds;
@@ -48,7 +48,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        show_circlelayers(canvas, NULL);
+        show_circlelayers(canvas, nullptr);
         canvas->translate(150, 0);
         SkAutoTUnref<SkXfermode> mode(SkLerpXfermode::Create(0.5f));
         show_circlelayers(canvas, mode.get());

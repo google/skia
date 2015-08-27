@@ -275,7 +275,7 @@ void SkPictureRecord::didConcat(const SkMatrix& matrix) {
 void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
     this->validate(fWriter.bytesWritten(), 0);
     // op + matrix
-    size_t size = kUInt32Size + matrix.writeToMemory(NULL);
+    size_t size = kUInt32Size + matrix.writeToMemory(nullptr);
     size_t initialOffset = this->addDraw(CONCAT, &size);
     this->addMatrix(matrix);
     this->validate(initialOffset, size);
@@ -284,7 +284,7 @@ void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
 void SkPictureRecord::didSetMatrix(const SkMatrix& matrix) {
     this->validate(fWriter.bytesWritten(), 0);
     // op + matrix
-    size_t size = kUInt32Size + matrix.writeToMemory(NULL);
+    size_t size = kUInt32Size + matrix.writeToMemory(nullptr);
     size_t initialOffset = this->addDraw(SET_MATRIX, &size);
     this->addMatrix(matrix);
     this->validate(initialOffset, size);
@@ -440,7 +440,7 @@ void SkPictureRecord::onClipRegion(const SkRegion& region, SkRegion::Op op) {
 
 size_t SkPictureRecord::recordClipRegion(const SkRegion& region, SkRegion::Op op) {
     // op + clip params + region
-    size_t size = 2 * kUInt32Size + region.writeToMemory(NULL);
+    size_t size = 2 * kUInt32Size + region.writeToMemory(nullptr);
     // recordRestoreOffsetPlaceholder doesn't always write an offset
     if (!fRestoreOffsetStack.isEmpty()) {
         // + restore offset
@@ -694,7 +694,7 @@ void SkPictureRecord::onDrawTextOnPath(const void* text, size_t byteLength, cons
                                        const SkMatrix* matrix, const SkPaint& paint) {
     // op + paint index + length + 'length' worth of data + path index + matrix
     const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
-    size_t size = 3 * kUInt32Size + SkAlign4(byteLength) + kUInt32Size + m.writeToMemory(NULL);
+    size_t size = 3 * kUInt32Size + SkAlign4(byteLength) + kUInt32Size + m.writeToMemory(nullptr);
     size_t initialOffset = this->addDraw(DRAW_TEXT_ON_PATH, &size);
     SkASSERT(initialOffset+get_paint_offset(DRAW_TEXT_ON_PATH, size) == fWriter.bytesWritten());
     this->addPaint(paint);
@@ -726,12 +726,12 @@ void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* ma
     size_t size = 2 * kUInt32Size;
     size_t initialOffset;
 
-    if (NULL == matrix && NULL == paint) {
+    if (nullptr == matrix && nullptr == paint) {
         initialOffset = this->addDraw(DRAW_PICTURE, &size);
         this->addPicture(picture);
     } else {
         const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
-        size += m.writeToMemory(NULL) + kUInt32Size;    // matrix + paint
+        size += m.writeToMemory(nullptr) + kUInt32Size;    // matrix + paint
         initialOffset = this->addDraw(DRAW_PICTURE_MATRIX_PAINT, &size);
         SkASSERT(initialOffset + get_paint_offset(DRAW_PICTURE_MATRIX_PAINT, size)
                  == fWriter.bytesWritten());
@@ -887,7 +887,7 @@ void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[],
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
-    return NULL;
+    return nullptr;
 }
 
 // If we already have a stored, can we reuse it instead of also storing b?
@@ -1028,7 +1028,7 @@ void SkPictureRecord::addRect(const SkRect& rect) {
 }
 
 void SkPictureRecord::addRectPtr(const SkRect* rect) {
-    if (fWriter.writeBool(rect != NULL)) {
+    if (fWriter.writeBool(rect != nullptr)) {
         fWriter.writeRect(*rect);
     }
 }
@@ -1038,7 +1038,7 @@ void SkPictureRecord::addIRect(const SkIRect& rect) {
 }
 
 void SkPictureRecord::addIRectPtr(const SkIRect* rect) {
-    if (fWriter.writeBool(rect != NULL)) {
+    if (fWriter.writeBool(rect != nullptr)) {
         *(SkIRect*)fWriter.reserve(sizeof(SkIRect)) = *rect;
     }
 }

@@ -13,7 +13,7 @@
 #include "SkTSort.h"
 
 bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
-    if (NULL == this->fGetExtensionsString) {
+    if (nullptr == this->fGetExtensionsString) {
         return false;
     }
     if (!strcmp("WGL_ARB_extensions_string", ext)) {
@@ -168,7 +168,7 @@ namespace {
 #define DUMMY_CLASS STR_LIT("DummyClass")
 
 HWND create_dummy_window() {
-    HMODULE module = GetModuleHandle(NULL);
+    HMODULE module = GetModuleHandle(nullptr);
     HWND dummy;
     RECT windowRect;
     windowRect.left = 0;
@@ -183,10 +183,10 @@ HWND create_dummy_window() {
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hInstance = module;
-    wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = NULL;
-    wc.lpszMenuName = NULL;
+    wc.hIcon = LoadIcon(nullptr, IDI_WINLOGO);
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wc.hbrBackground = nullptr;
+    wc.lpszMenuName = nullptr;
     wc.lpszClassName = DUMMY_CLASS;
 
     if(!RegisterClass(&wc)) {
@@ -205,11 +205,11 @@ HWND create_dummy_window() {
                                 0, 0,
                                 windowRect.right-windowRect.left,
                                 windowRect.bottom-windowRect.top,
-                                NULL, NULL,
+                                nullptr, nullptr,
                                 module,
-                                NULL))) {
+                                nullptr))) {
         UnregisterClass(DUMMY_CLASS, module);
-        return NULL;
+        return nullptr;
     }
     ShowWindow(dummy, SW_HIDE);
 
@@ -218,7 +218,7 @@ HWND create_dummy_window() {
 
 void destroy_dummy_window(HWND dummy) {
     DestroyWindow(dummy);
-    HMODULE module = GetModuleHandle(NULL);
+    HMODULE module = GetModuleHandle(nullptr);
     UnregisterClass(DUMMY_CLASS, module);
 }
 }
@@ -227,16 +227,16 @@ void destroy_dummy_window(HWND dummy) {
                      (##NAME##Proc) wglGetProcAddress("wgl" #NAME #SUFFIX)
 
 SkWGLExtensions::SkWGLExtensions()
-    : fGetExtensionsString(NULL)
-    , fChoosePixelFormat(NULL)
-    , fGetPixelFormatAttribfv(NULL)
-    , fGetPixelFormatAttribiv(NULL)
-    , fCreateContextAttribs(NULL)
-    , fSwapInterval(NULL)
-    , fCreatePbuffer(NULL)
-    , fGetPbufferDC(NULL)
-    , fReleasePbufferDC(NULL)
-    , fDestroyPbuffer(NULL)
+    : fGetExtensionsString(nullptr)
+    , fChoosePixelFormat(nullptr)
+    , fGetPixelFormatAttribfv(nullptr)
+    , fGetPixelFormatAttribiv(nullptr)
+    , fCreateContextAttribs(nullptr)
+    , fSwapInterval(nullptr)
+    , fCreatePbuffer(nullptr)
+    , fGetPbufferDC(nullptr)
+    , fReleasePbufferDC(nullptr)
+    , fDestroyPbuffer(nullptr)
  {
     HDC prevDC = wglGetCurrentDC();
     HGLRC prevGLRC = wglGetCurrentContext();
@@ -272,7 +272,7 @@ SkWGLExtensions::SkWGLExtensions()
         GET_PROC(ReleasePbufferDC, ARB);
         GET_PROC(DestroyPbuffer, ARB);
 
-        wglMakeCurrent(dummyDC, NULL);
+        wglMakeCurrent(dummyDC, nullptr);
         wglDeleteContext(dummyGLRC);
         destroy_dummy_window(dummyWND);
     }
@@ -329,11 +329,11 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
     HDC prevDC = wglGetCurrentDC();
     HGLRC prevGLRC = wglGetCurrentContext();
 
-    HGLRC glrc = NULL;
+    HGLRC glrc = nullptr;
     if (kGLES_SkWGLContextRequest == contextType) {
         if (!extensions.hasExtension(dc, "WGL_EXT_create_context_es2_profile")) {
             wglMakeCurrent(prevDC, prevGLRC);
-            return NULL;
+            return nullptr;
         }
         static const int glesAttribs[] = {
             SK_WGL_CONTEXT_MAJOR_VERSION, 3,
@@ -341,10 +341,10 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
             SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_ES2_PROFILE_BIT,
             0,
         };
-        glrc = extensions.createContextAttribs(dc, NULL, glesAttribs);
-        if (NULL == glrc) {
+        glrc = extensions.createContextAttribs(dc, nullptr, glesAttribs);
+        if (nullptr == glrc) {
             wglMakeCurrent(prevDC, prevGLRC);
-            return NULL;
+            return nullptr;
         }
     } else {
         if (kGLPreferCoreProfile_SkWGLContextRequest == contextType &&
@@ -366,7 +366,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
             for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
                 coreProfileAttribs[1] = kCoreGLVersions[2 * v];
                 coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
-                glrc = extensions.createContextAttribs(dc, NULL, coreProfileAttribs);
+                glrc = extensions.createContextAttribs(dc, nullptr, coreProfileAttribs);
                 if (glrc) {
                     break;
                 }
@@ -374,7 +374,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
         }
     }
 
-    if (NULL == glrc) {
+    if (nullptr == glrc) {
         glrc = wglCreateContext(dc);
     }
     SkASSERT(glrc);
@@ -391,7 +391,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
 HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, SkWGLContextRequest contextType) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(dc, "WGL_ARB_pixel_format")) {
-        return NULL;
+        return nullptr;
     }
 
     BOOL set = FALSE;
@@ -407,7 +407,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, SkWGLContextRequest contex
     }
 
     if (!set) {
-        return NULL;
+        return nullptr;
     }
 
     return create_gl_context(dc, extensions, contextType);}
@@ -417,7 +417,7 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(parentDC, "WGL_ARB_pixel_format") ||
         !extensions.hasExtension(parentDC, "WGL_ARB_pbuffer")) {
-        return NULL;
+        return nullptr;
     }
 
     // try for single buffer first
@@ -426,7 +426,7 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
         get_pixel_formats_to_try(parentDC, extensions, (0 != dblBuffer), msaaSampleCount,
                                  pixelFormatsToTry);
         for (int f = 0; -1 != pixelFormatsToTry[f] && f < SK_ARRAY_COUNT(pixelFormatsToTry); ++f) {
-            HPBUFFER pbuf = extensions.createPbuffer(parentDC, pixelFormatsToTry[f], 1, 1, NULL);
+            HPBUFFER pbuf = extensions.createPbuffer(parentDC, pixelFormatsToTry[f], 1, 1, nullptr);
             if (0 != pbuf) {
                 HDC dc = extensions.getPbufferDC(pbuf);
                 if (dc) {
@@ -440,7 +440,7 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 SkWGLPbufferContext::~SkWGLPbufferContext() {

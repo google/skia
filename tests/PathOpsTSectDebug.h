@@ -21,13 +21,13 @@ const SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::debugSpan(int id) co
             return test;
         }
     } while ((test = test->next()));
-    return NULL;
+    return nullptr;
 }
 
 template<typename TCurve, typename OppCurve>
 const SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::debugT(double t) const {
     const SkTSpan<TCurve, OppCurve>* test = fHead;
-    const SkTSpan<TCurve, OppCurve>* closest = NULL;
+    const SkTSpan<TCurve, OppCurve>* closest = nullptr;
     double bestDist = DBL_MAX;
     do {
         if (between(test->fStartT, t, test->fEndT)) {
@@ -132,12 +132,12 @@ void SkTSect<TCurve, OppCurve>::dumpCurves() const {
 
 template<typename TCurve, typename OppCurve>
 const SkTSpan<TCurve, OppCurve>* SkTSpan<TCurve, OppCurve>::debugSpan(int id) const {
-    return SkDEBUGRELEASE(fDebugSect->debugSpan(id), NULL);
+    return SkDEBUGRELEASE(fDebugSect->debugSpan(id), nullptr);
 }
 
 template<typename TCurve, typename OppCurve>
 const SkTSpan<TCurve, OppCurve>* SkTSpan<TCurve, OppCurve>::debugT(double t) const {
-    return SkDEBUGRELEASE(fDebugSect->debugT(t), NULL);
+    return SkDEBUGRELEASE(fDebugSect->debugT(t), nullptr);
 }
 
 template<typename TCurve, typename OppCurve>

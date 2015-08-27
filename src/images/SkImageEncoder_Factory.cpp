@@ -11,13 +11,13 @@
 template SkImageEncoder_EncodeReg* SkImageEncoder_EncodeReg::gHead;
 
 SkImageEncoder* SkImageEncoder::Create(Type t) {
-    SkImageEncoder* codec = NULL;
+    SkImageEncoder* codec = nullptr;
     const SkImageEncoder_EncodeReg* curr = SkImageEncoder_EncodeReg::Head();
     while (curr) {
-        if ((codec = curr->factory()(t)) != NULL) {
+        if ((codec = curr->factory()(t)) != nullptr) {
             return codec;
         }
         curr = curr->next();
     }
-    return NULL;
+    return nullptr;
 }

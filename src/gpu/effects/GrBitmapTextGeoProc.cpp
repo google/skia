@@ -127,7 +127,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fTextureAccess(texture, params)
-    , fInColor(NULL)
+    , fInColor(nullptr)
     , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));

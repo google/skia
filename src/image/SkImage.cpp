@@ -35,10 +35,10 @@ SkImage::SkImage(int width, int height, uint32_t uniqueID)
 const void* SkImage::peekPixels(SkImageInfo* info, size_t* rowBytes) const {
     SkImageInfo infoStorage;
     size_t rowBytesStorage;
-    if (NULL == info) {
+    if (nullptr == info) {
         info = &infoStorage;
     }
-    if (NULL == rowBytes) {
+    if (nullptr == rowBytes) {
         rowBytes = &rowBytesStorage;
     }
     return as_IB(this)->onPeekPixels(info, rowBytes);
@@ -64,7 +64,7 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     if (as_IB(this)->getROPixels(&bm)) {
         return SkImageEncoder::EncodeData(bm, type, quality);
     }
-    return NULL;
+    return nullptr;
 }
 
 SkData* SkImage::refEncoded() const {
@@ -72,15 +72,15 @@ SkData* SkImage::refEncoded() const {
 }
 
 SkImage* SkImage::NewFromEncoded(SkData* encoded, const SkIRect* subset) {
-    if (NULL == encoded || 0 == encoded->size()) {
-        return NULL;
+    if (nullptr == encoded || 0 == encoded->size()) {
+        return nullptr;
     }
     SkImageGenerator* generator = SkImageGenerator::NewFromEncoded(encoded);
-    return generator ? SkImage::NewFromGenerator(generator, subset) : NULL;
+    return generator ? SkImage::NewFromGenerator(generator, subset) : nullptr;
 }
 
 SkSurface* SkImage::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) const {
-    if (NULL == props) {
+    if (nullptr == props) {
         props = &as_IB(this)->props();
     }
     return as_IB(this)->onNewSurface(info, *props);
@@ -95,21 +95,21 @@ const char* SkImage::toString(SkString* str) const {
 SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset,
                            SkFilterQuality quality) const {
     if (newWidth <= 0 || newHeight <= 0) {
-        return NULL;
+        return nullptr;
     }
 
     const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
 
     if (subset) {
         if (!bounds.contains(*subset)) {
-            return NULL;
+            return nullptr;
         }
         if (bounds == *subset) {
-            subset = NULL;  // and fall through to check below
+            subset = nullptr;  // and fall through to check below
         }
     }
 
-    if (NULL == subset && this->width() == newWidth && this->height() == newHeight) {
+    if (nullptr == subset && this->width() == newWidth && this->height() == newHeight) {
         return SkRef(const_cast<SkImage*>(this));
     }
 
@@ -140,7 +140,7 @@ GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO) const {
 
 #else
 
-GrTexture* SkImage::getTexture() const { return NULL; }
+GrTexture* SkImage::getTexture() const { return nullptr; }
 
 bool SkImage::isTextureBacked() const { return false; }
 
@@ -186,9 +186,9 @@ SkImage* SkImage_Base::onNewImage(int newWidth, int newHeight, const SkIRect* su
     const bool opaque = this->isOpaque();
     const SkImageInfo info = SkImageInfo::Make(newWidth, newHeight, kN32_SkColorType,
                                                opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(this->newSurface(info, NULL));
+    SkAutoTUnref<SkSurface> surface(this->newSurface(info, nullptr));
     if (!surface.get()) {
-        return NULL;
+        return nullptr;
     }
 
     SkRect src;
@@ -231,8 +231,8 @@ bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY) const {
 
 SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
     SkPixelRef* pr = bm.pixelRef();
-    if (NULL == pr) {
-        return NULL;
+    if (nullptr == pr) {
+        return nullptr;
     }
 
 #if SK_SUPPORT_GPU
@@ -241,8 +241,8 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
         if (!bm.isImmutable()) {
             const bool notBudgeted = false;
             tex = GrDeepCopyTexture(tex, notBudgeted);
-            if (NULL == tex) {
-                return NULL;
+            if (nullptr == tex) {
+                return nullptr;
             }
             unrefCopy.reset(tex);
         }
@@ -297,15 +297,15 @@ bool SkImage::isLazyGenerated() const {
 
 SkImage* SkImage::NewFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
                                  TextureReleaseProc, ReleaseContext) {
-    return NULL;
+    return nullptr;
 }
 
 SkImage* SkImage::NewFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType) {
-    return NULL;
+    return nullptr;
 }
 
 SkImage* SkImage::NewFromTextureCopy(GrContext*, const GrBackendTextureDesc&, SkAlphaType) {
-    return NULL;
+    return nullptr;
 }
 
 #endif

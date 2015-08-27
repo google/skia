@@ -20,7 +20,7 @@ static SkPicture* inspect(const char path[]) {
     SkFILEStream stream(path);
     if (!stream.isValid()) {
         printf("-- Can't open '%s'\n", path);
-        return NULL;
+        return nullptr;
     }
 
     printf("Opening '%s'...\n", path);
@@ -29,16 +29,16 @@ static SkPicture* inspect(const char path[]) {
         int32_t header[3];
         if (stream.read(header, sizeof(header)) != sizeof(header)) {
             printf("-- Failed to read header (12 bytes)\n");
-            return NULL;
+            return nullptr;
         }
         printf("version:%d width:%d height:%d\n", header[0], header[1], header[2]);
     }
 
     stream.rewind();
     SkPicture* pic = SkPicture::CreateFromStream(&stream, &sk_tools::LazyDecodeBitmap);
-    if (NULL == pic) {
+    if (nullptr == pic) {
         SkDebugf("Could not create SkPicture: %s\n", path);
-        return NULL;
+        return nullptr;
     }
     printf("picture cullRect: [%f %f %f %f]\n", 
            pic->cullRect().fLeft, pic->cullRect().fTop,

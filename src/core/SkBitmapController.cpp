@@ -16,7 +16,7 @@ static bool valid_for_drawing(const SkBitmap& bm) {
     if (0 == bm.width() || 0 == bm.height()) {
         return false;   // nothing to draw
     }
-    if (NULL == bm.pixelRef()) {
+    if (nullptr == bm.pixelRef()) {
         return false;   // no pixels to read
     }
     if (bm.getTexture()) {
@@ -38,14 +38,14 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmap& bm,
                                                              void* storage, size_t storageSize) {
     
     if (!valid_for_drawing(bm)) {
-        return NULL;
+        return nullptr;
     }
 
     State* state = this->onRequestBitmap(bm, inv, quality, storage, storageSize);
     if (state) {
-        if (NULL == state->fPixmap.addr()) {
+        if (nullptr == state->fPixmap.addr()) {
             SkInPlaceDeleteCheck(state, storage);
-            state = NULL;
+            state = nullptr;
         }
     }
     return state;
@@ -161,21 +161,21 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmap& origBi
     fQuality = kLow_SkFilterQuality;
     
     SkSize invScaleSize;
-    if (!fInvMatrix.decomposeScale(&invScaleSize, NULL)) {
+    if (!fInvMatrix.decomposeScale(&invScaleSize, nullptr)) {
         return false;
     }
     SkScalar invScale = SkScalarSqrt(invScaleSize.width() * invScaleSize.height());
     
     if (invScale > SK_Scalar1) {
         fCurrMip.reset(SkMipMapCache::FindAndRef(origBitmap));
-        if (NULL == fCurrMip.get()) {
+        if (nullptr == fCurrMip.get()) {
             fCurrMip.reset(SkMipMapCache::AddAndRef(origBitmap));
-            if (NULL == fCurrMip.get()) {
+            if (nullptr == fCurrMip.get()) {
                 return false;
             }
         }
         // diagnostic for a crasher...
-        if (NULL == fCurrMip->data()) {
+        if (nullptr == fCurrMip->data()) {
             sk_throw();
         }
         
@@ -191,7 +191,7 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmap& origBi
             return fResultBitmap.installPixels(info, level.fPixels, level.fRowBytes);
         } else {
             // failed to extract, so release the mipmap
-            fCurrMip.reset(NULL);
+            fCurrMip.reset(nullptr);
         }
     }
     return false;
@@ -213,7 +213,7 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmap& s
     SkASSERT(fQuality <= kLow_SkFilterQuality);
 
     // fResultBitmap.getPixels() may be null, but our caller knows to check fPixmap.addr()
-    // and will destroy us if it is NULL.
+    // and will destroy us if it is nullptr.
     fPixmap.reset(fResultBitmap.info(), fResultBitmap.getPixels(), fResultBitmap.rowBytes(),
                   fResultBitmap.getColorTable());
 }

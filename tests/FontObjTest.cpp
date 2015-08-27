@@ -43,7 +43,7 @@ static void test_cachedfont(skiatest::Reporter* reporter, const SkPaint& paint) 
 
 static void test_cachedfont(skiatest::Reporter* reporter) {
     static const char* const faces[] = {
-        NULL,   // default font
+        nullptr,   // default font
         "Arial", "Times", "Times New Roman", "Helvetica", "Courier",
         "Courier New", "Verdana", "monospace",
     };

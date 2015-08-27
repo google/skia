@@ -187,7 +187,7 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
     SkFontMgr_Android_Parser::GetCustomFontFamilies(v22FontFamilies,
         SkString("/custom/font/path/"),
         GetResourcePath("android_fonts/v22/fonts.xml").c_str(),
-        NULL);
+        nullptr);
 
     if (v22FontFamilies.count() > 0) {
         REPORTER_ASSERT(reporter, v22FontFamilies.count() == 54);

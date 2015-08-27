@@ -91,12 +91,12 @@ static void TestTInternalLList(skiatest::Reporter* reporter) {
     check_list(list, reporter, true, 0, false, false, false, false, elements);
 
     // test out methods that add to the middle of the list.
-    list.addAfter(&elements[1], NULL);
+    list.addAfter(&elements[1], nullptr);
     check_list(list, reporter, false, 1, false, true, false, false, elements);
 
     list.remove(&elements[1]);
 
-    list.addBefore(&elements[1], NULL);
+    list.addBefore(&elements[1], nullptr);
     check_list(list, reporter, false, 1, false, true, false, false, elements);
 
     list.addBefore(&elements[0], &elements[1]);
@@ -129,8 +129,8 @@ static void TestTLList(skiatest::Reporter* reporter) {
         Iter iter4;
 
         REPORTER_ASSERT(reporter, list1.isEmpty());
-        REPORTER_ASSERT(reporter, NULL == iter1.init(list1, Iter::kHead_IterStart));
-        REPORTER_ASSERT(reporter, NULL == iter1.init(list1, Iter::kTail_IterStart));
+        REPORTER_ASSERT(reporter, nullptr == iter1.init(list1, Iter::kHead_IterStart));
+        REPORTER_ASSERT(reporter, nullptr == iter1.init(list1, Iter::kTail_IterStart));
         // Try popping an empty list
         list1.popHead();
         list1.popTail();
@@ -271,9 +271,9 @@ static void TestTLList(skiatest::Reporter* reporter) {
                 Iter np = next; np.prev();
                 // pn should match next unless the target node was the head, in which case prev
                 // walked off the list.
-                REPORTER_ASSERT(reporter, pn.get() == next.get() || NULL == prev.get());
+                REPORTER_ASSERT(reporter, pn.get() == next.get() || nullptr == prev.get());
                 // Similarly, np should match prev unless next originally walked off the tail.
-                REPORTER_ASSERT(reporter, np.get() == prev.get() || NULL == next.get());
+                REPORTER_ASSERT(reporter, np.get() == prev.get() || nullptr == next.get());
                 --count;
             }
             REPORTER_ASSERT(reporter, count == list1.count());

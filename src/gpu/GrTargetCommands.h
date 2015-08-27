@@ -76,7 +76,7 @@ private:
     // TODO: This can be just a pipeline once paths are in batch, and it should live elsewhere
     struct StateForPathDraw : public SkNVRefCnt<StateForPathDraw> {
         // TODO get rid of the prim proc parameter when we use batch everywhere
-        StateForPathDraw(const GrPrimitiveProcessor* primProc = NULL)
+        StateForPathDraw(const GrPrimitiveProcessor* primProc = nullptr)
             : fPrimitiveProcessor(primProc)
             , fCompiled(false) {}
 

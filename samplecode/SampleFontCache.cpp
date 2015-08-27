@@ -63,7 +63,7 @@ static void* measure_proc(void* context) {
     while (!gDone) {
         call_measure();
     }
-    return NULL;
+    return nullptr;
 }
 
 static void* draw_proc(void* context) {
@@ -73,7 +73,7 @@ static void* draw_proc(void* context) {
     while (!gDone) {
         call_draw(&canvas);
     }
-    return NULL;
+    return nullptr;
 }
 
 class FontCacheView : public SampleView {
@@ -89,13 +89,13 @@ public:
         for (int i = 0; i < N; i++) {
             int status;
 
-            status = pthread_create(&fMThreads[i], NULL,  measure_proc, NULL);
+            status = pthread_create(&fMThreads[i], nullptr,  measure_proc, nullptr);
             SkASSERT(0 == status);
 
             fBitmaps[i].allocPixels(SkImageInfo::Make(320, 240,
                                                       kRGB_565_SkColorType,
                                                       kOpaque_SkAlphaType));
-            status = pthread_create(&fDThreads[i], NULL,  draw_proc, &fBitmaps[i]);
+            status = pthread_create(&fDThreads[i], nullptr,  draw_proc, &fBitmaps[i]);
             SkASSERT(0 == status);
         }
         this->setBGColor(0xFFDDDDDD);
@@ -129,7 +129,7 @@ protected:
             canvas->drawBitmap(fBitmaps[i], x, y);
             x += SkIntToScalar(fBitmaps[i].width());
         }
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 private:

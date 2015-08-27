@@ -38,17 +38,17 @@ static const DecoderProc gDecoderProcs[] = {
 
 SkCodec* SkCodec::NewFromStream(SkStream* stream) {
     if (!stream) {
-        return NULL;
+        return nullptr;
     }
 
     SkAutoTDelete<SkStream> streamDeleter(stream);
     
-    SkAutoTDelete<SkCodec> codec(NULL);
+    SkAutoTDelete<SkCodec> codec(nullptr);
     for (uint32_t i = 0; i < SK_ARRAY_COUNT(gDecoderProcs); i++) {
         DecoderProc proc = gDecoderProcs[i];
         const bool correctFormat = proc.IsFormat(stream);
         if (!stream->rewind()) {
-            return NULL;
+            return nullptr;
         }
         if (correctFormat) {
             codec.reset(proc.NewFromStream(streamDeleter.detach()));
@@ -62,7 +62,7 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream) {
     const int32_t maxSize = 1 << 27;
     if (codec && codec->getInfo().width() * codec->getInfo().height() > maxSize) {
         SkCodecPrintf("Error: Image size too large, cannot decode.\n");
-        return NULL;
+        return nullptr;
     } else {
         return codec.detach();
     }
@@ -70,7 +70,7 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream) {
 
 SkCodec* SkCodec::NewFromData(SkData* data) {
     if (!data) {
-        return NULL;
+        return nullptr;
     }
     return NewFromStream(new SkMemoryStream(data));
 }
@@ -104,7 +104,7 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     if (kUnknown_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }
-    if (NULL == pixels) {
+    if (nullptr == pixels) {
         return kInvalidParameters;
     }
     if (rowBytes < info.minRowBytes()) {
@@ -112,15 +112,15 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     }
 
     if (kIndex_8_SkColorType == info.colorType()) {
-        if (NULL == ctable || NULL == ctableCount) {
+        if (nullptr == ctable || nullptr == ctableCount) {
             return kInvalidParameters;
         }
     } else {
         if (ctableCount) {
             *ctableCount = 0;
         }
-        ctableCount = NULL;
-        ctable = NULL;
+        ctableCount = nullptr;
+        ctable = nullptr;
     }
 
     {
@@ -134,7 +134,7 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
 
     // Default options.
     Options optsStorage;
-    if (NULL == options) {
+    if (nullptr == options) {
         options = &optsStorage;
     }
     const Result result = this->onGetPixels(info, pixels, rowBytes, *options, ctable, ctableCount);
@@ -146,5 +146,5 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
 }
 
 SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-    return this->getPixels(info, pixels, rowBytes, NULL, NULL, NULL);
+    return this->getPixels(info, pixels, rowBytes, nullptr, nullptr, nullptr);
 }

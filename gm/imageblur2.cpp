@@ -59,7 +59,7 @@ protected:
 
                 SkPaint paint;
                 paint.setImageFilter(SkBlurImageFilter::Create(sigmaX, sigmaY))->unref();
-                canvas->saveLayer(NULL, &paint);
+                canvas->saveLayer(nullptr, &paint);
 
                 SkRandom rand;
                 SkPaint textPaint;

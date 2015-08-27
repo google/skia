@@ -12,9 +12,9 @@
 #include "SkTSearch.h"
 
 SkInterpolatorBase::SkInterpolatorBase() {
-    fStorage    = NULL;
-    fTimes      = NULL;
-    SkDEBUGCODE(fTimesArray = NULL;)
+    fStorage    = nullptr;
+    fTimes      = nullptr;
+    SkDEBUGCODE(fTimesArray = nullptr;)
 }
 
 SkInterpolatorBase::~SkInterpolatorBase() {
@@ -30,9 +30,9 @@ void SkInterpolatorBase::reset(int elemCount, int frameCount) {
     fRepeat = SK_Scalar1;
     if (fStorage) {
         sk_free(fStorage);
-        fStorage = NULL;
-        fTimes = NULL;
-        SkDEBUGCODE(fTimesArray = NULL);
+        fStorage = nullptr;
+        fTimes = nullptr;
+        SkDEBUGCODE(fTimesArray = nullptr);
     }
 }
 
@@ -129,8 +129,8 @@ SkInterpolatorBase::Result SkInterpolatorBase::timeToT(SkMSec time, SkScalar* T,
 
 SkInterpolator::SkInterpolator() {
     INHERITED::reset(0, 0);
-    fValues = NULL;
-    SkDEBUGCODE(fScalarsArray = NULL;)
+    fValues = nullptr;
+    SkDEBUGCODE(fScalarsArray = nullptr;)
 }
 
 SkInterpolator::SkInterpolator(int elemCount, int frameCount) {
@@ -159,9 +159,9 @@ static const SkScalar gIdentityBlend[4] = {
 
 bool SkInterpolator::setKeyFrame(int index, SkMSec time,
                             const SkScalar values[], const SkScalar blend[4]) {
-    SkASSERT(values != NULL);
+    SkASSERT(values != nullptr);
 
-    if (blend == NULL) {
+    if (blend == nullptr) {
         blend = gIdentityBlend;
     }
 

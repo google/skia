@@ -27,7 +27,7 @@ protected:
               const SkRect& rect,
               const SkSize& deviceSize,
               SkFilterQuality filterQuality,
-              SkImageFilter* input = NULL) {
+              SkImageFilter* input = nullptr) {
         SkRect dstRect;
         canvas->getTotalMatrix().mapRect(&dstRect, rect);
         canvas->save();

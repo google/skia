@@ -112,7 +112,7 @@ const char* SkParse::FindHex(const char str[], uint32_t* value)
     str = skip_ws(str);
 
     if (!is_hex(*str))
-        return NULL;
+        return nullptr;
 
     uint32_t n = 0;
     int max_digits = 8;
@@ -121,7 +121,7 @@ const char* SkParse::FindHex(const char str[], uint32_t* value)
     while ((digit = to_hex(*str)) >= 0)
     {
         if (--max_digits < 0)
-            return NULL;
+            return nullptr;
         n = (n << 4) | digit;
         str += 1;
     }
@@ -132,7 +132,7 @@ const char* SkParse::FindHex(const char str[], uint32_t* value)
             *value = n;
         return str;
     }
-    return NULL;
+    return nullptr;
 }
 
 const char* SkParse::FindS32(const char str[], int32_t* value)
@@ -148,7 +148,7 @@ const char* SkParse::FindS32(const char str[], int32_t* value)
     }
 
     if (!is_digit(*str))
-        return NULL;
+        return nullptr;
 
     int n = 0;
     while (is_digit(*str))
@@ -174,7 +174,7 @@ const char* SkParse::FindMSec(const char str[], SkMSec* value)
     }
 
     if (!is_digit(*str))
-        return NULL;
+        return nullptr;
 
     int n = 0;
     while (is_digit(*str))
@@ -207,7 +207,7 @@ const char* SkParse::FindScalar(const char str[], SkScalar* value) {
     char* stop;
     float v = (float)strtod(str, &stop);
     if (str == stop) {
-        return NULL;
+        return nullptr;
     }
     if (value) {
         *value = v;
@@ -224,7 +224,7 @@ const char* SkParse::FindScalars(const char str[], SkScalar value[], int count)
         for (;;)
         {
             str = SkParse::FindScalar(str, value);
-            if (--count == 0 || str == NULL)
+            if (--count == 0 || str == nullptr)
                 break;
 
             // keep going
@@ -272,14 +272,14 @@ int SkParse::FindList(const char target[], const char list[])
         const char* end = strchr(list, ',');
         size_t      entryLen;
 
-        if (end == NULL) // last entry
+        if (end == nullptr) // last entry
             entryLen = strlen(list);
         else
             entryLen = end - list;
 
         if (entryLen == len && memcmp(target, list, len) == 0)
             return index;
-        if (end == NULL)
+        if (end == nullptr)
             break;
 
         list = end + 1; // skip the ','

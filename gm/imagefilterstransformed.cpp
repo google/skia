@@ -45,7 +45,7 @@ protected:
         colors[0] = SK_ColorWHITE;
         colors[1] = SK_ColorBLACK;
         SkAutoTUnref<SkShader> shader(
-            SkGradientShader::CreateRadial(SkPoint::Make(x, y), radius, colors, NULL, 2,
+            SkGradientShader::CreateRadial(SkPoint::Make(x, y), radius, colors, nullptr, 2,
                                            SkShader::kClamp_TileMode)
         );
         SkPaint paint;

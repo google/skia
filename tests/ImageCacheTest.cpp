@@ -27,7 +27,7 @@ struct TestingRec : public SkResourceCache::Rec {
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override { return sizeof(fKey) + sizeof(fValue); }
     const char* getCategory() const override { return "test_cache"; }
-    SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return NULL; }
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return nullptr; }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* context) {
         const TestingRec& rec = static_cast<const TestingRec&>(baseRec);
@@ -122,7 +122,7 @@ DEF_TEST(ImageCache, reporter) {
     }
     {
         SkAutoTUnref<SkDiscardableMemoryPool> pool(
-                SkDiscardableMemoryPool::Create(defLimit, NULL));
+                SkDiscardableMemoryPool::Create(defLimit, nullptr));
         gPool = pool.get();
         SkResourceCache cache(pool_factory);
         test_cache(reporter, cache, true);

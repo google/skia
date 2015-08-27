@@ -70,7 +70,7 @@ static inline GrPixelConfig fmt_to_config(SkTextureCompressor::Format fmt) {
 
 static bool choose_compressed_fmt(const GrCaps* caps,
                                   SkTextureCompressor::Format *fmt) {
-    if (NULL == fmt) {
+    if (nullptr == fmt) {
         return false;
     }
 
@@ -142,7 +142,7 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
     paint.setAntiAlias(antiAlias);
 
     SkTBlitterAllocator allocator;
-    SkBlitter* blitter = NULL;
+    SkBlitter* blitter = nullptr;
     if (kBlitter_CompressionMode == fCompressionMode) {
         SkASSERT(fCompressedBuffer.get());
         blitter = SkTextureCompressor::CreateBlitterForFormat(
@@ -197,7 +197,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
                 fCompressedFormat, cmpWidth, cmpHeight);
 
             SkASSERT(cmpSz > 0);
-            SkASSERT(NULL == fCompressedBuffer.get());
+            SkASSERT(nullptr == fCompressedBuffer.get());
             fCompressedBuffer.reset(cmpSz);
             fCompressionMode = kBlitter_CompressionMode;
         }
@@ -259,7 +259,7 @@ void GrSWMaskHelper::sendTextureData(GrTexture *texture, const GrSurfaceDesc& de
 
     // Since we're uploading to it, and it's compressed, 'texture' shouldn't
     // have a render target.
-    SkASSERT(NULL == texture->asRenderTarget());
+    SkASSERT(nullptr == texture->asRenderTarget());
 
     texture->writePixels(0, 0, desc.fWidth, desc.fHeight,
                          desc.fConfig, data, rowbytes,
@@ -316,7 +316,7 @@ void GrSWMaskHelper::toSDF(unsigned char* sdf) {
 /**
  * Software rasterizes path to A8 mask (possibly using the context's matrix)
  * and uploads the result to a scratch texture. Returns the resulting
- * texture on success; NULL on failure.
+ * texture on success; nullptr on failure.
  */
 GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
                                                  const SkPath& path,
@@ -327,14 +327,14 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
     GrSWMaskHelper helper(context);
 
     if (!helper.init(resultBounds, matrix)) {
-        return NULL;
+        return nullptr;
     }
 
     helper.draw(path, stroke, SkRegion::kReplace_Op, antiAlias, 0xFF);
 
     GrTexture* texture(helper.createTexture());
     if (!texture) {
-        return NULL;
+        return nullptr;
     }
 
     helper.toTexture(texture);

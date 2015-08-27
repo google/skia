@@ -45,7 +45,7 @@ static const SkDisplayEnumMap gEnumMaps[] = {
 static int gEnumMapCount = SK_ARRAY_COUNT(gEnumMaps);
 
 SkAnimatorScript::SkAnimatorScript(SkAnimateMaker& maker, SkDisplayable* working, SkDisplayTypes type)
-    : SkScriptEngine(SkScriptEngine::ToOpType(type)), fMaker(maker), fParent(NULL), fWorking(working)
+    : SkScriptEngine(SkScriptEngine::ToOpType(type)), fMaker(maker), fParent(nullptr), fWorking(working)
 {
     memberCallBack(EvalMember, (void*) this);
     memberFunctionCallBack(EvalMemberFunction, (void*) this);
@@ -165,7 +165,7 @@ bool SkAnimatorScript::EvalID(const char* token, size_t len, void* user, SkScrip
         displayable = engine->fWorking;
         if (SK_LITERAL_STR_EQUAL("parent", token, len)) {
             SkDisplayable* parent = displayable->getParent();
-            if (parent == NULL)
+            if (parent == nullptr)
                 parent = engine->fParent;
             if (parent) {
                 value->fOperand.fDisplayable = parent;
@@ -175,7 +175,7 @@ bool SkAnimatorScript::EvalID(const char* token, size_t len, void* user, SkScrip
         }
         if (displayable && EvalMember(token, len, displayable, engine, value))
             return true;
-        value->fOperand.fString = NULL;
+        value->fOperand.fString = nullptr;
         value->fType = SkType_String;
     } else {
         SkDisplayable* working = engine->fWorking;
@@ -194,7 +194,7 @@ bool SkAnimatorScript::EvalID(const char* token, size_t len, void* user, SkScrip
 
 bool SkAnimatorScript::EvalNamedColor(const char* token, size_t len, void* callback, SkScriptValue* value) {
         value->fType = SkType_Int;
-    if (SkParse::FindNamedColor(token, len, (SkColor*) &value->fOperand.fS32) != NULL)
+    if (SkParse::FindNamedColor(token, len, (SkColor*) &value->fOperand.fS32) != nullptr)
         return true;
     return false;
 }
@@ -281,7 +281,7 @@ bool SkAnimatorScript::EvalMember(const char* member, size_t len, void* object, 
         return true;
     }
     const SkMemberInfo* info = displayable->getMember(name.c_str());
-    if (info == NULL)
+    if (info == nullptr)
         return false;
     if (info->fType == SkType_MemberProperty) {
         if (displayable->getProperty(info->propertyIndex(), value) == false) {
@@ -298,7 +298,7 @@ bool SkAnimatorScript::EvalMemberFunction(const char* member, size_t len, void* 
     SkDisplayable* displayable = (SkDisplayable*) object;
     SkString name(member, len);
     const SkMemberInfo* info = displayable->getMember(name.c_str());
-    SkASSERT(info != NULL); /* !!! error handling unimplemented */
+    SkASSERT(info != nullptr); /* !!! error handling unimplemented */
     if (info->fType != SkType_MemberFunction) {
         SkASSERT(0);
         return false;
@@ -401,7 +401,7 @@ bool SkAnimatorScript::MapEnums(const char* ptr, const char* match, size_t len, 
     bool more = true;
     do {
         const char* last = strchr(ptr, '|');
-        if (last == NULL) {
+        if (last == nullptr) {
             last = &ptr[strlen(ptr)];
             more = false;
         }
@@ -465,7 +465,7 @@ bool SkAnimatorScript::Unbox(void* m, SkScriptValue* scriptValue) {
             scriptValue->fOperand.fString = new SkString(boxedValue->value);
             } break;
         default: {
-            const char* id = NULL;
+            const char* id = nullptr;
             SkDEBUGCODE(bool success = ) maker->findKey(displayable, &id);
             SkASSERT(success);
             scriptValue->fOperand.fString = new SkString(id);
@@ -562,7 +562,7 @@ void SkAnimatorScript::UnitTest() {
     animator.doUserEvent(evt);
     // set up animator with memory script above, then run value tests
     for (unsigned index = 0; index < SkScriptNAnswer_testCount; index++) {
-        SkAnimatorScript engine(*animator.fMaker, NULL, scriptTests[index].fType);
+        SkAnimatorScript engine(*animator.fMaker, nullptr, scriptTests[index].fType);
         SkScriptValue value;
         const char* script = scriptTests[index].fScript;
         bool success = engine.evaluateScript(&script, &value);

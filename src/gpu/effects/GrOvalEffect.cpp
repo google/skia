@@ -360,7 +360,7 @@ GrGLFragmentProcessor* EllipseEffect::onCreateGLInstance() const  {
 
 GrFragmentProcessor* GrOvalEffect::Create(GrPrimitiveEdgeType edgeType, const SkRect& oval) {
     if (kHairlineAA_GrProcessorEdgeType == edgeType) {
-        return NULL;
+        return nullptr;
     }
     SkScalar w = oval.width();
     SkScalar h = oval.height();
@@ -373,5 +373,5 @@ GrFragmentProcessor* GrOvalEffect::Create(GrPrimitiveEdgeType edgeType, const Sk
         return EllipseEffect::Create(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + h), w, h);
     }
 
-    return NULL;
+    return nullptr;
 }

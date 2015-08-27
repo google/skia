@@ -116,7 +116,7 @@ private:
                                       const SkIRect& clipSpaceIBounds);
 
     // Returns the cached mask texture if it matches the elementsGenID and the clipSpaceIBounds.
-    // Returns NULL if not found.
+    // Returns nullptr if not found.
     GrTexture* getCachedMaskTexture(int32_t elementsGenID, const SkIRect& clipSpaceIBounds);
 
     // Handles allocation (if needed) of a clip alpha-mask texture for both the sw-upload
@@ -136,7 +136,7 @@ private:
                      const SkMatrix& viewMatrix,
                      GrTexture* target,
                      const SkClipStack::Element*,
-                     GrPathRenderer* pr = NULL);
+                     GrPathRenderer* pr = nullptr);
 
     // Determines whether it is possible to draw the element to both the stencil buffer and the
     // alpha mask simultaneously. If so and the element is a path a compatible path renderer is

@@ -174,7 +174,7 @@ struct Mesh {
 
     void draw(SkCanvas* canvas, SkPaint* paint) {
         canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, fPts, fPts,
-                             NULL, NULL, NULL, 0, *paint);
+                             nullptr, nullptr, nullptr, 0, *paint);
     }
 };
 

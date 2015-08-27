@@ -15,23 +15,23 @@ void SkTraceHR(const char* file, unsigned long line, HRESULT hr, const char* msg
     }
     SkDebugf("%s(%lu) : error 0x%x: ", file, line, hr);
 
-    LPSTR errorText = NULL;
+    LPSTR errorText = nullptr;
     FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER |
                    FORMAT_MESSAGE_FROM_SYSTEM |
                    FORMAT_MESSAGE_IGNORE_INSERTS,
-                   NULL,
+                   nullptr,
                    hr,
                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                    (LPSTR) &errorText,
                    0,
-                   NULL
+                   nullptr
     );
 
-    if (NULL == errorText) {
+    if (nullptr == errorText) {
         SkDebugf("<unknown>\n");
     } else {
         SkDebugf("%s", errorText);
         LocalFree(errorText);
-        errorText = NULL;
+        errorText = nullptr;
     }
 }

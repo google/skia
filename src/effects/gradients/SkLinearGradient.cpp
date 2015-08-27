@@ -63,7 +63,7 @@ SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
 SkFlattenable* SkLinearGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
-        return NULL;
+        return nullptr;
     }
     SkPoint pts[2];
     pts[0] = buffer.readPoint();
@@ -228,7 +228,7 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed dxStorage[1];
-            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), dxStorage, NULL);
+            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), dxStorage, nullptr);
             // todo: do we need a real/high-precision value for dx here?
             dx = SkFixedToGradFixed(dxStorage[0]);
         } else {
@@ -401,7 +401,7 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed dxStorage[1];
-            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), dxStorage, NULL);
+            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), dxStorage, nullptr);
             // todo: do we need a real/high-precision value for dx here?
             dx = SkFixedToGradFixed(dxStorage[0]);
         } else {
@@ -523,7 +523,7 @@ GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) {
     GrColor paintColor;
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
                                                &paintColor, d->fProcDataManager, &fp));
     return fp;
 }

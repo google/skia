@@ -45,14 +45,14 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     if (inputStream.get()->read(dirBuffer.get(), kIcoDirectoryBytes) !=
             kIcoDirectoryBytes) {
         SkCodecPrintf("Error: unable to read ico directory header.\n");
-        return NULL;
+        return nullptr;
     }
 
     // Process the directory header
     const uint16_t numImages = get_short(dirBuffer.get(), 4);
     if (0 == numImages) {
         SkCodecPrintf("Error: No images embedded in ico.\n");
-        return NULL;
+        return nullptr;
     }
 
     // Ensure that we can read all of indicated directory entries
@@ -60,7 +60,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     if (inputStream.get()->read(entryBuffer.get(), numImages*kIcoDirEntryBytes) !=
             numImages*kIcoDirEntryBytes) {
         SkCodecPrintf("Error: unable to read ico directory entries.\n");
-        return NULL;
+        return nullptr;
     }
 
     // This structure is used to represent the vital information about entries
@@ -131,7 +131,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         // Create a new stream for the embedded codec
         SkAutoTUnref<SkData> data(
                 SkData::NewFromStream(inputStream.get(), size));
-        if (NULL == data.get()) {
+        if (nullptr == data.get()) {
             SkCodecPrintf("Warning: could not create embedded stream.\n");
             break;
         }
@@ -141,7 +141,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         // Check if the embedded codec is bmp or png and create the codec
         const bool isPng = SkPngCodec::IsPng(embeddedStream);
         SkAssertResult(embeddedStream->rewind());
-        SkCodec* codec = NULL;
+        SkCodec* codec = nullptr;
         if (isPng) {
             codec = SkPngCodec::NewFromStream(embeddedStream.detach());
         } else {
@@ -149,7 +149,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         }
 
         // Save a valid codec
-        if (NULL != codec) {
+        if (nullptr != codec) {
             codecs->push_back().reset(codec);
         }
     }
@@ -157,7 +157,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     // Recognize if there are no valid codecs
     if (0 == codecs->count()) {
         SkCodecPrintf("Error: could not find any valid embedded ico codecs.\n");
-        return NULL;
+        return nullptr;
     }
 
     // Use the largest codec as a "suggestion" for image info
@@ -195,7 +195,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
  */
 SkIcoCodec::SkIcoCodec(const SkImageInfo& info,
                        SkTArray<SkAutoTDelete<SkCodec>, true>* codecs)
-    : INHERITED(info, NULL)
+    : INHERITED(info, nullptr)
     , fEmbeddedCodecs(codecs)
 {}
 

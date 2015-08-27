@@ -32,7 +32,7 @@ struct SkMemberInfo {
     // if fCount == 0, record is member property
     // then fType can be type, so caller doesn't have to check
 #if SK_USE_CONDENSED_INFO == 0
-    const char* fName;  // may be NULL for anonymous functions
+    const char* fName;  // may be nullptr for anonymous functions
     size_t fOffset; // if negative, is index into member pointer table (for properties and functions)
     SkDisplayTypes fType;
     int fCount;         // for properties, actual type (count is always assumed to be 1)
@@ -229,36 +229,36 @@ public: \
 #define DECLARE_MEMBER_INFO(_type) \
 public: \
     virtual const SkMemberInfo* getMember(int index) { \
-        return SkDisplayType::GetMember(NULL, SkType_##_type, &index); } \
+        return SkDisplayType::GetMember(nullptr, SkType_##_type, &index); } \
     virtual const SkMemberInfo* getMember(const char name[]) { \
-        return SkDisplayType::GetMember(NULL, SkType_##_type, &name); } \
+        return SkDisplayType::GetMember(nullptr, SkType_##_type, &name); } \
     virtual SkDisplayTypes getType() const { return SkType_##_type; } \
     typedef Sk##_type BASE_CLASS
 
 #define DECLARE_DRAW_MEMBER_INFO(_type) \
 public: \
     virtual const SkMemberInfo* getMember(int index) { \
-        return SkDisplayType::GetMember(NULL, SkType_##_type, &index); } \
+        return SkDisplayType::GetMember(nullptr, SkType_##_type, &index); } \
     virtual const SkMemberInfo* getMember(const char name[]) { \
-        return SkDisplayType::GetMember(NULL, SkType_##_type, &name); } \
+        return SkDisplayType::GetMember(nullptr, SkType_##_type, &name); } \
     virtual SkDisplayTypes getType() const { return SkType_##_type; } \
     typedef SkDraw##_type BASE_CLASS
 
 #define DECLARE_DISPLAY_MEMBER_INFO(_type) \
 public: \
     virtual const SkMemberInfo* getMember(int index) { \
-        return SkDisplayType::GetMember(NULL, SkType_##_type, &index); } \
+        return SkDisplayType::GetMember(nullptr, SkType_##_type, &index); } \
     virtual const SkMemberInfo* getMember(const char name[]) { \
-        return SkDisplayType::GetMember(NULL, SkType_##_type, &name); } \
+        return SkDisplayType::GetMember(nullptr, SkType_##_type, &name); } \
     virtual SkDisplayTypes getType() const { return SkType_##_type; } \
     typedef SkDisplay##_type BASE_CLASS
 
 #define DECLARE_EXTRAS_MEMBER_INFO(_type) \
 public: \
     virtual const SkMemberInfo* getMember(int index) { \
-        return SkDisplayType::GetMember(NULL, SkType_##_type, &index); } \
+        return SkDisplayType::GetMember(nullptr, SkType_##_type, &index); } \
     virtual const SkMemberInfo* getMember(const char name[]) { \
-        return SkDisplayType::GetMember(NULL, fType, &name); } \
+        return SkDisplayType::GetMember(nullptr, fType, &name); } \
     SkDisplayTypes fType; \
     virtual SkDisplayTypes getType() const { return fType; } \
     typedef _type BASE_CLASS

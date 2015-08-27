@@ -20,7 +20,7 @@ static SkImage* make_atlas(SkCanvas* caller, int atlasSize) {
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
     SkAutoTUnref<SkSurface> surface(caller->newSurface(info));
-    if (NULL == surface) {
+    if (nullptr == surface) {
         surface.reset(SkSurface::NewRaster(info));
     }
     SkCanvas* canvas = surface->getCanvas();
@@ -72,7 +72,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = SkRect::MakeWH(SkIntToScalar(kAtlasSize), SkIntToScalar(kAtlasSize));
 
-        if (NULL == fAtlas) {
+        if (nullptr == fAtlas) {
             fAtlas.reset(make_atlas(canvas, kAtlasSize));
         }
 
@@ -138,7 +138,7 @@ protected:
         SkPaint textP;
         textP.setTextSize(SkIntToScalar(kTextPad));
         textP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&textP, NULL);
+        sk_tool_utils::set_portable_typeface(&textP, nullptr);
 
         for (int i = 0; i < numModes; ++i) {
             canvas->drawText(gModes[i].fLabel, strlen(gModes[i].fLabel),
@@ -152,11 +152,11 @@ protected:
                               SkIntToScalar(kTextPad+kPad));
             // w/o a paint
             canvas->drawAtlas(fAtlas, xforms, rects, quadColors, numColors, 
-                              gModes[i].fMode, NULL, NULL);
+                              gModes[i].fMode, nullptr, nullptr);
             canvas->translate(0.0f, numColors*(target.height()+kPad));
             // w a paint
             canvas->drawAtlas(fAtlas, xforms, rects, quadColors, numColors, 
-                              gModes[i].fMode, NULL, &paint);
+                              gModes[i].fMode, nullptr, &paint);
             canvas->restore();        
         }
     }

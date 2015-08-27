@@ -29,7 +29,7 @@ protected:
 
     void onDraw(const int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            SkMipMap::Build(fBitmap, NULL)->unref();
+            SkMipMap::Build(fBitmap, nullptr)->unref();
         }
     }
 

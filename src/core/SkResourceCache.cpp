@@ -59,17 +59,17 @@ class SkResourceCache::Hash :
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkResourceCache::init() {
-    fHead = NULL;
-    fTail = NULL;
+    fHead = nullptr;
+    fTail = nullptr;
     fHash = new Hash;
     fTotalBytesUsed = 0;
     fCount = 0;
     fSingleAllocationByteLimit = 0;
-    fAllocator = NULL;
+    fAllocator = nullptr;
 
     // One of these should be explicit set by the caller after we return.
     fTotalByteLimit = 0;
-    fDiscardableFactory = NULL;
+    fDiscardableFactory = nullptr;
 }
 
 #include "SkDiscardableMemory.h"
@@ -116,20 +116,20 @@ bool SkOneShotDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     }
 
     // A previous call to onUnlock may have deleted our DM, so check for that
-    if (NULL == fDM) {
+    if (nullptr == fDM) {
         return false;
     }
 
     if (!fDM->lock()) {
         // since it failed, we delete it now, to free-up the resource
         delete fDM;
-        fDM = NULL;
+        fDM = nullptr;
         return false;
     }
 
 SUCCESS:
     rec->fPixels = fDM->data();
-    rec->fColorTable = NULL;
+    rec->fColorTable = nullptr;
     rec->fRowBytes = fRB;
     return true;
 }
@@ -164,7 +164,7 @@ bool SkResourceCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap, SkColo
     }
 
     SkDiscardableMemory* dm = fFactory(size);
-    if (NULL == dm) {
+    if (nullptr == dm) {
         return false;
     }
 
@@ -371,7 +371,7 @@ SkCachedData* SkResourceCache::newCachedData(size_t bytes) {
 
     if (fDiscardableFactory) {
         SkDiscardableMemory* dm = fDiscardableFactory(bytes);
-        return dm ? new SkCachedData(bytes, dm) : NULL;
+        return dm ? new SkCachedData(bytes, dm) : nullptr;
     } else {
         return new SkCachedData(sk_malloc_throw(bytes), bytes);
     }
@@ -396,7 +396,7 @@ void SkResourceCache::detach(Rec* rec) {
         next->fPrev = prev;
     }
 
-    rec->fNext = rec->fPrev = NULL;
+    rec->fNext = rec->fPrev = nullptr;
 }
 
 void SkResourceCache::moveToHead(Rec* rec) {
@@ -421,7 +421,7 @@ void SkResourceCache::moveToHead(Rec* rec) {
 void SkResourceCache::addToHead(Rec* rec) {
     this->validate();
 
-    rec->fPrev = NULL;
+    rec->fPrev = nullptr;
     rec->fNext = fHead;
     if (fHead) {
         fHead->fPrev = rec;
@@ -440,22 +440,22 @@ void SkResourceCache::addToHead(Rec* rec) {
 
 #ifdef SK_DEBUG
 void SkResourceCache::validate() const {
-    if (NULL == fHead) {
-        SkASSERT(NULL == fTail);
+    if (nullptr == fHead) {
+        SkASSERT(nullptr == fTail);
         SkASSERT(0 == fTotalBytesUsed);
         return;
     }
 
     if (fHead == fTail) {
-        SkASSERT(NULL == fHead->fPrev);
-        SkASSERT(NULL == fHead->fNext);
+        SkASSERT(nullptr == fHead->fPrev);
+        SkASSERT(nullptr == fHead->fNext);
         SkASSERT(fHead->bytesUsed() == fTotalBytesUsed);
         return;
     }
 
-    SkASSERT(NULL == fHead->fPrev);
+    SkASSERT(nullptr == fHead->fPrev);
     SkASSERT(fHead->fNext);
-    SkASSERT(NULL == fTail->fNext);
+    SkASSERT(nullptr == fTail->fNext);
     SkASSERT(fTail->fPrev);
 
     size_t used = 0;
@@ -506,7 +506,7 @@ size_t SkResourceCache::getEffectiveSingleAllocationByteLimit() const {
 
     // if we're not discardable (i.e. we are fixed-budget) then cap the single-limit
     // to our budget.
-    if (NULL == fDiscardableFactory) {
+    if (nullptr == fDiscardableFactory) {
         if (0 == limit) {
             limit = fTotalByteLimit;
         } else {
@@ -527,7 +527,7 @@ void SkResourceCache::checkMessages() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
-static SkResourceCache* gResourceCache = NULL;
+static SkResourceCache* gResourceCache = nullptr;
 static void cleanup_gResourceCache() {
     // We'll clean this up in our own tests, but disable for clients.
     // Chrome seems to have funky multi-process things going on in unit tests that
@@ -542,7 +542,7 @@ static void cleanup_gResourceCache() {
 static SkResourceCache* get_cache() {
     // gMutex is always held when this is called, so we don't need to be fancy in here.
     gMutex.assertHeld();
-    if (NULL == gResourceCache) {
+    if (nullptr == gResourceCache) {
 #ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
         gResourceCache = new SkResourceCache(SkDiscardableMemory::Create);
 #else

@@ -23,7 +23,7 @@ const SkMemberInfo SkDrawShader::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawShader);
 
-SkDrawShader::SkDrawShader() : matrix(NULL),
+SkDrawShader::SkDrawShader() : matrix(nullptr),
     tileMode(SkShader::kClamp_TileMode) {
 }
 
@@ -36,7 +36,7 @@ bool SkDrawShader::add() {
 }
 
 SkMatrix* SkDrawShader::getMatrix() {
-    return matrix ? &matrix->getMatrix() : NULL;
+    return matrix ? &matrix->getMatrix() : nullptr;
 }
 
 #if SK_USE_CONDENSED_INFO == 0
@@ -51,7 +51,7 @@ const SkMemberInfo SkDrawBitmapShader::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawBitmapShader);
 
-SkDrawBitmapShader::SkDrawBitmapShader() : filterBitmap(-1), image(NULL) {}
+SkDrawBitmapShader::SkDrawBitmapShader() : filterBitmap(-1), image(nullptr) {}
 
 bool SkDrawBitmapShader::add() {
     if (fPaint->shader != (SkDrawShader*) -1)
@@ -62,8 +62,8 @@ bool SkDrawBitmapShader::add() {
 }
 
 SkShader* SkDrawBitmapShader::getShader() {
-    if (image == NULL)
-        return NULL;
+    if (image == nullptr)
+        return nullptr;
 
     // note: bitmap shader now supports independent tile modes for X and Y
     // we pass the same to both, but later we should extend this flexibility

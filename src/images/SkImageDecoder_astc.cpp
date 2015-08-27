@@ -135,7 +135,7 @@ SkImageDecoder::Result SkASTCImageDecoder::onDecode(SkStream* stream, SkBitmap* 
         return kSuccess;
     }
 
-    if (!this->allocPixelRef(bm, NULL)) {
+    if (!this->allocPixelRef(bm, nullptr)) {
         return kFailure;
     }
 
@@ -188,7 +188,7 @@ static SkImageDecoder* sk_libastc_dfactory(SkStreamRewindable* stream) {
     if (is_astc(stream)) {
         return new SkASTCImageDecoder;
     }
-    return NULL;
+    return nullptr;
 }
 
 static SkImageDecoder_DecodeReg gReg(sk_libastc_dfactory);

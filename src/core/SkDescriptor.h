@@ -37,10 +37,10 @@ public:
 
     uint32_t getLength() const { return fLength; }
 
-    void* addEntry(uint32_t tag, size_t length, const void* data = NULL) {
+    void* addEntry(uint32_t tag, size_t length, const void* data = nullptr) {
         SkASSERT(tag);
         SkASSERT(SkAlign4(length) == length);
-        SkASSERT(this->findEntry(tag, NULL) == NULL);
+        SkASSERT(this->findEntry(tag, nullptr) == nullptr);
 
         Entry* entry = (Entry*)((char*)this + fLength);
         entry->fTag = tag;
@@ -77,7 +77,7 @@ public:
             }
             entry = (const Entry*)((const char*)(entry + 1) + entry->fLen);
         }
-        return NULL;
+        return nullptr;
     }
 
     SkDescriptor* copy() const {
@@ -134,9 +134,9 @@ private:
 
 class SkAutoDescriptor : SkNoncopyable {
 public:
-    SkAutoDescriptor() : fDesc(NULL) {}
-    SkAutoDescriptor(size_t size) : fDesc(NULL) { this->reset(size); }
-    SkAutoDescriptor(const SkDescriptor& desc) : fDesc(NULL) {
+    SkAutoDescriptor() : fDesc(nullptr) {}
+    SkAutoDescriptor(size_t size) : fDesc(nullptr) { this->reset(size); }
+    SkAutoDescriptor(const SkDescriptor& desc) : fDesc(nullptr) {
         size_t size = desc.getLength();
         this->reset(size);
         memcpy(fDesc, &desc, size);

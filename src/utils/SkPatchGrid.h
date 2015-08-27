@@ -88,7 +88,7 @@ public:
     };
     
     SkPatchGrid(int rows = 0, int cols = 0, VertexType flags = kNone_VertexType,
-                SkXfermode* xfer = NULL);
+                SkXfermode* xfer = nullptr);
     
     ~SkPatchGrid();
     
@@ -103,9 +103,9 @@ public:
                   const SkPoint texCoords[4]);
     
     /**
-     * Get patch at location (x,y). If cubics, colors or texCoords is not NULL it sets patch's
+     * Get patch at location (x,y). If cubics, colors or texCoords is not nullptr it sets patch's
      * array with its corresponding values.
-     * The function returns false if the cubics parameter is NULL or if the (x,y) coordinates are 
+     * The function returns false if the cubics parameter is nullptr or if the (x,y) coordinates are 
      * not within the range of the grid.
      */
     bool getPatch(int x, int y, SkPoint cubics[12], SkColor colors[4], SkPoint texCoords[4]) const;

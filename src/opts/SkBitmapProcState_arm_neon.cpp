@@ -96,11 +96,11 @@ const SkBitmapProcState::SampleProc16 gSkBitmapProcStateSample16_neon[] = {
     SI8_D16_filter_DX_neon,
 
     // Don't support 4444 -> 565
-    NULL, NULL, NULL, NULL,
+    nullptr, nullptr, nullptr, nullptr,
     // Don't support A8 -> 565
-    NULL, NULL, NULL, NULL,
+    nullptr, nullptr, nullptr, nullptr,
     // Don't support G8 -> 565 (but we could)
-    NULL, NULL, NULL, NULL,
+    nullptr, nullptr, nullptr, nullptr,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -126,7 +126,7 @@ endbfchar\n";
 
     buffer.reset();
 
-    append_cmap_sections(glyphToUnicode, NULL, &buffer, false, 0xFC, 0x110);
+    append_cmap_sections(glyphToUnicode, nullptr, &buffer, false, 0xFC, 0x110);
 
     char expectedResultSingleBytes[] =
 "2 beginbfchar\n\

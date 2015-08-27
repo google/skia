@@ -22,7 +22,7 @@ public:
     GrTextureUnitObj()
         : GrFakeRefObj()
         , fNumber(0)
-        , fTexture(NULL) {
+        , fTexture(nullptr) {
     }
 
     void setNumber(GrGLenum number) {

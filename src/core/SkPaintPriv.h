@@ -23,7 +23,7 @@ public:
     };
     
     /**
-     *  Returns true if drawing with this paint (or NULL) will ovewrite all affected pixels.
+     *  Returns true if drawing with this paint (or nullptr) will ovewrite all affected pixels.
      *
      *  Note: returns conservative true, meaning it may return false even though the paint might
      *        in fact overwrite its pixels.
@@ -35,13 +35,13 @@ public:
     }
 
     /**
-     *  Returns true if drawing this bitmap with this paint (or NULL) will ovewrite all affected
+     *  Returns true if drawing this bitmap with this paint (or nullptr) will ovewrite all affected
      *  pixels.
      */
     static bool Overwrites(const SkBitmap&, const SkPaint* paint);
 
     /**
-     *  Returns true if drawing this image with this paint (or NULL) will ovewrite all affected
+     *  Returns true if drawing this image with this paint (or nullptr) will ovewrite all affected
      *  pixels.
      */
     static bool Overwrites(const SkImage*, const SkPaint* paint);

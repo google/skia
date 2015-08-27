@@ -138,8 +138,8 @@ protected:
             x = 0;
             y += fBitmap.height() + MARGIN;
         }
-        // Test NULL mode
-        filter.reset(SkXfermodeImageFilter::Create(NULL, background));
+        // Test nullptr mode
+        filter.reset(SkXfermodeImageFilter::Create(nullptr, background));
         paint.setImageFilter(filter);
         drawClippedBitmap(canvas, fBitmap, paint, x, y);
         x += fBitmap.width() + MARGIN;

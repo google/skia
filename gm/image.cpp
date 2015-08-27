@@ -21,7 +21,7 @@ static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
     // be exercised on machines other than mike's. Will require a
     // rebaseline.
     SkAutoDataUnref data(SkData::NewFromFileName("/Users/mike/Downloads/skia.google.jpeg"));
-    if (NULL == data.get()) {
+    if (nullptr == data.get()) {
         return;
     }
     SkImage* image = SkImage::NewFromEncoded(data);
@@ -29,7 +29,7 @@ static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->scale(size.width() * 1.0f / image->width(),
                       size.height() * 1.0f / image->height());
-        canvas->drawImage(image, 0, 0, NULL);
+        canvas->drawImage(image, 0, 0, nullptr);
         image->unref();
     }
 }
@@ -76,9 +76,9 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
 //    paint.setFilterBitmap(true);
 //    paint.setAlpha(0x80);
 
-    canvas->drawImage(imgR, 0, 0, usePaint ? &paint : NULL);
-    canvas->drawImage(imgG, 0, 80, usePaint ? &paint : NULL);
-    surf->draw(canvas, 0, 160, usePaint ? &paint : NULL);
+    canvas->drawImage(imgR, 0, 0, usePaint ? &paint : nullptr);
+    canvas->drawImage(imgG, 0, 80, usePaint ? &paint : nullptr);
+    surf->draw(canvas, 0, 160, usePaint ? &paint : nullptr);
 
     SkRect src1, src2, src3;
     src1.iset(0, 0, surf->width(), surf->height());
@@ -92,10 +92,10 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf, bool usePaint) {
     dst3.set(0, 400, 65, 465);
     dst4.set(0, 480, 65, 545);
 
-    canvas->drawImageRect(imgR, src1, dst1, usePaint ? &paint : NULL);
-    canvas->drawImageRect(imgG, src2, dst2, usePaint ? &paint : NULL);
-    canvas->drawImageRect(imgR, src3, dst3, usePaint ? &paint : NULL);
-    canvas->drawImageRect(imgG, dst4, usePaint ? &paint : NULL);
+    canvas->drawImageRect(imgR, src1, dst1, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgG, src2, dst2, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgR, src3, dst3, usePaint ? &paint : nullptr);
+    canvas->drawImageRect(imgG, dst4, usePaint ? &paint : nullptr);
 
     imgG->unref();
     imgR->unref();
@@ -241,20 +241,20 @@ protected:
         if (subset) {
             srcR.set(*subset);
         }
-        canvas->legacy_drawImageRect(image, subset ? &srcR : NULL, dstR, &paint);
+        canvas->legacy_drawImageRect(image, subset ? &srcR : nullptr, dstR, &paint);
         canvas->translate(newW + 20.0f, 0);
 
         // image method
         SkAutoTUnref<SkImage> image2(image->newImage(newW, newH, subset, fq));
-        canvas->drawImage(image2, 0, 0, NULL);
+        canvas->drawImage(image2, 0, 0, nullptr);
         canvas->translate(image2->width() + 20.0f, 0);
     }
 
     void drawImage(SkCanvas* canvas, SkImage* image, SkFilterQuality fq) {
 
-        canvas->drawImage(image, 0, 0, NULL);
+        canvas->drawImage(image, 0, 0, nullptr);
         canvas->translate(image->width() + 20.0f, 0);
-        this->drawResized(canvas, image, image->width()*4/10, image->height()*4/10, NULL, fq);
+        this->drawResized(canvas, image, image->width()*4/10, image->height()*4/10, nullptr, fq);
 
         SkIRect subset = SkIRect::MakeLTRB(W/4, H/4, W/2, H/2);
         this->drawResized(canvas, image, W, H, &subset, fq);

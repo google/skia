@@ -26,7 +26,7 @@ const SkMemberInfo SkTextToPath::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkTextToPath);
 
-SkTextToPath::SkTextToPath() : paint(NULL), path(NULL), text(NULL) {
+SkTextToPath::SkTextToPath() : paint(nullptr), path(nullptr), text(nullptr) {
 }
 
 bool SkTextToPath::draw(SkAnimateMaker& maker) {
@@ -35,7 +35,7 @@ bool SkTextToPath::draw(SkAnimateMaker& maker) {
 }
 
 void SkTextToPath::onEndElement(SkAnimateMaker& maker) {
-    if (paint == NULL || path == NULL || text == NULL) {
+    if (paint == nullptr || path == nullptr || text == nullptr) {
         // !!! add error message here
         maker.setErrorCode(SkDisplayXMLParserError::kErrorInAttributeValue);
         return;

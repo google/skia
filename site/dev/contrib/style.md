@@ -440,25 +440,25 @@ stdint.h types (int32_t, etc). Assert that counts, etc are not negative instead
 of using unsigned. Bitfields use uint32_t unless they have to be made shorter
 for packing or performance reasons.
 
-NULL, 0
+nullptr, 0
 -------
 
-Use NULL for pointers, 0 for ints. We prefer explicit NULL comparisons when
-checking for NULL pointers (as documentation):
+Use nullptr for pointers, 0 for ints. We prefer explicit nullptr comparisons when
+checking for nullptr pointers (as documentation):
 
 <!--?prettify?-->
 ~~~~
-if (NULL == x) {  // slightly preferred over if (!x)
+if (nullptr == x) {  // slightly preferred over if (!x)
    ...
 }
 ~~~~
 
-When checking non-NULL pointers explicit comparisons are not required because it
+When checking non-nullptr pointers explicit comparisons are not required because it
 reads like a double negative:
 
 <!--?prettify?-->
 ~~~~
-if (x) {  // slightly preferred over if (NULL != x)
+if (x) {  // slightly preferred over if (nullptr != x)
    ...
 }
 ~~~~
@@ -514,7 +514,7 @@ Variable (i.e. mutable) object parameters are passed to functions as pointers.
 ~~~~
 // src and paint are optional
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src, 
-                             const SkRect& dst, const SkPaint* paint = NULL);
+                             const SkRect& dst, const SkPaint* paint = nullptr);
 // metrics is mutable (it is changed by the method)
 SkScalar SkPaint::getFontMetrics(FontMetric* metrics, SkScalar scale) const;
 // A reference to foo is retained by SkContainer
@@ -527,8 +527,8 @@ lined up with the first parameter on the same line
 <!--?prettify?-->
 ~~~~
 void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst,
-                    const SkPaint* paint = NULL) {
-    this->drawBitmapRectToRect(bitmap, NULL, dst, paint,
+                    const SkPaint* paint = nullptr) {
+    this->drawBitmapRectToRect(bitmap, nullptr, dst, paint,
                                kNone_DrawBitmapRectFlag);
 }
 ~~~~
@@ -539,9 +539,9 @@ or placed on the next line indented eight spaces
 ~~~~
 void drawBitmapRect(
         const SkBitmap& bitmap, const SkRect& dst,
-        const SkPaint* paint = NULL) {
+        const SkPaint* paint = nullptr) {
     this->drawBitmapRectToRect(
-            bitmap, NULL, dst, paint, kNone_DrawBitmapRectFlag);
+            bitmap, nullptr, dst, paint, kNone_DrawBitmapRectFlag);
 }
 ~~~~
 

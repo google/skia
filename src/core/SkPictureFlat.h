@@ -296,8 +296,8 @@ public:
     // Unflatten this into result, using bitmapHeap and facePlayback for bitmaps and fonts if given
     template <typename Traits, typename T>
     void unflatten(T* result,
-                   SkBitmapHeap* bitmapHeap = NULL,
-                   SkTypefacePlayback* facePlayback = NULL) const {
+                   SkBitmapHeap* bitmapHeap = nullptr,
+                   SkTypefacePlayback* facePlayback = nullptr) const {
         SkReadBuffer buffer(this->data(), fFlatSize);
 
         if (bitmapHeap) {
@@ -411,28 +411,28 @@ public:
      * Similar to find. Allows the caller to specify an SkFlatData to replace in
      * the case of an add. Also tells the caller whether a new SkFlatData was
      * added and whether the old one was replaced. The parameters added and
-     * replaced are required to be non-NULL. Rather than returning the index of
+     * replaced are required to be non-nullptr. Rather than returning the index of
      * the entry in the dictionary, it returns the actual SkFlatData.
      */
     const SkFlatData* findAndReplace(const T& element,
                                      const SkFlatData* toReplace,
                                      bool* added,
                                      bool* replaced) {
-        SkASSERT(added != NULL && replaced != NULL);
+        SkASSERT(added != nullptr && replaced != nullptr);
 
         const int oldCount = this->count();
         SkFlatData* flat = this->findAndReturnMutableFlat(element);
         *added = this->count() > oldCount;
 
         // If we don't want to replace anything, we're done.
-        if (!*added || toReplace == NULL) {
+        if (!*added || toReplace == nullptr) {
             *replaced = false;
             return flat;
         }
 
         // If we don't have the thing to replace, we're done.
         const SkFlatData* found = fHash.find(*toReplace);
-        if (found == NULL) {
+        if (found == nullptr) {
             *replaced = false;
             return flat;
         }
@@ -469,7 +469,7 @@ public:
 
     /**
      * Find or insert a flattened version of element into the dictionary.
-     * Caller does not take ownership of the result.  This will not return NULL.
+     * Caller does not take ownership of the result.  This will not return nullptr.
      */
     const SkFlatData* findAndReturnFlat(const T& element) {
         return this->findAndReturnMutableFlat(element);
@@ -484,7 +484,7 @@ private:
         }
 
         // Without a bitmap heap, we'll flatten bitmaps into paints.  That's never what you want.
-        SkASSERT(fController->getBitmapHeap() != NULL);
+        SkASSERT(fController->getBitmapHeap() != nullptr);
         fScratch.setBitmapHeap(fController->getBitmapHeap());
         fScratch.setTypefaceRecorder(fController->getTypefaceSet());
         fScratch.setNamedFactoryRecorder(fController->getNamedFactorySet());
@@ -497,7 +497,7 @@ private:
         const SkFlatData& scratch = this->resetScratch(element, this->count()+1);
 
         SkFlatData* candidate = fHash.find(scratch);
-        if (candidate != NULL) {
+        if (candidate != nullptr) {
             return candidate;
         }
 
@@ -520,7 +520,7 @@ private:
 
         // Reinterpret data in fScratch as an SkFlatData.
         SkFlatData* scratch = (SkFlatData*)fScratch.getWriter32()->contiguousArray();
-        SkASSERT(scratch != NULL);
+        SkASSERT(scratch != nullptr);
         scratch->stampHeader(index, SkToS32(dataSize));
         return *scratch;
     }
@@ -534,7 +534,7 @@ private:
 
         // Copy scratch into the new SkFlatData.
         SkFlatData* scratch = (SkFlatData*)fScratch.getWriter32()->contiguousArray();
-        SkASSERT(scratch != NULL);
+        SkASSERT(scratch != nullptr);
         memcpy(detached, scratch, fScratch.bytesWritten());
 
         // We can now reuse fScratch, and detached will live until fController dies.

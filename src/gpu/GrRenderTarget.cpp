@@ -18,7 +18,7 @@
 void GrRenderTarget::discard() {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
-    GrDrawContext* drawContext = context ? context->drawContext() : NULL;
+    GrDrawContext* drawContext = context ? context->drawContext() : nullptr;
     if (!drawContext) {
         return;
     }
@@ -51,13 +51,13 @@ void GrRenderTarget::overrideResolveRect(const SkIRect rect) {
 }
 
 void GrRenderTarget::onRelease() {
-    this->renderTargetPriv().didAttachStencilAttachment(NULL);
+    this->renderTargetPriv().didAttachStencilAttachment(nullptr);
 
     INHERITED::onRelease();
 }
 
 void GrRenderTarget::onAbandon() {
-    this->renderTargetPriv().didAttachStencilAttachment(NULL);
+    this->renderTargetPriv().didAttachStencilAttachment(nullptr);
 
     INHERITED::onAbandon();
 }

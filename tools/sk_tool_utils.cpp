@@ -84,7 +84,7 @@ void emoji_typeface(SkAutoTUnref<SkTypeface>* tf) {
         tf->reset(SkTypeface::CreateFromName("Apple Color Emoji", SkTypeface::kNormal));
         return;
     }
-    tf->reset(NULL);
+    tf->reset(nullptr);
     return;
 }
 
@@ -201,12 +201,12 @@ void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPain
     SkTDArray<uint16_t> glyphs;
 
     size_t len = strlen(text);
-    glyphs.append(paint.textToGlyphs(text, len, NULL));
+    glyphs.append(paint.textToGlyphs(text, len, nullptr));
     paint.textToGlyphs(text, len, glyphs.begin());
 
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
     const SkTextBlobBuilder::RunBuffer& run = builder->allocRun(paint, glyphs.count(), x, y,
-                                                                NULL);
+                                                                nullptr);
     memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
 }
 

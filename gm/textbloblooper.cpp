@@ -30,7 +30,7 @@ static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const
     SkTDArray<uint16_t> glyphs;
 
     size_t len = strlen(text);
-    glyphs.append(paint.textToGlyphs(text, len, NULL));
+    glyphs.append(paint.textToGlyphs(text, len, nullptr));
     paint.textToGlyphs(text, len, glyphs.begin());
 
     const SkScalar advanceX = paint.getTextSize() * 0.85f;
@@ -90,7 +90,7 @@ static SkShader* make_shader(const SkRect& bounds) {
         SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW,
     };
     return SkGradientShader::CreateLinear(pts,
-                                          colors, NULL, SK_ARRAY_COUNT(colors),
+                                          colors, nullptr, SK_ARRAY_COUNT(colors),
                                           SkShader::kClamp_TileMode);
 }
 
@@ -202,7 +202,7 @@ protected:
                                                SkLayerDrawLooper::kColorFilter_Bit |
                                                SkLayerDrawLooper::kXfermode_Bit, &color_filter,
                                                xfermode, SK_ARRAY_COUNT(xfermode)));
-        fLoopers.push_back().reset(setupLooper(0, NULL, skew, SK_ARRAY_COUNT(skew)));
+        fLoopers.push_back().reset(setupLooper(0, nullptr, skew, SK_ARRAY_COUNT(skew)));
         fLoopers.push_back().reset(setupLooper(SkLayerDrawLooper::kMaskFilter_Bit |
                                                SkLayerDrawLooper::kShader_Bit |
                                                SkLayerDrawLooper::kColorFilter_Bit |

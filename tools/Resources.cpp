@@ -44,14 +44,14 @@ SkStreamAsset* GetResourceAsStream(const char* resource) {
         return stream.detach();
     } else {
         SkDebugf("Resource %s not found.\n", resource);
-        return NULL;
+        return nullptr;
     }
 }
 
 SkTypeface* GetResourceAsTypeface(const char* resource) {
     SkAutoTDelete<SkStreamAsset> stream(GetResourceAsStream(resource));
     if (!stream) {
-        return NULL;
+        return nullptr;
     }
     return SkTypeface::CreateFromStream(stream.detach());
 }

@@ -84,7 +84,7 @@ DEF_TEST(MetaData, reporter) {
     int                 loop = 0;
     int count;
     SkMetaData::Type    t;
-    while ((name = iter.next(&t, &count)) != NULL)
+    while ((name = iter.next(&t, &count)) != nullptr)
     {
         int match = 0;
         for (unsigned i = 0; i < SK_ARRAY_COUNT(gElems); i++)

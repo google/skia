@@ -36,7 +36,7 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     SkSafeUnref(paint.setTypeface(typeface));
     x = drawString(canvas, ch, x, y, paint) + 20;
 
-    if (NULL == typeface) {
+    if (nullptr == typeface) {
         return x;
     }
 
@@ -55,7 +55,7 @@ static const char* ja = "ja";
 
 class FontMgrGM : public skiagm::GM {
 public:
-    FontMgrGM(SkFontMgr* fontMgr = NULL) {
+    FontMgrGM(SkFontMgr* fontMgr = nullptr) {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
 
         fName.set("fontmgr_iter");
@@ -92,7 +92,7 @@ protected:
         for (int i = 0; i < count; ++i) {
             SkString familyName;
             fm->getFamilyName(i, &familyName);
-            paint.setTypeface(NULL);
+            paint.setTypeface(nullptr);
             (void)drawString(canvas, familyName, 20, y, paint);
 
             SkScalar x = 220;
@@ -111,7 +111,7 @@ protected:
                 x = drawCharacter(canvas, 0x5203, x, y, paint, fm, familyName.c_str(), &zh, 1, fs);
                 x = drawCharacter(canvas, 0x5203, x, y, paint, fm, familyName.c_str(), &ja, 1, fs);
                 // check that emoji characters are found
-                x = drawCharacter(canvas, 0x1f601, x, y, paint, fm, familyName.c_str(), NULL,0, fs);
+                x = drawCharacter(canvas, 0x1f601, x, y, paint, fm, familyName.c_str(), nullptr,0, fs);
             }
             y += 24;
         }
@@ -199,7 +199,7 @@ protected:
                 break;
             }
         }
-        if (NULL == fset.get()) {
+        if (nullptr == fset.get()) {
             return;
         }
 

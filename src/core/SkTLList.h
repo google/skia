@@ -103,13 +103,13 @@ public:
     }
 
     /** Adds a new element to the list before the location indicated by the iterator. If the
-        iterator refers to a NULL location then the new element is added at the tail */
+        iterator refers to a nullptr location then the new element is added at the tail */
     T* addBefore(const T& t, const Iter& location) {
         return new (this->internalAddBefore(location)) T(t);
     }
 
     /** Adds a new element to the list after the location indicated by the iterator. If the
-        iterator refers to a NULL location then the new element is added at the head */
+        iterator refers to a nullptr location then the new element is added at the head */
     T* addAfter(const T& t, const Iter& location) {
         return new (this->internalAddAfter(location)) T(t);
     }
@@ -222,7 +222,7 @@ public:
             if (node) {
                 return reinterpret_cast<T*>(node->fObj);
             } else {
-                return NULL;
+                return nullptr;
             }
         }
     };

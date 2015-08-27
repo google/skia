@@ -135,7 +135,7 @@ protected:
         const size_t textLen = strlen(text);
 
         SkScalar x = SkIntToScalar(10);
-        SkScalar dy = paint.getFontMetrics(NULL);
+        SkScalar dy = paint.getFontMetrics(nullptr);
         SkScalar y = dy;
 
         if (fApplyKerning) {

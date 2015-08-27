@@ -76,7 +76,7 @@ void SkCullPoints::moveTo(int x, int y) {
 }
 
 SkCullPoints::LineToResult SkCullPoints::lineTo(int x, int y, SkIPoint line[]) {
-    SkASSERT(line != NULL);
+    SkASSERT(line != nullptr);
 
     LineToResult result = kNo_Result;
     int x0 = fPrevPt.fX;
@@ -107,7 +107,7 @@ SkCullPoints::LineToResult SkCullPoints::lineTo(int x, int y, SkIPoint line[]) {
 #include "SkPath.h"
 
 SkCullPointsPath::SkCullPointsPath()
-    : fCP(), fPath(NULL) {
+    : fCP(), fPath(nullptr) {
 }
 
 SkCullPointsPath::SkCullPointsPath(const SkIRect& r, SkPath* dst)

@@ -23,7 +23,7 @@ DEF_GPUTEST(ReadWriteAlpha, reporter, factory) {
             continue;
         }
         GrContext* context = factory->get(glType);
-        if (NULL == context) {
+        if (nullptr == context) {
             continue;
         }
 

@@ -121,7 +121,7 @@ DEF_GPUTEST(GpuColorFilter, reporter, factory) {
         GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
 
         GrContext* grContext = factory->get(glType);
-        if (NULL == grContext) {
+        if (nullptr == grContext) {
             continue;
         }
 

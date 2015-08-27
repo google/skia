@@ -329,13 +329,13 @@ class AutoReleasePixels {
 public:
     AutoReleasePixels(DiffRecord* drp)
     : fDrp(drp) {
-        SkASSERT(drp != NULL);
+        SkASSERT(drp != nullptr);
     }
     ~AutoReleasePixels() {
-        fDrp->fBase.fBitmap.setPixelRef(NULL);
-        fDrp->fComparison.fBitmap.setPixelRef(NULL);
-        fDrp->fDifference.fBitmap.setPixelRef(NULL);
-        fDrp->fWhite.fBitmap.setPixelRef(NULL);
+        fDrp->fBase.fBitmap.setPixelRef(nullptr);
+        fDrp->fComparison.fBitmap.setPixelRef(nullptr);
+        fDrp->fDifference.fBitmap.setPixelRef(nullptr);
+        fDrp->fWhite.fBitmap.setPixelRef(nullptr);
     }
 
 private:
@@ -345,7 +345,7 @@ private:
 static void get_bounds(DiffResource& resource, const char* name) {
     if (resource.fBitmap.empty() && !DiffResource::isStatusFailed(resource.fStatus)) {
         SkAutoDataUnref fileBits(read_file(resource.fFullPath.c_str()));
-        if (NULL == fileBits) {
+        if (nullptr == fileBits) {
             SkDebugf("WARNING: couldn't read %s file <%s>\n", name, resource.fFullPath.c_str());
             resource.fStatus = DiffResource::kCouldNotRead_Status;
         } else {
@@ -477,12 +477,12 @@ static void create_diff_images (DiffMetricProc dmp,
             if (comparisonFileBits) {
                 drp->fComparison.fStatus = DiffResource::kRead_Status;
             }
-            if (NULL == baseFileBits || NULL == comparisonFileBits) {
-                if (NULL == baseFileBits) {
+            if (nullptr == baseFileBits || nullptr == comparisonFileBits) {
+                if (nullptr == baseFileBits) {
                     drp->fBase.fStatus = DiffResource::kCouldNotRead_Status;
                     VERBOSE_STATUS("READ FAIL", ANSI_COLOR_RED, baseFiles[i]);
                 }
-                if (NULL == comparisonFileBits) {
+                if (nullptr == comparisonFileBits) {
                     drp->fComparison.fStatus = DiffResource::kCouldNotRead_Status;
                     VERBOSE_STATUS("READ FAIL", ANSI_COLOR_RED, comparisonFiles[j]);
                 }

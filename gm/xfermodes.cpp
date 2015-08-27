@@ -255,14 +255,14 @@ protected:
                 p.setShader(s);
                 canvas->drawRect(r, p);
 
-                canvas->saveLayer(&r, NULL);
+                canvas->saveLayer(&r, nullptr);
                 draw_mode(canvas, mode, static_cast<SrcType>(sourceType),
                           r.fLeft, r.fTop);
                 canvas->restore();
 
                 r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
                 p.setStyle(SkPaint::kStroke_Style);
-                p.setShader(NULL);
+                p.setShader(nullptr);
                 canvas->drawRect(r, p);
 
 #if 1

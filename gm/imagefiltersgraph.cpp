@@ -194,7 +194,7 @@ protected:
             SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcIn_Mode));
             SkImageFilter::CropRect cropRect(SkRect::MakeWH(SkIntToScalar(95), SkIntToScalar(100)));
             SkAutoTUnref<SkImageFilter> blend(
-                SkXfermodeImageFilter::Create(mode, blur, NULL, &cropRect));
+                SkXfermodeImageFilter::Create(mode, blur, nullptr, &cropRect));
 
             SkPaint paint;
             paint.setImageFilter(blend);
@@ -211,7 +211,7 @@ protected:
                                                                SkIntToScalar(80), SkIntToScalar(80)));
             SkImageFilter::CropRect innerRect(SkRect::MakeXYWH(SkIntToScalar(20), SkIntToScalar(20),
                                                                SkIntToScalar(60), SkIntToScalar(60)));
-            SkAutoTUnref<SkImageFilter> color1(SkColorFilterImageFilter::Create(cf1, NULL, &outerRect));
+            SkAutoTUnref<SkImageFilter> color1(SkColorFilterImageFilter::Create(cf1, nullptr, &outerRect));
             SkAutoTUnref<SkImageFilter> color2(SkColorFilterImageFilter::Create(cf2, color1, &innerRect));
 
             SkPaint paint;

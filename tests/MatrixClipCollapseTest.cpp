@@ -192,8 +192,8 @@ static void emit_clip(SkCanvas* canvas, ClipType clip) {
 }
 
 static void add_clip(ClipType clip, MatType mat, SkTDArray<DrawType>* expected) {
-    if (NULL == expected) {
-        // expected is NULL if this clip will be fused into later clips
+    if (nullptr == expected) {
+        // expected is nullptr if this clip will be fused into later clips
         return;
     }
 
@@ -255,8 +255,8 @@ static void emit_mat(SkCanvas* canvas, MatType mat) {
 }
 
 static void add_mat(MatType mat, SkTDArray<DrawType>* expected) {
-    if (NULL == expected) {
-        // expected is NULL if this matrix call will be fused into later ones
+    if (nullptr == expected) {
+        // expected is nullptr if this matrix call will be fused into later ones
         return;
     }
 
@@ -475,7 +475,7 @@ static void emit_body2(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
     (*emitMC)(canvas, mat, clip, kSaveLayer_DrawOpType, expected, accumulatedClips+1);
     *expected->append() = SAVE_LAYER;
     // TODO: widen testing to exercise saveLayer's parameters
-    canvas->saveLayer(NULL, NULL);
+    canvas->saveLayer(nullptr, nullptr);
         if (needsSaveRestore) {
             *expected->append() = SAVE;
         }
@@ -513,14 +513,14 @@ static void emit_body3(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
     (*emitMC)(canvas, mat, clip, kSaveLayer_DrawOpType, expected, accumulatedClips+1);
     *expected->append() = SAVE_LAYER;
     // TODO: widen testing to exercise saveLayer's parameters
-    canvas->saveLayer(NULL, NULL);
+    canvas->saveLayer(nullptr, nullptr);
         (*emitMC)(canvas, mat, clip, kSaveLayer_DrawOpType, expected, 1);
         if (kNone_MatType != mat || kNone_ClipType != clip) {
             *expected->append() = SAVE;
         }
         *expected->append() = SAVE_LAYER;
         // TODO: widen testing to exercise saveLayer's parameters
-        canvas->saveLayer(NULL, NULL);
+        canvas->saveLayer(nullptr, nullptr);
             if (needsSaveRestore) {
                 *expected->append() = SAVE;
             }
@@ -569,11 +569,11 @@ static void emit_struct1(SkCanvas* canvas,
                          PFEmitMC emitMC, MatType mat, ClipType clip,
                          PFEmitBody emitBody, DrawOpType draw,
                          SkTDArray<DrawType>* expected) {
-    (*emitMC)(canvas, mat, clip, draw, NULL, 0); // these get fused into later ops
+    (*emitMC)(canvas, mat, clip, draw, nullptr, 0); // these get fused into later ops
     canvas->save();
         (*emitBody)(canvas, emitMC, mat, clip, draw, expected, 1);
     canvas->restore();
-    (*emitMC)(canvas, mat, clip, draw, NULL, 0); // these will get removed
+    (*emitMC)(canvas, mat, clip, draw, nullptr, 0); // these will get removed
 }
 
 // Emit:
@@ -592,14 +592,14 @@ static void emit_struct2(SkCanvas* canvas,
                          PFEmitMC emitMC, MatType mat, ClipType clip,
                          PFEmitBody emitBody, DrawOpType draw,
                          SkTDArray<DrawType>* expected) {
-    (*emitMC)(canvas, mat, clip, draw, NULL, 1); // these will get fused into later ops
+    (*emitMC)(canvas, mat, clip, draw, nullptr, 1); // these will get fused into later ops
     canvas->save();
         (*emitBody)(canvas, emitMC, mat, clip, draw, expected, 1);
     canvas->restore();
     canvas->save();
         (*emitBody)(canvas, emitMC, mat, clip, draw, expected, 1);
     canvas->restore();
-    (*emitMC)(canvas, mat, clip, draw, NULL, 1); // these will get removed
+    (*emitMC)(canvas, mat, clip, draw, nullptr, 1); // these will get removed
 }
 
 // Emit:
@@ -621,17 +621,17 @@ static void emit_struct3(SkCanvas* canvas,
                          PFEmitMC emitMC, MatType mat, ClipType clip,
                          PFEmitBody emitBody, DrawOpType draw,
                          SkTDArray<DrawType>* expected) {
-    (*emitMC)(canvas, mat, clip, draw, NULL, 0); // these will get fused into later ops
+    (*emitMC)(canvas, mat, clip, draw, nullptr, 0); // these will get fused into later ops
     canvas->save();
         (*emitBody)(canvas, emitMC, mat, clip, draw, expected, 1);
     canvas->restore();
     canvas->save();
-        (*emitMC)(canvas, mat, clip, draw, NULL, 1); // these will get fused into later ops
+        (*emitMC)(canvas, mat, clip, draw, nullptr, 1); // these will get fused into later ops
         canvas->save();
             (*emitBody)(canvas, emitMC, mat, clip, draw, expected, 2);
         canvas->restore();
     canvas->restore();
-    (*emitMC)(canvas, mat, clip, draw, NULL, 0); // these will get removed
+    (*emitMC)(canvas, mat, clip, draw, nullptr, 0); // these will get removed
 }
 
 //////////////////////////////////////////////////////////////////////////////

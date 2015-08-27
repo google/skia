@@ -20,16 +20,16 @@ SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRe
         flags = 0x0;
     }
     CropRect cropRect(rect, flags);
-    return s ? new SkRectShaderImageFilter(s, &cropRect) : NULL;
+    return s ? new SkRectShaderImageFilter(s, &cropRect) : nullptr;
 }
 
 SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const CropRect* cropRect) {
     SkASSERT(s);
-    return s ? new SkRectShaderImageFilter(s, cropRect) : NULL;
+    return s ? new SkRectShaderImageFilter(s, cropRect) : nullptr;
 }
 
 SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cropRect)
-  : INHERITED(0, NULL, cropRect)
+  : INHERITED(0, nullptr, cropRect)
   , fShader(SkRef(s)) {
 }
 
@@ -60,7 +60,7 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(),
                                                           bounds.height()));
-    if (NULL == device.get()) {
+    if (nullptr == device.get()) {
         return false;
     }
     SkCanvas canvas(device.get());

@@ -267,7 +267,7 @@ protected:
             canvas->drawRect(oval, rectPaint);
             canvas->drawOval(oval, fPaints[i]);
 
-            fPaints[i].setShader(NULL);
+            fPaints[i].setShader(nullptr);
 
             canvas->restore();
         }

@@ -32,9 +32,9 @@ protected:
 static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     // need a cache, but don't expect to use it, so the budget is not critical
     SkAutoTUnref<SkDiscardableMemoryPool> pool(
-        SkDiscardableMemoryPool::Create(10 * 1000, NULL));
+        SkDiscardableMemoryPool::Create(10 * 1000, nullptr));
     SkBitmap bm;
-    bool success = SkInstallDiscardablePixelRef(new FailureImageGenerator, NULL, &bm, pool);
+    bool success = SkInstallDiscardablePixelRef(new FailureImageGenerator, nullptr, &bm, pool);
     REPORTER_ASSERT(reporter, success);
     // now our bitmap has a pixelref, but we know it will fail to lock
 
@@ -300,7 +300,7 @@ DEF_TEST(DrawBitmapRect, reporter) {
     SkIRect srcR = { gWidth, 0, gWidth + 16, 16 };
     SkRect  dstR = { 0, 0, SkIntToScalar(16), SkIntToScalar(16) };
 
-    canvas.drawBitmapRect(src, srcR, dstR, NULL);
+    canvas.drawBitmapRect(src, srcR, dstR, nullptr);
 
     // ensure that we draw nothing if srcR does not intersect the bitmap
     REPORTER_ASSERT(reporter, check_for_all_zeros(dst));

@@ -62,7 +62,7 @@ void GrAADistanceFieldPathRenderer::HandleEviction(GrBatchAtlas::AtlasID id, voi
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer() : fAtlas(NULL) {}
+GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer() : fAtlas(nullptr) {}
 
 GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
     PathDataList::Iter iter;
@@ -226,7 +226,7 @@ private:
             // TODO: handle stroked vs. filled version of same path
             PathData::Key key = { args.fPath.getGenerationID(), desiredDimension };
             args.fPathData = fPathCache->find(key);
-            if (NULL == args.fPathData || !atlas->hasID(args.fPathData->fID)) {
+            if (nullptr == args.fPathData || !atlas->hasID(args.fPathData->fID)) {
                 // Remove the stale cache entry
                 if (args.fPathData) {
                     fPathCache->remove(args.fPathData->fKey);
@@ -281,7 +281,7 @@ private:
         fBatch.fColor = color;
         fBatch.fViewMatrix = viewMatrix;
         fGeoData.push_back(geometry);
-        fGeoData.back().fPathData = NULL;
+        fGeoData.back().fPathData = nullptr;
 
         fAtlas = atlas;
         fPathCache = pathCache;
@@ -558,7 +558,7 @@ struct PathTestStruct {
     typedef GrAADistanceFieldPathRenderer::PathCache PathCache;
     typedef GrAADistanceFieldPathRenderer::PathData PathData;
     typedef GrAADistanceFieldPathRenderer::PathDataList PathDataList;
-    PathTestStruct() : fContextID(SK_InvalidGenID), fAtlas(NULL) {}
+    PathTestStruct() : fContextID(SK_InvalidGenID), fAtlas(nullptr) {}
     ~PathTestStruct() { this->reset(); }
 
     void reset() {

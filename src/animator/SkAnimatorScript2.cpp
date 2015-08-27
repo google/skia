@@ -205,7 +205,7 @@ public:
             return true;
         }
         const SkMemberInfo* info = displayable->getMember(name.c_str());
-        if (info == NULL)
+        if (info == nullptr)
             return false;    // !!! add additional error info?
         ref->fType = SkAnimatorScript2::ToOpType(info->getType());
         ref->fOperand.fObject = (void*) info;
@@ -235,7 +235,7 @@ public:
         SkDisplayable* displayable = (SkDisplayable*) object;
         SkString name(member, len);
         const SkMemberInfo* info = displayable->getMember(name.c_str());
-        if (info == NULL || info->fType != SkType_MemberFunction)
+        if (info == nullptr || info->fType != SkType_MemberFunction)
             return false;    // !!! add additional error info?
         ref->fType = SkAnimatorScript2::ToOpType(info->getType());
         ref->fOperand.fObject = (void*) info;
@@ -264,7 +264,7 @@ public:
 class SkAnimatorScript_NamedColor : public SkScriptCallBackProperty {
 public:
     virtual bool getConstValue(const char* name, int len, SkOperand2* value) {
-        return SkParse::FindNamedColor(name, len, (SkColor*) &value->fS32) != NULL;
+        return SkParse::FindNamedColor(name, len, (SkColor*) &value->fS32) != nullptr;
     }
 };
 
@@ -474,9 +474,9 @@ SkDisplayTypes SkAnimatorScript2::ToDisplayType(SkOperand2::OpType type) {
 }
 
 SkOperand2::OpType SkAnimatorScript2::ToOpType(SkDisplayTypes type) {
-    if (SkDisplayType::IsDisplayable(NULL /* fMaker */, type))
+    if (SkDisplayType::IsDisplayable(nullptr /* fMaker */, type))
         return SkOperand2::kObject;
-    if (SkDisplayType::IsEnum(NULL /* fMaker */, type))
+    if (SkDisplayType::IsEnum(nullptr /* fMaker */, type))
         return SkOperand2::kS32;
     switch (type) {
         case SkType_ARGB:
@@ -506,7 +506,7 @@ bool SkAnimatorScript2::MapEnums(const char* ptr, const char* match, size_t len,
     bool more = true;
     do {
         const char* last = strchr(ptr, '|');
-        if (last == NULL) {
+        if (last == nullptr) {
             last = &ptr[strlen(ptr)];
             more = false;
         }
@@ -591,7 +591,7 @@ void SkAnimatorScript2::UnitTest() {
     animator.doUserEvent(evt);
     // set up animator with memory script above, then run value tests
     for (int index = 0; index < SkScriptNAnswer_testCount; index++) {
-        SkAnimatorScript2 engine(*animator.fMaker, NULL, scriptTests[index].fType);
+        SkAnimatorScript2 engine(*animator.fMaker, nullptr, scriptTests[index].fType);
         SkScriptValue2 value;
         const char* script = scriptTests[index].fScript;
         bool success = engine.evaluateScript(&script, &value);

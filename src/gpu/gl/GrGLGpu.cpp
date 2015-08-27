@@ -169,13 +169,13 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
         glInterface->ref();
     }
     if (!glInterface) {
-        return NULL;
+        return nullptr;
     }
     GrGLContext* glContext = GrGLContext::Create(glInterface, options);
     if (glContext) {
         return new GrGLGpu(glContext, context);
     }
-    return NULL;
+    return nullptr;
 }
 
 static bool gPrintStartupSpew;
@@ -398,17 +398,17 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
 
 GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
                                          GrWrapOwnership ownership) {
-    if (!this->configToGLFormats(desc.fConfig, false, NULL, NULL, NULL)) {
-        return NULL;
+    if (!this->configToGLFormats(desc.fConfig, false, nullptr, nullptr, nullptr)) {
+        return nullptr;
     }
 
     if (0 == desc.fTextureHandle) {
-        return NULL;
+        return nullptr;
     }
 
     int maxSize = this->caps()->maxTextureSize();
     if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
-        return NULL;
+        return nullptr;
     }
 
     GrGLTexture::IDDesc idDesc;
@@ -442,19 +442,19 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         surfDesc.fOrigin = desc.fOrigin;
     }
 
-    GrGLTexture* texture = NULL;
+    GrGLTexture* texture = nullptr;
     if (renderTarget) {
         GrGLRenderTarget::IDDesc rtIDDesc;
         if (!this->createRenderTargetObjects(surfDesc, GrGpuResource::kUncached_LifeCycle,
                                              idDesc.fTextureID, &rtIDDesc)) {
-            return NULL;
+            return nullptr;
         }
         texture = new GrGLTextureRenderTarget(this, surfDesc, idDesc, rtIDDesc);
     } else {
         texture = new GrGLTexture(this, surfDesc, idDesc);
     }
-    if (NULL == texture) {
-        return NULL;
+    if (nullptr == texture) {
+        return nullptr;
     }
 
     return texture;
@@ -564,7 +564,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
                             int left, int top, int width, int height,
                             GrPixelConfig config, const void* buffer,
                             size_t rowBytes) {
-    if (NULL == buffer) {
+    if (nullptr == buffer) {
         return false;
     }
 
@@ -813,7 +813,7 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
 
     // We only need the internal format for compressed 2D textures.
     GrGLenum internalFormat = 0;
-    if (!this->configToGLFormats(desc.fConfig, false, &internalFormat, NULL, NULL)) {
+    if (!this->configToGLFormats(desc.fConfig, false, &internalFormat, nullptr, nullptr)) {
         return false;
     }
 
@@ -926,8 +926,8 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
                                      // ES2 and ES3 require sized internal formats for rb storage.
                                      kGLES_GrGLStandard == this->glStandard(),
                                      &msColorFormat,
-                                     NULL,
-                                     NULL)) {
+                                     nullptr,
+                                     nullptr)) {
             goto FAILED;
         }
     } else {
@@ -1001,7 +1001,7 @@ FAILED:
 // good to set a break-point here to know when createTexture fails
 static GrTexture* return_null_texture() {
 //    SkDEBUGFAIL("null texture");
-    return NULL;
+    return nullptr;
 }
 
 #if 0 && defined(SK_DEBUG)
@@ -1294,7 +1294,7 @@ bool GrGLGpu::attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb, GrR
 
     GrGLuint fbo = glrt->renderFBOID();
 
-    if (NULL == sb) {
+    if (nullptr == sb) {
         if (rt->renderTargetPriv().getStencilAttachment()) {
             GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                             GR_GL_STENCIL_ATTACHMENT,
@@ -1372,17 +1372,17 @@ GrVertexBuffer* GrGLGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
             GL_ALLOC_CALL(this->glInterface(),
                           BufferData(GR_GL_ARRAY_BUFFER,
                                      (GrGLsizeiptr) desc.fSizeInBytes,
-                                     NULL,   // data ptr
+                                     nullptr,   // data ptr
                                      desc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
             if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
                 GL_CALL(DeleteBuffers(1, &desc.fID));
                 this->notifyVertexBufferDelete(desc.fID);
-                return NULL;
+                return nullptr;
             }
             GrGLVertexBuffer* vertexBuffer = new GrGLVertexBuffer(this, desc);
             return vertexBuffer;
         }
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1404,17 +1404,17 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
             GL_ALLOC_CALL(this->glInterface(),
                           BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
                                      (GrGLsizeiptr) desc.fSizeInBytes,
-                                     NULL,  // data ptr
+                                     nullptr,  // data ptr
                                      desc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
             if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
                 GL_CALL(DeleteBuffers(1, &desc.fID));
                 this->notifyIndexBufferDelete(desc.fID);
-                return NULL;
+                return nullptr;
             }
             GrIndexBuffer* indexBuffer = new GrGLIndexBuffer(this, desc);
             return indexBuffer;
         }
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1489,7 +1489,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, NULL);
+    this->flushRenderTarget(glRT, nullptr);
 
     return true;
 }
@@ -1503,7 +1503,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
     SkASSERT(vbuf);
     SkASSERT(!vbuf->isMapped());
 
-    GrGLIndexBuffer* ibuf = NULL;
+    GrGLIndexBuffer* ibuf = nullptr;
     if (vertices.isIndexed()) {
         SkASSERT(indexOffsetInBytes);
 
@@ -1638,7 +1638,7 @@ void GrGLGpu::discard(GrRenderTarget* renderTarget) {
 }
 
 void GrGLGpu::clearStencil(GrRenderTarget* target) {
-    if (NULL == target) {
+    if (nullptr == target) {
         return;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
@@ -1799,7 +1799,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     GrGLenum format = 0;
     GrGLenum type = 0;
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
-    if (!this->configToGLFormats(config, false, NULL, &format, &type)) {
+    if (!this->configToGLFormats(config, false, nullptr, &format, &type)) {
         return false;
     }
 
@@ -1947,7 +1947,7 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
             }
         }
     }
-    if (NULL == bound || !bound->isEmpty()) {
+    if (nullptr == bound || !bound->isEmpty()) {
         target->flagAsNeedingResolve(bound);
     }
 
@@ -2409,13 +2409,13 @@ bool GrGLGpu::configToGLFormats(GrPixelConfig config,
                                 GrGLenum* externalFormat,
                                 GrGLenum* externalType) const {
     GrGLenum dontCare;
-    if (NULL == internalFormat) {
+    if (nullptr == internalFormat) {
         internalFormat = &dontCare;
     }
-    if (NULL == externalFormat) {
+    if (nullptr == externalFormat) {
         externalFormat = &dontCare;
     }
-    if (NULL == externalType) {
+    if (nullptr == externalType) {
         externalType = &dontCare;
     }
 
@@ -2670,7 +2670,7 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
 GrGLuint GrGLGpu::bindSurfaceAsFBO(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
                                    TempFBOTarget tempFBOTarget) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
-    if (NULL == rt) {
+    if (nullptr == rt) {
         SkASSERT(surface->asTexture());
         GrGLuint texID = static_cast<GrGLTexture*>(surface->asTexture())->textureID();
         GrGLuint* tempFBOID;
@@ -2736,7 +2736,7 @@ bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
             return true;
         }
         return false;
-    } else if (NULL == src->asRenderTarget()) {
+    } else if (nullptr == src->asRenderTarget()) {
         // CopyTexSubImage2D or fbo blit would require creating a temp fbo for the src.
         return false;
     }
@@ -3147,7 +3147,7 @@ GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(
                                                 const GrGLIndexBuffer* ibuffer) {
     SkASSERT(vbuffer);
     GrGLuint vbufferID = vbuffer->bufferID();
-    GrGLuint* ibufferIDPtr = NULL;
+    GrGLuint* ibufferIDPtr = nullptr;
     GrGLuint ibufferID;
     if (ibuffer) {
         ibufferID = ibuffer->bufferID();
@@ -3158,7 +3158,7 @@ GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(
 
 GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBufferToDraw(GrGLGpu* gpu,
                                                                          GrGLuint vbufferID) {
-    return this->internalBind(gpu, vbufferID, NULL);
+    return this->internalBind(gpu, vbufferID, nullptr);
 }
 
 GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(GrGLGpu* gpu,

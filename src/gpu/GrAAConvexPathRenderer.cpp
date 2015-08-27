@@ -673,7 +673,7 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     return d->fCaps->shaderCaps()->shaderDerivativeSupport() ?
            QuadEdgeEffect::Create(GrRandomColor(d->fRandom),
                                   GrTest::TestMatrix(d->fRandom),
-                                  d->fRandom->nextBool()) : NULL;
+                                  d->fRandom->nextBool()) : nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

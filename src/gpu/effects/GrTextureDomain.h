@@ -108,7 +108,7 @@ public:
          * @param outcolor  name of vec4 variable to hold the sampled color.
          * @param inCoords  name of vec2 variable containing the coords to be used with the domain.
          *                  It is assumed that this is a variable and not an expression.
-         * @param inModulateColor   if non-NULL the sampled color will be modulated with this
+         * @param inModulateColor   if non-nullptr the sampled color will be modulated with this
          *                          expression before being written to outColor.
          */
         void sampleTexture(GrGLShaderBuilder* builder,
@@ -116,7 +116,7 @@ public:
                            const char* outColor,
                            const SkString& inCoords,
                            const GrGLProcessor::TextureSampler sampler,
-                           const char* inModulateColor = NULL);
+                           const char* inModulateColor = nullptr);
 
         /**
          * Call this from GrGLProcessor::setData() to upload uniforms necessary for the texture

@@ -22,8 +22,8 @@ SkLayerDrawLooper::LayerInfo::LayerInfo() {
 }
 
 SkLayerDrawLooper::SkLayerDrawLooper()
-        : fRecs(NULL),
-          fTopRec(NULL),
+        : fRecs(nullptr),
+          fTopRec(nullptr),
           fCount(0) {
 }
 
@@ -134,7 +134,7 @@ SkLayerDrawLooper::LayerDrawLooperContext::LayerDrawLooperContext(
 bool SkLayerDrawLooper::LayerDrawLooperContext::next(SkCanvas* canvas,
                                                      SkPaint* paint) {
     canvas->restore();
-    if (NULL == fCurrRec) {
+    if (nullptr == fCurrRec) {
         return false;
     }
 
@@ -167,7 +167,7 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         return false;
     }
     const SkMaskFilter* mf = rec->fPaint.getMaskFilter();
-    if (NULL == mf) {
+    if (nullptr == mf) {
         return false;
     }
     SkMaskFilter::BlurRec maskBlur;
@@ -293,8 +293,8 @@ void SkLayerDrawLooper::toString(SkString* str) const {
 #endif
 
 SkLayerDrawLooper::Builder::Builder()
-        : fRecs(NULL),
-          fTopRec(NULL),
+        : fRecs(nullptr),
+          fTopRec(nullptr),
           fCount(0) {
 }
 
@@ -314,7 +314,7 @@ SkPaint* SkLayerDrawLooper::Builder::addLayer(const LayerInfo& info) {
     rec->fNext = fRecs;
     rec->fInfo = info;
     fRecs = rec;
-    if (NULL == fTopRec) {
+    if (nullptr == fTopRec) {
         fTopRec = rec;
     }
 
@@ -332,9 +332,9 @@ SkPaint* SkLayerDrawLooper::Builder::addLayerOnTop(const LayerInfo& info) {
     fCount += 1;
 
     Rec* rec = new Rec;
-    rec->fNext = NULL;
+    rec->fNext = nullptr;
     rec->fInfo = info;
-    if (NULL == fRecs) {
+    if (nullptr == fRecs) {
         fRecs = rec;
     } else {
         SkASSERT(fTopRec);
@@ -351,8 +351,8 @@ SkLayerDrawLooper* SkLayerDrawLooper::Builder::detachLooper() {
     looper->fRecs = fRecs;
 
     fCount = 0;
-    fRecs = NULL;
-    fTopRec = NULL;
+    fRecs = nullptr;
+    fTopRec = nullptr;
 
     return looper;
 }

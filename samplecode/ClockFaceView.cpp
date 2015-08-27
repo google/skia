@@ -104,7 +104,7 @@ private:
 SkFlattenable* Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
-    return new Dot2DPathEffect(buffer.readScalar(), matrix, NULL);
+    return new Dot2DPathEffect(buffer.readScalar(), matrix, nullptr);
 }
 
 class InverseFillPE : public SkPathEffect {
@@ -140,7 +140,7 @@ static SkPathEffect* makepe(float interp, SkTDArray<SkPoint>* pts) {
 }
 
 static void r7(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p, SkScalar interp) {
-    p.setPathEffect(makepe(SkScalarToFloat(interp), NULL))->unref();
+    p.setPathEffect(makepe(SkScalarToFloat(interp), nullptr))->unref();
     rastBuilder->addLayer(p);
 #if 0
     p.setPathEffect(new InverseFillPE())->unref();
@@ -205,7 +205,7 @@ protected:
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
         SkPath path, dstPath;
         orig.getTextPath("9", 1, 0, 0, &path);
-        pe->filterPath(&dstPath, path, &rec, NULL);
+        pe->filterPath(&dstPath, path, &rec, nullptr);
 
         SkPaint p;
         p.setAntiAlias(true);
@@ -245,7 +245,7 @@ protected:
                 fInterp = 0;
                 fDx = -fDx;
             }
-            this->inval(NULL);
+            this->inval(nullptr);
         }
     }
 

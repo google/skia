@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (NULL == fContext) {
+    if (nullptr == fContext) {
         return false;
     }
     if (args.fStroke->isDashed()) {
@@ -36,7 +36,7 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
                               SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
     const GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
-    if (NULL == rt) {
+    if (nullptr == rt) {
         return false;
     }
 
@@ -105,7 +105,7 @@ void draw_around_inv_path(GrDrawTarget* target,
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    if (NULL == fContext) {
+    if (nullptr == fContext) {
         return false;
     }
 
@@ -123,7 +123,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             GrSWMaskHelper::DrawPathMaskToTexture(fContext, *args.fPath, *args.fStroke,
                                                   devPathBounds,
                                                   args.fAntiAlias, args.fViewMatrix));
-    if (NULL == texture) {
+    if (nullptr == texture) {
         return false;
     }
 

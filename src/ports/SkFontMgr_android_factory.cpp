@@ -9,9 +9,9 @@
 #include "SkFontMgr_android.h"
 
 // For test only.
-static const char* gTestFontsXml = NULL;
-static const char* gTestFallbackFontsXml = NULL;
-static const char* gTestBasePath = NULL;
+static const char* gTestFontsXml = nullptr;
+static const char* gTestFallbackFontsXml = nullptr;
+static const char* gTestBasePath = nullptr;
 
 void SkUseTestFontConfigFile(const char* fontsXml, const char* fallbackFontsXml,
                              const char* basePath)
@@ -39,5 +39,5 @@ SkFontMgr* SkFontMgr::Factory() {
         return SkFontMgr_New_Android(&custom);
     }
 
-    return SkFontMgr_New_Android(NULL);
+    return SkFontMgr_New_Android(nullptr);
 }

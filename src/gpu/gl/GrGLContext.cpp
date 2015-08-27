@@ -13,7 +13,7 @@
 GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContextOptions& options) {
     // We haven't validated the GrGLInterface yet, so check for GetString function pointer
     if (!interface->fFunctions.fGetString) {
-        return NULL;
+        return nullptr;
     }
     ConstructorArgs args;
     args.fInterface = interface;
@@ -27,16 +27,16 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
     const char* renderer = reinterpret_cast<const char*>(rendererUByte);
 
     if (!interface->validate()) {
-        return NULL;
+        return nullptr;
     }
 
     args.fGLVersion = GrGLGetVersionFromString(ver);
     if (GR_GL_INVALID_VER == args.fGLVersion) {
-        return NULL;
+        return nullptr;
     }
 
     if (!GrGLGetGLSLGeneration(interface, &args.fGLSLGeneration)) {
-        return NULL;
+        return nullptr;
     }
 
     args.fVendor = GrGLGetVendor(interface);

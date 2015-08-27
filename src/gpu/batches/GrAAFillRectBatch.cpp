@@ -237,7 +237,7 @@ public:
                           const GrPipelineOptimizations& opts) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
                                        geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
-                                       NULL);
+                                       nullptr);
     }
 };
 

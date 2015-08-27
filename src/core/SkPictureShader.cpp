@@ -85,12 +85,12 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
         result->reset(SkRef(rec.fShader.get()));
 
         SkBitmap tile;
-        if (rec.fShader.get()->isABitmap(&tile, NULL, NULL)) {
+        if (rec.fShader.get()->isABitmap(&tile, nullptr, nullptr)) {
             // FIXME: this doesn't protect the pixels from being discarded as soon as we unlock.
             // Should be handled via a pixel ref generator instead
             // (https://code.google.com/p/skia/issues/detail?id=3220).
             SkAutoLockPixels alp(tile, true);
-            return tile.getPixels() != NULL;
+            return tile.getPixels() != nullptr;
         }
         return false;
     }
@@ -99,8 +99,8 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 static bool cache_try_alloc_pixels(SkBitmap* bitmap) {
     SkBitmap::Allocator* allocator = SkResourceCache::GetAllocator();
 
-    return NULL != allocator
-        ? allocator->allocPixelRef(bitmap, NULL)
+    return nullptr != allocator
+        ? allocator->allocPixelRef(bitmap, nullptr)
         : bitmap->tryAllocPixels();
 }
 
@@ -141,7 +141,7 @@ SkFlattenable* SkPictureShader::CreateProc(SkReadBuffer& buffer) {
         if (buffer.isVersionLT(SkReadBuffer::kPictureShaderHasPictureBool_Version)) {
             // Older code blindly serialized pictures.  We don't trust them.
             buffer.validate(false);
-            return NULL;
+            return nullptr;
         }
         // Newer code won't serialize pictures in disallow-cross-process-picture mode.
         // Assert that they didn't serialize anything except a false here.
@@ -187,7 +187,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
     //
     // TODO: replace this with decomposeScale() -- but beware LayoutTest rebaselines!
     //
-    if (!SkDecomposeUpper2x2(m, NULL, &scale, NULL)) {
+    if (!SkDecomposeUpper2x2(m, nullptr, &scale, nullptr)) {
         // Decomposition failed, use an approximation.
         scale.set(SkScalarSqrt(m.getScaleX() * m.getScaleX() + m.getSkewX() * m.getSkewX()),
                   SkScalarSqrt(m.getScaleY() * m.getScaleY() + m.getSkewY() * m.getSkewY()));
@@ -262,8 +262,8 @@ size_t SkPictureShader::contextSize() const {
 
 SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void* storage) const {
     SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix));
-    if (NULL == bitmapShader.get()) {
-        return NULL;
+    if (nullptr == bitmapShader.get()) {
+        return nullptr;
     }
     return PictureShaderContext::Create(storage, *this, rec, bitmapShader);
 }
@@ -273,9 +273,9 @@ SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void*
 SkShader::Context* SkPictureShader::PictureShaderContext::Create(void* storage,
                    const SkPictureShader& shader, const ContextRec& rec, SkShader* bitmapShader) {
     PictureShaderContext* ctx = new (storage) PictureShaderContext(shader, rec, bitmapShader);
-    if (NULL == ctx->fBitmapShaderContext) {
+    if (nullptr == ctx->fBitmapShaderContext) {
         ctx->~PictureShaderContext();
-        ctx = NULL;
+        ctx = nullptr;
     }
     return ctx;
 }
@@ -349,7 +349,7 @@ bool SkPictureShader::asFragmentProcessor(GrContext* context, const SkPaint& pai
     if (!bitmapShader) {
         return false;
     }
-    return bitmapShader->asFragmentProcessor(context, paint, viewM, NULL, paintColor,
+    return bitmapShader->asFragmentProcessor(context, paint, viewM, nullptr, paintColor,
                                              procDataManager, fp);
 }
 #else

@@ -70,7 +70,7 @@ protected:
                 }
 
                 SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(filename.c_str()));
-                if (NULL == fileData) {
+                if (nullptr == fileData) {
                     SkDebugf("Could not open the file. Did you forget to set the resourcePath?\n");
                     return;
                 }

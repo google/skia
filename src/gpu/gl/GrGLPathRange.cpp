@@ -46,7 +46,7 @@ void GrGLPathRange::init() {
 
 void GrGLPathRange::onInitPath(int index, const SkPath& origSkPath) const {
     GrGLGpu* gpu = static_cast<GrGLGpu*>(this->getGpu());
-    if (NULL == gpu) {
+    if (nullptr == gpu) {
         return;
     }
 

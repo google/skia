@@ -112,7 +112,7 @@ protected:
                 SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
 
                 canvas->drawRect(bounds, fBGPaint);
-                canvas->saveLayer(&bounds, NULL);
+                canvas->saveLayer(&bounds, nullptr);
                 SkScalar dy = drawCell(canvas, mode,
                                        gAlphaValue[alpha & 1],
                                        gAlphaValue[alpha & 2]);

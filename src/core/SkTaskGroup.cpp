@@ -122,7 +122,7 @@ private:
         // Send a poison pill to each thread.
         SkAtomic<int> dummy(0);
         for (int i = 0; i < fThreads.count(); i++) {
-            this->add(NULL, NULL, &dummy);
+            this->add(nullptr, nullptr, &dummy);
         }
         // Wait for them all to swallow the pill and die.
         for (int i = 0; i < fThreads.count(); i++) {
@@ -197,12 +197,12 @@ private:
 
     friend struct SkTaskGroup::Enabler;
 };
-ThreadPool* ThreadPool::gGlobal = NULL;
+ThreadPool* ThreadPool::gGlobal = nullptr;
 
 }  // namespace
 
 SkTaskGroup::Enabler::Enabler(int threads) {
-    SkASSERT(ThreadPool::gGlobal == NULL);
+    SkASSERT(ThreadPool::gGlobal == nullptr);
     if (threads != 0) {
         ThreadPool::gGlobal = new ThreadPool(threads);
     }

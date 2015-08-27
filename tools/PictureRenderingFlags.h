@@ -26,7 +26,7 @@ enum PictureTool {
  *  @param error If there is an error or warning, it will be stored in error.
  *  @param tool Which tool is being used.
  *  @return PictureRenderer A PictureRenderer with the settings specified
- *          on the command line, or NULL if the command line is invalid.
+ *          on the command line, or nullptr if the command line is invalid.
  */
 sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool);
 

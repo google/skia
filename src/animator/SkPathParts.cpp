@@ -13,7 +13,7 @@
 #include "SkDrawRectangle.h"
 #include "SkDrawPath.h"
 
-SkPathPart::SkPathPart() : fPath(NULL) {
+SkPathPart::SkPathPart() : fPath(nullptr) {
 }
 
 void SkPathPart::dirty() {
@@ -25,7 +25,7 @@ SkDisplayable* SkPathPart::getParent() const {
 }
 
 bool SkPathPart::setParent(SkDisplayable* parent) {
-    SkASSERT(parent != NULL);
+    SkASSERT(parent != nullptr);
     if (parent->isPath() == false)
         return true;
     fPath = (SkDrawPath*) parent;
@@ -305,11 +305,11 @@ const SkMemberInfo SkAddPath::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkAddPath);
 
-SkAddPath::SkAddPath() : matrix(NULL), path(NULL) {
+SkAddPath::SkAddPath() : matrix(nullptr), path(nullptr) {
 }
 
 bool SkAddPath::add() {
-    SkASSERT (path != NULL);
+    SkASSERT (path != nullptr);
     if (matrix)
         fPath->fPath.addPath(path->fPath, matrix->getMatrix());
     else

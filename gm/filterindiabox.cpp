@@ -99,7 +99,7 @@ protected:
       }
 
       void makeBitmap() {
-          SkImageDecoder* codec = NULL;
+          SkImageDecoder* codec = nullptr;
           SkString resourcePath = GetResourcePath(fFilename.c_str());
           SkFILEStream stream(resourcePath.c_str());
           if (stream.isValid()) {

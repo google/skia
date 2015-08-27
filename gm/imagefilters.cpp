@@ -31,7 +31,7 @@ protected:
         // want to force a layer, so modes like DstIn can combine meaningfully, but the final
         // image can still be shown against our default (opaque) background. non-opaque GMs
         // are a lot more trouble to compare/triage.
-        canvas->saveLayer(NULL, NULL);
+        canvas->saveLayer(nullptr, nullptr);
         canvas->drawColor(SK_ColorGREEN);
 
         SkPaint paint;
@@ -62,7 +62,7 @@ protected:
         
         for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
             canvas->save();
-            this->doDraw(canvas, modes[i], NULL);
+            this->doDraw(canvas, modes[i], nullptr);
             canvas->translate(240, 0);
             this->doDraw(canvas, modes[i], imf);
             canvas->restore();

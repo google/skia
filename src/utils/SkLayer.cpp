@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 SkLayer::SkLayer() {
-    fParent = NULL;
+    fParent = nullptr;
     m_opacity = SK_Scalar1;
     m_size.set(0, 0);
     m_position.set(0, 0);
@@ -35,7 +35,7 @@ SkLayer::SkLayer() {
 }
 
 SkLayer::SkLayer(const SkLayer& src) : INHERITED() {
-    fParent = NULL;
+    fParent = nullptr;
     m_opacity = src.m_opacity;
     m_size = src.m_size;
     m_position = src.m_position;
@@ -93,14 +93,14 @@ SkLayer* SkLayer::getChild(int index) const {
         SkASSERT(m_children[index]->fParent == this);
         return m_children[index];
     }
-    return NULL;
+    return nullptr;
 }
 
 SkLayer* SkLayer::addChild(SkLayer* child) {
     SkASSERT(this != child);
     child->ref();
     child->detachFromParent();
-    SkASSERT(child->fParent == NULL);
+    SkASSERT(child->fParent == nullptr);
     child->fParent = this;
 
     *m_children.append() = child;
@@ -112,7 +112,7 @@ void SkLayer::detachFromParent() {
         int index = fParent->m_children.find(this);
         SkASSERT(index >= 0);
         fParent->m_children.remove(index);
-        fParent = NULL;
+        fParent = nullptr;
         this->unref();  // this call might delete us
     }
 }
@@ -122,7 +122,7 @@ void SkLayer::removeChildren() {
     for (int i = 0; i < count; i++) {
         SkLayer* child = m_children[i];
         SkASSERT(child->fParent == this);
-        child->fParent = NULL;  // in case it has more than one owner
+        child->fParent = nullptr;  // in case it has more than one owner
         child->unref();
     }
     m_children.reset();
@@ -130,7 +130,7 @@ void SkLayer::removeChildren() {
 
 SkLayer* SkLayer::getRootLayer() const {
     const SkLayer* root = this;
-    while (root->fParent != NULL) {
+    while (root->fParent != nullptr) {
         root = root->fParent;
     }
     return const_cast<SkLayer*>(root);
@@ -157,7 +157,7 @@ void SkLayer::localToGlobal(SkMatrix* matrix) const {
     }
 
     const SkLayer* layer = this;
-    while (layer->fParent != NULL) {
+    while (layer->fParent != nullptr) {
         layer = layer->fParent;
 
         SkMatrix tmp;

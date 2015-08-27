@@ -252,7 +252,7 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
 
 DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    if (NULL == context) {
+    if (nullptr == context) {
         return;
     }
     GrSurfaceDesc desc;

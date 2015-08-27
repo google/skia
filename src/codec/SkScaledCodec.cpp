@@ -14,7 +14,7 @@
 SkCodec* SkScaledCodec::NewFromStream(SkStream* stream) {
     bool isWebp = SkWebpCodec::IsWebp(stream);
     if (!stream->rewind()) {
-        return NULL;
+        return nullptr;
     }
     if (isWebp) {
         // Webp codec supports scaling and subsetting natively
@@ -22,8 +22,8 @@ SkCodec* SkScaledCodec::NewFromStream(SkStream* stream) {
     }
 
     SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(SkScanlineDecoder::NewFromStream(stream));
-    if (NULL == scanlineDecoder) {
-        return NULL;
+    if (nullptr == scanlineDecoder) {
+        return nullptr;
     }
 
     // wrap in new SkScaledCodec
@@ -32,13 +32,13 @@ SkCodec* SkScaledCodec::NewFromStream(SkStream* stream) {
 
 SkCodec* SkScaledCodec::NewFromData(SkData* data) {
     if (!data) {
-        return NULL;
+        return nullptr;
     }
     return NewFromStream(new SkMemoryStream(data));
 }
 
 SkScaledCodec::SkScaledCodec(SkScanlineDecoder* scanlineDecoder)
-    : INHERITED(scanlineDecoder->getInfo(), NULL)
+    : INHERITED(scanlineDecoder->getInfo(), nullptr)
     , fScanlineDecoder(scanlineDecoder)
 {}
 

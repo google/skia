@@ -60,7 +60,7 @@ protected:
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
             fMatchStr.appendUnichar(uni);
-            this->inval(NULL);
+            this->inval(nullptr);
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -86,7 +86,7 @@ protected:
                 this->next(&loc);
             }
         }
-        return NULL;
+        return nullptr;
     }
 
 private:

@@ -1066,7 +1066,7 @@ void SkOpSegment::dumpAngles() const {
     const SkOpSpanBase* span = &fHead;
     do {
         const SkOpAngle* fAngle = span->fromAngle();
-        const SkOpAngle* tAngle = span->final() ? NULL : span->upCast()->toAngle();
+        const SkOpAngle* tAngle = span->final() ? nullptr : span->upCast()->toAngle();
         if (fAngle) {
             SkDebugf("  span=%d from=%d ", span->debugID(), fAngle->debugID());
             fAngle->dumpTo(this, tAngle);
@@ -1285,7 +1285,7 @@ const SkOpAngle* SkOpGlobalState::debugAngle(int id) const {
             segment = segment->next();
         }
     } while ((contour = contour->next()));
-    return NULL;
+    return nullptr;
 }
 
 SkOpContour* SkOpGlobalState::debugContour(int id) {
@@ -1295,7 +1295,7 @@ SkOpContour* SkOpGlobalState::debugContour(int id) {
             return contour;
         }
     } while ((contour = contour->next()));
-    return NULL;
+    return nullptr;
 }
 
 const SkOpPtT* SkOpGlobalState::debugPtT(int id) const {
@@ -1318,7 +1318,7 @@ const SkOpPtT* SkOpGlobalState::debugPtT(int id) const {
             segment = segment->next();
         }
     } while ((contour = contour->next()));
-    return NULL;
+    return nullptr;
 }
 
 const SkOpSegment* SkOpGlobalState::debugSegment(int id) const {
@@ -1332,7 +1332,7 @@ const SkOpSegment* SkOpGlobalState::debugSegment(int id) const {
             segment = segment->next();
         }
     } while ((contour = contour->next()));
-    return NULL;
+    return nullptr;
 }
 
 const SkOpSpanBase* SkOpGlobalState::debugSpan(int id) const {
@@ -1353,7 +1353,7 @@ const SkOpSpanBase* SkOpGlobalState::debugSpan(int id) const {
             segment = segment->next();
         }
     } while ((contour = contour->next()));
-    return NULL;
+    return nullptr;
 }
 #endif
 

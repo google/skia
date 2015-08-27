@@ -25,8 +25,8 @@ public:
 
     LineConicIntersections(const SkDConic& c)
         : fConic(c)
-        SkDEBUGPARAMS(fLine(NULL))
-        SkDEBUGPARAMS(fIntersections(NULL))
+        SkDEBUGPARAMS(fLine(nullptr))
+        SkDEBUGPARAMS(fIntersections(nullptr))
         SkDEBUGPARAMS(fAllowNear(false)) {
     }
 
@@ -39,7 +39,7 @@ public:
         for (int index = 0; index < last; ) {
             double conicMidT = ((*fIntersections)[0][index] + (*fIntersections)[0][index + 1]) / 2;
             SkDPoint conicMidPt = fConic.ptAtT(conicMidT);
-            double t = fLine->nearPoint(conicMidPt, NULL);
+            double t = fLine->nearPoint(conicMidPt, nullptr);
             if (t < 0) {
                 ++index;
                 continue;
@@ -186,7 +186,7 @@ protected:
             if (fIntersections->hasT(conicT)) {
                 continue;
             }
-            double lineT = fLine->nearPoint(fConic[cIndex], NULL);
+            double lineT = fLine->nearPoint(fConic[cIndex], nullptr);
             if (lineT < 0) {
                 continue;
             }

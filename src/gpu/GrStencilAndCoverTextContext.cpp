@@ -55,7 +55,7 @@ bool GrStencilAndCoverTextContext::canDraw(const GrRenderTarget* rt,
         return false;
     }
     if (SkPathEffect* pe = skPaint.getPathEffect()) {
-        if (pe->asADash(NULL) != SkPathEffect::kDash_DashType) {
+        if (pe->asADash(nullptr) != SkPathEffect::kDash_DashType) {
             return false;
         }
     }
@@ -69,7 +69,7 @@ bool GrStencilAndCoverTextContext::canDraw(const GrRenderTarget* rt,
 
     // No color bitmap fonts.
     SkScalerContext::Rec    rec;
-    SkScalerContext::MakeRec(skPaint, &fSurfaceProps, NULL, &rec);
+    SkScalerContext::MakeRec(skPaint, &fSurfaceProps, nullptr, &rec);
     return rec.getFormat() != SkMask::kARGB32_Format;
 }
 
@@ -82,9 +82,9 @@ void GrStencilAndCoverTextContext::onDrawText(GrRenderTarget* rt,
                                               size_t byteLength,
                                               SkScalar x, SkScalar y,
                                               const SkIRect& regionClipBounds) {
-    SkASSERT(byteLength == 0 || text != NULL);
+    SkASSERT(byteLength == 0 || text != nullptr);
 
-    if (text == NULL || byteLength == 0 /*|| fRC->isEmpty()*/) {
+    if (text == nullptr || byteLength == 0 /*|| fRC->isEmpty()*/) {
         return;
     }
 
@@ -177,11 +177,11 @@ void GrStencilAndCoverTextContext::onDrawPosText(GrRenderTarget* rt,
                                                  int scalarsPerPosition,
                                                  const SkPoint& offset,
                                                  const SkIRect& regionClipBounds) {
-    SkASSERT(byteLength == 0 || text != NULL);
+    SkASSERT(byteLength == 0 || text != nullptr);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
     // nothing to draw
-    if (text == NULL || byteLength == 0/* || fRC->isEmpty()*/) {
+    if (text == nullptr || byteLength == 0/* || fRC->isEmpty()*/) {
         return;
     }
 
@@ -237,11 +237,11 @@ static GrPathRange* get_gr_glyphs(GrContext* ctx,
     SkAutoTUnref<GrPathRange> glyphs(
         static_cast<GrPathRange*>(
             ctx->resourceProvider()->findAndRefResourceByUniqueKey(glyphKey)));
-    if (NULL == glyphs) {
+    if (nullptr == glyphs) {
         glyphs.reset(ctx->resourceProvider()->createGlyphs(typeface, desc, stroke));
         ctx->resourceProvider()->assignUniqueKeyToResource(glyphKey, glyphs);
     } else {
-        SkASSERT(NULL == desc || glyphs->isEqualTo(*desc));
+        SkASSERT(nullptr == desc || glyphs->isEqualTo(*desc));
     }
 
     return glyphs.detach();
@@ -371,9 +371,9 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
         fViewMatrix.preConcat(textMatrix);
         fLocalMatrix = textMatrix;
 
-        fGlyphCache = fSkPaint.detachCache(&fSurfaceProps, NULL, true /*ignoreGamma*/);
+        fGlyphCache = fSkPaint.detachCache(&fSurfaceProps, nullptr, true /*ignoreGamma*/);
         fGlyphs = canUseRawPaths ?
-                      get_gr_glyphs(fContext, fSkPaint.getTypeface(), NULL, fStroke) :
+                      get_gr_glyphs(fContext, fSkPaint.getTypeface(), nullptr, fStroke) :
                       get_gr_glyphs(fContext, fGlyphCache->getScalerContext()->getTypeface(),
                                     &fGlyphCache->getDescriptor(), fStroke);
     }
@@ -486,10 +486,10 @@ void GrStencilAndCoverTextContext::finish() {
     this->flush();
 
     fGlyphs->unref();
-    fGlyphs = NULL;
+    fGlyphs = nullptr;
 
     SkGlyphCache::AttachCache(fGlyphCache);
-    fGlyphCache = NULL;
+    fGlyphCache = nullptr;
 
     fViewMatrix = fContextInitialMatrix;
 }

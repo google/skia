@@ -116,15 +116,15 @@ DEF_TEST(SwizzlerFill, r) {
 
                             // Fill with a color
                             check_fill(r, colorInfo, startRow, endRow, colorRowBytes, offset,
-                                    kFillColor, NULL);
+                                    kFillColor, nullptr);
 
                             // Fill with an index
                             check_fill(r, indexInfo, startRow, endRow, indexRowBytes, offset,
-                                    kFillIndex, NULL);
+                                    kFillIndex, nullptr);
 
                             // Fill a grayscale image
                             check_fill(r, grayInfo, startRow, endRow, grayRowBytes, offset,
-                                    kFillColor, NULL);
+                                    kFillColor, nullptr);
                         }
                     }
                 }

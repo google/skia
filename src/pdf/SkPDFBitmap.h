@@ -24,7 +24,7 @@ class SkPDFCanon;
  */
 class SkPDFBitmap : public SkPDFObject {
 public:
-    // Returns NULL on unsupported bitmap;
+    // Returns nullptr on unsupported bitmap;
     static SkPDFBitmap* Create(SkPDFCanon*, const SkBitmap&);
     bool equals(const SkBitmap& other) const {
         return fBitmap.getGenerationID() == other.getGenerationID() &&

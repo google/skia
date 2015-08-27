@@ -1541,14 +1541,14 @@ const SkBlitRow::Proc16 sk_blitrow_platform_565_procs_arm_neon[] = {
 #if 0
     S32A_D565_Blend_neon,
 #else
-    NULL,   // https://code.google.com/p/skia/issues/detail?id=2797
+    nullptr,   // https://code.google.com/p/skia/issues/detail?id=2797
 #endif
 
     // dither
     S32_D565_Opaque_Dither_neon,
     S32_D565_Blend_Dither_neon,
     S32A_D565_Opaque_Dither_neon,
-    NULL,   // S32A_D565_Blend_Dither
+    nullptr,   // S32A_D565_Blend_Dither
 };
 
 const SkBlitRow::ColorProc16 sk_blitrow_platform_565_colorprocs_arm_neon[] = {
@@ -1559,7 +1559,7 @@ const SkBlitRow::ColorProc16 sk_blitrow_platform_565_colorprocs_arm_neon[] = {
 };
 
 const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[] = {
-    NULL,   // S32_Opaque,
+    nullptr,   // S32_Opaque,
     S32_Blend_BlitRow32_neon,        // S32_Blend,
     /*
      * We have two choices for S32A_Opaque procs. The one reads the src alpha
@@ -1579,7 +1579,7 @@ const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[] = {
 #ifdef SK_CPU_ARM32
     S32A_Blend_BlitRow32_neon        // S32A_Blend
 #else
-    NULL
+    nullptr
 #endif
 };
 

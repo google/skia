@@ -123,7 +123,7 @@ private:
 
     ShaderProc32        fShaderProc32;      // chooseProcs
     ShaderProc16        fShaderProc16;      // chooseProcs
-    // These are used if the shaderproc is NULL
+    // These are used if the shaderproc is nullptr
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
     SampleProc16        fSampleProc16;      // chooseProcs

@@ -30,9 +30,9 @@ static const SkColor gColors[] = {
 //static const SkScalar gPos[] = { SK_Scalar1*999/2000, SK_Scalar1*1001/2000 };
 
 static const GradData gGradData[] = {
-    { 40, gColors, NULL },
+    { 40, gColors, nullptr },
     //  { 2, gColors, gPos },
-    //  { 2, gCol2, NULL },
+    //  { 2, gCol2, nullptr },
 };
 
 static SkShader* MakeLinear(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {

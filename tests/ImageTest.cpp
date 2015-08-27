@@ -80,7 +80,7 @@ static void test_encode(skiatest::Reporter* reporter, GrContext* ctx) {
 
     SkAutoTUnref<SkImage> decoded(SkImage::NewFromEncoded(origEncoded));
     REPORTER_ASSERT(reporter, decoded);
-    assert_equal(reporter, orig, NULL, decoded);
+    assert_equal(reporter, orig, nullptr, decoded);
 
     // Now see if we can instantiate an image from a subset of the surface/origEncoded
     
@@ -90,7 +90,7 @@ static void test_encode(skiatest::Reporter* reporter, GrContext* ctx) {
 }
 
 DEF_TEST(Image_Encode_Cpu, reporter) {
-    test_encode(reporter, NULL);
+    test_encode(reporter, nullptr);
 }
 
 #if SK_SUPPORT_GPU

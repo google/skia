@@ -38,7 +38,7 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     // Get the sfnt header.
     SkSFNTHeader sfntHeader;
     if (fontData->read(&sfntHeader, sizeof(sfntHeader)) < sizeof(sfntHeader)) {
-        return NULL;
+        return nullptr;
     }
 
     // Find the existing 'name' table.
@@ -47,18 +47,18 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     int numTables = SkEndian_SwapBE16(sfntHeader.numTables);
     for (tableIndex = 0; tableIndex < numTables; ++tableIndex) {
         if (fontData->read(&tableEntry, sizeof(tableEntry)) < sizeof(tableEntry)) {
-            return NULL;
+            return nullptr;
         }
         if (SkOTTableName::TAG == tableEntry.tag) {
             break;
         }
     }
     if (tableIndex == numTables) {
-        return NULL;
+        return nullptr;
     }
 
     if (!fontData->rewind()) {
-        return NULL;
+        return nullptr;
     }
 
     // The required 'name' record types: Family, Style, Unique, Full and PostScript.
@@ -87,19 +87,19 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     SK_OT_BYTE* data = static_cast<SK_OT_BYTE*>(rewrittenFontData->writable_data());
 
     if (fontData->read(data, oldNameTableOffset) < oldNameTableOffset) {
-        return NULL;
+        return nullptr;
     }
     if (fontData->skip(oldNameTablePhysicalSize) < oldNameTablePhysicalSize) {
-        return NULL;
+        return nullptr;
     }
     if (fontData->read(data + oldNameTableOffset, originalDataSize - oldNameTableOffset) < originalDataSize - oldNameTableOffset) {
-        return NULL;
+        return nullptr;
     }
 
     //Fix up the offsets of the directory entries after the old 'name' table entry.
     SkSFNTHeader::TableDirectoryEntry* currentEntry = reinterpret_cast<SkSFNTHeader::TableDirectoryEntry*>(data + sizeof(SkSFNTHeader));
     SkSFNTHeader::TableDirectoryEntry* endEntry = currentEntry + numTables;
-    SkSFNTHeader::TableDirectoryEntry* headTableEntry = NULL;
+    SkSFNTHeader::TableDirectoryEntry* headTableEntry = nullptr;
     for (; currentEntry < endEntry; ++currentEntry) {
         uint32_t oldOffset = SkEndian_SwapBE32(currentEntry->offset);
         if (oldOffset > oldNameTableOffset) {
@@ -166,12 +166,12 @@ SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(const SkTypeface& ty
     static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
     size_t nameTableSize = typeface.getTableSize(nameTag);
     if (0 == nameTableSize) {
-        return NULL;
+        return nullptr;
     }
     SkAutoTDeleteArray<uint8_t> nameTableData(new uint8_t[nameTableSize]);
     size_t copied = typeface.getTableData(nameTag, 0, nameTableSize, nameTableData.get());
     if (copied != nameTableSize) {
-        return NULL;
+        return nullptr;
     }
 
     return new SkOTUtils::LocalizedStrings_NameTable((SkOTTableName*)nameTableData.detach(),

@@ -111,7 +111,7 @@ public:
     const SkPaint* getPaint(SkReader32* reader) const {
         int index = reader->readInt();
         if (index == 0) {
-            return NULL;
+            return nullptr;
         }
         return &fPaints[index - 1];
     }

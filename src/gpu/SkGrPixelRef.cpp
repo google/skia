@@ -25,17 +25,17 @@ SkROLockPixelsPixelRef::~SkROLockPixelsPixelRef() {}
 bool SkROLockPixelsPixelRef::onNewLockPixels(LockRec* rec) {
     fBitmap.reset();
 //    SkDebugf("---------- calling readpixels in support of lockpixels\n");
-    if (!this->onReadPixels(&fBitmap, NULL)) {
+    if (!this->onReadPixels(&fBitmap, nullptr)) {
         SkDebugf("SkROLockPixelsPixelRef::onLockPixels failed!\n");
         return false;
     }
     fBitmap.lockPixels();
-    if (NULL == fBitmap.getPixels()) {
+    if (nullptr == fBitmap.getPixels()) {
         return false;
     }
 
     rec->fPixels = fBitmap.getPixels();
-    rec->fColorTable = NULL;
+    rec->fColorTable = nullptr;
     rec->fRowBytes = fBitmap.rowBytes();
     return true;
 }
@@ -52,12 +52,12 @@ bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
 
 static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorType dstCT,
                                                   SkColorProfileType dstPT, const SkIRect* subset) {
-    if (NULL == texture || kUnknown_SkColorType == dstCT) {
-        return NULL;
+    if (nullptr == texture || kUnknown_SkColorType == dstCT) {
+        return nullptr;
     }
     GrContext* context = texture->getContext();
-    if (NULL == context) {
-        return NULL;
+    if (nullptr == context) {
+        return nullptr;
     }
     GrSurfaceDesc desc;
 
@@ -77,9 +77,9 @@ static SkGrPixelRef* copy_to_new_texture_pixelref(GrTexture* texture, SkColorTyp
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fConfig = SkImageInfo2GrPixelConfig(dstCT, kPremul_SkAlphaType, dstPT);
 
-    GrTexture* dst = context->textureProvider()->createTexture(desc, false, NULL, 0);
-    if (NULL == dst) {
-        return NULL;
+    GrTexture* dst = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+    if (nullptr == dst) {
+        return nullptr;
     }
 
     // Blink is relying on the above copy being sent to GL immediately in the case when the source
@@ -102,7 +102,7 @@ SkGrPixelRef::SkGrPixelRef(const SkImageInfo& info, GrSurface* surface) : INHERI
     // render target but not vice versa. So we ref the texture to keep both alive for
     // the lifetime of this pixel ref.
     fSurface = SkSafeRef(surface->asTexture());
-    if (NULL == fSurface) {
+    if (nullptr == fSurface) {
         fSurface = SkSafeRef(surface);
     }
 
@@ -120,7 +120,7 @@ GrTexture* SkGrPixelRef::getTexture() {
     if (fSurface) {
         return fSurface->asTexture();
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkGrPixelRef::onNotifyPixelsChanged() {
@@ -132,8 +132,8 @@ void SkGrPixelRef::onNotifyPixelsChanged() {
 
 SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, SkColorProfileType dstPT,
                                    const SkIRect* subset) {
-    if (NULL == fSurface) {
-        return NULL;
+    if (nullptr == fSurface) {
+        return nullptr;
     }
 
     // Note that when copying a render-target-backed pixel ref, we
@@ -147,7 +147,7 @@ SkPixelRef* SkGrPixelRef::deepCopy(SkColorType dstCT, SkColorProfileType dstPT,
 
 static bool tryAllocBitmapPixels(SkBitmap* bitmap) {
     SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();
-    if (NULL != allocator) {
+    if (nullptr != allocator) {
         return allocator->allocPixelRef(bitmap, 0);
     } else {
         // DiscardableMemory is not available, fallback to default allocator
@@ -156,7 +156,7 @@ static bool tryAllocBitmapPixels(SkBitmap* bitmap) {
 }
 
 bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
-    if (NULL == fSurface || fSurface->wasDestroyed()) {
+    if (nullptr == fSurface || fSurface->wasDestroyed()) {
         return false;
     }
 

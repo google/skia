@@ -138,7 +138,7 @@ void SKPBench::drawPicture() {
     for (int j = 0; j < fTileRects.count(); ++j) {
         const SkMatrix trans = SkMatrix::MakeTrans(-fTileRects[j].fLeft / fScale,
                                                    -fTileRects[j].fTop / fScale);
-        fSurfaces[j]->getCanvas()->drawPicture(fPic, &trans, NULL);
+        fSurfaces[j]->getCanvas()->drawPicture(fPic, &trans, nullptr);
     }
 
     for (int j = 0; j < fTileRects.count(); ++j) {

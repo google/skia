@@ -24,7 +24,7 @@ DEF_TEST(AsADashTest_nullInfo, reporter) {
     const SkScalar phase = 2.0;
     SkAutoTUnref<SkDashPathEffect> pe(SkDashPathEffect::Create(inIntervals, 4, phase));
 
-    SkPathEffect::DashType dashType = pe->asADash(NULL);
+    SkPathEffect::DashType dashType = pe->asADash(nullptr);
     REPORTER_ASSERT(reporter, SkPathEffect::kDash_DashType == dashType);
 }
 

@@ -17,7 +17,7 @@ static void draw_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     canvas->drawRect(r, p);
 
     SkPaint frame(p);
-    frame.setShader(NULL);
+    frame.setShader(nullptr);
     frame.setStyle(SkPaint::kStroke_Style);
     canvas->drawRect(r, frame);
 }
@@ -26,7 +26,7 @@ static void draw_gradient(SkCanvas* canvas) {
     SkRect r = { 0, 0, SkIntToScalar(256), SkIntToScalar(32) };
     SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fTop } };
     SkColor colors[] = { 0xFF000000, 0xFFFF0000 };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
                                                  SkShader::kClamp_TileMode);
 
     SkPaint p;
@@ -62,7 +62,7 @@ static SkBitmap make_bitmap() {
 
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(256, 32, kIndex_8_SkColorType, kPremul_SkAlphaType),
-                   NULL, ctable);
+                   nullptr, ctable);
     ctable->unref();
 
     bm.lockPixels();

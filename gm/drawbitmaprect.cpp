@@ -81,12 +81,12 @@ static SkImage* makebm(SkBitmap* bm, int w, int h) {
 
 static void canvasproc(SkCanvas* canvas, SkImage*, const SkBitmap& bm, const SkIRect& srcR,
                        const SkRect& dstR) {
-    canvas->drawBitmapRect(bm, srcR, dstR, NULL);
+    canvas->drawBitmapRect(bm, srcR, dstR, nullptr);
 }
 
 static void imageproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect& srcR,
                       const SkRect& dstR) {
-    canvas->drawImageRect(image, srcR, dstR, NULL);
+    canvas->drawImageRect(image, srcR, dstR, nullptr);
 }
 
 static void imagescaleproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect& srcIR,
@@ -226,6 +226,6 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new DrawBitmapRectGM(canvasproc, NULL); )
+DEF_GM( return new DrawBitmapRectGM(canvasproc, nullptr); )
 DEF_GM( return new DrawBitmapRectGM(imageproc, "-imagerect"); )
 DEF_GM( return new DrawBitmapRectGM(imagescaleproc, "-imagescale"); )

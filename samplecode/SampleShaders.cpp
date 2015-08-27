@@ -31,7 +31,7 @@ static SkShader* make_bitmapfade(const SkBitmap& bm)
     pts[1].set(0, SkIntToScalar(bm.height()));
     colors[0] = SK_ColorBLACK;
     colors[1] = SkColorSetARGB(0, 0, 0, 0);
-    SkShader* shaderA = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    SkShader* shaderA = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 
     SkShader* shaderB = SkShader::CreateBitmapShader(bm,
                         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
@@ -61,13 +61,13 @@ public:
         pts[1].set(SkIntToScalar(100), 0);
         colors[0] = SK_ColorRED;
         colors[1] = SK_ColorBLUE;
-        SkShader* shaderA = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+        SkShader* shaderA = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 
         pts[0].set(0, 0);
         pts[1].set(0, SkIntToScalar(100));
         colors[0] = SK_ColorBLACK;
         colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
-        SkShader* shaderB = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+        SkShader* shaderB = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 
         SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
 
@@ -111,14 +111,14 @@ protected:
         h = 80;
         r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
 
-        paint.setShader(NULL);
+        paint.setShader(nullptr);
         canvas->drawRect(r, paint);
         paint.setShader(make_bitmapfade(fBitmap))->unref();
         canvas->drawRect(r, paint);
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        this->inval(NULL);
+        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 

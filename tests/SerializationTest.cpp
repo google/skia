@@ -186,15 +186,15 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
     SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
-    T* obj = NULL;
+    T* obj = nullptr;
     SerializationUtils<T>::Read(buffer, &obj);
     REPORTER_ASSERT(reporter, !buffer.isValid());
-    REPORTER_ASSERT(reporter, NULL == obj);
+    REPORTER_ASSERT(reporter, nullptr == obj);
 
     // Make sure this succeeds when it should
     SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
     const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
-    T* obj2 = NULL;
+    T* obj2 = nullptr;
     SerializationUtils<T>::Read(buffer2, &obj2);
     const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
     if (shouldSucceed) {
@@ -205,7 +205,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
     } else {
         // If the deserialization was supposed to fail, make sure it did
         REPORTER_ASSERT(reporter, !buffer.isValid());
-        REPORTER_ASSERT(reporter, NULL == obj2);
+        REPORTER_ASSERT(reporter, nullptr == obj2);
     }
 
     return obj2; // Return object to perform further validity tests on it
@@ -267,7 +267,7 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
 static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
     for (size_t i = 0; i <= SkXfermode::kLastMode; ++i) {
         if (i == SkXfermode::kSrcOver_Mode) {
-            // skip SrcOver, as it is allowed to return NULL from Create()
+            // skip SrcOver, as it is allowed to return nullptr from Create()
             continue;
         }
         SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(static_cast<SkXfermode::Mode>(i)));
@@ -331,7 +331,7 @@ static void serialize_and_compare_typeface(SkTypeface* typeface, const char* tex
     SkIRect canvasRect = SkIRect::MakeWH(kBitmapSize, kBitmapSize);
     SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(canvasRect.width()), 
                                                SkIntToScalar(canvasRect.height()), 
-                                               NULL, 0);
+                                               nullptr, 0);
     canvas->drawColor(SK_ColorWHITE);
     canvas->drawText(text, 2, 24, 32, paint);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
@@ -413,7 +413,7 @@ static void draw_something(SkCanvas* canvas) {
 
     canvas->save();
     canvas->scale(0.5f, 0.5f);
-    canvas->drawBitmap(bitmap, 0, 0, NULL);
+    canvas->drawBitmap(bitmap, 0, 0, nullptr);
     canvas->restore();
 
     paint.setAntiAlias(true);
@@ -524,7 +524,7 @@ DEF_TEST(Serialization, reporter) {
         SkPictureRecorder recorder;
         draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize),
                                                SkIntToScalar(kBitmapSize),
-                                               NULL, 0));
+                                               nullptr, 0));
         SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         // Serialize picture

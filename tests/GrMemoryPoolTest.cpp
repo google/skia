@@ -51,7 +51,7 @@ public:
     }
 
     static void ResetAllocator() {
-        gPool.reset(NULL);
+        gPool.reset(nullptr);
     }
 
 private:
@@ -164,7 +164,7 @@ A* A::Create(SkRandom* r) {
             return new E;
         default:
             // suppress warning
-            return NULL;
+            return nullptr;
     }
 }
 

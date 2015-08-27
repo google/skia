@@ -15,7 +15,7 @@
 
 GrGLVertexBuilder::GrGLVertexBuilder(GrGLProgramBuilder* program)
     : INHERITED(program)
-    , fRtAdjustName(NULL) {
+    , fRtAdjustName(nullptr) {
 }
 
 void GrGLVertexBuilder::addVarying(const char* name, GrGLVarying* v) {

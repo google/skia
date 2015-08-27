@@ -93,12 +93,12 @@ protected:
 
         SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(20, 10, 60, 65));
         SkImageFilter::CropRect fullSizeCropRect(SkRect::MakeXYWH(0, 0, 100, 100));
-        SkAutoTUnref<SkImageFilter> noopCropped(SkOffsetImageFilter::Create(0, 0, NULL, &cropRect));
+        SkAutoTUnref<SkImageFilter> noopCropped(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
 
         int y = 0;
         for (int i = 0; i < 3; i++) {
-            const SkImageFilter::CropRect* cr = (i == 1) ? &cropRect : (i == 2) ? &fullSizeCropRect : NULL;
-            SkImageFilter* input = (i == 2) ? noopCropped.get() : NULL;
+            const SkImageFilter::CropRect* cr = (i == 1) ? &cropRect : (i == 2) ? &fullSizeCropRect : nullptr;
+            SkImageFilter* input = (i == 2) ? noopCropped.get() : nullptr;
             paint.setImageFilter(SkLightingImageFilter::CreatePointLitDiffuse(pointLocation,
                                                                               white,
                                                                               surfaceScale,

@@ -86,7 +86,7 @@ static inline SkSurface* NewGpuSurface(GrContextFactory*,
                                        SkImageInfo,
                                        int,
                                        bool) {
-    return NULL;
+    return nullptr;
 }
 
 }  // namespace DM

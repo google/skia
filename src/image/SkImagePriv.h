@@ -33,7 +33,7 @@ extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
  *
  *  If the bitmap's colortype cannot be converted into a corresponding
  *  SkImageInfo, or the bitmap's pixels cannot be accessed, this will return
- *  NULL.
+ *  nullptr.
  */
 enum ForceCopyMode {
     kNo_ForceCopyMode,

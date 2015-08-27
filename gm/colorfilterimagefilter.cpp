@@ -18,11 +18,11 @@
 #define FILTER_HEIGHT   SkIntToScalar(30)
 #define MARGIN          SkIntToScalar(10)
 
-static SkImageFilter* make_blur(float amount, SkImageFilter* input = NULL) {
+static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {
     return SkBlurImageFilter::Create(amount, amount, input);
 }
 
-static SkImageFilter* make_brightness(float amount, SkImageFilter* input = NULL) {
+static SkImageFilter* make_brightness(float amount, SkImageFilter* input = nullptr) {
     SkScalar amount255 = SkScalarMul(amount, SkIntToScalar(255));
     SkScalar matrix[20] = { 1, 0, 0, 0, amount255,
                             0, 1, 0, 0, amount255,
@@ -32,7 +32,7 @@ static SkImageFilter* make_brightness(float amount, SkImageFilter* input = NULL)
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
-static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
+static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
     SkScalar matrix[20];
     memset(matrix, 0, 20 * sizeof(SkScalar));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
@@ -43,7 +43,7 @@ static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
-static SkImageFilter* make_mode_blue(SkImageFilter* input = NULL) {
+static SkImageFilter* make_mode_blue(SkImageFilter* input = nullptr) {
     SkAutoTUnref<SkColorFilter> filter(
         SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrc_Mode));
     return SkColorFilterImageFilter::Create(filter, input);

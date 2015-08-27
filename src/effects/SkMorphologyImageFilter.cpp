@@ -570,7 +570,7 @@ bool apply_morphology(const SkBitmap& input,
 
     if (radius.fWidth > 0) {
         GrTexture* scratch = context->textureProvider()->createApproxTexture(desc);
-        if (NULL == scratch) {
+        if (nullptr == scratch) {
             return false;
         }
         GrDrawContext* dstDrawContext = context->drawContext();
@@ -593,7 +593,7 @@ bool apply_morphology(const SkBitmap& input,
     }
     if (radius.fHeight > 0) {
         GrTexture* scratch = context->textureProvider()->createApproxTexture(desc);
-        if (NULL == scratch) {
+        if (nullptr == scratch) {
             return false;
         }
         GrDrawContext* dstDrawContext = context->drawContext();

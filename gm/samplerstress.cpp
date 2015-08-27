@@ -21,8 +21,8 @@ class SamplerStressGM : public GM {
 public:
     SamplerStressGM()
     : fTextureCreated(false)
-    , fShader(NULL)
-    , fMaskFilter(NULL) {
+    , fShader(nullptr)
+    , fMaskFilter(nullptr) {
     }
 
     virtual ~SamplerStressGM() {

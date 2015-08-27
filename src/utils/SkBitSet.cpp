@@ -10,7 +10,7 @@
 #include "SkBitSet.h"
 
 SkBitSet::SkBitSet(int numberOfBits)
-    : fBitData(NULL), fDwordCount(0), fBitCount(numberOfBits) {
+    : fBitData(nullptr), fDwordCount(0), fBitCount(numberOfBits) {
     SkASSERT(numberOfBits > 0);
     // Round up size to 32-bit boundary.
     fDwordCount = (numberOfBits + 31) / 32;
@@ -18,7 +18,7 @@ SkBitSet::SkBitSet(int numberOfBits)
 }
 
 SkBitSet::SkBitSet(const SkBitSet& source)
-    : fBitData(NULL), fDwordCount(0), fBitCount(0) {
+    : fBitData(nullptr), fDwordCount(0), fBitCount(0) {
     *this = source;
 }
 
@@ -36,7 +36,7 @@ SkBitSet& SkBitSet::operator=(const SkBitSet& rhs) {
 
 bool SkBitSet::operator==(const SkBitSet& rhs) {
     if (fBitCount == rhs.fBitCount) {
-        if (fBitData.get() != NULL) {
+        if (fBitData.get() != nullptr) {
             return (memcmp(fBitData.get(), rhs.fBitData.get(),
                            fDwordCount * sizeof(uint32_t)) == 0);
         }
@@ -50,7 +50,7 @@ bool SkBitSet::operator!=(const SkBitSet& rhs) {
 }
 
 void SkBitSet::clearAll() {
-    if (fBitData.get() != NULL) {
+    if (fBitData.get() != nullptr) {
         sk_bzero(fBitData.get(), fDwordCount * sizeof(uint32_t));
     }
 }

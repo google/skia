@@ -296,11 +296,11 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
             // cap the end
             fInner.getLastPt(&pt);
             fCapper(&fOuter, fPrevPt, fPrevNormal, pt,
-                    currIsLine ? &fInner : NULL);
+                    currIsLine ? &fInner : nullptr);
             fOuter.reversePathTo(fInner);
             // cap the start
             fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt,
-                    fPrevIsLine ? &fInner : NULL);
+                    fPrevIsLine ? &fInner : nullptr);
             fOuter.close();
         }
     }
@@ -553,7 +553,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckCubicLinear(const SkPoint cubic
     }
     for (int index = 0; index < count; ++index) {
         SkScalar t = tValues[index];
-        SkEvalCubicAt(cubic, t, &reduction[index], NULL, NULL);
+        SkEvalCubicAt(cubic, t, &reduction[index], nullptr, nullptr);
     }
     static_assert(kQuad_ReductionType + 1 == kDegenerate_ReductionType, "enum_out_of_whack");
     static_assert(kQuad_ReductionType + 2 == kDegenerate2_ReductionType, "enum_out_of_whack");
@@ -589,7 +589,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& coni
         return kLine_ReductionType;
     }
 #endif
-    conic.evalAt(t, reduction, NULL);
+    conic.evalAt(t, reduction, nullptr);
     return kDegenerate_ReductionType;
 }
 
@@ -738,7 +738,7 @@ void SkPathStroker::conicQuadEnds(const SkConic& conic, SkQuadConstruct* quadPts
 bool SkPathStroker::cubicPerpRay(const SkPoint cubic[4], SkScalar t, SkPoint* tPt, SkPoint* onPt,
         SkPoint* tangent) const {
     SkVector dxy;
-    SkEvalCubicAt(cubic, t, tPt, &dxy, NULL);
+    SkEvalCubicAt(cubic, t, tPt, &dxy, nullptr);
     if (dxy.fX == 0 && dxy.fY == 0) {
         if (SkScalarNearlyZero(t)) {
             dxy = cubic[2] - cubic[0];
@@ -779,7 +779,7 @@ bool SkPathStroker::cubicQuadEnds(const SkPoint cubic[4], SkQuadConstruct* quadP
 bool SkPathStroker::cubicQuadMid(const SkPoint cubic[4], const SkQuadConstruct* quadPts,
         SkPoint* mid) const {
     SkPoint cubicMidPt;
-    return this->cubicPerpRay(cubic, quadPts->fMidT, &cubicMidPt, mid, NULL);
+    return this->cubicPerpRay(cubic, quadPts->fMidT, &cubicMidPt, mid, nullptr);
 }
 
 // Given a quad and t, return the point on curve, its perpendicular, and the perpendicular tangent.
@@ -976,7 +976,7 @@ SkPathStroker::ResultType SkPathStroker::compareQuadCubic(const SkPoint cubic[4]
     }
     // project a ray from the curve to the stroke
     SkPoint ray[2];  // points near midpoint on quad, midpoint on cubic
-    if (!this->cubicPerpRay(cubic, quadPts->fMidT, &ray[1], &ray[0], NULL)) {
+    if (!this->cubicPerpRay(cubic, quadPts->fMidT, &ray[1], &ray[0], nullptr)) {
         return kNormalError_ResultType;
     }
     return this->strokeCloseEnough(quadPts->fQuad, ray, quadPts
@@ -994,7 +994,7 @@ SkPathStroker::ResultType SkPathStroker::compareQuadConic(const SkConic& conic,
     }
     // project a ray from the curve to the stroke
     SkPoint ray[2];  // points near midpoint on quad, midpoint on conic
-    this->conicPerpRay(conic, quadPts->fMidT, &ray[1], &ray[0], NULL);
+    this->conicPerpRay(conic, quadPts->fMidT, &ray[1], &ray[0], nullptr);
     return this->strokeCloseEnough(quadPts->fQuad, ray, quadPts
             STROKER_DEBUG_PARAMS(fRecursionDepth));
 }
@@ -1021,7 +1021,7 @@ SkPathStroker::ResultType SkPathStroker::compareQuadQuad(const SkPoint quad[3],
     }
     // project a ray from the curve to the stroke
     SkPoint ray[2];
-    this->quadPerpRay(quad, quadPts->fMidT, &ray[1], &ray[0], NULL);
+    this->quadPerpRay(quad, quadPts->fMidT, &ray[1], &ray[0], nullptr);
     return this->strokeCloseEnough(quadPts->fQuad, ray, quadPts
             STROKER_DEBUG_PARAMS(fRecursionDepth));
 }
@@ -1429,7 +1429,7 @@ static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPath:
 
 void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
                           SkPath::Direction dir) const {
-    SkASSERT(dst != NULL);
+    SkASSERT(dst != nullptr);
     dst->reset();
 
     SkScalar radius = SkScalarHalf(fWidth);

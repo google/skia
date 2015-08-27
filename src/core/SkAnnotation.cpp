@@ -13,7 +13,7 @@
 #include "SkWriteBuffer.h"
 
 SkAnnotation::SkAnnotation(const char key[], SkData* value) : fKey(key) {
-    if (NULL == value) {
+    if (nullptr == value) {
         value = SkData::NewEmpty();
     } else {
         value->ref();
@@ -26,7 +26,7 @@ SkAnnotation::~SkAnnotation() {
 }
 
 SkData* SkAnnotation::find(const char key[]) const {
-    return fKey.equals(key) ? fData : NULL;
+    return fKey.equals(key) ? fData : nullptr;
 }
 
 SkAnnotation::SkAnnotation(SkReadBuffer& buffer) {
@@ -60,7 +60,7 @@ static void annotate_paint(SkPaint& paint, const char* key, SkData* value) {
 }
 
 void SkAnnotateRectWithURL(SkCanvas* canvas, const SkRect& rect, SkData* value) {
-    if (NULL == value) {
+    if (nullptr == value) {
         return;
     }
     SkPaint paint;
@@ -69,7 +69,7 @@ void SkAnnotateRectWithURL(SkCanvas* canvas, const SkRect& rect, SkData* value) 
 }
 
 void SkAnnotateNamedDestination(SkCanvas* canvas, const SkPoint& point, SkData* name) {
-    if (NULL == name) {
+    if (nullptr == name) {
         return;
     }
     SkPaint paint;
@@ -78,7 +78,7 @@ void SkAnnotateNamedDestination(SkCanvas* canvas, const SkPoint& point, SkData* 
 }
 
 void SkAnnotateLinkToDestination(SkCanvas* canvas, const SkRect& rect, SkData* name) {
-    if (NULL == name) {
+    if (nullptr == name) {
         return;
     }
     SkPaint paint;

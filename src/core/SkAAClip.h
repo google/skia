@@ -26,7 +26,7 @@ public:
 
     void swap(SkAAClip&);
 
-    bool isEmpty() const { return NULL == fRunHead; }
+    bool isEmpty() const { return nullptr == fRunHead; }
     const SkIRect& getBounds() const { return fBounds; }
 
     // Returns true iff the clip is not empty, and is just a hard-edged rect (no partial alpha).
@@ -36,7 +36,7 @@ public:
     bool setEmpty();
     bool setRect(const SkIRect&);
     bool setRect(const SkRect&, bool doAA = true);
-    bool setPath(const SkPath&, const SkRegion* clip = NULL, bool doAA = true);
+    bool setPath(const SkPath&, const SkRegion* clip = nullptr, bool doAA = true);
     bool setRegion(const SkRegion&);
     bool set(const SkAAClip&);
 
@@ -65,8 +65,8 @@ public:
         return this->quickContains(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
 
-    const uint8_t* findRow(int y, int* lastYForRow = NULL) const;
-    const uint8_t* findX(const uint8_t data[], int x, int* initialCount = NULL) const;
+    const uint8_t* findRow(int y, int* lastYForRow = nullptr) const;
+    const uint8_t* findX(const uint8_t data[], int x, int* initialCount = nullptr) const;
 
     class Iter;
     struct RunHead;
@@ -99,7 +99,7 @@ private:
 
 class SkAAClipBlitter : public SkBlitter {
 public:
-    SkAAClipBlitter() : fScanlineScratch(NULL) {}
+    SkAAClipBlitter() : fScanlineScratch(nullptr) {}
     virtual ~SkAAClipBlitter();
 
     void init(SkBlitter* blitter, const SkAAClip* aaclip) {

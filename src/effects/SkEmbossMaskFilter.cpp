@@ -35,8 +35,8 @@ SkMaskFilter* SkBlurMaskFilter::CreateEmboss(const SkScalar direction[3],
 
 SkMaskFilter* SkBlurMaskFilter::CreateEmboss(SkScalar blurSigma, const SkScalar direction[3],
                                              SkScalar ambient, SkScalar specular) {
-    if (direction == NULL) {
-        return NULL;
+    if (direction == nullptr) {
+        return nullptr;
     }
 
     // ambient should be 0...1 as a scalar
@@ -87,7 +87,7 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
         margin->set(SkScalarCeilToInt(3*sigma), SkScalarCeilToInt(3*sigma));
     }
 
-    if (src.fImage == NULL) {
+    if (src.fImage == nullptr) {
         return true;
     }
 
@@ -131,7 +131,7 @@ SkFlattenable* SkEmbossMaskFilter::CreateProc(SkReadBuffer& buffer) {
         const SkScalar sigma = buffer.readScalar();
         return Create(sigma, light);
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkEmbossMaskFilter::flatten(SkWriteBuffer& buffer) const {

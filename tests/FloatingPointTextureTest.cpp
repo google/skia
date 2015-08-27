@@ -55,14 +55,14 @@ void runFPTest(skiatest::Reporter* reporter, GrContextFactory* factory,
                 continue;
             }
             GrContext* context = factory->get(type);
-            if (NULL == context) {
+            if (nullptr == context) {
                 continue;
             }
 
             SkAutoTUnref<GrTexture> fpTexture(context->textureProvider()->createTexture(
                 desc, false, controlPixelData.begin(), 0));
             // Floating point textures are NOT supported everywhere
-            if (NULL == fpTexture) {
+            if (nullptr == fpTexture) {
                 continue;
             }
             fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer.begin(), 0);

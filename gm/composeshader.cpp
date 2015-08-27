@@ -23,14 +23,14 @@ static SkShader* make_shader(SkXfermode::Mode mode) {
     pts[1].set(SkIntToScalar(100), 0);
     colors[0] = SK_ColorRED;
     colors[1] = SK_ColorBLUE;
-    SkAutoTUnref<SkShader> shaderA(SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+    SkAutoTUnref<SkShader> shaderA(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
                                                                   SkShader::kClamp_TileMode));
 
     pts[0].set(0, 0);
     pts[1].set(0, SkIntToScalar(100));
     colors[0] = SK_ColorBLACK;
     colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
-    SkAutoTUnref<SkShader> shaderB(SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+    SkAutoTUnref<SkShader> shaderB(SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
                                                                   SkShader::kClamp_TileMode));
 
     SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
@@ -102,7 +102,7 @@ protected:
             canvas->save();
             for (int alpha = 0xFF; alpha > 0; alpha -= 0x28) {
                 paint.setAlpha(0xFF);
-                paint.setShader(NULL);
+                paint.setShader(nullptr);
                 canvas->drawRect(r, paint);
 
                 paint.setAlpha(alpha);

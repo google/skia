@@ -19,7 +19,7 @@ template <typename T> static T* typedAllocThrow(SkChunkAlloc& alloc) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkEdgeBuilder::SkEdgeBuilder() : fAlloc(16*1024) {
-    fEdgeList = NULL;
+    fEdgeList = nullptr;
 }
 
 void SkEdgeBuilder::addLine(const SkPoint pts[]) {

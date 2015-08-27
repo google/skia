@@ -59,7 +59,7 @@ const SkPixmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
         *value = fPMColor;
         return &fDevice;
     }
-    return NULL;
+    return nullptr;
 }
 
 #if defined _WIN32 && _MSC_VER >= 1300  // disable warning : local variable used without having been initialized
@@ -338,7 +338,7 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
     fProc32Blend = SkBlitRow::Factory32(flags | SkBlitRow::kGlobalAlpha_Flag32);
 
     fShadeDirectlyIntoDevice = false;
-    if (fXfermode == NULL) {
+    if (fXfermode == nullptr) {
         if (shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag) {
             fShadeDirectlyIntoDevice = true;
         }
@@ -371,7 +371,7 @@ void SkARGB32_Shader_Blitter::blitH(int x, int y, int width) {
         SkPMColor*  span = fBuffer;
         fShaderContext->shadeSpan(x, y, span, width);
         if (fXfermode) {
-            fXfermode->xfer32(device, span, width, NULL);
+            fXfermode->xfer32(device, span, width, nullptr);
         } else {
             fProc32(device, span, width, 255);
         }
@@ -401,7 +401,7 @@ void SkARGB32_Shader_Blitter::blitRect(int x, int y, int width, int height) {
             SkXfermode* xfer = fXfermode;
             if (xfer) {
                 do {
-                    xfer->xfer32(device, span, width, NULL);
+                    xfer->xfer32(device, span, width, nullptr);
                     y += 1;
                     device = (uint32_t*)((char*)device + deviceRB);
                 } while (--height > 0);
@@ -438,7 +438,7 @@ void SkARGB32_Shader_Blitter::blitRect(int x, int y, int width, int height) {
         if (xfer) {
             do {
                 shaderContext->shadeSpan(x, y, span, width);
-                xfer->xfer32(device, span, width, NULL);
+                xfer->xfer32(device, span, width, nullptr);
                 y += 1;
                 device = (uint32_t*)((char*)device + deviceRB);
             } while (--height > 0);
@@ -471,7 +471,7 @@ void SkARGB32_Shader_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
             if (aa) {
                 shaderContext->shadeSpan(x, y, span, count);
                 if (aa == 255) {
-                    xfer->xfer32(device, span, count, NULL);
+                    xfer->xfer32(device, span, count, nullptr);
                 } else {
                     // count is almost always 1
                     for (int i = count - 1; i >= 0; --i) {
@@ -539,7 +539,7 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     SkASSERT(mask.fBounds.contains(clip));
 
     SkShader::Context*  shaderContext = fShaderContext;
-    SkBlitMask::RowProc proc = NULL;
+    SkBlitMask::RowProc proc = nullptr;
     if (!fXfermode) {
         unsigned flags = 0;
         if (shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag) {
@@ -547,7 +547,7 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         }
         proc = SkBlitMask::RowFactory(kN32_SkColorType, mask.fFormat,
                                       (SkBlitMask::RowFlags)flags);
-        if (NULL == proc) {
+        if (nullptr == proc) {
             this->INHERITED::blitMask(mask, clip);
             return;
         }

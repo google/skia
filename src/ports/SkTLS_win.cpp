@@ -14,7 +14,7 @@ SK_DECLARE_STATIC_MUTEX(gMutex);
 
 void* SkTLS::PlatformGetSpecific(bool forceCreateTheSlot) {
     if (!forceCreateTheSlot && !gOnce) {
-        return NULL;
+        return nullptr;
     }
 
     if (!gOnce) {
@@ -49,9 +49,9 @@ void SkTLS::PlatformSetSpecific(void* ptr) {
 void NTAPI onTLSCallback(PVOID unused, DWORD reason, PVOID unused2) {
     if ((DLL_THREAD_DETACH == reason || DLL_PROCESS_DETACH == reason) && gOnce) {
         void* ptr = TlsGetValue(gTlsIndex);
-        if (ptr != NULL) {
+        if (ptr != nullptr) {
             SkTLS::Destructor(ptr);
-            TlsSetValue(gTlsIndex, NULL);
+            TlsSetValue(gTlsIndex, nullptr);
         }
     }
 }

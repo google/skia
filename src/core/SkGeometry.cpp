@@ -912,7 +912,7 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
                               SkScalar tValues[3]) {
     SkScalar    t_storage[3];
 
-    if (tValues == NULL) {
+    if (tValues == nullptr) {
         tValues = t_storage;
     }
 

@@ -47,7 +47,7 @@ protected:
                 size_t rowBytes;
                 const void* addr = surfCanvas->peekPixels(&info, &rowBytes);
                 if (addr && bitmap.installPixels(info, const_cast<void*>(addr), rowBytes)) {
-                    canvas->drawBitmap(bitmap, 0, 0, NULL);
+                    canvas->drawBitmap(bitmap, 0, 0, nullptr);
                 }
             }
 
@@ -55,12 +55,12 @@ protected:
             canvas->translate(120, 0);
             SkAutoROCanvasPixels ropixels(surfCanvas);
             if (ropixels.asROBitmap(&bitmap)) {
-                canvas->drawBitmap(bitmap, 0, 0, NULL);
+                canvas->drawBitmap(bitmap, 0, 0, nullptr);
             }
 
             // test Surface
             canvas->translate(120, 0);
-            surface->draw(canvas, 0, 0, NULL);
+            surface->draw(canvas, 0, 0, nullptr);
         }
     }
 

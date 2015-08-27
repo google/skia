@@ -56,7 +56,7 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     , fFlushes(1)
     , fLoops(1)
     , fState(kPreWarmLoops_State)
-    , fBenchmark(NULL)
+    , fBenchmark(nullptr)
     , fResults(new ResultsWriter) {
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -123,7 +123,7 @@ bool VisualBench::setupBackend() {
 }
 
 void VisualBench::resetContext() {
-    fSurface.reset(NULL);
+    fSurface.reset(nullptr);
 
     fInterface.reset(GrGLCreateNativeInterface());
     SkASSERT(fInterface);
@@ -266,7 +266,7 @@ void VisualBench::draw(SkCanvas* canvas) {
     }
 
     // Invalidate the window to force a redraw. Poor man's animation mechanism.
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 
 inline double VisualBench::elapsed() {
@@ -311,7 +311,7 @@ void VisualBench::recordMeasurement() {
 
 void VisualBench::postDraw(SkCanvas* canvas) {
     fBenchmark->perCanvasPostDraw(canvas);
-    fBenchmark.reset(NULL);
+    fBenchmark.reset(nullptr);
     fCurrentSample = 0;
     fFlushes = 1;
     fLoops = 1;

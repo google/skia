@@ -146,7 +146,7 @@ void SkXMLWriter::addAttributeLen(const char name[], const char value[], size_t 
 
     if (fDoEscapeMarkup)
     {
-        size_t   extra = escape_markup(NULL, value, length);
+        size_t   extra = escape_markup(nullptr, value, length);
         if (extra)
         {
             valueStr.resize(length + extra);
@@ -181,15 +181,15 @@ static void write_dom(const SkDOM& dom, const SkDOM::Node* node, SkXMLWriter* w,
         SkDOM::AttrIter iter(dom, node);
         const char* name;
         const char* value;
-        while ((name = iter.next(&value)) != NULL)
+        while ((name = iter.next(&value)) != nullptr)
             w->addAttribute(name, value);
     }
 
-    node = dom.getFirstChild(node, NULL);
+    node = dom.getFirstChild(node, nullptr);
     while (node)
     {
         write_dom(dom, node, w, false);
-        node = dom.getNextSibling(node, NULL);
+        node = dom.getNextSibling(node, nullptr);
     }
 
     if (!skipRoot)

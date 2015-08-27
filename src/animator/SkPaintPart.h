@@ -51,7 +51,7 @@ class SkDrawShader : public SkPaintPart {
     virtual SkShader* getShader();
 protected:
     bool add() override;
-    SkMatrix* getMatrix(); // returns NULL if matrix is NULL
+    SkMatrix* getMatrix(); // returns nullptr if matrix is nullptr
     SkDrawMatrix* matrix;
     int /*SkShader::TileMode*/ tileMode;
 };

@@ -266,7 +266,7 @@ DEF_TEST(Region, reporter) {
 // Test that writeToMemory reports the same number of bytes whether there was a
 // buffer to write to or not.
 static void test_write(const SkRegion& region, skiatest::Reporter* r) {
-    const size_t bytesNeeded = region.writeToMemory(NULL);
+    const size_t bytesNeeded = region.writeToMemory(nullptr);
     SkAutoMalloc storage(bytesNeeded);
     const size_t bytesWritten = region.writeToMemory(storage.get());
     REPORTER_ASSERT(r, bytesWritten == bytesNeeded);

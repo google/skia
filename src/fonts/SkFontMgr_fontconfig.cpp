@@ -60,7 +60,7 @@ static SkFontConfigInterface* RefFCI() {
 // look for the last substring after a '/' and return that, or return null.
 static const char* find_just_name(const char* str) {
     const char* last = strrchr(str, '/');
-    return last ? last + 1 : NULL;
+    return last ? last + 1 : nullptr;
 }
 
 static bool is_lower(char c) {
@@ -123,7 +123,7 @@ static FcPattern** MatchFont(FcFontSet* font_set,
     }
 
     if (iter == stop || !match_name(*iter, post_config_family)) {
-        return NULL;
+        return nullptr;
     }
 
     FcPattern** firstIter = iter++;
@@ -202,11 +202,11 @@ void SkFontStyleSet_FC::getStyle(int index, SkFontStyle* style,
 }
 
 SkTypeface* SkFontStyleSet_FC::createTypeface(int index) {
-    return NULL;
+    return nullptr;
 }
 
 SkTypeface* SkFontStyleSet_FC::matchStyle(const SkFontStyle& pattern) {
-    return NULL;
+    return nullptr;
 }
 
 class SkFontMgr_fontconfig : public SkFontMgr {
@@ -245,7 +245,7 @@ protected:
 #if 0
         FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 #endif
-        FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+        FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
         FcDefaultSubstitute(pattern);
 
         const char* post_config_family = get_name(pattern, FC_FAMILY);
@@ -254,7 +254,7 @@ protected:
         FcFontSet* font_set = FcFontSort(0, pattern, 0, 0, &result);
         if (!font_set) {
             FcPatternDestroy(pattern);
-            return NULL;
+            return nullptr;
         }
 
         int count;
@@ -262,7 +262,7 @@ protected:
         if (!match) {
             FcPatternDestroy(pattern);
             FcFontSetDestroy(font_set);
-            return NULL;
+            return nullptr;
         }
 
         FcPatternDestroy(pattern);
@@ -281,32 +281,32 @@ protected:
     }
 
     SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                   const SkFontStyle&) const override { return NULL; }
+                                   const SkFontStyle&) const override { return nullptr; }
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override {
-        return NULL;
+        return nullptr;
     }
     SkTypeface* onMatchFaceStyle(const SkTypeface*,
-                                 const SkFontStyle&) const override { return NULL; }
+                                 const SkFontStyle&) const override { return nullptr; }
 
-    SkTypeface* onCreateFromData(SkData*, int ttcIndex) const override { return NULL; }
+    SkTypeface* onCreateFromData(SkData*, int ttcIndex) const override { return nullptr; }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
         SkAutoTDelete<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (!length) {
-            return NULL;
+            return nullptr;
         }
         if (length >= 1024 * 1024 * 1024) {
-            return NULL;  // don't accept too large fonts (>= 1GB) for safety.
+            return nullptr;  // don't accept too large fonts (>= 1GB) for safety.
         }
 
         // TODO should the caller give us the style or should we get it from freetype?
         SkFontStyle style;
         bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, 0, NULL, &style, &isFixedWidth, NULL)) {
-            return NULL;
+        if (!fScanner.scanFont(stream, 0, nullptr, &style, &isFixedWidth, nullptr)) {
+            return nullptr;
         }
 
         SkTypeface* face = FontConfigTypeface::Create(style, isFixedWidth, stream.detach());
@@ -315,7 +315,7 @@ protected:
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         SkAutoTDelete<SkStreamAsset> stream(SkStream::NewFromFile(path));
-        return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : NULL;
+        return stream.get() ? this->createFromStream(stream.detach(), ttcIndex) : nullptr;
     }
 
     SkTypeface* onLegacyCreateTypeface(const char familyName[],
@@ -327,5 +327,5 @@ protected:
 
 SkFontMgr* SkFontMgr::Factory() {
     SkFontConfigInterface* fci = RefFCI();
-    return fci ? new SkFontMgr_fontconfig(fci) : NULL;
+    return fci ? new SkFontMgr_fontconfig(fci) : nullptr;
 }

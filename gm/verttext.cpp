@@ -70,7 +70,7 @@ protected:
 
         p.setColor(0xFF0000FF);
         SkScalar adv[gLen];
-        int numChars = paint.getTextWidths(gText, gLen, adv, NULL);
+        int numChars = paint.getTextWidths(gText, gLen, adv, nullptr);
         for (int i = 0; i < numChars; ++i) {
             canvas->drawCircle(x, y, SK_Scalar1 * 3 / 2, p);
             if (paint.isVerticalText()) {

@@ -21,7 +21,7 @@ bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) const {
     for (;;) {
         SkPaint p(paint);
         if (context->next(&canvas, &p)) {
-            p.setLooper(NULL);
+            p.setLooper(nullptr);
             if (!p.canComputeFastBounds()) {
                 return false;
             }
@@ -48,7 +48,7 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& s,
         if (context->next(&canvas, &p)) {
             SkRect r(src);
 
-            p.setLooper(NULL);
+            p.setLooper(nullptr);
             p.computeFastBounds(r, &r);
             canvas.getTotalMatrix().mapRect(&r);
 

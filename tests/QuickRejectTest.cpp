@@ -98,7 +98,7 @@ static void test_layers(skiatest::Reporter* reporter) {
 
     // Test that saveLayer updates quickReject
     SkRect bounds = SkRect::MakeLTRB(50, 50, 70, 70);
-    canvas.saveLayer(&bounds, NULL);
+    canvas.saveLayer(&bounds, nullptr);
     REPORTER_ASSERT(reporter, true == canvas.quickReject(SkRect::MakeWH(10, 10)));
     REPORTER_ASSERT(reporter, false == canvas.quickReject(SkRect::MakeWH(60, 60)));
 }

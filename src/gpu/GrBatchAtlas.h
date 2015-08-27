@@ -46,7 +46,7 @@ public:
 
     // Adds a width x height subimage to the atlas. Upon success it returns
     // the containing GrPlot and absolute location in the backing texture.
-    // NULL is returned if the subimage cannot fit in the atlas.
+    // nullptr is returned if the subimage cannot fit in the atlas.
     // If provided, the image data will be written to the CPU-side backing bitmap.
     // NOTE: If the client intends to refer to the atlas, they should immediately call 'setUseToken'
     // with the currentToken from the batch target, otherwise the next call to addToAtlas might

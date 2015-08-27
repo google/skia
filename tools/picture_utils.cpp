@@ -16,7 +16,7 @@
 
 namespace sk_tools {
     void force_all_opaque(const SkBitmap& bitmap) {
-        SkASSERT(NULL == bitmap.getTexture());
+        SkASSERT(nullptr == bitmap.getTexture());
         SkASSERT(kN32_SkColorType == bitmap.colorType());
         if (bitmap.getTexture() || kN32_SkColorType == bitmap.colorType()) {
             return;
@@ -31,7 +31,7 @@ namespace sk_tools {
     }
 
     void replace_char(SkString* str, const char oldChar, const char newChar) {
-        if (NULL == str) {
+        if (nullptr == str) {
             return;
         }
         for (size_t i = 0; i < str->size(); ++i) {

@@ -175,8 +175,8 @@ protected:
 
                     canvas->save();
                         canvas->concat(matrices[m].fMatrix);
-                        canvas->drawTextOnPath(kText, kTextLen, path, NULL, paint);
-                        canvas->drawTextOnPath(kText, kTextLen, path, NULL, outlinePaint);
+                        canvas->drawTextOnPath(kText, kTextLen, path, nullptr, paint);
+                        canvas->drawTextOnPath(kText, kTextLen, path, nullptr, outlinePaint);
                     canvas->restore();
                     SkPaint stroke;
                     stroke.setStyle(SkPaint::kStroke_Style);

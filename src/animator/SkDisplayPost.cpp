@@ -38,8 +38,8 @@ const SkMemberInfo SkPost::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkPost);
 
-SkPost::SkPost() : delay(0), /*initialized(SkBool(-1)), */ mode(kImmediate), fMaker(NULL),
-    fSinkID(0), fTargetMaker(NULL), fChildHasID(false), fDirty(false) {
+SkPost::SkPost() : delay(0), /*initialized(SkBool(-1)), */ mode(kImmediate), fMaker(nullptr),
+    fSinkID(0), fTargetMaker(nullptr), fChildHasID(false), fDirty(false) {
 }
 
 SkPost::~SkPost() {
@@ -104,7 +104,7 @@ void SkPost::dump(SkAnimateMaker* maker) {
     //SkDataInput** ptr = fParts.end();
     //SkDataInput* data;
     //const char* ID;
-    while ((name = iter.next(&type, &number)) != NULL) {
+    while ((name = iter.next(&type, &number)) != nullptr) {
         //ptr--;
         if (strcmp(name, "id") == 0)
             continue;
@@ -210,7 +210,7 @@ bool SkPost::enable(SkAnimateMaker& maker ) {
     bool isAnimatorEvent = true;
     SkAnimator* anim = maker.getAnimator();
     if (targetID == 0) {
-        isAnimatorEvent = fEvent.findString("id") != NULL;
+        isAnimatorEvent = fEvent.findString("id") != nullptr;
         if (isAnimatorEvent)
             targetID = anim->getSinkID();
         else if (maker.fHostEventSinkID)
@@ -236,7 +236,7 @@ void SkPost::findSinkID() {
     do {
         const char* end = strchr(ch, '.');
         size_t len = end ? (size_t) (end - ch) : strlen(ch);
-        SkDisplayable* displayable = NULL;
+        SkDisplayable* displayable = nullptr;
         if (SK_LITERAL_STR_EQUAL("parent", ch, len)) {
             if (fTargetMaker->fParentMaker)
                 fTargetMaker = fTargetMaker->fParentMaker;
@@ -246,14 +246,14 @@ void SkPost::findSinkID() {
             }
         } else {
             fTargetMaker->find(ch, len, &displayable);
-            if (displayable == NULL || displayable->getType() != SkType_Movie) {
+            if (displayable == nullptr || displayable->getType() != SkType_Movie) {
                 fTargetMaker->setErrorCode(SkDisplayXMLParserError::kExpectedMovie);
                 return;
             }
             SkDisplayMovie* movie = (SkDisplayMovie*) displayable;
             fTargetMaker = movie->fMovie.fMaker;
         }
-        if (end == NULL)
+        if (end == nullptr)
             break;
         ch = ++end;
     } while (true);

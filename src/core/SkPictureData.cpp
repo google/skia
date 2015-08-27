@@ -80,14 +80,14 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 }
 
 void SkPictureData::init() {
-    fPictureRefs = NULL;
+    fPictureRefs = nullptr;
     fPictureCount = 0;
-    fTextBlobRefs = NULL;
+    fTextBlobRefs = nullptr;
     fTextBlobCount = 0;
-    fImageRefs = NULL;
+    fImageRefs = nullptr;
     fImageCount = 0;
-    fOpData = NULL;
-    fFactoryPlayback = NULL;
+    fOpData = nullptr;
+    fFactoryPlayback = nullptr;
 }
 
 SkPictureData::~SkPictureData() {
@@ -133,7 +133,7 @@ static size_t compute_chunk_size(SkFlattenable::Factory* array, int count) {
 
     for (int i = 0; i < count; i++) {
         const char* name = SkFlattenable::FactoryToName(array[i]);
-        if (NULL == name || 0 == *name) {
+        if (nullptr == name || 0 == *name) {
             size += SkWStream::SizeOfPackedUInt(0);
         } else {
             size_t len = strlen(name);
@@ -171,7 +171,7 @@ void SkPictureData::WriteFactories(SkWStream* stream, const SkFactorySet& rec) {
 
     for (int i = 0; i < count; i++) {
         const char* name = SkFlattenable::FactoryToName(array[i]);
-        if (NULL == name || 0 == *name) {
+        if (nullptr == name || 0 == *name) {
             stream->writePackedUInt(0);
         } else {
             size_t len = strlen(name);
@@ -355,7 +355,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
 
     switch (tag) {
         case SK_PICT_READER_TAG:
-            SkASSERT(NULL == fOpData);
+            SkASSERT(nullptr == fOpData);
             fOpData = SkData::NewFromStream(stream, size);
             if (!fOpData) {
                 return false;
@@ -443,7 +443,7 @@ static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
     int height = buffer.read32();
     if (width <= 0 || height <= 0) {    // SkImage never has a zero dimension
         buffer.validate(false);
-        return NULL;
+        return nullptr;
     }
 
     SkAutoTUnref<SkData> encoded(buffer.readByteArrayAsData());
@@ -451,7 +451,7 @@ static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
     int originY = buffer.read32();
     if (0 == encoded->size() || originX < 0 || originY < 0) {
         buffer.validate(false);
-        return NULL;
+        return nullptr;
     }
 
     const SkIRect subset = SkIRect::MakeXYWH(originX, originY, width, height);
@@ -467,7 +467,7 @@ static const SkPicture* create_picture_from_buffer(SkReadBuffer& buffer) {
 template <typename T>
 bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
                            const T*** array, int* outCount, const T* (*factory)(SkReadBuffer&)) {
-    if (!buffer.validate((0 == *outCount) && (NULL == *array))) {
+    if (!buffer.validate((0 == *outCount) && (nullptr == *array))) {
         return false;
     }
     if (0 == inCount) {
@@ -479,7 +479,7 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
     int i = 0;
     for (; i < *outCount; i++) {
         (*array)[i] = factory(buffer);
-        if (NULL == (*array)[i]) {
+        if (nullptr == (*array)[i]) {
             success = false;
             break;
         }
@@ -491,7 +491,7 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
         }
         // Delete the array
         delete[] * array;
-        *array = NULL;
+        *array = nullptr;
         *outCount = 0;
         return false;
     }
@@ -542,10 +542,10 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
         case SK_PICT_READER_TAG: {
             SkAutoDataUnref data(SkData::NewUninitialized(size));
             if (!buffer.readByteArray(data->writable_data(), size) ||
-                !buffer.validate(NULL == fOpData)) {
+                !buffer.validate(nullptr == fOpData)) {
                 return false;
             }
-            SkASSERT(NULL == fOpData);
+            SkASSERT(nullptr == fOpData);
             fOpData = data.detach();
         } break;
         case SK_PICT_PICTURE_TAG:
@@ -571,7 +571,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
     }
 
     if (!data->parseStream(stream, proc, topLevelTFPlayback)) {
-        return NULL;
+        return nullptr;
     }
     return data.detach();
 }
@@ -582,7 +582,7 @@ SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
     buffer.setVersion(info.fVersion);
 
     if (!data->parseBuffer(buffer)) {
-        return NULL;
+        return nullptr;
     }
     return data.detach();
 }
@@ -631,11 +631,11 @@ bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char *
 bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char **reason,
                                                 GrPixelConfig config, SkScalar dpi) const {
 
-    if (context != NULL) {
+    if (context != nullptr) {
         return this->suitableForGpuRasterization(context, reason,
                                                  context->getRecommendedSampleCount(config, dpi));
     } else {
-        return this->suitableForGpuRasterization(NULL, reason);
+        return this->suitableForGpuRasterization(nullptr, reason);
     }
 }
 

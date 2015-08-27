@@ -24,7 +24,7 @@ struct SkBufferBlock {
     static SkBufferBlock* Alloc(size_t length) {
         size_t capacity = LengthToCapacity(length);
         SkBufferBlock* block = (SkBufferBlock*)sk_malloc_throw(sizeof(SkBufferBlock) + capacity);
-        block->fNext = NULL;
+        block->fNext = nullptr;
         block->fUsed = 0;
         block->fCapacity = capacity;
         return block;
@@ -68,7 +68,7 @@ struct SkBufferHead {
         size_t size = sizeof(SkBufferHead) + capacity;
         SkBufferHead* head = (SkBufferHead*)sk_malloc_throw(size);
         head->fRefCnt = 1;
-        head->fBlock.fNext = NULL;
+        head->fBlock.fNext = nullptr;
         head->fBlock.fUsed = 0;
         head->fBlock.fCapacity = capacity;
         return head;
@@ -94,7 +94,7 @@ struct SkBufferHead {
         }
     }
 
-    void validate(size_t minUsed, SkBufferBlock* tail = NULL) const {
+    void validate(size_t minUsed, SkBufferBlock* tail = nullptr) const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt > 0);
         size_t totalUsed = 0;
@@ -140,13 +140,13 @@ void SkROBuffer::Iter::reset(const SkROBuffer* buffer) {
         fBlock = &buffer->fHead->fBlock;
         fRemaining = buffer->fUsed;
     } else {
-        fBlock = NULL;
+        fBlock = nullptr;
         fRemaining = 0;
     }
 }
 
 const void* SkROBuffer::Iter::data() const {
-    return fRemaining ? fBlock->startData() : NULL;
+    return fRemaining ? fBlock->startData() : nullptr;
 }
 
 size_t SkROBuffer::Iter::size() const {
@@ -161,7 +161,7 @@ bool SkROBuffer::Iter::next() {
     return fRemaining != 0;
 }
 
-SkRWBuffer::SkRWBuffer(size_t initialCapacity) : fHead(NULL), fTail(NULL), fTotalUsed(0) {}
+SkRWBuffer::SkRWBuffer(size_t initialCapacity) : fHead(nullptr), fTail(nullptr), fTotalUsed(0) {}
 
 SkRWBuffer::~SkRWBuffer() {
     this->validate();
@@ -176,7 +176,7 @@ void SkRWBuffer::append(const void* src, size_t length) {
 
     fTotalUsed += length;
 
-    if (NULL == fHead) {
+    if (nullptr == fHead) {
         fHead = SkBufferHead::Alloc(length);
         fTail = &fHead->fBlock;
     }
@@ -199,12 +199,12 @@ void SkRWBuffer::append(const void* src, size_t length) {
 void* SkRWBuffer::append(size_t length) {
     this->validate();
     if (0 == length) {
-        return NULL;
+        return nullptr;
     }
 
     fTotalUsed += length;
 
-    if (NULL == fHead) {
+    if (nullptr == fHead) {
         fHead = SkBufferHead::Alloc(length);
         fTail = &fHead->fBlock;
     } else if (fTail->avail() < length) {
@@ -223,7 +223,7 @@ void SkRWBuffer::validate() const {
     if (fHead) {
         fHead->validate(fTotalUsed, fTail);
     } else {
-        SkASSERT(NULL == fTail);
+        SkASSERT(nullptr == fTail);
         SkASSERT(0 == fTotalUsed);
     }
 }

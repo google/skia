@@ -185,7 +185,7 @@ public:
      *  were created/written by the writer. SkPicture uses this.
      */
     void setFactoryPlayback(SkFlattenable::Factory array[], int count) {
-        fFactoryTDArray = NULL;
+        fFactoryTDArray = nullptr;
         fFactoryArray = array;
         fFactoryCount = count;
     }
@@ -197,7 +197,7 @@ public:
      */
     void setFactoryArray(SkTDArray<SkFlattenable::Factory>* array) {
         fFactoryTDArray = array;
-        fFactoryArray = NULL;
+        fFactoryArray = nullptr;
         fFactoryCount = 0;
     }
 

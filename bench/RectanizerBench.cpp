@@ -73,7 +73,7 @@ protected:
     }
 
     void onPreDraw() override {
-        SkASSERT(NULL == fRectanizer.get());
+        SkASSERT(nullptr == fRectanizer.get());
 
         if (kPow2_RectanizerType == fRectanizerType) {
             fRectanizer.reset(new GrRectanizerPow2(kWidth, kHeight));

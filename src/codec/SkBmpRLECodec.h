@@ -49,7 +49,7 @@ private:
 
     /*
      * Creates the color table
-     * Sets colorCount to the new color count if it is non-NULL
+     * Sets colorCount to the new color count if it is non-nullptr
      */
     bool createColorTable(int* colorCount);
 

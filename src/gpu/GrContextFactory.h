@@ -116,7 +116,7 @@ public:
 
 
     // Returns the GLContext of the given type. If it has not been created yet,
-    // NULL is returned instead.
+    // nullptr is returned instead.
     SkGLContext* getGLContext(GLContextType type) {
         for (int i = 0; i < fContexts.count(); ++i) {
             if (fContexts[i].fType == type) {
@@ -124,7 +124,7 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }

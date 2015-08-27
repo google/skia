@@ -22,7 +22,7 @@ void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primT
                                            int instancesToDraw) {
     SkASSERT(target);
     if (!indexBuffer) {
-        return NULL;
+        return nullptr;
     }
     const GrVertexBuffer* vertexBuffer;
     int firstVertex;
@@ -30,7 +30,7 @@ void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primT
     void* vertices = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
     if (!vertices) {
         SkDebugf("Vertices could not be allocated for instanced rendering.");
-        return NULL;
+        return nullptr;
     }
     SkASSERT(vertexBuffer);
     size_t ibSize = indexBuffer->gpuMemorySize();
@@ -53,7 +53,7 @@ void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
         target->resourceProvider()->refQuadIndexBuffer());
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
-        return NULL;
+        return nullptr;
     }
     return this->INHERITED::init(target, kTriangles_GrPrimitiveType, vertexStride,
                                  quadIndexBuffer, kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);

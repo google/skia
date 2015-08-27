@@ -20,7 +20,7 @@ class SkString;
 
 class SkReader32 : SkNoncopyable {
 public:
-    SkReader32() : fCurr(NULL), fStop(NULL), fBase(NULL) {}
+    SkReader32() : fCurr(nullptr), fStop(nullptr), fBase(nullptr) {}
     SkReader32(const void* data, size_t size)  {
         this->setMemory(data, size);
     }
@@ -94,7 +94,7 @@ public:
     }
 
     void read(void* dst, size_t size) {
-        SkASSERT(0 == size || dst != NULL);
+        SkASSERT(0 == size || dst != nullptr);
         SkASSERT(ptr_align_4(fCurr));
         memcpy(dst, fCurr, size);
         fCurr += SkAlign4(size);
@@ -124,10 +124,10 @@ public:
 
     /**
      *  Read the length of a string (written by SkWriter32::writeString) into
-     *  len (if len is not NULL) and return the null-ternimated address of the
+     *  len (if len is not nullptr) and return the null-ternimated address of the
      *  string within the reader's buffer.
      */
-    const char* readString(size_t* len = NULL);
+    const char* readString(size_t* len = nullptr);
 
     /**
      *  Read the string (written by SkWriter32::writeString) and return it in
@@ -152,7 +152,7 @@ private:
 
 #ifdef SK_DEBUG
     static bool ptr_align_4(const void* ptr) {
-        return (((const char*)ptr - (const char*)NULL) & 3) == 0;
+        return (((const char*)ptr - (const char*)nullptr) & 3) == 0;
     }
 #endif
 };

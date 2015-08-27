@@ -47,7 +47,7 @@ SkFlattenable* SkBitmapProcShader::CreateProc(SkReadBuffer& buffer) {
     buffer.readMatrix(&lm);
     SkBitmap bm;
     if (!buffer.readBitmap(&bm)) {
-        return NULL;
+        return nullptr;
     }
     bm.setImmutable();
     TileMode mx = (TileMode)buffer.readUInt();
@@ -75,7 +75,7 @@ SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, vo
     SkMatrix totalInverse;
     // Do this first, so we know the matrix can be inverted.
     if (!this->computeTotalInverse(rec, &totalInverse)) {
-        return NULL;
+        return nullptr;
     }
 
     void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
@@ -87,7 +87,7 @@ SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, vo
     state->fOrigBitmap = fRawBitmap;
     if (!state->chooseProcs(totalInverse, *rec.fPaint)) {
         state->~SkBitmapProcState();
-        return NULL;
+        return nullptr;
     }
 
     return new (storage) BitmapProcShaderContext(*this, rec, state);
@@ -212,7 +212,7 @@ SkShader::Context::ShadeProc SkBitmapProcShader::BitmapProcShaderContext::asASha
         *ctx = fState;
         return (ShadeProc)fState->getShaderProc32();
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan16(int x, int y, uint16_t dstC[],
@@ -301,19 +301,19 @@ SkShader* SkCreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
     SkShader* shader;
     SkColor color;
     if (src.isNull() || bitmap_is_too_big(src)) {
-        if (NULL == allocator) {
+        if (nullptr == allocator) {
             shader = new SkEmptyShader;
         } else {
             shader = allocator->createT<SkEmptyShader>();
         }
     } else if (can_use_color_shader(src, &color)) {
-        if (NULL == allocator) {
+        if (nullptr == allocator) {
             shader = new SkColorShader(color);
         } else {
             shader = allocator->createT<SkColorShader>(color);
         }
     } else {
-        if (NULL == allocator) {
+        if (nullptr == allocator) {
             shader = new SkBitmapProcShader(src, tmx, tmy, localMatrix);
         } else {
             shader = allocator->createT<SkBitmapProcShader>(src, tmx, tmy, localMatrix);

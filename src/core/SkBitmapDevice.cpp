@@ -67,7 +67,7 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     : INHERITED(SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
     , fBitmap(bitmap) {
-    SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
+    SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
@@ -77,14 +77,14 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps)
     : INHERITED(surfaceProps)
     , fBitmap(bitmap) {
-    SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
+    SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
                                        const SkSurfaceProps& surfaceProps) {
     SkAlphaType newAT = origInfo.alphaType();
     if (!valid_for_bitmap_device(origInfo, &newAT)) {
-        return NULL;
+        return nullptr;
     }
 
     const SkImageInfo info = origInfo.makeAlphaType(newAT);
@@ -92,11 +92,11 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
 
     if (kUnknown_SkColorType == info.colorType()) {
         if (!bitmap.setInfo(info)) {
-            return NULL;
+            return nullptr;
         }
     } else {
         if (!bitmap.tryAllocPixels(info)) {
-            return NULL;
+            return nullptr;
         }
         if (!bitmap.info().isOpaque()) {
             bitmap.eraseColor(SK_ColorTRANSPARENT);
@@ -142,7 +142,7 @@ bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
 bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
     const SkImageInfo info = fBitmap.info();
     if (fBitmap.getPixels() && (kUnknown_SkColorType != info.colorType())) {
-        SkColorTable* ctable = NULL;
+        SkColorTable* ctable = nullptr;
         pmap->reset(fBitmap.info(), fBitmap.getPixels(), fBitmap.rowBytes(), ctable);
         return true;
     }
@@ -152,7 +152,7 @@ bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
 bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
                                    size_t srcRowBytes, int x, int y) {
     // since we don't stop creating un-pixeled devices yet, check for no pixels here
-    if (NULL == fBitmap.getPixels()) {
+    if (nullptr == fBitmap.getPixels()) {
         return false;
     }
 
@@ -211,7 +211,7 @@ void SkBitmapDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPa
     path.addOval(oval);
     // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
     // required to override drawOval.
-    this->drawPath(draw, path, paint, NULL, true);
+    this->drawPath(draw, path, paint, nullptr, true);
 }
 
 void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPaint& paint) {
@@ -223,7 +223,7 @@ void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const S
     path.addRRect(rrect);
     // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
     // required to override drawRRect.
-    this->drawPath(draw, path, paint, NULL, true);
+    this->drawPath(draw, path, paint, nullptr, true);
 #else
     draw.drawRRect(rrect, paint);
 #endif
@@ -238,7 +238,7 @@ void SkBitmapDevice::drawPath(const SkDraw& draw, const SkPath& path,
 
 void SkBitmapDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint& paint) {
-    draw.drawBitmap(bitmap, matrix, NULL, paint);
+    draw.drawBitmap(bitmap, matrix, nullptr, paint);
 }
 
 void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
@@ -319,7 +319,7 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                                SkShader::kClamp_TileMode,
                                                SkShader::kClamp_TileMode,
                                                &matrix);
-    if (NULL == s) {
+    if (nullptr == s) {
         return;
     }
 

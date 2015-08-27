@@ -51,7 +51,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
         paint and return null if it is set, forcing the client to take the slow shader case
         (which does respect soft edges).
     */
-    SkASSERT(allocator != NULL);
+    SkASSERT(allocator != nullptr);
 
     SkSpriteBlitter* blitter;
 
@@ -63,7 +63,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
             blitter = SkSpriteBlitter::ChooseD32(source, paint, allocator);
             break;
         default:
-            blitter = NULL;
+            blitter = nullptr;
             break;
     }
 

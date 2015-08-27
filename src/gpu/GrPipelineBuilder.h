@@ -114,20 +114,20 @@ public:
     class AutoRestoreFragmentProcessorState : public ::SkNoncopyable {
     public:
         AutoRestoreFragmentProcessorState() 
-            : fPipelineBuilder(NULL)
+            : fPipelineBuilder(nullptr)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0)
             , fSaveMarker(0) {}
 
         AutoRestoreFragmentProcessorState(const GrPipelineBuilder& ds)
-            : fPipelineBuilder(NULL)
+            : fPipelineBuilder(nullptr)
             , fColorEffectCnt(0)
             , fCoverageEffectCnt(0)
             , fSaveMarker(0) {
             this->set(&ds);
         }
 
-        ~AutoRestoreFragmentProcessorState() { this->set(NULL); }
+        ~AutoRestoreFragmentProcessorState() { this->set(nullptr); }
 
         void set(const GrPipelineBuilder* ds);
 
@@ -257,11 +257,11 @@ public:
      */
     class AutoRestoreStencil : public ::SkNoncopyable {
     public:
-        AutoRestoreStencil() : fPipelineBuilder(NULL) {}
+        AutoRestoreStencil() : fPipelineBuilder(nullptr) {}
 
-        AutoRestoreStencil(const GrPipelineBuilder& ds) : fPipelineBuilder(NULL) { this->set(&ds); }
+        AutoRestoreStencil(const GrPipelineBuilder& ds) : fPipelineBuilder(nullptr) { this->set(&ds); }
 
-        ~AutoRestoreStencil() { this->set(NULL); }
+        ~AutoRestoreStencil() { this->set(nullptr); }
 
         void set(const GrPipelineBuilder* ds) {
             if (fPipelineBuilder) {

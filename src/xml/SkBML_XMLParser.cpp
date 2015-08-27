@@ -41,7 +41,7 @@ static void set(char* array[256], int index, SkStream& s, int data)
 
     size_t size = rdata(s, data);
 
-    if (array[index] == NULL)
+    if (array[index] == nullptr)
         array[index] = (char*)sk_malloc_throw(size + 1);
     else
     {

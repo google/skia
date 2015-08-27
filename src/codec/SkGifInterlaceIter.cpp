@@ -28,8 +28,8 @@ void SkGifInterlaceIter::prepareY() {
                 SK_ARRAY_COUNT(kStartingInterlaceYValues) == fStartYPtr) {
             // Now we have iterated over the entire image.  Forbid any
             // subsequent calls to nextY().
-            SkDEBUGCODE(fStartYPtr = NULL;)
-            SkDEBUGCODE(fDeltaYPtr = NULL;)
+            SkDEBUGCODE(fStartYPtr = nullptr;)
+            SkDEBUGCODE(fDeltaYPtr = nullptr;)
             y = 0;
         } else {
             y = *fStartYPtr++;

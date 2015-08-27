@@ -52,7 +52,7 @@
 
 //Dummy representation of a GUID from createId.
 #define L_GUID_ID L"XXXXXXXXsXXXXsXXXXsXXXXsXXXXXXXXXXXX"
-//Length of GUID representation from createId, including NULL terminator.
+//Length of GUID representation from createId, including nullptr terminator.
 #define GUID_ID_LEN SK_ARRAY_COUNT(L_GUID_ID)
 
 /**
@@ -122,7 +122,7 @@ SkXPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
 
     HRVM(CoCreateInstance(
              CLSID_XpsOMObjectFactory,
-             NULL,
+             nullptr,
              CLSCTX_INPROC_SERVER,
              IID_PPV_ARGS(&this->fXpsFactory)),
          "Could not create factory for layer.");
@@ -136,9 +136,9 @@ SkXPSDevice::~SkXPSDevice() {
 
 SkXPSDevice::TypefaceUse::TypefaceUse()
     : typefaceId(0xffffffff)
-    , fontData(NULL)
-    , xpsFont(NULL)
-    , glyphsUsed(NULL) {
+    , fontData(nullptr)
+    , xpsFont(nullptr)
+    , glyphsUsed(nullptr) {
 }
 
 SkXPSDevice::TypefaceUse::~TypefaceUse() {
@@ -153,7 +153,7 @@ bool SkXPSDevice::beginPortfolio(SkWStream* outputStream) {
     //Create XPS Factory.
     HRBM(CoCreateInstance(
              CLSID_XpsOMObjectFactory,
-             NULL,
+             nullptr,
              CLSCTX_INPROC_SERVER,
              IID_PPV_ARGS(&this->fXpsFactory)),
          "Could not create XPS factory.");
@@ -193,7 +193,7 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
     SkTScopedComPtr<IXpsOMThumbnailGenerator> thumbnailGenerator;
     HRM(CoCreateInstance(
             CLSID_XpsOMThumbnailGenerator,
-            NULL,
+            nullptr,
             CLSCTX_INPROC_SERVER,
             IID_PPV_ARGS(&thumbnailGenerator)),
         "Could not create thumbnail generator.");
@@ -257,10 +257,10 @@ HRESULT SkXPSDevice::initXpsDocumentWriter(IXpsOMImageResource* image) {
                 TRUE,
                 XPS_INTERLEAVING_OFF, //XPS_INTERLEAVING_ON,
                 partUri.get(),
-                NULL,
+                nullptr,
                 image,
-                NULL,
-                NULL,
+                nullptr,
+                nullptr,
                 &this->fPackageWriter),
             "Could not create package writer.");
     }
@@ -273,10 +273,10 @@ HRESULT SkXPSDevice::initXpsDocumentWriter(IXpsOMImageResource* image) {
                 &partUri),
             "Could not create fixed document part uri.");
         HRM(this->fPackageWriter->StartNewDocument(partUri.get(),
-                                                   NULL,
-                                                   NULL,
-                                                   NULL,
-                                                   NULL),
+                                                   nullptr,
+                                                   nullptr,
+                                                   nullptr,
+                                                   nullptr),
             "Could not start document.");
     }
 
@@ -328,7 +328,7 @@ bool SkXPSDevice::endSheet() {
          "Could not add scale canvas to page.");
 
     //Create the package writer if it hasn't been created yet.
-    if (NULL == this->fPackageWriter.get()) {
+    if (nullptr == this->fPackageWriter.get()) {
         SkTScopedComPtr<IXpsOMImageResource> image;
         //Ignore return, thumbnail is completely optional.
         this->createXpsThumbnail(page.get(), 0, &image);
@@ -338,10 +338,10 @@ bool SkXPSDevice::endSheet() {
 
     HRBM(this->fPackageWriter->AddPage(page.get(),
                                        &pageSize,
-                                       NULL,
-                                       NULL,
-                                       NULL,
-                                       NULL),
+                                       nullptr,
+                                       nullptr,
+                                       nullptr,
+                                       nullptr),
          "Could not write the page.");
     this->fCurrentXpsCanvas.reset();
 
@@ -357,7 +357,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
     int ttcCount = (current->ttcIndex + 1);
 
     //The following are declared with the types required by CreateFontPackage.
-    unsigned char *fontPackageBufferRaw = NULL;
+    unsigned char *fontPackageBufferRaw = nullptr;
     unsigned long fontPackageBufferSize;
     unsigned long bytesWritten;
     unsigned long result = CreateFontPackage(
@@ -377,7 +377,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         sk_malloc_throw,
         sk_realloc_throw,
         sk_free,
-        NULL);
+        nullptr);
     SkAutoTMalloc<unsigned char> fontPackageBuffer(fontPackageBufferRaw);
     if (result != NO_ERROR) {
         SkDEBUGF(("CreateFontPackage Error %lu", result));
@@ -535,7 +535,7 @@ HRESULT SkXPSDevice::createXpsTransform(const SkMatrix& matrix,
                                         IXpsOMMatrixTransform** xpsTransform) {
     SkScalar affine[6];
     if (!matrix.asAffine(affine)) {
-        *xpsTransform = NULL;
+        *xpsTransform = nullptr;
         return S_FALSE;
     }
     XPS_MATRIX rawXpsMatrix = {
@@ -575,7 +575,7 @@ HRESULT SkXPSDevice::createXpsSolidColorBrush(const SkColor skColor,
                                               IXpsOMBrush** xpsBrush) {
     XPS_COLOR xpsColor = xps_color(skColor);
     SkTScopedComPtr<IXpsOMSolidColorBrush> solidBrush;
-    HRM(this->fXpsFactory->CreateSolidColorBrush(&xpsColor, NULL, &solidBrush),
+    HRM(this->fXpsFactory->CreateSolidColorBrush(&xpsColor, nullptr, &solidBrush),
         "Could not create solid color brush.");
     HRM(solidBrush->SetOpacity(alpha / 255.0f), "Could not set opacity.");
     HRM(solidBrush->QueryInterface<IXpsOMBrush>(xpsBrush), "QI Fail.");
@@ -840,7 +840,7 @@ HRESULT SkXPSDevice::createXpsGradientStop(const SkColor skColor,
                                            IXpsOMGradientStop** xpsGradStop) {
     XPS_COLOR gradStopXpsColor = xps_color(skColor);
     HRM(this->fXpsFactory->CreateGradientStop(&gradStopXpsColor,
-                                              NULL,
+                                              nullptr,
                                               SkScalarToFLOAT(offset),
                                               xpsGradStop),
         "Could not create gradient stop.");
@@ -990,7 +990,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
                                     IXpsOMBrush** brush,
                                     const SkMatrix* parentTransform) {
     const SkShader *shader = skPaint.getShader();
-    if (NULL == shader) {
+    if (nullptr == shader) {
         HR(this->createXpsSolidColorBrush(skPaint.getColor(), 0xFF, brush));
         return S_OK;
     }
@@ -998,8 +998,8 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     //Gradient shaders.
     SkShader::GradientInfo info;
     info.fColorCount = 0;
-    info.fColors = NULL;
-    info.fColorOffsets = NULL;
+    info.fColors = nullptr;
+    info.fColorOffsets = nullptr;
     SkShader::GradientType gradientType = shader->asAGradient(&info);
 
     if (SkShader::kNone_GradientType == gradientType) {
@@ -1200,7 +1200,7 @@ void SkXPSDevice::drawRRect(const SkDraw& d,
                             const SkPaint& paint) {
     SkPath path;
     path.addRRect(rr);
-    this->drawPath(d, path, paint, NULL, true);
+    this->drawPath(d, path, paint, nullptr, true);
 }
 
 void SkXPSDevice::internalDrawRect(const SkDraw& d,
@@ -1209,7 +1209,7 @@ void SkXPSDevice::internalDrawRect(const SkDraw& d,
                                    const SkPaint& paint) {
     //Exit early if there is nothing to draw.
     if (d.fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+        (paint.getAlpha() == 0 && paint.getXfermode() == nullptr)) {
         return;
     }
 
@@ -1218,7 +1218,7 @@ void SkXPSDevice::internalDrawRect(const SkDraw& d,
         SkPath tmp;
         tmp.addRect(r);
         tmp.setFillType(SkPath::kWinding_FillType);
-        this->drawPath(d, tmp, paint, NULL, true);
+        this->drawPath(d, tmp, paint, nullptr, true);
         return;
     }
 
@@ -1525,7 +1525,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
 
     // nothing to draw
     if (d.fClip->isEmpty() ||
-        (paint->getAlpha() == 0 && paint->getXfermode() == NULL)) {
+        (paint->getAlpha() == 0 && paint->getXfermode() == nullptr)) {
         return;
     }
 
@@ -1558,7 +1558,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
         bool fill = paint->getFillPath(*skeletalPath, fillablePath);
 
         SkPaint* writablePaint = paint.writable();
-        writablePaint->setPathEffect(NULL);
+        writablePaint->setPathEffect(nullptr);
         if (fill) {
             writablePaint->setStyle(SkPaint::kFill_Style);
         } else {
@@ -1610,7 +1610,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
                            d.fClip->getBounds(),
                            &clipIRect);
 
-        SkMask* mask = NULL;
+        SkMask* mask = nullptr;
 
         //[Fillable-path -> Mask]
         SkMask rasteredMask;
@@ -1628,11 +1628,11 @@ void SkXPSDevice::drawPath(const SkDraw& d,
             //[Mask -> Mask]
             SkMask filteredMask;
             if (filter &&
-                filter->filterMask(&filteredMask, *mask, *d.fMatrix, NULL)) {
+                filter->filterMask(&filteredMask, *mask, *d.fMatrix, nullptr)) {
 
                 mask = &filteredMask;
             } else {
-                filteredMask.fImage = NULL;
+                filteredMask.fImage = nullptr;
             }
             SkAutoMaskFreeImage filteredAmi(filteredMask.fImage);
 
@@ -1656,7 +1656,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
         SkPath* pixelPath = pathIsMutable ? fillablePath : &modifiedPath;
         fillablePath->transform(matrix, pixelPath);
 
-        SkMask* mask = NULL;
+        SkMask* mask = nullptr;
 
         //[Pixel-path -> Mask]
         SkMask rasteredMask;
@@ -1677,10 +1677,10 @@ void SkXPSDevice::drawPath(const SkDraw& d,
             if (filter->filterMask(&filteredMask,
                                    rasteredMask,
                                    matrix,
-                                   NULL)) {
+                                   nullptr)) {
                 mask = &filteredMask;
             } else {
-                filteredMask.fImage = NULL;
+                filteredMask.fImage = nullptr;
             }
             SkAutoMaskFreeImage filteredAmi(filteredMask.fImage);
 
@@ -2004,7 +2004,7 @@ HRESULT SkXPSDevice::AddGlyphs(const SkDraw& d,
     HR(this->createXpsBrush(
             paint,
             &xpsFillBrush,
-            useCanvasForClip ? NULL : &transform));
+            useCanvasForClip ? nullptr : &transform));
 
     HRM(glyphs->SetFillBrushLocal(xpsFillBrush.get()),
         "Could not set fill brush.");
@@ -2132,7 +2132,7 @@ void SkXPSDevice::drawText(const SkDraw& d,
     if (text_must_be_pathed(paint, *d.fMatrix)) {
         SkPath path;
         paint.getTextPath(text, byteLen, x, y, &path);
-        this->drawPath(d, path, paint, NULL, true);
+        this->drawPath(d, path, paint, nullptr, true);
         //TODO: add automation "text"
         return;
     }
@@ -2163,7 +2163,7 @@ void SkXPSDevice::drawText(const SkDraw& d,
                   this->fXpsFactory.get(),
                   this->fCurrentXpsCanvas.get(),
                   typeface,
-                  NULL,
+                  nullptr,
                   procs.xpsGlyphs.begin(), procs.xpsGlyphs.count(),
                   &origin,
                   SkScalarToFLOAT(paint.getTextSize()),
@@ -2182,7 +2182,7 @@ void SkXPSDevice::drawPosText(const SkDraw& d,
         SkPath path;
         //TODO: make this work, Draw currently does not handle as well.
         //paint.getTextPath(text, byteLength, x, y, &path);
-        //this->drawPath(d, path, paint, NULL, true);
+        //this->drawPath(d, path, paint, nullptr, true);
         //TODO: add automation "text"
         return;
     }
@@ -2213,7 +2213,7 @@ void SkXPSDevice::drawPosText(const SkDraw& d,
                   this->fXpsFactory.get(),
                   this->fCurrentXpsCanvas.get(),
                   typeface,
-                  NULL,
+                  nullptr,
                   procs.xpsGlyphs.begin(), procs.xpsGlyphs.count(),
                   &origin,
                   SkScalarToFLOAT(paint.getTextSize()),
@@ -2253,7 +2253,7 @@ SkBaseDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*
 //Conditional for bug compatibility with PDF device.
 #if 0
     if (SkBaseDevice::kGeneral_Usage == info.fUsage) {
-        return NULL;
+        return nullptr;
         SK_CRASH();
         //To what stream do we write?
         //SkXPSDevice* dev = new SkXPSDevice(this);

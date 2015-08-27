@@ -39,10 +39,10 @@ static const SkColor gShallowColors[] = { 0xFF555555, 0xFF444444 };
 // We have several special-cases depending on the number (and spacing) of colors, so
 // try to exercise those here.
 static const GradData gGradData[] = {
-    { 2, gColors, NULL, "" },
-    { 50, gColors, NULL, "_hicolor" }, // many color gradient
-    { 3, gColors, NULL, "_3color" },
-    { 2, gShallowColors, NULL, "_shallow" },
+    { 2, gColors, nullptr, "" },
+    { 50, gColors, nullptr, "_hicolor" }, // many color gradient
+    { 3, gColors, nullptr, "_3color" },
+    { 2, gShallowColors, nullptr, "_shallow" },
 };
 
 /// Ignores scale
@@ -354,7 +354,7 @@ protected:
                 SK_ColorBLACK,
                 SkColorSetARGB(alpha, gray, gray, gray),
                 SK_ColorWHITE };
-            SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL,
+            SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr,
                                                          SK_ARRAY_COUNT(colors),
                                                          SkShader::kClamp_TileMode);
             paint.setShader(s)->unref();

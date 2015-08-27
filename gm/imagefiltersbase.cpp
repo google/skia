@@ -32,7 +32,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
 
 protected:
-    FailImageFilter() : INHERITED(0, NULL) {}
+    FailImageFilter() : INHERITED(0, nullptr) {}
 
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                        SkBitmap* result, SkIPoint* offset) const override {
@@ -67,7 +67,7 @@ public:
                                     IdentityImageFilter::GetFlattenableType());
         }
     };
-    static IdentityImageFilter* Create(SkImageFilter* input = NULL) {
+    static IdentityImageFilter* Create(SkImageFilter* input = nullptr) {
         return new IdentityImageFilter(input);
     }
 
@@ -160,7 +160,7 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     bm.allocN32Pixels(bounds.width(), bounds.height());
     bm.eraseColor(SK_ColorTRANSPARENT);
     SkCanvas c(bm);
-    draw_path(&c, r, NULL);
+    draw_path(&c, r, nullptr);
 
     canvas->drawBitmap(bm, 0, 0, &paint);
 }
@@ -176,7 +176,7 @@ static void draw_sprite(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     bm.allocN32Pixels(bounds.width(), bounds.height());
     bm.eraseColor(SK_ColorTRANSPARENT);
     SkCanvas c(bm);
-    draw_path(&c, r, NULL);
+    draw_path(&c, r, nullptr);
 
     SkPoint loc = { r.fLeft, r.fTop };
     canvas->getTotalMatrix().mapPoints(&loc, 1);
@@ -216,7 +216,7 @@ protected:
         SkColorFilter* cf = SkColorFilter::CreateModeFilter(SK_ColorRED,
                                                      SkXfermode::kSrcIn_Mode);
         SkImageFilter* filters[] = {
-            NULL,
+            nullptr,
             IdentityImageFilter::Create(),
             FailImageFilter::Create(),
             SkColorFilterImageFilter::Create(cf),
@@ -309,8 +309,8 @@ protected:
                     this->installFilter(&paint);
                 }
                 if (doSaveLayer) {
-                    canvas->saveLayer(NULL, &paint);
-                    paint.setImageFilter(NULL);
+                    canvas->saveLayer(nullptr, &paint);
+                    paint.setImageFilter(nullptr);
                 }
                 this->drawWaterfall(canvas, paint);
 

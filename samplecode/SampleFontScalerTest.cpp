@@ -25,8 +25,8 @@ static const struct {
     const char* fName;
     SkTypeface::Style   fStyle;
 } gFaces[] = {
-    { NULL, SkTypeface::kNormal },
-    { NULL, SkTypeface::kBold },
+    { nullptr, SkTypeface::kNormal },
+    { nullptr, SkTypeface::kBold },
     { "serif", SkTypeface::kNormal },
     { "serif", SkTypeface::kBold },
     { "serif", SkTypeface::kItalic },
@@ -121,7 +121,7 @@ protected:
                 for (int ps = 6; ps <= 22; ps++) {
                     paint.setTextSize(SkIntToScalar(ps));
                     canvas->drawText(text, textLen, x, y, paint);
-                    y += paint.getFontMetrics(NULL);
+                    y += paint.getFontMetrics(nullptr);
                     index += 1;
                 }
             }

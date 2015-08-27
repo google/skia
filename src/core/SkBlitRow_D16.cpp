@@ -246,7 +246,7 @@ SkBlitRow::Proc16 SkBlitRow::Factory16(unsigned flags) {
     flags &= kFlags16_Mask;
 
     SkBlitRow::Proc16 proc = PlatformFactory565(flags);
-    if (NULL == proc) {
+    if (nullptr == proc) {
         proc = gDefault_565_Procs[flags];
     }
     return proc;
@@ -274,7 +274,7 @@ SkBlitRow::ColorProc16 SkBlitRow::ColorFactory16(unsigned flags) {
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_ColorProcs));
 
     SkBlitRow::ColorProc16 proc = PlatformColorFactory565(flags);
-    if (NULL == proc) {
+    if (nullptr == proc) {
         proc = gDefault_565_ColorProcs[flags];
     }
     return proc;

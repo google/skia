@@ -203,7 +203,7 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, NULL)) {
+    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, nullptr)) {
         return;
     }
 
@@ -253,7 +253,7 @@ void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
     // instead for it to just copy the entire dst. Realistically this is a moot
     // point, because any context that supports NV_path_rendering will also
     // support NV_blend_equation_advanced.
-    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, batch, NULL, this);
+    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, batch, nullptr, this);
 
     if (!pipelineInfo.valid()) {
         return;
@@ -286,7 +286,7 @@ void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,
     GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, NULL)) {
+    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, nullptr)) {
         return;
     }
 
@@ -300,7 +300,7 @@ void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,
     // instead for it to just copy the entire dst. Realistically this is a moot
     // point, because any context that supports NV_path_rendering will also
     // support NV_blend_equation_advanced.
-    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, pathProc, NULL, this);
+    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, pathProc, nullptr, this);
     if (!pipelineInfo.valid()) {
         return;
     }
@@ -460,7 +460,7 @@ GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder* pipelineBuilde
     fArgs.fCoveragePOI = fArgs.fPipelineBuilder->coverageProcInfo(primProc);
     if (!target->setupDstReadIfNecessary(*fArgs.fPipelineBuilder, fArgs.fColorPOI,
                                          fArgs.fCoveragePOI, &fArgs.fDstTexture, devBounds)) {
-        fArgs.fPipelineBuilder = NULL;
+        fArgs.fPipelineBuilder = nullptr;
     }
 }
 
@@ -476,7 +476,7 @@ GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder* pipelineBuilde
     fArgs.fCoveragePOI = fArgs.fPipelineBuilder->coverageProcInfo(batch);
     if (!target->setupDstReadIfNecessary(*fArgs.fPipelineBuilder, fArgs.fColorPOI,
                                          fArgs.fCoveragePOI, &fArgs.fDstTexture, devBounds)) {
-        fArgs.fPipelineBuilder = NULL;
+        fArgs.fPipelineBuilder = nullptr;
     }
 }
 

@@ -111,8 +111,8 @@ bool SkOSWindow::attach(SkBackEndTypes attachType,
 
         ANativeWindow_setBuffersGeometry(fNativeWindow, 0, 0, format);
 
-        surface = eglCreateWindowSurface(display, config, fNativeWindow, NULL);
-        context = eglCreateContext(display, config, NULL, kAPIs[api].fContextAttribs);
+        surface = eglCreateWindowSurface(display, config, fNativeWindow, nullptr);
+        context = eglCreateContext(display, config, nullptr, kAPIs[api].fContextAttribs);
         if (EGL_NO_CONTEXT == context) {
             SkDebugf("eglCreateContext failed.  EGL Error: 0x%08x\n", eglGetError());
             continue;

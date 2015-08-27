@@ -58,7 +58,7 @@ static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
 static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
                       const SkMatrix& ctm, const SkRect* cullRect,
                       const SkScalar intervalLength) {
-    if (NULL == cullRect) {
+    if (nullptr == cullRect) {
         SkASSERT(false); // Shouldn't ever occur in practice
         return false;
     }
@@ -367,7 +367,7 @@ SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
     if (buffer.readScalarArray(intervals.get(), count)) {
         return Create(intervals.get(), SkToInt(count), phase);
     }
-    return NULL;
+    return nullptr;
 }
 
 #ifndef SK_IGNORE_TO_STRING

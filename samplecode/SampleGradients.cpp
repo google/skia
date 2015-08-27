@@ -13,7 +13,7 @@
 static SkShader* setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     SkColor colors[] = { c0, c1 };
     SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fTop } };
-    return SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 static void test_alphagradients(SkCanvas* canvas) {
@@ -56,10 +56,10 @@ static const SkScalar gPos2[] = {
 };
 
 static const GradData gGradData[] = {
-    { 2, gColors, NULL },
+    { 2, gColors, nullptr },
     { 2, gColors, gPos0 },
     { 2, gColors, gPos1 },
-    { 5, gColors, NULL },
+    { 5, gColors, nullptr },
     { 5, gColors, gPos2 }
 };
 
@@ -164,7 +164,7 @@ protected:
         if (false) { // avoid bit rot, suppress warning
             test_alphagradients(canvas);
         }
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 private:

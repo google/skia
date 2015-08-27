@@ -51,28 +51,28 @@ struct TagHandler {
     /** Called at the start tag.
      *  Called immediately after the parent tag retuns this handler from a call to 'tag'.
      *  Allows setting up for handling the tag content and processing attributes.
-     *  If NULL, will not be called.
+     *  If nullptr, will not be called.
      */
     void (*start)(FamilyData* data, const char* tag, const char** attributes);
 
     /** Called at the end tag.
      *  Allows post-processing of any accumulated information.
      *  This will be the last call made in relation to the current tag.
-     *  If NULL, will not be called.
+     *  If nullptr, will not be called.
      */
     void (*end)(FamilyData* data, const char* tag);
 
     /** Called when a nested tag is encountered.
      *  This is responsible for determining how to handle the tag.
-     *  If the tag is not recognized, return NULL to skip the tag.
-     *  If NULL, all nested tags will be skipped.
+     *  If the tag is not recognized, return nullptr to skip the tag.
+     *  If nullptr, all nested tags will be skipped.
      */
     const TagHandler* (*tag)(FamilyData* data, const char* tag, const char** attributes);
 
     /** The character handler for this tag.
      *  This is only active for character data contained directly in this tag (not sub-tags).
      *  The first parameter will be castable to a FamilyData*.
-     *  If NULL, any character data in this tag will be ignored.
+     *  If nullptr, any character data in this tag will be ignored.
      */
     XML_CharacterDataHandler chars;
 };
@@ -84,8 +84,8 @@ struct FamilyData {
                const TagHandler* topLevelHandler)
         : fParser(parser)
         , fFamilies(families)
-        , fCurrentFamily(NULL)
-        , fCurrentFontInfo(NULL)
+        , fCurrentFamily(nullptr)
+        , fCurrentFontInfo(nullptr)
         , fVersion(0)
         , fBasePath(basePath)
         , fIsFallback(isFallback)
@@ -114,7 +114,7 @@ static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
 }
 #define MEMEQ(c, s, n) memeq(c, s, sizeof(c) - 1, n)
 
-#define ATTS_NON_NULL(a, i) (a[i] != NULL && a[i+1] != NULL)
+#define ATTS_NON_NULL(a, i) (a[i] != nullptr && a[i+1] != nullptr)
 
 #define SK_FONTMGR_ANDROID_PARSER_PREFIX "[SkFontMgr Android Parser] "
 
@@ -178,9 +178,9 @@ static const TagHandler axisHandler = {
             }
         }
     },
-    /*end*/NULL,
-    /*tag*/NULL,
-    /*chars*/NULL,
+    /*end*/nullptr,
+    /*tag*/nullptr,
+    /*chars*/nullptr,
 };
 
 static const TagHandler fontHandler = {
@@ -221,7 +221,7 @@ static const TagHandler fontHandler = {
         if (MEMEQ("axis", tag, len)) {
             return &axisHandler;
         }
-        return NULL;
+        return nullptr;
     },
     /*chars*/[](void* data, const char* s, int len) {
         FamilyData* self = static_cast<FamilyData*>(data);
@@ -265,9 +265,9 @@ static const TagHandler familyHandler = {
         if (MEMEQ("font", tag, len)) {
             return &fontHandler;
         }
-        return NULL;
+        return nullptr;
     },
-    /*chars*/NULL,
+    /*chars*/nullptr,
 };
 
 static FontFamily* find_family(FamilyData* self, const SkString& familyName) {
@@ -279,7 +279,7 @@ static FontFamily* find_family(FamilyData* self, const SkString& familyName) {
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 static const TagHandler aliasHandler = {
@@ -331,14 +331,14 @@ static const TagHandler aliasHandler = {
             targetFamily->fNames.push_back().set(aliasName);
         }
     },
-    /*end*/NULL,
-    /*tag*/NULL,
-    /*chars*/NULL,
+    /*end*/nullptr,
+    /*tag*/nullptr,
+    /*chars*/nullptr,
 };
 
 static const TagHandler familySetHandler = {
     /*start*/[](FamilyData* self, const char* tag, const char** attributes) { },
-    /*end*/NULL,
+    /*end*/nullptr,
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
         if (MEMEQ("family", tag, len)) {
@@ -346,9 +346,9 @@ static const TagHandler familySetHandler = {
         } else if (MEMEQ("alias", tag, len)) {
             return &aliasHandler;
         }
-        return NULL;
+        return nullptr;
     },
-    /*chars*/NULL,
+    /*chars*/nullptr,
 };
 
 } // lmpParser
@@ -400,8 +400,8 @@ static const TagHandler fileHandler = {
         }
         self->fCurrentFontInfo = &newFileInfo;
     },
-    /*end*/NULL,
-    /*tag*/NULL,
+    /*end*/nullptr,
+    /*tag*/nullptr,
     /*chars*/[](void* data, const char* s, int len) {
         FamilyData* self = static_cast<FamilyData*>(data);
         self->fCurrentFontInfo->fFileName.append(s, len);
@@ -409,16 +409,16 @@ static const TagHandler fileHandler = {
 };
 
 static const TagHandler fileSetHandler = {
-    /*start*/NULL,
-    /*end*/NULL,
+    /*start*/nullptr,
+    /*end*/nullptr,
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
         if (MEMEQ("file", tag, len)) {
             return &fileHandler;
         }
-        return NULL;
+        return nullptr;
     },
-    /*chars*/NULL,
+    /*chars*/nullptr,
 };
 
 static const TagHandler nameHandler = {
@@ -426,8 +426,8 @@ static const TagHandler nameHandler = {
         // The character data should be a name for the font.
         self->fCurrentFamily->fNames.push_back();
     },
-    /*end*/NULL,
-    /*tag*/NULL,
+    /*end*/nullptr,
+    /*tag*/nullptr,
     /*chars*/[](void* data, const char* s, int len) {
         FamilyData* self = static_cast<FamilyData*>(data);
         SkAutoAsciiToLC tolc(s, len);
@@ -436,16 +436,16 @@ static const TagHandler nameHandler = {
 };
 
 static const TagHandler nameSetHandler = {
-    /*start*/NULL,
-    /*end*/NULL,
+    /*start*/nullptr,
+    /*end*/nullptr,
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
         if (MEMEQ("name", tag, len)) {
             return &nameHandler;
         }
-        return NULL;
+        return nullptr;
     },
-    /*chars*/NULL,
+    /*chars*/nullptr,
 };
 
 static const TagHandler familyHandler = {
@@ -467,29 +467,29 @@ static const TagHandler familyHandler = {
         } else if (MEMEQ("fileset", tag, len)) {
             return &fileSetHandler;
         }
-        return NULL;
+        return nullptr;
     },
-    /*chars*/NULL,
+    /*chars*/nullptr,
 };
 
 static const TagHandler familySetHandler = {
-    /*start*/NULL,
-    /*end*/NULL,
+    /*start*/nullptr,
+    /*end*/nullptr,
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
         if (MEMEQ("family", tag, len)) {
             return &familyHandler;
         }
-        return NULL;
+        return nullptr;
     },
-    /*chars*/NULL,
+    /*chars*/nullptr,
 };
 
 } // namespace jbParser
 
 static const TagHandler topLevelHandler = {
-    /*start*/NULL,
-    /*end*/NULL,
+    /*start*/nullptr,
+    /*end*/nullptr,
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
         if (MEMEQ("familyset", tag, len)) {
@@ -508,9 +508,9 @@ static const TagHandler topLevelHandler = {
             }
             return &jbParser::familySetHandler;
         }
-        return NULL;
+        return nullptr;
     },
-    /*chars*/NULL,
+    /*chars*/nullptr,
 };
 
 static void XMLCALL start_element_handler(void *data, const char *tag, const char **attributes) {
@@ -518,7 +518,7 @@ static void XMLCALL start_element_handler(void *data, const char *tag, const cha
 
     if (!self->fSkip) {
         const TagHandler* parent = self->fHandler.top();
-        const TagHandler* child = parent->tag ? parent->tag(self, tag, attributes) : NULL;
+        const TagHandler* child = parent->tag ? parent->tag(self, tag, attributes) : nullptr;
         if (child) {
             if (child->start) {
                 child->start(self, tag, attributes);
@@ -527,7 +527,7 @@ static void XMLCALL start_element_handler(void *data, const char *tag, const cha
             XML_SetCharacterDataHandler(self->fParser, child->chars);
         } else {
             SK_FONTCONFIGPARSER_WARNING("'%s' tag not recognized, skipping", tag);
-            XML_SetCharacterDataHandler(self->fParser, NULL);
+            XML_SetCharacterDataHandler(self->fParser, nullptr);
             self->fSkip = self->fDepth;
         }
     }
@@ -597,7 +597,7 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
     }
 
     SkAutoTCallVProc<remove_ptr<XML_Parser>::type, XML_ParserFree> parser(
-        XML_ParserCreate_MM(NULL, &sk_XML_alloc, NULL));
+        XML_ParserCreate_MM(nullptr, &sk_XML_alloc, nullptr));
     if (!parser) {
         SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "could not create XML parser\n");
         return -1;
@@ -669,7 +669,7 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
 #endif
 
     SkAutoTCallIProc<DIR, closedir> fontDirectory(opendir(dir));
-    if (NULL == fontDirectory) {
+    if (nullptr == fontDirectory) {
         return;
     }
 
@@ -789,7 +789,7 @@ SkLanguage SkLanguage::getParent() const {
 
     // strip off the rightmost "-.*"
     const char* parentTagEnd = strrchr(tag, '-');
-    if (parentTagEnd == NULL) {
+    if (parentTagEnd == nullptr) {
         return SkLanguage();
     }
     size_t parentTagLen = parentTagEnd - tag;

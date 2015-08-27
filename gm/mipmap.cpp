@@ -45,7 +45,7 @@ static void test_mip(SkCanvas* canvas) {
         canvas->drawImageRect(img, dst, &paint);
         canvas->translate(0, 20);
     }
-    canvas->drawImage(img, 20, 20, NULL);
+    canvas->drawImage(img, 20, 20, nullptr);
 }
 
 class MipMapGM : public skiagm::GM {

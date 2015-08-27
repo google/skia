@@ -22,15 +22,15 @@ public:
     GrFrameBufferObj()
         : GrFakeRefObj()
         , fBound(false)
-        , fColorBuffer(NULL)
-        , fDepthBuffer(NULL)
-        , fStencilBuffer(NULL) {
+        , fColorBuffer(nullptr)
+        , fDepthBuffer(nullptr)
+        , fStencilBuffer(nullptr) {
     }
 
     virtual ~GrFrameBufferObj() {
-        fColorBuffer = NULL;
-        fDepthBuffer = NULL;
-        fStencilBuffer = NULL;
+        fColorBuffer = nullptr;
+        fDepthBuffer = nullptr;
+        fStencilBuffer = nullptr;
     }
 
     void setBound()         { fBound = true; }
@@ -48,9 +48,9 @@ public:
 
     void deleteAction() override {
 
-        setColor(NULL);
-        setDepth(NULL);
-        setStencil(NULL);
+        setColor(nullptr);
+        setDepth(nullptr);
+        setStencil(nullptr);
 
         this->INHERITED::deleteAction();
     }

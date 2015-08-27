@@ -36,7 +36,7 @@ static void clean_up_layers(SkDeque* layers) {
     SkDeque::F2BIter        iter(*layers);
     SkLayerRasterizer_Rec*  rec;
 
-    while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != NULL)
+    while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != nullptr)
         rec->fPaint.~SkPaint();
 
     delete layers;
@@ -55,7 +55,7 @@ static bool compute_bounds(const SkDeque& layers, const SkPath& path,
 
     bounds->set(SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32);
 
-    while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != NULL) {
+    while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != nullptr) {
         const SkPaint&  paint = rec->fPaint;
         SkPath          fillPath, devPath;
         const SkPath*   p = &path;
@@ -136,7 +136,7 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
         SkDeque::F2BIter        iter(*fLayers);
         SkLayerRasterizer_Rec*  rec;
 
-        while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != NULL) {
+        while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != nullptr) {
             drawMatrix = translatedMatrix;
             drawMatrix.preTranslate(rec->fOffset.fX, rec->fOffset.fY);
             draw.drawPath(path, rec->fPaint);
@@ -172,7 +172,7 @@ void SkLayerRasterizer::flatten(SkWriteBuffer& buffer) const {
     SkDeque::F2BIter                iter(*fLayers);
     const SkLayerRasterizer_Rec*    rec;
 
-    while ((rec = (const SkLayerRasterizer_Rec*)iter.next()) != NULL) {
+    while ((rec = (const SkLayerRasterizer_Rec*)iter.next()) != nullptr) {
         buffer.writePaint(rec->fPaint);
         buffer.writePoint(rec->fOffset);
     }
@@ -182,7 +182,7 @@ SkLayerRasterizer::Builder::Builder() : fLayers(new SkDeque(sizeof(SkLayerRaster
 
 SkLayerRasterizer::Builder::~Builder()
 {
-    if (fLayers != NULL) {
+    if (fLayers != nullptr) {
         clean_up_layers(fLayers);
     }
 }
@@ -199,24 +199,24 @@ void SkLayerRasterizer::Builder::addLayer(const SkPaint& paint, SkScalar dx,
 SkLayerRasterizer* SkLayerRasterizer::Builder::detachRasterizer() {
     SkLayerRasterizer* rasterizer;
     if (0 == fLayers->count()) {
-        rasterizer = NULL;
+        rasterizer = nullptr;
         delete fLayers;
     } else {
         rasterizer = new SkLayerRasterizer(fLayers);
     }
-    fLayers = NULL;
+    fLayers = nullptr;
     return rasterizer;
 }
 
 SkLayerRasterizer* SkLayerRasterizer::Builder::snapshotRasterizer() const {
     if (0 == fLayers->count()) {
-        return NULL;
+        return nullptr;
     }
     SkDeque* layers = new SkDeque(sizeof(SkLayerRasterizer_Rec), fLayers->count());
     SkDeque::F2BIter                iter(*fLayers);
     const SkLayerRasterizer_Rec*    recOrig;
     SkDEBUGCODE(int                 count = 0;)
-    while ((recOrig = static_cast<SkLayerRasterizer_Rec*>(iter.next())) != NULL) {
+    while ((recOrig = static_cast<SkLayerRasterizer_Rec*>(iter.next())) != nullptr) {
         SkDEBUGCODE(count++);
         SkLayerRasterizer_Rec* recCopy = static_cast<SkLayerRasterizer_Rec*>(layers->push_back());
         new (&recCopy->fPaint) SkPaint(recOrig->fPaint);

@@ -124,7 +124,7 @@ SkBlitRow::Proc32 SkBlitRow::Factory32(unsigned flags) {
     flags &= kFlags32_Mask;
 
     SkBlitRow::Proc32 proc = PlatformProcs32(flags);
-    if (NULL == proc) {
+    if (nullptr == proc) {
         proc = gDefault_Procs32[flags];
     }
     SkASSERT(proc);

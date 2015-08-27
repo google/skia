@@ -21,14 +21,14 @@ DEF_SIMPLE_GM(blend, canvas, 300, 100) {
 
         p.setColor(SK_ColorRED);
         canvas->drawRect(SkRect::MakeXYWH(1,0,1,1), p);
-        canvas->saveLayer(NULL, NULL);
+        canvas->saveLayer(nullptr, nullptr);
             p.setColor(0xFC008000);
             canvas->drawRect(SkRect::MakeXYWH(1,0,1,1), p);
         canvas->restore();
 
         p.setColor(SK_ColorRED);
         canvas->drawRect(SkRect::MakeXYWH(2,0,1,1), p);
-        canvas->saveLayerAlpha(NULL, 0xFC);
+        canvas->saveLayerAlpha(nullptr, 0xFC);
             p.setColor(sk_tool_utils::color_to_565(0xFF008000));
             canvas->drawRect(SkRect::MakeXYWH(2,0,1,1), p);
         canvas->restore();
@@ -36,7 +36,7 @@ DEF_SIMPLE_GM(blend, canvas, 300, 100) {
 
     // Print out the colors in each block (if we're looking at 8888 raster).
     if (canvas->imageInfo().colorType() == kN32_SkColorType) {
-        if (const SkPMColor* px = (const SkPMColor*)canvas->peekPixels(NULL, NULL)) {
+        if (const SkPMColor* px = (const SkPMColor*)canvas->peekPixels(nullptr, nullptr)) {
             p.setColor(SK_ColorWHITE);
             for (int i = 0; i < 3; i++) {
                 SkPMColor c = px[i * 100];

@@ -50,6 +50,6 @@ SkBoundableAuto::SkBoundableAuto(SkBoundable* boundable,
 SkBoundableAuto::~SkBoundableAuto() {
     if (fBoundable->hasBounds() == false)
         return;
-//    fMaker.fCanvas->setBounder(NULL);
+//    fMaker.fCanvas->setBounder(nullptr);
     fBoundable->setBounds(fMaker.fDisplayList.fBounds);
 }

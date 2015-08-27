@@ -60,7 +60,7 @@ public:
      *  Helper function to decode an SkStream.
      *  @param stream SkStream to decode. Must be at the beginning.
      *  @param bm   SkBitmap to decode into. Only used if wicMode is kDecodeBounds_WICMode or
-     *      kDecodePixels_WICMode, in which case it must not be NULL.
+     *      kDecodePixels_WICMode, in which case it must not be nullptr.
      *  @param format Out parameter for the SkImageDecoder::Format of the SkStream. Only used if
      *      wicMode is kDecodeFormat_WICMode.
      */
@@ -102,7 +102,7 @@ SkImageDecoder::Result SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* 
             wicMode = kDecodePixels_WICMode;
             break;
     }
-    return this->decodeStream(stream, bm, wicMode, NULL) ? kSuccess : kFailure;
+    return this->decodeStream(stream, bm, wicMode, nullptr) ? kSuccess : kFailure;
 }
 
 bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes wicMode,
@@ -120,7 +120,7 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
     if (SUCCEEDED(hr)) {
         hr = CoCreateInstance(
             CLSID_WICImagingFactory
-            , NULL
+            , nullptr
             , CLSCTX_INPROC_SERVER
             , IID_PPV_ARGS(&piImagingFactory)
         );
@@ -135,7 +135,7 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
     //Make sure we're at the beginning of the stream.
     if (SUCCEEDED(hr)) {
         LARGE_INTEGER liBeginning = { 0 };
-        hr = piStream->Seek(liBeginning, STREAM_SEEK_SET, NULL);
+        hr = piStream->Seek(liBeginning, STREAM_SEEK_SET, nullptr);
     }
 
     //Create the decoder from the stream content.
@@ -143,14 +143,14 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
     if (SUCCEEDED(hr)) {
         hr = piImagingFactory->CreateDecoderFromStream(
             piStream.get()                    //Image to be decoded
-            , NULL                            //No particular vendor
+            , nullptr                            //No particular vendor
             , WICDecodeMetadataCacheOnDemand  //Cache metadata when needed
             , &piBitmapDecoder                //Pointer to the decoder
         );
     }
 
     if (kDecodeFormat_WICMode == wicMode) {
-        SkASSERT(format != NULL);
+        SkASSERT(format != nullptr);
         //Get the format
         if (SUCCEEDED(hr)) {
             GUID guidFormat;
@@ -190,7 +190,7 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
         if (kDecodeBounds_WICMode == wicMode) {
             return true;
         }
-        if (!this->allocPixelRef(bm, NULL)) {
+        if (!this->allocPixelRef(bm, nullptr)) {
             return false;
         }
     }
@@ -213,7 +213,7 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
             piBitmapSourceOriginal.get()      //Input bitmap to convert
             , destinationPixelFormat          //Destination pixel format
             , WICBitmapDitherTypeNone         //Specified dither patterm
-            , NULL                            //Specify a particular palette
+            , nullptr                            //Specify a particular palette
             , 0.f                             //Alpha threshold
             , WICBitmapPaletteTypeCustom      //Palette translation type
         );
@@ -233,7 +233,7 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
         bm->eraseColor(SK_ColorTRANSPARENT);
         const UINT stride = (UINT) bm->rowBytes();
         hr = piBitmapSourceConverted->CopyPixels(
-            NULL,                             //Get all the pixels
+            nullptr,                             //Get all the pixels
             stride,
             stride * height,
             reinterpret_cast<BYTE *>(bm->getPixels())
@@ -254,7 +254,7 @@ extern SkImageDecoder* image_decoder_from_stream(SkStreamRewindable*);
 
 SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable* stream) {
     SkImageDecoder* decoder = image_decoder_from_stream(stream);
-    if (NULL == decoder) {
+    if (nullptr == decoder) {
         // If no image decoder specific to the stream exists, use SkImageDecoder_WIC.
         return new SkImageDecoder_WIC;
     } else {
@@ -265,7 +265,7 @@ SkImageDecoder* SkImageDecoder::Factory(SkStreamRewindable* stream) {
 /////////////////////////////////////////////////////////////////////////
 
 SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
-    return NULL;
+    return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -345,7 +345,7 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     if (SUCCEEDED(hr)) {
         hr = CoCreateInstance(
             CLSID_WICImagingFactory
-            , NULL
+            , nullptr
             , CLSCTX_INPROC_SERVER
             , IID_PPV_ARGS(&piImagingFactory)
         );
@@ -360,7 +360,7 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     //Create an encode of the appropriate type.
     SkTScopedComPtr<IWICBitmapEncoder> piEncoder;
     if (SUCCEEDED(hr)) {
-        hr = piImagingFactory->CreateEncoder(type, NULL, &piEncoder);
+        hr = piImagingFactory->CreateEncoder(type, nullptr, &piEncoder);
     }
 
     if (SUCCEEDED(hr)) {
@@ -445,7 +445,7 @@ static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
         case SkImageEncoder::kPNG_Type:
             break;
         default:
-            return NULL;
+            return nullptr;
     }
     return new SkImageEncoder_WIC(t);
 }
@@ -455,7 +455,7 @@ static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_wic_factory);
 static SkImageDecoder::Format get_format_wic(SkStreamRewindable* stream) {
     SkImageDecoder::Format format;
     SkImageDecoder_WIC codec;
-    if (!codec.decodeStream(stream, NULL, SkImageDecoder_WIC::kDecodeFormat_WICMode, &format)) {
+    if (!codec.decodeStream(stream, nullptr, SkImageDecoder_WIC::kDecodeFormat_WICMode, &format)) {
         format = SkImageDecoder::kUnknown_Format;
     }
     return format;

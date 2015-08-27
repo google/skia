@@ -312,7 +312,7 @@ SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
 SkFlattenable* SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
-        return NULL;
+        return nullptr;
     }
     SkPoint c1 = buffer.readPoint();
     SkPoint c2 = buffer.readPoint();

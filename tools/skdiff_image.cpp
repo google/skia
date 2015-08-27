@@ -44,11 +44,11 @@ static void create_diff_images (DiffMetricProc dmp,
     if (comparisonFileBits) {
         drp->fComparison.fStatus = DiffResource::kRead_Status;
     }
-    if (NULL == baseFileBits || NULL == comparisonFileBits) {
-        if (NULL == baseFileBits) {
+    if (nullptr == baseFileBits || nullptr == comparisonFileBits) {
+        if (nullptr == baseFileBits) {
             drp->fBase.fStatus = DiffResource::kCouldNotRead_Status;
         }
-        if (NULL == comparisonFileBits) {
+        if (nullptr == comparisonFileBits) {
             drp->fComparison.fStatus = DiffResource::kCouldNotRead_Status;
         }
         drp->fResult = DiffRecord::kCouldNotCompare_Result;
@@ -314,7 +314,7 @@ int tool_main(int argc, char** argv) {
     } else {
         const char* baseLabelCstr = baseLabel.c_str();
         const char* tab = strchr(baseLabelCstr, '\t');
-        if (NULL == tab) {
+        if (nullptr == tab) {
             outputFile = baseLabel;
         } else {
             outputFile.set(baseLabelCstr, tab - baseLabelCstr);

@@ -73,7 +73,7 @@ SkDeflateWStream::SkDeflateWStream(SkWStream* out) : fImpl(new SkDeflateWStream:
     }
     fImpl->fZStream.zalloc = &skia_alloc_func;
     fImpl->fZStream.zfree = &skia_free_func;
-    fImpl->fZStream.opaque = NULL;
+    fImpl->fZStream.opaque = nullptr;
     SkDEBUGCODE(int r =) deflateInit(&fImpl->fZStream, Z_DEFAULT_COMPRESSION);
     SkASSERT(Z_OK == r);
 }
@@ -87,7 +87,7 @@ void SkDeflateWStream::finalize() {
     do_deflate(Z_FINISH, &fImpl->fZStream, fImpl->fOut, fImpl->fInBuffer,
                fImpl->fInBufferIndex);
     (void)deflateEnd(&fImpl->fZStream);
-    fImpl->fOut = NULL;
+    fImpl->fOut = nullptr;
 }
 
 bool SkDeflateWStream::write(const void* void_buffer, size_t len) {

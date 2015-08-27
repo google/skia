@@ -88,8 +88,8 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(const char familyName[],
                                                      SkTypeface::Style style)
 {
     SkAutoTUnref<SkFontConfigInterface> fci(RefFCI());
-    if (NULL == fci.get()) {
-        return NULL;
+    if (nullptr == fci.get()) {
+        return nullptr;
     }
 
     // Check if requested NameStyle is in the NameStyle cache.
@@ -107,7 +107,7 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(const char familyName[],
     SkString outFamilyName;
     SkTypeface::Style outStyle;
     if (!fci->matchFamilyName(familyName, style, &indentity, &outFamilyName, &outStyle)) {
-        return NULL;
+        return nullptr;
     }
 
     // Check if a typeface with this FontIdentity is already in the FontIdentity cache.
@@ -136,8 +136,8 @@ SkStreamAsset* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
     }
 
     SkAutoTUnref<SkFontConfigInterface> fci(RefFCI());
-    if (NULL == fci.get()) {
-        return NULL;
+    if (nullptr == fci.get()) {
+        return nullptr;
     }
 
     *ttcIndex = this->getIdentity().fTTCIndex;

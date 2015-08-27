@@ -13,8 +13,8 @@
 
 static SkShader* inflate_shader(const SkDOM& dom, const SkDOM::Node* node)
 {
-    if ((node = dom.getFirstChild(node, "shader")) == NULL)
-        return NULL;
+    if ((node = dom.getFirstChild(node, "shader")) == nullptr)
+        return nullptr;
 
     const char* str;
 
@@ -24,9 +24,9 @@ static SkShader* inflate_shader(const SkDOM& dom, const SkDOM::Node* node)
         SkPoint        pts[2];
 
         colors[0] = colors[1] = SK_ColorBLACK;    // need to initialized the alpha to opaque, since FindColor doesn't set it
-        if ((str = dom.findAttr(node, "c0")) != NULL &&
+        if ((str = dom.findAttr(node, "c0")) != nullptr &&
             SkParse::FindColor(str, &colors[0]) &&
-            (str = dom.findAttr(node, "c1")) != NULL &&
+            (str = dom.findAttr(node, "c1")) != nullptr &&
             SkParse::FindColor(str, &colors[1]) &&
             dom.findScalars(node, "p0", &pts[0].fX, 2) &&
             dom.findScalars(node, "p1", &pts[1].fX, 2))
@@ -36,13 +36,13 @@ static SkShader* inflate_shader(const SkDOM& dom, const SkDOM::Node* node)
 
             if ((index = dom.findList(node, "tile-mode", "clamp,repeat,mirror")) >= 0)
                 mode = (SkShader::TileMode)index;
-            return SkGradientShader::CreateLinear(pts, colors, NULL, 2, mode);
+            return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, mode);
         }
     }
     else if (dom.hasAttr(node, "type", "bitmap"))
     {
-        if ((str = dom.findAttr(node, "src")) == NULL)
-            return NULL;
+        if ((str = dom.findAttr(node, "src")) == nullptr)
+            return nullptr;
 
         SkBitmap    bm;
 
@@ -57,7 +57,7 @@ static SkShader* inflate_shader(const SkDOM& dom, const SkDOM::Node* node)
             return SkShader::CreateBitmapShader(bm, mode, mode);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkPaint_Inflate(SkPaint* paint, const SkDOM& dom, const SkDOM::Node* node)

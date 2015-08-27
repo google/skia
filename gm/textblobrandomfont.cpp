@@ -41,7 +41,7 @@ protected:
         // Setup our random scaler context
         SkAutoTUnref<SkTypeface> orig(sk_tool_utils::create_portable_typeface("sans-serif",
                                                                               SkTypeface::kBold));
-        if (NULL == orig) {
+        if (nullptr == orig) {
             orig.reset(SkTypeface::RefDefault());
         }
         SkAutoTUnref<SkTypeface> random(new SkRandomTypeface(orig, paint, false));
@@ -93,7 +93,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // This GM exists to test a specific feature of the GPU backend.
-        if (NULL == canvas->getGrContext()) {
+        if (nullptr == canvas->getGrContext()) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }

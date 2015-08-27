@@ -352,7 +352,7 @@ const SkConvolutionFilter1D::ConvolutionFixed* SkConvolutionFilter1D::GetSingleF
     *filterLength = filter.fTrimmedLength;
     *specifiedFilterlength = filter.fLength;
     if (filter.fTrimmedLength == 0) {
-        return NULL;
+        return nullptr;
     }
 
     return &fFilterValues[filter.fDataLocation];

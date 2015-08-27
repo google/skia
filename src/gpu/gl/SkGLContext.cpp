@@ -49,8 +49,8 @@ SkGLContext::~SkGLContext() {
         SkASSERT(0 == fFrameFences[i]);
     }
 #endif
-    SkASSERT(NULL == fGL.get());
-    SkASSERT(NULL == fFenceSync.get());
+    SkASSERT(nullptr == fGL.get());
+    SkASSERT(nullptr == fFenceSync.get());
 }
 
 void SkGLContext::init(const GrGLInterface* gl, SkGpuFenceSync* fenceSync) {
@@ -67,10 +67,10 @@ void SkGLContext::teardown() {
                 fFrameFences[i] = 0;
             }
         }
-        fFenceSync.reset(NULL);
+        fFenceSync.reset(nullptr);
     }
 
-    fGL.reset(NULL);
+    fGL.reset(nullptr);
 }
 
 void SkGLContext::makeCurrent() const {
@@ -112,7 +112,7 @@ SkGLContext::GLFenceSync* SkGLContext::GLFenceSync::CreateIfSupported(const SkGL
         SK_GL_RET(*ctx, versionStr, GetString(GR_GL_VERSION));
         GrGLVersion version = GrGLGetVersionFromString(reinterpret_cast<const char*>(versionStr));
         if (version < GR_GL_VER(3,2) && !ctx->gl()->hasExtension("GL_ARB_sync")) {
-            return NULL;
+            return nullptr;
         }
         ret->fGLFenceSync = reinterpret_cast<GLFenceSyncProc>(
             ctx->onPlatformGetProcAddress("glFenceSync"));
@@ -122,7 +122,7 @@ SkGLContext::GLFenceSync* SkGLContext::GLFenceSync::CreateIfSupported(const SkGL
             ctx->onPlatformGetProcAddress("glDeleteSync"));
     } else {
         if (!ctx->gl()->hasExtension("GL_APPLE_sync")) {
-            return NULL;
+            return nullptr;
         }
         ret->fGLFenceSync = reinterpret_cast<GLFenceSyncProc>(
             ctx->onPlatformGetProcAddress("glFenceSyncAPPLE"));
@@ -133,7 +133,7 @@ SkGLContext::GLFenceSync* SkGLContext::GLFenceSync::CreateIfSupported(const SkGL
     }
 
     if (!ret->fGLFenceSync || !ret->fGLClientWaitSync || !ret->fGLDeleteSync) {
-        return NULL;
+        return nullptr;
     }
 
     return ret.detach();

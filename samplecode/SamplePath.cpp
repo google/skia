@@ -57,9 +57,9 @@ static void test_cubic2() {
     {
 #ifdef SK_BUILD_FOR_WIN
         // windows doesn't have strtof
-        float x = (float)strtod("9.94099e+07", NULL);
+        float x = (float)strtod("9.94099e+07", nullptr);
 #else
-        float x = strtof("9.94099e+07", NULL);
+        float x = strtof("9.94099e+07", nullptr);
 #endif
         int ix = (int)x;
         int fx = (int)(x * 65536);
@@ -211,7 +211,7 @@ protected:
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fShowHairline = !fShowHairline;
-        this->inval(NULL);
+        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
@@ -269,7 +269,7 @@ public:
 
     void toggle(bool& value) {
         value = !value;
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 protected:
@@ -323,7 +323,7 @@ protected:
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
             fPts[index] = click->fCurr;
-            this->inval(NULL);
+            this->inval(nullptr);
             return true;
         }
         return false;

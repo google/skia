@@ -11,7 +11,7 @@
 #include "Test.h"
 
 static void make_bitmap(SkBitmap* bm, SkRandom& rand) {
-    // for now, Build needs a min size of 2, otherwise it will return NULL.
+    // for now, Build needs a min size of 2, otherwise it will return nullptr.
     // should fix that to support 1 X N, where N > 1 to return non-null.
     int w = 2 + rand.nextU() % 1000;
     int h = 2 + rand.nextU() % 1000;
@@ -25,10 +25,10 @@ DEF_TEST(MipMap, reporter) {
 
     for (int i = 0; i < 500; ++i) {
         make_bitmap(&bm, rand);
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm, NULL));
+        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
 
-        REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1, NULL));
-        REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1 * 2, NULL));
+        REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1, nullptr));
+        REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1 * 2, nullptr));
 
         SkMipMap::Level prevLevel;
         sk_bzero(&prevLevel, sizeof(prevLevel));

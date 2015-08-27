@@ -200,7 +200,7 @@ static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const Sk
     canvasRowBytes = secretDevBitmap.rowBytes();
     canvasPixels = static_cast<const uint32_t*>(secretDevBitmap.getPixels());
 
-    if (NULL == canvasPixels) {
+    if (nullptr == canvasPixels) {
         return false;
     }
 
@@ -286,7 +286,7 @@ static bool alloc_row_bytes(SkBitmap* bm, const SkImageInfo& info, size_t rowByt
     if (!bm->setInfo(info, rowBytes)) {
         return false;
     }
-    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, rowBytes, NULL);
+    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, rowBytes, nullptr);
     bm->setPixelRef(pr)->unref();
     return true;
 }
@@ -306,7 +306,7 @@ static SkSurface* create_surface(const CanvasConfig& c, GrContext* grCtx) {
             if (!c.fTightRowBytes) {
                 memset(pixels, DEV_PAD, size);
             }
-            return SkSurface::NewRasterDirectReleaseProc(info, pixels, rowBytes, free_pixels, NULL);
+            return SkSurface::NewRasterDirectReleaseProc(info, pixels, rowBytes, free_pixels, nullptr);
         }
 #if SK_SUPPORT_GPU
         case kGpu_BottomLeft_DevType:
@@ -322,7 +322,7 @@ static SkSurface* create_surface(const CanvasConfig& c, GrContext* grCtx) {
             return SkSurface::NewRenderTargetDirect(texture->asRenderTarget());
 #endif
     }
-    return NULL;
+    return nullptr;
 }
 
 static bool setup_bitmap(SkBitmap* bm, SkColorType ct, SkAlphaType at, int w, int h, int tightRB) {
@@ -417,7 +417,7 @@ DEF_GPUTEST(WritePixels, reporter, factory) {
         }
 #endif
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
-            GrContext* context = NULL;
+            GrContext* context = nullptr;
 #if SK_SUPPORT_GPU
             if (isGPUDevice) {
                 GrContextFactory::GLContextType type =
@@ -426,7 +426,7 @@ DEF_GPUTEST(WritePixels, reporter, factory) {
                     continue;
                 }
                 context = factory->get(type);
-                if (NULL == context) {
+                if (nullptr == context) {
                     continue;
                 }
             }

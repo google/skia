@@ -202,7 +202,7 @@ struct MipMapRec : public SkResourceCache::Rec {
         const SkMipMap* mm = SkRef(rec.fMipMap);
         // the call to ref() above triggers a "lock" in the case of discardable memory,
         // which means we can now check for null (in case the lock failed).
-        if (NULL == mm->data()) {
+        if (nullptr == mm->data()) {
             mm->unref();    // balance our call to ref()
             return false;
         }
@@ -222,7 +222,7 @@ const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmap& src, SkResourceCache* 
     const SkMipMap* result;
 
     if (!CHECK_LOCAL(localCache, find, Find, key, MipMapRec::Finder, &result)) {
-        result = NULL;
+        result = nullptr;
     }
     return result;
 }

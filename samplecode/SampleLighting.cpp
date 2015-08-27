@@ -88,11 +88,11 @@ protected:
         canvas->drawRect(r, paint);
 
         // so we're constantly updating
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        this->inval(NULL);
+        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 

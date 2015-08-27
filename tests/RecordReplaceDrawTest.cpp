@@ -50,7 +50,7 @@ DEF_TEST(RecordReplaceDraw_Abort, r) {
     SkRecorder canvas(&rerecord, kWidth, kHeight);
 
     JustOneDraw callback;
-    GrRecordReplaceDraw(pic, &canvas, NULL, SkMatrix::I(), &callback);
+    GrRecordReplaceDraw(pic, &canvas, nullptr, SkMatrix::I(), &callback);
 
     switch (rerecord.count()) {
         case 3:
@@ -83,7 +83,7 @@ DEF_TEST(RecordReplaceDraw_Unbalanced, r) {
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
 
-    GrRecordReplaceDraw(pic, &canvas, NULL, SkMatrix::I(), NULL/*callback*/);
+    GrRecordReplaceDraw(pic, &canvas, nullptr, SkMatrix::I(), nullptr/*callback*/);
 
     // ensure rerecord is balanced (in this case by checking that the count is odd)
     REPORTER_ASSERT(r, (rerecord.count() & 1) == 1);
@@ -97,10 +97,10 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
         SkRTreeFactory bbhFactory;
         SkPictureRecorder recorder;
         SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kWidth), SkIntToScalar(kHeight),
-                                                   useBBH ? &bbhFactory : NULL);
+                                                   useBBH ? &bbhFactory : nullptr);
 
         SkPaint paint;
-        canvas->saveLayer(NULL, &paint);
+        canvas->saveLayer(nullptr, &paint);
         canvas->clear(SK_ColorRED);
         canvas->restore();
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(kWidth / 2), SkIntToScalar(kHeight / 2)),
@@ -125,14 +125,14 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
     desc.fSampleCnt = 0;
 
     SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc,
-        false, NULL, 0));
+        false, nullptr, 0));
     layer->setTexture(texture, SkIRect::MakeWH(kWidth, kHeight));
 
     SkAutoTUnref<SkBBoxHierarchy> bbh;
 
     SkRecord rerecord;
     SkRecorder canvas(&rerecord, kWidth, kHeight);
-    GrRecordReplaceDraw(pic, &canvas, layerCache, SkMatrix::I(), NULL/*callback*/);
+    GrRecordReplaceDraw(pic, &canvas, layerCache, SkMatrix::I(), nullptr/*callback*/);
 
     int recount = rerecord.count();
     REPORTER_ASSERT(r, 2 == recount || 4 == recount);
@@ -156,7 +156,7 @@ DEF_GPUTEST(RecordReplaceDraw, r, factory) {
             continue;
         }
         GrContext* context = factory->get(glType);
-        if (NULL == context) {
+        if (nullptr == context) {
             continue;
         }
 

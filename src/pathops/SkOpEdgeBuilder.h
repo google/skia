@@ -37,7 +37,7 @@ public:
     void complete() {
         if (fCurrentContour && fCurrentContour->count()) {
             fCurrentContour->complete();
-            fCurrentContour = NULL;
+            fCurrentContour = nullptr;
         }
     }
 

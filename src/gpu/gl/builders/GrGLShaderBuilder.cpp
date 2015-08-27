@@ -58,7 +58,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGLProgramBuilder* program)
     // We push back some dummy pointers which will later become our header
     for (int i = 0; i <= kCode; i++) {
         fShaderStrings.push_back();
-        fCompilerStrings.push_back(NULL);
+        fCompilerStrings.push_back(nullptr);
         fCompilerStringLengths.push_back(0);
     }
 

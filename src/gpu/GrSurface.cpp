@@ -96,7 +96,7 @@ bool GrSurface::writePixels(int left, int top, int width, int height,
                             uint32_t pixelOpsFlags) {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
-    if (NULL == context) {
+    if (nullptr == context) {
         return false;
     }
     return context->writeSurfacePixels(this, left, top, width, height, config, buffer, rowBytes,
@@ -108,7 +108,7 @@ bool GrSurface::readPixels(int left, int top, int width, int height,
                            uint32_t pixelOpsFlags) {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
-    if (NULL == context) {
+    if (nullptr == context) {
         return false;
     }
     return context->readSurfacePixels(this, left, top, width, height, config, buffer,

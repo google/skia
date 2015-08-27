@@ -116,7 +116,7 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
             SkDropShadowImageFilter::Create(10.0f, 10.0f,
                                             3.0f, 3.0f,
                                             SK_ColorRED, kBoth,
-                                            source, NULL));
+                                            source, nullptr));
 
         add_paint(dsif, paints);
     }
@@ -127,7 +127,7 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
                                             3.0f, 3.0f,
                                             SK_ColorRED,
                                             SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode,
-                                            source, NULL));
+                                            source, nullptr));
 
         add_paint(dsif, paints);
     }
@@ -231,7 +231,7 @@ protected:
         //-----------
         // Normal paints (no source)
         SkTArray<SkPaint> paints;
-        create_paints(NULL, &paints);
+        create_paints(nullptr, &paints);
 
         //-----------
         // Paints with a PictureImageFilter as a source

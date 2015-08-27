@@ -530,7 +530,7 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
-    dst->fImage = NULL;
+    dst->fImage = nullptr;
 
     if (src.fImage) {
         size_t dstSize = dst->computeImageSize();
@@ -754,7 +754,7 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
-    dst->fImage = NULL;
+    dst->fImage = nullptr;
 
     int             sw = SkScalarFloorToInt(src.width());
     int             sh = SkScalarFloorToInt(src.height());
@@ -769,7 +769,7 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
         }
         return true;
     }
-    uint8_t *profile = NULL;
+    uint8_t *profile = nullptr;
 
     ComputeBlurProfile(sigma, &profile);
     SkAutoTDeleteArray<uint8_t> ada(profile);
@@ -890,7 +890,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
-    dst->fImage = NULL;
+    dst->fImage = nullptr;
 
     if (src.fImage) {
 

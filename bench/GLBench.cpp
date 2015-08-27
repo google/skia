@@ -13,20 +13,20 @@
 
 const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {
     // This bench exclusively tests GL calls directly
-    if (NULL == canvas->getGrContext()) {
-        return NULL;
+    if (nullptr == canvas->getGrContext()) {
+        return nullptr;
     }
     GrContext* context = canvas->getGrContext();
     GrGpu* gpu = context->getGpu();
     if (!gpu) {
         SkDebugf("Couldn't get Gr gpu.");
-        return NULL;
+        return nullptr;
     }
 
     const GrGLContext* ctx = gpu->glContextForTesting();
     if (!ctx) {
         SkDebugf("Couldn't get an interface\n");
-        return NULL;
+        return nullptr;
     }
 
     return this->onGetGLContext(ctx);
@@ -64,7 +64,7 @@ GrGLuint GLBench::CompileShader(const GrGLInterface* gl, const char* shaderSrc, 
     GR_GL_CALL_RET(gl, shader, CreateShader(type));
 
     // Load the shader source
-    GR_GL_CALL(gl, ShaderSource(shader, 1, &shaderSrc, NULL));
+    GR_GL_CALL(gl, ShaderSource(shader, 1, &shaderSrc, nullptr));
 
     // Compile the shader
     GR_GL_CALL(gl, CompileShader(shader));
@@ -74,7 +74,7 @@ GrGLuint GLBench::CompileShader(const GrGLInterface* gl, const char* shaderSrc, 
     GrGLchar infoLog[512];
     GR_GL_CALL(gl, GetShaderiv(shader, GR_GL_COMPILE_STATUS, &success));
     if (!success) {
-        GR_GL_CALL(gl, GetShaderInfoLog(shader, 512, NULL, infoLog));
+        GR_GL_CALL(gl, GetShaderInfoLog(shader, 512, nullptr, infoLog));
         SkDebugf("ERROR::SHADER::COMPLIATION_FAILED: %s\n", infoLog);
     }
 
@@ -97,7 +97,7 @@ GrGLuint GLBench::CreateProgram(const GrGLInterface* gl, const char* vshader, co
     GrGLchar infoLog[512];
     GR_GL_CALL(gl, GetProgramiv(shaderProgram, GR_GL_LINK_STATUS, &success));
     if (!success) {
-        GR_GL_CALL(gl, GetProgramInfoLog(shaderProgram, 512, NULL, infoLog));
+        GR_GL_CALL(gl, GetProgramInfoLog(shaderProgram, 512, nullptr, infoLog));
         SkDebugf("Linker Error: %s\n", infoLog);
     }
     GR_GL_CALL(gl, DeleteShader(vertexShader));
@@ -124,7 +124,7 @@ GrGLuint GLBench::SetupFramebuffer(const GrGLInterface* gl, int screenWidth, int
                               0, //border
                               GR_GL_RGBA, //format
                               GR_GL_UNSIGNED_BYTE, // type
-                              NULL));
+                              nullptr));
 
     // bind framebuffer
     GrGLuint framebuffer;

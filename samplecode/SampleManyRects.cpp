@@ -65,7 +65,7 @@ protected:
             canvas->drawRect(rect, paint);
             canvas->restore();
         }
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 private:

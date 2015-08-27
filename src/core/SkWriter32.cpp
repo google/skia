@@ -37,7 +37,7 @@ size_t SkReader32::readIntoString(SkString* copy) {
 }
 
 void SkWriter32::writeString(const char str[], size_t len) {
-    if (NULL == str) {
+    if (nullptr == str) {
         str = "";
         len = 0;
     }
@@ -64,7 +64,7 @@ size_t SkWriter32::WriteStringSize(const char* str, size_t len) {
 }
 
 void SkWriter32::growToAtLeast(size_t size) {
-    const bool wasExternal = (fExternal != NULL) && (fData == fExternal);
+    const bool wasExternal = (fExternal != nullptr) && (fData == fExternal);
 
     fCapacity = 4096 + SkTMax(size, fCapacity + (fCapacity / 2));
     fInternal.realloc(fCapacity);

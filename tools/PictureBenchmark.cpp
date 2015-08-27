@@ -16,12 +16,12 @@ namespace sk_tools {
 
 PictureBenchmark::PictureBenchmark()
     : fRepeats(1)
-    , fRenderer(NULL)
+    , fRenderer(nullptr)
     , fTimerResult(TimerData::kAvg_Result)
     , fTimerTypes(0)
     , fTimeIndividualTiles(false)
     , fPurgeDecodedTex(false)
-    , fWriter(NULL) {
+    , fWriter(nullptr) {
 }
 
 PictureBenchmark::~PictureBenchmark() {
@@ -43,11 +43,11 @@ void PictureBenchmark::setTimersToShow(bool wall,
 
 Timer* PictureBenchmark::setupTimer(bool useGLTimer) {
 #if SK_SUPPORT_GPU
-    if (useGLTimer && fRenderer != NULL && fRenderer->isUsingGpuDevice()) {
+    if (useGLTimer && fRenderer != nullptr && fRenderer->isUsingGpuDevice()) {
         return new Timer(fRenderer->getGLContext());
     }
 #endif
-    return new Timer(NULL);
+    return new Timer(nullptr);
 }
 
 PictureRenderer* PictureBenchmark::setRenderer(sk_tools::PictureRenderer* renderer) {
@@ -57,21 +57,21 @@ PictureRenderer* PictureBenchmark::setRenderer(sk_tools::PictureRenderer* render
 
 void PictureBenchmark::run(SkPicture* pict, bool useMultiPictureDraw) {
     SkASSERT(pict);
-    if (NULL == pict) {
+    if (nullptr == pict) {
         return;
     }
 
-    SkASSERT(fRenderer != NULL);
-    if (NULL == fRenderer) {
+    SkASSERT(fRenderer != nullptr);
+    if (nullptr == fRenderer) {
         return;
     }
 
-    fRenderer->init(pict, NULL, NULL, NULL, false, useMultiPictureDraw);
+    fRenderer->init(pict, nullptr, nullptr, nullptr, false, useMultiPictureDraw);
 
     // We throw this away to remove first time effects (such as paging in this program)
     fRenderer->setup();
 
-    fRenderer->render(NULL);
+    fRenderer->render(nullptr);
     fRenderer->resetState(true);   // flush, swapBuffers and Finish
 
     if (fPurgeDecodedTex) {
@@ -109,7 +109,7 @@ void PictureBenchmark::run(SkPicture* pict, bool useMultiPictureDraw) {
     if (fTimeIndividualTiles) {
         TiledPictureRenderer* tiledRenderer = fRenderer->getTiledRenderer();
         SkASSERT(tiledRenderer && tiledRenderer->supportsTimingIndividualTiles());
-        if (NULL == tiledRenderer || !tiledRenderer->supportsTimingIndividualTiles()) {
+        if (nullptr == tiledRenderer || !tiledRenderer->supportsTimingIndividualTiles()) {
             return;
         }
         int xTiles, yTiles;
@@ -200,7 +200,7 @@ void PictureBenchmark::run(SkPicture* pict, bool useMultiPictureDraw) {
                 fRenderer->setup();
 
                 perRunTimer->start();
-                fRenderer->render(NULL);
+                fRenderer->render(nullptr);
                 perRunTimer->truncatedEnd();
                 fRenderer->resetState(false);   // flush & swapBuffers, but don't Finish
                 perRunTimer->end();

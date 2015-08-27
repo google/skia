@@ -54,7 +54,7 @@ void GrBufferedDrawTarget::onReset() {
     fPathIndexBuffer.rewind();
     fPathTransformBuffer.rewind();
 
-    fPrevState.reset(NULL);
+    fPrevState.reset(nullptr);
     // Note, fPrevState points into fPipelineBuffer's allocation, so we have to reset first.
     // Furthermore, we have to reset fCommands before fPipelineBuffer too.
     if (fDrawID % kPipelineBufferHighWaterMark) {
@@ -76,7 +76,7 @@ GrBufferedDrawTarget::createStateForPathDraw(const GrPrimitiveProcessor* primPro
     StateForPathDraw* state = this->allocState(primProc);
     if (!GrPipeline::CreateAt(state->pipelineLocation(), pipelineInfo.pipelineCreateArgs(), opts)) {
         this->unallocState(state);
-        return NULL;
+        return nullptr;
     }
 
     state->fPrimitiveProcessor->initBatchTracker(&state->fBatchTracker, *opts);

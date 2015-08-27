@@ -151,12 +151,12 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         using namespace GrDefaultGeoProcFactory;
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        if (NULL == rt) {
+        if (nullptr == rt) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }
         GrContext* context = rt->getContext();
-        if (NULL == context) {
+        if (nullptr == context) {
             return;
         }
 
@@ -176,7 +176,7 @@ protected:
             for (int et = 0; et < kGrProcessorEdgeTypeCnt; ++et) {
                 GrTestTarget tt;
                 context->getTestTarget(&tt);
-                if (NULL == tt.target()) {
+                if (nullptr == tt.target()) {
                     SkDEBUGFAIL("Couldn't get Gr test target.");
                     return;
                 }
@@ -227,7 +227,7 @@ protected:
             for (int et = 0; et < kGrProcessorEdgeTypeCnt; ++et) {
                 GrTestTarget tt;
                 context->getTestTarget(&tt);
-                if (NULL == tt.target()) {
+                if (nullptr == tt.target()) {
                     SkDEBUGFAIL("Couldn't get Gr test target.");
                     return;
                 }

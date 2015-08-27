@@ -79,7 +79,7 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     if (webp_parse_header(stream, &info)) {
         return new SkWebpCodec(info, streamDeleter.detach());
     }
-    return NULL;
+    return nullptr;
 }
 
 // This version is slightly different from SkCodecPriv's version of conversion_possible. It
@@ -221,7 +221,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     config.output.u.RGBA.size = dstInfo.getSafeSize(rowBytes);
     config.output.is_external_memory = 1;
 
-    SkAutoTCallVProc<WebPIDecoder, WebPIDelete> idec(WebPIDecode(NULL, 0, &config));
+    SkAutoTCallVProc<WebPIDecoder, WebPIDelete> idec(WebPIDecode(nullptr, 0, &config));
     if (!idec) {
         return kInvalidInput;
     }

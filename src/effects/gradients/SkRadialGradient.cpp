@@ -237,7 +237,7 @@ SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
 SkFlattenable* SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
-        return NULL;
+        return nullptr;
     }
     const SkPoint center = buffer.readPoint();
     const SkScalar radius = buffer.readScalar();
@@ -495,7 +495,7 @@ GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) {
     GrColor paintColor;
     GrFragmentProcessor* fp;
     SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), NULL,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
                                                &paintColor, d->fProcDataManager, &fp));
     return fp;
 }

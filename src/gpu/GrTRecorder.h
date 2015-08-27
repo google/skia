@@ -54,9 +54,9 @@ public:
                                   and after calls to reset().
      */
     GrTRecorder(int initialSizeInBytes)
-        : fHeadBlock(MemBlock::Alloc(LengthOf(initialSizeInBytes), NULL)),
+        : fHeadBlock(MemBlock::Alloc(LengthOf(initialSizeInBytes), nullptr)),
           fTailBlock(fHeadBlock),
-          fLastItem(NULL) {}
+          fLastItem(nullptr) {}
 
     ~GrTRecorder() {
         this->reset();
@@ -112,17 +112,17 @@ private:
     template<typename TItem> void* alloc_back(int dataLength);
 
     struct MemBlock : SkNoncopyable {
-        /** Allocates a new block and appends it to prev if not NULL. The length param is in units
+        /** Allocates a new block and appends it to prev if not nullptr. The length param is in units
             of TAlign. */
         static MemBlock* Alloc(int length, MemBlock* prev) {
             MemBlock* block = reinterpret_cast<MemBlock*>(
                 sk_malloc_throw(sizeof(TAlign) * (length_of<MemBlock>::kValue + length)));
             block->fLength = length;
             block->fBack = 0;
-            block->fNext = NULL;
+            block->fNext = nullptr;
             block->fPrev = prev;
             if (prev) {
-                SkASSERT(NULL == prev->fNext);
+                SkASSERT(nullptr == prev->fNext);
                 prev->fNext = block;
             }
             return block;
@@ -132,7 +132,7 @@ private:
         static void Free(MemBlock* block) {
             if (block && block->fPrev) {
                 SkASSERT(block->fPrev->fNext == block);
-                block->fPrev->fNext = NULL;
+                block->fPrev->fNext = nullptr;
             }
             while (block) {
                 MemBlock* next = block->fNext;
@@ -180,7 +180,7 @@ void GrTRecorder<TBase, TAlign>::pop_back() {
     if (!header->fPrevLength) {
         // We popped the first entry in the recorder.
         SkASSERT(0 == fTailBlock->fBack);
-        fLastItem = NULL;
+        fLastItem = nullptr;
         return;
     }
     while (!fTailBlock->fBack) {
@@ -250,7 +250,7 @@ void* GrTRecorder<TBase, TAlign>::alloc_back(int dataLength) {
 template<typename TBase, typename TAlign>
 class GrTRecorder<TBase, TAlign>::Iter {
 public:
-    Iter(GrTRecorder& recorder) : fBlock(recorder.fHeadBlock), fPosition(0), fItem(NULL) {}
+    Iter(GrTRecorder& recorder) : fBlock(recorder.fHeadBlock), fPosition(0), fItem(nullptr) {}
 
     bool next() {
         while (fPosition >= fBlock->fBack) {
@@ -344,7 +344,7 @@ void GrTRecorder<TBase, TAlign>::reset() {
         MemBlock::Free(fTailBlock->fNext);
     } else if (fTailBlock->fNext) {
         MemBlock::Free(fTailBlock->fNext->fNext);
-        fTailBlock->fNext->fNext = NULL;
+        fTailBlock->fNext->fNext = nullptr;
     }
 
     for (MemBlock* block = fHeadBlock; block; block = block->fNext) {
@@ -352,7 +352,7 @@ void GrTRecorder<TBase, TAlign>::reset() {
     }
 
     fTailBlock = fHeadBlock;
-    fLastItem = NULL;
+    fLastItem = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

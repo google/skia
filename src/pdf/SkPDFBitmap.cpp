@@ -439,12 +439,12 @@ SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon, const SkBitmap& bitmap) {
     SkASSERT(canon);
     if (!SkColorTypeIsValid(bitmap.colorType()) ||
         kUnknown_SkColorType == bitmap.colorType()) {
-        return NULL;
+        return nullptr;
     }
     SkBitmap copy;
     const SkBitmap& bm = immutable_bitmap(bitmap, &copy);
     if (bm.drawsNothing()) {
-        return NULL;
+        return nullptr;
     }
     if (SkPDFBitmap* canonBitmap = canon->findBitmap(bm)) {
         return SkRef(canonBitmap);
@@ -463,7 +463,7 @@ SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon, const SkBitmap& bitmap) {
         }
     }
 
-    SkPDFObject* smask = NULL;
+    SkPDFObject* smask = nullptr;
     if (!bm.isOpaque() && !SkBitmap::ComputeIsOpaque(bm)) {
         smask = new PDFAlphaBitmap(bm);
     }

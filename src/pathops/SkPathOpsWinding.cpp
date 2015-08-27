@@ -82,7 +82,7 @@ static bool ccw_dxdy(const SkDVector& v, SkOpRayDir dir) {
 
 struct SkOpRayHit {
     SkOpRayDir makeTestBase(SkOpSpan* span, double t) {
-        fNext = NULL;
+        fNext = nullptr;
         fSpan = span;
         fT = span->t() * (1 - t) + span->next()->t() * t;
         SkOpSegment* segment = span->segment();
@@ -191,13 +191,13 @@ SkOpSpan* SkOpSegment::windingSpanAtT(double tHit) {
     do {
         next = span->next();
         if (approximately_equal(tHit, next->t())) {
-            return NULL;
+            return nullptr;
         } 
         if (tHit < next->t()) {
             return span;
         }
     } while (!next->final() && (span = next->upCast()));
-    return NULL;
+    return nullptr;
 }
 
 static bool hit_compare_x(const SkOpRayHit* a, const SkOpRayHit* b) {
@@ -266,7 +266,7 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
     for (int index = 0; index < count; ++index) {
         hit = sorted[index];
         SkOpSpan* span = hit->fSpan;
-        SkOpSegment* hitSegment = span ? span->segment() : NULL;
+        SkOpSegment* hitSegment = span ? span->segment() : nullptr;
         bool operand = span ? hitSegment->operand() : false;
         bool ccw = ccw_dxdy(hit->fSlope, dir);
         SkDebugf("%s [%d] valid=%d operand=%d span=%d ccw=%d ", __FUNCTION__, index,
@@ -278,7 +278,7 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
                 hit->fPt.fX, hit->fPt.fY, hit->fSlope.fX, hit->fSlope.fY);
     }
 #endif
-    const SkPoint* last = NULL;
+    const SkPoint* last = nullptr;
     int wind = 0;
     int oppWind = 0;
     for (int index = 0; index < count; ++index) {
@@ -345,8 +345,8 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
             if (this->globalState()->phase() == SkOpGlobalState::kFixWinding) {
                 hitSegment->contour()->setCcw(ccw);
             } else {
-                (void) hitSegment->markAndChaseWinding(span, span->next(), windSum, oppSum, NULL);
-                (void) hitSegment->markAndChaseWinding(span->next(), span, windSum, oppSum, NULL);
+                (void) hitSegment->markAndChaseWinding(span, span->next(), windSum, oppSum, nullptr);
+                (void) hitSegment->markAndChaseWinding(span->next(), span, windSum, oppSum, nullptr);
             }
         }
         if (operand) {
@@ -373,7 +373,7 @@ SkOpSpan* SkOpSegment::findSortableTop(SkOpContour* contourHead) {
             return span;
         }
     } while (!next->final() && (span = next->upCast()));
-    return NULL;
+    return nullptr;
 }
 
 SkOpSpan* SkOpContour::findSortableTop(SkOpContour* contourHead) {
@@ -387,7 +387,7 @@ SkOpSpan* SkOpContour::findSortableTop(SkOpContour* contourHead) {
             return result;
         }
     } while ((testSegment = testSegment->next()));
-    return NULL;
+    return nullptr;
 }
 
 SkOpSpan* FindSortableTop(SkOpContourHead* contourHead) {
@@ -403,5 +403,5 @@ SkOpSpan* FindSortableTop(SkOpContourHead* contourHead) {
             }
         } while ((contour = contour->next()));
     }
-    return NULL;
+    return nullptr;
 }

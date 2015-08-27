@@ -815,7 +815,7 @@ bool SkScriptEngine2::handleFunction(const char** scriptPtr) {
             SkScriptValue2 callbackResult;
             success = (*callBack)->getReference(functionName, functionNameLen, &callbackResult);
             if (success) {
-                callbackResult.fType = (*callBack)->getReturnType(callbackResult.fOperand.fReference, NULL);
+                callbackResult.fType = (*callBack)->getReturnType(callbackResult.fOperand.fReference, nullptr);
                 callbackResult.fIsConstant = SkScriptValue2::kVariable;
                 fValueStack.push(callbackResult);
                 goto done;
@@ -877,7 +877,7 @@ bool SkScriptEngine2::handleProperty() {
         SkScriptValue2 callbackResult;
         success = (*callBack)->getReference(fToken, fTokenLength, &callbackResult);
         if (success) {
-            if (callbackResult.fType == SkOperand2::kString && callbackResult.fOperand.fString == NULL) {
+            if (callbackResult.fType == SkOperand2::kString && callbackResult.fOperand.fString == nullptr) {
                 callbackResult.fOperand.fString = new SkString(fToken, fTokenLength);
                 track(callbackResult.fOperand.fString);
             }
@@ -1203,7 +1203,7 @@ bool SkScriptEngine2::ConvertTo(SkScriptEngine2* engine, SkOperand2::OpType toTy
                 operand.fS32 = SkScalarFloorToInt(operand.fScalar);
             else {
                 SkASSERT(type == SkOperand2::kString);
-                success = SkParse::FindS32(operand.fString->c_str(), &operand.fS32) != NULL;
+                success = SkParse::FindS32(operand.fString->c_str(), &operand.fS32) != nullptr;
             }
                 break;
         case SkOperand2::kScalar:
@@ -1211,7 +1211,7 @@ bool SkScriptEngine2::ConvertTo(SkScriptEngine2* engine, SkOperand2::OpType toTy
                 operand.fScalar = IntToScalar(operand.fS32);
             else {
                 SkASSERT(type == SkOperand2::kString);
-                success = SkParse::FindScalar(operand.fString->c_str(), &operand.fScalar) != NULL;
+                success = SkParse::FindScalar(operand.fString->c_str(), &operand.fScalar) != nullptr;
             }
                 break;
         case SkOperand2::kString: {
@@ -1273,11 +1273,11 @@ bool SkScriptEngine2::ValueToString(const SkScriptValue2& value, SkString* strin
 #ifdef SK_DEBUG
 #if defined(SK_SUPPORT_UNITTEST)
 
-#define testInt(expression) { #expression, SkOperand2::kS32, expression, 0, NULL }
-#define testScalar(expression) { #expression, SkOperand2::kScalar, 0, (float) (expression), NULL }
-#define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkOperand2::kScalar, 0, fmodf((float) exp1, (float) exp2), NULL }
-#define testTrue(expression) { #expression, SkOperand2::kS32, 1, 0, NULL }
-#define testFalse(expression) { #expression, SkOperand2::kS32, 0, 0, NULL }
+#define testInt(expression) { #expression, SkOperand2::kS32, expression, 0, nullptr }
+#define testScalar(expression) { #expression, SkOperand2::kScalar, 0, (float) (expression), nullptr }
+#define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkOperand2::kScalar, 0, fmodf((float) exp1, (float) exp2), nullptr }
+#define testTrue(expression) { #expression, SkOperand2::kS32, 1, 0, nullptr }
+#define testFalse(expression) { #expression, SkOperand2::kS32, 0, 0, nullptr }
 
 static const SkScriptNAnswer2 scriptTests[]  = {
     testInt(1||(0&&3)),
@@ -1308,12 +1308,12 @@ static const SkScriptNAnswer2 scriptTests[]  = {
     {    "'123'+\"456\"", SkOperand2::kString, 0, 0, "123456" },
     {    "123+\"456\"", SkOperand2::kString, 0, 0, "123456" },
     {    "'123'+456", SkOperand2::kString, 0, 0, "123456" },
-    {    "'123'|\"456\"", SkOperand2::kS32, 123|456, 0, NULL },
-    {    "123|\"456\"", SkOperand2::kS32, 123|456, 0, NULL },
-    {    "'123'|456", SkOperand2::kS32, 123|456, 0, NULL },
-    {    "'2'<11", SkOperand2::kS32, 1, 0, NULL },
-    {    "2<'11'", SkOperand2::kS32, 1, 0, NULL },
-    {    "'2'<'11'", SkOperand2::kS32, 0, 0, NULL },
+    {    "'123'|\"456\"", SkOperand2::kS32, 123|456, 0, nullptr },
+    {    "123|\"456\"", SkOperand2::kS32, 123|456, 0, nullptr },
+    {    "'123'|456", SkOperand2::kS32, 123|456, 0, nullptr },
+    {    "'2'<11", SkOperand2::kS32, 1, 0, nullptr },
+    {    "2<'11'", SkOperand2::kS32, 1, 0, nullptr },
+    {    "'2'<'11'", SkOperand2::kS32, 0, 0, nullptr },
     testInt(123),
     testInt(-345),
     testInt(+678),
@@ -1465,7 +1465,7 @@ static const SkScriptNAnswer2 scriptTests[]  = {
     testInt(0||(0&&3)),
     testInt(0||(1&&3)),
     testInt(0&&1?2:3)
-    , {    "123.5", SkOperand2::kScalar, 0, SkIntToScalar(123) + SK_Scalar1/2, NULL }
+    , {    "123.5", SkOperand2::kScalar, 0, SkIntToScalar(123) + SK_Scalar1/2, nullptr }
 };
 
 #define SkScriptNAnswer_testCount    SK_ARRAY_COUNT(scriptTests)

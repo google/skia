@@ -65,7 +65,7 @@ static void make_image(SkBitmap* bm, SkColorType ct, int configIndex) {
                 }
             }
             SkColorTable* ctable = new SkColorTable(colors, 256);
-            bm->allocPixels(info, NULL, ctable);
+            bm->allocPixels(info, nullptr, ctable);
             ctable->unref();
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
@@ -122,13 +122,13 @@ public:
             for (size_t j = 0; j < SK_ARRAY_COUNT(gTypes); j++) {
                 SkAutoTDelete<SkImageEncoder> codec(
                     SkImageEncoder::Create(gTypes[j]));
-                if (NULL == codec.get()) {
+                if (nullptr == codec.get()) {
                     SkDebugf("[%s:%d] failed to encode %s%s\n",
                              __FILE__, __LINE__,gConfigLabels[i], gExt[j]);
                     continue;
                 }
                 SkAutoDataUnref data(codec->encodeData(fBitmaps[i], 100));
-                if (NULL == data.get()) {
+                if (nullptr == data.get()) {
                     SkDebugf("[%s:%d] failed to encode %s%s\n",
                              __FILE__, __LINE__,gConfigLabels[i], gExt[j]);
                     continue;
@@ -186,7 +186,7 @@ protected:
                 yy += SkIntToScalar(fBitmaps[i].height() + 10);
 
                 SkBitmap bm;
-                SkData* encoded = NULL;
+                SkData* encoded = nullptr;
                 if (SkImageEncoder::kJPEG_Type == gTypes[j]) {
                     encoded = fEncodedJPEGs[i].get();
                 } else if (SkImageEncoder::kPNG_Type == gTypes[j]) {
@@ -219,7 +219,7 @@ protected:
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               unsigned modi) {
-        this->inval(NULL);
+        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 

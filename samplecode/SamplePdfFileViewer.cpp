@@ -38,8 +38,8 @@ private:
 
     static SkPicture* LoadPdf(const char path[]) {
         SkAutoTDelete<SkPdfRenderer> renderer(SkPdfRenderer::CreateFromFile(path));
-        if (NULL == renderer.get()) {
-            return NULL;
+        if (nullptr == renderer.get()) {
+            return nullptr;
         }
 
         SkPicture* pic = new SkPicture;
@@ -51,8 +51,8 @@ private:
     }
 
 public:
-    PdfFileViewer(const char name[] = NULL) : fFilename(name) {
-        fPicture = NULL;
+    PdfFileViewer(const char name[] = nullptr) : fFilename(name) {
+        fPicture = nullptr;
     }
 
     virtual ~PdfFileViewer() {

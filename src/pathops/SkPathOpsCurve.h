@@ -108,7 +108,7 @@ static SkDPoint dcubic_xy_at_t(const SkPoint a[4], SkScalar , double t) {
 }
 
 static SkDPoint (* const CurveDPointAtT[])(const SkPoint[], SkScalar , double ) = {
-    NULL,
+    nullptr,
     dline_xy_at_t,
     dquad_xy_at_t,
     dconic_xy_at_t,
@@ -132,7 +132,7 @@ static SkPoint fcubic_xy_at_t(const SkPoint a[4], SkScalar weight, double t) {
 }
 
 static SkPoint (* const CurvePointAtT[])(const SkPoint[], SkScalar , double ) = {
-    NULL,
+    nullptr,
     fline_xy_at_t,
     fquad_xy_at_t,
     fconic_xy_at_t,
@@ -164,7 +164,7 @@ static SkDVector dcubic_dxdy_at_t(const SkPoint a[4], SkScalar , double t) {
 }
 
 static SkDVector (* const CurveDSlopeAtT[])(const SkPoint[], SkScalar , double ) = {
-    NULL,
+    nullptr,
     dline_dxdy_at_t,
     dquad_dxdy_at_t,
     dconic_dxdy_at_t,
@@ -188,7 +188,7 @@ static SkVector fcubic_dxdy_at_t(const SkPoint a[4], SkScalar weight, double t) 
 }
 
 static SkVector (* const CurveSlopeAtT[])(const SkPoint[], SkScalar , double ) = {
-    NULL,
+    nullptr,
     fline_dxdy_at_t,
     fquad_dxdy_at_t,
     fconic_dxdy_at_t,
@@ -225,7 +225,7 @@ static bool cubic_is_vertical(const SkPoint a[4], SkScalar , double startT, doub
 }
 
 static bool (* const CurveIsVertical[])(const SkPoint[], SkScalar , double , double) = {
-    NULL,
+    nullptr,
     line_is_vertical,
     quad_is_vertical,
     conic_is_vertical,
@@ -262,7 +262,7 @@ static void cubic_intersect_ray(const SkPoint a[4], SkScalar , const SkDLine& ra
 
 static void (* const CurveIntersectRay[])(const SkPoint[] , SkScalar , const SkDLine& ,
         SkIntersections* ) = {
-    NULL,
+    nullptr,
     line_intersect_ray,
     quad_intersect_ray,
     conic_intersect_ray,
@@ -312,8 +312,8 @@ static int cubic_intercept_v(const SkPoint a[3], SkScalar , SkScalar x, double* 
 }
 
 static int (* const CurveIntercept[])(const SkPoint[] , SkScalar , SkScalar , double* ) = {
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     line_intercept_h,
     line_intercept_v,
     quad_intercept_h,

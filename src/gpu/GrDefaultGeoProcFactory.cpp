@@ -194,10 +194,10 @@ private:
                    uint8_t coverage,
                    bool localCoordsWillBeRead,
                    bool coverageWillBeIgnored)
-        : fInPosition(NULL)
-        , fInColor(NULL)
-        , fInLocalCoords(NULL)
-        , fInCoverage(NULL)
+        : fInPosition(nullptr)
+        , fInColor(nullptr)
+        , fInLocalCoords(nullptr)
+        , fInCoverage(nullptr)
         , fColor(color)
         , fViewMatrix(viewMatrix)
         , fLocalMatrix(localMatrix)
@@ -310,7 +310,7 @@ const GrGeometryProcessor* GrDefaultGeoProcFactory::CreateForDeviceSpace(
         SkASSERT(LocalCoords::kUsePosition_Type == localCoords.fType);
         if (!viewMatrix.isIdentity() && !viewMatrix.invert(&invert)) {
             SkDebugf("Could not invert\n");
-            return NULL;
+            return nullptr;
         }
 
         if (localCoords.hasLocalMatrix()) {

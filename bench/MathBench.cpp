@@ -274,7 +274,7 @@ public:
         }
 
         if (index < 0) {
-            fProc = NULL;
+            fProc = nullptr;
             fName = "isfinite_rect";
         } else {
             fProc = gRec[index].fProc;

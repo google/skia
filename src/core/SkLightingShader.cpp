@@ -176,22 +176,22 @@ public:
             GrGLFragmentBuilder* fpb = args.fBuilder->getFragmentShaderBuilder();
 
             // add uniforms
-            const char* lightDirUniName = NULL;
+            const char* lightDirUniName = nullptr;
             fLightDirUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                      kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                      "LightDir", &lightDirUniName);
 
-            const char* lightColorUniName = NULL;
+            const char* lightColorUniName = nullptr;
             fLightColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                        "LightColor", &lightColorUniName);
 
-            const char* ambientColorUniName = NULL;
+            const char* ambientColorUniName = nullptr;
             fAmbientColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                          kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                          "AmbientColor", &ambientColorUniName);
 
-            const char* xformUniName = NULL;
+            const char* xformUniName = nullptr;
             fXformUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                   "Xform", &xformUniName);
@@ -578,13 +578,13 @@ SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     SkBitmap diffuse;
     if (!buf.readBitmap(&diffuse)) {
-        return NULL;
+        return nullptr;
     }
     diffuse.setImmutable();
 
     SkBitmap normal;
     if (!buf.readBitmap(&normal)) {
-        return NULL;
+        return nullptr;
     }
     normal.setImmutable();
 
@@ -597,7 +597,7 @@ SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
         SkColor3f color;
         if (!buf.readScalarArray(&color.fX, 3)) {
-            return NULL;
+            return nullptr;
         }
 
         if (isAmbient) {
@@ -605,7 +605,7 @@ SkFlattenable* SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
         } else {
             SkVector3 dir;
             if (!buf.readScalarArray(&dir.fX, 3)) {
-                return NULL;
+                return nullptr;
             }
             builder.add(SkLight(color, dir));        
         }
@@ -665,7 +665,7 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
 
     SkMatrix normTotalInv;
     if (!this->computeNormTotalInverse(rec, &normTotalInv)) {
-        return NULL;
+        return nullptr;
     }
 
     void* diffuseStateStorage = (char*)storage + sizeof(LightingShaderContext);
@@ -677,7 +677,7 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
     diffuseState->fOrigBitmap = fDiffuseMap;
     if (!diffuseState->chooseProcs(diffTotalInv, *rec.fPaint)) {
         diffuseState->~SkBitmapProcState();
-        return NULL;
+        return nullptr;
     }
 
     void* normalStateStorage = (char*)storage + sizeof(LightingShaderContext) + sizeof(SkBitmapProcState);
@@ -690,7 +690,7 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
     if (!normalState->chooseProcs(normTotalInv, *rec.fPaint)) {
         diffuseState->~SkBitmapProcState();
         normalState->~SkBitmapProcState();
-        return NULL;
+        return nullptr;
     }
 
     return new (storage) LightingShaderContext(*this, rec, diffuseState, normalState);

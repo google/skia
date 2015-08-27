@@ -59,7 +59,7 @@ static int32_t read_bytes_callback(GifFileType* fileType, GifByteType* out,
  * Open the gif file
  */
 static GifFileType* open_gif(SkStream* stream) {
-    return DGifOpen(stream, read_bytes_callback, NULL);
+    return DGifOpen(stream, read_bytes_callback, nullptr);
 }
 
  /*
@@ -67,7 +67,7 @@ static GifFileType* open_gif(SkStream* stream) {
  * It is used in a SkAutoTCallIProc template
  */
 void SkGifCodec::CloseGif(GifFileType* gif) {
-    DGifCloseFile(gif, NULL);
+    DGifCloseFile(gif, nullptr);
 }
 
 /*
@@ -75,7 +75,7 @@ void SkGifCodec::CloseGif(GifFileType* gif) {
  * decoder
  */
 void SkGifCodec::FreeExtension(SavedImage* image) {
-    if (NULL != image->ExtensionBlocks) {
+    if (nullptr != image->ExtensionBlocks) {
         GifFreeExtensions(&image->ExtensionBlockCount, &image->ExtensionBlocks);
     }
 }
@@ -123,12 +123,12 @@ static uint32_t find_trans_index(const SavedImage& image) {
  * Returns a bool representing success or failure.
  *
  * @param codecOut
- * If it returned true, and codecOut was not NULL,
+ * If it returned true, and codecOut was not nullptr,
  * codecOut will be set to a new SkGifCodec.
  *
  * @param gifOut
- * If it returned true, and codecOut was NULL,
- * gifOut must be non-NULL and gifOut will be set to a new
+ * If it returned true, and codecOut was nullptr,
+ * gifOut must be non-nullptr and gifOut will be set to a new
  * GifFileType pointer.
  *
  * @param stream
@@ -143,12 +143,12 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
     // Read gif header, logical screen descriptor, and global color table
     SkAutoTCallVProc<GifFileType, CloseGif> gif(open_gif(stream));
 
-    if (NULL == gif) {
+    if (nullptr == gif) {
         gif_error("DGifOpen failed.\n");
         return false;
     }
 
-    if (NULL != codecOut) {
+    if (nullptr != codecOut) {
         // Get fields from header
         const int32_t width = gif->SWidth;
         const int32_t height = gif->SHeight;
@@ -172,7 +172,7 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
                 kIndex_8_SkColorType, kPremul_SkAlphaType);
         *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach());
     } else {
-        SkASSERT(NULL != gifOut);
+        SkASSERT(nullptr != gifOut);
         streamDeleter.detach();
         *gifOut = gif.detach();
     }
@@ -185,11 +185,11 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
  * Reads enough of the stream to determine the image format
  */
 SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
-    SkCodec* codec = NULL;
-    if (ReadHeader(stream, &codec, NULL)) {
+    SkCodec* codec = nullptr;
+    if (ReadHeader(stream, &codec, nullptr)) {
         return codec;
     }
-    return NULL;
+    return nullptr;
 }
 
 SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream,
@@ -199,12 +199,12 @@ SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream,
 {}
 
 bool SkGifCodec::onRewind() {
-    GifFileType* gifOut = NULL;
-    if (!ReadHeader(this->stream(), NULL, &gifOut)) {
+    GifFileType* gifOut = nullptr;
+    if (!ReadHeader(this->stream(), nullptr, &gifOut)) {
         return false;
     }
 
-    SkASSERT(NULL != gifOut);
+    SkASSERT(nullptr != gifOut);
     fGif.reset(gifOut);
     return true;
 }
@@ -239,7 +239,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     // blocks.  This generally stores transparency and animation instructions.
     SavedImage saveExt;
     SkAutoTCallVProc<SavedImage, FreeExtension> autoFreeExt(&saveExt);
-    saveExt.ExtensionBlocks = NULL;
+    saveExt.ExtensionBlocks = nullptr;
     saveExt.ExtensionBlockCount = 0;
     GifByteType* extData;
     int32_t extFunction;
@@ -309,8 +309,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 SkPMColor* colorTable;
                 SkColorType dstColorType = dstInfo.colorType();
                 if (kIndex_8_SkColorType == dstColorType) {
-                    SkASSERT(NULL != inputColorPtr);
-                    SkASSERT(NULL != inputColorCount);
+                    SkASSERT(nullptr != inputColorPtr);
+                    SkASSERT(nullptr != inputColorCount);
                     colorTable = inputColorPtr;
                 } else {
                     colorTable = alternateColorPtr;
@@ -322,10 +322,10 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 const uint32_t maxColors = 256;
                 ColorMapObject* colorMap = fGif->Image.ColorMap;
                 // If there is no local color table, use the global color table
-                if (NULL == colorMap) {
+                if (nullptr == colorMap) {
                     colorMap = fGif->SColorMap;
                 }
-                if (NULL != colorMap) {
+                if (nullptr != colorMap) {
                     colorCount = colorMap->ColorCount;
                     SkASSERT(colorCount ==
                             (unsigned) (1 << (colorMap->BitsPerPixel)));
@@ -380,7 +380,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 } 
 
                 // Check if image is only a subset of the image frame
-                SkAutoTDelete<SkSwizzler> swizzler(NULL);
+                SkAutoTDelete<SkSwizzler> swizzler(nullptr);
                 if (innerWidth < width || innerHeight < height) {
 
                     // Modify the destination info
@@ -497,7 +497,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 }
 
                 // Create an extension block with our data
-                while (NULL != extData) {
+                while (nullptr != extData) {
                     // Add a single block
                     if (GIF_ERROR ==
                             GifAddExtensionBlock(&saveExt.ExtensionBlockCount,

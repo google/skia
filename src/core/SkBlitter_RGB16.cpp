@@ -172,9 +172,9 @@ private:
 #ifdef USE_BLACK_BLITTER
 SkRGB16_Black_Blitter::SkRGB16_Black_Blitter(const SkPixmap& device, const SkPaint& paint)
     : INHERITED(device, paint) {
-    SkASSERT(paint.getShader() == NULL);
-    SkASSERT(paint.getColorFilter() == NULL);
-    SkASSERT(paint.getXfermode() == NULL);
+    SkASSERT(paint.getShader() == nullptr);
+    SkASSERT(paint.getColorFilter() == nullptr);
+    SkASSERT(paint.getXfermode() == nullptr);
     SkASSERT(paint.getColor() == SK_ColorBLACK);
 }
 
@@ -568,7 +568,7 @@ const SkPixmap* SkRGB16_Blitter::justAnOpaqueColor(uint32_t* value) {
         *value = fRawColor16;
         return &fDevice;
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkRGB16_Blitter::blitH(int x, int y, int width) {
@@ -822,7 +822,7 @@ SkRGB16_Shader_Blitter::SkRGB16_Shader_Blitter(const SkPixmap& device,
                                                SkShader::Context* shaderContext)
     : INHERITED(device, paint, shaderContext)
 {
-    SkASSERT(paint.getXfermode() == NULL);
+    SkASSERT(paint.getXfermode() == nullptr);
 
     fBuffer = (SkPMColor*)sk_malloc_throw(device.width() * sizeof(SkPMColor));
 
@@ -970,7 +970,7 @@ void SkRGB16_Shader_Xfermode_Blitter::blitH(int x, int y, int width) {
     SkPMColor*  span = fBuffer;
 
     fShaderContext->shadeSpan(x, y, span, width);
-    fXfermode->xfer16(device, span, width, NULL);
+    fXfermode->xfer16(device, span, width, nullptr);
 }
 
 void SkRGB16_Shader_Xfermode_Blitter::blitAntiH(int x, int y,
@@ -1006,7 +1006,7 @@ void SkRGB16_Shader_Xfermode_Blitter::blitAntiH(int x, int y,
         SkPMColor* localSpan = span;
         for (;;) {
             if (aa == 0xFF) {
-                mode->xfer16(device, localSpan, count, NULL);
+                mode->xfer16(device, localSpan, count, nullptr);
             } else {
                 SkASSERT(aa);
                 memset(aaExpand, aa, count);
@@ -1033,17 +1033,17 @@ void SkRGB16_Shader_Xfermode_Blitter::blitAntiH(int x, int y,
 SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
         SkShader::Context* shaderContext,
         SkTBlitterAllocator* allocator) {
-    SkASSERT(allocator != NULL);
+    SkASSERT(allocator != nullptr);
 
     SkBlitter* blitter;
     SkShader* shader = paint.getShader();
     SkXfermode* mode = paint.getXfermode();
 
     // we require a shader if there is an xfermode, handled by our caller
-    SkASSERT(NULL == mode || shader);
+    SkASSERT(nullptr == mode || shader);
 
     if (shader) {
-        SkASSERT(shaderContext != NULL);
+        SkASSERT(shaderContext != nullptr);
         if (mode) {
             blitter = allocator->createT<SkRGB16_Shader_Xfermode_Blitter>(device, paint,
                                                                           shaderContext);

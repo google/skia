@@ -307,7 +307,7 @@ protected:
         SkASSERT(SkPathPriv::CheapIsFirstDirection(path2, SkPathPriv::kCCW_FirstDirection));
 
         path2.reset();
-        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path2, NULL));
+        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path2, nullptr));
         path2.addCircle(x + SkIntToScalar(360), y + SkIntToScalar(200), SkIntToScalar(50), SkPath::kCW_Direction);
         SkASSERT(SkPathPriv::CheapIsFirstDirection(path2, SkPathPriv::kCW_FirstDirection));
         canvas->drawPath(path2, paint);
@@ -333,7 +333,7 @@ protected:
         r = SkRect::MakeXYWH(x + SkIntToScalar(190), y + SkIntToScalar(280), 
                              SkIntToScalar(100), SkIntToScalar(100));
         path4.reset();
-        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, NULL));
+        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, nullptr));
         path4.addRect(r, SkPath::kCCW_Direction);
         SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathPriv::kCCW_FirstDirection));
         path4.moveTo(0, 0); // test for crbug.com/247770
@@ -342,7 +342,7 @@ protected:
         r = SkRect::MakeXYWH(x + SkIntToScalar(310), y + SkIntToScalar(280), 
                              SkIntToScalar(100), SkIntToScalar(100));
         path4.reset();
-        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, NULL));
+        SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, nullptr));
         path4.addRect(r, SkPath::kCW_Direction);
         SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathPriv::kCW_FirstDirection));
         path4.moveTo(0, 0); // test for crbug.com/247770

@@ -63,7 +63,7 @@ DEF_TEST(CompressAlphaFailDimensions, reporter) {
             continue;
         }
         SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
-        REPORTER_ASSERT(reporter, NULL == data);
+        REPORTER_ASSERT(reporter, nullptr == data);
     }
 }
 
@@ -92,7 +92,7 @@ DEF_TEST(CompressAlphaFailColorType, reporter) {
             continue;
         }
         SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
-        REPORTER_ASSERT(reporter, NULL == data);
+        REPORTER_ASSERT(reporter, nullptr == data);
     }
 }
 
@@ -120,7 +120,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
     {
         uint8_t* pixels = reinterpret_cast<uint8_t*>(pixmap.writable_addr());
         REPORTER_ASSERT(reporter, pixels);
-        if (NULL == pixels) {
+        if (nullptr == pixels) {
             return;
         }
 
@@ -139,7 +139,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
     SkAutoMalloc decompMemory(kWidth*kHeight);
     uint8_t* decompBuffer = reinterpret_cast<uint8_t*>(decompMemory.get());
     REPORTER_ASSERT(reporter, decompBuffer);
-    if (NULL == decompBuffer) {
+    if (nullptr == decompBuffer) {
         return;
     }
 
@@ -154,7 +154,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
 
         SkAutoDataUnref data(SkTextureCompressor::CompressBitmapToFormat(pixmap, fmt));
         REPORTER_ASSERT(reporter, data);
-        if (NULL == data) {
+        if (nullptr == data) {
             continue;
         }
 
@@ -167,7 +167,7 @@ DEF_TEST(CompressCheckerboard, reporter) {
 
         const uint8_t* pixels = reinterpret_cast<const uint8_t*>(pixmap.addr());
         REPORTER_ASSERT(reporter, pixels);
-        if (NULL == pixels) {
+        if (nullptr == pixels) {
             continue;
         }
 
@@ -213,7 +213,7 @@ DEF_TEST(CompressLATC, reporter) {
         SkAutoDataUnref latcData(
             SkTextureCompressor::CompressBitmapToFormat(pixmap, kLATCFormat));
         REPORTER_ASSERT(reporter, latcData);
-        if (NULL == latcData) {
+        if (nullptr == latcData) {
             continue;
         }
 

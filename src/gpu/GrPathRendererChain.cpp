@@ -80,7 +80,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
             return fChain[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void GrPathRendererChain::init() {

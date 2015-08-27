@@ -16,7 +16,7 @@ class SkEventSink_Globals {
 public:
     SkEventSink_Globals() {
         fNextSinkID = 0;
-        fSinkHead = NULL;
+        fSinkHead = nullptr;
     }
 
     SkMutex         fSinkMutex;
@@ -30,7 +30,7 @@ static SkEventSink_Globals& getGlobals() {
     return *gGlobals;
 }
 
-SkEventSink::SkEventSink() : fTagHead(NULL) {
+SkEventSink::SkEventSink() : fTagHead(nullptr) {
     SkEventSink_Globals& globals = getGlobals();
 
     globals.fSinkMutex.acquire();
@@ -51,7 +51,7 @@ SkEventSink::~SkEventSink() {
     globals.fSinkMutex.acquire();
 
     SkEventSink* sink = globals.fSinkHead;
-    SkEventSink* prev = NULL;
+    SkEventSink* prev = nullptr;
 
     for (;;) {
         SkEventSink* next = sink->fNextSink;
@@ -89,12 +89,12 @@ bool SkEventSink::onQuery(SkEvent*) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTagList* SkEventSink::findTagList(U8CPU tag) const {
-    return fTagHead ? SkTagList::Find(fTagHead, tag) : NULL;
+    return fTagHead ? SkTagList::Find(fTagHead, tag) : nullptr;
 }
 
 void SkEventSink::addTagList(SkTagList* rec) {
     SkASSERT(rec);
-    SkASSERT(fTagHead == NULL || SkTagList::Find(fTagHead, rec->fTag) == NULL);
+    SkASSERT(fTagHead == nullptr || SkTagList::Find(fTagHead, rec->fTag) == nullptr);
 
     rec->fNext = fTagHead;
     fTagHead = rec;
@@ -162,7 +162,7 @@ void SkEventSink::addListenerID(SkEventSinkID id)
 void SkEventSink::copyListeners(const SkEventSink& sink)
 {
     SkListenersTagList* sinkList = (SkListenersTagList*)sink.findTagList(kListeners_SkTagList);
-    if (sinkList == NULL)
+    if (sinkList == nullptr)
         return;
     SkASSERT(sinkList->countListners() > 0);
     const SkEventSinkID* iter = sinkList->fIDs;
@@ -178,7 +178,7 @@ void SkEventSink::removeListenerID(SkEventSinkID id)
 
     SkListenersTagList* list = (SkListenersTagList*)this->findTagList(kListeners_SkTagList);
 
-    if (list == NULL)
+    if (list == nullptr)
         return;
 
     int index = list->find(id);
@@ -199,7 +199,7 @@ void SkEventSink::removeListenerID(SkEventSinkID id)
 
 bool SkEventSink::hasListeners() const
 {
-    return this->findTagList(kListeners_SkTagList) != NULL;
+    return this->findTagList(kListeners_SkTagList) != nullptr;
 }
 
 void SkEventSink::postToListeners(const SkEvent& evt, SkMSec delay) {
@@ -246,7 +246,7 @@ SkEventSink* SkEventSink::FindSink(SkEventSinkID sinkID)
             return sink;
         sink = sink->fNextSink;
     }
-    return NULL;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

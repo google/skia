@@ -11,10 +11,10 @@
 #include "SkRecord.h"
 #include "SkRecords.h"
 
-// If the command we're reading is a U, set ptr to it, otherwise set it to NULL.
+// If the command we're reading is a U, set ptr to it, otherwise set it to nullptr.
 template <typename U>
 struct ReadAs {
-    ReadAs() : ptr(NULL), type(SkRecords::Type(~0)) {}
+    ReadAs() : ptr(nullptr), type(SkRecords::Type(~0)) {}
 
     const U* ptr;
     SkRecords::Type type;

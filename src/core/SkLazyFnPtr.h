@@ -42,7 +42,7 @@ public:
     F get() {
         // First, try reading to see if it's already set.
         F fn = (F)sk_atomic_load(&fPtr, sk_memory_order_relaxed);
-        if (fn != NULL) {
+        if (fn != nullptr) {
             return fn;
         }
 
@@ -50,11 +50,11 @@ public:
         fn = Choose();
 
         // No particular memory barriers needed; we're not guarding anything but the pointer itself.
-        F prev = (F)sk_atomic_cas(&fPtr, NULL, (void*)fn);
+        F prev = (F)sk_atomic_cas(&fPtr, nullptr, (void*)fn);
 
-        // If prev != NULL, someone snuck in and set fPtr concurrently.
-        // If prev == NULL, we did write fn to fPtr.
-        return prev != NULL ? prev : fn;
+        // If prev != nullptr, someone snuck in and set fPtr concurrently.
+        // If prev == nullptr, we did write fn to fPtr.
+        return prev != nullptr ? prev : fn;
     }
 
 private:

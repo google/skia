@@ -36,11 +36,11 @@ public:
 
         for (int i = 0; i < fBitmapCount/2; i++) {
             SkImageDecoder::DecodeFile(gNames[i], &fBitmaps[i], kN32_SkColorType,
-                                       SkImageDecoder::kDecodePixels_Mode, NULL);
+                                       SkImageDecoder::kDecodePixels_Mode, nullptr);
         }
         for (int i = fBitmapCount/2; i < fBitmapCount; i++) {
             SkImageDecoder::DecodeFile(gNames[i-fBitmapCount/2], &fBitmaps[i], kRGB_565_SkColorType,
-                                       SkImageDecoder::kDecodePixels_Mode, NULL);
+                                       SkImageDecoder::kDecodePixels_Mode, nullptr);
         }
         fCurrIndex = 0;
 

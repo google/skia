@@ -280,24 +280,24 @@ GrTexture* stretch_texture(GrTexture* inputTexture, const Stretch& stretch,
             } else if (caps->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
                 rtDesc.fConfig = kSkia8888_GrPixelConfig;
             } else {
-                return NULL;
+                return nullptr;
             }
         } else if (kRGB_GrColorComponentFlags ==
                    (kRGB_GrColorComponentFlags & GrPixelConfigComponentMask(rtDesc.fConfig))) {
             if (caps->isConfigRenderable(kSkia8888_GrPixelConfig, false)) {
                 rtDesc.fConfig = kSkia8888_GrPixelConfig;
             } else {
-                return NULL;
+                return nullptr;
             }
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
-    GrTexture* stretched = create_texture_for_bmp(context, optionalKey, rtDesc, pixelRef, NULL, 0);
+    GrTexture* stretched = create_texture_for_bmp(context, optionalKey, rtDesc, pixelRef, nullptr, 0);
 
     if (!stretched) {
-        return NULL;
+        return nullptr;
     }
     GrPaint paint;
 
@@ -314,7 +314,7 @@ GrTexture* stretch_texture(GrTexture* inputTexture, const Stretch& stretch,
 
     GrDrawContext* drawContext = context->drawContext();
     if (!drawContext) {
-        return NULL;
+        return nullptr;
     }
 
     drawContext->drawNonAARectToRect(stretched->asRenderTarget(), GrClip::WideOpen(), paint,
@@ -329,8 +329,8 @@ static GrTexture *load_etc1_texture(GrContext* ctx, const GrUniqueKey& optionalK
     SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
 
     // Is this even encoded data?
-    if (NULL == data) {
-        return NULL;
+    if (nullptr == data) {
+        return nullptr;
     }
 
     // Is this a valid PKM encoded data?
@@ -343,7 +343,7 @@ static GrTexture *load_etc1_texture(GrContext* ctx, const GrUniqueKey& optionalK
         // then we don't know how to scale the image to match it...
         if (encodedWidth != static_cast<uint32_t>(bm.width()) ||
             encodedHeight != static_cast<uint32_t>(bm.height())) {
-            return NULL;
+            return nullptr;
         }
 
         // Everything seems good... skip ahead to the data.
@@ -354,19 +354,19 @@ static GrTexture *load_etc1_texture(GrContext* ctx, const GrUniqueKey& optionalK
 
         // Is it actually an ETC1 texture?
         if (!ktx.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
-            return NULL;
+            return nullptr;
         }
 
         // Does the data match the dimensions of the bitmap? If not,
         // then we don't know how to scale the image to match it...
         if (ktx.width() != bm.width() || ktx.height() != bm.height()) {
-            return NULL;
+            return nullptr;
         }
 
         bytes = ktx.pixelData();
         desc.fConfig = kETC1_GrPixelConfig;
     } else {
-        return NULL;
+        return nullptr;
     }
 
     return create_texture_for_bmp(ctx, optionalKey, desc, bm.pixelRef(), bytes, 0);
@@ -377,10 +377,10 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
                                    const SkBitmap& bm, const GrSurfaceDesc& desc) {
     // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
     SkPixelRef* pixelRef = bm.pixelRef();
-    if ((NULL == pixelRef) || 
+    if ((nullptr == pixelRef) || 
         (pixelRef->info().width()  != bm.info().width()) ||
         (pixelRef->info().height() != bm.info().height())) {
-        return NULL;
+        return nullptr;
     }
 
     const bool useCache = optionalKey.isValid();
@@ -399,8 +399,8 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
     } else {
         // Fetch yuv plane sizes for memory allocation. Here, width and height can be
         // rounded up to JPEG block size and be larger than the image's width and height.
-        if (!pixelRef->getYUV8Planes(yuvInfo.fSize, NULL, NULL, NULL)) {
-            return NULL;
+        if (!pixelRef->getYUV8Planes(yuvInfo.fSize, nullptr, nullptr, nullptr)) {
+            return nullptr;
         }
 
         // Allocate the memory for YUV
@@ -423,7 +423,7 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
         // Get the YUV planes and update plane sizes to actual image size
         if (!pixelRef->getYUV8Planes(yuvInfo.fSize, planes, yuvInfo.fRowBytes,
                                      &yuvInfo.fColorSpace)) {
-            return NULL;
+            return nullptr;
         }
 
         if (useCache) {
@@ -449,16 +449,16 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
         if (!yuvTextures[i] ||
             !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
                                          yuvDesc.fConfig, planes[i], yuvInfo.fRowBytes[i])) {
-            return NULL;
+            return nullptr;
         }
     }
 
     GrSurfaceDesc rtDesc = desc;
     rtDesc.fFlags = rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
 
-    GrTexture* result = create_texture_for_bmp(ctx, optionalKey, rtDesc, pixelRef, NULL, 0);
+    GrTexture* result = create_texture_for_bmp(ctx, optionalKey, rtDesc, pixelRef, nullptr, 0);
     if (!result) {
-        return NULL;
+        return nullptr;
     }
 
     GrRenderTarget* renderTarget = result->asRenderTarget();
@@ -475,7 +475,7 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
 
     GrDrawContext* drawContext = ctx->drawContext();
     if (!drawContext) {
-        return NULL;
+        return nullptr;
     }
 
     drawContext->drawRect(renderTarget, GrClip::WideOpen(), paint, SkMatrix::I(), r);
@@ -488,7 +488,7 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
                                                     const GrUniqueKey& optionalKey) {
     if (origBitmap.width() < ctx->caps()->minTextureSize() ||
         origBitmap.height() < ctx->caps()->minTextureSize()) {
-        return NULL;
+        return nullptr;
     }
     SkBitmap tmpBitmap;
 
@@ -541,7 +541,7 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
 
     SkAutoLockPixels alp(*bitmap);
     if (!bitmap->readyToDraw()) {
-        return NULL;
+        return nullptr;
     }
 
     return create_texture_for_bmp(ctx, optionalKey, desc, origBitmap.pixelRef(),
@@ -680,7 +680,7 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
                                 "---- failed to create texture for cache [%d %d]\n",
                                 bitmap.width(), bitmap.height());
 
-    return NULL;
+    return nullptr;
 }
 
 // TODO: make this be the canonical signature, and turn the version that takes GrTextureParams*
@@ -785,7 +785,7 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
     grPaint->setAntiAlias(skPaint.isAntiAlias());
 
     SkXfermode* mode = skPaint.getXfermode();
-    GrXPFactory* xpFactory = NULL;
+    GrXPFactory* xpFactory = nullptr;
     if (!SkXfermode::AsXPFactory(mode, &xpFactory)) {
         // Fall back to src-over
         // return false here?
@@ -844,7 +844,7 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
 bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
                      const SkMatrix& viewM, bool constantColor, GrPaint* grPaint) {
     SkShader* shader = skPaint.getShader();
-    if (NULL == shader) {
+    if (nullptr == shader) {
         return SkPaint2GrPaintNoShader(context, rt, skPaint, SkColor2GrColor(skPaint.getColor()),
                                        constantColor, grPaint);
     }
@@ -857,8 +857,8 @@ bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPa
     {
         // Allow the shader to modify paintColor and also create an effect to be installed as
         // the first color effect on the GrPaint.
-        GrFragmentProcessor* fp = NULL;
-        if (!shader->asFragmentProcessor(context, skPaint, viewM, NULL, &paintColor,
+        GrFragmentProcessor* fp = nullptr;
+        if (!shader->asFragmentProcessor(context, skPaint, viewM, nullptr, &paintColor,
                                          grPaint->getProcessorDataManager(), &fp)) {
             return false;
         }
@@ -882,7 +882,7 @@ SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque) {
     const GrPixelConfig config = tex->config();
     SkColorType ct;
     SkAlphaType at = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    if (!GrPixelConfig2ColorAndProfileType(config, &ct, NULL)) {
+    if (!GrPixelConfig2ColorAndProfileType(config, &ct, nullptr)) {
         ct = kUnknown_SkColorType;
     }
     return SkImageInfo::Make(w, h, ct, at);

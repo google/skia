@@ -137,7 +137,7 @@ public:
         unsigned getAlpha() const { return fCacheAlpha; }
 
     private:
-        // Working pointers. If either is NULL, we need to recompute the corresponding cache values.
+        // Working pointers. If either is nullptr, we need to recompute the corresponding cache values.
         uint16_t*   fCache16;
         SkPMColor*  fCache32;
 
@@ -358,7 +358,7 @@ protected:
         The function decides whether stop values should be used or not. The return value indicates
         the number of colors, which will be capped by kMaxRandomGradientColors. colors should be
         sized to be at least kMaxRandomGradientColors. stops is a pointer to an array of at least
-        size kMaxRandomGradientColors. It may be updated to NULL, indicating that NULL should be
+        size kMaxRandomGradientColors. It may be updated to nullptr, indicating that nullptr should be
         passed to the gradient factory rather than the array.
     */
     static const int kMaxRandomGradientColors = 4;

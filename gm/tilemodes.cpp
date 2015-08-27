@@ -171,14 +171,14 @@ static SkShader* make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     int index = (int)ty;
     switch (index % 3) {
         case 0:
-            return SkGradientShader::CreateLinear(pts, colors, NULL, SK_ARRAY_COUNT(colors), tx);
+            return SkGradientShader::CreateLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 1:
-            return SkGradientShader::CreateRadial(center, rad, colors, NULL, SK_ARRAY_COUNT(colors), tx);
+            return SkGradientShader::CreateRadial(center, rad, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 2:
-            return SkGradientShader::CreateSweep(center.fX, center.fY, colors, NULL, SK_ARRAY_COUNT(colors));
+            return SkGradientShader::CreateSweep(center.fX, center.fY, colors, nullptr, SK_ARRAY_COUNT(colors));
     }
 
-    return NULL;
+    return nullptr;
 }
 
 typedef SkShader* (*ShaderProc)(SkShader::TileMode, SkShader::TileMode);

@@ -129,11 +129,11 @@ namespace GrPathUtils {
     // the double point: ls and ms. We chop the cubic at these values if they are between 0 and 1.
     // Return value:
     // Value of 3: ls and ms are both between (0,1), and dst will contain the three cubics,
-    //             dst[0..3], dst[3..6], and dst[6..9] if dst is not NULL
+    //             dst[0..3], dst[3..6], and dst[6..9] if dst is not nullptr
     // Value of 2: Only one of ls and ms are between (0,1), and dst will contain the two cubics,
-    //             dst[0..3] and dst[3..6] if dst is not NULL
+    //             dst[0..3] and dst[3..6] if dst is not nullptr
     // Value of 1: Neither ls or ms are between (0,1), and dst will contain the one original cubic,
-    //             dst[0..3] if dst is not NULL
+    //             dst[0..3] if dst is not nullptr
     //
     // Optional KLM Calculation:
     // The function can also return the KLM linear functionals for the chopped cubic implicit form
@@ -153,8 +153,8 @@ namespace GrPathUtils {
     // Notice that the klm lines are calculated in the same space as the input control points.
     // If you transform the points the lines will also need to be transformed. This can be done
     // by mapping the lines with the inverse-transpose of the matrix used to map the points.
-    int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10] = NULL,
-                                    SkScalar klm[9] = NULL, SkScalar klm_rev[3] = NULL);
+    int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10] = nullptr,
+                                    SkScalar klm[9] = nullptr, SkScalar klm_rev[3] = nullptr);
 
     // Input is p which holds the 4 control points of a non-rational cubic Bezier curve.
     // Output is the coefficients of the three linear functionals K, L, & M which

@@ -18,7 +18,7 @@ static SkShader* make_shader() {
     int b = 0xBB;
     SkPoint pts[] = { { 0, 0 }, { W, H } };
     SkColor colors[] = { SkColorSetRGB(a, a, a), SkColorSetRGB(b, b, b) };
-    return SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 static SkSurface* make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo,
@@ -48,7 +48,7 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
 
     paint.setShader(make_shader())->unref();
     canvas->drawRect(SkRect::MakeWH(W, H), paint);
-    paint.setShader(NULL);
+    paint.setShader(nullptr);
 
     paint.setColor(SK_ColorWHITE);
     paint.setTextSize(32);
@@ -95,7 +95,7 @@ protected:
                     SkAutoTUnref<SkSurface> surface(make_surface(ctx, info, rec[i].fGeo,
                                                                  disallowAA, disallowDither));
                     test_draw(surface->getCanvas(), rec[i].fLabel);
-                    surface->draw(canvas, x, y, NULL);
+                    surface->draw(canvas, x, y, nullptr);
                     y += H;
                 }
                 x += W;
@@ -134,23 +134,23 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
-        SkAutoTUnref<SkSurface> surf(canvas->newSurface(info, NULL));
+        SkAutoTUnref<SkSurface> surf(canvas->newSurface(info, nullptr));
         if (!surf.get()) {
             surf.reset(SkSurface::NewRaster(info));
         }
         drawInto(surf->getCanvas());
 
         SkAutoTUnref<SkImage> image(surf->newImageSnapshot());
-        canvas->drawImage(image, 10, 10, NULL);
+        canvas->drawImage(image, 10, 10, nullptr);
 
-        SkAutoTUnref<SkSurface> surf2(image->newSurface(info, NULL));
+        SkAutoTUnref<SkSurface> surf2(image->newSurface(info, nullptr));
         drawInto(surf2->getCanvas());
 
         // Assert that the props were communicated transitively through the first image
         SkASSERT(equal(surf->props(), surf2->props()));
 
         SkAutoTUnref<SkImage> image2(surf2->newImageSnapshot());
-        canvas->drawImage(image2, 10 + SkIntToScalar(image->width()) + 10, 10, NULL);
+        canvas->drawImage(image2, 10 + SkIntToScalar(image->width()) + 10, 10, nullptr);
     }
 
 private:

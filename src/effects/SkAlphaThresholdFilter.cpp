@@ -282,7 +282,7 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
             GrPaint grPaint;
             grPaint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
             SkRegion::Iterator iter(fRegion);
-            drawContext->clear(maskTexture->asRenderTarget(), NULL, 0x0, true);
+            drawContext->clear(maskTexture->asRenderTarget(), nullptr, 0x0, true);
 
             while (!iter.done()) {
                 SkRect rect = SkRect::Make(iter.rect());

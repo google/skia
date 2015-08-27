@@ -49,14 +49,14 @@ public:
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of ShaderVisibility values indicating from which shaders the
         uniform should be accessible. At least one bit must be set. Geometry shader uniforms are not
-        supported at this time. The actual uniform name will be mangled. If outName is not NULL then
+        supported at this time. The actual uniform name will be mangled. If outName is not nullptr then
         it will refer to the final uniform name after return. Use the addUniformArray variant to add
         an array of uniforms. */
     UniformHandle addUniform(uint32_t visibility,
                              GrSLType type,
                              GrSLPrecision precision,
                              const char* name,
-                             const char** outName = NULL) {
+                             const char** outName = nullptr) {
         return this->addUniformArray(visibility, type, precision, name, 0, outName);
     }
 
@@ -66,7 +66,7 @@ public:
         GrSLPrecision precision,
         const char* name,
         int arrayCount,
-        const char** outName = NULL) = 0;
+        const char** outName = nullptr) = 0;
 
     virtual const GrGLShaderVar& getUniformVariable(UniformHandle u) const = 0;
 
@@ -105,8 +105,8 @@ protected:
     };
 
     GrGLVarying(GrSLType type, Varying varying)
-        : fVarying(varying), fType(type), fVsOut(NULL), fGsIn(NULL), fGsOut(NULL),
-          fFsIn(NULL) {}
+        : fVarying(varying), fType(type), fVsOut(nullptr), fGsIn(nullptr), fGsOut(nullptr),
+          fFsIn(nullptr) {}
 
     Varying fVarying;
 

@@ -41,7 +41,7 @@ struct GrGlyph {
 
     void init(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format) {
         fID = GrBatchAtlas::kInvalidAtlasID;
-        fPath = NULL;
+        fPath = nullptr;
         fPackedID = packed;
         fBounds.set(bounds);
         fMaskFormat = format;
@@ -52,7 +52,7 @@ struct GrGlyph {
     void free() {
         if (fPath) {
             delete fPath;
-            fPath = NULL;
+            fPath = nullptr;
         }
     }
 

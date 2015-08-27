@@ -64,7 +64,7 @@ public:
         virtual void emitCode(EmitArgs& args) override {
             GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
 
-            const char* yuvMatrix   = NULL;
+            const char* yuvMatrix   = nullptr;
             fMatrixUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                              kMat44f_GrSLType, kDefault_GrSLPrecision,
                                              "YUVMatrix", &yuvMatrix);

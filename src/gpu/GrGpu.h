@@ -38,7 +38,7 @@ class GrGpu : public SkRefCnt {
 public:
     /**
      * Create an instance of GrGpu that matches the specified backend. If the requested backend is
-     * not supported (at compile-time or run-time) this returns NULL. The context will not be
+     * not supported (at compile-time or run-time) this returns nullptr. The context will not be
      * fully constructed and should not be used by GrGpu until after this function returns.
      */
     static GrGpu* Create(GrBackend, GrBackendContext, const GrContextOptions&, GrContext* context);
@@ -83,13 +83,13 @@ public:
      * @param srcData     texel data to load texture. Begins with full-size
      *                    palette data for paletted textures. For compressed
      *                    formats it contains the compressed pixel data. Otherwise,
-     *                    it contains width*height texels. If NULL texture data
+     *                    it contains width*height texels. If nullptr texture data
      *                    is uninitialized.
      * @param rowBytes    the number of bytes between consecutive rows. Zero
      *                    means rows are tightly packed. This field is ignored
      *                    for compressed formats.
      *
-     * @return    The texture object if successful, otherwise NULL.
+     * @return    The texture object if successful, otherwise nullptr.
      */
     GrTexture* createTexture(const GrSurfaceDesc& desc, bool budgeted,
                              const void* srcData, size_t rowBytes);
@@ -112,7 +112,7 @@ public:
      *                by either GrVertexBuffer::map() or
      *                GrVertexBuffer::updateData().
      *
-     * @return    The vertex buffer if successful, otherwise NULL.
+     * @return    The vertex buffer if successful, otherwise nullptr.
      */
     GrVertexBuffer* createVertexBuffer(size_t size, bool dynamic);
 
@@ -124,7 +124,7 @@ public:
      *                by either GrIndexBuffer::map() or
      *                GrIndexBuffer::updateData().
      *
-     * @return The index buffer if successful, otherwise NULL.
+     * @return The index buffer if successful, otherwise nullptr.
      */
     GrIndexBuffer* createIndexBuffer(size_t size, bool dynamic);
 
@@ -257,10 +257,10 @@ public:
     void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* renderTarget);
 
     /**
-     * Discards the contents render target. NULL indicates that the current render target should
+     * Discards the contents render target. nullptr indicates that the current render target should
      * be discarded.
      **/
-    virtual void discard(GrRenderTarget* = NULL) = 0;
+    virtual void discard(GrRenderTarget* = nullptr) = 0;
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. It will
@@ -393,7 +393,7 @@ public:
     bool attachStencilAttachmentToRenderTarget(GrRenderTarget* target);
 
     // This is only to be used in GL-specific tests.
-    virtual const GrGLContext* glContextForTesting() const { return NULL; }
+    virtual const GrGLContext* glContextForTesting() const { return nullptr; }
 
 protected:
     // Functions used to map clip-respecting stencil tests into normal

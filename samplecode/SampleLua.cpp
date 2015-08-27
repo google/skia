@@ -39,7 +39,7 @@ static const char gMissingCode[] = ""
 
 class LuaView : public SampleView {
 public:
-    LuaView() : fLua(NULL) {}
+    LuaView() : fLua(nullptr) {}
 
     virtual ~LuaView() { delete fLua; }
 
@@ -56,7 +56,7 @@ public:
     }
 
     lua_State* ensureLua() {
-        if (NULL == fLua) {
+        if (nullptr == fLua) {
             fLua = new SkLua;
 
             SkString str = GetResourcePath(LUA_FILENAME);
@@ -90,7 +90,7 @@ protected:
                     SkDebugf("lua err: %s\n", lua_tostring(L, -1));
                 } else {
                     if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-                        this->inval(NULL);
+                        this->inval(nullptr);
                         return true;
                     }
                 }
@@ -117,7 +117,7 @@ protected:
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
             } else {
                 if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-                    this->inval(NULL);
+                    this->inval(nullptr);
                 }
             }
         }
@@ -135,7 +135,7 @@ protected:
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
             } else {
                 if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-                    this->inval(NULL);
+                    this->inval(nullptr);
                     Click* c = new Click(this);
                     c->setType(gLuaClickHandlerName);
                     return c;
@@ -150,7 +150,7 @@ protected:
             return this->INHERITED::onClick(click);
         }
 
-        const char* state = NULL;
+        const char* state = nullptr;
         switch (click->fState) {
             case Click::kMoved_State:
                 state = "moved";
@@ -162,7 +162,7 @@ protected:
                 break;
         }
         if (state) {
-            this->inval(NULL);
+            this->inval(nullptr);
             lua_State* L = fLua->get();
             lua_getglobal(L, gClickName);
             fLua->pushScalar(click->fCurr.x());

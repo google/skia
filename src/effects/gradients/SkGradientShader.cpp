@@ -49,7 +49,7 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
             return false;
         }
     } else {
-        fPos = NULL;
+        fPos = nullptr;
     }
 
     fTileMode = (SkShader::TileMode)buffer.read32();
@@ -59,7 +59,7 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
         fLocalMatrix = &fLocalMatrixStorage;
         buffer.readMatrix(&fLocalMatrixStorage);
     } else {
-        fLocalMatrix = NULL;
+        fLocalMatrix = nullptr;
     }
     return buffer.isValid();
 }
@@ -130,7 +130,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         fOrigPos = (SkScalar*)(fOrigColors + fColorCount);
         fRecs = (Rec*)(fOrigPos + fColorCount);
     } else {
-        fOrigPos = NULL;
+        fOrigPos = nullptr;
         fRecs = (Rec*)(fOrigColors + fColorCount);
     }
 
@@ -175,7 +175,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
                 recs += 1;
             }
         } else {    // assume even distribution
-            fOrigPos = NULL;
+            fOrigPos = nullptr;
 
             SkFixed dp = SK_Fixed1 / (desc.fCount - 1);
             SkFixed p = dp;
@@ -194,7 +194,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         fOrigPos[0] = SkScalarPin(desc.fPos[0], 0, 1);
         fOrigPos[1] = SkScalarPin(desc.fPos[1], fOrigPos[0], 1);
         if (0 == fOrigPos[0] && 1 == fOrigPos[1]) {
-            fOrigPos = NULL;
+            fOrigPos = nullptr;
         }
     }
     this->initCommon();
@@ -223,7 +223,7 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     desc.fGradFlags = fGradFlags;
 
     const SkMatrix& m = this->getLocalMatrix();
-    desc.fLocalMatrix = m.isIdentity() ? NULL : &m;
+    desc.fLocalMatrix = m.isIdentity() ? nullptr : &m;
     desc.flatten(buffer);
 }
 
@@ -324,10 +324,10 @@ SkGradientShaderBase::GradientShaderCache::GradientShaderCache(
     , fCache32Inited(false)
 {
     // Only initialize the cache in getCache16/32.
-    fCache16 = NULL;
-    fCache32 = NULL;
-    fCache16Storage = NULL;
-    fCache32PixelRef = NULL;
+    fCache16 = nullptr;
+    fCache32 = nullptr;
+    fCache16Storage = nullptr;
+    fCache32PixelRef = nullptr;
 }
 
 SkGradientShaderBase::GradientShaderCache::~GradientShaderCache() {
@@ -535,7 +535,7 @@ void SkGradientShaderBase::GradientShaderCache::initCache16(GradientShaderCache*
     const int entryCount = kCache16Count * 2;
     const size_t allocSize = sizeof(uint16_t) * entryCount;
 
-    SkASSERT(NULL == cache->fCache16Storage);
+    SkASSERT(nullptr == cache->fCache16Storage);
     cache->fCache16Storage = (uint16_t*)sk_malloc_throw(allocSize);
     cache->fCache16 = cache->fCache16Storage;
     if (cache->fShader.fColorCount == 2) {
@@ -567,8 +567,8 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
     const int kNumberOfDitherRows = 4;
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kCache32Count, kNumberOfDitherRows);
 
-    SkASSERT(NULL == cache->fCache32PixelRef);
-    cache->fCache32PixelRef = SkMallocPixelRef::NewAllocate(info, 0, NULL);
+    SkASSERT(nullptr == cache->fCache32PixelRef);
+    cache->fCache32PixelRef = SkMallocPixelRef::NewAllocate(info, 0, nullptr);
     cache->fCache32 = (SkPMColor*)cache->fCache32PixelRef->getAddr();
     if (cache->fShader.fColorCount == 2) {
         Build32bitCache(cache->fCache32, cache->fShader.fOrigColors[0],
@@ -647,7 +647,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
     static const int MAX_NUM_CACHED_GRADIENT_BITMAPS = 32;
     SkAutoMutexAcquire ama(gGradientCacheMutex);
 
-    if (NULL == gCache) {
+    if (nullptr == gCache) {
         gCache = new SkGradientBitmapCache(MAX_NUM_CACHED_GRADIENT_BITMAPS);
     }
     size_t size = count * sizeof(int32_t);
@@ -737,7 +737,7 @@ void SkGradientShaderBase::toString(SkString* str) const {
 // Return true if these parameters are valid/legal/safe to construct a gradient
 //
 static bool valid_grad(const SkColor colors[], const SkScalar pos[], int count, unsigned tileMode) {
-    return NULL != colors && count >= 1 && tileMode < (unsigned)SkShader::kTileModeCount;
+    return nullptr != colors && count >= 1 && tileMode < (unsigned)SkShader::kTileModeCount;
 }
 
 // assumes colors is SkColor* and pos is SkScalar*
@@ -747,7 +747,7 @@ static bool valid_grad(const SkColor colors[], const SkScalar pos[], int count, 
         if (1 == count) {                   \
             tmp[0] = tmp[1] = colors[0];    \
             colors = tmp;                   \
-            pos = NULL;                     \
+            pos = nullptr;                     \
             count = 2;                      \
         }                                   \
     } while (0)
@@ -770,10 +770,10 @@ SkShader* SkGradientShader::CreateLinear(const SkPoint pts[2],
                                          uint32_t flags,
                                          const SkMatrix* localMatrix) {
     if (!pts) {
-        return NULL;
+        return nullptr;
     }
     if (!valid_grad(colors, pos, colorCount, mode)) {
-        return NULL;
+        return nullptr;
     }
     EXPAND_1_COLOR(colorCount);
 
@@ -789,10 +789,10 @@ SkShader* SkGradientShader::CreateRadial(const SkPoint& center, SkScalar radius,
                                          uint32_t flags,
                                          const SkMatrix* localMatrix) {
     if (radius <= 0) {
-        return NULL;
+        return nullptr;
     }
     if (!valid_grad(colors, pos, colorCount, mode)) {
-        return NULL;
+        return nullptr;
     }
     EXPAND_1_COLOR(colorCount);
 
@@ -812,10 +812,10 @@ SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
                                                   uint32_t flags,
                                                   const SkMatrix* localMatrix) {
     if (startRadius < 0 || endRadius < 0) {
-        return NULL;
+        return nullptr;
     }
     if (!valid_grad(colors, pos, colorCount, mode)) {
-        return NULL;
+        return nullptr;
     }
     if (start == end && startRadius == endRadius) {
         return SkShader::CreateEmptyShader();
@@ -844,7 +844,7 @@ SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
             }
             desc_init(&desc, colorsNew.get(), posNew.get(), colorCount, mode, flags, localMatrix);
         } else {
-            desc_init(&desc, colorsNew.get(), NULL, colorCount, mode, flags, localMatrix);
+            desc_init(&desc, colorsNew.get(), nullptr, colorCount, mode, flags, localMatrix);
         }
 
         return new SkTwoPointConicalGradient(end, endRadius, start, startRadius, flipGradient,
@@ -859,7 +859,7 @@ SkShader* SkGradientShader::CreateSweep(SkScalar cx, SkScalar cy,
                                         uint32_t flags,
                                         const SkMatrix* localMatrix) {
     if (!valid_grad(colors, pos, colorCount, SkShader::kClamp_TileMode)) {
-        return NULL;
+        return nullptr;
     }
     EXPAND_1_COLOR(colorCount);
 
@@ -1168,7 +1168,7 @@ int GrGradientEffect::RandomGradientParams(SkRandom* random,
 
     // if one color, omit stops, otherwise randomly decide whether or not to
     if (outColors == 1 || (outColors >= 2 && random->nextBool())) {
-        *stops = NULL;
+        *stops = nullptr;
     }
 
     SkScalar stop = 0.f;

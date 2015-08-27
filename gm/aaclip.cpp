@@ -140,7 +140,7 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     newc->drawCircle(50, 50, 49, paint);
     canvas->drawBitmap(bm, 10, 10);
 
-    CGImageRef image = SkCreateCGImageRefWithColorspace(bm, NULL);
+    CGImageRef image = SkCreateCGImageRefWithColorspace(bm, nullptr);
 
     SkBitmap bm2;
     SkCreateBitmapFromCGImage(&bm2, image);

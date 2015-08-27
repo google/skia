@@ -45,7 +45,7 @@
 #define CDB_PRINT_CALLSTACK_CURRENT_THREAD "? " MARKER_THREAD_CALLSTACK_START_NUMBER "; k; ? " MARKER_THREAD_CALLSTACK_STOP_NUMBER "; .ecxr; ? " MARKER_EXCEPTION_CALLSTACK_START_NUMBER "; k; ? " MARKER_EXCEPTION_CALLSTACK_STOP_NUMBER "; q"
 
 static void strncpyOrSetBlank(char* dest, const char* src, size_t len) {
-  const char* srcOrEmptyString = (NULL == src) ? "" : src;
+  const char* srcOrEmptyString = (nullptr == src) ? "" : src;
   strncpy(dest, srcOrEmptyString, len);
 }
 
@@ -105,7 +105,7 @@ static void printCallstack(const char* filename,
             break;
         } else if (started) {
             // Filter messages. Calstack lines contain "exe/dll!function"
-            if (strchr(line, '!') != NULL && strlen(line) > CDB_CALLSTACK_PREFIX) {
+            if (strchr(line, '!') != nullptr && strlen(line) > CDB_CALLSTACK_PREFIX) {
                 printf("%s", line + CDB_CALLSTACK_PREFIX);  // fgets includes \n already.
             }
         }
@@ -139,7 +139,7 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
     GetTempPath( dwBufferSize, szPath );
 
     sprintf( szFileName, "%s%s", szPath, szAppName );
-    CreateDirectory( szFileName, NULL );
+    CreateDirectory( szFileName, nullptr );
 
     BUILD_UNIQUE_FILENAME(szFileName, ".dmp", szPath, szAppName, szVersion, stLocalTime);
     BUILD_UNIQUE_FILENAME(szFileNameOutput, ".out", szPath, szAppName, szVersion, stLocalTime);
@@ -161,8 +161,8 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
                                             hDumpFile,
                                             MiniDumpWithDataSegs,
                                             &ExpParam,
-                                            NULL,
-                                            NULL);
+                                            nullptr,
+                                            nullptr);
 
     printf("MiniDump file:    %s\n", szFileName);
     printf("App exe and pdb:  %s\n", getBinariesPath());

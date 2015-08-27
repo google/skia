@@ -40,7 +40,7 @@ static SkPicture* make_picture() {
 class PictureGM : public skiagm::GM {
 public:
     PictureGM()
-        : fPicture(NULL)
+        : fPicture(nullptr)
     {}
 
 protected:
@@ -65,7 +65,7 @@ protected:
         canvas->drawPicture(fPicture);
         
         matrix.setTranslate(110, 0);
-        canvas->drawPicture(fPicture, &matrix, NULL);
+        canvas->drawPicture(fPicture, &matrix, nullptr);
         
         matrix.postTranslate(110, 0);
         canvas->drawPicture(fPicture, &matrix, &paint);

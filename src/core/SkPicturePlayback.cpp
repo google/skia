@@ -44,7 +44,7 @@ static const SkRect* get_rect_ptr(SkReader32* reader) {
     if (reader->readBool()) {
         return &reader->skipT<SkRect>();
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -164,13 +164,13 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             const int count = reader->readU32();
             const SkRSXform* xform = (const SkRSXform*)reader->skip(count * sizeof(SkRSXform));
             const SkRect* tex = (const SkRect*)reader->skip(count * sizeof(SkRect));
-            const SkColor* colors = NULL;
+            const SkColor* colors = nullptr;
             SkXfermode::Mode mode = SkXfermode::kDst_Mode;
             if (flags & DRAW_ATLAS_HAS_COLORS) {
                 colors = (const SkColor*)reader->skip(count * sizeof(SkColor));
                 mode = (SkXfermode::Mode)reader->readU32();
             }
-            const SkRect* cull = NULL;
+            const SkRect* cull = nullptr;
             if (flags & DRAW_ATLAS_HAS_CULL) {
                 cull = (const SkRect*)reader->skip(sizeof(SkRect));
             }
@@ -275,11 +275,11 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             const SkPoint* cubics = (const SkPoint*)reader->skip(SkPatchUtils::kNumCtrlPts *
                                                                  sizeof(SkPoint));
             uint32_t flag = reader->readInt();
-            const SkColor* colors = NULL;
+            const SkColor* colors = nullptr;
             if (flag & DRAW_VERTICES_HAS_COLORS) {
                 colors = (const SkColor*)reader->skip(SkPatchUtils::kNumCorners * sizeof(SkColor));
             }
-            const SkPoint* texCoords = NULL;
+            const SkPoint* texCoords = nullptr;
             if (flag & DRAW_VERTICES_HAS_TEXS) {
                 texCoords = (const SkPoint*)reader->skip(SkPatchUtils::kNumCorners *
                                                          sizeof(SkPoint));
@@ -418,9 +418,9 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader->readInt();
             int vCount = reader->readInt();
             const SkPoint* verts = (const SkPoint*)reader->skip(vCount * sizeof(SkPoint));
-            const SkPoint* texs = NULL;
-            const SkColor* colors = NULL;
-            const uint16_t* indices = NULL;
+            const SkPoint* texs = nullptr;
+            const SkColor* colors = nullptr;
+            const uint16_t* indices = nullptr;
             int iCount = 0;
             if (flags & DRAW_VERTICES_HAS_TEXS) {
                 texs = (const SkPoint*)reader->skip(vCount * sizeof(SkPoint));

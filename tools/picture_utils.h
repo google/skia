@@ -39,7 +39,7 @@ namespace sk_tools {
      *
      * @param bm the bitmap to record
      * @param dirPath directory within which to write the image file
-     * @param subdirOrNull subdirectory within dirPath, or NULL to just write into dirPath
+     * @param subdirOrNull subdirectory within dirPath, or nullptr to just write into dirPath
      * @param baseName last part of the filename
      *
      * @return true if written out successfully

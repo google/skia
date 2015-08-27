@@ -30,7 +30,7 @@ static void test_chunkalloc(skiatest::Reporter* reporter) {
     //------------------------------------------------------------------------
     // check empty
     check_alloc(reporter, alloc, 0, 0, 0);
-    REPORTER_ASSERT(reporter, !alloc.contains(NULL));
+    REPORTER_ASSERT(reporter, !alloc.contains(nullptr));
     REPORTER_ASSERT(reporter, !alloc.contains(reporter));
 
     // reset on empty allocator

@@ -62,7 +62,7 @@ void SkStaticTextView::setMode(Mode mode)
 void SkStaticTextView::setSpacingAlign(SkTextBox::SpacingAlign align)
 {
     fSpacingAlign = SkToU8(align);
-    this->inval(NULL);
+    this->inval(nullptr);
 }
 
 void SkStaticTextView::getMargin(SkPoint* margin) const
@@ -77,7 +77,7 @@ void SkStaticTextView::setMargin(SkScalar dx, SkScalar dy)
     {
         fMargin.set(dx, dy);
         this->computeSize();
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -102,7 +102,7 @@ void SkStaticTextView::setText(const SkString& text)
 
 void SkStaticTextView::setText(const char text[])
 {
-    if (text == NULL)
+    if (text == nullptr)
         text = "";
     this->setText(text, strlen(text));
 }
@@ -113,7 +113,7 @@ void SkStaticTextView::setText(const char text[], size_t len)
     {
         fText.set(text, len);
         this->computeSize();
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -129,7 +129,7 @@ void SkStaticTextView::setPaint(const SkPaint& paint)
     {
         fPaint = paint;
         this->computeSize();
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 }
 
@@ -178,8 +178,8 @@ if (false) { // avoid bit rot, suppress warning
         this->setText(text);
     }
 
-    if ((node = dom.getFirstChild(node, "paint")) != NULL &&
-        (node = dom.getFirstChild(node, "screenplay")) != NULL)
+    if ((node = dom.getFirstChild(node, "paint")) != nullptr &&
+        (node = dom.getFirstChild(node, "screenplay")) != nullptr)
     {
 // FIXME: Including inflate_paint causes Windows build to fail -- it complains
 //  that SKListView::SkListView is undefined.

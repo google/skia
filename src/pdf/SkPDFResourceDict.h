@@ -34,7 +34,7 @@ public:
      *  The full set of ProcSet entries is automatically created for backwards
      *  compatibility, as recommended by the PDF spec.
      *
-     *  Any arguments can be NULL.
+     *  Any arguments can be nullptr.
      */
     static SkPDFDict* Create(
         const SkTDArray<SkPDFObject*>* gStateResources,

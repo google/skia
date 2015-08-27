@@ -495,7 +495,7 @@ static SkPDFObject* get_pdf_shader_by_state(
         // handle compose shader by pulling things up to a layer, drawing with
         // the first shader, applying the xfer mode and drawing again with the
         // second shader, then applying the layer to the original drawing.
-        return NULL;
+        return nullptr;
     } else if (state.fType == SkShader::kNone_GradientType) {
         SkPDFObject* shader = canon->findImageShader(state);
         return shader ? SkRef(shader)
@@ -533,7 +533,7 @@ static SkPDFDict* get_gradient_resource_dict(
     if (gState) {
         graphicStates.push(gState);
     }
-    return SkPDFResourceDict::Create(&graphicStates, &patterns, NULL, NULL);
+    return SkPDFResourceDict::Create(&graphicStates, &patterns, nullptr, nullptr);
 }
 
 static void populate_tiling_pattern_dict(SkPDFDict* pattern,
@@ -592,7 +592,7 @@ static SkPDFObject* create_smask_graphic_state(
     SkAutoTDelete<SkStream> alphaStream(create_pattern_fill_content(-1, bbox));
 
     SkAutoTUnref<SkPDFDict>
-        resources(get_gradient_resource_dict(luminosityShader, NULL));
+        resources(get_gradient_resource_dict(luminosityShader, nullptr));
 
     SkAutoTUnref<SkPDFFormXObject> alphaMask(
             new SkPDFFormXObject(alphaStream.get(), bbox, resources.get()));
@@ -615,7 +615,7 @@ SkPDFAlphaFunctionShader* SkPDFAlphaFunctionShader::Create(
     SkAutoTUnref<SkPDFObject> colorShader(
             get_pdf_shader_by_state(canon, dpi, &opaqueState));
     if (!colorShader) {
-        return NULL;
+        return nullptr;
     }
 
     // Create resource dict with alpha graphics state as G0 and
@@ -712,7 +712,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     const SkPDFShader::State& state = **autoState;
 
     SkString (*codeFunction)(const SkShader::GradientInfo& info,
-                             const SkMatrix& perspectiveRemover) = NULL;
+                             const SkMatrix& perspectiveRemover) = nullptr;
     SkPoint transformPoints[2];
 
     // Depending on the type of the gradient, we want to transform the
@@ -743,7 +743,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
         case SkShader::kColor_GradientType:
         case SkShader::kNone_GradientType:
         default:
-            return NULL;
+            return nullptr;
     }
 
     // Move any scaling (assuming a unit gradient) or translation
@@ -766,14 +766,14 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
     if (finalMatrix.hasPerspective()) {
         if (!split_perspective(finalMatrix,
                                &finalMatrix, &perspectiveInverseOnly)) {
-            return NULL;
+            return nullptr;
         }
     }
 
     SkRect bbox;
     bbox.set(state.fBBox);
     if (!inverse_transform_bbox(finalMatrix, &bbox)) {
-        return NULL;
+        return nullptr;
     }
 
     SkAutoTUnref<SkPDFArray> domain(new SkPDFArray);
@@ -792,7 +792,7 @@ SkPDFFunctionShader* SkPDFFunctionShader::Create(
         SkShader::GradientInfo twoPointRadialInfo = *info;
         SkMatrix inverseMapperMatrix;
         if (!mapperMatrix.invert(&inverseMapperMatrix)) {
-            return NULL;
+            return nullptr;
         }
         inverseMapperMatrix.mapPoints(twoPointRadialInfo.fPoint, 2);
         twoPointRadialInfo.fRadius[0] =
@@ -843,7 +843,7 @@ SkPDFImageShader* SkPDFImageShader::Create(
     SkRect deviceBounds;
     deviceBounds.set(state.fBBox);
     if (!inverse_transform_bbox(finalMatrix, &deviceBounds)) {
-        return NULL;
+        return nullptr;
     }
 
     const SkBitmap* image = &state.fImage;
@@ -1099,8 +1099,8 @@ SkPDFShader::State::State(const SkShader& shader, const SkMatrix& canvasTransfor
           fBBox(bbox),
           fPixelGeneration(0) {
     fInfo.fColorCount = 0;
-    fInfo.fColors = NULL;
-    fInfo.fColorOffsets = NULL;
+    fInfo.fColors = nullptr;
+    fInfo.fColorOffsets = nullptr;
     fShaderTransform = shader.getLocalMatrix();
     fImageTileModes[0] = fImageTileModes[1] = SkShader::kClamp_TileMode;
 

@@ -92,7 +92,7 @@ public:
 
     // Adds a width x height subimage to the atlas. Upon success it returns 
     // the containing GrPlot and absolute location in the backing texture. 
-    // NULL is returned if the subimage cannot fit in the atlas.
+    // nullptr is returned if the subimage cannot fit in the atlas.
     // If provided, the image data will either be immediately uploaded or
     // written to the CPU-side backing bitmap.
     GrPlot* addToAtlas(ClientPlotUsage*, int width, int height, const void* image, SkIPoint16* loc);

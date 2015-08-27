@@ -346,7 +346,7 @@ public:
     }
     const SkPixmap* justAnOpaqueColor(uint32_t* value) override {
         SkDEBUGFAIL("justAnOpaqueColor unexpected");
-        return NULL;
+        return nullptr;
     }
 
 private:
@@ -437,14 +437,14 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
     // this returns the first and last edge after they're sorted into a dlink list
     SkEdge* edge = sort_edges(list, count, &last);
 
-    headEdge.fPrev = NULL;
+    headEdge.fPrev = nullptr;
     headEdge.fNext = edge;
     headEdge.fFirstY = kEDGE_HEAD_Y;
     headEdge.fX = SK_MinS32;
     edge->fPrev = &headEdge;
 
     tailEdge.fPrev = last;
-    tailEdge.fNext = NULL;
+    tailEdge.fNext = nullptr;
     tailEdge.fFirstY = kEDGE_TAIL_Y;
     last->fNext = &tailEdge;
 
@@ -460,7 +460,7 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
     }
 
     InverseBlitter  ib;
-    PrePostProc     proc = NULL;
+    PrePostProc     proc = nullptr;
 
     if (path.isInverseFillType()) {
         ib.setBlitter(blitter, clipRgn.getBounds(), shiftEdgesUp);
@@ -468,9 +468,9 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
         proc = PrePostInverseBlitterProc;
     }
 
-    if (path.isConvex() && (NULL == proc)) {
+    if (path.isConvex() && (nullptr == proc)) {
         SkASSERT(count >= 2);   // convex walker does not handle missing right edges
-        walk_convex_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, NULL);
+        walk_convex_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, nullptr);
     } else {
         int rightEdge;
         if (clipRect) {
@@ -518,8 +518,8 @@ void sk_blit_below(SkBlitter* blitter, const SkIRect& ir, const SkRegion& clip) 
  */
 SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
                              const SkIRect& ir, bool skipRejectTest) {
-    fBlitter = NULL;     // null means blit nothing
-    fClipRect = NULL;
+    fBlitter = nullptr;     // null means blit nothing
+    fClipRect = nullptr;
 
     if (clip) {
         fClipRect = &clip->getBounds();
@@ -529,7 +529,7 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
 
         if (clip->isRect()) {
             if (fClipRect->contains(ir)) {
-                fClipRect = NULL;
+                fClipRect = nullptr;
             } else {
                 // only need a wrapper blitter if we're horizontally clipped
                 if (fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight) {
@@ -653,14 +653,14 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
     // this returns the first and last edge after they're sorted into a dlink list
     SkEdge* edge = sort_edges(list, count, &last);
 
-    headEdge.fPrev = NULL;
+    headEdge.fPrev = nullptr;
     headEdge.fNext = edge;
     headEdge.fFirstY = kEDGE_HEAD_Y;
     headEdge.fX = SK_MinS32;
     edge->fPrev = &headEdge;
 
     tailEdge.fPrev = last;
-    tailEdge.fNext = NULL;
+    tailEdge.fNext = nullptr;
     tailEdge.fFirstY = kEDGE_TAIL_Y;
     last->fNext = &tailEdge;
 
@@ -673,8 +673,8 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
     if (clipRect && start_y < clipRect->fTop) {
         start_y = clipRect->fTop;
     }
-    walk_convex_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, NULL);
-//    walk_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, NULL);
+    walk_convex_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, nullptr);
+//    walk_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, nullptr);
 }
 
 void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,

@@ -22,10 +22,10 @@ public:
     }
     SkTypeface* createTypeface(int index) override {
         SkDEBUGFAIL("SkFontStyleSet::createTypeface called on empty set");
-        return NULL;
+        return nullptr;
     }
     SkTypeface* matchStyle(const SkFontStyle&) override {
-        return NULL;
+        return nullptr;
     }
 };
 
@@ -43,7 +43,7 @@ protected:
     }
     SkFontStyleSet* onCreateStyleSet(int index) const override {
         SkDEBUGFAIL("onCreateStyleSet called with bad index");
-        return NULL;
+        return nullptr;
     }
     SkFontStyleSet* onMatchFamily(const char[]) const override {
         return SkFontStyleSet::CreateEmpty();
@@ -51,36 +51,36 @@ protected:
 
     virtual SkTypeface* onMatchFamilyStyle(const char[],
                                            const SkFontStyle&) const override {
-        return NULL;
+        return nullptr;
     }
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
                                                     const SkFontStyle& style,
                                                     const char* bcp47[],
                                                     int bcp47Count,
                                                     SkUnichar character) const override {
-        return NULL;
+        return nullptr;
     }
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const override {
-        return NULL;
+        return nullptr;
     }
     SkTypeface* onCreateFromData(SkData*, int) const override {
-        return NULL;
+        return nullptr;
     }
     SkTypeface* onCreateFromStream(SkStreamAsset* stream, int) const override {
         delete stream;
-        return NULL;
+        return nullptr;
     }
     SkTypeface* onCreateFromFile(const char[], int) const override {
-        return NULL;
+        return nullptr;
     }
     SkTypeface* onLegacyCreateTypeface(const char [], unsigned) const override {
-        return NULL;
+        return nullptr;
     }
 };
 
 static SkFontStyleSet* emptyOnNull(SkFontStyleSet* fsset) {
-    if (NULL == fsset) {
+    if (nullptr == fsset) {
         fsset = SkFontStyleSet::CreateEmpty();
     }
     return fsset;
@@ -119,22 +119,22 @@ SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face,
 }
 
 SkTypeface* SkFontMgr::createFromData(SkData* data, int ttcIndex) const {
-    if (NULL == data) {
-        return NULL;
+    if (nullptr == data) {
+        return nullptr;
     }
     return this->onCreateFromData(data, ttcIndex);
 }
 
 SkTypeface* SkFontMgr::createFromStream(SkStreamAsset* stream, int ttcIndex) const {
-    if (NULL == stream) {
-        return NULL;
+    if (nullptr == stream) {
+        return nullptr;
     }
     return this->onCreateFromStream(stream, ttcIndex);
 }
 
 SkTypeface* SkFontMgr::createFromFontData(SkFontData* data) const {
-    if (NULL == data) {
-        return NULL;
+    if (nullptr == data) {
+        return nullptr;
     }
     return this->onCreateFromFontData(data);
 }
@@ -147,8 +147,8 @@ SkTypeface* SkFontMgr::onCreateFromFontData(SkFontData* data) const {
 }
 
 SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) const {
-    if (NULL == path) {
-        return NULL;
+    if (nullptr == path) {
+        return nullptr;
     }
     return this->onCreateFromFile(path, ttcIndex);
 }

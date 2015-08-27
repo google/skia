@@ -13,10 +13,10 @@
 #include <GLES2/gl2.h>
 
 static GrGLFuncPtr egl_get_gl_proc(void* ctx, const char name[]) {
-    SkASSERT(NULL == ctx);
+    SkASSERT(nullptr == ctx);
     return eglGetProcAddress(name);
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() {
-    return GrGLAssembleInterface(NULL, egl_get_gl_proc);
+    return GrGLAssembleInterface(nullptr, egl_get_gl_proc);
 }

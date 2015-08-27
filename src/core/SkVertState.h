@@ -22,7 +22,7 @@ struct VertState {
 
     /**
      *  Construct a VertState from a vertex count, index array, and index count.
-     *  If the vertices are unindexed pass NULL for indices.
+     *  If the vertices are unindexed pass nullptr for indices.
      */
     VertState(int vCount, const uint16_t indices[], int indexCount)
             : fIndices(indices) {

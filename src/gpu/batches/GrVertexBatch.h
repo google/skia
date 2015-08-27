@@ -51,7 +51,7 @@ protected:
     class QuadHelper : private InstancedHelper {
     public:
         QuadHelper() : INHERITED() {}
-        /** Finds the cached quad index buffer and reserves vertex space. Returns NULL on failure
+        /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
             and on sucess a pointer to the vertex data that the caller should populate before
             calling issueDraws(). */
         void* init(Target* batchTarget, size_t vertexStride, int quadsToDraw);

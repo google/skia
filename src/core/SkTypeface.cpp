@@ -21,7 +21,7 @@ SkTypeface::SkTypeface(const SkFontStyle& style, SkFontID fontID, bool isFixedPi
 SkTypeface::~SkTypeface() { }
 
 
-SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style ) = NULL;
+SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style ) = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -31,14 +31,14 @@ public:
 protected:
     SkEmptyTypeface() : SkTypeface(SkFontStyle(), 0, true) { }
 
-    SkStreamAsset* onOpenStream(int* ttcIndex) const override { return NULL; }
+    SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
     SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override {
-        return NULL;
+        return nullptr;
     }
     void onFilterRec(SkScalerContextRec*) const override { }
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 PerGlyphInfo,
-                                const uint32_t*, uint32_t) const override { return NULL; }
+                                const uint32_t*, uint32_t) const override { return nullptr; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const override {
@@ -78,7 +78,7 @@ SkTypeface* sk_create_default_typeface(int style) {
     SkAutoMutexAcquire lock(&gCreateDefaultMutex);
 
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    SkTypeface* t = fm->legacyCreateTypeface(NULL, style);
+    SkTypeface* t = fm->legacyCreateTypeface(nullptr, style);
     return t ? t : SkEmptyTypeface::Create();
 }
 
@@ -99,7 +99,7 @@ SkTypeface* SkTypeface::RefDefault(Style style) {
 }
 
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
-    if (NULL == face) {
+    if (nullptr == face) {
         face = GetDefaultTypeface();
     }
     return face->uniqueID();
@@ -118,7 +118,7 @@ SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
             return result;
         }
     }
-    if (NULL == name) {
+    if (nullptr == name) {
         return RefDefault(style);
     }
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
@@ -202,7 +202,7 @@ SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
 ///////////////////////////////////////////////////////////////////////////////
 
 int SkTypeface::countTables() const {
-    return this->onGetTableTags(NULL);
+    return this->onGetTableTags(nullptr);
 }
 
 int SkTypeface::getTableTags(SkFontTableTag tags[]) const {
@@ -210,7 +210,7 @@ int SkTypeface::getTableTags(SkFontTableTag tags[]) const {
 }
 
 size_t SkTypeface::getTableSize(SkFontTableTag tag) const {
-    return this->onGetTableData(tag, 0, ~0U, NULL);
+    return this->onGetTableData(tag, 0, ~0U, nullptr);
 }
 
 size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length,
@@ -220,7 +220,7 @@ size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length
 
 SkStreamAsset* SkTypeface::openStream(int* ttcIndex) const {
     int ttcIndexStorage;
-    if (NULL == ttcIndex) {
+    if (nullptr == ttcIndex) {
         // So our subclasses don't need to check for null param
         ttcIndex = &ttcIndexStorage;
     }
@@ -235,7 +235,7 @@ SkFontData* SkTypeface::createFontData() const {
 SkFontData* SkTypeface::onCreateFontData() const {
     int index;
     SkAutoTDelete<SkStreamAsset> stream(this->onOpenStream(&index));
-    return new SkFontData(stream.detach(), index, NULL, 0);
+    return new SkFontData(stream.detach(), index, nullptr, 0);
 };
 
 int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
@@ -243,7 +243,7 @@ int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
     if (glyphCount <= 0) {
         return 0;
     }
-    if (NULL == chars || (unsigned)encoding > kUTF32_Encoding) {
+    if (nullptr == chars || (unsigned)encoding > kUTF32_Encoding) {
         if (glyphs) {
             sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
         }
@@ -264,13 +264,13 @@ int SkTypeface::getUnitsPerEm() const {
 bool SkTypeface::getKerningPairAdjustments(const uint16_t glyphs[], int count,
                                            int32_t adjustments[]) const {
     SkASSERT(count >= 0);
-    // check for the only legal way to pass a NULL.. everything is 0
+    // check for the only legal way to pass a nullptr.. everything is 0
     // in which case they just want to know if this face can possibly support
     // kerning (true) or never (false).
-    if (NULL == glyphs || NULL == adjustments) {
-        SkASSERT(NULL == glyphs);
+    if (nullptr == glyphs || nullptr == adjustments) {
+        SkASSERT(nullptr == glyphs);
         SkASSERT(0 == count);
-        SkASSERT(NULL == adjustments);
+        SkASSERT(nullptr == adjustments);
     }
     return this->onGetKerningPairAdjustments(glyphs, count, adjustments);
 }
@@ -352,7 +352,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     paint.setLinearText(true);
 
     SkScalerContext::Rec rec;
-    SkScalerContext::MakeRec(paint, NULL, NULL, &rec);
+    SkScalerContext::MakeRec(paint, nullptr, nullptr, &rec);
 
     SkAutoDescriptor ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
     SkDescriptor*    desc = ad.getDesc();

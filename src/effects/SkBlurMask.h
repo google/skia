@@ -16,11 +16,11 @@
 class SkBlurMask {
 public:
     static bool BlurRect(SkScalar sigma, SkMask *dst, const SkRect &src, SkBlurStyle,
-                         SkIPoint *margin = NULL,
+                         SkIPoint *margin = nullptr,
                          SkMask::CreateMode createMode =
                                                 SkMask::kComputeBoundsAndRenderImage_CreateMode);
     static bool BlurRRect(SkScalar sigma, SkMask *dst, const SkRRect &src, SkBlurStyle,
-                         SkIPoint *margin = NULL,
+                         SkIPoint *margin = nullptr,
                          SkMask::CreateMode createMode =
                                                 SkMask::kComputeBoundsAndRenderImage_CreateMode);
 
@@ -32,12 +32,12 @@ public:
 
     static bool BoxBlur(SkMask* dst, const SkMask& src,
                         SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                        SkIPoint* margin = NULL, bool force_quality=false);
+                        SkIPoint* margin = nullptr, bool force_quality=false);
 
     // the "ground truth" blur does a gaussian convolution; it's slow
     // but useful for comparison purposes.
     static bool BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src, SkBlurStyle,
-                                SkIPoint* margin = NULL);
+                                SkIPoint* margin = nullptr);
 
     // If radius > 0, return the corresponding sigma, else return 0
     static SkScalar ConvertRadiusToSigma(SkScalar radius);

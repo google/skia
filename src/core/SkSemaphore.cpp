@@ -25,15 +25,15 @@
         HANDLE fSemaphore;
 
         OSSemaphore()  {
-            fSemaphore = CreateSemaphore(NULL    /*security attributes, optional*/,
+            fSemaphore = CreateSemaphore(nullptr    /*security attributes, optional*/,
                                          0       /*initial count*/,
                                          MAXLONG /*max count*/,
-                                         NULL    /*name, optional*/);
+                                         nullptr    /*name, optional*/);
         }
         ~OSSemaphore() { CloseHandle(fSemaphore); }
 
         void signal(int n) {
-            ReleaseSemaphore(fSemaphore, n, NULL/*returns previous count, optional*/);
+            ReleaseSemaphore(fSemaphore, n, nullptr/*returns previous count, optional*/);
         }
         void wait() { WaitForSingleObject(fSemaphore, INFINITE/*timeout in ms*/); }
     };

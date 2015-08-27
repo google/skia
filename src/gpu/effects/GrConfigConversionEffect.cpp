@@ -182,11 +182,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> readTex(context->textureProvider()->createTexture(desc, true, NULL, 0));
+    SkAutoTUnref<GrTexture> readTex(context->textureProvider()->createTexture(desc, true, nullptr, 0));
     if (!readTex.get()) {
         return;
     }
-    SkAutoTUnref<GrTexture> tempTex(context->textureProvider()->createTexture(desc, true, NULL, 0));
+    SkAutoTUnref<GrTexture> tempTex(context->textureProvider()->createTexture(desc, true, nullptr, 0));
     if (!tempTex.get()) {
         return;
     }
@@ -303,7 +303,7 @@ const GrFragmentProcessor* GrConfigConversionEffect::Create(GrProcessorDataManag
             kBGRA_8888_GrPixelConfig != texture->config() &&
             kNone_PMConversion != pmConversion) {
             // The PM conversions assume colors are 0..255
-            return NULL;
+            return nullptr;
         }
         return new GrConfigConversionEffect(procDataManager, texture, swapRedAndBlue, pmConversion,
                                             matrix);

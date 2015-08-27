@@ -430,17 +430,17 @@ static void test_invert(skiatest::Reporter* reporter) {
     SkMatrix44 tinyScale(SkMatrix44::kIdentity_Constructor);
     tinyScale.setDouble(0, 0, 1e-39);
     REPORTER_ASSERT(reporter, tinyScale.getType() == SkMatrix44::kScale_Mask);
-    REPORTER_ASSERT(reporter, !tinyScale.invert(NULL));
+    REPORTER_ASSERT(reporter, !tinyScale.invert(nullptr));
     REPORTER_ASSERT(reporter, !tinyScale.invert(&inverse));
 
     SkMatrix44 tinyScaleTranslate(SkMatrix44::kIdentity_Constructor);
     tinyScaleTranslate.setDouble(0, 0, 1e-38);
-    REPORTER_ASSERT(reporter, tinyScaleTranslate.invert(NULL));
+    REPORTER_ASSERT(reporter, tinyScaleTranslate.invert(nullptr));
     tinyScaleTranslate.setDouble(0, 3, 10);
     REPORTER_ASSERT(
         reporter, tinyScaleTranslate.getType() ==
                       (SkMatrix44::kScale_Mask | SkMatrix44::kTranslate_Mask));
-    REPORTER_ASSERT(reporter, !tinyScaleTranslate.invert(NULL));
+    REPORTER_ASSERT(reporter, !tinyScaleTranslate.invert(nullptr));
     REPORTER_ASSERT(reporter, !tinyScaleTranslate.invert(&inverse));
 
     SkMatrix44 tinyScalePerspective(SkMatrix44::kIdentity_Constructor);
@@ -449,7 +449,7 @@ static void test_invert(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, (tinyScalePerspective.getType() &
                                SkMatrix44::kPerspective_Mask) ==
                                   SkMatrix44::kPerspective_Mask);
-    REPORTER_ASSERT(reporter, !tinyScalePerspective.invert(NULL));
+    REPORTER_ASSERT(reporter, !tinyScalePerspective.invert(nullptr));
     REPORTER_ASSERT(reporter, !tinyScalePerspective.invert(&inverse));
 }
 
@@ -835,7 +835,7 @@ DEF_TEST(Matrix44, reporter) {
     mat.setScale(3, 3, 3);
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
-    REPORTER_ASSERT(reporter, mat.invert(NULL));
+    REPORTER_ASSERT(reporter, mat.invert(nullptr));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
@@ -849,7 +849,7 @@ DEF_TEST(Matrix44, reporter) {
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
     mat.postTranslate(v,v,v);
-    REPORTER_ASSERT(reporter, mat.invert(NULL));
+    REPORTER_ASSERT(reporter, mat.invert(nullptr));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
@@ -864,7 +864,7 @@ DEF_TEST(Matrix44, reporter) {
     mat.postTranslate(SkDoubleToMScalar(1.0e+2),
                       SkDoubleToMScalar(3.0),
                       SkDoubleToMScalar(1.0e-2));
-    REPORTER_ASSERT(reporter, mat.invert(NULL));
+    REPORTER_ASSERT(reporter, mat.invert(nullptr));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
@@ -872,7 +872,7 @@ DEF_TEST(Matrix44, reporter) {
     // test degenerate matrix
     mat.reset();
     mat.set3x3(1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-    REPORTER_ASSERT(reporter, !mat.invert(NULL));
+    REPORTER_ASSERT(reporter, !mat.invert(nullptr));
 
     // test rol/col Major getters
     {

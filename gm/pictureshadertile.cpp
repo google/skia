@@ -121,7 +121,7 @@ protected:
             if (tile == SkRect::MakeWH(kPictureSize, kPictureSize)) {
                 // When the tile == picture bounds, exercise the picture + offset path.
                 picturePtr = offsetPicture.get();
-                tilePtr = NULL;
+                tilePtr = nullptr;
             }
 
             fShaders[i].reset(SkShader::CreatePictureShader(picturePtr,

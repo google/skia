@@ -54,7 +54,7 @@ public:
         fR = SkRect::MakeXYWH(rand.nextRangeF(0, 640), rand.nextRangeF(0, 480),
                               rand.nextRangeF(20, 200), rand.nextRangeF(20, 200));
         fColor = rand_opaque_color(rand.nextU());
-        fInterp = NULL;
+        fInterp = nullptr;
         fTime = 0;
     }
     
@@ -102,7 +102,7 @@ public:
             switch (res) {
                 case SkInterpolator::kFreezeEnd_Result:
                     delete fInterp;
-                    fInterp = NULL;
+                    fInterp = nullptr;
                     break;
                 default:
                     break;
@@ -172,8 +172,8 @@ protected:
                 break;
             }
         }
-        this->inval(NULL);
-        return NULL;
+        this->inval(nullptr);
+        return nullptr;
     }
 
 private:

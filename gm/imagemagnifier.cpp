@@ -38,7 +38,7 @@ protected:
                                  SkIntToScalar(WIDTH / 2),
                                  SkIntToScalar(HEIGHT / 2)),
                 100))->unref();
-        canvas->saveLayer(NULL, &filterPaint);
+        canvas->saveLayer(nullptr, &filterPaint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
         SkRandom rand;
         for (int i = 0; i < 25; ++i) {

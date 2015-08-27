@@ -25,7 +25,7 @@ class IdentityScaleView : public SampleView {
 public:
     IdentityScaleView(const char imageFilename[]) {
       SkString resourcePath = GetResourcePath(imageFilename);
-      SkImageDecoder* codec = NULL;
+      SkImageDecoder* codec = nullptr;
       SkFILEStream stream(resourcePath.c_str());
       if (stream.isValid()) {
           codec = SkImageDecoder::Factory(&stream);
@@ -80,7 +80,7 @@ protected:
         canvas->drawBitmap( fBM, 100, 100, &paint );
         canvas->restore();
         canvas->drawText( text, strlen(text), 100, 400, paint );
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 private:

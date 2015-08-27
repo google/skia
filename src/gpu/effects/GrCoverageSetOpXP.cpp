@@ -216,7 +216,7 @@ GrXPFactory* GrCoverageSetOpXPFactory::Create(SkRegion::Op regionOp, bool invert
             break;
         }
         default:
-            return NULL;
+            return nullptr;
     }
 }
 
@@ -231,7 +231,7 @@ GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
     // modulation table. Note that an inverted table still won't work if there are coverage procs.
     if (fInvertCoverage && hasMixedSamples) {
         SkASSERT(false);
-        return NULL;
+        return nullptr;
     }
 
     return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);

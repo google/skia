@@ -77,7 +77,7 @@ public:
     inline SkCanvas* getCachedCanvas();
     inline SkImage* getCachedImage(Budgeted);
 
-    bool hasCachedImage() const { return fCachedImage != NULL; }
+    bool hasCachedImage() const { return fCachedImage != nullptr; }
 
     // called by SkSurface to compute a new genID
     uint32_t newGenerationID();
@@ -99,7 +99,7 @@ private:
 };
 
 SkCanvas* SkSurface_Base::getCachedCanvas() {
-    if (NULL == fCachedCanvas) {
+    if (nullptr == fCachedCanvas) {
         fCachedCanvas = this->onNewCanvas();
         if (fCachedCanvas) {
             fCachedCanvas->setSurfaceBase(this);
@@ -109,7 +109,7 @@ SkCanvas* SkSurface_Base::getCachedCanvas() {
 }
 
 SkImage* SkSurface_Base::getCachedImage(Budgeted budgeted) {
-    if (NULL == fCachedImage) {
+    if (nullptr == fCachedImage) {
         fCachedImage = this->onNewImageSnapshot(budgeted);
         SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
     }

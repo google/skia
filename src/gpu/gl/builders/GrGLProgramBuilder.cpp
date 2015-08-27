@@ -43,7 +43,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
     GrGLSLExpr4 inputCoverage;
 
     if (!pb->emitAndInstallProcs(&inputColor, &inputCoverage)) {
-        return NULL;
+        return nullptr;
     }
 
     return pb->finalize();
@@ -69,8 +69,8 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
     , fFS(this, args.fDesc->header().fFragPosKey)
     , fOutOfStage(true)
     , fStageIndex(-1)
-    , fGeometryProcessor(NULL)
-    , fXferProcessor(NULL)
+    , fGeometryProcessor(nullptr)
+    , fXferProcessor(nullptr)
     , fArgs(args)
     , fGpu(gpu)
     , fUniforms(kVarsPerBlock)
@@ -252,7 +252,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
     openBrace.printf("{ // Stage %d, %s\n", fStageIndex, fp.name());
     fFS.codeAppend(openBrace.c_str());
 
-    this->emitAndInstallProc(fp, index, output->c_str(), input.isOnes() ? NULL : input.c_str());
+    this->emitAndInstallProc(fp, index, output->c_str(), input.isOnes() ? nullptr : input.c_str());
 
     fFS.codeAppend("}");
 }
@@ -390,7 +390,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     GrGLuint programID;
     GL_CALL_RET(programID, CreateProgram());
     if (0 == programID) {
-        return NULL;
+        return nullptr;
     }
 
     // compile shaders and bind attributes / uniforms
@@ -398,7 +398,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {
         this->cleanupProgram(programID, shadersToDelete);
-        return NULL;
+        return nullptr;
     }
 
     // NVPR actually requires a vertex shader to compile
@@ -409,7 +409,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     if (!fFS.compileAndAttachShaders(programID, &shadersToDelete)) {
         this->cleanupProgram(programID, shadersToDelete);
-        return NULL;
+        return nullptr;
     }
 
     this->bindProgramResourceLocations(programID);
@@ -432,7 +432,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 }
 
 void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
-    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
+    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != nullptr;
     if (usingBindUniform) {
         int count = fUniforms.count();
         for (int i = 0; i < count; ++i) {
@@ -469,7 +469,7 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
 }
 
 void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
-    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
+    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != nullptr;
     if (!usingBindUniform) {
         int count = fUniforms.count();
         for (int i = 0; i < count; ++i) {

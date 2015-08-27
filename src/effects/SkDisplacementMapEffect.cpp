@@ -169,7 +169,7 @@ SkDisplacementMapEffect* SkDisplacementMapEffect::Create(ChannelSelectorType xCh
                                                          const CropRect* cropRect) {
     if (!channel_selector_type_is_valid(xChannelSelector) ||
         !channel_selector_type_is_valid(yChannelSelector)) {
-        return NULL;
+        return nullptr;
     }
 
     SkImageFilter* inputs[2] = { displacement, color };

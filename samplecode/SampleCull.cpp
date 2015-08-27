@@ -161,7 +161,7 @@ protected:
         paint.setStrokeWidth(SkIntToScalar(2));
 //        paint.setPathEffect(new SkCornerPathEffect(SkIntToScalar(30)))->unref();
         canvas->drawPath(fPath, paint);
-//        paint.setPathEffect(NULL);
+//        paint.setPathEffect(nullptr);
 #endif
 
         SkPath  tmp;
@@ -179,7 +179,7 @@ protected:
         paint.setStrokeJoin(SkPaint::kRound_Join);
         canvas->drawPath(tmp, paint);
 
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 private:

@@ -64,7 +64,7 @@ void SubsetTranslateBench::onDraw(const int n, SkCanvas* canvas) {
                     SkScanlineDecoder::NewFromStream(fStream->duplicate()));
             const SkImageInfo info = scanlineDecoder->getInfo().makeColorType(fColorType);
             SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-            scanlineDecoder->start(info, NULL, colors, &colorCount);
+            scanlineDecoder->start(info, nullptr, colors, &colorCount);
 
             SkBitmap bitmap;
             // Note that we use the same bitmap for all of the subsets.
@@ -108,7 +108,7 @@ void SubsetTranslateBench::onDraw(const int n, SkCanvas* canvas) {
             // because it gives a more fair comparison with SkCodec and is a common
             // use case of BitmapRegionDecoder.
             bitmap.allocPixels(SkImageInfo::Make(fSubsetWidth, fSubsetHeight,
-                    fColorType, kOpaque_SkAlphaType), NULL, colorTable);
+                    fColorType, kOpaque_SkAlphaType), nullptr, colorTable);
 
             for (int x = 0; x < width; x += fSubsetWidth) {
                 for (int y = 0; y < height; y += fSubsetHeight) {

@@ -68,7 +68,7 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     }
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
-    if (NULL == device.get()) {
+    if (nullptr == device.get()) {
         return false;
     }
     SkCanvas canvas(device.get());

@@ -112,12 +112,12 @@ public:
 private:
     typedef SkTInternalLList<GrAtlasTextBlob> BitmapBlobList;
 
-    void checkPurge(GrAtlasTextBlob* blob = NULL) {
+    void checkPurge(GrAtlasTextBlob* blob = nullptr) {
         // If we are overbudget, then unref until we are below budget again
         if (fPool.size() > fBudget) {
             BitmapBlobList::Iter iter;
             iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
-            GrAtlasTextBlob* lruBlob = NULL;
+            GrAtlasTextBlob* lruBlob = nullptr;
             while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
                 fCache.remove(lruBlob->fKey);
 

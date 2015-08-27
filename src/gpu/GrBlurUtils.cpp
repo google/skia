@@ -66,7 +66,7 @@ static bool draw_with_mask_filter(GrDrawContext* drawContext,
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);
 
-    if (!filter->filterMask(&dstM, srcM, viewMatrix, NULL)) {
+    if (!filter->filterMask(&dstM, srcM, viewMatrix, nullptr)) {
         return false;
     }
     // this will free-up dstM when we're done (allocated in filterMask())
@@ -116,18 +116,18 @@ static GrTexture* create_mask_GPU(GrContext* context,
     }
 
     GrTexture* mask = context->textureProvider()->createApproxTexture(desc);
-    if (NULL == mask) {
-        return NULL;
+    if (nullptr == mask) {
+        return nullptr;
     }
 
     SkRect clipRect = SkRect::MakeWH(maskRect.width(), maskRect.height());
 
     GrDrawContext* drawContext = context->drawContext();
     if (!drawContext) {
-        return NULL;
+        return nullptr;
     }
 
-    drawContext->clear(mask->asRenderTarget(), NULL, 0x0, true);
+    drawContext->clear(mask->asRenderTarget(), nullptr, 0x0, true);
 
     GrPaint tempPaint;
     tempPaint.setAntiAlias(doAA);
@@ -170,7 +170,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     if (prePathMatrix) {
         // stroking, path effects, and blurs are supposed to be applied *after* the prePathMatrix.
         // The pre-path-matrix also should not affect shading.
-        if (NULL == paint.getMaskFilter() && NULL == pathEffect && NULL == paint.getShader() &&
+        if (nullptr == paint.getMaskFilter() && nullptr == pathEffect && nullptr == paint.getShader() &&
             (strokeInfo.isFillStyle() || strokeInfo.isHairlineStyle())) {
             viewMatrix.preConcat(*prePathMatrix);
         } else {
@@ -195,7 +195,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
         return;
     }
 
-    const SkRect* cullRect = NULL;  // TODO: what is our bounds?
+    const SkRect* cullRect = nullptr;  // TODO: what is our bounds?
     if (!strokeInfo.isDashed() && pathEffect && pathEffect->filterPath(effectPath.init(), *pathPtr,
                                                                        &strokeInfo, cullRect)) {
         pathPtr = effectPath.get();

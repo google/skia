@@ -226,7 +226,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         // This GM exists to test a specific feature of the GPU backend. It does not work with the
         // sw rasterizer, tile modes, etc.
-        if (NULL == canvas->getGrContext()) {
+        if (nullptr == canvas->getGrContext()) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }

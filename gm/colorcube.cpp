@@ -20,18 +20,18 @@ static SkShader* MakeLinear() {
         };
     static const SkColor colors[] = { SK_ColorYELLOW, SK_ColorBLUE };
     return SkGradientShader::CreateLinear(
-        pts, colors, NULL, 2, SkShader::kRepeat_TileMode, 0, &SkMatrix::I());
+        pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0, &SkMatrix::I());
 }
 
 class ColorCubeGM : public GM {
 public:
     ColorCubeGM()
     : fInitialized(false)
-    , f3DLut4(NULL)
-    , f3DLut8(NULL)
-    , f3DLut16(NULL)
-    , f3DLut32(NULL)
-    , f3DLut64(NULL)
+    , f3DLut4(nullptr)
+    , f3DLut8(nullptr)
+    , f3DLut16(nullptr)
+    , f3DLut32(nullptr)
+    , f3DLut64(nullptr)
     {
         this->setBGColor(0xFF000000);
     }

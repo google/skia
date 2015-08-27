@@ -35,7 +35,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY))->unref();
-        canvas->saveLayer(NULL, &paint);
+        canvas->saveLayer(nullptr, &paint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
 
         SkRandom rand;

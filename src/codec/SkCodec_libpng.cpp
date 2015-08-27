@@ -27,19 +27,19 @@
 
 /* These were dropped in libpng >= 1.4 */
 #ifndef png_infopp_NULL
-    #define png_infopp_NULL NULL
+    #define png_infopp_NULL nullptr
 #endif
 
 #ifndef png_bytepp_NULL
-    #define png_bytepp_NULL NULL
+    #define png_bytepp_NULL nullptr
 #endif
 
 #ifndef int_p_NULL
-    #define int_p_NULL NULL
+    #define int_p_NULL nullptr
 #endif
 
 #ifndef png_flush_ptr_NULL
-    #define png_flush_ptr_NULL NULL
+    #define png_flush_ptr_NULL nullptr
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,24 +75,24 @@ class AutoCleanPng : public SkNoncopyable {
 public:
     AutoCleanPng(png_structp png_ptr)
         : fPng_ptr(png_ptr)
-        , fInfo_ptr(NULL) {}
+        , fInfo_ptr(nullptr) {}
 
     ~AutoCleanPng() {
-        // fInfo_ptr will never be non-NULL unless fPng_ptr is.
+        // fInfo_ptr will never be non-nullptr unless fPng_ptr is.
         if (fPng_ptr) {
-            png_infopp info_pp = fInfo_ptr ? &fInfo_ptr : NULL;
+            png_infopp info_pp = fInfo_ptr ? &fInfo_ptr : nullptr;
             png_destroy_read_struct(&fPng_ptr, info_pp, png_infopp_NULL);
         }
     }
 
     void setInfoPtr(png_infop info_ptr) {
-        SkASSERT(NULL == fInfo_ptr);
+        SkASSERT(nullptr == fInfo_ptr);
         fInfo_ptr = info_ptr;
     }
 
     void detach() {
-        fPng_ptr = NULL;
-        fInfo_ptr = NULL;
+        fPng_ptr = nullptr;
+        fInfo_ptr = nullptr;
     }
 
 private:
@@ -111,7 +111,7 @@ static bool has_transparency_in_tRNS(png_structp png_ptr,
 
     png_bytep trans;
     int num_trans;
-    png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL);
+    png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, nullptr);
     return num_trans > 0;
 }
 
@@ -136,7 +136,7 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
 
     int numTrans;
     if (png_get_valid(fPng_ptr, fInfo_ptr, PNG_INFO_tRNS)) {
-        png_get_tRNS(fPng_ptr, fInfo_ptr, &trans, &numTrans, NULL);
+        png_get_tRNS(fPng_ptr, fInfo_ptr, &trans, &numTrans, nullptr);
     } else {
         numTrans = 0;
     }
@@ -185,7 +185,7 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
     }
 
     // Set the new color count
-    if (ctableCount != NULL) {
+    if (ctableCount != nullptr) {
         *ctableCount = colorCount;
     }
 
@@ -210,7 +210,7 @@ bool SkPngCodec::IsPng(SkStream* stream) {
     return true;
 }
 
-// Reads the header, and initializes the passed in fields, if not NULL (except
+// Reads the header, and initializes the passed in fields, if not nullptr (except
 // stream, which is passed to the read function).
 // Returns true on success, in which case the caller is responsible for calling
 // png_destroy_read_struct. If it returns false, the passed in fields (except
@@ -218,7 +218,7 @@ bool SkPngCodec::IsPng(SkStream* stream) {
 static bool read_header(SkStream* stream, png_structp* png_ptrp,
                         png_infop* info_ptrp, SkImageInfo* imageInfo, int* bitDepthPtr) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
-    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
+    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                                  sk_error_fn, sk_warning_fn);
     if (!png_ptr) {
         return false;
@@ -227,7 +227,7 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
     AutoCleanPng autoClean(png_ptr);
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (info_ptr == NULL) {
+    if (info_ptr == nullptr) {
         return false;
     }
 
@@ -358,7 +358,7 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
     if (read_header(stream, &png_ptr, &info_ptr, &imageInfo, &bitDepth)) {
         return new SkPngCodec(imageInfo, streamDeleter.detach(), png_ptr, info_ptr, bitDepth);
     }
-    return NULL;
+    return nullptr;
 }
 
 #define INVALID_NUMBER_PASSES -1
@@ -379,11 +379,11 @@ SkPngCodec::~SkPngCodec() {
 
 void SkPngCodec::destroyReadStruct() {
     if (fPng_ptr) {
-        // We will never have a NULL fInfo_ptr with a non-NULL fPng_ptr
+        // We will never have a nullptr fInfo_ptr with a non-nullptr fPng_ptr
         SkASSERT(fInfo_ptr);
         png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, png_infopp_NULL);
-        fPng_ptr = NULL;
-        fInfo_ptr = NULL;
+        fPng_ptr = nullptr;
+        fInfo_ptr = nullptr;
     }
 }
 
@@ -450,16 +450,16 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
 
 
 bool SkPngCodec::onRewind() {
-    // This sets fPng_ptr and fInfo_ptr to NULL. If read_header
+    // This sets fPng_ptr and fInfo_ptr to nullptr. If read_header
     // succeeds, they will be repopulated, and if it fails, they will
-    // remain NULL. Any future accesses to fPng_ptr and fInfo_ptr will
+    // remain nullptr. Any future accesses to fPng_ptr and fInfo_ptr will
     // come through this function which will rewind and again attempt
     // to reinitialize them.
     this->destroyReadStruct();
 
     png_structp png_ptr;
     png_infop info_ptr;
-    if (!read_header(this->stream(), &png_ptr, &info_ptr, NULL, NULL)) {
+    if (!read_header(this->stream(), &png_ptr, &info_ptr, nullptr, nullptr)) {
         return false;
     }
 
@@ -771,7 +771,7 @@ private:
 SkScanlineDecoder* SkPngCodec::NewSDFromStream(SkStream* stream) {
     SkAutoTDelete<SkPngCodec> codec (static_cast<SkPngCodec*>(SkPngCodec::NewFromStream(stream)));
     if (!codec) {
-        return NULL;
+        return nullptr;
     }
 
     codec->fNumberPasses = png_set_interlace_handling(codec->fPng_ptr);

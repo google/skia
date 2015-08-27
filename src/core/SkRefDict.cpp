@@ -16,15 +16,15 @@ struct SkRefDict::Impl {
     SkRefCnt*   fData;
 };
 
-SkRefDict::SkRefDict() : fImpl(NULL) {}
+SkRefDict::SkRefDict() : fImpl(nullptr) {}
 
 SkRefDict::~SkRefDict() {
     this->removeAll();
 }
 
 SkRefCnt* SkRefDict::find(const char name[]) const {
-    if (NULL == name) {
-        return NULL;
+    if (nullptr == name) {
+        return nullptr;
     }
 
     Impl* rec = fImpl;
@@ -34,16 +34,16 @@ SkRefCnt* SkRefDict::find(const char name[]) const {
         }
         rec = rec->fNext;
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkRefDict::set(const char name[], SkRefCnt* data) {
-    if (NULL == name) {
+    if (nullptr == name) {
         return;
     }
 
     Impl* rec = fImpl;
-    Impl* prev = NULL;
+    Impl* prev = nullptr;
     while (rec) {
         if (rec->fName.equals(name)) {
             if (data) {
@@ -85,5 +85,5 @@ void SkRefDict::removeAll() {
         delete rec;
         rec = next;
     }
-    fImpl = NULL;
+    fImpl = nullptr;
 }

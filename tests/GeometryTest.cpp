@@ -60,7 +60,7 @@ static void test_evalquadat(skiatest::Reporter* reporter) {
             check_pairs(reporter, i, t, "quad-pos", r0.fX, r0.fY, r1.fX, r1.fY);
             
             SkVector v0;
-            SkEvalQuadAt(pts, t, NULL, &v0);
+            SkEvalQuadAt(pts, t, nullptr, &v0);
             SkVector v1 = SkEvalQuadTangentAt(pts, t);
             check_pairs(reporter, i, t, "quad-tan", v0.fX, v0.fY, v1.fX, v1.fY);
 
@@ -71,14 +71,14 @@ static void test_evalquadat(skiatest::Reporter* reporter) {
 
 static void test_conic_eval_pos(skiatest::Reporter* reporter, const SkConic& conic, SkScalar t) {
     SkPoint p0, p1;
-    conic.evalAt(t, &p0, NULL);
+    conic.evalAt(t, &p0, nullptr);
     p1 = conic.evalAt(t);
     check_pairs(reporter, 0, t, "conic-pos", p0.fX, p0.fY, p1.fX, p1.fY);
 }
 
 static void test_conic_eval_tan(skiatest::Reporter* reporter, const SkConic& conic, SkScalar t) {
     SkVector v0, v1;
-    conic.evalAt(t, NULL, &v0);
+    conic.evalAt(t, nullptr, &v0);
     v1 = conic.evalTangentAt(t);
     check_pairs(reporter, 0, t, "conic-tan", v0.fX, v0.fY, v1.fX, v1.fY);
 }
@@ -155,9 +155,9 @@ static void test_cubic_tangents(skiatest::Reporter* reporter) {
     for (int index = 0; index < count; ++index) {
         SkConic conic(&pts[index * 3], 0.707f);
         SkVector start, mid, end;
-        SkEvalCubicAt(&pts[index * 4], 0, NULL, &start, NULL);
-        SkEvalCubicAt(&pts[index * 4], .5f, NULL, &mid, NULL);
-        SkEvalCubicAt(&pts[index * 4], 1, NULL, &end, NULL);
+        SkEvalCubicAt(&pts[index * 4], 0, nullptr, &start, nullptr);
+        SkEvalCubicAt(&pts[index * 4], .5f, nullptr, &mid, nullptr);
+        SkEvalCubicAt(&pts[index * 4], 1, nullptr, &end, nullptr);
         REPORTER_ASSERT(reporter, start.fX && start.fY);
         REPORTER_ASSERT(reporter, mid.fX && mid.fY);
         REPORTER_ASSERT(reporter, end.fX && end.fY);

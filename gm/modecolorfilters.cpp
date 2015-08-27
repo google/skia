@@ -20,7 +20,7 @@ static SkShader* make_color_shader(SkColor color) {
     static const SkPoint kPts[] = {{0, 0}, {1, 1}};
     SkColor colors[] = {color, color};
 
-    return SkGradientShader::CreateLinear(kPts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::CreateLinear(kPts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
 static SkShader* make_solid_shader() {
@@ -82,7 +82,7 @@ protected:
         bgPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
 
         SkShader* shaders[] = {
-            NULL,                                   // use a paint color instead of a shader
+            nullptr,                                   // use a paint color instead of a shader
             make_solid_shader(),
             make_transparent_shader(),
             make_trans_black_shader(),
@@ -127,7 +127,7 @@ protected:
                 paint.setColorFilter(cf);
                 for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); ++s) {
                     paint.setShader(shaders[s]);
-                    bool hasShader = NULL == paint.getShader();
+                    bool hasShader = nullptr == paint.getShader();
                     int paintColorCnt = hasShader ? SK_ARRAY_COUNT(alphas) : SK_ARRAY_COUNT(colors);
                     SkColor* paintColors = hasShader ? alphas : colors;
                     for (int pc = 0; pc < paintColorCnt; ++pc) {
@@ -137,7 +137,7 @@ protected:
                         SkRect rect = SkRect::MakeXYWH(x * kRectWidth, y * kRectHeight,
                                                        SkIntToScalar(kRectWidth),
                                                        SkIntToScalar(kRectHeight));
-                        canvas->saveLayer(&rect, NULL);
+                        canvas->saveLayer(&rect, nullptr);
                         canvas->drawRect(rect, bgPaint);
                         canvas->drawRect(rect, paint);
                         canvas->restore();

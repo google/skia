@@ -14,14 +14,14 @@
 
 /**
  *  \class SkEmptyShader
- *  A Shader that always draws nothing. Its createContext always returns NULL.
+ *  A Shader that always draws nothing. Its createContext always returns nullptr.
  */
 class SK_API SkEmptyShader : public SkShader {
 public:
     SkEmptyShader() {}
 
     size_t contextSize() const override {
-        // Even though createContext returns NULL we have to return a value of at least
+        // Even though createContext returns nullptr we have to return a value of at least
         // sizeof(SkShader::Context) to satisfy SkSmallAllocator.
         return sizeof(SkShader::Context);
     }
@@ -31,7 +31,7 @@ public:
 
 protected:
     SkShader::Context* onCreateContext(const ContextRec&, void*) const override {
-        return NULL;
+        return nullptr;
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

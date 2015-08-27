@@ -19,8 +19,8 @@ namespace skiagm {
 class VertText2GM : public GM {
 public:
     VertText2GM()
-        : fProp(NULL)
-        , fMono(NULL) {
+        : fProp(nullptr)
+        , fMono(nullptr) {
     }
 
     virtual ~VertText2GM() {

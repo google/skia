@@ -181,7 +181,7 @@ private:
 #define DEFINE_bool(name, defaultValue, helpString)                         \
 bool FLAGS_##name;                                                          \
 SK_UNUSED static bool unused_##name = SkFlagInfo::CreateBoolFlag(TO_STRING(name),     \
-                                                                 NULL,                \
+                                                                 nullptr,                \
                                                                  &FLAGS_##name,       \
                                                                  defaultValue,        \
                                                                  helpString)
@@ -201,7 +201,7 @@ SK_UNUSED static bool unused_##name = SkFlagInfo::CreateBoolFlag(TO_STRING(name)
 #define DEFINE_string(name, defaultValue, helpString)                       \
 SkCommandLineFlags::StringArray FLAGS_##name;                               \
 SK_UNUSED static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),   \
-                                                                   NULL,              \
+                                                                   nullptr,              \
                                                                    &FLAGS_##name,     \
                                                                    defaultValue,      \
                                                                    helpString)
@@ -283,7 +283,7 @@ public:
      */
     static bool CreateIntFlag(const char* name, int32_t* pInt,
                               int32_t defaultValue, const char* helpString) {
-        SkFlagInfo* info = new SkFlagInfo(name, NULL, kInt_FlagType, helpString);
+        SkFlagInfo* info = new SkFlagInfo(name, nullptr, kInt_FlagType, helpString);
         info->fIntValue = pInt;
         *info->fIntValue = info->fDefaultInt = defaultValue;
         return true;
@@ -294,7 +294,7 @@ public:
      */
     static bool CreateDoubleFlag(const char* name, double* pDouble,
                                  double defaultValue, const char* helpString) {
-        SkFlagInfo* info = new SkFlagInfo(name, NULL, kDouble_FlagType, helpString);
+        SkFlagInfo* info = new SkFlagInfo(name, nullptr, kDouble_FlagType, helpString);
         info->fDoubleValue = pDouble;
         *info->fDoubleValue = info->fDefaultDouble = defaultValue;
         return true;
@@ -407,17 +407,17 @@ private:
         , fShortName(shortName)
         , fFlagType(type)
         , fHelpString(helpString)
-        , fBoolValue(NULL)
+        , fBoolValue(nullptr)
         , fDefaultBool(false)
-        , fIntValue(NULL)
+        , fIntValue(nullptr)
         , fDefaultInt(0)
-        , fDoubleValue(NULL)
+        , fDoubleValue(nullptr)
         , fDefaultDouble(0)
-        , fStrings(NULL) {
+        , fStrings(nullptr) {
         fNext = SkCommandLineFlags::gHead;
         SkCommandLineFlags::gHead = this;
         SkASSERT(name && strlen(name) > 1);
-        SkASSERT(NULL == shortName || 1 == strlen(shortName));
+        SkASSERT(nullptr == shortName || 1 == strlen(shortName));
     }
 
     /**

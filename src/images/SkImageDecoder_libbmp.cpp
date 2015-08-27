@@ -48,7 +48,7 @@ static SkImageDecoder* sk_libbmp_dfactory(SkStreamRewindable* stream) {
     if (is_bmp(stream)) {
         return new SkBMPImageDecoder;
     }
-    return NULL;
+    return nullptr;
 }
 
 static SkImageDecoder_DecodeReg gReg(sk_libbmp_dfactory);
@@ -74,7 +74,7 @@ public:
         fWidth = width;
         fHeight = height;
         if (fJustBounds) {
-            return NULL;
+            return nullptr;
         }
 
         fRGB.setCount(width * height * 3);  // 3 == r, g, b
@@ -139,7 +139,7 @@ SkImageDecoder::Result SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* b
         return kSuccess;
     }
 
-    if (!this->allocPixelRef(bm, NULL)) {
+    if (!this->allocPixelRef(bm, nullptr)) {
         return kFailure;
     }
 

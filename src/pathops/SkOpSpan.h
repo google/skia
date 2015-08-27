@@ -105,11 +105,11 @@ public:
         SkOpPtT* start1 = s1->fT < e1->fT ? s1 : e1;
         SkOpPtT* start2 = s2->fT < e2->fT ? s2 : e2;
         *sOut = between(s1->fT, start2->fT, e1->fT) ? start2
-                : between(s2->fT, start1->fT, e2->fT) ? start1 : NULL;
+                : between(s2->fT, start1->fT, e2->fT) ? start1 : nullptr;
         SkOpPtT* end1 = s1->fT < e1->fT ? e1 : s1;
         SkOpPtT* end2 = s2->fT < e2->fT ? e2 : s2;
         *eOut = between(s1->fT, end2->fT, e1->fT) ? end2
-                : between(s2->fT, end1->fT, e2->fT) ? end1 : NULL;
+                : between(s2->fT, end1->fT, e2->fT) ? end1 : nullptr;
         if (*sOut == *eOut) {
             SkASSERT(start1->fT >= end2->fT || start2->fT >= end1->fT);
             return false;
@@ -341,11 +341,11 @@ public:
     }
 
     SkOpSpan* upCastable() {
-        return final() ? NULL : upCast();
+        return final() ? nullptr : upCast();
     }
 
     const SkOpSpan* upCastable() const {
-        return final() ? NULL : upCast();
+        return final() ? nullptr : upCast();
     }
 
 private:

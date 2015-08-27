@@ -48,14 +48,14 @@ void SkSet::dump(SkAnimateMaker* maker) {
 #endif
 
 void SkSet::refresh(SkAnimateMaker& maker) {
-    fFieldInfo->setValue(maker, &fValues, 0, fFieldInfo->fCount, NULL,
+    fFieldInfo->setValue(maker, &fValues, 0, fFieldInfo->fCount, nullptr,
         fFieldInfo->getType(), to);
 }
 
 void SkSet::onEndElement(SkAnimateMaker& maker) {
     if (resolveCommon(maker) == false)
         return;
-    if (fFieldInfo == NULL) {
+    if (fFieldInfo == nullptr) {
         maker.setErrorCode(SkDisplayXMLParserError::kFieldNotInTarget);
         return;
     }

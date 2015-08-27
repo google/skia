@@ -53,7 +53,7 @@ public:
         SkASSERT(startVertex >= 0);
         fPrimitiveType = primType;
         fVertexBuffer.reset(vertexBuffer);
-        fIndexBuffer.reset(NULL);
+        fIndexBuffer.reset(nullptr);
         fStartVertex = startVertex;
         fStartIndex = 0;
         fVertexCount = vertexCount;
@@ -154,7 +154,7 @@ public:
 
         const GrNonInstancedVertices* next() {
             if (!fInstancesRemaining) {
-                return NULL;
+                return nullptr;
             }
             fInstanceBatch.fStartVertex += fInstanceBatch.fVertexCount;
             int instances = SkTMin(fInstancesRemaining, fVertices->fMaxInstancesPerDraw);

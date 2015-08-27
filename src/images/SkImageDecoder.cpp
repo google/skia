@@ -15,8 +15,8 @@
 #include "SkCanvas.h"
 
 SkImageDecoder::SkImageDecoder()
-    : fPeeker(NULL)
-    , fAllocator(NULL)
+    : fPeeker(nullptr)
+    , fAllocator(nullptr)
     , fSampleSize(1)
     , fDefaultPref(kUnknown_SkColorType)
     , fPreserveSrcDepth(false)
@@ -32,7 +32,7 @@ SkImageDecoder::~SkImageDecoder() {
 }
 
 void SkImageDecoder::copyFieldsToOther(SkImageDecoder* other) {
-    if (NULL == other) {
+    if (nullptr == other) {
         return;
     }
     other->setPeeker(fPeeker);
@@ -188,7 +188,7 @@ bool SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
     if (dst->isNull()) {
         dst->setInfo(src->info().makeWH(w, h));
 
-        if (!this->allocPixelRef(dst, NULL)) {
+        if (!this->allocPixelRef(dst, nullptr)) {
             SkDEBUGF(("failed to allocate pixels needed to crop the bitmap"));
             return false;
         }

@@ -73,7 +73,7 @@ public:
         @param  ambient     the linear (unpremul) ambient light color. Range is 0..1/channel.
         @param  localMatrix the matrix mapping the textures to the dest rect 
 
-        NULL will be returned if:
+        nullptr will be returned if:
             either 'diffuse' or 'normal' are empty
             either 'diffuse' or 'normal' are too big (> 65535 on a side)
             'diffuse' and 'normal' aren't the same size

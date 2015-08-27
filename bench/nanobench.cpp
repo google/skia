@@ -141,7 +141,7 @@ bool Target::capturePixels(SkBitmap* bmp) {
 
 #if SK_SUPPORT_GPU
 struct GPUTarget : public Target {
-    explicit GPUTarget(const Config& c) : Target(c), gl(NULL) { }
+    explicit GPUTarget(const Config& c) : Target(c), gl(nullptr) { }
     SkGLContext* gl;
 
     void setup() override {
@@ -458,16 +458,16 @@ static void create_configs(SkTDArray<Config>* configs) {
 #endif
 }
 
-// If bench is enabled for config, returns a Target* for it, otherwise NULL.
+// If bench is enabled for config, returns a Target* for it, otherwise nullptr.
 static Target* is_enabled(Benchmark* bench, const Config& config) {
     if (!bench->isSuitableFor(config.backend)) {
-        return NULL;
+        return nullptr;
     }
 
     SkImageInfo info = SkImageInfo::Make(bench->getSize().fX, bench->getSize().fY,
                                          config.color, config.alpha);
 
-    Target* target = NULL;
+    Target* target = nullptr;
 
     switch (config.backend) {
 #if SK_SUPPORT_GPU
@@ -487,7 +487,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 
     if (!target->init(info, bench)) {
         delete target;
-        return NULL;
+        return nullptr;
     }
     return target;
 }
@@ -504,7 +504,7 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
     // Check that we can create a codec or image decoder.
     if (useCodec) {
         SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
-        if (NULL == codec) {
+        if (nullptr == codec) {
             SkDebugf("Could not create codec for %s.  Skipping bench.\n", path.c_str());
             return false;
         }
@@ -516,7 +516,7 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
         const SkImageInfo info = codec->getInfo().makeColorType(colorType);
         SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
         SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(SkScanlineDecoder::NewFromData(encoded));
-        if (NULL == scanlineDecoder || scanlineDecoder->start(info, NULL,
+        if (nullptr == scanlineDecoder || scanlineDecoder->start(info, nullptr,
                 colors, &colorCount) != SkCodec::kSuccess)
         {
             SkDebugf("Could not create scanline decoder for %s with color type %s.  "
@@ -527,7 +527,7 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
         *height = info.height();
     } else {
         SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
-        if (NULL == decoder) {
+        if (nullptr == decoder) {
             SkDebugf("Could not create decoder for %s.  Skipping bench.\n", path.c_str());
             return false;
         }
@@ -648,13 +648,13 @@ public:
         }
 
         SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
-        if (stream.get() == NULL) {
+        if (stream.get() == nullptr) {
             SkDebugf("Could not read %s.\n", path);
             return false;
         }
 
         pic->reset(SkPicture::CreateFromStream(stream.get()));
-        if (pic->get() == NULL) {
+        if (pic->get() == nullptr) {
             SkDebugf("Could not read %s as an SkPicture.\n", path);
             return false;
         }
@@ -663,7 +663,7 @@ public:
 
     Benchmark* next() {
         if (fBenches) {
-            Benchmark* bench = fBenches->factory()(NULL);
+            Benchmark* bench = fBenches->factory()(nullptr);
             fBenches = fBenches->next();
             fSourceType = "bench";
             fBenchType  = "micro";
@@ -671,7 +671,7 @@ public:
         }
 
         while (fGMs) {
-            SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(NULL));
+            SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(nullptr));
             fGMs = fGMs->next();
             if (gm->runAsBench()) {
                 fSourceType = "gm";
@@ -783,7 +783,7 @@ public:
                 SkPMColor colors[256];
 
                 const SkCodec::Result result = codec->getPixels(
-                        info, storage.get(), rowBytes, NULL, colors,
+                        info, storage.get(), rowBytes, nullptr, colors,
                         &colorCount);
                 switch (result) {
                     case SkCodec::kSuccess:
@@ -871,7 +871,7 @@ public:
             fUseCodec++;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     void fillCurrentOptions(ResultsWriter* log) const {
@@ -976,7 +976,7 @@ int nanobench_main() {
         SkDebugf("Writing files to %s.\n", FLAGS_writePath[0]);
         if (!sk_mkdir(FLAGS_writePath[0])) {
             SkDebugf("Could not create %s. Files won't be written.\n", FLAGS_writePath[0]);
-            FLAGS_writePath.set(0, NULL);
+            FLAGS_writePath.set(0, nullptr);
         }
     }
 
@@ -1038,7 +1038,7 @@ int nanobench_main() {
                 continue;
             }
 
-            // During HWUI output this canvas may be NULL.
+            // During HWUI output this canvas may be nullptr.
             SkCanvas* canvas = target->getCanvas();
             const char* config = target->config.name;
 
@@ -1151,7 +1151,7 @@ int nanobench_main() {
 #if SK_SUPPORT_GPU
     // Make sure we clean up the global GrContextFactory here, otherwise we might race with the
     // SkEventTracer destructor
-    gGrFactory.reset(NULL);
+    gGrFactory.reset(nullptr);
 #endif
 
     return 0;

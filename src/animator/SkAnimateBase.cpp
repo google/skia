@@ -39,7 +39,7 @@ const SkMemberInfo SkAnimateBase::fInfo[] = {
 DEFINE_GET_MEMBER(SkAnimateBase);
 
 SkAnimateBase::SkAnimateBase() : begin(0), dur(1), repeat(SK_Scalar1),
-        fApply(NULL), fFieldInfo(NULL), fFieldOffset(0), fStart((SkMSec) -1), fTarget(NULL),
+        fApply(nullptr), fFieldInfo(nullptr), fFieldOffset(0), fStart((SkMSec) -1), fTarget(nullptr),
         fChanged(0), fDelayed(0), fDynamic(0), fHasEndEvent(0), fHasValues(0),
         fMirror(0), fReset(0), fResetPending(0), fTargetIsScope(0) {
     blend.setCount(1);
@@ -116,7 +116,7 @@ returnBool:
             value->fType = SkType_Boolean;
             break;
         case SK_PROPERTY(step):
-            if (fApply == NULL)
+            if (fApply == nullptr)
                 return false;    // !!! notify there's an error?
             fApply->getStep(value);
             break;
@@ -148,7 +148,7 @@ void SkAnimateBase::onEndElement(SkAnimateMaker& maker) {
         // lval must be of the form x[y]
         const char* lvalStr = lval.c_str();
         const char* arrayEnd = strchr(lvalStr, '[');
-        if (arrayEnd == NULL)
+        if (arrayEnd == nullptr)
             return; //should this return an error?
         size_t arrayNameLen = arrayEnd - lvalStr;
         SkString arrayStr(lvalStr, arrayNameLen);

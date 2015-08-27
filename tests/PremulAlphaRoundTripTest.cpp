@@ -87,7 +87,7 @@ DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
                     continue;
                 }
                 GrContext* ctx = factory->get(type);
-                if (NULL == ctx) {
+                if (nullptr == ctx) {
                     continue;
                 }
                 device.reset(SkGpuDevice::Create(ctx, SkSurface::kNo_Budgeted, info, 0, &props,

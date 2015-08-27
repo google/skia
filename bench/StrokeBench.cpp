@@ -34,7 +34,7 @@ protected:
         for (int outer = 0; outer < 10; ++outer) {
             for (int i = 0; i < loops; ++i) {
                 SkPath result;
-                paint.getFillPath(fPath, &result, NULL, fRes);
+                paint.getFillPath(fPath, &result, nullptr, fRes);
             }
         }
     }

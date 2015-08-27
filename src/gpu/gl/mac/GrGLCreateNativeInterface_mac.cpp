@@ -27,7 +27,7 @@ public:
     }
 
     void* handle() const {
-        return NULL == fLibrary ? RTLD_DEFAULT : fLibrary;
+        return nullptr == fLibrary ? RTLD_DEFAULT : fLibrary;
     }
 
 private:

@@ -41,7 +41,7 @@ protected:
         memcpy(*indicesLocation, reinterpret_cast<const char*>(indexValues), count * indexBytes);
 
         const int xformBytes = GrPathRendering::PathTransformSize(transformType) * sizeof(float);
-        *xformsLocation = NULL;
+        *xformsLocation = nullptr;
 
         if (0 != xformBytes) {
             *xformsLocation = (float*) fPathTransformBuffer.alloc(count * xformBytes,
@@ -59,7 +59,7 @@ private:
 
     typedef GrTargetCommands::StateForPathDraw StateForPathDraw;
 
-    StateForPathDraw* allocState(const GrPrimitiveProcessor* primProc = NULL) {
+    StateForPathDraw* allocState(const GrPrimitiveProcessor* primProc = nullptr) {
         void* allocation = fPipelineBuffer.alloc(sizeof(StateForPathDraw),
                                                  SkChunkAlloc::kThrow_AllocFailType);
         return new (allocation) StateForPathDraw(primProc);

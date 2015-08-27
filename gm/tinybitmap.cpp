@@ -20,7 +20,7 @@ static SkBitmap make_bitmap() {
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(1, 1, kIndex_8_SkColorType,
                                      kPremul_SkAlphaType),
-                   NULL, ctable);
+                   nullptr, ctable);
     ctable->unref();
 
     bm.lockPixels();

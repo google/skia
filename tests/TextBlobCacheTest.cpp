@@ -100,7 +100,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContextFactory
         SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
         for (int j = 0; j < set->count(); ++j) {
             SkFontStyle fs;
-            set->getStyle(j, &fs, NULL);
+            set->getStyle(j, &fs, nullptr);
 
             // We use a typeface which randomy returns unexpected mask formats to fuzz
             SkAutoTUnref<SkTypeface> orig(set->createTypeface(j));
@@ -124,7 +124,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContextFactory
                         const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(paint,
                                                                                    maxTotalText,
                                                                                    0, 0,
-                                                                                   NULL);
+                                                                                   nullptr);
                         memcpy(run.glyphs, text.get(), maxTotalText * sizeof(uint16_t));
                     }
                 }

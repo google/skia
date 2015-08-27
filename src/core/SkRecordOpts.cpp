@@ -151,13 +151,13 @@ struct SaveLayerDrawRestoreNooper {
     bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
         // A SaveLayer's bounds field is just a hint, so we should be free to ignore it.
         SkPaint* layerPaint = pattern->first<SaveLayer>()->paint;
-        if (NULL == layerPaint) {
+        if (nullptr == layerPaint) {
             // There wasn't really any point to this SaveLayer at all.
             return KillSaveLayerAndRestore(record, begin);
         }
 
         SkPaint* drawPaint = pattern->second<SkPaint>();
-        if (drawPaint == NULL) {
+        if (drawPaint == nullptr) {
             // We can just give the draw the SaveLayer's paint.
             // TODO(mtklein): figure out how to do this clearly
             return false;
@@ -197,7 +197,7 @@ struct SvgOpacityAndFilterLayerMergePass {
 
     bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
         SkPaint* opacityPaint = pattern->first<SaveLayer>()->paint;
-        if (NULL == opacityPaint) {
+        if (nullptr == opacityPaint) {
             // There wasn't really any point to this SaveLayer at all.
             return KillSaveLayerAndRestore(record, begin);
         }
@@ -205,7 +205,7 @@ struct SvgOpacityAndFilterLayerMergePass {
         // This layer typically contains a filter, but this should work for layers with for other
         // purposes too.
         SkPaint* filterLayerPaint = pattern->fourth<SaveLayer>()->paint;
-        if (filterLayerPaint == NULL) {
+        if (filterLayerPaint == nullptr) {
             // We can just give the inner SaveLayer the paint of the outer SaveLayer.
             // TODO(mtklein): figure out how to do this clearly
             return false;

@@ -13,7 +13,7 @@
 #include "gl/GrGLConfig.h"
 #include "gl/GrGLGpu.h"
 
-static CreateGpuProc gGpuFactories[kBackendCount] = { GrGLGpu::Create, NULL };
+static CreateGpuProc gGpuFactories[kBackendCount] = { GrGLGpu::Create, nullptr };
 
 #ifdef SK_VULKAN
 extern GrGpu* vk_gpu_create(GrBackendContext backendContext, const GrContextOptions& options,
@@ -31,7 +31,7 @@ GrGpu* GrGpu::Create(GrBackend backend,
                      GrContext* context) {
     SkASSERT((int)backend < kBackendCount);
     if (!gGpuFactories[backend]) {
-        return NULL;
+        return nullptr;
     }
     return (gGpuFactories[backend])(backendContext, options, context);
 }

@@ -47,7 +47,7 @@ static boolean sk_seek_input_data(j_decompress_ptr cinfo, long byte_offset) {
 
 static boolean sk_fill_input_buffer(j_decompress_ptr cinfo) {
     skjpeg_source_mgr* src = (skjpeg_source_mgr*)cinfo->src;
-    if (src->fDecoder != NULL && src->fDecoder->shouldCancelDecode()) {
+    if (src->fDecoder != nullptr && src->fDecoder->shouldCancelDecode()) {
         return FALSE;
     }
     size_t bytes = src->fStream->read(src->fBuffer, skjpeg_source_mgr::kBufferSize);

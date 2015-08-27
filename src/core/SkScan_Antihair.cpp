@@ -17,13 +17,13 @@
 /*  Our attempt to compute the worst case "bounds" for the horizontal and
     vertical cases has some numerical bug in it, and we sometimes undervalue
     our extends. The bug is that when this happens, we will set the clip to
-    NULL (for speed), and thus draw outside of the clip by a pixel, which might
+    nullptr (for speed), and thus draw outside of the clip by a pixel, which might
     only look bad, but it might also access memory outside of the valid range
     allcoated for the device bitmap.
 
     This define enables our fix to outset our "bounds" by 1, thus avoiding the
     chance of the bug, but at the cost of sometimes taking the rectblitter
-    case (i.e. not setting the clip to NULL) when we might not actually need
+    case (i.e. not setting the clip to nullptr) when we might not actually need
     to. If we can improve/fix the actual calculations, then we can remove this
     step.
  */
@@ -88,7 +88,7 @@ static void call_hline_blitter(SkBlitter* blitter, int x, int y, int count,
 
 class SkAntiHairBlitter {
 public:
-    SkAntiHairBlitter() : fBlitter(NULL) {}
+    SkAntiHairBlitter() : fBlitter(nullptr) {}
     virtual ~SkAntiHairBlitter() {}
 
     SkBlitter* getBlitter() const { return fBlitter; }
@@ -340,7 +340,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
     Horish_SkAntiHairBlitter    horish_blitter;
     VLine_SkAntiHairBlitter     vline_blitter;
     Vertish_SkAntiHairBlitter   vertish_blitter;
-    SkAntiHairBlitter*          hairBlitter = NULL;
+    SkAntiHairBlitter*          hairBlitter = nullptr;
 
     if (SkAbs32(x1 - x0) > SkAbs32(y1 - y0)) {   // mostly horizontal
         if (x0 > x1) {    // we want to go left-to-right
@@ -412,7 +412,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                 return;
             }
             if (clip->fTop <= top && clip->fBottom >= bottom) {
-                clip = NULL;
+                clip = nullptr;
             }
         }
     } else {   // mostly vertical
@@ -488,7 +488,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                 return;
             }
             if (clip->fLeft <= left && clip->fRight >= right) {
-                clip = NULL;
+                clip = nullptr;
             }
         }
     }
@@ -526,7 +526,7 @@ void SkScan::AntiHairLineRgn(const SkPoint array[], int arrayCount, const SkRegi
         return;
     }
 
-    SkASSERT(clip == NULL || !clip->getBounds().isEmpty());
+    SkASSERT(clip == nullptr || !clip->getBounds().isEmpty());
 
 #ifdef TEST_GAMMA
     build_gamma_table();
@@ -595,7 +595,7 @@ void SkScan::AntiHairLineRgn(const SkPoint array[], int arrayCount, const SkRegi
             }
             // fall through to no-clip case
         }
-        do_anti_hairline(x0, y0, x1, y1, NULL, blitter);
+        do_anti_hairline(x0, y0, x1, y1, nullptr, blitter);
     }
 }
 
@@ -699,7 +699,7 @@ static void antifillrect(const SkXRect& xr, SkBlitter* blitter) {
 
 void SkScan::AntiFillXRect(const SkXRect& xr, const SkRegion* clip,
                           SkBlitter* blitter) {
-    if (NULL == clip) {
+    if (nullptr == clip) {
         antifillrect(xr, blitter);
     } else {
         SkIRect outerBounds;
@@ -745,7 +745,7 @@ void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
         XRect_roundOut(xr, &outerBounds);
 
         if (clip.quickContains(outerBounds)) {
-            AntiFillXRect(xr, NULL, blitter);
+            AntiFillXRect(xr, nullptr, blitter);
         } else {
             SkAAClipBlitterWrapper wrapper(clip, blitter);
             blitter = wrapper.getBlitter();

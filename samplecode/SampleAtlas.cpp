@@ -186,7 +186,7 @@ protected:
         paint.setFilterQuality(kLow_SkFilterQuality);
 
         const SkRect cull = this->getBounds();
-        const SkColor* colorsPtr = fUseColors ? colors : NULL;
+        const SkColor* colorsPtr = fUseColors ? colors : nullptr;
         fProc(canvas, fAtlas, xform, fTex, colorsPtr, N, &cull, &paint);
     }
     
@@ -223,7 +223,7 @@ protected:
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
-                case 'C': fDrawable->toggleUseColors(); this->inval(NULL); return true;
+                case 'C': fDrawable->toggleUseColors(); this->inval(nullptr); return true;
                 default: break;
             }
         }
@@ -232,7 +232,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawDrawable(fDrawable);
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 #if 0

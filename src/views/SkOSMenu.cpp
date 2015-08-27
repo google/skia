@@ -28,7 +28,7 @@ const SkOSMenu::Item* SkOSMenu::getItemByID(int itemID) const {
         if (itemID == fItems[i]->getID())
             return fItems[i];
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkOSMenu::getItems(const SkOSMenu::Item* items[]) const {
@@ -155,7 +155,7 @@ int SkOSMenu::appendList(const char label[], const char slotName[],
         SkString str(option);
         va_start(args, option);
         int count = 1;
-        for (const char* arg = va_arg(args, const char*); arg != NULL; arg = va_arg(args, const char*)) {
+        for (const char* arg = va_arg(args, const char*); arg != nullptr; arg = va_arg(args, const char*)) {
             str += gDelimiter;
             str += arg;
             ++count;
@@ -206,13 +206,13 @@ bool SkOSMenu::FindListItemCount(const SkEvent& evt, int* count) {
 bool SkOSMenu::FindListItems(const SkEvent& evt, SkString items[]) {
     if (evt.isType(gMenuEventType) && items) {
         const char* text = evt.findString(gList_Items_Str);
-        if (text != NULL) {
+        if (text != nullptr) {
             SkString temp(text);
             char* token = strtok((char*)temp.c_str(), gDelimiter);
             int index = 0;
-            while (token != NULL) {
+            while (token != nullptr) {
                 items[index].set(token, strlen(token));
-                token = strtok (NULL, gDelimiter);
+                token = strtok (nullptr, gDelimiter);
                 ++index;
             }
         }

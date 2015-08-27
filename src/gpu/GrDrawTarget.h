@@ -114,9 +114,9 @@ public:
      *
      * @param rect        the rect to draw
      * @param localRect   optional rect that specifies local coords to map onto
-     *                    rect. If NULL then rect serves as the local coords.
+     *                    rect. If nullptr then rect serves as the local coords.
      * @param localMatrix Optional local matrix. The local coordinates are specified by localRect,
-     *                    or if it is NULL by rect. This matrix applies to the coordinate implied by
+     *                    or if it is nullptr by rect. This matrix applies to the coordinate implied by
      *                    that rectangle before it is input to GrCoordTransforms that read local
      *                    coordinates
      */
@@ -153,7 +153,7 @@ public:
 
     /**
      * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole
-     * thing if rect is NULL, otherwise just the rect. If canIgnoreRect is set then the entire
+     * thing if rect is nullptr, otherwise just the rect. If canIgnoreRect is set then the entire
      * render target can be optionally cleared.
      */
     void clear(const SkIRect* rect,

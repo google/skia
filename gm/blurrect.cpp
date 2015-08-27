@@ -235,7 +235,7 @@ protected:
                     canvas->save();
                     canvas->translate((SkScalar)cur_x, (SkScalar)cur_y);
                     canvas->translate(-(bm.width() - r.width())/2, -(bm.height()-r.height())/2);
-                    canvas->drawBitmap(bm, 0.f, 0.f, NULL);
+                    canvas->drawBitmap(bm, 0.f, 0.f, nullptr);
                     canvas->restore();
 
                     cur_x += bm.width() + fPadding;
@@ -313,7 +313,7 @@ protected:
         center_x = (canvas_size.fWidth - mask.fBounds.width())/2;
         center_y = (canvas_size.fHeight - mask.fBounds.height())/2;
 
-        canvas->drawBitmap(bm, SkIntToScalar(center_x), SkIntToScalar(center_y), NULL);
+        canvas->drawBitmap(bm, SkIntToScalar(center_x), SkIntToScalar(center_y), nullptr);
     }
 
 private:

@@ -20,10 +20,10 @@ static const SkColor gColors[] = {
 };
 
 static const GradData gGradData[] = {
-    { 1, gColors, NULL },
-    { 2, gColors, NULL },
-    { 3, gColors, NULL },
-    { 4, gColors, NULL },
+    { 1, gColors, nullptr },
+    { 2, gColors, nullptr },
+    { 3, gColors, nullptr },
+    { 4, gColors, nullptr },
 };
 
 static SkShader* MakeLinear(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
@@ -126,7 +126,7 @@ struct ColorPos {
     SkScalar*   fPos;
     int         fCount;
 
-    ColorPos() : fColors(NULL), fPos(NULL), fCount(0) {}
+    ColorPos() : fColors(nullptr), fPos(nullptr), fCount(0) {}
     ~ColorPos() {
         delete[] fColors;
         delete[] fPos;
@@ -180,7 +180,7 @@ static void make1(ColorPos* rec) {
         SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE,
         SK_ColorBLACK,
     };
-    rec->construct(colors, NULL, SK_ARRAY_COUNT(colors));
+    rec->construct(colors, nullptr, SK_ARRAY_COUNT(colors));
 }
 
 static void make2(ColorPos* rec) {

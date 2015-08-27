@@ -34,8 +34,8 @@ public:
      */
     static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* tex,
                                        const SkScalar coefficients[16],
-                                       const SkRect* domain = NULL) {
-        if (NULL == domain) {
+                                       const SkRect* domain = nullptr) {
+        if (nullptr == domain) {
             static const SkShader::TileMode kTileModes[] = { SkShader::kClamp_TileMode,
                                                              SkShader::kClamp_TileMode };
             return Create(procDataManager, tex, coefficients,

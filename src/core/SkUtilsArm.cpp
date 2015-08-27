@@ -88,7 +88,7 @@ static bool sk_cpu_arm_check_neon(void) {
 
         char*  line = (char*) memmem(buffer, buffer_end - buffer,
                                      features, features_len);
-        if (line == NULL) {  // Weird, no Features line, bad kernel?
+        if (line == nullptr) {  // Weird, no Features line, bad kernel?
             SkDebugf("Could not find a line starting with 'Features'"
               "in /proc/cpuinfo ?\n");
             break;
@@ -98,7 +98,7 @@ static bool sk_cpu_arm_check_neon(void) {
 
         // Find the end of the current line
         char* line_end = (char*) memchr(line, '\n', buffer_end - line);
-        if (line_end == NULL)
+        if (line_end == nullptr)
             line_end = buffer_end;
 
         // Now find an instance of 'neon' in the flags list. We want to
@@ -108,7 +108,7 @@ static bool sk_cpu_arm_check_neon(void) {
         const size_t neon_len = sizeof(neon)-1;
         const char* flag = (const char*) memmem(line, line_end - line,
                                                 neon, neon_len);
-        if (flag == NULL)
+        if (flag == nullptr)
             break;
 
         // Ensure it is followed by a space or a newline.

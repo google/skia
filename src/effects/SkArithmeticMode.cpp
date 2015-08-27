@@ -105,7 +105,7 @@ void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
     SkScalar k4 = fK[3] * 255;
 
     for (int i = 0; i < count; ++i) {
-        if ((NULL == aaCoverage) || aaCoverage[i]) {
+        if ((nullptr == aaCoverage) || aaCoverage[i]) {
             SkPMColor sc = src[i];
             SkPMColor dc = dst[i];
 

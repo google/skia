@@ -132,7 +132,7 @@ public:
         SkXfermode::Coeff srcCoeff, dstCoeff;
         if (!SkXfermode::ModeAsCoeff(mode, &srcCoeff, &dstCoeff)) {
 //            SkDebugf("Failing to create color filter for mode %d\n", mode);
-            return NULL;
+            return nullptr;
         }
         return new ModeColorFilterEffect(c, mode);
     }
@@ -161,7 +161,7 @@ public:
             SkXfermode::Mode mode = args.fFp.cast<ModeColorFilterEffect>().mode();
 
             SkASSERT(SkXfermode::kDst_Mode != mode);
-            const char* colorFilterColorUniName = NULL;
+            const char* colorFilterColorUniName = nullptr;
             if (args.fFp.cast<ModeColorFilterEffect>().willUseFilterColor()) {
                 fFilterColorUni = args.fBuilder->addUniform(
                                                       GrGLProgramBuilder::kFragment_Visibility,
@@ -363,7 +363,7 @@ bool SkModeColorFilter::asFragmentProcessors(GrContext*, GrProcessorDataManager*
                 *array->append() = frag;
             } else {
                 frag->unref();
-                SkDEBUGCODE(frag = NULL;)
+                SkDEBUGCODE(frag = nullptr;)
             }
             return true;
         }
@@ -403,7 +403,7 @@ private:
 
 SkColorFilter* SkColorFilter::CreateModeFilter(SkColor color, SkXfermode::Mode mode) {
     if (!SkIsValidMode(mode)) {
-        return NULL;
+        return nullptr;
     }
 
     unsigned alpha = SkColorGetA(color);
@@ -431,7 +431,7 @@ SkColorFilter* SkColorFilter::CreateModeFilter(SkColor color, SkXfermode::Mode m
                         SkXfermode::kXor_Mode == mode ||
                         SkXfermode::kDarken_Mode == mode)) ||
             (0xFF == alpha && SkXfermode::kDstIn_Mode == mode)) {
-        return NULL;
+        return nullptr;
     }
 
     switch (mode) {

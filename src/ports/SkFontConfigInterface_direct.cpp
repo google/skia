@@ -77,7 +77,7 @@ static void test_writeToMemory(const SkFontConfigInterface::FontIdentity& iden0,
                                int initValue) {
     SkFontConfigInterface::FontIdentity iden1;
 
-    size_t size0 = iden0.writeToMemory(NULL);
+    size_t size0 = iden0.writeToMemory(nullptr);
 
     SkAutoMalloc storage(size0);
     memset(storage.get(), initValue, size0);
@@ -131,8 +131,8 @@ private:
 
 SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface(SkBaseMutex* mutex) {
     SkAutoMutexAcquire ac(mutex);
-    static SkFontConfigInterfaceDirect* singleton = NULL;
-    if (singleton == NULL) {
+    static SkFontConfigInterfaceDirect* singleton = nullptr;
+    if (singleton == nullptr) {
         singleton = new SkFontConfigInterfaceDirect;
     }
     return singleton;
@@ -140,13 +140,13 @@ SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface(SkBase
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Returns the string from the pattern, or NULL
+// Returns the string from the pattern, or nullptr
 static const char* get_name(FcPattern* pattern, const char field[],
                             int index = 0) {
     const char* name;
     if (FcPatternGetString(pattern, field, index,
                            (FcChar8**)&name) != FcResultMatch) {
-        name = NULL;
+        name = nullptr;
     }
     return name;
 }
@@ -360,7 +360,7 @@ FcPattern* MatchFont(FcFontSet* font_set,
                      const SkString& family) {
   // Older versions of fontconfig have a bug where they cannot select
   // only scalable fonts so we have to manually filter the results.
-  FcPattern* match = NULL;
+  FcPattern* match = nullptr;
   for (int i = 0; i < font_set->nfont; ++i) {
     FcPattern* current = font_set->fonts[i];
     if (valid_pattern(current)) {
@@ -388,7 +388,7 @@ FcPattern* MatchFont(FcFontSet* font_set,
         break;
     }
     if (!acceptable_substitute)
-      return NULL;
+      return nullptr;
   }
 
   return match;
@@ -469,7 +469,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
                                                       : FC_SLANT_ROMAN);
     FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 
-    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+    FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
     // Font matching:
@@ -477,7 +477,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     //    font-family: a, b, c, serif;
     // However, fontconfig will always do its best to find *a* font when asked
     // for something so we need a way to tell if the match which it has found is
-    // "good enough" for us. Otherwise, we can return NULL which gets piped up
+    // "good enough" for us. Otherwise, we can return nullptr which gets piped up
     // and lets WebKit know to try the next CSS family name. However, fontconfig
     // configs allow substitutions (mapping "Arial -> Helvetica" etc) and we
     // wish to support that.
@@ -579,20 +579,20 @@ SkDataTable* SkFontConfigInterfaceDirect::getFamilyNames() {
 
     FcPattern* pat = FcPatternCreate();
     SkAutoTCallVProc<FcPattern, FcPatternDestroy> autoDestroyPat(pat);
-    if (NULL == pat) {
-        return NULL;
+    if (nullptr == pat) {
+        return nullptr;
     }
 
     FcObjectSet* os = FcObjectSetBuild(FC_FAMILY, (char *)0);
     SkAutoTCallVProc<FcObjectSet, FcObjectSetDestroy> autoDestroyOs(os);
-    if (NULL == os) {
-        return NULL;
+    if (nullptr == os) {
+        return nullptr;
     }
 
-    FcFontSet* fs = FcFontList(NULL, pat, os);
+    FcFontSet* fs = FcFontList(nullptr, pat, os);
     SkAutoTCallVProc<FcFontSet, FcFontSetDestroy> autoDestroyFs(fs);
-    if (NULL == fs) {
-        return NULL;
+    if (nullptr == fs) {
+        return nullptr;
     }
 
     SkTDArray<const char*> names;
@@ -630,7 +630,7 @@ bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
     }
     FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 
-    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+    FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
     // Font matching:
@@ -638,7 +638,7 @@ bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
     //    font-family: a, b, c, serif;
     // However, fontconfig will always do its best to find *a* font when asked
     // for something so we need a way to tell if the match which it has found is
-    // "good enough" for us. Otherwise, we can return NULL which gets piped up
+    // "good enough" for us. Otherwise, we can return nullptr which gets piped up
     // and lets WebKit know to try the next CSS family name. However, fontconfig
     // configs allow substitutions (mapping "Arial -> Helvetica" etc) and we
     // wish to support that.
@@ -720,7 +720,7 @@ bool SkFontConfigInterfaceDirect::matchFamilySet(const char inFamilyName[],
         if (!match) {
             FcPatternDestroy(pattern);
             FcFontSetDestroy(font_set);
-            return NULL;
+            return nullptr;
         }
 
         FcPatternDestroy(pattern);

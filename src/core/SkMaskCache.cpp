@@ -64,7 +64,7 @@ struct RRectBlurRec : public SkResourceCache::Rec {
 
         SkCachedData* tmpData = rec.fValue.fData;
         tmpData->ref();
-        if (NULL == tmpData->data()) {
+        if (nullptr == tmpData->data()) {
             tmpData->unref();
             return false;
         }
@@ -79,7 +79,7 @@ SkCachedData* SkMaskCache::FindAndRef(SkScalar sigma, SkBlurStyle style, SkBlurQ
     MaskValue result;
     RRectBlurKey key(sigma, rrect, style, quality);
     if (!CHECK_LOCAL(localCache, find, Find, key, RRectBlurRec::Visitor, &result)) {
-        return NULL;
+        return nullptr;
     }
 
     *mask = result.fMask;
@@ -159,7 +159,7 @@ struct RectsBlurRec : public SkResourceCache::Rec {
 
         SkCachedData* tmpData = rec.fValue.fData;
         tmpData->ref();
-        if (NULL == tmpData->data()) {
+        if (nullptr == tmpData->data()) {
             tmpData->unref();
             return false;
         }
@@ -175,7 +175,7 @@ SkCachedData* SkMaskCache::FindAndRef(SkScalar sigma, SkBlurStyle style, SkBlurQ
     MaskValue result;
     RectsBlurKey key(sigma, style, quality, rects, count);
     if (!CHECK_LOCAL(localCache, find, Find, key, RectsBlurRec::Visitor, &result)) {
-        return NULL;
+        return nullptr;
     }
 
     *mask = result.fMask;

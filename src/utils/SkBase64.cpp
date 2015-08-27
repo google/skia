@@ -26,7 +26,7 @@ static const signed char decodeData[] = {
     41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
 };
 
-SkBase64::SkBase64() : fLength((size_t) -1), fData(NULL) {
+SkBase64::SkBase64() : fLength((size_t) -1), fData(nullptr) {
 }
 
 #if defined _WIN32 && _MSC_VER >= 1300  // disable 'two', etc. may be used without having been initialized
@@ -111,7 +111,7 @@ goHome:
 
 size_t SkBase64::Encode(const void* srcPtr, size_t length, void* dstPtr, const char* encodeMap) {
     const char* encode;
-    if (NULL == encodeMap) {
+    if (nullptr == encodeMap) {
         encode = default_encode;
     } else {
         encode = encodeMap;

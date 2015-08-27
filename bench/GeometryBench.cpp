@@ -185,10 +185,10 @@ protected:
     void onDraw(const int loops, SkCanvas* canvas) override {
         SkPoint result;
         for (int outer = 0; outer < loops; ++outer) {
-            SkEvalQuadAt(fPts, 0.5f, NULL, &result);
-            SkEvalQuadAt(fPts, 0.5f, NULL, &result);
-            SkEvalQuadAt(fPts, 0.5f, NULL, &result);
-            SkEvalQuadAt(fPts, 0.5f, NULL, &result);
+            SkEvalQuadAt(fPts, 0.5f, nullptr, &result);
+            SkEvalQuadAt(fPts, 0.5f, nullptr, &result);
+            SkEvalQuadAt(fPts, 0.5f, nullptr, &result);
+            SkEvalQuadAt(fPts, 0.5f, nullptr, &result);
         }
     }
 };

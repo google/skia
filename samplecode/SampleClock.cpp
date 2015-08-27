@@ -216,7 +216,7 @@ protected:
 
         canvas->restore();
 
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
 private:

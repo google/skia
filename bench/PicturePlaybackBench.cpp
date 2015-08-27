@@ -40,7 +40,7 @@ protected:
     virtual void onDraw(const int loops, SkCanvas* canvas) {
 
         SkPictureRecorder recorder;
-        SkCanvas* pCanvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, NULL, 0);
+        SkCanvas* pCanvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, nullptr, 0);
         this->recordCanvas(pCanvas);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 

@@ -70,7 +70,7 @@ Each gm specifies the typeface to use when drawing text. For now, to set the
 portable typeface on the paint, call:
 
 ~~~~
-sk_tool_utils::set_portable_typeface(SkPaint* , const char* name = NULL,
+sk_tool_utils::set_portable_typeface(SkPaint* , const char* name = nullptr,
 SkTypeface::Style style = SkTypeface::kNormal );
 ~~~~
 

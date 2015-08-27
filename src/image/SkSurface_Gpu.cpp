@@ -81,7 +81,7 @@ SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
     const SkImageInfo info = fDevice->imageInfo();
     const int sampleCount = fDevice->accessRenderTarget()->numColorSamples();
-    SkImage* image = NULL;
+    SkImage* image = nullptr;
     GrTexture* tex = fDevice->accessRenderTarget()->asTexture();
     if (tex) {
         image = new SkImage_Gpu(info.width(), info.height(), kNeedNewImageUniqueID,
@@ -120,7 +120,7 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurf
     SkAutoTUnref<SkGpuDevice> device(
         SkGpuDevice::Create(target, props, SkGpuDevice::kUninit_InitContents));
     if (!device) {
-        return NULL;
+        return nullptr;
     }
     return new SkSurface_Gpu(device);
 }
@@ -130,28 +130,28 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const S
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(ctx, budgeted, info, sampleCount, props,
                                                          SkGpuDevice::kClear_InitContents));
     if (!device) {
-        return NULL;
+        return nullptr;
     }
     return new SkSurface_Gpu(device);
 }
 
 SkSurface* SkSurface::NewFromBackendTexture(GrContext* context, const GrBackendTextureDesc& desc,
                                             const SkSurfaceProps* props) {
-    if (NULL == context) {
-        return NULL;
+    if (nullptr == context) {
+        return nullptr;
     }
     if (!SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
-        return NULL;
+        return nullptr;
     }
     SkAutoTUnref<GrSurface> surface(context->textureProvider()->wrapBackendTexture(desc,
                                     kBorrow_GrWrapOwnership));
     if (!surface) {
-        return NULL;
+        return nullptr;
     }
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(surface->asRenderTarget(), props,
                                                          SkGpuDevice::kUninit_InitContents));
     if (!device) {
-        return NULL;
+        return nullptr;
     }
     return new SkSurface_Gpu(device);
 }
@@ -159,17 +159,17 @@ SkSurface* SkSurface::NewFromBackendTexture(GrContext* context, const GrBackendT
 SkSurface* SkSurface::NewFromBackendRenderTarget(GrContext* context,
                                                  const GrBackendRenderTargetDesc& desc,
                                                  const SkSurfaceProps* props) {
-    if (NULL == context) {
-        return NULL;
+    if (nullptr == context) {
+        return nullptr;
     }
     SkAutoTUnref<GrRenderTarget> rt(context->textureProvider()->wrapBackendRenderTarget(desc));
     if (!rt) {
-        return NULL;
+        return nullptr;
     }
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(rt, props,
                                                          SkGpuDevice::kUninit_InitContents));
     if (!device) {
-        return NULL;
+        return nullptr;
     }
     return new SkSurface_Gpu(device);
 }

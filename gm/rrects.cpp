@@ -57,12 +57,12 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = NULL;
+        GrContext* context = nullptr;
 #if SK_SUPPORT_GPU
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
-        context = rt ? rt->getContext() : NULL;
+        context = rt ? rt->getContext() : nullptr;
 #endif
-        if (kEffect_Type == fType && NULL == context) {
+        if (kEffect_Type == fType && nullptr == context) {
             this->drawGpuOnlyMessage(canvas);
             return;
         }
@@ -102,7 +102,7 @@ protected:
 #if SK_SUPPORT_GPU
                         GrTestTarget tt;
                         context->getTestTarget(&tt);
-                        if (NULL == tt.target()) {
+                        if (nullptr == tt.target()) {
                             SkDEBUGFAIL("Couldn't get Gr test target.");
                             return;
                         }

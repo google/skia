@@ -119,7 +119,7 @@ protected:
 
             SkPaint p(paint);
             p.setStyle(SkPaint::kFill_Style);
-            p.setPathEffect(NULL);
+            p.setPathEffect(nullptr);
 
             int count = SkScalarRoundToInt((pts[1].fX - pts[0].fX) / (2*fWidth));
             SkScalar dx = SkIntToScalar(2 * fWidth);
@@ -198,7 +198,7 @@ protected:
         for (int i = 0; i < loops; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
 
-            fPE->filterPath(&dst, fPath, &rec, NULL);
+            fPE->filterPath(&dst, fPath, &rec, nullptr);
             dst.rewind();
         }
     }

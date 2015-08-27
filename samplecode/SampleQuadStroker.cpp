@@ -196,7 +196,7 @@ protected:
                 default:
                     fText.appendUnichar(uni);
             }
-            this->inval(NULL);
+            this->inval(nullptr);
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -226,7 +226,7 @@ protected:
         SkCanvas* canvas = fMaxSurface->getCanvas();
         canvas->save();
         canvas->concat(fMatrix);
-        fMinSurface->draw(canvas, 0, 0, NULL);
+        fMinSurface->draw(canvas, 0, 0, nullptr);
         canvas->restore();
 
         SkPaint paint;
@@ -320,7 +320,7 @@ protected:
         if (drawText) {
             fMinSurface->getCanvas()->drawPath(path, paint);
             this->copyMinToMax();
-            fMaxSurface->draw(canvas, 0, 0, NULL);
+            fMaxSurface->draw(canvas, 0, 0, nullptr);
         }
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -541,7 +541,7 @@ protected:
         draw_button(canvas, fRRectButton);
         draw_button(canvas, fCircleButton);
         draw_button(canvas, fTextButton);
-        this->inval(NULL);
+        this->inval(nullptr);
     }
 
     class MyClick : public Click {
@@ -608,7 +608,7 @@ protected:
         if (index < (int) SK_ARRAY_COUNT(fPts)) {
             fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
                                SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
-            this->inval(NULL);
+            this->inval(nullptr);
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 1) {
             fWeight = MapScreenYtoValue(click->fICurr.fY, fWeightControl, 0, 5);
         }

@@ -101,7 +101,7 @@ static const char* expectedSubset14 = "0[1] 5[2]";
 static SkString stringify_advance_data(SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* data) {
     SkString result;
     bool leadingSpace = false;
-    while (data != NULL) {
+    while (data != nullptr) {
       if (leadingSpace) {
         result.append(" ");
       } else {
@@ -174,34 +174,34 @@ class TestWData {
 };
 
 DEF_TEST(WArray, reporter) {
-    TestWData(reporter, data1, SK_ARRAY_COUNT(data1), NULL, 0, expected1);
-    TestWData(reporter, data2, SK_ARRAY_COUNT(data2), NULL, 0, expected2);
-    TestWData(reporter, data3, SK_ARRAY_COUNT(data3), NULL, 0, expected3);
-    TestWData(reporter, data4, SK_ARRAY_COUNT(data4), NULL, 0, expected4);
-    TestWData(reporter, data5, SK_ARRAY_COUNT(data5), NULL, 0, expected5);
-    TestWData(reporter, data6, SK_ARRAY_COUNT(data6), NULL, 0, expected6);
-    TestWData(reporter, data7, SK_ARRAY_COUNT(data7), NULL, 0, expected7);
+    TestWData(reporter, data1, SK_ARRAY_COUNT(data1), nullptr, 0, expected1);
+    TestWData(reporter, data2, SK_ARRAY_COUNT(data2), nullptr, 0, expected2);
+    TestWData(reporter, data3, SK_ARRAY_COUNT(data3), nullptr, 0, expected3);
+    TestWData(reporter, data4, SK_ARRAY_COUNT(data4), nullptr, 0, expected4);
+    TestWData(reporter, data5, SK_ARRAY_COUNT(data5), nullptr, 0, expected5);
+    TestWData(reporter, data6, SK_ARRAY_COUNT(data6), nullptr, 0, expected6);
+    TestWData(reporter, data7, SK_ARRAY_COUNT(data7), nullptr, 0, expected7);
     TestWData(reporter, data7, SK_ARRAY_COUNT(data7), subset7,
               SK_ARRAY_COUNT(subset7), expectedSubset7);
-    TestWData(reporter, data8, SK_ARRAY_COUNT(data8), NULL, 0, expected8);
+    TestWData(reporter, data8, SK_ARRAY_COUNT(data8), nullptr, 0, expected8);
     TestWData(reporter, data8, SK_ARRAY_COUNT(data8), subset8,
               SK_ARRAY_COUNT(subset8), expectedSubset8);
-    TestWData(reporter, data9, SK_ARRAY_COUNT(data9), NULL, 0, expected9);
+    TestWData(reporter, data9, SK_ARRAY_COUNT(data9), nullptr, 0, expected9);
     TestWData(reporter, data9, SK_ARRAY_COUNT(data9), subset9,
               SK_ARRAY_COUNT(subset9), expectedSubset9);
-    TestWData(reporter, data10, SK_ARRAY_COUNT(data10), NULL, 0, expected10);
+    TestWData(reporter, data10, SK_ARRAY_COUNT(data10), nullptr, 0, expected10);
     TestWData(reporter, data10, SK_ARRAY_COUNT(data10), subset10,
               SK_ARRAY_COUNT(subset10), expectedSubset10);
-    TestWData(reporter, data11, SK_ARRAY_COUNT(data11), NULL, 0, expected11);
+    TestWData(reporter, data11, SK_ARRAY_COUNT(data11), nullptr, 0, expected11);
     TestWData(reporter, data11, SK_ARRAY_COUNT(data11), subset11,
               SK_ARRAY_COUNT(subset11), expectedSubset11);
-    TestWData(reporter, data12, SK_ARRAY_COUNT(data12), NULL, 0, expected12);
+    TestWData(reporter, data12, SK_ARRAY_COUNT(data12), nullptr, 0, expected12);
     TestWData(reporter, data12, SK_ARRAY_COUNT(data12), subset12,
               SK_ARRAY_COUNT(subset12), expectedSubset12);
-    TestWData(reporter, data13, SK_ARRAY_COUNT(data13), NULL, 0, expected13);
+    TestWData(reporter, data13, SK_ARRAY_COUNT(data13), nullptr, 0, expected13);
     TestWData(reporter, data13, SK_ARRAY_COUNT(data13), subset13,
               SK_ARRAY_COUNT(subset13), expectedSubset13);
-    TestWData(reporter, data14, SK_ARRAY_COUNT(data14), NULL, 0, expected14);
+    TestWData(reporter, data14, SK_ARRAY_COUNT(data14), nullptr, 0, expected14);
     TestWData(reporter, data14, SK_ARRAY_COUNT(data14), subset14,
               SK_ARRAY_COUNT(subset14), expectedSubset14);
 }

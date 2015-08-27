@@ -32,7 +32,7 @@ namespace sk_tools {
                                  bool useChecksumBasedFilenames, bool useMultiPictureDraw) {
         // Do not call INHERITED::init(), which would create a (potentially large) canvas which is
         // not used by bench_pictures.
-        SkASSERT(pict != NULL);
+        SkASSERT(pict != nullptr);
         // Only work with absolute widths (as opposed to percentages).
         SkASSERT(this->getTileWidth() != 0 && this->getTileHeight() != 0);
         fPicture.reset(pict)->ref();

@@ -34,7 +34,7 @@ void SkDisplayMovie::buildMovie() {
         return;
     SkAnimateMaker* movieMaker = fMovie.fMaker;
     SkAnimateMaker* parentMaker = movieMaker->fParentMaker;
-    if (src.size() == 0 || parentMaker == NULL)
+    if (src.size() == 0 || parentMaker == nullptr)
         return;
     movieMaker->fPrefix.set(parentMaker->fPrefix);
     fDecodedSuccessfully = fMovie.fMaker->decodeURI(src.c_str());
@@ -105,8 +105,8 @@ bool SkDisplayMovie::enable(SkAnimateMaker&) {
     if (fDecodedSuccessfully == false)
         return false;
     SkAnimateMaker* movieMaker = fMovie.fMaker;
-    movieMaker->fEvents.doEvent(*movieMaker, SkDisplayEvent::kOnload, NULL);
-    movieMaker->fEvents.removeEvent(SkDisplayEvent::kOnload, NULL);
+    movieMaker->fEvents.doEvent(*movieMaker, SkDisplayEvent::kOnload, nullptr);
+    movieMaker->fEvents.removeEvent(SkDisplayEvent::kOnload, nullptr);
     fLoaded = true;
     movieMaker->fLoaded = true;
     return false;

@@ -87,7 +87,7 @@ static void compare_unpremul(skiatest::Reporter* reporter, const SkString& filen
     }
 
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
-    if (NULL == decoder.get()) {
+    if (nullptr == decoder.get()) {
         SkDebugf("couldn't decode %s\n", filename.c_str());
         return;
     }
@@ -176,7 +176,7 @@ static void test_alphaType(skiatest::Reporter* reporter, const SkString& filenam
     SkFILEStream stream(filename.c_str());
 
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
-    if (NULL == decoder.get()) {
+    if (nullptr == decoder.get()) {
         return;
     }
 
@@ -281,7 +281,7 @@ DEF_TEST(ImageDecoding_unpremul, reporter) {
         // This should never fail since we know the images we're decoding.
         SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
         REPORTER_ASSERT(reporter, decoder.get());
-        if (NULL == decoder.get()) {
+        if (nullptr == decoder.get()) {
             continue;
         }
 
@@ -424,8 +424,8 @@ DEF_TEST(WebP, reporter) {
 static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
                                      SkStreamRewindable* stream,
                                      int sampleSize, bool ditherImage) {
-    SkASSERT(bitmap != NULL);
-    SkASSERT(stream != NULL);
+    SkASSERT(bitmap != nullptr);
+    SkASSERT(stream != nullptr);
     SkASSERT(stream->rewind());
     SkColorType colorType = bitmap->colorType();
     SkDecodingImageGenerator::Options opts(sampleSize, ditherImage, colorType);
@@ -433,7 +433,7 @@ static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
                 SkDecodingImageGenerator::Create(stream, opts), bitmap)) {
         return bitmap->pixelRef();
     }
-    return NULL;
+    return nullptr;
 }
 /**
  *  A test for the SkDecodingImageGenerator::Create and
@@ -515,13 +515,13 @@ static void test_options(skiatest::Reporter* reporter,
     SkBitmap bm;
     bool success = false;
     if (useData) {
-        if (NULL == encodedData) {
+        if (nullptr == encodedData) {
             return;
         }
         success = SkInstallDiscardablePixelRef(
             SkDecodingImageGenerator::Create(encodedData, opts), &bm);
     } else {
-        if (NULL == encodedStream) {
+        if (nullptr == encodedStream) {
             return;
         }
         success = SkInstallDiscardablePixelRef(
@@ -554,7 +554,7 @@ static void test_options(skiatest::Reporter* reporter,
     //     && out_size <= SkNextPow2(((in_size - 1) / sample_size) + 1));
     #endif  // SK_BUILD_FOR_ANDROID || SK_BUILD_FOR_UNIX
     SkAutoLockPixels alp(bm);
-    if (bm.getPixels() == NULL) {
+    if (bm.getPixels() == nullptr) {
         ERRORF(reporter, "Pixel decode failed [sampleSize=%d dither=%s "
                "colorType=%s %s]", opts.fSampleSize, yn(opts.fDitherImage),
                options_colorType(opts), path.c_str());
@@ -635,10 +635,10 @@ DEF_TEST(ImageDecoderOptions, reporter) {
         }
 
         SkAutoDataUnref encodedData(SkData::NewFromFileName(path.c_str()));
-        REPORTER_ASSERT(reporter, encodedData.get() != NULL);
+        REPORTER_ASSERT(reporter, encodedData.get() != nullptr);
         SkAutoTDelete<SkStreamRewindable> encodedStream(
             SkStream::NewFromFile(path.c_str()));
-        REPORTER_ASSERT(reporter, encodedStream.get() != NULL);
+        REPORTER_ASSERT(reporter, encodedStream.get() != nullptr);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(scaleList); ++i) {
             for (size_t j = 0; j < SK_ARRAY_COUNT(ditherList); ++j) {
@@ -702,13 +702,13 @@ public:
         SkASSERT(bm);
         if (bm->info().getSafeSize(bm->rowBytes()) <= fSize) {
             bm->setPixels(fPixels, ct);
-            fPixels = NULL;
+            fPixels = nullptr;
             fSize = 0;
             return true;
         }
-        return bm->tryAllocPixels(NULL, ct);
+        return bm->tryAllocPixels(nullptr, ct);
     }
-    bool ready() { return fPixels != NULL; }
+    bool ready() { return fPixels != nullptr; }
 private:
     void* fPixels;
     size_t fSize;
@@ -727,7 +727,7 @@ DEF_TEST(ImageDecoding_JpegOverwrite, r) {
         return;
     }
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
-    if (NULL == decoder.get()) {
+    if (nullptr == decoder.get()) {
         ERRORF(r, "\nSkImageDecoder::Factory failed.\n");
         return;
     }

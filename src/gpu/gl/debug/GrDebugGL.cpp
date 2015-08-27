@@ -16,7 +16,7 @@
 #include "GrTextureUnitObj.h"
 #include "GrVertexArrayObj.h"
 
-GrDebugGL* GrDebugGL::gObj = NULL;
+GrDebugGL* GrDebugGL::gObj = nullptr;
 int GrDebugGL::gStaticRefCount = 0;
 GrDebugGL::Create GrDebugGL::gFactoryFunc[kObjTypeCount] = {
     GrTextureObj::createGrTextureObj,
@@ -34,13 +34,13 @@ GrDebugGL::GrDebugGL()
     : fPackRowLength(0)
     , fUnPackRowLength(0)
     , fCurTextureUnit(0)
-    , fArrayBuffer(NULL)
-    , fElementArrayBuffer(NULL)
-    , fFrameBuffer(NULL)
-    , fRenderBuffer(NULL)
-    , fProgram(NULL)
-    , fTexture(NULL)
-    , fVertexArray(NULL)
+    , fArrayBuffer(nullptr)
+    , fElementArrayBuffer(nullptr)
+    , fFrameBuffer(nullptr)
+    , fRenderBuffer(nullptr)
+    , fProgram(nullptr)
+    , fTexture(nullptr)
+    , fVertexArray(nullptr)
     , fAbandoned(false) {
 
     for (int i = 0; i < kDefaultMaxTextureUnits; ++i) {
@@ -67,13 +67,13 @@ GrDebugGL::~GrDebugGL() {
     }
     fObjects.reset();
 
-    fArrayBuffer = NULL;
-    fElementArrayBuffer = NULL;
-    fFrameBuffer = NULL;
-    fRenderBuffer = NULL;
-    fProgram = NULL;
-    fTexture = NULL;
-    fVertexArray = NULL;
+    fArrayBuffer = nullptr;
+    fElementArrayBuffer = nullptr;
+    fFrameBuffer = nullptr;
+    fRenderBuffer = nullptr;
+    fProgram = nullptr;
+    fTexture = nullptr;
+    fVertexArray = nullptr;
 }
 
 GrFakeRefObj *GrDebugGL::findObject(GrGLuint ID, GrObjTypes type) {
@@ -87,7 +87,7 @@ GrFakeRefObj *GrDebugGL::findObject(GrGLuint ID, GrObjTypes type) {
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void GrDebugGL::setArrayBuffer(GrBufferObj *arrayBuffer) {

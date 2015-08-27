@@ -12,12 +12,12 @@ SkPatchGrid::SkPatchGrid(int rows, int cols, VertexType flags, SkXfermode* xfer)
     : fRows(0)
     , fCols(0)
     , fModeFlags(kNone_VertexType)
-    , fCornerPts(NULL)
-    , fCornerColors(NULL)
-    , fTexCoords(NULL)
-    , fHrzCtrlPts(NULL)
-    , fVrtCtrlPts(NULL)
-    , fXferMode(NULL) {
+    , fCornerPts(nullptr)
+    , fCornerColors(nullptr)
+    , fTexCoords(nullptr)
+    , fHrzCtrlPts(nullptr)
+    , fVrtCtrlPts(nullptr)
+    , fXferMode(nullptr) {
         this->reset(rows, cols, flags, xfer);
 }
 
@@ -33,7 +33,7 @@ bool SkPatchGrid::setPatch(int x, int y, const SkPoint cubics[12], const SkColor
                            const SkPoint texCoords[4]) {
     // Check for the passed paramaters to be within the range of the grid dimensions and a valid
     // pointer for the cubics' control points.
-    if (x < 0 || y < 0 || x > fCols - 1 || y > fRows - 1 || NULL == cubics) {
+    if (x < 0 || y < 0 || x > fCols - 1 || y > fRows - 1 || nullptr == cubics) {
         return false;
     }
     
@@ -79,7 +79,7 @@ bool SkPatchGrid::setPatch(int x, int y, const SkPoint cubics[12], const SkColor
 bool SkPatchGrid::getPatch(int x, int y, SkPoint cubics[12], SkColor colors[4],
                            SkPoint texCoords[4]) const {
     
-    if (x < 0 || y < 0 || x > fCols - 1 || y > fRows - 1 || NULL == cubics) {
+    if (x < 0 || y < 0 || x > fCols - 1 || y > fRows - 1 || nullptr == cubics) {
         return false;
     }
     
@@ -159,7 +159,7 @@ void SkPatchGrid::draw(SkCanvas* canvas, SkPaint& paint) {
     for (int y = 0; y < fRows; y++) {
         for (int x = 0; x < fCols; x++) {
             SkPoint cubics[12];
-            this->getPatch(x, y, cubics, NULL, NULL);
+            this->getPatch(x, y, cubics, nullptr, nullptr);
             SkMatrix matrix = canvas->getTotalMatrix();
             SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &matrix);
             maxCols[x] = SkMax32(maxCols[x], lod.width());
@@ -175,8 +175,8 @@ void SkPatchGrid::draw(SkCanvas* canvas, SkPaint& paint) {
             this->getPatch(x, y, cubics, colors, texCoords);
             SkPatchUtils::VertexData data;
             if (SkPatchUtils::getVertexData(&data, cubics,
-                                            fModeFlags & kColors_VertexType ? colors : NULL,
-                                            fModeFlags & kTexs_VertexType ? texCoords : NULL,
+                                            fModeFlags & kColors_VertexType ? colors : nullptr,
+                                            fModeFlags & kTexs_VertexType ? texCoords : nullptr,
                                             maxCols[x], maxRows[y])) {
                 canvas->drawVertices(SkCanvas::kTriangles_VertexMode, data.fVertexCount,
                                      data.fPoints, data.fTexCoords, data.fColors, fXferMode,

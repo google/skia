@@ -81,7 +81,7 @@ protected:
             canvas->scale(scales[i], scales[i]);
             paint.setTextSize(textSizes[i]);
             canvas->drawText(text, textLen, 0, 0, paint);
-            y += paint.getFontMetrics(NULL)*scales[i];
+            y += paint.getFontMetrics(nullptr)*scales[i];
         }
 
         // check rotation
@@ -95,7 +95,7 @@ protected:
             for (int ps = 6; ps <= 32; ps += 3) {
                 paint.setTextSize(SkIntToScalar(ps));
                 canvas->drawText(text, textLen, rotX, rotY, paint);
-                rotY += paint.getFontMetrics(NULL);
+                rotY += paint.getFontMetrics(nullptr);
             }
         }
 
@@ -111,7 +111,7 @@ protected:
             canvas->scale(scaleFactor, scaleFactor);
             paint.setTextSize(textSizes[i]);
             canvas->drawText(text, textLen, 0, 0, paint);
-            y += paint.getFontMetrics(NULL)*scaleFactor;
+            y += paint.getFontMetrics(nullptr)*scaleFactor;
         }
 
         // check pos text
@@ -156,7 +156,7 @@ protected:
             paint.setColor(fg[i]);
 
             canvas->drawText(text, textLen, x, y, paint);
-            y += paint.getFontMetrics(NULL);
+            y += paint.getFontMetrics(nullptr);
         }
 
         paint.setColor(0xFF181C18);
@@ -170,7 +170,7 @@ protected:
             paint.setColor(fg[i]);
 
             canvas->drawText(text, textLen, x, y, paint);
-            y += paint.getFontMetrics(NULL);
+            y += paint.getFontMetrics(nullptr);
         }
 
         // check skew
@@ -202,7 +202,7 @@ protected:
             // since we prepended this matrix already, we blit using identity
             inputCanvas->resetMatrix();
             SkImage* image = surface->newImageSnapshot();
-            inputCanvas->drawImage(image, 0, 0, NULL);
+            inputCanvas->drawImage(image, 0, 0, nullptr);
             image->unref();
         }
 #endif

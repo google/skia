@@ -16,13 +16,13 @@
 
 const GrGLInterface* GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
-    if (NULL == GetString) {
-        return NULL;
+    if (nullptr == GetString) {
+        return nullptr;
     }
 
     const char* verStr = reinterpret_cast<const char*>(GetString(GR_GL_VERSION));
-    if (NULL == verStr) {
-        return NULL;
+    if (nullptr == verStr) {
+        return nullptr;
     }
 
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
@@ -32,7 +32,7 @@ const GrGLInterface* GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
     } else if (kGL_GrGLStandard == standard) {
         return GrGLAssembleGLInterface(ctx, get);
     }
-    return NULL;
+    return nullptr;
 }
 
 const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
@@ -40,9 +40,9 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetStringi);
     GET_PROC_LOCAL(GetIntegerv);
 
-    // GetStringi may be NULL depending on the GL version.
-    if (NULL == GetString || NULL == GetIntegerv) {
-        return NULL;
+    // GetStringi may be nullptr depending on the GL version.
+    if (nullptr == GetString || nullptr == GetIntegerv) {
+        return nullptr;
     }
 
     const char* versionString = (const char*) GetString(GR_GL_VERSION);
@@ -50,12 +50,12 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
 
     if (glVer < GR_GL_VER(1,5) || GR_GL_INVALID_VER == glVer) {
         // We must have array and element_array buffer objects.
-        return NULL;
+        return nullptr;
     }
 
     GrGLExtensions extensions;
     if (!extensions.init(kGL_GrGLStandard, GetString, GetStringi, GetIntegerv)) {
-        return NULL;
+        return nullptr;
     }
 
     GrGLInterface* interface = new GrGLInterface();
@@ -266,7 +266,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     } else {
         // we must have FBOs
         delete interface;
-        return NULL;
+        return nullptr;
     }
 
     if (extensions.has("GL_NV_path_rendering")) {
@@ -469,22 +469,22 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
 
 const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
-    if (NULL == GetString) {
-        return NULL;
+    if (nullptr == GetString) {
+        return nullptr;
     }
 
     const char* verStr = reinterpret_cast<const char*>(GetString(GR_GL_VERSION));
     GrGLVersion version = GrGLGetVersionFromString(verStr);
 
     if (version < GR_GL_VER(2,0)) {
-        return NULL;
+        return nullptr;
     }
 
     GET_PROC_LOCAL(GetIntegerv);
     GET_PROC_LOCAL(GetStringi);
     GrGLExtensions extensions;
     if (!extensions.init(kGLES_GrGLStandard, GetString, GetStringi, GetIntegerv)) {
-        return NULL;
+        return nullptr;
     }
 
     GrGLInterface* interface = new GrGLInterface;
@@ -670,10 +670,10 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(PushGroupMarker);
         GET_PROC(PopGroupMarker);
         // The below check is here because a device has been found that has the extension string but
-        // returns NULL from the eglGetProcAddress for the functions
-        if (NULL == functions->fInsertEventMarker ||
-            NULL == functions->fPushGroupMarker ||
-            NULL == functions->fPopGroupMarker) {
+        // returns nullptr from the eglGetProcAddress for the functions
+        if (nullptr == functions->fInsertEventMarker ||
+            nullptr == functions->fPushGroupMarker ||
+            nullptr == functions->fPopGroupMarker) {
             extensions.remove("GL_EXT_debug_marker");
         }
     }

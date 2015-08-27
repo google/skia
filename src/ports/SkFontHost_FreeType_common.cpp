@@ -194,7 +194,7 @@ static void copyFTBitmap(const FT_Bitmap& srcFTBitmap, SkMask& dstMask) {
     const size_t height = srcFTBitmap.rows;
 
     if (SkMask::kLCD16_Format == dstFormat) {
-        copyFT2LCD16<false>(srcFTBitmap, dstMask, false, NULL, NULL, NULL);
+        copyFT2LCD16<false>(srcFTBitmap, dstMask, false, nullptr, nullptr, nullptr);
         return;
     }
 

@@ -73,7 +73,7 @@ protected:
                 for (int ps = 6; ps <= 22; ps++) {
                     paint.setTextSize(SkIntToScalar(ps));
                     canvas->drawText(text, textLen, x, y, paint);
-                    y += paint.getFontMetrics(NULL);
+                    y += paint.getFontMetrics(nullptr);
                 }
             }
             canvas->translate(0, SkIntToScalar(360));

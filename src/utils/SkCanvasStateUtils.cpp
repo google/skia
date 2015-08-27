@@ -104,9 +104,9 @@ public:
     : INHERITED(kVersion, canvas)
     {
         layerCount = 0;
-        layers = NULL;
+        layers = nullptr;
         mcState.clipRectCount = 0;
-        mcState.clipRects = NULL;
+        mcState.clipRects = nullptr;
         originalCanvas = SkRef(canvas);
     }
 
@@ -203,7 +203,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     if (validator.failed()) {
         SkErrorInternals::SetError(kInvalidOperation_SkError,
                 "CaptureCanvasState does not support canvases with antialiased clips.\n");
-        return NULL;
+        return nullptr;
     }
 
     SkAutoTDelete<SkCanvasState_v1> canvasState(new SkCanvasState_v1(canvas));
@@ -226,7 +226,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         // we currently only work for bitmap backed devices
         SkPixmap pmap;
         if (!layer.device()->accessPixels(&pmap) || 0 == pmap.width() || 0 == pmap.height()) {
-            return NULL;
+            return nullptr;
         }
 
         SkCanvasLayerState* layerState =
@@ -245,7 +245,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
                 layerState->raster.config = kRGB_565_RasterConfig;
                 break;
             default:
-                return NULL;
+                return nullptr;
         }
         layerState->raster.rowBytes = pmap.rowBytes();
         layerState->raster.pixels = pmap.writable_addr();
@@ -301,7 +301,7 @@ static SkCanvas* create_canvas_from_canvas_layer(const SkCanvasLayerState& layer
         kUnknown_SkColorType;
 
     if (colorType == kUnknown_SkColorType) {
-        return NULL;
+        return nullptr;
     }
 
     bitmap.installPixels(SkImageInfo::Make(layerState.width, layerState.height,
@@ -327,7 +327,7 @@ SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) 
     const SkCanvasState_v1* state_v1 = static_cast<const SkCanvasState_v1*>(state);
 
     if (state_v1->layerCount < 1) {
-        return NULL;
+        return nullptr;
     }
 
     SkAutoTUnref<SkCanvasStack> canvas(new SkCanvasStack(state->width, state->height));
@@ -339,7 +339,7 @@ SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) 
     for (int i = state_v1->layerCount - 1; i >= 0; --i) {
         SkAutoTUnref<SkCanvas> canvasLayer(create_canvas_from_canvas_layer(state_v1->layers[i]));
         if (!canvasLayer.get()) {
-            return NULL;
+            return nullptr;
         }
         canvas->pushCanvas(canvasLayer.get(), SkIPoint::Make(state_v1->layers[i].x,
                                                              state_v1->layers[i].y));

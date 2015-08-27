@@ -72,7 +72,7 @@ public:
 
 #ifdef SK_DEBUG
     virtual bool isEqualTo(const SkDescriptor& desc) const {
-        return NULL != fPathGenerator.get() && fPathGenerator->isEqualTo(desc);
+        return nullptr != fPathGenerator.get() && fPathGenerator->isEqualTo(desc);
     }
 #endif
 protected:

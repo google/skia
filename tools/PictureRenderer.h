@@ -83,9 +83,9 @@ public:
      *
      * @param pict The SkPicture to render.
      * @param writePath The output directory within which this renderer should write all images,
-     *     or NULL if this renderer should not write all images.
+     *     or nullptr if this renderer should not write all images.
      * @param mismatchPath The output directory within which this renderer should write any images
-     *     which do not match expectations, or NULL if this renderer should not write mismatches.
+     *     which do not match expectations, or nullptr if this renderer should not write mismatches.
      * @param inputFilename The name of the input file we are rendering.
      * @param useChecksumBasedFilenames Whether to use checksum-based filenames when writing
      *     bitmap images to disk.
@@ -138,7 +138,7 @@ public:
      * @return bool True if rendering succeeded and, if fWritePath had been specified, the output
      *              was successfully written to a file.
      */
-    virtual bool render(SkBitmap** out = NULL) = 0;
+    virtual bool render(SkBitmap** out = nullptr) = 0;
 
     /**
      * Called once finished with a particular SkPicture, before calling init again, and before
@@ -150,7 +150,7 @@ public:
      * If this PictureRenderer is actually a TiledPictureRender, return a pointer to this as a
      * TiledPictureRender so its methods can be called.
      */
-    virtual TiledPictureRenderer* getTiledRenderer() { return NULL; }
+    virtual TiledPictureRenderer* getTiledRenderer() { return nullptr; }
 
     /**
      * Resets the GPU's state. Does nothing if the backing is raster. For a GPU renderer, calls
@@ -177,7 +177,7 @@ public:
 #if SK_SUPPORT_GPU
         // In case this function is called more than once
         SkSafeUnref(fGrContext);
-        fGrContext = NULL;
+        fGrContext = nullptr;
         // Set to Native so it will have an initial value.
         GrContextFactory::GLContextType glContextType = GrContextFactory::kNative_GLContextType;
 #endif
@@ -208,7 +208,7 @@ public:
         }
 #if SK_SUPPORT_GPU
         fGrContext = fGrContextFactory.get(glContextType, gpuAPI);
-        if (NULL == fGrContext) {
+        if (nullptr == fGrContext) {
             return false;
         } else {
             fGrContext->ref();
@@ -390,7 +390,7 @@ public:
                 break;
 #endif
             default:
-                return NULL;
+                return nullptr;
         }
         return fGrContextFactory.getGLContext(glContextType);
     }
@@ -417,7 +417,7 @@ public:
 #else
     PictureRenderer()
 #endif
-        : fJsonSummaryPtr(NULL)
+        : fJsonSummaryPtr(nullptr)
         , fDeviceType(kBitmap_DeviceType)
         , fEnableWrites(false)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
@@ -425,7 +425,7 @@ public:
         , fScaleFactor(SK_Scalar1)
 #if SK_SUPPORT_GPU
         , fGrContextFactory(opts)
-        , fGrContext(NULL)
+        , fGrContext(nullptr)
         , fSampleCount(0)
         , fUseDFText(false)
 #endif
@@ -481,7 +481,7 @@ protected:
     virtual SkCanvas* setupCanvas(int width, int height);
 
     /**
-     * Copy src to dest; if src==NULL, set dest to empty string.
+     * Copy src to dest; if src==nullptr, set dest to empty string.
      */
     static void CopyString(SkString* dest, const SkString* src);
 
@@ -510,7 +510,7 @@ public:
     RecordPictureRenderer(const GrContextOptions &opts) : INHERITED(opts) { }
 #endif
 
-    bool render(SkBitmap** out = NULL) override;
+    bool render(SkBitmap** out = nullptr) override;
 
     SkString getPerIterTimeFormat() override { return SkString("%.4f"); }
 
@@ -531,7 +531,7 @@ public:
     PipePictureRenderer(const GrContextOptions &opts) : INHERITED(opts) { }
 #endif
 
-    bool render(SkBitmap** out = NULL) override;
+    bool render(SkBitmap** out = nullptr) override;
 
 private:
     SkString getConfigNameInternal() override;
@@ -552,7 +552,7 @@ public:
                       bool useChecksumBasedFilenames,
                       bool useMultiPictureDraw) override;
 
-    bool render(SkBitmap** out = NULL) override;
+    bool render(SkBitmap** out = nullptr) override;
 
 private:
     SkString getConfigNameInternal() override;
@@ -580,7 +580,7 @@ public:
      * If fWritePath was provided, a separate file is
      * created for each tile, named "path0.png", "path1.png", etc.
      */
-    bool render(SkBitmap** out = NULL) override;
+    bool render(SkBitmap** out = nullptr) override;
 
     void end() override;
 
@@ -703,7 +703,7 @@ public:
 
     void setup() override;
 
-    bool render(SkBitmap** out = NULL) override;
+    bool render(SkBitmap** out = nullptr) override;
 
     SkString getPerIterTimeFormat() override { return SkString("%.4f"); }
 

@@ -31,7 +31,7 @@ public:
                          const GrStencilSettings&,
                          const GrPipelineOptimizations&) override {
         SkFAIL("Unsupported\n");
-        return NULL;
+        return nullptr;
     }
 
 private:

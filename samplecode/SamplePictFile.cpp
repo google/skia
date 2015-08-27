@@ -46,12 +46,12 @@ public:
 
 class PictFileView : public SampleView {
 public:
-    PictFileView(const char name[] = NULL)
+    PictFileView(const char name[] = nullptr)
         : fFilename(name)
         , fBBox(kNo_BBoxType)
         , fTileSize(SkSize::Make(0, 0)) {
         for (int i = 0; i < kBBoxTypeCount; ++i) {
-            fPictures[i] = NULL;
+            fPictures[i] = nullptr;
         }
         fCount = 0;
     }
@@ -126,7 +126,7 @@ protected:
                 canvas->setDrawFilter(&filter);
             }
             canvas->drawPicture(*picture);
-            canvas->setDrawFilter(NULL);
+            canvas->setDrawFilter(nullptr);
         }
 
 #ifdef SK_GLYPHCACHE_TRACK_HASH_STATS
@@ -159,8 +159,8 @@ private:
             SkPictureRecorder recorder;
             SkCanvas* can = recorder.beginRecording(SkIntToScalar(bm.width()),
                                                     SkIntToScalar(bm.height()),
-                                                    NULL, 0);
-            can->drawBitmap(bm, 0, 0, NULL);
+                                                    nullptr, 0);
+            can->drawBitmap(bm, 0, 0, nullptr);
             pic.reset(recorder.endRecording());
         } else {
             SkFILEStream stream(path);
@@ -174,7 +174,7 @@ private:
                 SkPictureRecorder recorder;
                 pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                                       pic->cullRect().height(),
-                                                      NULL, 0));
+                                                      nullptr, 0));
                 SkAutoTUnref<SkPicture> p2(recorder.endRecording());
 
                 SkString path2(path);
@@ -184,8 +184,8 @@ private:
             }
         }
 
-        if (NULL == pic) {
-            return NULL;
+        if (nullptr == pic) {
+            return nullptr;
         }
 
         SkAutoTDelete<SkBBHFactory> factory;

@@ -70,7 +70,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (NULL == fBitmap.pixelRef()) {
+        if (nullptr == fBitmap.pixelRef()) {
             fImage.reset(make_image(canvas, &fCenter));
             image_to_bitmap(fImage, &fBitmap);
         }
@@ -85,7 +85,7 @@ protected:
             { fixed * 4,     fixed * 4 }
         };
 
-        canvas->drawBitmap(fBitmap, 10, 10, NULL);
+        canvas->drawBitmap(fBitmap, 10, 10, nullptr);
 
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(100);

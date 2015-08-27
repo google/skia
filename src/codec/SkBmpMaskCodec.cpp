@@ -17,8 +17,8 @@ SkBmpMaskCodec::SkBmpMaskCodec(const SkImageInfo& info, SkStream* stream,
                                SkBmpCodec::RowOrder rowOrder)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fMasks(masks)
-    , fMaskSwizzler(NULL)
-    , fSrcBuffer(NULL)
+    , fMaskSwizzler(nullptr)
+    , fSrcBuffer(nullptr)
 {}
 
 /*
@@ -64,7 +64,7 @@ bool SkBmpMaskCodec::initializeSwizzler(const SkImageInfo& dstInfo) {
     fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(
             dstInfo, fMasks, this->bitsPerPixel()));
 
-    if (NULL == fMaskSwizzler.get()) {
+    if (nullptr == fMaskSwizzler.get()) {
         return false;
     }
 
@@ -94,7 +94,7 @@ SkCodec::Result SkBmpMaskCodec::decode(const SkImageInfo& dstInfo,
             if (kNo_ZeroInitialized == opts.fZeroInitialized || 0 != fillColor) {
                 void* dstStart = this->getDstStartRow(dst, dstRowBytes, y);
                 SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y, fillColor,
-                        NULL);
+                        nullptr);
             }
             return kIncompleteInput;
         }

@@ -51,7 +51,7 @@ static SkDeviceProfile* gGlobalProfile;
 SkDeviceProfile* SkDeviceProfile::GetDefault() {
     SkAutoMutexAcquire amc(gMutex);
 
-    if (NULL == gDefaultProfile) {
+    if (nullptr == gDefaultProfile) {
         gDefaultProfile = SkDeviceProfile::Create(DEFAULT_GAMMAEXP,
                                                   DEFAULT_CONTRASTSCALE,
                                                   DEFAULT_LCDCONFIG,
@@ -63,7 +63,7 @@ SkDeviceProfile* SkDeviceProfile::GetDefault() {
 SkDeviceProfile* SkDeviceProfile::RefGlobal() {
     SkAutoMutexAcquire amc(gMutex);
 
-    if (NULL == gGlobalProfile) {
+    if (nullptr == gGlobalProfile) {
         gGlobalProfile = SkDeviceProfile::GetDefault();
     }
     gGlobalProfile->ref();

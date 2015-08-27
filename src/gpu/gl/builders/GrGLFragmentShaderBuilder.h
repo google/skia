@@ -112,7 +112,7 @@ class GrGLXPFragmentBuilder : public GrGLFragmentBuilder {
 public:
     GrGLXPFragmentBuilder(GrGLProgramBuilder* program) : INHERITED(program) {}
 
-    /** Returns the variable name that holds the color of the destination pixel. This may be NULL if
+    /** Returns the variable name that holds the color of the destination pixel. This may be nullptr if
         no effect advertised that it will read the destination. */
     virtual const char* dstColor() = 0;
 

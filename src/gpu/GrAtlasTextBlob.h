@@ -93,7 +93,7 @@ struct GrAtlasTextBlob : public SkRefCnt {
             }
             // Distance field text cannot draw coloremoji, and so has to fall back.  However,
             // though the distance field text and the coloremoji may share the same run, they
-            // will have different descriptors.  If fOverrideDescriptor is non-NULL, then it
+            // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
             // will be used in place of the run's descriptor to regen texture coords
             // TODO we could have a descriptor cache, it would reduce the size of these blobs
             // significantly, and then the subrun could just have a refed pointer to the

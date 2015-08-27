@@ -47,7 +47,7 @@ protected:
                 canvas->clipRect(SkRect::MakeXYWH(x, y, tile_size, tile_size));
                 canvas->scale(SkScalarInvert(RESIZE_FACTOR),
                               SkScalarInvert(RESIZE_FACTOR));
-                canvas->saveLayer(NULL, &paint);
+                canvas->saveLayer(nullptr, &paint);
                 const char* str[] = {
                     "The quick",
                     "brown fox",

@@ -33,7 +33,7 @@ DEF_TEST(KtxReadWrite, reporter) {
     uint8_t *pixels = reinterpret_cast<uint8_t*>(bm8888.getPixels());
     REPORTER_ASSERT(reporter, pixels);
 
-    if (NULL == pixels) {
+    if (nullptr == pixels) {
         return;
     }
     
@@ -72,7 +72,7 @@ DEF_TEST(KtxReadWrite, reporter) {
     REPORTER_ASSERT(reporter, decodedPixels);
     REPORTER_ASSERT(reporter, decodedBitmap.getSize() == bm8888.getSize());
 
-    if (NULL == decodedPixels) {
+    if (nullptr == decodedPixels) {
         return;
     }
 
@@ -144,7 +144,7 @@ DEF_TEST(KtxReexportPKM, reporter) {
     // Load PKM file into a bitmap
     SkBitmap etcBitmap;
     SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(pkmFilename.c_str()));
-    if (NULL == fileData) {
+    if (nullptr == fileData) {
         SkDebugf("KtxReexportPKM: can't load test file %s\n", pkmFilename.c_str());
         return;
     }

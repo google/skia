@@ -50,7 +50,7 @@ public:
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
      * sampleCount. The Budgeted param controls whether the device's backing store counts against
-     * the resource cache budget. On failure, returns NULL.
+     * the resource cache budget. On failure, returns nullptr.
      */
     static SkGpuDevice* Create(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
                                int sampleCount, const SkSurfaceProps*, InitContents);
@@ -60,7 +60,7 @@ public:
     SkGpuDevice* cloneDevice(const SkSurfaceProps& props) {
         SkBaseDevice* dev = this->onCreateDevice(CreateInfo(this->imageInfo(), kPossible_TileUsage,
                                                             props.pixelGeometry()),
-                                                 NULL);
+                                                 nullptr);
         return static_cast<SkGpuDevice*>(dev);
     }
 
@@ -184,7 +184,7 @@ private:
     void drawBitmapCommon(const SkDraw&,
                           const SkBitmap& bitmap,
                           const SkRect* srcRectPtr,
-                          const SkSize* dstSizePtr,      // ignored iff srcRectPtr == NULL
+                          const SkSize* dstSizePtr,      // ignored iff srcRectPtr == nullptr
                           const SkPaint&,
                           SkCanvas::SrcRectConstraint);
 

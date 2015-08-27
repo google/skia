@@ -17,7 +17,7 @@ static SkShader* make_shader(SkScalar w, SkScalar h) {
     };
     const SkPoint pts[] = { { w/4, 0 }, { 3*w/4, h } };
 
-    return SkGradientShader::CreateLinear(pts, colors, NULL,
+    return SkGradientShader::CreateLinear(pts, colors, nullptr,
                                           SK_ARRAY_COUNT(colors),
                                           SkShader::kMirror_TileMode);
 }
@@ -30,7 +30,7 @@ class VerticesGM : public skiagm::GM {
     unsigned    fAlpha;
 
 public:
-    VerticesGM(unsigned alpha) : fShader(NULL), fAlpha(alpha) {
+    VerticesGM(unsigned alpha) : fShader(nullptr), fAlpha(alpha) {
     }
 
     virtual ~VerticesGM() {
@@ -85,8 +85,8 @@ protected:
             const SkColor*  fColors;
             const SkPoint*  fTexs;
         } rec[] = {
-            { fColors,  NULL },
-            { NULL,     fTexs },
+            { fColors,  nullptr },
+            { nullptr,     fTexs },
             { fColors,  fTexs },
         };
 

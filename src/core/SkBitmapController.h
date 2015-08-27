@@ -40,7 +40,7 @@ public:
                          void* storage, size_t storageSize);
 
     State* requestBitmap(const SkBitmap& bm, const SkMatrix& inverse, SkFilterQuality quality) {
-        return this->requestBitmap(bm, inverse, quality, NULL, 0);
+        return this->requestBitmap(bm, inverse, quality, nullptr, 0);
     }
 
 protected:

@@ -470,7 +470,7 @@ DEF_TEST(Jpeg_YUV, reporter) {
 
     SkPixelRef* pixelRef = bitmap.pixelRef();
     SkISize yuvSizes[3];
-    bool sizesComputed = (NULL != pixelRef) && pixelRef->getYUV8Planes(yuvSizes, NULL, NULL, NULL);
+    bool sizesComputed = (nullptr != pixelRef) && pixelRef->getYUV8Planes(yuvSizes, nullptr, nullptr, nullptr);
     REPORTER_ASSERT(reporter, sizesComputed);
 
     if (!sizesComputed) {
@@ -495,5 +495,5 @@ DEF_TEST(Jpeg_YUV, reporter) {
     planes[2] = (uint8_t*)planes[1] + sizes[1];
 
     // Get the YUV planes
-    REPORTER_ASSERT(reporter, pixelRef->getYUV8Planes(yuvSizes, planes, rowBytes, NULL));
+    REPORTER_ASSERT(reporter, pixelRef->getYUV8Planes(yuvSizes, planes, rowBytes, nullptr));
 }

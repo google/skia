@@ -35,7 +35,7 @@ static bool compress_etc1_565(uint8_t* dst, const uint8_t* src,
 namespace SkTextureCompressor {
 
 void GetBlockDimensions(Format format, int* dimX, int* dimY, bool matchSpec) {
-    if (NULL == dimX || NULL == dimY) {
+    if (nullptr == dimX || nullptr == dimY) {
         return;
     }
 
@@ -147,7 +147,7 @@ bool CompressBufferToFormat(uint8_t* dst, const uint8_t* src, SkColorType srcCol
 SkData* CompressBitmapToFormat(const SkPixmap& pixmap, Format format) {
     int compressedDataSize = GetCompressedDataSize(format, pixmap.width(), pixmap.height());
     if (compressedDataSize < 0) {
-        return NULL;
+        return nullptr;
     }
 
     const uint8_t* src = reinterpret_cast<const uint8_t*>(pixmap.addr());
@@ -156,7 +156,7 @@ SkData* CompressBitmapToFormat(const SkPixmap& pixmap, Format format) {
     if (!CompressBufferToFormat((uint8_t*)dst->writable_data(), src, pixmap.colorType(),
                                 pixmap.width(), pixmap.height(), pixmap.rowBytes(), format)) {
         dst->unref();
-        dst = NULL;
+        dst = nullptr;
     }
     return dst;
 }
@@ -174,10 +174,10 @@ SkBlitter* CreateBlitterForFormat(int width, int height, void* compressedBuffer,
             return CreateASTCBlitter(width, height, compressedBuffer, allocator);
 
         default:
-            return NULL;
+            return nullptr;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool DecompressBufferFromFormat(uint8_t* dst, int dstRowBytes, const uint8_t* src,

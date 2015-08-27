@@ -160,7 +160,7 @@ SkFlattenable* SkPath1DPathEffect::CreateProc(SkReadBuffer& buffer) {
         Style style = (Style)buffer.readUInt();
         return SkPath1DPathEffect::Create(path, advance, phase, style);
     }
-    return NULL;
+    return nullptr;
 }
 
 void SkPath1DPathEffect::flatten(SkWriteBuffer& buffer) const {
@@ -177,7 +177,7 @@ SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
     switch (fStyle) {
         case kTranslate_Style: {
             SkPoint pos;
-            if (meas.getPosTan(distance, &pos, NULL)) {
+            if (meas.getPosTan(distance, &pos, nullptr)) {
                 dst->addPath(fPath, pos.fX, pos.fY);
             }
         } break;

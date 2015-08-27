@@ -45,7 +45,7 @@ protected:
         canvas->drawPath(path, paint);
 
         paint.setColor(SK_ColorGREEN);
-        paint.setPathEffect(NULL);
+        paint.setPathEffect(nullptr);
         paint.setStrokeWidth(0);
         canvas->drawPath(path, paint);
     }

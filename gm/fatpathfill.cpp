@@ -36,7 +36,7 @@ static void draw_fatpath(SkCanvas* canvas, SkSurface* surface, const SkPath& pat
 
     surface->getCanvas()->clear(SK_ColorTRANSPARENT);
     surface->getCanvas()->drawPath(path, paint);
-    surface->draw(canvas, 0, 0, NULL);
+    surface->draw(canvas, 0, 0, nullptr);
 
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);

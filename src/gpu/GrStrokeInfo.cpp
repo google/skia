@@ -17,7 +17,7 @@ bool GrStrokeInfo::applyDashToPath(SkPath* dst, GrStrokeInfo* dstStrokeInfo,
         info.fCount = fIntervals.count();
         info.fPhase = fDashPhase;
         GrStrokeInfo filteredStroke(*this, false);
-        if (SkDashPath::FilterDashPath(dst, src, &filteredStroke, NULL, info)) {
+        if (SkDashPath::FilterDashPath(dst, src, &filteredStroke, nullptr, info)) {
             *dstStrokeInfo = filteredStroke;
             return true;
         }

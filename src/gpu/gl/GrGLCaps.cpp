@@ -538,11 +538,11 @@ bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrG
     // additions are detected by checking the existence of the function.
     // We also use *Then* functions that not all drivers might have. Check
     // them for consistency.
-    if (NULL == gli->fFunctions.fStencilThenCoverFillPath ||
-        NULL == gli->fFunctions.fStencilThenCoverStrokePath ||
-        NULL == gli->fFunctions.fStencilThenCoverFillPathInstanced ||
-        NULL == gli->fFunctions.fStencilThenCoverStrokePathInstanced ||
-        NULL == gli->fFunctions.fProgramPathFragmentInputGen) {
+    if (nullptr == gli->fFunctions.fStencilThenCoverFillPath ||
+        nullptr == gli->fFunctions.fStencilThenCoverStrokePath ||
+        nullptr == gli->fFunctions.fStencilThenCoverFillPathInstanced ||
+        nullptr == gli->fFunctions.fStencilThenCoverStrokePathInstanced ||
+        nullptr == gli->fFunctions.fProgramPathFragmentInputGen) {
         return false;
     }
     return true;
@@ -1192,7 +1192,7 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
             if (kGeometry_GrShaderType != s) {
                 GrShaderType shaderType = static_cast<GrShaderType>(s);
                 GrGLenum glShader = shader_type_to_gl_shader(shaderType);
-                GrShaderCaps::PrecisionInfo* first = NULL;
+                GrShaderCaps::PrecisionInfo* first = nullptr;
                 glslCaps->fShaderPrecisionVaries = false;
                 for (int p = 0; p < kGrSLPrecisionCount; ++p) {
                     GrSLPrecision precision = static_cast<GrSLPrecision>(p);

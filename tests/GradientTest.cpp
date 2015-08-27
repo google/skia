@@ -18,7 +18,7 @@
 static void test_big_grad(skiatest::Reporter* reporter) {
     const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     const SkPoint pts[] = {{ 15, 14.7112684f }, { 0.709064007f, 12.6108112f }};
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
     SkPaint paint;
     paint.setShader(s)->unref();
 
@@ -67,15 +67,15 @@ struct GradRec {
 
 static void none_gradproc(skiatest::Reporter* reporter, const GradRec&) {
     SkAutoTUnref<SkShader> s(SkShader::CreateEmptyShader());
-    REPORTER_ASSERT(reporter, SkShader::kNone_GradientType == s->asAGradient(NULL));
+    REPORTER_ASSERT(reporter, SkShader::kNone_GradientType == s->asAGradient(nullptr));
 }
 
 static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
     SkAutoTUnref<SkShader> s(new SkColorShader(rec.fColors[0]));
-    REPORTER_ASSERT(reporter, SkShader::kColor_GradientType == s->asAGradient(NULL));
+    REPORTER_ASSERT(reporter, SkShader::kColor_GradientType == s->asAGradient(nullptr));
 
     SkShader::GradientInfo info;
-    info.fColors = NULL;
+    info.fColors = nullptr;
     info.fColorCount = 0;
     s->asAGradient(&info);
     REPORTER_ASSERT(reporter, 1 == info.fColorCount);

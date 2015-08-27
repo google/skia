@@ -313,7 +313,7 @@ bool SkRasterClip::op(const SkRect& r, const SkISize& size, SkRegion::Op op, boo
 }
 
 void SkRasterClip::translate(int dx, int dy, SkRasterClip* dst) const {
-    if (NULL == dst) {
+    if (nullptr == dst) {
         return;
     }
 
@@ -386,8 +386,8 @@ void SkRasterClip::validate() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkAAClipBlitterWrapper::SkAAClipBlitterWrapper() {
-    SkDEBUGCODE(fClipRgn = NULL;)
-    SkDEBUGCODE(fBlitter = NULL;)
+    SkDEBUGCODE(fClipRgn = nullptr;)
+    SkDEBUGCODE(fBlitter = nullptr;)
 }
 
 SkAAClipBlitterWrapper::SkAAClipBlitterWrapper(const SkRasterClip& clip,

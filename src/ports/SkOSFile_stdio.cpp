@@ -70,7 +70,7 @@ bool sk_frewind(SkFILE* f) {
 
 size_t sk_fread(void* buffer, size_t byteCount, SkFILE* f) {
     SkASSERT(f);
-    if (buffer == NULL) {
+    if (buffer == nullptr) {
         size_t curr = ::ftell((FILE*)f);
         if ((long)curr == -1) {
             SkDEBUGF(("sk_fread: ftell(%p) returned -1 feof:%d ferror:%d\n", f, feof((FILE*)f), ferror((FILE*)f)));

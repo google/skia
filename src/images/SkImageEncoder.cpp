@@ -31,7 +31,7 @@ SkData* SkImageEncoder::encodeData(const SkBitmap& bm, int quality) {
     if (this->onEncode(&stream, bm, quality)) {
         return stream.copyToData();
     }
-    return NULL;
+    return nullptr;
 }
 
 bool SkImageEncoder::EncodeFile(const char file[], const SkBitmap& bm, Type t,
@@ -48,15 +48,15 @@ bool SkImageEncoder::EncodeStream(SkWStream* stream, const SkBitmap& bm, Type t,
 
 SkData* SkImageEncoder::EncodeData(const SkBitmap& bm, Type t, int quality) {
     SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
-    return enc.get() ? enc.get()->encodeData(bm, quality) : NULL;
+    return enc.get() ? enc.get()->encodeData(bm, quality) : nullptr;
 }
 
 SkData* SkImageEncoder::EncodeData(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                                    Type t, int quality) {
     SkBitmap bm;
     if (!bm.installPixels(info, const_cast<void*>(pixels), rowBytes)) {
-        return NULL;
+        return nullptr;
     }
     SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
-    return enc.get() ? enc.get()->encodeData(bm, quality) : NULL;
+    return enc.get() ? enc.get()->encodeData(bm, quality) : nullptr;
 }

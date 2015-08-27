@@ -485,7 +485,7 @@ bool CompressA8ToLATC(uint8_t* dst, const uint8_t* src, int width, int height, s
 SkBlitter* CreateLATCBlitter(int width, int height, void* outputBuffer,
                              SkTBlitterAllocator* allocator) {
     if ((width % 4) != 0 || (height % 4) != 0) {
-        return NULL;
+        return nullptr;
     }
 
 #if COMPRESS_LATC_FAST
@@ -502,7 +502,7 @@ SkBlitter* CreateLATCBlitter(int width, int height, void* outputBuffer,
         (width, height, outputBuffer);
 #elif COMPRESS_LATC_SLOW
     // TODO (krajcevski)
-    return NULL;
+    return nullptr;
 #endif
 }
 

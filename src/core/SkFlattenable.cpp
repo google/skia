@@ -17,7 +17,7 @@ uint32_t SkNamedFactorySet::find(SkFlattenable::Factory factory) {
         return index;
     }
     const char* name = SkFlattenable::FactoryToName(factory);
-    if (NULL == name) {
+    if (nullptr == name) {
         return 0;
     }
     *fNames.append() = name;
@@ -28,7 +28,7 @@ const char* SkNamedFactorySet::getNextAddedFactoryName() {
     if (fNextAddedFactory < fNames.count()) {
         return fNames[fNextAddedFactory++];
     }
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
             return entries[i].fFactory;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 bool SkFlattenable::NameToType(const char name[], SkFlattenable::Type* type) {
@@ -128,5 +128,5 @@ const char* SkFlattenable::FactoryToName(Factory fact) {
             return entries[i].fName;
         }
     }
-    return NULL;
+    return nullptr;
 }

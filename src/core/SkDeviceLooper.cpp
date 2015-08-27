@@ -16,8 +16,8 @@ SkDeviceLooper::SkDeviceLooper(const SkPixmap& base, const SkRasterClip& rc, con
 {
     // sentinels that next() has not yet been called, and so our mapper functions
     // should not be called either.
-    fCurrDst = NULL;
-    fCurrRC = NULL;
+    fCurrDst = nullptr;
+    fCurrRC = nullptr;
 
     if (!rc.isEmpty()) {
         // clip must be contained by the bitmap
@@ -102,7 +102,7 @@ bool SkDeviceLooper::next() {
 
         case kSimple_State:
             // first time for simple
-            if (NULL == fCurrDst) {
+            if (nullptr == fCurrDst) {
                 fCurrDst = &fBaseDst;
                 fCurrRC = &fBaseRC;
                 fCurrOffset.set(0, 0);

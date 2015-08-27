@@ -24,7 +24,7 @@ SkTestFont::SkTestFont(const SkTestFontData& fontData)
     , fWidths(fontData.fWidths)
     , fMetrics(fontData.fMetrics)
     , fName(fontData.fName)
-    , fPaths(NULL)
+    , fPaths(nullptr)
 {
     init(fontData.fPoints, fontData.fVerbs);
 #ifdef SK_DEBUG
@@ -173,7 +173,7 @@ SkTypeface::LocalizedStrings* SkTestTypeface::onCreateFamilyNameIterator() const
     SkString familyName(fTestFont->fName);
     SkString language("und"); //undetermined
 SkASSERT(0);  // incomplete
-    return NULL;
+    return nullptr;
 //     return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
 }
 

@@ -225,7 +225,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
         const SkImageInfo& info, SkMasks* masks, uint32_t bitsPerPixel) {
 
     // Choose the appropriate row procedure
-    RowProc proc = NULL;
+    RowProc proc = nullptr;
     switch (bitsPerPixel) {
         case 16:
             switch (info.colorType()) {
@@ -319,7 +319,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
             break;
         default:
             SkASSERT(false);
-            return NULL;
+            return nullptr;
     }
     return new SkMaskSwizzler(info, masks, proc);
 }
@@ -342,6 +342,6 @@ SkMaskSwizzler::SkMaskSwizzler(const SkImageInfo& dstInfo, SkMasks* masks,
  *
  */
 SkSwizzler::ResultAlpha SkMaskSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
-    SkASSERT(NULL != dst && NULL != src);
+    SkASSERT(nullptr != dst && nullptr != src);
     return fRowProc(dst, src, fDstInfo.width(), fMasks);
 }

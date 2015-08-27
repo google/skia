@@ -21,7 +21,7 @@ static void make_bm(SkBitmap* bm) {
 
     bm->allocPixels(SkImageInfo::Make(2, 2, kIndex_8_SkColorType,
                                       kPremul_SkAlphaType),
-                    NULL, ctable);
+                    nullptr, ctable);
     ctable->unref();
 
     *bm->getAddr8(0, 0) = 0;

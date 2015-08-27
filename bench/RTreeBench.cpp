@@ -44,7 +44,7 @@ protected:
         for (int i = 0; i < loops; ++i) {
             SkRTree tree;
             tree.insert(rects.get(), NUM_BUILD_RECTS);
-            SkASSERT(rects != NULL);  // It'd break this bench if the tree took ownership of rects.
+            SkASSERT(rects != nullptr);  // It'd break this bench if the tree took ownership of rects.
         }
     }
 private:

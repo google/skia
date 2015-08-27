@@ -355,7 +355,7 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
     }
 
     SkAAClipBlitterWrapper wrap;
-    const SkRegion* clip = NULL;
+    const SkRegion* clip = nullptr;
 
     {
         const SkIRect ibounds = path.getBounds().roundOut().makeOutset(1, 1);
@@ -462,7 +462,7 @@ void SkScan::HairLine(const SkPoint pts[], int count, const SkRasterClip& clip,
     if (clip.isBW()) {
         HairLineRgn(pts, count, &clip.bwRgn(), blitter);
     } else {
-        const SkRegion* clipRgn = NULL;
+        const SkRegion* clipRgn = nullptr;
 
         SkRect r;
         r.set(pts, count);
@@ -483,7 +483,7 @@ void SkScan::AntiHairLine(const SkPoint pts[], int count, const SkRasterClip& cl
     if (clip.isBW()) {
         AntiHairLineRgn(pts, count, &clip.bwRgn(), blitter);
     } else {
-        const SkRegion* clipRgn = NULL;
+        const SkRegion* clipRgn = nullptr;
 
         SkRect r;
         r.set(pts, count);

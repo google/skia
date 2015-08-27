@@ -96,7 +96,7 @@ protected:
 
         SkIRect cropRect = SkIRect::MakeXYWH(0, 0, 100, 100);
         SkImageFilter::CropRect rect(SkRect::Make(cropRect));
-        SkAutoTUnref<SkImageFilter> filter(SkOffsetImageFilter::Create(-5, -10, NULL, &rect));
+        SkAutoTUnref<SkImageFilter> filter(SkOffsetImageFilter::Create(-5, -10, nullptr, &rect));
         paint.setImageFilter(filter);
         drawClippedBitmap(canvas, fBitmap, paint, 2, cropRect);
     }
@@ -120,7 +120,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(640, 200); }
     
     void doDraw(SkCanvas* canvas, const SkRect& r, SkImageFilter* imgf,
-                const SkRect* clipR = NULL) {
+                const SkRect* clipR = nullptr) {
         SkPaint p;
 
         if (clipR) {
@@ -167,23 +167,23 @@ protected:
         canvas->translate(40, 40);
         
         canvas->save();
-        this->doDraw(canvas, r, NULL);
+        this->doDraw(canvas, r, nullptr);
         
         canvas->translate(100, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20));
         
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, NULL, &cr0));
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, &cr0));
         
         canvas->translate(100, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20), &r);
         
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, NULL, &cr1));
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, &cr1));
         
         SkRect clipR = SkRect::MakeXYWH(40, 40, 40, 40);
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, NULL, NULL), &clipR);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(20, 20, nullptr, nullptr), &clipR);
         canvas->restore();
 
         // 2nd row
@@ -194,19 +194,19 @@ protected:
          */
 
         // crop==clip==src
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, NULL, &cr0), &r);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, nullptr, &cr0), &r);
 
         // crop==src, clip==dst
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, NULL, &cr0), &r2);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, nullptr, &cr0), &r2);
 
         // crop==dst, clip==src
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, NULL, &cr2), &r);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, nullptr, &cr2), &r);
 
         // crop==clip==dst
         canvas->translate(100, 0);
-        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, NULL, &cr2), &r2);
+        this->doDraw(canvas, r, SkOffsetImageFilter::Create(40, 0, nullptr, &cr2), &r2);
     }
 
 private:

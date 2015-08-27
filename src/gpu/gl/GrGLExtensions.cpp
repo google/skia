@@ -48,7 +48,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
     fInitialized = false;
     fStrings->reset();
 
-    if (NULL == getString) {
+    if (nullptr == getString) {
         return false;
     }
 
@@ -62,7 +62,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
     bool indexed = version >= GR_GL_VER(3, 0);
 
     if (indexed) {
-        if (NULL == getStringi || NULL == getIntegerv) {
+        if (nullptr == getStringi || nullptr == getIntegerv) {
             return false;
         }
         GrGLint extensionCnt = 0;
@@ -74,7 +74,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
         }
     } else {
         const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
-        if (NULL == extensions) {
+        if (nullptr == extensions) {
             return false;
         }
         while (true) {
@@ -133,7 +133,7 @@ void GrGLExtensions::add(const char ext[]) {
 }
 
 void GrGLExtensions::print(const char* sep) const {
-    if (NULL == sep) {
+    if (nullptr == sep) {
         sep = " ";
     }
     int cnt = fStrings->count();

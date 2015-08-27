@@ -76,7 +76,7 @@ protected:
         SkPaint p;
         p.setTypeface(fTypeface);
         size_t txtLen = strlen(fText);
-        int glyphCount = p.textToGlyphs(fText, txtLen, NULL);
+        int glyphCount = p.textToGlyphs(fText, txtLen, nullptr);
 
         fGlyphs.append(glyphCount);
         p.textToGlyphs(fText, txtLen, fGlyphs.begin());

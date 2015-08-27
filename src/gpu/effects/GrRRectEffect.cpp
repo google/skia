@@ -79,7 +79,7 @@ GrFragmentProcessor* CircularRRectEffect::Create(GrPrimitiveEdgeType edgeType,
                                                  uint32_t circularCornerFlags,
                                                  const SkRRect& rrect) {
     if (kFillAA_GrProcessorEdgeType != edgeType && kInverseFillAA_GrProcessorEdgeType != edgeType) {
-        return NULL;
+        return nullptr;
     }
     return new CircularRRectEffect(edgeType, circularCornerFlags, rrect);
 }
@@ -118,7 +118,7 @@ GrFragmentProcessor* CircularRRectEffect::TestCreate(GrProcessorTestData* d) {
         GrPrimitiveEdgeType et =
                 (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
         fp = GrRRectEffect::Create(et, rrect);
-    } while (NULL == fp);
+    } while (nullptr == fp);
     return fp;
 }
 
@@ -407,7 +407,7 @@ private:
 GrFragmentProcessor*
 EllipticalRRectEffect::Create(GrPrimitiveEdgeType edgeType, const SkRRect& rrect) {
     if (kFillAA_GrProcessorEdgeType != edgeType && kInverseFillAA_GrProcessorEdgeType != edgeType) {
-        return NULL;
+        return nullptr;
     }
     return new EllipticalRRectEffect(edgeType, rrect);
 }
@@ -464,7 +464,7 @@ GrFragmentProcessor* EllipticalRRectEffect::TestCreate(GrProcessorTestData* d) {
         GrPrimitiveEdgeType et =
                 (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
         fp = GrRRectEffect::Create(et, rrect);
-    } while (NULL == fp);
+    } while (nullptr == fp);
     return fp;
 }
 
@@ -706,15 +706,15 @@ GrFragmentProcessor* GrRRectEffect::Create(GrPrimitiveEdgeType edgeType, const S
                     // If we got here then we squashed some but not all the radii to zero. (If all
                     // had been squashed cornerFlags would be 0.) The elliptical effect doesn't
                     // support some rounded and some square corners.
-                    return NULL;
+                    return nullptr;
                 }
                 if (rrect.isNinePatch()) {
                     return EllipticalRRectEffect::Create(edgeType, rrect);
                 }
-                return NULL;
+                return nullptr;
             }
         }
     }
 
-    return NULL;
+    return nullptr;
 }

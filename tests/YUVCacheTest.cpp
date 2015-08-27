@@ -24,7 +24,7 @@ static void check_data(skiatest::Reporter* reporter, SkCachedData* data,
                        int refcnt, CachedState cacheState, LockedState lockedState) {
     REPORTER_ASSERT(reporter, data->testing_only_getRefCnt() == refcnt);
     REPORTER_ASSERT(reporter, data->testing_only_isInCache() == (kInCache == cacheState));
-    bool isLocked = (data->data() != NULL);
+    bool isLocked = (data->data() != nullptr);
     REPORTER_ASSERT(reporter, isLocked == (lockedState == kLocked));
 }
 
@@ -43,7 +43,7 @@ DEF_TEST(YUVPlanesCache, reporter) {
     const uint32_t genID = 12345678;
 
     SkCachedData* data = SkYUVPlanesCache::FindAndRef(genID, &yuvInfo, &cache);
-    REPORTER_ASSERT(reporter, NULL == data);
+    REPORTER_ASSERT(reporter, nullptr == data);
 
     size_t size = 256;
     data = cache.newCachedData(size);

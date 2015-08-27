@@ -67,7 +67,7 @@ protected:
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        this->inval(NULL);
+        this->inval(nullptr);
 
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
@@ -77,7 +77,7 @@ protected:
     }
 
     virtual bool handleKey(SkKey) {
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 

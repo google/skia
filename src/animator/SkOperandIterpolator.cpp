@@ -38,7 +38,7 @@ void SkOperandInterpolator::reset(int elemCount, int frameCount, SkDisplayTypes 
 
 bool SkOperandInterpolator::setKeyFrame(int index, SkMSec time, const SkOperand values[], SkScalar blend)
 {
-    SkASSERT(values != NULL);
+    SkASSERT(values != nullptr);
     blend = SkScalarPin(blend, 0, SK_Scalar1);
 
     bool success = ~index == SkTSearch<SkMSec>(&fTimes->fTime, index, time, sizeof(SkTimeCode));

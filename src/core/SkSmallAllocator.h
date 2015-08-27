@@ -21,7 +21,7 @@ template<typename T> void destroyT(void* ptr) {
  *  Template class for allocating small objects without additional heap memory
  *  allocations. kMaxObjects is a hard limit on the number of objects that can
  *  be allocated using this class. After that, attempts to create more objects
- *  with this class will assert and return NULL.
+ *  with this class will assert and return nullptr.
  *  kTotalBytes is the total number of bytes provided for storage for all
  *  objects created by this allocator. If an object to be created is larger
  *  than the storage (minus storage already used), it will be allocated on the
@@ -44,7 +44,7 @@ public:
             Rec* rec = &fRecs[fNumObjects];
             rec->fKillProc(rec->fObj);
             // Safe to do if fObj is in fStorage, since fHeapStorage will
-            // point to NULL.
+            // point to nullptr.
             sk_free(rec->fHeapStorage);
         }
     }
@@ -54,14 +54,14 @@ public:
      *  SkSmallAllocator.
      *  Each version behaves the same but takes a different number of
      *  arguments.
-     *  Note: If kMaxObjects have been created by this SkSmallAllocator, NULL
+     *  Note: If kMaxObjects have been created by this SkSmallAllocator, nullptr
      *  will be returned.
      */
     template<typename T>
     T* createT() {
         void* buf = this->reserveT<T>();
-        if (NULL == buf) {
-            return NULL;
+        if (nullptr == buf) {
+            return nullptr;
         }
         new (buf) T;
         return static_cast<T*>(buf);
@@ -69,8 +69,8 @@ public:
 
     template<typename T, typename A1> T* createT(const A1& a1) {
         void* buf = this->reserveT<T>();
-        if (NULL == buf) {
-            return NULL;
+        if (nullptr == buf) {
+            return nullptr;
         }
         new (buf) T(a1);
         return static_cast<T*>(buf);
@@ -79,8 +79,8 @@ public:
     template<typename T, typename A1, typename A2>
     T* createT(const A1& a1, const A2& a2) {
         void* buf = this->reserveT<T>();
-        if (NULL == buf) {
-            return NULL;
+        if (nullptr == buf) {
+            return nullptr;
         }
         new (buf) T(a1, a2);
         return static_cast<T*>(buf);
@@ -89,8 +89,8 @@ public:
     template<typename T, typename A1, typename A2, typename A3>
     T* createT(const A1& a1, const A2& a2, const A3& a3) {
         void* buf = this->reserveT<T>();
-        if (NULL == buf) {
-            return NULL;
+        if (nullptr == buf) {
+            return nullptr;
         }
         new (buf) T(a1, a2, a3);
         return static_cast<T*>(buf);
@@ -99,8 +99,8 @@ public:
     template<typename T, typename A1, typename A2, typename A3, typename A4>
     T* createT(const A1& a1, const A2& a2, const A3& a3, const A4& a4) {
         void* buf = this->reserveT<T>();
-        if (NULL == buf) {
-            return NULL;
+        if (nullptr == buf) {
+            return nullptr;
         }
         new (buf) T(a1, a2, a3, a4);
         return static_cast<T*>(buf);
@@ -117,7 +117,7 @@ public:
         SkASSERT(fNumObjects < kMaxObjects);
         SkASSERT(storageRequired >= sizeof(T));
         if (kMaxObjects == fNumObjects) {
-            return NULL;
+            return nullptr;
         }
         const size_t storageRemaining = SkAlign4(kTotalBytes) - fStorageUsed;
         storageRequired = SkAlign4(storageRequired);
@@ -133,7 +133,7 @@ public:
         } else {
             // There is space in fStorage.
             rec->fStorageSize = storageRequired;
-            rec->fHeapStorage = NULL;
+            rec->fHeapStorage = nullptr;
             SkASSERT(SkIsAlign4(fStorageUsed));
             rec->fObj = static_cast<void*>(fStorage + (fStorageUsed / 4));
             fStorageUsed += storageRequired;

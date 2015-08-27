@@ -10,51 +10,51 @@
 static SkTestFontData gTestFonts[] = {
     {    LiberationMonoNormalPoints, LiberationMonoNormalVerbs, LiberationMonoNormalCharCodes,
          LiberationMonoNormalCharCodesCount, LiberationMonoNormalWidths,
-         LiberationMonoNormalMetrics, "Toy Liberation Mono", SkTypeface::kNormal, NULL
+         LiberationMonoNormalMetrics, "Toy Liberation Mono", SkTypeface::kNormal, nullptr
     },
     {    LiberationMonoBoldPoints, LiberationMonoBoldVerbs, LiberationMonoBoldCharCodes,
          LiberationMonoBoldCharCodesCount, LiberationMonoBoldWidths,
-         LiberationMonoBoldMetrics, "Toy Liberation Mono", SkTypeface::kBold, NULL
+         LiberationMonoBoldMetrics, "Toy Liberation Mono", SkTypeface::kBold, nullptr
     },
     {    LiberationMonoItalicPoints, LiberationMonoItalicVerbs, LiberationMonoItalicCharCodes,
          LiberationMonoItalicCharCodesCount, LiberationMonoItalicWidths,
-         LiberationMonoItalicMetrics, "Toy Liberation Mono", SkTypeface::kItalic, NULL
+         LiberationMonoItalicMetrics, "Toy Liberation Mono", SkTypeface::kItalic, nullptr
     },
     {    LiberationMonoBoldItalicPoints, LiberationMonoBoldItalicVerbs, LiberationMonoBoldItalicCharCodes,
          LiberationMonoBoldItalicCharCodesCount, LiberationMonoBoldItalicWidths,
-         LiberationMonoBoldItalicMetrics, "Toy Liberation Mono", SkTypeface::kBoldItalic, NULL
+         LiberationMonoBoldItalicMetrics, "Toy Liberation Mono", SkTypeface::kBoldItalic, nullptr
     },
     {    LiberationSansNormalPoints, LiberationSansNormalVerbs, LiberationSansNormalCharCodes,
          LiberationSansNormalCharCodesCount, LiberationSansNormalWidths,
-         LiberationSansNormalMetrics, "Toy Liberation Sans", SkTypeface::kNormal, NULL
+         LiberationSansNormalMetrics, "Toy Liberation Sans", SkTypeface::kNormal, nullptr
     },
     {    LiberationSansBoldPoints, LiberationSansBoldVerbs, LiberationSansBoldCharCodes,
          LiberationSansBoldCharCodesCount, LiberationSansBoldWidths,
-         LiberationSansBoldMetrics, "Toy Liberation Sans", SkTypeface::kBold, NULL
+         LiberationSansBoldMetrics, "Toy Liberation Sans", SkTypeface::kBold, nullptr
     },
     {    LiberationSansItalicPoints, LiberationSansItalicVerbs, LiberationSansItalicCharCodes,
          LiberationSansItalicCharCodesCount, LiberationSansItalicWidths,
-         LiberationSansItalicMetrics, "Toy Liberation Sans", SkTypeface::kItalic, NULL
+         LiberationSansItalicMetrics, "Toy Liberation Sans", SkTypeface::kItalic, nullptr
     },
     {    LiberationSansBoldItalicPoints, LiberationSansBoldItalicVerbs, LiberationSansBoldItalicCharCodes,
          LiberationSansBoldItalicCharCodesCount, LiberationSansBoldItalicWidths,
-         LiberationSansBoldItalicMetrics, "Toy Liberation Sans", SkTypeface::kBoldItalic, NULL
+         LiberationSansBoldItalicMetrics, "Toy Liberation Sans", SkTypeface::kBoldItalic, nullptr
     },
     {    LiberationSerifNormalPoints, LiberationSerifNormalVerbs, LiberationSerifNormalCharCodes,
          LiberationSerifNormalCharCodesCount, LiberationSerifNormalWidths,
-         LiberationSerifNormalMetrics, "Toy Liberation Serif", SkTypeface::kNormal, NULL
+         LiberationSerifNormalMetrics, "Toy Liberation Serif", SkTypeface::kNormal, nullptr
     },
     {    LiberationSerifBoldPoints, LiberationSerifBoldVerbs, LiberationSerifBoldCharCodes,
          LiberationSerifBoldCharCodesCount, LiberationSerifBoldWidths,
-         LiberationSerifBoldMetrics, "Toy Liberation Serif", SkTypeface::kBold, NULL
+         LiberationSerifBoldMetrics, "Toy Liberation Serif", SkTypeface::kBold, nullptr
     },
     {    LiberationSerifItalicPoints, LiberationSerifItalicVerbs, LiberationSerifItalicCharCodes,
          LiberationSerifItalicCharCodesCount, LiberationSerifItalicWidths,
-         LiberationSerifItalicMetrics, "Toy Liberation Serif", SkTypeface::kItalic, NULL
+         LiberationSerifItalicMetrics, "Toy Liberation Serif", SkTypeface::kItalic, nullptr
     },
     {    LiberationSerifBoldItalicPoints, LiberationSerifBoldItalicVerbs, LiberationSerifBoldItalicCharCodes,
          LiberationSerifBoldItalicCharCodesCount, LiberationSerifBoldItalicWidths,
-         LiberationSerifBoldItalicMetrics, "Toy Liberation Serif", SkTypeface::kBoldItalic, NULL
+         LiberationSerifBoldItalicMetrics, "Toy Liberation Serif", SkTypeface::kBoldItalic, nullptr
     },
 };
 

@@ -27,9 +27,9 @@ struct SkCoincidentSpans {
 class SkOpCoincidence {
 public:
     SkOpCoincidence()
-        : fHead(NULL)
-        , fTop(NULL)
-        SkDEBUGPARAMS(fDebugState(NULL))
+        : fHead(nullptr)
+        , fTop(nullptr)
+        SkDEBUGPARAMS(fDebugState(nullptr))
         {
     }
 
@@ -43,19 +43,19 @@ public:
                   SkOpPtT* oppPtTEnd, bool flipped);
 
     const SkOpAngle* debugAngle(int id) const {
-        return SkDEBUGRELEASE(fDebugState->debugAngle(id), NULL);
+        return SkDEBUGRELEASE(fDebugState->debugAngle(id), nullptr);
     }
 
     SkOpContour* debugContour(int id) {
-        return SkDEBUGRELEASE(fDebugState->debugContour(id), NULL);
+        return SkDEBUGRELEASE(fDebugState->debugContour(id), nullptr);
     }
 
     const SkOpPtT* debugPtT(int id) const {
-        return SkDEBUGRELEASE(fDebugState->debugPtT(id), NULL);
+        return SkDEBUGRELEASE(fDebugState->debugPtT(id), nullptr);
     }
 
     const SkOpSegment* debugSegment(int id) const {
-        return SkDEBUGRELEASE(fDebugState->debugSegment(id), NULL);
+        return SkDEBUGRELEASE(fDebugState->debugSegment(id), nullptr);
     }
 
     void debugSetGlobalState(SkOpGlobalState* debugState) {
@@ -65,7 +65,7 @@ public:
     void debugShowCoincidence() const;
 
     const SkOpSpanBase* debugSpan(int id) const {
-        return SkDEBUGRELEASE(fDebugState->debugSpan(id), NULL);
+        return SkDEBUGRELEASE(fDebugState->debugSpan(id), nullptr);
     }
 
     void detach(SkCoincidentSpans* );

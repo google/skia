@@ -18,7 +18,7 @@ static SkShader* MakeLinear(SkScalar width, SkScalar height, bool alternate,
     colors[0] = SK_ColorBLUE;
     colors[1] = SK_ColorYELLOW;
   }
-  return SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+  return SkGradientShader::CreateLinear(pts, colors, nullptr, 2,
                                         SkShader::kClamp_TileMode, 0, &localMatrix);
 }
 

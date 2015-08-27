@@ -79,8 +79,8 @@ public:
         : fFilename(filename)
         , fRoot()
         , fResults(fRoot["results"])
-        , fBench(NULL)
-        , fConfig(NULL) {}
+        , fBench(nullptr)
+        , fConfig(nullptr) {}
 
     ~NanoJSONResultsWriter() {
         this->flush();

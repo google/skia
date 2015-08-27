@@ -244,7 +244,7 @@ void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
 const SkTextBlob* SkTextBlob::CreateFromBuffer(SkReadBuffer& reader) {
     int runCount = reader.read32();
     if (runCount < 0) {
-        return NULL;
+        return nullptr;
     }
 
     SkRect bounds;
@@ -255,7 +255,7 @@ const SkTextBlob* SkTextBlob::CreateFromBuffer(SkReadBuffer& reader) {
         int glyphCount = reader.read32();
         GlyphPositioning pos = static_cast<GlyphPositioning>(reader.read32());
         if (glyphCount <= 0 || pos > kFull_Positioning) {
-            return NULL;
+            return nullptr;
         }
 
         SkPoint offset;
@@ -263,7 +263,7 @@ const SkTextBlob* SkTextBlob::CreateFromBuffer(SkReadBuffer& reader) {
         SkPaint font;
         reader.readPaint(&font);
 
-        const SkTextBlobBuilder::RunBuffer* buf = NULL;
+        const SkTextBlobBuilder::RunBuffer* buf = nullptr;
         switch (pos) {
         case kDefault_Positioning:
             buf = &blobBuilder.allocRun(font, glyphCount, offset.x(), offset.y(), &bounds);
@@ -275,13 +275,13 @@ const SkTextBlob* SkTextBlob::CreateFromBuffer(SkReadBuffer& reader) {
             buf = &blobBuilder.allocRunPos(font, glyphCount, &bounds);
             break;
         default:
-            return NULL;
+            return nullptr;
         }
 
         if (!reader.readByteArray(buf->glyphs, glyphCount * sizeof(uint16_t)) ||
             !reader.readByteArray(buf->pos,
                                   glyphCount * sizeof(SkScalar) * ScalarsPerGlyph(pos))) {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -359,7 +359,7 @@ SkTextBlobBuilder::SkTextBlobBuilder()
 }
 
 SkTextBlobBuilder::~SkTextBlobBuilder() {
-    if (NULL != fStorage.get()) {
+    if (nullptr != fStorage.get()) {
         // We are abandoning runs and must destruct the associated font data.
         // The easiest way to accomplish that is to use the blob destructor.
         build()->unref();
@@ -447,7 +447,7 @@ void SkTextBlobBuilder::reserve(size_t size) {
     }
 
     if (0 == fRunCount) {
-        SkASSERT(NULL == fStorage.get());
+        SkASSERT(nullptr == fStorage.get());
         SkASSERT(0 == fStorageSize);
         SkASSERT(0 == fStorageUsed);
 
@@ -573,12 +573,12 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPos(const SkPaint
 }
 
 const SkTextBlob* SkTextBlobBuilder::build() {
-    SkASSERT((fRunCount > 0) == (NULL != fStorage.get()));
+    SkASSERT((fRunCount > 0) == (nullptr != fStorage.get()));
 
     this->updateDeferredBounds();
 
     if (0 == fRunCount) {
-        SkASSERT(NULL == fStorage.get());
+        SkASSERT(nullptr == fStorage.get());
         fStorageUsed = sizeof(SkTextBlob);
         fStorage.realloc(fStorageUsed);
     }
