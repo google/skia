@@ -14,6 +14,7 @@
 
 class SkCachedData;
 class SkDiscardableMemory;
+class SkTraceMemoryDump;
 
 /**
  *  Cache object for bitmaps (with possible scale in X Y as part of the key).
@@ -151,6 +152,11 @@ public:
     static void PurgeAll();
 
     static void TestDumpMemoryStatistics();
+
+    /** Dump memory usage statistics of every Rec in the cache using the
+        SkTraceMemoryDump interface.
+     */
+    static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
     /**
      *  Returns the DiscardableFactory used by the global cache, or nullptr.

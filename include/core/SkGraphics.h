@@ -12,6 +12,7 @@
 
 class SkData;
 class SkImageGenerator;
+class SkTraceMemoryDump;
 
 class SK_API SkGraphics {
 public:
@@ -113,6 +114,12 @@ public:
      */
     static size_t GetResourceCacheSingleAllocationByteLimit();
     static size_t SetResourceCacheSingleAllocationByteLimit(size_t newLimit);
+
+    /**
+     *  Dumps memory usage of caches using the SkTraceMemoryDump interface. See SkTraceMemoryDump
+     *  for usage of this method.
+     */
+    static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
     /**
      *  Applications with command line options may pass optional state, such

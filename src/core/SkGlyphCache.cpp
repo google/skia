@@ -11,6 +11,7 @@
 #include "SkLazyPtr.h"
 #include "SkPath.h"
 #include "SkTemplates.h"
+#include "SkTraceMemoryDump.h"
 #include "SkTypeface.h"
 
 //#define SPEW_PURGE_STATUS
@@ -18,6 +19,14 @@
 namespace {
 
 SkGlyphCache_Globals* create_globals() { return new SkGlyphCache_Globals; }
+
+const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
+
+// Used to pass context to the sk_trace_dump_visitor.
+struct SkGlyphCacheDumpContext {
+    int* counter;
+    SkTraceMemoryDump* dump;
+};
 
 }  // namespace
 
@@ -422,6 +431,40 @@ void SkGlyphCache::Dump() {
 
     int counter = 0;
     SkGlyphCache::VisitAll(dump_visitor, &counter);
+}
+
+static void sk_trace_dump_visitor(const SkGlyphCache& cache, void* context) {
+    SkGlyphCacheDumpContext* dumpContext = static_cast<SkGlyphCacheDumpContext*>(context);
+    SkTraceMemoryDump* dump = dumpContext->dump;
+    int* counter = dumpContext->counter;
+    int index = *counter;
+    *counter += 1;
+
+    const SkTypeface* face = cache.getScalerContext()->getTypeface();
+    SkString font_name;
+    face->getFamilyName(&font_name);
+    const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
+
+    SkString dump_name = SkStringPrintf("%s/%s_%3d/index_%d",
+                                        gGlyphCacheDumpName, font_name.c_str(), rec.fFontID, index);
+
+    dump->dumpNumericValue(dump_name.c_str(), "size", "bytes", cache.getMemoryUsed());
+    dump->dumpNumericValue(dump_name.c_str(), "glyph_count", "objects", cache.countCachedGlyphs());
+    dump->setMemoryBacking(dump_name.c_str(), "malloc", nullptr);
+}
+
+void SkGlyphCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
+    dump->dumpNumericValue(gGlyphCacheDumpName, "size", "bytes", SkGraphics::GetFontCacheUsed());
+    dump->dumpNumericValue(gGlyphCacheDumpName, "budget_size", "bytes",
+                           SkGraphics::GetFontCacheLimit());
+    dump->dumpNumericValue(gGlyphCacheDumpName, "glyph_count", "objects",
+                           SkGraphics::GetFontCacheCountUsed());
+    dump->dumpNumericValue(gGlyphCacheDumpName, "budget_glyph_count", "objects",
+                           SkGraphics::GetFontCacheCountLimit());
+
+    int counter = 0;
+    SkGlyphCacheDumpContext context = { &counter, dump };
+    SkGlyphCache::VisitAll(sk_trace_dump_visitor, &context);
 }
 
 void SkGlyphCache::VisitAll(Visitor visitor, void* context) {

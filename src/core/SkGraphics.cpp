@@ -12,6 +12,7 @@
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkGeometry.h"
+#include "SkGlyphCache.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkOpts.h"
@@ -19,6 +20,7 @@
 #include "SkPathEffect.h"
 #include "SkPixelRef.h"
 #include "SkRefCnt.h"
+#include "SkResourceCache.h"
 #include "SkRTConf.h"
 #include "SkScalerContext.h"
 #include "SkShader.h"
@@ -60,6 +62,13 @@ void SkGraphics::Term() {
     PurgeFontCache();
     PurgeResourceCache();
     SkPaint::Term();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkGraphics::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
+  SkResourceCache::DumpMemoryStatistics(dump);
+  SkGlyphCache::DumpMemoryStatistics(dump);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

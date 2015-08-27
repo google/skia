@@ -17,6 +17,7 @@
 #include "SkTDArray.h"
 
 class SkPaint;
+class SkTraceMemoryDump;
 
 class SkGlyphCache_Globals;
 
@@ -97,9 +98,12 @@ public:
         return fScalerContext->isSubpixel();
     }
 
+    /** Return the approx RAM usage for this cache. */
+    size_t getMemoryUsed() const { return fMemoryUsed; }
+
     void dump() const;
 
-    /*  AuxProc/Data allow a client to associate data with this cache entry. Multiple clients can
+    /** AuxProc/Data allow a client to associate data with this cache entry. Multiple clients can
         use this, as their data is keyed with a function pointer. In addition to serving as a
         key, the function pointer is called with the data when the glyphcache object is deleted,
         so the client can cleanup their data as well.
@@ -140,6 +144,11 @@ public:
     }
 
     static void Dump();
+
+    /** Dump memory usage statistics of all the attaches caches in the process using the
+        SkTraceMemoryDump interface.
+    */
+    static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
     typedef void (*Visitor)(const SkGlyphCache&, void* context);
     static void VisitAll(Visitor, void* context);

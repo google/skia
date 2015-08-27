@@ -11,6 +11,7 @@
 #include "SkMutex.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
+#include "SkTraceMemoryDump.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -668,4 +669,20 @@ static void dump_visitor(const SkResourceCache::Rec& rec, void*) {
 
 void SkResourceCache::TestDumpMemoryStatistics() {
     VisitAll(dump_visitor, nullptr);
+}
+
+static void sk_trace_dump_visitor(const SkResourceCache::Rec& rec, void* context) {
+    SkTraceMemoryDump* dump = static_cast<SkTraceMemoryDump*>(context);
+    SkString dump_name = SkStringPrintf("skia/sk_resource_cache/%s_%p", rec.getCategory(), &rec);
+    SkDiscardableMemory* discardable = rec.diagnostic_only_getDiscardable();
+    if (discardable) {
+        dump->setDiscardableMemoryBacking(dump_name.c_str(), *discardable);
+    } else {
+        dump->dumpNumericValue(dump_name.c_str(), "size", "bytes", rec.bytesUsed());
+        dump->setMemoryBacking(dump_name.c_str(), "malloc", nullptr);
+    }
+}
+
+void SkResourceCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
+    VisitAll(sk_trace_dump_visitor, dump);
 }
