@@ -12,7 +12,6 @@
 #include "GrCaps.h"
 #include "GrClip.h"
 #include "GrGpuResourceRef.h"
-#include "GrStagedProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProcessorDataManager.h"
 #include "GrRenderTarget.h"
@@ -29,14 +28,9 @@ class GrCaps;
 class GrPaint;
 class GrTexture;
 
-class GrPipelineBuilder {
+class GrPipelineBuilder : public SkNoncopyable {
 public:
     GrPipelineBuilder();
-
-    GrPipelineBuilder(const GrPipelineBuilder& pipelineBuilder) {
-        SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
-        *this = pipelineBuilder;
-    }
 
     /**
      * Initializes the GrPipelineBuilder based on a GrPaint, render target, and clip. Note
@@ -58,51 +52,56 @@ public:
     /// feed their output to the GrXferProcessor which controls blending.
     ////
 
-    int numColorFragmentStages() const { return fColorStages.count(); }
-    int numCoverageFragmentStages() const { return fCoverageStages.count(); }
-    int numFragmentStages() const { return this->numColorFragmentStages() +
-                                               this->numCoverageFragmentStages(); }
+    int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
+    int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }
+    int numFragmentProcessors() const { return this->numColorFragmentProcessors() +
+                                               this->numCoverageFragmentProcessors(); }
 
-    const GrFragmentStage& getColorFragmentStage(int idx) const { return fColorStages[idx]; }
-    const GrFragmentStage& getCoverageFragmentStage(int idx) const { return fCoverageStages[idx]; }
-
-    const GrFragmentProcessor* addColorProcessor(const GrFragmentProcessor* effect) {
-        SkASSERT(effect);
-        SkNEW_APPEND_TO_TARRAY(&fColorStages, GrFragmentStage, (effect));
-        return effect;
+    const GrFragmentProcessor* getColorFragmentProcessor(int idx) const {
+        return fColorFragmentProcessors[idx];
+    }
+    const GrFragmentProcessor* getCoverageFragmentProcessor(int idx) const {
+        return fCoverageFragmentProcessors[idx];
     }
 
-    const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* effect) {
-        SkASSERT(effect);
-        SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrFragmentStage, (effect));
-        return effect;
+    const GrFragmentProcessor* addColorFragmentProcessor(const GrFragmentProcessor* processor) {
+        SkASSERT(processor);
+        fColorFragmentProcessors.push_back(SkRef(processor));
+        return processor;
+    }
+
+    const GrFragmentProcessor* addCoverageFragmentProcessor(const GrFragmentProcessor* processor) {
+        SkASSERT(processor);
+        fCoverageFragmentProcessors.push_back(SkRef(processor));
+        return processor;
     }
 
     /**
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
-                                                              matrix))->unref();
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+                                                                      matrix))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
-                                                                 matrix))->unref();
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+                                                                         matrix))->unref();
     }
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        this->addColorProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
-                                                              params))->unref();
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+                                                                      matrix,
+                                                                      params))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
                                      const GrTextureParams& params) {
-        this->addCoverageProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
-                                                                 params))->unref();
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+                                                                         matrix, params))->unref();
     }
 
     /**
@@ -139,9 +138,9 @@ public:
             return fPipelineBuilder->getProcessorDataManager();
         }
 
-        const GrFragmentProcessor* addCoverageProcessor(const GrFragmentProcessor* processor) {
+        const GrFragmentProcessor* addCoverageFragmentProcessor(const GrFragmentProcessor* processor) {
             SkASSERT(this->isSet());
-            return fPipelineBuilder->addCoverageProcessor(processor);
+            return fPipelineBuilder->addCoverageFragmentProcessor(processor);
         }
 
     private:
@@ -385,8 +384,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    GrPipelineBuilder& operator=(const GrPipelineBuilder& that);
-
     // TODO delete when we have Batch
     const GrProcOptInfo& colorProcInfo(const GrPrimitiveProcessor* pp) const {
         this->calcColorInvariantOutput(pp);
@@ -439,7 +436,7 @@ private:
     // This is used to assert that this condition holds.
     SkDEBUGCODE(mutable int fBlockEffectRemovalCnt;)
 
-    typedef SkSTArray<4, GrFragmentStage> FragmentStageArray;
+    typedef SkSTArray<4, const GrFragmentProcessor*, true> FragmentProcessorArray;
 
     SkAutoTUnref<GrProcessorDataManager>    fProcDataManager;
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
@@ -447,8 +444,8 @@ private:
     GrStencilSettings                       fStencilSettings;
     DrawFace                                fDrawFace;
     mutable SkAutoTUnref<const GrXPFactory> fXPFactory;
-    FragmentStageArray                      fColorStages;
-    FragmentStageArray                      fCoverageStages;
+    FragmentProcessorArray                  fColorFragmentProcessors;
+    FragmentProcessorArray                  fCoverageFragmentProcessors;
     GrClip                                  fClip;
 
     mutable GrProcOptInfo fColorProcInfo;

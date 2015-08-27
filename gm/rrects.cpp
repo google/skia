@@ -114,7 +114,7 @@ protected:
                         SkAutoTUnref<GrFragmentProcessor> fp(GrRRectEffect::Create(edgeType,
                                                                                    rrect));
                         if (fp) {
-                            pipelineBuilder.addCoverageProcessor(fp);
+                            pipelineBuilder.addCoverageFragmentProcessor(fp);
                             pipelineBuilder.setRenderTarget(rt);
 
                             SkRect bounds = rrect.getBounds();

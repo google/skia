@@ -31,13 +31,13 @@ void GrGLPathProgram::didSetData() {
 }
 
 void GrGLPathProgram::setTransformData(const GrPrimitiveProcessor& primProc,
-                                       const GrPendingFragmentStage& proc,
+                                       const GrFragmentProcessor& processor,
                                        int index,
                                        GrGLInstalledFragProc* ip) {
     GrGLPathProcessor* pathProc =
             static_cast<GrGLPathProcessor*>(fGeometryProcessor.get()->fGLProc.get());
     pathProc->setTransformData(primProc, fPathProgramDataManager, index,
-                               proc.processor()->coordTransforms());
+                               processor.coordTransforms());
 }
 
 void GrGLPathProgram::onSetRenderTargetState(const GrPrimitiveProcessor& primProc,

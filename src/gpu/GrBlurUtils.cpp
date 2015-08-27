@@ -36,7 +36,7 @@ static bool draw_mask(GrDrawContext* drawContext,
     matrix.setTranslate(-maskRect.fLeft, -maskRect.fTop);
     matrix.postIDiv(mask->width(), mask->height());
 
-    grp->addCoverageProcessor(GrSimpleTextureEffect::Create(grp->getProcessorDataManager(),
+    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(grp->getProcessorDataManager(),
                                                             mask, matrix,
                                                             kDevice_GrCoordSet))->unref();
 

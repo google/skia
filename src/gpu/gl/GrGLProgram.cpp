@@ -105,25 +105,24 @@ void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
                                   const GrPipeline& pipeline,
                                   SkTArray<const GrTextureAccess*>* textureBindings) {
     int numProcessors = fFragmentProcessors->fProcs.count();
-    for (int e = 0; e < numProcessors; ++e) {
-        const GrPendingFragmentStage& stage = pipeline.getFragmentStage(e);
-        const GrFragmentProcessor& processor = *stage.processor();
-        fFragmentProcessors->fProcs[e]->fGLProc->setData(fProgramDataManager, processor);
+    for (int i = 0; i < numProcessors; ++i) {
+        const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
+        fFragmentProcessors->fProcs[i]->fGLProc->setData(fProgramDataManager, processor);
         this->setTransformData(primProc,
-                               stage,
-                               e,
-                               fFragmentProcessors->fProcs[e]);
-        append_texture_bindings(fFragmentProcessors->fProcs[e], processor, textureBindings);
+                               processor,
+                               i,
+                               fFragmentProcessors->fProcs[i]);
+        append_texture_bindings(fFragmentProcessors->fProcs[i], processor, textureBindings);
     }
 }
 void GrGLProgram::setTransformData(const GrPrimitiveProcessor& primProc,
-                                   const GrPendingFragmentStage& processor,
+                                   const GrFragmentProcessor& processor,
                                    int index,
                                    GrGLInstalledFragProc* ip) {
     GrGLGeometryProcessor* gp =
             static_cast<GrGLGeometryProcessor*>(fGeometryProcessor.get()->fGLProc.get());
     gp->setTransformData(primProc, fProgramDataManager, index,
-                         processor.processor()->coordTransforms());
+                         processor.coordTransforms());
 }
 
 void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,

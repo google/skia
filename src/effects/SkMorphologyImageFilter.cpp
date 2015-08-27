@@ -471,12 +471,12 @@ void apply_morphology_rect(GrDrawContext* drawContext,
                            float bounds[2],
                            Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.addColorProcessor(GrMorphologyEffect::Create(paint.getProcessorDataManager(),
-                                                       texture,
-                                                       direction,
-                                                       radius,
-                                                       morphType,
-                                                       bounds))->unref();
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Create(paint.getProcessorDataManager(),
+                                                               texture,
+                                                               direction,
+                                                               radius,
+                                                               morphType,
+                                                               bounds))->unref();
     drawContext->drawNonAARectToRect(rt, clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
                                      SkRect::Make(srcRect));
 }
@@ -491,11 +491,11 @@ void apply_morphology_rect_no_bounds(GrDrawContext* drawContext,
                                      GrMorphologyEffect::MorphologyType morphType,
                                      Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.addColorProcessor(GrMorphologyEffect::Create(paint.getProcessorDataManager(),
-                                                       texture,
-                                                       direction,
-                                                       radius,
-                                                       morphType))->unref();
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Create(paint.getProcessorDataManager(),
+                                                               texture,
+                                                               direction,
+                                                               radius,
+                                                               morphType))->unref();
     drawContext->drawNonAARectToRect(rt, clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
                                      SkRect::Make(srcRect));
 }

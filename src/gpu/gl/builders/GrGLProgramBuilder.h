@@ -16,8 +16,9 @@
 #include "../GrGLUniformHandle.h"
 #include "../GrGLPrimitiveProcessor.h"
 #include "../GrGLXferProcessor.h"
-#include "../../GrPendingFragmentStage.h"
 #include "../../GrPipeline.h"
+
+class GrFragmentProcessor;
 
 // Enough precision to represent 1 / 2048 accurately in printf
 #define GR_SIGNIFICANT_POW2_DECIMAL_DIG 11
@@ -301,7 +302,7 @@ protected:
     void nameExpression(GrGLSLExpr4*, const char* baseName);
     bool emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage);
     void emitAndInstallFragProcs(int procOffset, int numProcs, GrGLSLExpr4* inOut);
-    void emitAndInstallProc(const GrPendingFragmentStage&,
+    void emitAndInstallProc(const GrFragmentProcessor&,
                             int index,
                             const GrGLSLExpr4& input,
                             GrGLSLExpr4* output);
@@ -311,7 +312,7 @@ protected:
                             GrGLSLExpr4* outputCoverage);
 
     // these emit functions help to keep the createAndEmitProcessors template general
-    void emitAndInstallProc(const GrPendingFragmentStage&,
+    void emitAndInstallProc(const GrFragmentProcessor&,
                             int index,
                             const char* outColor,
                             const char* inColor);

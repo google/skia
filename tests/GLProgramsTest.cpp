@@ -148,9 +148,9 @@ static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
 
         // finally add the stage to the correct pipeline in the drawstate
         if (s < numColorProcs) {
-            pipelineBuilder->addColorProcessor(fp);
+            pipelineBuilder->addColorFragmentProcessor(fp);
         } else {
-            pipelineBuilder->addCoverageProcessor(fp);
+            pipelineBuilder->addCoverageFragmentProcessor(fp);
         }
         ++s;
     }

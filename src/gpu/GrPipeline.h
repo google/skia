@@ -9,9 +9,10 @@
 #define GrPipeline_DEFINED
 
 #include "GrColor.h"
+#include "GrFragmentProcessor.h"
 #include "GrGpu.h"
 #include "GrNonAtomicRef.h"
-#include "GrPendingFragmentStage.h"
+#include "GrPendingProgramElement.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProgramDesc.h"
 #include "GrStencil.h"
@@ -84,22 +85,26 @@ public:
     /// @name GrFragmentProcessors
 
 
-    int numColorFragmentStages() const { return fNumColorStages; }
-    int numCoverageFragmentStages() const { return fFragmentStages.count() - fNumColorStages; }
-    int numFragmentStages() const { return fFragmentStages.count(); }
+    int numColorFragmentProcessors() const { return fNumColorProcessors; }
+    int numCoverageFragmentProcessors() const {
+        return fFragmentProcessors.count() - fNumColorProcessors;
+    }
+    int numFragmentProcessors() const { return fFragmentProcessors.count(); }
 
     const GrXferProcessor* getXferProcessor() const { return fXferProcessor.get(); }
 
-    const GrPendingFragmentStage& getColorStage(int idx) const {
-        SkASSERT(idx < this->numColorFragmentStages());
-        return fFragmentStages[idx];
+    const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
+        SkASSERT(idx < this->numColorFragmentProcessors());
+        return *fFragmentProcessors[idx].get();
     }
-    const GrPendingFragmentStage& getCoverageStage(int idx) const {
-        SkASSERT(idx < this->numCoverageFragmentStages());
-        return fFragmentStages[fNumColorStages + idx];
+
+    const GrFragmentProcessor& getCoverageFragmentProcessor(int idx) const {
+        SkASSERT(idx < this->numCoverageFragmentProcessors());
+        return *fFragmentProcessors[fNumColorProcessors + idx].get();
     }
-    const GrPendingFragmentStage& getFragmentStage(int idx) const {
-        return fFragmentStages[idx];
+
+    const GrFragmentProcessor& getFragmentProcessor(int idx) const {
+        return *fFragmentProcessors[idx].get();
     }
 
     /// @}
@@ -149,8 +154,8 @@ private:
                                         GrXferProcessor::OptFlags,
                                         const GrProcOptInfo& colorPOI,
                                         const GrProcOptInfo& coveragePOI,
-                                        int* firstColorStageIdx,
-                                        int* firstCoverageStageIdx);
+                                        int* firstColorProcessorIdx,
+                                        int* firstCoverageProcessorIdx);
 
     /**
      * Calculates the primary and secondary output types of the shader. For certain output types
@@ -167,7 +172,8 @@ private:
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
-    typedef SkSTArray<8, GrPendingFragmentStage> FragmentStageArray;
+    typedef GrPendingProgramElement<const GrFragmentProcessor> PendingFragmentProcessor;
+    typedef SkAutoSTArray<8, PendingFragmentProcessor> FragmentProcessorArray;
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
@@ -175,11 +181,11 @@ private:
     GrPipelineBuilder::DrawFace         fDrawFace;
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
-    FragmentStageArray                  fFragmentStages;
+    FragmentProcessorArray              fFragmentProcessors;
     bool                                fReadsFragPosition;
 
-    // This function is equivalent to the offset into fFragmentStages where coverage stages begin.
-    int                                 fNumColorStages;
+    // This value is also the index in fFragmentProcessors where coverage processors begin.
+    int                                 fNumColorProcessors;
 
     SkSTArray<8, const GrCoordTransform*, true> fCoordTransforms;
     GrProgramDesc                       fDesc;

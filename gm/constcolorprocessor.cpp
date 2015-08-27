@@ -113,7 +113,7 @@ protected:
 
                     GrClip clip;
                     GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
-                    pipelineBuilder.addColorProcessor(fp);
+                    pipelineBuilder.addColorFragmentProcessor(fp);
 
                     tt.target()->drawNonAARect(pipelineBuilder,
                                                grPaint.getColor(),

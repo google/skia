@@ -438,7 +438,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     offsetMatrix.preTranslate(SkIntToScalar(colorOffset.fX - displacementOffset.fX),
                               SkIntToScalar(colorOffset.fY - displacementOffset.fY));
 
-    paint.addColorProcessor(
+    paint.addColorFragmentProcessor(
         GrDisplacementMapEffect::Create(paint.getProcessorDataManager(),
                                         fXChannelSelector,
                                         fYChannelSelector,

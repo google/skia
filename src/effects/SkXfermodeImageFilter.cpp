@@ -189,8 +189,8 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
         GrTextureParams::kNone_FilterMode)
     );
 
-    paint.addColorProcessor(foregroundDomain.get());
-    paint.addColorProcessor(xferProcessor)->unref();
+    paint.addColorFragmentProcessor(foregroundDomain.get());
+    paint.addColorFragmentProcessor(xferProcessor)->unref();
 
     GrDrawContext* drawContext = context->drawContext();
     if (!drawContext) {

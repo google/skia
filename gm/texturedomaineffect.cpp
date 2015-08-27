@@ -128,7 +128,7 @@ protected:
                     }
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
                     pipelineBuilder.setRenderTarget(rt);
-                    pipelineBuilder.addColorProcessor(fp);
+                    pipelineBuilder.addColorFragmentProcessor(fp);
 
                     tt.target()->drawNonAARect(pipelineBuilder,
                                                GrColor_WHITE,

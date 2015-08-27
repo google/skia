@@ -352,7 +352,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     GrPaint paint;
     if (this->asFragmentProcessor(&fp, paint.getProcessorDataManager(), srcTexture, matrix, bounds)) {
         SkASSERT(fp);
-        paint.addColorProcessor(fp)->unref();
+        paint.addColorFragmentProcessor(fp)->unref();
 
         GrDrawContext* drawContext = context->drawContext();
         if (drawContext) {
