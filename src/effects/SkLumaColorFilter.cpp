@@ -55,8 +55,8 @@ void SkLumaColorFilter::toString(SkString* str) const {
 class LumaColorFilterEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create() {
-        GR_CREATE_STATIC_PROCESSOR(gLumaEffect, LumaColorFilterEffect, ());
-        return SkRef(gLumaEffect);
+        static LumaColorFilterEffect gLumaEffect;
+        return SkRef(&gLumaEffect);
     }
 
     const char* name() const override { return "Luminance-to-Alpha"; }

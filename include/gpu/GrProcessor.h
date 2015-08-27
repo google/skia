@@ -52,8 +52,7 @@ private:
     immutable: after being constructed, their fields may not change.
 
     Dynamically allocated GrProcessors are managed by a per-thread memory pool. The ref count of an
-    processor must reach 0 before the thread terminates and the pool is destroyed. To create a
-    static processor use the helper macro GR_CREATE_STATIC_PROCESSOR declared below.
+    processor must reach 0 before the thread terminates and the pool is destroyed.
  */
 class GrProcessor : public GrProgramElement {
 public:
@@ -142,14 +141,5 @@ private:
 
     typedef GrProgramElement INHERITED;
 };
-
-/**
- * This creates a processor outside of the memory pool. The processor's destructor will be called
- * at global destruction time. NAME will be the name of the created instance.
- */
-#define GR_CREATE_STATIC_PROCESSOR(NAME, PROC_CLASS, ARGS)                                 \
-static SkAlignedSStorage<sizeof(PROC_CLASS)> g_##NAME##_Storage;                           \
-static PROC_CLASS* NAME SkNEW_PLACEMENT_ARGS(g_##NAME##_Storage.get(), PROC_CLASS, ARGS);  \
-static SkAutoTDestroy<GrProcessor> NAME##_ad(NAME);
 
 #endif
