@@ -49,11 +49,19 @@ public:
      */
     const uint16_t* read16BitCache() const;
 
-    explicit SkColorTable(SkReadBuffer&);
     void writeToBuffer(SkWriteBuffer&) const;
+
+    // may return null
+    static SkColorTable* Create(SkReadBuffer&);
 
 private:
     static void Free16BitCache(uint16_t*);
+
+    enum AllocatedWithMalloc {
+        kAllocatedWithMalloc
+    };
+    // assumes ownership of colors (assumes it was allocated w/ malloc)
+    SkColorTable(SkPMColor* colors, int count, AllocatedWithMalloc);
 
     SkPMColor*                          fColors;
     SkLazyPtr<uint16_t, Free16BitCache> f16BitCache;

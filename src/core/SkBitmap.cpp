@@ -1145,11 +1145,27 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
 
     SkAutoTUnref<SkColorTable> ctable;
     if (buffer->readBool()) {
-        ctable.reset(new SkColorTable(*buffer));
+        ctable.reset(SkColorTable::Create(*buffer));
+        if (!ctable) {
+            return false;
+        }
 
-        unsigned char maxIndex = ctable->count() ? ctable->count()-1 : 0;
-        for (uint64_t i = 0; i < ramSize; ++i) {
-            dst[i] = SkTMin(dst[i], maxIndex);
+        if (info.isEmpty()) {
+            // require an empty ctable
+            if (ctable->count() != 0) {
+                buffer->validate(false);
+                return false;
+            }
+        } else {
+            // require a non-empty ctable
+            if (ctable->count() == 0) {
+                buffer->validate(false);
+                return false;
+            }
+            unsigned char maxIndex = ctable->count() - 1;
+            for (uint64_t i = 0; i < ramSize; ++i) {
+                dst[i] = SkTMin(dst[i], maxIndex);
+            }
         }
     }
 
