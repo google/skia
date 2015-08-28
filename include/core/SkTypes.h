@@ -14,7 +14,6 @@
 #include "SkPostConfig.h"
 #include <stddef.h>
 #include <stdint.h>
-#include <sys/types.h>
 
 #if defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
@@ -243,7 +242,6 @@ typedef uint8_t SkBool8;
     SK_API int         SkToInt(intmax_t);
     SK_API unsigned    SkToUInt(uintmax_t);
     SK_API size_t      SkToSizeT(uintmax_t);
-    SK_API off_t       SkToOffT(intmax_t x);
 #else
     #define SkToS8(x)   ((int8_t)(x))
     #define SkToU8(x)   ((uint8_t)(x))
@@ -254,7 +252,6 @@ typedef uint8_t SkBool8;
     #define SkToInt(x)  ((int)(x))
     #define SkToUInt(x) ((unsigned)(x))
     #define SkToSizeT(x) ((size_t)(x))
-    #define SkToOffT(x) ((off_t)(x))
 #endif
 
 /** Returns 0 or 1 based on the condition
