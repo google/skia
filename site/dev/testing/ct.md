@@ -22,7 +22,7 @@ SKP files are a binary format for the draw commands Chromium sends to Skia for r
 
 A web application has been created on Google Compute Engine that automates the process of capturing new archives and running telemetry benchmarks at a click of a button; results are emailed to the requester and the web application contains complete history of runs with links to results. You can run telemetry benchmarks at http://ct.skia.org.
 
-The framework also contains the ability to run lua scripts on the SKP repository to scrape web pages. It only takes a few minutes to run a lua scraping script on ~900k SKP files.
+The framework also contains the ability to run lua scripts on the SKP repository to scrape web pages. It only takes a few minutes to run a lua scraping script on ~910k SKP files.
 
 Most users will use these two features:
 
