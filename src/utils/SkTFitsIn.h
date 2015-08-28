@@ -15,16 +15,23 @@
 namespace sktfitsin {
 namespace Private {
 
-/** SkTHasMoreDigits::type = (digits(A) >= digits(B)) ? SkTrue : SkFalse. */
-template<typename A, typename B> struct SkTHasMoreDigits {
-    typedef SkTBool<std::numeric_limits<A>::digits >= std::numeric_limits<B>::digits> type;
+/** SkTMux::type = (a && b) ? Both : (a) ? A : (b) ? B : Neither; */
+template <bool a, bool b, typename Both, typename A, typename B, typename Neither>
+struct SkTMux {
+    using type = skstd::conditional_t<a, skstd::conditional_t<b, Both, A>,
+                                         skstd::conditional_t<b, B, Neither>>;
 };
+
+/** SkTHasMoreDigits = (digits(A) >= digits(B)) ? true_type : false_type. */
+template<typename A, typename B> struct SkTHasMoreDigits
+    : skstd::bool_constant<std::numeric_limits<A>::digits >= std::numeric_limits<B>::digits>
+{ };
 
 /** A high or low side predicate which is used when it is statically known
  *  that source values are in the range of the Destination.
  */
 template <typename S> struct SkTOutOfRange_False {
-    typedef SkFalse can_be_true;
+    typedef skstd::false_type can_be_true;
     typedef S source_type;
     static bool apply(S s) {
         return false;
@@ -35,10 +42,10 @@ template <typename S> struct SkTOutOfRange_False {
  *  Assumes that Min(S) <= Min(D).
  */
 template <typename D, typename S> struct SkTOutOfRange_LT_MinD {
-    typedef SkTrue can_be_true;
+    typedef skstd::true_type can_be_true;
     typedef S source_type;
     static bool apply(S s) {
-        typedef typename SkTHasMoreDigits<S, D>::type precondition;
+        typedef SkTHasMoreDigits<S, D> precondition;
         static_assert(precondition::value, "SkTOutOfRange_LT_MinD__minS_gt_minD");
 
         return s < static_cast<S>((std::numeric_limits<D>::min)());
@@ -47,7 +54,7 @@ template <typename D, typename S> struct SkTOutOfRange_LT_MinD {
 
 /** A low side predicate which tests if the source value is less than 0. */
 template <typename D, typename S> struct SkTOutOfRange_LT_Zero {
-    typedef SkTrue can_be_true;
+    typedef skstd::true_type can_be_true;
     typedef S source_type;
     static bool apply(S s) {
         return s < static_cast<S>(0);
@@ -58,10 +65,10 @@ template <typename D, typename S> struct SkTOutOfRange_LT_Zero {
  *  Assumes that Max(S) >= Max(D).
  */
 template <typename D, typename S> struct SkTOutOfRange_GT_MaxD {
-    typedef SkTrue can_be_true;
+    typedef skstd::true_type can_be_true;
     typedef S source_type;
     static bool apply(S s) {
-        typedef typename SkTHasMoreDigits<S, D>::type precondition;
+        typedef SkTHasMoreDigits<S, D> precondition;
         static_assert(precondition::value, "SkTOutOfRange_GT_MaxD__maxS_lt_maxD");
 
         return s > static_cast<S>((std::numeric_limits<D>::max)());
@@ -72,7 +79,7 @@ template <typename D, typename S> struct SkTOutOfRange_GT_MaxD {
  *  First checks OutOfRange_Low then, if in range, OutOfRange_High.
  */
 template<class OutOfRange_Low, class OutOfRange_High> struct SkTOutOfRange_Either {
-    typedef SkTrue can_be_true;
+    typedef skstd::true_type can_be_true;
     typedef typename OutOfRange_Low::source_type source_type;
     static bool apply(source_type s) {
         bool outOfRange = OutOfRange_Low::apply(s);
@@ -93,7 +100,7 @@ template<class OutOfRange_Low, class OutOfRange_High> struct SkTCombineOutOfRang
     typedef typename OutOfRange_Low::can_be_true apply_low;
     typedef typename OutOfRange_High::can_be_true apply_high;
 
-    typedef typename SkTMux<apply_low, apply_high,
+    typedef typename SkTMux<apply_low::value, apply_high::value,
                             Both, OutOfRange_Low, OutOfRange_High, Neither>::type type;
 };
 
@@ -119,8 +126,8 @@ template<typename D, typename S> struct SkTFitsIn_Unsigned2Unsiged {
 
     // If std::numeric_limits<D>::digits >= std::numeric_limits<S>::digits, nothing to check.
     // This also protects the precondition of SkTOutOfRange_GT_MaxD.
-    typedef typename SkTHasMoreDigits<D, S>::type sourceFitsInDesitination;
-    typedef typename SkTIf<sourceFitsInDesitination, NoCheck, HighSideOnlyCheck>::type type;
+    typedef SkTHasMoreDigits<D, S> sourceFitsInDesitination;
+    typedef skstd::conditional_t<sourceFitsInDesitination::value, NoCheck, HighSideOnlyCheck> type;
 };
 
 /** SkTFitsIn_Signed2Signed::type is an SkTRangeChecker with an OutOfRange(S s) method
@@ -136,8 +143,8 @@ template<typename D, typename S> struct SkTFitsIn_Signed2Signed {
 
     // If std::numeric_limits<D>::digits >= std::numeric_limits<S>::digits, nothing to check.
     // This also protects the precondition of SkTOutOfRange_LT_MinD and SkTOutOfRange_GT_MaxD.
-    typedef typename SkTHasMoreDigits<D, S>::type sourceFitsInDesitination;
-    typedef typename SkTIf<sourceFitsInDesitination, NoCheck, FullCheck>::type type;
+    typedef SkTHasMoreDigits<D, S> sourceFitsInDesitination;
+    typedef skstd::conditional_t<sourceFitsInDesitination::value, NoCheck, FullCheck> type;
 };
 
 /** SkTFitsIn_Signed2Unsigned::type is an SkTRangeChecker with an OutOfRange(S s) method
@@ -154,8 +161,8 @@ template<typename D, typename S> struct SkTFitsIn_Signed2Unsigned {
     // If std::numeric_limits<D>::max() >= std::numeric_limits<S>::max(),
     // no need to check the high side. (Until C++11, assume more digits means greater max.)
     // This also protects the precondition of SkTOutOfRange_GT_MaxD.
-    typedef typename SkTHasMoreDigits<D, S>::type sourceCannotExceedDesitination;
-    typedef typename SkTIf<sourceCannotExceedDesitination, LowSideOnlyCheck, FullCheck>::type type;
+    typedef SkTHasMoreDigits<D, S> sourceCannotExceedDest;
+    typedef skstd::conditional_t<sourceCannotExceedDest::value, LowSideOnlyCheck, FullCheck> type;
 };
 
 /** SkTFitsIn_Unsigned2Signed::type is an SkTRangeChecker with an OutOfRange(S s) method
@@ -172,8 +179,8 @@ template<typename D, typename S> struct SkTFitsIn_Unsigned2Signed {
     // If std::numeric_limits<D>::max() >= std::numeric_limits<S>::max(), nothing to check.
     // (Until C++11, assume more digits means greater max.)
     // This also protects the precondition of SkTOutOfRange_GT_MaxD.
-    typedef typename SkTHasMoreDigits<D, S>::type sourceCannotExceedDesitination;
-    typedef typename SkTIf<sourceCannotExceedDesitination, NoCheck, HighSideOnlyCheck>::type type;
+    typedef SkTHasMoreDigits<D, S> sourceCannotExceedDest;
+    typedef skstd::conditional_t<sourceCannotExceedDest::value, NoCheck, HighSideOnlyCheck> type;
 };
 
 /** SkTFitsIn::type is an SkTRangeChecker with an OutOfRange(S s) method
@@ -187,10 +194,11 @@ template<typename D, typename S> struct SkTFitsIn {
     typedef SkTFitsIn_Unsigned2Signed<D, S> U2S;
     typedef SkTFitsIn_Unsigned2Unsiged<D, S> U2U;
 
-    typedef SkTBool<std::numeric_limits<S>::is_signed> S_is_signed;
-    typedef SkTBool<std::numeric_limits<D>::is_signed> D_is_signed;
+    typedef skstd::bool_constant<std::numeric_limits<S>::is_signed> S_is_signed;
+    typedef skstd::bool_constant<std::numeric_limits<D>::is_signed> D_is_signed;
 
-    typedef typename SkTMux<S_is_signed, D_is_signed, S2S, S2U, U2S, U2U>::type selector;
+    typedef typename SkTMux<S_is_signed::value, D_is_signed::value,
+                            S2S, S2U, U2S, U2U>::type selector;
     // This type is an SkTRangeChecker.
     typedef typename selector::type type;
 };

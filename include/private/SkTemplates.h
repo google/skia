@@ -47,16 +47,6 @@ template <typename T> add_rvalue_reference_t<T> declval();
 
 }  // namespace skstd
 
-///@{
-/** SkTConstType<T, CONST>::type will be 'const T' if CONST is true, 'T' otherwise. */
-template <typename T, bool CONST> struct SkTConstType {
-    typedef T type;
-};
-template <typename T> struct SkTConstType<T, true> {
-    typedef const T type;
-};
-///@}
-
 /**
  *  Returns a pointer to a D which comes immediately after S[count].
  */
@@ -68,11 +58,9 @@ template <typename D, typename S> static D* SkTAfter(S* ptr, size_t count = 1) {
  *  Returns a pointer to a D which comes byteOffset bytes after S.
  */
 template <typename D, typename S> static D* SkTAddOffset(S* ptr, size_t byteOffset) {
-    // The intermediate char* has the same const-ness as D as this produces better error messages.
+    // The intermediate char* has the same cv-ness as D as this produces better error messages.
     // This relies on the fact that reinterpret_cast can add constness, but cannot remove it.
-    return reinterpret_cast<D*>(
-        reinterpret_cast<typename SkTConstType<char, SkTIsConst<D>::value>::type*>(ptr) + byteOffset
-    );
+    return reinterpret_cast<D*>(reinterpret_cast<sknonstd::same_cv_t<char, D>*>(ptr) + byteOffset);
 }
 
 /** \class SkAutoTCallVProc
