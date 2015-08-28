@@ -9,7 +9,6 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
-#include "SkGifInterlaceIter.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkUtils.h"
@@ -114,6 +113,31 @@ static uint32_t find_trans_index(const SavedImage& image) {
     // Use maximum unsigned int (surely an invalid index) to indicate that a valid
     // index was not found.
     return SK_MaxU32;
+}
+
+static inline uint32_t ceil_div(uint32_t a, uint32_t b) {
+    return (a + b - 1) / b;
+}
+
+/*
+ * Gets the output row corresponding to the encoded row for interlaced gifs
+ */
+static uint32_t get_output_row_interlaced(uint32_t encodedRow, uint32_t height) {
+    SkASSERT(encodedRow < height);
+    // First pass
+    if (encodedRow * 8 < height) {
+        return encodedRow * 8;
+    }
+    // Second pass
+    if (encodedRow * 4 < height) {
+        return 4 + 8 * (encodedRow - ceil_div(height, 8));
+    }
+    // Third pass
+    if (encodedRow * 2 < height) {
+        return 2 + 4 * (encodedRow - ceil_div(height, 4));
+    }
+    // Fourth pass
+    return 1 + 2 * (encodedRow - ceil_div(height, 2));
 }
 
 /*
@@ -409,18 +433,14 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
 
                 // Check the interlace flag and iterate over rows of the input
                 if (fGif->Image.Interlace) {
-                    // In interlace mode, the rows of input are rearranged in
-                    // the output image.  We use an iterator to take care of
-                    // the rearranging.
-                    SkGifInterlaceIter iter(innerHeight);
                     for (int32_t y = 0; y < innerHeight; y++) {
                         if (GIF_ERROR == DGifGetLine(fGif, buffer.get(), innerWidth)) {
                             // Recover from error by filling remainder of image
                             if (!skipBackground) {
                                 memset(buffer.get(), fillIndex, innerWidth);
                                 for (; y < innerHeight; y++) {
-                                    void* dstRow = SkTAddOffset<void>(dst,
-                                                                      dstRowBytes * iter.nextY());
+                                    void* dstRow = SkTAddOffset<void>(dst, dstRowBytes *
+                                            get_output_row_interlaced(y, innerHeight));
                                     swizzler->swizzle(dstRow, buffer.get());
                                 }
                             }
@@ -428,7 +448,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                     "Could not decode line %d of %d.\n",
                                     y, height - 1).c_str(), kIncompleteInput);
                         }
-                        void* dstRow = SkTAddOffset<void>(dst, dstRowBytes * iter.nextY());
+                        void* dstRow = SkTAddOffset<void>(dst,
+                                dstRowBytes * get_output_row_interlaced(y, innerHeight));
                         swizzler->swizzle(dstRow, buffer.get());
                     }
                 } else {

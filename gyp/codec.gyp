@@ -41,7 +41,6 @@
         '../src/codec/SkCodec_libico.cpp',
         '../src/codec/SkCodec_libpng.cpp',
         '../src/codec/SkCodec_wbmp.cpp',
-        '../src/codec/SkGifInterlaceIter.cpp',
         '../src/codec/SkJpegCodec.cpp',
         '../src/codec/SkJpegDecoderMgr.cpp',
         '../src/codec/SkJpegUtility_codec.cpp',
