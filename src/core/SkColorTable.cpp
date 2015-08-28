@@ -36,7 +36,7 @@ SkColorTable::SkColorTable(SkPMColor* colors, int count, AllocatedWithMalloc)
     : fColors(colors)
     , fCount(count)
 {
-    SkASSERT(count > 0 && count <= 255);
+    SkASSERT(count > 0 && count <= 256);
     SkASSERT(colors);
 }
 
@@ -108,7 +108,7 @@ SkColorTable* SkColorTable::Create(SkReadBuffer& buffer) {
         return new SkColorTable(nullptr, 0);
     }
 
-    if (count < 0 || count > 255) {
+    if (count < 0 || count > 256) {
         buffer.validate(false);
         return nullptr;
     }
