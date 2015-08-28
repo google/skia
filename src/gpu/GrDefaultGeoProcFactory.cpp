@@ -251,7 +251,7 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
-GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
+const GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     uint32_t flags = 0;
     if (d->fRandom->nextBool()) {
         flags |= kColor_GPFlag;

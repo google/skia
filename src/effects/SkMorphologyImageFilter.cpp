@@ -445,7 +445,7 @@ void GrMorphologyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) cons
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
 
-GrFragmentProcessor* GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
+const GrFragmentProcessor* GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                       GrProcessorUnitTest::kAlphaTextureIdx;
     Direction dir = d->fRandom->nextBool() ? kX_Direction : kY_Direction;

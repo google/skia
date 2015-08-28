@@ -526,7 +526,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorMatrixEffect);
 
-GrFragmentProcessor* ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
+const GrFragmentProcessor* ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
     SkColorMatrix colorMatrix;
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix.fMat); ++i) {
         colorMatrix.fMat[i] = d->fRandom->nextSScalar1();

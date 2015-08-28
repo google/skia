@@ -10,6 +10,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "Resources.h"
@@ -33,9 +34,8 @@ public:
         buf.writeMatrix(fDeviceMatrix);
     }
 
-    bool asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
-                             const SkMatrix* localMatrix, GrColor* color, GrProcessorDataManager*,
-                             GrFragmentProcessor** fp) const override;
+    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
+        const SkMatrix* localMatrix, SkFilterQuality, GrProcessorDataManager*) const override;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
@@ -94,13 +94,10 @@ private:
     GrCoordTransform fDeviceTransform;
 };
 
-bool DCShader::asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
-                                   const SkMatrix* localMatrix, GrColor* color,
-                                   GrProcessorDataManager* procDataManager,
-                                   GrFragmentProcessor** fp) const {
-    *fp = new DCFP(procDataManager, fDeviceMatrix);
-    *color = GrColorPackA4(paint.getAlpha());
-    return true;
+const GrFragmentProcessor* DCShader::asFragmentProcessor(GrContext*, const SkMatrix& viewM,
+    const SkMatrix* localMatrix, SkFilterQuality, GrProcessorDataManager* procDataManager) const {
+    SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(procDataManager, fDeviceMatrix)); 
+    return GrExtractAlphaFragmentProcessor::Create(inner);
 }
 
 class DCShaderGM : public GM {

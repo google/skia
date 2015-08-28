@@ -29,10 +29,11 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
-
-    bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM, const SkMatrix*,
-                             GrColor*, GrProcessorDataManager*,
-                             GrFragmentProcessor**) const override;
+#if SK_SUPPORT_GPU
+    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
+                                                   const SkMatrix*, SkFilterQuality,
+                                                   GrProcessorDataManager*) const override;
+#endif
 
     class BitmapProcShaderContext : public SkShader::Context {
     public:

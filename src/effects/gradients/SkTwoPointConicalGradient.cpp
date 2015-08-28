@@ -359,31 +359,17 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
+#include "effects/GrExtractAlphaFragmentProcessor.h"
 
-bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext* context,
-                                                    const SkPaint& paint,
-                                                    const SkMatrix& viewM,
-                                                    const SkMatrix* localMatrix,
-                                                    GrColor* paintColor,
-                                                    GrProcessorDataManager* procDataManager,
-                                                    GrFragmentProcessor** fp)  const {
+const GrFragmentProcessor* SkTwoPointConicalGradient::asFragmentProcessor(GrContext* context,
+    const SkMatrix& viewM, const SkMatrix* localMatrix, SkFilterQuality,
+    GrProcessorDataManager* procDataManager)  const {
     SkASSERT(context);
     SkASSERT(fPtsToUnit.isIdentity());
-
-    *fp = Gr2PtConicalGradientEffect::Create(context, procDataManager, *this, fTileMode,
-                                             localMatrix);
-    *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
-    return true;
-}
-
-#else
-
-bool SkTwoPointConicalGradient::asFragmentProcessor(GrContext*, const SkPaint&,
-                                                    const SkMatrix&, const SkMatrix*,
-                                                    GrColor*, GrProcessorDataManager*,
-                                                    GrFragmentProcessor**)  const {
-    SkDEBUGFAIL("Should not call in GPU-less build");
-    return false;
+    SkAutoTUnref<const GrFragmentProcessor> inner(
+        Gr2PtConicalGradientEffect::Create(context, procDataManager, *this, fTileMode,
+                                            localMatrix));
+    return GrExtractAlphaFragmentProcessor::Create(inner);
 }
 
 #endif

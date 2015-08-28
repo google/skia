@@ -506,7 +506,7 @@ void GrCustomXferFP::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCustomXferFP);
-GrFragmentProcessor* GrCustomXferFP::TestCreate(GrProcessorTestData* d) {
+const GrFragmentProcessor* GrCustomXferFP::TestCreate(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU(SkXfermode::kLastCoeffMode + 1, SkXfermode::kLastSeparableMode);
 
     return new GrCustomXferFP(d->fProcDataManager, static_cast<SkXfermode::Mode>(mode),
@@ -805,7 +805,7 @@ void GrCustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrCustomXPFactory);
-GrXPFactory* GrCustomXPFactory::TestCreate(GrProcessorTestData* d) {
+const GrXPFactory* GrCustomXPFactory::TestCreate(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU(SkXfermode::kLastCoeffMode + 1,
                                       SkXfermode::kLastSeparableMode);
 

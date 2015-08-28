@@ -217,7 +217,7 @@ GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t 
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
-GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
+const GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
     GrGeometryProcessor* gp;
     do {
         GrPrimitiveEdgeType edgeType =
@@ -425,7 +425,7 @@ GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t co
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
-GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
+const GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     GrGeometryProcessor* gp;
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
@@ -645,7 +645,7 @@ GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrCubicEffect);
 
-GrGeometryProcessor* GrCubicEffect::TestCreate(GrProcessorTestData* d) {
+const GrGeometryProcessor* GrCubicEffect::TestCreate(GrProcessorTestData* d) {
     GrGeometryProcessor* gp;
     do {
         GrPrimitiveEdgeType edgeType =

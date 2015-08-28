@@ -214,10 +214,10 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
     return kNone_GradientType;
 }
 
-bool SkShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&, const SkMatrix*,
-                                   GrColor*, GrProcessorDataManager*,
-                                   GrFragmentProcessor**)  const {
-    return false;
+const GrFragmentProcessor* SkShader::asFragmentProcessor(GrContext*, const SkMatrix&,
+                                                         const SkMatrix*, SkFilterQuality,
+                                                         GrProcessorDataManager*)  const {
+    return nullptr;
 }
 
 SkShader* SkShader::refAsALocalMatrixShader(SkMatrix*) const {
@@ -335,24 +335,12 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
-
-bool SkColorShader::asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix&,
-                                        const SkMatrix*, GrColor* paintColor,
-                                        GrProcessorDataManager*, GrFragmentProcessor** fp) const {
-    *fp = nullptr;
-    SkColor skColor = fColor;
-    U8CPU newA = SkMulDiv255Round(SkColorGetA(fColor), paint.getAlpha());
-    *paintColor = SkColor2GrColor(SkColorSetA(skColor, newA));
-    return true;
-}
-
-#else
-
-bool SkColorShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                        const SkMatrix*, GrColor*, GrProcessorDataManager*,
-                                        GrFragmentProcessor**) const {
-    SkDEBUGFAIL("Should not call in GPU-less build");
-    return false;
+#include "effects/GrConstColorProcessor.h"
+const GrFragmentProcessor* SkColorShader::asFragmentProcessor(GrContext*, const SkMatrix&,
+                                                              const SkMatrix*, SkFilterQuality,
+                                                              GrProcessorDataManager*) const {
+    GrColor color = SkColor2GrColor(fColor);
+    return GrConstColorProcessor::Create(color, GrConstColorProcessor::kModulateA_InputMode);
 }
 
 #endif
