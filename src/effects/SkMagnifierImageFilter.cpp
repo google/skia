@@ -361,8 +361,8 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
             SkScalar y_interp = SkScalarMul(weight, (fSrcRect.y() + y * inv_y_zoom)) +
                            (SK_Scalar1 - weight) * y;
 
-            int x_val = SkPin32(SkScalarFloorToInt(x_interp), 0, width - 1);
-            int y_val = SkPin32(SkScalarFloorToInt(y_interp), 0, height - 1);
+            int x_val = SkTPin(SkScalarFloorToInt(x_interp), 0, width - 1);
+            int y_val = SkTPin(SkScalarFloorToInt(y_interp), 0, height - 1);
 
             *dptr = sptr[y_val * width + x_val];
             dptr++;

@@ -509,7 +509,7 @@ void SkString::insertU64(size_t offset, uint64_t dec, int minDigits) {
 }
 
 void SkString::insertHex(size_t offset, uint32_t hex, int minDigits) {
-    minDigits = SkPin32(minDigits, 0, 8);
+    minDigits = SkTPin(minDigits, 0, 8);
 
     static const char gHex[] = "0123456789ABCDEF";
 

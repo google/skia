@@ -92,10 +92,10 @@ void shadeSpan16_radial_clamp(SkScalar sfx, SkScalar sdx,
     // might perform this check for the other modes,
     // but the win will be a smaller % of the total
     if (dy == 0) {
-        fy = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
+        fy = SkTPin(fy, -0xFFFF >> 1, 0xFFFF >> 1);
         fy *= fy;
         do {
-            unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
+            unsigned xx = SkTPin(fx, -0xFFFF >> 1, 0xFFFF >> 1);
             unsigned fi = (xx * xx + fy) >> (14 + 16 - kSQRT_TABLE_BITS);
             fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
             fx += dx;
@@ -105,8 +105,8 @@ void shadeSpan16_radial_clamp(SkScalar sfx, SkScalar sdx,
         } while (--count != 0);
     } else {
         do {
-            unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
-            unsigned fi = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
+            unsigned xx = SkTPin(fx, -0xFFFF >> 1, 0xFFFF >> 1);
+            unsigned fi = SkTPin(fy, -0xFFFF >> 1, 0xFFFF >> 1);
             fi = (xx * xx + fi * fi) >> (14 + 16 - kSQRT_TABLE_BITS);
             fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
             fx += dx;

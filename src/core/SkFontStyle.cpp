@@ -18,9 +18,9 @@ SkFontStyle::SkFontStyle() {
 
 SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
     fUnion.fU32 = 0;
-    fUnion.fR.fWeight = SkPin32(weight, kThin_Weight, kBlack_Weight);
-    fUnion.fR.fWidth = SkPin32(width, kUltraCondensed_Width, kUltaExpanded_Width);
-    fUnion.fR.fSlant = SkPin32(slant, kUpright_Slant, kItalic_Slant);
+    fUnion.fR.fWeight = SkTPin<int>(weight, kThin_Weight, kBlack_Weight);
+    fUnion.fR.fWidth = SkTPin<int>(width, kUltraCondensed_Width, kUltaExpanded_Width);
+    fUnion.fR.fSlant = SkTPin<int>(slant, kUpright_Slant, kItalic_Slant);
 }
 
 SkFontStyle::SkFontStyle(unsigned oldStyle) {

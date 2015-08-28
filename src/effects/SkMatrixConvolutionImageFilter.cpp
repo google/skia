@@ -126,8 +126,8 @@ public:
 class ClampPixelFetcher {
 public:
     static inline SkPMColor fetch(const SkBitmap& src, int x, int y, const SkIRect& bounds) {
-        x = SkPin32(x, bounds.fLeft, bounds.fRight - 1);
-        y = SkPin32(y, bounds.fTop, bounds.fBottom - 1);
+        x = SkTPin(x, bounds.fLeft, bounds.fRight - 1);
+        y = SkTPin(y, bounds.fTop, bounds.fBottom - 1);
         return *src.getAddr32(x, y);
     }
 };

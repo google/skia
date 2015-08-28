@@ -199,7 +199,7 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
 
     if (pr) {
         const SkImageInfo& info = pr->info();
-        fPixelRefOrigin.set(SkPin32(dx, 0, info.width()), SkPin32(dy, 0, info.height()));
+        fPixelRefOrigin.set(SkTPin(dx, 0, info.width()), SkTPin(dy, 0, info.height()));
     } else {
         // ignore dx,dy if there is no pixelref
         fPixelRefOrigin.setZero();
