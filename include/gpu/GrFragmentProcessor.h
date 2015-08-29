@@ -13,6 +13,7 @@
 class GrCoordTransform;
 class GrGLSLCaps;
 class GrGLFragmentProcessor;
+class GrInvariantOutput;
 class GrProcessorKeyBuilder;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (vec4f) and
@@ -82,7 +83,9 @@ public:
      * inout to indicate known values of its output. A component of the color member only has
      * meaning if the corresponding bit in validFlags is set.
      */
-    void computeInvariantOutput(GrInvariantOutput* inout) const;
+    void computeInvariantOutput(GrInvariantOutput* inout) const {
+        this->onComputeInvariantOutput(inout);
+    }
 
 protected:
     void addTextureAccess(const GrTextureAccess* textureAccess) override;

@@ -15,6 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "effects/GrBicubicEffect.h"
+#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 #endif
 
@@ -353,22 +354,21 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #include "SkGr.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& paint,
-                                             const SkMatrix& viewM,
-                                             const SkMatrix* localMatrix, GrColor* paintColor,
-                                             GrProcessorDataManager* procDataManager,
-                                             GrFragmentProcessor** fp) const {
+const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* context,
+                                             const SkMatrix& viewM, const SkMatrix* localMatrix,
+                                             SkFilterQuality filterQuality,
+                                             GrProcessorDataManager* procDataManager) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
     SkMatrix lmInverse;
     if (!this->getLocalMatrix().invert(&lmInverse)) {
-        return false;
+        return nullptr;
     }
     if (localMatrix) {
         SkMatrix inv;
         if (!localMatrix->invert(&inv)) {
-            return false;
+            return nullptr;
         }
         lmInverse.postConcat(inv);
     }
@@ -385,7 +385,7 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
     // are provided by the caller.
     bool doBicubic;
     GrTextureParams::FilterMode textureFilterMode =
-            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewM, this->getLocalMatrix(),
+            GrSkFilterQualityToGrFilterMode(filterQuality, viewM, this->getLocalMatrix(),
                                             &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
     SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fRawBitmap, &params));
@@ -393,29 +393,20 @@ bool SkBitmapProcShader::asFragmentProcessor(GrContext* context, const SkPaint& 
     if (!texture) {
         SkErrorInternals::SetError( kInternalError_SkError,
                                     "Couldn't convert bitmap to texture.");
-        return false;
+        return nullptr;
     }
 
-    *paintColor = (kAlpha_8_SkColorType == fRawBitmap.colorType()) ?
-                                                SkColor2GrColor(paint.getColor()) :
-                                                SkColor2GrColorJustAlpha(paint.getColor());
-
+    SkAutoTUnref<GrFragmentProcessor> inner;
     if (doBicubic) {
-        *fp = GrBicubicEffect::Create(procDataManager, texture, matrix, tm);
+        inner.reset(GrBicubicEffect::Create(procDataManager, texture, matrix, tm));
     } else {
-        *fp = GrSimpleTextureEffect::Create(procDataManager, texture, matrix, params);
+        inner.reset(GrSimpleTextureEffect::Create(procDataManager, texture, matrix, params));
     }
 
-    return true;
-}
-
-#else
-
-bool SkBitmapProcShader::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
-                                             const SkMatrix*, GrColor*, GrProcessorDataManager*,
-                                             GrFragmentProcessor**) const {
-    SkDEBUGFAIL("Should not call in GPU-less build");
-    return false;
+    if (kAlpha_8_SkColorType == fRawBitmap.colorType()) {
+        return SkRef(inner.get());
+    }
+    return GrExtractAlphaFragmentProcessor::Create(inner);
 }
 
 #endif

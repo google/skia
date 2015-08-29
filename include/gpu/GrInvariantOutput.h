@@ -29,7 +29,7 @@ struct GrInitInvariantOutput {
     }
 
     void setUnknownOpaqueFourComponents() {
-        fColor = 0xff << GrColor_SHIFT_A;
+        fColor = 0xffU << GrColor_SHIFT_A;
         fValidFlags = kA_GrColorComponentFlag;
         fIsSingleComponent = false;
     }

@@ -183,7 +183,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Edge2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+const GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = d->fRandom->nextUScalar1();
     SkPoint center2;
@@ -209,12 +209,9 @@ GrFragmentProcessor* Edge2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
                                                                           center2, radius2,
                                                                           colors, stops, colorCount,
                                                                           tm));
-    SkPaint paint;
-    GrFragmentProcessor* fp;
-    GrColor paintColor;
-    SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), nullptr,
-                                               &paintColor, d->fProcDataManager, &fp));
+    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality, d->fProcDataManager);
+    GrAlwaysAssert(fp);
     return fp;
 }
 
@@ -465,7 +462,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(FocalOutside2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+const GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = 0.f;
     SkPoint center2;
@@ -488,15 +485,10 @@ GrFragmentProcessor* FocalOutside2PtConicalEffect::TestCreate(GrProcessorTestDat
                                                                           center2, radius2,
                                                                           colors, stops, colorCount,
                                                                           tm));
-    SkPaint paint;
-    GrFragmentProcessor* effect;
-    GrColor paintColor;
-    GrPaint grPaint;
-    SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), nullptr,
-                                               &paintColor, d->fProcDataManager,
-                                               &effect));
-    return effect;
+    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality, d->fProcDataManager);
+    GrAlwaysAssert(fp);
+    return fp;
 }
 
 GLFocalOutside2PtConicalEffect::GLFocalOutside2PtConicalEffect(const GrProcessor& processor)
@@ -676,7 +668,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(FocalInside2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+const GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = 0.f;
     SkPoint center2;
@@ -701,12 +693,9 @@ GrFragmentProcessor* FocalInside2PtConicalEffect::TestCreate(GrProcessorTestData
                                                                           center2, radius2,
                                                                           colors, stops, colorCount,
                                                                           tm));
-    SkPaint paint;
-    GrColor paintColor;
-    GrFragmentProcessor* fp;
-    SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), nullptr,
-                                               &paintColor, d->fProcDataManager, &fp));
+    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality, d->fProcDataManager);
+    GrAlwaysAssert(fp);
     return fp;
 }
 
@@ -923,8 +912,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleInside2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-GrFragmentProcessor*
-CircleInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+const GrFragmentProcessor* CircleInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = d->fRandom->nextUScalar1() + 0.0001f; // make sure radius1 != 0
     SkPoint center2;
@@ -948,12 +936,9 @@ CircleInside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
                                                                           center2, radius2,
                                                                           colors, stops, colorCount,
                                                                           tm));
-    SkPaint paint;
-    GrColor paintColor;
-    GrFragmentProcessor* fp;
-    SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), nullptr,
-                                               &paintColor, d->fProcDataManager, &fp));
+    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
+        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality, d->fProcDataManager);
+    GrAlwaysAssert(fp);
     return fp;
 }
 
@@ -1154,7 +1139,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleOutside2PtConicalEffect);
 /*
  * All Two point conical gradient test create functions may occasionally create edge case shaders
  */
-GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
+const GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = d->fRandom->nextUScalar1() + 0.0001f; // make sure radius1 != 0
     SkPoint center2;
@@ -1179,12 +1164,10 @@ GrFragmentProcessor* CircleOutside2PtConicalEffect::TestCreate(GrProcessorTestDa
                                                                           center2, radius2,
                                                                           colors, stops, colorCount,
                                                                           tm));
-    SkPaint paint;
-    GrColor paintColor;
-    GrFragmentProcessor* fp;
-    SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
-                                               GrTest::TestMatrix(d->fRandom), nullptr,
-                                               &paintColor, d->fProcDataManager, &fp));
+    const GrFragmentProcessor* fp = shader->asFragmentProcessor(
+        d->fContext,GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality,
+        d->fProcDataManager);
+    GrAlwaysAssert(fp);
     return fp;
 }
 

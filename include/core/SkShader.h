@@ -334,27 +334,20 @@ public:
 
 
     /**
-     *  Returns true if the shader subclass succeeds in creating an effect or if none is required.
-     *  False is returned if it fails or if there is not an implementation of this method in the
-     *  shader subclass.
+     *  Returns a GrFragmentProcessor that implements the shader for the GPU backend. NULL is
+     *  returned if there is no GPU implementation.
      *
-     *  On success an implementation of this method must inspect the SkPaint and set paintColor to
-     *  the color the effect expects as its input color. If the SkShader wishes to emit a solid
-     *  color then it should set paintColor to that color and not create an effect. Note that
-     *  GrColor is always premul. The common patterns are to convert paint's SkColor to GrColor or
-     *  to extract paint's alpha and replicate it to all channels in paintColor. Upon failure
-     *  paintColor should not be modified. It is not recommended to specialize the effect to
-     *  the paint's color as then many GPU shaders may be generated.
+     *  The GPU device does not call SkShader::createContext(), instead we pass the view matrix,
+     *  local matrix, and filter quality directly.
      *
-     *  The GrContext may be used by the effect to create textures. The GPU device does not
-     *  call createContext. Instead we pass the SkPaint here in case the shader needs paint info.
-     *
-     *  A view matrix is always required to create the correct GrFragmentProcessor.  Some shaders
-     *  may also use the optional localMatrix to define a matrix relevant only for sampling.
+     *  The GrContext may be used by the to create textures that are required by the returned
+     *  processor.
      */
-    virtual bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix& viewM,
-                                     const SkMatrix* localMatrix, GrColor*,
-                                     GrProcessorDataManager*, GrFragmentProcessor**) const;
+    virtual const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+                                                           const SkMatrix& viewMatrix,
+                                                           const SkMatrix* localMatrix,
+                                                           SkFilterQuality,
+                                                           GrProcessorDataManager*) const;
 
     /**
      *  If the shader can represent its "average" luminance in a single color, return true and
