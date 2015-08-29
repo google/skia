@@ -602,11 +602,11 @@ const GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
     SkScalar baseFrequencyY = d->fRandom->nextRangeScalar(0.01f,
                                                           0.99f);
 
-    SkShader* shader = d->fRandom->nextBool() ?
+    SkAutoTUnref<SkShader> shader(d->fRandom->nextBool() ?
         SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed,
                                                 stitchTiles ? &tileSize : nullptr) :
         SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed,
-                                             stitchTiles ? &tileSize : nullptr);
+                                             stitchTiles ? &tileSize : nullptr));
 
     GrPaint grPaint;
     return shader->asFragmentProcessor(d->fContext,
