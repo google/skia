@@ -241,6 +241,10 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
     return true;
 }
 
+void GrFragmentProcessor::computeInvariantOutput(GrInvariantOutput* inout) const {
+    this->onComputeInvariantOutput(inout);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Initial static variable from GrXPFactory

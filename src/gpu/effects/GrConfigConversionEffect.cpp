@@ -128,7 +128,7 @@ void GrConfigConversionEffect::onComputeInvariantOutput(GrInvariantOutput* inout
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 
-const GrFragmentProcessor* GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
     PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
     bool swapRB;
     if (kNone_PMConversion == pmConv) {

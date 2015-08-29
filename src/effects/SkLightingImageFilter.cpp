@@ -1633,7 +1633,7 @@ GrGLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDiffuseLightingEffect);
 
-const GrFragmentProcessor* GrDiffuseLightingEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrDiffuseLightingEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar kd = d->fRandom->nextUScalar1();
     SkAutoTUnref<SkImageFilterLight> light(create_random_light(d->fRandom));
@@ -1836,7 +1836,7 @@ GrGLFragmentProcessor* GrSpecularLightingEffect::onCreateGLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
 
-const GrFragmentProcessor* GrSpecularLightingEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrSpecularLightingEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar ks = d->fRandom->nextUScalar1();
     SkScalar shininess = d->fRandom->nextUScalar1();

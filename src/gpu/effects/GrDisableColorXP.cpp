@@ -104,7 +104,7 @@ GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
 
 GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory);
 
-const GrXPFactory* GrDisableColorXPFactory::TestCreate(GrProcessorTestData*) {
+GrXPFactory* GrDisableColorXPFactory::TestCreate(GrProcessorTestData*) {
     return GrDisableColorXPFactory::Create();
 }
 

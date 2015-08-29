@@ -61,14 +61,14 @@ template <class Processor>
 class GrProcessorTestFactory : SkNoncopyable {
 public:
 
-    typedef const Processor* (*CreateProc)(GrProcessorTestData*);
+    typedef Processor* (*CreateProc)(GrProcessorTestData*);
 
     GrProcessorTestFactory(CreateProc createProc) {
         fCreateProc = createProc;
         GetFactories()->push_back(this);
     }
 
-    static const Processor* CreateStage(GrProcessorTestData* data) {
+    static Processor* CreateStage(GrProcessorTestData* data) {
         VerifyFactoryCount();
         SkASSERT(GetFactories()->count());
         uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
@@ -92,15 +92,15 @@ private:
  */
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrGeometryProcessor> gTestFactory SK_UNUSED;                     \
-    static const GrGeometryProcessor* TestCreate(GrProcessorTestData*)
+    static GrGeometryProcessor* TestCreate(GrProcessorTestData*)
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrFragmentProcessor> gTestFactory SK_UNUSED;                     \
-    static const GrFragmentProcessor* TestCreate(GrProcessorTestData*)
+    static GrFragmentProcessor* TestCreate(GrProcessorTestData*)
 
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
     static GrProcessorTestFactory<GrXPFactory> gTestFactory SK_UNUSED;                             \
-    static const GrXPFactory* TestCreate(GrProcessorTestData*)
+    static GrXPFactory* TestCreate(GrProcessorTestData*)
 
 
 /** GrProcessor subclasses should insert this macro in their implementation file. They must then
@@ -121,19 +121,19 @@ private:
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
-    static const GrFragmentProcessor* TestCreate(GrProcessorTestData*)
+    static GrFragmentProcessor* TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(X)
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
-    static const GrXPFactory* TestCreate(GrProcessorTestData*)
+    static GrXPFactory* TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_XP_FACTORY_TEST(X)
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
-    static const GrGeometryProcessor* TestCreate(GrProcessorTestData*)
+    static GrGeometryProcessor* TestCreate(GrProcessorTestData*)
 #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(X)
 
 #endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

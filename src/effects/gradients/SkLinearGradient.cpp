@@ -439,7 +439,6 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
@@ -508,7 +507,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradient);
 
-const GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
                         {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
 
@@ -520,9 +519,12 @@ const GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) 
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateLinear(points,
                                                                  colors, stops, colorCount,
                                                                  tm));
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
-        GrTest::TestMatrix(d->fRandom), NULL, kNone_SkFilterQuality, d->fProcDataManager);
-    GrAlwaysAssert(fp);
+    SkPaint paint;
+    GrColor paintColor;
+    GrFragmentProcessor* fp;
+    SkAssertResult(shader->asFragmentProcessor(d->fContext, paint,
+                                               GrTest::TestMatrix(d->fRandom), nullptr,
+                                               &paintColor, d->fProcDataManager, &fp));
     return fp;
 }
 
@@ -539,29 +541,40 @@ void GrGLLinearGradient::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* SkLinearGradient::asFragmentProcessor(
-    GrContext* context, const SkMatrix& viewm, const SkMatrix* localMatrix, SkFilterQuality,
-    GrProcessorDataManager* procDataManager)  const {
+bool SkLinearGradient::asFragmentProcessor(GrContext* context, const SkPaint& paint,
+                                           const SkMatrix& viewm, const SkMatrix* localMatrix,
+                                           GrColor* paintColor,
+                                           GrProcessorDataManager* procDataManager,
+                                           GrFragmentProcessor** fp)  const {
     SkASSERT(context);
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
-        return nullptr;
+        return false;
     }
     if (localMatrix) {
         SkMatrix inv;
         if (!localMatrix->invert(&inv)) {
-            return nullptr;
+            return false;
         }
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
 
-    SkAutoTUnref<const GrFragmentProcessor> inner(
-        GrLinearGradient::Create(context, procDataManager, *this, matrix, fTileMode));
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    *paintColor = SkColor2GrColorJustAlpha(paint.getColor());
+    *fp = GrLinearGradient::Create(context, procDataManager, *this, matrix, fTileMode);
+
+    return true;
 }
 
+#else
+
+bool SkLinearGradient::asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&,
+                                           const SkMatrix*, GrColor*, GrProcessorDataManager*,
+                                           GrFragmentProcessor**)  const {
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return false;
+}
 
 #endif
 

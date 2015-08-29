@@ -222,7 +222,7 @@ GrMatrixConvolutionEffect::CreateGaussian(GrProcessorDataManager* procDataManage
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
-const GrFragmentProcessor* GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);

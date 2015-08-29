@@ -195,7 +195,7 @@ GrGLFragmentProcessor* GrMagnifierEffect::onCreateGLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 
-const GrFragmentProcessor* GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
     GrTexture* texture = d->fTextures[0];
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;

@@ -851,13 +851,22 @@ bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPa
 
     GrColor paintColor = SkColor2GrColor(skPaint.getColor());
 
-    const GrFragmentProcessor* fp = shader->asFragmentProcessor(context, viewM, NULL,
-        skPaint.getFilterQuality(), grPaint->getProcessorDataManager());
-    if (!fp) {
-        return false;
+    // Start a new block here in order to preserve our context state after calling
+    // asFragmentProcessor(). Since these calls get passed back to the client, we don't really
+    // want them messing around with the context.
+    {
+        // Allow the shader to modify paintColor and also create an effect to be installed as
+        // the first color effect on the GrPaint.
+        GrFragmentProcessor* fp = nullptr;
+        if (!shader->asFragmentProcessor(context, skPaint, viewM, nullptr, &paintColor,
+                                         grPaint->getProcessorDataManager(), &fp)) {
+            return false;
+        }
+        if (fp) {
+            grPaint->addColorFragmentProcessor(fp)->unref();
+            constantColor = false;
+        }
     }
-    grPaint->addColorFragmentProcessor(fp)->unref();
-    constantColor = false;
 
     // The grcolor is automatically set when calling asFragmentProcessor.
     // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.

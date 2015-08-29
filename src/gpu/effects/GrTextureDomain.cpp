@@ -280,7 +280,7 @@ void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureDomainEffect);
 
-const GrFragmentProcessor* GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     SkRect domain;

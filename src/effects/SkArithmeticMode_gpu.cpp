@@ -137,7 +137,7 @@ void GrArithmeticFP::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const GrFragmentProcessor* GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
     float k1 = d->fRandom->nextF();
     float k2 = d->fRandom->nextF();
     float k3 = d->fRandom->nextF();
@@ -295,7 +295,7 @@ void GrArithmeticXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
 
 GR_DEFINE_XP_FACTORY_TEST(GrArithmeticXPFactory);
 
-const GrXPFactory* GrArithmeticXPFactory::TestCreate(GrProcessorTestData* d) {
+GrXPFactory* GrArithmeticXPFactory::TestCreate(GrProcessorTestData* d) {
     float k1 = d->fRandom->nextF();
     float k2 = d->fRandom->nextF();
     float k3 = d->fRandom->nextF();

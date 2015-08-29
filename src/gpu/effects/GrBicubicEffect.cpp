@@ -175,7 +175,7 @@ void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 
-const GrFragmentProcessor* GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     SkScalar coefficients[16];

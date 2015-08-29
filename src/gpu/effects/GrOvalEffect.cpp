@@ -75,7 +75,7 @@ bool CircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleEffect);
 
-const GrFragmentProcessor* CircleEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* CircleEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center;
     center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = d->fRandom->nextRangeScalar(0.f, 1000.f);
@@ -245,7 +245,7 @@ bool EllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(EllipseEffect);
 
-const GrFragmentProcessor* EllipseEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* EllipseEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center;
     center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = d->fRandom->nextRangeScalar(0.f, 1000.f);

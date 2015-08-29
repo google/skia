@@ -159,7 +159,7 @@ GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
-const GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
+GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {

@@ -72,10 +72,9 @@ public:
 
     bool isOpaque() const override;
 
-#if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
-        const SkMatrix* localMatrix, SkFilterQuality, GrProcessorDataManager*) const override;
-#endif
+    bool asFragmentProcessor(GrContext*, const SkPaint& paint, const SkMatrix& viewM,
+                             const SkMatrix* localMatrix, GrColor* color,
+                             GrProcessorDataManager*, GrFragmentProcessor** fp) const override;
 
     size_t contextSize() const override;
 
@@ -128,7 +127,6 @@ private:
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureAccess.h"
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
@@ -343,9 +341,10 @@ static bool make_mat(const SkBitmap& bm,
     return true;
 }
 
-const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(GrContext* context,
-    const SkMatrix& viewM, const SkMatrix* localMatrix, SkFilterQuality filterQuality,
-    GrProcessorDataManager* pdm) const {
+bool SkLightingShaderImpl::asFragmentProcessor(GrContext* context, const SkPaint& paint, 
+                                               const SkMatrix& viewM, const SkMatrix* localMatrix, 
+                                               GrColor* color, GrProcessorDataManager* pdm,
+                                               GrFragmentProcessor** fp) const {
     // we assume diffuse and normal maps have same width and height
     // TODO: support different sizes
     SkASSERT(fDiffuseMap.width() == fNormalMap.width() &&
@@ -353,23 +352,23 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(GrContext* 
     SkMatrix diffM, normM;
     
     if (!make_mat(fDiffuseMap, this->getLocalMatrix(), localMatrix, &diffM)) {
-        return nullptr;
+        return false;    
     }
 
     if (!make_mat(fNormalMap, fNormLocalMatrix, localMatrix, &normM)) {
-        return nullptr;
+        return false;
     }
 
     bool doBicubic;
     GrTextureParams::FilterMode diffFilterMode = GrSkFilterQualityToGrFilterMode(
-                                        SkTMin(filterQuality, kMedium_SkFilterQuality), 
+                                        SkTMin(paint.getFilterQuality(), kMedium_SkFilterQuality), 
                                         viewM,
                                         this->getLocalMatrix(),
                                         &doBicubic); 
     SkASSERT(!doBicubic);
 
     GrTextureParams::FilterMode normFilterMode = GrSkFilterQualityToGrFilterMode(
-                                        SkTMin(filterQuality, kMedium_SkFilterQuality), 
+                                        SkTMin(paint.getFilterQuality(), kMedium_SkFilterQuality), 
                                         viewM,
                                         fNormLocalMatrix,
                                         &doBicubic); 
@@ -380,22 +379,34 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(GrContext* 
     SkAutoTUnref<GrTexture> diffuseTexture(GrRefCachedBitmapTexture(context,
                                                                     fDiffuseMap, &diffParams));
     if (!diffuseTexture) {
-        SkErrorInternals::SetError(kInternalError_SkError, "Couldn't convert bitmap to texture.");
-        return nullptr;
+        SkErrorInternals::SetError(kInternalError_SkError,
+            "Couldn't convert bitmap to texture.");
+        return false;
     }
 
     GrTextureParams normParams(kClamp_TileMode, normFilterMode);
     SkAutoTUnref<GrTexture> normalTexture(GrRefCachedBitmapTexture(context,
                                                                    fNormalMap, &normParams));
     if (!normalTexture) {
-        SkErrorInternals::SetError(kInternalError_SkError, "Couldn't convert bitmap to texture.");
-        return nullptr;
+        SkErrorInternals::SetError(kInternalError_SkError,
+            "Couldn't convert bitmap to texture.");
+        return false;
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> inner (
-        new LightingFP(pdm, diffuseTexture, normalTexture, diffM, normM, diffParams, normParams,
-                       fLights, fInvNormRotation));
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    *fp = new LightingFP(pdm, diffuseTexture, normalTexture, diffM, normM, diffParams, normParams,
+                         fLights, fInvNormRotation);
+
+    *color = GrColorPackA4(paint.getAlpha());
+    return true;
+}
+#else
+
+bool SkLightingShaderImpl::asFragmentProcessor(GrContext* context, const SkPaint& paint, 
+                                               const SkMatrix& viewM, const SkMatrix* localMatrix, 
+                                               GrColor* color, GrProcessorDataManager*,
+                                               GrFragmentProcessor** fp) const {
+    SkDEBUGFAIL("Should not call in GPU-less build");
+    return false;
 }
 
 #endif

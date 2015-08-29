@@ -339,7 +339,7 @@ void ModeColorFilterEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ModeColorFilterEffect);
-const GrFragmentProcessor* ModeColorFilterEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* ModeColorFilterEffect::TestCreate(GrProcessorTestData* d) {
     SkXfermode::Mode mode = SkXfermode::kDst_Mode;
     while (SkXfermode::kDst_Mode == mode) {
         mode = static_cast<SkXfermode::Mode>(d->fRandom->nextRangeU(0, SkXfermode::kLastCoeffMode));

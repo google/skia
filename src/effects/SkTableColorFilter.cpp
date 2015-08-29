@@ -541,7 +541,7 @@ void ColorTableEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
 
-const GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     int flags = 0;
     uint8_t luts[256][4];
     do {

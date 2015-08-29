@@ -816,7 +816,7 @@ void GrRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 
-const GrFragmentProcessor* GrRectBlurEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrRectBlurEffect::TestCreate(GrProcessorTestData* d) {
     float sigma = d->fRandom->nextRangeF(3,8);
     float width = d->fRandom->nextRangeF(200,300);
     float height = d->fRandom->nextRangeF(200,300);
@@ -997,7 +997,7 @@ bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 
-const GrFragmentProcessor* GrRRectBlurEffect::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrRRectBlurEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar w = d->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar h = d->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar r = d->fRandom->nextRangeF(1.f, 9.f);

@@ -90,7 +90,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
 
-const GrFragmentProcessor* BigKeyProcessor::TestCreate(GrProcessorTestData*) {
+GrFragmentProcessor* BigKeyProcessor::TestCreate(GrProcessorTestData*) {
     return BigKeyProcessor::Create();
 }
 

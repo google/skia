@@ -252,7 +252,7 @@ GrDistanceFieldA8TextGeoProc::createGLInstance(const GrBatchTracker& bt,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
 
-const GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
+GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -475,7 +475,7 @@ GrDistanceFieldPathGeoProc::createGLInstance(const GrBatchTracker& bt, const GrG
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
 
-const GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
+GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
@@ -748,7 +748,7 @@ GrDistanceFieldLCDTextGeoProc::createGLInstance(const GrBatchTracker& bt,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
 
-const GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
+GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {

@@ -59,10 +59,9 @@ public:
     };
 
     SkShader::GradientType asAGradient(GradientInfo* info) const  override;
-#if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix&, const SkMatrix*,
-        SkFilterQuality, GrProcessorDataManager*) const override;
-#endif
+    bool asFragmentProcessor(GrContext*, const SkPaint&, const SkMatrix&, const SkMatrix*,
+                             GrColor*, GrProcessorDataManager*,
+                             GrFragmentProcessor**) const override;
     bool isOpaque() const override;
 
     SkScalar getCenterX1() const { return SkPoint::Distance(fCenter1, fCenter2); }

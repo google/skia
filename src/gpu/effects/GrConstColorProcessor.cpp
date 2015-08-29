@@ -103,7 +103,7 @@ bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 
-const GrFragmentProcessor* GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
+GrFragmentProcessor* GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
     GrColor color;
     int colorPicker = d->fRandom->nextULessThan(3);
     switch (colorPicker) {
