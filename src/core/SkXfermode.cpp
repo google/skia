@@ -12,7 +12,6 @@
 #include "SkLazyPtr.h"
 #include "SkMathPriv.h"
 #include "SkOpts.h"
-#include "SkPMFloat.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkWriteBuffer.h"

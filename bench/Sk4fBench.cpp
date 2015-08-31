@@ -6,7 +6,8 @@
  */
 
 #include "Benchmark.h"
-#include "SkPMFloat.h"
+#include "SkColor.h"
+#include "SkNx.h"
 
 // Used to prevent the compiler from optimizing away the whole loop.
 volatile uint32_t blackhole = 0;
@@ -19,11 +20,10 @@ static uint32_t lcg_rand(uint32_t* seed) {
     return *seed;
 }
 
-// I'm having better luck getting these to constant-propagate away as template parameters.
-struct PMFloatRoundtripBench : public Benchmark {
-    PMFloatRoundtripBench() {}
+struct Sk4fBytesRoundtripBench : public Benchmark {
+    Sk4fBytesRoundtripBench() {}
 
-    const char* onGetName() override { return "SkPMFloat_roundtrip"; }
+    const char* onGetName() override { return "Sk4f_roundtrip"; }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
     void onDraw(const int loops, SkCanvas* canvas) override {
@@ -31,32 +31,25 @@ struct PMFloatRoundtripBench : public Benchmark {
         uint32_t junk = 0;
         uint32_t seed = 0;
         for (int i = 0; i < loops; i++) {
-            SkPMColor color;
-        #ifdef SK_DEBUG
-            // Our SkASSERTs will remind us that it's technically required that we premultiply.
-            color = SkPreMultiplyColor(lcg_rand(&seed));
-        #else
-            // But it's a lot faster not to, and this code won't really mind the non-PM colors.
-            color = lcg_rand(&seed);
-        #endif
-
-            auto f = SkPMFloat::FromPMColor(color);
-            SkPMColor back = f.round();
+            uint32_t color = lcg_rand(&seed),
+                     back;
+            auto f = Sk4f::FromBytes((const uint8_t*)&color);
+            f.toBytes((uint8_t*)&back);
             junk ^= back;
         }
         blackhole ^= junk;
     }
 };
-DEF_BENCH(return new PMFloatRoundtripBench;)
+DEF_BENCH(return new Sk4fBytesRoundtripBench;)
 
-struct PMFloatGradientBench : public Benchmark {
-    const char* onGetName() override { return "PMFloat_gradient"; }
+struct Sk4fGradientBench : public Benchmark {
+    const char* onGetName() override { return "Sk4f_gradient"; }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
     SkPMColor fDevice[100];
     void onDraw(const int loops, SkCanvas*) override {
-        Sk4f c0 = SkPMFloat::FromARGB(1, 1, 0, 0),
-             c1 = SkPMFloat::FromARGB(1, 0, 0, 1),
+        Sk4f c0(0,0,255,255),
+             c1(255,0,0,255),
              dc = c1 - c0,
              fx(0.1f),
              dx(0.002f),
@@ -64,15 +57,15 @@ struct PMFloatGradientBench : public Benchmark {
              dcdx4(dcdx+dcdx+dcdx+dcdx);
 
         for (int n = 0; n < loops; n++) {
-            Sk4f a = c0 + dc*fx,
+            Sk4f a = c0 + dc*fx + Sk4f(0.5f),  // add an extra 0.5f to get rounding for free.
                  b = a + dcdx,
                  c = b + dcdx,
                  d = c + dcdx;
             for (size_t i = 0; i < SK_ARRAY_COUNT(fDevice); i += 4) {
-                fDevice[i+0] = SkPMFloat(a).round();
-                fDevice[i+1] = SkPMFloat(b).round();
-                fDevice[i+2] = SkPMFloat(c).round();
-                fDevice[i+3] = SkPMFloat(d).round();
+                a.toBytes((uint8_t*)(fDevice+i+0));
+                b.toBytes((uint8_t*)(fDevice+i+1));
+                c.toBytes((uint8_t*)(fDevice+i+2));
+                d.toBytes((uint8_t*)(fDevice+i+3));
                 a = a + dcdx4;
                 b = b + dcdx4;
                 c = c + dcdx4;
@@ -81,5 +74,4 @@ struct PMFloatGradientBench : public Benchmark {
         }
     }
 };
-
-DEF_BENCH(return new PMFloatGradientBench;)
+DEF_BENCH(return new Sk4fGradientBench;)

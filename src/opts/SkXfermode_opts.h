@@ -9,7 +9,7 @@
 #define Sk4pxXfermode_DEFINED
 
 #include "Sk4px.h"
-#include "SkPMFloat.h"
+#include "SkNx.h"
 #include "SkXfermode_proccoeff.h"
 
 namespace {
@@ -110,11 +110,19 @@ XFERMODE(Lighten) {
 #undef XFERMODE
 
 // Some xfermodes use math like divide or sqrt that's best done in floats 1 pixel at a time.
-#define XFERMODE(Name) static SkPMFloat SK_VECTORCALL Name(SkPMFloat d, SkPMFloat s)
+#define XFERMODE(Name) static Sk4f SK_VECTORCALL Name(Sk4f d, Sk4f s)
+
+static inline Sk4f a_rgb(const Sk4f& a, const Sk4f& rgb) {
+    static_assert(SK_A32_SHIFT == 24, "");
+    return a * Sk4f(0,0,0,1) + rgb * Sk4f(1,1,1,0);
+}
+static inline Sk4f alphas(const Sk4f& f) {
+    return Sk4f(f.kth<SK_A32_SHIFT/8>());
+}
 
 XFERMODE(ColorDodge) {
-    auto sa = s.alphas(),
-         da = d.alphas(),
+    auto sa = alphas(s),
+         da = alphas(d),
          isa = Sk4f(1)-sa,
          ida = Sk4f(1)-da;
 
@@ -126,11 +134,11 @@ XFERMODE(ColorDodge) {
     auto colors = (d == Sk4f(0)).thenElse(dstover,
                   (s ==      sa).thenElse(srcover,
                                           otherwise));
-    return srcover * SkPMFloat(1,0,0,0) + colors * SkPMFloat(0,1,1,1);
+    return a_rgb(srcover, colors);
 }
 XFERMODE(ColorBurn) {
-    auto sa = s.alphas(),
-         da = d.alphas(),
+    auto sa = alphas(s),
+         da = alphas(d),
          isa = Sk4f(1)-sa,
          ida = Sk4f(1)-da;
 
@@ -142,11 +150,11 @@ XFERMODE(ColorBurn) {
     auto colors = (d ==      da).thenElse(dstover,
                   (s == Sk4f(0)).thenElse(srcover,
                                           otherwise));
-    return srcover * SkPMFloat(1,0,0,0) + colors * SkPMFloat(0,1,1,1);
+    return a_rgb(srcover, colors);
 }
 XFERMODE(SoftLight) {
-    auto sa = s.alphas(),
-         da = d.alphas(),
+    auto sa = alphas(s),
+         da = alphas(d),
          isa = Sk4f(1)-sa,
          ida = Sk4f(1)-da;
 
@@ -167,7 +175,7 @@ XFERMODE(SoftLight) {
     auto alpha  = s + d*isa;
     auto colors = s*ida + d*isa + (s2 <= sa).thenElse(darkSrc, liteSrc);           // Case 1 or 2/3?
 
-    return alpha * SkPMFloat(1,0,0,0) + colors * SkPMFloat(0,1,1,1);
+    return a_rgb(alpha, colors);
 }
 #undef XFERMODE
 
@@ -232,10 +240,10 @@ private:
     typedef SkProcCoeffXfermode INHERITED;
 };
 
-class SkPMFloatXfermode : public SkProcCoeffXfermode {
+class Sk4fXfermode : public SkProcCoeffXfermode {
 public:
-    typedef SkPMFloat (SK_VECTORCALL *ProcF)(SkPMFloat, SkPMFloat);
-    SkPMFloatXfermode(const ProcCoeff& rec, SkXfermode::Mode mode, ProcF procf)
+    typedef Sk4f (SK_VECTORCALL *ProcF)(Sk4f, Sk4f);
+    Sk4fXfermode(const ProcCoeff& rec, SkXfermode::Mode mode, ProcF procf)
         : INHERITED(rec, mode)
         , fProcF(procf) {}
 
@@ -256,18 +264,26 @@ public:
     }
 
 private:
+    static Sk4f Load(SkPMColor c) {
+        return Sk4f::FromBytes((uint8_t*)&c) * Sk4f(1.0f/255);
+    }
+    static SkPMColor Round(const Sk4f& f) {
+        SkPMColor c;
+        (f * Sk4f(255) + Sk4f(0.5f)).toBytes((uint8_t*)&c);
+        return c;
+    }
     inline SkPMColor xfer32(SkPMColor dst, SkPMColor src) const {
-        return fProcF(SkPMFloat(dst), SkPMFloat(src)).round();
+        return Round(fProcF(Load(dst), Load(src)));
     }
 
     inline SkPMColor xfer32(SkPMColor dst, SkPMColor src, SkAlpha aa) const {
-        SkPMFloat s(src),
-                  d(dst),
-                  b(fProcF(d,s));
+        Sk4f s(Load(src)),
+             d(Load(dst)),
+             b(fProcF(d,s));
         // We do aa in full float precision before going back down to bytes, because we can!
-        SkPMFloat a = Sk4f(aa) * Sk4f(1.0f/255);
+        Sk4f a = Sk4f(aa) * Sk4f(1.0f/255);
         b = b*a + d*(Sk4f(1)-a);
-        return b.round();
+        return Round(b);
     }
 
     ProcF fProcF;
@@ -280,9 +296,8 @@ namespace SK_OPTS_NS {
 
 static SkXfermode* create_xfermode(const ProcCoeff& rec, SkXfermode::Mode mode) {
     switch (mode) {
-#define CASE(Mode)                   \
-    case SkXfermode::k##Mode##_Mode: \
-        return new Sk4pxXfermode(rec, mode, &Mode, &xfer_aa<Mode>)
+#define CASE(Mode) \
+    case SkXfermode::k##Mode##_Mode: return new Sk4pxXfermode(rec, mode, &Mode, &xfer_aa<Mode>)
         CASE(Clear);
         CASE(Src);
         CASE(Dst);
@@ -307,9 +322,8 @@ static SkXfermode* create_xfermode(const ProcCoeff& rec, SkXfermode::Mode mode) 
         CASE(Lighten);
     #undef CASE
 
-#define CASE(Mode)                   \
-    case SkXfermode::k##Mode##_Mode: \
-        return new SkPMFloatXfermode(rec, mode, &Mode)
+#define CASE(Mode) \
+    case SkXfermode::k##Mode##_Mode: return new Sk4fXfermode(rec, mode, &Mode)
         CASE(ColorDodge);
         CASE(ColorBurn);
         CASE(SoftLight);
