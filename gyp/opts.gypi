@@ -52,10 +52,14 @@
             '<(skia_src_path)/opts/SkBlitRow_opts_SSE4.cpp',
             '<(skia_src_path)/opts/SkOpts_sse41.cpp',
         ],
+        # These targets are empty, but XCode doesn't like that, so add an empty file to each.
         'sse42_sources': [
+            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
         ],
         'avx_sources': [
+            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
         ],
         'avx2_sources': [
+            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
         ],
 }
