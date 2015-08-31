@@ -21,9 +21,9 @@ static bool is_in_scaled_image_cache(const SkBitmap& orig,
                                      SkScalar xScale,
                                      SkScalar yScale) {
     SkBitmap scaled;
-    float roundedImageWidth = SkScalarRoundToScalar(orig.width() * xScale);
-    float roundedImageHeight = SkScalarRoundToScalar(orig.height() * yScale);
-    return SkBitmapCache::Find(orig, roundedImageWidth, roundedImageHeight, &scaled);
+    int width = SkScalarRoundToInt(orig.width() * xScale);
+    int height = SkScalarRoundToInt(orig.height() * yScale);
+    return SkBitmapCache::FindWH(orig, width, height, &scaled);
 }
 
 // Draw a scaled bitmap, then return true if it has been cached.

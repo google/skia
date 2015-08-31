@@ -27,17 +27,17 @@ public:
     static SkBitmap::Allocator* GetAllocator();
 
     /**
-     *  Search based on the src bitmap and inverse scales in X and Y. If found, returns true and
+     *  Search based on the src bitmap and scaled width/height. If found, returns true and
      *  result will be set to the matching bitmap with its pixels already locked.
      */
-    static bool Find(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY, SkBitmap* result,
-                     SkResourceCache* localCache = nullptr);
+    static bool FindWH(const SkBitmap& src, int width, int height, SkBitmap* result,
+                       SkResourceCache* localCache = nullptr);
 
     /*
      *  result must be marked isImmutable()
      */
-    static void Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
-            const SkBitmap& result, SkResourceCache* localCache = nullptr);
+    static void AddWH(const SkBitmap& src, int width, int height, const SkBitmap& result,
+                      SkResourceCache* localCache = nullptr);
 
     /**
      *  Search based on the bitmap's genID and subset. If found, returns true and

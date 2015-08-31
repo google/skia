@@ -10,6 +10,9 @@
 #include "SkMatrix.h"
 #include "SkTemplates.h"
 
+// RESIZE_LANCZOS3 is another good option, but chrome prefers mitchell at the moment
+#define kHQ_RESIZE_METHOD   SkBitmapScaler::RESIZE_MITCHELL
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool valid_for_drawing(const SkBitmap& bm) {
@@ -117,31 +120,28 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmap& origBitmap
         return false; // no need for HQ
     }
     
-    SkScalar trueDestWidth  = origBitmap.width() / invScaleX;
-    SkScalar trueDestHeight = origBitmap.height() / invScaleY;
-    SkScalar roundedDestWidth = SkScalarRoundToScalar(trueDestWidth);
-    SkScalar roundedDestHeight = SkScalarRoundToScalar(trueDestHeight);
+    const int dstW = SkScalarRoundToScalar(origBitmap.width() / invScaleX);
+    const int dstH = SkScalarRoundToScalar(origBitmap.height() / invScaleY);
     
-    if (!SkBitmapCache::Find(origBitmap, roundedDestWidth, roundedDestHeight, &fResultBitmap)) {
+    if (!SkBitmapCache::FindWH(origBitmap, dstW, dstH, &fResultBitmap)) {
         SkAutoPixmapUnlock src;
         if (!origBitmap.requestLock(&src)) {
             return false;
         }
-        if (!SkBitmapScaler::Resize(&fResultBitmap, src.pixmap(), SkBitmapScaler::RESIZE_BEST,
-                                    roundedDestWidth, roundedDestHeight,
-                                    SkResourceCache::GetAllocator())) {
+        if (!SkBitmapScaler::Resize(&fResultBitmap, src.pixmap(), kHQ_RESIZE_METHOD,
+                                    dstW, dstH, SkResourceCache::GetAllocator())) {
             return false; // we failed to create fScaledBitmap
         }
         
         SkASSERT(fResultBitmap.getPixels());
         fResultBitmap.setImmutable();
-        SkBitmapCache::Add(origBitmap, roundedDestWidth, roundedDestHeight, fResultBitmap);
+        SkBitmapCache::AddWH(origBitmap, dstW, dstH, fResultBitmap);
     }
     
     SkASSERT(fResultBitmap.getPixels());
     
-    fInvMatrix.postScale(roundedDestWidth / origBitmap.width(),
-                         roundedDestHeight / origBitmap.height());
+    fInvMatrix.postScale(SkIntToScalar(dstW) / origBitmap.width(),
+                         SkIntToScalar(dstH) / origBitmap.height());
     fQuality = kLow_SkFilterQuality;
     return true;
 }

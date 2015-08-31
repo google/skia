@@ -48,26 +48,26 @@ static unsigned gBitmapKeyNamespaceLabel;
 
 struct BitmapKey : public SkResourceCache::Key {
 public:
-    BitmapKey(uint32_t genID, SkScalar sx, SkScalar sy, const SkIRect& bounds)
+    BitmapKey(uint32_t genID, int width, int height, const SkIRect& bounds)
         : fGenID(genID)
-        , fScaleX(sx)
-        , fScaleY(sy)
+        , fWidth(width)
+        , fHeight(height)
         , fBounds(bounds)
     {
         this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(genID),
-                   sizeof(fGenID) + sizeof(fScaleX) + sizeof(fScaleY) + sizeof(fBounds));
+                   sizeof(fGenID) + sizeof(fWidth) + sizeof(fHeight) + sizeof(fBounds));
     }
 
-    uint32_t    fGenID;
-    SkScalar    fScaleX;
-    SkScalar    fScaleY;
-    SkIRect     fBounds;
+    const uint32_t  fGenID;
+    const int       fWidth;
+    const int       fHeight;
+    const SkIRect   fBounds;
 };
 
 struct BitmapRec : public SkResourceCache::Rec {
-    BitmapRec(uint32_t genID, SkScalar scaleX, SkScalar scaleY, const SkIRect& bounds,
+    BitmapRec(uint32_t genID, int width, int height, const SkIRect& bounds,
               const SkBitmap& result)
-        : fKey(genID, scaleX, scaleY, bounds)
+        : fKey(genID, width, height, bounds)
         , fBitmap(result)
     {}
 
@@ -97,25 +97,25 @@ private:
 #define CHECK_LOCAL(localCache, localName, globalName, ...) \
     ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
 
-bool SkBitmapCache::Find(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY, SkBitmap* result,
-                         SkResourceCache* localCache) {
-    if (0 == invScaleX || 0 == invScaleY) {
+bool SkBitmapCache::FindWH(const SkBitmap& src, int width, int height, SkBitmap* result,
+                           SkResourceCache* localCache) {
+    if (0 == width || 0 == height) {
         // degenerate, and the key we use for mipmaps
         return false;
     }
-    BitmapKey key(src.getGenerationID(), invScaleX, invScaleY, get_bounds_from_bitmap(src));
+    BitmapKey key(src.getGenerationID(), width, height, get_bounds_from_bitmap(src));
 
     return CHECK_LOCAL(localCache, find, Find, key, BitmapRec::Finder, result);
 }
 
-void SkBitmapCache::Add(const SkBitmap& src, SkScalar invScaleX, SkScalar invScaleY,
-                        const SkBitmap& result, SkResourceCache* localCache) {
-    if (0 == invScaleX || 0 == invScaleY) {
+void SkBitmapCache::AddWH(const SkBitmap& src, int width, int height,
+                          const SkBitmap& result, SkResourceCache* localCache) {
+    if (0 == width || 0 == height) {
         // degenerate, and the key we use for mipmaps
         return;
     }
     SkASSERT(result.isImmutable());
-    BitmapRec* rec = new BitmapRec(src.getGenerationID(), invScaleX, invScaleY,
+    BitmapRec* rec = new BitmapRec(src.getGenerationID(), width, height,
                                    get_bounds_from_bitmap(src), result);
     CHECK_LOCAL(localCache, add, Add, rec);
     src.pixelRef()->notifyAddedToCache();

@@ -62,10 +62,10 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
                                const SkRect& destSubset,
                                const SkConvolutionProcs& convolveProcs) {
 
-    // method will only ever refer to an "algorithm method".
-    SkASSERT((SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
-             (method <= SkBitmapScaler::RESIZE_LAST_ALGORITHM_METHOD));
+    SkASSERT(method >= SkBitmapScaler::RESIZE_FirstMethod &&
+             method <= SkBitmapScaler::RESIZE_LastMethod);
 
+    fBitmapFilter = nullptr;
     switch(method) {
         case SkBitmapScaler::RESIZE_BOX:
             fBitmapFilter = new SkBoxFilter;
@@ -81,10 +81,6 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
             break;
         case SkBitmapScaler::RESIZE_LANCZOS3:
             fBitmapFilter = new SkLanczosFilter;
-            break;
-        default:
-            // NOTREACHED:
-            fBitmapFilter = new SkMitchellFilter(1.f / 3.f, 1.f / 3.f);
             break;
     }
 
@@ -214,43 +210,8 @@ void SkResizeFilter::computeFilters(int srcSize,
   }
 }
 
-static SkBitmapScaler::ResizeMethod ResizeMethodToAlgorithmMethod(
-                                    SkBitmapScaler::ResizeMethod method) {
-    // Convert any "Quality Method" into an "Algorithm Method"
-    if (method >= SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD &&
-    method <= SkBitmapScaler::RESIZE_LAST_ALGORITHM_METHOD) {
-        return method;
-    }
-    // The call to SkBitmapScalerGtv::Resize() above took care of
-    // GPU-acceleration in the cases where it is possible. So now we just
-    // pick the appropriate software method for each resize quality.
-    switch (method) {
-        // Users of RESIZE_GOOD are willing to trade a lot of quality to
-        // get speed, allowing the use of linear resampling to get hardware
-        // acceleration (SRB). Hence any of our "good" software filters
-        // will be acceptable, so we use a triangle.
-        case SkBitmapScaler::RESIZE_GOOD:
-            return SkBitmapScaler::RESIZE_TRIANGLE;
-        // Users of RESIZE_BETTER are willing to trade some quality in order
-        // to improve performance, but are guaranteed not to devolve to a linear
-        // resampling. In visual tests we see that Hamming-1 is not as good as
-        // Lanczos-2, however it is about 40% faster and Lanczos-2 itself is
-        // about 30% faster than Lanczos-3. The use of Hamming-1 has been deemed
-        // an acceptable trade-off between quality and speed.
-        case SkBitmapScaler::RESIZE_BETTER:
-            return SkBitmapScaler::RESIZE_HAMMING;
-        default:
-#ifdef SK_HIGH_QUALITY_IS_LANCZOS
-            return SkBitmapScaler::RESIZE_LANCZOS3;
-#else
-            return SkBitmapScaler::RESIZE_MITCHELL;
-#endif
-    }
-}
-
 bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeMethod method,
-                            float destWidth, float destHeight,
-                            SkBitmap::Allocator* allocator) {
+                            int destWidth, int destHeight, SkBitmap::Allocator* allocator) {
     if (nullptr == source.addr() || source.colorType() != kN32_SkColorType ||
         source.width() < 1 || source.height() < 1)
     {
@@ -258,27 +219,13 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeM
     }
 
     if (destWidth < 1 || destHeight < 1) {
-        // todo: seems like we could handle negative dstWidth/Height, since that
-        // is just a negative scale (flip)
         return false;
     }
 
     SkConvolutionProcs convolveProcs= { 0, nullptr, nullptr, nullptr, nullptr };
     PlatformConvolutionProcs(&convolveProcs);
 
-    SkRect destSubset = { 0, 0, destWidth, destHeight };
-
-    // Ensure that the ResizeMethod enumeration is sound.
-    SkASSERT(((RESIZE_FIRST_QUALITY_METHOD <= method) &&
-      (method <= RESIZE_LAST_QUALITY_METHOD)) ||
-      ((RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
-      (method <= RESIZE_LAST_ALGORITHM_METHOD)));
-
-    method = ResizeMethodToAlgorithmMethod(method);
-
-    // Check that we deal with an "algorithm methods" from this point onward.
-    SkASSERT((SkBitmapScaler::RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
-      (method <= SkBitmapScaler::RESIZE_LAST_ALGORITHM_METHOD));
+    SkRect destSubset = SkRect::MakeIWH(destWidth, destHeight);
 
     SkResizeFilter filter(method, source.width(), source.height(),
                         destWidth, destHeight, destSubset, convolveProcs);
