@@ -1437,7 +1437,6 @@ void SkOpSegment::moveNearby() {
                             return;
                         }
                         spanS->merge(test->upCast());
-                        spanS->upCast()->setNext(next);
                         goto checkNextSpan;
                     }
                 } while ((testBase = testBase->next()) != test->ptT());

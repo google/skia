@@ -271,3 +271,26 @@ DEF_TEST(Fuzz846, reporter) {
     builder.resolve(&result);
 }
 
+#include "SkParsePath.h"
+
+DEF_TEST(fuzzTNG, reporter) {
+    const char* pathStrs[] = {
+"M360,-2147483648.000000000000000000000000000000000000000000000000000001 A3240,3240 0.0 0 11 256,256 L100000000,4140 Z",
+"M360,4140 A11,-1 0.0 0 0 6840,4140 L100,512 L32,16 L360,1024 Z",
+"M360,4140 A3240,1000000001 32768 1024 128 100000000.000000000000000000000000000000000000000000000000000001,512 Z",
+"M127,321 L6840,270 L-21474836481,100000000 L2551,64 Z",
+"M-128,4140 Z",
+    };
+    SkPath clip[SK_ARRAY_COUNT(pathStrs)];
+    SkOpBuilder builder;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pathStrs); ++i) {
+        SkParsePath::FromSVGString(pathStrs[i], &clip[i]);
+        builder.add(clip[i], kUnion_SkPathOp);
+    }
+    SkPath result;
+    builder.resolve(&result);
+    SkPath path;
+    SkParsePath::FromSVGString("M-315,7425 L4096,7425 L-1000000001,-315 L-315,7425 Z", &path);
+    builder.add(path, kDifference_SkPathOp);
+    testPathOp(reporter, result, path, kDifference_SkPathOp, __FUNCTION__);
+}
