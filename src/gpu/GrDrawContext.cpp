@@ -62,7 +62,7 @@ GrTextContext* GrDrawContext::createTextContext(GrRenderTarget* renderTarget,
                                                 const SkSurfaceProps& surfaceProps) {
     if (fContext->caps()->shaderCaps()->pathRenderingSupport() &&
         renderTarget->isStencilBufferMultisampled() &&
-        fSurfaceProps.isUseDistanceFieldFonts()) { // FIXME: Rename the dff flag to be more general.
+        fSurfaceProps.isUseDeviceIndependentFonts()) {
         GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
         if (sb) {
             return GrStencilAndCoverTextContext::Create(fContext, this, surfaceProps);

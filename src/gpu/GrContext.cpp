@@ -120,12 +120,12 @@ GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceP
     const SkSurfaceProps props(SkSurfacePropsCopyOrDefault(surfaceProps));
 
     SkASSERT(props.pixelGeometry() < kNumPixelGeometries);
-    if (!fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()]) {
-        fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()] =
+    if (!fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()]) {
+        fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()] =
                 new GrDrawContext(fContext, fDrawTarget, props);
     }
 
-    return fDrawContext[props.pixelGeometry()][props.isUseDistanceFieldFonts()]; 
+    return fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()]; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

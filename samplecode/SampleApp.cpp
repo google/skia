@@ -1798,7 +1798,7 @@ void SampleWindow::toggleFPS() {
 
 void SampleWindow::toggleDistanceFieldFonts() {
     SkSurfaceProps props = this->getSurfaceProps();
-    uint32_t flags = props.flags() ^ SkSurfaceProps::kUseDistanceFieldFonts_Flag;
+    uint32_t flags = props.flags() ^ SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
     this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
 
     this->updateTitle();
@@ -2006,8 +2006,8 @@ void SampleWindow::updateTitle() {
     if (fPerspAnim) {
         title.prepend("<K> ");
     }
-    if (this->getSurfaceProps().flags() & SkSurfaceProps::kUseDistanceFieldFonts_Flag) {
-        title.prepend("<DFF> ");
+    if (this->getSurfaceProps().flags() & SkSurfaceProps::kUseDeviceIndependentFonts_Flag) {
+        title.prepend("<DIF> ");
     }
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));

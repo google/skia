@@ -161,7 +161,7 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
                 target.reset(fGrContext->textureProvider()->createTexture(desc, false, nullptr, 0));
             }
 
-            uint32_t flags = fUseDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
+            uint32_t flags = fUseDFText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
             SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
             SkAutoTUnref<SkGpuDevice> device(
                 SkGpuDevice::Create(target->asRenderTarget(), &props,

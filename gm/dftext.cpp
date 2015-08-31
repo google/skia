@@ -49,7 +49,7 @@ protected:
 #if SK_SUPPORT_GPU
         GrContext* ctx = inputCanvas->getGrContext();
         SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
-        SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag,
+        SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                              SkSurfaceProps::kLegacyFontHost_InitType);
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted,
                                                                    info, 0, &props));

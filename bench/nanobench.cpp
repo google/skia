@@ -167,7 +167,8 @@ struct GPUTarget : public Target {
         return true;
     }
     bool init(SkImageInfo info, Benchmark* bench) override {
-        uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDistanceFieldFonts_Flag : 0;
+        uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
+                                                  0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
         this->surface.reset(SkSurface::NewRenderTarget(gGrFactory->get(this->config.ctxType),
                                                          SkSurface::kNo_Budgeted, info,

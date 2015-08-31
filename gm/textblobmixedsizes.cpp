@@ -97,7 +97,7 @@ protected:
             // Create a new Canvas to enable DFT
             GrContext* ctx = inputCanvas->getGrContext();
             SkImageInfo info = SkImageInfo::MakeN32Premul(onISize());
-            SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag,
+            SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                                  SkSurfaceProps::kLegacyFontHost_InitType);
             surface.reset(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0,
                                                      &props));

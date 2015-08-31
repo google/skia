@@ -458,7 +458,7 @@ inline bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint,
         return false;
     }
 
-    bool useDFT = fSurfaceProps.isUseDistanceFieldFonts();
+    bool useDFT = fSurfaceProps.isUseDeviceIndependentFonts();
 #if SK_FORCE_DISTANCE_FIELD_TEXT
     useDFT = true;
 #endif
