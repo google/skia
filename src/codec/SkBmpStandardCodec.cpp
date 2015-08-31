@@ -18,14 +18,15 @@
 SkBmpStandardCodec::SkBmpStandardCodec(const SkImageInfo& info, SkStream* stream,
                                        uint16_t bitsPerPixel, uint32_t numColors,
                                        uint32_t bytesPerColor, uint32_t offset,
-                                       SkBmpCodec::RowOrder rowOrder, bool inIco)
+                                       SkScanlineDecoder::SkScanlineOrder rowOrder, bool inIco)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
     , fNumColors(this->computeNumColors(numColors))
     , fBytesPerColor(bytesPerColor)
     , fOffset(offset)
     , fSwizzler(nullptr)
-    , fSrcBuffer(nullptr)
+    , fSrcRowBytes(SkAlign4(compute_row_bytes(this->getInfo().width(), this->bitsPerPixel())))
+    , fSrcBuffer(new uint8_t [fSrcRowBytes])
     , fInIco(inIco)
 {}
 
@@ -53,23 +54,18 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kInvalidConversion;
     }
 
-    // Create the color table if necessary and prepare the stream for decode
-    // Note that if it is non-nullptr, inputColorCount will be modified
-    if (!this->createColorTable(dstInfo.alphaType(), inputColorCount)) {
-        SkCodecPrintf("Error: could not create color table.\n");
-        return kInvalidInput;
+    Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
+    if (kSuccess != result) {
+        return result;
     }
-
-    // Copy the color table to the client if necessary
-    copy_color_table(dstInfo, fColorTable, inputColorPtr, inputColorCount);
-
-    // Initialize a swizzler if necessary
-    if (!this->initializeSwizzler(dstInfo, opts)) {
-        SkCodecPrintf("Error: cannot initialize swizzler.\n");
-        return kInvalidConversion;
+    result = this->decodeRows(dstInfo, dst, dstRowBytes, opts);
+    if (kSuccess != result) {
+        return result;
     }
-
-    return this->decode(dstInfo, dst, dstRowBytes, opts);
+    if (fInIco) {
+        return this->decodeIcoMask(dstInfo, dst, dstRowBytes);
+    }
+    return kSuccess;
 }
 
 /*
@@ -169,10 +165,6 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 
 bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo,
                                             const Options& opts) {
-    // Allocate space for a row buffer
-    const size_t rowBytes = SkAlign4(compute_row_bytes(dstInfo.width(), this->bitsPerPixel()));
-    fSrcBuffer.reset(new uint8_t[rowBytes]);
-
     // Get swizzler configuration
     SkSwizzler::SrcConfig config;
     switch (this->bitsPerPixel()) {
@@ -216,122 +208,93 @@ bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo,
     return true;
 }
 
-/*
- * Choose a fill for failures due to an incomplete image.  We will use zero as
- * the default palette index, black for opaque images, and transparent for
- * non-opaque images.
- */
-static uint32_t get_fill_color_or_index(uint16_t bitsPerPixels, SkAlphaType alphaType) {
-    uint32_t fillColorOrIndex;
-    switch (bitsPerPixels) {
-        case 1:
-        case 2:
-        case 4:
-        case 8:
-            fillColorOrIndex = 0;
-            break;
-        case 24:
-            fillColorOrIndex = SK_ColorBLACK;
-            break;
-        case 32:
-            if (kOpaque_SkAlphaType == alphaType) {
-                fillColorOrIndex = SK_ColorBLACK;
-            } else {
-                fillColorOrIndex = SK_ColorTRANSPARENT;
-            }
-            break;
-        default:
-            SkASSERT(false);
-            return 0;
+SkCodec::Result SkBmpStandardCodec::prepareToDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+    // Create the color table if necessary and prepare the stream for decode
+    // Note that if it is non-NULL, inputColorCount will be modified
+    if (!this->createColorTable(dstInfo.alphaType(), inputColorCount)) {
+        SkCodecPrintf("Error: could not create color table.\n");
+        return SkCodec::kInvalidInput;
     }
-    return fillColorOrIndex;
+
+    // Copy the color table to the client if necessary
+    copy_color_table(dstInfo, this->fColorTable, inputColorPtr, inputColorCount);
+
+    // Initialize a swizzler if necessary
+    if (!this->initializeSwizzler(dstInfo, options)) {
+        SkCodecPrintf("Error: cannot initialize swizzler.\n");
+        return SkCodec::kInvalidConversion;
+    }
+    return SkCodec::kSuccess;
 }
 
 /*
  * Performs the bitmap decoding for standard input format
  */
-SkCodec::Result SkBmpStandardCodec::decode(const SkImageInfo& dstInfo,
-                                   void* dst, size_t dstRowBytes,
-                                   const Options& opts) {
-    // Set constant values
-    const int width = dstInfo.width();
-    const int height = dstInfo.height();
-    const size_t rowBytes = SkAlign4(compute_row_bytes(width, this->bitsPerPixel()));
-
+SkCodec::Result SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo,
+                                               void* dst, size_t dstRowBytes,
+                                               const Options& opts) {
     // Iterate over rows of the image
+    const int height = dstInfo.height();
     for (int y = 0; y < height; y++) {
         // Read a row of the input
-        if (this->stream()->read(fSrcBuffer.get(), rowBytes) != rowBytes) {
+        if (this->stream()->read(fSrcBuffer.get(), fSrcRowBytes) != fSrcRowBytes) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
             // Fill the destination image on failure
-            // Get the fill color/index and check if it is 0
-            uint32_t fillColorOrIndex = get_fill_color_or_index(this->bitsPerPixel(),
-                    dstInfo.alphaType());
-            bool zeroFill = (0 == fillColorOrIndex);
-
-            if (kNo_ZeroInitialized == opts.fZeroInitialized || !zeroFill) {
-                // Get a pointer to the color table if it exists
-                const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-
-                void* dstStart = this->getDstStartRow(dst, dstRowBytes, y);
-                SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y,
-                        fillColorOrIndex, colorPtr);
-            }
+            void* dstStart = this->getDstStartRow(dst, dstRowBytes, y);
+            const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+            uint32_t fillColorOrIndex = get_fill_color_or_index(dstInfo.alphaType());
+            SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y,
+                    fillColorOrIndex, colorPtr, opts.fZeroInitialized);
             return kIncompleteInput;
         }
 
         // Decode the row in destination format
-        uint32_t row;
-        if (SkBmpCodec::kTopDown_RowOrder == this->rowOrder()) {
-            row = y;
-        } else {
-            row = height - 1 - y;
-        }
+        uint32_t row = this->getDstRow(y, dstInfo.height());
 
         void* dstRow = SkTAddOffset<void>(dst, row * dstRowBytes);
         fSwizzler->swizzle(dstRow, fSrcBuffer.get());
     }
 
-    // Finally, apply the AND mask for bmp-in-ico images
-    if (fInIco) {
-        // BMP in ICO have transparency, so this cannot be 565, and this mask
-        // prevents us from using kIndex8. The below code depends on the output
-        // being an SkPMColor.
-        SkASSERT(dstInfo.colorType() == kN32_SkColorType);
+    // Finished decoding the entire image
+    return kSuccess;
+}
 
-        // The AND mask is always 1 bit per pixel
-        const size_t rowBytes = SkAlign4(compute_row_bytes(width, 1));
+// TODO (msarett): This function will need to be modified in order to perform row by row decodes
+//                 when the Ico scanline decoder is implemented.
+SkCodec::Result SkBmpStandardCodec::decodeIcoMask(const SkImageInfo& dstInfo,
+        void* dst, size_t dstRowBytes) {
+    // BMP in ICO have transparency, so this cannot be 565, and this mask
+    // prevents us from using kIndex8. The below code depends on the output
+    // being an SkPMColor.
+    SkASSERT(dstInfo.colorType() == kN32_SkColorType);
 
-        SkPMColor* dstPtr = (SkPMColor*) dst;
-        for (int y = 0; y < height; y++) {
-            // The srcBuffer will at least be large enough
-            if (stream()->read(fSrcBuffer.get(), rowBytes) != rowBytes) {
-                SkCodecPrintf("Warning: incomplete AND mask for bmp-in-ico.\n");
-                return kIncompleteInput;
-            }
+    // The AND mask is always 1 bit per pixel
+    const int width = this->getInfo().width();
+    const size_t rowBytes = SkAlign4(compute_row_bytes(width, 1));
 
-            int row;
-            if (SkBmpCodec::kBottomUp_RowOrder == this->rowOrder()) {
-                row = height - y - 1;
-            } else {
-                row = y;
-            }
+    SkPMColor* dstPtr = (SkPMColor*) dst;
+    for (int y = 0; y < dstInfo.height(); y++) {
+        // The srcBuffer will at least be large enough
+        if (stream()->read(fSrcBuffer.get(), rowBytes) != rowBytes) {
+            SkCodecPrintf("Warning: incomplete AND mask for bmp-in-ico.\n");
+            return kIncompleteInput;
+        }
 
-            SkPMColor* dstRow =
-                    SkTAddOffset<SkPMColor>(dstPtr, row * dstRowBytes);
+        int row = this->getDstRow(y, dstInfo.height());
 
-            for (int x = 0; x < width; x++) {
-                int quotient;
-                int modulus;
-                SkTDivMod(x, 8, &quotient, &modulus);
-                uint32_t shift = 7 - modulus;
-                uint32_t alphaBit =
-                        (fSrcBuffer.get()[quotient] >> shift) & 0x1;
-                dstRow[x] &= alphaBit - 1;
-            }
+        SkPMColor* dstRow =
+                SkTAddOffset<SkPMColor>(dstPtr, row * dstRowBytes);
+
+        for (int x = 0; x < width; x++) {
+            int quotient;
+            int modulus;
+            SkTDivMod(x, 8, &quotient, &modulus);
+            uint32_t shift = 7 - modulus;
+            uint32_t alphaBit =
+                    (fSrcBuffer.get()[quotient] >> shift) & 0x1;
+            dstRow[x] &= alphaBit - 1;
         }
     }
-
-    // Finished decoding the entire image
     return kSuccess;
 }

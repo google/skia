@@ -29,7 +29,8 @@ public:
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
     SkBmpMaskCodec(const SkImageInfo& srcInfo, SkStream* stream,
-                   uint16_t bitsPerPixel, SkMasks* masks, RowOrder rowOrder);
+            uint16_t bitsPerPixel, SkMasks* masks,
+            SkScanlineDecoder::SkScanlineOrder rowOrder);
 
 protected:
 
@@ -37,15 +38,20 @@ protected:
                        size_t dstRowBytes, const Options&, SkPMColor*,
                        int*) override;
 
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+            const SkCodec::Options& options, SkPMColor inputColorPtr[],
+            int* inputColorCount) override;
+
 private:
 
     bool initializeSwizzler(const SkImageInfo& dstInfo);
 
-    Result decode(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
-                  const Options& opts);
+    Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+                      const Options& opts) override;
 
     SkAutoTDelete<SkMasks>              fMasks;        // owned
     SkAutoTDelete<SkMaskSwizzler>       fMaskSwizzler;
+    const size_t                        fSrcRowBytes;
     SkAutoTDeleteArray<uint8_t>         fSrcBuffer;
 
     typedef SkBmpCodec INHERITED;

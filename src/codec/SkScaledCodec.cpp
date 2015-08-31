@@ -198,7 +198,6 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
     if (kSuccess == result) {
         // native decode supported
         return fScanlineDecoder->getScanlines(dst, requestedInfo.height(), rowBytes);
-
     }
 
     if (kInvalidScale != result) {
@@ -213,7 +212,7 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
         return kInvalidScale;
     }
     // set first sample pixel in y direction
-    int Y0 = sampleY >> 1;
+    int Y0 = get_start_coord(sampleY);
 
     int dstHeight = requestedInfo.height();
     int srcHeight = fScanlineDecoder->getInfo().height();
@@ -227,41 +226,64 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
     if (kSuccess != result) {
         return result;
     }
-    
-    const bool requiresPostYSampling = fScanlineDecoder->requiresPostYSampling();
 
-    if (requiresPostYSampling) {
-        SkAutoMalloc storage(srcHeight * rowBytes);
-        uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
-        result = fScanlineDecoder->getScanlines(storagePtr, srcHeight, rowBytes);
-        if (kSuccess != result) {
-            return result;
+    switch(fScanlineDecoder->getScanlineOrder()) {
+        case SkScanlineDecoder::kTopDown_SkScanlineOrder: {
+            result = fScanlineDecoder->skipScanlines(Y0);
+            if (kSuccess != result && kIncompleteInput != result) {
+                return result;
+            }
+            for (int y = 0; y < dstHeight; y++) {
+                result = fScanlineDecoder->getScanlines(dst, 1, rowBytes);
+                if (kSuccess != result && kIncompleteInput != result) {
+                    return result;
+                }
+                if (y < dstHeight - 1) {
+                    result = fScanlineDecoder->skipScanlines(sampleY - 1);
+                    if (kSuccess != result && kIncompleteInput != result) {
+                        return result;
+                    }
+                }
+                dst = SkTAddOffset<void>(dst, rowBytes);
+            }
+            return kSuccess;
         }
-        storagePtr += Y0 * rowBytes;
-        for (int y = 0; y < dstHeight; y++) {
-            memcpy(dst, storagePtr, rowBytes);
-            storagePtr += sampleY * rowBytes;
-            dst = SkTAddOffset<void>(dst, rowBytes);
+        case SkScanlineDecoder::kBottomUp_SkScanlineOrder:
+        case SkScanlineDecoder::kOutOfOrder_SkScanlineOrder: {
+            for (int y = 0; y < srcHeight; y++) {
+                int srcY = fScanlineDecoder->getY();
+                if (is_coord_necessary(srcY, sampleY, dstHeight)) {
+                    void* dstPtr = SkTAddOffset<void>(dst, rowBytes * get_dst_coord(srcY, sampleY));
+                    result = fScanlineDecoder->getScanlines(dstPtr, 1, rowBytes);
+                    if (kSuccess != result && kIncompleteInput != result) {
+                        return result;
+                    }
+                } else {
+                    result = fScanlineDecoder->skipScanlines(1);
+                    if (kSuccess != result && kIncompleteInput != result) {
+                        return result;
+                    }
+                }
+            }
+            return kSuccess;
         }
-    } else {
-        // does not require post y sampling
-        result = fScanlineDecoder->skipScanlines(Y0);
-        if (kSuccess != result) {
-            return result;
-        }
-        for (int y = 0; y < dstHeight; y++) {
-            result = fScanlineDecoder->getScanlines(dst, 1, rowBytes);
+        case SkScanlineDecoder::kNone_SkScanlineOrder: {
+            SkAutoMalloc storage(srcHeight * rowBytes);
+            uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
+            result = fScanlineDecoder->getScanlines(storagePtr, srcHeight, rowBytes);
             if (kSuccess != result) {
                 return result;
             }
-            if (y < dstHeight - 1) {
-                result = fScanlineDecoder->skipScanlines(sampleY - 1);
-                if (kSuccess != result) {
-                    return result;
-                }
+            storagePtr += Y0 * rowBytes;
+            for (int y = 0; y < dstHeight; y++) {
+                memcpy(dst, storagePtr, rowBytes);
+                storagePtr += sampleY * rowBytes;
+                dst = SkTAddOffset<void>(dst, rowBytes);
             }
-            dst = SkTAddOffset<void>(dst, rowBytes);
+            return kSuccess;
         }
+        default:
+            SkASSERT(false);
+            return kUnimplemented;
     }
-    return kSuccess;
 }

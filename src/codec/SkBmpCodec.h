@@ -11,6 +11,7 @@
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkMaskSwizzler.h"
+#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkTypes.h"
@@ -21,14 +22,6 @@
  */
 class SkBmpCodec : public SkCodec {
 public:
-
-    /*
-     * Describes if rows of the input start at the top or bottom of the image
-     */
-    enum RowOrder {
-        kTopDown_RowOrder,
-        kBottomUp_RowOrder
-    };
 
     /*
      * Checks the start of the stream to see if the image is a bmp
@@ -48,10 +41,17 @@ public:
      */
     static SkCodec* NewFromIco(SkStream*);
 
+    /*
+     * Assumes IsBmp was called and returned true
+     * Creates a bmp scanline decoder
+     * Takes ownership of the stream
+     */
+    static SkScanlineDecoder* NewSDFromStream(SkStream* stream);
+
 protected:
 
     SkBmpCodec(const SkImageInfo& info, SkStream* stream, uint16_t bitsPerPixel,
-            RowOrder rowOrder);
+            SkScanlineDecoder::SkScanlineOrder rowOrder);
 
     SkEncodedFormat onGetEncodedFormat() const override { return kBMP_SkEncodedFormat; }
 
@@ -77,6 +77,19 @@ protected:
     }
 
     /*
+     * Get the destination row number corresponding to the encoded row number.
+     * For kTopDown, we simply return y, but for kBottomUp, the rows will be
+     * decoded in reverse order.
+     *
+     * @param y      Iterates from 0 to height, indicating the current row.
+     * @param height The height of the current subset of the image that we are
+     *               decoding.  This is generally equal to the full height
+     *               when we want to decode the full or one when we are
+     *               sampling.
+     */
+    int32_t getDstRow(int32_t y, int32_t height);
+
+    /*
      * Get the destination row to start filling from
      * Used to fill the remainder of the image on incomplete input for bmps
      * This is tricky since bmps may be kTopDown or kBottomUp.  For kTopDown,
@@ -94,7 +107,26 @@ protected:
      * Accessors used by subclasses
      */
     uint16_t bitsPerPixel() const { return fBitsPerPixel; }
-    RowOrder rowOrder() const { return fRowOrder; }
+    SkScanlineDecoder::SkScanlineOrder rowOrder() const { return fRowOrder; }
+
+    /*
+     * To be overriden by bmp subclasses, which provide unique implementations.
+     * Performs subclass specific setup.
+     *
+     * @param dstInfo         Contains output information.  Height specifies
+     *                        the total number of rows that will be decoded.
+     * @param options         Additonal options to pass to the decoder.
+     * @param inputColorPtr   Client-provided memory for a color table.  Must
+     *                        be enough for 256 colors.  This will be
+     *                        populated with colors if the encoded image uses
+     *                        a color table.
+     * @param inputColorCount If the encoded image uses a color table, this
+     *                        will be set to the number of colors in the
+     *                        color table.
+     */
+    virtual SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+            const SkCodec::Options& options, SkPMColor inputColorPtr[],
+            int* inputColorCount) = 0;
 
 private:
 
@@ -104,8 +136,27 @@ private:
      */
     static SkCodec* NewFromStream(SkStream*, bool inIco);
 
-    const uint16_t fBitsPerPixel;
-    const RowOrder fRowOrder;
+    /*
+     * Decodes the next dstInfo.height() lines.
+     *
+     * onGetPixels() uses this for full image decodes.
+     * SkScaledCodec::onGetPixels() uses the scanline decoder to call this with
+     * dstInfo.height() = 1, in order to implement sampling.
+     * A potential future use is to allow the caller to decode a subset of the
+     * lines in the image.
+     *
+     * @param dstInfo     Contains output information.  Height specifies the
+     *                    number of rows to decode at this time.
+     * @param dst         Memory location to store output pixels
+     * @param dstRowBytes Bytes in a row of the destination
+     */
+    virtual Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+            const Options& opts) = 0;
+
+    const uint16_t                           fBitsPerPixel;
+    const SkScanlineDecoder::SkScanlineOrder fRowOrder;
+
+    friend class SkBmpScanlineDecoder;
 
     typedef SkCodec INHERITED;
 };

@@ -158,7 +158,9 @@ static void check(skiatest::Reporter* r,
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
         }
         // verify that scanline decoding gives the same result.
-        compare_to_good_digest(r, digest, bm);
+        if (SkScanlineDecoder::kTopDown_SkScanlineOrder == scanlineDecoder->getScanlineOrder()) {
+            compare_to_good_digest(r, digest, bm);
+        }
     } else {
         REPORTER_ASSERT(r, !scanlineDecoder);
     }
@@ -209,7 +211,7 @@ DEF_TEST(Codec, r) {
     check(r, "yellow_rose.webp", SkISize::Make(400, 301), false, true);
 
     // BMP
-    check(r, "randPixels.bmp", SkISize::Make(8, 8), false, false);
+    check(r, "randPixels.bmp", SkISize::Make(8, 8), true, false);
 
     // ICO
     // These two tests examine interestingly different behavior:

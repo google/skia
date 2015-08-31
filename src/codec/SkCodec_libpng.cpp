@@ -739,8 +739,8 @@ public:
 
     bool onReallyHasAlpha() const override { return fHasAlpha; }
 
-    bool onRequiresPostYSampling() override {
-        return true;
+    SkScanlineOrder onGetScanlineOrder() const override {
+        return kNone_SkScanlineOrder;
     }
 
     SkEncodedFormat onGetEncodedFormat() const override { 

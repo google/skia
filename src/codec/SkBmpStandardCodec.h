@@ -36,8 +36,9 @@ public:
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
     SkBmpStandardCodec(const SkImageInfo& srcInfo, SkStream* stream,
-               uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
-               uint32_t offset, SkBmpCodec::RowOrder rowOrder, bool isIco);
+            uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
+            uint32_t offset, SkScanlineDecoder::SkScanlineOrder rowOrder,
+            bool isIco);
 
 protected:
 
@@ -48,6 +49,11 @@ protected:
     bool onInIco() const override {
         return fInIco;
     }
+
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+            const SkCodec::Options& options, SkPMColor inputColorPtr[],
+            int* inputColorCount) override;
+
 private:
 
     /*
@@ -58,13 +64,17 @@ private:
 
     bool initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
 
-    Result decode(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options& opts);
+    Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+                      const Options& opts) override;
+
+    Result decodeIcoMask(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes);
 
     SkAutoTUnref<SkColorTable>          fColorTable;     // owned
     const uint32_t                      fNumColors;
     const uint32_t                      fBytesPerColor;
     const uint32_t                      fOffset;
     SkAutoTDelete<SkSwizzler>           fSwizzler;
+    const size_t                        fSrcRowBytes;
     SkAutoTDeleteArray<uint8_t>         fSrcBuffer;
     const bool                          fInIco;
 

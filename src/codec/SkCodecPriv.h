@@ -30,6 +30,45 @@
 #define COMPUTE_RESULT_ALPHA                    \
     SkSwizzler::GetResult(zeroAlpha, maxAlpha);
 
+/*
+ * Returns the first coordinate that we will keep during a scaled decode.
+ * The output can be interpreted as an x-coordinate or a y-coordinate.
+ *
+ * This does not need to be called and is not called when sampleFactor == 1.
+ */
+static int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
+
+/*
+ * Given a coordinate in the original image, this returns the corresponding
+ * coordinate in the scaled image.  This function is meaningless if
+ * IsCoordNecessary returns false.
+ * The output can be interpreted as an x-coordinate or a y-coordinate.
+ *
+ * This does not need to be called and is not called when sampleFactor == 1.
+ */
+static int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; };
+
+/*
+ * When scaling, we will discard certain y-coordinates (rows) and
+ * x-coordinates (columns).  This function returns true if we should keep the
+ * coordinate and false otherwise.
+ * The inputs may be x-coordinates or y-coordinates.
+ *
+ * This does not need to be called and is not called when sampleFactor == 1.
+ */
+static bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
+    // Get the first coordinate that we want to keep
+    int startCoord = get_start_coord(sampleFactor);
+
+    // Return false on edge cases
+    if (srcCoord < startCoord || get_dst_coord(srcCoord, sampleFactor) >= scaledDim) {
+        return false;
+    }
+
+    // Every sampleFactor rows are necessary
+    return ((srcCoord - startCoord) % sampleFactor) == 0;
+}
+
 static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
     // Check for supported alpha types
     if (srcAlpha != dstAlpha) {
@@ -129,6 +168,23 @@ static inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
         const uint32_t bytesPerPixel = bitsPerPixel / 8;
         return compute_row_bytes_bpp(width, bytesPerPixel);
     }
+}
+
+/*
+ * On incomplete images, get the color to fill with
+ */
+static inline SkPMColor get_fill_color_or_index(SkAlphaType alphaType) {
+    // This condition works properly for all supported output color types.
+    // kIndex8: The low 8-bits of both possible return values is 0, which is
+    //          our desired default index.
+    // kGray8:  The low 8-bits of both possible return values is 0, which is
+    //          black, our desired fill value.
+    // kRGB565: The low 16-bits of both possible return values is 0, which is
+    //          black, our desired fill value.
+    // kN32:    Return black for opaque images and transparent for non-opaque
+    //          images.
+    return kOpaque_SkAlphaType == alphaType ?
+            SK_ColorBLACK : SK_ColorTRANSPARENT;
 }
 
 /*

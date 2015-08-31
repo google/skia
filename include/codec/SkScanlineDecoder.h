@@ -153,21 +153,88 @@ public:
     SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
 
     /**
-     * returns true if the image must be scaled, in the y direction, after reading, not during.
-     * To scale afterwards, we first decode every line and then sample the lines we want afterwards.
-     * An example is interlaced pngs, where calling getScanlines once (regardless of the count
-     * used) needs to read the entire image, therefore it is inefficient to call
-     * getScanlines more than once. Instead, it should only ever be called with all the
-     * rows needed.
+     *  The order in which rows are output from the scanline decoder is not the
+     *  same for all variations of all image types.  This explains the possible
+     *  output row orderings.
      */
-    bool requiresPostYSampling() {
-        return this->onRequiresPostYSampling();
+    enum SkScanlineOrder {
+        /*
+         * By far the most common, this indicates that the image can be decoded
+         * reliably using the scanline decoder, and that rows will be output in
+         * the logical order.
+         */
+        kTopDown_SkScanlineOrder,
+
+        /*
+         * This indicates that the scanline decoder reliably outputs rows, but
+         * they will be returned in reverse order.  If the scanline format is
+         * kBottomUp, the getY() API can be used to determine the actual
+         * y-coordinate of the next output row, but the client is not forced
+         * to take advantage of this, given that it's not too tough to keep
+         * track independently.
+         *
+         * For full image decodes, it is safe to get all of the scanlines at
+         * once, since the decoder will handle inverting the rows as it
+         * decodes.
+         *
+         * For subset decodes and sampling, it is simplest to get and skip
+         * scanlines one at a time, using the getY() API.  It is possible to
+         * ask for larger chunks at a time, but this should be used with
+         * caution.  As with full image decodes, the decoder will handle
+         * inverting the requested rows, but rows will still be delivered
+         * starting from the bottom of the image.
+         *
+         * Upside down bmps are an example.
+         */
+        kBottomUp_SkScanlineOrder,
+
+        /*
+         * This indicates that the scanline decoder reliably outputs rows, but
+         * they will not be in logical order.  If the scanline format is
+         * kOutOfOrder, the getY() API should be used to determine the actual
+         * y-coordinate of the next output row.
+         *
+         * For this scanline ordering, it is advisable to get and skip
+         * scanlines one at a time.
+         *
+         * Interlaced gifs are an example.
+         */
+        kOutOfOrder_SkScanlineOrder,
+
+        /*
+         * Indicates that the entire image must be decoded in order to output
+         * any amount of scanlines.  In this case, it is a REALLY BAD IDEA to
+         * request scanlines 1-by-1 or in small chunks.  The client should
+         * determine which scanlines are needed and ask for all of them in
+         * a single call to getScanlines().
+         *
+         * Interlaced pngs are an example.
+         */
+        kNone_SkScanlineOrder,
+    };
+
+    /**
+     *  An enum representing the order in which scanlines will be returned by
+     *  the scanline decoder.
+     */
+    SkScanlineOrder getScanlineOrder() const { return this->onGetScanlineOrder(); }
+
+    /**
+     *  Returns the y-coordinate of the next row to be returned by the scanline
+     *  decoder.  This will be overridden in the case of
+     *  kOutOfOrder_SkScanlineOrder and should be unnecessary in the case of
+     *  kNone_SkScanlineOrder.
+     */
+    int getY() const {
+        SkASSERT(kNone_SkScanlineOrder != this->getScanlineOrder());
+        return this->onGetY();
     }
 
 protected:
     SkScanlineDecoder(const SkImageInfo& srcInfo)
         : fSrcInfo(srcInfo)
         , fDstInfo()
+        , fOptions()
         , fCurrScanline(0) {}
 
     virtual SkISize onGetScaledDimensions(float /* desiredScale */) {
@@ -180,16 +247,23 @@ protected:
     virtual bool onReallyHasAlpha() const { return false; }
 
     /**
-     * returns true if the image type is hard to sample and must be scaled after reading, not during
-     * An example is interlaced pngs, where the entire image must be read for each decode
+     *  Most images types will be kTopDown and will not need to override this function.
      */
-    virtual bool onRequiresPostYSampling() { return false; }
+    virtual SkScanlineOrder onGetScanlineOrder() const { return kTopDown_SkScanlineOrder; }
+
+    /**
+     *  Most images will be kTopDown and will not need to override this function.
+     */
+    virtual int onGetY() const { return fCurrScanline; }
 
     const SkImageInfo& dstInfo() const { return fDstInfo; }
+
+    const SkCodec::Options& options() const { return fOptions; }
 
 private:
     const SkImageInfo   fSrcInfo;
     SkImageInfo         fDstInfo;
+    SkCodec::Options    fOptions;
     int                 fCurrScanline;
 
     virtual SkCodec::Result onStart(const SkImageInfo& dstInfo,

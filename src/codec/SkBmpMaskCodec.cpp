@@ -14,11 +14,12 @@
  */
 SkBmpMaskCodec::SkBmpMaskCodec(const SkImageInfo& info, SkStream* stream,
                                uint16_t bitsPerPixel, SkMasks* masks,
-                               SkBmpCodec::RowOrder rowOrder)
+                               SkScanlineDecoder::SkScanlineOrder rowOrder)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fMasks(masks)
     , fMaskSwizzler(nullptr)
-    , fSrcBuffer(nullptr)
+    , fSrcRowBytes(SkAlign4(compute_row_bytes(this->getInfo().width(), this->bitsPerPixel())))
+    , fSrcBuffer(new uint8_t [fSrcRowBytes])
 {}
 
 /*
@@ -46,23 +47,18 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kInvalidConversion;
     }
 
-    // Initialize a the mask swizzler
-    if (!this->initializeSwizzler(dstInfo)) {
-        SkCodecPrintf("Error: cannot initialize swizzler.\n");
-        return kInvalidConversion;
+    Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
+    if (kSuccess != result) {
+        return result;
     }
 
-    return this->decode(dstInfo, dst, dstRowBytes, opts);
+    return this->decodeRows(dstInfo, dst, dstRowBytes, opts);
 }
 
 bool SkBmpMaskCodec::initializeSwizzler(const SkImageInfo& dstInfo) {
-    // Allocate space for a row buffer
-    const size_t rowBytes = SkAlign4(compute_row_bytes(dstInfo.width(), this->bitsPerPixel()));
-    fSrcBuffer.reset(new uint8_t[rowBytes]);
-
     // Create the swizzler
     fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(
-            dstInfo, fMasks, this->bitsPerPixel()));
+            dstInfo, this->getInfo(), fMasks, this->bitsPerPixel()));
 
     if (nullptr == fMaskSwizzler.get()) {
         return false;
@@ -71,36 +67,40 @@ bool SkBmpMaskCodec::initializeSwizzler(const SkImageInfo& dstInfo) {
     return true;
 }
 
+SkCodec::Result SkBmpMaskCodec::prepareToDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+    // Initialize a the mask swizzler
+    if (!this->initializeSwizzler(dstInfo)) {
+        SkCodecPrintf("Error: cannot initialize swizzler.\n");
+        return SkCodec::kInvalidConversion;
+    }
+
+    return SkCodec::kSuccess;
+}
+
 /*
  * Performs the decoding
  */
-SkCodec::Result SkBmpMaskCodec::decode(const SkImageInfo& dstInfo,
-                                       void* dst, size_t dstRowBytes,
-                                       const Options& opts) {
-    // Set constant values
-    const int width = dstInfo.width();
-    const int height = dstInfo.height();
-    const size_t rowBytes = SkAlign4(compute_row_bytes(width, this->bitsPerPixel()));
-
+SkCodec::Result SkBmpMaskCodec::decodeRows(const SkImageInfo& dstInfo,
+                                           void* dst, size_t dstRowBytes,
+                                           const Options& opts) {
     // Iterate over rows of the image
     uint8_t* srcRow = fSrcBuffer.get();
+    const int height = dstInfo.height();
     for (int y = 0; y < height; y++) {
         // Read a row of the input
-        if (this->stream()->read(srcRow, rowBytes) != rowBytes) {
+        if (this->stream()->read(srcRow, fSrcRowBytes) != fSrcRowBytes) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
             // Fill the destination image on failure
-            SkPMColor fillColor = dstInfo.alphaType() == kOpaque_SkAlphaType ?
-                    SK_ColorBLACK : SK_ColorTRANSPARENT;
-            if (kNo_ZeroInitialized == opts.fZeroInitialized || 0 != fillColor) {
-                void* dstStart = this->getDstStartRow(dst, dstRowBytes, y);
-                SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y, fillColor,
-                        nullptr);
-            }
+            void* dstStart = this->getDstStartRow(dst, dstRowBytes, y);
+            uint32_t fillColor = get_fill_color_or_index(dstInfo.alphaType());
+            SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, height - y,
+                    fillColor, nullptr, opts.fZeroInitialized);
             return kIncompleteInput;
         }
 
         // Decode the row in destination format
-        int row = SkBmpCodec::kBottomUp_RowOrder == this->rowOrder() ? height - 1 - y : y;
+        uint32_t row = this->getDstRow(y, height);
         void* dstRow = SkTAddOffset<void>(dst, row * dstRowBytes);
         fMaskSwizzler->swizzle(dstRow, srcRow);
     }

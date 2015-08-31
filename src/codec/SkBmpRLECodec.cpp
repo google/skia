@@ -8,6 +8,7 @@
 #include "SkBmpRLECodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
+#include "SkScaledCodec.h"
 #include "SkScanlineDecoder.h"
 #include "SkStream.h"
 
@@ -15,13 +16,10 @@
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
-SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info,
-                             SkStream* stream,
-                             uint16_t bitsPerPixel,
-                             uint32_t numColors,
-                             uint32_t bytesPerColor,
-                             uint32_t offset,
-                             SkBmpCodec::RowOrder rowOrder,
+SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info, SkStream* stream,
+                             uint16_t bitsPerPixel, uint32_t numColors,
+                             uint32_t bytesPerColor, uint32_t offset,
+                             SkScanlineDecoder::SkScanlineOrder rowOrder,
                              size_t RLEBytes)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
@@ -30,16 +28,18 @@ SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info,
     , fOffset(offset)
     , fStreamBuffer(new uint8_t[RLEBytes])
     , fRLEBytes(RLEBytes)
-    , fCurrRLEByte(0) {}
+    , fCurrRLEByte(0)
+    , fSampleX(1)
+{}
 
 /*
  * Initiates the bitmap decode
  */
 SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
-                                        void* dst, size_t dstRowBytes,
-                                        const Options& opts,
-                                        SkPMColor* inputColorPtr,
-                                        int* inputColorCount) {
+                                           void* dst, size_t dstRowBytes,
+                                           const Options& opts,
+                                           SkPMColor* inputColorPtr,
+                                           int* inputColorCount) {
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
@@ -56,24 +56,13 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
         return kInvalidConversion;
     }
 
-    // Create the color table if necessary and prepare the stream for decode
-    // Note that if it is non-nullptr, inputColorCount will be modified
-    if (!this->createColorTable(inputColorCount)) {
-        SkCodecPrintf("Error: could not create color table.\n");
-        return kInvalidInput;
-    }
-
-    // Copy the color table to the client if necessary
-    copy_color_table(dstInfo, fColorTable, inputColorPtr, inputColorCount);
-
-    // Initialize a swizzler if necessary
-    if (!this->initializeStreamBuffer()) {
-        SkCodecPrintf("Error: cannot initialize swizzler.\n");
-        return kInvalidConversion;
+    Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
+    if (kSuccess != result) {
+        return result;
     }
 
     // Perform the decode
-    return decode(dstInfo, dst, dstRowBytes, opts);
+    return this->decodeRows(dstInfo, dst, dstRowBytes, opts);
 }
 
 /*
@@ -144,6 +133,15 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
 
 bool SkBmpRLECodec::initializeStreamBuffer() {
     // Setup a buffer to contain the full input stream
+    // TODO (msarett): I'm not sure it is smart or optimal to trust fRLEBytes (read from header)
+    //                 as the size of our buffer.  First of all, the decode fails if fRLEBytes is
+    //                 corrupt (negative, zero, or small) when we might be able to decode
+    //                 successfully with a fixed size buffer.  Additionally, we would save memory
+    //                 using a fixed size buffer if the RLE encoding is large.  On the other hand,
+    //                 we may also waste memory with a fixed size buffer.  And determining a
+    //                 minimum size for our buffer would depend on the image width (so it's not
+    //                 really "fixed" size), and we may end up allocating a buffer that is
+    //                 generally larger than the average encoded size anyway.
     size_t totalBytes = this->stream()->read(fStreamBuffer.get(), fRLEBytes);
     if (totalBytes < fRLEBytes) {
         fRLEBytes = totalBytes;
@@ -153,6 +151,7 @@ bool SkBmpRLECodec::initializeStreamBuffer() {
         SkCodecPrintf("Error: could not read RLE image data.\n");
         return false;
     }
+    fCurrRLEByte = 0;
     return true;
 }
 
@@ -197,32 +196,29 @@ size_t SkBmpRLECodec::checkForMoreData() {
 void SkBmpRLECodec::setPixel(void* dst, size_t dstRowBytes,
                              const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
                              uint8_t index) {
-    // Set the row
-    int height = dstInfo.height();
-    int row;
-    if (SkBmpCodec::kBottomUp_RowOrder == this->rowOrder()) {
-        row = height - y - 1;
-    } else {
-        row = y;
-    }
+    if (is_coord_necessary(x, fSampleX, dstInfo.width())) {
+        // Set the row
+        uint32_t row = this->getDstRow(y, dstInfo.height());
 
-    // Set the pixel based on destination color type
-    switch (dstInfo.colorType()) {
-        case kN32_SkColorType: {
-            SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst, row * (int) dstRowBytes);
-            dstRow[x] = fColorTable->operator[](index);
-            break;
+        // Set the pixel based on destination color type
+        const int dstX = get_dst_coord(x, fSampleX);
+        switch (dstInfo.colorType()) {
+            case kN32_SkColorType: {
+                SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst, row * (int) dstRowBytes);
+                dstRow[dstX] = fColorTable->operator[](index);
+                break;
+            }
+            case kRGB_565_SkColorType: {
+                uint16_t* dstRow = SkTAddOffset<uint16_t>(dst, row * (int) dstRowBytes);
+                dstRow[dstX] = SkPixel32ToPixel16(fColorTable->operator[](index));
+                break;
+            }
+            default:
+                // This case should not be reached.  We should catch an invalid
+                // color type when we check that the conversion is possible.
+                SkASSERT(false);
+                break;
         }
-        case kRGB_565_SkColorType: {
-            uint16_t* dstRow = SkTAddOffset<uint16_t>(dst, row * (int) dstRowBytes);
-            dstRow[x] = SkPixel32ToPixel16(fColorTable->operator[](index));
-            break;
-        }
-        default:
-            // This case should not be reached.  We should catch an invalid
-            // color type when we check that the conversion is possible.
-            SkASSERT(false);
-            break;
     }
 }
 
@@ -233,42 +229,62 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
                                 const SkImageInfo& dstInfo, uint32_t x,
                                 uint32_t y, uint8_t red, uint8_t green,
                                 uint8_t blue) {
-    // Set the row
-    int height = dstInfo.height();
-    int row;
-    if (SkBmpCodec::kBottomUp_RowOrder == this->rowOrder()) {
-        row = height - y - 1;
-    } else {
-        row = y;
+    if (is_coord_necessary(x, fSampleX, dstInfo.width())) {
+        // Set the row
+        uint32_t row = this->getDstRow(y, dstInfo.height());
+
+        // Set the pixel based on destination color type
+        const int dstX = get_dst_coord(x, fSampleX);
+        switch (dstInfo.colorType()) {
+            case kN32_SkColorType: {
+                SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst, row * (int) dstRowBytes);
+                dstRow[dstX] = SkPackARGB32NoCheck(0xFF, red, green, blue);
+                break;
+            }
+            case kRGB_565_SkColorType: {
+                uint16_t* dstRow = SkTAddOffset<uint16_t>(dst, row * (int) dstRowBytes);
+                dstRow[dstX] = SkPack888ToRGB16(red, green, blue);
+                break;
+            }
+            default:
+                // This case should not be reached.  We should catch an invalid
+                // color type when we check that the conversion is possible.
+                SkASSERT(false);
+                break;
+        }
+    }
+}
+
+SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+    // Create the color table if necessary and prepare the stream for decode
+    // Note that if it is non-NULL, inputColorCount will be modified
+    if (!this->createColorTable(inputColorCount)) {
+        SkCodecPrintf("Error: could not create color table.\n");
+        return SkCodec::kInvalidInput;
     }
 
-    // Set the pixel based on destination color type
-    switch (dstInfo.colorType()) {
-        case kN32_SkColorType: {
-            SkPMColor* dstRow = SkTAddOffset<SkPMColor>(dst, row * (int) dstRowBytes);
-            dstRow[x] = SkPackARGB32NoCheck(0xFF, red, green, blue);
-            break;
-        }
-        case kRGB_565_SkColorType: {
-            uint16_t* dstRow = SkTAddOffset<uint16_t>(dst, row * (int) dstRowBytes);
-            dstRow[x] = SkPack888ToRGB16(red, green, blue);
-            break;
-        }
-        default:
-            // This case should not be reached.  We should catch an invalid
-            // color type when we check that the conversion is possible.
-            SkASSERT(false);
-            break;
+    // Copy the color table to the client if necessary
+    copy_color_table(dstInfo, this->fColorTable, inputColorPtr, inputColorCount);
+
+    // Initialize a buffer for encoded RLE data
+    if (!this->initializeStreamBuffer()) {
+        SkCodecPrintf("Error: cannot initialize stream buffer.\n");
+        return SkCodec::kInvalidConversion;
     }
+
+    SkScaledCodec::ComputeSampleSize(dstInfo, this->getInfo(), &fSampleX, NULL);
+
+    return SkCodec::kSuccess;
 }
 
 /*
  * Performs the bitmap decoding for RLE input format
  * RLE decoding is performed all at once, rather than a one row at a time
  */
-SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
-                                      void* dst, size_t dstRowBytes,
-                                      const Options& opts) {
+SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& dstInfo,
+                                          void* dst, size_t dstRowBytes,
+                                          const Options& opts) {
     // Set RLE flags
     static const uint8_t RLE_ESCAPE = 0;
     static const uint8_t RLE_EOL = 0;
@@ -276,7 +292,7 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
     static const uint8_t RLE_DELTA = 2;
 
     // Set constant values
-    const int width = dstInfo.width();
+    const int width = this->getInfo().width();
     const int height = dstInfo.height();
 
     // Destination parameters
@@ -288,9 +304,8 @@ SkCodec::Result SkBmpRLECodec::decode(const SkImageInfo& dstInfo,
     // Because of the need for transparent pixels, kN32 is the only color
     // type that makes sense for the destination format.
     SkASSERT(kN32_SkColorType == dstInfo.colorType());
-    if (kNo_ZeroInitialized == opts.fZeroInitialized) {
-        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, SK_ColorTRANSPARENT, nullptr);
-    }
+    SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, SK_ColorTRANSPARENT,
+            NULL, opts.fZeroInitialized);
 
     while (true) {
         // If we have reached a row that is beyond the requested height, we have

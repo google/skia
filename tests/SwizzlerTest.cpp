@@ -37,7 +37,7 @@ static void check_fill(skiatest::Reporter* r,
 
     // Fill image with the fill value starting at the indicated row
     SkSwizzler::Fill(imageStart, imageInfo, rowBytes, endRow - startRow + 1, colorOrIndex,
-            colorTable);
+            colorTable, SkCodec::kNo_ZeroInitialized);
 
     // Ensure that the pixels are filled properly
     // The bots should catch any memory corruption

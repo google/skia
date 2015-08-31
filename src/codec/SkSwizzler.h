@@ -163,9 +163,13 @@ public:
      *
      * Other SkColorTypes are not supported.
      *
+     * @param zeroInit
+     * Indicates whether memory is already zero initialized.
+     *
      */
     static void Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstRowBytes,
-            uint32_t numRows, uint32_t colorOrIndex, const SkPMColor* colorTable);
+            uint32_t numRows, uint32_t colorOrIndex, const SkPMColor* colorTable,
+            SkCodec::ZeroInitialized zeroInit);
 
     /**
      *  Swizzle a line. Generally this will be called height times, once
@@ -188,15 +192,16 @@ private:
      *  @param dstRow Row in which to write the resulting pixels.
      *  @param src Row of src data, in format specified by SrcConfig
      *  @param dstWidth Width in pixels of the destination
-     *  @param deltaSrc if bitsPerPixel % 8 == 0, deltaSrc is bytesPerPixel
-     *                  else, deltaSrc is bitsPerPixel
+     *  @param bpp if bitsPerPixel % 8 == 0, deltaSrc is bytesPerPixel
+     *             else, deltaSrc is bitsPerPixel
+     *  @param deltaSrc bpp * sampleX
      *  @param ctable Colors (used for kIndex source).
      *  @param offset The offset before the first pixel to sample.
                         Is in bytes or bits based on what deltaSrc is in.
      */
     typedef ResultAlpha (*RowProc)(void* SK_RESTRICT dstRow,
                                    const uint8_t* SK_RESTRICT src,
-                                   int dstWidth, int deltaSrc, int offset,
+                                   int dstWidth, int bpp, int deltaSrc, int offset,
                                    const SkPMColor ctable[]);
 
     const RowProc       fRowProc;

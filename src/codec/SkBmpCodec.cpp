@@ -11,6 +11,7 @@
 #include "SkBmpStandardCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
+#include "SkScaledCodec.h"
 #include "SkStream.h"
 
 /*
@@ -261,10 +262,10 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     }
 
     // Check for valid dimensions from header
-    RowOrder rowOrder = kBottomUp_RowOrder;
+    SkScanlineDecoder::SkScanlineOrder rowOrder = SkScanlineDecoder::kBottomUp_SkScanlineOrder;
     if (height < 0) {
         height = -height;
-        rowOrder = kTopDown_RowOrder;
+        rowOrder = SkScanlineDecoder::kTopDown_SkScanlineOrder;
     }
     // The height field for bmp in ico is double the actual height because they
     // contain an XOR mask followed by an AND mask
@@ -526,7 +527,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
 }
 
 SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
-        uint16_t bitsPerPixel, RowOrder rowOrder)
+        uint16_t bitsPerPixel, SkScanlineDecoder::SkScanlineOrder rowOrder)
     : INHERITED(info, stream)
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
@@ -534,6 +535,14 @@ SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
 
 bool SkBmpCodec::onRewind() {
     return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr);
+}
+
+int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) {
+    if (SkScanlineDecoder::kTopDown_SkScanlineOrder == fRowOrder) {
+        return y;
+    }
+    SkASSERT(SkScanlineDecoder::kBottomUp_SkScanlineOrder == fRowOrder);
+    return height - y - 1;
 }
 
 /*
@@ -544,7 +553,8 @@ bool SkBmpCodec::onRewind() {
  * filling at the top of the image.
  */
 void* SkBmpCodec::getDstStartRow(void* dst, size_t dstRowBytes, int32_t y) const {
-    return (kTopDown_RowOrder == fRowOrder) ? SkTAddOffset<void*>(dst, y * dstRowBytes) : dst;
+    return (SkScanlineDecoder::kTopDown_SkScanlineOrder == fRowOrder) ?
+            SkTAddOffset<void*>(dst, y * dstRowBytes) : dst;
 }
 
 /*
@@ -558,4 +568,73 @@ uint32_t SkBmpCodec::computeNumColors(uint32_t numColors) {
         return maxColors;
     }
     return numColors;
+}
+
+/*
+ * Scanline decoder for bmps
+ */
+class SkBmpScanlineDecoder : public SkScanlineDecoder {
+public:
+    SkBmpScanlineDecoder(SkBmpCodec* codec)
+        : INHERITED(codec->getInfo())
+        , fCodec(codec)
+    {}
+
+    SkEncodedFormat onGetEncodedFormat() const override {
+        return kBMP_SkEncodedFormat;
+    }
+
+    SkCodec::Result onStart(const SkImageInfo& dstInfo, const SkCodec::Options& options,
+                            SkPMColor inputColorPtr[], int* inputColorCount) override {
+        if (!fCodec->rewindIfNeeded()) {
+            return SkCodec::kCouldNotRewind;
+        }
+        if (options.fSubset) {
+            // Subsets are not supported.
+            return SkCodec::kUnimplemented;
+        }
+        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
+                return SkCodec::kInvalidScale;
+            }
+        }
+        if (!conversion_possible(dstInfo, this->getInfo())) {
+            SkCodecPrintf("Error: cannot convert input type to output type.\n");
+            return SkCodec::kInvalidConversion;
+        }
+
+        return fCodec->prepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
+    }
+
+    SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
+        // Create a new image info representing the portion of the image to decode
+        SkImageInfo rowInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
+
+        // Decode the requested rows
+        return fCodec->decodeRows(rowInfo, dst, rowBytes, this->options());
+    }
+
+    SkScanlineOrder onGetScanlineOrder() const override {
+        return fCodec->fRowOrder;
+    }
+
+    int onGetY() const override {
+        return fCodec->getDstRow(this->INHERITED::onGetY(), this->dstInfo().height());
+    }
+
+    // TODO(msarett): Override default skipping with something more clever.
+
+private:
+    SkAutoTDelete<SkBmpCodec> fCodec;
+
+    typedef SkScanlineDecoder INHERITED;
+};
+
+SkScanlineDecoder* SkBmpCodec::NewSDFromStream(SkStream* stream) {
+    SkAutoTDelete<SkBmpCodec> codec(static_cast<SkBmpCodec*>(SkBmpCodec::NewFromStream(stream)));
+    if (!codec) {
+        return NULL;
+    }
+
+    return SkNEW_ARGS(SkBmpScanlineDecoder, (codec.detach()));
 }

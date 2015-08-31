@@ -355,11 +355,8 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
             // If the destination is kRGB_565, the low 16 bits of SK_ColorBLACK
             // will be used.  Conveniently, these are zeros, which is the
             // representation for black in kRGB_565.
-            if (kNo_ZeroInitialized == options.fZeroInitialized ||
-                    kN32_SkColorType == dstInfo.colorType()) {
-                SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, dstHeight - y,
-                        SK_ColorBLACK, nullptr);
-            }
+            SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, dstHeight - y,
+                    SK_ColorBLACK, nullptr, options.fZeroInitialized);
 
             // Prevent libjpeg from failing on incomplete decode
             dinfo->output_scanline = dstHeight;
@@ -516,11 +513,8 @@ public:
             uint32_t rowsDecoded =
                     chromium_jpeg_read_scanlines(fCodec->fDecoderMgr->dinfo(), &dstRow, 1);
             if (rowsDecoded != 1) {
-                if (SkCodec::kNo_ZeroInitialized == fOpts.fZeroInitialized ||
-                        kN32_SkColorType == this->dstInfo().colorType()) {
-                    SkSwizzler::Fill(dstRow, this->dstInfo(), rowBytes,
-                            count - y, SK_ColorBLACK, nullptr);
-                }
+                SkSwizzler::Fill(dstRow, this->dstInfo(), rowBytes, count - y,
+                        SK_ColorBLACK, nullptr, fOpts.fZeroInitialized);
                 fCodec->fDecoderMgr->dinfo()->output_scanline = this->dstInfo().height();
                 return SkCodec::kIncompleteInput;
             }

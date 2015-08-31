@@ -79,6 +79,26 @@ bool CodecSrc::veto(SinkFlags flags) const {
         || flags.approach != SinkFlags::kDirect;
 }
 
+SkScanlineDecoder* start_scanline_decoder(SkData* encoded, const SkImageInfo& info,
+        SkPMColor* colorPtr, int* colorCountPtr) {
+    SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(SkScanlineDecoder::NewFromData(encoded));
+    if (nullptr == scanlineDecoder) {
+        return nullptr;
+    }
+    // DM scanline test assume kTopDown scanline ordering.  Other orderings are
+    // tested from within SkScaledCodec.
+    // TODO (msarett): Redesign the CodecSrc tests to improve our coverage of SkCodec and
+    //                 SkScanlineDecoder functionality.  Maybe we should write code to explicitly
+    //                 test kNone, kOutOfOrder, and kBottomUp.
+    if (SkScanlineDecoder::kTopDown_SkScanlineOrder != scanlineDecoder->getScanlineOrder()) {
+        return nullptr;
+    }
+    if (SkCodec::kSuccess != scanlineDecoder->start(info, NULL, colorPtr, colorCountPtr)) {
+        return nullptr;
+    }
+    return scanlineDecoder.detach();
+}
+
 Error CodecSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
@@ -170,10 +190,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         }
         case kScanline_Mode: {
             SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
-                    SkScanlineDecoder::NewFromData(encoded));
-            if (nullptr == scanlineDecoder || SkCodec::kSuccess !=
-                    scanlineDecoder->start(decodeInfo, nullptr, colorPtr, colorCountPtr)) {
-                return Error::Nonfatal("Cannot use scanline decoder for all images");
+                    start_scanline_decoder(encoded.get(), decodeInfo, colorPtr, colorCountPtr));
+            if (nullptr == scanlineDecoder) {
+                return Error::Nonfatal("Could not start top-down scanline decoder");
             }
 
             const SkCodec::Result result = scanlineDecoder->getScanlines(
@@ -234,14 +253,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     const int y = row * subsetHeight;
                     //create scanline decoder for each subset
                     SkAutoTDelete<SkScanlineDecoder> subsetScanlineDecoder(
-                            SkScanlineDecoder::NewFromData(encoded));
-                    if (nullptr == subsetScanlineDecoder || SkCodec::kSuccess !=
-                            subsetScanlineDecoder->start(
-                            decodeInfo, nullptr, colorPtr, colorCountPtr))
-                    {
+                            start_scanline_decoder(encoded.get(), decodeInfo,
+                                    colorPtr, colorCountPtr));
+                    if (nullptr == subsetScanlineDecoder) {
                         if (x == 0 && y == 0) {
                             //first try, image may not be compatible
-                            return Error::Nonfatal("Cannot use scanline decoder for all images");
+                            return Error::Nonfatal("Could not start top-down scanline decoder");
                         } else {
                             return "Error scanline decoder is nullptr";
                         }
@@ -304,10 +321,10 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             const int numStripes = (height + stripeHeight - 1) / stripeHeight;
 
             // Decode odd stripes
-            SkAutoTDelete<SkScanlineDecoder> decoder(SkScanlineDecoder::NewFromData(encoded));
-            if (nullptr == decoder || SkCodec::kSuccess !=
-                    decoder->start(decodeInfo, nullptr, colorPtr, colorCountPtr)) {
-                return Error::Nonfatal("Cannot use scanline decoder for all images");
+            SkAutoTDelete<SkScanlineDecoder> decoder(
+                    start_scanline_decoder(encoded.get(), decodeInfo, colorPtr, colorCountPtr));
+            if (nullptr == decoder) {
+                return Error::Nonfatal("Could not start top-down scanline decoder");
             }
             for (int i = 0; i < numStripes; i += 2) {
                 // Skip a stripe

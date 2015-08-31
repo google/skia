@@ -382,14 +382,6 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                     }
                 }
 
-                // Check if we can skip filling the background of the image.  We
-                // may be able to if the memory is zero initialized.
-                bool skipBackground =
-                        ((kN32_SkColorType == dstColorType && colorTable[fillIndex] == 0) ||
-                        (kIndex_8_SkColorType == dstColorType && fillIndex == 0)) &&
-                        kYes_ZeroInitialized == zeroInit;
-
-
                 // Fill in the color table for indices greater than color count.
                 // This allows for predictable, safe behavior.
                 for (uint32_t i = colorCount; i < maxColors; i++) {
@@ -407,9 +399,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                     // FIXME: This may not be the behavior that we want for
                     //        animated gifs where we draw on top of the
                     //        previous frame.
-                    if (!skipBackground) {
-                        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, fillIndex, colorTable);
-                    }
+                    SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, fillIndex, colorTable,
+                            zeroInit);
 
                     // Modify the dst pointer
                     const int32_t dstBytesPerPixel = SkColorTypeBytesPerPixel(dstColorType);
@@ -436,13 +427,11 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                     for (int32_t y = 0; y < innerHeight; y++) {
                         if (GIF_ERROR == DGifGetLine(fGif, buffer.get(), innerWidth)) {
                             // Recover from error by filling remainder of image
-                            if (!skipBackground) {
-                                memset(buffer.get(), fillIndex, innerWidth);
-                                for (; y < innerHeight; y++) {
-                                    void* dstRow = SkTAddOffset<void>(dst, dstRowBytes *
-                                            get_output_row_interlaced(y, innerHeight));
-                                    swizzler->swizzle(dstRow, buffer.get());
-                                }
+                            memset(buffer.get(), fillIndex, innerWidth);
+                            for (; y < innerHeight; y++) {
+                                void* dstRow = SkTAddOffset<void>(dst, dstRowBytes *
+                                        get_output_row_interlaced(y, innerHeight));
+                                swizzler->swizzle(dstRow, buffer.get());
                             }
                             return gif_error(SkStringPrintf(
                                     "Could not decode line %d of %d.\n",
@@ -457,10 +446,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                     void* dstRow = dst;
                     for (int32_t y = 0; y < innerHeight; y++) {
                         if (GIF_ERROR == DGifGetLine(fGif, buffer.get(), innerWidth)) {
-                            if (!skipBackground) {
-                                SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes,
-                                                 innerHeight - y, fillIndex, colorTable);
-                            }
+                            SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, innerHeight - y,
+                                    fillIndex, colorTable, zeroInit);
                             return gif_error(SkStringPrintf(
                                     "Could not decode line %d of %d.\n",
                                     y, height - 1).c_str(), kIncompleteInput);

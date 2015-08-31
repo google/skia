@@ -24,7 +24,8 @@ public:
      * Create a new swizzler
      * @param masks Unowned pointer to helper class
      */
-    static SkMaskSwizzler* CreateMaskSwizzler(const SkImageInfo& imageInfo,
+    static SkMaskSwizzler* CreateMaskSwizzler(const SkImageInfo& dstInfo,
+                                              const SkImageInfo& srcInfo,
                                               SkMasks* masks,
                                               uint32_t bitsPerPixel);
 
@@ -40,17 +41,20 @@ private:
      */
     typedef SkSwizzler::ResultAlpha (*RowProc)(
             void* dstRow, const uint8_t* srcRow, int width,
-            SkMasks* masks);
+            SkMasks* masks, uint32_t startX, uint32_t sampleX);
 
     /*
      * Constructor for mask swizzler
      */
-    SkMaskSwizzler(const SkImageInfo& info, SkMasks* masks, RowProc proc);
+    SkMaskSwizzler(const SkImageInfo& info, SkMasks* masks, RowProc proc,
+            uint32_t sampleX);
 
     // Fields
     const SkImageInfo& fDstInfo;
     SkMasks*           fMasks;       // unowned
     const RowProc      fRowProc;
+    const uint32_t     fSampleX;
+    const uint32_t     fStartX;
 };
 
 #endif

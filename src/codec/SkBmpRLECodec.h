@@ -35,15 +35,19 @@ public:
      *                 after decoding the headers
      */
     SkBmpRLECodec(const SkImageInfo& srcInfo, SkStream* stream,
-                  uint16_t bitsPerPixel, uint32_t numColors,
-                  uint32_t bytesPerColor, uint32_t offset,
-                  SkBmpCodec::RowOrder rowOrder, size_t RLEBytes);
+            uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
+            uint32_t offset, SkScanlineDecoder::SkScanlineOrder rowOrder,
+            size_t RLEBytes);
 
 protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
                        size_t dstRowBytes, const Options&, SkPMColor*,
                        int*) override;
+
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+            const SkCodec::Options& options, SkPMColor inputColorPtr[],
+            int* inputColorCount) override;
 
 private:
 
@@ -77,11 +81,8 @@ private:
                      const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
                      uint8_t red, uint8_t green, uint8_t blue);
 
-    /*
-     * Performs the bitmap decoding for RLE input format
-     */
-    Result decode(const SkImageInfo& dstInfo, void* dst,
-                  size_t dstRowBytes, const Options& opts);
+    Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+                      const Options& opts) override;
 
     SkAutoTUnref<SkColorTable>          fColorTable;    // owned
     const uint32_t                      fNumColors;
@@ -90,6 +91,7 @@ private:
     SkAutoTDeleteArray<uint8_t>         fStreamBuffer;
     size_t                              fRLEBytes;
     uint32_t                            fCurrRLEByte;
+    int                                 fSampleX;
 
     typedef SkBmpCodec INHERITED;
 };
