@@ -193,12 +193,7 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
     rec.copyToArray((SkRefCnt**)array);
 
     for (int i = 0; i < count; i++) {
-#ifdef SK_PICTURE_FORCE_FONT_EMBEDDING
-        array[i]->serializeForcingEmbedding(stream);
-#else
-        // TODO: if (embedFonts) { array[i]->serializeForcingEmbedding(stream) } else
         array[i]->serialize(stream);
-#endif
     }
 }
 

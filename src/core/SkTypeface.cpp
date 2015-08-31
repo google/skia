@@ -20,8 +20,16 @@ SkTypeface::SkTypeface(const SkFontStyle& style, SkFontID fontID, bool isFixedPi
 
 SkTypeface::~SkTypeface() { }
 
+#ifdef SK_WHITELIST_SERIALIZED_TYPEFACES
+extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
+#define SK_TYPEFACE_DELEGATE WhitelistSerializeTypeface
+#else
+#define SK_TYPEFACE_DELEGATE nullptr
+#endif
 
 SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style ) = nullptr;
+void (*gSerializeTypefaceDelegate)(const SkTypeface*, SkWStream* ) = SK_TYPEFACE_DELEGATE;
+SkTypeface* (*gDeserializeTypefaceDelegate)(SkStream* ) = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -164,6 +172,10 @@ SkTypeface* SkTypeface::CreateFromFile(const char path[], int index) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkTypeface::serialize(SkWStream* wstream) const {
+    if (gSerializeTypefaceDelegate) {
+        (*gSerializeTypefaceDelegate)(this, wstream);
+        return;
+    }
     bool isLocal = false;
     SkFontDescriptor desc(this->style());
     this->onGetFontDescriptor(&desc, &isLocal);
@@ -175,19 +187,10 @@ void SkTypeface::serialize(SkWStream* wstream) const {
     desc.serialize(wstream);
 }
 
-void SkTypeface::serializeForcingEmbedding(SkWStream* wstream) const {
-    bool ignoredIsLocal;
-    SkFontDescriptor desc(this->style());
-    this->onGetFontDescriptor(&desc, &ignoredIsLocal);
-
-    // Always embed font data.
-    if (!desc.hasFontData()) {
-        desc.setFontData(this->onCreateFontData());
-    }
-    desc.serialize(wstream);
-}
-
 SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
+    if (gDeserializeTypefaceDelegate) {
+        return (*gDeserializeTypefaceDelegate)(stream);
+    }
     SkFontDescriptor desc(stream);
     SkFontData* data = desc.detachFontData();
     if (data) {

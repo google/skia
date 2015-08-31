@@ -144,10 +144,6 @@ public:
      */
     void serialize(SkWStream*) const;
 
-    /** Like serialize, but write the whole font (not just a signature) if possible.
-     */
-    void serializeForcingEmbedding(SkWStream*) const;
-
     /** Given the data previously written by serialize(), return a new instance
         to a typeface referring to the same font. If that font is not available,
         return null. If an instance is returned, the caller is responsible for

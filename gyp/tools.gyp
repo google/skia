@@ -37,6 +37,7 @@
         'skpmaker',
         'test_image_decoder',
         'test_public_includes',
+        'whitelist_typefaces',
       ],
       'conditions': [
         ['skia_shared_lib',
@@ -649,6 +650,16 @@
       'direct_dependent_settings': {
         'include_dirs': [ '../tools', ],
       },
+    },
+    {
+      'target_name': 'whitelist_typefaces',
+      'type': 'executable',
+      'sources': [
+        '../tools/whitelist_typefaces.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+      ],
     },
     {
       'target_name': 'test_public_includes',

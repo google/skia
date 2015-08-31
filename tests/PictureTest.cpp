@@ -1151,7 +1151,20 @@ static void test_gen_id(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, hasData->uniqueID() != empty->uniqueID());
 }
 
+static void test_typeface(skiatest::Reporter* reporter) {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(10, 10);
+    SkPaint paint;
+    paint.setTypeface(SkTypeface::CreateFromName("Arial", SkTypeface::kItalic));
+    canvas->drawText("Q", 1, 0, 10, paint);
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture->hasText());
+    SkDynamicMemoryWStream stream;
+    picture->serialize(&stream);
+}
+
 DEF_TEST(Picture, reporter) {
+    test_typeface(reporter);
 #ifdef SK_DEBUG
     test_deleting_empty_picture();
     test_serializing_empty_picture();
