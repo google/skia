@@ -92,6 +92,12 @@ public:
     static SkNf Load(const T vals[N]) {
         return SkNf(SkNf<N/2,T>::Load(vals), SkNf<N/2,T>::Load(vals+N/2));
     }
+    // FromBytes() and toBytes() specializations may assume their argument is N-byte aligned.
+    // E.g. Sk4f::FromBytes() may assume it's reading from a 4-byte-aligned pointer.
+    // Converts [0,255] bytes to [0.0, 255.0] floats.
+    static SkNf FromBytes(const uint8_t bytes[N]) {
+        return SkNf(SkNf<N/2,T>::FromBytes(bytes), SkNf<N/2,T>::FromBytes(bytes+N/2));
+    }
 
     SkNf(T a, T b)                               : fLo(a),       fHi(b)       { REQUIRE(N==2); }
     SkNf(T a, T b, T c, T d)                     : fLo(a,b),     fHi(c,d)     { REQUIRE(N==4); }
@@ -100,6 +106,12 @@ public:
     void store(T vals[N]) const {
         fLo.store(vals);
         fHi.store(vals+N/2);
+    }
+    // Please see note on FromBytes().
+    // Truncates [0.0,256.0) floats to [0,255] bytes.  Other inputs are unspecified.
+    void toBytes(uint8_t bytes[N]) const {
+        fLo.toBytes(bytes);
+        fHi.toBytes(bytes+N/2);
     }
 
     SkNi<N,I> castTrunc() const { return SkNi<N,I>(fLo.castTrunc(), fHi.castTrunc()); }
@@ -201,8 +213,10 @@ public:
     SkNf() {}
     explicit SkNf(T val) : fVal(val) {}
     static SkNf Load(const T vals[1]) { return SkNf(vals[0]); }
+    static SkNf FromBytes(const uint8_t bytes[1]) { return SkNf((T)bytes[0]); }
 
     void store(T vals[1]) const { vals[0] = fVal; }
+    void toBytes(uint8_t bytes[1]) const { bytes[0] = (uint8_t)(fVal); }
 
     SkNi<1,I> castTrunc() const { return SkNi<1,I>(fVal); }
 

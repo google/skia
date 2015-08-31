@@ -6,7 +6,7 @@
 #define SkColorCubeFilter_opts_DEFINED
 
 #include "SkColor.h"
-#include "SkPMFloat.h"
+#include "SkNx.h"
 #include "SkUnPreMultiply.h"
 
 namespace SK_OPTS_NS {
@@ -18,7 +18,6 @@ void color_cube_filter_span(const SkPMColor src[],
                             const SkScalar* colorToFactors[2],
                             int dim,
                             const SkColor* colorCube) {
-    uint8_t* ptr_dst = reinterpret_cast<uint8_t*>(dst);
     uint8_t r, g, b, a;
 
     for (int i = 0; i < count; ++i) {
@@ -51,8 +50,7 @@ void color_cube_filter_span(const SkPMColor src[],
         const int i10 = (colorToIndex[1][g] + colorToIndex[0][b] * dim) * dim;
         const int i11 = (colorToIndex[1][g] + colorToIndex[1][b] * dim) * dim;
 
-        SkPMFloat color(0,0,0,0);
-
+        Sk4f color(0,0,0,0);
         for (int x = 0; x < 2; ++x) {
             const int ix = colorToIndex[x][r];
 
@@ -61,22 +59,23 @@ void color_cube_filter_span(const SkPMColor src[],
             const SkColor lutColor10 = colorCube[ix + i10];
             const SkColor lutColor11 = colorCube[ix + i11];
 
-            Sk4f  sum = SkPMFloat::FromOpaqueColor(lutColor00) * g0b0;
-            sum = sum + SkPMFloat::FromOpaqueColor(lutColor01) * g0b1;
-            sum = sum + SkPMFloat::FromOpaqueColor(lutColor10) * g1b0;
-            sum = sum + SkPMFloat::FromOpaqueColor(lutColor11) * g1b1;
-
+            Sk4f  sum = Sk4f::FromBytes((const uint8_t*)&lutColor00) * g0b0;
+            sum = sum + Sk4f::FromBytes((const uint8_t*)&lutColor01) * g0b1;
+            sum = sum + Sk4f::FromBytes((const uint8_t*)&lutColor10) * g1b0;
+            sum = sum + Sk4f::FromBytes((const uint8_t*)&lutColor11) * g1b1;
             color = color + sum * Sk4f((float)colorToFactors[x][r]);
         }
-
         if (a != 255) {
-            color = color * Sk4f(a * 1.0f/255);
+            color = color * Sk4f(a * (1.0f/255));
         }
 
-        dst[i] = color.round();
-
-        ptr_dst[SK_A32_SHIFT / 8] = a;
-        ptr_dst += 4;
+        // color is BGRA (SkColor order), dst is SkPMColor order, so may need to swap R+B.
+    #if defined(SK_PMCOLOR_IS_RGBA)
+        color = Sk4f(color.kth<2>(), color.kth<1>(), color.kth<0>(), color.kth<3>());
+    #endif
+        uint8_t* dstBytes = (uint8_t*)(dst+i);
+        color.toBytes(dstBytes);
+        dstBytes[SK_A32_SHIFT/8] = a;
     }
 }
 

@@ -28,11 +28,11 @@ public:
     static SkPMFloat FromARGB(float a, float r, float g, float b) { return SkPMFloat(a,r,g,b); }
     static SkPMFloat FromOpaqueColor(SkColor c);  // Requires c's alpha == 0xFF.
 
-    Sk4f alphas() const;  // argb -> aaaa, generally faster than the equivalent Sk4f(this->a()).
+    Sk4f alphas() const { return Sk4f(this->a()); }
 
     // Uninitialized.
     SkPMFloat() {}
-    explicit SkPMFloat(SkPMColor);
+    explicit SkPMFloat(SkPMColor c) { *this = Sk4f::FromBytes((uint8_t*)&c) * Sk4f(1.0f/255); }
     SkPMFloat(float a, float r, float g, float b)
     #ifdef SK_PMCOLOR_IS_RGBA
         : INHERITED(r,g,b,a) {}
@@ -47,7 +47,11 @@ public:
     float g() const { return this->kth<SK_G32_SHIFT / 8>(); }
     float b() const { return this->kth<SK_B32_SHIFT / 8>(); }
 
-    SkPMColor round() const;  // Rounds from [0.0f, 1.0f] to [0, 255], clamping if out of range.
+    SkPMColor round() const {
+        SkPMColor c;
+        (*this * Sk4f(255) + Sk4f(0.5f)).toBytes((uint8_t*)&c);
+        return c;
+    }
 
     bool isValid() const {
         return this->a() >= 0 && this->a() <= 1
@@ -61,18 +65,5 @@ private:
 };
 
 }  // namespace
-
-#ifdef SKNX_NO_SIMD
-    // Platform implementations of SkPMFloat assume Sk4f uses SSE or NEON.  _none is generic.
-    #include "../opts/SkPMFloat_none.h"
-#else
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-        #include "../opts/SkPMFloat_sse.h"
-    #elif defined(SK_ARM_HAS_NEON)
-        #include "../opts/SkPMFloat_neon.h"
-    #else
-        #include "../opts/SkPMFloat_none.h"
-    #endif
-#endif
 
 #endif//SkPM_DEFINED
