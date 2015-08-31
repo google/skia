@@ -178,6 +178,7 @@ public:
     char& operator[](size_t n) { return this->writable_str()[n]; }
 
     void reset();
+    /** Destructive resize, does not preserve contents. */
     void resize(size_t len) { this->set(NULL, len); }
     void set(const SkString& src) { *this = src; }
     void set(const char text[]);
