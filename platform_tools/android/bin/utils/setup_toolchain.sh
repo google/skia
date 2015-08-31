@@ -65,7 +65,7 @@ function default_toolchain() {
     TARBALL=ndk-r$NDK_REV-v$API_LEVEL.tgz
 
     ${SCRIPT_DIR}/download_toolchains.py \
-        http://chromium-skia-gm.commondatastorage.googleapis.com/android-toolchains/$TARBALL \
+        http://storage.googleapis.com/chromium-skia-gm/android-toolchains/$TARBALL \
         $TOOLCHAIN_DIR/$TARBALL
     tar -xzf $TARBALL $TOOLCHAIN_TYPE
     rm $TARBALL
