@@ -57,9 +57,8 @@ public:
     static const size_t kDefaultMaxSize             = 96 * (1 << 20);
     // Default number of flushes a budgeted resources can go unused in the cache before it is
     // purged. Large values disable the feature (as the ring buffer of flush timestamps would be
-    // large). This is currently the default until we decide to enable this feature
-    // of the cache by default.
-    static const int    kDefaultMaxUnusedFlushes    = 1024;
+    // large).
+    static const int    kDefaultMaxUnusedFlushes    = 128;
 
     /** Used to access functionality needed by GrGpuResource for lifetime management. */
     class ResourceAccess;
