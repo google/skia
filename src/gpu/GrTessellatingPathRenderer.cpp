@@ -1337,10 +1337,10 @@ SkPoint* polys_to_triangles(Poly* polys, SkPath::FillType fillType, SkPoint* dat
 
 struct TessInfo {
     SkScalar  fTolerance;
-    int       fCount;
+    int       fVertexCount;
 };
 
-bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
+bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* vertexCount) {
     if (!vertexBuffer) {
         return false;
     }
@@ -1348,7 +1348,7 @@ bool cache_match(GrVertexBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
     SkASSERT(data);
     const TessInfo* info = static_cast<const TessInfo*>(data->data());
     if (info->fTolerance == 0 || info->fTolerance < 3.0f * tol) {
-        *actualCount = info->fCount;
+        *vertexCount = info->fVertexCount;
         return true;
     }
     return false;
@@ -1471,17 +1471,17 @@ private:
         path_to_contours(path, tol, fClipBounds, contours.get(), alloc, &isLinear);
         Poly* polys;
         polys = contours_to_polys(contours.get(), contourCnt, c, alloc);
-        int count = 0;
+        int vertexCount = 0;
         for (Poly* poly = polys; poly; poly = poly->fNext) {
             if (apply_fill_type(fillType, poly->fWinding) && poly->fCount >= 3) {
-                count += (poly->fCount - 2) * (WIREFRAME ? 6 : 3);
+                vertexCount += (poly->fCount - 2) * (WIREFRAME ? 6 : 3);
             }
         }
-        if (0 == count) {
+        if (0 == vertexCount) {
             return 0;
         }
 
-        size_t size = count * sizeof(SkPoint);
+        size_t size = vertexCount * sizeof(SkPoint);
         if (!vertexBuffer.get() || vertexBuffer->gpuMemorySize() < size) {
             vertexBuffer.reset(resourceProvider->createVertexBuffer(
                 size, GrResourceProvider::kStatic_BufferUsage, 0));
@@ -1494,16 +1494,15 @@ private:
         if (canMapVB) {
             verts = static_cast<SkPoint*>(vertexBuffer->map());
         } else {
-            verts = new SkPoint[count];
+            verts = new SkPoint[vertexCount];
         }
-        SkPoint* end = polys_to_triangles(polys, fillType, verts);
-        int actualCount = static_cast<int>(end - verts);
-        LOG("actual count: %d\n", actualCount);
-        SkASSERT(actualCount <= count);
+        SkDEBUGCODE(SkPoint* end = ) polys_to_triangles(polys, fillType, verts);
+        SkASSERT(static_cast<int>(end - verts) == vertexCount);
+        LOG("vertex count: %d\n", vertexCount);
         if (canMapVB) {
             vertexBuffer->unmap();
         } else {
-            vertexBuffer->updateData(verts, actualCount * sizeof(SkPoint));
+            vertexBuffer->updateData(verts, vertexCount * sizeof(SkPoint));
             delete[] verts;
         }
 
@@ -1511,13 +1510,13 @@ private:
         if (!fPath.isVolatile()) {
             TessInfo info;
             info.fTolerance = isLinear ? 0 : tol;
-            info.fCount = actualCount;
+            info.fVertexCount = vertexCount;
             SkAutoTUnref<SkData> data(SkData::NewWithCopy(&info, sizeof(info)));
             key->setCustomData(data.get());
             resourceProvider->assignUniqueKeyToResource(*key, vertexBuffer.get());
             SkPathPriv::AddGenIDChangeListener(fPath, new PathInvalidator(*key));
         }
-        return actualCount;
+        return vertexCount;
     }
 
     void onPrepareDraws(Target* target) override {
@@ -1538,16 +1537,16 @@ private:
         builder.finish();
         GrResourceProvider* rp = target->resourceProvider();
         SkAutoTUnref<GrVertexBuffer> vertexBuffer(rp->findAndRefTByUniqueKey<GrVertexBuffer>(key));
-        int actualCount;
+        int vertexCount;
         SkScalar screenSpaceTol = GrPathUtils::kDefaultTolerance;
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(
             screenSpaceTol, fViewMatrix, fPath.getBounds());
-        if (!cache_match(vertexBuffer.get(), tol, &actualCount)) {
+        if (!cache_match(vertexBuffer.get(), tol, &vertexCount)) {
             bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
-            actualCount = tessellate(&key, rp, vertexBuffer, canMapVB);
+            vertexCount = tessellate(&key, rp, vertexBuffer, canMapVB);
         }
 
-        if (actualCount == 0) {
+        if (vertexCount == 0) {
             return;
         }
 
@@ -1576,7 +1575,7 @@ private:
         GrPrimitiveType primitiveType = WIREFRAME ? kLines_GrPrimitiveType
                                                   : kTriangles_GrPrimitiveType;
         GrVertices vertices;
-        vertices.init(primitiveType, vertexBuffer.get(), 0, actualCount);
+        vertices.init(primitiveType, vertexBuffer.get(), 0, vertexCount);
         target->draw(vertices);
     }
 
