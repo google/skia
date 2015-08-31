@@ -6,6 +6,6 @@ CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
 
-libskia.dylib
+libskia.*
 example
 example.png

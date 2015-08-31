@@ -12,7 +12,7 @@ endif ()
 file (GLOB_RECURSE srcs ../src/*.cpp)
 
 function (find_include_dirs out)
-    file (GLOB_RECURSE headers ${ARGV})
+    file (GLOB_RECURSE headers ${ARGN})
     foreach (path ${headers})
         get_filename_component (dir ${path} PATH)
         list (APPEND include_dirs ${dir})
@@ -32,7 +32,7 @@ list (APPEND srcs             ../third_party/etc1/etc1.cpp ../third_party/ktx/kt
 list (APPEND private_includes ../third_party/etc1          ../third_party/ktx)
 
 function (remove_srcs)
-    file (GLOB_RECURSE to_remove ${ARGV})
+    file (GLOB_RECURSE to_remove ${ARGN})
     list (REMOVE_ITEM srcs ${to_remove})
     set (srcs ${srcs} PARENT_SCOPE)
 endfunction()
@@ -41,6 +41,14 @@ endfunction()
 remove_srcs (../src/core/SkForceCPlusPlusLinking.cpp)
 # This file forces linking for all our supported image decoders.  We're more fine-grained.
 remove_srcs (../src/images/SkForceLinking.cpp)
+# Chrome only?
+remove_srcs (../src/ports/SkFontHost_fontconfig.cpp
+             ../src/fonts/SkFontMgr_fontconfig.cpp
+             ../src/ports/SkFontConfigInterface_direct.cpp)
+# Alternative font managers.
+remove_srcs (../src/ports/SkFontMgr_custom*.cpp)
+# Not actually used by Skia.
+remove_srcs (../src/utils/SkThreadUtils_pthread_*.cpp)
 
 # Skia sure ships a lot of code no one uses.
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)
@@ -52,13 +60,26 @@ endif()
 
 # Remove OS-specific source files.
 if (NOT WIN32)
-    remove_srcs(../src/utils/win/* ../src/*_win*.cpp ../src/*xps* ../src/gpu/gl/angle/* ../src/*WIC* ../src/*DWRITE*)
+    remove_srcs(../src/*XPS*
+                ../src/*_win*.cpp
+                ../src/gpu/gl/angle/*
+                ../src/ports/SkImageDecoder_WIC.cpp
+                ../src/utils/win/*)
 endif()
-if (NOT LINUX)
-    remove_srcs(../src/*linux* ../src/*FreeType* ../src/*FontConfig* ../src/*FontMgr_custom*)
+if (APPLE OR NOT UNIX)
+    remove_srcs(../src/gpu/gl/glx/*
+                ../src/images/SkImageDecoder_FactoryDefault.cpp
+                ../src/ports/SkFontMgr_fontconfig*.cpp
+                ../src/*FreeType*)
 endif()
 if (NOT ANDROID)
-    remove_srcs(../src/*android* ../src/*hwui*)
+    remove_srcs(../src/*Hwui* ../src/*android*)
+endif()
+if (NOT APPLE)
+    remove_srcs(../src/*darwin*
+                ../src/ports/SkImageDecoder_CG.cpp
+                ../src/utils/mac/*
+                ../src/*mac*)
 endif()
 
 # Remove processor-specific source files.
@@ -78,10 +99,8 @@ remove_srcs(
     ../src/gpu/gl/SkCreatePlatformGLContext*.cpp     # For internal testing only.
     ../src/gpu/gl/command_buffer/*
     ../src/gpu/gl/egl/*
-    ../src/gpu/gl/glx/*
     ../src/gpu/gl/iOS/*
     ../src/gpu/gl/mesa/*
-    ../src/images/SkImageDecoder_FactoryDefault.cpp
     ../src/opts/SkBitmapProcState_opts_none.cpp
     ../src/opts/SkBlitMask_opts_none.cpp
     ../src/opts/SkBlitRow_opts_none.cpp
@@ -89,9 +108,7 @@ remove_srcs(
     ../src/ports/SkGlobalInitialization_chromium.cpp
     ../src/ports/SkImageDecoder_empty.cpp
     ../src/ports/SkImageGenerator_none.cpp
-    ../src/ports/SkTLS_none.cpp
-    ../src/utils/SkThreadUtils_pthread_other.cpp
-    )
+    ../src/ports/SkTLS_none.cpp)
 
 remove_srcs(../src/codec/*)  # TODO: Requires Chromium's libjpeg-turbo, and incompatible giflib.
 
@@ -103,39 +120,80 @@ set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
 
 # Detect our optional dependencies.
 # If we can't find them, don't build the parts of Skia that use them.
-
-find_package (GIF)
-find_package (JPEG)
-find_package (LUA)
-find_package (PNG)
+find_package (Lua)
 find_package (ZLIB)
 # No find_package for libwebp as far as I can tell, so simulate it here.
 find_path (WEBP_INCLUDE_DIRS "webp/decode.h")
 find_library (WEBP_LIBRARIES webp)
 
-if (NOT GIF_FOUND)
+if (UNIX AND NOT APPLE)
+    find_package (Freetype)
+    # Same deal for fontconfig.
+    find_path (FONTCONFIG_INCLUDE_DIRS "fontconfig/fontconfig.h")
+    find_library (FONTCONFIG_LIBRARIES fontconfig)
+    find_package (GIF)
+    find_package (JPEG)
+    find_package (PNG)
+endif()
+
+# TODO: macro away this if (found) ... else() ... endif() stuff.
+
+if (GIF_FOUND)
+    list (APPEND private_includes ${GIF_INCLUDE_DIRS})
+    list (APPEND libs             ${GIF_LIBRARIES})
+else()
     remove_srcs(../src/images/*gif*)
 endif()
-if (NOT JPEG_FOUND)
+
+if (JPEG_FOUND)
+    list (APPEND private_includes ${JPEG_INCLUDE_DIRS})
+    list (APPEND libs             ${JPEG_LIBRARIES})
+else()
     remove_srcs(../src/images/*jpeg*)
 endif()
-if (NOT LUA_FOUND)
-    remove_srcs(../src/utils/*lua*)
+
+if (LUA_FOUND)
+    list (APPEND private_includes ${LUA_INCLUDE_DIR})
+    list (APPEND libs             ${LUA_LIBRARIES})
+else()
+    remove_srcs(../src/utils/*Lua*)
 endif()
-if (NOT PNG_FOUND)
+
+if (PNG_FOUND)
+    list (APPEND private_includes ${PNG_INCLUDE_DIRS})
+    list (APPEND libs             ${PNG_LIBRARIES})
+else()
     remove_srcs(../src/images/*png*)
 endif()
-if (NOT ZLIB_FOUND)
-    remove_srcs(../src/pdf/*.cpp ../src/doc/SkDocument_PDF.cpp)
-else()
+
+if (ZLIB_FOUND)
+    list (APPEND private_includes ${ZLIB_INCLUDE_DIRS})
+    list (APPEND libs             ${ZLIB_LIBRARIES})
     remove_srcs(../src/doc/SkDocument_PDF_None.cpp)
+else()
+    remove_srcs(../src/pdf/*.cpp ../src/doc/SkDocument_PDF.cpp)
 endif()
-if (NOT WEBP_INCLUDE_DIRS OR NOT WEBP_LIBRARIES)
+
+if (WEBP_INCLUDE_DIRS AND WEBP_LIBRARIES)
+    list (APPEND private_includes ${WEBP_INCLUDE_DIRS})
+    list (APPEND libs             ${WEBP_LIBRARIES})
+else()
     remove_srcs(../src/images/*webp*)
 endif()
 
+if (FREETYPE_FOUND)
+    list (APPEND private_includes ${FREETYPE_INCLUDE_DIRS})
+    list (APPEND libs             ${FREETYPE_LIBRARIES})
+endif()
+
+if (FONTCONFIG_INCLUDE_DIRS AND FONTCONFIG_LIBRARIES)
+    list (APPEND private_includes ${FONTCONFIG_INCLUDE_DIRS})
+    list (APPEND libs             ${FONTCONFIG_LIBRARIES})
+endif()
+
 if (APPLE)
-    find_library(APPLICATION_SERVICES_FRAMEWORK ApplicationServices)
+    find_library(APPLICATION_SERVICES_FRAMEWORK ApplicationServices REQUIRED)
+    list (APPEND libs ${APPLICATION_SERVICES_FRAMEWORK})
 endif()
 
 # This is our main output, libskia.so.
@@ -149,23 +207,12 @@ target_compile_definitions(skia
 
 target_include_directories(skia
     PUBLIC  ${public_includes}
-    PRIVATE ${private_includes}
-            ${GIF_INCLUDE_DIRS}
-            ${JPEG_INCLUDE_DIRS}
-            ${LUA_INCLUDE_DIRS}
-            ${PNG_INCLUDE_DIRS}
-            ${WEBP_INCLUDE_DIRS}
-            ${ZLIB_INCLUDE_DIRS})
+    PRIVATE ${private_includes})
 
 target_link_libraries(skia
     PUBLIC
-    PRIVATE ${APPLICATION_SERVICES_FRAMEWORK}
-            ${GIF_LIBRARIES}
-            ${JPEG_LIBRARIES}
-            ${LUA_LIBRARIES}
-            ${PNG_LIBRARIES}
-            ${WEBP_LIBRARIES}
-            ${ZLIB_LIBRARIES})
+    PRIVATE ${libs})
+
 
 set_target_properties(skia PROPERTIES
     COMPILE_FLAGS "-fno-exceptions -fno-rtti -Wno-deprecated-declarations"

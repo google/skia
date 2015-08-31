@@ -18,10 +18,11 @@
 #include <iostream>
 #include <memory>
 
+// These setup_gl_context() are not meant to represent good form.
+// They are just quick hacks to get us going.
 #if defined(__APPLE__)
     #include <OpenGL/OpenGL.h>
-    static void setup_gl_context() {
-        // This is not meant to represent good form.  It's just a quick hack to get us going.
+    static bool setup_gl_context() {
         CGLPixelFormatAttribute attributes[] = { (CGLPixelFormatAttribute)0 };
         CGLPixelFormatObj format;
         GLint npix;
@@ -30,6 +31,11 @@
         CGLCreateContext(format, nullptr, &context);
         CGLSetCurrentContext(context);
         CGLReleasePixelFormat(format);
+        return true;
+    }
+#else
+    static bool setup_gl_context() {
+        return false;
     }
 #endif
 
@@ -53,10 +59,10 @@ static std::shared_ptr<SkSurface> create_opengl_surface(int w, int h) {
 }
 
 int main(int, char**) {
-    setup_gl_context();
+    bool gl_ok = setup_gl_context();
     srand(time(nullptr));
-    std::shared_ptr<SkSurface> surface = (rand() % 2) ? create_raster_surface(320, 240)
-                                                      : create_opengl_surface(320, 240);
+    std::shared_ptr<SkSurface> surface = (gl_ok && rand() % 2) ? create_opengl_surface(320, 240)
+                                                               : create_raster_surface(320, 240);
 
     // Create a left-to-right green-to-purple gradient shader.
     SkPoint pts[] = { {0,0}, {320,240} };
