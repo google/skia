@@ -163,12 +163,6 @@ def get_extra_env_vars(builder_dict):
     env['CC'] = '/usr/bin/clang'
     env['CXX'] = '/usr/bin/clang++'
 
-  # Force Debug mode for Appurify bots so that we don't have to sign the test
-  # APK.
-  # TODO(borenet): Remove this once able.
-  if builder_dict.get('extra_config') == 'Appurify':
-    env['BUILDTYPE'] = CONFIG_DEBUG
-
   return env
 
 
