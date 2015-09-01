@@ -65,11 +65,11 @@ GrTextContext* GrDrawContext::createTextContext(GrRenderTarget* renderTarget,
         fSurfaceProps.isUseDeviceIndependentFonts()) {
         GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
         if (sb) {
-            return GrStencilAndCoverTextContext::Create(fContext, this, surfaceProps);
+            return GrStencilAndCoverTextContext::Create(fContext, surfaceProps);
         }
     } 
 
-    return GrAtlasTextContext::Create(fContext, this, surfaceProps);
+    return GrAtlasTextContext::Create(fContext, surfaceProps);
 }
 
 void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
@@ -81,7 +81,7 @@ void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPai
         fTextContext = this->createTextContext(rt, fSurfaceProps);
     }
 
-    fTextContext->drawText(rt, clip, grPaint, skPaint, viewMatrix,
+    fTextContext->drawText(this, rt, clip, grPaint, skPaint, viewMatrix,
                            text, byteLength, x, y, clipBounds);
 
 }
@@ -95,8 +95,8 @@ void GrDrawContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
         fTextContext = this->createTextContext(rt, fSurfaceProps);
     }
 
-    fTextContext->drawPosText(rt, clip, grPaint, skPaint, viewMatrix, text, byteLength,
-                               pos, scalarsPerPosition, offset, clipBounds);
+    fTextContext->drawPosText(this, rt, clip, grPaint, skPaint, viewMatrix, text, byteLength,
+                              pos, scalarsPerPosition, offset, clipBounds);
 
 }
 void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const SkPaint& skPaint,
@@ -107,7 +107,8 @@ void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
         fTextContext = this->createTextContext(rt, fSurfaceProps);
     }
 
-    fTextContext->drawTextBlob(rt, clip, skPaint, viewMatrix, blob, x, y, filter, clipBounds);
+    fTextContext->drawTextBlob(this, rt,
+                               clip, skPaint, viewMatrix, blob, x, y, filter, clipBounds);
 }
 
 void GrDrawContext::drawPaths(GrPipelineBuilder* pipelineBuilder,

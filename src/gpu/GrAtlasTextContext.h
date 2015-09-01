@@ -31,24 +31,24 @@ class SkGlyph;
  */
 class GrAtlasTextContext : public GrTextContext {
 public:
-    static GrAtlasTextContext* Create(GrContext*, GrDrawContext*, const SkSurfaceProps&);
+    static GrAtlasTextContext* Create(GrContext*, const SkSurfaceProps&);
 
 private:
-    GrAtlasTextContext(GrContext*, GrDrawContext*, const SkSurfaceProps&);
+    GrAtlasTextContext(GrContext*, const SkSurfaceProps&);
     ~GrAtlasTextContext() override {}
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
                  const SkPaint&, const SkMatrix& viewMatrix) override;
 
-    void onDrawText(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
+    void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                     const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                     SkScalar x, SkScalar y, const SkIRect& regionClipBounds) override;
-    void onDrawPosText(GrRenderTarget*, const GrClip&, const GrPaint&,
+    void onDrawPosText(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&,
                        const SkPaint&, const SkMatrix& viewMatrix,
                        const char text[], size_t byteLength,
                        const SkScalar pos[], int scalarsPerPosition,
                        const SkPoint& offset, const SkIRect& regionClipBounds) override;
-    void drawTextBlob(GrRenderTarget*, const GrClip&, const SkPaint&,
+    void drawTextBlob(GrDrawContext*, GrRenderTarget*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 
@@ -72,7 +72,7 @@ private:
                                   size_t vertexStride, bool useVertexColor,
                                   GrGlyph*);
 
-    inline void flushRunAsPaths(GrRenderTarget*,
+    inline void flushRunAsPaths(GrDrawContext*, GrRenderTarget*,
                                 const SkTextBlob::RunIterator&, const GrClip& clip,
                                 const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
@@ -81,18 +81,18 @@ private:
                                     int glyphCount, int run, int subRun,
                                     GrColor, SkScalar transX, SkScalar transY,
                                     const SkPaint&);
-    inline void flushRun(GrPipelineBuilder*, GrAtlasTextBlob*, int run, GrColor,
+    inline void flushRun(GrDrawContext*, GrPipelineBuilder*, GrAtlasTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
-    inline void flushBigGlyphs(GrAtlasTextBlob* cacheBlob, GrRenderTarget*,
+    inline void flushBigGlyphs(GrAtlasTextBlob* cacheBlob, GrDrawContext*, GrRenderTarget*,
                                const GrClip& clip, const SkPaint& skPaint,
                                SkScalar transX, SkScalar transY, const SkIRect& clipBounds);
 
     // We have to flush SkTextBlobs differently from drawText / drawPosText
-    void flush(const SkTextBlob*, GrAtlasTextBlob*, GrRenderTarget*,
+    void flush(const SkTextBlob*, GrAtlasTextBlob*, GrDrawContext*, GrRenderTarget*,
                const SkPaint&, const GrPaint&, SkDrawFilter*, const GrClip&,
                const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y,
                SkScalar transX, SkScalar transY);
-    void flush(GrAtlasTextBlob*, GrRenderTarget*, const SkPaint&,
+    void flush(GrAtlasTextBlob*, GrDrawContext*, GrRenderTarget*, const SkPaint&,
                const GrPaint&, const GrClip&, const SkIRect& clipBounds);
 
     // A helper for drawing BitmapText in a run of distance fields
@@ -181,7 +181,7 @@ private:
 
     GrBatchTextStrike* fCurrStrike;
     GrTextBlobCache* fCache;
-    SkAutoTUnref<DistanceAdjustTable> fDistanceAdjustTable;
+    SkAutoTUnref<const DistanceAdjustTable> fDistanceAdjustTable;
 
     friend class GrTextBlobCache;
     friend class TextBatch;
