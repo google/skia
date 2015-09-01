@@ -48,19 +48,19 @@ static void load_command_buffer_functions() {
         ghLibrary = LoadLibrary("command_buffer_gles2.dll");
 
         if (ghLibrary) {
-            gfGetDisplay = (GetDisplayProc)::GetProcAddress(ghLibrary, "CommandBuffer_GetDisplay");
-            gfInitialize = (InitializeProc)::GetProcAddress(ghLibrary, "CommandBuffer_Initialize");
-            gfTerminate = (TerminateProc)::GetProcAddress(ghLibrary, "CommandBuffer_Terminate");
-            gfChooseConfig = (ChooseConfigProc)::GetProcAddress(ghLibrary, "CommandBuffer_ChooseConfig");
-            gfGetConfigAttrib = (GetConfigAttrib)::GetProcAddress(ghLibrary, "CommandBuffer_GetConfigAttrib");
-            gfCreateWindowSurface = (CreateWindowSurfaceProc)::GetProcAddress(ghLibrary, "CommandBuffer_CreateWindowSurface");
-            gfCreatePbufferSurface = (CreatePbufferSurfaceProc)::GetProcAddress(ghLibrary, "CommandBuffer_CreatePbufferSurface");
-            gfDestroySurface = (DestroySurfaceProc)::GetProcAddress(ghLibrary, "CommandBuffer_DestroySurface");
-            gfCreateContext = (CreateContextProc)::GetProcAddress(ghLibrary, "CommandBuffer_CreateContext");
-            gfDestroyContext = (DestroyContextProc)::GetProcAddress(ghLibrary, "CommandBuffer_DestroyContext");
-            gfMakeCurrent = (MakeCurrentProc)::GetProcAddress(ghLibrary, "CommandBuffer_MakeCurrent");
-            gfSwapBuffers = (SwapBuffersProc)::GetProcAddress(ghLibrary, "CommandBuffer_SwapBuffers");
-            gfGetProcAddress = (GetProcAddressProc)::GetProcAddress(ghLibrary, "CommandBuffer_GetProcAddress");
+            gfGetDisplay = (GetDisplayProc)::GetProcAddress(ghLibrary, "eglGetDisplay");
+            gfInitialize = (InitializeProc)::GetProcAddress(ghLibrary, "eglInitialize");
+            gfTerminate = (TerminateProc)::GetProcAddress(ghLibrary, "eglTerminate");
+            gfChooseConfig = (ChooseConfigProc)::GetProcAddress(ghLibrary, "eglChooseConfig");
+            gfGetConfigAttrib = (GetConfigAttrib)::GetProcAddress(ghLibrary, "eglGetConfigAttrib");
+            gfCreateWindowSurface = (CreateWindowSurfaceProc)::GetProcAddress(ghLibrary, "eglCreateWindowSurface");
+            gfCreatePbufferSurface = (CreatePbufferSurfaceProc)::GetProcAddress(ghLibrary, "eglCreatePbufferSurface");
+            gfDestroySurface = (DestroySurfaceProc)::GetProcAddress(ghLibrary, "eglDestroySurface");
+            gfCreateContext = (CreateContextProc)::GetProcAddress(ghLibrary, "eglCreateContext");
+            gfDestroyContext = (DestroyContextProc)::GetProcAddress(ghLibrary, "eglDestroyContext");
+            gfMakeCurrent = (MakeCurrentProc)::GetProcAddress(ghLibrary, "eglMakeCurrent");
+            gfSwapBuffers = (SwapBuffersProc)::GetProcAddress(ghLibrary, "eglSwapBuffers");
+            gfGetProcAddress = (GetProcAddressProc)::GetProcAddress(ghLibrary, "eglGetProcAddress");
 
             gfFunctionsLoadedSuccessfully = gfGetDisplay && gfInitialize && gfTerminate &&
                                             gfChooseConfig && gfCreateWindowSurface &&
