@@ -208,3 +208,18 @@ DEF_TEST(Sk4px_widening, r) {
          wideLoHiAlt = wideLo + wideHi;
     REPORTER_ASSERT(r, 0 == memcmp(&wideLoHi, &wideLoHiAlt, sizeof(wideLoHi)));
 }
+
+DEF_TEST(Sk4f_toBytes, r) {
+    uint8_t bytes[4];
+
+    // toBytes truncates, not rounds.
+    Sk4f(0.7f).toBytes(bytes);
+    REPORTER_ASSERT(r, bytes[0] == 0);
+
+    // Clamping edge cases.
+    Sk4f(-2.0f, -0.7f, 255.9f, 256.0f).toBytes(bytes);
+    REPORTER_ASSERT(r, bytes[0] == 0);
+    REPORTER_ASSERT(r, bytes[1] == 0);
+    REPORTER_ASSERT(r, bytes[2] == 255);
+    REPORTER_ASSERT(r, bytes[3] == 255);
+}

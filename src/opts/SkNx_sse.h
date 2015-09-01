@@ -177,7 +177,6 @@ public:
                 fix8_16 = _mm_packus_epi16(fix8_32, fix8_32),
                 fix8    = _mm_packus_epi16(fix8_16, fix8_16);
         *(int*)bytes = _mm_cvtsi128_si32(fix8);
-        // TODO: use _mm_shuffle_epi8 w/SSSE3?
     }
 
     SkNi<4, int> castTrunc() const { return _mm_cvttps_epi32(fVec); }

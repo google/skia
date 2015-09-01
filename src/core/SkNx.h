@@ -108,7 +108,7 @@ public:
         fHi.store(vals+N/2);
     }
     // Please see note on FromBytes().
-    // Truncates [0.0,256.0) floats to [0,255] bytes.  Other inputs are unspecified.
+    // Clamps to [0.0,255.0] floats and truncates to [0,255] bytes.
     void toBytes(uint8_t bytes[N]) const {
         fLo.toBytes(bytes);
         fHi.toBytes(bytes+N/2);
@@ -216,7 +216,7 @@ public:
     static SkNf FromBytes(const uint8_t bytes[1]) { return SkNf((T)bytes[0]); }
 
     void store(T vals[1]) const { vals[0] = fVal; }
-    void toBytes(uint8_t bytes[1]) const { bytes[0] = (uint8_t)(fVal); }
+    void toBytes(uint8_t bytes[1]) const { bytes[0] = (uint8_t)(SkTMin(fVal, (T)255.0)); }
 
     SkNi<1,I> castTrunc() const { return SkNi<1,I>(fVal); }
 
