@@ -81,8 +81,8 @@
             'export_dependent_settings': [
               'libjpeg-turbo.gyp:libjpeg-turbo',
             ],
-            'cflags': [
-              '-DTURBO_HAS_SKIP',
+            'defines': [
+              'TURBO_HAS_SKIP',
             ],
           }
         ]

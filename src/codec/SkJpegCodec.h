@@ -116,6 +116,9 @@ private:
     bool nativelyScaleToDimensions(uint32_t width, uint32_t height); 
 
     SkAutoTDelete<JpegDecoderMgr> fDecoderMgr;
+    // We will save the state of the decompress struct after reading the header.
+    // This allows us to safely call onGetScaledDimensions() at any time.
+    const int                     fReadyState;
     
     friend class SkJpegScanlineDecoder;
 

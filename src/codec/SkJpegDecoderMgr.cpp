@@ -51,7 +51,7 @@ JpegDecoderMgr::JpegDecoderMgr(SkStream* stream)
     , fInit(false)
 {
     // Error manager must be set before any calls to libjeg in order to handle failures
-    fDInfo.err = chromium_jpeg_std_error(&fErrorMgr);
+    fDInfo.err = jpeg_std_error(&fErrorMgr);
     fErrorMgr.error_exit = skjpeg_err_exit;
 }
 
