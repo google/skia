@@ -65,7 +65,8 @@ private:
                        GrColor color, GrFontScaler*, const SkIRect& clipRect, SkScalar textRatio,
                        const SkMatrix& viewMatrix);
     inline void appendGlyphPath(GrAtlasTextBlob*, GrGlyph*, GrFontScaler*, const SkGlyph&,
-                                SkScalar x, SkScalar y);
+                                SkScalar x, SkScalar y, SkScalar scale = 1.0f,
+                                bool applyVM = false);
     inline void appendGlyphCommon(GrAtlasTextBlob*, Run*, Run::SubRunInfo*,
                                   const SkRect& positions, GrColor color,
                                   size_t vertexStride, bool useVertexColor,

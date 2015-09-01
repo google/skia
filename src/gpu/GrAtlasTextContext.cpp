@@ -1341,7 +1341,7 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     // TODO combine with the above
     // If the glyph is too large we fall back to paths
     if (glyph->fTooLargeForAtlas) {
-        this->appendGlyphPath(blob, glyph, scaler, skGlyph, sx - dx, sy - dy);
+        this->appendGlyphPath(blob, glyph, scaler, skGlyph, sx - dx, sy - dy, scale, true);
         return true;
     }
 
@@ -1363,7 +1363,8 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
 
 inline void GrAtlasTextContext::appendGlyphPath(GrAtlasTextBlob* blob, GrGlyph* glyph,
                                                 GrFontScaler* scaler, const SkGlyph& skGlyph,
-                                                SkScalar x, SkScalar y) {
+                                                SkScalar x, SkScalar y, SkScalar scale,
+                                                bool applyVM) {
     if (NULL == glyph->fPath) {
         const SkPath* glyphPath = scaler->getGlyphPath(skGlyph);
         if (!glyphPath) {
@@ -1372,7 +1373,7 @@ inline void GrAtlasTextContext::appendGlyphPath(GrAtlasTextBlob* blob, GrGlyph* 
 
         glyph->fPath = SkNEW_ARGS(SkPath, (*glyphPath));
     }
-    blob->fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y));
+    blob->fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y, scale, applyVM));
 }
 
 inline void GrAtlasTextContext::appendGlyphCommon(GrAtlasTextBlob* blob, Run* run,
@@ -1931,6 +1932,7 @@ private:
 
             // TODO see note above
             if (kLCDDistanceField_MaskType == fMaskType && this->color() != that->color()) {
+                return false;
             }
         }
 
@@ -2158,21 +2160,19 @@ inline void GrAtlasTextContext::flushBigGlyphs(GrAtlasTextBlob* cacheBlob, GrRen
         return;
     }
 
-    SkMatrix pathMatrix;
-    if (!cacheBlob->fViewMatrix.invert(&pathMatrix)) {
-        SkDebugf("could not invert viewmatrix\n");
-        return;
-    }
-
     for (int i = 0; i < cacheBlob->fBigGlyphs.count(); i++) {
         GrAtlasTextBlob::BigGlyph& bigGlyph = cacheBlob->fBigGlyphs[i];
         bigGlyph.fVx += transX;
         bigGlyph.fVy += transY;
-        SkMatrix translate = cacheBlob->fViewMatrix;
-        translate.postTranslate(bigGlyph.fVx, bigGlyph.fVy);
+        SkMatrix ctm;
+        ctm.setScale(bigGlyph.fScale, bigGlyph.fScale);
+        ctm.postTranslate(bigGlyph.fVx, bigGlyph.fVy);
+        if (bigGlyph.fApplyVM) {
+            ctm.postConcat(cacheBlob->fViewMatrix);
+        }
 
         GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext, rt, clip, bigGlyph.fPath,
-                                            skPaint, translate, &pathMatrix, clipBounds, false);
+                                            skPaint, ctm, nullptr, clipBounds, false);
     }
 }
 
