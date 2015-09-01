@@ -36,6 +36,14 @@ public:
 
     size_t contextSize() const override;
 
+#if SK_SUPPORT_GPU
+    const GrFragmentProcessor*  asFragmentProcessor(GrContext*,
+                                                    const SkMatrix& viewM,
+                                                    const SkMatrix* localMatrix,
+                                                    SkFilterQuality,
+                                                    GrProcessorDataManager*) const override;
+#endif
+
     class ComposeShaderContext : public SkShader::Context {
     public:
         // When this object gets destroyed, it will call contextA and contextB's destructor
