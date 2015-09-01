@@ -5164,7 +5164,7 @@ static void fuzz38(skiatest::Reporter* reporter, const char* filename) {
     testPathOpCheck(reporter, path, pathB, kUnion_SkPathOp, filename, FLAGS_runFail);
 }
 
-static void fuzz763_3(skiatest::Reporter* reporter, const char* filename) {
+static void crbug_526025(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
 path.moveTo(SkBits2Float(0x43b40000), SkBits2Float(0xcf000000));  // 360, -2.14748e+09f
@@ -5199,7 +5199,7 @@ static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 #define TEST(name) { name, #name }
 
 static struct TestDesc tests[] = {
-    TEST(fuzz763_3),
+    TEST(crbug_526025),
     TEST(fuzz38),
     TEST(cubics44d),
     TEST(cubics45u),
