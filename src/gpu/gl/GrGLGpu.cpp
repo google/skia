@@ -564,10 +564,6 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
                             int left, int top, int width, int height,
                             GrPixelConfig config, const void* buffer,
                             size_t rowBytes) {
-    if (nullptr == buffer) {
-        return false;
-    }
-
     GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
     if (!glTex) {
         return false;

@@ -279,6 +279,11 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height, siz
     SkASSERT(tempDrawInfo);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
+    if (GrPixelConfigIsCompressed(dstSurface->desc().fConfig) &&
+        dstSurface->desc().fConfig != srcConfig) {
+        return false;
+    }
+
     if (this->caps()->useDrawInsteadOfPartialRenderTargetWrite() &&
         SkToBool(dstSurface->asRenderTarget()) &&
         (width < dstSurface->width() || height < dstSurface->height())) {
@@ -332,6 +337,10 @@ bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
                         GrPixelConfig config, const void* buffer,
                         size_t rowBytes) {
+    if (!buffer) {
+        return false;
+    }
+
     this->handleDirtyContext();
     if (this->onWritePixels(surface, left, top, width, height, config, buffer, rowBytes)) {
         fStats.incTextureUploads();
