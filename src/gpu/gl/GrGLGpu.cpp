@@ -3076,28 +3076,6 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     }
 }
 
-void GrGLGpu::didAddGpuTraceMarker() {
-    if (this->caps()->gpuTracingSupport()) {
-        const GrTraceMarkerSet& markerArray = this->getActiveTraceMarkers();
-        SkString markerString = markerArray.toStringLast();
-#if GR_FORCE_GPU_TRACE_DEBUGGING
-        SkDebugf("%s\n", markerString.c_str());
-#else
-        GL_CALL(PushGroupMarker(0, markerString.c_str()));
-#endif
-    }
-}
-
-void GrGLGpu::didRemoveGpuTraceMarker() {
-    if (this->caps()->gpuTracingSupport()) {
-#if GR_FORCE_GPU_TRACE_DEBUGGING
-        SkDebugf("Pop trace marker.\n");
-#else
-        GL_CALL(PopGroupMarker());
-#endif
-    }
-}
-
 GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                               GrPixelConfig config) const {
     GrGLuint texID;

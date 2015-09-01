@@ -20,41 +20,39 @@
  */
 class GrGpuTraceMarkerGenerator : public ::SkNoncopyable {
 public:
-    GrGpuTraceMarkerGenerator(GrDrawTarget* target) : fTarget(target) {}
+    GrGpuTraceMarkerGenerator(GrDrawTarget* target) {}
 
     ~GrGpuTraceMarkerGenerator() {
         if (fTraceMarker.isValid()) {
-            fTarget->removeGpuTraceMarker(fTraceMarker.get());
+            // TODO remove trace marker
         }
     }
 
     void initialize(const char* marker_str, int* marker_counter) {
-        GrGpuTraceMarker* traceMarker = fTraceMarker.init(marker_str, *marker_counter);
-        fTarget->addGpuTraceMarker(traceMarker);
+        // GrGpuTraceMarker* traceMarker = fTraceMarker.init(marker_str, *marker_counter);
+        // TODO add trace marker
     }
 
 private:
-    GrDrawTarget* fTarget;
     SkTLazy<GrGpuTraceMarker> fTraceMarker;
 };
 
 class GrGpuTraceMarkerGeneratorContext : public ::SkNoncopyable {
 public:
-    GrGpuTraceMarkerGeneratorContext(GrContext* context) : fContext(context) {}
+    GrGpuTraceMarkerGeneratorContext(GrContext* context) {}
 
     ~GrGpuTraceMarkerGeneratorContext() {
         if (fTraceMarker.isValid()) {
-            fContext->removeGpuTraceMarker(fTraceMarker.get());
+            // TODO remove trace marker
         }
     }
 
     void initialize(const char* marker_str, int* marker_counter) {
-        GrGpuTraceMarker* traceMarker = fTraceMarker.init(marker_str, *marker_counter);
-        fContext->addGpuTraceMarker(traceMarker);
+        // GrGpuTraceMarker* traceMarker = fTraceMarker.init(marker_str, *marker_counter);
+        // TODO add trace marker
     }
 
 private:
-    GrContext* fContext;
     SkTLazy<GrGpuTraceMarker> fTraceMarker;
 };
 

@@ -45,7 +45,6 @@ GrVertices& GrVertices::operator =(const GrVertices& di) {
 GrGpu::GrGpu(GrContext* context)
     : fResetTimestamp(kExpiredTimestamp+1)
     , fResetBits(kAll_GrBackendState)
-    , fGpuTraceMarkerCount(0)
     , fContext(context) {
 }
 
@@ -353,47 +352,6 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();
     this->onResolveRenderTarget(target);
-}
-
-typedef GrTraceMarkerSet::Iter TMIter;
-void GrGpu::saveActiveTraceMarkers() {
-    if (this->caps()->gpuTracingSupport()) {
-        SkASSERT(0 == fStoredTraceMarkers.count());
-        fStoredTraceMarkers.addSet(fActiveTraceMarkers);
-        for (TMIter iter = fStoredTraceMarkers.begin(); iter != fStoredTraceMarkers.end(); ++iter) {
-            this->removeGpuTraceMarker(&(*iter));
-        }
-    }
-}
-
-void GrGpu::restoreActiveTraceMarkers() {
-    if (this->caps()->gpuTracingSupport()) {
-        SkASSERT(0 == fActiveTraceMarkers.count());
-        for (TMIter iter = fStoredTraceMarkers.begin(); iter != fStoredTraceMarkers.end(); ++iter) {
-            this->addGpuTraceMarker(&(*iter));
-        }
-        for (TMIter iter = fActiveTraceMarkers.begin(); iter != fActiveTraceMarkers.end(); ++iter) {
-            this->fStoredTraceMarkers.remove(*iter);
-        }
-    }
-}
-
-void GrGpu::addGpuTraceMarker(const GrGpuTraceMarker* marker) {
-    if (this->caps()->gpuTracingSupport()) {
-        SkASSERT(fGpuTraceMarkerCount >= 0);
-        this->fActiveTraceMarkers.add(*marker);
-        this->didAddGpuTraceMarker();
-        ++fGpuTraceMarkerCount;
-    }
-}
-
-void GrGpu::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
-    if (this->caps()->gpuTracingSupport()) {
-        SkASSERT(fGpuTraceMarkerCount >= 1);
-        this->fActiveTraceMarkers.remove(*marker);
-        this->didRemoveGpuTraceMarker();
-        --fGpuTraceMarkerCount;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

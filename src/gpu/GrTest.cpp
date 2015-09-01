@@ -266,10 +266,6 @@ private:
 
     void clearStencil(GrRenderTarget* target) override  {}
 
-    void didAddGpuTraceMarker() override {}
-
-    void didRemoveGpuTraceMarker() override {}
-
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                     GrPixelConfig config) const override {
         return 0; 

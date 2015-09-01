@@ -26,7 +26,6 @@ class GrDrawContext;
 class GrDrawTarget;
 class GrFragmentProcessor;
 class GrGpu;
-class GrGpuTraceMarker;
 class GrIndexBuffer;
 class GrLayerCache;
 class GrOvalRenderer;
@@ -331,9 +330,6 @@ public:
 
     // Called by tests that draw directly to the context via GrDrawTarget
     void getTestTarget(GrTestTarget*);
-
-    void addGpuTraceMarker(const GrGpuTraceMarker* marker);
-    void removeGpuTraceMarker(const GrGpuTraceMarker* marker);
 
     GrPathRenderer* getPathRenderer(
                     const GrDrawTarget* target,

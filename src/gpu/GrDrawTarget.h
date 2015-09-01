@@ -17,7 +17,6 @@
 #include "GrPathRendering.h"
 #include "GrPipelineBuilder.h"
 #include "GrPipeline.h"
-#include "GrTraceMarker.h"
 #include "GrVertexBuffer.h"
 #include "GrXferProcessor.h"
 
@@ -165,25 +164,6 @@ public:
     void discard(GrRenderTarget*);
 
     /**
-     * Called at start and end of gpu trace marking
-     * GR_CREATE_GPU_TRACE_MARKER(marker_str, target) will automatically call these at the start
-     * and end of a code block respectively
-     */
-    void addGpuTraceMarker(const GrGpuTraceMarker* marker);
-    void removeGpuTraceMarker(const GrGpuTraceMarker* marker);
-
-    /**
-     * Takes the current active set of markers and stores them for later use. Any current marker
-     * in the active set is removed from the active set and the targets remove function is called.
-     * These functions do not work as a stack so you cannot call save a second time before calling
-     * restore. Also, it is assumed that when restore is called the current active set of markers
-     * is empty. When the stored markers are added back into the active set, the targets add marker
-     * is called.
-     */
-    void saveActiveTraceMarkers();
-    void restoreActiveTraceMarkers();
-
-    /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
      * reserved vertex/index data (as though a draw call was made). The src pixels
      * copied are specified by srcRect. They are copied to a rect of the same
@@ -226,11 +206,8 @@ public:
     };
 
 protected:
-
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
-
-    const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
@@ -273,10 +250,6 @@ private:
     GrGpu*                  fGpu;
     const GrCaps*           fCaps;
     GrResourceProvider*     fResourceProvider;
-    // To keep track that we always have at least as many debug marker adds as removes
-    int                     fGpuTraceMarkerCount;
-    GrTraceMarkerSet        fActiveTraceMarkers;
-    GrTraceMarkerSet        fStoredTraceMarkers;
     bool                    fFlushing;
 
     typedef SkRefCnt INHERITED;

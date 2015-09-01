@@ -154,10 +154,6 @@ private:
 
     void clearStencil(GrRenderTarget*) override;
 
-    // GrDrawTarget overrides
-    void didAddGpuTraceMarker() override;
-    void didRemoveGpuTraceMarker() override;
-
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 

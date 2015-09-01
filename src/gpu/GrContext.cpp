@@ -33,7 +33,6 @@
 #include "GrSurfacePriv.h"
 #include "GrTextBlobCache.h"
 #include "GrTexturePriv.h"
-#include "GrTraceMarker.h"
 #include "GrTracing.h"
 #include "GrVertices.h"
 #include "SkDashPathPriv.h"
@@ -749,15 +748,5 @@ void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes
 
 void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) {
     fResourceCache->setLimits(maxTextures, maxTextureBytes);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void GrContext::addGpuTraceMarker(const GrGpuTraceMarker* marker) {
-    fGpu->addGpuTraceMarker(marker);
-}
-
-void GrContext::removeGpuTraceMarker(const GrGpuTraceMarker* marker) {
-    fGpu->removeGpuTraceMarker(marker);
 }
 
