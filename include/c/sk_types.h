@@ -23,6 +23,10 @@
     #define SK_C_PLUS_PLUS_END_GUARD
 #endif
 
+#ifndef SK_API
+#define SK_API
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
@@ -61,7 +65,7 @@ typedef enum {
     BGR_V_SK_PIXELGEOMETRY,
 } sk_pixelgeometry_t;
 
-sk_colortype_t sk_colortype_get_default_8888();
+SK_API sk_colortype_t sk_colortype_get_default_8888();
 
 typedef struct {
     int32_t         width;

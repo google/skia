@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkPaint.h"
+
 #include "sk_paint.h"
 #include "sk_types_priv.h"
-
-#include "SkPaint.h"
 
 #define MAKE_FROM_TO_NAME(FROM)     g_ ## FROM ## _map
 

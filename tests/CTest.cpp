@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+
 #include "sk_canvas.h"
 #include "sk_paint.h"
 #include "sk_surface.h"
 #include "sk_shader.h"
-
-#include "Test.h"
-
 
 static void shader_test(skiatest::Reporter* reporter) {
     sk_imageinfo_t info =
