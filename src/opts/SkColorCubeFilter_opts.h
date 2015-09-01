@@ -50,7 +50,7 @@ void color_cube_filter_span(const SkPMColor src[],
         const int i10 = (colorToIndex[1][g] + colorToIndex[0][b] * dim) * dim;
         const int i11 = (colorToIndex[1][g] + colorToIndex[1][b] * dim) * dim;
 
-        Sk4f color(0,0,0,0);
+        Sk4f color(0.5f);  // Starting from 0.5f gets us rounding for free.
         for (int x = 0; x < 2; ++x) {
             const int ix = colorToIndex[x][r];
 
