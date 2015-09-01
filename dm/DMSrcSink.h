@@ -24,6 +24,7 @@ namespace DM {
 struct ImplicitString : public SkString {
     template <typename T>
     ImplicitString(const T& s) : SkString(s) {}
+    ImplicitString() : SkString("") {}
 };
 typedef ImplicitString Name;
 typedef ImplicitString Path;
@@ -102,7 +103,8 @@ private:
 class CodecSrc : public Src {
 public:
     enum Mode {
-        kNormal_Mode,
+        kScaledCodec_Mode,
+        kCodec_Mode,
         kScanline_Mode,
         kScanline_Subset_Mode,
         kStripe_Mode, // Tests the skipping of scanlines
@@ -120,10 +122,10 @@ public:
     Name name() const override;
     bool veto(SinkFlags) const override;
 private:
-    Path                   fPath;
-    Mode                   fMode;
-    DstColorType           fDstColorType;
-    float                  fScale;
+    Path                    fPath;
+    Mode                    fMode;
+    DstColorType            fDstColorType;
+    float                   fScale;
 };
 
 

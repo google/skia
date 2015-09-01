@@ -175,8 +175,8 @@ static void gather_uninteresting_hashes() {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 struct TaggedSrc : public SkAutoTDelete<Src> {
-    const char* tag;
-    const char* options;
+    ImplicitString tag;
+    ImplicitString options;
 };
 
 struct TaggedSink : public SkAutoTDelete<Sink> {
@@ -193,16 +193,59 @@ static bool in_shard() {
     return N++ % FLAGS_shards == FLAGS_shard;
 }
 
-static void push_src(const char* tag, const char* options, Src* s) {
+static void push_src(ImplicitString tag, ImplicitString options, Src* s) {
     SkAutoTDelete<Src> src(s);
     if (in_shard() &&
-        FLAGS_src.contains(tag) &&
+        FLAGS_src.contains(tag.c_str()) &&
         !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.detach());
         s.tag = tag;
         s.options = options;
     }
+}
+
+static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorType dstColorType,
+        float scale) {
+    SkString folder;
+    switch (mode) {
+        case CodecSrc::kCodec_Mode:
+            folder.append("codec");
+            break;
+        case CodecSrc::kScaledCodec_Mode:
+            folder.append("scaled_codec");
+            break;
+        case CodecSrc::kScanline_Mode:
+            folder.append("scanline");
+            break;
+        case CodecSrc::kScanline_Subset_Mode:
+            folder.append("scanline_subset");
+            break;
+        case CodecSrc::kStripe_Mode:
+            folder.append("stripe");
+            break;
+        case CodecSrc::kSubset_Mode:
+            folder.append("subset");
+            break;
+    }
+
+    switch (dstColorType) {
+        case CodecSrc::kGrayscale_Always_DstColorType:
+            folder.append("_kGray8");
+            break;
+        case CodecSrc::kIndex8_Always_DstColorType:
+            folder.append("_kIndex8");
+            break;
+        default:
+            break;
+    }
+
+    if (1.0f != scale) {
+        folder.appendf("_%.3f", scale);
+    }
+
+    CodecSrc* src = new CodecSrc(path, mode, dstColorType, scale);
+    push_src("image", folder, src);
 }
 
 static void push_codec_srcs(Path path) {
@@ -218,7 +261,6 @@ static void push_codec_srcs(Path path) {
     }
 
     // Choose scales for scaling tests.
-    // TODO (msarett): Add more scaling tests as we implement more flexible scaling.
     // TODO (msarett): Implement scaling tests for SkImageDecoder in order to compare with these
     //                 tests.  SkImageDecoder supports downscales by integer factors.
     // SkJpegCodec natively supports scaling to: 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875
@@ -228,57 +270,25 @@ static void push_codec_srcs(Path path) {
     const float scales[] = { 0.1f, 0.125f, 0.166f, 0.2f, 0.25f, 0.333f, 0.375f, 0.4f, 0.5f, 0.6f,
                              0.625f, 0.750f, 0.8f, 0.875f, 1.0f };
 
+    const CodecSrc::Mode modes[] = { CodecSrc::kCodec_Mode, CodecSrc::kScaledCodec_Mode,
+            CodecSrc::kScanline_Mode, CodecSrc::kScanline_Subset_Mode, CodecSrc::kStripe_Mode,
+            CodecSrc::kSubset_Mode };
+
+    const CodecSrc::DstColorType colorTypes[] = { CodecSrc::kGetFromCanvas_DstColorType,
+            CodecSrc::kGrayscale_Always_DstColorType, CodecSrc::kIndex8_Always_DstColorType };
+
     for (float scale : scales) {
         if (scale != 1.0f && (path.endsWith(".webp") || path.endsWith(".WEBP"))) {
             // FIXME: skbug.com/4038 Scaling webp seems to leave some pixels uninitialized/
             // compute their colors based on uninitialized values.
             continue;
         }
-        // Build additional test cases for images that decode natively to non-canvas types
-        switch(codec->getInfo().colorType()) {
-            case kGray_8_SkColorType:
-                push_src("image", "codec_kGray8", new CodecSrc(path, CodecSrc::kNormal_Mode,
-                        CodecSrc::kGrayscale_Always_DstColorType, scale));
-                push_src("image", "scanline_kGray8", new CodecSrc(path, CodecSrc::kScanline_Mode,
-                        CodecSrc::kGrayscale_Always_DstColorType, scale));
-                push_src("image", "scanline_subset_kGray8", new CodecSrc(path,
-                        CodecSrc::kScanline_Subset_Mode, CodecSrc::kGrayscale_Always_DstColorType,
-                        scale));
-                push_src("image", "stripe_kGray8", new CodecSrc(path, CodecSrc::kStripe_Mode,
-                        CodecSrc::kGrayscale_Always_DstColorType, scale));
-                // Intentional fall through
-                // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
-                // Further discussion on this topic is at skbug.com/3683
-            case kIndex_8_SkColorType:
-                push_src("image", "codec_kIndex8", new CodecSrc(path, CodecSrc::kNormal_Mode,
-                        CodecSrc::kIndex8_Always_DstColorType, scale));
-                push_src("image", "scanline_kIndex8", new CodecSrc(path, CodecSrc::kScanline_Mode,
-                        CodecSrc::kIndex8_Always_DstColorType, scale));
-                push_src("image", "scanline_subset_kIndex8", new CodecSrc(path,
-                        CodecSrc::kScanline_Subset_Mode, CodecSrc::kIndex8_Always_DstColorType,
-                        scale));
-                push_src("image", "stripe_kIndex8", new CodecSrc(path, CodecSrc::kStripe_Mode,
-                        CodecSrc::kIndex8_Always_DstColorType, scale));
-                break;
-            default:
-                // Do nothing
-                break;
-        }
 
-        // Decode all images to the canvas color type
-        push_src("image", "codec", new CodecSrc(path, CodecSrc::kNormal_Mode,
-                CodecSrc::kGetFromCanvas_DstColorType, scale));
-        push_src("image", "scanline", new CodecSrc(path, CodecSrc::kScanline_Mode,
-                CodecSrc::kGetFromCanvas_DstColorType, scale));
-        push_src("image", "scanline_subset", new CodecSrc(path, CodecSrc::kScanline_Subset_Mode,
-                CodecSrc::kGetFromCanvas_DstColorType, scale));
-        push_src("image", "stripe", new CodecSrc(path, CodecSrc::kStripe_Mode,
-                CodecSrc::kGetFromCanvas_DstColorType, scale));
-        // Note: The only codec which supports subsets natively is SkWebpCodec, which will never
-        // report kIndex_8 or kGray_8, so there is no need to test kSubset_mode with those color
-        // types specifically requested.
-        push_src("image", "codec_subset", new CodecSrc(path, CodecSrc::kSubset_Mode,
-                CodecSrc::kGetFromCanvas_DstColorType, scale));
+        for (CodecSrc::Mode mode : modes) {
+            for (CodecSrc::DstColorType colorType : colorTypes) {
+                push_codec_src(path, mode, colorType, scale);
+            }
+        }
     }
 }
 
@@ -575,8 +585,8 @@ struct Task {
         //   - this Src / Sink combination is on the blacklist;
         //   - it's a dry run.
         SkString note(task->src->veto(task->sink->flags()) ? " (veto)" : "");
-        SkString whyBlacklisted = is_blacklisted(task->sink.tag, task->src.tag,
-                                                 task->src.options, name.c_str());
+        SkString whyBlacklisted = is_blacklisted(task->sink.tag, task->src.tag.c_str(),
+                                                 task->src.options.c_str(), name.c_str());
         if (!whyBlacklisted.isEmpty()) {
             note.appendf(" (--blacklist %s)", whyBlacklisted.c_str());
         }
@@ -597,8 +607,8 @@ struct Task {
                 if (err.isFatal()) {
                     fail(SkStringPrintf("%s %s %s %s: %s",
                                         task->sink.tag,
-                                        task->src.tag,
-                                        task->src.options,
+                                        task->src.tag.c_str(),
+                                        task->src.options.c_str(),
                                         name.c_str(),
                                         err.c_str()));
                 } else {
@@ -637,13 +647,13 @@ struct Task {
             }
 
             if (!FLAGS_readPath.isEmpty() &&
-                !gGold.contains(Gold(task->sink.tag, task->src.tag,
-                                     task->src.options, name, md5))) {
+                !gGold.contains(Gold(task->sink.tag, task->src.tag.c_str(),
+                                     task->src.options.c_str(), name, md5))) {
                 fail(SkStringPrintf("%s not found for %s %s %s %s in %s",
                                     md5.c_str(),
                                     task->sink.tag,
-                                    task->src.tag,
-                                    task->src.options,
+                                    task->src.tag.c_str(),
+                                    task->src.options.c_str(),
                                     name.c_str(),
                                     FLAGS_readPath[0]));
             }
@@ -659,7 +669,8 @@ struct Task {
             }
         }
         timer.end();
-        done(timer.fWall, task->sink.tag, task->src.tag, task->src.options, name, note, log);
+        done(timer.fWall, task->sink.tag, task->src.tag.c_str(), task->src.options.c_str(), name,
+                note, log);
     }
 
     static void WriteToDisk(const Task& task,
@@ -699,10 +710,10 @@ struct Task {
         } else {
             path = SkOSPath::Join(dir, task.sink.tag);
             sk_mkdir(path.c_str());
-            path = SkOSPath::Join(path.c_str(), task.src.tag);
+            path = SkOSPath::Join(path.c_str(), task.src.tag.c_str());
             sk_mkdir(path.c_str());
-            if (strcmp(task.src.options, "") != 0) {
-              path = SkOSPath::Join(path.c_str(), task.src.options);
+            if (strcmp(task.src.options.c_str(), "") != 0) {
+              path = SkOSPath::Join(path.c_str(), task.src.options.c_str());
               sk_mkdir(path.c_str());
             }
             path = SkOSPath::Join(path.c_str(), task.src->name().c_str());
