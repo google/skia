@@ -33,6 +33,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 
 typedef uint32_t sk_color_t;
 
+/* This macro assumes all arguments are >=0 and <=255. */
 #define sk_color_set_argb(a, r, g, b)   (((a) << 24) | ((r) << 16) | ((g) << 8) | (b))
 #define sk_color_get_a(c)               (((c) >> 24) & 0xFF)
 #define sk_color_get_r(c)               (((c) >> 16) & 0xFF)
@@ -65,6 +66,9 @@ typedef enum {
     BGR_V_SK_PIXELGEOMETRY,
 } sk_pixelgeometry_t;
 
+/**
+    Return the default sk_colortype_t; this is operating-system dependent.
+*/
 SK_API sk_colortype_t sk_colortype_get_default_8888();
 
 typedef struct {
@@ -101,15 +105,65 @@ typedef struct {
     float   mat[9];
 } sk_matrix_t;
 
+/**
+    A sk_canvas_t encapsulates all of the state about drawing into a
+    destination This includes a reference to the destination itself,
+    and a stack of matrix/clip values.
+*/
 typedef struct sk_canvas_t sk_canvas_t;
+/**
+    A sk_data_ holds an immutable data buffer.
+*/
 typedef struct sk_data_t sk_data_t;
+/**
+    A sk_image_t is an abstraction for drawing a rectagle of pixels.
+    The content of the image is always immutable, though the actual
+    storage may change, if for example that image can be re-created via
+    encoded data or other means.
+*/
 typedef struct sk_image_t sk_image_t;
+/**
+    A sk_maskfilter_t is an object that perform transformations on an
+    alpha-channel mask before drawing it; it may be installed into a
+    sk_paint_t.  Each time a primitive is drawn, it is first
+    scan-converted into a alpha mask, which os handed to the
+    maskfilter, which may create a new mask is to render into the
+    destination.
+ */
 typedef struct sk_maskfilter_t sk_maskfilter_t;
+/**
+    A sk_paint_t holds the style and color information about how to
+    draw geometries, text and bitmaps.
+*/
 typedef struct sk_paint_t sk_paint_t;
+/**
+    A sk_path_t encapsulates compound (multiple contour) geometric
+    paths consisting of straight line segments, quadratic curves, and
+    cubic curves.
+*/
 typedef struct sk_path_t sk_path_t;
+/**
+    A sk_picture_t holds recorded canvas drawing commands to be played
+    back at a later time.
+*/
 typedef struct sk_picture_t sk_picture_t;
+/**
+    A sk_picture_recorder_t holds a sk_canvas_t that records commands
+    to create a sk_picture_t.
+*/
 typedef struct sk_picture_recorder_t sk_picture_recorder_t;
+/**
+    A sk_shader_t specifies the source color(s) for what is being drawn. If a
+    paint has no shader, then the paint's color is used. If the paint
+    has a shader, then the shader's color(s) are use instead, but they
+    are modulated by the paint's alpha.
+*/
 typedef struct sk_shader_t sk_shader_t;
+/**
+    A sk_surface_t holds the destination for drawing to a canvas. For
+    raster drawing, the destination is an array of pixels in memory.
+    For GPU drawing, the destination is a texture or a framebuffer.
+*/
 typedef struct sk_surface_t sk_surface_t;
 
 typedef enum {
