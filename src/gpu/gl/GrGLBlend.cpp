@@ -58,12 +58,13 @@ void GrGLBlend::AppendPorterDuffBlend(GrGLFragmentBuilder* fsBuilder, const char
     SkXfermode::Coeff srcCoeff, dstCoeff;
     SkXfermode::ModeAsCoeff(mode, &srcCoeff, &dstCoeff);
 
-    fsBuilder->codeAppendf("%s =", outColor);
+    fsBuilder->codeAppendf("%s = ", outColor);
     // append src blend
     bool didAppend = append_porterduff_term(fsBuilder, srcCoeff, srcColor, srcColor, dstColor,
                                             false);
     // append dst blend
-    SkAssertResult(append_porterduff_term(fsBuilder, dstCoeff, dstColor, srcColor, dstColor,
-                                          didAppend));
+    if(!append_porterduff_term(fsBuilder, dstCoeff, dstColor, srcColor, dstColor, didAppend)) {
+        fsBuilder->codeAppend("vec4(0, 0, 0, 0)");
+    }
     fsBuilder->codeAppend(";");
 }
