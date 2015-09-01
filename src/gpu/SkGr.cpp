@@ -312,7 +312,7 @@ GrTexture* stretch_texture(GrTexture* inputTexture, const Stretch& stretch,
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
     SkRect localRect = SkRect::MakeWH(1.f, 1.f);
 
-    GrDrawContext* drawContext = context->drawContext();
+    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
     if (!drawContext) {
         return nullptr;
     }
@@ -473,7 +473,7 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
     SkRect r = SkRect::MakeWH(SkIntToScalar(yuvInfo.fSize[0].fWidth),
                               SkIntToScalar(yuvInfo.fSize[0].fHeight));
 
-    GrDrawContext* drawContext = ctx->drawContext();
+    SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext());
     if (!drawContext) {
         return nullptr;
     }

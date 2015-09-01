@@ -192,7 +192,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     paint.addColorFragmentProcessor(foregroundDomain.get());
     paint.addColorFragmentProcessor(xferProcessor)->unref();
 
-    GrDrawContext* drawContext = context->drawContext();
+    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
     if (!drawContext) {
         return false;
     }

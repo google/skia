@@ -277,7 +277,7 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
             return false;
         }
 
-        GrDrawContext* drawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
         if (drawContext) {
             GrPaint grPaint;
             grPaint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);

@@ -39,7 +39,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         GrRenderTarget* target = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* ctx = canvas->getGrContext();
-        GrDrawContext* drawContext = ctx ? ctx->drawContext() : nullptr;
+        SkAutoTUnref<GrDrawContext> drawContext(ctx ? ctx->drawContext() : nullptr);
         if (drawContext && target) {
             SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
             static const int stride = 2 * S;

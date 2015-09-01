@@ -196,7 +196,7 @@ GrTexture* GaussianBlur(GrContext* context,
         return nullptr;
     }
 
-    GrDrawContext* srcDrawContext = nullptr;
+    SkAutoTUnref<GrDrawContext> srcDrawContext;
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         GrPaint paint;
@@ -224,14 +224,14 @@ GrTexture* GaussianBlur(GrContext* context,
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
 
-        GrDrawContext* dstDrawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> dstDrawContext(context->drawContext());
         if (!dstDrawContext) {
             return nullptr;
         }
         dstDrawContext->drawNonAARectToRect(dstTexture->asRenderTarget(), clip, paint,
                                             SkMatrix::I(), dstRect, srcRect);
 
-        srcDrawContext = dstDrawContext;
+        srcDrawContext.swap(&dstDrawContext);
         srcRect = dstRect;
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);
@@ -247,14 +247,14 @@ GrTexture* GaussianBlur(GrContext* context,
         SkASSERT((1 == scaleFactorX) && (1 == scaleFactorY));
         SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
 
-        GrDrawContext* dstDrawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> dstDrawContext(context->drawContext());
         if (!dstDrawContext) {
             return nullptr;
         }
         convolve_gaussian_2d(dstDrawContext, dstTexture->asRenderTarget(), clip, srcRect, dstRect,
                              srcTexture, radiusX, radiusY, sigmaX, sigmaY, cropToRect, srcIRect);
 
-        srcDrawContext = dstDrawContext;
+        srcDrawContext.swap(&dstDrawContext);
         srcRect = dstRect;
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);
@@ -264,7 +264,7 @@ GrTexture* GaussianBlur(GrContext* context,
             if (scaleFactorX > 1) {
                 // TODO: if we pass in the source draw context we don't need this here
                 if (!srcDrawContext) {
-                    srcDrawContext = context->drawContext();
+                    srcDrawContext.reset(context->drawContext());
                     if (!srcDrawContext) {
                         return nullptr;
                     }        
@@ -278,7 +278,7 @@ GrTexture* GaussianBlur(GrContext* context,
             }
             SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
 
-            GrDrawContext* dstDrawContext = context->drawContext();
+            SkAutoTUnref<GrDrawContext> dstDrawContext(context->drawContext());
             if (!dstDrawContext) {
                 return nullptr;
             }
@@ -286,7 +286,7 @@ GrTexture* GaussianBlur(GrContext* context,
                               srcTexture, Gr1DKernelEffect::kX_Direction, radiusX, sigmaX,
                               cropToRect);
 
-            srcDrawContext = dstDrawContext;
+            srcDrawContext.swap(&dstDrawContext);
             srcTexture = dstTexture;
             srcRect = dstRect;
             SkTSwap(dstTexture, tempTexture);
@@ -296,7 +296,7 @@ GrTexture* GaussianBlur(GrContext* context,
             if (scaleFactorY > 1 || sigmaX > 0.0f) {
                 // TODO: if we pass in the source draw context we don't need this here
                 if (!srcDrawContext) {
-                    srcDrawContext = context->drawContext();
+                    srcDrawContext.reset(context->drawContext());
                     if (!srcDrawContext) {
                         return nullptr;
                     }        
@@ -311,7 +311,7 @@ GrTexture* GaussianBlur(GrContext* context,
 
             SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
 
-            GrDrawContext* dstDrawContext = context->drawContext();
+            SkAutoTUnref<GrDrawContext> dstDrawContext(context->drawContext());
             if (!dstDrawContext) {
                 return nullptr;
             }
@@ -319,7 +319,7 @@ GrTexture* GaussianBlur(GrContext* context,
                               dstRect, srcTexture, Gr1DKernelEffect::kY_Direction, radiusY, sigmaY,
                               cropToRect);
 
-            srcDrawContext = dstDrawContext;
+            srcDrawContext.swap(&dstDrawContext);
             srcTexture = dstTexture;
             srcRect = dstRect;
             SkTSwap(dstTexture, tempTexture);
@@ -348,14 +348,14 @@ GrTexture* GaussianBlur(GrContext* context,
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
 
-        GrDrawContext* dstDrawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> dstDrawContext(context->drawContext());
         if (!dstDrawContext) {
             return nullptr;
         }
         dstDrawContext->drawNonAARectToRect(dstTexture->asRenderTarget(), clip, paint,
                                             SkMatrix::I(), dstRect, srcRect);
 
-        srcDrawContext = dstDrawContext;
+        srcDrawContext.swap(&dstDrawContext);
         srcRect = dstRect;
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);

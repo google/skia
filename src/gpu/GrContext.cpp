@@ -124,7 +124,8 @@ GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceP
                 new GrDrawContext(fContext, fDrawTarget, props);
     }
 
-    return fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()]; 
+    // For now, everyone gets a faux creation ref
+    return SkRef(fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()]); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -422,7 +423,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             }
             SkMatrix matrix;
             matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-            GrDrawContext* drawContext = this->drawContext();
+            SkAutoTUnref<GrDrawContext> drawContext(this->drawContext());
             if (!drawContext) {
                 return false;
             }
@@ -533,7 +534,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
             if (fp) {
                 paint.addColorFragmentProcessor(fp);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                GrDrawContext* drawContext = this->drawContext();
+                SkAutoTUnref<GrDrawContext> drawContext(this->drawContext());
                 drawContext->drawRect(temp->asRenderTarget(), GrClip::WideOpen(), paint,
                                       SkMatrix::I(), rect, nullptr);
                 surfaceToRead.reset(SkRef(temp.get()));
@@ -609,7 +610,7 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         return;
     }
 
-    GrDrawContext* drawContext = this->drawContext();
+    SkAutoTUnref<GrDrawContext> drawContext(this->drawContext());
     if (!drawContext) {
         return;
     }

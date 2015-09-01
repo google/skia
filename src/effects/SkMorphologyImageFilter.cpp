@@ -573,7 +573,7 @@ bool apply_morphology(const SkBitmap& input,
         if (nullptr == scratch) {
             return false;
         }
-        GrDrawContext* dstDrawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> dstDrawContext(context->drawContext());
         if (!dstDrawContext) {
             return false;
         }
@@ -596,7 +596,7 @@ bool apply_morphology(const SkBitmap& input,
         if (nullptr == scratch) {
             return false;
         }
-        GrDrawContext* dstDrawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> dstDrawContext(context->drawContext());
         if (!dstDrawContext) {
             return false;
         }

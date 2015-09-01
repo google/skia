@@ -226,7 +226,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         paint1.addColorFragmentProcessor(pmToUPM1);
 
 
-        GrDrawContext* readDrawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> readDrawContext(context->drawContext());
         if (!readDrawContext) {
             failed = true;
             break;
@@ -243,7 +243,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         paint2.addColorFragmentProcessor(upmToPM);
 
-        GrDrawContext* tempDrawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> tempDrawContext(context->drawContext());
         if (!tempDrawContext) {
             failed = true;
             break;
@@ -257,7 +257,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         paint3.addColorFragmentProcessor(pmToUPM2);
 
-        readDrawContext = context->drawContext();
+        readDrawContext.reset(context->drawContext());
         if (!readDrawContext) {
             failed = true;
             break;

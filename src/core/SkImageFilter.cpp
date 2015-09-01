@@ -354,7 +354,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
         SkASSERT(fp);
         paint.addColorFragmentProcessor(fp)->unref();
 
-        GrDrawContext* drawContext = context->drawContext();
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
         if (drawContext) {
             drawContext->drawNonAARectToRect(dst->asRenderTarget(), clip, paint, SkMatrix::I(),
                                              dstRect, srcRect);

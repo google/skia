@@ -18,7 +18,11 @@
 void GrRenderTarget::discard() {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
-    GrDrawContext* drawContext = context ? context->drawContext() : nullptr;
+    if (!context) {
+        return;
+    }
+
+    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
     if (!drawContext) {
         return;
     }
