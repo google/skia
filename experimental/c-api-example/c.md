@@ -103,6 +103,8 @@ Here is an example program that uses the C api.  To try it out, get the file
 
 <a href="https://fiddle.skia.org/c/6c6c01438d9c3d80e9c22e606359432e"><img src="https://fiddle.skia.org/i/6c6c01438d9c3d80e9c22e606359432e_raster.png" alt=""></a>
 
+<!--
+
 Gyp+Linux example
 -----------------
 
@@ -135,13 +137,14 @@ The following proof-of-concept workflow currently works on Ubuntu 14.04:
         cc skia-c-example.o -L "$SKIA_DIR/out/Release/lib" -lskia -o skia-c-example
         LD_LIBRARY_PATH="$SKIA_DIR/out/Release/lib" ./skia-c-example
         xdg-open skia-c-example.png
+-->
 
-Cmake+MacOS example
--------------------
+Cmake example
+-------------
 
-The following proof-of-concept workflow currently works on MacOS
+The following proof-of-concept workflow currently works on MacOS and Ubuntu
 
-1.  Aquire Skia and install dependencies (you may have already done this):
+1.  Aquire Skia (you may have already done this):
 
     <!--?prettify lang=sh?-->
 
@@ -149,7 +152,7 @@ The following proof-of-concept workflow currently works on MacOS
         git clone 'https://skia.googlesource.com/skia'
         SKIA_DIR="$PWD/skia"
 
-2.  Compile Skia as a shared library:
+2.  Compile Skia (outside of source) as a shared library:
 
     <!--?prettify lang=sh?-->
 
@@ -164,10 +167,13 @@ The following proof-of-concept workflow currently works on MacOS
     <!--?prettify lang=sh?-->
 
         cd [Wherever you want the example]
+        mkdir skia_c_example
+        cd skia_c_example
         cp "$SKIA_DIR/experimental/c-api-example/skia-c-example.c" .
         cc -c -I "$SKIA_DIR/include/c" skia-c-example.c -o skia-c-example.o
         c++ skia-c-example.o \
             "$SKIA_BUILD"/libskia.* -Wl,-rpath -Wl,"$SKIA_BUILD" \
             -o skia-c-example
         ./skia-c-example
-        open skia-c-example.png
+        [ $(uname) = Darwin ] && open skia-c-example.png
+        [ $(uname) = Linux ] && xdg-open skia-c-example.png
