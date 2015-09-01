@@ -103,42 +103,6 @@ Here is an example program that uses the C api.  To try it out, get the file
 
 <a href="https://fiddle.skia.org/c/6c6c01438d9c3d80e9c22e606359432e"><img src="https://fiddle.skia.org/i/6c6c01438d9c3d80e9c22e606359432e_raster.png" alt=""></a>
 
-<!--
-
-Gyp+Linux example
------------------
-
-The following proof-of-concept workflow currently works on Ubuntu 14.04:
-
-1.  Aquire Skia and install dependencies (you may have already done this):
-
-    <!--?prettify lang=sh?-->
-
-        git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
-        export PATH="$PWD/depot_tools:$PATH"
-        git clone 'https://skia.googlesource.com/skia'
-        skia/tools/install_dependencies.sh
-        SKIA_DIR="$PWD/skia"
-
-2.  Compile Skia as a shared library:
-
-    <!--?prettify lang=sh?-->
-
-        GYP_DEFINES=skia_shared_lib=1 "$SKIA_DIR"/bin/sync-and-gyp
-        ninja -C "$SKIA_DIR/out/Release" skia_lib
-
-3.  Compile, link, and run the example program:
-
-    <!--?prettify lang=sh?-->
-
-        cd [Wherever you want the example]
-        cp "$SKIA_DIR/experimental/c-api-example/skia-c-example.c" .
-        cc -c -I "$SKIA_DIR/include/c" skia-c-example.c -o skia-c-example.o
-        cc skia-c-example.o -L "$SKIA_DIR/out/Release/lib" -lskia -o skia-c-example
-        LD_LIBRARY_PATH="$SKIA_DIR/out/Release/lib" ./skia-c-example
-        xdg-open skia-c-example.png
--->
-
 Cmake example
 -------------
 
