@@ -457,8 +457,21 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     // Calculate the number of bytes read so far
     const uint32_t bytesRead = kBmpHeaderBytes + infoBytes + maskBytes;
     if (!inIco && offset < bytesRead) {
+        // TODO (msarett): Do we really want to fail if the offset in the header is invalid?
+        //                 Seems like we can just assume that the offset is zero and try to decode?
+        //                 Maybe we don't want to try to decode corrupt images?
         SkCodecPrintf("Error: pixel data offset less than header size.\n");
         return false;
+    }
+
+    // Skip to the start of the pixel array.
+    // We can do this here because there is no color table to read
+    // in bit mask mode.
+    if (!inIco && kBitMask_BmpInputFormat == inputFormat) {
+        if (stream->skip(offset - bytesRead) != offset - bytesRead) {
+            SkCodecPrintf("Error: unable to skip to image data.\n");
+            return false;
+        }
     }
 
     if (codecOut) {
@@ -469,9 +482,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
         // Return the codec
         switch (inputFormat) {
             case kStandard_BmpInputFormat:
-                *codecOut =
-                        new SkBmpStandardCodec(imageInfo, stream, bitsPerPixel, numColors,
-                                               bytesPerColor, offset - bytesRead, rowOrder, inIco);
+                *codecOut = new SkBmpStandardCodec(imageInfo, stream, bitsPerPixel, numColors,
+                        bytesPerColor, offset - bytesRead, rowOrder, inIco);
                 return true;
             case kBitMask_BmpInputFormat:
                 // Bmp-in-Ico must be standard mode
@@ -479,16 +491,9 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     SkCodecPrintf("Error: Icos may not use bit mask format.\n");
                     return false;
                 }
-                // Skip to the start of the pixel array.
-                // We can do this here because there is no color table to read
-                // in bit mask mode.
-                if (stream->skip(offset - bytesRead) != offset - bytesRead) {
-                    SkCodecPrintf("Error: unable to skip to image data.\n");
-                    return false;
-                }
 
                 *codecOut = new SkBmpMaskCodec(imageInfo, stream, bitsPerPixel, masks.detach(),
-                                               rowOrder);
+                        rowOrder);
                 return true;
             case kRLE_BmpInputFormat:
                 // Bmp-in-Ico must be standard mode
@@ -496,9 +501,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 // require that RLE Bmps have a valid number of totalBytes, and
                 // Icos skip the header that contains totalBytes.
                 SkASSERT(!inIco);
-                *codecOut =
-                        new SkBmpRLECodec(imageInfo, stream, bitsPerPixel, numColors, bytesPerColor,
-                                          offset - bytesRead, rowOrder, RLEBytes);
+                *codecOut = new SkBmpRLECodec(imageInfo, stream, bitsPerPixel, numColors,
+                        bytesPerColor, offset - bytesRead, rowOrder, RLEBytes);
                 return true;
             default:
                 SkASSERT(false);
