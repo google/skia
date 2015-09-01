@@ -101,8 +101,7 @@ Here is an example program that uses the C api.  To try it out, get the file
         return 0;
     }
 
-<a href="https://fiddle.skia.org/c/6c6c01438d9c3d80e9c22e606359432e"><img src="https://fiddle.skia.org/i/6c6c01438d9c3d8
-0e9c22e606359432e_raster.png" alt=""></a>
+<a href="https://fiddle.skia.org/c/6c6c01438d9c3d80e9c22e606359432e"><img src="https://fiddle.skia.org/i/6c6c01438d9c3d80e9c22e606359432e_raster.png" alt=""></a>
 
 Gyp+Linux example
 -----------------
