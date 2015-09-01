@@ -20,7 +20,7 @@ Currently supported platforms
 
 Currently maybe-kinda-working platforms
 ---------------------------------------
-  - x86-64 Mac OS X built with Clang (i.e. mtklein's laptop).
+  - x86-64 Mac OS X, Ubuntu 15.04
 
 Caveats
 -------

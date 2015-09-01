@@ -1,5 +1,5 @@
 # Boilerplate.
-cmake_minimum_required (VERSION 3.3)   # The latest version as I write this.  May be too strict.
+cmake_minimum_required (VERSION 3.1)   # First version with CMAKE_CXX_STANDARD.
 project (skimake)
 set (CMAKE_CXX_STANDARD 11)
 
