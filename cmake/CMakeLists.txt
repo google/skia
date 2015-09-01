@@ -196,6 +196,9 @@ if (APPLE)
     list (APPEND libs ${APPLICATION_SERVICES_FRAMEWORK})
 endif()
 
+find_package(OpenGL REQUIRED)
+list (APPEND libs  ${OPENGL_LIBRARIES})
+
 # This is our main output, libskia.so.
 # We mostly build an .so here because it helps test we've linked everything,
 # not so much that we think Skia is a good candidate to ship as a shared library.
@@ -220,6 +223,5 @@ set_target_properties(skia PROPERTIES
     VISIBILITY_INLINES_HIDDEN true)
 
 # Now build a simple example app that uses Skia via libskia.so.
-find_package(OpenGL REQUIRED)
 add_executable(example example.cpp)
 target_link_libraries(example skia ${OPENGL_LIBRARIES})
