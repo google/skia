@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
+#include "SkImageGenerator.h"
 #include "SkMatrixUtils.h"
 #include "SkPicture.h"
 #include "SkReadBuffer.h"
@@ -84,25 +85,11 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 
         result->reset(SkRef(rec.fShader.get()));
 
-        SkBitmap tile;
-        if (rec.fShader.get()->isABitmap(&tile, nullptr, nullptr)) {
-            // FIXME: this doesn't protect the pixels from being discarded as soon as we unlock.
-            // Should be handled via a pixel ref generator instead
-            // (https://code.google.com/p/skia/issues/detail?id=3220).
-            SkAutoLockPixels alp(tile, true);
-            return tile.getPixels() != nullptr;
-        }
-        return false;
+        // The bitmap shader is backed by an image generator, thus it can always re-generate its
+        // pixels if discarded.
+        return true;
     }
 };
-
-static bool cache_try_alloc_pixels(SkBitmap* bitmap) {
-    SkBitmap::Allocator* allocator = SkResourceCache::GetAllocator();
-
-    return nullptr != allocator
-        ? allocator->allocPixelRef(bitmap, nullptr)
-        : bitmap->tryAllocPixels();
-}
 
 } // namespace
 
@@ -113,10 +100,6 @@ SkPictureShader::SkPictureShader(const SkPicture* picture, TileMode tmx, TileMod
     , fTile(tile ? *tile : picture->cullRect())
     , fTmx(tmx)
     , fTmy(tmy) {
-}
-
-SkPictureShader::~SkPictureShader() {
-    fPicture->unref();
 }
 
 SkShader* SkPictureShader::Create(const SkPicture* picture, TileMode tmx, TileMode tmy,
@@ -232,19 +215,14 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
                         this->getLocalMatrix());
 
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
+        SkMatrix matrix;
+        matrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
+                             SkMatrix::kFill_ScaleToFit);
         SkBitmap bm;
-        bm.setInfo(SkImageInfo::MakeN32Premul(tileSize));
-        if (!cache_try_alloc_pixels(&bm)) {
-            return SkShader::CreateEmptyShader();
+        if (!SkInstallDiscardablePixelRef(
+            SkImageGenerator::NewFromPicture(tileSize, fPicture, &matrix, nullptr), &bm)) {
+            return nullptr;
         }
-        bm.eraseColor(SK_ColorTRANSPARENT);
-
-        // Always disable LCD text, since we can't assume our image will be opaque.
-        SkCanvas canvas(bm, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
-
-        canvas.scale(tileScale.width(), tileScale.height());
-        canvas.translate(-fTile.x(), -fTile.y());
-        canvas.drawPicture(fPicture);
 
         SkMatrix shaderMatrix = this->getLocalMatrix();
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
@@ -324,10 +302,10 @@ void SkPictureShader::toString(SkString* str) const {
     };
 
     str->appendf("PictureShader: [%f:%f:%f:%f] ",
-                 fPicture ? fPicture->cullRect().fLeft : 0,
-                 fPicture ? fPicture->cullRect().fTop : 0,
-                 fPicture ? fPicture->cullRect().fRight : 0,
-                 fPicture ? fPicture->cullRect().fBottom : 0);
+                 fPicture->cullRect().fLeft,
+                 fPicture->cullRect().fTop,
+                 fPicture->cullRect().fRight,
+                 fPicture->cullRect().fBottom);
 
     str->appendf("(%s, %s)", gTileModeName[fTmx], gTileModeName[fTmy]);
 
