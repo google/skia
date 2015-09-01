@@ -7,15 +7,16 @@
  */
 
 
-#include "GrStencilAndCoverPathRenderer.h"
-#include "GrAAHairLinePathRenderer.h"
-#include "GrAAConvexPathRenderer.h"
-#include "GrAALinearizingConvexPathRenderer.h"
-#include "GrAADistanceFieldPathRenderer.h"
 #include "GrContext.h"
-#include "GrDashLinePathRenderer.h"
 #include "GrGpu.h"
-#include "GrTessellatingPathRenderer.h"
+
+#include "batches/GrAAConvexPathRenderer.h"
+#include "batches/GrAAHairLinePathRenderer.h"
+#include "batches/GrAALinearizingConvexPathRenderer.h"
+#include "batches/GrAADistanceFieldPathRenderer.h"
+#include "batches/GrDashLinePathRenderer.h"
+#include "batches/GrStencilAndCoverPathRenderer.h"
+#include "batches/GrTessellatingPathRenderer.h"
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
     chain->addPathRenderer(new GrDashLinePathRenderer)->unref();

@@ -9,9 +9,9 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
-#include "GrTessellatingPathRenderer.h"
 #include "GrTest.h"
 #include "Test.h"
+#include "batches/GrTessellatingPathRenderer.h"
 
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.
