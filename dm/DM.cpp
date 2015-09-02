@@ -225,7 +225,7 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
             folder.append("stripe");
             break;
         case CodecSrc::kSubset_Mode:
-            folder.append("subset");
+            folder.append("codec_subset");
             break;
     }
 
@@ -260,34 +260,69 @@ static void push_codec_srcs(Path path) {
         return;
     }
 
-    // Choose scales for scaling tests.
+    // Native Scales
     // TODO (msarett): Implement scaling tests for SkImageDecoder in order to compare with these
     //                 tests.  SkImageDecoder supports downscales by integer factors.
     // SkJpegCodec natively supports scaling to: 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875
-    // 0.1, 0.16, 0.2 etc allow us to test SkScaledCodec with sampleSize 10, 6, 5, etc
-    // 0.4, 0.7 etc allow to test what happens when the client requests a scale that
-    // does not exactly match a sampleSize or native scaling capability
-    const float scales[] = { 0.1f, 0.125f, 0.166f, 0.2f, 0.25f, 0.333f, 0.375f, 0.4f, 0.5f, 0.6f,
-                             0.625f, 0.750f, 0.8f, 0.875f, 1.0f };
+    const float nativeScales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
 
-    const CodecSrc::Mode modes[] = { CodecSrc::kCodec_Mode, CodecSrc::kScaledCodec_Mode,
-            CodecSrc::kScanline_Mode, CodecSrc::kScanline_Subset_Mode, CodecSrc::kStripe_Mode,
-            CodecSrc::kSubset_Mode };
+    const CodecSrc::Mode nativeModes[] = { CodecSrc::kCodec_Mode, CodecSrc::kScanline_Mode,
+            CodecSrc::kScanline_Subset_Mode, CodecSrc::kStripe_Mode, CodecSrc::kSubset_Mode };
 
-    const CodecSrc::DstColorType colorTypes[] = { CodecSrc::kGetFromCanvas_DstColorType,
-            CodecSrc::kGrayscale_Always_DstColorType, CodecSrc::kIndex8_Always_DstColorType };
+    CodecSrc::DstColorType colorTypes[3];
+    uint32_t numColorTypes;
+    switch (codec->getInfo().colorType()) {
+        case kGray_8_SkColorType:
+            // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
+            // Further discussion on this topic is at skbug.com/3683
+            colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
+            colorTypes[1] = CodecSrc::kGrayscale_Always_DstColorType;
+            colorTypes[2] = CodecSrc::kIndex8_Always_DstColorType;
+            numColorTypes = 3;
+            break;
+        case kIndex_8_SkColorType:
+            colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
+            colorTypes[1] = CodecSrc::kIndex8_Always_DstColorType;
+            numColorTypes = 2;
+            break;
+        default:
+            colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
+            numColorTypes = 1;
+            break;
+    }
 
-    for (float scale : scales) {
+    for (float scale : nativeScales) {
         if (scale != 1.0f && (path.endsWith(".webp") || path.endsWith(".WEBP"))) {
             // FIXME: skbug.com/4038 Scaling webp seems to leave some pixels uninitialized/
             // compute their colors based on uninitialized values.
             continue;
         }
 
-        for (CodecSrc::Mode mode : modes) {
-            for (CodecSrc::DstColorType colorType : colorTypes) {
-                push_codec_src(path, mode, colorType, scale);
+        for (CodecSrc::Mode mode : nativeModes) {
+            for (uint32_t i = 0; i < numColorTypes; i++) {
+                push_codec_src(path, mode, colorTypes[i], scale);
             }
+        }
+    }
+
+    // SkScaledCodec Scales
+    // The native scales are included to make sure that SkScaledCodec defaults to the native
+    // scaling strategy when possible.
+    // 0.1, 0.16, 0.2 etc allow us to test SkScaledCodec with sampleSize 10, 6, 5, etc.
+    // 0.4, 0.7 etc allow to test what happens when the client requests a scale that
+    // does not exactly match a sampleSize or native scaling capability.
+    const float samplingScales[] = { 0.1f, 0.125f, 0.166f, 0.2f, 0.25f, 0.333f, 0.375f, 0.4f, 0.5f,
+            0.6f, 0.625f, 0.750f, 0.8f, 0.875f, 1.0f };
+
+    for (float scale : samplingScales) {
+        if (scale != 1.0f && (path.endsWith(".webp") || path.endsWith(".WEBP"))) {
+            // FIXME: skbug.com/4038 Scaling webp seems to leave some pixels uninitialized/
+            // compute their colors based on uninitialized values.
+            continue;
+        }
+
+        for (uint32_t i = 0; i < numColorTypes; i++) {
+            push_codec_src(path, CodecSrc::kScaledCodec_Mode, colorTypes[i], scale);
         }
     }
 }
