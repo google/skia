@@ -417,6 +417,10 @@ enum GrSurfaceFlags {
      */
     kRenderTarget_GrSurfaceFlag     = 0x1,
     /**
+     * Placeholder for managing zero-copy textures
+     */
+    kZeroCopy_GrSurfaceFlag         = 0x2,
+    /**
      * Indicates that all allocations (color buffer, FBO completeness, etc)
      * should be verified.
      */
