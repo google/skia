@@ -53,6 +53,10 @@ bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dst
     return as_IB(this)->onReadPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
 }
 
+void SkImage::preroll(GrContext* ctx) const {
+    as_IB(this)->onPreroll(ctx);
+}
+
 SkShader* SkImage::newShader(SkShader::TileMode tileX,
                              SkShader::TileMode tileY,
                              const SkMatrix* localMatrix) const {
