@@ -32,7 +32,12 @@ SkFILE* sk_fopen(const char path[], SkFILE_Flags flags) {
 
     //TODO: on Windows fopen is just ASCII or the current code page,
     //convert to utf16 and use _wfopen
-    return (SkFILE*)::fopen(path, perm);
+    SkFILE* file = (SkFILE*)::fopen(path, perm);
+    if (nullptr == file && (flags & kWrite_SkFILE_Flag)) {
+        SkDEBUGF(("sk_fopen: fopen(\"%s\", \"%s\") returned NULL (errno:%d): %s\n",
+                  path, perm, errno, strerror(errno)));
+    }
+    return file;
 }
 
 char* sk_fgets(char* str, int size, SkFILE* f) {
