@@ -11,6 +11,11 @@ import android.app.Instrumentation;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
 import android.util.Log;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.lang.StringBuilder;
 
 public class VisualBenchTestActivity extends ActivityUnitTestCase<VisualBenchActivity> {
     private VisualBenchActivity mActivity;
@@ -25,11 +30,26 @@ public class VisualBenchTestActivity extends ActivityUnitTestCase<VisualBenchAct
         mInstrumentation = getInstrumentation();
     }
 
-    public void testVisualBench() throws InterruptedException {
+    private String getFlags() throws IOException {
+        InputStream s = getInstrumentation().getTargetContext().getResources().getAssets().open("nanobench_flags.txt");
+        BufferedReader r = new BufferedReader(new InputStreamReader(s));
+        StringBuilder flags = new StringBuilder();
+        String sep = System.getProperty("line.separator");
+        String line;
+        while ((line = r.readLine()) != null) {
+            flags.append(line);
+            flags.append(sep);
+        }
+        s.close();
+        return flags.toString();
+    }
+
+    public void testVisualBench() throws InterruptedException, IOException {
         String pkg = getInstrumentation().getTargetContext().getPackageName();
         Intent intent = new Intent(getInstrumentation().getTargetContext(),
                                    VisualBenchActivity.class);
-        intent.putExtra("cmdLineFlags", "--outResultsFile /sdcard/skia_results/visualbench.json");
+        String args = getFlags();
+        intent.putExtra("cmdLineFlags", args);
         mActivity = launchActivityWithIntent(pkg, VisualBenchActivity.class, intent);
 
         assertNotNull("mActivity is null", mActivity);
