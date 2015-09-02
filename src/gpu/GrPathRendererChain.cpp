@@ -11,8 +11,16 @@
 
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDefaultPathRenderer.h"
 #include "GrGpu.h"
+
+#include "batches/GrAAConvexPathRenderer.h"
+#include "batches/GrAADistanceFieldPathRenderer.h"
+#include "batches/GrAAHairLinePathRenderer.h"
+#include "batches/GrAALinearizingConvexPathRenderer.h"
+#include "batches/GrDashLinePathRenderer.h"
+#include "batches/GrDefaultPathRenderer.h"
+#include "batches/GrStencilAndCoverPathRenderer.h"
+#include "batches/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context)
     : fInit(false)
@@ -85,10 +93,19 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
 
 void GrPathRendererChain::init() {
     SkASSERT(!fInit);
-    const GrCaps* caps = fOwner->caps();
-    bool twoSided = caps->twoSidedStencilSupport();
-    bool wrapOp = caps->stencilWrapOpsSupport();
-    GrPathRenderer::AddPathRenderers(fOwner, this);
-    this->addPathRenderer(new GrDefaultPathRenderer(twoSided, wrapOp))->unref();
+    const GrCaps& caps = *fOwner->caps();
+    this->addPathRenderer(new GrDashLinePathRenderer)->unref();
+
+    if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(fOwner->resourceProvider(),
+                                                                   caps)) {
+        this->addPathRenderer(pr)->unref();
+    }
+    this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
+    this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
+    this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
+    this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
+    this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
+    this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
+                                                    caps.stencilWrapOpsSupport()))->unref();
     fInit = true;
 }

@@ -30,20 +30,6 @@ struct GrPoint;
  */
 class SK_API GrPathRenderer : public SkRefCnt {
 public:
-    
-
-    /**
-     * This is called to install custom path renderers in every GrContext at create time. The
-     * default implementation in GrCreatePathRenderer_none.cpp does not add any additional
-     * renderers. Link against another implementation to install your own. The first added is the
-     * most preferred path renderer, second is second most preferred, etc.
-     *
-     * @param context   the context that will use the path renderer
-     * @param prChain   the chain to add path renderers to.
-     */
-    static void AddPathRenderers(GrContext* context, GrPathRendererChain* prChain);
-
-
     GrPathRenderer();
 
     /**

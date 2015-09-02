@@ -13,7 +13,7 @@
 
 class GrAAHairLinePathRenderer : public GrPathRenderer {
 public:
-    static GrPathRenderer* Create() { return new GrAAHairLinePathRenderer; }
+    GrAAHairLinePathRenderer() {}
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
@@ -23,8 +23,6 @@ private:
     bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
-
-    GrAAHairLinePathRenderer() {}
 
     typedef GrPathRenderer INHERITED;
 };
