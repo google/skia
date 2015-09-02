@@ -11,6 +11,7 @@
 #include "SkString.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
+#include "../sfnt/SkOTUtils.h"
 
 #include "SkWhitelistChecksums.cpp"
 
@@ -25,27 +26,7 @@ extern bool GenerateChecksums();
 static bool timesNewRomanSerializedNameOnly = false;
 #endif
 
-struct NameRecord {
-    unsigned short fPlatformID;
-    unsigned short fEncodingID;
-    unsigned short fLanguageID;
-    unsigned short fNameID;
-    unsigned short fLength;
-    unsigned short fOffset;
-};
-
-struct NameTable {
-    unsigned short fFormat;
-    unsigned short fCount;
-    unsigned short fStringOffset;
-    NameRecord fRecord[1];
-};
-
 #define SUBNAME_PREFIX "sk_"
-
-static unsigned short swizzle(unsigned short x) {
-    return x << 8 | (x >> 8 & 0xff);
-}
 
 static bool font_name_is_local(const char* fontName, SkTypeface::Style style) {
     if (!strcmp(fontName, "DejaVu Sans")) {
@@ -56,75 +37,27 @@ static bool font_name_is_local(const char* fontName, SkTypeface::Style style) {
     return defaultFace != foundFace;
 }
 
-static int name_table(const NameTable* nameTable, int tableIndex, const char** stringLocPtr) {
-    int nameTableCount = swizzle(nameTable->fCount);
-    for (int i = 0; i < nameTableCount; ++i) {
-        const NameRecord* nameRecord = &nameTable->fRecord[i];
-        int recordNameID = swizzle(nameRecord->fNameID);
-        if (recordNameID != tableIndex) {
-            continue;
-        }
-        int stringLen = swizzle(nameRecord->fLength);
-        if (!stringLen) {
-            break;
-        }
-        int recordOffset = swizzle(nameRecord->fOffset);
-        const char* stringLoc = (const char* ) nameTable + swizzle(nameTable->fStringOffset);
-        stringLoc += recordOffset;
-        *stringLocPtr = stringLoc;
-        return stringLen;
-    }
-    return -1;
-}
-
 static int whitelist_name_index(const SkTypeface* tf) {
-    static const SkFontTableTag nameTag = SkSetFourByteTag('n', 'a', 'm', 'e');
-    size_t nameSize = tf->getTableSize(nameTag);
-    if (!nameSize) {
-        return -1;
-    }
-    SkTDArray<char> name;
-    name.setCount((int) nameSize);
-    tf->getTableData(nameTag, 0, nameSize, name.begin());
-    const NameTable* nameTable = (const NameTable* ) name.begin();
-    const char* stringLoc;
-    int stringLen = name_table(nameTable, 1, &stringLoc);
-    if (stringLen < 0) {
-        stringLen = name_table(nameTable, 16, &stringLoc);
-    }
-    if (stringLen < 0) {
-        stringLen = name_table(nameTable, 21, &stringLoc);
-    }
-    if (stringLen < 0) {
-        return -1;
-    }
+
     SkString fontNameStr;
-    if (!*stringLoc) {
-        stringLen /= 2;
-        for (int i = 0; i < stringLen; ++i) {
-            fontNameStr.appendUnichar(swizzle(((const uint16_t*) stringLoc)[i]));
-        }
-    } else {
-        fontNameStr.resize(stringLen);
-        strncpy(fontNameStr.writable_str(), stringLoc, stringLen);
-    }
-    // check against permissible list of names
-    for (int i = 0; i < whitelistCount; ++i) {
-        if (fontNameStr.equals(whitelist[i].fFontName)) {
-            return i;
-        }
-    }
-    for (int i = 0; i < whitelistCount; ++i) {
-        if (fontNameStr.startsWith(whitelist[i].fFontName)) {
-#if WHITELIST_DEBUG
-            SkDebugf("partial match whitelist=\"%s\" fontName=\"%s\"\n", whitelist[i].fFontName,
-                    fontNameStr.c_str());
-#endif
-            return -1;
+    SkAutoTUnref<SkTypeface::LocalizedStrings> nameIter(
+        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*tf));
+    SkTypeface::LocalizedString familyNameLocalized;
+    while (nameIter->next(&familyNameLocalized)) {
+        fontNameStr = familyNameLocalized.fString;
+        // check against permissible list of names
+        for (int i = 0; i < whitelistCount; ++i) {
+            if (fontNameStr.equals(whitelist[i].fFontName)) {
+                return i;
+            }
         }
     }
 #if WHITELIST_DEBUG
-    SkDebugf("no match fontName=\"%s\"\n", fontNameStr.c_str());
+    SkAutoTUnref<SkTypeface::LocalizedStrings> debugIter(
+        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*tf));
+    while (debugIter->next(&familyNameLocalized)) {
+        SkDebugf("no match fontName=\"%s\"\n", familyNameLocalized.fString.c_str());
+    }
 #endif
     return -1;
 }
@@ -263,7 +196,7 @@ SkTypeface* WhitelistDeserializeTypeface(SkStream* stream) {
     if (!strncmp(SUBNAME_PREFIX, familyName, sizeof(SUBNAME_PREFIX) - 1)) {
         familyName += sizeof(SUBNAME_PREFIX) - 1;
     }
-    return SkTypeface::CreateFromName(desc.getFamilyName(), desc.getStyle());
+    return SkTypeface::CreateFromName(familyName, desc.getStyle());
 }
 
 bool CheckChecksums() {
