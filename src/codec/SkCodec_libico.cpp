@@ -255,10 +255,24 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         if (dstInfo.dimensions() == embeddedCodec->getInfo().dimensions()) {
 
             // Perform the decode
-            // FIXME: (msarett): ICO is considered non-opaque, even if the embedded BMP
+            // FIXME (msarett): ICO is considered non-opaque, even if the embedded BMP
             // incorrectly claims it has no alpha.
-            SkImageInfo info = dstInfo.makeAlphaType(embeddedCodec->getInfo().alphaType());
-            result = embeddedCodec->getPixels(info, dst, dstRowBytes, &opts, ct, ptr);
+            SkAlphaType embeddedAlpha = embeddedCodec->getInfo().alphaType();
+            switch (embeddedAlpha) {
+                case kPremul_SkAlphaType:
+                case kUnpremul_SkAlphaType:
+                    // Use the requested alpha type if the embedded codec supports alpha.
+                    embeddedAlpha = dstInfo.alphaType();
+                    break;
+                case kOpaque_SkAlphaType:
+                    // If the embedded codec claims it is opaque, decode as if it is opaque.
+                    break;
+                default:
+                    SkASSERT(false);
+                    break;
+            }
+            SkImageInfo info = dstInfo.makeAlphaType(embeddedAlpha);
+            result = embeddedCodec->getPixels(dstInfo, dst, dstRowBytes, &opts, ct, ptr);
 
             // On a fatal error, keep trying to find an image to decode
             if (kInvalidConversion == result || kInvalidInput == result ||
