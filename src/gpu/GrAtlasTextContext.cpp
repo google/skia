@@ -1671,8 +1671,9 @@ private:
                     info.fBulkUseToken.reset();
 
                     // We can reuse if we have a valid strike and our descriptors / typeface are the
-                    // same
-                    const SkDescriptor* newDesc = run.fOverrideDescriptor ?
+                    // same.  The override descriptor is only for the non distance field text within
+                    // a run
+                    const SkDescriptor* newDesc = (run.fOverrideDescriptor && !usesDistanceFields) ?
                                                   run.fOverrideDescriptor->getDesc() :
                                                   run.fDescriptor.getDesc();
                     if (!cache || !SkTypeface::Equal(typeface, run.fTypeface) ||
