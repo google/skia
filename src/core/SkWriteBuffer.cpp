@@ -218,31 +218,16 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     SkBitmap::WriteRawPixels(this, bitmap);
 }
 
-static bool try_write_encoded(SkWriteBuffer* buffer, SkData* encoded) {
-    SkPixelSerializer* ps = buffer->getPixelSerializer();
-    // Assumes that if the client did not set a serializer, they are
-    // happy to get the encoded data.
-    if (!ps || ps->useEncodedData(encoded->data(), encoded->size())) {
-        write_encoded_bitmap(buffer, encoded, SkIPoint::Make(0, 0));
-        return true;
-    }
-    return false;
-}
-
 void SkWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->width());
     this->writeInt(image->height());
 
-    SkAutoTUnref<SkData> encoded(image->refEncoded());
-    if (encoded && try_write_encoded(this, encoded)) {
+    SkAutoTUnref<SkData> encoded(image->encode(this->getPixelSerializer()));
+    if (encoded) {
+        write_encoded_bitmap(this, encoded, SkIPoint::Make(0, 0));
         return;
     }
 
-    encoded.reset(image->encode(SkImageEncoder::kPNG_Type, 100));
-    if (encoded && try_write_encoded(this, encoded)) {
-        return;
-    }
-    
     this->writeUInt(0); // signal no pixels (in place of the size of the encoded data)
 }
 

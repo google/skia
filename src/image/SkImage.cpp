@@ -13,6 +13,7 @@
 #include "SkImage_Base.h"
 #include "SkNextID.h"
 #include "SkPixelRef.h"
+#include "SkPixelSerializer.h"
 #include "SkReadPixelsRec.h"
 #include "SkString.h"
 #include "SkSurface.h"
@@ -68,6 +69,40 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     if (as_IB(this)->getROPixels(&bm)) {
         return SkImageEncoder::EncodeData(bm, type, quality);
     }
+    return nullptr;
+}
+
+namespace {
+
+class DefaultSerializer :  public SkPixelSerializer {
+protected:
+    bool onUseEncodedData(const void *data, size_t len) override {
+        return true;
+    }
+
+    SkData* onEncodePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes) override {
+        return SkImageEncoder::EncodeData(info, pixels, rowBytes, SkImageEncoder::kPNG_Type, 100);
+    }
+};
+
+} // anonymous namespace
+
+SkData* SkImage::encode(SkPixelSerializer* serializer) const {
+    DefaultSerializer defaultSerializer;
+    SkPixelSerializer* effectiveSerializer = serializer ? serializer : &defaultSerializer;
+
+    SkAutoTUnref<SkData> encoded(this->refEncoded());
+    if (encoded && effectiveSerializer->useEncodedData(encoded->data(), encoded->size())) {
+        return encoded.detach();
+    }
+
+    SkBitmap bm;
+    SkAutoPixmapUnlock apu;
+    if (as_IB(this)->getROPixels(&bm) && bm.requestLock(&apu)) {
+        const SkPixmap& pmap = apu.pixmap();
+        return effectiveSerializer->encodePixels(pmap.info(), pmap.addr(), pmap.rowBytes());
+    }
+
     return nullptr;
 }
 

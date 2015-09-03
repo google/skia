@@ -21,6 +21,7 @@ class SkColorTable;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
+class SkPixelSerializer;
 class SkString;
 class SkSurface;
 class SkSurfaceProps;
@@ -234,12 +235,27 @@ public:
      *
      *  If the image type cannot be encoded, or the requested encoder type is
      *  not supported, this will return NULL.
+     *
+     *  Note: this will attempt to encode the image's pixels in the specified format,
+     *  even if the image returns a data from refEncoded(). That data will be ignored.
      */
     SkData* encode(SkImageEncoder::Type, int quality) const;
 
-    SkData* encode() const {
-        return this->encode(SkImageEncoder::kPNG_Type, 100);
-    }
+    /**
+     *  Encode the image and return the result as a caller-managed SkData.  This will
+     *  attempt to reuse existing encoded data (as returned by refEncoded).
+     *
+     *  We defer to the SkPixelSerializer both for vetting existing encoded data
+     *  (useEncodedData) and for encoding the image (encodePixels) when no such data is
+     *  present or is rejected by the serializer.
+     *
+     *  If not specified, we use a default serializer which 1) always accepts existing data
+     *  (in any format) and 2) encodes to PNG.
+     *
+     *  If no compatible encoded data exists and encoding fails, this method will also
+     *  fail (return NULL).
+     */
+    SkData* encode(SkPixelSerializer* = nullptr) const;
 
     /**
      *  If the image already has its contents in encoded form (e.g. PNG or JPEG), return a ref

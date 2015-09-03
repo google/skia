@@ -10,6 +10,7 @@
 #include "SkDevice.h"
 #include "SkImageEncoder.h"
 #include "SkImage_Base.h"
+#include "SkPixelSerializer.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
@@ -103,6 +104,36 @@ DEF_GPUTEST(Image_Encode_Gpu, reporter, factory) {
     test_encode(reporter, ctx);
 }
 #endif
+
+namespace {
+
+const char* kSerializedData = "serialized";
+
+class MockSerializer : public SkPixelSerializer {
+protected:
+    bool onUseEncodedData(const void*, size_t) override {
+        return false;
+    }
+
+    SkData* onEncodePixels(const SkImageInfo&, const void*, size_t) override {
+        return SkData::NewWithCString(kSerializedData);
+    }
+};
+
+} // anonymous namespace
+
+// Test that SkImage encoding observes custom pixel serializers.
+DEF_TEST(Image_Encode_Serializer, reporter) {
+    MockSerializer serializer;
+    const SkIRect ir = SkIRect::MakeXYWH(5, 5, 10, 10);
+    SkAutoTUnref<SkImage> image(make_image(nullptr, 20, 20, ir));
+    SkAutoTUnref<SkData> encoded(image->encode(&serializer));
+    SkAutoTUnref<SkData> reference(SkData::NewWithCString(kSerializedData));
+
+    REPORTER_ASSERT(reporter, encoded);
+    REPORTER_ASSERT(reporter, encoded->size() > 0);
+    REPORTER_ASSERT(reporter, encoded->equals(reference));
+}
 
 DEF_TEST(Image_NewRasterCopy, reporter) {
     const SkPMColor red =   SkPackARGB32(0xFF, 0xFF, 0, 0);
