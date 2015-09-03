@@ -378,12 +378,16 @@ SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y, unsigned modi) {
         F2BIter    iter(this);
         SkView*    child;
 
-        while ((child = iter.next()) != nullptr)
-        {
+        while ((child = iter.next()) != nullptr) {
             SkPoint p;
+#if 0
             if (!child->globalToLocal(x, y, &p)) {
                 continue;
             }
+#else
+            // the above seems broken, so just respecting fLoc for now <reed>
+            p.set(x - child->fLoc.x(), y - child->fLoc.y());
+#endif
 
             Click* click = child->findClickHandler(p.fX, p.fY, modi);
 

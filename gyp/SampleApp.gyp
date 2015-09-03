@@ -119,6 +119,7 @@
         '../samplecode/SampleUnpremul.cpp',
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
+        '../samplecode/SampleXfer.cpp',
 
         # DrawingBoard
         #'../experimental/DrawingBoard/SkColorPalette.h',
