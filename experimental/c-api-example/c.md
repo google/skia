@@ -106,38 +106,27 @@ Here is an example program that uses the C api.  To try it out, get the file
 Cmake example
 -------------
 
-The following proof-of-concept workflow currently works on MacOS and Ubuntu
+The following proof-of-concept workflow currently works on MacOS and
+Ubuntu and depends on a C/C++ compiler, git, and cmake:
 
-1.  Aquire Skia (you may have already done this):
+1.  Aquire, compile, and install Skia as a shared library:
 
     <!--?prettify lang=sh?-->
 
-        cd [Wherever you want skia src code]
+        prefix="$HOME"
+        cd $(mktemp -d /tmp/skiaXXXX)
         git clone 'https://skia.googlesource.com/skia'
-        SKIA_DIR="$PWD/skia"
+        cmake -DCMAKE_INSTALL_PREFIX:PATH="$prefix" skia/cmake
+        cmake --build . --target skia
+        cmake --build . --target install
 
-2.  Compile Skia (outside of source) as a shared library:
-
-    <!--?prettify lang=sh?-->
-
-        cd [Wherever you want skia build files]
-        mkdir build_skia
-        cd build_skia
-        SKIA_BUILD="$PWD"
-        cmake "$SKIA_DIR/cmake" -G Ninja && ninja
-
-3.  Compile, link, and run the example program:
+2.  Compile, link, and run the example program:
 
     <!--?prettify lang=sh?-->
 
-        cd [Wherever you want the example]
-        mkdir skia_c_example
-        cd skia_c_example
-        cp "$SKIA_DIR/experimental/c-api-example/skia-c-example.c" .
-        cc -c -I "$SKIA_DIR/include/c" skia-c-example.c -o skia-c-example.o
-        c++ skia-c-example.o \
-            "$SKIA_BUILD"/libskia.* -Wl,-rpath -Wl,"$SKIA_BUILD" \
-            -o skia-c-example
+        cc -o skia-c-example -I "$prefix/include" \
+            skia/experimental/c-api-example/skia-c-example.c \
+            "$prefix"/lib/libskia.* -Wl,-rpath -Wl,"$prefix/lib"
         ./skia-c-example
-        [ $(uname) = Darwin ] && open skia-c-example.png
-        [ $(uname) = Linux ] && xdg-open skia-c-example.png
+        [ $(uname) = Darwin ] && open     skia-c-example.png
+        [ $(uname) = Linux  ] && xdg-open skia-c-example.png

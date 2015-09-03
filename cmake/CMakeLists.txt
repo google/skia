@@ -222,6 +222,11 @@ set_target_properties(skia PROPERTIES
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN true)
 
+# Experimental C API install:
+file(GLOB cheaders "../include/c/*.h")
+install(FILES ${cheaders} DESTINATION include)
+install(TARGETS skia DESTINATION lib)
+
 # Now build a simple example app that uses Skia via libskia.so.
 add_executable(example example.cpp)
 target_link_libraries(example skia ${OPENGL_LIBRARIES})
