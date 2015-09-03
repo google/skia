@@ -1853,22 +1853,9 @@
     "do_perf_steps": true, 
     "do_test_steps": false, 
     "env": {
-      "BUILDTYPE": "Debug", 
       "GYP_DEFINES": "skia_arch_type=arm skia_warnings_as_errors=0"
     }, 
     "nanobench_flags": [
-      "--scales", 
-      "1.0", 
-      "1.1", 
-      "--config", 
-      "565", 
-      "8888", 
-      "gpu", 
-      "nonrendering", 
-      "angle", 
-      "hwui", 
-      "msaa4", 
-      "nvprmsaa4", 
       "--match", 
       "~blurroundrect", 
       "~patch_grid", 
