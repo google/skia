@@ -273,11 +273,11 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
 
     // The fill path can handle rotation but not skew
     // The stroke path needs the rect to remain axis aligned (no rotation or skew)
-    // None of our draw rect calls can handle perspective yet
-    SkASSERT(!viewMatrix.hasPerspective());
+    // None of our AA draw rect calls can handle perspective yet
     bool canApplyAA = width >=0 ? viewMatrix.rectStaysRect() : viewMatrix.preservesRightAngles();
 
     if (needAA && canApplyAA) {
+        SkASSERT(!viewMatrix.hasPerspective());
         SkRect devBoundRect;
         viewMatrix.mapRect(&devBoundRect, rect);
         SkAutoTUnref<GrDrawBatch> batch;
