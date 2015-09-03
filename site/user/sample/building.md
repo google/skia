@@ -260,10 +260,10 @@ int main(int argc, char** argv) {
   SkPaint paint;
   paint.setColor(SK_ColorRED);
 
-  SkString* str = new SkString();
-  paint.toString(str);
+  SkString str;
+  paint.toString(&str);
 
-  fprintf(stdout, "%s\n", str->c_str());
+  fprintf(stdout, "%s\n", str.c_str());
 
   return 0;
 }
@@ -317,4 +317,3 @@ sync.
 
 Adding the above to the end of DEPS and running gclient sync should show the
 GYP files being updated at the end of the sync procedure.
-
