@@ -721,11 +721,11 @@ bool GrAAConvexTessellator::createInsetRing(const Ring& lastRing, Ring* nextRing
         dst[i] = nextRing->index(dst[i]);
     }
 
-    for (int cur = 0; cur < lastRing.numPts(); ++cur) {
-        int next = (cur + 1) % lastRing.numPts();
+    for (int i = 0; i < lastRing.numPts(); ++i) {
+        int next = (i + 1) % lastRing.numPts();
 
-        this->addTri(lastRing.index(cur), lastRing.index(next), dst[next]);
-        this->addTri(lastRing.index(cur), dst[next], dst[cur]);
+        this->addTri(lastRing.index(i), lastRing.index(next), dst[next]);
+        this->addTri(lastRing.index(i), dst[next], dst[i]);
     }
 
     if (done && fStrokeWidth < 0.0f) {

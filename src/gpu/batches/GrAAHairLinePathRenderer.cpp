@@ -908,28 +908,28 @@ void AAHairlineBatch::onPrepareDraws(Target* target) {
         }
 
         // Setup vertices
-        BezierVertex* verts = reinterpret_cast<BezierVertex*>(vertices);
+        BezierVertex* bezVerts = reinterpret_cast<BezierVertex*>(vertices);
 
         int unsubdivQuadCnt = quads.count() / 3;
         for (int i = 0; i < unsubdivQuadCnt; ++i) {
             SkASSERT(qSubdivs[i] >= 0);
-            add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts);
+            add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &bezVerts);
         }
 
         // Start Conics
         for (int i = 0; i < conicCount; ++i) {
-            add_conics(&conics[3*i], cWeights[i], toDevice, toSrc, &verts);
+            add_conics(&conics[3*i], cWeights[i], toDevice, toSrc, &bezVerts);
         }
 
         if (quadCount > 0) {
             target->initDraw(quadGP, this->pipeline());
 
             {
-                GrVertices verts;
-                verts.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
-                                    firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
-                                    kQuadsNumInIdxBuffer);
-                target->draw(verts);
+                GrVertices tempVerts;
+                tempVerts.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
+                                        firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
+                                        kQuadsNumInIdxBuffer);
+                target->draw(tempVerts);
                 firstVertex += quadCount * kQuadNumVertices;
            }
         }
@@ -938,11 +938,11 @@ void AAHairlineBatch::onPrepareDraws(Target* target) {
             target->initDraw(conicGP, this->pipeline());
 
             {
-                GrVertices verts;
-                verts.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
-                                    firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
-                                    kQuadsNumInIdxBuffer);
-                target->draw(verts);
+                GrVertices tempVerts;
+                tempVerts.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
+                                        firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
+                                        kQuadsNumInIdxBuffer);
+                target->draw(tempVerts);
             }
         }
     }

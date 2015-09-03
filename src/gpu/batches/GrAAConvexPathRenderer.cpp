@@ -81,15 +81,15 @@ static void center_of_mass(const SegmentArray& segments, SkPoint* c) {
         pj = segments[1].endPt() - p0;
         for (int i = 1; i < count - 1; ++i) {
             pi = pj;
-            const SkPoint pj = segments[i + 1].endPt() - p0;
+            pj = segments[i + 1].endPt() - p0;
 
-            SkScalar t = SkScalarMul(pi.fX, pj.fY) - SkScalarMul(pj.fX, pi.fY);
+            SkScalar t = SkPoint::CrossProduct(pi, pj);
             area += t;
             center.fX += (pi.fX + pj.fX) * t;
             center.fY += (pi.fY + pj.fY) * t;
-
         }
     }
+
     // If the poly has no area then we instead return the average of
     // its points.
     if (SkScalarNearlyZero(area)) {
@@ -106,8 +106,7 @@ static void center_of_mass(const SegmentArray& segments, SkPoint* c) {
     } else {
         area *= 3;
         area = SkScalarInvert(area);
-        center.fX = SkScalarMul(center.fX, area);
-        center.fY = SkScalarMul(center.fY, area);
+        center.scale(area);
         // undo the translate of p0 to the origin.
         *c = center + p0;
     }
@@ -916,8 +915,8 @@ private:
 
             GrVertices vertices;
 
-            for (int i = 0; i < draws.count(); ++i) {
-                const Draw& draw = draws[i];
+            for (int j = 0; j < draws.count(); ++j) {
+                const Draw& draw = draws[j];
                 vertices.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
                                      firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
                 target->draw(vertices);

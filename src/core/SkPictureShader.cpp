@@ -155,12 +155,12 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatrix* localM,
-                                            const int maxTextureSize) const {
+SkShader* SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkMatrix* localM,
+                                           const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
 
     SkMatrix m;
-    m.setConcat(matrix, this->getLocalMatrix());
+    m.setConcat(viewMatrix, this->getLocalMatrix());
     if (localM) {
         m.preConcat(*localM);
     }
@@ -215,12 +215,12 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
                         this->getLocalMatrix());
 
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
-        SkMatrix matrix;
-        matrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
+        SkMatrix tileMatrix;
+        tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
                              SkMatrix::kFill_ScaleToFit);
         SkBitmap bm;
         if (!SkInstallDiscardablePixelRef(
-            SkImageGenerator::NewFromPicture(tileSize, fPicture, &matrix, nullptr), &bm)) {
+            SkImageGenerator::NewFromPicture(tileSize, fPicture, &tileMatrix, nullptr), &bm)) {
             return nullptr;
         }
 
