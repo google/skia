@@ -21,26 +21,13 @@ protected:
         return SkString("bitmapsource");
     }
 
-    void makeBitmap() {
-        fBitmap.allocN32Pixels(100, 100);
-        SkCanvas canvas(fBitmap);
-        canvas.clear(0x00000000);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(SkIntToScalar(96));
-        const char* str = "e";
-        canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
-    }
-
     SkISize onISize() override { return SkISize::Make(500, 150); }
 
     void onOnceBeforeDraw() override {
-        this->makeBitmap();
+        fBitmap = sk_tool_utils::create_string_bitmap(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");
     }
 
-    static void fillRectFiltered(SkCanvas* canvas, const SkRect& clipRect, SkImageFilter* filter) {
+    static void FillRectFiltered(SkCanvas* canvas, const SkRect& clipRect, SkImageFilter* filter) {
         SkPaint paint;
         paint.setImageFilter(filter);
         canvas->save();
@@ -63,19 +50,19 @@ protected:
             SkAutoTUnref<SkImageFilter> bitmapSourceDstRectOnly(SkBitmapSource::Create(fBitmap, bounds, dstRect));
 
             // Draw an unscaled bitmap.
-            fillRectFiltered(canvas, clipRect, bitmapSource);
+            FillRectFiltered(canvas, clipRect, bitmapSource);
             canvas->translate(SkIntToScalar(100), 0);
 
             // Draw an unscaled subset of the source bitmap (srcRect -> srcRect).
-            fillRectFiltered(canvas, clipRect, bitmapSourceSrcRect);
+            FillRectFiltered(canvas, clipRect, bitmapSourceSrcRect);
             canvas->translate(SkIntToScalar(100), 0);
 
             // Draw a subset of the bitmap scaled to a destination rect (srcRect -> dstRect).
-            fillRectFiltered(canvas, clipRect, bitmapSourceSrcRectDstRect);
+            FillRectFiltered(canvas, clipRect, bitmapSourceSrcRectDstRect);
             canvas->translate(SkIntToScalar(100), 0);
 
             // Draw the entire bitmap scaled to a destination rect (bounds -> dstRect).
-            fillRectFiltered(canvas, clipRect, bitmapSourceDstRectOnly);
+            FillRectFiltered(canvas, clipRect, bitmapSourceDstRectOnly);
             canvas->translate(SkIntToScalar(100), 0);
         }
     }

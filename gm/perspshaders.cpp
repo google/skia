@@ -23,15 +23,6 @@ static SkImage* make_image(SkCanvas* origCanvas, int w, int h) {
     return surface->newImageSnapshot();
 }
 
-static SkBitmap make_bitmap(int w, int h) {
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(w, h);
-    SkCanvas canvas(bitmap);
-
-    sk_tool_utils::draw_checkerboard(&canvas, SK_ColorBLUE, SK_ColorYELLOW, w/10);
-    return bitmap;
-}
-
 namespace skiagm {
 
 class PerspShadersGM : public GM {
@@ -51,7 +42,9 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBitmap = make_bitmap(kCellSize, kCellSize);
+        fBitmap = sk_tool_utils::create_checkerboard_bitmap(kCellSize, kCellSize,
+                                                            SK_ColorBLUE, SK_ColorYELLOW,
+                                                            kCellSize/10);
 
         fBitmapShader.reset(SkShader::CreateBitmapShader(fBitmap,
                                                          SkShader::kClamp_TileMode,

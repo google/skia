@@ -25,18 +25,6 @@ protected:
         return SkString("offsetimagefilter");
     }
 
-    void make_bitmap() {
-        fBitmap.allocN32Pixels(80, 80);
-        SkCanvas canvas(fBitmap);
-        canvas.clear(0);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setColor(sk_tool_utils::color_to_565(0xD000D000));
-        paint.setTextSize(96);
-        canvas.drawText("e", 1, 15, 65, paint);
-    }
-
     SkISize onISize() override {
         return SkISize::Make(WIDTH, HEIGHT);
     }
@@ -64,13 +52,13 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        make_bitmap();
+        fBitmap = sk_tool_utils::create_string_bitmap(80, 80, 0xD000D000, 15, 65, 96, "e");
         
-        fCheckerboard.allocN32Pixels(80, 80);
-        SkCanvas checkerboardCanvas(fCheckerboard);
-        sk_tool_utils::draw_checkerboard(&checkerboardCanvas,
-                sk_tool_utils::color_to_565(0xFFA0A0A0),
-                sk_tool_utils::color_to_565(0xFF404040), 8);
+        fCheckerboard = sk_tool_utils::create_checkerboard_bitmap(
+                                                        80, 80,
+                                                        sk_tool_utils::color_to_565(0xFFA0A0A0),
+                                                        sk_tool_utils::color_to_565(0xFF404040),
+                                                        8);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -101,8 +89,9 @@ protected:
         drawClippedBitmap(canvas, fBitmap, paint, 2, cropRect);
     }
 private:
-    typedef skiagm::GM INHERITED;
     SkBitmap fBitmap, fCheckerboard;
+
+    typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new OffsetImageFilterGM; )
 

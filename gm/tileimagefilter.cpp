@@ -16,22 +16,6 @@
 #define HEIGHT 100
 #define MARGIN 12
 
-static SkBitmap make_bitmap() {
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(50, 50);
-    SkCanvas canvas(bitmap);
-    canvas.clear(0xFF000000);
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
-    paint.setColor(0xD000D000);
-    paint.setTextSize(SkIntToScalar(50));
-    const char* str = "e";
-    canvas.drawText(str, strlen(str), SkIntToScalar(10), SkIntToScalar(45), paint);
-    return bitmap;
-}
-
-
 namespace skiagm {
 
 class TileImageFilterGM : public GM {
@@ -50,13 +34,13 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBitmap = make_bitmap();
+        fBitmap = sk_tool_utils::create_string_bitmap(50, 50, 0xD000D000, 10, 45, 50, "e");
 
-        fCheckerboard.allocN32Pixels(80, 80);
-        SkCanvas checkerboardCanvas(fCheckerboard);
-        sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 
-                sk_tool_utils::color_to_565(0xFFA0A0A0),
-                sk_tool_utils::color_to_565(0xFF404040), 8);
+        fCheckerboard = sk_tool_utils::create_checkerboard_bitmap(
+                                                        80, 80,
+                                                        sk_tool_utils::color_to_565(0xFFA0A0A0),
+                                                        sk_tool_utils::color_to_565(0xFF404040),
+                                                        8);
     }
 
     void onDraw(SkCanvas* canvas) override {

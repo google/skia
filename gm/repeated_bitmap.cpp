@@ -11,7 +11,7 @@
 
 DEF_SIMPLE_GM(repeated_bitmap, canvas, 576, 576) {
     sk_tool_utils::draw_checkerboard(canvas, sk_tool_utils::color_to_565(0xFF999999),
-            SK_ColorWHITE, 12);
+                                     SK_ColorWHITE, 12);
     SkRect rect = SkRect::MakeLTRB(-4.25f, -4.25f, 4.25f, 4.25f);
     SkPaint paint;
     paint.setColor(0xFF333333);
@@ -33,7 +33,7 @@ DEF_SIMPLE_GM(repeated_bitmap, canvas, 576, 576) {
 
 DEF_SIMPLE_GM(repeated_bitmap_jpg, canvas, 576, 576) {
     sk_tool_utils::draw_checkerboard(canvas, sk_tool_utils::color_to_565(0xFF999999),
-            SK_ColorWHITE, 12);
+                                     SK_ColorWHITE, 12);
     SkRect rect = SkRect::MakeLTRB(-68.0f, -68.0f, 68.0f, 68.0f);
     SkPaint paint;
     paint.setColor(0xFF333333);

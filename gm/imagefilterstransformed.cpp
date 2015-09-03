@@ -54,10 +54,8 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard.allocN32Pixels(64, 64);
-        SkCanvas checkerboardCanvas(fCheckerboard);
-        sk_tool_utils::draw_checkerboard(&checkerboardCanvas, 0xFFA0A0A0, 0xFF404040, 8);
-
+        fCheckerboard = sk_tool_utils::create_checkerboard_bitmap(64, 64,
+                                                                  0xFFA0A0A0, 0xFF404040, 8);
         this->makeGradientCircle(64, 64);
     }
 

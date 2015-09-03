@@ -103,21 +103,8 @@ public:
 
 protected:
 
-    virtual SkString onShortName() {
+    SkString onShortName() override {
         return SkString("imagefiltersgraph");
-    }
-
-    void make_bitmap() {
-        fBitmap.allocN32Pixels(100, 100);
-        SkCanvas canvas(fBitmap);
-        canvas.clear(SK_ColorTRANSPARENT);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setColor(SK_ColorWHITE);
-        paint.setTextSize(SkIntToScalar(96));
-        const char* str = "e";
-        canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
     }
 
     void drawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint) {
@@ -128,13 +115,13 @@ protected:
         canvas->restore();
     }
 
-    virtual SkISize onISize() { return SkISize::Make(500, 150); }
+    SkISize onISize() override { return SkISize::Make(500, 150); }
 
-    virtual void onOnceBeforeDraw() {
-        this->make_bitmap();
+    void onOnceBeforeDraw() override {
+        fBitmap = sk_tool_utils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e");
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         {
             SkAutoTUnref<SkImageFilter> bitmapSource(SkBitmapSource::Create(fBitmap));
@@ -229,5 +216,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new ImageFiltersGraphGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM(return new ImageFiltersGraphGM;)

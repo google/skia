@@ -188,11 +188,38 @@ SkShader* create_checkerboard_shader(SkColor c1, SkColor c2, int size) {
             bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
 }
 
+SkBitmap create_checkerboard_bitmap(int w, int h, SkColor c1, SkColor c2, int checkSize) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(w, h);
+    SkCanvas canvas(bitmap);
+
+    sk_tool_utils::draw_checkerboard(&canvas, c1, c2, checkSize);
+    return bitmap;
+}
+
 void draw_checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
     SkPaint paint;
     paint.setShader(create_checkerboard_shader(c1, c2, size))->unref();
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     canvas->drawPaint(paint);
+}
+
+SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
+                              int textSize, const char* str) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(w, h);
+    SkCanvas canvas(bitmap);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    sk_tool_utils::set_portable_typeface(&paint);
+    paint.setColor(c);
+    paint.setTextSize(SkIntToScalar(textSize));
+
+    canvas.clear(0x00000000);
+    canvas.drawText(str, strlen(str), SkIntToScalar(x), SkIntToScalar(y), paint);
+
+    return bitmap;
 }
 
 void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,

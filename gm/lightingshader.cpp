@@ -11,18 +11,6 @@
 #include "SkPoint3.h"
 #include "SkShader.h"
 
-static SkBitmap make_checkerboard(int texSize) {
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(texSize, texSize);
-
-    SkCanvas canvas(bitmap);
-    sk_tool_utils::draw_checkerboard(&canvas,
-                                     sk_tool_utils::color_to_565(0x0),
-                                     sk_tool_utils::color_to_565(0xFF804020),
-                                     8);
-    return bitmap;
-}
-
 // Create a hemispherical normal map
 static SkBitmap make_hemi_normalmap(int texSize) {
     SkBitmap hemi;
@@ -87,7 +75,11 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fDiffuse = make_checkerboard(kTexSize);
+        fDiffuse = sk_tool_utils::create_checkerboard_bitmap(
+                                                        kTexSize, kTexSize,
+                                                        sk_tool_utils::color_to_565(0x0),
+                                                        sk_tool_utils::color_to_565(0xFF804020),
+                                                        8);
 
         fNormalMaps[kHemi_NormalMap]    = make_hemi_normalmap(kTexSize);
         fNormalMaps[kFrustum_NormalMap] = make_frustum_normalmap(kTexSize);

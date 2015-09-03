@@ -17,7 +17,7 @@ namespace skiagm {
 
 class ImageLightingGM : public GM {
 public:
-    ImageLightingGM() : fInitialized(false) {
+    ImageLightingGM() {
         this->setBGColor(0xFF000000);
     }
 
@@ -25,19 +25,6 @@ protected:
 
     SkString onShortName() override {
         return SkString("lighting");
-    }
-
-    void make_bitmap() {
-        fBitmap.allocN32Pixels(100, 100);
-        SkCanvas canvas(fBitmap);
-        canvas.clear(0x00000000);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(SkIntToScalar(96));
-        const char* str = "e";
-        canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
     }
 
     SkISize onISize() override {
@@ -53,11 +40,11 @@ protected:
         canvas->restore();
     }
 
+    void onOnceBeforeDraw() override {
+        fBitmap = sk_tool_utils::create_string_bitmap(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");
+    }
+
     void onDraw(SkCanvas* canvas) override {
-        if (!fInitialized) {
-            make_bitmap();
-            fInitialized = true;
-        }
         canvas->clear(sk_tool_utils::color_to_565(0xFF101010));
         SkPaint checkPaint;
         checkPaint.setColor(sk_tool_utils::color_to_565(0xFF202020));
@@ -163,9 +150,9 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
     SkBitmap fBitmap;
-    bool fInitialized;
+
+    typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

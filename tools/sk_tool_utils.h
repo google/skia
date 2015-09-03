@@ -86,7 +86,7 @@ namespace sk_tool_utils {
     void write_pixels(SkCanvas*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
 
     // private to sk_tool_utils
-    SkTypeface* create_font(const char* name, SkTypeface::Style );
+    SkTypeface* create_font(const char* name, SkTypeface::Style);
 
     /** Returns a newly created CheckerboardShader. */
     SkShader* create_checkerboard_shader(SkColor c1, SkColor c2, int size);
@@ -96,12 +96,20 @@ namespace sk_tool_utils {
     void draw_checkerboard(SkCanvas* canvas,
                            SkColor color1,
                            SkColor color2,
-                           int size);
+                           int checkSize);
+
+    /** Make it easier to create a bitmap-based checkerboard */
+    SkBitmap create_checkerboard_bitmap(int w, int h,
+                                        SkColor c1, SkColor c2,
+                                        int checkSize);
 
     /** A default checkerboard. */
     inline void draw_checkerboard(SkCanvas* canvas) {
         sk_tool_utils::draw_checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
     }
+
+    SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
+                                  int textSize, const char* str);
 
     // Encodes to PNG, unless there is already encoded data, in which case that gets
     // used.
