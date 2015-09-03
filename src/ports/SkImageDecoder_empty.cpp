@@ -117,6 +117,11 @@ SkData* SkImageEncoder::EncodeData(const SkBitmap&, Type, int quality) {
     return nullptr;
 }
 
+SkData* SkImageEncoder::EncodeData(const SkImageInfo&, const void* pixels, size_t rowBytes,
+                                   Type, int quality) {
+    return nullptr;
+}
+
 bool SkImageEncoder::encodeStream(SkWStream*, const SkBitmap&, int) {
     return false;
 }
