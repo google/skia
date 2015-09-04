@@ -27,13 +27,6 @@ struct SkDCubic {
         kYAxis
     };
 
-    enum CubicType {
-        kUnsplit_SkDCubicType,
-        kSplitAtLoop_SkDCubicType,
-        kSplitAtInflection_SkDCubicType,
-        kSplitAtMaxCurvature_SkDCubicType,
-    };
-
     bool collapsed() const {
         return fPts[0].approximatelyEqual(fPts[1]) && fPts[0].approximatelyEqual(fPts[2])
                 && fPts[0].approximatelyEqual(fPts[3]);
@@ -58,7 +51,7 @@ struct SkDCubic {
     double calcPrecision() const;
     SkDCubicPair chopAt(double t) const;
     static void Coefficients(const double* cubic, double* A, double* B, double* C, double* D);
-    static bool ComplexBreak(const SkPoint pts[4], SkScalar* t, CubicType* cubicType);
+    static bool ComplexBreak(const SkPoint pts[4], SkScalar* t);
     int convexHull(char order[kPointCount]) const;
 
     void debugInit() {

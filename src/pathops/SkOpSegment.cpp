@@ -912,10 +912,8 @@ void SkOpSegment::init(SkPoint pts[], SkScalar weight, SkOpContour* contour, SkP
     fPts = pts;
     fWeight = weight;
     fVerb = verb;
-    fCubicType = SkDCubic::kUnsplit_SkDCubicType;
     fCount = 0;
     fDoneCount = 0;
-    fTopsFound = false;
     fVisited = false;
     SkOpSpan* zeroSpan = &fHead;
     zeroSpan->init(this, nullptr, 0, fPts[0]);

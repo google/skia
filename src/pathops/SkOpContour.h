@@ -318,7 +318,6 @@ public:
         fNext = nullptr;
         fCount = 0;
         fDone = false;
-        fTopsFound = false;
         SkDEBUGCODE(fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin));
         SkDEBUGCODE(fFirstSorted = -1);
         SkDEBUGCODE(fDebugIndent = 0);
@@ -416,7 +415,6 @@ private:
     int fCount;
     int fFirstSorted;
     bool fDone;  // set by find top segment
-    bool fTopsFound;
     bool fOperand;  // true for the second argument to a binary operator
     bool fReverse;  // true if contour should be reverse written to path (used only by fix winding)
     bool fXor;  // set if original path had even-odd fill

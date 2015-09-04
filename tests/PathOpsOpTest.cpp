@@ -3845,8 +3845,7 @@ static void cubicOp130(skiatest::Reporter* reporter, const char* filename) {
 
 static void complex_to_quads(const SkPoint pts[], SkPath* path) {
     SkScalar loopT;
-    SkDCubic::CubicType dType;
-    if (SkDCubic::ComplexBreak(pts, &loopT, &dType)) {
+    if (SkDCubic::ComplexBreak(pts, &loopT)) {
         SkPoint cubicPair[7]; 
         SkChopCubicAt(pts, cubicPair, loopT);
         SkDCubic c1, c2;

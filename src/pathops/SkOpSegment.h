@@ -304,10 +304,6 @@ public:
         fContour = contour;
     }
 
-    void setCubicType(SkDCubic::CubicType cubicType) {
-        fCubicType = cubicType;
-    }
-
     void setNext(SkOpSegment* next) {
         fNext = next;
     }
@@ -404,8 +400,6 @@ private:
     int fCount;  // number of spans (one for a non-intersecting segment)
     int fDoneCount;  // number of processed spans (zero initially)
     SkPath::Verb fVerb;
-    SkDCubic::CubicType fCubicType;
-    bool fTopsFound;
     bool fVisited;  // used by missing coincidence check
     SkDEBUGCODE(int fID);
 };
