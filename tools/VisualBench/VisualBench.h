@@ -93,7 +93,6 @@ private:
 
     int fCurrentSample;
     int fCurrentFrame;
-    int fFlushes;
     int fLoops;
     SkTArray<Record> fRecords;
     WallTimer fTimer;

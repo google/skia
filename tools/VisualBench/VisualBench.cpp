@@ -30,7 +30,6 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allows to lag.");
 DEFINE_int32(samples, 10, "Number of times to time each skp.");
 DEFINE_int32(frames, 5, "Number of frames of each skp to render per sample.");
-DEFINE_double(flushMs, 20, "Target flush time in millseconds.");
 DEFINE_double(loopMs, 5, "Target loop time in millseconds.");
 DEFINE_int32(msaa, 0, "Number of msaa samples.");
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
@@ -53,7 +52,6 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     : INHERITED(hwnd)
     , fCurrentSample(0)
     , fCurrentFrame(0)
-    , fFlushes(1)
     , fLoops(1)
     , fState(kPreWarmLoops_State)
     , fBenchmark(nullptr)
@@ -143,10 +141,8 @@ void VisualBench::setupRenderTarget() {
 }
 
 inline void VisualBench::renderFrame(SkCanvas* canvas) {
-    for (int flush = 0; flush < fFlushes; flush++) {
-        fBenchmark->draw(fLoops, canvas);
-        canvas->flush();
-    }
+    fBenchmark->draw(fLoops, canvas);
+    canvas->flush();
     INHERITED::present();
 }
 
@@ -176,11 +172,10 @@ void VisualBench::printStats() {
         SkDebugf("%s\n", shortName);
     } else {
         const double stdDevPercent = 100 * sqrt(stats.var) / stats.mean;
-        SkDebugf("%4d/%-4dMB\t%d\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\n",
+        SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\n",
                  sk_tools::getCurrResidentSetSizeMB(),
                  sk_tools::getMaxResidentSetSizeMB(),
                  fLoops,
-                 fFlushes,
                  HUMANIZE(stats.min),
                  HUMANIZE(stats.median),
                  HUMANIZE(stats.mean),
@@ -283,7 +278,6 @@ void VisualBench::resetTimingState() {
 void VisualBench::scaleLoops(double elapsedMs) {
     // Scale back the number of loops
     fLoops = (int)ceil(fLoops * FLAGS_loopMs / elapsedMs);
-    fFlushes = (int)ceil(FLAGS_flushMs / elapsedMs);
 }
 
 inline void VisualBench::tuneLoops() {
@@ -305,7 +299,7 @@ inline void VisualBench::tuneLoops() {
 }
 
 void VisualBench::recordMeasurement() {
-    double measurement = this->elapsed() / (FLAGS_frames * fLoops * fFlushes);
+    double measurement = this->elapsed() / (FLAGS_frames * fLoops);
     fRecords.back().fMeasurements.push_back(measurement);
 }
 
@@ -313,7 +307,6 @@ void VisualBench::postDraw(SkCanvas* canvas) {
     fBenchmark->perCanvasPostDraw(canvas);
     fBenchmark.reset(nullptr);
     fCurrentSample = 0;
-    fFlushes = 1;
     fLoops = 1;
 }
 
