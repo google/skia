@@ -64,7 +64,6 @@
         '../samplecode/SampleDitherBitmap.cpp',
         '../samplecode/SampleEffects.cpp',
         '../samplecode/SampleEmboss.cpp',
-        '../samplecode/SampleEmptyPath.cpp',
         '../samplecode/SampleEncode.cpp',
         '../samplecode/SampleFatBits.cpp',
         '../samplecode/SampleFillType.cpp',
