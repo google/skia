@@ -103,9 +103,7 @@ public:
 
     /**
      *  Serialize to a stream. If non NULL, serializer will be used to serialize
-     *  any bitmaps in the picture.
-     *
-     *  TODO: Use serializer to serialize SkImages as well.
+     *  bitmaps and images in the picture.
      */
     void serialize(SkWStream*, SkPixelSerializer* = NULL) const;
 

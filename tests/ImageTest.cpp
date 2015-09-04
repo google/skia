@@ -10,8 +10,11 @@
 #include "SkDevice.h"
 #include "SkImageEncoder.h"
 #include "SkImage_Base.h"
+#include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkPixelSerializer.h"
 #include "SkRRect.h"
+#include "SkStream.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
 #include "Test.h"
@@ -110,29 +113,73 @@ namespace {
 const char* kSerializedData = "serialized";
 
 class MockSerializer : public SkPixelSerializer {
+public:
+    MockSerializer(SkData* (*func)()) : fFunc(func), fDidEncode(false) { }
+
+    bool didEncode() const { return fDidEncode; }
+
 protected:
     bool onUseEncodedData(const void*, size_t) override {
         return false;
     }
 
     SkData* onEncodePixels(const SkImageInfo&, const void*, size_t) override {
-        return SkData::NewWithCString(kSerializedData);
+        fDidEncode = true;
+        return fFunc();
     }
+
+private:
+    SkData* (*fFunc)();
+    bool fDidEncode;
+
+    typedef SkPixelSerializer INHERITED;
 };
 
 } // anonymous namespace
 
 // Test that SkImage encoding observes custom pixel serializers.
 DEF_TEST(Image_Encode_Serializer, reporter) {
-    MockSerializer serializer;
+    MockSerializer serializer([]() -> SkData* { return SkData::NewWithCString(kSerializedData); });
     const SkIRect ir = SkIRect::MakeXYWH(5, 5, 10, 10);
     SkAutoTUnref<SkImage> image(make_image(nullptr, 20, 20, ir));
     SkAutoTUnref<SkData> encoded(image->encode(&serializer));
     SkAutoTUnref<SkData> reference(SkData::NewWithCString(kSerializedData));
 
+    REPORTER_ASSERT(reporter, serializer.didEncode());
     REPORTER_ASSERT(reporter, encoded);
     REPORTER_ASSERT(reporter, encoded->size() > 0);
     REPORTER_ASSERT(reporter, encoded->equals(reference));
+}
+
+// Test that image encoding failures do not break picture serialization/deserialization.
+DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(100, 100));
+    surface->getCanvas()->clear(SK_ColorGREEN);
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    REPORTER_ASSERT(reporter, image);
+
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
+    canvas->drawImage(image, 0, 0);
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    REPORTER_ASSERT(reporter, picture);
+    REPORTER_ASSERT(reporter, picture->approximateOpCount() > 0);
+
+    MockSerializer emptySerializer([]() -> SkData* { return SkData::NewEmpty(); });
+    MockSerializer nullSerializer([]() -> SkData* { return nullptr; });
+    MockSerializer* serializers[] = { &emptySerializer, &nullSerializer };
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(serializers); ++i) {
+        SkDynamicMemoryWStream wstream;
+        REPORTER_ASSERT(reporter, !serializers[i]->didEncode());
+        picture->serialize(&wstream, serializers[i]);
+        REPORTER_ASSERT(reporter, serializers[i]->didEncode());
+
+        SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
+        SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rstream));
+        REPORTER_ASSERT(reporter, deserialized);
+        REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
+    }
 }
 
 DEF_TEST(Image_NewRasterCopy, reporter) {

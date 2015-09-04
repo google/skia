@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include <new>
+#include "SkImageGenerator.h"
 #include "SkPictureData.h"
 #include "SkPictureRecord.h"
 #include "SkReadBuffer.h"
@@ -433,6 +434,20 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
     return true;    // success
 }
 
+namespace {
+
+// This generator intentionally should always fail on all attempts to get its pixels,
+// simulating a bad or empty codec stream.
+class EmptyImageGenerator final : public SkImageGenerator {
+public:
+    EmptyImageGenerator(const SkImageInfo& info) : INHERITED(info) { }
+
+private:
+    typedef SkImageGenerator INHERITED;
+};
+
+} // anonymous namespace
+
 static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
     int width = buffer.read32();
     int height = buffer.read32();
@@ -442,9 +457,15 @@ static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
     }
 
     SkAutoTUnref<SkData> encoded(buffer.readByteArrayAsData());
+    if (encoded->size() == 0) {
+        // The image could not be encoded at serialization time - return an empty placeholder.
+        return SkImage::NewFromGenerator(
+            new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height)));
+    }
+
     int originX = buffer.read32();
     int originY = buffer.read32();
-    if (0 == encoded->size() || originX < 0 || originY < 0) {
+    if (originX < 0 || originY < 0) {
         buffer.validate(false);
         return nullptr;
     }

@@ -223,7 +223,7 @@ void SkWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->height());
 
     SkAutoTUnref<SkData> encoded(image->encode(this->getPixelSerializer()));
-    if (encoded) {
+    if (encoded && encoded->size() > 0) {
         write_encoded_bitmap(this, encoded, SkIPoint::Make(0, 0));
         return;
     }
