@@ -12,6 +12,7 @@
 #include "SkBBHFactory.h"
 #include "SkBBoxHierarchy.h"
 #include "SkBitmap.h"
+#include "SkBitmapRegionDecoderInterface.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkGPipe.h"
@@ -128,6 +129,34 @@ private:
     float                   fScale;
 };
 
+// Allows for testing of various implementations of Android's BitmapRegionDecoder
+class BRDSrc : public Src {
+public:
+    enum Mode {
+        // Decode the entire image as one region.
+        kFullImage_Mode,
+        // Splits the image into multiple regions using a divisor and decodes the regions
+        // separately.  Also, this test adds a border of a few pixels to each of the regions
+        // that it is decoding.  This tests the behavior when a client asks for a region that
+        // does not fully fit in the image.
+        kDivisor_Mode,
+    };
+
+    BRDSrc(Path, SkBitmapRegionDecoderInterface::Strategy, Mode, CodecSrc::DstColorType, uint32_t);
+
+    static float GetScale(uint32_t sampleSize) { return 1.0f / (float) sampleSize; }
+
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
+    bool veto(SinkFlags) const override;
+private:
+    Path                                     fPath;
+    SkBitmapRegionDecoderInterface::Strategy fStrategy;
+    Mode                                     fMode;
+    CodecSrc::DstColorType                   fDstColorType;
+    uint32_t                                 fSampleSize;
+};
 
 class ImageSrc : public Src {
 public:
