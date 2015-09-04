@@ -28,6 +28,7 @@ class ShadowsGM : public GM {
 public:
     SkPath fCirclePath;
     SkRect fRect;
+    SkBitmap fBitmap;
 
 protected:
     void onOnceBeforeDraw() override {
@@ -35,6 +36,13 @@ protected:
         fCirclePath.addCircle(SkIntToScalar(20), SkIntToScalar(20), SkIntToScalar(10) );
         fRect.set(SkIntToScalar(10), SkIntToScalar(10),
                   SkIntToScalar(30), SkIntToScalar(30));
+        fBitmap.allocPixels(SkImageInfo::Make(20, 20, SkColorType::kAlpha_8_SkColorType,
+                            kPremul_SkAlphaType));
+        SkCanvas canvas(fBitmap);
+        canvas.clear(0x0);
+        SkPaint p;
+        canvas.drawRect(SkRect::MakeXYWH(10, 0, 10, 10), p);
+        canvas.drawRect(SkRect::MakeXYWH(0, 10, 10, 10), p);
     }
 
     SkString onShortName() override {
@@ -113,6 +121,22 @@ protected:
             canvas->translate(SkIntToScalar(0), SkIntToScalar(40));
             setup(&paint, gRec[2].fColor, gRec[2].fStrokeWidth);
             canvas->drawPath(fCirclePath, paint);
+
+            // see bug.skia.org/562 (reference, draws correct)
+            canvas->translate(0, 40);
+            paint.setColor(SK_ColorBLACK);
+            canvas->drawBitmap(fBitmap, 10, 10, &paint);
+
+            canvas->translate(0, 40);
+            SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(
+                                          fBitmap, SkShader::kRepeat_TileMode,
+                                          SkShader::kRepeat_TileMode));
+
+            // see bug.skia.org/562 (shows bug as reported)
+            paint.setShader(shader);
+            paint.setStyle(SkPaint::kFill_Style);
+            canvas->drawRect(SkRect::MakeXYWH(10, 10, 20, 20), paint);
+            paint.setShader(nullptr);
         }
     }
 
