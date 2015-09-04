@@ -272,7 +272,7 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
                     break;
             }
             SkImageInfo info = dstInfo.makeAlphaType(embeddedAlpha);
-            result = embeddedCodec->getPixels(dstInfo, dst, dstRowBytes, &opts, ct, ptr);
+            result = embeddedCodec->getPixels(info, dst, dstRowBytes, &opts, ct, ptr);
 
             // On a fatal error, keep trying to find an image to decode
             if (kInvalidConversion == result || kInvalidInput == result ||
