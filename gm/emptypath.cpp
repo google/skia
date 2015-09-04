@@ -169,7 +169,7 @@ public:
     }
 
 protected:
-    SkString onShortName() {
+    SkString onShortName() override {
         return SkString("emptystroke");
     }
 
