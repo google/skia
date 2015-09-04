@@ -87,6 +87,8 @@ protected:
     void onUnlockPixels() override;
     size_t getAllocatedSizeInBytes() const override;
 
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return fDM; }
+
 private:
     SkDiscardableMemory* fDM;
     size_t               fRB;
