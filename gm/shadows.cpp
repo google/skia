@@ -50,7 +50,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(200, 120);
+        return SkISize::Make(200, 200);
     }
 
     void onDraw(SkCanvas* canvas) override {
