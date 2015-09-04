@@ -30,9 +30,6 @@ template <typename T>
 T sk_atomic_fetch_add(T*, T, sk_memory_order = sk_memory_order_seq_cst);
 
 template <typename T>
-T sk_atomic_fetch_sub(T*, T, sk_memory_order = sk_memory_order_seq_cst);
-
-template <typename T>
 bool sk_atomic_compare_exchange(T*, T* expected, T desired,
                                 sk_memory_order success = sk_memory_order_seq_cst,
                                 sk_memory_order failure = sk_memory_order_seq_cst);
@@ -59,10 +56,6 @@ public:
 
     T fetch_add(const T& val, sk_memory_order mo = sk_memory_order_seq_cst) {
         return sk_atomic_fetch_add(&fVal, val, mo);
-    }
-
-    T fetch_sub(const T& val, sk_memory_order mo = sk_memory_order_seq_cst) {
-        return sk_atomic_fetch_sub(&fVal, val, mo);
     }
 
     bool compare_exchange(T* expected, const T& desired,

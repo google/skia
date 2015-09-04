@@ -1476,11 +1476,13 @@ static void D1G_RectClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, 
         bounds = &storage;
     }
 
-    uint8_t*aa = (uint8_t*)state.fCache->findImage(glyph);
+    uint8_t* aa = (uint8_t*)glyph.fImage;
     if (nullptr == aa) {
-        return; // can't rasterize glyph
+        aa = (uint8_t*)state.fCache->findImage(glyph);
+        if (nullptr == aa) {
+            return; // can't rasterize glyph
+        }
     }
-
 
     mask.fRowBytes = glyph.rowBytes();
     mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
