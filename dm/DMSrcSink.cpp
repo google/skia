@@ -352,28 +352,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 return Error::Nonfatal("Could not start scanline decoder");
             }
 
-            SkCodec::Result result = SkCodec::kUnimplemented;
-            switch (scanlineDecoder->getScanlineOrder()) {
-                case SkScanlineDecoder::kTopDown_SkScanlineOrder:
-                case SkScanlineDecoder::kBottomUp_SkScanlineOrder:
-                case SkScanlineDecoder::kNone_SkScanlineOrder:
-                    result = scanlineDecoder->getScanlines(bitmap.getAddr(0, 0),
-                            decodeInfo.height(), bitmap.rowBytes());
-                    break;
-                case SkScanlineDecoder::kOutOfOrder_SkScanlineOrder: {
-                    for (int y = 0; y < decodeInfo.height(); y++) {
-                        int dstY = scanlineDecoder->getY();
-                        void* dstPtr = bitmap.getAddr(0, dstY);
-                        result = scanlineDecoder->getScanlines(dstPtr, 1, bitmap.rowBytes());
-                        if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
-                            return SkStringPrintf("%s failed with error message %d",
-                                                  fPath.c_str(), (int) result);
-                        }
-                    }
-                    break;
-                }
-            }
-
+            const SkCodec::Result result = scanlineDecoder->getScanlines(
+                    bitmap.getAddr(0, 0), decodeInfo.height(), bitmap.rowBytes());
             switch (result) {
                 case SkCodec::kSuccess:
                 case SkCodec::kIncompleteInput:

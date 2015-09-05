@@ -221,9 +221,9 @@ DEF_TEST(Codec, r) {
     check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false);
 
     // GIF
-    check(r, "box.gif", SkISize::Make(200, 55), true, false);
-    check(r, "color_wheel.gif", SkISize::Make(128, 128), true, false);
-    check(r, "randPixels.gif", SkISize::Make(8, 8), true, false);
+    check(r, "box.gif", SkISize::Make(200, 55), false, false);
+    check(r, "color_wheel.gif", SkISize::Make(128, 128), false, false);
+    check(r, "randPixels.gif", SkISize::Make(8, 8), false, false);
 
     // JPG
     check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false, false);

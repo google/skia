@@ -44,6 +44,15 @@ SkScaledCodec::SkScaledCodec(SkScanlineDecoder* scanlineDecoder)
 
 SkScaledCodec::~SkScaledCodec() {}
 
+// returns a scaled dimension based on the original dimension and the sampleSize
+// NOTE: we round down here for scaled dimension to match the behavior of SkImageDecoder
+static int get_scaled_dimension(int srcDimension, int sampleSize) {
+    if (sampleSize > srcDimension) {
+        return 1;
+    }
+    return srcDimension / sampleSize;
+}
+
 static SkISize best_scaled_dimensions(const SkISize& origDims, const SkISize& nativeDims,
                                       const SkISize& scaledCodecDims, float desiredScale) {
     if (nativeDims == scaledCodecDims) {
@@ -188,25 +197,7 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
     Result result = fScanlineDecoder->start(requestedInfo, &options, ctable, ctableCount);
     if (kSuccess == result) {
         // native decode supported
-        switch (fScanlineDecoder->getScanlineOrder()) {
-            case SkScanlineDecoder::kTopDown_SkScanlineOrder:
-            case SkScanlineDecoder::kBottomUp_SkScanlineOrder:
-            case SkScanlineDecoder::kNone_SkScanlineOrder:
-                return fScanlineDecoder->getScanlines(dst, requestedInfo.height(), rowBytes);
-            case SkScanlineDecoder::kOutOfOrder_SkScanlineOrder: {
-                for (int y = 0; y < requestedInfo.height(); y++) {
-                    int dstY = fScanlineDecoder->getY();
-                    void* dstPtr = SkTAddOffset<void>(dst, rowBytes * dstY);
-                    result = fScanlineDecoder->getScanlines(dstPtr, 1, rowBytes);
-                    // FIXME (msarett): Make the SkCodec base class take care of filling
-                    // uninitialized pixels so we can return immediately on kIncompleteInput.
-                    if (kSuccess != result && kIncompleteInput != result) {
-                        return result;
-                    }
-                }
-                return result;
-            }
-        }
+        return fScanlineDecoder->getScanlines(dst, requestedInfo.height(), rowBytes);
     }
 
     if (kInvalidScale != result) {
@@ -255,7 +246,7 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
                 }
                 dst = SkTAddOffset<void>(dst, rowBytes);
             }
-            return result;
+            return kSuccess;
         }
         case SkScanlineDecoder::kBottomUp_SkScanlineOrder:
         case SkScanlineDecoder::kOutOfOrder_SkScanlineOrder: {
@@ -274,13 +265,13 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
                     }
                 }
             }
-            return result;
+            return kSuccess;
         }
         case SkScanlineDecoder::kNone_SkScanlineOrder: {
             SkAutoMalloc storage(srcHeight * rowBytes);
             uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
             result = fScanlineDecoder->getScanlines(storagePtr, srcHeight, rowBytes);
-            if (kSuccess != result && kIncompleteInput != result) {
+            if (kSuccess != result) {
                 return result;
             }
             storagePtr += Y0 * rowBytes;
@@ -289,7 +280,7 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
                 storagePtr += sampleY * rowBytes;
                 dst = SkTAddOffset<void>(dst, rowBytes);
             }
-            return result;
+            return kSuccess;
         }
         default:
             SkASSERT(false);

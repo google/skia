@@ -31,17 +31,6 @@
     SkSwizzler::GetResult(zeroAlpha, maxAlpha);
 
 /*
- * returns a scaled dimension based on the original dimension and the sampleSize
- * NOTE: we round down here for scaled dimension to match the behavior of SkImageDecoder
- */
-static int get_scaled_dimension(int srcDimension, int sampleSize) {
-    if (sampleSize > srcDimension) {
-        return 1;
-    }
-    return srcDimension / sampleSize;
-}
-
-/*
  * Returns the first coordinate that we will keep during a scaled decode.
  * The output can be interpreted as an x-coordinate or a y-coordinate.
  *
@@ -148,7 +137,7 @@ static inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* co
         SkASSERT(nullptr != inputColorPtr);
         SkASSERT(nullptr != inputColorCount);
         SkASSERT(nullptr != colorTable);
-        memcpy(inputColorPtr, colorTable->readColors(), *inputColorCount * sizeof(SkPMColor));
+        memcpy(inputColorPtr, colorTable->readColors(), *inputColorCount * 4);
     }
 }
 

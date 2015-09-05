@@ -7,7 +7,6 @@
 
 #include "SkScanlineDecoder.h"
 #include "SkBmpCodec.h"
-#include "SkCodec_libgif.h"
 #include "SkCodec_libpng.h"
 #include "SkCodec_wbmp.h"
 #include "SkCodecPriv.h"
@@ -25,7 +24,6 @@ static const DecoderProc gDecoderProcs[] = {
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     { SkJpegCodec::IsJpeg, SkJpegCodec::NewSDFromStream },
 #endif
-    { SkGifCodec::IsGif, SkGifCodec::NewSDFromStream },
     { SkBmpCodec::IsBmp, SkBmpCodec::NewSDFromStream },
     { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewSDFromStream },
 };
