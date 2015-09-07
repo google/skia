@@ -9,6 +9,7 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
+#include "SkScaledCodec.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkUtils.h"
@@ -60,24 +61,6 @@ static GifFileType* open_gif(SkStream* stream) {
     return DGifOpen(stream, read_bytes_callback, nullptr);
 }
 
- /*
- * This function cleans up the gif object after the decode completes
- * It is used in a SkAutoTCallIProc template
- */
-void SkGifCodec::CloseGif(GifFileType* gif) {
-    DGifCloseFile(gif, nullptr);
-}
-
-/*
- * This function free extension data that has been saved to assist the image
- * decoder
- */
-void SkGifCodec::FreeExtension(SavedImage* image) {
-    if (nullptr != image->ExtensionBlocks) {
-        GifFreeExtensions(&image->ExtensionBlockCount, &image->ExtensionBlocks);
-    }
-}
-
 /*
  * Check if a there is an index of the color table for a transparent pixel
  */
@@ -95,12 +78,10 @@ static uint32_t find_trans_index(const SavedImage& image) {
         // is the transparent index (if it exists), so we need at least four
         // bytes.
         if (GRAPHICS_EXT_FUNC_CODE == extBlock.Function && extBlock.ByteCount >= 4) {
-
             // Check the transparent color flag which indicates whether a
             // transparent index exists.  It is the least significant bit of
             // the first byte of the extension block.
             if (1 == (extBlock.Bytes[0] & 1)) {
-
                 // Use uint32_t to prevent sign extending
                 return extBlock.Bytes[3];
             }
@@ -141,6 +122,24 @@ static uint32_t get_output_row_interlaced(uint32_t encodedRow, uint32_t height) 
 }
 
 /*
+ * This function cleans up the gif object after the decode completes
+ * It is used in a SkAutoTCallIProc template
+ */
+void SkGifCodec::CloseGif(GifFileType* gif) {
+    DGifCloseFile(gif, NULL);
+}
+
+/*
+ * This function free extension data that has been saved to assist the image
+ * decoder
+ */
+void SkGifCodec::FreeExtension(SavedImage* image) {
+    if (NULL != image->ExtensionBlocks) {
+        GifFreeExtensions(&image->ExtensionBlockCount, &image->ExtensionBlocks);
+    }
+}
+
+/*
  * Read enough of the stream to initialize the SkGifCodec.
  * Returns a bool representing success or failure.
  *
@@ -170,6 +169,22 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
         return false;
     }
 
+    // Read through gif extensions to get to the image data.  Set the
+    // transparent index based on the extension data.
+    uint32_t transIndex;
+    SkCodec::Result result = ReadUpToFirstImage(gif, &transIndex);
+    if (kSuccess != result){
+        return false;
+    }
+
+    // Read the image descriptor
+    if (GIF_ERROR == DGifGetImageDesc(gif)) {
+        return false;
+    }
+    // If reading the image descriptor is successful, the image count will be
+    // incremented.
+    SkASSERT(gif->ImageCount >= 1);
+
     if (nullptr != codecOut) {
         // Get fields from header
         const int32_t width = gif->SWidth;
@@ -179,20 +194,24 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
             return false;
         }
 
+        // Determine the recommended alpha type.  The transIndex might be valid if it less
+        // than 256.  We are not certain that the index is valid until we process the color
+        // table, since some gifs have color tables with less than 256 colors.  If
+        // there might be a valid transparent index, we must indicate that the image has
+        // alpha.
+        // In the case where we must support alpha, we have the option to set the
+        // suggested alpha type to kPremul or kUnpremul.  Both are valid since the alpha
+        // component will always be 0xFF or the entire 32-bit pixel will be set to zero.
+        // We prefer kPremul because we support kPremul, and it is more efficient to use
+        // kPremul directly even when kUnpremul is supported.
+        SkAlphaType alphaType = (transIndex < 256) ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
+
         // Return the codec
         // kIndex is the most natural color type for gifs, so we set this as
         // the default.
-        // Many gifs specify a color table index for transparent pixels.  Every
-        // other pixel is guaranteed to be opaque.  Despite this, because of the
-        // possiblity of transparent pixels, we cannot assume that the image is
-        // opaque.  We have the option to set the alpha type as kPremul or
-        // kUnpremul.  Both are valid since the alpha component will always be
-        // 0xFF or the entire 32-bit pixel will be set to zero.  We prefer
-        // kPremul because we support kPremul, and it is more efficient to
-        // use kPremul directly even when kUnpremul is supported.
         const SkImageInfo& imageInfo = SkImageInfo::Make(width, height,
-                                                         kIndex_8_SkColorType, kPremul_SkAlphaType);
-        *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach());
+                kIndex_8_SkColorType, alphaType);
+        *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach(), transIndex);
     } else {
         SkASSERT(nullptr != gifOut);
         streamDeleter.detach();
@@ -214,9 +233,22 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     return nullptr;
 }
 
-SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif)
+SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif,
+        uint32_t transIndex)
     : INHERITED(srcInfo, stream)
     , fGif(gif)
+    , fSrcBuffer(new uint8_t[this->getInfo().width()])
+    // If it is valid, fTransIndex will be used to set fFillIndex.  We don't know if
+    // fTransIndex is valid until we process the color table, since fTransIndex may
+    // be greater than the size of the color table.
+    , fTransIndex(transIndex)
+    // Default fFillIndex is 0.  We will overwrite this if fTransIndex is valid, or if
+    // there is a valid background color.
+    , fFillIndex(0)
+    , fFrameDims(SkIRect::MakeEmpty())
+    , fFrameIsSubset(false)
+    , fColorTable(NULL)
+    , fSwizzler(NULL)
 {}
 
 bool SkGifCodec::onRewind() {
@@ -230,31 +262,7 @@ bool SkGifCodec::onRewind() {
     return true;
 }
 
-/*
- * Initiates the gif decode
- */
-SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
-                                        void* dst, size_t dstRowBytes,
-                                        const Options& opts,
-                                        SkPMColor* inputColorPtr,
-                                        int* inputColorCount) {
-    // Rewind if necessary
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
-
-    // Check for valid input parameters
-    if (opts.fSubset) {
-        // Subsets are not supported.
-        return kUnimplemented;
-    }
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-        return gif_error("Scaling not supported.\n", kInvalidScale);
-    }
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
-    }
-
+SkCodec::Result SkGifCodec::ReadUpToFirstImage(GifFileType* gif, uint32_t* transIndex) {
     // Use this as a container to hold information about any gif extension
     // blocks.  This generally stores transparency and animation instructions.
     SavedImage saveExt;
@@ -267,196 +275,15 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     // We will loop over components of gif images until we find an image.  Once
     // we find an image, we will decode and return it.  While many gif files
     // contain more than one image, we will simply decode the first image.
-    const int32_t width = dstInfo.width();
-    const int32_t height = dstInfo.height();
     GifRecordType recordType;
     do {
         // Get the current record type
-        if (GIF_ERROR == DGifGetRecordType(fGif, &recordType)) {
+        if (GIF_ERROR == DGifGetRecordType(gif, &recordType)) {
             return gif_error("DGifGetRecordType failed.\n", kInvalidInput);
         }
-
         switch (recordType) {
             case IMAGE_DESC_RECORD_TYPE: {
-                // Read the image descriptor
-                if (GIF_ERROR == DGifGetImageDesc(fGif)) {
-                    return gif_error("DGifGetImageDesc failed.\n", kInvalidInput);
-                }
-
-                // If reading the image descriptor is successful, the image
-                // count will be incremented
-                SkASSERT(fGif->ImageCount >= 1);
-                SavedImage* image = &fGif->SavedImages[fGif->ImageCount - 1];
-
-                // Process the descriptor
-                const GifImageDesc& desc = image->ImageDesc;
-                int32_t imageLeft = desc.Left;
-                int32_t imageTop = desc.Top;
-                int32_t innerWidth = desc.Width;
-                int32_t innerHeight = desc.Height;
-                // Fail on non-positive dimensions
-                if (innerWidth <= 0 || innerHeight <= 0) {
-                    return gif_error("Invalid dimensions for inner image.\n", kInvalidInput);
-                }
-                // Treat the following cases as warnings and try to fix
-                if (innerWidth > width) {
-                    gif_warning("Inner image too wide, shrinking.\n");
-                    innerWidth = width;
-                    imageLeft = 0;
-                } else if (imageLeft + innerWidth > width) {
-                    gif_warning("Shifting inner image to left to fit.\n");
-                    imageLeft = width - innerWidth;
-                } else if (imageLeft < 0) {
-                    gif_warning("Shifting image to right to fit\n");
-                    imageLeft = 0;
-                }
-                if (innerHeight > height) {
-                    gif_warning("Inner image too tall, shrinking.\n");
-                    innerHeight = height;
-                    imageTop = 0;
-                } else if (imageTop + innerHeight > height) {
-                    gif_warning("Shifting inner image up to fit.\n");
-                    imageTop = height - innerHeight;
-                } else if (imageTop < 0) {
-                    gif_warning("Shifting image down to fit\n");
-                    imageTop = 0;
-                }
-
-                // Create a color table to store colors the giflib colorMap
-                SkPMColor alternateColorPtr[256];
-                SkPMColor* colorTable;
-                SkColorType dstColorType = dstInfo.colorType();
-                if (kIndex_8_SkColorType == dstColorType) {
-                    SkASSERT(nullptr != inputColorPtr);
-                    SkASSERT(nullptr != inputColorCount);
-                    colorTable = inputColorPtr;
-                } else {
-                    colorTable = alternateColorPtr;
-                }
-
-                // Set up the color table
-                uint32_t colorCount = 0;
-                // Allocate maximum storage to deal with invalid indices safely
-                const uint32_t maxColors = 256;
-                ColorMapObject* colorMap = fGif->Image.ColorMap;
-                // If there is no local color table, use the global color table
-                if (nullptr == colorMap) {
-                    colorMap = fGif->SColorMap;
-                }
-                if (nullptr != colorMap) {
-                    colorCount = colorMap->ColorCount;
-                    SkASSERT(colorCount == (unsigned) (1 << (colorMap->BitsPerPixel)));
-                    SkASSERT(colorCount <= 256);
-                    for (uint32_t i = 0; i < colorCount; i++) {
-                        colorTable[i] = SkPackARGB32(0xFF,
-                                                     colorMap->Colors[i].Red,
-                                                     colorMap->Colors[i].Green,
-                                                     colorMap->Colors[i].Blue);
-                    }
-                }
-
-                // This is used to fill unspecified pixels in the image data.
-                uint32_t fillIndex = fGif->SBackGroundColor;
-                ZeroInitialized zeroInit = opts.fZeroInitialized;
-
-                // Gifs have the option to specify the color at a single
-                // index of the color table as transparent.
-                {
-                    // Get the transparent index.  If the return value of this
-                    // function is greater than the colorCount, we know that
-                    // there is no valid transparent color in the color table.
-                    // This occurs if there is no graphics control extension or
-                    // if the index specified by the graphics control extension
-                    // is out of range.
-                    uint32_t transIndex = find_trans_index(saveExt);
-
-                    if (transIndex < colorCount) {
-                        colorTable[transIndex] = SK_ColorTRANSPARENT;
-                        // If there is a transparent index, we also use this as
-                        // the fill index.
-                        fillIndex = transIndex;
-                    } else if (fillIndex >= colorCount) {
-                        // If the fill index is invalid, we default to 0.  This
-                        // behavior is unspecified but matches SkImageDecoder.
-                        fillIndex = 0;
-                    }
-                }
-
-                // Fill in the color table for indices greater than color count.
-                // This allows for predictable, safe behavior.
-                for (uint32_t i = colorCount; i < maxColors; i++) {
-                    colorTable[i] = colorTable[fillIndex];
-                } 
-
-                // Check if image is only a subset of the image frame
-                SkAutoTDelete<SkSwizzler> swizzler(nullptr);
-                if (innerWidth < width || innerHeight < height) {
-
-                    // Modify the destination info
-                    const SkImageInfo subsetDstInfo = dstInfo.makeWH(innerWidth, innerHeight);
-
-                    // Fill the destination with the fill color
-                    // FIXME: This may not be the behavior that we want for
-                    //        animated gifs where we draw on top of the
-                    //        previous frame.
-                    SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, fillIndex, colorTable,
-                            zeroInit);
-
-                    // Modify the dst pointer
-                    const int32_t dstBytesPerPixel = SkColorTypeBytesPerPixel(dstColorType);
-                    dst = SkTAddOffset<void*>(dst,
-                                              dstRowBytes * imageTop +
-                                              dstBytesPerPixel * imageLeft);
-
-                    // Create the subset swizzler
-                    swizzler.reset(SkSwizzler::CreateSwizzler(
-                            SkSwizzler::kIndex, colorTable, subsetDstInfo,
-                            zeroInit, this->getInfo()));
-                } else {
-                    // Create the fully dimensional swizzler
-                    swizzler.reset(SkSwizzler::CreateSwizzler(
-                            SkSwizzler::kIndex, colorTable, dstInfo, 
-                            zeroInit, this->getInfo()));
-                }
-
-                // Stores output from dgiflib and input to the swizzler
-                SkAutoTDeleteArray<uint8_t> buffer(new uint8_t[innerWidth]);
-
-                // Check the interlace flag and iterate over rows of the input
-                if (fGif->Image.Interlace) {
-                    for (int32_t y = 0; y < innerHeight; y++) {
-                        if (GIF_ERROR == DGifGetLine(fGif, buffer.get(), innerWidth)) {
-                            // Recover from error by filling remainder of image
-                            memset(buffer.get(), fillIndex, innerWidth);
-                            for (; y < innerHeight; y++) {
-                                void* dstRow = SkTAddOffset<void>(dst, dstRowBytes *
-                                        get_output_row_interlaced(y, innerHeight));
-                                swizzler->swizzle(dstRow, buffer.get());
-                            }
-                            return gif_error(SkStringPrintf(
-                                    "Could not decode line %d of %d.\n",
-                                    y, height - 1).c_str(), kIncompleteInput);
-                        }
-                        void* dstRow = SkTAddOffset<void>(dst,
-                                dstRowBytes * get_output_row_interlaced(y, innerHeight));
-                        swizzler->swizzle(dstRow, buffer.get());
-                    }
-                } else {
-                    // Standard mode
-                    void* dstRow = dst;
-                    for (int32_t y = 0; y < innerHeight; y++) {
-                        if (GIF_ERROR == DGifGetLine(fGif, buffer.get(), innerWidth)) {
-                            SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, innerHeight - y,
-                                    fillIndex, colorTable, zeroInit);
-                            return gif_error(SkStringPrintf(
-                                    "Could not decode line %d of %d.\n",
-                                    y, height - 1).c_str(), kIncompleteInput);
-                        }
-                        swizzler->swizzle(dstRow, buffer.get());
-                        dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-                    }
-                }
-
+                *transIndex = find_trans_index(saveExt);
                 // FIXME: Gif files may have multiple images stored in a single
                 //        file.  This is most commonly used to enable
                 //        animations.  Since we are leaving animated gifs as a
@@ -480,12 +307,11 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 //        test case that expects this behavior.
                 return kSuccess;
             }
-
             // Extensions are used to specify special properties of the image
             // such as transparency or animation.
             case EXTENSION_RECORD_TYPE:
                 // Read extension data
-                if (GIF_ERROR == DGifGetExtension(fGif, &extFunction, &extData)) {
+                if (GIF_ERROR == DGifGetExtension(gif, &extFunction, &extData)) {
                     return gif_error("Could not get extension.\n", kIncompleteInput);
                 }
 
@@ -499,7 +325,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                         return gif_error("Could not add extension block.\n", kIncompleteInput);
                     }
                     // Move to the next block
-                    if (GIF_ERROR == DGifGetExtensionNext(fGif, &extData)) {
+                    if (GIF_ERROR == DGifGetExtensionNext(gif, &extData)) {
                         return gif_error("Could not get next extension.\n", kIncompleteInput);
                     }
                 }
@@ -510,12 +336,370 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                 break;
 
             default:
-                // giflib returns an error code if the record type is not known.
-                // We should catch this error immediately.
+                // DGifGetRecordType returns an error if the record type does
+                // not match one of the above cases.  This should not be
+                // reached.
                 SkASSERT(false);
                 break;
         }
     } while (TERMINATE_RECORD_TYPE != recordType);
 
     return gif_error("Could not find any images to decode in gif file.\n", kInvalidInput);
+}
+
+/*
+ * A gif may contain many image frames, all of different sizes.
+ * This function checks if the frame dimensions are valid and corrects them if
+ * necessary.
+ */
+bool SkGifCodec::setFrameDimensions(const GifImageDesc& desc) {
+    // Fail on non-positive dimensions
+    int32_t frameLeft = desc.Left;
+    int32_t frameTop = desc.Top;
+    int32_t frameWidth = desc.Width;
+    int32_t frameHeight = desc.Height;
+    int32_t height = this->getInfo().height();
+    int32_t width = this->getInfo().width();
+    if (frameWidth <= 0 || frameHeight <= 0) {
+        return false;
+    }
+
+    // Treat the following cases as warnings and try to fix
+    if (frameWidth > width) {
+        gif_warning("Image frame too wide, shrinking.\n");
+        frameWidth = width;
+        frameLeft = 0;
+    } else if (frameLeft + frameWidth > width) {
+        gif_warning("Shifting image frame to left to fit.\n");
+        frameLeft = width - frameWidth;
+    } else if (frameLeft < 0) {
+        gif_warning("Shifting image frame to right to fit\n");
+        frameLeft = 0;
+    }
+    if (frameHeight > height) {
+        gif_warning("Image frame too tall, shrinking.\n");
+        frameHeight = height;
+        frameTop = 0;
+    } else if (frameTop + frameHeight > height) {
+        gif_warning("Shifting image frame up to fit.\n");
+        frameTop = height - frameHeight;
+    } else if (frameTop < 0) {
+        gif_warning("Shifting image frame down to fit\n");
+        frameTop = 0;
+    }
+    fFrameDims.setXYWH(frameLeft, frameTop, frameWidth, frameHeight);
+
+    // Indicate if the frame dimensions do not match the header dimensions
+    if (this->getInfo().dimensions() != fFrameDims.size()) {
+        fFrameIsSubset = true;
+    }
+
+    return true;
+}
+
+void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
+        int* inputColorCount) {
+    // Set up our own color table
+    const uint32_t maxColors = 256;
+    SkPMColor colorPtr[256];
+    if (NULL != inputColorCount) {
+        // We set the number of colors to maxColors in order to ensure
+        // safe memory accesses.  Otherwise, an invalid pixel could
+        // access memory outside of our color table array.
+        *inputColorCount = maxColors;
+    }
+
+    // Get local color table
+    ColorMapObject* colorMap = fGif->Image.ColorMap;
+    // If there is no local color table, use the global color table
+    if (NULL == colorMap) {
+        colorMap = fGif->SColorMap;
+    }
+
+    uint32_t colorCount = 0;
+    if (NULL != colorMap) {
+        colorCount = colorMap->ColorCount;
+        // giflib guarantees these properties
+        SkASSERT(colorCount == (unsigned) (1 << (colorMap->BitsPerPixel)));
+        SkASSERT(colorCount <= 256);
+        for (uint32_t i = 0; i < colorCount; i++) {
+            colorPtr[i] = SkPackARGB32(0xFF, colorMap->Colors[i].Red,
+                    colorMap->Colors[i].Green, colorMap->Colors[i].Blue);
+        }
+    }
+
+    // Gifs have the option to specify the color at a single index of the color
+    // table as transparent.  If the transparent index is greater than the
+    // colorCount, we know that there is no valid transparent color in the color
+    // table.  If there is not valid transparent index, we will try to use the
+    // backgroundIndex as the fill index.  If the backgroundIndex is also not
+    // valid, we will let fFillIndex default to 0 (it is set to zero in the
+    // constructor).  This behavior is not specified but matches
+    // SkImageDecoder_libgif.
+    uint32_t backgroundIndex = fGif->SBackGroundColor;
+    if (fTransIndex < colorCount) {
+        colorPtr[fTransIndex] = SK_ColorTRANSPARENT;
+        fFillIndex = fTransIndex;
+    } else if (backgroundIndex < colorCount) {
+        fFillIndex = backgroundIndex;
+    }
+
+    // Fill in the color table for indices greater than color count.
+    // This allows for predictable, safe behavior.
+    for (uint32_t i = colorCount; i < maxColors; i++) {
+        colorPtr[i] = colorPtr[fFillIndex];
+    }
+
+    fColorTable.reset(new SkColorTable(colorPtr, maxColors));
+    copy_color_table(dstInfo, this->fColorTable, inputColorPtr, inputColorCount);
+}
+
+SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
+        int* inputColorCount, const Options& opts) {
+    // Rewind if necessary
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
+    }
+
+    // Check for valid input parameters
+    if (opts.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
+    if (!conversion_possible(dstInfo, this->getInfo())) {
+        return gif_error("Cannot convert input type to output type.\n",
+                kInvalidConversion);
+    }
+
+
+    // We have asserted that the image count is at least one in ReadHeader().
+    SavedImage* image = &fGif->SavedImages[fGif->ImageCount - 1];
+    const GifImageDesc& desc = image->ImageDesc;
+
+    // Check that the frame dimensions are valid and set them
+    if(!this->setFrameDimensions(desc)) {
+        return gif_error("Invalid dimensions for image frame.\n", kInvalidInput);
+    }
+
+    // Initialize color table and copy to the client if necessary
+    this->initializeColorTable(dstInfo, inputColorPtr, inputColorCount);
+    return kSuccess;
+}
+
+SkCodec::Result SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo,
+        ZeroInitialized zeroInit) {
+    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(SkSwizzler::kIndex,
+            colorPtr, dstInfo, zeroInit, this->getInfo()));
+    if (nullptr != fSwizzler.get()) {
+        return kSuccess;
+    }
+    return kUnimplemented;
+}
+
+SkCodec::Result SkGifCodec::readRow() {
+    if (GIF_ERROR == DGifGetLine(fGif, fSrcBuffer.get(), fFrameDims.width())) {
+        return kIncompleteInput;
+    }
+    return kSuccess;
+}
+
+/*
+ * Initiates the gif decode
+ */
+SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
+                                        void* dst, size_t dstRowBytes,
+                                        const Options& opts,
+                                        SkPMColor* inputColorPtr,
+                                        int* inputColorCount) {
+    Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, opts);
+    if (kSuccess != result) {
+        return result;
+    }
+
+    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+        return gif_error("Scaling not supported.\n", kInvalidScale);
+    }
+
+    // Initialize the swizzler
+    if (fFrameIsSubset) {
+        const SkImageInfo subsetDstInfo = dstInfo.makeWH(fFrameDims.width(), fFrameDims.height());
+        if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts.fZeroInitialized)) {
+            return gif_error("Could not initialize swizzler.\n", kUnimplemented);
+        }
+
+        // Fill the background
+        const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, this->getInfo().height(),
+                fFillIndex, colorPtr, opts.fZeroInitialized);
+
+        // Modify the dst pointer
+        const int32_t dstBytesPerPixel = SkColorTypeBytesPerPixel(dstInfo.colorType());
+        dst = SkTAddOffset<void*>(dst, dstRowBytes * fFrameDims.top() +
+                dstBytesPerPixel * fFrameDims.left());
+    } else {
+        if (kSuccess != this->initializeSwizzler(dstInfo, opts.fZeroInitialized)) {
+            return gif_error("Could not initialize swizzler.\n", kUnimplemented);
+        }
+    }
+
+    // Check the interlace flag and iterate over rows of the input
+    uint32_t width = fFrameDims.width();
+    uint32_t height = fFrameDims.height();
+    if (fGif->Image.Interlace) {
+        // In interlace mode, the rows of input are rearranged in
+        // the output image.  We a helper function to help us
+        // rearrange the decoded rows.
+        for (uint32_t y = 0; y < height; y++) {
+            if (kSuccess != this->readRow()) {
+                // Recover from error by filling remainder of image
+                memset(fSrcBuffer.get(), fFillIndex, width);
+                for (; y < height; y++) {
+                    void* dstRow = SkTAddOffset<void>(dst,
+                            dstRowBytes * get_output_row_interlaced(y, height));
+                    fSwizzler->swizzle(dstRow, fSrcBuffer.get());
+                }
+                return gif_error("Could not decode line.\n", kIncompleteInput);
+            }
+            void* dstRow = SkTAddOffset<void>(dst,
+                    dstRowBytes * get_output_row_interlaced(y, height));
+            fSwizzler->swizzle(dstRow, fSrcBuffer.get());
+        }
+    } else {
+        // Standard mode
+        void* dstRow = dst;
+        for (uint32_t y = 0; y < height; y++) {
+            if (kSuccess != this->readRow()) {
+                const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+                SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes,
+                        height - y, fFillIndex, colorPtr, opts.fZeroInitialized);
+                return gif_error("Could not decode line\n", kIncompleteInput);
+            }
+            fSwizzler->swizzle(dstRow, fSrcBuffer.get());
+            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+        }
+    }
+    return kSuccess;
+}
+
+// TODO (msarett): skbug.com/3582
+//                 Should we implement reallyHasAlpha?  Or should we read extension blocks in the
+//                 header?  Or should we do both?
+
+class SkGifScanlineDecoder : public SkScanlineDecoder {
+public:
+    SkGifScanlineDecoder(const SkImageInfo& srcInfo, SkGifCodec* codec)
+        : INHERITED(srcInfo)
+        , fCodec(codec)
+    {}
+
+    SkEncodedFormat onGetEncodedFormat() const override {
+        return kGIF_SkEncodedFormat;
+    }
+
+    SkCodec::Result onStart(const SkImageInfo& dstInfo, const SkCodec::Options& opts,
+                            SkPMColor inputColorPtr[], int* inputColorCount) override {
+        SkCodec::Result result = fCodec->prepareToDecode(dstInfo, inputColorPtr, inputColorCount,
+                this->options());
+        if (SkCodec::kSuccess != result) {
+            return result;
+        }
+
+        // Check to see if scaling was requested.
+        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
+                return gif_error("Scaling not supported.\n", SkCodec::kInvalidScale);
+            }
+        }
+
+        // Initialize the swizzler
+        if (fCodec->fFrameIsSubset) {
+            int sampleX;
+            SkScaledCodec::ComputeSampleSize(dstInfo, fCodec->getInfo(), &sampleX, NULL);
+            const SkImageInfo subsetDstInfo = dstInfo.makeWH(
+                    get_scaled_dimension(fCodec->fFrameDims.width(), sampleX),
+                    fCodec->fFrameDims.height());
+            if (SkCodec::kSuccess != fCodec->initializeSwizzler(subsetDstInfo,
+                    opts.fZeroInitialized)) {
+                return gif_error("Could not initialize swizzler.\n", SkCodec::kUnimplemented);
+            }
+        } else {
+            if (SkCodec::kSuccess != fCodec->initializeSwizzler(dstInfo, opts.fZeroInitialized)) {
+                return gif_error("Could not initialize swizzler.\n", SkCodec::kUnimplemented);
+            }
+        }
+
+        return SkCodec::kSuccess;
+    }
+
+    SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
+        if (fCodec->fFrameIsSubset) {
+            // Fill the requested rows
+            const SkPMColor* colorPtr = get_color_ptr(fCodec->fColorTable.get());
+            SkSwizzler::Fill(dst, this->dstInfo(), rowBytes, count, fCodec->fFillIndex,
+                    colorPtr, this->options().fZeroInitialized);
+
+            // Do nothing for rows before the image frame
+            int rowsBeforeFrame = fCodec->fFrameDims.top() - INHERITED::getY();
+            if (rowsBeforeFrame > 0) {
+                count = SkTMin(0, count - rowsBeforeFrame);
+                dst = SkTAddOffset<void>(dst, rowBytes * rowsBeforeFrame);
+            }
+
+            // Do nothing for rows after the image frame
+            int rowsAfterFrame = INHERITED::getY() + count - fCodec->fFrameDims.bottom();
+            if (rowsAfterFrame > 0) {
+                count = SkTMin(0, count - rowsAfterFrame);
+            }
+
+            // Adjust dst pointer for left offset
+            dst = SkTAddOffset<void>(dst, SkColorTypeBytesPerPixel(
+                    this->dstInfo().colorType()) * fCodec->fFrameDims.left());
+        }
+
+        for (int i = 0; i < count; i++) {
+            if (SkCodec::kSuccess != fCodec->readRow()) {
+                const SkPMColor* colorPtr = get_color_ptr(fCodec->fColorTable.get());
+                SkSwizzler::Fill(dst, this->dstInfo(), rowBytes,
+                        count - i, fCodec->fFillIndex, colorPtr,
+                        this->options().fZeroInitialized);
+                return gif_error("Could not decode line\n", SkCodec::kIncompleteInput);
+            }
+            fCodec->fSwizzler->swizzle(dst, fCodec->fSrcBuffer.get());
+            dst = SkTAddOffset<void>(dst, rowBytes);
+        }
+        return SkCodec::kSuccess;
+    }
+
+    SkScanlineOrder onGetScanlineOrder() const override {
+        if (fCodec->fGif->Image.Interlace) {
+            return kOutOfOrder_SkScanlineOrder;
+        } else {
+            return kTopDown_SkScanlineOrder;
+        }
+    }
+
+    int onGetY() const override {
+        if (fCodec->fGif->Image.Interlace) {
+            return get_output_row_interlaced(INHERITED::onGetY(), this->dstInfo().height());
+        } else {
+            return INHERITED::onGetY();
+        }
+    }
+
+private:
+    SkAutoTDelete<SkGifCodec>   fCodec;
+
+    typedef SkScanlineDecoder INHERITED;
+};
+
+SkScanlineDecoder* SkGifCodec::NewSDFromStream(SkStream* stream) {
+    SkAutoTDelete<SkGifCodec> codec (static_cast<SkGifCodec*>(SkGifCodec::NewFromStream(stream)));
+    if (!codec) {
+        return NULL;
+    }
+
+    const SkImageInfo& srcInfo = codec->getInfo();
+
+    return SkNEW_ARGS(SkGifScanlineDecoder, (srcInfo, codec.detach()));
 }

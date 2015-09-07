@@ -6,7 +6,10 @@
  */
 
 #include "SkCodec.h"
+#include "SkColorTable.h"
 #include "SkImageInfo.h"
+#include "SkScanlineDecoder.h"
+#include "SkSwizzler.h"
 
 #include "gif_lib.h"
 
@@ -29,7 +32,8 @@ public:
      * Reads enough of the stream to determine the image format
      */
     static SkCodec* NewFromStream(SkStream*);
-    
+
+    static SkScanlineDecoder* NewSDFromStream(SkStream* stream);
 
 protected:
 
@@ -52,10 +56,11 @@ protected:
      * Ownership is unchanged when we returned a gifOut.
      *
      */
-    static bool ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** gifOut);
+    static bool ReadHeader(SkStream* stream, SkCodec** codecOut,
+            GifFileType** gifOut);
 
     /*
-     * Initiates the gif decode
+     * Performs the full gif decode
      */
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&,
             SkPMColor*, int32_t*) override;
@@ -67,6 +72,67 @@ protected:
     bool onRewind() override;
 
 private:
+
+    /*
+     * A gif can contain multiple image frames.  We will only decode the first
+     * frame.  This function reads up to the first image frame, processing
+     * transparency and/or animation information that comes before the image
+     * data.
+     *
+     * @param gif        Pointer to the library type that manages the gif decode
+     * @param transIndex This call will set the transparent index based on the
+     *                   extension data.
+     */
+     static SkCodec::Result ReadUpToFirstImage(GifFileType* gif, uint32_t* transIndex);
+
+     /*
+      * A gif may contain many image frames, all of different sizes.
+      * This function checks if the frame dimensions are valid and corrects
+      * them if necessary.  It then sets fFrameDims to the corrected
+      * dimensions.
+      *
+      * @param desc The image frame descriptor
+      */
+     bool setFrameDimensions(const GifImageDesc& desc);
+
+    /*
+     * Initializes the color table that we will use for decoding.
+     *
+     * @param dstInfo         Contains the requested dst color type.
+     * @param inputColorPtr   Copies the encoded color table to the client's
+     *                        input color table if the client requests kIndex8.
+     * @param inputColorCount If the client requests kIndex8, sets
+     *                        inputColorCount to 256.  Since gifs always
+     *                        contain 8-bit indices, we need a 256 entry color
+     *                        table to ensure that indexing is always in
+     *                        bounds.
+     */
+    void initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* colorPtr,
+            int* inputColorCount);
+
+   /*
+    * Checks for invalid inputs and calls rewindIfNeeded(), setFramDimensions(), and
+    * initializeColorTable() in the proper sequence.
+    */
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
+            int* inputColorCount, const Options& opts);
+
+    /*
+     * Initializes the swizzler.
+     *
+     * @param dstInfo  Output image information.  Dimensions may have been
+     *                 adjusted if the image frame size does not match the size
+     *                 indicated in the header.
+     * @param zeroInit Indicates if destination memory is zero initialized.
+     */
+    SkCodec::Result initializeSwizzler(const SkImageInfo& dstInfo,
+            ZeroInitialized zeroInit);
+
+    /*
+     * @return kSuccess if the read is successful and kIncompleteInput if the
+     *         read fails.
+     */
+    SkCodec::Result readRow();
 
     /*
      * This function cleans up the gif object after the decode completes
@@ -88,10 +154,21 @@ private:
      * @param stream the stream of image data
      * @param gif pointer to library type that manages gif decode
      *            takes ownership
+     * @param transIndex  The transparent index.  An invalid value
+     *            indicates that there is no transparent index.
      */
-    SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif);
+    SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif, uint32_t transIndex);
 
     SkAutoTCallVProc<GifFileType, CloseGif> fGif; // owned
+    SkAutoTDeleteArray<uint8_t>             fSrcBuffer;
+    SkIRect                                 fFrameDims;
+    const uint32_t                          fTransIndex;
+    uint32_t                                fFillIndex;
+    bool                                    fFrameIsSubset;
+    SkAutoTDelete<SkSwizzler>               fSwizzler;
+    SkAutoTUnref<SkColorTable>              fColorTable;
+
+    friend class SkGifScanlineDecoder;
 
     typedef SkCodec INHERITED;
 };
