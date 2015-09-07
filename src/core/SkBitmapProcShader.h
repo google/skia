@@ -20,9 +20,7 @@ public:
     SkBitmapProcShader(const SkBitmap& src, TileMode tx, TileMode ty,
                        const SkMatrix* localMatrix = nullptr);
 
-    // overrides from SkShader
     bool isOpaque() const override;
-    BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
 
     size_t contextSize() const override;
 
@@ -58,6 +56,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
+    bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
 
     SkBitmap    fRawBitmap;   // experimental for RLE encoding
     uint8_t     fTileModeX, fTileModeY;

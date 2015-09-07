@@ -23,11 +23,6 @@ public:
         return fProxyShader->contextSize();
     }
 
-    virtual BitmapType asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
-                                 TileMode* mode) const override {
-        return fProxyShader->asABitmap(bitmap, matrix, mode);
-    }
-
     GradientType asAGradient(GradientInfo* info) const override {
         return fProxyShader->asAGradient(info);
     }
@@ -57,6 +52,10 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     Context* onCreateContext(const ContextRec&, void*) const override;
+
+    bool onIsABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* mode) const override {
+        return fProxyShader->isABitmap(bitmap, matrix, mode);
+    }
 
 private:
     SkAutoTUnref<SkShader> fProxyShader;
