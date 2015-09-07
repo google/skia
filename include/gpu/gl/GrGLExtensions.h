@@ -28,7 +28,7 @@ public:
     GrGLExtensions& operator=(const GrGLExtensions&);
 
     void swap(GrGLExtensions* that) {
-        fStrings.swap(&that->fStrings);
+        fStrings.swap(that->fStrings);
         SkTSwap(fInitialized, that->fInitialized);
     }
 

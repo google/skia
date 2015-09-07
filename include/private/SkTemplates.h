@@ -10,9 +10,11 @@
 #ifndef SkTemplates_DEFINED
 #define SkTemplates_DEFINED
 
-#include "../private/SkTLogic.h"
 #include "SkMath.h"
+#include "SkTLogic.h"
 #include "SkTypes.h"
+#include "SkUniquePtr.h"
+#include "SkUtility.h"
 #include <limits.h>
 #include <new>
 
@@ -27,25 +29,6 @@
  *  Note that this does *not* prevent the local variable from being optimized away.
  */
 template<typename T> inline void sk_ignore_unused_variable(const T&) { }
-
-namespace skstd {
-
-template <typename T> inline remove_reference_t<T>&& move(T&& t) {
-  return static_cast<remove_reference_t<T>&&>(t);
-}
-
-template <typename T> inline T&& forward(remove_reference_t<T>& t) /*noexcept*/ {
-    return static_cast<T&&>(t);
-}
-template <typename T> inline T&& forward(remove_reference_t<T>&& t) /*noexcept*/ {
-    static_assert(!is_lvalue_reference<T>::value,
-                  "Forwarding an rvalue reference as an lvalue reference is not allowed.");
-    return static_cast<T&&>(t);
-}
-
-template <typename T> add_rvalue_reference_t<T> declval();
-
-}  // namespace skstd
 
 /**
  *  Returns a pointer to a D which comes immediately after S[count].
@@ -63,6 +46,10 @@ template <typename D, typename S> static D* SkTAddOffset(S* ptr, size_t byteOffs
     return reinterpret_cast<D*>(reinterpret_cast<sknonstd::same_cv_t<char, D>*>(ptr) + byteOffset);
 }
 
+template <typename R, typename T, R (*P)(T*)> struct SkFunctionWrapper {
+    R operator()(T* t) { return P(t); }
+};
+
 /** \class SkAutoTCallVProc
 
     Call a function when this goes out of scope. The template uses two
@@ -71,25 +58,13 @@ template <typename D, typename S> static D* SkTAddOffset(S* ptr, size_t byteOffs
     reference is null when the destructor is called, we do not call the
     function.
 */
-template <typename T, void (*P)(T*)> class SkAutoTCallVProc : SkNoncopyable {
+template <typename T, void (*P)(T*)> class SkAutoTCallVProc
+    : public skstd::unique_ptr<T, SkFunctionWrapper<void, T, P>> {
 public:
-    SkAutoTCallVProc(T* obj): fObj(obj) {}
-    ~SkAutoTCallVProc() { if (fObj) P(fObj); }
+    SkAutoTCallVProc(T* obj): skstd::unique_ptr<T, SkFunctionWrapper<void, T, P>>(obj) {}
 
-    operator T*() const { return fObj; }
-    T* operator->() const { SkASSERT(fObj); return fObj; }
-
-    T* detach() { T* obj = fObj; fObj = NULL; return obj; }
-    void reset(T* obj = NULL) {
-        if (fObj != obj) {
-            if (fObj) {
-                P(fObj);
-            }
-            fObj = obj;
-        }
-    }
-private:
-    T* fObj;
+    operator T*() const { return this->get(); }
+    T* detach() { return this->release(); }
 };
 
 /** \class SkAutoTCallIProc
@@ -100,17 +75,13 @@ If detach() is called, the object reference is set to null. If the object
 reference is null when the destructor is called, we do not call the
 function.
 */
-template <typename T, int (*P)(T*)> class SkAutoTCallIProc : SkNoncopyable {
+template <typename T, int (*P)(T*)> class SkAutoTCallIProc
+    : public skstd::unique_ptr<T, SkFunctionWrapper<int, T, P>> {
 public:
-    SkAutoTCallIProc(T* obj): fObj(obj) {}
-    ~SkAutoTCallIProc() { if (fObj) P(fObj); }
+    SkAutoTCallIProc(T* obj): skstd::unique_ptr<T, SkFunctionWrapper<int, T, P>>(obj) {}
 
-    operator T*() const { return fObj; }
-    T* operator->() const { SkASSERT(fObj); return fObj; }
-
-    T* detach() { T* obj = fObj; fObj = NULL; return obj; }
-private:
-    T* fObj;
+    operator T*() const { return this->get(); }
+    T* detach() { return this->release(); }
 };
 
 /** \class SkAutoTDelete
@@ -123,89 +94,21 @@ private:
 
   The size of a SkAutoTDelete is small: sizeof(SkAutoTDelete<T>) == sizeof(T*)
 */
-template <typename T> class SkAutoTDelete : SkNoncopyable {
+template <typename T> class SkAutoTDelete : public skstd::unique_ptr<T> {
 public:
-    SkAutoTDelete(T* obj = NULL) : fObj(obj) {}
-    ~SkAutoTDelete() { delete fObj; }
+    SkAutoTDelete(T* obj = NULL) : skstd::unique_ptr<T>(obj) {}
 
-    T* get() const { return fObj; }
-    operator T*() const { return fObj; }
-    T& operator*() const { SkASSERT(fObj); return *fObj; }
-    T* operator->() const { SkASSERT(fObj); return fObj; }
-
-    void reset(T* obj) {
-        if (fObj != obj) {
-            delete fObj;
-            fObj = obj;
-        }
-    }
-
-    /**
-     *  Delete the owned object, setting the internal pointer to NULL.
-     */
-    void free() {
-        delete fObj;
-        fObj = NULL;
-    }
-
-    /**
-     *  Transfer ownership of the object to the caller, setting the internal
-     *  pointer to NULL. Note that this differs from get(), which also returns
-     *  the pointer, but it does not transfer ownership.
-     */
-    T* detach() {
-        T* obj = fObj;
-        fObj = NULL;
-        return obj;
-    }
-
-    void swap(SkAutoTDelete* that) {
-        SkTSwap(fObj, that->fObj);
-    }
-
-private:
-    T*  fObj;
+    operator T*() const { return this->get(); }
+    void free() { this->reset(nullptr); }
+    T* detach() { return this->release(); }
 };
 
-// Calls ~T() in the destructor.
-template <typename T> class SkAutoTDestroy : SkNoncopyable {
+template <typename T> class SkAutoTDeleteArray : public skstd::unique_ptr<T[]> {
 public:
-    SkAutoTDestroy(T* obj = NULL) : fObj(obj) {}
-    ~SkAutoTDestroy() {
-        if (fObj) {
-            fObj->~T();
-        }
-    }
+    SkAutoTDeleteArray(T array[]) : skstd::unique_ptr<T[]>(array) {}
 
-    T* get() const { return fObj; }
-    T& operator*() const { SkASSERT(fObj); return *fObj; }
-    T* operator->() const { SkASSERT(fObj); return fObj; }
-
-private:
-    T*  fObj;
-};
-
-template <typename T> class SkAutoTDeleteArray : SkNoncopyable {
-public:
-    SkAutoTDeleteArray(T array[]) : fArray(array) {}
-    ~SkAutoTDeleteArray() { delete[] fArray; }
-
-    T*      get() const { return fArray; }
-    void free() {
-        delete[] fArray;
-        fArray = NULL;
-    }
-    T*      detach() { T* array = fArray; fArray = NULL; return array; }
-
-    void reset(T array[]) {
-        if (fArray != array) {
-            delete[] fArray;
-            fArray = array;
-        }
-    }
-
-private:
-    T*  fArray;
+    void free() { this->reset(nullptr); }
+    T* detach() { return this->release(); }
 };
 
 /** Allocate an array of T elements, and free the array in the destructor

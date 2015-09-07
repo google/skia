@@ -10,7 +10,8 @@
 
 // TODO: document, more pervasive move support in constructors, small-Fn optimization
 
-#include "SkTemplates.h"
+#include "SkUtility.h"
+#include "SkUniquePtr.h"
 #include "SkTypes.h"
 
 template <typename> class SkFunction;
@@ -29,7 +30,7 @@ public:
     SkFunction(const SkFunction& other) { *this = other; }
     SkFunction& operator=(const SkFunction& other) {
         if (this != &other) {
-            fFunction.reset(other.fFunction ? other.fFunction->clone() : nullptr);
+            fFunction.reset(other.fFunction.get() ? other.fFunction->clone() : nullptr);
         }
         return *this;
     }
@@ -69,7 +70,7 @@ private:
         R (*fFn)(Args...);
     };
 
-    SkAutoTDelete<Interface> fFunction;
+    skstd::unique_ptr<Interface> fFunction;
 };
 
 #endif//SkFunction_DEFINED
