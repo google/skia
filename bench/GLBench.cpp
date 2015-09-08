@@ -70,7 +70,7 @@ GrGLuint GLBench::CompileShader(const GrGLInterface* gl, const char* shaderSrc, 
     GR_GL_CALL(gl, CompileShader(shader));
 
     // Check for compile time errors
-    GrGLint success;
+    GrGLint success = GR_GL_INIT_ZERO;
     GrGLchar infoLog[512];
     GR_GL_CALL(gl, GetShaderiv(shader, GR_GL_COMPILE_STATUS, &success));
     if (!success) {
@@ -93,7 +93,7 @@ GrGLuint GLBench::CreateProgram(const GrGLInterface* gl, const char* vshader, co
     GR_GL_CALL(gl, LinkProgram(shaderProgram));
 
     // Check for linking errors
-    GrGLint success;
+    GrGLint success = GR_GL_INIT_ZERO;
     GrGLchar infoLog[512];
     GR_GL_CALL(gl, GetProgramiv(shaderProgram, GR_GL_LINK_STATUS, &success));
     if (!success) {
