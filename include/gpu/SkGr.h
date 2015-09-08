@@ -69,10 +69,26 @@ static inline GrColor SkColor2GrColorJustAlpha(SkColor c) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+ *  If the compressed data in the SkData is supported (as a texture format, this returns
+ *  the pixel-config that should be used, and sets outStartOfDataToUpload to the ptr into
+ *  the data where the actual raw data starts (skipping any header bytes).
+ *
+ *  If the compressed data is not supported, this returns kUnknown_GrPixelConfig, and
+ *  ignores outStartOfDataToUpload.
+ */
+GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
+                                                 int expectedW, int expectedH,
+                                                 const void** outStartOfDataToUpload);
+
 bool GrIsBitmapInCache(const GrContext*, const SkBitmap&, const GrTextureParams*);
 
 GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams*);
 GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, SkImageUsageType);
+
+GrTexture* GrCreateTextureForPixels(GrContext*, const GrUniqueKey& optionalKey, GrSurfaceDesc,
+                                    SkPixelRef* pixelRefForInvalidationNotificationOrNull,
+                                    const void* pixels, size_t rowBytesOrZero);
 
 ////////////////////////////////////////////////////////////////////////////////
 

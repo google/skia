@@ -197,7 +197,9 @@
       '<(skia_src_path)/gpu/GrVertexBuffer.h',
       '<(skia_src_path)/gpu/GrVertices.h',
       '<(skia_src_path)/gpu/GrXferProcessor.cpp',
-      
+      '<(skia_src_path)/gpu/GrYUVProvider.cpp',
+      '<(skia_src_path)/gpu/GrYUVProvider.h',
+
       # Batches
       '<(skia_src_path)/gpu/batches/GrAAHairLinePathRenderer.cpp',
       '<(skia_src_path)/gpu/batches/GrAAHairLinePathRenderer.h',

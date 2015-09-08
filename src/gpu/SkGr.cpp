@@ -10,6 +10,8 @@
 #include "GrCaps.h"
 #include "GrDrawContext.h"
 #include "GrXferProcessor.h"
+#include "GrYUVProvider.h"
+
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkCanvas.h"
@@ -237,16 +239,18 @@ private:
 }  // namespace
 
 
-static GrTexture* create_texture_for_bmp(GrContext* ctx,
-                                         const GrUniqueKey& optionalKey,
-                                         GrSurfaceDesc desc,
-                                         SkPixelRef* pixelRefForInvalidationNotification,
-                                         const void* pixels,
-                                         size_t rowBytes) {
+GrTexture* GrCreateTextureForPixels(GrContext* ctx,
+                                    const GrUniqueKey& optionalKey,
+                                    GrSurfaceDesc desc,
+                                    SkPixelRef* pixelRefForInvalidationNotification,
+                                    const void* pixels,
+                                    size_t rowBytes) {
     GrTexture* result = ctx->textureProvider()->createTexture(desc, true, pixels, rowBytes);
     if (result && optionalKey.isValid()) {
-        BitmapInvalidator* listener = new BitmapInvalidator(optionalKey);
-        pixelRefForInvalidationNotification->addGenIDChangeListener(listener);
+        if (pixelRefForInvalidationNotification) {
+            BitmapInvalidator* listener = new BitmapInvalidator(optionalKey);
+            pixelRefForInvalidationNotification->addGenIDChangeListener(listener);
+        }
         ctx->textureProvider()->assignUniqueKeyToTexture(optionalKey, result);
     }
     return result;
@@ -294,8 +298,8 @@ GrTexture* stretch_texture(GrTexture* inputTexture, const Stretch& stretch,
         }
     }
 
-    GrTexture* stretched = create_texture_for_bmp(context, optionalKey, rtDesc, pixelRef, nullptr, 0);
-
+    SkAutoTUnref<GrTexture> stretched(GrCreateTextureForPixels(context, optionalKey, rtDesc,
+                                                               pixelRef, nullptr,0));
     if (!stretched) {
         return nullptr;
     }
@@ -320,167 +324,111 @@ GrTexture* stretch_texture(GrTexture* inputTexture, const Stretch& stretch,
     drawContext->drawNonAARectToRect(stretched->asRenderTarget(), GrClip::WideOpen(), paint,
                                      SkMatrix::I(), rect, localRect);
 
-    return stretched;
+    return stretched.detach();
 }
 
+GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
+                                                 int expectedW, int expectedH,
+                                                 const void** outStartOfDataToUpload) {
+    *outStartOfDataToUpload = nullptr;
 #ifndef SK_IGNORE_ETC1_SUPPORT
-static GrTexture *load_etc1_texture(GrContext* ctx, const GrUniqueKey& optionalKey,
-                                    const SkBitmap &bm, GrSurfaceDesc desc) {
-    SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
-
-    // Is this even encoded data?
-    if (nullptr == data) {
-        return nullptr;
+    if (!ctx->caps()->isConfigTexturable(kETC1_GrPixelConfig)) {
+        return kUnknown_GrPixelConfig;
     }
 
-    // Is this a valid PKM encoded data?
-    const uint8_t *bytes = data->bytes();
-    if (etc1_pkm_is_valid(bytes)) {
-        uint32_t encodedWidth = etc1_pkm_get_width(bytes);
-        uint32_t encodedHeight = etc1_pkm_get_height(bytes);
-
+    const uint8_t* bytes = data->bytes();
+    if (data->size() > ETC_PKM_HEADER_SIZE && etc1_pkm_is_valid(bytes)) {
         // Does the data match the dimensions of the bitmap? If not,
         // then we don't know how to scale the image to match it...
-        if (encodedWidth != static_cast<uint32_t>(bm.width()) ||
-            encodedHeight != static_cast<uint32_t>(bm.height())) {
-            return nullptr;
+        if (etc1_pkm_get_width(bytes) != (unsigned)expectedW ||
+            etc1_pkm_get_height(bytes) != (unsigned)expectedH)
+        {
+            return kUnknown_GrPixelConfig;
         }
 
-        // Everything seems good... skip ahead to the data.
-        bytes += ETC_PKM_HEADER_SIZE;
-        desc.fConfig = kETC1_GrPixelConfig;
+        *outStartOfDataToUpload = bytes + ETC_PKM_HEADER_SIZE;
+        return kETC1_GrPixelConfig;
     } else if (SkKTXFile::is_ktx(bytes)) {
         SkKTXFile ktx(data);
 
         // Is it actually an ETC1 texture?
         if (!ktx.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
-            return nullptr;
+            return kUnknown_GrPixelConfig;
         }
 
         // Does the data match the dimensions of the bitmap? If not,
         // then we don't know how to scale the image to match it...
-        if (ktx.width() != bm.width() || ktx.height() != bm.height()) {
-            return nullptr;
+        if (ktx.width() != expectedW || ktx.height() != expectedH) {
+            return kUnknown_GrPixelConfig;
         }
 
-        bytes = ktx.pixelData();
-        desc.fConfig = kETC1_GrPixelConfig;
-    } else {
+        *outStartOfDataToUpload = ktx.pixelData();
+        return kETC1_GrPixelConfig;
+    }
+#endif
+    return kUnknown_GrPixelConfig;
+}
+
+static GrTexture* load_etc1_texture(GrContext* ctx, const GrUniqueKey& optionalKey,
+                                    const SkBitmap &bm, GrSurfaceDesc desc) {
+    SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
+    if (!data) {
         return nullptr;
     }
 
-    return create_texture_for_bmp(ctx, optionalKey, desc, bm.pixelRef(), bytes, 0);
+    const void* startOfTexData;
+    desc.fConfig = GrIsCompressedTextureDataSupported(ctx, data, bm.width(), bm.height(),
+                                                      &startOfTexData);
+    if (kUnknown_GrPixelConfig == desc.fConfig) {
+        return nullptr;
+    }
+
+    return GrCreateTextureForPixels(ctx, optionalKey, desc, bm.pixelRef(), startOfTexData, 0);
 }
-#endif   // SK_IGNORE_ETC1_SUPPORT
+
+/*
+ *  Once we have made SkImages handle all lazy/deferred/generated content, the YUV apis will
+ *  be gone from SkPixelRef, and we can remove this subclass entirely.
+ */
+class PixelRef_GrYUVProvider : public GrYUVProvider {
+    SkPixelRef* fPR;
+
+public:
+    PixelRef_GrYUVProvider(SkPixelRef* pr) : fPR(pr) {}
+
+    uint32_t onGetID() override { return fPR->getGenerationID(); }
+    bool onGetYUVSizes(SkISize sizes[3]) override {
+        return fPR->getYUV8Planes(sizes, nullptr, nullptr, nullptr);
+    }
+    bool onGetYUVPlanes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+                        SkYUVColorSpace* space) override {
+        return fPR->getYUV8Planes(sizes, planes, rowBytes, space);
+    }
+};
 
 static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKey,
                                    const SkBitmap& bm, const GrSurfaceDesc& desc) {
     // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
     SkPixelRef* pixelRef = bm.pixelRef();
-    if ((nullptr == pixelRef) || 
+    if ((nullptr == pixelRef) ||
         (pixelRef->info().width()  != bm.info().width()) ||
         (pixelRef->info().height() != bm.info().height())) {
         return nullptr;
     }
 
     const bool useCache = optionalKey.isValid();
-    SkYUVPlanesCache::Info yuvInfo;
-    SkAutoTUnref<SkCachedData> cachedData;
-    SkAutoMalloc storage;
+    PixelRef_GrYUVProvider provider(pixelRef);
+    GrTexture* texture = provider.refAsTexture(ctx, desc, useCache);
+    if (!texture) {
+        return nullptr;
+    }
+
     if (useCache) {
-        cachedData.reset(SkYUVPlanesCache::FindAndRef(pixelRef->getGenerationID(), &yuvInfo));
+        BitmapInvalidator* listener = new BitmapInvalidator(optionalKey);
+        pixelRef->addGenIDChangeListener(listener);
+        ctx->textureProvider()->assignUniqueKeyToTexture(optionalKey, texture);
     }
-
-    void* planes[3];
-    if (cachedData.get()) {
-        planes[0] = (void*)cachedData->data();
-        planes[1] = (uint8_t*)planes[0] + yuvInfo.fSizeInMemory[0];
-        planes[2] = (uint8_t*)planes[1] + yuvInfo.fSizeInMemory[1];
-    } else {
-        // Fetch yuv plane sizes for memory allocation. Here, width and height can be
-        // rounded up to JPEG block size and be larger than the image's width and height.
-        if (!pixelRef->getYUV8Planes(yuvInfo.fSize, nullptr, nullptr, nullptr)) {
-            return nullptr;
-        }
-
-        // Allocate the memory for YUV
-        size_t totalSize(0);
-        for (int i = 0; i < 3; ++i) {
-            yuvInfo.fRowBytes[i] = yuvInfo.fSize[i].fWidth;
-            yuvInfo.fSizeInMemory[i] = yuvInfo.fRowBytes[i] * yuvInfo.fSize[i].fHeight;
-            totalSize += yuvInfo.fSizeInMemory[i];
-        }
-        if (useCache) {
-            cachedData.reset(SkResourceCache::NewCachedData(totalSize));
-            planes[0] = cachedData->writable_data();
-        } else {
-            storage.reset(totalSize);
-            planes[0] = storage.get();
-        }
-        planes[1] = (uint8_t*)planes[0] + yuvInfo.fSizeInMemory[0];
-        planes[2] = (uint8_t*)planes[1] + yuvInfo.fSizeInMemory[1];
-
-        // Get the YUV planes and update plane sizes to actual image size
-        if (!pixelRef->getYUV8Planes(yuvInfo.fSize, planes, yuvInfo.fRowBytes,
-                                     &yuvInfo.fColorSpace)) {
-            return nullptr;
-        }
-
-        if (useCache) {
-            // Decoding is done, cache the resulting YUV planes
-            SkYUVPlanesCache::Add(pixelRef->getGenerationID(), cachedData, &yuvInfo);
-        }
-    }
-
-    GrSurfaceDesc yuvDesc;
-    yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
-    SkAutoTUnref<GrTexture> yuvTextures[3];
-    for (int i = 0; i < 3; ++i) {
-        yuvDesc.fWidth  = yuvInfo.fSize[i].fWidth;
-        yuvDesc.fHeight = yuvInfo.fSize[i].fHeight;
-        bool needsExactTexture =
-            (yuvDesc.fWidth  != yuvInfo.fSize[0].fWidth) ||
-            (yuvDesc.fHeight != yuvInfo.fSize[0].fHeight);
-        if (needsExactTexture) {
-            yuvTextures[i].reset(ctx->textureProvider()->createTexture(yuvDesc, true));
-        } else {
-            yuvTextures[i].reset(ctx->textureProvider()->createApproxTexture(yuvDesc));
-        }
-        if (!yuvTextures[i] ||
-            !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight,
-                                         yuvDesc.fConfig, planes[i], yuvInfo.fRowBytes[i])) {
-            return nullptr;
-        }
-    }
-
-    GrSurfaceDesc rtDesc = desc;
-    rtDesc.fFlags = rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
-
-    GrTexture* result = create_texture_for_bmp(ctx, optionalKey, rtDesc, pixelRef, nullptr, 0);
-    if (!result) {
-        return nullptr;
-    }
-
-    GrRenderTarget* renderTarget = result->asRenderTarget();
-    SkASSERT(renderTarget);
-
-    GrPaint paint;
-    SkAutoTUnref<GrFragmentProcessor>
-        yuvToRgbProcessor(GrYUVtoRGBEffect::Create(paint.getProcessorDataManager(), yuvTextures[0],
-                                                   yuvTextures[1], yuvTextures[2],
-                                                   yuvInfo.fSize, yuvInfo.fColorSpace));
-    paint.addColorFragmentProcessor(yuvToRgbProcessor);
-    SkRect r = SkRect::MakeWH(SkIntToScalar(yuvInfo.fSize[0].fWidth),
-                              SkIntToScalar(yuvInfo.fSize[0].fHeight));
-
-    SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext());
-    if (!drawContext) {
-        return nullptr;
-    }
-
-    drawContext->drawRect(renderTarget, GrClip::WideOpen(), paint, SkMatrix::I(), r);
-
-    return result;
+    return texture;
 }
 
 static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
@@ -507,32 +455,24 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
 
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
-            return create_texture_for_bmp(ctx, optionalKey, desc, origBitmap.pixelRef(),
-                                          storage.get(), bitmap->width());
+            return GrCreateTextureForPixels(ctx, optionalKey, desc, origBitmap.pixelRef(),
+                                            storage.get(), bitmap->width());
         } else {
             origBitmap.copyTo(&tmpBitmap, kN32_SkColorType);
             // now bitmap points to our temp, which has been promoted to 32bits
             bitmap = &tmpBitmap;
             desc.fConfig = SkImageInfo2GrPixelConfig(bitmap->info());
         }
-    }
-
-    // Is this an ETC1 encoded texture?
-#ifndef SK_IGNORE_ETC1_SUPPORT
-    // Make sure that the underlying device supports ETC1 textures before we go ahead
-    // and check the data.
-    else if (caps->isConfigTexturable(kETC1_GrPixelConfig)
-            // If the bitmap had compressed data and was then uncompressed, it'll still return
-            // compressed data on 'refEncodedData' and upload it. Probably not good, since if
-            // the bitmap has available pixels, then they might not be what the decompressed
-            // data is.
-            && !(bitmap->readyToDraw())) {
+    } else if (!bitmap->readyToDraw()) {
+        // If the bitmap had compressed data and was then uncompressed, it'll still return
+        // compressed data on 'refEncodedData' and upload it. Probably not good, since if
+        // the bitmap has available pixels, then they might not be what the decompressed
+        // data is.
         GrTexture *texture = load_etc1_texture(ctx, optionalKey, *bitmap, desc);
         if (texture) {
             return texture;
         }
     }
-#endif   // SK_IGNORE_ETC1_SUPPORT
 
     GrTexture *texture = load_yuv_texture(ctx, optionalKey, *bitmap, desc);
     if (texture) {
@@ -544,8 +484,8 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
         return nullptr;
     }
 
-    return create_texture_for_bmp(ctx, optionalKey, desc, origBitmap.pixelRef(),
-                                  bitmap->getPixels(), bitmap->rowBytes());
+    return GrCreateTextureForPixels(ctx, optionalKey, desc, origBitmap.pixelRef(),
+                                    bitmap->getPixels(), bitmap->rowBytes());
 }
 
 static SkBitmap stretch_on_cpu(const SkBitmap& bmp, const Stretch& stretch) {
