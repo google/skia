@@ -18,7 +18,6 @@
         'utils.gypi',
       ],
       'include_dirs': [
-        '../include/codec',
         '../include/effects',
         '../include/gpu',
         '../include/images',

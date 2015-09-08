@@ -39,9 +39,6 @@
 
         '<(skia_src_path)/utils/SkBase64.cpp',
         '<(skia_src_path)/utils/SkBase64.h',
-        '<(skia_src_path)/utils/SkBitmapRegionCanvas.cpp',
-        '<(skia_src_path)/utils/SkBitmapRegionDecoderInterface.cpp',
-        '<(skia_src_path)/utils/SkBitmapRegionSampler.cpp',
         '<(skia_src_path)/utils/SkBitmapHasher.cpp',
         '<(skia_src_path)/utils/SkBitmapHasher.h',
         '<(skia_src_path)/utils/SkBitSet.cpp',
