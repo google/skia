@@ -16,9 +16,7 @@ public:
     void emitCode(EmitArgs& args) override {
         GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("vec4 alpha4 = %s.aaaa;", args.fInputColor);
-        SkString output;
-        this->emitChild(0, "alpha4", &output, args);
-        fsBuilder->codeAppendf("%s = %s;", args.fOutputColor, output.c_str());
+        this->emitChild(0, "alpha4", args.fOutputColor, args);
     }
 
 private:

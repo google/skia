@@ -57,25 +57,7 @@ public:
     void onBeforeChildProcEmitCode();
     void onAfterChildProcEmitCode();
 
-    int getChildNumberThisLevel() const {
-        if (fSubstageIndices.count() > 1) {
-            // second-to-last value in the fSubstageIndices stack is the index of the child proc
-            // at that level which is currently emitting code.
-            return fSubstageIndices[fSubstageIndices.count() - 2];
-        }
-        return -1;
-    }
-
     const SkString& getMangleString() const { return fMangleString; }
-
-    SkString getMangleStringThisLevel() const {
-        SkString ret;
-        int childNumber = this->getChildNumberThisLevel();
-        if (childNumber >= 0) {
-            ret.printf("_c%d", childNumber);
-        }
-        return ret;
-    }
 
 private:
     /*

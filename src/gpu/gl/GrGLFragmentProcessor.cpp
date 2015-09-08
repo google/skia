@@ -20,15 +20,11 @@ void GrGLFragmentProcessor::setData(const GrGLProgramDataManager& pdman,
 }
 
 void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
-                                      SkString* outputColor, EmitArgs& args) {
+                                      const char* outputColor, EmitArgs& args) {
     GrGLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
     fb->onBeforeChildProcEmitCode();  // call first so mangleString is updated
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
-
-    // Mangle the name of the outputColor
-    outputColor->set(args.fOutputColor);
-    outputColor->append(fb->getMangleStringThisLevel());
 
     /*
      * We now want to find the subset of coords and samplers that belong to the child and its
@@ -78,13 +74,12 @@ void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
     }
 
     // emit the code for the child in its own scope
-    fb->codeAppendf("vec4 %s;\n", outputColor->c_str());
     fb->codeAppend("{\n");
     fb->codeAppendf("// Child Index %d (mangle: %s): %s\n", childIndex,
                     fb->getMangleString().c_str(), childProc.name());
     EmitArgs childArgs(args.fBuilder,
                        childProc,
-                       outputColor->c_str(),
+                       outputColor,
                        inputColor,
                        childCoords,
                        childSamplers);

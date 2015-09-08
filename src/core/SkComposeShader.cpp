@@ -283,18 +283,23 @@ void GrGLComposeEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppendf("float %s = %s.a;", inputAlpha.c_str(), args.fInputColor);
     fsBuilder->codeAppendf("%s /= %s.a;", args.fInputColor, args.fInputColor);
 
-    // emit the code of the two child shaders
-    SkString mangledOutputColorA;
-    this->emitChild(0, args.fInputColor, &mangledOutputColorA, args);
-    SkString mangledOutputColorB;
-    this->emitChild(1, args.fInputColor, &mangledOutputColorB, args);
+    // declare outputColor and emit the code for each of the two children
+    SkString outputColorA(args.fOutputColor);
+    outputColorA.append("_dst");
+    fsBuilder->codeAppendf("vec4 %s;\n", outputColorA.c_str());
+    this->emitChild(0, args.fInputColor, outputColorA.c_str(), args);
+
+    SkString outputColorB(args.fOutputColor);
+    outputColorB.append("_src");
+    fsBuilder->codeAppendf("vec4 %s;\n", outputColorB.c_str());
+    this->emitChild(1, args.fInputColor, outputColorB.c_str(), args);
 
     // emit blend code
     SkXfermode::Mode mode = cs.getMode();
     fsBuilder->codeAppend("{");
     fsBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkXfermode::ModeName(mode));
-    GrGLBlend::AppendPorterDuffBlend(fsBuilder, mangledOutputColorB.c_str(),
-                                     mangledOutputColorA.c_str(), args.fOutputColor, mode);
+    GrGLBlend::AppendPorterDuffBlend(fsBuilder, outputColorB.c_str(),
+                                     outputColorA.c_str(), args.fOutputColor, mode);
     fsBuilder->codeAppend("}");
 
     // re-multiply the output color by the input color's alpha

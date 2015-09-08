@@ -302,13 +302,17 @@ void GrGLFragmentShaderBuilder::addVarying(GrGLVarying* v, GrSLPrecision fsPrec)
 }
 
 void GrGLFragmentBuilder::onBeforeChildProcEmitCode() {
-    fSubstageIndices.back()++;
+    SkASSERT(fSubstageIndices.count() >= 1);
     fSubstageIndices.push_back(0);
-    fMangleString.append(this->getMangleStringThisLevel());
+    // second-to-last value in the fSubstageIndices stack is the index of the child proc
+    // at that level which is currently emitting code.
+    fMangleString.appendf("_c%d", fSubstageIndices[fSubstageIndices.count() - 2]);
 }
 
 void GrGLFragmentBuilder::onAfterChildProcEmitCode() {
+    SkASSERT(fSubstageIndices.count() >= 2);
     fSubstageIndices.pop_back();
+    fSubstageIndices.back()++;
     int removeAt = fMangleString.findLastOf('_');
     fMangleString.remove(removeAt, fMangleString.size() - removeAt);
 }

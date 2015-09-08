@@ -80,7 +80,12 @@ public:
         return fChildProcessors[index];
     }
 
-    void emitChild(int childIndex, const char* inputColor, SkString* outputColor, EmitArgs& args);
+    /** Will emit the code of a child proc in its own scope. Pass in the parent's EmitArgs and
+     * emitChild will automatically extract the coords and samplers of that child and pass them
+     * on to the child's emitCode().  Also, any uniforms or functions emitted by the child will
+     * have their names mangled to prevent redefinitions.
+     */
+    void emitChild(int childIndex, const char* inputColor, const char* outputColor, EmitArgs& args);
 
 protected:
     /** A GrGLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
