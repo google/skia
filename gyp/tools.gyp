@@ -18,6 +18,7 @@
       'type': 'none',
       'dependencies': [
         'bench_pictures',
+        'bitmap_region_decoder',
         'chrome_fuzz',
         'dump_record',
         'filter',
@@ -47,6 +48,21 @@
             ],
           },
         ],
+      ],
+    },
+    {
+      'target_name': 'bitmap_region_decoder',
+      'type': 'static_library',
+      'sources': [
+        '../tools/SkBitmapRegionCanvas.cpp',
+        '../tools/SkBitmapRegionDecoderInterface.cpp',
+        '../tools/SkBitmapRegionSampler.cpp',
+      ],
+      'include_dirs': [
+        '../include/private'
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
       ],
     },
     {

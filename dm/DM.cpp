@@ -327,12 +327,123 @@ static void push_codec_srcs(Path path) {
     }
 }
 
-static bool codec_supported(const char* ext) {
-    // FIXME: Once other versions of SkCodec are available, we can add them to this
-    // list (and eventually we can remove this check once they are all supported).
+static bool brd_color_type_supported(SkBitmapRegionDecoderInterface::Strategy strategy,
+        CodecSrc::DstColorType dstColorType) {
+    switch (strategy) {
+        case SkBitmapRegionDecoderInterface::kCanvas_Strategy:
+            if (CodecSrc::kGetFromCanvas_DstColorType == dstColorType) {
+                return true;
+            }
+            return false;
+        case SkBitmapRegionDecoderInterface::kOriginal_Strategy:
+            switch (dstColorType) {
+                case CodecSrc::kGetFromCanvas_DstColorType:
+                case CodecSrc::kIndex8_Always_DstColorType:
+                case CodecSrc::kGrayscale_Always_DstColorType:
+                    return true;
+                default:
+                    return false;
+            }
+        default:
+            SkASSERT(false);
+            return false;
+    }
+}
+
+static void push_brd_src(Path path, SkBitmapRegionDecoderInterface::Strategy strategy,
+        CodecSrc::DstColorType dstColorType, BRDSrc::Mode mode, uint32_t sampleSize) {
+    SkString folder;
+    switch (strategy) {
+        case SkBitmapRegionDecoderInterface::kCanvas_Strategy:
+            folder.append("brd_canvas");
+            break;
+        case SkBitmapRegionDecoderInterface::kOriginal_Strategy:
+            folder.append("brd_sample");
+            break;
+        default:
+            SkASSERT(false);
+            return;
+    }
+
+    switch (mode) {
+        case BRDSrc::kFullImage_Mode:
+            break;
+        case BRDSrc::kDivisor_Mode:
+            folder.append("_divisor");
+            break;
+        default:
+            SkASSERT(false);
+            return;
+    }
+
+    switch (dstColorType) {
+        case CodecSrc::kGetFromCanvas_DstColorType:
+            break;
+        case CodecSrc::kIndex8_Always_DstColorType:
+            folder.append("_kIndex");
+            break;
+        case CodecSrc::kGrayscale_Always_DstColorType:
+            folder.append("_kGray");
+            break;
+        default:
+            SkASSERT(false);
+            return;
+    }
+
+    if (1 != sampleSize) {
+        folder.appendf("_%.3f", BRDSrc::GetScale(sampleSize));
+    }
+
+    BRDSrc* src = new BRDSrc(path, strategy, mode, dstColorType, sampleSize);
+    push_src("image", folder, src);
+}
+
+static void push_brd_srcs(Path path) {
+
+    const SkBitmapRegionDecoderInterface::Strategy strategies[] = {
+            SkBitmapRegionDecoderInterface::kCanvas_Strategy,
+            SkBitmapRegionDecoderInterface::kOriginal_Strategy
+    };
+
+    // We will only test to one backend (8888), but we will test all of the
+    // color types that we need to decode to on this backend.
+    const CodecSrc::DstColorType dstColorTypes[] = {
+        CodecSrc::kGetFromCanvas_DstColorType,
+        CodecSrc::kIndex8_Always_DstColorType,
+        CodecSrc::kGrayscale_Always_DstColorType,
+    };
+
+    const BRDSrc::Mode modes[] = {
+        BRDSrc::kFullImage_Mode,
+        BRDSrc::kDivisor_Mode
+    };
+
+    const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+    for (SkBitmapRegionDecoderInterface::Strategy strategy : strategies) {
+        // We disable png testing for kOriginal_Strategy because the implementation leaks
+        // memory in our forked libpng.
+        // TODO (msarett): Decide if we want to test pngs in this mode and how we might do this.
+        if (SkBitmapRegionDecoderInterface::kOriginal_Strategy == strategy &&
+                (path.endsWith(".png") || path.endsWith(".PNG"))) {
+            continue;
+        }
+        for (CodecSrc::DstColorType dstColorType : dstColorTypes) {
+            if (brd_color_type_supported(strategy, dstColorType)) {
+                for (BRDSrc::Mode mode : modes) {
+                    for (uint32_t sampleSize : sampleSizes) {
+                        push_brd_src(path, strategy, dstColorType, mode, sampleSize);
+                    }
+                }
+            }
+        }
+    }
+}
+
+static bool brd_supported(const char* ext) {
     static const char* const exts[] = {
-        "bmp", "gif", "jpg", "jpeg", "png", "ico", "wbmp", "webp",
-        "BMP", "GIF", "JPG", "JPEG", "PNG", "ICO", "WBMP", "WEBP",
+        "jpg", "jpeg", "png", "webp",
+        "JPG", "JPEG", "PNG", "WEBP",
     };
 
     for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
@@ -371,8 +482,9 @@ static void gather_srcs() {
                     SkString path = SkOSPath::Join(flag, file.c_str());
                     push_src("image", "decode", new ImageSrc(path)); // Decode entire image
                     push_src("image", "subset", new ImageSrc(path, 2)); // Decode into 2x2 subsets
-                    if (codec_supported(exts[j])) {
-                        push_codec_srcs(path);
+                    push_codec_srcs(path);
+                    if (brd_supported(exts[j])) {
+                        push_brd_srcs(path);
                     }
                 }
             }
@@ -381,6 +493,7 @@ static void gather_srcs() {
             push_src("image", "decode", new ImageSrc(flag)); // Decode entire image.
             push_src("image", "subset", new ImageSrc(flag, 2)); // Decode into 2 x 2 subsets
             push_codec_srcs(flag);
+            push_brd_srcs(flag);
         }
     }
 }

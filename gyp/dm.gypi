@@ -25,6 +25,7 @@
     'libpng.gyp:libpng_static_when_possible',
     'skia_lib.gyp:skia_lib',
     'svg.gyp:svg',
+    'tools.gyp:bitmap_region_decoder',
     'tools.gyp:crash_handler',
     'tools.gyp:proc_stats',
     'tools.gyp:sk_tool_utils',
