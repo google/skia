@@ -331,6 +331,7 @@ public:
             fTextureCreates = 0;
             fTextureUploads = 0;
             fStencilAttachmentCreates = 0;
+            fNumDraws = 0;
         }
 
         int renderTargetBinds() const { return fRenderTargetBinds; }
@@ -342,6 +343,7 @@ public:
         int textureUploads() const { return fTextureUploads; }
         void incTextureUploads() { fTextureUploads++; }
         void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
+        void incNumDraws() { fNumDraws++; }
         void dump(SkString*);
 
     private:
@@ -350,6 +352,7 @@ public:
         int fTextureCreates;
         int fTextureUploads;
         int fStencilAttachmentCreates;
+        int fNumDraws;
 #else
         void dump(SkString*) {};
         void incRenderTargetBinds() {}
@@ -357,6 +360,7 @@ public:
         void incTextureCreates() {}
         void incTextureUploads() {}
         void incStencilAttachmentCreates() {}
+        void incNumDraws() {}
 #endif
     };
 
