@@ -28,7 +28,6 @@
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkGlyph.h"
-#include "SkLazyFnPtr.h"
 #include "SkMaskGamma.h"
 #include "SkMutex.h"
 #include "SkOTTable_glyf.h"
@@ -36,6 +35,7 @@
 #include "SkOTTable_hhea.h"
 #include "SkOTTable_loca.h"
 #include "SkOTUtils.h"
+#include "SkOncePtr.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkSFNTHeader.h"
@@ -770,34 +770,27 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     fFUnitMatrix.preScale(emPerFUnit, -emPerFUnit);
 }
 
-extern "C" {
-
-/** CTFontDrawGlyphs was introduced in 10.7. */
-typedef void (*CTFontDrawGlyphsProc)(CTFontRef, const CGGlyph[], const CGPoint[],
-                                     size_t, CGContextRef);
-
-/** This is an implementation of CTFontDrawGlyphs for 10.6. */
-static void sk_legacy_CTFontDrawGlyphs(CTFontRef, const CGGlyph glyphs[], const CGPoint points[],
-                                       size_t count, CGContextRef cg)
-{
+/** This is an implementation of CTFontDrawGlyphs for 10.6; it was introduced in 10.7. */
+static void legacy_CTFontDrawGlyphs(CTFontRef, const CGGlyph glyphs[], const CGPoint points[],
+                                    size_t count, CGContextRef cg) {
     CGContextShowGlyphsAtPositions(cg, glyphs, points, count);
 }
 
+typedef decltype(legacy_CTFontDrawGlyphs) CTFontDrawGlyphsProc;
+
+static CTFontDrawGlyphsProc* choose_CTFontDrawGlyphs() {
+    if (void* real = dlsym(RTLD_DEFAULT, "CTFontDrawGlyphs")) {
+        return (CTFontDrawGlyphsProc*)real;
+    }
+    return &legacy_CTFontDrawGlyphs;
 }
 
-CTFontDrawGlyphsProc SkChooseCTFontDrawGlyphs() {
-    CTFontDrawGlyphsProc realCTFontDrawGlyphs;
-    *reinterpret_cast<void**>(&realCTFontDrawGlyphs) = dlsym(RTLD_DEFAULT, "CTFontDrawGlyphs");
-    return realCTFontDrawGlyphs ? realCTFontDrawGlyphs : sk_legacy_CTFontDrawGlyphs;
-};
-
-SK_DECLARE_STATIC_LAZY_FN_PTR(CTFontDrawGlyphsProc, gCTFontDrawGlyphs, SkChooseCTFontDrawGlyphs);
+SK_DECLARE_STATIC_ONCE_PTR(CTFontDrawGlyphsProc, gCTFontDrawGlyphs);
 
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                              CGGlyph glyphID, size_t* rowBytesPtr,
-                             bool generateA8FromLCD)
-{
-    CTFontDrawGlyphsProc ctFontDrawGlyphs = gCTFontDrawGlyphs.get();
+                             bool generateA8FromLCD) {
+    auto ctFontDrawGlyphs = gCTFontDrawGlyphs.get(choose_CTFontDrawGlyphs);
 
     if (!fRGBSpace) {
         //It doesn't appear to matter what color space is specified.
@@ -867,7 +860,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         fDoAA = !doAA;
         fDoLCD = !doLCD;
 
-        if (sk_legacy_CTFontDrawGlyphs == ctFontDrawGlyphs) {
+        if (legacy_CTFontDrawGlyphs == ctFontDrawGlyphs) {
             // CTFontDrawGlyphs will apply the font, font size, and font matrix to the CGContext.
             // Our 'fake' one does not, so set up the CGContext here.
             CGContextSetFont(fCG, context.fCGFont);
