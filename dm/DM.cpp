@@ -439,8 +439,8 @@ static Sink* create_sink(const char* tag) {
         SINK("gpudft",        GPUSink, Gr::kNative_GLContextType,        api,  0,  true, FLAGS_gpu_threading);
         SINK("msaa4",         GPUSink, Gr::kNative_GLContextType,        api,  4, false, FLAGS_gpu_threading);
         SINK("msaa16",        GPUSink, Gr::kNative_GLContextType,        api, 16, false, FLAGS_gpu_threading);
-        SINK("nvprmsaa4",     GPUSink, Gr::kNVPR_GLContextType,          api,  4, false, FLAGS_gpu_threading);
-        SINK("nvprmsaa16",    GPUSink, Gr::kNVPR_GLContextType,          api, 16, false, FLAGS_gpu_threading);
+        SINK("nvprmsaa4",     GPUSink, Gr::kNVPR_GLContextType,          api,  4,  true, FLAGS_gpu_threading);
+        SINK("nvprmsaa16",    GPUSink, Gr::kNVPR_GLContextType,          api, 16,  true, FLAGS_gpu_threading);
     #if SK_ANGLE
         SINK("angle",         GPUSink, Gr::kANGLE_GLContextType,         api,  0, false, FLAGS_gpu_threading);
     #endif

@@ -443,7 +443,6 @@ void GrStencilAndCoverTextContext::flush(GrDrawContext* dc) {
 
         *pipelineBuilder.stencil() = kStencilPass;
 
-        SkASSERT(0 == fQueuedGlyphCount);
         SkASSERT(kGlyphBufferSize == fFallbackGlyphsIdx);
 
         dc->drawPaths(&pipelineBuilder, pp, fGlyphs,
