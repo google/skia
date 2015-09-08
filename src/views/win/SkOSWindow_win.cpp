@@ -451,7 +451,7 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
         msaaConfigAttribList[kConfigAttribListCnt + 1] = EGL_SAMPLES;
         msaaConfigAttribList[kConfigAttribListCnt + 2] = msaaSampleCount;
         msaaConfigAttribList[kConfigAttribListCnt + 3] = EGL_NONE;
-        if (eglChooseConfig(display, configAttribList, eglConfig, 1, &numConfigs)) {
+        if (eglChooseConfig(display, msaaConfigAttribList, eglConfig, 1, &numConfigs)) {
             SkASSERT(numConfigs > 0);
             foundConfig = true;
         }
