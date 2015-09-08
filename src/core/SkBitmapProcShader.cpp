@@ -27,9 +27,7 @@ SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src, TileMode tmx, TileMo
     fTileModeY = (uint8_t)tmy;
 }
 
-SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
-                                                   SkMatrix* texM,
-                                                   TileMode xy[]) const {
+bool SkBitmapProcShader::onIsABitmap(SkBitmap* texture, SkMatrix* texM, TileMode xy[]) const {
     if (texture) {
         *texture = fRawBitmap;
     }
@@ -40,7 +38,7 @@ SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
         xy[0] = (TileMode)fTileModeX;
         xy[1] = (TileMode)fTileModeY;
     }
-    return kDefault_BitmapType;
+    return true;
 }
 
 SkFlattenable* SkBitmapProcShader::CreateProc(SkReadBuffer& buffer) {

@@ -223,42 +223,15 @@ public:
         return (flags & kHasSpan16_Flag) != 0;
     }
 
-#ifdef SK_SUPPORT_LEGACY_SHADERBITMAPTYPE
-public:
-#else
-protected:
-#endif
     /**
-     Gives method bitmap should be read to implement a shader.
-     Also determines number and interpretation of "extra" parameters returned
-     by asABitmap
+     *  Returns true if this shader is just a bitmap, and if not null, returns the bitmap,
+     *  localMatrix, and tilemodes. If this is not a bitmap, returns false and ignores the
+     *  out-parameters.
      */
-    enum BitmapType {
-        kNone_BitmapType,   //<! Shader is not represented as a bitmap
-        kDefault_BitmapType,//<! Access bitmap using local coords transformed
-    };
-    /** Optional methods for shaders that can pretend to be a bitmap/texture
-        to play along with opengl. Default just returns kNone_BitmapType and
-        ignores the out parameters.
-
-        @param outTexture if non-NULL will be the bitmap representing the shader
-                          after return.
-        @param outMatrix  if non-NULL will be the matrix to apply to vertices
-                          to access the bitmap after return.
-        @param xy         if non-NULL will be the tile modes that should be
-                          used to access the bitmap after return.
-        @param twoPointRadialParams Two extra return values needed for two point
-                                    radial bitmaps. The first is the x-offset of
-                                    the second point and the second is the radius
-                                    about the first point.
-    */
-    virtual BitmapType asABitmap(SkBitmap* outTexture, SkMatrix* outMatrix,
-                         TileMode xy[2]) const;
-
-public:
-    bool isABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode xy[2]) const {
-        return this->asABitmap(bitmap, matrix, xy) == kDefault_BitmapType;
+    bool isABitmap(SkBitmap* outTexture, SkMatrix* outMatrix, TileMode xy[2]) const {
+        return this->onIsABitmap(outTexture, outMatrix, xy);
     }
+
     bool isABitmap() const {
         return this->isABitmap(nullptr, nullptr, nullptr);
     }
@@ -454,6 +427,11 @@ protected:
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;
     }
+
+    virtual bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode[2]) const {
+        return false;
+    }
+
 private:
     // This is essentially const, but not officially so it can be modified in
     // constructors.
