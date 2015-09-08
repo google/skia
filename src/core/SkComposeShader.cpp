@@ -198,9 +198,9 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 
 #include "SkGr.h"
 #include "GrProcessor.h"
+#include "effects/GrConstColorProcessor.h"
 #include "gl/GrGLBlend.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "effects/GrConstColorProcessor.h"
 
 /////////////////////////////////////////////////////////////////////
 
@@ -235,6 +235,8 @@ private:
 
     SkXfermode::Mode fMode;
 
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+
     typedef GrFragmentProcessor INHERITED;
 };
 
@@ -249,6 +251,35 @@ public:
 private:
     typedef GrGLFragmentProcessor INHERITED;
 };
+
+/////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrComposeEffect);
+
+const GrFragmentProcessor* GrComposeEffect::TestCreate(GrProcessorTestData* d) {
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+    // Create two random frag procs.
+    // For now, we'll prevent either children from being a shader with children to prevent the
+    // possibility of an arbitrarily large tree of procs.
+    SkAutoTUnref<const GrFragmentProcessor> fpA;
+    do {
+        fpA.reset(GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d));
+        SkASSERT(fpA);
+    } while (fpA->numChildProcessors() != 0);
+    SkAutoTUnref<const GrFragmentProcessor> fpB;
+    do {
+        fpB.reset(GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d));
+        SkASSERT(fpB);
+    } while (fpB->numChildProcessors() != 0);
+
+    SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(
+            d->fRandom->nextRangeU(0, SkXfermode::kLastCoeffMode));
+    return SkNEW_ARGS(GrComposeEffect, (fpA, fpB, mode));
+#else
+    SkFAIL("Should not be called if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS");
+    return nullptr;
+#endif
+}
 
 bool GrComposeEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrComposeEffect& cs = other.cast<GrComposeEffect>();
