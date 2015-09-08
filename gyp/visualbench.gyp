@@ -24,12 +24,8 @@
       ],
       'sources': [
         '../gm/gm.cpp',
-        '../tools/VisualBench/VisualBench.h',
-        '../tools/VisualBench/VisualBench.cpp',
-        '../tools/VisualBench/VisualBenchmarkStream.h',
-        '../tools/VisualBench/VisualBenchmarkStream.cpp',
-        '../tools/VisualBench/VisualSKPBench.h',
-        '../tools/VisualBench/VisualSKPBench.cpp',
+        '<!@(python find.py ../tools/VisualBench "*.cpp")',
+        '<!@(python find.py ../tools/VisualBench "*.h")',
         '<!@(python find.py ../bench "*.cpp")',
       ],
       'sources!': [
