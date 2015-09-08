@@ -23,10 +23,8 @@ public:
      */
     static void Init();
 
-    /**
-     *  Call this to release any memory held privately, such as the font cache.
-     */
-    static void Term();
+    SK_ATTR_DEPRECATED("SkGraphics::Term() is a no-op.  We're in the middle of cleaning it up.")
+    static void Term() {}
 
     /**
      *  Return the version numbers for the library. If the parameter is not
@@ -168,9 +166,6 @@ class SkAutoGraphics {
 public:
     SkAutoGraphics() {
         SkGraphics::Init();
-    }
-    ~SkAutoGraphics() {
-        SkGraphics::Term();
     }
 };
 

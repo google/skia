@@ -69,7 +69,7 @@ protected:
      //   SkRect r = {50, 50, 80, 80};
         p.setColor(0xAA11EEAA);
    //     canvas->drawRect(r, p);
-        
+
         SkRect result;
         SkPath path;
         path.moveTo(0, 0);
@@ -77,7 +77,7 @@ protected:
         path.lineTo(1, 8);
         path.lineTo(0, 9);
         SkASSERT(path.hasRectangularInterior(&result));
-        
+
         path.reset();
         path.addRect(10, 10, 100, 100, SkPath::kCW_Direction);
         path.addRect(20, 20, 50, 50, SkPath::kCW_Direction);
@@ -94,7 +94,7 @@ protected:
 
     }
 private:
-    typedef SkView INHERITED; 
+    typedef SkView INHERITED;
 };
 
 void application_init();
@@ -194,12 +194,12 @@ class PathCanvas : public SkCanvas {
         path.hasRectangularInterior(&copy);
         SkDebugf("</div>\n\n");
     }
-    
+
     virtual void drawPosTextH(const void* text, size_t byteLength,
                               const SkScalar xpos[], SkScalar constY,
                               const SkPaint& paint) {
     }
-    
+
 public:
     void divName(const SkString& str, bool only) {
         filename = str;
@@ -211,14 +211,14 @@ public:
         count = 0;
         nameonly = only;
     }
-    
+
     void init() {
         pointsMin = verbsMin = SK_MaxS32;
         pointsMax = verbsMax = SK_MinS32;
         rectPointsMin = rectVerbsMin = SK_MaxS32;
         rectPointsMax = rectVerbsMax = SK_MinS32;
     }
-    
+
     SkString filename;
     int count;
     bool nameonly;
@@ -279,7 +279,6 @@ void application_init() {
 }
 
 void application_term() {
-    SkGraphics::Term();
     SkEvent::Term();
 }
 

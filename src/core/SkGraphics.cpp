@@ -58,12 +58,6 @@ void SkGraphics::Init() {
 #endif
 }
 
-void SkGraphics::Term() {
-    PurgeFontCache();
-    PurgeResourceCache();
-    SkPaint::Term();
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGraphics::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
