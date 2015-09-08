@@ -399,6 +399,8 @@ public:
                                         TileMode tmx, TileMode tmy,
                                         const SkMatrix* localMatrix = NULL);
 
+    // NOTE: You can create an SkImage Shader with SkImage::newShader().
+
     /** Call this to create a new shader that will draw with the specified picture.
      *
      *  @param src  The picture to use inside the shader (if not NULL, its ref count
