@@ -366,5 +366,6 @@ void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
     const GrNonInstancedVertices* verts = iter.init(vertices);
     do {
         this->onDraw(args, *verts);
+        fStats.incNumDraws();
     } while ((verts = iter.next()));
 }
