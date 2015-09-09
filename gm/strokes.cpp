@@ -84,12 +84,16 @@ private:
  */
 class ZeroLenStrokesGM : public skiagm::GM {
     SkPath fMoveHfPath, fMoveZfPath, fDashedfPath, fRefPath[4];
+    SkPath fCubicPath, fQuadPath, fLinePath;
 protected:
     void onOnceBeforeDraw() override {
 
         SkAssertResult(SkParsePath::FromSVGString("M0,0h0M10,0h0M20,0h0", &fMoveHfPath));
         SkAssertResult(SkParsePath::FromSVGString("M0,0zM10,0zM20,0z", &fMoveZfPath));
         SkAssertResult(SkParsePath::FromSVGString("M0,0h25", &fDashedfPath));
+        SkAssertResult(SkParsePath::FromSVGString("M 0 0 C 0 0 0 0 0 0", &fCubicPath));
+        SkAssertResult(SkParsePath::FromSVGString("M 0 0 Q 0 0 0 0", &fQuadPath));
+        SkAssertResult(SkParsePath::FromSVGString("M 0 0 L 0 0", &fLinePath));
 
         for (int i = 0; i < 3; ++i) {
             fRefPath[0].addCircle(i * 10.f, 0, 5);
@@ -140,6 +144,12 @@ protected:
             canvas->translate(0, 30);
             fillPaint.setAlpha(127);
             canvas->drawPath(fRefPath[1 + i * 2], fillPaint);
+            canvas->translate(0, 30);
+            canvas->drawPath(fCubicPath, strokePaint);
+            canvas->translate(0, 30);
+            canvas->drawPath(fQuadPath, strokePaint);
+            canvas->translate(0, 30);
+            canvas->drawPath(fLinePath, strokePaint);
             canvas->restore();
         }
     }

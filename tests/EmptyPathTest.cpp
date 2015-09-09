@@ -54,7 +54,13 @@ static void drawAndTest(skiatest::Reporter* reporter, const SkPath& path,
     }
 }
 
-static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool shouldDraw) {
+enum DrawCaps {
+    kDontDrawCaps,
+    kDrawCaps
+};
+
+static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool shouldDraw,
+                       DrawCaps drawCaps) {
     static const SkPaint::Cap gCaps[] = {
         SkPaint::kButt_Cap,
         SkPaint::kRound_Cap,
@@ -73,6 +79,11 @@ static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool sh
     for (size_t cap = 0; cap < SK_ARRAY_COUNT(gCaps); ++cap) {
         for (size_t join = 0; join < SK_ARRAY_COUNT(gJoins); ++join) {
             for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
+                if (drawCaps && SkPaint::kButt_Cap != gCaps[cap]
+                        && SkPaint::kFill_Style != gStyles[style]) {
+                    continue;
+                }
+
                 SkPaint paint;
                 paint.setStrokeWidth(SkIntToScalar(10));
 
@@ -127,10 +138,14 @@ static void test_emptydrawing(skiatest::Reporter* reporter) {
             if (doClose) {
                 path.close();
             }
+            /* zero length segments and close following moves draw round and square caps */
+            bool allowCaps = make_L == gMakeProc[i] || make_Q == gMakeProc[i]
+                    || make_C == gMakeProc[i] || make_MZM == gMakeProc[i];
+            allowCaps |= SkToBool(doClose);
             for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
                 path.setFillType(gFills[fill]);
                 bool shouldDraw = path.isInverseFillType();
-                iter_paint(reporter, path, shouldDraw);
+                iter_paint(reporter, path, shouldDraw, allowCaps ? kDrawCaps : kDontDrawCaps);
             }
         }
     }
