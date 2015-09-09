@@ -47,6 +47,8 @@ class SkGlyph {
     uint8_t     fMaskFormat;
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
     int8_t      fForceBW;
+    mutable bool fImageIsSet;
+    mutable bool fPathIsSet;
 
     void initWithGlyphID(uint32_t glyph_id) {
         this->initCommon(MakeID(glyph_id));
@@ -135,6 +137,8 @@ class SkGlyph {
         fPath           = nullptr;
         fMaskFormat     = MASK_FORMAT_UNKNOWN;
         fForceBW        = 0;
+        fImageIsSet     = false;
+        fPathIsSet      = false;
     }
 
     static unsigned ID2Code(uint32_t id) {
