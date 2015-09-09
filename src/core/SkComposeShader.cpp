@@ -196,146 +196,8 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 
 #if SK_SUPPORT_GPU
 
-#include "SkGr.h"
-#include "GrProcessor.h"
 #include "effects/GrConstColorProcessor.h"
-#include "gl/GrGLBlend.h"
-#include "gl/builders/GrGLProgramBuilder.h"
-
-/////////////////////////////////////////////////////////////////////
-
-class GrComposeEffect : public GrFragmentProcessor {
-public:
-
-    static GrFragmentProcessor* Create(const GrFragmentProcessor* fpA,
-                                       const GrFragmentProcessor* fpB, SkXfermode::Mode mode) {
-        return SkNEW_ARGS(GrComposeEffect, (fpA, fpB, mode));
-    }
-    const char* name() const override { return "ComposeShader"; }
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
-
-    SkXfermode::Mode getMode() const { return fMode; }
-
-protected:
-    bool onIsEqual(const GrFragmentProcessor&) const override;
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
-private:
-    GrComposeEffect(const GrFragmentProcessor* fpA, const GrFragmentProcessor* fpB,
-                    SkXfermode::Mode mode)
-        : fMode(mode) {
-        this->initClassID<GrComposeEffect>();
-        SkDEBUGCODE(int shaderAChildIndex = )this->registerChildProcessor(fpA);
-        SkDEBUGCODE(int shaderBChildIndex = )this->registerChildProcessor(fpB);
-        SkASSERT(0 == shaderAChildIndex);
-        SkASSERT(1 == shaderBChildIndex);
-    }
-
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
-
-    SkXfermode::Mode fMode;
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
-
-    typedef GrFragmentProcessor INHERITED;
-};
-
-/////////////////////////////////////////////////////////////////////
-
-class GrGLComposeEffect : public GrGLFragmentProcessor {
-public:
-    GrGLComposeEffect(const GrProcessor& processor) {}
-
-    void emitCode(EmitArgs&) override;
-
-private:
-    typedef GrGLFragmentProcessor INHERITED;
-};
-
-/////////////////////////////////////////////////////////////////////
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrComposeEffect);
-
-const GrFragmentProcessor* GrComposeEffect::TestCreate(GrProcessorTestData* d) {
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-    // Create two random frag procs.
-    // For now, we'll prevent either children from being a shader with children to prevent the
-    // possibility of an arbitrarily large tree of procs.
-    SkAutoTUnref<const GrFragmentProcessor> fpA;
-    do {
-        fpA.reset(GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d));
-        SkASSERT(fpA);
-    } while (fpA->numChildProcessors() != 0);
-    SkAutoTUnref<const GrFragmentProcessor> fpB;
-    do {
-        fpB.reset(GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d));
-        SkASSERT(fpB);
-    } while (fpB->numChildProcessors() != 0);
-
-    SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(
-            d->fRandom->nextRangeU(0, SkXfermode::kLastCoeffMode));
-    return SkNEW_ARGS(GrComposeEffect, (fpA, fpB, mode));
-#else
-    SkFAIL("Should not be called if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS");
-    return nullptr;
-#endif
-}
-
-bool GrComposeEffect::onIsEqual(const GrFragmentProcessor& other) const {
-    const GrComposeEffect& cs = other.cast<GrComposeEffect>();
-    return fMode == cs.fMode;
-}
-
-void GrComposeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
-}
-
-void GrComposeEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
-    b->add32(fMode);
-}
-
-GrGLFragmentProcessor* GrComposeEffect::onCreateGLInstance() const{
-    return SkNEW_ARGS(GrGLComposeEffect, (*this));
-}
-
-/////////////////////////////////////////////////////////////////////
-
-void GrGLComposeEffect::emitCode(EmitArgs& args) {
-
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    const GrComposeEffect& cs = args.fFp.cast<GrComposeEffect>();
-
-    // Store alpha of input color and un-premultiply the input color by its alpha. We will
-    // re-multiply by this alpha after blending the output colors of the two child procs.
-    // This is because we don't want the paint's alpha to affect either child proc's output
-    // before the blend; we want to apply the paint's alpha AFTER the blend. This mirrors the
-    // software implementation of SkComposeShader.
-    SkString inputAlpha("inputAlpha");
-    fsBuilder->codeAppendf("float %s = %s.a;", inputAlpha.c_str(), args.fInputColor);
-    fsBuilder->codeAppendf("%s /= %s.a;", args.fInputColor, args.fInputColor);
-
-    // declare outputColor and emit the code for each of the two children
-    SkString outputColorA(args.fOutputColor);
-    outputColorA.append("_dst");
-    fsBuilder->codeAppendf("vec4 %s;\n", outputColorA.c_str());
-    this->emitChild(0, args.fInputColor, outputColorA.c_str(), args);
-
-    SkString outputColorB(args.fOutputColor);
-    outputColorB.append("_src");
-    fsBuilder->codeAppendf("vec4 %s;\n", outputColorB.c_str());
-    this->emitChild(1, args.fInputColor, outputColorB.c_str(), args);
-
-    // emit blend code
-    SkXfermode::Mode mode = cs.getMode();
-    fsBuilder->codeAppend("{");
-    fsBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkXfermode::ModeName(mode));
-    GrGLBlend::AppendPorterDuffBlend(fsBuilder, outputColorB.c_str(),
-                                     outputColorA.c_str(), args.fOutputColor, mode);
-    fsBuilder->codeAppend("}");
-
-    // re-multiply the output color by the input color's alpha
-    fsBuilder->codeAppendf("%s *= %s;", args.fOutputColor, inputAlpha.c_str());
-}
+#include "effects/GrXfermodeFragmentProcessor.h"
 
 /////////////////////////////////////////////////////////////////////
 
@@ -349,7 +211,7 @@ const GrFragmentProcessor* SkComposeShader::asFragmentProcessor(GrContext* conte
     // GrGLBlend::AppendPorterDuffBlend(), which emits the blend code in the shader,
     // only supports those modes.
     SkXfermode::Mode mode;
-    if (!(SkXfermode::AsMode(fMode, &mode) && mode <= SkXfermode::kLastCoeffMode)) {
+    if (!(SkXfermode::AsMode(fMode, &mode) && SkXfermode::kLastCoeffMode >= mode)) {
         return nullptr;
     }
 
@@ -375,7 +237,7 @@ const GrFragmentProcessor* SkComposeShader::asFragmentProcessor(GrContext* conte
             if (!fpB.get()) {
                 return nullptr;
             }
-            return GrComposeEffect::Create(fpA, fpB, mode);
+            return GrXfermodeFragmentProcessor::CreateFromTwoProcessors(fpB, fpA, mode);
     }
 }
 #endif

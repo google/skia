@@ -48,6 +48,7 @@
       '<(skia_include_path)/gpu/effects/GrCustomXfermode.h',
       '<(skia_include_path)/gpu/effects/GrExtractAlphaFragmentProcessor.h',
       '<(skia_include_path)/gpu/effects/GrPorterDuffXferProcessor.h',
+      '<(skia_include_path)/gpu/effects/GrXfermodeFragmentProcessor.h',
 
       '<(skia_include_path)/gpu/gl/GrGLConfig.h',
       '<(skia_include_path)/gpu/gl/GrGLExtensions.h',
@@ -289,6 +290,7 @@
       '<(skia_src_path)/gpu/effects/GrTextureDomain.h',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.cpp',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.h',
+      '<(skia_src_path)/gpu/effects/GrXfermodeFragmentProcessor.cpp',
       '<(skia_src_path)/gpu/effects/GrYUVtoRGBEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrYUVtoRGBEffect.h',
 
