@@ -57,8 +57,8 @@ private:
 
     inline bool canDrawAsDistanceFields(const SkPaint&, const SkMatrix& viewMatrix);
     GrAtlasTextBlob* setupDFBlob(int glyphCount, const SkPaint& origPaint,
-                                const SkMatrix& viewMatrix, SkGlyphCache** cache,
-                                SkPaint* dfPaint, SkScalar* textRatio);
+                                 const SkMatrix& viewMatrix, SkPaint* dfPaint, 
+                                 SkScalar* textRatio);
     void bmpAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, int left, int top,
                         GrColor color, GrFontScaler*, const SkIRect& clipRect);
     bool dfAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, SkScalar sx, SkScalar sy,
@@ -115,7 +115,7 @@ private:
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset, const SkIRect& clipRect);
 
-    void internalDrawDFText(GrAtlasTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
+    void internalDrawDFText(GrAtlasTextBlob*, int runIndex, const SkPaint&,
                             GrColor color, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
                             SkScalar x, SkScalar y, const SkIRect& clipRect,
@@ -123,7 +123,7 @@ private:
                             SkTDArray<char>* fallbackTxt,
                             SkTDArray<SkScalar>* fallbackPos,
                             SkPoint* offset, const SkPaint& origPaint);
-    void internalDrawDFPosText(GrAtlasTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
+    void internalDrawDFPosText(GrAtlasTextBlob*, int runIndex, const SkPaint&,
                                GrColor color, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
