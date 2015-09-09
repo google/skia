@@ -1504,12 +1504,9 @@ static void D1G_RgnClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, c
 
     if (!clipper.done()) {
         const SkIRect&  cr = clipper.rect();
-        const uint8_t*  aa = (const uint8_t*)glyph.fImage;
+        const uint8_t* aa = (uint8_t*)state.fCache->findImage(glyph);
         if (nullptr == aa) {
-            aa = (uint8_t*)state.fCache->findImage(glyph);
-            if (nullptr == aa) {
-                return;
-            }
+            return;
         }
 
         mask.fRowBytes = glyph.rowBytes();
