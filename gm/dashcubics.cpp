@@ -14,22 +14,8 @@
 /*
  *  Inspired by http://code.google.com/p/chromium/issues/detail?id=112145
  */
-
-class DashCubicsGM : public skiagm::GM {
-public:
-    DashCubicsGM() {}
-
-protected:
-
-    virtual SkString onShortName() {
-        return SkString("dashcubics");
-    }
-
-    virtual SkISize onISize() {
-        return SkISize::Make(860, 700);
-    }
-
-    void flower(SkCanvas* canvas, const SkPath& path, SkScalar intervals[2], SkPaint::Join join) {
+static void flower(SkCanvas* canvas, const SkPath& path,
+                   SkScalar intervals[2], SkPaint::Join join) {
         SkPathEffect* pe = SkDashPathEffect::Create(intervals, 2, 0);
 
         SkPaint paint;
@@ -48,9 +34,9 @@ protected:
         paint.setPathEffect(nullptr);
         paint.setStrokeWidth(0);
         canvas->drawPath(path, paint);
-    }
+}
 
-    virtual void onDraw(SkCanvas* canvas) {
+DEF_SIMPLE_GM(dashcubics, canvas, 860, 700) {
         SkPath path;
         const char* d = "M 337,98 C 250,141 250,212 250,212 C 250,212 250,212 250,212"
         "C 250,212 250,212 250,212 C 250,212 250,141 163,98 C 156,195 217,231 217,231"
@@ -73,13 +59,4 @@ protected:
                 canvas->restore();
             }
         }
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-static skiagm::GM* MyFactory(void*) { return new DashCubicsGM; }
-static skiagm::GMRegistry reg(MyFactory);
+}

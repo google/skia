@@ -70,7 +70,7 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
     canvas->drawRect(r, paint);
 }
 
-void GM::drawGpuOnlyMessage(SkCanvas* canvas) {
+void GM::DrawGpuOnlyMessage(SkCanvas* canvas) {
     SkBitmap bmp;
     bmp.allocN32Pixels(128, 64);
     SkCanvas bmpCanvas(bmp);

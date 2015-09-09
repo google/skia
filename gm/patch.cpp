@@ -64,28 +64,7 @@ static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
     canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, right + 1, paint);
 }
 
-namespace skiagm {
-/**
- * This GM draws a cubics coons patch using the specialized call SkCanvas::drawPatch.
- */
-class SkPatchGM : public GM {
-    
-public:
-    SkPatchGM() {
-        this->setBGColor(0xFFFFFFFF);
-    }
-
-protected:
-    SkString onShortName() override {
-        return SkString("patch_primitive");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-
+DEF_SIMPLE_GM(patch_primitive, canvas, 800, 800) {
         SkPaint paint;
         
         // The order of the colors and points is clockwise starting at upper-left corner.
@@ -148,11 +127,4 @@ protected:
             }
         }
         canvas->restore();
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-DEF_GM(return new SkPatchGM;)
 }

@@ -49,29 +49,19 @@ static SkImageFilter* make_mode_blue(SkImageFilter* input = nullptr) {
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
-class ColorFilterImageFilterGM : public skiagm::GM {
-public:
-    ColorFilterImageFilterGM () {}
-
-protected:
-
-    virtual SkString onShortName() {
-        return SkString("colorfilterimagefilter");
-    }
-
-    void drawClippedRect(SkCanvas* canvas, const SkRect& r, const SkPaint& paint, float outset = 0.0f) {
+static void drawClippedRect(SkCanvas* canvas,
+                            const SkRect& r,
+                            const SkPaint& paint,
+                            float outset = 0.0f) {
         canvas->save();
         SkRect clip(r);
         clip.outset(outset, outset);
         canvas->clipRect(clip);
         canvas->drawRect(r, paint);
         canvas->restore();
-    }
+}
 
-    virtual SkISize onISize() { return SkISize::Make(400, 100); }
-
-    virtual void onDraw(SkCanvas* canvas) {
-
+DEF_SIMPLE_GM(colorfilterimagefilter, canvas, 400, 100){
         SkRect r = SkRect::MakeWH(FILTER_WIDTH, FILTER_HEIGHT);
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -126,13 +116,4 @@ protected:
             drawClippedRect(canvas, r, paint, 5);
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-static skiagm::GM* MyFactory(void*) { return new ColorFilterImageFilterGM; }
-static skiagm::GMRegistry reg(MyFactory);
+}

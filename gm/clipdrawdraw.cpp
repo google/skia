@@ -7,8 +7,6 @@
 
 #include "gm.h"
 
-namespace skiagm {
-
 // This GM exercises the use case found in crbug.com/423834.
 // The following pattern:
 //    save();
@@ -18,16 +16,7 @@ namespace skiagm {
 //
 //    drawRect(rect, noAA);
 // can leave 1 pixel wide remnants of the first rect.
-class ClipDrawDrawGM : public GM {
-public:
-    ClipDrawDrawGM() { this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC)); }
-
-protected:
-    SkString onShortName() override { return SkString("clipdrawdraw"); }
-
-    SkISize onISize() override { return SkISize::Make(512, 512); }
-
-    static void Draw(SkCanvas* canvas, const SkRect& rect) {
+static void Draw(SkCanvas* canvas, const SkRect& rect) {
         SkPaint p;
         p.setAntiAlias(false);
 
@@ -44,9 +33,10 @@ protected:
             p.setColor(SK_ColorWHITE);
             canvas->drawRect(rect, p);
         canvas->restore();
-    }
+}
 
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM_BG(clipdrawdraw, canvas, 512, 512,
+                 sk_tool_utils::color_to_565(0xFFCCCCCC)) {
         // Vertical remnant
         const SkRect rect1 = SkRect::MakeLTRB(136.5f, 137.5f, 338.5f, 293.5f);
 
@@ -56,13 +46,4 @@ protected:
 
         Draw(canvas, rect1);
         Draw(canvas, rect2);
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new ClipDrawDrawGM;)
 }

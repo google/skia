@@ -17,26 +17,9 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-namespace skiagm {
-
 static const int S = 200;
 
-class TexDataGM : public GM {
-public:
-    TexDataGM() {
-        this->setBGColor(0xff000000);
-    }
-
-protected:
-    SkString onShortName() override {
-        return SkString("texdata");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(2*S, 2*S);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         GrRenderTarget* target = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* ctx = canvas->getGrContext();
         SkAutoTUnref<GrDrawContext> drawContext(ctx ? ctx->drawContext() : nullptr);
@@ -130,19 +113,7 @@ protected:
                 drawContext->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
             }
         } else {
-            this->drawGpuOnlyMessage(canvas);
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
         }
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-static GM* MyFactory(void*) { return new TexDataGM; }
-static GMRegistry reg(MyFactory);
-
 }
-
 #endif

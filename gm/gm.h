@@ -23,11 +23,21 @@ struct GrContextOptions;
     static skiagm::GM*          SK_MACRO_APPEND_LINE(F_)(void*) { code; } \
     static skiagm::GMRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
-// See colorwheel.cpp for example usage.
-#define DEF_SIMPLE_GM(NAME, CANVAS, W, H)                                           \
-    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS);                      \
-    DEF_GM(return new skiagm::SimpleGM(SkString(#NAME), SK_MACRO_CONCAT(NAME, _GM), \
-                                       SkISize::Make(W, H));)                       \
+// a Simple GM is a rendering test that does not store state between
+// rendering calls or make use of the onOnceBeforeDraw() virtual; it
+// consists of:
+//   *   A single void(*)(SkCanvas*) function.
+//   *   A name.
+//   *   Prefered width and height.
+//   *   Optionally, a background color (default is white).
+#define DEF_SIMPLE_GM(NAME, CANVAS, W, H) \
+    DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, SK_ColorWHITE, SkString(#NAME))
+#define DEF_SIMPLE_GM_BG(NAME, CANVAS, W, H, BGCOLOR)\
+    DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, SkString(#NAME))
+#define DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, NAME_STR)         \
+    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS);               \
+    DEF_GM(return new skiagm::SimpleGM(NAME_STR, SK_MACRO_CONCAT(NAME, _GM), \
+                                       SkISize::Make(W, H), BGCOLOR);)       \
     void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS)
 
 namespace skiagm {
@@ -93,9 +103,10 @@ namespace skiagm {
 
         virtual void modifyGrContextOptions(GrContextOptions* options) {}
 
-    protected:
         /** draws a standard message that the GM is only intended to be used with the GPU.*/
-        void drawGpuOnlyMessage(SkCanvas*);
+        static void DrawGpuOnlyMessage(SkCanvas*);
+
+    protected:
         virtual void onOnceBeforeDraw() {}
         virtual void onDraw(SkCanvas*) = 0;
         virtual void onDrawBackground(SkCanvas*);
@@ -120,8 +131,13 @@ namespace skiagm {
     public:
         SimpleGM(const SkString& name,
                  void (*drawProc)(SkCanvas*),
-                 const SkISize& size)
-            : fName(name), fDrawProc(drawProc), fSize(size) {}
+                 const SkISize& size,
+                 SkColor backgroundColor)
+            : fName(name), fDrawProc(drawProc), fSize(size) {
+            if (backgroundColor != SK_ColorWHITE) {
+                this->setBGColor(backgroundColor);
+            }
+        }
     protected:
         void onDraw(SkCanvas* canvas) override;
         SkISize onISize() override;

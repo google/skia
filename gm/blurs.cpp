@@ -10,23 +10,7 @@
 #include "SkBlurMaskFilter.h"
 #include "SkPath.h"
 
-class BlursGM : public skiagm::GM {
-public:
-    BlursGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("blurs");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(700, 500);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, sk_tool_utils::color_to_565(0xFFDDDDDD)) {
         SkBlurStyle NONE = SkBlurStyle(-999);
         static const struct {
             SkBlurStyle fStyle;
@@ -85,12 +69,7 @@ protected:
             flags = SkBlurMaskFilter::kHighQuality_BlurFlag;
             canvas->translate(SkIntToScalar(350), SkIntToScalar(0));
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new BlursGM; )
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -100,17 +79,7 @@ DEF_GM( return new BlursGM; )
 // in particular, we want to notice that the 2nd rect draws slightly differently, since it
 // is translated a fractional amount.
 //
-class Blur2RectsGM : public skiagm::GM {
-public:
-    SkString onShortName() override {
-        return SkString("blur2rects");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(700, 500);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(blur2rects, canvas, 700, 500) {
         SkPaint paint;
 
         paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
@@ -128,21 +97,9 @@ public:
         SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 14 + 0.25f;
         canvas->translate(dx, 0);
         canvas->drawPath(path, paint);
-    }
-};
-DEF_GM( return new Blur2RectsGM; )
+}
 
-class Blur2RectsNonNinePatchGM : public skiagm::GM {
-public:
-    SkString onShortName() override {
-        return SkString("blur2rectsnonninepatch");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(700, 500);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(blur2rectsnonninepatch, canvas, 700, 500) {
         SkPaint paint;
         paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                                      4.3f))->unref();
@@ -162,6 +119,4 @@ public:
         canvas->translate(-dx, 0);
         canvas->translate(-30, -150);
         canvas->drawPath(path, paint);
-    }
-};
-DEF_GM( return new Blur2RectsNonNinePatchGM; )
+}

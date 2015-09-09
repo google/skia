@@ -63,7 +63,7 @@ protected:
         context = rt ? rt->getContext() : nullptr;
 #endif
         if (kEffect_Type == fType && nullptr == context) {
-            this->drawGpuOnlyMessage(canvas);
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 

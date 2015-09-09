@@ -51,7 +51,7 @@ protected:
         }
         GrContext* context = rt->getContext();
         if (nullptr == context) {
-            this->drawGpuOnlyMessage(canvas);
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 

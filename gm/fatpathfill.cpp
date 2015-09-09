@@ -46,21 +46,9 @@ static void draw_fatpath(SkCanvas* canvas, SkSurface* surface, const SkPath& pat
     draw_pixel_centers(canvas);
 }
 
-class FatPathFillGM : public skiagm::GM {
-public:
-    FatPathFillGM() {}
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("fatpathfill");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(SMALL_W * ZOOM, SMALL_H * ZOOM * REPEAT_LOOP);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(fatpathfill, canvas,
+              SMALL_W * ZOOM,
+              SMALL_H * ZOOM * REPEAT_LOOP) {
         SkAutoTUnref<SkSurface> surface(new_surface(SMALL_W, SMALL_H));
 
         canvas->scale(ZOOM, ZOOM);
@@ -78,12 +66,4 @@ protected:
 
             canvas->translate(0, SMALL_H);
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new FatPathFillGM;)
+}

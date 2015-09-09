@@ -68,25 +68,8 @@ static void test_rev(SkCanvas* canvas, const SkPath& path) {
     canvas->restore();
 }
 
-namespace skiagm {
-
-class PathReverseGM : public GM {
-public:
-    PathReverseGM() {
-
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("path-reverse");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM_BG_NAME(pathreverse, canvas, 640, 480, SK_ColorWHITE,
+                      SkString("path-reverse")) {
         SkRect r = { 10, 10, 100, 60 };
 
         SkPath path;
@@ -108,15 +91,4 @@ protected:
         path = hiragino_maru_goth_pro_e();
         canvas->translate(0, 100);
         test_rev(canvas, path);
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-static GM* MyFactory(void*) { return new PathReverseGM; }
-static GMRegistry reg(MyFactory);
-
 }

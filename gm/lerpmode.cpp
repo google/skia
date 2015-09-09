@@ -34,30 +34,9 @@ static void show_circlelayers(SkCanvas* canvas, SkXfermode* mode) {
     canvas->restore();
 }
 
-class LerpXfermodeGM : public skiagm::GM {
-public:
-    LerpXfermodeGM() {}
-
-protected:
-    SkString onShortName() override {
-        return SkString("lerpmode");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(240, 120);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(lerpmode, canvas, 240, 120) {
         show_circlelayers(canvas, nullptr);
         canvas->translate(150, 0);
         SkAutoTUnref<SkXfermode> mode(SkLerpXfermode::Create(0.5f));
         show_circlelayers(canvas, mode.get());
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new LerpXfermodeGM;)
+}

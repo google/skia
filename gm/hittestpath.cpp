@@ -30,19 +30,7 @@ static void test_hittest(SkCanvas* canvas, const SkPath& path) {
     }
 }
 
-class HitTestPathGM : public skiagm::GM {
-public:
-    HitTestPathGM () {}
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("hittestpath");
-    }
-
-    SkISize onISize() override { return SkISize::Make(700, 460); }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(hittestpath, canvas, 700, 460) {
         SkPath path;
         SkRandom rand;
 
@@ -70,13 +58,4 @@ protected:
         path.setFillType(SkPath::kWinding_FillType);
 
         test_hittest(canvas, path);
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-static skiagm::GM* MyFactory(void*) { return new HitTestPathGM; }
-static skiagm::GMRegistry reg(MyFactory);
+}

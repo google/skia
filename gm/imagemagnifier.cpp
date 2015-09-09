@@ -12,25 +12,7 @@
 #define WIDTH 500
 #define HEIGHT 500
 
-namespace skiagm {
-
-class ImageMagnifierGM : public GM {
-public:
-    ImageMagnifierGM() {
-        this->setBGColor(0xFF000000);
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("imagemagnifier");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM_BG(imagemagnifier, canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
         SkPaint filterPaint;
         filterPaint.setImageFilter(
             SkMagnifierImageFilter::Create(
@@ -53,15 +35,4 @@ protected:
                              SkIntToScalar(y), paint);
         }
         canvas->restore();
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-static GM* MyFactory(void*) { return new ImageMagnifierGM; }
-static GMRegistry reg(MyFactory);
-
 }

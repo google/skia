@@ -34,7 +34,7 @@ protected:
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* context = rt ? rt->getContext() : nullptr;
         if (!context) {
-            this->drawGpuOnlyMessage(canvas);
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
 

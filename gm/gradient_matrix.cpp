@@ -111,25 +111,8 @@ static void draw_gradients(SkCanvas* canvas,
     canvas->restore();
 }
 
-namespace skiagm {
-
-class GradientMatrixGM : public GM {
-public:
-    GradientMatrixGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("gradient_matrix");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM_BG(gradient_matrix, canvas, 800, 800,
+                 sk_tool_utils::color_to_565(0xFFDDDDDD)) {
         draw_gradients(canvas, &make_linear_gradient,
                       linearPts, SK_ARRAY_COUNT(linearPts));
 
@@ -137,11 +120,4 @@ protected:
 
         draw_gradients(canvas, &make_radial_gradient,
                       radialPts, SK_ARRAY_COUNT(radialPts));
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-DEF_GM( return new GradientMatrixGM; )
 }

@@ -9,8 +9,6 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
-namespace skiagm {
-
 static SkPath generate_square(SkScalar cx, SkScalar cy, SkScalar w) {
     SkRect rect = SkRect::MakeXYWH(cx - w / 2, cy - w / 2, w, w);
     SkPath path;
@@ -38,6 +36,7 @@ static SkPath generate_line(SkScalar cx, SkScalar cy, SkScalar l) {
     return path;
 }
 
+namespace {
 SkPaint::Style styles[] = {
         SkPaint::kStroke_Style,
         SkPaint::kStrokeAndFill_Style,
@@ -62,24 +61,9 @@ SkPath ((*paths[])(SkScalar, SkScalar, SkScalar)) = {
 const SkScalar slideWidth = 90, slideHeight = 90;
 const SkScalar slideBoundary = 5;
 
+}  // namespace
 
-class InversePathsGM : public GM {
-public:
-    InversePathsGM() {
-
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("inverse_paths");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 900);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(inverse_paths, canvas, 800, 900) {
         SkScalar cx = slideWidth / 2 + slideBoundary;
         SkScalar cy = slideHeight / 2 + slideBoundary;
         SkScalar dx = slideWidth + 2 * slideBoundary;
@@ -137,11 +121,4 @@ protected:
                 canvas->translate(0, dy);
             }
         }
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-DEF_GM( return new InversePathsGM; )
 }

@@ -14,24 +14,7 @@
 
 #define RESIZE_FACTOR SkIntToScalar(2)
 
-namespace skiagm {
-
-class ImageResizeTiledGM : public GM {
-public:
-    ImageResizeTiledGM() {
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("imageresizetiled");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
         SkPaint paint;
         SkMatrix matrix;
         matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
@@ -68,14 +51,4 @@ protected:
                 canvas->restore();
             }
         }
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_GM(return new ImageResizeTiledGM(); )
-
 }

@@ -9,8 +9,6 @@
 #include "SkGradientShader.h"
 #include "SkPath.h"
 
-namespace skiagm {
-
 static void makebm(SkBitmap* bm, int w, int h) {
     bm->allocN32Pixels(w, h);
     bm->eraseColor(SK_ColorTRANSPARENT);
@@ -41,21 +39,8 @@ struct LabeledMatrix {
     const char* fLabel;
 };
 
-class ShaderText2GM : public GM {
-public:
-    ShaderText2GM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("shadertext2");
-    }
-
-    SkISize onISize() override { return SkISize::Make(1800, 900); }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900,
+                 sk_tool_utils::color_to_565(0xFFDDDDDD)) {
         static const char kText[] = "SKIA";
         static const int kTextLen = SK_ARRAY_COUNT(kText) - 1;
         static const int kPointSize = 55;
@@ -198,14 +183,4 @@ protected:
                 canvas->drawText(kStrokeLabel, strlen(kStrokeLabel), strokeX, y, labelPaint);
             }
         }
-    }
-
-private:
-    typedef GM INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-static GM* MyFactory(void*) { return new ShaderText2GM; }
-static GMRegistry reg(MyFactory);
 }

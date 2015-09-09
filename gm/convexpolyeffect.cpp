@@ -152,7 +152,7 @@ protected:
         using namespace GrDefaultGeoProcFactory;
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (nullptr == rt) {
-            this->drawGpuOnlyMessage(canvas);
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
         GrContext* context = rt->getContext();

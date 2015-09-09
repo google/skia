@@ -170,20 +170,7 @@ static void apply_shader(SkPaint* paint, int index) {
     paint->setColor(SK_ColorBLUE);
 }
 
-class TextEffectsGM : public skiagm::GM {
-public:
-    TextEffectsGM() {}
-
-protected:
-    SkString onShortName() override {
-        return SkString("texteffects");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(460, 680);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(texteffects, canvas, 460, 680) {
         canvas->save();
 
         SkPaint     paint;
@@ -208,13 +195,4 @@ protected:
         }
 
         canvas->restore();
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-static skiagm::GM* MyFactory(void*) { return new TextEffectsGM; }
-static skiagm::GMRegistry reg(MyFactory);
+}

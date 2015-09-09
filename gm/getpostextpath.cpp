@@ -12,27 +12,14 @@
 #include "SkRandom.h"
 #include "SkTemplates.h"
 
-class GetPosTextPathGM : public skiagm::GM {
-public:
-    GetPosTextPathGM() {}
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("getpostextpath");
-    }
-
-    SkISize onISize() override { return SkISize::Make(480, 780); }
-
-    static void strokePath(SkCanvas* canvas, const SkPath& path) {
+static void strokePath(SkCanvas* canvas, const SkPath& path) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(SK_ColorRED);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawPath(path, paint);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+}
+DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
         // explicitly add spaces, to test a prev. bug
         const char* text = "Ham bur ge fons";
         int len = SkToInt(strlen(text));
@@ -67,10 +54,4 @@ protected:
         canvas->drawPosText(text, len, &pos[0], paint);
         paint.getPosTextPath(text, len, &pos[0], &path);
         strokePath(canvas, path);
-    }
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-static skiagm::GM* F(void*) { return new GetPosTextPathGM; }
-static skiagm::GMRegistry gR(F);
+}
