@@ -40,7 +40,6 @@ void application_init() {
 
 void application_term() {
     SkEvent::Term();
-    SkGraphics::Term();
 }
 
 SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd, JsContext* context)

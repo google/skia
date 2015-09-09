@@ -794,7 +794,6 @@ int tool_main(int argc, char** argv) {
         SkDebugf("opt %d: %d\n", opt, gOptTable[opt].fNumTimesApplied);
     }
 
-    SkGraphics::Term();
     return 0;
 }
 
