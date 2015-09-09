@@ -619,10 +619,6 @@ void SkPathStroker::conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar wei
     SkPoint reduction;
     ReductionType reductionType = CheckConicLinear(conic, &reduction);
     if (kPoint_ReductionType == reductionType) {
-        /* If the stroke consists of a moveTo followed by a degenerate curve, treat it
-            as if it were followed by a zero-length line. Lines without length
-            can have square and round end caps. */
-        this->lineTo(pt2);
         return;
     }
     if (kLine_ReductionType == reductionType) {
@@ -657,10 +653,6 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
     SkPoint reduction;
     ReductionType reductionType = CheckQuadLinear(quad, &reduction);
     if (kPoint_ReductionType == reductionType) {
-        /* If the stroke consists of a moveTo followed by a degenerate curve, treat it
-            as if it were followed by a zero-length line. Lines without length
-            can have square and round end caps. */
-        this->lineTo(pt2);
         return;
     }
     if (kLine_ReductionType == reductionType) {
@@ -1176,10 +1168,6 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
     const SkPoint* tangentPt;
     ReductionType reductionType = CheckCubicLinear(cubic, reduction, &tangentPt);
     if (kPoint_ReductionType == reductionType) {
-        /* If the stroke consists of a moveTo followed by a degenerate curve, treat it
-            as if it were followed by a zero-length line. Lines without length
-            can have square and round end caps. */
-        this->lineTo(pt3);
         return;
     }
     if (kLine_ReductionType == reductionType) {

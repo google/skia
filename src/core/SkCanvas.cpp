@@ -2124,8 +2124,8 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     if (r.width() <= 0 && r.height() <= 0) {
         if (path.isInverseFillType()) {
             this->internalDrawPaint(paint);
-            return;
         }
+        return;
     }
 
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, bounds)
