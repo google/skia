@@ -49,7 +49,7 @@ SkColorTable::~SkColorTable() {
 
 const uint16_t* SkColorTable::read16BitCache() const {
     return f16BitCache.get([&]{
-        uint16_t* cache = (uint16_t*)sk_malloc_throw(fCount * sizeof(uint16_t));
+        auto cache = new uint16_t[fCount];
         for (int i = 0; i < fCount; i++) {
             cache[i] = SkPixel32ToPixel16_ToU16(fColors[i]);
         }

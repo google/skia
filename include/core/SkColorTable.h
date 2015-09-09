@@ -61,11 +61,9 @@ private:
     // assumes ownership of colors (assumes it was allocated w/ malloc)
     SkColorTable(SkPMColor* colors, int count, AllocatedWithMalloc);
 
-    struct Free16BitCache { void operator()(uint16_t* cache) const { sk_free(cache); } };
-
-    SkPMColor*                          fColors;
-    SkOncePtr<uint16_t, Free16BitCache> f16BitCache;
-    int                                 fCount;
+    SkPMColor*            fColors;
+    SkOncePtr<uint16_t[]> f16BitCache;
+    int                   fCount;
 
     void init(const SkPMColor* colors, int count);
 

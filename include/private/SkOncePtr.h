@@ -40,6 +40,10 @@ private:
     SkBaseOncePtr<T> fOnce;
 };
 
+// If you ask for SkOncePtr<T[]>, we'll clean up with delete[] by default.
+template <typename T>
+class SkOncePtr<T[]> : public SkOncePtr<T, skstd::default_delete<T[]>> {};
+
 /* TODO(mtklein): in next CL
 typedef SkBaseOncePtr<void> SkOnceFlag;
 #define SK_DECLARE_STATIC_ONCE(name) namespace {} static SkOnceFlag name
