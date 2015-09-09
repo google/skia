@@ -9,22 +9,23 @@
 #define SkOncePtr_DEFINED
 
 #include "SkAtomics.h"
+#include "SkUniquePtr.h"
 
-template <typename T> class SkStaticOnce;
+template <typename T> class SkBaseOncePtr;
 
 // Use this to create a global static pointer that's intialized exactly once when you call get().
-#define SK_DECLARE_STATIC_ONCE_PTR(type, name) namespace {} static SkStaticOnce<type> name
+#define SK_DECLARE_STATIC_ONCE_PTR(type, name) namespace {} static SkBaseOncePtr<type> name
 
 // Use this for a local or member pointer that's initialized exactly once when you call get().
-template <typename T>
+template <typename T, typename Delete = skstd::default_delete<T>>
 class SkOncePtr : SkNoncopyable {
 public:
     SkOncePtr() { sk_bzero(this, sizeof(*this)); }
-
-    // SkOncePtr does not have a destructor and does not clean up the pointer.  But you may, e.g.
-    //   delete (T*)fOncePtr;
-    //   SkSafeUnref((T*)fOncePtr);
-    // etc.
+    ~SkOncePtr() {
+        if (T* ptr = (T*)*this) {
+            Delete()(ptr);
+        }
+    }
 
     template <typename F>
     T* get(const F& f) const {
@@ -36,11 +37,11 @@ public:
     }
 
 private:
-    SkStaticOnce<T> fOnce;
+    SkBaseOncePtr<T> fOnce;
 };
 
 /* TODO(mtklein): in next CL
-typedef SkStaticOnce<void> SkOnceFlag;
+typedef SkBaseOncePtr<void> SkOnceFlag;
 #define SK_DECLARE_STATIC_ONCE(name) namespace {} static SkOnceFlag name
 
 template <typename F>
@@ -52,7 +53,7 @@ inline void SkOnce(SkOnceFlag* once, const F& f) {
 // Implementation details below here!  No peeking!
 
 template <typename T>
-class SkStaticOnce {
+class SkBaseOncePtr {
 public:
     template <typename F>
     T* get(const F& f) const {

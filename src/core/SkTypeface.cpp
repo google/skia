@@ -9,9 +9,9 @@
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
-#include "SkLazyPtr.h"
 #include "SkMutex.h"
 #include "SkOTTable_OS_2.h"
+#include "SkOncePtr.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -73,33 +73,22 @@ protected:
     }
 };
 
-namespace {
-
 SK_DECLARE_STATIC_MUTEX(gCreateDefaultMutex);
-
-// As a template arguments, these must have external linkage.
-SkTypeface* sk_create_default_typeface(int style) {
-    // It is not safe to call FontConfigTypeface::LegacyCreateTypeface concurrently.
-    // To be safe, we serialize here with a mutex so only one call to
-    // CreateTypeface is happening at any given time.
-    // TODO(bungeman, mtklein): This is sad.  Make our fontconfig code safe?
-    SkAutoMutexAcquire lock(&gCreateDefaultMutex);
-
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
-    SkTypeface* t = fm->legacyCreateTypeface(nullptr, style);
-    return t ? t : SkEmptyTypeface::Create();
-}
-
-void sk_unref_typeface(SkTypeface* ptr) { SkSafeUnref(ptr); }
-
-}  // namespace
-
-SK_DECLARE_STATIC_LAZY_PTR_ARRAY(SkTypeface, defaults, 4,
-                                 sk_create_default_typeface, sk_unref_typeface);
+SK_DECLARE_STATIC_ONCE_PTR(SkTypeface, defaults[4]);
 
 SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
     SkASSERT((int)style < 4);
-    return defaults[style];
+    return defaults[style].get([=]{
+        // It is not safe to call FontConfigTypeface::LegacyCreateTypeface concurrently.
+        // To be safe, we serialize here with a mutex so only one call to
+        // CreateTypeface is happening at any given time.
+        // TODO(bungeman, mtklein): This is sad.  Make our fontconfig code safe?
+        SkAutoMutexAcquire lock(&gCreateDefaultMutex);
+
+        SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+        SkTypeface* t = fm->legacyCreateTypeface(nullptr, style);
+        return t ? t : SkEmptyTypeface::Create();
+    });
 }
 
 SkTypeface* SkTypeface::RefDefault(Style style) {
@@ -325,22 +314,14 @@ bool SkTypeface::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
 #include "SkDescriptor.h"
 #include "SkPaint.h"
 
-struct SkTypeface::BoundsComputer {
-    const SkTypeface& fTypeface;
-
-    BoundsComputer(const SkTypeface& tf) : fTypeface(tf) {}
-
-    SkRect* operator()() const {
+SkRect SkTypeface::getBounds() const {
+    return *fLazyBounds.get([&] {
         SkRect* rect = new SkRect;
-        if (!fTypeface.onComputeBounds(rect)) {
+        if (!this->onComputeBounds(rect)) {
             rect->setEmpty();
         }
         return rect;
-    }
-};
-
-SkRect SkTypeface::getBounds() const {
-    return *fLazyBounds.get(BoundsComputer(*this));
+    });
 }
 
 bool SkTypeface::onComputeBounds(SkRect* bounds) const {
