@@ -67,5 +67,6 @@ int main(int argc, char *argv[]) {
 
     w.show();
     int result = a.exec();
+    SkGraphics::Term();
     return result;
 }

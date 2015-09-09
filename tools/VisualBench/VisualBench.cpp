@@ -114,6 +114,7 @@ void application_init() {
 
 void application_term() {
     SkEvent::Term();
+    SkGraphics::Term();
 }
 
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {

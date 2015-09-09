@@ -1,10 +1,3 @@
-/*
- * Copyright 2015 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
-
 #include "SkApplication.h"
 #import "SkCanvas.h"
 #import "SkPaint.h"
@@ -33,7 +26,7 @@ protected:
         canvas->drawRect(r, p);
     }
 private:
-    typedef SkView INHERITED;
+    typedef SkView INHERITED; 
 };
 
 void application_init() {
@@ -42,6 +35,7 @@ void application_init() {
 }
 
 void application_term() {
+    SkGraphics::Term();
     SkEvent::Term();
 }
 

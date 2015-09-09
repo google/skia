@@ -223,7 +223,7 @@ public:
     */
     static void Init();
     /** Global cleanup function for the SkEvent system. Should be called exactly once after
-        all event methods have been called.
+        all event methods have been called, and should be called before calling SkGraphics::Term().
     */
     static void Term();
 

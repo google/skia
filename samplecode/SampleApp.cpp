@@ -2397,4 +2397,5 @@ void application_init() {
 
 void application_term() {
     SkEvent::Term();
+    SkGraphics::Term();
 }

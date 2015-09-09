@@ -1102,6 +1102,7 @@ int tool_main(int argc, char** argv) {
             test->run();
         }
     }
+    SkGraphics::Term();
     return 0;
 }
 

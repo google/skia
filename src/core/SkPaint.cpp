@@ -1525,6 +1525,18 @@ static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma
     return *gMaskGamma;
 }
 
+/*static*/ void SkPaint::Term() {
+    SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
+
+    SkSafeUnref(gLinearMaskGamma);
+    gLinearMaskGamma = nullptr;
+    SkSafeUnref(gMaskGamma);
+    gMaskGamma = nullptr;
+    SkDEBUGCODE(gContrast = SK_ScalarMin;)
+    SkDEBUGCODE(gPaintGamma = SK_ScalarMin;)
+    SkDEBUGCODE(gDeviceGamma = SK_ScalarMin;)
+}
+
 /**
  *  We ensure that the rec is self-consistent and efficient (where possible)
  */

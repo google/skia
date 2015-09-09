@@ -289,7 +289,7 @@ public:
     SkFilterQuality getFilterQuality() const {
         return (SkFilterQuality)fBitfields.fFilterQuality;
     }
-
+    
     /**
      *  Set the filter quality. This affects the quality (and performance) of
      *  drawing scaled images.
@@ -1046,6 +1046,8 @@ private:
      */
     SkColor computeLuminanceColor() const;
 
+    static void Term();
+
     enum {
         /*  This is the size we use when we ask for a glyph's path. We then
          *  post-transform it as we draw to match the request.
@@ -1088,6 +1090,7 @@ private:
     friend class SkAutoGlyphCacheNoGamma;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkGraphics; // So Term() can be called.
     friend class SkPDFDevice;
     friend class GrBitmapTextContext;
     friend class GrAtlasTextContext;
